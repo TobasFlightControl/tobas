@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
-import rospy
 from typing import List, Tuple, Union
 from urdf_parser_py.urdf import Link, Joint, Pose, Inertia, Inertial
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtCore import QObject
 
 from tobas_std_tools_py.sequence import is_unique
 from tobas_rqt_tools.messages import q_error
@@ -23,21 +22,17 @@ class URDFParser(QObject):
 
         self._tree = Tree()
 
-        self._main.signals.urdf_loaded.connect(self._on_urdf_loaded)
-
-    @pyqtSlot()
-    def _on_urdf_loaded(self) -> None:
+    def load_from_param(self) -> bool:
         try:
             self._tree.load_from_param()
         except Exception as e:
             q_error(self._main, f"Failed to load robot: {e}")
-            return
+            return False
 
         if not self._is_valid_robot():
-            return
+            return False
 
-        rospy.loginfo("Robot model is loaded successfully.")
-        self._main.signals.robot_model_updated.emit()
+        return True
 
     def get_links(self) -> List[Link]:
         return self._tree.get_links()

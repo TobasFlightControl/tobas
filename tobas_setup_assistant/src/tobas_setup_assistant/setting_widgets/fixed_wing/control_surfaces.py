@@ -70,6 +70,10 @@ class ControlSurfacesWidget(QWidget):
         self.selected = SelectedLinksWidget(main, self._signals)
         rows.addWidget(self.selected)
 
+    def update_internal_data_structures(self) -> None:
+        self.available_links.update_internal_data_structures()
+        self.selected.update_internal_data_structures()
+
     def is_valid(self) -> bool:
         if not self.selected.is_valid():
             return False
@@ -99,32 +103,11 @@ class AvailableLinksWidget(QListWidget):
         self._main = main
         self._signals = signals
 
-        self._main.signals.robot_model_updated.connect(self._add_available_links)
-
         # 必ずAdd -> Deleteの順に実行する
         signals.delete_button_clicked.connect(self._add_selected_link)
         signals.selected_link_added.connect(self._delete_selected_link)
 
-    def add_link(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
-        assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
-        self.addItem(link_name)
-
-    def delete_link(self, link_name: str) -> None:
-        links = self.findItems(link_name, Qt.MatchExactly)
-        assert len(links) > 0
-        for link in links:  # link: PyQt5.QtWidgets.QListWidgetItem
-            mathced_link = self.row(link)  # linkの行番号をint型で取得
-            self.takeItem(mathced_link)
-
-    def selected_link(self) -> Union[str, None]:
-        try:
-            return self.currentItem().text()
-        except:
-            return None
-
-    @pyqtSlot()
-    def _add_available_links(self) -> None:
+    def update_internal_data_structures(self) -> None:
         """
         以下の条件を満たすリンクの名前の配列を返す．
         - 回転関節 (Revolute) をもつ．
@@ -133,6 +116,8 @@ class AvailableLinksWidget(QListWidget):
         - エンドリンクである．
         - 親リンクがルートリンクに固定されている．
         """
+        self.clear()
+
         root_link = self._main.urdf_parser.get_root()
         links = self._main.urdf_parser.get_links()
 
@@ -170,6 +155,24 @@ class AvailableLinksWidget(QListWidget):
             self.add_link(link.name)
 
         self.sortItems()
+
+    def add_link(self, link_name: str) -> None:
+        assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
+        assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
+        self.addItem(link_name)
+
+    def delete_link(self, link_name: str) -> None:
+        links = self.findItems(link_name, Qt.MatchExactly)
+        assert len(links) > 0
+        for link in links:  # link: PyQt5.QtWidgets.QListWidgetItem
+            mathced_link = self.row(link)  # linkの行番号をint型で取得
+            self.takeItem(mathced_link)
+
+    def selected_link(self) -> Union[str, None]:
+        try:
+            return self.currentItem().text()
+        except:
+            return None
 
     @pyqtSlot()
     def _add_selected_link(self) -> None:
@@ -243,6 +246,9 @@ class SelectedLinksWidget(TableWidget):
         # 必ずAdd -> Deleteの順に実行する
         signals.add_button_clicked.connect(self._add_selected_link)
         signals.available_link_added.connect(self._delete_cur_row)
+
+    def update_internal_data_structures(self) -> None:
+        self.clear()
 
     def is_valid(self) -> bool:
         return True

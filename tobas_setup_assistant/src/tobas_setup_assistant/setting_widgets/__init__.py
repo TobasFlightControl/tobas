@@ -1,3 +1,4 @@
+from .base_setting import BaseSettingWidget
 from .start import StartWidget
 from .battery import BatteryWidget
 from .propulsion_system import PropulsionSystemWidget

@@ -9,12 +9,12 @@ import rospy
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout
 
-from tobas_std_tools_py.path import get_basename_without_extension
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION, CONFIG_PKG_SUFFIX
+from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION
 from tobas_tools_py.drone import Drone, DroneLoader_File
+from tobas_tools_py.package import get_tbs_meta_name, get_tbs_config_name, get_tbsdrn_path
 
 from .common import TITLE, PKG_NAME, CATKIN_WS_TOBAS, SOURCE_CMD
 from .utils.ssh_client import SSHClientWrapper
@@ -63,8 +63,7 @@ class PackageManagerWidget(Widget):
     def _load_drone(self, pkg_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
-        config_pkg_name = get_basename_without_extension(pkg_path) + CONFIG_PKG_SUFFIX
-        tbsf_path = osp.join(pkg_path, config_pkg_name, "config", "drone.tbsdrn")
+        tbsf_path = get_tbsdrn_path(pkg_path)
         if not osp.isfile(tbsf_path):
             q_error(self._main, f"{tbsf_path} does not exist.")
             return False
@@ -153,7 +152,7 @@ class PackageManagerWidget(Widget):
         # NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する．
         # TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
         progress.setLabelText("Building Tobas configuration package.")
-        meta_pkg_name = self._main.meta_pkg_name()
+        meta_pkg_name = get_tbs_meta_name(self._pkg_path.text())
         command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {meta_pkg_name}"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:  # ビルドできなければcatkin cleanして再試行
@@ -170,7 +169,7 @@ class PackageManagerWidget(Widget):
         progress.setLabelText("Setting environment variables.")
         try:
             self._ssh_client.sftp_write_super(
-                "/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={self._main.config_pkg_name()}\n"
+                "/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={get_tbs_config_name(self._main.pkg_path())}\n"
             )
         except Exception as e:
             progress.close()

@@ -15,7 +15,7 @@ from PyQt5.QtGui import QFont
 from tobas_rqt_tools.path import get_catkin_ws_paths, is_in_catkin_src
 from tobas_rqt_tools.utils import place_center
 from tobas_rqt_tools.messages import q_error_named, yes_or_no, QMessageLevel
-from tobas_tools_py.constants import PKG_EXTENSION, CONFIG_PKG_SUFFIX, USER_PKG_SUFFIX
+from tobas_tools_py.constants import PKG_EXTENSION
 
 from ..common import BODY_PSIZE
 from ..parameter_getters import ParamGetterWidget_DirDialog, ParamGetterWidget_LineEdit
@@ -69,7 +69,16 @@ class RosPackageWidget(BaseSettingWidget):
 
         self._rows.addStretch()
 
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
+    @override
+    def update_internal_data_structures(self) -> None:
+        # デフォルトのsrcディレクトリを設定
+        ws_path = self._last_accessed_ws_path()
+        src_path = osp.join(ws_path, "src")
+        self._pardir.set(src_path)
+
+        # デフォルトのパッケージ名を設定
+        pkg_name = f"tobas_{get_drone_name()}"
+        self._pkg_name.set(pkg_name)
 
     @override
     def is_valid(self) -> bool:
@@ -96,26 +105,8 @@ class RosPackageWidget(BaseSettingWidget):
     def pkg_name(self) -> str:
         return self._pkg_name.get()
 
-    def meta_pkg_name(self) -> str:
-        return self.pkg_name()
-
-    def config_pkg_name(self) -> str:
-        return self.pkg_name() + CONFIG_PKG_SUFFIX
-
-    def user_pkg_name(self) -> str:
-        return self.pkg_name() + USER_PKG_SUFFIX
-
     def pkg_path(self) -> str:
         return self._pkg_path.text()
-
-    def meta_pkg_path(self) -> str:
-        return osp.join(self.pkg_path(), self.meta_pkg_name())
-
-    def config_pkg_path(self) -> str:
-        return osp.join(self.pkg_path(), self.config_pkg_name())
-
-    def user_pkg_path(self) -> str:
-        return osp.join(self.pkg_path(), self.user_pkg_name())
 
     @pyqtSlot()
     def _on_path_changed(self) -> None:
@@ -127,17 +118,6 @@ class RosPackageWidget(BaseSettingWidget):
         self._pkg_path.setText(path)
 
         self._generate_button.setEnabled(pardir != "" and pkg_name != "")
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        # デフォルトのsrcディレクトリを設定
-        ws_path = self._last_accessed_ws_path()
-        src_path = osp.join(ws_path, "src")
-        self._pardir.set(src_path)
-
-        # デフォルトのパッケージ名を設定
-        pkg_name = f"tobas_{get_drone_name()}"
-        self._pkg_name.set(pkg_name)
 
     def _last_accessed_ws_path(self) -> str:
         catkin_ws_paths = get_catkin_ws_paths()

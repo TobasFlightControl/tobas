@@ -90,6 +90,10 @@ class LidarWidget(OptionalDeviceWidget):
         self._rows.addStretch()
 
     @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
     def is_valid(self) -> bool:
         if not self.equipped():
             return True

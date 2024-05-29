@@ -36,6 +36,10 @@ class AuthorInformationWidget(BaseSettingWidget):
         self._rows.addStretch()
 
     @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
     def is_valid(self) -> bool:
         author_name = self.name.get()
         if author_name == "":

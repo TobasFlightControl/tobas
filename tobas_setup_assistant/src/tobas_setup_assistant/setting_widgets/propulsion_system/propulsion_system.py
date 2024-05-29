@@ -44,6 +44,11 @@ class PropulsionSystemWidget(BaseSettingWidget):
         self._rows.addStretch()
 
     @override
+    def update_internal_data_structures(self) -> None:
+        self._available.update_internal_data_structures()
+        self.selected.update_internal_data_structures()
+
+    @override
     def is_valid(self) -> bool:
         if not self._available.is_valid():
             return False

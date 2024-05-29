@@ -24,6 +24,7 @@ from tobas_rqt_tools.path import resolve_uri
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.xml import prettify_and_save
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
+from tobas_tools_py.package import *
 from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, SpeedRollDeltaPitch
 
 from .common import PKG_NAME
@@ -43,11 +44,9 @@ class PackageGenerator(QObject):
 
         self._drone_name = ""
 
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
         self._main.signals.generate_button_clicked.connect(self._on_generate_button_clicked)
 
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def update_internal_data_structures(self) -> None:
         self._drone_name = get_drone_name()
 
     @pyqtSlot()
@@ -126,30 +125,32 @@ class PackageGenerator(QObject):
         return True
 
     def _generate_pkg(self) -> None:
+        tbs_path = self._main.ros_package.pkg_path()
+
         # Tobasパッケージを作成
-        os.makedirs(self._main.ros_package.pkg_path(), exist_ok=True)
+        os.makedirs(tbs_path, exist_ok=True)
 
         # テンプレート用アイテムを作成
         items = self._make_template_items()
 
         # メタパッケージを作り直す
-        meta_pkg_path = self._main.ros_package.meta_pkg_path()
+        meta_pkg_path = get_tbs_meta_path(tbs_path)
         if osp.exists(meta_pkg_path):
             subprocess.run(["rm", "-r", meta_pkg_path])
         self._generate_meta_pkg(items)
 
         # 設定パッケージを作り直す
-        config_pkg_path = self._main.ros_package.config_pkg_path()
+        config_pkg_path = get_tbs_config_path(tbs_path)
         if osp.exists(config_pkg_path):
             subprocess.run(["rm", "-r", config_pkg_path])
         self._generate_config_pkg(items)
 
         # ユーザパッケージが存在しなければ作成
-        if not osp.exists(self._main.ros_package.user_pkg_path()):
+        if not osp.exists(get_tbs_user_path(tbs_path)):
             self._generate_user_pkg(items)
 
     def _generate_meta_pkg(self, items: dict) -> None:
-        meta_pkg_path = self._main.ros_package.meta_pkg_path()
+        meta_pkg_path = get_tbs_meta_path(self._main.ros_package.pkg_path())
         os.mkdir(meta_pkg_path)
 
         self._meta_env.generate(items, "CMakeLists.txt.tpl", osp.join(meta_pkg_path, "CMakeLists.txt"))
@@ -158,7 +159,7 @@ class PackageGenerator(QObject):
         create_empty_file(osp.join(meta_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"))
 
     def _generate_config_pkg(self, items: dict) -> None:
-        config_pkg_path = self._main.ros_package.config_pkg_path()
+        config_pkg_path = get_tbs_config_path(self._main.ros_package.pkg_path())
         os.mkdir(config_pkg_path)
 
         # ディレクトリを作成
@@ -229,8 +230,8 @@ class PackageGenerator(QObject):
         self._generate_urdf(urdf_dir, mesh_dir)
 
     def _generate_user_pkg(self, items: dict) -> None:
-        user_pkg_name = self._main.ros_package.user_pkg_name()
-        user_pkg_path = self._main.ros_package.user_pkg_path()
+        user_pkg_name = get_tbs_user_name(self._main.ros_package.pkg_path())
+        user_pkg_path = get_tbs_user_path(self._main.ros_package.pkg_path())
         os.mkdir(user_pkg_path)
 
         # ディレクトリを作成
@@ -286,9 +287,9 @@ class PackageGenerator(QObject):
         template_items["author_email"] = self._main.author_information.email.get()
 
         # Ros Package
-        template_items["meta_pkg_name"] = self._main.ros_package.meta_pkg_name()
-        template_items["config_pkg_name"] = self._main.ros_package.config_pkg_name()
-        template_items["user_pkg_name"] = self._main.ros_package.user_pkg_name()
+        template_items["meta_pkg_name"] = get_tbs_meta_name(self._main.ros_package.pkg_path())
+        template_items["config_pkg_name"] = get_tbs_config_name(self._main.ros_package.pkg_path())
+        template_items["user_pkg_name"] = get_tbs_user_name(self._main.ros_package.pkg_path())
 
         # Joint Controllers
         joint_controllers = "joint_state_controller"
@@ -465,7 +466,7 @@ class PackageGenerator(QObject):
 
     def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
         robot = self._make_urdf_with_plugins(mesh_dir)
-        urdf_path = osp.join(urdf_dir, f"{self._drone_name}.xacro")
+        urdf_path = osp.join(urdf_dir, f"drone.xacro")
 
         # Save URDF
         # ET.ElementTree(robot).write(urdf_path)
@@ -484,7 +485,7 @@ class PackageGenerator(QObject):
 
     def _resolve_mesh_files(self, robot: ET.Element, mesh_dir: str) -> None:
         """全てのメッシュファイルのパスをパッケージ以下に変更する．"""
-        config_pkg_name = self._main.ros_package.config_pkg_name()
+        config_pkg_name = get_tbs_config_name(self._main.ros_package.pkg_path())
         for mesh in robot.iter("mesh"):
             abs_path = resolve_uri(mesh.attrib["filename"])
             base_name = osp.basename(abs_path)

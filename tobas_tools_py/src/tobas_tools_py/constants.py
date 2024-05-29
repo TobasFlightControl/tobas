@@ -19,8 +19,6 @@ RCIN_GPSW = 7  # CH8
 CONFIG_PATH = osp.expanduser(f"~/.config/tobas/config.ini")
 
 PKG_EXTENSION = ".TBS"
-CONFIG_PKG_SUFFIX = "_config"
-USER_PKG_SUFFIX = "_user"
 
 CONTROLLER_NODE_NAME = "controller"
 OBSERVER_NODE_NAME = "observer"

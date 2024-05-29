@@ -1,10 +1,11 @@
 <launch>
 
-  <arg name="description_file" default="$(env TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH)"/>
-  <param name="/robot_description" command="$(find xacro)/xacro '$(arg description_file)'"/>
+  <arg name="path"/>
+
+  <param name="/robot_description" command="$(find xacro)/xacro '$(arg path)'"/>
 
   <!-- Set a dummy description to prevent RDFLoader errors. -->
   <!-- rdf_loader.cpp: https://github.com/ros-planning/moveit/blob/c4815761ffa350371a0c4ad19d8593758cdd2178/moveit_ros/planning/rdf_loader/src/rdf_loader.cpp -->
-  <param name="/robot_description_semantic" command="$(find xacro)/xacro '$(arg description_file)'"/>
+  <param name="/robot_description_semantic" command="$(find xacro)/xacro '$(arg path)'"/>
 
 </launch>

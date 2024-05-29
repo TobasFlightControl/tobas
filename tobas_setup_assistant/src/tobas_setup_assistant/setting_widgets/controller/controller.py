@@ -58,6 +58,11 @@ class ControllerWidget(BaseSettingWidget):
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
 
     @override
+    def update_internal_data_structures(self) -> None:
+        for controller in self._controllers:
+            controller.update_internal_data_structures()
+
+    @override
     def is_valid(self) -> bool:
         if self._type.currentText() == self.NO_SELECT:
             q_error_named(self._main, self.NAME, "Please select controller type.")

@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout
 from joint_state_publisher import JointStatePublisher
 from joint_state_publisher_gui import JointStatePublisherGui
@@ -44,18 +43,15 @@ class RobotVisualizerWidget(Widget):
         self.setFixedHeight(self.HEIGHT)
         self.setVisible(False)
 
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
-
     @override
     def close(self) -> bool:
         self._terminate_backgrounds()
         return super().close()
 
-    def highlight_link(self, link_name: str) -> None:
-        return self._rviz.highlight_link(link_name)
+    def update_internal_data_structures(self) -> None:
+        self._frame_tree.update_internal_data_structures()
+        self._rviz.update_internal_data_structures()
 
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
         self._terminate_backgrounds()
 
         # Robot State Publisherを別プロセスで起動
@@ -77,6 +73,9 @@ class RobotVisualizerWidget(Widget):
         self._cols.addWidget(self._jsp_gui)
 
         self.setVisible(True)
+
+    def highlight_link(self, link_name: str) -> None:
+        return self._rviz.highlight_link(link_name)
 
     def _terminate_backgrounds(self) -> None:
         if self._jsp_gui is not None:

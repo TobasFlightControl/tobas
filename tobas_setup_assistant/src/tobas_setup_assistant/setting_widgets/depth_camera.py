@@ -5,7 +5,6 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import pyqtSlot
 
 from tobas_std_tools_py.enum import ExtEnum
 from tobas_rqt_tools.messages import q_error_named
@@ -90,7 +89,9 @@ class DepthCameraWidget(OptionalDeviceWidget):
 
         self._rows.addStretch()
 
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
+    @override
+    def update_internal_data_structures(self) -> None:
+        self.link.set_choices(self._main.urdf_parser.link_names_available_in_gazebo())
 
     @override
     def is_valid(self) -> bool:
@@ -102,7 +103,3 @@ class DepthCameraWidget(OptionalDeviceWidget):
             return False
 
         return True
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        self.link.set_choices(self._main.urdf_parser.link_names_available_in_gazebo())

@@ -252,7 +252,10 @@ class ArduCopter(BaseController):
         self._channels = ChannelsWidget(main)
         self._rows.addWidget(self._channels)
 
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
+    @override
+    def update_internal_data_structures(self) -> None:
+        cur_idx = self._frame.cur_index()
+        self._channels.update_num_channels(self._frames[cur_idx].num_props())
 
     @override
     def is_applicable(self) -> bool:
@@ -324,8 +327,3 @@ class ArduCopter(BaseController):
     @pyqtSlot(int)
     def _on_frame_idx_changed(self, idx: int) -> None:
         self._channels.update_num_channels(self._frames[idx].num_props())
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        cur_idx = self._frame.cur_index()
-        self._channels.update_num_channels(self._frames[cur_idx].num_props())

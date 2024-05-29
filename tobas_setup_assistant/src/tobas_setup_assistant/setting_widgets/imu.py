@@ -160,6 +160,10 @@ class ImuWidget(BaseSettingWidget):
         self._rows.addStretch()
 
     @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
     def is_valid(self) -> bool:
         return True
 

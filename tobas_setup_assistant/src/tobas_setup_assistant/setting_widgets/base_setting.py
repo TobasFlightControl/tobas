@@ -24,8 +24,6 @@ class BaseSettingWidget(ScrollArea):
         super().__init__()
         self._main = main
 
-        self.setEnabled(False)  # 基本的にモデルが読み込まれて初めてアクティブになる
-
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
@@ -38,11 +36,14 @@ class BaseSettingWidget(ScrollArea):
         abst.setFixedHeight(self.ABST_HEIGHT)
         self._rows.addWidget(abst)
 
-        self._main.signals.robot_model_updated.connect(lambda: self.setEnabled(True))
+    @abstractmethod
+    def update_internal_data_structures(self) -> None:
+        """URDFの変化に合わせて内部状態を更新する．"""
+        raise NotImplementedError()
 
     @abstractmethod
     def is_valid(self) -> bool:
-        """Returns true if user configuration is valid."""
+        """ユーザ設定に問題がない場合にTrueを返す．"""
         raise NotImplementedError()
 
 

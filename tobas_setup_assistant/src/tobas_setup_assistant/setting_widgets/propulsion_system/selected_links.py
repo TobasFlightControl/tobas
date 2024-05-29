@@ -8,6 +8,7 @@ import rospy
 import numpy as np
 from numpy import linalg as LA
 from typing import List
+from overrides import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from std_msgs.msg import ColorRGBA
@@ -47,8 +48,46 @@ class SelectedLinksWidget(TabWidget):
 
         signals.add_link.connect(self._add_link)
         signals.remove_link.connect(self._remove_link)
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
         self.tabCloseRequested.connect(self._on_tab_close_requested)
+
+    @override
+    def clear(self) -> None:
+        super().clear()
+        self._markers.markers.clear()
+
+    def update_internal_data_structures(self) -> None:
+        self.clear()
+
+        # 全ての可動リンクのマーカーを保持しておく
+        for i, link_name in enumerate(self._main.urdf_parser.link_names()):
+            if link_name == self._main.urdf_parser.get_root().name:
+                continue
+
+            # ジョイントを取得
+            joint = self._main.urdf_parser.get_joint(link_name)
+            if joint.axis is None:
+                continue
+
+            # 推力の作用線
+            arrow_start = np.zeros((3,))
+            arrow_end = np.array(joint.axis) / LA.norm(joint.axis) * self.ARROW_LENGTH
+            arrow_scale = np.array([0.1, 0.2, 0.3]) * self.ARROW_LENGTH
+
+            # マーカーを作成
+            marker = Marker()
+            marker.header.frame_id = link_name
+            marker.id = i
+            marker.type = Marker.ARROW
+            marker.action = Marker.DELETE  # デフォルトでは非表示
+            marker.points.append(Point(*arrow_start))
+            marker.points.append(Point(*arrow_end))
+            marker.scale = Vector3(*arrow_scale)
+            marker.color = ColorRGBA(1.0, 0.4, 0.7, 1.0)  # TODO: 回転方向によって色分け
+            marker.lifetime = rospy.Duration(0)  # 無限の生存期間
+            marker.frame_locked = True  # TFが変化してもフレームに固定
+
+            # マーカーを追加
+            self._markers.markers.append(marker)
 
     def is_valid(self) -> bool:
         num_rotors = self.count()
@@ -124,10 +163,6 @@ class SelectedLinksWidget(TabWidget):
                 marker.action = action
                 return
 
-    def _reset(self) -> None:
-        self.clear()
-        self._markers.markers.clear()
-
     @pyqtSlot(str)
     def _add_link(self, link_name: str) -> None:
         # タブを追加
@@ -150,41 +185,6 @@ class SelectedLinksWidget(TabWidget):
 
         # マーカーを発行
         self._markers_pub.publish(self._markers)
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        self._reset()
-
-        # 全ての可動リンクのマーカーを保持しておく
-        for i, link_name in enumerate(self._main.urdf_parser.link_names()):
-            if link_name == self._main.urdf_parser.get_root().name:
-                continue
-
-            # ジョイントを取得
-            joint = self._main.urdf_parser.get_joint(link_name)
-            if joint.axis is None:
-                continue
-
-            # 推力の作用線
-            arrow_start = np.zeros((3,))
-            arrow_end = np.array(joint.axis) / LA.norm(joint.axis) * self.ARROW_LENGTH
-            arrow_scale = np.array([0.1, 0.2, 0.3]) * self.ARROW_LENGTH
-
-            # マーカーを作成
-            marker = Marker()
-            marker.header.frame_id = link_name
-            marker.id = i
-            marker.type = Marker.ARROW
-            marker.action = Marker.DELETE  # デフォルトでは非表示
-            marker.points.append(Point(*arrow_start))
-            marker.points.append(Point(*arrow_end))
-            marker.scale = Vector3(*arrow_scale)
-            marker.color = ColorRGBA(1.0, 0.4, 0.7, 1.0)  # TODO: 回転方向によって色分け
-            marker.lifetime = rospy.Duration(0)  # 無限の生存期間
-            marker.frame_locked = True  # TFが変化してもフレームに固定
-
-            # マーカーを追加
-            self._markers.markers.append(marker)
 
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:

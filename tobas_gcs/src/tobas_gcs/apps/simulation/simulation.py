@@ -14,6 +14,7 @@ from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.drone import Drone
+from tobas_tools_py.package import get_tbs_meta_name, get_tbs_config_name, get_tbs_config_path, get_tbs_user_path
 
 from ...utils.ssh_client import SSHClientWrapper
 from ...utils.system import kill_gazebo
@@ -91,7 +92,7 @@ class SimulationWidget(BaseAppWidget):
         # Build Tobas packages
         progress.setLabelText("Building Tobas packages.")
         os.chdir(self._main.pkg_path())
-        if os.system(f"catkin build {self._main.meta_pkg_name()}") != 0:
+        if os.system(f"catkin build {get_tbs_meta_name(self._main.pkg_path())}") != 0:
             progress.close()
             q_error(self._main, "Failed to build Tobas package.")
             return
@@ -99,8 +100,9 @@ class SimulationWidget(BaseAppWidget):
 
         # Tobasパッケージのパスを追加
         progress.setLabelText("Adding Tobas package paths.")
+        tbs_path = self._main.pkg_path()
         os.environ["ROS_PACKAGE_PATH"] = (
-            self._main.config_pkg_path() + ":" + self._main.user_pkg_path() + ":" + os.environ["ROS_PACKAGE_PATH"]
+            get_tbs_config_path(tbs_path) + ":" + get_tbs_user_path(tbs_path) + ":" + os.environ["ROS_PACKAGE_PATH"]
         )
         progress.progress_step()
 
@@ -122,7 +124,7 @@ class SimulationWidget(BaseAppWidget):
         # Launch Gazebo
         # 一度ROSLaunchParent.shutdownを呼ぶと再開できないため，ランチャーを作り直す．
         progress.setLabelText("Launching Gazebo simulation.")
-        self._gazebo_process = launch(self._main.config_pkg_name(), "gazebo.launch")
+        self._gazebo_process = launch(get_tbs_config_name(self._main.pkg_name()), "gazebo.launch")
         progress.progress_step()
 
         # Gazeboノードの起動を待つ
@@ -146,7 +148,9 @@ class SimulationWidget(BaseAppWidget):
         # ラズパイ側でやると通信遅延が大きすぎるため，飛行制御はPC側で実行する．
         # FIXME: nodeletを有効化すると"Failed to load"エラーが出る
         progress.setLabelText("Launching Tobas flight controller.")
-        self._bringup_process = launch(self._main.config_pkg_name(), "bringup.launch", {"nodelet": "false"})
+        self._bringup_process = launch(
+            get_tbs_config_name(self._main.pkg_name()), "bringup.launch", {"nodelet": "false"}
+        )
         progress.progress_step()
 
         # Start tobas_hil.service

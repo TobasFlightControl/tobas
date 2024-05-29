@@ -35,13 +35,13 @@ class MaxRotationSpeedWidget(QWidget):
         description = Description("")  # TODO
         rows.addWidget(description)
 
-        self._ckb_broup = QButtonGroup()
-        self._ckb_broup.setExclusive(True)
+        ckb_group = QButtonGroup(parent=self)
+        ckb_group.setExclusive(True)
 
         self._methods: List[MaxRotationSpeedMethod] = [
-            MaxRotationSpeedMethod_Manual(main, link_name, self._ckb_broup),
-            MaxRotationSpeedMethod_Voltage(main, link_name, self._ckb_broup),
-            MaxRotationSpeedMethod_Current(main, link_name, self._ckb_broup),
+            MaxRotationSpeedMethod_Manual(main, link_name, ckb_group),
+            MaxRotationSpeedMethod_Voltage(main, link_name, ckb_group),
+            MaxRotationSpeedMethod_Current(main, link_name, ckb_group),
         ]
 
         for method in self._methods:

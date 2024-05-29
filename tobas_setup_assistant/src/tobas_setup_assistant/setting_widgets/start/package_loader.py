@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-import os
 import os.path as osp
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
@@ -14,13 +13,14 @@ from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION
+from tobas_tools_py.package import get_urdf_path
 
 from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 
 
-class RobotModelLoaderWidget(Widget):
-    KEY = "last_opened_dir/robot_model_loader"
+class PackageLoaderWidget(Widget):
+    KEY = "last_opened_dir/package_loader"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -31,18 +31,18 @@ class RobotModelLoaderWidget(Widget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        label = QLabel("Description Path")
+        label = QLabel("Tobas Configuration Package Path")
         label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignTop)
         rows.addWidget(label)
 
-        instruction = Description("Please set the path for the robot description and press the load button.")
+        instruction = Description("Please set the path for the Tobas configuration package and press the load button.")
         rows.addWidget(instruction)
 
         cols = QHBoxLayout()
         rows.addLayout(cols)
 
-        self._file_text = QLineEdit("")
+        self._file_text = QLineEdit()
         self._file_text.setReadOnly(True)
         self._file_text.setFocusPolicy(Qt.NoFocus)
         cols.addWidget(self._file_text)
@@ -51,39 +51,46 @@ class RobotModelLoaderWidget(Widget):
         self._load_button.clicked.connect(self._on_load_button_clicked)
         cols.addWidget(self._load_button)
 
+        rows.addStretch()
+
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
         self._config.read()  # 排他処理のためにこの関数内でRead & Write
         last_opened_dir = self._config.get(self.KEY, fallback=osp.expanduser("~"))
 
-        # URDFのパスを取得
+        # Tobasパッケージのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, last_opened_dir, "Robot Description (*.urdf *.xacro)", options=options
-        )
+        options |= QFileDialog.ShowDirsOnly
+        options |= QFileDialog.DontResolveSymlinks
+        pkg_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
+        assert not pkg_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-        if file_path == "":
+        if pkg_path == "":
+            return
+
+        # 拡張子をチェック
+        if not pkg_path.endswith(PKG_EXTENSION):
+            q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
             return
 
         # パスをテキストに設定
-        self._file_text.setText(file_path)
+        self._file_text.setText(pkg_path)
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config.set(self.KEY, osp.dirname(file_path))
+        self._config.set(self.KEY, osp.dirname(pkg_path))
         self._config.write()
 
         # robot_descriptionをrosparamに登録
-        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path
-        process = launch(PKG_NAME, "description.launch")
+        process = launch(PKG_NAME, "description.launch", {"path": get_urdf_path(pkg_path)})
         _, stderr = process.communicate()
         if process.returncode != 0:
             q_error(self._main, f"Failed to load robot description:\n\n{stderr.decode()}")
             return
 
-        self._main.signals.urdf_loaded.emit()
+        # TODO
 
-        q_info(self._main, "URDF is loaded successfully. Configure the settings for each tab.")
+        q_info("Tobas configuration package is loaded successfully.")

@@ -25,16 +25,8 @@ class FrameTreeWidget(QTreeWidget):
         self.itemClicked.connect(self._on_item_clicked)
         self.itemExpanded.connect(self._resize_columns)
         self.itemCollapsed.connect(self._resize_columns)
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
 
-    @pyqtSlot(QTreeWidgetItem, int)
-    def _on_item_clicked(self, item: QTreeWidgetItem, col: int) -> None:
-        assert col == 0
-        link_name = item.text(col)
-        self._main.robot_visualizer.highlight_link(link_name)
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def update_internal_data_structures(self) -> None:
         # ツリーを消去
         self.clear()
 
@@ -46,6 +38,12 @@ class FrameTreeWidget(QTreeWidget):
         self.insertTopLevelItem(0, root_item)
 
         self._resize_columns()
+
+    @pyqtSlot(QTreeWidgetItem, int)
+    def _on_item_clicked(self, item: QTreeWidgetItem, col: int) -> None:
+        assert col == 0
+        link_name = item.text(col)
+        self._main.robot_visualizer.highlight_link(link_name)
 
     @pyqtSlot()
     def _resize_columns(self) -> None:

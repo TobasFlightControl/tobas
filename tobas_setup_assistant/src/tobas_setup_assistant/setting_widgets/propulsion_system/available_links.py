@@ -28,13 +28,8 @@ class AvailableLinksWidget(QListWidget):
 
         signals.add_link.connect(self._remove_link)
         signals.remove_link.connect(self._add_link)
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
 
-    def is_valid(self) -> bool:
-        return True
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def update_internal_data_structures(self) -> None:
         """
         以下の条件を満たすリンクを推進系候補としてリストに追加する．
         - 回転関節 (continuous) をもつ．
@@ -64,6 +59,9 @@ class AvailableLinksWidget(QListWidget):
             self._add_link(link.name)
 
         self.sortItems()
+
+    def is_valid(self) -> bool:
+        return True
 
     @pyqtSlot(str)
     def _add_link(self, link_name: str) -> None:

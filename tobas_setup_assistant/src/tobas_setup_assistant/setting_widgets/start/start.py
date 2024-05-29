@@ -5,9 +5,11 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
+from PyQt5.QtWidgets import QButtonGroup, QCheckBox, QStackedWidget
 
 from ..base_setting import BaseSettingWidget
-from .robot_model_loader import RobotModelLoaderWidget
+from .urdf_loader import URDFLoaderWidget
+from .package_loader import PackageLoaderWidget
 
 
 class StartWidget(BaseSettingWidget):
@@ -24,12 +26,33 @@ class StartWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self.setEnabled(True)  # Startだけは初めからアクティブにしておく
+        ckb_group = QButtonGroup(parent=self)  # コンストラクタで解放されないように親ウィジェットを設定
+        stacked_widget = QStackedWidget()
 
-        self._robot_model_loader = RobotModelLoaderWidget(main)
-        self._rows.addWidget(self._robot_model_loader)
+        new_ckb = QCheckBox("Create new Tobas configuration package")
+        self._urdf_loader = URDFLoaderWidget(main)
+        ckb_group.addButton(new_ckb)
+        ckb_group.setId(new_ckb, 0)
+        stacked_widget.addWidget(self._urdf_loader)
 
-        self._rows.addStretch()
+        edit_ckb = QCheckBox("Edit existing Tobas configuration package")
+        self._pkg_loader = PackageLoaderWidget(main)
+        ckb_group.addButton(edit_ckb)
+        ckb_group.setId(edit_ckb, 1)
+        stacked_widget.addWidget(self._pkg_loader)
+
+        new_ckb.setChecked(True)  # デフォルト
+        ckb_group.setExclusive(True)  # 1つのみ有効
+        ckb_group.buttonClicked[int].connect(stacked_widget.setCurrentIndex)  # ボタンに合わせて表示する内容を変更
+
+        # レイアウト
+        self._rows.addWidget(new_ckb)
+        self._rows.addWidget(edit_ckb)
+        self._rows.addWidget(stacked_widget)
+
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
 
     @override
     def is_valid(self) -> bool:

@@ -66,7 +66,19 @@ class RvizWidget(Widget):
 
         self._visual_box.toggled.connect(self._on_visual_box_toggled)
         self._collision_box.toggled.connect(self._on_collision_box_toggled)
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
+
+    def update_internal_data_structures(self) -> None:
+        # 有効化
+        self._display.setBool(True)
+
+        # 固定フレームをルートリンクに設定
+        root_link = self._main.urdf_parser.get_root()
+        self._manager.setFixedFrame(root_link.name)
+
+        # ロボットモデルをリロード
+        reload = self._display.subProp("Reload")
+        reload.setBool(False)
+        reload.setBool(True)
 
     def highlight_link(self, link_name: str) -> None:
         if link_name == self._highlighted_link:
@@ -80,20 +92,6 @@ class RvizWidget(Widget):
 
     def unhighlight_link(self, link_name: str) -> None:
         self._display.subProp("Unhighlight Link").setValue(link_name)
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        # 有効化
-        self._display.setBool(True)
-
-        # 固定フレームをルートリンクに設定
-        root_link = self._main.urdf_parser.get_root()
-        self._manager.setFixedFrame(root_link.name)
-
-        # ロボットモデルをリロード
-        reload = self._display.subProp("Reload")
-        reload.setBool(False)
-        reload.setBool(True)
 
     @pyqtSlot(bool)
     def _on_visual_box_toggled(self, checked: bool) -> None:

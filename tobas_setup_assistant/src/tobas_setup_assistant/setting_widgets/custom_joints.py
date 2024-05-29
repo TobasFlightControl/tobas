@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 
 from overrides import override
 from typing import List
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QLabel
 
 from tobas_rqt_tools.widgets import DoubleSpinBox, ComboBox, TableWidget
@@ -57,7 +56,95 @@ class CustomJointsWidget(BaseSettingWidget):
 
         self._rows.addStretch()
 
-        self._main.signals.robot_model_updated.connect(self._on_robot_model_updated)
+    @override
+    def update_internal_data_structures(self) -> None:
+        self._table.remove_all()
+        row = 0
+
+        for joint in self._main.urdf_parser.get_joints():
+            # ジョイントタイプが回転または直動でない場合はスキップ
+            if joint.type not in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
+                continue
+
+            # トランスミッションを持たない場合はスキップ
+            hi = self._main.urdf_parser.hardware_interface(joint.name)
+            if hi is None:
+                continue
+
+            self._table.insertRow(row)
+
+            jnt_name = QLabel(joint.name)
+
+            home_pos = DoubleSpinBox()
+            min_pos = DoubleSpinBox()
+            max_pos = DoubleSpinBox()
+
+            home_pos.setDecimals(self.POS_DECIMALS)
+            min_pos.setDecimals(self.POS_DECIMALS)
+            max_pos.setDecimals(self.POS_DECIMALS)
+
+            home_pos.setValue(0.0)
+            if joint.limit is not None:
+                home_pos.setMinimum(joint.limit.lower)
+                home_pos.setMaximum(joint.limit.upper)
+                min_pos.setMinimum(joint.limit.lower)
+                min_pos.setMaximum(joint.limit.upper)
+                min_pos.setValue(joint.limit.lower)
+                max_pos.setMinimum(joint.limit.lower)
+                max_pos.setMaximum(joint.limit.upper)
+                max_pos.setValue(joint.limit.upper)
+
+            if joint.type == JointType.REVOLUTE or joint.type == JointType.CONTINUOUS:
+                home_pos.setSuffix(" rad")
+                min_pos.setSuffix(" rad")
+                max_pos.setSuffix(" rad")
+            elif joint.type == JointType.PRISMATIC:
+                home_pos.setSuffix(" m")
+                min_pos.setSuffix(" m")
+                max_pos.setSuffix(" m")
+            else:
+                raise RuntimeError(f"Joint type '{joint.type}' is unexpected.")
+
+            cmd_type = ComboBox()
+            p_gain = DoubleSpinBox()
+            i_gain = DoubleSpinBox()
+            d_gain = DoubleSpinBox()
+
+            p_gain.setDecimals(self.GAIN_DECIMALS)
+            i_gain.setDecimals(self.GAIN_DECIMALS)
+            d_gain.setDecimals(self.GAIN_DECIMALS)
+
+            p_gain.setValue(self.DEFAULT_P_GAIN)
+            i_gain.setValue(self.DEFAULT_I_GAIN)
+            d_gain.setValue(self.DEFAULT_D_GAIN)
+
+            if hi == HardwareInterface.POSITION:
+                cmd_type.addItem(self.POSITION)
+                p_gain.setEnabled(False)
+                i_gain.setEnabled(False)
+                d_gain.setEnabled(False)
+            elif hi == HardwareInterface.VELOCITY:
+                cmd_type.addItem(self.POSITION)
+                cmd_type.addItem(self.VELOCITY)
+                cmd_type.setCurrentText(self.VELOCITY)
+            elif hi == HardwareInterface.EFFORT:
+                cmd_type.addItem(self.POSITION)
+                cmd_type.addItem(self.VELOCITY)
+                cmd_type.addItem(self.EFFORT)
+                cmd_type.setCurrentText(self.EFFORT)
+            else:
+                raise RuntimeError(f"Unknown hardware interface: {hi.value}")
+
+            self._table.setCellWidget(row, 0, jnt_name)
+            self._table.setCellWidget(row, 1, home_pos)
+            self._table.setCellWidget(row, 2, min_pos)
+            self._table.setCellWidget(row, 3, max_pos)
+            self._table.setCellWidget(row, 4, cmd_type)
+            self._table.setCellWidget(row, 5, p_gain)
+            self._table.setCellWidget(row, 6, i_gain)
+            self._table.setCellWidget(row, 7, d_gain)
+
+            row += 1
 
     @override
     def is_valid(self) -> bool:
@@ -149,93 +236,3 @@ class CustomJointsWidget(BaseSettingWidget):
             raise RuntimeError()
 
         return f"{group}/{controller}"
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        self._table.remove_all()
-        row = 0
-
-        for joint in self._main.urdf_parser.get_joints():
-            # ジョイントタイプが回転または直動でない場合はスキップ
-            if joint.type not in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
-                continue
-
-            # トランスミッションを持たない場合はスキップ
-            hi = self._main.urdf_parser.hardware_interface(joint.name)
-            if hi is None:
-                continue
-
-            self._table.insertRow(row)
-
-            jnt_name = QLabel(joint.name)
-
-            home_pos = DoubleSpinBox()
-            min_pos = DoubleSpinBox()
-            max_pos = DoubleSpinBox()
-
-            home_pos.setDecimals(self.POS_DECIMALS)
-            min_pos.setDecimals(self.POS_DECIMALS)
-            max_pos.setDecimals(self.POS_DECIMALS)
-
-            home_pos.setValue(0.0)
-            if joint.limit is not None:
-                home_pos.setMinimum(joint.limit.lower)
-                home_pos.setMaximum(joint.limit.upper)
-                min_pos.setMinimum(joint.limit.lower)
-                min_pos.setMaximum(joint.limit.upper)
-                min_pos.setValue(joint.limit.lower)
-                max_pos.setMinimum(joint.limit.lower)
-                max_pos.setMaximum(joint.limit.upper)
-                max_pos.setValue(joint.limit.upper)
-
-            if joint.type == JointType.REVOLUTE or joint.type == JointType.CONTINUOUS:
-                home_pos.setSuffix(" rad")
-                min_pos.setSuffix(" rad")
-                max_pos.setSuffix(" rad")
-            elif joint.type == JointType.PRISMATIC:
-                home_pos.setSuffix(" m")
-                min_pos.setSuffix(" m")
-                max_pos.setSuffix(" m")
-            else:
-                raise RuntimeError(f"Joint type '{joint.type}' is unexpected.")
-
-            cmd_type = ComboBox()
-            p_gain = DoubleSpinBox()
-            i_gain = DoubleSpinBox()
-            d_gain = DoubleSpinBox()
-
-            p_gain.setDecimals(self.GAIN_DECIMALS)
-            i_gain.setDecimals(self.GAIN_DECIMALS)
-            d_gain.setDecimals(self.GAIN_DECIMALS)
-
-            p_gain.setValue(self.DEFAULT_P_GAIN)
-            i_gain.setValue(self.DEFAULT_I_GAIN)
-            d_gain.setValue(self.DEFAULT_D_GAIN)
-
-            if hi == HardwareInterface.POSITION:
-                cmd_type.addItem(self.POSITION)
-                p_gain.setEnabled(False)
-                i_gain.setEnabled(False)
-                d_gain.setEnabled(False)
-            elif hi == HardwareInterface.VELOCITY:
-                cmd_type.addItem(self.POSITION)
-                cmd_type.addItem(self.VELOCITY)
-                cmd_type.setCurrentText(self.VELOCITY)
-            elif hi == HardwareInterface.EFFORT:
-                cmd_type.addItem(self.POSITION)
-                cmd_type.addItem(self.VELOCITY)
-                cmd_type.addItem(self.EFFORT)
-                cmd_type.setCurrentText(self.EFFORT)
-            else:
-                raise RuntimeError(f"Unknown hardware interface: {hi.value}")
-
-            self._table.setCellWidget(row, 0, jnt_name)
-            self._table.setCellWidget(row, 1, home_pos)
-            self._table.setCellWidget(row, 2, min_pos)
-            self._table.setCellWidget(row, 3, max_pos)
-            self._table.setCellWidget(row, 4, cmd_type)
-            self._table.setCellWidget(row, 5, p_gain)
-            self._table.setCellWidget(row, 6, i_gain)
-            self._table.setCellWidget(row, 7, d_gain)
-
-            row += 1

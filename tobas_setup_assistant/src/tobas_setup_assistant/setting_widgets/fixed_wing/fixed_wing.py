@@ -48,6 +48,10 @@ class FixedWingWidget(BaseSettingWidget):
         self._update_enability()
 
     @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
     def is_valid(self) -> bool:
         if not self.has_fixed_wing.isChecked():
             return True

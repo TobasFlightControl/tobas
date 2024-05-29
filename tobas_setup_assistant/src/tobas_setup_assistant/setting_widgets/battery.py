@@ -41,6 +41,10 @@ class BatteryWidget(BaseSettingWidget):
         # NOTE: QStackedWidgetは各子ウィジェットのサイズを合わせるため，ストレッチを各子ウィジェットで設定しないとレイアウトが崩れる．
 
     @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
     def is_valid(self) -> bool:
         if not self._selected().is_valid():
             return False

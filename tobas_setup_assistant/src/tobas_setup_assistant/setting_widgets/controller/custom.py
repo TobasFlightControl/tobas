@@ -23,6 +23,10 @@ class CustomController(BaseController):
         super().__init__(main, abst_text)
 
     @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
     def is_applicable(self) -> bool:
         return True
 

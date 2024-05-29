@@ -30,8 +30,8 @@ class SetupAssistant(Widget):
         rows.addWidget(self.robot_visualizer)
 
         # 設定項目
-        settings = VerticalTabWidget()
-        rows.addWidget(settings)
+        self._tab_widget = VerticalTabWidget()
+        rows.addWidget(self._tab_widget)
 
         self.start = StartWidget(self)
         self.battery = BatteryWidget(self)
@@ -52,24 +52,38 @@ class SetupAssistant(Widget):
         self.author_information = AuthorInformationWidget(self)
         self.ros_package = RosPackageWidget(self)
 
-        settings.addTab(self.start, StartWidget.NAME)
-        settings.addTab(self.battery, BatteryWidget.NAME)
-        settings.addTab(self.propulsion_system, PropulsionSystemWidget.NAME)
-        settings.addTab(self.fixed_wing, FixedWingWidget.NAME)
-        settings.addTab(self.custom_joints, CustomJointsWidget.NAME)
-        settings.addTab(self.imu, ImuWidget.NAME)
-        settings.addTab(self.barometer, BarometerWidget.NAME)
-        settings.addTab(self.gps, GpsWidget.NAME)
-        settings.addTab(self.rgb_camera, RgbCameraWidget.NAME)
-        settings.addTab(self.depth_camera, DepthCameraWidget.NAME)
-        settings.addTab(self.lidar, LidarWidget.NAME)
-        settings.addTab(self.odometry, OdometryWidget.NAME)
-        settings.addTab(self.tether_station, TetherStationWidget.NAME)
-        settings.addTab(self.controller, ControllerWidget.NAME)
-        settings.addTab(self.observer, ObserverWidget.NAME)
-        settings.addTab(self.simulation, SimulationWidget.NAME)
-        settings.addTab(self.author_information, AuthorInformationWidget.NAME)
-        settings.addTab(self.ros_package, RosPackageWidget.NAME)
+        self._tab_widget.addTab(self.start, StartWidget.NAME)
+        self._tab_widget.addTab(self.battery, BatteryWidget.NAME)
+        self._tab_widget.addTab(self.propulsion_system, PropulsionSystemWidget.NAME)
+        self._tab_widget.addTab(self.fixed_wing, FixedWingWidget.NAME)
+        self._tab_widget.addTab(self.custom_joints, CustomJointsWidget.NAME)
+        self._tab_widget.addTab(self.imu, ImuWidget.NAME)
+        self._tab_widget.addTab(self.barometer, BarometerWidget.NAME)
+        self._tab_widget.addTab(self.gps, GpsWidget.NAME)
+        self._tab_widget.addTab(self.rgb_camera, RgbCameraWidget.NAME)
+        self._tab_widget.addTab(self.depth_camera, DepthCameraWidget.NAME)
+        self._tab_widget.addTab(self.lidar, LidarWidget.NAME)
+        self._tab_widget.addTab(self.odometry, OdometryWidget.NAME)
+        self._tab_widget.addTab(self.tether_station, TetherStationWidget.NAME)
+        self._tab_widget.addTab(self.controller, ControllerWidget.NAME)
+        self._tab_widget.addTab(self.observer, ObserverWidget.NAME)
+        self._tab_widget.addTab(self.simulation, SimulationWidget.NAME)
+        self._tab_widget.addTab(self.author_information, AuthorInformationWidget.NAME)
+        self._tab_widget.addTab(self.ros_package, RosPackageWidget.NAME)
 
-        settings.setMinimumHeight(self.SETTINGS_MIN_HEIGHT)
-        settings.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
+        self._tab_widget.setMinimumHeight(self.SETTINGS_MIN_HEIGHT)
+        self._tab_widget.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
+
+        # 最初はスタートタブ以外を無効化
+        for i in range(1, self._tab_widget.count()):
+            widget: BaseSettingWidget = self._tab_widget.widget(i)
+            widget.setEnabled(False)
+
+    def update_internal_data_structures(self) -> None:
+        self.pkg_generator.update_internal_data_structures()
+        self.robot_visualizer.update_internal_data_structures()
+
+        for i in range(self._tab_widget.count()):
+            widget: BaseSettingWidget = self._tab_widget.widget(i)
+            widget.update_internal_data_structures()
+            widget.setEnabled(True)
