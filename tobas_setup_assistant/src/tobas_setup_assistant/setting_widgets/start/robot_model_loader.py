@@ -2,11 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..setup_assistant import SetupAssistant
+    from ...setup_assistant import SetupAssistant
 
 import os
 import os.path as osp
-from overrides import override
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
@@ -17,36 +16,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.constants import CONFIG_PATH
 
-from ..common import TITLE, PKG_NAME, LABEL_PSIZE, Description
-from .base_setting import BaseSettingWidget
-
-
-class StartWidget(BaseSettingWidget):
-    NAME = "Start"
-
-    SPACE_HEIGHT = 50
-
-    def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Tobas Setup Assistant"
-        abst_text = (
-            "The Tobas Setup Assistant is a GUI tool designed for creating configuration files "
-            "needed to operate drones with Tobas. "
-            "It utilizes the URDF created in the previous steps and allows for the configuration of elements "
-            "not expressed in the URDF, "
-            "such as propeller aerodynamics and controller settings."
-        )
-        super().__init__(main, title_text, abst_text)
-
-        self.setEnabled(True)  # Startだけは初めからアクティブにしておく
-
-        self._robot_model_loader = RobotModelLoaderWidget(main)
-        self._rows.addWidget(self._robot_model_loader)
-
-        self._rows.addStretch()
-
-    @override
-    def is_valid(self) -> bool:
-        return True
+from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 
 
 class RobotModelLoaderWidget(Widget):
