@@ -51,6 +51,14 @@ class BatteryWidget(BaseSettingWidget):
 
         return True
 
+    @override
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()  # TODO
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        raise NotImplementedError()  # TODO
+
     def nominal_voltage(self) -> float:
         return self._selected().nominal_voltage()
 

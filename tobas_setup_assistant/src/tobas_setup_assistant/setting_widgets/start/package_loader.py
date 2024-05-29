@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+import os
 import os.path as osp
+import yaml
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
@@ -14,7 +16,7 @@ from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION
-from tobas_tools_py.package import get_urdf_path
+from tobas_tools_py.package import get_urdf_path, get_settings_path
 
 from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 
@@ -85,12 +87,25 @@ class PackageLoaderWidget(Widget):
         self._config.write()
 
         # robot_descriptionをrosparamに登録
-        process = launch(PKG_NAME, "description.launch", {"path": get_urdf_path(pkg_path)})
+        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = f"{get_urdf_path(pkg_path)} DEBUG:=false"
+        process = launch(PKG_NAME, "description.launch")
         _, stderr = process.communicate()
         if process.returncode != 0:
-            q_error(self._main, f"Failed to load robot description:\n\n{stderr.decode()}")
+            error_msg = stderr.decode() if isinstance(stderr, bytes) else "Unknown Error"
+            q_error(self._main, f"Failed to load robot description:\n\n{error_msg}")
             return
 
-        # TODO
+        # URDFを解析
+        if not self._main.urdf_parser.load_from_param():
+            return
 
-        q_info("Tobas configuration package is loaded successfully.")
+        # URDFを各ウィジェットに反映
+        self._main.update_internal_data_structures()
+
+        # ユーザ設定を読み込む
+        settings_path = get_settings_path(pkg_path)
+        with open(settings_path, "r") as f:
+            settings = yaml.safe_load(f)
+        self._main.load_settings(settings)
+
+        q_info(self._main, "Tobas configuration package is loaded successfully.")

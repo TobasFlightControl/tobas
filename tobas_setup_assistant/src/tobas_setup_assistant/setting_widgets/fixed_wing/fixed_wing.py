@@ -65,6 +65,14 @@ class FixedWingWidget(BaseSettingWidget):
 
         return True
 
+    @override
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()  # TODO
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        raise NotImplementedError()  # TODO
+
     def num_control_surfaces(self) -> int:
         return self.control_surfaces.selected.count()
 

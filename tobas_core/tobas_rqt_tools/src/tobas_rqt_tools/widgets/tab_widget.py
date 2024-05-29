@@ -3,12 +3,7 @@ from PyQt5.QtWidgets import QWidget, QTabBar, QTabWidget
 from PyQt5.QtGui import QWheelEvent
 
 
-class _TabBar(QTabBar):
-    """
-    ===== QTabBarとの違い =====
-    - マウスホイールイベントを無効化
-    """
-
+class TabBarWithNoWheelEvent(QTabBar):
     @override
     def wheelEvent(self, e: QWheelEvent) -> None:
         e.ignore()
@@ -17,13 +12,27 @@ class _TabBar(QTabBar):
 class TabWidget(QTabWidget):
     """
     ===== QtabWidgetとの違い =====
-    - QTabBarのマウスホイールイベントを無効化
+    - イテレータを定義
     - 追加メソッド
     """
 
     def __init__(self) -> None:
         super().__init__()
-        self.setTabBar(_TabBar())
+        self._index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> QWidget:
+        if self._index < self.count():
+            tab = self.widget(self._index)
+            self._index += 1
+            return tab
+        else:
+            raise StopIteration()
+
+    def ignore_wheel_event(self) -> None:
+        self.setTabBar(TabBarWithNoWheelEvent())
 
     def switch(self, tab: QWidget) -> None:
         idx = self.indexOf(tab)

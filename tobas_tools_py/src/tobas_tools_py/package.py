@@ -1,6 +1,5 @@
 import os.path as osp
 
-
 from .constants import PKG_EXTENSION
 
 
@@ -39,3 +38,7 @@ def get_tbsdrn_path(tbs_path: str) -> str:
 
 def get_urdf_path(tbs_path: str) -> str:
     return osp.join(get_tbs_config_path(tbs_path), "urdf", "drone.xacro")
+
+
+def get_settings_path(tbs_path: str) -> str:
+    return osp.join(get_tbs_config_path(tbs_path), "settings.yaml")

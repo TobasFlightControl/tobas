@@ -34,6 +34,14 @@ class MultirotorPid(BaseController):
         pass
 
     @override
+    def dump_settings(self) -> dict:
+        return dict()
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        pass
+
+    @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
         fixed_wing = self._main.fixed_wing

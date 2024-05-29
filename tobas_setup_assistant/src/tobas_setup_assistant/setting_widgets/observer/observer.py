@@ -19,6 +19,8 @@ from .custom import CustomObserver
 class ObserverWidget(BaseSettingWidget):
     NAME = "Observer"
 
+    OBSERVER_TYPE = "observer_type"
+
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Observer"
         abst_text = (
@@ -50,6 +52,24 @@ class ObserverWidget(BaseSettingWidget):
             return False
 
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self.OBSERVER_TYPE] = self._type.currentText()
+
+        for observer in self._observers:
+            res[observer.NAME] = observer.dump_settings()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        self._type.setCurrentText(data[self.OBSERVER_TYPE])
+
+        for observer in self._observers:
+            observer.load_settings(data[self.OBSERVER_TYPE])
 
     def pkg_name(self) -> str:
         return self._selected().PACKAGE_NAME

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional
+from typing import Optional, final
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
@@ -14,10 +14,10 @@ class ParamGetterWidget(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        label = QLabel(param_name)
-        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignTop)
-        self._rows.addWidget(label)
+        self._label = QLabel(param_name)
+        self._label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
+        self._label.setAlignment(Qt.AlignTop)
+        self._rows.addWidget(self._label)
 
         if description_text:
             description = Description(description_text)
@@ -30,3 +30,7 @@ class ParamGetterWidget(QWidget):
     @abstractmethod
     def set(self):
         raise NotImplementedError()
+
+    @final
+    def name(self) -> str:
+        return self._label.text()

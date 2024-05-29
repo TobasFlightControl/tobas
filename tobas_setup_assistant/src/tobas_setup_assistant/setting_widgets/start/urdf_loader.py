@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
+import os
 import os.path as osp
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
@@ -78,14 +79,18 @@ class URDFLoaderWidget(Widget):
         self._config.write()
 
         # robot_descriptionをrosparamに登録
-        process = launch(PKG_NAME, "description.launch", {"path": file_path})
+        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path
+        process = launch(PKG_NAME, "description.launch")
         _, stderr = process.communicate()
         if process.returncode != 0:
             q_error(self._main, f"Failed to load robot description:\n\n{stderr.decode()}")
             return
 
+        # URDFを解析
         if not self._main.urdf_parser.load_from_param():
             return
 
+        # URDFを各ウィジェットに反映
         self._main.update_internal_data_structures()
+
         q_info(self._main, "URDF is loaded successfully. Configure the settings for each tab.")

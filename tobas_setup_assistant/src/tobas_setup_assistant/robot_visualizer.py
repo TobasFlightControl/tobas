@@ -41,7 +41,6 @@ class RobotVisualizerWidget(Widget):
         self._cols.addWidget(self._rviz)
 
         self.setFixedHeight(self.HEIGHT)
-        self.setVisible(False)
 
     @override
     def close(self) -> bool:
@@ -71,8 +70,6 @@ class RobotVisualizerWidget(Widget):
         self._jsp_gui = JointStatePublisherGui("Joint States", jsp)
         self._jsp_gui.setFixedWidth(self.JSP_WIDTH)
         self._cols.addWidget(self._jsp_gui)
-
-        self.setVisible(True)
 
     def highlight_link(self, link_name: str) -> None:
         return self._rviz.highlight_link(link_name)

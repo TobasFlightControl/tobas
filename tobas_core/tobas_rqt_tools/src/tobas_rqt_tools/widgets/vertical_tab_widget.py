@@ -1,19 +1,25 @@
-from PyQt5.QtCore import Qt, QRect, QPoint
-from PyQt5.QtWidgets import QWidget, QTabBar, QTabWidget, QStyle, QStylePainter, QStyleOptionTab
+from overrides import override
+from PyQt5.QtCore import Qt, QRect, QPoint, QSize
+from PyQt5.QtWidgets import QTabBar, QTabWidget, QStyle, QStylePainter, QStyleOptionTab
+from PyQt5.QtGui import QWheelEvent
+
+from .tab_widget import TabWidget
 
 
-class _TabBar(QTabBar):
-    def __init__(self, *args, **kwargs):
+class VerticalTabBar(QTabBar):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def tabSizeHint(self, index):
+    @override
+    def tabSizeHint(self, index: int) -> QSize:
         s = QTabBar.tabSizeHint(self, index)
         if s.width() < s.height():
             s.transpose()
         s.scale(s.width() * 2, s.height() * 2, Qt.KeepAspectRatio)
         return s
 
-    def paintEvent(self, _):
+    @override
+    def paintEvent(self, _) -> None:
         painter = QStylePainter(self)
         style_option = QStyleOptionTab()
 
@@ -36,13 +42,18 @@ class _TabBar(QTabBar):
             painter.restore()
 
 
-class VerticalTabWidget(QTabWidget):
-    def __init__(self):
+class VerticalTabBarWithNoWheelEvent(VerticalTabBar):
+    @override
+    def wheelEvent(self, e: QWheelEvent) -> None:
+        e.ignore()
+
+
+class VerticalTabWidget(TabWidget):
+    def __init__(self) -> None:
         super().__init__()
-        self.setTabBar(_TabBar(self))
+        self.setTabBar(VerticalTabBar())
         self.setTabPosition(QTabWidget.West)
 
-    def switch(self, tab: QWidget) -> None:
-        idx = self.indexOf(tab)
-        assert idx >= 0
-        self.setCurrentIndex(idx)
+    @override
+    def ignore_wheel_event(self) -> None:
+        self.setTabBar(VerticalTabBarWithNoWheelEvent())

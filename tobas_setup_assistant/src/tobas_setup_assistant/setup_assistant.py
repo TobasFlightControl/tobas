@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, VerticalTabWidget
+from tobas_rqt_tools.messages import q_error
 
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
@@ -27,6 +28,7 @@ class SetupAssistant(Widget):
 
         # 高さを指定するために，単なる横並びのレイアウトもウィジェットとして定義している
         self.robot_visualizer = RobotVisualizerWidget(self)
+        self.robot_visualizer.setVisible(False)
         rows.addWidget(self.robot_visualizer)
 
         # 設定項目
@@ -81,9 +83,22 @@ class SetupAssistant(Widget):
 
     def update_internal_data_structures(self) -> None:
         self.pkg_generator.update_internal_data_structures()
+
         self.robot_visualizer.update_internal_data_structures()
+        self.robot_visualizer.setVisible(True)
 
         for i in range(self._tab_widget.count()):
             widget: BaseSettingWidget = self._tab_widget.widget(i)
             widget.update_internal_data_structures()
             widget.setEnabled(True)
+
+    def load_settings(self, settings: dict) -> None:
+        for i in range(self._tab_widget.count()):
+            widget: BaseSettingWidget = self._tab_widget.widget(i)
+            try:
+                widget.load_settings(settings[widget.NAME])
+            except Exception:
+                q_error(self, f'Failed to load settings of "{widget.NAME}"')
+
+    def switch(self, tab: QWidget) -> None:
+        self._tab_widget.switch(tab)

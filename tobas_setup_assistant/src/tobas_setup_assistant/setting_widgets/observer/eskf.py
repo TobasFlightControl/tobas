@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
+from PyQt5.QtWidgets import QCheckBox
 
 from tobas_rqt_tools.messages import q_error_named
 
@@ -32,6 +33,18 @@ class ErrorStateKalmanFilter(BaseObserver):
         )
         super().__init__(main, abst_text)
 
+        self._do_acc_bias_estimation = QCheckBox(text="Do Accelerometer Bias Estimation")
+        self._do_acc_bias_estimation.setChecked(False)
+        self._rows.addWidget(self._do_acc_bias_estimation)
+
+        self._do_gyro_bias_estimation = QCheckBox(text="Do Gyroscope Bias Estimation")
+        self._do_gyro_bias_estimation.setChecked(True)
+        self._rows.addWidget(self._do_gyro_bias_estimation)
+
+        self._do_gravity_estimation = QCheckBox(text="Do Gravity Estimation")
+        self._do_gravity_estimation.setChecked(True)
+        self._rows.addWidget(self._do_gravity_estimation)
+
     @override
     def is_valid(self) -> bool:
         # 絶対位置が取得できないとダメ
@@ -46,13 +59,29 @@ class ErrorStateKalmanFilter(BaseObserver):
         return True
 
     @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self._do_acc_bias_estimation.text()] = self._do_acc_bias_estimation.isChecked()
+        res[self._do_gyro_bias_estimation.text()] = self._do_gyro_bias_estimation.isChecked()
+        res[self._do_gravity_estimation.text()] = self._do_gravity_estimation.isChecked()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        self._do_acc_bias_estimation.setChecked(data[self._do_acc_bias_estimation])
+        self._do_gyro_bias_estimation.setChecked(data[self._do_gyro_bias_estimation])
+        self._do_gravity_estimation.setChecked(data[self._do_gravity_estimation])
+
+    @override
     def static_parameters(self) -> dict:
         return {
             "use_barometer": False,  # TODO: 選択できるように
             "use_gps": self._main.gps.equipped(),
-            "do_acc_bias_estimation": False,
-            "do_gyro_bias_estimation": True,
-            "do_gravity_estimation": True,
+            "do_acc_bias_estimation": self._do_acc_bias_estimation.isChecked(),
+            "do_gyro_bias_estimation": self._do_gyro_bias_estimation.isChecked(),
+            "do_gravity_estimation": self._do_gravity_estimation.isChecked(),
             "imu_offset": self._main.imu.offset.get(),
             "barometer_offset": self._main.barometer.offset.get(),
             "gps_offset": self._main.gps.offset.get(),

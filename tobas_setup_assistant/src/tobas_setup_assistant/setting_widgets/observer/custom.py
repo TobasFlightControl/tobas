@@ -22,5 +22,13 @@ class CustomObserver(BaseObserver):
         return True
 
     @override
+    def dump_settings(self) -> dict:
+        return dict()
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        pass
+
+    @override
     def static_parameters(self) -> dict:
         return dict()

@@ -72,3 +72,11 @@ class SimulationWidget(BaseSettingWidget):
     def is_valid(self) -> bool:
         # TODO: 極に近すぎると方角がわからない
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()  # TODO
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        raise NotImplementedError()  # TODO

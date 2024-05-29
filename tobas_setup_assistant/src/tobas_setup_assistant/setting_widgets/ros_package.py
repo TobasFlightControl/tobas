@@ -102,6 +102,14 @@ class RosPackageWidget(BaseSettingWidget):
 
         return True
 
+    @override
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()  # TODO
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        raise NotImplementedError()  # TODO
+
     def pkg_name(self) -> str:
         return self._pkg_name.get()
 

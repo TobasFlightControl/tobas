@@ -95,6 +95,20 @@ class ChannelsWidget(QWidget):
 
         self._main.signals.airframe_updated.connect(self._on_airframe_updated)
 
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        for i in range(self.count()):
+            combo_box: ComboBox = self._form.get_widget(i)
+            res[self._channel_label[i]] = combo_box.currentText()
+
+        return res
+
+    def load_settings(self, data: dict) -> dict:
+        for i in range(self.count()):
+            combo_box: ComboBox = self._form.get_widget(i)
+            combo_box.setCurrentText(data[self._channel_label[i]])
+
     def is_valid(self) -> bool:
         # 未選択はダメ
         for r in range(self._form.rowCount()):
@@ -124,13 +138,13 @@ class ChannelsWidget(QWidget):
     def update_num_channels(self, num_props: int) -> None:
         # 設定ミスを防ぐため，フレームタイプが変わったら各チャンネルのリンク名をリセット
         self._form.clear()
-        prop_link_names = self._main.propulsion_system.selected.link_names()
 
+        prop_link_names = self._main.propulsion_system.selected.link_names()
         for i in range(num_props):
             choices = ComboBox()
             choices.addItems([self.NO_SELECT] + prop_link_names)
             choices.setCurrentText(self.NO_SELECT)
-            self._form.addRow(QLabel(f"ArduPilot CH {i + 1}"), choices)
+            self._form.addRow(QLabel(self._channel_label(i)), choices)
 
     @pyqtSlot()
     def _on_airframe_updated(self) -> None:
@@ -156,6 +170,9 @@ class ChannelsWidget(QWidget):
     def _link_names(self) -> List[str]:
         return [self._link_name(row) for row in range(self._form.rowCount())]
 
+    def _channel_label(self, idx: int) -> str:
+        return f"ArduPilot CH {idx + 1}"
+
 
 class ArduCopter(BaseController):
     NAME = "ArduCopter (Simulation Only)"
@@ -164,6 +181,8 @@ class ArduCopter(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PositionYaw.__name__
     ACROBAT_MODE = PositionYaw.__name__  # TODO
+
+    CHANNELS = "channels"
 
     MIN_NUM_PROPS = 2
 
@@ -256,6 +275,20 @@ class ArduCopter(BaseController):
     def update_internal_data_structures(self) -> None:
         cur_idx = self._frame.cur_index()
         self._channels.update_num_channels(self._frames[cur_idx].num_props())
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self._frame.name()] = self._frame.get()
+        res[self.CHANNELS] = self._channels.dump_settings()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        self._frame.set(data[self._frame.name()])
+        self._channels.load_settings(data[self.CHANNELS])
 
     @override
     def is_applicable(self) -> bool:

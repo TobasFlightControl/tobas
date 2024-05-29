@@ -46,6 +46,16 @@ class BaseSettingWidget(ScrollArea):
         """ユーザ設定に問題がない場合にTrueを返す．"""
         raise NotImplementedError()
 
+    @abstractmethod
+    def dump_settings(self) -> dict:
+        """ユーザ設定を記録した辞書を返す．"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def load_settings(self, data: dict) -> None:
+        """ユーザ設定を読み込む．"""
+        raise NotImplementedError()
+
 
 class OptionalDeviceWidget(BaseSettingWidget):
     """

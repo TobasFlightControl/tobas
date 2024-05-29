@@ -26,6 +26,8 @@ class ControllerWidget(BaseSettingWidget):
 
     NO_SELECT = "Select controller type"
 
+    CONTROLLER_TYPE = "controller_type"
+
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Setup Controller"
         abst_text = (
@@ -72,6 +74,24 @@ class ControllerWidget(BaseSettingWidget):
             return False
 
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self.CONTROLLER_TYPE] = self._type.currentText()
+
+        for controller in self._controllers:
+            res[controller.NAME] = controller.dump_settings()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        self._type.setCurrentText(data[self.CONTROLLER_TYPE])
+
+        for controller in self._controllers:
+            controller.load_settings(data[controller.NAME])
 
     def controller_pkg(self) -> str:
         return self._selected().CONTROLLER_PKG

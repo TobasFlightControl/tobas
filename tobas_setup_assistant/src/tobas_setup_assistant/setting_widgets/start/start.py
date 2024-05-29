@@ -57,3 +57,11 @@ class StartWidget(BaseSettingWidget):
     @override
     def is_valid(self) -> bool:
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        return dict()
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        pass

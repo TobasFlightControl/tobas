@@ -167,5 +167,13 @@ class ImuWidget(BaseSettingWidget):
     def is_valid(self) -> bool:
         return True
 
+    @override
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()  # TODO
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        raise NotImplementedError()  # TODO
+
     def equipped(self) -> bool:
         return True

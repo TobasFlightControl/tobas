@@ -41,6 +41,14 @@ class BaseController(Widget):
         raise NotImplementedError()
 
     @abstractmethod
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def load_settings(self, data: dict) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
     def is_applicable(self) -> bool:
         """
         ハードウェアの構造のみから，制御器が適用可能かどうかを返す．
