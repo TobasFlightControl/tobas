@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 from overrides import override
+from PyQt5.QtWidgets import QVBoxLayout
 
 from ..common import SENSOR_OFFSET_DESCRIPTION
 from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_Vector3d, ParamGetterWidget_DoubleSpinBox
@@ -20,14 +22,17 @@ class ImuWidget(BaseSettingWidget):
 
         super().__init__(main, title_text, abst_text)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
-        self._rows.addWidget(self.offset)
+        self._param_rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate", update_rate_description, minimum=1, default=400, suffix=" Hz"
         )
-        self._rows.addWidget(self.update_rate)
+        self._param_rows.addWidget(self.update_rate)
 
         gyro_noise_density_description = ""
         self.gyro_noise_density = ParamGetterWidget_DoubleSpinBox(
@@ -38,7 +43,7 @@ class ImuWidget(BaseSettingWidget):
             default=0.005,
             suffix=" rad/s/sqrt(Hz)",
         )
-        self._rows.addWidget(self.gyro_noise_density)
+        self._param_rows.addWidget(self.gyro_noise_density)
 
         gyro_random_walk_description = ""
         self.gyro_random_walk = ParamGetterWidget_DoubleSpinBox(
@@ -49,7 +54,7 @@ class ImuWidget(BaseSettingWidget):
             default=1e-4,
             suffix=" rad/s^2/sqrt(Hz)",
         )
-        self._rows.addWidget(self.gyro_random_walk)
+        self._param_rows.addWidget(self.gyro_random_walk)
 
         gyro_bias_corr_time_description = ""
         self.gyro_bias_corr_time = ParamGetterWidget_SpinBox(
@@ -59,7 +64,7 @@ class ImuWidget(BaseSettingWidget):
             default=1000,
             suffix=" s",
         )
-        self._rows.addWidget(self.gyro_bias_corr_time)
+        self._param_rows.addWidget(self.gyro_bias_corr_time)
 
         gyro_turn_on_bias_sigma_description = ""
         self.gyro_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
@@ -70,7 +75,7 @@ class ImuWidget(BaseSettingWidget):
             default=0.05,
             suffix=" rad/s",
         )
-        self._rows.addWidget(self.gyro_turn_on_bias_sigma)
+        self._param_rows.addWidget(self.gyro_turn_on_bias_sigma)
 
         gyro_lpf_cutoff_freq_description = ""
         self.gyro_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
@@ -81,7 +86,7 @@ class ImuWidget(BaseSettingWidget):
             default=20,
             suffix=" Hz",
         )
-        self._rows.addWidget(self.gyro_lpf_cutoff_freq)
+        self._param_rows.addWidget(self.gyro_lpf_cutoff_freq)
 
         acc_noise_density_description = ""
         self.acc_noise_density = ParamGetterWidget_DoubleSpinBox(
@@ -92,7 +97,7 @@ class ImuWidget(BaseSettingWidget):
             default=0.05,
             suffix=" m/s^2/sqrt(Hz)",
         )
-        self._rows.addWidget(self.acc_noise_density)
+        self._param_rows.addWidget(self.acc_noise_density)
 
         acc_random_walk_description = ""
         self.acc_random_walk = ParamGetterWidget_DoubleSpinBox(
@@ -103,7 +108,7 @@ class ImuWidget(BaseSettingWidget):
             default=0.01,
             suffix=" m/s^3/sqrt(Hz)",
         )
-        self._rows.addWidget(self.acc_random_walk)
+        self._param_rows.addWidget(self.acc_random_walk)
 
         acc_bias_corr_time_description = ""
         self.acc_bias_corr_time = ParamGetterWidget_SpinBox(
@@ -113,7 +118,7 @@ class ImuWidget(BaseSettingWidget):
             default=300,
             suffix=" s",
         )
-        self._rows.addWidget(self.acc_bias_corr_time)
+        self._param_rows.addWidget(self.acc_bias_corr_time)
 
         acc_turn_on_bias_sigma_description = ""
         self.acc_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
@@ -124,7 +129,7 @@ class ImuWidget(BaseSettingWidget):
             default=0.2,
             suffix=" m/s^2",
         )
-        self._rows.addWidget(self.acc_turn_on_bias_sigma)
+        self._param_rows.addWidget(self.acc_turn_on_bias_sigma)
 
         acc_lpf_cutoff_freq_description = ""
         self.acc_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
@@ -135,7 +140,7 @@ class ImuWidget(BaseSettingWidget):
             default=20,
             suffix=" Hz",
         )
-        self._rows.addWidget(self.acc_lpf_cutoff_freq)
+        self._param_rows.addWidget(self.acc_lpf_cutoff_freq)
 
         mag_gauss_noise_description = ""
         self.mag_gauss_noise = ParamGetterWidget_SpinBox(
@@ -145,7 +150,7 @@ class ImuWidget(BaseSettingWidget):
             default=80,
             suffix=" nT",
         )
-        self._rows.addWidget(self.mag_gauss_noise)
+        self._param_rows.addWidget(self.mag_gauss_noise)
 
         mag_uniform_noise_description = ""
         self.mag_uniform_noise = ParamGetterWidget_SpinBox(
@@ -155,7 +160,7 @@ class ImuWidget(BaseSettingWidget):
             default=400,
             suffix=" nT",
         )
-        self._rows.addWidget(self.mag_uniform_noise)
+        self._param_rows.addWidget(self.mag_uniform_noise)
 
         self._rows.addStretch()
 
@@ -169,11 +174,17 @@ class ImuWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     def equipped(self) -> bool:
         return True

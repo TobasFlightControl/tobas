@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 from abc import abstractmethod
 from overrides import override
@@ -19,6 +20,8 @@ from .base_setting import BaseSettingWidget
 class BatteryWidget(BaseSettingWidget):
     NAME = "Battery"
 
+    TYPE = "battery_type"
+
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Battery"
         abst_text = (
@@ -28,15 +31,17 @@ class BatteryWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        battery_types = ComboBox()
+        self._type = ComboBox()
         self._batteries = StackedWidget()
-        battery_types.currentIndexChanged.connect(self._batteries.setCurrentIndex)
-        self._rows.addWidget(battery_types)
-        self._rows.addWidget(self._batteries)
+
+        self._type.currentIndexChanged.connect(self._batteries.setCurrentIndex)
 
         for battery_class in [BatteryWidget_LiPo, BatteryWidget_Other]:
-            battery_types.addItem(battery_class.NAME)
+            self._type.addItem(battery_class.NAME)
             self._batteries.addWidget(battery_class(main))
+
+        self._rows.addWidget(self._type)
+        self._rows.addWidget(self._batteries)
 
         # NOTE: QStackedWidgetは各子ウィジェットのサイズを合わせるため，ストレッチを各子ウィジェットで設定しないとレイアウトが崩れる．
 
@@ -53,11 +58,23 @@ class BatteryWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+
+        res[self.TYPE] = self._type.currentText()
+
+        for i in range(self._batteries.count()):
+            battery: BatteryWidget_Base = self._batteries.widget(i)
+            res[battery.NAME] = battery.dump_settings()
+
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        self._type.setCurrentText(data[self.TYPE])
+
+        for i in range(self._batteries.count()):
+            battery: BatteryWidget_Base = self._batteries.widget(i)
+            battery.load_settings(data[battery.NAME])
 
     def nominal_voltage(self) -> float:
         return self._selected().nominal_voltage()
@@ -90,6 +107,14 @@ class BatteryWidget_Base(Widget):
 
     @abstractmethod
     def is_valid(self) -> bool:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def load_settings(self, data: dict) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -133,20 +158,20 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
 
-        rows = QVBoxLayout()
-        self.setLayout(rows)
+        self._rows = QVBoxLayout()
+        self.setLayout(self._rows)
 
         num_cells_description = "The number of cells in the battery."
         self._num_cells = ParamGetterWidget_SpinBox(
             "Number of Cells", num_cells_description, minimum=1, maximum=100, default=4
         )
-        rows.addWidget(self._num_cells)
+        self._rows.addWidget(self._num_cells)
 
         capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
         )
-        rows.addWidget(self._capacity)
+        self._rows.addWidget(self._capacity)
 
         C_cont_description = (
             "The maximum continuous discharge current that the battery can provide. "
@@ -159,19 +184,33 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         self._C_cont = ParamGetterWidget_SpinBox(
             "Continuous Discharge Current Rate", C_cont_description, minimum=1, default=50, suffix=" /h"
         )
-        rows.addWidget(self._C_cont)
+        self._rows.addWidget(self._C_cont)
 
         registance_description = "Internal resistance value per cell."
         self._registance = ParamGetterWidget_SpinBox(
             "Internal Registance", registance_description, minimum=0, default=3, suffix=" mΩ"
         )
-        rows.addWidget(self._registance)
+        self._rows.addWidget(self._registance)
 
-        rows.addStretch()
+        self._rows.addStretch()
 
     @override
     def is_valid(self) -> bool:
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+        for i in range(self._rows.count()):
+            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        for i in range(self._rows.count()):
+            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     @override
     def nominal_voltage(self) -> float:
@@ -204,46 +243,46 @@ class BatteryWidget_Other(BatteryWidget_Base):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
 
-        rows = QVBoxLayout()
-        self.setLayout(rows)
+        self._rows = QVBoxLayout()
+        self.setLayout(self._rows)
 
         nominal_voltage_description = "Nominal voltage of the battery."
         self._nominal_voltage = ParamGetterWidget_DoubleSpinBox(
             "Nominal Voltage", nominal_voltage_description, decimals=1, minimum=0.1, default=14.8, suffix=" V"
         )
-        rows.addWidget(self._nominal_voltage)
+        self._rows.addWidget(self._nominal_voltage)
 
         max_voltage_description = "Maximum voltage of the battery."
         self._max_voltage = ParamGetterWidget_DoubleSpinBox(
             "Maximum Voltage", max_voltage_description, decimals=1, minimum=0.1, default=16.8, suffix=" V"
         )
-        rows.addWidget(self._max_voltage)
+        self._rows.addWidget(self._max_voltage)
 
         sag_voltage_description = "Voltage at which the discharge characteristics change abruptly."
         self._sag_voltage = ParamGetterWidget_DoubleSpinBox(
             "Voltage Threshold", sag_voltage_description, decimals=1, minimum=0.1, default=13.6, suffix=" V"
         )
-        rows.addWidget(self._sag_voltage)
+        self._rows.addWidget(self._sag_voltage)
 
         max_current_description = "Maximum current of the battery."
         self._max_current = ParamGetterWidget_DoubleSpinBox(
             "Maximum Current", max_current_description, decimals=1, minimum=0.1, default=200.0, suffix=" A"
         )
-        rows.addWidget(self._max_current)
+        self._rows.addWidget(self._max_current)
 
         capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
         )
-        rows.addWidget(self._capacity)
+        self._rows.addWidget(self._capacity)
 
         registance_description = "Internal resistance value of the battery."
         self._registance = ParamGetterWidget_SpinBox(
             "Internal Registance", registance_description, minimum=0, default=12, suffix=" mΩ"
         )
-        rows.addWidget(self._registance)
+        self._rows.addWidget(self._registance)
 
-        rows.addStretch()
+        self._rows.addStretch()
 
     @override
     def is_valid(self) -> bool:
@@ -252,6 +291,20 @@ class BatteryWidget_Other(BatteryWidget_Base):
             return False
 
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+        for i in range(self._rows.count()):
+            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        for i in range(self._rows.count()):
+            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     @override
     def nominal_voltage(self) -> float:

@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 from abc import abstractmethod
+from overrides import override
 from typing import final
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QVBoxLayout
@@ -77,17 +79,39 @@ class OptionalDeviceWidget(BaseSettingWidget):
         self._config.setEnabled(default_equipped)
         self._rows.addWidget(self._config)
 
-        self._config_rows = QVBoxLayout()
-        self._config.setLayout(self._config_rows)
+        self._param_rows = QVBoxLayout()
+        self._config.setLayout(self._param_rows)
+
+    @override
+    def dump_settings(self) -> dict:
+        """_add_param_widgetでParameterGetterWidgetを追加しただけならば有効．"""
+        res = dict()
+
+        res[self._equipped.text()] = self._equipped.isChecked()
+
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        """_add_param_widgetでParameterGetterWidgetを追加しただけならば有効．"""
+        self._equipped.setChecked(data[self._equipped.text()])
+
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     @final
     def equipped(self) -> bool:
         return self._equipped.isChecked()
 
     @final
-    def _add_config_widget(self, widget: QWidget) -> None:
+    def _add_param_widget(self, widget: ParamGetterWidget) -> None:
         """Equippedがチェックされているときだけ有効になるウィジェットを追加する．"""
-        self._config_rows.addWidget(widget)
+        self._param_rows.addWidget(widget)
 
     @pyqtSlot(bool)
     def _on_equipped_toggled(self, checked: bool) -> None:

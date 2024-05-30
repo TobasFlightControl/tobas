@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 from overrides import override
+from PyQt5.QtWidgets import QVBoxLayout
 
 from ..common import SENSOR_OFFSET_DESCRIPTION
 from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleSpinBox, ParamGetterWidget_Vector3d
@@ -19,20 +21,23 @@ class BarometerWidget(BaseSettingWidget):
         abst_text = ""  # TODO
         super().__init__(main, title_text, abst_text)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
-        self._rows.addWidget(self.offset)
+        self._param_rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate", update_rate_description, minimum=1, default=50, suffix=" Hz"
         )
-        self._rows.addWidget(self.update_rate)
+        self._param_rows.addWidget(self.update_rate)
 
         pressure_var_description = ""
         self.pressure_var = ParamGetterWidget_DoubleSpinBox(
             "the air pressure variance", pressure_var_description, decimals=2, minimum=0.0, default=10.0, suffix=" Pa^2"
         )
-        self._rows.addWidget(self.pressure_var)
+        self._param_rows.addWidget(self.pressure_var)
 
         self._rows.addStretch()
 
@@ -46,11 +51,19 @@ class BarometerWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     def equipped(self) -> bool:
         return True

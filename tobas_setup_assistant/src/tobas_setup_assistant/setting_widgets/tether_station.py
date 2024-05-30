@@ -24,21 +24,21 @@ class TetherStationWidget(OptionalDeviceWidget):
 
         link_description = "The name of the link to which the end of the cable is attached."
         self.link = ParamGetterWidget_ComboBox("Link Name", link_description)
-        self._add_config_widget(self.link)
+        self._add_param_widget(self.link)
 
         drone_end_description = "The connection point between the cable and the drone wrt. the selected link frame."
         self.drone_end = ParamGetterWidget_Vector3d("Connection Point (Drone)", drone_end_description)
-        self._add_config_widget(self.drone_end)
+        self._add_param_widget(self.drone_end)
 
         world_end_description = "The connection point between the cable and the ground wrt. the world frame."
         self.world_end = ParamGetterWidget_Vector3d("Connection Point (Ground)", world_end_description)
-        self._add_config_widget(self.world_end)
+        self._add_param_widget(self.world_end)
 
         tension_description = "The constant tension of the cable."
         self.tension = ParamGetterWidget_DoubleSpinBox(
             "Tension", tension_description, decimals=2, minimum=0.0, default=1.0, suffix=" N"
         )
-        self._add_config_widget(self.tension)
+        self._add_param_widget(self.tension)
 
         self._rows.addStretch()
 
@@ -52,11 +52,3 @@ class TetherStationWidget(OptionalDeviceWidget):
             return True
 
         return True
-
-    @override
-    def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
-
-    @override
-    def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO

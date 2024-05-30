@@ -50,10 +50,10 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
     def get(self) -> Tuple[float, float, float]:
         return self.x(), self.y(), self.z()
 
-    def set(self, x: float, y: float, z: float) -> None:
-        self._x.set(x)
-        self._y.set(y)
-        self._z.set(z)
+    def set(self, src: Tuple[float, float, float]) -> None:
+        self._x.set(src[0])
+        self._y.set(src[1])
+        self._z.set(src[2])
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:

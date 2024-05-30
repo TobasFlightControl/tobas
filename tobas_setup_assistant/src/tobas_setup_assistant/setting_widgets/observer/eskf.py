@@ -3,9 +3,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
+    from ...parameter_getters import ParamGetterWidget
 
 from overrides import override
-from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtWidgets import QCheckBox, QVBoxLayout
 
 from tobas_rqt_tools.messages import q_error_named
 
@@ -33,17 +34,20 @@ class ErrorStateKalmanFilter(BaseObserver):
         )
         super().__init__(main, abst_text)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         self._do_acc_bias_estimation = QCheckBox(text="Do Accelerometer Bias Estimation")
         self._do_acc_bias_estimation.setChecked(False)
-        self._rows.addWidget(self._do_acc_bias_estimation)
+        self._param_rows.addWidget(self._do_acc_bias_estimation)
 
         self._do_gyro_bias_estimation = QCheckBox(text="Do Gyroscope Bias Estimation")
         self._do_gyro_bias_estimation.setChecked(True)
-        self._rows.addWidget(self._do_gyro_bias_estimation)
+        self._param_rows.addWidget(self._do_gyro_bias_estimation)
 
         self._do_gravity_estimation = QCheckBox(text="Do Gravity Estimation")
         self._do_gravity_estimation.setChecked(True)
-        self._rows.addWidget(self._do_gravity_estimation)
+        self._param_rows.addWidget(self._do_gravity_estimation)
 
     @override
     def is_valid(self) -> bool:
@@ -61,18 +65,16 @@ class ErrorStateKalmanFilter(BaseObserver):
     @override
     def dump_settings(self) -> dict:
         res = dict()
-
-        res[self._do_acc_bias_estimation.text()] = self._do_acc_bias_estimation.isChecked()
-        res[self._do_gyro_bias_estimation.text()] = self._do_gyro_bias_estimation.isChecked()
-        res[self._do_gravity_estimation.text()] = self._do_gravity_estimation.isChecked()
-
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
         return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        self._do_acc_bias_estimation.setChecked(data[self._do_acc_bias_estimation])
-        self._do_gyro_bias_estimation.setChecked(data[self._do_gyro_bias_estimation])
-        self._do_gravity_estimation.setChecked(data[self._do_gravity_estimation])
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     @override
     def static_parameters(self) -> dict:

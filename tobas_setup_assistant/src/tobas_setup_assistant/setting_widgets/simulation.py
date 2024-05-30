@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 from overrides import override
+from PyQt5.QtWidgets import QVBoxLayout
 
 from ..parameter_getters import ParamGetterWidget_DoubleSpinBox
 from .base_setting import BaseSettingWidget
@@ -21,11 +23,14 @@ class SimulationWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         gravity_description = ""
         self.gravity = ParamGetterWidget_DoubleSpinBox(
             "Gravity", gravity_description, decimals=6, minimum=0.0, default=9.80665, suffix=" m/s^2"  # 標準重力加速度
         )
-        self._rows.addWidget(self.gravity)
+        self._param_rows.addWidget(self.gravity)
         self.gravity.setEnabled(False)  # 重力の変化は無視できるため，標準重力加速度のみを使う
 
         latitude_0_description = ""
@@ -38,7 +43,7 @@ class SimulationWidget(BaseSettingWidget):
             default=35.658099,  # 日本: 北緯35度39分29秒
             suffix=" deg",
         )
-        self._rows.addWidget(self.latitude_0)
+        self._param_rows.addWidget(self.latitude_0)
 
         longitude_0_description = ""
         self.longitude_0 = ParamGetterWidget_DoubleSpinBox(
@@ -50,7 +55,7 @@ class SimulationWidget(BaseSettingWidget):
             default=139.741354,  # 日本: 東経139度44分28秒8759
             suffix=" deg",
         )
-        self._rows.addWidget(self.longitude_0)
+        self._param_rows.addWidget(self.longitude_0)
 
         altitude_0_description = ""
         self.altitude_0 = ParamGetterWidget_DoubleSpinBox(
@@ -60,7 +65,7 @@ class SimulationWidget(BaseSettingWidget):
             default=24.39,  # 日本水準原点: https://www.gsi.go.jp/sokuchikijun/suijun-base.html
             suffix=" m",
         )
-        self._rows.addWidget(self.altitude_0)
+        self._param_rows.addWidget(self.altitude_0)
 
         self._rows.addStretch()
 
@@ -75,8 +80,14 @@ class SimulationWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])

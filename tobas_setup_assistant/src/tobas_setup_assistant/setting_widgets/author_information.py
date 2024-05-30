@@ -3,9 +3,11 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 import os
 from overrides import override
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_std_tools_py.string import is_valid_email
 from tobas_std_tools_py.git import get_git_user_email
@@ -27,11 +29,14 @@ class AuthorInformationWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         self.name = ParamGetterWidget_LineEdit("Name of the Maintainer", default=os.environ["USER"])
-        self._rows.addWidget(self.name)
+        self._param_rows.addWidget(self.name)
 
         self.email = ParamGetterWidget_LineEdit("Email of the Maintainer", default=get_git_user_email())
-        self._rows.addWidget(self.email)
+        self._param_rows.addWidget(self.email)
 
         self._rows.addStretch()
 
@@ -55,8 +60,14 @@ class AuthorInformationWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])

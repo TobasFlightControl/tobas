@@ -37,40 +37,40 @@ class DepthCameraWidget(OptionalDeviceWidget):
         super().__init__(main, title_text, abst_text, False)
 
         self.link = ParamGetterWidget_ComboBox("Link Name", CAMERA_LINK_DESCRIPTION)
-        self._add_config_widget(self.link)
+        self._add_param_widget(self.link)
 
         self.offset = ParamGetterWidget_Pose("Offset", CAMERA_OFFSET_DESCRIPTION)
-        self._add_config_widget(self.offset)
+        self._add_param_widget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update Rate", update_rate_description, minimum=1, default=30, suffix=" Hz"
         )
-        self._add_config_widget(self.update_rate)
+        self._add_param_widget(self.update_rate)
 
         fov_description = ""
         self.fov = ParamGetterWidget_DoubleSpinBox(
             "Horizontal Field of View", fov_description, decimals=6, minimum=0.0, default=1.59174, suffix=" rad"
         )
-        self._add_config_widget(self.fov)
+        self._add_param_widget(self.fov)
 
         baseline_description = ""
         self.baseline = ParamGetterWidget_DoubleSpinBox(
             "Baseline", baseline_description, decimals=6, minimum=0.0, default=0.05, suffix=""  # TODO  # TODO
         )
-        self._add_config_widget(self.baseline)
+        self._add_param_widget(self.baseline)
 
         image_width_description = ""
         self.image_width = ParamGetterWidget_SpinBox(
             "Image Width", image_width_description, minimum=1, default=848, suffix=" px"
         )
-        self._add_config_widget(self.image_width)
+        self._add_param_widget(self.image_width)
 
         image_height_description = ""
         self.image_height = ParamGetterWidget_SpinBox(
             "Image Height", image_height_description, minimum=1, default=480, suffix=" px"
         )
-        self._add_config_widget(self.image_height)
+        self._add_param_widget(self.image_height)
 
         depth_range_description = (
             "The range of depth observable by the camera. "
@@ -79,13 +79,13 @@ class DepthCameraWidget(OptionalDeviceWidget):
         self.depth_range = ParamGetterWidget_DoubleRange(
             "Depth Range", depth_range_description, minimum=0.0, default=(0.195, 50.0), suffix=" m"
         )
-        self._add_config_widget(self.depth_range)
+        self._add_param_widget(self.depth_range)
 
         noise_model_description = ""
         self.noise_model = ParamGetterWidget_ComboBox(
             "Depth Noise Model", noise_model_description, DepthNoiseModel.values()
         )
-        self._add_config_widget(self.noise_model)
+        self._add_param_widget(self.noise_model)
 
         self._rows.addStretch()
 
@@ -103,11 +103,3 @@ class DepthCameraWidget(OptionalDeviceWidget):
             return False
 
         return True
-
-    @override
-    def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
-
-    @override
-    def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO

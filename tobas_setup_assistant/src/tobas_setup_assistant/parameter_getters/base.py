@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, final
+from typing import Optional, Any, final
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
@@ -24,11 +24,11 @@ class ParamGetterWidget(QWidget):
             self._rows.addWidget(description)
 
     @abstractmethod
-    def get(self):
+    def get(self) -> Any:
         raise NotImplementedError()
 
     @abstractmethod
-    def set(self):
+    def set(self, src: Any) -> None:
         raise NotImplementedError()
 
     @final

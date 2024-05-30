@@ -28,31 +28,31 @@ class LidarWidget(OptionalDeviceWidget):
         super().__init__(main, title_text, abst_text, False)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
-        self._add_config_widget(self.offset)
+        self._add_param_widget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
-        self._add_config_widget(self.update_rate)
+        self._add_param_widget(self.update_rate)
 
         hor_samples_description = ""
         self.hor_samples = ParamGetterWidget_SpinBox(
             "The number of horizontal samples", hor_samples_description, minimum=1, default=100
         )
-        self._add_config_widget(self.hor_samples)
+        self._add_param_widget(self.hor_samples)
 
         ver_samples_description = ""
         self.ver_samples = ParamGetterWidget_SpinBox(
             "The number of vertical samples", ver_samples_description, minimum=1, default=360
         )
-        self._add_config_widget(self.ver_samples)
+        self._add_param_widget(self.ver_samples)
 
         hor_fov_description = ""
         self.hor_fov = ParamGetterWidget_DoubleRange(
             "Horizontal Field of View", hor_fov_description, decimals=3, default=(0.0, 2 * math.pi), suffix=" rad"
         )
-        self._add_config_widget(self.hor_fov)
+        self._add_param_widget(self.hor_fov)
 
         ver_fov_description = ""
         self.ver_fov = ParamGetterWidget_DoubleRange(
@@ -62,19 +62,19 @@ class LidarWidget(OptionalDeviceWidget):
             default=(math.radians(-7.22), math.radians(55.22)),
             suffix=" rad",
         )
-        self._add_config_widget(self.ver_fov)
+        self._add_param_widget(self.ver_fov)
 
         range_description = ""
         self.range = ParamGetterWidget_DoubleRange(
             "Laser distance range", range_description, decimals=3, default=(0.1, 200.0), suffix=" m"
         )
-        self._add_config_widget(self.range)
+        self._add_param_widget(self.range)
 
         resolution_description = ""
         self.resolution = ParamGetterWidget_DoubleSpinBox(
             "Distance resolution", resolution_description, decimals=3, minimum=1e-3, default=2e-3, suffix=" m"
         )
-        self._add_config_widget(self.resolution)
+        self._add_param_widget(self.resolution)
 
         noise_stddev_description = ""
         self.noise_stddev = ParamGetterWidget_DoubleSpinBox(
@@ -85,7 +85,7 @@ class LidarWidget(OptionalDeviceWidget):
             default=0.01,
             suffix=" m",
         )
-        self._add_config_widget(self.noise_stddev)
+        self._add_param_widget(self.noise_stddev)
 
         self._rows.addStretch()
 
@@ -109,11 +109,3 @@ class LidarWidget(OptionalDeviceWidget):
             return False
 
         return True
-
-    @override
-    def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
-
-    @override
-    def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO

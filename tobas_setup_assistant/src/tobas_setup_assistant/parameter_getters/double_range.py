@@ -43,9 +43,9 @@ class ParamGetterWidget_DoubleRange(ParamGetterWidget):
     def get(self) -> Tuple[float, float]:
         return self.min(), self.max()
 
-    def set(self, min_: float, max_: float) -> None:
-        self._min.set(min_)
-        self._max.set(max_)
+    def set(self, src: Tuple[float, float]) -> None:
+        self._min.set(src[0])
+        self._max.set(src[1])
 
     def is_valid(self) -> bool:
         return self.min() <= self.max()

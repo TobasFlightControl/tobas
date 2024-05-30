@@ -3,13 +3,14 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 import os
 import os.path as osp
 import re
 from overrides import override
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QLabel, QPushButton
+from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.path import get_catkin_ws_paths, is_in_catkin_src
@@ -38,15 +39,18 @@ class RosPackageWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         pardir_description = ""
         self._pardir = ParamGetterWidget_DirDialog("Parent Directory", pardir_description)
         self._pardir.path_changed.connect(self._on_path_changed)
-        self._rows.addWidget(self._pardir)
+        self._param_rows.addWidget(self._pardir)
 
         pkg_name_description = ""
         self._pkg_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
         self._pkg_name.text_changed.connect(self._on_path_changed)
-        self._rows.addWidget(self._pkg_name)
+        self._param_rows.addWidget(self._pkg_name)
 
         text = QLabel("The package will be generated as")
         text.setFont(QFont("Default", pointSize=BODY_PSIZE))
@@ -104,11 +108,17 @@ class RosPackageWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     def pkg_name(self) -> str:
         return self._pkg_name.get()

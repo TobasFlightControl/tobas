@@ -24,13 +24,13 @@ class OdometryWidget(OptionalDeviceWidget):
         super().__init__(main, title_text, abst_text, False)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
-        self._add_config_widget(self.offset)
+        self._add_param_widget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
             "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
-        self._add_config_widget(self.update_rate)
+        self._add_param_widget(self.update_rate)
 
         # TODO: Covariance Image getter
 
@@ -42,7 +42,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.01] * 3,
             suffix=" m",
         )
-        self._add_config_widget(self.pos_normal_noise_std)
+        self._add_param_widget(self.pos_normal_noise_std)
 
         rot_normal_noise_std_descripiton = ""
         self.rot_normal_noise_std = ParamGetterWidget_Vector3d(
@@ -52,7 +52,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.017] * 3,
             suffix=" rad",
         )
-        self._add_config_widget(self.rot_normal_noise_std)
+        self._add_param_widget(self.rot_normal_noise_std)
 
         linvel_normal_noise_std_descripiton = ""
         self.linvel_normal_noise_std = ParamGetterWidget_Vector3d(
@@ -62,7 +62,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.0] * 3,
             suffix=" m/s",
         )
-        self._add_config_widget(self.linvel_normal_noise_std)
+        self._add_param_widget(self.linvel_normal_noise_std)
 
         angvel_normal_noise_std_descripiton = ""
         self.angvel_normal_noise_std = ParamGetterWidget_Vector3d(
@@ -72,7 +72,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.0] * 3,
             suffix=" rad/s",
         )
-        self._add_config_widget(self.angvel_normal_noise_std)
+        self._add_param_widget(self.angvel_normal_noise_std)
 
         pos_uniform_noise_scale_descripiton = ""
         self.pos_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -82,7 +82,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.0] * 3,
             suffix=" m",
         )
-        self._add_config_widget(self.pos_uniform_noise_scale)
+        self._add_param_widget(self.pos_uniform_noise_scale)
 
         rot_uniform_noise_scale_descripiton = ""
         self.rot_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -92,7 +92,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.0] * 3,
             suffix=" rad",
         )
-        self._add_config_widget(self.rot_uniform_noise_scale)
+        self._add_param_widget(self.rot_uniform_noise_scale)
 
         linvel_uniform_noise_scale_descripiton = ""
         self.linvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -102,7 +102,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.0] * 3,
             suffix=" m/s",
         )
-        self._add_config_widget(self.linvel_uniform_noise_scale)
+        self._add_param_widget(self.linvel_uniform_noise_scale)
 
         angvel_uniform_noise_scale_descripiton = ""
         self.angvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
@@ -112,7 +112,7 @@ class OdometryWidget(OptionalDeviceWidget):
             default=[0.0] * 3,
             suffix=" rad/s",
         )
-        self._add_config_widget(self.angvel_uniform_noise_scale)
+        self._add_param_widget(self.angvel_uniform_noise_scale)
 
         self._rows.addStretch()
 
@@ -126,11 +126,3 @@ class OdometryWidget(OptionalDeviceWidget):
             return True
 
         return True
-
-    @override
-    def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
-
-    @override
-    def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO

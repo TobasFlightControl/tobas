@@ -80,13 +80,13 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
     def get(self) -> Tuple[float, float, float, float, float, float]:
         return self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw()
 
-    def set(self, x: float, y: float, z: float, roll: float, pitch: float, yaw: float) -> None:
-        self._x.set(x)
-        self._y.set(y)
-        self._z.set(z)
-        self._roll.set(roll)
-        self._pitch.set(pitch)
-        self._yaw.set(yaw)
+    def set(self, src: Tuple[float, float, float, float, float, float]) -> None:
+        self._x.set(src[0])
+        self._y.set(src[1])
+        self._z.set(src[2])
+        self._roll.set(src[3])
+        self._pitch.set(src[4])
+        self._yaw.set(src[5])
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:

@@ -1,5 +1,6 @@
 from overrides import override
-from PyQt5.QtWidgets import QStackedWidget
+from typing import Iterator
+from PyQt5.QtWidgets import QWidget, QStackedWidget
 
 from ..utils import update_event_loop
 
@@ -7,9 +8,14 @@ from ..utils import update_event_loop
 class StackedWidget(QStackedWidget):
     """
     ===== QStackedWidgetとの違い =====
+    - イテレータを定義
     - setCurrentIndexを安定化
     - 追加メソッド
     """
+
+    def __iter__(self) -> Iterator[QWidget]:
+        for i in range(self.count()):
+            yield self.widget(i)
 
     @override
     def setCurrentIndex(self, index: int) -> None:
