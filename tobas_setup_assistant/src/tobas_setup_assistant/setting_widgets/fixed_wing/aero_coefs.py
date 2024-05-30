@@ -5,9 +5,8 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 import os.path as osp
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
-from PyQt5.QtGui import QFont
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import DoubleSpinBox
@@ -15,7 +14,7 @@ from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH
 
-from ...common import TITLE, PKG_NAME, TITLE_PSIZE
+from ...common import TITLE, PKG_NAME
 from .common import STABILITY_COEF_DECIMALS
 
 
@@ -30,11 +29,6 @@ class AerodynamicsCoefficientsWidget(QWidget):
 
         rows = QVBoxLayout()
         self.setLayout(rows)
-
-        label = QLabel("Aerodynamic Coefficients")
-        label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignLeft)
-        rows.addWidget(label)
 
         cols = QHBoxLayout()
         rows.addLayout(cols)
@@ -147,6 +141,18 @@ class AerodynamicsCoefficientsWidget(QWidget):
 
     def is_valid(self) -> bool:
         return True
+
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        for label, spin_box in self._form:
+            res[label.text()] = spin_box.value()
+
+        return res
+
+    def load_settings(self, data: dict) -> None:
+        for label, spin_box in self._form:
+            spin_box.setValue(data[label.text()])
 
     def _load_params(self, file_path: str) -> None:
         with open(file_path, "r") as f:

@@ -5,11 +5,11 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QLabel, QCheckBox
 from PyQt5.QtGui import QFont
 
-from ...common import BODY_PSIZE
+from ...common import TITLE_PSIZE, BODY_PSIZE
 from ..base_setting import BaseSettingWidget
 from .vehicle import VehicleParametersWidget
 from .aero_coefs import AerodynamicsCoefficientsWidget
@@ -32,15 +32,32 @@ class FixedWingWidget(BaseSettingWidget):
         self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
         self._rows.addWidget(self.has_fixed_wing)
 
+        label_font = QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold)
+
         # Vehicle Parameters
+        self._vehicle_label = QLabel("Vehicle Parameters")
+        self._vehicle_label.setFont(label_font)
+        self._vehicle_label.setAlignment(Qt.AlignLeft)
+        self._rows.addWidget(self._vehicle_label)
+
         self.vehicle = VehicleParametersWidget(self._main)
         self._rows.addWidget(self.vehicle)
 
         # Aerodynamic Coefficients
+        self._aero_coefs_label = QLabel("Aerodynamic Coefficients")
+        self._aero_coefs_label.setFont(label_font)
+        self._aero_coefs_label.setAlignment(Qt.AlignLeft)
+        self._rows.addWidget(self._aero_coefs_label)
+
         self.aero_coefs = AerodynamicsCoefficientsWidget(self._main)
         self._rows.addWidget(self.aero_coefs)
 
         # Control Surfaces
+        self._control_surfaces_label = QLabel("Control Surfaces")
+        self._control_surfaces_label.setFont(label_font)
+        self._control_surfaces_label.setAlignment(Qt.AlignLeft)
+        self._rows.addWidget(self._control_surfaces_label)
+
         self.control_surfaces = ControlSurfacesWidget(self._main)
         self._rows.addWidget(self.control_surfaces)
 
@@ -49,7 +66,7 @@ class FixedWingWidget(BaseSettingWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
-        pass
+        self.control_surfaces.update_internal_data_structures()
 
     @override
     def is_valid(self) -> bool:
@@ -67,11 +84,23 @@ class FixedWingWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+
+        res[self.has_fixed_wing.text()] = self.has_fixed_wing.isChecked()
+
+        res[self._vehicle_label.text()] = self.vehicle.dump_settings()
+        res[self._aero_coefs_label.text()] = self.aero_coefs.dump_settings()
+        res[self._control_surfaces_label.text()] = self.control_surfaces.dump_settings()
+
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        self.has_fixed_wing.setChecked(data[self.has_fixed_wing.text()])
+
+        self.vehicle.load_settings(data[self._vehicle_label.text()])
+        self.aero_coefs.load_settings(data[self._aero_coefs_label.text()])
+        self.control_surfaces.load_settings(data[self._control_surfaces_label.text()])
 
     def num_control_surfaces(self) -> int:
         return self.control_surfaces.selected.count()

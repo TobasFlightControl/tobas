@@ -4,11 +4,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
-from ...common import TITLE_PSIZE
 from ...parameter_getters import (
     ParamGetterWidget_DoubleSpinBox,
     ParamGetterWidget_DoubleRange,
@@ -23,11 +20,6 @@ class VehicleParametersWidget(QWidget):
 
         rows = QVBoxLayout()
         self.setLayout(rows)
-
-        label = QLabel("Vehicle Parameters")
-        label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignLeft)
-        rows.addWidget(label)
 
         wing_surface_description = ""
         self.wing_surface = ParamGetterWidget_DoubleSpinBox(
@@ -61,3 +53,21 @@ class VehicleParametersWidget(QWidget):
 
     def is_valid(self) -> bool:
         return True
+
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self.wing_surface.name()] = self.wing_surface.get()
+        res[self.wing_span.name()] = self.wing_span.get()
+        res[self.mac.name()] = self.mac.get()
+        res[self.aerodynamic_center.name()] = self.aerodynamic_center.get()
+        res[self.alpha_limit.name()] = self.alpha_limit.get()
+
+        return res
+
+    def load_settings(self, data: dict) -> None:
+        self.wing_surface.set(data[self.wing_surface.name()])
+        self.wing_span.set(data[self.wing_span.name()])
+        self.mac.set(data[self.mac.name()])
+        self.aerodynamic_center.set(*data[self.aerodynamic_center.name()])
+        self.alpha_limit.set(*data[self.alpha_limit.name()])

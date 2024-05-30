@@ -1,4 +1,4 @@
-from typing import Tuple, List, Optional
+from typing import Tuple, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout
 
@@ -47,9 +47,8 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
     def z(self) -> float:
         return self._z.get()
 
-    def get(self) -> List[float]:
-        """yamlにそのまま書き込めるようにタプルではなくリストで返す．"""
-        return [self.x(), self.y(), self.z()]
+    def get(self) -> Tuple[float, float, float]:
+        return self.x(), self.y(), self.z()
 
     def set(self, x: float, y: float, z: float) -> None:
         self._x.set(x)
