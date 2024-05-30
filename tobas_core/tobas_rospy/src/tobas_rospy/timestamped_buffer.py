@@ -14,12 +14,12 @@ class TimestampedBuffer:
         self._lock = Lock()  # dequeにアクセスする部分をスレッドセーフにする
 
     def __iter__(self) -> Iterator[Tuple[rospy.Time, Any]]:
+        self._index = 0
         return self
 
     def __next__(self) -> Tuple[rospy.Time, Any]:
         with self._lock:
             if self._index >= self.size():
-                self._index = 0
                 raise StopIteration()
             res = self._que[self._index]
 

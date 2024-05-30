@@ -1,7 +1,7 @@
 from collections import deque
-from typing import List, Iterable
+from typing import List, Iterator
 
-from dh_function.basic import is_unique
+from tobas_std_tools_py.list import is_unique
 
 
 class MSequenceGenerator:
@@ -48,28 +48,21 @@ class MSequenceGenerator:
             assert sum(initial_state) > 0
             self._initial_state = initial_state
 
-        self._register = deque(self._initial_state)
         self._length = 2 ** len(self._initial_state) - 1
-        self._count = 0
 
-    def __iter__(self) -> Iterable:
-        return self
+    def __iter__(self) -> Iterator[int]:
+        register = deque(self._initial_state)
 
-    def __next__(self) -> int:
-        if self._count == self._length:
-            self._register = deque(self._initial_state)
-            self._count = 0
-            raise StopIteration()
+        for _ in range(self._length):
+            # フィードバックビットを計算
+            feedback = sum([register[i] for i in self._taps]) % 2
 
-        # フィードバックビットを計算
-        feedback = sum([self._register[i] for i in self._taps]) % 2
+            # レジスタを1ビットずつシフト
+            register.pop()
+            register.appendleft(feedback)
 
-        # レジスタを1ビットずつシフト
-        self._register.pop()
-        self._register.appendleft(feedback)
-        self._count += 1
-
-        return self._register[-1] * 2 - 1  # [0, 1] -> [-1, 1]
+            # 範囲を変えて返す
+            yield register[-1] * 2 - 1  # [0, 1] -> [-1, 1]
 
     def length(self) -> int:
         """1周期の長さ．"""
