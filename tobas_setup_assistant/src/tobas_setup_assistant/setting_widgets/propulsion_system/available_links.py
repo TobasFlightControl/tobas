@@ -112,15 +112,11 @@ class AvailableLinkItemWidget(QListWidget):
 
         self._add_button = QPushButton("Add")
         self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._add_button.clicked.connect(self._on_add_button_clicked)
         cols.addWidget(self._add_button)
-
-        self._define_connections()
 
     def link_name(self) -> str:
         return self._link_label.text()
-
-    def _define_connections(self) -> None:
-        self._add_button.clicked.connect(self._on_add_button_clicked)
 
     @pyqtSlot()
     def _on_add_button_clicked(self) -> None:

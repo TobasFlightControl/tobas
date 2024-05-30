@@ -46,15 +46,15 @@ class MotorWidget(QWidget):
         ]
 
         self._method_name = ComboBox()
-        self._method_name.addItem(self.NO_SELECT)
+        self._method_name.currentTextChanged.connect(self._on_type_changed)
         rows.addWidget(self._method_name)
 
+        self._method_name.addItem(self.NO_SELECT)
         for method in self._methods:
             self._method_name.addItem(method.NAME)
             rows.addWidget(method)
 
         self._update_visibility()
-        self._define_connections()
 
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
@@ -97,9 +97,6 @@ class MotorWidget(QWidget):
             des_method.copy_from(src_method)
 
         self._update_visibility()
-
-    def _define_connections(self) -> None:
-        self._method_name.currentTextChanged.connect(self._on_type_changed)
 
     def _selected(self) -> MotorWidget_Base:
         method_name = self._method_name.currentText()
@@ -232,7 +229,7 @@ class MotorWidget_MotorSpec(MotorWidget_Base):
 
         kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
         self._kv = ParamGetterWidget_SpinBox(
-            "Kv", kv_description, minimum=1, maximum=10 ** 5, default=920, suffix=" rpm/V"
+            "Kv", kv_description, minimum=1, maximum=10**5, default=920, suffix=" rpm/V"
         )
         self._rows.addWidget(self._kv)
 
@@ -321,7 +318,7 @@ class MotorWidget_Experiment(MotorWidget_Base):
         omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
-        X = np.c_[omega, omega ** 2]
+        X = np.c_[omega, omega**2]
         a, b = LA.lstsq(X, motor_voltage, rcond=None)[0].squeeze()
 
         return a, b

@@ -52,15 +52,15 @@ class AerodynamicsWidget(QWidget):
         ]
 
         self._method_name = ComboBox()
-        self._method_name.addItem(self.NO_SELECT)
+        self._method_name.currentTextChanged.connect(self._on_type_changed)
         rows.addWidget(self._method_name)
 
+        self._method_name.addItem(self.NO_SELECT)
         for method in self._methods:
             self._method_name.addItem(method.NAME)
             rows.addWidget(method)
 
         self._update_visibility()
-        self._define_connections()
 
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
@@ -95,9 +95,6 @@ class AerodynamicsWidget(QWidget):
             des_method.copy_from(src_method)
 
         self._update_visibility()
-
-    def _define_connections(self) -> None:
-        self._method_name.currentTextChanged.connect(self._on_type_changed)
 
     def _selected(self) -> AerodynamicsWidget_Base:
         method_name = self._method_name.currentText()
@@ -401,7 +398,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
 
         blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi ** 2)
+        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
 
     @override
     def moment_const(self) -> float:

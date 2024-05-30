@@ -209,6 +209,7 @@ class SelectedLinkTabWidget(QWidget):
 
         self._copy_button = QPushButton("Copy from left tab")
         self._copy_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._copy_button.clicked.connect(self._copy_from_left_tab)
         place_center(self._copy_button, rows)
 
         self.esc = EscWidget(main, link_name)
@@ -224,7 +225,6 @@ class SelectedLinkTabWidget(QWidget):
         rows.addWidget(self.aerodynamics)
 
         rows.addStretch()
-        self._define_connections()
 
     def is_valid(self) -> bool:
         if not self.esc.is_valid():
@@ -252,9 +252,6 @@ class SelectedLinkTabWidget(QWidget):
             return AxisType.Z_POSITIVE
         else:
             return AxisType.UNKNOWN
-
-    def _define_connections(self) -> None:
-        self._copy_button.clicked.connect(self._copy_from_left_tab)
 
     @pyqtSlot()
     def _copy_from_left_tab(self) -> None:
