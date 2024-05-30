@@ -1,6 +1,6 @@
 from __future__ import annotations  # 自クラスをメソッドの引数としてアノテーションするために必要
 from overrides import override
-from typing import Union
+from typing import Union, Iterator
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QDropEvent
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
@@ -9,28 +9,16 @@ from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 class ListWidget(QListWidget):
     """
     ===== QListWidgetItemとの違い =====
-    - イテレータとして使用可能
+    - イテレータを定義
     - ドラッグアンドドロップでシグナル発行
     - 追加メソッド
     """
 
     item_moved = pyqtSignal(QListWidgetItem)
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._index = 0
-
-    def __iter__(self) -> ListWidget:
-        self._index = 0
-        return self
-
-    def __next__(self) -> QListWidgetItem:
-        if self._index >= self.count():
-            raise StopIteration()
-
-        item = self.item(self._index)
-        self._index += 1
-        return item
+    def __iter__(self) -> Iterator[QListWidgetItem]:
+        for row in self.count():
+            yield self.item(row)
 
     @override
     def dropEvent(self, event: QDropEvent) -> None:

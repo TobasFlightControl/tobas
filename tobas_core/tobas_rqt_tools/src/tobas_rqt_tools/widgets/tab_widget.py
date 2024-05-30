@@ -1,4 +1,5 @@
 from overrides import override
+from typing import Iterator
 from PyQt5.QtWidgets import QWidget, QTabBar, QTabWidget
 from PyQt5.QtGui import QWheelEvent
 
@@ -16,20 +17,9 @@ class TabWidget(QTabWidget):
     - 追加メソッド
     """
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._index = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self) -> QWidget:
-        if self._index < self.count():
-            tab = self.widget(self._index)
-            self._index += 1
-            return tab
-        else:
-            raise StopIteration()
+    def __iter__(self) -> Iterator[QWidget]:
+        for i in range(self.count()):
+            yield self.widget(i)
 
     def ignore_wheel_event(self) -> None:
         self.setTabBar(TabBarWithNoWheelEvent())
