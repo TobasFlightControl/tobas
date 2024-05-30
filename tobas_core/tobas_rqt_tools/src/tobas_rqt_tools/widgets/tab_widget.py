@@ -22,6 +22,13 @@ class TabWidget(QTabWidget):
             yield self.widget(i)
 
     def ignore_wheel_event(self) -> None:
+        """
+        マウスホイールイベントを無視する．
+
+        NOTE
+        ----------
+        setMovableなどのTabBarの設定の前に呼ぶ必要がある．
+        """
         self.setTabBar(TabBarWithNoWheelEvent())
 
     def switch(self, tab: QWidget) -> None:

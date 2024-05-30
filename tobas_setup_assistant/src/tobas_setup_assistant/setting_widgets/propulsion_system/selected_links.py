@@ -39,10 +39,11 @@ class SelectedLinksWidget(TabWidget):
         self._main = main
         self._signals = signals
 
+        self.ignore_wheel_event()
+
         self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
         self.setMovable(True)
         self.setTabsClosable(True)
-        self.ignore_wheel_event()
 
         self._markers = MarkerArray()  # 推力の作用線
         self._markers_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
