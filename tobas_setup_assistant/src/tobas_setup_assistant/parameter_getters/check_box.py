@@ -1,3 +1,4 @@
+from overrides import override
 from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QCheckBox
@@ -22,11 +23,13 @@ class ParamGetterWidget_CheckBox(ParamGetterWidget):
         self._box.toggled.connect(self._on_toggled)
         self._rows.addWidget(self._box)
 
+    @override
     def get(self) -> bool:
         return self._box.isChecked()
 
-    def set(self, is_checked: bool) -> None:
-        self._box.setChecked(is_checked)
+    @override
+    def set(self, src: bool) -> None:
+        self._box.setChecked(src)
 
     @pyqtSlot()
     def _on_toggled(self) -> None:

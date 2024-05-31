@@ -1,3 +1,4 @@
+from overrides import override
 from typing import List, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
@@ -30,11 +31,13 @@ class ParamGetterWidget_ComboBox(ParamGetterWidget):
         self._box.currentIndexChanged.connect(self._on_index_changed)
         self._box.currentTextChanged.connect(self._on_text_changed)
 
+    @override
     def get(self) -> str:
         return self._box.currentText()
 
-    def set(self, text: str) -> None:
-        self._box.setCurrentText(text)
+    @override
+    def set(self, src: str) -> None:
+        self._box.setCurrentText(src)
 
     def cur_index(self) -> int:
         return self._box.currentIndex()

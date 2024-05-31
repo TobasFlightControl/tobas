@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QPushButton, QListWidget, QHBoxLayout
 from PyQt5.QtGui import QFont
 
@@ -12,22 +12,19 @@ from tobas_kdl_sympy.joint import JointType
 from tobas_rqt_tools.widgets import ListWidgetItem
 
 from ...common import BODY_PSIZE
-from .signals import PropulsionSystemSignals
 
 
 class AvailableLinksWidget(QListWidget):
     HEIGHT = 200
     ITEM_HEIGHT = 40
 
-    def __init__(self, main: SetupAssistant, signals: PropulsionSystemSignals) -> None:
+    link_removed = pyqtSignal(str)
+
+    def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
-        self._signals = signals
 
         self.setFixedHeight(self.HEIGHT)
-
-        signals.add_link.connect(self._remove_link)
-        signals.remove_link.connect(self._add_link)
 
     def update_internal_data_structures(self) -> None:
         """
@@ -56,15 +53,14 @@ class AvailableLinksWidget(QListWidget):
                 continue
 
             # リンク名をリストに追加
-            self._add_link(link.name)
+            self.add_link(link.name)
 
         self.sortItems()
 
     def is_valid(self) -> bool:
         return True
 
-    @pyqtSlot(str)
-    def _add_link(self, link_name: str) -> None:
+    def add_link(self, link_name: str) -> None:
         assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
         assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
 
@@ -72,13 +68,15 @@ class AvailableLinksWidget(QListWidget):
         item.setSizeHint(QSize(0, self.ITEM_HEIGHT))  # 横幅が小さすぎる場合は自動で引き伸ばされる
         item.setData(Qt.UserRole, link_name)  # リンク名をソート基準にする
         self.addItem(item)
-        self.setItemWidget(item, AvailableLinkItemWidget(self._main, self._signals, link_name))
+
+        widget = AvailableLinkItemWidget(link_name)
+        widget.add_button_clicked.connect(self._on_add_button_clicked)
+        self.setItemWidget(item, widget)
 
         # リンクが追加されるたびにソート
         self.sortItems(Qt.AscendingOrder)
 
-    @pyqtSlot(str)
-    def _remove_link(self, link_name: str) -> None:
+    def remove_link(self, link_name: str) -> None:
         for row in range(self.count()):
             item = self.item(row)
             link_widget: AvailableLinkItemWidget = self.itemWidget(item)
@@ -87,6 +85,11 @@ class AvailableLinksWidget(QListWidget):
                 return
         else:
             raise RuntimeError(f"Link name not found: {link_name}")
+
+    @pyqtSlot(str)
+    def _on_add_button_clicked(self, link_name: str) -> None:
+        self.remove_link(link_name)
+        self.link_removed.emit(link_name)
 
     def _link_exists_in_list(self, link_name: str) -> bool:
         items = self.findItems(link_name, Qt.MatchExactly)
@@ -97,11 +100,10 @@ class AvailableLinkItemWidget(QListWidget):
     BUTTON_WIDTH = 60
     BUTTON_HEIGHT = 20
 
-    def __init__(self, main: SetupAssistant, signals: PropulsionSystemSignals, link_name: str) -> None:
-        super().__init__()
-        self._main = main
-        self._signals = signals
+    add_button_clicked = pyqtSignal(str)
 
+    def __init__(self, link_name: str) -> None:
+        super().__init__()
         cols = QHBoxLayout()
         self.setLayout(cols)
 
@@ -112,13 +114,8 @@ class AvailableLinkItemWidget(QListWidget):
 
         self._add_button = QPushButton("Add")
         self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self._add_button.clicked.connect(self._on_add_button_clicked)
+        self._add_button.clicked.connect(lambda: self.add_button_clicked.emit(self.link_name()))
         cols.addWidget(self._add_button)
 
     def link_name(self) -> str:
         return self._link_label.text()
-
-    @pyqtSlot()
-    def _on_add_button_clicked(self) -> None:
-        self._signals.add_link.emit(self.link_name())
-        self._main.signals.airframe_updated.emit()

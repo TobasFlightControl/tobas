@@ -1,3 +1,4 @@
+from overrides import override
 from typing import Tuple, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout
@@ -13,8 +14,8 @@ class ParamGetterWidget_IntRange(ParamGetterWidget):
         self,
         param_name: str,
         description_text: Optional[str] = None,
-        minimum: int = -(10 ** 9),
-        maximum: int = +(10 ** 9),
+        minimum: int = -(10**9),
+        maximum: int = +(10**9),
         single_step: int = 1,
         default: Tuple[int, int] = (0, 0),
         suffix: str = "",
@@ -39,12 +40,14 @@ class ParamGetterWidget_IntRange(ParamGetterWidget):
     def max(self) -> int:
         return self._max.get()
 
+    @override
     def get(self) -> Tuple[int, int]:
         return self.min(), self.max()
 
-    def set(self, min_: int, max_: int) -> None:
-        self._min.data.setValue(min_)
-        self._max.data.setValue(max_)
+    @override
+    def set(self, src: Tuple[int, int]) -> None:
+        self._min.set(src[0])
+        self._max.set(src[1])
 
     def is_valid(self) -> bool:
         return self.min() <= self.max()

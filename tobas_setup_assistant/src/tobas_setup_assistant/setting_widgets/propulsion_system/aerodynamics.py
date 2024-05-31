@@ -3,46 +3,45 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
+    from ...parameter_getters import ParamGetterWidget
 
 import math
 import numpy as np
 from abc import abstractmethod
 from overrides import override
-from typing import List, final
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt5.QtGui import QFont
+from typing import List
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from tobas_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
-from ...common import AIR_DENSITY, TITLE_PSIZE, TO_DO, Description
+from ...common import AIR_DENSITY, TO_DO, Description
 from ...parameter_getters import (
     ParamGetterWidget_SpinBox,
     ParamGetterWidget_DoubleSpinBox,
     ParamGetterWidget_DoubleTable,
 )
 from .common import PROPULSION_SYSTEM
+from .base import BaseSelectedLinkSettingWidget
 from .blade_theory import BladeTheory
 
 
-class AerodynamicsWidget(QWidget):
+class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
+    NAME = "Aerodynamics"
+
     NO_SELECT = "Select setting method"
+    METHOD_NAME = "method_name"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        super().__init__()
+        super().__init__(main, link_name)
 
-        self._main = main
-        self._link_name = link_name
-
-        rows = QVBoxLayout()
-        self.setLayout(rows)
-
-        title = QLabel("Aerodynamics")
-        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        title.setAlignment(Qt.AlignTop)
-        rows.addWidget(title)
+        max_model_error_rate_description = "Maximum error rate in the modeling of aerodynamic constants."
+        self._max_model_error_rate = ParamGetterWidget_SpinBox(
+            "Max Model Error Rate", max_model_error_rate_description, minimum=0, maximum=1000, default=10, suffix=" %"
+        )
+        self._rows.addWidget(self._max_model_error_rate)
 
         self._methods: List[AerodynamicsWidget_Base] = [
             AerodynamicsWidget_Manual(main, link_name),
@@ -53,15 +52,16 @@ class AerodynamicsWidget(QWidget):
 
         self._method_name = ComboBox()
         self._method_name.currentTextChanged.connect(self._on_type_changed)
-        rows.addWidget(self._method_name)
+        self._rows.addWidget(self._method_name)
 
         self._method_name.addItem(self.NO_SELECT)
         for method in self._methods:
             self._method_name.addItem(method.NAME)
-            rows.addWidget(method)
+            self._rows.addWidget(method)
 
         self._update_visibility()
 
+    @override
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
             q_error_named(self._main, PROPULSION_SYSTEM, "Please select aerodynamics setting method.")
@@ -71,6 +71,31 @@ class AerodynamicsWidget(QWidget):
                 return False
 
         return True
+
+    @override
+    def copy_from(self, src: AerodynamicsWidget) -> None:
+        self._max_model_error_rate.set(src._max_model_error_rate.get())
+        self._method_name.setCurrentText(src._method_name.currentText())
+        for des_method, src_method in zip(self._methods, src._methods):
+            des_method.copy_from(src_method)
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self._max_model_error_rate.name()] = self._max_model_error_rate.get()
+        res[self.METHOD_NAME] = self._method_name.currentText()
+        for method in self._methods:
+            res[method.NAME] = method.dump_settings()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        self._max_model_error_rate.set(data[self._max_model_error_rate.name()])
+        self._method_name.setCurrentText(data[self.METHOD_NAME])
+        for method in self._methods:
+            method.load_settings(data[method.NAME])
 
     def motor_const(self) -> float:
         """[kg*m/rad^2]"""
@@ -86,15 +111,7 @@ class AerodynamicsWidget(QWidget):
 
     def max_model_error_rate(self) -> float:
         """[-]"""
-        return self._selected().max_model_error_rate()
-
-    def copy_from(self, src: AerodynamicsWidget) -> None:
-        self._method_name.setCurrentText(src._method_name.currentText())
-
-        for des_method, src_method in zip(self._methods, src._methods):
-            des_method.copy_from(src_method)
-
-        self._update_visibility()
+        return self._max_model_error_rate.get() / 100.0
 
     def _selected(self) -> AerodynamicsWidget_Base:
         method_name = self._method_name.currentText()
@@ -126,8 +143,9 @@ class AerodynamicsWidget(QWidget):
 
 class AerodynamicsWidget_Base(QWidget):
     NAME = TO_DO
+    ABST_TEXT = TO_DO
 
-    def __init__(self, main: SetupAssistant, link_name: str, abst_text: str) -> None:
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
 
         self._main = main
@@ -136,14 +154,11 @@ class AerodynamicsWidget_Base(QWidget):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst = Description(abst_text)
+        abst = Description(self.ABST_TEXT)
         self._rows.addWidget(abst)
 
-        max_model_error_rate_description = "Maximum error rate in the modeling of aerodynamic constants."
-        self._max_model_error_rate = ParamGetterWidget_SpinBox(
-            "Max Model Error Rate", max_model_error_rate_description, minimum=0, maximum=1000, default=10, suffix=" %"
-        )
-        self._rows.addWidget(self._max_model_error_rate)
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
 
     @abstractmethod
     def is_valid(self) -> bool:
@@ -164,22 +179,35 @@ class AerodynamicsWidget_Base(QWidget):
         """[kg/rad]"""
         raise NotImplementedError()
 
-    @abstractmethod
     def copy_from(self, src: AerodynamicsWidget_Base) -> None:
-        self._max_model_error_rate.set(src._max_model_error_rate.get())
+        for i in range(self._param_rows.count()):
+            param_des: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param_src: ParamGetterWidget = src._param_rows.itemAt(i).widget()
+            param_des.set(param_src.get())
 
-    @final
-    def max_model_error_rate(self) -> float:
-        """[-]"""
-        return self._max_model_error_rate.get() / 100.0
+    def dump_settings(self) -> dict:
+        res = dict()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
+
+    def load_settings(self, data: dict) -> None:
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
+
+    def _add_param_widget(self, widget: ParamGetterWidget) -> None:
+        """ここで追加したパラメータはcopy, dump, loadが自動で行われる．"""
+        self._param_rows.addWidget(widget)
 
 
 class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
     NAME = "Set manually"
+    ABST_TEXT = "Directly set the propeller aerodynamic constants."
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        abst_text = "Directly set the propeller aerodynamic constants."
-        super().__init__(main, link_name, abst_text)
+        super().__init__(main, link_name)
 
         motor_const_description = (
             "Propeller thrust constant. "
@@ -194,7 +222,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
             default=8.54858e-6,
             suffix=" kg m/rad^2",
         )
-        self._rows.addWidget(self._motor_const)
+        self._add_param_widget(self._motor_const)
 
         moment_const_description = (
             "Propeller torque reaction coefficient. "
@@ -204,7 +232,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
         self._moment_const = ParamGetterWidget_DoubleSpinBox(
             "Moment Constant", moment_const_description, decimals=6, minimum=0.0, default=0.016, suffix=" m"
         )
-        self._rows.addWidget(self._moment_const)
+        self._add_param_widget(self._moment_const)
 
         rotor_drag_coef_description = (
             "Propeller drag coefficient. "
@@ -221,7 +249,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
             default=8.06428e-5,
             suffix=" kg/rad",
         )
-        self._rows.addWidget(self._rotor_drag_coef)
+        self._add_param_widget(self._rotor_drag_coef)
 
     @override
     def is_valid(self) -> bool:
@@ -239,28 +267,21 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
     def rotor_drag_coef(self) -> float:
         return self._rotor_drag_coef.get()
 
-    @override
-    def copy_from(self, src: AerodynamicsWidget_Manual) -> None:
-        super().copy_from(src)
-        self._motor_const.set(src._motor_const.get())
-        self._moment_const.set(src._moment_const.get())
-        self._rotor_drag_coef.set(src._rotor_drag_coef.get())
-
 
 class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     """Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019]"""
 
     NAME = "Set from blade geometry"
+    ABST_TEXT = (
+        "Estimate aerodynamic constants using Blade Element Theory or Momentum Theory, "
+        "based on the geometric shape of the propeller set above. See "
+        "<a href='https://en.wikipedia.org/wiki/Blade_element_theory'>Blade Element Theory</a> and "
+        "<a href='https://en.wikipedia.org/wiki/Momentum_theory'>Momentum Theory</a> "
+        "for more information."
+    )
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        abst_text = (
-            "Estimate aerodynamic constants using Blade Element Theory or Momentum Theory, "
-            "based on the geometric shape of the propeller set above. See "
-            "<a href='https://en.wikipedia.org/wiki/Blade_element_theory'>Blade Element Theory</a> and "
-            "<a href='https://en.wikipedia.org/wiki/Momentum_theory'>Momentum Theory</a> "
-            "for more information."
-        )
-        super().__init__(main, link_name, abst_text)
+        super().__init__(main, link_name)
 
     @override
     def is_valid(self) -> bool:
@@ -278,10 +299,6 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     def rotor_drag_coef(self) -> float:
         return self._blade_thory().rotor_drag_coef()
 
-    @override
-    def copy_from(self, src: AerodynamicsWidget_BladeTheory) -> None:
-        super().copy_from(src)
-
     def _blade_thory(self) -> BladeTheory:
         blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
         return BladeTheory(blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle())
@@ -294,18 +311,17 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     """
 
     NAME = "Set from thrust stand data"
+    ABST_TEXT = (
+        "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
+        "For example, see the "
+        "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>"
+    )  # NOTE: テキスト中に改行コードを入れるとハイパーリンクが機能しない
 
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        # NOTE: テキスト中に改行コードを入れるとハイパーリンクが機能しない
-        abst_text = (
-            "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
-            "For example, see the "
-            "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>"
-        )
-        super().__init__(main, link_name, abst_text)
+        super().__init__(main, link_name)
 
         data_description = "Please input experimental data from the Thrust Stand."
         self._data = ParamGetterWidget_DoubleTable(
@@ -316,7 +332,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         self._data.set_suffix([" rpm", " N", " Nm"])
         self._data.set_fixed_height(self.TABLE_HEIGHT)
         self._data.set_column_width(self.TABLE_COL_WIDTH)
-        self._rows.addWidget(self._data)
+        self._add_param_widget(self._data)
 
     @override
     def is_valid(self) -> bool:
@@ -330,8 +346,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def motor_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
-        data = self._data.get()
-        rpm, thrust, _ = np.hsplit(data, 3)
+        rpm, thrust, _ = np.hsplit(self._data.get(), 3)
         omega2: np.ndarray = rpm2rps(rpm) ** 2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
@@ -339,8 +354,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def moment_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
-        data = self._data.get()
-        _, thrust, torque = np.hsplit(data, 3)
+        _, thrust, torque = np.hsplit(self._data.get(), 3)
         return ((torque.T @ thrust) / (thrust.T @ thrust)).item()  # 最小2乗解 (memo: 2-28)
 
     @override
@@ -352,25 +366,20 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         )
         return blade_theory.rotor_drag_coef()
 
-    @override
-    def copy_from(self, src: AerodynamicsWidget_ThrustStand) -> None:
-        super().copy_from(src)
-        self._data.set(src._data.get())
-
 
 class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     NAME = "Set from UIUC propeller data site"
+    ABST_TEXT = (
+        "If the propeller is listed in the "
+        "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
+        "aerodynamic constants measured by research institutions can be utilized."
+    )
 
     TABLE_HEIGHT = 500
     TABLE_COL_WIDTH = 180
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        abst_text = (
-            "If the propeller is listed in the "
-            "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
-            "aerodynamic constants measured by research institutions can be utilized."
-        )
-        super().__init__(main, link_name, abst_text)
+        super().__init__(main, link_name)
 
         data_description = "Input the Static data for the relevant propeller."
         self._data = ParamGetterWidget_DoubleTable(
@@ -380,7 +389,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         self._data.set_decimals([3, 6, 6])
         self._data.set_fixed_height(self.TABLE_HEIGHT)
         self._data.set_column_width(self.TABLE_COL_WIDTH)
-        self._rows.addWidget(self._data)
+        self._add_param_widget(self._data)
 
     @override
     def is_valid(self) -> bool:
@@ -393,7 +402,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     @override
     def motor_const(self) -> float:
         # CTの平均をとる
-        data = self._data.get()
+        data = np.array(self._data.get())
         CTs = data[:, 1]
         CT = np.mean(CTs)
 
@@ -404,7 +413,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     def moment_const(self) -> float:
         # CT, CPの平均をとる
         # TODO: 単純な平均ではなく，ホバリング時の回転数に対応する値をとる
-        data = self._data.get()
+        data = np.array(self._data.get())
         CTs = data[:, 1]
         CPs = data[:, 2]
         CT = np.mean(CTs)
@@ -421,8 +430,3 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
             blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
         )
         return blade_theory.rotor_drag_coef()
-
-    @override
-    def copy_from(self, src: AerodynamicsWidget_UIUC) -> None:
-        super().copy_from(src)
-        self._data.set(src._data.get())

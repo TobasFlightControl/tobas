@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
-    from .setting_widgets.propulsion_system.selected_links import SelectedLinkTabWidget
+    from .setting_widgets.propulsion_system.selected_links import SelectedLinkWidget
 
 import os
 import os.path as osp
@@ -322,7 +322,7 @@ class PackageGenerator(QObject):
         drone_config["num_rotors"] = num_rotors
 
         for i in range(num_rotors):
-            selected: SelectedLinkTabWidget = selected_props.widget(i)
+            selected: SelectedLinkWidget = selected_props.widget(i)
 
             # yamlに変換する際の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f"rotor_{i}"] = {
@@ -572,7 +572,7 @@ class PackageGenerator(QObject):
 
         # Propulsion System plugin
         for i in range(self._main.propulsion_system.selected.count()):
-            selected: SelectedLinkTabWidget = self._main.propulsion_system.selected.widget(i)
+            selected: SelectedLinkWidget = self._main.propulsion_system.selected.widget(i)
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,

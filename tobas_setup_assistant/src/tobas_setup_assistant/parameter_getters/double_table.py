@@ -1,6 +1,6 @@
 import os.path as osp
-import numpy as np
 import pandas as pd
+from overrides import override
 from typing import List, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QFileDialog, QHBoxLayout
@@ -69,44 +69,29 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         self._clear_btn.clicked.connect(self._table.remove_all)
         self._load_csv_btn.clicked.connect(self._load_csv)
 
-    def get(self) -> np.ndarray:
-        """
-        Returns
-        -------
-        np.ndarray
-            shape = (num_data, num_entry)
-        """
+    @override
+    def get(self) -> List[List[float]]:
         rows = self.count()
-        res = np.empty((rows, self._num_entry))
+        res = [[0.0 for _ in range(self._num_entry)] for _ in range(rows)]
 
         for row in range(rows):
             for col in range(self._num_entry):
                 cell: DoubleSpinBox = self._table.cellWidget(row, col)
-                res[row, col] = cell.value()
+                res[row][col] = cell.value()
 
         return res
 
-    def set(self, src: np.ndarray) -> bool:
-        """
-        Parameters
-        ----------
-        src : np.ndarray
-            shape = (num_data, num_entry)
-
-        Returns
-        ----------
-        bool
-            success or failure
-        """
-        if not self._is_valid_data(src):
-            return False
+    @override
+    def set(self, src: List[List[float]]) -> None:
+        assert self._is_valid_data(src), src
 
         self._table.remove_all()
-        for row in range(src.shape[0]):
+
+        for row in range(len(src)):
             self._add_row()
-            for col in range(src.shape[1]):
+            for col in range(len(src[row])):
                 cell: DoubleSpinBox = self._table.cellWidget(row, col)
-                cell.setValue(src[row, col])
+                cell.setValue(src[row][col])
 
         return True
 
@@ -199,12 +184,12 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             return
 
         try:
-            data = df.to_numpy(dtype=float)
+            data = df.to_numpy(dtype=float)  # 強制的にfloatとして解釈
         except Exception as e:
             q_error(self.parent(), f"The data contains invalid data type. The error message is: {e}")
             return
 
-        if not self.set(data):
+        if not self.set(data.tolist()):
             return
 
         q_info(self.parent(), "Data is loaded successfully.")
@@ -224,15 +209,15 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         return file_path
 
-    def _is_valid_data(self, src: np.ndarray) -> bool:
-        assert src.ndim == 2
-        assert src.shape[1] == self._num_entry
+    def _is_valid_data(self, src: List[List[float]]) -> bool:
+        for row in src:
+            if len(row) != self._num_entry:
+                return False
 
-        for row in range(src.shape[0]):
             for col in range(self._num_entry):
-                val = src[row, col]
-                if not self._minimum[col] <= val <= self._maximum[col]:
-                    q_error(self.parent(), f"{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
+                value = row[col]
+                if value < self._minimum[col] or self._maximum[col] < value:
+                    q_error(self.parent(), f"{value}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
                     return False
 
         return True

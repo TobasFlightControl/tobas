@@ -3,61 +3,71 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
+    from ...parameter_getters import ParamGetterWidget
 
 import math
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt5.QtGui import QFont
+from overrides import override
+from PyQt5.QtWidgets import QVBoxLayout
 
-from ...common import TITLE_PSIZE
 from ...parameter_getters import ParamGetterWidget_SpinBox
+from .base import BaseSelectedLinkSettingWidget
 
 
-class BladeGeometry(QWidget):
+class BladeGeometry(BaseSelectedLinkSettingWidget):
+    NAME = "Blade Geometry"
+
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
-        super().__init__()
+        super().__init__(main, link_name)
 
-        self._main = main
-        self._link_name = link_name
-
-        rows = QVBoxLayout()
-        self.setLayout(rows)
-
-        title = QLabel("Blade Geometry")
-        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        title.setAlignment(Qt.AlignTop)
-        rows.addWidget(title)
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
 
         num_blade_description = "Number of blades per propeller."
         self._num_blade = ParamGetterWidget_SpinBox("Number of blades", num_blade_description, minimum=1, default=2)
-        rows.addWidget(self._num_blade)
+        self._param_rows.addWidget(self._num_blade)
 
         diameter_description = "Diameter of the propeller's rotational plane."
         self._diameter = ParamGetterWidget_SpinBox(
             "Propeller Diameter", diameter_description, minimum=1, default=10, suffix=" inch"
         )
-        rows.addWidget(self._diameter)
+        self._param_rows.addWidget(self._diameter)
 
         blade_chord_description = "Chord length at 75% of the distance from the blade's center."
         self._blade_chord = ParamGetterWidget_SpinBox(
             "75% Blade chord", blade_chord_description, minimum=1, default=15, suffix=" mm"
         )
-        rows.addWidget(self._blade_chord)
+        self._param_rows.addWidget(self._blade_chord)
 
         pitch_angle_description = "Twist angle at 75% of the distance from the blade's center."
         self._pitch_angle = ParamGetterWidget_SpinBox(
             "75% Blade pitch angle", pitch_angle_description, minimum=1, maximum=90, default=15, suffix=" deg"
         )
-        rows.addWidget(self._pitch_angle)
+        self._param_rows.addWidget(self._pitch_angle)
 
+    @override
     def is_valid(self) -> bool:
         return True
 
+    @override
     def copy_from(self, src: BladeGeometry) -> None:
-        self._num_blade.set(src._num_blade.get())
-        self._diameter.set(src._diameter.get())
-        self._blade_chord.set(src._blade_chord.get())
-        self._pitch_angle.set(src._pitch_angle.get())
+        for i in range(self._param_rows.count()):
+            param_des: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param_src: ParamGetterWidget = src._param_rows.itemAt(i).widget()
+            param_des.set(param_src.get())
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     def num_blade(self) -> int:
         return self._num_blade.get()

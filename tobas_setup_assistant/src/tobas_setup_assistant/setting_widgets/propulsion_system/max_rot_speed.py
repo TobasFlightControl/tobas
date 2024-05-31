@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 import math
 from abc import abstractmethod
+from overrides import override
 from typing import final, List
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QButtonGroup, QCheckBox, QVBoxLayout, QHBoxLayout
@@ -68,6 +69,16 @@ class MaxRotationSpeedWidget(QWidget):
             des_method._checkbox.setChecked(src_method._checkbox.isChecked())
             des_method.copy_from(src_method)
 
+    def dump_settings(self) -> dict:
+        res = dict()
+        for method in self._methods:
+            res[method.NAME] = method.dump_settings()
+        return res
+
+    def load_settings(self, data: dict) -> None:
+        for method in self._methods:
+            method.load_settings(data[method.NAME])
+
     def _selected(self) -> MaxRotationSpeedMethod:
         for method in self._methods:
             if method.is_checked():
@@ -78,6 +89,9 @@ class MaxRotationSpeedWidget(QWidget):
 
 class MaxRotationSpeedMethod(QWidget):
     NAME = TO_DO
+
+    IS_CHECKED_KEY = "is_checked"
+    VALUE_KEY = "value"
 
     def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__()
@@ -110,6 +124,18 @@ class MaxRotationSpeedMethod(QWidget):
         self._spinbox.setValue(src._spinbox.value())
 
     @final
+    def dump_settings(self) -> dict:
+        res = dict()
+        res[self.IS_CHECKED_KEY] = self._checkbox.isChecked()
+        res[self.VALUE_KEY] = self._spinbox.value()
+        return res
+
+    @final
+    def load_settings(self, data: dict) -> None:
+        self._checkbox.setChecked(data[self.IS_CHECKED_KEY])
+        self._spinbox.setValue(data[self.VALUE_KEY])
+
+    @final
     def is_checked(self) -> bool:
         return self._checkbox.isChecked()
 
@@ -133,10 +159,12 @@ class MaxRotationSpeedMethod_Manual(MaxRotationSpeedMethod):
         self._spinbox.setMaximum(1e5)
         self._spinbox.setValue(1e4)  # NOTE: 最大最小を設定した時に値が変化するため，デフォルト値の設定はその後
 
+    @override
     def max_rot_speed(self) -> float:
         """[rad/s]"""
         return rpm2rps(self._spinbox.value())
 
+    @override
     def is_valid(self) -> bool:
         return True
 
@@ -152,13 +180,15 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
         self._spinbox.setMinimum(0.0)
         self._spinbox.setValue(16.8)
 
+    @override
     def max_rot_speed(self) -> float:
         """[rad/s]"""
         motor = self._main.propulsion_system.selected.get_motor(self._link_name)
         a, b = motor.rot_speed_coefs()
         V = self._spinbox.value()
-        return (math.sqrt(a ** 2 + 4 * b * V) - a) / (2 * b)
+        return (math.sqrt(a**2 + 4 * b * V) - a) / (2 * b)
 
+    @override
     def is_valid(self) -> bool:
         return True
 
@@ -182,6 +212,7 @@ class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
         self._spinbox.setMinimum(0.0)
         self._spinbox.setValue(10.0)
 
+    @override
     def max_rot_speed(self) -> float:
         """[rad/s]"""
         selected = self._main.propulsion_system.selected
@@ -199,5 +230,6 @@ class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
 
         return max_rot_speed
 
+    @override
     def is_valid(self) -> bool:
         return True

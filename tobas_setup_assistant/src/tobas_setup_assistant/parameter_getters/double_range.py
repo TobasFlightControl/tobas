@@ -1,3 +1,4 @@
+from overrides import override
 from typing import Tuple, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout
@@ -34,18 +35,20 @@ class ParamGetterWidget_DoubleRange(ParamGetterWidget):
         self._min.value_changed.connect(self._on_value_changed)
         self._max.value_changed.connect(self._on_value_changed)
 
+    @override
+    def get(self) -> Tuple[float, float]:
+        return self.min(), self.max()
+
+    @override
+    def set(self, src: Tuple[float, float]) -> None:
+        self._min.set(src[0])
+        self._max.set(src[1])
+
     def min(self) -> float:
         return self._min.get()
 
     def max(self) -> float:
         return self._max.get()
-
-    def get(self) -> Tuple[float, float]:
-        return self.min(), self.max()
-
-    def set(self, src: Tuple[float, float]) -> None:
-        self._min.set(src[0])
-        self._max.set(src[1])
 
     def is_valid(self) -> bool:
         return self.min() <= self.max()

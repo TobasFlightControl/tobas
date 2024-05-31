@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, Any, final
+from typing import Optional, Type, Any, final
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
@@ -8,6 +8,8 @@ from ..common import LABEL_PSIZE, Description
 
 
 class ParamGetterWidget(QWidget):
+    """A base class of a widget for getting a user parameter."""
+
     def __init__(self, param_name: str, description_text: Optional[str] = None) -> None:
         super().__init__()
 
@@ -28,7 +30,7 @@ class ParamGetterWidget(QWidget):
         raise NotImplementedError()
 
     @abstractmethod
-    def set(self, src: Any) -> None:
+    def set(self, src: Type) -> None:
         raise NotImplementedError()
 
     @final

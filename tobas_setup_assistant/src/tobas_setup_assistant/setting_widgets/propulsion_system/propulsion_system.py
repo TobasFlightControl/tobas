@@ -5,19 +5,20 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from overrides import override
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QFont
 
 from ..base_setting import BaseSettingWidget
-from .signals import PropulsionSystemSignals
 from .available_links import AvailableLinksWidget
-from .selected_links import SelectedLinksWidget
+from .selected_links import SelectedLinksTabWidget
 
 
 class PropulsionSystemWidget(BaseSettingWidget):
     NAME = "Propulsion"
     LABEL_PSIZE = 12
+
+    LINK_NAME = "link_name"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Propulsion System"
@@ -28,17 +29,17 @@ class PropulsionSystemWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._signals = PropulsionSystemSignals()
-
         links_label = QLabel("Available Links")
         links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
         links_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(links_label)
 
-        self._available = AvailableLinksWidget(self._main, self._signals)
+        self._available = AvailableLinksWidget(main)
+        self._available.link_removed.connect(self._on_available_link_removed)
         self._rows.addWidget(self._available)
 
-        self.selected = SelectedLinksWidget(self._main, self._signals)
+        self.selected = SelectedLinksTabWidget(main)
+        self.selected.link_removed.connect(self._on_selected_link_removed)
         self._rows.addWidget(self.selected)
 
         self._rows.addStretch()
@@ -59,8 +60,27 @@ class PropulsionSystemWidget(BaseSettingWidget):
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+        for link_name in self.selected.link_names():
+            res[link_name] = self.selected.dump_settings(link_name)
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        for link_name, setting in data.items():
+            # リンクをAvailableからSelectedに移動させる
+            self._available.remove_link(link_name)
+            self.selected.add_link(link_name)
+
+            # 選択リンクの設定を更新
+            self.selected.load_settings(link_name, setting)
+
+    @pyqtSlot(str)
+    def _on_available_link_removed(self, link_name: str) -> None:
+        self.selected.add_link(link_name)
+        self._main.signals.airframe_updated.emit()
+
+    @pyqtSlot(str)
+    def _on_selected_link_removed(self, link_name: str) -> None:
+        self._available.add_link(link_name)
+        self._main.signals.airframe_updated.emit()

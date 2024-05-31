@@ -3,41 +3,42 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
+    from .base import BaseSelectedLinkSettingWidget
 
 import rospy
 import numpy as np
 from numpy import linalg as LA
 from typing import List
 from overrides import override
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
 from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
 from tobas_rqt_tools.widgets import TabWidget
-from tobas_rqt_tools.messages import q_error_named
+from tobas_rqt_tools.messages import q_info, q_warn, q_error_named
 from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
 
 from ...common import PROP_TILT_TOL
 from .common import PROPULSION_SYSTEM, AxisType
-from .signals import PropulsionSystemSignals
 from .esc import EscWidget
 from .motor import MotorWidget
 from .blade_geometry import BladeGeometry
 from .aerodynamics import AerodynamicsWidget
 
 
-class SelectedLinksWidget(TabWidget):
+class SelectedLinksTabWidget(TabWidget):
     TAB_HEIGHT = 50
     TAB_WIDTH = 150
     ARROW_LENGTH = 0.2  # 想定される推力の最大値を矢印の長さに反映
 
-    def __init__(self, main: SetupAssistant, signals: PropulsionSystemSignals) -> None:
+    link_removed = pyqtSignal(str)
+
+    def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
-        self._signals = signals
 
         self.ignore_wheel_event()
 
@@ -48,8 +49,6 @@ class SelectedLinksWidget(TabWidget):
         self._markers = MarkerArray()  # 推力の作用線
         self._markers_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
 
-        signals.add_link.connect(self._add_link)
-        signals.remove_link.connect(self._remove_link)
         self.tabCloseRequested.connect(self._on_tab_close_requested)
 
     @override
@@ -96,21 +95,27 @@ class SelectedLinksWidget(TabWidget):
 
         # それぞれのタブの設定が有効であることを確認
         for i in range(num_rotors):
-            tab: SelectedLinkTabWidget = self.widget(i)
+            tab: SelectedLinkWidget = self.widget(i)
             if not tab.is_valid():
                 return False
 
         # 最低1つは登録されていなければならない
         if num_rotors == 0:
             q_error_named(self._main, PROPULSION_SYSTEM, "Please register at least 1 propulsion systems.")
-            return
+            return False
 
         return True
+
+    def dump_settings(self, link_name: str) -> dict:
+        self._get_tab(link_name).dump_settings()
+
+    def load_settings(self, link_name: str, data: dict) -> None:
+        self._get_tab(link_name).load_settings(data)
 
     def get_index(self, link_name: str) -> int:
         """タブのインデックスを返す．"""
         for idx in range(self.count()):
-            tab: SelectedLinkTabWidget = self.widget(idx)
+            tab: SelectedLinkWidget = self.widget(idx)
             if tab.link_name() == link_name:
                 return idx
         else:
@@ -129,7 +134,7 @@ class SelectedLinksWidget(TabWidget):
         return self._get_tab(link_name).aerodynamics
 
     def link_name(self, idx: int) -> str:
-        tab: SelectedLinkTabWidget = self.widget(idx)
+        tab: SelectedLinkWidget = self.widget(idx)
         return tab.link_name()
 
     def link_names(self) -> List[str]:
@@ -137,7 +142,7 @@ class SelectedLinksWidget(TabWidget):
         return [self.link_name(i) for i in range(self.count())]
 
     def joint_name(self, idx: int) -> str:
-        tab: SelectedLinkTabWidget = self.widget(idx)
+        tab: SelectedLinkWidget = self.widget(idx)
         return tab.joint_name()
 
     def joint_names(self) -> List[str]:
@@ -146,14 +151,35 @@ class SelectedLinksWidget(TabWidget):
 
     def direction(self, idx: int) -> str:
         """CW or CCW"""
-        tab: SelectedLinkTabWidget = self.widget(idx)
+        tab: SelectedLinkWidget = self.widget(idx)
         return tab.motor.direction()
 
     def directions(self) -> List[str]:
         """選択テーブル内の回転方向 (CW or CCW) のリストを返す．"""
         return [self.direction(i) for i in range(self.count())]
 
-    def _get_tab(self, link_name: str) -> SelectedLinkTabWidget:
+    def add_link(self, link_name: str) -> None:
+        # タブを追加
+        tab = SelectedLinkWidget(self._main, link_name)
+        self.addTab(tab, link_name)
+
+        # 指定リンクのマーカーを表示
+        self._set_action(link_name, Marker.ADD)
+
+        # マーカーを発行
+        self._markers_pub.publish(self._markers)
+
+    def remove_link(self, link_name: str) -> None:
+        # タブを削除
+        self.removeTab(self.get_index(link_name))
+
+        # 指定リンクのマーカーを非表示
+        self._set_action(link_name, Marker.DELETE)
+
+        # マーカーを発行
+        self._markers_pub.publish(self._markers)
+
+    def _get_tab(self, link_name: str) -> SelectedLinkWidget:
         idx = self.get_index(link_name)
         return self.widget(idx)
 
@@ -165,36 +191,14 @@ class SelectedLinksWidget(TabWidget):
                 marker.action = action
                 return
 
-    @pyqtSlot(str)
-    def _add_link(self, link_name: str) -> None:
-        # タブを追加
-        tab = SelectedLinkTabWidget(self._main, link_name)
-        self.addTab(tab, link_name)
-
-        # 指定リンクのマーカーを表示
-        self._set_action(link_name, Marker.ADD)
-
-        # マーカーを発行
-        self._markers_pub.publish(self._markers)
-
-    @pyqtSlot(str)
-    def _remove_link(self, link_name: str) -> None:
-        # タブを削除
-        self.removeTab(self.get_index(link_name))
-
-        # 指定リンクのマーカーを非表示
-        self._set_action(link_name, Marker.DELETE)
-
-        # マーカーを発行
-        self._markers_pub.publish(self._markers)
-
     @pyqtSlot(int)
     def _on_tab_close_requested(self, idx: int) -> None:
-        self._signals.remove_link.emit(self.link_name(idx))
-        self._main.signals.airframe_updated.emit()
+        link_name = self.link_name(idx)
+        self.remove_link(link_name)
+        self.link_removed.emit(link_name)
 
 
-class SelectedLinkTabWidget(QWidget):
+class SelectedLinkWidget(QWidget):
     BUTTON_WIDTH = 150
     BUTTON_HEIGHT = 40
 
@@ -207,36 +211,51 @@ class SelectedLinkTabWidget(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self._copy_button = QPushButton("Copy from left tab")
+        self._copy_button = QPushButton("Copy From Left Tab")
         self._copy_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self._copy_button.clicked.connect(self._copy_from_left_tab)
+        self._copy_button.clicked.connect(self._on_copy_button_clicked)
         place_center(self._copy_button, rows)
 
+        self._setting_rows = QVBoxLayout()
+        rows.addLayout(self._setting_rows)
+
+        # ESC
         self.esc = EscWidget(main, link_name)
-        rows.addWidget(self.esc)
+        self._setting_rows.addWidget(self.esc)
 
+        # Blade Geometry
         self.blade_geometry = BladeGeometry(main, link_name)
-        rows.addWidget(self.blade_geometry)
+        self._setting_rows.addWidget(self.blade_geometry)
 
+        # Motor
         self.motor = MotorWidget(main, link_name)
-        rows.addWidget(self.motor)
+        self._setting_rows.addWidget(self.motor)
 
+        # Aerodynamics
         self.aerodynamics = AerodynamicsWidget(main, link_name)
-        rows.addWidget(self.aerodynamics)
+        self._setting_rows.addWidget(self.aerodynamics)
 
         rows.addStretch()
 
     def is_valid(self) -> bool:
-        if not self.esc.is_valid():
-            return False
-        if not self.blade_geometry.is_valid():
-            return False
-        if not self.motor.is_valid():
-            return False
-        if not self.aerodynamics.is_valid():
-            return False
+        for i in range(self._setting_rows.count()):
+            widget: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
+            if not widget.is_valid():
+                return False
 
         return True
+
+    def dump_settings(self) -> dict:
+        res = dict()
+        for i in range(self._setting_rows.count()):
+            widget: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
+            res[widget.NAME] = widget.dump_settings()
+        return res
+
+    def load_settings(self, data: dict) -> None:
+        for i in range(self._setting_rows.count()):
+            widget: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
+            widget.load_settings(data)
 
     def link_name(self) -> str:
         return self._link_name
@@ -254,15 +273,18 @@ class SelectedLinkTabWidget(QWidget):
             return AxisType.UNKNOWN
 
     @pyqtSlot()
-    def _copy_from_left_tab(self) -> None:
+    def _on_copy_button_clicked(self) -> None:
         selected = self._main.propulsion_system.selected
         self_idx = selected.get_index(self._link_name)
 
         if self_idx == 0:
+            q_warn(self._main, "There are no tabs on the left side.")
             return
 
-        left: SelectedLinkTabWidget = selected.widget(self_idx - 1)
-        self.esc.copy_from(left.esc)
-        self.blade_geometry.copy_from(left.blade_geometry)
-        self.motor.copy_from(left.motor)
-        self.aerodynamics.copy_from(left.aerodynamics)
+        left: SelectedLinkWidget = selected.widget(self_idx - 1)
+        for i in range(self._setting_rows.count()):
+            des: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
+            src: BaseSelectedLinkSettingWidget = left._setting_rows.itemAt(i).widget()
+            des.copy_from(src)
+
+        q_info(self._main, f"The settings from {left.link_name()} have been copied to {self.link_name()}.")

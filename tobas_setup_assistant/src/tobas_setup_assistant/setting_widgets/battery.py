@@ -20,7 +20,7 @@ from .base_setting import BaseSettingWidget
 class BatteryWidget(BaseSettingWidget):
     NAME = "Battery"
 
-    TYPE = "battery_type"
+    TYPE_KEY = "battery_type"
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Battery"
@@ -60,7 +60,7 @@ class BatteryWidget(BaseSettingWidget):
     def dump_settings(self) -> dict:
         res = dict()
 
-        res[self.TYPE] = self._type.currentText()
+        res[self.TYPE_KEY] = self._type.currentText()
 
         for i in range(self._batteries.count()):
             battery: BatteryWidget_Base = self._batteries.widget(i)
@@ -70,7 +70,7 @@ class BatteryWidget(BaseSettingWidget):
 
     @override
     def load_settings(self, data: dict) -> None:
-        self._type.setCurrentText(data[self.TYPE])
+        self._type.setCurrentText(data[self.TYPE_KEY])
 
         for i in range(self._batteries.count()):
             battery: BatteryWidget_Base = self._batteries.widget(i)

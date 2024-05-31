@@ -1,4 +1,5 @@
 import os.path as osp
+from overrides import override
 from typing import Optional
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QFileDialog, QHBoxLayout
@@ -39,11 +40,13 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget):
         self._path.textChanged.connect(self._on_text_changed)
         self.browse_button.clicked.connect(self._on_browse_button_clicked)
 
+    @override
     def get(self) -> str:
         return self._path.text()
 
-    def set(self, text: str) -> None:
-        self._path.setText(text)
+    @override
+    def set(self, src: str) -> None:
+        self._path.setText(src)
 
     @pyqtSlot(str)
     def _on_text_changed(self, text: str) -> None:

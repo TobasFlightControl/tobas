@@ -106,6 +106,8 @@ class ControlSurfacesWidget(QWidget):
     def load_settings(self, data: List[dict]) -> None:
         for setting in data:
             link_name = setting[ControlSufraceField.LINK_NAME.name]
+
+            # リンクをAvailableからSelectedに移動させる
             self.available_links.delete_link(link_name)
             self.selected.add_link(
                 link_name,

@@ -37,7 +37,6 @@ class FixedWingWidget(BaseSettingWidget):
         # Vehicle Parameters
         self._vehicle_label = QLabel("Vehicle Parameters")
         self._vehicle_label.setFont(label_font)
-        self._vehicle_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(self._vehicle_label)
 
         self.vehicle = VehicleParametersWidget(self._main)
@@ -46,7 +45,6 @@ class FixedWingWidget(BaseSettingWidget):
         # Aerodynamic Coefficients
         self._aero_coefs_label = QLabel("Aerodynamic Coefficients")
         self._aero_coefs_label.setFont(label_font)
-        self._aero_coefs_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(self._aero_coefs_label)
 
         self.aero_coefs = AerodynamicsCoefficientsWidget(self._main)
@@ -55,7 +53,6 @@ class FixedWingWidget(BaseSettingWidget):
         # Control Surfaces
         self._control_surfaces_label = QLabel("Control Surfaces")
         self._control_surfaces_label.setFont(label_font)
-        self._control_surfaces_label.setAlignment(Qt.AlignLeft)
         self._rows.addWidget(self._control_surfaces_label)
 
         self.control_surfaces = ControlSurfacesWidget(self._main)
