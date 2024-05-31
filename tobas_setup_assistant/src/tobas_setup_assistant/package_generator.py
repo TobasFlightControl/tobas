@@ -57,60 +57,12 @@ class PackageGenerator(QObject):
         q_info(self._main, "Configuration package is generated.")
 
     def _is_valid_config(self) -> bool:
-        if not self._main.start.is_valid():
-            self._main.switch(self._main.start)
-            return False
-        if not self._main.battery.is_valid():
-            self._main.switch(self._main.battery)
-            return False
-        if not self._main.propulsion_system.is_valid():
-            self._main.switch(self._main.propulsion_system)
-            return False
-        if not self._main.fixed_wing.is_valid():
-            self._main.switch(self._main.fixed_wing)
-            return False
-        if not self._main.custom_joints.is_valid():
-            self._main.switch(self._main.custom_joints)
-            return False
-        if not self._main.imu.is_valid():
-            self._main.switch(self._main.imu)
-            return False
-        if not self._main.barometer.is_valid():
-            self._main.switch(self._main.barometer)
-            return False
-        if not self._main.gps.is_valid():
-            self._main.switch(self._main.gps)
-            return False
-        if not self._main.rgb_camera.is_valid():
-            self._main.switch(self._main.rgb_camera)
-            return False
-        if not self._main.depth_camera.is_valid():
-            self._main.switch(self._main.depth_camera)
-            return False
-        if not self._main.lidar.is_valid():
-            self._main.switch(self._main.lidar)
-            return False
-        if not self._main.odometry.is_valid():
-            self._main.switch(self._main.odometry)
-            return False
-        if not self._main.tether_station.is_valid():
-            self._main.switch(self._main.tether_station)
-            return False
-        if not self._main.controller.is_valid():
-            self._main.switch(self._main.controller)
-            return False
-        if not self._main.observer.is_valid():
-            self._main.switch(self._main.observer)
-            return False
-        if not self._main.simulation.is_valid():
-            self._main.switch(self._main.simulation)
-            return False
-        if not self._main.author_information.is_valid():
-            self._main.switch(self._main.author_information)
-            return False
-        if not self._main.ros_package.is_valid():
-            self._main.switch(self._main.ros_package)
-            return False
+        # 全ての設定項目について，単体で問題ないことを確認
+        for i in range(self._main.num_setting_widgets()):
+            setting_widget = self._main.get_setting_widget(i)
+            if not setting_widget.is_valid():
+                self._main.switch(setting_widget)
+                return False
 
         # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを確認
         prop_jnt_names = self._main.propulsion_system.selected.joint_names()

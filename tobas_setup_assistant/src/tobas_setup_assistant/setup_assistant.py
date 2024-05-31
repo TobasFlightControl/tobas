@@ -102,3 +102,9 @@ class SetupAssistant(Widget):
 
     def switch(self, tab: QWidget) -> None:
         self._tab_widget.switch(tab)
+
+    def num_setting_widgets(self) -> int:
+        return self._tab_widget.count()
+
+    def get_setting_widget(self, index: int) -> BaseSettingWidget:
+        return self._tab_widget.widget(index)
