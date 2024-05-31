@@ -6,7 +6,8 @@ if TYPE_CHECKING:
 
 import math
 from enum import Enum
-from typing import List, Union, Optional
+from overrides import override
+from typing import List, Dict, Union, Optional
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
@@ -18,6 +19,7 @@ from tobas_kdl_sympy.joint import JointType
 
 from ...common import LABEL_PSIZE, BODY_PSIZE, Signals
 from .common import STABILITY_COEF_DECIMALS
+from .base import BaseFixedWingSettingWidget
 
 
 class ControlSufraceField(Enum):
@@ -50,76 +52,72 @@ class ControlSurface:
         self.c_yaw_delta = 0.0  # [/rad]
 
 
-class ControlSurfacesWidget(QWidget):
+class ControlSurfacesWidget(BaseFixedWingSettingWidget):
+    NAME = "Control Surfaces"
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        rows = QVBoxLayout()
-        self.setLayout(rows)
+        super().__init__(main)
 
         available_links_label = QLabel("Available Links")
         available_links_label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         available_links_label.setAlignment(Qt.AlignLeft)
-        rows.addWidget(available_links_label)
+        self._rows.addWidget(available_links_label)
 
         self.available_links = AvailableLinksWidget(main)
         self.selected = SelectedLinksWidget(main)
         self.add_delete = AddDeleteButtonsWidget(self._main.signals, self.available_links, self.selected)
 
-        rows.addWidget(self.available_links)
-        rows.addWidget(self.add_delete)
-        rows.addWidget(self.selected)
+        self._rows.addWidget(self.available_links)
+        self._rows.addWidget(self.add_delete)
+        self._rows.addWidget(self.selected)
 
+    @override
     def update_internal_data_structures(self) -> None:
         self.available_links.update_internal_data_structures()
         self.selected.update_internal_data_structures()
 
+    @override
     def is_valid(self) -> bool:
         if not self.selected.is_valid():
             return False
 
         return True
 
-    def dump_settings(self) -> List[dict]:
-        res = []
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
 
         for row in self.selected.rowCount():
-            res.append(
-                {
-                    ControlSufraceField.LINK_NAME.name: self.selected.link_name(row),
-                    ControlSufraceField.MIN_ANGLE.name: self.selected.min_angle(row),
-                    ControlSufraceField.MAX_ANGLE.name: self.selected.max_angle(row),
-                    ControlSufraceField.MAX_ANGLE_RATE.name: self.selected.max_angle_rate(row),
-                    ControlSufraceField.LIFT_COEF.name: self.selected.c_lift_delta(row),
-                    ControlSufraceField.DRAG_COEF.name: self.selected.c_drag_delta(row),
-                    ControlSufraceField.SIDE_COEF.name: self.selected.c_side_delta(row),
-                    ControlSufraceField.ROLL_COEF.name: self.selected.c_roll_delta(row),
-                    ControlSufraceField.PITCH_COEF.name: self.selected.c_pitch_delta(row),
-                    ControlSufraceField.YAW_COEF.name: self.selected.c_yaw_delta(row),
-                }
-            )
+            res[self.selected.link_name(row)] = {
+                ControlSufraceField.MIN_ANGLE.name: self.selected.min_angle(row),
+                ControlSufraceField.MAX_ANGLE.name: self.selected.max_angle(row),
+                ControlSufraceField.MAX_ANGLE_RATE.name: self.selected.max_angle_rate(row),
+                ControlSufraceField.LIFT_COEF.name: self.selected.c_lift_delta(row),
+                ControlSufraceField.DRAG_COEF.name: self.selected.c_drag_delta(row),
+                ControlSufraceField.SIDE_COEF.name: self.selected.c_side_delta(row),
+                ControlSufraceField.ROLL_COEF.name: self.selected.c_roll_delta(row),
+                ControlSufraceField.PITCH_COEF.name: self.selected.c_pitch_delta(row),
+                ControlSufraceField.YAW_COEF.name: self.selected.c_yaw_delta(row),
+            }
 
         return res
 
-    def load_settings(self, data: List[dict]) -> None:
-        for setting in data:
-            link_name = setting[ControlSufraceField.LINK_NAME.name]
-
+    @override
+    def load_settings(self, data: dict) -> None:
+        for link_name, data_ in data.items():
             # リンクをAvailableからSelectedに移動させる
             self.available_links.delete_link(link_name)
             self.selected.add_link(
                 link_name,
-                default_min_angle=data[ControlSufraceField.MIN_ANGLE.name],
-                default_max_angle=data[ControlSufraceField.MAX_ANGLE.name],
-                default_max_angle_rate=data[ControlSufraceField.MAX_ANGLE_RATE.name],
-                default_c_lift_delta=data[ControlSufraceField.LIFT_COEF.name],
-                default_c_drag_delta=data[ControlSufraceField.DRAG_COEF.name],
-                default_c_side_delta=data[ControlSufraceField.SIDE_COEF.name],
-                default_c_roll_delta=data[ControlSufraceField.ROLL_COEF.name],
-                default_c_pitch_delta=data[ControlSufraceField.PITCH_COEF.name],
-                default_c_yaw_delta=data[ControlSufraceField.ROLL_COEF.name],
+                default_min_angle=data_[ControlSufraceField.MIN_ANGLE.name],
+                default_max_angle=data_[ControlSufraceField.MAX_ANGLE.name],
+                default_max_angle_rate=data_[ControlSufraceField.MAX_ANGLE_RATE.name],
+                default_c_lift_delta=data_[ControlSufraceField.LIFT_COEF.name],
+                default_c_drag_delta=data_[ControlSufraceField.DRAG_COEF.name],
+                default_c_side_delta=data_[ControlSufraceField.SIDE_COEF.name],
+                default_c_roll_delta=data_[ControlSufraceField.ROLL_COEF.name],
+                default_c_pitch_delta=data_[ControlSufraceField.PITCH_COEF.name],
+                default_c_yaw_delta=data_[ControlSufraceField.ROLL_COEF.name],
             )
 
     def control_surfaces(self) -> List[ControlSurface]:

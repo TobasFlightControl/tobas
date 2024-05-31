@@ -3,13 +3,14 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
+    from .base import BaseFixedWingSettingWidget
 
 from overrides import override
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QLabel, QCheckBox
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QCheckBox, QVBoxLayout
 from PyQt5.QtGui import QFont
 
-from ...common import TITLE_PSIZE, BODY_PSIZE
+from ...common import BODY_PSIZE
 from ..base_setting import BaseSettingWidget
 from .vehicle import VehicleParametersWidget
 from .aero_coefs import AerodynamicsCoefficientsWidget
@@ -32,31 +33,20 @@ class FixedWingWidget(BaseSettingWidget):
         self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
         self._rows.addWidget(self.has_fixed_wing)
 
-        label_font = QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold)
+        self._setting_rows = QVBoxLayout()
+        self._rows.addLayout(self._setting_rows)
 
-        # Vehicle Parameters
-        self._vehicle_label = QLabel("Vehicle Parameters")
-        self._vehicle_label.setFont(label_font)
-        self._rows.addWidget(self._vehicle_label)
-
+        # Vehicle
         self.vehicle = VehicleParametersWidget(self._main)
-        self._rows.addWidget(self.vehicle)
+        self._setting_rows.addWidget(self.vehicle)
 
         # Aerodynamic Coefficients
-        self._aero_coefs_label = QLabel("Aerodynamic Coefficients")
-        self._aero_coefs_label.setFont(label_font)
-        self._rows.addWidget(self._aero_coefs_label)
-
         self.aero_coefs = AerodynamicsCoefficientsWidget(self._main)
-        self._rows.addWidget(self.aero_coefs)
+        self._setting_rows.addWidget(self.aero_coefs)
 
         # Control Surfaces
-        self._control_surfaces_label = QLabel("Control Surfaces")
-        self._control_surfaces_label.setFont(label_font)
-        self._rows.addWidget(self._control_surfaces_label)
-
         self.control_surfaces = ControlSurfacesWidget(self._main)
-        self._rows.addWidget(self.control_surfaces)
+        self._setting_rows.addWidget(self.control_surfaces)
 
         self._rows.addStretch()
         self._update_enability()
@@ -70,12 +60,10 @@ class FixedWingWidget(BaseSettingWidget):
         if not self.has_fixed_wing.isChecked():
             return True
 
-        if not self.vehicle.is_valid():
-            return False
-        if not self.aero_coefs.is_valid():
-            return False
-        if not self.control_surfaces.is_valid():
-            return False
+        for i in range(self._setting_rows.count()):
+            widget: BaseFixedWingSettingWidget = self._setting_rows.itemAt(i).widget()
+            if not widget.is_valid():
+                return False
 
         return True
 
@@ -85,9 +73,9 @@ class FixedWingWidget(BaseSettingWidget):
 
         res[self.has_fixed_wing.text()] = self.has_fixed_wing.isChecked()
 
-        res[self._vehicle_label.text()] = self.vehicle.dump_settings()
-        res[self._aero_coefs_label.text()] = self.aero_coefs.dump_settings()
-        res[self._control_surfaces_label.text()] = self.control_surfaces.dump_settings()
+        for i in range(self._setting_rows.count()):
+            widget: BaseFixedWingSettingWidget = self._setting_rows.itemAt(i).widget()
+            res[widget.NAME] = widget.dump_settings()
 
         return res
 
@@ -95,18 +83,18 @@ class FixedWingWidget(BaseSettingWidget):
     def load_settings(self, data: dict) -> None:
         self.has_fixed_wing.setChecked(data[self.has_fixed_wing.text()])
 
-        self.vehicle.load_settings(data[self._vehicle_label.text()])
-        self.aero_coefs.load_settings(data[self._aero_coefs_label.text()])
-        self.control_surfaces.load_settings(data[self._control_surfaces_label.text()])
+        for i in range(self._setting_rows.count()):
+            widget: BaseFixedWingSettingWidget = self._setting_rows.itemAt(i).widget()
+            widget.load_settings(data)
 
     def num_control_surfaces(self) -> int:
         return self.control_surfaces.selected.count()
 
     def _update_enability(self) -> None:
         checked = self.has_fixed_wing.isChecked()
-        self.vehicle.setEnabled(checked)
-        self.aero_coefs.setEnabled(checked)
-        self.control_surfaces.setEnabled(checked)
+        for i in range(self._setting_rows.count()):
+            widget: BaseFixedWingSettingWidget = self._setting_rows.itemAt(i).widget()
+            widget.setEnabled(checked)
 
     @pyqtSlot()
     def _on_has_fixed_wing_toggled(self) -> None:

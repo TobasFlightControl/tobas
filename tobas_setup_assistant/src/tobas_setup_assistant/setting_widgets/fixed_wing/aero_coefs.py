@@ -5,8 +5,9 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 import os.path as osp
+from overrides import override
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
 
 from tobas_std_tools_py.config_parser import ConfigParserWrapper
 from tobas_rqt_tools.widgets import DoubleSpinBox
@@ -16,32 +17,31 @@ from tobas_tools_py.constants import CONFIG_PATH
 
 from ...common import TITLE, PKG_NAME
 from .common import STABILITY_COEF_DECIMALS
+from .base import BaseFixedWingSettingWidget
 
 
-class AerodynamicsCoefficientsWidget(QWidget):
+class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
+    NAME = "Aerodynamic Coefficients"
+
     BTN_HEIGHT = 30
     BTN_WIDTH = 150
     LAST_OPENED_DIR = "aerodynamics/last_opened_dir"
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        rows = QVBoxLayout()
-        self.setLayout(rows)
+        super().__init__(main)
 
         cols = QHBoxLayout()
-        rows.addLayout(cols)
+        self._rows.addLayout(cols)
 
         self._load_button = QPushButton("Load VSPAERO Output")
         self._load_button.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         self._load_button.clicked.connect(self._on_load_button_clicked)
-        rows.addWidget(self._load_button)
+        self._rows.addWidget(self._load_button)
 
         cols.addStretch()
 
         self._form = FormLayout()
-        rows.addLayout(self._form)
+        self._rows.addLayout(self._form)
 
         self.c_lift_0 = DoubleSpinBox()
         self.c_lift_0.setDecimals(STABILITY_COEF_DECIMALS)
@@ -139,9 +139,15 @@ class AerodynamicsCoefficientsWidget(QWidget):
         self.c_yaw_r.setValue(-0.0827)
         self._form.addRow(QLabel("c_yaw_r"), self.c_yaw_r)
 
+    @override
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
     def is_valid(self) -> bool:
         return True
 
+    @override
     def dump_settings(self) -> dict:
         res = dict()
 
@@ -150,6 +156,7 @@ class AerodynamicsCoefficientsWidget(QWidget):
 
         return res
 
+    @override
     def load_settings(self, data: dict) -> None:
         for label, spin_box in self._form:
             spin_box.setValue(data[label.text()])
