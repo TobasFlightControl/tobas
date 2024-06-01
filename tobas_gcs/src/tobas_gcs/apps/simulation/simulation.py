@@ -45,6 +45,7 @@ class SimulationWidget(BaseAppWidget):
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._start_button.clicked.connect(self._on_start_button_clicked)
+        cols.addWidget(self._start_button)
 
         self._terminate_button = QPushButton("Terminate")
         self._terminate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
