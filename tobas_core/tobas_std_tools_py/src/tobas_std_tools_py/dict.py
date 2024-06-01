@@ -1,20 +1,21 @@
-def deep_connect(a: dict, b: dict) -> dict:
-    """葉が重複しない2層までの2つの辞書を結合する"""
+from copy import deepcopy
 
-    res = a.copy()
-    for key1, val1 in b.items():
-        if key1 in res.keys():
-            if isinstance(val1, dict):
-                for key2, val2 in val1.items():
-                    if key2 in res[key1].keys():
-                        if isinstance(val2, dict):
-                            raise ValueError("Connection of dicts with a depth of more than 2 is not supported.")
-                        else:
-                            raise ValueError(f'Both dicts have the same key "{key1}/{key2}"')
-                    else:
-                        res[key1][key2] = val2
+
+def concatenate(a: dict, b: dict) -> dict:
+    """多重階層の2つの辞書を結合する．"""
+    res = deepcopy(a)
+
+    for key, b_val in b.items():
+        if key in a.keys():
+            a_val = a[key]
+            if isinstance(a_val, dict) and isinstance(b_val, dict):
+                res[key] = concatenate(a_val, b_val)
+            elif not isinstance(a_val, dict) and not isinstance(b_val, dict):
+                if a_val != b_val:
+                    raise RuntimeError(f'Values for key "{key}" conflict: "{a_val}" vs "{b_val}"')
             else:
-                raise ValueError(f'Both dicts have the same key "{key1}"')
+                raise RuntimeError(f'Different types for key "{key}"')
         else:
-            res[key1] = val1
+            res[key] = b_val
+
     return res
