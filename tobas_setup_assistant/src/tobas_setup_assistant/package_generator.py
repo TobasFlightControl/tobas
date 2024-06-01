@@ -124,6 +124,9 @@ class PackageGenerator(QObject):
         os.mkdir(urdf_dir)
         os.mkdir(mesh_dir)
 
+        # バックアップ用ファイル
+        self._dump_settings()
+
         # テンプレートから生成
         self._cfg_env.generate(items, "CMakeLists.txt.tpl", osp.join(config_pkg_path, "CMakeLists.txt"))
         self._cfg_env.generate(items, "package.xml.tpl", osp.join(config_pkg_path, "package.xml"))
@@ -171,7 +174,7 @@ class PackageGenerator(QObject):
                 items, "gui_teleop/position_yaw.launch.tpl", osp.join(launch_dir, "gui_teleop.launch")
             )
 
-        # Pythonで自動生成
+        # その他
         create_empty_file(osp.join(config_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"))
         self._generate_drone_config(config_dir)
         self._generate_joint_control_config(config_dir)
@@ -217,6 +220,18 @@ class PackageGenerator(QObject):
 
         # その他
         create_empty_file(osp.join(user_pkg_path, "YOU_CAN_EDIT_THIS_PACKAGE"))
+
+    def _dump_settings(self) -> None:
+        # データを作成
+        data = dict()
+        for i in range(self._main.num_setting_widgets()):
+            setting_widget = self._main.get_setting_widget(i)
+            data[setting_widget.NAME] = setting_widget.dump_settings()
+
+        # yaml形式で保存
+        settings_path = get_settings_path(self._main.ros_package.pkg_path())
+        with open(settings_path, "w") as f:
+            yaml.safe_dump(data, f)
 
     def _make_template_items(self) -> dict:
         template_items = dict()
