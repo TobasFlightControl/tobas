@@ -114,7 +114,7 @@ void UpdateLinkDialog::CollisionGeometryTypeComboBoxIndexChanged(int)
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionGeometryTypeComboBoxIndexChange");
 
-  const auto geometry_type = ui_->VisualGeometryTypeComboBox->currentText();
+  const auto geometry_type = ui_->CollisionGeometryTypeComboBox->currentText();
   arrangeVisualGeometryTypeFrames(frame_map_.collision_geom, geometry_type);
   collision_vm_->geometry()->type(geometry_type);
   link_vm_->sync();
