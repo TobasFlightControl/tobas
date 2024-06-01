@@ -17,7 +17,7 @@ from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.joint import JointType
 
-from ...common import LABEL_PSIZE, BODY_PSIZE, Signals
+from ...common import LABEL_PSIZE, BODY_PSIZE
 from .common import STABILITY_COEF_DECIMALS
 from .base import BaseFixedWingSettingWidget
 
@@ -65,7 +65,7 @@ class ControlSurfacesWidget(BaseFixedWingSettingWidget):
 
         self.available_links = AvailableLinksWidget(main)
         self.selected = SelectedLinksWidget(main)
-        self.add_delete = AddDeleteButtonsWidget(self._main.signals, self.available_links, self.selected)
+        self.add_delete = AddDeleteButtonsWidget(self.available_links, self.selected)
 
         self._rows.addWidget(self.available_links)
         self._rows.addWidget(self.add_delete)
@@ -391,12 +391,9 @@ class AddDeleteButtonsWidget(QWidget):
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
 
-    def __init__(
-        self, signals: Signals, available_links: AvailableLinksWidget, selected_links: SelectedLinksWidget
-    ) -> None:
+    def __init__(self, available_links: AvailableLinksWidget, selected_links: SelectedLinksWidget) -> None:
         super().__init__()
 
-        self._signals = signals
         self._available_links = available_links
         self._selected_links = selected_links
 
@@ -423,8 +420,6 @@ class AddDeleteButtonsWidget(QWidget):
         self._available_links.delete_link(selected_link)
         self._selected_links.add_link(selected_link)
 
-        self._signals.airframe_updated.emit()
-
     @pyqtSlot()
     def _on_delete_button_clicked(self) -> None:
         selected_link = self._selected_links.selected_link()
@@ -434,5 +429,3 @@ class AddDeleteButtonsWidget(QWidget):
 
         self._available_links.add_link(selected_link)
         self._selected_links.delete_link(selected_link)
-
-        self._signals.airframe_updated.emit()

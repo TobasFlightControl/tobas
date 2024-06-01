@@ -1,9 +1,3 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .setup_assistant import SetupAssistant
-
 from numpy import linalg as LA
 from typing import List, Tuple, Union
 from urdf_parser_py.urdf import Link, Joint, Pose, Inertia, Inertial
@@ -17,17 +11,15 @@ from tobas_kdl_sympy.joint import JointType, HardwareInterface
 
 
 class URDFParser(QObject):
-    def __init__(self, main: SetupAssistant):
+    def __init__(self):
         super().__init__()
-        self._main = main
-
         self._tree = Tree()
 
     def load_from_param(self) -> bool:
         try:
             self._tree.load_from_param()
         except Exception as e:
-            q_error(self._main, f"Failed to load robot: {e}")
+            q_error(self.parent(), f"Failed to load robot: {e}")
             return False
 
         if not self._is_valid_robot():
@@ -162,31 +154,31 @@ class URDFParser(QObject):
 
         # リンク名とジョイント名が一意である
         if not is_unique(self.link_names()):
-            q_error(self._main, f"Link names are not unique.")
+            q_error(self.parent(), f"Link names are not unique.")
             return False
         if not is_unique(self.joint_names()):
-            q_error(self._main, f"Joint names are not unique.")
+            q_error(self.parent(), f"Joint names are not unique.")
             return False
 
         for joint in self.get_joints():
             if joint.type == JointType.UNKNOWN:
-                q_error(self._main, f"The joint type of {joint.name} is unknown.")
+                q_error(self.parent(), f"The joint type of {joint.name} is unknown.")
                 return False
             elif joint.type in {JointType.FLOATING, JointType.PLANER}:
-                q_error(self._main, f'"{joint.name}" has multi DoF joint: {joint.type}')
+                q_error(self.parent(), f'"{joint.name}" has multi DoF joint: {joint.type}')
                 return False
             elif joint.type in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
                 if joint.axis is None:
-                    q_error(self._main, f'Joint axis is not specified for "{joint.name}".')
+                    q_error(self.parent(), f'Joint axis is not specified for "{joint.name}".')
                     return False
                 if LA.norm(joint.axis) < 1e-6:
-                    q_error(self._main, f'The norm of movable joint "{joint.name}" must be positive.')
+                    q_error(self.parent(), f'The norm of movable joint "{joint.name}" must be positive.')
                     return False
 
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
         origin: Pose = root_link.origin
         if origin is not None and any(angle != 0 for angle in origin.rpy):
-            q_error(self._main, "The frame of the root link must coincide with the NWU coordinate axis.")
+            q_error(self.parent(), "The frame of the root link must coincide with the NWU coordinate axis.")
             return False
 
         # ルートリンクがInertialを持たない
@@ -197,7 +189,7 @@ class URDFParser(QObject):
 
             if mass != 0 or any(row != [0, 0, 0] for row in inertia.to_matrix()):
                 q_error(
-                    self._main,
+                    self.parent(),
                     "The root link has an inertia specified in the URDF, "
                     + "but KDL does not support a root link with an inertia. "
                     + "As a workaround, you can add an extra dummy link to your URDF.",

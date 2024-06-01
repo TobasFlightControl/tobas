@@ -68,7 +68,7 @@ class RosPackageWidget(BaseSettingWidget):
         self._generate_button = QPushButton("Generate")
         self._generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._generate_button.setEnabled(False)
-        self._generate_button.clicked.connect(lambda: self._main.signals.generate_button_clicked.emit())
+        self._generate_button.clicked.connect(self._on_generate_button_clicked)
         place_center(self._generate_button, self._rows)
 
         self._rows.addStretch()
@@ -125,6 +125,10 @@ class RosPackageWidget(BaseSettingWidget):
 
     def pkg_path(self) -> str:
         return self._pkg_path.text()
+
+    @pyqtSlot()
+    def _on_generate_button_clicked(self) -> None:
+        self._main.generate_package()
 
     @pyqtSlot()
     def _on_path_changed(self) -> None:

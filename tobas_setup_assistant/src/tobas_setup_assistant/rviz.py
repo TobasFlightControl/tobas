@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .setup_assistant import SetupAssistant
+    from .urdf_parser import URDFParser
 
 import os.path as osp
 import rospkg
@@ -20,9 +20,9 @@ class RvizWidget(Widget):
     DEFAULT_VISUAL_ENABLED = True
     DEFAULT_COLLISION_ENABLED = False
 
-    def __init__(self, main: SetupAssistant):
+    def __init__(self, urdf_parser: URDFParser):
         super().__init__()
-        self._main = main
+        self._urdf_parser = urdf_parser
 
         self._highlighted_link = ""
 
@@ -72,7 +72,7 @@ class RvizWidget(Widget):
         self._display.setBool(True)
 
         # 固定フレームをルートリンクに設定
-        root_link = self._main.urdf_parser.get_root()
+        root_link = self._urdf_parser.get_root()
         self._manager.setFixedFrame(root_link.name)
 
         # ロボットモデルをリロード

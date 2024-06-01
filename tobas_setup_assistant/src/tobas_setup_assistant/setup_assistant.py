@@ -1,4 +1,5 @@
 import traceback
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, VerticalTabWidget
@@ -7,7 +8,6 @@ from tobas_rqt_tools.messages import q_error
 from .urdf_parser import URDFParser
 from .package_generator import PackageGenerator
 from .robot_visualizer import RobotVisualizerWidget
-from .common import Signals
 from .setting_widgets import *
 
 
@@ -19,18 +19,16 @@ class SetupAssistant(Widget):
     def __init__(self) -> None:
         super().__init__()
 
-        self.signals = Signals()
-
-        self.urdf_parser = URDFParser(self)
-        self.pkg_generator = PackageGenerator(self)
+        self.urdf_parser = URDFParser()
+        self._pkg_generator = PackageGenerator(self)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
 
         # 高さを指定するために，単なる横並びのレイアウトもウィジェットとして定義している
-        self.robot_visualizer = RobotVisualizerWidget(self)
-        self.robot_visualizer.setVisible(False)
-        rows.addWidget(self.robot_visualizer)
+        self._robot_visualizer = RobotVisualizerWidget(self.urdf_parser)
+        self._robot_visualizer.setVisible(False)
+        rows.addWidget(self._robot_visualizer)
 
         # 設定項目
         self._tab_widget = VerticalTabWidget()
@@ -76,6 +74,7 @@ class SetupAssistant(Widget):
 
         self._tab_widget.setMinimumHeight(self.SETTINGS_MIN_HEIGHT)
         self._tab_widget.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
+        self._tab_widget.currentChanged.connect(self._on_tab_changed)
 
         # 最初はスタートタブ以外を無効化
         for i in range(1, self._tab_widget.count()):
@@ -83,10 +82,10 @@ class SetupAssistant(Widget):
             widget.setEnabled(False)
 
     def update_internal_data_structures(self) -> None:
-        self.pkg_generator.update_internal_data_structures()
+        self._pkg_generator.update_internal_data_structures()
 
-        self.robot_visualizer.update_internal_data_structures()
-        self.robot_visualizer.setVisible(True)
+        self._robot_visualizer.update_internal_data_structures()
+        self._robot_visualizer.setVisible(True)
 
         for i in range(self._tab_widget.count()):
             widget: BaseSettingWidget = self._tab_widget.widget(i)
@@ -114,3 +113,11 @@ class SetupAssistant(Widget):
 
     def get_setting_widget(self, index: int) -> BaseSettingWidget:
         return self._tab_widget.widget(index)
+
+    def generate_package(self) -> None:
+        self._pkg_generator.generate_package()
+
+    @pyqtSlot(int)
+    def _on_tab_changed(self, index: int) -> None:
+        widget: BaseSettingWidget = self._tab_widget.widget(index)
+        widget.on_opened()

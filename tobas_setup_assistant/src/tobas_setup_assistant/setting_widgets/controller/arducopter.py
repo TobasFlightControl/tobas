@@ -93,8 +93,6 @@ class ChannelsWidget(QWidget):
         self._form = FormLayout()
         rows.addLayout(self._form)
 
-        self._main.signals.airframe_updated.connect(self._on_airframe_updated)
-
     def dump_settings(self) -> dict:
         res = dict()
 
@@ -146,8 +144,7 @@ class ChannelsWidget(QWidget):
             choices.setCurrentText(self.NO_SELECT)
             self._form.addRow(QLabel(self._channel_label(i)), choices)
 
-    @pyqtSlot()
-    def _on_airframe_updated(self) -> None:
+    def update_link_choices(self) -> None:
         """リンク名の候補を更新．"""
         new_links = self._main.propulsion_system.selected.link_names()
 
@@ -354,9 +351,13 @@ class ArduCopter(BaseController):
             "channels": self._channels.channels(),
         }
 
-    def _selected(self) -> Frame:
-        return self._frames[self._frame.cur_index()]
+    @override
+    def on_opened(self) -> None:
+        self._channels.update_link_choices()
 
     @pyqtSlot(int)
     def _on_frame_idx_changed(self, idx: int) -> None:
         self._channels.update_num_channels(self._frames[idx].num_props())
+
+    def _selected(self) -> Frame:
+        return self._frames[self._frame.cur_index()]

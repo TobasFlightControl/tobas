@@ -29,11 +29,6 @@ CAMERA_OFFSET_DESCRIPTION = "The pose of the camera frame wrt. the the selected 
 SENSOR_OFFSET_DESCRIPTION = "The pose of the sensor frame wrt. the the drone root frame."
 
 
-class Signals(QObject):
-    airframe_updated = pyqtSignal()
-    generate_button_clicked = pyqtSignal()
-
-
 class Description(QLabel):
     def __init__(self, text: str) -> None:
         super().__init__(text)

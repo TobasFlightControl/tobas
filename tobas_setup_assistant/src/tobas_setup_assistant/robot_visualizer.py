@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .setup_assistant import SetupAssistant
+    from .urdf_parser import URDFParser
 
 import rospy
 from overrides import override
@@ -22,25 +22,23 @@ class RobotVisualizerWidget(Widget):
     HEIGHT = 350
     JSP_WIDTH = 200
 
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, urdf_parser: URDFParser) -> None:
         super().__init__()
-        self._main = main
 
         self._jsp_gui = None
         self._jsp_thread = None
         self._rsp_process = None
         self._js2drs_process = None
 
+        self._rviz = RvizWidget(urdf_parser)
+        self._frame_tree = FrameTreeWidget(urdf_parser, self._rviz)
+
+        # Layout
+        self.setFixedHeight(self.HEIGHT)
         self._cols = QHBoxLayout()
         self.setLayout(self._cols)
-
-        self._frame_tree = FrameTreeWidget(main)
         self._cols.addWidget(self._frame_tree)
-
-        self._rviz = RvizWidget(main)
         self._cols.addWidget(self._rviz)
-
-        self.setFixedHeight(self.HEIGHT)
 
     @override
     def close(self) -> bool:

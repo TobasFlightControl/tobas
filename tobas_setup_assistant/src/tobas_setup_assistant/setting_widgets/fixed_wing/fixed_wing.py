@@ -20,6 +20,8 @@ from .control_surfaces import ControlSurfacesWidget
 class FixedWingWidget(BaseSettingWidget):
     NAME = "Fixed Wing"
 
+    DEFAULT_HAS_FIXED_WING = False
+
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Fixed Wing"
         abst_text = (
@@ -29,7 +31,7 @@ class FixedWingWidget(BaseSettingWidget):
 
         self.has_fixed_wing = QCheckBox("Fixed-Wing Configuration")
         self.has_fixed_wing.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self.has_fixed_wing.setChecked(False)
+        self.has_fixed_wing.setChecked(self.DEFAULT_HAS_FIXED_WING)
         self.has_fixed_wing.toggled.connect(self._on_has_fixed_wing_toggled)
         self._rows.addWidget(self.has_fixed_wing)
 
@@ -49,7 +51,7 @@ class FixedWingWidget(BaseSettingWidget):
         self._setting_rows.addWidget(self.control_surfaces)
 
         self._rows.addStretch()
-        self._update_enability()
+        self._set_enabled(self.DEFAULT_HAS_FIXED_WING)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -90,13 +92,11 @@ class FixedWingWidget(BaseSettingWidget):
     def num_control_surfaces(self) -> int:
         return self.control_surfaces.selected.count()
 
-    def _update_enability(self) -> None:
-        checked = self.has_fixed_wing.isChecked()
+    def _set_enabled(self, enabled: bool) -> None:
         for i in range(self._setting_rows.count()):
             widget: BaseFixedWingSettingWidget = self._setting_rows.itemAt(i).widget()
-            widget.setEnabled(checked)
+            widget.setEnabled(enabled)
 
-    @pyqtSlot()
-    def _on_has_fixed_wing_toggled(self) -> None:
-        self._update_enability()
-        self._main.signals.airframe_updated.emit()
+    @pyqtSlot(bool)
+    def _on_has_fixed_wing_toggled(self, checked: bool) -> None:
+        self._set_enabled(checked)

@@ -58,6 +58,11 @@ class BaseSettingWidget(ScrollArea):
         """ユーザ設定を読み込む．"""
         raise NotImplementedError()
 
+    @abstractmethod
+    def on_opened(self) -> None:
+        """タブが開かれた時に呼ばれるコールバック．表示内容が他のタブの状態に依存する場合に使う．"""
+        pass
+
 
 class OptionalDeviceWidget(BaseSettingWidget):
     """

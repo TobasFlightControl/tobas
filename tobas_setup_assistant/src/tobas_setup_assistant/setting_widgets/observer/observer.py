@@ -4,11 +4,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from typing import List
 from overrides import override
-from PyQt5.QtCore import pyqtSlot
 
-from tobas_rqt_tools.widgets import ComboBox
+from tobas_rqt_tools.widgets import ComboBox, StackedWidget
 
 from ..base_setting import BaseSettingWidget
 from .base import BaseObserver
@@ -29,18 +27,18 @@ class ObserverWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._observers: List[BaseObserver] = [ErrorStateKalmanFilter(main), CustomObserver(main)]
-
         self._type = ComboBox()
-        self._type.currentTextChanged.connect(self._on_type_changed)
+        self._observers = StackedWidget()
+
+        self._type.currentIndexChanged.connect(self._observers.setCurrentIndex)
+
+        for observer_class in [ErrorStateKalmanFilter, CustomObserver]:
+            self._type.addItem(observer_class.NAME)
+            self._observers.addWidget(observer_class(main))
+
         self._rows.addWidget(self._type)
-
-        for observer in self._observers:
-            self._rows.addWidget(observer)
-            self._type.addItem(observer.NAME)
-
+        self._rows.addWidget(self._observers)
         self._rows.addStretch()
-        self._update_visibility()
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -59,7 +57,8 @@ class ObserverWidget(BaseSettingWidget):
 
         res[self.OBSERVER_TYPE] = self._type.currentText()
 
-        for observer in self._observers:
+        for i in range(self._observers.count()):
+            observer: BaseObserver = self._observers.widget(i)
             res[observer.NAME] = observer.dump_settings()
 
         return res
@@ -68,7 +67,8 @@ class ObserverWidget(BaseSettingWidget):
     def load_settings(self, data: dict) -> None:
         self._type.setCurrentText(data[self.OBSERVER_TYPE])
 
-        for observer in self._observers:
+        for i in range(self._observers.count()):
+            observer: BaseObserver = self._observers.widget(i)
             observer.load_settings(data[observer.NAME])
 
     def pkg_name(self) -> str:
@@ -78,25 +78,4 @@ class ObserverWidget(BaseSettingWidget):
         return self._selected().static_parameters()
 
     def _selected(self) -> BaseObserver:
-        observer_type = self._type.currentText()
-
-        for observer in self._observers:
-            if observer_type == observer.NAME:
-                return observer
-
-        RuntimeError(f"Unknown observer type: {observer_type}")
-
-    def _update_visibility(self) -> None:
-        observer_type = self._type.currentText()
-
-        for observer in self._observers:
-            observer.setVisible(False)
-
-        for observer in self._observers:
-            if observer.NAME == observer_type:
-                observer.setVisible(True)
-                return
-
-    @pyqtSlot(str)
-    def _on_type_changed(self, _: str) -> None:
-        self._update_visibility()
+        return self._observers.currentWidget()

@@ -13,7 +13,7 @@ import rospkg
 import shutil
 import subprocess
 from xml.etree import ElementTree as ET
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QMessageBox
 
 from tobas_std_tools_py.sequence import is_unique
@@ -44,13 +44,10 @@ class PackageGenerator(QObject):
 
         self._drone_name = ""
 
-        self._main.signals.generate_button_clicked.connect(self._on_generate_button_clicked)
-
     def update_internal_data_structures(self) -> None:
         self._drone_name = get_drone_name()
 
-    @pyqtSlot()
-    def _on_generate_button_clicked(self) -> None:
+    def generate_package(self) -> None:
         if not self._is_valid_config():
             return
         self._generate_pkg()

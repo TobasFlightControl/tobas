@@ -78,9 +78,7 @@ class PropulsionSystemWidget(BaseSettingWidget):
     @pyqtSlot(str)
     def _on_available_link_removed(self, link_name: str) -> None:
         self.selected.add_link(link_name)
-        self._main.signals.airframe_updated.emit()
 
     @pyqtSlot(str)
     def _on_selected_link_removed(self, link_name: str) -> None:
         self._available.add_link(link_name)
-        self._main.signals.airframe_updated.emit()
