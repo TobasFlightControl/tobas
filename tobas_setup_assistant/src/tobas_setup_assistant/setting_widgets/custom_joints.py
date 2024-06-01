@@ -4,15 +4,28 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
+from enum import Enum
 from overrides import override
 from typing import List
 from PyQt5.QtWidgets import QLabel
 
+from tobas_std_tools_py.string import title_from_snake
 from tobas_rqt_tools.widgets import DoubleSpinBox, ComboBox, TableWidget
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.joint import HardwareInterface, JointType
 
 from .base_setting import BaseSettingWidget
+
+
+class CustomJointField(Enum):
+    JOINT_NAME = 0
+    HOME_POSITION = 1
+    MIN_POSITION = 2
+    MAX_POSITION = 3
+    COMMAND_TYPE = 4
+    P_GAIN = 5
+    I_GAIN = 6
+    D_GAIN = 7
 
 
 class CustomJointsWidget(BaseSettingWidget):
@@ -29,16 +42,6 @@ class CustomJointsWidget(BaseSettingWidget):
     COL_WIDTH = 120
     POS_DECIMALS = 3
     GAIN_DECIMALS = 3
-    LABELS = (
-        "Joint Name",
-        "Home Position",
-        "Min Position",
-        "Max Position",
-        "Controller Type",
-        "P Gain",
-        "I Gain",
-        "D Gain",
-    )
 
     def __init__(self, main: SetupAssistant) -> None:
         title_text = "Define Custom Joints"
@@ -48,8 +51,8 @@ class CustomJointsWidget(BaseSettingWidget):
         )
         super().__init__(main, title_text, abst_text)
 
-        self._table = TableWidget(0, len(self.LABELS))
-        self._table.setHorizontalHeaderLabels(self.LABELS)
+        self._table = TableWidget(0, len(CustomJointField))
+        self._table.setHorizontalHeaderLabels([title_from_snake(item.name) for item in CustomJointField])
         for c in range(self._table.columnCount()):
             self._table.setColumnWidth(c, self.COL_WIDTH)
         self._rows.addWidget(self._table)
@@ -135,94 +138,139 @@ class CustomJointsWidget(BaseSettingWidget):
             else:
                 raise RuntimeError(f"Unknown hardware interface: {hi.value}")
 
-            self._table.setCellWidget(row, 0, jnt_name)
-            self._table.setCellWidget(row, 1, home_pos)
-            self._table.setCellWidget(row, 2, min_pos)
-            self._table.setCellWidget(row, 3, max_pos)
-            self._table.setCellWidget(row, 4, cmd_type)
-            self._table.setCellWidget(row, 5, p_gain)
-            self._table.setCellWidget(row, 6, i_gain)
-            self._table.setCellWidget(row, 7, d_gain)
+            self._table.setCellWidget(row, CustomJointField.JOINT_NAME.value, jnt_name)
+            self._table.setCellWidget(row, CustomJointField.HOME_POSITION.value, home_pos)
+            self._table.setCellWidget(row, CustomJointField.MIN_POSITION.value, min_pos)
+            self._table.setCellWidget(row, CustomJointField.MAX_POSITION.value, max_pos)
+            self._table.setCellWidget(row, CustomJointField.COMMAND_TYPE.value, cmd_type)
+            self._table.setCellWidget(row, CustomJointField.P_GAIN.value, p_gain)
+            self._table.setCellWidget(row, CustomJointField.I_GAIN.value, i_gain)
+            self._table.setCellWidget(row, CustomJointField.D_GAIN.value, d_gain)
 
             row += 1
 
     @override
     def is_valid(self) -> bool:
         for i in range(self.count()):
-            jnt_name = self.joint_name(i)
-            home_pos = self.home_position(i)
-            min_pos = self.min_position(i)
-            max_pos = self.max_position(i)
+            jnt_name = self.get_joint_name(i)
+            home_pos = self.get_home_position(i)
+            min_pos = self.get_min_position(i)
+            max_pos = self.get_max_position(i)
             if min_pos > max_pos:
-                q_error_named(self, self.NAME, f"Position limit of joint '{jnt_name} is invalid.")
+                q_error_named(self, self.NAME, f'Position limit of joint "{jnt_name}" is invalid.')
                 return False
             if home_pos < min_pos or max_pos < home_pos:
-                q_error_named(self, self.NAME, f"Home position of joint '{jnt_name} is out of limit.")
+                q_error_named(self, self.NAME, f'Home position of joint "{jnt_name}" is out of limit.')
                 return False
 
         return True
 
     @override
     def dump_settings(self) -> dict:
-        raise NotImplementedError()  # TODO
+        res = dict()
+
+        for row in range(self.count()):
+            res[self.get_joint_name(row)] = {
+                CustomJointField.HOME_POSITION.name: self.get_home_position(row),
+                CustomJointField.MIN_POSITION.name: self.get_min_position(row),
+                CustomJointField.MAX_POSITION.name: self.get_max_position(row),
+                CustomJointField.COMMAND_TYPE.name: self.get_command_type(row),
+                CustomJointField.P_GAIN.name: self.get_p_gain(row),
+                CustomJointField.I_GAIN.name: self.get_i_gain(row),
+                CustomJointField.D_GAIN.name: self.get_d_gain(row),
+            }
+
+        return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()  # TODO
+        for joint_name, data_ in data:
+            row = self._get_row(joint_name)
+            if row < 0:
+                q_error_named(self, self.NAME, f'"{joint_name}" does not exist in the custom joint list.')
+                continue
+
+            self.set_home_position(row, data_[CustomJointField.HOME_POSITION.name])
+            self.set_min_position(row, data_[CustomJointField.MIN_POSITION.name])
+            self.set_max_position(row, data_[CustomJointField.MAX_POSITION.name])
+            self.set_command_type(row, data_[CustomJointField.COMMAND_TYPE.name])
+            self.set_p_gain(row, data_[CustomJointField.P_GAIN.name])
+            self.set_i_gain(row, data_[CustomJointField.I_GAIN.name])
+            self.set_d_gain(row, data_[CustomJointField.D_GAIN.name])
 
     def count(self) -> int:
+        """ジョイント数．"""
         return self._table.rowCount()
 
-    def joint_name(self, row: int) -> str:
-        cell: QLabel = self._table.cellWidget(row, 0)
+    def get_joint_name(self, row: int) -> str:
+        cell: QLabel = self._table.cellWidget(row, CustomJointField.JOINT_NAME.value)
         return cell.text()
 
-    def home_position(self, row: int) -> float:
-        cell: DoubleSpinBox = self._table.cellWidget(row, 1)
+    def set_joint_name(self, row: int, joint_name) -> None:
+        cell: QLabel = self._table.cellWidget(row, CustomJointField.JOINT_NAME.value)
+        cell.setText(joint_name)
+
+    def get_home_position(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.HOME_POSITION.value)
         return cell.value()
 
-    def min_position(self, row: int) -> float:
-        cell: DoubleSpinBox = self._table.cellWidget(row, 2)
+    def set_home_position(self, row: int, value: float) -> None:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.HOME_POSITION.value)
+        cell.setValue(value)
+
+    def get_min_position(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.MIN_POSITION.value)
         return cell.value()
 
-    def max_position(self, row: int) -> float:
-        cell: DoubleSpinBox = self._table.cellWidget(row, 3)
+    def set_min_position(self, row: int, value: float) -> None:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.MIN_POSITION.value)
+        cell.setValue(value)
+
+    def get_max_position(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.MAX_POSITION.value)
         return cell.value()
 
-    def command_type(self, row: int) -> str:
-        cell: ComboBox = self._table.cellWidget(row, 4)
+    def set_max_position(self, row: int, value: float) -> None:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.MAX_POSITION.value)
+        cell.setValue(value)
+
+    def get_command_type(self, row: int) -> str:
+        cell: ComboBox = self._table.cellWidget(row, CustomJointField.COMMAND_TYPE.value)
         return cell.currentText()
 
-    def p_gain(self, row: int) -> float:
-        cell: DoubleSpinBox = self._table.cellWidget(row, 5)
+    def set_command_type(self, row: int, command_type: str) -> None:
+        cell: ComboBox = self._table.cellWidget(row, CustomJointField.COMMAND_TYPE.value)
+        cell.setCurrentText(command_type)
+
+    def get_p_gain(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.P_GAIN.value)
         return cell.value()
 
-    def i_gain(self, row: int) -> float:
-        cell: DoubleSpinBox = self._table.cellWidget(row, 6)
+    def set_p_gain(self, row: int, value: float) -> None:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.P_GAIN.value)
+        cell.setValue(value)
+
+    def get_i_gain(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.I_GAIN.value)
         return cell.value()
 
-    def d_gain(self, row: int) -> float:
-        cell: DoubleSpinBox = self._table.cellWidget(row, 7)
+    def set_i_gain(self, row: int, value: float) -> None:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.I_GAIN.value)
+        cell.setValue(value)
+
+    def get_d_gain(self, row: int) -> float:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.D_GAIN.value)
         return cell.value()
 
-    def pid_enabled(self, row: int) -> bool:
-        jnt_name = self.joint_name(row)
-        hi = self._main.urdf_parser.hardware_interface(jnt_name)
-        cmd_type: str = self.command_type(row)
+    def set_d_gain(self, row: int, value: float) -> None:
+        cell: DoubleSpinBox = self._table.cellWidget(row, CustomJointField.D_GAIN.value)
+        cell.setValue(value)
 
-        if hi == HardwareInterface.POSITION and cmd_type == self.POSITION:
-            return False
-        if hi == HardwareInterface.VELOCITY and cmd_type == self.VELOCITY:
-            return False
-        if hi == HardwareInterface.EFFORT and cmd_type == self.EFFORT:
-            return False
-        return True
+    def get_joint_names(self) -> List[str]:
+        return [self.get_joint_name(row) for row in range(self.count())]
 
-    def joint_names(self) -> List[str]:
-        return [self.joint_name(row) for row in range(self.count())]
-
-    def controller_type(self, row: int) -> str:
-        jnt_name = self.joint_name(row)
+    def get_controller_type(self, row: int) -> str:
+        jnt_name = self.get_joint_name(row)
         hi = self._main.urdf_parser.hardware_interface(jnt_name)
         if hi == HardwareInterface.POSITION:
             group = "position_controllers"
@@ -233,7 +281,7 @@ class CustomJointsWidget(BaseSettingWidget):
         else:
             raise RuntimeError()
 
-        cmd_type: str = self.command_type(row)
+        cmd_type = self.get_command_type(row)
         if cmd_type == self.POSITION:
             controller = "JointPositionController"
         elif cmd_type == self.VELOCITY:
@@ -244,3 +292,23 @@ class CustomJointsWidget(BaseSettingWidget):
             raise RuntimeError()
 
         return f"{group}/{controller}"
+
+    def pid_enabled(self, row: int) -> bool:
+        jnt_name = self.get_joint_name(row)
+        hi = self._main.urdf_parser.hardware_interface(jnt_name)
+        cmd_type: str = self.get_command_type(row)
+
+        if hi == HardwareInterface.POSITION and cmd_type == self.POSITION:
+            return False
+        if hi == HardwareInterface.VELOCITY and cmd_type == self.VELOCITY:
+            return False
+        if hi == HardwareInterface.EFFORT and cmd_type == self.EFFORT:
+            return False
+        return True
+
+    def _get_row(self, joint_name: str) -> int:
+        for row in range(self.count()):
+            if self.get_joint_name(row) == joint_name:
+                return row
+        else:
+            return -1

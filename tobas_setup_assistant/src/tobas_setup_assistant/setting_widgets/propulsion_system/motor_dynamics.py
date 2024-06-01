@@ -149,7 +149,7 @@ class MotorDynamicsWidget_Experiment(MotorDynamicsWidget_Base):
         # TODO: あまりにモデルからかけ離れていたら警告を出す
 
         # データを取得
-        throttle, battery_voltage, rpm = np.hsplit(self._data.get(), 3)
+        throttle, battery_voltage, rpm = np.hsplit(np.array(self._data.get()), 3)
         motor_voltage = battery_voltage * throttle / 100.0
         omega = rpm2rps(rpm)
 

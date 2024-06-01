@@ -346,7 +346,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def motor_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
-        rpm, thrust, _ = np.hsplit(self._data.get(), 3)
+        rpm, thrust, _ = np.hsplit(np.array(self._data.get()), 3)
         omega2: np.ndarray = rpm2rps(rpm) ** 2
         return ((thrust.T @ omega2) / (omega2.T @ omega2)).item()  # 最小2乗解 (memo: 2-28)
 
@@ -354,7 +354,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     def moment_const(self) -> float:
         # TODO: 外れ値を除去
         # TODO: あまりにモデル(1次関数)からかけ離れていたら警告を出す
-        _, thrust, torque = np.hsplit(self._data.get(), 3)
+        _, thrust, torque = np.hsplit(np.array(self._data.get()), 3)
         return ((torque.T @ thrust) / (thrust.T @ thrust)).item()  # 最小2乗解 (memo: 2-28)
 
     @override

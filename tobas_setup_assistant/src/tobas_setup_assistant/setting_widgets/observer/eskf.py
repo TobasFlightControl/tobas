@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
-    from ...parameter_getters import ParamGetterWidget
 
 from overrides import override
 from PyQt5.QtWidgets import QCheckBox, QVBoxLayout
@@ -66,15 +65,15 @@ class ErrorStateKalmanFilter(BaseObserver):
     def dump_settings(self) -> dict:
         res = dict()
         for i in range(self._param_rows.count()):
-            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
-            res[param.name()] = param.get()
+            ckb: QCheckBox = self._param_rows.itemAt(i).widget()
+            res[ckb.text()] = ckb.isChecked()
         return res
 
     @override
     def load_settings(self, data: dict) -> None:
         for i in range(self._param_rows.count()):
-            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
-            param.set(data[param.name()])
+            ckb: QCheckBox = self._param_rows.itemAt(i).widget()
+            ckb.setChecked(data[ckb.isChecked()])
 
     @override
     def static_parameters(self) -> dict:

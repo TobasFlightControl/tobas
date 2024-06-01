@@ -7,9 +7,9 @@ if TYPE_CHECKING:
 import math
 from enum import Enum
 from overrides import override
-from typing import List, Dict, Union, Optional
+from typing import List, Union, Optional
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QHBoxLayout
 from PyQt5.QtGui import QFont
 
 from tobas_std_tools_py.string import title_from_snake
@@ -87,7 +87,7 @@ class ControlSurfacesWidget(BaseFixedWingSettingWidget):
     def dump_settings(self) -> dict:
         res = dict()
 
-        for row in self.selected.rowCount():
+        for row in range(self.selected.rowCount()):
             res[self.selected.link_name(row)] = {
                 ControlSufraceField.MIN_ANGLE.name: self.selected.min_angle(row),
                 ControlSufraceField.MAX_ANGLE.name: self.selected.max_angle(row),

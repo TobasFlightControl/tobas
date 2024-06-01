@@ -161,17 +161,20 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         num_cells_description = "The number of cells in the battery."
         self._num_cells = ParamGetterWidget_SpinBox(
             "Number of Cells", num_cells_description, minimum=1, maximum=100, default=4
         )
-        self._rows.addWidget(self._num_cells)
+        self._param_rows.addWidget(self._num_cells)
 
         capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
         )
-        self._rows.addWidget(self._capacity)
+        self._param_rows.addWidget(self._capacity)
 
         C_cont_description = (
             "The maximum continuous discharge current that the battery can provide. "
@@ -184,13 +187,13 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
         self._C_cont = ParamGetterWidget_SpinBox(
             "Continuous Discharge Current Rate", C_cont_description, minimum=1, default=50, suffix=" /h"
         )
-        self._rows.addWidget(self._C_cont)
+        self._param_rows.addWidget(self._C_cont)
 
         registance_description = "Internal resistance value per cell."
         self._registance = ParamGetterWidget_SpinBox(
             "Internal Registance", registance_description, minimum=0, default=3, suffix=" mΩ"
         )
-        self._rows.addWidget(self._registance)
+        self._param_rows.addWidget(self._registance)
 
         self._rows.addStretch()
 
@@ -201,15 +204,15 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
     @override
     def dump_settings(self) -> dict:
         res = dict()
-        for i in range(self._rows.count()):
-            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
             res[param.name()] = param.get()
         return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        for i in range(self._rows.count()):
-            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
             param.set(data[param.name()])
 
     @override
@@ -246,41 +249,44 @@ class BatteryWidget_Other(BatteryWidget_Base):
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
+
         nominal_voltage_description = "Nominal voltage of the battery."
         self._nominal_voltage = ParamGetterWidget_DoubleSpinBox(
             "Nominal Voltage", nominal_voltage_description, decimals=1, minimum=0.1, default=14.8, suffix=" V"
         )
-        self._rows.addWidget(self._nominal_voltage)
+        self._param_rows.addWidget(self._nominal_voltage)
 
         max_voltage_description = "Maximum voltage of the battery."
         self._max_voltage = ParamGetterWidget_DoubleSpinBox(
             "Maximum Voltage", max_voltage_description, decimals=1, minimum=0.1, default=16.8, suffix=" V"
         )
-        self._rows.addWidget(self._max_voltage)
+        self._param_rows.addWidget(self._max_voltage)
 
         sag_voltage_description = "Voltage at which the discharge characteristics change abruptly."
         self._sag_voltage = ParamGetterWidget_DoubleSpinBox(
             "Voltage Threshold", sag_voltage_description, decimals=1, minimum=0.1, default=13.6, suffix=" V"
         )
-        self._rows.addWidget(self._sag_voltage)
+        self._param_rows.addWidget(self._sag_voltage)
 
         max_current_description = "Maximum current of the battery."
         self._max_current = ParamGetterWidget_DoubleSpinBox(
             "Maximum Current", max_current_description, decimals=1, minimum=0.1, default=200.0, suffix=" A"
         )
-        self._rows.addWidget(self._max_current)
+        self._param_rows.addWidget(self._max_current)
 
         capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
             "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
         )
-        self._rows.addWidget(self._capacity)
+        self._param_rows.addWidget(self._capacity)
 
         registance_description = "Internal resistance value of the battery."
         self._registance = ParamGetterWidget_SpinBox(
             "Internal Registance", registance_description, minimum=0, default=12, suffix=" mΩ"
         )
-        self._rows.addWidget(self._registance)
+        self._param_rows.addWidget(self._registance)
 
         self._rows.addStretch()
 
@@ -295,15 +301,15 @@ class BatteryWidget_Other(BatteryWidget_Base):
     @override
     def dump_settings(self) -> dict:
         res = dict()
-        for i in range(self._rows.count()):
-            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
             res[param.name()] = param.get()
         return res
 
     @override
     def load_settings(self, data: dict) -> None:
-        for i in range(self._rows.count()):
-            param: ParamGetterWidget = self._rows.itemAt(i).widget()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
             param.set(data[param.name()])
 
     @override

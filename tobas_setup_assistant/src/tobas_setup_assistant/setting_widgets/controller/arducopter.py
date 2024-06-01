@@ -100,14 +100,14 @@ class ChannelsWidget(QWidget):
 
         for i in range(self.count()):
             combo_box: ComboBox = self._form.get_widget(i)
-            res[self._channel_label[i]] = combo_box.currentText()
+            res[self._channel_label(i)] = combo_box.currentText()
 
         return res
 
     def load_settings(self, data: dict) -> dict:
         for i in range(self.count()):
             combo_box: ComboBox = self._form.get_widget(i)
-            combo_box.setCurrentText(data[self._channel_label[i]])
+            combo_box.setCurrentText(data[self._channel_label(i)])
 
     def is_valid(self) -> bool:
         # 未選択はダメ

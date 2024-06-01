@@ -20,6 +20,7 @@ from tobas_rqt_tools.widgets import TabWidget
 from tobas_rqt_tools.messages import q_info, q_warn, q_error_named
 from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
+from tobas_kdl_sympy.joint import JointType
 
 from ...common import PROP_TILT_TOL
 from .common import PROPULSION_SYSTEM, AxisType
@@ -60,14 +61,9 @@ class SelectedLinksTabWidget(TabWidget):
         self.clear()
 
         # 全ての可動リンクのマーカーを保持しておく
-        for i, link_name in enumerate(self._main.urdf_parser.link_names()):
-            if link_name == self._main.urdf_parser.get_root().name:
-                continue
-
+        for i, link_name in enumerate(self._main.urdf_parser.movable_joint_names()):
             # ジョイントを取得
             joint = self._main.urdf_parser.get_joint(link_name)
-            if joint.axis is None:
-                continue
 
             # 推力の作用線
             arrow_start = np.zeros((3,))

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
 
+from numpy import linalg as LA
 from typing import List, Tuple, Union
 from urdf_parser_py.urdf import Link, Joint, Pose, Inertia, Inertial
 from PyQt5.QtCore import QObject
@@ -76,12 +77,15 @@ class URDFParser(QObject):
     def joint_names(self) -> List[str]:
         return self._tree.joint_names()
 
-    def mobile_joint_names(self) -> List[str]:
+    def movable_joint_names(self) -> List[str]:
         """可動関節名のリストを返す．"""
         res = []
-        for jnt_name in self._tree.joint_names():
-            if not self._tree.is_fixed_joint(jnt_name):
-                res.append(jnt_name)
+        for link in self._tree.get_links():
+            if link.name == self._tree.get_root().name:
+                continue
+            joint = self._tree.get_joint(link.name)
+            if not self._tree.is_fixed_joint(joint.name):
+                res.append(link.name)
         return res
 
     def search_joint_type(self, jnt_type: JointType) -> List[str]:
@@ -92,15 +96,15 @@ class URDFParser(QObject):
                 res.append(joint.name)
         return res
 
-    def link_names_with_mobile_joint(self) -> List[str]:
+    def link_names_with_movable_joint(self) -> List[str]:
         """可動関節をもつリンク名のリストを返す．"""
-        mobile_joints = set(self.mobile_joint_names())
+        movable_joints = set(self.movable_joint_names())
         res = []
         for link in self._tree.get_links():
             if link.name == self._tree.get_root().name:
                 continue
             joint = self._tree.get_joint(link.name)
-            if joint.name in mobile_joints:
+            if joint.name in movable_joints:
                 res.append(link.name)
         return res
 
@@ -110,7 +114,7 @@ class URDFParser(QObject):
         Gazeboの仕様で，ルートリンクまたは可動関節をもつリンク以外は省略されてしまう．
         """
         root_name = self.get_root().name
-        return [root_name] + self.link_names_with_mobile_joint()
+        return [root_name] + self.link_names_with_movable_joint()
 
     def global_pose(self, link_name: str) -> Frame:
         return self._tree.global_pose(link_name)
@@ -164,11 +168,20 @@ class URDFParser(QObject):
             q_error(self._main, f"Joint names are not unique.")
             return False
 
-        # 多自由度関節を持たない
         for joint in self.get_joints():
-            if joint.type in {JointType.PLANER, JointType.FLOATING}:
-                q_error(self._main, f"Invalid joint type: {joint.type}")
+            if joint.type == JointType.UNKNOWN:
+                q_error(self._main, f"The joint type of {joint.name} is unknown.")
                 return False
+            elif joint.type in {JointType.FLOATING, JointType.PLANER}:
+                q_error(self._main, f'"{joint.name}" has multi DoF joint: {joint.type}')
+                return False
+            elif joint.type in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
+                if joint.axis is None:
+                    q_error(self._main, f'Joint axis is not specified for "{joint.name}".')
+                    return False
+                if LA.norm(joint.axis) < 1e-6:
+                    q_error(self._main, f'The norm of movable joint "{joint.name}" must be positive.')
+                    return False
 
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
         origin: Pose = root_link.origin

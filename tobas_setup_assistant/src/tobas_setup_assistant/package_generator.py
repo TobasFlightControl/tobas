@@ -67,7 +67,7 @@ class PackageGenerator(QObject):
         # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを確認
         prop_jnt_names = self._main.propulsion_system.selected.joint_names()
         cs_jnt_names = self._main.fixed_wing.control_surfaces.selected.get_joint_names()
-        custom_jnt_names = self._main.custom_joints.joint_names()
+        custom_jnt_names = self._main.custom_joints.get_joint_names()
         if not is_unique(prop_jnt_names + cs_jnt_names + custom_jnt_names):
             q_error(
                 self, "The joints set in the propulsion system, control surfaces, and custom joints are duplicated."
@@ -261,7 +261,7 @@ class PackageGenerator(QObject):
         # Joint Controllers
         joint_controllers = "joint_state_controller"
         for i in range(self._main.custom_joints.count()):
-            jnt_name = self._main.custom_joints.joint_name(i)
+            jnt_name = self._main.custom_joints.get_joint_name(i)
             joint_controllers += f" {jnt_name}_controller"
         template_items["joint_controllers"] = joint_controllers
 
@@ -365,11 +365,11 @@ class PackageGenerator(QObject):
         drone_config["num_joints"] = num_joints
         for i in range(num_joints):
             drone_config[f"joint_{i}"] = {
-                "name": self._main.custom_joints.joint_name(i),
-                "home_position": self._main.custom_joints.home_position(i),
-                "min_position": self._main.custom_joints.min_position(i),
-                "max_position": self._main.custom_joints.max_position(i),
-                "command_type": self._main.custom_joints.command_type(i),
+                "name": self._main.custom_joints.get_joint_name(i),
+                "home_position": self._main.custom_joints.get_home_position(i),
+                "min_position": self._main.custom_joints.get_min_position(i),
+                "max_position": self._main.custom_joints.get_max_position(i),
+                "command_type": self._main.custom_joints.get_command_type(i),
             }
 
         # TBSFファイルを作成
@@ -384,20 +384,20 @@ class PackageGenerator(QObject):
         items["gazebo_ros_control"] = {"pid_gains": dict()}
 
         for i in range(self._main.custom_joints.count()):
-            jnt_name = self._main.custom_joints.joint_name(i)
+            jnt_name = self._main.custom_joints.get_joint_name(i)
             controller_name = f"{jnt_name}_controller"
-            items[controller_name] = {"joint": jnt_name, "type": self._main.custom_joints.controller_type(i)}
+            items[controller_name] = {"joint": jnt_name, "type": self._main.custom_joints.get_controller_type(i)}
 
             if self._main.custom_joints.pid_enabled(i):
                 items[controller_name]["pid"] = {
-                    "p": self._main.custom_joints.p_gain(i),
-                    "i": self._main.custom_joints.i_gain(i),
-                    "d": self._main.custom_joints.d_gain(i),
+                    "p": self._main.custom_joints.get_p_gain(i),
+                    "i": self._main.custom_joints.get_i_gain(i),
+                    "d": self._main.custom_joints.get_d_gain(i),
                 }
                 items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
-                    "p": self._main.custom_joints.p_gain(i),
-                    "i": self._main.custom_joints.i_gain(i),
-                    "d": self._main.custom_joints.d_gain(i),
+                    "p": self._main.custom_joints.get_p_gain(i),
+                    "i": self._main.custom_joints.get_i_gain(i),
+                    "d": self._main.custom_joints.get_d_gain(i),
                 }
 
         # yamlファイルを作成

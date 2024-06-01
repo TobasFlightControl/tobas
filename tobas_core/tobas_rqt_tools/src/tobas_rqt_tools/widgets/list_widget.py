@@ -17,7 +17,7 @@ class ListWidget(QListWidget):
     item_moved = pyqtSignal(QListWidgetItem)
 
     def __iter__(self) -> Iterator[QListWidgetItem]:
-        for row in self.count():
+        for row in range(self.count()):
             yield self.item(row)
 
     @override
