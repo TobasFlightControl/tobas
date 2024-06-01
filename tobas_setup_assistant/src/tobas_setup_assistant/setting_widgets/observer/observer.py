@@ -69,7 +69,7 @@ class ObserverWidget(BaseSettingWidget):
         self._type.setCurrentText(data[self.OBSERVER_TYPE])
 
         for observer in self._observers:
-            observer.load_settings(data[self.OBSERVER_TYPE])
+            observer.load_settings(data[observer.NAME])
 
     def pkg_name(self) -> str:
         return self._selected().PACKAGE_NAME

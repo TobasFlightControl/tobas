@@ -106,6 +106,7 @@ class PackageLoaderWidget(Widget):
         settings_path = get_settings_path(pkg_path)
         with open(settings_path, "r") as f:
             settings = yaml.safe_load(f)
-        self._main.load_settings(settings)
+        if not self._main.load_settings(settings):
+            return
 
         q_info(self._main, "Tobas configuration package is loaded successfully.")

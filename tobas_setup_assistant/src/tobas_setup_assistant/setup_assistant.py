@@ -1,3 +1,4 @@
+import traceback
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, VerticalTabWidget
@@ -92,13 +93,18 @@ class SetupAssistant(Widget):
             widget.update_internal_data_structures()
             widget.setEnabled(True)
 
-    def load_settings(self, settings: dict) -> None:
+    def load_settings(self, settings: dict) -> bool:
+        success = True
+
         for i in range(self._tab_widget.count()):
             widget: BaseSettingWidget = self._tab_widget.widget(i)
             try:
                 widget.load_settings(settings[widget.NAME])
             except Exception:
-                q_error(self, f'Failed to load settings of "{widget.NAME}"')
+                q_error(self, f'Failed to load settings of "{widget.NAME}":\n\n{traceback.format_exc()}')
+                success = False
+
+        return success
 
     def switch(self, tab: QWidget) -> None:
         self._tab_widget.switch(tab)

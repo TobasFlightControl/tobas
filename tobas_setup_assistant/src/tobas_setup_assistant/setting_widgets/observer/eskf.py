@@ -73,7 +73,7 @@ class ErrorStateKalmanFilter(BaseObserver):
     def load_settings(self, data: dict) -> None:
         for i in range(self._param_rows.count()):
             ckb: QCheckBox = self._param_rows.itemAt(i).widget()
-            ckb.setChecked(data[ckb.isChecked()])
+            ckb.setChecked(data[ckb.text()])
 
     @override
     def static_parameters(self) -> dict:

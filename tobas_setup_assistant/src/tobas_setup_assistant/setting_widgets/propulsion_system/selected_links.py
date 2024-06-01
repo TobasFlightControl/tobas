@@ -20,7 +20,6 @@ from tobas_rqt_tools.widgets import TabWidget
 from tobas_rqt_tools.messages import q_info, q_warn, q_error_named
 from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
-from tobas_kdl_sympy.joint import JointType
 
 from ...common import PROP_TILT_TOL
 from .common import PROPULSION_SYSTEM, AxisType
@@ -103,7 +102,7 @@ class SelectedLinksTabWidget(TabWidget):
         return True
 
     def dump_settings(self, link_name: str) -> dict:
-        self._get_tab(link_name).dump_settings()
+        return self._get_tab(link_name).dump_settings()
 
     def load_settings(self, link_name: str, data: dict) -> None:
         self._get_tab(link_name).load_settings(data)
@@ -251,7 +250,7 @@ class SelectedLinkWidget(QWidget):
     def load_settings(self, data: dict) -> None:
         for i in range(self._setting_rows.count()):
             widget: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
-            widget.load_settings(data)
+            widget.load_settings(data[widget.NAME])
 
     def link_name(self) -> str:
         return self._link_name

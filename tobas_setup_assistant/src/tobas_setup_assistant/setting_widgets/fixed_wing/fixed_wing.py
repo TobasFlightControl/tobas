@@ -85,7 +85,7 @@ class FixedWingWidget(BaseSettingWidget):
 
         for i in range(self._setting_rows.count()):
             widget: BaseFixedWingSettingWidget = self._setting_rows.itemAt(i).widget()
-            widget.load_settings(data)
+            widget.load_settings(data[widget.NAME])
 
     def num_control_surfaces(self) -> int:
         return self.control_surfaces.selected.count()
