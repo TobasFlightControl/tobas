@@ -83,7 +83,8 @@ class URDFLoaderWidget(Widget):
         process = launch(PKG_NAME, "description.launch")
         _, stderr = process.communicate()
         if process.returncode != 0:
-            q_error(self._main, f"Failed to load robot description:\n\n{stderr.decode()}")
+            error_msg = stderr.decode() if isinstance(stderr, bytes) else "Unknown Error"
+            q_error(self._main, f"Failed to load robot description:\n\n{error_msg}")
             return
 
         # URDFを解析
