@@ -128,7 +128,7 @@ class RosPackageWidget(BaseSettingWidget):
 
     @pyqtSlot()
     def _on_generate_button_clicked(self) -> None:
-        self._main.generate_package()
+        self._main.pkg_generator.generate_package()
 
     @pyqtSlot()
     def _on_path_changed(self) -> None:

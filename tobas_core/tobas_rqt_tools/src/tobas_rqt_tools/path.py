@@ -1,6 +1,6 @@
 import os.path as osp
-import urllib
 import rospkg
+from urllib import parse
 from glob import glob
 from typing import List
 
@@ -13,7 +13,7 @@ def resolve_uri(uri: str) -> str:
         pkg_path = rospkg.RosPack().get_path(pkg_name)
         return osp.join(pkg_path, rest_of_path)
     elif uri.startswith("file://"):
-        return urllib.parse.unquote(urllib.parse.urlparse(uri).path)
+        return parse.unquote(parse.urlparse(uri).path)
     else:
         raise RuntimeError(f"Invalid URI: {uri}")
 

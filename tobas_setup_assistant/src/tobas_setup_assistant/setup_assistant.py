@@ -20,7 +20,7 @@ class SetupAssistant(Widget):
         super().__init__()
 
         self.urdf_parser = URDFParser()
-        self._pkg_generator = PackageGenerator(self)
+        self.pkg_generator = PackageGenerator(self)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -82,7 +82,7 @@ class SetupAssistant(Widget):
             widget.setEnabled(False)
 
     def update_internal_data_structures(self) -> None:
-        self._pkg_generator.update_internal_data_structures()
+        self.pkg_generator.update_internal_data_structures()
 
         self._robot_visualizer.update_internal_data_structures()
         self._robot_visualizer.setVisible(True)
@@ -113,9 +113,6 @@ class SetupAssistant(Widget):
 
     def get_setting_widget(self, index: int) -> BaseSettingWidget:
         return self._tab_widget.widget(index)
-
-    def generate_package(self) -> None:
-        self._pkg_generator.generate_package()
 
     @pyqtSlot(int)
     def _on_tab_changed(self, index: int) -> None:

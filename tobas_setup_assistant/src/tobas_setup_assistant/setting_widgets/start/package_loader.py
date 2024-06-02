@@ -17,6 +17,7 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION
 from tobas_tools_py.package import get_urdf_path, get_settings_path
+from tobas_tools_py.command import source_tobas_package
 
 from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 
@@ -85,6 +86,9 @@ class PackageLoaderWidget(Widget):
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
         self._config.set(self.KEY, osp.dirname(pkg_path))
         self._config.write()
+
+        # Tobasパッケージのパスを追加する
+        source_tobas_package(pkg_path)
 
         # robot_descriptionをrosparamに登録
         os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = f"{get_urdf_path(pkg_path)} DEBUG:=false"

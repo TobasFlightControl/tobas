@@ -20,9 +20,11 @@ from tobas_std_tools_py.file import create_empty_file
 from tobas_urdf_tools_py.core import Origin
 from tobas_urdf_tools_py.gazebo import GazeboRosControl
 from tobas_urdf_tools_py.utils import prettify
+from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.path import resolve_uri
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
+from tobas_tools_py.command import build_tobas_package
 from tobas_tools_py.package import *
 from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, SpeedRollDeltaPitch
 
@@ -47,10 +49,35 @@ class PackageGenerator(QObject):
         self._drone_name = get_drone_name()
 
     def generate_package(self) -> None:
+        progress = ProgressDialog(parent=self._main, title="Generate Package", num_steps=3)
+        progress.setCancelButton(None)
+        progress.show()
+
+        progress.setLabelText("Verifying the validity of the user settings.")
         if not self._is_valid_config():
+            progress.close()
             return
-        self._generate_pkg()
-        q_info(self._main, "Configuration package is generated.")
+        progress.progress_step()
+
+        progress.setLabelText("Generating Tobas packages.")
+        try:
+            self._generate_pkg()
+        except Exception as e:
+            progress.close()
+            q_error(f"A proglem ocurred while generating Tobas packages:\n\n{e}")
+            return
+        progress.progress_step()
+
+        # Build Tobas package
+        progress.setLabelText("Building Tobas packages.")
+        if not build_tobas_package(self._main.ros_package.pkg_path()):
+            progress.close()
+            q_error(self._main, "Failed to build Tobas package.")
+            return
+        progress.progress_step()
+
+        progress.close()
+        q_info(self._main, "Tobas configuration package is generated and built successfully.")
 
     def _is_valid_config(self) -> bool:
         # 全ての設定項目について，単体で問題ないことを確認
