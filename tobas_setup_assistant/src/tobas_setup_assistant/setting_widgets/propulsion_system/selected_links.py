@@ -10,15 +10,14 @@ import numpy as np
 from numpy import linalg as LA
 from typing import List
 from overrides import override
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
 from tobas_rqt_tools.widgets import TabWidget
 from tobas_rqt_tools.messages import q_info, q_warn, q_error_named
-from tobas_rqt_tools.utils import place_center
 from tobas_kdl_sympy.frames import Vector
 
 from ...common import PROP_TILT_TOL
@@ -194,8 +193,8 @@ class SelectedLinksTabWidget(TabWidget):
 
 
 class SelectedLinkWidget(QWidget):
-    BUTTON_WIDTH = 150
-    BUTTON_HEIGHT = 40
+    BUTTON_WIDTH = 120
+    BUTTON_HEIGHT = 50
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
@@ -206,10 +205,20 @@ class SelectedLinkWidget(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self._copy_button = QPushButton("Copy From Left")
-        self._copy_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self._copy_button.clicked.connect(self._on_copy_button_clicked)
-        place_center(self._copy_button, rows)
+        button_cols = QHBoxLayout()
+        rows.addLayout(button_cols)
+
+        self._copy_from_left_button = QPushButton("Copy From Left")
+        self._copy_from_left_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._copy_from_left_button.clicked.connect(self._on_copy_from_left_button_clicked)
+        button_cols.addWidget(self._copy_from_left_button)
+        button_cols.setAlignment(self._copy_from_left_button, Qt.AlignCenter)
+
+        self._copy_to_all_button = QPushButton("Copy To All")
+        self._copy_to_all_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._copy_to_all_button.clicked.connect(self._on_copy_to_all_button_clicked)
+        button_cols.addWidget(self._copy_to_all_button)
+        button_cols.setAlignment(self._copy_to_all_button, Qt.AlignCenter)
 
         self._setting_rows = QVBoxLayout()
         rows.addLayout(self._setting_rows)
@@ -240,6 +249,12 @@ class SelectedLinkWidget(QWidget):
 
         return True
 
+    def copy_from(self, src: SelectedLinkWidget) -> None:
+        for row in range(self._setting_rows.count()):
+            des_setting: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(row).widget()
+            src_setting: BaseSelectedLinkSettingWidget = src._setting_rows.itemAt(row).widget()
+            des_setting.copy_from(src_setting)
+
     def dump_settings(self) -> dict:
         res = dict()
         for i in range(self._setting_rows.count()):
@@ -268,7 +283,7 @@ class SelectedLinkWidget(QWidget):
             return AxisType.UNKNOWN
 
     @pyqtSlot()
-    def _on_copy_button_clicked(self) -> None:
+    def _on_copy_from_left_button_clicked(self) -> None:
         selected = self._main.propulsion_system.selected
         self_idx = selected.get_index(self._link_name)
 
@@ -277,9 +292,19 @@ class SelectedLinkWidget(QWidget):
             return
 
         left: SelectedLinkWidget = selected.widget(self_idx - 1)
-        for i in range(self._setting_rows.count()):
-            des: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
-            src: BaseSelectedLinkSettingWidget = left._setting_rows.itemAt(i).widget()
-            des.copy_from(src)
+        self.copy_from(left)
 
         q_info(self._main, f"The settings from {left.link_name()} have been copied to {self.link_name()}.")
+
+    @pyqtSlot()
+    def _on_copy_to_all_button_clicked(self) -> None:
+        selected = self._main.propulsion_system.selected
+        self_idx = selected.get_index(self._link_name)
+
+        for i in range(selected.count()):
+            if i == self_idx:
+                continue
+            des: SelectedLinkWidget = selected.widget(i)
+            des.copy_from(self)
+
+        q_info(self._main, f"The settings from {self.link_name()} have been copied to all the selected links.")
