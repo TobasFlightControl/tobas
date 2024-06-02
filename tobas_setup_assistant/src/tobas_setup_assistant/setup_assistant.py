@@ -95,9 +95,12 @@ class SetupAssistant(Widget):
     def load_settings(self, settings: dict) -> bool:
         success = True
 
+        # 各ウィジェットを開いてからロード
+        # ユーザが設定するときと同じように上から順にロードしていく
         for i in range(self._tab_widget.count()):
             widget: BaseSettingWidget = self._tab_widget.widget(i)
             try:
+                widget.on_opened()
                 widget.load_settings(settings[widget.NAME])
             except Exception:
                 q_error(self, f'Failed to load settings of "{widget.NAME}":\n\n{traceback.format_exc()}')
