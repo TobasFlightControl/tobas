@@ -184,7 +184,7 @@ class CustomJointsWidget(BaseSettingWidget):
 
     @override
     def load_settings(self, data: dict) -> None:
-        for joint_name, data_ in data:
+        for joint_name, data_ in data.items():
             row = self._get_row(joint_name)
             if row < 0:
                 q_error_named(self, self.NAME, f'"{joint_name}" does not exist in the custom joint list.')
