@@ -21,15 +21,16 @@ class BaseController(Widget):
     MOVE_PKG = TO_DO
     STABLIZE_MODE = TO_DO
     ACROBAT_MODE = TO_DO
+    ABST_TEXT = TO_DO
 
-    def __init__(self, main: SetupAssistant, abst_text: str) -> None:
+    def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst = Description(abst_text)
+        abst = Description(self.ABST_TEXT)
         self._rows.addWidget(abst)
 
     @override

@@ -13,15 +13,15 @@ from .base_setting import OptionalDeviceWidget
 
 class OdometryWidget(OptionalDeviceWidget):
     NAME = "Odometry"
+    TITLE_TEXT = "Define Odometry Publisher"
+    ABST_TEXT = (
+        "Configure the settings for the device issuing odometry data. "
+        "Please refer to the datasheet and enter the respective values. "
+        "This includes devices like wheel encoders or Visual Inertial Odometry (VIO)."
+    )
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Odometry Publisher"
-        abst_text = (
-            "Configure the settings for the device issuing odometry data. "
-            "Please refer to the datasheet and enter the respective values. "
-            "This includes devices like wheel encoders or Visual Inertial Odometry (VIO)."
-        )
-        super().__init__(main, title_text, abst_text, False)
+        super().__init__(main, False)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._add_param_widget(self.offset)

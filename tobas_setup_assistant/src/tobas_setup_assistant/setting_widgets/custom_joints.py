@@ -30,6 +30,11 @@ class CustomJointField(Enum):
 
 class CustomJointsWidget(BaseSettingWidget):
     NAME = "Custom Joints"
+    TITLE_TEXT = "Define Custom Joints"
+    ABST_TEXT = (
+        "Configure the settings for joints with transmissions "
+        "other than those in the propulsion system and fixed-wing control surfaces."
+    )
 
     POSITION = "position"
     VELOCITY = "velocity"
@@ -44,12 +49,7 @@ class CustomJointsWidget(BaseSettingWidget):
     GAIN_DECIMALS = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Custom Joints"
-        abst_text = (
-            "Configure the settings for joints with transmissions "
-            "other than those in the propulsion system and fixed-wing control surfaces."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._table = TableWidget(0, len(CustomJointField))
         self._table.setHorizontalHeaderLabels([title_from_snake(item.name) for item in CustomJointField])

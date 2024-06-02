@@ -21,17 +21,17 @@ class FixedWingLQR(BaseController):
     MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = SpeedRollDeltaPitch.__name__
     ACROBAT_MODE = SpeedRollDeltaPitch.__name__  # TODO
+    ABST_TEXT = (
+        "Control the fixed-wing aircraft using LQR (Linear Quadratic Regulator). "
+        "While this method is computationally light, it does not consider hard constraints, "
+        "which may lead to the issuance of commands outside the permissible range."
+    )
 
     MIN_NUM_PROP = 1
     MIN_NUM_CS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = (
-            "Control the fixed-wing aircraft using LQR (Linear Quadratic Regulator). "
-            "While this method is computationally light, it does not consider hard constraints, "
-            "which may lead to the issuance of commands outside the permissible range."
-        )
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
     @override
     def update_internal_data_structures(self) -> None:

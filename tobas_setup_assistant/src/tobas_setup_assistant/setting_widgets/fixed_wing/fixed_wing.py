@@ -19,15 +19,15 @@ from .control_surfaces import ControlSurfacesWidget
 
 class FixedWingWidget(BaseSettingWidget):
     NAME = "Fixed Wing"
+    TITLE_TEXT = "Define Fixed Wing"
+    ABST_TEXT = (
+        "Set up the fixed-wing configuration. " "Please choose a setup method and enter the required information."
+    )
 
     DEFAULT_HAS_FIXED_WING = False
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Fixed Wing"
-        abst_text = (
-            "Set up the fixed-wing configuration. " "Please choose a setup method and enter the required information."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self.has_fixed_wing = QCheckBox("Fixed-Wing Configuration")
         self.has_fixed_wing.setFont(QFont("Default", pointSize=BODY_PSIZE))

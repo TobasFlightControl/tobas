@@ -22,15 +22,15 @@ class MultirotorMpc(BaseController):
     MOVE_PKG = "tobas_multirotor_move"
     STABLIZE_MODE = PosVelAccYaw.__name__
     ACROBAT_MODE = RollPitchYawThrust.__name__
+    ABST_TEXT = (
+        "This is a controller for planar multirotors, "
+        "utilizing LQR for position control and linear model predictive control for attitude control."
+    )
 
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = (
-            "This is a controller for planar multirotors, "
-            "utilizing LQR for position control and linear model predictive control for attitude control."
-        )
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
     @override
     def update_internal_data_structures(self) -> None:

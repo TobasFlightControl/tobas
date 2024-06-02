@@ -21,11 +21,11 @@ from .base_setting import OptionalDeviceWidget
 
 class RgbCameraWidget(OptionalDeviceWidget):
     NAME = "RGB Camera"
+    TITLE_TEXT = "Define RGB Camera"
+    ABST_TEXT = "Configure the RGB camera settings. Please refer to the datasheet and enter the respective values."
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define RGB Camera"
-        abst_text = "Configure the RGB camera settings. Please refer to the datasheet and enter the respective values."
-        super().__init__(main, title_text, abst_text, False)
+        super().__init__(main, False)
 
         self.link = ParamGetterWidget_ComboBox("Link Name", CAMERA_LINK_DESCRIPTION)
         self._add_param_widget(self.link)

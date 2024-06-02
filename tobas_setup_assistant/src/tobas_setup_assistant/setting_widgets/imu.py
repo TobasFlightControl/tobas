@@ -15,12 +15,11 @@ from .base_setting import BaseSettingWidget
 
 class ImuWidget(BaseSettingWidget):
     NAME = "IMU"
+    TITLE_TEXT = "Define Inertial Measurement Unit"
+    ABST_TEXT = ""  # TODO
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Inertial Measurement Unit"
-        abst_text = ""  # TODO
-
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._param_rows = QVBoxLayout()
         self._rows.addLayout(self._param_rows)

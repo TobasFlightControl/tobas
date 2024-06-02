@@ -16,18 +16,17 @@ from .selected_links import SelectedLinksTabWidget
 
 class PropulsionSystemWidget(BaseSettingWidget):
     NAME = "Propulsion"
+    TITLE_TEXT = "Define Propulsion System"
+    ABST_TEXT = (
+        "Configure the propulsion system. "
+        "Please add the link you intend to use for the propulsion system from the Available Links, "
+        "and input the necessary information for each."
+    )
+
     LABEL_PSIZE = 12
 
-    LINK_NAME = "link_name"
-
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Propulsion System"
-        abst_text = (
-            "Configure the propulsion system. "
-            "Please add the link you intend to use for the propulsion system from the Available Links, "
-            "and input the necessary information for each."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         links_label = QLabel("Available Links")
         links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))

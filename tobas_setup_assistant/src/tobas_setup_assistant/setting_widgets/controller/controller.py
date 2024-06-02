@@ -21,17 +21,17 @@ from .custom import CustomController
 
 class ControllerWidget(BaseSettingWidget):
     NAME = "Controller"
+    TITLE_TEXT = "Setup Controller"
+    ABST_TEXT = (
+        "Configure the flight controller by selecting one method and setting its parameters. "
+        "You can fine-tune the parameters later, "
+        "so it's acceptable to leave them at their default settings initially."
+    )
 
     CONTROLLER_TYPE_KEY = "controller_type"
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Setup Controller"
-        abst_text = (
-            "Configure the flight controller by selecting one method and setting its parameters. "
-            "You can fine-tune the parameters later, "
-            "so it's acceptable to leave them at their default settings initially."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._type = ComboBox()
         self._controllers = StackedWidget()

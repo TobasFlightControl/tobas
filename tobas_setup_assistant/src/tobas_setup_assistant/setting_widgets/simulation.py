@@ -14,14 +14,14 @@ from .base_setting import BaseSettingWidget
 
 class SimulationWidget(BaseSettingWidget):
     NAME = "Simulation"
+    TITLE_TEXT = "Define Simulation Environment"
+    ABST_TEXT = (
+        "Configure the settings for the Gazebo simulation environment. "
+        "To enhance the accuracy of the simulation, please input information about the actual operating environment."
+    )
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Simulation Environment"
-        abst_text = (
-            "Configure the settings for the Gazebo simulation environment. "
-            "To enhance the accuracy of the simulation, please input information about the actual operating environment."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._param_rows = QVBoxLayout()
         self._rows.addLayout(self._param_rows)

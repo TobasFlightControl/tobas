@@ -16,16 +16,16 @@ from .custom import CustomObserver
 
 class ObserverWidget(BaseSettingWidget):
     NAME = "Observer"
+    TITLE_TEXT = "Setup Observer"
+    ABST_TEXT = (
+        "Configure the state estimator by selecting one method and setting its parameters. "
+        "You can tune the parameters later, so it's fine to leave them at their default values if preferred."
+    )
 
-    OBSERVER_TYPE = "observer_type"
+    OBSERVER_TYPE_KEY = "observer_type"
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Setup Observer"
-        abst_text = (
-            "Configure the state estimator by selecting one method and setting its parameters. "
-            "You can tune the parameters later, so it's fine to leave them at their default values if preferred."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._type = ComboBox()
         self._observers = StackedWidget()
@@ -55,7 +55,7 @@ class ObserverWidget(BaseSettingWidget):
     def dump_settings(self) -> dict:
         res = dict()
 
-        res[self.OBSERVER_TYPE] = self._type.currentText()
+        res[self.OBSERVER_TYPE_KEY] = self._type.currentText()
 
         for i in range(self._observers.count()):
             observer: BaseObserver = self._observers.widget(i)
@@ -65,7 +65,7 @@ class ObserverWidget(BaseSettingWidget):
 
     @override
     def load_settings(self, data: dict) -> None:
-        self._type.setCurrentText(data[self.OBSERVER_TYPE])
+        self._type.setCurrentText(data[self.OBSERVER_TYPE_KEY])
 
         for i in range(self._observers.count()):
             observer: BaseObserver = self._observers.widget(i)

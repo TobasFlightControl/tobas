@@ -22,12 +22,12 @@ class MultirotorPid(BaseController):
     MOVE_PKG = "tobas_multirotor_move"
     STABLIZE_MODE = PosVelAccYaw.__name__
     ACROBAT_MODE = RollPitchYawThrust.__name__
+    ABST_TEXT = "This controller for planar multirotors employs PID for both position and attitude control."
 
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "This controller for planar multirotors employs PID for both position and attitude control."
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
     @override
     def update_internal_data_structures(self) -> None:

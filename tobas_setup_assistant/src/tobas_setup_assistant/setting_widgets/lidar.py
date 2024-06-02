@@ -21,11 +21,11 @@ from .base_setting import OptionalDeviceWidget
 
 class LidarWidget(OptionalDeviceWidget):
     NAME = "LiDAR"
+    TITLE_TEXT = "Define LiDAR"
+    ABST_TEXT = "Configure the 3D LiDAR settings. " "Please refer to the datasheet and input the respective values."
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define LiDAR"
-        abst_text = "Configure the 3D LiDAR settings. " "Please refer to the datasheet and input the respective values."
-        super().__init__(main, title_text, abst_text, False)
+        super().__init__(main, False)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._add_param_widget(self.offset)

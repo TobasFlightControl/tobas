@@ -12,10 +12,10 @@ from .base import BaseObserver
 class CustomObserver(BaseObserver):
     NAME = "Use Custom Observer"
     PACKAGE_NAME = "tobas_dummy_pkg"
+    ABST_TEXT = ""  # TODO: APIの案内など
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = ""  # TODO: APIの案内など
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
     @override
     def is_valid(self) -> bool:

@@ -13,11 +13,11 @@ from .base_setting import OptionalDeviceWidget
 
 class GpsWidget(OptionalDeviceWidget):
     NAME = "GPS"
+    TITLE_TEXT = "Define Global Positioning System"
+    ABST_TEXT = ""  # TODO
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Global Positioning System"
-        abst_text = ""  # TODO
-        super().__init__(main, title_text, abst_text, True)
+        super().__init__(main, True)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
         self._add_param_widget(self.offset)

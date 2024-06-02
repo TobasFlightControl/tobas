@@ -15,11 +15,11 @@ from .base_setting import BaseSettingWidget
 
 class BarometerWidget(BaseSettingWidget):
     NAME = "Barometer"
+    TITLE_TEXT = "Define Air Pressure Sensor"
+    ABST_TEXT = ""  # TODO
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Air Pressure Sensor"
-        abst_text = ""  # TODO
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._param_rows = QVBoxLayout()
         self._rows.addLayout(self._param_rows)

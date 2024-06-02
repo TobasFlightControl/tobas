@@ -28,13 +28,13 @@ class DepthNoiseModel(ExtEnum):
 
 class DepthCameraWidget(OptionalDeviceWidget):
     NAME = "Depth Camera"
+    TITLE_TEXT = "Define Depth Camera"
+    ABST_TEXT = (
+        "Configure the depth camera settings. Please refer to the datasheet and input the respective values."
+    )
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Depth Camera"
-        abst_text = (
-            "Configure the depth camera settings. Please refer to the datasheet and input the respective values."
-        )
-        super().__init__(main, title_text, abst_text, False)
+        super().__init__(main, False)
 
         self.link = ParamGetterWidget_ComboBox("Link Name", CAMERA_LINK_DESCRIPTION)
         self._add_param_widget(self.link)

@@ -19,17 +19,17 @@ from .base_setting import BaseSettingWidget
 
 class BatteryWidget(BaseSettingWidget):
     NAME = "Battery"
+    TITLE_TEXT = "Define Battery"
+    ABST_TEXT = (
+        "Configure the LiPo (Lithium Polymer) battery settings. "
+        "It is assumed that a single battery will power all motors. "
+        "Therefore, the settings here will affect the control of all motors."
+    )
 
     TYPE_KEY = "battery_type"
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Battery"
-        abst_text = (
-            "Configure the LiPo (Lithium Polymer) battery settings. "
-            "It is assumed that a single battery will power all motors. "
-            "Therefore, the settings here will affect the control of all motors."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._type = ComboBox()
         self._batteries = StackedWidget()

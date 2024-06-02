@@ -12,15 +12,15 @@ from .base_setting import OptionalDeviceWidget
 
 class TetherStationWidget(OptionalDeviceWidget):
     NAME = "Tether Station"
+    TITLE_TEXT = "Define Tether Station"
+    ABST_TEXT = (
+        "A Tether Station is a device that connects a drone to the ground with a constantly tensioned cable. "
+        "It can prevent the drone from straying by using an emergency brake and "
+        "extend flight duration by providing power through the cable."
+    )
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Tether Station"
-        abst_text = (
-            "A Tether Station is a device that connects a drone to the ground with a constantly tensioned cable. "
-            "It can prevent the drone from straying by using an emergency brake and "
-            "extend flight duration by providing power through the cable."
-        )
-        super().__init__(main, title_text, abst_text, False)
+        super().__init__(main, False)
 
         link_description = "The name of the link to which the end of the cable is attached."
         self.link = ParamGetterWidget_ComboBox("Link Name", link_description)

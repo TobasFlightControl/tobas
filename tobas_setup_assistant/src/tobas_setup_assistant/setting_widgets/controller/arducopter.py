@@ -178,14 +178,14 @@ class ArduCopter(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PositionYaw.__name__
     ACROBAT_MODE = PositionYaw.__name__  # TODO
+    ABST_TEXT = "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
 
     CHANNELS = "channels"
 
     MIN_NUM_PROPS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
         # Frame Classes
         quad = FrameClass(1, "Quad", 4)

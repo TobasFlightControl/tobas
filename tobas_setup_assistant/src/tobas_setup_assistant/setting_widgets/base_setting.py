@@ -18,23 +18,25 @@ from ..common import TITLE_PSIZE, BODY_PSIZE, TO_DO, Description
 
 
 class BaseSettingWidget(ScrollArea):
+    NAME = TO_DO
+    TITLE_TEXT = TO_DO
+    ABST_TEXT = TO_DO
+
     ABST_HEIGHT = 100
 
-    NAME = TO_DO
-
-    def __init__(self, main: SetupAssistant, title_text: str, abst_text: str) -> None:
+    def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        title = QLabel(title_text)
+        title = QLabel(self.TITLE_TEXT)
         title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
         title.setAlignment(Qt.AlignTop)
         self._rows.addWidget(title)
 
-        abst = Description(abst_text)
+        abst = Description(self.ABST_TEXT)
         abst.setFixedHeight(self.ABST_HEIGHT)
         self._rows.addWidget(abst)
 
@@ -70,8 +72,8 @@ class OptionalDeviceWidget(BaseSettingWidget):
     搭載する場合のみ各種設定項目が有効になる．
     """
 
-    def __init__(self, main: SetupAssistant, title_text: str, abst_text: str, default_equipped: bool) -> None:
-        super().__init__(main, title_text, abst_text)
+    def __init__(self, main: SetupAssistant, default_equipped: bool) -> None:
+        super().__init__(main)
 
         self._equipped = QCheckBox(f"{self.NAME} Equipped")
         self._equipped.setFont(QFont("Default", pointSize=BODY_PSIZE))

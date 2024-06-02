@@ -15,23 +15,23 @@ from .base import BaseObserver
 class ErrorStateKalmanFilter(BaseObserver):
     NAME = "Error State Kalman Filter"
     PACKAGE_NAME = "state_estimation_eskf"
+    ABST_TEXT = (
+        "The Error State Kalman Filter (ESKF) is an advanced variant of the Kalman Filter, "
+        "tailored for systems with non-linear dynamics. "
+        "Unlike the traditional Kalman Filter, which directly estimates the system's state, "
+        "the ESKF focuses on estimating the error in the state. "
+        "This approach allows for more effective handling of non-linear relationships "
+        "between the system state and measurements. "
+        "The ESKF operates by linearizing these non-linearities around a nominal state. "
+        "It's particularly useful in applications like navigation and tracking, "
+        "where precision in estimating orientation and position is crucial, "
+        "such as in Inertial Navigation Systems and GPS technology. "
+        "The ESKF's blend of accuracy and computational efficiency "
+        "makes it a valuable tool in complex engineering tasks."
+    )
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = (
-            "The Error State Kalman Filter (ESKF) is an advanced variant of the Kalman Filter, "
-            "tailored for systems with non-linear dynamics. "
-            "Unlike the traditional Kalman Filter, which directly estimates the system's state, "
-            "the ESKF focuses on estimating the error in the state. "
-            "This approach allows for more effective handling of non-linear relationships "
-            "between the system state and measurements. "
-            "The ESKF operates by linearizing these non-linearities around a nominal state. "
-            "It's particularly useful in applications like navigation and tracking, "
-            "where precision in estimating orientation and position is crucial, "
-            "such as in Inertial Navigation Systems and GPS technology. "
-            "The ESKF's blend of accuracy and computational efficiency "
-            "makes it a valuable tool in complex engineering tasks."
-        )
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
         self._param_rows = QVBoxLayout()
         self._rows.addLayout(self._param_rows)

@@ -19,15 +19,15 @@ from .base_setting import BaseSettingWidget
 
 class AuthorInformationWidget(BaseSettingWidget):
     NAME = "Author Info"
+    TITLE_TEXT = "Specify Author Information"
+    ABST_TEXT = (
+        "Enter the name and email address of the person administering the Tobas package "
+        "that you're creating with the Setup Assistant. "
+        "This step is important for keeping track of package ownership and for any necessary future communications."
+    )
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Specify Author Information"
-        abst_text = (
-            "Enter the name and email address of the person administering the Tobas package "
-            "that you're creating with the Setup Assistant. "
-            "This step is important for keeping track of package ownership and for any necessary future communications."
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._param_rows = QVBoxLayout()
         self._rows.addLayout(self._param_rows)

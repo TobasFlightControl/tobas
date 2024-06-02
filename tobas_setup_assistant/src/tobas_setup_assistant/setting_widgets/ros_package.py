@@ -26,18 +26,18 @@ from .base_setting import BaseSettingWidget
 
 class RosPackageWidget(BaseSettingWidget):
     NAME = "ROS Package"
+    TITLE_TEXT = "Generate ROS Package"
+    ABST_TEXT = (
+        "Based on the previous settings, we will generate the necessary ROS packages for using Tobas. "
+        'Please specify the path for the package and click the "Generate" button.'
+    )
 
     TEXT_HEIGHT = 50
     BUTTON_HEIGHT = 40
     BUTTON_WIDTH = 100
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Generate ROS Package"
-        abst_text = (
-            "Based on the previous settings, we will generate the necessary ROS packages for using Tobas. "
-            'Please specify the path for the package and click the "Generate" button.'
-        )
-        super().__init__(main, title_text, abst_text)
+        super().__init__(main)
 
         self._param_rows = QVBoxLayout()
         self._rows.addLayout(self._param_rows)
