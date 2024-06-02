@@ -21,24 +21,35 @@ def get_tbs_user_name(tbs_path: str) -> str:
 
 
 def get_tbs_meta_path(tbs_path: str) -> str:
+    """PC上のTobasメタパッケージの絶対パスを返す．"""
     return osp.join(tbs_path, get_tbs_meta_name(tbs_path))
 
 
 def get_tbs_config_path(tbs_path: str) -> str:
+    """PC上のTobas設定パッケージの絶対パスを返す．"""
     return osp.join(tbs_path, get_tbs_config_name(tbs_path))
 
 
 def get_tbs_user_path(tbs_path: str) -> str:
+    """PC上のTobasユーザパッケージの絶対パスを返す．"""
     return osp.join(tbs_path, get_tbs_user_name(tbs_path))
 
 
 def get_tbsdrn_path(tbs_path: str) -> str:
+    """PC上の drone.tbsdrn の絶対パスを返す．"""
     return osp.join(get_tbs_config_path(tbs_path), "config", "drone.tbsdrn")
 
 
 def get_urdf_path(tbs_path: str) -> str:
+    """PC上の drone.xacro の絶対パスを返す．"""
     return osp.join(get_tbs_config_path(tbs_path), "urdf", "drone.xacro")
 
 
 def get_settings_path(tbs_path: str) -> str:
+    """PC上の settings.yaml の絶対パスを返す．"""
     return osp.join(get_tbs_config_path(tbs_path), "settings.yaml")
+
+
+def get_dynamic_params_path(tbs_path: str) -> str:
+    """PC上の dynamic_params.yaml の絶対パスを返す．"""
+    return osp.join(get_tbs_config_path(tbs_path), "config", "dynamic_params.yaml")
