@@ -206,7 +206,7 @@ class SelectedLinkWidget(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        self._copy_button = QPushButton("Copy From Left Tab")
+        self._copy_button = QPushButton("Copy From Left")
         self._copy_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._copy_button.clicked.connect(self._on_copy_button_clicked)
         place_center(self._copy_button, rows)
