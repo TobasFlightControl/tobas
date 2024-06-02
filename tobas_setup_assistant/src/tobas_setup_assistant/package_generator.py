@@ -64,7 +64,7 @@ class PackageGenerator(QObject):
             self._generate_pkg()
         except Exception as e:
             progress.close()
-            q_error(f"A proglem ocurred while generating Tobas packages:\n\n{e}")
+            q_error(self._main, f"A proglem ocurred while generating Tobas packages:\n\n{e}")
             return
         progress.progress_step()
 
@@ -114,18 +114,17 @@ class PackageGenerator(QObject):
         # 設定パッケージを作成
         self._generate_config_pkg(items)
 
-        # ユーザパッケージが存在しなければ作成
-        if not osp.exists(get_tbs_user_path(tbs_path)):
-            self._generate_user_pkg(items)
+        # ユーザパッケージを作成
+        self._generate_user_pkg(items)
 
     def _generate_meta_pkg(self, items: dict) -> None:
         meta_pkg_path = get_tbs_meta_path(self._main.ros_package.pkg_path())
         os.makedirs(meta_pkg_path, exist_ok=True)
 
-        self._meta_env.generate(items, "CMakeLists.txt.tpl", osp.join(meta_pkg_path, "CMakeLists.txt"))
-        self._meta_env.generate(items, "package.xml.tpl", osp.join(meta_pkg_path, "package.xml"))
+        self._meta_env.generate(items, "CMakeLists.txt.tpl", meta_pkg_path)
+        self._meta_env.generate(items, "package.xml.tpl", meta_pkg_path)
 
-        create_empty_file(osp.join(meta_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"))
+        create_empty_file(osp.join(meta_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"), exist_ok=True)
 
     def _generate_config_pkg(self, items: dict) -> None:
         config_pkg_path = get_tbs_config_path(self._main.ros_package.pkg_path())
@@ -145,41 +144,33 @@ class PackageGenerator(QObject):
         self._dump_settings()
 
         # テンプレートから生成
-        self._cfg_env.generate(items, "CMakeLists.txt.tpl", osp.join(config_pkg_path, "CMakeLists.txt"))
-        self._cfg_env.generate(items, "package.xml.tpl", osp.join(config_pkg_path, "package.xml"))
-        self._cfg_env.generate(items, "plotjuggler_layout.xml.tpl", osp.join(config_dir, "plotjuggler_layout.xml"))
-        self._cfg_env.generate(items, "nodelet_manager.launch.tpl", osp.join(launch_dir, "nodelet_manager.launch"))
-        self._cfg_env.generate(items, "common_params.launch.tpl", osp.join(launch_dir, "common_params.launch"))
-        self._cfg_env.generate(items, "gazebo.launch.tpl", osp.join(launch_dir, "gazebo.launch"))
-        self._cfg_env.generate(items, "real.launch.tpl", osp.join(launch_dir, "real.launch"))
-        self._cfg_env.generate(items, "calibration.launch.tpl", osp.join(launch_dir, "calibration.launch"))
-        self._cfg_env.generate(items, "controller.launch.tpl", osp.join(launch_dir, "controller.launch"))
-        self._cfg_env.generate(items, "observer.launch.tpl", osp.join(launch_dir, "observer.launch"))
-        self._cfg_env.generate(
-            items, "mission_action_servers.launch.tpl", osp.join(launch_dir, "mission_action_servers.launch")
-        )
-        self._cfg_env.generate(items, "bringup.launch.tpl", osp.join(launch_dir, "bringup.launch"))
-        self._cfg_env.generate(items, "hil.launch.tpl", osp.join(launch_dir, "hil.launch"))
-        self._cfg_env.generate(items, "rc_teleop.launch.tpl", osp.join(launch_dir, "rc_teleop.launch"))
-        self._cfg_env.generate(items, "joint_control.launch.tpl", osp.join(launch_dir, "joint_control.launch"))
-        self._cfg_env.generate(
-            items, "jointpos_commander.launch.tpl", osp.join(launch_dir, "jointpos_commander.launch")
-        )
-        self._cfg_env.generate(items, "plotjuggler.launch.tpl", osp.join(launch_dir, "plotjuggler.launch"))
-        self._cfg_env.generate(items, "motor_test_driver.launch.tpl", osp.join(launch_dir, "motor_test_driver.launch"))
-        self._cfg_env.generate(items, "motor_test_gui.launch.tpl", osp.join(launch_dir, "motor_test_gui.launch"))
+        self._cfg_env.generate(items, "CMakeLists.txt.tpl", config_pkg_path)
+        self._cfg_env.generate(items, "package.xml.tpl", config_pkg_path)
+        self._cfg_env.generate(items, "plotjuggler_layout.xml.tpl", config_dir)
+        self._cfg_env.generate(items, "nodelet_manager.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "common_params.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "gazebo.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "real.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "calibration.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "controller.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "observer.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "mission_action_servers.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "bringup.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "hil.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "rc_teleop.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "joint_control.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "jointpos_commander.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "plotjuggler.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "motor_test_driver.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "motor_test_gui.launch.tpl", launch_dir)
 
         flight_modes = {self._main.controller.stabilize_mode(), self._main.controller.acrobat_mode()}
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
         if PositionYaw.__name__ in flight_modes or PosVelAccYaw.__name__ in flight_modes:
-            self._cfg_env.generate(
-                items, "keyboard_teleop/position_yaw.launch.tpl", osp.join(launch_dir, "keyboard_teleop.launch")
-            )
+            self._cfg_env.generate(items, "keyboard_teleop/position_yaw/keyboard_teleop.launch.tpl", launch_dir)
         elif SpeedRollDeltaPitch.__name__ in flight_modes:
-            self._cfg_env.generate(
-                items, "keyboard_teleop/speed_roll_dpitch.launch.tpl", osp.join(launch_dir, "keyboard_teleop.launch")
-            )
+            self._cfg_env.generate(items, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.tpl", launch_dir)
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
         if (
@@ -187,24 +178,22 @@ class PackageGenerator(QObject):
             or PosVelAccYaw.__name__ in flight_modes
             or PoseTwistAccelCommand.__name__ in flight_modes
         ):
-            self._cfg_env.generate(
-                items, "gui_teleop/position_yaw.launch.tpl", osp.join(launch_dir, "gui_teleop.launch")
-            )
+            self._cfg_env.generate(items, "gui_teleop/position_yaw/gui_teleop.launch.tpl", launch_dir)
 
         # その他
-        create_empty_file(osp.join(config_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"))
+        create_empty_file(osp.join(config_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"), exist_ok=True)
+        create_empty_file(osp.join(config_dir, "dynamic_params.yaml"), exist_ok=True)
         self._generate_drone_config(config_dir)
         self._generate_joint_control_config(config_dir)
         self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
-        self._generate_dynamic_params_config(config_dir)
         self._generate_urdf(urdf_dir, mesh_dir)
 
     def _generate_user_pkg(self, items: dict) -> None:
         user_pkg_name = get_tbs_user_name(self._main.ros_package.pkg_path())
         user_pkg_path = get_tbs_user_path(self._main.ros_package.pkg_path())
-        os.mkdir(user_pkg_path)
+        os.makedirs(user_pkg_path, exist_ok=True)
 
         # ディレクトリを作成
         launch_dir = osp.join(user_pkg_path, "launch")
@@ -212,31 +201,27 @@ class PackageGenerator(QObject):
         src_dir = osp.join(user_pkg_path, "src")
         nodes_dir = osp.join(user_pkg_path, "nodes")
         nodelets_dir = osp.join(user_pkg_path, "nodelets")
-        os.mkdir(launch_dir)
-        os.makedirs(include_dir)
-        os.mkdir(src_dir)
-        os.mkdir(nodes_dir)
-        os.mkdir(nodelets_dir)
+        os.makedirs(launch_dir, exist_ok=True)
+        os.makedirs(include_dir, exist_ok=True)
+        os.makedirs(src_dir, exist_ok=True)
+        os.makedirs(nodes_dir, exist_ok=True)
+        os.makedirs(nodelets_dir, exist_ok=True)
 
-        # テンプレートから作成
-        self._usr_env.generate(items, "CMakeLists.txt.tpl", osp.join(user_pkg_path, "CMakeLists.txt"))
-        self._usr_env.generate(items, "package.xml.tpl", osp.join(user_pkg_path, "package.xml"))
-        self._usr_env.generate(items, "common.launch.tpl", osp.join(launch_dir, "common.launch"))
-        self._usr_env.generate(items, "gazebo.launch.tpl", osp.join(launch_dir, "gazebo.launch"))
-        self._usr_env.generate(items, "real.launch.tpl", osp.join(launch_dir, "real.launch"))
-        self._usr_env.generate(items, "nodelet_description.xml.tpl", osp.join(user_pkg_path, "nodelet_description.xml"))
-        self._usr_env.generate(items, "tobas_bridge.hpp.tpl", osp.join(include_dir, "tobas_bridge.hpp"))
-        self._usr_env.generate(items, "tobas_bridge.cpp.tpl", osp.join(src_dir, "tobas_bridge.cpp"))
-        self._usr_env.generate(items, "tobas_bridge_node.cpp.tpl", osp.join(nodes_dir, "tobas_bridge_node.cpp"))
-        self._usr_env.generate(
-            items, "tobas_bridge_nodelet.hpp.tpl", osp.join(nodelets_dir, "tobas_bridge_nodelet.hpp")
-        )
-        self._usr_env.generate(
-            items, "tobas_bridge_nodelet.cpp.tpl", osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp")
-        )
+        # テンプレートから作成 (存在する場合は上書きしない)
+        self._usr_env.generate(items, "CMakeLists.txt.tpl", user_pkg_path, overwrite=False)
+        self._usr_env.generate(items, "package.xml.tpl", user_pkg_path, overwrite=False)
+        self._usr_env.generate(items, "common.launch.tpl", launch_dir, overwrite=False)
+        self._usr_env.generate(items, "gazebo.launch.tpl", launch_dir, overwrite=False)
+        self._usr_env.generate(items, "real.launch.tpl", launch_dir, overwrite=False)
+        self._usr_env.generate(items, "nodelet_description.xml.tpl", user_pkg_path, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge.hpp.tpl", include_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge.cpp.tpl", src_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge_node.cpp.tpl", nodes_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge_nodelet.hpp.tpl", nodelets_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge_nodelet.cpp.tpl", nodelets_dir, overwrite=False)
 
         # その他
-        create_empty_file(osp.join(user_pkg_path, "YOU_CAN_EDIT_THIS_PACKAGE"))
+        create_empty_file(osp.join(user_pkg_path, "YOU_CAN_EDIT_THIS_PACKAGE"), exist_ok=True)
 
     def _dump_settings(self) -> None:
         # データを作成
@@ -326,7 +311,6 @@ class PackageGenerator(QObject):
             }
 
         # Fixed wing
-        fixed_wing = self._main.fixed_wing
         if self._main.fixed_wing.has_fixed_wing.isChecked():
             drone_config["fixed_wing"] = dict()
 
@@ -443,10 +427,6 @@ class PackageGenerator(QObject):
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
             yaml.safe_dump(items, f)
-
-    def _generate_dynamic_params_config(self, config_dir: str) -> None:
-        file_path = osp.join(config_dir, "dynamic_params.yaml")
-        create_empty_file(file_path)
 
     def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
         robot = self._make_urdf_with_plugins(mesh_dir)
