@@ -11,7 +11,6 @@ import yaml
 import rospy
 import rospkg
 import shutil
-import subprocess
 from xml.etree import ElementTree as ET
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QMessageBox
@@ -20,9 +19,9 @@ from tobas_std_tools_py.sequence import is_unique
 from tobas_std_tools_py.file import create_empty_file
 from tobas_urdf_tools_py.core import Origin
 from tobas_urdf_tools_py.gazebo import GazeboRosControl
+from tobas_urdf_tools_py.utils import prettify
 from tobas_rqt_tools.path import resolve_uri
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_rqt_tools.xml import prettify_and_save
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
 from tobas_tools_py.package import *
 from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, SpeedRollDeltaPitch
@@ -82,16 +81,10 @@ class PackageGenerator(QObject):
         # テンプレート用アイテムを作成
         items = self._make_template_items()
 
-        # メタパッケージを作り直す
-        meta_pkg_path = get_tbs_meta_path(tbs_path)
-        if osp.exists(meta_pkg_path):
-            subprocess.run(["rm", "-r", meta_pkg_path])
+        # メタパッケージを作成
         self._generate_meta_pkg(items)
 
-        # 設定パッケージを作り直す
-        config_pkg_path = get_tbs_config_path(tbs_path)
-        if osp.exists(config_pkg_path):
-            subprocess.run(["rm", "-r", config_pkg_path])
+        # 設定パッケージを作成
         self._generate_config_pkg(items)
 
         # ユーザパッケージが存在しなければ作成
@@ -100,7 +93,7 @@ class PackageGenerator(QObject):
 
     def _generate_meta_pkg(self, items: dict) -> None:
         meta_pkg_path = get_tbs_meta_path(self._main.ros_package.pkg_path())
-        os.mkdir(meta_pkg_path)
+        os.makedirs(meta_pkg_path, exist_ok=True)
 
         self._meta_env.generate(items, "CMakeLists.txt.tpl", osp.join(meta_pkg_path, "CMakeLists.txt"))
         self._meta_env.generate(items, "package.xml.tpl", osp.join(meta_pkg_path, "package.xml"))
@@ -109,17 +102,17 @@ class PackageGenerator(QObject):
 
     def _generate_config_pkg(self, items: dict) -> None:
         config_pkg_path = get_tbs_config_path(self._main.ros_package.pkg_path())
-        os.mkdir(config_pkg_path)
+        os.makedirs(config_pkg_path, exist_ok=True)
 
         # ディレクトリを作成
         config_dir = osp.join(config_pkg_path, "config")
         launch_dir = osp.join(config_pkg_path, "launch")
         urdf_dir = osp.join(config_pkg_path, "urdf")
         mesh_dir = osp.join(config_pkg_path, "mesh")
-        os.mkdir(config_dir)
-        os.mkdir(launch_dir)
-        os.mkdir(urdf_dir)
-        os.mkdir(mesh_dir)
+        os.makedirs(config_dir, exist_ok=True)
+        os.makedirs(launch_dir, exist_ok=True)
+        os.makedirs(urdf_dir, exist_ok=True)
+        os.makedirs(mesh_dir, exist_ok=True)
 
         # バックアップ用ファイル
         self._dump_settings()
@@ -433,8 +426,8 @@ class PackageGenerator(QObject):
         urdf_path = osp.join(urdf_dir, f"drone.xacro")
 
         # Save URDF
-        # ET.ElementTree(robot).write(urdf_path)
-        prettify_and_save(robot, urdf_path)
+        with open(urdf_path, "w") as f:
+            f.write(prettify(robot))
 
     def _make_urdf_with_plugins(self, mesh_dir: str) -> ET.Element:
         description = rospy.get_param("/robot_description")
@@ -451,34 +444,53 @@ class PackageGenerator(QObject):
         """全てのメッシュファイルのパスをパッケージ以下に変更する．"""
         config_pkg_name = get_tbs_config_name(self._main.ros_package.pkg_path())
         for mesh in robot.iter("mesh"):
-            abs_path = resolve_uri(mesh.attrib["filename"])
-            base_name = osp.basename(abs_path)
-            shutil.copy2(abs_path, osp.join(mesh_dir, base_name))  # メッシュファイルをコピー
-            mesh.attrib["filename"] = f"package://{config_pkg_name}/mesh/{base_name}"
+            src_path = resolve_uri(mesh.attrib["filename"])
+            base_name = osp.basename(src_path)
+            des_path = osp.join(mesh_dir, base_name)
+            if src_path != des_path:
+                shutil.copy2(src_path, des_path)  # メッシュファイルをコピー
+                mesh.attrib["filename"] = f"package://{config_pkg_name}/mesh/{base_name}"
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
-        # gazeboタグの場合はその子ノードを確認する
-        for gazebo in robot.iter("gazebo"):
-            for child in gazebo:
-                if child.tag == "plugin":
-                    # Tobasのプラグインは問答無用で消す
-                    if child.attrib["filename"].startswith("libtobas"):
-                        robot.remove(gazebo)
-                        continue
-                    # RotorSのプラグインは問答無用で消す
-                    if child.attrib["filename"].startswith("librotors"):
-                        robot.remove(gazebo)
-                        continue
-                    # Gazebo ROS Controlは問答無用で消す
-                    if child.attrib["filename"] == "libgazebo_ros_control.so":
-                        robot.remove(gazebo)
-                        continue
-                    self._remove_or_keep_gazebo_child(gazebo, child)
-                elif child.tag == "sensor":
-                    self._remove_or_keep_gazebo_child(gazebo, child)
+        # 繰り返し中にツリー構造を変えるとバグるため，消すノードをリストしておいて後で消す
+        deletable_nodes = []
 
-    def _remove_or_keep_gazebo_child(self, gazebo: ET.Element, child: ET.Element) -> None:
+        # 全てのGazeboノードを走査し，消すべきノードをリスト
+        for child in robot:
+            if child.tag == "gazebo" and self._is_deletable_gazebo_node(child):
+                deletable_nodes.append(child)
+
+        # リストしたGazeboノードを削除
+        for node in deletable_nodes:
+            robot.remove(node)
+
+    def _is_deletable_gazebo_node(self, gazebo: ET.Element) -> bool:
+        assert gazebo.tag == "gazebo"
+
+        for child in gazebo:
+            if child.tag == "plugin":
+                if self._is_deletable_gazebo_plugin(child) or self._ask_remove_or_keep_gazebo_child(child):
+                    return True
+            elif child.tag == "sensor":
+                for plugin in child.iter("plugin"):
+                    if self._is_deletable_gazebo_plugin(plugin) or self._ask_remove_or_keep_gazebo_child(child):
+                        return True
+
+        return False
+
+    def _is_deletable_gazebo_plugin(self, plugin: ET.Element) -> bool:
+        """プラグインを強制削除すべきかどうかを判定する．"""
+        assert plugin.tag == "plugin"
+
+        filename = plugin.attrib["filename"]
+        return (
+            filename.startswith("libtobas")
+            or filename.startswith("librotors")
+            or filename == "libgazebo_ros_control.so"
+        )
+
+    def _ask_remove_or_keep_gazebo_child(self, child: ET.Element) -> bool:
         """属性を確認した上でGazeboの子ノードを削除する．"""
         msg_box = QMessageBox(self._main)  # 親を設定しておけば一緒に落とせる
 
@@ -492,15 +504,14 @@ class PackageGenerator(QObject):
 
         # ボタンの設定
         remove_button = msg_box.addButton("Remove", QMessageBox.ActionRole)
-        keep_button = msg_box.addButton("Keep", QMessageBox.ActionRole)
+        msg_box.addButton("Keep", QMessageBox.ActionRole)
         msg_box.setDefaultButton(remove_button)
 
         # ユーザの返事を取得
         msg_box.exec()
 
-        # Removeが選択されたら消す
-        if msg_box.clickedButton() == remove_button:
-            gazebo.remove(child)
+        # Removeが選択されたらTrue
+        return msg_box.clickedButton() == remove_button
 
     def _add_xml_elements(self, robot: ET.Element) -> None:
         root_link = self._main.urdf_parser.get_root().name
