@@ -31,7 +31,8 @@ find_package(catkin REQUIRED COMPONENTS
 # 	actionlib_msgs
 # )
 
-# generate_dynamic_reconfigure_options(cfg/WindEstimation.cfg)
+# file(GLOB_RECURSE CFG_FILES RELATIVE ${PROJECT_SOURCE_DIR} cfg/[^.]*.cfg)
+# generate_dynamic_reconfigure_options(${CFG_FILES})
 
 catkin_package(
 	INCLUDE_DIRS include
