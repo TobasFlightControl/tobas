@@ -60,12 +60,7 @@ class PackageGenerator(QObject):
         progress.progress_step()
 
         progress.setLabelText("Generating Tobas packages.")
-        try:
-            self._generate_pkg()
-        except Exception as e:
-            progress.close()
-            q_error(self._main, f"A proglem ocurred while generating Tobas packages:\n\n{e}")
-            return
+        self._generate_pkg()
         progress.progress_step()
 
         # Build Tobas package
@@ -301,9 +296,9 @@ class PackageGenerator(QObject):
                 "esc_signal_mode": selected.esc.signal_mode(),
                 "num_poles": selected.motor.num_poles(),
                 "max_rot_speed": float(selected.motor.max_rot_speed()),
-                "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),
                 "time_constant_down": float(selected.motor.time_const_down()),
+                "rot_speed_coefs": [float(x) for x in selected.electrodynamics.rot_speed_coefs()],
                 "motor_constant": float(selected.aerodynamics.motor_const()),
                 "moment_constant": float(selected.aerodynamics.moment_const()),
                 "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
@@ -561,7 +556,7 @@ class PackageGenerator(QObject):
                 link_name=selected.link_name(),
                 joint_name=selected.joint_name(),
                 direction=selected.motor.direction(),
-                rot_speed_coefs=selected.motor.rot_speed_coefs(),
+                rot_speed_coefs=selected.electrodynamics.rot_speed_coefs(),
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),

@@ -289,9 +289,7 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
 
     def _blade_thory(self) -> BladeTheory:
         propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
-        return BladeTheory(
-            propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle()
-        )
+        return BladeTheory(propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle())
 
 
 class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
@@ -397,7 +395,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
 
         propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
-        return (CT * AIR_DENSITY * propeller.diameter() ** 4) / (4 * math.pi**2)
+        return (CT * AIR_DENSITY * propeller.diameter() ** 4) / (4 * math.pi ** 2)
 
     @override
     def moment_const(self) -> float:

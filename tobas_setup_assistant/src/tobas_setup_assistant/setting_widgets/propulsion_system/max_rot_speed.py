@@ -183,10 +183,10 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
     @override
     def max_rot_speed(self) -> float:
         """[rad/s]"""
-        motor = self._main.propulsion_system.selected.get_motor(self._link_name)
-        a, b = motor.rot_speed_coefs()
+        electrodynamics = self._main.propulsion_system.selected.get_electrodynamics(self._link_name)
+        a, b = electrodynamics.rot_speed_coefs()
         V = self._spinbox.value()
-        return (math.sqrt(a**2 + 4 * b * V) - a) / (2 * b)
+        return (math.sqrt(a ** 2 + 4 * b * V) - a) / (2 * b)
 
     @override
     def is_valid(self) -> bool:
@@ -216,10 +216,10 @@ class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
     def max_rot_speed(self) -> float:
         """[rad/s]"""
         selected = self._main.propulsion_system.selected
-        motor = selected.get_motor(self._link_name)
+        electrodynamics = selected.get_electrodynamics(self._link_name)
         aerodynamics = selected.get_aerodynamics(self._link_name)
 
-        kt, _ = motor.rot_speed_coefs()
+        kt, _ = electrodynamics.rot_speed_coefs()
         motor_const = aerodynamics.motor_const()
         moment_const = aerodynamics.moment_const()
 

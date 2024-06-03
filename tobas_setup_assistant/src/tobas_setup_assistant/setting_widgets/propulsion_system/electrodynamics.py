@@ -9,15 +9,113 @@ import numpy as np
 from numpy import linalg as LA
 from abc import abstractmethod
 from overrides import override
-from typing import Tuple
+from typing import Tuple, List
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from tobas_tools_py.math import rpm2rps
+from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...common import TO_DO, Description
-from ...parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleTable
+from ...parameter_getters import ParamGetterWidget_DoubleTable
 from .common import PROPULSION_SYSTEM
+from .base import BaseSelectedLinkSettingWidget
+
+
+class ElectrodynamicsWidget(BaseSelectedLinkSettingWidget):
+    NAME = "Electrodynamics"
+
+    NO_SELECT = "Select setting method"
+    METHOD_NAME_KEY = "method_name"
+
+    def __init__(self, main: SetupAssistant, link_name: str) -> None:
+        super().__init__(main, link_name)
+
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
+        self._methods: List[MotorDynamicsWidget_Base] = [
+            MotorDynamicsWidget_Spec(main, link_name),
+            MotorDynamicsWidget_Experiment(main, link_name),
+        ]
+
+        self._method_name = ComboBox()
+        self._method_name.currentTextChanged.connect(self._on_type_changed)
+        rows.addWidget(self._method_name)
+
+        self._method_name.addItem(self.NO_SELECT)
+        for method in self._methods:
+            self._method_name.addItem(method.NAME)
+            rows.addWidget(method)
+
+        rows.addStretch()
+
+        self._update_visibility()
+
+    @override
+    def is_valid(self) -> bool:
+        if self._method_name.currentText() == self.NO_SELECT:
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please select motor setting method.")
+            return False
+
+        if not self._selected().is_valid():
+            return False
+
+        return True
+
+    @override
+    def copy_from(self, src: ElectrodynamicsWidget) -> None:
+        self._method_name.setCurrentText(src._method_name.currentText())
+        for des_method, src_method in zip(self._methods, src._methods):
+            des_method.copy_from(src_method)
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self.METHOD_NAME_KEY] = self._method_name.currentText()
+        for method in self._methods:
+            res[method.NAME] = method.dump_settings()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        self._method_name.setCurrentText(data[self.METHOD_NAME_KEY])
+        for method in self._methods:
+            method.load_settings(data[method.NAME])
+
+    def rot_speed_coefs(self) -> Tuple[float, float]:
+        """V = a w + b w^2 (V[V], w[rad/s])"""
+        return self._selected().rot_speed_coefs()
+
+    def _selected(self) -> MotorDynamicsWidget_Base:
+        method_name = self._method_name.currentText()
+
+        if method_name == self.NO_SELECT:
+            raise RuntimeError("Setting method is not selected.")
+
+        for method in self._methods:
+            if method_name == method.NAME:
+                return method
+
+        raise RuntimeError(f"Invalid setting method: {method_name}")
+
+    def _update_visibility(self) -> None:
+        method_name = self._method_name.currentText()
+
+        for method in self._methods:
+            method.setVisible(False)
+
+        for method in self._methods:
+            if method.NAME == method_name:
+                method.setVisible(True)
+                return
+
+    @pyqtSlot(str)
+    def _on_type_changed(self, _: str) -> None:
+        self._update_visibility()
 
 
 class MotorDynamicsWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
@@ -78,26 +176,16 @@ class MotorDynamicsWidget_Spec(MotorDynamicsWidget_Base):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
-        kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
-        self._kv = ParamGetterWidget_SpinBox(
-            "Kv", kv_description, minimum=1, maximum=10**5, default=920, suffix=" rpm/V"
-        )
-        self._add_param_widget(self._kv)
-
-        resistance_description = "Internal resistance value of the motor."
-        self._resistance = ParamGetterWidget_SpinBox(
-            "Internal Registance", resistance_description, minimum=1, default=250, suffix=" mΩ"
-        )
-        self._add_param_widget(self._resistance)
-
     @override
     def is_valid(self) -> bool:
         return True
 
     @override
     def rot_speed_coefs(self) -> Tuple[float, float]:
-        kv_si = rpm2rps(self._kv.get())  # [rad/s/V]
-        R = self._resistance.get() * 1e-3  # [Ω]
+        motor = self._main.propulsion_system.selected.get_motor(self._link_name)
+
+        kv_si = motor.kv()
+        registance = motor.internal_resistance()
 
         # 発電係数とトルク定数の関係: https://en.wikipedia.org/wiki/Motor_constants
         ke = 1 / kv_si  # 発電係数 [Vs/rad]
@@ -107,7 +195,7 @@ class MotorDynamicsWidget_Spec(MotorDynamicsWidget_Base):
         aerodynamics = self._main.propulsion_system.selected.get_aerodynamics(self._link_name)
 
         a = ke
-        b = R * aerodynamics.motor_const() * aerodynamics.moment_const() / kt
+        b = registance * aerodynamics.motor_const() * aerodynamics.moment_const() / kt
         return a, b
 
 
@@ -154,7 +242,7 @@ class MotorDynamicsWidget_Experiment(MotorDynamicsWidget_Base):
         omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
-        X = np.c_[omega, omega**2]
+        X = np.c_[omega, omega ** 2]
         a, b = LA.lstsq(X, motor_voltage, rcond=None)[0].squeeze()
 
         return a, b

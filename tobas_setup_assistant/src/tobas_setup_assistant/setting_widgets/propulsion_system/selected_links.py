@@ -25,6 +25,7 @@ from .common import PROPULSION_SYSTEM, AxisType
 from .esc import EscWidget
 from .motor import MotorWidget
 from .propeller import PropellerWidget
+from .electrodynamics import ElectrodynamicsWidget
 from .aerodynamics import AerodynamicsWidget
 
 
@@ -122,6 +123,9 @@ class SelectedLinksTabWidget(TabWidget):
 
     def get_propeller(self, link_name: str) -> PropellerWidget:
         return self._get_tab(link_name).propeller
+
+    def get_electrodynamics(self, link_name: str) -> ElectrodynamicsWidget:
+        return self._get_tab(link_name).electrodynamics
 
     def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
         return self._get_tab(link_name).aerodynamics
@@ -229,12 +233,14 @@ class SelectedLinkWidget(QWidget):
         self.esc = EscWidget(main, link_name)
         self.motor = MotorWidget(main, link_name)
         self.propeller = PropellerWidget(main, link_name)
+        self.electrodynamics = ElectrodynamicsWidget(main, link_name)
         self.aerodynamics = AerodynamicsWidget(main, link_name)
 
-        self._tab_widget.addTab(self.esc, self.esc.NAME)
-        self._tab_widget.addTab(self.motor, self.motor.NAME)
-        self._tab_widget.addTab(self.propeller, self.propeller.NAME)
-        self._tab_widget.addTab(self.aerodynamics, self.aerodynamics.NAME)
+        self._tab_widget.addTab(self.esc, EscWidget.NAME)
+        self._tab_widget.addTab(self.motor, MotorWidget.NAME)
+        self._tab_widget.addTab(self.propeller, PropellerWidget.NAME)
+        self._tab_widget.addTab(self.electrodynamics, ElectrodynamicsWidget.NAME)
+        self._tab_widget.addTab(self.aerodynamics, AerodynamicsWidget.NAME)
 
         rows.addStretch()
 
