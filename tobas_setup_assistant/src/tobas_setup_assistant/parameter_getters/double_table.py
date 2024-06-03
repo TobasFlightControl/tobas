@@ -40,11 +40,11 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         cols = QHBoxLayout()
         self._rows.addLayout(cols)
 
-        self._add_row_btn = QPushButton("Add row")
+        self._add_row_btn = QPushButton("Add Row")
         self._add_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         cols.addWidget(self._add_row_btn)
 
-        self._delete_row_btn = QPushButton("Delete row")
+        self._delete_row_btn = QPushButton("Delete Row")
         self._delete_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         cols.addWidget(self._delete_row_btn)
 
