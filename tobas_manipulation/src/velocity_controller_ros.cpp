@@ -46,8 +46,7 @@ VelocityControllerRos::VelocityControllerRos(const ros::NodeHandle& nh, const ro
   tar_js_sub_ = nh_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_ls_sub_ = nh_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)

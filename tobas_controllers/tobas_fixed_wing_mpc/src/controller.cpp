@@ -53,8 +53,7 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   cmd_sub_ = nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 
   // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 bool Controller::isReadyToControl()

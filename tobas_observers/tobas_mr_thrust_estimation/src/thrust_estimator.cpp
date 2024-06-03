@@ -30,8 +30,7 @@ ThrustEstimator::ThrustEstimator(const ros::NodeHandle& nh, const ros::NodeHandl
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ThrustEstimator::updateInternalDataStructures()

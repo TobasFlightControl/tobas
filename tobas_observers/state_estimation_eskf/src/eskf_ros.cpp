@@ -56,8 +56,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   set_gnss_origin_ss_ = nh_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()

@@ -23,8 +23,7 @@ ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& p
   registerPublishers();
   registerSubscribers();
 
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ControllerRos::registerPublishers()

@@ -48,8 +48,7 @@ EffortControllerRos::EffortControllerRos(const ros::NodeHandle& nh, const ros::N
   tar_js_sub_ = nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_ls_sub_ = nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
