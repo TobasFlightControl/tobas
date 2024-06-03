@@ -29,9 +29,7 @@ class DepthNoiseModel(ExtEnum):
 class DepthCameraWidget(OptionalDeviceWidget):
     NAME = "Depth Camera"
     TITLE_TEXT = "Define Depth Camera"
-    ABST_TEXT = (
-        "Configure the depth camera settings. Please refer to the datasheet and input the respective values."
-    )
+    ABST_TEXT = "Configure the depth camera settings. Please refer to the datasheet and input the respective values."
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main, False)

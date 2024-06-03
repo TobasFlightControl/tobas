@@ -69,12 +69,7 @@ class SimulationWidget(BaseSettingWidget):
 
         max_model_error_rate_description = ""
         self.max_model_error_rate = ParamGetterWidget_SpinBox(
-            "Max Model Error Rate",
-            max_model_error_rate_description,
-            minimum=0,
-            maximum=1000,
-            default=10,
-            suffix=" %",
+            "Max Model Error Rate", max_model_error_rate_description, minimum=0, maximum=1000, default=10, suffix=" %"
         )
         self._param_rows.addWidget(self.max_model_error_rate)
 

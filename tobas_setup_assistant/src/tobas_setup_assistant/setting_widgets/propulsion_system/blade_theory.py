@@ -12,12 +12,7 @@ class BladeTheory:
     C_d0 = 0.02  # Profile drag coefficient (typical value)
 
     def __init__(
-        self,
-        num_blades: int,
-        radius: float,
-        blade_chord: float,
-        pitch_angle: float,
-        air_density: float = AIR_DENSITY,
+        self, num_blades: int, radius: float, blade_chord: float, pitch_angle: float, air_density: float = AIR_DENSITY
     ) -> None:
         assert num_blades > 0
         assert radius > 0
