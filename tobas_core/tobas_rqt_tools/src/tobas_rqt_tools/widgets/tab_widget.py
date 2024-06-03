@@ -35,3 +35,6 @@ class TabWidget(QTabWidget):
         idx = self.indexOf(tab)
         assert idx >= 0
         self.setCurrentIndex(idx)
+
+    def set_size(self, width: int, height: int) -> None:
+        self.setStyleSheet(f"QTabBar::tab {{ width: {width}px; height: {height}px; }}")

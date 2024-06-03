@@ -13,14 +13,17 @@ from ...parameter_getters import ParamGetterWidget_SpinBox
 from .base import BaseSelectedLinkSettingWidget
 
 
-class BladeGeometry(BaseSelectedLinkSettingWidget):
-    NAME = "Blade Geometry"
+class PropellerWidget(BaseSelectedLinkSettingWidget):
+    NAME = "Propeller"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
         self._param_rows = QVBoxLayout()
-        self._rows.addLayout(self._param_rows)
+        rows.addLayout(self._param_rows)
 
         num_blade_description = "Number of blades per propeller."
         self._num_blade = ParamGetterWidget_SpinBox("Number of blades", num_blade_description, minimum=1, default=2)
@@ -44,12 +47,14 @@ class BladeGeometry(BaseSelectedLinkSettingWidget):
         )
         self._param_rows.addWidget(self._pitch_angle)
 
+        rows.addStretch()
+
     @override
     def is_valid(self) -> bool:
         return True
 
     @override
-    def copy_from(self, src: BladeGeometry) -> None:
+    def copy_from(self, src: PropellerWidget) -> None:
         for i in range(self._param_rows.count()):
             param_des: ParamGetterWidget = self._param_rows.itemAt(i).widget()
             param_src: ParamGetterWidget = src._param_rows.itemAt(i).widget()

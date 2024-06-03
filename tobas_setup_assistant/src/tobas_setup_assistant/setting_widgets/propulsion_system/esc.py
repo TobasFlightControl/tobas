@@ -13,7 +13,7 @@ from .base import BaseSelectedLinkSettingWidget
 
 
 class EscWidget(BaseSelectedLinkSettingWidget):
-    NAME = "ESC Settings"
+    NAME = "ESC"
 
     SIGNAL_MODE_MAP = {
         "BLHeli Open Loop": "blheli_open_loop",
@@ -25,8 +25,11 @@ class EscWidget(BaseSelectedLinkSettingWidget):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
         self._param_rows = QVBoxLayout()
-        self._rows.addLayout(self._param_rows)
+        rows.addLayout(self._param_rows)
 
         max_current_description = (
             "Maximum current that the ESC (Electronic Speed Controller) can safely handle. "
@@ -43,6 +46,8 @@ class EscWidget(BaseSelectedLinkSettingWidget):
             "Signal Mode", signal_mode_description, self.SIGNAL_MODE_MAP.keys()
         )
         self._param_rows.addWidget(self._signal_mode)
+
+        rows.addStretch()
 
     @override
     def is_valid(self) -> bool:

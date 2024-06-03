@@ -24,13 +24,13 @@ from ...common import PROP_TILT_TOL
 from .common import PROPULSION_SYSTEM, AxisType
 from .esc import EscWidget
 from .motor import MotorWidget
-from .blade_geometry import BladeGeometry
-from .aerodynamics import AerodynamicsWidget
+from .propeller import PropellerWidget
+from .dynamics import DynamicsWidget
 
 
 class SelectedLinksTabWidget(TabWidget):
-    TAB_HEIGHT = 50
     TAB_WIDTH = 150
+    TAB_HEIGHT = 50
     ARROW_LENGTH = 0.2  # 想定される推力の最大値を矢印の長さに反映
 
     link_removed = pyqtSignal(str)
@@ -40,8 +40,7 @@ class SelectedLinksTabWidget(TabWidget):
         self._main = main
 
         self.ignore_wheel_event()
-
-        self.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
+        self.set_size(self.TAB_WIDTH, self.TAB_HEIGHT)
         self.setMovable(True)
         self.setTabsClosable(True)
 
@@ -121,11 +120,11 @@ class SelectedLinksTabWidget(TabWidget):
     def get_motor(self, link_name: str) -> MotorWidget:
         return self._get_tab(link_name).motor
 
-    def get_blade_geometry(self, link_name: str) -> BladeGeometry:
-        return self._get_tab(link_name).blade_geometry
+    def get_blade_geometry(self, link_name: str) -> PropellerWidget:
+        return self._get_tab(link_name).propeller
 
-    def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
-        return self._get_tab(link_name).aerodynamics
+    def get_aerodynamics(self, link_name: str) -> DynamicsWidget:
+        return self._get_tab(link_name).dynamics
 
     def link_name(self, idx: int) -> str:
         tab: SelectedLinkWidget = self.widget(idx)
@@ -195,6 +194,8 @@ class SelectedLinksTabWidget(TabWidget):
 class SelectedLinkWidget(QWidget):
     BUTTON_WIDTH = 120
     BUTTON_HEIGHT = 50
+    TAB_WIDTH = 120
+    TAB_HEIGHT = 40
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
@@ -212,59 +213,55 @@ class SelectedLinkWidget(QWidget):
         self._copy_from_left_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._copy_from_left_button.clicked.connect(self._on_copy_from_left_button_clicked)
         button_cols.addWidget(self._copy_from_left_button)
-        button_cols.setAlignment(self._copy_from_left_button, Qt.AlignCenter)
 
         self._copy_to_all_button = QPushButton("Copy To All")
         self._copy_to_all_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._copy_to_all_button.clicked.connect(self._on_copy_to_all_button_clicked)
         button_cols.addWidget(self._copy_to_all_button)
-        button_cols.setAlignment(self._copy_to_all_button, Qt.AlignCenter)
 
-        self._setting_rows = QVBoxLayout()
-        rows.addLayout(self._setting_rows)
+        button_cols.addStretch()
 
-        # ESC
+        self._tab_widget = TabWidget()
+        self._tab_widget.ignore_wheel_event()
+        self._tab_widget.set_size(self.TAB_WIDTH, self.TAB_HEIGHT)
+        rows.addWidget(self._tab_widget)
+
         self.esc = EscWidget(main, link_name)
-        self._setting_rows.addWidget(self.esc)
-
-        # Blade Geometry
-        self.blade_geometry = BladeGeometry(main, link_name)
-        self._setting_rows.addWidget(self.blade_geometry)
-
-        # Motor
         self.motor = MotorWidget(main, link_name)
-        self._setting_rows.addWidget(self.motor)
+        self.propeller = PropellerWidget(main, link_name)
+        self.dynamics = DynamicsWidget(main, link_name)
 
-        # Aerodynamics
-        self.aerodynamics = AerodynamicsWidget(main, link_name)
-        self._setting_rows.addWidget(self.aerodynamics)
+        self._tab_widget.addTab(self.esc, self.esc.NAME)
+        self._tab_widget.addTab(self.motor, self.motor.NAME)
+        self._tab_widget.addTab(self.propeller, self.propeller.NAME)
+        self._tab_widget.addTab(self.dynamics, self.dynamics.NAME)
 
         rows.addStretch()
 
     def is_valid(self) -> bool:
-        for i in range(self._setting_rows.count()):
-            widget: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
+        for i in range(self._tab_widget.count()):
+            widget: BaseSelectedLinkSettingWidget = self._tab_widget.widget(i)
             if not widget.is_valid():
                 return False
 
         return True
 
     def copy_from(self, src: SelectedLinkWidget) -> None:
-        for row in range(self._setting_rows.count()):
-            des_setting: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(row).widget()
-            src_setting: BaseSelectedLinkSettingWidget = src._setting_rows.itemAt(row).widget()
+        for i in range(self._tab_widget.count()):
+            des_setting: BaseSelectedLinkSettingWidget = self._tab_widget.widget(i)
+            src_setting: BaseSelectedLinkSettingWidget = src._tab_widget.widget(i)
             des_setting.copy_from(src_setting)
 
     def dump_settings(self) -> dict:
         res = dict()
-        for i in range(self._setting_rows.count()):
-            widget: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
+        for i in range(self._tab_widget.count()):
+            widget: BaseSelectedLinkSettingWidget = self._tab_widget.widget(i)
             res[widget.NAME] = widget.dump_settings()
         return res
 
     def load_settings(self, data: dict) -> None:
-        for i in range(self._setting_rows.count()):
-            widget: BaseSelectedLinkSettingWidget = self._setting_rows.itemAt(i).widget()
+        for i in range(self._tab_widget.count()):
+            widget: BaseSelectedLinkSettingWidget = self._tab_widget.widget(i)
             widget.load_settings(data[widget.NAME])
 
     def link_name(self) -> str:

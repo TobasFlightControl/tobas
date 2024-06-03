@@ -23,7 +23,7 @@ from .motor_dynamics import MotorDynamicsWidget_Spec, MotorDynamicsWidget_Experi
 
 
 class MotorWidget(BaseSelectedLinkSettingWidget):
-    NAME = "Motor Settings"
+    NAME = "Motor"
 
     NO_SELECT = "Select setting method"
 
@@ -33,8 +33,11 @@ class MotorWidget(BaseSelectedLinkSettingWidget):
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
 
+        rows = QVBoxLayout()
+        self.setLayout(rows)
+
         self._common_params = MotorCommonParamsWidget(main, link_name)
-        self._rows.addWidget(self._common_params)
+        rows.addWidget(self._common_params)
 
         self._methods: List[MotorDynamicsWidget_Base] = [
             MotorDynamicsWidget_Spec(main, link_name),
@@ -43,12 +46,14 @@ class MotorWidget(BaseSelectedLinkSettingWidget):
 
         self._method_name = ComboBox()
         self._method_name.currentTextChanged.connect(self._on_type_changed)
-        self._rows.addWidget(self._method_name)
+        rows.addWidget(self._method_name)
 
         self._method_name.addItem(self.NO_SELECT)
         for method in self._methods:
             self._method_name.addItem(method.NAME)
-            self._rows.addWidget(method)
+            rows.addWidget(method)
+
+        rows.addStretch()
 
         self._update_visibility()
 

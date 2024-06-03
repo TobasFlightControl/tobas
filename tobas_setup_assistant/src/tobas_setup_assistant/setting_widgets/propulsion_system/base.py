@@ -5,10 +5,9 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from abc import abstractmethod
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QWidget
 
-from ...common import TO_DO, TITLE_PSIZE
+from ...common import TO_DO
 
 
 class BaseSelectedLinkSettingWidget(QWidget):
@@ -19,13 +18,6 @@ class BaseSelectedLinkSettingWidget(QWidget):
 
         self._main = main
         self._link_name = link_name
-
-        self._rows = QVBoxLayout()
-        self.setLayout(self._rows)
-
-        label = QLabel(self.NAME)
-        label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        self._rows.addWidget(label)
 
     @abstractmethod
     def is_valid(self) -> bool:

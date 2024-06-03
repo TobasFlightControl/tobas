@@ -24,14 +24,17 @@ from .base import BaseSelectedLinkSettingWidget
 from .blade_theory import BladeTheory
 
 
-class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
-    NAME = "Aerodynamics"
+class DynamicsWidget(BaseSelectedLinkSettingWidget):
+    NAME = "Dynamics"
 
     NO_SELECT = "Select setting method"
-    METHOD_NAME = "method_name"
+    METHOD_NAME_KEY = "method_name"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
+
+        rows = QVBoxLayout()
+        self.setLayout(rows)
 
         self._methods: List[AerodynamicsWidget_Base] = [
             AerodynamicsWidget_Manual(main, link_name),
@@ -42,12 +45,14 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
 
         self._method_name = ComboBox()
         self._method_name.currentTextChanged.connect(self._on_type_changed)
-        self._rows.addWidget(self._method_name)
+        rows.addWidget(self._method_name)
 
         self._method_name.addItem(self.NO_SELECT)
         for method in self._methods:
             self._method_name.addItem(method.NAME)
-            self._rows.addWidget(method)
+            rows.addWidget(method)
+
+        rows.addStretch()
 
         self._update_visibility()
 
@@ -63,7 +68,7 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
         return True
 
     @override
-    def copy_from(self, src: AerodynamicsWidget) -> None:
+    def copy_from(self, src: DynamicsWidget) -> None:
         self._method_name.setCurrentText(src._method_name.currentText())
         for des_method, src_method in zip(self._methods, src._methods):
             des_method.copy_from(src_method)
@@ -72,7 +77,7 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
     def dump_settings(self) -> dict:
         res = dict()
 
-        res[self.METHOD_NAME] = self._method_name.currentText()
+        res[self.METHOD_NAME_KEY] = self._method_name.currentText()
         for method in self._methods:
             res[method.NAME] = method.dump_settings()
 
@@ -80,7 +85,7 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
 
     @override
     def load_settings(self, data: dict) -> None:
-        self._method_name.setCurrentText(data[self.METHOD_NAME])
+        self._method_name.setCurrentText(data[self.METHOD_NAME_KEY])
         for method in self._methods:
             method.load_settings(data[method.NAME])
 
