@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 from overrides import override
 from PyQt5.QtWidgets import QVBoxLayout
 
-from ..parameter_getters import ParamGetterWidget_DoubleSpinBox
+from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleSpinBox
 from .base_setting import BaseSettingWidget
 
 
@@ -35,7 +35,7 @@ class SimulationWidget(BaseSettingWidget):
 
         latitude_0_description = ""
         self.latitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "Latitude of origin",
+            "Latitude of Origin",
             latitude_0_description,
             decimals=6,
             minimum=-90.0,
@@ -47,7 +47,7 @@ class SimulationWidget(BaseSettingWidget):
 
         longitude_0_description = ""
         self.longitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "Longitude of origin",
+            "Longitude of Origin",
             longitude_0_description,
             decimals=6,
             minimum=-180.0,
@@ -59,13 +59,24 @@ class SimulationWidget(BaseSettingWidget):
 
         altitude_0_description = ""
         self.altitude_0 = ParamGetterWidget_DoubleSpinBox(
-            "Altitude above sea level",
+            "Altitude Above Sea Level",
             altitude_0_description,
             decimals=3,
             default=24.39,  # 日本水準原点: https://www.gsi.go.jp/sokuchikijun/suijun-base.html
             suffix=" m",
         )
         self._param_rows.addWidget(self.altitude_0)
+
+        max_model_error_rate_description = ""
+        self.max_model_error_rate = ParamGetterWidget_SpinBox(
+            "Max Model Error Rate",
+            max_model_error_rate_description,
+            minimum=0,
+            maximum=1000,
+            default=10,
+            suffix=" %",
+        )
+        self._param_rows.addWidget(self.max_model_error_rate)
 
         self._rows.addStretch()
 

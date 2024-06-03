@@ -18,11 +18,7 @@ from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...common import AIR_DENSITY, TO_DO, Description
-from ...parameter_getters import (
-    ParamGetterWidget_SpinBox,
-    ParamGetterWidget_DoubleSpinBox,
-    ParamGetterWidget_DoubleTable,
-)
+from ...parameter_getters import ParamGetterWidget_DoubleSpinBox, ParamGetterWidget_DoubleTable
 from .common import PROPULSION_SYSTEM
 from .base import BaseSelectedLinkSettingWidget
 from .blade_theory import BladeTheory
@@ -36,12 +32,6 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__(main, link_name)
-
-        max_model_error_rate_description = "Maximum error rate in the modeling of aerodynamic constants."
-        self._max_model_error_rate = ParamGetterWidget_SpinBox(
-            "Max Model Error Rate", max_model_error_rate_description, minimum=0, maximum=1000, default=10, suffix=" %"
-        )
-        self._rows.addWidget(self._max_model_error_rate)
 
         self._methods: List[AerodynamicsWidget_Base] = [
             AerodynamicsWidget_Manual(main, link_name),
@@ -74,7 +64,6 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
 
     @override
     def copy_from(self, src: AerodynamicsWidget) -> None:
-        self._max_model_error_rate.set(src._max_model_error_rate.get())
         self._method_name.setCurrentText(src._method_name.currentText())
         for des_method, src_method in zip(self._methods, src._methods):
             des_method.copy_from(src_method)
@@ -83,7 +72,6 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
     def dump_settings(self) -> dict:
         res = dict()
 
-        res[self._max_model_error_rate.name()] = self._max_model_error_rate.get()
         res[self.METHOD_NAME] = self._method_name.currentText()
         for method in self._methods:
             res[method.NAME] = method.dump_settings()
@@ -92,7 +80,6 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
 
     @override
     def load_settings(self, data: dict) -> None:
-        self._max_model_error_rate.set(data[self._max_model_error_rate.name()])
         self._method_name.setCurrentText(data[self.METHOD_NAME])
         for method in self._methods:
             method.load_settings(data[method.NAME])
@@ -108,10 +95,6 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
     def rotor_drag_coef(self) -> float:
         """[kg/rad]"""
         return self._selected().rotor_drag_coef()
-
-    def max_model_error_rate(self) -> float:
-        """[-]"""
-        return self._max_model_error_rate.get() / 100.0
 
     def _selected(self) -> AerodynamicsWidget_Base:
         method_name = self._method_name.currentText()
