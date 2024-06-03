@@ -198,8 +198,8 @@ class SelectedLinksTabWidget(TabWidget):
 class SelectedLinkWidget(QWidget):
     BUTTON_WIDTH = 120
     BUTTON_HEIGHT = 50
-    TAB_WIDTH = 120
-    TAB_HEIGHT = 40
+    TAB_WIDTH = 135
+    TAB_HEIGHT = 45
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
         super().__init__()
