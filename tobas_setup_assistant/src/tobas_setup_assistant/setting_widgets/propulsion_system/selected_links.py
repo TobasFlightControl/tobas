@@ -10,7 +10,7 @@ import numpy as np
 from numpy import linalg as LA
 from typing import List
 from overrides import override
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 from std_msgs.msg import ColorRGBA
 from geometry_msgs.msg import Point, Vector3
@@ -25,7 +25,7 @@ from .common import PROPULSION_SYSTEM, AxisType
 from .esc import EscWidget
 from .motor import MotorWidget
 from .propeller import PropellerWidget
-from .dynamics import DynamicsWidget
+from .aerodynamics import AerodynamicsWidget
 
 
 class SelectedLinksTabWidget(TabWidget):
@@ -120,11 +120,11 @@ class SelectedLinksTabWidget(TabWidget):
     def get_motor(self, link_name: str) -> MotorWidget:
         return self._get_tab(link_name).motor
 
-    def get_blade_geometry(self, link_name: str) -> PropellerWidget:
+    def get_propeller(self, link_name: str) -> PropellerWidget:
         return self._get_tab(link_name).propeller
 
-    def get_aerodynamics(self, link_name: str) -> DynamicsWidget:
-        return self._get_tab(link_name).dynamics
+    def get_aerodynamics(self, link_name: str) -> AerodynamicsWidget:
+        return self._get_tab(link_name).aerodynamics
 
     def link_name(self, idx: int) -> str:
         tab: SelectedLinkWidget = self.widget(idx)
@@ -229,12 +229,12 @@ class SelectedLinkWidget(QWidget):
         self.esc = EscWidget(main, link_name)
         self.motor = MotorWidget(main, link_name)
         self.propeller = PropellerWidget(main, link_name)
-        self.dynamics = DynamicsWidget(main, link_name)
+        self.aerodynamics = AerodynamicsWidget(main, link_name)
 
         self._tab_widget.addTab(self.esc, self.esc.NAME)
         self._tab_widget.addTab(self.motor, self.motor.NAME)
         self._tab_widget.addTab(self.propeller, self.propeller.NAME)
-        self._tab_widget.addTab(self.dynamics, self.dynamics.NAME)
+        self._tab_widget.addTab(self.aerodynamics, self.aerodynamics.NAME)
 
         rows.addStretch()
 

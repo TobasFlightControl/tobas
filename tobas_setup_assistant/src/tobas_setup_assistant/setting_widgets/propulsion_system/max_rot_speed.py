@@ -217,11 +217,11 @@ class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
         """[rad/s]"""
         selected = self._main.propulsion_system.selected
         motor = selected.get_motor(self._link_name)
-        aero = selected.get_aerodynamics(self._link_name)
+        aerodynamics = selected.get_aerodynamics(self._link_name)
 
         kt, _ = motor.rot_speed_coefs()
-        motor_const = aero.motor_const()
-        moment_const = aero.moment_const()
+        motor_const = aerodynamics.motor_const()
+        moment_const = aerodynamics.moment_const()
 
         max_current = self._spinbox.value()
         max_torque = kt * max_current

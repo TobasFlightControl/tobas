@@ -14,19 +14,19 @@ class BladeTheory:
     def __init__(
         self,
         num_blades: int,
-        propeller_radius: float,
+        radius: float,
         blade_chord: float,
         pitch_angle: float,
         air_density: float = AIR_DENSITY,
     ) -> None:
         assert num_blades > 0
-        assert propeller_radius > 0
+        assert radius > 0
         assert blade_chord > 0
         assert 0 < pitch_angle < math.pi
         assert air_density > 0
 
         self._N = num_blades
-        self._R = propeller_radius
+        self._R = radius
         self._c = blade_chord
         self._theta = pitch_angle
         self._rho = air_density

@@ -24,8 +24,8 @@ from .base import BaseSelectedLinkSettingWidget
 from .blade_theory import BladeTheory
 
 
-class DynamicsWidget(BaseSelectedLinkSettingWidget):
-    NAME = "Dynamics"
+class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
+    NAME = "Aerodynamics"
 
     NO_SELECT = "Select setting method"
     METHOD_NAME_KEY = "method_name"
@@ -68,7 +68,7 @@ class DynamicsWidget(BaseSelectedLinkSettingWidget):
         return True
 
     @override
-    def copy_from(self, src: DynamicsWidget) -> None:
+    def copy_from(self, src: AerodynamicsWidget) -> None:
         self._method_name.setCurrentText(src._method_name.currentText())
         for des_method, src_method in zip(self._methods, src._methods):
             des_method.copy_from(src_method)
@@ -259,7 +259,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     """Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019]"""
 
-    NAME = "Set from blade geometry"
+    NAME = "Set from propeller geometry"
     ABST_TEXT = (
         "Estimate aerodynamic constants using Blade Element Theory or Momentum Theory, "
         "based on the geometric shape of the propeller set above. See "
@@ -288,8 +288,10 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
         return self._blade_thory().rotor_drag_coef()
 
     def _blade_thory(self) -> BladeTheory:
-        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return BladeTheory(blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle())
+        propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
+        return BladeTheory(
+            propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle()
+        )
 
 
 class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
@@ -348,9 +350,9 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     @override
     def rotor_drag_coef(self) -> float:
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
+        propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
         blade_theory = BladeTheory(
-            blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
+            propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle()
         )
         return blade_theory.rotor_drag_coef()
 
@@ -394,8 +396,8 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CTs = data[:, 1]
         CT = np.mean(CTs)
 
-        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return (CT * AIR_DENSITY * blade.propeller_diameter() ** 4) / (4 * math.pi**2)
+        propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
+        return (CT * AIR_DENSITY * propeller.diameter() ** 4) / (4 * math.pi**2)
 
     @override
     def moment_const(self) -> float:
@@ -407,14 +409,14 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
         CP = np.mean(CPs)
 
-        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
-        return (blade.propeller_diameter() * CP) / (2 * math.pi * CT)
+        propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
+        return (propeller.diameter() * CP) / (2 * math.pi * CT)
 
     @override
     def rotor_drag_coef(self) -> float:
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
-        blade = self._main.propulsion_system.selected.get_blade_geometry(self._link_name)
+        propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
         blade_theory = BladeTheory(
-            blade.num_blade(), blade.propeller_radius(), blade.blade_chord(), blade.pitch_angle()
+            propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle()
         )
         return blade_theory.rotor_drag_coef()

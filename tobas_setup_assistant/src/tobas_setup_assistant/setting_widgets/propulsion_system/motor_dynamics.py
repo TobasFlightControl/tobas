@@ -104,10 +104,10 @@ class MotorDynamicsWidget_Spec(MotorDynamicsWidget_Base):
         kt = 1 / kv_si  # トルク定数 [Nm/A]
 
         # 空力特性を取得
-        aero = self._main.propulsion_system.selected.get_aerodynamics(self._link_name)
+        aerodynamics = self._main.propulsion_system.selected.get_aerodynamics(self._link_name)
 
         a = ke
-        b = R * aero.motor_const() * aero.moment_const() / kt
+        b = R * aerodynamics.motor_const() * aerodynamics.moment_const() / kt
         return a, b
 
 

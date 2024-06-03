@@ -77,13 +77,13 @@ class PropellerWidget(BaseSelectedLinkSettingWidget):
     def num_blade(self) -> int:
         return self._num_blade.get()
 
-    def propeller_diameter(self) -> float:
+    def diameter(self) -> float:
         """[m]"""
         return self._diameter.get() * 0.0254
 
-    def propeller_radius(self) -> float:
+    def radius(self) -> float:
         """[m]"""
-        return self.propeller_diameter() / 2
+        return self.diameter() / 2
 
     def blade_chord(self) -> float:
         """[m]"""
