@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_kdl
 {
-Tree::Tree(const string& root_name) : nj_(0), ns_(0), root_name_(root_name)
+Tree::Tree(const string& root_name) :root_name_(root_name)
 {
   PRINT_DEBUG("Tree::Tree(\"" << root_name_ << "\")");
 
@@ -19,9 +19,9 @@ Tree::Tree(const Tree& in)
   PRINT_DEBUG("Tree::Tree(const Tree&)");
 
   segments_.clear();
+  root_name_ = in.root_name_;
   nj_ = 0;
   ns_ = 0;
-  root_name_ = in.root_name_;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
   addTree(in, root_name_);
@@ -32,9 +32,9 @@ Tree& Tree::operator=(const Tree& in)
   PRINT_DEBUG("Tree::operator=(const Tree&)");
 
   segments_.clear();
+  root_name_ = in.root_name_;
   nj_ = 0;
   ns_ = 0;
-  root_name_ = in.root_name_;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
   addTree(in, root_name_);
@@ -180,7 +180,7 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       break;
   }
   if (parents_chain_root.empty() || parents_chain_root.back() != root_name_)
-    throw runtime_error("'" + chain_root + "' is not found in the tree.");
+    throw runtime_error("'" + chain_root + "' does not exist in the tree.");
 
   for (auto s = getSegment(chain_tip); s != segments_.end(); s = s->second.parent)
   {
@@ -189,7 +189,7 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       break;
   }
   if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_)
-    throw runtime_error("'" + chain_tip + "' is not found in the tree.");
+    throw runtime_error("'" + chain_tip + "' does not exist in the tree.");
 
   // remove common part of segment lists
   auto last_segment = root_name_;
@@ -230,16 +230,24 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
     chain.addSegment(getSegment(*rit)->second.segment);
 }
 
-void Tree::getSubTree(const string& segment_name, Tree& tree) const
+void Tree::getSubTree(const string& segment_name, Tree& tree, bool root_mass_ok) const
 {
-  // check if segment_name exists
-  const auto seg = segments_.find(segment_name);
-  if (seg == segments_.end())
-    throw runtime_error("'" + segment_name + "' is not found in the tree.");
+  // Confirm that the specified segment exists
+  const auto seg_it = segments_.find(segment_name);
+  if (seg_it == segments_.end())
+    throw runtime_error("'" + segment_name + "' does not exist in the tree.");
 
-  // init the tree, segment_name is the new seg.
-  tree = Tree(seg->first);
-  tree.addTreeRecursive(seg, segment_name);
+  // Confirm that the new root segment does not have mass
+  if (!root_mass_ok)
+  {
+    const auto& segment = seg_it->second.segment;
+    if (segment.getInertia().getMass() > 0)
+      throw runtime_error("KDL does not support a root segment with an inertia.");
+  }
+
+  // Initialize the tree
+  tree = Tree(segment_name);
+  tree.addTreeRecursive(seg_it, segment_name);
 }
 
 ostream& operator<<(ostream& os, const Tree& arg)

@@ -123,7 +123,7 @@ public:
     return segments_.find(root_name_);
   };
 
-  /* Request the name of the root link. */
+  /* Request the name of the root segment. */
   inline const std::string& getRootName() const
   {
     return getRootSegment()->first;
@@ -144,11 +144,11 @@ public:
    * Extract a tree having segment_name as root. Only child segments of
    * segment_name are added to the new tree.
    *
-   * @param segment_name the name of the segment to be used as root
-   * of the new tree
-   * @param tree the resulting sub-tree
+   * @param segment_name The name of the segment to be used as root of the new tree
+   * @param tree The resulting sub-tree
+   * @param root_mass_ok If false and the new root segment has mass, it will throw an exception
    */
-  void getSubTree(const std::string& segment_name, Tree& tree) const;
+  void getSubTree(const std::string& segment_name, Tree& tree, bool root_mass_ok = false) const;
 
   inline const SegmentMap& getSegments() const
   {
@@ -159,8 +159,8 @@ public:
 
 private:
   SegmentMap segments_;
-  size_t nj_, ns_;
   std::string root_name_;
+  size_t nj_ = 0, ns_ = 0;
 
   void addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
