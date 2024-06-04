@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "../include/tobas_kdl/treejnttoinertiasolver.hpp"
 
 using namespace std;
@@ -13,14 +15,12 @@ void TreeJntToInertiaSolver::updateInternalDataStructures()
 {
   super::updateInternalDataStructures();
 
-  jntarray_null_ = JntArray::Zero(nj_);
-
-  const SegmentMap& segments = tree_.getSegments();
-  for (SegmentMap::const_iterator seg = segments.begin(); seg != segments.end(); ++seg)
+  const auto& segments = tree_.getSegments();
+  for (auto seg = segments.begin(); seg != segments.end(); ++seg)
   {
-    const string& seg_name = seg->first;
-    X_[seg_name] = Frame();
-    I_[seg_name] = RigidBodyInertia();
+    const auto& seg_name = seg->first;
+    X_[seg_name] = Frame::Identity();
+    I_[seg_name] = RigidBodyInertia::Zero();
   }
 }
 
@@ -31,7 +31,7 @@ int TreeJntToInertiaSolver::JntToCart(const JntArray& q_in)
   if (q_in.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
 
-  auto root = tree_.getRootSegment();
+  const auto root = tree_.getRootSegment();
   step(root, q_in);
 
   return setDefaultError(E_NOERROR);
@@ -39,13 +39,13 @@ int TreeJntToInertiaSolver::JntToCart(const JntArray& q_in)
 
 void TreeJntToInertiaSolver::step(const SegmentMap::const_iterator& segment, const JntArray& q)
 {
-  const Segment& seg = segment->second.segment;
-  const string& seg_name = segment->first;
-  const string& par_name = segment->second.parent->first;
+  const auto& seg = segment->second.segment;
+  const auto& seg_name = segment->first;
+  const auto& par_name = segment->second.parent->first;
 
   // Forward calculation
-  const size_t& j = segment->second.q_nr;
-  const double& qj = seg.getJoint().type == Joint::Fixed ? 0. : q(j);
+  const auto& j = segment->second.q_nr;
+  const auto& qj = seg.getJoint().type == Joint::Fixed ? 0. : q(j);
   X_.at(seg_name) = seg.pose(qj);
   I_.at(seg_name) = seg.getInertia();
 
@@ -57,10 +57,10 @@ void TreeJntToInertiaSolver::step(const SegmentMap::const_iterator& segment, con
     step(child, q);
   }
 
+  // cout << seg_name << ": " << I_.at(seg_name).getMass() << " [kg]" << endl;
+
   // Backward calculation
   if (segment != tree_.getRootSegment())
-  {
-    I_.at(par_name) = I_.at(par_name) + X_.at(seg_name) * I_.at(seg_name);
-  }
+    I_.at(par_name) += X_.at(seg_name) * I_.at(seg_name);
 }
 }  // namespace tobas_kdl

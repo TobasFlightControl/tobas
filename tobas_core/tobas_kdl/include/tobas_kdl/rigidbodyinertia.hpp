@@ -50,6 +50,8 @@ public:
   RigidBodyInertia refPoint(const Vector& p) const;
 
   inline RigidBodyInertia operator+(const RigidBodyInertia& rhs) const;
+  inline RigidBodyInertia& operator+=(const RigidBodyInertia& rhs);
+
   inline Impulse operator*(const Twist& rhs) const;
   inline Wrench operator*(const Accel& rhs) const;
   inline SegmentInertia operator*(const SegmentJacobian& rhs) const;
@@ -100,6 +102,14 @@ inline RotationalInertia RigidBodyInertia::getRotationalInertiaCoG() const
 inline RigidBodyInertia RigidBodyInertia::operator+(const RigidBodyInertia& rhs) const
 {
   return RigidBodyInertia(m_ + rhs.m_, h_ + rhs.h_, I_ + rhs.I_, true);
+}
+
+inline RigidBodyInertia& RigidBodyInertia::operator+=(const RigidBodyInertia& rhs)
+{
+  m_ += rhs.m_;
+  h_ += rhs.h_;
+  I_ += rhs.I_;
+  return *this;
 }
 
 inline Impulse RigidBodyInertia::operator*(const Twist& rhs) const

@@ -30,6 +30,7 @@ public:
   inline double trace() const;
 
   inline RotationalInertia operator+(const RotationalInertia& rhs) const;
+  inline RotationalInertia& operator+=(const RotationalInertia& rhs);
 
   /* Compute the angular momentum resulting from a rotational velocity omega. */
   inline Vector operator*(const Vector& omega) const;
@@ -82,6 +83,12 @@ inline double RotationalInertia::trace() const
 inline RotationalInertia RotationalInertia::operator+(const RotationalInertia& rhs) const
 {
   return RotationalInertia(data + rhs.data);
+}
+
+inline RotationalInertia& RotationalInertia::operator+=(const RotationalInertia& rhs)
+{
+  data += rhs.data;
+  return *this;
 }
 
 inline Vector RotationalInertia::operator*(const Vector& omega) const
