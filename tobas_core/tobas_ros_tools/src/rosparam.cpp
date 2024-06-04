@@ -56,6 +56,30 @@ void getParam(ros::NodeHandle& nh, const string& key, uint8_t& param, const uint
   param = static_cast<uint8_t>(tmp);
 }
 
+void getParam(ros::NodeHandle& nh, const string& key, Vector2d& param)
+{
+  vector<double> tmp;
+  getParam(nh, key, tmp);
+  ROS_CHECK(nh, tmp.size() == 2, "The size of '" << key << "' must be 2.");
+  param = Map<Vector2d>(tmp.data());
+}
+
+void getParam(ros::NodeHandle& nh, const string& key, Vector2d& param, const Vector2d& _default)
+{
+  vector<double> param_vec;
+  const vector<double> default_vec(_default.data(), _default.data() + _default.size());
+  getParam(nh, key, param_vec, default_vec);
+
+  if (param_vec.size() != 2)
+  {
+    ROS_ERROR_STREAM("The size of specified vector for '" << key << "' is not 2. The default vector is used.");
+    param = _default;
+    return;
+  }
+
+  param = Map<Vector2d>(param_vec.data());
+}
+
 void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param)
 {
   vector<double> tmp;

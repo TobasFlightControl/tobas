@@ -89,6 +89,8 @@ void getParam(ros::NodeHandle& nh, const std::string& key, size_t& param, const 
 void getParam(ros::NodeHandle& nh, const std::string& key, uint8_t& param);
 void getParam(ros::NodeHandle& nh, const std::string& key, uint8_t& param, const uint8_t& _default);
 
+void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector2d& param);
+void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector2d& param, const Eigen::Vector2d& _default);
 void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector3d& param);
 void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector3d& param, const Eigen::Vector3d& _default);
 
