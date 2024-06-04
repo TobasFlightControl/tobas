@@ -27,4 +27,7 @@ T clamp(const T& x, const T& lb, const T& ub, const std::string& description)
 
 /* 2次元ベクトルの方向を変えないようにL2ノルムを制限する． */
 void clamp2d(double& x, double& y, const double& max_length);
+
+/* 引数がtrueなら+1, falseなら-1を返す． */
+int boolToSign(bool flag);
 }  // namespace tobas_std

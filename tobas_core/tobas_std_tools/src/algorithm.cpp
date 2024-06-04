@@ -15,4 +15,9 @@ void clamp2d(double& x, double& y, const double& max_length)
     y *= scale;
   }
 }
+
+int boolToSign(bool flag)
+{
+  return flag ? 1 : -1;
+}
 }  // namespace tobas_std
