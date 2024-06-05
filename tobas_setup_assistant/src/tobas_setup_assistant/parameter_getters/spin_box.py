@@ -8,7 +8,7 @@ from tobas_rqt_tools.widgets import SpinBox
 from .base import ParamGetterWidget
 
 
-class ParamGetterWidget_SpinBox(ParamGetterWidget):
+class ParamGetterWidget_SpinBox(ParamGetterWidget[int]):
     value_changed = pyqtSignal(int)
 
     def __init__(

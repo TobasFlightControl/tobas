@@ -7,7 +7,7 @@ from tobas_rqt_tools.widgets import ComboBox
 from .base import ParamGetterWidget
 
 
-class ParamGetterWidget_ComboBox(ParamGetterWidget):
+class ParamGetterWidget_ComboBox(ParamGetterWidget[str]):
     index_changed = pyqtSignal(int)
     text_changed = pyqtSignal(str)
 

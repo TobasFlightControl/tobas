@@ -14,7 +14,7 @@ from .base import ParamGetterWidget
 from ..common import TITLE, PKG_NAME
 
 
-class ParamGetterWidget_DoubleTable(ParamGetterWidget):
+class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
     BTN_HEIGHT = 30
     BTN_WIDTH = 100
     DEFAULT_VALUE = 0.0

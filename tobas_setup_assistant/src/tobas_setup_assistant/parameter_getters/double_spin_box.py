@@ -8,7 +8,7 @@ from tobas_rqt_tools.widgets import DoubleSpinBox
 from .base import ParamGetterWidget
 
 
-class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
+class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget[float]):
     value_changed = pyqtSignal(float)
 
     def __init__(

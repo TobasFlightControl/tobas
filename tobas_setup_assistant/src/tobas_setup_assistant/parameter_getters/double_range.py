@@ -7,7 +7,7 @@ from .base import ParamGetterWidget
 from .utils import FloatGetter
 
 
-class ParamGetterWidget_DoubleRange(ParamGetterWidget):
+class ParamGetterWidget_DoubleRange(ParamGetterWidget[Tuple[float, float]]):
     value_changed = pyqtSignal(float, float)
 
     def __init__(

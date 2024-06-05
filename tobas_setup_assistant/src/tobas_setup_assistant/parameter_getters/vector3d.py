@@ -7,7 +7,7 @@ from .base import ParamGetterWidget
 from .utils import FloatGetter
 
 
-class ParamGetterWidget_Vector3d(ParamGetterWidget):
+class ParamGetterWidget_Vector3d(ParamGetterWidget[Tuple[float, float, float]]):
     value_changed = pyqtSignal(float, float, float)
 
     def __init__(

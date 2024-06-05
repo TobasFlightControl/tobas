@@ -8,7 +8,7 @@ from .base import ParamGetterWidget
 from .utils import FloatGetter
 
 
-class ParamGetterWidget_Pose(ParamGetterWidget):
+class ParamGetterWidget_Pose(ParamGetterWidget[Tuple[float, float, float, float, float, float]]):
     value_changed = pyqtSignal(float, float, float, float, float, float)
 
     def __init__(

@@ -11,7 +11,7 @@ from .base import ParamGetterWidget
 from ..common import TITLE, PKG_NAME
 
 
-class ParamGetterWidget_FileDialog(ParamGetterWidget):
+class ParamGetterWidget_FileDialog(ParamGetterWidget[str]):
     path_changed = pyqtSignal(str)
 
     def __init__(

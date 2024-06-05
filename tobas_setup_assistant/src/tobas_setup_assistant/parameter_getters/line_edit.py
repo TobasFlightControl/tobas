@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QLineEdit
 from .base import ParamGetterWidget
 
 
-class ParamGetterWidget_LineEdit(ParamGetterWidget):
+class ParamGetterWidget_LineEdit(ParamGetterWidget[str]):
     text_changed = pyqtSignal(str)
 
     def __init__(self, param_name: str, description_text: Optional[str] = None, default: str = "") -> None:
