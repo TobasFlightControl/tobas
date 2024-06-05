@@ -29,13 +29,13 @@ class ImuWidget(BaseSettingWidget):
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate", update_rate_description, minimum=1, default=400, suffix=" Hz"
+            "Update Rate", update_rate_description, minimum=1, default=400, suffix=" Hz"
         )
         self._param_rows.addWidget(self.update_rate)
 
         gyro_noise_density_description = ""
         self.gyro_noise_density = ParamGetterWidget_DoubleSpinBox(
-            "Gyroscope noise density (two-sided spectrum)",
+            "Gyroscope Noise Density",
             gyro_noise_density_description,
             decimals=9,
             minimum=0.0,
@@ -46,7 +46,7 @@ class ImuWidget(BaseSettingWidget):
 
         gyro_random_walk_description = ""
         self.gyro_random_walk = ParamGetterWidget_DoubleSpinBox(
-            "Gyroscope bias random walk",
+            "Gyroscope Bias Random Walk",
             gyro_random_walk_description,
             decimals=9,
             minimum=0.0,
@@ -57,7 +57,7 @@ class ImuWidget(BaseSettingWidget):
 
         gyro_bias_corr_time_description = ""
         self.gyro_bias_corr_time = ParamGetterWidget_SpinBox(
-            "Gyroscope bias correlation time constant",
+            "Gyroscope Bias Correlation Time Constant",
             gyro_bias_corr_time_description,
             minimum=0,
             default=1000,
@@ -67,7 +67,7 @@ class ImuWidget(BaseSettingWidget):
 
         gyro_turn_on_bias_sigma_description = ""
         self.gyro_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
-            "Gyroscope turn on bias standard deviation",
+            "Gyroscope Turn On Bias Standard Deviation",
             gyro_turn_on_bias_sigma_description,
             decimals=9,
             minimum=0.0,
@@ -78,7 +78,7 @@ class ImuWidget(BaseSettingWidget):
 
         gyro_lpf_cutoff_freq_description = ""
         self.gyro_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
-            "Gyroscope LPF cutoff frequency",
+            "Gyroscope LPF Cutoff Frequency",
             gyro_lpf_cutoff_freq_description,
             minimum=1,
             maximum=400,
@@ -89,7 +89,7 @@ class ImuWidget(BaseSettingWidget):
 
         acc_noise_density_description = ""
         self.acc_noise_density = ParamGetterWidget_DoubleSpinBox(
-            "Accelerometer noise density (two-sided spectrum)",
+            "Accelerometer Noise Density",
             acc_noise_density_description,
             decimals=9,
             minimum=0.0,
@@ -100,7 +100,7 @@ class ImuWidget(BaseSettingWidget):
 
         acc_random_walk_description = ""
         self.acc_random_walk = ParamGetterWidget_DoubleSpinBox(
-            "Accelerometer bias random walk",
+            "Accelerometer Bias Random Walk",
             acc_random_walk_description,
             decimals=9,
             minimum=0.0,
@@ -111,7 +111,7 @@ class ImuWidget(BaseSettingWidget):
 
         acc_bias_corr_time_description = ""
         self.acc_bias_corr_time = ParamGetterWidget_SpinBox(
-            "Accelerometer bias correlation time constant",
+            "Accelerometer Bias Correlation Time Constant",
             acc_bias_corr_time_description,
             minimum=0,
             default=300,
@@ -121,7 +121,7 @@ class ImuWidget(BaseSettingWidget):
 
         acc_turn_on_bias_sigma_description = ""
         self.acc_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
-            "Accelerometer turn on bias standard deviation",
+            "Accelerometer Turn On Bias Standard Deviation",
             acc_turn_on_bias_sigma_description,
             decimals=9,
             minimum=0.0,
@@ -132,7 +132,7 @@ class ImuWidget(BaseSettingWidget):
 
         acc_lpf_cutoff_freq_description = ""
         self.acc_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
-            "Accelerometer LPF cutoff frequency",
+            "Accelerometer LPF Cutoff Frequency",
             acc_lpf_cutoff_freq_description,
             minimum=1,
             maximum=400,
@@ -143,7 +143,7 @@ class ImuWidget(BaseSettingWidget):
 
         mag_gauss_noise_description = ""
         self.mag_gauss_noise = ParamGetterWidget_SpinBox(
-            "Magnetometer standard deviation of additive white gaussian noise",
+            "Magnetometer Standard Deviation of Additive White Gaussian Noise",
             mag_gauss_noise_description,
             minimum=0,
             default=80,
@@ -153,7 +153,7 @@ class ImuWidget(BaseSettingWidget):
 
         mag_uniform_noise_description = ""
         self.mag_uniform_noise = ParamGetterWidget_SpinBox(
-            "Magnetometer symmetric bounds of uniform noise for initial sensor bias",
+            "Magnetometer Symmetric Bounds of Uniform Noise for Initial Bias",
             mag_uniform_noise_description,
             minimum=0,
             default=400,

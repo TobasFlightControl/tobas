@@ -28,7 +28,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
+            "Update Rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
         self._add_param_widget(self.update_rate)
 
@@ -36,7 +36,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         pos_normal_noise_std_descripiton = ""
         self.pos_normal_noise_std = ParamGetterWidget_Vector3d(
-            "Position normal noise std. dev",
+            "Position Normal Noise STDDev",
             pos_normal_noise_std_descripiton,
             minimum=[0.0] * 3,
             default=[0.01] * 3,
@@ -46,7 +46,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         rot_normal_noise_std_descripiton = ""
         self.rot_normal_noise_std = ParamGetterWidget_Vector3d(
-            "Rotation normal noise std. dev",
+            "Rotation Normal Noise STDDev",
             rot_normal_noise_std_descripiton,
             minimum=[0.0] * 3,
             default=[0.017] * 3,
@@ -56,7 +56,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         linvel_normal_noise_std_descripiton = ""
         self.linvel_normal_noise_std = ParamGetterWidget_Vector3d(
-            "Linear velocity normal noise std. dev",
+            "Linear Velocity Normal Noise STDDev",
             linvel_normal_noise_std_descripiton,
             minimum=[0.0] * 3,
             default=[0.0] * 3,
@@ -66,7 +66,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         angvel_normal_noise_std_descripiton = ""
         self.angvel_normal_noise_std = ParamGetterWidget_Vector3d(
-            "Angular velocity normal noise std. dev",
+            "Angular Velocity Normal Noise STDDev",
             angvel_normal_noise_std_descripiton,
             minimum=[0.0] * 3,
             default=[0.0] * 3,
@@ -76,7 +76,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         pos_uniform_noise_scale_descripiton = ""
         self.pos_uniform_noise_scale = ParamGetterWidget_Vector3d(
-            "Position uniform noise scale",
+            "Position Uniform Noise Scale",
             pos_uniform_noise_scale_descripiton,
             minimum=[0.0] * 3,
             default=[0.0] * 3,
@@ -86,7 +86,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         rot_uniform_noise_scale_descripiton = ""
         self.rot_uniform_noise_scale = ParamGetterWidget_Vector3d(
-            "Rotation uniform noise scale",
+            "Rotation Uniform Noise Scale",
             rot_uniform_noise_scale_descripiton,
             minimum=[0.0] * 3,
             default=[0.0] * 3,
@@ -96,7 +96,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         linvel_uniform_noise_scale_descripiton = ""
         self.linvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
-            "Linear velocity uniform noise scale",
+            "Linear Velocity Uniform Noise Scale",
             linvel_uniform_noise_scale_descripiton,
             minimum=[0.0] * 3,
             default=[0.0] * 3,
@@ -106,7 +106,7 @@ class OdometryWidget(OptionalDeviceWidget):
 
         angvel_uniform_noise_scale_descripiton = ""
         self.angvel_uniform_noise_scale = ParamGetterWidget_Vector3d(
-            "Angular velocity uniform noise scale",
+            "Angular Velocity Uniform Noise Scale",
             angvel_uniform_noise_scale_descripiton,
             minimum=[0.0] * 3,
             default=[0.0] * 3,

@@ -71,7 +71,7 @@ class Frame:
 
 
 class ChannelsWidget(QWidget):
-    NO_SELECT = "Select link name"
+    NO_SELECT = "Select Link Name"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()

@@ -148,7 +148,7 @@ class MaxRotationSpeedMethod(QWidget):
 
 
 class MaxRotationSpeedMethod_Manual(MaxRotationSpeedMethod):
-    NAME = "Set manually"
+    NAME = "Set Manually"
 
     def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__(main, link_name, ckb_group)
@@ -170,7 +170,7 @@ class MaxRotationSpeedMethod_Manual(MaxRotationSpeedMethod):
 
 
 class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
-    NAME = "Estimate from maximum input voltage"
+    NAME = "Estimate from Maximum Input Voltage"
 
     def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__(main, link_name, ckb_group)
@@ -202,7 +202,7 @@ class MaxRotationSpeedMethod_Current(MaxRotationSpeedMethod):
     cf. [ブラシレスモータ効率の良い回し方](https://www.cqpub.co.jp/hanbai/books/MTR/MTRZ201310/MTRZ201310.pdf)
     """
 
-    NAME = "Estimate from maximum continuous current"
+    NAME = "Estimate from Maximum Continuous Current"
 
     def __init__(self, main: SetupAssistant, link_name: str, ckb_group: QButtonGroup) -> None:
         super().__init__(main, link_name, ckb_group)

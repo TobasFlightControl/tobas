@@ -26,7 +26,7 @@ from .base import BaseSelectedLinkSettingWidget
 class ElectrodynamicsWidget(BaseSelectedLinkSettingWidget):
     NAME = "Electrodynamics"
 
-    NO_SELECT = "Select setting method"
+    NO_SELECT = "Select Setting Method"
     METHOD_NAME_KEY = "method_name"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -170,7 +170,7 @@ class MotorDynamicsWidget_Base(QWidget):  # NOTE: ABCを継承するとバグる
 
 
 class MotorDynamicsWidget_Spec(MotorDynamicsWidget_Base):
-    NAME = "Set from motor spec"
+    NAME = "Estimate from Motor Spec"
     ABST_TEXT = "Estimate the motor dynamics from the motor's Kv value and internal registance."
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -200,7 +200,7 @@ class MotorDynamicsWidget_Spec(MotorDynamicsWidget_Base):
 
 
 class MotorDynamicsWidget_Experiment(MotorDynamicsWidget_Base):
-    NAME = "Set from experimental data (recommended)"
+    NAME = "Estimate from Experimental Data (Recommended)"
     ABST_TEXT = (
         "Estimate the motor dynamics from the data obtained from the Thrust Stand. "
         "Please input the data directly or load it from a CSV file. "

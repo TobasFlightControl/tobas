@@ -29,13 +29,13 @@ class BarometerWidget(BaseSettingWidget):
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate", update_rate_description, minimum=1, default=50, suffix=" Hz"
+            "Update Rate", update_rate_description, minimum=1, default=50, suffix=" Hz"
         )
         self._param_rows.addWidget(self.update_rate)
 
         pressure_var_description = ""
         self.pressure_var = ParamGetterWidget_DoubleSpinBox(
-            "the air pressure variance", pressure_var_description, decimals=2, minimum=0.0, default=10.0, suffix=" Pa^2"
+            "Air Pressure Variance", pressure_var_description, decimals=2, minimum=0.0, default=10.0, suffix=" Pa^2"
         )
         self._param_rows.addWidget(self.pressure_var)
 

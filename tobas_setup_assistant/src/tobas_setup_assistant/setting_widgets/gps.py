@@ -24,25 +24,25 @@ class GpsWidget(OptionalDeviceWidget):
 
         update_rate_description = ""  # TODO
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate", update_rate_description, minimum=1, default=5, suffix=" Hz"
+            "Update Rate", update_rate_description, minimum=1, default=5, suffix=" Hz"
         )
         self._add_param_widget(self.update_rate)
 
         delay_description = ""  # TODO
         self.delay = ParamGetterWidget_DoubleSpinBox(
-            "Communication delay", delay_description, decimals=2, minimum=0.0, default=0.2, suffix=" s"
+            "Communication Delay", delay_description, decimals=2, minimum=0.0, default=0.2, suffix=" s"
         )
         self._add_param_widget(self.delay)
 
         pos_corr_time_description = ""  # TODO
         self.pos_corr_time = ParamGetterWidget_SpinBox(
-            "Position correction time constant", pos_corr_time_description, minimum=1, default=10, suffix=" s"
+            "Position Correction Time Constant", pos_corr_time_description, minimum=1, default=10, suffix=" s"
         )
         self._add_param_widget(self.pos_corr_time)
 
         horizontal_pos_accuracy_description = ""  # TODO
         self.horizontal_pos_accuracy = ParamGetterWidget_DoubleSpinBox(
-            "Horizontal position accuracy",
+            "Horizontal Position Accuracy",
             horizontal_pos_accuracy_description,
             decimals=2,
             minimum=0.0,
@@ -53,7 +53,7 @@ class GpsWidget(OptionalDeviceWidget):
 
         vertical_pos_accuracy_description = ""  # TODO
         self.vertical_pos_accuracy = ParamGetterWidget_DoubleSpinBox(
-            "Hertical position accuracy",
+            "Hertical Position Accuracy",
             vertical_pos_accuracy_description,
             decimals=2,
             minimum=0.0,
@@ -64,7 +64,7 @@ class GpsWidget(OptionalDeviceWidget):
 
         horizontal_vel_stddev_description = ""  # TODO
         self.horizontal_vel_stddev = ParamGetterWidget_DoubleSpinBox(
-            "Standard deviation for horizontal speed noise",
+            "Standard Deviation for Horizontal Speed Noise",
             horizontal_vel_stddev_description,
             decimals=2,
             minimum=0.0,
@@ -75,7 +75,7 @@ class GpsWidget(OptionalDeviceWidget):
 
         vertical_vel_stddev_description = ""  # TODO
         self.vertical_vel_stddev = ParamGetterWidget_DoubleSpinBox(
-            "Standard deviation for vertical speed noise",
+            "Standard Deviation for Vertical Speed Noise",
             vertical_vel_stddev_description,
             decimals=2,
             minimum=0.0,

@@ -32,19 +32,19 @@ class LidarWidget(OptionalDeviceWidget):
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
+            "Update Rate", update_rate_description, minimum=1, default=10, suffix=" Hz"
         )
         self._add_param_widget(self.update_rate)
 
         hor_samples_description = ""
         self.hor_samples = ParamGetterWidget_SpinBox(
-            "The number of horizontal samples", hor_samples_description, minimum=1, default=100
+            "The Number of Horizontal Samples", hor_samples_description, minimum=1, default=100
         )
         self._add_param_widget(self.hor_samples)
 
         ver_samples_description = ""
         self.ver_samples = ParamGetterWidget_SpinBox(
-            "The number of vertical samples", ver_samples_description, minimum=1, default=360
+            "The Number of Vertical Samples", ver_samples_description, minimum=1, default=360
         )
         self._add_param_widget(self.ver_samples)
 
@@ -66,19 +66,19 @@ class LidarWidget(OptionalDeviceWidget):
 
         range_description = ""
         self.range = ParamGetterWidget_DoubleRange(
-            "Laser distance range", range_description, decimals=3, default=(0.1, 200.0), suffix=" m"
+            "Laser Distance Range", range_description, decimals=3, default=(0.1, 200.0), suffix=" m"
         )
         self._add_param_widget(self.range)
 
         resolution_description = ""
         self.resolution = ParamGetterWidget_DoubleSpinBox(
-            "Distance resolution", resolution_description, decimals=3, minimum=1e-3, default=2e-3, suffix=" m"
+            "Distance Resolution", resolution_description, decimals=3, minimum=1e-3, default=2e-3, suffix=" m"
         )
         self._add_param_widget(self.resolution)
 
         noise_stddev_description = ""
         self.noise_stddev = ParamGetterWidget_DoubleSpinBox(
-            "Standard deviation of gaussian noise",
+            "Standard Deviation of Gaussian Noise",
             noise_stddev_description,
             decimals=3,
             minimum=0.0,

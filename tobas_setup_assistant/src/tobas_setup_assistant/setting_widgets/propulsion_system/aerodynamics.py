@@ -27,7 +27,7 @@ from .blade_theory import BladeTheory
 class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
     NAME = "Aerodynamics"
 
-    NO_SELECT = "Select setting method"
+    NO_SELECT = "Select Setting Method"
     METHOD_NAME_KEY = "method_name"
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -191,7 +191,7 @@ class AerodynamicsWidget_Base(QWidget):
 
 
 class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
-    NAME = "Set manually"
+    NAME = "Set Manually"
     ABST_TEXT = "Directly set the propeller aerodynamic constants."
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:
@@ -259,7 +259,7 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
 class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
     """Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019]"""
 
-    NAME = "Set from propeller geometry"
+    NAME = "Estimate from Propeller Geometry"
     ABST_TEXT = (
         "Estimate aerodynamic constants using Blade Element Theory or Momentum Theory, "
         "based on the geometric shape of the propeller set above. See "
@@ -298,7 +298,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
     空気抗力係数はBlade Theoryから求める．
     """
 
-    NAME = "Set from thrust stand data"
+    NAME = "Estimate from Thrust Stand Data"
     ABST_TEXT = (
         "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
         "For example, see the "
@@ -356,7 +356,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
 
 class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
-    NAME = "Set from UIUC propeller data site"
+    NAME = "Estimate from UIUC Propeller Data iSte"
     ABST_TEXT = (
         "If the propeller is listed in the "
         "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
