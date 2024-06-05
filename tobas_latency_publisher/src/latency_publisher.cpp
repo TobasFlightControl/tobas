@@ -18,7 +18,7 @@ void LatencyPublisher::targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr
 {
   const auto latency = boost::make_shared<tobas_msgs::Latency>();
   latency->header.stamp = tar_speeds->header.stamp;
-  latency->data = (ros::Time::now() - tar_speeds->header.stamp).toSec();
+  latency->data = ros::Time::now() - tar_speeds->header.stamp;
   latency_pub_.publish(latency);
 }
 }  // namespace tobas_latency_publisher

@@ -1,23 +1,25 @@
 import rospy
 from collections import deque
 from threading import Lock
-from typing import Deque, Tuple, Iterator, Any
+from typing import Deque, Tuple, Iterator, TypeVar, Generic
+
+T = TypeVar("T")
 
 
-class TimestampedBuffer:
+class TimestampedBuffer(Generic[T]):
     def __init__(self, expiry_duration: rospy.Duration) -> None:
         assert expiry_duration >= rospy.Duration(0)
 
         self._expiry_duration = expiry_duration
-        self._que: Deque[Tuple[rospy.Time, Any]] = deque()
+        self._que: Deque[Tuple[rospy.Time, T]] = deque()
         self._index = 0
         self._lock = Lock()  # dequeにアクセスする部分をスレッドセーフにする
 
-    def __iter__(self) -> Iterator[Tuple[rospy.Time, Any]]:
+    def __iter__(self) -> Iterator[Tuple[rospy.Time, T]]:
         self._index = 0
         return self
 
-    def __next__(self) -> Tuple[rospy.Time, Any]:
+    def __next__(self) -> Tuple[rospy.Time, T]:
         with self._lock:
             if self._index >= self.size():
                 raise StopIteration()
@@ -26,7 +28,7 @@ class TimestampedBuffer:
         self._index += 1
         return res
 
-    def add(self, cur_time: rospy.Time, data) -> None:
+    def add(self, cur_time: rospy.Time, data: T) -> None:
         # 要素を追加
         with self._lock:
             self._que.append((cur_time, data))

@@ -39,7 +39,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         self._pw.setBackground("w")
         self._rows.addWidget(self._pw)
 
-        self._buffer = TimestampedBuffer(rospy.Duration(self.EXPIRY_DURATION))
+        self._buffer = TimestampedBuffer[rospy.Duration](rospy.Duration(self.EXPIRY_DURATION))
         self._latency_sub = None
 
         self._timer = QTimer(self)
@@ -66,7 +66,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         latencies = []
         for stamp, latency in self._buffer:
             stamps.append(stamp.to_sec())
-            latencies.append(latency * 1e3)
+            latencies.append(latency.to_nsec() * 1e-6)
 
         pi = self._pw.plotItem
         pi.clear()
