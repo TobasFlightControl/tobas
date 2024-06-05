@@ -62,7 +62,7 @@ class JointPositionsCommanderWidget(Widget):
         for jnt_name in self._cmd_types.keys():
             joint: Joint = robot.joint_map[jnt_name]
             limit: JointLimit = joint.limit
-            commander = FloatSliderDisplay(self)
+            commander = FloatSliderDisplay()
             commander.set_text(jnt_name)
             commander.set_minimum(limit.lower)
             commander.set_maximum(limit.upper)
