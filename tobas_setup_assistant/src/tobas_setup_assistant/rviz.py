@@ -17,6 +17,7 @@ from .common import PKG_NAME
 
 class RvizWidget(Widget):
     MIN_WIDTH = 300
+    ROBOT_STATE_DISPLAY_IDX = 0  # rvizファイルと合わせる必要あり
     DEFAULT_VISUAL_ENABLED = True
     DEFAULT_COLLISION_ENABLED = False
 
@@ -34,7 +35,7 @@ class RvizWidget(Widget):
         # Setup robot_model_display
         # rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
         self._manager = self._frame.getManager()
-        self._display = self._manager.getRootDisplayGroup().getDisplayAt(0)
+        self._display = self._manager.getRootDisplayGroup().getDisplayAt(self.ROBOT_STATE_DISPLAY_IDX)
         assert self._display.getName() == "RobotState"
 
         # 最初は機能をオフにしておく．さもないとrobot_descriptionが見つからないというエラーが出る．
@@ -47,9 +48,9 @@ class RvizWidget(Widget):
         self._enable_collision.setBool(self.DEFAULT_COLLISION_ENABLED)
 
         # 可視化ボタン
-        self._visual_box = QCheckBox("Visual Enabled")
+        self._visual_box = QCheckBox("Show Visual Geometry")
         self._visual_box.setChecked(self.DEFAULT_VISUAL_ENABLED)
-        self._collision_box = QCheckBox("Collision Enabled")
+        self._collision_box = QCheckBox("Show Collision Geometry")
         self._collision_box.setChecked(self.DEFAULT_COLLISION_ENABLED)
 
         # レイアウト

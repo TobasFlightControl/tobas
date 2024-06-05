@@ -132,14 +132,14 @@
                   <item>
                     <widget class="QCheckBox" name="EnableVisualCheckBox">
                       <property name="text">
-                        <string>Visual Enabled</string>
+                        <string>Show Visual Geometry</string>
                       </property>
                     </widget>
                   </item>
                   <item>
                     <widget class="QCheckBox" name="EnableCollisionCheckBox">
                       <property name="text">
-                        <string>Collision Enabled</string>
+                        <string>Show Collision Geometry</string>
                       </property>
                     </widget>
                   </item>
