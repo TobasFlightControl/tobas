@@ -1,10 +1,11 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
-#include <boost/property_tree/ini_parser.hpp>
 #include <QtCore/QtCore>
 #include <QtWidgets/QtWidgets>
 #include <rviz/panel.h>
+
+#include <tobas_std_tools/property_tree.hpp>
 
 #ifndef Q_MOC_RUN
 #include <urdf/model.h>
@@ -29,7 +30,6 @@ class URDFBuilderPanel : public rviz::Panel
 {
   Q_OBJECT
 
-  static constexpr char kConfigPath[] = "~/.config/urdf_builder/config.ini";
   static constexpr char kConfigKey_LastOpenedDir[] = "last_opened_dir";
 
 public:
@@ -61,8 +61,7 @@ private Q_SLOTS:
   void LinkDialogChanged();
 
 private:
-  const std::string config_path_;
-  boost::property_tree::ptree pt_;
+  tobas_std::PropertyTree pt_;
 
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;

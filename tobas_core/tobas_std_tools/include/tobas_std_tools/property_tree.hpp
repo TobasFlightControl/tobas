@@ -11,10 +11,13 @@ class PropertyTree
 public:
   explicit PropertyTree(const std::string& ini_path);
 
+  void load();
   void save();
 
+  const std::string& configPath();
+
   template <typename T>
-  void get(const std::string& key, T& value) const;
+  T get(const std::string& key) const;
 
   template <typename T>
   bool get(const std::string& key, T& value, const T& _default) const;
@@ -28,13 +31,13 @@ private:
 };
 
 template <typename T>
-void PropertyTree::get(const std::string& key, T& value) const
+T PropertyTree::get(const std::string& key) const
 {
   const auto optional = pt_.get_optional<T>(key);
   if (!optional)
     throw std::runtime_error("Failed to get property: " + key);
 
-  value = optional.get();
+  return optional.get();
 }
 
 template <typename T>

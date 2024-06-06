@@ -26,13 +26,10 @@ namespace urdf_builder
 namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
-  : rviz::Panel(item),
-    config_path_(tobas_std::expandPath(kConfigPath)),
-    ui_(new Ui::URDFBuilderPanelUI()),
-    ogre_ctrl_(nullptr)
+  : rviz::Panel(item), pt_(kConfigPath), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr)
 {
   // configファイルを作成
-  if (!tobas_std::fileExists(config_path_))
+  if (!tobas_std::fileExists(pt_.configPath()))
     createConfig();
 
   ui_->setupUi(this);
@@ -330,21 +327,17 @@ void URDFBuilderPanel::LinkDialogChanged()
 void URDFBuilderPanel::createConfig()
 {
   // ディレクトリを作成
-  boost::filesystem::path dir(getenv("HOME"));
-  dir /= ".config/urdf_builder";
-  boost::filesystem::create_directories(dir);
+  boost::filesystem::create_directories(tobas_std::expandPath(kConfigDir));
 
   // 各キーのデフォルト値を設定
-  boost::property_tree::ptree pt_;
+  pt_.load();
   pt_.put(kConfigKey_LastOpenedDir, getenv("HOME"));
-
-  // configを保存
-  boost::property_tree::ini_parser::write_ini(config_path_, pt_);
+  pt_.save();
 }
 
 string URDFBuilderPanel::getLastOpenedDir()
 {
-  boost::property_tree::ini_parser::read_ini(config_path_, pt_);
+  pt_.load();
   return pt_.get<string>(kConfigKey_LastOpenedDir);
 }
 
@@ -352,8 +345,10 @@ void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
 {
   boost::filesystem::path p(file_path);
   const auto dir = p.parent_path().string();
+
+  pt_.load();
   pt_.put(kConfigKey_LastOpenedDir, dir);
-  boost::property_tree::ini_parser::write_ini(config_path_, pt_);
+  pt_.save();
 }
 
 void URDFBuilderPanel::defineConnections()

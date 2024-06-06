@@ -6,17 +6,31 @@ using namespace std;
 
 namespace tobas_std
 {
-PropertyTree::PropertyTree(const std::string& ini_path) : ini_path_(ini_path)
+PropertyTree::PropertyTree(const string& ini_path) : ini_path_(tobas_std::expandPath(ini_path))
 {
   if (tobas_std::fileExists(ini_path))
-    boost::property_tree::ini_parser::read_ini(ini_path, pt_);
+  {
+    load();
+  }
+  else
+  {
+    tobas_std::createFilePath(ini_path_);
+    PRINT_INFO(ini_path_ << " has been created.");
+  }
+}
+
+const string& PropertyTree::configPath()
+{
+  return ini_path_;
+}
+
+void PropertyTree::load()
+{
+  boost::property_tree::ini_parser::read_ini(ini_path_, pt_);
 }
 
 void PropertyTree::save()
 {
-  if (!tobas_std::fileExists(ini_path_))
-    tobas_std::createFilePath(ini_path_);
-
   boost::property_tree::ini_parser::write_ini(ini_path_, pt_);
 }
 }  // namespace tobas_std

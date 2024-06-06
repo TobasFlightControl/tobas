@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include <iostream>
-#include <boost/property_tree/ini_parser.hpp>
+
+#include <tobas_std_tools/property_tree.hpp>
 
 #include <tobas_navio_core/adc.hpp>
 #include <tobas_navio_ros/common.hpp>
@@ -10,8 +11,7 @@ using namespace std;
 int main()
 {
   // Get ADC coefficient
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini(tobas_navio_ros::kConfigPath, pt);
+  tobas_std::PropertyTree pt(tobas_navio_ros::kConfigPath);
   const double adc_coef = pt.get<double>(tobas_navio_ros::kConfigKey_AdcCoef);
 
   // Initialize ADC driver
