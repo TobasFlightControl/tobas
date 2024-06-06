@@ -9,7 +9,7 @@ namespace tobas_std
 {
 PropertyTree::PropertyTree(const string& ini_path) : ini_path_(tobas_std::expandUser(ini_path))
 {
-  if (tobas_std::fileExists(ini_path))
+  if (tobas_std::fileExists(ini_path_))
   {
     load();
   }
