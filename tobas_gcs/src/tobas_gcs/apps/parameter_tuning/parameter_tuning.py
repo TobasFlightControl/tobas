@@ -15,7 +15,7 @@ from tobas_rqt_tools.layouts import ScrollableVBoxLayout
 from tobas_rqt_tools.messages import q_info, q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.drone import Drone
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
-from tobas_tools_py.package import get_tbs_name, get_tbs_config_name, get_dynamic_params_path
+from tobas_tools_py.package import get_tbs_config_name, get_dynamic_params_path
 
 from ...common import CATKIN_WS_TOBAS
 from ...utils.ssh_client import SSHClientWrapper
@@ -149,11 +149,12 @@ class ParameterTuningWidget(BaseAppWidget):
 
         # 設定ファイルが存在することを確認
         tbs_path = self._main.pkg_path()  # PC上のTobasパッケージまでのパス
-        tbs_name = get_tbs_name(tbs_path)
         config_pkg_name = get_tbs_config_name(tbs_path)
-        config_path = osp.join(CATKIN_WS_TOBAS, "src", tbs_name, config_pkg_name, "config", "dynamic_params.yaml")
+        config_path = osp.join(
+            CATKIN_WS_TOBAS, "src", osp.basename(tbs_path), config_pkg_name, "config", "dynamic_params.yaml"
+        )
         if not self._ssh_client.file_exists(config_path):
-            q_error(self._main, f"{config_path} does not exist.")
+            q_error(self._main, f"{config_path} does not exist on FC.")
             return False
 
         # 設定をテキストに変換
@@ -172,7 +173,7 @@ class ParameterTuningWidget(BaseAppWidget):
         # 設定ファイルが存在することを確認
         config_path = get_dynamic_params_path(self._main.pkg_path())
         if not osp.exists(config_path):
-            q_error(self._main, "Configuration file does not exist on PC.")
+            q_error(self._main, f"{config_path} does not exist on PC.")
             return False
 
         # PCに書き込む
