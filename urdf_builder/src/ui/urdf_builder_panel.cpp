@@ -3,6 +3,7 @@
 #include <rviz/robot/robot_link.h>
 
 #include <tobas_std_tools/file.hpp>
+#include <tobas_std_tools/unix.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -26,11 +27,11 @@ namespace urdf_builder
 namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
-  : rviz::Panel(item), pt_(kConfigPath), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr)
+  : rviz::Panel(item), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr), pt_(kConfigPath)
 {
   // configファイルを作成
   if (!tobas_std::fileExists(pt_.configPath()))
-    createConfig();
+    boost::filesystem::create_directories(tobas_std::expandUser(kConfigDir));
 
   ui_->setupUi(this);
 
@@ -324,21 +325,10 @@ void URDFBuilderPanel::LinkDialogChanged()
   reload();
 }
 
-void URDFBuilderPanel::createConfig()
-{
-  // ディレクトリを作成
-  boost::filesystem::create_directories(tobas_std::expandPath(kConfigDir));
-
-  // 各キーのデフォルト値を設定
-  pt_.load();
-  pt_.put(kConfigKey_LastOpenedDir, getenv("HOME"));
-  pt_.save();
-}
-
 string URDFBuilderPanel::getLastOpenedDir()
 {
   pt_.load();
-  return pt_.get<string>(kConfigKey_LastOpenedDir);
+  return pt_.get(kConfigKey_LastOpenedDir, tobas_std::homeDir());
 }
 
 void URDFBuilderPanel::setLastOpenedDir(const string& file_path)

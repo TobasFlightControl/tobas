@@ -61,8 +61,6 @@ private Q_SLOTS:
   void LinkDialogChanged();
 
 private:
-  tobas_std::PropertyTree pt_;
-
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;
   ogre_helpers::OgreControllerPtr ogre_ctrl_;
@@ -71,7 +69,8 @@ private:
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
 
-  void createConfig();
+  tobas_std::PropertyTree pt_;
+
   std::string getLastOpenedDir();
   void setLastOpenedDir(const std::string& file_path);
 

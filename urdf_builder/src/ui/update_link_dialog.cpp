@@ -1,4 +1,7 @@
+#include <filesystem>
 #include <ros/ros.h>
+
+#include <tobas_std_tools/unix.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -15,7 +18,11 @@ namespace urdf_builder
 namespace ui
 {
 UpdateLinkDialog::UpdateLinkDialog(URDFBuilderPanel* main)
-  : QDialog(main), main_(main), ui_(new Ui::UpdateLinkDialogUI()), link_vm_(new view_model::LinkViewModel(nullptr))
+  : QDialog(main),
+    main_(main),
+    ui_(new Ui::UpdateLinkDialogUI()),
+    link_vm_(new view_model::LinkViewModel(nullptr)),
+    pt_(kConfigPath)
 {
   ui_->setupUi(this);
 
@@ -412,26 +419,47 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked");
 
-  const QString file_path = QFileDialog::getOpenFileName(
-    this, tr("URDF Builder"), QDir::homePath(), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
+  // 最後に開いたディレクトリを取得
+  pt_.load();
+  const auto last_dir = pt_.get(kConfigKey_VisualGeometryMeshBrowseDir, tobas_std::homeDir());
+  cout << last_dir << endl;
 
+  // メッシュファイルのパスを取得
+  const QString file_path = QFileDialog::getOpenFileName(
+    this, tr("URDF Builder"), QString::fromStdString(last_dir), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
   if (file_path.isEmpty())
     return;
 
+  // メッシュファイルのパスを設定
   ui_->VisualGeometryMeshPathLineEdit->setText("file://" + file_path);
+
+  // 最後に開いたディレクトリを保存
+  const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
+  pt_.put(kConfigKey_VisualGeometryMeshBrowseDir, new_dir);
+  pt_.save();
 }
 
 void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 {
   ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked");
 
-  const QString file_path = QFileDialog::getOpenFileName(
-    this, tr("URDF Builder"), QDir::homePath(), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
+  // 最後に開いたディレクトリを取得
+  pt_.load();
+  const auto last_dir = pt_.get(kConfigKey_CollisionGeometryMeshBrowseDir, tobas_std::homeDir());
 
+  // メッシュファイルのパスを取得
+  const QString file_path = QFileDialog::getOpenFileName(
+    this, tr("URDF Builder"), QString::fromStdString(last_dir), tr("Mesh Files (*.stl *.dae);;All Files (*)"));
   if (file_path.isEmpty())
     return;
 
+  // メッシュファイルのパスを設定
   ui_->CollisionGeometryMeshPathLineEdit->setText("file://" + file_path);
+
+  // 最後に開いたディレクトリを保存
+  const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
+  pt_.put(kConfigKey_VisualGeometryMeshBrowseDir, new_dir);
+  pt_.save();
 }
 
 void UpdateLinkDialog::MaterialColorPickButtonClicked()

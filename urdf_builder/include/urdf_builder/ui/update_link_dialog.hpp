@@ -3,6 +3,8 @@
 #include <map>
 #include <QtWidgets/QtWidgets>
 
+#include <tobas_std_tools/property_tree.hpp>
+
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/joint_view_model.hpp"
 
@@ -21,6 +23,9 @@ class URDFBuilderPanel;
 class UpdateLinkDialog : public QDialog
 {
   Q_OBJECT
+
+  static constexpr char kConfigKey_VisualGeometryMeshBrowseDir[] = "DEFAULT.visual_geometry_mesh_dir";
+  static constexpr char kConfigKey_CollisionGeometryMeshBrowseDir[] = "DEFAULT.collision_geometry_mesh_dir";
 
 Q_SIGNALS:
   void Changed();
@@ -79,6 +84,8 @@ private:
     std::map<QString, QFrame*> visual_geom;
     std::map<QString, QFrame*> collision_geom;
   } frame_map_;
+
+  tobas_std::PropertyTree pt_;
 
   void defineConnections();
 
