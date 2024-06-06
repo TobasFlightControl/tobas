@@ -2739,7 +2739,7 @@
           <bool>true</bool>
          </property>
          <property name="title">
-          <string>Origin</string>
+          <string>Center of Mass</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="1" column="2">
@@ -3004,7 +3004,7 @@
           <bool>true</bool>
          </property>
          <property name="title">
-          <string>Inertia</string>
+          <string>Inertia with regard to CoM</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="5">
