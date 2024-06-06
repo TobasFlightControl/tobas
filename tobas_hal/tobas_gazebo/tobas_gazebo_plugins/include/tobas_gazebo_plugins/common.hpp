@@ -49,6 +49,7 @@ static constexpr char kRotorStateGtTopicPrefix[] = "ground_truth/rotor_state";
 
 // ROS Services
 static constexpr char kChargeBatterySrv[] = "gazebo/charge_battery";
+static constexpr char kGetWindParamsSrv[] = "gazebo/get_wind_parameters";
 static constexpr char kSetWindParamsSrv[] = "gazebo/set_wind_parameters";
 
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);

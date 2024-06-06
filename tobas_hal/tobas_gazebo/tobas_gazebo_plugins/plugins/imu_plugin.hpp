@@ -65,7 +65,7 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
   sensor_msgs::Imu imu_msg_;
-  tobas_gazebo_plugins::ImuDebug debug_msg_;
+  tobas_gazebo_msgs::ImuDebug debug_msg_;
   common::Time last_time_ = common::Time(0);
   ignition::math::Vector3d acc_bias_ = zero3;
   ignition::math::Vector3d gyro_bias_ = zero3;

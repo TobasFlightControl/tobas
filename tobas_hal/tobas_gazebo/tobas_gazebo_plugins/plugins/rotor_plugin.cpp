@@ -2,10 +2,9 @@
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/algorithm.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/RotorState.h>
-#include <tobas_gazebo_plugins/RotorDebug.h>
+#include <tobas_gazebo_msgs/RotorDebug.h>
 
 #include "./rotor_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -167,7 +166,7 @@ void GazeboRotorPlugin::registerPubSub()
   const string suffix = "_" + to_string(motor_number_);
 
   rotor_state_pub_ = nh_.advertise<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix, 1);
-  debug_pub_ = nh_.advertise<tobas_gazebo_plugins::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
+  debug_pub_ = nh_.advertise<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
 
   throttles_sub_ = nh_.subscribe(
     prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, ros::TransportHints().reliable().tcpNoDelay());
@@ -250,7 +249,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   rotor_state_pub_.publish(rotor_state);
 
   // Publish debug message
-  const auto debug_msg = boost::make_shared<tobas_gazebo_plugins::RotorDebug>();
+  const auto debug_msg = boost::make_shared<tobas_gazebo_msgs::RotorDebug>();
   timeGazeboToRos(cur_time, debug_msg->header.stamp);
   debug_msg->rotation_speed = joint_->GetVelocity(0) * kRotorSpeedSlowdownSim;
   vectorGazeboToKDL(thrust_W, debug_msg->thrust_force);

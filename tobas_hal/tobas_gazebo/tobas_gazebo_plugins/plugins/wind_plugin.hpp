@@ -8,7 +8,8 @@
 #include <gazebo/physics/physics.hh>
 
 #include <tobas_tools/dryden_wind_model.hpp>
-#include <tobas_gazebo_plugins/SetWindParameters.h>
+#include <tobas_gazebo_msgs/GetWindParameters.h>
+#include <tobas_gazebo_msgs/SetWindParameters.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
@@ -57,16 +58,10 @@ private:
   std::string ns_;
   std::string link_name_;
 
-  // Wind parameters
-  double mean_speed_ = kDefaultMeanWindSpeed;
-  double direction_ = kDefaultConstantWindDirection;
-  double gust_speed_factor_ = kDefaultGustSpeedFactor;
-  double gust_duration_ = kDefaultGustDuration;
-  double gust_interval_ = kDefaultGustInterval;
-
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
+  tobas_gazebo_msgs::WindParameters params_;
   common::Time prev_sim_time_;
   common::Time gust_state_change_time_;
   gust_state_t gust_state_ = NO_GUST;
@@ -75,13 +70,15 @@ private:
 
   ros::Publisher wind_pub_;
 
-  ros::ServiceServer set_wind_params_srv_;
+  ros::ServiceServer get_wind_params_ss_;
+  ros::ServiceServer set_wind_params_ss_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);
 
-  bool setWindParametersCb(
-    tobas_gazebo_plugins::SetWindParametersRequest& req,
-    tobas_gazebo_plugins::SetWindParametersResponse& res);
+  bool
+  getWindParamsCb(tobas_gazebo_msgs::GetWindParametersRequest& req, tobas_gazebo_msgs::GetWindParametersResponse& res);
+  bool
+  setWindParamsCb(tobas_gazebo_msgs::SetWindParametersRequest& req, tobas_gazebo_msgs::SetWindParametersResponse& res);
 };
 }  // namespace gazebo

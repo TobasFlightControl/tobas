@@ -1,7 +1,7 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/boost.hpp>
 
-#include <tobas_gazebo_plugins/ImuDebug.h>
+#include <tobas_gazebo_msgs/ImuDebug.h>
 
 #include "./imu_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -60,7 +60,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
   // Advertise
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);
-  debug_pub_ = nh_.advertise<tobas_gazebo_plugins::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
+  debug_pub_ = nh_.advertise<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(boost::bind(&self::onUpdate, this));
