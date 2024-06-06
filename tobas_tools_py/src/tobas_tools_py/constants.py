@@ -1,5 +1,3 @@
-import os.path as osp
-
 SERVO_RAIL_SIZE = 14
 MIN_PWM = 1000
 MAX_PWM = 2000
@@ -17,7 +15,7 @@ RCIN_ESTOP = 6  # CH7
 RCIN_GPSW = 7  # CH8
 
 ROS_MASTER_URI_FC = "192.168.249.1"
-CONFIG_PATH = osp.expanduser(f"~/.config/tobas/config.ini")
+CONFIG_PATH = "~/.config/tobas/config.ini"
 PKG_EXTENSION = ".TBS"
 CONTROLLER_NODE_NAME = "controller"
 OBSERVER_NODE_NAME = "observer"

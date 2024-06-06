@@ -6,17 +6,17 @@ from typing import Optional
 
 class ConfigParserWrapper:
     def __init__(self, config_path: str, section: str) -> None:
-        self._config_path = config_path
+        self._config_path = osp.expanduser(config_path)
         self._section = section
 
         self._config = ConfigParser()
 
         # configがなければ作成
-        config_dir = osp.dirname(config_path)
+        config_dir = osp.dirname(self._config_path)
         os.makedirs(config_dir, exist_ok=True)
 
         # sectionがなければ作成
-        self._config.read(config_path)
+        self._config.read(self._config_path)
         if not self._config.has_section(section):
             self._config.add_section(section)
             self.write()

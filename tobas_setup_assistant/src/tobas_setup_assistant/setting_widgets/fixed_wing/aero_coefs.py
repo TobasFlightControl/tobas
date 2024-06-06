@@ -241,7 +241,7 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
         config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
-        config.read(CONFIG_PATH)  # 排他処理のためにこの関数内でRead & Write
+        config.read()  # 排他処理のためにこの関数内でRead & Write
         last_opened_dir = config.get(self.LAST_OPENED_DIR, fallback=osp.expanduser("~"))
 
         # paramsのパスを取得
