@@ -11,13 +11,13 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
 
+from tobas_rqt_tools.widgets import IntSliderTextWidget, FloatSliderTextWidget
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_error
 from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.drone import Drone
 
 from ...common import WAIT_FOR_SERVER
-from .param_widgets import IntParamWidget, FloatParamWidget
 
 ParamType = TypeVar("ParamType", int, float, bool, str)
 
@@ -80,10 +80,10 @@ class ParamBlockWidget(QWidget):
             value: ParamType = config[name]
 
             if type_ == "int":
-                param_widget = IntParamWidget(param_desc["min"], param_desc["max"])
+                param_widget = IntSliderTextWidget(param_desc["min"], param_desc["max"])
                 param_widget.value_changed.connect(partial(self._on_int_param_changed, name=name))
             elif type_ == "double":
-                param_widget = FloatParamWidget(param_desc["min"], param_desc["max"])
+                param_widget = FloatSliderTextWidget(param_desc["min"], param_desc["max"])
                 param_widget.value_changed.connect(partial(self._on_float_param_changed, name=name))
             elif type_ == "bool":
                 q_error(self._main, "Configuration for bool parameter is not supported yet.")  # TODO

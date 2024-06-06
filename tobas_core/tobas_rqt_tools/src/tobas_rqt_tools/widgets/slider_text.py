@@ -1,29 +1,33 @@
 import math
 from abc import abstractmethod
 from overrides import override
+from typing import Type, TypeVar, Generic
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 
-from tobas_rqt_tools.widgets import Slider, FloatSlider
+from .slider import Slider, FloatSlider
 
 
-class BaseParamWidget(QWidget):
+T = TypeVar("T")
+
+
+class SliderTextWidget(QWidget, Generic[T]):
     VALUE_WIDTH = 100
 
     def __init__(self) -> None:
         super().__init__()
 
     @abstractmethod
-    def get(self):
+    def get(self) -> T:
         raise NotImplementedError()
 
     @abstractmethod
-    def set(self, value):
+    def set(self, value: T) -> None:
         raise NotImplementedError()
 
 
-class IntParamWidget(BaseParamWidget):
+class IntSliderTextWidget(SliderTextWidget[int]):
     value_changed = pyqtSignal(int)
 
     def __init__(self, minimum: int, maximum: int) -> None:
@@ -36,7 +40,7 @@ class IntParamWidget(BaseParamWidget):
 
         self._slider = Slider(Qt.Horizontal)
         self._slider.setRange(minimum, maximum)
-        self._slider.valueChanged.connect(self._on_slider_value_changed)
+        self._slider.sliderReleased.connect(self._on_slider_released)
         cols.addWidget(self._slider)
 
         cols.addWidget(QLabel(str(maximum)))
@@ -48,16 +52,17 @@ class IntParamWidget(BaseParamWidget):
         cols.addWidget(self._lineedit)
 
     @override
-    def get(self):
+    def get(self) -> int:
         return self._slider.value()
 
     @override
-    def set(self, value):
+    def set(self, value: int) -> None:
         self._set_slider_value(value)
         self._set_lineedit_text(value)
 
-    @pyqtSlot(int)
-    def _on_slider_value_changed(self, value: int) -> None:
+    @pyqtSlot()
+    def _on_slider_released(self) -> None:
+        value = self._slider.value()
         self._set_lineedit_text(value)
         self.value_changed.emit(value)
 
@@ -78,7 +83,7 @@ class IntParamWidget(BaseParamWidget):
         self._lineedit.blockSignals(False)
 
 
-class FloatParamWidget(BaseParamWidget):
+class FloatSliderTextWidget(SliderTextWidget[float]):
     value_changed = pyqtSignal(float)
 
     def __init__(self, minimum: float, maximum: float) -> None:
@@ -94,7 +99,7 @@ class FloatParamWidget(BaseParamWidget):
 
         self._slider = FloatSlider(Qt.Horizontal)
         self._slider.setRange(minimum, maximum)
-        self._slider.valueChanged.connect(self._on_slider_value_changed)
+        self._slider.sliderReleased.connect(self._on_slider_released)
         cols.addWidget(self._slider)
 
         cols.addWidget(QLabel(format(maximum, f".{self._decimals}f")))
@@ -106,16 +111,17 @@ class FloatParamWidget(BaseParamWidget):
         cols.addWidget(self._lineedit)
 
     @override
-    def get(self):
+    def get(self) -> float:
         return self._slider.value()
 
     @override
-    def set(self, value):
+    def set(self, value: float) -> None:
         self._set_slider_value(value)
         self._set_lineedit_text(value)
 
-    @pyqtSlot(float)
-    def _on_slider_value_changed(self, value: float) -> None:
+    @pyqtSlot()
+    def _on_slider_released(self) -> None:
+        value = self._slider.value()
         self._set_lineedit_text(value)
         self.value_changed.emit(value)
 

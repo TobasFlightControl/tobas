@@ -10,6 +10,7 @@ from .position_bar_widget import HPositionBarWidget, VPositionBarWidget
 from .progress_dialog import ProgressDialog
 from .scroll_area import ScrollArea
 from .slider_display import IntSliderDisplay, FloatSliderDisplay
+from .slider_text import IntSliderTextWidget, FloatSliderTextWidget
 from .slider import Slider, FloatSlider
 from .spin_box import SpinBox, DoubleSpinBox
 from .stacked_widget import StackedWidget
