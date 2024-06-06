@@ -133,5 +133,8 @@ class SSHClientWrapper:
     def dir_exists(self, dir_path: str) -> bool:
         return self.exec_command(f"[ -d {dir_path} ]")[0]
 
+    def is_connected(self) -> bool:
+        return self.exec_command("ls")[0]
+
     def _sudo_command(self, command: str) -> str:
         return f"echo {self.LOGIN_PASSWORD} | sudo -S bash -c '{command}'"
