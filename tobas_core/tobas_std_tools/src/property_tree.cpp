@@ -7,7 +7,8 @@ using namespace std;
 
 namespace tobas_std
 {
-PropertyTree::PropertyTree(const string& ini_path) : ini_path_(tobas_std::expandUser(ini_path))
+PropertyTree::PropertyTree(const string& ini_path, const string& section)
+  : ini_path_(tobas_std::expandUser(ini_path)), section_(section)
 {
   if (tobas_std::fileExists(ini_path_))
   {
@@ -33,5 +34,10 @@ void PropertyTree::load()
 void PropertyTree::save()
 {
   boost::property_tree::ini_parser::write_ini(ini_path_, pt_);
+}
+
+string PropertyTree::keyWithSection(const string& key) const
+{
+  return section_ + "." + key;
 }
 }  // namespace tobas_std
