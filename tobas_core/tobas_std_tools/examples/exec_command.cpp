@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
   const char* cmd = "date";
-  const auto res = tobas_std::exec_command(cmd);
+  const auto res = tobas_std::executeCommand(cmd);
   cout << "Command: " << cmd << endl;
   cout << "Result : " << res << endl;
 }

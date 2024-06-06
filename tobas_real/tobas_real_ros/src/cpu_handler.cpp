@@ -33,7 +33,7 @@ bool CpuHandler::getTemperature(double& temp)
 
 bool CpuHandler::getFrequency(uint64_t& freq)
 {
-  auto vcgencmd_out = tobas_std::exec_command("vcgencmd measure_clock arm");
+  auto vcgencmd_out = tobas_std::executeCommand("vcgencmd measure_clock arm");
   vcgencmd_out.pop_back();                                           // 改行コードを削除
   const auto freq_str = tobas_std::split(vcgencmd_out, '=').back();  // 数値部分のみ抜き出す
   freq = stoul(freq_str);                                            // str -> uint64
