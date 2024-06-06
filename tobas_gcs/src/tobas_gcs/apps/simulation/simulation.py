@@ -5,16 +5,17 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 import rospy
+from overrides import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QHBoxLayout
 
-from overrides import override
 from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.drone import Drone
 from tobas_tools_py.package import get_tbs_config_name
 from tobas_tools_py.command import kill_gazebo, build_tobas_package, source_tobas_package
+from tobas_tools_py.util import is_running_under_fc_master
 
 from ...utils.ssh_client import SSHClientWrapper
 from ..base import BaseAppWidget
@@ -30,6 +31,8 @@ class SimulationWidget(BaseAppWidget):
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
         super().__init__(main, drone)
+
+        self._is_running_under_fc_master = is_running_under_fc_master()
 
         self._ssh_client = SSHClientWrapper()
         self._gazebo_process = None
@@ -79,20 +82,23 @@ class SimulationWidget(BaseAppWidget):
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
         tbs_path = self._main.pkg_path()
+        config_pkg_name = get_tbs_config_name(tbs_path)
 
-        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=11)
+        num_steps = 11 if self._is_running_under_fc_master else 8
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=num_steps)
         progress.setCancelButton(None)
         progress.show()
 
         # SSH接続
-        progress.setLabelText("Connecting to the Raspberry Pi.")
-        try:
-            self._ssh_client.connect()
-        except Exception as e:
-            progress.close()
-            q_error(self._main, str(e))
-            return
-        progress.progress_step()
+        if self._is_running_under_fc_master:
+            progress.setLabelText("Connecting to the Raspberry Pi.")
+            try:
+                self._ssh_client.connect()
+            except Exception as e:
+                progress.close()
+                q_error(self._main, str(e))
+                return
+            progress.progress_step()
 
         # Build Tobas packages
         progress.setLabelText("Building Tobas packages.")
@@ -108,14 +114,15 @@ class SimulationWidget(BaseAppWidget):
         progress.progress_step()
 
         # Stop tobas_real.service
-        progress.setLabelText("Stopping tobas_real.service.")
-        command = "systemctl stop tobas_real.service"
-        success, _, error_output = self._ssh_client.exec_command_super(command)
-        if not success:
-            progress.close()
-            q_error(self._main, f"Failed to stop tobas_real.service:\n\n{error_output}")
-            return
-        progress.progress_step()
+        if self._is_running_under_fc_master:
+            progress.setLabelText("Stopping tobas_real.service.")
+            command = "systemctl stop tobas_real.service"
+            success, _, error_output = self._ssh_client.exec_command_super(command)
+            if not success:
+                progress.close()
+                q_error(self._main, f"Failed to stop tobas_real.service:\n\n{error_output}")
+                return
+            progress.progress_step()
 
         # Kill Gazebo
         progress.setLabelText("Killing Gazebo server and client.")
@@ -125,7 +132,7 @@ class SimulationWidget(BaseAppWidget):
         # Launch Gazebo
         # 一度ROSLaunchParent.shutdownを呼ぶと再開できないため，ランチャーを作り直す．
         progress.setLabelText("Launching Gazebo simulation.")
-        self._gazebo_process = launch(get_tbs_config_name(self._main.pkg_name()), "gazebo.launch")
+        self._gazebo_process = launch(config_pkg_name, "gazebo.launch")
         progress.progress_step()
 
         # Initialize wind parameter manager
@@ -146,20 +153,19 @@ class SimulationWidget(BaseAppWidget):
         # ラズパイ側でやると通信遅延が大きすぎるため，飛行制御はPC側で実行する．
         # FIXME: nodeletを有効化すると"Failed to load"エラーが出る
         progress.setLabelText("Launching Tobas flight controller.")
-        self._bringup_process = launch(
-            get_tbs_config_name(self._main.pkg_name()), "bringup.launch", {"nodelet": "false"}
-        )
+        self._bringup_process = launch(config_pkg_name, "bringup.launch", {"nodelet": "false"})
         progress.progress_step()
 
         # Start tobas_hil.service
-        progress.setLabelText("Starting tobas_hil.service.")
-        command = "systemctl restart tobas_hil.service"
-        success, _, error_output = self._ssh_client.exec_command_super(command)
-        if not success:
-            progress.close()
-            q_error(self._main, f"Failed to start tobas_hil.service:\n\n{error_output}")
-            return
-        progress.progress_step()
+        if self._is_running_under_fc_master:
+            progress.setLabelText("Starting tobas_hil.service.")
+            command = "systemctl restart tobas_hil.service"
+            success, _, error_output = self._ssh_client.exec_command_super(command)
+            if not success:
+                progress.close()
+                q_error(self._main, f"Failed to start tobas_hil.service:\n\n{error_output}")
+                return
+            progress.progress_step()
 
         # リロード
         progress.setLabelText("Reloading.")
@@ -175,7 +181,8 @@ class SimulationWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_terminate_button_clicked(self) -> None:
-        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=6)
+        num_steps = 6 if self._is_running_under_fc_master else 4
+        progress = ProgressDialog(parent=self._main, title=self.NAME, num_steps=num_steps)
         progress.setCancelButton(None)
         progress.show()
 
@@ -197,24 +204,26 @@ class SimulationWidget(BaseAppWidget):
         progress.progress_step()
 
         # Stop tobas_hil.service
-        progress.setLabelText("Stopping tobas_hil.service.")
-        command = "systemctl stop tobas_hil.service"
-        success, _, error_output = self._ssh_client.exec_command_super(command)
-        if not success:
-            progress.close()
-            q_error(self._main, f"Failed to stop tobas_hil.service:\n\n{error_output}")
-            return
-        progress.progress_step()
+        if self._is_running_under_fc_master:
+            progress.setLabelText("Stopping tobas_hil.service.")
+            command = "systemctl stop tobas_hil.service"
+            success, _, error_output = self._ssh_client.exec_command_super(command)
+            if not success:
+                progress.close()
+                q_error(self._main, f"Failed to stop tobas_hil.service:\n\n{error_output}")
+                return
+            progress.progress_step()
 
         # Start tobas_real.service
-        progress.setLabelText("Starting tobas_real.service.")
-        command = "systemctl restart tobas_real.service"
-        success, _, error_output = self._ssh_client.exec_command_super(command)
-        if not success:
-            progress.close()
-            q_error(self._main, f"Failed to restart tobas_real.service:\n\n{error_output}")
-            return
-        progress.progress_step()
+        if self._is_running_under_fc_master:
+            progress.setLabelText("Starting tobas_real.service.")
+            command = "systemctl restart tobas_real.service"
+            success, _, error_output = self._ssh_client.exec_command_super(command)
+            if not success:
+                progress.close()
+                q_error(self._main, f"Failed to restart tobas_real.service:\n\n{error_output}")
+                return
+            progress.progress_step()
 
         # リロード
         progress.setLabelText("Reloading.")

@@ -16,9 +16,8 @@ RCIN_MODE = 4  # CH5
 RCIN_ESTOP = 6  # CH7
 RCIN_GPSW = 7  # CH8
 
+ROS_MASTER_URI_FC = "192.168.249.1"
 CONFIG_PATH = osp.expanduser(f"~/.config/tobas/config.ini")
-
 PKG_EXTENSION = ".TBS"
-
 CONTROLLER_NODE_NAME = "controller"
 OBSERVER_NODE_NAME = "observer"
