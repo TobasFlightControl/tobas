@@ -56,7 +56,7 @@ class SimulationWidget(BaseAppWidget):
         button_cols.addStretch()
 
         self._wind_params = WindParametersWidget(main, drone)
-        self._wind_params.setEnabled(True)
+        self._wind_params.setEnabled(False)
         rows.addWidget(self._wind_params)
 
         rows.addStretch()
@@ -128,7 +128,7 @@ class SimulationWidget(BaseAppWidget):
         self._gazebo_process = launch(get_tbs_config_name(self._main.pkg_name()), "gazebo.launch")
         progress.progress_step()
 
-        # Gazeboノードの起動を待つ
+        # Initialize wind parameter manager
         progress.setLabelText("Initializing wind parameter manager.")
         if not self._wind_params.initialize():
             progress.close()
