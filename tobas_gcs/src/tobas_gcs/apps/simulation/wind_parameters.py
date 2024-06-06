@@ -36,8 +36,8 @@ class WindParametersWidget(QWidget):
         self._main = main
         self._drone = drone
 
-        self._get_params_sc = None
-        self._set_params_sc = None
+        self._get_sc = None
+        self._set_sc = None
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -52,31 +52,31 @@ class WindParametersWidget(QWidget):
 
         self._mean_speed = FloatSliderTextWidget(0.0, 20.0)
         self._mean_speed.value_changed.connect(self._on_value_changed)
-        form.addRow(QLabel("Mean Speed"), self._mean_speed)
+        form.addRow(QLabel("Mean Speed [m/s]"), self._mean_speed)
 
         self._direction = FloatSliderTextWidget(-math.pi, math.pi)
         self._direction.value_changed.connect(self._on_value_changed)
-        form.addRow(QLabel("Direction"), self._direction)
+        form.addRow(QLabel("Direction [rad]"), self._direction)
 
         self._gust_speed_factor = FloatSliderTextWidget(0.0, 10.0)
         self._gust_speed_factor.value_changed.connect(self._on_value_changed)
-        form.addRow(QLabel("Gust Speed Factor"), self._gust_speed_factor)
+        form.addRow(QLabel("Gust Speed Factor [-]"), self._gust_speed_factor)
 
         self._gust_duration = FloatSliderTextWidget(0.0, 10.0)
         self._gust_duration.value_changed.connect(self._on_value_changed)
-        form.addRow(QLabel("Gust Duration"), self._gust_duration)
+        form.addRow(QLabel("Gust Duration [s]"), self._gust_duration)
 
         self._gust_interval = FloatSliderTextWidget(0.0, 30.0)
         self._gust_interval.value_changed.connect(self._on_value_changed)
-        form.addRow(QLabel("Gust Interval"), self._gust_interval)
+        form.addRow(QLabel("Gust Interval [s]"), self._gust_interval)
 
     def initialize(self) -> bool:
-        self._get_params_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/gazebo/get_wind_parameters", GetWindParameters)
-        self._set_params_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/gazebo/set_wind_parameters", SetWindParameters)
+        self._get_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/gazebo/get_wind_parameters", GetWindParameters)
+        self._set_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/gazebo/set_wind_parameters", SetWindParameters)
 
         try:
-            self._get_params_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
-            self._set_params_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
+            self._get_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
+            self._set_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
         except rospy.ROSException:
             q_error(self._main, "Failed to connect to Gazebo wind server.")
             return False
@@ -95,14 +95,14 @@ class WindParametersWidget(QWidget):
         set_params_req.params.gust_duration = self._gust_duration.get()
         set_params_req.params.gust_interval = self._gust_interval.get()
 
-        set_params_res: SetWindParametersResponse = self._set_params_sc.call(set_params_req)
+        set_params_res: SetWindParametersResponse = self._set_sc.call(set_params_req)
         if not set_params_res.success:
             q_error(self._main, "Failed to set wind parameters.")
             self._load_current_params()
             return
 
     def _load_current_params(self) -> None:
-        get_params_res: GetWindParametersResponse = self._get_params_sc.call(GetWindParametersRequest())
+        get_params_res: GetWindParametersResponse = self._get_sc.call(GetWindParametersRequest())
         cur_params = get_params_res.params
 
         self._mean_speed.set(cur_params.mean_speed)

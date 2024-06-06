@@ -1,7 +1,7 @@
 import math
 from abc import abstractmethod
 from overrides import override
-from typing import Type, TypeVar, Generic
+from typing import TypeVar, Generic
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
