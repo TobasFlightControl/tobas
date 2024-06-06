@@ -8,7 +8,6 @@ from PyQt5.QtGui import QIntValidator, QDoubleValidator
 
 from .slider import Slider, FloatSlider
 
-
 T = TypeVar("T")
 
 
@@ -129,6 +128,7 @@ class FloatSliderTextWidget(SliderTextWidget[float]):
     def _on_lineedit_return_pressed(self) -> None:
         value = float(self._lineedit.text())
         self._set_slider_value(value)
+        self._set_lineedit_text(value)  # フォーマットを整える
         self.value_changed.emit(value)
 
     def _set_slider_value(self, value: float) -> None:
