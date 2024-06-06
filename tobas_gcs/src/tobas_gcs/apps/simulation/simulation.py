@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
-import os
 import rospy
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QHBoxLayout
@@ -14,11 +13,12 @@ from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.drone import Drone
-from tobas_tools_py.package import get_tbs_config_name, get_tbs_config_path, get_tbs_user_path
+from tobas_tools_py.package import get_tbs_config_name
 from tobas_tools_py.command import kill_gazebo, build_tobas_package, source_tobas_package
 
 from ...utils.ssh_client import SSHClientWrapper
 from ..base import BaseAppWidget
+from .wind_parameters import WindParametersWidget
 
 
 class SimulationWidget(BaseAppWidget):
@@ -26,7 +26,6 @@ class SimulationWidget(BaseAppWidget):
 
     BUTTON_WIDTH = 100
     BUTTON_HEIGHT = 40
-    WAIT_FOR_GAZEBO_SERVICE = 30.0  # [s]
     WAIT_GAZEBO_TO_OPEN = 3.0  # [s]
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
@@ -39,23 +38,26 @@ class SimulationWidget(BaseAppWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        cols = QHBoxLayout()
-        rows.addLayout(cols)
+        button_cols = QHBoxLayout()
+        rows.addLayout(button_cols)
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._start_button.setEnabled(True)
         self._start_button.clicked.connect(self._on_start_button_clicked)
-        cols.addWidget(self._start_button)
+        button_cols.addWidget(self._start_button)
 
         self._terminate_button = QPushButton("Terminate")
         self._terminate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._terminate_button.setEnabled(False)
         self._terminate_button.clicked.connect(self._on_terminate_button_clicked)
-        cols.addWidget(self._terminate_button)
+        button_cols.addWidget(self._terminate_button)
 
-        cols.addStretch()
+        button_cols.addStretch()
 
-        # TODO: Wind Parameters
+        self._wind_params = WindParametersWidget(main, drone)
+        self._wind_params.setEnabled(True)
+        rows.addWidget(self._wind_params)
 
         rows.addStretch()
 
@@ -127,12 +129,9 @@ class SimulationWidget(BaseAppWidget):
         progress.progress_step()
 
         # Gazeboノードの起動を待つ
-        progress.setLabelText("Waiting for Gazebo server to be ready.")
-        try:
-            rospy.wait_for_service("/gazebo/get_world_properties", rospy.Duration(self.WAIT_FOR_GAZEBO_SERVICE))
-        except rospy.ROSException:
+        progress.setLabelText("Initializing wind parameter manager.")
+        if not self._wind_params.initialize():
             progress.close()
-            q_error(self._main, "Failed to connect to Gazebo server.")
             # TODO: Gazeboを落とし，tobas_real.serviceを再起動
             return
         progress.progress_step()
@@ -169,6 +168,7 @@ class SimulationWidget(BaseAppWidget):
 
         self._start_button.setEnabled(False)
         self._terminate_button.setEnabled(True)
+        self._wind_params.setEnabled(True)
 
         progress.close()
         q_info(self._main, "Gazebo simulation is started.")
@@ -223,6 +223,7 @@ class SimulationWidget(BaseAppWidget):
 
         self._start_button.setEnabled(True)
         self._terminate_button.setEnabled(False)
+        self._wind_params.setEnabled(False)
 
         progress.close()
         q_info(self._main, "Gazebo simulation is terminated.")
