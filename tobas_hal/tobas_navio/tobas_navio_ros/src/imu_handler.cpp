@@ -17,8 +17,7 @@ namespace tobas_navio_ros
 {
 ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  if (!reloadConfig())
-    TOBAS_EXIT("Failed to load configurations.");
+  reloadConfig();
 
   imu_.initialize();
   if (!imu_.probe())
@@ -39,26 +38,91 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 bool ImuHandler::reloadConfig()
 {
+  // 設定が取得できなかった場合でも最低限初期化しないとまずいため，途中でリターンせず返り値を保持しておく．
   tobas_std::PropertyTree pt(kConfigPath);
 
-  pt.get(kConfigKey_AccNoiseDensity, acc_noise_density_, kDefaultAccNoiseDensity);
-  pt.get(kConfigKey_GyroNoiseDensity, gyro_noise_density_, kDefaultGyroNoiseDensity);
-  pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_, kDefaultMagNoiseDensity);
+  bool res = true;
 
-  pt.get(kConfigKey_AccOffsetX, acc_bias_.x(), 0.0f);
-  pt.get(kConfigKey_AccOffsetY, acc_bias_.y(), 0.0f);
-  pt.get(kConfigKey_AccOffsetZ, acc_bias_.z(), 0.0f);
-
-  pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.);
-  pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.);
-  pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.);
-  pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.);
-  pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.);
-  pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.);
-  pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.);
-  pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.);
-  pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.);
-  pt.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.);
+  if (!pt.get(kConfigKey_AccNoiseDensity, acc_noise_density_, kDefaultAccNoiseDensity))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_AccNoiseDensity, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_GyroNoiseDensity, gyro_noise_density_, kDefaultGyroNoiseDensity))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_GyroNoiseDensity, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_, kDefaultMagNoiseDensity))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagNoiseDensity, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_AccOffsetX, acc_bias_.x(), 0.0f))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetX, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_AccOffsetY, acc_bias_.y(), 0.0f))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetY, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_AccOffsetZ, acc_bias_.z(), 0.0f))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetZ, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxx, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyy, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzz, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxy, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyz, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzx, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBx, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBy, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBz, ".");
+    res = false;
+  }
+  if (!pt.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseC, ".");
+    res = false;
+  }
 
   acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
   gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
@@ -67,10 +131,10 @@ bool ImuHandler::reloadConfig()
   if (!mag_trans_.initialize())
   {
     TOBAS_ERROR("Failed to initialize ellipse transformer.");
-    return false;
+    res = false;
   }
 
-  return true;
+  return res;
 }
 
 bool ImuHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)

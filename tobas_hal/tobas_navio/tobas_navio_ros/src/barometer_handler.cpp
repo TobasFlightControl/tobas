@@ -16,8 +16,7 @@ namespace tobas_navio_ros
 BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  if (!reloadConfig())
-    TOBAS_EXIT("Failed to load configurations.");
+  reloadConfig();
 
   barometer_.initialize();
   if (!barometer_.testConnection())
@@ -32,7 +31,12 @@ BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHan
 bool BarometerHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
-  pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_, kDefaultPressureNoiseDensity);
+
+  if (!pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_, kDefaultPressureNoiseDensity))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_PressureNoiseDensity, ".");
+    return false;
+  }
 
   return true;
 }

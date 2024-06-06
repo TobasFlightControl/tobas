@@ -20,6 +20,9 @@ public:
   T get(const std::string& key) const;
 
   template <typename T>
+  T get(const std::string& key, const T& _default) const;
+
+  template <typename T>
   bool get(const std::string& key, T& value, const T& _default) const;
 
   template <typename T>
@@ -41,18 +44,26 @@ T PropertyTree::get(const std::string& key) const
 }
 
 template <typename T>
+T PropertyTree::get(const std::string& key, const T& _default) const
+{
+  const auto optional = pt_.get_optional<T>(key);
+  return optional ? optional.get() : _default;
+}
+
+template <typename T>
 bool PropertyTree::get(const std::string& key, T& value, const T& _default) const
 {
   const auto optional = pt_.get_optional<T>(key);
-  if (!optional)
+  if (optional)
+  {
+    value = optional.get();
+    return true;
+  }
+  else
   {
     value = _default;
-    PRINT_WARN("Failed to get '" << key << "'. The default '" << _default << "' is used.");
     return false;
   }
-
-  value = optional.get();
-  return true;
 }
 
 template <typename T>

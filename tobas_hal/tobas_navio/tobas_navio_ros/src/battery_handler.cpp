@@ -12,8 +12,7 @@ namespace tobas_navio_ros
 BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  if (!reloadConfig())
-    TOBAS_EXIT("Failed to load configuratins.");
+  reloadConfig();
 
   if (adc_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize ADC driver.");
@@ -27,7 +26,12 @@ BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
 bool BatteryHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
-  pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef);
+
+  if (!pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_AdcCoef, ".");
+    return false;
+  }
 
   return true;
 }

@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 
 #include "../include/tobas_std_tools/file.hpp"
 
@@ -12,20 +11,6 @@ bool fileExists(const string& file_path)
 {
   const ifstream ifile(file_path);
   return ifile.good();
-}
-
-string expandPath(const string& path)
-{
-  if (path.size() > 0 && path[0] == '~')
-  {
-    const auto home_dir = getenv("HOME");
-    if (home_dir != nullptr)
-      return string(home_dir) + path.substr(1);
-    else
-      cerr << "HOME environment variable not set." << endl;
-  }
-
-  return path;
 }
 
 bool createFilePath(const string& file_path)

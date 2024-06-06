@@ -14,8 +14,7 @@ namespace tobas_navio_ros
 RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
-  if (!reloadConfig())
-    TOBAS_EXIT("Failed to load configurations.");
+  reloadConfig();
 
   if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
     TOBAS_EXIT("Failed to initialize RC input driver.");
@@ -29,27 +28,87 @@ bool RCInputHandler::reloadConfig()
 {
   tobas_std::PropertyTree pt(kConfigPath);
 
-  pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin);
-  pt.get(kConfigKey_RcRollRight, roll_range_.upper, tobas_navio_ros::kPwmMax);
+  if (!pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcRollLeft, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcRollRight, roll_range_.upper, tobas_navio_ros::kPwmMax))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcRollRight, ".");
+    return false;
+  }
 
-  pt.get(kConfigKey_RcPitchDown, pitch_range_.lower, tobas_navio_ros::kPwmMax);
-  pt.get(kConfigKey_RcPitchUp, pitch_range_.upper, tobas_navio_ros::kPwmMin);
+  if (!pt.get(kConfigKey_RcPitchDown, pitch_range_.lower, tobas_navio_ros::kPwmMax))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcPitchDown, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcPitchUp, pitch_range_.upper, tobas_navio_ros::kPwmMin))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcPitchUp, ".");
+    return false;
+  }
 
-  pt.get(kConfigKey_RcYawRight, yaw_range_.lower, tobas_navio_ros::kPwmMax);
-  pt.get(kConfigKey_RcYawLeft, yaw_range_.upper, tobas_navio_ros::kPwmMin);
+  if (!pt.get(kConfigKey_RcYawRight, yaw_range_.lower, tobas_navio_ros::kPwmMax))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcYawRight, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcYawLeft, yaw_range_.upper, tobas_navio_ros::kPwmMin))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcYawLeft, ".");
+    return false;
+  }
 
-  pt.get(kConfigKey_RcThrottleDown, throttle_range_.lower, tobas_navio_ros::kPwmMax);
-  pt.get(kConfigKey_RcThrottleUp, throttle_range_.upper, tobas_navio_ros::kPwmMin);
+  if (!pt.get(kConfigKey_RcThrottleDown, throttle_range_.lower, tobas_navio_ros::kPwmMax))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcThrottleDown, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcThrottleUp, throttle_range_.upper, tobas_navio_ros::kPwmMin))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcThrottleUp, ".");
+    return false;
+  }
 
-  pt.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram], tobas_navio_ros::kPwmMin);
-  pt.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize], tobas_navio_ros::kPwmMid);
-  pt.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat], tobas_navio_ros::kPwmMax);
+  if (!pt.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram], tobas_navio_ros::kPwmMin))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcModeProgram, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize], tobas_navio_ros::kPwmMid))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcModeStabilize, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat], tobas_navio_ros::kPwmMax))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcModeAcrobat, ".");
+    return false;
+  }
 
-  pt.get(kConfigKey_RcEStopOn, estop_on_, tobas_navio_ros::kPwmMin);
-  pt.get(kConfigKey_RcEStopOff, estop_off_, tobas_navio_ros::kPwmMax);
+  if (!pt.get(kConfigKey_RcEStopOn, estop_on_, tobas_navio_ros::kPwmMin))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcEStopOn, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcEStopOff, estop_off_, tobas_navio_ros::kPwmMax))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcEStopOff, ".");
+    return false;
+  }
 
-  pt.get(kConfigKey_RcGPSwOn, gpsw_on_, tobas_navio_ros::kPwmMin);
-  pt.get(kConfigKey_RcGPSwOff, gpsw_off_, tobas_navio_ros::kPwmMax);
+  if (!pt.get(kConfigKey_RcGPSwOn, gpsw_on_, tobas_navio_ros::kPwmMin))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcGPSwOn, ".");
+    return false;
+  }
+  if (!pt.get(kConfigKey_RcGPSwOff, gpsw_off_, tobas_navio_ros::kPwmMax))
+  {
+    TOBAS_ERROR("Failed to get ", kConfigKey_RcGPSwOff, ".");
+    return false;
+  }
 
   return true;
 }
