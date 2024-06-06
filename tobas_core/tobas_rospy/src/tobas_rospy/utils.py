@@ -2,13 +2,11 @@ import os
 import os.path as osp
 import rospy
 import inspect
-from urllib.parse import urlparse
 from argparse import ArgumentParser
 
 
-def get_ros_master_ip() -> str:
-    ros_master_uri = os.environ.get("ROS_MASTER_URI")
-    return urlparse(ros_master_uri).hostname
+def get_ros_ip() -> str:
+    return os.environ.get("ROS_IP")
 
 
 def get_log_level() -> int:
