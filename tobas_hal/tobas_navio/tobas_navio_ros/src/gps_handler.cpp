@@ -46,10 +46,8 @@ void GpsHandler::configureGnssReceiver()
       break;
     case navio::Ublox::E_NOT_ACKNOWLEDGED:
       TOBAS_EXIT("The GPS configuration was denied.");
-      break;
     case navio::Ublox::E_COMMUNICATION_TIMEOUT:
       TOBAS_EXIT("Failed to communicate with the GNSS receiver in the GPS configuration.");
-      break;
     default:
       throw runtime_error("Unknown error code.");
   }
@@ -59,10 +57,8 @@ void GpsHandler::configureGnssReceiver()
       break;
     case navio::Ublox::E_NOT_ACKNOWLEDGED:
       TOBAS_EXIT("The SBAS configuration was denied.");
-      break;
     case navio::Ublox::E_COMMUNICATION_TIMEOUT:
       TOBAS_EXIT("Failed to communicate with the GNSS receiver in the SBAS configuration.");
-      break;
     default:
       throw runtime_error("Unknown error code.");
   }
@@ -72,10 +68,8 @@ void GpsHandler::configureGnssReceiver()
       break;
     case navio::Ublox::E_NOT_ACKNOWLEDGED:
       TOBAS_EXIT("The Galileo configuration was denied.");
-      break;
     case navio::Ublox::E_COMMUNICATION_TIMEOUT:
       TOBAS_EXIT("Failed to communicate with the GNSS receiver in the Galileo configuration.");
-      break;
     default:
       throw runtime_error("Unknown error code.");
   }
@@ -85,10 +79,8 @@ void GpsHandler::configureGnssReceiver()
       break;
     case navio::Ublox::E_NOT_ACKNOWLEDGED:
       TOBAS_EXIT("The BeiDou configuration was denied.");
-      break;
     case navio::Ublox::E_COMMUNICATION_TIMEOUT:
       TOBAS_EXIT("Failed to communicate with the GNSS receiver in the BeiDou configuration.");
-      break;
     default:
       throw runtime_error("Unknown error code.");
   }
@@ -98,10 +90,8 @@ void GpsHandler::configureGnssReceiver()
       break;
     case navio::Ublox::E_NOT_ACKNOWLEDGED:
       TOBAS_EXIT("The QZSS configuration was denied.");
-      break;
     case navio::Ublox::E_COMMUNICATION_TIMEOUT:
       TOBAS_EXIT("Failed to communicate with the GNSS receiver in the QZSS configuration.");
-      break;
     default:
       throw runtime_error("Unknown error code.");
   }
@@ -111,10 +101,8 @@ void GpsHandler::configureGnssReceiver()
       break;
     case navio::Ublox::E_NOT_ACKNOWLEDGED:
       TOBAS_EXIT("The GLONASS configuration was denied.");
-      break;
     case navio::Ublox::E_COMMUNICATION_TIMEOUT:
       TOBAS_EXIT("Failed to communicate with the GNSS receiver in the GLONASS configuration.");
-      break;
     default:
       throw runtime_error("Unknown error code.");
   }

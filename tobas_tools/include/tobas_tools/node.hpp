@@ -6,7 +6,12 @@
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_msgs/Message.h>
 
-#define TOBAS_EXIT(...) exit(__VA_ARGS__)
+#define TOBAS_EXIT(...)                                                                                                \
+  {                                                                                                                    \
+    fatal(__VA_ARGS__);                                                                                                \
+    nh_.shutdown();                                                                                                    \
+    return;                                                                                                            \
+  }
 
 #define TOBAS_DEBUG(...) debug(__VA_ARGS__)
 #define TOBAS_INFO(...) info(__VA_ARGS__)
@@ -45,9 +50,6 @@ protected:
   void logOnce(const char* file, int line, uint8_t level, const Args&... args);
   template <typename... Args>
   void logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args);
-
-  template <typename... Args>
-  void exit(const Args&... args);
 
   template <typename... Args>
   inline void debug(const Args&... args) const;
@@ -152,13 +154,6 @@ void BaseNode::logThrottle(const char* file, int line, uint8_t level, double per
       it->second = now;
     }
   }
-}
-
-template <typename... Args>
-void BaseNode::exit(const Args&... args)
-{
-  fatal(args...);
-  nh_.shutdown();
 }
 
 template <typename... Args>
