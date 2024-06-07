@@ -16,7 +16,7 @@ static constexpr uint32_t kPreambleOffset = 2;
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
 static constexpr uint32_t kConfigureMessageSize = 11;
 static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
-static constexpr double kWaitForGnssAck = 1.;  // [s]
+static constexpr double kWaitForGnssAck = 3.;  // [s]
 
 // SPIで1バイト受け取る間隔 [us]
 // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる
@@ -120,6 +120,14 @@ private:
   };
 
 public:
+  // Error Code
+  enum error_t : int8_t
+  {
+    E_NO_ERROR = 0,
+    E_NOT_ACKNOWLEDGED = -1,
+    E_MESSAGE_NOT_RECEIVED = -2,
+  };
+
   // Class + ID
   enum message_t : uint16_t
   {
@@ -205,12 +213,12 @@ public:
   bool configurePowerMode(power_setup_value mode, uint16_t period = 0, uint16_t on_time = 0);
 
   /* 32.10.13.1 GNSS system configuration */
-  bool configureGnss_GPS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
-  bool configureGnss_SBAS(bool enable, uint8_t res_track_ch = 1, uint8_t max_track_ch = 3);
-  bool configureGnss_Galileo(bool enable, uint8_t res_track_ch = 4, uint8_t max_track_ch = 8);
-  bool configureGnss_BeiDou(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
-  bool configureGnss_QZSS(bool enable, uint8_t res_track_ch = 0, uint8_t max_track_ch = 3);
-  bool configureGnss_GLONASS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 14);
+  error_t configureGnss_GPS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
+  error_t configureGnss_SBAS(bool enable, uint8_t res_track_ch = 1, uint8_t max_track_ch = 3);
+  error_t configureGnss_Galileo(bool enable, uint8_t res_track_ch = 4, uint8_t max_track_ch = 8);
+  error_t configureGnss_BeiDou(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
+  error_t configureGnss_QZSS(bool enable, uint8_t res_track_ch = 0, uint8_t max_track_ch = 3);
+  error_t configureGnss_GLONASS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 14);
 
   uint16_t update();
 
@@ -324,8 +332,8 @@ private:
   /* p.171, 32.4 UBX Checksum. */
   CheckSum calculateCheckSum(uint8_t* message, size_t size) const;
 
-  bool configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
-  bool waitForAcknowledge(uint8_t cls, uint8_t id);
+  error_t configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
+  error_t waitForAcknowledge(uint8_t cls, uint8_t id);
 };
 
 inline uint8_t* UBXScanner::getMessage()
