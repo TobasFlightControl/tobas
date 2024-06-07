@@ -512,6 +512,6 @@ Ublox::error_t Ublox::waitForAcknowledge(uint8_t cls, uint8_t id)
     }
   }
 
-  return E_MESSAGE_NOT_RECEIVED;
+  return E_COMMUNICATION_TIMEOUT;
 }
 }  // namespace navio

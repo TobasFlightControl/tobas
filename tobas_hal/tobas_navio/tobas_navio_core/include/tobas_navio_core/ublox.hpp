@@ -125,7 +125,7 @@ public:
   {
     E_NO_ERROR = 0,
     E_NOT_ACKNOWLEDGED = -1,
-    E_MESSAGE_NOT_RECEIVED = -2,
+    E_COMMUNICATION_TIMEOUT = -2,
   };
 
   // Class + ID
