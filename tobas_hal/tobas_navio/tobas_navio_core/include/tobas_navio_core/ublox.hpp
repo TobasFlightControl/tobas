@@ -11,12 +11,21 @@
 
 namespace navio
 {
-static constexpr uint32_t kUbxBufferLength = 1024;
-static constexpr uint32_t kPreambleOffset = 2;
+static constexpr size_t kUbxSyncLength = 2;
+static constexpr size_t kUbxClassLength = 1;
+static constexpr size_t kUbxIdLength = 1;
+static constexpr size_t kUbxLengthLength = 2;
+static constexpr size_t kUbxChecksumLength = 2;
+static constexpr size_t kUbxHeaderLength = kUbxSyncLength + kUbxClassLength + kUbxIdLength + kUbxLengthLength;
+static constexpr size_t kUbxFixedLength = kUbxHeaderLength + kUbxChecksumLength;
+
+static constexpr uint8_t kUbxSync1 = 0xb5;
+static constexpr uint8_t kUbxSync2 = 0x62;
+static constexpr size_t kMinMaxTrkChForMajorGnss = 4;
+
+static constexpr size_t kUbxBufferLength = 1024;
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
-static constexpr uint32_t kConfigureMessageSize = 11;
-static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
-static constexpr double kWaitForGnssAck = 3.;  // [s]
+static constexpr double kWaitForGnssAck = 3.;     // [s]
 
 // SPIで1バイト受け取る間隔 [us]
 // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる
@@ -46,17 +55,17 @@ public:
   explicit UBXScanner();
 
   inline uint8_t* getMessage();
-  inline const uint32_t& getMessageLength() const;
-  inline const uint32_t& getPosition() const;
+  inline const size_t& getMessageLength() const;
+  inline const size_t& getPosition() const;
 
   void reset();
   int update(const uint8_t& data);
 
 private:
   uint8_t message_[kUbxBufferLength];  // Buffer for UBX message
-  uint32_t message_length_;            // Length of the received message
-  uint32_t position_;                  // Indicates current buffer offset
-  uint32_t payload_length_;            // Length of current message payload
+  size_t message_length_;              // Length of the received message
+  size_t payload_length_;              // Length of current message payload
+  size_t position_;                    // Indicates current buffer offset
   State state_;                        // Current scanner state
 };
 
@@ -68,8 +77,8 @@ public:
   uint16_t calcId();
 
   inline uint8_t* getMessage() const;
-  inline const uint32_t& getLength() const;
-  inline const uint32_t& getPosition() const;
+  inline const size_t& getLength() const;
+  inline const size_t& getPosition() const;
   inline const uint16_t& getLatestMsg() const;
 
 private:
@@ -89,8 +98,6 @@ class Ublox
 private:
   enum ubx_protocol_bytes : uint8_t
   {
-    PREAMBLE1 = 0xb5,
-    PREAMBLE2 = 0x62,
 
     CLASS_NAV = 0x01,
     CLASS_ACK = 0x05,
@@ -238,10 +245,10 @@ public:
 private:
   struct PACKED UbxHeader
   {
-    uint8_t preamble1;
-    uint8_t preamble2;
-    uint8_t msg_class;
-    uint8_t msg_id;
+    uint8_t sync1;
+    uint8_t sync2;
+    uint8_t cls;
+    uint8_t id;
     uint16_t length;
   };
 
@@ -331,14 +338,14 @@ private:
   tobas_std::Rate rate_;
   tobas_std::Stopwatch stopwatch_;
 
-  void sendMessage(uint8_t msg_class, uint8_t msg_id, void* msg, uint16_t size);
+  void sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size);
   void waitForAcknowledge(uint8_t cls, uint8_t id);
   void configure(uint8_t cfg_id, void* msg, uint16_t size);
 
   void configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
 
   /* p.171, 32.4 UBX Checksum. */
-  static CheckSum calculateCheckSum(uint8_t* message, size_t size);
+  static CheckSum calculateCheckSum(uint8_t* message, size_t checksum_pos);
   static int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
 };
 
@@ -347,12 +354,12 @@ inline uint8_t* UBXScanner::getMessage()
   return message_;
 }
 
-inline const uint32_t& UBXScanner::getMessageLength() const
+inline const size_t& UBXScanner::getMessageLength() const
 {
   return message_length_;
 }
 
-inline const uint32_t& UBXScanner::getPosition() const
+inline const size_t& UBXScanner::getPosition() const
 {
   return position_;
 }
@@ -362,12 +369,12 @@ inline uint8_t* UBXParser::getMessage() const
   return message_;
 }
 
-inline const uint32_t& UBXParser::getLength() const
+inline const size_t& UBXParser::getLength() const
 {
   return scanner_.getMessageLength();
 }
 
-inline const uint32_t& UBXParser::getPosition() const
+inline const size_t& UBXParser::getPosition() const
 {
   return scanner_.getPosition();
 }

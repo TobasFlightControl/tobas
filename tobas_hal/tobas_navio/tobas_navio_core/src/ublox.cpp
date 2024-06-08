@@ -22,7 +22,6 @@ UBXScanner::UBXScanner()
 
 void UBXScanner::reset()
 {
-  message_length_ = 0;
   position_ = 0;
   state_ = Sync1;
 }
@@ -35,16 +34,16 @@ int UBXScanner::update(const uint8_t& data)
   switch (state_)
   {
     case Sync1:
-      if (data == 0xb5)
+      if (data == kUbxSync1)
         state_ = Sync2;
       else
         reset();
       break;
 
     case Sync2:
-      if (data == 0x62)
+      if (data == kUbxSync2)
         state_ = Class;
-      else if (data == 0xb5)
+      else if (data == kUbxSync1)
         state_ = Sync1;
       else
         reset();
@@ -65,14 +64,15 @@ int UBXScanner::update(const uint8_t& data)
 
     case Length2:
       payload_length_ += data << 8;
+      message_length_ = kUbxHeaderLength + payload_length_ + kUbxChecksumLength;
+      if (message_length_ > kUbxBufferLength)
+        throw runtime_error("The size of payload is too large.");
       state_ = Payload;
       break;
 
     case Payload:
-      if (position_ == payload_length_ + 6)
+      if (position_ == kUbxHeaderLength + payload_length_)
         state_ = CK_A;
-      if (position_ >= 1022)
-        reset();
       break;
 
     case CK_A:
@@ -80,7 +80,6 @@ int UBXScanner::update(const uint8_t& data)
       break;
 
     case CK_B:
-      message_length_ = 6 + payload_length_ + 2;
       state_ = Done;
       break;
 
@@ -88,7 +87,7 @@ int UBXScanner::update(const uint8_t& data)
       break;
 
     default:
-      break;
+      throw;
   }
 
   return state_;
@@ -100,18 +99,21 @@ UBXParser::UBXParser(UBXScanner& ubxsc) : scanner_(ubxsc), message_(ubxsc.getMes
 
 uint16_t UBXParser::calcId()
 {
-  const auto& position = scanner_.getPosition();
   const auto& length = scanner_.getMessageLength();
-  const auto pos = position - length;  // count the message start position
+  const auto& position = scanner_.getPosition();
+  assert(kUbxFixedLength <= length && length <= position);
+
+  // Count the message start position
+  const auto pos = position - length;
   const auto s = message_ + pos;
 
-  // All UBX messages start with 2 sync chars: 0xb5 and 0x62
-  if (*s != 0xb5 || *(s + 1) != 0x62)
+  // All UBX messages start with 2 sync chars
+  if (*s != kUbxSync1 || *(s + 1) != kUbxSync2)
     throw runtime_error("The current message is not UBX format.");
 
   // Count the checksum
   uint8_t CK_A = 0, CK_B = 0;
-  for (uint32_t i = 2; i + 2 < length; ++i)  // 符号なしの引き算はオーバーフローのリスクがある
+  for (size_t i = kUbxSyncLength; i < length - kUbxChecksumLength; ++i)
   {
     CK_A += *(s + i);
     CK_B += CK_A;
@@ -451,24 +453,24 @@ void Ublox::decode(MonHw2Payload&) const
   throw;  // TODO
 }
 
-void Ublox::sendMessage(uint8_t msg_class, uint8_t msg_id, void* msg, uint16_t size)
+void Ublox::sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size)
 {
   uint8_t buffer[kUbxBufferLength];
 
   UbxHeader header;
-  header.preamble1 = PREAMBLE1;
-  header.preamble2 = PREAMBLE2;
-  header.msg_class = msg_class;
-  header.msg_id = msg_id;
+  header.sync1 = kUbxSync1;
+  header.sync2 = kUbxSync2;
+  header.cls = cls;
+  header.id = id;
   header.length = size;
 
-  auto offset = spliceMemory(buffer, &header, sizeof(UbxHeader));
-  offset = spliceMemory(buffer, msg, size, offset);
+  const auto payload_pos = spliceMemory(buffer, &header, sizeof(UbxHeader));
+  const auto checksum_pos = spliceMemory(buffer, msg, size, payload_pos);
 
-  auto checksum = calculateCheckSum(buffer, offset);
-  offset = spliceMemory(buffer, &checksum, sizeof(CheckSum), offset);
+  const auto checksum = calculateCheckSum(buffer, checksum_pos);
+  const auto message_length = spliceMemory(buffer, &checksum, sizeof(CheckSum), checksum_pos);
 
-  if (!spi_dev_.transfer(buffer, nullptr, offset))
+  if (!spi_dev_.transfer(buffer, nullptr, message_length))
     throw runtime_error("Failed to send SPI message.");
 }
 
@@ -530,12 +532,12 @@ void Ublox::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_tra
   configure(ID_CFG_GNSS, &cfg_gnss, sizeof(CfgGnss));
 }
 
-Ublox::CheckSum Ublox::calculateCheckSum(uint8_t* message, size_t size)
+Ublox::CheckSum Ublox::calculateCheckSum(uint8_t* message, size_t checksum_pos)
 {
   CheckSum checksum;
   checksum.CK_A = checksum.CK_B = 0;
 
-  for (size_t i = kPreambleOffset; i < size; ++i)
+  for (size_t i = kUbxSyncLength; i < checksum_pos; ++i)
   {
     checksum.CK_A += message[i];
     checksum.CK_B += checksum.CK_A;
