@@ -29,7 +29,7 @@ void UBXScanner::reset()
 int UBXScanner::update(const uint8_t& data)
 {
   if (state_ != Done)
-    message_[position_++] = data;
+    buffer_[position_++] = data;
 
   switch (state_)
   {
@@ -93,40 +93,7 @@ int UBXScanner::update(const uint8_t& data)
   return state_;
 }
 
-UBXParser::UBXParser(UBXScanner& ubxsc) : scanner_(ubxsc), message_(ubxsc.getMessage())
-{
-}
-
-uint16_t UBXParser::calcId()
-{
-  const auto& length = scanner_.getMessageLength();
-  const auto& position = scanner_.getPosition();
-  assert(kUbxFixedLength <= length && length <= position);
-
-  // Count the message start position
-  const auto pos = position - length;
-  const auto s = message_ + pos;
-
-  // All UBX messages start with 2 sync chars
-  if (*s != kUbxSync1 || *(s + 1) != kUbxSync2)
-    throw runtime_error("The current message is not UBX format.");
-
-  // Count the checksum
-  uint8_t CK_A = 0, CK_B = 0;
-  for (size_t i = kUbxSyncLength; i < length - kUbxChecksumLength; ++i)
-  {
-    CK_A += *(s + i);
-    CK_B += CK_A;
-  }
-  if (CK_A != *(s + length - 2) || CK_B != *(s + length - 1))
-    throw runtime_error("Checksum failed.");
-
-  // If we got everything right, then it's time to decide, what type of message this is
-  // ID is a two-byte number with little endianness
-  return latest_id_ = (*(s + 2)) << 8 | (*(s + 3));
-}
-
-Ublox::Ublox() : spi_dev_(GPS_DEVICE, kSpiSpeedHz), parser_(scanner_), rate_(chrono::microseconds(kSpiInterval))
+Ublox::Ublox() : spi_dev_(GPS_DEVICE, kSpiSpeedHz), rate_(chrono::microseconds(kSpiInterval))
 {
 }
 
@@ -258,55 +225,55 @@ void Ublox::configureGnss_GLONASS(bool enable, uint8_t res_track_ch, uint8_t max
 uint16_t Ublox::update()
 {
   int status = -1;
-  uint8_t to_gps_data = 0, from_gps_data = 0;
+  scanner_.reset();
 
+  // メッセージを1つスキャン
   rate_.start();
   while (status != UBXScanner::Done)
   {
     // From now on, we will send zeroes to the receiver, which it will ignore
     // However, we are simultaneously getting useful information from it
     // stopwatch_.start();
-    spi_dev_.transfer(&to_gps_data, &from_gps_data, 1);
+    spi_dev_.transfer(&tx_, &rx_, 1);
     // stopwatch_.stop();
 
     // Scanner checks the message structure with every byte received
     // ほとんど無意味な情報だが，スタックされていくためスリープせず全て読み出す必要がある
-    status = scanner_.update(from_gps_data);
+    status = scanner_.update(rx_);
 
     // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
     rate_.sleep();
   }
 
-  scanner_.reset();
-  return parser_.calcId();
+  verifyMessage();
+
+  // 取得したメッセージのID (Class + ID) を返す
+  const auto m = scanner_.getMessage();
+  return latest_msg_ = (*(m + 2)) << 8 | (*(m + 3));
 }
 
 void Ublox::decode(NavPosllhPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::NAV_POSLLH)
+  if (latest_msg_ != Ublox::NAV_POSLLH)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.lon = int((*(s + 13) << 24) | (*(s + 12) << 16) | (*(s + 11) << 8) | (*(s + 10))) * 1e-7;
-  data.lat = int((*(s + 17) << 24) | (*(s + 16) << 16) | (*(s + 15) << 8) | (*(s + 14))) * 1e-7;
-  data.hMSL = int((*(s + 25) << 24) | (*(s + 24) << 16) | (*(s + 23) << 8) | (*(s + 22))) * 1e-3;
+  data.lon = int((*(p + 7) << 24) | (*(p + 6) << 16) | (*(p + 5) << 8) | (*(p + 4))) * 1e-7;
+  data.lat = int((*(p + 11) << 24) | (*(p + 10) << 10) | (*(p + 9) << 8) | (*(p + 8))) * 1e-7;
+  data.hMSL = int((*(p + 19) << 24) | (*(p + 18) << 16) | (*(p + 17) << 8) | (*(p + 16))) * 1e-3;
 }
 
 void Ublox::decode(NavStatusPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::NAV_STATUS)
+  if (latest_msg_ != Ublox::NAV_STATUS)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.gpsFix = uint8_t(*(s + 10));
+  data.gpsFix = uint8_t(*(p + 4));
 
-  const auto flags = uint8_t(*(s + 11));
+  const auto flags = uint8_t(*(p + 5));
   data.gpsFixOk = (flags >> 0) & 1;
 }
 
@@ -317,54 +284,50 @@ void Ublox::decode(NavDopPayload&) const
 
 void Ublox::decode(NavPvtPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::NAV_PVT)
+  if (latest_msg_ != Ublox::NAV_PVT)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.year = uint16_t((*(s + 11) << 8) | (*(s + 10)));
-  data.month = uint8_t(*(s + 12));
-  data.day = uint8_t(*(s + 13));
-  data.hour = uint8_t(*(s + 14));
-  data.min = uint8_t(*(s + 15));
-  data.sec = uint8_t(*(s + 16));
+  data.year = uint16_t((*(p + 5) << 8) | (*(p + 4)));
+  data.month = uint8_t(*(p + 6));
+  data.day = uint8_t(*(p + 7));
+  data.hour = uint8_t(*(p + 8));
+  data.min = uint8_t(*(p + 9));
+  data.sec = uint8_t(*(p + 10));
 
-  const auto valid = uint8_t(*(s + 17));
+  const auto valid = uint8_t(*(p + 11));
   data.validDate = (valid >> 0) & 1;
   data.validTime = (valid >> 1) & 1;
   data.fullyResolved = (valid >> 2) & 1;
   data.validMag = (valid >> 3) & 1;
 
-  data.tAcc = uint32_t((*(s + 21) << 24) | (*(s + 20) << 16) | (*(s + 19) << 8) | (*(s + 18)));
-  data.nano = int((*(s + 25) << 24) | (*(s + 24) << 16) | (*(s + 23) << 8) | (*(s + 22)));
+  data.tAcc = uint32_t((*(p + 15) << 24) | (*(p + 14) << 16) | (*(p + 13) << 8) | (*(p + 12)));
+  data.nano = int((*(p + 19) << 24) | (*(p + 18) << 16) | (*(p + 17) << 8) | (*(p + 16)));
 
-  data.fixType = uint8_t(*(s + 26));
+  data.fixType = uint8_t(*(p + 20));
 
-  const auto flags = uint8_t(*(s + 27));
+  const auto flags = uint8_t(*(p + 21));
   data.gnssFixOk = (flags >> 0) & 1;
 
-  data.lon = int((*(s + 33) << 24) | (*(s + 32) << 16) | (*(s + 31) << 8) | (*(s + 30))) * 1e-7;
-  data.lat = int((*(s + 37) << 24) | (*(s + 36) << 16) | (*(s + 35) << 8) | (*(s + 34))) * 1e-7;
-  data.hMSL = int((*(s + 45) << 24) | (*(s + 44) << 16) | (*(s + 43) << 8) | (*(s + 42))) * 1e-3;
-  data.velN = int((*(s + 57) << 24) | (*(s + 56) << 16) | (*(s + 55) << 8) | (*(s + 54))) * 1e-3;
-  data.velE = int((*(s + 61) << 24) | (*(s + 60) << 16) | (*(s + 59) << 8) | (*(s + 58))) * 1e-3;
-  data.velD = int((*(s + 65) << 24) | (*(s + 64) << 16) | (*(s + 63) << 8) | (*(s + 62))) * 1e-3;
+  data.lon = int((*(p + 27) << 24) | (*(p + 26) << 16) | (*(p + 25) << 8) | (*(p + 24))) * 1e-7;
+  data.lat = int((*(p + 31) << 24) | (*(p + 30) << 16) | (*(p + 29) << 8) | (*(p + 28))) * 1e-7;
+  data.hMSL = int((*(p + 39) << 24) | (*(p + 38) << 16) | (*(p + 37) << 8) | (*(p + 36))) * 1e-3;
+  data.velN = int((*(p + 51) << 24) | (*(p + 50) << 16) | (*(p + 49) << 8) | (*(p + 48))) * 1e-3;
+  data.velE = int((*(p + 55) << 24) | (*(p + 54) << 16) | (*(p + 53) << 8) | (*(p + 52))) * 1e-3;
+  data.velD = int((*(p + 59) << 24) | (*(p + 58) << 16) | (*(p + 57) << 8) | (*(p + 56))) * 1e-3;
 }
 
 void Ublox::decode(NavVelnedPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::NAV_VELNED)
+  if (latest_msg_ != Ublox::NAV_VELNED)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.velN = int((*(s + 13) << 24) | (*(s + 12) << 16) | (*(s + 11) << 8) | (*(s + 10))) * 1e-2;
-  data.velE = int((*(s + 17) << 24) | (*(s + 16) << 16) | (*(s + 15) << 8) | (*(s + 14))) * 1e-2;
-  data.velD = int((*(s + 21) << 24) | (*(s + 20) << 16) | (*(s + 19) << 8) | (*(s + 18))) * 1e-2;
+  data.velN = int((*(p + 7) << 24) | (*(p + 6) << 16) | (*(p + 5) << 8) | (*(p + 4))) * 1e-2;
+  data.velE = int((*(p + 11) << 24) | (*(p + 10) << 16) | (*(p + 9) << 8) | (*(p + 8))) * 1e-2;
+  data.velD = int((*(p + 15) << 24) | (*(p + 14) << 16) | (*(p + 13) << 8) | (*(p + 12))) * 1e-2;
 }
 
 void Ublox::decode(NavTimegpsPayload&) const
@@ -374,73 +337,65 @@ void Ublox::decode(NavTimegpsPayload&) const
 
 void Ublox::decode(NavTimeutcPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::NAV_TIMEUTC)
+  if (latest_msg_ != Ublox::NAV_TIMEUTC)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.tAcc = uint32_t((*(s + 13) << 24) | (*(s + 12) << 16) | (*(s + 11) << 8) | (*(s + 10)));
-  data.nano = int((*(s + 17) << 24) | (*(s + 16) << 16) | (*(s + 15) << 8) | (*(s + 14)));
-  data.year = uint16_t((*(s + 19) << 8) | (*(s + 18)));
-  data.month = uint8_t(*(s + 20));
-  data.day = uint8_t(*(s + 21));
-  data.hour = uint8_t(*(s + 22));
-  data.min = uint8_t(*(s + 23));
-  data.sec = uint8_t(*(s + 24));
+  data.tAcc = uint32_t((*(p + 7) << 24) | (*(p + 6) << 16) | (*(p + 5) << 8) | (*(p + 4)));
+  data.nano = int((*(p + 11) << 24) | (*(p + 10) << 16) | (*(p + 9) << 8) | (*(p + 8)));
+  data.year = uint16_t((*(p + 13) << 8) | (*(p + 12)));
+  data.month = uint8_t(*(p + 14));
+  data.day = uint8_t(*(p + 15));
+  data.hour = uint8_t(*(p + 16));
+  data.min = uint8_t(*(p + 17));
+  data.sec = uint8_t(*(p + 18));
 
-  const auto valid = uint8_t(*(s + 25));
+  const auto valid = uint8_t(*(p + 19));
   data.validUTC = (valid >> 2) & 1;
 }
 
 void Ublox::decode(NavCovPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::NAV_COV)
+  if (latest_msg_ != Ublox::NAV_COV)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.posCovNN = tobas_std::decodeBinary32((*(s + 25) << 24) | (*(s + 24) << 16) | (*(s + 23) << 8) | (*(s + 22)));
-  data.posCovNE = tobas_std::decodeBinary32((*(s + 29) << 24) | (*(s + 28) << 16) | (*(s + 27) << 8) | (*(s + 26)));
-  data.posCovND = tobas_std::decodeBinary32((*(s + 33) << 24) | (*(s + 32) << 16) | (*(s + 31) << 8) | (*(s + 30)));
-  data.posCovEE = tobas_std::decodeBinary32((*(s + 37) << 24) | (*(s + 36) << 16) | (*(s + 35) << 8) | (*(s + 34)));
-  data.posCovED = tobas_std::decodeBinary32((*(s + 41) << 24) | (*(s + 40) << 16) | (*(s + 39) << 8) | (*(s + 38)));
-  data.posCovDD = tobas_std::decodeBinary32((*(s + 45) << 24) | (*(s + 44) << 16) | (*(s + 43) << 8) | (*(s + 42)));
-  data.velCovNN = tobas_std::decodeBinary32((*(s + 49) << 24) | (*(s + 48) << 16) | (*(s + 47) << 8) | (*(s + 46)));
-  data.velCovNE = tobas_std::decodeBinary32((*(s + 53) << 24) | (*(s + 52) << 16) | (*(s + 51) << 8) | (*(s + 50)));
-  data.velCovND = tobas_std::decodeBinary32((*(s + 57) << 24) | (*(s + 56) << 16) | (*(s + 55) << 8) | (*(s + 54)));
-  data.velCovEE = tobas_std::decodeBinary32((*(s + 61) << 24) | (*(s + 60) << 16) | (*(s + 59) << 8) | (*(s + 58)));
-  data.velCovED = tobas_std::decodeBinary32((*(s + 65) << 24) | (*(s + 64) << 16) | (*(s + 63) << 8) | (*(s + 62)));
-  data.velCovDD = tobas_std::decodeBinary32((*(s + 69) << 24) | (*(s + 68) << 16) | (*(s + 67) << 8) | (*(s + 66)));
+  data.posCovNN = tobas_std::decodeBinary32((*(p + 19) << 24) | (*(p + 18) << 16) | (*(p + 17) << 8) | (*(p + 16)));
+  data.posCovNE = tobas_std::decodeBinary32((*(p + 23) << 24) | (*(p + 22) << 16) | (*(p + 21) << 8) | (*(p + 20)));
+  data.posCovND = tobas_std::decodeBinary32((*(p + 27) << 24) | (*(p + 26) << 16) | (*(p + 25) << 8) | (*(p + 24)));
+  data.posCovEE = tobas_std::decodeBinary32((*(p + 31) << 24) | (*(p + 30) << 16) | (*(p + 29) << 8) | (*(p + 28)));
+  data.posCovED = tobas_std::decodeBinary32((*(p + 35) << 24) | (*(p + 34) << 16) | (*(p + 33) << 8) | (*(p + 32)));
+  data.posCovDD = tobas_std::decodeBinary32((*(p + 39) << 24) | (*(p + 38) << 16) | (*(p + 37) << 8) | (*(p + 36)));
+  data.velCovNN = tobas_std::decodeBinary32((*(p + 43) << 24) | (*(p + 42) << 16) | (*(p + 41) << 8) | (*(p + 40)));
+  data.velCovNE = tobas_std::decodeBinary32((*(p + 47) << 24) | (*(p + 46) << 16) | (*(p + 45) << 8) | (*(p + 44)));
+  data.velCovND = tobas_std::decodeBinary32((*(p + 51) << 24) | (*(p + 50) << 16) | (*(p + 49) << 8) | (*(p + 48)));
+  data.velCovEE = tobas_std::decodeBinary32((*(p + 55) << 24) | (*(p + 54) << 16) | (*(p + 53) << 8) | (*(p + 52)));
+  data.velCovED = tobas_std::decodeBinary32((*(p + 59) << 24) | (*(p + 58) << 16) | (*(p + 57) << 8) | (*(p + 56)));
+  data.velCovDD = tobas_std::decodeBinary32((*(p + 63) << 24) | (*(p + 62) << 16) | (*(p + 61) << 8) | (*(p + 60)));
 }
 
 void Ublox::decode(AckNakPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::ACK_NAK)
+  if (latest_msg_ != Ublox::ACK_NAK)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.clsID = uint8_t(*(s + 6));
-  data.msgID = uint8_t(*(s + 7));
+  data.clsID = uint8_t(*(p + 0));
+  data.msgID = uint8_t(*(p + 1));
 }
 
 void Ublox::decode(AckAckPayload& data) const
 {
-  if (parser_.getLatestMsg() != Ublox::ACK_ACK)
+  if (latest_msg_ != Ublox::ACK_ACK)
     throw runtime_error("Message type mismatch.");
 
-  const auto msg = parser_.getMessage();
-  const auto pos = parser_.getPosition() - parser_.getLength();
-  const auto s = msg + pos;
+  const auto p = scanner_.getPayload();
 
-  data.clsID = uint8_t(*(s + 6));
-  data.msgID = uint8_t(*(s + 7));
+  data.clsID = uint8_t(*(p + 0));
+  data.msgID = uint8_t(*(p + 1));
 }
 
 void Ublox::decode(MonHwPayload&) const
@@ -530,6 +485,26 @@ void Ublox::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_tra
   cfg_gnss.block.flags = enable ? (0x01 << 16) | 0x01 : 0;  // M8シリーズはL1A/Cのみ受信可 (1.5節)
 
   configure(ID_CFG_GNSS, &cfg_gnss, sizeof(CfgGnss));
+}
+
+void Ublox::verifyMessage()
+{
+  const auto& length = scanner_.getLength();
+  const auto m = scanner_.getMessage();
+
+  // All UBX messages start with 2 sync chars
+  if (*(m + 0) != kUbxSync1 || *(m + 1) != kUbxSync2)
+    throw runtime_error("The current message is not UBX format.");
+
+  // Count the checksum
+  uint8_t CK_A = 0, CK_B = 0;
+  for (size_t i = kUbxSyncLength; i < length - kUbxChecksumLength; ++i)
+  {
+    CK_A += *(m + i);
+    CK_B += CK_A;
+  }
+  if (CK_A != *(m + length - 2) || CK_B != *(m + length - 1))
+    throw runtime_error("Checksum failed.");
 }
 
 Ublox::CheckSum Ublox::calculateCheckSum(uint8_t* message, size_t checksum_pos)

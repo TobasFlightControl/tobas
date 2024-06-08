@@ -54,38 +54,22 @@ public:
 
   explicit UBXScanner();
 
-  inline uint8_t* getMessage();
-  inline const size_t& getMessageLength() const;
-  inline const size_t& getPosition() const;
+  /* メッセージの先頭のポインタ． */
+  inline const uint8_t* getMessage() const;
+  /* ペイロードの先頭のポインタ． */
+  inline const uint8_t* getPayload() const;
+  /* メッセージ全体の長さ． */
+  inline const size_t& getLength() const;
 
   void reset();
   int update(const uint8_t& data);
 
 private:
-  uint8_t message_[kUbxBufferLength];  // Buffer for UBX message
-  size_t message_length_;              // Length of the received message
-  size_t payload_length_;              // Length of current message payload
-  size_t position_;                    // Indicates current buffer offset
-  State state_;                        // Current scanner state
-};
-
-class UBXParser
-{
-public:
-  explicit UBXParser(UBXScanner& ubxsc);
-
-  uint16_t calcId();
-
-  inline uint8_t* getMessage() const;
-  inline const size_t& getLength() const;
-  inline const size_t& getPosition() const;
-  inline const uint16_t& getLatestMsg() const;
-
-private:
-  UBXScanner scanner_;  // The scanner, which finds the messages in the data stream
-
-  uint8_t* message_;  // Pointer to the scanner's message buffer
-  uint16_t latest_id_;
+  uint8_t buffer_[kUbxBufferLength];  // Buffer for UBX message
+  size_t message_length_;             // Length of the received message
+  size_t payload_length_;             // Length of current message payload
+  size_t position_;                   // Indicates current buffer offset
+  State state_;                       // Current scanner state
 };
 
 /**
@@ -333,7 +317,11 @@ private:
 
   SPIdev spi_dev_;
   UBXScanner scanner_;
-  UBXParser parser_;
+
+  uint16_t latest_msg_;
+
+  uint8_t tx_ = 0;
+  uint8_t rx_;
 
   tobas_std::Rate rate_;
   tobas_std::Stopwatch stopwatch_;
@@ -344,43 +332,25 @@ private:
 
   void configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
 
+  void verifyMessage();
+
   /* p.171, 32.4 UBX Checksum. */
   static CheckSum calculateCheckSum(uint8_t* message, size_t checksum_pos);
   static int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
 };
 
-inline uint8_t* UBXScanner::getMessage()
+inline const uint8_t* UBXScanner::getMessage() const
 {
-  return message_;
+  return buffer_ + position_ - message_length_;
 }
 
-inline const size_t& UBXScanner::getMessageLength() const
+inline const uint8_t* UBXScanner::getPayload() const
+{
+  return getMessage() + kUbxHeaderLength;
+}
+
+inline const size_t& UBXScanner::getLength() const
 {
   return message_length_;
-}
-
-inline const size_t& UBXScanner::getPosition() const
-{
-  return position_;
-}
-
-inline uint8_t* UBXParser::getMessage() const
-{
-  return message_;
-}
-
-inline const size_t& UBXParser::getLength() const
-{
-  return scanner_.getMessageLength();
-}
-
-inline const size_t& UBXParser::getPosition() const
-{
-  return scanner_.getPosition();
-}
-
-inline const uint16_t& UBXParser::getLatestMsg() const
-{
-  return latest_id_;
 }
 }  // namespace navio
