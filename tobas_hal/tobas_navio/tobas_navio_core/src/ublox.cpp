@@ -467,7 +467,7 @@ void Ublox::waitForAcknowledge(uint8_t cls, uint8_t id)
       case Ublox::ACK_NAK:
         decode(nak);
         if (nak.clsID == cls && nak.msgID == id)
-          throw runtime_error("Configuration is not acknowledged: (class, id) = (" + cls_str + ", " + id_str + ")");
+          throw runtime_error("Configuration is rejected: (class, id) = (" + cls_str + ", " + id_str + ")");
         else
           throw runtime_error("A non-acknowledment message for an unspecified message is received.");
         break;
