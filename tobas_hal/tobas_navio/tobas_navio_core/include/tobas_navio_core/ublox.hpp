@@ -120,14 +120,6 @@ private:
   };
 
 public:
-  // Error Code
-  enum error_t : int8_t
-  {
-    E_NO_ERROR = 0,
-    E_NOT_ACKNOWLEDGED = -1,
-    E_COMMUNICATION_TIMEOUT = -2,
-  };
-
   // Class + ID
   enum message_t : uint16_t
   {
@@ -200,25 +192,25 @@ public:
   explicit Ublox();
 
   /* 32.10.18.3 Set message rate */
-  bool enableMsg(message_t msg, bool enable);
-  bool enableAllMsgs(bool enable);
+  void enableMsg(message_t msg, bool enable);
+  void enableAllMsgs(bool enable);
 
   /* 32.10.27.1 Navigation/measurement rate settings */
-  bool configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate = 1, uint16_t time_ref = 1);
+  void configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate = 1, uint16_t time_ref = 1);
 
   /* 32.10.19.1 Navigation engine settings */
-  bool configureDynamicsModel(dynamics_model dyn_model);
+  void configureDynamicsModel(dynamics_model dyn_model);
 
   /* 32.10.24.1 Power mode setup */
-  bool configurePowerMode(power_setup_value mode, uint16_t period = 0, uint16_t on_time = 0);
+  void configurePowerMode(power_setup_value mode, uint16_t period = 0, uint16_t on_time = 0);
 
   /* 32.10.13.1 GNSS system configuration */
-  error_t configureGnss_GPS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
-  error_t configureGnss_SBAS(bool enable, uint8_t res_track_ch = 1, uint8_t max_track_ch = 3);
-  error_t configureGnss_Galileo(bool enable, uint8_t res_track_ch = 4, uint8_t max_track_ch = 8);
-  error_t configureGnss_BeiDou(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
-  error_t configureGnss_QZSS(bool enable, uint8_t res_track_ch = 0, uint8_t max_track_ch = 3);
-  error_t configureGnss_GLONASS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 14);
+  void configureGnss_GPS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
+  void configureGnss_SBAS(bool enable, uint8_t res_track_ch = 1, uint8_t max_track_ch = 3);
+  void configureGnss_Galileo(bool enable, uint8_t res_track_ch = 4, uint8_t max_track_ch = 8);
+  void configureGnss_BeiDou(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
+  void configureGnss_QZSS(bool enable, uint8_t res_track_ch = 0, uint8_t max_track_ch = 3);
+  void configureGnss_GLONASS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 14);
 
   uint16_t update();
 
@@ -326,14 +318,15 @@ private:
   tobas_std::Rate rate_;
   tobas_std::Stopwatch stopwatch_;
 
-  bool sendMessage(uint8_t msg_class, uint8_t msg_id, void* msg, uint16_t size);
-  int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
+  void sendMessage(uint8_t msg_class, uint8_t msg_id, void* msg, uint16_t size);
+  void waitForAcknowledge(uint8_t cls, uint8_t id);
+  void configure(uint8_t cfg_id, void* msg, uint16_t size);
+
+  void configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
 
   /* p.171, 32.4 UBX Checksum. */
-  CheckSum calculateCheckSum(uint8_t* message, size_t size) const;
-
-  error_t configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
-  error_t waitForAcknowledge(uint8_t cls, uint8_t id);
+  static CheckSum calculateCheckSum(uint8_t* message, size_t size);
+  static int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
 };
 
 inline uint8_t* UBXScanner::getMessage()

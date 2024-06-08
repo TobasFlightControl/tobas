@@ -12,7 +12,14 @@ namespace tobas_navio_ros
 {
 GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  configureGnssReceiver();
+  try
+  {
+    configureGnssReceiver();
+  }
+  catch (const runtime_error& e)
+  {
+    TOBAS_EXIT("Failed to configure GNSS receiver: ", e.what());
+  }
 
   gps_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
 
@@ -22,90 +29,22 @@ GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 void GpsHandler::configureGnssReceiver()
 {
-  if (!gps_.enableAllMsgs(false))
-    TOBAS_EXIT("Failed to disable all navigation messsages.");
-  if (!gps_.enableMsg(navio::Ublox::NAV_PVT, true))
-    TOBAS_EXIT("Failed to enable NAV_PVT");
-  if (!gps_.enableMsg(navio::Ublox::NAV_COV, true))
-    TOBAS_EXIT("Failed to enable NAV_COV");
+  gps_.enableAllMsgs(false);
+  gps_.enableMsg(navio::Ublox::NAV_PVT, true);
+  gps_.enableMsg(navio::Ublox::NAV_COV, true);
 
-  if (!gps_.configureSolutionRate(kMeasurementRate))
-    TOBAS_EXIT("Failed to set measurement rate.");
-
-  if (!gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G))
-    TOBAS_EXIT("Failed to set dynamics model.");
-
-  if (!gps_.configurePowerMode(navio::Ublox::FULL_POWER))
-    TOBAS_EXIT("Failed to set power mode.");
+  gps_.configureSolutionRate(kMeasurementRate);
+  gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G);
+  gps_.configurePowerMode(navio::Ublox::FULL_POWER);
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
-  switch (gps_.configureGnss_GPS(true))
-  {
-    case navio::Ublox::E_NO_ERROR:
-      break;
-    case navio::Ublox::E_NOT_ACKNOWLEDGED:
-      TOBAS_EXIT("The GPS configuration was denied.");
-    case navio::Ublox::E_COMMUNICATION_TIMEOUT:
-      TOBAS_EXIT("Failed to communicate with the GNSS receiver in the GPS configuration.");
-    default:
-      throw runtime_error("Unknown error code.");
-  }
-  switch (gps_.configureGnss_SBAS(true))
-  {
-    case navio::Ublox::E_NO_ERROR:
-      break;
-    case navio::Ublox::E_NOT_ACKNOWLEDGED:
-      TOBAS_EXIT("The SBAS configuration was denied.");
-    case navio::Ublox::E_COMMUNICATION_TIMEOUT:
-      TOBAS_EXIT("Failed to communicate with the GNSS receiver in the SBAS configuration.");
-    default:
-      throw runtime_error("Unknown error code.");
-  }
-  switch (gps_.configureGnss_Galileo(false))
-  {
-    case navio::Ublox::E_NO_ERROR:
-      break;
-    case navio::Ublox::E_NOT_ACKNOWLEDGED:
-      TOBAS_EXIT("The Galileo configuration was denied.");
-    case navio::Ublox::E_COMMUNICATION_TIMEOUT:
-      TOBAS_EXIT("Failed to communicate with the GNSS receiver in the Galileo configuration.");
-    default:
-      throw runtime_error("Unknown error code.");
-  }
-  switch (gps_.configureGnss_BeiDou(false))
-  {
-    case navio::Ublox::E_NO_ERROR:
-      break;
-    case navio::Ublox::E_NOT_ACKNOWLEDGED:
-      TOBAS_EXIT("The BeiDou configuration was denied.");
-    case navio::Ublox::E_COMMUNICATION_TIMEOUT:
-      TOBAS_EXIT("Failed to communicate with the GNSS receiver in the BeiDou configuration.");
-    default:
-      throw runtime_error("Unknown error code.");
-  }
-  switch (gps_.configureGnss_QZSS(true))
-  {
-    case navio::Ublox::E_NO_ERROR:
-      break;
-    case navio::Ublox::E_NOT_ACKNOWLEDGED:
-      TOBAS_EXIT("The QZSS configuration was denied.");
-    case navio::Ublox::E_COMMUNICATION_TIMEOUT:
-      TOBAS_EXIT("Failed to communicate with the GNSS receiver in the QZSS configuration.");
-    default:
-      throw runtime_error("Unknown error code.");
-  }
-  switch (gps_.configureGnss_GLONASS(false))
-  {
-    case navio::Ublox::E_NO_ERROR:
-      break;
-    case navio::Ublox::E_NOT_ACKNOWLEDGED:
-      TOBAS_EXIT("The GLONASS configuration was denied.");
-    case navio::Ublox::E_COMMUNICATION_TIMEOUT:
-      TOBAS_EXIT("Failed to communicate with the GNSS receiver in the GLONASS configuration.");
-    default:
-      throw runtime_error("Unknown error code.");
-  }
+  gps_.configureGnss_GPS(true);
+  gps_.configureGnss_SBAS(true);
+  gps_.configureGnss_Galileo(false);
+  gps_.configureGnss_BeiDou(false);
+  gps_.configureGnss_QZSS(true);
+  gps_.configureGnss_GLONASS(false);
 }
 
 void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
