@@ -29,7 +29,11 @@ GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 void GpsHandler::configureGnssReceiver()
 {
-  gps_.enableAllMsgs(false);
+  // 設定をデフォルトに戻す
+  gps_.clearConfigurations();
+  gps_.loadConfigurations();
+
+  // gps_.enableAllMsgs(false);
   gps_.enableMsg(navio::Ublox::NAV_PVT, true);
   gps_.enableMsg(navio::Ublox::NAV_COV, true);
 

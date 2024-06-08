@@ -132,6 +132,39 @@ Ublox::Ublox() : spi_dev_(GPS_DEVICE, kSpiSpeedHz), parser_(scanner_), rate_(chr
 {
 }
 
+void Ublox::clearConfigurations()
+{
+  CfgCfg cfg_cfg;
+
+  cfg_cfg.clearMask = numeric_limits<uint32_t>::max();
+  cfg_cfg.saveMask = 0;
+  cfg_cfg.loadMask = 0;
+
+  configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
+}
+
+void Ublox::saveConfigurations()
+{
+  CfgCfg cfg_cfg;
+
+  cfg_cfg.clearMask = 0;
+  cfg_cfg.saveMask = numeric_limits<uint32_t>::max();
+  cfg_cfg.loadMask = 0;
+
+  configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
+}
+
+void Ublox::loadConfigurations()
+{
+  CfgCfg cfg_cfg;
+
+  cfg_cfg.clearMask = 0;
+  cfg_cfg.saveMask = 0;
+  cfg_cfg.loadMask = numeric_limits<uint32_t>::max();
+
+  configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
+}
+
 void Ublox::enableMsg(message_t msg, bool enable)
 {
   CfgMsg cfg_msg;

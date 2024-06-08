@@ -110,6 +110,7 @@ private:
     ID_ACK_ACK = 0x01,
 
     ID_CFG_MSG = 0x01,
+    ID_CFG_CFG = 0x09,
     ID_CFG_RATE = 0x08,
     ID_CFG_NAV5 = 0x24,
     ID_CFG_GNSS = 0x3E,
@@ -191,6 +192,11 @@ public:
 
   explicit Ublox();
 
+  /* 32.10.3.1 Clear, save and load configurations */
+  void clearConfigurations();
+  void saveConfigurations();
+  void loadConfigurations();
+
   /* 32.10.18.3 Set message rate */
   void enableMsg(message_t msg, bool enable);
   void enableAllMsgs(bool enable);
@@ -246,6 +252,13 @@ private:
   };
 
   /* ===== Payload structures ===== */
+  struct PACKED CfgCfg
+  {
+    uint32_t clearMask;
+    uint32_t saveMask;
+    uint32_t loadMask;
+  };
+
   struct PACKED CfgMsg
   {
     uint8_t msgClass;
