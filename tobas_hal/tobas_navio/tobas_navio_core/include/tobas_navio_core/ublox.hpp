@@ -5,25 +5,14 @@
 #include <tobas_std_tools/stopwatch.hpp>
 
 #include "./spi_dev.hpp"
+#include "./ubx_scanner.hpp"
 #include "./ubx_payload.hpp"
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
 namespace navio
 {
-static constexpr size_t kUbxSyncLength = 2;
-static constexpr size_t kUbxClassLength = 1;
-static constexpr size_t kUbxIdLength = 1;
-static constexpr size_t kUbxLengthLength = 2;
-static constexpr size_t kUbxChecksumLength = 2;
-static constexpr size_t kUbxHeaderLength = kUbxSyncLength + kUbxClassLength + kUbxIdLength + kUbxLengthLength;
-static constexpr size_t kUbxFixedLength = kUbxHeaderLength + kUbxChecksumLength;
-
-static constexpr uint8_t kUbxSync1 = 0xb5;
-static constexpr uint8_t kUbxSync2 = 0x62;
 static constexpr uint8_t kMinMaxTrkChForMajorGnss = 4;
-
-static constexpr size_t kUbxBufferLength = 1024;
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
 static constexpr double kWaitForGnssAck = 3.;     // [s]
 
@@ -34,46 +23,6 @@ static constexpr double kWaitForGnssAck = 3.;     // [s]
 // PX4はデフォルトで 38400bit/s のUARTだから，PVTの受信遅延は 92 / (38400 / 8) * 1000 ~ 19.2ms．
 // どうせ衛生からの通信遅延が70msで固定で，レシーバとFCの通信遅延はボトルネックではないから，速度より精度を重視すべき．
 static constexpr size_t kSpiInterval = 100;
-
-class UBXScanner
-{
-public:
-  enum State
-  {
-    Sync1,
-    Sync2,
-    Class,
-    ID,
-    Length1,
-    Length2,
-    Payload,
-    CK_A,
-    CK_B,
-    Done,
-  };
-
-  explicit UBXScanner();
-
-  void reset();
-  int update(const uint8_t& data);
-
-  inline size_t messageLength() const;
-
-  inline const uint8_t* getSync1() const;
-  inline const uint8_t* getSync2() const;
-  inline const uint8_t* getClass() const;
-  inline const uint8_t* getId() const;
-  inline const uint8_t* getLength() const;
-  inline const uint8_t* getPayload() const;
-  inline const uint8_t* getChecksumA() const;
-  inline const uint8_t* getChecksumB() const;
-
-private:
-  uint8_t buffer_[kUbxBufferLength];  // Buffer for UBX message
-  size_t payload_length_;             // Length of current message payload
-  size_t position_;                   // Indicates current buffer offset
-  State state_;                       // Current scanner state
-};
 
 /**
  * @brief Ublox handler.
@@ -341,49 +290,4 @@ private:
   static CheckSum computeChecksum(uint8_t* message, size_t checksum_pos);
   static int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
 };
-
-inline size_t UBXScanner::messageLength() const
-{
-  return kUbxFixedLength + payload_length_;
-}
-
-inline const uint8_t* UBXScanner::getSync1() const
-{
-  return buffer_ + position_ - messageLength();
-}
-
-inline const uint8_t* UBXScanner::getSync2() const
-{
-  return getSync1() + 1;
-}
-
-inline const uint8_t* UBXScanner::getClass() const
-{
-  return getSync1() + kUbxSyncLength;
-}
-
-inline const uint8_t* UBXScanner::getId() const
-{
-  return getClass() + kUbxClassLength;
-}
-
-inline const uint8_t* UBXScanner::getLength() const
-{
-  return getId() + kUbxIdLength;
-}
-
-inline const uint8_t* UBXScanner::getPayload() const
-{
-  return getLength() + kUbxLengthLength;
-}
-
-inline const uint8_t* UBXScanner::getChecksumA() const
-{
-  return getPayload() + payload_length_;
-}
-
-inline const uint8_t* UBXScanner::getChecksumB() const
-{
-  return getChecksumA() + 1;
-}
 }  // namespace navio
