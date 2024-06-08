@@ -106,10 +106,8 @@ uint16_t UBXParser::calcId()
   const auto s = message_ + pos;
 
   // All UBX messages start with 2 sync chars: 0xb5 and 0x62
-  if (*s != 0xb5)
-    return 0;
-  if (*(s + 1) != 0x62)
-    return 0;
+  if (*s != 0xb5 || *(s + 1) != 0x62)
+    throw runtime_error("The current message is not UBX format.");
 
   // Count the checksum
   uint8_t CK_A = 0, CK_B = 0;
@@ -118,10 +116,8 @@ uint16_t UBXParser::calcId()
     CK_A += *(s + i);
     CK_B += CK_A;
   }
-  if (CK_A != *(s + length - 2))
-    return 0;
-  if (CK_B != *(s + length - 1))
-    return 0;
+  if (CK_A != *(s + length - 2) || CK_B != *(s + length - 1))
+    throw runtime_error("Checksum failed.");
 
   // If we got everything right, then it's time to decide, what type of message this is
   // ID is a two-byte number with little endianness
