@@ -498,7 +498,7 @@ void Ublox::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_tra
   cfg_gnss.block.maxTrkCh = max_track_ch;
   cfg_gnss.block.flags = enable ? (0x01 << 16) | 0x01 : 0;  // M8シリーズはL1A/Cのみ受信可 (1.5節)
 
-  return configure(ID_CFG_GNSS, &cfg_gnss, sizeof(CfgGnss));
+  configure(ID_CFG_GNSS, &cfg_gnss, sizeof(CfgGnss));
 }
 
 Ublox::CheckSum Ublox::calculateCheckSum(uint8_t* message, size_t size)
@@ -511,6 +511,7 @@ Ublox::CheckSum Ublox::calculateCheckSum(uint8_t* message, size_t size)
     checksum.CK_A += message[i];
     checksum.CK_B += checksum.CK_A;
   }
+
   return checksum;
 }
 
