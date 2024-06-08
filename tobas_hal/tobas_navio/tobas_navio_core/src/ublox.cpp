@@ -64,8 +64,7 @@ int UBXScanner::update(const uint8_t& data)
 
     case Length2:
       payload_length_ += data << 8;
-      message_length_ = kUbxHeaderLength + payload_length_ + kUbxChecksumLength;
-      if (message_length_ > kUbxBufferLength)
+      if (messageLength() > kUbxBufferLength)
         throw runtime_error("The size of payload is too large.");
       state_ = Payload;
       break;
@@ -248,8 +247,7 @@ uint16_t Ublox::update()
   verifyMessage();
 
   // 取得したメッセージのID (Class + ID) を返す
-  const auto m = scanner_.getMessage();
-  return latest_msg_ = (*(m + 2)) << 8 | (*(m + 3));
+  return latest_msg_ = (*scanner_.getClass()) << 8 | (*scanner_.getId());
 }
 
 void Ublox::decode(NavPosllhPayload& data) const
@@ -422,7 +420,7 @@ void Ublox::sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size)
   const auto payload_pos = spliceMemory(buffer, &header, sizeof(UbxHeader));
   const auto checksum_pos = spliceMemory(buffer, msg, size, payload_pos);
 
-  const auto checksum = calculateCheckSum(buffer, checksum_pos);
+  const auto checksum = computeChecksum(buffer, checksum_pos);
   const auto message_length = spliceMemory(buffer, &checksum, sizeof(CheckSum), checksum_pos);
 
   if (!spi_dev_.transfer(buffer, nullptr, message_length))
@@ -489,25 +487,22 @@ void Ublox::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_tra
 
 void Ublox::verifyMessage()
 {
-  const auto& length = scanner_.getLength();
-  const auto m = scanner_.getMessage();
-
-  // All UBX messages start with 2 sync chars
-  if (*(m + 0) != kUbxSync1 || *(m + 1) != kUbxSync2)
+  // Sync chars
+  if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2)
     throw runtime_error("The current message is not UBX format.");
 
-  // Count the checksum
+  // Checksum
   uint8_t CK_A = 0, CK_B = 0;
-  for (size_t i = kUbxSyncLength; i < length - kUbxChecksumLength; ++i)
+  for (auto x = scanner_.getClass(); x < scanner_.getChecksumA(); ++x)
   {
-    CK_A += *(m + i);
+    CK_A += *x;
     CK_B += CK_A;
   }
-  if (CK_A != *(m + length - 2) || CK_B != *(m + length - 1))
+  if (CK_A != *scanner_.getChecksumA() || CK_B != *scanner_.getChecksumB())
     throw runtime_error("Checksum failed.");
 }
 
-Ublox::CheckSum Ublox::calculateCheckSum(uint8_t* message, size_t checksum_pos)
+Ublox::CheckSum Ublox::computeChecksum(uint8_t* message, size_t checksum_pos)
 {
   CheckSum checksum;
   checksum.CK_A = checksum.CK_B = 0;

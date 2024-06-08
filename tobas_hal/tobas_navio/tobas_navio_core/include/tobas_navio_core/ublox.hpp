@@ -54,19 +54,22 @@ public:
 
   explicit UBXScanner();
 
-  /* メッセージの先頭のポインタ． */
-  inline const uint8_t* getMessage() const;
-  /* ペイロードの先頭のポインタ． */
-  inline const uint8_t* getPayload() const;
-  /* メッセージ全体の長さ． */
-  inline const size_t& getLength() const;
-
   void reset();
   int update(const uint8_t& data);
 
+  inline size_t messageLength() const;
+
+  inline const uint8_t* getSync1() const;
+  inline const uint8_t* getSync2() const;
+  inline const uint8_t* getClass() const;
+  inline const uint8_t* getId() const;
+  inline const uint8_t* getLength() const;
+  inline const uint8_t* getPayload() const;
+  inline const uint8_t* getChecksumA() const;
+  inline const uint8_t* getChecksumB() const;
+
 private:
   uint8_t buffer_[kUbxBufferLength];  // Buffer for UBX message
-  size_t message_length_;             // Length of the received message
   size_t payload_length_;             // Length of current message payload
   size_t position_;                   // Indicates current buffer offset
   State state_;                       // Current scanner state
@@ -335,22 +338,52 @@ private:
   void verifyMessage();
 
   /* p.171, 32.4 UBX Checksum. */
-  static CheckSum calculateCheckSum(uint8_t* message, size_t checksum_pos);
+  static CheckSum computeChecksum(uint8_t* message, size_t checksum_pos);
   static int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
 };
 
-inline const uint8_t* UBXScanner::getMessage() const
+inline size_t UBXScanner::messageLength() const
 {
-  return buffer_ + position_ - message_length_;
+  return kUbxFixedLength + payload_length_;
+}
+
+inline const uint8_t* UBXScanner::getSync1() const
+{
+  return buffer_ + position_ - messageLength();
+}
+
+inline const uint8_t* UBXScanner::getSync2() const
+{
+  return getSync1() + 1;
+}
+
+inline const uint8_t* UBXScanner::getClass() const
+{
+  return getSync1() + kUbxSyncLength;
+}
+
+inline const uint8_t* UBXScanner::getId() const
+{
+  return getClass() + kUbxClassLength;
+}
+
+inline const uint8_t* UBXScanner::getLength() const
+{
+  return getId() + kUbxIdLength;
 }
 
 inline const uint8_t* UBXScanner::getPayload() const
 {
-  return getMessage() + kUbxHeaderLength;
+  return getLength() + kUbxLengthLength;
 }
 
-inline const size_t& UBXScanner::getLength() const
+inline const uint8_t* UBXScanner::getChecksumA() const
 {
-  return message_length_;
+  return getPayload() + payload_length_;
+}
+
+inline const uint8_t* UBXScanner::getChecksumB() const
+{
+  return getChecksumA() + 1;
 }
 }  // namespace navio
