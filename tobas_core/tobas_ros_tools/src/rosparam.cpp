@@ -34,8 +34,7 @@ void getParam(ros::NodeHandle& nh, const string& key, uint8_t& param)
   int tmp;
   getParam(nh, key, tmp);
   ROS_CHECK(
-    nh, numeric_limits<uint8_t>::lowest() <= tmp && tmp <= numeric_limits<uint8_t>::max(),
-    "The specified value for '" << key << "' is out of range of unsigned char.");
+    nh, 0 <= tmp && tmp <= UINT8_MAX, "The specified value for '" << key << "' is out of range of unsigned char.");
   param = static_cast<uint8_t>(tmp);
 }
 
@@ -44,7 +43,7 @@ void getParam(ros::NodeHandle& nh, const string& key, uint8_t& param, const uint
   int tmp;
   getParam(nh, key, tmp, static_cast<int>(_default));
 
-  if (tmp < numeric_limits<uint8_t>::lowest() || numeric_limits<uint8_t>::max() < tmp)
+  if (tmp < 0 || UINT8_MAX < tmp)
   {
     ROS_ERROR_STREAM(
       "The specified value for '" << key << "' is out of range of unsigned char. The default value "

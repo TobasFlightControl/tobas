@@ -136,7 +136,7 @@ void Ublox::clearConfigurations()
 {
   CfgCfg cfg_cfg;
 
-  cfg_cfg.clearMask = numeric_limits<uint32_t>::max();
+  cfg_cfg.clearMask = UINT32_MAX;
   cfg_cfg.saveMask = 0;
   cfg_cfg.loadMask = 0;
 
@@ -148,7 +148,7 @@ void Ublox::saveConfigurations()
   CfgCfg cfg_cfg;
 
   cfg_cfg.clearMask = 0;
-  cfg_cfg.saveMask = numeric_limits<uint32_t>::max();
+  cfg_cfg.saveMask = UINT32_MAX;
   cfg_cfg.loadMask = 0;
 
   configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
@@ -160,7 +160,7 @@ void Ublox::loadConfigurations()
 
   cfg_cfg.clearMask = 0;
   cfg_cfg.saveMask = 0;
-  cfg_cfg.loadMask = numeric_limits<uint32_t>::max();
+  cfg_cfg.loadMask = UINT32_MAX;
 
   configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
 }
