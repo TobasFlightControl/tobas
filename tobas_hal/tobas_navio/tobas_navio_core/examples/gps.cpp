@@ -34,11 +34,7 @@ int main()
   gps.enableMsg(Ublox::NAV_COV, true);
 
   // Navigation/measurement rate settings
-  if (!gps.configureSolutionRate(MEASUREMENT_RATE))
-  {
-    cerr << "Failed to configure solution rate." << endl;
-    return 1;
-  }
+  gps.configureSolutionRate(MEASUREMENT_RATE);
 
   uint32_t cnt_posllh = 0;
   uint32_t cnt_status = 0;
