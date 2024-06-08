@@ -21,7 +21,7 @@ static constexpr size_t kUbxFixedLength = kUbxHeaderLength + kUbxChecksumLength;
 
 static constexpr uint8_t kUbxSync1 = 0xb5;
 static constexpr uint8_t kUbxSync2 = 0x62;
-static constexpr size_t kMinMaxTrkChForMajorGnss = 4;
+static constexpr uint8_t kMinMaxTrkChForMajorGnss = 4;
 
 static constexpr size_t kUbxBufferLength = 1024;
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
