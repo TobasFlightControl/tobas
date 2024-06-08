@@ -33,9 +33,12 @@ double TimestampedBufferDouble::mean() const
   if (this->size() == 0)
     return 0.;
 
+  // Compute Kahan summation
   double sum = 0.;
+  double c = 0.;
   for (const auto& [_, x] : map_)
-    sum += x;
+    updateKahanValues(x, sum, c);
+
   return sum / this->size();
 }
 
@@ -45,14 +48,26 @@ double TimestampedBufferDouble::variance() const
     return 0.;
 
   const auto mean = this->mean();
+
+  // Compute Kahan summation
   double sum = 0.;
+  double c = 0.;
   for (const auto& [_, x] : map_)
-    sum += sqr(x - mean);
+    updateKahanValues(sqr(x - mean), sum, c);
+
   return sum / this->size();
 }
 
 double TimestampedBufferDouble::stddev() const
 {
   return sqrt(this->variance());
+}
+
+void TimestampedBufferDouble::updateKahanValues(double x, double& sum, double& c)
+{
+  const auto y = x - c;
+  const auto t = sum + y;
+  c = (t - sum) - y;
+  sum = t;
 }
 }  // namespace tobas_std

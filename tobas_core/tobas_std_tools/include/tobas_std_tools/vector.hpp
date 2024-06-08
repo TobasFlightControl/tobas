@@ -22,14 +22,30 @@ ostream& operator<<(ostream& os, const vector<T>& vec)
 
 namespace tobas_std
 {
-/* 要素の和を計算する． */
+/* Naive Summation． The worst-case round-off error scales with O(nε). */
 template <typename T>
-T sum(const std::vector<T>& vec)
+T sum(const std::vector<T>& arr)
 {
-  T res = 0;
-  for (const auto& val : vec)
-    res += val;
-  return res;
+  T sum = 0;
+  for (const auto& x : arr)
+    sum += x;
+  return sum;
+}
+
+/* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
+template <typename T>
+T fsum(const std::vector<T>& arr)
+{
+  T sum = 0;
+  T c = 0;
+  for (const auto& x : arr)
+  {
+    const auto y = x - c;
+    const auto t = sum + y;
+    c = (t - sum) - y;
+    sum = t;
+  }
+  return sum;
 }
 
 /* 要素の加重平均をとる． */

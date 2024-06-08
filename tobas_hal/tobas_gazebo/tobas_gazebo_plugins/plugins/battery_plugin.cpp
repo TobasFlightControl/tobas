@@ -71,7 +71,7 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   t_last_ = info.simTime;
 
   // 電流を計算
-  const auto current = tobas_std::sum(currents_);
+  const auto current = tobas_std::fsum(currents_);
   if (current > max_current_)
   {
     GZ_WARN_THROTTLE(

@@ -104,5 +104,8 @@ public:
   double mean() const;
   double variance() const;
   double stddev() const;
+
+private:
+  static void updateKahanValues(double x, double& sum, double& c);
 };
 }  // namespace tobas_std
