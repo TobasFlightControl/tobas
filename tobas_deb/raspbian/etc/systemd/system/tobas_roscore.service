@@ -4,6 +4,7 @@ After=networking.service
 Requires=networking.service
 
 [Service]
+User=pi
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 ExecStartPre=/bin/bash -c '/etc/tobas/kill_ros.sh'
