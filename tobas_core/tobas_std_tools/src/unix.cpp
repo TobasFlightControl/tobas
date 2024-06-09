@@ -8,6 +8,14 @@ using namespace std;
 
 namespace tobas_std
 {
+std::string userName()
+{
+  const auto user_name = getenv("USER");
+  if (user_name == nullptr)
+    throw runtime_error("USER environment variable not set.");
+  return string(user_name);
+}
+
 std::string homeDir()
 {
   const auto home_dir = getenv("HOME");
