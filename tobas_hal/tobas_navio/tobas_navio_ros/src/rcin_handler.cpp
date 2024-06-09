@@ -26,7 +26,7 @@ RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
 
 bool RCInputHandler::reloadConfig()
 {
-  tobas_std::PropertyTree pt(kConfigPath);
+  PropertyTree pt(kConfigPath);
 
   if (!pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin))
   {
@@ -159,7 +159,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   // Mode
   if (rcin_.read(kRcChannelMode) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->mode = tobas_std::closestIndex<double>(modes_, rcin_.getPeriod());
+  rcin_msg->mode = closestIndex<double>(modes_, rcin_.getPeriod());
 
   // E-Stop
   if (rcin_.read(kRcChannelEStop) != navio::RCInput::E_NO_ERROR)
