@@ -1,6 +1,7 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/property_tree.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_msgs/RCInput.h>
 
 #include "../include/tobas_navio_ros/rcin_handler.hpp"
@@ -14,6 +15,8 @@ namespace tobas_navio_ros
 RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
+  PRINT_DEBUG("RCInputHandler::RCInputHandler");
+
   reloadConfig();
 
   if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
@@ -22,10 +25,14 @@ RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
   rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+
+  PRINT_DEBUG("/RCInputHandler::RCInputHandler");
 }
 
 bool RCInputHandler::reloadConfig()
 {
+  PRINT_DEBUG("RCInputHandler::reloadConfig");
+
   PropertyTree pt(kConfigPath);
 
   if (!pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin))

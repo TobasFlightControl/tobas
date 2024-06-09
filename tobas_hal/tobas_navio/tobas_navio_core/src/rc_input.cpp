@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <err.h>
 
+#include <tobas_std_tools/console.hpp>
+
 #include "../include/tobas_navio_core/util.hpp"
 #include "../include/tobas_navio_core/rc_input.hpp"
 
@@ -15,12 +17,17 @@ namespace navio
 {
 RCInput::RCInput()
 {
+  PRINT_DEBUG("RCInput::RCInput");
 }
 
 RCInput::error_t RCInput::initialize()
 {
+  PRINT_DEBUG("RCInput::initialize");
+
   for (size_t ch = 0; ch < kChannelCount; ++ch)
   {
+    PRINT_DEBUG("Initializing RC input channel " << ch << ".");
+
     char* channel_path;
     if (asprintf(&channel_path, "%s/ch%zu", "/sys/kernel/rcio/rcin", ch) == -1)
       return error_ = E_FAILED_TO_OPEN;
