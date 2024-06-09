@@ -10,6 +10,8 @@ namespace tobas_std
 PropertyTree::PropertyTree(const string& ini_path, const string& section)
   : ini_path_(tobas_std::expandUser(ini_path)), section_(section)
 {
+  PRINT_DEBUG("PropertyTree::PropertyTree(" << ini_path << ", " << section << ")");
+
   if (tobas_std::fileExists(ini_path_))
   {
     load();

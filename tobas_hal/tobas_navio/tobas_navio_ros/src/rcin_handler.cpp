@@ -31,6 +31,8 @@ RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
 
 bool RCInputHandler::reloadConfig()
 {
+  PRINT_DEBUG("RCInputHandler::reloadConfig");
+
   PropertyTree pt(kConfigPath);
 
   if (!pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin))

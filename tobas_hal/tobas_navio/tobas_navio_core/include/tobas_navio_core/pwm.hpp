@@ -4,6 +4,8 @@
 #include <array>
 #include <string>
 
+#include <tobas_std_tools/console.hpp>
+
 #include "../include/tobas_navio_core/util.hpp"
 
 namespace navio
@@ -37,16 +39,22 @@ private:
 
 inline bool PWM::enable(const size_t& channel)
 {
+  PRINT_DEBUG("PWM::enable(" << channel << ")");
+
   return writeFile(enable_paths_[channel].c_str(), "1") >= 0;
 }
 
 inline bool PWM::disable(const size_t& channel)
 {
+  PRINT_DEBUG("PWM::disable(" << channel << ")");
+
   return writeFile(enable_paths_[channel].c_str(), "0") >= 0;
 }
 
 inline bool PWM::setFrequency(const size_t& channel, const size_t& freq)
 {
+  PRINT_DEBUG("PWM::setFrequency(" << channel << ", " << freq << ")");
+
   const auto period_ns = static_cast<uint32_t>(1e+9 / freq);
   return writeFile(period_paths_[channel].c_str(), "%u", period_ns) >= 0;
 }
