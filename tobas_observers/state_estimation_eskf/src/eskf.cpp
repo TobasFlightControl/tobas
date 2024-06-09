@@ -150,7 +150,7 @@ ErrorStateKalmanFilter::measurePosition(const Vector3d& pos_meas, const Matrix3d
   const auto Q_dtheta = getQ_dtheta();
   H_pos_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
-  return correct<3>(delta_pos, pos_cov, H_pos_);
+  return correct(delta_pos, pos_cov, H_pos_);
 }
 
 double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov)
@@ -158,7 +158,7 @@ double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureXY");
 
   const Vector2d delta_xy = xy_meas - getXY();
-  return correct<2>(delta_xy, xy_cov, H_xy_);
+  return correct(delta_xy, xy_cov, H_xy_);
 }
 
 double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var)
@@ -166,7 +166,7 @@ double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const doubl
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureAltitude");
 
   const double delta_z = z_meas - getAltitude();
-  return correct<1>(Scalard(delta_z), Scalard(z_var), H_z_);
+  return correct(Scalard(delta_z), Scalard(z_var), H_z_);
 }
 
 double ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
@@ -197,7 +197,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   // ジャイロバイアスによる偏微分
   H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM() * et::crossMat(offset);
 
-  return correct<3>(delta_vel, vel_cov, H_vel_);
+  return correct(delta_vel, vel_cov, H_vel_);
 }
 
 double ErrorStateKalmanFilter::measurePosVel(
@@ -234,7 +234,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   cov.bottomLeftCorner<3, 3>().setZero();
 
   // 事後推定を更新
-  return correct<6>(delta, cov, H_pv_);
+  return correct(delta, cov, H_pv_);
 }
 
 double ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
@@ -245,7 +245,7 @@ double ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, cons
   const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
   const Vector3d delta_theta = et::quaternionToAngleAxis(q_error);
 
-  return correct<3>(delta_theta, theta_cov, H_theta_);
+  return correct(delta_theta, theta_cov, H_theta_);
 }
 
 double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Matrix3d& grav_cov)
@@ -259,7 +259,7 @@ double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Ma
 
   H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::crossMat(grav_B);
   H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
-  return correct<3>(delta_acc, grav_cov, H_acc_);
+  return correct(delta_acc, grav_cov, H_acc_);
 }
 
 double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& yaw_var)
@@ -336,7 +336,7 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   H_mag_.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
 
   // Update the quaternion states and covariance matrix
-  return correct<1>(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
+  return correct(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
 }
 
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta() const
