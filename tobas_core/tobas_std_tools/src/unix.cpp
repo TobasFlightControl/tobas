@@ -8,7 +8,7 @@ using namespace std;
 
 namespace tobas_std
 {
-std::string userName()
+string userName()
 {
   const auto user_name = getenv("USER");
   if (user_name == nullptr)
@@ -16,7 +16,7 @@ std::string userName()
   return string(user_name);
 }
 
-std::string homeDir()
+string homeDir()
 {
   const auto home_dir = getenv("HOME");
   if (home_dir == nullptr)
