@@ -4,7 +4,6 @@
 #include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
-#include <err.h>
 
 #include <tobas_std_tools/console.hpp>
 

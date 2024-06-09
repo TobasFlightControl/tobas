@@ -22,6 +22,8 @@ namespace tobas_navio_ros
 MotorsHandler::MotorsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
+  PRINT_DEBUG("MotorsHandler::MotorsHandler");
+
   drone_.loadFromParam(nh_);
 
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
@@ -38,6 +40,8 @@ MotorsHandler::MotorsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& p
   check_interval_timer_ = nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
   publishArming();
+
+  PRINT_DEBUG("/MotorsHandler::MotorsHandler");
 }
 
 bool MotorsHandler::armRotors()

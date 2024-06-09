@@ -12,15 +12,18 @@ namespace tobas_navio_ros
 BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
+  PRINT_DEBUG("BatteryHandler::BatteryHandler");
+
   reloadConfig();
 
   if (adc_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize ADC driver.");
 
   battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
-
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+
+  PRINT_DEBUG("/BatteryHandler::BatteryHandler");
 }
 
 bool BatteryHandler::reloadConfig()

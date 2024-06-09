@@ -17,6 +17,8 @@ namespace tobas_navio_ros
 {
 ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
+  PRINT_DEBUG("ImuHandler::ImuHandler");
+
   reloadConfig();
 
   imu_.initialize();
@@ -34,6 +36,8 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   // メインタイマーはジャイロのバイアスが測定してからスタートする
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this, false, false);
+
+  PRINT_DEBUG("/ImuHandler::ImuHandler");
 }
 
 bool ImuHandler::reloadConfig()
