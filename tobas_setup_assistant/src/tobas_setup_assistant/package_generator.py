@@ -196,11 +196,13 @@ class PackageGenerator(QObject):
         src_dir = osp.join(user_pkg_path, "src")
         nodes_dir = osp.join(user_pkg_path, "nodes")
         nodelets_dir = osp.join(user_pkg_path, "nodelets")
+        scripts_dir = osp.join(user_pkg_path, "scripts")
         os.makedirs(launch_dir, exist_ok=True)
         os.makedirs(include_dir, exist_ok=True)
         os.makedirs(src_dir, exist_ok=True)
         os.makedirs(nodes_dir, exist_ok=True)
         os.makedirs(nodelets_dir, exist_ok=True)
+        os.makedirs(scripts_dir, exist_ok=True)
 
         # テンプレートから作成 (存在する場合は上書きしない)
         self._usr_env.generate(items, "CMakeLists.txt.tpl", user_pkg_path, overwrite=False)
