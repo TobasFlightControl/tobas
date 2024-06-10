@@ -58,8 +58,8 @@ class GroundControlStationWidget(Widget):
         for app in self._apps:
             app.update_internal_data_structures()
 
-    def pkg_path(self) -> str:
-        return self._package_manager.package_path()
+    def tbs_path(self) -> str:
+        return self._package_manager.tbs_path()
 
     def pkg_loaded(self) -> bool:
-        return self.pkg_path() != ""
+        return self.tbs_path() != ""

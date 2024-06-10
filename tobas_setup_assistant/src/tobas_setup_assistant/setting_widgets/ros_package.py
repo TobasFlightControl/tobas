@@ -48,9 +48,9 @@ class RosPackageWidget(BaseSettingWidget):
         self._param_rows.addWidget(self._pardir)
 
         pkg_name_description = ""
-        self._pkg_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
-        self._pkg_name.text_changed.connect(self._on_path_changed)
-        self._param_rows.addWidget(self._pkg_name)
+        self._tbs_name = ParamGetterWidget_LineEdit("Package Name", pkg_name_description)
+        self._tbs_name.text_changed.connect(self._on_path_changed)
+        self._param_rows.addWidget(self._tbs_name)
 
         text = QLabel("The package will be generated as")
         text.setFont(QFont("Default", pointSize=BODY_PSIZE))
@@ -58,11 +58,11 @@ class RosPackageWidget(BaseSettingWidget):
         self.setAlignment(Qt.AlignTop)
         self._rows.addWidget(text)
 
-        self._pkg_path = QLabel(main)
-        self._pkg_path.setFont(QFont("Default", pointSize=BODY_PSIZE, weight=QFont.Bold))
-        self._pkg_path.setFixedHeight(self.TEXT_HEIGHT)
-        self._pkg_path.setAlignment(Qt.AlignTop)
-        self._rows.addWidget(self._pkg_path)
+        self._tbs_path = QLabel(main)
+        self._tbs_path.setFont(QFont("Default", pointSize=BODY_PSIZE, weight=QFont.Bold))
+        self._tbs_path.setFixedHeight(self.TEXT_HEIGHT)
+        self._tbs_path.setAlignment(Qt.AlignTop)
+        self._rows.addWidget(self._tbs_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
         self._generate_button = QPushButton("Generate")
@@ -81,8 +81,8 @@ class RosPackageWidget(BaseSettingWidget):
         self._pardir.set(src_path)
 
         # デフォルトのパッケージ名を設定
-        pkg_name = f"tobas_{get_drone_name()}"
-        self._pkg_name.set(pkg_name)
+        tbs_name = f"tobas_{get_drone_name()}"
+        self._tbs_name.set(tbs_name)
 
     @override
     def is_valid(self) -> bool:
@@ -94,14 +94,14 @@ class RosPackageWidget(BaseSettingWidget):
             q_error_named(self._main, self.NAME, f"{pardir} is not in the src directory of a catkin workspace.")
             return False
 
-        pkg_name = self._pkg_name.get()
-        if pkg_name.count("/") or pkg_name.count(".") or pkg_name.count(" "):
-            q_error_named(self._main, self.NAME, f"Invalid package name: {pkg_name}")
+        tbs_name = self._tbs_name.get()
+        if tbs_name.count("/") or tbs_name.count(".") or tbs_name.count(" "):
+            q_error_named(self._main, self.NAME, f"Invalid package name: {tbs_name}")
             return False
 
-        pkg_path = self._pkg_path.text()
-        if osp.exists(pkg_path):
-            if not yes_or_no(self._main, f"{pkg_path} already exists. Do you want to replace it?", QMessageLevel.WARN):
+        tbs_path = self._tbs_path.text()
+        if osp.exists(tbs_path):
+            if not yes_or_no(self._main, f"{tbs_path} already exists. Do you want to replace it?", QMessageLevel.WARN):
                 return False
 
         return True
@@ -120,11 +120,11 @@ class RosPackageWidget(BaseSettingWidget):
             param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
             param.set(data[param.name()])
 
-    def pkg_name(self) -> str:
-        return self._pkg_name.get()
+    def tbs_name(self) -> str:
+        return self._tbs_name.get()
 
-    def pkg_path(self) -> str:
-        return self._pkg_path.text()
+    def tbs_path(self) -> str:
+        return self._tbs_path.text()
 
     @pyqtSlot()
     def _on_generate_button_clicked(self) -> None:
@@ -133,13 +133,13 @@ class RosPackageWidget(BaseSettingWidget):
     @pyqtSlot()
     def _on_path_changed(self) -> None:
         pardir = self._pardir.get()
-        pkg_name = self._pkg_name.get()
+        tbs_name = self._tbs_name.get()
 
-        path = pardir + "/" + pkg_name + PKG_EXTENSION
+        path = pardir + "/" + tbs_name + PKG_EXTENSION
         path = re.sub("/*/", "/", path)  # スラッシュの重複を削除
-        self._pkg_path.setText(path)
+        self._tbs_path.setText(path)
 
-        self._generate_button.setEnabled(pardir != "" and pkg_name != "")
+        self._generate_button.setEnabled(pardir != "" and tbs_name != "")
 
     def _last_accessed_ws_path(self) -> str:
         catkin_ws_paths = get_catkin_ws_paths()

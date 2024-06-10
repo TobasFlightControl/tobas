@@ -65,7 +65,7 @@ class PackageGenerator(QObject):
 
         # Build Tobas package
         progress.setLabelText("Building Tobas packages.")
-        if not build_tobas_package(self._main.ros_package.pkg_path()):
+        if not build_tobas_package(self._main.ros_package.tbs_path()):
             progress.close()
             q_error(self._main, "Failed to build Tobas package.")
             return
@@ -95,7 +95,7 @@ class PackageGenerator(QObject):
         return True
 
     def _generate_pkg(self) -> None:
-        tbs_path = self._main.ros_package.pkg_path()
+        tbs_path = self._main.ros_package.tbs_path()
 
         # Tobasパッケージを作成
         os.makedirs(tbs_path, exist_ok=True)
@@ -113,7 +113,7 @@ class PackageGenerator(QObject):
         self._generate_user_pkg(items)
 
     def _generate_meta_pkg(self, items: dict) -> None:
-        meta_pkg_path = get_tbs_meta_path(self._main.ros_package.pkg_path())
+        meta_pkg_path = get_tbs_meta_path(self._main.ros_package.tbs_path())
         os.makedirs(meta_pkg_path, exist_ok=True)
 
         self._meta_env.generate(items, "CMakeLists.txt.tpl", meta_pkg_path)
@@ -122,7 +122,7 @@ class PackageGenerator(QObject):
         create_empty_file(osp.join(meta_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"), exist_ok=True)
 
     def _generate_config_pkg(self, items: dict) -> None:
-        config_pkg_path = get_tbs_config_path(self._main.ros_package.pkg_path())
+        config_pkg_path = get_tbs_config_path(self._main.ros_package.tbs_path())
         os.makedirs(config_pkg_path, exist_ok=True)
 
         # ディレクトリを作成
@@ -186,8 +186,8 @@ class PackageGenerator(QObject):
         self._generate_urdf(urdf_dir, mesh_dir)
 
     def _generate_user_pkg(self, items: dict) -> None:
-        user_pkg_name = get_tbs_user_name(self._main.ros_package.pkg_path())
-        user_pkg_path = get_tbs_user_path(self._main.ros_package.pkg_path())
+        user_pkg_name = get_tbs_user_name(self._main.ros_package.tbs_path())
+        user_pkg_path = get_tbs_user_path(self._main.ros_package.tbs_path())
         os.makedirs(user_pkg_path, exist_ok=True)
 
         # ディレクトリを作成
@@ -228,7 +228,7 @@ class PackageGenerator(QObject):
             data[setting_widget.NAME] = setting_widget.dump_settings()
 
         # yaml形式で保存
-        settings_path = get_settings_path(self._main.ros_package.pkg_path())
+        settings_path = get_settings_path(self._main.ros_package.tbs_path())
         with open(settings_path, "w") as f:
             yaml.safe_dump(data, f)
 
@@ -253,9 +253,9 @@ class PackageGenerator(QObject):
         template_items["author_email"] = self._main.author_information.email.get()
 
         # Ros Package
-        template_items["meta_pkg_name"] = get_tbs_meta_name(self._main.ros_package.pkg_path())
-        template_items["config_pkg_name"] = get_tbs_config_name(self._main.ros_package.pkg_path())
-        template_items["user_pkg_name"] = get_tbs_user_name(self._main.ros_package.pkg_path())
+        template_items["meta_pkg_name"] = get_tbs_meta_name(self._main.ros_package.tbs_path())
+        template_items["config_pkg_name"] = get_tbs_config_name(self._main.ros_package.tbs_path())
+        template_items["user_pkg_name"] = get_tbs_user_name(self._main.ros_package.tbs_path())
 
         # Joint Controllers
         joint_controllers = "joint_state_controller"
@@ -446,7 +446,7 @@ class PackageGenerator(QObject):
 
     def _resolve_mesh_files(self, robot: ET.Element, mesh_dir: str) -> None:
         """全てのメッシュファイルのパスをパッケージ以下に変更する．"""
-        config_pkg_name = get_tbs_config_name(self._main.ros_package.pkg_path())
+        config_pkg_name = get_tbs_config_name(self._main.ros_package.tbs_path())
         for mesh in robot.iter("mesh"):
             src_path = resolve_uri(mesh.attrib["filename"])
             base_name = osp.basename(src_path)

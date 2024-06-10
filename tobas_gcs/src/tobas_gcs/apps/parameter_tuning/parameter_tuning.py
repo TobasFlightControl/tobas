@@ -148,7 +148,7 @@ class ParameterTuningWidget(BaseAppWidget):
             return False
 
         # 設定ファイルが存在することを確認
-        tbs_path = self._main.pkg_path()  # PC上のTobasパッケージまでのパス
+        tbs_path = self._main.tbs_path()  # PC上のTobasパッケージまでのパス
         config_pkg_name = get_tbs_config_name(tbs_path)
         config_path = osp.join(
             CATKIN_WS_TOBAS, "src", osp.basename(tbs_path), config_pkg_name, "config", "dynamic_params.yaml"
@@ -171,7 +171,7 @@ class ParameterTuningWidget(BaseAppWidget):
 
     def _save_config_on_pc(self, config: Dict[str, Dict[str, ParamType]]) -> bool:
         # 設定ファイルが存在することを確認
-        config_path = get_dynamic_params_path(self._main.pkg_path())
+        config_path = get_dynamic_params_path(self._main.tbs_path())
         if not osp.exists(config_path):
             q_error(self._main, f"{config_path} does not exist on PC.")
             return False
