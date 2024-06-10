@@ -28,7 +28,7 @@ RCInput::error_t RCInput::initialize()
     PRINT_DEBUG("Initializing RC input channel " << ch << ".");
 
     char* channel_path;
-    if (asprintf(&channel_path, "%s/ch%zu", "/sys/kernel/rcio/rcin", ch) == -1)
+    if (asprintf(&channel_path, "%s/ch%zu", kRcinSysfsPath, ch) == -1)
       return error_ = E_FAILED_TO_OPEN;
 
     channels_[ch] = ::open(channel_path, O_RDONLY);

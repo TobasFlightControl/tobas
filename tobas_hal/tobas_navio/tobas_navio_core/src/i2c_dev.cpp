@@ -113,7 +113,7 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
   }
   else if (count != length)
   {
-    fprintf(stderr, "Short read  from device, expected %d, got %d\n", length, count);
+    fprintf(stderr, "Short read from device, expected %d, got %d\n", length, count);
     close(fd);
     return (-1);
   }
@@ -148,7 +148,7 @@ int8_t I2Cdev::readBytesNoRegAddress(uint8_t devAddr, uint8_t length, uint8_t* d
   }
   else if (count != length)
   {
-    fprintf(stderr, "Short read  from device, expected %d, got %d\n", length, count);
+    fprintf(stderr, "Short read from device, expected %d, got %d\n", length, count);
     close(fd);
     return (-1);
   }

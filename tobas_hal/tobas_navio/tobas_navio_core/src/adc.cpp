@@ -8,8 +8,6 @@
 #include "../include/tobas_navio_core/util.hpp"
 #include "../include/tobas_navio_core/adc.hpp"
 
-#define ADC_SYSFS_PATH "/sys/kernel/rcio/adc"
-
 using namespace std;
 
 namespace navio
@@ -53,7 +51,7 @@ int ADC::read(const size_t& ch)
 int ADC::openChannel(const size_t& ch)
 {
   char* channel_path;
-  if (asprintf(&channel_path, "%s/ch%zu", ADC_SYSFS_PATH, ch) == -1)
+  if (asprintf(&channel_path, "%s/ch%zu", kAdcSysfsPath, ch) == -1)
   {
     err(1, "adc channel: %zu\n", ch);
     return -1;
