@@ -34,7 +34,7 @@ using namespace std;
 
 namespace navio
 {
-Pin::Pin(uint8_t pin) : pin_(pin), gpio_(nullptr), mode_(GpioModeInput)
+Pin::Pin(uint8_t pin) : pin_(pin), gpio_(nullptr), mode_(INPUT)
 {
 }
 
@@ -123,7 +123,7 @@ bool Pin::init()
 
 void Pin::setMode(GpioMode mode)
 {
-  if (mode == GpioModeInput)
+  if (mode == INPUT)
   {
     GPIO_MODE_IN(pin_);
   }
@@ -144,7 +144,7 @@ uint8_t Pin::read() const
 
 void Pin::write(uint8_t value)
 {
-  if (mode_ != GpioModeOutput)
+  if (mode_ != OUTPUT)
     warnx("no effect because mode is not set");
 
   if (value == LOW)
