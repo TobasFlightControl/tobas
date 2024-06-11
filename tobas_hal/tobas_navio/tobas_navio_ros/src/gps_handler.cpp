@@ -44,7 +44,7 @@ void GpsHandler::configureGnssReceiver()
 
   gps_.configureSolutionRate(kMeasurementRate);
   gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G);
-  // gps_.configurePowerMode(navio::Ublox::FULL_POWER);
+  gps_.configurePowerMode(navio::Ublox::FULL_POWER);
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
