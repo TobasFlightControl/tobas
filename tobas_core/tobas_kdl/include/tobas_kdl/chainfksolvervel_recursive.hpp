@@ -19,6 +19,6 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int JntToCart(const JntArrayVel& q_in, int seg_nr = -1) override;
+  int JntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1) override;
 };
 }  // namespace tobas_kdl

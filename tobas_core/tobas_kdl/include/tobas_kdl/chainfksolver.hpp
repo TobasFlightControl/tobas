@@ -3,7 +3,6 @@
 #include "./chainsolveri.hpp"
 #include "./framevel.hpp"
 #include "./jntarray.hpp"
-#include "./jntarrayvel.hpp"
 
 namespace tobas_kdl
 {
@@ -52,7 +51,7 @@ public:
    * Calculate forward position and velocity kinematics, from
    * joint coordinates to cartesian coordinates.
    */
-  virtual int JntToCart(const JntArrayVel& q_in, int seg_nr = -1) = 0;
+  virtual int JntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1) = 0;
 
   const FrameVel& getFrameVel() const
   {

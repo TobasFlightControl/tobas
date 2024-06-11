@@ -13,11 +13,11 @@ void ChainFkSolverVel_recursive::updateInternalDataStructures()
   super::updateInternalDataStructures();
 }
 
-int ChainFkSolverVel_recursive::JntToCart(const JntArrayVel& in, int _seg_nr)
+int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& qd_in, int _seg_nr)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (in.q.rows() != nj_ || in.qdot.rows() != nj_)
+  if (q_in.rows() != nj_ || qd_in.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
 
   const size_t seg_nr = _seg_nr >= 0 ? _seg_nr : chain_.getNrOfSegments();
@@ -29,15 +29,17 @@ int ChainFkSolverVel_recursive::JntToCart(const JntArrayVel& in, int _seg_nr)
 
   for (size_t i = 0; i < seg_nr; ++i)
   {
+    const auto& seg = chain_.getSegment(i);
+
     // Calculate new Frame_base_ee
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
+    if (seg.getJoint().type != Joint::Fixed)
     {
-      p_out_ = p_out_ * FrameVel(chain_.getSegment(i).pose(in.q(j)), chain_.getSegment(i).twist(in.q(j), in.qdot(j)));
+      p_out_ = p_out_ * FrameVel(seg.pose(q_in(j)), seg.twist(q_in(j), qd_in(j)));
       ++j;  // Only increase jointnr if the segment has a joint
     }
     else
     {
-      p_out_ = p_out_ * FrameVel(chain_.getSegment(i).pose(0), chain_.getSegment(i).twist(0, 0));
+      p_out_ = p_out_ * FrameVel(seg.pose(0), seg.twist(0, 0));
     }
   }
 
