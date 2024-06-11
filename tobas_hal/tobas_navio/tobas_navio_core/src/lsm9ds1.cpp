@@ -1,22 +1,12 @@
-#include <cmath>
-
+#include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/time.hpp>
 
 #include "../include/tobas_navio_core/lsm9ds1.hpp"
 
-#define DEVICE_ACC_GYRO "/dev/spidev0.3"
-#define DEVICE_MAG "/dev/spidev0.2"
-
-#define READ_FLAG 0x80
-#define MULTIPLE_READ 0x40
-
-#define G_SI 9.80665
-#define DEG2RAD (M_PI / 180.)
-#define INITIALIZE_SLEEP 200  // [us]
-
 namespace navio
 {
-LSM9DS1::LSM9DS1() : spi_dev_imu_(DEVICE_ACC_GYRO, kSpiSpeedHz), spi_dev_mag_(DEVICE_MAG, kSpiSpeedHz)
+LSM9DS1::LSM9DS1() : spi_dev_imu_(kAccGyroDevice, kSpiSpeedHz), spi_dev_mag_(kMagDevice, kSpiSpeedHz)
 {
 }
 
@@ -30,12 +20,12 @@ uint8_t LSM9DS1::writeReg(SPIdev& spi_dev, const uint8_t& write_addr, const uint
 
 uint8_t LSM9DS1::readReg(SPIdev& spi_dev, const uint8_t& read_addr)
 {
-  return writeReg(spi_dev, read_addr | READ_FLAG, 0x00);
+  return writeReg(spi_dev, read_addr | kReadFlag, 0x00);
 }
 
 void LSM9DS1::readRegsImu(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes)
 {
-  tx_[0] = read_addr | READ_FLAG;
+  tx_[0] = read_addr | kReadFlag;
   spi_dev_imu_.transfer(tx_, rx_, bytes + 1);
 
   for (size_t i = 0; i < bytes; ++i)
@@ -44,7 +34,7 @@ void LSM9DS1::readRegsImu(const uint8_t& read_addr, uint8_t* read_buf, const uin
 
 void LSM9DS1::readRegsMag(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes)
 {
-  tx_[0] = read_addr | READ_FLAG | MULTIPLE_READ;
+  tx_[0] = read_addr | kReadFlag | kMultipleRead;
   spi_dev_mag_.transfer(tx_, rx_, bytes + 1);
 
   for (size_t i = 0; i < bytes; ++i)
@@ -85,9 +75,9 @@ void LSM9DS1::updateAccelerometer()
   for (size_t i = 0; i < 3; ++i)
     bit_data_[i] = ((int16_t)response_[2 * i + 1] << 8) | response_[2 * i];
 
-  ax_ = -G_SI * (static_cast<float>(bit_data_[1]) * acc_scale_);
-  ay_ = -G_SI * (static_cast<float>(bit_data_[0]) * acc_scale_);
-  az_ = G_SI * (static_cast<float>(bit_data_[2]) * acc_scale_);
+  ax_ = -tobas_std::kGravity * (static_cast<float>(bit_data_[1]) * acc_scale_);
+  ay_ = -tobas_std::kGravity * (static_cast<float>(bit_data_[0]) * acc_scale_);
+  az_ = tobas_std::kGravity * (static_cast<float>(bit_data_[2]) * acc_scale_);
 }
 
 void LSM9DS1::updateGyroscope()
@@ -96,9 +86,9 @@ void LSM9DS1::updateGyroscope()
   for (size_t i = 0; i < 3; ++i)
     bit_data_[i] = ((int16_t)response_[2 * i + 1] << 8) | response_[2 * i];
 
-  gx_ = -DEG2RAD * (static_cast<float>(bit_data_[1]) * gyro_scale_);
-  gy_ = -DEG2RAD * (static_cast<float>(bit_data_[0]) * gyro_scale_);
-  gz_ = DEG2RAD * (static_cast<float>(bit_data_[2]) * gyro_scale_);
+  gx_ = -tobas_std::deg2rad(static_cast<float>(bit_data_[1]) * gyro_scale_);
+  gy_ = -tobas_std::deg2rad(static_cast<float>(bit_data_[0]) * gyro_scale_);
+  gz_ = tobas_std::deg2rad(static_cast<float>(bit_data_[2]) * gyro_scale_);
 }
 
 void LSM9DS1::updateMagnetometer()
@@ -126,7 +116,7 @@ void LSM9DS1::initializeGyroscope()
   // Set scale
   setGyroScale(scale);
 
-  tobas_std::usleep(INITIALIZE_SLEEP);
+  tobas_std::usleep(kInitSleep);
 }
 
 void LSM9DS1::initializeAccelerometer()
@@ -144,7 +134,7 @@ void LSM9DS1::initializeAccelerometer()
   // Set scale
   setAccScale(scale);
 
-  tobas_std::usleep(INITIALIZE_SLEEP);
+  tobas_std::usleep(kInitSleep);
 }
 
 void LSM9DS1::initializeMagnetometer()
@@ -162,7 +152,7 @@ void LSM9DS1::initializeMagnetometer()
   // Set scale
   setMagScale(scale);
 
-  tobas_std::usleep(INITIALIZE_SLEEP);
+  tobas_std::usleep(kInitSleep);
 }
 
 void LSM9DS1::setGyroScale(const uint8_t& scale)

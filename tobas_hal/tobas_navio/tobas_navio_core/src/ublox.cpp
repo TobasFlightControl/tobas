@@ -8,14 +8,12 @@
 #include "../include/tobas_navio_core/ublox.hpp"
 #include "../include/tobas_navio_core/util.hpp"
 
-#define GPS_DEVICE "/dev/spidev0.0"
-
 using namespace std;
 using namespace chrono;
 
 namespace navio
 {
-Ublox::Ublox() : spi_dev_(GPS_DEVICE, kSpiSpeedHz), rate_(chrono::microseconds(kSpiInterval))
+Ublox::Ublox() : spi_dev_(kDevice, kSpiSpeedHz), rate_(chrono::microseconds(kSpiInterval))
 {
 }
 

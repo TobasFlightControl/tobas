@@ -203,7 +203,9 @@ namespace navio
 {
 class MPU9250 : public InertialSensor
 {
+  static constexpr char kDevice[] = "/dev/spidev0.1";
   static constexpr uint32_t kSpiSpeedHz = 1000000;  // Maximum frequency is 1MHz
+  static constexpr size_t kDataLength = 255;
 
 public:
   explicit MPU9250();
@@ -213,16 +215,6 @@ public:
   void update() override;
 
 private:
-  uint8_t WriteReg(uint8_t WriteAddr, uint8_t WriteData);
-  uint8_t ReadReg(uint8_t ReadAddr);
-  void ReadRegs(uint8_t ReadAddr, uint8_t* ReadBuf, uint32_t Bytes);
-
-  void set_gyro_scale(uint8_t scale);
-  void set_acc_scale(uint8_t scale);
-
-  void calib_acc();
-  void calib_mag();
-
   SPIdev spi_dev_;
 
   float acc_divider_;
@@ -230,5 +222,15 @@ private:
 
   int calib_data_[3];
   float magnetometer_ASA_[3];
+
+  uint8_t writeReg(uint8_t write_addr, uint8_t write_data);
+  uint8_t readReg(uint8_t read_addr);
+  void readRegs(uint8_t read_addr, uint8_t* read_buf, uint32_t bytes);
+
+  void setGyroScale(uint8_t scale);
+  void setAccScale(uint8_t scale);
+
+  void calibAcc();
+  void calibMag();
 };
 }  // namespace navio

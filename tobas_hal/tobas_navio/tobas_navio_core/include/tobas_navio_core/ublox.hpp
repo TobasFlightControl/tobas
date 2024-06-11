@@ -12,9 +12,10 @@
 
 namespace navio
 {
-static constexpr uint8_t kMinMaxTrkChForMajorGnss = 4;
+static constexpr char kDevice[] = "/dev/spidev0.0";
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
-static constexpr double kWaitForGnssAck = 3.;     // [s]
+static constexpr uint8_t kMinMaxTrkChForMajorGnss = 4;
+static constexpr double kWaitForGnssAck = 3.;  // [s]
 
 // SPIで1バイト受け取る間隔 [us]
 // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる

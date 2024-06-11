@@ -3,8 +3,6 @@
 
 #include "../include/tobas_navio_core/pwm.hpp"
 
-#define NON_ROOT_SLEEP 100  // [ms]
-
 using namespace std;
 
 namespace navio
@@ -29,7 +27,7 @@ bool PWM::initialize(const size_t& channel)
 
   // 非rootの場合は，udevによってPWMデバイスがシステムに追加された際にアクセス権の変更等の遅延が生じるため，少し待つ
   if (!tobas_std::isSuperUser())
-    tobas_std::msleep(NON_ROOT_SLEEP);
+    tobas_std::msleep(kNonRootSleep);
 
   return err >= 0 || err == -EBUSY;
 }

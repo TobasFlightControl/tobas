@@ -19,6 +19,7 @@ namespace navio
 class PWM
 {
   static constexpr size_t kChannelCount = 14;
+  static constexpr size_t kNonRootSleep = 100;  // [ms]
 
 public:
   explicit PWM();

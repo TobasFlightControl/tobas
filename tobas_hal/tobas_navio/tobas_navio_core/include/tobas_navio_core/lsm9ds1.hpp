@@ -10,7 +10,12 @@ namespace navio
  */
 class LSM9DS1 : public InertialSensor
 {
+  static constexpr char kAccGyroDevice[] = "/dev/spidev0.3";
+  static constexpr char kMagDevice[] = "/dev/spidev0.2";
   static constexpr uint32_t kSpiSpeedHz = 10000000;  // Maximum frequency is 10MHz
+  static constexpr uint8_t kReadFlag = 0x80;
+  static constexpr uint8_t kMultipleRead = 0x40;
+  static constexpr size_t kInitSleep = 200; // [us]
 
 public:
   explicit LSM9DS1();
