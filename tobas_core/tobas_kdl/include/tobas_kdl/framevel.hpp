@@ -26,12 +26,13 @@ public:
   inline VectorVel inverse(const Vector& arg) const;
   inline VectorVel inverse(const VectorVel& arg) const;
 
-  inline VectorVel operator*(const Vector& arg) const;
-  inline VectorVel operator*(const VectorVel& arg) const;
+  inline VectorVel operator*(const Vector& rhs) const;
+  inline VectorVel operator*(const VectorVel& rhs) const;
 
-  inline friend FrameVel operator*(const FrameVel& f1, const FrameVel& f2);
-  inline friend FrameVel operator*(const Frame& f1, const FrameVel& f2);
-  inline friend FrameVel operator*(const FrameVel& f1, const Frame& f2);
+  inline FrameVel operator*(const Frame& rhs) const;
+  inline FrameVel operator*(const FrameVel& rhs) const;
+
+  inline friend FrameVel operator*(const Frame& lhs, const FrameVel& rhs);
 };
 
 inline FrameVel::FrameVel()
@@ -80,24 +81,24 @@ inline VectorVel FrameVel::inverse(const VectorVel& arg) const
   return M.inverse(arg - p);
 }
 
-inline VectorVel FrameVel::operator*(const Vector& arg) const
+inline VectorVel FrameVel::operator*(const Vector& rhs) const
 {
-  return M * arg + p;
+  return M * rhs + p;
 }
 
-inline VectorVel FrameVel::operator*(const VectorVel& arg) const
+inline VectorVel FrameVel::operator*(const VectorVel& rhs) const
 {
-  return M * arg + p;
+  return M * rhs + p;
 }
 
-inline FrameVel operator*(const FrameVel& lhs, const FrameVel& rhs)
+inline FrameVel FrameVel::operator*(const Frame& rhs) const
 {
-  return FrameVel(lhs.M * rhs.M, lhs.M * rhs.p + lhs.p);
+  return FrameVel(M * rhs.M, M * rhs.p + p);
 }
 
-inline FrameVel operator*(const FrameVel& lhs, const Frame& rhs)
+inline FrameVel FrameVel::operator*(const FrameVel& rhs) const
 {
-  return FrameVel(lhs.M * rhs.M, lhs.M * rhs.p + lhs.p);
+  return FrameVel(M * rhs.M, M * rhs.p + p);
 }
 
 inline FrameVel operator*(const Frame& lhs, const FrameVel& rhs)
