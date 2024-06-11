@@ -33,9 +33,14 @@ class KeyboardReader:
 
             # 入力を取得
             if rlist:
-                key = sys.stdin.read(1)  # 1文字入力を読み取る
-                if key == KeyCode.ESC.value:  # エスケープ文字だったら
-                    key += sys.stdin.read(2)  # 残りの2文字を読み取る
+                # 1文字入力を読み取る
+                key = sys.stdin.read(1)
+
+                # エスケープ文字だったら残りの2文字を読み取る
+                # FIXME: このやり方だとESC単体が押された場合に待機してしまう
+                if key == KeyCode.ESC.value:
+                    key += sys.stdin.read(2)
+
                 return key
             else:
                 return None
