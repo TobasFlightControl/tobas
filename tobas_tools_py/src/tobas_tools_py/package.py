@@ -45,6 +45,11 @@ def get_urdf_path(tbs_path: str) -> str:
     return osp.join(get_tbs_config_path(tbs_path), "urdf", "drone.xacro")
 
 
+def get_mesh_path(tbs_path: str) -> str:
+    """PC上の meshディレクトリの絶対パスを返す．"""
+    return osp.join(get_tbs_config_path(tbs_path), "mesh")
+
+
 def get_settings_path(tbs_path: str) -> str:
     """PC上の settings.yaml の絶対パスを返す．"""
     return osp.join(get_tbs_config_path(tbs_path), "settings.yaml")

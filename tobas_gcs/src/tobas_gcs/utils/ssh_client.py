@@ -1,8 +1,10 @@
+import os
 import os.path as osp
 import paramiko
 import socket
+import rospy
 from scp import SCPClient
-from typing import Tuple
+from typing import Tuple, Optional
 
 
 class SSHClientWrapper:
@@ -72,32 +74,70 @@ class SSHClientWrapper:
         """バックグラウンドでsudoコマンドを実行．"""
         self.exec_command_bg(self._sudo_command(command))
 
-    def scp_put(self, local_path: str, remote_dir: str) -> None:
-        # SCPでリモートディレクトリ以下にローカルオブジェクトをコピー
-        with SCPClient(self._ssh_client.get_transport()) as scp:
-            scp.put(local_path, remote_dir, True)
+    def scp_put_dir(self, _local_dir: str, _remote_dir: str, _exclude_dir: Optional[str] = None) -> None:
+        """
+        SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
 
-    def scp_put_super(self, local_path: str, remote_dir: str) -> None:
+        Parameters
+        ----------
+        _local_dir : str
+            ローカルディレクトリの絶対パス．
+        _remote_dir : str
+            リモートディレクトリの絶対パス．
+        _exclude_dir : str
+            ローカルの除外するディレクトリの絶対パス．
+        """
+        rospy.logdebug(f"SSHClientWrapper.scp_put_dir({_local_dir}, {_remote_dir}, {_exclude_dir})")
+
+        if not osp.isdir(_local_dir):
+            raise RuntimeError(f"Local directory {_local_dir} does not exist.")
+
+        local_dir_base = osp.basename(_local_dir.rstrip("/"))
+        rospy.logdebug(f"The base name of the local directory is {local_dir_base}.")
+
+        with SCPClient(self._ssh_client.get_transport()) as scp:
+            for root, _, files in os.walk(_local_dir):
+                # 指定されたディレクトリを除外
+                if _exclude_dir is not None and root.startswith(_exclude_dir):
+                    continue
+
+                # ファイルを1つずつ送信
+                for file in files:
+                    local_file = osp.join(root, file)
+                    if not osp.isfile(local_file):
+                        raise RuntimeError(f"Local file {local_file} does not exist.")
+
+                    relative_path = osp.relpath(local_file, _local_dir)
+                    remote_file = osp.join(_remote_dir, local_dir_base, relative_path)
+                    remote_pardir = osp.dirname(remote_file)
+                    if not self.dir_exists(remote_pardir):
+                        rospy.logdebug(f"Creating remote directory {remote_pardir}")
+                        success, _, error_output = self.exec_command(f"mkdir -p {remote_pardir}")
+                        if not success:
+                            raise RuntimeError(f"Failed to create remote directory {remote_pardir}: {error_output}")
+
+                    rospy.logdebug(f"Sending local file {local_file} into remote directory {remote_pardir}.")
+                    scp.put(local_file, remote_pardir)
+
+    def scp_put_dir_super(self, local_dir: str, remote_dir: str, exclude_dir: Optional[str] = None) -> None:
         """root権限が必要なファイルに書き込む．"""
+        rospy.logdebug(f"SSHClientWrapper.scp_put_dir_super({local_dir}, {remote_dir}, {exclude_dir})")
+
         # リモートディレクトリが存在することを確かめる
         # 存在しなければローカルオブジェクトがそのままリモートディレクトリのパスとして配置されてしまう
         if not self.dir_exists(remote_dir):
             raise RuntimeError(f"Remote directory {remote_dir} does not exist.")
 
         # 一時オブジェクトに書き込む
-        self.scp_put(local_path, "/tmp/")
+        self.scp_put_dir(local_dir, "/tmp/", exclude_dir)
 
         # 一時オブジェクトのパス
-        tmp_path = osp.join("/tmp", osp.basename(local_path.rstrip("/")))
+        tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
 
         # 一時オブジェクトをリモートディレクトリ以下にコピーする
         success, _, error_output = self.exec_command_super(f"cp -r {tmp_path} {remote_dir}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
-
-    def scp_get(self, remote_path: str, local_path: str) -> None:
-        with SCPClient(self._ssh_client.get_transport()) as scp:
-            scp.get(remote_path, local_path, True)
 
     def sftp_read(self, remote_path: str) -> str:
         assert not remote_path.endswith("/")

@@ -7,6 +7,7 @@ namespace navio
 class ADC
 {
   static constexpr size_t kChannelCount = 6;
+  static constexpr char kAdcSysfsPath[] = "/sys/kernel/rcio/adc";
 
 public:
   explicit ADC();

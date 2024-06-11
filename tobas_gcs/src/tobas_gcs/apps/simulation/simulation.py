@@ -81,7 +81,7 @@ class SimulationWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        tbs_path = self._main.pkg_path()
+        tbs_path = self._main.tbs_path()
         config_pkg_name = get_tbs_config_name(tbs_path)
 
         num_steps = 11 if self._is_running_under_fc_master else 8

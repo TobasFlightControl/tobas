@@ -4,6 +4,7 @@ After=tobas_roscore.service
 Requires=tobas_roscore.service
 
 [Service]
+User=pi
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 ExecStartPre=/bin/bash -c '/etc/tobas/check_roscore.sh'

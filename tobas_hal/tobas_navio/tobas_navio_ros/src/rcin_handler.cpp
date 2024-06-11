@@ -1,6 +1,7 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/property_tree.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_msgs/RCInput.h>
 
 #include "../include/tobas_navio_ros/rcin_handler.hpp"
@@ -14,6 +15,8 @@ namespace tobas_navio_ros
 RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
+  PRINT_DEBUG("RCInputHandler::RCInputHandler");
+
   reloadConfig();
 
   if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
@@ -22,95 +25,100 @@ RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
   rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+
+  PRINT_DEBUG("/RCInputHandler::RCInputHandler");
 }
 
 bool RCInputHandler::reloadConfig()
 {
-  tobas_std::PropertyTree pt(kConfigPath);
+  PRINT_DEBUG("RCInputHandler::reloadConfig");
+
+  PropertyTree pt(kConfigPath);
+  bool res = true;
 
   if (!pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcRollLeft, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcRollRight, roll_range_.upper, tobas_navio_ros::kPwmMax))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcRollRight, ".");
-    return false;
+    res = false;
   }
 
   if (!pt.get(kConfigKey_RcPitchDown, pitch_range_.lower, tobas_navio_ros::kPwmMax))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcPitchDown, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcPitchUp, pitch_range_.upper, tobas_navio_ros::kPwmMin))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcPitchUp, ".");
-    return false;
+    res = false;
   }
 
   if (!pt.get(kConfigKey_RcYawRight, yaw_range_.lower, tobas_navio_ros::kPwmMax))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcYawRight, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcYawLeft, yaw_range_.upper, tobas_navio_ros::kPwmMin))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcYawLeft, ".");
-    return false;
+    res = false;
   }
 
   if (!pt.get(kConfigKey_RcThrottleDown, throttle_range_.lower, tobas_navio_ros::kPwmMax))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcThrottleDown, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcThrottleUp, throttle_range_.upper, tobas_navio_ros::kPwmMin))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcThrottleUp, ".");
-    return false;
+    res = false;
   }
 
   if (!pt.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram], tobas_navio_ros::kPwmMin))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcModeProgram, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize], tobas_navio_ros::kPwmMid))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcModeStabilize, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat], tobas_navio_ros::kPwmMax))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcModeAcrobat, ".");
-    return false;
+    res = false;
   }
 
   if (!pt.get(kConfigKey_RcEStopOn, estop_on_, tobas_navio_ros::kPwmMin))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcEStopOn, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcEStopOff, estop_off_, tobas_navio_ros::kPwmMax))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcEStopOff, ".");
-    return false;
+    res = false;
   }
 
   if (!pt.get(kConfigKey_RcGPSwOn, gpsw_on_, tobas_navio_ros::kPwmMin))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcGPSwOn, ".");
-    return false;
+    res = false;
   }
   if (!pt.get(kConfigKey_RcGPSwOff, gpsw_off_, tobas_navio_ros::kPwmMax))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_RcGPSwOff, ".");
-    return false;
+    res = false;
   }
 
-  return true;
+  return res;
 }
 
 bool RCInputHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
@@ -159,7 +167,7 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   // Mode
   if (rcin_.read(kRcChannelMode) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->mode = tobas_std::closestIndex<double>(modes_, rcin_.getPeriod());
+  rcin_msg->mode = closestIndex<double>(modes_, rcin_.getPeriod());
 
   // E-Stop
   if (rcin_.read(kRcChannelEStop) != navio::RCInput::E_NO_ERROR)

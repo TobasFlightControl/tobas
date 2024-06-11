@@ -1,6 +1,7 @@
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_msgs/Gps.h>
 
 #include "../include/tobas_navio_ros/gps_handler.hpp"
@@ -12,6 +13,8 @@ namespace tobas_navio_ros
 {
 GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
+  PRINT_DEBUG("GpsHandler::GpsHandler");
+
   try
   {
     configureGnssReceiver();
@@ -25,6 +28,8 @@ GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   // Start main timer with maximum rate
   main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
+
+  PRINT_DEBUG("/GpsHandler::GpsHandler");
 }
 
 void GpsHandler::configureGnssReceiver()

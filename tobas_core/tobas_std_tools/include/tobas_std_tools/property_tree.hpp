@@ -39,6 +39,8 @@ private:
 template <typename T>
 T PropertyTree::get(const std::string& key) const
 {
+  PRINT_DEBUG("PropertyTree::get(" << key << ")");
+
   const auto optional = pt_.get_optional<T>(keyWithSection(key));
   if (!optional)
     throw std::runtime_error("Failed to get property: " + key);
@@ -48,6 +50,8 @@ T PropertyTree::get(const std::string& key) const
 template <typename T>
 T PropertyTree::get(const std::string& key, const T& _default) const
 {
+  PRINT_DEBUG("PropertyTree::get(" << key << ", " << _default << ")");
+
   const auto optional = pt_.get_optional<T>(keyWithSection(key));
   return optional ? optional.get() : _default;
 }
@@ -55,6 +59,8 @@ T PropertyTree::get(const std::string& key, const T& _default) const
 template <typename T>
 bool PropertyTree::get(const std::string& key, T& value, const T& _default) const
 {
+  PRINT_DEBUG("PropertyTree::get(" << key << ", " << value << ", " << _default << ")");
+
   const auto optional = pt_.get_optional<T>(keyWithSection(key));
   if (optional)
   {
@@ -71,6 +77,8 @@ bool PropertyTree::get(const std::string& key, T& value, const T& _default) cons
 template <typename T>
 void PropertyTree::put(const std::string& key, const T& value)
 {
+  PRINT_DEBUG("PropertyTree::put(" << key << ", " << value << ")");
+
   pt_.put(keyWithSection(key), value);
 }
 }  // namespace tobas_std

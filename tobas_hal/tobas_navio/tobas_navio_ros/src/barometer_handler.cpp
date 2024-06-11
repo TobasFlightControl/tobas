@@ -16,6 +16,8 @@ namespace tobas_navio_ros
 BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
+  PRINT_DEBUG("BarometerHandler::BarometerHandler");
+
   reloadConfig();
 
   barometer_.initialize();
@@ -26,6 +28,8 @@ BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHan
 
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+
+  PRINT_DEBUG("/BarometerHandler::BarometerHandler");
 }
 
 bool BarometerHandler::reloadConfig()

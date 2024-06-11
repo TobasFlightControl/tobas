@@ -8,6 +8,7 @@ namespace navio
 class RCInput
 {
   static constexpr size_t kChannelCount = 14;
+  static constexpr char kRcinSysfsPath[] = "/sys/kernel/rcio/rcin";
 
 public:
   enum error_t : int8_t

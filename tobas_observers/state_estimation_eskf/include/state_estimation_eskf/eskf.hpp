@@ -178,7 +178,7 @@ private:
    *
    * @return Anormaly score
    */
-  template <size_t M>
+  template <int M>
   double correct(
     const Eigen::Matrix<double, M, 1>& delta_meas,
     const Eigen::Matrix<double, M, M>& meas_cov,
@@ -299,7 +299,7 @@ inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const
   return x_.segment<4>(kQuatIdx);
 }
 
-template <size_t M>
+template <int M>
 double ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, 1>& delta_meas,
   const Eigen::Matrix<double, M, M>& meas_cov,

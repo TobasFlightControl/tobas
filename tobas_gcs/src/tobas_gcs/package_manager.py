@@ -14,7 +14,7 @@ from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION
 from tobas_tools_py.drone import Drone, DroneLoader_File
-from tobas_tools_py.package import get_tbs_meta_name, get_tbs_config_name, get_tbsdrn_path
+from tobas_tools_py.package import get_tbs_meta_name, get_tbs_config_name, get_tbsdrn_path, get_mesh_path
 
 from .common import TITLE, PKG_NAME, CATKIN_WS_TOBAS, SOURCE_CMD
 from .utils.ssh_client import SSHClientWrapper
@@ -40,11 +40,11 @@ class PackageManagerWidget(Widget):
         label = QLabel("Tobas Package Path:")
         cols.addWidget(label)
 
-        self._pkg_path = QLineEdit()
-        self._pkg_path.setFixedWidth(self.PATH_WIDTH)
-        self._pkg_path.setReadOnly(True)
-        self._pkg_path.setFocusPolicy(Qt.NoFocus)
-        cols.addWidget(self._pkg_path)
+        self._tbs_path = QLineEdit()
+        self._tbs_path.setFixedWidth(self.PATH_WIDTH)
+        self._tbs_path.setReadOnly(True)
+        self._tbs_path.setFocusPolicy(Qt.NoFocus)
+        cols.addWidget(self._tbs_path)
 
         self._load_button = QPushButton("Load")
         self._load_button.setFixedWidth(self.BUTTON_WIDTH)
@@ -57,13 +57,13 @@ class PackageManagerWidget(Widget):
         self._send_button.clicked.connect(self._on_send_button_clicked)
         cols.addWidget(self._send_button)
 
-    def package_path(self) -> str:
-        return self._pkg_path.text()
+    def tbs_path(self) -> str:
+        return self._tbs_path.text()
 
-    def _load_drone(self, pkg_path: str) -> bool:
+    def _load_drone(self, tbs_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
-        tbsf_path = get_tbsdrn_path(pkg_path)
+        tbsf_path = get_tbsdrn_path(tbs_path)
         if not osp.isfile(tbsf_path):
             q_error(self._main, f"{tbsf_path} does not exist.")
             return False
@@ -88,28 +88,28 @@ class PackageManagerWidget(Widget):
         options |= QFileDialog.DontUseNativeDialog
         options |= QFileDialog.ShowDirsOnly
         options |= QFileDialog.DontResolveSymlinks
-        pkg_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
-        assert not pkg_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
+        tbs_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
+        assert not tbs_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-        if pkg_path == "":
+        if tbs_path == "":
             return
 
         # 拡張子をチェック
-        if not pkg_path.endswith(PKG_EXTENSION):
-            q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
+        if not tbs_path.endswith(PKG_EXTENSION):
+            q_error(self._main, f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
             return
 
         # ドローンの機体情報を読み込む
-        if not self._load_drone(pkg_path):
+        if not self._load_drone(tbs_path):
             return
 
         # パスをテキストに設定
-        self._pkg_path.setText(pkg_path)
+        self._tbs_path.setText(tbs_path)
 
         # ユーザが開いたディレクトリを保存
         # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config.set(self.KEY, osp.dirname(pkg_path))
+        self._config.set(self.KEY, osp.dirname(tbs_path))
         self._config.write()
 
         # Writeボタンを有効化
@@ -123,6 +123,8 @@ class PackageManagerWidget(Widget):
 
     @pyqtSlot()
     def _on_send_button_clicked(self) -> None:
+        tbs_path = self.tbs_path()
+
         progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=6)
         progress.setCancelButton(None)
         progress.show()
@@ -140,8 +142,10 @@ class PackageManagerWidget(Widget):
         # Tobasパッケージを送信
         # FIXME: メッシュファイルを送るのに多大な時間がかかる．ラズパイ側では不要だから省略したい．
         progress.setLabelText("Sending Tobas configuration package.")
+        mesh_path = get_mesh_path(tbs_path)
+        remote_dir = osp.join(CATKIN_WS_TOBAS, "src/")
         try:
-            self._ssh_client.scp_put_super(self.package_path(), osp.join(CATKIN_WS_TOBAS, "src/"))
+            self._ssh_client.scp_put_dir_super(tbs_path, remote_dir, exclude_dir=mesh_path)
         except Exception as e:
             progress.close()
             q_error(self._main, f"Failed to send tobas configuration package:\n\n{e}")
@@ -152,7 +156,7 @@ class PackageManagerWidget(Widget):
         # NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する．
         # TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
         progress.setLabelText("Building Tobas configuration package.")
-        meta_pkg_name = get_tbs_meta_name(self._pkg_path.text())
+        meta_pkg_name = get_tbs_meta_name(tbs_path)
         command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {meta_pkg_name}"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:  # ビルドできなければcatkin cleanして再試行
@@ -169,7 +173,7 @@ class PackageManagerWidget(Widget):
         progress.setLabelText("Setting environment variables.")
         try:
             self._ssh_client.sftp_write_super(
-                "/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={get_tbs_config_name(self._main.pkg_path())}\n"
+                "/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={get_tbs_config_name(self._main.tbs_path())}\n"
             )
         except Exception as e:
             progress.close()

@@ -4,6 +4,9 @@
 
 namespace tobas_std
 {
+/* ユーザ名を取得する． */
+std::string userName();
+
 /* ホームディレクトリを取得する． */
 std::string homeDir();
 
