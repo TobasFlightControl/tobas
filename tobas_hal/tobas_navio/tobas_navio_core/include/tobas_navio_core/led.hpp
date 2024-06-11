@@ -18,6 +18,9 @@ enum class Colors
 
 class Led
 {
+  static constexpr uint8_t kOnValue = 0;
+  static constexpr uint8_t kOffValue = 1;
+
 public:
   explicit Led();
 
@@ -25,8 +28,8 @@ public:
   void setColor(Colors color);
 
 private:
-  Pin* pin_R_;
-  Pin* pin_G_;
-  Pin* pin_B_;
+  Pin pin_R_;
+  Pin pin_G_;
+  Pin pin_B_;
 };
 }  // namespace navio
