@@ -476,7 +476,7 @@ class PackageGenerator(QObject):
             if child.tag == "plugin":
                 if self._is_deletable_gazebo_plugin(child) or self._ask_remove_or_keep_gazebo_child(child):
                     return True
-            elif child.tag == "sensor":
+            else:
                 for plugin in child.iter("plugin"):
                     if self._is_deletable_gazebo_plugin(plugin) or self._ask_remove_or_keep_gazebo_child(child):
                         return True
