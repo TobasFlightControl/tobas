@@ -23,6 +23,9 @@ class SSHClientWrapper:
         self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def connect(self) -> None:
+        if self.is_connected():
+            return
+
         # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:
             self._ssh_client.connect(self.HOST_NAME, self.PORT, self.USER, self.LOGIN_PASSWORD)
@@ -52,7 +55,11 @@ class SSHClientWrapper:
         output: str
         error_output: str
         """
-        _, stdout, stderr = self._ssh_client.exec_command(command)
+        try:
+            _, stdout, stderr = self._ssh_client.exec_command(command)
+        except AttributeError:
+            return False, "", "No network connection"
+
         stdout.channel.recv_exit_status()  # コマンドの実行結果を待つ
 
         output: str = stdout.read().decode(self.UTF_8)  # 標準出力
