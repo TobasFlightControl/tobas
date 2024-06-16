@@ -1,7 +1,7 @@
 [Unit]
 Description=Tobas Flight Controller
-After=tobas_nodelet_managers.service
-Requires=tobas_nodelet_managers.service
+After=tobas_nodelet_managers.target
+Requires=tobas_nodelet_managers.target
 Conflicts=tobas_hil.service
 
 [Service]
