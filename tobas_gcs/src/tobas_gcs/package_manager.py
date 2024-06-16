@@ -182,12 +182,12 @@ class PackageManagerWidget(Widget):
         progress.progress_step()
 
         # ROS関連の全てのサービスを再起動 (でないと古いトピックが残ってしまう)
-        progress.setLabelText("Restarting Tobas software.")
+        progress.setLabelText("Restarting Tobas.")
         command = "systemctl restart tobas_roscore.service"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             progress.close()
-            q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")
+            q_error(self._main, f"Failed to restart Tobas:\n\n{error_output}")
             return
         progress.progress_step()
 
