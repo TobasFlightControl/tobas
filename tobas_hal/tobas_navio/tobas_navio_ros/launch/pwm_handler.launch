@@ -5,7 +5,7 @@
   <arg name="node_name" value="pwm_handler"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_navio_ros/PwmHandlerNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_navio_ros/PwmHandlerNodelet nodelet_manager_fast" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

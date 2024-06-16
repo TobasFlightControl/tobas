@@ -6,7 +6,7 @@
   <arg name="node_name" value="move_action_server"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_move/MoveActionServerNodelet nodelet_manager" output="screen">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_multirotor_move/MoveActionServerNodelet nodelet_manager_medium" output="screen">
       <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
     </node>
   </group>

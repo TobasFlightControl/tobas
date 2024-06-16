@@ -32,6 +32,11 @@
     <arg name="headless" value="$(arg headless)"/>
   </include>
 
+  <!-- Launch nodelet managers -->
+  <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_fast.launch"/>
+  <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_medium.launch"/>
+  <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_slow.launch"/>
+
   <group ns="{{ drone_name }}">
     <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
     <node pkg="gazebo_ros" type="spawn_model" name="spawn_{{ drone_name }}" output="screen" args="-param robot_description -urdf -model {{ drone_name }} -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg yaw_rad)"/>

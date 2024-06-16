@@ -6,8 +6,8 @@
   <arg name="euler_converter_name" value="matrix_euler_converter"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg battery_lpf_name)" args="load tobas_preprocess/BatteryLpfNodelet nodelet_manager" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg euler_converter_name)" args="load tobas_preprocess/MatrixEulerConverterNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg battery_lpf_name)" args="load tobas_preprocess/BatteryLpfNodelet nodelet_manager_medium" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg euler_converter_name)" args="load tobas_preprocess/MatrixEulerConverterNodelet nodelet_manager_medium" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

@@ -141,6 +141,9 @@ class PackageGenerator(QObject):
         # テンプレートから生成
         self._cfg_env.generate(items, "CMakeLists.txt.tpl", config_pkg_path)
         self._cfg_env.generate(items, "package.xml.tpl", config_pkg_path)
+        self._cfg_env.generate(items, "nodelet_manager_fast.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "nodelet_manager_medium.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "nodelet_manager_slow.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "common_params.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "gazebo.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "real.launch.tpl", launch_dir)

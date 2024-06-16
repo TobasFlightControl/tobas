@@ -11,11 +11,6 @@
     <rosparam file="$(find {{ config_pkg_name }})/config/dynamic_params.yaml" command="load"/>
     <rosparam file="$(find {{ config_pkg_name }})/config/rc_teleop.yaml" command="load"/>
 
-    <!-- Launch nodelet manager -->
-    <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" output="screen">
-      <param name="num_worker_threads" value="$(arg num_worker_threads)"/>
-    </node>
-
     <!-- Bringup observer -->
     <include file="$(find {{ observer_pkg }})/launch/observer.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>

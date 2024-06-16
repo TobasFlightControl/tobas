@@ -5,7 +5,7 @@
 
   <arg name="node_name" value="takeoff_action_server"/>
 
-  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_arducopter/TakeoffActionServerNodelet nodelet_manager" output="screen">
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_arducopter/TakeoffActionServerNodelet nodelet_manager_medium" output="screen">
     <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
   </node>
 
