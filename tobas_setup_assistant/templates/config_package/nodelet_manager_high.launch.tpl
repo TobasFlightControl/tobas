@@ -1,7 +1,7 @@
 <launch>
 
   <group ns="{{ drone_name }}">
-    <node pkg="nodelet" type="nodelet" name="nodelet_manager_fast" args="manager" output="screen">
+    <node pkg="nodelet" type="nodelet" name="nodelet_manager_high" args="manager" output="screen">
       <param name="num_worker_threads" value="8"/>
     </node>
   </group>

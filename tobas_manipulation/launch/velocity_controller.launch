@@ -5,7 +5,7 @@
 
   <arg name="node_name" value="tobas_manipulation_velocity"/>
 
-  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_manipulation/VelocityControllerNodelet nodelet_manager_fast" output="screen">
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_manipulation/VelocityControllerNodelet nodelet_manager_high" output="screen">
     <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
   </node>
   <node unless="$(arg nodelet)" pkg="tobas_manipulation" type="velocity_controller_node" name="$(arg node_name)" output="screen">

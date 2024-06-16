@@ -7,7 +7,7 @@
 
   <rosparam file="$(arg config_path)" command="load"/>
 
-  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_dynamixel_handler/DynamixelHandlerNodelet nodelet_manager_fast" output="screen" required="true"/>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_dynamixel_handler/DynamixelHandlerNodelet nodelet_manager_high" output="screen" required="true"/>
   <node unless="$(arg nodelet)" pkg="tobas_dynamixel_handler" type="dynamixel_handler_node" name="$(arg node_name)" output="screen" required="true"/>
 
 </launch>

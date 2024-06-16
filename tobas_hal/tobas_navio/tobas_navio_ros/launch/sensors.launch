@@ -9,9 +9,9 @@
 
   <group if="$(arg nodelet)">
     <node pkg="nodelet" type="nodelet" name="$(arg bat_name)" args="load tobas_navio_ros/BatteryHandlerNodelet nodelet_manager_medium" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_navio_ros/ImuHandlerNodelet nodelet_manager_fast" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg bar_name)" args="load tobas_navio_ros/BarometerHandlerNodelet nodelet_manager_fast" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg gps_name)" args="load tobas_navio_ros/GpsHandlerNodelet nodelet_manager_fast" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_navio_ros/ImuHandlerNodelet nodelet_manager_high" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg bar_name)" args="load tobas_navio_ros/BarometerHandlerNodelet nodelet_manager_high" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg gps_name)" args="load tobas_navio_ros/GpsHandlerNodelet nodelet_manager_high" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

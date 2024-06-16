@@ -33,9 +33,9 @@
   </include>
 
   <!-- Launch nodelet managers -->
-  <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_fast.launch"/>
+  <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_high.launch"/>
   <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_medium.launch"/>
-  <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_slow.launch"/>
+  <include file="$(find {{ config_pkg_name }})/launch/nodelet_manager_low.launch"/>
 
   <group ns="{{ drone_name }}">
     <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
