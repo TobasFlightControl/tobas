@@ -1,5 +1,5 @@
 [Unit]
-Description=Launch FKIE multimaster nodes
+Description=FKIE Multimaster Nodes
 After=tobas_roscore.service
 Requires=tobas_roscore.service
 

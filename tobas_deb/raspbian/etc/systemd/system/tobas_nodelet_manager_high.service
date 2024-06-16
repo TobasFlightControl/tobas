@@ -1,7 +1,6 @@
 [Unit]
 Description=High Priority Nodelet Manager
-After=tobas_roscore.service
-Requires=tobas_roscore.service
+PartOf=tobas_nodelet_manager.service
 
 [Service]
 User=pi

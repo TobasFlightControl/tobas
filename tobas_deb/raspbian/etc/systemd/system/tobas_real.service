@@ -1,5 +1,5 @@
 [Unit]
-Description=Launch Tobas flight controller
+Description=Tobas Flight Controller
 After=tobas_roscore.service
 Requires=tobas_roscore.service
 Conflicts=tobas_hil.service
