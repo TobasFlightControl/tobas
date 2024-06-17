@@ -12,6 +12,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_kdl
+	tobas_linear_control
 )
 
 # catkin_python_setup()
@@ -32,18 +34,18 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
 	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS
-# 	DEPENDS
+	# LIBRARIES ${PROJECT_NAME}
+	CATKIN_DEPENDS tobas_kdl tobas_linear_control
+  # DEPENDS
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+# add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 # add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
 # add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
