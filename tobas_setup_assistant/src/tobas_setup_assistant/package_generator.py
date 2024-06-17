@@ -141,23 +141,16 @@ class PackageGenerator(QObject):
         # テンプレートから生成
         self._cfg_env.generate(items, "CMakeLists.txt.tpl", config_pkg_path)
         self._cfg_env.generate(items, "package.xml.tpl", config_pkg_path)
-        self._cfg_env.generate(items, "plotjuggler_layout.xml.tpl", config_dir)
-        self._cfg_env.generate(items, "nodelet_manager.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "nodelet_manager_high.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "nodelet_manager_medium.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "nodelet_manager_low.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "common_params.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "gazebo.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "real.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "calibration.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "controller.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "observer.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "mission_action_servers.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "bringup.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "hil.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "rc_teleop.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "joint_control.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "jointpos_commander.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "plotjuggler.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "motor_test_driver.launch.tpl", launch_dir)
-        self._cfg_env.generate(items, "motor_test_gui.launch.tpl", launch_dir)
 
         flight_modes = {self._main.controller.stabilize_mode(), self._main.controller.acrobat_mode()}
 

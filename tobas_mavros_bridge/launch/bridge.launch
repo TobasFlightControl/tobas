@@ -5,7 +5,7 @@
   <arg name="node_name" value="tobas_mavros_bridge"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mavros_bridge/TobasMavrosBridgeNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mavros_bridge/TobasMavrosBridgeNodelet nodelet_manager_high" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

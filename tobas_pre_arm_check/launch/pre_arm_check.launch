@@ -5,7 +5,7 @@
   <arg name="node_name" value="pre_arm_check_server"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_pre_arm_check/PreArmCheckServerNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_pre_arm_check/PreArmCheckServerNodelet nodelet_manager_low" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

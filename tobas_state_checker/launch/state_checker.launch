@@ -5,7 +5,7 @@
   <arg name="node_name" value="state_checker"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_state_checker/StateCheckerNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_state_checker/StateCheckerNodelet nodelet_manager_low" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

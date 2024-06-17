@@ -1,7 +1,7 @@
 [Unit]
-Description=Launch Tobas flight controller
-After=tobas_roscore.service
-Requires=tobas_roscore.service
+Description=Tobas Flight Controller
+After=tobas_nodelet_managers.target
+Requires=tobas_nodelet_managers.target
 Conflicts=tobas_hil.service
 
 [Service]

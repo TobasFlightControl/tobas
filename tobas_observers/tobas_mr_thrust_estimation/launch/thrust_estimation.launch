@@ -6,7 +6,7 @@
   <arg name="node_name" value="thrust_estimator"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_thrust_estimation/ThrustEstimatorNodelet nodelet_manager" output="screen">
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_thrust_estimation/ThrustEstimatorNodelet nodelet_manager_medium" output="screen">
       <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
     </node>
   </group>

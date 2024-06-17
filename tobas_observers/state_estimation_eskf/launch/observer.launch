@@ -4,7 +4,7 @@
   <arg name="node_name" default="state_estimator_eskf"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_eskf/ErrorStateKalmanFilterNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load state_estimation_eskf/ErrorStateKalmanFilterNodelet nodelet_manager_high" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

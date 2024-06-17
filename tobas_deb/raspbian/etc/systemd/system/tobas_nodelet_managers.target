@@ -1,0 +1,7 @@
+[Unit]
+Description=Tobas Nodelet Managers
+After=tobas_roscore.service
+Requires=tobas_roscore.service
+
+[Install]
+WantedBy=multi-user.target

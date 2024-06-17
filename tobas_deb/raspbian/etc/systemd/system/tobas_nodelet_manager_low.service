@@ -1,0 +1,18 @@
+[Unit]
+Description=Low Priority Nodelet Manager
+PartOf=tobas_nodelet_manager.service
+
+[Service]
+User=pi
+Type=simple
+EnvironmentFile=/etc/tobas/common.env
+EnvironmentFile=/etc/tobas/config_pkg.env
+ExecStartPre=/bin/bash -c '/etc/tobas/check_roscore.sh'
+ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/catkin_ws/devel/setup.bash && /opt/ros/noetic/bin/roslaunch ${TOBAS_CONFIG_PKG} nodelet_manager_low.launch'
+Restart=always
+RestartSec=5
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=10
+
+[Install]
+WantedBy=multi-user.target

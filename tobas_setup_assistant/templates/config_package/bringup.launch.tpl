@@ -1,45 +1,35 @@
 <launch>
 
   <arg name="nodelet" default="true"/>
+  <arg name="num_worker_threads" default="16"/>
   <arg name="ground_truth" default="false"/>
 
-  <!-- Load dynamic parameters -->
   <group ns="{{ drone_name }}">
+    <!-- Load parameters -->
+    <rosparam file="$(find {{ config_pkg_name }})/config/observer.yaml" command="load"/>
+    <rosparam file="$(find {{ config_pkg_name }})/config/controller.yaml" command="load"/>
     <rosparam file="$(find {{ config_pkg_name }})/config/dynamic_params.yaml" command="load"/>
-  </group>
+    <rosparam file="$(find {{ config_pkg_name }})/config/rc_teleop.yaml" command="load"/>
 
-  <!-- Launch nodelet manager -->
-  <include if="$(arg nodelet)" file="$(find {{ config_pkg_name }})/launch/nodelet_manager.launch"/>
+    <!-- Bringup observer -->
+    <include file="$(find {{ observer_pkg }})/launch/observer.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="node_name" value="observer"/>
+    </include>
 
-  <!-- Launch controller -->
-  <include file="$(find {{ config_pkg_name }})/launch/controller.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-    <arg name="ground_truth" value="$(arg ground_truth)"/>
-  </include>
+    <!-- Bringup controller -->
+    <include file="$(find {{ controller_pkg }})/launch/controller.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="ground_truth" value="$(arg ground_truth)"/>
+      <arg name="node_name" value="controller"/>
+    </include>
 
-  <!-- Launch observer -->
-  <include file="$(find {{ config_pkg_name }})/launch/observer.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-  </include>
+    <!-- Launch joint controller -->
+    <include file="$(find tobas_manipulation)/launch/controllers.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="ground_truth" value="$(arg ground_truth)"/>
+    </include>
 
-  <!-- Launch action servers for mission -->
-  <include file="$(find {{ config_pkg_name }})/launch/mission_action_servers.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-    <arg name="ground_truth" value="$(arg ground_truth)"/>
-  </include>
-
-  <!-- Launch RC teleoperation -->
-  <include file="$(find {{ config_pkg_name }})/launch/rc_teleop.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-  </include>
-
-  <!-- Launch joint controller -->
-  <include file="$(find {{ config_pkg_name }})/launch/joint_control.launch">
-    <arg name="nodelet" value="$(arg nodelet)"/>
-    <arg name="ground_truth" value="$(arg ground_truth)"/>
-  </include>
-
-  <group ns="{{ drone_name }}">
     <!-- Launch state checker -->
     <include file="$(find tobas_state_checker)/launch/state_checker.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
@@ -64,6 +54,25 @@
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
       <param name="publish_frequency" value="1000"/>
     </node>
+
+    <!-- Launch RC teleoperation -->
+    <include file="$(find tobas_rc_teleop)/launch/rc_teleop.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+
+    <!-- Launch action servers for mission -->
+    <include file="$(find {{ takeoff_pkg }})/launch/takeoff_action_server.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="ground_truth" value="$(arg ground_truth)"/>
+    </include>
+    <include file="$(find {{ landing_pkg }})/launch/landing_action_server.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="ground_truth" value="$(arg ground_truth)"/>
+    </include>
+    <include file="$(find {{ move_pkg }})/launch/move_action_server.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+      <arg name="ground_truth" value="$(arg ground_truth)"/>
+    </include>
 
     <!-- Launch user launch file -->
     <include file="$(find {{ user_pkg_name }})/launch/common.launch"/>
