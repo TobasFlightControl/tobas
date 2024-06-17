@@ -100,7 +100,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "ADC calibration finished.")
 
     def _calibrate(self) -> bool:
-        adc_calib_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/adc_calibration", AdcCalibration)
+        adc_calib_sc = rospy.ServiceProxy(f"{self._drone.name}/adc_calibration", AdcCalibration)
         try:
             adc_calib_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -125,9 +125,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(
-            f"{self._drone.drone_name}/battery_handler/{Service.RELOAD_CONFIG}", Trigger
-        )
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/battery_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:

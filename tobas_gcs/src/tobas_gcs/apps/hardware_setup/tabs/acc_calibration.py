@@ -67,7 +67,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Accel calibration finished.")
 
     def _calibrate(self) -> bool:
-        accel_calib_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/accel_calibration", AccelCalibration)
+        accel_calib_sc = rospy.ServiceProxy(f"{self._drone.name}/accel_calibration", AccelCalibration)
         try:
             accel_calib_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -87,7 +87,7 @@ class AccelCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/imu_handler/{Service.RELOAD_CONFIG}", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/imu_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:

@@ -121,7 +121,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Motor test is finished.")
 
     def _check_disarm(self) -> bool:
-        get_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/{Service.GET_ARM}", GetArm)
+        get_arm_sc = rospy.ServiceProxy(f"{self._drone.name}/{Service.GET_ARM}", GetArm)
         try:
             get_arm_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -141,7 +141,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         return True
 
     def _set_arm(self, arming: bool) -> bool:
-        set_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/{Service.SET_ARM}", SetArm)
+        set_arm_sc = rospy.ServiceProxy(f"{self._drone.name}/{Service.SET_ARM}", SetArm)
         try:
             set_arm_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -229,7 +229,7 @@ class RotorSpeedsPublisherWidget(QWidget):
         if self._speeds_pub is not None:
             self._speeds_pub.unregister()
         self._speeds_pub = rospy.Publisher(
-            f"{self._drone.drone_name}/{Topic.Command.ROTOR_SPEEDS}", RotorSpeeds, queue_size=1
+            f"{self._drone.name}/{Topic.Command.ROTOR_SPEEDS}", RotorSpeeds, queue_size=1
         )
 
     def start(self) -> None:

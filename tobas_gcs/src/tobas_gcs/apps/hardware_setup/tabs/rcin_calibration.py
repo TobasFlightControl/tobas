@@ -189,7 +189,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._gpsw_range.stop_timer()
 
     def _cancel(self) -> None:
-        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/cancel", Trigger)
+        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration/cancel", Trigger)
         try:
             calib_cancel_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -224,7 +224,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/start", Trigger)
+        calib_start_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration/start", Trigger)
         try:
             calib_start_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -242,7 +242,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             return
 
         # RC入力が正常に発行されていることを確認
-        rcin_topic = f"{self._drone.drone_name}/rcin_calibration/rc_input_raw"
+        rcin_topic = f"{self._drone.name}/rcin_calibration/rc_input_raw"
         try:
             rcin_msg: RCInput = rospy.wait_for_message(rcin_topic, RCInput, WAIT_FOR_SERVER)
         except Exception:
@@ -282,7 +282,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Radio calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_calibration/finish", RCInputCalibration)
+        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration/finish", RCInputCalibration)
         try:
             calib_finish_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -319,7 +319,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_handler/{Service.RELOAD_CONFIG}", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:

@@ -14,8 +14,8 @@ class FakeGNSSPublisher:
         pos_stddev = rospy.get_param("~position_stddev", self.DEFAULT_POS_STDDEV)
         vel_stddev = rospy.get_param("~velocity_stddev", self.DEFAULT_VEL_STDDEV)
 
-        pos_var = pos_stddev**2
-        vel_var = vel_stddev**2
+        pos_var = pos_stddev ** 2
+        vel_var = vel_stddev ** 2
 
         self._gnss_msg = Gps()
         self._gnss_msg.fix_type = Gps.FIX_3D

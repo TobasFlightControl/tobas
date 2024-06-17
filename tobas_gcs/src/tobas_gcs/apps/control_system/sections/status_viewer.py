@@ -106,16 +106,12 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._pre_arm_check_sub.unregister()
             self._arming_sub.unregister()
 
-        self._gps_sub = rospy.Subscriber(f"{self._drone.drone_name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
-        self._rcin_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
-        )
+        self._gps_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
+        self._rcin_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1)
         self._pre_arm_check_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/{Topic.PRE_ARM_CHECK}", PreArmCheck, self._pre_arm_check_cb, queue_size=1
+            f"{self._drone.name}/{Topic.PRE_ARM_CHECK}", PreArmCheck, self._pre_arm_check_cb, queue_size=1
         )
-        self._arming_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/{Topic.ARMING}", Bool, self._arming_cb, queue_size=1
-        )
+        self._arming_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.ARMING}", Bool, self._arming_cb, queue_size=1)
 
         self._is_first_update = False
 

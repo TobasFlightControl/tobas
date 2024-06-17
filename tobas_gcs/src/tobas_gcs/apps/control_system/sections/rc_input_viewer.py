@@ -113,9 +113,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Update subscriber
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
-        self._rcin_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
-        )
+        self._rcin_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1)
 
         # Start drawing timers
         self._roll_range.start_timer()

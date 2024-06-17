@@ -222,7 +222,7 @@ class MissionPlannerWidget(BaseAppWidget):
         self._set_execute_mode()
 
         # ユーザ操作をブロックしないように別スレッドでミッションを実行
-        self._mission_thread = MissionExecutionThread(self, self._drone.drone_name, mission_commands)
+        self._mission_thread = MissionExecutionThread(self, self._drone.name, mission_commands)
         self._mission_thread.finished.connect(self._on_mission_finished)
         self._mission_thread.start()
 
@@ -250,7 +250,7 @@ class MissionPlannerWidget(BaseAppWidget):
             return
 
         try:
-            gps: Gps = rospy.wait_for_message(f"{self._drone.drone_name}/gps", Gps, WAIT_FOR_SERVER)
+            gps: Gps = rospy.wait_for_message(f"{self._drone.name}/gps", Gps, WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self._main, "Failed to get GNSS message.")
             return

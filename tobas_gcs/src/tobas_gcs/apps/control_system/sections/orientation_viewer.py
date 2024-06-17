@@ -13,6 +13,7 @@ from PyQt5.QtGui import QPainter, QPaintEvent, QPolygon, QPen
 from tobas_std_tools_py.math import wrap, ceil, floor
 from tobas_kdl_msgs.msg import EulerStamped
 from tobas_rqt_tools.widgets import Widget
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 
 from ....common import PAINT_REFRESH_PERIOD
@@ -75,7 +76,7 @@ class _OrientationViewerWidget(Widget):
         if self._euler_sub is not None:
             self._euler_sub.unregister()
         self._euler_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/euler", EulerStamped, self._euler_cb, queue_size=1
+            f"{self._drone.name}/{Topic.EULER}", EulerStamped, self._euler_cb, queue_size=1
         )
 
         self._timer.start(PAINT_REFRESH_PERIOD)

@@ -71,8 +71,8 @@ class WindParametersWidget(QWidget):
         form.addRow(QLabel("Gust Interval [s]"), self._gust_interval)
 
     def initialize(self) -> bool:
-        self._get_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/gazebo/get_wind_parameters", GetWindParameters)
-        self._set_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/gazebo/set_wind_parameters", SetWindParameters)
+        self._get_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/get_wind_parameters", GetWindParameters)
+        self._set_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/set_wind_parameters", SetWindParameters)
 
         try:
             self._get_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
