@@ -13,6 +13,6 @@ BaseNode::BaseNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
 
 ros::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
 {
-  return ros::TransportHints().reliable().tcpNoDelay(nodelay);
+  return ros::TransportHints().tcpNoDelay(nodelay);
 }
 }  // namespace tobas
