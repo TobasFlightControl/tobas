@@ -43,6 +43,16 @@ inline T trace(const boost::array<T, 9>& m)
   return m[0] + m[4] + m[8];
 }
 
+/* 配列全体の型変換． */
+template <typename After, typename Before, size_t N>
+boost::array<After, N> cast(const boost::array<Before, N>& arr)
+{
+  boost::array<After, N> res;
+  for (size_t i = 0; i < N; ++i)
+    res[i] = static_cast<After>(arr[i]);
+  return res;
+}
+
 template <typename T, size_t N>
 boost::array<T, N> operator*(const boost::array<T, N>& lhs, const T& rhs)
 {
