@@ -11,7 +11,7 @@
          <range top="-0.399438" left="201.922000" right="211.922000" bottom="-2.417936"/>
          <limitY/>
          <curve name="/iris/odom/pose/pos/x" color="#b41f8f"/>
-         <curve name="/iris/controller_feedback/target_position/x" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_position/x" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/pose/pos/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -20,7 +20,7 @@
          <range top="1.104409" left="201.922000" right="211.922000" bottom="-0.371346"/>
          <limitY/>
          <curve name="/iris/odom/pose/pos/y" color="#d627b1"/>
-         <curve name="/iris/controller_feedback/target_position/y" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_position/y" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/pose/pos/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -29,7 +29,7 @@
          <range top="3.462357" left="201.922000" right="211.922000" bottom="2.161949"/>
          <limitY/>
          <curve name="/iris/odom/pose/pos/z" color="#c91aad"/>
-         <curve name="/iris/controller_feedback/target_position/z" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_position/z" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/pose/pos/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -40,7 +40,7 @@
          <range top="0.093297" left="201.922000" right="211.922000" bottom="-0.076389"/>
          <limitY/>
          <curve name="/iris/odom/pose/euler/roll" color="#ff0eca"/>
-         <curve name="/iris/controller_feedback/target_orientation/roll" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_orientation/roll" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/pose/euler/roll" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -49,7 +49,7 @@
          <range top="0.084299" left="201.922000" right="211.922000" bottom="-0.118117"/>
          <limitY/>
          <curve name="/iris/odom/pose/euler/pitch" color="#f14cc1"/>
-         <curve name="/iris/controller_feedback/target_orientation/pitch" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_orientation/pitch" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/pose/euler/pitch" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -58,7 +58,7 @@
          <range top="3.314757" left="201.922000" right="211.922000" bottom="-3.299062"/>
          <limitY/>
          <curve name="/iris/odom/pose/euler/yaw" color="#bd67b2"/>
-         <curve name="/iris/controller_feedback/target_orientation/yaw" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_orientation/yaw" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/pose/euler/yaw" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -77,7 +77,7 @@
          <range top="0.793814" left="201.922000" right="211.922000" bottom="-0.606527"/>
          <limitY/>
          <curve name="/iris/odom/twist/linear/x" color="#cf17ab"/>
-         <curve name="/iris/controller_feedback/target_velocity_local/x" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_velocity_local/x" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/twist/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -86,7 +86,7 @@
          <range top="0.311960" left="201.922000" right="211.922000" bottom="-0.423674"/>
          <limitY/>
          <curve name="/iris/odom/twist/linear/y" color="#bd2287"/>
-         <curve name="/iris/controller_feedback/target_velocity_local/y" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_velocity_local/y" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/twist/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -95,7 +95,7 @@
          <range top="0.379510" left="201.922000" right="211.922000" bottom="-0.238832"/>
          <limitY/>
          <curve name="/iris/odom/twist/linear/z" color="#b41fad"/>
-         <curve name="/iris/controller_feedback/target_velocity_local/z" color="#cdd420"/>
+         <curve name="/iris/feedback/controller/target_velocity_local/z" color="#cdd420"/>
          <curve name="/iris/ground_truth/odom/twist/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -441,14 +441,14 @@
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range top="1.126747" left="201.923000" right="211.922000" bottom="-0.745558"/>
         <limitY/>
-        <curve name="/iris/controller_feedback/target_acceleration_global/x" color="#ff7f0e"/>
+        <curve name="/iris/feedback/controller/target_acceleration_global/x" color="#ff7f0e"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range top="0.518821" left="201.923000" right="211.922000" bottom="-1.881275"/>
         <limitY/>
-        <curve name="/iris/controller_feedback/position_integral_error/x" color="#1f77b4"/>
+        <curve name="/iris/feedback/controller/position_integral_error/x" color="#1f77b4"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -457,14 +457,14 @@
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range top="0.972888" left="201.923000" right="211.922000" bottom="-0.785642"/>
         <limitY/>
-        <curve name="/iris/controller_feedback/target_acceleration_global/y" color="#f14cc1"/>
+        <curve name="/iris/feedback/controller/target_acceleration_global/y" color="#f14cc1"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range top="0.836106" left="201.923000" right="211.922000" bottom="-0.543046"/>
         <limitY/>
-        <curve name="/iris/controller_feedback/position_integral_error/y" color="#d62728"/>
+        <curve name="/iris/feedback/controller/position_integral_error/y" color="#d62728"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -473,14 +473,14 @@
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range top="1.688172" left="201.923000" right="211.922000" bottom="-0.474486"/>
         <limitY/>
-        <curve name="/iris/controller_feedback/target_acceleration_global/z" color="#9467bd"/>
+        <curve name="/iris/feedback/controller/target_acceleration_global/z" color="#9467bd"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range top="6.258558" left="201.923000" right="211.922000" bottom="5.603760"/>
         <limitY/>
-        <curve name="/iris/controller_feedback/position_integral_error/z" color="#1ac938"/>
+        <curve name="/iris/feedback/controller/position_integral_error/z" color="#1ac938"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -488,7 +488,7 @@
       <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
        <range top="17.510074" left="201.923000" right="211.922000" bottom="14.227918"/>
        <limitY/>
-       <curve name="/iris/controller_feedback/target_thrust" color="#f14cc1"/>
+       <curve name="/iris/feedback/controller/target_thrust" color="#f14cc1"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -627,4 +627,3 @@
  <snippets/>
  <!-- - - - - - - - - - - - - - - -->
 </root>
-

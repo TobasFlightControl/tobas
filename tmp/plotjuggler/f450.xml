@@ -11,7 +11,7 @@
          <range bottom="-0.158928" top="0.140929" left="138.178000" right="148.178000"/>
          <limitY/>
          <curve name="/f450/odom/frame/trans/x" color="#cf17ab"/>
-         <curve name="/f450/controller_feedback/target_position/x" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_position/x" color="#cad51e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
@@ -19,7 +19,7 @@
          <range bottom="-0.203144" top="0.148180" left="138.178000" right="148.178000"/>
          <limitY/>
          <curve name="/f450/odom/frame/trans/y" color="#cf17ab"/>
-         <curve name="/f450/controller_feedback/target_position/y" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_position/y" color="#cad51e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
@@ -27,7 +27,7 @@
          <range bottom="2.879074" top="3.092949" left="138.178000" right="148.178000"/>
          <limitY/>
          <curve name="/f450/odom/frame/trans/z" color="#cf17ab"/>
-         <curve name="/f450/controller_feedback/target_position/z" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_position/z" color="#cad51e"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -36,7 +36,7 @@
         <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
          <range bottom="-0.065055" top="0.046061" left="138.178000" right="148.178000"/>
          <limitY/>
-         <curve name="/f450/controller_feedback/target_orientation/roll" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_orientation/roll" color="#cad51e"/>
          <curve name="/f450/euler/euler/roll" color="#cf17ab"/>
         </plot>
        </DockArea>
@@ -44,7 +44,7 @@
         <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
          <range bottom="-0.020325" top="0.061867" left="138.178000" right="148.178000"/>
          <limitY/>
-         <curve name="/f450/controller_feedback/target_orientation/pitch" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_orientation/pitch" color="#cad51e"/>
          <curve name="/f450/euler/euler/pitch" color="#cf17ab"/>
         </plot>
        </DockArea>
@@ -52,7 +52,7 @@
         <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
          <range bottom="-0.000854" top="0.035000" left="138.178000" right="148.178000"/>
          <limitY/>
-         <curve name="/f450/controller_feedback/target_orientation/yaw" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_orientation/yaw" color="#cad51e"/>
          <curve name="/f450/euler/euler/yaw" color="#cf17ab"/>
         </plot>
        </DockArea>
@@ -71,7 +71,7 @@
          <range bottom="-0.214683" top="0.112123" left="138.178000" right="148.178000"/>
          <limitY/>
          <curve name="/f450/odom/twist/linear/x" color="#cf17ab"/>
-         <curve name="/f450/controller_feedback/target_velocity_global/x" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_velocity_global/x" color="#cad51e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
@@ -79,7 +79,7 @@
          <range bottom="-0.137616" top="0.277014" left="138.178000" right="148.178000"/>
          <limitY/>
          <curve name="/f450/odom/twist/linear/y" color="#bd2287"/>
-         <curve name="/f450/controller_feedback/target_velocity_global/y" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_velocity_global/y" color="#cad51e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
@@ -87,7 +87,7 @@
          <range bottom="-0.161741" top="0.148054" left="138.178000" right="148.178000"/>
          <limitY/>
          <curve name="/f450/odom/twist/linear/z" color="#b41fad"/>
-         <curve name="/f450/controller_feedback/target_velocity_global/z" color="#cad51e"/>
+         <curve name="/f450/feedback/controller/target_velocity_global/z" color="#cad51e"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -418,14 +418,14 @@
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range bottom="-0.201670" top="0.502248" left="138.178000" right="148.178000"/>
         <limitY/>
-        <curve name="/f450/controller_feedback/target_acceleration_global/x" color="#1f77b4"/>
+        <curve name="/f450/feedback/controller/target_acceleration_global/x" color="#1f77b4"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range bottom="0.852966" top="1.147128" left="138.178000" right="148.178000"/>
         <limitY/>
-        <curve name="/f450/controller_feedback/position_integral_error/x" color="#ff7f0e"/>
+        <curve name="/f450/feedback/controller/position_integral_error/x" color="#ff7f0e"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -434,14 +434,14 @@
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range bottom="-0.243757" top="0.640574" left="138.178000" right="148.178000"/>
         <limitY/>
-        <curve name="/f450/controller_feedback/target_acceleration_global/y" color="#d62728"/>
+        <curve name="/f450/feedback/controller/target_acceleration_global/y" color="#d62728"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range bottom="2.087569" top="2.409739" left="138.178000" right="148.178000"/>
         <limitY/>
-        <curve name="/f450/controller_feedback/position_integral_error/y" color="#f14cc1"/>
+        <curve name="/f450/feedback/controller/position_integral_error/y" color="#f14cc1"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -450,14 +450,14 @@
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range bottom="-0.351235" top="1.216931" left="138.178000" right="148.178000"/>
         <limitY/>
-        <curve name="/f450/controller_feedback/target_acceleration_global/z" color="#1ac938"/>
+        <curve name="/f450/feedback/controller/target_acceleration_global/z" color="#1ac938"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
         <range bottom="3.051700" top="3.240588" left="138.178000" right="148.178000"/>
         <limitY/>
-        <curve name="/f450/controller_feedback/position_integral_error/z" color="#9467bd"/>
+        <curve name="/f450/feedback/controller/position_integral_error/z" color="#9467bd"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -465,7 +465,7 @@
       <plot mode="TimeSeries" style="Lines" flip_x="false" flip_y="false">
        <range bottom="9.590790" top="11.189207" left="138.178000" right="148.178000"/>
        <limitY/>
-       <curve name="/f450/controller_feedback/target_thrust" color="#f14cc1"/>
+       <curve name="/f450/feedback/controller/target_thrust" color="#f14cc1"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -583,7 +583,7 @@
    <max_array_size value="100"/>
    <boolean_strings_to_number value="true"/>
    <remove_suffix_from_strings value="true"/>
-   <selected_topics value="/clock;/f450/air_pressure;/f450/arming;/f450/battery;/f450/battery_filtered;/f450/command/pos_vel_acc_yaw;/f450/command/rotor_speeds;/f450/controller/parameter_descriptions;/f450/controller/parameter_updates;/f450/controller_feedback;/f450/eskf_feedback;/f450/euler;/f450/gps;/f450/imu;/f450/land_action/status;/f450/latency;/f450/magnetic_field;/f450/message;/f450/move_action/status;/f450/observer/parameter_descriptions;/f450/observer/parameter_updates;/f450/odom;/f450/pre_arm_check;/f450/takeoff_action/status;/f450/thrust_estimator/parameter_descriptions;/f450/thrust_estimator/parameter_updates;/f450/tobas_manipulation_effort/parameter_descriptions;/f450/tobas_manipulation_effort/parameter_updates;/f450/tobas_manipulation_velocity/parameter_descriptions;/f450/tobas_manipulation_velocity/parameter_updates;/f450/wind;/rosout;/rosout_agg;/tf;/tf_static;/f450/command/joint_efforts;/f450/command/joint_positions;/f450/command/joint_velocities;/f450/command/pose_twist_accel;/f450/command/position_yaw;/f450/command/rpy_thrust;/f450/command/throttles;/f450/event;/f450/ground_truth/battery;/f450/ground_truth/imu_debug;/f450/ground_truth/odom;/f450/ground_truth/rotor_debug_0;/f450/ground_truth/rotor_debug_1;/f450/ground_truth/rotor_debug_2;/f450/ground_truth/rotor_debug_3;/f450/ground_truth/rotor_state_0;/f450/ground_truth/rotor_state_1;/f450/ground_truth/rotor_state_2;/f450/ground_truth/rotor_state_3;/f450/ground_truth/wind;/f450/joint_states;/f450/land_action/cancel;/f450/land_action/feedback;/f450/land_action/goal;/f450/land_action/result;/f450/move_action/feedback;/f450/move_action/result;/f450/nodelet_manager/bond;/f450/rotor_speeds;/f450/takeoff_action/feedback;/f450/takeoff_action/result;/f450/thrust_correction_factor;/gazebo/link_states;/gazebo/model_states;/gazebo/parameter_descriptions;/gazebo/parameter_updates;/gazebo/performance_metrics"/>
+   <selected_topics value="/clock;/f450/air_pressure;/f450/arming;/f450/battery;/f450/battery_filtered;/f450/command/pos_vel_acc_yaw;/f450/command/rotor_speeds;/f450/controller/parameter_descriptions;/f450/controller/parameter_updates;/f450/feedback/controller;/f450/eskf_feedback;/f450/euler;/f450/gps;/f450/imu;/f450/land_action/status;/f450/latency;/f450/magnetic_field;/f450/message;/f450/move_action/status;/f450/observer/parameter_descriptions;/f450/observer/parameter_updates;/f450/odom;/f450/pre_arm_check;/f450/takeoff_action/status;/f450/thrust_estimator/parameter_descriptions;/f450/thrust_estimator/parameter_updates;/f450/tobas_manipulation_effort/parameter_descriptions;/f450/tobas_manipulation_effort/parameter_updates;/f450/tobas_manipulation_velocity/parameter_descriptions;/f450/tobas_manipulation_velocity/parameter_updates;/f450/wind;/rosout;/rosout_agg;/tf;/tf_static;/f450/command/joint_efforts;/f450/command/joint_positions;/f450/command/joint_velocities;/f450/command/pose_twist_accel;/f450/command/position_yaw;/f450/command/rpy_thrust;/f450/command/throttles;/f450/event;/f450/ground_truth/battery;/f450/ground_truth/imu_debug;/f450/ground_truth/odom;/f450/ground_truth/rotor_debug_0;/f450/ground_truth/rotor_debug_1;/f450/ground_truth/rotor_debug_2;/f450/ground_truth/rotor_debug_3;/f450/ground_truth/rotor_state_0;/f450/ground_truth/rotor_state_1;/f450/ground_truth/rotor_state_2;/f450/ground_truth/rotor_state_3;/f450/ground_truth/wind;/f450/joint_states;/f450/land_action/cancel;/f450/land_action/feedback;/f450/land_action/goal;/f450/land_action/result;/f450/move_action/feedback;/f450/move_action/result;/f450/nodelet_manager/bond;/f450/rotor_speeds;/f450/takeoff_action/feedback;/f450/takeoff_action/result;/f450/thrust_correction_factor;/gazebo/link_states;/gazebo/model_states;/gazebo/parameter_descriptions;/gazebo/parameter_updates;/gazebo/performance_metrics"/>
   </plugin>
   <plugin ID="UDP Server"/>
   <plugin ID="WebSocket Server"/>
@@ -606,4 +606,3 @@
  <snippets/>
  <!-- - - - - - - - - - - - - - - -->
 </root>
-

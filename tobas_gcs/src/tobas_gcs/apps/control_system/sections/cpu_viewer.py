@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QLabel
 
 from tobas_rqt_tools.widgets import FramedLabel
 from tobas_rqt_tools.layouts import FormLayout
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Cpu
 
@@ -49,7 +50,7 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
 
         if self._cpu_sub is not None:
             self._cpu_sub.unregister()
-        self._cpu_sub = rospy.Subscriber(f"{self._drone.drone_name}/cpu", Cpu, self._cpu_cb, queue_size=1)
+        self._cpu_sub = rospy.Subscriber(f"{self._drone.drone_name}/{Topic.CPU}", Cpu, self._cpu_cb, queue_size=1)
 
     def _cpu_cb(self, cpu: Cpu) -> None:
         # Temperature

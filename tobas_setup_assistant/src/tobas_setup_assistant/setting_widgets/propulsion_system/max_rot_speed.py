@@ -12,7 +12,7 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QButtonGroup, QCheckBox, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
 
-from tobas_tools_py.math import rpm2rps
+from tobas_std_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.messages import q_error_named
 

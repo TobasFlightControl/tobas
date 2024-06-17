@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QGrid
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.widgets import HPositionBarWidget, VPositionBarWidget
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
-from tobas_tools_py.constants import *
+from tobas_tools_py.constants import RCChannel, Service
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RCInputError
 from tobas_calibration_msgs.msg import RCInput
@@ -86,24 +86,24 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._roll_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._roll_range, rows1)
-        place_center(QLabel(f"Roll (CH{RCIN_ROLL + 1})"), rows1)
+        place_center(QLabel(f"Roll (CH{RCChannel.ROLL + 1})"), rows1)
 
         rows1.addStretch()
 
         cols4 = QHBoxLayout()
         rows1.addLayout(cols4)
 
-        pitch_label = QLabel(f"Pitch (CH{RCIN_PITCH + 1})")
+        pitch_label = QLabel(f"Pitch (CH{RCChannel.PITCH + 1})")
         pitch_label.setAlignment(Qt.AlignLeft)
         cols4.addWidget(pitch_label)
 
-        throttle_label = QLabel(f"Throttle (CH{RCIN_THROTTLE + 1})")
+        throttle_label = QLabel(f"Throttle (CH{RCChannel.THROTTLE + 1})")
         throttle_label.setAlignment(Qt.AlignRight)
         cols4.addWidget(throttle_label)
 
         rows1.addStretch()
 
-        place_center(QLabel(f"Yaw (CH{RCIN_YAW + 1})"), rows1)
+        place_center(QLabel(f"Yaw (CH{RCChannel.YAW + 1})"), rows1)
         self._yaw_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
@@ -118,19 +118,19 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         cols2.addLayout(bar_grid)
 
         # Mode
-        bar_grid.addWidget(QLabel(f"Mode (CH{RCIN_MODE + 1})"), 0, 0)
+        bar_grid.addWidget(QLabel(f"Mode (CH{RCChannel.MODE + 1})"), 0, 0)
         self._mode_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._mode_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._mode_range, 0, 1)
 
         # E-Stop
-        bar_grid.addWidget(QLabel(f"E-Stop (CH{RCIN_ESTOP + 1})"), 1, 0)
+        bar_grid.addWidget(QLabel(f"E-Stop (CH{RCChannel.ESTOP + 1})"), 1, 0)
         self._estop_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._estop_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._estop_range, 1, 1)
 
         # GPSw
-        bar_grid.addWidget(QLabel(f"GPSw (CH{RCIN_GPSW + 1})"), 2, 0)
+        bar_grid.addWidget(QLabel(f"GPSw (CH{RCChannel.GPSW + 1})"), 2, 0)
         self._gpsw_range = HPositionBarWidget(minimum=self.PWM_MIN, maximum=self.PWM_MAX)
         self._gpsw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         bar_grid.addWidget(self._gpsw_range, 2, 1)
@@ -214,13 +214,13 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             self._cancel()
             return
 
-        self._roll_range.set_value(msg.data[RCIN_ROLL])
-        self._pitch_range.set_value(msg.data[RCIN_PITCH])
-        self._yaw_range.set_value(msg.data[RCIN_YAW])
-        self._throttle_range.set_value(msg.data[RCIN_THROTTLE])
-        self._mode_range.set_value(msg.data[RCIN_MODE])
-        self._estop_range.set_value(msg.data[RCIN_ESTOP])
-        self._gpsw_range.set_value(msg.data[RCIN_GPSW])
+        self._roll_range.set_value(msg.data[RCChannel.ROLL])
+        self._pitch_range.set_value(msg.data[RCChannel.PITCH])
+        self._yaw_range.set_value(msg.data[RCChannel.YAW])
+        self._throttle_range.set_value(msg.data[RCChannel.THROTTLE])
+        self._mode_range.set_value(msg.data[RCChannel.MODE])
+        self._estop_range.set_value(msg.data[RCChannel.ESTOP])
+        self._gpsw_range.set_value(msg.data[RCChannel.GPSW])
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
@@ -319,7 +319,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/rcin_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:

@@ -11,7 +11,7 @@
          <range left="1316.043000" bottom="-10.378543" right="1326.047000" top="-9.573376"/>
          <limitY/>
          <curve name="/x500v2/odom/pose/pos/x" color="#b41f8f"/>
-         <curve name="/x500v2/controller_feedback/target_position/x" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_position/x" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/pose/pos/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -20,7 +20,7 @@
          <range left="1316.043000" bottom="-0.859167" right="1326.047000" top="-0.002709"/>
          <limitY/>
          <curve name="/x500v2/odom/pose/pos/y" color="#d627b1"/>
-         <curve name="/x500v2/controller_feedback/target_position/y" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_position/y" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/pose/pos/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -29,7 +29,7 @@
          <range left="1316.043000" bottom="2.351843" right="1326.047000" top="3.576131"/>
          <limitY/>
          <curve name="/x500v2/odom/pose/pos/z" color="#c91aad"/>
-         <curve name="/x500v2/controller_feedback/target_position/z" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_position/z" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/pose/pos/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -40,7 +40,7 @@
          <range left="1316.043000" bottom="-0.100097" right="1326.047000" top="0.078037"/>
          <limitY/>
          <curve name="/x500v2/odom/pose/euler/roll" color="#ff0eca"/>
-         <curve name="/x500v2/controller_feedback/target_orientation/roll" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_orientation/roll" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/pose/euler/roll" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -49,7 +49,7 @@
          <range left="1316.043000" bottom="-0.093794" right="1326.047000" top="0.163985"/>
          <limitY/>
          <curve name="/x500v2/odom/pose/euler/pitch" color="#f14cc1"/>
-         <curve name="/x500v2/controller_feedback/target_orientation/pitch" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_orientation/pitch" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/pose/euler/pitch" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -58,7 +58,7 @@
          <range left="1316.043000" bottom="-0.002107" right="1326.047000" top="0.019678"/>
          <limitY/>
          <curve name="/x500v2/odom/pose/euler/yaw" color="#bd67b2"/>
-         <curve name="/x500v2/controller_feedback/target_orientation/yaw" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_orientation/yaw" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/pose/euler/yaw" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -77,7 +77,7 @@
          <range left="1316.043000" bottom="-0.440919" right="1326.047000" top="0.429213"/>
          <limitY/>
          <curve name="/x500v2/odom/twist/linear/x" color="#cf17ab"/>
-         <curve name="/x500v2/controller_feedback/target_velocity_local/x" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_velocity_local/x" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/twist/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -86,7 +86,7 @@
          <range left="1316.043000" bottom="-0.374536" right="1326.047000" top="0.286234"/>
          <limitY/>
          <curve name="/x500v2/odom/twist/linear/y" color="#bd2287"/>
-         <curve name="/x500v2/controller_feedback/target_velocity_local/y" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_velocity_local/y" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/twist/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -95,7 +95,7 @@
          <range left="1316.043000" bottom="-0.414638" right="1326.047000" top="0.300996"/>
          <limitY/>
          <curve name="/x500v2/odom/twist/linear/z" color="#b41fad"/>
-         <curve name="/x500v2/controller_feedback/target_velocity_local/z" color="#cdd420"/>
+         <curve name="/x500v2/feedback/controller/target_velocity_local/z" color="#cdd420"/>
          <curve name="/x500v2/ground_truth/odom/twist/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -441,14 +441,14 @@
        <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
         <range left="1316.043000" bottom="-0.663973" right="1326.043000" top="1.596719"/>
         <limitY/>
-        <curve name="/x500v2/controller_feedback/target_acceleration_global/x" color="#ff7f0e"/>
+        <curve name="/x500v2/feedback/controller/target_acceleration_global/x" color="#ff7f0e"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
         <range left="1316.043000" bottom="2.614107" right="1326.043000" top="4.130796"/>
         <limitY/>
-        <curve name="/x500v2/controller_feedback/position_integral_error/x" color="#1f77b4"/>
+        <curve name="/x500v2/feedback/controller/position_integral_error/x" color="#1f77b4"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -457,14 +457,14 @@
        <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
         <range left="1316.043000" bottom="-0.775612" right="1326.043000" top="1.010551"/>
         <limitY/>
-        <curve name="/x500v2/controller_feedback/target_acceleration_global/y" color="#f14cc1"/>
+        <curve name="/x500v2/feedback/controller/target_acceleration_global/y" color="#f14cc1"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
         <range left="1316.043000" bottom="-1.143445" right="1326.043000" top="-0.633587"/>
         <limitY/>
-        <curve name="/x500v2/controller_feedback/position_integral_error/y" color="#d62728"/>
+        <curve name="/x500v2/feedback/controller/position_integral_error/y" color="#d62728"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -473,14 +473,14 @@
        <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
         <range left="1316.043000" bottom="-0.793952" right="1326.043000" top="0.472173"/>
         <limitY/>
-        <curve name="/x500v2/controller_feedback/target_acceleration_global/z" color="#9467bd"/>
+        <curve name="/x500v2/feedback/controller/target_acceleration_global/z" color="#9467bd"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
         <range left="1316.043000" bottom="-1.599715" right="1326.043000" top="-0.735685"/>
         <limitY/>
-        <curve name="/x500v2/controller_feedback/position_integral_error/z" color="#1ac938"/>
+        <curve name="/x500v2/feedback/controller/position_integral_error/z" color="#1ac938"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -488,7 +488,7 @@
       <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
        <range left="1316.043000" bottom="14.817173" right="1326.043000" top="16.879530"/>
        <limitY/>
-       <curve name="/x500v2/controller_feedback/target_thrust" color="#f14cc1"/>
+       <curve name="/x500v2/feedback/controller/target_thrust" color="#f14cc1"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -503,16 +503,16 @@
         <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
          <range left="1316.043000" bottom="3.790866" right="1326.043000" top="4.360405"/>
          <limitY/>
-         <curve name="/x500v2/controller_feedback/mpc_thrusts.2" color="#d4211e"/>
-         <curve name="/x500v2/controller_feedback/target_thrusts.2" color="#25d4d4"/>
+         <curve name="/x500v2/feedback/controller/mpc_thrusts.2" color="#d4211e"/>
+         <curve name="/x500v2/feedback/controller/target_thrusts.2" color="#25d4d4"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
          <range left="1316.043000" bottom="3.590908" right="1326.043000" top="4.122854"/>
          <limitY/>
-         <curve name="/x500v2/controller_feedback/mpc_thrusts.1" color="#d4211e"/>
-         <curve name="/x500v2/controller_feedback/target_thrusts.1" color="#25d4d4"/>
+         <curve name="/x500v2/feedback/controller/mpc_thrusts.1" color="#d4211e"/>
+         <curve name="/x500v2/feedback/controller/target_thrusts.1" color="#25d4d4"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -521,16 +521,16 @@
         <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
          <range left="1316.043000" bottom="3.782259" right="1326.043000" top="4.426374"/>
          <limitY/>
-         <curve name="/x500v2/controller_feedback/mpc_thrusts.0" color="#d4211e"/>
-         <curve name="/x500v2/controller_feedback/target_thrusts.0" color="#25d4d4"/>
+         <curve name="/x500v2/feedback/controller/mpc_thrusts.0" color="#d4211e"/>
+         <curve name="/x500v2/feedback/controller/target_thrusts.0" color="#25d4d4"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_y="false" mode="TimeSeries" style="Lines" flip_x="false">
          <range left="1316.043000" bottom="3.474325" right="1326.043000" top="4.145099"/>
          <limitY/>
-         <curve name="/x500v2/controller_feedback/mpc_thrusts.3" color="#d4211e"/>
-         <curve name="/x500v2/controller_feedback/target_thrusts.3" color="#25d4d4"/>
+         <curve name="/x500v2/feedback/controller/mpc_thrusts.3" color="#d4211e"/>
+         <curve name="/x500v2/feedback/controller/target_thrusts.3" color="#25d4d4"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -664,4 +664,3 @@
  <snippets/>
  <!-- - - - - - - - - - - - - - - -->
 </root>
-

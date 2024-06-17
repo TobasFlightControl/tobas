@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem, QVBoxLayout
 from PyQt5.QtGui import QColor
 
 from tobas_rqt_tools.widgets import TableWidget
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Message
 
@@ -58,7 +59,7 @@ class ConsoleWidget(BaseAppWidget):
         if self._message_sub is not None:
             self._message_sub.unregister()
         self._message_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/message", Message, self._message_cb, queue_size=1
+            f"{self._drone.drone_name}/{Topic.MESSAGE}", Message, self._message_cb, queue_size=1
         )
 
     def _message_cb(self, message: Message) -> None:

@@ -45,6 +45,13 @@ static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEulerTopic[] = "euler";
 static constexpr char kWindTopic[] = "wind";
+static constexpr char kEventTopic[] = "event";
+static constexpr char kMessageTopic[] = "message";
+static constexpr char kLatencyTopic[] = "latency";
+static constexpr char kArmingTopic[] = "arming";
+static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
+static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
+// Command
 static constexpr char kPwmCmdTopic[] = "command/pwm";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
@@ -58,21 +65,16 @@ static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pit
 static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
-static constexpr char kEventTopic[] = "event";
-static constexpr char kMessageTopic[] = "message";
-static constexpr char kLatencyTopic[] = "latency";
-static constexpr char kArmingTopic[] = "arming";
-static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
-static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
-static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
-static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
-// tobas_manipulation
+// Manipulation
 static constexpr char kPosCtrlJSTopic[] = "joint_position_controller/target_joint_states";
 static constexpr char kPosCtrlLSTopic[] = "joint_position_controller/target_link_states";
 static constexpr char kVelCtrlJSTopic[] = "joint_velocity_controller/target_joint_states";
 static constexpr char kVelCtrlLSTopic[] = "joint_velocity_controller/target_link_states";
 static constexpr char kEffCtrlJSTopic[] = "joint_effort_controller/target_joint_states";
 static constexpr char kEffCtrlLSTopic[] = "joint_effort_controller/target_link_states";
+// Feedback
+static constexpr char kControllerFeedbackTopic[] = "feedback/controller";
+static constexpr char kObserverFeedbackTopic[] = "feedback/observer";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";

@@ -13,7 +13,7 @@ from typing import List
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
-from tobas_tools_py.math import rpm2rps
+from tobas_std_tools_py.math import rpm2rps
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 

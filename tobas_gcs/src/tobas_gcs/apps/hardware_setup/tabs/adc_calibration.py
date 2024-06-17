@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QPushButton, QLabel, QLineEdit, QHBoxLayout
 from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import Service
 from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import AdcCalibration, AdcCalibrationRequest, AdcCalibrationResponse
 
@@ -124,7 +125,9 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/battery_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(
+            f"{self._drone.drone_name}/battery_handler/{Service.RELOAD_CONFIG}", Trigger
+        )
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:

@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QGridLayout
 
 from tobas_rqt_tools.widgets import FramedLabel, HPositionBarWidget, VPositionBarWidget
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
+from tobas_tools_py.constants import RCRange, Topic
 from tobas_tools_py.drone import Drone
-from tobas_tools_py.constants import *
 from tobas_msgs.msg import RCInput, RCInputError
 
 from .base_section import BaseControlSystemSectionWidget
@@ -35,14 +35,14 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Roll, Pitch, Yaw, Throttle
         cols2 = create_fixed_height_hboxlayout(self.RANGE_SIDE_LONG + 20, cols1)
 
-        self._pitch_range = VPositionBarWidget(fill_range=False, minimum=RCIN_MAX, maximum=RCIN_MIN)
+        self._pitch_range = VPositionBarWidget(fill_range=False, minimum=RCRange.MAX, maximum=RCRange.MIN)
         self._pitch_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols2.addWidget(self._pitch_range)
 
         rows1 = QVBoxLayout()
         cols2.addLayout(rows1)
 
-        self._roll_range = HPositionBarWidget(fill_range=False, minimum=RCIN_MIN, maximum=RCIN_MAX)
+        self._roll_range = HPositionBarWidget(fill_range=False, minimum=RCRange.MIN, maximum=RCRange.MAX)
         self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._roll_range, rows1)
         place_center(QLabel(f"Roll"), rows1)
@@ -63,11 +63,11 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         rows1.addStretch()
 
         place_center(QLabel(f"Yaw"), rows1)
-        self._yaw_range = HPositionBarWidget(fill_range=False, minimum=RCIN_MAX, maximum=RCIN_MIN)
+        self._yaw_range = HPositionBarWidget(fill_range=False, minimum=RCRange.MAX, maximum=RCRange.MIN)
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
 
-        self._throttle_range = VPositionBarWidget(fill_range=False, minimum=RCIN_MAX, maximum=RCIN_MIN)
+        self._throttle_range = VPositionBarWidget(fill_range=False, minimum=RCRange.MAX, maximum=RCRange.MIN)
         self._throttle_range.setFixedSize(self.RANGE_SIDE_SHORT, self.RANGE_SIDE_LONG)
         cols2.addWidget(self._throttle_range)
 
@@ -113,7 +113,9 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Update subscriber
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
-        self._rcin_sub = rospy.Subscriber(f"{self._drone.drone_name}/rc_input", RCInput, self._rcin_cb, queue_size=1)
+        self._rcin_sub = rospy.Subscriber(
+            f"{self._drone.drone_name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
+        )
 
         # Start drawing timers
         self._roll_range.start_timer()

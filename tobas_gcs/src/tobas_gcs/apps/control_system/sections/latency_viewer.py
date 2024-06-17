@@ -11,6 +11,7 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QWheelEvent
 
 from tobas_rospy.timestamped_buffer import TimestampedBuffer
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Latency
 
@@ -53,7 +54,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         if self._latency_sub is not None:
             self._latency_sub.unregister()
         self._latency_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/latency", Latency, self._latency_cb, queue_size=1
+            f"{self._drone.drone_name}/{Topic.LATENCY}", Latency, self._latency_cb, queue_size=1
         )
 
         self._timer.start(PAINT_REFRESH_PERIOD)

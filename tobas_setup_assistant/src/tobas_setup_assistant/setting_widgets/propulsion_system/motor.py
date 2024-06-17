@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 from overrides import override
 from PyQt5.QtWidgets import QVBoxLayout
 
-from tobas_tools_py.math import rpm2rps
+from tobas_std_tools_py.math import rpm2rps
 from tobas_rqt_tools.messages import q_error_named
 
 from ...common import CW, CCW
