@@ -89,6 +89,8 @@ public:
   double normalize(double eps = kDefaultEpsilon);
   Vector normalized() const;
 
+  bool isFinite() const;
+
   friend std::ostream& operator<<(std::ostream& os, const Vector& arg);
 };
 

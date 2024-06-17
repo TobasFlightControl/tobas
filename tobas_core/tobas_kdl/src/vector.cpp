@@ -1,3 +1,5 @@
+#include <tobas_eigen_tools/core.hpp>
+
 #include "../include/tobas_kdl/vector.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
 
@@ -8,42 +10,29 @@ namespace tobas_kdl
 {
 double Vector::norm(double eps) const
 {
-  double tmp1 = fabs(data.x());
-  double tmp2 = fabs(data.y());
+  auto tmp1 = fabs(data.x());
+  auto tmp2 = fabs(data.y());
   if (tmp1 >= tmp2)
   {
     tmp2 = fabs(data.z());
     if (tmp1 >= tmp2)
-    {
-      if (tmp1 < eps)
-      {
-        // only to everything exactly zero case, all other are handled correctly
-        return 0;
-      }
-      return tmp1 * sqrt(1 + sqr(data.y() / data.x()) + sqr(data.z() / data.x()));
-    }
+      return tmp1 < eps ? 0. : tmp1 * sqrt(1 + sqr(data.y() / data.x()) + sqr(data.z() / data.x()));
     else
-    {
       return tmp2 * sqrt(1 + sqr(data.x() / data.z()) + sqr(data.y() / data.z()));
-    }
   }
   else
   {
     tmp1 = fabs(data.z());
     if (tmp2 > tmp1)
-    {
       return tmp2 * sqrt(1 + sqr(data.x() / data.y()) + sqr(data.z() / data.y()));
-    }
     else
-    {
       return tmp1 * sqrt(1 + sqr(data.x() / data.z()) + sqr(data.y() / data.z()));
-    }
   }
 }
 
 double Vector::normalize(double eps)
 {
-  const double v = this->norm();
+  const auto v = this->norm();
   if (v < eps)
   {
     *this = Vector(1, 0, 0);
@@ -59,5 +48,10 @@ double Vector::normalize(double eps)
 Vector Vector::normalized() const
 {
   return Vector(data.normalized());
+}
+
+bool Vector::isFinite() const
+{
+  return eigen_tools::isFinite(data);
 }
 }  // namespace tobas_kdl
