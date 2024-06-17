@@ -9,7 +9,10 @@
 
 namespace tobas_legged_tools
 {
-/* 点接触の脚をもつ脚ロボットの線形状態方程式． */
+/**
+ * @brief The linear dynamics of point-contact legged robots.\n
+ * Dynamic Locomotion in the MIT Cheetah 3 Through Convex Model-Predictive Control [Carlo+, 2018]
+ */
 template <size_t N>
 class PointContactsLinearDynamics : public ctrl::LinearDynamics
 {
