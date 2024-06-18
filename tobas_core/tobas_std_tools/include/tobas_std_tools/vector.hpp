@@ -48,6 +48,16 @@ T fsum(const std::vector<T>& arr)
   return sum;
 }
 
+/* The average of Kahan Summation. */
+template <typename T>
+T fmean(const std::vector<T>& arr)
+{
+  if (arr.size() == 0)
+    return 0;
+  else
+    return fsum(arr) / arr.size();
+}
+
 /* 要素の加重平均をとる． */
 template <typename T, typename U>
 T average(const std::vector<T>& vec, const std::vector<U>& weights)

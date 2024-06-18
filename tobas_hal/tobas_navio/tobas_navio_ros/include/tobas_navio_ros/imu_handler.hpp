@@ -37,8 +37,8 @@ private:
   Eigen::Vector3f acc_, gyro_, mag_;
 
   // ジャイロバイアス関連
-  size_t loop_cnt_ = 0;
-  Eigen::Vector3f gyro_sum_ = Eigen::Vector3f::Zero();
+  size_t cnt_ = 0;
+  std::array<std::array<float, kMeasureGyroBiasCount>, 3> gyro_buf_;
   Eigen::Vector3f gyro_bias_;
 
   // Config

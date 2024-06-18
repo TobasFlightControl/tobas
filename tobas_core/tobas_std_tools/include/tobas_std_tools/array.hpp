@@ -3,6 +3,42 @@
 
 namespace tobas_std
 {
+/* Naive Summation． The worst-case round-off error scales with O(nε). */
+template <typename T, size_t N>
+T sum(const std::array<T, N>& arr)
+{
+  T sum = 0;
+  for (const auto& x : arr)
+    sum += x;
+  return sum;
+}
+
+/* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
+template <typename T, size_t N>
+T fsum(const std::array<T, N>& arr)
+{
+  T sum = 0;
+  T c = 0;
+  for (const auto& x : arr)
+  {
+    const auto y = x - c;
+    const auto t = sum + y;
+    c = (t - sum) - y;
+    sum = t;
+  }
+  return sum;
+}
+
+/* The average of Kahan Summation. */
+template <typename T, size_t N>
+T fmean(const std::array<T, N>& arr)
+{
+  if (N == 0)
+    return 0;
+  else
+    return fsum(arr) / N;
+}
+
 /* 最も近い値のインデックスを返す． */
 template <typename T, size_t N>
 size_t closestIndex(const std::array<T, N>& arr, const T& a)
