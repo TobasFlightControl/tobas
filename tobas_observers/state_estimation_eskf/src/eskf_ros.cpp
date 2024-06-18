@@ -35,6 +35,22 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   getRosParams();
   drone_.loadFromParam(nh_);
 
+  // Initialize ESKF
+  const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0;
+  const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0;
+  const double init_grav_stddev = do_grav_estimation_ ? kInitGravStddev : 0;
+  eskf_.initialize(
+    Vector3d::Zero(),                                             // Init position
+    Vector3d::Zero(),                                             // Init velocity
+    Quaterniond::Identity(),                                      // Init quaternion
+    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
+    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
+    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
+    Vector3d::Constant(sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
+    Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
+    sqr(init_grav_stddev)                                         // Init gravity var
+  );
+
   // Fill the static part of the transform message
   tf_.header.frame_id = tobas::kWorldFrame;
   tf_.child_frame_id = drone_.tree().getRootName();
@@ -45,6 +61,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
 
   // Register subscribers
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
+  imu_filtered_sub_ = nh_.subscribe(tobas::kImuLpfTopic, 1, &self::imuFilteredCb, this, tcpNoDelay());
   mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
   if (use_bar_)
     bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
@@ -75,42 +92,24 @@ void ErrorStateKalmanFilterRos::getRosParams()
     TOBAS_EXIT("You cannot enable both accelerometer bias estimation and gravity estimation.");
 }
 
-void ErrorStateKalmanFilterRos::initialize()
+ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdometryMsg() const
 {
-  PRINT_DEBUG("ErrorStateKalmanFilterRos::initialize");
+  Vector3d acc_filtered, gyro_filtered;
+  tobas_ros::vectorMsgToEigen(imu_filtered_->linear_acceleration, acc_filtered);
+  tobas_ros::vectorMsgToEigen(imu_filtered_->angular_velocity, gyro_filtered);
 
-  // ESKFを初期化
-  // TODO: IMUのバイアスの共分散の初期値をちゃんと設定
-  const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0;
-  const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0;
-  const double init_grav_stddev = do_grav_estimation_ ? kInitGravStddev : 0;
-  eskf_.initialize(
-    Vector3d::Zero(),                                             // Init position
-    Vector3d::Zero(),                                             // Init velocity
-    Quaterniond::Identity(),                                      // Init quaternion
-    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
-    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
-    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
-    Vector3d::Constant(sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
-    Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
-    sqr(init_grav_stddev)                                         // Init gravity var
-  );
-}
-
-ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdometryMsg(const ImuMsg& imu)
-{
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas::kGravity);
-  const Vector3d B_Acc = acc_meas_ - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
-  const Vector3d B_Gyro = gyro_meas_ - eskf_.getGyroBias();
+  const Vector3d B_Acc = acc_filtered - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
+  const Vector3d B_Gyro = gyro_filtered - eskf_.getGyroBias();
 
   const auto odom = boost::make_shared<OdomMsg>();
 
   // Header
-  odom->header.stamp = imu.header.stamp;
+  odom->header.stamp = imu_->header.stamp;
   odom->header.frame_id = tobas::kWorldFrame;
 
   // Status
@@ -134,11 +133,11 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
 
   // Angular velocity (Local)
   odom->twist.rot.data = B_Gyro;
-  odom->angular_velocity_covariance = imu.angular_velocity_covariance;
+  odom->angular_velocity_covariance = imu_->angular_velocity_covariance;
 
   // Linear acceleration (Local)
   odom->accel.linear.data = B_Acc;
-  odom->linear_acceleration_covariance = imu.linear_acceleration_covariance;
+  odom->linear_acceleration_covariance = imu_->linear_acceleration_covariance;
 
   // Angular acceleration (Local)
   odom->accel.angular.fill(nan(tobas::kUnknown));
@@ -149,22 +148,18 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 {
-  if (!imu_received_)
-  {
-    t_last_ = imu->header.stamp;
-    initialize();
-
-    imu_received_ = true;
-    return;
-  }
-
-  // 加速度とジャイロを更新
   tobas_ros::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
   tobas_ros::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
 
-  // Compute IMU time gap
-  const auto dt = (imu->header.stamp - t_last_).toSec();
-  t_last_ = imu->header.stamp;
+  if (imu_ == nullptr)
+  {
+    imu_ = imu;
+    return;
+  }
+
+  // Compute delta time
+  const auto dt = (imu->header.stamp - imu_->header.stamp).toSec();
+  imu_ = imu;
 
   // Check IMU time gap
   if (dt == 0)
@@ -194,8 +189,12 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   // 重力方向の観測
   eskf_.measureGravity(acc_meas_, grav_cov_);
 
+  // フィルタリング済みIMUを受け取るまでは発行しない
+  if (imu_filtered_ == nullptr)
+    return;
+
   // 推定状態を発行
-  const auto odom = makeOdometryMsg(*imu);
+  const auto odom = makeOdometryMsg();
   odom_pub_.publish(odom);
 
   // TFを発行
@@ -216,20 +215,21 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   feedback_pub_.publish(feedback);
 }
 
+void ErrorStateKalmanFilterRos::imuFilteredCb(const ImuMsg::ConstPtr& imu_filtered)
+{
+  imu_filtered_ = imu_filtered;
+}
+
 void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 {
-  if (!imu_received_)
+  if (imu_ == nullptr)
     return;
 
-  if (!mag_received_)
-  {
-    // GPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
-    if (!gps_received_)
-      yaw_0_ = atan2(mag->magnetic_field.y, mag->magnetic_field.x);
+  // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
+  if (mag_ == nullptr && gps_ == nullptr)
+    yaw_0_ = atan2(mag->magnetic_field.y, mag->magnetic_field.x);
 
-    mag_received_ = true;
-    return;
-  }
+  mag_ = mag;
 
   const double yaw_meas = wrapPi(yaw_0_ - atan2(mag->magnetic_field.y, mag->magnetic_field.x));
   eskf_.measureYaw(yaw_meas, yaw_var_);
@@ -237,18 +237,15 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 
 void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 {
-  if (!imu_received_)
+  if (imu_ == nullptr)
     return;
 
-  if (!bar_received_)
-  {
-    // 気圧高度の初期値
-    // TODO: IMUフレームに変換
+  // 気圧高度の初期値
+  // TODO: IMUフレームに変換
+  if (bar_ == nullptr)
     alt_0_bar_ = pressureToAltitude(bar->fluid_pressure);
 
-    bar_received_ = true;
-    return;
-  }
+  bar_ = bar;
 
   double z_abs, z_var;
   pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
@@ -260,14 +257,14 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
 
 void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 {
-  if (!imu_received_)
+  if (imu_ == nullptr)
     return;
 
   gps_fix_ = (gps->fix_type == GpsMsg::FIX_3D);
   if (!gps_fix_)
     return;
 
-  if (!gps_received_)
+  if (gps_ == nullptr)
   {
     // GPSの初期位置
     // TODO: IMUフレームに変換
@@ -282,11 +279,10 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 
     // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
-    eskf_.setPosition(Eigen::Vector3d::Zero());
-
-    gps_received_ = true;
-    return;
+    eskf_.setPosition(Vector3d::Zero());
   }
+
+  gps_ = gps;
 
   // 位置の観測値
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());

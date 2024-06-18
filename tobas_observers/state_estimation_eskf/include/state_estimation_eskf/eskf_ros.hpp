@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ros/ros.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/Imu.h>
@@ -56,12 +55,11 @@ private:
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
   double yaw_0_;      // ヨー角のゼロ点 (Base Frame)
 
-  bool imu_received_ = false;
-  bool mag_received_ = false;
-  bool bar_received_ = false;
-  bool gps_received_ = false;
+  sensor_msgs::ImuConstPtr imu_, imu_filtered_;
+  sensor_msgs::MagneticFieldConstPtr mag_;
+  sensor_msgs::FluidPressureConstPtr bar_;
+  tobas_msgs::GpsConstPtr gps_;
   bool gps_fix_ = false;
-  ros::Time t_last_;
   double gps_anormaly_score_ = 0.;
 
   Eigen::Vector3d acc_meas_;
@@ -90,6 +88,7 @@ private:
   ros::Publisher odom_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber imu_sub_;
+  ros::Subscriber imu_filtered_sub_;
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
@@ -106,10 +105,10 @@ private:
   ConfigServer server_;
 
   void getRosParams();
-  void initialize();
-  OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
+  OdomMsg::ConstPtr makeOdometryMsg() const;
 
   void imuCb(const ImuMsg::ConstPtr& imu);
+  void imuFilteredCb(const ImuMsg::ConstPtr& imu_filtered);
   void magCb(const MagMsg::ConstPtr& mag);
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
