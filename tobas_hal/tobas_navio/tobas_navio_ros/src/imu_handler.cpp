@@ -1,5 +1,4 @@
 #include <sensor_msgs/Imu.h>
-#include <sensor_msgs/MagneticField.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/boost.hpp>
