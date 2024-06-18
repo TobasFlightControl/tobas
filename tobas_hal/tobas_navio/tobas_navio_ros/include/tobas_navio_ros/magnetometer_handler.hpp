@@ -38,12 +38,10 @@ private:
 
   ros::Publisher mag_pub_;
   ros::ServiceServer reload_config_srv_;
-  ros::Timer measure_gyro_bias_timer_;
 
   bool reloadConfig();
 
   bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
-  void measureGyroBiasTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_navio_ros
