@@ -2,7 +2,6 @@
 #include <sensor_msgs/MagneticField.h>
 
 #include <tobas_std_tools/math.hpp>
-#include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -13,7 +12,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace tobas_navio_ros
 {
@@ -45,7 +43,7 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 bool ImuHandler::reloadConfig()
 {
   // 設定が取得できなかった場合でも最低限初期化しないとまずいため，途中でリターンせず返り値を保持しておく．
-  PropertyTree pt(kConfigPath);
+  tobas_std::PropertyTree pt(kConfigPath);
 
   bool res = true;
 
@@ -130,9 +128,9 @@ bool ImuHandler::reloadConfig()
     res = false;
   }
 
-  acc_var_ = sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
-  gyro_var_ = sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
-  mag_var_ = sqr(mag_noise_density_) * kSamplingRate;    // TODO: スケーリング
+  acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
+  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
+  mag_var_ = tobas_std::sqr(mag_noise_density_) * kSamplingRate;    // TODO: スケーリング
 
   if (!mag_trans_.initialize())
   {
@@ -177,9 +175,9 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   mag_msg->header.stamp = event.current_real;
 
   // Fill covariance matrices
-  fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var_);
-  fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var_);
-  fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var_);
+  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var_);
+  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var_);
+  tobas_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var_);
 
   // Fill data (Convert to NWU coordinate system)
   const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
@@ -204,10 +202,9 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
 
 void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
 {
-  if (cnt_ == kMeasureGyroBiasCount)
+  if (loop_cnt_ == kMeasureGyroBiasCount)
   {
-    for (size_t i = 0; i < 3; ++i)
-      gyro_bias_(i) = fmean(gyro_buf_[i]);
+    gyro_bias_ = gyro_sum_ / kMeasureGyroBiasCount;
     TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_.transpose());
     measure_gyro_bias_timer_.stop();
     main_timer_.start();
@@ -215,15 +212,22 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
   }
 
   imu_.updateGyroscope();
-  imu_.readGyroscope(&gyro_buf_[0][cnt_], &gyro_buf_[1][cnt_], &gyro_buf_[2][cnt_]);
+  imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
-  if (sqrt(sqr(gyro_buf_[0][cnt_]) + sqr(gyro_buf_[1][cnt_]) + sqr(gyro_buf_[2][cnt_])) > kStaticGyroThreshold)
+  if (gyro_.norm() > kStaticGyroThreshold)
   {
     TOBAS_WARN("Perturbation is detected while measuring gyro bias: ", gyro_.transpose(), " [rad/s]. Retrying...");
-    cnt_ = 0;
+    gyro_sum_.setZero();
+    loop_cnt_ = 0;
     return;
   }
 
-  ++cnt_;
+  // Kahan summation
+  const Vector3f y = gyro_ - gyro_c_;
+  const Vector3f t = gyro_sum_ + y;
+  gyro_c_ = (t - gyro_sum_) - y;
+  gyro_sum_ = t;
+
+  ++loop_cnt_;
 }
 }  // namespace tobas_navio_ros
