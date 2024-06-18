@@ -17,8 +17,8 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
   if (!voltage_lpf_.isInitialized() || !current_lpf_.isInitialized())
   {
     TOBAS_INFO("First raw battery message is received.");
-    voltage_lpf_.initialize(kLpfTimeConst, battery_raw->voltage);
-    current_lpf_.initialize(kLpfTimeConst, battery_raw->current);
+    voltage_lpf_.initializeFromTimeConst(kLpfTimeConst, battery_raw->voltage);
+    current_lpf_.initializeFromTimeConst(kLpfTimeConst, battery_raw->current);
     t_last_ = battery_raw->header.stamp;
     return;
   }
@@ -29,9 +29,9 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
   voltage_lpf_.update(battery_raw->voltage, ts);
   current_lpf_.update(battery_raw->current, ts);
 
-  const auto battery = boost::make_shared<tobas_msgs::Battery>(*battery_raw);
-  battery->voltage = voltage_lpf_.getState();
-  battery->current = current_lpf_.getState();
-  battery_lpf_pub_.publish(battery);
+  const auto battery_filtered = boost::make_shared<tobas_msgs::Battery>(*battery_raw);
+  battery_filtered->voltage = voltage_lpf_.getState();
+  battery_filtered->current = current_lpf_.getState();
+  battery_lpf_pub_.publish(battery_filtered);
 }
 }  // namespace tobas_preprocess

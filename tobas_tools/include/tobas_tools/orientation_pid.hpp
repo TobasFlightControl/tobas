@@ -17,9 +17,6 @@ struct OrientationPidConfig
 
 class OrientationPid
 {
-  // Constants
-  static constexpr size_t kGyroLpfCutoff = 20;
-
 public:
   explicit OrientationPid();
 
@@ -41,7 +38,6 @@ private:
   tobas_kdl::Vector kd_;
 
   tobas_kdl::Vector ei_ = tobas_kdl::Vector::Zero();
-  tobas_std::FirstOrderFilter<tobas_kdl::Vector> gyro_lpf_;
 };
 
 inline tobas_kdl::Vector OrientationPid::integralError() const

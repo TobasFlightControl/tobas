@@ -15,7 +15,6 @@ namespace tobas
 {
 OrientationPid::OrientationPid()
 {
-  gyro_lpf_.initialize(tobas_std::timeConstFromCutoffFreq(kGyroLpfCutoff), Vector::Zero());
 }
 
 Vector OrientationPid::update(
@@ -25,17 +24,13 @@ Vector OrientationPid::update(
   const Vector& tar_gyro,
   const double& dt)
 {
-  // ジャイロノイズ (によるDジャイロのZ成分のノイズ) が回転数に大きく影響するためLPFに通す
-  gyro_lpf_.update(cur_gyro, dt);
-  const auto& cur_gyro_lpf = gyro_lpf_.getState();
-
   // 誤差を計算
   // 角軸ベクトルを使うのが正しいが，姿勢角と方位角のゲインを分けるためにオイラー角で計算する
   const auto roll_err = tobas_std::wrapPi(tar_rpy.roll - cur_rpy.roll);
   const auto pitch_err = tobas_std::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
   const auto yaw_err = tobas_std::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
   const Vector ep(roll_err, pitch_err, yaw_err);
-  const Vector gyro_error = tar_gyro - cur_gyro_lpf;
+  const Vector gyro_error = tar_gyro - cur_gyro;
   const Vector ed(eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
 
   // 積分誤差を蓄積
@@ -46,7 +41,7 @@ Vector OrientationPid::update(
   const auto tar_euler_acc = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
 
   // オイラー角加速度をDジャイロに変換
-  const Vector3d cur_rpyd = eigen_tools::eulerrateFromAngvelLocal(cur_gyro_lpf.data, cur_rpy.roll, cur_rpy.pitch);
+  const auto cur_rpyd = eigen_tools::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
   return Vector(eigen_tools::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
 }
 

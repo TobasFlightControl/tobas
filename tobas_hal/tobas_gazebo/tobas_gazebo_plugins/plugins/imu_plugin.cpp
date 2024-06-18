@@ -1,6 +1,7 @@
+#include <sensor_msgs/Imu.h>
+
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/boost.hpp>
-
 #include <tobas_gazebo_msgs/ImuDebug.h>
 
 #include "./imu_plugin.hpp"
@@ -41,22 +42,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   }
 
   // Initialize LPFs
-  const auto tau_acc_lpf = tobas_std::timeConstFromCutoffFreq(acc_lpf_cutoff_freq_);
-  const auto tau_gyro_lpf = tobas_std::timeConstFromCutoffFreq(gyro_lpf_cutoff_freq_);
-  acc_lpf_.initialize(tau_acc_lpf, zero3);
-  gyro_lpf_.initialize(tau_gyro_lpf, zero3);
-
-  // Fill the static parts of the imu message
-  imu_msg_.header.frame_id = link_name_;
-
-  imu_msg_.linear_acceleration_covariance.fill(0);
-  imu_msg_.angular_velocity_covariance.fill(0);
-  imu_msg_.orientation_covariance.fill(nan(tobas::kUnknown));
-
-  imu_msg_.orientation.x = nan(tobas::kUnknown);
-  imu_msg_.orientation.y = nan(tobas::kUnknown);
-  imu_msg_.orientation.z = nan(tobas::kUnknown);
-  imu_msg_.orientation.w = nan(tobas::kUnknown);
+  acc_lpf_.initializeFromCutoff(acc_lpf_cutoff_freq_, zero3);
+  gyro_lpf_.initializeFromCutoff(gyro_lpf_cutoff_freq_, zero3);
 
   // Advertise
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);
@@ -89,24 +76,24 @@ void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboImuPlugin::onUpdate()
 {
-  const common::Time cur_time = world_->SimTime();
-  const double dt = (cur_time - last_time_).Double();
+  const auto cur_time = world_->SimTime();
+  const auto dt = (cur_time - last_time_).Double();
   last_time_ = cur_time;
 
   // ベースフレームの状態を取得
-  const Pose3d& T_W_B = link_->WorldPose();
-  const Quaterniond& R_W_B = T_W_B.Rot();
-  const Vector3d acc_B = link_->RelativeLinearAccel();
-  const Vector3d omega_B = link_->RelativeAngularVel();
-  const Vector3d domega_B = link_->RelativeAngularAccel();
+  const auto& T_W_B = link_->WorldPose();
+  const auto& R_W_B = T_W_B.Rot();
+  const auto acc_B = link_->RelativeLinearAccel();
+  const auto omega_B = link_->RelativeAngularVel();
+  const auto domega_B = link_->RelativeAngularAccel();
 
   // オフセットによる補正を考慮して加速度センサの読みを計算 (memo: 2-26)
-  const Vector3d grav_B = R_W_B.RotateVectorReverse(world_->Gravity());
-  const Vector3d acc_corr = omega_B.Cross(omega_B.Cross(offset_)) + domega_B.Cross(offset_);
-  Vector3d acc_raw = acc_B - grav_B + acc_corr;
+  const auto grav_B = R_W_B.RotateVectorReverse(world_->Gravity());
+  const auto acc_corr = omega_B.Cross(omega_B.Cross(offset_)) + domega_B.Cross(offset_);
+  auto acc_raw = acc_B - grav_B + acc_corr;
 
   // オフセットが並進のみならばジャイロセンサの読みはベースフレームの角速度に一致する
-  Vector3d gyro_raw = omega_B;
+  auto gyro_raw = omega_B;
 
   // Add noise to the true values
   addNoise(acc_raw, gyro_raw, dt);
@@ -115,25 +102,8 @@ void GazeboImuPlugin::onUpdate()
   acc_lpf_.update(acc_raw, dt);
   gyro_lpf_.update(gyro_raw, dt);
 
-  // Fill IMU message
-  timeGazeboToRos(cur_time, imu_msg_.header.stamp);
-  vectorGazeboToRos(acc_lpf_.getState(), imu_msg_.linear_acceleration);
-  vectorGazeboToRos(gyro_lpf_.getState(), imu_msg_.angular_velocity);
-
-  const double acc_var = tobas_std::sqr(acc_noise_density_obs_) / dt;
-  tobas_std::fillMatrix3Diag(imu_msg_.linear_acceleration_covariance, acc_var);
-
-  const double gyro_var = tobas_std::sqr(gyro_noise_density_obs_) / dt;
-  tobas_std::fillMatrix3Diag(imu_msg_.angular_velocity_covariance, gyro_var);
-
-  // Publish IMU message
-  imu_pub_.publish(imu_msg_);
-
-  // Fill and publish debug message
-  debug_msg_.header = imu_msg_.header;
-  vectorGazeboToKDL(acc_bias_, debug_msg_.acc_bias);
-  vectorGazeboToKDL(gyro_bias_, debug_msg_.gyro_bias);
-  debug_pub_.publish(debug_msg_);
+  publishImuMsg(dt);
+  publishDebugMsg();
 }
 
 void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
@@ -169,6 +139,45 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
     acc[i] += acc_bias_[i] + sigma_a_d * noise_(rnd_gen_) + acc_turn_on_bias_[i];
   }
+}
+
+void GazeboImuPlugin::publishImuMsg(const double& dt) const
+{
+  const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
+
+  timeGazeboToRos(world_->SimTime(), imu_msg->header.stamp);
+  imu_msg->header.frame_id = link_name_;
+
+  vectorGazeboToRos(acc_lpf_.getState(), imu_msg->linear_acceleration);
+  imu_msg->linear_acceleration_covariance.fill(0);
+  const auto acc_var = tobas_std::sqr(acc_noise_density_obs_) / dt;
+  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
+
+  vectorGazeboToRos(gyro_lpf_.getState(), imu_msg->angular_velocity);
+  imu_msg->angular_velocity_covariance.fill(0);
+  const auto gyro_var = tobas_std::sqr(gyro_noise_density_obs_) / dt;
+  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
+
+  imu_msg->orientation.x = nan(tobas::kUnknown);
+  imu_msg->orientation.y = nan(tobas::kUnknown);
+  imu_msg->orientation.z = nan(tobas::kUnknown);
+  imu_msg->orientation.w = nan(tobas::kUnknown);
+  imu_msg->orientation_covariance.fill(nan(tobas::kUnknown));
+
+  imu_pub_.publish(imu_msg);
+}
+
+void GazeboImuPlugin::publishDebugMsg() const
+{
+  const auto debug_msg = boost::make_shared<tobas_gazebo_msgs::ImuDebug>();
+
+  timeGazeboToRos(world_->SimTime(), debug_msg->header.stamp);
+  debug_msg->header.frame_id = link_name_;
+
+  vectorGazeboToKDL(acc_bias_, debug_msg->acc_bias);
+  vectorGazeboToKDL(gyro_bias_, debug_msg->gyro_bias);
+
+  debug_pub_.publish(debug_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboImuPlugin);

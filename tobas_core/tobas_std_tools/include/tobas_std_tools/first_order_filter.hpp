@@ -7,9 +7,6 @@
 
 namespace tobas_std
 {
-/* カットオフ周波数から一次遅れフィルタの時定数を計算する． */
-double timeConstFromCutoffFreq(const double& cutoff_freq);
-
 /* 一次遅れフィルタ (ローパスフィルタ)． */
 template <typename T>
 class FirstOrderFilter
@@ -17,7 +14,9 @@ class FirstOrderFilter
 public:
   explicit FirstOrderFilter();
 
-  void initialize(const double& time_const, const T& init_state);
+  void initializeFromTimeConst(const double& time_const, const T& init_state);
+  void initializeFromCutoff(const double& cutoff_freq, const T& init_state);
+
   void update(const T& input_state, const double& sampling_time);
 
   inline const T& getState() const;
@@ -27,6 +26,9 @@ private:
   bool is_initialized_ = false;
   double time_const_;
   T state_;
+
+  /* カットオフ周波数から一次遅れフィルタの時定数を計算する． */
+  inline static double timeConstFromCutoff(const double& cutoff_freq);
 };
 
 template <typename T>
@@ -35,7 +37,7 @@ FirstOrderFilter<T>::FirstOrderFilter()
 }
 
 template <typename T>
-void FirstOrderFilter<T>::initialize(const double& time_const, const T& init_state)
+void FirstOrderFilter<T>::initializeFromTimeConst(const double& time_const, const T& init_state)
 {
   assert(time_const >= 0);
 
@@ -43,6 +45,12 @@ void FirstOrderFilter<T>::initialize(const double& time_const, const T& init_sta
   state_ = init_state;
 
   is_initialized_ = true;
+}
+
+template <typename T>
+void FirstOrderFilter<T>::initializeFromCutoff(const double& cutoff_freq, const T& init_state)
+{
+  initializeFromTimeConst(timeConstFromCutoff(cutoff_freq), init_state);
 }
 
 template <typename T>
@@ -65,5 +73,12 @@ template <typename T>
 inline const bool& FirstOrderFilter<T>::isInitialized() const
 {
   return is_initialized_;
+}
+
+template <typename T>
+inline double FirstOrderFilter<T>::timeConstFromCutoff(const double& cutoff_freq)
+{
+  assert(cutoff_freq > 0.);
+  return 0.5 / M_PI / cutoff_freq;
 }
 }  // namespace tobas_std

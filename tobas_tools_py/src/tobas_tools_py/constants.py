@@ -31,6 +31,7 @@ class Topic:
     CPU = "cpu"
     RC_INPUT = "rc_input"
     IMU = "imu"
+    IMU_LPF = "imu_filtered"
     MAG = "magnetic_field"
     AIR_PRESSURE = "air_pressure"
     GNSS = "gps"

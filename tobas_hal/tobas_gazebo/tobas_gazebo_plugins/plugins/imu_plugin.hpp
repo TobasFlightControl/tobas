@@ -5,10 +5,8 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
-#include <sensor_msgs/Imu.h>
 
 #include <tobas_std_tools/first_order_filter.hpp>
-
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
@@ -64,15 +62,10 @@ private:
   physics::WorldPtr world_;
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
-  sensor_msgs::Imu imu_msg_;
-  tobas_gazebo_msgs::ImuDebug debug_msg_;
   common::Time last_time_ = common::Time(0);
-  ignition::math::Vector3d acc_bias_ = zero3;
-  ignition::math::Vector3d gyro_bias_ = zero3;
-  ignition::math::Vector3d acc_turn_on_bias_;
-  ignition::math::Vector3d gyro_turn_on_bias_;
-  tobas_std::FirstOrderFilter<ignition::math::Vector3d> acc_lpf_;
-  tobas_std::FirstOrderFilter<ignition::math::Vector3d> gyro_lpf_;
+  ignition::math::Vector3d acc_bias_ = zero3, gyro_bias_ = zero3;
+  ignition::math::Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;
+  tobas_std::FirstOrderFilter<ignition::math::Vector3d> acc_lpf_, gyro_lpf_;  // Internal LPF
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -84,5 +77,7 @@ private:
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();
   void addNoise(ignition::math::Vector3d& acc, ignition::math::Vector3d& gyro, const double& dt);
+  void publishImuMsg(const double& dt) const;
+  void publishDebugMsg() const;
 };
 }  // namespace gazebo

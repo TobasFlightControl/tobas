@@ -35,6 +35,7 @@ static constexpr char kBatteryLpfTopic[] = "battery_filtered";
 static constexpr char kCpuTopic[] = "cpu";
 static constexpr char kRcInputTopic[] = "rc_input";
 static constexpr char kImuTopic[] = "imu";
+static constexpr char kImuLpfTopic[] = "imu_filtered";
 static constexpr char kMagTopic[] = "magnetic_field";
 static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kGpsTopic[] = "gps";

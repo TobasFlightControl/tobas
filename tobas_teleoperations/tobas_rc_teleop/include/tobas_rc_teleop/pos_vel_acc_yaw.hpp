@@ -1,15 +1,11 @@
 #pragma once
 
-#include <tobas_std_tools/first_order_filter.hpp>
-
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
 {
 class PosVelAccYawController : public BaseController
 {
-  static constexpr double kDefaultDelayTimeConst = 0.;  // [s] 応答が悪くなるからデフォルトは遅延0
-
   using super = BaseController;
 
 public:
@@ -23,7 +19,6 @@ public:
 private:
   bool is_up_commanded_;
   ros::Time t_last_rcin_;
-  tobas_std::FirstOrderFilter<tobas_kdl::Vector> vel_filter_;
   tobas_kdl::Vector tar_vel_F_;
   tobas_kdl::Vector tar_pos_W_;
   double tar_yaw_;
@@ -32,7 +27,6 @@ private:
   double max_hor_vel_;       // [m/s]
   double max_ver_vel_;       // [m/s]
   double max_yawrate_;       // [rad/s]
-  double delay_time_const_;  // [s]
 
   // Publisher
   ros::Publisher cmd_pub_;
