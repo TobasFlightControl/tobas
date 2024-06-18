@@ -11,7 +11,7 @@ namespace tobas_navio_ros
 class ImuHandler : public BaseSensorNode
 {
   // Constants
-  static constexpr size_t kSamplingRate = 400;  // [Hz]
+  static constexpr size_t kSamplingRate = 800;  // [Hz]
   static constexpr size_t kMeasureGyroBiasCount = 1000;
   static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
