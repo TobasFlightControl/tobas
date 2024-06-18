@@ -78,11 +78,11 @@ class ImuWidget(BaseSettingWidget):
 
         gyro_lpf_cutoff_freq_description = ""
         self.gyro_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
-            "Gyroscope LPF Cutoff Frequency",
+            "Gyroscope Internal LPF Cutoff Frequency",
             gyro_lpf_cutoff_freq_description,
             minimum=1,
             maximum=400,
-            default=20,
+            default=100,  # Same as LSM9DS1
             suffix=" Hz",
         )
         self._param_rows.addWidget(self.gyro_lpf_cutoff_freq)
@@ -132,11 +132,11 @@ class ImuWidget(BaseSettingWidget):
 
         acc_lpf_cutoff_freq_description = ""
         self.acc_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
-            "Accelerometer LPF Cutoff Frequency",
+            "Accelerometer Internal LPF Cutoff Frequency",
             acc_lpf_cutoff_freq_description,
             minimum=1,
             maximum=400,
-            default=20,
+            default=50,  # Same as LSM9DS1
             suffix=" Hz",
         )
         self._param_rows.addWidget(self.acc_lpf_cutoff_freq)
