@@ -4,12 +4,7 @@
 
   <arg name="node_name" value="state_checker"/>
 
-  <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_state_checker/StateCheckerNodelet nodelet_manager_low" output="screen" required="true"/>
-  </group>
-
-  <group unless="$(arg nodelet)">
-    <node pkg="tobas_state_checker" type="state_checker_node" name="$(arg node_name)" output="screen" required="true"/>
-  </group>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_state_checker/StateCheckerNodelet nodelet_manager_low" output="screen" required="true"/>
+  <node unless="$(arg nodelet)" pkg="tobas_state_checker" type="state_checker_node" name="$(arg node_name)" output="screen" required="true"/>
 
 </launch>

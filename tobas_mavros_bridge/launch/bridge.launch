@@ -4,12 +4,7 @@
 
   <arg name="node_name" value="tobas_mavros_bridge"/>
 
-  <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mavros_bridge/TobasMavrosBridgeNodelet nodelet_manager_high" output="screen" required="true"/>
-  </group>
-
-  <group unless="$(arg nodelet)">
-    <node pkg="tobas_mavros_bridge" type="bridge_node" name="$(arg node_name)" output="screen" required="true"/>
-  </group>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mavros_bridge/TobasMavrosBridgeNodelet nodelet_manager_high" output="screen" required="true"/>
+  <node unless="$(arg nodelet)" pkg="tobas_mavros_bridge" type="bridge_node" name="$(arg node_name)" output="screen" required="true"/>
 
 </launch>

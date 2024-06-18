@@ -4,12 +4,7 @@
 
   <arg name="node_name" value="follow_position_yaw_trajectory_server"/>
 
-  <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_trajectory_commander/FollowPositionYawTrajectoryServerNodelet nodelet_manager_medium" output="screen" required="true"/>
-  </group>
-
-  <group unless="$(arg nodelet)">
-    <node pkg="tobas_trajectory_commander" type="position_yaw_node" name="$(arg node_name)" output="screen" required="true"/>
-  </group>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_trajectory_commander/FollowPositionYawTrajectoryServerNodelet nodelet_manager_medium" output="screen" required="true"/>
+  <node unless="$(arg nodelet)" pkg="tobas_trajectory_commander" type="position_yaw_node" name="$(arg node_name)" output="screen" required="true"/>
 
 </launch>

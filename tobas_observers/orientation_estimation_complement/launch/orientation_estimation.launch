@@ -4,12 +4,7 @@
 
   <arg name="node_name" value="orientation_estimator_complement"/>
 
-  <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load orientation_estimation_complement/OrientationEstimatorNodelet nodelet_manager_high" output="screen" required="true"/>
-  </group>
-
-  <group unless="$(arg nodelet)">
-    <node pkg="orientation_estimation_complement" type="orientation_estimator_node" name="$(arg node_name)" output="screen" required="true"/>
-  </group>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load orientation_estimation_complement/OrientationEstimatorNodelet nodelet_manager_high" output="screen" required="true"/>
+  <node unless="$(arg nodelet)" pkg="orientation_estimation_complement" type="orientation_estimator_node" name="$(arg node_name)" output="screen" required="true"/>
 
 </launch>
