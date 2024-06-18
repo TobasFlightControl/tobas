@@ -25,7 +25,7 @@ void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pn
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 {
   is_up_commanded_ = false;
-  t_last_rcin_ = ros::Time::now();
+  t_last_rcin_ = odom.header.stamp;
   tar_pos_W_ = odom.frame.p;
   tar_vel_F_.setZero();
   tar_yaw_ = Euler(odom.frame.M).yaw;
@@ -34,9 +34,8 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
   // 時刻を更新
-  const auto cur_time = ros::Time::now();
-  const auto dt = (cur_time - t_last_rcin_).toSec();
-  t_last_rcin_ = cur_time;
+  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  t_last_rcin_ = rcin.header.stamp;
 
   // RC入力を速度とヨーレートに変換
   tar_vel_F_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));

@@ -31,7 +31,7 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
 void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
 {
   yaw_ = tobas_kdl::Euler(odom.frame.M).yaw;
-  t_last_rcin_ = ros::Time::now();
+  t_last_rcin_ = odom.header.stamp;
 }
 
 void RollPitchYawThrustController::update(
@@ -41,10 +41,11 @@ void RollPitchYawThrustController::update(
 {
   assert(battery_voltage > 0);
 
+  // 時刻を更新
+  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  t_last_rcin_ = rcin.header.stamp;
+
   // Yawの目標値を更新
-  const ros::Time cur_time = ros::Time::now();
-  const auto dt = (cur_time - t_last_rcin_).toSec();
-  t_last_rcin_ = cur_time;
   const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
   yaw_ += yawrate * dt;
 
