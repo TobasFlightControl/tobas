@@ -5,6 +5,7 @@ from .propulsion_system import PropulsionSystemWidget
 from .fixed_wing.fixed_wing import FixedWingWidget
 from .custom_joints import CustomJointsWidget
 from .imu import ImuWidget
+from .magnetometer import MagnetometerWidget
 from .barometer import BarometerWidget
 from .gps import GpsWidget
 from .rgb_camera import RgbCameraWidget

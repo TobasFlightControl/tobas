@@ -141,26 +141,6 @@ class ImuWidget(BaseSettingWidget):
         )
         self._param_rows.addWidget(self.acc_lpf_cutoff_freq)
 
-        mag_gauss_noise_description = ""
-        self.mag_gauss_noise = ParamGetterWidget_SpinBox(
-            "Magnetometer Standard Deviation of Additive White Gaussian Noise",
-            mag_gauss_noise_description,
-            minimum=0,
-            default=80,
-            suffix=" nT",
-        )
-        self._param_rows.addWidget(self.mag_gauss_noise)
-
-        mag_uniform_noise_description = ""
-        self.mag_uniform_noise = ParamGetterWidget_SpinBox(
-            "Magnetometer Symmetric Bounds of Uniform Noise for Initial Bias",
-            mag_uniform_noise_description,
-            minimum=0,
-            default=400,
-            suffix=" nT",
-        )
-        self._param_rows.addWidget(self.mag_uniform_noise)
-
         self._rows.addStretch()
 
     @override

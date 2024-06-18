@@ -621,13 +621,13 @@ class PackageGenerator(QObject):
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=self._main.imu.update_rate.get(),
-                offset=self._main.imu.offset.get(),
+                update_rate=self._main.magnetometer.update_rate.get(),
+                offset=self._main.magnetometer.offset.get(),
                 latitude_0=self._main.simulation.latitude_0.get(),
                 longitude_0=self._main.simulation.longitude_0.get(),
                 altitude_0=self._main.simulation.altitude_0.get(),
-                gauss_noise=self._main.imu.mag_gauss_noise.get(),
-                uniform_noise=self._main.imu.mag_uniform_noise.get(),
+                gauss_noise=self._main.magnetometer.gauss_noise.get(),
+                uniform_noise=self._main.magnetometer.uniform_noise.get(),
             )
             robot.append(mag_model)
 
