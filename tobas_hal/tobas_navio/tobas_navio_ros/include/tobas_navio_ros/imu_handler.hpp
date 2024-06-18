@@ -5,7 +5,6 @@
 
 #include "./common.hpp"
 #include "./base_sensor_node.hpp"
-#include "./ellipse_transformer.hpp"
 
 namespace tobas_navio_ros
 {
@@ -19,7 +18,6 @@ class ImuHandler : public BaseSensorNode
   // Defaults (例外を出さないためにデフォルト値は基本用意しておく)
   static constexpr double kDefaultAccNoiseDensity = 0.05;    // [m/s^2/sqrt(Hz)]
   static constexpr double kDefaultGyroNoiseDensity = 0.005;  // [rad/s/sqrt(Hz)]
-  static constexpr double kDefaultMagNoiseDensity = 0.05;    // [/sqrt(Hz)]
 
   using self = ImuHandler;
   using super = BaseSensorNode;
@@ -33,8 +31,8 @@ public:
 private:
   ImuDevice imu_;
 
-  double acc_var_, gyro_var_, mag_var_;
-  Eigen::Vector3f acc_, gyro_, mag_;
+  double acc_var_, gyro_var_;
+  Eigen::Vector3f acc_, gyro_;
 
   // ジャイロバイアス関連
   size_t loop_cnt_ = 0;
@@ -45,18 +43,10 @@ private:
   // Config
   double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
   double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
-  double mag_noise_density_;   // [/sqrt(Hz)]
   Eigen::Vector3f acc_bias_;   // [m/s^2]
-  EllipseTransformer mag_trans_;
 
-  // Publisher
   ros::Publisher imu_pub_;
-  ros::Publisher mag_pub_;
-
-  // Service Server
   ros::ServiceServer reload_config_srv_;
-
-  // Timer
   ros::Timer measure_gyro_bias_timer_;
 
   bool reloadConfig();

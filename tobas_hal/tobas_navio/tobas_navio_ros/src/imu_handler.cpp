@@ -8,7 +8,6 @@
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_navio_ros/imu_handler.hpp"
-#include "../include/tobas_navio_ros/common.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -26,8 +25,6 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
     TOBAS_EXIT("IMU not enabled.");
 
   imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
-  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
-
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 
   // まずジャイロのバイアスを測定する
@@ -57,11 +54,6 @@ bool ImuHandler::reloadConfig()
     TOBAS_ERROR("Failed to get ", kConfigKey_GyroNoiseDensity, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_, kDefaultMagNoiseDensity))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagNoiseDensity, ".");
-    res = false;
-  }
   if (!pt.get(kConfigKey_AccOffsetX, acc_bias_.x(), 0.0f))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetX, ".");
@@ -77,66 +69,9 @@ bool ImuHandler::reloadConfig()
     TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetZ, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxx, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyy, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzz, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxy, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyz, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzx, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBx, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBy, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBz, ".");
-    res = false;
-  }
-  if (!pt.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseC, ".");
-    res = false;
-  }
 
   acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
   gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
-  mag_var_ = tobas_std::sqr(mag_noise_density_) * kSamplingRate;    // TODO: スケーリング
-
-  if (!mag_trans_.initialize())
-  {
-    TOBAS_ERROR("Failed to initialize ellipse transformer.");
-    res = false;
-  }
 
   return res;
 }
@@ -159,25 +94,20 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   // Update IMU
   imu_.updateAccelerometer();
   imu_.updateGyroscope();
-  imu_.updateMagnetometer();
 
   // Read IMU
   imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
   imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
-  imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
 
   // Create messages
   const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
-  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
 
   // Fill headers
   imu_msg->header.stamp = event.current_real;
-  mag_msg->header.stamp = event.current_real;
 
   // Fill covariance matrices
   tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var_);
   tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var_);
-  tobas_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var_);
 
   // Fill data (Convert to NWU coordinate system)
   const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
@@ -190,14 +120,8 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   imu_msg->angular_velocity.y = -gyro.x();
   imu_msg->angular_velocity.z = gyro.z();
 
-  const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影
-  mag_msg->magnetic_field.x = mag.x();
-  mag_msg->magnetic_field.y = -mag.y();
-  mag_msg->magnetic_field.z = -mag.z();
-
   // Publish messages
   imu_pub_.publish(imu_msg);
-  mag_pub_.publish(mag_msg);
 }
 
 void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
