@@ -85,6 +85,8 @@ class Service:
     SET_GNSS_ORIGIN = "set_gnss_origin"
     PRE_ARM_CHECK = "pre_arm_check"
     RELOAD_CONFIG = "reload_config"
+    START_MAIN_TIMER = "start_main_timer"
+    STOP_MAIN_TIMER = "stop_main_timer"
 
 
 class Action:

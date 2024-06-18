@@ -1,18 +1,15 @@
 #pragma once
 
 #include <Eigen/Core>
-#include <ros/ros.h>
-#include <ros/timer.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_tools/node.hpp>
-
-#include "./ellipse_transformer.hpp"
 #include "./common.hpp"
+#include "./base_sensor_node.hpp"
+#include "./ellipse_transformer.hpp"
 
 namespace tobas_navio_ros
 {
-class ImuHandler : public tobas::BaseNode
+class ImuHandler : public BaseSensorNode
 {
   // Constants
   static constexpr size_t kSamplingRate = 400;  // [Hz]
@@ -25,7 +22,7 @@ class ImuHandler : public tobas::BaseNode
   static constexpr double kDefaultMagNoiseDensity = 0.05;    // [/sqrt(Hz)]
 
   using self = ImuHandler;
-  using super = tobas::BaseNode;
+  using super = BaseSensorNode;
 
 public:
   explicit ImuHandler(
@@ -59,7 +56,6 @@ private:
   ros::ServiceServer reload_config_srv_;
 
   // Timer
-  ros::Timer main_timer_;
   ros::Timer measure_gyro_bias_timer_;
 
   bool reloadConfig();

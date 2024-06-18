@@ -1,15 +1,14 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <ros/timer.h>
 #include <std_srvs/Trigger.h>
 
 #include <tobas_navio_core/ms5611.hpp>
-#include <tobas_tools/node.hpp>
+
+#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class BarometerHandler : public tobas::BaseNode
+class BarometerHandler : public BaseSensorNode
 {
   // Constants
   static constexpr size_t kSamplingRate = 50;            // [Hz]
@@ -19,7 +18,7 @@ class BarometerHandler : public tobas::BaseNode
   static constexpr double kDefaultPressureNoiseDensity = 1.;  // [Pa/sqrt(Hz)]
 
   using self = BarometerHandler;
-  using super = tobas::BaseNode;
+  using super = BaseSensorNode;
 
 public:
   explicit BarometerHandler(
@@ -35,7 +34,6 @@ private:
 
   ros::Publisher bar_pub_;
   ros::ServiceServer reload_config_srv_;
-  ros::Timer main_timer_;
 
   bool reloadConfig();
 

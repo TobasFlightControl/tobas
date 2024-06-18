@@ -1,22 +1,21 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <ros/timer.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_navio_core/rc_input.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_navio_core/rc_input.hpp>
+
+#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class RCInputHandler : public tobas::BaseNode
+class RCInputHandler : public BaseSensorNode
 {
   static constexpr size_t kSamplingRate = 100;  // [Hz]
 
   using self = RCInputHandler;
-  using super = tobas::BaseNode;
+  using super = BaseSensorNode;
 
 public:
   explicit RCInputHandler(
@@ -39,7 +38,6 @@ private:
 
   ros::Publisher rcin_pub_;
   ros::ServiceServer reload_config_srv_;
-  ros::Timer main_timer_;
 
   bool reloadConfig();
 

@@ -85,6 +85,8 @@ static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kPreArmCheckSrv[] = "pre_arm_check";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
+static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
+static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";

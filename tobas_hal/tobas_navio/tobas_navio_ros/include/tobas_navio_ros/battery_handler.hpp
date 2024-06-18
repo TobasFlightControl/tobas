@@ -1,15 +1,14 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <ros/timer.h>
 #include <std_srvs/Trigger.h>
 
 #include <tobas_navio_core/adc.hpp>
-#include <tobas_tools/node.hpp>
+
+#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class BatteryHandler : public tobas::BaseNode
+class BatteryHandler : public BaseSensorNode
 {
   // Constants
   static constexpr size_t kSamplingRate = 100;    // [Hz]
@@ -19,7 +18,7 @@ class BatteryHandler : public tobas::BaseNode
   static constexpr double kDefaultAdcVoltageCoef = 11.3;
 
   using self = BatteryHandler;
-  using super = tobas::BaseNode;
+  using super = BaseSensorNode;
 
 public:
   explicit BatteryHandler(
@@ -35,7 +34,6 @@ private:
 
   ros::Publisher battery_pub_;
   ros::ServiceServer reload_config_srv_;
-  ros::Timer main_timer_;
 
   bool reloadConfig();
   bool getVoltage(double& voltage);
