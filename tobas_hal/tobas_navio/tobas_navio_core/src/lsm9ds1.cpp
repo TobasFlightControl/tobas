@@ -110,8 +110,12 @@ void LSM9DS1::initializeGyroscope()
   // Enable the 3-axes of the gyroscope
   writeReg(spi_dev_imu_, XG_CTRL_REG4, BITS_XEN_G | BITS_YEN_G | BITS_ZEN_G);
 
-  // Configure gyroscope
-  writeReg(spi_dev_imu_, XG_CTRL_REG1_G, BITS_ODR_G_952HZ | scale | BITS_BW_G_0);
+  // ジャイロに関してはノイズより遅延のほうが怖いためフィルターを最小限にする
+  // cf. PX4 | MC Filter Tuning & Control Latency: https://docs.px4.io/main/en/config_mc/filter_tuning.html
+  writeReg(spi_dev_imu_, XG_CTRL_REG2_G, BITS_INT_SEL_LPF1 | BITS_OUT_SEL_LPF1);
+
+  // サンプリング周波数を最大に設定
+  writeReg(spi_dev_imu_, XG_CTRL_REG1_G, BITS_ODR_G_952HZ | scale);  // LPF1のみだからカットオフ100Hzで固定
 
   // Set scale
   setGyroScale(scale);
@@ -125,11 +129,15 @@ void LSM9DS1::initializeAccelerometer()
   constexpr uint8_t scale = BITS_FS_XL_4G;
 
   // Enable the three axes of the accelerometer
-  writeReg(spi_dev_imu_, XG_CTRL_REG5_XL, BITS_XEN_XL | BITS_YEN_XL | BITS_ZEN_XL);
+  writeReg(spi_dev_imu_, XG_CTRL_REG5_XL, BITS_DEC_1 | BITS_XEN_XL | BITS_YEN_XL | BITS_ZEN_XL);
 
-  // Configure accelerometer
+  // 最大レートで最小のカットオフ周波数に設定
   writeReg(spi_dev_imu_, XG_CTRL_REG6_XL, BITS_ODR_XL_952HZ | scale | BITS_BW_SCAL_ODR | BITS_BW_XL_50HZ);
-  writeReg(spi_dev_imu_, XG_CTRL_REG7_XL, BITS_HR | BITS_DCF_50);  // HR mode (Digital LPF)
+
+  // 高解像度モード (デジタルローパスフィルタ) の設定
+  // 遅延が怖いので使わないほうがいいかも
+  if (kUseHighResolutionMode)
+    writeReg(spi_dev_imu_, XG_CTRL_REG7_XL, BITS_HR | BITS_DCF_50 | BITS_FDS);
 
   // Set scale
   setAccScale(scale);
@@ -140,10 +148,10 @@ void LSM9DS1::initializeAccelerometer()
 void LSM9DS1::initializeMagnetometer()
 {
   // constexpr uint8_t scale = BITS_FS_M_16Gs;
-  constexpr uint8_t scale = BITS_FS_M_4Gs;
+  constexpr uint8_t scale = BITS_FS_4GAUSS;
 
   // Configure magnetometer
-  writeReg(spi_dev_mag_, M_CTRL_REG1_M, BITS_TEMP_COMP | BITS_OM_HIGH | BITS_ODR_M_80HZ);
+  writeReg(spi_dev_mag_, M_CTRL_REG1_M, BITS_TEMP_COMP | BITS_OM_HIGH | BITS_DO_M_80HZ);
   writeReg(spi_dev_mag_, M_CTRL_REG2_M, scale);
   writeReg(spi_dev_mag_, M_CTRL_REG3_M, BITS_MD_CONTINUOUS);
   writeReg(spi_dev_mag_, M_CTRL_REG4_M, BITS_OMZ_HIGH);
@@ -168,6 +176,8 @@ void LSM9DS1::setGyroScale(const uint8_t& scale)
     case BITS_FS_G_2000DPS:
       gyro_scale_ = 0.07;
       break;
+    default:
+      throw;
   }
 }
 
@@ -187,6 +197,8 @@ void LSM9DS1::setAccScale(const uint8_t& scale)
     case BITS_FS_XL_16G:
       acc_scale_ = 0.000732;
       break;
+    default:
+      throw;
   }
 }
 
@@ -194,18 +206,20 @@ void LSM9DS1::setMagScale(const uint8_t& scale)
 {
   switch (scale)
   {
-    case BITS_FS_M_4Gs:
+    case BITS_FS_4GAUSS:
       mag_scale_ = 0.00014;
       break;
-    case BITS_FS_M_8Gs:
+    case BITS_FS_8GAUSS:
       mag_scale_ = 0.00029;
       break;
-    case BITS_FS_M_12Gs:
+    case BITS_FS_12GAUSS:
       mag_scale_ = 0.00043;
       break;
-    case BITS_FS_M_16Gs:
+    case BITS_FS_16GAUSS:
       mag_scale_ = 0.00058;
       break;
+    default:
+      throw;
   }
 }
 }  // namespace navio
