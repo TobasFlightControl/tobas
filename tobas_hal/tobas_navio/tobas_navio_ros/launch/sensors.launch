@@ -2,11 +2,11 @@
 
   <arg name="nodelet" default="false"/>
 
-  <arg name="bat_name" value="battery_handler"/>
   <arg name="imu_name" value="imu_handler"/>
   <arg name="mag_name" value="magnetometer_handler"/>
   <arg name="bar_name" value="barometer_handler"/>
   <arg name="gps_name" value="gps_handler"/>
+  <arg name="bat_name" value="battery_handler"/>
 
   <group if="$(arg nodelet)">
     <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_navio_ros/ImuHandlerNodelet nodelet_manager_high" output="screen" required="true"/>
