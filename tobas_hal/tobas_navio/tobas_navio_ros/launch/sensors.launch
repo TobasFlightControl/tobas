@@ -10,18 +10,18 @@
 
   <group if="$(arg nodelet)">
     <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_navio_ros/ImuHandlerNodelet nodelet_manager_high" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_navio_ros/MagnetometerHandlerNodelet nodelet_manager_medium" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg mag_name)" args="load tobas_navio_ros/MagnetometerHandlerNodelet nodelet_manager_medium" output="screen" required="true"/>
     <node pkg="nodelet" type="nodelet" name="$(arg bar_name)" args="load tobas_navio_ros/BarometerHandlerNodelet nodelet_manager_medium" output="screen" required="true"/>
     <node pkg="nodelet" type="nodelet" name="$(arg gps_name)" args="load tobas_navio_ros/GpsHandlerNodelet nodelet_manager_medium" output="screen" required="true"/>
     <node pkg="nodelet" type="nodelet" name="$(arg bat_name)" args="load tobas_navio_ros/BatteryHandlerNodelet nodelet_manager_medium" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_navio_ros" type="battery_handler_node" name="$(arg bat_name)" output="screen" required="true"/>
     <node pkg="tobas_navio_ros" type="imu_handler_node" name="$(arg imu_name)" output="screen" required="true"/>
     <node pkg="tobas_navio_ros" type="magnetometer_handler_node" name="$(arg mag_name)" output="screen" required="true"/>
     <node pkg="tobas_navio_ros" type="barometer_handler_node" name="$(arg bar_name)" output="screen" required="true"/>
     <node pkg="tobas_navio_ros" type="gps_handler_node" name="$(arg gps_name)" output="screen" required="true"/>
+    <node pkg="tobas_navio_ros" type="battery_handler_node" name="$(arg bat_name)" output="screen" required="true"/>
   </group>
 
 </launch>
