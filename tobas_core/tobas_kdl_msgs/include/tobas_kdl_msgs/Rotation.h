@@ -14,7 +14,7 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Rotation_ = tobas_kdl::Rotation;
 
-typedef tobas_kdl_msgs::Rotation_<std::allocator<void> > Rotation;
+typedef tobas_kdl_msgs::Rotation_<std::allocator<void>> Rotation;
 
 typedef boost::shared_ptr<tobas_kdl_msgs::Rotation> RotationPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Rotation const> RotationConstPtr;
@@ -113,15 +113,9 @@ struct Serializer<tobas_kdl::Rotation>
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)
   {
-    stream.next(m.data(0, 0));
-    stream.next(m.data(0, 1));
-    stream.next(m.data(0, 2));
-    stream.next(m.data(1, 0));
-    stream.next(m.data(1, 1));
-    stream.next(m.data(1, 2));
-    stream.next(m.data(2, 0));
-    stream.next(m.data(2, 1));
-    stream.next(m.data(2, 2));
+    for (size_t row = 0; row < 3; ++row)
+      for (size_t col = 0; col < 3; ++col)
+        stream.next(m.data(row, col));
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
