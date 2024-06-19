@@ -13,16 +13,15 @@ namespace tobas_pre_arm_check
 {
 class PreArmCheckServer : public tobas::BaseNode
 {
-  static constexpr double kOdomCallbackInterval = 0.1;      // [s]
-  static constexpr double kPosDriftCheckTimeWindow = 5.;    // [s]
-  static constexpr double kPosDriftThreshold = 1.;          // [m]
-  static constexpr double kAttitudeThreshold = M_PI / 6;    // [rad/s]
-  static constexpr double kHorPosStddevThreshold = 1.;      // [m]
-  static constexpr double kVerPosStddevThreshold = 2.;      // [m]
-  static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
-  static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
-
-  static constexpr double kPreArmCheckTimerRate = 1.;  // [s]
+  static constexpr double kOdomCallbackInterval = 0.1;    // [s]
+  static constexpr double kPosDriftCheckTimeWindow = 5.;  // [s]
+  static constexpr double kPosDriftThresh = 1.;           // [m]
+  static constexpr double kAttitudeThresh = M_PI / 6;     // [rad/s]
+  static constexpr double kHorPosStddevThresh = 1.;       // [m]
+  static constexpr double kVerPosStddevThresh = 2.;       // [m]
+  static constexpr double kRotStddevThresh = M_PI / 24;   // [rad]
+  static constexpr double kVelStddevThresh = 0.3;         // [m/s]
+  static constexpr double kPreArmCheckTimerRate = 1.;     // [s]
 
   using self = PreArmCheckServer;
   using super = tobas::BaseNode;

@@ -110,7 +110,7 @@ void PreArmCheckServer::preArmCheckTimerCb(const ros::TimerEvent& event)
 
   // 姿勢角
   odom_->frame.M.getRPY(roll_, pitch_, yaw_);
-  pre_arm_check_.attitude_horizontal = max(abs(roll_), abs(pitch_)) < kAttitudeThreshold;
+  pre_arm_check_.attitude_horizontal = max(abs(roll_), abs(pitch_)) < kAttitudeThresh;
   if (!pre_arm_check_.attitude_horizontal)
     pre_arm_check_.ok = false;
 
@@ -118,7 +118,7 @@ void PreArmCheckServer::preArmCheckTimerCb(const ros::TimerEvent& event)
   pre_arm_check_.position_stable = true;
   for (size_t i = 0; i < 3; ++i)
   {
-    if (!pos_buf_[i].isFilled() || pos_buf_[i].range() > kPosDriftThreshold)
+    if (!pos_buf_[i].isFilled() || pos_buf_[i].range() > kPosDriftThresh)
     {
       pre_arm_check_.position_stable = false;
       pre_arm_check_.ok = false;
@@ -130,20 +130,19 @@ void PreArmCheckServer::preArmCheckTimerCb(const ros::TimerEvent& event)
   const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
   const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
   const auto ver_pos_var = pos_cov_diag.z();
-  pre_arm_check_.position_accurate =
-    hor_pos_var < sqr(kHorPosStddevThreshold) && ver_pos_var < sqr(kVerPosStddevThreshold);
+  pre_arm_check_.position_accurate = hor_pos_var < sqr(kHorPosStddevThresh) && ver_pos_var < sqr(kVerPosStddevThresh);
   if (!pre_arm_check_.position_accurate)
     pre_arm_check_.ok = false;
 
   // 姿勢推定の共分散
   const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
-  pre_arm_check_.orientation_accurate = rot_var < sqr(kRotStddevThreshold);
+  pre_arm_check_.orientation_accurate = rot_var < sqr(kRotStddevThresh);
   if (!pre_arm_check_.orientation_accurate)
     pre_arm_check_.ok = false;
 
   // 速度推定の共分散
   const auto vel_var = odom_->linear_velocity_covariance.diagonal().maxCoeff();
-  pre_arm_check_.velocity_accurate = vel_var < sqr(kVelStddevThreshold);
+  pre_arm_check_.velocity_accurate = vel_var < sqr(kVelStddevThresh);
   if (!pre_arm_check_.velocity_accurate)
     pre_arm_check_.ok = false;
 
