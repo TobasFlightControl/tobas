@@ -1,5 +1,4 @@
 #include <tobas_std_tools/geometry.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Odometry.h>
 
@@ -32,9 +31,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
   // Get the pointer to the link
   link_ = model_->GetLink(link_name_);
   if (link_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
-  }
 
   // Advertise publisher
   odom_pub_ = nh_.advertise<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic, 1);

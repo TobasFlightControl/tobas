@@ -1,6 +1,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <opencv2/highgui/highgui.hpp>
+#include <nav_msgs/Odometry.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
@@ -26,7 +27,6 @@ void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   gzmsg << "Loading " << kPluginName << "." << endl;
 
   getSdfParams(sdf);
-  fillMessageStaticParts();
   setRandomDistributions();
 
   world_ = physics::get_world(sensor->WorldName());
@@ -61,27 +61,6 @@ void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
 
     getSdfParam(sdf, "covarianceImageScale", cov_image_scale_, kDefaultCovarianceImageScale, POSITIVE);
   }
-}
-
-void GazeboOdometryPlugin::fillMessageStaticParts()
-{
-  // Fill in frame ids
-  odom_msg_.header.frame_id = "world";
-  odom_msg_.child_frame_id = link_name_;
-
-  // Fill in pose covariance
-  Map<Matrix6d> pose_covariance(odom_msg_.pose.covariance.data());
-  Vector6d pose_covd;
-  pose_covd << sqr(noise_normal_position_.X()), sqr(noise_normal_position_.Y()), sqr(noise_normal_position_.Z()),
-    sqr(noise_normal_rotation_.X()), sqr(noise_normal_rotation_.Y()), sqr(noise_normal_rotation_.Z());
-  pose_covariance = pose_covd.asDiagonal();
-
-  // Fill in twist covariance
-  Map<Matrix6d> twist_covariance(odom_msg_.twist.covariance.data());
-  Vector6d twist_covd;
-  twist_covd << sqr(noise_normal_linvel_.X()), sqr(noise_normal_linvel_.Y()), sqr(noise_normal_linvel_.Z()),
-    sqr(noise_normal_angvel_.X()), sqr(noise_normal_angvel_.Y()), sqr(noise_normal_angvel_.Z());
-  twist_covariance = twist_covd.asDiagonal();
 }
 
 void GazeboOdometryPlugin::setRandomDistributions()
@@ -134,19 +113,14 @@ void GazeboOdometryPlugin::onUpdate()
   // Add noise to the true values
   addNoise(T_W_S, B_Linvel_WS, B_Angvel_WS);
 
-  // Fill in odometry message
-  timeGazeboToRos(world_->SimTime(), odom_msg_.header.stamp);
-  poseGazeboToRos(T_W_B, odom_msg_.pose.pose);
-  vectorGazeboToRos(B_Linvel_WS, odom_msg_.twist.twist.linear);
-  vectorGazeboToRos(B_Angvel_WS, odom_msg_.twist.twist.angular);
-
-  odometry_pub_.publish(odom_msg_);
+  // Publish an odometry message
+  publishOdomMsg(T_W_S, B_Linvel_WS, B_Angvel_WS);
 }
 
 void GazeboOdometryPlugin::addNoise(
   ignition::math::Pose3d& pose,
   ignition::math::Vector3d& linvel,
-  ignition::math::Vector3d& angvel)
+  ignition::math::Vector3d& angvel) const
 {
   // Add position noise
   pose.Pos() += position_n_->get() + position_u_->get();
@@ -162,6 +136,36 @@ void GazeboOdometryPlugin::addNoise(
 
   // Add angular velocity noise
   angvel += angvel_n_->get() + angvel_u_->get();
+}
+
+void GazeboOdometryPlugin::publishOdomMsg(
+  ignition::math::Pose3d& pose,
+  ignition::math::Vector3d& linvel,
+  ignition::math::Vector3d& angvel) const
+{
+  const auto odom_msg = boost::make_shared<nav_msgs::Odometry>();
+
+  timeGazeboToRos(world_->SimTime(), odom_msg->header.stamp);
+  odom_msg->header.frame_id = "world";
+  odom_msg->child_frame_id = link_name_;
+
+  poseGazeboToRos(pose, odom_msg->pose.pose);
+  vectorGazeboToRos(linvel, odom_msg->twist.twist.linear);
+  vectorGazeboToRos(angvel, odom_msg->twist.twist.angular);
+
+  Map<Matrix6d> pose_covariance(odom_msg->pose.covariance.data());
+  Vector6d pose_covd;
+  pose_covd << sqr(noise_normal_position_.X()), sqr(noise_normal_position_.Y()), sqr(noise_normal_position_.Z()),
+    sqr(noise_normal_rotation_.X()), sqr(noise_normal_rotation_.Y()), sqr(noise_normal_rotation_.Z());
+  pose_covariance = pose_covd.asDiagonal();
+
+  Map<Matrix6d> twist_covariance(odom_msg->twist.covariance.data());
+  Vector6d twist_covd;
+  twist_covd << sqr(noise_normal_linvel_.X()), sqr(noise_normal_linvel_.Y()), sqr(noise_normal_linvel_.Z()),
+    sqr(noise_normal_angvel_.X()), sqr(noise_normal_angvel_.Y()), sqr(noise_normal_angvel_.Z());
+  twist_covariance = twist_covd.asDiagonal();
+
+  odometry_pub_.publish(odom_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboOdometryPlugin);

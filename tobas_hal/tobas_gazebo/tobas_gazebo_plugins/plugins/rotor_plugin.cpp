@@ -169,11 +169,11 @@ void GazeboRotorPlugin::registerPubSub()
   debug_pub_ = nh_.advertise<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
 
   throttles_sub_ = nh_.subscribe(
-    prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, ros::TransportHints().reliable().tcpNoDelay());
+    prefix + tobas::kThrottlesCmdTopic, 1, &self::throttlesCmdCb, this, ros::TransportHints().tcpNoDelay());
   battery_gt_sub_ =
-    nh_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, ros::TransportHints().reliable().tcpNoDelay());
+    nh_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, ros::TransportHints().tcpNoDelay());
   wind_gt_sub_ =
-    nh_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, ros::TransportHints().reliable().tcpNoDelay());
+    nh_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, ros::TransportHints().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()

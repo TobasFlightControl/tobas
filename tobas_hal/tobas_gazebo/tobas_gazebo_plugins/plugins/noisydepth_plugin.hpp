@@ -6,7 +6,6 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/sensors/DepthCameraSensor.hh>
 #include <gazebo_plugins/gazebo_ros_camera_utils.h>
-#include <sensor_msgs/Image.h>
 
 #include "../include/tobas_gazebo_plugins/depth_noise_models.hpp"
 
@@ -32,6 +31,8 @@ class GazeboNoisyDepthPlugin : public SensorPlugin, GazeboRosCameraUtils
   static constexpr float kDefaultHorizontalFOV = M_PI_2f32;
   static constexpr float kDefaultBaseline = 0.05f;
 
+  using self = GazeboNoisyDepthPlugin;
+
 public:
   explicit GazeboNoisyDepthPlugin();
   ~GazeboNoisyDepthPlugin();
@@ -52,11 +53,9 @@ private:
   float baseline_;
 
   std::unique_ptr<DepthNoiseModel> noise_model_;
-  int depth_image_connect_count_;
-  int depth_info_connect_count_;
-  common::Time depth_sensor_update_time_;
-  common::Time last_depth_info_update_time_;
-  sensor_msgs::Image depth_image_msg_;
+  int depth_image_connect_count_=0;
+  int depth_info_connect_count_=0;
+  common::Time last_depth_info_update_time_=common::Time(0);
 
   event::ConnectionPtr new_image_frame_connection_;
   event::ConnectionPtr new_depth_frame_connection_;
@@ -66,7 +65,6 @@ private:
   ros::Publisher depth_info_pub_;
 
   void onNewImageFrame(const uint8_t* image, size_t width, size_t height, size_t depth, const std::string& format);
-
   void onNewDepthFrame(const float* image, size_t width, size_t height, size_t depth, const std::string& format);
 
   void getSdfParams(sdf::ElementPtr sdf);
@@ -76,13 +74,7 @@ private:
   void depthImageDisconnect();
   void depthInfoConnect();
   void depthInfoDisconnect();
-  void fillDepthImage(const float* src);
-  bool fillDepthImageHelper(
-    const size_t rows_arg,
-    const size_t cols_arg,
-    const size_t step_arg,
-    const float* data_arg,
-    sensor_msgs::Image& image_msg);
+  void publishDepthImage(const float* src);
   void publishCameraInfo();
 };
 }  // namespace gazebo

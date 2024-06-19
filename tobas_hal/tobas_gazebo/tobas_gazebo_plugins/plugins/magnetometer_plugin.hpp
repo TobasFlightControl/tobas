@@ -5,7 +5,6 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
-#include <sensor_msgs/MagneticField.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"
@@ -17,8 +16,8 @@ class GazeboMagnetometerPlugin : public SensorPlugin
   // Constants
   static constexpr char kPluginName[] = "magnetometer_plugin";
 
+  using self = GazeboMagnetometerPlugin;
   using super = SensorPlugin;
-  using MagMsg = sensor_msgs::MagneticField;
 
 public:
   explicit GazeboMagnetometerPlugin();
@@ -45,7 +44,6 @@ private:
 
   ignition::math::Vector3d init_bias_;  // [nT] 世界座標系の地磁気に加わるバイアス
   double lat_, lon_;                    // [deg] 現在位置の経緯度
-  MagMsg mag_msg_;
 
   std::random_device rnd_dev_;
   NormalDistribution3dPtr noise_;
@@ -54,5 +52,6 @@ private:
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();
+  void publishMagMsg(const ignition::math::Vector3d& field) const;
 };
 }  // namespace gazebo

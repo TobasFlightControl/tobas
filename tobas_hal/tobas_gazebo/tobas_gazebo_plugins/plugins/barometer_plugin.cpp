@@ -1,5 +1,6 @@
-#include <tobas_std_tools/standard_atmosphere.hpp>
+#include <sensor_msgs/FluidPressure.h>
 
+#include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "./barometer_plugin.hpp"
@@ -28,16 +29,10 @@ void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   // Get the pointer to the link
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
-  }
 
   // Initialize the normal distribution for pressure
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
-
-  // Fill the static parts of the barometer message
-  pressure_msg_.header.frame_id = link_name_;
-  pressure_msg_.variance = pressure_var_;
 
   // Advertise
   pressure_pub_ = nh_.advertise<PressureMsg>("/" + ns_ + "/" + tobas::kAirPressureTopic, 1);
@@ -58,24 +53,27 @@ void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboBarometerPlugin::onUpdate()
 {
   // Get the current geometric height of sensor
-  const Pose3d& T_W_B = link_->WorldPose();
-  const Vector3d& W_Pos_WB = T_W_B.Pos();
-  const Quaterniond& W_Rot_B = T_W_B.Rot();
-  const Vector3d W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
-  const double altitude = alt_0_ + W_Pos_WS.Z();
+  const auto& T_W_B = link_->WorldPose();
+  const auto& W_Pos_WB = T_W_B.Pos();
+  const auto& W_Rot_B = T_W_B.Rot();
+  const auto W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
+  const auto altitude = alt_0_ + W_Pos_WS.Z();
 
   // Compute the air pressure at the current altitude
-  double pressure = tobas_std::altitudeToPressure(altitude);
+  auto pressure = tobas_std::altitudeToPressure(altitude);
 
   // Add noise to pressure measurement
   pressure += pressure_noise_(rnd_gen_);
 
-  // Fill the pressure message
-  timeGazeboToRos(world_->SimTime(), pressure_msg_.header.stamp);
-  pressure_msg_.fluid_pressure = pressure;
+  // Create a pressure message
+  const auto pressure_msg = boost::make_shared<sensor_msgs::FluidPressure>();
+  timeGazeboToRos(world_->SimTime(), pressure_msg->header.stamp);
+  pressure_msg->header.frame_id = link_name_;
+  pressure_msg->fluid_pressure = pressure;
+  pressure_msg->variance = pressure_var_;
 
   // Publish the pressure message
-  pressure_pub_.publish(pressure_msg_);
+  pressure_pub_.publish(pressure_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboBarometerPlugin);

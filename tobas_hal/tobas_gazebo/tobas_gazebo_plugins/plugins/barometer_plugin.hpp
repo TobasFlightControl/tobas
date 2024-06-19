@@ -5,7 +5,6 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
-#include <sensor_msgs/FluidPressure.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
@@ -40,7 +39,6 @@ private:
   physics::WorldPtr world_;
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
-  sensor_msgs::FluidPressure pressure_msg_;
 
   NormalDistribution pressure_noise_;
   std::random_device rnd_dev_;

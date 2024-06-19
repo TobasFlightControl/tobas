@@ -1,6 +1,7 @@
+#include <sensor_msgs/MagneticField.h>
+
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/geometry.hpp>
-
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 
@@ -31,9 +32,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   // Get the pointer to the link
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-  {
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
-  }
 
   // Create the normal noise distributions
   noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_));
@@ -42,21 +41,8 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   UniformDistribution3d init_bias_dist(rnd_dev_, -noise_uniform_initial_bias_, noise_uniform_initial_bias_);
   init_bias_ = init_bias_dist.get();
 
-  // Fill the static parts of the magnetometer message
-  mag_msg_.header.frame_id = link_name_;
-
-  mag_msg_.magnetic_field_covariance[0] = tobas_std::sqr(noise_normal_.X());
-  mag_msg_.magnetic_field_covariance[1] = 0.;
-  mag_msg_.magnetic_field_covariance[2] = 0.;
-  mag_msg_.magnetic_field_covariance[3] = 0.;
-  mag_msg_.magnetic_field_covariance[4] = tobas_std::sqr(noise_normal_.Y());
-  mag_msg_.magnetic_field_covariance[5] = 0.;
-  mag_msg_.magnetic_field_covariance[6] = 0.;
-  mag_msg_.magnetic_field_covariance[7] = 0.;
-  mag_msg_.magnetic_field_covariance[8] = tobas_std::sqr(noise_normal_.Z());
-
   // Advertise publisher
-  mag_pub_ = nh_.advertise<MagMsg>("/" + ns_ + "/" + tobas::kMagTopic, 1);
+  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("/" + ns_ + "/" + tobas::kMagTopic, 1);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboMagnetometerPlugin::onUpdate, this));
@@ -75,18 +61,16 @@ void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "noiseNormal", noise_normal_, zero3);
   getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, zero3);
   if (!allGreaterEqual(noise_normal_, 0.) || !allGreaterEqual(noise_uniform_initial_bias_, 0.))
-  {
     gzthrow(kPluginName << ": Noise std. dev cannot be negative.");
-  }
 }
 
 void GazeboMagnetometerPlugin::onUpdate()
 {
   // Get the sensor pose
-  const Pose3d& T_W_B = link_->WorldPose();
-  const Vector3d& W_Pos_WB = T_W_B.Pos();
-  const Quaterniond& W_Rot_B = T_W_B.Rot();
-  const Vector3d W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
+  const auto& T_W_B = link_->WorldPose();
+  const auto& W_Pos_WB = T_W_B.Pos();
+  const auto& W_Rot_B = T_W_B.Rot();
+  const auto W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
 
   // デカルト座標から経緯度と高度を計算
   tobas_std::cartToGpsRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, lat_, lon_);
@@ -102,12 +86,30 @@ void GazeboMagnetometerPlugin::onUpdate()
   // Add noise
   field_B += noise_->get();
 
-  // Fill the magnetic field message
-  timeGazeboToRos(world_->SimTime(), mag_msg_.header.stamp);
-  vectorGazeboToRos(field_B, mag_msg_.magnetic_field);
+  // Publish message
+  publishMagMsg(field_B);
+}
 
-  // Publish the message
-  mag_pub_.publish(mag_msg_);
+void GazeboMagnetometerPlugin::publishMagMsg(const ignition::math::Vector3d& field) const
+{
+  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+
+  timeGazeboToRos(world_->SimTime(), mag_msg->header.stamp);
+  mag_msg->header.frame_id = link_name_;
+
+  vectorGazeboToRos(field, mag_msg->magnetic_field);
+
+  mag_msg->magnetic_field_covariance[0] = tobas_std::sqr(noise_normal_.X());
+  mag_msg->magnetic_field_covariance[1] = 0.;
+  mag_msg->magnetic_field_covariance[2] = 0.;
+  mag_msg->magnetic_field_covariance[3] = 0.;
+  mag_msg->magnetic_field_covariance[4] = tobas_std::sqr(noise_normal_.Y());
+  mag_msg->magnetic_field_covariance[5] = 0.;
+  mag_msg->magnetic_field_covariance[6] = 0.;
+  mag_msg->magnetic_field_covariance[7] = 0.;
+  mag_msg->magnetic_field_covariance[8] = tobas_std::sqr(noise_normal_.Z());
+
+  mag_pub_.publish(mag_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboMagnetometerPlugin);

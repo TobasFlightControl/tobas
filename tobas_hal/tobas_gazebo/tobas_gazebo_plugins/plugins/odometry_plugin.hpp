@@ -6,7 +6,6 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
 #include <opencv2/core/core.hpp>
-#include <nav_msgs/Odometry.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"
@@ -59,15 +58,15 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
   std::random_device rnd_dev_;
-  nav_msgs::Odometry odom_msg_;
 
   ros::Publisher odometry_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
-  void fillMessageStaticParts();
   void setRandomDistributions();
   void registerPublishers();
   void onUpdate();
-  void addNoise(ignition::math::Pose3d& pose, ignition::math::Vector3d& linvel, ignition::math::Vector3d& angvel);
+  void addNoise(ignition::math::Pose3d& pose, ignition::math::Vector3d& linvel, ignition::math::Vector3d& angvel) const;
+  void publishOdomMsg(ignition::math::Pose3d& pose, ignition::math::Vector3d& linvel, ignition::math::Vector3d& angvel)
+    const;
 };
 }  // namespace gazebo

@@ -7,11 +7,9 @@
 #include <gazebo/physics/physics.hh>
 
 #include <tobas_std_tools/range.hpp>
-
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/Wind.h>
-#include <tobas_gazebo_msgs/FixedWingDebug.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
@@ -36,9 +34,8 @@ class GazeboFixedWingPlugin : public ModelPlugin
   static constexpr double kDefaultLowerStallAngle = -10. * tobas::kDeg2Rad;
   static constexpr double kDefaultUpperStallAngle = 20. * tobas::kDeg2Rad;
 
+  using self = GazeboFixedWingPlugin;
   using super = ModelPlugin;
-  using CmdMsg = tobas_msgs::ControlSurfaceDeflections;
-  using WindMsg = tobas_msgs::Wind;
 
 public:
   explicit GazeboFixedWingPlugin();
@@ -65,10 +62,8 @@ private:
   common::Time prev_sim_time_;
   common::Time last_cmd_time_;
   bool is_initialized_ = false;
-  bool cs_activated_ = false;
-  ignition::math::Vector3d wind_vel_W_ = zero3;           // 風速 [m/s]
-  tobas_msgs::ControlSurfaceDeflections cs_deflections_;  // 舵角 [rad]
-  tobas_gazebo_msgs::FixedWingDebug debug_msg_;
+  ignition::math::Vector3d wind_vel_W_ = zero3;                   // 風速 [m/s]
+  tobas_msgs::ControlSurfaceDeflectionsConstPtr cs_deflections_;  // 舵角 [rad]
 
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
@@ -94,8 +89,8 @@ private:
   double yawCoefficient(const double& beta, const double& p, const double& r, const double& V);
   double dynamicPressure(const double& V);
 
-  void deflectionsCb(const CmdMsg& deflections);
-  void windSpeedCb(const WindMsg& wind);
+  void deflectionsCb(const tobas_msgs::ControlSurfaceDeflectionsConstPtr& deflections);
+  void windSpeedCb(const tobas_msgs::WindConstPtr& wind);
 
   /* ControlSurfaceをindexで並べ替えるためのキー． */
   static bool sortKey(const tobas::ControlSurface& l, const tobas::ControlSurface& r);

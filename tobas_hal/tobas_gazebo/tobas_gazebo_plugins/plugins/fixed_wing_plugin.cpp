@@ -2,9 +2,9 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_gazebo_msgs/FixedWingDebug.h>
 
 #include "./fixed_wing_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
@@ -54,9 +54,6 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     cs_joints_.push_back(joint);
     cs_angle_models_.emplace_back(cs.angle_limit, cs.max_angle_rate);
   }
-
-  cs_deflections_.deflections.resize(control_surfaces_.size());
-  debug_msg_.deflections.resize(control_surfaces_.size());
 
   registerPubSub();
 
@@ -159,11 +156,9 @@ void GazeboFixedWingPlugin::registerPubSub()
   debug_pub_ = nh_.advertise<tobas_gazebo_msgs::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   deflections_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &GazeboFixedWingPlugin::deflectionsCb, this,
-    ros::TransportHints().reliable().tcpNoDelay());
-  wind_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + kWindGtTopic, 1, &GazeboFixedWingPlugin::windSpeedCb, this,
-    ros::TransportHints().reliable().tcpNoDelay());
+    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &self::deflectionsCb, this, ros::TransportHints().tcpNoDelay());
+  wind_sub_ =
+    nh_.subscribe("/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this, ros::TransportHints().tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
@@ -171,10 +166,9 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   // 最新のコマンドからの経過時間を確認
   const auto& cur_time = info.simTime;
   const auto time_after_last_cmd = cur_time - last_cmd_time_;
-  if (cs_activated_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
+  if (time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    tobas_std::fill(cs_deflections_.deflections, 0.);
-    cs_activated_ = false;
+    cs_deflections_ = nullptr;
     gzmsg << kPluginName << ": Deflection angles of control surfaces are automatically reset because "
           << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command." << endl;
   }
@@ -254,17 +248,16 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   link_->AddRelativeTorque(air_moment);
 
   // デバッグ用メッセージを発行
-  timeGazeboToRos(info.simTime, debug_msg_.header.stamp);
-  vectorGazeboToKDL(linvel_B, debug_msg_.relative_body_velocity);
-  debug_msg_.alpha = alpha;
-  debug_msg_.beta = beta;
-  vectorGazeboToKDL(air_force, debug_msg_.air_force);
-  vectorGazeboToKDL(air_moment, debug_msg_.air_moment);
+  const auto debug_msg = boost::make_shared<tobas_gazebo_msgs::FixedWingDebug>();
+  timeGazeboToRos(info.simTime, debug_msg->header.stamp);
+  vectorGazeboToKDL(linvel_B, debug_msg->relative_body_velocity);
+  debug_msg->alpha = alpha;
+  debug_msg->beta = beta;
+  vectorGazeboToKDL(air_force, debug_msg->air_force);
+  vectorGazeboToKDL(air_moment, debug_msg->air_moment);
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-  {
-    debug_msg_.deflections[i] = cs_angle_models_[i].currentPosition();
-  }
-  debug_pub_.publish(debug_msg_);
+    debug_msg->deflections.push_back(cs_angle_models_[i].currentPosition());
+  debug_pub_.publish(debug_msg);
 }
 
 void GazeboFixedWingPlugin::updateDeflections(const double& dt)
@@ -273,7 +266,8 @@ void GazeboFixedWingPlugin::updateDeflections(const double& dt)
   {
     // 角度と角速度の制限を考慮して制御面の舵角を更新
     // Transmissionに任せることもできるが，プラグイン内で完結するようにしている
-    const auto& cmd_deflection = cs_deflections_.deflections[i];
+    // アクティベートされていなければ0を目標値とする
+    const auto& cmd_deflection = cs_deflections_ ? cs_deflections_->deflections[i] : 0.;
     cs_angle_models_[i].update(cmd_deflection, dt);
 
     // Gazebo内の関節角を更新
@@ -417,18 +411,18 @@ double GazeboFixedWingPlugin::dynamicPressure(const double& V)
   return rho * tobas_std::sqr(V) / 2.;
 }
 
-void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
+void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::ControlSurfaceDeflectionsConstPtr& deflections)
 {
   // Check array size
-  if (deflections.deflections.size() != control_surfaces_.size())
+  if (deflections->deflections.size() != control_surfaces_.size())
   {
-    gzerr << "The size of the received deflections array is " << deflections.deflections.size()
+    gzerr << "The size of the received deflections array is " << deflections->deflections.size()
           << ", which does not match numberOfControlSurfaces." << endl;
     return;
   }
 
   // Check delay
-  const auto delay = (prev_sim_time_ - deflections.header.stamp).toSec();
+  const auto delay = (prev_sim_time_ - deflections->header.stamp).toSec();
   if (delay > check_delay_threshold_)
   {
     GZ_WARN_THROTTLE(
@@ -445,14 +439,11 @@ void GazeboFixedWingPlugin::deflectionsCb(const CmdMsg& deflections)
 
   // Update last commanded time
   last_cmd_time_ = prev_sim_time_;
-
-  // Control surfaces are now activated
-  cs_activated_ = true;
 }
 
-void GazeboFixedWingPlugin::windSpeedCb(const WindMsg& wind)
+void GazeboFixedWingPlugin::windSpeedCb(const tobas_msgs::WindConstPtr& wind)
 {
-  vectorKDLToGazebo(wind.vel, wind_vel_W_);
+  vectorKDLToGazebo(wind->vel, wind_vel_W_);
 }
 
 bool GazeboFixedWingPlugin::sortKey(const tobas::ControlSurface& l, const tobas::ControlSurface& r)

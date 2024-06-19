@@ -1,5 +1,6 @@
 #include <gazebo/rendering/DepthCamera.hh>
 #include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/Image.h>
 
 #include "./noisydepth_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -9,11 +10,8 @@ using namespace std;
 
 namespace gazebo
 {
-GazeboNoisyDepthPlugin::GazeboNoisyDepthPlugin() : SensorPlugin(), GazeboRosCameraUtils()
+GazeboNoisyDepthPlugin::GazeboNoisyDepthPlugin()
 {
-  depth_info_connect_count_ = 0;
-  depth_image_connect_count_ = 0;
-  last_depth_info_update_time_ = common::Time(0);
 }
 
 GazeboNoisyDepthPlugin::~GazeboNoisyDepthPlugin()
@@ -43,14 +41,14 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
   setNoiseModel();
 
   // Listen to the update events
-  new_image_frame_connection_ = depth_camera_->ConnectNewImageFrame(
-    boost::bind(&GazeboNoisyDepthPlugin::onNewImageFrame, this, _1, _2, _3, _4, _5));
-  new_depth_frame_connection_ = depth_camera_->ConnectNewDepthFrame(
-    boost::bind(&GazeboNoisyDepthPlugin::onNewDepthFrame, this, _1, _2, _3, _4, _5));
+  new_image_frame_connection_ =
+    depth_camera_->ConnectNewImageFrame(boost::bind(&self::onNewImageFrame, this, _1, _2, _3, _4, _5));
+  new_depth_frame_connection_ =
+    depth_camera_->ConnectNewDepthFrame(boost::bind(&self::onNewDepthFrame, this, _1, _2, _3, _4, _5));
 
   // GazeboRosCameraUtilsのLoadが完了してからadvertiseを行うように設定する
   // これをせずadvertiseをベタ書きするとsegmentation faultになる
-  load_connection_ = GazeboRosCameraUtils::OnLoad(boost::bind(&GazeboNoisyDepthPlugin::advertise, this));
+  load_connection_ = GazeboRosCameraUtils::OnLoad(boost::bind(&self::advertise, this));
   GazeboRosCameraUtils::Load(parent, sdf);
 
   parent_sensor_->SetActive(true);
@@ -94,15 +92,13 @@ void GazeboNoisyDepthPlugin::onNewDepthFrame(
   if (!initialized_ || height <= 0 || width <= 0)
     return;
 
-  depth_sensor_update_time_ = parent_sensor_->LastMeasurementTime();
-
   // Check if there are subscribers, if not disable parent, else process images.
   if (parent_sensor_->IsActive())
   {
     if (depth_image_connect_count_ <= 0 && (*image_connect_count_) <= 0)
       parent_sensor_->SetActive(false);
     else if (depth_image_connect_count_ > 0)
-      fillDepthImage(image);
+      publishDepthImage(image);
   }
   else
   {
@@ -180,47 +176,42 @@ void GazeboNoisyDepthPlugin::depthInfoDisconnect()
   --depth_info_connect_count_;
 }
 
-void GazeboNoisyDepthPlugin::fillDepthImage(const float* src)
+void GazeboNoisyDepthPlugin::publishDepthImage(const float* src)
 {
-  lock_.lock();
-
-  // Copy data into image
-  depth_image_msg_.header.frame_id = frame_name_;
-  timeGazeboToRos(depth_sensor_update_time_, depth_image_msg_.header.stamp);
-
-  // Copy from depth to depth image message
-  if (fillDepthImageHelper(height_, width_, skip_, src, depth_image_msg_))
-    depth_image_pub_.publish(depth_image_msg_);
-
-  lock_.unlock();
-}
-
-bool GazeboNoisyDepthPlugin::fillDepthImageHelper(
-  const size_t rows_arg,
-  const size_t cols_arg,
-  const size_t step_arg,
-  const float* data_arg,
-  sensor_msgs::Image& image_msg)
-{
-  if (data_arg == nullptr)
+  if (src == nullptr)
   {
-    ROS_WARN_NAMED("NoisyDepth", "Invalid data array received - nullptr.");
-    return false;
+    gzwarn << "[" << kPluginName << "] Image source is null." << endl;
+    return;
   }
 
-  image_msg.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
-  image_msg.height = rows_arg;
-  image_msg.width = cols_arg;
-  image_msg.step = sizeof(float) * cols_arg;
-  image_msg.data.resize(rows_arg * cols_arg * sizeof(float));
-  image_msg.is_bigendian = 0;
+  lock_.lock();  // TODO: ロックはなぜ必要？
 
-  float* dest = (float*)(&(image_msg.data[0]));
-  memcpy(dest, data_arg, sizeof(float) * width_ * height_);
+  // Create an image message
+  const auto image_msg = boost::make_shared<sensor_msgs::Image>();
 
+  // Fill header
+  timeGazeboToRos(parent_sensor_->LastMeasurementTime(), image_msg->header.stamp);
+  image_msg->header.frame_id = frame_name_;
+
+  // Fill basic information
+  image_msg->height = height_;
+  image_msg->width = width_;
+  image_msg->encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+  image_msg->is_bigendian = 0;
+  image_msg->step = sizeof(float) * width_;
+
+  // Fill image data
+  image_msg->data.resize(height_ * width_ * sizeof(float));
+  float* dest = (float*)(&(image_msg->data[0]));
+  memcpy(dest, src, sizeof(float) * width_ * height_);
+
+  // Add noise to image data
   noise_model_->applyNoise(width_, height_, dest);
 
-  return true;
+  // Publish image
+  depth_image_pub_.publish(image_msg);
+
+  lock_.unlock();
 }
 
 void GazeboNoisyDepthPlugin::publishCameraInfo()
@@ -232,8 +223,6 @@ void GazeboNoisyDepthPlugin::publishCameraInfo()
     return;
 
   sensor_update_time_ = parentSensor_->LastMeasurementTime();
-  common::Time cur_time = world_->SimTime();
-
   if (sensor_update_time_ - last_depth_info_update_time_ >= update_period_)
   {
     PublishCameraInfo(depth_info_pub_);
