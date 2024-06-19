@@ -1,5 +1,4 @@
-#ifndef TOBAS_KDL_MSGS_MESSAGE_VECTORACC_H
-#define TOBAS_KDL_MSGS_MESSAGE_VECTORACC_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -127,5 +126,3 @@ struct Serializer<tobas_kdl::VectorAcc>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // TOBAS_KDL_MSGS_MESSAGE_VECTORACC_H

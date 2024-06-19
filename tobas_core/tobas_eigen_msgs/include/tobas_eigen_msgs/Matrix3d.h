@@ -1,5 +1,4 @@
-#ifndef TOBAS_EIGEN_MSGS_MESSAGE_MATRIX3D_H
-#define TOBAS_EIGEN_MSGS_MESSAGE_MATRIX3D_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -119,5 +118,3 @@ struct Serializer<Eigen::Matrix3d>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // TOBAS_EIGEN_MSGS_MESSAGE_MATRIX3D_H

@@ -1,5 +1,4 @@
-#ifndef TOBAS_MSGS_MESSAGE_EULER_H
-#define TOBAS_MSGS_MESSAGE_EULER_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -119,5 +118,3 @@ struct Serializer<tobas_kdl::Euler>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // TOBAS_MSGS_MESSAGE_EULER_H

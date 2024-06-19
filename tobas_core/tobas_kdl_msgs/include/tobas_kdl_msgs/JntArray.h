@@ -1,5 +1,4 @@
-#ifndef TOBAS_KDL_MSGS_MESSAGE_JNTARRAY_H
-#define TOBAS_KDL_MSGS_MESSAGE_JNTARRAY_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -132,5 +131,3 @@ struct Serializer<tobas_kdl::JntArray>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // TOBAS_KDL_MSGS_MESSAGE_JNTARRAY_H

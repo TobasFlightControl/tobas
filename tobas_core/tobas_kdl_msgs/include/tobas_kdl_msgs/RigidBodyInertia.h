@@ -1,5 +1,4 @@
-#ifndef KDL_MSGS_MESSAGE_RIGIDBODYINERTIA_H
-#define KDL_MSGS_MESSAGE_RIGIDBODYINERTIA_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -158,5 +157,3 @@ struct Serializer<tobas_kdl::RigidBodyInertia>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // KDL_MSGS_MESSAGE_RIGIDBODYINERTIA_H

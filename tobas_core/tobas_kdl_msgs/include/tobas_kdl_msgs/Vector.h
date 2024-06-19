@@ -1,5 +1,4 @@
-#ifndef KDL_MSGS_MESSAGE_VECTOR_H
-#define KDL_MSGS_MESSAGE_VECTOR_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -123,5 +122,3 @@ struct Serializer<tobas_kdl::Vector>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // KDL_MSGS_MESSAGE_VECTOR_H

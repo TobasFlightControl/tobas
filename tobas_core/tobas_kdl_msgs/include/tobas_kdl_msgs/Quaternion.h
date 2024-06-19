@@ -1,5 +1,4 @@
-#ifndef TOBAS_KDL_MSGS_MESSAGE_QUATERNION_H
-#define TOBAS_KDL_MSGS_MESSAGE_QUATERNION_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -121,5 +120,3 @@ struct Serializer<tobas_kdl::Quaternion>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // TOBAS_KDL_MSGS_MESSAGE_QUATERNION_H

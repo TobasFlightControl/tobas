@@ -1,5 +1,4 @@
-#ifndef TOBAS_KDL_MSGS_MESSAGE_ACCEL_H
-#define TOBAS_KDL_MSGS_MESSAGE_ACCEL_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -125,5 +124,3 @@ struct Serializer<tobas_kdl::Accel>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // TOBAS_KDL_MSGS_MESSAGE_ACCEL_H

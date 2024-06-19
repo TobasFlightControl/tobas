@@ -1,5 +1,4 @@
-#ifndef TOBAS_KDL_MSGS_MESSAGE_FRAMEVEL_H
-#define TOBAS_KDL_MSGS_MESSAGE_FRAMEVEL_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -156,5 +155,3 @@ struct Serializer<tobas_kdl::FrameVel>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // TOBAS_KDL_MSGS_MESSAGE_FRAMEVEL_H

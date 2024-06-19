@@ -1,5 +1,4 @@
-#ifndef KDL_MSGS_MESSAGE_ROTATIONALINERTIA_H
-#define KDL_MSGS_MESSAGE_ROTATIONALINERTIA_H
+#pragma once
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -120,5 +119,3 @@ struct Serializer<tobas_kdl::RotationalInertia>
 };
 }  // namespace serialization
 }  // namespace ros
-
-#endif  // KDL_MSGS_MESSAGE_ROTATIONALINERTIA_H
