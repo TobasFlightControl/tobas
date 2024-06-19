@@ -16,7 +16,6 @@ namespace ros
 {
 namespace serialization
 {
-/* Serializer for Eigen vector. */
 template <>
 struct Serializer<tobas_kdl::JntArray>
 {
