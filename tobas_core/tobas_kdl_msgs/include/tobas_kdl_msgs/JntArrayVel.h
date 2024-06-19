@@ -1,9 +1,6 @@
 #pragma once
 
-#include <ros/types.h>
 #include <ros/serialization.h>
-#include <ros/builtin_message_traits.h>
-#include <ros/message_operations.h>
 
 #include <tobas_kdl/jntarrayvel.hpp>
 
@@ -13,92 +10,7 @@ namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
 using JntArrayVel_ = tobas_kdl::JntArrayVel;
-
-typedef tobas_kdl_msgs::JntArrayVel_<std::allocator<void>> JntArrayVel;
-typedef boost::shared_ptr<tobas_kdl_msgs::JntArrayVel> JntArrayVelPtr;
-typedef boost::shared_ptr<tobas_kdl_msgs::JntArrayVel const> JntArrayVelConstPtr;
 }  // namespace tobas_kdl_msgs
-
-namespace ros
-{
-namespace message_traits
-{
-template <>
-struct IsMessage<tobas_kdl::JntArrayVel> : TrueType
-{
-};
-
-template <>
-struct IsMessage<tobas_kdl::JntArrayVel const> : TrueType
-{
-};
-
-template <>
-struct IsFixedSize<tobas_kdl::JntArrayVel> : FalseType
-{
-};
-
-template <>
-struct IsFixedSize<tobas_kdl::JntArrayVel const> : FalseType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::JntArrayVel> : FalseType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::JntArrayVel const> : FalseType
-{
-};
-
-template <>
-struct MD5Sum<tobas_kdl::JntArrayVel>
-{
-  static const char* value()
-  {
-    return "45a5c905c9481a71e7b5dee770e487ce";
-  }
-
-  static const char* value(const tobas_kdl::JntArrayVel&)
-  {
-    return value();
-  }
-  static const uint64_t static_value1 = 0x45a5c905c9481a71ULL;
-  static const uint64_t static_value2 = 0xe7b5dee770e487ceULL;
-};
-
-template <>
-struct DataType<tobas_kdl::JntArrayVel>
-{
-  static const char* value()
-  {
-    return "tobas_kdl_msgs/JntArrayVel";
-  }
-
-  static const char* value(const tobas_kdl::JntArrayVel&)
-  {
-    return value();
-  }
-};
-
-template <>
-struct Definition<tobas_kdl::JntArrayVel>
-{
-  static const char* value()
-  {
-    return "float64[] q\n"
-           "float64[] qdot\n";
-  }
-
-  static const char* value(const tobas_kdl::JntArrayVel&)
-  {
-    return value();
-  }
-};
-}  // namespace message_traits
-}  // namespace ros
 
 namespace ros
 {

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <ros/types.h>
 #include <ros/serialization.h>
-#include <ros/builtin_message_traits.h>
-#include <ros/message_operations.h>
 
 #include <tobas_kdl/rotation.hpp>
 
@@ -11,94 +8,7 @@ namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
 using Rotation_ = tobas_kdl::Rotation;
-
-typedef tobas_kdl_msgs::Rotation_<std::allocator<void>> Rotation;
-typedef boost::shared_ptr<tobas_kdl_msgs::Rotation> RotationPtr;
-typedef boost::shared_ptr<tobas_kdl_msgs::Rotation const> RotationConstPtr;
 }  // namespace tobas_kdl_msgs
-
-namespace ros
-{
-namespace message_traits
-{
-template <>
-struct IsFixedSize<tobas_kdl::Rotation> : TrueType
-{
-};
-
-template <>
-struct IsFixedSize<tobas_kdl::Rotation const> : TrueType
-{
-};
-
-template <>
-struct IsMessage<tobas_kdl::Rotation> : TrueType
-{
-};
-
-template <>
-struct IsMessage<tobas_kdl::Rotation const> : TrueType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::Rotation> : FalseType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::Rotation const> : FalseType
-{
-};
-
-template <>
-struct MD5Sum<tobas_kdl::Rotation>
-{
-  static const char* value()
-  {
-    return "ca66b32e4ad9de837a30ea9fe5ade752";
-  }
-
-  static const char* value(const tobas_kdl::Rotation&)
-  {
-    return value();
-  }
-  static const uint64_t static_value1 = 0xca66b32e4ad9de83ULL;
-  static const uint64_t static_value2 = 0x7a30ea9fe5ade752ULL;
-};
-
-template <>
-struct DataType<tobas_kdl::Rotation>
-{
-  static const char* value()
-  {
-    return "tobas_kdl_msgs/Rotation";
-  }
-
-  static const char* value(const tobas_kdl::Rotation&)
-  {
-    return value();
-  }
-};
-
-template <>
-struct Definition<tobas_kdl::Rotation>
-{
-  static const char* value()
-  {
-    return "# Represents a tobas_kdl::Rotation instance.\n\
-\n\
-float64[9] data\n\
-";
-  }
-
-  static const char* value(const tobas_kdl::Rotation&)
-  {
-    return value();
-  }
-};
-}  // namespace message_traits
-}  // namespace ros
 
 namespace ros
 {
@@ -116,6 +26,6 @@ struct Serializer<tobas_kdl::Rotation>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Rotation_
+};
 }  // namespace serialization
 }  // namespace ros

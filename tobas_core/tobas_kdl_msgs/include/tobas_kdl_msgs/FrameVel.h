@@ -1,9 +1,6 @@
 #pragma once
 
-#include <ros/types.h>
 #include <ros/serialization.h>
-#include <ros/builtin_message_traits.h>
-#include <ros/message_operations.h>
 
 #include <tobas_kdl/framevel.hpp>
 
@@ -14,112 +11,7 @@ namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
 using FrameVel_ = tobas_kdl::FrameVel;
-
-typedef tobas_kdl_msgs::FrameVel_<std::allocator<void>> FrameVel;
-typedef boost::shared_ptr<tobas_kdl_msgs::FrameVel> FrameVelPtr;
-typedef boost::shared_ptr<tobas_kdl_msgs::FrameVel const> FrameVelConstPtr;
 }  // namespace tobas_kdl_msgs
-
-namespace ros
-{
-namespace message_traits
-{
-template <>
-struct IsMessage<tobas_kdl::FrameVel> : TrueType
-{
-};
-
-template <>
-struct IsMessage<tobas_kdl::FrameVel const> : TrueType
-{
-};
-
-template <>
-struct IsFixedSize<tobas_kdl::FrameVel> : TrueType
-{
-};
-
-template <>
-struct IsFixedSize<tobas_kdl::FrameVel const> : TrueType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::FrameVel> : FalseType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::FrameVel const> : FalseType
-{
-};
-
-template <>
-struct MD5Sum<tobas_kdl::FrameVel>
-{
-  static const char* value()
-  {
-    return "2a4ef0eeda46a6fb602f53c28f12ffef";
-  }
-
-  static const char* value(const tobas_kdl::FrameVel&)
-  {
-    return value();
-  }
-  static const uint64_t static_value1 = 0x2a4ef0eeda46a6fbULL;
-  static const uint64_t static_value2 = 0x602f53c28f12ffefULL;
-};
-
-template <>
-struct DataType<tobas_kdl::FrameVel>
-{
-  static const char* value()
-  {
-    return "tobas_kdl_msgs/FrameVel";
-  }
-
-  static const char* value(const tobas_kdl::FrameVel&)
-  {
-    return value();
-  }
-};
-
-template <>
-struct Definition<tobas_kdl::FrameVel>
-{
-  static const char* value()
-  {
-    return "tobas_kdl_msgs/Frame frame\n"
-           "tobas_kdl_msgs/Twist twist\n"
-           "\n"
-           "================================================================================\n"
-           "MSG: tobas_kdl_msgs/Frame\n"
-           "tobas_kdl_msgs/Vector trans\n"
-           "tobas_kdl_msgs/Rotation rot\n"
-           "\n"
-           "================================================================================\n"
-           "MSG: tobas_kdl_msgs/Vector\n"
-           "float64 x\n"
-           "float64 y\n"
-           "float64 z\n"
-           "\n"
-           "================================================================================\n"
-           "MSG: tobas_kdl_msgs/Rotation\n"
-           "float64[9] data\n"
-           "\n"
-           "================================================================================\n"
-           "MSG: tobas_kdl_msgs/Twist\n"
-           "tobas_kdl_msgs/Vector linear\n"
-           "tobas_kdl_msgs/Vector angular\n";
-  }
-
-  static const char* value(const tobas_kdl::FrameVel&)
-  {
-    return value();
-  }
-};
-}  // namespace message_traits
-}  // namespace ros
 
 namespace ros
 {

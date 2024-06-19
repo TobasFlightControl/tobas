@@ -1,9 +1,6 @@
 #pragma once
 
-#include <ros/types.h>
 #include <ros/serialization.h>
-#include <ros/builtin_message_traits.h>
-#include <ros/message_operations.h>
 
 #include <tobas_kdl/jntarray.hpp>
 
@@ -13,91 +10,7 @@ namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
 using JntArray_ = tobas_kdl::JntArray;
-
-typedef tobas_kdl_msgs::JntArray_<std::allocator<void>> JntArray;
-typedef boost::shared_ptr<tobas_kdl_msgs::JntArray> JntArrayPtr;
-typedef boost::shared_ptr<tobas_kdl_msgs::JntArray const> JntArrayConstPtr;
 }  // namespace tobas_kdl_msgs
-
-namespace ros
-{
-namespace message_traits
-{
-template <>
-struct IsFixedSize<tobas_kdl::JntArray> : FalseType
-{
-};
-
-template <>
-struct IsFixedSize<tobas_kdl::JntArray const> : FalseType
-{
-};
-
-template <>
-struct IsMessage<tobas_kdl::JntArray> : TrueType
-{
-};
-
-template <>
-struct IsMessage<tobas_kdl::JntArray const> : TrueType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::JntArray> : FalseType
-{
-};
-
-template <>
-struct HasHeader<tobas_kdl::JntArray const> : FalseType
-{
-};
-
-template <>
-struct MD5Sum<tobas_kdl::JntArray>
-{
-  static const char* value()
-  {
-    return "788898178a3da2c3718461eecda8f714";
-  }
-
-  static const char* value(const tobas_kdl::JntArray&)
-  {
-    return value();
-  }
-  static const uint64_t static_value1 = 0x788898178a3da2c3ULL;
-  static const uint64_t static_value2 = 0x718461eecda8f714ULL;
-};
-
-template <>
-struct DataType<tobas_kdl::JntArray>
-{
-  static const char* value()
-  {
-    return "tobas_kdl_msgs/JntArray";
-  }
-
-  static const char* value(const tobas_kdl::JntArray&)
-  {
-    return value();
-  }
-};
-
-template <>
-struct Definition<tobas_kdl::JntArray>
-{
-  static const char* value()
-  {
-    return "float64[] data\n";
-  }
-
-  static const char* value(const tobas_kdl::JntArray&)
-  {
-    return value();
-  }
-};
-}  // namespace message_traits
-}  // namespace ros
 
 namespace ros
 {
