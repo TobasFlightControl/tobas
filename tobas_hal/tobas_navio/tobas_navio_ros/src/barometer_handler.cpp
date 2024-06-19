@@ -61,16 +61,13 @@ bool BarometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::Trigg
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // バロメータを更新
-  barometer_.refreshPressure();
-  tobas_std::msleep(kWaitToRefreshBarometer);  // この待ち時間が必須
-  barometer_.readPressure();
-  barometer_.calculatePressureAndTemperature();
+  barometer_.update();
 
   // 気圧を求める
   const auto pressure = barometer_.getPressure();
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
-    TOBAS_ERROR("Strange air pressure: ", pressure, " [Pa]");
+    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Strange air pressure: ", pressure, " [Pa]");
     return;
   }
 
