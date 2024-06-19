@@ -13,8 +13,7 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using RigidBodyInertia_ = tobas_kdl::RigidBodyInertia;
 
-typedef tobas_kdl_msgs::RigidBodyInertia_<std::allocator<void> > RigidBodyInertia;
-
+typedef tobas_kdl_msgs::RigidBodyInertia_<std::allocator<void>> RigidBodyInertia;
 typedef boost::shared_ptr<tobas_kdl_msgs::RigidBodyInertia> RigidBodyInertiaPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::RigidBodyInertia const> RigidBodyInertiaConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -156,31 +155,8 @@ struct Serializer<tobas_kdl::RigidBodyInertia>
   {
     return (uint32_t)(sizeof(double) + 3 * sizeof(double) + 9 * sizeof(double));
   }
-};  // struct RigidBodyInertia_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::RigidBodyInertia>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::RigidBodyInertia& v)
-  {
-    s << indent << "mass: ";
-    Printer<double>::stream(s, indent + "  ", v.getMass());
-    s << indent << "cog: ";
-    s << std::endl;
-    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.getCOG());
-    s << indent << "Ic: ";
-    s << std::endl;
-    Printer<tobas_kdl::RotationalInertia>::stream(s, indent + "  ", v.getRotationalInertia());
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // KDL_MSGS_MESSAGE_RIGIDBODYINERTIA_H

@@ -14,7 +14,6 @@ template <typename ContainerAllocator>
 using RotationalInertia_ = tobas_kdl::RotationalInertia;
 
 typedef tobas_kdl_msgs::RotationalInertia_<std::allocator<void>> RotationalInertia;
-
 typedef boost::shared_ptr<tobas_kdl_msgs::RotationalInertia> RotationalInertiaPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::RotationalInertia const> RotationalInertiaConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -118,29 +117,8 @@ struct Serializer<tobas_kdl::RotationalInertia>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct RotationalInertia_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::RotationalInertia>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::RotationalInertia& v)
-  {
-    s << indent << "data[]" << std::endl;
-    for (size_t i = 0; i < 9; ++i)
-    {
-      s << indent << "  data[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.data[i]);
-    }
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // KDL_MSGS_MESSAGE_ROTATIONALINERTIA_H

@@ -14,7 +14,6 @@ template <class ContainerAllocator>
 using Matrix3d_ = Eigen::Matrix3d;
 
 typedef tobas_eigen_msgs::Matrix3d_<std::allocator<void>> Matrix3d;
-
 typedef boost::shared_ptr<tobas_eigen_msgs::Matrix3d> Matrix3dPtr;
 typedef boost::shared_ptr<tobas_eigen_msgs::Matrix3d const> Matrix3dConstPtr;
 }  // namespace tobas_eigen_msgs
@@ -117,7 +116,7 @@ struct Serializer<Eigen::Matrix3d>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Matrix3d_
+};
 }  // namespace serialization
 }  // namespace ros
 

@@ -15,8 +15,7 @@ namespace tobas_kdl_msgs
 template <class ContainerAllocator>
 using Accel_ = tobas_kdl::Accel;
 
-typedef tobas_kdl_msgs::Accel_<std::allocator<void> > Accel;
-
+typedef tobas_kdl_msgs::Accel_<std::allocator<void>> Accel;
 typedef boost::shared_ptr<tobas_kdl_msgs::Accel> AccelPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Accel const> AccelConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -123,29 +122,8 @@ struct Serializer<tobas_kdl::Accel>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Accel_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::Accel>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Accel& v)
-  {
-    s << indent << "linear: ";
-    s << std::endl;
-    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.linear);
-    s << indent << "angular: ";
-    s << std::endl;
-    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.angular);
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_KDL_MSGS_MESSAGE_ACCEL_H

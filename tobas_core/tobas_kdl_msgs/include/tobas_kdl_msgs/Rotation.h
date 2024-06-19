@@ -10,12 +10,10 @@
 
 namespace tobas_kdl_msgs
 {
-// using C++11 syntax tobas_kdl::Rotation and tobas_kdl_msgs::Rotation_ are exactly the same type
 template <typename ContainerAllocator>
 using Rotation_ = tobas_kdl::Rotation;
 
 typedef tobas_kdl_msgs::Rotation_<std::allocator<void>> Rotation;
-
 typedef boost::shared_ptr<tobas_kdl_msgs::Rotation> RotationPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Rotation const> RotationConstPtr;
 }  // namespace tobas_kdl_msgs

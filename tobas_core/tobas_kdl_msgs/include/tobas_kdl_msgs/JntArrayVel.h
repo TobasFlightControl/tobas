@@ -16,7 +16,6 @@ template <class ContainerAllocator>
 using JntArrayVel_ = tobas_kdl::JntArrayVel;
 
 typedef tobas_kdl_msgs::JntArrayVel_<std::allocator<void>> JntArrayVel;
-
 typedef boost::shared_ptr<tobas_kdl_msgs::JntArrayVel> JntArrayVelPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::JntArrayVel const> JntArrayVelConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -117,35 +116,8 @@ struct Serializer<tobas_kdl::JntArrayVel>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct JntArrayVel_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::JntArrayVel>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::JntArrayVel& v)
-  {
-    s << indent << "q[]" << std::endl;
-    for (size_t i = 0; i < v.q.size(); ++i)
-    {
-      s << indent << "  q[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.q(i));
-    }
-    s << indent << "qdot[]" << std::endl;
-    for (size_t i = 0; i < v.qdot.size(); ++i)
-    {
-      s << indent << "  qdot[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.qdot(i));
-    }
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_KDL_MSGS_MESSAGE_JNTARRAYVEL_H

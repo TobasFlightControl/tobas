@@ -15,8 +15,7 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using JntArray_ = tobas_kdl::JntArray;
 
-typedef tobas_kdl_msgs::JntArray_<std::allocator<void> > JntArray;
-
+typedef tobas_kdl_msgs::JntArray_<std::allocator<void>> JntArray;
 typedef boost::shared_ptr<tobas_kdl_msgs::JntArray> JntArrayPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::JntArray const> JntArrayConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -130,29 +129,8 @@ struct Serializer<tobas_kdl::JntArray>
   {
     return serializationLength(m.data.data(), m.data.rows());
   }
-};  // struct JntArray_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::JntArray>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::JntArray& v)
-  {
-    s << indent << "data[]" << std::endl;
-    for (size_t i = 0; i < v.rows(); ++i)
-    {
-      s << indent << "  data[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v(i));
-    }
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_KDL_MSGS_MESSAGE_JNTARRAY_H

@@ -15,8 +15,7 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Twist_ = tobas_kdl::Twist;
 
-typedef tobas_kdl_msgs::Twist_<std::allocator<void> > Twist;
-
+typedef tobas_kdl_msgs::Twist_<std::allocator<void>> Twist;
 typedef boost::shared_ptr<tobas_kdl_msgs::Twist> TwistPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Twist const> TwistConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -130,29 +129,8 @@ struct Serializer<tobas_kdl::Twist>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Twist_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::Twist>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Twist& v)
-  {
-    s << indent << "linear: ";
-    s << std::endl;
-    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.vel);
-    s << indent << "angular: ";
-    s << std::endl;
-    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.rot);
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // KDL_MSGS_MESSAGE_TWIST_H

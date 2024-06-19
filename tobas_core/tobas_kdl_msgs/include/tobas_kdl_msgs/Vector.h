@@ -13,8 +13,7 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Vector_ = tobas_kdl::Vector;
 
-typedef tobas_kdl_msgs::Vector_<std::allocator<void> > Vector;
-
+typedef tobas_kdl_msgs::Vector_<std::allocator<void>> Vector;
 typedef boost::shared_ptr<tobas_kdl_msgs::Vector> VectorPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Vector const> VectorConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -121,29 +120,8 @@ struct Serializer<tobas_kdl::Vector>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Vector_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::Vector>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Vector& v)
-  {
-    s << indent << "x: ";
-    Printer<double>::stream(s, indent + "  ", v.data.x());
-    s << indent << "y: ";
-    Printer<double>::stream(s, indent + "  ", v.data.y());
-    s << indent << "z: ";
-    Printer<double>::stream(s, indent + "  ", v.data.z());
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // KDL_MSGS_MESSAGE_VECTOR_H

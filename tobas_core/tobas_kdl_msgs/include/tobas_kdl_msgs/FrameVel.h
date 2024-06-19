@@ -16,8 +16,7 @@ namespace tobas_kdl_msgs
 template <class ContainerAllocator>
 using FrameVel_ = tobas_kdl::FrameVel;
 
-typedef tobas_kdl_msgs::FrameVel_<std::allocator<void> > FrameVel;
-
+typedef tobas_kdl_msgs::FrameVel_<std::allocator<void>> FrameVel;
 typedef boost::shared_ptr<tobas_kdl_msgs::FrameVel> FrameVelPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::FrameVel const> FrameVelConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -154,29 +153,8 @@ struct Serializer<tobas_kdl::FrameVel>
   {
     return (uint32_t)(12 * sizeof(double) + 6 * sizeof(double));
   }
-};  // struct FrameVel_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::FrameVel>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::FrameVel& v)
-  {
-    s << indent << "frame: ";
-    s << std::endl;
-    Printer<tobas_kdl::Frame>::stream(s, indent + "  ", v.getFrame());
-    s << indent << "twist: ";
-    s << std::endl;
-    Printer<tobas_kdl::Twist>::stream(s, indent + "  ", v.getTwist());
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_KDL_MSGS_MESSAGE_FRAMEVEL_H

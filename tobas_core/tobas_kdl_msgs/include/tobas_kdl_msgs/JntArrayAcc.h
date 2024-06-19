@@ -16,7 +16,6 @@ template <class ContainerAllocator>
 using JntArrayAcc_ = tobas_kdl::JntArrayAcc;
 
 typedef tobas_kdl_msgs::JntArrayAcc_<std::allocator<void>> JntArrayAcc;
-
 typedef boost::shared_ptr<tobas_kdl_msgs::JntArrayAcc> JntArrayAccPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::JntArrayAcc const> JntArrayAccConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -120,41 +119,8 @@ struct Serializer<tobas_kdl::JntArrayAcc>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct JntArrayAcc_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::JntArrayAcc>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::JntArrayAcc& v)
-  {
-    s << indent << "q[]" << std::endl;
-    for (size_t i = 0; i < v.q.size(); ++i)
-    {
-      s << indent << "  q[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.q(i));
-    }
-    s << indent << "qdot[]" << std::endl;
-    for (size_t i = 0; i < v.qdot.size(); ++i)
-    {
-      s << indent << "  qdot[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.qdot(i));
-    }
-    s << indent << "qdotdot[]" << std::endl;
-    for (size_t i = 0; i < v.qdotdot.size(); ++i)
-    {
-      s << indent << "  qdotdot[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.qdotdot(i));
-    }
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_KDL_MSGS_MESSAGE_JNTARRAYACC_H

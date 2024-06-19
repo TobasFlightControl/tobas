@@ -16,8 +16,7 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Frame_ = tobas_kdl::Frame;
 
-typedef tobas_kdl_msgs::Frame_<std::allocator<void> > Frame;
-
+typedef tobas_kdl_msgs::Frame_<std::allocator<void>> Frame;
 typedef boost::shared_ptr<tobas_kdl_msgs::Frame> FramePtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Frame const> FrameConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -128,29 +127,8 @@ struct Serializer<tobas_kdl::Frame>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Frame_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::Frame>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Frame& v)
-  {
-    s << indent << "trans: ";
-    s << std::endl;
-    Printer<tobas_kdl::Vector>::stream(s, indent + "  ", v.p);
-    s << indent << "rot: ";
-    s << std::endl;
-    Printer<tobas_kdl::Rotation>::stream(s, indent + "  ", v.M);
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_KDL_MSGS_MESSAGE_FRAME_H

@@ -13,8 +13,7 @@ namespace tobas_kdl_msgs
 template <typename ContainerAllocator>
 using Quaternion_ = tobas_kdl::Quaternion;
 
-typedef tobas_kdl_msgs::Quaternion_<std::allocator<void> > Quaternion;
-
+typedef tobas_kdl_msgs::Quaternion_<std::allocator<void>> Quaternion;
 typedef boost::shared_ptr<tobas_kdl_msgs::Quaternion> QuaternionPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Quaternion const> QuaternionConstPtr;
 }  // namespace tobas_kdl_msgs
@@ -119,32 +118,8 @@ struct Serializer<tobas_kdl::Quaternion>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Quaternion_
-
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::Quaternion>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Quaternion& v)
-  {
-    s << indent << "x: ";
-    Printer<double>::stream(s, indent + "  ", v.x);
-    s << indent << "y: ";
-    Printer<double>::stream(s, indent + "  ", v.y);
-    s << indent << "z: ";
-    Printer<double>::stream(s, indent + "  ", v.z);
-    s << indent << "w: ";
-    Printer<double>::stream(s, indent + "  ", v.w);
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_KDL_MSGS_MESSAGE_QUATERNION_H

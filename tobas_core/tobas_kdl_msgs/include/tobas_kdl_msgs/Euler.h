@@ -6,82 +6,22 @@
 #include <ros/builtin_message_traits.h>
 #include <ros/message_operations.h>
 
-#include <tobas_kdl/euler.hpp>  // Added
+#include <tobas_kdl/euler.hpp>
 
 namespace tobas_kdl_msgs
 {
-/* Added from here */
 template <typename ContainerAllocator>
 using Euler_ = tobas_kdl::Euler;
-/* Added to here */
 
-/* Commented out from here
-template <>
-struct Euler_
-{
-  typedef Euler_<ContainerAllocator> Type;
-
-  Euler_() : roll(0.0), pitch(0.0), yaw(0.0)
-  {
-  }
-  Euler_(const ContainerAllocator& _alloc) : roll(0.0), pitch(0.0), yaw(0.0)
-  {
-    (void)_alloc;
-  }
-
-  typedef double _roll_type;
-  _roll_type roll;
-
-  typedef double _pitch_type;
-  _pitch_type pitch;
-
-  typedef double _yaw_type;
-  _yaw_type yaw;
-
-  typedef boost::shared_ptr< tobas_kdl::Euler > Ptr;
-  typedef boost::shared_ptr< tobas_kdl::Euler const> ConstPtr;
-
-};  // struct Euler_
-Commented out to here */
-
-typedef tobas_kdl_msgs::Euler_<std::allocator<void> > Euler;
-
+typedef tobas_kdl_msgs::Euler_<std::allocator<void>> Euler;
 typedef boost::shared_ptr<tobas_kdl_msgs::Euler> EulerPtr;
 typedef boost::shared_ptr<tobas_kdl_msgs::Euler const> EulerConstPtr;
-
-// constants requiring out of line definition
-
-/* Commented out from here
-template <typename ContainerAllocator>
-std::ostream& operator<<(std::ostream& s, const tobas_kdl::Euler& v)
-{
-  ros::message_operations::Printer< tobas_kdl::Euler >::stream(s, "", v);
-  return s;
-}
-
-template <typename ContainerAllocator1, typename ContainerAllocator2>
-bool operator==(
-  const tobas_kdl_msgs::Euler_<ContainerAllocator1>& lhs,
-  const tobas_kdl_msgs::Euler_<ContainerAllocator2>& rhs)
-{
-  return lhs.roll == rhs.roll && lhs.pitch == rhs.pitch && lhs.yaw == rhs.yaw;
-}
-
-template <typename ContainerAllocator1, typename ContainerAllocator2>
-bool operator!=(
-  const tobas_kdl_msgs::Euler_<ContainerAllocator1>& lhs,
-  const tobas_kdl_msgs::Euler_<ContainerAllocator2>& rhs)
-{
-  return !(lhs == rhs);
-}
-Commented out to here */
 }  // namespace tobas_kdl_msgs
 
 namespace ros
 {
 namespace message_traits
 {
-// edit: removed all template parameters
 template <>
 struct IsMessage<tobas_kdl::Euler> : TrueType
 {
@@ -176,29 +116,8 @@ struct Serializer<tobas_kdl::Euler>
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER
-};  // struct Euler_
-}  // namespace serialization
-}  // namespace ros
-
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::Euler>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Euler& v)
-  {
-    s << indent << "roll: ";
-    Printer<double>::stream(s, indent + "  ", v.roll);
-    s << indent << "pitch: ";
-    Printer<double>::stream(s, indent + "  ", v.pitch);
-    s << indent << "yaw: ";
-    Printer<double>::stream(s, indent + "  ", v.yaw);
-  }
 };
-}  // namespace message_operations
+}  // namespace serialization
 }  // namespace ros
 
 #endif  // TOBAS_MSGS_MESSAGE_EULER_H
