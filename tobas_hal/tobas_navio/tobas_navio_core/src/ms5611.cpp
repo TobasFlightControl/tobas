@@ -80,35 +80,27 @@ void MS5611::readTemperature()
 
 void MS5611::computePressureAndTemperature()
 {
-  const double dT = d2_ - c5_ * (double)(1 << 8);
-  double temp = (2000 + ((dT * c6_) / (double)(1 << 23)));
-  double off = c2_ * (double)(1 << 16) + (c4_ * dT) / (double)(1 << 7);
-  double sens = c1_ * (double)(1 << 15) + (c3_ * dT) / (double)(1 << 8);
+  const auto dT = d2_ - c5_ * (double)(1 << 8);
+  auto temp = (2000 + ((dT * c6_) / (double)(1 << 23)));
+  auto off = c2_ * (double)(1 << 16) + (c4_ * dT) / (double)(1 << 7);
+  auto sens = c1_ * (double)(1 << 15) + (c3_ * dT) / (double)(1 << 8);
 
-  double temp2, off2, sens2;
-
-  if (temp >= 2000)
+  if (temp < 2000)
   {
-    temp2 = 0;
-    off2 = 0;
-    sens2 = 0;
-  }
-  else
-  {
-    temp2 = tobas_std::sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフロー
-    off2 = 5 * tobas_std::sqr(temp - 2000) / 2;
-    sens2 = off2 / 2;
+    const auto temp2 = tobas_std::sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフロー
+    auto off2 = 5 * tobas_std::sqr(temp - 2000) / 2;
+    auto sens2 = off2 / 2;
 
     if (temp < -1500)
     {
       off2 += 7 * tobas_std::sqr(temp + 1500);
       sens2 += 11 * tobas_std::sqr(temp + 1500) / 2;
     }
-  }
 
-  temp -= temp2;
-  off -= off2;
-  sens -= sens2;
+    temp -= temp2;
+    off -= off2;
+    sens -= sens2;
+  }
 
   // Final calculations
   pres_ = ((d1_ * sens) / (double)(1 << 21) - off) / (double)(1 << 15);
