@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_kdl_msgs
 	tobas_kdl
+	tobas_eigen_msgs
 	message_generation
 	std_msgs
 	sensor_msgs
@@ -32,6 +33,7 @@ add_action_files(FILES ${ACTION_FILES})
 
 generate_messages(DEPENDENCIES
 	tobas_kdl_msgs
+	tobas_eigen_msgs
 	std_msgs
 	sensor_msgs
 	actionlib_msgs
@@ -43,11 +45,12 @@ catkin_package(
 	CATKIN_DEPENDS
 		tobas_kdl_msgs
 		tobas_kdl
+		tobas_eigen_msgs
 		message_generation
 		std_msgs
 		sensor_msgs
 		nav_msgs
-		actionlib_msgs 
+		actionlib_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

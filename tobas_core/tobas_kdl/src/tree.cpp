@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_kdl
 {
-Tree::Tree(const string& root_name) :root_name_(root_name)
+Tree::Tree(const string& root_name) : root_name_(root_name)
 {
   PRINT_DEBUG("Tree::Tree(\"" << root_name_ << "\")");
 

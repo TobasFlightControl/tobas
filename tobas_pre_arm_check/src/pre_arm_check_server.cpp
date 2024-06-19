@@ -6,6 +6,7 @@
 #include "../include/tobas_pre_arm_check/pre_arm_check_server.hpp"
 
 using namespace std;
+using namespace Eigen;
 using namespace tobas_std;
 
 namespace tobas_pre_arm_check
@@ -126,24 +127,22 @@ void PreArmCheckServer::preArmCheckTimerCb(const ros::TimerEvent& event)
   }
 
   // 位置推定の共分散
-  tobas_ros::matrix3MsgToEigen(odom_->position_covariance, cov_);
-  const auto hor_pos_var = max(cov_(0, 0), cov_(1, 1));
-  const auto ver_pos_var = cov_(2, 2);
+  const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
+  const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
+  const auto ver_pos_var = pos_cov_diag.z();
   pre_arm_check_.position_accurate =
     hor_pos_var < sqr(kHorPosStddevThreshold) && ver_pos_var < sqr(kVerPosStddevThreshold);
   if (!pre_arm_check_.position_accurate)
     pre_arm_check_.ok = false;
 
   // 姿勢推定の共分散
-  tobas_ros::matrix3MsgToEigen(odom_->orientation_covariance, cov_);
-  const auto rot_var = cov_.diagonal().maxCoeff();
+  const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
   pre_arm_check_.orientation_accurate = rot_var < sqr(kRotStddevThreshold);
   if (!pre_arm_check_.orientation_accurate)
     pre_arm_check_.ok = false;
 
   // 速度推定の共分散
-  tobas_ros::matrix3MsgToEigen(odom_->linear_velocity_covariance, cov_);
-  const auto vel_var = cov_.diagonal().maxCoeff();
+  const auto vel_var = odom_->linear_velocity_covariance.diagonal().maxCoeff();
   pre_arm_check_.velocity_accurate = vel_var < sqr(kVelStddevThreshold);
   if (!pre_arm_check_.velocity_accurate)
     pre_arm_check_.ok = false;

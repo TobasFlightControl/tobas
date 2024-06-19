@@ -1,7 +1,5 @@
-#include <sensor_msgs/Imu.h>
-
 #include <tobas_std_tools/math.hpp>
-#include <tobas_std_tools/boost.hpp>
+#include <tobas_msgs/Imu.h>
 #include <tobas_gazebo_msgs/ImuDebug.h>
 
 #include "./imu_plugin.hpp"
@@ -46,7 +44,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   gyro_lpf_.initializeFromCutoff(gyro_lpf_cutoff_freq_, zero3);
 
   // Advertise
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);
+  imu_pub_ = nh_.advertise<tobas_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);
   debug_pub_ = nh_.advertise<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   // Listen to the update event
@@ -143,26 +141,18 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
 
 void GazeboImuPlugin::publishImuMsg(const double& dt) const
 {
-  const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
+  const auto imu_msg = boost::make_shared<tobas_msgs::Imu>();
 
   timeGazeboToRos(world_->SimTime(), imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
 
-  vectorGazeboToRos(acc_lpf_.getState(), imu_msg->linear_acceleration);
-  imu_msg->linear_acceleration_covariance.fill(0);
+  vectorGazeboToKDL(acc_lpf_.getState(), imu_msg->accel);
   const auto acc_var = tobas_std::sqr(acc_noise_density_obs_) / dt;
-  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var);
+  imu_msg->accel_covariance = Eigen::Vector3d::Constant(acc_var).asDiagonal();
 
-  vectorGazeboToRos(gyro_lpf_.getState(), imu_msg->angular_velocity);
-  imu_msg->angular_velocity_covariance.fill(0);
+  vectorGazeboToKDL(gyro_lpf_.getState(), imu_msg->gyro);
   const auto gyro_var = tobas_std::sqr(gyro_noise_density_obs_) / dt;
-  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var);
-
-  imu_msg->orientation.x = nan(tobas::kUnknown);
-  imu_msg->orientation.y = nan(tobas::kUnknown);
-  imu_msg->orientation.z = nan(tobas::kUnknown);
-  imu_msg->orientation.w = nan(tobas::kUnknown);
-  imu_msg->orientation_covariance.fill(nan(tobas::kUnknown));
+  imu_msg->gyro_covariance = Eigen::Vector3d::Constant(gyro_var).asDiagonal();
 
   imu_pub_.publish(imu_msg);
 }

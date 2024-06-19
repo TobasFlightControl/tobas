@@ -41,7 +41,6 @@ private:
 
   std::array<tobas_std::TimestampedBufferDouble, 3> pos_buf_;
   double roll_, pitch_, yaw_;
-  Eigen::Matrix3d cov_;
   tobas_msgs::PreArmCheck pre_arm_check_;
 
   ros::Publisher pre_arm_check_pub_;

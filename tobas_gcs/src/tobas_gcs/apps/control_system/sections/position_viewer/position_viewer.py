@@ -161,9 +161,9 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
         self._latitude.set_text(f"{gps.latitude:.9f} deg")
         self._longitude.set_text(f"{gps.longitude:.9f} deg")
         self._altitude.set_text(f"{gps.altitude:.3f} m")
-        self._x_stddev.set_text(f"{math.sqrt(gps.position_covariance[0]):.3f} m")
-        self._y_stddev.set_text(f"{math.sqrt(gps.position_covariance[4]):.3f} m")
-        self._z_stddev.set_text(f"{math.sqrt(gps.position_covariance[8]):.3f} m")
+        self._x_stddev.set_text(f"{math.sqrt(gps.position_covariance.data[0]):.3f} m")
+        self._y_stddev.set_text(f"{math.sqrt(gps.position_covariance.data[4]):.3f} m")
+        self._z_stddev.set_text(f"{math.sqrt(gps.position_covariance.data[8]):.3f} m")
 
     def _euler_cb(self, euler: EulerStamped) -> None:
         yaw_deg = -math.degrees(euler.euler.yaw)

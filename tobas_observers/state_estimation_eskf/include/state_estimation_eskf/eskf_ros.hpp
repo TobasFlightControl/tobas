@@ -2,8 +2,6 @@
 
 #include <tf2_ros/transform_broadcaster.h>
 #include <dynamic_reconfigure/server.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <geometry_msgs/TransformStamped.h>
 
@@ -12,6 +10,8 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
+#include <tobas_msgs/Imu.h>
+#include <tobas_msgs/MagneticField.h>
 #include <tobas_msgs/Gps.h>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/GetGnssOrigin.h>
@@ -29,8 +29,8 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using self = ErrorStateKalmanFilterRos;
   using super = tobas::BaseNode;
 
-  using ImuMsg = sensor_msgs::Imu;
-  using MagMsg = sensor_msgs::MagneticField;
+  using ImuMsg = tobas_msgs::Imu;
+  using MagMsg = tobas_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
   using OdomMsg = tobas_msgs::Odometry;
@@ -55,16 +55,13 @@ private:
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
   double yaw_0_;      // ヨー角のゼロ点 (Base Frame)
 
-  sensor_msgs::ImuConstPtr imu_, imu_filtered_;
-  sensor_msgs::MagneticFieldConstPtr mag_;
-  sensor_msgs::FluidPressureConstPtr bar_;
-  tobas_msgs::GpsConstPtr gps_;
+  ImuMsg::ConstPtr imu_, imu_filtered_;
+  MagMsg::ConstPtr mag_;
+  BarMsg::ConstPtr bar_;
+  GpsMsg::ConstPtr gps_;
   bool gps_fix_ = false;
   double gps_anormaly_score_ = 0.;
 
-  Eigen::Vector3d acc_meas_;
-  Eigen::Vector3d gyro_meas_;
-  Eigen::Vector3d mag_meas_;
   Eigen::Vector3d pos_meas_;
   Eigen::Matrix3d grav_cov_ = Eigen::Matrix3d::Zero();
   double yaw_var_;

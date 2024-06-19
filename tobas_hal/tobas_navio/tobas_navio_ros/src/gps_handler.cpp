@@ -79,33 +79,33 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->fix_type = pvt_.fixType;
 
       // Fill GPS position
-      gps_msg->latitude = pvt_.lat;                     // Latitude [deg]
-      gps_msg->longitude = pvt_.lon;                    // Longitude [deg]
-      gps_msg->altitude = pvt_.hMSL;                    // Height above ellipsoid [m]
-      gps_msg->position_covariance[0] = cov_.posCovNN;  // NN
-      gps_msg->position_covariance[1] = cov_.posCovNE;  // NE
-      gps_msg->position_covariance[2] = cov_.posCovND;  // ND
-      gps_msg->position_covariance[3] = cov_.posCovNE;  // EN
-      gps_msg->position_covariance[4] = cov_.posCovEE;  // EE
-      gps_msg->position_covariance[5] = cov_.posCovED;  // ED
-      gps_msg->position_covariance[6] = cov_.posCovND;  // DN
-      gps_msg->position_covariance[7] = cov_.posCovED;  // DE
-      gps_msg->position_covariance[8] = cov_.posCovDD;  // DD
+      gps_msg->latitude = pvt_.lat;                        // Latitude [deg]
+      gps_msg->longitude = pvt_.lon;                       // Longitude [deg]
+      gps_msg->altitude = pvt_.hMSL;                       // Height above ellipsoid [m]
+      gps_msg->position_covariance(0, 0) = cov_.posCovNN;  // NN
+      gps_msg->position_covariance(0, 1) = cov_.posCovNE;  // NE
+      gps_msg->position_covariance(0, 2) = cov_.posCovND;  // ND
+      gps_msg->position_covariance(1, 0) = cov_.posCovNE;  // EN
+      gps_msg->position_covariance(1, 1) = cov_.posCovEE;  // EE
+      gps_msg->position_covariance(1, 2) = cov_.posCovED;  // ED
+      gps_msg->position_covariance(2, 0) = cov_.posCovND;  // DN
+      gps_msg->position_covariance(2, 1) = cov_.posCovED;  // DE
+      gps_msg->position_covariance(2, 2) = cov_.posCovDD;  // DD
 
       // Fill GPS velocity
       gps_msg->header.stamp = event.current_real;
-      gps_msg->ground_speed.x(pvt_.velN);               // North velocity [m/s]
-      gps_msg->ground_speed.y(-pvt_.velE);              // West velocity [m/s]
-      gps_msg->ground_speed.z(-pvt_.velD);              // Up velocity [m/s]
-      gps_msg->velocity_covariance[0] = cov_.velCovNN;  // NN
-      gps_msg->velocity_covariance[1] = cov_.velCovNE;  // NE
-      gps_msg->velocity_covariance[2] = cov_.velCovND;  // ND
-      gps_msg->velocity_covariance[3] = cov_.velCovNE;  // EN
-      gps_msg->velocity_covariance[4] = cov_.velCovEE;  // EE
-      gps_msg->velocity_covariance[5] = cov_.velCovED;  // ED
-      gps_msg->velocity_covariance[6] = cov_.velCovND;  // DN
-      gps_msg->velocity_covariance[7] = cov_.velCovED;  // DE
-      gps_msg->velocity_covariance[8] = cov_.velCovDD;  // DD
+      gps_msg->ground_speed.x(pvt_.velN);                  // North velocity [m/s]
+      gps_msg->ground_speed.y(-pvt_.velE);                 // West velocity [m/s]
+      gps_msg->ground_speed.z(-pvt_.velD);                 // Up velocity [m/s]
+      gps_msg->velocity_covariance(0, 0) = cov_.velCovNN;  // NN
+      gps_msg->velocity_covariance(0, 1) = cov_.velCovNE;  // NE
+      gps_msg->velocity_covariance(0, 2) = cov_.velCovND;  // ND
+      gps_msg->velocity_covariance(1, 0) = cov_.velCovNE;  // EN
+      gps_msg->velocity_covariance(1, 1) = cov_.velCovEE;  // EE
+      gps_msg->velocity_covariance(1, 2) = cov_.velCovED;  // ED
+      gps_msg->velocity_covariance(2, 0) = cov_.velCovND;  // DN
+      gps_msg->velocity_covariance(2, 1) = cov_.velCovED;  // DE
+      gps_msg->velocity_covariance(2, 2) = cov_.velCovDD;  // DD
 
       // Fill the communication delay
       const auto gps_tp =

@@ -8,7 +8,6 @@
 #include <tobas_eigen_tools/iostream.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/eigen_conversion.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -94,17 +93,13 @@ void ErrorStateKalmanFilterRos::getRosParams()
 
 ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdometryMsg() const
 {
-  Vector3d acc_filtered, gyro_filtered;
-  tobas_ros::vectorMsgToEigen(imu_filtered_->linear_acceleration, acc_filtered);
-  tobas_ros::vectorMsgToEigen(imu_filtered_->angular_velocity, gyro_filtered);
-
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas::kGravity);
-  const Vector3d B_Acc = acc_filtered - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
-  const Vector3d B_Gyro = gyro_filtered - eskf_.getGyroBias();
+  const Vector3d B_Acc = imu_filtered_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
+  const Vector3d B_Gyro = imu_filtered_->gyro.data - eskf_.getGyroBias();
 
   const auto odom = boost::make_shared<OdomMsg>();
 
@@ -120,24 +115,23 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
 
   // Position (Global): IMU frame -> Base frame
   odom->frame.p.data = W_Pos_WI - W_Rot_B * imu_offset_;
-  tobas_ros::matrix3EigenToMsg(eskf_.getPositionCovariance(), odom->position_covariance);
+  odom->position_covariance = eskf_.getPositionCovariance();
 
   // Linear velocity (Local): IMU frame -> Base frame
   odom->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
-  const Matrix3d vel_cov_B = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
-  tobas_ros::matrix3EigenToMsg(vel_cov_B, odom->linear_velocity_covariance);
+  odom->linear_acceleration_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
 
   // Orientation (Global)
   odom->frame.M.data = W_Rot_B.toRotationMatrix();
-  tobas_ros::matrix3EigenToMsg(eskf_.getOrientationCovariance(), odom->orientation_covariance);
+  odom->orientation_covariance = eskf_.getOrientationCovariance();
 
   // Angular velocity (Local)
   odom->twist.rot.data = B_Gyro;
-  odom->angular_velocity_covariance = imu_->angular_velocity_covariance;
+  odom->angular_velocity_covariance = imu_->gyro_covariance;
 
   // Linear acceleration (Local)
   odom->accel.linear.data = B_Acc;
-  odom->linear_acceleration_covariance = imu_->linear_acceleration_covariance;
+  odom->linear_acceleration_covariance = imu_->accel_covariance;
 
   // Angular acceleration (Local)
   odom->accel.angular.fill(nan(tobas::kUnknown));
@@ -148,9 +142,6 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
 
 void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 {
-  tobas_ros::vectorMsgToEigen(imu->linear_acceleration, acc_meas_);
-  tobas_ros::vectorMsgToEigen(imu->angular_velocity, gyro_meas_);
-
   if (imu_ == nullptr)
   {
     imu_ = imu;
@@ -178,16 +169,16 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   }
 
   // 観測ノイズの分散を計算
-  const auto acc_noise_var = trace(imu->linear_acceleration_covariance) / 3;
-  const auto gyro_noise_var = trace(imu->angular_velocity_covariance) / 3;
+  const auto acc_noise_var = imu->accel_covariance.diagonal().mean();
+  const auto gyro_noise_var = imu->gyro_covariance.diagonal().mean();
 
   // 事前予測
   eskf_.predictIMU(
-    acc_meas_, gyro_meas_, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_, grav_noise_var_,
-    dt);
+    imu->accel.data, imu->gyro.data, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_,
+    grav_noise_var_, dt);
 
   // 重力方向の観測
-  eskf_.measureGravity(acc_meas_, grav_cov_);
+  eskf_.measureGravity(imu->accel.data, grav_cov_);
 
   // フィルタリング済みIMUを受け取るまでは発行しない
   if (imu_filtered_ == nullptr)
@@ -208,8 +199,8 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   feedback->acc_bias.data = eskf_.getAccelBias();
   feedback->gyro_bias.data = eskf_.getGyroBias();
   feedback->gravity = eskf_.getGravity();
-  tobas_ros::matrix3EigenToMsg(eskf_.getAccelBiasCovariance(), feedback->acc_bias_covariance);
-  tobas_ros::matrix3EigenToMsg(eskf_.getGyroBiasCovariance(), feedback->gyro_bias_covariance);
+  feedback->acc_bias_covariance = eskf_.getAccelBiasCovariance();
+  feedback->gyro_bias_covariance = eskf_.getGyroBiasCovariance();
   feedback->gravity_variance = eskf_.getGravityVariance();
   feedback->gps_anormaly_score = gps_anormaly_score_;
   feedback_pub_.publish(feedback);
@@ -227,11 +218,11 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
   if (mag_ == nullptr && gps_ == nullptr)
-    yaw_0_ = atan2(mag->magnetic_field.y, mag->magnetic_field.x);
+    yaw_0_ = atan2(mag->magnetic_field.y(), mag->magnetic_field.x());
 
   mag_ = mag;
 
-  const double yaw_meas = wrapPi(yaw_0_ - atan2(mag->magnetic_field.y, mag->magnetic_field.x));
+  const double yaw_meas = wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
   eskf_.measureYaw(yaw_meas, yaw_var_);
 }
 
@@ -288,13 +279,10 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
   pos_meas_.z() = gps->altitude - alt_0_gps_;  // FIXME: 気圧高度と競合しそう
 
-  // 共分散
-  const Matrix3d pos_cov = Map<const Matrix3d>(gps->position_covariance.data());
-  const Matrix3d vel_cov = Map<const Matrix3d>(gps->velocity_covariance.data());
-
   // ESKFを更新
   const Vector3d imu2gps = gps_offset_ - imu_offset_;
-  gps_anormaly_score_ = eskf_.measurePosVel(pos_meas_, pos_cov, gps->ground_speed.data, vel_cov, imu2gps, gyro_meas_);
+  gps_anormaly_score_ = eskf_.measurePosVel(
+    pos_meas_, gps->position_covariance, gps->ground_speed.data, gps->velocity_covariance, imu2gps, imu_->gyro.data);
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > kAnormalyScoreThreshold)

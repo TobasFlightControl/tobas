@@ -1,10 +1,8 @@
-#include <sensor_msgs/MagneticField.h>
-
 #include <tobas_std_tools/math.hpp>
-#include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/MagneticField.h>
 
 #include "../include/tobas_navio_ros/magnetometer_handler.hpp"
 
@@ -24,7 +22,7 @@ MagnetometerHandler::MagnetometerHandler(const ros::NodeHandle& nh, const ros::N
   if (!imu_.probe())
     TOBAS_EXIT("IMU not enabled.");
 
-  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>(tobas::kMagTopic, 1);
+  mag_pub_ = nh_.advertise<tobas_msgs::MagneticField>(tobas::kMagTopic, 1);
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 
@@ -128,19 +126,19 @@ void MagnetometerHandler::mainTimerCb(const ros::TimerEvent& event)
   imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
 
   // Create messages
-  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+  const auto mag_msg = boost::make_shared<tobas_msgs::MagneticField>();
 
   // Fill headers
   mag_msg->header.stamp = event.current_real;
 
   // Fill covariance matrices
-  tobas_std::fillMatrix3Diag(mag_msg->magnetic_field_covariance, mag_var_);
+  mag_msg->covariance = Vector3d::Constant(mag_var_).asDiagonal();
 
   // Fill data (Convert to NWU coordinate system)
-  const Vector3d mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影
-  mag_msg->magnetic_field.x = mag.x();
-  mag_msg->magnetic_field.y = -mag.y();
-  mag_msg->magnetic_field.z = -mag.z();
+  const auto mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影
+  mag_msg->magnetic_field.x(mag.x());
+  mag_msg->magnetic_field.y(-mag.y());
+  mag_msg->magnetic_field.z(-mag.z());
 
   // Publish messages
   mag_pub_.publish(mag_msg);

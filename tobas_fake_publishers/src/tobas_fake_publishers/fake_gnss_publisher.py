@@ -25,8 +25,8 @@ class FakeGNSSPublisher:
         self._gnss_msg.ground_speed.x = 0.0
         self._gnss_msg.ground_speed.y = 0.0
         self._gnss_msg.ground_speed.z = 0.0
-        self._gnss_msg.position_covariance = [pos_var, 0, 0, 0, pos_var, 0, 0, 0, pos_var]
-        self._gnss_msg.velocity_covariance = [vel_var, 0, 0, 0, vel_var, 0, 0, 0, vel_var]
+        self._gnss_msg.position_covariance.data = [pos_var, 0, 0, 0, pos_var, 0, 0, 0, pos_var]
+        self._gnss_msg.velocity_covariance.data = [vel_var, 0, 0, 0, vel_var, 0, 0, 0, vel_var]
 
         self._gnss_pub = rospy.Publisher(Topic.GNSS, Gps, queue_size=1)
         self._timer = rospy.Timer(rospy.Duration(sampling_period), self._timer_cb)

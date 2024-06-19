@@ -1,10 +1,8 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <sensor_msgs/Imu.h>
-
 #include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_tools/node.hpp>
+#include <tobas_msgs/Imu.h>
 
 namespace tobas_preprocess
 {
@@ -23,13 +21,12 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  Eigen::Vector3d gyro_, accel_;
-  tobas_std::FirstOrderFilter<Eigen::Vector3d> gyro_lpf_, accel_lpf_;
+  tobas_std::FirstOrderFilter<tobas_kdl::Vector> gyro_lpf_, accel_lpf_;
   ros::Time t_last_;
 
   ros::Publisher imu_lpf_pub_;
   ros::Subscriber imu_raw_sub_;
 
-  void imuRawCb(const sensor_msgs::ImuConstPtr& imu_raw);
+  void imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw);
 };
 }  // namespace tobas_preprocess

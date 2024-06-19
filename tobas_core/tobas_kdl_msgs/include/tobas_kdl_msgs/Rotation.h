@@ -123,28 +123,4 @@ struct Serializer<tobas_kdl::Rotation>
 }  // namespace serialization
 }  // namespace ros
 
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<tobas_kdl::Rotation>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const tobas_kdl::Rotation& v)
-  {
-    s << indent << "data[]" << std::endl;
-    for (size_t i = 0; i < 3; ++i)
-    {
-      for (size_t j = 0; j < 3; ++j)
-      {
-        s << indent << "  data[" << i << "]: ";
-        Printer<double>::stream(s, indent + "  ", v.data(i, j));
-      }
-    }
-  }
-};
-}  // namespace message_operations
-}  // namespace ros
-
 #endif  // KDL_MSGS_MESSAGE_ROTATION_H

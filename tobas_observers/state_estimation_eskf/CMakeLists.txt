@@ -30,6 +30,7 @@ add_message_files(FILES ${MSG_FILES})
 
 generate_messages(DEPENDENCIES
 	tobas_kdl_msgs
+	tobas_eigen_msgs
 	std_msgs
 )
 

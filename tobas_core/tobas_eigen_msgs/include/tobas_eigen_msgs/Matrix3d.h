@@ -121,25 +121,4 @@ struct Serializer<Eigen::Matrix3d>
 }  // namespace serialization
 }  // namespace ros
 
-namespace ros
-{
-namespace message_operations
-{
-template <>
-struct Printer<Eigen::Matrix3d>
-{
-  template <typename Stream>
-  static void stream(Stream& s, const std::string& indent, const Eigen::Matrix3d& v)
-  {
-    s << indent << "data[]" << std::endl;
-    for (size_t i = 0; i < v.data.size(); ++i)
-    {
-      s << indent << "  data[" << i << "]: ";
-      Printer<double>::stream(s, indent + "  ", v.data[i]);
-    }
-  }
-};
-}  // namespace message_operations
-}  // namespace ros
-
 #endif  // TOBAS_EIGEN_MSGS_MESSAGE_MATRIX3D_H

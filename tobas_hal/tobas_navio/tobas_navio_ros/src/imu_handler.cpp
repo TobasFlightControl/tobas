@@ -1,10 +1,10 @@
-#include <sensor_msgs/Imu.h>
 
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
+#include <tobas_msgs/Imu.h>
 
 #include "../include/tobas_navio_ros/imu_handler.hpp"
 
@@ -23,7 +23,7 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
   if (!imu_.probe())
     TOBAS_EXIT("IMU not enabled.");
 
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>(tobas::kImuTopic, 1);
+  imu_pub_ = nh_.advertise<tobas_msgs::Imu>(tobas::kImuTopic, 1);
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 
   // まずジャイロのバイアスを測定する
@@ -99,25 +99,25 @@ void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
   imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
   // Create messages
-  const auto imu_msg = boost::make_shared<sensor_msgs::Imu>();
+  const auto imu_msg = boost::make_shared<tobas_msgs::Imu>();
 
   // Fill headers
   imu_msg->header.stamp = event.current_real;
 
   // Fill covariance matrices
-  tobas_std::fillMatrix3Diag(imu_msg->linear_acceleration_covariance, acc_var_);
-  tobas_std::fillMatrix3Diag(imu_msg->angular_velocity_covariance, gyro_var_);
+  imu_msg->accel_covariance = Vector3d::Constant(acc_var_).asDiagonal();
+  imu_msg->gyro_covariance = Vector3d::Constant(gyro_var_).asDiagonal();
 
   // Fill data (Convert to NWU coordinate system)
   const Vector3f acc = acc_ - acc_bias_;  // バイアスを除く
-  imu_msg->linear_acceleration.x = acc.y();
-  imu_msg->linear_acceleration.y = -acc.x();
-  imu_msg->linear_acceleration.z = acc.z();
+  imu_msg->accel.x(acc.y());
+  imu_msg->accel.y(-acc.x());
+  imu_msg->accel.z(acc.z());
 
   const Vector3f gyro = gyro_ - gyro_bias_;  // バイアスを除く
-  imu_msg->angular_velocity.x = gyro.y();
-  imu_msg->angular_velocity.y = -gyro.x();
-  imu_msg->angular_velocity.z = gyro.z();
+  imu_msg->gyro.x(gyro.y());
+  imu_msg->gyro.y(-gyro.x());
+  imu_msg->gyro.z(gyro.z());
 
   // Publish messages
   imu_pub_.publish(imu_msg);

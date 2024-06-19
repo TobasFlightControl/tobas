@@ -1,10 +1,12 @@
-#include <sensor_msgs/NavSatFix.h>
-
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_ros_tools/util.hpp>
 #include <tobas_ros_tools/eigen_conversion.hpp>
+#include <tobas_kdl_msgs/conversion/kdl_eigen.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
+
+#include <tobas_kdl_msgs/QuaternionStamped.h>
+#include <tobas_msgs/Gps.h>
 
 #include "../include/orientation_estimation_complement/orientation_estimator_ros.hpp"
 
@@ -18,7 +20,6 @@ OrientationEstimatorRos::OrientationEstimatorRos(
   const ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name),
-    is_initialized_(false),
     imu_sub_(nh_, tobas::kImuTopic, kQueueSize, tcpNoDelay()),
     mag_sub_(nh_, tobas::kMagTopic, kQueueSize, tcpNoDelay()),
     sync_(SyncPolicy(kQueueSize), imu_sub_, mag_sub_),
@@ -27,7 +28,7 @@ OrientationEstimatorRos::OrientationEstimatorRos(
   getRosParams();
   initializeFilter();
 
-  imu_pub_ = nh_.advertise<sensor_msgs::Imu>("filtered_imu", kQueueSize);
+  orientation_pub_ = nh_.advertise<tobas_kdl_msgs::QuaternionStamped>("orientation", kQueueSize);
   sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
@@ -42,7 +43,7 @@ void OrientationEstimatorRos::getRosParams()
 
 void OrientationEstimatorRos::initializeFilter()
 {
-  sensor_msgs::NavSatFix gps;
+  tobas_msgs::Gps gps;
   if (!tobas_ros::subscribeOnce(gps, tobas::kGpsTopic, nh_))
     TOBAS_EXIT("Failed to get GPS message.");
   const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
@@ -63,44 +64,32 @@ void OrientationEstimatorRos::initializeFilter()
 
 void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag)
 {
-  const auto& cur_time = imu->header.stamp;
-  tobas_ros::vectorMsgToEigen(imu->linear_acceleration, a_);
-  tobas_ros::vectorMsgToEigen(imu->angular_velocity, w_);
-  tobas_ros::vectorMsgToEigen(mag->magnetic_field, m_);
-
   // Initialize
-  if (!is_initialized_)
+  if (imu_ == nullptr)
   {
+    TOBAS_INFO("The first IMU message is received.");
     check_topics_timer_.stop();
-    time_prev_ = cur_time;
-    is_initialized_ = true;
+    imu_ = imu;
     return;
   }
 
   // Calculate dt
-  const auto dt = (cur_time - time_prev_).toSec();
-  time_prev_ = cur_time;
+  const auto dt = (imu->header.stamp - imu_->header.stamp).toSec();
+  imu_ = imu;
 
   // Update the filter
-  filter_.update(a_, w_, m_, dt);
+  filter_.update(imu->accel.data, imu->gyro.data, mag->magnetic_field.data, dt);
 
   // Get the orientation
   const auto q = filter_.getOrientation();
 
-  // Create fitlered IMU message
-  const auto filtered_imu = boost::make_shared<ImuMsg>(*imu);
-  filtered_imu->orientation_covariance.fill(nan(tobas::kUnknown));
-  tobas_ros::quaternionEigenToMsg(q, filtered_imu->orientation);
+  // Create the orientation message
+  const auto quat_msg = boost::make_shared<tobas_kdl_msgs::QuaternionStamped>();
+  quat_msg->header = imu->header;
+  tobas_kdl::quaternionEigenToKDL(q, quat_msg->quaternion);
 
-  // Account for biases
-  if (do_bias_estimation_)
-  {
-    w_ -= filter_.getAngularVelocityBias();
-    tobas_ros::vectorEigenToMsg(w_, filtered_imu->angular_velocity);
-  }
-
-  // Publish filtered IMU message
-  imu_pub_.publish(filtered_imu);
+  // Publish the orientation message
+  orientation_pub_.publish(quat_msg);
 }
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)

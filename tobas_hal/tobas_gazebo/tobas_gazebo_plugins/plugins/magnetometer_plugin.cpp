@@ -1,14 +1,14 @@
-#include <sensor_msgs/MagneticField.h>
-
 #include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
+#include <tobas_msgs/MagneticField.h>
 
 #include "./magnetometer_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
 using namespace ignition::math;
@@ -42,7 +42,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   init_bias_ = init_bias_dist.get();
 
   // Advertise publisher
-  mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("/" + ns_ + "/" + tobas::kMagTopic, 1);
+  mag_pub_ = nh_.advertise<tobas_msgs::MagneticField>("/" + ns_ + "/" + tobas::kMagTopic, 1);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboMagnetometerPlugin::onUpdate, this));
@@ -92,22 +92,16 @@ void GazeboMagnetometerPlugin::onUpdate()
 
 void GazeboMagnetometerPlugin::publishMagMsg(const ignition::math::Vector3d& field) const
 {
-  const auto mag_msg = boost::make_shared<sensor_msgs::MagneticField>();
+  const auto mag_msg = boost::make_shared<tobas_msgs::MagneticField>();
 
   timeGazeboToRos(world_->SimTime(), mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
 
-  vectorGazeboToRos(field, mag_msg->magnetic_field);
+  vectorGazeboToKDL(field, mag_msg->magnetic_field);
 
-  mag_msg->magnetic_field_covariance[0] = tobas_std::sqr(noise_normal_.X());
-  mag_msg->magnetic_field_covariance[1] = 0.;
-  mag_msg->magnetic_field_covariance[2] = 0.;
-  mag_msg->magnetic_field_covariance[3] = 0.;
-  mag_msg->magnetic_field_covariance[4] = tobas_std::sqr(noise_normal_.Y());
-  mag_msg->magnetic_field_covariance[5] = 0.;
-  mag_msg->magnetic_field_covariance[6] = 0.;
-  mag_msg->magnetic_field_covariance[7] = 0.;
-  mag_msg->magnetic_field_covariance[8] = tobas_std::sqr(noise_normal_.Z());
+  mag_msg->covariance.setZero();
+  for (size_t i = 0; i < 3; ++i)
+    mag_msg->covariance.diagonal()(i) = tobas_std::sqr(noise_normal_[i]);
 
   mag_pub_.publish(mag_msg);
 }
