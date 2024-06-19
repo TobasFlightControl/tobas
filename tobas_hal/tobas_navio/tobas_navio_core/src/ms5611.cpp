@@ -7,9 +7,8 @@
 
 namespace navio
 {
-MS5611::MS5611(uint8_t address)
+MS5611::MS5611(uint8_t address) : dev_addr_(address)
 {
-  dev_addr_ = address;
 }
 
 void MS5611::initialize()

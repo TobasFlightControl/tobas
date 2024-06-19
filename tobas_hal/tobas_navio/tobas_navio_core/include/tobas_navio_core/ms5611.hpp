@@ -76,7 +76,7 @@ public:
   inline double getPressure() const;
 
 private:
-  uint8_t dev_addr_;                      // I2C device adress
+  const uint8_t dev_addr_;                // I2C device adress
   uint16_t c1_, c2_, c3_, c4_, c5_, c6_;  // Calibration data
   uint32_t d1_, d2_;                      // Raw measurement data
   double temp_;                           // Calculated temperature [Celcius]
