@@ -12,6 +12,7 @@
 	<!-- Meta Packages -->
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
+	<exec_depend>tobas_gazebo</exec_depend>
 	<exec_depend>tobas_hal</exec_depend>
 	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_mission_commands</exec_depend>
