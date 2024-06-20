@@ -1,4 +1,3 @@
-#include <tobas_math/core.hpp>
 #include <tobas_std_tools/float.hpp>
 
 #include "../include/tobas_kdl/quaternion.hpp"
@@ -31,9 +30,7 @@ Quaternion Quaternion::AngleAxis(const Vector& w)
   const auto angle = w.norm();
 
   if (angle < numeric_limits<double>::epsilon())
-  {
     return Quaternion::Identity();
-  }
 
   const auto axis = w / angle;
   const auto mag = sin(angle / 2.);
@@ -77,7 +74,7 @@ bool Quaternion::isNormalized() const
 
 Quaternion Quaternion::differential(const Vector& angvel) const
 {
-  const Vector w = angvel / 2;
+  const auto w = angvel / 2;
   return *this * Quaternion(w.x(), w.y(), w.z(), 0);
 }
 
