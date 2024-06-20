@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_std_tools/console.hpp>

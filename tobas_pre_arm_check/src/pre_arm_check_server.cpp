@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_ros_tools/time.hpp>
 #include <tobas_ros_tools/eigen_conversion.hpp>
 #include <tobas_tools/constants.hpp>
@@ -7,14 +7,14 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace tobas_pre_arm_check
 {
 PreArmCheckServer::PreArmCheckServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
-    pos_buf_{ TimestampedBufferDouble(kPosDriftCheckTimeWindow), TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-              TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
+    pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+              tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+              tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
   drone_.loadFromParam(nh_);
 
@@ -130,19 +130,20 @@ void PreArmCheckServer::preArmCheckTimerCb(const ros::TimerEvent& event)
   const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
   const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
   const auto ver_pos_var = pos_cov_diag.z();
-  pre_arm_check_.position_accurate = hor_pos_var < sqr(kHorPosStddevThresh) && ver_pos_var < sqr(kVerPosStddevThresh);
+  pre_arm_check_.position_accurate =
+    hor_pos_var < math::sqr(kHorPosStddevThresh) && ver_pos_var < math::sqr(kVerPosStddevThresh);
   if (!pre_arm_check_.position_accurate)
     pre_arm_check_.ok = false;
 
   // 姿勢推定の共分散
   const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
-  pre_arm_check_.orientation_accurate = rot_var < sqr(kRotStddevThresh);
+  pre_arm_check_.orientation_accurate = rot_var < math::sqr(kRotStddevThresh);
   if (!pre_arm_check_.orientation_accurate)
     pre_arm_check_.ok = false;
 
   // 速度推定の共分散
   const auto vel_var = odom_->linear_velocity_covariance.diagonal().maxCoeff();
-  pre_arm_check_.velocity_accurate = vel_var < sqr(kVelStddevThresh);
+  pre_arm_check_.velocity_accurate = vel_var < math::sqr(kVelStddevThresh);
   if (!pre_arm_check_.velocity_accurate)
     pre_arm_check_.ok = false;
 

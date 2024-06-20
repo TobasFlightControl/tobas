@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -128,14 +128,14 @@ void GazeboGpsPlugin::fillCovariances(tobas_msgs::Gps& gps_msg)
 {
   // FIXME: 正確度と共分散は異なる．しかしGNSSは白色ノイズではないし，どう共分散を計算している？
   gps_msg.position_covariance.setZero();
-  gps_msg.position_covariance.diagonal()(0) = tobas_std::sqr(hor_pos_accuracy_);
-  gps_msg.position_covariance.diagonal()(1) = tobas_std::sqr(hor_pos_accuracy_);
-  gps_msg.position_covariance.diagonal()(2) = tobas_std::sqr(ver_pos_accuracy_);
+  gps_msg.position_covariance.diagonal()(0) = math::sqr(hor_pos_accuracy_);
+  gps_msg.position_covariance.diagonal()(1) = math::sqr(hor_pos_accuracy_);
+  gps_msg.position_covariance.diagonal()(2) = math::sqr(ver_pos_accuracy_);
 
   gps_msg.velocity_covariance.setZero();
-  gps_msg.velocity_covariance.diagonal()(0) = tobas_std::sqr(hor_vel_stddev_);
-  gps_msg.velocity_covariance.diagonal()(1) = tobas_std::sqr(hor_vel_stddev_);
-  gps_msg.velocity_covariance.diagonal()(2) = tobas_std::sqr(ver_vel_stddev_);
+  gps_msg.velocity_covariance.diagonal()(0) = math::sqr(hor_vel_stddev_);
+  gps_msg.velocity_covariance.diagonal()(1) = math::sqr(hor_vel_stddev_);
+  gps_msg.velocity_covariance.diagonal()(2) = math::sqr(ver_vel_stddev_);
 }
 
 void GazeboGpsPlugin::updatePosition(tobas_msgs::Gps& gps_msg, const Pose3d& T_W_B)

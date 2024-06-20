@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_msgs/Imu.h>
 #include <tobas_gazebo_msgs/ImuDebug.h>
 
@@ -147,11 +147,11 @@ void GazeboImuPlugin::publishImuMsg(const double& dt) const
   imu_msg->header.frame_id = link_name_;
 
   vectorGazeboToKDL(acc_lpf_.getOutput(), imu_msg->accel);
-  const auto acc_var = tobas_std::sqr(acc_noise_density_obs_) / dt;
+  const auto acc_var = math::sqr(acc_noise_density_obs_) / dt;
   imu_msg->accel_covariance = Eigen::Vector3d::Constant(acc_var).asDiagonal();
 
   vectorGazeboToKDL(gyro_lpf_.getOutput(), imu_msg->gyro);
-  const auto gyro_var = tobas_std::sqr(gyro_noise_density_obs_) / dt;
+  const auto gyro_var = math::sqr(gyro_noise_density_obs_) / dt;
   imu_msg->gyro_covariance = Eigen::Vector3d::Constant(gyro_var).asDiagonal();
 
   imu_pub_.publish(imu_msg);

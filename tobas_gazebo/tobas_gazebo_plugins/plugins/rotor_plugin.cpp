@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/RotorState.h>
@@ -211,7 +211,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
 
   // (1) first term: Thrust Force
   const auto rot_speed_sgn = tobas_std::sign(rot_speed);
-  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * tobas_std::sqr(rot_speed);
+  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * math::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddForce(thrust_W);
 
@@ -295,7 +295,7 @@ double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
 {
   const auto& a = rot_speed_coefs_.X();
   const auto& b = rot_speed_coefs_.Y();
-  return b > 0 ? (sqrt(tobas_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+  return b > 0 ? (sqrt(math::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
 void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles)
@@ -343,8 +343,7 @@ void GazeboRotorPlugin::throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& thro
     throttle = tobas::kMaxThrottle;
     GZ_WARN_THROTTLE(kWarnPeriod, "Full throttle is commmanded to motor " << motor_number_ << " .");
   }
-  const auto input_voltage =
-    tobas_std::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., battery_->voltage);
+  const auto input_voltage = math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., battery_->voltage);
   cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
 }
 

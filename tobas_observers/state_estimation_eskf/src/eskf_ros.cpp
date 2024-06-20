@@ -17,7 +17,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace et = eigen_tools;
 
@@ -39,15 +38,15 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
   const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0;
   const double init_grav_stddev = do_grav_estimation_ ? kInitGravStddev : 0;
   eskf_.initialize(
-    Vector3d::Zero(),                                             // Init position
-    Vector3d::Zero(),                                             // Init velocity
-    Quaterniond::Identity(),                                      // Init quaternion
-    Vector3d::Constant(sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
-    Vector3d::Constant(sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
-    Vector3d::Constant(sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
-    Vector3d::Constant(sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
-    Vector3d::Constant(sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
-    sqr(init_grav_stddev)                                         // Init gravity var
+    Vector3d::Zero(),                                                   // Init position
+    Vector3d::Zero(),                                                   // Init velocity
+    Quaterniond::Identity(),                                            // Init quaternion
+    Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
+    Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
+    Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
+    Vector3d::Constant(math::sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
+    Vector3d::Constant(math::sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
+    math::sqr(init_grav_stddev)                                         // Init gravity var
   );
 
   // Fill the static part of the transform message
@@ -225,7 +224,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 
   mag_ = mag;
 
-  const double yaw_meas = wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
+  const double yaw_meas = tobas_std::wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
   eskf_.measureYaw(yaw_meas, yaw_var_);
 }
 
@@ -237,12 +236,12 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
   if (bar_ == nullptr)
-    alt_0_bar_ = pressureToAltitude(bar->fluid_pressure);
+    alt_0_bar_ = tobas_std::pressureToAltitude(bar->fluid_pressure);
 
   bar_ = bar;
 
   double z_abs, z_var;
-  pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
+  tobas_std::pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
 
   // TODO: bar_offsetを考慮
   const double z_m = z_abs - alt_0_bar_;
@@ -279,7 +278,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   gps_ = gps;
 
   // 位置の観測値
-  gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
+  tobas_std::gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
   pos_meas_.z() = gps->altitude - alt_0_gps_;  // FIXME: 気圧高度と競合しそう
 
   // ESKFを更新

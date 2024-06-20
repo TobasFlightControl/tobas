@@ -1,7 +1,7 @@
 #include <std_msgs/Bool.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -15,7 +15,6 @@
 #include "../include/tobas_navio_ros/common.hpp"
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_navio_ros
 {
@@ -187,25 +186,25 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
       case tobas::EscSignalMode::BLHELI_OPEN_LOOP:
       {
         const auto throttle = drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
-        pwm_period = remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
+        pwm_period = math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_LOW_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_MID_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       default:

@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/assert.hpp>
 
@@ -269,7 +269,7 @@ euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, const d
   rpydd.x() = rpyd.x() * rpyd.y() * tan_pitch + (angacc.x() + angvel.y() * rpyd.z()) * cos_yaw / cos_pitch
               + (angacc.y() - angvel.x() * rpyd.z()) * sin_yaw / cos_pitch;
   rpydd.y() = (angacc.y() - angvel.x() * rpyd.z()) * cos_yaw - (angacc.x() + angvel.y() * rpyd.z()) * sin_yaw;
-  rpydd.z() = angacc.z() + (angvel.x() + cos_yaw + angvel.y() * sin_yaw) * rpyd.y() / tobas_std::sqr(cos_pitch)
+  rpydd.z() = angacc.z() + (angvel.x() + cos_yaw + angvel.y() * sin_yaw) * rpyd.y() / math::sqr(cos_pitch)
               + (angacc.x() + angvel.y() * rpyd.z()) * cos_yaw * tan_pitch
               + (angacc.y() - angvel.x() * rpyd.z()) * sin_yaw * tan_pitch;
 

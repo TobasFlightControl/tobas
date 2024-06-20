@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/frames.hpp>

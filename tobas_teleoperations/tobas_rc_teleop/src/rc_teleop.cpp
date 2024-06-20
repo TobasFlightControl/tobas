@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/string.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
@@ -21,7 +21,6 @@
 
 using namespace std;
 using namespace ros::message_traits;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
@@ -38,15 +37,15 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   {
     if (modes_[i] == "")
       controllers_[i] = make_unique<ProgramModeController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
       controllers_[i] = make_unique<PosVelAccYawController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
       controllers_[i] = make_unique<PositionYawController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
       controllers_[i] = make_unique<RollPitchYawThrustController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
       controllers_[i] = make_unique<PoseTwistAccelController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
       controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
     else
     {

@@ -1,5 +1,5 @@
 #include <tobas_std_tools/unordered_set.hpp>
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/string.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
@@ -53,7 +53,7 @@ double Drone::minRotSpeed(const size_t& rotor_idx, const double& battery_voltage
 double Drone::maxMechanicalThrust(const size_t& rotor_idx) const
 {
   const auto& rotor = rotors_.at(rotor_idx);
-  return rotor.motor_constant * tobas_std::sqr(rotor.max_rot_speed);
+  return rotor.motor_constant * math::sqr(rotor.max_rot_speed);
 }
 
 double Drone::maxThrust(const size_t& rotor_idx, const double& battery_voltage) const
@@ -70,7 +70,7 @@ double Drone::minThrust(const size_t& rotor_idx, const double& battery_voltage) 
 
 double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& tar_speed) const
 {
-  return rotors_[rotor_idx].motor_constant * tobas_std::sqr(tar_speed);
+  return rotors_[rotor_idx].motor_constant * math::sqr(tar_speed);
 }
 
 double Drone::thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -87,7 +87,7 @@ double Drone::voltageFromRotSpeed(const size_t& rotor_idx, const double& tar_spe
 
   const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
-  return a * tar_speed + b * tobas_std::sqr(tar_speed);
+  return a * tar_speed + b * math::sqr(tar_speed);
 }
 
 double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -96,7 +96,7 @@ double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage
 
   const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
-  return b > 0 ? (sqrt(tobas_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+  return b > 0 ? (sqrt(math::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
 double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const

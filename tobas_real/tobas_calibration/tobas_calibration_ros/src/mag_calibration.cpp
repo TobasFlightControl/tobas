@@ -1,14 +1,13 @@
 #include <Eigen/SVD>
 #include <geometry_msgs/PointStamped.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_calibration_ros/mag_calibration.hpp"
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace tobas_calibration
 {
@@ -117,9 +116,9 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
     const auto rx = (x_max - x_min) / 2;
     const auto ry = (y_max - y_min) / 2;
     const auto rz = (z_max - z_min) / 2;
-    const auto rx2 = sqr(rx);
-    const auto ry2 = sqr(ry);
-    const auto rz2 = sqr(rz);
+    const auto rx2 = math::sqr(rx);
+    const auto ry2 = math::sqr(ry);
+    const auto rz2 = math::sqr(rz);
 
     mag_trans_.a_xx = 1 / rx2;
     mag_trans_.a_yy = 1 / ry2;
@@ -130,7 +129,7 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
     mag_trans_.b_x = -2 * x0 / rx2;
     mag_trans_.b_y = -2 * y0 / ry2;
     mag_trans_.b_z = -2 * z0 / rz2;
-    mag_trans_.c = sqr(x0) / rx2 + sqr(y0) / ry2 + sqr(z0) / rz2 - 1;
+    mag_trans_.c = math::sqr(x0) / rx2 + math::sqr(y0) / ry2 + math::sqr(z0) / rz2 - 1;
   }
   else
   {

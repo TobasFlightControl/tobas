@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
@@ -54,9 +54,9 @@ void OrientationPid::configure(const OrientationPidConfig& cfg)
   CHECK(cfg.head_damp_ratio > 0);
   CHECK(cfg.head_ki > 0);
 
-  const auto atti_kp = tobas_std::sqr(cfg.atti_natural_freq);
+  const auto atti_kp = math::sqr(cfg.atti_natural_freq);
   const auto atti_kd = 2 * cfg.atti_damp_ratio * cfg.atti_natural_freq;
-  const auto head_kp = tobas_std::sqr(cfg.head_natural_freq);
+  const auto head_kp = math::sqr(cfg.head_natural_freq);
   const auto head_kd = 2 * cfg.head_damp_ratio * cfg.head_natural_freq;
 
   kp_.x() = atti_kp;

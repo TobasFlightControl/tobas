@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -408,7 +408,7 @@ double GazeboFixedWingPlugin::dynamicPressure(const double& V)
 {
   const auto altitude = alt_0_ + link_->WorldPose().Pos().Z();
   const auto rho = tobas_std::altitudeToDensity(altitude);
-  return rho * tobas_std::sqr(V) / 2.;
+  return rho * math::sqr(V) / 2.;
 }
 
 void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::ControlSurfaceDeflectionsConstPtr& deflections)

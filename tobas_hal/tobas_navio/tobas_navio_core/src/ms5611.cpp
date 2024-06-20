@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 
 #include "../include/tobas_navio_core/ms5611.hpp"
@@ -87,14 +87,14 @@ void MS5611::computePressureAndTemperature()
 
   if (temp < 2000)
   {
-    const auto temp2 = tobas_std::sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフロー
-    auto off2 = 5 * tobas_std::sqr(temp - 2000) / 2;
+    const auto temp2 = math::sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフロー
+    auto off2 = 5 * math::sqr(temp - 2000) / 2;
     auto sens2 = off2 / 2;
 
     if (temp < -1500)
     {
-      off2 += 7 * tobas_std::sqr(temp + 1500);
-      sens2 += 11 * tobas_std::sqr(temp + 1500) / 2;
+      off2 += 7 * math::sqr(temp + 1500);
+      sens2 += 11 * math::sqr(temp + 1500) / 2;
     }
 
     temp -= temp2;

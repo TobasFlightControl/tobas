@@ -11,7 +11,7 @@ namespace tobas_navio_ros
 class BarometerHandler : public BaseSensorNode
 {
   // Constants
-  static constexpr size_t kSamplingRate = 50;            // [Hz]
+  static constexpr size_t kSamplingRate = 50;  // [Hz]
 
   // Defaults
   static constexpr double kDefaultPressureNoiseDensity = 1.;  // [Pa/sqrt(Hz)]

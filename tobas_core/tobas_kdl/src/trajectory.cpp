@@ -1,12 +1,9 @@
-#include <iostream>
-
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 
 #include "../include/tobas_kdl/trajectory.hpp"
 
 using namespace std;
 using namespace tobas_kdl;
-using namespace tobas_std;
 
 namespace tj
 {
@@ -30,8 +27,8 @@ void CycloidGenerator3d::generate(
   T_ = T;
   h_ = h;
   k_ = k;
-  TT_ = sqr(T);
-  kk_ = sqr(k);
+  TT_ = math::sqr(T);
+  kk_ = math::sqr(k);
   p_diff_ = pf - p0;
 }
 
@@ -101,7 +98,7 @@ void CycloidGenerator3d::getAcc(const double& t, const tobas_kdl::Rotation& r, V
 
   a.x(p_diff_.x() * tmp);
   a.y(p_diff_.y() * tmp);
-  a.z(2 * sqr(M_PI) * h_ / TT_ * cos(theta) - p_diff_.z() * kk_ / TT_ * exp(-k_ * t / T_));
+  a.z(2 * math::sqr(M_PI) * h_ / TT_ * cos(theta) - p_diff_.z() * kk_ / TT_ * exp(-k_ * t / T_));
 
   a = r * a;
 }

@@ -1,5 +1,5 @@
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_kdl/quaternion.hpp>
 #include <tobas_tools/constants.hpp>

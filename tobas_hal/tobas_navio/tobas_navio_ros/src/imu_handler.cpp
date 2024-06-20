@@ -1,5 +1,5 @@
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -69,8 +69,8 @@ bool ImuHandler::reloadConfig()
     res = false;
   }
 
-  acc_var_ = tobas_std::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
-  gyro_var_ = tobas_std::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
+  acc_var_ = math::sqr(acc_noise_density_) * kSamplingRate;    // [m^2/s^4]
+  gyro_var_ = math::sqr(gyro_noise_density_) * kSamplingRate;  // [rad^2/s^2]
 
   return res;
 }

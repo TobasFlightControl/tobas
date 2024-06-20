@@ -20,7 +20,6 @@
 #define TAKEOFF_DURATION 5.             // [s]
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_keyboard_teleop
 {

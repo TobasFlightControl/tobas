@@ -1,7 +1,7 @@
 #include <Eigen/LU>
 #include <std_msgs/Float64.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_tools/constants.hpp>
 

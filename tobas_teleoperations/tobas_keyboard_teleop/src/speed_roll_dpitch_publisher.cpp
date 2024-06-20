@@ -10,7 +10,6 @@
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_keyboard_teleop
 {
@@ -153,7 +152,7 @@ void SpeedRollDeltaPitchPublisher::initialize()
 
 void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
 {
-  air_density_ = pressureToDensity(msg->fluid_pressure);
+  air_density_ = tobas_std::pressureToDensity(msg->fluid_pressure);
 
   if (!pressure_received_)
     pressure_received_ = true;

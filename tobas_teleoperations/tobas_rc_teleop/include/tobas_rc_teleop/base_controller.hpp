@@ -2,8 +2,8 @@
 
 #include <ros/ros.h>
 
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
-#include <tobas_std_tools/math.hpp>
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/constants.hpp>
@@ -35,7 +35,7 @@ protected:
 
 inline double BaseController::remap(const double& x, const double& a, const double& b)
 {
-  return tobas_std::remap(x, tobas::kRCInputMin, tobas::kRCInputMax, a, b);
+  return math::remap(x, tobas::kRCInputMin, tobas::kRCInputMax, a, b);
 }
 
 inline double BaseController::remapDead(const double& x, const double& a, const double& b)

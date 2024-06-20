@@ -1,14 +1,12 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/linalg.hpp>
 
 #include "../include/tobas_ros_tools/util.hpp"
-
-using namespace tobas_std;
 
 namespace tobas_ros
 {
 double norm(const geometry_msgs::Vector3& v)
 {
-  return sqrt(sqr(v.x) + sqr(v.y) + sqr(v.z));
+  return math::norm(v.x, v.y, v.z);
 }
 
 bool isFieldSizeMatch(const sensor_msgs::JointState& js)

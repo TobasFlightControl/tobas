@@ -4,7 +4,6 @@
 #include "../include/tobas_kdl/treetaskspacepid.hpp"
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_kdl
 {

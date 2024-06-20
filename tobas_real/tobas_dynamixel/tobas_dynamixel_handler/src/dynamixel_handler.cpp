@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/unordered_map.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -253,12 +253,12 @@ void DynamixelHandler::getMotorConfigs()
       TOBAS_EXIT("Failed to get velocity limit of '", name, "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMaxPositionLimit, &max_pos_limit) == 0)
-      cfg.pos_limit.upper = tobas_std::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
+      cfg.pos_limit.upper = math::remap<double>(max_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     else
       TOBAS_EXIT("Failed to get maximum position limit of '", name, "'.");
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrMinPositionLimit, &min_pos_limit) == 0)
-      cfg.pos_limit.lower = tobas_std::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
+      cfg.pos_limit.lower = math::remap<double>(min_pos_limit, 0, 1 << 12, -M_PI, M_PI);
     else
       TOBAS_EXIT("Failed to get minimum position limit of '", name, "'.");
 
@@ -381,7 +381,7 @@ void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
     if (read_position_)
     {
       const int32_t pos_raw = pos_sync_read_->getData(cfg.id, kAddrPresentPosition, 4);
-      motor_state_.position = tobas_std::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
+      motor_state_.position = math::remap<double>(pos_raw, 0, 1 << 12, -M_PI, M_PI);
     }
     else
     {
@@ -495,7 +495,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     {
       if (cfg.pos_limit.clamp(tar_pos, tar_pos))
         TOBAS_WARN("Target position of joint '", jnt_name, "' is out of limit. The value is clamped to ", tar_pos);
-      goal_positions_[i] = tobas_std::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
+      goal_positions_[i] = math::remap<double>(tar_pos, -M_PI, M_PI, 0, 1 << 12);
     }
     else if (cfg.operating_mode == kControlModeExtendedPosition || cfg.operating_mode == kControlModeCurrentBasePosition)
     {

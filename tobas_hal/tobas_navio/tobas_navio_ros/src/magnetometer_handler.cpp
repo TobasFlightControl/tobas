@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
@@ -93,7 +93,7 @@ bool MagnetometerHandler::reloadConfig()
     res = false;
   }
 
-  mag_var_ = tobas_std::sqr(mag_noise_density_) * kSamplingRate;  // TODO: スケーリング
+  mag_var_ = math::sqr(mag_noise_density_) * kSamplingRate;  // TODO: スケーリング
 
   if (!mag_trans_.initialize())
   {

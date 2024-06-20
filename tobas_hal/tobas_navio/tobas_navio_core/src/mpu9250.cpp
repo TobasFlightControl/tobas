@@ -2,7 +2,6 @@
 
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_std_tools/math.hpp>
 #include <tobas_std_tools/time.hpp>
 
 #include "../include/tobas_navio_core/mpu9250.hpp"

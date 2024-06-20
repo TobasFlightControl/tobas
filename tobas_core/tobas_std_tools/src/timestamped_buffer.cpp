@@ -1,7 +1,9 @@
+#include <cmath>
 #include <limits>
 
+#include <tobas_math/core.hpp>
+
 #include "../include/tobas_std_tools/timestamped_buffer.hpp"
-#include "../include/tobas_std_tools/math.hpp"
 
 using namespace std;
 
@@ -53,7 +55,7 @@ double TimestampedBufferDouble::variance() const
   double sum = 0.;
   double c = 0.;
   for (const auto& [_, x] : map_)
-    updateKahanValues(sqr(x - mean), sum, c);
+    updateKahanValues(math::sqr(x - mean), sum, c);
 
   return sum / this->size();
 }

@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -101,7 +101,7 @@ void GazeboMagnetometerPlugin::publishMagMsg(const ignition::math::Vector3d& fie
 
   mag_msg->covariance.setZero();
   for (size_t i = 0; i < 3; ++i)
-    mag_msg->covariance.diagonal()(i) = tobas_std::sqr(noise_normal_[i]);
+    mag_msg->covariance.diagonal()(i) = math::sqr(noise_normal_[i]);
 
   mag_pub_.publish(mag_msg);
 }

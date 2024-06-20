@@ -1,5 +1,5 @@
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_linear_control/util.hpp>

@@ -18,6 +18,7 @@
 	<exec_depend>tobas_keyboard</exec_depend>
 	<exec_depend>tobas_linear_control</exec_depend>
 	<exec_depend>tobas_linux</exec_depend>
+	<exec_depend>tobas_math</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
 	<exec_depend>tobas_ros_tools</exec_depend>
 	<exec_depend>tobas_rospy</exec_depend>

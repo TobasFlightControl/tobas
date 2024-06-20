@@ -1,7 +1,7 @@
 #include <iostream>
 #include <Eigen/Cholesky>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 
 #include "../include/tobas_quadprog/dual_active_set.hpp"
 
@@ -531,12 +531,12 @@ double DualActiveSetSolver::distance(const double& a, const double& b)
   if (a1 > b1)
   {
     const auto t = b1 / a1;
-    return a1 * sqrt(1 + tobas_std::sqr(t));
+    return a1 * sqrt(1 + math::sqr(t));
   }
   else if (b1 > a1)
   {
     const auto t = a1 / b1;
-    return b1 * sqrt(1 + tobas_std::sqr(t));
+    return b1 * sqrt(1 + math::sqr(t));
   }
   else
   {

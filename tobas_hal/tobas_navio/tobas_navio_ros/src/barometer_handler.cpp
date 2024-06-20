@@ -1,6 +1,6 @@
 #include <sensor_msgs/FluidPressure.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_std_tools/property_tree.hpp>
@@ -75,7 +75,7 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
   const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
   bar_msg->header.stamp = event.current_real;
   bar_msg->fluid_pressure = pressure;
-  bar_msg->variance = tobas_std::sqr(pressure_noise_density_) * kSamplingRate;  // [Pa^2]
+  bar_msg->variance = math::sqr(pressure_noise_density_) * kSamplingRate;  // [Pa^2]
 
   // メッセージを発行
   bar_pub_.publish(bar_msg);

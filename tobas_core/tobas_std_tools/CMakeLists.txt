@@ -12,12 +12,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_math
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	# CATKIN_DEPENDS
+	CATKIN_DEPENDS tobas_math
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

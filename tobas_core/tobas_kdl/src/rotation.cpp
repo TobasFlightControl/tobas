@@ -1,4 +1,5 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/linalg.hpp>
+#include <tobas_std_tools/float.hpp>
 
 #include "../include/tobas_kdl/rotation.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
@@ -7,7 +8,7 @@ namespace tobas_kdl
 {
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
-  assert(tobas_std::isClose(sqr(x) + sqr(y) + sqr(z) + sqr(w), 1));
+  assert(tobas_std::isClose(math::norm(x, y, z, w), 1));
 
   const auto tx = 2 * x;
   const auto ty = 2 * y;
@@ -83,7 +84,7 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
 
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
-  pitch = atan2(-data(2, 0), sqrt(sqr(data(0, 0)) + sqr(data(1, 0))));
+  pitch = atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
   if (fabs(pitch) > (M_PI_2 - kEpsilon))
   {
     yaw = atan2(-data(0, 1), data(1, 1));

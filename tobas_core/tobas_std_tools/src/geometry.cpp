@@ -1,8 +1,9 @@
 #include <cassert>
 
+#include <tobas_math/core.hpp>
+
 #include "../include/tobas_std_tools/geometry.hpp"
 #include "../include/tobas_std_tools/unit_conversions.hpp"
-#include "../include/tobas_std_tools/math.hpp"
 #include "../include/tobas_std_tools/float.hpp"
 
 namespace tobas_std
@@ -38,15 +39,15 @@ void quaternionToEuler(
   double& pitch,
   double& yaw)
 {
-  assert(isClose(sqr(x) + sqr(y) + sqr(z) + sqr(w), 1.));
+  assert(isClose(math::sqr(x) + math::sqr(y) + math::sqr(z) + math::sqr(w), 1.));
 
   const double sy = -2 * (x * z - y * w);
   const bool unlocked = !isClose(fabs(sy), 1.);
 
-  roll = unlocked ? atan2(2 * (y * z + x * w), 2 * (sqr(w) + sqr(z)) - 1) : 0.;
+  roll = unlocked ? atan2(2 * (y * z + x * w), 2 * (math::sqr(w) + math::sqr(z)) - 1) : 0.;
   pitch = asin(sy);
-  yaw = unlocked ? atan2(2 * (x * y + z * w), 2 * (sqr(w) + sqr(x)) - 1) :
-                   atan2(-2 * (x * y - z * w), 2 * (sqr(w) + sqr(y)) - 1);
+  yaw = unlocked ? atan2(2 * (x * y + z * w), 2 * (math::sqr(w) + math::sqr(x)) - 1) :
+                   atan2(-2 * (x * y - z * w), 2 * (math::sqr(w) + math::sqr(y)) - 1);
 }
 
 void imuToEuler(
@@ -64,7 +65,7 @@ void imuToEuler(
   double& yaw)
 {
   roll = atan2(ay, az);
-  pitch = atan2(ax, sqrt(sqr(ay) + sqr(az)));
+  pitch = atan2(ax, sqrt(math::sqr(ay) + math::sqr(az)));
 
   const double x = mx * cos(pitch) + my * sin(pitch) * sin(roll) + mz * sin(pitch) * cos(roll);
   const double y = my * cos(roll) - mz * sin(roll);
@@ -110,10 +111,10 @@ void gpsToCartAbsolute(
   const double cos_lon = cos(lam);
   const double sin_lon = sin(lam);
 
-  const double N = long_radius / sqrt(1. - sqr(eccentricity * sin(phi)));
+  const double N = long_radius / sqrt(1. - math::sqr(eccentricity * sin(phi)));
   x = (N + altitude) * cos_lat * cos_lon;
   y = (N + altitude) * cos_lat * sin_lon;
-  z = (N * (1. - sqr(eccentricity)) + altitude) * sin_lat;
+  z = (N * (1. - math::sqr(eccentricity)) + altitude) * sin_lat;
 }
 
 void gpsToCartRelative(

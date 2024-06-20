@@ -1,6 +1,6 @@
 #include <qpOASES.hpp>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_eigen_tools/core.hpp>
 
 #include "../include/tobas_quadprog/qpoases.hpp"
@@ -25,7 +25,7 @@ VectorXd QpOasesSolver::solve()
   const auto var_size = scaled.varSize();
   const auto con_size = scaled.eqSize() + scaled.ineqSize();
 
-  double H[tobas_std::sqr(var_size)];
+  double H[math::sqr(var_size)];
   double g[var_size];
   double A[con_size * var_size];
   double lb[var_size];

@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/property_tree.hpp>
 #include <tobas_std_tools/console.hpp>
@@ -8,7 +8,6 @@
 #include "../include/tobas_navio_ros/common.hpp"
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_navio_ros
 {
@@ -33,7 +32,7 @@ bool RCInputHandler::reloadConfig()
 {
   PRINT_DEBUG("RCInputHandler::reloadConfig");
 
-  PropertyTree pt(kConfigPath);
+  tobas_std::PropertyTree pt(kConfigPath);
   bool res = true;
 
   if (!pt.get(kConfigKey_RcRollLeft, roll_range_.lower, tobas_navio_ros::kPwmMin))
@@ -143,31 +142,31 @@ void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
   // Roll
   if (rcin_.read(kRcChannelRoll) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->roll =
-    remap<double>(rcin_.getPeriod(), roll_range_.lower, roll_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+  rcin_msg->roll = math::remap<double>(
+    rcin_.getPeriod(), roll_range_.lower, roll_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
 
   // Pitch
   if (rcin_.read(kRcChannelPitch) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->pitch =
-    remap<double>(rcin_.getPeriod(), pitch_range_.lower, pitch_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+  rcin_msg->pitch = math::remap<double>(
+    rcin_.getPeriod(), pitch_range_.lower, pitch_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
 
   // Yaw
   if (rcin_.read(kRcChannelYaw) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
   rcin_msg->yaw =
-    remap<double>(rcin_.getPeriod(), yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
+    math::remap<double>(rcin_.getPeriod(), yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
 
   // Throttle
   if (rcin_.read(kRcChannelThrottle) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->throttle = remap<double>(
+  rcin_msg->throttle = math::remap<double>(
     rcin_.getPeriod(), throttle_range_.lower, throttle_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
 
   // Mode
   if (rcin_.read(kRcChannelMode) != navio::RCInput::E_NO_ERROR)
     rcin_msg->error.error = rcin_.getError();
-  rcin_msg->mode = closestIndex<double>(modes_, rcin_.getPeriod());
+  rcin_msg->mode = tobas_std::closestIndex<double>(modes_, rcin_.getPeriod());
 
   // E-Stop
   if (rcin_.read(kRcChannelEStop) != navio::RCInput::E_NO_ERROR)
