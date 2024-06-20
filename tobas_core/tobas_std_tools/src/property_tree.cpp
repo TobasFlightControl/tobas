@@ -1,7 +1,6 @@
 #include <filesystem>
 
 #include <tobas_std_tools/file.hpp>
-#include <tobas_std_tools/unix.hpp>
 
 #include "../include/tobas_std_tools/property_tree.hpp"
 
@@ -9,10 +8,9 @@ using namespace std;
 
 namespace tobas_std
 {
-PropertyTree::PropertyTree(const string& ini_path, const string& section)
-  : ini_path_(tobas_std::expandUser(ini_path)), section_(section)
+PropertyTree::PropertyTree(const string& ini_path, const string& section) : ini_path_(ini_path), section_(section)
 {
-  PRINT_DEBUG("PropertyTree::PropertyTree(" << ini_path << ", " << section << ")");
+  PRINT_DEBUG("PropertyTree::PropertyTree(" << ini_path_ << ", " << section_ << ")");
 
   if (filesystem::is_regular_file(ini_path_))
   {

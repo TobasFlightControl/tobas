@@ -1,7 +1,7 @@
 #include <filesystem>
 #include <ros/ros.h>
 
-#include <tobas_std_tools/unix.hpp>
+#include <tobas_linux/core.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -22,7 +22,7 @@ UpdateLinkDialog::UpdateLinkDialog(URDFBuilderPanel* main)
     main_(main),
     ui_(new Ui::UpdateLinkDialogUI()),
     link_vm_(new view_model::LinkViewModel(nullptr)),
-    pt_(kConfigPath)
+    pt_(linux::expandUser(kConfigPath))
 {
   ui_->setupUi(this);
 
@@ -421,7 +421,7 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   pt_.load();
-  const auto last_dir = pt_.get(kConfigKey_VisualGeometryMeshBrowseDir, tobas_std::homeDir());
+  const auto last_dir = pt_.get(kConfigKey_VisualGeometryMeshBrowseDir, linux::homeDir());
   cout << last_dir << endl;
 
   // メッシュファイルのパスを取得
@@ -445,7 +445,7 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   pt_.load();
-  const auto last_dir = pt_.get(kConfigKey_CollisionGeometryMeshBrowseDir, tobas_std::homeDir());
+  const auto last_dir = pt_.get(kConfigKey_CollisionGeometryMeshBrowseDir, linux::homeDir());
 
   // メッシュファイルのパスを取得
   const QString file_path = QFileDialog::getOpenFileName(

@@ -2,7 +2,7 @@
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
 
-#include <tobas_std_tools/unix.hpp>
+#include <tobas_linux/core.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -26,7 +26,7 @@ namespace urdf_builder
 namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
-  : rviz::Panel(item), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr), pt_(kConfigPath)
+  : rviz::Panel(item), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr), pt_(linux::expandUser(kConfigPath))
 {
   ui_->setupUi(this);
 
@@ -323,7 +323,7 @@ void URDFBuilderPanel::LinkDialogChanged()
 string URDFBuilderPanel::getLastOpenedDir()
 {
   pt_.load();
-  return pt_.get(kConfigKey_LastOpenedDir, tobas_std::homeDir());
+  return pt_.get(kConfigKey_LastOpenedDir, linux::homeDir());
 }
 
 void URDFBuilderPanel::setLastOpenedDir(const string& file_path)

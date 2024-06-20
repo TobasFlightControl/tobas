@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include <tobas_std_tools/unix.hpp>
+#include <tobas_linux/core.hpp>
 
 using namespace std;
 
 int main()
 {
-  if (tobas_std::isSuperUser())
+  if (linux::isSuperUser())
     cout << "Running with super privileges." << endl;
   else
     cout << "Running with regular privileges." << endl;

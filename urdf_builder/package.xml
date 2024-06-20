@@ -9,12 +9,12 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>tobas_linux</depend>
+  <depend>tobas_std_tools</depend>
   <depend>rviz</depend>
   <depend>pluginlib</depend>
   <depend>urdf</depend>
   <depend>roslaunch</depend>
-
-  <depend>tobas_std_tools</depend>
 
   <export>
     <rviz plugin="${prefix}/plugin_description.xml"/>

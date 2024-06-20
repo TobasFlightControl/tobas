@@ -1,13 +1,13 @@
 #include <iostream>
 
-#include <tobas_std_tools/unix.hpp>
+#include <tobas_linux/core.hpp>
 
 using namespace std;
 
 int main()
 {
   const char* cmd = "date";
-  const auto res = tobas_std::executeCommand(cmd);
+  const auto res = linux::executeCommand(cmd);
   cout << "Command: " << cmd << endl;
   cout << "Result : " << res << endl;
 }

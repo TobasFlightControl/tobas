@@ -2,11 +2,11 @@
 #include <memory>
 #include <unistd.h>
 
-#include "../include/tobas_std_tools/unix.hpp"
+#include "../include/tobas_linux/core.hpp"
 
 using namespace std;
 
-namespace tobas_std
+namespace linux
 {
 string userName()
 {
@@ -62,4 +62,4 @@ string executeCommand(const char* cmd)
     result += buffer.data();
   return result;
 }
-}  // namespace tobas_std
+}  // namespace linux

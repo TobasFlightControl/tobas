@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace tobas_std
+namespace linux
 {
 /* ユーザ名を取得する． */
 std::string userName();
@@ -18,4 +18,4 @@ bool isSuperUser();
 
 /* コマンドラインの実行結果を取得する． */
 std::string executeCommand(const char* command);
-}  // namespace tobas_std
+}  // namespace linux
