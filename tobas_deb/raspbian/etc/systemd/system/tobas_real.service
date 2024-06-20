@@ -5,7 +5,6 @@ Conflicts=tobas_hil.service
 PartOf=tobas_main.target
 
 [Service]
-User=pi
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config_pkg.env

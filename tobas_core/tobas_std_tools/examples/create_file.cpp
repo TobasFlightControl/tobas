@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
   static constexpr char path[] = "/tmp/this/is/the/file/created/by/create_file";
-  tobas_std::createFilePath(path);
+  tobas_std::createFile(path);
   cout << path << " is created." << endl;
   return 0;
 }

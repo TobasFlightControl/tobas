@@ -10,18 +10,32 @@ namespace tobas_std
 {
 string userName()
 {
-  const auto user_name = getenv("USER");
-  if (user_name == nullptr)
-    throw runtime_error("USER environment variable not set.");
-  return string(user_name);
+  if (isSuperUser())
+  {
+    return "root";
+  }
+  else
+  {
+    const auto user_name = getenv("USER");
+    if (user_name == nullptr)
+      throw runtime_error("USER environment variable not set.");
+    return string(user_name);
+  }
 }
 
 string homeDir()
 {
-  const auto home_dir = getenv("HOME");
-  if (home_dir == nullptr)
-    throw runtime_error("HOME environment variable not set.");
-  return string(home_dir);
+  if (isSuperUser())
+  {
+    return "/root";
+  }
+  else
+  {
+    const auto home_dir = getenv("HOME");
+    if (home_dir == nullptr)
+      throw runtime_error("HOME environment variable not set.");
+    return string(home_dir);
+  }
 }
 
 string expandUser(const string& path)

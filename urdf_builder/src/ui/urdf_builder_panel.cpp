@@ -2,7 +2,6 @@
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
 
-#include <tobas_std_tools/file.hpp>
 #include <tobas_std_tools/unix.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
@@ -29,10 +28,6 @@ namespace ui
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
   : rviz::Panel(item), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr), pt_(kConfigPath)
 {
-  // configファイルを作成
-  if (!tobas_std::fileExists(pt_.configPath()))
-    boost::filesystem::create_directories(tobas_std::expandUser(kConfigDir));
-
   ui_->setupUi(this);
 
   ui_->EnableVisualCheckBox->setChecked(kDefaultVisualVisible);

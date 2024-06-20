@@ -5,7 +5,6 @@ After=tobas_roscore.service
 Conflicts=tobas_real.service
 
 [Service]
-User=pi
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config_pkg.env

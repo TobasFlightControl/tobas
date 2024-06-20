@@ -7,19 +7,26 @@ using namespace std;
 
 namespace tobas_std
 {
-bool fileExists(const string& file_path)
+bool isReadable(const string& file_path)
 {
-  const ifstream ifile(file_path);
-  return ifile.good();
+  const ifstream ifs(file_path);
+  return ifs.good();
 }
 
-void createFilePath(const string& file_path)
+bool isWritable(const string& file_path)
+{
+  // 既存ファイルを破壊しないようにappendモードで開く
+  const ofstream ofs(file_path, ios::app);
+  return ofs.good();
+}
+
+void createFile(const string& file_path)
 {
   // ファイルのパスからディレクトリ部分のみを取得
   const auto dir_path = filesystem::path(file_path).parent_path();
 
   // ディレクトリが存在しなければ作成
-  if (!filesystem::exists(dir_path))
+  if (!filesystem::is_directory(dir_path))
     if (!filesystem::create_directories(dir_path))
       throw runtime_error("Failed to create directory " + dir_path.string());
 

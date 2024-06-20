@@ -25,7 +25,9 @@ rm -rf ~/.vscode-server/* &&
 # Remove personal information
 rm -rf ~/.gnupg/ &&
 rm -rf ~/.ssh/ &&
-sudo rm -rf ~/.config/tobas/ &&
+
+# Remove configuration file
+sudo rm /etc/tobas/config.ini &&
 
 # Clean ROS
 rosclean purge -y &&
