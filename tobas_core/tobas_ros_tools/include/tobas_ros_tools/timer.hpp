@@ -3,6 +3,8 @@
 #include <ros/ros.h>
 #include <ros/timer.h>
 
+#include "./exception.hpp"
+
 namespace tobas_ros
 {
 /**
@@ -41,13 +43,11 @@ Timer::Timer(
   T* obj,
   bool auto_start)
 {
-  ROS_ASSERT(period > 0.);
+  ROS_CHECK(nh, period > 0, "Timer period must be positive.");
 
   timer_ = nh.createTimer(ros::Duration(period), callback, obj, false, false);
 
   if (auto_start)
-  {
     start();
-  }
 }
 }  // namespace tobas_ros

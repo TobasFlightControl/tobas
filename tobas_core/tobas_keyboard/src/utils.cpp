@@ -1,11 +1,11 @@
 #include <stdexcept>
-#include <X11/XKBlib.h>  // ヘッダでインクルードすると#defineが衝突する恐れあり
+#include <X11/XKBlib.h>  // NOTE: ヘッダでインクルードすると#defineが衝突する恐れあり
 
-#include "../include/tobas_std_tools/x11.hpp"
+#include "../include/tobas_keyboard/utils.hpp"
 
 using namespace std;
 
-namespace tobas_std
+namespace keyboard
 {
 XkbControlsPtr getKeyboardControls()
 {
@@ -26,12 +26,12 @@ XkbControlsPtr getKeyboardControls()
   return kb->ctrls;
 }
 
-uint16_t getKeyboardRepeatInterval()
+double getKeyboardRepeatInterval()
 {
   const auto keyboard = getKeyboardControls();
   if (keyboard == nullptr)
     throw runtime_error("Failed to get keyboard control.");
 
-  return keyboard->repeat_interval;
+  return keyboard->repeat_interval * 1e-3;
 }
-}  // namespace tobas_std
+}  // namespace keyboard

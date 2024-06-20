@@ -2,13 +2,13 @@
 #include <stdexcept>
 #include <unistd.h>
 
-#include "../include/tobas_std_tools/keyboard_reader.hpp"
+#include "../include/tobas_keyboard/keyboard_reader.hpp"
 
 #define FILE_DESCRIPTOR 0  // 標準入力
 
 using namespace std;
 
-namespace tobas_std
+namespace keyboard
 {
 KeyboardReader::KeyboardReader()
 {
@@ -39,4 +39,4 @@ signed char KeyboardReader::readKey()
     return -1;
   return buf;
 }
-}  // namespace tobas_std
+}  // namespace keyboard

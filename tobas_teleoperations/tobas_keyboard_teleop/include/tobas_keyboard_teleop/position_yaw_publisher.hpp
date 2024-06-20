@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_std_tools/range.hpp>
-#include <tobas_std_tools/keyboard_reader.hpp>
+#include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_kdl/frames.hpp>
 
 #include <tobas_tools/node.hpp>
@@ -36,7 +36,7 @@ public:
   void run();
 
 private:
-  tobas_std::KeyboardReader key_reader_;
+  keyboard::KeyboardReader key_reader_;
 
   tobas_kdl::Vector cmd_pos_;
   double cmd_yaw_;

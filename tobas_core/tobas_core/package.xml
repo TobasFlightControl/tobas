@@ -15,6 +15,7 @@
 	<exec_depend>tobas_kdl</exec_depend>
 	<exec_depend>tobas_kdl_msgs</exec_depend>
 	<exec_depend>tobas_kdl_sympy</exec_depend>
+	<exec_depend>tobas_keyboard</exec_depend>
 	<exec_depend>tobas_linear_control</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
 	<exec_depend>tobas_ros_tools</exec_depend>

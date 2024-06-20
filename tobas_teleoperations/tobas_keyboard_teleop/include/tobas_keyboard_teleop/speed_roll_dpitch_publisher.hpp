@@ -4,7 +4,7 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <tobas_std_tools/range.hpp>
-#include <tobas_std_tools/keyboard_reader.hpp>
+#include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
@@ -37,7 +37,7 @@ public:
 private:
   tobas::Drone drone_;
   tobas::TrimConditions trim_;
-  tobas_std::KeyboardReader key_reader_;
+  keyboard::KeyboardReader key_reader_;
 
   // 固定値
   std::string instruction_;
