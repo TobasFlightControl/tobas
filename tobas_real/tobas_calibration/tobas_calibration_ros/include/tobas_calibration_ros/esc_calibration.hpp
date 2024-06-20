@@ -3,9 +3,9 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
-#include <tobas_navio_core/adc.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/node.hpp>
+#include <tobas_navio_core/adc.hpp>
 #include <tobas_calibration_msgs/EscCalibrationAction.h>
 
 namespace tobas_calibration
@@ -14,10 +14,10 @@ class EscCalibrationRos : public tobas::BaseNode
 {
   static constexpr char kActionName[] = "esc_calibration";
 
-  static constexpr double kSleepHigh = 3.;     // [s]
-  static constexpr double kSleepLow = 5.;      // [s]
+  static constexpr double kHighDuration = 3.;  // [s]
+  static constexpr double kLowDuration = 5.;   // [s]
   static constexpr double kTimeout = 30.;      // [s]
-  static constexpr useconds_t kInterval = 10;  // [ms]
+  static constexpr size_t kInterval = 10;      // [ms]
   static constexpr int kA2ValueThreshold = 300;
 
   using super = tobas::BaseNode;

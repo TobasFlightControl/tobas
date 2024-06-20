@@ -2,8 +2,10 @@
 
 #include <ros/ros.h>
 
-#include <tobas_navio_core/adc.hpp>
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_std_tools/rate.hpp>
 #include <tobas_tools/node.hpp>
+#include <tobas_navio_core/adc.hpp>
 #include <tobas_calibration_msgs/AdcCalibration.h>
 
 namespace tobas_calibration
@@ -28,6 +30,8 @@ public:
 
 private:
   navio::ADC adc_;
+  tobas_std::PropertyTree pt_;
+  tobas_std::Rate rate_;
 
   ros::ServiceServer ss_;
 

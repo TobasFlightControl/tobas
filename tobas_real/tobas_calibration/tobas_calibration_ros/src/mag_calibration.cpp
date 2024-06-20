@@ -2,7 +2,6 @@
 #include <geometry_msgs/PointStamped.h>
 
 #include <tobas_std_tools/math.hpp>
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_calibration_ros/mag_calibration.hpp"
@@ -14,7 +13,7 @@ using namespace tobas_std;
 namespace tobas_calibration
 {
 MagCalibrationRos::MagCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+  : super(nh, pnh, name), pt_(tobas_navio_ros::kConfigPath)
 {
   imu_.initialize();
 
@@ -189,24 +188,23 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
   if (!mag_trans_.initialize())
   {
     res.success = false;
-    res.message = "The estimated coefficients do not satisfy the conditions "
-                  "necessary for forming an ellipsoid.";
+    res.message = "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.";
     return true;
   }
 
   // Configに保存
-  tobas_std::PropertyTree pt(tobas_navio_ros::kConfigPath);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseBx, mag_trans_.b_x);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseBy, mag_trans_.b_y);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseBz, mag_trans_.b_z);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseC, mag_trans_.c);
-  pt.save();
+  pt_.load();
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseBx, mag_trans_.b_x);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseBy, mag_trans_.b_y);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseBz, mag_trans_.b_z);
+  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseC, mag_trans_.c);
+  pt_.save();
 
   // データ収集タイマーを停止
   collect_data_timer_.stop();

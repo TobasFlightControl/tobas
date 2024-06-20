@@ -1,6 +1,3 @@
-#include <tobas_std_tools/property_tree.hpp>
-#include <tobas_calibration_msgs/RCInput.h>
-
 #include "../include/tobas_calibration_ros/rcin_calibration.hpp"
 
 using namespace std;
@@ -8,7 +5,7 @@ using namespace std;
 namespace tobas_calibration
 {
 RCInputCalibrationRos::RCInputCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+  : super(nh, pnh, name), pt_(tobas_navio_ros::kConfigPath)
 {
   if (rcin_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize RC input driver.");
@@ -93,23 +90,23 @@ bool RCInputCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishS
   }
 
   // Configに保存
-  tobas_std::PropertyTree pt(tobas_navio_ros::kConfigPath);
-  pt.put(tobas_navio_ros::kConfigKey_RcRollLeft, req.roll_left);
-  pt.put(tobas_navio_ros::kConfigKey_RcRollRight, req.roll_right);
-  pt.put(tobas_navio_ros::kConfigKey_RcPitchUp, req.pitch_up);
-  pt.put(tobas_navio_ros::kConfigKey_RcPitchDown, req.pitch_down);
-  pt.put(tobas_navio_ros::kConfigKey_RcYawLeft, req.yaw_left);
-  pt.put(tobas_navio_ros::kConfigKey_RcYawRight, req.yaw_right);
-  pt.put(tobas_navio_ros::kConfigKey_RcThrottleUp, req.throttle_up);
-  pt.put(tobas_navio_ros::kConfigKey_RcThrottleDown, req.throttle_down);
-  pt.put(tobas_navio_ros::kConfigKey_RcModeProgram, req.mode_program);
-  pt.put(tobas_navio_ros::kConfigKey_RcModeStabilize, req.mode_stabilize);
-  pt.put(tobas_navio_ros::kConfigKey_RcModeAcrobat, req.mode_acrobat);
-  pt.put(tobas_navio_ros::kConfigKey_RcEStopOn, req.estop_on);
-  pt.put(tobas_navio_ros::kConfigKey_RcEStopOff, req.estop_off);
-  pt.put(tobas_navio_ros::kConfigKey_RcGPSwOn, req.gpsw_on);
-  pt.put(tobas_navio_ros::kConfigKey_RcGPSwOff, req.gpsw_off);
-  pt.save();
+  pt_.load();
+  pt_.put(tobas_navio_ros::kConfigKey_RcRollLeft, req.roll_left);
+  pt_.put(tobas_navio_ros::kConfigKey_RcRollRight, req.roll_right);
+  pt_.put(tobas_navio_ros::kConfigKey_RcPitchUp, req.pitch_up);
+  pt_.put(tobas_navio_ros::kConfigKey_RcPitchDown, req.pitch_down);
+  pt_.put(tobas_navio_ros::kConfigKey_RcYawLeft, req.yaw_left);
+  pt_.put(tobas_navio_ros::kConfigKey_RcYawRight, req.yaw_right);
+  pt_.put(tobas_navio_ros::kConfigKey_RcThrottleUp, req.throttle_up);
+  pt_.put(tobas_navio_ros::kConfigKey_RcThrottleDown, req.throttle_down);
+  pt_.put(tobas_navio_ros::kConfigKey_RcModeProgram, req.mode_program);
+  pt_.put(tobas_navio_ros::kConfigKey_RcModeStabilize, req.mode_stabilize);
+  pt_.put(tobas_navio_ros::kConfigKey_RcModeAcrobat, req.mode_acrobat);
+  pt_.put(tobas_navio_ros::kConfigKey_RcEStopOn, req.estop_on);
+  pt_.put(tobas_navio_ros::kConfigKey_RcEStopOff, req.estop_off);
+  pt_.put(tobas_navio_ros::kConfigKey_RcGPSwOn, req.gpsw_on);
+  pt_.put(tobas_navio_ros::kConfigKey_RcGPSwOff, req.gpsw_off);
+  pt_.save();
 
   publish_timer_.stop();
   res.success = true;

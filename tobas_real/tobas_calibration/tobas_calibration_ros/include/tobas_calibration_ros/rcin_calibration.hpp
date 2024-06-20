@@ -3,9 +3,11 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 
+#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_tools/node.hpp>
 #include <tobas_navio_core/rc_input.hpp>
 #include <tobas_navio_ros/common.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_calibration_msgs/RCInput.h>
 #include <tobas_calibration_msgs/RCInputCalibration.h>
 
 namespace tobas_calibration
@@ -34,6 +36,7 @@ public:
 
 private:
   navio::RCInput rcin_;
+  tobas_std::PropertyTree pt_;
 
   ros::Timer publish_timer_;
   ros::Publisher rcin_pub_;

@@ -30,14 +30,14 @@ EscCalibrationRos::EscCalibrationRos(const ros::NodeHandle& nh, const ros::NodeH
 void EscCalibrationRos::sendMaximum()
 {
   const auto start_time = ros::Time::now();
-  while ((ros::Time::now() - start_time).toSec() < kSleepHigh)
+  while ((ros::Time::now() - start_time).toSec() < kHighDuration)
     setPeriodAndSleep(tobas_navio_ros::kPwmMax);
 }
 
 void EscCalibrationRos::sendMinimum()
 {
   const auto start_time = ros::Time::now();
-  while ((ros::Time::now() - start_time).toSec() < kSleepLow)
+  while ((ros::Time::now() - start_time).toSec() < kLowDuration)
     setPeriodAndSleep(tobas_navio_ros::kPwmMin);
 }
 
