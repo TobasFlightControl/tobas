@@ -8,9 +8,9 @@ PartOf=tobas_main.target
 User=pi
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
-ExecStartPre=/bin/bash -c '/etc/tobas/kill_ros.sh'
+ExecStartPre=/etc/tobas/kill_ros.sh
 ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && /opt/ros/noetic/bin/roscore'
-ExecStopPost=/bin/bash -c '/etc/tobas/kill_ros.sh'
+ExecStopPost=/etc/tobas/kill_ros.sh
 Restart=always
 RestartSec=5
 

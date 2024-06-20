@@ -1,5 +1,5 @@
 #!/bin/bash
 
-/usr/bin/killall -q rosmaster || true
-/usr/bin/killall -q rosout || true
-/usr/bin/killall -q roslaunch || true
+/bin/killall -q rosmaster || true
+/bin/killall -q rosout || true
+/bin/killall -q roslaunch || true
