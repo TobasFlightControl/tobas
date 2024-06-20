@@ -1,8 +1,13 @@
+#include <iostream>
+
 #include <tobas_std_tools/file.hpp>
 
 using namespace std;
 
 int main()
 {
-  tobas_std::createFilePath("/tmp/this/is/the/file/created/by/create_file.cpp");
+  static constexpr char path[] = "/tmp/this/is/the/file/created/by/create_file";
+  tobas_std::createFilePath(path);
+  cout << path << " is created." << endl;
+  return 0;
 }

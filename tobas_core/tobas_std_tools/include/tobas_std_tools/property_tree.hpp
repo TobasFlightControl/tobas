@@ -14,7 +14,7 @@ public:
   void load();
   void save();
 
-  const std::string& configPath();
+  const std::string& configPath() const;
 
   template <typename T>
   T get(const std::string& key) const;

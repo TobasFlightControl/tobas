@@ -23,7 +23,7 @@ PropertyTree::PropertyTree(const string& ini_path, const string& section)
   }
 }
 
-const string& PropertyTree::configPath()
+const string& PropertyTree::configPath() const
 {
   return ini_path_;
 }
