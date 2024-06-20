@@ -30,8 +30,8 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
   current_lpf_.update(battery_raw->current, dt);
 
   const auto battery_filtered = boost::make_shared<tobas_msgs::Battery>(*battery_raw);
-  battery_filtered->voltage = voltage_lpf_.getState();
-  battery_filtered->current = current_lpf_.getState();
+  battery_filtered->voltage = voltage_lpf_.getOutput();
+  battery_filtered->current = current_lpf_.getOutput();
   battery_lpf_pub_.publish(battery_filtered);
 }
 }  // namespace tobas_preprocess

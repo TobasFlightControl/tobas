@@ -2,6 +2,6 @@
 
 namespace dsp
 {
-/* カットオフ周波数から一次遅れフィルタの時定数を計算する． */
-inline static double timeConstFromCutoff(const double& cutoff_freq);
+/* カットオフ周波数から一次フィルタの時定数を計算する． */
+double timeConstFromCutoff(const double& cutoff_freq);
 }  // namespace dsp

@@ -146,11 +146,11 @@ void GazeboImuPlugin::publishImuMsg(const double& dt) const
   timeGazeboToRos(world_->SimTime(), imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
 
-  vectorGazeboToKDL(acc_lpf_.getState(), imu_msg->accel);
+  vectorGazeboToKDL(acc_lpf_.getOutput(), imu_msg->accel);
   const auto acc_var = tobas_std::sqr(acc_noise_density_obs_) / dt;
   imu_msg->accel_covariance = Eigen::Vector3d::Constant(acc_var).asDiagonal();
 
-  vectorGazeboToKDL(gyro_lpf_.getState(), imu_msg->gyro);
+  vectorGazeboToKDL(gyro_lpf_.getOutput(), imu_msg->gyro);
   const auto gyro_var = tobas_std::sqr(gyro_noise_density_obs_) / dt;
   imu_msg->gyro_covariance = Eigen::Vector3d::Constant(gyro_var).asDiagonal();
 

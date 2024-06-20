@@ -1,7 +1,10 @@
 #pragma once
 
-#include <cassert>
 #include <cmath>
+#include <cassert>
+#include <stdexcept>
+
+#include "./utils.hpp"
 
 namespace dsp
 {
@@ -11,16 +14,16 @@ class LowPassFilter
 public:
   explicit LowPassFilter();
 
-  void initializeFromTimeConst(const double& time_const, const T& init_state);
-  void initializeFromCutoff(const double& cutoff_freq, const T& init_state);
+  void initializeFromTimeConst(const double& time_const, const T& init_value);
+  void initializeFromCutoff(const double& cutoff_freq, const T& init_value);
 
-  void update(const T& input_state, const double& sampling_time);
+  void update(const T& u, const double& dt);
 
-  inline const T& getState() const;
+  inline const T& getOutput() const;
 
 private:
-  double time_const_;
-  T state_;
+  double T_;
+  T y_, prev_u_;
 };
 
 template <typename T>
@@ -29,32 +32,34 @@ LowPassFilter<T>::LowPassFilter()
 }
 
 template <typename T>
-void LowPassFilter<T>::initializeFromTimeConst(const double& time_const, const T& init_state)
+void LowPassFilter<T>::initializeFromTimeConst(const double& time_const, const T& init_value)
 {
-  assert(time_const >= 0);
+  if (time_const <= 0)
+    throw std::runtime_error("Time constant must be positive.");
 
-  time_const_ = time_const;
-  state_ = init_state;
+  T_ = 2 * time_const;
+  y_ = prev_u_ = init_value;
 }
 
 template <typename T>
-void LowPassFilter<T>::initializeFromCutoff(const double& cutoff_freq, const T& init_state)
+void LowPassFilter<T>::initializeFromCutoff(const double& cutoff_freq, const T& init_value)
 {
-  initializeFromTimeConst(timeConstFromCutoff(cutoff_freq), init_state);
+  initializeFromTimeConst(timeConstFromCutoff(cutoff_freq), init_value);
 }
 
 template <typename T>
-void LowPassFilter<T>::update(const T& input_state, const double& sampling_time)
+void LowPassFilter<T>::update(const T& u, const double& dt)
 {
-  assert(sampling_time >= 0);
+  assert(0 <= dt);
+  assert(dt <= T_);
 
-  const double alpha = time_const_ > 0 ? std::exp(-sampling_time / time_const_) : 0;
-  state_ = alpha * state_ + (1 - alpha) * input_state;
+  y_ = ((T_ - dt) * y_ + dt * (u + prev_u_)) / (T_ + dt);
+  prev_u_ = u;
 }
 
 template <typename T>
-inline const T& LowPassFilter<T>::getState() const
+inline const T& LowPassFilter<T>::getOutput() const
 {
-  return state_;
+  return y_;
 }
 }  // namespace dsp

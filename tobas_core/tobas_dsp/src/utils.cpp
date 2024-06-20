@@ -7,11 +7,11 @@ using namespace std;
 
 namespace dsp
 {
-double timeConstFromCutoff(const double& cutoff_freq)
+double timeConstFromCutoff(const double& fc)
 {
-  if (cutoff_freq <= 0)
+  if (fc <= 0)
     throw runtime_error("Cutoff frequency must be positive.");
 
-  return 0.5 / M_PI / cutoff_freq;
+  return 1 / (2 * M_PI * fc);
 }
 }  // namespace dsp
