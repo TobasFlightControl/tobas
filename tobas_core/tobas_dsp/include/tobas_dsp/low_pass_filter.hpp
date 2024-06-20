@@ -5,7 +5,6 @@
 
 namespace dsp
 {
-/* 一次遅れフィルタ (ローパスフィルタ)． */
 template <typename T>
 class LowPassFilter
 {
@@ -22,9 +21,6 @@ public:
 private:
   double time_const_;
   T state_;
-
-  /* カットオフ周波数から一次遅れフィルタの時定数を計算する． */
-  inline static double timeConstFromCutoff(const double& cutoff_freq);
 };
 
 template <typename T>
@@ -60,12 +56,5 @@ template <typename T>
 inline const T& LowPassFilter<T>::getState() const
 {
   return state_;
-}
-
-template <typename T>
-inline double LowPassFilter<T>::timeConstFromCutoff(const double& cutoff_freq)
-{
-  assert(cutoff_freq > 0.);
-  return 0.5 / M_PI / cutoff_freq;
 }
 }  // namespace dsp
