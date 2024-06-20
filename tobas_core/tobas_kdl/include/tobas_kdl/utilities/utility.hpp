@@ -33,50 +33,8 @@ public:
   typedef int Arg;
 };
 
-inline double LinComb(double alfa, double a, double beta, double b)
-{
-  return alfa * a + beta * b;
-}
-
-inline void LinCombR(double alfa, double a, double beta, double b, double& result)
-{
-  result = alfa * a + beta * b;
-}
-
-// to uniformly set double, RNDouble,Vector,... objects to zero in template-classes
-inline void setToZero(double& arg)
-{
-  arg = 0;
-}
-
-// to uniformly set double, RNDouble,Vector,... objects to the identity element in template-classes
-inline void setToIdentity(double& arg)
-{
-  arg = 1;
-}
-
-inline double sign(double arg)
-{
-  return (arg < 0) ? (-1) : (1);
-}
-
 inline constexpr double sqr(double arg)
 {
   return arg * arg;
-}
-
-inline double norm(double arg)
-{
-  return fabs((double)arg);
-}
-
-inline double diff(double a, double b, double dt)
-{
-  return (b - a) / dt;
-}
-
-inline double addDelta(double a, double da, double dt)
-{
-  return a + da * dt;
 }
 }  // namespace tobas_kdl
