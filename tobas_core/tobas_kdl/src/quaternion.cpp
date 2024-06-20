@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/float.hpp>
 
 #include "../include/tobas_kdl/quaternion.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"

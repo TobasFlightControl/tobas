@@ -1,4 +1,5 @@
 #include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/assert.hpp>
 #include <tobas_std_tools/console.hpp>
 

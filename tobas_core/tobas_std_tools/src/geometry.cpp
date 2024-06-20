@@ -1,7 +1,9 @@
 #include <cassert>
 
 #include "../include/tobas_std_tools/geometry.hpp"
+#include "../include/tobas_std_tools/unit_conversions.hpp"
 #include "../include/tobas_std_tools/math.hpp"
+#include "../include/tobas_std_tools/float.hpp"
 
 namespace tobas_std
 {
