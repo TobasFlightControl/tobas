@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_kdl/euler.hpp>
 
 namespace tobas

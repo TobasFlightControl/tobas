@@ -14,20 +14,20 @@ BatteryLpf::BatteryLpf(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
 {
-  if (!voltage_lpf_.isInitialized() || !current_lpf_.isInitialized())
+  if (last_msg_ == nullptr)
   {
     TOBAS_INFO("First raw battery message is received.");
     voltage_lpf_.initializeFromTimeConst(kLpfTimeConst, battery_raw->voltage);
     current_lpf_.initializeFromTimeConst(kLpfTimeConst, battery_raw->current);
-    t_last_ = battery_raw->header.stamp;
+    last_msg_ = battery_raw;
     return;
   }
 
-  const auto ts = (battery_raw->header.stamp - t_last_).toSec();
-  t_last_ = battery_raw->header.stamp;
+  const auto dt = (battery_raw->header.stamp - last_msg_->header.stamp).toSec();
+  last_msg_ = battery_raw;
 
-  voltage_lpf_.update(battery_raw->voltage, ts);
-  current_lpf_.update(battery_raw->current, ts);
+  voltage_lpf_.update(battery_raw->voltage, dt);
+  current_lpf_.update(battery_raw->current, dt);
 
   const auto battery_filtered = boost::make_shared<tobas_msgs::Battery>(*battery_raw);
   battery_filtered->voltage = voltage_lpf_.getState();

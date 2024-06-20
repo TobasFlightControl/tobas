@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_std_tools/first_order_filter.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Imu.h>
 
@@ -21,8 +21,8 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  tobas_std::FirstOrderFilter<tobas_kdl::Vector> gyro_lpf_, accel_lpf_;
-  ros::Time t_last_;
+  dsp::LowPassFilter<tobas_kdl::Vector> gyro_lpf_, accel_lpf_;
+  tobas_msgs::ImuConstPtr last_msg_;
 
   ros::Publisher imu_lpf_pub_;
   ros::Subscriber imu_raw_sub_;

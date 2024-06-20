@@ -11,6 +11,7 @@
 
 	<depend>tobas_gazebo_msgs</depend>
 	<depend>tobas_tools</depend>
+	<depend>tobas_dsp</depend>
 	<depend>gazebo_plugins</depend>
 	<depend>laser_geometry</depend>
 	<depend>sensor_msgs</depend>

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <tobas_std_tools/first_order_filter.hpp>
-
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop

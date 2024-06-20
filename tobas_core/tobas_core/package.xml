@@ -9,6 +9,7 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<exec_depend>tobas_dsp</exec_depend>
 	<exec_depend>tobas_eigen_msgs</exec_depend>
 	<exec_depend>tobas_eigen_tools</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>

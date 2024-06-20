@@ -6,7 +6,7 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
 
-#include <tobas_std_tools/first_order_filter.hpp>
+#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
@@ -65,7 +65,7 @@ private:
   common::Time last_time_ = common::Time(0);
   ignition::math::Vector3d acc_bias_ = zero3, gyro_bias_ = zero3;
   ignition::math::Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;
-  tobas_std::FirstOrderFilter<ignition::math::Vector3d> acc_lpf_, gyro_lpf_;  // Internal LPF
+  dsp::LowPassFilter<ignition::math::Vector3d> acc_lpf_, gyro_lpf_;  // Internal LPF
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;

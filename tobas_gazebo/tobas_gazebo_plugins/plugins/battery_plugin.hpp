@@ -1,13 +1,9 @@
 #pragma once
 
-#include <map>
-#include <functional>
-#include <ros/ros.h>
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
 #include <std_srvs/Empty.h>
 
-#include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_msgs/RotorState.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"

@@ -14,20 +14,20 @@ ImuLpf::ImuLpf(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const stri
 
 void ImuLpf::imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw)
 {
-  if (!gyro_lpf_.isInitialized() || !accel_lpf_.isInitialized())
+  if (last_msg_ == nullptr)
   {
     TOBAS_INFO("First raw IMU message is received.");
     gyro_lpf_.initializeFromCutoff(kGyroLpfCutoff, imu_raw->gyro);
     accel_lpf_.initializeFromCutoff(kAccelLpfCutoff, imu_raw->accel);
-    t_last_ = imu_raw->header.stamp;
+    last_msg_ = imu_raw;
     return;
   }
 
-  const auto ts = (imu_raw->header.stamp - t_last_).toSec();
-  t_last_ = imu_raw->header.stamp;
+  const auto dt = (imu_raw->header.stamp - last_msg_->header.stamp).toSec();
+  last_msg_ = imu_raw;
 
-  gyro_lpf_.update(imu_raw->gyro, ts);
-  accel_lpf_.update(imu_raw->accel, ts);
+  gyro_lpf_.update(imu_raw->gyro, dt);
+  accel_lpf_.update(imu_raw->accel, dt);
 
   const auto imu_filtered = boost::make_shared<tobas_msgs::Imu>(*imu_raw);
   imu_filtered->gyro = gyro_lpf_.getState();

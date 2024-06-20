@@ -20,6 +20,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_gazebo_msgs
 	tobas_tools
+	tobas_dsp
 	gazebo_plugins
 	laser_geometry
 	sensor_msgs
@@ -31,7 +32,14 @@ find_package(OpenCV REQUIRED)
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_gazebo_msgs tobas_tools gazebo_plugins laser_geometry sensor_msgs geometry_msgs
+	CATKIN_DEPENDS
+		tobas_gazebo_msgs
+		tobas_tools
+		tobas_dsp
+		gazebo_plugins
+		laser_geometry
+		sensor_msgs
+		geometry_msgs
 	DEPENDS GAZEBO OpenCV
 )
 
