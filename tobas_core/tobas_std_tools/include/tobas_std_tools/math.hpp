@@ -97,11 +97,10 @@ inline T min(T t, Args... args)
 template <typename... T>
 double norm(T... args)
 {
+  // TODO: Use Kahan summation
   double squared_sum = 0.;
-  for (double x : std::initializer_list<double>{ args... })
-  {
+  for (const auto& x : std::initializer_list<double>{ args... })
     squared_sum += sqr(x);
-  }
   return sqrt(squared_sum);
 }
 
