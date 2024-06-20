@@ -1,6 +1,8 @@
 [Unit]
 Description=Medium Priority Nodelet Manager
-PartOf=tobas_nodelet_manager.service
+Requires=tobas_roscore.service
+After=tobas_roscore.service
+PartOf=tobas_nodelet_managers.target
 
 [Service]
 User=pi

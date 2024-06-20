@@ -1,7 +1,8 @@
 [Unit]
 Description=FKIE Multimaster Nodes
-After=tobas_roscore.service
 Requires=tobas_roscore.service
+After=tobas_roscore.service
+PartOf=tobas_main.target
 
 [Service]
 User=pi

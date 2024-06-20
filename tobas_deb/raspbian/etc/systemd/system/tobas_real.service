@@ -1,8 +1,8 @@
 [Unit]
 Description=Tobas Flight Controller
-After=tobas_nodelet_managers.target
 Requires=tobas_nodelet_managers.target
 Conflicts=tobas_hil.service
+PartOf=tobas_main.target
 
 [Service]
 User=pi

@@ -1,7 +1,8 @@
 [Unit]
 Description=ROS Core
-After=networking.service
 Requires=networking.service
+After=networking.service
+PartOf=tobas_main.target
 
 [Service]
 User=pi
