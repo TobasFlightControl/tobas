@@ -1,4 +1,4 @@
-# tobas_kdl::JntArrayAcc
+# kdl::JntArrayAcc
 
 float64[] q
 float64[] qdot

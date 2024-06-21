@@ -41,7 +41,7 @@ private:
 
   // 固定値
   std::string instruction_;
-  tobas_kdl::JntArray q_0_;
+  kdl::JntArray q_0_;
   double delta_speed_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;    // 1度のキーボード入力での回転位置の変化量
 

@@ -26,9 +26,9 @@ private:
   // Mutable
   bool is_up_commanded_;
   ros::Time t_last_rcin_;
-  tobas_kdl::Vector tar_vel_F_;  // フットプリント座標系から見た目標速度
-  tobas_kdl::Vector tar_pos_W_;  // 世界座標系から見た目標位置
-  tobas_kdl::Euler tar_rpy_;
+  kdl::Vector tar_vel_F_;  // フットプリント座標系から見た目標速度
+  kdl::Vector tar_pos_W_;  // 世界座標系から見た目標位置
+  kdl::Euler tar_rpy_;
 
   // Publisher
   ros::Publisher cmd_pub_;

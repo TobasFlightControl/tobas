@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 Joint::Joint()
 {
@@ -67,4 +67,4 @@ SegmentJacobian Joint::jacobian() const
       throw joint_type_ex_;
   }
 }
-}  // end of namespace tobas_kdl
+}  // end of namespace kdl

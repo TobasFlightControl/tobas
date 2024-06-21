@@ -9,7 +9,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using JntArray_ = tobas_kdl::JntArray;
+using JntArray_ = kdl::JntArray;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -17,7 +17,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::JntArray>
+struct Serializer<kdl::JntArray>
 {
   template <typename Stream, typename T>
   inline static void write(Stream& stream, const T& m)

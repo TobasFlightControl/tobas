@@ -7,7 +7,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using Quaternion_ = tobas_kdl::Quaternion;
+using Quaternion_ = kdl::Quaternion;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -15,7 +15,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::Quaternion>
+struct Serializer<kdl::Quaternion>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)

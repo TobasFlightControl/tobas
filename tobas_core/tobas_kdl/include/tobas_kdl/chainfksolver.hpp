@@ -4,11 +4,11 @@
 #include "./framevel.hpp"
 #include "./jntarray.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * \brief This <strong>abstract</strong> class encapsulates a
- * solver for the forward position kinematics for a tobas_kdl::Chain.
+ * solver for the forward position kinematics for a kdl::Chain.
  */
 class ChainFkSolverPos : public ChainSolverI
 {
@@ -20,7 +20,7 @@ public:
   }
 
   /**
-   * Calculate forward position kinematics for a tobas_kdl::Chain,
+   * Calculate forward position kinematics for a kdl::Chain,
    * from joint coordinates to cartesian pose.
    */
   virtual int JntToCart(const JntArray& q_in, int seg_nr = -1) = 0;
@@ -36,7 +36,7 @@ protected:
 
 /**
  * \brief This <strong>abstract</strong> class encapsulates a solver
- * for the forward velocity kinematics for a tobas_kdl::Chain.
+ * for the forward velocity kinematics for a kdl::Chain.
  */
 class ChainFkSolverVel : public ChainSolverI
 {
@@ -61,4 +61,4 @@ public:
 protected:
   FrameVel p_out_;
 };
-}  // end of namespace tobas_kdl
+}  // end of namespace kdl

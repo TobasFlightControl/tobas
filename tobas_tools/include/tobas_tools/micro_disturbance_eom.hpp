@@ -38,7 +38,7 @@ public:
    * @param rho 大気密度 [kg/m^3]
    * @param q 可動関節の角度 [rad]
    */
-  int update(const double& V, const double& rho, const double& battery_voltage, const tobas_kdl::JntArray& q);
+  int update(const double& V, const double& rho, const double& battery_voltage, const kdl::JntArray& q);
 
   inline const TrimConditions& trimCondition() const;
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -128,8 +128,8 @@ public:
 private:
   const Drone& drone_;
 
-  tobas_kdl::TreeFkSolverPos fk_solver_;
-  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeFkSolverPos fk_solver_;
+  kdl::TreeJntToInertiaSolver inertia_solver_;
   RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
 

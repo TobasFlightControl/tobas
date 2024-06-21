@@ -39,7 +39,7 @@ public:
 private:
   // Drone
   tobas::Drone drone_;
-  tobas_kdl::TreeJointStateConverter js_converter_;
+  kdl::TreeJointStateConverter js_converter_;
 
   // Controllers
   tobas::PositionPid pos_pid_;

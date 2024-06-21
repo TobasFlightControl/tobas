@@ -1,6 +1,6 @@
 #include "../include/tobas_kdl/vectorvel.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 doubleVel VectorVel::norm(double eps) const
 {
@@ -29,4 +29,4 @@ void setToZero(VectorVel& v)
   setToZero(v.p);
   setToZero(v.v);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

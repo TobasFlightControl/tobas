@@ -65,7 +65,7 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
 
   // Update rotation
   const auto& q = T_W_B.Rot();
-  odom->frame.M = tobas_kdl::Rotation::Quaternion(q.X(), q.Y(), q.Z(), q.W());
+  odom->frame.M = kdl::Rotation::Quaternion(q.X(), q.Y(), q.Z(), q.W());
 
   // Update linear velocity (Local)
   vectorGazeboToKDL(link_->RelativeLinearVel(), odom->twist.vel);

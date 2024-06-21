@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 int SolverI::copyError(const SolverI& arg)
 {
@@ -48,4 +48,4 @@ string SolverI::defaultErrorMessage(const int& error_code) const
       return "UNKNOWN ERROR";
   }
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

@@ -17,7 +17,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int update(const tobas_kdl::JntArray& q);
+  int update(const kdl::JntArray& q);
 
   inline const double& cPitchAlpha() const;
   inline const double& cYawBeta() const;
@@ -27,7 +27,7 @@ public:
 private:
   const Drone& drone_;
 
-  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeJntToInertiaSolver inertia_solver_;
 
   double c_pitch_alpha_cg_;
   double c_yaw_beta_cg_;

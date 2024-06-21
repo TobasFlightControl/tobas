@@ -7,7 +7,7 @@
 #include "../include/tobas_gazebo_ros/joint_command_handler.hpp"
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas_gazebo_ros
 {

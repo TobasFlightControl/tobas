@@ -98,7 +98,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
   const auto start_time = ros::Time::now();
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
-  const auto start_yaw = tobas_kdl::Euler(odom_->frame.M).yaw;
+  const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
   ros::Rate rate(kUpdateRate);

@@ -5,11 +5,11 @@
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * @brief  Class to calculate the jacobian of a general
- * tobas_kdl::Chain, it is used by other solvers.
+ * kdl::Chain, it is used by other solvers.
  */
 class ChainJntToJacSolver : public ChainSolverI
 {
@@ -24,7 +24,7 @@ public:
    * Calculate the jacobian expressed in the base frame of the
    * chain, with reference point at the end effector of the
    * *chain. The algorithm is similar to the one used in
-   * tobas_kdl::ChainFkSolverVel_recursive
+   * kdl::ChainFkSolverVel_recursive
    *
    * @param q_in input joint positions
    * @param jac output jacobian
@@ -49,4 +49,4 @@ private:
   Frame total_;
   Jacobian jac_out_;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

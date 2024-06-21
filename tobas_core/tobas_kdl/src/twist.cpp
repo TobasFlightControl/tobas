@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_kdl
+namespace kdl
 {
 Vector6d Twist::ravel() const
 {
@@ -11,4 +11,4 @@ Vector6d Twist::ravel() const
   res << vel.data, rot.data;
   return res;
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

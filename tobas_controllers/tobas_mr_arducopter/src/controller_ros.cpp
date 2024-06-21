@@ -10,7 +10,7 @@
 #include "../include/tobas_mr_arducopter/constants.hpp"
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas_mr_arducopter
 {

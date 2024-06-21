@@ -2,7 +2,7 @@
 
 #include "./chain.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class TreeElement;
 using SegmentMap = std::map<std::string, TreeElement>;
@@ -153,4 +153,4 @@ inline const SegmentMap& Tree::getSegments() const
 {
   return segments_;
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

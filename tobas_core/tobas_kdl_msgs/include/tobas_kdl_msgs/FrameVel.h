@@ -10,7 +10,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using FrameVel_ = tobas_kdl::FrameVel;
+using FrameVel_ = kdl::FrameVel;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -18,7 +18,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::FrameVel>
+struct Serializer<kdl::FrameVel>
 {
   template <typename Stream, typename T>
   inline static void write(Stream& stream, const T& m)
@@ -30,8 +30,8 @@ struct Serializer<tobas_kdl::FrameVel>
   template <typename Stream, typename T>
   inline static void read(Stream& stream, T& m)
   {
-    tobas_kdl::Frame frame;
-    tobas_kdl::Twist twist;
+    kdl::Frame frame;
+    kdl::Twist twist;
 
     stream.next(frame);
     stream.next(twist);

@@ -4,11 +4,11 @@
 #include "./frames.hpp"
 #include "./jntarray.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * \brief This <strong>abstract</strong> class encapsulates the inverse
- * dynamics solver for a tobas_kdl::Tree.
+ * dynamics solver for a kdl::Tree.
  *
  */
 class TreeIdSolver : public TreeSolverI
@@ -41,4 +41,4 @@ public:
 protected:
   JntArray effort_out_;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

@@ -19,8 +19,8 @@ public:
 private:
   bool is_up_commanded_;
   ros::Time t_last_rcin_;
-  tobas_kdl::Vector tar_vel_F_;
-  tobas_kdl::Vector tar_pos_W_;
+  kdl::Vector tar_vel_F_;
+  kdl::Vector tar_pos_W_;
   double tar_yaw_;
 
   // rosparams

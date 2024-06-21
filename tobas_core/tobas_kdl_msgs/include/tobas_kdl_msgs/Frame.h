@@ -10,7 +10,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using Frame_ = tobas_kdl::Frame;
+using Frame_ = kdl::Frame;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -18,7 +18,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::Frame>
+struct Serializer<kdl::Frame>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)

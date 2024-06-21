@@ -6,7 +6,7 @@
 #include "./jntarray.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class Jacobian;
 using JacobianMap = std::map<std::string, Jacobian>;
@@ -104,4 +104,4 @@ inline void setToZero(Jacobian& jac)
 {
   jac.data.setZero();
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

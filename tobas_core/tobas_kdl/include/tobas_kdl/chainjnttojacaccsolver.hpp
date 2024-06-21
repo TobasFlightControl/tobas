@@ -3,7 +3,7 @@
 #include "./chainsolveri.hpp"
 #include "./jntarray.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * @brief xdd = J qd + Jd qd におけるJd qdの項を計算する．
@@ -32,4 +32,4 @@ private:
   std::vector<Accel> a_;
   Accel Jdqd_out_;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

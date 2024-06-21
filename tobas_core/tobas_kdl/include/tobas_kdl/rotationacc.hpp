@@ -2,7 +2,7 @@
 
 #include "./twistacc.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class RotationAcc
 {
@@ -126,4 +126,4 @@ inline RotationAcc operator*(const Rotation& lhs, const RotationAcc& rhs)
 {
   return RotationAcc(lhs * rhs.R, lhs * rhs.w, lhs * rhs.dw);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

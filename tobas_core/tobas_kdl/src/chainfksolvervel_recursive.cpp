@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 ChainFkSolverVel_recursive::ChainFkSolverVel_recursive(const Chain& chain) : super(chain)
 {
@@ -45,4 +45,4 @@ int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& 
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

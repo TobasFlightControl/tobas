@@ -7,7 +7,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using Vector_ = tobas_kdl::Vector;
+using Vector_ = kdl::Vector;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -15,7 +15,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::Vector>
+struct Serializer<kdl::Vector>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)

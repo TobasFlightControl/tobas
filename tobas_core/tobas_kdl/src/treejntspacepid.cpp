@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav) : super(tree), rne_(tree, grav)
 {
@@ -65,4 +65,4 @@ bool TreeJntSpacePID::setDamping(const double& kd)
   kd_ = kd;
   return true;
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

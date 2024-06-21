@@ -1,7 +1,7 @@
 #include <tobas_kdl/euler.hpp>
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 int main()
 {

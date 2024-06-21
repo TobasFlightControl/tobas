@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 TreeJntToInertiaSolver::TreeJntToInertiaSolver(const Tree& tree) : super(tree)
 {
@@ -63,4 +63,4 @@ void TreeJntToInertiaSolver::step(const SegmentMap::const_iterator& segment, con
   if (segment != tree_.getRootSegment())
     I_.at(par_name) += X_.at(seg_name) * I_.at(seg_name);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

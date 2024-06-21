@@ -6,7 +6,7 @@
 #include "./taskspacestiffness.hpp"
 #include "./taskspacedamping.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class TreeTaskSpacePID : public TreeSolverI
 {
@@ -52,4 +52,4 @@ inline const JntArray& TreeTaskSpacePID::getEfforts() const
 {
   return rne_.getEfforts();
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 void jntarrayKDLToStd(const JntArray& k, vector<double>& s)
 {
@@ -23,4 +23,4 @@ void jntarrayStdToKDL(const vector<double>& s, JntArray& k)
     k(i) = s[i];
   }
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

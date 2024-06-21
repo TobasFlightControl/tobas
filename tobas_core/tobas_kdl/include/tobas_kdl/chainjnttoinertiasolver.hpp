@@ -5,7 +5,7 @@
 #include "./jntarray.hpp"
 #include "./rigidbodyinertia.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class ChainJntToInertiaSolver : public ChainSolverI
 {
@@ -29,4 +29,4 @@ private:
 
   RigidBodyInertia I_out_;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

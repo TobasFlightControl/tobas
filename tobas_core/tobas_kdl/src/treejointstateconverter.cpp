@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 TreeJointStateConverter::TreeJointStateConverter(const Tree& tree) : super(tree), jnt_parser_(tree_)
 {
@@ -272,4 +272,4 @@ void TreeJointStateConverter::clearJointState()
   js_out_.velocity.clear();
   js_out_.effort.clear();
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

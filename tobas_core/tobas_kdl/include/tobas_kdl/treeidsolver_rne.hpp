@@ -3,7 +3,7 @@
 #include "./treeidsolver.hpp"
 #include "./utilities/constants.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * \brief Recursive newton euler inverse dynamics solver for kinematic trees.
@@ -61,4 +61,4 @@ private:
     const JntArray& q_dotdot,
     const WrenchMap& f_ext);
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

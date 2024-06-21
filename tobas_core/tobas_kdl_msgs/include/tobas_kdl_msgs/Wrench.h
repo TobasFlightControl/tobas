@@ -9,7 +9,7 @@
 namespace tobas_kdl_msgs
 {
 template <class ContainerAllocator>
-using Wrench_ = tobas_kdl::Wrench;
+using Wrench_ = kdl::Wrench;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -17,7 +17,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::Wrench>
+struct Serializer<kdl::Wrench>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)

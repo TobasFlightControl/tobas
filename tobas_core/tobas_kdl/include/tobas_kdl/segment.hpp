@@ -5,7 +5,7 @@
 #include "./joint.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * \brief This class encapsulates a simple segment, that is a "rigid
@@ -202,4 +202,4 @@ inline const Frame& Segment::getFrameToTipZero() const
 {
   return f_tip_;
 }
-}  // end of namespace tobas_kdl
+}  // end of namespace kdl

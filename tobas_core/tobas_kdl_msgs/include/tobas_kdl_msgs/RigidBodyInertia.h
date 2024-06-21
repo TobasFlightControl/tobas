@@ -7,7 +7,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using RigidBodyInertia_ = tobas_kdl::RigidBodyInertia;
+using RigidBodyInertia_ = kdl::RigidBodyInertia;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -15,7 +15,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::RigidBodyInertia>
+struct Serializer<kdl::RigidBodyInertia>
 {
   template <typename Stream, typename T>
   inline static void write(Stream& stream, const T& m)
@@ -29,8 +29,8 @@ struct Serializer<tobas_kdl::RigidBodyInertia>
   inline static void read(Stream& stream, T& m)
   {
     double mass;
-    tobas_kdl::Vector cog;
-    tobas_kdl::RigidBodyInertia Ic;
+    kdl::Vector cog;
+    kdl::RigidBodyInertia Ic;
 
     stream.next(mass);
     stream.next(cog);

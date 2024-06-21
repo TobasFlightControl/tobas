@@ -24,20 +24,19 @@ public:
   static constexpr size_t kVelZIdx = 8;
   static constexpr size_t kGravIdx = 9;
 
-  explicit PointContactsLinearDynamics(const tobas_kdl::Tree& tree, const std::vector<std::string>& foot_names);
+  explicit PointContactsLinearDynamics(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
 
   void updateInternalDataStructures();
-  void update(const double& roll, const double& pitch, const tobas_kdl::JntArray& q, const std::vector<bool>& is_stand);
+  void update(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
 
 private:
-  tobas_kdl::TreeFkSolverPos fk_solver_;
-  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeFkSolverPos fk_solver_;
+  kdl::TreeJntToInertiaSolver inertia_solver_;
 
   const std::vector<std::string> foot_names_;
   const size_t nc_;  // The number of contact points
 
   void updateA(const double& pitch);
-  void
-  updateB(const double& roll, const double& pitch, const tobas_kdl::JntArray& q, const std::vector<bool>& is_stand);
+  void updateB(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
 };
 }  // namespace tobas_legged_tools

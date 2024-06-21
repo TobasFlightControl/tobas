@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 Chain::Chain()
 {
@@ -50,4 +50,4 @@ ostream& operator<<(ostream& os, const Chain& arg)
     os << seg.name() << endl;
   return os;
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

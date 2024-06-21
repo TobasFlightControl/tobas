@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * Auxiliary class for argument types (Trait-template class )
@@ -37,4 +37,4 @@ inline constexpr double sqr(double arg)
 {
   return arg * arg;
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

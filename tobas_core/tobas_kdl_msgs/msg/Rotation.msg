@@ -1,3 +1,3 @@
-# tobas_kdl::Rotation
+# kdl::Rotation
 
 float64[9] data

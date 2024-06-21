@@ -37,10 +37,10 @@ struct LinkState_
   /* ADDED */
   LinkState_(
     const std::string& _name,
-    const tobas_kdl::Frame& _frame,
-    const tobas_kdl::Twist& _twist,
-    const tobas_kdl::Accel& _accel,
-    const tobas_kdl::Wrench& _wrench)
+    const kdl::Frame& _frame,
+    const kdl::Twist& _twist,
+    const kdl::Accel& _accel,
+    const kdl::Wrench& _wrench)
     : name(_name), frame(_frame), twist(_twist), accel(_accel), wrench(_wrench)
   {
   }

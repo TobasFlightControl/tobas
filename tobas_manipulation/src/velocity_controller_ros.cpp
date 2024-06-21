@@ -6,7 +6,7 @@
 #include "../include/tobas_manipulation/common.hpp"
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas_manipulation
 {
@@ -95,7 +95,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   }
 
   Frame T_Base_Parent;
-  tobas_kdl::FrameMap tar_p;
+  kdl::FrameMap tar_p;
   for (const auto& ls : tar_ls_->states)
   {
     if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))

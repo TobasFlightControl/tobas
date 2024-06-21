@@ -1,3 +1,3 @@
-# tobas_kdl::JntArray
+# kdl::JntArray
 
 float64[] data

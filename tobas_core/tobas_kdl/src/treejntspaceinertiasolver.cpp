@@ -2,10 +2,9 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
-TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree)
-  : super(tree), rne_(tree_, tobas_kdl::Vector::Zero())
+TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree) : super(tree), rne_(tree_, kdl::Vector::Zero())
 {
   updateInternalDataStructures();
 }
@@ -45,4 +44,4 @@ int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

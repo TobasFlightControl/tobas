@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 TreeIdSolver_RNE::TreeIdSolver_RNE(const Tree& tree, const Vector& grav) : super(tree), ag_(-grav, Vector::Zero())
 {
@@ -106,4 +106,4 @@ void TreeIdSolver_RNE::rneStep(
   if (segment != tree_.getRootSegment())
     f_.at(par_name) = f_.at(par_name) + Xj * f_.at(seg_name);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

@@ -1,7 +1,7 @@
 #include "../include/tobas_tools/stability_derivatives_cog.hpp"
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas
 {

@@ -1,6 +1,6 @@
 #include "../include/tobas_tools/conversions/frame_id.hpp"
 
-using namespace tobas_kdl;
+using namespace kdl;
 using namespace tobas_msgs;
 
 namespace tobas

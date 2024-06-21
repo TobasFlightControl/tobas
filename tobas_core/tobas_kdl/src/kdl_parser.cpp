@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 // construct vector
 Vector toKdl(const urdf::Vector3& v)
@@ -101,7 +101,7 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 // recursive function to walk through tree
 void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
-  PRINT_DEBUG_ONCE("tobas_kdl::addChildrenToTree");
+  PRINT_DEBUG_ONCE("kdl::addChildrenToTree");
 
   // constructs the optional inertia
   RigidBodyInertia inertia(0);
@@ -124,7 +124,7 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 
 bool treeFromFile(const string& file, Tree& tree)
 {
-  PRINT_DEBUG("tobas_kdl::treeFromFile");
+  PRINT_DEBUG("kdl::treeFromFile");
 
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDFFile(file);
   return treeFromUrdfModel(*robot_model, tree);
@@ -132,7 +132,7 @@ bool treeFromFile(const string& file, Tree& tree)
 
 bool treeFromParam(const string& param, Tree& tree)
 {
-  PRINT_DEBUG("tobas_kdl::treeFromParam");
+  PRINT_DEBUG("kdl::treeFromParam");
 
   urdf::Model robot_model;
   if (!robot_model.initParam(param))
@@ -145,7 +145,7 @@ bool treeFromParam(const string& param, Tree& tree)
 
 bool treeFromString(const string& xml, Tree& tree)
 {
-  PRINT_DEBUG("tobas_kdl::treeFromString");
+  PRINT_DEBUG("kdl::treeFromString");
 
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDF(xml);
   if (!robot_model)
@@ -158,7 +158,7 @@ bool treeFromString(const string& xml, Tree& tree)
 
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 {
-  PRINT_DEBUG("tobas_kdl::treeFromUrdfModel");
+  PRINT_DEBUG("kdl::treeFromUrdfModel");
 
   if (!robot_model.getRoot())
   {
@@ -183,4 +183,4 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 
   return true;
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

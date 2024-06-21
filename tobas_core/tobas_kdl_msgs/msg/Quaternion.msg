@@ -1,4 +1,4 @@
-# tobas_kdl::Quaternion
+# kdl::Quaternion
 
 float64 x
 float64 y

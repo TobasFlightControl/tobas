@@ -38,7 +38,7 @@ public:
 private:
   keyboard::KeyboardReader key_reader_;
 
-  tobas_kdl::Vector cmd_pos_;
+  kdl::Vector cmd_pos_;
   double cmd_yaw_;
 
   // 固定値

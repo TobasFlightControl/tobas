@@ -4,7 +4,7 @@
 #include "./accel.hpp"
 #include "./vectoracc.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class TwistAcc
 {
@@ -132,4 +132,4 @@ inline TwistAcc operator-(const TwistAcc& arg)
 {
   return TwistAcc(-arg.vel, -arg.rot);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

@@ -21,7 +21,7 @@ public:
     const std::string& name = ros::this_node::getName());
 
 private:
-  dsp::LowPassFilter<tobas_kdl::Vector> gyro_lpf_, accel_lpf_;
+  dsp::LowPassFilter<kdl::Vector> gyro_lpf_, accel_lpf_;
   tobas_msgs::ImuConstPtr last_msg_;
 
   ros::Publisher imu_lpf_pub_;

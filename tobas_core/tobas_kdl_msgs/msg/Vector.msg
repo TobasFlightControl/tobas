@@ -1,4 +1,4 @@
-# tobas_kdl::Vector
+# kdl::Vector
 
 float64 x
 float64 y

@@ -4,7 +4,7 @@
 #include "../rotationalinertia.hpp"
 #include "../euler.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 void vectorNedToNwu(const Vector& src, Vector& des);
 void vectorNwuToNed(const Vector& src, Vector& des);
@@ -28,13 +28,13 @@ void eulerNwuToNed(const Euler& src, Euler& des);
 void eulerNedToNwu(Euler& arg);
 void eulerNwuToNed(Euler& arg);
 
-void rotationNedToNwu(const tobas_kdl::Rotation& src, tobas_kdl::Rotation& des);
-void rotationNwuToNed(const tobas_kdl::Rotation& src, tobas_kdl::Rotation& des);
-void rotationNedToNwu(tobas_kdl::Rotation& arg);
-void rotationNwuToNed(tobas_kdl::Rotation& arg);
+void rotationNedToNwu(const kdl::Rotation& src, kdl::Rotation& des);
+void rotationNwuToNed(const kdl::Rotation& src, kdl::Rotation& des);
+void rotationNedToNwu(kdl::Rotation& arg);
+void rotationNwuToNed(kdl::Rotation& arg);
 
-void frameNedToNwu(const tobas_kdl::Frame& src, tobas_kdl::Frame& des);
-void frameNwuToNed(const tobas_kdl::Frame& src, tobas_kdl::Frame& des);
-void frameNedToNwu(tobas_kdl::Frame& arg);
-void frameNwuToNed(tobas_kdl::Frame& arg);
-}  // namespace tobas_kdl
+void frameNedToNwu(const kdl::Frame& src, kdl::Frame& des);
+void frameNwuToNed(const kdl::Frame& src, kdl::Frame& des);
+void frameNedToNwu(kdl::Frame& arg);
+void frameNwuToNed(kdl::Frame& arg);
+}  // namespace kdl

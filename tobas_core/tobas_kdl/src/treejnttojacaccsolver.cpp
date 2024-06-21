@@ -1,6 +1,6 @@
 #include "../include/tobas_kdl/treejnttojacaccsolver.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 TreeJntToJacAccSolver::TreeJntToJacAccSolver(const Tree& tree) : super(tree)
 {
@@ -77,4 +77,4 @@ void TreeJntToJacAccSolver::JntToCartRec(
   for (const auto& child : segment->second.children)
     JntToCartRec(child, q, qd);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

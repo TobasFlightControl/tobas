@@ -4,7 +4,7 @@
 #include "./jacobian.hpp"
 #include "./jntarray.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class TreeJntToJacSolver : public TreeSolverI
 {
@@ -25,4 +25,4 @@ public:
 private:
   Jacobian jac_;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

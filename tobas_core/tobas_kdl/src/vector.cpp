@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_kdl
+namespace kdl
 {
 double Vector::norm(double eps) const
 {
@@ -54,4 +54,4 @@ bool Vector::isFinite() const
 {
   return eigen_tools::isFinite(data);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

@@ -7,12 +7,12 @@
 #include "../include/tobas_mr_common/accel_attitude_converter.hpp"
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas_mr_common
 {
 AccelAttitudeConverter::AccelAttitudeConverter(const tobas::Drone& drone)
-  : drone_(drone), dynamics_(drone), grav_W_(0, 0, tobas::kGravity), zero_(tobas_kdl::Vector::Zero())
+  : drone_(drone), dynamics_(drone), grav_W_(0, 0, tobas::kGravity), zero_(kdl::Vector::Zero())
 {
   updateInternalDataStructures();
 }

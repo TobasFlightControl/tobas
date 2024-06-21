@@ -77,7 +77,7 @@ void PositionYawPublisher::run()
   if (tobas_ros::subscribeOnce(odom, tobas::kOdometryTopic, nh_) && odom.status == tobas_msgs::Odometry::NO_ERROR)
   {
     cmd_pos_ = odom.frame.p;
-    cmd_yaw_ = tobas_kdl::Euler(odom.frame.M).yaw;
+    cmd_yaw_ = kdl::Euler(odom.frame.M).yaw;
   }
   else
   {

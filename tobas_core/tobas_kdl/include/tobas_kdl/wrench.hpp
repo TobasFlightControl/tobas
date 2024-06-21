@@ -2,7 +2,7 @@
 
 #include "./vector.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class Wrench;
 using Wrenches = std::vector<Wrench>;
@@ -122,4 +122,4 @@ inline void setToZero(Wrench& v)
   setToZero(v.force);
   setToZero(v.torque);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

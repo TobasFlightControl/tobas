@@ -5,7 +5,7 @@
 #include "../include/tobas_tools/constants.hpp"
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas
 {

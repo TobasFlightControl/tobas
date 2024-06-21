@@ -7,7 +7,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using RotationalInertia_ = tobas_kdl::RotationalInertia;
+using RotationalInertia_ = kdl::RotationalInertia;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -15,7 +15,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::RotationalInertia>
+struct Serializer<kdl::RotationalInertia>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)

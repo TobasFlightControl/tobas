@@ -1,4 +1,4 @@
-# tobas_kdl::RigidBodyInertia
+# kdl::RigidBodyInertia
 
 float64 mass          # [kg] Mass
 Vector cog            # [m] Center of gravity

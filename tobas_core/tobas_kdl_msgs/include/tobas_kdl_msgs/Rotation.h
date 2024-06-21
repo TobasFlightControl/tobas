@@ -7,7 +7,7 @@
 namespace tobas_kdl_msgs
 {
 template <typename ContainerAllocator>
-using Rotation_ = tobas_kdl::Rotation;
+using Rotation_ = kdl::Rotation;
 }  // namespace tobas_kdl_msgs
 
 namespace ros
@@ -15,7 +15,7 @@ namespace ros
 namespace serialization
 {
 template <>
-struct Serializer<tobas_kdl::Rotation>
+struct Serializer<kdl::Rotation>
 {
   template <typename Stream, typename T>
   inline static void allInOne(Stream& stream, T m)

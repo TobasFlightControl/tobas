@@ -2,7 +2,7 @@
 
 #include "./segment.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * \brief This class encapsulates a <strong>serial</strong> kinematic
@@ -46,7 +46,7 @@ public:
    * <strong> Important:</strong> It is not the
    * same as the total number of segments since a segment does not
    * need to have a joint. This function is important when
-   * creating a tobas_kdl::JntArray to use with this chain.
+   * creating a kdl::JntArray to use with this chain.
    * @return total nr of joints
    */
   inline const size_t& getNrOfJoints() const;
@@ -103,4 +103,4 @@ inline Segment& Chain::getSegment(size_t nr)
 {
   return segments[nr];
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

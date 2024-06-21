@@ -2,7 +2,7 @@
 
 #include "./vector.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * @brief 球面座標系．
@@ -20,4 +20,4 @@ public:
 
   Vector toCartesian() const;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

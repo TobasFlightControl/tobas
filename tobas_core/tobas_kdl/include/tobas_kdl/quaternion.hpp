@@ -2,7 +2,7 @@
 
 #include "./frames.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class Quaternion
 {
@@ -54,4 +54,4 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const Quaternion& arg);
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

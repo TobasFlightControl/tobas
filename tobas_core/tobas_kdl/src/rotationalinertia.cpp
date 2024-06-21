@@ -2,7 +2,7 @@
 
 using namespace Eigen;
 
-namespace tobas_kdl
+namespace kdl
 {
 RotationalInertia::RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
 {
@@ -17,4 +17,4 @@ RotationalInertia::RotationalInertia(double Ixx, double Iyy, double Izz, double 
 RotationalInertia::RotationalInertia(const Matrix3d& data) : data(data)
 {
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

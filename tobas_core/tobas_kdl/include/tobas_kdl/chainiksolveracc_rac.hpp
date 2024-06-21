@@ -4,7 +4,7 @@
 #include "./chainjnttojacsolver.hpp"
 #include "./chainjnttojacaccsolver.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /* 分解加速度制御 */
 class ChainIkSolverAcc_RAC : public ChainIkSolverAcc
@@ -23,4 +23,4 @@ private:
   ChainJntToJacSolver jnt2jac_;
   ChainJntToJacAccSolver jnt2jdqd_;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

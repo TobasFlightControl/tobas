@@ -7,17 +7,17 @@
 #include "../include/tobas_tools/constants.hpp"
 
 using namespace std;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas
 {
 double getMass()
 {
-  tobas_kdl::Tree tree;
+  kdl::Tree tree;
   if (!treeFromParam(ros::this_node::getNamespace() + "/robot_description", tree))
     throw runtime_error("Failed to get tobas_kdl tree.");
 
-  tobas_kdl::TreeJntToInertiaSolver inertia_solver(tree);
+  kdl::TreeJntToInertiaSolver inertia_solver(tree);
   if (inertia_solver.JntToCart(JntArray::Zero(tree.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver.errorMessage());
 

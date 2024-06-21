@@ -2,7 +2,7 @@
 
 #include "./chainidsolver_rne.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /* ベースは公式のChainDynParamで，重力加速度を呼び出し時に与えるようにしたもの */
 class ChainDynParam : public ChainSolverI
@@ -38,4 +38,4 @@ inline const JntArray& ChainDynParam::getGravityEffort() const
 {
   return rne_gravity_.getEfforts();
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

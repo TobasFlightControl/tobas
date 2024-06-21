@@ -4,7 +4,7 @@
 
 #include "./utility.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * Rall2d contains a value, and its gradient and its 2nd derivative, and defines an algebraic
@@ -452,4 +452,4 @@ inline void setToIdentity(Rall2d<T, V, S>& value)
   setToIdentity(value.t);
   setToZero(value.dd);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

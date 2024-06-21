@@ -5,7 +5,7 @@
 
 #include "./tree.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /** Constructs a tobas_kdl tree from a file, given the file name
  * \param file The filename from where to read the xml
@@ -34,4 +34,4 @@ bool treeFromString(const std::string& xml, Tree& tree);
  * returns true on success, false on failure
  */
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree);
-}  // namespace tobas_kdl
+}  // namespace kdl

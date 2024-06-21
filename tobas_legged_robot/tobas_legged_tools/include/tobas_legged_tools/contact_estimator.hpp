@@ -34,13 +34,13 @@ public:
     Late,
   };
 
-  explicit ContactEstimator(const tobas_kdl::Tree& tree, const std::vector<std::string>& foot_names);
+  explicit ContactEstimator(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
 
   void updateInternalDataStructures();
 
   void update(
-    const tobas_kdl::Frame& T,
-    const tobas_kdl::JntArray& q,
+    const kdl::Frame& T,
+    const kdl::JntArray& q,
     const std::vector<double>& contact_forces,
     const std::vector<bool>& cpg_states,
     const std::vector<double>& cpg_subphases);
@@ -55,9 +55,9 @@ public:
   double contactProbabilityFromCPG(const size_t& idx) const;
 
 private:
-  const tobas_kdl::Tree& tree_;
-  tobas_kdl::TreeFkSolverPos fk_solver_;
-  tobas_kdl::TreeJntToInertiaSolver inertia_solver_;
+  const kdl::Tree& tree_;
+  kdl::TreeFkSolverPos fk_solver_;
+  kdl::TreeJntToInertiaSolver inertia_solver_;
 
   const std::vector<std::string> foot_names_;
   const size_t nc_;              // The number of contact points
@@ -69,7 +69,7 @@ private:
 
   void setupKalmanFilter();
 
-  Eigen::VectorXd calcProbs_height(const tobas_kdl::Frame& T, const tobas_kdl::JntArray& q);
+  Eigen::VectorXd calcProbs_height(const kdl::Frame& T, const kdl::JntArray& q);
   Eigen::VectorXd calcProbs_force(const std::vector<double>& contact_forces);
   Eigen::VectorXd calcProbs_pred(const std::vector<bool>& cpg_states, const std::vector<double>& cpg_subphases);
 };

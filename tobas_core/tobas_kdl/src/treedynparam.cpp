@@ -2,10 +2,10 @@
 
 using namespace std;
 
-namespace tobas_kdl
+namespace kdl
 {
 TreeDynParam::TreeDynParam(const Tree& tree, const Vector& grav)
-  : super(tree), rne_coriolis_(tree_, tobas_kdl::Vector::Zero()), rne_gravity_(tree_, grav)
+  : super(tree), rne_coriolis_(tree_, kdl::Vector::Zero()), rne_gravity_(tree_, grav)
 {
   updateInternalDataStructures();
 }
@@ -31,4 +31,4 @@ int TreeDynParam::JntToGravity(const JntArray& q)
   rne_gravity_.CartToJnt(q, jntarray_null_, jntarray_null_);
   return copyError(rne_gravity_);
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

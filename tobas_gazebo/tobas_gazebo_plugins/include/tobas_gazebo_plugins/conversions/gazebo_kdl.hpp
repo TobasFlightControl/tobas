@@ -7,9 +7,9 @@
 
 namespace gazebo
 {
-void vectorGazeboToKDL(const ignition::math::Vector3d& g, tobas_kdl::Vector& k);
-void vectorKDLToGazebo(const tobas_kdl::Vector& k, ignition::math::Vector3d& g);
+void vectorGazeboToKDL(const ignition::math::Vector3d& g, kdl::Vector& k);
+void vectorKDLToGazebo(const kdl::Vector& k, ignition::math::Vector3d& g);
 
-void quaternionGazeboToKDL(const ignition::math::Quaterniond& g, tobas_kdl::Quaternion& k);
-void quaternionKDLToGazebo(const tobas_kdl::Quaternion& k, ignition::math::Quaterniond& g);
+void quaternionGazeboToKDL(const ignition::math::Quaterniond& g, kdl::Quaternion& k);
+void quaternionKDLToGazebo(const kdl::Quaternion& k, ignition::math::Quaterniond& g);
 }  // namespace gazebo

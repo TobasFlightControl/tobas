@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * Solver interface supporting storage and description of the latest error.
@@ -62,4 +62,4 @@ inline const std::string& SolverI::errorMessage() const
 {
   return error_msg_;
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

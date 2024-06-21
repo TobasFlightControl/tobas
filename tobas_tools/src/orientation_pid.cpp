@@ -9,7 +9,7 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_kdl;
+using namespace kdl;
 
 namespace tobas
 {

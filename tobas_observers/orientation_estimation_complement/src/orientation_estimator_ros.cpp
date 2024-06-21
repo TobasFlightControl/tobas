@@ -86,7 +86,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
   // Create the orientation message
   const auto quat_msg = boost::make_shared<tobas_kdl_msgs::QuaternionStamped>();
   quat_msg->header = imu->header;
-  tobas_kdl::quaternionEigenToKDL(q, quat_msg->quaternion);
+  kdl::quaternionEigenToKDL(q, quat_msg->quaternion);
 
   // Publish the orientation message
   orientation_pub_.publish(quat_msg);

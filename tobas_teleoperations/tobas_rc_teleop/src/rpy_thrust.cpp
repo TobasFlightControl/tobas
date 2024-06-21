@@ -30,7 +30,7 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
 
 void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
 {
-  yaw_ = tobas_kdl::Euler(odom.frame.M).yaw;
+  yaw_ = kdl::Euler(odom.frame.M).yaw;
   t_last_rcin_ = odom.header.stamp;
 }
 

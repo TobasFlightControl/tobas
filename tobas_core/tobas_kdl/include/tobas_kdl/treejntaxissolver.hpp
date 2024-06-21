@@ -3,7 +3,7 @@
 #include "./treesolveri.hpp"
 #include "./treefksolverpos.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class TreeJntAxisSolver : public TreeSolverI
 {
@@ -27,4 +27,4 @@ private:
 
   Vector axis_out_;
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

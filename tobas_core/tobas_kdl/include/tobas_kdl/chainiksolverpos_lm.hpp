@@ -7,7 +7,7 @@
 #include "./chainiksolver.hpp"
 #include "./chain.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 /**
  * \brief Solver for the inverse position kinematics that uses Levenberg-Marquardt.
@@ -133,4 +133,4 @@ private:
 
   void enforceJointLimits(Eigen::VectorXd& q);
 };
-}  // namespace tobas_kdl
+}  // namespace kdl

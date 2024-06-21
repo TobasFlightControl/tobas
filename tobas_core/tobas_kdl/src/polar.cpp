@@ -2,7 +2,7 @@
 
 #include "../include/tobas_kdl/polar.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 SphericalCoordinate::SphericalCoordinate()
 {
@@ -23,4 +23,4 @@ Vector SphericalCoordinate::toCartesian() const
 {
   return rho * Vector(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi));
 }
-}  // namespace tobas_kdl
+}  // namespace kdl

@@ -1,4 +1,4 @@
-# tobas_kdl::Wrench
+# kdl::Wrench
 
 tobas_kdl_msgs/Vector force
 tobas_kdl_msgs/Vector torque

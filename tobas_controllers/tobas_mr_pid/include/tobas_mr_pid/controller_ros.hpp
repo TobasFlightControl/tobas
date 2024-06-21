@@ -40,7 +40,7 @@ public:
 private:
   // Drone
   tobas::Drone drone_;
-  tobas_kdl::TreeJointStateConverter js_converter_;
+  kdl::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
   // rosparams

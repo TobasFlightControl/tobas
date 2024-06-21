@@ -4,7 +4,7 @@
 #include "./treeiksolvervel_pinv.hpp"
 #include "./taskspacedamping.hpp"
 
-namespace tobas_kdl
+namespace kdl
 {
 class TreeTaskSpaceVelCtrl : public TreeSolverI
 {
@@ -37,4 +37,4 @@ inline const JntArray& TreeTaskSpaceVelCtrl::getVelocities() const
 {
   return ik_.getVelocities();
 }
-}  // namespace tobas_kdl
+}  // namespace kdl
