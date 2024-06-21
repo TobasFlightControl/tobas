@@ -36,6 +36,19 @@ T sum(const std::vector<T>& arr)
   return sum;
 }
 
+/* Naive Summation． The worst-case round-off error scales with O(nε). */
+template <typename T>
+T sum(const std::vector<T>& arr, size_t start, size_t size)
+{
+  const auto stop = start + size;
+  assert(stop <= arr.size());
+
+  T sum = 0;
+  for (size_t i = start; i < stop; ++i)
+    sum += arr[i];
+  return sum;
+}
+
 /* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T>
 T fsum(const std::vector<T>& arr)
@@ -43,6 +56,19 @@ T fsum(const std::vector<T>& arr)
   Kahan<T> sum;
   for (const auto& x : arr)
     sum.add(x);
+  return sum.get();
+}
+
+/* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
+template <typename T>
+T fsum(const std::vector<T>& arr, size_t start, size_t size)
+{
+  const auto stop = start + size;
+  assert(stop <= arr.size());
+
+  Kahan<T> sum;
+  for (size_t i = start; i < stop; ++i)
+    sum.add(arr[i]);
   return sum.get();
 }
 
@@ -54,6 +80,16 @@ T fmean(const std::vector<T>& arr)
     return 0;
 
   return fsum(arr) / arr.size();
+}
+
+/* The average of Kahan Summation. */
+template <typename T>
+T fmean(const std::vector<T>& arr, size_t start, size_t size)
+{
+  if (size == 0)
+    return 0;
+
+  return fsum(arr, start, size) / size;
 }
 
 /* The variance of data. */
@@ -68,6 +104,23 @@ T variance(const std::vector<T>& arr)
   for (const auto& x : arr)
     sum.add(math::sqr(x - mean));
   return sum.get() / arr.size();
+}
+
+/* The variance of data. */
+template <typename T>
+T variance(const std::vector<T>& arr, size_t start, size_t size)
+{
+  const auto stop = start + size;
+  assert(stop <= arr.size());
+
+  if (arr.size() == 0)
+    return 0;
+
+  const auto mean = fmean(arr, start, size);
+  Kahan<T> sum;
+  for (size_t i = start; i < stop; ++i)
+    sum.add(math::sqr(arr[i] - mean));
+  return sum.get() / size;
 }
 
 /* 要素の加重平均をとる． */
@@ -213,5 +266,14 @@ template <typename T>
 inline bool contains(const std::vector<T>& vec, const T& val)
 {
   return std::find(vec.begin(), vec.end(), val) != vec.end();
+}
+
+/* 2つのstd::vectorをマージする． */
+template <typename T>
+std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
+{
+  std::vector<T> res = vec1;
+  res.insert(res.end(), vec2.begin(), vec2.end());
+  return res;
 }
 }  // namespace tobas_std
