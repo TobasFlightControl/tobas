@@ -6,6 +6,8 @@
 #include <iostream>
 #include <unordered_set>
 
+#include <tobas_math/core.hpp>
+
 #include "./kahan.hpp"
 
 namespace std
@@ -50,8 +52,22 @@ T fmean(const std::vector<T>& arr)
 {
   if (arr.size() == 0)
     return 0;
-  else
-    return fsum(arr) / arr.size();
+
+  return fsum(arr) / arr.size();
+}
+
+/* The variance of data. */
+template <typename T>
+T variance(const std::vector<T>& arr)
+{
+  if (arr.size() == 0)
+    return 0;
+
+  const auto mean = fmean(arr);
+  Kahan<T> sum;
+  for (const auto& x : arr)
+    sum.add(math::sqr(x - mean));
+  return sum.get() / arr.size();
 }
 
 /* 要素の加重平均をとる． */

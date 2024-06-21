@@ -14,7 +14,7 @@ void Welford::reset()
   var_n_ = 0.;
 }
 
-void Welford::addData(const double& x)
+void Welford::add(double x)
 {
   ++n_;
   const auto d = x - mean_;

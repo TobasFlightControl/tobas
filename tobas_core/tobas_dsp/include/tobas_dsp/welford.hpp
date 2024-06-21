@@ -20,19 +20,19 @@ public:
   void reset();
 
   /* 新しいデータを追加する． */
-  void addData(const double& x);
+  void add(double x);
 
   /* 平均を取得する． */
-  inline double getMean() const;
+  inline double mean() const;
 
   /* 分散を取得する． */
-  inline double getVariance() const;
+  inline double variance() const;
 
   /* 標準偏差を取得する． */
-  inline double getStddev() const;
+  inline double stddev() const;
 
   /* データの数を取得する． */
-  inline size_t getCount() const;
+  inline size_t count() const;
 
 private:
   size_t n_;      // データ数
@@ -40,22 +40,22 @@ private:
   double var_n_;  // 分散とデータ数の積
 };
 
-inline double Welford::getMean() const
+inline double Welford::mean() const
 {
   return mean_;
 }
 
-inline double Welford::getVariance() const
+inline double Welford::variance() const
 {
   return n_ > 0 ? var_n_ / n_ : 0.;
 }
 
-inline double Welford::getStddev() const
+inline double Welford::stddev() const
 {
-  return sqrt(getVariance());
+  return sqrt(variance());
 }
 
-inline size_t Welford::getCount() const
+inline size_t Welford::count() const
 {
   return n_;
 }

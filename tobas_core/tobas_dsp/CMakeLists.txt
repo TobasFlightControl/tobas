@@ -12,12 +12,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_std_tools
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	# CATKIN_DEPENDS
+	CATKIN_DEPENDS tobas_std_tools
 	# DEPENDS
 )
 
@@ -26,6 +27,13 @@ include_directories(${catkin_INCLUDE_DIRS} include)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${X11_LIBRARIES})
+
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
+foreach(FILE IN LISTS EXE_FILES)
+	get_filename_component(NAME ${FILE} NAME_WE)
+	add_executable(${NAME} ${FILE})
+	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+endforeach()
 
 install(TARGETS ${PROJECT_NAME}
 	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
