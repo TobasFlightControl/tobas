@@ -3,16 +3,18 @@
 #include <cstddef>
 #include <cmath>
 
-namespace tobas_std
+namespace dsp
 {
 /**
- * @brief Welfordのアルゴリズムで逐次的に統計量を計算する．
+ * @brief Welfordのアルゴリズムで逐次的に平均と分散を計算する．
  * cf. https://blog.data-hacker.net/2020/11/welford.html
+ *
+ * @note 数値誤差は小さいが，分散とデータ数の積を保持するためデータ数が大きすぎると発散する．
  */
-class OnlineStatistics
+class Welford
 {
 public:
-  explicit OnlineStatistics();
+  explicit Welford();
 
   /* 内部変数をリセットする． */
   void reset();
@@ -33,29 +35,28 @@ public:
   inline size_t getCount() const;
 
 private:
-  size_t n_;     // データの数
-  double mean_;  // 平均
-  double m2_;    // 分散を計算するための中間項
+  size_t n_;      // データ数
+  double mean_;   // 平均
+  double var_n_;  // 分散とデータ数の積
 };
 
-inline double OnlineStatistics::getMean() const
+inline double Welford::getMean() const
 {
   return mean_;
 }
 
-inline double OnlineStatistics::getVariance() const
+inline double Welford::getVariance() const
 {
-  // データ数が2未満の場合，分散は定義されていない
-  return n_ >= 2 ? m2_ / (n_ - 1) : 0;
+  return n_ > 0 ? var_n_ / n_ : 0.;
 }
 
-inline double OnlineStatistics::getStddev() const
+inline double Welford::getStddev() const
 {
   return sqrt(getVariance());
 }
 
-inline size_t OnlineStatistics::getCount() const
+inline size_t Welford::getCount() const
 {
   return n_;
 }
-}  // namespace tobas_std
+}  // namespace dsp
