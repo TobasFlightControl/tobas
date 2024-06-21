@@ -2,6 +2,7 @@
 #include <limits>
 
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/kahan.hpp>
 
 #include "../include/tobas_std_tools/timestamped_buffer.hpp"
 
@@ -35,13 +36,11 @@ double TimestampedBufferDouble::mean() const
   if (this->size() == 0)
     return 0.;
 
-  // Compute Kahan summation
-  double sum = 0.;
-  double c = 0.;
+  Kahan<double> sum;
   for (const auto& [_, x] : map_)
-    updateKahanValues(x, sum, c);
+    sum.add(x);
 
-  return sum / this->size();
+  return sum.get() / this->size();
 }
 
 double TimestampedBufferDouble::variance() const
@@ -51,25 +50,15 @@ double TimestampedBufferDouble::variance() const
 
   const auto mean = this->mean();
 
-  // Compute Kahan summation
-  double sum = 0.;
-  double c = 0.;
+  Kahan<double> sum;
   for (const auto& [_, x] : map_)
-    updateKahanValues(math::sqr(x - mean), sum, c);
+    sum.add(math::sqr(x - mean));
 
-  return sum / this->size();
+  return sum.get() / this->size();
 }
 
 double TimestampedBufferDouble::stddev() const
 {
   return sqrt(this->variance());
-}
-
-void TimestampedBufferDouble::updateKahanValues(double x, double& sum, double& c)
-{
-  const auto y = x - c;
-  const auto t = sum + y;
-  c = (t - sum) - y;
-  sum = t;
 }
 }  // namespace tobas_std

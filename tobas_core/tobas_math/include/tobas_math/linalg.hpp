@@ -14,7 +14,7 @@ namespace math
 template <typename... T>
 double norm(T... args)
 {
-  // TODO: Use Kahan summation
+  // 引数の個数は少ない想定なので，Kahanの加算アルゴリズムは使わない．
   double squared_sum = 0.;
   for (const auto& x : std::initializer_list<double>{ args... })
     squared_sum += math::sqr(x);

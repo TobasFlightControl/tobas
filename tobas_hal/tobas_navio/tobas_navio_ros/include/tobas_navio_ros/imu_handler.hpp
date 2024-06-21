@@ -3,6 +3,8 @@
 #include <Eigen/Core>
 #include <std_srvs/Trigger.h>
 
+#include <tobas_std_tools/kahan.hpp>
+
 #include "./common.hpp"
 #include "./base_sensor_node.hpp"
 
@@ -36,8 +38,7 @@ private:
 
   // ジャイロバイアス関連
   size_t loop_cnt_ = 0;
-  Eigen::Vector3f gyro_sum_ = Eigen::Vector3f::Zero();
-  Eigen::Vector3f gyro_c_ = Eigen::Vector3f::Zero();
+  std::array<tobas_std::Kahan<float>, 3> gyro_sum_;
   Eigen::Vector3f gyro_bias_;
 
   // Config

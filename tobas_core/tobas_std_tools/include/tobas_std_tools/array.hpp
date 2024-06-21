@@ -1,6 +1,8 @@
 #include <array>
 #include <cassert>
 
+#include "./kahan.hpp"
+
 namespace tobas_std
 {
 /* Naive Summation． The worst-case round-off error scales with O(nε). */
@@ -17,16 +19,10 @@ T sum(const std::array<T, N>& arr)
 template <typename T, size_t N>
 T fsum(const std::array<T, N>& arr)
 {
-  T sum = 0;
-  T c = 0;
+  Kahan<T> sum;
   for (const auto& x : arr)
-  {
-    const auto y = x - c;
-    const auto t = sum + y;
-    c = (t - sum) - y;
-    sum = t;
-  }
-  return sum;
+    sum.add(x);
+  return sum.get();
 }
 
 /* The average of Kahan Summation. */

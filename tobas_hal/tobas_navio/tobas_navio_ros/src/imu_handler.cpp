@@ -127,7 +127,8 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
 {
   if (loop_cnt_ == kMeasureGyroBiasCount)
   {
-    gyro_bias_ = gyro_sum_ / kMeasureGyroBiasCount;
+    for (size_t i = 0; i < 3; ++i)
+      gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;
     TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_.transpose());
     measure_gyro_bias_timer_.stop();
     main_timer_.start();
@@ -141,16 +142,13 @@ void ImuHandler::measureGyroBiasTimerCb(const ros::TimerEvent&)
   {
     TOBAS_WARN("Perturbation is detected while measuring gyro bias: ", gyro_.transpose(), " [rad/s]. Retrying...");
     loop_cnt_ = 0;
-    gyro_sum_.setZero();
-    gyro_c_.setZero();
+    for (size_t i = 0; i < 3; ++i)
+      gyro_sum_[i].reset();
     return;
   }
 
-  // Kahan summation
-  const Vector3f y = gyro_ - gyro_c_;
-  const Vector3f t = gyro_sum_ + y;
-  gyro_c_ = (t - gyro_sum_) - y;
-  gyro_sum_ = t;
+  for (size_t i = 0; i < 3; ++i)
+    gyro_sum_[i].add(gyro_(i));
 
   ++loop_cnt_;
 }

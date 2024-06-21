@@ -6,6 +6,8 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "./kahan.hpp"
+
 namespace std
 {
 /* std::vectorのコンソール出力 */
@@ -36,16 +38,10 @@ T sum(const std::vector<T>& arr)
 template <typename T>
 T fsum(const std::vector<T>& arr)
 {
-  T sum = 0;
-  T c = 0;
+  Kahan<T> sum;
   for (const auto& x : arr)
-  {
-    const auto y = x - c;
-    const auto t = sum + y;
-    c = (t - sum) - y;
-    sum = t;
-  }
-  return sum;
+    sum.add(x);
+  return sum.get();
 }
 
 /* The average of Kahan Summation. */
