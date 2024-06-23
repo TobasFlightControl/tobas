@@ -1,9 +1,8 @@
 #pragma once
 
+#include <ros/ros.h>
 #include <boost/property_tree/ini_parser.hpp>
 #include <std_srvs/Trigger.h>
-
-#include <tobas_tools/node.hpp>
 
 #include <tobas_property_msgs/GetBool.h>
 #include <tobas_property_msgs/GetInt.h>
@@ -16,16 +15,12 @@
 
 namespace ptree
 {
-class PropertyServer : public tobas::BaseNode
+class PropertyServer
 {
   using self = PropertyServer;
-  using super = tobas::BaseNode;
 
 public:
-  explicit PropertyServer(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+  explicit PropertyServer(ros::NodeHandle& nh, ros::NodeHandle& pnh);
 
 private:
   // ROS parameters

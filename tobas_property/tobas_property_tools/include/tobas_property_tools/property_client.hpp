@@ -3,7 +3,8 @@
 #include <ros/ros.h>
 
 #include <tobas_path_tools/join.hpp>
-#include <tobas_tools/constants.hpp>
+
+#include "./constants.hpp"
 
 namespace ptree
 {
@@ -54,7 +55,7 @@ template <typename SrvType, const char* SrvName, typename T>
 PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& value)
 {
   ros::ServiceClient client = nh_.serviceClient<SrvType>(path::join(ns_, SrvName));
-  if (!client.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!client.waitForExistence(ros::Duration(kWaitForServiceExistence)))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   SrvType msg;
@@ -79,7 +80,7 @@ template <typename SrvType, const char* SrvName, typename T>
 PropertyClient::error_t PropertyClient::setProperty(const std::string& key, T& value)
 {
   ros::ServiceClient client = nh_.serviceClient<SrvType>(path::join(ns_, SrvName));
-  if (!client.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!client.waitForExistence(ros::Duration(kWaitForServiceExistence)))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   SrvType msg;

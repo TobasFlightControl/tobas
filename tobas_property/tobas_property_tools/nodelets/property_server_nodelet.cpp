@@ -6,7 +6,7 @@ namespace ptree
 {
 void PropertyServerNodelet::onInit()
 {
-  node_.reset(new PropertyServer(getNodeHandle(), getPrivateNodeHandle(), getName()));
+  node_.reset(new PropertyServer(getNodeHandle(), getPrivateNodeHandle()));
 }
 }  // namespace ptree
 

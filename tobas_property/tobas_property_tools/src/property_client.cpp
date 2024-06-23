@@ -10,7 +10,6 @@
 #include <tobas_property_msgs/SetString.h>
 
 #include "../include/tobas_property_tools/property_client.hpp"
-#include "../include/tobas_property_tools/constants.hpp"
 
 using namespace std;
 
@@ -64,7 +63,7 @@ PropertyClient::error_t PropertyClient::set(const string& key, const string& val
 PropertyClient::error_t PropertyClient::save()
 {
   ros::ServiceClient client = nh_.serviceClient<std_srvs::Trigger>(path::join(ns_, kSaveFileSrv));
-  if (!client.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!client.waitForExistence(ros::Duration(kWaitForServiceExistence)))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   std_srvs::Trigger msg;
