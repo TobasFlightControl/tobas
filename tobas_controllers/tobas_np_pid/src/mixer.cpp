@@ -89,7 +89,8 @@ VectorXd Mixer::solve(
 
   // EoM行列等式の右辺
   // TODO: H-forceを考慮
-  const auto trans_right = mass * cur_rot.inverse(tar_acc_W - tobas::kWorldGravity);
+  const Vector grav_W(0, 0, -tobas::kGravity);
+  const auto trans_right = mass * cur_rot.inverse(tar_acc_W - grav_W);
   const auto rot_right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B);
   h_.head<3>() = trans_right.data;
   h_.tail<3>() = rot_right.data;
