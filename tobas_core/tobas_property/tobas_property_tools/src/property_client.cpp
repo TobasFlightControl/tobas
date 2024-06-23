@@ -30,6 +30,11 @@ PropertyClient::error_t PropertyClient::get(const string& key, int& value)
   return getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, value);
 }
 
+PropertyClient::error_t PropertyClient::get(const string& key, float& value)
+{
+  return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value);
+}
+
 PropertyClient::error_t PropertyClient::get(const string& key, double& value)
 {
   return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value);
@@ -40,17 +45,22 @@ PropertyClient::error_t PropertyClient::get(const string& key, string& value)
   return getProperty<tobas_property_msgs::GetString, kGetStringSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, bool& value)
+PropertyClient::error_t PropertyClient::set(const string& key, const bool& value)
 {
   return setProperty<tobas_property_msgs::SetBool, kSetBoolSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, int& value)
+PropertyClient::error_t PropertyClient::set(const string& key, const int& value)
 {
   return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, double& value)
+PropertyClient::error_t PropertyClient::set(const string& key, const float& value)
+{
+  return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value);
+}
+
+PropertyClient::error_t PropertyClient::set(const string& key, const double& value)
 {
   return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value);
 }

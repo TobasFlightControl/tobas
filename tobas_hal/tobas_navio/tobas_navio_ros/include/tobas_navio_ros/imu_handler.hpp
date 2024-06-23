@@ -3,7 +3,7 @@
 #include <Eigen/Core>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_property_tools/property_client.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 
 #include "./common.hpp"
@@ -31,7 +31,7 @@ public:
 
 private:
   ImuDevice imu_;
-  tobas_std::PropertyTree pt_;
+  ptree::PropertyClient property_client_;
 
   Eigen::Vector3f acc_, gyro_;
   Eigen::Vector3f gyro_bias_;

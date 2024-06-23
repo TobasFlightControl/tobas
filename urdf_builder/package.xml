@@ -9,7 +9,9 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>tobas_tools</depend>
   <depend>tobas_linux</depend>
+  <depend>tobas_property_tools</depend>
   <depend>tobas_std_tools</depend>
   <depend>rviz</depend>
   <depend>pluginlib</depend>

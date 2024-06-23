@@ -4,7 +4,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_navio_ros/common.hpp>
 #include <tobas_navio_ros/ellipse_transformer.hpp>
@@ -36,7 +36,7 @@ public:
 
 private:
   tobas_navio_ros::ImuDevice imu_;
-  tobas_std::PropertyTree pt_;
+  ptree::PropertyClient property_client_;
   float mx_, my_, mz_;
   std::vector<Eigen::Vector3f> mag_data_;
   tobas_navio_ros::EllipseTransformer mag_trans_;

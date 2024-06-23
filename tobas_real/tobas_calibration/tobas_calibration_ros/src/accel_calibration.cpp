@@ -9,7 +9,7 @@ using namespace Eigen;
 namespace tobas_calibration
 {
 AccelCalibrationRos::AccelCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), pt_(tobas_navio_ros::kConfigPath), rate_(kSamplingRate)
+  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyNamespace), rate_(kSamplingRate)
 {
   if (!imu_.probe())
     TOBAS_EXIT("IMU not enabled.");
@@ -46,14 +46,35 @@ bool AccelCalibrationRos::executeCb(SrvType::Request&, SrvType::Response& res)
   const Vector3f acc_offset = acc_top - Vector3f(0., 0., tobas::kGravity);
 
   // Configに保存
-  pt_.load();
-  pt_.put(tobas_navio_ros::kConfigKey_AccOffsetX, acc_offset.x());
-  pt_.put(tobas_navio_ros::kConfigKey_AccOffsetY, acc_offset.y());
-  pt_.put(tobas_navio_ros::kConfigKey_AccOffsetZ, acc_offset.z());
-  pt_.save();
+  if (property_client_.set(tobas_navio_ros::kConfigKey_AccOffsetX, acc_offset.x()) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_AccOffsetY, acc_offset.y()) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_AccOffsetZ, acc_offset.z()) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.save() < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
 
   res.success = true;
+  res.message = "";
   res.acc_raw.data = acc_top.cast<double>();
+
   return true;
 }
 }  // namespace tobas_calibration

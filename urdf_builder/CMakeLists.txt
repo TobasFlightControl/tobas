@@ -23,7 +23,9 @@ add_compile_options(-Wno-deprecated-copy)
 add_compile_options(-Wno-unused-but-set-parameter)
 
 find_package(catkin REQUIRED
+  tobas_tools
   tobas_linux
+  tobas_property_tools
   tobas_std_tools
   rviz
   pluginlib
@@ -35,7 +37,15 @@ find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED Core Widgets)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS tobas_linux tobas_std_tools rviz pluginlib urdf roslaunch
+  CATKIN_DEPENDS
+    tobas_tools
+    tobas_linux
+    tobas_property_tools
+    tobas_std_tools
+    rviz
+    pluginlib
+    urdf
+    roslaunch
 )
 
 include_directories(

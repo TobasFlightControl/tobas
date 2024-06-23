@@ -2,6 +2,7 @@
 #include <ros/ros.h>
 
 #include <tobas_linux/core.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -22,7 +23,7 @@ UpdateLinkDialog::UpdateLinkDialog(URDFBuilderPanel* main)
     main_(main),
     ui_(new Ui::UpdateLinkDialogUI()),
     link_vm_(new view_model::LinkViewModel(nullptr)),
-    pt_(linux::expandUser(kConfigPath))
+    property_client_(nh_, tobas::kGCSNamespace, kPropertySection)
 {
   ui_->setupUi(this);
 
@@ -420,9 +421,12 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
   ROS_DEBUG_STREAM("UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked");
 
   // 最後に開いたディレクトリを取得
-  pt_.load();
-  const auto last_dir = pt_.get(kConfigKey_VisualGeometryMeshBrowseDir, linux::homeDir());
-  cout << last_dir << endl;
+  string last_dir;
+  if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
+  {
+    ROS_WARN_STREAM(property_client_.errorMessage());
+    last_dir = linux::homeDir();
+  }
 
   // メッシュファイルのパスを取得
   const QString file_path = QFileDialog::getOpenFileName(
@@ -435,8 +439,16 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  pt_.put(kConfigKey_VisualGeometryMeshBrowseDir, new_dir);
-  pt_.save();
+  if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
+  if (property_client_.save() < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
 }
 
 void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
@@ -444,8 +456,12 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
   ROS_DEBUG_STREAM("UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked");
 
   // 最後に開いたディレクトリを取得
-  pt_.load();
-  const auto last_dir = pt_.get(kConfigKey_CollisionGeometryMeshBrowseDir, linux::homeDir());
+  string last_dir;
+  if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
+  {
+    ROS_WARN_STREAM(property_client_.errorMessage());
+    last_dir = linux::homeDir();
+  }
 
   // メッシュファイルのパスを取得
   const QString file_path = QFileDialog::getOpenFileName(
@@ -458,8 +474,16 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  pt_.put(kConfigKey_VisualGeometryMeshBrowseDir, new_dir);
-  pt_.save();
+  if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
+  if (property_client_.save() < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
 }
 
 void UpdateLinkDialog::MaterialColorPickButtonClicked()

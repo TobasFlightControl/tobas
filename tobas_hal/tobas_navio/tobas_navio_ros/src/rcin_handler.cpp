@@ -11,7 +11,7 @@ using namespace std;
 namespace tobas_navio_ros
 {
 RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), pt_(kConfigPath)
+  : super(nh, pnh, name), property_client_(nh_, kPropertyNamespace)
 {
   PRINT_DEBUG("RCInputHandler::RCInputHandler");
 
@@ -46,106 +46,99 @@ void RCInputHandler::setToDefaults()
 
 bool RCInputHandler::reloadConfig()
 {
-  if (!pt_.load())
+  if (property_client_.get(kConfigKey_RcRollLeft, roll_range_.lower) < 0)
   {
-    TOBAS_ERROR("Failed to load properties.");
+    TOBAS_ERROR(property_client_.errorMessage());
+    setToDefaults();
+    return false;
+  }
+  if (property_client_.get(kConfigKey_RcRollRight, roll_range_.upper) < 0)
+  {
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
 
-  if (!pt_.get(kConfigKey_RcRollLeft, roll_range_.lower, kPwmMin))
+  if (property_client_.get(kConfigKey_RcPitchDown, pitch_range_.lower) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcRollLeft, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
-  if (!pt_.get(kConfigKey_RcRollRight, roll_range_.upper, kPwmMax))
+  if (property_client_.get(kConfigKey_RcPitchUp, pitch_range_.upper) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcRollRight, ".");
-    setToDefaults();
-    return false;
-  }
-
-  if (!pt_.get(kConfigKey_RcPitchDown, pitch_range_.lower, kPwmMax))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcPitchDown, ".");
-    setToDefaults();
-    return false;
-  }
-  if (!pt_.get(kConfigKey_RcPitchUp, pitch_range_.upper, kPwmMin))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcPitchUp, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
 
-  if (!pt_.get(kConfigKey_RcYawRight, yaw_range_.lower, kPwmMax))
+  if (property_client_.get(kConfigKey_RcYawRight, yaw_range_.lower) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcYawRight, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
-  if (!pt_.get(kConfigKey_RcYawLeft, yaw_range_.upper, kPwmMin))
+  if (property_client_.get(kConfigKey_RcYawLeft, yaw_range_.upper) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcYawLeft, ".");
-    setToDefaults();
-    return false;
-  }
-
-  if (!pt_.get(kConfigKey_RcThrottleDown, throttle_range_.lower, kPwmMax))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcThrottleDown, ".");
-    setToDefaults();
-    return false;
-  }
-  if (!pt_.get(kConfigKey_RcThrottleUp, throttle_range_.upper, kPwmMin))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcThrottleUp, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
 
-  if (!pt_.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram], kPwmMin))
+  if (property_client_.get(kConfigKey_RcThrottleDown, throttle_range_.lower) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcModeProgram, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
-  if (!pt_.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize], kPwmMid))
+  if (property_client_.get(kConfigKey_RcThrottleUp, throttle_range_.upper) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcModeStabilize, ".");
-    setToDefaults();
-    return false;
-  }
-  if (!pt_.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat], kPwmMax))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcModeAcrobat, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
 
-  if (!pt_.get(kConfigKey_RcEStopOn, estop_on_, kPwmMin))
+  if (property_client_.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram]) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcEStopOn, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
-  if (!pt_.get(kConfigKey_RcEStopOff, estop_off_, kPwmMax))
+  if (property_client_.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize]) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcEStopOff, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
+    setToDefaults();
+    return false;
+  }
+  if (property_client_.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat]) < 0)
+  {
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
 
-  if (!pt_.get(kConfigKey_RcGPSwOn, gpsw_on_, kPwmMin))
+  if (property_client_.get(kConfigKey_RcEStopOn, estop_on_) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcGPSwOn, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }
-  if (!pt_.get(kConfigKey_RcGPSwOff, gpsw_off_, kPwmMax))
+  if (property_client_.get(kConfigKey_RcEStopOff, estop_off_) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_RcGPSwOff, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
+    setToDefaults();
+    return false;
+  }
+
+  if (property_client_.get(kConfigKey_RcGPSwOn, gpsw_on_) < 0)
+  {
+    TOBAS_ERROR(property_client_.errorMessage());
+    setToDefaults();
+    return false;
+  }
+  if (property_client_.get(kConfigKey_RcGPSwOff, gpsw_off_) < 0)
+  {
+    TOBAS_ERROR(property_client_.errorMessage());
     setToDefaults();
     return false;
   }

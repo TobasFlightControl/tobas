@@ -3,7 +3,7 @@
 #include <map>
 #include <QtWidgets/QtWidgets>
 
-#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_property_tools/property_client.hpp>
 
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/joint_view_model.hpp"
@@ -85,7 +85,8 @@ private:
     std::map<QString, QFrame*> collision_geom;
   } frame_map_;
 
-  tobas_std::PropertyTree pt_;
+  ros::NodeHandle nh_;
+  ptree::PropertyClient property_client_;
 
   void defineConnections();
 

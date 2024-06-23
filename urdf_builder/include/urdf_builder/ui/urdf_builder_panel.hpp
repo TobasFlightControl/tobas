@@ -5,7 +5,7 @@
 #include <QtWidgets/QtWidgets>
 #include <rviz/panel.h>
 
-#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_property_tools/property_client.hpp>
 
 #ifndef Q_MOC_RUN
 #include <urdf/model.h>
@@ -69,7 +69,8 @@ private:
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
 
-  tobas_std::PropertyTree pt_;
+  ros::NodeHandle nh_;
+  ptree::PropertyClient property_client_;
 
   std::string getLastOpenedDir();
   void setLastOpenedDir(const std::string& file_path);

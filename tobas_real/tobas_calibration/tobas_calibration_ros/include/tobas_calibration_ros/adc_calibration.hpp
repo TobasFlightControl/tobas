@@ -2,8 +2,8 @@
 
 #include <ros/ros.h>
 
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_std_tools/rate.hpp>
+#include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_navio_core/adc.hpp>
 #include <tobas_calibration_msgs/AdcCalibration.h>
@@ -30,7 +30,7 @@ public:
 
 private:
   navio::ADC adc_;
-  tobas_std::PropertyTree pt_;
+  ptree::PropertyClient property_client_;
   tobas_std::Rate rate_;
 
   ros::ServiceServer ss_;

@@ -3,8 +3,8 @@
 #include <Eigen/Core>
 #include <ros/ros.h>
 
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_std_tools/rate.hpp>
+#include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_navio_ros/common.hpp>
 #include <tobas_calibration_msgs/AccelCalibration.h>
@@ -29,7 +29,7 @@ public:
 
 private:
   tobas_navio_ros::ImuDevice imu_;
-  tobas_std::PropertyTree pt_;
+  ptree::PropertyClient property_client_;
   tobas_std::Rate rate_;
   std::array<float, kDataCount> ax_, ay_, az_;
 

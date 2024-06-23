@@ -12,7 +12,7 @@ using namespace Eigen;
 namespace tobas_calibration
 {
 MagCalibrationRos::MagCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), pt_(tobas_navio_ros::kConfigPath)
+  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyNamespace)
 {
   if (!imu_.probe())
     TOBAS_EXIT("IMU not enabled.");
@@ -62,6 +62,8 @@ bool MagCalibrationRos::startServiceCb(StartSrvType::Request&, StartSrvType::Res
   collect_data_timer_.start();
 
   res.success = true;
+  res.message = "";
+
   return true;
 }
 
@@ -187,18 +189,72 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
   }
 
   // Configに保存
-  pt_.load();
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseBx, mag_trans_.b_x);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseBy, mag_trans_.b_y);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseBz, mag_trans_.b_z);
-  pt_.put(tobas_navio_ros::kConfigKey_MagEllipseC, mag_trans_.c);
-  pt_.save();
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAxx, mag_trans_.a_xx) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAyy, mag_trans_.a_yy) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAzz, mag_trans_.a_zz) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAxy, mag_trans_.a_xy) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAyz, mag_trans_.a_yz) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAzx, mag_trans_.a_zx) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseBx, mag_trans_.b_x) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseBy, mag_trans_.b_y) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseBz, mag_trans_.b_z) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseC, mag_trans_.c) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.save() < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
 
   // データ収集タイマーを停止
   collect_data_timer_.stop();
@@ -207,6 +263,8 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
   mag_data_.clear();
 
   res.success = true;
+  res.message = "";
+
   return true;
 }
 
@@ -217,6 +275,8 @@ bool MagCalibrationRos::cancelServiceCb(CancelSrvType::Request&, CancelSrvType::
   collect_data_timer_.stop();
 
   res.success = true;
+  res.message = "";
+
   return true;
 }
 }  // namespace tobas_calibration

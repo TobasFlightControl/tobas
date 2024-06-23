@@ -11,7 +11,7 @@ using namespace Eigen;
 namespace tobas_navio_ros
 {
 MagnetometerHandler::MagnetometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), pt_(kConfigPath)
+  : super(nh, pnh, name), property_client_(nh_, kPropertyNamespace)
 {
   PRINT_DEBUG("MagnetometerHandler::MagnetometerHandler");
 
@@ -31,70 +31,63 @@ MagnetometerHandler::MagnetometerHandler(const ros::NodeHandle& nh, const ros::N
 
 bool MagnetometerHandler::reloadConfig()
 {
-  if (!pt_.load())
+  if (property_client_.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx) < 0)
   {
-    TOBAS_ERROR("Failed to load properties.");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-
-  if (!pt_.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.))
+  if (property_client_.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxx, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.))
+  if (property_client_.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyy, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.))
+  if (property_client_.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzz, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.))
+  if (property_client_.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxy, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.))
+  if (property_client_.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyz, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.))
+  if (property_client_.get(kConfigKey_MagEllipseBx, mag_trans_.b_x) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzx, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.))
+  if (property_client_.get(kConfigKey_MagEllipseBy, mag_trans_.b_y) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBx, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.))
+  if (property_client_.get(kConfigKey_MagEllipseBz, mag_trans_.b_z) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBy, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }
-  if (!pt_.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.))
+  if (property_client_.get(kConfigKey_MagEllipseC, mag_trans_.c) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBz, ".");
-    mag_trans_.setIdentity();
-    return false;
-  }
-  if (!pt_.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseC, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     mag_trans_.setIdentity();
     return false;
   }

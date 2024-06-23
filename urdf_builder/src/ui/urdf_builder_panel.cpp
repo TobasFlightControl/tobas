@@ -3,6 +3,7 @@
 #include <rviz/robot/robot_link.h>
 
 #include <tobas_linux/core.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
@@ -26,7 +27,10 @@ namespace urdf_builder
 namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
-  : rviz::Panel(item), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr), pt_(linux::expandUser(kConfigPath))
+  : rviz::Panel(item),
+    ui_(new Ui::URDFBuilderPanelUI()),
+    ogre_ctrl_(nullptr),
+    property_client_(nh_, tobas::kGCSNamespace, kPropertySection)
 {
   ui_->setupUi(this);
 
@@ -322,8 +326,13 @@ void URDFBuilderPanel::LinkDialogChanged()
 
 string URDFBuilderPanel::getLastOpenedDir()
 {
-  pt_.load();
-  return pt_.get(kConfigKey_LastOpenedDir, linux::homeDir());
+  string res;
+  if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
+  {
+    ROS_WARN_STREAM(property_client_.errorMessage());
+    res = linux::homeDir();
+  }
+  return res;
 }
 
 void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
@@ -331,9 +340,16 @@ void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
   boost::filesystem::path p(file_path);
   const auto dir = p.parent_path().string();
 
-  pt_.load();
-  pt_.put(kConfigKey_LastOpenedDir, dir);
-  pt_.save();
+  if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
+  if (property_client_.save() < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
 }
 
 void URDFBuilderPanel::defineConnections()

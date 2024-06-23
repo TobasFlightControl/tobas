@@ -9,7 +9,7 @@ namespace tobas_navio_ros
 // using ImuDevice = navio::MPU9250;
 using ImuDevice = navio::LSM9DS1;
 
-static constexpr char kConfigPath[] = "/etc/tobas/config.ini";
+static constexpr char kPropertyNamespace[] = "/flight_controller";
 
 static constexpr char kConfigKey_AdcCoef[] = "adc_coef";
 

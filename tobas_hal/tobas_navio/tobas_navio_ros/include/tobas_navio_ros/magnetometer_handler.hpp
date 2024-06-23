@@ -3,7 +3,7 @@
 #include <Eigen/Core>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_property_tools/property_client.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 
 #include "./common.hpp"
@@ -19,9 +19,6 @@ class MagnetometerHandler : public BaseSensorNode
   static constexpr double kHpfCutoff = 10.;    // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
   static constexpr size_t kNoiseStatTimeWindow = 1000;  // [ms]
 
-  // Defaults
-  static constexpr double kDefaultMagNoiseDensity = 0.05;  // [/sqrt(Hz)]
-
   using self = MagnetometerHandler;
   using super = BaseSensorNode;
 
@@ -33,7 +30,7 @@ public:
 
 private:
   ImuDevice imu_;
-  tobas_std::PropertyTree pt_;
+  ptree::PropertyClient property_client_;
 
   Eigen::Vector3f mag_;
   std::array<dsp::NoiseVarianceFilter, 3> mag_noise_;

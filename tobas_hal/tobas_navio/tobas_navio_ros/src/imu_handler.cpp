@@ -14,7 +14,7 @@ using namespace Eigen;
 namespace tobas_navio_ros
 {
 ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), pt_(kConfigPath)
+  : super(nh, pnh, name), property_client_(nh_, kPropertyNamespace)
 {
   PRINT_DEBUG("ImuHandler::ImuHandler");
 
@@ -38,28 +38,21 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 bool ImuHandler::reloadConfig()
 {
-  if (!pt_.load())
+  if (property_client_.get(kConfigKey_AccOffsetX, acc_bias_.x()) < 0)
   {
-    TOBAS_ERROR("Failed to load properties.");
+    TOBAS_ERROR(property_client_.errorMessage());
     acc_bias_.setZero();
     return false;
   }
-
-  if (!pt_.get(kConfigKey_AccOffsetX, acc_bias_.x(), 0.0f))
+  if (property_client_.get(kConfigKey_AccOffsetY, acc_bias_.y()) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetX, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     acc_bias_.setZero();
     return false;
   }
-  if (!pt_.get(kConfigKey_AccOffsetY, acc_bias_.y(), 0.0f))
+  if (property_client_.get(kConfigKey_AccOffsetZ, acc_bias_.z()) < 0)
   {
-    TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetY, ".");
-    acc_bias_.setZero();
-    return false;
-  }
-  if (!pt_.get(kConfigKey_AccOffsetZ, acc_bias_.z(), 0.0f))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetZ, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
     acc_bias_.setZero();
     return false;
   }

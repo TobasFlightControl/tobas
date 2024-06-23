@@ -23,12 +23,14 @@ public:
 
   error_t get(const std::string& key, bool& value);
   error_t get(const std::string& key, int& value);
+  error_t get(const std::string& key, float& value);
   error_t get(const std::string& key, double& value);
   error_t get(const std::string& key, std::string& value);
 
-  error_t set(const std::string& key, bool& value);
-  error_t set(const std::string& key, int& value);
-  error_t set(const std::string& key, double& value);
+  error_t set(const std::string& key, const bool& value);
+  error_t set(const std::string& key, const int& value);
+  error_t set(const std::string& key, const float& value);
+  error_t set(const std::string& key, const double& value);
   error_t set(const std::string& key, const std::string& value);
 
   error_t save();

@@ -9,7 +9,7 @@ using namespace std;
 namespace tobas_navio_ros
 {
 BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), pt_(kConfigPath)
+  : super(nh, pnh, name), property_client_(nh_, kPropertyNamespace)
 {
   PRINT_DEBUG("BatteryHandler::BatteryHandler");
 
@@ -27,15 +27,10 @@ BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
 
 bool BatteryHandler::reloadConfig()
 {
-  if (!pt_.load())
+  if (property_client_.get(kConfigKey_AdcCoef, adc_coef_) < 0)
   {
-    TOBAS_ERROR("Failed to load properties.");
-    return false;
-  }
-
-  if (!pt_.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_AdcCoef, ".");
+    TOBAS_ERROR(property_client_.errorMessage());
+    adc_coef_ = kDefaultAdcVoltageCoef;
     return false;
   }
 

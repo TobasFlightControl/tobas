@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_navio_core/rc_input.hpp>
 #include <tobas_navio_ros/common.hpp>
@@ -36,7 +36,7 @@ public:
 
 private:
   navio::RCInput rcin_;
-  tobas_std::PropertyTree pt_;
+  ptree::PropertyClient property_client_;
 
   ros::Timer publish_timer_;
   ros::Publisher rcin_pub_;

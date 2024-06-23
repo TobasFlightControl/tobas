@@ -9,7 +9,7 @@ using namespace std;
 namespace tobas_calibration
 {
 AdcCalibrationRos::AdcCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), pt_(tobas_navio_ros::kConfigPath), rate_(kSamplingRate)
+  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyNamespace), rate_(kSamplingRate)
 {
   if (adc_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize ADC driver.");
@@ -54,11 +54,22 @@ bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
   }
 
   // 設定ファイルに係数を書き込む
-  pt_.load();
-  pt_.put(tobas_navio_ros::kConfigKey_AdcCoef, res.coefficient);
-  pt_.save();
+  if (property_client_.set(tobas_navio_ros::kConfigKey_AdcCoef, res.coefficient) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.save() < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
 
   res.success = true;
+  res.message = "";
+
   return true;
 }
 }  // namespace tobas_calibration
