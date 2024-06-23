@@ -11,6 +11,8 @@ namespace tobas_calibration
 AccelCalibrationRos::AccelCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), pt_(tobas_navio_ros::kConfigPath), rate_(kSamplingRate)
 {
+  if (!imu_.probe())
+    TOBAS_EXIT("IMU not enabled.");
   imu_.initialize();
 
   ss_ = nh_.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
@@ -33,13 +35,6 @@ Vector3f AccelCalibrationRos::readAccel()
 
 bool AccelCalibrationRos::executeCb(SrvType::Request&, SrvType::Response& res)
 {
-  if (!imu_.probe())
-  {
-    res.success = false;
-    res.message = "IMU not enabled.";
-    return true;
-  }
-
   // TODO: 6面分取得して最小二乗法で同時変換行列を推定
   // https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/commander/accelerometer_calibration.cpp
 

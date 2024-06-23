@@ -22,6 +22,7 @@
 
 	<!-- Others -->
 	<exec_depend>ardupilot_dynamic_configuration</exec_depend>
+	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_examples</exec_depend>

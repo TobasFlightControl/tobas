@@ -12,6 +12,14 @@ EllipseTransformer::EllipseTransformer()
 {
 }
 
+void EllipseTransformer::setIdentity()
+{
+  a_xx = a_yy = a_zz = 1;
+  a_xy = a_yz = a_zx = 0;
+  b_x = b_y = b_z = 0;
+  c = -1;
+}
+
 bool EllipseTransformer::initialize()
 {
   // 楕円の方程式: x^T A x + b^T x + c = 0

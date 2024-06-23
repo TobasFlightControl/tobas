@@ -3,6 +3,7 @@
 #include <std_srvs/Trigger.h>
 
 #include <tobas_std_tools/range.hpp>
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_navio_core/rc_input.hpp>
 
@@ -25,6 +26,7 @@ public:
 
 private:
   navio::RCInput rcin_;
+  tobas_std::PropertyTree pt_;
 
   // Config
   tobas_std::Range<double> roll_range_;

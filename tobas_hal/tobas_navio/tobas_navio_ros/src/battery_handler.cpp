@@ -1,4 +1,3 @@
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Battery.h>
 
@@ -10,14 +9,14 @@ using namespace std;
 namespace tobas_navio_ros
 {
 BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+  : super(nh, pnh, name), pt_(kConfigPath)
 {
   PRINT_DEBUG("BatteryHandler::BatteryHandler");
 
-  reloadConfig();
-
   if (adc_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize ADC driver.");
+
+  reloadConfig();
 
   battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
@@ -28,9 +27,9 @@ BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
 
 bool BatteryHandler::reloadConfig()
 {
-  tobas_std::PropertyTree pt(kConfigPath);
+  pt_.load();
 
-  if (!pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef))
+  if (!pt_.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_AdcCoef, ".");
     return false;

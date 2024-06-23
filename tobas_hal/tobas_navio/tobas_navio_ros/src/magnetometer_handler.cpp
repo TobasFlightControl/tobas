@@ -1,5 +1,4 @@
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/MagneticField.h>
@@ -12,15 +11,16 @@ using namespace Eigen;
 namespace tobas_navio_ros
 {
 MagnetometerHandler::MagnetometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+  : super(nh, pnh, name), pt_(kConfigPath)
 {
   PRINT_DEBUG("MagnetometerHandler::MagnetometerHandler");
 
-  reloadConfig();
-
-  imu_.initialize();
   if (!imu_.probe())
     TOBAS_EXIT("IMU not enabled.");
+  imu_.initialize();
+
+  reloadConfig();
+  initializeNoiseFilter();
 
   mag_pub_ = nh_.advertise<tobas_msgs::MagneticField>(tobas::kMagTopic, 1);
   reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
@@ -32,68 +32,67 @@ MagnetometerHandler::MagnetometerHandler(const ros::NodeHandle& nh, const ros::N
 bool MagnetometerHandler::reloadConfig()
 {
   // 設定が取得できなかった場合でも最低限初期化しないとまずいため，途中でリターンせず返り値を保持しておく．
-  tobas_std::PropertyTree pt(kConfigPath);
-
   bool res = true;
 
-  if (!pt.get(kConfigKey_MagNoiseDensity, mag_noise_density_, kDefaultMagNoiseDensity))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_MagNoiseDensity, ".");
-    res = false;
-  }
+  pt_.load();
 
-  if (!pt.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.))
+  if (!pt_.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxx, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.))
+  if (!pt_.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyy, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.))
+  if (!pt_.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzz, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.))
+  if (!pt_.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxy, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.))
+  if (!pt_.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyz, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.))
+  if (!pt_.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzx, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.))
+  if (!pt_.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBx, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.))
+  if (!pt_.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBy, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.))
+  if (!pt_.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBz, ".");
     res = false;
   }
-  if (!pt.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.))
+  if (!pt_.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseC, ".");
     res = false;
   }
 
-  mag_var_ = math::sqr(mag_noise_density_) * kSamplingRate;  // TODO: スケーリング
+  // 設定が得られなければ単位球にする
+  if (!res)
+  {
+    TOBAS_WARN("The ellipse transformer is set to identity.");
+    mag_trans_.setIdentity();
+  }
 
   if (!mag_trans_.initialize())
   {
@@ -102,6 +101,16 @@ bool MagnetometerHandler::reloadConfig()
   }
 
   return res;
+}
+
+void MagnetometerHandler::initializeNoiseFilter()
+{
+  imu_.updateMagnetometer();
+  imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
+
+  constexpr size_t window_size = kSamplingRate * kNoiseStatTimeWindow / 1000;
+  for (size_t i = 0; i < 3; ++i)
+    mag_noise_[i].initialize(window_size, kHpfCutoff, mag_(i));
 }
 
 bool MagnetometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
@@ -125,6 +134,11 @@ void MagnetometerHandler::mainTimerCb(const ros::TimerEvent& event)
   // Read IMU
   imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
 
+  // Update noise filter
+  const auto dt = (event.current_real - event.last_real).toSec();
+  for (size_t i = 0; i < 3; ++i)
+    mag_noise_[i].update(mag_(i), dt);
+
   // Create messages
   const auto mag_msg = boost::make_shared<tobas_msgs::MagneticField>();
 
@@ -132,7 +146,9 @@ void MagnetometerHandler::mainTimerCb(const ros::TimerEvent& event)
   mag_msg->header.stamp = event.current_real;
 
   // Fill covariance matrices
-  mag_msg->covariance = Vector3d::Constant(mag_var_).asDiagonal();
+  mag_msg->covariance.setZero();
+  for (size_t i = 0; i < 3; ++i)
+    mag_msg->covariance(i, i) = mag_noise_[i].noiseVariance();
 
   // Fill data (Convert to NWU coordinate system)
   const auto mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影

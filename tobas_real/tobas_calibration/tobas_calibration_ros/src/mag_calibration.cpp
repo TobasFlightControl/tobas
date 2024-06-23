@@ -14,6 +14,8 @@ namespace tobas_calibration
 MagCalibrationRos::MagCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), pt_(tobas_navio_ros::kConfigPath)
 {
+  if (!imu_.probe())
+    TOBAS_EXIT("IMU not enabled.");
   imu_.initialize();
 
   collect_data_timer_ = nh_.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
@@ -55,13 +57,6 @@ void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent& event)
 
 bool MagCalibrationRos::startServiceCb(StartSrvType::Request&, StartSrvType::Response& res)
 {
-  if (!imu_.probe())
-  {
-    res.success = false;
-    res.message = "IMU not enabled.";
-    return true;
-  }
-
   // 既にデータ収集が始まっている場合も再スタートする
   mag_data_.clear();
   collect_data_timer_.start();

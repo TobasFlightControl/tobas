@@ -3,7 +3,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_navio_ros/barometer_handler.hpp"
@@ -18,44 +17,25 @@ BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHan
 {
   PRINT_DEBUG("BarometerHandler::BarometerHandler");
 
-  reloadConfig();
-
   barometer_.initialize();
   if (!barometer_.testConnection())
     TOBAS_EXIT("Barometer test failed.");
 
-  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
+  initializeNoiseFilter();
 
-  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 
   PRINT_DEBUG("/BarometerHandler::BarometerHandler");
 }
 
-bool BarometerHandler::reloadConfig()
+void BarometerHandler::initializeNoiseFilter()
 {
-  tobas_std::PropertyTree pt(kConfigPath);
+  barometer_.update();
+  const auto pressure = barometer_.getPressure();
 
-  if (!pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_, kDefaultPressureNoiseDensity))
-  {
-    TOBAS_ERROR("Failed to get ", kConfigKey_PressureNoiseDensity, ".");
-    return false;
-  }
-
-  return true;
-}
-
-bool BarometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
-{
-  if (!reloadConfig())
-  {
-    res.success = false;
-    res.message = "Failed to reload configurations.";
-    return true;
-  }
-
-  res.success = true;
-  return true;
+  constexpr size_t window_size = kSamplingRate * kNoiseStatTimeWindow / 1000;
+  pressure_noise_.initialize(window_size, kHpfCutoff, pressure);
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
@@ -71,11 +51,15 @@ void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
     return;
   }
 
+  // Update noise filter
+  const auto dt = (event.current_real - event.last_real).toSec();
+  pressure_noise_.update(pressure, dt);
+
   // メッセージを作成
   const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
   bar_msg->header.stamp = event.current_real;
   bar_msg->fluid_pressure = pressure;
-  bar_msg->variance = math::sqr(pressure_noise_density_) * kSamplingRate;  // [Pa^2]
+  bar_msg->variance = pressure_noise_.noiseVariance();
 
   // メッセージを発行
   bar_pub_.publish(bar_msg);

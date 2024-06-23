@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	tobas_navio_core
+	tobas_dsp
 	nodelet
 	pluginlib
 )
@@ -21,7 +22,12 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_tools tobas_navio_core nodelet pluginlib
+	CATKIN_DEPENDS
+		tobas_tools
+		tobas_navio_core
+		tobas_dsp
+		nodelet
+		pluginlib
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

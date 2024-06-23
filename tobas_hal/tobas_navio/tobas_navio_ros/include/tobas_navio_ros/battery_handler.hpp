@@ -2,6 +2,7 @@
 
 #include <std_srvs/Trigger.h>
 
+#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_navio_core/adc.hpp>
 
 #include "./base_sensor_node.hpp"
@@ -28,6 +29,7 @@ public:
 
 private:
   navio::ADC adc_;
+  tobas_std::PropertyTree pt_;
 
   // Config
   double adc_coef_;

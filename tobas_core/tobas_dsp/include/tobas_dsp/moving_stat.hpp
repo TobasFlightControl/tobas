@@ -14,8 +14,8 @@ public:
   void initialize(const std::vector<double>& data);
   void add(double x);
 
-  inline double mean();
-  inline double variance();
+  inline double mean() const;
+  inline double variance() const;
 
 private:
   size_t size_;
@@ -24,12 +24,12 @@ private:
   double v_;  // Variance
 };
 
-inline double MovingStatistics::mean()
+inline double MovingStatistics::mean() const
 {
   return m_;
 }
 
-inline double MovingStatistics::variance()
+inline double MovingStatistics::variance() const
 {
   return v_;
 }

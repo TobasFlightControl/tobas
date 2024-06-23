@@ -13,11 +13,6 @@ static constexpr char kConfigPath[] = "/etc/tobas/config.ini";
 
 static constexpr char kConfigKey_AdcCoef[] = "adc_coef";
 
-static constexpr char kConfigKey_AccNoiseDensity[] = "acc_noise_density";
-static constexpr char kConfigKey_GyroNoiseDensity[] = "gyro_noise_density";
-static constexpr char kConfigKey_MagNoiseDensity[] = "mag_noise_density";
-static constexpr char kConfigKey_PressureNoiseDensity[] = "pressure_noise_density";
-
 static constexpr char kConfigKey_AccOffsetX[] = "acc_offset/x";
 static constexpr char kConfigKey_AccOffsetY[] = "acc_offset/y";
 static constexpr char kConfigKey_AccOffsetZ[] = "acc_offset/z";
