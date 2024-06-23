@@ -41,6 +41,7 @@ private:
   ros::Publisher rcin_pub_;
   ros::ServiceServer reload_config_srv_;
 
+  void setToDefaults();
   bool reloadConfig();
 
   bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);

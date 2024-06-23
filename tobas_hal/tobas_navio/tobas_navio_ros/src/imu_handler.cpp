@@ -38,34 +38,33 @@ ImuHandler::ImuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
 bool ImuHandler::reloadConfig()
 {
-  // 設定が取得できなかった場合でも最低限初期化しないとまずいため，途中でリターンせず返り値を保持しておく．
-  bool res = true;
-
-  pt_.load();
+  if (!pt_.load())
+  {
+    TOBAS_ERROR("Failed to load properties.");
+    acc_bias_.setZero();
+    return false;
+  }
 
   if (!pt_.get(kConfigKey_AccOffsetX, acc_bias_.x(), 0.0f))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetX, ".");
-    res = false;
+    acc_bias_.setZero();
+    return false;
   }
   if (!pt_.get(kConfigKey_AccOffsetY, acc_bias_.y(), 0.0f))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetY, ".");
-    res = false;
+    acc_bias_.setZero();
+    return false;
   }
   if (!pt_.get(kConfigKey_AccOffsetZ, acc_bias_.z(), 0.0f))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_AccOffsetZ, ".");
-    res = false;
-  }
-
-  if (!res)
-  {
-    TOBAS_WARN("Accel bias is set to zero.");
     acc_bias_.setZero();
+    return false;
   }
 
-  return res;
+  return true;
 }
 
 bool ImuHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)

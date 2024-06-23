@@ -31,76 +31,82 @@ MagnetometerHandler::MagnetometerHandler(const ros::NodeHandle& nh, const ros::N
 
 bool MagnetometerHandler::reloadConfig()
 {
-  // 設定が取得できなかった場合でも最低限初期化しないとまずいため，途中でリターンせず返り値を保持しておく．
-  bool res = true;
-
-  pt_.load();
+  if (!pt_.load())
+  {
+    TOBAS_ERROR("Failed to load properties.");
+    mag_trans_.setIdentity();
+    return false;
+  }
 
   if (!pt_.get(kConfigKey_MagEllipseAxx, mag_trans_.a_xx, 1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxx, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseAyy, mag_trans_.a_yy, 1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyy, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseAzz, mag_trans_.a_zz, 1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzz, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseAxy, mag_trans_.a_xy, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAxy, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseAyz, mag_trans_.a_yz, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAyz, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseAzx, mag_trans_.a_zx, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseAzx, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseBx, mag_trans_.b_x, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBx, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseBy, mag_trans_.b_y, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBy, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseBz, mag_trans_.b_z, 0.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseBz, ".");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
   if (!pt_.get(kConfigKey_MagEllipseC, mag_trans_.c, -1.))
   {
     TOBAS_ERROR("Failed to get ", kConfigKey_MagEllipseC, ".");
-    res = false;
-  }
-
-  // 設定が得られなければ単位球にする
-  if (!res)
-  {
-    TOBAS_WARN("The ellipse transformer is set to identity.");
     mag_trans_.setIdentity();
+    return false;
   }
 
   if (!mag_trans_.initialize())
   {
     TOBAS_ERROR("Failed to initialize ellipse transformer.");
-    res = false;
+    mag_trans_.setIdentity();
+    return false;
   }
 
-  return res;
+  return true;
 }
 
 void MagnetometerHandler::initializeNoiseFilter()

@@ -12,7 +12,13 @@ int main()
 {
   // Get ADC coefficient
   tobas_std::PropertyTree pt(tobas_navio_ros::kConfigPath);
-  const double adc_coef = pt.get<double>(tobas_navio_ros::kConfigKey_AdcCoef);
+  if (pt.load())
+  {
+    cerr << "Failed to load properties."<<endl;
+    return EXIT_FAILURE;
+  }
+
+  const auto adc_coef = pt.get<double>(tobas_navio_ros::kConfigKey_AdcCoef);
 
   // Initialize ADC driver
   navio::ADC adc;
@@ -31,4 +37,6 @@ int main()
 
     sleep(1);
   }
+
+  return EXIT_SUCCESS;
 }

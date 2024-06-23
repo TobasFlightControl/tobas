@@ -27,7 +27,11 @@ BatteryHandler::BatteryHandler(const ros::NodeHandle& nh, const ros::NodeHandle&
 
 bool BatteryHandler::reloadConfig()
 {
-  pt_.load();
+  if (!pt_.load())
+  {
+    TOBAS_ERROR("Failed to load properties.");
+    return false;
+  }
 
   if (!pt_.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef))
   {

@@ -18,6 +18,8 @@ void EllipseTransformer::setIdentity()
   a_xy = a_yz = a_zx = 0;
   b_x = b_y = b_z = 0;
   c = -1;
+
+  initialize();
 }
 
 bool EllipseTransformer::initialize()

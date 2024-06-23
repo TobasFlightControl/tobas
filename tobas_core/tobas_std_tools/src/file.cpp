@@ -20,7 +20,7 @@ bool isWritable(const string& file_path)
   return ofs.good();
 }
 
-void createFile(const string& file_path)
+bool createFilePath(const string& file_path)
 {
   // ファイルのパスからディレクトリ部分のみを取得
   const auto dir_path = filesystem::path(file_path).parent_path();
@@ -28,11 +28,13 @@ void createFile(const string& file_path)
   // ディレクトリが存在しなければ作成
   if (!filesystem::is_directory(dir_path))
     if (!filesystem::create_directories(dir_path))
-      throw runtime_error("Failed to create directory " + dir_path.string());
+      return false;
 
   // 空のファイルを作成
   const ofstream file(file_path);
   if (!file)
-    throw runtime_error("Failed to create file " + file_path);
+    return false;
+
+  return true;
 }
 }  // namespace tobas_std

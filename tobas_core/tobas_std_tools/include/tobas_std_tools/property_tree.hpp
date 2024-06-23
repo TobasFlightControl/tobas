@@ -11,8 +11,8 @@ class PropertyTree
 public:
   explicit PropertyTree(const std::string& ini_path, const std::string& section = "DEFAULT");
 
-  void load();
-  void save();
+  bool load();
+  bool save();
 
   const std::string& configPath() const;
 

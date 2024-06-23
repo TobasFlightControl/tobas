@@ -16,6 +16,8 @@ public:
   inline explicit Range(const T& lower, const T& upper);
   inline explicit Range();
 
+  inline void set(const T& lower, const T& upper);
+
   inline bool isValid() const;
   inline bool inRange(const T& x, const T& margin = 0) const;
 
@@ -46,6 +48,13 @@ inline Range<T>::Range(const T& lower, const T& upper) : lower(lower), upper(upp
 template <typename T>
 inline Range<T>::Range() : lower(0), upper(0)
 {
+}
+
+template <typename T>
+inline void Range<T>::set(const T& _lower, const T& _upper)
+{
+  lower = _lower;
+  upper = _upper;
 }
 
 template <typename T>
