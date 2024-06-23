@@ -13,7 +13,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_msgs
-	tobas_constants
 	tobas_ros_tools
 	tobas_kdl
 	tobas_linear_control
@@ -24,7 +23,6 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS
 		tobas_msgs
-		tobas_constants
 		tobas_ros_tools
 		tobas_kdl
 		tobas_linear_control
