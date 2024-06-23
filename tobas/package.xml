@@ -17,6 +17,7 @@
 	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_mission_commands</exec_depend>
 	<exec_depend>tobas_observers</exec_depend>
+	<exec_depend>tobas_property</exec_depend>
 	<exec_depend>tobas_real</exec_depend>
 	<exec_depend>tobas_teleoperations</exec_depend>
 
