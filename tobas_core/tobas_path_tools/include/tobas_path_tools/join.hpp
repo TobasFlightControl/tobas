@@ -4,23 +4,29 @@
 
 namespace path
 {
+/* Same as os.path.join() from Python. */
 template <typename T>
 std::string join(const T& x)
 {
   return x;
 }
 
+/* Same as os.path.join() from Python. */
 template <typename T, typename U>
-std::string join(const T& x, const U& y)
+std::string join(const T& _x, const U& _y)
 {
-  std::string res = x;
-  const std::string& next = y;
-  if (!res.empty() && res.back() != '/' && !next.empty() && next.front() != '/')
-    res += '/';
-  res += next;
-  return res;
+  std::string x = _x;
+  std::string y = _y;
+
+  if (y.starts_with('/'))
+    return y;
+  else if (x.empty() || x.ends_with('/'))
+    return x + y;
+  else
+    return x + '/' + y;
 }
 
+/* Same as os.path.join() from Python. */
 template <typename T, typename U, typename... Args>
 std::string join(const T& x, const U& y, const Args&... args)
 {
