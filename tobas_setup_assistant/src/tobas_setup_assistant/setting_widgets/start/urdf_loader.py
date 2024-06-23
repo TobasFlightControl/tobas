@@ -6,27 +6,28 @@ if TYPE_CHECKING:
 
 import os
 import os.path as osp
+import rospy
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import GCS_NAMESPACE
 
 from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 
 
 class URDFLoaderWidget(Widget):
-    KEY = "last_opened_dir/urdf_loader"
+    LAST_OPENED_DIR_KEY = "last_opened_dir/urdf_loader"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
 
-        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
+        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -56,8 +57,10 @@ class URDFLoaderWidget(Widget):
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        self._config.read()  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(self.KEY, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         # URDFのパスを取得
         options = QFileDialog.Options()
@@ -74,9 +77,10 @@ class URDFLoaderWidget(Widget):
         self._file_text.setText(file_path)
 
         # ユーザが開いたディレクトリを保存
-        # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config.set(self.KEY, osp.dirname(file_path))
-        self._config.write()
+        if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
+            q_error(self._property_client.error_message())
+        if self._property_client.save() < 0:
+            q_error(self._property_client.error_message())
 
         # robot_descriptionをrosparamに登録
         os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path

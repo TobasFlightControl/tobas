@@ -5,15 +5,16 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 import os.path as osp
+import rospy
 from overrides import override
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QPushButton, QFileDialog, QHBoxLayout
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import GCS_NAMESPACE
 
 from ...common import TITLE, PKG_NAME
 from .common import STABILITY_COEF_DECIMALS
@@ -25,10 +26,12 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
 
     BTN_HEIGHT = 30
     BTN_WIDTH = 150
-    LAST_OPENED_DIR = "aerodynamics/last_opened_dir"
+    LAST_OPENED_DIR_KEY = "aerodynamics/last_opened_dir"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
+
+        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
 
         cols = QHBoxLayout()
         self._rows.addLayout(cols)
@@ -240,9 +243,10 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
-        config.read()  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = config.get(self.LAST_OPENED_DIR, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         # paramsのパスを取得
         options = QFileDialog.Options()
@@ -256,9 +260,10 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
             return
 
         # ユーザが開いたディレクトリを保存
-        # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        config.set(self.LAST_OPENED_DIR, osp.dirname(file_path))
-        config.write()
+        if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
+            q_error(self._property_client.error_message())
+        if self._property_client.save() < 0:
+            q_error(self._property_client.error_message())
 
         # パラメータを読み込む
         self._load_params(file_path)

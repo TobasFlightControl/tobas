@@ -1,14 +1,15 @@
 import os.path as osp
 import pandas as pd
+import rospy
 from overrides import override
 from typing import List, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QFileDialog, QHBoxLayout
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import GCS_NAMESPACE
 
 from .base import ParamGetterWidget
 from ..common import TITLE, PKG_NAME
@@ -26,8 +27,8 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用
-        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
-        self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
+        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._last_opened_dir_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
 
         self._labels = labels
         self._num_entry = len(labels)
@@ -195,8 +196,10 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
         q_info(self.parent(), "Data is loaded successfully.")
 
     def _get_csv_file_path(self) -> str:
-        self._config.read()
-        last_opened_dir = self._config.get(self._path_key, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self._last_opened_dir_key)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -204,8 +207,10 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
 
         # 最後に開かれたパスを保存
         if file_path != "":
-            self._config.set(self._path_key, osp.dirname(file_path))
-            self._config.write()
+            if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(file_path)) < 0:
+                q_error(self._property_client.error_message())
+            if self._property_client.save() < 0:
+                q_error(self._property_client.error_message())
 
         return file_path
 

@@ -13,7 +13,7 @@ class PropertyClient:
     E_FAILED_TO_CALL = -2
     E_SERVER_ERROR = -3
 
-    WAIT_FOR_SERVICE = 1.0  # [s]
+    WAIT_FOR_SERVICE = 3.0  # [s]
 
     def __init__(self, ns: str, section: str) -> None:
         self._ns = ns

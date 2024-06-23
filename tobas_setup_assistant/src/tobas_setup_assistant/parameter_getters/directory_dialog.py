@@ -1,11 +1,13 @@
 import os.path as osp
+import rospy
 from overrides import override
 from typing import Optional
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QFileDialog, QHBoxLayout
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_property_tools_py.property_client import PropertyClient
+from tobas_rqt_tools.messages import q_error
+from tobas_tools_py.constants import GCS_NAMESPACE
 
 from .base import ParamGetterWidget
 from ..common import TITLE, PKG_NAME
@@ -18,8 +20,8 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget[str]):
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用
-        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
-        self._key = f'last_opened_dir/dir_dialog/{param_name.lower().replace(" ", "_")}'
+        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._last_opened_dir_key = f'last_opened_dir/dir_dialog/{param_name.lower().replace(" ", "_")}'
 
         self._options = QFileDialog.Options()
         self._options |= QFileDialog.DontUseNativeDialog
@@ -54,8 +56,10 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget[str]):
 
     @pyqtSlot()
     def _on_browse_button_clicked(self) -> None:
-        self._config.read()
-        last_opened_dir = self._config.get(self._key, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self._last_opened_dir_key)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, self._options)
         if not path:  # Cancelの場合
@@ -63,5 +67,7 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget[str]):
 
         self._path.setText(path)
 
-        self._config.set(self._key, osp.dirname(path))
-        self._config.write()
+        if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(path)) < 0:
+            q_error(self._property_client.error_message())
+        if self._property_client.save() < 0:
+            q_error(self._property_client.error_message())

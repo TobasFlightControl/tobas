@@ -7,15 +7,16 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import yaml
+import rospy
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
-from tobas_tools_py.constants import CONFIG_PATH, PKG_EXTENSION
+from tobas_tools_py.constants import GCS_NAMESPACE, PKG_EXTENSION
 from tobas_tools_py.package import get_urdf_path, get_settings_path
 from tobas_tools_py.command import source_tobas_package
 
@@ -23,13 +24,13 @@ from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 
 
 class PackageLoaderWidget(Widget):
-    KEY = "last_opened_dir/package_loader"
+    LAST_OPENED_DIR_KEY = "last_opened_dir/package_loader"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
 
-        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
+        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -59,39 +60,42 @@ class PackageLoaderWidget(Widget):
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        self._config.read()  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(self.KEY, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         # Tobasパッケージのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         options |= QFileDialog.ShowDirsOnly
         options |= QFileDialog.DontResolveSymlinks
-        pkg_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
-        assert not pkg_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
+        tbs_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
+        assert not tbs_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-        if pkg_path == "":
+        if tbs_path == "":
             return
 
         # 拡張子をチェック
-        if not pkg_path.endswith(PKG_EXTENSION):
-            q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
+        if not tbs_path.endswith(PKG_EXTENSION):
+            q_error(self._main, f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
             return
 
         # パスをテキストに設定
-        self._file_text.setText(pkg_path)
+        self._file_text.setText(tbs_path)
 
         # ユーザが開いたディレクトリを保存
-        # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config.set(self.KEY, osp.dirname(pkg_path))
-        self._config.write()
+        if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(tbs_path)) < 0:
+            q_error(self._property_client.error_message())
+        if self._property_client.save() < 0:
+            q_error(self._property_client.error_message())
 
         # Tobasパッケージのパスを追加する
-        source_tobas_package(pkg_path)
+        source_tobas_package(tbs_path)
 
         # robot_descriptionをrosparamに登録
-        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = f"{get_urdf_path(pkg_path)} DEBUG:=false"
+        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = f"{get_urdf_path(tbs_path)} DEBUG:=false"
         process = launch(PKG_NAME, "description.launch")
         _, stderr = process.communicate()
         if process.returncode != 0:
@@ -107,7 +111,7 @@ class PackageLoaderWidget(Widget):
         self._main.update_internal_data_structures()
 
         # ユーザ設定を読み込む
-        settings_path = get_settings_path(pkg_path)
+        settings_path = get_settings_path(tbs_path)
         with open(settings_path, "r") as f:
             settings = yaml.safe_load(f)
         if not self._main.load_settings(settings):

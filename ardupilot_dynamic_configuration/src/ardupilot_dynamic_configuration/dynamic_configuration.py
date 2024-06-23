@@ -9,11 +9,11 @@ from PyQt5.QtWidgets import QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBox
 from geometry_msgs.msg import PoseStamped
 from mavros_msgs.srv import ParamSet, ParamSetRequest, ParamSetResponse
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget, ScrollArea
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import GCS_NAMESPACE
 
 from .common import TITLE, PKG_NAME, PARAM_SET_SRV_NAME, FLOAT_DECIMALS, WAIT_FOR_SERVER
 from .param_holders import IntParam, FloatParam
@@ -21,13 +21,13 @@ from .param_holders import IntParam, FloatParam
 
 class DynamicConfigurationWidget(Widget):
     BUTTON_HEIGHT = 30
-    LAST_OPENED_DIR = "last_opened_dir"
+    LAST_OPENED_DIR_KEY = "last_opened_dir"
     SECTIONS = ["ATC", "PSC"]
 
     def __init__(self) -> None:
         super().__init__()
 
-        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
+        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -168,8 +168,10 @@ class DynamicConfigurationWidget(Widget):
             return
 
         # 前回開いたパスを取得
-        self._config.read()  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(self.LAST_OPENED_DIR, osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         # paramsのパスを取得
         options = QFileDialog.Options()
@@ -183,9 +185,10 @@ class DynamicConfigurationWidget(Widget):
             return
 
         # ユーザが開いたディレクトリを保存
-        # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config.set(self.LAST_OPENED_DIR, osp.dirname(file_path))
-        self._config.write()
+        if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
+            q_error(self._property_client.error_message())
+        if self._property_client.save() < 0:
+            q_error(self._property_client.error_message())
 
         # フォームと辞書を初期化
         self._form.clear()
@@ -197,8 +200,10 @@ class DynamicConfigurationWidget(Widget):
     @pyqtSlot()
     def _on_save_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        self._config.read()  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(self.LAST_OPENED_DIR, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         # paramsのパスを取得
         options = QFileDialog.Options()
@@ -212,9 +217,10 @@ class DynamicConfigurationWidget(Widget):
             return
 
         # ユーザが開いたディレクトリを保存
-        # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config.set(self.LAST_OPENED_DIR, osp.dirname(file_path))
-        self._config.write()
+        if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
+            q_error(self._property_client.error_message())
+        if self._property_client.save() < 0:
+            q_error(self._property_client.error_message())
 
         # TSVファイルを保存
         try:

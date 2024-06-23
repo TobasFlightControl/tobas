@@ -3,7 +3,7 @@ MIN_PWM = 1000
 MAX_PWM = 2000
 ARM_THROTTLE = 0.1
 
-CONFIG_PATH = "~/.config/tobas/config.ini"
+GCS_NAMESPACE = "/ground_control_station"
 PKG_EXTENSION = ".TBS"
 CONTROLLER_NODE_NAME = "controller"
 OBSERVER_NODE_NAME = "observer"

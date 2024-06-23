@@ -9,10 +9,9 @@ from PyQt5.QtWidgets import QApplication
 from tobas_rospy.utils import init_node
 from tobas_rqt_tools.widgets import MainWidget
 from tobas_rqt_tools.utils import handle_unexpected_exception
-from tobas_tools_py.constants import CONFIG_PATH
 
 from ardupilot_dynamic_configuration.dynamic_configuration import DynamicConfigurationWidget
-from ardupilot_dynamic_configuration.common import *
+from ardupilot_dynamic_configuration.common import TITLE, PKG_NAME
 
 
 if __name__ == "__main__":
@@ -20,8 +19,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     main_widget = MainWidget(
-        CONFIG_PATH,
-        PKG_NAME,
         TITLE,
         osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
         DynamicConfigurationWidget(),
