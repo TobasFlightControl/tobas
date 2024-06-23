@@ -1,6 +1,8 @@
+#pragma once
+
 #include <string>
 
-namespace tobas_std
+namespace path
 {
 /* ファイルが読み取り可能な場合にtrueを返す． */
 bool isReadable(const std::string& file_path);
@@ -10,4 +12,4 @@ bool isWritable(const std::string& file_path);
 
 /* ファイル及び中間パスを作成する． */
 bool createFilePath(const std::string& file_path);
-}  // namespace tobas_std
+}  // namespace path

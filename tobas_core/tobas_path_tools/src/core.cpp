@@ -1,11 +1,11 @@
 #include <filesystem>
 #include <fstream>
 
-#include "../include/tobas_std_tools/file.hpp"
+#include "../include/tobas_path_tools/core.hpp"
 
 using namespace std;
 
-namespace tobas_std
+namespace path
 {
 bool isReadable(const string& file_path)
 {
@@ -37,4 +37,4 @@ bool createFilePath(const string& file_path)
 
   return true;
 }
-}  // namespace tobas_std
+}  // namespace path

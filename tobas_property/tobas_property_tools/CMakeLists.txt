@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_property_msgs
 	tobas_tools
+	tobas_path_tools
 )
 
 # catkin_python_setup()
@@ -35,7 +36,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_property_msgs tobas_tools
+	CATKIN_DEPENDS tobas_property_msgs tobas_tools tobas_path_tools
 # 	DEPENDS
 )
 
