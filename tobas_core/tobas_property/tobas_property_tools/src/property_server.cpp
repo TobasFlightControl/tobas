@@ -19,12 +19,6 @@ PropertyServer::PropertyServer(ros::NodeHandle& nh, ros::NodeHandle& pnh)
     nh.shutdown();
     return;
   }
-  if (!ini_path_.ends_with(".ini"))
-  {
-    ROS_FATAL_STREAM("\"" << kIniPathParam << "\" must end with \".ini\". Exiting...");
-    nh.shutdown();
-    return;
-  }
   ini_path_ = linux::expandUser(ini_path_);
 
   if (filesystem::exists(ini_path_))
