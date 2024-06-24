@@ -261,9 +261,9 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
-            q_error(self._property_client.error_message())
+            rospy.logerr(self._property_client.error_message())
         if self._property_client.save() < 0:
-            q_error(self._property_client.error_message())
+            rospy.logerr(self._property_client.error_message())
 
         # パラメータを読み込む
         self._load_params(file_path)

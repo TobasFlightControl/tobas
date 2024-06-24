@@ -58,6 +58,7 @@ PropertyServer::PropertyServer(ros::NodeHandle& nh, ros::NodeHandle& pnh)
   set_int_ss_ = nh.advertiseService(prefix + kSetIntSrv, &self::setCb<SetIntRequest, SetIntResponse>, this);
   set_double_ss_ = nh.advertiseService(prefix + kSetDoubleSrv, &self::setCb<SetDoubleRequest, SetDoubleResponse>, this);
   set_string_ss_ = nh.advertiseService(prefix + kSetStringSrv, &self::setCb<SetStringRequest, SetStringResponse>, this);
+  save_file_ss_ = nh.advertiseService(prefix + kSaveFileSrv, &self::saveFileCb, this);
 }
 
 bool PropertyServer::saveFileCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)

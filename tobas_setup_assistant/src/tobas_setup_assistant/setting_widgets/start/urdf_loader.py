@@ -78,9 +78,9 @@ class URDFLoaderWidget(Widget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
-            q_error(self._property_client.error_message())
+            rospy.logerr(self._property_client.error_message())
         if self._property_client.save() < 0:
-            q_error(self._property_client.error_message())
+            rospy.logerr(self._property_client.error_message())
 
         # robot_descriptionをrosparamに登録
         os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path

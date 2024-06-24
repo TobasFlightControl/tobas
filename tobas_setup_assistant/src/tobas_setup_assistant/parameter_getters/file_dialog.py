@@ -6,7 +6,6 @@ from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QFileDialog, QHBoxLayout
 
 from tobas_property_tools_py.property_client import PropertyClient
-from tobas_rqt_tools.messages import q_error
 from tobas_tools_py.constants import PROPERTY_SERVER_GCS
 
 from .base import ParamGetterWidget
@@ -73,6 +72,6 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget[str]):
         self._path.setText(path)
 
         if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(path)) < 0:
-            q_error(self._property_client.error_message())
+            rospy.logerr(self._property_client.error_message())
         if self._property_client.save() < 0:
-            q_error(self._property_client.error_message())
+            rospy.logerr(self._property_client.error_message())

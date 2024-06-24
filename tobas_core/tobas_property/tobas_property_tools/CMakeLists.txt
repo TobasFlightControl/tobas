@@ -28,7 +28,7 @@ include_directories(${catkin_INCLUDE_DIRS} include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} stdc++fs)
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 set(targets_to_install "")
@@ -36,8 +36,7 @@ foreach(FILE IN LISTS EXE_FILES)
 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
 	add_executable(${NODE_NAME} ${FILE})
 	list(APPEND targets_to_install ${NODE_NAME})
-	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME}
-)
+	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME} stdc++fs)
 endforeach()
 
 install(TARGETS ${PROJECT_NAME}

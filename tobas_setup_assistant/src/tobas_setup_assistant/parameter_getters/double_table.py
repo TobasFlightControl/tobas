@@ -208,9 +208,9 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
         # 最後に開かれたパスを保存
         if file_path != "":
             if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(file_path)) < 0:
-                q_error(self._property_client.error_message())
+                rospy.logerr(self._property_client.error_message())
             if self._property_client.save() < 0:
-                q_error(self._property_client.error_message())
+                rospy.logerr(self._property_client.error_message())
 
         return file_path
 
@@ -222,7 +222,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
             for col in range(self._num_entry):
                 value = row[col]
                 if value < self._minimum[col] or self._maximum[col] < value:
-                    q_error(self.parent(), f"{value}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
+                    q_error(self, f"{value}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
                     return False
 
         return True
