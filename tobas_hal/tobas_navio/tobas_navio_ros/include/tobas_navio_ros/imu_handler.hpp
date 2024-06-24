@@ -15,7 +15,7 @@ class ImuHandler : public BaseSensorNode
 {
   // Constants
   static constexpr size_t kSamplingRate = 400;         // [Hz]
-  static constexpr double kHpfCutoff = 10.;            // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
+  static constexpr double kHpfCutoff = 30.;            // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
   static constexpr size_t kNoiseStatTimeWindow = 500;  // [ms]
   static constexpr size_t kWindowSize = kSamplingRate * kNoiseStatTimeWindow / 1000;
 
