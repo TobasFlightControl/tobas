@@ -1,6 +1,6 @@
 import rospy
 import os.path as osp
-from typing import Tuple, Type, Union, Any
+from typing import Tuple, Type, Union, Any, Optional
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 
 from tobas_property_msgs.srv import GetBool, GetInt, GetDouble, GetString, SetBool, SetInt, SetDouble, SetString
@@ -30,31 +30,31 @@ class PropertyClient:
         self._error_code = self.E_NO_ERROR
         self._server_error_msg = ""
 
-    def get_bool(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[bool, None]]:
+    def get_bool(self, key: str, timeout: Optional[rospy.Duration] = None) -> Tuple[int, Union[bool, None]]:
         return self._get_property(key, self.GET_BOOL_SRV, GetBool, timeout)
 
-    def get_int(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[int, None]]:
+    def get_int(self, key: str, timeout: Optional[rospy.Duration] = None) -> Tuple[int, Union[int, None]]:
         return self._get_property(key, self.GET_INT_SRV, GetInt, timeout)
 
-    def get_float(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[float, None]]:
+    def get_float(self, key: str, timeout: Optional[rospy.Duration] = None) -> Tuple[int, Union[float, None]]:
         return self._get_property(key, self.GET_DOUBLE_SRV, GetDouble, timeout)
 
-    def get_string(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[str, None]]:
+    def get_string(self, key: str, timeout: Optional[rospy.Duration] = None) -> Tuple[int, Union[str, None]]:
         return self._get_property(key, self.GET_STRING_SRV, GetString, timeout)
 
-    def set_bool(self, key: str, value: bool, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+    def set_bool(self, key: str, value: bool, timeout: Optional[rospy.Duration] = None) -> int:
         return self._set_property(key, value, self.SET_BOOL_SRV, SetBool, timeout)
 
-    def set_int(self, key: str, value: int, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+    def set_int(self, key: str, value: int, timeout: Optional[rospy.Duration] = None) -> int:
         return self._set_property(key, value, self.SET_INT_SRV, SetInt, timeout)
 
-    def set_float(self, key: str, value: float, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+    def set_float(self, key: str, value: float, timeout: Optional[rospy.Duration] = None) -> int:
         return self._set_property(key, value, self.SET_DOUBLE_SRV, SetDouble, timeout)
 
-    def set_string(self, key: str, value: str, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+    def set_string(self, key: str, value: str, timeout: Optional[rospy.Duration] = None) -> int:
         return self._set_property(key, value, self.SET_STRING_SRV, SetString, timeout)
 
-    def save(self, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+    def save(self, timeout: Optional[rospy.Duration] = None) -> int:
         client = rospy.ServiceProxy(osp.join(self._ns, self.SAVE_FILE_SRV), Trigger)
 
         rospy.logdebug(f'Waiting for "{self.SAVE_FILE_SRV}" service server.')
