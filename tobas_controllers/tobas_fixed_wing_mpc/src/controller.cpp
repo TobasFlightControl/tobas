@@ -17,7 +17,7 @@ using namespace Eigen;
 
 namespace tobas_fixed_wing_mpc
 {
-Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+Controller::Controller(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), x_rotors_(drone_, tobas::Axis::X_POSITIVE), eom_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(nh_);

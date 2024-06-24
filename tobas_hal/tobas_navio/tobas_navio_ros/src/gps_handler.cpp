@@ -11,7 +11,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-GpsHandler::GpsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   PRINT_DEBUG("GpsHandler::GpsHandler");
 

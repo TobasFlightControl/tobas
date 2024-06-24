@@ -10,7 +10,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-RCInputHandler::RCInputHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+RCInputHandler::RCInputHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
 {
   PRINT_DEBUG("RCInputHandler::RCInputHandler");

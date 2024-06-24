@@ -6,13 +6,7 @@ namespace tobas_navio_ros
 {
 void BatteryHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Battery Handler Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new BatteryHandler(nh, pnh, name));
+  node_.reset(new BatteryHandler(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_navio_ros
 

@@ -10,7 +10,7 @@ using namespace Eigen;
 
 namespace tobas_pre_arm_check
 {
-PreArmCheckServer::PreArmCheckServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+PreArmCheckServer::PreArmCheckServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),

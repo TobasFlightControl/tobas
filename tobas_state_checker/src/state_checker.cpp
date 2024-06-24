@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+StateChecker::StateChecker(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), landing_ac_(tobas::kLandAction)
 {
   drone_.loadFromParam(nh_);

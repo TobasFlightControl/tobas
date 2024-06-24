@@ -15,7 +15,7 @@ using namespace kdl;
 
 namespace tobas_mr_wind_estimation
 {
-WindEstimator::WindEstimator(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+WindEstimator::WindEstimator(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
   drone_.loadFromParam(nh_);

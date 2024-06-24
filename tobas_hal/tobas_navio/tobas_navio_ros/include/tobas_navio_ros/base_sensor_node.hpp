@@ -13,7 +13,7 @@ class BaseSensorNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BaseSensorNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const std::string& name);
+  explicit BaseSensorNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name);
 
 protected:
   ros::Timer main_timer_;

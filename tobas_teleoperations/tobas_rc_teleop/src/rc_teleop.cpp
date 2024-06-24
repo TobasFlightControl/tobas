@@ -24,7 +24,7 @@ using namespace ros::message_traits;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+RCTeleop::RCTeleop(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   getRosParams();
   drone_.loadFromParam(nh_);

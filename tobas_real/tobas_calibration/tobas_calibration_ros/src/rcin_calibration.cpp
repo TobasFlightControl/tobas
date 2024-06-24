@@ -4,7 +4,7 @@ using namespace std;
 
 namespace tobas_calibration
 {
-RCInputCalibrationRos::RCInputCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+RCInputCalibrationRos::RCInputCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC)
 {
   if (rcin_.initialize() < 0)

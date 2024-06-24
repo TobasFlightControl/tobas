@@ -6,13 +6,7 @@ namespace tobas_navio_ros
 {
 void MagnetometerHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Magnetometer Handler Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new MagnetometerHandler(nh, pnh, name));
+  node_.reset(new MagnetometerHandler(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_navio_ros
 

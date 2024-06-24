@@ -6,13 +6,7 @@ namespace tobas_state_checker
 {
 void StateCheckerNodelet::onInit()
 {
-  NODELET_INFO("Initializing State Checker Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new StateChecker(nh, pnh, name));
+  node_.reset(new StateChecker(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_state_checker
 

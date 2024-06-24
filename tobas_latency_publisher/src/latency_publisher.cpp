@@ -7,8 +7,7 @@ using namespace std;
 
 namespace tobas_latency_publisher
 {
-LatencyPublisher::LatencyPublisher(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+LatencyPublisher::LatencyPublisher(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
   tar_rot_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::targetRotorSpeedsCb, this, tcpNoDelay());

@@ -11,7 +11,7 @@ using namespace kdl;
 
 namespace tobas_mavros_bridge
 {
-TobasMavrosBridge::TobasMavrosBridge(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+TobasMavrosBridge::TobasMavrosBridge(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   setpoint_pos_local_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 1);

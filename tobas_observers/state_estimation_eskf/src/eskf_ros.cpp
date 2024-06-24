@@ -22,10 +22,7 @@ namespace et = eigen_tools;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
   PRINT_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");

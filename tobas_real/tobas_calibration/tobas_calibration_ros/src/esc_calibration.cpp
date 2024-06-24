@@ -12,7 +12,7 @@ using namespace std;
 
 namespace tobas_calibration
 {
-EscCalibrationRos::EscCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+EscCalibrationRos::EscCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), as_(nh, kActionName, boost::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
   drone_.loadFromParam(nh_);

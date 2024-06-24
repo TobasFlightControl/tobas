@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-MatrixEulerConverter::MatrixEulerConverter(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+MatrixEulerConverter::MatrixEulerConverter(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   euler_pub_ = nh_.advertise<tobas_kdl_msgs::EulerStamped>(tobas::kEulerTopic, 1);

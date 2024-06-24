@@ -6,7 +6,6 @@ namespace tobas_preprocess
 {
 void MatrixEulerConverterNodelet::onInit()
 {
-  NODELET_INFO("Initializing Matrix Euler Converter Nodelet.");
   node_.reset(new MatrixEulerConverter(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_preprocess

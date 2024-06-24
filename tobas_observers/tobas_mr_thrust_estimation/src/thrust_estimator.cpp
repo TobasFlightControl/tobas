@@ -16,7 +16,7 @@ using namespace kdl;
 
 namespace tobas_mr_thrust_estimation
 {
-ThrustEstimator::ThrustEstimator(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+ThrustEstimator::ThrustEstimator(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
   drone_.loadFromParam(nh_);

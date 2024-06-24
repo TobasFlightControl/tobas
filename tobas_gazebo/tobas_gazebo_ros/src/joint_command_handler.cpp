@@ -11,7 +11,7 @@ using namespace kdl;
 
 namespace tobas_gazebo_ros
 {
-JointCommandHandler::JointCommandHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const std::string& name)
+JointCommandHandler::JointCommandHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   positions_sub_ = nh_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());

@@ -17,10 +17,7 @@ class BatteryLpf : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BatteryLpf(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+  explicit BatteryLpf(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
   dsp::LowPassFilter<double> voltage_lpf_, current_lpf_;

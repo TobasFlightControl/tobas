@@ -10,7 +10,7 @@ using namespace Eigen;
 
 namespace tobas_navio_ros
 {
-MagnetometerHandler::MagnetometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+MagnetometerHandler::MagnetometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
 {
   PRINT_DEBUG("MagnetometerHandler::MagnetometerHandler");

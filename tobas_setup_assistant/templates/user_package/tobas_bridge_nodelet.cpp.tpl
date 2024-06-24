@@ -4,12 +4,7 @@
 
 void TobasBridgeNodelet::onInit()
 {
-  NODELET_INFO("Initializing Tobas Bridge Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-
-  node_.reset(new TobasBridge(nh, pnh));
+  node_.reset(new TobasBridge(getNodeHandle(), getPrivateNodeHandle()));
 }
 
 PLUGINLIB_EXPORT_CLASS(TobasBridgeNodelet, nodelet::Nodelet);

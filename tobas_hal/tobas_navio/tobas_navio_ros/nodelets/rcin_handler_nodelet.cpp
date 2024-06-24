@@ -6,13 +6,7 @@ namespace tobas_navio_ros
 {
 void RCInputHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing RC Input Handler Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new RCInputHandler(nh, pnh, name));
+  node_.reset(new RCInputHandler(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_navio_ros
 

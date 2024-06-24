@@ -10,7 +10,7 @@ using namespace kdl;
 
 namespace tobas_manipulation
 {
-PositionControllerRos::PositionControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+PositionControllerRos::PositionControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   drone_.loadFromParam(nh_);

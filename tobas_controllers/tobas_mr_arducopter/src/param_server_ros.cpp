@@ -16,7 +16,7 @@ using namespace kdl;
 
 namespace tobas_mr_arducopter
 {
-ParamServerRos::ParamServerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+ParamServerRos::ParamServerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
   getRosParams();

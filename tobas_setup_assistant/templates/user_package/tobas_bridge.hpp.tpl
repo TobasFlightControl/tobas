@@ -10,11 +10,11 @@ class TobasBridge
   using self = TobasBridge;
 
 public:
-  explicit TobasBridge(const ros::NodeHandle& nh, const ros::NodeHandle& pnh);
+  explicit TobasBridge(ros::NodeHandle& nh, ros::NodeHandle& pnh);
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
+  ros::NodeHandle& nh_;
+  ros::NodeHandle& pnh_;
 
   ros::Publisher js_pub_;
   ros::Subscriber tar_pos_sub_;

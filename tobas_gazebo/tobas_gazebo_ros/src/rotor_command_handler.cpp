@@ -11,7 +11,7 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-RotorCommandHandler::RotorCommandHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+RotorCommandHandler::RotorCommandHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   drone_.loadFromParam(nh_);

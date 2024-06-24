@@ -15,10 +15,7 @@ class ImuLpf : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit ImuLpf(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+  explicit ImuLpf(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
   dsp::LowPassFilter<kdl::Vector> gyro_lpf_, accel_lpf_;

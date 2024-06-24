@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+PwmHandler::PwmHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   PRINT_DEBUG("PwmHandler::PwmHandler");
 

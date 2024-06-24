@@ -11,7 +11,7 @@ using namespace Eigen;
 
 namespace tobas_calibration
 {
-MagCalibrationRos::MagCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC)
 {
   if (!imu_.probe())

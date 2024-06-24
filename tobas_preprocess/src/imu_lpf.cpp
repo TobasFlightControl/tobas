@@ -6,7 +6,7 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-ImuLpf::ImuLpf(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+ImuLpf::ImuLpf(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   imu_lpf_pub_ = nh_.advertise<tobas_msgs::Imu>(tobas::kImuLpfTopic, 1);
   imu_raw_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuRawCb, this, tcpNoDelay());

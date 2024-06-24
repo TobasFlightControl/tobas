@@ -6,13 +6,7 @@ namespace tobas_mr_wind_estimation
 {
 void WindEstimatorNodelet::onInit()
 {
-  NODELET_INFO("Initializing Wind Estimator Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new WindEstimator(nh, pnh, name));
+  node_.reset(new WindEstimator(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_mr_wind_estimation
 

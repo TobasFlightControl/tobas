@@ -10,7 +10,7 @@ using namespace std;
 
 namespace tobas_multirotor_landing
 {
-LandActionServer::LandActionServer(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+LandActionServer::LandActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     alt_buf_(kTimeWindow),
     as_(nh_, tobas::kLandAction, boost::bind(&self::executeCb, this, _1), false)

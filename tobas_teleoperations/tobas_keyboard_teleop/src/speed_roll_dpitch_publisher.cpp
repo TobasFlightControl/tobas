@@ -14,8 +14,8 @@ using namespace std;
 namespace tobas_keyboard_teleop
 {
 SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
+  ros::NodeHandle& nh,
+  ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name),
     trim_(drone_),

@@ -36,10 +36,10 @@ namespace tobas
 class BaseNode
 {
 protected:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
+  ros::NodeHandle& nh_;
+  ros::NodeHandle& pnh_;
 
-  explicit BaseNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const std::string& name);
+  explicit BaseNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name);
 
   inline const std::string& name() const;
   inline std::string ns() const;
@@ -88,7 +88,7 @@ protected:
   static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
 
 private:
-  const std::string name_;
+  const std::string& name_;
 
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, ros::Time> log_throttle_;

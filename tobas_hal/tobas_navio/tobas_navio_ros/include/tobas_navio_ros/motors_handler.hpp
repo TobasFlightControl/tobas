@@ -26,8 +26,8 @@ class MotorsHandler : public tobas::BaseNode
 
 public:
   explicit MotorsHandler(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:

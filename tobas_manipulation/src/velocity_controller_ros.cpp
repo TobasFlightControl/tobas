@@ -10,7 +10,7 @@ using namespace kdl;
 
 namespace tobas_manipulation
 {
-VelocityControllerRos::VelocityControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+VelocityControllerRos::VelocityControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),

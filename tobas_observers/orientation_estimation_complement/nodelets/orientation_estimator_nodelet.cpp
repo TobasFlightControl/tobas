@@ -6,13 +6,7 @@ namespace orientation_estimation_complement
 {
 void OrientationEstimatorNodelet::onInit()
 {
-  NODELET_INFO("Initializing Complementary Orientation Estimator Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new OrientationEstimatorRos(nh, pnh, name));
+  node_.reset(new OrientationEstimatorRos(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace orientation_estimation_complement
 

@@ -3,8 +3,8 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "tobas_bridge");
-  const ros::NodeHandle nh;
-  const ros::NodeHandle pnh;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
   TobasBridge node(nh, pnh);
   ros::spin();
 }

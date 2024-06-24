@@ -6,13 +6,7 @@ namespace tobas_manipulation
 {
 void VelocityControllerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Cartesian Manipulation Velocity Controller Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new VelocityControllerRos(nh, pnh, name));
+  node_.reset(new VelocityControllerRos(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_manipulation
 

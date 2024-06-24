@@ -12,8 +12,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-BarometerHandler::BarometerHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+BarometerHandler::BarometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   PRINT_DEBUG("BarometerHandler::BarometerHandler");
 

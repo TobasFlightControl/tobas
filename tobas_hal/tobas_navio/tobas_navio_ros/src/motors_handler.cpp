@@ -18,8 +18,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-MotorsHandler::MotorsHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+MotorsHandler::MotorsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   PRINT_DEBUG("MotorsHandler::MotorsHandler");
 

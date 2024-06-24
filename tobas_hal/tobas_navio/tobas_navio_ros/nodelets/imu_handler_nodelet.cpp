@@ -6,13 +6,7 @@ namespace tobas_navio_ros
 {
 void ImuHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing IMU Handler Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new ImuHandler(nh, pnh, name));
+  node_.reset(new ImuHandler(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_navio_ros
 

@@ -2,10 +2,11 @@
 
 #include "../include/tobas_navio_ros/base_sensor_node.hpp"
 
+using namespace std;
+
 namespace tobas_navio_ros
 {
-BaseSensorNode::BaseSensorNode(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const std::string& name)
-  : super(nh, pnh, name)
+BaseSensorNode::BaseSensorNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   start_ss_ = nh_.advertiseService(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
   stop_ss_ = nh_.advertiseService(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);

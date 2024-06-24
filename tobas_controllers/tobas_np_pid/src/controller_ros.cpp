@@ -12,7 +12,7 @@ using namespace kdl;
 
 namespace tobas_np_pid
 {
-ControllerRos::ControllerRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), js_converter_(drone_.tree()), mixer_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(nh_);

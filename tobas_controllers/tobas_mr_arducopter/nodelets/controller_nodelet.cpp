@@ -6,13 +6,7 @@ namespace tobas_mr_arducopter
 {
 void ControllerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Multirotor ArduCopter Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new ControllerRos(nh, pnh, name));
+  node_.reset(new ControllerRos(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_mr_arducopter
 
