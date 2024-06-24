@@ -8,7 +8,7 @@ PartOf=tobas_real.target
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 ExecStartPre=/etc/tobas/wait_for_rosmaster.sh
-ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash && /opt/ros/noetic/bin/rosrun tobas_property_tools property_server_node _ini_path:=/etc/tobas/config.ini'
+ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash && /opt/ros/noetic/bin/rosrun tobas_property_tools property_server_node __name:=property_server_fc _ini_path:=/etc/tobas/config.ini'
 Restart=always
 RestartSec=5
 
