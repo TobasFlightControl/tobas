@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_std_tools_py.geometry import euler_from_matrix
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
+from tobas_tools_py.constants import Topic, Service
 from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, CommandLevel, Odometry
 from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
 
@@ -120,13 +121,13 @@ class BasePoseCommanderWidget(Widget):
         rows.addStretch()
 
         # PubSub
-        self._pos_yaw_pub = rospy.Publisher("command/position_yaw", PositionYaw, queue_size=1)
-        self._pvay_pub = rospy.Publisher("command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1)
-        self._pta_pub = rospy.Publisher("command/pose_twist_accel", PoseTwistAccelCommand, queue_size=1)
-        self._odom_sub = rospy.Subscriber("odom", Odometry, self._odom_cb, queue_size=1)
+        self._pos_yaw_pub = rospy.Publisher(Topic.Command.POSITION_YAW, PositionYaw, queue_size=1)
+        self._pvay_pub = rospy.Publisher(Topic.Command.POS_VEL_ACC_YAW, PosVelAccYaw, queue_size=1)
+        self._pta_pub = rospy.Publisher(Topic.Command.POSE_TWIST_ACCEL, PoseTwistAccelCommand, queue_size=1)
+        self._odom_sub = rospy.Subscriber(Topic.ODOMETRY, Odometry, self._odom_cb, queue_size=1)
 
         # Service
-        self._set_arm_sc = rospy.ServiceProxy(f"set_arm", SetArm)
+        self._set_arm_sc = rospy.ServiceProxy(Service.SET_ARM, SetArm)
 
     def _get_params(self) -> None:
         self._x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
@@ -155,7 +156,7 @@ class BasePoseCommanderWidget(Widget):
         try:
             self._set_arm_sc.wait_for_service(self.WAIT_FOR_SERVICE)
         except rospy.ROSException as e:
-            rospy.logerr("Failed to connect to set_arm service server.")
+            rospy.logerr(f'Failed to connect to "{Service.SET_ARM}" service server.')
             return False
 
         req = SetArmRequest()
@@ -164,7 +165,7 @@ class BasePoseCommanderWidget(Widget):
         try:
             res: SetArmResponse = self._set_arm_sc.call(req)
         except Exception as e:
-            rospy.logerr(f"Failed to call set_arm service: {e}")
+            rospy.logerr(f'Failed to call "{Service.SET_ARM}" service: {e}')
             return False
 
         if not res.success:
