@@ -7,6 +7,7 @@
 #include "../include/tobas_property_tools/constants.hpp"
 
 using namespace std;
+using namespace tobas_property_msgs;
 
 namespace ptree
 {
@@ -48,15 +49,15 @@ PropertyServer::PropertyServer(ros::NodeHandle& nh, ros::NodeHandle& pnh)
   }
 
   // Advertise service servers
-  const auto& name = ros::this_node::getName();
-  get_bool_ss_ = nh.advertiseService(name + "/" + kGetBoolSrv, &self::getCb<tobas_property_msgs::GetBool>, this);
-  get_int_ss_ = nh.advertiseService(name + "/" + kGetIntSrv, &self::getCb<tobas_property_msgs::GetInt>, this);
-  get_double_ss_ = nh.advertiseService(name + "/" + kGetDoubleSrv, &self::getCb<tobas_property_msgs::GetDouble>, this);
-  get_string_ss_ = nh.advertiseService(name + "/" + kGetStringSrv, &self::getCb<tobas_property_msgs::GetString>, this);
-  set_bool_ss_ = nh.advertiseService(name + "/" + kSetBoolSrv, &self::setCb<tobas_property_msgs::SetBool>, this);
-  set_int_ss_ = nh.advertiseService(name + "/" + kSetIntSrv, &self::setCb<tobas_property_msgs::SetInt>, this);
-  set_double_ss_ = nh.advertiseService(name + "/" + kSetDoubleSrv, &self::setCb<tobas_property_msgs::SetDouble>, this);
-  set_string_ss_ = nh.advertiseService(name + "/" + kSetStringSrv, &self::setCb<tobas_property_msgs::SetString>, this);
+  const auto prefix = ros::this_node::getName() + "/";
+  get_bool_ss_ = nh.advertiseService(prefix + kGetBoolSrv, &self::getCb<GetBoolRequest, GetBoolResponse>, this);
+  get_int_ss_ = nh.advertiseService(prefix + kGetIntSrv, &self::getCb<GetIntRequest, GetIntResponse>, this);
+  get_double_ss_ = nh.advertiseService(prefix + kGetDoubleSrv, &self::getCb<GetDoubleRequest, GetDoubleResponse>, this);
+  get_string_ss_ = nh.advertiseService(prefix + kGetStringSrv, &self::getCb<GetStringRequest, GetStringResponse>, this);
+  set_bool_ss_ = nh.advertiseService(prefix + kSetBoolSrv, &self::setCb<SetBoolRequest, SetBoolResponse>, this);
+  set_int_ss_ = nh.advertiseService(prefix + kSetIntSrv, &self::setCb<SetIntRequest, SetIntResponse>, this);
+  set_double_ss_ = nh.advertiseService(prefix + kSetDoubleSrv, &self::setCb<SetDoubleRequest, SetDoubleResponse>, this);
+  set_string_ss_ = nh.advertiseService(prefix + kSetStringSrv, &self::setCb<SetStringRequest, SetStringResponse>, this);
 }
 
 bool PropertyServer::saveFileCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)

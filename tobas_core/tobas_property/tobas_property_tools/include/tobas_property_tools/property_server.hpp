@@ -49,10 +49,10 @@ private:
   template <typename T>
   void set(const std::string& section, const std::string& key, const T& value);
 
-  template <typename SrvType>
-  bool getCb(SrvType::Request& req, SrvType::Response& res);
-  template <typename SrvType>
-  bool setCb(SrvType::Request& req, SrvType::Response& res);
+  template <typename ReqType, typename ResType>
+  bool getCb(ReqType& req, ResType& res);
+  template <typename ReqType, typename ResType>
+  bool setCb(ReqType& req, ResType& res);
 
   bool saveFileCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 };
@@ -79,8 +79,8 @@ void PropertyServer::set(const std::string& section, const std::string& key, con
   pt_.put(keyWithSection(section, key), value);
 }
 
-template <typename SrvType>
-bool PropertyServer::getCb(SrvType::Request& req, SrvType::Response& res)
+template <typename ReqType, typename ResType>
+bool PropertyServer::getCb(ReqType& req, ResType& res)
 {
   if (get(req.section, req.key, res.value))
   {
@@ -96,8 +96,8 @@ bool PropertyServer::getCb(SrvType::Request& req, SrvType::Response& res)
   return true;
 }
 
-template <typename SrvType>
-bool PropertyServer::setCb(SrvType::Request& req, SrvType::Response& res)
+template <typename ReqType, typename ResType>
+bool PropertyServer::setCb(ReqType& req, ResType& res)
 {
   set(req.section, req.key, req.value);
 
