@@ -1,6 +1,6 @@
 [Unit]
 Description=Tobas HIL
-Requires=tobas_fkie_master.service
+Requires=tobas_fkie_master.service tobas_property_server.service
 Conflicts=tobas_real.service
 
 [Service]
