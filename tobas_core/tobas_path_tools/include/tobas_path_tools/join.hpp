@@ -17,15 +17,19 @@ std::string join(const T& x)
 template <typename T, typename U>
 std::string join(const T& _x, const U& _y)
 {
+  // TODO: C++20が使えるようになったら "/" -> '/'
+  // constexpr char sep = '/';
+  const std::string sep = "/";
+
   const std::string x = _x;
   const std::string y = _y;
 
-  if (starts_with(y, '/'))
+  if (starts_with(y, sep))
     return y;
-  else if (x.empty() || ends_with(x, '/'))
+  else if (x.empty() || ends_with(x, sep))
     return x + y;
   else
-    return x + '/' + y;
+    return x + sep + y;
 }
 
 /* Same as os.path.join() from Python. */
