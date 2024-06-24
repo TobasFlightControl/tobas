@@ -1,6 +1,6 @@
 [Unit]
 Description=Tobas Flight Controller
-Requires=tobas_property_server.service tobas_nodelet_managers.target
+Requires=tobas_fkie_master.service tobas_property_server.service tobas_nodelet_managers.target
 Conflicts=tobas_hil.service
 PartOf=tobas_main.target
 

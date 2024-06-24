@@ -1,7 +1,6 @@
 [Unit]
 Description=Tobas HIL
-Requires=tobas_roscore.service
-After=tobas_roscore.service
+Requires=tobas_fkie_master.service
 Conflicts=tobas_real.service
 
 [Service]
