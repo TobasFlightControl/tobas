@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
+from tobas_tools_py.constants import Topic
 
 from .common import BUTTON_HEIGHT
 
@@ -46,11 +47,9 @@ class JointPositionsCommanderWidget(Widget):
                 raise RuntimeError(f"Unknown joint command type: {cmd_type}")
 
         # Publishers
-        self._tar_pos_pub = rospy.Publisher("joint_position_controller/target_joint_states", JointState, queue_size=1)
-        self._tar_js_vel_pub = rospy.Publisher(
-            "joint_velocity_controller/target_joint_states", JointState, queue_size=1
-        )
-        self._tar_js_eff_pub = rospy.Publisher("joint_effort_controller/target_joint_states", JointState, queue_size=1)
+        self._tar_pos_pub = rospy.Publisher(Topic.Manipulation.POS_CTRL_JS, JointState, queue_size=1)
+        self._tar_js_vel_pub = rospy.Publisher(Topic.Manipulation.VEL_CTRL_JS, JointState, queue_size=1)
+        self._tar_js_eff_pub = rospy.Publisher(Topic.Manipulation.EFF_CTRL_JS, JointState, queue_size=1)
 
         # メインレイアウト
         rows = QVBoxLayout()
