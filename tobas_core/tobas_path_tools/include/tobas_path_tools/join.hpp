@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "./util.hpp"
+
 namespace path
 {
 /* Same as os.path.join() from Python. */
@@ -15,12 +17,12 @@ std::string join(const T& x)
 template <typename T, typename U>
 std::string join(const T& _x, const U& _y)
 {
-  std::string x = _x;
-  std::string y = _y;
+  const std::string x = _x;
+  const std::string y = _y;
 
-  if (y.starts_with('/'))
+  if (starts_with(y, '/'))
     return y;
-  else if (x.empty() || x.ends_with('/'))
+  else if (x.empty() || ends_with(x, '/'))
     return x + y;
   else
     return x + '/' + y;
