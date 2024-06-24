@@ -23,8 +23,6 @@ class PropertyClient:
     SET_STRING_SRV = "set_string"
     SAVE_FILE_SRV = "save_file"
 
-    WAIT_FOR_SERVICE = 1.0  # [s]
-
     def __init__(self, ns: str, section: str) -> None:
         self._ns = ns
         self._section = section
@@ -32,36 +30,36 @@ class PropertyClient:
         self._error_code = self.E_NO_ERROR
         self._server_error_msg = ""
 
-    def get_bool(self, key: str) -> Tuple[int, Union[bool, None]]:
-        return self._get_property(key, self.GET_BOOL_SRV, GetBool)
+    def get_bool(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[bool, None]]:
+        return self._get_property(key, self.GET_BOOL_SRV, GetBool, timeout)
 
-    def get_int(self, key: str) -> Tuple[int, Union[int, None]]:
-        return self._get_property(key, self.GET_INT_SRV, GetInt)
+    def get_int(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[int, None]]:
+        return self._get_property(key, self.GET_INT_SRV, GetInt, timeout)
 
-    def get_float(self, key: str) -> Tuple[int, Union[float, None]]:
-        return self._get_property(key, self.GET_DOUBLE_SRV, GetDouble)
+    def get_float(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[float, None]]:
+        return self._get_property(key, self.GET_DOUBLE_SRV, GetDouble, timeout)
 
-    def get_string(self, key: str) -> Tuple[int, Union[str, None]]:
-        return self._get_property(key, self.GET_STRING_SRV, GetString)
+    def get_string(self, key: str, timeout: rospy.Duration = rospy.Duration(-1)) -> Tuple[int, Union[str, None]]:
+        return self._get_property(key, self.GET_STRING_SRV, GetString, timeout)
 
-    def set_bool(self, key: str, value: bool) -> int:
-        return self._set_property(key, value, self.SET_BOOL_SRV, SetBool)
+    def set_bool(self, key: str, value: bool, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+        return self._set_property(key, value, self.SET_BOOL_SRV, SetBool, timeout)
 
-    def set_int(self, key: str, value: int) -> int:
-        return self._set_property(key, value, self.SET_INT_SRV, SetInt)
+    def set_int(self, key: str, value: int, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+        return self._set_property(key, value, self.SET_INT_SRV, SetInt, timeout)
 
-    def set_float(self, key: str, value: float) -> int:
-        return self._set_property(key, value, self.SET_DOUBLE_SRV, SetDouble)
+    def set_float(self, key: str, value: float, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+        return self._set_property(key, value, self.SET_DOUBLE_SRV, SetDouble, timeout)
 
-    def set_string(self, key: str, value: str) -> int:
-        return self._set_property(key, value, self.SET_STRING_SRV, SetString)
+    def set_string(self, key: str, value: str, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
+        return self._set_property(key, value, self.SET_STRING_SRV, SetString, timeout)
 
-    def save(self) -> int:
+    def save(self, timeout: rospy.Duration = rospy.Duration(-1)) -> int:
         client = rospy.ServiceProxy(osp.join(self._ns, self.SAVE_FILE_SRV), Trigger)
 
         rospy.logdebug(f'Waiting for "{self.SAVE_FILE_SRV}" service server.')
         try:
-            client.wait_for_service(self.WAIT_FOR_SERVICE)
+            client.wait_for_service(timeout)
         except rospy.ROSException:
             self._error_code = self.E_FAILED_TO_CONNECT
             return self._error_code
@@ -98,12 +96,12 @@ class PropertyClient:
         else:
             raise
 
-    def _get_property(self, key: str, srv_name: str, SrvType: Type) -> Tuple[int, Any]:
+    def _get_property(self, key: str, srv_name: str, SrvType: Type, timeout: rospy.Duration) -> Tuple[int, Any]:
         client = rospy.ServiceProxy(osp.join(self._ns, srv_name), SrvType)
 
         rospy.logdebug(f'Waiting for "{srv_name}" service server.')
         try:
-            client.wait_for_service(self.WAIT_FOR_SERVICE)
+            client.wait_for_service(timeout)
         except rospy.ROSException:
             self._error_code = self.E_FAILED_TO_CONNECT
             return self._error_code, None
@@ -127,12 +125,12 @@ class PropertyClient:
         self._error_code = self.E_NO_ERROR
         return self._error_code, res.value
 
-    def _set_property(self, key: str, value: Any, srv_name: str, SrvType: Type) -> int:
+    def _set_property(self, key: str, value: Any, srv_name: str, SrvType: Type, timeout: rospy.Duration) -> int:
         client = rospy.ServiceProxy(osp.join(self._ns, srv_name), SrvType)
 
         rospy.logdebug(f'Waiting for "{srv_name}" service server.')
         try:
-            client.wait_for_service(self.WAIT_FOR_SERVICE)
+            client.wait_for_service(timeout)
         except rospy.ROSException:
             self._error_code = self.E_FAILED_TO_CONNECT
             return self._error_code

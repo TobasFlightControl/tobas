@@ -21,19 +21,19 @@ public:
 
   explicit PropertyClient(ros::NodeHandle& nh, const std::string& ns = "", const std::string& section = "DEFAULT");
 
-  error_t get(const std::string& key, bool& value);
-  error_t get(const std::string& key, int& value);
-  error_t get(const std::string& key, float& value);
-  error_t get(const std::string& key, double& value);
-  error_t get(const std::string& key, std::string& value);
+  error_t get(const std::string& key, bool& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t get(const std::string& key, int& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t get(const std::string& key, float& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t get(const std::string& key, double& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t get(const std::string& key, std::string& value, const ros::Duration& timeout = ros::Duration(-1));
 
-  error_t set(const std::string& key, const bool& value);
-  error_t set(const std::string& key, const int& value);
-  error_t set(const std::string& key, const float& value);
-  error_t set(const std::string& key, const double& value);
-  error_t set(const std::string& key, const std::string& value);
+  error_t set(const std::string& key, const bool& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t set(const std::string& key, const int& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t set(const std::string& key, const float& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t set(const std::string& key, const double& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t set(const std::string& key, const std::string& value, const ros::Duration& timeout = ros::Duration(-1));
 
-  error_t save();
+  error_t save(const ros::Duration& timeout = ros::Duration(-1));
 
   error_t errorCode() const;
   std::string errorMessage() const;
@@ -47,17 +47,17 @@ private:
   std::string server_error_msg_;
 
   template <typename SrvType, const char* SrvName, typename T>
-  error_t getProperty(const std::string& key, T& value);
+  error_t getProperty(const std::string& key, T& value, const ros::Duration& timeout);
 
   template <typename SrvType, const char* SrvName, typename T>
-  error_t setProperty(const std::string& key, T& value);
+  error_t setProperty(const std::string& key, T& value, const ros::Duration& timeout);
 };
 
 template <typename SrvType, const char* SrvName, typename T>
-PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& value)
+PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& value, const ros::Duration& timeout)
 {
   ros::ServiceClient client = nh_.serviceClient<SrvType>(path::join(ns_, SrvName));
-  if (!client.waitForExistence(ros::Duration(kWaitForServiceExistence)))
+  if (!client.waitForExistence(timeout))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   SrvType msg;
@@ -79,10 +79,10 @@ PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& v
 }
 
 template <typename SrvType, const char* SrvName, typename T>
-PropertyClient::error_t PropertyClient::setProperty(const std::string& key, T& value)
+PropertyClient::error_t PropertyClient::setProperty(const std::string& key, T& value, const ros::Duration& timeout)
 {
   ros::ServiceClient client = nh_.serviceClient<SrvType>(path::join(ns_, SrvName));
-  if (!client.waitForExistence(ros::Duration(kWaitForServiceExistence)))
+  if (!client.waitForExistence(timeout))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   SrvType msg;
