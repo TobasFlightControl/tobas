@@ -1,7 +1,0 @@
-<library path="lib/libtobas_property_tools_nodelet">
-
-  <class name="tobas_property_tools/PropertyServerNodelet" type="tobas_property_tools::PropertyServerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

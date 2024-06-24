@@ -17,40 +17,17 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_path_tools
 )
 
-# catkin_python_setup()
-
-# file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
-# add_message_files(FILES ${MSG_FILES})
-# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
-# add_service_files(FILES ${SRV_FILES})
-# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
-# add_action_files(FILES ${ACTION_FILES})
-
-# generate_messages(DEPENDENCIES
-# 	actionlib_msgs
-# )
-
-# file(GLOB_RECURSE CFG_FILES RELATIVE ${PROJECT_SOURCE_DIR} cfg/[^.]*.cfg)
-# generate_dynamic_reconfigure_options(${CFG_FILES})
-
 catkin_package(
 	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
+	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS tobas_property_msgs tobas_ros_tools tobas_path_tools
-# 	DEPENDS
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
-file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
-add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
-target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 set(targets_to_install "")
@@ -62,7 +39,7 @@ foreach(FILE IN LISTS EXE_FILES)
 )
 endforeach()
 
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
+install(TARGETS ${PROJECT_NAME}
 	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 	ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 	RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
@@ -73,15 +50,3 @@ install(TARGETS ${targets_to_install}
 	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
-# install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(FILES nodelet_description.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
-# install(DIRECTORY
-# 	src/${PROJECT_NAME}/
-# 	DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
-# 	PATTERN *.pyc EXCLUDE
-# 	PATTERN *.egg-info EXCLUDE
-# )
-# file(GLOB_RECURSE SCRIPTS RELATIVE ${PROJECT_SOURCE_DIR} scripts/[^.]*)
-# catkin_install_python(PROGRAMS ${SCRIPTS} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

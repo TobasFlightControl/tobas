@@ -13,8 +13,4 @@
 	<depend>tobas_ros_tools</depend>
 	<depend>tobas_path_tools</depend>
 
-	<export>
-		<nodelet plugin="${prefix}/nodelet_description.xml"/>
-	</export>
-
 </package>
