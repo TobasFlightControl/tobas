@@ -107,9 +107,9 @@ void MagnetometerHandler::initializeNoiseFilter()
   imu_.updateMagnetometer();
   imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
 
-  constexpr size_t window_size = kSamplingRate * kNoiseStatTimeWindow / 1000;
+  const auto mag_unit = mag_trans_.transform(mag_.cast<double>());
   for (size_t i = 0; i < 3; ++i)
-    mag_noise_[i].initialize(window_size, kHpfCutoff, mag_(i));
+    mag_noise_[i].initialize(kWindowSize, kHpfCutoff, mag_unit(i));
 }
 
 bool MagnetometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
@@ -133,10 +133,13 @@ void MagnetometerHandler::mainTimerCb(const ros::TimerEvent& event)
   // Read IMU
   imu_.readMagnetometer(&mag_.x(), &mag_.y(), &mag_.z());
 
+  // Project data to unit sphere
+  const auto mag_unit = mag_trans_.transform(mag_.cast<double>());
+
   // Update noise filter
   const auto dt = (event.current_real - event.last_real).toSec();
   for (size_t i = 0; i < 3; ++i)
-    mag_noise_[i].update(mag_(i), dt);
+    mag_noise_[i].update(mag_unit(i), dt);
 
   // Create messages
   const auto mag_msg = boost::make_shared<tobas_msgs::MagneticField>();
@@ -144,16 +147,15 @@ void MagnetometerHandler::mainTimerCb(const ros::TimerEvent& event)
   // Fill headers
   mag_msg->header.stamp = event.current_real;
 
+  // Fill data (Convert to NWU coordinate system)
+  mag_msg->magnetic_field.x(mag_unit.x());
+  mag_msg->magnetic_field.y(-mag_unit.y());
+  mag_msg->magnetic_field.z(-mag_unit.z());
+
   // Fill covariance matrices
   mag_msg->covariance.setZero();
   for (size_t i = 0; i < 3; ++i)
     mag_msg->covariance(i, i) = mag_noise_[i].noiseVariance();
-
-  // Fill data (Convert to NWU coordinate system)
-  const auto mag = mag_trans_.transform(mag_.cast<double>());  // 単位球に射影
-  mag_msg->magnetic_field.x(mag.x());
-  mag_msg->magnetic_field.y(-mag.y());
-  mag_msg->magnetic_field.z(-mag.z());
 
   // Publish messages
   mag_pub_.publish(mag_msg);

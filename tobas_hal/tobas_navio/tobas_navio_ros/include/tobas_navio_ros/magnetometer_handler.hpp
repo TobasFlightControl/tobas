@@ -18,6 +18,7 @@ class MagnetometerHandler : public BaseSensorNode
   static constexpr size_t kSamplingRate = 80;  // [Hz] LSM9DS1の地磁気のサンプリングレートの最大値
   static constexpr double kHpfCutoff = 10.;    // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
   static constexpr size_t kNoiseStatTimeWindow = 1000;  // [ms]
+  static constexpr size_t kWindowSize = kSamplingRate * kNoiseStatTimeWindow / 1000;
 
   using self = MagnetometerHandler;
   using super = BaseSensorNode;
