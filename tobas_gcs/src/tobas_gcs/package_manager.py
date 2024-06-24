@@ -186,7 +186,7 @@ class PackageManagerWidget(Widget):
 
         # ROS関連の全てのサービスを再起動 (でないと古いトピックが残ってしまう)
         progress.setLabelText("Restarting Tobas.")
-        command = "systemctl restart tobas_roscore.service"
+        command = "systemctl restart tobas_main.target"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             progress.close()
