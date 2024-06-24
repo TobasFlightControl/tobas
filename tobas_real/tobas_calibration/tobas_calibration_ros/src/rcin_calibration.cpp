@@ -5,7 +5,7 @@ using namespace std;
 namespace tobas_calibration
 {
 RCInputCalibrationRos::RCInputCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyNamespace)
+  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC)
 {
   if (rcin_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize RC input driver.");

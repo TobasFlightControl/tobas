@@ -17,6 +17,8 @@ namespace ptree
 {
 class PropertyServer
 {
+  static constexpr char kIniPathParam[] = "ini_path";
+
   using self = PropertyServer;
 
 public:

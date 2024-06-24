@@ -9,7 +9,7 @@ using namespace Eigen;
 namespace tobas_calibration
 {
 AccelCalibrationRos::AccelCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyNamespace), rate_(kSamplingRate)
+  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC), rate_(kSamplingRate)
 {
   if (!imu_.probe())
     TOBAS_EXIT("IMU not enabled.");

@@ -13,7 +13,7 @@ from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget, ScrollArea
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import GCS_NAMESPACE
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS
 
 from .common import TITLE, PKG_NAME, PARAM_SET_SRV_NAME, FLOAT_DECIMALS, WAIT_FOR_SERVER
 from .param_holders import IntParam, FloatParam
@@ -27,7 +27,7 @@ class DynamicConfigurationWidget(Widget):
     def __init__(self) -> None:
         super().__init__()
 
-        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)

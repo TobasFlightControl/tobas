@@ -1,7 +1,7 @@
 #include <filesystem>
 
+#include <tobas_linux/core.hpp>
 #include <tobas_path_tools/core.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
 
 #include "../include/tobas_property_tools/property_server.hpp"
 #include "../include/tobas_property_tools/constants.hpp"
@@ -12,8 +12,20 @@ namespace ptree
 {
 PropertyServer::PropertyServer(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
-  // Get ROS parameters
-  tobas_ros::getParam(pnh, "ini_path", ini_path_);
+  // Get configuration file path
+  if (!pnh.getParam(kIniPathParam, ini_path_))
+  {
+    ROS_FATAL_STREAM("\"" << kIniPathParam << "\" is not specified. Exiting...");
+    nh.shutdown();
+    return;
+  }
+  if (!ini_path_.ends_with(".ini"))
+  {
+    ROS_FATAL_STREAM("\"" << kIniPathParam << "\" must end with \".ini\". Exiting...");
+    nh.shutdown();
+    return;
+  }
+  ini_path_ = linux::expandUser(ini_path_);
 
   if (filesystem::exists(ini_path_))
   {
@@ -42,14 +54,15 @@ PropertyServer::PropertyServer(ros::NodeHandle& nh, ros::NodeHandle& pnh)
   }
 
   // Advertise service servers
-  get_bool_ss_ = nh.advertiseService(kGetBoolSrv, &self::getCb<tobas_property_msgs::GetBool>, this);
-  get_int_ss_ = nh.advertiseService(kGetIntSrv, &self::getCb<tobas_property_msgs::GetInt>, this);
-  get_double_ss_ = nh.advertiseService(kGetDoubleSrv, &self::getCb<tobas_property_msgs::GetDouble>, this);
-  get_string_ss_ = nh.advertiseService(kGetStringSrv, &self::getCb<tobas_property_msgs::GetString>, this);
-  set_bool_ss_ = nh.advertiseService(kSetBoolSrv, &self::setCb<tobas_property_msgs::SetBool>, this);
-  set_int_ss_ = nh.advertiseService(kSetIntSrv, &self::setCb<tobas_property_msgs::SetInt>, this);
-  set_double_ss_ = nh.advertiseService(kSetDoubleSrv, &self::setCb<tobas_property_msgs::SetDouble>, this);
-  set_string_ss_ = nh.advertiseService(kSetStringSrv, &self::setCb<tobas_property_msgs::SetString>, this);
+  const auto& name = ros::this_node::getName();
+  get_bool_ss_ = nh.advertiseService(name + "/" + kGetBoolSrv, &self::getCb<tobas_property_msgs::GetBool>, this);
+  get_int_ss_ = nh.advertiseService(name + "/" + kGetIntSrv, &self::getCb<tobas_property_msgs::GetInt>, this);
+  get_double_ss_ = nh.advertiseService(name + "/" + kGetDoubleSrv, &self::getCb<tobas_property_msgs::GetDouble>, this);
+  get_string_ss_ = nh.advertiseService(name + "/" + kGetStringSrv, &self::getCb<tobas_property_msgs::GetString>, this);
+  set_bool_ss_ = nh.advertiseService(name + "/" + kSetBoolSrv, &self::setCb<tobas_property_msgs::SetBool>, this);
+  set_int_ss_ = nh.advertiseService(name + "/" + kSetIntSrv, &self::setCb<tobas_property_msgs::SetInt>, this);
+  set_double_ss_ = nh.advertiseService(name + "/" + kSetDoubleSrv, &self::setCb<tobas_property_msgs::SetDouble>, this);
+  set_string_ss_ = nh.advertiseService(name + "/" + kSetStringSrv, &self::setCb<tobas_property_msgs::SetString>, this);
 }
 
 bool PropertyServer::saveFileCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)

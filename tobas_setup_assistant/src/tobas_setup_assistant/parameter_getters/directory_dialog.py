@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QPushButton, QLineEdit, QFileDialog, QHBoxLayout
 
 from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.messages import q_error
-from tobas_tools_py.constants import GCS_NAMESPACE
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS
 
 from .base import ParamGetterWidget
 from ..common import TITLE, PKG_NAME
@@ -20,7 +20,7 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget[str]):
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用
-        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
         self._last_opened_dir_key = f'last_opened_dir/dir_dialog/{param_name.lower().replace(" ", "_")}'
 
         self._options = QFileDialog.Options()

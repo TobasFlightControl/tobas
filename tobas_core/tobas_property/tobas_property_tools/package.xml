@@ -12,5 +12,6 @@
 	<depend>tobas_property_msgs</depend>
 	<depend>tobas_ros_tools</depend>
 	<depend>tobas_path_tools</depend>
+	<depend>tobas_linux</depend>
 
 </package>

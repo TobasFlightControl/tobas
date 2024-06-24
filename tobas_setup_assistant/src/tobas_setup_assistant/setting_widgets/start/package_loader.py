@@ -16,7 +16,7 @@ from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
-from tobas_tools_py.constants import GCS_NAMESPACE, PKG_EXTENSION
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS, PKG_EXTENSION
 from tobas_tools_py.package import get_urdf_path, get_settings_path
 from tobas_tools_py.command import source_tobas_package
 
@@ -30,7 +30,7 @@ class PackageLoaderWidget(Widget):
         super().__init__()
         self._main = main
 
-        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)

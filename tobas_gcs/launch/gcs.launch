@@ -7,4 +7,8 @@
 
   <include if="$(arg launch_fkie_master)" file="$(find tobas_fkie_master)/launch/fkie_master.launch"/>
 
+  <node pkg="tobas_property_tools" type="property_server_node" name="property_server_gcs" output="screen" required="true">
+    <param name="ini_path" value="~/.config/tobas/config.ini"/>
+  </node>
+
 </launch>

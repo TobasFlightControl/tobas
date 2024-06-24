@@ -14,7 +14,7 @@ from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import GCS_NAMESPACE
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS
 
 from ...common import TITLE, PKG_NAME
 from .common import STABILITY_COEF_DECIMALS
@@ -31,7 +31,7 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__(main)
 
-        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
 
         cols = QHBoxLayout()
         self._rows.addLayout(cols)

@@ -15,7 +15,7 @@ from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
-from tobas_tools_py.constants import GCS_NAMESPACE
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS
 
 from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
 
@@ -27,7 +27,7 @@ class URDFLoaderWidget(Widget):
         super().__init__()
         self._main = main
 
-        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
 
         rows = QVBoxLayout()
         self.setLayout(rows)

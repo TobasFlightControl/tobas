@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLa
 from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import GCS_NAMESPACE, PKG_EXTENSION
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS, PKG_EXTENSION
 from tobas_tools_py.drone import Drone, DroneLoader_File
 from tobas_tools_py.package import get_tbs_meta_name, get_tbs_config_name, get_tbsdrn_path, get_mesh_path
 
@@ -31,7 +31,7 @@ class PackageManagerWidget(Widget):
         self._main = main
         self._drone = drone
 
-        self._property_client = PropertyClient(GCS_NAMESPACE, PKG_NAME)
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
         self._ssh_client = SSHClientWrapper()
 
         cols = QHBoxLayout()

@@ -109,7 +109,7 @@ static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 
 // Others
-static constexpr char kGCSNamespace[] = "/ground_control_station";
+static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 1.;    // [s]

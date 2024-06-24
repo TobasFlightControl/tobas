@@ -9,7 +9,7 @@ using namespace std;
 namespace tobas_calibration
 {
 AdcCalibrationRos::AdcCalibrationRos(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyNamespace), rate_(kSamplingRate)
+  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC), rate_(kSamplingRate)
 {
   if (adc_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize ADC driver.");
