@@ -13,6 +13,7 @@ class BarometerHandler : public BaseSensorNode
   static constexpr size_t kSamplingRate = 50;           // [Hz]
   static constexpr double kHpfCutoff = 10.;             // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
   static constexpr size_t kNoiseStatTimeWindow = 1000;  // [ms]
+  static constexpr size_t kWindowSize = kSamplingRate * kNoiseStatTimeWindow / 1000;
 
   using self = BarometerHandler;
   using super = BaseSensorNode;

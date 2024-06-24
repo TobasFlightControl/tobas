@@ -32,9 +32,7 @@ void BarometerHandler::initializeNoiseFilter()
 {
   barometer_.update();
   const auto pressure = barometer_.getPressure();
-
-  constexpr size_t window_size = kSamplingRate * kNoiseStatTimeWindow / 1000;
-  pressure_noise_.initialize(window_size, kHpfCutoff, pressure);
+  pressure_noise_.initialize(kWindowSize, kHpfCutoff, pressure);
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)

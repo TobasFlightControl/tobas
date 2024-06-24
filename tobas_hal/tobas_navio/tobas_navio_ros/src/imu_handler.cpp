@@ -173,11 +173,10 @@ void ImuHandler::initializeNoiseFilters()
   imu_.readAccelerometer(&acc_.x(), &acc_.y(), &acc_.z());
   imu_.readGyroscope(&gyro_.x(), &gyro_.y(), &gyro_.z());
 
-  constexpr size_t window_size = kSamplingRate * kNoiseStatTimeWindow / 1000;
   for (size_t i = 0; i < 3; ++i)
   {
-    acc_noise_[i].initialize(window_size, kHpfCutoff, acc_(i));
-    gyro_noise_[i].initialize(window_size, kHpfCutoff, gyro_(i));
+    acc_noise_[i].initialize(kWindowSize, kHpfCutoff, acc_(i));
+    gyro_noise_[i].initialize(kWindowSize, kHpfCutoff, gyro_(i));
   }
 }
 }  // namespace tobas_navio_ros
