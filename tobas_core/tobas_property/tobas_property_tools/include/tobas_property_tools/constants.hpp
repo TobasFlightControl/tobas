@@ -12,5 +12,5 @@ static constexpr char kSetDoubleSrv[] = "set_double";
 static constexpr char kSetStringSrv[] = "set_string";
 static constexpr char kSaveFileSrv[] = "save_file";
 
-static constexpr double kWaitForServiceExistence = 3.;  // [s]
+static constexpr double kWaitForServiceExistence = 1.;  // [s]
 }  // namespace ptree

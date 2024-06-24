@@ -23,7 +23,7 @@ class PropertyClient:
     SET_STRING_SRV = "set_string"
     SAVE_FILE_SRV = "save_file"
 
-    WAIT_FOR_SERVICE = 3.0  # [s]
+    WAIT_FOR_SERVICE = 1.0  # [s]
 
     def __init__(self, ns: str, section: str) -> None:
         self._ns = ns
