@@ -19,7 +19,6 @@ class RCInputCalibrationRos : public tobas::BaseNode
   static constexpr char kFinishServiceName[] = "rcin_calibration/finish";
   static constexpr char kCancelServiceName[] = "rcin_calibration/cancel";
 
-  static constexpr size_t kSamplingRate = 100;  // [Hz]
   static constexpr size_t kMinSignalRange = 300;
 
   using self = RCInputCalibrationRos;

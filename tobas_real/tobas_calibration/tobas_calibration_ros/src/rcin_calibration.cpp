@@ -1,4 +1,5 @@
 #include "../include/tobas_calibration_ros/rcin_calibration.hpp"
+#include "../include/tobas_calibration_ros/constants.hpp"
 
 using namespace std;
 
@@ -10,7 +11,7 @@ RCInputCalibrationRos::RCInputCalibrationRos(ros::NodeHandle& nh, ros::NodeHandl
   if (rcin_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize RC input driver.");
 
-  publish_timer_ = nh_.createTimer(kSamplingRate, &self::publishTimerCb, this, false, false);
+  publish_timer_ = nh_.createTimer(kPublishRate, &self::publishTimerCb, this, false, false);
 
   rcin_pub_ = nh_.advertise<tobas_calibration_msgs::RCInput>(kRcInputTopicName, 1);
 

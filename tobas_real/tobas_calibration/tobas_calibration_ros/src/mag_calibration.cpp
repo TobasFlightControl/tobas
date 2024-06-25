@@ -5,6 +5,7 @@
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_calibration_ros/mag_calibration.hpp"
+#include "../include/tobas_calibration_ros/constants.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -18,7 +19,7 @@ MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, 
     TOBAS_EXIT("IMU not enabled.");
   imu_.initialize();
 
-  collect_data_timer_ = nh_.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
+  collect_data_timer_ = nh_.createTimer(kPublishRate, &self::collectDataTimerCb, this, false, false);
 
   mag_pub_ = nh_.advertise<geometry_msgs::PointStamped>(kMagTopicName, 1);
 

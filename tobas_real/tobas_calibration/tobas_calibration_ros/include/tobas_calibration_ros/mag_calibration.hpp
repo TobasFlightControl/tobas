@@ -19,7 +19,6 @@ class MagCalibrationRos : public tobas::BaseNode
   static constexpr char kFinishServiceName[] = "mag_calibration/finish";
   static constexpr char kCancelServiceName[] = "mag_calibration/cancel";
 
-  static constexpr size_t kSamplingRate = 100;     // [Hz]
   static constexpr size_t kMaxDataCount = 100000;  // 4 * 3 * 100000 / 1000000 = 1.2MB
 
   using self = MagCalibrationRos;
