@@ -43,6 +43,7 @@
 	<exec_depend>tobas_tile_server</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>
 	<exec_depend>tobas_tools_py</exec_depend>
+	<exec_depend>tobas_topic_throttle</exec_depend>
 	<exec_depend>tobas_trajectory_commander</exec_depend>
 	<exec_depend>urdf_builder</exec_depend>
 
