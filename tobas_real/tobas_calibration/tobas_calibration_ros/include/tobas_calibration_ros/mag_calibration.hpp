@@ -4,9 +4,10 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 
+#include <tobas_property_tools/property_client.hpp>
+#include <tobas_tools/node.hpp>
 #include <tobas_navio_ros/common.hpp>
 #include <tobas_navio_ros/ellipse_transformer.hpp>
-#include <tobas_tools/node.hpp>
 #include <tobas_calibration_msgs/MagCalibration.h>
 
 namespace tobas_calibration
@@ -29,12 +30,13 @@ class MagCalibrationRos : public tobas::BaseNode
 
 public:
   explicit MagCalibrationRos(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
   tobas_navio_ros::ImuDevice imu_;
+  ptree::PropertyClient property_client_;
   float mx_, my_, mz_;
   std::vector<Eigen::Vector3f> mag_data_;
   tobas_navio_ros::EllipseTransformer mag_trans_;

@@ -1,11 +1,12 @@
 #pragma once
 
+#include <vector>
 #include <boost/array.hpp>
 
 namespace tobas_std
 {
 /* 加重平均をとる． */
-template <typename T, typename U, std::size_t N>
+template <typename T, typename U, size_t N>
 T average(const boost::array<T, N>& arr, const boost::array<U, N>& weights)
 {
   T num = 0;
@@ -21,7 +22,7 @@ T average(const boost::array<T, N>& arr, const boost::array<U, N>& weights)
 }
 
 /* 平均をとる． */
-template <typename T, std::size_t N>
+template <typename T, size_t N>
 T average(const boost::array<T, N>& arr)
 {
   boost::array<double, N> weights;
@@ -41,6 +42,23 @@ template <typename T>
 inline T trace(const boost::array<T, 9>& m)
 {
   return m[0] + m[4] + m[8];
+}
+
+/* boost::array -> std::vector */
+template <typename T, size_t N>
+inline std::vector<T> toVector(const boost::array<T, N>& arr)
+{
+  return std::vector<T>(arr.begin(), arr.end());
+}
+
+/* 配列全体の型変換． */
+template <typename After, typename Before, size_t N>
+boost::array<After, N> cast(const boost::array<Before, N>& arr)
+{
+  boost::array<After, N> res;
+  for (size_t i = 0; i < N; ++i)
+    res[i] = static_cast<After>(arr[i]);
+  return res;
 }
 
 template <typename T, size_t N>

@@ -13,13 +13,7 @@ class DMCObserver(BasicObserverCont):
     """
 
     def __init__(
-        self,
-        Ac: np.ndarray,
-        Bc: np.ndarray,
-        Cy: np.ndarray,
-        Cz: np.ndarray,
-        Ts: float,
-        init_x: np.ndarray = None,
+        self, Ac: np.ndarray, Bc: np.ndarray, Cy: np.ndarray, Cz: np.ndarray, Ts: float, init_x: np.ndarray = None
     ) -> None:
         """
         Parameters
@@ -67,12 +61,4 @@ class DMCObserver(BasicObserverCont):
         else:
             init_x_tilda = np.r_[init_x, np.zeros((y_dim,))]
 
-        super().__init__(
-            Ac=Ac_tilda,
-            Bc=Bc_tilda,
-            Cy=Cy_tilda,
-            Cz=Cz_tilda,
-            Ts=Ts,
-            L=L,
-            init_x=init_x_tilda,
-        )
+        super().__init__(Ac=Ac_tilda, Bc=Bc_tilda, Cy=Cy_tilda, Cz=Cz_tilda, Ts=Ts, L=L, init_x=init_x_tilda)

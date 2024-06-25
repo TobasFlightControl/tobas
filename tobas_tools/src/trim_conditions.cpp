@@ -5,12 +5,11 @@
 #include "../include/tobas_tools/constants.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas
 {
-TrimConditions::TrimConditions(const Drone& drone)
-  : drone_(drone), inertia_solver_(drone.tree()), asd_cog_(drone)
+TrimConditions::TrimConditions(const Drone& drone) : drone_(drone), inertia_solver_(drone.tree()), asd_cog_(drone)
 {
   if (drone.isLoaded())
     updateInternalDataStructures();
@@ -94,9 +93,9 @@ int TrimConditions::update(double V, const double& rho, const JntArray& q)
   c_L_ = W_ / (q_bar * drone_.vehicle().wing_surface);                          // (2.9-47)
   alpha_ = (c_L_ - b_) / a_;                                                    // (2.9-49)
   elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
-  const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;  // TODO: 2次以上も考慮
-  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * abs(elevator_);       // (1.8-3)
-  c_T_ = c_D_ / cos(alpha_);                                          // (2.2-10b)
+  const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;            // TODO: 2次以上も考慮
+  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * abs(elevator_);                 // (1.8-3)
+  c_T_ = c_D_ / cos(alpha_);                                                    // (2.2-10b)
 
   // その他依存変数
   u_ = V * cos(alpha_);

@@ -7,9 +7,7 @@ if TYPE_CHECKING:
 import os.path as osp
 import rospkg
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.rviz import create_rviz_frame
 from tobas_tools_py.drone import Drone
@@ -31,10 +29,6 @@ class UrdfBuilderWidget(BaseAppWidget):
         self._frame = create_rviz_frame(rviz_config_path)
 
         rows.addWidget(self._frame)
-
-    @override
-    def define_connections(self) -> None:
-        pass
 
     @override
     def update_internal_data_structures(self) -> None:

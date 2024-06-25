@@ -6,13 +6,7 @@ namespace tobas_real_ros
 {
 void TimeReferenceServerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Time Reference Server Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new TimeReferenceServer(nh, pnh, name));
+  node_.reset(new TimeReferenceServer(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_real_ros
 

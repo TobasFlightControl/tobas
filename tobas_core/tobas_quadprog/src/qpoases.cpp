@@ -1,13 +1,12 @@
 #include <qpOASES.hpp>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_eigen_tools/core.hpp>
 
 #include "../include/tobas_quadprog/qpoases.hpp"
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace quadprog
 {
@@ -23,10 +22,10 @@ VectorXd QpOasesSolver::solve()
   const auto scaled = scaleProblem();
 
   // qpOASES用の行列を作成
-  const size_t var_size = scaled.varSize();
-  const size_t con_size = scaled.eqSize() + scaled.ineqSize();
+  const auto var_size = scaled.varSize();
+  const auto con_size = scaled.eqSize() + scaled.ineqSize();
 
-  double H[sqr(var_size)];
+  double H[math::sqr(var_size)];
   double g[var_size];
   double A[con_size * var_size];
   double lb[var_size];
@@ -39,15 +38,11 @@ VectorXd QpOasesSolver::solve()
 
   // 列優先の場合を考慮し，要素を1つずつコピー
   const MatrixXd A_eigen = eigen_tools::concat(scaled.G, scaled.A, 0);
-  for (size_t r = 0; r < con_size; ++r)
-  {
-    for (size_t c = 0; c < var_size; ++c)
-    {
+  for (Index r = 0; r < con_size; ++r)
+    for (Index c = 0; c < var_size; ++c)
       A[r * var_size + c] = A_eigen(r, c);
-    }
-  }
 
-  for (size_t i = 0; i < var_size; ++i)
+  for (Index i = 0; i < var_size; ++i)
   {
     lb[i] = -qpOASES::INFTY;
     ub[i] = qpOASES::INFTY;
@@ -75,9 +70,7 @@ VectorXd QpOasesSolver::solve()
 
   double x_opt[var_size];
   if (solver.getPrimalSolution(x_opt) != qpOASES::SUCCESSFUL_RETURN)
-  {
     throw runtime_error("Failed to solve QP.");
-  }
 
   // 解を元のスケールに戻して返す
   VectorXd x_scaled = Map<VectorXd>(x_opt, var_size);

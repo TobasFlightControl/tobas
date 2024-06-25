@@ -46,8 +46,7 @@ public:
    * equal 0x05)
    * @return Status of read operation (true = success)
    */
-  static int8_t
-  readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t* data);
+  static int8_t readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t* data);
 
   /** Read multiple bits from a 16-bit device register.
    * @param devAddr I2C slave device address
@@ -58,8 +57,7 @@ public:
    * equal 0x05)
    * @return Status of read operation (1 = success, 0 = failure)
    */
-  static int8_t
-  readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t* data);
+  static int8_t readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t* data);
 
   /** Read single byte from an 8-bit device register.
    * @param devAddr I2C slave device address
@@ -131,8 +129,7 @@ public:
    * @param data Right-aligned value to write
    * @return Status of operation (true = success)
    */
-  static bool
-  writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
+  static bool writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
 
   /** Write multiple bits in a 16-bit device register.
    * @param devAddr I2C slave device address
@@ -142,8 +139,7 @@ public:
    * @param data Right-aligned value to write
    * @return Status of operation (true = success)
    */
-  static bool
-  writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data);
+  static bool writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data);
 
   /** Write single byte to an 8-bit device register.
    * @param devAddr I2C slave device address

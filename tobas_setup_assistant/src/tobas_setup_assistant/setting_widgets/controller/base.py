@@ -21,15 +21,16 @@ class BaseController(Widget):
     MOVE_PKG = TO_DO
     STABLIZE_MODE = TO_DO
     ACROBAT_MODE = TO_DO
+    ABST_TEXT = TO_DO
 
-    def __init__(self, main: SetupAssistant, abst_text: str) -> None:
+    def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
 
         self._rows = QVBoxLayout()
         self.setLayout(self._rows)
 
-        abst = Description(abst_text)
+        abst = Description(self.ABST_TEXT)
         self._rows.addWidget(abst)
 
     @override
@@ -37,7 +38,15 @@ class BaseController(Widget):
         return super().close()
 
     @abstractmethod
-    def define_connections(self) -> None:
+    def update_internal_data_structures(self) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def dump_settings(self) -> dict:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def load_settings(self, data: dict) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -64,3 +73,7 @@ class BaseController(Widget):
     def static_parameters(self) -> dict:
         """静的プライベートROSパラメータをまとめた辞書を返す．"""
         raise NotImplementedError()
+
+    @abstractmethod
+    def on_opened(self) -> None:
+        pass

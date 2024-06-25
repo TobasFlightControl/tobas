@@ -47,8 +47,7 @@ public:
   inline Eigen::Vector2d getXY() const;
   inline double getAltitude() const;
   inline Eigen::Vector3d getVelocity() const;
-  inline Eigen::Vector3d
-  getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
+  inline Eigen::Vector3d getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
   inline Eigen::Quaterniond getQuaternion() const;
   inline Eigen::Vector3d getAccelBias() const;
   inline Eigen::Vector3d getGyroBias() const;
@@ -179,7 +178,7 @@ private:
    *
    * @return Anormaly score
    */
-  template <size_t M>
+  template <int M>
   double correct(
     const Eigen::Matrix<double, M, 1>& delta_meas,
     const Eigen::Matrix<double, M, M>& meas_cov,
@@ -213,9 +212,8 @@ inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity() const
   return x_.segment<3>(kVelIdx);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(
-  const Eigen::Vector3d& offset,
-  const Eigen::Vector3d& gyro_meas) const
+inline Eigen::Vector3d
+ErrorStateKalmanFilter::getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const
 {
   return getVelocity() + getQuaternion() * (gyro_meas - getGyroBias()).cross(offset);
 }
@@ -301,7 +299,7 @@ inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const
   return x_.segment<4>(kQuatIdx);
 }
 
-template <size_t M>
+template <int M>
 double ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, 1>& delta_meas,
   const Eigen::Matrix<double, M, M>& meas_cov,

@@ -1,4 +1,3 @@
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Battery.h>
 
@@ -9,29 +8,31 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-BatteryHandler::BatteryHandler(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name)
+BatteryHandler::BatteryHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
 {
-  if (!reloadConfig())
-    TOBAS_EXIT("Failed to load configuratins.");
+  PRINT_DEBUG("BatteryHandler::BatteryHandler");
 
   if (adc_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize ADC driver.");
 
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
+  reloadConfig();
 
-  reload_config_srv_ =
-    nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
+  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+
+  PRINT_DEBUG("/BatteryHandler::BatteryHandler");
 }
 
 bool BatteryHandler::reloadConfig()
 {
-  tobas_std::PropertyTree pt(kConfigPath);
-  pt.get(kConfigKey_AdcCoef, adc_coef_, kDefaultAdcVoltageCoef);
+  if (property_client_.get(kConfigKey_AdcCoef, adc_coef_) < 0)
+  {
+    TOBAS_ERROR(property_client_.errorMessage());
+    adc_coef_ = kDefaultAdcVoltageCoef;
+    return false;
+  }
 
   return true;
 }

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 ChainJntToInertiaSolver::ChainJntToInertiaSolver(const Chain& chain) : super(chain)
 {
@@ -52,4 +52,4 @@ int ChainJntToInertiaSolver::JntToCart(const JntArray& q)
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace kdl

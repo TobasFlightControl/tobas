@@ -4,16 +4,11 @@
   <arg name="ground_truth" default="false"/>
   <arg name="node_name" default="tobas_fixed_wing_lqd"/>
 
-  <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_fixed_wing_lqd/ControllerNodelet nodelet_manager" output="screen">
-      <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
-    </node>
-  </group>
-
-  <group unless="$(arg nodelet)">
-    <node pkg="tobas_fixed_wing_lqd" type="controller_node" name="$(arg node_name)" output="screen">
-      <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
-    </node>
-  </group>
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_fixed_wing_lqd/ControllerNodelet nodelet_manager_high" output="screen">
+    <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
+  </node>
+  <node unless="$(arg nodelet)" pkg="tobas_fixed_wing_lqd" type="controller_node" name="$(arg node_name)" output="screen">
+    <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
+  </node>
 
 </launch>

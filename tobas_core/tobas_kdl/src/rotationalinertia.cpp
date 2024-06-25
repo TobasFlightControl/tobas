@@ -2,15 +2,9 @@
 
 using namespace Eigen;
 
-namespace KDL
+namespace kdl
 {
-RotationalInertia::RotationalInertia(
-  double Ixx,
-  double Iyy,
-  double Izz,
-  double Ixy,
-  double Ixz,
-  double Iyz)
+RotationalInertia::RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
 {
   data(0, 0) = Ixx;
   data(0, 1) = data(1, 0) = Ixy;
@@ -23,4 +17,4 @@ RotationalInertia::RotationalInertia(
 RotationalInertia::RotationalInertia(const Matrix3d& data) : data(data)
 {
 }
-}  // namespace KDL
+}  // namespace kdl

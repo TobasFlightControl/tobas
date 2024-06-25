@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_state_checker/state_checker.hpp"
@@ -7,10 +7,7 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+StateChecker::StateChecker(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), landing_ac_(tobas::kLandAction)
 {
   drone_.loadFromParam(nh_);
@@ -37,8 +34,8 @@ void StateChecker::requestLanding()
   if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
   {
     TOBAS_ERROR(
-      "'", tobas::kLandAction, "' action server failed to start within ",
-      kWaitForActionServerTimeout, " seconds. Please check the server status.");
+      "'", tobas::kLandAction, "' action server failed to start within ", kWaitForActionServerTimeout,
+      " seconds. Please check the server status.");
     return;
   }
 
@@ -91,8 +88,7 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
   if (cpu->temperature > kCpuTempertureThreshold)
   {
     TOBAS_WARN_THROTTLE(
-      kWarnPeriod, "CPU temperature is too high: ", cpu->temperature,
-      " [C]. It is time to stop flying.");
+      kWarnPeriod, "CPU temperature is too high: ", cpu->temperature, " [C]. It is time to stop flying.");
   }
 }
 
@@ -104,19 +100,18 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   if (battery->voltage < drone_.batteryConfig().sag_voltage)
   {
     TOBAS_WARN_THROTTLE(
-      kWarnPeriod, "Battery voltage is too low: ", battery->voltage,
-      " [V]. It is time to stop flying.");
+      kWarnPeriod, "Battery voltage is too low: ", battery->voltage, " [V]. It is time to stop flying.");
   }
 }
 
-void StateChecker::eulerCb(const tobas_kdl_msgs::EulerConstPtr& euler)
+void StateChecker::eulerCb(const tobas_kdl_msgs::EulerStampedConstPtr& euler)
 {
   if (arming_ == nullptr || !arming_->data)
     return;
 
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
-  if (max(abs(euler->roll), abs(euler->pitch)) > kAttitudeThreshold)
+  if (max(abs(euler->euler.roll), abs(euler->euler.pitch)) > kAttitudeThreshold)
   {
     TOBAS_FATAL("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();

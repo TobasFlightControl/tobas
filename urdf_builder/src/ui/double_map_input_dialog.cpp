@@ -1,18 +1,10 @@
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QDialogButtonBox>
-
 #include "../../include/urdf_builder/ui/double_map_input_dialog.hpp"
 
 namespace urdf_builder
 {
 namespace ui
 {
-DoubleMapInputDialog::DoubleMapInputDialog(
-  const QString& title,
-  const QStringList& field_names,
-  QWidget* parent)
+DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names)
   : QDialog(parent)
 {
   setWindowTitle(title);

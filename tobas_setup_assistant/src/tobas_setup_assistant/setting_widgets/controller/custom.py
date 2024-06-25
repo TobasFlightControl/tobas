@@ -17,13 +17,21 @@ class CustomController(BaseController):
     MOVE_PKG = "tobas_dummy_pkg"
     STABLIZE_MODE = ""
     ACROBAT_MODE = ""
+    ABST_TEXT = ""  # TODO: APIの案内など
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = ""  # TODO: APIの案内など
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
     @override
-    def define_connections(self) -> None:
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
+    def dump_settings(self) -> dict:
+        return dict()
+
+    @override
+    def load_settings(self, data: dict) -> None:
         pass
 
     @override

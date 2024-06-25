@@ -1,8 +1,10 @@
+#include <iostream>
+
 #include "../include/tobas_kdl/treejnttojacsolver.hpp"
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 TreeJntToJacSolver::TreeJntToJacSolver(const Tree& tree) : super(tree)
 {
@@ -31,19 +33,19 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     return setDefaultError(E_OUT_OF_RANGE);
 
   // Let's make the jacobian zero:
-  setToZero(jac_);
+  jac_.setZero();
 
   const auto root = tree_.getRootSegment();
-  Frame T_total = Frame::Identity();
+  auto T_total = Frame::Identity();
 
   // Lets recursively iterate until we are in the root segment
   while (it != root)
   {
     // get the corresponding q_nr for this TreeElement:
-    const size_t& q_nr = it->second.q_nr;
+    const auto& q_nr = it->second.q_nr;
 
     // get the pose of the segment:
-    Frame T_local = it->second.segment.pose(q_in(q_nr));
+    const auto T_local = it->second.segment.pose(q_in(q_nr));
     // calculate new T_end:
     T_total = T_local * T_total;
 
@@ -62,9 +64,10 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     // goto the parent
     it = it->second.parent;
   }
+
   // Change the base of the complete jacobian from the endpoint to the base
   changeBase(jac_, T_total.M, jac_);
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace kdl

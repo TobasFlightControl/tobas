@@ -12,21 +12,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_math
 )
-find_package(X11 REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	DEPENDS X11
+	CATKIN_DEPENDS tobas_math
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)
 
-# TODO: g++-9以上が使えるようになったらstdc++fs (filesystemへのリンク) を削除．他のファイルも同様．
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${X11_LIBRARIES} stdc++fs)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 foreach(FILE IN LISTS EXE_FILES)

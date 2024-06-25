@@ -18,19 +18,8 @@ int main()
 
   while (true)
   {
-    barometer.refreshPressure();
-    usleep(10000);  // Waiting for pressure data ready
-    barometer.readPressure();
-
-    barometer.refreshTemperature();
-    usleep(10000);  // Waiting for temperature data ready
-    barometer.readTemperature();
-
-    barometer.calculatePressureAndTemperature();
-
-    cout << "Temperature[C]: " << barometer.getTemperature()
-         << ", Pressure[Pa]: " << barometer.getPressure() << endl;
-
+    barometer.update();
+    cout << "Temperature[C]: " << barometer.getTemperature() << ", Pressure[Pa]: " << barometer.getPressure() << endl;
     sleep(1);
   }
 

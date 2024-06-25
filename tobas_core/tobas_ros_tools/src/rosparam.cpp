@@ -34,8 +34,7 @@ void getParam(ros::NodeHandle& nh, const string& key, uint8_t& param)
   int tmp;
   getParam(nh, key, tmp);
   ROS_CHECK(
-    nh, numeric_limits<uint8_t>::lowest() <= tmp && tmp <= numeric_limits<uint8_t>::max(),
-    "The specified value for '" << key << "' is out of range of unsigned char.");
+    nh, 0 <= tmp && tmp <= UINT8_MAX, "The specified value for '" << key << "' is out of range of unsigned char.");
   param = static_cast<uint8_t>(tmp);
 }
 
@@ -44,7 +43,7 @@ void getParam(ros::NodeHandle& nh, const string& key, uint8_t& param, const uint
   int tmp;
   getParam(nh, key, tmp, static_cast<int>(_default));
 
-  if (tmp < numeric_limits<uint8_t>::lowest() || numeric_limits<uint8_t>::max() < tmp)
+  if (tmp < 0 || UINT8_MAX < tmp)
   {
     ROS_ERROR_STREAM(
       "The specified value for '" << key << "' is out of range of unsigned char. The default value "
@@ -54,6 +53,30 @@ void getParam(ros::NodeHandle& nh, const string& key, uint8_t& param, const uint
   }
 
   param = static_cast<uint8_t>(tmp);
+}
+
+void getParam(ros::NodeHandle& nh, const string& key, Vector2d& param)
+{
+  vector<double> tmp;
+  getParam(nh, key, tmp);
+  ROS_CHECK(nh, tmp.size() == 2, "The size of '" << key << "' must be 2.");
+  param = Map<Vector2d>(tmp.data());
+}
+
+void getParam(ros::NodeHandle& nh, const string& key, Vector2d& param, const Vector2d& _default)
+{
+  vector<double> param_vec;
+  const vector<double> default_vec(_default.data(), _default.data() + _default.size());
+  getParam(nh, key, param_vec, default_vec);
+
+  if (param_vec.size() != 2)
+  {
+    ROS_ERROR_STREAM("The size of specified vector for '" << key << "' is not 2. The default vector is used.");
+    param = _default;
+    return;
+  }
+
+  param = Map<Vector2d>(param_vec.data());
 }
 
 void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param)
@@ -72,8 +95,7 @@ void getParam(ros::NodeHandle& nh, const string& key, Vector3d& param, const Vec
 
   if (param_vec.size() != 3)
   {
-    ROS_ERROR_STREAM(
-      "The size of specified vector for '" << key << "' is not 3. The default vector is used.");
+    ROS_ERROR_STREAM("The size of specified vector for '" << key << "' is not 3. The default vector is used.");
     param = _default;
     return;
   }

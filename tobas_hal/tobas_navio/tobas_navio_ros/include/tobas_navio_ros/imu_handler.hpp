@@ -1,71 +1,54 @@
 #pragma once
 
 #include <Eigen/Core>
-#include <ros/ros.h>
-#include <ros/timer.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_property_tools/property_client.hpp>
+#include <tobas_dsp/noise_variance_filter.hpp>
 
-#include "./ellipse_transformer.hpp"
 #include "./common.hpp"
+#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class ImuHandler : public tobas::BaseNode
+class ImuHandler : public BaseSensorNode
 {
   // Constants
-  static constexpr size_t kSamplingRate = 400;  // [Hz]
-  static constexpr size_t kMeasureGyroBiasCount = 1000;
+  static constexpr size_t kSamplingRate = 400;         // [Hz]
+  static constexpr double kHpfCutoff = 30.;            // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
+  static constexpr size_t kNoiseStatTimeWindow = 500;  // [ms]
+  static constexpr size_t kWindowSize = kSamplingRate * kNoiseStatTimeWindow / 1000;
+
+  static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
   static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
-  // Defaults (例外を出さないためにデフォルト値は基本用意しておく)
-  static constexpr double kDefaultAccNoiseDensity = 0.05;    // [m/s^2/sqrt(Hz)]
-  static constexpr double kDefaultGyroNoiseDensity = 0.005;  // [rad/s/sqrt(Hz)]
-  static constexpr double kDefaultMagNoiseDensity = 0.05;    // [/sqrt(Hz)]
-
   using self = ImuHandler;
-  using super = tobas::BaseNode;
+  using super = BaseSensorNode;
 
 public:
-  explicit ImuHandler(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+  explicit ImuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
   ImuDevice imu_;
+  ptree::PropertyClient property_client_;
 
-  double acc_var_, gyro_var_, mag_var_;
-  Eigen::Vector3f acc_, gyro_, mag_;
-
-  // ジャイロバイアス関連
-  size_t loop_cnt_ = 0;
-  Eigen::Vector3f gyro_sum_ = Eigen::Vector3f::Zero();
+  Eigen::Vector3f acc_, gyro_;
   Eigen::Vector3f gyro_bias_;
+  std::array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 
   // Config
-  double acc_noise_density_;   // [m/s^2/sqrt(Hz)]
-  double gyro_noise_density_;  // [rad/s/sqrt(Hz)]
-  double mag_noise_density_;   // [/sqrt(Hz)]
-  Eigen::Vector3f acc_bias_;   // [m/s^2]
-  EllipseTransformer mag_trans_;
+  Eigen::Vector3f acc_bias_;  // [m/s^2]
 
-  // Publisher
   ros::Publisher imu_pub_;
-  ros::Publisher mag_pub_;
-
-  // Service Server
   ros::ServiceServer reload_config_srv_;
-
-  // Timer
-  ros::Timer main_timer_;
-  ros::Timer measure_gyro_bias_timer_;
+  ros::Timer initialize_timer_;
 
   bool reloadConfig();
+  void measureGyroBias();
+  void initializeNoiseFilters();
 
   bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
-  void measureGyroBiasTimerCb(const ros::TimerEvent&);
+  void initializeTimerCb(const ros::TimerEvent&);
 };
 }  // namespace tobas_navio_ros

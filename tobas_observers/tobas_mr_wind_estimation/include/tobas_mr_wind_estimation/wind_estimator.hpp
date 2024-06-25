@@ -23,8 +23,8 @@ class WindEstimator : public tobas::BaseNode
 
 public:
   explicit WindEstimator(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
   void updateInternalDataStructures();
@@ -45,7 +45,7 @@ private:
   ros::Subscriber odom_sub_;
   ros::Subscriber rotor_speeds_sub_;
 
-  Eigen::Matrix3d velCoef(const KDL::Rotation& R_W_B);
+  Eigen::Matrix3d velCoef(const kdl::Rotation& R_W_B);
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);

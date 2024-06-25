@@ -37,10 +37,10 @@ struct LinkState_
   /* ADDED */
   LinkState_(
     const std::string& _name,
-    const KDL::Frame& _frame,
-    const KDL::Twist& _twist,
-    const KDL::Accel& _accel,
-    const KDL::Wrench& _wrench)
+    const kdl::Frame& _frame,
+    const kdl::Twist& _twist,
+    const kdl::Accel& _accel,
+    const kdl::Wrench& _wrench)
     : name(_name), frame(_frame), twist(_twist), accel(_accel), wrench(_wrench)
   {
   }
@@ -88,8 +88,8 @@ bool operator==(
   const ::tobas_msgs::LinkState_<ContainerAllocator1>& lhs,
   const ::tobas_msgs::LinkState_<ContainerAllocator2>& rhs)
 {
-  return lhs.name == rhs.name && lhs.frame == rhs.frame && lhs.twist == rhs.twist
-         && lhs.accel == rhs.accel && lhs.wrench == rhs.wrench;
+  return lhs.name == rhs.name && lhs.frame == rhs.frame && lhs.twist == rhs.twist && lhs.accel == rhs.accel
+         && lhs.wrench == rhs.wrench;
 }
 
 template <typename ContainerAllocator1, typename ContainerAllocator2>
@@ -248,15 +248,11 @@ template <class ContainerAllocator>
 struct Printer<::tobas_msgs::LinkState_<ContainerAllocator>>
 {
   template <typename Stream>
-  static void stream(
-    Stream& s,
-    const std::string& indent,
-    const ::tobas_msgs::LinkState_<ContainerAllocator>& v)
+  static void stream(Stream& s, const std::string& indent, const ::tobas_msgs::LinkState_<ContainerAllocator>& v)
   {
     s << indent << "name: ";
     Printer<std::basic_string<
-      char, std::char_traits<char>,
-      typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>>::
+      char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>>::
       stream(s, indent + "  ", v.name);
     s << indent << "frame: ";
     s << std::endl;

@@ -65,10 +65,7 @@ bool ArduPilotSocket::connect(const char* _address, const uint16_t _port)
   return true;
 }
 
-void ArduPilotSocket::makeSockAddr(
-  const char* _address,
-  const uint16_t _port,
-  struct sockaddr_in& _sockaddr)
+void ArduPilotSocket::makeSockAddr(const char* _address, const uint16_t _port, struct sockaddr_in& _sockaddr)
 {
   memset(&_sockaddr, 0, sizeof(_sockaddr));
 

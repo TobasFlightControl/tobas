@@ -2,12 +2,15 @@ from enum import Enum
 
 
 class JointType:
-    FIXED = "fixed"
+    """urdf_parser_py.urdf.Joint.TYPESに対応．"""
+
+    UNKNOWN = "unknown"
     REVOLUTE = "revolute"
     CONTINUOUS = "continuous"
     PRISMATIC = "prismatic"
-    PLANER = "planar"
     FLOATING = "floating"
+    PLANER = "planar"
+    FIXED = "fixed"
 
 
 class HardwareInterface(Enum):

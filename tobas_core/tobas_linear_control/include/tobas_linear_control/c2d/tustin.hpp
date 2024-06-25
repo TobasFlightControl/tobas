@@ -11,16 +11,15 @@ namespace ctrl
 class C2D_Tustin : BaseC2D
 {
 public:
-  explicit C2D_Tustin(const size_t& x_size, const size_t& u_size);
+  explicit C2D_Tustin(const Eigen::Index& x_size, const Eigen::Index& u_size);
   explicit C2D_Tustin();
 
   LinearDynamics convert(const LinearDynamics& cont, const double& dt) override;
 
-  void resize(const size_t& x_size, const size_t& u_size);
+  void resize(const Eigen::Index& x_size, const Eigen::Index& u_size);
 
 private:
-  size_t x_size_;
-  size_t u_size_;
+  Eigen::Index x_size_, u_size_;
   Eigen::MatrixXd I_;  // 単位行列
 };
 }  // namespace ctrl

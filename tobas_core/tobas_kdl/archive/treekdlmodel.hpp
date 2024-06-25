@@ -46,8 +46,7 @@ public:
     JntArray& torques);
 
   /* Recursive Newton Euler */
-  void
-  inverseDynamics(const JntArray& q, const JntArray& qd, const JntArray& qdd, JntArray& torques);
+  void inverseDynamics(const JntArray& q, const JntArray& qd, const JntArray& qdd, JntArray& torques);
 
   /* 関節空間における慣性行列M(q)を計算する． */
   void jntSpaceInertiaMatrix(const JntArray& q, const JntArray& qd, JntSpaceInertiaMatrix& inertia);

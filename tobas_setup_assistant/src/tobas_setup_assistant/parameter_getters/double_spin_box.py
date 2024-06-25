@@ -1,3 +1,4 @@
+from overrides import override
 from typing import Optional
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 
@@ -7,7 +8,7 @@ from tobas_rqt_tools.widgets import DoubleSpinBox
 from .base import ParamGetterWidget
 
 
-class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
+class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget[float]):
     value_changed = pyqtSignal(float)
 
     def __init__(
@@ -41,11 +42,13 @@ class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget):
         self._spin_box.setFocusPolicy(Qt.StrongFocus)
         self._spin_box.valueChanged.connect(self._on_value_changed)
 
+    @override
     def get(self) -> float:
         return self._spin_box.value()
 
-    def set(self, value: float) -> None:
-        self._spin_box.setValue(value)
+    @override
+    def set(self, src: float) -> None:
+        self._spin_box.setValue(src)
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:

@@ -8,14 +8,11 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_np_pid
 {
-ControllerRos::ControllerRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), js_converter_(drone_.tree()), mixer_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
@@ -26,15 +23,13 @@ ControllerRos::ControllerRos(
   registerPublishers();
   registerSubscribers();
 
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ControllerRos::registerPublishers()
 {
   rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
-  feedback_pub_ =
-    nh_.advertise<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
+  feedback_pub_ = nh_.advertise<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
 
 void ControllerRos::registerSubscribers()
@@ -58,22 +53,19 @@ bool ControllerRos::isReadyToControl()
 
   if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
     return false;
   }
 
   if (battery_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
     return false;
   }
 
   if (drone_.isTransformable() && js_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kJointStatesTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kJointStatesTopic);
     return false;
   }
 
@@ -114,19 +106,16 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
   // 位置制御器
   const Vector cur_vel_W = odom->frame.M * odom->twist.vel;  // 世界座標系から見た現在の速度
-  const Vector tar_acc_fb(
-    pos_pid_.update(odom->frame.p.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
+  const Vector tar_acc_fb(pos_pid_.update(odom->frame.p.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
   const Vector tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
-  const Vector tar_dgyro_fb =
-    ori_pid_.update(Euler(odom->frame.M), odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
+  const Vector tar_dgyro_fb = ori_pid_.update(Euler(odom->frame.M), odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
   const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // ミキサーで6軸加速度をプロペラの推力に変換
   const VectorXd thrusts = mixer_.solve(
-    battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W,
-    tar_dgyro_B);
+    battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B);
 
   // 目標回転数を発行
   const auto tar_rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
@@ -190,15 +179,13 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
 {
   if (!isReadyToControl())
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
   }
 
   if (!cmd_level_handler_.update(cmd->level.data, ros::Time::now()))
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
   }
 

@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QPushButton, QLabel, QLineEdit, QHBoxLayout
 from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.widgets import DoubleSpinBox
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import Service
 from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import AdcCalibration, AdcCalibrationRequest, AdcCalibrationResponse
 
@@ -51,6 +52,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._start_button.clicked.connect(self._on_start_button_clicked)
         self._rows.addWidget(self._start_button)
 
         self._rows.addSpacing(50)
@@ -71,10 +73,6 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         self._rows.addStretch()
 
         self.setEnabled(False)
-
-    @override
-    def define_connections(self) -> None:
-        self._start_button.clicked.connect(self._on_start_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -102,7 +100,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "ADC calibration finished.")
 
     def _calibrate(self) -> bool:
-        adc_calib_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/adc_calibration", AdcCalibration)
+        adc_calib_sc = rospy.ServiceProxy(f"{self._drone.name}/adc_calibration", AdcCalibration)
         try:
             adc_calib_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -127,7 +125,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/battery_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/battery_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:

@@ -22,26 +22,34 @@ class NonPlanarPid(BaseController):
     MOVE_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PoseTwistAccelCommand.__name__
     ACROBAT_MODE = PoseTwistAccelCommand.__name__  # TODO
+    ABST_TEXT = "This is a PID controller for non-planar multirotors."
 
     MIN_NUM_PROP = 3
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "This is a PID controller for non-planar multirotors."
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
     @override
-    def define_connections(self) -> None:
+    def update_internal_data_structures(self) -> None:
+        pass
+
+    @override
+    def dump_settings(self) -> dict:
+        return dict()
+
+    @override
+    def load_settings(self, data: dict) -> None:
         pass
 
     @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
-        fixed_wing = self._main.settings.fixed_wing
+        fixed_wing = self._main.fixed_wing
         if fixed_wing.has_fixed_wing.isChecked():
             return False
 
         # プロペラの個数条件
-        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
+        prop_jnt_names = self._main.propulsion_system.selected.joint_names()
         if len(prop_jnt_names) < self.MIN_NUM_PROP:
             return False
 
@@ -58,7 +66,7 @@ class NonPlanarPid(BaseController):
     @override
     def is_valid(self) -> bool:
         # 両方の回転方向のプロペラをもつ
-        directions = set(self._main.settings.propulsion_system.selected.directions())
+        directions = set(self._main.propulsion_system.selected.directions())
         assert len(directions) <= 2
         if len(directions) == 1:
             if not yes_or_no(

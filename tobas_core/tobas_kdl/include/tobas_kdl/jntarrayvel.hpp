@@ -4,7 +4,7 @@
 #include "./framevel.hpp"
 #include "./utilities/utility.hpp"
 
-namespace KDL
+namespace kdl
 {
 class JntArrayVel
 {
@@ -88,4 +88,4 @@ inline JntArrayVel JntArrayVel::operator/(const doubleVel& rhs) const
   assert(rhs.t != 0);
   return JntArrayVel(q / rhs.t, qdot / rhs.t - q * (rhs.grad / sqr(rhs.t)));
 }
-}  // namespace KDL
+}  // namespace kdl

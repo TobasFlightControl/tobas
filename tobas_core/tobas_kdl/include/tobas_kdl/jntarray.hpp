@@ -2,7 +2,7 @@
 
 #include "./frames.hpp"
 
-namespace KDL
+namespace kdl
 {
 class JntArray
 {
@@ -26,6 +26,11 @@ public:
 
   inline double max() const;
   inline double min() const;
+
+  inline JntArray max(double x);
+  inline JntArray min(double x);
+
+  inline JntArray hadamard(const JntArray& arg);
 
   inline JntArray operator+(const JntArray& rhs) const;
   inline JntArray operator-(const JntArray& rhs) const;
@@ -99,6 +104,22 @@ inline double JntArray::max() const
 inline double JntArray::min() const
 {
   return data.minCoeff();
+}
+
+inline JntArray JntArray::max(double x)
+{
+  return JntArray(data.cwiseMax(x));
+}
+
+inline JntArray JntArray::min(double x)
+{
+  return JntArray(data.cwiseMin(x));
+}
+
+inline JntArray JntArray::hadamard(const JntArray& arg)
+{
+  assert(rows() == arg.rows());
+  return JntArray(data.cwiseProduct(arg.data));
 }
 
 inline JntArray JntArray::operator+(const JntArray& rhs) const
@@ -175,4 +196,4 @@ inline void setToZero(JntArray& array)
 {
   array.data.setZero();
 }
-}  // namespace KDL
+}  // namespace kdl

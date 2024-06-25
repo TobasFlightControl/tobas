@@ -6,13 +6,7 @@ namespace tobas_dynamixel_handler
 {
 void DynamixelHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Dynamixel Handler Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new DynamixelHandler(nh, pnh, name));
+  node_.reset(new DynamixelHandler(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_dynamixel_handler
 

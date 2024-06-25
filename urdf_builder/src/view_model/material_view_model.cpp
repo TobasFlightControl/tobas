@@ -20,6 +20,10 @@ MaterialViewModel::MaterialViewModel(const urdf::MaterialSharedPtr& model)
   }
 }
 
+void MaterialViewModel::sync()
+{
+}
+
 QString MaterialViewModel::name() const
 {
   return QString::fromStdString(model_->name);

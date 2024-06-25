@@ -26,16 +26,16 @@ class VelocityControllerRos : public tobas::BaseNode
 
 public:
   explicit VelocityControllerRos(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
   tobas::Drone drone_;
-  KDL::TreeJointStateConverter cur_js_conv_;
-  KDL::TreeJointStateConverter tar_js_conv_;
-  KDL::TreeActiveJointsExtractor active_jnts_extractor_;
-  KDL::TreeTaskSpaceVelCtrl vel_ctrl_;
+  kdl::TreeJointStateConverter cur_js_conv_;
+  kdl::TreeJointStateConverter tar_js_conv_;
+  kdl::TreeActiveJointsExtractor active_jnts_extractor_;
+  kdl::TreeTaskSpaceVelCtrl vel_ctrl_;
 
   tobas_ros::TransformListener tf_listener_;
   double jnt_time_const_;

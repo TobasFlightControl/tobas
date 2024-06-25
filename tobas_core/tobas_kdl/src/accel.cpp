@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace kdl
 {
 Vector6d Accel::ravel() const
 {
@@ -11,4 +11,4 @@ Vector6d Accel::ravel() const
   res << linear.data, angular.data;
   return res;
 }
-}  // namespace KDL
+}  // namespace kdl

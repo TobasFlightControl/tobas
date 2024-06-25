@@ -6,13 +6,7 @@ namespace tobas_navio_ros
 {
 void BarometerHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Barometer Handler Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new BarometerHandler(nh, pnh, name));
+  node_.reset(new BarometerHandler(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_navio_ros
 

@@ -1,4 +1,5 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/assert.hpp>
 #include <tobas_std_tools/console.hpp>
 
@@ -10,7 +11,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace et = eigen_tools;
 
@@ -107,7 +107,7 @@ void ErrorStateKalmanFilter::predictIMU(
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
-  // x_.segment<3>(kPosIdx) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * sqr(dt);
+  // x_.segment<3>(kPosIdx) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * math::sqr(dt);
   x_.segment<3>(kPosIdx) += getVelocity() * dt;  // 積分誤差が大きくなるため二階積分は考えない
   x_.segment<3>(kVelIdx) += (acc_W + getGravVector()) * dt;
   x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
@@ -126,8 +126,8 @@ void ErrorStateKalmanFilter::predictIMU(
   et::symmetrise(P_);  // 対称化 (これが必須)
 
   // (269)第二項: プロセスノイズを印加
-  P_.diagonal().segment<3>(kDeltaVelIdx).array() += acc_noise_var * sqr(dt);
-  P_.diagonal().segment<3>(kDeltaThetaIdx).array() += gyro_noise_var * sqr(dt);
+  P_.diagonal().segment<3>(kDeltaVelIdx).array() += acc_noise_var * math::sqr(dt);
+  P_.diagonal().segment<3>(kDeltaThetaIdx).array() += gyro_noise_var * math::sqr(dt);
   P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_noise_var;
   P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_noise_var;
   P_(kDeltaGravIdx, kDeltaGravIdx) += grav_var;
@@ -138,10 +138,8 @@ void ErrorStateKalmanFilter::predictIMU(
   assertWithMsg(et::isFinite(P_), "Covariance matrix:\n" << P_);
 }
 
-double ErrorStateKalmanFilter::measurePosition(
-  const Vector3d& pos_meas,
-  const Matrix3d& pos_cov,
-  const Vector3d& offset)
+double
+ErrorStateKalmanFilter::measurePosition(const Vector3d& pos_meas, const Matrix3d& pos_cov, const Vector3d& offset)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosition");
 
@@ -152,7 +150,7 @@ double ErrorStateKalmanFilter::measurePosition(
   const auto Q_dtheta = getQ_dtheta();
   H_pos_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
-  return correct<3>(delta_pos, pos_cov, H_pos_);
+  return correct(delta_pos, pos_cov, H_pos_);
 }
 
 double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov)
@@ -160,7 +158,7 @@ double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureXY");
 
   const Vector2d delta_xy = xy_meas - getXY();
-  return correct<2>(delta_xy, xy_cov, H_xy_);
+  return correct(delta_xy, xy_cov, H_xy_);
 }
 
 double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var)
@@ -168,7 +166,7 @@ double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const doubl
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureAltitude");
 
   const double delta_z = z_meas - getAltitude();
-  return correct<1>(Scalard(delta_z), Scalard(z_var), H_z_);
+  return correct(Scalard(delta_z), Scalard(z_var), H_z_);
 }
 
 double ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
@@ -199,7 +197,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   // ジャイロバイアスによる偏微分
   H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM() * et::crossMat(offset);
 
-  return correct<3>(delta_vel, vel_cov, H_vel_);
+  return correct(delta_vel, vel_cov, H_vel_);
 }
 
 double ErrorStateKalmanFilter::measurePosVel(
@@ -236,11 +234,10 @@ double ErrorStateKalmanFilter::measurePosVel(
   cov.bottomLeftCorner<3, 3>().setZero();
 
   // 事後推定を更新
-  return correct<6>(delta, cov, H_pv_);
+  return correct(delta, cov, H_pv_);
 }
 
-double
-ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
+double ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureQuaternion");
 
@@ -248,7 +245,7 @@ ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matri
   const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
   const Vector3d delta_theta = et::quaternionToAngleAxis(q_error);
 
-  return correct<3>(delta_theta, theta_cov, H_theta_);
+  return correct(delta_theta, theta_cov, H_theta_);
 }
 
 double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Matrix3d& grav_cov)
@@ -262,7 +259,7 @@ double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Ma
 
   H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::crossMat(grav_B);
   H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
-  return correct<3>(delta_acc, grav_cov, H_acc_);
+  return correct(delta_acc, grav_cov, H_acc_);
 }
 
 double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& yaw_var)
@@ -270,7 +267,7 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
 
   // Compute innovation
-  const double delta_yaw = wrapPi(yaw_meas - getYaw());
+  const double delta_yaw = tobas_std::wrapPi(yaw_meas - getYaw());
 
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
   constexpr double kEpsilon = 1e-6;
@@ -280,12 +277,12 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   const double SA0 = 2 * q.z();
   const double SA1 = 2 * q.y();
   const double SA2 = SA0 * q.w() + SA1 * q.x();
-  const double SA3 = sqr(q.w()) + sqr(q.x()) - sqr(q.y()) - sqr(q.z());
+  const double SA3 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
   double SA4, SA5_inv;
-  if (sqr(SA3) > kEpsilon)
+  if (math::sqr(SA3) > kEpsilon)
   {
-    SA4 = 1 / sqr(SA3);
-    SA5_inv = sqr(SA2) * SA4 + 1;
+    SA4 = 1 / math::sqr(SA3);
+    SA5_inv = math::sqr(SA2) * SA4 + 1;
     can_use_A = abs(SA5_inv) > kEpsilon;
   }
 
@@ -293,12 +290,12 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   const double SB0 = 2 * q.w();
   const double SB1 = 2 * q.x();
   const double SB2 = SB0 * q.z() + SB1 * q.y();
-  const double SB4 = sqr(q.w()) + sqr(q.x()) - sqr(q.y()) - sqr(q.z());
+  const double SB4 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
   double SB3, SB5_inv;
-  if (sqr(SB2) > kEpsilon)
+  if (math::sqr(SB2) > kEpsilon)
   {
-    SB3 = 1 / sqr(SB2);
-    SB5_inv = SB3 * sqr(SB4) + 1;
+    SB3 = 1 / math::sqr(SB2);
+    SB5_inv = SB3 * math::sqr(SB4) + 1;
     can_use_B = abs(SB5_inv) > kEpsilon;
   }
 
@@ -339,7 +336,7 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   H_mag_.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
 
   // Update the quaternion states and covariance matrix
-  return correct<1>(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
+  return correct(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
 }
 
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta() const
@@ -364,8 +361,7 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const Vector
 
   Matrix<double, 3, 4> res;
   res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
-  res.block<3, 3>(0, 1) =
-    2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::crossMat(a));
+  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::crossMat(a));
 
   return res;
 }

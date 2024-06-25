@@ -22,24 +22,18 @@ using V_LinkViewModelPtr = std::vector<LinkViewModelPtr>;
 class LinkViewModel : public BaseViewModel<urdf::Link, LinkViewModel>
 {
 public:
-  explicit LinkViewModel(const urdf::LinkSharedPtr& model);
+  explicit LinkViewModel(const urdf::LinkSharedPtr& model = nullptr);
+
+  void sync() override;
 
   QString name() const;
   void name(const QString& name);
 
-  const InertialViewModelPtr& inertial() const;
-  const V_VisualViewModelPtr& visuals() const;
-  const V_CollisionViewModelPtr& collisions() const;
-  const JointViewModelPtr& joint() const;
+  const InertialViewModelPtr& inertial();
+  const V_VisualViewModelPtr& visuals();
+  const V_CollisionViewModelPtr& collisions();
+  const JointViewModelPtr& joint();
   V_LinkViewModelPtr children() const;
-
-  const QStringList& usedLinkNames() const;
-  void usedLinkNames(const QStringList& used_link_names);
-
-  bool isValid() const;
-
-  /* View Modelの内容をurdf::Linkに反映させる． */
-  void sync() override;
 
   void add(const VisualViewModelPtr& visual);
   void remove(const VisualViewModelPtr& visual);

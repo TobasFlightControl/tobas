@@ -2,7 +2,7 @@
 
 #include "./twistacc.hpp"
 
-namespace KDL
+namespace kdl
 {
 class RotationAcc
 {
@@ -41,8 +41,7 @@ inline RotationAcc::RotationAcc(const Rotation& _R) : R(_R), w(Vector::Zero())
 {
 }
 
-inline RotationAcc::RotationAcc(const Rotation& _R, const Vector& _w, const Vector& _dw)
-  : R(_R), w(_w), dw(_dw)
+inline RotationAcc::RotationAcc(const Rotation& _R, const Vector& _w, const Vector& _dw) : R(_R), w(_w), dw(_dw)
 {
 }
 
@@ -127,4 +126,4 @@ inline RotationAcc operator*(const Rotation& lhs, const RotationAcc& rhs)
 {
   return RotationAcc(lhs * rhs.R, lhs * rhs.w, lhs * rhs.dw);
 }
-}  // namespace KDL
+}  // namespace kdl

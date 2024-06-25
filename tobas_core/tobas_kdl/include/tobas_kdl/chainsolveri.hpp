@@ -4,7 +4,7 @@
 #include "./chain.hpp"
 #include "./jntarray.hpp"
 
-namespace KDL
+namespace kdl
 {
 class ChainSolverI : public SolverI
 {
@@ -25,4 +25,4 @@ inline bool ChainSolverI::isUpToDate() const
 {
   return chain_.getNrOfJoints() == nj_ && chain_.getNrOfSegments() == ns_;
 }
-}  // namespace KDL
+}  // namespace kdl

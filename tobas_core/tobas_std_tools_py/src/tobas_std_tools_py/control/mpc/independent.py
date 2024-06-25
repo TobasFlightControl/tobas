@@ -368,10 +368,7 @@ class IndependentMPC:
     def _make_const_mat_from_mat(self, mat, H):
         left = mat[:, :-1]
         right = mat[:, -1]
-        res = np.c_[
-            make_mat_diag(np.tile(left, (H, 1, 1))),
-            np.tile(right, H),
-        ]
+        res = np.c_[make_mat_diag(np.tile(left, (H, 1, 1))), np.tile(right, H)]
         return res
 
     def _make_weight_mat(self, values, Hw, Hp):
@@ -381,11 +378,7 @@ class IndependentMPC:
         # Hwより前のステップの重みを0にする
         dim = values.shape[0]
         mat_arr_tile = np.concatenate(
-            [
-                np.zeros((Hw - 1, dim, dim)),
-                np.tile(np.diag(values), (Hp - Hw + 1, 1, 1)),
-            ],
-            axis=0,
+            [np.zeros((Hw - 1, dim, dim)), np.tile(np.diag(values), (Hp - Hw + 1, 1, 1))], axis=0
         )
         res = make_mat_diag(mat_arr_tile)
 

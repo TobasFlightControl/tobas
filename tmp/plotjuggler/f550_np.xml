@@ -11,7 +11,7 @@
          <range top="0.405368" left="1164.577000" bottom="-0.412636" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/pose/pos/x" color="#b41f8f"/>
-         <curve name="/f550_np/controller_feedback/target_position/x" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_position/x" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/pose/pos/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -20,7 +20,7 @@
          <range top="0.278502" left="1164.577000" bottom="-0.613946" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/pose/pos/y" color="#d627b1"/>
-         <curve name="/f550_np/controller_feedback/target_position/y" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_position/y" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/pose/pos/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -29,7 +29,7 @@
          <range top="3.254259" left="1164.577000" bottom="2.185253" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/pose/pos/z" color="#c91aad"/>
-         <curve name="/f550_np/controller_feedback/target_position/z" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_position/z" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/pose/pos/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -40,7 +40,7 @@
          <range top="0.001049" left="1164.577000" bottom="-0.043025" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/pose/euler/roll" color="#ff0eca"/>
-         <curve name="/f550_np/controller_feedback/target_orientation/roll" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_orientation/roll" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/pose/euler/roll" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -49,7 +49,7 @@
          <range top="0.033964" left="1164.577000" bottom="-0.000828" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/pose/euler/pitch" color="#f14cc1"/>
-         <curve name="/f550_np/controller_feedback/target_orientation/pitch" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_orientation/pitch" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/pose/euler/pitch" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -58,7 +58,7 @@
          <range top="0.040657" left="1164.577000" bottom="-0.006742" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/pose/euler/yaw" color="#bd67b2"/>
-         <curve name="/f550_np/controller_feedback/target_orientation/yaw" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_orientation/yaw" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/pose/euler/yaw" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -77,7 +77,7 @@
          <range top="0.409999" left="1164.577000" bottom="-0.247237" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/twist/linear/x" color="#cf17ab"/>
-         <curve name="/f550_np/controller_feedback/target_velocity_local/x" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_velocity_local/x" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/twist/linear/x" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -86,7 +86,7 @@
          <range top="0.319434" left="1164.577000" bottom="-0.369370" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/twist/linear/y" color="#bd2287"/>
-         <curve name="/f550_np/controller_feedback/target_velocity_local/y" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_velocity_local/y" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/twist/linear/y" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -95,7 +95,7 @@
          <range top="0.445923" left="1164.577000" bottom="-0.294165" right="1174.577000"/>
          <limitY/>
          <curve name="/f550_np/odom/twist/linear/z" color="#b41fad"/>
-         <curve name="/f550_np/controller_feedback/target_velocity_local/z" color="#cdd420"/>
+         <curve name="/f550_np/feedback/controller/target_velocity_local/z" color="#cdd420"/>
          <curve name="/f550_np/ground_truth/odom/twist/linear/z" color="#21dad3"/>
         </plot>
        </DockArea>
@@ -505,14 +505,14 @@
        <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
         <range top="0.461429" left="1164.578000" bottom="-0.673071" right="1174.577000"/>
         <limitY/>
-        <curve name="/f550_np/controller_feedback/target_acceleration_global/x" color="#ff7f0e"/>
+        <curve name="/f550_np/feedback/controller/target_acceleration_global/x" color="#ff7f0e"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
         <range top="1.558345" left="1164.578000" bottom="0.340468" right="1174.577000"/>
         <limitY/>
-        <curve name="/f550_np/controller_feedback/position_integral_error/x" color="#1f77b4"/>
+        <curve name="/f550_np/feedback/controller/position_integral_error/x" color="#1f77b4"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -521,14 +521,14 @@
        <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
         <range top="0.509837" left="1164.578000" bottom="-0.443025" right="1174.577000"/>
         <limitY/>
-        <curve name="/f550_np/controller_feedback/target_acceleration_global/y" color="#f14cc1"/>
+        <curve name="/f550_np/feedback/controller/target_acceleration_global/y" color="#f14cc1"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
         <range top="0.204825" left="1164.578000" bottom="-1.431137" right="1174.577000"/>
         <limitY/>
-        <curve name="/f550_np/controller_feedback/position_integral_error/y" color="#d62728"/>
+        <curve name="/f550_np/feedback/controller/position_integral_error/y" color="#d62728"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -537,14 +537,14 @@
        <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
         <range top="1.175247" left="1164.578000" bottom="-1.344812" right="1174.577000"/>
         <limitY/>
-        <curve name="/f550_np/controller_feedback/target_acceleration_global/z" color="#9467bd"/>
+        <curve name="/f550_np/feedback/controller/target_acceleration_global/z" color="#9467bd"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
         <range top="-3.285908" left="1164.578000" bottom="-4.751311" right="1174.577000"/>
         <limitY/>
-        <curve name="/f550_np/controller_feedback/position_integral_error/z" color="#1ac938"/>
+        <curve name="/f550_np/feedback/controller/position_integral_error/z" color="#1ac938"/>
        </plot>
       </DockArea>
      </DockSplitter>
@@ -671,4 +671,3 @@
  <snippets/>
  <!-- - - - - - - - - - - - - - - -->
 </root>
-

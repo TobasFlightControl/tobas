@@ -3,7 +3,6 @@
 #include <ros/ros.h>
 #include <ros/timer.h>
 
-#include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -27,8 +26,8 @@ class MotorsHandler : public tobas::BaseNode
 
 public:
   explicit MotorsHandler(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:

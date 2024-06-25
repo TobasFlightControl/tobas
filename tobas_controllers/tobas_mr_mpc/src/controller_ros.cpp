@@ -8,14 +8,11 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_mr_mpc
 {
-ControllerRos::ControllerRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     js_converter_(drone_.tree()),
     z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
@@ -34,21 +31,18 @@ ControllerRos::ControllerRos(
   registerPublishers();
   registerSubscribers();
 
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ControllerRos::getRosParams()
 {
-  tobas_ros::getParam(
-    pnh_, "do_thrust_correction", do_thrust_correction_, kDefaultDoThrustCorrection);
+  tobas_ros::getParam(pnh_, "do_thrust_correction", do_thrust_correction_, kDefaultDoThrustCorrection);
 }
 
 void ControllerRos::registerPublishers()
 {
   rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
-  feedback_pub_ =
-    nh_.advertise<tobas_mr_mpc::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
+  feedback_pub_ = nh_.advertise<tobas_mr_mpc::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
 
 void ControllerRos::registerSubscribers()
@@ -56,17 +50,15 @@ void ControllerRos::registerSubscribers()
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   wind_sub_ = nh_.subscribe(tobas::kWindTopic, 1, &self::windCb, this, tcpNoDelay());
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
   if (drone_.isTransformable())
     js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
   if (do_thrust_correction_)
-    thrust_corr_factor_sub_ = nh_.subscribe(
-      tobas::kThrustCorrectionFactorTopic, 1, &self::thrustCorrectionFactorCb, this, tcpNoDelay());
+    thrust_corr_factor_sub_ =
+      nh_.subscribe(tobas::kThrustCorrectionFactorTopic, 1, &self::thrustCorrectionFactorCb, this, tcpNoDelay());
   arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
 
-  pvay_sub_ =
-    nh_.subscribe(tobas::kPosVelAccYawCmdTopic, 1, &self::posVelAccYawCb, this, tcpNoDelay());
+  pvay_sub_ = nh_.subscribe(tobas::kPosVelAccYawCmdTopic, 1, &self::posVelAccYawCb, this, tcpNoDelay());
   rpyt_sub_ = nh_.subscribe(tobas::kRpyThrustCmdTopic, 1, &self::rpyThrustCb, this, tcpNoDelay());
 }
 
@@ -80,15 +72,13 @@ bool ControllerRos::isReadyToControl()
 
   if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
     return false;
   }
 
   if (battery_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
     return false;
   }
 
@@ -100,22 +90,19 @@ bool ControllerRos::isReadyToControl()
 
   if (rotor_speeds_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kRotorSpeedsTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kRotorSpeedsTopic);
     return false;
   }
 
   if (drone_.isTransformable() && js_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kJointStatesTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kJointStatesTopic);
     return false;
   }
 
   if (do_thrust_correction_ && thrust_corr_factor_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kThrustCorrectionFactorTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kThrustCorrectionFactorTopic);
     return false;
   }
 
@@ -163,8 +150,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     const auto cur_acc_W = odom->frame.M * odom->accel.linear;
 
     // 目標加速度を計算
-    pos_ctrl_.update(
-      odom->frame.p, cur_vel_W, cur_acc_W, tar_pvay_W_->pos, tar_pvay_W_->vel, dt, tar_acc_fb_);
+    pos_ctrl_.update(odom->frame.p, cur_vel_W, cur_acc_W, tar_pvay_W_->pos, tar_pvay_W_->vel, dt, tar_acc_fb_);
     const auto tar_acc = tar_pvay_W_->acc + tar_acc_fb_;
 
     // 推力和と目標姿勢を計算
@@ -199,8 +185,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     {
       // stopwatch_.start();
       thrusts = ori_ctrl_.solve(
-        dt, odom->frame.M, odom->twist, wind_->vel, js_converter_.getPositionsKDL(),
-        battery_->voltage, rotor_speeds_->speeds, tar_rpyt_->thrust, tar_rpyt_->rpy.toRotation());
+        dt, odom->frame.M, odom->twist, wind_->vel, js_converter_.getPositionsKDL(), battery_->voltage,
+        rotor_speeds_->speeds, tar_rpyt_->thrust, tar_rpyt_->rpy.toRotation());
       // stopwatch_.stop();
     }
     catch (const exception& e)
@@ -279,15 +265,13 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
 {
   if (!isReadyToControl())
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
   }
 
   if (!cmd_level_handler_.update(pvay->level.data, ros::Time::now()))
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
   }
 
@@ -307,15 +291,13 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
 {
   if (!isReadyToControl())
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
   }
 
   if (!cmd_level_handler_.update(rpyt->level.data, ros::Time::now()))
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
   }
 

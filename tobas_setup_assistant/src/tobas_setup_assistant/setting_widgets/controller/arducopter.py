@@ -71,7 +71,7 @@ class Frame:
 
 
 class ChannelsWidget(QWidget):
-    NO_SELECT = "Select link name"
+    NO_SELECT = "Select Link Name"
 
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
@@ -93,8 +93,19 @@ class ChannelsWidget(QWidget):
         self._form = FormLayout()
         rows.addLayout(self._form)
 
-    def define_connections(self) -> None:
-        self._main.signals.airframe_updated.connect(self._on_airframe_updated)
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        for i in range(self.count()):
+            combo_box: ComboBox = self._form.get_widget(i)
+            res[self._channel_label(i)] = combo_box.currentText()
+
+        return res
+
+    def load_settings(self, data: dict) -> dict:
+        for i in range(self.count()):
+            combo_box: ComboBox = self._form.get_widget(i)
+            combo_box.setCurrentText(data[self._channel_label(i)])
 
     def is_valid(self) -> bool:
         # 未選択はダメ
@@ -113,7 +124,7 @@ class ChannelsWidget(QWidget):
     def channels(self) -> List[int]:
         res = [-1] * self._form.rowCount()
         for r in range(self._form.rowCount()):
-            rotor_idx = self._main.settings.propulsion_system.selected.get_index(self._link_name(r))
+            rotor_idx = self._main.propulsion_system.selected.get_index(self._link_name(r))
             ardu_channel = r  # PIN - 1
             res[rotor_idx] = ardu_channel
         return res
@@ -125,18 +136,17 @@ class ChannelsWidget(QWidget):
     def update_num_channels(self, num_props: int) -> None:
         # 設定ミスを防ぐため，フレームタイプが変わったら各チャンネルのリンク名をリセット
         self._form.clear()
-        prop_link_names = self._main.settings.propulsion_system.selected.link_names()
 
+        prop_link_names = self._main.propulsion_system.selected.link_names()
         for i in range(num_props):
             choices = ComboBox()
             choices.addItems([self.NO_SELECT] + prop_link_names)
             choices.setCurrentText(self.NO_SELECT)
-            self._form.addRow(QLabel(f"ArduPilot CH {i + 1}"), choices)
+            self._form.addRow(QLabel(self._channel_label(i)), choices)
 
-    @pyqtSlot()
-    def _on_airframe_updated(self) -> None:
+    def update_link_choices(self) -> None:
         """リンク名の候補を更新．"""
-        new_links = self._main.settings.propulsion_system.selected.link_names()
+        new_links = self._main.propulsion_system.selected.link_names()
 
         for i in range(self._form.rowCount()):
             combo: ComboBox = self._form.get_widget(i)
@@ -157,6 +167,9 @@ class ChannelsWidget(QWidget):
     def _link_names(self) -> List[str]:
         return [self._link_name(row) for row in range(self._form.rowCount())]
 
+    def _channel_label(self, idx: int) -> str:
+        return f"ArduPilot CH {idx + 1}"
+
 
 class ArduCopter(BaseController):
     NAME = "ArduCopter (Simulation Only)"
@@ -165,12 +178,14 @@ class ArduCopter(BaseController):
     LANDING_PKG = "tobas_dummy_pkg"  # TODO
     STABLIZE_MODE = PositionYaw.__name__
     ACROBAT_MODE = PositionYaw.__name__  # TODO
+    ABST_TEXT = "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
+
+    CHANNELS = "channels"
 
     MIN_NUM_PROPS = 2
 
     def __init__(self, main: SetupAssistant) -> None:
-        abst_text = "To simulate ArduCopter on Gazebo, you must have ArduPilot installed."
-        super().__init__(main, abst_text)
+        super().__init__(main)
 
         # Frame Classes
         quad = FrameClass(1, "Quad", 4)
@@ -247,26 +262,40 @@ class ArduCopter(BaseController):
         self._frame = ParamGetterWidget_ComboBox(
             "Frame Type", frame_description, [frame.name() for frame in self._frames]
         )
+        self._frame.index_changed.connect(self._on_frame_idx_changed)
         self._rows.addWidget(self._frame)
 
         self._channels = ChannelsWidget(main)
         self._rows.addWidget(self._channels)
 
     @override
-    def define_connections(self) -> None:
-        self._channels.define_connections()
-        self._frame.index_changed.connect(self._on_frame_idx_changed)
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+    def update_internal_data_structures(self) -> None:
+        cur_idx = self._frame.cur_index()
+        self._channels.update_num_channels(self._frames[cur_idx].num_props())
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        res[self._frame.name()] = self._frame.get()
+        res[self.CHANNELS] = self._channels.dump_settings()
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        self._frame.set(data[self._frame.name()])
+        self._channels.load_settings(data[self.CHANNELS])
 
     @override
     def is_applicable(self) -> bool:
         # 固定翼は持たない
-        fixed_wing = self._main.settings.fixed_wing
+        fixed_wing = self._main.fixed_wing
         if fixed_wing.has_fixed_wing.isChecked():
             return False
 
         # プロペラの個数条件
-        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
+        prop_jnt_names = self._main.propulsion_system.selected.joint_names()
         if len(prop_jnt_names) < self.MIN_NUM_PROPS:
             return False
 
@@ -296,7 +325,7 @@ class ArduCopter(BaseController):
             return False
 
         # 回転方向がフレームタイプと一致することを確認
-        propulsion_system = self._main.settings.propulsion_system
+        propulsion_system = self._main.propulsion_system
         channels = self._channels.channels()
         for rotor_idx in range(self._channels.count()):
             channel = channels[rotor_idx]
@@ -322,14 +351,13 @@ class ArduCopter(BaseController):
             "channels": self._channels.channels(),
         }
 
-    def _selected(self) -> Frame:
-        return self._frames[self._frame.cur_index()]
+    @override
+    def on_opened(self) -> None:
+        self._channels.update_link_choices()
 
     @pyqtSlot(int)
     def _on_frame_idx_changed(self, idx: int) -> None:
         self._channels.update_num_channels(self._frames[idx].num_props())
 
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        cur_idx = self._frame.cur_index()
-        self._channels.update_num_channels(self._frames[cur_idx].num_props())
+    def _selected(self) -> Frame:
+        return self._frames[self._frame.cur_index()]

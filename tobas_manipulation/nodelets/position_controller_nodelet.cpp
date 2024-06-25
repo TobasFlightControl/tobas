@@ -6,13 +6,7 @@ namespace tobas_manipulation
 {
 void PositionControllerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Cartesian Manipulation Position Controller Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new PositionControllerRos(nh, pnh, name));
+  node_.reset(new PositionControllerRos(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_manipulation
 

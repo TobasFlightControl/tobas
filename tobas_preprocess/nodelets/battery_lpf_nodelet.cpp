@@ -6,13 +6,7 @@ namespace tobas_preprocess
 {
 void BatteryLpfNodelet::onInit()
 {
-  NODELET_INFO("Initializing Battery LPF Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new BatteryLpf(nh, pnh, name));
+  node_.reset(new BatteryLpf(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_preprocess
 

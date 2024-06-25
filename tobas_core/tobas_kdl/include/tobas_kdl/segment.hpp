@@ -1,13 +1,11 @@
 #pragma once
 
-#include <vector>
-
 #include "./frames.hpp"
 #include "./rigidbodyinertia.hpp"
 #include "./joint.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
  * \brief This class encapsulates a simple segment, that is a "rigid
@@ -145,11 +143,7 @@ private:
   Frame f_tip_;
 };
 
-inline Segment::Segment(
-  const std::string& name,
-  const Joint& joint,
-  const Frame& f_tip,
-  const RigidBodyInertia& I)
+inline Segment::Segment(const std::string& name, const Joint& joint, const Frame& f_tip, const RigidBodyInertia& I)
   : name_(name), joint_(joint), I_(I), f_tip_(joint.pose(0).inverse() * f_tip)
 {
 }
@@ -208,4 +202,4 @@ inline const Frame& Segment::getFrameToTipZero() const
 {
   return f_tip_;
 }
-}  // end of namespace KDL
+}  // end of namespace kdl

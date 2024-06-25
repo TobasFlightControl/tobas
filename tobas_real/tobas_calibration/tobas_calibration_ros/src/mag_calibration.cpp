@@ -1,28 +1,24 @@
 #include <Eigen/SVD>
 #include <geometry_msgs/PointStamped.h>
 
-#include <tobas_std_tools/math.hpp>
-#include <tobas_std_tools/property_tree.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_calibration_ros/mag_calibration.hpp"
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 namespace tobas_calibration
 {
-MagCalibrationRos::MagCalibrationRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name)
+MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC)
 {
+  if (!imu_.probe())
+    TOBAS_EXIT("IMU not enabled.");
   imu_.initialize();
 
-  collect_data_timer_ =
-    nh_.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
+  collect_data_timer_ = nh_.createTimer(kSamplingRate, &self::collectDataTimerCb, this, false, false);
 
   mag_pub_ = nh_.advertise<geometry_msgs::PointStamped>(kMagTopicName, 1);
 
@@ -61,18 +57,13 @@ void MagCalibrationRos::collectDataTimerCb(const ros::TimerEvent& event)
 
 bool MagCalibrationRos::startServiceCb(StartSrvType::Request&, StartSrvType::Response& res)
 {
-  if (!imu_.probe())
-  {
-    res.success = false;
-    res.message = "IMU not enabled.";
-    return true;
-  }
-
   // 既にデータ収集が始まっている場合も再スタートする
   mag_data_.clear();
   collect_data_timer_.start();
 
   res.success = true;
+  res.message = "";
+
   return true;
 }
 
@@ -122,9 +113,9 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
     const auto rx = (x_max - x_min) / 2;
     const auto ry = (y_max - y_min) / 2;
     const auto rz = (z_max - z_min) / 2;
-    const auto rx2 = sqr(rx);
-    const auto ry2 = sqr(ry);
-    const auto rz2 = sqr(rz);
+    const auto rx2 = math::sqr(rx);
+    const auto ry2 = math::sqr(ry);
+    const auto rz2 = math::sqr(rz);
 
     mag_trans_.a_xx = 1 / rx2;
     mag_trans_.a_yy = 1 / ry2;
@@ -135,7 +126,7 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
     mag_trans_.b_x = -2 * x0 / rx2;
     mag_trans_.b_y = -2 * y0 / ry2;
     mag_trans_.b_z = -2 * z0 / rz2;
-    mag_trans_.c = sqr(x0) / rx2 + sqr(y0) / ry2 + sqr(z0) / rz2 - 1;
+    mag_trans_.c = math::sqr(x0) / rx2 + math::sqr(y0) / ry2 + math::sqr(z0) / rz2 - 1;
   }
   else
   {
@@ -193,24 +184,77 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
   if (!mag_trans_.initialize())
   {
     res.success = false;
-    res.message = "The estimated coefficients do not satisfy the conditions "
-                  "necessary for forming an ellipsoid.";
+    res.message = "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.";
     return true;
   }
 
   // Configに保存
-  tobas_std::PropertyTree pt(tobas_navio_ros::kConfigPath);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAxx, mag_trans_.a_xx);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAyy, mag_trans_.a_yy);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAzz, mag_trans_.a_zz);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAxy, mag_trans_.a_xy);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAyz, mag_trans_.a_yz);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseAzx, mag_trans_.a_zx);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseBx, mag_trans_.b_x);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseBy, mag_trans_.b_y);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseBz, mag_trans_.b_z);
-  pt.put(tobas_navio_ros::kConfigKey_MagEllipseC, mag_trans_.c);
-  pt.save();
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAxx, mag_trans_.a_xx) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAyy, mag_trans_.a_yy) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAzz, mag_trans_.a_zz) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAxy, mag_trans_.a_xy) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAyz, mag_trans_.a_yz) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseAzx, mag_trans_.a_zx) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseBx, mag_trans_.b_x) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseBy, mag_trans_.b_y) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseBz, mag_trans_.b_z) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.set(tobas_navio_ros::kConfigKey_MagEllipseC, mag_trans_.c) < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
+  if (property_client_.save() < 0)
+  {
+    res.success = false;
+    res.message = property_client_.errorMessage();
+    return true;
+  }
 
   // データ収集タイマーを停止
   collect_data_timer_.stop();
@@ -219,6 +263,8 @@ bool MagCalibrationRos::finishServiceCb(FinishSrvType::Request& req, FinishSrvTy
   mag_data_.clear();
 
   res.success = true;
+  res.message = "";
+
   return true;
 }
 
@@ -229,6 +275,8 @@ bool MagCalibrationRos::cancelServiceCb(CancelSrvType::Request&, CancelSrvType::
   collect_data_timer_.stop();
 
   res.success = true;
+  res.message = "";
+
   return true;
 }
 }  // namespace tobas_calibration

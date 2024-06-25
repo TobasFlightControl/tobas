@@ -6,8 +6,8 @@
   <arg name="cpu_name" value="cpu_handler"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg time_name)" args="load tobas_real_ros/TimeReferenceServerNodelet nodelet_manager" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg cpu_name)" args="load tobas_real_ros/CpuHandlerNodelet nodelet_manager" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg time_name)" args="load tobas_real_ros/TimeReferenceServerNodelet nodelet_manager_low" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg cpu_name)" args="load tobas_real_ros/CpuHandlerNodelet nodelet_manager_low" output="screen" required="true"/>
   </group>
 
   <group unless="$(arg nodelet)">

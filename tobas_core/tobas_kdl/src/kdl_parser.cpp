@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 // construct vector
 Vector toKdl(const urdf::Vector3& v)
@@ -88,14 +88,12 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 
   // Rotation operators are not defined for rotational inertia,
   // so we use the RigidBodyInertia operators (with com = 0) as a workaround
-  const RigidBodyInertia kdl_inertia_wrt_com_workaround =
-    origin.M * RigidBodyInertia(0, Vector::Zero(), urdf_inertia);
+  const RigidBodyInertia kdl_inertia_wrt_com_workaround = origin.M * RigidBodyInertia(0, Vector::Zero(), urdf_inertia);
 
   // Note that the RigidBodyInertia constructor takes the 3d inertia wrt the com
   // while the getRotationalInertia method returns the 3d inertia wrt the frame origin
   // (but having com = Vector::Zero() in kdl_inertia_wrt_com_workaround they match)
-  const RotationalInertia kdl_inertia_wrt_com =
-    kdl_inertia_wrt_com_workaround.getRotationalInertia();
+  const RotationalInertia kdl_inertia_wrt_com = kdl_inertia_wrt_com_workaround.getRotationalInertia();
 
   return RigidBodyInertia(kdl_mass, kdl_com, kdl_inertia_wrt_com);
 }
@@ -103,7 +101,7 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 // recursive function to walk through tree
 void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
-  PRINT_DEBUG_ONCE("KDL::addChildrenToTree");
+  PRINT_DEBUG_ONCE("kdl::addChildrenToTree");
 
   // constructs the optional inertia
   RigidBodyInertia inertia(0);
@@ -114,8 +112,7 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
   const Joint jnt = toKdl(*root->parent_joint);
 
   // construct the kdl segment
-  const Segment sgm(
-    root->name, jnt, toKdl(root->parent_joint->parent_to_joint_origin_transform), inertia);
+  const Segment sgm(root->name, jnt, toKdl(root->parent_joint->parent_to_joint_origin_transform), inertia);
 
   // add segment to tree
   tree.addSegment(sgm, root->parent_joint->parent_link_name);
@@ -127,7 +124,7 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 
 bool treeFromFile(const string& file, Tree& tree)
 {
-  PRINT_DEBUG("KDL::treeFromFile");
+  PRINT_DEBUG("kdl::treeFromFile");
 
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDFFile(file);
   return treeFromUrdfModel(*robot_model, tree);
@@ -135,7 +132,7 @@ bool treeFromFile(const string& file, Tree& tree)
 
 bool treeFromParam(const string& param, Tree& tree)
 {
-  PRINT_DEBUG("KDL::treeFromParam");
+  PRINT_DEBUG("kdl::treeFromParam");
 
   urdf::Model robot_model;
   if (!robot_model.initParam(param))
@@ -148,7 +145,7 @@ bool treeFromParam(const string& param, Tree& tree)
 
 bool treeFromString(const string& xml, Tree& tree)
 {
-  PRINT_DEBUG("KDL::treeFromString");
+  PRINT_DEBUG("kdl::treeFromString");
 
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDF(xml);
   if (!robot_model)
@@ -161,7 +158,7 @@ bool treeFromString(const string& xml, Tree& tree)
 
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 {
-  PRINT_DEBUG("KDL::treeFromUrdfModel");
+  PRINT_DEBUG("kdl::treeFromUrdfModel");
 
   if (!robot_model.getRoot())
   {
@@ -171,12 +168,12 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 
   tree = Tree(robot_model.getRoot()->name);
 
-  // Warn if root link has inertia. KDL does not support this
+  // Warn if root link has inertia. tobas_kdl does not support this
   if (robot_model.getRoot()->inertial)
   {
     ROS_WARN_STREAM(
       "The root link " << robot_model.getRoot()->name << " has an inertia specified in the URDF, "
-                       << "but KDL does not support a root link with an inertia. "
+                       << "but tobas_kdl does not support a root link with an inertia. "
                        << "As a workaround, you can add an extra dummy link to your URDF.");
   }
 
@@ -186,4 +183,4 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 
   return true;
 }
-}  // namespace KDL
+}  // namespace kdl

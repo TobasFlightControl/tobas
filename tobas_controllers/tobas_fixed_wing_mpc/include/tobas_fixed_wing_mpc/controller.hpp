@@ -28,10 +28,7 @@ class Controller : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit Controller(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+  explicit Controller(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
   // Drone
@@ -40,7 +37,7 @@ private:
   tobas::MicroDisturbanceEoM eom_;  // 微小擾乱状態方程式
 
   // 固定値
-  KDL::JntArray q_0_;
+  kdl::JntArray q_0_;
 
   double cur_roll_, cur_pitch_, cur_yaw_;
   sensor_msgs::FluidPressureConstPtr air_pressure_;  // 大気圧

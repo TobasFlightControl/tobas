@@ -20,11 +20,7 @@ enum Constraint
 };
 
 template <typename T>
-void checkConstraint(
-  ros::NodeHandle& nh,
-  const std::string& key,
-  const T& param,
-  const Constraint& constraint)
+void checkConstraint(ros::NodeHandle& nh, const std::string& key, const T& param, const Constraint& constraint)
 {
   switch (constraint)
   {
@@ -70,8 +66,7 @@ void getParam(ros::NodeHandle& nh, const std::string& key, T& param, const T& _d
   if (!nh.param(key, param, _default))
   {
     param = _default;
-    ROS_WARN_STREAM(
-      "Parameter '" << key << "' is not specified. The default '" << _default << "' is used.");
+    ROS_WARN_STREAM("Parameter '" << key << "' is not specified. The default '" << _default << "' is used.");
   }
 }
 
@@ -83,12 +78,7 @@ void getParam(ros::NodeHandle& nh, const std::string& key, T& param, const Const
 }
 
 template <typename T>
-void getParam(
-  ros::NodeHandle& nh,
-  const std::string& key,
-  T& param,
-  const T& _default,
-  const Constraint& constraint)
+void getParam(ros::NodeHandle& nh, const std::string& key, T& param, const T& _default, const Constraint& constraint)
 {
   getParam(nh, key, param, _default);
   checkConstraint(nh, key, param, constraint);
@@ -99,12 +89,10 @@ void getParam(ros::NodeHandle& nh, const std::string& key, size_t& param, const 
 void getParam(ros::NodeHandle& nh, const std::string& key, uint8_t& param);
 void getParam(ros::NodeHandle& nh, const std::string& key, uint8_t& param, const uint8_t& _default);
 
+void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector2d& param);
+void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector2d& param, const Eigen::Vector2d& _default);
 void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector3d& param);
-void getParam(
-  ros::NodeHandle& nh,
-  const std::string& key,
-  Eigen::Vector3d& param,
-  const Eigen::Vector3d& _default);
+void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::Vector3d& param, const Eigen::Vector3d& _default);
 
 void getParam(ros::NodeHandle& nh, const std::string& key, Eigen::VectorXd& param);
 

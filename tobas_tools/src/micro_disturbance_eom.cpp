@@ -8,7 +8,7 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas
 {
@@ -38,11 +38,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-int MicroDisturbanceEoM::update(
-  const double& V,
-  const double& rho,
-  const double& battery_voltage,
-  const JntArray& q)
+int MicroDisturbanceEoM::update(const double& V, const double& rho, const double& battery_voltage, const JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
@@ -80,7 +76,7 @@ int MicroDisturbanceEoM::update(
   const auto I_xz = I_cog.ixz();
 
   // p.97
-  const auto tmp = 1 - tobas_std::sqr(I_xz) / (I_x * I_z);
+  const auto tmp = 1 - math::sqr(I_xz) / (I_x * I_z);
   const auto I_x_tilde = I_x * tmp;
   const auto I_z_tilde = I_z * tmp;
 
@@ -90,8 +86,8 @@ int MicroDisturbanceEoM::update(
   const auto q_S_b = q_S * vehicle.wing_span;
   const auto q_S_c = q_S * vehicle.mac;
   const auto rho_V_S = rho * V * vehicle.wing_surface;
-  const auto rho_V_S_b2 = rho_V_S * tobas_std::sqr(vehicle.wing_span);
-  const auto rho_V_S_c2 = rho_V_S * tobas_std::sqr(vehicle.mac);
+  const auto rho_V_S_b2 = rho_V_S * math::sqr(vehicle.wing_span);
+  const auto rho_V_S_c2 = rho_V_S * math::sqr(vehicle.mac);
   const auto P = I_base.getMass() * V;  // 運動量
 
   // (2.2-45)
@@ -233,8 +229,8 @@ int MicroDisturbanceEoM::update(
     {
       if (error_code_ > E_WARN)
       {
-        error_msg_ = "Thrust force " + to_string(thrust) + "[N] is over the maximum limit "
-                     + to_string(max_thrust) + "[N].";
+        error_msg_ =
+          "Thrust force " + to_string(thrust) + "[N] is over the maximum limit " + to_string(max_thrust) + "[N].";
         error_code_ = E_WARN;
       }
       thrust = max_thrust;

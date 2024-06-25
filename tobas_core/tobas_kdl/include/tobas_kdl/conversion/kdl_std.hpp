@@ -4,8 +4,8 @@
 
 #include "../jntarray.hpp"
 
-namespace KDL
+namespace kdl
 {
 void jntarrayKDLToStd(const JntArray& k, std::vector<double>& s);
 void jntarrayStdToKDL(const std::vector<double>& s, JntArray& k);
-}  // namespace KDL
+}  // namespace kdl

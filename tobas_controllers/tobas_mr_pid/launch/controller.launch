@@ -5,7 +5,7 @@
   <arg name="node_name" default="tobas_mr_pid"/>
 
   <!-- Controller -->
-  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_pid/ControllerNodelet nodelet_manager" output="screen">
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_mr_pid/ControllerNodelet nodelet_manager_high" output="screen">
     <remap if="$(arg ground_truth)" from="odom" to="ground_truth/odom"/>
   </node>
   <node unless="$(arg nodelet)" pkg="tobas_mr_pid" type="controller_node" name="$(arg node_name)" output="screen">

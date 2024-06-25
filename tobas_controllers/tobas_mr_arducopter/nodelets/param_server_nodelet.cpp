@@ -6,13 +6,7 @@ namespace tobas_mr_arducopter
 {
 void ParamServerNodelet::onInit()
 {
-  NODELET_INFO("Initializing ArduCopter Parameter Server Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new ParamServerRos(nh, pnh, name));
+  node_.reset(new ParamServerRos(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_mr_arducopter
 

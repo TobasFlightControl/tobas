@@ -5,7 +5,7 @@ using namespace Eigen;
 
 namespace ctrl
 {
-C2D_Euler::C2D_Euler(const size_t& x_size, const size_t& u_size)
+C2D_Euler::C2D_Euler(const Index& x_size, const Index& u_size)
   : x_size_(x_size), u_size_(u_size), I_(MatrixXd::Identity(x_size, x_size))
 {
 }

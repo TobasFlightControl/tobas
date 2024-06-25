@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 TreeJntAxisSolver::TreeJntAxisSolver(const Tree& tree) : super(tree), fk_solver_(tree)
 {
@@ -33,4 +33,4 @@ int TreeJntAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)
   axis_out_ = fk_solver_.getFrame().M * cur_jnt.axis();
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace kdl

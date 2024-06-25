@@ -75,8 +75,7 @@ VectorXd LinearSparseMPC::step(const VectorXd& x, const VectorXd& s)
   return last_u_;
 }
 
-VectorXd
-LinearSparseMPC::step(const VectorXd& x, const VectorXd& s, const vector<LinearDynamics>& disc_dyns)
+VectorXd LinearSparseMPC::step(const VectorXd& x, const VectorXd& s, const vector<LinearDynamics>& disc_dyns)
 {
   updateDynamics(disc_dyns);
   return step(x, s);
@@ -108,8 +107,7 @@ vector<VectorXd> LinearSparseMPC::makeDecays(double dt, const vector<double>& de
   return decays;
 }
 
-MatrixXd
-LinearSparseMPC::makeG(const VectorXd& R, const VectorXd& S, const VectorXd& Q, const MatrixXd& Cz)
+MatrixXd LinearSparseMPC::makeG(const VectorXd& R, const VectorXd& S, const VectorXd& Q, const MatrixXd& Cz)
 {
   int size = u_size_ * 2 + x_size_;
   MatrixXd R_diag = R.asDiagonal();
@@ -148,8 +146,7 @@ MatrixXd LinearSparseMPC::makeBaseCE()
   return CE;
 }
 
-MatrixXd
-LinearSparseMPC::makeCI(const MatrixXd& E, const MatrixXd& F, const MatrixXd& G, const MatrixXd& Cz)
+MatrixXd LinearSparseMPC::makeCI(const MatrixXd& E, const MatrixXd& F, const MatrixXd& G, const MatrixXd& Cz)
 {
   int re = E.rows();
   int rf = F.rows();

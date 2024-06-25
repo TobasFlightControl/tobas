@@ -8,10 +8,7 @@ namespace tobas_ros
 class FreqMeasure
 {
 public:
-  FreqMeasure(
-    const std::string& name,
-    const double& warn_period = 3.,
-    const double& warn_rate = 0.9);
+  FreqMeasure(const std::string& name, const double& warn_period = 3., const double& warn_rate = 0.9);
 
   void setFreq(const double& freq);
 

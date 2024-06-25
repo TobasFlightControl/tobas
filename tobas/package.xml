@@ -12,9 +12,12 @@
 	<!-- Meta Packages -->
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
+	<exec_depend>tobas_gazebo</exec_depend>
 	<exec_depend>tobas_hal</exec_depend>
+	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_mission_commands</exec_depend>
 	<exec_depend>tobas_observers</exec_depend>
+	<exec_depend>tobas_property</exec_depend>
 	<exec_depend>tobas_real</exec_depend>
 	<exec_depend>tobas_teleoperations</exec_depend>
 
@@ -22,6 +25,8 @@
 	<exec_depend>ardupilot_dynamic_configuration</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
+	<exec_depend>tobas_examples</exec_depend>
+	<exec_depend>tobas_fake_publishers</exec_depend>
 	<exec_depend>tobas_fkie_master</exec_depend>
 	<exec_depend>tobas_gcs</exec_depend>
 	<exec_depend>tobas_latency_publisher</exec_depend>

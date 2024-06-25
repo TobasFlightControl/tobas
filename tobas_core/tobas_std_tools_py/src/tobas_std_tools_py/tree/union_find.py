@@ -1,5 +1,4 @@
 class UnionFind:
-
     def __init__(self, n):
         self.n = n
         self.root = [-1] * (n + 1)

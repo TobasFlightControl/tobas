@@ -45,14 +45,14 @@ public:
 
   Eigen::VectorXd solve(
     const double& dt,
-    const KDL::Rotation& cur_rot,
-    const KDL::Twist& cur_twist_B,
-    const KDL::Vector& cur_wind_W,
-    const KDL::JntArray& cur_q,
+    const kdl::Rotation& cur_rot,
+    const kdl::Twist& cur_twist_B,
+    const kdl::Vector& cur_wind_W,
+    const kdl::JntArray& cur_q,
     const double& cur_voltage,
     const std::vector<double>& cur_rot_speeds,
     const double& tar_thrust,
-    const KDL::Rotation& tar_rot);
+    const kdl::Rotation& tar_rot);
 
   void configure(const OrientationControllerConfig& cfg);
 
@@ -77,12 +77,12 @@ private:
   tobas_std::Stopwatch stopwatch_;
 
   void updateCurrentState(
-    const KDL::Euler& cur_rpy,
-    const KDL::Twist& cur_twist_B,
-    const KDL::Vector& cur_wind_W,
-    const KDL::JntArray& cur_q,
+    const kdl::Euler& cur_rpy,
+    const kdl::Twist& cur_twist_B,
+    const kdl::Vector& cur_wind_W,
+    const kdl::JntArray& cur_q,
     const double& thrust_z);
-  void updateSetState(const KDL::Euler& tar_rpy);
+  void updateSetState(const kdl::Euler& tar_rpy);
   void fillInputConstraintFixedParts();
 };
 }  // namespace tobas_mr_mpc

@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import QPushButton, QHBoxLayout
 
 from tobas_rqt_tools.rviz import create_rviz_frame
 from tobas_rqt_tools.messages import q_info, q_error
+from tobas_tools_py.constants import Service
 from tobas_tools_py.drone import Drone
 from tobas_calibration_msgs.srv import MagCalibration, MagCalibrationRequest, MagCalibrationResponse
 
@@ -44,16 +45,19 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._start_button.clicked.connect(self._on_start_button_clicked)
         cols.addWidget(self._start_button)
 
         self._finish_button = QPushButton("Finish")
         self._finish_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._finish_button.setEnabled(False)
+        self._finish_button.clicked.connect(self._on_finish_button_clicked)
         cols.addWidget(self._finish_button)
 
         self._cancel_button = QPushButton("Cancel")
         self._cancel_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._cancel_button.setEnabled(False)
+        self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
         cols.addWidget(self._cancel_button)
 
         cols.addStretch()
@@ -74,21 +78,15 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         self.setEnabled(False)
 
     @override
-    def define_connections(self) -> None:
-        self._start_button.clicked.connect(self._on_start_button_clicked)
-        self._finish_button.clicked.connect(self._on_finish_button_clicked)
-        self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
-
-    @override
     def update_internal_data_structures(self) -> None:
         # Rvizのトピックを変更
-        self._point_topic.setValue(f"{self._drone.drone_name}/mag_calibration/magnetic_field_raw")
+        self._point_topic.setValue(f"{self._drone.name}/mag_calibration/magnetic_field_raw")
 
         self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        calib_start_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/start", Trigger)
+        calib_start_sc = rospy.ServiceProxy(f"{self._drone.name}/mag_calibration/start", Trigger)
 
         try:
             calib_start_sc.wait_for_service(WAIT_FOR_SERVER)
@@ -134,7 +132,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
-        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/cancel", Trigger)
+        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.name}/mag_calibration/cancel", Trigger)
         try:
             calib_cancel_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -160,7 +158,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Magnet calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/mag_calibration/finish", MagCalibration)
+        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.name}/mag_calibration/finish", MagCalibration)
 
         try:
             calib_finish_sc.wait_for_service(WAIT_FOR_SERVER)
@@ -183,7 +181,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/imu_handler/reload_config", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/imu_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:

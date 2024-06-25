@@ -5,9 +5,6 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 
 from tobas_tools_py.drone import Drone
 
@@ -22,10 +19,6 @@ class NoiseCalibrationWidget(BaseHardwareSetupWidget):
         super().__init__(main, drone)
 
         self.setEnabled(False)
-
-    @override
-    def define_connections(self) -> None:
-        pass
 
     @override
     def update_internal_data_structures(self) -> None:

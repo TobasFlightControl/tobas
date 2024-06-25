@@ -1,9 +1,15 @@
 class BinarySearchNode:
-
     def __init__(self, value: int):
         self.value = value
         self.left: BinarySearchNode = None
         self.right: BinarySearchNode = None
+
+    def __iter__(self):
+        if self.left:
+            yield from self.left
+        yield self.value
+        if self.right:
+            yield from self.right
 
     def insert(self, value):
         if value <= self.value:
@@ -48,13 +54,6 @@ class BinarySearchNode:
             return self.left.min()
         else:
             return self.value
-
-    def __iter__(self):
-        if self.left:
-            yield from self.left
-        yield self.value
-        if self.right:
-            yield from self.right
 
     def delete_left(self, value):
         if value < self.value:
@@ -130,9 +129,14 @@ class BinarySearchNode:
 
 
 class BinarySearchTree:
-
     def __init__(self):
         self.root: BinarySearchNode = None
+
+    def __iter__(self):
+        if self.root:
+            return iter(self.root)
+        else:
+            return iter([])
 
     def insert(self, value):
         if self.root:
@@ -175,12 +179,6 @@ class BinarySearchTree:
             self.root = self.root.delete_right(value)
         else:
             raise ValueError()
-
-    def __iter__(self):
-        if self.root:
-            return iter(self.root)
-        else:
-            return iter([])
 
 
 if __name__ == "__main__":

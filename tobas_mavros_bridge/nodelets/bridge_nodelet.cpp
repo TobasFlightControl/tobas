@@ -6,13 +6,7 @@ namespace tobas_mavros_bridge
 {
 void TobasMavrosBridgeNodelet::onInit()
 {
-  NODELET_INFO("Initializing Tobas Mavros Bridge Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new TobasMavrosBridge(nh, pnh, name));
+  node_.reset(new TobasMavrosBridge(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_mavros_bridge
 

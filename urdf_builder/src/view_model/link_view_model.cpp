@@ -23,65 +23,6 @@ LinkViewModel::LinkViewModel(const urdf::LinkSharedPtr& model)
   sync();
 }
 
-QString LinkViewModel::name() const
-{
-  return QString::fromStdString(model_->name);
-}
-
-void LinkViewModel::name(const QString& name)
-{
-  model_->name = name.toStdString();
-}
-
-const InertialViewModelPtr& LinkViewModel::inertial() const
-{
-  return inertial_;
-}
-
-const V_VisualViewModelPtr& LinkViewModel::visuals() const
-{
-  return visuals_;
-}
-
-const V_CollisionViewModelPtr& LinkViewModel::collisions() const
-{
-  return collisions_;
-}
-
-const JointViewModelPtr& LinkViewModel::joint() const
-{
-  return joint_;
-}
-
-V_LinkViewModelPtr LinkViewModel::children() const
-{
-  V_LinkViewModelPtr result;
-  for (const auto& child : model_->child_links)
-    result.emplace_back(new LinkViewModel(child));
-  return result;
-}
-
-const QStringList& LinkViewModel::usedLinkNames() const
-{
-  return joint_->usedLinkNames();
-}
-
-void LinkViewModel::usedLinkNames(const QStringList& used_link_names)
-{
-  joint_->usedLinkNames(used_link_names);
-}
-
-bool LinkViewModel::isValid() const
-{
-  if (model_->name.empty())
-    return false;
-
-  if (joint_->usedLinkNames().contains(QString::fromStdString(model_->name)))
-    return false;
-
-  return true;
-}
-
 void LinkViewModel::sync()
 {
   inertial_->sync();
@@ -98,7 +39,7 @@ void LinkViewModel::sync()
   model_->collision_array.clear();
   transform(
     collisions_.begin(), collisions_.end(), back_inserter(model_->collision_array),
-    [](const CollisionViewModelPtr& vm) { return vm->model(); });
+    [](const CollisionViewModelPtr& cvm) { return cvm->model(); });
   if (model_->collision_array.empty())
     model_->collision = nullptr;
   else
@@ -106,9 +47,9 @@ void LinkViewModel::sync()
 
   // visual, visual_array
   model_->visual_array.clear();
-  transform(
-    visuals_.begin(), visuals_.end(), back_inserter(model_->visual_array),
-    [](const VisualViewModelPtr& vm) { return vm->model(); });
+  transform(visuals_.begin(), visuals_.end(), back_inserter(model_->visual_array), [](const VisualViewModelPtr& vvm) {
+    return vvm->model();
+  });
   if (model_->visual_array.empty())
     model_->visual = nullptr;
   else
@@ -118,6 +59,44 @@ void LinkViewModel::sync()
   model_->parent_joint = joint_->model();
 
   // child_joints, child_linksは可視化に影響しないため省略？
+}
+
+QString LinkViewModel::name() const
+{
+  return QString::fromStdString(model_->name);
+}
+
+void LinkViewModel::name(const QString& name)
+{
+  model_->name = name.toStdString();
+}
+
+const InertialViewModelPtr& LinkViewModel::inertial()
+{
+  return inertial_;
+}
+
+const V_VisualViewModelPtr& LinkViewModel::visuals()
+{
+  return visuals_;
+}
+
+const V_CollisionViewModelPtr& LinkViewModel::collisions()
+{
+  return collisions_;
+}
+
+const JointViewModelPtr& LinkViewModel::joint()
+{
+  return joint_;
+}
+
+V_LinkViewModelPtr LinkViewModel::children() const
+{
+  V_LinkViewModelPtr result;
+  for (const auto& child : model_->child_links)
+    result.emplace_back(new LinkViewModel(child));
+  return result;
 }
 
 void LinkViewModel::add(const VisualViewModelPtr& visual)
@@ -143,8 +122,7 @@ void LinkViewModel::add(const CollisionViewModelPtr& collision)
 
 void LinkViewModel::remove(const CollisionViewModelPtr& collision)
 {
-  collisions_.erase(
-    std::remove(collisions_.begin(), collisions_.end(), collision), collisions_.end());
+  collisions_.erase(std::remove(collisions_.begin(), collisions_.end(), collision), collisions_.end());
 
   sync();
 }

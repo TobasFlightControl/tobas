@@ -36,14 +36,14 @@ class ControllerRos : public tobas::BaseNode
 
 public:
   explicit ControllerRos(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
   // Drone
   tobas::Drone drone_;
-  KDL::TreeJointStateConverter js_converter_;
+  kdl::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
   // rosparams
@@ -69,7 +69,7 @@ private:
   std_msgs::BoolConstPtr arming_;
   tobas_msgs::PosVelAccYawPtr tar_pvay_W_;      // PosVelYawの目標値 (世界座標系)
   tobas_msgs::RollPitchYawThrustPtr tar_rpyt_;  // RollPitchYawThrustの目標値
-  KDL::Vector tar_acc_fb_;
+  kdl::Vector tar_acc_fb_;
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers

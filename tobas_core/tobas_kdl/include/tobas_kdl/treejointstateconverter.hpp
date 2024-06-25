@@ -5,7 +5,7 @@
 #include "./treesolveri.hpp"
 #include "./treejntparser.hpp"
 
-namespace KDL
+namespace kdl
 {
 /* sensor_msgs::JointStateとKDL::JntArrayの変換． */
 class TreeJointStateConverter : public TreeSolverI
@@ -94,4 +94,4 @@ inline const std::vector<double>& TreeJointStateConverter::getEffortsMsg() const
 {
   return js_out_.effort;
 }
-}  // namespace KDL
+}  // namespace kdl

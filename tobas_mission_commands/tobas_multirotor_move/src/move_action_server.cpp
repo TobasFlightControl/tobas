@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_ros_tools/service.hpp>
@@ -13,12 +13,8 @@ using namespace std;
 
 namespace tobas_multirotor_move
 {
-MoveActionServer::MoveActionServer(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name),
-    as_(nh_, tobas::kMoveAction, boost::bind(&self::executeCb, this, _1), false)
+MoveActionServer::MoveActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name), as_(nh_, tobas::kMoveAction, boost::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 
@@ -57,7 +53,7 @@ bool MoveActionServer::isGoalValid(const GoalType& goal)
   return true;
 }
 
-bool MoveActionServer::computeGoalPosition(const GoalType& goal, KDL::Vector& goal_pos)
+bool MoveActionServer::computeGoalPosition(const GoalType& goal, kdl::Vector& goal_pos)
 {
   // XY軸
   // FIXME: 平面近似誤差が無視できない場合は目標地点の経緯度を基準にするなどの工夫が必要
@@ -118,7 +114,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
   }
 
   // 目標位置
-  KDL::Vector goal_pos;
+  kdl::Vector goal_pos;
   if (!computeGoalPosition(*goal, goal_pos))
     return;
 
@@ -131,7 +127,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
 
   // 初期状態
   const auto start_time = ros::Time::now();
-  const auto start_yaw = KDL::Euler(odom_->frame.M).yaw;
+  const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
   ros::Rate rate(kUpdateRate);

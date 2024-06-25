@@ -27,9 +27,9 @@ private:
 
   bool is_first_solve_ = true;
 
-  size_t var_dim_;
-  size_t eq_dim_;
-  size_t ineq_dim_;
+  Eigen::Index var_dim_;
+  Eigen::Index eq_dim_;
+  Eigen::Index ineq_dim_;
 
   Eigen::VectorXd theta_;
   // Eigen::VectorXd nu_;

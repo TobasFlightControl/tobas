@@ -1,16 +1,16 @@
 import rospy
 from typing import List
 from functools import partial
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
-from tobas_tools_py.math import rps2rpm, rpm2rps
+from tobas_std_tools_py.math import rps2rpm, rpm2rps
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone, DroneLoader_Param
 from tobas_rqt_tools.widgets import Widget, IntSliderDisplay
 from tobas_msgs.msg import RotorSpeeds
 
-from .common import *
+from .common import BUTTON_HEIGHT, COMMAND_PERIOD
 
 
 class RotorSpeedsPublisherWidget(Widget):
@@ -43,7 +43,7 @@ class RotorSpeedsPublisherWidget(Widget):
 
         rows.addStretch()
 
-        self._speeds_pub = rospy.Publisher("command/rotor_speeds", RotorSpeeds, queue_size=1)
+        self._speeds_pub = rospy.Publisher(Topic.Command.ROTOR_SPEEDS, RotorSpeeds, queue_size=1)
 
         # モータが停止しないよう一定周期でコマンドを発行し続ける
         rospy.Timer(rospy.Duration(COMMAND_PERIOD), self._command_timer_cb)

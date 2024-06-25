@@ -34,6 +34,50 @@ GeometryViewModel::GeometryViewModel(const urdf::GeometrySharedPtr& model)
   load();
 }
 
+void GeometryViewModel::sync()
+{
+  switch (type_)
+  {
+    case GeometryType::BOX:
+    {
+      auto box = new urdf::Box();
+      box->dim.x = length_;
+      box->dim.y = width_;
+      box->dim.z = height_;
+      model_.reset(box);
+      break;
+    }
+    case GeometryType::CYLINDER:
+    {
+      auto cylinder = new urdf::Cylinder();
+      cylinder->length = length_;
+      cylinder->radius = radius_;
+      model_.reset(cylinder);
+      break;
+    }
+    case GeometryType::SPHERE:
+    {
+      auto sphere = new urdf::Sphere();
+      sphere->radius = radius_;
+      model_.reset(sphere);
+      break;
+    }
+    case GeometryType::MESH:
+    {
+      auto mesh = new urdf::Mesh();
+      mesh->filename = filepath_;
+      mesh->scale = scale_;
+      model_.reset(mesh);
+      break;
+    }
+    default:
+    {
+      throw runtime_error("Invalid geometry type.");
+      break;
+    }
+  }
+}
+
 const QString& GeometryViewModel::name() const
 {
   return kGeometryTypeToNameMap.at(type_);
@@ -112,50 +156,6 @@ const urdf::Vector3& GeometryViewModel::scale() const
 void GeometryViewModel::scale(const urdf::Vector3& scale)
 {
   scale_ = scale;
-}
-
-void GeometryViewModel::sync()
-{
-  switch (type_)
-  {
-    case GeometryType::BOX:
-    {
-      auto box = new urdf::Box();
-      box->dim.x = length_;
-      box->dim.y = width_;
-      box->dim.z = height_;
-      model_.reset(box);
-      break;
-    }
-    case GeometryType::CYLINDER:
-    {
-      auto cylinder = new urdf::Cylinder();
-      cylinder->length = length_;
-      cylinder->radius = radius_;
-      model_.reset(cylinder);
-      break;
-    }
-    case GeometryType::SPHERE:
-    {
-      auto sphere = new urdf::Sphere();
-      sphere->radius = radius_;
-      model_.reset(sphere);
-      break;
-    }
-    case GeometryType::MESH:
-    {
-      auto mesh = new urdf::Mesh();
-      mesh->filename = filepath_;
-      mesh->scale = scale_;
-      model_.reset(mesh);
-      break;
-    }
-    default:
-    {
-      throw runtime_error("Invalid geometry type.");
-      break;
-    }
-  }
 }
 
 void GeometryViewModel::load()

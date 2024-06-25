@@ -3,13 +3,12 @@
 #include "./chainsolveri.hpp"
 #include "./framevel.hpp"
 #include "./jntarray.hpp"
-#include "./jntarrayvel.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
  * \brief This <strong>abstract</strong> class encapsulates a
- * solver for the forward position kinematics for a KDL::Chain.
+ * solver for the forward position kinematics for a kdl::Chain.
  */
 class ChainFkSolverPos : public ChainSolverI
 {
@@ -21,7 +20,7 @@ public:
   }
 
   /**
-   * Calculate forward position kinematics for a KDL::Chain,
+   * Calculate forward position kinematics for a kdl::Chain,
    * from joint coordinates to cartesian pose.
    */
   virtual int JntToCart(const JntArray& q_in, int seg_nr = -1) = 0;
@@ -37,7 +36,7 @@ protected:
 
 /**
  * \brief This <strong>abstract</strong> class encapsulates a solver
- * for the forward velocity kinematics for a KDL::Chain.
+ * for the forward velocity kinematics for a kdl::Chain.
  */
 class ChainFkSolverVel : public ChainSolverI
 {
@@ -52,7 +51,7 @@ public:
    * Calculate forward position and velocity kinematics, from
    * joint coordinates to cartesian coordinates.
    */
-  virtual int JntToCart(const JntArrayVel& q_in, int seg_nr = -1) = 0;
+  virtual int JntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1) = 0;
 
   const FrameVel& getFrameVel() const
   {
@@ -62,4 +61,4 @@ public:
 protected:
   FrameVel p_out_;
 };
-}  // end of namespace KDL
+}  // end of namespace kdl

@@ -54,11 +54,9 @@ typedef boost::shared_ptr<::tobas_msgs::JointCommandArray const> JointCommandArr
 // constants requiring out of line definition
 
 template <typename ContainerAllocator>
-std::ostream&
-operator<<(std::ostream& s, const ::tobas_msgs::JointCommandArray_<ContainerAllocator>& v)
+std::ostream& operator<<(std::ostream& s, const ::tobas_msgs::JointCommandArray_<ContainerAllocator>& v)
 {
-  ros::message_operations::Printer<::tobas_msgs::JointCommandArray_<ContainerAllocator>>::stream(
-    s, "", v);
+  ros::message_operations::Printer<::tobas_msgs::JointCommandArray_<ContainerAllocator>>::stream(s, "", v);
   return s;
 }
 
@@ -213,10 +211,8 @@ template <class ContainerAllocator>
 struct Printer<::tobas_msgs::JointCommandArray_<ContainerAllocator>>
 {
   template <typename Stream>
-  static void stream(
-    Stream& s,
-    const std::string& indent,
-    const ::tobas_msgs::JointCommandArray_<ContainerAllocator>& v)
+  static void
+  stream(Stream& s, const std::string& indent, const ::tobas_msgs::JointCommandArray_<ContainerAllocator>& v)
   {
     s << indent << "header: ";
     s << std::endl;
@@ -227,8 +223,7 @@ struct Printer<::tobas_msgs::JointCommandArray_<ContainerAllocator>>
       s << indent << "  commands[" << i << "]: ";
       s << std::endl;
       s << indent;
-      Printer<::tobas_msgs::JointCommand_<ContainerAllocator>>::stream(
-        s, indent + "    ", v.commands[i]);
+      Printer<::tobas_msgs::JointCommand_<ContainerAllocator>>::stream(s, indent + "    ", v.commands[i]);
     }
   }
 };

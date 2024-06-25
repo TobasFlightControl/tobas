@@ -11,20 +11,15 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-TakeoffActionServer::TakeoffActionServer(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name),
-    as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
+TakeoffActionServer::TakeoffActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name), as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
 {
   set_mode_sc_ = nh_.serviceClient<mavros_msgs::SetMode>(kSetModeSrvName);
   arming_sc_ = nh_.serviceClient<mavros_msgs::CommandBool>(kArmingSrvName);
   takeoff_sc_ = nh_.serviceClient<mavros_msgs::CommandTOL>(kTakeoffSrvName);
 
   local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
-  param_server_state_sub_ =
-    nh_.subscribe(kParamServerStateTopic, 1, &self::paramServerStateCb, this);
+  param_server_state_sub_ = nh_.subscribe(kParamServerStateTopic, 1, &self::paramServerStateCb, this);
 
   as_.start();
 }
@@ -33,9 +28,7 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 {
   if (goal.target_altitude < kTakeoffCheckAltThreshold)
   {
-    as_.setAborted(
-      result_,
-      "Target elevation must be greater than " + to_string(kTakeoffCheckAltThreshold) + " [m].");
+    as_.setAborted(result_, "Target elevation must be greater than " + to_string(kTakeoffCheckAltThreshold) + " [m].");
     return false;
   }
 

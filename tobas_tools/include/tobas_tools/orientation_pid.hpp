@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_kdl/euler.hpp>
 
 namespace tobas
@@ -17,34 +16,30 @@ struct OrientationPidConfig
 
 class OrientationPid
 {
-  // Constants
-  static constexpr size_t kGyroLpfCutoff = 20;
-
 public:
   explicit OrientationPid();
 
-  KDL::Vector update(
-    const KDL::Euler& cur_rpy,
-    const KDL::Vector& cur_gyro,
-    const KDL::Euler& tar_rpy,
-    const KDL::Vector& tar_gyro,
+  kdl::Vector update(
+    const kdl::Euler& cur_rpy,
+    const kdl::Vector& cur_gyro,
+    const kdl::Euler& tar_rpy,
+    const kdl::Vector& tar_gyro,
     const double& dt);
 
   void configure(const OrientationPidConfig& cfg);
 
-  inline KDL::Vector integralError() const;
+  inline kdl::Vector integralError() const;
 
 private:
   // Config
-  KDL::Vector kp_;
-  KDL::Vector ki_;
-  KDL::Vector kd_;
+  kdl::Vector kp_;
+  kdl::Vector ki_;
+  kdl::Vector kd_;
 
-  KDL::Vector ei_ = KDL::Vector::Zero();
-  tobas_std::FirstOrderFilter<KDL::Vector> gyro_lpf_;
+  kdl::Vector ei_ = kdl::Vector::Zero();
 };
 
-inline KDL::Vector OrientationPid::integralError() const
+inline kdl::Vector OrientationPid::integralError() const
 {
   return ei_;
 }

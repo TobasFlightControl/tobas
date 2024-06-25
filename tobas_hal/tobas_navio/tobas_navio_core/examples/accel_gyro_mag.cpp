@@ -9,7 +9,7 @@
 using namespace std;
 using namespace navio;
 
-unique_ptr<InertialSensor> get_inertial_sensor(string sensor_name)
+unique_ptr<InertialSensor> getInertialSensor(const string& sensor_name)
 {
   if (sensor_name == "mpu")
   {
@@ -29,18 +29,18 @@ unique_ptr<InertialSensor> get_inertial_sensor(string sensor_name)
   }
 }
 
-void print_help()
+void printHelp()
 {
   printf("Possible parameters:\nSensor selection: -i [sensor name]\n");
   printf("Sensors names: mpu is MPU9250, lsm is LSM9DS1\nFor help: -h\n");
 }
 
-string get_sensor_name(int argc, char* argv[])
+string getSensorName(int argc, char* argv[])
 {
   if (argc < 2)
   {
     printf("Enter parameter\n");
-    print_help();
+    printHelp();
     return "";
   }
 
@@ -55,11 +55,11 @@ string get_sensor_name(int argc, char* argv[])
       case 'i':
         return optarg;
       case 'h':
-        print_help();
+        printHelp();
         return "-1";
       case '?':
         printf("Wrong parameter.\n");
-        print_help();
+        printHelp();
         return "";
     }
   }
@@ -72,11 +72,11 @@ int main(int argc, char* argv[])
   if (checkAPM())
     return 1;
 
-  const auto sensor_name = get_sensor_name(argc, argv);
+  const auto sensor_name = getSensorName(argc, argv);
   if (sensor_name.empty())
     return EXIT_FAILURE;
 
-  const auto sensor = get_inertial_sensor(sensor_name);
+  const auto sensor = getInertialSensor(sensor_name);
 
   if (!sensor)
   {
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
   float mx, my, mz;
   //-------------------------------------------------------------------------
 
-  while (1)
+  while (true)
   {
     sensor->update();
     sensor->readAccelerometer(&ax, &ay, &az);

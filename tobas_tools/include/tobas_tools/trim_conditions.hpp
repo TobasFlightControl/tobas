@@ -27,7 +27,7 @@ public:
    *
    * @return ErrorCode Error code
    */
-  int update(double V, const double& rho, const KDL::JntArray& q);
+  int update(double V, const double& rho, const kdl::JntArray& q);
 
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
@@ -67,7 +67,7 @@ public:
 private:
   const Drone& drone_;
 
-  KDL::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeJntToInertiaSolver inertia_solver_;
   StabilityDerivativesCG asd_cog_;
 
   // 固定値

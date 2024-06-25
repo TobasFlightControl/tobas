@@ -20,6 +20,8 @@ class InertialViewModel : public BaseViewModel<urdf::Inertial, InertialViewModel
 public:
   using BaseViewModel<urdf::Inertial, InertialViewModel>::BaseViewModel;
 
+  void sync() override;
+
   const urdf::Pose& origin() const;
   void origin(const urdf::Pose& origin);
 

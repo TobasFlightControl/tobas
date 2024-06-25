@@ -7,7 +7,7 @@
 #include "./wrench.hpp"
 #include "./impulse.hpp"
 
-namespace KDL
+namespace kdl
 {
 class Frame;
 using FrameMap = std::map<std::string, Frame>;
@@ -284,4 +284,4 @@ inline Frame Frame::inverse() const
 {
   return Frame(M.inverse(), -M.inverse(p));
 }
-}  // namespace KDL
+}  // namespace kdl

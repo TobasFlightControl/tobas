@@ -5,7 +5,7 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_mr_mpc
 {

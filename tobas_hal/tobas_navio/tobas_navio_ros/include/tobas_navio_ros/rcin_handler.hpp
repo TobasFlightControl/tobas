@@ -1,31 +1,32 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <ros/timer.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_navio_core/rc_input.hpp>
 #include <tobas_std_tools/range.hpp>
+#include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_navio_core/rc_input.hpp>
+
+#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class RCInputHandler : public tobas::BaseNode
+class RCInputHandler : public BaseSensorNode
 {
   static constexpr size_t kSamplingRate = 100;  // [Hz]
 
   using self = RCInputHandler;
-  using super = tobas::BaseNode;
+  using super = BaseSensorNode;
 
 public:
   explicit RCInputHandler(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
   navio::RCInput rcin_;
+  ptree::PropertyClient property_client_;
 
   // Config
   tobas_std::Range<double> roll_range_;
@@ -39,8 +40,8 @@ private:
 
   ros::Publisher rcin_pub_;
   ros::ServiceServer reload_config_srv_;
-  ros::Timer main_timer_;
 
+  void setToDefaults();
   bool reloadConfig();
 
   bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);

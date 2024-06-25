@@ -5,18 +5,17 @@
 #include <tobas_std_tools/stopwatch.hpp>
 
 #include "./spi_dev.hpp"
+#include "./ubx_scanner.hpp"
 #include "./ubx_payload.hpp"
 
 #define PACKED __attribute__((__packed__))  // 構造体のメンバ変数がメモリ上で連続する
 
 namespace navio
 {
-static constexpr uint32_t kUbxBufferLength = 1024;
-static constexpr uint32_t kPreambleOffset = 2;
+static constexpr char kDevice[] = "/dev/spidev0.0";
 static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
-static constexpr uint32_t kConfigureMessageSize = 11;
-static constexpr uint32_t kMinMaxTrkChForMajorGnss = 4;
-static constexpr double kWaitForGnssAck = 1.;  // [s]
+static constexpr uint8_t kMinMaxTrkChForMajorGnss = 4;
+static constexpr double kWaitForGnssAck = 3.;  // [s]
 
 // SPIで1バイト受け取る間隔 [us]
 // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる
@@ -25,59 +24,6 @@ static constexpr double kWaitForGnssAck = 1.;  // [s]
 // PX4はデフォルトで 38400bit/s のUARTだから，PVTの受信遅延は 92 / (38400 / 8) * 1000 ~ 19.2ms．
 // どうせ衛生からの通信遅延が70msで固定で，レシーバとFCの通信遅延はボトルネックではないから，速度より精度を重視すべき．
 static constexpr size_t kSpiInterval = 100;
-
-class UBXScanner
-{
-public:
-  enum State
-  {
-    Sync1,
-    Sync2,
-    Class,
-    ID,
-    Length1,
-    Length2,
-    Payload,
-    CK_A,
-    CK_B,
-    Done,
-  };
-
-  explicit UBXScanner();
-
-  inline uint8_t* getMessage();
-  inline const uint32_t& getMessageLength() const;
-  inline const uint32_t& getPosition() const;
-
-  void reset();
-  int update(const uint8_t& data);
-
-private:
-  uint8_t message_[kUbxBufferLength];  // Buffer for UBX message
-  uint32_t message_length_;            // Length of the received message
-  uint32_t position_;                  // Indicates current buffer offset
-  uint32_t payload_length_;            // Length of current message payload
-  State state_;                        // Current scanner state
-};
-
-class UBXParser
-{
-public:
-  explicit UBXParser(UBXScanner& ubxsc);
-
-  uint16_t calcId();
-
-  inline uint8_t* getMessage() const;
-  inline const uint32_t& getLength() const;
-  inline const uint32_t& getPosition() const;
-  inline const uint16_t& getLatestMsg() const;
-
-private:
-  UBXScanner scanner_;  // The scanner, which finds the messages in the data stream
-
-  uint8_t* message_;  // Pointer to the scanner's message buffer
-  uint16_t latest_id_;
-};
 
 /**
  * @brief Ublox handler.
@@ -89,8 +35,6 @@ class Ublox
 private:
   enum ubx_protocol_bytes : uint8_t
   {
-    PREAMBLE1 = 0xb5,
-    PREAMBLE2 = 0x62,
 
     CLASS_NAV = 0x01,
     CLASS_ACK = 0x05,
@@ -110,6 +54,7 @@ private:
     ID_ACK_ACK = 0x01,
 
     ID_CFG_MSG = 0x01,
+    ID_CFG_CFG = 0x09,
     ID_CFG_RATE = 0x08,
     ID_CFG_NAV5 = 0x24,
     ID_CFG_GNSS = 0x3E,
@@ -191,26 +136,31 @@ public:
 
   explicit Ublox();
 
+  /* 32.10.3.1 Clear, save and load configurations */
+  void clearConfigurations();
+  void saveConfigurations();
+  void loadConfigurations();
+
   /* 32.10.18.3 Set message rate */
-  bool enableMsg(message_t msg, bool enable);
-  bool enableAllMsgs(bool enable);
+  void enableMsg(message_t msg, bool enable);
+  void enableAllMsgs(bool enable);
 
   /* 32.10.27.1 Navigation/measurement rate settings */
-  bool configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate = 1, uint16_t time_ref = 1);
+  void configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate = 1, uint16_t time_ref = 1);
 
   /* 32.10.19.1 Navigation engine settings */
-  bool configureDynamicsModel(dynamics_model dyn_model);
+  void configureDynamicsModel(dynamics_model dyn_model);
 
   /* 32.10.24.1 Power mode setup */
-  bool configurePowerMode(power_setup_value mode, uint16_t period = 0, uint16_t on_time = 0);
+  void configurePowerMode(power_setup_value mode, uint16_t period = 0, uint16_t on_time = 0);
 
   /* 32.10.13.1 GNSS system configuration */
-  bool configureGnss_GPS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
-  bool configureGnss_SBAS(bool enable, uint8_t res_track_ch = 1, uint8_t max_track_ch = 3);
-  bool configureGnss_Galileo(bool enable, uint8_t res_track_ch = 4, uint8_t max_track_ch = 8);
-  bool configureGnss_BeiDou(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
-  bool configureGnss_QZSS(bool enable, uint8_t res_track_ch = 0, uint8_t max_track_ch = 3);
-  bool configureGnss_GLONASS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 14);
+  void configureGnss_GPS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
+  void configureGnss_SBAS(bool enable, uint8_t res_track_ch = 1, uint8_t max_track_ch = 3);
+  void configureGnss_Galileo(bool enable, uint8_t res_track_ch = 4, uint8_t max_track_ch = 8);
+  void configureGnss_BeiDou(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 16);
+  void configureGnss_QZSS(bool enable, uint8_t res_track_ch = 0, uint8_t max_track_ch = 3);
+  void configureGnss_GLONASS(bool enable, uint8_t res_track_ch = 8, uint8_t max_track_ch = 14);
 
   uint16_t update();
 
@@ -232,10 +182,10 @@ public:
 private:
   struct PACKED UbxHeader
   {
-    uint8_t preamble1;
-    uint8_t preamble2;
-    uint8_t msg_class;
-    uint8_t msg_id;
+    uint8_t sync1;
+    uint8_t sync2;
+    uint8_t cls;
+    uint8_t id;
     uint16_t length;
   };
 
@@ -246,6 +196,13 @@ private:
   };
 
   /* ===== Payload structures ===== */
+  struct PACKED CfgCfg
+  {
+    uint32_t clearMask;
+    uint32_t saveMask;
+    uint32_t loadMask;
+  };
+
   struct PACKED CfgMsg
   {
     uint8_t msgClass;
@@ -313,53 +270,25 @@ private:
 
   SPIdev spi_dev_;
   UBXScanner scanner_;
-  UBXParser parser_;
+
+  uint16_t latest_msg_;
+
+  uint8_t tx_ = 0;
+  uint8_t rx_;
 
   tobas_std::Rate rate_;
   tobas_std::Stopwatch stopwatch_;
 
-  bool sendMessage(uint8_t msg_class, uint8_t msg_id, void* msg, uint16_t size);
-  int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
+  void sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size);
+  void waitForAcknowledge(uint8_t cls, uint8_t id);
+  void configure(uint8_t cfg_id, void* msg, uint16_t size);
+
+  void configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
+
+  void verifyMessage();
 
   /* p.171, 32.4 UBX Checksum. */
-  CheckSum calculateCheckSum(uint8_t* message, size_t size) const;
-
-  bool configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable);
-  bool waitForAcknowledge(uint8_t cls, uint8_t id);
+  static CheckSum computeChecksum(uint8_t* message, size_t checksum_pos);
+  static int spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset = 0);
 };
-
-inline uint8_t* UBXScanner::getMessage()
-{
-  return message_;
-}
-
-inline const uint32_t& UBXScanner::getMessageLength() const
-{
-  return message_length_;
-}
-
-inline const uint32_t& UBXScanner::getPosition() const
-{
-  return position_;
-}
-
-inline uint8_t* UBXParser::getMessage() const
-{
-  return message_;
-}
-
-inline const uint32_t& UBXParser::getLength() const
-{
-  return scanner_.getMessageLength();
-}
-
-inline const uint32_t& UBXParser::getPosition() const
-{
-  return scanner_.getPosition();
-}
-
-inline const uint16_t& UBXParser::getLatestMsg() const
-{
-  return latest_id_;
-}
 }  // namespace navio

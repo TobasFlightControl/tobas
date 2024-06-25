@@ -1,7 +1,7 @@
 #include <Eigen/LU>
 #include <std_msgs/Float64.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -12,14 +12,11 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_mr_thrust_estimation
 {
-ThrustEstimator::ThrustEstimator(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+ThrustEstimator::ThrustEstimator(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
@@ -31,11 +28,9 @@ ThrustEstimator::ThrustEstimator(
   factor_pub_ = nh_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
 
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ThrustEstimator::updateInternalDataStructures()
@@ -66,7 +61,7 @@ void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // 実際は加速度ノイズとジャイロノイズの分散に比例する値のはずだが，
   // どうせプロセスノイズのスケールがわからないため観測ノイズのスケールも適当でよい．
   // 簡単のため最も影響の大きいと思われる加速度ノイズの分散をそのまま使う．
-  kf_.R(0, 0) = odom->linear_acceleration_covariance[8] + EPS;
+  kf_.R(0, 0) = odom->linear_acceleration_covariance(2, 2) + EPS;
 
   // カルマンフィルタを更新
   kf_.update();

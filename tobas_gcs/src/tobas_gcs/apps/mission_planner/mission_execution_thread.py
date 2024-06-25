@@ -4,6 +4,7 @@ from overrides import override
 from typing import List
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
+from tobas_tools_py.constants import Service, Action
 from tobas_msgs.msg import CommandLevel, TakeoffAction, TakeoffGoal, LandAction, LandGoal, MoveAction, MoveGoal
 from tobas_msgs.srv import GetGnssOrigin, GetGnssOriginRequest, GetGnssOriginResponse
 
@@ -26,11 +27,11 @@ class MissionExecutionThread(QThread):
         self._commands = commands
         self._stop_requested = False
 
-        self._get_gnss_origin_sc = rospy.ServiceProxy(f"/{drone_name}/get_gnss_origin", GetGnssOrigin)
+        self._get_gnss_origin_sc = rospy.ServiceProxy(f"/{drone_name}/{Service.GET_GNSS_ORIGIN}", GetGnssOrigin)
 
-        self._takeoff_ac = actionlib.SimpleActionClient(f"/{drone_name}/takeoff_action", TakeoffAction)
-        self._land_ac = actionlib.SimpleActionClient(f"/{drone_name}/land_action", LandAction)
-        self._move_ac = actionlib.SimpleActionClient(f"/{drone_name}/move_action", MoveAction)
+        self._takeoff_ac = actionlib.SimpleActionClient(f"/{drone_name}/{Action.TAKEOFF}", TakeoffAction)
+        self._land_ac = actionlib.SimpleActionClient(f"/{drone_name}/{Action.LAND}", LandAction)
+        self._move_ac = actionlib.SimpleActionClient(f"/{drone_name}/{Action.MOVE}", MoveAction)
 
     @override
     def run(self) -> None:

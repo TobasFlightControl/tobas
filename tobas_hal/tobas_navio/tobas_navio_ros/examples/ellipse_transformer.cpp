@@ -1,12 +1,11 @@
 #include <iostream>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 
 #include <tobas_navio_ros/ellipse_transformer.hpp>
 
 using namespace std;
 using namespace Eigen;
-using namespace tobas_std;
 
 int main()
 {
@@ -14,9 +13,9 @@ int main()
   const double rx = 2, ry = 1, rz = 1;  // 半径
   const double x0 = 2, y0 = 1, z0 = 1;  // 中心
 
-  const double rx2 = sqr(rx);
-  const double ry2 = sqr(ry);
-  const double rz2 = sqr(rz);
+  const double rx2 = math::sqr(rx);
+  const double ry2 = math::sqr(ry);
+  const double rz2 = math::sqr(rz);
 
   tobas_navio_ros::EllipseTransformer trans;
   trans.a_xx = 1 / rx2;
@@ -25,7 +24,7 @@ int main()
   trans.b_x = -2 * x0 / rx2;
   trans.b_y = -2 * y0 / ry2;
   trans.b_z = -2 * z0 / rz2;
-  trans.c = sqr(x0) / rx2 + sqr(y0) / ry2 + sqr(z0) / rz2 - 1;
+  trans.c = math::sqr(x0) / rx2 + math::sqr(y0) / ry2 + math::sqr(z0) / rz2 - 1;
 
   trans.initialize();
 

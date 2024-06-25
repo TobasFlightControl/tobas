@@ -38,13 +38,13 @@ public:
   explicit PositionController();
 
   void update(
-    const KDL::Vector& cur_pos,
-    const KDL::Vector& cur_vel_W,
-    const KDL::Vector& cur_acc_w,
-    const KDL::Vector& tar_pos,
-    const KDL::Vector& tar_vel_W,
+    const kdl::Vector& cur_pos,
+    const kdl::Vector& cur_vel_W,
+    const kdl::Vector& cur_acc_w,
+    const kdl::Vector& tar_pos,
+    const kdl::Vector& tar_vel_W,
     const double& dt,
-    KDL::Vector& tar_acc_W);
+    kdl::Vector& tar_acc_W);
 
   void configure(const PositionControllerConfig& cfg);
 

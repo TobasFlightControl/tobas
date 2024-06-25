@@ -56,17 +56,13 @@ std::ostream& operator<<(std::ostream& s, const ::tobas_msgs::Pwm_<ContainerAllo
 }
 
 template <typename ContainerAllocator1, typename ContainerAllocator2>
-bool operator==(
-  const ::tobas_msgs::Pwm_<ContainerAllocator1>& lhs,
-  const ::tobas_msgs::Pwm_<ContainerAllocator2>& rhs)
+bool operator==(const ::tobas_msgs::Pwm_<ContainerAllocator1>& lhs, const ::tobas_msgs::Pwm_<ContainerAllocator2>& rhs)
 {
   return lhs.channel == rhs.channel && lhs.period == rhs.period;
 }
 
 template <typename ContainerAllocator1, typename ContainerAllocator2>
-bool operator!=(
-  const ::tobas_msgs::Pwm_<ContainerAllocator1>& lhs,
-  const ::tobas_msgs::Pwm_<ContainerAllocator2>& rhs)
+bool operator!=(const ::tobas_msgs::Pwm_<ContainerAllocator1>& lhs, const ::tobas_msgs::Pwm_<ContainerAllocator2>& rhs)
 {
   return !(lhs == rhs);
 }
@@ -183,8 +179,7 @@ template <class ContainerAllocator>
 struct Printer< ::tobas_msgs::Pwm_<ContainerAllocator> >
 {
   template <typename Stream>
-  static void
-  stream(Stream& s, const std::string& indent, const ::tobas_msgs::Pwm_<ContainerAllocator>& v)
+  static void stream(Stream& s, const std::string& indent, const ::tobas_msgs::Pwm_<ContainerAllocator>& v)
   {
     s << indent << "channel: ";
     Printer<uint64_t>::stream(s, indent + "  ", v.channel);

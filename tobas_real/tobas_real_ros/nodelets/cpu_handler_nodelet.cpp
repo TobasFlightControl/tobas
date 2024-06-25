@@ -6,13 +6,7 @@ namespace tobas_real_ros
 {
 void CpuHandlerNodelet::onInit()
 {
-  NODELET_INFO("Initializing CPU Handler Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new CpuHandler(nh, pnh, name));
+  node_.reset(new CpuHandler(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_real_ros
 

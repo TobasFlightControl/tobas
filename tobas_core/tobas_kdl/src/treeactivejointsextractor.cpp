@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 TreeActiveJointsExtractor::TreeActiveJointsExtractor(const Tree& tree) : super(tree)
 {
@@ -47,4 +47,4 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace kdl

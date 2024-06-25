@@ -13,7 +13,7 @@ struct VehicleParameters
   double wing_surface;                   // Wing surface [m^2]
   double wing_span;                      // Wing span [m]
   double mac;                            // Mean Aerodynamic Chord [m]
-  KDL::Vector ac;                        // Aerodynamic Center wrt the frame origin (NWU) [m]
+  kdl::Vector ac;                        // Aerodynamic Center wrt the frame origin (NWU) [m]
   tobas_std::Range<double> alpha_limit;  // Stall angles [rad]
 };
 
@@ -95,7 +95,7 @@ double angleOfAttack(const double& u, const double& w);
  * @param linvel_B 風に対する相対的な機体速度 (NED座標系) [m/s]
  * @return double 迎角 [rad]
  */
-double angleOfAttack(const KDL::Vector& linvel_B);
+double angleOfAttack(const kdl::Vector& linvel_B);
 
 /**
  * @brief 横滑り角 (beta) を計算する．
@@ -111,7 +111,7 @@ double angleOfSideSlip(const double& u, const double& v, const double& w);
  * @param linvel_B 風に対する相対的な機体速度 (NED座標系) [m/s]
  * @return double 横滑り角 [rad]
  */
-double angleOfSideSlip(const KDL::Vector& linvel_B);
+double angleOfSideSlip(const kdl::Vector& linvel_B);
 
 /**
  * @brief 動圧 (q_bar) を計算する．

@@ -38,11 +38,7 @@ public:
    * @param rho 大気密度 [kg/m^3]
    * @param q 可動関節の角度 [rad]
    */
-  int update(
-    const double& V,
-    const double& rho,
-    const double& battery_voltage,
-    const KDL::JntArray& q);
+  int update(const double& V, const double& rho, const double& battery_voltage, const kdl::JntArray& q);
 
   inline const TrimConditions& trimCondition() const;
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
@@ -132,8 +128,8 @@ public:
 private:
   const Drone& drone_;
 
-  KDL::TreeFkSolverPos fk_solver_;
-  KDL::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeFkSolverPos fk_solver_;
+  kdl::TreeJntToInertiaSolver inertia_solver_;
   RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
 
@@ -205,8 +201,7 @@ inline const MicroDisturbanceEoM::StateMatrix& MicroDisturbanceEoM::A() const
   return A_;
 }
 
-inline const Eigen::Matrix<double, MicroDisturbanceEoM::kStateSize, Eigen::Dynamic>&
-MicroDisturbanceEoM::B() const
+inline const Eigen::Matrix<double, MicroDisturbanceEoM::kStateSize, Eigen::Dynamic>& MicroDisturbanceEoM::B() const
 {
   return B_;
 }

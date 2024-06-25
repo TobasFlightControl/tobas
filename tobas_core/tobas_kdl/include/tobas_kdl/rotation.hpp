@@ -5,7 +5,7 @@
 #include "./wrench.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace KDL
+namespace kdl
 {
 class Rotation;
 using RotationMap = std::map<std::string, Rotation>;
@@ -290,7 +290,7 @@ inline void Rotation::setInverse()
 
 inline double Rotation::getYaw() const
 {
-  return atan2(data(1, 0), data(0, 0));
+  return ::atan2(data(1, 0), data(0, 0));
 }
 
 inline double Rotation::trace() const
@@ -327,4 +327,4 @@ inline void Rotation::UnitZ(const Vector& X)
 {
   data.col(2) = X.data;
 }
-}  // namespace KDL
+}  // namespace kdl

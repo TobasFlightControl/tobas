@@ -7,7 +7,7 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_rc_teleop
 {
@@ -25,22 +25,17 @@ void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pn
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 {
   is_up_commanded_ = false;
-  t_last_rcin_ = ros::Time::now();
-  vel_filter_.initialize(delay_time_const_, Vector::Zero());
+  t_last_rcin_ = odom.header.stamp;
   tar_pos_W_ = odom.frame.p;
   tar_vel_F_.setZero();
   tar_yaw_ = Euler(odom.frame.M).yaw;
 }
 
-void PosVelAccYawController::update(
-  const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry& odom,
-  const double&)
+void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
   // 時刻を更新
-  const auto cur_time = ros::Time::now();
-  const auto dt = (cur_time - t_last_rcin_).toSec();
-  t_last_rcin_ = cur_time;
+  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  t_last_rcin_ = rcin.header.stamp;
 
   // RC入力を速度とヨーレートに変換
   tar_vel_F_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
@@ -48,12 +43,9 @@ void PosVelAccYawController::update(
   tar_vel_F_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
   const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
 
-  // 目標速度をフィルタリング
-  vel_filter_.update(tar_vel_F_, dt);
-
   // 目標速度を世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
-  const auto tar_vel_W = Rotation::RotZ(tar_yaw_) * vel_filter_.getState();
+  const auto tar_vel_W = Rotation::RotZ(tar_yaw_) * tar_vel_F_;
 
   // 目標速度とヨーレートを積分
   tar_pos_W_ += tar_vel_W * dt;
@@ -89,15 +81,9 @@ void PosVelAccYawController::update(
 void PosVelAccYawController::getRosParams(ros::NodeHandle& pnh)
 {
   tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
-    tobas_ros::POSITIVE);
+    pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, tobas_ros::POSITIVE);
   tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/delay_time_const", delay_time_const_, kDefaultDelayTimeConst,
-    tobas_ros::NON_NEGATIVE);
+    pnh, "pos_vel_acc_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "pos_vel_acc_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

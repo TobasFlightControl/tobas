@@ -1,7 +1,12 @@
+import os
 import os.path as osp
 import rospy
 import inspect
 from argparse import ArgumentParser
+
+
+def get_ros_ip() -> str:
+    return os.environ.get("ROS_IP")
 
 
 def get_log_level() -> int:

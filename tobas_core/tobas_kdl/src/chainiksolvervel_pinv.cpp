@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace kdl
 {
 ChainIkSolverVel_pinv::ChainIkSolverVel_pinv(const Chain& chain) : super(chain), jnt2jac_(chain_)
 {
@@ -56,4 +56,4 @@ int ChainIkSolverVel_pinv::CartToJnt(const JntArray& q, const Twist& v)
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace kdl

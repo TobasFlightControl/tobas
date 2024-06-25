@@ -2,13 +2,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .setup_assistant import SetupAssistant
+    from .urdf_parser import URDFParser
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QHBoxLayout
 from joint_state_publisher import JointStatePublisher
 from joint_state_publisher_gui import JointStatePublisherGui
 
@@ -24,42 +22,33 @@ class RobotVisualizerWidget(Widget):
     HEIGHT = 350
     JSP_WIDTH = 200
 
-    def __init__(self, main: SetupAssistant) -> None:
+    def __init__(self, urdf_parser: URDFParser) -> None:
         super().__init__()
-        self._main = main
 
         self._jsp_gui = None
         self._jsp_thread = None
         self._rsp_process = None
         self._js2drs_process = None
 
+        self._rviz = RvizWidget(urdf_parser)
+        self._frame_tree = FrameTreeWidget(urdf_parser, self._rviz)
+
+        # Layout
+        self.setFixedHeight(self.HEIGHT)
         self._cols = QHBoxLayout()
         self.setLayout(self._cols)
-
-        self._frame_tree = FrameTreeWidget(main)
         self._cols.addWidget(self._frame_tree)
-
-        self._rviz = RvizWidget(main)
         self._cols.addWidget(self._rviz)
-
-        self.setFixedHeight(self.HEIGHT)
-        self.setVisible(False)
 
     @override
     def close(self) -> bool:
         self._terminate_backgrounds()
         return super().close()
 
-    def define_connections(self) -> None:
-        self._frame_tree.define_connections()
-        self._rviz.define_connections()
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
+    def update_internal_data_structures(self) -> None:
+        self._frame_tree.update_internal_data_structures()
+        self._rviz.update_internal_data_structures()
 
-    def highlight_link(self, link_name: str) -> None:
-        return self._rviz.highlight_link(link_name)
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
         self._terminate_backgrounds()
 
         # Robot State Publisherを別プロセスで起動
@@ -80,7 +69,8 @@ class RobotVisualizerWidget(Widget):
         self._jsp_gui.setFixedWidth(self.JSP_WIDTH)
         self._cols.addWidget(self._jsp_gui)
 
-        self.setVisible(True)
+    def highlight_link(self, link_name: str) -> None:
+        return self._rviz.highlight_link(link_name)
 
     def _terminate_backgrounds(self) -> None:
         if self._jsp_gui is not None:

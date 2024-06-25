@@ -2,12 +2,12 @@
 
 #include "./chainfksolver.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
  * Implementation of a recursive forward position kinematics
  * algorithm to calculate the position transformation from joint
- * space to Cartesian space of a general kinematic chain (KDL::Chain).
+ * space to Cartesian space of a general kinematic chain (kdl::Chain).
  *
  * @ingroup KinematicFamily
  */
@@ -22,4 +22,4 @@ public:
 
   int JntToCart(const JntArray& q_in, int seg_nr = -1) override;
 };
-}  // namespace KDL
+}  // namespace kdl

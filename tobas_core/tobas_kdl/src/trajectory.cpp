@@ -1,12 +1,9 @@
-#include <iostream>
-
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 
 #include "../include/tobas_kdl/trajectory.hpp"
 
 using namespace std;
-using namespace KDL;
-using namespace tobas_std;
+using namespace kdl;
 
 namespace tj
 {
@@ -15,8 +12,8 @@ CycloidGenerator3d::CycloidGenerator3d()
 }
 
 void CycloidGenerator3d::generate(
-  const KDL::Vector& p0,
-  const KDL::Vector& pf,
+  const kdl::Vector& p0,
+  const kdl::Vector& pf,
   const double& T,
   const double& h,
   const double& k)
@@ -30,13 +27,12 @@ void CycloidGenerator3d::generate(
   T_ = T;
   h_ = h;
   k_ = k;
-  TT_ = sqr(T);
-  kk_ = sqr(k);
+  TT_ = math::sqr(T);
+  kk_ = math::sqr(k);
   p_diff_ = pf - p0;
 }
 
-void CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a)
-  const
+void CycloidGenerator3d::get(const double& t, const Rotation& r, Vector& p, Vector& v, Vector& a) const
 {
   assert(t >= 0);
 
@@ -71,7 +67,7 @@ void CycloidGenerator3d::get(const double& t, Vector& p) const
   return get(t, r0_, p, dummy_vector, dummy_vector);
 }
 
-void CycloidGenerator3d::getPos(const double& t, const KDL::Rotation& r, Vector& p) const
+void CycloidGenerator3d::getPos(const double& t, const kdl::Rotation& r, Vector& p) const
 {
   const auto theta = 2 * M_PI * t / T_;
   const auto tmp = (theta - sin(theta)) / (2 * M_PI);
@@ -83,7 +79,7 @@ void CycloidGenerator3d::getPos(const double& t, const KDL::Rotation& r, Vector&
   p = r * p;
 }
 
-void CycloidGenerator3d::getVel(const double& t, const KDL::Rotation& r, Vector& v) const
+void CycloidGenerator3d::getVel(const double& t, const kdl::Rotation& r, Vector& v) const
 {
   const auto theta = 2 * M_PI * t / T_;
   const auto tmp = (1 - cos(theta)) / T_;
@@ -95,14 +91,14 @@ void CycloidGenerator3d::getVel(const double& t, const KDL::Rotation& r, Vector&
   v = r * v;
 }
 
-void CycloidGenerator3d::getAcc(const double& t, const KDL::Rotation& r, Vector& a) const
+void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector& a) const
 {
   const auto theta = 2 * M_PI * t / T_;
   const auto tmp = 2 * M_PI / TT_ * sin(theta);
 
   a.x(p_diff_.x() * tmp);
   a.y(p_diff_.y() * tmp);
-  a.z(2 * sqr(M_PI) * h_ / TT_ * cos(theta) - p_diff_.z() * kk_ / TT_ * exp(-k_ * t / T_));
+  a.z(2 * math::sqr(M_PI) * h_ / TT_ * cos(theta) - p_diff_.z() * kk_ / TT_ * exp(-k_ * t / T_));
 
   a = r * a;
 }

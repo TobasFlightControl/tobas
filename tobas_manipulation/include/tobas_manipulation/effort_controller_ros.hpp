@@ -28,17 +28,17 @@ class EffortControllerRos : public tobas::BaseNode
 
 public:
   explicit EffortControllerRos(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
   tobas::Drone drone_;
-  KDL::TreeJointStateConverter cur_js_conv_;
-  KDL::TreeJointStateConverter tar_js_conv_;
-  KDL::TreeActiveJointsExtractor active_jnts_extractor_;
-  KDL::TreeJntSpacePID pid_js_;
-  KDL::TreeTaskSpacePID pid_ts_;
+  kdl::TreeJointStateConverter cur_js_conv_;
+  kdl::TreeJointStateConverter tar_js_conv_;
+  kdl::TreeActiveJointsExtractor active_jnts_extractor_;
+  kdl::TreeJntSpacePID pid_js_;
+  kdl::TreeTaskSpacePID pid_ts_;
 
   tobas_ros::TransformListener tf_listener_;
   sensor_msgs::JointState home_js_;

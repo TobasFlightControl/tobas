@@ -14,7 +14,7 @@ from .fixed_wing_tools import FixedWingConfig
 
 @dataclass
 class Drone:
-    drone_name: str = ""
+    name: str = ""
     battery: BatteryConfig = BatteryConfig()
     joint_map: JointConfigMap = field(default_factory=dict)
     rotors: RotorConfigs = field(default_factory=list)
@@ -79,7 +79,7 @@ class DroneLoader_Param(DroneLoader):
     def load(self) -> None:
         self._clear()
 
-        self._drone.drone_name = rospy.get_param(self.DRONE_NAME)
+        self._drone.name = rospy.get_param(self.DRONE_NAME)
 
         self._get_battery_config()
         self._get_joint_configs()
@@ -208,7 +208,7 @@ class DroneLoader_File(DroneLoader):
 
         self._clear()
 
-        self._drone.drone_name = self._data[self.DRONE_NAME]
+        self._drone.name = self._data[self.DRONE_NAME]
 
         self._get_battery_config()
         self._get_joint_configs()

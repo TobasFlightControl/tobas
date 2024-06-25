@@ -20,12 +20,12 @@ class ControllerRos : public tobas::BaseNode
 
 public:
   explicit ControllerRos(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
-  const KDL::Rotation R_nwu_ned_ = KDL::Rotation::RotX(M_PI);
+  const kdl::Rotation R_nwu_ned_ = kdl::Rotation::RotX(M_PI);
 
   bool ardupilot_online_ = false;
   size_t connection_timeout_count_ = 0;

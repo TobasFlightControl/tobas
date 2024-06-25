@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/frames.hpp>
@@ -17,7 +17,7 @@ using namespace Eigen;
 
 namespace tobas_fixed_wing_mpc
 {
-Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
+Controller::Controller(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), x_rotors_(drone_, tobas::Axis::X_POSITIVE), eom_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
@@ -42,38 +42,31 @@ Controller::Controller(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   // Register publishers
   rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
-  deflections_pub_ =
-    nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
-  feedback_pub_ =
-    nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
+  deflections_pub_ = nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
+  feedback_pub_ = nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
 
   // Register subscribers
-  air_pressure_sub_ =
-    nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  air_pressure_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
-  cmd_sub_ =
-    nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
+  cmd_sub_ = nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 
   // Dynamic Reconfigure
-  ConfigServer::CallbackType f = boost::bind(&self::dynamicReconfigureCb, this, _1, _2);
-  server_.setCallback(f);
+  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 bool Controller::isReadyToControl()
 {
   if (air_pressure_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kAirPressureTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kAirPressureTopic);
     return false;
   }
 
   if (battery_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kBatteryLpfTopic);
     return false;
   }
 
@@ -85,8 +78,7 @@ bool Controller::isReadyToControl()
 
   if (odom_nwu_->status != tobas_msgs::Odometry::NO_ERROR)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
     return false;
   }
 
@@ -171,8 +163,7 @@ void Controller::updateCurrentStateVector()
 
   // TODO: 横系のトリムも考慮
   mpc_.current_state(eom_.kStateIdx_u) = odom_ned_.twist.vel.x() - trim.u();
-  mpc_.current_state(eom_.kStateIdx_alpha) =
-    tobas::angleOfAttack(odom_ned_.twist.vel) - trim.alpha();
+  mpc_.current_state(eom_.kStateIdx_alpha) = tobas::angleOfAttack(odom_ned_.twist.vel) - trim.alpha();
   mpc_.current_state(eom_.kStateIdx_beta) = tobas::angleOfSideSlip(odom_ned_.twist.vel);
   mpc_.current_state(eom_.kStateIdx_phi) = cur_roll_;
   mpc_.current_state(eom_.kStateIdx_theta) = cur_pitch_ - trim.theta();
@@ -338,8 +329,7 @@ void Controller::commandCb(const tobas_msgs::SpeedRollDeltaPitchConstPtr& cmd_nw
 {
   if (!isReadyToControl())
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
     return;
   }
 
@@ -442,8 +432,7 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 
   // 制御入力の変化率の重み
   mpc_.input_rate_weight.head(x_rotors_.count()).fill(exp10(cfg.thrust_rate_weight_log10));
-  mpc_.input_rate_weight.tail(drone_.numControlSurfaces())
-    .fill(exp10(cfg.deflection_rate_weight_log10));
+  mpc_.input_rate_weight.tail(drone_.numControlSurfaces()).fill(exp10(cfg.deflection_rate_weight_log10));
 
   mpc_.input_rate_eqs.resize(cfg.prediction_steps, ctrl::LinearEquation(eom_.inputSize(), 0));
   mpc_.input_eqs.resize(cfg.prediction_steps, ctrl::LinearEquation(eom_.inputSize(), 0));

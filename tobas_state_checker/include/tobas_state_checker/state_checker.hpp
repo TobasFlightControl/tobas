@@ -7,7 +7,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_kdl_msgs/Euler.h>
+#include <tobas_kdl_msgs/EulerStamped.h>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/Battery.h>
@@ -26,10 +26,7 @@ class StateChecker : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit StateChecker(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+  explicit StateChecker(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
   tobas::Drone drone_;
@@ -54,6 +51,6 @@ private:
   void armingCb(const std_msgs::BoolConstPtr& arming);
   void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void eulerCb(const tobas_kdl_msgs::EulerConstPtr& euler);
+  void eulerCb(const tobas_kdl_msgs::EulerStampedConstPtr& euler);
 };
 }  // namespace tobas_state_checker

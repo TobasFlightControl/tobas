@@ -2,6 +2,16 @@ import math
 from typing import Tuple, List, Union
 
 
+def rpm2rps(rpm: float) -> float:
+    """RPM -> rad/s"""
+    return (math.pi / 30) * rpm
+
+
+def rps2rpm(rpm: float) -> float:
+    """rad/s -> RPM"""
+    return (30 / math.pi) * rpm
+
+
 def remap(x: float, a: float, b: float, c: float, d: float) -> float:
     """xを[a, b]の範囲から[c, d]の範囲に投影する．"""
     assert math.isfinite(x)
@@ -42,8 +52,8 @@ def is_almost_int(x: float) -> bool:
 def common_range(range_list: List[Tuple[float, float]]) -> Union[Tuple[float, float], None]:
     """range_listの共通範囲を求める"""
 
-    lb_res = -np.inf
-    ub_res = np.inf
+    lb_res = -math.inf
+    ub_res = math.inf
 
     for lb, ub in range_list:
         assert lb <= ub

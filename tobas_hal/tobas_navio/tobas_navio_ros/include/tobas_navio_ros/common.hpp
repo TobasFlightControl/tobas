@@ -9,45 +9,40 @@ namespace tobas_navio_ros
 // using ImuDevice = navio::MPU9250;
 using ImuDevice = navio::LSM9DS1;
 
-static constexpr char kConfigPath[] = "/home/pi/.config/tobas/config.ini";
+static constexpr char kPropertyServerFC[] = "/property_server_fc";
 
-static constexpr char kConfigKey_AdcCoef[] = "DEFAULT.adc_coef";
+static constexpr char kConfigKey_AdcCoef[] = "adc_coef";
 
-static constexpr char kConfigKey_AccNoiseDensity[] = "DEFAULT.acc_noise_density";
-static constexpr char kConfigKey_GyroNoiseDensity[] = "DEFAULT.gyro_noise_density";
-static constexpr char kConfigKey_MagNoiseDensity[] = "DEFAULT.mag_noise_density";
-static constexpr char kConfigKey_PressureNoiseDensity[] = "DEFAULT.pressure_noise_density";
+static constexpr char kConfigKey_AccOffsetX[] = "acc_offset/x";
+static constexpr char kConfigKey_AccOffsetY[] = "acc_offset/y";
+static constexpr char kConfigKey_AccOffsetZ[] = "acc_offset/z";
 
-static constexpr char kConfigKey_AccOffsetX[] = "DEFAULT.acc_offset/x";
-static constexpr char kConfigKey_AccOffsetY[] = "DEFAULT.acc_offset/y";
-static constexpr char kConfigKey_AccOffsetZ[] = "DEFAULT.acc_offset/z";
+static constexpr char kConfigKey_MagEllipseAxx[] = "mag_ellipse/a_xx";
+static constexpr char kConfigKey_MagEllipseAyy[] = "mag_ellipse/a_yy";
+static constexpr char kConfigKey_MagEllipseAzz[] = "mag_ellipse/a_zz";
+static constexpr char kConfigKey_MagEllipseAxy[] = "mag_ellipse/a_xy";
+static constexpr char kConfigKey_MagEllipseAyz[] = "mag_ellipse/a_yz";
+static constexpr char kConfigKey_MagEllipseAzx[] = "mag_ellipse/a_zx";
+static constexpr char kConfigKey_MagEllipseBx[] = "mag_ellipse/b_x";
+static constexpr char kConfigKey_MagEllipseBy[] = "mag_ellipse/b_y";
+static constexpr char kConfigKey_MagEllipseBz[] = "mag_ellipse/b_z";
+static constexpr char kConfigKey_MagEllipseC[] = "mag_ellipse/c";
 
-static constexpr char kConfigKey_MagEllipseAxx[] = "DEFAULT.mag_ellipse/a_xx";
-static constexpr char kConfigKey_MagEllipseAyy[] = "DEFAULT.mag_ellipse/a_yy";
-static constexpr char kConfigKey_MagEllipseAzz[] = "DEFAULT.mag_ellipse/a_zz";
-static constexpr char kConfigKey_MagEllipseAxy[] = "DEFAULT.mag_ellipse/a_xy";
-static constexpr char kConfigKey_MagEllipseAyz[] = "DEFAULT.mag_ellipse/a_yz";
-static constexpr char kConfigKey_MagEllipseAzx[] = "DEFAULT.mag_ellipse/a_zx";
-static constexpr char kConfigKey_MagEllipseBx[] = "DEFAULT.mag_ellipse/b_x";
-static constexpr char kConfigKey_MagEllipseBy[] = "DEFAULT.mag_ellipse/b_y";
-static constexpr char kConfigKey_MagEllipseBz[] = "DEFAULT.mag_ellipse/b_z";
-static constexpr char kConfigKey_MagEllipseC[] = "DEFAULT.mag_ellipse/c";
-
-static constexpr char kConfigKey_RcRollLeft[] = "DEFAULT.rc_input/roll/left";
-static constexpr char kConfigKey_RcRollRight[] = "DEFAULT.rc_input/roll/right";
-static constexpr char kConfigKey_RcPitchUp[] = "DEFAULT.rc_input/pitch/up";
-static constexpr char kConfigKey_RcPitchDown[] = "DEFAULT.rc_input/pitch/down";
-static constexpr char kConfigKey_RcYawLeft[] = "DEFAULT.rc_input/yaw/left";
-static constexpr char kConfigKey_RcYawRight[] = "DEFAULT.rc_input/yaw/right";
-static constexpr char kConfigKey_RcThrottleUp[] = "DEFAULT.rc_input/throttle/up";
-static constexpr char kConfigKey_RcThrottleDown[] = "DEFAULT.rc_input/throttle/down";
-static constexpr char kConfigKey_RcModeProgram[] = "DEFAULT.rc_input/mode/program";
-static constexpr char kConfigKey_RcModeStabilize[] = "DEFAULT.rc_input/mode/stabilize";
-static constexpr char kConfigKey_RcModeAcrobat[] = "DEFAULT.rc_input/mode/acrobat";
-static constexpr char kConfigKey_RcEStopOn[] = "DEFAULT.rc_input/e_stop/on";
-static constexpr char kConfigKey_RcEStopOff[] = "DEFAULT.rc_input/e_stop/off";
-static constexpr char kConfigKey_RcGPSwOn[] = "DEFAULT.rc_input/gpsw/on";
-static constexpr char kConfigKey_RcGPSwOff[] = "DEFAULT.rc_input/gpsw/off";
+static constexpr char kConfigKey_RcRollLeft[] = "rc_input/roll/left";
+static constexpr char kConfigKey_RcRollRight[] = "rc_input/roll/right";
+static constexpr char kConfigKey_RcPitchUp[] = "rc_input/pitch/up";
+static constexpr char kConfigKey_RcPitchDown[] = "rc_input/pitch/down";
+static constexpr char kConfigKey_RcYawLeft[] = "rc_input/yaw/left";
+static constexpr char kConfigKey_RcYawRight[] = "rc_input/yaw/right";
+static constexpr char kConfigKey_RcThrottleUp[] = "rc_input/throttle/up";
+static constexpr char kConfigKey_RcThrottleDown[] = "rc_input/throttle/down";
+static constexpr char kConfigKey_RcModeProgram[] = "rc_input/mode/program";
+static constexpr char kConfigKey_RcModeStabilize[] = "rc_input/mode/stabilize";
+static constexpr char kConfigKey_RcModeAcrobat[] = "rc_input/mode/acrobat";
+static constexpr char kConfigKey_RcEStopOn[] = "rc_input/e_stop/on";
+static constexpr char kConfigKey_RcEStopOff[] = "rc_input/e_stop/off";
+static constexpr char kConfigKey_RcGPSwOn[] = "rc_input/gpsw/on";
+static constexpr char kConfigKey_RcGPSwOff[] = "rc_input/gpsw/off";
 
 static constexpr size_t kServoRailSize = 14;
 
@@ -77,7 +72,7 @@ static constexpr double kDisarmInterval = 0.1;  // [s]
 static constexpr double kWarnPeriod = 3.;       // [s]
 static constexpr double kErrorPeriod = 1.;      // [s]
 
-static constexpr double kMinAirPressure = 30000.;  // [Pa] 有効な気圧の下限 (エベレスト山頂)
+static constexpr double kMinAirPressure = 30000.;   // [Pa] 有効な気圧の下限 (エベレスト山頂)
 static constexpr double kMaxAirPressure = 120000.;  // [Pa] 有効な気圧の上限 (観測史上最大以上)
 
 void setupRCOutput(navio::PWM& pwm, const size_t& channel);

@@ -1,48 +1,31 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .setup_assistant import SetupAssistant
-
-import rospy
+from numpy import linalg as LA
 from typing import List, Tuple, Union
-from urdf_parser_py.urdf import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from urdf_parser_py.urdf import Link, Joint, Pose, Inertia, Inertial
+from PyQt5.QtCore import QObject
 
 from tobas_std_tools_py.sequence import is_unique
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.tree import Tree
-from tobas_kdl_sympy.frames import *
-from tobas_kdl_sympy.joint import *
+from tobas_kdl_sympy.frames import Vector, Frame
+from tobas_kdl_sympy.joint import JointType, HardwareInterface
 
 
 class URDFParser(QObject):
-    robot_model_updated = pyqtSignal()
-
-    def __init__(self, main: SetupAssistant):
+    def __init__(self):
         super().__init__()
-        self._main = main
-
         self._tree = Tree()
 
-    def define_connections(self) -> None:
-        self._main.signals.urdf_loaded.connect(self._on_urdf_loaded)
-
-    @pyqtSlot()
-    def _on_urdf_loaded(self) -> None:
+    def load_from_param(self) -> bool:
         try:
             self._tree.load_from_param()
         except Exception as e:
-            q_error(self._main, f"Failed to load robot: {e}")
-            return
+            q_error(self.parent(), f"Failed to load robot: {e}")
+            return False
 
         if not self._is_valid_robot():
-            return
+            return False
 
-        rospy.loginfo("Robot model is loaded successfully.")
-        self.robot_model_updated.emit()
+        return True
 
     def get_links(self) -> List[Link]:
         return self._tree.get_links()
@@ -86,12 +69,15 @@ class URDFParser(QObject):
     def joint_names(self) -> List[str]:
         return self._tree.joint_names()
 
-    def mobile_joint_names(self) -> List[str]:
+    def movable_joint_names(self) -> List[str]:
         """可動関節名のリストを返す．"""
         res = []
-        for jnt_name in self._tree.joint_names():
-            if not self._tree.is_fixed_joint(jnt_name):
-                res.append(jnt_name)
+        for link in self._tree.get_links():
+            if link.name == self._tree.get_root().name:
+                continue
+            joint = self._tree.get_joint(link.name)
+            if not self._tree.is_fixed_joint(joint.name):
+                res.append(link.name)
         return res
 
     def search_joint_type(self, jnt_type: JointType) -> List[str]:
@@ -102,15 +88,15 @@ class URDFParser(QObject):
                 res.append(joint.name)
         return res
 
-    def link_names_with_mobile_joint(self) -> List[str]:
+    def link_names_with_movable_joint(self) -> List[str]:
         """可動関節をもつリンク名のリストを返す．"""
-        mobile_joints = set(self.mobile_joint_names())
+        movable_joints = set(self.movable_joint_names())
         res = []
         for link in self._tree.get_links():
             if link.name == self._tree.get_root().name:
                 continue
             joint = self._tree.get_joint(link.name)
-            if joint.name in mobile_joints:
+            if joint.name in movable_joints:
                 res.append(link.name)
         return res
 
@@ -120,7 +106,7 @@ class URDFParser(QObject):
         Gazeboの仕様で，ルートリンクまたは可動関節をもつリンク以外は省略されてしまう．
         """
         root_name = self.get_root().name
-        return [root_name] + self.link_names_with_mobile_joint()
+        return [root_name] + self.link_names_with_movable_joint()
 
     def global_pose(self, link_name: str) -> Frame:
         return self._tree.global_pose(link_name)
@@ -168,22 +154,31 @@ class URDFParser(QObject):
 
         # リンク名とジョイント名が一意である
         if not is_unique(self.link_names()):
-            q_error(self._main, f"Link names are not unique.")
+            q_error(self.parent(), f"Link names are not unique.")
             return False
         if not is_unique(self.joint_names()):
-            q_error(self._main, f"Joint names are not unique.")
+            q_error(self.parent(), f"Joint names are not unique.")
             return False
 
-        # 多自由度関節を持たない
         for joint in self.get_joints():
-            if joint.type in {JointType.PLANER, JointType.FLOATING}:
-                q_error(self._main, f"Invalid joint type: {joint.type}")
+            if joint.type == JointType.UNKNOWN:
+                q_error(self.parent(), f"The joint type of {joint.name} is unknown.")
                 return False
+            elif joint.type in {JointType.FLOATING, JointType.PLANER}:
+                q_error(self.parent(), f'"{joint.name}" has multi DoF joint: {joint.type}')
+                return False
+            elif joint.type in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
+                if joint.axis is None:
+                    q_error(self.parent(), f'Joint axis is not specified for "{joint.name}".')
+                    return False
+                if LA.norm(joint.axis) < 1e-6:
+                    q_error(self.parent(), f'The norm of movable joint "{joint.name}" must be positive.')
+                    return False
 
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
         origin: Pose = root_link.origin
         if origin is not None and any(angle != 0 for angle in origin.rpy):
-            q_error(self._main, "The frame of the root link must coincide with the NWU coordinate axis.")
+            q_error(self.parent(), "The frame of the root link must coincide with the NWU coordinate axis.")
             return False
 
         # ルートリンクがInertialを持たない
@@ -194,7 +189,7 @@ class URDFParser(QObject):
 
             if mass != 0 or any(row != [0, 0, 0] for row in inertia.to_matrix()):
                 q_error(
-                    self._main,
+                    self.parent(),
                     "The root link has an inertia specified in the URDF, "
                     + "but KDL does not support a root link with an inertia. "
                     + "As a workaround, you can add an extra dummy link to your URDF.",

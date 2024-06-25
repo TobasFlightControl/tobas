@@ -7,13 +7,13 @@ if TYPE_CHECKING:
 import math
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QPoint, QTimer
+from PyQt5.QtGui import QPainter, QPaintEvent, QPolygon, QPen
 
 from tobas_std_tools_py.math import wrap, ceil, floor
-from tobas_kdl_msgs.msg import Euler
+from tobas_kdl_msgs.msg import EulerStamped
 from tobas_rqt_tools.widgets import Widget
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 
 from ....common import PAINT_REFRESH_PERIOD
@@ -28,10 +28,6 @@ class OrientationViewerWidget(BaseControlSystemSectionWidget):
 
         self._orientation_viewer = _OrientationViewerWidget(main, drone)
         self._rows.addWidget(self._orientation_viewer)
-
-    @override
-    def define_connections(self) -> None:
-        pass
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -79,7 +75,9 @@ class _OrientationViewerWidget(Widget):
 
         if self._euler_sub is not None:
             self._euler_sub.unregister()
-        self._euler_sub = rospy.Subscriber(f"{self._drone.drone_name}/euler", Euler, self._euler_cb, queue_size=1)
+        self._euler_sub = rospy.Subscriber(
+            f"{self._drone.name}/{Topic.EULER}", EulerStamped, self._euler_cb, queue_size=1
+        )
 
         self._timer.start(PAINT_REFRESH_PERIOD)
 
@@ -301,17 +299,19 @@ class _OrientationViewerWidget(Widget):
         painter.setBrush(Qt.NoBrush)
         painter.resetTransform()
 
-    def _euler_cb(self, euler: Euler) -> None:
-        if math.isnan(euler.roll) or math.isnan(euler.pitch) or math.isnan(euler.yaw):
+    def _euler_cb(self, euler: EulerStamped) -> None:
+        euler_ = euler.euler
+
+        if math.isnan(euler_.roll) or math.isnan(euler_.pitch) or math.isnan(euler_.yaw):
             rospy.logerr("NaN detected in euler angles.")
             self._reset()
             return
 
-        self._roll = euler.roll
-        self._pitch = euler.pitch
-        self._yaw = euler.yaw
+        self._roll = euler_.roll
+        self._pitch = euler_.pitch
+        self._yaw = euler_.yaw
 
-        tan_roll = math.tan(euler.roll)
+        tan_roll = math.tan(euler_.roll)
         alpha = self.PITCH_HEIGHT_RANGE / 2
         self._slope = -tan_roll
-        self._y_intercept = (self.width() * tan_roll + self.height() * (1 - euler.pitch / alpha)) / 2
+        self._y_intercept = (self.width() * tan_roll + self.height() * (1 - euler_.pitch / alpha)) / 2

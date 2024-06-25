@@ -10,15 +10,12 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_np_pid
 {
 Mixer::Mixer(const tobas::Drone& drone)
-  : drone_(drone),
-    fk_solver_(drone.tree()),
-    jnt_axis_solver_(drone.tree()),
-    inertia_solver_(drone.tree())
+  : drone_(drone), fk_solver_(drone.tree()), jnt_axis_solver_(drone.tree()), inertia_solver_(drone.tree())
 {
   PRINT_DEBUG("Mixer::Mixer");
 
@@ -92,7 +89,8 @@ VectorXd Mixer::solve(
 
   // EoM行列等式の右辺
   // TODO: H-forceを考慮
-  const auto trans_right = mass * cur_rot.inverse(tar_acc_W - tobas::kWorldGravity);
+  const Vector grav_W(0, 0, -tobas::kGravity);
+  const auto trans_right = mass * cur_rot.inverse(tar_acc_W - grav_W);
   const auto rot_right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B);
   h_.head<3>() = trans_right.data;
   h_.tail<3>() = rot_right.data;
@@ -134,8 +132,8 @@ void Mixer::configure(const MixerConfig& cfg)
   const auto angular_scale = I.trace() / 3 * DGYRO_SCALE;
   const auto thrust_scale = mass * tobas::kGravity / drone_.numRotors();
 
-  Q_.diagonal().head<3>().fill(cfg.linear_weight / tobas_std::sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(cfg.angular_weight / tobas_std::sqr(angular_scale));
-  R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / tobas_std::sqr(thrust_scale));
+  Q_.diagonal().head<3>().fill(cfg.linear_weight / math::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg.angular_weight / math::sqr(angular_scale));
+  R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / math::sqr(thrust_scale));
 }
 }  // namespace tobas_np_pid

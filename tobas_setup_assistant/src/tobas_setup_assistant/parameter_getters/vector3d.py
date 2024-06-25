@@ -1,4 +1,5 @@
-from typing import Tuple, List, Optional
+from overrides import override
+from typing import Tuple, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout
 
@@ -6,7 +7,7 @@ from .base import ParamGetterWidget
 from .utils import FloatGetter
 
 
-class ParamGetterWidget_Vector3d(ParamGetterWidget):
+class ParamGetterWidget_Vector3d(ParamGetterWidget[Tuple[float, float, float]]):
     value_changed = pyqtSignal(float, float, float)
 
     def __init__(
@@ -38,6 +39,16 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
         self._y.value_changed.connect(self._on_value_changed)
         self._z.value_changed.connect(self._on_value_changed)
 
+    @override
+    def get(self) -> Tuple[float, float, float]:
+        return self.x(), self.y(), self.z()
+
+    @override
+    def set(self, src: Tuple[float, float, float]) -> None:
+        self._x.set(src[0])
+        self._y.set(src[1])
+        self._z.set(src[2])
+
     def x(self) -> float:
         return self._x.get()
 
@@ -46,15 +57,6 @@ class ParamGetterWidget_Vector3d(ParamGetterWidget):
 
     def z(self) -> float:
         return self._z.get()
-
-    def get(self) -> List[float]:
-        """yamlにそのまま書き込めるようにタプルではなくリストで返す．"""
-        return [self.x(), self.y(), self.z()]
-
-    def set(self, x: float, y: float, z: float) -> None:
-        self._x.set(x)
-        self._y.set(y)
-        self._z.set(z)
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:

@@ -6,13 +6,7 @@ namespace tobas_rc_teleop
 {
 void RCTeleopNodelet::onInit()
 {
-  NODELET_INFO("Initializing RC Teleoperation Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new RCTeleop(nh, pnh, name));
+  node_.reset(new RCTeleop(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_rc_teleop
 

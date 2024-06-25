@@ -4,7 +4,7 @@
 #include "./jntarray.hpp"
 #include "./rigidbodyinertia.hpp"
 
-namespace KDL
+namespace kdl
 {
 class TreeJntToInertiaSolver : public TreeSolverI
 {
@@ -26,9 +26,8 @@ public:
 private:
   std::map<std::string, Frame> X_;
   std::map<std::string, RigidBodyInertia> I_;
-  JntArray jntarray_null_;
   RigidBodyInertia I_tmp_;
 
   void step(const SegmentMap::const_iterator& segment, const JntArray& q);
 };
-}  // namespace KDL
+}  // namespace kdl

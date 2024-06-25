@@ -1,20 +1,21 @@
 import os.path as osp
-import numpy as np
 import pandas as pd
+import rospy
+from overrides import override
 from typing import List, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QFileDialog, QHBoxLayout
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS
 
 from .base import ParamGetterWidget
 from ..common import TITLE, PKG_NAME
 
 
-class ParamGetterWidget_DoubleTable(ParamGetterWidget):
+class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
     BTN_HEIGHT = 30
     BTN_WIDTH = 100
     DEFAULT_VALUE = 0.0
@@ -26,8 +27,8 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         super().__init__(param_name, description_text)
 
         # 最後に開かれたディレクトリの記録用
-        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
-        self._path_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
+        self._last_opened_dir_key = f'last_opened_dir/double_table/{param_name.lower().replace(" ", "_")}'
 
         self._labels = labels
         self._num_entry = len(labels)
@@ -40,11 +41,11 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         cols = QHBoxLayout()
         self._rows.addLayout(cols)
 
-        self._add_row_btn = QPushButton("Add row")
+        self._add_row_btn = QPushButton("Add Row")
         self._add_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         cols.addWidget(self._add_row_btn)
 
-        self._delete_row_btn = QPushButton("Delete row")
+        self._delete_row_btn = QPushButton("Delete Row")
         self._delete_row_btn.setFixedSize(self.BTN_WIDTH, self.BTN_HEIGHT)
         cols.addWidget(self._delete_row_btn)
 
@@ -69,44 +70,29 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
         self._clear_btn.clicked.connect(self._table.remove_all)
         self._load_csv_btn.clicked.connect(self._load_csv)
 
-    def get(self) -> np.ndarray:
-        """
-        Returns
-        -------
-        np.ndarray
-            shape = (num_data, num_entry)
-        """
+    @override
+    def get(self) -> List[List[float]]:
         rows = self.count()
-        res = np.empty((rows, self._num_entry))
+        res = [[0.0 for _ in range(self._num_entry)] for _ in range(rows)]
 
         for row in range(rows):
             for col in range(self._num_entry):
                 cell: DoubleSpinBox = self._table.cellWidget(row, col)
-                res[row, col] = cell.value()
+                res[row][col] = cell.value()
 
         return res
 
-    def set(self, src: np.ndarray) -> bool:
-        """
-        Parameters
-        ----------
-        src : np.ndarray
-            shape = (num_data, num_entry)
-
-        Returns
-        ----------
-        bool
-            success or failure
-        """
-        if not self._is_valid_data(src):
-            return False
+    @override
+    def set(self, src: List[List[float]]) -> None:
+        assert self._is_valid_data(src), src
 
         self._table.remove_all()
-        for row in range(src.shape[0]):
+
+        for row in range(len(src)):
             self._add_row()
-            for col in range(src.shape[1]):
+            for col in range(len(src[row])):
                 cell: DoubleSpinBox = self._table.cellWidget(row, col)
-                cell.setValue(src[row, col])
+                cell.setValue(src[row][col])
 
         return True
 
@@ -199,19 +185,21 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
             return
 
         try:
-            data = df.to_numpy(dtype=float)
+            data = df.to_numpy(dtype=float)  # 強制的にfloatとして解釈
         except Exception as e:
             q_error(self.parent(), f"The data contains invalid data type. The error message is: {e}")
             return
 
-        if not self.set(data):
+        if not self.set(data.tolist()):
             return
 
         q_info(self.parent(), "Data is loaded successfully.")
 
     def _get_csv_file_path(self) -> str:
-        self._config.read()
-        last_opened_dir = self._config.get(self._path_key, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self._last_opened_dir_key)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -219,20 +207,22 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget):
 
         # 最後に開かれたパスを保存
         if file_path != "":
-            self._config.set(self._path_key, osp.dirname(file_path))
-            self._config.write()
+            if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(file_path)) < 0:
+                rospy.logerr(self._property_client.error_message())
+            if self._property_client.save() < 0:
+                rospy.logerr(self._property_client.error_message())
 
         return file_path
 
-    def _is_valid_data(self, src: np.ndarray) -> bool:
-        assert src.ndim == 2
-        assert src.shape[1] == self._num_entry
+    def _is_valid_data(self, src: List[List[float]]) -> bool:
+        for row in src:
+            if len(row) != self._num_entry:
+                return False
 
-        for row in range(src.shape[0]):
             for col in range(self._num_entry):
-                val = src[row, col]
-                if not self._minimum[col] <= val <= self._maximum[col]:
-                    q_error(self.parent(), f"{val}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
+                value = row[col]
+                if value < self._minimum[col] or self._maximum[col] < value:
+                    q_error(self, f"{value}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
                     return False
 
         return True

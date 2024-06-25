@@ -14,10 +14,7 @@ using namespace KDL;
 namespace tobas_mr_pid
 {
 Mixer::Mixer(const tobas::Drone& drone)
-  : drone_(drone),
-    fk_solver_(drone.tree()),
-    inertia_solver_(drone.tree()),
-    z_rotors_(drone, tobas::Axis::Z_POSITIVE)
+  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Axis::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -32,11 +29,8 @@ void Mixer::updateInternalDataStructures()
   A_.row(0).setOnes();
 }
 
-VectorXd Mixer::solve(
-  const Vector& cur_gyro_B,
-  const Vector& tar_dgyro_B,
-  const JntArray& q,
-  const double& tar_thrust_sum)
+VectorXd
+Mixer::solve(const Vector& cur_gyro_B, const Vector& tar_dgyro_B, const JntArray& q, const double& tar_thrust_sum)
 {
   assert(tar_thrust_sum >= 0);
 

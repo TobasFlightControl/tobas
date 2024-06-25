@@ -9,11 +9,16 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<exec_depend>tobas_dsp</exec_depend>
+	<exec_depend>tobas_eigen_msgs</exec_depend>
 	<exec_depend>tobas_eigen_tools</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>
 	<exec_depend>tobas_kdl_msgs</exec_depend>
 	<exec_depend>tobas_kdl_sympy</exec_depend>
+	<exec_depend>tobas_keyboard</exec_depend>
 	<exec_depend>tobas_linear_control</exec_depend>
+	<exec_depend>tobas_linux</exec_depend>
+	<exec_depend>tobas_math</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
 	<exec_depend>tobas_ros_tools</exec_depend>
 	<exec_depend>tobas_rospy</exec_depend>

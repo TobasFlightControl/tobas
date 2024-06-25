@@ -5,9 +5,7 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_tools_py.drone import Drone
 from tobas_setup_assistant.setup_assistant import SetupAssistant
@@ -26,10 +24,6 @@ class SetupAssistantWidget(BaseAppWidget):
 
         self.setup_assistant = SetupAssistant()
         rows.addWidget(self.setup_assistant)
-
-    @override
-    def define_connections(self) -> None:
-        pass
 
     @override
     def update_internal_data_structures(self) -> None:

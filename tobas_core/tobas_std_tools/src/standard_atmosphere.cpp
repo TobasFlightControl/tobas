@@ -2,8 +2,9 @@
 #include <cassert>
 #include <stdexcept>
 
+#include <tobas_math/core.hpp>
+
 #include "../include/tobas_std_tools/standard_atmosphere.hpp"
-#include "../include/tobas_std_tools/math.hpp"
 
 #define R0 6356766.                 // 北緯45度における地球の半径 [m]
 #define TROPOPAUSE_ALTITUDE 1.1e+4  // 対流圏界面 (対流圏と成層圏の境界面) [m]
@@ -115,11 +116,7 @@ double pressureToAltitude(const double& pressure)
   return gphToAltitude(gph);
 }
 
-void pressureToAltitude(
-  const double& pressure,
-  const double& pressure_var,
-  double& altitude,
-  double& altitude_var)
+void pressureToAltitude(const double& pressure, const double& pressure_var, double& altitude, double& altitude_var)
 {
   constexpr auto a = T0 / L;
   constexpr auto b = -(L * R) / (G * M);
@@ -128,6 +125,6 @@ void pressureToAltitude(
   altitude = pressureToAltitude(pressure);
 
   const auto amp = (c / pressure) * pow(pressure / P0, b);  // 高度ノイズ/気圧ノイズ ~ 1e-2
-  altitude_var = sqr(amp) * pressure_var;
+  altitude_var = math::sqr(amp) * pressure_var;
 }
 }  // namespace tobas_std

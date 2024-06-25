@@ -1,15 +1,15 @@
 #pragma once
 
 #include <boost/filesystem.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <QListWidgetItem>
-#include <QTreeWidgetItem>
-#include <QTimer>
+#include <QtCore/QtCore>
+#include <QtWidgets/QtWidgets>
 #include <rviz/panel.h>
+
+#include <tobas_property_tools/property_client.hpp>
 
 #ifndef Q_MOC_RUN
 #include <urdf/model.h>
-#include "../rviz_helpers/static_link_updater.hpp"
+#include "../ogre_helpers/static_link_updater.hpp"
 #include "../view_model/urdf_view_model.hpp"
 #include "../ogre_helpers/ogre_controller.hpp"
 #include "./update_link_dialog.hpp"
@@ -30,17 +30,18 @@ class URDFBuilderPanel : public rviz::Panel
 {
   Q_OBJECT
 
-  static constexpr char kConfigPath[] = "~/.config/urdf_builder/config.ini";
   static constexpr char kConfigKey_LastOpenedDir[] = "last_opened_dir";
 
 public:
   explicit URDFBuilderPanel(QWidget* parent = nullptr);
-
   ~URDFBuilderPanel() override;
 
   void onInitialize() override;
   void load(const rviz::Config& config) override;
   void save(rviz::Config config) const override;
+
+  QStringList linkNames() const;
+  QStringList jointNames() const;
 
 private Q_SLOTS:
   void RobotNameTextChanged(const QString& name);
@@ -60,9 +61,6 @@ private Q_SLOTS:
   void LinkDialogChanged();
 
 private:
-  const std::string config_path_;
-  boost::property_tree::ptree pt_;
-
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;
   ogre_helpers::OgreControllerPtr ogre_ctrl_;
@@ -71,7 +69,9 @@ private:
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
 
-  void createConfig();
+  ros::NodeHandle nh_;
+  ptree::PropertyClient property_client_;
+
   std::string getLastOpenedDir();
   void setLastOpenedDir(const std::string& file_path);
 

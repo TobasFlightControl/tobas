@@ -13,6 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
+	tobas_dsp
 	nodelet
 	pluginlib
 )
@@ -36,7 +37,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_tools nodelet pluginlib
+	CATKIN_DEPENDS tobas_tools tobas_dsp nodelet pluginlib
 # 	DEPENDS
 )
 

@@ -2,7 +2,8 @@
 
 #include <ros/ros.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_kdl/tree.hpp>
 
 #include "./battery_config.hpp"
@@ -23,7 +24,7 @@ public:
   /* Load drone configurations from ROS parameter server. */
   void loadFromParam(ros::NodeHandle& nh);
 
-  inline const KDL::Tree& tree() const;
+  inline const kdl::Tree& tree() const;
   inline const BatteryConfig& batteryConfig() const;
   inline const JointConfigMap& jointConfigMap() const;
   inline const JointConfig& jointConfig(const std::string& jnt_name) const;
@@ -78,19 +79,13 @@ public:
   double rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const;
 
   /* 回転数 [rad/s] からスロットル [0,1] を求める． */
-  double throttleFromRotSpeed(
-    const size_t& rotor_idx,
-    const double& rot_speed,
-    const double& battery_voltage) const;
+  double throttleFromRotSpeed(const size_t& rotor_idx, const double& rot_speed, const double& battery_voltage) const;
 
   /* 推力 [N] からスロットル [0,1] を求める． */
-  double throttleFromThrust(
-    const size_t& rotor_idx,
-    const double& thrust,
-    const double& battery_voltage) const;
+  double throttleFromThrust(const size_t& rotor_idx, const double& thrust, const double& battery_voltage) const;
 
 private:
-  KDL::Tree tree_;
+  kdl::Tree tree_;
 
   BatteryConfig battery_;
   JointConfigMap joint_map_;  // プロペラ，舵面以外の可動関節
@@ -115,7 +110,7 @@ private:
   ControlSurface getControlSurface(ros::NodeHandle& nh, const size_t& cs_idx);
 };
 
-inline const KDL::Tree& Drone::tree() const
+inline const kdl::Tree& Drone::tree() const
 {
   return tree_;
 }

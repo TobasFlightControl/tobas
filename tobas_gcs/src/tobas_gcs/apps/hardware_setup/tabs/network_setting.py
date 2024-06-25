@@ -5,16 +5,15 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QPushButton, QTableWidgetItem, QHBoxLayout
 
 from tobas_rqt_tools.widgets import TableWidget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.drone import Drone
 from wpa_supplicant_parser_py.parser import WPASupplicantParser, Network
 
-from ....common import *
+from ....common import Description
 from ....utils.ssh_client import SSHClientWrapper
 from .base import BaseHardwareSetupWidget
 
@@ -48,21 +47,25 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
 
         self._read_button = QPushButton("Read")
         self._read_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._read_button.clicked.connect(self._on_read_button_clicked)
         cols.addWidget(self._read_button)
 
         self._write_button = QPushButton("Write")
         self._write_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._write_button.setEnabled(False)
+        self._write_button.clicked.connect(self._on_write_button_clicked)
         cols.addWidget(self._write_button)
 
         self._add_button = QPushButton("Add")
         self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._add_button.setEnabled(False)
+        self._add_button.clicked.connect(self._on_add_button_clicked)
         cols.addWidget(self._add_button)
 
         self._remove_button = QPushButton("Remove")
         self._remove_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._remove_button.setEnabled(False)
+        self._remove_button.clicked.connect(self._on_remove_button_clicked)
         cols.addWidget(self._remove_button)
 
         cols.addStretch()
@@ -74,13 +77,6 @@ class NetworkSettingWidget(BaseHardwareSetupWidget):
         self._rows.addWidget(self._table)
 
         self._rows.addStretch()
-
-    @override
-    def define_connections(self) -> None:
-        self._read_button.clicked.connect(self._on_read_button_clicked)
-        self._write_button.clicked.connect(self._on_write_button_clicked)
-        self._add_button.clicked.connect(self._on_add_button_clicked)
-        self._remove_button.clicked.connect(self._on_remove_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:

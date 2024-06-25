@@ -35,6 +35,7 @@ static constexpr char kBatteryLpfTopic[] = "battery_filtered";
 static constexpr char kCpuTopic[] = "cpu";
 static constexpr char kRcInputTopic[] = "rc_input";
 static constexpr char kImuTopic[] = "imu";
+static constexpr char kImuLpfTopic[] = "imu_filtered";
 static constexpr char kMagTopic[] = "magnetic_field";
 static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kGpsTopic[] = "gps";
@@ -45,6 +46,13 @@ static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEulerTopic[] = "euler";
 static constexpr char kWindTopic[] = "wind";
+static constexpr char kEventTopic[] = "event";
+static constexpr char kMessageTopic[] = "message";
+static constexpr char kLatencyTopic[] = "latency";
+static constexpr char kArmingTopic[] = "arming";
+static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
+static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
+// Command
 static constexpr char kPwmCmdTopic[] = "command/pwm";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
@@ -58,21 +66,16 @@ static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pit
 static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
-static constexpr char kEventTopic[] = "event";
-static constexpr char kMessageTopic[] = "message";
-static constexpr char kLatencyTopic[] = "latency";
-static constexpr char kArmingTopic[] = "arming";
-static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
-static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
-static constexpr char kControllerFeedbackTopic[] = "controller_feedback";
-static constexpr char kObserverFeedbackTopic[] = "observer_feedback";
-// tobas_manipulation
+// Manipulation
 static constexpr char kPosCtrlJSTopic[] = "joint_position_controller/target_joint_states";
 static constexpr char kPosCtrlLSTopic[] = "joint_position_controller/target_link_states";
 static constexpr char kVelCtrlJSTopic[] = "joint_velocity_controller/target_joint_states";
 static constexpr char kVelCtrlLSTopic[] = "joint_velocity_controller/target_link_states";
 static constexpr char kEffCtrlJSTopic[] = "joint_effort_controller/target_joint_states";
 static constexpr char kEffCtrlLSTopic[] = "joint_effort_controller/target_link_states";
+// Feedback
+static constexpr char kControllerFeedbackTopic[] = "feedback/controller";
+static constexpr char kObserverFeedbackTopic[] = "feedback/observer";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
@@ -83,6 +86,8 @@ static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kPreArmCheckSrv[] = "pre_arm_check";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
+static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
+static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
@@ -104,6 +109,7 @@ static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 
 // Others
+static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 1.;    // [s]
@@ -113,5 +119,5 @@ static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速
 static constexpr size_t kStopwatchSamples = 100;
 
-static const KDL::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)
+static const kdl::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)
 }  // namespace tobas

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <map>
-#include <QDialog>
-#include <QDoubleSpinBox>
+#include <QtWidgets/QtWidgets>
 
 namespace urdf_builder
 {
@@ -19,10 +18,7 @@ class DoubleMapInputDialog : public QDialog
   static constexpr int kDecimals = 6;
 
 public:
-  explicit DoubleMapInputDialog(
-    const QString& title,
-    const QStringList& field_names,
-    QWidget* parent = nullptr);
+  explicit DoubleMapInputDialog(QWidget* parent, const QString& title, const QStringList& field_names);
 
   const double& getValue(const QString& field) const;
 

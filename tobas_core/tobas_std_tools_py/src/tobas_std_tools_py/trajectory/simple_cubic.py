@@ -29,12 +29,12 @@ class SimpleCubicSpline(Trajectory):
 
         self._a0 = x0.copy()
         self._a1 = np.zeros_like(x0)
-        self._a2 = (3 / T**2) * (xf - x0)
-        self._a3 = (-2 / T**3) * (xf - x0)
+        self._a2 = (3 / T ** 2) * (xf - x0)
+        self._a3 = (-2 / T ** 3) * (xf - x0)
 
     def __call__(self, t: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        pos = self._a0 + self._a1 * t + self._a2 * t**2 + self._a3 * t**3
-        vel = self._a1 + 2 * self._a2 * t + 3 * self._a3 * t**2
+        pos = self._a0 + self._a1 * t + self._a2 * t ** 2 + self._a3 * t ** 3
+        vel = self._a1 + 2 * self._a2 * t + 3 * self._a3 * t ** 2
         acc = 2 * self._a2 + 6 * self._a3 * t
         return pos, vel, acc
 

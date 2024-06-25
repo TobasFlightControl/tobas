@@ -1,9 +1,8 @@
 #include <sensor_msgs/FluidPressure.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_std_tools/property_tree.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_navio_ros/barometer_handler.hpp"
@@ -13,68 +12,51 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-BarometerHandler::BarometerHandler(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name)
+BarometerHandler::BarometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  if (!reloadConfig())
-    TOBAS_EXIT("Failed to load configurations.");
+  PRINT_DEBUG("BarometerHandler::BarometerHandler");
 
   barometer_.initialize();
   if (!barometer_.testConnection())
     TOBAS_EXIT("Barometer test failed.");
 
+  initializeNoiseFilter();
+
   bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
-
-  reload_config_srv_ =
-    nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+
+  PRINT_DEBUG("/BarometerHandler::BarometerHandler");
 }
 
-bool BarometerHandler::reloadConfig()
+void BarometerHandler::initializeNoiseFilter()
 {
-  tobas_std::PropertyTree pt(kConfigPath);
-  pt.get(kConfigKey_PressureNoiseDensity, pressure_noise_density_, kDefaultPressureNoiseDensity);
-
-  return true;
-}
-
-bool BarometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
-{
-  if (!reloadConfig())
-  {
-    res.success = false;
-    res.message = "Failed to reload configurations.";
-    return true;
-  }
-
-  res.success = true;
-  return true;
+  barometer_.update();
+  const auto pressure = barometer_.getPressure();
+  pressure_noise_.initialize(kWindowSize, kHpfCutoff, pressure);
 }
 
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // バロメータを更新
-  barometer_.refreshPressure();
-  tobas_std::msleep(kWaitToRefreshBarometer);  // この待ち時間が必須
-  barometer_.readPressure();
-  barometer_.calculatePressureAndTemperature();
+  barometer_.update();
 
   // 気圧を求める
   const auto pressure = barometer_.getPressure();
   if (pressure < kMinAirPressure || kMaxAirPressure < pressure)
   {
-    TOBAS_ERROR("Strange air pressure: ", pressure, " [Pa]");
+    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Strange air pressure: ", pressure, " [Pa]");
     return;
   }
+
+  // Update noise filter
+  const auto dt = (event.current_real - event.last_real).toSec();
+  pressure_noise_.update(pressure, dt);
 
   // メッセージを作成
   const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
   bar_msg->header.stamp = event.current_real;
   bar_msg->fluid_pressure = pressure;
-  bar_msg->variance = tobas_std::sqr(pressure_noise_density_) * kSamplingRate;  // [Pa^2]
+  bar_msg->variance = pressure_noise_.noiseVariance();
 
   // メッセージを発行
   bar_pub_.publish(bar_msg);

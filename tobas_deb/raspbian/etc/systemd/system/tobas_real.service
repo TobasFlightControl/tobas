@@ -1,15 +1,15 @@
 [Unit]
-Description=Launch Tobas flight controller
-After=tobas_roscore.service
-Requires=tobas_roscore.service
+Description=Tobas Flight Controller
+Requires=tobas_fkie_master.service tobas_property_server.service tobas_nodelet_managers.target
 Conflicts=tobas_hil.service
+PartOf=tobas_main.target
 
 [Service]
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config_pkg.env
-ExecStartPre=/bin/bash -c '/etc/tobas/check_roscore.sh'
-ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/catkin_ws/devel/setup.bash && /opt/ros/noetic/bin/roslaunch ${TOBAS_CONFIG_PKG} real.launch'
+ExecStartPre=/etc/tobas/wait_for_rosmaster.sh
+ExecStart=/bin/bash -c 'source /opt/ros/noetic/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/catkin_ws/devel/setup.bash && /opt/ros/noetic/bin/roslaunch ${TOBAS_CONFIG_PKG} real.launch nodelet:=true'
 Restart=always
 RestartSec=5
 

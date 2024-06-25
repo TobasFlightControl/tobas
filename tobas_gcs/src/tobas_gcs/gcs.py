@@ -1,8 +1,6 @@
-import os.path as osp
 from typing import List
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, ComboBox, StackedWidget
 from tobas_tools_py.drone import Drone
@@ -55,23 +53,13 @@ class GroundControlStationWidget(Widget):
         cols.setAlignment(self._shutdown_button, Qt.AlignRight)
         rows.addWidget(stacked_widget)
 
-        # "no attribute"エラーを防ぐため，コンストラクタの最後に再帰的にシグナルスロット接続を定義する
-        self.define_connections()
-
-    def define_connections(self) -> None:
-        for app in self._apps:
-            app.define_connections()
-
     def update_internal_data_structures(self) -> None:
         """ドローンの更新に応じて内部データを更新．"""
         for app in self._apps:
             app.update_internal_data_structures()
 
-    def package_path(self) -> str:
-        return self._package_manager.package_path()
+    def tbs_path(self) -> str:
+        return self._package_manager.tbs_path()
 
-    def package_name(self) -> str:
-        return osp.basename(self.package_path())
-
-    def package_loaded(self) -> bool:
-        return self.package_path() != ""
+    def pkg_loaded(self) -> bool:
+        return self.tbs_path() != ""

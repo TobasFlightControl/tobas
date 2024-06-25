@@ -42,6 +42,7 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._start_button.clicked.connect(self._on_start_button_clicked)
         self._rows.addWidget(self._start_button)
 
         self._rows.addStretch()
@@ -49,16 +50,12 @@ class EscCalibrationWidget(BaseHardwareSetupWidget):
         self.setEnabled(False)
 
     @override
-    def define_connections(self) -> None:
-        self._start_button.clicked.connect(self._on_start_button_clicked)
-
-    @override
     def update_internal_data_structures(self) -> None:
         self.setEnabled(True)
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        esc_calib_ac = actionlib.SimpleActionClient(f"{self._drone.drone_name}/esc_calibration", EscCalibrationAction)
+        esc_calib_ac = actionlib.SimpleActionClient(f"{self._drone.name}/esc_calibration", EscCalibrationAction)
         if not esc_calib_ac.wait_for_server(rospy.Duration(WAIT_FOR_SERVER)):
             q_error(self, self.E_FAILED_TO_CONNECT)
             return

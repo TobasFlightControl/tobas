@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 ChainJntToJacSolver::ChainJntToJacSolver(const Chain& chain) : super(chain)
 {
@@ -77,4 +77,4 @@ int ChainJntToJacSolver::JntToJac(const JntArray& q_in, int _seg_nr)
   }
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace kdl

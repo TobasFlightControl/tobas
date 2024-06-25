@@ -3,7 +3,7 @@
 
 #include "../include/tobas_msgs/conversions/msg_msg.hpp"
 
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas
 {
@@ -18,13 +18,13 @@ void odometryTobasToMsg(const tobas_msgs::Odometry& t, nav_msgs::Odometry& m)
   {
     for (size_t j = 0; j < 3; ++j)
     {
-      m.pose.covariance[6 * i + j] = t.position_covariance[3 * i + j];
-      m.pose.covariance[6 * (i + 3) + (j + 3)] = t.orientation_covariance[3 * i + j];
+      m.pose.covariance[6 * i + j] = t.position_covariance(i, j);
+      m.pose.covariance[6 * (i + 3) + (j + 3)] = t.orientation_covariance(i, j);
       m.pose.covariance[6 * i + (j + 3)] = 0.;
       m.pose.covariance[6 * (i + 3) + j] = 0.;
 
-      m.twist.covariance[6 * i + j] = t.linear_velocity_covariance[3 * i + j];
-      m.twist.covariance[6 * (i + 3) + (j + 3)] = t.angular_velocity_covariance[3 * i + j];
+      m.twist.covariance[6 * i + j] = t.linear_velocity_covariance(i, j);
+      m.twist.covariance[6 * (i + 3) + (j + 3)] = t.angular_velocity_covariance(i, j);
       m.twist.covariance[6 * i + (j + 3)] = 0.;
       m.twist.covariance[6 * (i + 3) + j] = 0.;
     }
@@ -42,11 +42,11 @@ void odometryMsgToTobas(const nav_msgs::Odometry& m, tobas_msgs::Odometry& t)
   {
     for (size_t j = 0; j < 3; ++j)
     {
-      t.position_covariance[3 * i + j] = m.pose.covariance[6 * i + j];
-      t.orientation_covariance[3 * i + j] = m.pose.covariance[6 * (i + 3) + (j + 3)];
+      t.position_covariance(i, j) = m.pose.covariance[6 * i + j];
+      t.orientation_covariance(i, j) = m.pose.covariance[6 * (i + 3) + (j + 3)];
 
-      t.linear_velocity_covariance[3 * i + j] = m.twist.covariance[6 * i + j];
-      t.angular_velocity_covariance[3 * i + j] = m.twist.covariance[6 * (i + 3) + (j + 3)];
+      t.linear_velocity_covariance(i, j) = m.twist.covariance[6 * i + j];
+      t.angular_velocity_covariance(i, j) = m.twist.covariance[6 * (i + 3) + (j + 3)];
     }
   }
 }

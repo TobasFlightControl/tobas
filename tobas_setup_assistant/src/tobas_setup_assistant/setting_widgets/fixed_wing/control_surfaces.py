@@ -5,18 +5,35 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 import math
-from typing import List, Union
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from enum import Enum
+from overrides import override
+from typing import List, Union, Optional
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QHBoxLayout
+from PyQt5.QtGui import QFont
 
+from tobas_std_tools_py.string import title_from_snake
 from tobas_rqt_tools.widgets import DoubleSpinBox, TableWidget
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.joint import JointType
 
-from ...parameter_getters import *
-from ...common import *
+from ...common import LABEL_PSIZE, BODY_PSIZE
 from .common import STABILITY_COEF_DECIMALS
+from .base import BaseFixedWingSettingWidget
+
+
+class ControlSufraceField(Enum):
+    LINK_NAME = 0
+    JOINT_NAME = 1
+    MIN_ANGLE = 2
+    MAX_ANGLE = 3
+    MAX_ANGLE_RATE = 4
+    LIFT_COEF = 5
+    DRAG_COEF = 6
+    SIDE_COEF = 7
+    ROLL_COEF = 8
+    PITCH_COEF = 9
+    YAW_COEF = 10
 
 
 class ControlSurface:
@@ -35,43 +52,73 @@ class ControlSurface:
         self.c_yaw_delta = 0.0  # [/rad]
 
 
-class ControlSurfacesWidget(QWidget):
+class ControlSurfacesWidget(BaseFixedWingSettingWidget):
+    NAME = "Control Surfaces"
+
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        rows = QVBoxLayout()
-        self.setLayout(rows)
-
-        label = QLabel("Control Surfaces")
-        label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignLeft)
-        rows.addWidget(label)
+        super().__init__(main)
 
         available_links_label = QLabel("Available Links")
         available_links_label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         available_links_label.setAlignment(Qt.AlignLeft)
-        rows.addWidget(available_links_label)
+        self._rows.addWidget(available_links_label)
 
         self.available_links = AvailableLinksWidget(main)
-        rows.addWidget(self.available_links)
-
-        self.add_delete = AddDeleteButtonsWidget(main)
-        rows.addWidget(self.add_delete)
-
         self.selected = SelectedLinksWidget(main)
-        rows.addWidget(self.selected)
+        self.add_delete = AddDeleteButtonsWidget(self.available_links, self.selected)
 
-    def define_connections(self) -> None:
-        self.selected.define_connections()
-        self.add_delete.define_connections()
-        self.available_links.define_connections()
+        self._rows.addWidget(self.available_links)
+        self._rows.addWidget(self.add_delete)
+        self._rows.addWidget(self.selected)
 
+    @override
+    def update_internal_data_structures(self) -> None:
+        self.available_links.update_internal_data_structures()
+        self.selected.update_internal_data_structures()
+
+    @override
     def is_valid(self) -> bool:
         if not self.selected.is_valid():
             return False
 
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+
+        for row in range(self.selected.rowCount()):
+            res[self.selected.link_name(row)] = {
+                ControlSufraceField.MIN_ANGLE.name: self.selected.min_angle(row),
+                ControlSufraceField.MAX_ANGLE.name: self.selected.max_angle(row),
+                ControlSufraceField.MAX_ANGLE_RATE.name: self.selected.max_angle_rate(row),
+                ControlSufraceField.LIFT_COEF.name: self.selected.c_lift_delta(row),
+                ControlSufraceField.DRAG_COEF.name: self.selected.c_drag_delta(row),
+                ControlSufraceField.SIDE_COEF.name: self.selected.c_side_delta(row),
+                ControlSufraceField.ROLL_COEF.name: self.selected.c_roll_delta(row),
+                ControlSufraceField.PITCH_COEF.name: self.selected.c_pitch_delta(row),
+                ControlSufraceField.YAW_COEF.name: self.selected.c_yaw_delta(row),
+            }
+
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        for link_name, data_ in data.items():
+            # リンクをAvailableからSelectedに移動させる
+            self.available_links.delete_link(link_name)
+            self.selected.add_link(
+                link_name,
+                default_min_angle=data_[ControlSufraceField.MIN_ANGLE.name],
+                default_max_angle=data_[ControlSufraceField.MAX_ANGLE.name],
+                default_max_angle_rate=data_[ControlSufraceField.MAX_ANGLE_RATE.name],
+                default_c_lift_delta=data_[ControlSufraceField.LIFT_COEF.name],
+                default_c_drag_delta=data_[ControlSufraceField.DRAG_COEF.name],
+                default_c_side_delta=data_[ControlSufraceField.SIDE_COEF.name],
+                default_c_roll_delta=data_[ControlSufraceField.ROLL_COEF.name],
+                default_c_pitch_delta=data_[ControlSufraceField.PITCH_COEF.name],
+                default_c_yaw_delta=data_[ControlSufraceField.ROLL_COEF.name],
+            )
 
     def control_surfaces(self) -> List[ControlSurface]:
         res = [ControlSurface() for _ in range(self.selected.count())]
@@ -91,37 +138,11 @@ class ControlSurfacesWidget(QWidget):
 
 
 class AvailableLinksWidget(QListWidget):
-    link_added = pyqtSignal()
-
     def __init__(self, main: SetupAssistant) -> None:
         super().__init__()
         self._main = main
 
-    def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._add_available_links)
-        self._main.settings.fixed_wing.control_surfaces.add_delete.delete.connect(self._add_selected_link)
-        self._main.settings.fixed_wing.control_surfaces.selected.link_added.connect(self._delete_selected_link)
-
-    def add_link(self, link_name: str) -> None:
-        assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
-        assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
-        self.addItem(link_name)
-
-    def delete_link(self, link_name: str) -> None:
-        links = self.findItems(link_name, Qt.MatchExactly)
-        assert len(links) > 0
-        for link in links:  # link: PyQt5.QtWidgets.QListWidgetItem
-            mathced_link = self.row(link)  # linkの行番号をint型で取得
-            self.takeItem(mathced_link)
-
-    def selected_link(self) -> Union[str, None]:
-        try:
-            return self.currentItem().text()
-        except:
-            return None
-
-    @pyqtSlot()
-    def _add_available_links(self) -> None:
+    def update_internal_data_structures(self) -> None:
         """
         以下の条件を満たすリンクの名前の配列を返す．
         - 回転関節 (Revolute) をもつ．
@@ -130,6 +151,8 @@ class AvailableLinksWidget(QListWidget):
         - エンドリンクである．
         - 親リンクがルートリンクに固定されている．
         """
+        self.clear()
+
         root_link = self._main.urdf_parser.get_root()
         links = self._main.urdf_parser.get_links()
 
@@ -168,149 +191,94 @@ class AvailableLinksWidget(QListWidget):
 
         self.sortItems()
 
-    @pyqtSlot()
-    def _add_selected_link(self) -> None:
-        selected_link = self._main.settings.fixed_wing.control_surfaces.selected.selected_link()
-        if selected_link is None:
-            q_error(self._main, "No link is selected.")
-            return
+    def selected_link(self) -> Union[str, None]:
+        try:
+            return self.currentItem().text()
+        except:
+            return None
 
-        self.add_link(selected_link)
+    def add_link(self, link_name: str) -> None:
+        assert self._main.urdf_parser.link_exists(link_name), f"Unknown link: {link_name}"
+        assert not self._link_exists_in_list(link_name), f"Duplicated: {link_name}"
+
+        self.addItem(link_name)
         self.sortItems()
 
-        self.link_added.emit()
-
-    @pyqtSlot(str)
-    def _delete_selected_link(self, link_name: str) -> None:
-        self.delete_link(link_name)
+    def delete_link(self, link_name: str) -> None:
+        items = self.findItems(link_name, Qt.MatchExactly)
+        assert len(items) == 1
+        self.takeItem(self.row(items[0]))
 
     def _link_exists_in_list(self, link_name: str) -> bool:
         items = self.findItems(link_name, Qt.MatchExactly)
         return len(items) > 0
 
 
-class AddDeleteButtonsWidget(QWidget):
-    BUTTON_WIDTH = 100
-    BUTTON_HEIGHT = 40
-
-    add = pyqtSignal()
-    delete = pyqtSignal()
-
-    def __init__(self, main: SetupAssistant) -> None:
-        super().__init__()
-        self._main = main
-
-        cols = QHBoxLayout()
-        self.setLayout(cols)
-
-        self._add_button = QPushButton("⬇")
-        self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        cols.addWidget(self._add_button)
-
-        self._delete_button = QPushButton("⬆")
-        self._delete_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        cols.addWidget(self._delete_button)
-
-    def define_connections(self) -> None:
-        self._add_button.clicked.connect(self._add_button_clicked)
-        self._delete_button.clicked.connect(self._delete_button_clicked)
-
-    @pyqtSlot()
-    def _add_button_clicked(self) -> None:
-        self.add.emit()
-
-    @pyqtSlot()
-    def _delete_button_clicked(self) -> None:
-        self.delete.emit()
-
-
 class SelectedLinksWidget(TableWidget):
     COL_WIDTH = 120
     COEF_DECIMALS = 6
     ANGLE_LIMIT = math.pi / 4
-    LABELS = (
-        "Link Name",
-        "Joint Name",
-        "Min Angle",
-        "Max Angle",
-        "Max Angle Rate",
-        "Lift Coef",
-        "Drag Coef",
-        "Side Coef",
-        "Roll Coef",
-        "Pitch Coef",
-        "Yaw Coef",
-    )
-
-    link_added = pyqtSignal(str)
 
     def __init__(self, main: SetupAssistant) -> None:
-        super().__init__(0, len(self.LABELS))
+        super().__init__(0, len(ControlSufraceField))
         self._main = main
 
-        self.setHorizontalHeaderLabels(self.LABELS)
+        self.setHorizontalHeaderLabels([title_from_snake(item.name) for item in ControlSufraceField])
         for c in range(self.columnCount()):
             self.setColumnWidth(c, self.COL_WIDTH)
 
-    def define_connections(self) -> None:
-        # 必ずAdd -> Deleteの順に実行する
-        control_surfaces = self._main.settings.fixed_wing.control_surfaces
-        control_surfaces.add_delete.add.connect(self._add_selected_link)
-        control_surfaces.available_links.link_added.connect(self._delete_cur_row)
+    def update_internal_data_structures(self) -> None:
+        self.remove_all()
 
     def is_valid(self) -> bool:
         return True
-
-    def selected_link(self) -> Union[str, None]:
-        row = self.currentRow()
-        return self.link_name(row) if row >= 0 else None
 
     def count(self) -> int:
         """選択テーブル内のプロペラの個数を返す．"""
         return self.rowCount()
 
     def link_name(self, row: int) -> str:
-        cell: QLabel = self.cellWidget(row, 0)
+        cell: QLabel = self.cellWidget(row, ControlSufraceField.LINK_NAME.value)
         return cell.text()
 
     def joint_name(self, row: int) -> str:
-        cell: QLabel = self.cellWidget(row, 1)
+        cell: QLabel = self.cellWidget(row, ControlSufraceField.JOINT_NAME.value)
         return cell.text()
 
     def min_angle(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 2)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.MIN_ANGLE.value)
         return cell.value()
 
     def max_angle(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 3)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.MAX_ANGLE.value)
         return cell.value()
 
     def max_angle_rate(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 4)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.MAX_ANGLE_RATE.value)
         return cell.value()
 
     def c_lift_delta(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 5)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.LIFT_COEF.value)
         return cell.value()
 
     def c_drag_delta(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 6)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.DRAG_COEF.value)
         return cell.value()
 
     def c_side_delta(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 7)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.SIDE_COEF.value)
         return cell.value()
 
     def c_roll_delta(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 8)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.ROLL_COEF.value)
         return cell.value()
 
     def c_pitch_delta(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 9)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.PITCH_COEF.value)
         return cell.value()
 
     def c_yaw_delta(self, row: int) -> float:
-        cell: DoubleSpinBox = self.cellWidget(row, 10)
+        cell: DoubleSpinBox = self.cellWidget(row, ControlSufraceField.YAW_COEF.value)
         return cell.value()
 
     def get_link_names(self) -> List[str]:
@@ -321,88 +289,143 @@ class SelectedLinksWidget(TableWidget):
         """選択テーブル内のジョイントの名前のリストを返す．"""
         return [self.joint_name(row) for row in range(self.count())]
 
-    @pyqtSlot()
-    def _add_selected_link(self) -> None:
-        selected_link = self._main.settings.fixed_wing.control_surfaces.available_links.selected_link()
-        if selected_link is None:
-            q_error(self._main, "No link is selected.")
-            return
-        joint = self._main.urdf_parser.get_joint(selected_link)
+    def selected_link(self) -> Union[str, None]:
+        row = self.currentRow()
+        return self.link_name(row) if row >= 0 else None
+
+    def add_link(
+        self,
+        link_name: str,
+        default_min_angle: Optional[float] = None,
+        default_max_angle: Optional[float] = None,
+        default_max_angle_rate: Optional[float] = None,
+        default_c_lift_delta: Optional[float] = None,
+        default_c_drag_delta: Optional[float] = None,
+        default_c_side_delta: Optional[float] = None,
+        default_c_roll_delta: Optional[float] = None,
+        default_c_pitch_delta: Optional[float] = None,
+        default_c_yaw_delta: Optional[float] = None,
+    ) -> None:
+        joint = self._main.urdf_parser.get_joint(link_name)
 
         row = self.rowCount()
         self.insertRow(row)
 
-        link_name = QLabel(selected_link)
-        link_name.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        link_name.setAlignment(Qt.AlignCenter)
-        self.setCellWidget(row, 0, link_name)
+        link_name_label = QLabel(link_name)
+        link_name_label.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        link_name_label.setAlignment(Qt.AlignCenter)
+        self.setCellWidget(row, ControlSufraceField.LINK_NAME.value, link_name_label)
 
-        joint_name = QLabel(joint.name)
-        joint_name.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        joint_name.setAlignment(Qt.AlignCenter)
-        self.setCellWidget(row, 1, joint_name)
+        joint_name_label = QLabel(joint.name)
+        joint_name_label.setFont(QFont("Default", pointSize=BODY_PSIZE))
+        joint_name_label.setAlignment(Qt.AlignCenter)
+        self.setCellWidget(row, ControlSufraceField.JOINT_NAME.value, joint_name_label)
 
         min_angle = DoubleSpinBox()
         min_angle.setMinimum(-self.ANGLE_LIMIT)
         min_angle.setMaximum(0.0)
         min_angle.setDecimals(3)
         min_angle.setSuffix(" rad")
-        min_angle.setValue(joint.limit.lower)
-        self.setCellWidget(row, 2, min_angle)
+        min_angle.setValue(default_min_angle if default_min_angle else joint.limit.lower)
+        self.setCellWidget(row, ControlSufraceField.MIN_ANGLE.value, min_angle)
 
         max_angle = DoubleSpinBox()
         max_angle.setMinimum(0.0)
         max_angle.setMaximum(self.ANGLE_LIMIT)
         max_angle.setDecimals(3)
         max_angle.setSuffix(" rad")
-        max_angle.setValue(joint.limit.upper)
-        self.setCellWidget(row, 3, max_angle)
+        max_angle.setValue(default_max_angle if default_max_angle else joint.limit.upper)
+        self.setCellWidget(row, ControlSufraceField.MAX_ANGLE.value, max_angle)
 
         max_angle_rate = DoubleSpinBox()
         max_angle_rate.setMinimum(1e-3)
         max_angle_rate.setDecimals(3)
         max_angle_rate.setSuffix(" rad/s")
-        max_angle_rate.setValue(joint.limit.velocity)
-        self.setCellWidget(row, 4, max_angle_rate)
+        max_angle_rate.setValue(default_max_angle_rate if default_max_angle_rate else joint.limit.velocity)
+        self.setCellWidget(row, ControlSufraceField.MAX_ANGLE_RATE.value, max_angle_rate)
 
         c_lift_delta = DoubleSpinBox()
         c_lift_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_lift_delta.setSuffix(" /rad")
-        self.setCellWidget(row, 5, c_lift_delta)
+        c_lift_delta.setValue(default_c_lift_delta if default_c_lift_delta else 0.0)
+        self.setCellWidget(row, ControlSufraceField.LIFT_COEF.value, c_lift_delta)
 
         c_drag_delta = DoubleSpinBox()
         c_drag_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_drag_delta.setSuffix(" /rad")
-        self.setCellWidget(row, 6, c_drag_delta)
+        c_drag_delta.setValue(default_c_drag_delta if default_c_drag_delta else 0.0)
+        self.setCellWidget(row, ControlSufraceField.DRAG_COEF.value, c_drag_delta)
 
         c_side_delta = DoubleSpinBox()
         c_side_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_side_delta.setSuffix(" /rad")
-        self.setCellWidget(row, 7, c_side_delta)
+        c_side_delta.setValue(default_c_side_delta if default_c_side_delta else 0.0)
+        self.setCellWidget(row, ControlSufraceField.SIDE_COEF.value, c_side_delta)
 
         c_roll_delta = DoubleSpinBox()
         c_roll_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_roll_delta.setSuffix(" /rad")
-        self.setCellWidget(row, 8, c_roll_delta)
+        c_roll_delta.setValue(default_c_roll_delta if default_c_roll_delta else 0.0)
+        self.setCellWidget(row, ControlSufraceField.ROLL_COEF.value, c_roll_delta)
 
         c_pitch_delta = DoubleSpinBox()
         c_pitch_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_pitch_delta.setSuffix(" /rad")
-        self.setCellWidget(row, 9, c_pitch_delta)
+        c_pitch_delta.setValue(default_c_pitch_delta if default_c_pitch_delta else 0.0)
+        self.setCellWidget(row, ControlSufraceField.PITCH_COEF.value, c_pitch_delta)
 
         c_yaw_delta = DoubleSpinBox()
         c_yaw_delta.setDecimals(STABILITY_COEF_DECIMALS)
         c_yaw_delta.setSuffix(" /rad")
-        self.setCellWidget(row, 10, c_yaw_delta)
+        c_yaw_delta.setValue(default_c_yaw_delta if default_c_yaw_delta else 0.0)
+        self.setCellWidget(row, ControlSufraceField.YAW_COEF.value, c_yaw_delta)
 
-        self.link_added.emit(selected_link)
-        self._main.signals.airframe_updated.emit()
-
-    @pyqtSlot()
-    def _delete_cur_row(self) -> None:
+    def delete_link(self, link_name: str) -> None:
         row = self.currentRow()
-        if row < 0:
-            return
+        assert self.link_name(row) == link_name
 
         self.removeRow(row)
-        self._main.signals.airframe_updated.emit()
+
+
+class AddDeleteButtonsWidget(QWidget):
+    BUTTON_WIDTH = 100
+    BUTTON_HEIGHT = 40
+
+    def __init__(self, available_links: AvailableLinksWidget, selected_links: SelectedLinksWidget) -> None:
+        super().__init__()
+
+        self._available_links = available_links
+        self._selected_links = selected_links
+
+        cols = QHBoxLayout()
+        self.setLayout(cols)
+
+        self._add_button = QPushButton("⬇")
+        self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._add_button.clicked.connect(self._on_add_button_clicked)
+        cols.addWidget(self._add_button)
+
+        self._delete_button = QPushButton("⬆")
+        self._delete_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._delete_button.clicked.connect(self._on_delete_button_clicked)
+        cols.addWidget(self._delete_button)
+
+    @pyqtSlot()
+    def _on_add_button_clicked(self) -> None:
+        selected_link = self._available_links.selected_link()
+        if selected_link is None:
+            q_error(self, "No link is selected.")
+            return
+
+        self._available_links.delete_link(selected_link)
+        self._selected_links.add_link(selected_link)
+
+    @pyqtSlot()
+    def _on_delete_button_clicked(self) -> None:
+        selected_link = self._selected_links.selected_link()
+        if selected_link is None:
+            q_error(self, "No link is selected.")
+            return
+
+        self._available_links.add_link(selected_link)
+        self._selected_links.delete_link(selected_link)

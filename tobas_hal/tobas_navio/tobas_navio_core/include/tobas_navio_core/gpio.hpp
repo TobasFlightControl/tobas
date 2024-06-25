@@ -33,8 +33,8 @@ class Pin
 public:
   enum GpioMode
   {
-    GpioModeInput,
-    GpioModeOutput
+    INPUT,
+    OUTPUT,
   };
 
   explicit Pin(uint8_t pin);

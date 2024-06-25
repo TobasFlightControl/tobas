@@ -6,7 +6,7 @@
 #include "./jntarray.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace KDL
+namespace kdl
 {
 class Jacobian;
 using JacobianMap = std::map<std::string, Jacobian>;
@@ -20,8 +20,8 @@ public:
   inline explicit Jacobian();
   inline explicit Jacobian(size_t nj);
 
-  /// Allocates memory for new size (can break realtime behavior)
   inline void resize(size_t nj);
+  inline void setZero();
 
   inline size_t rows() const;
   inline size_t columns() const;
@@ -58,6 +58,11 @@ inline void Jacobian::resize(size_t nj)
   data.conservativeResize(Eigen::NoChange, nj);
 }
 
+inline void Jacobian::setZero()
+{
+  data.setZero();
+}
+
 inline size_t Jacobian::rows() const
 {
   return static_cast<size_t>(data.rows());
@@ -70,8 +75,7 @@ inline size_t Jacobian::columns() const
 
 inline SegmentJacobian Jacobian::getColumn(size_t i) const
 {
-  return SegmentJacobian(
-    Vector(data(0, i), data(1, i), data(2, i)), Vector(data(3, i), data(4, i), data(5, i)));
+  return SegmentJacobian(Vector(data(0, i), data(1, i), data(2, i)), Vector(data(3, i), data(4, i), data(5, i)));
 }
 
 inline void Jacobian::setColumn(size_t i, const SegmentJacobian& jac)
@@ -100,4 +104,4 @@ inline void setToZero(Jacobian& jac)
 {
   jac.data.setZero();
 }
-}  // namespace KDL
+}  // namespace kdl

@@ -10,7 +10,13 @@ namespace navio
  */
 class LSM9DS1 : public InertialSensor
 {
+  static constexpr char kAccGyroDevice[] = "/dev/spidev0.3";
+  static constexpr char kMagDevice[] = "/dev/spidev0.2";
   static constexpr uint32_t kSpiSpeedHz = 10000000;  // Maximum frequency is 10MHz
+  static constexpr uint8_t kReadFlag = 0x80;
+  static constexpr uint8_t kMultipleRead = 0x40;
+  static constexpr size_t kInitSleep = 200;  // [us]
+  static constexpr bool kUseHighResolutionMode = false;
 
 public:
   explicit LSM9DS1();
@@ -110,77 +116,115 @@ private:
 
   enum gyro_config_t : uint8_t
   {
-    BITS_XEN_G = 0x08,
-    BITS_YEN_G = 0x10,
-    BITS_ZEN_G = 0x20,
-    BITS_ODR_G_14900mHZ = 0x20,
-    BITS_ODR_G_59500mHZ = 0x40,
+    // CTRL_REG1_G
     BITS_ODR_G_119HZ = 0b011 << 5,
     BITS_ODR_G_238HZ = 0b100 << 5,
     BITS_ODR_G_476HZ = 0b101 << 5,
     BITS_ODR_G_952HZ = 0b110 << 5,
-    BITS_FS_G_245DPS = 0x00,
-    BITS_FS_G_500DPS = 0x08,
-    BITS_FS_G_2000DPS = 0x18,
-    BITS_BW_G_0 = 0b00,  // Minimum cutoff frequency
-    BITS_BW_G_1 = 0b01,
-    BITS_BW_G_2 = 0b10,
-    BITS_BW_G_3 = 0b11,  // Maximum cutoff frequency
+    BITS_FS_G_245DPS = 0b00 << 3,
+    BITS_FS_G_500DPS = 0b01 << 3,
+    BITS_FS_G_2000DPS = 0b11 << 3,
+    BITS_BW_G_0 = 0b00 << 0,  // fc = 33Hz (ODR = 952Hz)
+    BITS_BW_G_1 = 0b01 << 0,  // fc = 40Hz (ODR = 952Hz)
+    BITS_BW_G_2 = 0b10 << 0,  // fc = 58Hz (ODR = 952Hz)
+    BITS_BW_G_3 = 0b11 << 0,  // fc = 100Hz (ODR = 952Hz)
+
+    // CTRL_REG2_G
+    BITS_INT_SEL_LPF1 = 0b00 << 2,
+    BITS_INT_SEL_LPF1_HPF = 0b01 << 2,
+    BITS_INT_SEL_LPF1_HPF_LPF2 = 0b10 << 2,
+    BITS_OUT_SEL_LPF1 = 0b00 << 0,
+    BITS_OUT_SEL_LPF1_HPF = 0b01 << 0,
+    BITS_OUT_SEL_LPF1_HPF_LPF2 = 0b10 << 0,
+
+    // CTRL_REG4
+    BITS_ZEN_G = 1 << 5,
+    BITS_YEN_G = 1 << 4,
+    BITS_XEN_G = 1 << 3,
+    BITS_LIR_XL1 = 1 << 1,
+    BITS_4D_XL1 = 1 << 0,
   };
 
   enum acc_config_t : uint8_t
   {
-    BITS_XEN_XL = 0x08,
-    BITS_YEN_XL = 0x10,
-    BITS_ZEN_XL = 0x20,
-    BITS_ODR_XL_10HZ = 0x20,
-    BITS_ODR_XL_50HZ = 0x40,
-    BITS_ODR_XL_119HZ = 0x60,
-    BITS_ODR_XL_238HZ = 0x80,
-    BITS_ODR_XL_476HZ = 0xA0,
-    BITS_ODR_XL_952HZ = 0xC0,
-    BITS_FS_XL_2G = 0x00,
-    BITS_FS_XL_4G = 0x10,
-    BITS_FS_XL_8G = 0x18,
-    BITS_FS_XL_16G = 0x08,
+    // CTRL_REG5_XL
+    BITS_DEC_1 = 0b00 << 6,  // No decimation
+    BITS_DEC_2 = 0b01 << 6,  // Update every 2 samples
+    BITS_DEC_4 = 0b10 << 6,  // Update every 2 samples
+    BITS_DEC_8 = 0b11 << 6,  // Update every 2 samples
+    BITS_ZEN_XL = 1 << 5,    // Accelerometer’s Z-axis output enable
+    BITS_YEN_XL = 1 << 4,    // Accelerometer’s Y-axis output enable
+    BITS_XEN_XL = 1 << 3,    // Accelerometer’s X-axis output enable
+
+    // CTRL_REG6_XL
+    BITS_ODR_XL_10HZ = 0b001 << 5,
+    BITS_ODR_XL_50HZ = 0b010 << 5,
+    BITS_ODR_XL_119HZ = 0b011 << 5,
+    BITS_ODR_XL_238HZ = 0b100 << 5,
+    BITS_ODR_XL_476HZ = 0b101 << 5,
+    BITS_ODR_XL_952HZ = 0b110 << 5,
+    BITS_FS_XL_2G = 0b00 << 3,
+    BITS_FS_XL_4G = 0b10 << 3,
+    BITS_FS_XL_8G = 0b11 << 3,
+    BITS_FS_XL_16G = 0b01 << 3,
     BITS_BW_SCAL_ODR = 1 << 2,
-    BITS_BW_XL_50HZ = 0b11,
-    BITS_BW_XL_105HZ = 0b10,
-    BITS_BW_XL_211HZ = 0b01,
-    BITS_BW_XL_408HZ = 0b00,
+    BITS_BW_XL_50HZ = 0b11 << 0,
+    BITS_BW_XL_105HZ = 0b10 << 0,
+    BITS_BW_XL_211HZ = 0b01 << 0,
+    BITS_BW_XL_408HZ = 0b00 << 0,
+
+    // CTRL_REG7_XL
     BITS_HR = 1 << 7,
-    BITS_DCF_9 = 0b10 << 5,
-    BITS_DCF_50 = 0b00 << 5,
-    BITS_DCF_100 = 0b01 << 5,
-    BITS_DCF_400 = 0b11 << 5,
+    BITS_DCF_9 = 0b10 << 5,    // fc = ODR / 9
+    BITS_DCF_50 = 0b00 << 5,   // fc = ODR / 50
+    BITS_DCF_100 = 0b01 << 5,  // fc = ODR / 100
+    BITS_DCF_400 = 0b11 << 5,  // fc = ODR / 400
+    BITS_FDS = 1 << 2,
+    BITS_HPIS1 = 1 << 0,
   };
 
   enum mag_config_t : uint8_t
   {
-    BITS_TEMP_COMP = 0x80,
-    BITS_OM_LOW = 0x00,
-    BITS_OM_MEDIUM = 0x20,
-    BITS_OM_HIGH = 0x40,
-    BITS_OM_ULTRA_HIGH = 0x60,
-    BITS_ODR_M_625mHZ = 0x00,
-    BITS_ODR_M_1250mHZ = 0x04,
-    BITS_ODR_M_250mHZ = 0x08,
-    BITS_ODR_M_5HZ = 0x0C,
-    BITS_ODR_M_10HZ = 0x10,
-    BITS_ODR_M_20HZ = 0x14,
-    BITS_ODR_M_40HZ = 0x18,
-    BITS_ODR_M_80HZ = 0x1C,
-    BITS_FS_M_4Gs = 0x00,
-    BITS_FS_M_8Gs = 0x20,
-    BITS_FS_M_12Gs = 0x40,
-    BITS_FS_M_16Gs = 0x60,
-    BITS_MD_CONTINUOUS = 0x00,
-    BITS_MD_SINGLE = 0x01,
-    BITS_MD_POWERDOWN = 0x02,
-    BITS_OMZ_LOW = 0x00,
-    BITS_OMZ_MEDIUM = 0x04,
-    BITS_OMZ_HIGH = 0x08,
-    BITS_OMZ_ULTRA_HIGH = 0x0C,
+    // CTRL_REG1_M
+    BITS_TEMP_COMP = 1 << 7,
+    BITS_OM_LOW = 0b00 << 5,
+    BITS_OM_MEDIUM = 0b01 << 5,
+    BITS_OM_HIGH = 0b10 << 5,
+    BITS_OM_ULTRA_HIGH = 0b11 << 5,
+    BITS_DO_M_5HZ = 0b011 << 2,
+    BITS_DO_M_10HZ = 0b100 << 2,
+    BITS_DO_M_20HZ = 0b001 << 2,
+    BITS_DO_M_40HZ = 0b110 << 2,
+    BITS_DO_M_80HZ = 0b111 << 2,
+    BITS_FAST_ODR = 1 << 1,
+    BITS_ST = 1 << 0,
+
+    // CTRL_REG2_M
+    BITS_FS_4GAUSS = 0b00 << 5,
+    BITS_FS_8GAUSS = 0b01 << 5,
+    BITS_FS_12GAUSS = 0b10 << 5,
+    BITS_FS_16GAUSS = 0b11 << 5,
+    BITS_REBOOT = 1 << 3,
+    BITS_SOFT_RST = 1 << 2,
+
+    // CTRL_REG3_M
+    BITS_I2C_DISABLE = 1 << 7,
+    BITS_LP = 1 << 5,
+    BITS_SIM = 1 << 2,
+    BITS_MD_CONTINUOUS = 0b00 << 0,
+    BITS_MD_SINGLE = 0b01 << 0,
+    BITS_MD_POWERDOWN = 0b10 << 0,
+
+    // CTRL_REG4_M
+    BITS_OMZ_LOW = 0b00 << 2,
+    BITS_OMZ_MEDIUM = 0b01 << 2,
+    BITS_OMZ_HIGH = 0b10 << 2,
+    BITS_OMZ_ULTRA_HIGH = 0b11 << 2,
+    BITS_BLE = 1 << 1,
+
+    // CTRL_REG5_M
+    BITS_FAST_READ = 1 << 7,
+    BITS_BDU = 1 << 6,
   };
 
   uint8_t writeReg(SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data);

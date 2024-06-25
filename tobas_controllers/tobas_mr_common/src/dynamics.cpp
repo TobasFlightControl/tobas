@@ -4,15 +4,12 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_mr_common
 {
 MultirotorDynamicsComponents::MultirotorDynamicsComponents(const tobas::Drone& drone)
-  : drone_(drone),
-    fk_solver_(drone.tree()),
-    inertia_solver_(drone.tree()),
-    z_rotors_(drone, tobas::Axis::Z_POSITIVE)
+  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Axis::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -42,10 +39,7 @@ double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_spee
   return res;
 }
 
-Vector MultirotorDynamicsComponents::relativePerpVel(
-  const Rotation& rot,
-  const Vector& vel_B,
-  const Vector& wind_W)
+Vector MultirotorDynamicsComponents::relativePerpVel(const Rotation& rot, const Vector& vel_B, const Vector& wind_W)
 {
   // TODO: 正確には機体フレームではなくプロペラの位置の速度を使う
   const auto relative_vel_B = vel_B - rot.inverse(wind_W);  // 風に対する相対速度

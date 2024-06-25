@@ -2,10 +2,9 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
-TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav)
-  : super(tree), rne_(tree, grav)
+TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav) : super(tree), rne_(tree, grav)
 {
   updateInternalDataStructures();
 }
@@ -26,9 +25,7 @@ int TreeJntSpacePID::CartToJnt(
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (
-    cur_q.rows() != nj_ || cur_qd.rows() != nj_ || tar_q.rows() != nj_ || tar_qd.rows() != nj_
-    || qdd_ff.rows() != nj_)
+  if (cur_q.rows() != nj_ || cur_qd.rows() != nj_ || tar_q.rows() != nj_ || tar_qd.rows() != nj_ || qdd_ff.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
 
   // Compute target joint accelerations
@@ -68,4 +65,4 @@ bool TreeJntSpacePID::setDamping(const double& kd)
   kd_ = kd;
   return true;
 }
-}  // namespace KDL
+}  // namespace kdl

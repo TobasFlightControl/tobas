@@ -1,4 +1,5 @@
 #include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_std_tools/console.hpp>
 
 #include "../include/tobas_navio_ros/pwm_handler.hpp"
 
@@ -6,9 +7,10 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+PwmHandler::PwmHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
+  PRINT_DEBUG("PwmHandler::PwmHandler");
+
   // パルスが出力され始めたらexportを受け付けなくなるため，最初に全部やってしまう
   // 周波数は固定
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
@@ -21,10 +23,14 @@ PwmHandler::PwmHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, co
 
   pwms_sub_ = nh_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());
   enable_pwm_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enablePwmCb, this);
+
+  PRINT_DEBUG("/PwmHandler::PwmHandler");
 }
 
 PwmHandler::~PwmHandler()
 {
+  PRINT_DEBUG("~PwmHandler::PwmHandler");
+
   for (size_t channel = 0; channel < kServoRailSize; ++channel)
   {
     // PWMが有効化されていたら無効化する

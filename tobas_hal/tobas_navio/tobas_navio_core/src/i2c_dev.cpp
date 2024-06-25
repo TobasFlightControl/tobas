@@ -34,8 +34,7 @@ int8_t I2Cdev::readBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16
   return count;
 }
 
-int8_t
-I2Cdev::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t* data)
+int8_t I2Cdev::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t* data)
 {
   // 01101001 read byte
   // 76543210 bit numbers
@@ -53,12 +52,7 @@ I2Cdev::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t len
   return count;
 }
 
-int8_t I2Cdev::readBitsW(
-  uint8_t devAddr,
-  uint8_t regAddr,
-  uint8_t bitStart,
-  uint8_t length,
-  uint16_t* data)
+int8_t I2Cdev::readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t* data)
 {
   // 1101011001101001 read byte
   // fedcba9876543210 bit numbers
@@ -119,7 +113,7 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
   }
   else if (count != length)
   {
-    fprintf(stderr, "Short read  from device, expected %d, got %d\n", length, count);
+    fprintf(stderr, "Short read from device, expected %d, got %d\n", length, count);
     close(fd);
     return (-1);
   }
@@ -154,7 +148,7 @@ int8_t I2Cdev::readBytesNoRegAddress(uint8_t devAddr, uint8_t length, uint8_t* d
   }
   else if (count != length)
   {
-    fprintf(stderr, "Short read  from device, expected %d, got %d\n", length, count);
+    fprintf(stderr, "Short read from device, expected %d, got %d\n", length, count);
     close(fd);
     return (-1);
   }
@@ -186,12 +180,7 @@ bool I2Cdev::writeBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_
   return writeWord(devAddr, regAddr, w);
 }
 
-bool I2Cdev::writeBits(
-  uint8_t devAddr,
-  uint8_t regAddr,
-  uint8_t bitStart,
-  uint8_t length,
-  uint8_t data)
+bool I2Cdev::writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data)
 {
   //      010 value to write
   // 76543210 bit numbers
@@ -216,12 +205,7 @@ bool I2Cdev::writeBits(
   }
 }
 
-bool I2Cdev::writeBitsW(
-  uint8_t devAddr,
-  uint8_t regAddr,
-  uint8_t bitStart,
-  uint8_t length,
-  uint16_t data)
+bool I2Cdev::writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data)
 {
   //              010 value to write
   // fedcba9876543210 bit numbers

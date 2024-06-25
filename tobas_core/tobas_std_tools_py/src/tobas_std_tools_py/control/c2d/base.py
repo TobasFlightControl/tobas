@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 
 
 class BaseC2D(ABC):
-
     def __init__(self, f: Callable[[np.ndarray], np.ndarray], dt: float) -> None:
         """
         C2Dのコンストラクタ

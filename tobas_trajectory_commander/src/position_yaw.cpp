@@ -8,7 +8,7 @@
 #define COMMAND_DIMENSION 4  // x, y, z, yaw
 
 using namespace std;
-using namespace KDL;
+using namespace kdl;
 using namespace Eigen;
 
 using SplineType = Spline<double, Dynamic>;
@@ -18,8 +18,8 @@ namespace tobas_trajectory_commander
 constexpr char FollowPositionYawTrajectoryServer::kActionName[];
 
 FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
+  ros::NodeHandle& nh,
+  ros::NodeHandle& pnh,
   const string& name)
   : super(nh, pnh, name), as_(nh_, kActionName, boost::bind(&self::executeCb, this, _1), false)
 {

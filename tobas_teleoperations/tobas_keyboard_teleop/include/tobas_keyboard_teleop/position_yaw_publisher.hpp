@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_std_tools/range.hpp>
-#include <tobas_std_tools/keyboard_reader.hpp>
+#include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_kdl/frames.hpp>
 
 #include <tobas_tools/node.hpp>
@@ -29,16 +29,16 @@ class PositionYawPublisher : public tobas::BaseNode
 
 public:
   explicit PositionYawPublisher(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
   void run();
 
 private:
-  tobas_std::KeyboardReader key_reader_;
+  keyboard::KeyboardReader key_reader_;
 
-  KDL::Vector cmd_pos_;
+  kdl::Vector cmd_pos_;
   double cmd_yaw_;
 
   // 固定値

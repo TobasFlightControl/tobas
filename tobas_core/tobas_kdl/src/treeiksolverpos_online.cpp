@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 TreeIkSolverPos_Online::TreeIkSolverPos_Online(const Tree& tree)
   : super(tree), fksolver_(tree), iksolver_(tree), jntparser_(tree)
@@ -126,4 +126,4 @@ void TreeIkSolverPos_Online::enforceCartVelLimits(Twist& delta_t, const double& 
     }
   }
 }
-}  // namespace KDL
+}  // namespace kdl

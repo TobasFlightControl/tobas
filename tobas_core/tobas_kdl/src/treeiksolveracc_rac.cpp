@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace kdl
 {
 TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
   : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
@@ -30,10 +30,7 @@ void TreeIkSolverAcc_RAC::updateInternalDataStructures()
   qp_solver_.problem.h.conservativeResize(0);
 }
 
-int TreeIkSolverAcc_RAC::CartToJnt(
-  const JntArray& q_in,
-  const JntArray& qd_in,
-  const AccelMap& acc_in)
+int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -121,4 +118,4 @@ const double& TreeIkSolverAcc_RAC::getWeightJS() const
 {
   return Wj_;
 }
-}  // namespace KDL
+}  // namespace kdl

@@ -7,15 +7,14 @@ if TYPE_CHECKING:
 import rospy
 from std_msgs.msg import Bool
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QGridLayout
+from PyQt5.QtGui import QFont
 
 from tobas_rqt_tools.widgets import LEDColor, LampWidget
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Gps, RCInput, RCInputError, PreArmCheck
 
-from ....common import *
 from .base_section import BaseControlSystemSectionWidget
 
 
@@ -59,7 +58,8 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         self._gps_status = StatusWidget("GPS Fix")
         self._rcin_status = StatusWidget("Radio Input")
         self._voltage_status = StatusWidget("Battery Voltage")
-        self._attitude_status = StatusWidget("Attitude Stable")
+        self._attitude_status = StatusWidget("Attitude Horizontal")
+        self._pos_stability_status = StatusWidget("Position Stability")
         self._pos_accuracy_status = StatusWidget("Position Accuracy")
         self._rot_accuracy_status = StatusWidget("Orientation Accuracy")
         self._vel_accuracy_status = StatusWidget("Velocity Accuracy")
@@ -69,14 +69,15 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         grid = QGridLayout()
         self._rows.addLayout(grid)
         grid.addWidget(self._gps_status, 0, 0)
-        grid.addWidget(self._rcin_status, 0, 1)
-        grid.addWidget(self._voltage_status, 0, 2)
-        grid.addWidget(self._attitude_status, 1, 0)
+        grid.addWidget(self._rcin_status, 1, 0)
+        grid.addWidget(self._voltage_status, 2, 0)
+        grid.addWidget(self._attitude_status, 3, 0)
+        grid.addWidget(self._pos_stability_status, 0, 1)
         grid.addWidget(self._pos_accuracy_status, 1, 1)
-        grid.addWidget(self._rot_accuracy_status, 1, 2)
-        grid.addWidget(self._vel_accuracy_status, 2, 0)
-        grid.addWidget(self._ready_status, 2, 1)
-        grid.addWidget(self._arming_status, 2, 2)
+        grid.addWidget(self._rot_accuracy_status, 2, 1)
+        grid.addWidget(self._vel_accuracy_status, 3, 1)
+        grid.addWidget(self._ready_status, 0, 2)
+        grid.addWidget(self._arming_status, 1, 2)
         grid.setColumnStretch(3, 1)
 
         self._gps_sub = None
@@ -87,15 +88,12 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         self._is_first_update = True
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._gps_status.set_unknown()
         self._rcin_status.set_unknown()
         self._voltage_status.set_unknown()
         self._attitude_status.set_unknown()
+        self._pos_stability_status.set_unknown()
         self._pos_accuracy_status.set_unknown()
         self._rot_accuracy_status.set_unknown()
         self._vel_accuracy_status.set_unknown()
@@ -108,12 +106,12 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._pre_arm_check_sub.unregister()
             self._arming_sub.unregister()
 
-        self._gps_sub = rospy.Subscriber(f"{self._drone.drone_name}/gps", Gps, self._gps_cb, queue_size=1)
-        self._rcin_sub = rospy.Subscriber(f"{self._drone.drone_name}/rc_input", RCInput, self._rcin_cb, queue_size=1)
+        self._gps_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
+        self._rcin_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1)
         self._pre_arm_check_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/pre_arm_check", PreArmCheck, self._pre_arm_check_cb, queue_size=1
+            f"{self._drone.name}/{Topic.PRE_ARM_CHECK}", PreArmCheck, self._pre_arm_check_cb, queue_size=1
         )
-        self._arming_sub = rospy.Subscriber(f"{self._drone.drone_name}/arming", Bool, self._arming_cb, queue_size=1)
+        self._arming_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.ARMING}", Bool, self._arming_cb, queue_size=1)
 
         self._is_first_update = False
 
@@ -130,27 +128,32 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._rcin_status.set_no()
 
     def _pre_arm_check_cb(self, msg: PreArmCheck) -> None:
-        if msg.battery_voltage_ok:
+        if msg.battery_voltage_sufficient:
             self._voltage_status.set_yes()
         else:
             self._voltage_status.set_no()
 
-        if msg.attitude_ok:
+        if msg.attitude_horizontal:
             self._attitude_status.set_yes()
         else:
             self._attitude_status.set_no()
 
-        if msg.position_accuracy_ok:
+        if msg.position_stable:
+            self._pos_stability_status.set_yes()
+        else:
+            self._pos_stability_status.set_no()
+
+        if msg.position_accurate:
             self._pos_accuracy_status.set_yes()
         else:
             self._pos_accuracy_status.set_no()
 
-        if msg.orientation_accuracy_ok:
+        if msg.orientation_accurate:
             self._rot_accuracy_status.set_yes()
         else:
             self._rot_accuracy_status.set_no()
 
-        if msg.velocity_accuracy_ok:
+        if msg.velocity_accurate:
             self._vel_accuracy_status.set_yes()
         else:
             self._vel_accuracy_status.set_no()

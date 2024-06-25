@@ -1,18 +1,15 @@
 #pragma once
 
-#include <ros/ros.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <dynamic_reconfigure/server.h>
-#include <sensor_msgs/Imu.h>
-#include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <geometry_msgs/TransformStamped.h>
 
-#include <tobas_std_tools/first_order_filter.hpp>
 #include <tobas_ros_tools/timer.hpp>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
+#include <tobas_msgs/Imu.h>
+#include <tobas_msgs/MagneticField.h>
 #include <tobas_msgs/Gps.h>
 #include <tobas_msgs/Odometry.h>
 #include <tobas_msgs/GetGnssOrigin.h>
@@ -30,8 +27,8 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
   using self = ErrorStateKalmanFilterRos;
   using super = tobas::BaseNode;
 
-  using ImuMsg = sensor_msgs::Imu;
-  using MagMsg = sensor_msgs::MagneticField;
+  using ImuMsg = tobas_msgs::Imu;
+  using MagMsg = tobas_msgs::MagneticField;
   using BarMsg = sensor_msgs::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
   using OdomMsg = tobas_msgs::Odometry;
@@ -42,8 +39,8 @@ class ErrorStateKalmanFilterRos : public tobas::BaseNode
 
 public:
   explicit ErrorStateKalmanFilterRos(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
@@ -56,17 +53,13 @@ private:
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
   double yaw_0_;      // ヨー角のゼロ点 (Base Frame)
 
-  bool imu_received_ = false;
-  bool mag_received_ = false;
-  bool bar_received_ = false;
-  bool gps_received_ = false;
+  ImuMsg::ConstPtr imu_, imu_filtered_;
+  MagMsg::ConstPtr mag_;
+  BarMsg::ConstPtr bar_;
+  GpsMsg::ConstPtr gps_;
   bool gps_fix_ = false;
-  ros::Time t_last_;
   double gps_anormaly_score_ = 0.;
 
-  Eigen::Vector3d acc_meas_;
-  Eigen::Vector3d gyro_meas_;
-  Eigen::Vector3d mag_meas_;
   Eigen::Vector3d pos_meas_;
   Eigen::Matrix3d grav_cov_ = Eigen::Matrix3d::Zero();
   double yaw_var_;
@@ -90,6 +83,7 @@ private:
   ros::Publisher odom_pub_;
   ros::Publisher feedback_pub_;
   ros::Subscriber imu_sub_;
+  ros::Subscriber imu_filtered_sub_;
   ros::Subscriber mag_sub_;
   ros::Subscriber bar_sub_;
   ros::Subscriber gps_sub_;
@@ -106,18 +100,16 @@ private:
   ConfigServer server_;
 
   void getRosParams();
-  void initialize();
-  OdomMsg::ConstPtr makeOdometryMsg(const ImuMsg& imu);
+  OdomMsg::ConstPtr makeOdometryMsg() const;
 
   void imuCb(const ImuMsg::ConstPtr& imu);
+  void imuFilteredCb(const ImuMsg::ConstPtr& imu_filtered);
   void magCb(const MagMsg::ConstPtr& mag);
   void barCb(const BarMsg::ConstPtr& bar);
   void gpsCb(const GpsMsg::ConstPtr& gps);
 
-  bool
-  getGnssOriginCb(tobas_msgs::GetGnssOriginRequest& req, tobas_msgs::GetGnssOriginResponse& res);
-  bool
-  setGnssOriginCb(tobas_msgs::SetGnssOriginRequest& req, tobas_msgs::SetGnssOriginResponse& res);
+  bool getGnssOriginCb(tobas_msgs::GetGnssOriginRequest& req, tobas_msgs::GetGnssOriginResponse& res);
+  bool setGnssOriginCb(tobas_msgs::SetGnssOriginRequest& req, tobas_msgs::SetGnssOriginResponse& res);
 
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };

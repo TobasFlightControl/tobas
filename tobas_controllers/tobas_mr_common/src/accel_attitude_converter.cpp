@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -7,12 +7,12 @@
 #include "../include/tobas_mr_common/accel_attitude_converter.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_mr_common
 {
 AccelAttitudeConverter::AccelAttitudeConverter(const tobas::Drone& drone)
-  : drone_(drone), dynamics_(drone), grav_W_(0, 0, tobas::kGravity), zero_(KDL::Vector::Zero())
+  : drone_(drone), dynamics_(drone), grav_W_(0, 0, tobas::kGravity), zero_(kdl::Vector::Zero())
 {
   updateInternalDataStructures();
 }
@@ -34,8 +34,7 @@ void AccelAttitudeConverter::update(
 {
   // 現在の空気効力
   // TODO: 本来は空気効力に含まれる姿勢も未知数として扱う必要がある
-  const auto air_drag_W =
-    cur_rot * dynamics_.horizontalForce(cur_rot, cur_vel_B, cur_wind_W, cur_rotor_speeds);
+  const auto air_drag_W = cur_rot * dynamics_.horizontalForce(cur_rot, cur_vel_B, cur_wind_W, cur_rotor_speeds);
 
   // 並進EoMの左辺
   const auto& mass = dynamics_.mass();
@@ -66,9 +65,7 @@ void AccelAttitudeConverter::update(
   double& roll_out,
   double& pitch_out)
 {
-  update(
-    cur_rot, zero_, zero_, vector<double>(drone_.numRotors(), 0), tar_acc_W, thrust_out, roll_out,
-    pitch_out);
+  update(cur_rot, zero_, zero_, vector<double>(drone_.numRotors(), 0), tar_acc_W, thrust_out, roll_out, pitch_out);
 }
 
 void AccelAttitudeConverter::configure(const AccelAttitudeConverterConfig& cfg)

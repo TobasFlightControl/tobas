@@ -9,4 +9,6 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<depend>python3-et-xmlfile</depend>
+
 </package>

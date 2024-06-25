@@ -7,7 +7,6 @@ from .structs import Commands
 
 
 class AddCommandDialog(QDialog):
-
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent=parent)
 

@@ -8,7 +8,7 @@
 #include "./angle_axis.hpp"
 #include "./quaternion.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
  * @brief ZYXオイラー角．
@@ -43,8 +43,7 @@ inline Euler::Euler() : roll(0), pitch(0), yaw(0)
 {
 }
 
-inline Euler::Euler(const double& roll, const double& pitch, const double& yaw)
-  : roll(roll), pitch(pitch), yaw(yaw)
+inline Euler::Euler(const double& roll, const double& pitch, const double& yaw) : roll(roll), pitch(pitch), yaw(yaw)
 {
 }
 
@@ -94,4 +93,4 @@ inline std::ostream& operator<<(std::ostream& os, const Euler& arg)
   os << "roll: " << arg.roll << ", pitch: " << arg.pitch << ", yaw: " << arg.yaw;
   return os;
 }
-}  // namespace KDL
+}  // namespace kdl

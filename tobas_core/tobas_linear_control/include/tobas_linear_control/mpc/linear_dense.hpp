@@ -24,9 +24,9 @@ public:
   Eigen::MatrixXd Cz;                             // z = Cz x: 制御変数方程式
 
   // Time horizon
-  size_t prediction_steps;  // H_p: 状態の予測ステップ数
-  size_t input_steps;       // H_u: 制御入力の予測ステップ数
-  double time_step;         // dt: 離散化の間隔 [s]
+  Eigen::Index prediction_steps;  // H_p: 状態の予測ステップ数
+  Eigen::Index input_steps;       // H_u: 制御入力の予測ステップ数
+  double time_step;               // dt: 離散化の間隔 [s]
 
   // tau: 制御変数の設定値と参照軌道との誤差の減衰時定数 [s]
   // 制御変数の振動が大きい場合，その時間微分の重みを上げるよりも参照軌道を調整する方が追従性能を落とさずに済むことが多い．
@@ -45,13 +45,13 @@ public:
 
   // Equality constraints
   std::vector<LinearEquation> input_rate_eqs;  // Ee du <= ee: 制御入力の変化率に対する等式制約
-  std::vector<LinearEquation> input_eqs;    // Fe u <= fe: 制御入力に対する等式制約
-  std::vector<LinearEquation> control_eqs;  // Ge z <= ge: 制御変数に対する等式制約
+  std::vector<LinearEquation> input_eqs;       // Fe u <= fe: 制御入力に対する等式制約
+  std::vector<LinearEquation> control_eqs;     // Ge z <= ge: 制御変数に対する等式制約
 
   // Inequality constraints
   std::vector<LinearEquation> input_rate_ineqs;  // Ei du <= ei: 制御入力の変化率に対する不等式制約
-  std::vector<LinearEquation> input_ineqs;    // Fi u <= fi: 制御入力に対する不等式制約
-  std::vector<LinearEquation> control_ineqs;  // Gi z <= gi: 制御変数に対する不等式制約
+  std::vector<LinearEquation> input_ineqs;       // Fi u <= fi: 制御入力に対する不等式制約
+  std::vector<LinearEquation> control_ineqs;     // Gi z <= gi: 制御変数に対する不等式制約
 
   // States
   Eigen::VectorXd current_state;  // x: 現在の状態
@@ -72,9 +72,7 @@ private:
   // quadprog::PrimalDualInteriorPointSolver qpsolver_;
 
   bool is_first_solve_ = true;
-  size_t x_size_;
-  size_t u_size_;
-  size_t z_size_;
+  Eigen::Index x_size_, u_size_, z_size_;
   Eigen::VectorXd last_input_;  // u: 最新の制御入力
 
   tobas_std::Stopwatch stopwatch_;
@@ -100,13 +98,11 @@ private:
   Eigen::MatrixXd makeTheta(const std::vector<LinearDynamics>& dyn, const Eigen::MatrixXd& Cz);
 
   /* p.12の例題1.3を参考にp.90のTauを作成． */
-  Eigen::VectorXd
-  makeTau(const Eigen::VectorXd& x, const Eigen::VectorXd& z, const Eigen::MatrixXd& Cz);
+  Eigen::VectorXd makeTau(const Eigen::VectorXd& x, const Eigen::VectorXd& z, const Eigen::MatrixXd& Cz);
   std::vector<Eigen::VectorXd> makeDecays();
 
   /* 不等式条件式 A x <= b の時系列を受け取り，全体の不等式成約行列を作る． */
-  static Eigen::MatrixXd
-  makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, const size_t& H);
+  static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, const Eigen::Index& H);
 };
 
 inline const Eigen::VectorXd& LinearDenseMPC::optimalControlInput() const

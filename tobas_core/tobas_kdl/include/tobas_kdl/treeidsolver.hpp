@@ -4,11 +4,11 @@
 #include "./frames.hpp"
 #include "./jntarray.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
  * \brief This <strong>abstract</strong> class encapsulates the inverse
- * dynamics solver for a KDL::Tree.
+ * dynamics solver for a kdl::Tree.
  *
  */
 class TreeIdSolver : public TreeSolverI
@@ -31,11 +31,7 @@ public:
    *
    * @return if < 0 something went wrong
    */
-  virtual int CartToJnt(
-    const JntArray& q,
-    const JntArray& q_dot,
-    const JntArray& q_dotdot,
-    const WrenchMap& f_ext) = 0;
+  virtual int CartToJnt(const JntArray& q, const JntArray& q_dot, const JntArray& q_dotdot, const WrenchMap& f_ext) = 0;
 
   const JntArray& getEfforts() const
   {
@@ -45,4 +41,4 @@ public:
 protected:
   JntArray effort_out_;
 };
-}  // namespace KDL
+}  // namespace kdl

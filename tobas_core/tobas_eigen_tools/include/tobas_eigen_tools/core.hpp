@@ -5,25 +5,6 @@
 
 namespace eigen_tools
 {
-/* 必要なら行列をリサイズする． */
-template <typename Scalar>
-inline void resizeIfNecessary(
-  Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>& A,
-  const int& rows,
-  const int& cols)
-{
-  if (A.rows() != rows || A.cols() != cols)
-    A.resize(rows, cols);
-}
-
-/* 必要ならベクトルをリサイズする． */
-template <typename Scalar>
-inline void resizeIfNecessary(Eigen::Matrix<Scalar, Eigen::Dynamic, 1>& v, const int& size)
-{
-  if (v.size() != size)
-    v.resize(size);
-}
-
 /**
  * @brief ブロック対角行列を作る．
  *
@@ -33,15 +14,15 @@ inline void resizeIfNecessary(Eigen::Matrix<Scalar, Eigen::Dynamic, 1>& v, const
  * @return Eigen::MatrixXd
  */
 template <typename Derived>
-Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, int num)
+Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num)
 {
   assert(num > 0);
 
-  const int r = A.rows();
-  const int c = A.cols();
+  const auto r = A.rows();
+  const auto c = A.cols();
 
   Eigen::MatrixXd res = Eigen::MatrixXd::Zero(r * num, c * num);
-  for (int i = 0; i < num; ++i)
+  for (Eigen::Index i = 0; i < num; ++i)
     res.block(r * i, c * i, r, c) = A;
 
   return res;
@@ -53,31 +34,31 @@ Eigen::MatrixXd blockDiag(const Eigen::MatrixBase<Derived>& A, int num)
  *
  * @param A 部分行列
  * @param num 繰り返す回数
- * @param axis 繰り返す方向(0 or 1)
+ * @param axis 繰り返す方向: Row(0) or Column(1)
  *
  * @return Eigen::MatrixXd
  */
 template <typename Derived>
-Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const int& num, const uint8_t& axis)
+Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const Eigen::Index& num, const uint8_t& axis)
 {
   assert(num > 0);
 
-  const int r = A.rows();
-  const int c = A.cols();
+  const auto r = A.rows();
+  const auto c = A.cols();
 
   switch (axis)
   {
     case 0:
     {
       Eigen::MatrixXd res(r * num, c);
-      for (int i = 0; i < num; ++i)
+      for (Eigen::Index i = 0; i < num; ++i)
         res.block(r * i, 0, r, c) = A;
       return res;
     }
     case 1:
     {
       Eigen::MatrixXd res(r, c * num);
-      for (int i = 0; i < num; ++i)
+      for (Eigen::Index i = 0; i < num; ++i)
         res.block(0, c * i, r, c) = A;
       return res;
     }
@@ -93,13 +74,12 @@ Eigen::MatrixXd tile(const Eigen::MatrixBase<Derived>& A, const int& num, const 
  * cf. numpy.concatenate()
  *
  * @param A,B 結合する行列
- * @param axis 結合する方向(0 or 1)
+ * @param axis 結合する方向: Row(0) or Column(1)
  *
  * @return Eigen::MatrixXd
  */
 template <typename T, typename U>
-Eigen::MatrixXd
-concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8_t& axis)
+Eigen::MatrixXd concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8_t& axis)
 {
   switch (axis)
   {
@@ -129,16 +109,13 @@ concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const uint8
  * cf. numpy.concatenate()
  *
  * @param A,B,C 結合する行列
- * @param axis 結合する方向(0 or 1)
+ * @param axis 結合する方向: Row(0) or Column(1)
  *
  * @return Eigen::MatrixXd
  */
 template <typename T, typename U, typename V>
-inline Eigen::MatrixXd concat(
-  const Eigen::MatrixBase<T>& A,
-  const Eigen::MatrixBase<U>& B,
-  const Eigen::MatrixBase<V>& C,
-  const uint8_t& axis)
+inline Eigen::MatrixXd
+concat(const Eigen::MatrixBase<T>& A, const Eigen::MatrixBase<U>& B, const Eigen::MatrixBase<V>& C, const uint8_t& axis)
 {
   return concat(concat(A, B, axis), C, axis);
 }
@@ -190,8 +167,8 @@ void symmetrise(Eigen::MatrixBase<Derived>& A, const uint8_t& method = 0)
       A = (A + A.transpose()) / 2;
       break;
     case 1:
-      for (int i = 0; i < A.rows(); ++i)
-        for (int j = i + 1; j < A.cols(); ++j)
+      for (Eigen::Index i = 0; i < A.rows(); ++i)
+        for (Eigen::Index j = i + 1; j < A.cols(); ++j)
           A(i, j) = A(j, i);
       break;
     default:
@@ -204,7 +181,7 @@ template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Rows, 1> meanRow(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
   Eigen::Matrix<Scalar, Rows, 1> res;
-  for (int r = 0; r < Rows; ++r)
+  for (Eigen::Index r = 0; r < Rows; ++r)
     res(r) = A.row(r).mean();
   return res;
 }
@@ -214,7 +191,7 @@ template <typename Scalar, int Rows, int Cols>
 Eigen::Matrix<Scalar, Cols, 1> meanCol(const Eigen::Matrix<Scalar, Rows, Cols>& A)
 {
   Eigen::Matrix<Scalar, Cols, 1> res;
-  for (int c = 0; c < Cols; ++c)
+  for (Eigen::Index c = 0; c < Cols; ++c)
     res(c) = A.col(c).mean();
   return res;
 }
@@ -225,7 +202,7 @@ Eigen::Matrix<Scalar, Rows, 1> varianceRow(const Eigen::Matrix<Scalar, Rows, Col
 {
   const Eigen::Matrix<Scalar, Rows, 1> mean = meanRow(A);
   Eigen::Matrix<Scalar, Rows, 1> res;
-  for (int r = 0; r < Rows; ++r)
+  for (Eigen::Index r = 0; r < Rows; ++r)
     res(r) = (A.row(r).array() - mean(r)).square().mean();
   return res;
 }
@@ -236,7 +213,7 @@ Eigen::Matrix<Scalar, Cols, 1> varianceCol(const Eigen::Matrix<Scalar, Rows, Col
 {
   const Eigen::Matrix<Scalar, Cols, 1> mean = meanCol(A);
   Eigen::Matrix<Scalar, Cols, 1> res;
-  for (int c = 0; c < Cols; ++c)
+  for (Eigen::Index c = 0; c < Cols; ++c)
     res(c) = (A.col(c).array() - mean(c)).square().mean();
   return res;
 }

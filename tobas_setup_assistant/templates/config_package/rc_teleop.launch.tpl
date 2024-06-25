@@ -1,0 +1,15 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+
+  <group ns="{{ drone_name }}">
+    <!-- Load parameters -->
+    <rosparam file="$(find {{ config_pkg_name }})/config/rc_teleop.yaml" command="load"/>
+
+    <!-- Launch RC teleoperation -->
+    <include file="$(find tobas_rc_teleop)/launch/rc_teleop.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+  </group>
+
+</launch>

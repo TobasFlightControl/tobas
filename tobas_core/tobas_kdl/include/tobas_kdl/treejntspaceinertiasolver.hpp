@@ -5,10 +5,10 @@
 #include "./treeidsolver_rne.hpp"
 #include "./utilities/constants.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
- * @brief KDL::ChainDynParamのTree版
+ * @brief kdl::ChainDynParamのTree版
  */
 class TreeJntSpaceInertiaSolver : public TreeSolverI
 {
@@ -40,4 +40,4 @@ inline const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::getMass() const
 {
   return H_out_;
 }
-}  // namespace KDL
+}  // namespace kdl

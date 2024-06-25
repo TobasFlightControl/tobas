@@ -4,6 +4,10 @@ namespace urdf_builder
 {
 namespace view_model
 {
+void JointLimitsViewModel::sync()
+{
+}
+
 double JointLimitsViewModel::lower() const
 {
   return model_->lower;

@@ -334,8 +334,7 @@ inline std::size_t deserialize(
   Stream& stream,
   T* t,
   const std::size_t max_size,
-  const typename CVectorSerializer<T>::ResizeFcn& resize_fcn =
-    typename CVectorSerializer<T>::ResizeFcn())
+  const typename CVectorSerializer<T>::ResizeFcn& resize_fcn = typename CVectorSerializer<T>::ResizeFcn())
 {
   return CVectorSerializer<T>::read(stream, t, max_size, resize_fcn);
 }

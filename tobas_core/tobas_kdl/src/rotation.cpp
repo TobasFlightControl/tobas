@@ -1,13 +1,14 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/linalg.hpp>
+#include <tobas_std_tools/float.hpp>
 
 #include "../include/tobas_kdl/rotation.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
 
-namespace KDL
+namespace kdl
 {
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
-  assert(tobas_std::isClose(sqr(x) + sqr(y) + sqr(z) + sqr(w), 1));
+  assert(tobas_std::isClose(math::norm(x, y, z, w), 1));
 
   const auto tx = 2 * x;
   const auto ty = 2 * y;
@@ -23,8 +24,8 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
   const auto tzz = tz * z;
 
   return Rotation(
-    1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy,
-    tyz + twx, 1 - (txx + tyy));
+    1 - (tyy + tzz), txy - twz, txz + twy, txy + twz, 1 - (txx + tzz), tyz - twx, txz - twy, tyz + twx,
+    1 - (txx + tyy));
 }
 
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
@@ -77,13 +78,13 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
   cc1 = cos(roll);
   sc1 = sin(roll);
   return Rotation(
-    ca1 * cb1, ca1 * sb1 * sc1 - sa1 * cc1, ca1 * sb1 * cc1 + sa1 * sc1, sa1 * cb1,
-    sa1 * sb1 * sc1 + ca1 * cc1, sa1 * sb1 * cc1 - ca1 * sc1, -sb1, cb1 * sc1, cb1 * cc1);
+    ca1 * cb1, ca1 * sb1 * sc1 - sa1 * cc1, ca1 * sb1 * cc1 + sa1 * sc1, sa1 * cb1, sa1 * sb1 * sc1 + ca1 * cc1,
+    sa1 * sb1 * cc1 - ca1 * sc1, -sb1, cb1 * sc1, cb1 * cc1);
 }
 
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
-  pitch = atan2(-data(2, 0), sqrt(sqr(data(0, 0)) + sqr(data(1, 0))));
+  pitch = atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
   if (fabs(pitch) > (M_PI_2 - kEpsilon))
   {
     yaw = atan2(-data(0, 1), data(1, 1));
@@ -189,9 +190,8 @@ Rotation Rotation::Rot2(const Vector& rotvec, double angle)
   const auto m_vt_0_2 = m_vt_0 * rotvec.z();
   const auto m_vt_1_2 = m_vt_1 * rotvec.z();
   return Rotation(
-    ct + m_vt_0 * rotvec.x(), -m_st_2 + m_vt_0_1, m_st_1 + m_vt_0_2, m_st_2 + m_vt_0_1,
-    ct + m_vt_1 * rotvec.y(), -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2,
-    ct + m_vt_2 * rotvec.z());
+    ct + m_vt_0 * rotvec.x(), -m_st_2 + m_vt_0_1, m_st_1 + m_vt_0_2, m_st_2 + m_vt_0_1, ct + m_vt_1 * rotvec.y(),
+    -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2, ct + m_vt_2 * rotvec.z());
 }
 
 Vector Rotation::getRot() const
@@ -218,8 +218,7 @@ double Rotation::getRotAngle(Vector& axis) const
     // for all terms in leading diagonal and zero in other terms
     if (
       (abs(data(0, 1) + data(1, 0)) < epsilon2) && (abs(data(0, 2) + data(2, 0)) < epsilon2)
-      && (abs(data(1, 2) + data(2, 1)) < epsilon2)
-      && (abs(data(0, 0) + data(1, 1) + data(2, 2) - 3) < epsilon2))
+      && (abs(data(1, 2) + data(2, 1)) < epsilon2) && (abs(data(0, 0) + data(1, 1) + data(2, 2) - 3) < epsilon2))
     {
       // this singularity is identity matrix so angle = 0, axis is arbitrary
       // Choose 0, 0, 1 to pass orocos tests
@@ -273,4 +272,4 @@ double Rotation::getRotAngle(Vector& axis) const
   axis.normalize();
   return angle;
 }
-}  // namespace KDL
+}  // namespace kdl

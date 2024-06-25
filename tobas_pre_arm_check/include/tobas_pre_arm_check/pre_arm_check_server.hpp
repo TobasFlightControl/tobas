@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <std_msgs/Bool.h>
 #include <std_srvs/Trigger.h>
 
 #include <tobas_std_tools/timestamped_buffer.hpp>
@@ -15,21 +13,23 @@ namespace tobas_pre_arm_check
 {
 class PreArmCheckServer : public tobas::BaseNode
 {
-  static constexpr double kAttitudeThreshold = M_PI / 6;    // [rad/s]
-  static constexpr double kHorPosStddevThreshold = 1.;      // [m]
-  static constexpr double kVerPosStddevThreshold = 2.;      // [m]
-  static constexpr double kRotStddevThreshold = M_PI / 24;  // [rad]
-  static constexpr double kVelStddevThreshold = 0.3;        // [m/s]
-
-  static constexpr double kPreArmCheckTimerRate = 1.;  // [s]
+  static constexpr double kOdomCallbackInterval = 0.1;    // [s]
+  static constexpr double kPosDriftCheckTimeWindow = 5.;  // [s]
+  static constexpr double kPosDriftThresh = 1.;           // [m]
+  static constexpr double kAttitudeThresh = M_PI / 6;     // [rad/s]
+  static constexpr double kHorPosStddevThresh = 1.;       // [m]
+  static constexpr double kVerPosStddevThresh = 2.;       // [m]
+  static constexpr double kRotStddevThresh = M_PI / 24;   // [rad]
+  static constexpr double kVelStddevThresh = 0.3;         // [m/s]
+  static constexpr double kPreArmCheckTimerRate = 1.;     // [s]
 
   using self = PreArmCheckServer;
   using super = tobas::BaseNode;
 
 public:
   explicit PreArmCheckServer(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
@@ -38,16 +38,14 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
   tobas_msgs::OdometryConstPtr odom_;
 
+  std::array<tobas_std::TimestampedBufferDouble, 3> pos_buf_;
   double roll_, pitch_, yaw_;
-  Eigen::Matrix3d cov_;
   tobas_msgs::PreArmCheck pre_arm_check_;
 
   ros::Publisher pre_arm_check_pub_;
   ros::Subscriber battery_sub_;
   ros::Subscriber odom_sub_;
-
   ros::ServiceServer pre_arm_check_ss_;
-
   ros::Timer pre_arm_check_timer_;
 
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);

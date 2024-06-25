@@ -1,5 +1,5 @@
 #include <tobas_std_tools/unordered_set.hpp>
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/string.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
@@ -11,7 +11,7 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas
 {
@@ -24,7 +24,7 @@ void Drone::loadFromParam(ros::NodeHandle& nh)
 {
   PRINT_DEBUG("Drone::loadFromParam");
 
-  ROS_CHECK(nh, treeFromParam(kRobotDescriptionParam, tree_), "Failed to get KDL tree.")
+  ROS_CHECK(nh, treeFromParam(kRobotDescriptionParam, tree_), "Failed to get tobas_kdl tree.")
 
   tobas_ros::getParam(nh, "drone_name", drone_name_);
 
@@ -53,7 +53,7 @@ double Drone::minRotSpeed(const size_t& rotor_idx, const double& battery_voltage
 double Drone::maxMechanicalThrust(const size_t& rotor_idx) const
 {
   const auto& rotor = rotors_.at(rotor_idx);
-  return rotor.motor_constant * tobas_std::sqr(rotor.max_rot_speed);
+  return rotor.motor_constant * math::sqr(rotor.max_rot_speed);
 }
 
 double Drone::maxThrust(const size_t& rotor_idx, const double& battery_voltage) const
@@ -70,7 +70,7 @@ double Drone::minThrust(const size_t& rotor_idx, const double& battery_voltage) 
 
 double Drone::thrustFromRotSpeed(const size_t& rotor_idx, const double& tar_speed) const
 {
-  return rotors_[rotor_idx].motor_constant * tobas_std::sqr(tar_speed);
+  return rotors_[rotor_idx].motor_constant * math::sqr(tar_speed);
 }
 
 double Drone::thrustFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -87,7 +87,7 @@ double Drone::voltageFromRotSpeed(const size_t& rotor_idx, const double& tar_spe
 
   const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
-  return a * tar_speed + b * tobas_std::sqr(tar_speed);
+  return a * tar_speed + b * math::sqr(tar_speed);
 }
 
 double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage) const
@@ -96,7 +96,7 @@ double Drone::rotSpeedFromVoltage(const size_t& rotor_idx, const double& voltage
 
   const auto& a = rotors_[rotor_idx].rot_speed_coefs.first;
   const auto& b = rotors_[rotor_idx].rot_speed_coefs.second;
-  return b > 0 ? (sqrt(tobas_std::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+  return b > 0 ? (sqrt(math::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
 }
 
 double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) const
@@ -105,10 +105,8 @@ double Drone::rotSpeedFromThrust(const size_t& rotor_idx, const double& thrust) 
   return sqrt(thrust / rotors_[rotor_idx].motor_constant);
 }
 
-double Drone::throttleFromRotSpeed(
-  const size_t& rotor_idx,
-  const double& tar_speed,
-  const double& battery_voltage) const
+double
+Drone::throttleFromRotSpeed(const size_t& rotor_idx, const double& tar_speed, const double& battery_voltage) const
 {
   assert(tar_speed >= 0);
 
@@ -116,10 +114,7 @@ double Drone::throttleFromRotSpeed(
   return voltage / battery_voltage;
 }
 
-double Drone::throttleFromThrust(
-  const size_t& rotor_idx,
-  const double& thrust,
-  const double& battery_voltage) const
+double Drone::throttleFromThrust(const size_t& rotor_idx, const double& thrust, const double& battery_voltage) const
 {
   assert(thrust >= 0);
 
@@ -169,8 +164,7 @@ void Drone::getJointConfig(ros::NodeHandle& nh, const size_t& jnt_idx)
   tobas_ros::getParam(nh, prefix + "/min_position", cfg.min_pos);
   tobas_ros::getParam(nh, prefix + "/max_position", cfg.max_pos);
   ROS_CHECK(
-    nh, cfg.min_pos <= cfg.home_pos && cfg.home_pos <= cfg.max_pos,
-    "Invalid value for joint '" << name << "'.");
+    nh, cfg.min_pos <= cfg.home_pos && cfg.home_pos <= cfg.max_pos, "Invalid value for joint '" << name << "'.");
 
   string cmd_type;
   tobas_ros::getParam(nh, prefix + "/command_type", cmd_type);
@@ -216,8 +210,7 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
   else if (direction == "cw")
     res.direction = -1;
   else
-    ROS_EXIT(
-      nh, "Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
+    ROS_EXIT(nh, "Invalid rotation direction: " << direction << ". direction must be 'cw' or 'ccw'.");
 
   // Axis
   string axis;
@@ -252,16 +245,12 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, const size_t& rotor_idx)
 
   tobas_ros::getParam(nh, prefix + "/max_rot_speed", res.max_rot_speed, tobas_ros::NON_NEGATIVE);
   tobas_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    nh, prefix + "/moment_constant", res.moment_constant, tobas_ros::NON_NEGATIVE);
+  tobas_ros::getParam(nh, prefix + "/moment_constant", res.moment_constant, tobas_ros::NON_NEGATIVE);
   tobas_ros::getParam(nh, prefix + "/drag_constant", res.drag_constant, tobas_ros::NON_NEGATIVE);
 
   tobas_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
-  ROS_CHECK(
-    nh, res.rot_speed_coefs.first > 0, "The first term of 'rot_speed_coefs' must be positive.");
-  ROS_CHECK(
-    nh, res.rot_speed_coefs.second >= 0,
-    "The second term of 'rot_speed_coefs' must be non-negative.");
+  ROS_CHECK(nh, res.rot_speed_coefs.first > 0, "The first term of 'rot_speed_coefs' must be positive.");
+  ROS_CHECK(nh, res.rot_speed_coefs.second >= 0, "The second term of 'rot_speed_coefs' must be non-negative.");
 
   tobas_ros::getParam(nh, prefix + "/channel", res.channel);
 
@@ -347,9 +336,7 @@ ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, const size_t& cs_id
 
   tobas_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
   tobas_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
-  ROS_CHECK(
-    nh, res.angle_limit.isValid() && res.angle_limit.inRange(0),
-    "Invalid range of control surface angle");
+  ROS_CHECK(nh, res.angle_limit.isValid() && res.angle_limit.inRange(0), "Invalid range of control surface angle");
 
   tobas_ros::getParam(nh, prefix + "/max_angle_rate", res.max_angle_rate, tobas_ros::POSITIVE);
 

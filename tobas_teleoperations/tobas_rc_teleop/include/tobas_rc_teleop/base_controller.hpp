@@ -2,8 +2,8 @@
 
 #include <ros/ros.h>
 
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
-#include <tobas_std_tools/math.hpp>
 
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/constants.hpp>
@@ -19,10 +19,8 @@ public:
 
   virtual void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
-  virtual void update(
-    const tobas_msgs::RCInput& rcin,
-    const tobas_msgs::Odometry& odom,
-    const double& battery_voltage) = 0;
+  virtual void
+  update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) = 0;
 
 protected:
   const tobas::Drone& drone_;
@@ -37,7 +35,7 @@ protected:
 
 inline double BaseController::remap(const double& x, const double& a, const double& b)
 {
-  return tobas_std::remap(x, tobas::kRCInputMin, tobas::kRCInputMax, a, b);
+  return math::remap(x, tobas::kRCInputMin, tobas::kRCInputMax, a, b);
 }
 
 inline double BaseController::remapDead(const double& x, const double& a, const double& b)

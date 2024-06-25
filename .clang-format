@@ -14,7 +14,7 @@ BreakBeforeBinaryOperators: NonAssignment  # false -> NonAssignment
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializersBeforeComma: false  # true -> false
 BinPackParameters: false  # true -> false
-ColumnLimit: 100  # 120 -> 100
+ColumnLimit: 120
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 DerivePointerBinding: false
 PointerBindsToType: true

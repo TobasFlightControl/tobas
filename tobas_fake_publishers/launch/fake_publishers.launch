@@ -1,0 +1,6 @@
+<launch>
+
+  <node pkg="tobas_fake_publishers" type="fake_battery_publisher_node.py" name="fake_battery_publisher" output="screen" required="true"/>
+  <node pkg="tobas_fake_publishers" type="fake_gnss_publisher_node.py" name="fake_gnss_publisher" output="screen" required="true"/>
+
+</launch>

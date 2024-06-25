@@ -6,7 +6,7 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_rc_teleop
 {
@@ -25,17 +25,14 @@ void PositionYawController::reset(const tobas_msgs::Odometry& odom)
 {
   pos_yaw_.pos = odom.frame.p;
   pos_yaw_.yaw = Euler(odom.frame.M).yaw;
-  t_last_rcin_ = ros::Time::now();
+  t_last_rcin_ = odom.header.stamp;
 }
 
-void PositionYawController::update(
-  const tobas_msgs::RCInput& rcin,
-  const tobas_msgs::Odometry& odom,
-  const double&)
+void PositionYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
-  const auto cur_time = ros::Time::now();
-  const auto dt = (cur_time - t_last_rcin_).toSec();
-  t_last_rcin_ = cur_time;
+  // 時刻を更新
+  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  t_last_rcin_ = rcin.header.stamp;
 
   // 位置とヨー角の変化率を計算
   vel_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
@@ -69,12 +66,8 @@ void PositionYawController::update(
 void PositionYawController::getRosParams(ros::NodeHandle& pnh)
 {
   tobas_ros::getParam(
-    pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel,
-    tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+    pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

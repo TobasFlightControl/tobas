@@ -9,6 +9,7 @@
 
 	<buildtool_depend>catkin</buildtool_depend>
 
+	<depend>tobas_linux</depend>
 	<depend>tobas_std_tools</depend>
 
 </package>

@@ -6,13 +6,12 @@ if TYPE_CHECKING:
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QLabel
 
 from tobas_std_tools_py.math import remap
 from tobas_rqt_tools.widgets import HPositionBarWidget
 from tobas_rqt_tools.layouts import FormLayout
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Battery
 
@@ -42,10 +41,6 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._battery_sub = None
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._voltage_range.clear()
         self._voltage_range.set_lower(self._drone.battery.sag_voltage)
@@ -61,7 +56,7 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         if self._battery_sub is not None:
             self._battery_sub.unregister()
         self._battery_sub = rospy.Subscriber(
-            f"{self._drone.drone_name}/battery_filtered", Battery, self._battery_cb, queue_size=1
+            f"{self._drone.name}/{Topic.BATTERY_LPF}", Battery, self._battery_cb, queue_size=1
         )
 
     def _battery_cb(self, battery: Battery) -> None:

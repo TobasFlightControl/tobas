@@ -1,7 +1,7 @@
 #include <std_msgs/Bool.h>
 #include <std_srvs/Trigger.h>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -15,23 +15,19 @@
 #include "../include/tobas_navio_ros/common.hpp"
 
 using namespace std;
-using namespace tobas_std;
 
 namespace tobas_navio_ros
 {
-MotorsHandler::MotorsHandler(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name)
+MotorsHandler::MotorsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
+  PRINT_DEBUG("MotorsHandler::MotorsHandler");
+
   drone_.loadFromParam(nh_);
 
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
   arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
 
-  tar_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
+  tar_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
   battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
 
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
@@ -39,10 +35,11 @@ MotorsHandler::MotorsHandler(
   enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
   pre_arm_check_sc_ = nh_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
-  check_interval_timer_ =
-    nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
+  check_interval_timer_ = nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
   publishArming();
+
+  PRINT_DEBUG("/MotorsHandler::MotorsHandler");
 }
 
 bool MotorsHandler::armRotors()
@@ -172,15 +169,12 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)  // モータテストでも使用するため，ここではARM_THROTTLEの制約を課さない
     {
-      TOBAS_WARN(
-        "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
+      TOBAS_WARN("Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      TOBAS_WARN(
-        "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
-        " [rad/s]");
+      TOBAS_WARN("Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed, " [rad/s]");
       tar_speed = max_speed;
     }
 
@@ -191,25 +185,25 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
       case tobas::EscSignalMode::BLHELI_OPEN_LOOP:
       {
         const auto throttle = drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
-        pwm_period = remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
+        pwm_period = math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_LOW_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_MID_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
         break;
       }
       default:
@@ -287,8 +281,8 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
     {
       is_activated_ = false;
       TOBAS_WARN(
-        "The speeds of all rotors are automatically stopped because ",
-        tobas::kAutoResetTimeThreshold, " seconds have elapsed since the last command.");
+        "The speeds of all rotors are automatically stopped because ", tobas::kAutoResetTimeThreshold,
+        " seconds have elapsed since the last command.");
     }
   }
 }

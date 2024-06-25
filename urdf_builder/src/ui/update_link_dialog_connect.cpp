@@ -41,33 +41,18 @@ void UpdateLinkDialog::defineConnections()
     ui_->CollisionGeometryTypeComboBox, SIGNAL(currentIndexChanged(int)), this,
     SLOT(CollisionGeometryTypeComboBoxIndexChanged(int)));
 
+  connect(ui_->VisualOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->VisualOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->VisualOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->VisualOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->VisualOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->VisualOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
   connect(
-    ui_->VisualOriginXSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->VisualGeometryBoxWidthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
   connect(
-    ui_->VisualOriginYSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->VisualGeometryBoxLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
   connect(
-    ui_->VisualOriginZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualOriginRollSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualOriginPitchSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualOriginYawSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualGeometryBoxWidthSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualGeometryBoxLengthSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualGeometryBoxHeightSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->VisualGeometryBoxHeightSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
   connect(
     ui_->VisualGeometrySphereRadiusSpinBox, SIGNAL(valueChanged(double)), this,
     SLOT(VisualSpinBoxValueChanged(double)));
@@ -78,36 +63,20 @@ void UpdateLinkDialog::defineConnections()
     ui_->VisualGeometryCylinderRadiusSpinBox, SIGNAL(valueChanged(double)), this,
     SLOT(VisualSpinBoxValueChanged(double)));
   connect(
-    ui_->VisualGeometryMeshScaleSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->MaterialColorRedSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->MaterialColorGreenSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->MaterialColorBlueSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->VisualGeometryMeshScaleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->MaterialColorRedSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->MaterialColorGreenSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+  connect(ui_->MaterialColorBlueSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
 
+  connect(ui_->CollisionOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
+  connect(ui_->CollisionOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
+  connect(ui_->CollisionOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
   connect(
-    ui_->CollisionOriginXSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
   connect(
-    ui_->CollisionOriginYSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
   connect(
-    ui_->CollisionOriginZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(
-    ui_->CollisionOriginRollSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(
-    ui_->CollisionOriginPitchSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(
-    ui_->CollisionOriginYawSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
 
   connect(
     ui_->CollisionGeometryBoxWidthSpinBox, SIGNAL(valueChanged(double)), this,
@@ -138,116 +107,53 @@ void UpdateLinkDialog::defineConnections()
     ui_->CollisionListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this,
     SLOT(CollisionListWidgetItemClicked(QListWidgetItem*)));
 
-  connect(
-    ui_->JointOriginXSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointOriginYSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointOriginZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointOriginRollSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointOriginPitchSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointOriginYawSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointAxisXSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointAxisYSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointAxisZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointLimitLowerSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointLimitUpperSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointLimitEffortSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
-  connect(
-    ui_->JointLimitVelocitySpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointAxisXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointAxisYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointAxisZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointLimitLowerSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointLimitUpperSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointLimitEffortSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(ui_->JointLimitVelocitySpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
 
   connect(
-    ui_->JointParentLinkComboBox, SIGNAL(currentIndexChanged(int)), this,
-    SLOT(JointParentComboBoxIndexChanged(int)));
-  connect(
-    ui_->JointTypeComboBox, SIGNAL(currentIndexChanged(int)), this,
-    SLOT(JointTypeComboBoxIndexChanged(int)));
+    ui_->JointParentLinkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(JointParentComboBoxIndexChanged(int)));
+  connect(ui_->JointTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(JointTypeComboBoxIndexChanged(int)));
 
+  connect(ui_->InertialOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertialOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertialOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
   connect(
-    ui_->InertialOriginXSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
+    ui_->InertialOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
   connect(
-    ui_->InertialOriginYSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertialOriginZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertialOriginRollSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertialOriginPitchSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertialOriginYawSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertialMassSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertiaIXXSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertiaIXYSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertiaIXZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertiaIYYSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertiaIYZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
-  connect(
-    ui_->InertiaIZZSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(InertialSpinBoxValueChanged(double)));
+    ui_->InertialOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertialOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertialMassSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertiaIXXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertiaIXYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertiaIXZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertiaIYYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertiaIYZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->InertiaIZZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
 
   connect(ui_->RenameLinkButton, SIGNAL(released()), this, SLOT(RenameLinkButtonClicked()));
   connect(ui_->RenameJointButton, SIGNAL(released()), this, SLOT(RenameJointButtonClicked()));
   connect(ui_->AddVisualButton, SIGNAL(released()), this, SLOT(AddVisualButtonClicked()));
   connect(ui_->RemoveVisualButton, SIGNAL(released()), this, SLOT(RemoveVisualButtonClicked()));
   connect(ui_->AddCollisionButton, SIGNAL(released()), this, SLOT(AddCollisionButtonClicked()));
+  connect(ui_->RemoveCollisionButton, SIGNAL(released()), this, SLOT(RemoveCollisionButtonClicked()));
+  connect(ui_->VisualGeometryMeshBrowseButton, SIGNAL(released()), this, SLOT(VisualGeometryMeshBrowseButtonClicked()));
   connect(
-    ui_->RemoveCollisionButton, SIGNAL(released()), this, SLOT(RemoveCollisionButtonClicked()));
-  connect(
-    ui_->VisualGeometryMeshBrowseButton, SIGNAL(released()), this,
-    SLOT(VisualGeometryMeshBrowseButtonClicked()));
-  connect(
-    ui_->CollisionGeometryMeshBrowseButton, SIGNAL(released()), this,
-    SLOT(CollisionGeometryMeshBrowseButtonClicked()));
-  connect(
-    ui_->MaterialColorPickButton, SIGNAL(released()), this, SLOT(MaterialColorPickButtonClicked()));
-  connect(
-    ui_->BuildInertiaBoxButton, SIGNAL(released()), this, SLOT(BuildInertiaBoxButtonClicked()));
-  connect(
-    ui_->BuildInertiaCylinderButton, SIGNAL(released()), this,
-    SLOT(BuildInertiaCylinderButtonClicked()));
-  connect(
-    ui_->BuildInertiaSphereButton, SIGNAL(released()), this,
-    SLOT(BuildInertiaSphereButtonClicked()));
+    ui_->CollisionGeometryMeshBrowseButton, SIGNAL(released()), this, SLOT(CollisionGeometryMeshBrowseButtonClicked()));
+  connect(ui_->MaterialColorPickButton, SIGNAL(released()), this, SLOT(MaterialColorPickButtonClicked()));
+  connect(ui_->BuildInertiaBoxButton, SIGNAL(released()), this, SLOT(BuildInertiaBoxButtonClicked()));
+  connect(ui_->BuildInertiaCylinderButton, SIGNAL(released()), this, SLOT(BuildInertiaCylinderButtonClicked()));
+  connect(ui_->BuildInertiaSphereButton, SIGNAL(released()), this, SLOT(BuildInertiaSphereButtonClicked()));
 }
 }  // namespace ui
 }  // namespace urdf_builder

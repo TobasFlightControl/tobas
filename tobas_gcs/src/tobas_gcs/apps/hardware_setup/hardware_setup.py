@@ -5,9 +5,7 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.widgets import VerticalTabWidget
 from tobas_tools_py.drone import Drone
@@ -52,17 +50,6 @@ class HardwareSetupWidget(BaseAppWidget):
 
         self._tabs.setMinimumHeight(self.MIN_HEIGHT)
         self._tabs.setStyleSheet(f"QTabBar::tab {{ height: {self.TAB_HEIGHT}px; width: {self.TAB_WIDTH}px; }}")
-
-    @override
-    def define_connections(self) -> None:
-        self._network_setting.define_connections()
-        self._acc_calib.define_connections()
-        self._mag_calib.define_connections()
-        self._adc_calib.define_connections()
-        self._rcin_calib.define_connections()
-        # self._noise_calib.define_connections()  # TODO
-        self._esc_calib.define_connections()
-        self._motor_test.define_connections()
 
     @override
     def update_internal_data_structures(self) -> None:

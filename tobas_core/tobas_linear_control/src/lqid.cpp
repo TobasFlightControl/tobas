@@ -10,7 +10,7 @@ using namespace Eigen;
 
 namespace ctrl
 {
-LQID::LQID(const size_t& state_size, const size_t& input_size, const size_t& integrate_size)
+LQID::LQID(const Index& state_size, const Index& input_size, const Index& integrate_size)
   : dynamics(state_size, input_size),
     C(integrate_size, state_size),
     state_weight(state_size),

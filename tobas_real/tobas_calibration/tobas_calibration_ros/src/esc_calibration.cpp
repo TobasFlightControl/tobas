@@ -12,12 +12,8 @@ using namespace std;
 
 namespace tobas_calibration
 {
-EscCalibrationRos::EscCalibrationRos(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
-  : super(nh, pnh, name),
-    as_(nh, kActionName, boost::bind(&EscCalibrationRos::executeCb, this, _1), false)
+EscCalibrationRos::EscCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
+  : super(nh, pnh, name), as_(nh, kActionName, boost::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
   drone_.loadFromParam(nh_);
 
@@ -34,14 +30,14 @@ EscCalibrationRos::EscCalibrationRos(
 void EscCalibrationRos::sendMaximum()
 {
   const auto start_time = ros::Time::now();
-  while ((ros::Time::now() - start_time).toSec() < kSleepHigh)
+  while ((ros::Time::now() - start_time).toSec() < kHighDuration)
     setPeriodAndSleep(tobas_navio_ros::kPwmMax);
 }
 
 void EscCalibrationRos::sendMinimum()
 {
   const auto start_time = ros::Time::now();
-  while ((ros::Time::now() - start_time).toSec() < kSleepLow)
+  while ((ros::Time::now() - start_time).toSec() < kLowDuration)
     setPeriodAndSleep(tobas_navio_ros::kPwmMin);
 }
 
@@ -121,14 +117,12 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
   // 各サービスサーバへの接続をチェック
   if (!get_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    as_.setAborted(
-      result_, "Failed to connect to " + string(tobas::kGetArmSrv) + " service server.");
+    as_.setAborted(result_, "Failed to connect to " + string(tobas::kGetArmSrv) + " service server.");
     return;
   }
   if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    as_.setAborted(
-      result_, "Failed to connect to " + string(tobas::kEnablePwmSrv) + " service server.");
+    as_.setAborted(result_, "Failed to connect to " + string(tobas::kEnablePwmSrv) + " service server.");
     return;
   }
 

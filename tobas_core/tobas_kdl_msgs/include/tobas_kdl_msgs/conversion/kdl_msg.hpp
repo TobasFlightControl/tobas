@@ -12,7 +12,7 @@
 #include <tobas_kdl_msgs/Frame.h>
 #include <tobas_kdl_msgs/Quaternion.h>
 
-namespace KDL
+namespace kdl
 {
 void vectorKDLToMsg(const Vector& k, geometry_msgs::Vector3& m);
 void vectorMsgToKDL(const geometry_msgs::Vector3& m, Vector& k);
@@ -34,4 +34,4 @@ void poseMsgToKDL(const geometry_msgs::Pose& m, Frame& k);
 
 void transformKDLToMsg(const Frame& k, geometry_msgs::Transform& m);
 void transformMsgToKDL(const geometry_msgs::Transform& m, Frame& k);
-}  // namespace KDL
+}  // namespace kdl

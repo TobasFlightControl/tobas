@@ -1,20 +1,17 @@
-#include <QListWidget>
-#include <QFileDialog>
-#include <QTreeWidget>
-#include <QtWidgets/QtWidgets>
-#include <QGridLayout>
 #include <ros/ros.h>
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
 
-#include <tobas_std_tools/file.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
 #include "../../include/urdf_builder/ui/update_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/add_link_dialog.hpp"
 #include "../../include/urdf_builder/ui/widget_item.hpp"
-#include "../../include/urdf_builder/rviz_helpers/display_context_proxy.hpp"
-#include "../../include/urdf_builder/rviz_helpers/static_link_updater.hpp"
+#include "../../include/urdf_builder/ui/save_urdf_dialog.hpp"
+#include "../../include/urdf_builder/ui/display_context_proxy.hpp"
+#include "../../include/urdf_builder/ogre_helpers/static_link_updater.hpp"
 #include "../../include/urdf_builder/utils/constants.hpp"
 #include "ui_urdf_builder_panel.h"
 
@@ -31,14 +28,10 @@ namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
   : rviz::Panel(item),
-    config_path_(tobas_std::expandPath(kConfigPath)),
     ui_(new Ui::URDFBuilderPanelUI()),
-    ogre_ctrl_(nullptr)
+    ogre_ctrl_(nullptr),
+    property_client_(nh_, tobas::kPropertyServerGCS, kPropertySection)
 {
-  // configファイルを作成
-  if (!tobas_std::fileExists(config_path_))
-    createConfig();
-
   ui_->setupUi(this);
 
   ui_->EnableVisualCheckBox->setChecked(kDefaultVisualVisible);
@@ -46,8 +39,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
 
   update_timer_ = new QTimer();
 
-  const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
-  link_dialog_ = new UpdateLinkDialog(vm);
+  link_dialog_ = new UpdateLinkDialog(this);
   link_dialog_->hide();
   ui_->scrollAreaWidgetContents->layout()->addWidget(link_dialog_);
 
@@ -77,6 +69,16 @@ void URDFBuilderPanel::load(const rviz::Config& config)
 void URDFBuilderPanel::save(rviz::Config config) const
 {
   Panel::save(config);
+}
+
+QStringList URDFBuilderPanel::linkNames() const
+{
+  return vm_.linkNames();
+}
+
+QStringList URDFBuilderPanel::jointNames() const
+{
+  return vm_.jointNames();
 }
 
 void URDFBuilderPanel::RobotNameTextChanged(const QString& name)
@@ -160,12 +162,13 @@ void URDFBuilderPanel::SaveAsButtonClicked()
     return;
 
   const auto last_opened_dir = getLastOpenedDir();
-  const auto file_path = QFileDialog::getSaveFileName(
-    this, tr("save URDF"), QString::fromStdString(last_opened_dir),
-    tr("URDF (*.urdf);;All Files (*)"));
+  SaveUrdfDialog dialog(this, QString::fromStdString(last_opened_dir));
 
-  if (file_path.isEmpty())
+  const auto result = dialog.exec();
+  if (result != QDialog::Accepted)
     return;
+  const auto file_path = dialog.selectedFiles().first();
+  assert(file_path.endsWith(".urdf"));
 
   setLastOpenedDir(file_path.toStdString());
 
@@ -194,23 +197,18 @@ void URDFBuilderPanel::LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
   ROS_DEBUG_STREAM("URDFBuilderPanel::LinkTreeWidgetItemClicked");
 
   const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
-  const auto link_name = link_item->viewModel()->name().toStdString();
+  const auto& link_vm = link_item->viewModel();
+  const auto link_name = link_vm->name().toStdString();
 
   ogre_ctrl_->unhighlightAll();
   ogre_ctrl_->highlight(link_name);
 
-  const auto vm = link_item->viewModel()->clone();
-  vm->usedLinkNames(vm_.linkNames());
-
   link_dialog_->show();
-  link_dialog_->readFromVM(vm);  // リンクのビューモデルからダイアログの値を更新
-  old_link_vm_ = vm->clone();    // リンクが選択された時点での設定を保持
+  link_dialog_->readFromVM(link_vm);  // リンクのビューモデルからダイアログの値を更新
+  old_link_vm_ = link_vm->clone();    // リンクが選択された時点での設定を保持
 
   // ルートリンクだったら変更不可にする
-  if (link_name == vm_.rootLink()->name)
-    link_dialog_->setTabsEnabled(false);
-  else
-    link_dialog_->setTabsEnabled(true);
+  link_dialog_->setTabsEnabled(link_name != vm_.rootLink()->name);
 }
 
 void URDFBuilderPanel::LinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
@@ -249,9 +247,7 @@ void URDFBuilderPanel::AddLinkActionToggled(bool)
   }
 
   const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
-  link_vm->usedLinkNames(vm_.linkNames());
-
-  AddLinkDialog dialog(link_vm);
+  AddLinkDialog dialog(this, vm_.linkNames(), *link_vm);
   const auto result = dialog.exec();
 
   if (result != QDialog::Accepted)
@@ -328,52 +324,45 @@ void URDFBuilderPanel::LinkDialogChanged()
   reload();
 }
 
-void URDFBuilderPanel::createConfig()
-{
-  // ディレクトリを作成
-  boost::filesystem::path dir(getenv("HOME"));
-  dir /= ".config/urdf_builder";
-  boost::filesystem::create_directories(dir);
-
-  // 各キーのデフォルト値を設定
-  boost::property_tree::ptree pt_;
-  pt_.put(kConfigKey_LastOpenedDir, getenv("HOME"));
-
-  // configを保存
-  boost::property_tree::ini_parser::write_ini(config_path_, pt_);
-}
-
 string URDFBuilderPanel::getLastOpenedDir()
 {
-  boost::property_tree::ini_parser::read_ini(config_path_, pt_);
-  return pt_.get<string>(kConfigKey_LastOpenedDir);
+  string res;
+  if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
+  {
+    ROS_WARN_STREAM(property_client_.errorMessage());
+    res = linux::homeDir();
+  }
+  return res;
 }
 
 void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
 {
   boost::filesystem::path p(file_path);
   const auto dir = p.parent_path().string();
-  pt_.put(kConfigKey_LastOpenedDir, dir);
-  boost::property_tree::ini_parser::write_ini(config_path_, pt_);
+
+  if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
+  if (property_client_.save() < 0)
+  {
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    return;
+  }
 }
 
 void URDFBuilderPanel::defineConnections()
 {
-  connect(
-    ui_->RobotName, SIGNAL(textChanged(const QString&)), this,
-    SLOT(RobotNameTextChanged(const QString&)));
+  connect(ui_->RobotName, SIGNAL(textChanged(const QString&)), this, SLOT(RobotNameTextChanged(const QString&)));
 
   connect(ui_->LoadButton, SIGNAL(released()), this, SLOT(LoadButtonClicked()));
   connect(ui_->NewButton, SIGNAL(released()), this, SLOT(NewButtonClicked()));
   connect(ui_->SaveButton, SIGNAL(released()), this, SLOT(SaveButtonClicked()));
   connect(ui_->SaveAsButton, SIGNAL(released()), this, SLOT(SaveAsButtonClicked()));
 
-  connect(
-    ui_->EnableVisualCheckBox, SIGNAL(toggled(bool)), this,
-    SLOT(EnableVisualCheckBoxToggled(bool)));
-  connect(
-    ui_->EnableCollisionCheckBox, SIGNAL(toggled(bool)), this,
-    SLOT(EnableCollisionCheckBoxToggled(bool)));
+  connect(ui_->EnableVisualCheckBox, SIGNAL(toggled(bool)), this, SLOT(EnableVisualCheckBoxToggled(bool)));
+  connect(ui_->EnableCollisionCheckBox, SIGNAL(toggled(bool)), this, SLOT(EnableCollisionCheckBoxToggled(bool)));
 
   connect(
     ui_->LinkTreeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this,
@@ -386,8 +375,7 @@ void URDFBuilderPanel::defineConnections()
     SLOT(LinkTreeContextMenuRequested(const QPoint&)));
 
   connect(ui_->AddLinkAction, SIGNAL(triggered(bool)), this, SLOT(AddLinkActionToggled(bool)));
-  connect(
-    ui_->RemoveLinkAction, SIGNAL(triggered(bool)), this, SLOT(RemoveLinkActionToggled(bool)));
+  connect(ui_->RemoveLinkAction, SIGNAL(triggered(bool)), this, SLOT(RemoveLinkActionToggled(bool)));
   connect(ui_->CloneLinkAction, SIGNAL(triggered(bool)), this, SLOT(CloneLinkActionToggled(bool)));
 
   connect(update_timer_, SIGNAL(timeout()), this, SLOT(OnUpdate()));
@@ -424,36 +412,32 @@ void URDFBuilderPanel::reloadLinkTree()
   ui_->LinkTreeWidget->clear();
 
   queue<pair<view_model::LinkViewModelPtr, QTreeWidgetItem*>> que;
-  que.push({ vm_.rootLinkViewModel(),
-             new LinkTreeWidgetItem(vm_.rootLinkViewModel(), ui_->LinkTreeWidget) });
+  que.push({ vm_.rootLinkViewModel(), new LinkTreeWidgetItem(vm_.rootLinkViewModel(), ui_->LinkTreeWidget) });
 
   while (!que.empty())
   {
     const auto t = que.front();
     que.pop();
 
-    const auto& vm = t.first;
+    const auto& link_vm = t.first;
     const auto& item = t.second;
 
-    item->setText(0, vm->name());
+    item->setText(0, link_vm->name());
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 
     // 選択リンクが残っている場合は再び選択
-    if (vm->name() == selected_link_name)
-      item->setSelected(true);
-    else
-      item->setSelected(false);
+    item->setSelected(link_vm->name() == selected_link_name);
 
     // チェック状態を保持
-    if (unchecked_links.contains(vm->name().toStdString()))
+    if (unchecked_links.contains(link_vm->name().toStdString()))
       item->setCheckState(0, Qt::Unchecked);
     else
       item->setCheckState(0, Qt::Checked);
 
     // 子ノードをキューに追加
-    for (const auto& child : vm->children())
+    for (const auto& child : link_vm->children())
     {
-      auto child_item = new LinkTreeWidgetItem(child);
+      const auto child_item = new LinkTreeWidgetItem(child);
       item->addChild(child_item);
       que.push({ child, child_item });
     }
@@ -470,10 +454,9 @@ void URDFBuilderPanel::reloadRobot()
 
 void URDFBuilderPanel::addRootLink()
 {
-  const auto& vm = make_shared<view_model::LinkViewModel>(nullptr);
-  vm->name("root");
-  vm->usedLinkNames(QStringList(vm->name()));
-  vm_.addLink(vm);
+  const auto link_vm = make_shared<view_model::LinkViewModel>(nullptr);
+  link_vm->name("root");
+  vm_.addLink(link_vm);
 }
 
 bool URDFBuilderPanel::saveURDF(const QString& file_path)
@@ -530,14 +513,11 @@ bool URDFBuilderPanel::isJointsValid()
     // 可動関節の軸が設定されていなければエラー
     const auto& type = joint->type;
     const auto& axis = joint->axis;
-    if (
-      type == Joint::REVOLUTE || type == Joint::CONTINUOUS || type == Joint::PRISMATIC
-      || type == Joint::PLANAR)
+    if (type == Joint::REVOLUTE || type == Joint::CONTINUOUS || type == Joint::PRISMATIC || type == Joint::PLANAR)
     {
       if (axis.x == 0 && axis.y == 0 && axis.z == 0)
       {
-        QMessageBox::warning(
-          this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
+        QMessageBox::warning(this, kError, "Please set the axis of the joint '" + QString::fromStdString(name) + "'.");
         return false;
       }
     }

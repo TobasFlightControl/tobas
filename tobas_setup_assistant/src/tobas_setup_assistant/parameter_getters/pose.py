@@ -1,4 +1,5 @@
 import math
+from overrides import override
 from typing import Tuple, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QHBoxLayout
@@ -7,7 +8,7 @@ from .base import ParamGetterWidget
 from .utils import FloatGetter
 
 
-class ParamGetterWidget_Pose(ParamGetterWidget):
+class ParamGetterWidget_Pose(ParamGetterWidget[Tuple[float, float, float, float, float, float]]):
     value_changed = pyqtSignal(float, float, float, float, float, float)
 
     def __init__(
@@ -59,6 +60,19 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
         self._pitch.value_changed.connect(self._on_value_changed)
         self._yaw.value_changed.connect(self._on_value_changed)
 
+    @override
+    def get(self) -> Tuple[float, float, float, float, float, float]:
+        return self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw()
+
+    @override
+    def set(self, src: Tuple[float, float, float, float, float, float]) -> None:
+        self._x.set(src[0])
+        self._y.set(src[1])
+        self._z.set(src[2])
+        self._roll.set(src[3])
+        self._pitch.set(src[4])
+        self._yaw.set(src[5])
+
     def x(self) -> float:
         return self._x.get()
 
@@ -76,17 +90,6 @@ class ParamGetterWidget_Pose(ParamGetterWidget):
 
     def yaw(self) -> float:
         return self._yaw.get()
-
-    def get(self) -> Tuple[float, float, float, float, float, float]:
-        return self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw()
-
-    def set(self, x: float, y: float, z: float, roll: float, pitch: float, yaw: float) -> None:
-        self._x.set(x)
-        self._y.set(y)
-        self._z.set(z)
-        self._roll.set(roll)
-        self._pitch.set(pitch)
-        self._yaw.set(yaw)
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float) -> None:

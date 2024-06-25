@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/algorithm.hpp>
 #include <tobas_std_tools/check.hpp>
 
@@ -54,9 +54,9 @@ void PositionPid::configure(const PositionPidConfig& cfg)
   CHECK(cfg.max_hor_acc > 0);
   CHECK(cfg.max_ver_acc > 0);
 
-  const auto hor_kp = tobas_std::sqr(cfg.hor_natural_freq);
+  const auto hor_kp = math::sqr(cfg.hor_natural_freq);
   const auto hor_kd = 2 * cfg.hor_damp_ratio * cfg.hor_natural_freq;
-  const auto ver_kp = tobas_std::sqr(cfg.ver_natural_freq);
+  const auto ver_kp = math::sqr(cfg.ver_natural_freq);
   const auto ver_kd = 2 * cfg.ver_damp_ratio * cfg.ver_natural_freq;
 
   kp_.x() = hor_kp;

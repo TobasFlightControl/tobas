@@ -1,7 +1,5 @@
 #pragma once
 
-#include "./i2c_dev.hpp"
-
 #define MS5611_ADDRESS_CSB_LOW 0x76
 #define MS5611_ADDRESS_CSB_HIGH 0x77
 #define MS5611_DEFAULT_ADDRESS MS5611_ADDRESS_CSB_HIGH
@@ -34,6 +32,8 @@ namespace navio
 {
 class MS5611
 {
+  static constexpr size_t kWaitForRefresh = 8;  // [ms]
+
 public:
   /**
    * @brief MS5611 constructor.
@@ -56,38 +56,6 @@ public:
   bool testConnection();
 
   /**
-   * @brief Initiate the process of pressure measurement.
-   *
-   * @param OSR value
-   * @see MS5611_RA_D1_OSR_4096
-   */
-  void refreshPressure(uint8_t OSR = MS5611_RA_D1_OSR_4096);
-
-  /**
-   * @brief Read pressure value
-   */
-  void readPressure();
-
-  /**
-   * @brief Initiate the process of temperature measurement.
-   *
-   * @param OSR value
-   * @see MS5611_RA_D2_OSR_4096
-   */
-  void refreshTemperature(uint8_t OSR = MS5611_RA_D2_OSR_4096);
-
-  /**
-   * @brief Read temperature value.
-   */
-  void readTemperature();
-
-  /**
-   * @brief Calculate temperature and pressure calculations and perform compensation.
-   * More info about these calculations is available in the datasheet.
-   */
-  void calculatePressureAndTemperature();
-
-  /**
    * @brief Perform pressure and temperature reading and calculation at once.
    * Contains sleeps, better perform operations separately.
    */
@@ -108,11 +76,43 @@ public:
   inline double getPressure() const;
 
 private:
-  uint8_t dev_addr_;                      // I2C device adress
+  const uint8_t dev_addr_;                // I2C device adress
   uint16_t c1_, c2_, c3_, c4_, c5_, c6_;  // Calibration data
   uint32_t d1_, d2_;                      // Raw measurement data
   double temp_;                           // Calculated temperature [Celcius]
   double pres_;                           // Calculated pressure [Pa]
+
+  /**
+   * @brief Initiate the process of pressure measurement.
+   *
+   * @param OSR value
+   * @see MS5611_RA_D1_OSR_4096
+   */
+  void refreshPressure(uint8_t OSR = MS5611_RA_D1_OSR_4096);
+
+  /**
+   * @brief Initiate the process of temperature measurement.
+   *
+   * @param OSR value
+   * @see MS5611_RA_D2_OSR_4096
+   */
+  void refreshTemperature(uint8_t OSR = MS5611_RA_D2_OSR_4096);
+
+  /**
+   * @brief Read pressure value
+   */
+  void readPressure();
+
+  /**
+   * @brief Read temperature value.
+   */
+  void readTemperature();
+
+  /**
+   * @brief Calculate temperature and pressure calculations and perform compensation.
+   * More info about these calculations is available in the datasheet.
+   */
+  void computePressureAndTemperature();
 };
 
 inline double MS5611::getTemperature() const

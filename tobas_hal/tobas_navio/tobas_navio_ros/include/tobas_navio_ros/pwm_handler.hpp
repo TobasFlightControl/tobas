@@ -19,10 +19,7 @@ class PwmHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit PwmHandler(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+  explicit PwmHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
   ~PwmHandler();
 

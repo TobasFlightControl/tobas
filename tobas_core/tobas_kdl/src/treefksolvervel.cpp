@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 {
@@ -31,10 +31,7 @@ int TreeFkSolverVel::JntToCart(const JntArray& q, const JntArray& qd, const stri
   return setDefaultError(E_NOERROR);
 }
 
-FrameVel TreeFkSolverVel::recursiveFk(
-  const JntArray& q,
-  const JntArray& qd,
-  const SegmentMap::const_iterator& it)
+FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, const SegmentMap::const_iterator& it)
 {
   // Get the FraveVel for the current segment
   const auto& cur_ele = it->second;
@@ -56,4 +53,4 @@ FrameVel TreeFkSolverVel::recursiveFk(
     return recursiveFk(q, qd, parent_it) * cur_framevel;
   }
 }
-}  // namespace KDL
+}  // namespace kdl

@@ -25,7 +25,7 @@ public:
   explicit LQR();
 
   Eigen::VectorXd solve(const bool& update_gain = true);
-  void resize(const size_t& state_size, const size_t& input_size);
+  void resize(const Eigen::Index& state_size, const Eigen::Index& input_size);
   void updateGain();
 
   friend std::ostream& operator<<(std::ostream& os, const LQR& arg);

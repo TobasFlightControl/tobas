@@ -33,3 +33,33 @@ def convert_superscript(text: str):
 
     # Replace all occurrences of ^ followed by one or more digits
     return re.sub(r"\^(\d+)", replace_with_superscript, text)
+
+
+def pascal_from_title(title_case: str) -> str:
+    "Title CaseをPascalCaseに変換する．"
+    return re.sub(" ", "", title_case)
+
+
+def pascal_from_snake(snake_case: str) -> str:
+    "snake_caseをPascalCaseに変換する．"
+    return "".join(part.title() for part in snake_case.split("_"))
+
+
+def title_from_snake(snake_case: str) -> str:
+    "snake_caseをTitle Caseに変換する．"
+    return " ".join(part.title() for part in snake_case.split("_"))
+
+
+def snake_from_pascal(pascal_case: str) -> str:
+    "PascalCaseをsnake_caseに変換する．"
+    res = ""
+    for char in pascal_case:
+        if char.isupper() and len(res) > 0:
+            res += "_"
+        res += char.lower()
+    return res
+
+
+def snake_from_title(title_case: str) -> str:
+    "Title Caseをsnake_caseに変換する．"
+    return snake_from_pascal(pascal_from_title(title_case))

@@ -6,12 +6,11 @@ if TYPE_CHECKING:
 
 import rospy
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QLabel
 
 from tobas_rqt_tools.widgets import FramedLabel
 from tobas_rqt_tools.layouts import FormLayout
+from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Cpu
 
@@ -44,10 +43,6 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
         self._cpu_sub = None
 
     @override
-    def define_connections(self) -> None:
-        pass
-
-    @override
     def update_internal_data_structures(self) -> None:
         self._temperature.clear()
         self._frequency.clear()
@@ -55,7 +50,7 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
 
         if self._cpu_sub is not None:
             self._cpu_sub.unregister()
-        self._cpu_sub = rospy.Subscriber(f"{self._drone.drone_name}/cpu", Cpu, self._cpu_cb, queue_size=1)
+        self._cpu_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.CPU}", Cpu, self._cpu_cb, queue_size=1)
 
     def _cpu_cb(self, cpu: Cpu) -> None:
         # Temperature

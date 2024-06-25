@@ -23,8 +23,7 @@
 /* GPIO setup. Always use INP_GPIO(x) before OUT_GPIO(x) or SET_GPIO_ALT(x,y) */
 #define GPIO_MODE_IN(g) *(gpio_ + ((g) / 10)) &= ~(7 << (((g) % 10) * 3))
 #define GPIO_MODE_OUT(g) *(gpio_ + ((g) / 10)) |= (1 << (((g) % 10) * 3))
-#define GPIO_MODE_ALT(g, a)                                                                        \
-  *(gpio_ + (((g) / 10))) |= (((a) <= 3 ? (a) + 4 : (a) == 4 ? 3 : 2) << (((g) % 10) * 3))
+#define GPIO_MODE_ALT(g, a) *(gpio_ + (((g) / 10))) |= (((a) <= 3 ? (a) + 4 : (a) == 4 ? 3 : 2) << (((g) % 10) * 3))
 #define GPIO_SET_HIGH *(gpio_ + 7)              // sets   bits which are 1
 #define GPIO_SET_LOW *(gpio_ + 10)              // clears bits which are 1
 #define GPIO_GET(g) (*(gpio_ + 13) & (1 << g))  // 0 if LOW, (1<<g) if HIGH
@@ -35,7 +34,7 @@ using namespace std;
 
 namespace navio
 {
-Pin::Pin(uint8_t pin) : pin_(pin), gpio_(nullptr), mode_(GpioModeInput)
+Pin::Pin(uint8_t pin) : pin_(pin), gpio_(nullptr), mode_(INPUT)
 {
 }
 
@@ -124,7 +123,7 @@ bool Pin::init()
 
 void Pin::setMode(GpioMode mode)
 {
-  if (mode == GpioModeInput)
+  if (mode == INPUT)
   {
     GPIO_MODE_IN(pin_);
   }
@@ -145,7 +144,7 @@ uint8_t Pin::read() const
 
 void Pin::write(uint8_t value)
 {
-  if (mode_ != GpioModeOutput)
+  if (mode_ != OUTPUT)
     warnx("no effect because mode is not set");
 
   if (value == LOW)

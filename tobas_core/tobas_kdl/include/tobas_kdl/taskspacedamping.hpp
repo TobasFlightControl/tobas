@@ -4,7 +4,7 @@
 #include "./twist.hpp"
 #include "./accel.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
  * \brief represents both linear and angular damping.
@@ -55,4 +55,4 @@ inline Accel TaskSpaceDamping::operator*(const Twist& rhs)
 {
   return Accel(linear.hadamard(rhs.vel), angular.hadamard(rhs.rot));
 }
-}  // namespace KDL
+}  // namespace kdl

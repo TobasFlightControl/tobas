@@ -4,7 +4,7 @@
 #include "./frames.hpp"
 #include "./jntarray.hpp"
 
-namespace KDL
+namespace kdl
 {
 /* ベースは公式のChainIdSolver_RNEで，重力加速度を呼び出し時に与えるようにしたもの */
 class ChainIdSolver_RNE : public ChainSolverI
@@ -49,4 +49,4 @@ inline const JntArray& ChainIdSolver_RNE::getEfforts() const
 {
   return effort_out_;
 }
-}  // namespace KDL
+}  // namespace kdl

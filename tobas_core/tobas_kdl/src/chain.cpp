@@ -1,25 +1,33 @@
 #include "../include/tobas_kdl/chain.hpp"
 
-namespace KDL
+using namespace std;
+
+namespace kdl
 {
-Chain::Chain() : segments(0), nj_(0), ns_(0)
+Chain::Chain()
 {
 }
 
-Chain::Chain(const Chain& in) : segments(0), nj_(0), ns_(0)
+Chain::Chain(const Chain& in)
 {
   for (size_t i = 0; i < in.getNrOfSegments(); ++i)
-    this->addSegment(in.getSegment(i));
+    addSegment(in.getSegment(i));
 }
 
 Chain& Chain::operator=(const Chain& arg)
 {
-  nj_ = 0;
-  ns_ = 0;
-  segments.resize(0);
+  clear();
+
   for (size_t i = 0; i < arg.ns_; ++i)
     addSegment(arg.getSegment(i));
   return *this;
+}
+
+void Chain::clear()
+{
+  nj_ = 0;
+  ns_ = 0;
+  segments.clear();
 }
 
 void Chain::addSegment(const Segment& segment)
@@ -33,6 +41,13 @@ void Chain::addSegment(const Segment& segment)
 void Chain::addChain(const Chain& chain)
 {
   for (size_t i = 0; i < chain.getNrOfSegments(); ++i)
-    this->addSegment(chain.getSegment(i));
+    addSegment(chain.getSegment(i));
 }
-}  // namespace KDL
+
+ostream& operator<<(ostream& os, const Chain& arg)
+{
+  for (const auto& seg : arg.segments)
+    os << seg.name() << endl;
+  return os;
+}
+}  // namespace kdl

@@ -1,6 +1,6 @@
 #include <Eigen/LU>
 
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Wind.h>
 
@@ -11,28 +11,23 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace KDL;
+using namespace kdl;
 
 namespace tobas_mr_wind_estimation
 {
-WindEstimator::WindEstimator(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+WindEstimator::WindEstimator(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
   drone_.loadFromParam(nh_);
   updateInternalDataStructures();
 
-  kf_.initialize(
-    Vector2d::Zero(), Vector2d::Constant(tobas_std::sqr(kInitWindStddev)).asDiagonal());
+  kf_.initialize(Vector2d::Zero(), Vector2d::Constant(math::sqr(kInitWindStddev)).asDiagonal());
   kf_.setZero();
 
   wind_pub_ = nh_.advertise<tobas_msgs::Wind>(tobas::kWindTopic, 1);
 
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ =
-    nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
 void WindEstimator::updateInternalDataStructures()
@@ -95,18 +90,15 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   kf_.y = wind_W_meas;
 
   // プロセスノイズの共分散
-  const Vector2d relative_wind_vel =
-    kf_.state() - odom->twist.vel.data.head(kStateSize);  // 相対風速
+  const Vector2d relative_wind_vel = kf_.state() - odom->twist.vel.data.head(kStateSize);  // 相対風速
   dryden_.update(relative_wind_vel.norm(), odom->frame.p.z(), dt);
-  kf_.Q(0, 0) = tobas_std::sqr(dryden_.noiseStddevLon());
-  kf_.Q(1, 1) = tobas_std::sqr(dryden_.noiseStddevLat());
+  kf_.Q(0, 0) = math::sqr(dryden_.noiseStddevLon());
+  kf_.Q(1, 1) = math::sqr(dryden_.noiseStddevLat());
 
   // 観測ノイズの共分散
-  const auto vel_cov_B = Map<const Matrix3d>(odom->linear_velocity_covariance.data());
-  const auto vel_cov_W = R_W_B * vel_cov_B * R_W_B.transpose();
+  const auto vel_cov_W = R_W_B * odom->linear_velocity_covariance * R_W_B.transpose();
   const auto hor_vel_cov_W = vel_cov_W.topLeftCorner(kStateSize, kStateSize);
-  const auto acc_cov_B = Map<const Matrix3d>(odom->linear_acceleration_covariance.data());
-  const auto hor_acc_cov_B = acc_cov_B.topLeftCorner(kStateSize, kStateSize);
+  const auto hor_acc_cov_B = odom->linear_acceleration_covariance.topLeftCorner(kStateSize, kStateSize);
   kf_.R = hor_vel_cov_W + Cv_hor_inv * hor_acc_cov_B * Cv_hor_inv.transpose();
 
   // カルマンフィルタを更新

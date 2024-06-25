@@ -8,13 +8,11 @@ namespace ctrl
 LinearEquation LinearEquation::scale(const VectorXd& scale) const
 {
   assert(scale.rows() == variableSize());
-  assert((scale.array() > 0.).all());
+  assert((scale.array() > 0).all());
 
   auto res = *this;
-  for (size_t c = 0; c < variableSize(); ++c)
-  {
+  for (Index c = 0; c < variableSize(); ++c)
     res.A.col(c) *= scale(c);
-  }
 
   return res;
 }
@@ -32,7 +30,7 @@ ostream& operator<<(ostream& os, const LinearEquation& arg)
 {
   os << "A:" << endl;
   os << arg.A << endl;
-  os << "B:" << endl;
+  os << "b:" << endl;
   os << arg.b << endl;
 
   return os;

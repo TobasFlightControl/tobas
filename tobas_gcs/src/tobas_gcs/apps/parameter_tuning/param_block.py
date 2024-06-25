@@ -11,13 +11,13 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
 
+from tobas_rqt_tools.widgets import IntSliderTextWidget, FloatSliderTextWidget
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_rqt_tools.messages import q_error
 from tobas_rqt_tools.utils import place_center
 from tobas_tools_py.drone import Drone
 
 from ...common import WAIT_FOR_SERVER
-from .param_widgets import IntParamWidget, FloatParamWidget
 
 ParamType = TypeVar("ParamType", int, float, bool, str)
 
@@ -56,7 +56,7 @@ class ParamBlockWidget(QWidget):
         # Dynamic Reconfigureのクライアントを作成
         if self._client is None:
             try:
-                self._client = client.Client(f"{self._drone.drone_name}/{self._node_name}", timeout=WAIT_FOR_SERVER)
+                self._client = client.Client(f"{self._drone.name}/{self._node_name}", timeout=WAIT_FOR_SERVER)
             except Exception:
                 q_error(self._main, "Failed to connect to dynamic reconfigure server.")
                 return False
@@ -80,19 +80,19 @@ class ParamBlockWidget(QWidget):
             value: ParamType = config[name]
 
             if type_ == "int":
-                param_widget = IntParamWidget(param_desc["min"], param_desc["max"])
+                param_widget = IntSliderTextWidget(param_desc["min"], param_desc["max"])
                 param_widget.value_changed.connect(partial(self._on_int_param_changed, name=name))
             elif type_ == "double":
-                param_widget = FloatParamWidget(param_desc["min"], param_desc["max"])
+                param_widget = FloatSliderTextWidget(param_desc["min"], param_desc["max"])
                 param_widget.value_changed.connect(partial(self._on_float_param_changed, name=name))
             elif type_ == "bool":
-                q_error("Configuration for bool parameter is not supported yet.")  # TODO
+                q_error(self._main, "Configuration for bool parameter is not supported yet.")  # TODO
                 return False
             elif type_ == "str":
-                q_error("Configuration for str parameter is not supported yet.")  # TODO
+                q_error(self._main, "Configuration for str parameter is not supported yet.")  # TODO
                 return False
             else:
-                q_error(f"Unknown parameter type: {type_}")
+                q_error(self._main, f"Unknown parameter type: {type_}")
                 return False
 
             param_widget.set(value)

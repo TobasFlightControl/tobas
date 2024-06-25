@@ -4,7 +4,7 @@
 #include <sensor_msgs/FluidPressure.h>
 
 #include <tobas_std_tools/range.hpp>
-#include <tobas_std_tools/keyboard_reader.hpp>
+#include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_ros_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
@@ -28,8 +28,8 @@ class SpeedRollDeltaPitchPublisher : public tobas::BaseNode
 
 public:
   explicit SpeedRollDeltaPitchPublisher(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
   void run();
@@ -37,11 +37,11 @@ public:
 private:
   tobas::Drone drone_;
   tobas::TrimConditions trim_;
-  tobas_std::KeyboardReader key_reader_;
+  keyboard::KeyboardReader key_reader_;
 
   // 固定値
   std::string instruction_;
-  KDL::JntArray q_0_;
+  kdl::JntArray q_0_;
   double delta_speed_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;    // 1度のキーボード入力での回転位置の変化量
 

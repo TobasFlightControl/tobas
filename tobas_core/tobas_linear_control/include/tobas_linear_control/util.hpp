@@ -52,8 +52,7 @@ bool isObservable(const Eigen::MatrixXd& A, const Eigen::MatrixXd& C);
  *
  * @return LinearEquation A @ x <= b の(A, b)
  */
-LinearEquation
-matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const double& inf = 1e+12);
+LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd& ub, const double& inf = 1e+12);
 
 /**
  * @brief 位置の追従誤差が指数関数的に減衰する場合の，時刻tにおける位置を計算する．
@@ -79,10 +78,5 @@ double firstOrderPos(const double& x0, const double& xd, const double& tau, cons
  *
  * @return double 時刻tにおける位置
  */
-double firstOrderVel(
-  const double& x0,
-  const double& v0,
-  const double& vd,
-  const double& tau,
-  const double& t);
+double firstOrderVel(const double& x0, const double& v0, const double& vd, const double& tau, const double& t);
 }  // namespace ctrl

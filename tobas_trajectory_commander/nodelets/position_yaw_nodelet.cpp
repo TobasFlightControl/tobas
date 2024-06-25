@@ -6,16 +6,8 @@ namespace tobas_trajectory_commander
 {
 void FollowPositionYawTrajectoryServerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Follow Trajectory Server Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new FollowPositionYawTrajectoryServer(nh, pnh, name));
+  node_.reset(new FollowPositionYawTrajectoryServer(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_trajectory_commander
 
-PLUGINLIB_EXPORT_CLASS(
-  tobas_trajectory_commander::FollowPositionYawTrajectoryServerNodelet,
-  nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(tobas_trajectory_commander::FollowPositionYawTrajectoryServerNodelet, nodelet::Nodelet);

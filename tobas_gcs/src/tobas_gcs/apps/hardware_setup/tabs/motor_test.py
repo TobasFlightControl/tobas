@@ -11,10 +11,10 @@ from overrides import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout
 
-from tobas_tools_py.math import rps2rpm, rpm2rps
+from tobas_std_tools_py.math import rps2rpm, rpm2rps
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.widgets import IntSliderDisplay, ProgressDialog
-from tobas_tools_py.constants import SERVO_RAIL_SIZE
+from tobas_tools_py.constants import SERVO_RAIL_SIZE, Topic, Service
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
 from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
@@ -51,11 +51,13 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
         self._start_button = QPushButton("Start")
         self._start_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._start_button.clicked.connect(self._on_start_button_clicked)
         cols.addWidget(self._start_button)
 
         self._stop_button = QPushButton("Stop")
         self._stop_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._stop_button.setEnabled(False)
+        self._stop_button.clicked.connect(self._on_stop_button_clicked)
         cols.addWidget(self._stop_button)
 
         cols.addStretch()
@@ -66,11 +68,6 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         self._rows.addStretch()
 
         self.setEnabled(False)
-
-    @override
-    def define_connections(self) -> None:
-        self._start_button.clicked.connect(self._on_start_button_clicked)
-        self._stop_button.clicked.connect(self._on_stop_button_clicked)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -124,7 +121,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Motor test is finished.")
 
     def _check_disarm(self) -> bool:
-        get_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/get_arm", GetArm)
+        get_arm_sc = rospy.ServiceProxy(f"{self._drone.name}/{Service.GET_ARM}", GetArm)
         try:
             get_arm_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -144,7 +141,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         return True
 
     def _set_arm(self, arming: bool) -> bool:
-        set_arm_sc = rospy.ServiceProxy(f"{self._drone.drone_name}/set_arm", SetArm)
+        set_arm_sc = rospy.ServiceProxy(f"{self._drone.name}/{Service.SET_ARM}", SetArm)
         try:
             set_arm_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
@@ -231,7 +228,9 @@ class RotorSpeedsPublisherWidget(QWidget):
         # 回転数トピックを更新
         if self._speeds_pub is not None:
             self._speeds_pub.unregister()
-        self._speeds_pub = rospy.Publisher(f"{self._drone.drone_name}/command/rotor_speeds", RotorSpeeds, queue_size=1)
+        self._speeds_pub = rospy.Publisher(
+            f"{self._drone.name}/{Topic.Command.ROTOR_SPEEDS}", RotorSpeeds, queue_size=1
+        )
 
     def start(self) -> None:
         # コマンダーを有効化

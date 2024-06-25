@@ -4,7 +4,7 @@
 #include "./rotationalinertia.hpp"
 #include "./segmentjacobian.hpp"
 
-namespace KDL
+namespace kdl
 {
 /**
  *	\brief 6D Inertia of a rigid body
@@ -50,6 +50,8 @@ public:
   RigidBodyInertia refPoint(const Vector& p) const;
 
   inline RigidBodyInertia operator+(const RigidBodyInertia& rhs) const;
+  inline RigidBodyInertia& operator+=(const RigidBodyInertia& rhs);
+
   inline Impulse operator*(const Twist& rhs) const;
   inline Wrench operator*(const Accel& rhs) const;
   inline SegmentInertia operator*(const SegmentJacobian& rhs) const;
@@ -102,6 +104,14 @@ inline RigidBodyInertia RigidBodyInertia::operator+(const RigidBodyInertia& rhs)
   return RigidBodyInertia(m_ + rhs.m_, h_ + rhs.h_, I_ + rhs.I_, true);
 }
 
+inline RigidBodyInertia& RigidBodyInertia::operator+=(const RigidBodyInertia& rhs)
+{
+  m_ += rhs.m_;
+  h_ += rhs.h_;
+  I_ += rhs.I_;
+  return *this;
+}
+
 inline Impulse RigidBodyInertia::operator*(const Twist& rhs) const
 {
   return Impulse(m_ * rhs.vel - h_ * rhs.rot, I_ * rhs.rot + h_ * rhs.vel);
@@ -122,12 +132,8 @@ inline RigidBodyInertia operator*(double a, const RigidBodyInertia& I)
   return RigidBodyInertia(a * I.m_, a * I.h_, a * I.I_, true);
 }
 
-inline RigidBodyInertia::RigidBodyInertia(
-  double m,
-  const Vector& h,
-  const RotationalInertia& I,
-  bool)
+inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool)
   : m_(m), h_(h), I_(I)
 {
 }
-}  // namespace KDL
+}  // namespace kdl

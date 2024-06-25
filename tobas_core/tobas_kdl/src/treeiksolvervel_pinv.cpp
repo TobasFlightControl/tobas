@@ -11,10 +11,9 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace kdl
 {
-TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree)
-  : super(tree), jnt2jac_(tree_), jntparser_(tree_)
+TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2jac_(tree_), jntparser_(tree_)
 {
   updateInternalDataStructures();
 }
@@ -113,4 +112,4 @@ const double& TreeIkSolverVel_pinv::getWeightJS() const
 {
   return Wj_;
 }
-}  // namespace KDL
+}  // namespace kdl

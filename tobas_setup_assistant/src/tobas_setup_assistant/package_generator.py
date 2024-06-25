@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .setup_assistant import SetupAssistant
-    from .setting_widgets.propulsion_system.selected_links import SelectedLinkTabWidget
+    from .setting_widgets.propulsion_system.selected_links import SelectedLinkWidget
 
 import os
 import os.path as osp
@@ -12,24 +12,25 @@ import rospy
 import rospkg
 import shutil
 from xml.etree import ElementTree as ET
-from jinja2 import Environment, FileSystemLoader
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QMessageBox
 
 from tobas_std_tools_py.sequence import is_unique
 from tobas_std_tools_py.file import create_empty_file
-from tobas_urdf_tools_py.core import *
+from tobas_urdf_tools_py.core import Origin
 from tobas_urdf_tools_py.gazebo import GazeboRosControl
+from tobas_urdf_tools_py.utils import prettify
+from tobas_rqt_tools.widgets import ProgressDialog
 from tobas_rqt_tools.path import resolve_uri
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_rqt_tools.xml import prettify_and_save
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
-from tobas_msgs.msg import *
+from tobas_tools_py.command import build_tobas_package
+from tobas_tools_py.package import *
+from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, SpeedRollDeltaPitch
 
-from .utils import get_drone_name
+from .common import PKG_NAME
+from .utils import get_drone_name, TemplateGenerator
 from .xml_nodes import *
-from .common import *
 
 
 class PackageGenerator(QObject):
@@ -38,85 +39,53 @@ class PackageGenerator(QObject):
         self._main = main
 
         templates_path = osp.join(rospkg.RosPack().get_path(PKG_NAME), "templates")
-        self._template_env = Environment(loader=FileSystemLoader(templates_path), trim_blocks=True, lstrip_blocks=True)
+        self._meta_env = TemplateGenerator(osp.join(templates_path, "meta_package"))
+        self._cfg_env = TemplateGenerator(osp.join(templates_path, "config_package"))
+        self._usr_env = TemplateGenerator(osp.join(templates_path, "user_package"))
 
         self._drone_name = ""
 
-    def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
-        self._main.settings.ros_package.generate_button.clicked.connect(self._on_generate_button_clicked)
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
+    def update_internal_data_structures(self) -> None:
         self._drone_name = get_drone_name()
 
-    @pyqtSlot()
-    def _on_generate_button_clicked(self) -> None:
+    def generate_package(self) -> None:
+        progress = ProgressDialog(parent=self._main, title="Generate Package", num_steps=3)
+        progress.setCancelButton(None)
+        progress.show()
+
+        progress.setLabelText("Verifying the validity of the user settings.")
         if not self._is_valid_config():
+            progress.close()
             return
+        progress.progress_step()
+
+        progress.setLabelText("Generating Tobas packages.")
         self._generate_pkg()
-        q_info(self._main, "Configuration package is generated.")
+        progress.progress_step()
+
+        # Build Tobas package
+        progress.setLabelText("Building Tobas packages.")
+        if not build_tobas_package(self._main.ros_package.tbs_path()):
+            progress.close()
+            q_error(self._main, "Failed to build Tobas package.")
+            return
+        progress.progress_step()
+
+        progress.close()
+        q_info(self._main, "Tobas configuration package is generated and built successfully.")
 
     def _is_valid_config(self) -> bool:
-        if not self._main.settings.start.is_valid():
-            self._main.settings.switch(self._main.settings.start)
-            return False
-        if not self._main.settings.battery.is_valid():
-            self._main.settings.switch(self._main.settings.battery)
-            return False
-        if not self._main.settings.propulsion_system.is_valid():
-            self._main.settings.switch(self._main.settings.propulsion_system)
-            return False
-        if not self._main.settings.fixed_wing.is_valid():
-            self._main.settings.switch(self._main.settings.fixed_wing)
-            return False
-        if not self._main.settings.custom_joints.is_valid():
-            self._main.settings.switch(self._main.settings.custom_joints)
-            return False
-        if not self._main.settings.imu.is_valid():
-            self._main.settings.switch(self._main.settings.imu)
-            return False
-        if not self._main.settings.barometer.is_valid():
-            self._main.settings.switch(self._main.settings.barometer)
-            return False
-        if not self._main.settings.gps.is_valid():
-            self._main.settings.switch(self._main.settings.gps)
-            return False
-        if not self._main.settings.rgb_camera.is_valid():
-            self._main.settings.switch(self._main.settings.rgb_camera)
-            return False
-        if not self._main.settings.depth_camera.is_valid():
-            self._main.settings.switch(self._main.settings.depth_camera)
-            return False
-        if not self._main.settings.lidar.is_valid():
-            self._main.settings.switch(self._main.settings.lidar)
-            return False
-        if not self._main.settings.odometry.is_valid():
-            self._main.settings.switch(self._main.settings.odometry)
-            return False
-        if not self._main.settings.tether_station.is_valid():
-            self._main.settings.switch(self._main.settings.tether_station)
-            return False
-        if not self._main.settings.controller.is_valid():
-            self._main.settings.switch(self._main.settings.controller)
-            return False
-        if not self._main.settings.observer.is_valid():
-            self._main.settings.switch(self._main.settings.observer)
-            return False
-        if not self._main.settings.simulation.is_valid():
-            self._main.settings.switch(self._main.settings.simulation)
-            return False
-        if not self._main.settings.author_information.is_valid():
-            self._main.settings.switch(self._main.settings.author_information)
-            return False
-        if not self._main.settings.ros_package.is_valid():
-            self._main.settings.switch(self._main.settings.ros_package)
-            return False
+        # 全ての設定項目について，単体で問題ないことを確認
+        for i in range(self._main.num_setting_widgets()):
+            setting_widget = self._main.get_setting_widget(i)
+            if not setting_widget.is_valid():
+                self._main.switch(setting_widget)
+                return False
 
-        # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを保証
-        prop_jnt_names = self._main.settings.propulsion_system.selected.joint_names()
-        cs_jnt_names = self._main.settings.fixed_wing.control_surfaces.selected.get_joint_names()
-        custom_jnt_names = self._main.settings.custom_joints.joint_names()
+        # Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを確認
+        prop_jnt_names = self._main.propulsion_system.selected.joint_names()
+        cs_jnt_names = self._main.fixed_wing.control_surfaces.selected.get_joint_names()
+        custom_jnt_names = self._main.custom_joints.get_joint_names()
         if not is_unique(prop_jnt_names + cs_jnt_names + custom_jnt_names):
             q_error(
                 self, "The joints set in the propulsion system, control surfaces, and custom joints are duplicated."
@@ -126,95 +95,70 @@ class PackageGenerator(QObject):
         return True
 
     def _generate_pkg(self) -> None:
-        # 各ディレクトリのパス
-        pkg_name = self._main.settings.ros_package.pkg_name.get()
-        pkg_path = self._main.settings.ros_package.pkg_path()
-        config_dir = osp.join(pkg_path, "config")
-        launch_dir = osp.join(pkg_path, "launch")
-        include_dir = osp.join(pkg_path, "include", pkg_name)
-        src_dir = osp.join(pkg_path, "src")
-        nodes_dir = osp.join(pkg_path, "nodes")
-        nodelets_dir = osp.join(pkg_path, "nodelets")
-        urdf_dir = osp.join(pkg_path, "urdf")
-        mesh_dir = osp.join(pkg_path, "mesh")
+        tbs_path = self._main.ros_package.tbs_path()
 
-        # ディレクトリを作る
-        os.mkdir(pkg_path)
-        os.mkdir(config_dir)
-        os.mkdir(launch_dir)
-        os.makedirs(include_dir)
-        os.mkdir(src_dir)
-        os.mkdir(nodes_dir)
-        os.mkdir(nodelets_dir)
-        os.mkdir(urdf_dir)
-        os.mkdir(mesh_dir)
+        # Tobasパッケージを作成
+        os.makedirs(tbs_path, exist_ok=True)
+
+        # テンプレート用アイテムを作成
+        items = self._make_template_items()
+
+        # メタパッケージを作成
+        self._generate_meta_pkg(items)
+
+        # 設定パッケージを作成
+        self._generate_config_pkg(items)
+
+        # ユーザパッケージを作成
+        self._generate_user_pkg(items)
+
+    def _generate_meta_pkg(self, items: dict) -> None:
+        meta_pkg_path = get_tbs_meta_path(self._main.ros_package.tbs_path())
+        os.makedirs(meta_pkg_path, exist_ok=True)
+
+        self._meta_env.generate(items, "CMakeLists.txt.tpl", meta_pkg_path)
+        self._meta_env.generate(items, "package.xml.tpl", meta_pkg_path)
+
+        create_empty_file(osp.join(meta_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"), exist_ok=True)
+
+    def _generate_config_pkg(self, items: dict) -> None:
+        config_pkg_path = get_tbs_config_path(self._main.ros_package.tbs_path())
+        os.makedirs(config_pkg_path, exist_ok=True)
+
+        # ディレクトリを作成
+        config_dir = osp.join(config_pkg_path, "config")
+        launch_dir = osp.join(config_pkg_path, "launch")
+        urdf_dir = osp.join(config_pkg_path, "urdf")
+        mesh_dir = osp.join(config_pkg_path, "mesh")
+        os.makedirs(config_dir, exist_ok=True)
+        os.makedirs(launch_dir, exist_ok=True)
+        os.makedirs(urdf_dir, exist_ok=True)
+        os.makedirs(mesh_dir, exist_ok=True)
+
+        # バックアップ用ファイル
+        self._dump_settings()
 
         # テンプレートから生成
-        items = self._make_template_items()
-        self._generate_from_template(items, "CMakeLists.txt.template", osp.join(pkg_path, "CMakeLists.txt"))
-        self._generate_from_template(items, "package.xml.template", osp.join(pkg_path, "package.xml"))
-        self._generate_from_template(
-            items, "nodelet_description.xml.template", osp.join(pkg_path, "nodelet_description.xml")
-        )
-        self._generate_from_template(
-            items, "plotjuggler_layout.xml.template", osp.join(config_dir, "plotjuggler_layout.xml")
-        )
-        self._generate_from_template(
-            items, "nodelet_manager.launch.template", osp.join(launch_dir, "nodelet_manager.launch")
-        )
-        self._generate_from_template(
-            items, "common_params.launch.template", osp.join(launch_dir, "common_params.launch")
-        )
-        self._generate_from_template(items, "gazebo.launch.template", osp.join(launch_dir, "gazebo.launch"))
-        self._generate_from_template(items, "real.launch.template", osp.join(launch_dir, "real.launch"))
-        self._generate_from_template(items, "calibration.launch.template", osp.join(launch_dir, "calibration.launch"))
-        self._generate_from_template(items, "controller.launch.template", osp.join(launch_dir, "controller.launch"))
-        self._generate_from_template(items, "observer.launch.template", osp.join(launch_dir, "observer.launch"))
-        self._generate_from_template(
-            items, "mission_action_servers.launch.template", osp.join(launch_dir, "mission_action_servers.launch")
-        )
-        self._generate_from_template(items, "bringup.launch.template", osp.join(launch_dir, "bringup.launch"))
-        self._generate_from_template(items, "hil.launch.template", osp.join(launch_dir, "hil.launch"))
-        self._generate_from_template(items, "rc_teleop.launch.template", osp.join(launch_dir, "rc_teleop.launch"))
-        self._generate_from_template(
-            items, "joint_control.launch.template", osp.join(launch_dir, "joint_control.launch")
-        )
-        self._generate_from_template(
-            items, "jointpos_commander.launch.template", osp.join(launch_dir, "jointpos_commander.launch")
-        )
-        self._generate_from_template(items, "plotjuggler.launch.template", osp.join(launch_dir, "plotjuggler.launch"))
-        self._generate_from_template(
-            items, "motor_test_driver.launch.template", osp.join(launch_dir, "motor_test_driver.launch")
-        )
-        self._generate_from_template(
-            items, "motor_test_gui.launch.template", osp.join(launch_dir, "motor_test_gui.launch")
-        )
-        self._generate_from_template(items, "tobas_bridge.launch.template", osp.join(launch_dir, "tobas_bridge.launch"))
-        self._generate_from_template(items, "tobas_bridge.hpp.template", osp.join(include_dir, "tobas_bridge.hpp"))
-        self._generate_from_template(items, "tobas_bridge.cpp.template", osp.join(src_dir, "tobas_bridge.cpp"))
-        self._generate_from_template(
-            items, "tobas_bridge_node.cpp.template", osp.join(nodes_dir, "tobas_bridge_node.cpp")
-        )
-        self._generate_from_template(
-            items, "tobas_bridge_nodelet.hpp.template", osp.join(nodelets_dir, "tobas_bridge_nodelet.hpp")
-        )
-        self._generate_from_template(
-            items, "tobas_bridge_nodelet.cpp.template", osp.join(nodelets_dir, "tobas_bridge_nodelet.cpp")
-        )
+        self._cfg_env.generate(items, "CMakeLists.txt.tpl", config_pkg_path)
+        self._cfg_env.generate(items, "package.xml.tpl", config_pkg_path)
+        self._cfg_env.generate(items, "nodelet_manager_high.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "nodelet_manager_medium.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "nodelet_manager_low.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "common_params.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "gazebo.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "real.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "bringup.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "hil.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "rc_teleop.launch.tpl", launch_dir)
+        self._cfg_env.generate(items, "jointpos_commander.launch.tpl", launch_dir)
 
-        flight_modes = {self._main.settings.controller.stabilize_mode(), self._main.settings.controller.acrobat_mode()}
+        flight_modes = {self._main.controller.stabilize_mode(), self._main.controller.acrobat_mode()}
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
         if PositionYaw.__name__ in flight_modes or PosVelAccYaw.__name__ in flight_modes:
-            self._generate_from_template(
-                items, "keyboard_teleop/position_yaw.launch.template", osp.join(launch_dir, "keyboard_teleop.launch")
-            )
+            self._cfg_env.generate(items, "keyboard_teleop/position_yaw/keyboard_teleop.launch.tpl", launch_dir)
         elif SpeedRollDeltaPitch.__name__ in flight_modes:
-            self._generate_from_template(
-                items,
-                "keyboard_teleop/speed_roll_dpitch.launch.template",
-                osp.join(launch_dir, "keyboard_teleop.launch"),
-            )
+            self._cfg_env.generate(items, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.tpl", launch_dir)
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
         if (
@@ -222,63 +166,98 @@ class PackageGenerator(QObject):
             or PosVelAccYaw.__name__ in flight_modes
             or PoseTwistAccelCommand.__name__ in flight_modes
         ):
-            self._generate_from_template(
-                items, "gui_teleop/position_yaw.launch.template", osp.join(launch_dir, "gui_teleop.launch")
-            )
+            self._cfg_env.generate(items, "gui_teleop/position_yaw/gui_teleop.launch.tpl", launch_dir)
 
-        # Pythonで自動生成
+        # その他
+        create_empty_file(osp.join(config_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"), exist_ok=True)
+        create_empty_file(osp.join(config_dir, "dynamic_params.yaml"), exist_ok=True)
         self._generate_drone_config(config_dir)
         self._generate_joint_control_config(config_dir)
         self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
-        self._generate_dynamic_params_config(config_dir)
         self._generate_urdf(urdf_dir, mesh_dir)
 
-    def _make_template_items(self) -> None:
-        settings = self._main.settings
+    def _generate_user_pkg(self, items: dict) -> None:
+        user_pkg_name = get_tbs_user_name(self._main.ros_package.tbs_path())
+        user_pkg_path = get_tbs_user_path(self._main.ros_package.tbs_path())
+        os.makedirs(user_pkg_path, exist_ok=True)
 
+        # ディレクトリを作成
+        launch_dir = osp.join(user_pkg_path, "launch")
+        include_dir = osp.join(user_pkg_path, "include", user_pkg_name)
+        src_dir = osp.join(user_pkg_path, "src")
+        nodes_dir = osp.join(user_pkg_path, "nodes")
+        nodelets_dir = osp.join(user_pkg_path, "nodelets")
+        scripts_dir = osp.join(user_pkg_path, "scripts")
+        os.makedirs(launch_dir, exist_ok=True)
+        os.makedirs(include_dir, exist_ok=True)
+        os.makedirs(src_dir, exist_ok=True)
+        os.makedirs(nodes_dir, exist_ok=True)
+        os.makedirs(nodelets_dir, exist_ok=True)
+        os.makedirs(scripts_dir, exist_ok=True)
+
+        # テンプレートから作成 (存在する場合は上書きしない)
+        self._usr_env.generate(items, "CMakeLists.txt.tpl", user_pkg_path, overwrite=False)
+        self._usr_env.generate(items, "package.xml.tpl", user_pkg_path, overwrite=False)
+        self._usr_env.generate(items, "common.launch.tpl", launch_dir, overwrite=False)
+        self._usr_env.generate(items, "gazebo.launch.tpl", launch_dir, overwrite=False)
+        self._usr_env.generate(items, "real.launch.tpl", launch_dir, overwrite=False)
+        self._usr_env.generate(items, "nodelet_description.xml.tpl", user_pkg_path, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge.hpp.tpl", include_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge.cpp.tpl", src_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge_node.cpp.tpl", nodes_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge_nodelet.hpp.tpl", nodelets_dir, overwrite=False)
+        self._usr_env.generate(items, "tobas_bridge_nodelet.cpp.tpl", nodelets_dir, overwrite=False)
+
+        # その他
+        create_empty_file(osp.join(user_pkg_path, "YOU_CAN_EDIT_THIS_PACKAGE"), exist_ok=True)
+
+    def _dump_settings(self) -> None:
+        # データを作成
+        data = dict()
+        for i in range(self._main.num_setting_widgets()):
+            setting_widget = self._main.get_setting_widget(i)
+            data[setting_widget.NAME] = setting_widget.dump_settings()
+
+        # yaml形式で保存
+        settings_path = get_settings_path(self._main.ros_package.tbs_path())
+        with open(settings_path, "w") as f:
+            yaml.safe_dump(data, f)
+
+    def _make_template_items(self) -> dict:
         template_items = dict()
         template_items["drone_name"] = self._drone_name
 
         # Controller
-        controller = settings.controller
-        template_items["controller_pkg"] = controller.controller_pkg()
-        template_items["takeoff_pkg"] = controller.takeoff_pkg()
-        template_items["landing_pkg"] = controller.landing_pkg()
-        template_items["move_pkg"] = controller.move_pkg()
+        template_items["controller_pkg"] = self._main.controller.controller_pkg()
+        template_items["takeoff_pkg"] = self._main.controller.takeoff_pkg()
+        template_items["landing_pkg"] = self._main.controller.landing_pkg()
+        template_items["move_pkg"] = self._main.controller.move_pkg()
 
         # Observer
-        template_items["observer_pkg"] = settings.observer.pkg_name()
+        template_items["observer_pkg"] = self._main.observer.pkg_name()
 
         # Simulation
-        simulation = settings.simulation
-        template_items["gravity"] = simulation.gravity.get()
+        template_items["gravity"] = self._main.simulation.gravity.get()
 
         # Author Info
-        author_info = settings.author_information
-        template_items["author_name"] = author_info.name.get()
-        template_items["author_email"] = author_info.email.get()
+        template_items["author_name"] = self._main.author_information.name.get()
+        template_items["author_email"] = self._main.author_information.email.get()
 
         # Ros Package
-        ros_pkg = settings.ros_package
-        template_items["pkg_name"] = ros_pkg.pkg_name.get()
+        template_items["meta_pkg_name"] = get_tbs_meta_name(self._main.ros_package.tbs_path())
+        template_items["config_pkg_name"] = get_tbs_config_name(self._main.ros_package.tbs_path())
+        template_items["user_pkg_name"] = get_tbs_user_name(self._main.ros_package.tbs_path())
 
         # Joint Controllers
-        custom_joints = settings.custom_joints
         joint_controllers = "joint_state_controller"
-        for i in range(custom_joints.count()):
-            jnt_name = custom_joints.joint_name(i)
+        for i in range(self._main.custom_joints.count()):
+            jnt_name = self._main.custom_joints.get_joint_name(i)
             joint_controllers += f" {jnt_name}_controller"
         template_items["joint_controllers"] = joint_controllers
 
         return template_items
-
-    def _generate_from_template(self, items: dict, template_file: str, out_path: str) -> None:
-        template = self._template_env.get_template(template_file)
-        content = template.render(items)  # テンプレートにdict型で文字を埋め込む
-        with open(out_path, "w") as f:
-            f.write(content)
 
     def _generate_drone_config(self, config_dir: str) -> None:
         # TBSFファイルに書き込むための辞書を作る
@@ -288,22 +267,21 @@ class PackageGenerator(QObject):
         drone_config["drone_name"] = self._drone_name
 
         # Battery
-        battery = self._main.settings.battery
         drone_config["battery"] = {
-            "nominal_voltage": battery.nominal_voltage(),
-            "max_voltage": battery.max_voltage(),
-            "sag_voltage": battery.sag_voltage(),
-            "max_current": battery.max_current(),
+            "nominal_voltage": self._main.battery.nominal_voltage(),
+            "max_voltage": self._main.battery.max_voltage(),
+            "sag_voltage": self._main.battery.sag_voltage(),
+            "max_current": self._main.battery.max_current(),
         }
 
         # Propulsion System
-        propulsion_system = self._main.settings.propulsion_system.selected
+        selected_props = self._main.propulsion_system.selected
 
-        num_rotors = propulsion_system.count()
+        num_rotors = selected_props.count()
         drone_config["num_rotors"] = num_rotors
 
         for i in range(num_rotors):
-            selected: SelectedLinkTabWidget = propulsion_system.widget(i)
+            selected: SelectedLinkWidget = selected_props.widget(i)
 
             # yamlに変換する際の文字化けを防ぐためにnp.float64から組み込みのfloatに変換
             drone_config[f"rotor_{i}"] = {
@@ -313,9 +291,9 @@ class PackageGenerator(QObject):
                 "esc_signal_mode": selected.esc.signal_mode(),
                 "num_poles": selected.motor.num_poles(),
                 "max_rot_speed": float(selected.motor.max_rot_speed()),
-                "rot_speed_coefs": [float(x) for x in selected.motor.rot_speed_coefs()],
                 "time_constant_up": float(selected.motor.time_const_up()),
                 "time_constant_down": float(selected.motor.time_const_down()),
+                "rot_speed_coefs": [float(x) for x in selected.electrodynamics.rot_speed_coefs()],
                 "motor_constant": float(selected.aerodynamics.motor_const()),
                 "moment_constant": float(selected.aerodynamics.moment_const()),
                 "drag_constant": float(selected.aerodynamics.rotor_drag_coef()),
@@ -323,12 +301,11 @@ class PackageGenerator(QObject):
             }
 
         # Fixed wing
-        fixed_wing = self._main.settings.fixed_wing
-        if fixed_wing.has_fixed_wing.isChecked():
+        if self._main.fixed_wing.has_fixed_wing.isChecked():
             drone_config["fixed_wing"] = dict()
 
             # Vehicle
-            vehicle = fixed_wing.vehicle
+            vehicle = self._main.fixed_wing.vehicle
             drone_config["fixed_wing"]["vehicle"] = {
                 "wing_surface": vehicle.wing_surface.get(),
                 "wing_span": vehicle.wing_span.get(),
@@ -338,7 +315,7 @@ class PackageGenerator(QObject):
             }
 
             # Aerodynamic Coefficients
-            aero_coefs = fixed_wing.aero_coefs
+            aero_coefs = self._main.fixed_wing.aero_coefs
             drone_config["fixed_wing"]["aerodynamic_coefficients"] = {
                 "c_lift_0": aero_coefs.c_lift_0.value(),
                 "c_lift_alpha": aero_coefs.c_lift_alpha.value(),
@@ -359,12 +336,10 @@ class PackageGenerator(QObject):
             }
 
             # Control Surfaces
-            control_surfaces = fixed_wing.control_surfaces
-
-            num_cs = fixed_wing.num_control_surfaces()
+            num_cs = self._main.fixed_wing.num_control_surfaces()
             drone_config["fixed_wing"]["num_control_surface"] = num_cs
 
-            for idx, cs in enumerate(control_surfaces.control_surfaces()):
+            for idx, cs in enumerate(self._main.fixed_wing.control_surfaces.control_surfaces()):
                 drone_config["fixed_wing"][f"control_surface_{idx}"] = {
                     "angle_limit": {"lower": cs.min_angle, "upper": cs.max_angle},
                     "max_angle_rate": cs.max_angle_rate,
@@ -377,16 +352,15 @@ class PackageGenerator(QObject):
                 }
 
         # Joints
-        custom_joints = self._main.settings.custom_joints
-        num_joints = custom_joints.count()
+        num_joints = self._main.custom_joints.count()
         drone_config["num_joints"] = num_joints
         for i in range(num_joints):
             drone_config[f"joint_{i}"] = {
-                "name": custom_joints.joint_name(i),
-                "home_position": custom_joints.home_position(i),
-                "min_position": custom_joints.min_position(i),
-                "max_position": custom_joints.max_position(i),
-                "command_type": custom_joints.command_type(i),
+                "name": self._main.custom_joints.get_joint_name(i),
+                "home_position": self._main.custom_joints.get_home_position(i),
+                "min_position": self._main.custom_joints.get_min_position(i),
+                "max_position": self._main.custom_joints.get_max_position(i),
+                "command_type": self._main.custom_joints.get_command_type(i),
             }
 
         # TBSFファイルを作成
@@ -400,22 +374,21 @@ class PackageGenerator(QObject):
         items["joint_state_controller"] = {"type": "joint_state_controller/JointStateController", "publish_rate": 1000}
         items["gazebo_ros_control"] = {"pid_gains": dict()}
 
-        custom_joints = self._main.settings.custom_joints
-        for i in range(custom_joints.count()):
-            jnt_name = custom_joints.joint_name(i)
+        for i in range(self._main.custom_joints.count()):
+            jnt_name = self._main.custom_joints.get_joint_name(i)
             controller_name = f"{jnt_name}_controller"
-            items[controller_name] = {"joint": jnt_name, "type": custom_joints.controller_type(i)}
+            items[controller_name] = {"joint": jnt_name, "type": self._main.custom_joints.get_controller_type(i)}
 
-            if custom_joints.pid_enabled(i):
+            if self._main.custom_joints.pid_enabled(i):
                 items[controller_name]["pid"] = {
-                    "p": custom_joints.p_gain(i),
-                    "i": custom_joints.i_gain(i),
-                    "d": custom_joints.d_gain(i),
+                    "p": self._main.custom_joints.get_p_gain(i),
+                    "i": self._main.custom_joints.get_i_gain(i),
+                    "d": self._main.custom_joints.get_d_gain(i),
                 }
                 items["gazebo_ros_control"]["pid_gains"][jnt_name] = {
-                    "p": custom_joints.p_gain(i),
-                    "i": custom_joints.i_gain(i),
-                    "d": custom_joints.d_gain(i),
+                    "p": self._main.custom_joints.get_p_gain(i),
+                    "i": self._main.custom_joints.get_i_gain(i),
+                    "d": self._main.custom_joints.get_d_gain(i),
                 }
 
         # yamlファイルを作成
@@ -424,7 +397,7 @@ class PackageGenerator(QObject):
             yaml.safe_dump(items, f)
 
     def _generate_rc_teleop_config(self, config_dir: str) -> None:
-        controller = self._main.settings.controller
+        controller = self._main.controller
 
         items = dict()
         items["rc_teleop"] = {"stabilize_mode": controller.stabilize_mode(), "acrobat_mode": controller.acrobat_mode()}
@@ -434,28 +407,24 @@ class PackageGenerator(QObject):
             yaml.safe_dump(items, f)
 
     def _generate_controller_config(self, config_dir: str) -> None:
-        items = {CONTROLLER_NODE_NAME: self._main.settings.controller.static_parameters()}
+        items = {CONTROLLER_NODE_NAME: self._main.controller.static_parameters()}
         file_path = osp.join(config_dir, "controller.yaml")
         with open(file_path, "w") as f:
             yaml.safe_dump(items, f)
 
     def _generate_observer_config(self, config_dir: str) -> None:
-        items = {OBSERVER_NODE_NAME: self._main.settings.observer.static_parameters()}
+        items = {OBSERVER_NODE_NAME: self._main.observer.static_parameters()}
         file_path = osp.join(config_dir, "observer.yaml")
         with open(file_path, "w") as f:
             yaml.safe_dump(items, f)
 
-    def _generate_dynamic_params_config(self, config_dir: str) -> None:
-        file_path = osp.join(config_dir, "dynamic_params.yaml")
-        create_empty_file(file_path)
-
     def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
         robot = self._make_urdf_with_plugins(mesh_dir)
-        urdf_path = osp.join(urdf_dir, f"{self._drone_name}.xacro")
+        urdf_path = osp.join(urdf_dir, f"drone.xacro")
 
         # Save URDF
-        # ET.ElementTree(robot).write(urdf_path)
-        prettify_and_save(robot, urdf_path)
+        with open(urdf_path, "w") as f:
+            f.write(prettify(robot))
 
     def _make_urdf_with_plugins(self, mesh_dir: str) -> ET.Element:
         description = rospy.get_param("/robot_description")
@@ -470,36 +439,55 @@ class PackageGenerator(QObject):
 
     def _resolve_mesh_files(self, robot: ET.Element, mesh_dir: str) -> None:
         """全てのメッシュファイルのパスをパッケージ以下に変更する．"""
-        pkg_name = self._main.settings.ros_package.pkg_name.get()
+        config_pkg_name = get_tbs_config_name(self._main.ros_package.tbs_path())
         for mesh in robot.iter("mesh"):
-            abs_path = resolve_uri(mesh.attrib["filename"])
-            base_name = osp.basename(abs_path)
-            shutil.copy2(abs_path, osp.join(mesh_dir, base_name))  # メッシュファイルをコピー
-            mesh.attrib["filename"] = f"package://{pkg_name}/mesh/{base_name}"
+            src_path = resolve_uri(mesh.attrib["filename"])
+            base_name = osp.basename(src_path)
+            des_path = osp.join(mesh_dir, base_name)
+            if src_path != des_path:
+                shutil.copy2(src_path, des_path)  # メッシュファイルをコピー
+                mesh.attrib["filename"] = f"package://{config_pkg_name}/mesh/{base_name}"
 
     def _screen_xml_elements(self, robot: ET.Element) -> None:
         """悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す．"""
-        # gazeboタグの場合はその子ノードを確認する
-        for gazebo in robot.iter("gazebo"):
-            for child in gazebo:
-                if child.tag == "plugin":
-                    # Tobasのプラグインは問答無用で消す
-                    if child.attrib["filename"].startswith("libtobas"):
-                        robot.remove(gazebo)
-                        continue
-                    # RotorSのプラグインは問答無用で消す
-                    if child.attrib["filename"].startswith("librotors"):
-                        robot.remove(gazebo)
-                        continue
-                    # Gazebo ROS Controlは問答無用で消す
-                    if child.attrib["filename"] == "libgazebo_ros_control.so":
-                        robot.remove(gazebo)
-                        continue
-                    self._remove_or_keep_gazebo_child(gazebo, child)
-                elif child.tag == "sensor":
-                    self._remove_or_keep_gazebo_child(gazebo, child)
+        # 繰り返し中にツリー構造を変えるとバグるため，消すノードをリストしておいて後で消す
+        deletable_nodes = []
 
-    def _remove_or_keep_gazebo_child(self, gazebo: ET.Element, child: ET.Element) -> None:
+        # 全てのGazeboノードを走査し，消すべきノードをリスト
+        for child in robot:
+            if child.tag == "gazebo" and self._is_deletable_gazebo_node(child):
+                deletable_nodes.append(child)
+
+        # リストしたGazeboノードを削除
+        for node in deletable_nodes:
+            robot.remove(node)
+
+    def _is_deletable_gazebo_node(self, gazebo: ET.Element) -> bool:
+        assert gazebo.tag == "gazebo"
+
+        for child in gazebo:
+            if child.tag == "plugin":
+                if self._is_deletable_gazebo_plugin(child) or self._ask_remove_or_keep_gazebo_child(child):
+                    return True
+            else:
+                for plugin in child.iter("plugin"):
+                    if self._is_deletable_gazebo_plugin(plugin) or self._ask_remove_or_keep_gazebo_child(child):
+                        return True
+
+        return False
+
+    def _is_deletable_gazebo_plugin(self, plugin: ET.Element) -> bool:
+        """プラグインを強制削除すべきかどうかを判定する．"""
+        assert plugin.tag == "plugin"
+
+        filename = plugin.attrib["filename"]
+        return (
+            filename.startswith("libtobas")
+            or filename.startswith("librotors")
+            or filename == "libgazebo_ros_control.so"
+        )
+
+    def _ask_remove_or_keep_gazebo_child(self, child: ET.Element) -> bool:
         """属性を確認した上でGazeboの子ノードを削除する．"""
         msg_box = QMessageBox(self._main)  # 親を設定しておけば一緒に落とせる
 
@@ -513,31 +501,17 @@ class PackageGenerator(QObject):
 
         # ボタンの設定
         remove_button = msg_box.addButton("Remove", QMessageBox.ActionRole)
-        keep_button = msg_box.addButton("Keep", QMessageBox.ActionRole)
+        msg_box.addButton("Keep", QMessageBox.ActionRole)
         msg_box.setDefaultButton(remove_button)
 
         # ユーザの返事を取得
         msg_box.exec()
 
-        # Removeが選択されたら消す
-        if msg_box.clickedButton() == remove_button:
-            gazebo.remove(child)
+        # Removeが選択されたらTrue
+        return msg_box.clickedButton() == remove_button
 
     def _add_xml_elements(self, robot: ET.Element) -> None:
         root_link = self._main.urdf_parser.get_root().name
-
-        propulsion_system = self._main.settings.propulsion_system.selected
-        fixed_wing = self._main.settings.fixed_wing
-        battery = self._main.settings.battery
-        imu = self._main.settings.imu
-        barometer = self._main.settings.barometer
-        gps = self._main.settings.gps
-        rgb_camera = self._main.settings.rgb_camera
-        depth_camera = self._main.settings.depth_camera
-        lidar = self._main.settings.lidar
-        odometry = self._main.settings.odometry
-        tether_station = self._main.settings.tether_station
-        simulation = self._main.settings.simulation
 
         # XML namespace
         robot.attrib["xmlns:xacro"] = "http://ros.org/wiki/xacro"
@@ -547,7 +521,9 @@ class PackageGenerator(QObject):
         robot.append(base_fix_joint)
 
         # Base plugin
-        base_plugin = BasePlugin(ns=self._drone_name, rotor_joint_names=propulsion_system.joint_names())
+        base_plugin = BasePlugin(
+            ns=self._drone_name, rotor_joint_names=self._main.propulsion_system.selected.joint_names()
+        )
         robot.append(base_plugin)
 
         # Wind plugin
@@ -557,45 +533,45 @@ class PackageGenerator(QObject):
         # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
-            max_voltage=battery.max_voltage(),
-            sag_voltage=battery.sag_voltage(),
-            max_current=battery.max_current(),
-            capacity=battery.capacity(),
-            internal_registance=battery.internal_registance(),
-            num_rotors=propulsion_system.count(),
+            max_voltage=self._main.battery.max_voltage(),
+            sag_voltage=self._main.battery.sag_voltage(),
+            max_current=self._main.battery.max_current(),
+            capacity=self._main.battery.capacity(),
+            internal_registance=self._main.battery.internal_registance(),
+            num_rotors=self._main.propulsion_system.selected.count(),
         )
         robot.append(battery_model)
 
         # Propulsion System plugin
-        for i in range(propulsion_system.count()):
-            selected: SelectedLinkTabWidget = propulsion_system.widget(i)
+        for i in range(self._main.propulsion_system.selected.count()):
+            selected: SelectedLinkWidget = self._main.propulsion_system.selected.widget(i)
             motor_model = MotorModel(
                 ns=self._drone_name,
                 motor_number=i,
                 link_name=selected.link_name(),
                 joint_name=selected.joint_name(),
                 direction=selected.motor.direction(),
-                rot_speed_coefs=selected.motor.rot_speed_coefs(),
+                rot_speed_coefs=selected.electrodynamics.rot_speed_coefs(),
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),
-                max_model_error_rate=selected.aerodynamics.max_model_error_rate(),
                 time_const_up=selected.motor.time_const_up(),
                 time_const_down=selected.motor.time_const_down(),
                 max_rot_speed=selected.motor.max_rot_speed(),
                 max_current=selected.esc.max_current(),
+                max_model_error_rate=self._main.simulation.max_model_error_rate.get() / 100,
             )
             robot.append(motor_model)
 
         # Fixed wing plugin
-        if fixed_wing.has_fixed_wing.isChecked():
-            vehicle = fixed_wing.vehicle
-            aero_coefs = fixed_wing.aero_coefs
-            control_surfaces = fixed_wing.control_surfaces
+        if self._main.fixed_wing.has_fixed_wing.isChecked():
+            vehicle = self._main.fixed_wing.vehicle
+            aero_coefs = self._main.fixed_wing.aero_coefs
+            control_surfaces = self._main.fixed_wing.control_surfaces
             fixed_wing_model = FixedWingModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                altitude_0=simulation.altitude_0.get(),
+                altitude_0=self._main.simulation.altitude_0.get(),
                 wing_surface=vehicle.wing_surface.get(),
                 wing_span=vehicle.wing_span.get(),
                 mean_aerodynamic_chord=vehicle.mac.get(),
@@ -621,23 +597,23 @@ class PackageGenerator(QObject):
             )
             robot.append(fixed_wing_model)
 
-        if imu.equipped():
+        if self._main.imu.equipped():
             # IMU plugin
             imu_model = ImuModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=imu.update_rate.get(),
-                offset=imu.offset.get(),
-                gyro_noise_density=imu.gyro_noise_density.get(),
-                gyro_random_walk=imu.gyro_random_walk.get(),
-                gyro_bias_corr_time=imu.gyro_bias_corr_time.get(),
-                gyro_turn_on_bias_sigma=imu.gyro_turn_on_bias_sigma.get(),
-                gyro_lpf_cutoff_freq=imu.gyro_lpf_cutoff_freq.get(),
-                acc_noise_density=imu.acc_noise_density.get(),
-                acc_random_walk=imu.acc_random_walk.get(),
-                acc_bias_corr_time=imu.acc_bias_corr_time.get(),
-                acc_turn_on_bias_sigma=imu.acc_turn_on_bias_sigma.get(),
-                acc_lpf_cutoff_freq=imu.acc_lpf_cutoff_freq.get(),
+                update_rate=self._main.imu.update_rate.get(),
+                offset=self._main.imu.offset.get(),
+                gyro_noise_density=self._main.imu.gyro_noise_density.get(),
+                gyro_random_walk=self._main.imu.gyro_random_walk.get(),
+                gyro_bias_corr_time=self._main.imu.gyro_bias_corr_time.get(),
+                gyro_turn_on_bias_sigma=self._main.imu.gyro_turn_on_bias_sigma.get(),
+                gyro_lpf_cutoff_freq=self._main.imu.gyro_lpf_cutoff_freq.get(),
+                acc_noise_density=self._main.imu.acc_noise_density.get(),
+                acc_random_walk=self._main.imu.acc_random_walk.get(),
+                acc_bias_corr_time=self._main.imu.acc_bias_corr_time.get(),
+                acc_turn_on_bias_sigma=self._main.imu.acc_turn_on_bias_sigma.get(),
+                acc_lpf_cutoff_freq=self._main.imu.acc_lpf_cutoff_freq.get(),
             )
             robot.append(imu_model)
 
@@ -645,138 +621,138 @@ class PackageGenerator(QObject):
             mag_model = MagnetometerModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=imu.update_rate.get(),
-                offset=imu.offset.get(),
-                latitude_0=simulation.latitude_0.get(),
-                longitude_0=simulation.longitude_0.get(),
-                altitude_0=simulation.altitude_0.get(),
-                gauss_noise=imu.mag_gauss_noise.get(),
-                uniform_noise=imu.mag_uniform_noise.get(),
+                update_rate=self._main.magnetometer.update_rate.get(),
+                offset=self._main.magnetometer.offset.get(),
+                latitude_0=self._main.simulation.latitude_0.get(),
+                longitude_0=self._main.simulation.longitude_0.get(),
+                altitude_0=self._main.simulation.altitude_0.get(),
+                gauss_noise=self._main.magnetometer.gauss_noise.get(),
+                uniform_noise=self._main.magnetometer.uniform_noise.get(),
             )
             robot.append(mag_model)
 
         # Barometer plugin
-        if barometer.equipped():
+        if self._main.barometer.equipped():
             bar_model = BarometerModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=barometer.update_rate.get(),
-                offset=barometer.offset.get(),
-                altitude_0=simulation.altitude_0.get(),
-                pressure_var=barometer.pressure_var.get(),
+                update_rate=self._main.barometer.update_rate.get(),
+                offset=self._main.barometer.offset.get(),
+                altitude_0=self._main.simulation.altitude_0.get(),
+                pressure_var=self._main.barometer.pressure_var.get(),
             )
             robot.append(bar_model)
 
         # GPS plugin
-        if gps.equipped():
+        if self._main.gps.equipped():
             gps_model = GpsModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                offset=gps.offset.get(),
-                update_rate=gps.update_rate.get(),
-                delay=gps.delay.get(),
-                pos_corr_time=gps.pos_corr_time.get(),
-                hor_pos_accuracy=gps.horizontal_pos_accuracy.get(),
-                ver_pos_accuracy=gps.vertical_pos_accuracy.get(),
-                hor_vel_stddev=gps.horizontal_vel_stddev.get(),
-                ver_vel_stddev=gps.vertical_vel_stddev.get(),
-                latitude_0=simulation.latitude_0.get(),
-                longitude_0=simulation.longitude_0.get(),
-                altitude_0=simulation.altitude_0.get(),
+                offset=self._main.gps.offset.get(),
+                update_rate=self._main.gps.update_rate.get(),
+                delay=self._main.gps.delay.get(),
+                pos_corr_time=self._main.gps.pos_corr_time.get(),
+                hor_pos_accuracy=self._main.gps.horizontal_pos_accuracy.get(),
+                ver_pos_accuracy=self._main.gps.vertical_pos_accuracy.get(),
+                hor_vel_stddev=self._main.gps.horizontal_vel_stddev.get(),
+                ver_vel_stddev=self._main.gps.vertical_vel_stddev.get(),
+                latitude_0=self._main.simulation.latitude_0.get(),
+                longitude_0=self._main.simulation.longitude_0.get(),
+                altitude_0=self._main.simulation.altitude_0.get(),
             )
             robot.append(gps_model)
 
         # RGB Camera plugin
-        if rgb_camera.equipped():
+        if self._main.rgb_camera.equipped():
             add_rgb_camera_model(
                 robot=robot,
                 ns=self._drone_name,
-                link_name=rgb_camera.link.get(),
+                link_name=self._main.rgb_camera.link.get(),
                 offset=Origin(
-                    x=rgb_camera.offset.x(),
-                    y=rgb_camera.offset.y(),
-                    z=rgb_camera.offset.z(),
-                    roll=rgb_camera.offset.roll(),
-                    pitch=rgb_camera.offset.pitch(),
-                    yaw=rgb_camera.offset.yaw(),
+                    x=self._main.rgb_camera.offset.x(),
+                    y=self._main.rgb_camera.offset.y(),
+                    z=self._main.rgb_camera.offset.z(),
+                    roll=self._main.rgb_camera.offset.roll(),
+                    pitch=self._main.rgb_camera.offset.pitch(),
+                    yaw=self._main.rgb_camera.offset.yaw(),
                 ),
-                frame_rate=rgb_camera.update_rate.get(),
-                width=rgb_camera.image_width.get(),
-                height=rgb_camera.image_height.get(),
-                near=rgb_camera.depth_range.min(),
-                far=rgb_camera.depth_range.max(),
-                fov=rgb_camera.fov.get(),
+                frame_rate=self._main.rgb_camera.update_rate.get(),
+                width=self._main.rgb_camera.image_width.get(),
+                height=self._main.rgb_camera.image_height.get(),
+                near=self._main.rgb_camera.depth_range.min(),
+                far=self._main.rgb_camera.depth_range.max(),
+                fov=self._main.rgb_camera.fov.get(),
                 noise_mean=0.0,
-                noise_stddev=rgb_camera.noise_stddev.get(),
+                noise_stddev=self._main.rgb_camera.noise_stddev.get(),
             )
 
         # Depth Camera plugin
-        if depth_camera.equipped():
+        if self._main.depth_camera.equipped():
             add_depth_camera_model(
                 robot=robot,
                 ns=self._drone_name,
-                link_name=depth_camera.link.get(),
+                link_name=self._main.depth_camera.link.get(),
                 offset=Origin(
-                    x=depth_camera.offset.x(),
-                    y=depth_camera.offset.y(),
-                    z=depth_camera.offset.z(),
-                    roll=depth_camera.offset.roll(),
-                    pitch=depth_camera.offset.pitch(),
-                    yaw=depth_camera.offset.yaw(),
+                    x=self._main.depth_camera.offset.x(),
+                    y=self._main.depth_camera.offset.y(),
+                    z=self._main.depth_camera.offset.z(),
+                    roll=self._main.depth_camera.offset.roll(),
+                    pitch=self._main.depth_camera.offset.pitch(),
+                    yaw=self._main.depth_camera.offset.yaw(),
                 ),
-                frame_rate=depth_camera.update_rate.get(),
-                width=depth_camera.image_width.get(),
-                height=depth_camera.image_height.get(),
-                near=depth_camera.depth_range.min(),
-                far=depth_camera.depth_range.max(),
-                fov=depth_camera.fov.get(),
-                baseline=depth_camera.baseline.get(),
-                noise_model=depth_camera.noise_model.get(),
+                frame_rate=self._main.depth_camera.update_rate.get(),
+                width=self._main.depth_camera.image_width.get(),
+                height=self._main.depth_camera.image_height.get(),
+                near=self._main.depth_camera.depth_range.min(),
+                far=self._main.depth_camera.depth_range.max(),
+                fov=self._main.depth_camera.fov.get(),
+                baseline=self._main.depth_camera.baseline.get(),
+                noise_model=self._main.depth_camera.noise_model.get(),
             )
 
         # LiDAR plugin
-        if lidar.equipped():
+        if self._main.lidar.equipped():
             add_lidar_model(
                 robot=robot,
                 ns=self._drone_name,
                 link_name=root_link,
-                offset=Origin.Trans(lidar.offset.x(), lidar.offset.y(), lidar.offset.z()),
-                update_rate=lidar.update_rate.get(),
-                hor_samples=lidar.hor_samples.get(),
-                ver_samples=lidar.ver_samples.get(),
-                hor_fov=lidar.hor_fov.get(),
-                ver_fov=lidar.ver_fov.get(),
-                dist_range=lidar.range.get(),
-                resolution=lidar.resolution.get(),
-                noise_stddev=lidar.noise_stddev.get(),
+                offset=Origin.Trans(*self._main.lidar.offset.get()),
+                update_rate=self._main.lidar.update_rate.get(),
+                hor_samples=self._main.lidar.hor_samples.get(),
+                ver_samples=self._main.lidar.ver_samples.get(),
+                hor_fov=self._main.lidar.hor_fov.get(),
+                ver_fov=self._main.lidar.ver_fov.get(),
+                dist_range=self._main.lidar.range.get(),
+                resolution=self._main.lidar.resolution.get(),
+                noise_stddev=self._main.lidar.noise_stddev.get(),
             )
 
         # Odometry plugin
-        if odometry.equipped():
+        if self._main.odometry.equipped():
             odometry_model = OdometryModel(
                 ns=self._drone_name,
                 link_name=root_link,
-                update_rate=odometry.update_rate.get(),
-                offset=odometry.offset.get(),
-                pos_normal_noise_std=odometry.pos_normal_noise_std.get(),
-                rot_normal_noise_std=odometry.rot_normal_noise_std.get(),
-                linvel_normal_noise_std=odometry.linvel_normal_noise_std.get(),
-                angvel_normal_noise_std=odometry.angvel_normal_noise_std.get(),
-                pos_uniform_noise_scale=odometry.pos_uniform_noise_scale.get(),
-                rot_uniform_noise_scale=odometry.rot_uniform_noise_scale.get(),
-                linvel_uniform_noise_scale=odometry.linvel_uniform_noise_scale.get(),
-                angvel_uniform_noise_scale=odometry.angvel_uniform_noise_scale.get(),
+                update_rate=self._main.odometry.update_rate.get(),
+                offset=self._main.odometry.offset.get(),
+                pos_normal_noise_std=self._main.odometry.pos_normal_noise_std.get(),
+                rot_normal_noise_std=self._main.odometry.rot_normal_noise_std.get(),
+                linvel_normal_noise_std=self._main.odometry.linvel_normal_noise_std.get(),
+                angvel_normal_noise_std=self._main.odometry.angvel_normal_noise_std.get(),
+                pos_uniform_noise_scale=self._main.odometry.pos_uniform_noise_scale.get(),
+                rot_uniform_noise_scale=self._main.odometry.rot_uniform_noise_scale.get(),
+                linvel_uniform_noise_scale=self._main.odometry.linvel_uniform_noise_scale.get(),
+                angvel_uniform_noise_scale=self._main.odometry.angvel_uniform_noise_scale.get(),
             )
             robot.append(odometry_model)
 
         # Tether Station plugin
-        if tether_station.equipped():
+        if self._main.tether_station.equipped():
             add_tether_station_model(
                 robot=robot,
-                link_name=tether_station.link.get(),
-                world_end=tether_station.world_end.get(),
-                drone_end=tether_station.drone_end.get(),
-                tension=tether_station.tension.get(),
+                link_name=self._main.tether_station.link.get(),
+                world_end=self._main.tether_station.world_end.get(),
+                drone_end=self._main.tether_station.drone_end.get(),
+                tension=self._main.tether_station.tension.get(),
             )
 
         # Ground Truth State plugin

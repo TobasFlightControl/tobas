@@ -8,10 +8,7 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-TimeReferenceServer::TimeReferenceServer(
-  const ros::NodeHandle& nh,
-  const ros::NodeHandle& pnh,
-  const string& name)
+TimeReferenceServer::TimeReferenceServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name)
 {
   time_ref_pub_ = nh_.advertise<sensor_msgs::TimeReference>(tobas::kTimeReferenceTopic, 1);

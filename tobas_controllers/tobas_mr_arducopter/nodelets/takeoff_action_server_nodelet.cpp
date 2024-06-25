@@ -6,13 +6,7 @@ namespace tobas_mr_arducopter
 {
 void TakeoffActionServerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Multirotor Takeoff Action Server Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new TakeoffActionServer(nh, pnh, name));
+  node_.reset(new TakeoffActionServer(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_mr_arducopter
 

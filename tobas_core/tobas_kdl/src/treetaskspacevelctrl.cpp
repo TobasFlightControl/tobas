@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
 TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& tree) : super(tree), fk_(tree), ik_(tree)
 {
@@ -76,4 +76,4 @@ bool TreeTaskSpaceVelCtrl::setAngularTimeConst(const double& t)
   gain_.angular.fill(1 / t);
   return true;
 }
-}  // namespace KDL
+}  // namespace kdl

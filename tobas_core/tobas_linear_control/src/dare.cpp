@@ -19,13 +19,13 @@ MatrixXd dare(
   const double& tol,
   size_t max_iter)
 {
-  const size_t n = A.rows();
-  const size_t m = B.cols();
+  const auto n = A.rows();
+  [[maybe_unused]] const auto l = B.cols();
 
   assert(A.cols() == n);
   assert(B.rows() == n);
   assert(Q.rows() == n && Q.cols() == n);
-  assert(R.rows() == m && R.rows() == m);
+  assert(R.rows() == l && R.rows() == l);
   assert(isControllable(A, B));
   assert(eigen_tools::isSymmetricSemiPositiveDefinite(Q));
   assert(eigen_tools::isSymmetricPositiveDefinite(R));
@@ -42,13 +42,12 @@ MatrixXd dare(
 
     // 事前推定
     MatrixXd X_mid = A.transpose() * X_prev * A + Q;
-
     eigen_tools::symmetrise(X_mid);  // 対称性を保存
 
     // 事後推定
-    auto XB = X_mid * B;
-    auto G = XB * (B.transpose() * XB + R).inverse();
-    auto I_GBt = I - G * B.transpose();
+    const MatrixXd XB = X_mid * B;
+    const MatrixXd G = XB * (B.transpose() * XB + R).inverse();
+    const MatrixXd I_GBt = I - G * B.transpose();
 
     switch (method)
     {
@@ -71,9 +70,7 @@ MatrixXd dare(
     eigen_tools::symmetrise(X_next);  // 対称性を保存
 
     if (iter++ > max_iter)
-    {
       throw runtime_error("Failed to converge");
-    }
   }
 
   // cout << eigen_tools::matrixRank(X_next) << endl;

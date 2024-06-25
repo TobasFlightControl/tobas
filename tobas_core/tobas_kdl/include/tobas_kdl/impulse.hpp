@@ -3,7 +3,7 @@
 #include "./twist.hpp"
 #include "./wrench.hpp"
 
-namespace KDL
+namespace kdl
 {
 class Impulse
 {
@@ -23,8 +23,7 @@ inline Impulse::Impulse()
 {
 }
 
-inline Impulse::Impulse(const Vector& _linear, const Vector& _angular)
-  : linear(_linear), angular(_angular)
+inline Impulse::Impulse(const Vector& _linear, const Vector& _angular) : linear(_linear), angular(_angular)
 {
 }
 
@@ -32,4 +31,4 @@ inline Wrench operator*(const Twist& t, const Impulse& P)
 {
   return Wrench(t.rot * P.linear, t.rot * P.angular + t.vel * P.linear);
 }
-}  // namespace KDL
+}  // namespace kdl

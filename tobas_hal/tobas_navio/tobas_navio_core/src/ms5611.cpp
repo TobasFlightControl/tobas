@@ -1,14 +1,14 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 
 #include "../include/tobas_navio_core/ms5611.hpp"
+#include "../include/tobas_navio_core/i2c_dev.hpp"
 #include "../include/tobas_navio_core/util.hpp"
 
 namespace navio
 {
-MS5611::MS5611(uint8_t address)
+MS5611::MS5611(uint8_t address) : dev_addr_(address)
 {
-  dev_addr_ = address;
 }
 
 void MS5611::initialize()
@@ -38,7 +38,28 @@ bool MS5611::testConnection()
   return status > 0;
 }
 
+void MS5611::update()
+{
+  // Update pressure
+  refreshPressure();
+  tobas_std::msleep(kWaitForRefresh);  // Wait for pressure data ready
+  readPressure();
+
+  // Update temperature
+  refreshTemperature();
+  tobas_std::msleep(kWaitForRefresh);  // Wait for temperature data ready
+  readTemperature();
+
+  // In order to compute pressure, both pressure and temperature are needed.
+  computePressureAndTemperature();
+}
+
 void MS5611::refreshPressure(uint8_t OSR)
+{
+  I2Cdev::writeBytes(dev_addr_, OSR, 0, 0);
+}
+
+void MS5611::refreshTemperature(uint8_t OSR)
 {
   I2Cdev::writeBytes(dev_addr_, OSR, 0, 0);
 }
@@ -50,11 +71,6 @@ void MS5611::readPressure()
   d1_ = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
 }
 
-void MS5611::refreshTemperature(uint8_t OSR)
-{
-  I2Cdev::writeBytes(dev_addr_, OSR, 0, 0);
-}
-
 void MS5611::readTemperature()
 {
   uint8_t buffer[3];
@@ -62,52 +78,32 @@ void MS5611::readTemperature()
   d2_ = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
 }
 
-void MS5611::calculatePressureAndTemperature()
+void MS5611::computePressureAndTemperature()
 {
   const auto dT = d2_ - c5_ * (double)(1 << 8);
   auto temp = (2000 + ((dT * c6_) / (double)(1 << 23)));
-  auto OFF = c2_ * (double)(1 << 16) + (c4_ * dT) / (double)(1 << 7);
-  auto SENS = c1_ * (double)(1 << 15) + (c3_ * dT) / (double)(1 << 8);
+  auto off = c2_ * (double)(1 << 16) + (c4_ * dT) / (double)(1 << 7);
+  auto sens = c1_ * (double)(1 << 15) + (c3_ * dT) / (double)(1 << 8);
 
-  double T2, OFF2, SENS2;
-
-  if (temp >= 2000)
-  {
-    T2 = 0;
-    OFF2 = 0;
-    SENS2 = 0;
-  }
   if (temp < 2000)
   {
-    T2 = tobas_std::sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフロー
-    OFF2 = 5 * tobas_std::sqr(temp - 2000) / 2;
-    SENS2 = OFF2 / 2;
-  }
-  if (temp < -1500)
-  {
-    OFF2 = OFF2 + 7 * tobas_std::sqr(temp + 1500);
-    SENS2 = SENS2 + 11 * tobas_std::sqr(temp + 1500) / 2;
-  }
+    const auto temp2 = math::sqr(dT) / (double)(1U << 31);  // NOTE: (1 << 31)は符号付きだとオーバーフロー
+    auto off2 = 5 * math::sqr(temp - 2000) / 2;
+    auto sens2 = off2 / 2;
 
-  temp = temp - T2;
-  OFF = OFF - OFF2;
-  SENS = SENS - SENS2;
+    if (temp < -1500)
+    {
+      off2 += 7 * math::sqr(temp + 1500);
+      sens2 += 11 * math::sqr(temp + 1500) / 2;
+    }
+
+    temp -= temp2;
+    off -= off2;
+    sens -= sens2;
+  }
 
   // Final calculations
-  pres_ = ((d1_ * SENS) / (double)(1 << 21) - OFF) / (double)(1 << 15);
+  pres_ = ((d1_ * sens) / (double)(1 << 21) - off) / (double)(1 << 15);
   temp_ = temp / 100;
-}
-
-void MS5611::update()
-{
-  refreshPressure();
-  tobas_std::msleep(10);  // Waiting for pressure data ready
-  readPressure();
-
-  refreshTemperature();
-  tobas_std::msleep(10);  // Waiting for temperature data ready
-  readTemperature();
-
-  calculatePressureAndTemperature();
 }
 }  // namespace navio

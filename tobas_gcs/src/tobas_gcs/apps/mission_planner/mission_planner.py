@@ -12,9 +12,8 @@ from overrides import override
 from functools import partial
 from typing import Tuple, List
 from pathlib import Path
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QDialog, QListWidget, QListWidgetItem, QVBoxLayout, QHBoxLayout, QSizePolicy
 from PyQt5.QtPositioning import QGeoCoordinate
 
 from tobas_std_tools_py.algorithm import cumsum
@@ -49,6 +48,7 @@ class MissionPlannerWidget(BaseAppWidget):
 
         self._map = MapWidget()
         self._map.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self._map.waypoint_moved.connect(self._on_waypoint_moved)
         rows.addWidget(self._map)
 
         button_cols = QHBoxLayout()
@@ -56,37 +56,45 @@ class MissionPlannerWidget(BaseAppWidget):
 
         self._load_button = QPushButton("Load")
         self._load_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._load_button.clicked.connect(self._on_load_button_clicked)
         button_cols.addWidget(self._load_button)
 
         self._save_button = QPushButton("Save")
         self._save_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._save_button.clicked.connect(self._on_save_button_clicked)
         button_cols.addWidget(self._save_button)
 
         self._add_button = QPushButton("Add")
         self._add_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._add_button.clicked.connect(self._on_add_button_clicked)
         button_cols.addWidget(self._add_button)
 
         self._clear_button = QPushButton("Clear")
         self._clear_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._clear_button.clicked.connect(self._on_clear_button_clicked)
         button_cols.addWidget(self._clear_button)
 
         self._cache_button = QPushButton("Cache Map")
         self._cache_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._cache_button.clicked.connect(self._on_cache_button_clicked)
         button_cols.addWidget(self._cache_button)
 
         button_cols.addStretch()
 
         self._execute_button = QPushButton("Execute")
         self._execute_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._execute_button.clicked.connect(self._on_execute_button_clicked)
         button_cols.addWidget(self._execute_button)
 
         self._cancel_button = QPushButton("Cancel")
         self._cancel_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._cancel_button.setEnabled(False)
+        self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
         button_cols.addWidget(self._cancel_button)
 
         self._focus_button = QPushButton("Focus")
         self._focus_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
+        self._focus_button.clicked.connect(self._on_focus_button_clicked)
         button_cols.addWidget(self._focus_button)
 
         mission_cols = QHBoxLayout()
@@ -95,6 +103,8 @@ class MissionPlannerWidget(BaseAppWidget):
         self._command_list = ListWidget()
         self._command_list.setSelectionMode(QListWidget.SingleSelection)
         self._command_list.setDragDropMode(QListWidget.InternalMove)
+        self._command_list.itemClicked.connect(self._on_list_item_changed)
+        self._command_list.item_moved.connect(self._on_list_item_changed)
         mission_cols.addWidget(self._command_list)
 
         self._properties = StackedWidget()
@@ -103,22 +113,6 @@ class MissionPlannerWidget(BaseAppWidget):
 
         self._pairs: List[Tuple[QListWidgetItem, BasePropertyWidget]] = []
         self._mission_thread = QThread()
-
-    @override
-    def define_connections(self) -> None:
-        self._load_button.clicked.connect(self._on_load_button_clicked)
-        self._save_button.clicked.connect(self._on_save_button_clicked)
-        self._add_button.clicked.connect(self._on_add_button_clicked)
-        self._clear_button.clicked.connect(self._on_clear_button_clicked)
-        self._cache_button.clicked.connect(self._on_cache_button_clicked)
-        self._execute_button.clicked.connect(self._on_execute_button_clicked)
-        self._cancel_button.clicked.connect(self._on_cancel_button_clicked)
-        self._focus_button.clicked.connect(self._on_focus_button_clicked)
-
-        self._command_list.itemClicked.connect(self._on_list_item_changed)
-        self._command_list.item_moved.connect(self._on_list_item_changed)
-
-        self._map.waypoint_moved.connect(self._on_waypoint_moved)
 
     @override
     def update_internal_data_structures(self) -> None:
@@ -210,7 +204,7 @@ class MissionPlannerWidget(BaseAppWidget):
         if not yes_or_no(self._main, "Do you want to execute the mission?", QMessageLevel.WARN):
             return
 
-        if not self._main.package_loaded():
+        if not self._main.pkg_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
 
@@ -228,7 +222,7 @@ class MissionPlannerWidget(BaseAppWidget):
         self._set_execute_mode()
 
         # ユーザ操作をブロックしないように別スレッドでミッションを実行
-        self._mission_thread = MissionExecutionThread(self, self._drone.drone_name, mission_commands)
+        self._mission_thread = MissionExecutionThread(self, self._drone.name, mission_commands)
         self._mission_thread.finished.connect(self._on_mission_finished)
         self._mission_thread.start()
 
@@ -237,7 +231,7 @@ class MissionPlannerWidget(BaseAppWidget):
         if not yes_or_no(self._main, "Do you want to cancel the mission?", QMessageLevel.WARN):
             return
 
-        if not self._main.package_loaded():
+        if not self._main.pkg_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
 
@@ -251,12 +245,12 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_focus_button_clicked(self) -> None:
-        if not self._main.package_loaded():
+        if not self._main.pkg_loaded():
             q_error(self._main, CONFIG_PKG_NOT_LOADED)
             return
 
         try:
-            gps: Gps = rospy.wait_for_message(f"{self._drone.drone_name}/gps", Gps, WAIT_FOR_SERVER)
+            gps: Gps = rospy.wait_for_message(f"{self._drone.name}/gps", Gps, WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self._main, "Failed to get GNSS message.")
             return

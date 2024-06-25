@@ -13,8 +13,7 @@ bool CommandLevelHandler::update(const uint8_t& new_level, const ros::Time& cur_
     if (new_level != cur_level_)
     {
       ROS_INFO_STREAM(
-        "Command level changed from " << static_cast<int>(cur_level_) << " to "
-                                      << static_cast<int>(new_level) << ".");
+        "Command level changed from " << static_cast<int>(cur_level_) << " to " << static_cast<int>(new_level) << ".");
     }
 
     cur_level_ = new_level;

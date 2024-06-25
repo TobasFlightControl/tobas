@@ -60,10 +60,7 @@ class SegTree2D:
     def build(self):
         for j in range(self.M):
             for i in range(self.N2 - 1, 0, -1):
-                self.dat[i][self.M2 + j] = self.func(
-                    self.dat[i << 1][self.M2 + j],
-                    self.dat[i << 1 | 1][self.M2 + j],
-                )
+                self.dat[i][self.M2 + j] = self.func(self.dat[i << 1][self.M2 + j], self.dat[i << 1 | 1][self.M2 + j])
         for i in range(2 ** (self.KN + 1)):
             for j in range(self.M2 - 1, 0, -1):
                 self.dat[i][j] = self.func(self.dat[i][j << 1], self.dat[i][j << 1 | 1])

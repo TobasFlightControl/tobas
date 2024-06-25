@@ -17,7 +17,7 @@ namespace tobas_mr_thrust_estimation
 class ThrustEstimator : public tobas::BaseNode
 {
   static constexpr double kInitFactorStddev = 0.;  // [-]
-  static constexpr double kMinFactor = 0.9;  // 接地時に下振れしないよう最小値に制限をかける
+  static constexpr double kMinFactor = 0.9;        // 接地時に下振れしないよう最小値に制限をかける
 
   using self = ThrustEstimator;
   using super = tobas::BaseNode;
@@ -27,8 +27,8 @@ class ThrustEstimator : public tobas::BaseNode
 
 public:
   explicit ThrustEstimator(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
   void updateInternalDataStructures();

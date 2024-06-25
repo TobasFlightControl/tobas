@@ -3,172 +3,167 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
+    from ..parameter_getters import ParamGetterWidget
 
 from overrides import override
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QVBoxLayout
 
+from ..common import SENSOR_OFFSET_DESCRIPTION
+from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_Vector3d, ParamGetterWidget_DoubleSpinBox
 from .base_setting import BaseSettingWidget
-from ..common import *
-from ..parameter_getters import *
 
 
 class ImuWidget(BaseSettingWidget):
     NAME = "IMU"
+    TITLE_TEXT = "Define Inertial Measurement Unit"
+    ABST_TEXT = ""  # TODO
 
     def __init__(self, main: SetupAssistant) -> None:
-        title_text = "Define Inertial Measurement Unit"
-        abst_text = ""  # TODO
+        super().__init__(main)
 
-        super().__init__(main, title_text, abst_text)
+        self._param_rows = QVBoxLayout()
+        self._rows.addLayout(self._param_rows)
 
         self.offset = ParamGetterWidget_Vector3d("Offset", SENSOR_OFFSET_DESCRIPTION, suffix=" m")
-        self._rows.addWidget(self.offset)
+        self._param_rows.addWidget(self.offset)
 
         update_rate_description = ""
         self.update_rate = ParamGetterWidget_SpinBox(
-            "Update rate", update_rate_description, minimum=1, default=400, suffix=" Hz"
+            "Update Rate", update_rate_description, minimum=1, default=400, suffix=" Hz"
         )
-        self._rows.addWidget(self.update_rate)
+        self._param_rows.addWidget(self.update_rate)
 
         gyro_noise_density_description = ""
         self.gyro_noise_density = ParamGetterWidget_DoubleSpinBox(
-            "Gyroscope noise density (two-sided spectrum)",
+            "Gyroscope Noise Density",
             gyro_noise_density_description,
             decimals=9,
             minimum=0.0,
             default=0.005,
             suffix=" rad/s/sqrt(Hz)",
         )
-        self._rows.addWidget(self.gyro_noise_density)
+        self._param_rows.addWidget(self.gyro_noise_density)
 
         gyro_random_walk_description = ""
         self.gyro_random_walk = ParamGetterWidget_DoubleSpinBox(
-            "Gyroscope bias random walk",
+            "Gyroscope Bias Random Walk",
             gyro_random_walk_description,
             decimals=9,
             minimum=0.0,
             default=1e-4,
             suffix=" rad/s^2/sqrt(Hz)",
         )
-        self._rows.addWidget(self.gyro_random_walk)
+        self._param_rows.addWidget(self.gyro_random_walk)
 
         gyro_bias_corr_time_description = ""
         self.gyro_bias_corr_time = ParamGetterWidget_SpinBox(
-            "Gyroscope bias correlation time constant",
+            "Gyroscope Bias Correlation Time Constant",
             gyro_bias_corr_time_description,
             minimum=0,
             default=1000,
             suffix=" s",
         )
-        self._rows.addWidget(self.gyro_bias_corr_time)
+        self._param_rows.addWidget(self.gyro_bias_corr_time)
 
         gyro_turn_on_bias_sigma_description = ""
         self.gyro_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
-            "Gyroscope turn on bias standard deviation",
+            "Gyroscope Turn On Bias Standard Deviation",
             gyro_turn_on_bias_sigma_description,
             decimals=9,
             minimum=0.0,
             default=0.05,
             suffix=" rad/s",
         )
-        self._rows.addWidget(self.gyro_turn_on_bias_sigma)
+        self._param_rows.addWidget(self.gyro_turn_on_bias_sigma)
 
         gyro_lpf_cutoff_freq_description = ""
         self.gyro_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
-            "Gyroscope LPF cutoff frequency",
+            "Gyroscope Internal LPF Cutoff Frequency",
             gyro_lpf_cutoff_freq_description,
             minimum=1,
             maximum=400,
-            default=20,
+            default=100,  # Same as LSM9DS1
             suffix=" Hz",
         )
-        self._rows.addWidget(self.gyro_lpf_cutoff_freq)
+        self._param_rows.addWidget(self.gyro_lpf_cutoff_freq)
 
         acc_noise_density_description = ""
         self.acc_noise_density = ParamGetterWidget_DoubleSpinBox(
-            "Accelerometer noise density (two-sided spectrum)",
+            "Accelerometer Noise Density",
             acc_noise_density_description,
             decimals=9,
             minimum=0.0,
             default=0.05,
             suffix=" m/s^2/sqrt(Hz)",
         )
-        self._rows.addWidget(self.acc_noise_density)
+        self._param_rows.addWidget(self.acc_noise_density)
 
         acc_random_walk_description = ""
         self.acc_random_walk = ParamGetterWidget_DoubleSpinBox(
-            "Accelerometer bias random walk",
+            "Accelerometer Bias Random Walk",
             acc_random_walk_description,
             decimals=9,
             minimum=0.0,
             default=0.01,
             suffix=" m/s^3/sqrt(Hz)",
         )
-        self._rows.addWidget(self.acc_random_walk)
+        self._param_rows.addWidget(self.acc_random_walk)
 
         acc_bias_corr_time_description = ""
         self.acc_bias_corr_time = ParamGetterWidget_SpinBox(
-            "Accelerometer bias correlation time constant",
+            "Accelerometer Bias Correlation Time Constant",
             acc_bias_corr_time_description,
             minimum=0,
             default=300,
             suffix=" s",
         )
-        self._rows.addWidget(self.acc_bias_corr_time)
+        self._param_rows.addWidget(self.acc_bias_corr_time)
 
         acc_turn_on_bias_sigma_description = ""
         self.acc_turn_on_bias_sigma = ParamGetterWidget_DoubleSpinBox(
-            "Accelerometer turn on bias standard deviation",
+            "Accelerometer Turn On Bias Standard Deviation",
             acc_turn_on_bias_sigma_description,
             decimals=9,
             minimum=0.0,
             default=0.2,
             suffix=" m/s^2",
         )
-        self._rows.addWidget(self.acc_turn_on_bias_sigma)
+        self._param_rows.addWidget(self.acc_turn_on_bias_sigma)
 
         acc_lpf_cutoff_freq_description = ""
         self.acc_lpf_cutoff_freq = ParamGetterWidget_SpinBox(
-            "Accelerometer LPF cutoff frequency",
+            "Accelerometer Internal LPF Cutoff Frequency",
             acc_lpf_cutoff_freq_description,
             minimum=1,
             maximum=400,
-            default=20,
+            default=50,  # Same as LSM9DS1
             suffix=" Hz",
         )
-        self._rows.addWidget(self.acc_lpf_cutoff_freq)
-
-        mag_gauss_noise_description = ""
-        self.mag_gauss_noise = ParamGetterWidget_SpinBox(
-            "Magnetometer standard deviation of additive white gaussian noise",
-            mag_gauss_noise_description,
-            minimum=0,
-            default=80,
-            suffix=" nT",
-        )
-        self._rows.addWidget(self.mag_gauss_noise)
-
-        mag_uniform_noise_description = ""
-        self.mag_uniform_noise = ParamGetterWidget_SpinBox(
-            "Magnetometer symmetric bounds of uniform noise for initial sensor bias",
-            mag_uniform_noise_description,
-            minimum=0,
-            default=400,
-            suffix=" nT",
-        )
-        self._rows.addWidget(self.mag_uniform_noise)
+        self._param_rows.addWidget(self.acc_lpf_cutoff_freq)
 
         self._rows.addStretch()
 
     @override
-    def define_connections(self) -> None:
-        super().define_connections()
+    def update_internal_data_structures(self) -> None:
+        pass
 
     @override
     def is_valid(self) -> bool:
         return True
+
+    @override
+    def dump_settings(self) -> dict:
+        res = dict()
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            res[param.name()] = param.get()
+        return res
+
+    @override
+    def load_settings(self, data: dict) -> None:
+        for i in range(self._param_rows.count()):
+            param: ParamGetterWidget = self._param_rows.itemAt(i).widget()
+            param.set(data[param.name()])
 
     def equipped(self) -> bool:
         return True

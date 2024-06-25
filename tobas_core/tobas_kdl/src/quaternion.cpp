@@ -1,14 +1,13 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_std_tools/float.hpp>
 
 #include "../include/tobas_kdl/quaternion.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
-Quaternion::Quaternion(const double& x, const double& y, const double& z, const double& w)
-  : x(x), y(y), z(z), w(w)
+Quaternion::Quaternion(const double& x, const double& y, const double& z, const double& w) : x(x), y(y), z(z), w(w)
 {
 }
 
@@ -31,9 +30,7 @@ Quaternion Quaternion::AngleAxis(const Vector& w)
   const auto angle = w.norm();
 
   if (angle < numeric_limits<double>::epsilon())
-  {
     return Quaternion::Identity();
-  }
 
   const auto axis = w / angle;
   const auto mag = sin(angle / 2.);
@@ -77,7 +74,7 @@ bool Quaternion::isNormalized() const
 
 Quaternion Quaternion::differential(const Vector& angvel) const
 {
-  const Vector w = angvel / 2;
+  const auto w = angvel / 2;
   return *this * Quaternion(w.x(), w.y(), w.z(), 0);
 }
 
@@ -107,4 +104,4 @@ ostream& operator<<(ostream& os, const Quaternion& arg)
   os << "w: " << arg.w << ", x: " << arg.x << ", y: " << arg.y << ", z: " << arg.z;
   return os;
 }
-}  // namespace KDL
+}  // namespace kdl

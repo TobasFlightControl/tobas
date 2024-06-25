@@ -16,22 +16,22 @@ class MotorModel(ET.Element):
         motor_const: float,
         moment_const: float,
         rotor_drag_coef: float,
-        max_model_error_rate: float,
         time_const_up: float,
         time_const_down: float,
         max_rot_speed: float,
         max_current: float,
+        max_model_error_rate: float,
     ) -> None:
         assert direction.upper() in {CW, CCW}, direction
         assert rot_speed_coefs[0] >= 0.0 and rot_speed_coefs[1] >= 0.0
         assert motor_const >= 0.0, motor_const
         assert moment_const >= 0.0, moment_const
         assert rotor_drag_coef >= 0.0, rotor_drag_coef
-        assert max_model_error_rate >= 0.0
         assert time_const_up > 0.0, time_const_up
         assert time_const_down > 0.0, time_const_down
         assert max_rot_speed > 0.0, max_rot_speed
         assert max_current > 0.0, max_current
+        assert max_model_error_rate >= 0.0
 
         super().__init__("gazebo")
 
@@ -48,8 +48,8 @@ class MotorModel(ET.Element):
         ET.SubElement(plugin, "motorConstant").text = str(motor_const)
         ET.SubElement(plugin, "momentConstant").text = str(moment_const)
         ET.SubElement(plugin, "rotorDragCoefficient").text = str(rotor_drag_coef)
-        ET.SubElement(plugin, "maxModelErrorRate").text = str(max_model_error_rate)
         ET.SubElement(plugin, "timeConstantUp").text = str(time_const_up)
         ET.SubElement(plugin, "timeConstantDown").text = str(time_const_down)
         ET.SubElement(plugin, "maxRotationSpeed").text = str(max_rot_speed)
         ET.SubElement(plugin, "maxCurrent").text = str(max_current)
+        ET.SubElement(plugin, "maxModelErrorRate").text = str(max_model_error_rate)

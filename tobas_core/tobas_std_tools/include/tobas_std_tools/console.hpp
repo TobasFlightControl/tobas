@@ -28,14 +28,14 @@
 #define PRINT_DEBUG(msg) std::cout << CYAN_PREFIX << "[DEBUG] " << msg << COLOR_RESET << std::endl
 
 /* デバッグモードのときに限り一度だけメッセージを出力する． */
-#define PRINT_DEBUG_ONCE(msg)                                                                      \
-  do                                                                                               \
-  {                                                                                                \
-    static bool is_message_printed = false;                                                        \
-    if (!is_message_printed)                                                                       \
-    {                                                                                              \
-      PRINT_DEBUG(msg);                                                                            \
-      is_message_printed = true;                                                                   \
-    }                                                                                              \
+#define PRINT_DEBUG_ONCE(msg)                                                                                          \
+  do                                                                                                                   \
+  {                                                                                                                    \
+    static bool is_message_printed = false;                                                                            \
+    if (!is_message_printed)                                                                                           \
+    {                                                                                                                  \
+      PRINT_DEBUG(msg);                                                                                                \
+      is_message_printed = true;                                                                                       \
+    }                                                                                                                  \
   } while (false)
 #endif

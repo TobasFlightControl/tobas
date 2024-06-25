@@ -2,28 +2,28 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .setup_assistant import SetupAssistant
+    from .urdf_parser import URDFParser
 
 import os.path as osp
 import rospkg
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QCheckBox, QVBoxLayout, QHBoxLayout
 
 from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.rviz import create_rviz_frame
 
-from .common import *
+from .common import PKG_NAME
 
 
 class RvizWidget(Widget):
     MIN_WIDTH = 300
+    ROBOT_STATE_DISPLAY_IDX = 0  # rvizファイルと合わせる必要あり
     DEFAULT_VISUAL_ENABLED = True
     DEFAULT_COLLISION_ENABLED = False
 
-    def __init__(self, main: SetupAssistant):
+    def __init__(self, urdf_parser: URDFParser):
         super().__init__()
-        self._main = main
+        self._urdf_parser = urdf_parser
 
         self._highlighted_link = ""
 
@@ -35,7 +35,7 @@ class RvizWidget(Widget):
         # Setup robot_model_display
         # rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
         self._manager = self._frame.getManager()
-        self._display = self._manager.getRootDisplayGroup().getDisplayAt(0)
+        self._display = self._manager.getRootDisplayGroup().getDisplayAt(self.ROBOT_STATE_DISPLAY_IDX)
         assert self._display.getName() == "RobotState"
 
         # 最初は機能をオフにしておく．さもないとrobot_descriptionが見つからないというエラーが出る．
@@ -48,9 +48,9 @@ class RvizWidget(Widget):
         self._enable_collision.setBool(self.DEFAULT_COLLISION_ENABLED)
 
         # 可視化ボタン
-        self._visual_box = QCheckBox("Visual Enabled")
+        self._visual_box = QCheckBox("Show Visual Geometry")
         self._visual_box.setChecked(self.DEFAULT_VISUAL_ENABLED)
-        self._collision_box = QCheckBox("Collision Enabled")
+        self._collision_box = QCheckBox("Show Collision Geometry")
         self._collision_box.setChecked(self.DEFAULT_COLLISION_ENABLED)
 
         # レイアウト
@@ -65,10 +65,21 @@ class RvizWidget(Widget):
 
         self.setMinimumWidth(self.MIN_WIDTH)
 
-    def define_connections(self) -> None:
-        self._main.urdf_parser.robot_model_updated.connect(self._on_robot_model_updated)
         self._visual_box.toggled.connect(self._on_visual_box_toggled)
         self._collision_box.toggled.connect(self._on_collision_box_toggled)
+
+    def update_internal_data_structures(self) -> None:
+        # 有効化
+        self._display.setBool(True)
+
+        # 固定フレームをルートリンクに設定
+        root_link = self._urdf_parser.get_root()
+        self._manager.setFixedFrame(root_link.name)
+
+        # ロボットモデルをリロード
+        reload = self._display.subProp("Reload")
+        reload.setBool(False)
+        reload.setBool(True)
 
     def highlight_link(self, link_name: str) -> None:
         if link_name == self._highlighted_link:
@@ -82,20 +93,6 @@ class RvizWidget(Widget):
 
     def unhighlight_link(self, link_name: str) -> None:
         self._display.subProp("Unhighlight Link").setValue(link_name)
-
-    @pyqtSlot()
-    def _on_robot_model_updated(self) -> None:
-        # 有効化
-        self._display.setBool(True)
-
-        # 固定フレームをルートリンクに設定
-        root_link = self._main.urdf_parser.get_root()
-        self._manager.setFixedFrame(root_link.name)
-
-        # ロボットモデルをリロード
-        reload = self._display.subProp("Reload")
-        reload.setBool(False)
-        reload.setBool(True)
 
     @pyqtSlot(bool)
     def _on_visual_box_toggled(self, checked: bool) -> None:

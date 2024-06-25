@@ -4,7 +4,7 @@
 #include "./rotation.hpp"
 #include "./utilities/rall2d.hpp"
 
-namespace KDL
+namespace kdl
 {
 class VectorAcc
 {
@@ -62,8 +62,7 @@ inline VectorAcc::VectorAcc(const Vector& _p, const Vector& _v) : p(_p), v(_v), 
 {
 }
 
-inline VectorAcc::VectorAcc(const Vector& _p, const Vector& _v, const Vector& _dv)
-  : p(_p), v(_v), dv(_dv)
+inline VectorAcc::VectorAcc(const Vector& _p, const Vector& _v, const Vector& _dv) : p(_p), v(_v), dv(_dv)
 {
 }
 
@@ -88,8 +87,7 @@ inline doubleAcc VectorAcc::dot(const Vector& rhs)
 
 inline doubleAcc VectorAcc::dot(const VectorAcc& rhs)
 {
-  return doubleAcc(
-    p.dot(rhs.p), p.dot(rhs.v) + v.dot(rhs.p), p.dot(rhs.dv) + 2 * v.dot(rhs.v) + dv.dot(rhs.p));
+  return doubleAcc(p.dot(rhs.p), p.dot(rhs.v) + v.dot(rhs.p), p.dot(rhs.dv) + 2 * v.dot(rhs.v) + dv.dot(rhs.p));
 }
 
 inline VectorAcc& VectorAcc::operator+=(const VectorAcc& arg)
@@ -143,8 +141,7 @@ inline VectorAcc operator-(const VectorAcc& r)
 
 inline VectorAcc operator*(const VectorAcc& r1, const VectorAcc& r2)
 {
-  return VectorAcc(
-    r1.p * r2.p, r1.p * r2.v + r1.v * r2.p, r1.dv * r2.p + 2 * r1.v * r2.v + r1.p * r2.dv);
+  return VectorAcc(r1.p * r2.p, r1.p * r2.v + r1.v * r2.p, r1.dv * r2.p + 2 * r1.v * r2.v + r1.p * r2.dv);
 }
 
 inline VectorAcc operator*(const VectorAcc& r1, const Vector& r2)
@@ -169,14 +166,12 @@ inline VectorAcc operator*(const VectorAcc& r1, double r2)
 
 inline VectorAcc operator*(const doubleAcc& r1, const VectorAcc& r2)
 {
-  return VectorAcc(
-    r1.t * r2.p, r1.t * r2.v + r1.d * r2.p, r1.t * r2.dv + 2 * r1.d * r2.v + r1.dd * r2.p);
+  return VectorAcc(r1.t * r2.p, r1.t * r2.v + r1.d * r2.p, r1.t * r2.dv + 2 * r1.d * r2.v + r1.dd * r2.p);
 }
 
 inline VectorAcc operator*(const VectorAcc& r2, const doubleAcc& r1)
 {
-  return VectorAcc(
-    r1.t * r2.p, r1.t * r2.v + r1.d * r2.p, r1.t * r2.dv + 2 * r1.d * r2.v + r1.dd * r2.p);
+  return VectorAcc(r1.t * r2.p, r1.t * r2.v + r1.d * r2.p, r1.t * r2.dv + 2 * r1.d * r2.v + r1.dd * r2.p);
 }
 
 inline VectorAcc operator*(const Rotation& R, const VectorAcc& x)
@@ -193,4 +188,4 @@ inline VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1)
 {
   return r2 * (1.0 / r1);
 }
-}  // namespace KDL
+}  // namespace kdl

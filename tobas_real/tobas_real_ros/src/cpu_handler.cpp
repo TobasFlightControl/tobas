@@ -1,8 +1,8 @@
 #include <fstream>
 #include <sstream>
 
-#include <tobas_std_tools/unix.hpp>
 #include <tobas_std_tools/string.hpp>
+#include <tobas_linux/core.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Cpu.h>
 
@@ -12,8 +12,7 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-CpuHandler::CpuHandler(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+CpuHandler::CpuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   cpu_pub_ = nh_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
@@ -34,7 +33,7 @@ bool CpuHandler::getTemperature(double& temp)
 
 bool CpuHandler::getFrequency(uint64_t& freq)
 {
-  auto vcgencmd_out = tobas_std::exec_command("vcgencmd measure_clock arm");
+  auto vcgencmd_out = linux::executeCommand("vcgencmd measure_clock arm");
   vcgencmd_out.pop_back();                                           // 改行コードを削除
   const auto freq_str = tobas_std::split(vcgencmd_out, '=').back();  // 数値部分のみ抜き出す
   freq = stoul(freq_str);                                            // str -> uint64

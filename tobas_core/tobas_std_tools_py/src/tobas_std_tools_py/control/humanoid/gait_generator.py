@@ -4,14 +4,7 @@ from typing import Tuple, List
 
 
 class CoMSubTrajectory:
-
-    def __init__(
-        self,
-        Tc: float,
-        fp: np.ndarray,
-        p_init: np.ndarray,
-        v_init: np.ndarray,
-    ) -> None:
+    def __init__(self, Tc: float, fp: np.ndarray, p_init: np.ndarray, v_init: np.ndarray) -> None:
         assert Tc > 0.0
         assert fp.shape == p_init.shape == v_init.shape == (2,)
 
@@ -33,7 +26,6 @@ class CoMSubTrajectory:
 
 
 class CoMTrajectory:
-
     def __init__(self, sub_trajs: List[CoMSubTrajectory], T_sup: float) -> None:
         self._n = len(sub_trajs)
         self._sub_trajs = sub_trajs
@@ -91,19 +83,11 @@ def lip3d(
 
         sx_cur, sy_cur, theta_cur = s_[i]
         trans_cur = np.array([sx_cur, sign * sy_cur])
-        rot_cur = np.array(
-            [
-                [math.cos(theta_cur), -math.sin(theta_cur)],
-                [math.sin(theta_cur), math.cos(theta_cur)],
-            ]
-        )
+        rot_cur = np.array([[math.cos(theta_cur), -math.sin(theta_cur)], [math.sin(theta_cur), math.cos(theta_cur)]])
         sx_next, sy_next, theta_next = s_[i + 1]
         trans_next = np.array([sx_next, -sign * sy_next])
         rot_next = np.array(
-            [
-                [math.cos(theta_next), -math.sin(theta_next)],
-                [math.sin(theta_next), math.cos(theta_next)],
-            ]
+            [[math.cos(theta_next), -math.sin(theta_next)], [math.sin(theta_next), math.cos(theta_next)]]
         )
 
         # (4.49)

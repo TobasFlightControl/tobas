@@ -2,10 +2,9 @@
 
 using namespace std;
 
-namespace KDL
+namespace kdl
 {
-TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree)
-  : super(tree), rne_(tree_, KDL::Vector::Zero())
+TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree) : super(tree), rne_(tree_, kdl::Vector::Zero())
 {
   updateInternalDataStructures();
 }
@@ -40,10 +39,9 @@ int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
     if (rne_.CartToJnt(q, jntarray_null_, elements_[i]) < 0)
       return copyError(rne_);
     const auto m = rne_.getEfforts() - bias;
-    for (size_t j = 0; j < nj_; ++j)
-      H_out_(j, i) = m(j);
+    H_out_.data.col(i) = m.data;
   }
 
   return setDefaultError(E_NOERROR);
 }
-}  // namespace KDL
+}  // namespace kdl

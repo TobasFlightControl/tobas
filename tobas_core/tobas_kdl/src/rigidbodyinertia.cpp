@@ -5,10 +5,9 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace kdl
 {
-RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic)
-  : m_(m), h_(m * oc)
+RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic) : m_(m), h_(m * oc)
 {
   const auto& c_eig = oc.data;
   I_.data = Ic.data - m * (c_eig * c_eig.transpose() - c_eig.dot(c_eig) * E3);
@@ -48,4 +47,4 @@ RigidBodyInertia operator*(const Rotation& M, const RigidBodyInertia& I)
   const RotationalInertia Ib(R * I.I_.data * R.transpose());
   return RigidBodyInertia(I.m_, M * I.h_, Ib, true);
 }
-}  // namespace KDL
+}  // namespace kdl

@@ -1,4 +1,4 @@
-#include <tobas_std_tools/math.hpp>
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/string.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
@@ -21,12 +21,10 @@
 
 using namespace std;
 using namespace ros::message_traits;
-using namespace tobas_std;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+RCTeleop::RCTeleop(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -39,21 +37,19 @@ RCTeleop::RCTeleop(const ros::NodeHandle& nh, const ros::NodeHandle& pnh, const 
   {
     if (modes_[i] == "")
       controllers_[i] = make_unique<ProgramModeController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
       controllers_[i] = make_unique<PosVelAccYawController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
       controllers_[i] = make_unique<PositionYawController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
       controllers_[i] = make_unique<RollPitchYawThrustController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
       controllers_[i] = make_unique<PoseTwistAccelController>(drone_);
-    else if (modes_[i] == split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
       controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
     else
     {
-      TOBAS_ERROR(
-        "Invalid flight mode: ", modes_[i],
-        ". The RC command for this mode will not be published.");
+      TOBAS_ERROR("Invalid flight mode: ", modes_[i], ". The RC command for this mode will not be published.");
       controllers_[i] = make_unique<ProgramModeController>(drone_);
     }
 
@@ -189,8 +185,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       // アームされていなければ，スロットルレバーを確認してアームする
       if (rcin->throttle > tobas::kRCInputMin + kInitThrottleMargin)
       {
-        TOBAS_WARN_THROTTLE(
-          kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
+        TOBAS_WARN_THROTTLE(kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
         break;
       }
       if (!requestArmingRotors())

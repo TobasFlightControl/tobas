@@ -55,10 +55,7 @@ FrameVel TreeKDLModel::fkVel(const JntArray& q, const JntArray& qd, const string
   return fk_vel_.JntToCart(q, qd, name);
 }
 
-void TreeKDLModel::jntSpaceInertiaMatrix(
-  const JntArray& q,
-  const JntArray& qd,
-  JntSpaceInertiaMatrix& inertia)
+void TreeKDLModel::jntSpaceInertiaMatrix(const JntArray& q, const JntArray& qd, JntSpaceInertiaMatrix& inertia)
 {
   return dynparam_.JntToMass(q, qd, inertia);
 }
@@ -74,11 +71,7 @@ void TreeKDLModel::inverseDynamics(
   assert(res == 0);
 }
 
-void TreeKDLModel::inverseDynamics(
-  const JntArray& q,
-  const JntArray& qd,
-  const JntArray& qdd,
-  JntArray& torques)
+void TreeKDLModel::inverseDynamics(const JntArray& q, const JntArray& qd, const JntArray& qdd, JntArray& torques)
 {
   inverseDynamics(q, qd, qdd, wrenchmap_null_, torques);
 }

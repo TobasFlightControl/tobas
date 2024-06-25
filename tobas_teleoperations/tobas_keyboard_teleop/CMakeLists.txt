@@ -19,12 +19,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_multirotor_takeoff
+  tobas_keyboard
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_multirotor_takeoff
+	CATKIN_DEPENDS tobas_multirotor_takeoff tobas_keyboard
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

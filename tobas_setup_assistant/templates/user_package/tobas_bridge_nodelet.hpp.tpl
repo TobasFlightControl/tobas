@@ -1,0 +1,14 @@
+#pragma once
+
+#include <nodelet/nodelet.h>
+
+#include "../include/{{ user_pkg_name }}/tobas_bridge.hpp"
+
+class TobasBridgeNodelet : public nodelet::Nodelet
+{
+public:
+  void onInit() override;
+
+private:
+  std::shared_ptr<TobasBridge> node_;
+};

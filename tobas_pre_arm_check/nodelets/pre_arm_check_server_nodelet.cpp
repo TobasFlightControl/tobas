@@ -6,13 +6,7 @@ namespace tobas_pre_arm_check
 {
 void PreArmCheckServerNodelet::onInit()
 {
-  NODELET_INFO("Initializing Pre-Arm Check Server Nodelet.");
-
-  const auto& nh = getNodeHandle();
-  const auto& pnh = getPrivateNodeHandle();
-  const auto& name = getName();
-
-  node_.reset(new PreArmCheckServer(nh, pnh, name));
+  node_.reset(new PreArmCheckServer(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
 }  // namespace tobas_pre_arm_check
 

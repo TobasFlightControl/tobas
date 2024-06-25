@@ -30,8 +30,8 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
 
 void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
 {
-  yaw_ = KDL::Euler(odom.frame.M).yaw;
-  t_last_rcin_ = ros::Time::now();
+  yaw_ = kdl::Euler(odom.frame.M).yaw;
+  t_last_rcin_ = odom.header.stamp;
 }
 
 void RollPitchYawThrustController::update(
@@ -41,10 +41,11 @@ void RollPitchYawThrustController::update(
 {
   assert(battery_voltage > 0);
 
+  // 時刻を更新
+  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  t_last_rcin_ = rcin.header.stamp;
+
   // Yawの目標値を更新
-  const ros::Time cur_time = ros::Time::now();
-  const auto dt = (cur_time - t_last_rcin_).toSec();
-  t_last_rcin_ = cur_time;
   const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
   yaw_ += yawrate * dt;
 
@@ -67,11 +68,8 @@ void RollPitchYawThrustController::update(
 
 void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
 {
-  tobas_ros::getParam(
-    pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+  tobas_ros::getParam(pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, tobas_ros::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

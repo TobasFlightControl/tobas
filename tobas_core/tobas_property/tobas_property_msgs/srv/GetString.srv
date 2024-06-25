@@ -1,0 +1,6 @@
+string section
+string key
+---
+bool success
+string message
+string value

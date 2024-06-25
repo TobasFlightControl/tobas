@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace KDL
+namespace kdl
 {
 ostream& operator<<(ostream& os, const Vector& v)
 {
@@ -35,22 +35,22 @@ ostream& operator<<(ostream& os, const Frame& T)
 
 ostream& operator<<(ostream& os, const Twist& v)
 {
-  os << "[" << v.vel.x() << "," << v.vel.y() << "," << v.vel.z() << "," << v.rot.x() << ","
-     << v.rot.y() << "," << v.rot.z() << "]";
+  os << "[" << v.vel.x() << "," << v.vel.y() << "," << v.vel.z() << "," << v.rot.x() << "," << v.rot.y() << ","
+     << v.rot.z() << "]";
   return os;
 }
 
 ostream& operator<<(ostream& os, const Accel& v)
 {
-  os << "[" << v.linear.x() << "," << v.linear.y() << "," << v.linear.z() << "," << v.angular.x()
-     << "," << v.angular.y() << "," << v.angular.z() << "]";
+  os << "[" << v.linear.x() << "," << v.linear.y() << "," << v.linear.z() << "," << v.angular.x() << ","
+     << v.angular.y() << "," << v.angular.z() << "]";
   return os;
 }
 
 ostream& operator<<(ostream& os, const Wrench& v)
 {
-  os << "[" << v.force.x() << "," << v.force.y() << "," << v.force.z() << "," << v.torque.x() << ","
-     << v.torque.y() << "," << v.torque.z() << "]";
+  os << "[" << v.force.x() << "," << v.force.y() << "," << v.force.z() << "," << v.torque.x() << "," << v.torque.y()
+     << "," << v.torque.z() << "]";
   return os;
 }
 
@@ -58,4 +58,4 @@ Rotation operator*(const Rotation& lhs, const Rotation& rhs)
 {
   return Rotation(lhs.data * rhs.data);
 }
-}  // namespace KDL
+}  // namespace kdl

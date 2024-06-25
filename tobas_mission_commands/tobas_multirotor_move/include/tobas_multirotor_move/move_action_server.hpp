@@ -24,8 +24,8 @@ class MoveActionServer : public tobas::BaseNode
 
 public:
   explicit MoveActionServer(
-    const ros::NodeHandle& nh,
-    const ros::NodeHandle& pnh,
+    ros::NodeHandle& nh,
+    ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
 
 private:
@@ -41,7 +41,7 @@ private:
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);
-  bool computeGoalPosition(const GoalType& goal, KDL::Vector& goal_pos);
+  bool computeGoalPosition(const GoalType& goal, kdl::Vector& goal_pos);
 
   void armingCb(const std_msgs::BoolConstPtr& arming);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

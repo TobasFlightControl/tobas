@@ -83,13 +83,7 @@ def make_cross_mat_3d(v: np.ndarray) -> np.ndarray:
     assert v.shape == (3,)
 
     x, y, z = v
-    res = np.array(
-        [
-            [0, -z, y],
-            [z, 0, -x],
-            [-y, x, 0],
-        ]
-    )
+    res = np.array([[0, -z, y], [z, 0, -x], [-y, x, 0]])
 
     return res
 

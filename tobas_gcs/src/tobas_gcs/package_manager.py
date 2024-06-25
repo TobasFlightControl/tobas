@@ -6,22 +6,22 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import rospy
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout
 
-from tobas_std_tools_py.config_parser import ConfigParserWrapper
+from tobas_property_tools_py.property_client import PropertyClient
 from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
-from tobas_tools_py.constants import CONFIG_PATH
+from tobas_tools_py.constants import PROPERTY_SERVER_GCS, PKG_EXTENSION
 from tobas_tools_py.drone import Drone, DroneLoader_File
+from tobas_tools_py.package import get_tbs_meta_name, get_tbs_config_name, get_tbsdrn_path, get_mesh_path
 
-from .common import *
+from .common import TITLE, PKG_NAME, CATKIN_WS_TOBAS, SOURCE_CMD
 from .utils.ssh_client import SSHClientWrapper
 
 
 class PackageManagerWidget(Widget):
-    KEY = "last_opened_dir/tobas_configuration_package"
+    LAST_OPENED_DIR_KEY = "last_opened_dir/tobas_configuration_package"
 
     PATH_WIDTH = 300
     BUTTON_WIDTH = 50
@@ -31,7 +31,7 @@ class PackageManagerWidget(Widget):
         self._main = main
         self._drone = drone
 
-        self._config = ConfigParserWrapper(CONFIG_PATH, PKG_NAME)
+        self._property_client = PropertyClient(PROPERTY_SERVER_GCS, PKG_NAME)
         self._ssh_client = SSHClientWrapper()
 
         cols = QHBoxLayout()
@@ -40,11 +40,11 @@ class PackageManagerWidget(Widget):
         label = QLabel("Tobas Package Path:")
         cols.addWidget(label)
 
-        self._pkg_path = QLineEdit()
-        self._pkg_path.setFixedWidth(self.PATH_WIDTH)
-        self._pkg_path.setReadOnly(True)
-        self._pkg_path.setFocusPolicy(Qt.NoFocus)
-        cols.addWidget(self._pkg_path)
+        self._tbs_path = QLineEdit()
+        self._tbs_path.setFixedWidth(self.PATH_WIDTH)
+        self._tbs_path.setReadOnly(True)
+        self._tbs_path.setFocusPolicy(Qt.NoFocus)
+        cols.addWidget(self._tbs_path)
 
         self._load_button = QPushButton("Load")
         self._load_button.setFixedWidth(self.BUTTON_WIDTH)
@@ -57,21 +57,22 @@ class PackageManagerWidget(Widget):
         self._send_button.clicked.connect(self._on_send_button_clicked)
         cols.addWidget(self._send_button)
 
-    def package_path(self) -> str:
-        return self._pkg_path.text()
+    def tbs_path(self) -> str:
+        return self._tbs_path.text()
 
-    def _load_drone(self, pkg_path: str) -> bool:
+    def _load_drone(self, tbs_path: str) -> bool:
         """TobasパッケージからDroneをロード．"""
         # TBSFファイルが存在することを確認
-        tbsf_path = osp.join(pkg_path, "config/drone.tbsdrn")
+        tbsf_path = get_tbsdrn_path(tbs_path)
         if not osp.isfile(tbsf_path):
+            q_error(self._main, f"{tbsf_path} does not exist.")
             return False
 
         # TBSFファイルが正常に読み込めることを確認
         try:
             DroneLoader_File(self._drone, tbsf_path).load()
         except Exception as e:
-            rospy.logerr(f"Failed to load TBSF:\n\n{e}")
+            q_error(self, f"Failed to load TBSF:\n\n{e}")
             return False
 
         return True
@@ -79,33 +80,40 @@ class PackageManagerWidget(Widget):
     @pyqtSlot()
     def _on_load_button_clicked(self) -> None:
         # 前回開いたパスを取得
-        self._config.read()  # 排他処理のためにこの関数内でRead & Write
-        last_opened_dir = self._config.get(self.KEY, fallback=osp.expanduser("~"))
+        res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
+        if res < 0:
+            rospy.logwarn(self._property_client.error_message())
+            last_opened_dir = osp.expanduser("~")
 
         # Tobasパッケージのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         options |= QFileDialog.ShowDirsOnly
         options |= QFileDialog.DontResolveSymlinks
-        pkg_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
-        assert not pkg_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
+        tbs_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
+        assert not tbs_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
-        if pkg_path == "":
+        if tbs_path == "":
             return
 
-        # 有効なTobas Configuration Packageでなければ終了
-        if not self._load_drone(pkg_path):
-            q_error(self._main, f'"{pkg_path}" is not a Tobas configuration package or is collapsed.')
+        # 拡張子をチェック
+        if not tbs_path.endswith(PKG_EXTENSION):
+            q_error(self._main, f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
+            return
+
+        # ドローンの機体情報を読み込む
+        if not self._load_drone(tbs_path):
             return
 
         # パスをテキストに設定
-        self._pkg_path.setText(pkg_path)
+        self._tbs_path.setText(tbs_path)
 
         # ユーザが開いたディレクトリを保存
-        # closeEvent()に書くと強制終了時に呼ばれないため，ファイル読み込み時に同時に保存する
-        self._config.set(self.KEY, osp.dirname(pkg_path))
-        self._config.write()
+        if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(tbs_path)) < 0:
+            rospy.logerr(self._property_client.error_message())
+        if self._property_client.save() < 0:
+            rospy.logerr(self._property_client.error_message())
 
         # Writeボタンを有効化
         self._send_button.setEnabled(True)
@@ -118,6 +126,8 @@ class PackageManagerWidget(Widget):
 
     @pyqtSlot()
     def _on_send_button_clicked(self) -> None:
+        tbs_path = self.tbs_path()
+
         progress = ProgressDialog(parent=self._main, title=TITLE, num_steps=6)
         progress.setCancelButton(None)
         progress.show()
@@ -132,14 +142,13 @@ class PackageManagerWidget(Widget):
             return
         progress.progress_step()
 
-        pkg_path = self.package_path()
-        pkg_name = pkg_path.split("/")[-1]
-
         # Tobasパッケージを送信
         # FIXME: メッシュファイルを送るのに多大な時間がかかる．ラズパイ側では不要だから省略したい．
         progress.setLabelText("Sending Tobas configuration package.")
+        mesh_path = get_mesh_path(tbs_path)
+        remote_dir = osp.join(CATKIN_WS_TOBAS, "src/")
         try:
-            self._ssh_client.scp_put_super(pkg_path, osp.join(CATKIN_WS_TOBAS, "src/"))
+            self._ssh_client.scp_put_dir_super(tbs_path, remote_dir, exclude_dir=mesh_path)
         except Exception as e:
             progress.close()
             q_error(self._main, f"Failed to send tobas configuration package:\n\n{e}")
@@ -150,11 +159,12 @@ class PackageManagerWidget(Widget):
         # NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する．
         # TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
         progress.setLabelText("Building Tobas configuration package.")
-        command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {pkg_name}"
+        meta_pkg_name = get_tbs_meta_name(tbs_path)
+        command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {meta_pkg_name}"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:  # ビルドできなければcatkin cleanして再試行
             rospy.logwarn("Failed to build. Retrying...")
-            command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {pkg_name}"
+            command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {meta_pkg_name}"
             success, _, error_output = self._ssh_client.exec_command_super(command)
             if not success:
                 progress.close()
@@ -165,7 +175,9 @@ class PackageManagerWidget(Widget):
         # 環境変数TOBAS_CONFIG_PKGを設定
         progress.setLabelText("Setting environment variables.")
         try:
-            self._ssh_client.sftp_write_super("/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={pkg_name}\n")
+            self._ssh_client.sftp_write_super(
+                "/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={get_tbs_config_name(self._main.tbs_path())}\n"
+            )
         except Exception as e:
             progress.close()
             q_error(self._main, str(e))
@@ -173,12 +185,12 @@ class PackageManagerWidget(Widget):
         progress.progress_step()
 
         # ROS関連の全てのサービスを再起動 (でないと古いトピックが残ってしまう)
-        progress.setLabelText("Restarting Tobas software.")
-        command = "systemctl restart tobas_roscore.service"
+        progress.setLabelText("Restarting Tobas.")
+        command = "systemctl restart tobas_main.target"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:
             progress.close()
-            q_error(self._main, f"Failed to restart Tobas software:\n\n{error_output}")
+            q_error(self._main, f"Failed to restart Tobas:\n\n{error_output}")
             return
         progress.progress_step()
 
