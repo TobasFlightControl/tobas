@@ -1,18 +1,7 @@
 #!/bin/bash
 
 # Build and install Tobas
-sudo systemctl stop tobas_roscore.service &&
-cd ~/catkin_ws/ &&
-vcs pull &&
-catkin build tobas -j4 -DCMAKE_BUILD_TYPE=Release &&
-sudo rm -rf /opt/tobas &&
-sudo cp -r ~/catkin_ws/install/ /opt/tobas/ &&
-
-# Update and clean apt packages
-sudo apt update &&
-sudo apt upgrade -y  &&
-sudo apt autoremove --purge -y &&
-sudo apt clean &&
+tobas_build Release &&
 
 # Remove unnecessary files
 sudo rm -rf /tmp/* &&
@@ -23,11 +12,8 @@ rm -rf ~/.emacs.d/* &&
 rm -rf ~/.vscode-server/* &&
 
 # Remove personal information
-rm -rf ~/.gnupg/ &&
-rm -rf ~/.ssh/ &&
-
-# Remove configuration file
-sudo rm /etc/tobas/config.ini &&
+rm -rf ~/.gnupg/* &&
+rm -rf ~/.ssh/* &&
 
 # Clean ROS
 rosclean purge -y &&
@@ -39,5 +25,11 @@ rm -rf ./src/* &&
 cd /etc/tobas/catkin_ws/ &&
 sudo catkin clean -y &&
 sudo rm -rf ./src/* &&
+
+# Clear configuration file
+sudo truncate -s 0 /etc/tobas/config.ini &&
+
+# Clear network settings
+sudo sed -i '4,$ d' /etc/wpa_supplicant/wpa_supplicant.conf &&
 
 echo -e "\033[32mFinished successfully.\033[0m"
