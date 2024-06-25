@@ -7,7 +7,6 @@ if TYPE_CHECKING:
 import rospy
 import pyqtgraph as pg
 from overrides import override
-from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QWheelEvent
 
 from tobas_rospy.timestamped_buffer import TimestampedBuffer
@@ -15,7 +14,6 @@ from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Latency
 
-from ....common import PAINT_REFRESH_PERIOD
 from .base_section import BaseControlSystemSectionWidget
 
 
@@ -43,9 +41,6 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         self._buffer = TimestampedBuffer[rospy.Duration](rospy.Duration(self.EXPIRY_DURATION))
         self._latency_sub = None
 
-        self._timer = QTimer(self)
-        self._timer.timeout.connect(self._timer_cb)
-
     @override
     def update_internal_data_structures(self) -> None:
         self._pw.plotItem.clear()
@@ -54,15 +49,14 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         if self._latency_sub is not None:
             self._latency_sub.unregister()
         self._latency_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.LATENCY}", Latency, self._latency_cb, queue_size=1
+            f"{self._drone.name}/{Topic.Throttled.LATENCY}", Latency, self._latency_cb, queue_size=1
         )
-
-        self._timer.start(PAINT_REFRESH_PERIOD)
 
     def _latency_cb(self, latency: Latency) -> None:
         self._buffer.add(latency.header.stamp, latency.data)
+        self._update_plot()
 
-    def _timer_cb(self) -> None:
+    def _update_plot(self) -> None:
         stamps = []
         latencies = []
         for stamp, latency in self._buffer:

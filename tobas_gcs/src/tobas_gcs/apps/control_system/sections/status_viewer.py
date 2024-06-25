@@ -107,7 +107,9 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._arming_sub.unregister()
 
         self._gps_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
-        self._rcin_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1)
+        self._rcin_sub = rospy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
+        )
         self._pre_arm_check_sub = rospy.Subscriber(
             f"{self._drone.name}/{Topic.PRE_ARM_CHECK}", PreArmCheck, self._pre_arm_check_cb, queue_size=1
         )

@@ -149,7 +149,7 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
             self._euler_sub.unregister()
         self._gps_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
         self._euler_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.EULER}", EulerStamped, self._euler_cb, queue_size=1
+            f"{self._drone.name}/{Topic.Throttled.EULER}", EulerStamped, self._euler_cb, queue_size=1
         )
 
     def _gps_cb(self, gps: Gps) -> None:

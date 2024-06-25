@@ -3,7 +3,7 @@ import math
 from abc import abstractmethod
 from overrides import override
 from typing import Union
-from PyQt5.QtCore import Qt, QRect, QTimer
+from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPaintEvent, QPen, QFont
 
@@ -13,7 +13,6 @@ from tobas_std_tools_py.math import remap
 class PositionBarWidget(QWidget):
     DEFAULT_LINE_WIDTH = 3
     DEFAULT_TEXT_PSIZE = 10
-    DEFAULT_REFRESH_PERIOD = 30  # [ms] 描画の更新周期
 
     def __init__(
         self,
@@ -35,10 +34,6 @@ class PositionBarWidget(QWidget):
         self._value = None
         self._lower = sys.maxsize
         self._upper = -sys.maxsize
-
-        # 再描画の周波数が高すぎるとフリーズするため，周波数を抑えて一定周期で描画する．
-        self._timer = QTimer(self)
-        self._timer.timeout.connect(self.update)
 
     def set_minimum(self, minimum: float) -> None:
         self._minimum = minimum
@@ -89,13 +84,6 @@ class PositionBarWidget(QWidget):
         self._lower = self._maximum
         self._upper = self._minimum
         self.update()
-
-    def start_timer(self, refresh_period: int = DEFAULT_REFRESH_PERIOD) -> None:
-        assert refresh_period >= 0
-        self._timer.start(refresh_period)
-
-    def stop_timer(self) -> None:
-        self._timer.stop()
 
     @override
     def paintEvent(self, event: QPaintEvent) -> None:

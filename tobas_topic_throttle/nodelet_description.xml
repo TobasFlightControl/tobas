@@ -1,6 +1,6 @@
 <library path="lib/libtobas_topic_throttle_nodelet">
 
-  <class name="tobas_topic_throttle/BatteryThrottleNodelet" type="tobas_topic_throttle::BatteryThrottleNodelet" base_class_type="nodelet::Nodelet">
+  <class name="tobas_topic_throttle/BatteryLPFThrottleNodelet" type="tobas_topic_throttle::BatteryLPFThrottleNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>
 

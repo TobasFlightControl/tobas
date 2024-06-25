@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 import math
 import rospy
 from overrides import override
-from PyQt5.QtCore import Qt, QPoint, QTimer
+from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QPainter, QPaintEvent, QPolygon, QPen
 
 from tobas_std_tools_py.math import wrap, ceil, floor
@@ -16,7 +16,6 @@ from tobas_rqt_tools.widgets import Widget
 from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 
-from ....common import PAINT_REFRESH_PERIOD
 from .base_section import BaseControlSystemSectionWidget
 
 
@@ -67,19 +66,14 @@ class _OrientationViewerWidget(Widget):
 
         self._euler_sub = None
 
-        self._timer = QTimer(self)
-        self._timer.timeout.connect(self.update)
-
     def update_internal_data_structures(self) -> None:
         self._reset()
 
         if self._euler_sub is not None:
             self._euler_sub.unregister()
         self._euler_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.EULER}", EulerStamped, self._euler_cb, queue_size=1
+            f"{self._drone.name}/{Topic.Throttled.EULER}", EulerStamped, self._euler_cb, queue_size=1
         )
-
-        self._timer.start(PAINT_REFRESH_PERIOD)
 
     @override
     def paintEvent(self, _: QPaintEvent) -> None:
@@ -315,3 +309,5 @@ class _OrientationViewerWidget(Widget):
         alpha = self.PITCH_HEIGHT_RANGE / 2
         self._slope = -tan_roll
         self._y_intercept = (self.width() * tan_roll + self.height() * (1 - euler_.pitch / alpha)) / 2
+
+        self.update()  # 再描画

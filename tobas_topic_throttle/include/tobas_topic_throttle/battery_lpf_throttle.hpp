@@ -7,5 +7,5 @@
 
 namespace tobas_topic_throttle
 {
-using BatteryThrottle = TopicThrottle<tobas_msgs::Battery, tobas::kBatteryTopic>;
+using BatteryLPFThrottle = TopicThrottle<tobas_msgs::Battery, tobas::kBatteryLpfTopic>;
 }

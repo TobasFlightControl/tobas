@@ -76,6 +76,12 @@ class Topic:
         CONTROLLER = "feedback/controller"
         OBSERVER = "feedback/observer"
 
+    class Throttled:
+        BATTERY_LPF = "throttled/battery_filtered"
+        RC_INPUT = "throttled/rc_input"
+        EULER = "throttled/euler"
+        LATENCY = "throttled/latency"
+
 
 class Service:
     LIST_CONTROLLERS = "controller_manager/list_controllers"

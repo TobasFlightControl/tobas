@@ -168,26 +168,6 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
 
-        self._stop_timers()
-
-    def _start_timers(self) -> None:
-        self._roll_range.start_timer()
-        self._pitch_range.start_timer()
-        self._yaw_range.start_timer()
-        self._throttle_range.start_timer()
-        self._mode_range.start_timer()
-        self._estop_range.start_timer()
-        self._gpsw_range.start_timer()
-
-    def _stop_timers(self) -> None:
-        self._roll_range.stop_timer()
-        self._pitch_range.stop_timer()
-        self._yaw_range.stop_timer()
-        self._throttle_range.stop_timer()
-        self._mode_range.stop_timer()
-        self._estop_range.stop_timer()
-        self._gpsw_range.stop_timer()
-
     def _cancel(self) -> None:
         calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration/cancel", Trigger)
         try:
@@ -221,6 +201,14 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._mode_range.set_value(msg.data[RCChannel.MODE])
         self._estop_range.set_value(msg.data[RCChannel.ESTOP])
         self._gpsw_range.set_value(msg.data[RCChannel.GPSW])
+
+        self._roll_range.update()
+        self._pitch_range.update()
+        self._yaw_range.update()
+        self._throttle_range.update()
+        self._mode_range.update()
+        self._estop_range.update()
+        self._gpsw_range.update()
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
@@ -260,8 +248,6 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._start_button.setEnabled(False)
         self._finish_button.setEnabled(True)
         self._cancel_button.setEnabled(True)
-
-        self._start_timers()
 
         q_info(self._main, "Radio calibration started.")
 
