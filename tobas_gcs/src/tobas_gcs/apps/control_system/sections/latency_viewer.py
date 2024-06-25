@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 import rospy
 import pyqtgraph as pg
 from overrides import override
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QWheelEvent
 
 from tobas_rospy.timestamped_buffer import TimestampedBuffer
@@ -54,7 +55,10 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
 
     def _latency_cb(self, latency: Latency) -> None:
         self._buffer.add(latency.header.stamp, latency.data)
-        self._update_plot()
+
+        # PlotWidgetが定義されたスレッドとROSコールバックのスレッドが異なるため，ここから直接PlotWidgetのメソッドを呼ぶことはできない．
+        # そのため，一度QTimerを介してQtのスレッドからPlotWidgetのメソッドを呼ぶようにする．
+        QTimer.singleShot(0, self._update_plot)
 
     def _update_plot(self) -> None:
         stamps = []
