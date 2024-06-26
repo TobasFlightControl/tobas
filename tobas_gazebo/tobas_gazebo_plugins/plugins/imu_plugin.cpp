@@ -40,8 +40,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   }
 
   // Initialize LPFs
-  acc_lpf_.initializeFromCutoff(acc_lpf_cutoff_freq_, zero3);
-  gyro_lpf_.initializeFromCutoff(gyro_lpf_cutoff_freq_, zero3);
+  acc_lpf_.initialize(acc_lpf_cutoff_freq_, zero3);
+  gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, zero3);
 
   // Advertise
   imu_pub_ = nh_.advertise<tobas_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);

@@ -19,7 +19,7 @@ void NoiseVarianceFilter::initialize(size_t window_size, double hpf_cutoff_freq,
   data_buf_.clear();
   data_buf_.push_back(init_data);
 
-  hpf_.initializeFromCutoff(hpf_cutoff_freq, init_data);
+  hpf_.initialize(hpf_cutoff_freq, init_data);
 
   welford_.reset();
   welford_.add(init_data);

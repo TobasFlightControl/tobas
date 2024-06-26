@@ -8,10 +8,10 @@ namespace tobas_preprocess
 {
 class BatteryLpf : public tobas::BaseNode
 {
-  // LPFの時定数 [s]
-  // 大きくしすぎると離陸時の急激な電圧降下に追従できず，所望の推力が出ない．
-  // ADCのノイズを軽減できる最小限の時定数に設定すべき．
-  static constexpr double kLpfTimeConst = 0.1;
+  // LPFのカットオフ周波数 [Hz]
+  // 小さすぎると離陸時の急激な電圧降下に追従できず，所望の推力が出ない．
+  // ADCのノイズを軽減できる最大限の値に設定すべき．
+  static constexpr double kLpfCutoff = 1.;
 
   using self = BatteryLpf;
   using super = tobas::BaseNode;
