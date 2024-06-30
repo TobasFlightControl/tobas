@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 
 def is_valid_email(email: str) -> bool:
@@ -33,6 +34,11 @@ def convert_superscript(text: str):
 
     # Replace all occurrences of ^ followed by one or more digits
     return re.sub(r"\^(\d+)", replace_with_superscript, text)
+
+
+def hex_representation(text: str) -> List[str]:
+    """テキストを16進数に変換する．シリアル通信のバイト列を見るのに便利．"""
+    return [char.encode("utf-8").hex() for char in text]
 
 
 def pascal_from_title(title_case: str) -> str:
