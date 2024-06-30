@@ -38,7 +38,7 @@ def convert_superscript(text: str):
 
 def hex_representation(text: str) -> List[str]:
     """テキストを16進数に変換する．シリアル通信のバイト列を見るのに便利．"""
-    return [char.encode("utf-8").hex() for char in text]
+    return [char.encode().hex().upper() for char in text]
 
 
 def pascal_from_title(title_case: str) -> str:
