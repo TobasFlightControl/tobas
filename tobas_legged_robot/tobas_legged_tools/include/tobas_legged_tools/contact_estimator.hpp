@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tobas_linear_control/kalman_filter.hpp>
 #include <tobas_kdl/treefksolverpos.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_linear_control/kalman_filter.hpp>
 
 namespace lr_tools
 {
