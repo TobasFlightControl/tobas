@@ -1,4 +1,5 @@
 #include <tobas_std_tools/float.hpp>
+#include <tobas_std_tools/geometry.hpp>
 
 #include "../include/tobas_kdl/quaternion.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
@@ -40,6 +41,11 @@ Quaternion Quaternion::AngleAxis(const Vector& w)
 Quaternion Quaternion::RPY(const double& roll, const double& pitch, const double& yaw)
 {
   return Quaternion(Rotation::RPY(roll, pitch, yaw));
+}
+
+void Quaternion::getRPY(double& roll, double& pitch, double& yaw) const
+{
+  tobas_std::quaternionToEuler(x, y, z, w, roll, pitch, yaw);
 }
 
 Quaternion Quaternion::complexConjugate() const

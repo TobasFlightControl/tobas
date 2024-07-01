@@ -22,6 +22,9 @@ public:
   /* オイラー角からクオータニオンを作成． */
   static Quaternion RPY(const double& roll, const double& pitch, const double& yaw);
 
+  /* クオータニオンをオイラー角に変換． */
+  void getRPY(double& roll, double& pitch, double& yaw) const;
+
   /* 複素共役クォータニオン． */
   Quaternion complexConjugate() const;
 
