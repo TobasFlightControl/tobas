@@ -1,7 +1,6 @@
 #include <algorithm>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/algorithm.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/RotorState.h>
 #include <tobas_gazebo_msgs/RotorDebug.h>
@@ -210,7 +209,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   const auto local_axis = joint_->LocalAxis(0);
 
   // (1) first term: Thrust Force
-  const auto rot_speed_sgn = tobas_std::sign(rot_speed);
+  const auto rot_speed_sgn = math::sign(rot_speed);
   const auto thrust = direction_ * rot_speed_sgn * motor_const_ * math::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddForce(thrust_W);
