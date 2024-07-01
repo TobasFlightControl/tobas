@@ -47,26 +47,19 @@ void KalmanFilter::initialize(const VectorXd& init_x, const MatrixXd& init_P)
   assert(init_x.size() == init_P.rows());
   assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_P));
 
-  x_size_ = ss.stateSize();
-  u_size_ = ss.inputSize();
-  y_size_ = ss.outputSize();
-  v_size_ = Bv.cols();
-
   x_ = init_x;
   P_ = init_P;
 }
 
 void KalmanFilter::update()
 {
+  assert(ss.isSizeMatch());
   assert(ss.isFinite());
-  assert(ss.stateSize() == x_size_);
-  assert(ss.inputSize() == u_size_);
-  assert(ss.outputSize() == y_size_);
-  assert(Bv.rows() == x_size_ && Bv.cols() == v_size_);
-  assert(Q.rows() == v_size_ && Q.cols() == v_size_);
-  assert(R.rows() == y_size_ && R.cols() == y_size_);
-  assert(y.size() == y_size_);
-  assert(u.size() == u_size_);
+  assert(Bv.rows() == stateSize() && Bv.cols() == systemNoiseSize());
+  assert(Q.rows() == systemNoiseSize() && Q.cols() == systemNoiseSize());
+  assert(R.rows() == outputSize() && R.cols() == outputSize());
+  assert(y.size() == outputSize());
+  assert(u.size() == inputSize());
   assert(ctrl::isControllable(ss.A, Bv));  // FIXME: 本当は可安定で十分
   assert(ctrl::isObservable(ss.A, ss.C));  // FIXME: 本当は可検出で十分
   assert(eigen_tools::isSymmetricSemiPositiveDefinite(Q));
@@ -79,22 +72,12 @@ void KalmanFilter::update()
   // 事後推定
   const MatrixXd PCt = P_prev * ss.C.transpose();
   const MatrixXd G = PCt * (ss.C * PCt + R).inverse();
-  const MatrixXd I_GC = MatrixXd::Identity(x_size_, x_size_) - G * ss.C;
+  const MatrixXd I_GC = MatrixXd::Identity(stateSize(), stateSize()) - G * ss.C;
   x_ = x_prev + G * (y - ss.C * x_prev);
   P_ = I_GC * P_prev * I_GC.transpose() + G * R * G.transpose();  // Joseph form
 
   // 強制対称化
   eigen_tools::symmetrise(P_);
-}
-
-const VectorXd& KalmanFilter::state() const
-{
-  return x_;
-}
-
-const MatrixXd& KalmanFilter::covariance() const
-{
-  return P_;
 }
 
 IdentityKalmanFilter::IdentityKalmanFilter(const Index& size)
@@ -133,15 +116,5 @@ void IdentityKalmanFilter::update()
   kf_.y = y;
 
   kf_.update();
-}
-
-const VectorXd& IdentityKalmanFilter::state() const
-{
-  return kf_.state();
-}
-
-const MatrixXd& IdentityKalmanFilter::covariance() const
-{
-  return kf_.covariance();
 }
 }  // namespace ctrl

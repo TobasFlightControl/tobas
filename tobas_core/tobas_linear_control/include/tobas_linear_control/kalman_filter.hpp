@@ -34,11 +34,15 @@ public:
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();
 
-  const Eigen::VectorXd& state() const;
-  const Eigen::MatrixXd& covariance() const;
+  inline Eigen::Index stateSize() const;
+  inline Eigen::Index inputSize() const;
+  inline Eigen::Index outputSize() const;
+  inline Eigen::Index systemNoiseSize() const;
+
+  inline const Eigen::VectorXd& state() const;
+  inline const Eigen::MatrixXd& covariance() const;
 
 private:
-  Eigen::Index x_size_, u_size_, y_size_, v_size_;
   Eigen::VectorXd x_;
   Eigen::MatrixXd P_;
 };
@@ -58,10 +62,50 @@ public:
   void initialize(const Eigen::VectorXd& init_x, const Eigen::MatrixXd& init_P);
   void update();
 
-  const Eigen::VectorXd& state() const;
-  const Eigen::MatrixXd& covariance() const;
+  inline const Eigen::VectorXd& state() const;
+  inline const Eigen::MatrixXd& covariance() const;
 
 private:
   KalmanFilter kf_;
 };
+
+inline Eigen::Index KalmanFilter::stateSize() const
+{
+  return ss.stateSize();
+}
+
+inline Eigen::Index KalmanFilter::inputSize() const
+{
+  return ss.inputSize();
+}
+
+inline Eigen::Index KalmanFilter::outputSize() const
+{
+  return ss.outputSize();
+}
+
+inline Eigen::Index KalmanFilter::systemNoiseSize() const
+{
+  return Bv.cols();
+}
+
+inline const Eigen::VectorXd& KalmanFilter::state() const
+{
+  return x_;
+}
+
+inline const Eigen::MatrixXd& KalmanFilter::covariance() const
+{
+  return P_;
+}
+
+inline const Eigen::VectorXd& IdentityKalmanFilter::state() const
+{
+  return kf_.state();
+}
+
+inline const Eigen::MatrixXd& IdentityKalmanFilter::covariance() const
+{
+  return kf_.covariance();
+}
 }  // namespace ctrl
