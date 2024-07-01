@@ -82,7 +82,7 @@ private:
 
   kdl::TreeJntToInertiaSolver inertia_solver_;
   kdl::TreeBoundingBoxSolver bb_solver_;
-  PointContactsLinearDynamics cont_;
+  LinearDynamics cont_;
   ctrl::LinearDenseMPC mpc_;
   ctrl::C2D_RK4 c2d_;
   Eigen::VectorXd x_rate_;
@@ -107,36 +107,36 @@ inline Eigen::Vector3d GroundForceController::optimalReactionForce(size_t leg) c
 
 inline Eigen::Vector3d GroundForceController::optimalDGyro() const
 {
-  return x_rate_.segment<3>(PointContactsLinearDynamics::kGyroXIdx);
+  return x_rate_.segment<3>(LinearDynamics::kGyroXIdx);
 }
 
 inline Eigen::Vector3d GroundForceController::optimalAccel() const
 {
-  return x_rate_.segment<3>(PointContactsLinearDynamics::kVelXIdx);
+  return x_rate_.segment<3>(LinearDynamics::kVelXIdx);
 }
 
 inline double GroundForceController::nextRoll() const
 {
-  return x_next_(PointContactsLinearDynamics::kRollIdx);
+  return x_next_(LinearDynamics::kRollIdx);
 }
 
 inline double GroundForceController::nextPitch() const
 {
-  return x_next_(PointContactsLinearDynamics::kPitchIdx);
+  return x_next_(LinearDynamics::kPitchIdx);
 }
 
 inline double GroundForceController::nextAltitude() const
 {
-  return x_next_(PointContactsLinearDynamics::kAltIdx);
+  return x_next_(LinearDynamics::kAltIdx);
 }
 
 inline Eigen::Vector3d GroundForceController::nextGyro() const
 {
-  return x_next_.segment<3>(PointContactsLinearDynamics::kGyroXIdx);
+  return x_next_.segment<3>(LinearDynamics::kGyroXIdx);
 }
 
 inline Eigen::Vector3d GroundForceController::nextVel() const
 {
-  return x_next_.segment<3>(PointContactsLinearDynamics::kVelXIdx);
+  return x_next_.segment<3>(LinearDynamics::kVelXIdx);
 }
 }  // namespace lr_tools

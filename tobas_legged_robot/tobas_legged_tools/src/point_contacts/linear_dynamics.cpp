@@ -7,7 +7,7 @@ using namespace Eigen;
 
 namespace lr_tools
 {
-PointContactsLinearDynamics::PointContactsLinearDynamics(const kdl::Tree& tree, const vector<string>& foot_names)
+LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot_names)
   : foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), inertia_solver_(tree)
 {
   resize(kGravIdx + 1, nc_ * 3);
@@ -19,13 +19,13 @@ PointContactsLinearDynamics::PointContactsLinearDynamics(const kdl::Tree& tree, 
   A(kVelZIdx, kGravIdx) = -1;
 }
 
-void PointContactsLinearDynamics::updateInternalDataStructures()
+void LinearDynamics::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 }
 
-void PointContactsLinearDynamics::update(
+void LinearDynamics::update(
   const double& roll,
   const double& pitch,
   const kdl::JntArray& q,
@@ -37,12 +37,12 @@ void PointContactsLinearDynamics::update(
   updateB(roll, pitch, q, is_stand);
 }
 
-void PointContactsLinearDynamics::updateA(const double& pitch)
+void LinearDynamics::updateA(const double& pitch)
 {
   A(kRollIdx, kGyroXIdx) = 1 / cos(pitch);
 }
 
-void PointContactsLinearDynamics::updateB(
+void LinearDynamics::updateB(
   const double& roll,
   const double& pitch,
   const kdl::JntArray& q,

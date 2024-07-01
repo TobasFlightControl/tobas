@@ -10,7 +10,7 @@ namespace lr_tools
  * @brief The linear dynamics of point-contact legged robots.\n
  * Dynamic Locomotion in the MIT Cheetah 3 Through Convex Model-Predictive Control [Carlo+, 2018]
  */
-class PointContactsLinearDynamics : public ctrl::LinearDynamics
+class LinearDynamics : public ctrl::LinearDynamics
 {
 public:
   static constexpr size_t kRollIdx = 0;
@@ -24,7 +24,7 @@ public:
   static constexpr size_t kVelZIdx = 8;
   static constexpr size_t kGravIdx = 9;
 
-  explicit PointContactsLinearDynamics(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
+  explicit LinearDynamics(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
 
   void updateInternalDataStructures();
   void update(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
