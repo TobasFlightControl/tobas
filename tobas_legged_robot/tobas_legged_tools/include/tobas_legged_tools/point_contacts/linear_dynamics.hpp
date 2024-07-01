@@ -30,11 +30,11 @@ public:
   void update(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
 
 private:
-  kdl::TreeFkSolverPos fk_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
-
   const std::vector<std::string> foot_names_;
   const size_t nc_;  // The number of contact points
+
+  kdl::TreeFkSolverPos fk_solver_;
+  kdl::TreeJntToInertiaSolver inertia_solver_;
 
   void updateA(const double& pitch);
   void updateB(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);

@@ -9,7 +9,7 @@ using namespace kdl;
 namespace lr_tools
 {
 PointContactsLinearDynamics::PointContactsLinearDynamics(const Tree& tree, const vector<string>& foot_names)
-  : fk_solver_(tree), inertia_solver_(tree), foot_names_(foot_names), nc_(foot_names.size())
+  : foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), inertia_solver_(tree)
 {
   resize(kGravIdx + 1, nc_ * 3);
   setZero();
