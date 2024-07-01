@@ -7,7 +7,8 @@
 #include <tobas_kdl/treeboundingboxsolver.hpp>
 #include <tobas_linear_control/mpc/linear_dense.hpp>
 #include <tobas_linear_control/c2d/rk4.hpp>
-#include <tobas_legged_tools/point_contacts/linear_dynamics.hpp>
+
+#include "./linear_dynamics.hpp"
 
 namespace lr_tools
 {

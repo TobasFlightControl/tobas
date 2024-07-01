@@ -2,7 +2,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_linear_control/util.hpp>
 
-#include "../include/tobas_legged_tools/point_contacts/ground_force_controller.hpp"
+#include "../../include/tobas_legged_tools/point_contacts/ground_force_controller.hpp"
 
 using namespace std;
 using namespace Eigen;
