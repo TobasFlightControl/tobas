@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(tobas_rviz_plugin)
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
+file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
+  message("This package is skipped on Raspberry Pi.")
   find_package(catkin REQUIRED)
   catkin_package()
   return()
@@ -37,6 +39,7 @@ link_directories(${OGRE_LIBRARY_DIRS})
 # Qt Stuff
 find_package(Qt5 ${rviz_QT_VERSION} REQUIRED Core Widgets)
 set(QT_LIBRARIES Qt5::Widgets)
+
 macro(qt_wrap_ui)
   qt5_wrap_ui(${ARGN})
 endmacro()
