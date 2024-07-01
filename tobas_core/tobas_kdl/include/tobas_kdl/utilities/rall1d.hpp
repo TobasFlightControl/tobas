@@ -27,18 +27,21 @@ public:
   T t;     // value
   V grad;  // gradient
 
-  inline Rall1d() : t(), grad(){};
+  inline explicit Rall1d() : t(), grad()
+  {
+  }
 
-  explicit inline Rall1d(typename TI<T>::Arg c)
+  inline explicit Rall1d(typename TI<T>::Arg c)
   {
     t = T(c);
     setToZero(grad);
   }
 
-  inline Rall1d(typename TI<T>::Arg tn, typename TI<V>::Arg afg) : t(tn), grad(afg)
+  inline explicit Rall1d(typename TI<T>::Arg tn, typename TI<V>::Arg afg) : t(tn), grad(afg)
   {
   }
 
+  /* Copy constructor. */
   inline Rall1d(const Rall1d<T, V, S>& r) : t(r.t), grad(r.grad)
   {
   }
@@ -57,17 +60,17 @@ public:
     return tmp;
   }
 
-  inline Rall1d<T, V, S>& operator=(S c)
-  {
-    t = c;
-    setToZero(grad);
-    return *this;
-  }
-
   inline Rall1d<T, V, S>& operator=(const Rall1d<T, V, S>& r)
   {
     t = r.t;
     grad = r.grad;
+    return *this;
+  }
+
+  inline Rall1d<T, V, S>& operator=(S c)
+  {
+    t = c;
+    setToZero(grad);
     return *this;
   }
 

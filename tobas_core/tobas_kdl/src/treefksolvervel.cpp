@@ -42,8 +42,8 @@ FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, con
   const auto twist = cur_seg.twist(q(cur_idx), qd(cur_idx));
   const FrameVel cur_framevel(pose, twist);
 
-  const auto root_iter = tree_.getRootSegment();
-  if (it == root_iter)
+  const auto root_it = tree_.getRootSegment();
+  if (it == root_it)
   {
     return cur_framevel;
   }
