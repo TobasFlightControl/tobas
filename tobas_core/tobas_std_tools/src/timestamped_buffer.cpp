@@ -2,7 +2,7 @@
 #include <limits>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/kahan.hpp>
+#include <tobas_algorithm/kahan.hpp>
 
 #include "../include/tobas_std_tools/timestamped_buffer.hpp"
 
@@ -36,7 +36,7 @@ double TimestampedBufferDouble::mean() const
   if (this->size() == 0)
     return 0.;
 
-  Kahan<double> sum;
+  algo::Kahan<double> sum;
   for (const auto& [_, x] : map_)
     sum.add(x);
 
@@ -50,7 +50,7 @@ double TimestampedBufferDouble::variance() const
 
   const auto mean = this->mean();
 
-  Kahan<double> sum;
+  algo::Kahan<double> sum;
   for (const auto& [_, x] : map_)
     sum.add(math::sqr(x - mean));
 

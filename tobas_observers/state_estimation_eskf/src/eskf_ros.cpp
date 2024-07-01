@@ -1,9 +1,10 @@
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/boost.hpp>
 #include <tobas_std_tools/exception.hpp>
 #include <tobas_std_tools/debug.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/iostream.hpp>
 #include <tobas_kdl/euler.hpp>
@@ -221,7 +222,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 
   mag_ = mag;
 
-  const double yaw_meas = tobas_std::wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
+  const double yaw_meas = algo::wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
   eskf_.measureYaw(yaw_meas, yaw_var_);
 }
 

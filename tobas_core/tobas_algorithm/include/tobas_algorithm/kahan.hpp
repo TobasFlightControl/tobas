@@ -1,6 +1,6 @@
 #pragma once
 
-namespace tobas_std
+namespace algo
 {
 /* Kahan Summation. The worst-case round-off error scales with O(nε^2). */
 template <typename T>
@@ -46,4 +46,4 @@ inline const T& Kahan<T>::get() const
 {
   return sum_;
 }
-}  // namespace tobas_std
+}  // namespace algo

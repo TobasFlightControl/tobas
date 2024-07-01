@@ -2,7 +2,7 @@
 
 #include <limits>
 
-namespace tobas_std
+namespace algo
 {
 /* Stores the minimum value. */
 template <typename T>
@@ -107,4 +107,4 @@ private:
   MinimumHolder<T> min_;
   MaximumHolder<T> max_;
 };
-}  // namespace tobas_std
+}  // namespace algo

@@ -1,7 +1,7 @@
 
 #include <tobas_math/core.hpp>
+#include <tobas_algorithm/kahan.hpp>
 #include <tobas_std_tools/array.hpp>
-#include <tobas_std_tools/kahan.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/Imu.h>
@@ -132,7 +132,7 @@ void ImuHandler::initializeTimerCb(const ros::TimerEvent&)
 void ImuHandler::measureGyroBias()
 {
   // 角速度の和を取得
-  std::array<tobas_std::Kahan<float>, 3> gyro_sum;
+  array<algo::Kahan<float>, 3> gyro_sum;
 
   ros::Rate rate(kSamplingRate);
   for (int i = 0; i < kMeasureGyroBiasCount; ++i)

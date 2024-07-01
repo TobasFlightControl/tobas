@@ -1,5 +1,5 @@
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -46,7 +46,7 @@ void AccelAttitudeConverter::update(
   // 姿勢の制限を考慮してx, yをクランプ
   const auto tan_max_atti = tan(cfg_.max_attitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
-  tobas_std::clamp2d(x, y, max_xy_norm);
+  algo::clamp2d(x, y, max_xy_norm);
 
   // 3元非線形方程式の解析解を計算
   cur_rot.getRPY(roll_, pitch_, yaw_);

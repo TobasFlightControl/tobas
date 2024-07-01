@@ -2,7 +2,7 @@
 #include <std_srvs/Trigger.h>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>

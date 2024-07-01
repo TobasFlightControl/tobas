@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 #include <XYZgeomag.hpp>
 
 #include "./drone.hpp"

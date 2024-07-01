@@ -1,7 +1,7 @@
 #include <array>
 #include <cassert>
 
-#include "./kahan.hpp"
+#include <tobas_algorithm/kahan.hpp>
 
 namespace tobas_std
 {
@@ -19,7 +19,7 @@ T sum(const std::array<T, N>& arr)
 template <typename T, size_t N>
 T fsum(const std::array<T, N>& arr)
 {
-  Kahan<T> sum;
+  algo::Kahan<T> sum;
   for (const auto& x : arr)
     sum.add(x);
   return sum.get();

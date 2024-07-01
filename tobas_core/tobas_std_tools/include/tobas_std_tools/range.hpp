@@ -1,8 +1,8 @@
 #pragma once
 
+#include <string>
+#include <iostream>
 #include <cassert>
-
-#include "./algorithm.hpp"
 
 namespace tobas_std
 {
@@ -27,6 +27,7 @@ public:
   inline Range<T> overlappedArea(const Range<T>& other);
 
   inline T clamp(const T& x) const;
+
   /* Return true if value is clamped. */
   inline bool clamp(const T& src, T& des) const;
 

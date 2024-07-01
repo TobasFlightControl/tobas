@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/range_holder.hpp>
+#include <tobas_algorithm/range_holder.hpp>
 
 #include "./treesolveri.hpp"
 #include "./treefksolverpos_all.hpp"
@@ -36,7 +36,7 @@ public:
 
 private:
   TreeFkSolverPosAll fk_solver_;
-  std::array<tobas_std::RangeHolder<double>, 3> ranges_;
+  std::array<algo::RangeHolder<double>, 3> ranges_;
 };
 
 inline double TreeBoundingBoxSolver::xMin() const
