@@ -7,7 +7,7 @@ using namespace std;
 using namespace Eigen;
 using namespace kdl;
 
-namespace tobas_legged_tools
+namespace lr_tools
 {
 ContactEstimator::ContactEstimator(const Tree& tree, const vector<string>& foot_names)
   : tree_(tree), fk_solver_(tree), inertia_solver_(tree), foot_names_(foot_names), nc_(foot_names.size()), states_(nc_)
@@ -191,4 +191,4 @@ VectorXd ContactEstimator::calcProbs_pred(const vector<bool>& cpg_states, const 
   }
   return res;
 }
-}  // namespace tobas_legged_tools
+}  // namespace lr_tools

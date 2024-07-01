@@ -6,7 +6,7 @@ using namespace std;
 using namespace Eigen;
 using namespace kdl;
 
-namespace tobas_legged_tools
+namespace lr_tools
 {
 PointContactsLinearDynamics::PointContactsLinearDynamics(const Tree& tree, const vector<string>& foot_names)
   : fk_solver_(tree), inertia_solver_(tree), foot_names_(foot_names), nc_(foot_names.size())
@@ -81,4 +81,4 @@ void PointContactsLinearDynamics::updateB(
     }
   }
 }
-}  // namespace tobas_legged_tools
+}  // namespace lr_tools

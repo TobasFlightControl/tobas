@@ -4,7 +4,7 @@
 #include <tobas_kdl/treefksolverpos.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
-namespace tobas_legged_tools
+namespace lr_tools
 {
 /**
  * @brief The linear dynamics of point-contact legged robots.\n
@@ -39,4 +39,4 @@ private:
   void updateA(const double& pitch);
   void updateB(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
 };
-}  // namespace tobas_legged_tools
+}  // namespace lr_tools

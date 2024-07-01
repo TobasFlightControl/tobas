@@ -4,7 +4,7 @@
 #include <tobas_kdl/treefksolverpos.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
-namespace tobas_legged_tools
+namespace lr_tools
 {
 /**
  * @brief Contact estimator.
@@ -73,4 +73,4 @@ private:
   Eigen::VectorXd calcProbs_force(const std::vector<double>& contact_forces);
   Eigen::VectorXd calcProbs_pred(const std::vector<bool>& cpg_states, const std::vector<double>& cpg_subphases);
 };
-}  // namespace tobas_legged_tools
+}  // namespace lr_tools
