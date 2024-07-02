@@ -2,7 +2,7 @@
 
 namespace kdl
 {
-ChainIdSolver_RNE::ChainIdSolver_RNE(const Chain& chain) : super(chain)
+ChainIdSolver_RNE::ChainIdSolver_RNE(const Chain& chain) : super(chain), ag_(Accel::Zero())
 {
   updateInternalDataStructures();
 }
@@ -32,7 +32,8 @@ int ChainIdSolver_RNE::CartToJnt(
   if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_ || forces.size() != ns_)
     return setDefaultError(E_SIZE_MISMATCH);
 
-  const Accel ag(-grav, Vector::Zero());
+  // Update gravity
+  ag_.linear = -grav;
 
   // Sweep from root to leaf
   j_ = 0;
@@ -47,23 +48,25 @@ int ChainIdSolver_RNE::CartToJnt(
     }
     else
     {
-      qj_ = qdj_ = qddj_ = 0;
+      qj_ = 0.;
+      qdj_ = 0.;
+      qddj_ = 0.;
     }
 
     X_[i] = chain_.getSegment(i).pose(qj_);
     S_[i] = X_[i].M.inverse(chain_.getSegment(i).jacobian(qj_));
-    const Twist vj = X_[i].M.inverse(chain_.getSegment(i).twist(qj_, qdj_));
+    const auto vj = X_[i].M.inverse(chain_.getSegment(i).twist(qj_, qdj_));
     if (i == 0)
     {
       v_[i] = vj;
-      a_[i] = X_[i].inverse(ag) + S_[i].accel(qddj_) + vj * vj;
+      a_[i] = X_[i].inverse(ag_) + S_[i].accel(qddj_) + vj * vj;
     }
     else
     {
       v_[i] = X_[i].inverse(v_[i - 1]) + vj;
       a_[i] = X_[i].inverse(a_[i - 1]) + S_[i].accel(qddj_) + v_[i] * vj;
     }
-    const RigidBodyInertia Ii = chain_.getSegment(i).getInertia();
+    const auto Ii = chain_.getSegment(i).getInertia();
     f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]) - forces[i];
   }
 
@@ -72,7 +75,7 @@ int ChainIdSolver_RNE::CartToJnt(
   for (int i = ns_ - 1; i >= 0; --i)
   {
     if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
-      effort_out_(--j_) = S_[i].dot(f_[i]);
+      effort_out_(j_--) = S_[i].dot(f_[i]);
     if (i != 0)
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];
   }
@@ -92,8 +95,8 @@ int ChainIdSolver_RNE::CartToJnt(
   if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
 
-  const Accel ag(-grav, Vector::Zero());
-  Wrench _f_ee;  // CHANGED
+  // Update gravity
+  ag_.linear = -grav;
 
   // Sweep from root to leaf
   for (size_t i = 0; i < ns_; ++i)
@@ -107,7 +110,9 @@ int ChainIdSolver_RNE::CartToJnt(
     }
     else
     {
-      qj_ = qdj_ = qddj_ = 0;
+      qj_ = 0.;
+      qdj_ = 0.;
+      qddj_ = 0.;
     }
 
     X_[i] = chain_.getSegment(i).pose(qj_);
@@ -116,23 +121,21 @@ int ChainIdSolver_RNE::CartToJnt(
     if (i == 0)
     {
       v_[i] = vj;
-      a_[i] = X_[i].inverse(ag) + S_[i].accel(qddj_) + v_[i] * vj;
-      _f_ee = X_[i].M.inverse(f_ee);  // CHANGED
+      a_[i] = X_[i].inverse(ag_) + S_[i].accel(qddj_) + v_[i] * vj;
+      f_ee_ = X_[i].M.inverse(f_ee);  // CHANGED
     }
     else
     {
       v_[i] = X_[i].inverse(v_[i - 1]) + vj;
       a_[i] = X_[i].inverse(a_[i - 1]) + S_[i].accel(qddj_) + v_[i] * vj;
-      _f_ee = X_[i].M.inverse(_f_ee);  // CHANGED
+      f_ee_ = X_[i].M.inverse(f_ee_);  // CHANGED
     }
     const auto& Ii = chain_.getSegment(i).getInertia();
     /* -----CHANGED----- */
     // f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]) - forces[i];
     f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]);
     if (i == ns_ - 1)
-    {
-      f_[i] -= _f_ee;
-    }
+      f_[i] -= f_ee_;
     /* -----CHANGED----- */
   }
 
@@ -141,7 +144,7 @@ int ChainIdSolver_RNE::CartToJnt(
   for (int i = ns_ - 1; i >= 0; --i)
   {
     if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
-      effort_out_(--j_) = S_[i].dot(f_[i]);
+      effort_out_(j_--) = S_[i].dot(f_[i]);
     if (i != 0)
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];
   }
