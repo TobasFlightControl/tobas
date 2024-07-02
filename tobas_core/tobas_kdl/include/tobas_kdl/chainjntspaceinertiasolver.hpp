@@ -22,8 +22,9 @@ private:
   std::vector<RigidBodyInertia> I_;
   std::vector<Frame> X_;
   std::vector<SegmentJacobian> S_;
-
   JntSpaceInertiaMatrix H_out_;
+  int k_;
+  double qk_;
 };
 
 inline const JntSpaceInertiaMatrix& ChainJntSpaceInertiaSolver::getMass() const

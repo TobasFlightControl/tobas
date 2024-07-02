@@ -18,6 +18,8 @@ public:
 
   inline static VectorVel Zero();
 
+  inline void setZero();
+
   doubleVel norm(double eps = kDefaultEpsilon) const;
 
   VectorVel& operator+=(const VectorVel& arg);
@@ -61,6 +63,12 @@ inline VectorVel::VectorVel(const Vector& _p) : p(_p), v(Vector::Zero())
 VectorVel VectorVel::Zero()
 {
   return VectorVel(Vector::Zero(), Vector::Zero());
+}
+
+inline void VectorVel::setZero()
+{
+  p.setZero();
+  v.setZero();
 }
 
 inline VectorVel operator+(const VectorVel& r1, const VectorVel& r2)

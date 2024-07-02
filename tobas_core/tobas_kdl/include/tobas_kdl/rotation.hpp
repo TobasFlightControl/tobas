@@ -34,6 +34,8 @@ public:
   // Gives back an identity rotaton matrix
   inline static Rotation Identity();
 
+  inline void setIdentity();
+
   // Defines a multiplication R*V between a Rotation R and a Vector V.
   // Complexity : 9M+6A
   inline Vector operator*(const Vector& v) const;
@@ -208,7 +210,12 @@ inline Rotation::Rotation(const Eigen::Matrix3d& data) : data(data)
 
 inline Rotation Rotation::Identity()
 {
-  return Rotation(1, 0, 0, 0, 1, 0, 0, 0, 1);
+  return Rotation(Eigen::Matrix3d::Identity());
+}
+
+inline void Rotation::setIdentity()
+{
+  data.setIdentity();
 }
 
 inline Vector Rotation::operator*(const Vector& v) const

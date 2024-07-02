@@ -26,7 +26,7 @@ public:
 private:
   std::vector<RigidBodyInertia> I_;
   std::vector<Frame> X_;
-
   RigidBodyInertia I_out_;
+  size_t j_;
 };
 }  // namespace kdl

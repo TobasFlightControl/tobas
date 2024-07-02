@@ -24,28 +24,19 @@ int ChainJntToInertiaSolver::JntToCart(const JntArray& q)
   if (q.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
 
-  size_t j = 0;
-  double qj;
-
   // Sweep from root to leaf
+  j_ = 0;
   for (size_t i = 0; i < ns_; ++i)
   {
-    I_[i] = chain_.getSegment(i).getInertia();
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
-    {
-      qj = q(j);
-      ++j;
-    }
-    else
-    {
-      qj = 0.;
-    }
-    X_[i] = chain_.getSegment(i).pose(qj);
+    const auto& seg = chain_.getSegment(i);
+    const auto qj = seg.getJoint().type != Joint::Fixed ? q(j_++) : 0.;
+    I_[i] = seg.getInertia();
+    X_[i] = seg.pose(qj);
   }
 
   // Sweep from leaf to root
   for (int i = ns_ - 1; i > 0; --i)
-    I_[i - 1] = I_[i - 1] + X_[i] * I_[i];
+    I_[i - 1] += X_[i] * I_[i];
 
   // 最後に{root}座標系に変換して返す
   I_out_ = X_[0] * I_[0];

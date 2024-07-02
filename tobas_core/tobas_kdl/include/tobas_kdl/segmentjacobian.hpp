@@ -20,6 +20,8 @@ public:
 
   inline static SegmentJacobian Zero();
 
+  inline void setZero();
+
   inline SegmentJacobian refPoint(const Vector& p) const;
 
   /* 関節空間の加速度からタスク空間の加速度を求める． */
@@ -45,6 +47,12 @@ inline SegmentJacobian::SegmentJacobian(const Vector& _linear, const Vector& _an
 inline SegmentJacobian SegmentJacobian::Zero()
 {
   return SegmentJacobian(Vector::Zero(), Vector::Zero());
+}
+
+inline void SegmentJacobian::setZero()
+{
+  linear.setZero();
+  angular.setZero();
 }
 
 inline SegmentJacobian SegmentJacobian::refPoint(const Vector& p) const

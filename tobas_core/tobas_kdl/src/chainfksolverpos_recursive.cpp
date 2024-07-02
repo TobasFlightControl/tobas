@@ -26,20 +26,14 @@ int ChainFkSolverPos_recursive::JntToCart(const JntArray& q_in, int _seg_nr)
   if (seg_nr > chain_.getNrOfSegments())
     return setDefaultError(E_OUT_OF_RANGE);
 
-  p_out_ = Frame::Identity();
-  size_t j = 0;
+  p_out_.setIdentity();
+  j_ = 0;
 
   for (size_t i = 0; i < seg_nr; ++i)
   {
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
-    {
-      p_out_ = p_out_ * chain_.getSegment(i).pose(q_in(j));
-      ++j;
-    }
-    else
-    {
-      p_out_ = p_out_ * chain_.getSegment(i).pose(0);
-    }
+    const auto& seg = chain_.getSegment(i);
+    const auto qj = seg.getJoint().type != Joint::Fixed ? q_in(j_++) : 0.;
+    p_out_ = p_out_ * seg.pose(qj);
   }
 
   return setDefaultError(E_NOERROR);

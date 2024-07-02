@@ -1,12 +1,9 @@
 #include <iostream>
 
-#include <tobas_std_tools/debug.hpp>
+#include <tobas_math/core.hpp>
 
 #include "../include/tobas_kdl/chainiksolverpos_lm.hpp"
 #include "../include/tobas_kdl/frames.hpp"
-
-#define INIT_LAMBDA 10.
-#define INIT_V 2.
 
 using namespace std;
 using namespace Eigen;
@@ -34,7 +31,7 @@ void ChainIkSolverPos_LM::updateInternalDataStructures()
 
 void ChainIkSolverPos_LM::displayJacobian(const JntArray& jval)
 {
-  const VectorXd& q = jval.data;
+  const auto& q = jval.data;
   computeFwdPos(q);
   computeJacobian(q);
   svd_.compute(jac_);
@@ -60,26 +57,16 @@ int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_g
   computeJacobian(q);
   jac_ = L_.asDiagonal() * jac_;
 
-  double lambda = INIT_LAMBDA;
-  double v = INIT_V;
+  auto lambda = kInitLambda;
+  auto v = kInitV;
   for (size_t i = 0; i < max_iter_; ++i)
   {
     svd_.compute(jac_);
     VectorXd Aii = svd_.singularValues();
-    for (int j = 0; j < Aii.rows(); ++j)
+    for (Index j = 0; j < Aii.rows(); ++j)
       Aii(j) = Aii(j) / (Aii(j) * Aii(j) + lambda);
-    const VectorXd tmp = Aii.cwiseProduct(svd_.matrixU().transpose() * delta_pos);
-    const VectorXd diffq = svd_.matrixV() * tmp;
+    const VectorXd diffq = svd_.matrixV() * Aii.cwiseProduct(svd_.matrixU().transpose() * delta_pos);
     grad_ = jac_.transpose() * delta_pos;
-    // cout << "------- iteration " << i << " ----------------\n"
-    //      << "  q              = " << q.transpose() << "\n"
-    //      << "  weighted jac   = \n"
-    //      << jac_ << "\n"
-    //      << "  lambda         = " << lambda << "\n"
-    //      << "  eigenvalues    = " << svd_.singularValues().transpose() << "\n"
-    //      << "  difference     = " << delta_pos.transpose() << "\n"
-    //      << "  difference norm= " << delta_pos_norm << "\n"
-    //      << "  proj. on grad_. = " << grad_ << endl;
     const auto dnorm = diffq.lpNorm<Infinity>();
     if (dnorm < eps_jnt_)
     {
@@ -101,8 +88,8 @@ int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_g
     enforceJointLimits(q_new);
     computeFwdPos(q_new);
     const Vector6d delta_pos_new = L_.asDiagonal() * (T_base_head_ - T_base_goal).toTwist().ravel();
-    const double delta_pos_new_norm = delta_pos_new.norm();
-    double rho = delta_pos_norm * delta_pos_norm - delta_pos_new_norm * delta_pos_new_norm;
+    const auto delta_pos_new_norm = delta_pos_new.norm();
+    auto rho = math::sqr(delta_pos_norm) - math::sqr(delta_pos_new_norm);
     rho /= diffq.transpose() * (lambda * diffq + grad_);
     if (rho > 0)
     {
@@ -116,14 +103,14 @@ int ChainIkSolverPos_LM::CartToJnt(const JntArray& q_init, const Frame& T_base_g
       }
       computeJacobian(q_new);
       jac_ = L_.asDiagonal() * jac_;
-      const double tmp = 2 * rho - 1;
-      lambda = lambda * max(1 / 3., 1 - tmp * tmp * tmp);
-      v = INIT_V;
+      const auto tmp = 2 * rho - 1;
+      lambda *= max(1 / 3., 1 - tmp * tmp * tmp);
+      v = kInitV;
     }
     else
     {
-      lambda = lambda * v;
-      v = 2 * v;
+      lambda *= v;
+      v *= 2;
     }
   }
   q_out_.data = q;
@@ -172,17 +159,17 @@ void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
   size_t j = 0;                      // joint index
   for (size_t i = 0; i < ns_; ++i)
   {
-    const Segment& segment = chain_.getSegment(i);
-    if (segment.getJoint().type != Joint::Fixed)
+    const auto& seg = chain_.getSegment(i);
+    if (seg.getJoint().type != Joint::Fixed)
     {
       T_base_jointroot_[j] = T_base_head_;
-      T_base_head_ = T_base_head_ * segment.pose(q(j));
+      T_base_head_ = T_base_head_ * seg.pose(q(j));
       T_base_jointtip_[j] = T_base_head_;
       ++j;
     }
     else
     {
-      T_base_head_ = T_base_head_ * segment.pose(0.);
+      T_base_head_ = T_base_head_ * seg.pose(0.);
     }
   }
 }
@@ -192,13 +179,12 @@ void ChainIkSolverPos_LM::computeJacobian(const VectorXd& q)
   size_t j = 0;
   for (size_t i = 0; i < ns_; ++i)
   {
-    const Segment& segment = chain_.getSegment(i);
-    if (segment.getJoint().type != Joint::Fixed)
+    const auto& seg = chain_.getSegment(i);
+    if (seg.getJoint().type != Joint::Fixed)
     {
       // compute twist of the end effector motion caused by joint[j];
       // expressed in base frame, with vel. ref. point equal to the end effector
-      const Twist t =
-        (T_base_jointroot_[j].M * segment.twist(q(j), 1.)).refPoint(T_base_head_.p - T_base_jointtip_[j].p);
+      const auto t = (T_base_jointroot_[j].M * seg.jacobian(q(j))).refPoint(T_base_head_.p - T_base_jointtip_[j].p);
       jac_.col(j) = t.ravel();
       ++j;
     }

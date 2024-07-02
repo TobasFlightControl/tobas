@@ -41,12 +41,13 @@ public:
 
   const Jacobian& getJacobian() const
   {
-    return jac_out_;
+    return J_out_;
   }
 
 private:
   std::vector<bool> locked_joints_;
-  Frame total_;
-  Jacobian jac_out_;
+  Jacobian J_out_;
+  Frame T_tmp_;
+  size_t j_, k_;
 };
 }  // namespace kdl

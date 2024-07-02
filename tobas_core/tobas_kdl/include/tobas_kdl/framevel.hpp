@@ -9,8 +9,8 @@ namespace kdl
 class FrameVel
 {
 public:
-  RotationVel M;  // Rotation and angular velocity
   VectorVel p;    // Position and linear velocity
+  RotationVel M;  // Rotation and angular velocity
 
   inline explicit FrameVel();
   inline explicit FrameVel(const Frame& _T);
@@ -18,6 +18,8 @@ public:
   inline explicit FrameVel(const RotationVel& _M, const VectorVel& _p);
 
   inline static FrameVel Identity();
+
+  inline void setIdentity();
 
   inline Frame getFrame() const;
   inline Twist getTwist() const;
@@ -39,21 +41,27 @@ inline FrameVel::FrameVel()
 {
 }
 
-inline FrameVel::FrameVel(const Frame& _T) : M(_T.M), p(_T.p)
+inline FrameVel::FrameVel(const Frame& _T) : p(_T.p), M(_T.M)
 {
 }
 
-inline FrameVel::FrameVel(const Frame& _T, const Twist& _t) : M(_T.M, _t.rot), p(_T.p, _t.vel)
+inline FrameVel::FrameVel(const Frame& _T, const Twist& _t) : p(_T.p, _t.vel), M(_T.M, _t.rot)
 {
 }
 
-inline FrameVel::FrameVel(const RotationVel& _M, const VectorVel& _p) : M(_M), p(_p)
+inline FrameVel::FrameVel(const RotationVel& _M, const VectorVel& _p) : p(_p), M(_M)
 {
 }
 
 inline FrameVel FrameVel::Identity()
 {
   return FrameVel(RotationVel::Identity(), VectorVel::Zero());
+}
+
+inline void FrameVel::setIdentity()
+{
+  p.setZero();
+  M.setIdentity();
 }
 
 inline Frame FrameVel::getFrame() const

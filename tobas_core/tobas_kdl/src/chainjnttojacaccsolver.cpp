@@ -23,24 +23,24 @@ int ChainJntToJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
   if (q.rows() != nj_ || qd.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
 
-  size_t j = 0;
-  double qj, qdj;
-
+  j_ = 0;
   for (size_t i = 0; i < ns_; ++i)
   {
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
+    const auto& seg = chain_.getSegment(i);
+    if (seg.getJoint().type != Joint::Fixed)
     {
-      qj = q(j);
-      qdj = qd(j);
-      ++j;
+      qj_ = q(j_);
+      qdj_ = qd(j_);
+      ++j_;
     }
     else
     {
-      qj = qdj = 0;
+      qj_ = 0.;
+      qdj_ = 0.;
     }
 
-    X_[i] = chain_.getSegment(i).pose(qj);  // X_[i] := {i - 1}から{i}への変換
-    const auto vj = X_[i].M.inverse(chain_.getSegment(i).twist(qj, qdj));
+    X_[i] = seg.pose(qj_);  // X_[i] := {i - 1}から{i}への変換
+    const auto vj = X_[i].M.inverse(seg.twist(qj_, qdj_));
 
     // {0}に対する(加)速度を各フレームから見たものを求める
     if (i == 0)

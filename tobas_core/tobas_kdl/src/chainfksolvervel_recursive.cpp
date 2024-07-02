@@ -24,23 +24,24 @@ int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& 
   if (seg_nr > chain_.getNrOfSegments())
     return setDefaultError(E_OUT_OF_RANGE);
 
-  p_out_ = FrameVel::Identity();
-  size_t j = 0;
+  p_out_.setIdentity();
+  j_ = 0;
 
   for (size_t i = 0; i < seg_nr; ++i)
   {
     const auto& seg = chain_.getSegment(i);
-
-    // Calculate new Frame_base_ee
     if (seg.getJoint().type != Joint::Fixed)
     {
-      p_out_ = p_out_ * FrameVel(seg.pose(q_in(j)), seg.twist(q_in(j), qd_in(j)));
-      ++j;  // Only increase jointnr if the segment has a joint
+      qj_ = q_in(j_);
+      qdj_ = qd_in(j_);
+      ++j_;  // Increase joint number only if the segment has a joint
     }
     else
     {
-      p_out_ = p_out_ * FrameVel(seg.pose(0), seg.twist(0, 0));
+      qj_ = 0.;
+      qdj_ = 0.;
     }
+    p_out_ = p_out_ * FrameVel(seg.pose(qj_), seg.twist(qj_, qdj_));
   }
 
   return setDefaultError(E_NOERROR);

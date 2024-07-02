@@ -31,5 +31,7 @@ private:
   std::vector<Twist> v_;
   std::vector<Accel> a_;
   Accel Jdqd_out_;
+  size_t j_;
+  double qj_, qdj_;
 };
 }  // namespace kdl

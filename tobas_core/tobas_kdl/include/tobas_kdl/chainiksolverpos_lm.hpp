@@ -35,6 +35,9 @@ namespace kdl
  */
 class ChainIkSolverPos_LM : public ChainIkSolverPos
 {
+  static constexpr double kInitLambda = 10.;
+  static constexpr double kInitV = 2.;
+
   using super = ChainIkSolverPos;
 
 public:
@@ -113,8 +116,8 @@ private:
   Eigen::JacobiSVD<Eigen::Matrix6Xd> svd_;
   Eigen::Matrix6Xd jac_;  // the last value for the Jacobian after an execution of compute_jacobian.
   Eigen::VectorXd grad_;  // the gradient of the error criterion after an execution of CartToJnt.
-  // the last value for the position of the tip of the robot (head) with respect to the base,
-  // after an execution of compute_jacobian.
+  // the last value for the position of the tip of the robot (head) with respect to the base, after an execution of
+  // compute_jacobian.
   Frame T_base_head_;
 
   /**

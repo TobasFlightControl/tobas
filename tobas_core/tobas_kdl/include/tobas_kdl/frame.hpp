@@ -96,6 +96,8 @@ public:
   //\TODO should be formulated as a constructor
   void Make4x4(double* d);
 
+  inline void setIdentity();
+
   // Treats a frame as a 4x4 matrix and returns element i,j
   // Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set
   inline double operator()(int i, int j);
@@ -156,6 +158,12 @@ inline Frame::Frame()
 inline Frame Frame::Identity()
 {
   return Frame(Rotation::Identity(), Vector::Zero());
+}
+
+inline void Frame::setIdentity()
+{
+  p.setZero();
+  M.setIdentity();
 }
 
 inline double Frame::operator()(int i, int j)
