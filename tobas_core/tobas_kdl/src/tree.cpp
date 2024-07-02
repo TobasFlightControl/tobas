@@ -116,11 +116,11 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
 void Tree::addSegment(const Segment& segment, const string& hook_name)
 {
   if (tobas_std::contains(segments_, segment.name()))
-    throw runtime_error("'" + segment.name() + "' already exists in the tree.");
+    throw runtime_error("\"" + segment.name() + "\" already exists in the tree.");
 
   const auto parent = segments_.find(hook_name);
   if (parent == segments_.end())
-    throw runtime_error("'" + hook_name + "' does not exist in the tree.");
+    throw runtime_error("\"" + hook_name + "\" does not exist in the tree.");
 
   // Insert new element
   const auto q_nr = segment.getJoint().type != Joint::Fixed ? nj_ : 0;
@@ -128,7 +128,7 @@ void Tree::addSegment(const Segment& segment, const string& hook_name)
 
   // check if insertion succeeded
   if (!retval.second)
-    throw runtime_error("Failed to insert '" + segment.name() + "' into the tree.");
+    throw runtime_error("Failed to insert \"" + segment.name() + "\" into the tree.");
 
   // add iterator to new element in parents children list
   parent->second.children.push_back(retval.first);
@@ -180,7 +180,7 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       break;
   }
   if (parents_chain_root.empty() || parents_chain_root.back() != root_name_)
-    throw runtime_error("'" + chain_root + "' does not exist in the tree.");
+    throw runtime_error("\"" + chain_root + "\" does not exist in the tree.");
 
   for (auto s = getSegment(chain_tip); s != segments_.end(); s = s->second.parent)
   {
@@ -189,7 +189,7 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       break;
   }
   if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_)
-    throw runtime_error("'" + chain_tip + "' does not exist in the tree.");
+    throw runtime_error("\"" + chain_tip + "\" does not exist in the tree.");
 
   // remove common part of segment lists
   auto last_segment = root_name_;
@@ -230,12 +230,12 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
     chain.addSegment(getSegment(*rit)->second.segment);
 }
 
-void Tree::getSubTree(const string& segment_name, Tree& tree, bool root_mass_ok) const
+void Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) const
 {
   // Confirm that the specified segment exists
-  const auto seg_it = segments_.find(segment_name);
+  const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end())
-    throw runtime_error("'" + segment_name + "' does not exist in the tree.");
+    throw runtime_error("\"" + seg_name + "\" does not exist in the tree.");
 
   // Confirm that the new root segment does not have mass
   if (!root_mass_ok)
@@ -246,8 +246,8 @@ void Tree::getSubTree(const string& segment_name, Tree& tree, bool root_mass_ok)
   }
 
   // Initialize the tree
-  tree = Tree(segment_name);
-  tree.addTreeRecursive(seg_it, segment_name);
+  tree = Tree(seg_name);
+  tree.addTreeRecursive(seg_it, seg_name);
 }
 
 ostream& operator<<(ostream& os, const Tree& arg)
