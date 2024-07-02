@@ -100,6 +100,8 @@ public:
   inline const std::string& getRootName() const;
   inline const SegmentMap& getSegments() const;
 
+  inline bool hasSegment(const std::string& seg_name) const;
+
   friend std::ostream& operator<<(std::ostream& os, const Tree& arg);
 
 private:
@@ -153,5 +155,10 @@ inline const std::string& Tree::getRootName() const
 inline const SegmentMap& Tree::getSegments() const
 {
   return segments_;
+}
+
+inline bool Tree::hasSegment(const std::string& seg_name) const
+{
+  return segments_.find(seg_name) != segments_.end();
 }
 }  // namespace kdl
