@@ -29,6 +29,8 @@ public:
   inline double dot(const Wrench& rhs) const;
   /* 関節空間における慣性[kg m^2 or kg]を計算する． */
   inline double dot(const SegmentInertia& rhs) const;
+
+  Eigen::Vector6d ravel() const;
 };
 
 inline SegmentJacobian::SegmentJacobian()
