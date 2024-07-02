@@ -25,23 +25,20 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
 
   for (const auto& seg_name : endpoints)
   {
+    if (!tree_.hasSegment(seg_name))
+      return setDefaultError(E_OUT_OF_RANGE);
+
     auto it = tree_.getSegment(seg_name);
-
-    if (it == tree_.getSegments().end())
-    {
-      error_msg_ = "Segment '" + seg_name + "' is not found in tree.";
-      return (error_code_ = E_NOT_FOUND);
-    }
-
     while (it != root)
     {
-      const auto& joint = it->second.segment.getJoint();
+      const auto& ele = it->second;
+      const auto& joint = ele.segment.getJoint();
       if (joint.type != Joint::Fixed && !tobas_std::contains(active_joints_set_, joint.name))
       {
         active_joints_vec_.push_back(joint.name);
         active_joints_set_.insert(joint.name);
       }
-      it = it->second.parent;
+      it = ele.parent;
     }
   }
 
