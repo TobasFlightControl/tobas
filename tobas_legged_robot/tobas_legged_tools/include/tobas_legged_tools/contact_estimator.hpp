@@ -56,11 +56,12 @@ public:
 
 private:
   const kdl::Tree& tree_;
+  const std::vector<std::string> foot_names_;
+  const size_t nc_;  // The number of contact points
+
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeJntToInertiaSolver inertia_solver_;
 
-  const std::vector<std::string> foot_names_;
-  const size_t nc_;              // The number of contact points
   std::vector<state_t> states_;  // FSMの状態
   ctrl::KalmanFilter kf_;
 

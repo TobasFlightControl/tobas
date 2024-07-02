@@ -9,7 +9,7 @@ using namespace Eigen;
 namespace lr_tools
 {
 ContactEstimator::ContactEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
-  : tree_(tree), fk_solver_(tree), inertia_solver_(tree), foot_names_(foot_names), nc_(foot_names.size()), states_(nc_)
+  : tree_(tree), foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), inertia_solver_(tree), states_(nc_)
 {
   setPredictionVariance(kDefaultPredictionErfVariance);
   setFootHeightVariance(kDefaultFootHeightErfVariance);
