@@ -24,7 +24,7 @@ using FrameMap = std::map<std::string, Frame>;
 class Frame
 {
 public:
-  Vector p;    // origine of the Frame
+  Vector p;    // Origine of the Frame
   Rotation M;  // Orientation of the Frame
 
   inline explicit Frame(const Rotation& R, const Vector& V);
