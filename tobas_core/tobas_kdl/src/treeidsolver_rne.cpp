@@ -15,95 +15,94 @@ void TreeIdSolver_RNE::updateInternalDataStructures()
 {
   super::updateInternalDataStructures();
 
-  for (const auto& [seg_name, _] : tree_.getSegments())
+  for (const auto& [cur_name, _] : tree_.getSegments())
   {
-    v_[seg_name] = Twist();
-    a_[seg_name] = Accel();
-    f_[seg_name] = Wrench();
+    v_[cur_name] = Twist();
+    a_[cur_name] = Accel();
+    f_[cur_name] = Wrench();
   }
 
   effort_out_ = JntArray::Zero(nj_);
 }
 
-int TreeIdSolver_RNE::CartToJnt(
-  const JntArray& q,
-  const JntArray& q_dot,
-  const JntArray& q_dotdot,
-  const WrenchMap& f_ext)
+int TreeIdSolver_RNE::CartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q.rows() != nj_ || q_dot.rows() != nj_ || q_dotdot.rows() != nj_)
+  if (q.rows() != nj_ || qd.rows() != nj_ || qdd.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
 
   // Do the recursion here
-  rneStep(tree_.getRootSegment(), q, q_dot, q_dotdot, f_ext);
+  rneStep(tree_.getRootSegment(), q, qd, qdd, f_ext);
 
   return setDefaultError(E_NOERROR);
 }
 
 void TreeIdSolver_RNE::rneStep(
-  const SegmentMap::const_iterator& segment,
+  const SegmentMap::const_iterator& cur_it,
   const JntArray& q,
-  const JntArray& q_dot,
-  const JntArray& q_dotdot,
+  const JntArray& qd,
+  const JntArray& qdd,
   const WrenchMap& f_ext)
 {
-  const auto& seg = segment->second.segment;
-  const auto& seg_name = segment->first;
-  const auto& par_name = segment->second.parent->first;
+  const auto& cur_name = cur_it->first;
+  const auto& cur_ele = cur_it->second;
+  const auto& cur_seg = cur_ele.segment;
+  const auto& par_it = cur_ele.parent;
+  const auto& par_name = par_it->first;
 
   // Do forward calculations involving velocity & acceleration of this segment
-  const auto& j = segment->second.q_nr;
-  double qj, qdj, qddj;
-  if (seg.getJoint().type != Joint::Fixed)
+  const auto& j = cur_ele.q_nr;
+  if (cur_seg.getJoint().type != Joint::Fixed)
   {
-    qj = q(j);
-    qdj = q_dot(j);
-    qddj = q_dotdot(j);
+    qj_ = q(j);
+    qdj_ = qd(j);
+    qddj_ = qdd(j);
   }
   else
   {
-    qj = qdj = qddj = 0;
+    qj_ = 0.;
+    qdj_ = 0.;
+    qddj_ = 0.;
   }
 
-  const auto Xj = seg.pose(qj);
-  const auto Sj = Xj.M.inverse(seg.jacobian(qj));    // Jacobian for current joint
-  const auto vj = Xj.M.inverse(seg.twist(qj, qdj));  // Transform velocity
+  const auto Xj = cur_seg.pose(qj_);
+  const auto Sj = Xj.M.inverse(cur_seg.jacobian(qj_));     // Jacobian for current joint
+  const auto vj = Xj.M.inverse(cur_seg.twist(qj_, qdj_));  // Transform velocity
 
   // Calculate velocity and acceleration of the segment (in segment coordinates)
-  if (segment == tree_.getRootSegment())
+  if (cur_it == tree_.getRootSegment())
   {
-    v_.at(seg_name) = vj;
-    a_.at(seg_name) = Xj.inverse(ag_) + Sj.accel(qddj) + vj * vj;
+    v_.at(cur_name) = vj;
+    a_.at(cur_name) = Xj.inverse(ag_) + Sj.accel(qddj_) + vj * vj;
   }
   else
   {
-    v_.at(seg_name) = Xj.inverse(v_.at(par_name)) + vj;
-    a_.at(seg_name) = Xj.inverse(a_.at(par_name)) + Sj.accel(qddj) + v_.at(seg_name) * vj;
+    v_.at(cur_name) = Xj.inverse(v_.at(par_name)) + vj;
+    a_.at(cur_name) = Xj.inverse(a_.at(par_name)) + Sj.accel(qddj_) + v_.at(cur_name) * vj;
   }
 
   // Calculate the force for the joint
   // Collect RigidBodyInertia and external forces
-  const auto& I = seg.getInertia();
-  f_.at(seg_name) = I * a_.at(seg_name) + v_.at(seg_name) * (I * v_.at(seg_name));
-  if (f_ext.find(seg_name) != f_ext.end())
-    f_.at(seg_name) = f_.at(seg_name) - f_ext.at(seg_name);
+  const auto& I = cur_seg.getInertia();
+  f_.at(cur_name) = I * a_.at(cur_name) + v_.at(cur_name) * (I * v_.at(cur_name));
+  if (f_ext.find(cur_name) != f_ext.end())
+    f_.at(cur_name) = f_.at(cur_name) - f_ext.at(cur_name);
 
   // propagate calculations over each child segment
-  for (const auto& child : segment->second.children)
-    rneStep(child, q, q_dot, q_dotdot, f_ext);
+  for (const auto& child : cur_ele.children)
+    rneStep(child, q, qd, qdd, f_ext);
 
   // Do backward calculations involving wrenches and joint efforts
   // If there is a moving joint, evaluate its effort
-  if (seg.getJoint().type != Joint::Fixed)
+  if (cur_seg.getJoint().type != Joint::Fixed)
   {
-    effort_out_(j) = Sj.dot(f_.at(seg_name));
+    effort_out_(j) = Sj.dot(f_.at(cur_name));
     // TODO: inertia, damping, frictionの補償をすべき？
   }
 
   // Add reaction forces to parent segment
-  if (segment != tree_.getRootSegment())
-    f_.at(par_name) = f_.at(par_name) + Xj * f_.at(seg_name);
+  if (cur_it != tree_.getRootSegment())
+    f_.at(par_name) = f_.at(par_name) + Xj * f_.at(cur_name);
 }
 }  // namespace kdl
