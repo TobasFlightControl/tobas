@@ -24,12 +24,7 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     return setDefaultError(E_NOT_UP_TO_DATE);
   if (q_in.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
-
-  // Lets search the tree-element
-  auto seg_it = tree_.getSegment(seg_name);
-
-  // If seg_name is not inside the tree, back out:
-  if (seg_it == tree_.getSegments().end())
+  if (!tree_.hasSegment(seg_name))
     return setDefaultError(E_OUT_OF_RANGE);
 
   // Initialize
@@ -37,21 +32,23 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
   T_total_.setIdentity();
 
   // Lets recursively iterate until we are in the root segment
+  auto it = tree_.getSegment(seg_name);
   const auto root_it = tree_.getRootSegment();
-  while (seg_it != root_it)
+  while (it != root_it)
   {
-    // get the corresponding q_nr for this TreeElement:
-    const auto& q_nr = seg_it->second.q_nr;
+    const auto& ele = it->second;
+    const auto& seg = ele.segment;
+    const auto& q_nr = ele.q_nr;
 
     // get the pose of the segment:
-    const auto T_local = seg_it->second.segment.pose(q_in(q_nr));
+    const auto T_local = seg.pose(q_in(q_nr));
     // calculate new T_end:
     T_total_ = T_local * T_total_;
 
     // get the twist of the segment:
-    if (seg_it->second.segment.getJoint().type != Joint::Fixed)
+    if (seg.getJoint().type != Joint::Fixed)
     {
-      auto t_local = seg_it->second.segment.jacobian(q_in(q_nr));
+      auto t_local = seg.jacobian(q_in(q_nr));
       // transform the endpoint of the local twist to the global endpoint:
       t_local = t_local.refPoint(T_total_.p - T_local.p);
       // transform the base of the twist to the endpoint
@@ -61,7 +58,7 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     }
 
     // goto the parent
-    seg_it = seg_it->second.parent;
+    it = ele.parent;
   }
 
   // Change the base of the complete jacobian from the endpoint to the base
