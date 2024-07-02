@@ -10,8 +10,8 @@ namespace kdl
 class FrameAcc
 {
 public:
-  RotationAcc M;  // Rotation,angular velocity, and angular acceleration of frame.
   VectorAcc p;    // Translation, velocity and acceleration of origin.
+  RotationAcc M;  // Rotation,angular velocity, and angular acceleration of frame.
 
   inline explicit FrameAcc();
   inline explicit FrameAcc(const Frame& _T);
@@ -19,6 +19,8 @@ public:
   inline explicit FrameAcc(const RotationAcc& _M, const VectorAcc& _p);
 
   inline static FrameAcc Identity();
+
+  inline void setIdentity();
 
   inline Frame getFrame() const;
   inline Twist getTwist() const;
@@ -44,17 +46,28 @@ inline FrameAcc::FrameAcc()
 {
 }
 
-inline FrameAcc::FrameAcc(const Frame& _T) : M(_T.M), p(_T.p)
+inline FrameAcc::FrameAcc(const Frame& _T) : p(_T.p), M(_T.M)
 {
 }
 
 inline FrameAcc::FrameAcc(const Frame& _T, const Twist& _t, const Twist& _dt)
-  : M(_T.M, _t.rot, _dt.rot), p(_T.p, _t.vel, _dt.vel)
+  : p(_T.p, _t.vel, _dt.vel), M(_T.M, _t.rot, _dt.rot)
 {
 }
 
-inline FrameAcc::FrameAcc(const RotationAcc& _M, const VectorAcc& _p) : M(_M), p(_p)
+inline FrameAcc::FrameAcc(const RotationAcc& _M, const VectorAcc& _p) : p(_p), M(_M)
 {
+}
+
+inline FrameAcc FrameAcc::Identity()
+{
+  return FrameAcc(RotationAcc::Identity(), VectorAcc::Zero());
+}
+
+inline void FrameAcc::setIdentity()
+{
+  p.setZero();
+  M.setIdentity();
 }
 
 inline Frame FrameAcc::getFrame() const
@@ -70,11 +83,6 @@ inline Twist FrameAcc::getTwist() const
 inline Accel FrameAcc::getAccel() const
 {
   return Accel(p.dv, M.dw);
-}
-
-inline FrameAcc FrameAcc::Identity()
-{
-  return FrameAcc(RotationAcc::Identity(), VectorAcc::Zero());
 }
 
 inline FrameAcc FrameAcc::inverse() const

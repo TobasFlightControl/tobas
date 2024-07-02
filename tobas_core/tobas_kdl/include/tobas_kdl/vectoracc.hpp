@@ -20,6 +20,8 @@ public:
 
   inline static VectorAcc Zero();
 
+  inline void setZero();
+
   inline doubleAcc norm(double eps = kDefaultEpsilon);
 
   inline doubleAcc dot(const Vector& rhs);
@@ -69,6 +71,13 @@ inline VectorAcc::VectorAcc(const Vector& _p, const Vector& _v, const Vector& _d
 inline VectorAcc VectorAcc::Zero()
 {
   return VectorAcc(Vector::Zero(), Vector::Zero(), Vector::Zero());
+}
+
+inline void VectorAcc::setZero()
+{
+  p.setZero();
+  v.setZero();
+  dv.setZero();
 }
 
 inline doubleAcc VectorAcc::norm(double eps)

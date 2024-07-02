@@ -17,6 +17,8 @@ public:
 
   inline static RotationAcc Identity();
 
+  inline void setIdentity();
+
   inline RotationAcc inverse() const;
   inline VectorAcc inverse(const Vector& arg) const;
   inline VectorAcc inverse(const VectorAcc& arg) const;
@@ -48,6 +50,13 @@ inline RotationAcc::RotationAcc(const Rotation& _R, const Vector& _w, const Vect
 inline RotationAcc RotationAcc::Identity()
 {
   return RotationAcc(Rotation::Identity(), Vector::Zero(), Vector::Zero());
+}
+
+inline void RotationAcc::setIdentity()
+{
+  R.setIdentity();
+  w.setZero();
+  dw.setZero();
 }
 
 inline RotationAcc RotationAcc::inverse() const
