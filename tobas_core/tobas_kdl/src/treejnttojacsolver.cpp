@@ -15,7 +15,7 @@ void TreeJntToJacSolver::updateInternalDataStructures()
 {
   super::updateInternalDataStructures();
 
-  jac_.resize(nj_);
+  J_out_.resize(nj_);
 }
 
 int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
@@ -32,13 +32,12 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
   if (it == tree_.getSegments().end())
     return setDefaultError(E_OUT_OF_RANGE);
 
-  // Let's make the jacobian zero:
-  jac_.setZero();
-
-  const auto root = tree_.getRootSegment();
-  auto T_total = Frame::Identity();
+  // Initialize
+  J_out_.setZero();
+  T_total_.setIdentity();
 
   // Lets recursively iterate until we are in the root segment
+  const auto root = tree_.getRootSegment();
   while (it != root)
   {
     // get the corresponding q_nr for this TreeElement:
@@ -47,18 +46,18 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     // get the pose of the segment:
     const auto T_local = it->second.segment.pose(q_in(q_nr));
     // calculate new T_end:
-    T_total = T_local * T_total;
+    T_total_ = T_local * T_total_;
 
     // get the twist of the segment:
     if (it->second.segment.getJoint().type != Joint::Fixed)
     {
       auto t_local = it->second.segment.jacobian(q_in(q_nr));
       // transform the endpoint of the local twist to the global endpoint:
-      t_local = t_local.refPoint(T_total.p - T_local.p);
+      t_local = t_local.refPoint(T_total_.p - T_local.p);
       // transform the base of the twist to the endpoint
-      t_local = T_total.M.inverse(t_local);
+      t_local = T_total_.M.inverse(t_local);
       // store the twist in the jacobian:
-      jac_.setColumn(q_nr, t_local);
+      J_out_.setColumn(q_nr, t_local);
     }
 
     // goto the parent
@@ -66,7 +65,7 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
   }
 
   // Change the base of the complete jacobian from the endpoint to the base
-  changeBase(jac_, T_total.M, jac_);
+  changeBase(J_out_, T_total_.M, J_out_);
 
   return setDefaultError(E_NOERROR);
 }

@@ -19,10 +19,11 @@ public:
 
   const Jacobian& getJacobian() const
   {
-    return jac_;
+    return J_out_;
   }
 
 private:
-  Jacobian jac_;
+  Jacobian J_out_;
+  Frame T_total_;
 };
 }  // namespace kdl
