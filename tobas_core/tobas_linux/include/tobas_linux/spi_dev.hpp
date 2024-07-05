@@ -8,7 +8,7 @@ namespace linux
 class SPIdev
 {
 public:
-  explicit SPIdev(const char* spidev, uint32_t speed_hz, uint8_t bits_per_word = 8, uint16_t delay_usecs = 0);
+  explicit SPIdev(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per_word = 8, uint16_t delay_usecs = 0);
   ~SPIdev();
 
   bool transfer(uint8_t* tx, uint8_t* rx, uint32_t length);
