@@ -23,7 +23,13 @@ I2Cdev::~I2Cdev()
 bool I2Cdev::initialize(const char* i2c_dev)
 {
   i2c_fd_ = open(i2c_dev, O_RDWR);
-  return i2c_fd_ >= 0;
+  if (i2c_fd_ < 0)
+  {
+    cerr << "Failed to open I2C device: " << i2c_dev << endl;
+    return false;
+  }
+
+  return true;
 }
 
 bool I2Cdev::readBit(uint8_t reg_addr, uint8_t bit_num, uint8_t* data)
@@ -46,7 +52,7 @@ bool I2Cdev::readBitW(uint8_t reg_addr, uint8_t bit_num, uint16_t* data)
   return true;
 }
 
-bool I2Cdev::readBits(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint8_t* data)
+bool I2Cdev::readBits(uint8_t reg_addr, uint8_t bit_start, size_t length, uint8_t* data)
 {
   uint8_t b;
   if (!readByte(reg_addr, &b))
@@ -60,7 +66,7 @@ bool I2Cdev::readBits(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint8
   return true;
 }
 
-bool I2Cdev::readBitsW(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint16_t* data)
+bool I2Cdev::readBitsW(uint8_t reg_addr, uint8_t bit_start, size_t length, uint16_t* data)
 {
   uint16_t w;
   if (!readWord(reg_addr, &w))
@@ -84,58 +90,41 @@ bool I2Cdev::readWord(uint8_t reg_addr, uint16_t* data)
   return readWords(reg_addr, 1, data);
 }
 
-bool I2Cdev::readBytes(uint8_t reg_addr, uint8_t length, uint8_t* data)
+bool I2Cdev::readBytes(uint8_t reg_addr, size_t length, uint8_t* data)
 {
-  if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0)
-  {
-    cerr << "Failed to select device." << endl;
+  if (!selectDevice())
     return false;
-  }
+
   if (write(i2c_fd_, &reg_addr, 1) != 1)
   {
-    cerr << "Failed to write register." << endl;
+    cerr << "I2C write error." << endl;
     return false;
   }
 
-  const auto res = read(i2c_fd_, data, length);
-  if (res < 0)
+  if (read(i2c_fd_, data, length) != length)
   {
-    cerr << "Failed to read device." << endl;
-    return false;
-  }
-  else if (res != length)
-  {
-    cerr << "Short read from device, expected " << length << ", got " << res << "." << endl;
+    cerr << "I2C read error." << endl;
     return false;
   }
 
   return true;
 }
 
-bool I2Cdev::readBytesNoRegAddress(uint8_t length, uint8_t* data)
+bool I2Cdev::readBytesNoRegAddress(size_t length, uint8_t* data)
 {
-  if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0)
-  {
-    cerr << "Failed to select device." << endl;
+  if (!selectDevice())
     return false;
-  }
 
-  const auto res = read(i2c_fd_, data, length);
-  if (res < 0)
+  if (read(i2c_fd_, data, length) != length)
   {
-    cerr << "Failed to read device." << endl;
-    return false;
-  }
-  else if (res != length)
-  {
-    cerr << "Short read from device, expected " << length << ", got " << res << "." << endl;
+    cerr << "I2C read error." << endl;
     return false;
   }
 
   return true;
 }
 
-bool I2Cdev::readWords(uint8_t reg_addr, uint8_t length, uint16_t* data)
+bool I2Cdev::readWords(uint8_t reg_addr, size_t length, uint16_t* data)
 {
   return readBytes(reg_addr, length * 2, reinterpret_cast<uint8_t*>(data));
 }
@@ -160,7 +149,7 @@ bool I2Cdev::writeBitW(uint8_t reg_addr, uint8_t bit_num, uint16_t data)
   return writeWord(reg_addr, w);
 }
 
-bool I2Cdev::writeBits(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint8_t data)
+bool I2Cdev::writeBits(uint8_t reg_addr, uint8_t bit_start, size_t length, uint8_t data)
 {
   uint8_t b;
   if (!readByte(reg_addr, &b))
@@ -175,7 +164,7 @@ bool I2Cdev::writeBits(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint
   return writeByte(reg_addr, b);
 }
 
-bool I2Cdev::writeBitsW(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint16_t data)
+bool I2Cdev::writeBitsW(uint8_t reg_addr, uint8_t bit_start, size_t length, uint16_t data)
 {
   uint16_t w;
   if (!readWord(reg_addr, &w))
@@ -200,7 +189,7 @@ bool I2Cdev::writeWord(uint8_t reg_addr, uint16_t data)
   return writeWords(reg_addr, 1, &data);
 }
 
-bool I2Cdev::writeBytes(uint8_t reg_addr, uint8_t length, uint8_t* data)
+bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, uint8_t* data)
 {
   constexpr uint8_t kMaximumLength = (1 << 7) - 1;
   if (length > kMaximumLength)
@@ -209,31 +198,23 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, uint8_t length, uint8_t* data)
     return false;
   }
 
-  if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0)
-  {
-    cerr << "Failed to select device." << endl;
+  if (!selectDevice())
     return false;
-  }
 
   buf_[0] = reg_addr;
   memcpy(buf_ + 1, data, length);
 
-  const auto res = write(i2c_fd_, buf_, length + 1);
-  if (res < 0)
+  const auto size = length + 1;
+  if (write(i2c_fd_, buf_, size) != size)
   {
-    cerr << "Failed to write device." << endl;
-    return false;
-  }
-  else if (res != length + 1)
-  {
-    cerr << "Short write to device, expected " << length + 1 << ", got " << res << "." << endl;
+    cerr << "I2C write error." << endl;
     return false;
   }
 
   return true;
 }
 
-bool I2Cdev::writeWords(uint8_t reg_addr, uint8_t length, uint16_t* data)
+bool I2Cdev::writeWords(uint8_t reg_addr, size_t length, uint16_t* data)
 {
   // TODO: Should do potential byteswap and call writeBytes() really, but that messes with the callers buffer.
 
@@ -244,11 +225,8 @@ bool I2Cdev::writeWords(uint8_t reg_addr, uint8_t length, uint16_t* data)
     return false;
   }
 
-  if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0)
-  {
-    cerr << "Failed to select device." << endl;
+  if (!selectDevice())
     return false;
-  }
 
   buf_[0] = reg_addr;
   for (uint8_t i = 0; i < length; ++i)
@@ -257,18 +235,22 @@ bool I2Cdev::writeWords(uint8_t reg_addr, uint8_t length, uint16_t* data)
     buf_[i * 2 + 2] = data[i];
   }
 
-  const auto res = write(i2c_fd_, buf_, length * 2 + 1);
-  if (res < 0)
+  const auto size = length * 2 + 1;
+  if (write(i2c_fd_, buf_, size) != size)
   {
-    cerr << "Failed to write device." << endl;
-    return false;
-  }
-  else if (res != length * 2 + 1)
-  {
-    cerr << "Short write to device, expected " << length + 1 << ", got " << res << "." << endl;
+    cerr << "I2C write error." << endl;
     return false;
   }
 
   return true;
+}
+
+bool I2Cdev::selectDevice()
+{
+  if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0)
+  {
+    cerr << "Failed to select I2C device." << endl;
+    return false;
+  }
 }
 }  // namespace linux

@@ -36,7 +36,7 @@ public:
    * equal 0x05)
    * @return Status of read operation (true = success)
    */
-  bool readBits(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint8_t* data);
+  bool readBits(uint8_t reg_addr, uint8_t bit_start, size_t length, uint8_t* data);
 
   /** Read multiple bits from a 16-bit device register.
    * @param reg_addr Register reg_addr to read from
@@ -46,7 +46,7 @@ public:
    * equal 0x05)
    * @return Status of read operation (1 = success, 0 = failure)
    */
-  bool readBitsW(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint16_t* data);
+  bool readBitsW(uint8_t reg_addr, uint8_t bit_start, size_t length, uint16_t* data);
 
   /** Read single byte from an 8-bit device register.
    * @param reg_addr Register reg_addr to read from
@@ -68,7 +68,7 @@ public:
    * @param data Buffer to store read data in
    * @return Status of read operation (true = success)
    */
-  bool readBytes(uint8_t reg_addr, uint8_t length, uint8_t* data);
+  bool readBytes(uint8_t reg_addr, size_t length, uint8_t* data);
 
   /** Read multiple bytes from an 8-bit device register without sending the register address.
    * Required by MB85RC256(FRAM on Navio+)
@@ -77,7 +77,7 @@ public:
    * @param data Buffer to store read data in
    * @return Status of read operation (true = success)
    */
-  bool readBytesNoRegAddress(uint8_t length, uint8_t* data);
+  bool readBytesNoRegAddress(size_t length, uint8_t* data);
 
   /** Read multiple words from a 16-bit device register.
    * @param reg_addr First register reg_addr to read from
@@ -85,7 +85,7 @@ public:
    * @param data Buffer to store read data in
    * @return Status of read operation (true = success)
    */
-  bool readWords(uint8_t reg_addr, uint8_t length, uint16_t* data);
+  bool readWords(uint8_t reg_addr, size_t length, uint16_t* data);
 
   /** write a single bit in an 8-bit device register.
    * @param reg_addr Register reg_addr to write to
@@ -110,7 +110,7 @@ public:
    * @param data Right-aligned value to write
    * @return Status of operation (true = success)
    */
-  bool writeBits(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint8_t data);
+  bool writeBits(uint8_t reg_addr, uint8_t bit_start, size_t length, uint8_t data);
 
   /** Write multiple bits in a 16-bit device register.
    * @param reg_addr Register reg_addr to write to
@@ -119,7 +119,7 @@ public:
    * @param data Right-aligned value to write
    * @return Status of operation (true = success)
    */
-  bool writeBitsW(uint8_t reg_addr, uint8_t bit_start, uint8_t length, uint16_t data);
+  bool writeBitsW(uint8_t reg_addr, uint8_t bit_start, size_t length, uint16_t data);
 
   /** Write single byte to an 8-bit device register.
    * @param reg_addr Register address to write to
@@ -141,7 +141,7 @@ public:
    * @param data Buffer to copy new data from
    * @return Status of operation (true = success)
    */
-  bool writeBytes(uint8_t reg_addr, uint8_t length, uint8_t* data);
+  bool writeBytes(uint8_t reg_addr, size_t length, uint8_t* data);
 
   /** Write multiple words to a 16-bit device register.
    * @param reg_addr First register address to write to
@@ -149,12 +149,14 @@ public:
    * @param data Buffer to copy new data from
    * @return Status of operation (true = success)
    */
-  bool writeWords(uint8_t reg_addr, uint8_t length, uint16_t* data);
+  bool writeWords(uint8_t reg_addr, size_t length, uint16_t* data);
 
 private:
   const uint8_t dev_addr_;
   int i2c_fd_;
 
   uint8_t buf_[1 << 7];
+
+  bool selectDevice();
 };
 }  // namespace linux
