@@ -16,12 +16,12 @@ public:
 
 private:
   ros::Rate rate_;
-  MsgType::ConstPtr msg_;
+  typename MsgType::ConstPtr msg_;
 
   ros::Publisher pub_;
   ros::Subscriber sub_;
 
-  void callback(const MsgType::ConstPtr& msg);
+  void callback(const typename MsgType::ConstPtr& msg);
 };
 
 template <typename MsgType, const char* TopicName>
