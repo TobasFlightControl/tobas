@@ -101,7 +101,7 @@ bool I2Cdev::readBytes(uint8_t reg_addr, size_t length, uint8_t* data)
     return false;
   }
 
-  if (read(i2c_fd_, data, length) != length)
+  if (read(i2c_fd_, data, length) != static_cast<ssize_t>(length))
   {
     cerr << "I2C read error." << endl;
     return false;
@@ -115,7 +115,7 @@ bool I2Cdev::readBytesNoRegAddress(size_t length, uint8_t* data)
   if (!selectDevice())
     return false;
 
-  if (read(i2c_fd_, data, length) != length)
+  if (read(i2c_fd_, data, length) != static_cast<ssize_t>(length))
   {
     cerr << "I2C read error." << endl;
     return false;
@@ -205,7 +205,7 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length, uint8_t* data)
   memcpy(buf_ + 1, data, length);
 
   const auto size = length + 1;
-  if (write(i2c_fd_, buf_, size) != size)
+  if (write(i2c_fd_, buf_, size) != static_cast<ssize_t>(size))
   {
     cerr << "I2C write error." << endl;
     return false;
@@ -236,7 +236,7 @@ bool I2Cdev::writeWords(uint8_t reg_addr, size_t length, uint16_t* data)
   }
 
   const auto size = length * 2 + 1;
-  if (write(i2c_fd_, buf_, size) != size)
+  if (write(i2c_fd_, buf_, size) != static_cast<ssize_t>(size))
   {
     cerr << "I2C write error." << endl;
     return false;
