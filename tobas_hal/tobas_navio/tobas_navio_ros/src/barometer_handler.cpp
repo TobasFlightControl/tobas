@@ -16,11 +16,7 @@ BarometerHandler::BarometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, co
 {
   PRINT_DEBUG("BarometerHandler::BarometerHandler");
 
-  barometer_.initialize();
-  if (!barometer_.testConnection())
-    TOBAS_EXIT("Barometer test failed.");
-
-  initializeNoiseFilter();
+  initialize();
 
   bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
@@ -28,9 +24,14 @@ BarometerHandler::BarometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, co
   PRINT_DEBUG("/BarometerHandler::BarometerHandler");
 }
 
-void BarometerHandler::initializeNoiseFilter()
+void BarometerHandler::initialize()
 {
-  barometer_.update();
+  if (!barometer_.initialize())
+    TOBAS_EXIT("Failed to initialize barometer.");
+
+  if (!barometer_.update())
+    TOBAS_EXIT("Failed to update barometer.");
+
   const auto pressure = barometer_.getPressure();
   pressure_noise_.initialize(kWindowSize, kHpfCutoff, pressure);
 }
@@ -38,7 +39,11 @@ void BarometerHandler::initializeNoiseFilter()
 void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // バロメータを更新
-  barometer_.update();
+  if (!barometer_.update())
+  {
+    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to update barometer.");
+    return;
+  }
 
   // 気圧を求める
   const auto pressure = barometer_.getPressure();

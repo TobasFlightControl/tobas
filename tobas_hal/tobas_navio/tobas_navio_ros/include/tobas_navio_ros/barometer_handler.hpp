@@ -30,7 +30,7 @@ private:
 
   ros::Publisher bar_pub_;
 
-  void initializeNoiseFilter();
+  void initialize();
 
   void mainTimerCb(const ros::TimerEvent& event);
 };

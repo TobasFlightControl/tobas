@@ -12,16 +12,28 @@ int main()
   MS5611 barometer;
 
   if (checkAPM())
-    return 1;
+    return EXIT_FAILURE;
 
-  barometer.initialize();
+  if (!barometer.initialize())
+  {
+    cerr << "Failed to initialize barometer." << endl;
+    return EXIT_FAILURE;
+  }
 
   while (true)
   {
-    barometer.update();
-    cout << "Temperature[C]: " << barometer.getTemperature() << ", Pressure[Pa]: " << barometer.getPressure() << endl;
+    if (!barometer.update())
+    {
+      cerr << "Failed to update barometer." << endl;
+      continue;
+    }
+
+    const auto temp = barometer.getTemperature();
+    const auto pres = barometer.getPressure();
+    cout << "Temperature[C]: " << temp << ", Pressure[Pa]: " << pres << endl;
+
     sleep(1);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

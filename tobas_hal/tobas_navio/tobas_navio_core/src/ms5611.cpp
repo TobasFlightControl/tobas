@@ -1,81 +1,92 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
-#include <tobas_linux/i2c_dev.hpp>
 
 #include "../include/tobas_navio_core/ms5611.hpp"
 #include "../include/tobas_navio_core/util.hpp"
+#include "../include/tobas_navio_core/constants.hpp"
 
 namespace navio
 {
-MS5611::MS5611(uint8_t address) : dev_addr_(address)
+MS5611::MS5611(uint8_t i2c_addr) : i2c_dev_(kRasPiI2CDev, i2c_addr)
 {
 }
 
-void MS5611::initialize()
+bool MS5611::initialize()
 {
+  if (!i2c_dev_.initialize())
+    return false;
+
   // Reading 6 calibration data values
-  uint8_t buff[2];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_C1, 2, buff);
-  c1_ = buff[0] << 8 | buff[1];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_C2, 2, buff);
-  c2_ = buff[0] << 8 | buff[1];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_C3, 2, buff);
-  c3_ = buff[0] << 8 | buff[1];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_C4, 2, buff);
-  c4_ = buff[0] << 8 | buff[1];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_C5, 2, buff);
-  c5_ = buff[0] << 8 | buff[1];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_C6, 2, buff);
-  c6_ = buff[0] << 8 | buff[1];
+  if (!i2c_dev_.readBytes(MS5611_RA_C1, 2, buf_))
+    return false;
+  c1_ = buf_[0] << 8 | buf_[1];
+  if (!i2c_dev_.readBytes(MS5611_RA_C2, 2, buf_))
+    return false;
+  c2_ = buf_[0] << 8 | buf_[1];
+  if (!i2c_dev_.readBytes(MS5611_RA_C3, 2, buf_))
+    return false;
+  c3_ = buf_[0] << 8 | buf_[1];
+  if (!i2c_dev_.readBytes(MS5611_RA_C4, 2, buf_))
+    return false;
+  c4_ = buf_[0] << 8 | buf_[1];
+  if (!i2c_dev_.readBytes(MS5611_RA_C5, 2, buf_))
+    return false;
+  c5_ = buf_[0] << 8 | buf_[1];
+  if (!i2c_dev_.readBytes(MS5611_RA_C6, 2, buf_))
+    return false;
+  c6_ = buf_[0] << 8 | buf_[1];
 
-  update();
+  return true;
 }
 
-bool MS5611::testConnection()
-{
-  uint8_t data;
-  int8_t status = linux::I2Cdev::readByte(dev_addr_, MS5611_RA_C0, &data);
-  return status > 0;
-}
-
-void MS5611::update()
+bool MS5611::update()
 {
   // Update pressure
-  refreshPressure();
+  if (!refreshPressure())
+    return false;
   tobas_std::msleep(kWaitForRefresh);  // Wait for pressure data ready
-  readPressure();
+  if (!readPressure())
+    return false;
 
   // Update temperature
-  refreshTemperature();
+  if (!refreshTemperature())
+    return false;
   tobas_std::msleep(kWaitForRefresh);  // Wait for temperature data ready
-  readTemperature();
+  if (!readTemperature())
+    return false;
 
   // In order to compute pressure, both pressure and temperature are needed.
   computePressureAndTemperature();
+
+  return true;
 }
 
-void MS5611::refreshPressure(uint8_t OSR)
+bool MS5611::refreshPressure(uint8_t OSR)
 {
-  linux::I2Cdev::writeBytes(dev_addr_, OSR, 0, 0);
+  return i2c_dev_.writeBytes(OSR, 0, 0);
 }
 
-void MS5611::refreshTemperature(uint8_t OSR)
+bool MS5611::refreshTemperature(uint8_t OSR)
 {
-  linux::I2Cdev::writeBytes(dev_addr_, OSR, 0, 0);
+  return i2c_dev_.writeBytes(OSR, 0, 0);
 }
 
-void MS5611::readPressure()
+bool MS5611::readPressure()
 {
-  uint8_t buffer[3];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_ADC, 3, buffer);
-  d1_ = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
+  if (!i2c_dev_.readBytes(MS5611_RA_ADC, 3, buf_))
+    return false;
+
+  d1_ = (buf_[0] << 16) | (buf_[1] << 8) | buf_[2];
+  return true;
 }
 
-void MS5611::readTemperature()
+bool MS5611::readTemperature()
 {
-  uint8_t buffer[3];
-  linux::I2Cdev::readBytes(dev_addr_, MS5611_RA_ADC, 3, buffer);
-  d2_ = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
+  if (!i2c_dev_.readBytes(MS5611_RA_ADC, 3, buf_))
+    return false;
+
+  d2_ = (buf_[0] << 16) | (buf_[1] << 8) | buf_[2];
+  return true;
 }
 
 void MS5611::computePressureAndTemperature()

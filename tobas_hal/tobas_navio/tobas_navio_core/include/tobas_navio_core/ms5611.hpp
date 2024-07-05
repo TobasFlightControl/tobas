@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_linux/i2c_dev.hpp>
+
 #define MS5611_ADDRESS_CSB_LOW 0x76
 #define MS5611_ADDRESS_CSB_HIGH 0x77
 #define MS5611_DEFAULT_ADDRESS MS5611_ADDRESS_CSB_HIGH
@@ -38,28 +40,21 @@ public:
   /**
    * @brief MS5611 constructor.
    *
-   * @param address I2C address
+   * @param i2c_addr I2C address
    * @see MS5611_DEFAULT_ADDRESS
    */
-  explicit MS5611(uint8_t address = MS5611_DEFAULT_ADDRESS);
+  explicit MS5611(uint8_t i2c_addr = MS5611_DEFAULT_ADDRESS);
 
   /**
    * @brief Power on and prepare for general usage. This method reads coefficients stored in PROM.
    */
-  void initialize();
-
-  /**
-   * @brief Verify the I2C connection.
-   *
-   * @return True if connection is valid, false otherwise.
-   */
-  bool testConnection();
+  bool initialize();
 
   /**
    * @brief Perform pressure and temperature reading and calculation at once.
    * Contains sleeps, better perform operations separately.
    */
-  void update();
+  bool update();
 
   /**
    * @brief Get calculated temperature value.
@@ -76,7 +71,8 @@ public:
   inline double getPressure() const;
 
 private:
-  const uint8_t dev_addr_;                // I2C device adress
+  linux::I2Cdev i2c_dev_;                 // I2C device
+  uint8_t buf_[3];                        // I2C buffer
   uint16_t c1_, c2_, c3_, c4_, c5_, c6_;  // Calibration data
   uint32_t d1_, d2_;                      // Raw measurement data
   double temp_;                           // Calculated temperature [Celcius]
@@ -88,7 +84,7 @@ private:
    * @param OSR value
    * @see MS5611_RA_D1_OSR_4096
    */
-  void refreshPressure(uint8_t OSR = MS5611_RA_D1_OSR_4096);
+  bool refreshPressure(uint8_t OSR = MS5611_RA_D1_OSR_4096);
 
   /**
    * @brief Initiate the process of temperature measurement.
@@ -96,17 +92,17 @@ private:
    * @param OSR value
    * @see MS5611_RA_D2_OSR_4096
    */
-  void refreshTemperature(uint8_t OSR = MS5611_RA_D2_OSR_4096);
+  bool refreshTemperature(uint8_t OSR = MS5611_RA_D2_OSR_4096);
 
   /**
    * @brief Read pressure value
    */
-  void readPressure();
+  bool readPressure();
 
   /**
    * @brief Read temperature value.
    */
-  void readTemperature();
+  bool readTemperature();
 
   /**
    * @brief Calculate temperature and pressure calculations and perform compensation.
