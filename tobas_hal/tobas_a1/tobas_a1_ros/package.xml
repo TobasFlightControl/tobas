@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="2">
+
+	<name>tobas_a1_ros</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<depend>tobas_tools</depend>
+	<depend>tobas_a1_core</depend>
+	<depend>tobas_property_tools</depend>
+	<depend>tobas_dsp</depend>
+	<depend>nodelet</depend>
+	<depend>pluginlib</depend>
+
+	<export>
+		<nodelet plugin="${prefix}/nodelet_description.xml"/>
+	</export>
+
+</package>
