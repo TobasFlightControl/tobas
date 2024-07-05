@@ -9,14 +9,13 @@
 #define READ_FAILED -1
 
 using namespace std;
-using namespace navio;
 
 int main()
 {
-  if (checkAPM())
-    return 1;
+  if (navio::checkAPM())
+    return EXIT_FAILURE;
 
-  RCInput rcin;
+  navio::RCInput rcin;
   rcin.initialize();
 
   while (true)
@@ -32,5 +31,5 @@ int main()
     sleep(1);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

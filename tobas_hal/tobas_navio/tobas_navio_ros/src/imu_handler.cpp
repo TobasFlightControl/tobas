@@ -18,9 +18,8 @@ ImuHandler::ImuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
 {
   PRINT_DEBUG("ImuHandler::ImuHandler");
 
-  if (!imu_.probe())
-    TOBAS_EXIT("IMU not enabled.");
-  imu_.initialize();
+  if (!imu_.initialize())
+    TOBAS_EXIT("Failed to initialize IMU.");
 
   reloadConfig();
 

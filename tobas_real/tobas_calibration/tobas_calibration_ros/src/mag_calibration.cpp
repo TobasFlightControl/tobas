@@ -15,9 +15,8 @@ namespace tobas_calibration
 MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC)
 {
-  if (!imu_.probe())
-    TOBAS_EXIT("IMU not enabled.");
-  imu_.initialize();
+  if (!imu_.initialize())
+    TOBAS_EXIT("Failed to initialize IMU.");
 
   collect_data_timer_ = nh_.createTimer(kPublishRate, &self::collectDataTimerCb, this, false, false);
 

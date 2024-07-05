@@ -5,8 +5,7 @@ namespace navio
 class InertialSensor
 {
 public:
-  virtual void initialize() = 0;
-  virtual bool probe() = 0;
+  virtual bool initialize() = 0;
   virtual void update() = 0;
 
   float readTemperature()

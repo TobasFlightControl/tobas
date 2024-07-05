@@ -6,53 +6,27 @@
 
 namespace navio
 {
-LSM9DS1::LSM9DS1() : spi_dev_imu_(kAccGyroDevice, kSpiSpeedHz), spi_dev_mag_(kMagDevice, kSpiSpeedHz)
+LSM9DS1::LSM9DS1()
 {
 }
 
-uint8_t LSM9DS1::writeReg(linux::SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data)
+bool LSM9DS1::initialize()
 {
-  uint8_t tx[2] = { write_addr, write_data };
-  uint8_t rx[2] = { 0 };
-  spi_dev.transfer(tx, rx, 2);
-  return rx[1];
-}
+  if (!spi_dev_imu_.initialize(kAccGyroDevice, kSpiSpeedHz))
+    return false;
+  if (!spi_dev_mag_.initialize(kMagDevice, kSpiSpeedHz))
+    return false;
 
-uint8_t LSM9DS1::readReg(linux::SPIdev& spi_dev, const uint8_t& read_addr)
-{
-  return writeReg(spi_dev, read_addr | kReadFlag, 0x00);
-}
+  if (readReg(spi_dev_imu_, XG_WHO_AM_I) != WHO_AM_I_ACC_GYRO)
+    return false;
+  if (readReg(spi_dev_mag_, M_WHO_AM_I) != WHO_AM_I_MAG)
+    return false;
 
-void LSM9DS1::readRegsImu(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes)
-{
-  tx_[0] = read_addr | kReadFlag;
-  spi_dev_imu_.transfer(tx_, rx_, bytes + 1);
-
-  for (size_t i = 0; i < bytes; ++i)
-    read_buf[i] = rx_[i + 1];
-}
-
-void LSM9DS1::readRegsMag(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes)
-{
-  tx_[0] = read_addr | kReadFlag | kMultipleRead;
-  spi_dev_mag_.transfer(tx_, rx_, bytes + 1);
-
-  for (size_t i = 0; i < bytes; ++i)
-    read_buf[i] = rx_[i + 1];
-}
-
-bool LSM9DS1::probe()
-{
-  const auto response_xg = readReg(spi_dev_imu_, XG_WHO_AM_I);
-  const auto response_m = readReg(spi_dev_mag_, M_WHO_AM_I);
-  return response_xg == WHO_AM_I_ACC_GYRO && response_m == WHO_AM_I_MAG;
-}
-
-void LSM9DS1::initialize()
-{
   initializeGyroscope();
   initializeAccelerometer();
   initializeMagnetometer();
+
+  return true;
 }
 
 void LSM9DS1::update()
@@ -100,6 +74,37 @@ void LSM9DS1::updateMagnetometer()
   mx_ = 100. * (static_cast<float>(bit_data_[0]) * mag_scale_);
   my_ = -100. * (static_cast<float>(bit_data_[1]) * mag_scale_);
   mz_ = -100. * (static_cast<float>(bit_data_[2]) * mag_scale_);
+}
+
+uint8_t LSM9DS1::writeReg(linux::SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data)
+{
+  uint8_t tx[2] = { write_addr, write_data };
+  uint8_t rx[2] = { 0 };
+  spi_dev.transfer(tx, rx, 2);
+  return rx[1];
+}
+
+uint8_t LSM9DS1::readReg(linux::SPIdev& spi_dev, const uint8_t& read_addr)
+{
+  return writeReg(spi_dev, read_addr | kReadFlag, 0x00);
+}
+
+void LSM9DS1::readRegsImu(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes)
+{
+  tx_[0] = read_addr | kReadFlag;
+  spi_dev_imu_.transfer(tx_, rx_, bytes + 1);
+
+  for (size_t i = 0; i < bytes; ++i)
+    read_buf[i] = rx_[i + 1];
+}
+
+void LSM9DS1::readRegsMag(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes)
+{
+  tx_[0] = read_addr | kReadFlag | kMultipleRead;
+  spi_dev_mag_.transfer(tx_, rx_, bytes + 1);
+
+  for (size_t i = 0; i < bytes; ++i)
+    read_buf[i] = rx_[i + 1];
 }
 
 void LSM9DS1::initializeGyroscope()

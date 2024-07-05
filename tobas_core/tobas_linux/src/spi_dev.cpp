@@ -10,7 +10,16 @@ using namespace std;
 
 namespace linux
 {
-SPIdev::SPIdev(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per_word, uint16_t delay_usecs)
+SPIdev::SPIdev()
+{
+}
+
+SPIdev::~SPIdev()
+{
+  close(spi_fd_);
+}
+
+bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per_word, uint16_t delay_usecs)
 {
   memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
   spi_transfer_.speed_hz = speed_hz;
@@ -18,13 +27,7 @@ SPIdev::SPIdev(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per_word, ui
   spi_transfer_.delay_usecs = delay_usecs;
 
   spi_fd_ = open(spi_dev, O_RDWR);
-  if (spi_fd_ < 0)
-    throw runtime_error("Failed to open SPI device.");
-}
-
-SPIdev::~SPIdev()
-{
-  close(spi_fd_);
+  return spi_fd_ >= 0;
 }
 
 bool SPIdev::transfer(uint8_t* tx, uint8_t* rx, uint32_t length)

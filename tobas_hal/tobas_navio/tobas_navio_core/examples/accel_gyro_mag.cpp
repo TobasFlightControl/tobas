@@ -1,5 +1,6 @@
 #include <memory>
 #include <string>
+#include <iostream>
 #include <unistd.h>
 
 #include <tobas_navio_core/util.hpp>
@@ -7,20 +8,19 @@
 #include <tobas_navio_core/lsm9ds1.hpp>
 
 using namespace std;
-using namespace navio;
 
-unique_ptr<InertialSensor> getInertialSensor(const string& sensor_name)
+unique_ptr<navio::InertialSensor> getInertialSensor(const string& sensor_name)
 {
   if (sensor_name == "mpu")
   {
-    printf("Selected: MPU9250\n");
-    auto ptr = unique_ptr<InertialSensor>{ new MPU9250() };
+    cout << "Selected: MPU9250" << endl;
+    auto ptr = unique_ptr<navio::InertialSensor>{ new navio::MPU9250() };
     return ptr;
   }
   else if (sensor_name == "lsm")
   {
-    printf("Selected: LSM9DS1\n");
-    auto ptr = unique_ptr<InertialSensor>{ new LSM9DS1() };
+    cout << "Selected: LSM9DS1" << endl;
+    auto ptr = unique_ptr<navio::InertialSensor>{ new navio::LSM9DS1() };
     return ptr;
   }
   else
@@ -31,15 +31,15 @@ unique_ptr<InertialSensor> getInertialSensor(const string& sensor_name)
 
 void printHelp()
 {
-  printf("Possible parameters:\nSensor selection: -i [sensor name]\n");
-  printf("Sensors names: mpu is MPU9250, lsm is LSM9DS1\nFor help: -h\n");
+  cout << "Possible parameters:\nSensor selection: -i [sensor name]" << endl;
+  cout << "Sensors names: mpu is MPU9250, lsm is LSM9DS1\nFor help: -h" << endl;
 }
 
 string getSensorName(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    printf("Enter parameter\n");
+    cout << "Enter parameter" << endl;
     printHelp();
     return "";
   }
@@ -58,7 +58,7 @@ string getSensorName(int argc, char* argv[])
         printHelp();
         return "-1";
       case '?':
-        printf("Wrong parameter.\n");
+        cerr << "Wrong parameter." << endl;
         printHelp();
         return "";
     }
@@ -69,8 +69,8 @@ string getSensorName(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-  if (checkAPM())
-    return 1;
+  if (navio::checkAPM())
+    return EXIT_FAILURE;
 
   const auto sensor_name = getSensorName(argc, argv);
   if (sensor_name.empty())
@@ -80,21 +80,19 @@ int main(int argc, char* argv[])
 
   if (!sensor)
   {
-    printf("Wrong sensor name. Select: mpu or lsm\n");
+    cerr << "Wrong sensor name. Select: mpu or lsm" << endl;
     return EXIT_FAILURE;
   }
 
-  if (!sensor->probe())
+  if (!sensor->initialize())
   {
-    printf("Sensor not enabled\n");
+    cerr << "Failed to initialize IMU." << endl;
     return EXIT_FAILURE;
   }
-  sensor->initialize();
 
   float ax, ay, az;
   float gx, gy, gz;
   float mx, my, mz;
-  //-------------------------------------------------------------------------
 
   while (true)
   {
@@ -102,11 +100,14 @@ int main(int argc, char* argv[])
     sensor->readAccelerometer(&ax, &ay, &az);
     sensor->readGyroscope(&gx, &gy, &gz);
     sensor->readMagnetometer(&mx, &my, &mz);
-    printf("Acc: %+7.3f %+7.3f %+7.3f  ", ax, ay, az);
-    printf("Gyr: %+8.3f %+8.3f %+8.3f  ", gx, gy, gz);
-    printf("Mag: %+7.3f %+7.3f %+7.3f\n", mx, my, mz);
+
+    cout << "Acc: " << ax << " " << ay << " " << az << endl;
+    cout << "Gyr: " << gx << " " << gy << " " << gz << endl;
+    cout << "Mag: " << mx << " " << my << " " << mz << endl;
 
     // usleep(500000);
     usleep(5000);
   }
+
+  return EXIT_SUCCESS;
 }

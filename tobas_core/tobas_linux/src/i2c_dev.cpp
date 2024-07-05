@@ -11,7 +11,7 @@ using namespace std;
 
 namespace linux
 {
-I2Cdev::I2Cdev(const char* i2c_dev, uint8_t dev_addr) : i2c_dev_(i2c_dev), dev_addr_(dev_addr)
+I2Cdev::I2Cdev(uint8_t dev_addr) : dev_addr_(dev_addr)
 {
 }
 
@@ -20,9 +20,9 @@ I2Cdev::~I2Cdev()
   close(i2c_fd_);
 }
 
-bool I2Cdev::initialize()
+bool I2Cdev::initialize(const char* i2c_dev)
 {
-  i2c_fd_ = open(i2c_dev_, O_RDWR);
+  i2c_fd_ = open(i2c_dev, O_RDWR);
   return i2c_fd_ >= 0;
 }
 

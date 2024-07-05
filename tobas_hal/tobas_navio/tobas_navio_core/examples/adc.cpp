@@ -8,14 +8,12 @@
 
 #define READ_FAILED -1
 
-using namespace navio;
-
 int main()
 {
-  if (checkAPM())
+  if (navio::checkAPM())
     return 1;
 
-  ADC adc;
+  navio::ADC adc;
   adc.initialize();
   std::vector<float> results(adc.channelCount(), 0.);
   while (true)

@@ -15,6 +15,9 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
 {
   PRINT_DEBUG("GpsHandler::GpsHandler");
 
+  if (!gps_.initialize())
+    TOBAS_EXIT("Failed to initialize GNSS receiver.");
+
   try
   {
     configureGnssReceiver();

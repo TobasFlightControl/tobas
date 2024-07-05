@@ -137,6 +137,8 @@ public:
 
   explicit Ublox();
 
+  bool initialize();
+
   /* 32.10.3.1 Clear, save and load configurations */
   void clearConfigurations();
   void saveConfigurations();

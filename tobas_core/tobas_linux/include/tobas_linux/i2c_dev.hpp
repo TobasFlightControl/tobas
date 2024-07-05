@@ -7,10 +7,10 @@ namespace linux
 class I2Cdev
 {
 public:
-  explicit I2Cdev(const char* i2c_dev, uint8_t dev_addr);
+  explicit I2Cdev(uint8_t dev_addr);
   ~I2Cdev();
 
-  bool initialize();
+  bool initialize(const char* i2c_dev);
 
   /** Read a single bit from an 8-bit device register.
    * @param reg_addr Register reg_addr to read from
@@ -152,10 +152,9 @@ public:
   bool writeWords(uint8_t reg_addr, uint8_t length, uint16_t* data);
 
 private:
-  const char* i2c_dev_;
   const uint8_t dev_addr_;
   int i2c_fd_;
 
-  uint8_t buf_[128];
+  uint8_t buf_[1 << 7];
 };
 }  // namespace linux

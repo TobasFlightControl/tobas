@@ -15,9 +15,8 @@ MagnetometerHandler::MagnetometerHandler(ros::NodeHandle& nh, ros::NodeHandle& p
 {
   PRINT_DEBUG("MagnetometerHandler::MagnetometerHandler");
 
-  if (!imu_.probe())
-    TOBAS_EXIT("IMU not enabled.");
-  imu_.initialize();
+  if (!imu_.initialize())
+    TOBAS_EXIT("Failed to initialize IMU.");
 
   reloadConfig();
   initializeNoiseFilter();

@@ -207,12 +207,12 @@ class MPU9250 : public InertialSensor
   static constexpr char kDevice[] = "/dev/spidev0.1";
   static constexpr uint32_t kSpiSpeedHz = 1000000;  // Maximum frequency is 1MHz
   static constexpr size_t kDataLength = 255;
+  static constexpr size_t kInitRegNum = 16;
 
 public:
   explicit MPU9250();
 
-  void initialize() override;
-  bool probe() override;
+  bool initialize() override;
   void update() override;
 
 private:
@@ -224,12 +224,14 @@ private:
   int calib_data_[3];
   float magnetometer_ASA_[3];
 
+  bool probe();
+
   uint8_t writeReg(uint8_t write_addr, uint8_t write_data);
   uint8_t readReg(uint8_t read_addr);
   void readRegs(uint8_t read_addr, uint8_t* read_buf, uint32_t bytes);
 
-  void setGyroScale(uint8_t scale);
   void setAccScale(uint8_t scale);
+  void setGyroScale(uint8_t scale);
 
   void calibAcc();
   void calibMag();

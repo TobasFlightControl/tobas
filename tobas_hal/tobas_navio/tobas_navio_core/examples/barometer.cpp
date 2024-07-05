@@ -5,13 +5,12 @@
 #include <tobas_navio_core/util.hpp>
 
 using namespace std;
-using namespace navio;
 
 int main()
 {
-  MS5611 barometer;
+  navio::MS5611 barometer;
 
-  if (checkAPM())
+  if (navio::checkAPM())
     return EXIT_FAILURE;
 
   if (!barometer.initialize())

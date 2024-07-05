@@ -13,8 +13,16 @@ using namespace chrono;
 
 namespace navio
 {
-Ublox::Ublox() : spi_dev_(kDevice, kSpiSpeedHz), rate_(chrono::microseconds(kSpiInterval))
+Ublox::Ublox() : rate_(chrono::microseconds(kSpiInterval))
 {
+}
+
+bool Ublox::initialize()
+{
+  if (!spi_dev_.initialize(kDevice, kSpiSpeedHz))
+    return false;
+
+  return true;
 }
 
 void Ublox::clearConfigurations()

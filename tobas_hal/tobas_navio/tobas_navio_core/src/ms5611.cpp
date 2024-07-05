@@ -7,13 +7,13 @@
 
 namespace navio
 {
-MS5611::MS5611(uint8_t i2c_addr) : i2c_dev_(kRasPiI2CDev, i2c_addr)
+MS5611::MS5611(uint8_t i2c_addr) : i2c_dev_(i2c_addr)
 {
 }
 
 bool MS5611::initialize()
 {
-  if (!i2c_dev_.initialize())
+  if (!i2c_dev_.initialize(kRasPiI2CDev))
     return false;
 
   // Reading 6 calibration data values

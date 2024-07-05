@@ -11,9 +11,8 @@ namespace tobas_calibration
 AccelCalibrationRos::AccelCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC), rate_(kSamplingRate)
 {
-  if (!imu_.probe())
-    TOBAS_EXIT("IMU not enabled.");
-  imu_.initialize();
+  if (!imu_.initialize())
+    TOBAS_EXIT("Failed to initialize IMU.");
 
   ss_ = nh_.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
