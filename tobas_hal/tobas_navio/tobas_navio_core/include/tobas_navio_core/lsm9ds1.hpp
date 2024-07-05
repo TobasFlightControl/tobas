@@ -1,6 +1,7 @@
 #pragma once
 
-#include "./spi_dev.hpp"
+#include <tobas_linux/spi_dev.hpp>
+
 #include "./imu.hpp"
 
 namespace navio
@@ -227,8 +228,8 @@ private:
     BITS_BDU = 1 << 6,
   };
 
-  uint8_t writeReg(SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data);
-  uint8_t readReg(SPIdev& spi_dev, const uint8_t& read_addr);
+  uint8_t writeReg(linux::SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data);
+  uint8_t readReg(linux::SPIdev& spi_dev, const uint8_t& read_addr);
   void readRegsImu(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes);
   void readRegsMag(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes);
 
@@ -240,8 +241,8 @@ private:
   void setAccScale(const uint8_t& scale);
   void setMagScale(const uint8_t& scale);
 
-  SPIdev spi_dev_imu_;
-  SPIdev spi_dev_mag_;
+  linux::SPIdev spi_dev_imu_;
+  linux::SPIdev spi_dev_mag_;
 
   float gyro_scale_;
   float acc_scale_;

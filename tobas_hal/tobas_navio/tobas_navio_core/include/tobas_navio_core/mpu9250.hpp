@@ -1,6 +1,7 @@
 #pragma once
 
-#include "./spi_dev.hpp"
+#include <tobas_linux/spi_dev.hpp>
+
 #include "./imu.hpp"
 
 // MPU9250 registers
@@ -215,7 +216,7 @@ public:
   void update() override;
 
 private:
-  SPIdev spi_dev_;
+  linux::SPIdev spi_dev_;
 
   float acc_divider_;
   float gyro_divider_;

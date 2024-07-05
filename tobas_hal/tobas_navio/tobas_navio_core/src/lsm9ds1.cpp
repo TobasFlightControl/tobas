@@ -10,7 +10,7 @@ LSM9DS1::LSM9DS1() : spi_dev_imu_(kAccGyroDevice, kSpiSpeedHz), spi_dev_mag_(kMa
 {
 }
 
-uint8_t LSM9DS1::writeReg(SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data)
+uint8_t LSM9DS1::writeReg(linux::SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data)
 {
   uint8_t tx[2] = { write_addr, write_data };
   uint8_t rx[2] = { 0 };
@@ -18,7 +18,7 @@ uint8_t LSM9DS1::writeReg(SPIdev& spi_dev, const uint8_t& write_addr, const uint
   return rx[1];
 }
 
-uint8_t LSM9DS1::readReg(SPIdev& spi_dev, const uint8_t& read_addr)
+uint8_t LSM9DS1::readReg(linux::SPIdev& spi_dev, const uint8_t& read_addr)
 {
   return writeReg(spi_dev, read_addr | kReadFlag, 0x00);
 }

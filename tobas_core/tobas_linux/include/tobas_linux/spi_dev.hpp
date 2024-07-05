@@ -3,7 +3,7 @@
 #include <cinttypes>
 #include <linux/spi/spidev.h>
 
-namespace navio
+namespace linux
 {
 class SPIdev
 {
@@ -17,4 +17,4 @@ private:
   spi_ioc_transfer spi_transfer_;
   int spi_fd_;
 };
-}  // namespace navio
+}  // namespace linux

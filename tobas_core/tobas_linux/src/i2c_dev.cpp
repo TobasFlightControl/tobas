@@ -10,9 +10,9 @@
 #include <sys/stat.h>
 #include <linux/i2c-dev.h>
 
-#include "../include/tobas_navio_core/i2c_dev.hpp"
+#include "../include/tobas_linux/i2c_dev.hpp"
 
-namespace navio
+namespace linux
 {
 I2Cdev::I2Cdev()
 {
@@ -333,4 +333,4 @@ bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16
   close(fd);
   return TRUE;
 }
-}  // namespace navio
+}  // namespace linux

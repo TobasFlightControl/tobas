@@ -1,10 +1,11 @@
 #pragma once
 
 #include <string>
+
 #include <tobas_std_tools/rate.hpp>
 #include <tobas_std_tools/stopwatch.hpp>
+#include <tobas_linux/spi_dev.hpp>
 
-#include "./spi_dev.hpp"
 #include "./ubx_scanner.hpp"
 #include "./ubx_payload.hpp"
 
@@ -268,7 +269,7 @@ private:
   };
   /* ==============================*/
 
-  SPIdev spi_dev_;
+  linux::SPIdev spi_dev_;
   UBXScanner scanner_;
 
   uint16_t latest_msg_;

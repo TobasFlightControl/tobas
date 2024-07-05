@@ -4,11 +4,11 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include "../include/tobas_navio_core/spi_dev.hpp"
+#include "../include/tobas_linux/spi_dev.hpp"
 
 using namespace std;
 
-namespace navio
+namespace linux
 {
 SPIdev::SPIdev(const char* spidev, uint32_t speed_hz, uint8_t bits_per_word, uint16_t delay_usecs)
 {
@@ -34,4 +34,4 @@ bool SPIdev::transfer(uint8_t* tx, uint8_t* rx, uint32_t length)
   spi_transfer_.len = length;
   return ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) >= 0;
 }
-}  // namespace navio
+}  // namespace linux
