@@ -252,5 +252,7 @@ bool I2Cdev::selectDevice()
     cerr << "Failed to select I2C device." << endl;
     return false;
   }
+
+  return true;
 }
 }  // namespace linux
