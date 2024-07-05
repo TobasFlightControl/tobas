@@ -2,7 +2,7 @@
 
 #include <Eigen/Core>
 
-namespace tobas_navio_ros
+namespace math
 {
 /**
  * @brief 任意の楕円体 (x^T A x + b^T x + c = 0) を原点中心の単位球に射影する．
@@ -39,4 +39,4 @@ private:
   Eigen::Vector3d radius_;  // 3軸方向の半径
   Eigen::Matrix3d PSPt_;
 };
-}  // namespace tobas_navio_ros
+}  // namespace math

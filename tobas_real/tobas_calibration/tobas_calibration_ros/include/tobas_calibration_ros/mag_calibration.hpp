@@ -4,10 +4,10 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 
+#include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_navio_ros/common.hpp>
-#include <tobas_navio_ros/ellipse_transformer.hpp>
 #include <tobas_calibration_msgs/MagCalibration.h>
 
 namespace tobas_calibration
@@ -38,7 +38,7 @@ private:
   ptree::PropertyClient property_client_;
   float mx_, my_, mz_;
   std::vector<Eigen::Vector3f> mag_data_;
-  tobas_navio_ros::EllipseTransformer mag_trans_;
+  math::EllipseTransformer mag_trans_;
 
   ros::Timer collect_data_timer_;
   ros::Publisher mag_pub_;

@@ -1,12 +1,12 @@
 #include <iostream>
 #include <Eigen/Eigen>
 
-#include "../include/tobas_navio_ros/ellipse_transformer.hpp"
+#include "../include/tobas_math/ellipse_transformer.hpp"
 
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_navio_ros
+namespace math
 {
 EllipseTransformer::EllipseTransformer()
 {
@@ -83,4 +83,4 @@ ostream& operator<<(ostream& os, const EllipseTransformer& arg)
 
   return os;
 }
-}  // namespace tobas_navio_ros
+}  // namespace math

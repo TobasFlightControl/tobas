@@ -3,12 +3,12 @@
 #include <Eigen/Core>
 #include <std_srvs/Trigger.h>
 
+#include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 
 #include "./common.hpp"
 #include "./base_sensor_node.hpp"
-#include "./ellipse_transformer.hpp"
 
 namespace tobas_navio_ros
 {
@@ -37,7 +37,7 @@ private:
   std::array<dsp::NoiseVarianceFilter, 3> mag_noise_;
 
   // Config
-  EllipseTransformer mag_trans_;
+  math::EllipseTransformer mag_trans_;
 
   ros::Publisher mag_pub_;
   ros::ServiceServer reload_config_srv_;
