@@ -1,5 +1,5 @@
 #include <cstring>
-#include <stdexcept>
+#include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -27,7 +27,13 @@ bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per
   spi_transfer_.delay_usecs = delay_usecs;
 
   spi_fd_ = open(spi_dev, O_RDWR);
-  return spi_fd_ >= 0;
+  if (spi_fd_ < 0)
+  {
+    cerr << "Failed to open SPI device: " << spi_dev << endl;
+    return false;
+  }
+
+  return true;
 }
 
 bool SPIdev::transfer(uint8_t* tx, uint8_t* rx, uint32_t length)
