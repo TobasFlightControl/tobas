@@ -154,7 +154,7 @@ public:
 private:
   const char* i2c_dev_;
   const uint8_t dev_addr_;
-  bool i2c_fd_;
+  int i2c_fd_;
 
   uint8_t buf_[128];
 };
