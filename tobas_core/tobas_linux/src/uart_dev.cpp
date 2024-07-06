@@ -19,10 +19,15 @@ UARTdev::~UARTdev()
   close(uart_fd_);
 }
 
-bool UARTdev::initialize(const char* uart_dev)
+bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 {
+  block_mode_ = block_mode;
+
   // Open UART device
-  uart_fd_ = open(uart_dev, O_RDWR | O_NOCTTY | O_NDELAY);
+  int oflag = O_RDWR | O_NOCTTY;
+  if (!block_mode)
+    oflag |= O_NONBLOCK;
+  uart_fd_ = open(uart_dev, oflag);
   if (uart_fd_ < 0)
   {
     cerr << "Failed to open UART device: " << uart_dev << endl;
@@ -33,19 +38,29 @@ bool UARTdev::initialize(const char* uart_dev)
   if (!getConfig())
     return false;
 
-  // Set baud rate
-  options_.c_cflag &= ~CBAUD;            // Remove current baud rate
-  options_.c_cflag |= BOTHER;            // Allow custom baud rate using int input
-  options_.c_ispeed = kDefaultBaudRate;  // Set the input baud rate
-  options_.c_ospeed = kDefaultBaudRate;  // Set the output baud rate
+  // Set raw mode
+  options_.c_iflag = 0;
+  options_.c_oflag = 0;
+  options_.c_lflag = 0;
 
-  // Configure the serial port
+  // Set control mode flags
   options_.c_cflag &= ~CSIZE;   // Clear data bit size
   options_.c_cflag |= CS8;      // 8 bit size
   options_.c_cflag &= ~CSTOPB;  // 1 stop bit
   options_.c_cflag |= CREAD;    // Enable receiver
   options_.c_cflag &= ~PARENB;  // No parity
+  options_.c_cflag &= ~HUPCL;   // No hung-up
   options_.c_cflag |= CLOCAL;   // Set local mode
+
+  // Set minimum characters
+  options_.c_cc[VMIN] = 0;   // Wait for 0 characters
+  options_.c_cc[VTIME] = 0;  // Infinite timeout
+
+  // Set baud rate
+  options_.c_cflag &= ~CBAUD;            // Remove current baud rate
+  options_.c_cflag |= BOTHER;            // Allow custom baud rate using int input
+  options_.c_ispeed = kDefaultBaudRate;  // Set the input baud rate
+  options_.c_ospeed = kDefaultBaudRate;  // Set the output baud rate
 
   // Set the new configuration of the serial interface
   if (!setConfig())
@@ -88,7 +103,13 @@ bool UARTdev::setDataBits(uint8_t data_bits)
   return setConfig();
 }
 
-bool UARTdev::enableTwoStopBits()
+bool UARTdev::setSingleStopBit()
+{
+  options_.c_cflag &= ~CSTOPB;
+  return setConfig();
+}
+
+bool UARTdev::setDoubleStopBit()
 {
   options_.c_cflag |= CSTOPB;
   return setConfig();
@@ -113,9 +134,32 @@ bool UARTdev::enableParity(parity_mode_t mode)
   return setConfig();
 }
 
-bool UARTdev::enableHangupClose()
+bool UARTdev::disableParity()
 {
-  options_.c_cflag &= HUPCL;
+  options_.c_cflag &= ~PARENB;
+  return setConfig();
+}
+
+bool UARTdev::enableHungupClose()
+{
+  options_.c_cflag |= HUPCL;
+  return setConfig();
+}
+
+bool UARTdev::disableHungupClose()
+{
+  options_.c_cflag &= ~HUPCL;
+  return setConfig();
+}
+
+bool UARTdev::setMinimumChars(uint8_t num)
+{
+  if (!block_mode_ && num > 0)
+  {
+    cerr << "The minimum number of characters configuration is disabled in non-blocking mode." << endl;
+    return false;
+  }
+  options_.c_cc[VMIN] = num;
   return setConfig();
 }
 
