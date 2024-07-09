@@ -6,12 +6,10 @@ using namespace std;
 
 namespace tobas_std
 {
-bool isClose(const double& a, const double& b, const double& abs_tol, const double& rel_tol)
+bool isClose(const double& x, const double& y, const double& abs_tol, const double& rel_tol)
 {
-  const auto diff = abs(a - b);
-  if (diff <= abs_tol || diff <= rel_tol * max(abs(a), abs(b)))
-    return true;
-  return false;
+  const auto diff = abs(x - y);
+  return diff < abs_tol || diff < rel_tol * max(abs(x), abs(y));
 }
 
 float decodeBinary32(uint32_t bin)
