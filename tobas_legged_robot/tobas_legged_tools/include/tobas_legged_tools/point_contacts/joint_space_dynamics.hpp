@@ -23,7 +23,7 @@ struct JointSpaceDynamicsConfig
   double base_weight;   // 浮遊リンクの加速度の参照値からのエラーに対するペナルティ
 };
 
-/* 浮遊リンクの加速度を実現するための地面反力を求める． */
+/* 浮遊リンクの加速度を実現するための地面反力と関節トルクを求める． */
 class JointSpaceDynamics
 {
   static constexpr size_t kPosIdx = 0;
