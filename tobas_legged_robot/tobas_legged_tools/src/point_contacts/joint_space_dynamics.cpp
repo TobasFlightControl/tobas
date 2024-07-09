@@ -10,9 +10,13 @@ namespace et = eigen_tools;
 
 namespace lr_tools
 {
-JointSpaceDynamics::JointSpaceDynamics(const kdl::Tree& tree, const vector<string>& foot_names)
+JointSpaceDynamics::JointSpaceDynamics(
+  const kdl::Tree& tree,
+  const vector<string>& foot_names,
+  const string& floating_base_name)
   : tree_raw_(tree),
     foot_names_(foot_names),
+    floating_base_name_(floating_base_name),
     nc_(foot_names.size()),
     force_size_(3 * nc_),
     f_ref_(force_size_),
@@ -41,10 +45,11 @@ JointSpaceDynamics::JointSpaceDynamics(const kdl::Tree& tree, const vector<strin
 
 void JointSpaceDynamics::updateInternalDataStructures()
 {
-  tree_ = tree_raw_;  // TODO: 浮遊リンクを追加
+  // ツリーに浮遊リンクを接続
+  tree_ = kdl::Tree::FloatingBase("world", floating_base_name_);
+  tree_.addTree(tree_raw_, floating_base_name_);
 
-  // nj_raw_ = tree_raw_.getNrOfJoints();
-  nj_raw_ = 12;  // TODO
+  nj_raw_ = tree_raw_.getNrOfJoints();
   nj_ = tree_.getNrOfJoints();
   J_.resize(force_size_, nj_);
 

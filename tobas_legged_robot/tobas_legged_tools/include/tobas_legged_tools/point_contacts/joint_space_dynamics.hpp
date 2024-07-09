@@ -37,7 +37,10 @@ class JointSpaceDynamics
   static constexpr double kYawAngle = 0.;  // フットプリント座標系で考えるため，ヨー角は常にゼロ．
 
 public:
-  explicit JointSpaceDynamics(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
+  explicit JointSpaceDynamics(
+    const kdl::Tree& tree,
+    const std::vector<std::string>& foot_names,
+    const std::string& floating_base_name);
 
   void updateInternalDataStructures();
 
@@ -62,6 +65,7 @@ public:
 private:
   const kdl::Tree& tree_raw_;
   const std::vector<std::string> foot_names_;
+  const std::string floating_base_name_;
   const size_t nc_, force_size_;
 
   // Config
