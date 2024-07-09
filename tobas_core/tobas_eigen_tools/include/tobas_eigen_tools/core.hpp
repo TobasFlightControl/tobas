@@ -149,6 +149,22 @@ inline bool isSymmetric(const Eigen::MatrixBase<Derived>& A)
   return A.isApprox(A.transpose());
 }
 
+/* 2つの行列がほとんど等しいときにtrueを返す． */
+template <typename Derived>
+bool isClose(
+  const Eigen::MatrixBase<Derived>& x,
+  const Eigen::MatrixBase<Derived>& y,
+  const double& abs_tol = 1e-8,
+  const double& rel_tol = 1e-5)
+{
+  assert(x.rows() == y.rows());
+  assert(x.cols() == y.cols());
+
+  const auto max_diff = (x - y).cwiseAbs().maxCoeff();
+  const auto abs_max = x.cwiseAbs().cwiseMax(y.cwiseAbs()).maxCoeff();
+  return max_diff < abs_tol || max_diff < rel_tol * abs_max;
+}
+
 /**
  * @brief 正方行列を対称化する．
  *
