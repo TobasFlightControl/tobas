@@ -17,8 +17,9 @@ public:
   explicit SBUS();
 
   bool initialize();
-
   bool update();
+
+  inline const uint16_t& getPeriod(uint8_t channel) const;
 
 private:
   linux::UARTdev uart_dev_;
@@ -28,4 +29,9 @@ private:
   bool read();
   void decode();
 };
+
+inline const uint16_t& SBUS::getPeriod(uint8_t channel) const
+{
+  return periods_[channel];
+}
 }  // namespace a1

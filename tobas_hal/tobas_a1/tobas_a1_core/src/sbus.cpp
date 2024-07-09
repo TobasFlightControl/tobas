@@ -76,7 +76,7 @@ void SBUS::decode()
   for (uint8_t idx = 0; idx < kDataSize; ++idx)
     data |= (static_cast<uint256_t>(data_[idx]) << (kDataBits * idx));
 
-  // 11ビットずつデコード
+  // 11ビットずつ取り出す
   constexpr uint16_t mask = (1 << kChannelBits) - 1;
   for (uint8_t ch = 0; ch < kChannelSize; ++ch)
     periods_[ch] = ((data >> (kChannelBits * ch)) & mask).convert_to<uint16_t>();
