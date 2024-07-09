@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iostream>
 #include <unordered_set>
+#include <functional>
 
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/kahan.hpp>
@@ -265,6 +266,13 @@ template <typename T>
 inline bool contains(const std::vector<T>& vec, const T& val)
 {
   return std::find(vec.begin(), vec.end(), val) != vec.end();
+}
+
+/* 全ての要素が条件を満た場合にTrueを返す． */
+template <typename T, typename Lambda>
+inline bool allOf(const std::vector<T>& vec, const Lambda& lambda)
+{
+  return all_of(vec.begin(), vec.end(), lambda);
 }
 
 /* 2つのstd::vectorをマージする． */
