@@ -1,4 +1,5 @@
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_std_tools/vector.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_linear_control/util.hpp>
 
@@ -84,6 +85,7 @@ void GroundForceController::solve(
   const vector<vector<bool>>& is_stand_pred)
 {
   assert(q_pred.size() == mpc_.prediction_steps);
+  assert(tobas_std::allOf(q_pred, [this](const kdl::JntArray& q) { return q.size() == tree_.getNrOfJoints(); }));
   assert(roll_pred.size() == mpc_.prediction_steps);
   assert(pitch_pred.size() == mpc_.prediction_steps);
   assert(is_stand_pred.size() == mpc_.prediction_steps);
