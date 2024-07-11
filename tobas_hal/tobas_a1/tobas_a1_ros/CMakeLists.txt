@@ -20,8 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
-	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
+	# INCLUDE_DIRS include
+	# LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_tools
 		# tobas_a1_core
