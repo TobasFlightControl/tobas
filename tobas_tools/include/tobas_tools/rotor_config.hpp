@@ -32,7 +32,7 @@ struct RotorConfig
   double moment_constant;                     // 反トルク係数 [m]
   double drag_constant;                       // 空気効力定数 [kg/rad]
   std::pair<double, double> rot_speed_coefs;  // V = c1 w + c2 w^2 (V[V], w[rad/s])
-  size_t channel;                             // モータが接続されているPWMチャンネル
+  size_t channel;                             // モータが接続されているチャンネル
 };
 
 using RotorConfigs = std::vector<RotorConfig>;

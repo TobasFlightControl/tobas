@@ -57,7 +57,6 @@ static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 // Command
-static constexpr char kPwmCmdTopic[] = "command/pwm";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
@@ -115,8 +114,7 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
-static constexpr double kAutoResetTimeThreshold = 1.;    // [s]
-static constexpr double kDisarmDuration = 3.;            // [s]
+static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速

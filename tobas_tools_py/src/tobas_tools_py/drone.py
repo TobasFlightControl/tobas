@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 from overrides import override
 from typing import final
 
-from .constants import SERVO_RAIL_SIZE
 from .battery_config import BatteryConfig
 from .joint_config import JointCommandType, JointConfig, JointConfigMap
 from .rotor_config import Axis, EscSignalMode, RotorConfig, RotorConfigs
@@ -185,7 +184,7 @@ class DroneLoader_Param(DroneLoader):
         assert res.rot_speed_coefs[1] >= 0.0
 
         res.channel = rospy.get_param(f"{prefix}{self.CHANNEL}")
-        assert 0 <= res.channel < SERVO_RAIL_SIZE
+        assert res.channel >= 0
 
         return res
 
@@ -315,7 +314,7 @@ class DroneLoader_File(DroneLoader):
         assert res.rot_speed_coefs[1] >= 0.0
 
         res.channel = rotor_data[self.CHANNEL]
-        assert 0 <= res.channel < SERVO_RAIL_SIZE
+        assert res.channel >= 0
 
         return res
 

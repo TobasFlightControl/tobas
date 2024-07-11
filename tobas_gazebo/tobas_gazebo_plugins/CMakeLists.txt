@@ -20,6 +20,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_gazebo_common
 	tobas_gazebo_msgs
 	tobas_tools
 	tobas_dsp
@@ -35,6 +36,7 @@ catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS
+		tobas_gazebo_common
 		tobas_gazebo_msgs
 		tobas_tools
 		tobas_dsp

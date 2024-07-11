@@ -6,7 +6,7 @@
 #include <tobas_navio_core/pwm.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PwmArray.h>
+#include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/EnablePwm.h>
 
 #include "./common.hpp"
@@ -29,13 +29,10 @@ private:
   navio::PWM pwm_;
   std::array<bool, navio::PWM::kChannelCount> is_enabled_;
 
-  // Subscribers
-  ros::Subscriber pwms_sub_;
-
-  // Service Servers
+  ros::Subscriber throttles_sub_;
   ros::ServiceServer enable_pwm_srv_;
 
-  void pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms);
+  void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
   bool enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res);
 };
 }  // namespace tobas_navio_ros

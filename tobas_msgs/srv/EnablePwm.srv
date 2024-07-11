@@ -1,4 +1,4 @@
-uint64 channel
+uint8 channel
 bool enable
 ---
 bool success

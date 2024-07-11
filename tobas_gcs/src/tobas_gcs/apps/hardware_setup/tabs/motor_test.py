@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QGri
 from tobas_std_tools_py.math import rps2rpm, rpm2rps
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.widgets import IntSliderDisplay, ProgressDialog
-from tobas_tools_py.constants import SERVO_RAIL_SIZE, Topic, Service
+from tobas_tools_py.constants import Topic, Service
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
 from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
@@ -167,7 +167,8 @@ class MotorTestWidget(BaseHardwareSetupWidget):
 
 class RotorSpeedsPublisherWidget(QWidget):
 
-    MAX_ROWS = SERVO_RAIL_SIZE // 2
+    CHANNEL_SIZE = 14  # TODO: ハードウェアの最大チャンネル数に合わせる
+    MAX_ROWS = CHANNEL_SIZE // 2
     BUTTON_HEIGHT = 50
     COMMAND_PERIOD = 0.1  # [s]
 
@@ -182,7 +183,7 @@ class RotorSpeedsPublisherWidget(QWidget):
         rows.addLayout(grid)
 
         self._commanders: List[IntSliderDisplay] = []
-        for channel in range(SERVO_RAIL_SIZE):
+        for channel in range(self.CHANNEL_SIZE):
             commander = IntSliderDisplay()
             commander.set_suffix(" rpm")
             commander.value_changed.connect(self._on_value_changed)
@@ -218,7 +219,7 @@ class RotorSpeedsPublisherWidget(QWidget):
         self.stop()
 
         # モータとして登録されていないチャンネルを無効化
-        for channel in range(SERVO_RAIL_SIZE):
+        for channel in range(self.CHANNEL_SIZE):
             if channel in rotor_channels:
                 continue
             self._commanders[channel].set_text(f"CH{channel}: unregistered")

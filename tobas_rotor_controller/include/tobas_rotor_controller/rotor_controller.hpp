@@ -1,8 +1,5 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <ros/timer.h>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -10,22 +7,24 @@
 #include <tobas_msgs/GetArm.h>
 #include <tobas_msgs/SetArm.h>
 
-namespace tobas_navio_ros
+namespace tobas_rotor_controller
 {
-class MotorsHandler : public tobas::BaseNode
+class RotorController : public tobas::BaseNode
 {
   static constexpr double kBLHeliClosedLoopLowRangeMaxERPM = 50000;
   static constexpr double kBLHeliClosedLoopMidRangeMaxERPM = 100000;
   static constexpr double kBLHeliClosedLoopHighRangeMaxERPM = 200000;
 
+  static constexpr double kDisarmThrottle = -0.1;
+  static constexpr double kDisarmDuration = 3.;          // [s]
+  static constexpr double kDisarmInterval = 0.1;         // [s]
   static constexpr size_t kCheckIntervalTimerRate = 10;  // [Hz]
-  static constexpr double kSetupPwmRetryInterval = 1.;   // [s]
 
-  using self = MotorsHandler;
+  using self = RotorController;
   using super = tobas::BaseNode;
 
 public:
-  explicit MotorsHandler(
+  explicit RotorController(
     ros::NodeHandle& nh,
     ros::NodeHandle& pnh,
     const std::string& name = ros::this_node::getName());
@@ -39,7 +38,7 @@ private:
   tobas_msgs::BatteryConstPtr battery_;
 
   // PubSub
-  ros::Publisher pwms_pub_;
+  ros::Publisher throttles_pub_;
   ros::Publisher arming_pub_;
   ros::Subscriber tar_speeds_sub_;
   ros::Subscriber battery_sub_;
@@ -57,7 +56,7 @@ private:
   bool disarmRotors();
   bool enablePwms(const bool& enable);
   bool preArmCheck();
-  void setPeriodOnAllChannels(const double& period);
+  void setThrottleOnAllChannels(const double& throttle);
   void publishArming();
 
   void rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
@@ -68,4 +67,4 @@ private:
 
   void checkIntervalTimerCb(const ros::TimerEvent& event);
 };
-}  // namespace tobas_navio_ros
+}  // namespace tobas_rotor_controller

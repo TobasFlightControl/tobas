@@ -1,5 +1,4 @@
-#include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_std_tools/console.hpp>
+#include <tobas_math/core.hpp>
 
 #include "../include/tobas_navio_ros/pwm_handler.hpp"
 
@@ -19,7 +18,7 @@ PwmHandler::PwmHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
       TOBAS_EXIT("Failed to set frequency of PWM CH", channel, ".");
   }
 
-  pwms_sub_ = nh_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());
+  throttles_sub_ = nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
   enable_pwm_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enablePwmCb, this);
 }
 
@@ -37,35 +36,36 @@ PwmHandler::~PwmHandler()
   }
 }
 
-void PwmHandler::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
+void PwmHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)
 {
   // PWMのデューティサイクルを更新
-  for (const auto& pwm : pwms->pwm)
+  for (const auto& throttle : throttles->throttles)
   {
-    if (pwm.channel >= navio::PWM::kChannelCount)
+    if (throttle.channel >= navio::PWM::kChannelCount)
     {
-      TOBAS_ERROR("PWM CH", pwm.channel, " does not exist.");
+      TOBAS_ERROR("PWM CH", throttle.channel, " does not exist.");
       continue;
     }
 
-    if (!is_enabled_.at(pwm.channel))
+    if (!is_enabled_.at(throttle.channel))
     {
-      TOBAS_ERROR("PWM CH", pwm.channel, " is disabled.");
+      TOBAS_ERROR("PWM CH", throttle.channel, " is disabled.");
       continue;
     }
 
-    if (!pwm_.setDutyCycle(pwm.channel, pwm.period))
-      TOBAS_FATAL("Failed to set PWM duty cycle on CH", pwm.channel, ".");
+    const auto period =
+      math::remap<double>(throttle.throttle, tobas::kMinThrottle, tobas::kMaxThrottle, tobas::kPwmMin, tobas::kPwmMax);
+    if (!pwm_.setDutyCycle(throttle.channel, period))
+      TOBAS_FATAL("Failed to set PWM duty cycle on CH", throttle.channel, ".");
   }
 }
 
 bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res)
 {
-  res.success = false;
-
   if (req.channel >= navio::PWM::kChannelCount)
   {
     TOBAS_ERROR("PWM channel out of range.");
+    res.success = false;
     return true;
   }
 
@@ -74,6 +74,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
     if (!pwm_.enable(req.channel))
     {
       TOBAS_ERROR("Failed to enable PWM CH", req.channel, ".");
+      res.success = false;
       return true;
     }
     is_enabled_.at(req.channel) = true;
@@ -83,6 +84,7 @@ bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::Enab
     if (!pwm_.disable(req.channel))
     {
       TOBAS_ERROR("Failed to disable PWM CH", req.channel, ".");
+      res.success = false;
       return true;
     }
     is_enabled_.at(req.channel) = false;

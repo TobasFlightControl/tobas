@@ -1,2 +1,2 @@
 std_msgs/Header header
-tobas_msgs/Pwm[] pwm
+float64 data  # [0, 1]

@@ -2,7 +2,7 @@
 #include <tobas_ros_tools/util.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_real_ros/common.hpp>
-#include <tobas_msgs/PwmArray.h>
+#include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/GetArm.h>
 #include <tobas_msgs/EnablePwm.h>
 
@@ -17,7 +17,7 @@ EscCalibrationRos::EscCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, 
 {
   drone_.loadFromParam(nh_);
 
-  pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
+  throttles_pub_ = nh_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
   get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
   enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
 
@@ -28,28 +28,28 @@ void EscCalibrationRos::sendMaximum()
 {
   const auto start_time = ros::Time::now();
   while ((ros::Time::now() - start_time).toSec() < kHighDuration)
-    setPeriodAndSleep(tobas::kPwmMax);
+    setThrottleAndSleep(tobas::kMaxThrottle);
 }
 
 void EscCalibrationRos::sendMinimum()
 {
   const auto start_time = ros::Time::now();
   while ((ros::Time::now() - start_time).toSec() < kLowDuration)
-    setPeriodAndSleep(tobas::kPwmMin);
+    setThrottleAndSleep(tobas::kMinThrottle);
 }
 
-void EscCalibrationRos::setPeriod(const double& period)
+void EscCalibrationRos::setThrottle(const double& throttle)
 {
-  const auto pwms = boost::make_shared<tobas_msgs::PwmArray>();
-  pwms->header.stamp = ros::Time::now();
+  const auto throttles = boost::make_shared<tobas_msgs::ThrottleArray>();
+  throttles->header.stamp = ros::Time::now();
   for (const auto& rotor : drone_.rotorConfigs())
-    pwms->pwm.emplace_back(rotor.channel, period);
-  pwms_pub_.publish(pwms);
+    throttles->throttles.emplace_back(rotor.channel, throttle);
+  throttles_pub_.publish(throttles);
 }
 
-void EscCalibrationRos::setPeriodAndSleep(const double& period)
+void EscCalibrationRos::setThrottleAndSleep(const double& throttle)
 {
-  setPeriod(period);
+  setThrottle(throttle);
   tobas_std::msleep(kInterval);
 }
 
@@ -140,7 +140,7 @@ bool EscCalibrationRos::waitForBatteryConnection()
       as_.setAborted(result_, "Battery connection is not detected before timeout.");
       return false;
     }
-    setPeriodAndSleep(tobas::kPwmMax);
+    setThrottleAndSleep(tobas::kMaxThrottle);
     ros::spinOnce();
   }
 

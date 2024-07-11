@@ -38,15 +38,15 @@ private:
   ResultType result_;
   tobas_msgs::BatteryConstPtr battery_;
 
-  ros::Publisher pwms_pub_;
+  ros::Publisher throttles_pub_;
   ros::ServiceClient get_arm_sc_;
   ros::ServiceClient enable_pwm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   void sendMaximum();
   void sendMinimum();
-  void setPeriod(const double& period);
-  void setPeriodAndSleep(const double& period);
+  void setThrottle(const double& throttle);
+  void setThrottleAndSleep(const double& throttle);
   bool checkDisarmed();
   bool enablePWM();
   void disablePWM();
