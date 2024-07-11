@@ -10,7 +10,7 @@ namespace tobas_navio_ros
 {
 BatteryHandler::BatteryHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  if (adc_.initialize() < 0)
+  if (!adc_.initialize())
     TOBAS_EXIT("Failed to initialize ADC driver.");
 
   adc_pub_ = nh_.advertise<tobas_hal_msgs::Adc>(hal::kAdcTopic, 1);
