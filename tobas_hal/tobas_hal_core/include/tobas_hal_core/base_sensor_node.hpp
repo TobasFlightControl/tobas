@@ -5,7 +5,7 @@
 
 #include <tobas_tools/node.hpp>
 
-namespace tobas_navio_ros
+namespace hal
 {
 class BaseSensorNode : public tobas::BaseNode
 {
@@ -25,4 +25,4 @@ private:
   bool startMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   bool stopMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
 };
-}  // namespace tobas_navio_ros
+}  // namespace hal

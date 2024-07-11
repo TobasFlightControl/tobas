@@ -1,19 +1,18 @@
 #pragma once
 
+#include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_navio_core/ublox.hpp>
-
-#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class GpsHandler : public BaseSensorNode
+class GpsHandler : public hal::BaseSensorNode
 {
   // GPSレシーバの更新周期 [ms]
   // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
   static constexpr size_t kMeasurementRate = 1000 / 5;
 
   using self = GpsHandler;
-  using super = BaseSensorNode;
+  using super = hal::BaseSensorNode;
 
 public:
   explicit GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());

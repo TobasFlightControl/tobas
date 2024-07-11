@@ -15,8 +15,7 @@ from tobas_rqt_tools.widgets import HPositionBarWidget, VPositionBarWidget
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.constants import RCChannel, Service
 from tobas_tools_py.drone import Drone
-from tobas_msgs.msg import RCInputError
-from tobas_calibration_msgs.msg import RCInput
+from tobas_hal_msgs.msg import Sbus
 from tobas_calibration_msgs.srv import RCInputCalibration, RCInputCalibrationRequest, RCInputCalibrationResponse
 
 from ....common import WAIT_FOR_SERVER, Description
@@ -138,7 +137,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         cols2.addStretch()
         self._rows.addStretch()
 
-        self._rcin_sub = None
+        self._sbus_sub: rospy.Subscriber = None
 
         self._reset()
 
@@ -149,6 +148,9 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self.setEnabled(True)
 
     def _reset(self) -> None:
+        if self._sbus_sub is not None:
+            self._sbus_sub.unregister()
+
         self._roll_range.clear()
         self._pitch_range.clear()
         self._yaw_range.clear()
@@ -165,42 +167,14 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         self._finish_button.setEnabled(False)
         self._cancel_button.setEnabled(False)
 
-        if self._rcin_sub is not None:
-            self._rcin_sub.unregister()
-
-    def _cancel(self) -> None:
-        calib_cancel_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration/cancel", Trigger)
-        try:
-            calib_cancel_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
-            q_error(self, self.E_FAILED_TO_CONNECT)
-            return
-
-        try:
-            res: TriggerResponse = calib_cancel_sc.call(TriggerRequest())
-        except Exception as e:
-            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
-            return
-
-        if not res.success:
-            q_error(self, res.message)
-            return
-
-        self._reset()
-
-    def _rcin_cb(self, msg: RCInput) -> None:
-        if msg.error.error != RCInputError.E_NO_ERROR:
-            q_error(self, "RC signal is not received.")
-            self._cancel()
-            return
-
-        self._roll_range.set_value(msg.data[RCChannel.ROLL])
-        self._pitch_range.set_value(msg.data[RCChannel.PITCH])
-        self._yaw_range.set_value(msg.data[RCChannel.YAW])
-        self._throttle_range.set_value(msg.data[RCChannel.THROTTLE])
-        self._mode_range.set_value(msg.data[RCChannel.MODE])
-        self._estop_range.set_value(msg.data[RCChannel.ESTOP])
-        self._gpsw_range.set_value(msg.data[RCChannel.GPSW])
+    def _sbus_cb(self, sbus: Sbus) -> None:
+        self._roll_range.set_value(sbus.data[RCChannel.ROLL])
+        self._pitch_range.set_value(sbus.data[RCChannel.PITCH])
+        self._yaw_range.set_value(sbus.data[RCChannel.YAW])
+        self._throttle_range.set_value(sbus.data[RCChannel.THROTTLE])
+        self._mode_range.set_value(sbus.data[RCChannel.MODE])
+        self._estop_range.set_value(sbus.data[RCChannel.ESTOP])
+        self._gpsw_range.set_value(sbus.data[RCChannel.GPSW])
 
         self._roll_range.update()
         self._pitch_range.update()
@@ -212,38 +186,17 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_start_button_clicked(self) -> None:
-        calib_start_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration/start", Trigger)
+        # S.BUSトピックが正常に発行されていることを確認
+        sbus_topic = f"{self._drone.name}/hal/sbus"
         try:
-            calib_start_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
-            q_error(self, self.E_FAILED_TO_CONNECT)
-            return
-
-        try:
-            res: TriggerResponse = calib_start_sc.call(TriggerRequest())
-        except Exception as e:
-            q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
-            return
-
-        if not res.success:
-            q_error(self, res.message)
-            return
-
-        # RC入力が正常に発行されていることを確認
-        rcin_topic = f"{self._drone.name}/rcin_calibration/rc_input_raw"
-        try:
-            rcin_msg: RCInput = rospy.wait_for_message(rcin_topic, RCInput, WAIT_FOR_SERVER)
+            rospy.wait_for_message(sbus_topic, Sbus, WAIT_FOR_SERVER)
         except Exception:
             q_error(self, f"Failed to get RC input message in {WAIT_FOR_SERVER} seconds.")
-            self._cancel()
-            return
-        if rcin_msg.error.error != RCInputError.E_NO_ERROR:
-            q_error(self, "RC signal is not received.")
-            self._cancel()
+            self._reset()
             return
 
-        # 購読するトピックを更新
-        self._rcin_sub = rospy.Subscriber(rcin_topic, RCInput, self._rcin_cb, queue_size=1)
+        # 一時的にS.BUSトピックを購読開始
+        self._sbus_sub = rospy.Subscriber(sbus_topic, Sbus, self._sbus_cb, queue_size=1)
 
         self._start_button.setEnabled(False)
         self._finish_button.setEnabled(True)
@@ -264,13 +217,13 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
 
     @pyqtSlot()
     def _on_cancel_button_clicked(self) -> None:
-        self._cancel()
+        self._reset()
         q_info(self._main, "Radio calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_finish_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration/finish", RCInputCalibration)
+        calib_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration", RCInputCalibration)
         try:
-            calib_finish_sc.wait_for_service(WAIT_FOR_SERVER)
+            calib_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -293,7 +246,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         req.gpsw_off = int(self._gpsw_range.get_upper())
 
         try:
-            res: RCInputCalibrationResponse = calib_finish_sc.call(req)
+            res: RCInputCalibrationResponse = calib_sc.call(req)
         except Exception as e:
             q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
             return False

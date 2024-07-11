@@ -20,8 +20,6 @@ namespace tobas_navio_ros
 {
 MotorsHandler::MotorsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  PRINT_DEBUG("MotorsHandler::MotorsHandler");
-
   drone_.loadFromParam(nh_);
 
   pwms_pub_ = nh_.advertise<tobas_msgs::PwmArray>(tobas::kPwmCmdTopic, 1);
@@ -38,8 +36,6 @@ MotorsHandler::MotorsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const st
   check_interval_timer_ = nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
   publishArming();
-
-  PRINT_DEBUG("/MotorsHandler::MotorsHandler");
 }
 
 bool MotorsHandler::armRotors()
@@ -53,6 +49,8 @@ bool MotorsHandler::armRotors()
   const auto t_start = ros::Time::now();
   while ((ros::Time::now() - t_start).toSec() < tobas::kDisarmDuration)
   {
+    static constexpr double kPwmDisarm = 900;
+    static constexpr double kDisarmInterval = 0.1;  // [s]  // TODO: 移動
     setPeriodOnAllChannels(kPwmDisarm);
     ros::Duration(kDisarmInterval).sleep();
   }
@@ -185,31 +183,35 @@ void MotorsHandler::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_sp
       case tobas::EscSignalMode::BLHELI_OPEN_LOOP:
       {
         const auto throttle = drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
-        pwm_period = math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, kPwmMin, kPwmMax);
+        pwm_period =
+          math::remap<double>(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, tobas::kPwmMin, tobas::kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_LOW_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period =
+          math::remap<double>(tar_erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, tobas::kPwmMin, tobas::kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_MID_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period =
+          math::remap<double>(tar_erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, tobas::kPwmMin, tobas::kPwmMax);
         break;
       }
       case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE:
       {
         const auto tar_erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        pwm_period = math::remap(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, kPwmMin, kPwmMax);
+        pwm_period =
+          math::remap<double>(tar_erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, tobas::kPwmMin, tobas::kPwmMax);
         break;
       }
       default:
       {
         TOBAS_ERROR("Unknown ESC signal mode of CH", rotor.channel);
-        pwm_period = kPwmMin;
+        pwm_period = tobas::kPwmMin;
         break;
       }
     }
@@ -276,7 +278,7 @@ void MotorsHandler::checkIntervalTimerCb(const ros::TimerEvent& event)
   const auto time_after_last_cmd = (event.current_real - last_cmd_time_).toSec();
   if (time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    setPeriodOnAllChannels(kPwmMin);
+    setPeriodOnAllChannels(tobas::kPwmMin);
     if (is_activated_)
     {
       is_activated_ = false;

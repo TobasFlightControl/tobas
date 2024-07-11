@@ -15,6 +15,8 @@ namespace tobas_navio_ros
 {
 class PwmHandler : public tobas::BaseNode
 {
+  static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
+
   using self = PwmHandler;
   using super = tobas::BaseNode;
 
@@ -25,7 +27,7 @@ public:
 
 private:
   navio::PWM pwm_;
-  std::array<bool, kServoRailSize> is_enabled_;
+  std::array<bool, navio::PWM::kChannelCount> is_enabled_;
 
   // Subscribers
   ros::Subscriber pwms_sub_;

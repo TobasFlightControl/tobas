@@ -1,10 +1,10 @@
 #include <tobas_tools/constants.hpp>
 
-#include "../include/tobas_navio_ros/base_sensor_node.hpp"
+#include "../include/tobas_hal_core/base_sensor_node.hpp"
 
 using namespace std;
 
-namespace tobas_navio_ros
+namespace hal
 {
 BaseSensorNode::BaseSensorNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
@@ -23,4 +23,4 @@ bool BaseSensorNode::stopMainTimerSrvCb(std_srvs::EmptyRequest&, std_srvs::Empty
   main_timer_.stop();
   return true;
 }
-}  // namespace tobas_navio_ros
+}  // namespace hal

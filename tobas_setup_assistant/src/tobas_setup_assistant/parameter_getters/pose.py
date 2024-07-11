@@ -62,7 +62,7 @@ class ParamGetterWidget_Pose(ParamGetterWidget[Tuple[float, float, float, float,
 
     @override
     def get(self) -> Tuple[float, float, float, float, float, float]:
-        return self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw()
+        return (self.x(), self.y(), self.z(), self.roll(), self.pitch(), self.yaw())
 
     @override
     def set(self, src: Tuple[float, float, float, float, float, float]) -> None:

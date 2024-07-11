@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	# tobas_a1_core
-	tobas_property_tools
 	tobas_dsp
 	nodelet
 	pluginlib
@@ -26,7 +25,6 @@ catkin_package(
 	CATKIN_DEPENDS
 		tobas_tools
 		# tobas_a1_core
-		tobas_property_tools
 		tobas_dsp
 		nodelet
 		pluginlib

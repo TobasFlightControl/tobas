@@ -30,11 +30,6 @@ PropertyClient::error_t PropertyClient::get(const string& key, int& value, const
   return getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, float& value, const ros::Duration& timeout)
-{
-  return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value, timeout);
-}
-
 PropertyClient::error_t PropertyClient::get(const string& key, double& value, const ros::Duration& timeout)
 {
   return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value, timeout);
@@ -43,6 +38,39 @@ PropertyClient::error_t PropertyClient::get(const string& key, double& value, co
 PropertyClient::error_t PropertyClient::get(const string& key, string& value, const ros::Duration& timeout)
 {
   return getProperty<tobas_property_msgs::GetString, kGetStringSrv>(key, value, timeout);
+}
+
+PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value, const ros::Duration& timeout)
+{
+  int tmp;
+
+  if (getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
+    return error_code_;
+
+  if (tmp < 0 || UINT8_MAX < tmp)
+    return error_code_ = E_OUT_OF_RANGE;
+
+  value = static_cast<uint8_t>(tmp);
+  return error_code_ = E_NO_ERROR;
+}
+
+PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, const ros::Duration& timeout)
+{
+  int tmp;
+
+  if (getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
+    return error_code_;
+
+  if (tmp < 0 || UINT16_MAX < tmp)
+    return error_code_ = E_OUT_OF_RANGE;
+
+  value = static_cast<uint16_t>(tmp);
+  return error_code_ = E_NO_ERROR;
+}
+
+PropertyClient::error_t PropertyClient::get(const string& key, float& value, const ros::Duration& timeout)
+{
+  return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const bool& value, const ros::Duration& timeout)
@@ -55,11 +83,6 @@ PropertyClient::error_t PropertyClient::set(const string& key, const int& value,
   return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const float& value, const ros::Duration& timeout)
-{
-  return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value, timeout);
-}
-
 PropertyClient::error_t PropertyClient::set(const string& key, const double& value, const ros::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value, timeout);
@@ -68,6 +91,21 @@ PropertyClient::error_t PropertyClient::set(const string& key, const double& val
 PropertyClient::error_t PropertyClient::set(const string& key, const string& value, const ros::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetString, kSetStringSrv>(key, value, timeout);
+}
+
+PropertyClient::error_t PropertyClient::set(const string& key, const uint8_t& value, const ros::Duration& timeout)
+{
+  return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
+}
+
+PropertyClient::error_t PropertyClient::set(const string& key, const uint16_t& value, const ros::Duration& timeout)
+{
+  return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
+}
+
+PropertyClient::error_t PropertyClient::set(const string& key, const float& value, const ros::Duration& timeout)
+{
+  return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::save(const ros::Duration& timeout)
@@ -104,6 +142,8 @@ string PropertyClient::errorMessage() const
       return "Failed to connect to service server.";
     case E_FAILED_TO_CALL:
       return "Failed to call service.";
+    case E_OUT_OF_RANGE:
+      return "The value is out of numerical range.";
     case E_SERVER_ERROR:
       return server_error_msg_;
     default:

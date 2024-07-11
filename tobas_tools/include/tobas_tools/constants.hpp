@@ -14,6 +14,10 @@ static constexpr double kRad2Deg = 1 / kDeg2Rad;
 static constexpr double kFeetToMeter = 0.3048;
 static constexpr double kMeterToFeet = 1 / kFeetToMeter;
 
+// PWM duty period
+static constexpr uint16_t kPwmMin = 1000;  // [us]
+static constexpr uint16_t kPwmMax = 2000;  // [us]
+
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
@@ -96,13 +100,12 @@ static constexpr char kMoveAction[] = "move_action";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
-static constexpr char kNavioFrame[] = "navio";
 
 // Flight mode
-static constexpr size_t kFlightModeProgram = 0;
-static constexpr size_t kFlightModeStabilize = kFlightModeProgram + 1;
-static constexpr size_t kFlightModeAcrobat = kFlightModeStabilize + 1;
-static constexpr size_t kNumFlightModes = kFlightModeAcrobat + 1;
+static constexpr uint8_t kFlightModeProgram = 0;
+static constexpr uint8_t kFlightModeStabilize = kFlightModeProgram + 1;
+static constexpr uint8_t kFlightModeAcrobat = kFlightModeStabilize + 1;
+static constexpr uint8_t kNumFlightModes = kFlightModeAcrobat + 1;
 
 // Console message period
 static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]

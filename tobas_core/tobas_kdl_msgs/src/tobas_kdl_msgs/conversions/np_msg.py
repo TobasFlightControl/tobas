@@ -33,4 +33,4 @@ def jntArrayAccNpToMsg(q: np.ndarray, qdot: np.ndarray, qdotdot: np.ndarray) -> 
 
 
 def jntArrayAccMsgToNp(m: JntArrayAcc) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    return jntArrayMsgToNp(m.q), jntArrayMsgToNp(m.qdot), jntArrayMsgToNp(m.qdotdot)
+    return (jntArrayMsgToNp(m.q), jntArrayMsgToNp(m.qdot), jntArrayMsgToNp(m.qdotdot))

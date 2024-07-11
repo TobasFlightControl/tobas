@@ -19,9 +19,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     main_widget = MainWidget(
-        TITLE,
-        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
-        DynamicConfigurationWidget(),
+        TITLE, osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"), DynamicConfigurationWidget()
     )
     main_widget.show()
 

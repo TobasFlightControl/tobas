@@ -2,7 +2,7 @@
 
   <arg name="nodelet" default="false"/>
 
-  <arg name="node_name" value="motors_handler"/>
+  <arg name="node_name" value="navio_motors_handler"/>
 
   <!-- Launch PWM Handler -->
   <include file="$(find tobas_navio_ros)/launch/pwm_handler.launch">

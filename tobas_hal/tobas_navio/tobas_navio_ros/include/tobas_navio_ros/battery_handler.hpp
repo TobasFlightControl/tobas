@@ -1,25 +1,20 @@
 #pragma once
 
-#include <std_srvs/Trigger.h>
-
-#include <tobas_property_tools/property_client.hpp>
+#include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_navio_core/adc.hpp>
-
-#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class BatteryHandler : public BaseSensorNode
+class BatteryHandler : public hal::BaseSensorNode
 {
-  // Constants
-  static constexpr size_t kSamplingRate = 100;    // [Hz]
-  static constexpr double kAdcCurrentCoef = 17.;  // https://docs.emlid.com/navio2/dev/adc/
+  static constexpr size_t kSamplingRate = 100;  // [Hz]
 
-  // Defaults
-  static constexpr double kDefaultAdcVoltageCoef = 11.3;
+  // https://docs.emlid.com/tobas_navio_core/dev/adc/
+  static constexpr size_t kPowerModuleVoltageChannel = 2;
+  static constexpr size_t kPowerModuleCurrentChannel = 3;
 
   using self = BatteryHandler;
-  using super = BaseSensorNode;
+  using super = hal::BaseSensorNode;
 
 public:
   explicit BatteryHandler(
@@ -29,19 +24,11 @@ public:
 
 private:
   navio::ADC adc_;
-  ptree::PropertyClient property_client_;
+  ros::Publisher adc_pub_;
 
-  // Config
-  double adc_coef_;
-
-  ros::Publisher battery_pub_;
-  ros::ServiceServer reload_config_srv_;
-
-  bool reloadConfig();
   bool getVoltage(double& voltage);
   bool getCurrent(double& current);
 
-  bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void mainTimerCb(const ros::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

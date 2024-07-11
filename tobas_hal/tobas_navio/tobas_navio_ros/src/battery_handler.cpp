@@ -1,5 +1,5 @@
-#include <tobas_tools/constants.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_hal_core/constants.hpp>
+#include <tobas_hal_msgs/Adc.h>
 
 #include "../include/tobas_navio_ros/battery_handler.hpp"
 #include "../include/tobas_navio_ros/common.hpp"
@@ -8,33 +8,13 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-BatteryHandler::BatteryHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
+BatteryHandler::BatteryHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  PRINT_DEBUG("BatteryHandler::BatteryHandler");
-
   if (adc_.initialize() < 0)
     TOBAS_EXIT("Failed to initialize ADC driver.");
 
-  reloadConfig();
-
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
-  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  adc_pub_ = nh_.advertise<tobas_hal_msgs::Adc>(hal::kAdcTopic, 1);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-
-  PRINT_DEBUG("/BatteryHandler::BatteryHandler");
-}
-
-bool BatteryHandler::reloadConfig()
-{
-  if (property_client_.get(kConfigKey_AdcCoef, adc_coef_) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    adc_coef_ = kDefaultAdcVoltageCoef;
-    return false;
-  }
-
-  return true;
 }
 
 bool BatteryHandler::getVoltage(double& voltage)
@@ -48,7 +28,7 @@ bool BatteryHandler::getVoltage(double& voltage)
   }
 
   // Compute voltage
-  voltage = static_cast<double>(a2_value) * adc_coef_ * 1e-3;
+  voltage = static_cast<double>(a2_value) * 1e-3;
 
   return true;
 }
@@ -64,37 +44,24 @@ bool BatteryHandler::getCurrent(double& current)
   }
 
   // Compute current
-  current = static_cast<double>(a3_value) * kAdcCurrentCoef * 1e-3;
+  current = static_cast<double>(a3_value) * 1e-3;
 
-  return true;
-}
-
-bool BatteryHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
-{
-  if (!reloadConfig())
-  {
-    res.success = false;
-    res.message = "Failed to reload configurations.";
-    return true;
-  }
-
-  res.success = true;
   return true;
 }
 
 void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // Create battery message
-  const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
-  battery_msg->header.stamp = event.current_real;
+  const auto adc_msg = boost::make_shared<tobas_hal_msgs::Adc>();
+  adc_msg->header.stamp = event.current_real;
 
   // Fill values
-  if (!getVoltage(battery_msg->voltage))
+  if (!getVoltage(adc_msg->voltage))
     return;
-  if (!getCurrent(battery_msg->current))
+  if (!getCurrent(adc_msg->current))
     return;
 
   // Publish battery message
-  battery_pub_.publish(battery_msg);
+  adc_pub_.publish(adc_msg);
 }
 }  // namespace tobas_navio_ros

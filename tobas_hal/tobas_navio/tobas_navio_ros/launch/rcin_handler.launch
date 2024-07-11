@@ -2,7 +2,7 @@
 
   <arg name="nodelet" default="false"/>
 
-  <arg name="node_name" value="rcin_handler"/>
+  <arg name="node_name" value="navio_rcin_handler"/>
 
   <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_navio_ros/RCInputHandlerNodelet nodelet_manager_high" output="screen" required="true"/>
   <node unless="$(arg nodelet)" pkg="tobas_navio_ros" type="rcin_handler_node" name="$(arg node_name)" output="screen" required="true"/>

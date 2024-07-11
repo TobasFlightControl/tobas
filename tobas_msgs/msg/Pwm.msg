@@ -1,2 +1,2 @@
-uint64 channel  # 0 ~ 13
+uint8 channel
 float64 period  # [us]

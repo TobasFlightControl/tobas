@@ -13,7 +13,7 @@ from tobas_rqt_tools.widgets import FramedLabel, HPositionBarWidget, VPositionBa
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.constants import RCRange, Topic
 from tobas_tools_py.drone import Drone
-from tobas_msgs.msg import RCInput, RCInputError
+from tobas_msgs.msg import RCInput
 
 from .base_section import BaseControlSystemSectionWidget
 
@@ -118,9 +118,6 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         )
 
     def _rcin_cb(self, rcin: RCInput) -> None:
-        if rcin.error.error != RCInputError.E_NO_ERROR:
-            return
-
         self._roll_range.set_value(rcin.roll)
         self._pitch_range.set_value(rcin.pitch)
         self._yaw_range.set_value(rcin.yaw)

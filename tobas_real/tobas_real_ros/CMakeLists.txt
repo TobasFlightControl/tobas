@@ -14,6 +14,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	tobas_linux
+	tobas_property_tools
+	tobas_dsp
 	nodelet
 	pluginlib
 )
@@ -21,18 +23,24 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_tools tobas_linux nodelet pluginlib
+	CATKIN_DEPENDS
+		tobas_tools
+		tobas_linux
+		tobas_property_tools
+		tobas_dsp
+		nodelet
+		pluginlib
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} stdc++fs)
 
 file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
 add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
-target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME} stdc++fs)
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp examples/[^.]*.cpp)
 set(targets_to_install "")
