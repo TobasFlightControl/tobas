@@ -13,11 +13,7 @@ using namespace kdl;
 namespace tobas
 {
 MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone)
-  : drone_(drone),
-    fk_solver_(drone.tree()),
-    inertia_solver_(drone.tree()),
-    x_rotors_(drone, Axis::X_POSITIVE),
-    trim_(drone)
+  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), x_rotors_(drone, X_POSITIVE), trim_(drone)
 {
   if (drone.isLoaded())
     updateInternalDataStructures();

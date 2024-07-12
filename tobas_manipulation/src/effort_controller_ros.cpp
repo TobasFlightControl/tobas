@@ -3,10 +3,9 @@
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_manipulation/effort_controller_ros.hpp"
-#include "../include/tobas_manipulation/common.hpp"
+#include "../include/tobas_manipulation/util.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_manipulation
 {
@@ -102,11 +101,11 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   }
 
   // デカルト座標系の目標値を更新
-  Frame T_Base_Parent;
-  FrameMap tar_p;
-  TwistMap tar_v;
-  AccelMap a_ff;
-  WrenchMap f_ext;
+  kdl::Frame T_Base_Parent;
+  kdl::FrameMap tar_p;
+  kdl::TwistMap tar_v;
+  kdl::AccelMap a_ff;
+  kdl::WrenchMap f_ext;
   for (const auto& ls : tar_ls_->states)
   {
     if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
@@ -134,7 +133,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   const auto& efforts = pid_ts_.getEfforts();
 
   // JntArray -> JointState
-  active_jnts_extractor_.solve(tar_ls_->names());
+  active_jnts_extractor_.solve(linkNames(*tar_ls_));
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
   if (tar_js_conv_.jntArrayToJointStateEff(efforts, active_joints) < 0)
   {

@@ -3,10 +3,8 @@
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_manipulation/position_controller_ros.hpp"
-#include "../include/tobas_manipulation/common.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_manipulation
 {

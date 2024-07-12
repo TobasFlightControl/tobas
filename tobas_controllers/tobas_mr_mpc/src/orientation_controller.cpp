@@ -17,7 +17,7 @@ namespace tobas_mr_mpc
 {
 OrientationController::OrientationController(const tobas::Drone& drone)
   : drone_(drone),
-    z_rotors_(drone, tobas::Axis::Z_POSITIVE),
+    z_rotors_(drone, tobas::Z_POSITIVE),
     dynamics_(drone),
     mixer_(drone),
     cont_(drone),

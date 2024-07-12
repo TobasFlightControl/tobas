@@ -3,29 +3,18 @@
 #include <string>
 #include <vector>
 
+#include "./turning_direction.hpp"
+#include "./rotor_axis.hpp"
+#include "./esc.hpp"
+
 namespace tobas
 {
-enum struct Axis
-{
-  X_POSITIVE,
-  Z_POSITIVE,
-  UNKNOWN,  // TODO
-};
-
-enum struct EscSignalMode
-{
-  BLHELI_OPEN_LOOP,
-  BLHELI_CLOSED_LOOP_LOW_RANGE,
-  BLHELI_CLOSED_LOOP_MID_RANGE,
-  BLHELI_CLOSED_LOOP_HIGH_RANGE,
-};
-
 struct RotorConfig
 {
   std::string link_name;                      // プロペラのリンク名
-  int direction;                              // 回転方向: CCW(1) or CW(-1)
-  Axis axis;                                  // 回転軸
-  EscSignalMode esc_signal_mode;              // ESCへの信号の解釈方式
+  TurningDirection direction;                 // 回転方向: CCW(1) or CW(-1)
+  RotorAxis axis;                             // 回転軸
+  EscMode esc_mode;                           // ESCのスロットルの解釈方式
   size_t num_poles;                           // モータの極数
   double max_rot_speed;                       // 最大連続回転数 [rad/s]
   double motor_constant;                      // 推力係数 [kg*m/rad^2]

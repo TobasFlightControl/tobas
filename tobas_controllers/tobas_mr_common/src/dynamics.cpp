@@ -9,7 +9,7 @@ using namespace kdl;
 namespace tobas_mr_common
 {
 MultirotorDynamicsComponents::MultirotorDynamicsComponents(const tobas::Drone& drone)
-  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Axis::Z_POSITIVE)
+  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }

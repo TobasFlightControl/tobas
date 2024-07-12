@@ -14,7 +14,7 @@ Mixer::Mixer(const tobas::Drone& drone)
     fk_solver_(drone.tree()),
     jnt_axis_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
-    z_rotors_(drone, tobas::Axis::Z_POSITIVE)
+    z_rotors_(drone, tobas::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }

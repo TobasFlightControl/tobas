@@ -11,10 +11,6 @@ namespace tobas_rotor_controller
 {
 class RotorController : public tobas::BaseNode
 {
-  static constexpr double kBLHeliClosedLoopLowRangeMaxERPM = 50000;
-  static constexpr double kBLHeliClosedLoopMidRangeMaxERPM = 100000;
-  static constexpr double kBLHeliClosedLoopHighRangeMaxERPM = 200000;
-
   static constexpr double kDisarmThrottle = -0.1;
   static constexpr double kDisarmDuration = 3.;          // [s]
   static constexpr double kDisarmInterval = 0.1;         // [s]

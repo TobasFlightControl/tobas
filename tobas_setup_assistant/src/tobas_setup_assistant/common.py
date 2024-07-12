@@ -1,5 +1,5 @@
 import math
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QFont
 
@@ -9,8 +9,6 @@ AIR_DENSITY = 1.225  # [kg/m^3]
 
 PKG_NAME = "tobas_setup_assistant"
 TITLE = "Tobas Setup Assistant"
-CW = "CW"
-CCW = "CCW"
 TO_DO = "TODO"
 
 # Point Sizes

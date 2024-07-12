@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_msgs/RotorState.h>
@@ -59,24 +60,9 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "motorNumber", motor_number_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "jointName", joint_name_);
-  getSdfParam(sdf, "motorNumber", motor_number_);
-
-  if (sdf->HasElement("turningDirection"))
-  {
-    const auto turning_direction = sdf->GetElement("turningDirection")->Get<string>();
-    if (turning_direction == "cw")
-      direction_ = -1;
-    else if (turning_direction == "ccw")
-      direction_ = 1;
-    else
-      gzthrow(kPluginName << ": Please only use 'cw' or 'ccw' as turningDirection.");
-  }
-  else
-  {
-    gzthrow(kPluginName << ": Please specify a turning direction ('cw' or 'ccw').");
-  }
 
   getSdfParam(sdf, "rotSpeedCoefficients", rot_speed_coefs_);
   if (rot_speed_coefs_.X() <= 0)
@@ -88,7 +74,20 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
 
-  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
+  if (sdf->HasElement("turningDirection"))
+  {
+    const auto turning_direction = sdf->GetElement("turningDirection")->Get<string>();
+    if (turning_direction == tobas::CW.name)
+      direction_ = tobas::CW;
+    else if (turning_direction == tobas::CCW.name)
+      direction_ = tobas::CCW;
+    else
+      gzthrow(kPluginName << ": Please only use 'CW' or 'CCW' as turningDirection.");
+  }
+  else
+  {
+    gzthrow(kPluginName << ": Please specify a turning direction ('CW' or 'CCW').");
+  }
 
   getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
   getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
@@ -100,7 +99,29 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
            << "[s]. Please check settings and datasheet." << endl;
 
   getSdfParam(sdf, "maxRotationSpeed", max_rot_speed_, POSITIVE);
+
+  getSdfParam(sdf, "numPoles", num_poles_);
+  if (num_poles_ <= 0)
+    gzthrow(kPluginName << ": The number of poles must be positive.");
+  if (num_poles_ % 2 != 0)
+    gzthrow(kPluginName << ": The number of poles must be even.");
+
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
+
+  string esc_mode;
+  getSdfParam(sdf, "escMode", esc_mode);
+  if (esc_mode == tobas::BLHELI_OPEN_LOOP.name)
+    esc_mode_ = tobas::BLHELI_OPEN_LOOP;
+  else if (esc_mode == tobas::BLHELI_CLOSED_LOOP_LOW_RANGE.name)
+    esc_mode_ = tobas::BLHELI_CLOSED_LOOP_LOW_RANGE;
+  else if (esc_mode == tobas::BLHELI_CLOSED_LOOP_MID_RANGE.name)
+    esc_mode_ = tobas::BLHELI_CLOSED_LOOP_MID_RANGE;
+  else if (esc_mode == tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE.name)
+    esc_mode_ = tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE;
+  else
+    gzthrow(kPluginName << ": Invalid ESC signal mode: " << esc_mode);
+
+  getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
 void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
@@ -202,7 +223,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
 
   // (1) first term: Thrust Force
   const auto rot_speed_sgn = math::sign(rot_speed);
-  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * math::sqr(rot_speed);
+  const auto thrust = direction_.value * rot_speed_sgn * motor_const_ * math::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddForce(thrust_W);
 
@@ -215,7 +236,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   // (2) first term: Rotor drag torque
   const auto pose_diff = link_->WorldCoGPose() - parent_link_->WorldCoGPose();
   const auto torque = moment_const_ * thrust;
-  const auto drag_torque_child = (-direction_ * torque) * local_axis;
+  const auto drag_torque_child = (-direction_.value * torque) * local_axis;
   const auto drag_torque_parent = pose_diff.Rot().RotateVector(drag_torque_child);
   parent_link_->AddRelativeTorque(drag_torque_parent);
 
@@ -279,7 +300,7 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
 
   // Apply the filter on the rotation speed
   const auto ref_rot_speed = rotor_speed_filter_.update(set_rot_speed, dt);
-  joint_->SetVelocity(0, direction_ * ref_rot_speed / kRotorSpeedSlowdownSim);
+  joint_->SetVelocity(0, direction_.value * ref_rot_speed / kRotorSpeedSlowdownSim);
 }
 
 double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
@@ -287,6 +308,11 @@ double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
   const auto& a = rot_speed_coefs_.X();
   const auto& b = rot_speed_coefs_.Y();
   return b > 0 ? (sqrt(math::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+}
+
+double GazeboRotorPlugin::rotSpeedFromERPM(const double& erpm)
+{
+  return tobas_std::rpm2rps(erpm * 2 / num_poles_);
 }
 
 void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::ThrottleConstPtr& msg)
@@ -304,9 +330,41 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::ThrottleConstPtr&
     const auto throttle = std::clamp(msg->data, tobas::kMinThrottle, tobas::kMaxThrottle);
 
     // スロットルを目標回転数に変換
-    // TODO: ESCのタイプによって場合分け
-    const auto input_voltage = math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., battery_->voltage);
-    cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
+    switch (esc_mode_.value)
+    {
+      case tobas::BLHELI_OPEN_LOOP.value:
+      {
+        const auto input_voltage =
+          math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., battery_->voltage);
+        cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
+        break;
+      }
+      case tobas::BLHELI_CLOSED_LOOP_LOW_RANGE.value:
+      {
+        const auto erpm =
+          math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., tobas::kBLHeliCLLowMaxERPM);
+        cmd_rot_speed_ = rotSpeedFromERPM(erpm);
+        break;
+      }
+      case tobas::BLHELI_CLOSED_LOOP_MID_RANGE.value:
+      {
+        const auto erpm =
+          math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., tobas::kBLHeliCLMidMaxERPM);
+        cmd_rot_speed_ = rotSpeedFromERPM(erpm);
+        break;
+      }
+      case tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE.value:
+      {
+        const auto erpm =
+          math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., tobas::kBLHeliCLHighMaxERPM);
+        cmd_rot_speed_ = rotSpeedFromERPM(erpm);
+        break;
+      }
+      default:
+      {
+        throw;
+      }
+    }
   }
   else
   {

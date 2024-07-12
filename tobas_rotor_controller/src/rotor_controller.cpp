@@ -173,29 +173,29 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
 
     // スロットルコマンドメッセージを作成
     double throttle;
-    switch (rotor.esc_signal_mode)
+    switch (rotor.esc_mode.value)
     {
-      case tobas::EscSignalMode::BLHELI_OPEN_LOOP:
+      case tobas::BLHELI_OPEN_LOOP.value:
       {
         throttle = drone_.throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
         break;
       }
-      case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_LOW_RANGE:
+      case tobas::BLHELI_CLOSED_LOOP_LOW_RANGE.value:
       {
         const auto erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        throttle = math::remap(erpm, 0., kBLHeliClosedLoopLowRangeMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
+        throttle = math::remap(erpm, 0., tobas::kBLHeliCLLowMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
         break;
       }
-      case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_MID_RANGE:
+      case tobas::BLHELI_CLOSED_LOOP_MID_RANGE.value:
       {
         const auto erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        throttle = math::remap(erpm, 0., kBLHeliClosedLoopMidRangeMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
+        throttle = math::remap(erpm, 0., tobas::kBLHeliCLMidMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
         break;
       }
-      case tobas::EscSignalMode::BLHELI_CLOSED_LOOP_HIGH_RANGE:
+      case tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE.value:
       {
         const auto erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        throttle = math::remap(erpm, 0., kBLHeliClosedLoopHighRangeMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
+        throttle = math::remap(erpm, 0., tobas::kBLHeliCLHighMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
         break;
       }
       default:
