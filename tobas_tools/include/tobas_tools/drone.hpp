@@ -101,13 +101,13 @@ private:
   void getJointConfig(ros::NodeHandle& nh, size_t jnt_idx);
 
   void getRotorConfigs(ros::NodeHandle& nh);
-  RotorConfig getRotorConfig(ros::NodeHandle& nh, size_t rotor_idx);
+  void getRotorConfig(ros::NodeHandle& nh, size_t rotor_idx, RotorConfig& des);
 
   void getFixedWingConfig(ros::NodeHandle& nh);
   void getVehicleParameters(ros::NodeHandle& nh);
   void getAerodynamicsCoefficients(ros::NodeHandle& nh);
   void getControlSurfaces(ros::NodeHandle& nh);
-  ControlSurface getControlSurface(ros::NodeHandle& nh, size_t cs_idx);
+  void getControlSurface(ros::NodeHandle& nh, size_t cs_idx, ControlSurface& des);
 };
 
 inline const kdl::Tree& Drone::tree() const

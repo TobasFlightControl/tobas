@@ -1,5 +1,3 @@
-#include <tobas_std_tools/unordered_set.hpp>
-#include <tobas_math/core.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
@@ -61,13 +59,15 @@ void Drone::getJointConfigs(ros::NodeHandle& nh)
   size_t num_joints;
   tobas_ros::getParam(nh, "num_joints", num_joints);
 
+  joint_map_.clear();
+
   for (size_t jnt_idx = 0; jnt_idx < num_joints; ++jnt_idx)
     getJointConfig(nh, jnt_idx);
 }
 
 void Drone::getJointConfig(ros::NodeHandle& nh, size_t jnt_idx)
 {
-  PRINT_DEBUG("Drone::getJointConfigs(" << jnt_idx << ")");
+  PRINT_DEBUG("Drone::getJointConfig(" << jnt_idx << ")");
 
   const string prefix = "joint_" + to_string(jnt_idx);
   string name;
@@ -101,27 +101,28 @@ void Drone::getRotorConfigs(ros::NodeHandle& nh)
   size_t num_rotors;
   tobas_ros::getParam(nh, "num_rotors", num_rotors);
 
+  rotors_.resize(num_rotors);
+
   for (size_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
-    rotors_.push_back(getRotorConfig(nh, rotor_idx));
+    getRotorConfig(nh, rotor_idx, rotors_.at(rotor_idx));
 }
 
-RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, size_t rotor_idx)
+void Drone::getRotorConfig(ros::NodeHandle& nh, size_t rotor_idx, RotorConfig& des)
 {
-  PRINT_DEBUG("Drone::getRotorConfigs(" << rotor_idx << ")");
+  PRINT_DEBUG("Drone::getRotorConfig(" << rotor_idx << ")");
 
   const string prefix = "rotor_" + to_string(rotor_idx);
-  RotorConfig res;
 
   // Link name
-  tobas_ros::getParam(nh, prefix + "/link_name", res.link_name);
+  tobas_ros::getParam(nh, prefix + "/link_name", des.link_name);
 
   // Turning Direction
   string direction;
   tobas_ros::getParam(nh, prefix + "/direction", direction);
   if (direction == CW.name)
-    res.direction = CW;
+    des.direction = CW;
   else if (direction == CCW.name)
-    res.direction = CCW;
+    des.direction = CCW;
   else
     ROS_EXIT(nh, "Invalid rotation direction: " << direction << ". It must be 'CW' or 'CCW'.");
 
@@ -129,43 +130,41 @@ RotorConfig Drone::getRotorConfig(ros::NodeHandle& nh, size_t rotor_idx)
   string axis;
   tobas_ros::getParam(nh, prefix + "/axis", axis);
   if (axis == X_POSITIVE.name)
-    res.axis = X_POSITIVE;
+    des.axis = X_POSITIVE;
   else if (axis == Z_POSITIVE.name)
-    res.axis = Z_POSITIVE;
+    des.axis = Z_POSITIVE;
   else
-    res.axis = UNKNOWN;
+    des.axis = UNKNOWN;
 
   // ESC signal mode
   string esc_mode;
   tobas_ros::getParam(nh, prefix + "/esc_mode", esc_mode);
   if (esc_mode == BLHELI_OPEN_LOOP.name)
-    res.esc_mode = BLHELI_OPEN_LOOP;
+    des.esc_mode = BLHELI_OPEN_LOOP;
   else if (esc_mode == BLHELI_CLOSED_LOOP_LOW_RANGE.name)
-    res.esc_mode = BLHELI_CLOSED_LOOP_LOW_RANGE;
+    des.esc_mode = BLHELI_CLOSED_LOOP_LOW_RANGE;
   else if (esc_mode == BLHELI_CLOSED_LOOP_MID_RANGE.name)
-    res.esc_mode = BLHELI_CLOSED_LOOP_MID_RANGE;
+    des.esc_mode = BLHELI_CLOSED_LOOP_MID_RANGE;
   else if (esc_mode == BLHELI_CLOSED_LOOP_HIGH_RANGE.name)
-    res.esc_mode = BLHELI_CLOSED_LOOP_HIGH_RANGE;
+    des.esc_mode = BLHELI_CLOSED_LOOP_HIGH_RANGE;
   else
     ROS_EXIT(nh, "Invalid ESC signal mode: " << esc_mode);
 
   // The number of poles
-  tobas_ros::getParam(nh, prefix + "/num_poles", res.num_poles);
-  ROS_CHECK(nh, res.num_poles > 0, "The number of poles must be positive.");
-  ROS_CHECK(nh, res.num_poles % 2 == 0, "The number of poles must be even.");
+  tobas_ros::getParam(nh, prefix + "/num_poles", des.num_poles);
+  ROS_CHECK(nh, des.num_poles > 0, "The number of poles must be positive.");
+  ROS_CHECK(nh, des.num_poles % 2 == 0, "The number of poles must be even.");
 
-  tobas_ros::getParam(nh, prefix + "/max_rot_speed", res.max_rot_speed, tobas_ros::NON_NEGATIVE);
-  tobas_ros::getParam(nh, prefix + "/motor_constant", res.motor_constant, tobas_ros::POSITIVE);
-  tobas_ros::getParam(nh, prefix + "/moment_constant", res.moment_constant, tobas_ros::NON_NEGATIVE);
-  tobas_ros::getParam(nh, prefix + "/drag_constant", res.drag_constant, tobas_ros::NON_NEGATIVE);
+  tobas_ros::getParam(nh, prefix + "/max_rot_speed", des.max_rot_speed, tobas_ros::NON_NEGATIVE);
+  tobas_ros::getParam(nh, prefix + "/motor_constant", des.motor_constant, tobas_ros::POSITIVE);
+  tobas_ros::getParam(nh, prefix + "/moment_constant", des.moment_constant, tobas_ros::NON_NEGATIVE);
+  tobas_ros::getParam(nh, prefix + "/drag_constant", des.drag_constant, tobas_ros::NON_NEGATIVE);
 
-  tobas_ros::getParam(nh, prefix + "/rot_speed_coefs", res.rot_speed_coefs);
-  ROS_CHECK(nh, res.rot_speed_coefs.first > 0, "The first term of 'rot_speed_coefs' must be positive.");
-  ROS_CHECK(nh, res.rot_speed_coefs.second >= 0, "The second term of 'rot_speed_coefs' must be non-negative.");
+  tobas_ros::getParam(nh, prefix + "/rot_speed_coefs", des.rot_speed_coefs);
+  ROS_CHECK(nh, des.rot_speed_coefs.first > 0, "The first term of 'rot_speed_coefs' must be positive.");
+  ROS_CHECK(nh, des.rot_speed_coefs.second >= 0, "The second term of 'rot_speed_coefs' must be non-negative.");
 
-  tobas_ros::getParam(nh, prefix + "/channel", res.channel);
-
-  return res;
+  tobas_ros::getParam(nh, prefix + "/channel", des.channel);
 }
 
 void Drone::getFixedWingConfig(ros::NodeHandle& nh)
@@ -231,33 +230,32 @@ void Drone::getControlSurfaces(ros::NodeHandle& nh)
   size_t num_cs;
   tobas_ros::getParam(nh, "fixed_wing/num_control_surfaces", num_cs);
 
+  fixed_wing_.control_surfaces.resize(num_cs);
+
   for (size_t cs_idx = 0; cs_idx < num_cs; ++cs_idx)
-    fixed_wing_.control_surfaces.push_back(getControlSurface(nh, cs_idx));
+    getControlSurface(nh, cs_idx, fixed_wing_.control_surfaces.at(cs_idx));
 }
 
-ControlSurface Drone::getControlSurface(ros::NodeHandle& nh, size_t cs_idx)
+void Drone::getControlSurface(ros::NodeHandle& nh, size_t cs_idx, ControlSurface& des)
 {
-  PRINT_DEBUG("Drone::getRotorConfigs(" << cs_idx << ")");
+  PRINT_DEBUG("Drone::getControlSurface(" << cs_idx << ")");
 
   const string prefix = "fixed_wing/control_surface_" + to_string(cs_idx);
-  ControlSurface res;
 
   // indexはprefixの番号と同じ
-  res.index = cs_idx;
+  des.index = cs_idx;
 
-  tobas_ros::getParam(nh, prefix + "/angle_limit/lower", res.angle_limit.lower);
-  tobas_ros::getParam(nh, prefix + "/angle_limit/upper", res.angle_limit.upper);
-  ROS_CHECK(nh, res.angle_limit.isValid() && res.angle_limit.inRange(0), "Invalid range of control surface angle");
+  tobas_ros::getParam(nh, prefix + "/angle_limit/lower", des.angle_limit.lower);
+  tobas_ros::getParam(nh, prefix + "/angle_limit/upper", des.angle_limit.upper);
+  ROS_CHECK(nh, des.angle_limit.isValid() && des.angle_limit.inRange(0), "Invalid range of control surface angle");
 
-  tobas_ros::getParam(nh, prefix + "/max_angle_rate", res.max_angle_rate, tobas_ros::POSITIVE);
+  tobas_ros::getParam(nh, prefix + "/max_angle_rate", des.max_angle_rate, tobas_ros::POSITIVE);
 
-  tobas_ros::getParam(nh, prefix + "/c_lift_delta", res.c_lift_delta);
-  tobas_ros::getParam(nh, prefix + "/c_drag_abs_delta", res.c_drag_abs_delta);
-  tobas_ros::getParam(nh, prefix + "/c_side_delta", res.c_side_delta);
-  tobas_ros::getParam(nh, prefix + "/c_roll_delta", res.c_roll_delta);
-  tobas_ros::getParam(nh, prefix + "/c_pitch_delta", res.c_pitch_delta);
-  tobas_ros::getParam(nh, prefix + "/c_yaw_delta", res.c_yaw_delta);
-
-  return res;
+  tobas_ros::getParam(nh, prefix + "/c_lift_delta", des.c_lift_delta);
+  tobas_ros::getParam(nh, prefix + "/c_drag_abs_delta", des.c_drag_abs_delta);
+  tobas_ros::getParam(nh, prefix + "/c_side_delta", des.c_side_delta);
+  tobas_ros::getParam(nh, prefix + "/c_roll_delta", des.c_roll_delta);
+  tobas_ros::getParam(nh, prefix + "/c_pitch_delta", des.c_pitch_delta);
+  tobas_ros::getParam(nh, prefix + "/c_yaw_delta", des.c_yaw_delta);
 }
 }  // namespace tobas
