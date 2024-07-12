@@ -15,7 +15,7 @@ fi
 sudo systemctl stop tobas_main.target &&
 cd ~/catkin_ws/ &&
 vcs pull &&
-catkin build tobas -j4 -DCMAKE_BUILD_TYPE=$BUILD_TYPE &&
+catkin build tobas -j$(nproc) -DCMAKE_BUILD_TYPE=$BUILD_TYPE &&
 sudo rm -rf /opt/tobas &&
 sudo cp -r ~/catkin_ws/install/ /opt/tobas/ &&
 sudo systemctl start tobas_main.target &&
