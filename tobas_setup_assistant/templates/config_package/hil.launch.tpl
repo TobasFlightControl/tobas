@@ -8,8 +8,7 @@
 
   <group ns="{{ drone_name }}">
     <!-- Launch minimal hardware interfaces -->
-    <!-- FIXME: Tobas should not depend on each hardware. -->
-    <include file="$(find tobas_navio_ros)/launch/rcin_handler.launch">
+    <include file="$(find {{ hardware_pkg }})/launch/rcin_handler.launch">
       <arg name="nodelet" value="false"/>
     </include>
   </group>

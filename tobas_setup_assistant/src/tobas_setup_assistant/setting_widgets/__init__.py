@@ -15,6 +15,7 @@ from .odometry import OdometryWidget
 from .tether_station import TetherStationWidget
 from .controller import ControllerWidget
 from .observer import ObserverWidget
+from .hardware import HardwareWidget
 from .simulation import SimulationWidget
 from .author_information import AuthorInformationWidget
 from .ros_package import RosPackageWidget

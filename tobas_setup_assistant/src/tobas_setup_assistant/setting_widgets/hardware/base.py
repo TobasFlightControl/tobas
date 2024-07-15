@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from ...common import TO_DO, Description
 
 
-class BaseObserver(QWidget):
+class BaseHardwareWidget(QWidget):
     NAME = TO_DO
     PACKAGE_NAME = TO_DO
     ABST_TEXT = TO_DO
@@ -35,9 +35,4 @@ class BaseObserver(QWidget):
 
     @abstractmethod
     def load_settings(self, data: dict) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def static_parameters(self) -> dict:
-        """静的プライベートROSパラメータをまとめた辞書を返す．"""
         raise NotImplementedError()

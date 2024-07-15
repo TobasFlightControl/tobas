@@ -238,6 +238,9 @@ class PackageGenerator(QObject):
         # Observer
         template_items["observer_pkg"] = self._main.observer.pkg_name()
 
+        # Hardware
+        template_items["hardware_pkg"] = self._main.hardware.pkg_name()
+
         # Simulation
         template_items["gravity"] = self._main.simulation.gravity.get()
 
