@@ -20,7 +20,11 @@ void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressureConstPtr
 {
   // Initialize
   if (bar_raw_ == nullptr)
+  {
     pressure_noise_.initialize(kWindowSize, kHpfCutoff, bar_raw->fluid_pressure);
+    bar_raw_ = bar_raw;
+    return;
+  }
 
   // Compute time difference
   const auto dt = (bar_raw->header.stamp - bar_raw_->header.stamp).toSec();

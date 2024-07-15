@@ -100,8 +100,12 @@ void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag
 
   // Initialize
   if (mag_raw_ == nullptr)
+  {
     for (size_t i = 0; i < 3; ++i)
       mag_noise_[i].initialize(kWindowSize, kHpfCutoff, mag_unit(i));
+    mag_raw_ = mag_raw;
+    return;
+  }
 
   // Compute time difference
   const auto dt = (mag_raw->header.stamp - mag_raw_->header.stamp).toSec();
