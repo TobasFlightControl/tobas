@@ -11,6 +11,7 @@ namespace tobas_calibration
 AdcCalibrationRos::AdcCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
 {
+  adc_sub_ = nh_.subscribe(hal::kAdcTopic, 1, &AdcCalibrationRos::adcCb, this);
   ss_ = nh_.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }
 

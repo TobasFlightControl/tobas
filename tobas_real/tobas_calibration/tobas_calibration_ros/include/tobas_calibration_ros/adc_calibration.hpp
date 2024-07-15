@@ -12,7 +12,7 @@ class AdcCalibrationRos : public tobas::BaseNode
 {
   static constexpr char kServiceName[] = "adc_calibration";
 
-  static constexpr size_t kDataCount = 500;
+  static constexpr size_t kDataCount = 100;
   static constexpr double kTimeout = 5.;  // [s]
 
   using super = tobas::BaseNode;
@@ -29,6 +29,8 @@ private:
   algo::Kahan<double> voltage_sum_;
 
   ptree::PropertyClient property_client_;
+
+  ros::Subscriber adc_sub_;
   ros::ServiceServer ss_;
 
   void adcCb(const tobas_hal_msgs::AdcConstPtr& adc);
