@@ -1,3 +1,5 @@
+#include <ros/ros.h>
+
 #include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_kdl/kdl_parser.hpp>

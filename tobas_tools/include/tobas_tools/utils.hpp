@@ -1,8 +1,6 @@
 #pragma once
 
-#include <XYZgeomag.hpp>
-
-#include "./drone.hpp"
+#include <tobas_geomag/core.hpp>
 
 namespace tobas
 {
