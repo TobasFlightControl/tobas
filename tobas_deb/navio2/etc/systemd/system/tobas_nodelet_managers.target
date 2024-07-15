@@ -1,7 +1,7 @@
 [Unit]
 Description=Tobas Nodelet Managers
 Requires=tobas_nodelet_manager_high.service tobas_nodelet_manager_medium.service tobas_nodelet_manager_low.service
-PartOf=tobas_real.service
+PartOf=tobas_main.service
 
 [Install]
 WantedBy=multi-user.target
