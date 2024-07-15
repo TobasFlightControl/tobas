@@ -285,7 +285,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         return req
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/imu_handler/{Service.RELOAD_CONFIG}", Trigger)
+        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/magnetometer_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
         except rospy.ROSException:
