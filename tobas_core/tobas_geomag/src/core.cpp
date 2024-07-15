@@ -1,5 +1,7 @@
 #include "../include/tobas_geomag/core.hpp"
 
+#include <cmath>
+
 namespace geomag
 {
 Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double lon)
