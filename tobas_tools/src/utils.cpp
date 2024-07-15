@@ -9,7 +9,6 @@
 #include "../include/tobas_tools/constants.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas
 {
@@ -20,7 +19,7 @@ double getMass()
     throw runtime_error("Failed to get tobas_kdl tree.");
 
   kdl::TreeJntToInertiaSolver inertia_solver(tree);
-  if (inertia_solver.JntToCart(JntArray::Zero(tree.getNrOfJoints())) < 0)
+  if (inertia_solver.JntToCart(kdl::JntArray::Zero(tree.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver.errorMessage());
 
   return inertia_solver.getInertia().getMass();
@@ -37,8 +36,8 @@ geomag::Elements geomag(const double& lat, const double& lon, const double& heig
   if (year_frac - 2020 > 5)
     PRINT_WARN("It is time to replace the WMM data with the latest version.");
 
-  const auto position = geomag::geodetic2ecef(lat, lon, height);
-  const auto mag_field = geomag::GeoMag(year_frac, position, geomag::WMM2020);
-  return geomag::magField2Elements(mag_field, lat, lon);
+  const auto position = geomag::ecefFromGeodetic(lat, lon, height);
+  const auto mag_field = geomag::magFieldFromECEF(year_frac, position, geomag::WMM2020);
+  return geomag::elementsFromMagField(mag_field, lat, lon);
 }
 }  // namespace tobas

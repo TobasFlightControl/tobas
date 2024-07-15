@@ -4,8 +4,8 @@
 
 namespace geomag
 {
-constexpr size_t NMAX = 12;                             // order of the Model
-constexpr size_t NUMCOF = (NMAX + 1) * (NMAX + 2) / 2;  // number of coefficents
+constexpr size_t NMAX = 12;                             // Order of the Model
+constexpr size_t NUMCOF = (NMAX + 1) * (NMAX + 2) / 2;  // Number of coefficents
 
 struct Vector
 {
@@ -16,16 +16,16 @@ struct Vector
 
 struct Elements
 {
-  double north;       // local north magnetic field (nT)
-  double east;        // local east magnetic field (nT)
-  double down;        // local down magnetic field (nT)
-  double horizontal;  // local horizontal magnetic field intensity (nT)
-  double total;       // local total magnetic field intensity (nT)
-  // also called the dip angle,
+  double north;       // Local north magnetic field (nT)
+  double east;        // Local east magnetic field (nT)
+  double down;        // Local down magnetic field (nT)
+  double horizontal;  // Local horizontal magnetic field intensity (nT)
+  double total;       // Local total magnetic field intensity (nT)
+  // Also called the dip angle,
   // the angle measured from the horizontal plane to the magnetic field vector;
   // a downward field is positive (deg)
   double inclination;
-  // also called the magnetic variation,
+  // Also called the magnetic variation,
   // the angle between true north and the horizontal component of the field,
   // a eastward magnetic field of true North is positive (deg)
   double declination;
@@ -59,12 +59,12 @@ struct ConstModel
  * See https://www.geomag.nrcan.gc.ca/mag_fld/comp-en.php and https://www.ngdc.noaa.gov/geomag/icons/faqelems.gif
  * for more info.
  *
- * @param mag_field_itrs local magnetic field in the itrs coordinate system (T)
- * @param lat latitude in degrees, -90 at the south pole, 90 at the north pole.
- * @param lon longitude in degrees.
- * @return * Elements
+ * @param mag_field_itrs Local magnetic field in the itrs coordinate system (T).
+ * @param lat Latitude in degrees, -90 at the south pole, 90 at the north pole.
+ * @param lon Longitude in degrees.
+ * @return Elements
  */
-Elements magField2Elements(Vector mag_field_itrs, double lat, double lon);
+Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double lon);
 
 /**
  * @brief Return the position in International Terrestrial Reference System coordinates, units meters.
@@ -75,17 +75,17 @@ Elements magField2Elements(Vector mag_field_itrs, double lat, double lon);
  * @param h Height above the WGS 84 ellipsoid in meters.
  * @return Vector
  */
-Vector geodetic2ecef(double lat, double lon, double h);
+Vector ecefFromGeodetic(double lat, double lon, double h);
 
 /**
  * @brief Return the magnetic field in International Terrestrial Reference System coordinates, units Tesla.
  *
- * @param dyear The decimal year, for example 2015.0
+ * @param dyear The decimal year, for example 2015.0.
  * @param position_itrs The location where the field is predicted, units m.
  * @param WMM Magnetic field model to use.
  * @return Vector
  */
-Vector GeoMag(double dyear, Vector position_itrs, const ConstModel& WMM);
+Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstModel& WMM);
 
 // Model parameters
 const ConstModel WMM2015 = { 2015.000000,

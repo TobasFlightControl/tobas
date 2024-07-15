@@ -2,7 +2,7 @@
 
 namespace geomag
 {
-  Elements magField2Elements(Vector mag_field_itrs, double lat, double lon)
+Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double lon)
 {
   const double x = mag_field_itrs.x * 1e+9;
   const double y = mag_field_itrs.y * 1e+9;
@@ -24,7 +24,7 @@ namespace geomag
   return { north, east, down, horizontal, total, inclination, declination };
 }
 
-Vector geodetic2ecef(double lat, double lon, double h)
+Vector ecefFromGeodetic(double lat, double lon, double h)
 {
   // Convert to radians
   const double phi = lat * (M_PI / 180.0);
@@ -46,7 +46,7 @@ Vector geodetic2ecef(double lat, double lon, double h)
   return { r * clam, r * slam, z };
 }
 
-Vector GeoMag(double dyear, Vector position_itrs, const ConstModel& WMM)
+Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstModel& WMM)
 {
   // mean radius of  ellipsoid in meters from section 1.2 of the WMM2015 Technical report
   constexpr double EARTH_R = 6371200.0;
@@ -96,7 +96,7 @@ Vector GeoMag(double dyear, Vector position_itrs, const ConstModel& WMM)
       else
       {
         temp = Vnm;
-        const double invs_temp = 1.0f / ((n - m));
+        const double invs_temp = 1.0 / ((n - m));
         Vnm = ((2 * n - 1) * f * Vnm - (n + m - 1) * g * Vprev) * invs_temp;
         Vprev = temp;
         temp = Wnm;
@@ -126,4 +126,4 @@ Vector GeoMag(double dyear, Vector position_itrs, const ConstModel& WMM)
   }
   return { -px * 1e-9, -py * 1e-9, -pz * 1e-9 };
 }
-}
+}  // namespace geomag
