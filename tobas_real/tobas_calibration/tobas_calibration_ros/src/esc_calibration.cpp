@@ -4,7 +4,7 @@
 #include <tobas_real_ros/common.hpp>
 #include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/GetArm.h>
-#include <tobas_msgs/EnablePwm.h>
+#include <tobas_msgs/EnableRCOutput.h>
 
 #include "../include/tobas_calibration_ros/esc_calibration.hpp"
 
@@ -19,7 +19,7 @@ EscCalibrationRos::EscCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, 
 
   throttles_pub_ = nh_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
   get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
-  enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
+  enable_rcout_sc_ = nh_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
   as_.start();
 }
@@ -70,17 +70,17 @@ bool EscCalibrationRos::checkDisarmed()
   return true;
 }
 
-bool EscCalibrationRos::enablePWM()
+bool EscCalibrationRos::enableRCOutput()
 {
-  tobas_msgs::EnablePwm enable_pwm_msg;
-  enable_pwm_msg.request.enable = true;
+  tobas_msgs::EnableRCOutput enable_rcout_msg;
+  enable_rcout_msg.request.enable = true;
 
   for (const auto& rotor : drone_.rotorConfigs())
   {
-    enable_pwm_msg.request.channel = rotor.channel;
-    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
+    enable_rcout_msg.request.channel = rotor.channel;
+    if (!enable_rcout_sc_.call(enable_rcout_msg) || !enable_rcout_msg.response.success)
     {
-      as_.setAborted(result_, "Failed to enable PWM of CH" + to_string(rotor.channel) + ".");
+      as_.setAborted(result_, "Failed to enable RC output of CH" + to_string(rotor.channel) + ".");
       return false;
     }
   }
@@ -88,16 +88,16 @@ bool EscCalibrationRos::enablePWM()
   return true;
 }
 
-void EscCalibrationRos::disablePWM()
+void EscCalibrationRos::disableRCOutput()
 {
-  tobas_msgs::EnablePwm enable_pwm_msg;
-  enable_pwm_msg.request.enable = false;
+  tobas_msgs::EnableRCOutput enable_rcout_msg;
+  enable_rcout_msg.request.enable = false;
 
   for (const auto& rotor : drone_.rotorConfigs())
   {
-    enable_pwm_msg.request.channel = rotor.channel;
-    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
-      TOBAS_ERROR("Failed to disable PWM of CH", rotor.channel, ".");
+    enable_rcout_msg.request.channel = rotor.channel;
+    if (!enable_rcout_sc_.call(enable_rcout_msg) || !enable_rcout_msg.response.success)
+      TOBAS_ERROR("Failed to disable RC output of CH", rotor.channel, ".");
   }
 }
 
@@ -136,7 +136,7 @@ bool EscCalibrationRos::waitForBatteryConnection()
   {
     if ((ros::Time::now() - start_time).toSec() > kTimeout)
     {
-      disablePWM();
+      disableRCOutput();
       as_.setAborted(result_, "Battery connection is not detected before timeout.");
       return false;
     }
@@ -160,9 +160,9 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
     as_.setAborted(result_, "Failed to connect to " + string(tobas::kGetArmSrv) + " service server.");
     return;
   }
-  if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!enable_rcout_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    as_.setAborted(result_, "Failed to connect to " + string(tobas::kEnablePwmSrv) + " service server.");
+    as_.setAborted(result_, "Failed to connect to " + string(tobas::kEnableRcOutputSrv) + " service server.");
     return;
   }
 
@@ -174,8 +174,8 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
   if (!checkBatteryDisconnected())
     return;
 
-  // PWMを有効化
-  if (!enablePWM())
+  // RC出力を有効化
+  if (!enableRCOutput())
     return;
 
   // バッテリーが接続されるのを待つ
@@ -191,8 +191,8 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
   TOBAS_INFO("Sending minimum throttle.");
   sendMinimum();
 
-  // PWMを無効化
-  disablePWM();
+  // RC出力を無効化
+  disableRCOutput();
 
   as_.setSucceeded(result_);
 }

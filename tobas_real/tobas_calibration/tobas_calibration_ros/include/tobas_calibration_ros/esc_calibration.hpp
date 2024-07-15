@@ -40,7 +40,7 @@ private:
 
   ros::Publisher throttles_pub_;
   ros::ServiceClient get_arm_sc_;
-  ros::ServiceClient enable_pwm_sc_;
+  ros::ServiceClient enable_rcout_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   void sendMaximum();
@@ -48,8 +48,8 @@ private:
   void setThrottle(const double& throttle);
   void setThrottleAndSleep(const double& throttle);
   bool checkDisarmed();
-  bool enablePWM();
-  void disablePWM();
+  bool enableRCOutput();
+  void disableRCOutput();
   bool checkBatteryDisconnected();
   bool waitForBatteryConnection();
 

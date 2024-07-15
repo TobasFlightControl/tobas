@@ -7,7 +7,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/ThrottleArray.h>
-#include <tobas_msgs/EnablePwm.h>
+#include <tobas_msgs/EnableRCOutput.h>
 
 #include "./common.hpp"
 
@@ -30,9 +30,9 @@ private:
   std::array<bool, navio::PWM::kChannelCount> is_enabled_;
 
   ros::Subscriber throttles_sub_;
-  ros::ServiceServer enable_pwm_srv_;
+  ros::ServiceServer enable_rcout_srv_;
 
   void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
-  bool enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res);
+  bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);
 };
 }  // namespace tobas_navio_ros

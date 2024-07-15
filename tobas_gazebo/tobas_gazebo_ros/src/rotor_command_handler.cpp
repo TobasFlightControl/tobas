@@ -22,7 +22,7 @@ RotorCommandHandler::RotorCommandHandler(ros::NodeHandle& nh, ros::NodeHandle& p
   }
 
   throttles_sub_ = nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
-  enable_pwm_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enablePwmCb, this);
+  enable_rcout_srv_ = nh_.advertiseService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
 void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)
@@ -46,7 +46,9 @@ void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& t
   }
 }
 
-bool RotorCommandHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res)
+bool RotorCommandHandler::enableRCOutputCb(
+  tobas_msgs::EnableRCOutputRequest& req,
+  tobas_msgs::EnableRCOutputResponse& res)
 {
   if (!tobas_std::contains(throttle_pubs_, req.channel))
   {

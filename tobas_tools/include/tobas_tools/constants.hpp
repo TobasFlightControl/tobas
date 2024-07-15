@@ -82,7 +82,7 @@ static constexpr char kObserverFeedbackTopic[] = "feedback/observer";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
-static constexpr char kEnablePwmSrv[] = "enable_pwm";
+static constexpr char kEnableRcOutputSrv[] = "enable_rc_output";
 static constexpr char kGetArmSrv[] = "get_arm";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";

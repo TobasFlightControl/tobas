@@ -84,7 +84,7 @@ class Topic:
 
 class Service:
     LIST_CONTROLLERS = "controller_manager/list_controllers"
-    ENABLE_PWM = "enable_pwm"
+    ENABLE_RC_OUTPUT = "enable_rc_output"
     GET_ARM = "get_arm"
     SET_ARM = "set_arm"
     GET_GNSS_ORIGIN = "get_gnss_origin"

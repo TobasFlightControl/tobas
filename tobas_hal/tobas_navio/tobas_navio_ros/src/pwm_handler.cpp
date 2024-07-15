@@ -19,7 +19,7 @@ PwmHandler::PwmHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
   }
 
   throttles_sub_ = nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
-  enable_pwm_srv_ = nh_.advertiseService(tobas::kEnablePwmSrv, &self::enablePwmCb, this);
+  enable_rcout_srv_ = nh_.advertiseService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
 PwmHandler::~PwmHandler()
@@ -29,10 +29,8 @@ PwmHandler::~PwmHandler()
     // PWMが有効化されていたら無効化する
     // unexportは不安定なので行わない
     if (is_enabled_.at(channel))
-    {
       if (!pwm_.disable(channel))
         TOBAS_ERROR("Failed to disable PWM CH", channel, ".");
-    }
   }
 }
 
@@ -60,7 +58,7 @@ void PwmHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)
   }
 }
 
-bool PwmHandler::enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res)
+bool PwmHandler::enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res)
 {
   if (req.channel >= navio::PWM::kChannelCount)
   {

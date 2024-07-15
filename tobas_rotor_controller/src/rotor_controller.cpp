@@ -9,7 +9,7 @@
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/RotorSpeeds.h>
-#include <tobas_msgs/EnablePwm.h>
+#include <tobas_msgs/EnableRCOutput.h>
 
 #include "../include/tobas_rotor_controller/rotor_controller.hpp"
 
@@ -29,7 +29,7 @@ RotorController::RotorController(ros::NodeHandle& nh, ros::NodeHandle& pnh, cons
 
   get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
-  enable_pwm_sc_ = nh_.serviceClient<tobas_msgs::EnablePwm>(tobas::kEnablePwmSrv);
+  enable_rcout_sc_ = nh_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
   pre_arm_check_sc_ = nh_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
   check_interval_timer_ = nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
@@ -39,7 +39,7 @@ RotorController::RotorController(ros::NodeHandle& nh, ros::NodeHandle& pnh, cons
 
 bool RotorController::armRotors()
 {
-  if (!enablePwms(true))
+  if (!enableRCOutputs(true))
   {
     TOBAS_ERROR("Failed to enable rotors.");
     return false;
@@ -61,7 +61,7 @@ bool RotorController::armRotors()
 
 bool RotorController::disarmRotors()
 {
-  if (!enablePwms(false))
+  if (!enableRCOutputs(false))
   {
     TOBAS_ERROR("Failed to disable rotors.");
     return false;
@@ -73,20 +73,20 @@ bool RotorController::disarmRotors()
   return true;
 }
 
-bool RotorController::enablePwms(const bool& enable)
+bool RotorController::enableRCOutputs(const bool& enable)
 {
-  if (!enable_pwm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!enable_rcout_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
   {
-    TOBAS_ERROR("Failed to connect to '", tobas::kEnablePwmSrv, "' server.");
+    TOBAS_ERROR("Failed to connect to '", tobas::kEnableRcOutputSrv, "' server.");
     return false;
   }
 
-  tobas_msgs::EnablePwm enable_pwm_msg;
+  tobas_msgs::EnableRCOutput enable_rcout_msg;
   for (const auto& rotor : drone_.rotorConfigs())
   {
-    enable_pwm_msg.request.channel = rotor.channel;
-    enable_pwm_msg.request.enable = enable;
-    if (!enable_pwm_sc_.call(enable_pwm_msg) || !enable_pwm_msg.response.success)
+    enable_rcout_msg.request.channel = rotor.channel;
+    enable_rcout_msg.request.enable = enable;
+    if (!enable_rcout_sc_.call(enable_rcout_msg) || !enable_rcout_msg.response.success)
     {
       TOBAS_ERROR("Failed to enable/disable RC output CH", rotor.channel, ".");
       return false;
@@ -208,7 +208,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
     throttles->throttles.emplace_back(rotor.channel, throttle);
   }
 
-  // Publish PWM commands
+  // Publish throttle commands
   throttles_pub_.publish(throttles);
 
   // Update last commanded time

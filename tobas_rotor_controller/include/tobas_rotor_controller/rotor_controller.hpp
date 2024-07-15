@@ -42,7 +42,7 @@ private:
   // Service
   ros::ServiceServer get_arm_ss_;
   ros::ServiceServer set_arm_ss_;
-  ros::ServiceClient enable_pwm_sc_;
+  ros::ServiceClient enable_rcout_sc_;
   ros::ServiceClient pre_arm_check_sc_;
 
   // Timer
@@ -50,7 +50,7 @@ private:
 
   bool armRotors();
   bool disarmRotors();
-  bool enablePwms(const bool& enable);
+  bool enableRCOutputs(const bool& enable);
   bool preArmCheck();
   void setThrottleOnAllChannels(const double& throttle);
   void publishArming();

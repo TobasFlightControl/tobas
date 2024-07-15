@@ -10,7 +10,7 @@ from tobas_msgs.msg import Throttle, ThrottleArray
 from .common import BUTTON_HEIGHT, COMMAND_PERIOD
 
 
-class PwmPublisherWidget(Widget):
+class ThrottlePublisherWidget(Widget):
     CHANNEL_SIZE = 14
     MAX_ROWS = CHANNEL_SIZE // 2
 

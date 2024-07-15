@@ -5,7 +5,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_msgs/ThrottleArray.h>
-#include <tobas_msgs/EnablePwm.h>
+#include <tobas_msgs/EnableRCOutput.h>
 
 namespace tobas_gazebo_ros
 {
@@ -25,9 +25,9 @@ private:
 
   std::map<uint8_t, ros::Publisher> throttle_pubs_;
   ros::Subscriber throttles_sub_;
-  ros::ServiceServer enable_pwm_srv_;
+  ros::ServiceServer enable_rcout_srv_;
 
   void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
-  bool enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res);
+  bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);
 };
 }  // namespace tobas_gazebo_ros

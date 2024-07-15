@@ -10,7 +10,7 @@ from tobas_rospy.utils import init_node
 from tobas_rqt_tools.widgets import MainWidget
 from tobas_rqt_tools.utils import handle_unexpected_exception
 
-from tobas_motor_test.pwm_publisher import PwmPublisherWidget
+from tobas_motor_test.throttle_publisher import ThrottlePublisherWidget
 from tobas_motor_test.common import TITLE, PKG_NAME
 
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     main_widget = MainWidget(
-        TITLE, osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"), PwmPublisherWidget()
+        TITLE, osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"), ThrottlePublisherWidget()
     )
     main_widget.show()
 
