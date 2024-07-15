@@ -13,8 +13,6 @@ namespace tobas_navio_ros
 {
 GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  PRINT_DEBUG("GpsHandler::GpsHandler");
-
   if (!gps_.initialize())
     TOBAS_EXIT("Failed to initialize GNSS receiver.");
 
@@ -31,8 +29,6 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
 
   // Start main timer with maximum rate
   main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
-
-  PRINT_DEBUG("/GpsHandler::GpsHandler");
 }
 
 void GpsHandler::configureGnssReceiver()

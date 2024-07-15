@@ -1,5 +1,4 @@
 std_msgs/Header header
-tobas_msgs/RCInputError error
 float64 roll      # CH1: [-1, 1]
 float64 pitch     # CH2: [-1, 1]
 float64 throttle  # CH3: [-1, 1]

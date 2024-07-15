@@ -4,6 +4,10 @@
 
 namespace a1
 {
+/**
+ * @brief インバータで信号を反転したS.BUSをUARTで読む．
+ * cf. [Raspberry Pi PicoのUARTでラジコン受信機の信号を読む](https://rikei-tawamure.com/entry/2021/02/12/130248)
+ */
 class SBUS
 {
   static constexpr char kUartDev[] = "/dev/serial0";

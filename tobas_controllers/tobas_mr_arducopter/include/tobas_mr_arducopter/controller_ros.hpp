@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sensor_msgs/JointState.h>
-
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Odometry.h>
 

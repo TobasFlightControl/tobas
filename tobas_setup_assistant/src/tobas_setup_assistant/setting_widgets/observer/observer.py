@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
+    from .base import BaseObserver
 
 from overrides import override
 
 from tobas_rqt_tools.widgets import ComboBox, StackedWidget
 
 from ..base_setting import BaseSettingWidget
-from .base import BaseObserver
 from .eskf import ErrorStateKalmanFilter
 from .custom import CustomObserver
 

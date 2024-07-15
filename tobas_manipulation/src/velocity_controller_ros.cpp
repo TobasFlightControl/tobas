@@ -3,10 +3,9 @@
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_manipulation/velocity_controller_ros.hpp"
-#include "../include/tobas_manipulation/common.hpp"
+#include "../include/tobas_manipulation/util.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_manipulation
 {
@@ -94,7 +93,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
     return -1;
   }
 
-  Frame T_Base_Parent;
+  kdl::Frame T_Base_Parent;
   kdl::FrameMap tar_p;
   for (const auto& ls : tar_ls_->states)
   {
@@ -118,7 +117,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   const auto& velocities = vel_ctrl_.getVelocities();
 
   // JntArray -> JointState
-  active_jnts_extractor_.solve(tar_ls_->names());
+  active_jnts_extractor_.solve(linkNames(*tar_ls_));
   const auto& active_joints = active_jnts_extractor_.activeJointNames();
   if (tar_js_conv_.jntArrayToJointStateVel(velocities, active_joints) < 0)
   {

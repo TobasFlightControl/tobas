@@ -238,6 +238,9 @@ class PackageGenerator(QObject):
         # Observer
         template_items["observer_pkg"] = self._main.observer.pkg_name()
 
+        # Hardware
+        template_items["hardware_pkg"] = self._main.hardware.pkg_name()
+
         # Simulation
         template_items["gravity"] = self._main.simulation.gravity.get()
 
@@ -288,7 +291,7 @@ class PackageGenerator(QObject):
                 "link_name": selected.link_name(),
                 "direction": selected.motor.direction(),
                 "axis": selected.axis_type(),
-                "esc_signal_mode": selected.esc.signal_mode(),
+                "esc_mode": selected.esc.signal_mode(),
                 "num_poles": selected.motor.num_poles(),
                 "max_rot_speed": float(selected.motor.max_rot_speed()),
                 "time_constant_up": float(selected.motor.time_const_up()),
@@ -550,15 +553,17 @@ class PackageGenerator(QObject):
                 motor_number=i,
                 link_name=selected.link_name(),
                 joint_name=selected.joint_name(),
-                direction=selected.motor.direction(),
                 rot_speed_coefs=selected.electrodynamics.rot_speed_coefs(),
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),
                 time_const_up=selected.motor.time_const_up(),
+                direction=selected.motor.direction(),
                 time_const_down=selected.motor.time_const_down(),
                 max_rot_speed=selected.motor.max_rot_speed(),
+                num_poles=selected.motor.num_poles(),
                 max_current=selected.esc.max_current(),
+                esc_mode=selected.esc.signal_mode(),
                 max_model_error_rate=self._main.simulation.max_model_error_rate.get() / 100,
             )
             robot.append(motor_model)

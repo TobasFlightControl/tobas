@@ -6,7 +6,7 @@
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 
-  <include file="$(find tobas_navio_ros)/launch/motors.launch">
+  <include file="$(find tobas_navio_ros)/launch/pwm_handler.launch">
     <arg name="nodelet" value="$(arg nodelet)"/>
   </include>
 

@@ -15,7 +15,7 @@ namespace tobas_mr_pid
 ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     js_converter_(drone_.tree()),
-    z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
+    z_rotors_(drone_, tobas::Z_POSITIVE),
     acc_ctrl_(drone_),
     mixer_(drone_),
     server_(pnh_)

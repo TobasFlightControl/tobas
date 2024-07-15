@@ -1,5 +1,0 @@
-<launch>
-
-  <node pkg="tobas_motor_test" type="pwm_publisher_node.py" name="pwm_publisher" output="screen" required="true"/>
-
-</launch>

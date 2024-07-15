@@ -50,7 +50,6 @@ private:
   std::string ns_;
   std::string link_name_;
   double alt_0_;  // 基準点の幾何的高度
-  double check_delay_threshold_;
   tobas::VehicleParameters vehicle_params_;
   tobas::AerodynamicsCoefficients aero_coefs_;
   std::vector<tobas::ControlSurface> control_surfaces_;

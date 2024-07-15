@@ -12,7 +12,7 @@ using namespace std;
 namespace tobas_rc_teleop
 {
 RollPitchYawThrustController::RollPitchYawThrustController(const tobas::Drone& drone)
-  : super(drone), z_rotors_(drone_, tobas::Axis::Z_POSITIVE)
+  : super(drone), z_rotors_(drone_, tobas::Z_POSITIVE)
 {
 }
 

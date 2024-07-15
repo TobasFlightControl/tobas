@@ -66,8 +66,6 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
 
-  getSdfParam(sdf, "checkDelayThreshold", check_delay_threshold_, kDefaultCheckDelayThreshold, false);
-
   // Vehicle
   getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, POSITIVE);
   getSdfParam(sdf, "wingSpan", vehicle_params_.wing_span, POSITIVE);
@@ -80,9 +78,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
   getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower, kDefaultLowerStallAngle);
   getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper, kDefaultUpperStallAngle);
   if (!vehicle_params_.alpha_limit.isValid())
-  {
     gzthrow(kPluginName << ": Invalid stall angles");
-  }
 
   // Aerodynamics
   getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, POSITIVE);
@@ -419,19 +415,6 @@ void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::ControlSurfaceDeflec
     gzerr << "The size of the received deflections array is " << deflections->deflections.size()
           << ", which does not match numberOfControlSurfaces." << endl;
     return;
-  }
-
-  // Check delay
-  const auto delay = (prev_sim_time_ - deflections->header.stamp).toSec();
-  if (delay > check_delay_threshold_)
-  {
-    GZ_WARN_THROTTLE(
-      kWarnPeriod, kPluginName << ": The delay from sensors to the motor command " << delay << "[s] is over "
-                               << check_delay_threshold_ << "[s].");
-  }
-  else if (delay < -kNegativeCmdDelayErrThreshold)
-  {
-    GZ_ERROR_THROTTLE(kErrorPeriod, kPluginName << ": Timestamp of the motor command precedes the current time.");
   }
 
   // Update reference deflection angles

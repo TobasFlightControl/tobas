@@ -6,8 +6,8 @@
 #include <tobas_navio_core/pwm.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PwmArray.h>
-#include <tobas_msgs/EnablePwm.h>
+#include <tobas_msgs/ThrottleArray.h>
+#include <tobas_msgs/EnableRCOutput.h>
 
 #include "./common.hpp"
 
@@ -15,6 +15,8 @@ namespace tobas_navio_ros
 {
 class PwmHandler : public tobas::BaseNode
 {
+  static constexpr size_t kPwmFrequency = 400;  // [Hz] PX4のデフォルト値
+
   using self = PwmHandler;
   using super = tobas::BaseNode;
 
@@ -25,15 +27,12 @@ public:
 
 private:
   navio::PWM pwm_;
-  std::array<bool, kServoRailSize> is_enabled_;
+  std::array<bool, navio::PWM::kChannelCount> is_enabled_;
 
-  // Subscribers
-  ros::Subscriber pwms_sub_;
+  ros::Subscriber throttles_sub_;
+  ros::ServiceServer enable_rcout_srv_;
 
-  // Service Servers
-  ros::ServiceServer enable_pwm_srv_;
-
-  void pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms);
-  bool enablePwmCb(tobas_msgs::EnablePwmRequest& req, tobas_msgs::EnablePwmResponse& res);
+  void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
+  bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);
 };
 }  // namespace tobas_navio_ros

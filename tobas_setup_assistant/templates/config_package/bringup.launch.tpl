@@ -24,6 +24,11 @@
       <arg name="node_name" value="controller"/>
     </include>
 
+    <!-- Launch rotor controller -->
+    <include file="$(find tobas_rotor_controller)/launch/rotor_controller.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
+    </include>
+
     <!-- Launch joint controller -->
     <include file="$(find tobas_manipulation)/launch/controllers.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>

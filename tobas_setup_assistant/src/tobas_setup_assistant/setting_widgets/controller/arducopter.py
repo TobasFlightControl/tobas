@@ -15,9 +15,10 @@ from tobas_rqt_tools.messages import q_error_named
 from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.layouts import FormLayout
 from tobas_kdl_sympy.frames import Vector
+from tobas_tools_py.rotor_config import TurningDirection
 from tobas_msgs.msg import PositionYaw
 
-from ...common import PROP_TILT_TOL, LABEL_PSIZE, CW, CCW, Description
+from ...common import PROP_TILT_TOL, LABEL_PSIZE, Description
 from ...parameter_getters import ParamGetterWidget_ComboBox
 from .base import BaseController
 
@@ -214,45 +215,47 @@ class ArduCopter(BaseController):
         beta_x_rev = FrameType(18, "BetaFlightXReversed")
         y4 = FrameType(19, "Y4")
 
+        ccw = TurningDirection.CCW.name
+        cw = TurningDirection.CW.name
         self._frames = [
             # Quadcopter
-            Frame("QUAD X", quad, x, [CCW, CCW, CW, CW]),
-            Frame("BETAFLIGHT X", quad, beta_x, [CW, CCW, CCW, CW]),
-            Frame("BETAFLIGHT X (REVERSED)", quad, beta_x_rev, [CCW, CW, CW, CCW]),
-            Frame("DJI X", quad, dji_x, [CCW, CW, CCW, CW]),
-            Frame("QUAD CW X", quad, cw_x, [CCW, CW, CCW, CW]),
-            Frame("QUAD +", quad, plus, [CCW, CCW, CW, CW]),
-            Frame("QUAD V", quad, v, [CCW, CCW, CW, CW]),
-            Frame("QUAD H", quad, h, [CW, CW, CCW, CCW]),
-            Frame("QUAD-V Tail", quad, v_tail, [CCW, CCW, CW, CW]),
-            Frame("QUAD-A Tail", quad, a_tail, [CCW, CCW, CW, CW]),
-            Frame("Y4A", quad, y4, [CCW, CW, CCW, CW]),
+            Frame("QUAD X", quad, x, [ccw, ccw, cw, cw]),
+            Frame("BETAFLIGHT X", quad, beta_x, [cw, ccw, ccw, cw]),
+            Frame("BETAFLIGHT X (REVERSED)", quad, beta_x_rev, [ccw, cw, cw, ccw]),
+            Frame("DJI X", quad, dji_x, [ccw, cw, ccw, cw]),
+            Frame("QUAD CW X", quad, cw_x, [ccw, cw, ccw, cw]),
+            Frame("QUAD +", quad, plus, [ccw, ccw, cw, cw]),
+            Frame("QUAD V", quad, v, [ccw, ccw, cw, cw]),
+            Frame("QUAD H", quad, h, [cw, cw, ccw, ccw]),
+            Frame("QUAD-V Tail", quad, v_tail, [ccw, ccw, cw, cw]),
+            Frame("QUAD-A Tail", quad, a_tail, [ccw, ccw, cw, cw]),
+            Frame("Y4A", quad, y4, [ccw, cw, ccw, cw]),
             # Tricopter
-            Frame("TRICOPTER", tri, none, [CCW, CCW, CCW]),
-            Frame("TRICOPTER Alternative Set-up", tri, none, [CW, CCW, CCW]),
+            Frame("TRICOPTER", tri, none, [ccw, ccw, ccw]),
+            Frame("TRICOPTER Alternative Set-up", tri, none, [cw, ccw, ccw]),
             # Bicopter
-            Frame("BICOPTER", bi, i, [CCW, CW]),
+            Frame("BICOPTER", bi, i, [ccw, cw]),
             # Hexacopter
-            Frame("HEXA X", hexa, x, [CW, CCW, CW, CCW, CCW, CW]),
-            Frame("HEXA CW X", hexa, cw_x, [CCW, CW, CCW, CW, CCW, CW]),
-            Frame("HEXA +", hexa, plus, [CW, CCW, CW, CCW, CCW, CW]),
+            Frame("HEXA X", hexa, x, [cw, ccw, cw, ccw, ccw, cw]),
+            Frame("HEXA CW X", hexa, cw_x, [ccw, cw, ccw, cw, ccw, cw]),
+            Frame("HEXA +", hexa, plus, [cw, ccw, cw, ccw, ccw, cw]),
             # Y6
-            Frame("Y6A", y6, none, [CCW, CW, CCW, CW, CW, CCW]),
-            Frame("Y6B", y6, y6b, [CW, CCW, CW, CCW, CW, CCW]),
-            Frame("Y6F", y6, y6f, [CCW, CCW, CCW, CW, CW, CW]),
+            Frame("Y6A", y6, none, [ccw, cw, ccw, cw, cw, ccw]),
+            Frame("Y6B", y6, y6b, [cw, ccw, cw, ccw, cw, ccw]),
+            Frame("Y6F", y6, y6f, [ccw, ccw, ccw, cw, cw, cw]),
             # Octocopter
-            Frame("OCTO X", octa, x, [CW, CW, CCW, CCW, CCW, CCW, CW, CW]),
-            Frame("OCTO +", octa, plus, [CW, CW, CCW, CCW, CCW, CCW, CW, CW]),
-            Frame("OCTO V", octa, v, [CW, CW, CCW, CCW, CCW, CCW, CW, CW]),
-            Frame("OCTO H", octa, h, [CW, CW, CCW, CCW, CCW, CCW, CW, CW]),
+            Frame("OCTO X", octa, x, [cw, cw, ccw, ccw, ccw, ccw, cw, cw]),
+            Frame("OCTO +", octa, plus, [cw, cw, ccw, ccw, ccw, ccw, cw, cw]),
+            Frame("OCTO V", octa, v, [cw, cw, ccw, ccw, ccw, ccw, cw, cw]),
+            Frame("OCTO H", octa, h, [cw, cw, ccw, ccw, ccw, ccw, cw, cw]),
             # OctoQuad
-            Frame("OCTO QUAD X8", octa_quad, x, [CCW, CW, CCW, CW, CCW, CW, CCW, CW]),
-            Frame("OCTO QUAD +", octa_quad, plus, [CCW, CW, CCW, CW, CCW, CW, CCW, CW]),
-            Frame("OCTO QUAD V", octa_quad, v, [CCW, CW, CCW, CW, CCW, CW, CCW, CW]),
-            Frame("OCTO QUAD H", octa_quad, h, [CW, CCW, CW, CCW, CW, CCW, CW, CCW]),
+            Frame("OCTO QUAD X8", octa_quad, x, [ccw, cw, ccw, cw, ccw, cw, ccw, cw]),
+            Frame("OCTO QUAD +", octa_quad, plus, [ccw, cw, ccw, cw, ccw, cw, ccw, cw]),
+            Frame("OCTO QUAD V", octa_quad, v, [ccw, cw, ccw, cw, ccw, cw, ccw, cw]),
+            Frame("OCTO QUAD H", octa_quad, h, [cw, ccw, cw, ccw, cw, ccw, cw, ccw]),
             # DodecaHexacopter
-            Frame("DOCECA HEXA X", dodeca_hexa, x, [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW]),
-            Frame("DOCECA HEXA +", dodeca_hexa, plus, [CCW, CW, CW, CCW, CCW, CW, CW, CCW, CCW, CW, CW, CCW]),
+            Frame("DOCECA HEXA X", dodeca_hexa, x, [ccw, cw, cw, ccw, ccw, cw, cw, ccw, ccw, cw, cw, ccw]),
+            Frame("DOCECA HEXA +", dodeca_hexa, plus, [ccw, cw, cw, ccw, ccw, cw, cw, ccw, ccw, cw, cw, ccw]),
         ]
 
         frame_description = (

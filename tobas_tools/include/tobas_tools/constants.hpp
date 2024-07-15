@@ -14,6 +14,10 @@ static constexpr double kRad2Deg = 1 / kDeg2Rad;
 static constexpr double kFeetToMeter = 0.3048;
 static constexpr double kMeterToFeet = 1 / kFeetToMeter;
 
+// PWM duty period
+static constexpr uint16_t kPwmMin = 1000;  // [us]
+static constexpr uint16_t kPwmMax = 2000;  // [us]
+
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
@@ -53,7 +57,6 @@ static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 // Command
-static constexpr char kPwmCmdTopic[] = "command/pwm";
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
@@ -79,7 +82,7 @@ static constexpr char kObserverFeedbackTopic[] = "feedback/observer";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
-static constexpr char kEnablePwmSrv[] = "enable_pwm";
+static constexpr char kEnableRcOutputSrv[] = "enable_rc_output";
 static constexpr char kGetArmSrv[] = "get_arm";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
@@ -96,13 +99,12 @@ static constexpr char kMoveAction[] = "move_action";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
-static constexpr char kNavioFrame[] = "navio";
 
 // Flight mode
-static constexpr size_t kFlightModeProgram = 0;
-static constexpr size_t kFlightModeStabilize = kFlightModeProgram + 1;
-static constexpr size_t kFlightModeAcrobat = kFlightModeStabilize + 1;
-static constexpr size_t kNumFlightModes = kFlightModeAcrobat + 1;
+static constexpr uint8_t kFlightModeProgram = 0;
+static constexpr uint8_t kFlightModeStabilize = kFlightModeProgram + 1;
+static constexpr uint8_t kFlightModeAcrobat = kFlightModeStabilize + 1;
+static constexpr uint8_t kNumFlightModes = kFlightModeAcrobat + 1;
 
 // Console message period
 static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
@@ -112,8 +114,7 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
 static constexpr double kWaitForServiceExistence = 1.;   // [s]
-static constexpr double kAutoResetTimeThreshold = 1.;    // [s]
-static constexpr double kDisarmDuration = 3.;            // [s]
+static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速

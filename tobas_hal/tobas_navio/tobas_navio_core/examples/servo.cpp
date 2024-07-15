@@ -1,12 +1,11 @@
+#include <iostream>
 #include <unistd.h>
-#include <unistd.h>
-#include <memory>
 
-#include <tobas_navio_core/util.hpp>
 #include <tobas_navio_core/pwm.hpp>
+#include <tobas_navio_core/util.hpp>
 
-#define SERVO_MIN 1250 /*uS*/
-#define SERVO_MAX 1750 /*uS*/
+#define SERVO_MIN 1250  // us
+#define SERVO_MAX 1750  // us
 
 #define PWM_OUTPUT 0
 

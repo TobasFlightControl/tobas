@@ -24,10 +24,6 @@
     <description>TODO</description>
   </class>
 
-  <class name="tobas_navio_ros/MotorsHandlerNodelet" type="tobas_navio_ros::MotorsHandlerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
   <class name="tobas_navio_ros/RCInputHandlerNodelet" type="tobas_navio_ros::RCInputHandlerNodelet" base_class_type="nodelet::Nodelet">
     <description>TODO</description>
   </class>

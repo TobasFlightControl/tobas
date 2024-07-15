@@ -1,7 +1,7 @@
-SERVO_RAIL_SIZE = 14
 MIN_PWM = 1000
 MAX_PWM = 2000
-ARM_THROTTLE = 0.1
+MIN_THROTTLE = 0.0
+MAX_THROTTLE = 1.0
 
 PROPERTY_SERVER_GCS = "/property_server_gcs"
 PKG_EXTENSION = ".TBS"
@@ -50,7 +50,6 @@ class Topic:
     THRUST_CORRECTION_FACTOR = "thrust_correction_factor"
 
     class Command:
-        PWM = "command/pwm"
         THROTTLES = "command/throttles"
         ROTOR_SPEEDS = "command/rotor_speeds"
         DEFLECTION = "command/deflections"
@@ -85,7 +84,7 @@ class Topic:
 
 class Service:
     LIST_CONTROLLERS = "controller_manager/list_controllers"
-    ENABLE_PWM = "enable_pwm"
+    ENABLE_RC_OUTPUT = "enable_rc_output"
     GET_ARM = "get_arm"
     SET_ARM = "set_arm"
     GET_GNSS_ORIGIN = "get_gnss_origin"

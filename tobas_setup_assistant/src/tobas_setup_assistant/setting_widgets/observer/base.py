@@ -4,16 +4,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import override
 from abc import abstractmethod
-from PyQt5.QtWidgets import QVBoxLayout
-
-from tobas_rqt_tools.widgets import Widget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from ...common import TO_DO, Description
 
 
-class BaseObserver(Widget):
+class BaseObserver(QWidget):
     NAME = TO_DO
     PACKAGE_NAME = TO_DO
     ABST_TEXT = TO_DO
@@ -27,10 +24,6 @@ class BaseObserver(Widget):
 
         abst = Description(self.ABST_TEXT)
         self._rows.addWidget(abst)
-
-    @override
-    def close(self) -> bool:
-        return super().close()
 
     @abstractmethod
     def is_valid(self) -> bool:

@@ -48,4 +48,31 @@ bool subscribeOnce(
 
   return received;
 }
+
+/* 条件が真になるまでspinしながら待機する． */
+template <typename Lambda>
+bool spinUntil(
+  const Lambda& cond,
+  const double& timeout = std::numeric_limits<double>::max(),
+  const double& spin_rate = 1000.)
+{
+  ROS_ASSERT(spin_rate > 0);
+
+  const auto start_time = ros::Time::now();
+  ros::Rate rate(spin_rate);
+
+  while (ros::ok())
+  {
+    if (cond())
+      return true;
+
+    if ((ros::Time::now() - start_time).toSec() > timeout)
+      return false;
+
+    ros::spinOnce();
+    rate.sleep();
+  }
+
+  return false;
+}
 }  // namespace tobas_ros

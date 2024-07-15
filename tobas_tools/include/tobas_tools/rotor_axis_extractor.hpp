@@ -11,7 +11,7 @@ namespace tobas
 class RotorAxisExtractor : public SolverI
 {
 public:
-  explicit RotorAxisExtractor(const Drone& drone, Axis axis);
+  explicit RotorAxisExtractor(const Drone& drone, const RotorAxis& axis);
 
   void updateInternalDataStructures() override;
 
@@ -25,7 +25,7 @@ public:
   inline const std::string& linkName(const size_t& inner_idx) const;
 
   /* 回転軸． */
-  inline const Axis& axis(const size_t& inner_idx) const;
+  inline const RotorAxis& axis(const size_t& inner_idx) const;
 
   /* 回転方向: CCW(1) or CW(-1)． */
   inline const int& direction(const size_t& inner_idx) const;
@@ -77,7 +77,7 @@ public:
 
 private:
   const Drone& drone_;
-  const Axis axis_;
+  const RotorAxis axis_;
 
   size_t count_;  // The number of rotors with the specified rotation axis
   std::vector<size_t> rotor_idxs_;
@@ -98,14 +98,14 @@ inline const std::string& RotorAxisExtractor::linkName(const size_t& inner_idx) 
   return drone_.rotorConfig(rotorIdx(inner_idx)).link_name;
 }
 
-inline const Axis& RotorAxisExtractor::axis(const size_t& inner_idx) const
+inline const RotorAxis& RotorAxisExtractor::axis(const size_t& inner_idx) const
 {
   return drone_.rotorConfig(rotorIdx(inner_idx)).axis;
 }
 
 inline const int& RotorAxisExtractor::direction(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).direction;
+  return drone_.rotorConfig(rotorIdx(inner_idx)).direction.value;
 }
 
 inline const double& RotorAxisExtractor::motorConstant(const size_t& inner_idx) const

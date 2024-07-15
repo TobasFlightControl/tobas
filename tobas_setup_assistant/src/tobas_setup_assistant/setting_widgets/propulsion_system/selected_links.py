@@ -19,9 +19,10 @@ from visualization_msgs.msg import Marker, MarkerArray
 from tobas_rqt_tools.widgets import TabWidget
 from tobas_rqt_tools.messages import q_info, q_warn, q_error_named
 from tobas_kdl_sympy.frames import Vector
+from tobas_tools_py.rotor_config import RotorAxis
 
 from ...common import PROP_TILT_TOL
-from .common import PROPULSION_SYSTEM, AxisType
+from .common import PROPULSION_SYSTEM
 from .esc import EscWidget
 from .motor import MotorWidget
 from .propeller import PropellerWidget
@@ -284,11 +285,11 @@ class SelectedLinkWidget(QWidget):
     def axis_type(self) -> str:
         axis = self._main.urdf_parser.global_axis(self.joint_name())
         if axis.is_collinear(Vector.UnitX(), PROP_TILT_TOL):
-            return AxisType.X_POSITIVE
+            return RotorAxis.X_POSITIVE.name
         elif axis.is_collinear(Vector.UnitZ(), PROP_TILT_TOL):
-            return AxisType.Z_POSITIVE
+            return RotorAxis.Z_POSITIVE.name
         else:
-            return AxisType.UNKNOWN
+            return RotorAxis.UNKNOWN.name
 
     @pyqtSlot()
     def _on_copy_from_left_button_clicked(self) -> None:

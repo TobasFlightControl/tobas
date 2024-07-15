@@ -1,6 +1,6 @@
-#include <tobas_ros_tools/exception.hpp>
-#include <tobas_tools/constants.hpp>
-#include <tobas_navio_ros/common.hpp>
+#include <tobas_ros_tools/util.hpp>
+#include <tobas_hal_core/constants.hpp>
+#include <tobas_real_ros/common.hpp>
 
 #include "../include/tobas_calibration_ros/adc_calibration.hpp"
 
@@ -9,12 +9,15 @@ using namespace std;
 namespace tobas_calibration
 {
 AdcCalibrationRos::AdcCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_navio_ros::kPropertyServerFC), rate_(kSamplingRate)
+  : super(nh, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
 {
-  if (adc_.initialize() < 0)
-    TOBAS_EXIT("Failed to initialize ADC driver.");
-
   ss_ = nh_.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
+}
+
+void AdcCalibrationRos::adcCb(const tobas_hal_msgs::AdcConstPtr& adc)
+{
+  ++cnt_;
+  voltage_sum_.add(adc->voltage);
 }
 
 bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
@@ -27,34 +30,27 @@ bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
     return true;
   }
 
-  // ADCの測定値を取得
-  int a2_sum = 0;
-  rate_.start();
-  for (size_t _ = 0; _ < kDataCount; ++_)
-  {
-    const auto a2_value = adc_.read(tobas_navio_ros::kPowerModuleVoltageChannel);
-    if (a2_value <= 0)
-    {
-      res.success = false;
-      res.message = "Failed to read power module voltage.";
-      return true;
-    }
-    a2_sum += a2_value;
-    rate_.sleep();
-  }
+  // 初期化
+  cnt_ = 0;
+  voltage_sum_.reset();
 
-  // 係数を計算
-  const auto a2_mean = static_cast<double>(a2_sum) / kDataCount;
-  res.coefficient = req.voltage / a2_mean * 1e+3;
-  if (res.coefficient < kValidAdcCoefMin || kValidAdcCoefMax < res.coefficient)
+  // 一時的にADCの購読を開始
+  const auto adc_sub = nh_.subscribe(hal::kAdcTopic, 1, &AdcCalibrationRos::adcCb, this);
+
+  // データが溜まるまで待機
+  if (!tobas_ros::spinUntil([this]() { return cnt_ == kDataCount; }, kTimeout))
   {
     res.success = false;
-    res.message = "Strange ADC coefficient. Check the connection and voltage of the battery.";
+    res.message = "Timeout before ADC data collection is completed.";
     return true;
   }
 
+  // 係数を計算
+  const auto voltage_mean = voltage_sum_.get() / kDataCount;
+  res.coefficient = req.voltage / voltage_mean;
+
   // 設定ファイルに係数を書き込む
-  if (property_client_.set(tobas_navio_ros::kConfigKey_AdcCoef, res.coefficient) < 0)
+  if (property_client_.set(tobas_real_ros::kConfigKey_AdcVoltageCoef, res.coefficient) < 0)
   {
     res.success = false;
     res.message = property_client_.errorMessage();
