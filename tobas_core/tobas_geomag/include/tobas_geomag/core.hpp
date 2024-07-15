@@ -33,7 +33,7 @@ struct Elements
 
 struct ConstModel
 {
-  double epoch;  // decimal year
+  double epoch;  // Decimal year
   double Main_Field_Coeff_C[NUMCOF];
   double Main_Field_Coeff_S[NUMCOF];
   double Secular_Var_Coeff_C[NUMCOF];

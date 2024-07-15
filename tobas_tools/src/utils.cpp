@@ -36,8 +36,8 @@ geomag::Elements geomag(const double& lat, const double& lon, const double& heig
   if (year_frac - 2020 > 5)
     PRINT_WARN("It is time to replace the WMM data with the latest version.");
 
-  const auto position = geomag::ecefFromGeodetic(lat, lon, height);
-  const auto mag_field = geomag::magFieldFromECEF(year_frac, position, geomag::WMM2020);
+  const auto ecef = geomag::ecefFromGeodetic(lat, lon, height);  // FIXME: geomagの高度は海抜ではなく楕円体
+  const auto mag_field = geomag::magFieldFromECEF(year_frac, ecef, geomag::WMM2020);
   return geomag::elementsFromMagField(mag_field, lat, lon);
 }
 }  // namespace tobas
