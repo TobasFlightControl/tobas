@@ -132,7 +132,7 @@ bool EscCalibrationRos::waitForBatteryConnection()
 
   // バッテリー電圧が閾値を超えるまで最大値を指令し続ける
   const auto start_time = ros::Time::now();
-  while (battery_ != nullptr && battery_->voltage < kVoltageThreshold)
+  while (battery_ == nullptr || battery_->voltage < kVoltageThreshold)
   {
     if ((ros::Time::now() - start_time).toSec() > kTimeout)
     {
