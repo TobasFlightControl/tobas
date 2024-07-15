@@ -40,7 +40,7 @@ private:
   size_t gyro_bias_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> gyro_sum_;
 
-  tobas_hal_msgs::ImuConstPtr imu_;
+  tobas_hal_msgs::ImuConstPtr imu_raw_;
   ptree::PropertyClient property_client_;
   std::array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 

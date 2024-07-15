@@ -82,15 +82,15 @@ void ImuHandler::imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw)
         acc_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->accel(i));
         gyro_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->gyro(i));
       }
-      imu_ = imu_raw;
+      imu_raw_ = imu_raw;
       stage_ = PUBLISH;
       break;
     }
     case PUBLISH:
     {
       // Compute time difference
-      const auto dt = (imu_raw->header.stamp - imu_->header.stamp).toSec();
-      imu_ = imu_raw;
+      const auto dt = (imu_raw->header.stamp - imu_raw_->header.stamp).toSec();
+      imu_raw_ = imu_raw;
 
       // Update noise filters
       for (size_t i = 0; i < 3; ++i)
