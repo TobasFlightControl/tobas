@@ -29,8 +29,6 @@ private:
   algo::Kahan<double> voltage_sum_;
 
   ptree::PropertyClient property_client_;
-
-  ros::Subscriber adc_sub_;
   ros::ServiceServer ss_;
 
   void adcCb(const tobas_hal_msgs::AdcConstPtr& adc);
