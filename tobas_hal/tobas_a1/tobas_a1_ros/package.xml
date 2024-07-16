@@ -12,7 +12,8 @@
 	<depend>tobas_tools</depend>
 	<depend>tobas_a1_core</depend>
 	<depend>tobas_property_tools</depend>
-	<depend>tobas_dsp</depend>
+	<depend>tobas_hal_core</depend>
+	<depend>tobas_hal_msgs</depend>
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
 

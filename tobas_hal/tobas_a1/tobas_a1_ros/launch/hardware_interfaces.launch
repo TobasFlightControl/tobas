@@ -1,0 +1,7 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+
+  <!-- TODO -->
+
+</launch>

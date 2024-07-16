@@ -1,3 +1,31 @@
 <library path="lib/libtobas_a1_ros_nodelet">
 
+  <!-- <class name="tobas_a1_ros/ImuHandlerNodelet" type="tobas_a1_ros::ImuHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_a1_ros/MagnetometerHandlerNodelet" type="tobas_a1_ros::MagnetometerHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_a1_ros/BarometerHandlerNodelet" type="tobas_a1_ros::BarometerHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_a1_ros/GnssHandlerNodelet" type="tobas_a1_ros::GnssHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_a1_ros/AdcHandlerNodelet" type="tobas_a1_ros::AdcHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class> -->
+
+  <class name="tobas_a1_ros/SBUSHandlerNodelet" type="tobas_a1_ros::SBUSHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <!-- <class name="tobas_a1_ros/RCOutputHandlerNodelet" type="tobas_a1_ros::RCOutputHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class> -->
+
 </library>
