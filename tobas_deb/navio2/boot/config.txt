@@ -10,7 +10,8 @@ dtoverlay=navio-rgb
 dtparam=i2c1=on
 dtparam=i2c1_baudrate=1000000
 
-start_x=0
+# Enable camera modules
+start_x=1
 gpu_mem=128
 
 [pi4]
@@ -27,6 +28,7 @@ avoid_warnings=2
 # arm_freq_min=2000
 # gpu_freq=750
 # force_turbo=1
+# ---
 over_voltage=0
 arm_freq=1500
 arm_freq_min=1500
