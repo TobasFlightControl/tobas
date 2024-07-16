@@ -13,6 +13,7 @@
 	<exec_depend>ros_controllers</exec_depend>
 
 	<depend>tobas_gazebo_common</depend>
+	<depend>tobas_gazebo_msgs</depend>
 	<depend>tobas_tools</depend>
 
 	<!-- Make gazebo look in the package directory for models -->

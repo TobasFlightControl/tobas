@@ -21,6 +21,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_gazebo_common
+	tobas_gazebo_msgs
 	tobas_tools
 )
 
@@ -43,7 +44,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_gazebo_common tobas_tools
+	CATKIN_DEPENDS tobas_gazebo_common tobas_gazebo_msgs tobas_tools
 # 	DEPENDS
 )
 
