@@ -36,6 +36,7 @@ private:
 
 inline const uint16_t& SBUS::getPeriod(uint8_t channel) const
 {
+  assert(channel < kChannelSize);
   return periods_[channel];
 }
 }  // namespace a1
