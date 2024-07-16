@@ -1,6 +1,6 @@
 #include <tobas_eigen_tools/geometry.hpp>
 
-#include "../../include/tobas_legged_tools/point_contacts/linear_dynamics.hpp"
+#include "../include/tobas_legged_tools/linear_dynamics.hpp"
 
 using namespace std;
 using namespace Eigen;

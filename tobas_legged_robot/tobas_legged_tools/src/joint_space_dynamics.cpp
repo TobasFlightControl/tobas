@@ -2,7 +2,7 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
-#include "../../include/tobas_legged_tools/point_contacts/joint_space_dynamics.hpp"
+#include "../include/tobas_legged_tools/joint_space_dynamics.hpp"
 
 using namespace std;
 using namespace Eigen;
