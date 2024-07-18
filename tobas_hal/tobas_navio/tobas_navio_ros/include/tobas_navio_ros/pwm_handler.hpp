@@ -1,8 +1,5 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <ros/timer.h>
-
 #include <tobas_navio_core/pwm.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/constants.hpp>
@@ -22,7 +19,6 @@ class PwmHandler : public tobas::BaseNode
 
 public:
   explicit PwmHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
-
   ~PwmHandler();
 
 private:

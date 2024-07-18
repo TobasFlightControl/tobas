@@ -9,7 +9,6 @@ namespace tobas_navio_ros
 {
 class ImuHandler : public hal::BaseSensorNode
 {
-  // Constants
   static constexpr size_t kSamplingRate = 400;  // [Hz]
 
   using self = ImuHandler;
