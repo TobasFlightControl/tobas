@@ -5,13 +5,13 @@
 
 namespace tobas_a1_ros
 {
-class SBUSHandler : public hal::BaseSensorNode
+class SBUSDriver : public hal::BaseSensorNode
 {
-  using self = SBUSHandler;
+  using self = SBUSDriver;
   using super = hal::BaseSensorNode;
 
 public:
-  explicit SBUSHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit SBUSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
   a1::SBUS sbus_;

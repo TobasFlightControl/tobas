@@ -1,14 +1,14 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/Sbus.h>
 
-#include "../include/tobas_a1_ros/sbus_handler.hpp"
+#include "../include/tobas_a1_ros/sbus_driver.hpp"
 #include "../include/tobas_a1_ros/common.hpp"
 
 using namespace std;
 
 namespace tobas_a1_ros
 {
-SBUSHandler::SBUSHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+SBUSDriver::SBUSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   if (!sbus_.initialize())
     TOBAS_EXIT("Failed to initialize S.BUS driver.");
@@ -19,7 +19,7 @@ SBUSHandler::SBUSHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string
   main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
 }
 
-void SBUSHandler::mainTimerCb(const ros::TimerEvent& event)
+void SBUSDriver::mainTimerCb(const ros::TimerEvent& event)
 {
   // Read S.BUS
   if (!sbus_.update())
