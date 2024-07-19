@@ -1,12 +1,10 @@
 #pragma once
 
-#include <tobas_navio_core/pwm.hpp>
 #include <tobas_tools/node.hpp>
-#include <tobas_tools/constants.hpp>
 #include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/EnableRCOutput.h>
 
-#include "./common.hpp"
+#include <tobas_navio_core/pwm.hpp>
 
 namespace tobas_navio_ros
 {

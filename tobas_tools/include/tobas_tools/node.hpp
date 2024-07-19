@@ -13,6 +13,13 @@
     return;                                                                                                            \
   }
 
+/* リリースモードでも機能するアサーション．ほとんど失敗し得ない操作の成否を一応確認するために使う． */
+#define TOBAS_ASSERT(expr)                                                                                             \
+  {                                                                                                                    \
+    if (!static_cast<bool>(expr))                                                                                      \
+      TOBAS_FATAL("Assertion failed: ", __FILE__, ": ", __LINE__);                                                     \
+  }
+
 #define TOBAS_DEBUG(...) debug(__VA_ARGS__)
 #define TOBAS_INFO(...) info(__VA_ARGS__)
 #define TOBAS_WARN(...) warn(__VA_ARGS__)

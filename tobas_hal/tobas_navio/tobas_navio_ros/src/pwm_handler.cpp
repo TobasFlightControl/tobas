@@ -1,4 +1,5 @@
 #include <tobas_math/core.hpp>
+#include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_navio_ros/pwm_handler.hpp"
 
@@ -51,8 +52,8 @@ void PwmHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)
       continue;
     }
 
-    const auto period =
-      math::remap<double>(throttle.throttle, tobas::kMinThrottle, tobas::kMaxThrottle, tobas::kPwmMin, tobas::kPwmMax);
+    const auto period = math::remap<double>(
+      throttle.throttle, tobas::kMinThrottle, tobas::kMaxThrottle, tobas::kPwmMin, tobas::kPwmMax);
     if (!pwm_.setDutyCycle(throttle.channel, period))
       TOBAS_FATAL("Failed to set PWM duty cycle on CH", throttle.channel, ".");
   }
@@ -62,8 +63,8 @@ bool PwmHandler::enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_
 {
   if (req.channel >= navio::PWM::kChannelCount)
   {
-    TOBAS_ERROR("PWM channel out of range.");
     res.success = false;
+    res.message = "PWM channel out of range.";
     return true;
   }
 
@@ -71,8 +72,8 @@ bool PwmHandler::enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_
   {
     if (!pwm_.enable(req.channel))
     {
-      TOBAS_ERROR("Failed to enable PWM CH", req.channel, ".");
       res.success = false;
+      res.message = "Failed to enable PWM CH" + to_string(req.channel) + ".";
       return true;
     }
     is_enabled_.at(req.channel) = true;
@@ -81,14 +82,15 @@ bool PwmHandler::enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_
   {
     if (!pwm_.disable(req.channel))
     {
-      TOBAS_ERROR("Failed to disable PWM CH", req.channel, ".");
       res.success = false;
+      res.message = "Failed to disable PWM CH" + to_string(req.channel) + ".";
       return true;
     }
     is_enabled_.at(req.channel) = false;
   }
 
   res.success = true;
+  res.message = "";
   return true;
 }
 }  // namespace tobas_navio_ros

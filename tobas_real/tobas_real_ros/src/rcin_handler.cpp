@@ -30,7 +30,7 @@ void RCInputHandler::setToDefaults()
   throttle_range_.set(tobas::kPwmMax, tobas::kPwmMin);
 
   modes_[tobas::kFlightModeProgram] = tobas::kPwmMin;
-  modes_[tobas::kFlightModeStabilize] = (tobas::kPwmMin + tobas::kPwmMax) / 2;
+  modes_[tobas::kFlightModeStabilize] = tobas::kPwmMid;
   modes_[tobas::kFlightModeAcrobat] = tobas::kPwmMax;
 
   estop_on_ = tobas::kPwmMin;
