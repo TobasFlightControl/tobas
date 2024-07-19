@@ -2,12 +2,12 @@
 
 #include "./sbus_driver_nodelet.hpp"
 
-namespace tobas_a1_ros
+namespace a1
 {
 void SBUSDriverNodelet::onInit()
 {
   node_.reset(new SBUSDriver(getNodeHandle(), getPrivateNodeHandle(), getName()));
 }
-}  // namespace tobas_a1_ros
+}  // namespace a1
 
-PLUGINLIB_EXPORT_CLASS(tobas_a1_ros::SBUSDriverNodelet, nodelet::Nodelet);
+PLUGINLIB_EXPORT_CLASS(a1::SBUSDriverNodelet, nodelet::Nodelet);

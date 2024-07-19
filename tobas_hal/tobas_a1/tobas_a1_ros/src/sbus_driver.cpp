@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace tobas_a1_ros
+namespace a1
 {
 SBUSDriver::SBUSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
@@ -37,4 +37,4 @@ void SBUSDriver::mainTimerCb(const ros::TimerEvent& event)
   // Publish message
   sbus_pub_.publish(sbus_msg);
 }
-}  // namespace tobas_a1_ros
+}  // namespace a1

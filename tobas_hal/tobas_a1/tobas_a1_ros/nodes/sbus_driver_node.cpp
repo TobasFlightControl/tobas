@@ -5,6 +5,6 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "a1_sbus_driver");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
-  tobas_a1_ros::SBUSDriver node(nh, pnh);
+  a1::SBUSDriver node(nh, pnh);
   ros::spin();
 }
