@@ -52,14 +52,15 @@ bool RotorCommandHandler::enableRCOutputCb(
 {
   if (!tobas_std::contains(throttle_pubs_, req.channel))
   {
-    TOBAS_ERROR("The drone does not have rotor channel ", req.channel, ".");
     res.success = false;
+    res.message = "The drone does not have rotor channel " + to_string(req.channel) + ".";
     return true;
   }
 
   // TODO: ちゃんとサービスを実装する
 
   res.success = true;
+  res.message = "";
   return true;
 }
 }  // namespace tobas_gazebo_ros

@@ -88,7 +88,7 @@ bool RotorController::enableRCOutputs(const bool& enable)
     enable_rcout_msg.request.enable = enable;
     if (!enable_rcout_sc_.call(enable_rcout_msg) || !enable_rcout_msg.response.success)
     {
-      TOBAS_ERROR("Failed to enable/disable RC output CH", rotor.channel, ".");
+      TOBAS_ERROR(enable_rcout_msg.response.message);
       return false;
     }
   }

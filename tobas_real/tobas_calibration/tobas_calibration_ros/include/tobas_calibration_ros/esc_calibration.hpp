@@ -48,8 +48,7 @@ private:
   void setThrottle(const double& throttle);
   void setThrottleAndSleep(const double& throttle);
   bool checkDisarmed();
-  bool enableRCOutput();
-  void disableRCOutput();
+  bool enableRCOutput(bool enable);
   bool checkBatteryDisconnected();
   bool waitForBatteryConnection();
 

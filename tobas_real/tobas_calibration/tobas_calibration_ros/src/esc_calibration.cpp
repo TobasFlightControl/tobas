@@ -70,35 +70,29 @@ bool EscCalibrationRos::checkDisarmed()
   return true;
 }
 
-bool EscCalibrationRos::enableRCOutput()
+bool EscCalibrationRos::enableRCOutput(bool enable)
 {
   tobas_msgs::EnableRCOutput enable_rcout_msg;
-  enable_rcout_msg.request.enable = true;
+  enable_rcout_msg.request.enable = enable;
 
   for (const auto& rotor : drone_.rotorConfigs())
   {
     enable_rcout_msg.request.channel = rotor.channel;
-    if (!enable_rcout_sc_.call(enable_rcout_msg) || !enable_rcout_msg.response.success)
+
+    if (!enable_rcout_sc_.call(enable_rcout_msg))
     {
-      as_.setAborted(result_, "Failed to enable RC output of CH" + to_string(rotor.channel) + ".");
+      as_.setAborted(result_, "Failed to call EnableRCOutput service.");
+      return false;
+    }
+
+    if (!enable_rcout_msg.response.success)
+    {
+      as_.setAborted(result_, enable_rcout_msg.response.message);
       return false;
     }
   }
 
   return true;
-}
-
-void EscCalibrationRos::disableRCOutput()
-{
-  tobas_msgs::EnableRCOutput enable_rcout_msg;
-  enable_rcout_msg.request.enable = false;
-
-  for (const auto& rotor : drone_.rotorConfigs())
-  {
-    enable_rcout_msg.request.channel = rotor.channel;
-    if (!enable_rcout_sc_.call(enable_rcout_msg) || !enable_rcout_msg.response.success)
-      TOBAS_ERROR("Failed to disable RC output of CH", rotor.channel, ".");
-  }
 }
 
 bool EscCalibrationRos::checkBatteryDisconnected()
@@ -136,7 +130,7 @@ bool EscCalibrationRos::waitForBatteryConnection()
   {
     if ((ros::Time::now() - start_time).toSec() > kTimeout)
     {
-      disableRCOutput();
+      enableRCOutput(false);
       as_.setAborted(result_, "Battery connection is not detected before timeout.");
       return false;
     }
@@ -175,7 +169,7 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
     return;
 
   // RC出力を有効化
-  if (!enableRCOutput())
+  if (!enableRCOutput(true))
     return;
 
   // バッテリーが接続されるのを待つ
@@ -192,7 +186,7 @@ void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
   sendMinimum();
 
   // RC出力を無効化
-  disableRCOutput();
+  enableRCOutput(false);
 
   as_.setSucceeded(result_);
 }
