@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <iostream>
 
 #include <tobas_linux/spi_dev.hpp>
 
@@ -22,34 +23,14 @@ public:
 
   bool initialize();
 
-  inline void setPeriod(size_t ch, uint16_t period_us);
-  inline bool transfer();
+  bool setPeriod(size_t ch, uint16_t period_us);
+  bool transfer();
 
 private:
   linux::SPIdev spi_;
   uint8_t tx_[kSpiBufSize] = { 0 };
   uint8_t rx_[kSpiBufSize] = { 0 };
 
-  inline void setData(size_t ch, uint16_t data);
+  bool setData(size_t ch, uint16_t data);
 };
-
-inline void PWM::setPeriod(size_t ch, uint16_t period_us)
-{
-  const uint16_t data = period_us & kThrottleMask;
-  setData(ch, data);
-}
-
-inline bool PWM::transfer()
-{
-  if (!spi_.transfer(tx_, rx_, kSpiBufSize))
-    return false;
-
-  return true;
-}
-
-inline void PWM::setData(size_t ch, uint16_t data)
-{
-  tx_[ch * kChannelBytes] = data & 0xFF;    // Little byte
-  tx_[ch * kChannelBytes + 1] = data >> 4;  // Big byte
-}
 }  // namespace a1
