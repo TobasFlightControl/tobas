@@ -61,6 +61,7 @@ static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
+static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
 static constexpr char kPositionYawCmdTopic[] = "command/position_yaw";
 static constexpr char kVelocityYawCmdTopic[] = "command/velocity_yaw";
