@@ -14,7 +14,7 @@ MPU9250::MPU9250()
 
 bool MPU9250::initialize()
 {
-  if (!spi_dev_.initialize(kDevice, kSpiSpeedHz))
+  if (!spi_dev_.initialize(kDevice, kSpiClockFreq))
     return false;
 
   if (!probe())

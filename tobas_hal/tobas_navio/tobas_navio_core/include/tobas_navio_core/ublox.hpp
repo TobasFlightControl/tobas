@@ -14,7 +14,7 @@
 namespace navio
 {
 static constexpr char kDevice[] = "/dev/spidev0.0";
-static constexpr uint32_t kSpiSpeedHz = 5500000;  // Maximum frequency is 5.5MHz
+static constexpr uint32_t kSpiClockFreq = 5500000;  // Maximum frequency is 5.5MHz
 static constexpr uint8_t kMinMaxTrkChForMajorGnss = 4;
 static constexpr double kWaitForGnssAck = 3.;  // [s]
 

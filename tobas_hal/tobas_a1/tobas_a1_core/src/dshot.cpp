@@ -15,7 +15,7 @@ DShot::DShot()
 
 bool DShot::initialize()
 {
-  if (!spi_.initialize(spi_device::kDshotDev, kSpiClockSpeed))
+  if (!spi_.initialize(spi_device::kDshotDev, kSpiClockFreq))
     return false;
 
   for (size_t ch = 0; ch < kChannelSize; ++ch)

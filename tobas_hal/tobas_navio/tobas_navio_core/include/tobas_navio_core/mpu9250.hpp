@@ -205,7 +205,7 @@ namespace navio
 class MPU9250 : public InertialSensor
 {
   static constexpr char kDevice[] = "/dev/spidev0.1";
-  static constexpr uint32_t kSpiSpeedHz = 1000000;  // Maximum frequency is 1MHz
+  static constexpr uint32_t kSpiClockFreq = 1000000;  // Maximum frequency is 1MHz
   static constexpr size_t kDataLength = 255;
   static constexpr size_t kInitRegNum = 16;
 

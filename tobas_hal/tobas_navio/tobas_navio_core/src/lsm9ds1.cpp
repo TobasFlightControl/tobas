@@ -12,9 +12,9 @@ LSM9DS1::LSM9DS1()
 
 bool LSM9DS1::initialize()
 {
-  if (!spi_dev_imu_.initialize(kAccGyroDevice, kSpiSpeedHz))
+  if (!spi_dev_imu_.initialize(kAccGyroDevice, kSpiClockFreq))
     return false;
-  if (!spi_dev_mag_.initialize(kMagDevice, kSpiSpeedHz))
+  if (!spi_dev_mag_.initialize(kMagDevice, kSpiClockFreq))
     return false;
 
   if (readReg(spi_dev_imu_, XG_WHO_AM_I) != WHO_AM_I_ACC_GYRO)

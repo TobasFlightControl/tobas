@@ -19,7 +19,7 @@ Ublox::Ublox() : rate_(chrono::microseconds(kSpiInterval))
 
 bool Ublox::initialize()
 {
-  if (!spi_dev_.initialize(kDevice, kSpiSpeedHz))
+  if (!spi_dev_.initialize(kDevice, kSpiClockFreq))
     return false;
 
   return true;
