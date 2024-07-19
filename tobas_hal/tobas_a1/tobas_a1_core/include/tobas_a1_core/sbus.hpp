@@ -10,8 +10,7 @@ namespace a1
  */
 class SBUS
 {
-  static constexpr char kUartDev[] = "/dev/serial0";
-  static constexpr uint32_t kBaudRate = 100000;  // [bps]
+  static constexpr uint32_t kBaudRate = 100'000;  // [bps]
   static constexpr uint8_t kDataBits = 8;
   static constexpr uint8_t kDataSize = 22;
   static constexpr uint8_t kChannelBits = 11;

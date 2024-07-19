@@ -41,6 +41,13 @@ bool SPIdev::transfer(uint8_t* tx, uint8_t* rx, uint32_t length)
   spi_transfer_.tx_buf = (uint64_t)tx;
   spi_transfer_.rx_buf = (uint64_t)rx;
   spi_transfer_.len = length;
-  return ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) >= 0;
+
+  if (ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) < 0)
+  {
+    cerr << "SPI transfer failed." << endl;
+    return false;
+  }
+
+  return true;
 }
 }  // namespace linux

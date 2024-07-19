@@ -1,6 +1,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 
 #include "../include/tobas_a1_core/sbus.hpp"
+#include "../include/tobas_a1_core/constants.hpp"
 
 using namespace boost::multiprecision;
 
@@ -12,7 +13,7 @@ SBUS::SBUS()
 
 bool SBUS::initialize()
 {
-  if (!uart_dev_.initialize(kUartDev, true))
+  if (!uart_dev_.initialize(uart_device::kSbusDev, true))
     return false;
 
   if (!uart_dev_.setBaudRate(kBaudRate))
