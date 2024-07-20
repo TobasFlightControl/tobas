@@ -62,6 +62,7 @@ private:
   size_t buf_size_ = 0;
   uint8_t* buf_;  // Register Address + TX data
 
-  bool selectDevice();
+  bool checkDataLength(size_t length) const;
+  bool selectDevice() const;
 };
 }  // namespace linux

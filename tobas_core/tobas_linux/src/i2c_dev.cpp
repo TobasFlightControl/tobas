@@ -54,11 +54,8 @@ bool I2Cdev::readBit(uint8_t reg_addr, uint8_t bit_num, bool& flag)
 
 bool I2Cdev::readBytes(uint8_t reg_addr, size_t length)
 {
-  if (length > buf_size_)
-  {
-    cerr << "Data length is greater than buffer size." << endl;
+  if (!checkDataLength(length))
     return false;
-  }
 
   if (!selectDevice())
     return false;
@@ -80,11 +77,8 @@ bool I2Cdev::readBytes(uint8_t reg_addr, size_t length)
 
 bool I2Cdev::readBytesNoRegAddress(size_t length)
 {
-  if (length > buf_size_)
-  {
-    cerr << "Data length is greater than buffer size." << endl;
+  if (!checkDataLength(length))
     return false;
-  }
 
   if (!selectDevice())
     return false;
@@ -109,11 +103,8 @@ bool I2Cdev::writeBit(uint8_t reg_addr, uint8_t bit_num, bool flag)
 
 bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length)
 {
-  if (length > buf_size_)
-  {
-    cerr << "Data length is greater than buffer size." << endl;
+  if (!checkDataLength(length))
     return false;
-  }
 
   if (!selectDevice())
     return false;
@@ -131,7 +122,18 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length)
   return true;
 }
 
-bool I2Cdev::selectDevice()
+bool I2Cdev::checkDataLength(size_t length) const
+{
+  if (length > buf_size_)
+  {
+    cerr << "Data length is greater than buffer size." << endl;
+    return false;
+  }
+
+  return true;
+}
+
+bool I2Cdev::selectDevice() const
 {
   if (ioctl(i2c_fd_, I2C_SLAVE, dev_addr_) < 0)
   {
