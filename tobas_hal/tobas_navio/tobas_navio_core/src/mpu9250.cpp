@@ -14,7 +14,7 @@ MPU9250::MPU9250()
 
 bool MPU9250::initialize()
 {
-  if (!spi_dev_.initialize(kDevice, kSpiClockFreq))
+  if (!spi_dev_.initialize(kDevice, kSpiClockFreq, kSpiBufSize))
     return false;
 
   if (!probe())
@@ -123,35 +123,25 @@ bool MPU9250::probe()
   return responseXG == 0x71 && responseM == 0x48;
 }
 
-uint8_t MPU9250::writeReg(uint8_t write_addr, uint8_t write_data)
+uint8_t MPU9250::writeReg(uint8_t addr, uint8_t data)
 {
-  uint8_t tx[2] = { write_addr, write_data };
-  uint8_t rx[2] = { 0 };
-
-  spi_dev_.transfer(tx, rx, 2);
-
-  return rx[1];
+  spi_dev_.tx[0] = addr;
+  spi_dev_.tx[1] = data;
+  spi_dev_.transfer(2);
+  return spi_dev_.rx[1];
 }
 
-uint8_t MPU9250::readReg(uint8_t read_addr)
+uint8_t MPU9250::readReg(uint8_t addr)
 {
-  return writeReg(read_addr | READ_FLAG, 0x00);
+  return writeReg(addr | READ_FLAG, 0x00);
 }
 
-void MPU9250::readRegs(uint8_t read_addr, uint8_t* read_buf, uint32_t bytes)
+void MPU9250::readRegs(uint8_t addr, uint8_t* buf, size_t bytes)
 {
-  assert(bytes + 1 < kDataLength);
-
-  uint8_t tx[kDataLength] = { 0 };
-  uint8_t rx[kDataLength] = { 0 };
-
-  tx[0] = read_addr | READ_FLAG;
-
-  spi_dev_.transfer(tx, rx, bytes + 1);
-  // usleep(50);
-
-  for (uint32_t i = 0; i < bytes; ++i)
-    read_buf[i] = rx[i + 1];
+  spi_dev_.tx[0] = addr | READ_FLAG;
+  spi_dev_.transfer(bytes + 1);
+  for (size_t i = 0; i < bytes; ++i)
+    buf[i] = spi_dev_.rx[i + 1];
 }
 
 void MPU9250::setAccScale(uint8_t scale)

@@ -15,7 +15,7 @@ DShot::DShot()
 
 bool DShot::initialize()
 {
-  if (!spi_.initialize(spi_device::kDshotDev, kSpiClockFreq))
+  if (!spi_.initialize(spi_device::kDshotDev, kSpiClockFreq, kSpiBufSize))
     return false;
 
   for (size_t ch = 0; ch < kChannelSize; ++ch)
@@ -57,7 +57,7 @@ bool DShot::setDisabled(size_t ch)
 
 bool DShot::transfer()
 {
-  if (!spi_.transfer(tx_, rx_, kSpiBufSize))
+  if (!spi_.transfer(kSpiBufSize))
     return false;
 
   return true;
@@ -71,8 +71,8 @@ bool DShot::setData(size_t ch, uint16_t data)
     return false;
   }
 
-  tx_[ch * kChannelBytes] = data & 0xFF;    // Little byte
-  tx_[ch * kChannelBytes + 1] = data >> 4;  // Big byte
+  spi_.tx[ch * kChannelBytes] = data & 0xFF;    // Little byte
+  spi_.tx[ch * kChannelBytes + 1] = data >> 4;  // Big byte
 
   return true;
 }

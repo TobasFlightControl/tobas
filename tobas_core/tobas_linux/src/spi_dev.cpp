@@ -16,15 +16,25 @@ SPIdev::SPIdev()
 
 SPIdev::~SPIdev()
 {
+  free(tx);
+  free(rx);
+
   close(spi_fd_);
 }
 
-bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per_word, uint16_t delay_usecs)
+bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, size_t buf_size)
 {
+  buf_size_ = buf_size;
+  tx = (uint8_t*)malloc(buf_size * sizeof(uint8_t));
+  rx = (uint8_t*)malloc(buf_size * sizeof(uint8_t));
+
   memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
+
+  spi_transfer_.tx_buf = (uint64_t)tx;
+  spi_transfer_.rx_buf = (uint64_t)rx;
   spi_transfer_.speed_hz = speed_hz;
-  spi_transfer_.bits_per_word = bits_per_word;
-  spi_transfer_.delay_usecs = delay_usecs;
+  spi_transfer_.bits_per_word = 8;
+  spi_transfer_.delay_usecs = 0;
 
   spi_fd_ = open(spi_dev, O_RDWR);
   if (spi_fd_ < 0)
@@ -36,10 +46,14 @@ bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per
   return true;
 }
 
-bool SPIdev::transfer(uint8_t* tx, uint8_t* rx, uint32_t length)
+bool SPIdev::transfer(uint32_t length)
 {
-  spi_transfer_.tx_buf = (uint64_t)tx;
-  spi_transfer_.rx_buf = (uint64_t)rx;
+  if (length > buf_size_)
+  {
+    cerr << "Data length is greater than buffer size." << endl;
+    return false;
+  }
+
   spi_transfer_.len = length;
 
   if (ioctl(spi_fd_, SPI_IOC_MESSAGE(1), &spi_transfer_) < 0)

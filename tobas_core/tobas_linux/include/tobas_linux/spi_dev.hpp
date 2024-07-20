@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <cstddef>
 #include <linux/spi/spidev.h>
 
 namespace linux
@@ -8,15 +9,18 @@ namespace linux
 class SPIdev
 {
 public:
+  uint8_t* tx;
+  uint8_t* rx;
+
   explicit SPIdev();
   ~SPIdev();
 
-  bool initialize(const char* spi_dev, uint32_t speed_hz, uint8_t bits_per_word = 8, uint16_t delay_usecs = 0);
-
-  bool transfer(uint8_t* tx, uint8_t* rx, uint32_t length);
+  bool initialize(const char* spi_dev, uint32_t speed_hz, size_t buf_size);
+  bool transfer(uint32_t length);
 
 private:
   spi_ioc_transfer spi_transfer_;
   int spi_fd_;
+  size_t buf_size_ = 0;
 };
 }  // namespace linux

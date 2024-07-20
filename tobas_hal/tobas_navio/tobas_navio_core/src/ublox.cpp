@@ -19,7 +19,7 @@ Ublox::Ublox() : rate_(chrono::microseconds(kSpiInterval))
 
 bool Ublox::initialize()
 {
-  if (!spi_dev_.initialize(kDevice, kSpiClockFreq))
+  if (!spi_dev_.initialize(kDevice, kSpiClockFreq, kUbxBufferLength))
     return false;
 
   return true;
@@ -153,6 +153,7 @@ void Ublox::configureGnss_GLONASS(bool enable, uint8_t res_track_ch, uint8_t max
 uint16_t Ublox::update()
 {
   int status = -1;
+  spi_dev_.tx[0] = 0;
   scanner_.reset();
 
   // メッセージを1つスキャン
@@ -162,12 +163,12 @@ uint16_t Ublox::update()
     // From now on, we will send zeroes to the receiver, which it will ignore
     // However, we are simultaneously getting useful information from it
     // stopwatch_.start();
-    spi_dev_.transfer(&tx_, &rx_, 1);
+    spi_dev_.transfer(1);
     // stopwatch_.stop();
 
     // Scanner checks the message structure with every byte received
     // ほとんど無意味な情報だが，スタックされていくためスリープせず全て読み出す必要がある
-    status = scanner_.update(rx_);
+    status = scanner_.update(spi_dev_.rx[0]);
 
     // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
     rate_.sleep();
@@ -337,8 +338,6 @@ void Ublox::decode(MonHw2Payload&) const
 
 void Ublox::sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size)
 {
-  uint8_t buffer[kUbxBufferLength];
-
   UbxHeader header;
   header.sync1 = kUbxSync1;
   header.sync2 = kUbxSync2;
@@ -346,13 +345,13 @@ void Ublox::sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size)
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(buffer, &header, sizeof(UbxHeader));
-  const auto checksum_pos = spliceMemory(buffer, msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(spi_dev_.tx, &header, sizeof(UbxHeader));
+  const auto checksum_pos = spliceMemory(spi_dev_.tx, msg, size, payload_pos);
 
-  const auto checksum = computeChecksum(buffer, checksum_pos);
-  const auto message_length = spliceMemory(buffer, &checksum, sizeof(CheckSum), checksum_pos);
+  const auto checksum = computeChecksum(spi_dev_.tx, checksum_pos);
+  const auto message_length = spliceMemory(spi_dev_.tx, &checksum, sizeof(CheckSum), checksum_pos);
 
-  if (!spi_dev_.transfer(buffer, nullptr, message_length))
+  if (!spi_dev_.transfer(message_length))
     throw runtime_error("Failed to send SPI message.");
 }
 

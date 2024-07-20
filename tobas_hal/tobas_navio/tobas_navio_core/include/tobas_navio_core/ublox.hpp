@@ -276,9 +276,6 @@ private:
 
   uint16_t latest_msg_;
 
-  uint8_t tx_ = 0;
-  uint8_t rx_;
-
   tobas_std::Rate rate_;
   tobas_std::Stopwatch stopwatch_;
 
