@@ -57,13 +57,6 @@ bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
   return true;
 }
 
-bool ISM330DLC::writeReg(const uint8_t& addr, const uint8_t& data)
-{
-  spi_.tx[0] = addr;
-  spi_.tx[1] = data;
-  return spi_.transfer(2);
-}
-
 bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
 {
   spi_.tx[0] = addr | kReadFlag;
@@ -75,6 +68,13 @@ bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
     res_[i] = spi_.rx[i + 1];
 
   return true;
+}
+
+bool ISM330DLC::writeReg(const uint8_t& addr, const uint8_t& data)
+{
+  spi_.tx[0] = addr;
+  spi_.tx[1] = data;
+  return spi_.transfer(2);
 }
 
 bool ISM330DLC::checkWhoAmI()
