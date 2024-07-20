@@ -41,7 +41,6 @@ bool ISM330DLC::readAcc(double& ax, double& ay, double& az)
   for (size_t i = 0; i < 3; ++i)
     bit_data_[i] = ((int16_t)res_[2 * i + 1] << 8) | res_[2 * i];
 
-  // TODO: 軸や符号の変換が必要かも
   ax = bit_data_[0] * acc_scale_;
   ay = bit_data_[1] * acc_scale_;
   az = bit_data_[2] * acc_scale_;
@@ -57,7 +56,6 @@ bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
   for (size_t i = 0; i < 3; ++i)
     bit_data_[i] = ((int16_t)res_[2 * i + 1] << 8) | res_[2 * i];
 
-  // TODO: 軸や符号の変換が必要かも
   gx = bit_data_[0] * gyro_scale_;
   gy = bit_data_[1] * gyro_scale_;
   gz = bit_data_[2] * gyro_scale_;
