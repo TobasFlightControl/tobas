@@ -40,11 +40,11 @@ bool DShot::setThrottle(size_t ch, uint16_t throttle, bool telem)
   data = throttle & kThrottleMask;
 
   // Telemetry
-  data = (data << 1) + static_cast<uint8_t>(telem);
+  data = (data << 1) | static_cast<uint8_t>(telem);
 
   // CRC
   const uint8_t crc = (data ^ (data >> 4) ^ (data >> 8)) & 0x0F;
-  data = (data << 4) + crc;
+  data = (data << 4) | crc;
 
   // Set DSHOT protocol data
   return setData(ch, data);
