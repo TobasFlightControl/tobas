@@ -4,6 +4,8 @@
 
 namespace a1
 {
+static constexpr char kRasPiI2CDev[] = "/dev/i2c-1";
+
 namespace uart_device
 {
 static constexpr char kSbusDev[] = "/dev/serial0";
