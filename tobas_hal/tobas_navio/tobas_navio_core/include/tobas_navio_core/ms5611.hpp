@@ -34,21 +34,19 @@ namespace navio
 {
 class MS5611
 {
+  static constexpr size_t kI2CBufSize = 3;
   static constexpr size_t kWaitForRefresh = 8;  // [ms]
 
 public:
   /**
    * @brief MS5611 constructor.
-   *
-   * @param i2c_addr I2C address
-   * @see MS5611_DEFAULT_ADDRESS
    */
-  explicit MS5611(uint8_t i2c_addr = MS5611_DEFAULT_ADDRESS);
+  explicit MS5611();
 
   /**
    * @brief Power on and prepare for general usage. This method reads coefficients stored in PROM.
    */
-  bool initialize();
+  bool initialize(uint8_t i2c_addr = MS5611_DEFAULT_ADDRESS);
 
   /**
    * @brief Perform pressure and temperature reading and calculation at once.
@@ -71,8 +69,7 @@ public:
   inline double getPressure() const;
 
 private:
-  linux::I2Cdev i2c_dev_;                 // I2C device
-  uint8_t buf_[3];                        // I2C buffer
+  linux::I2Cdev i2c_;                     // I2C device
   uint16_t c1_, c2_, c3_, c4_, c5_, c6_;  // Calibration data
   uint32_t d1_, d2_;                      // Raw measurement data
   double temp_;                           // Calculated temperature [Celcius]

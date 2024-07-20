@@ -7,34 +7,34 @@
 
 namespace navio
 {
-MS5611::MS5611(uint8_t i2c_addr) : i2c_dev_(i2c_addr)
+MS5611::MS5611()
 {
 }
 
-bool MS5611::initialize()
+bool MS5611::initialize(uint8_t i2c_addr)
 {
-  if (!i2c_dev_.initialize(kRasPiI2CDev))
+  if (!i2c_.initialize(kRasPiI2CDev, i2c_addr, kI2CBufSize))
     return false;
 
   // Reading 6 calibration data values
-  if (!i2c_dev_.readBytes(MS5611_RA_C1, 2, buf_))
+  if (!i2c_.readBytes(MS5611_RA_C1, 2))
     return false;
-  c1_ = buf_[0] << 8 | buf_[1];
-  if (!i2c_dev_.readBytes(MS5611_RA_C2, 2, buf_))
+  c1_ = i2c_.rx[0] << 8 | i2c_.rx[1];
+  if (!i2c_.readBytes(MS5611_RA_C2, 2))
     return false;
-  c2_ = buf_[0] << 8 | buf_[1];
-  if (!i2c_dev_.readBytes(MS5611_RA_C3, 2, buf_))
+  c2_ = i2c_.rx[0] << 8 | i2c_.rx[1];
+  if (!i2c_.readBytes(MS5611_RA_C3, 2))
     return false;
-  c3_ = buf_[0] << 8 | buf_[1];
-  if (!i2c_dev_.readBytes(MS5611_RA_C4, 2, buf_))
+  c3_ = i2c_.rx[0] << 8 | i2c_.rx[1];
+  if (!i2c_.readBytes(MS5611_RA_C4, 2))
     return false;
-  c4_ = buf_[0] << 8 | buf_[1];
-  if (!i2c_dev_.readBytes(MS5611_RA_C5, 2, buf_))
+  c4_ = i2c_.rx[0] << 8 | i2c_.rx[1];
+  if (!i2c_.readBytes(MS5611_RA_C5, 2))
     return false;
-  c5_ = buf_[0] << 8 | buf_[1];
-  if (!i2c_dev_.readBytes(MS5611_RA_C6, 2, buf_))
+  c5_ = i2c_.rx[0] << 8 | i2c_.rx[1];
+  if (!i2c_.readBytes(MS5611_RA_C6, 2))
     return false;
-  c6_ = buf_[0] << 8 | buf_[1];
+  c6_ = i2c_.rx[0] << 8 | i2c_.rx[1];
 
   return true;
 }
@@ -63,29 +63,29 @@ bool MS5611::update()
 
 bool MS5611::refreshPressure(uint8_t OSR)
 {
-  return i2c_dev_.writeBytes(OSR, 0, 0);
+  return i2c_.writeBytes(OSR, 0);
 }
 
 bool MS5611::refreshTemperature(uint8_t OSR)
 {
-  return i2c_dev_.writeBytes(OSR, 0, 0);
+  return i2c_.writeBytes(OSR, 0);
 }
 
 bool MS5611::readPressure()
 {
-  if (!i2c_dev_.readBytes(MS5611_RA_ADC, 3, buf_))
+  if (!i2c_.readBytes(MS5611_RA_ADC, 3))
     return false;
 
-  d1_ = (buf_[0] << 16) | (buf_[1] << 8) | buf_[2];
+  d1_ = (i2c_.rx[0] << 16) | (i2c_.rx[1] << 8) | i2c_.rx[2];
   return true;
 }
 
 bool MS5611::readTemperature()
 {
-  if (!i2c_dev_.readBytes(MS5611_RA_ADC, 3, buf_))
+  if (!i2c_.readBytes(MS5611_RA_ADC, 3))
     return false;
 
-  d2_ = (buf_[0] << 16) | (buf_[1] << 8) | buf_[2];
+  d2_ = (i2c_.rx[0] << 16) | (i2c_.rx[1] << 8) | i2c_.rx[2];
   return true;
 }
 
