@@ -115,7 +115,6 @@ private:
   double gyro_scale_;  // LSB -> rad/s
 
   uint8_t res_[kSpiBufSize - 1];  // The results of readRegs are stored.
-  int16_t bit_data_[3];
 
   bool writeReg(const uint8_t& addr, const uint8_t& data);
   bool readRegs(const uint8_t& addr, const size_t& bytes);

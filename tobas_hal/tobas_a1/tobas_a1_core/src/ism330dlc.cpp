@@ -38,12 +38,9 @@ bool ISM330DLC::readAcc(double& ax, double& ay, double& az)
   if (!readRegs(REG_OUTX_L_XL, 6))
     return false;
 
-  for (size_t i = 0; i < 3; ++i)
-    bit_data_[i] = ((int16_t)res_[2 * i + 1] << 8) | res_[2 * i];
-
-  ax = bit_data_[0] * acc_scale_;
-  ay = bit_data_[1] * acc_scale_;
-  az = bit_data_[2] * acc_scale_;
+  ax = (((int16_t)res_[1] << 8) | res_[0]) * acc_scale_;
+  ay = (((int16_t)res_[3] << 8) | res_[2]) * acc_scale_;
+  az = (((int16_t)res_[5] << 8) | res_[4]) * acc_scale_;
 
   return true;
 }
@@ -53,12 +50,9 @@ bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
   if (!readRegs(REG_OUTX_L_G, 6))
     return false;
 
-  for (size_t i = 0; i < 3; ++i)
-    bit_data_[i] = ((int16_t)res_[2 * i + 1] << 8) | res_[2 * i];
-
-  gx = bit_data_[0] * gyro_scale_;
-  gy = bit_data_[1] * gyro_scale_;
-  gz = bit_data_[2] * gyro_scale_;
+  gx = (((int16_t)res_[1] << 8) | res_[0]) * gyro_scale_;
+  gy = (((int16_t)res_[3] << 8) | res_[2]) * gyro_scale_;
+  gz = (((int16_t)res_[5] << 8) | res_[4]) * gyro_scale_;
 
   return true;
 }
