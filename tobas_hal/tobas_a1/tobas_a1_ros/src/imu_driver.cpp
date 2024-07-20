@@ -1,13 +1,13 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/Imu.h>
 
-#include "../include/tobas_a1_ros/imu_handler.hpp"
+#include "../include/tobas_a1_ros/imu_driver.hpp"
 
 using namespace std;
 
 namespace a1
 {
-IMUHandler::IMUHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+IMUDriver::IMUDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
@@ -16,7 +16,7 @@ IMUHandler::IMUHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void IMUHandler::mainTimerCb(const ros::TimerEvent& event)
+void IMUDriver::mainTimerCb(const ros::TimerEvent& event)
 {
   // Create messages
   const auto msg = boost::make_shared<tobas_hal_msgs::Imu>();

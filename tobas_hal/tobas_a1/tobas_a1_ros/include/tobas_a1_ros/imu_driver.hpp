@@ -7,15 +7,15 @@
 
 namespace a1
 {
-class IMUHandler : public hal::BaseSensorNode
+class IMUDriver : public hal::BaseSensorNode
 {
   static constexpr size_t kSamplingRate = 800;  // [Hz]
 
-  using self = IMUHandler;
+  using self = IMUDriver;
   using super = hal::BaseSensorNode;
 
 public:
-  explicit IMUHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit IMUDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
   ISM330DLC imu_;
