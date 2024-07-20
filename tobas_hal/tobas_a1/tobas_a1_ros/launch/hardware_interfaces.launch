@@ -3,8 +3,8 @@
   <arg name="nodelet" default="false"/>
 
   <arg name="imu_name" value="a1_imu_driver"/>
-  <arg name="mag_name" value="a1_magnetometer_driver"/>
-  <arg name="baro_name" value="a1_baroometer_driver"/>
+  <arg name="mag_name" value="a1_mag_driver"/>
+  <arg name="baro_name" value="a1_baro_driver"/>
   <arg name="gnss_name" value="a1_gnss_driver"/>
   <arg name="adc_name" value="a1_adc_driver"/>
   <arg name="sbus_name" value="a1_sbus_driver"/>
@@ -13,8 +13,8 @@
 
   <group if="$(arg nodelet)">
     <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_a1_ros/IMUDriverNodelet nodelet_manager_high" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg mag_name)" args="load tobas_a1_ros/MagnetometerDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg baro_name)" args="load tobas_a1_ros/BarometerDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg mag_name)" args="load tobas_a1_ros/MagDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg baro_name)" args="load tobas_a1_ros/BaroDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
     <node pkg="nodelet" type="nodelet" name="$(arg gnss_name)" args="load tobas_a1_ros/GNSSDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
     <node pkg="nodelet" type="nodelet" name="$(arg adc_name)" args="load tobas_a1_ros/ADCDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
     <node pkg="nodelet" type="nodelet" name="$(arg sbus_name)" args="load tobas_a1_ros/SBUSDriverNodelet nodelet_manager_high" output="screen" required="true"/>
@@ -24,8 +24,8 @@
 
   <group unless="$(arg nodelet)">
     <node pkg="tobas_a1_ros" type="imu_driver_node" name="$(arg imu_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="magnetometer_driver_node" name="$(arg mag_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="barometer_driver_node" name="$(arg baro_name)" output="screen" required="true"/>
+    <node pkg="tobas_a1_ros" type="mag_driver_node" name="$(arg mag_name)" output="screen" required="true"/>
+    <node pkg="tobas_a1_ros" type="baro_driver_node" name="$(arg baro_name)" output="screen" required="true"/>
     <node pkg="tobas_a1_ros" type="gnss_driver_node" name="$(arg gnss_name)" output="screen" required="true"/>
     <node pkg="tobas_a1_ros" type="adc_driver_node" name="$(arg adc_name)" output="screen" required="true"/>
     <node pkg="tobas_a1_ros" type="sbus_driver_node" name="$(arg sbus_name)" output="screen" required="true"/>
