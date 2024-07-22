@@ -13,13 +13,13 @@ IIS2MDC::IIS2MDC()
 
 bool IIS2MDC::initialize()
 {
-  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kMagAddress, kI2CBufSize))
+  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kMagAddress, 6))
     return false;
 
   if (!checkWhoAmI())
     return false;
 
-  if (!configureMag())
+  if (!configure())
     return false;
 
   return true;
@@ -65,7 +65,7 @@ bool IIS2MDC::checkWhoAmI()
   return true;
 }
 
-bool IIS2MDC::configureMag()
+bool IIS2MDC::configure()
 {
   if (!writeReg(CFG_REG_A, COMP_TEMP_EN | ODR_100HZ | MD_CONTINUOUS))
     return false;

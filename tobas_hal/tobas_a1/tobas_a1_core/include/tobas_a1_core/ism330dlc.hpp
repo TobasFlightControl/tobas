@@ -10,7 +10,7 @@ namespace a1
 class ISM330DLC
 {
   static constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz
-  static constexpr size_t kSpiBufSize = 8;
+  static constexpr size_t kSpiBufSize = 6;
   static constexpr uint8_t kReadFlag = 0x80;
 
 public:

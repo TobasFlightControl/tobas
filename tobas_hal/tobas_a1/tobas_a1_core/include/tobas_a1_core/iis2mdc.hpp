@@ -12,8 +12,6 @@ class IIS2MDC
   static constexpr uint8_t kMultiReadFlag = 0x80;  // cf. 6.1.1: I2C operation (p.23)
   static constexpr double kSensitivity = 1.5e-3;   // [gauss/LSB]
 
-  static constexpr size_t kI2CBufSize = 8;
-
 public:
   explicit IIS2MDC();
 
@@ -88,6 +86,6 @@ private:
   bool writeReg(const uint8_t& addr, const uint8_t& data);
 
   bool checkWhoAmI();
-  bool configureMag();
+  bool configure();
 };
 }  // namespace a1
