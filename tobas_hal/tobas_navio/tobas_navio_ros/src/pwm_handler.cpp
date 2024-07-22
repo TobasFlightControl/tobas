@@ -52,8 +52,8 @@ void PwmHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)
       continue;
     }
 
-    const auto period = math::remap<double>(
-      throttle.throttle, tobas::kMinThrottle, tobas::kMaxThrottle, tobas::kPwmMin, tobas::kPwmMax);
+    const auto period =
+      math::remap<double>(throttle.throttle, tobas::kMinThrottle, tobas::kMaxThrottle, tobas::kPwmMin, tobas::kPwmMax);
     if (!pwm_.setDutyCycle(throttle.channel, period))
       TOBAS_FATAL("Failed to set PWM duty cycle on CH", throttle.channel, ".");
   }

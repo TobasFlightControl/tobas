@@ -81,7 +81,7 @@ private:
 
   bool checkDataLength(size_t length) const;
   bool selectDevice() const;
-  bool write(uint8_t reg_addr,size_t length);
+  bool write(uint8_t reg_addr, size_t length);
   bool read(size_t length);
 };
 }  // namespace linux
