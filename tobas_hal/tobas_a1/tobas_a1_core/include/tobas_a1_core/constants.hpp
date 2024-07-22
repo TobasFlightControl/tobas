@@ -22,7 +22,7 @@ static constexpr char kPwmDev[] = "/dev/spidev?.?";    // TODO
 
 namespace i2c_address
 {
-static constexpr uint8_t kMagAddress = 0x00;   // TODO
-static constexpr uint8_t kBaroAddress = 0x00;  // TODO
+static constexpr uint8_t kMagAddress = 0x3C;
+static constexpr uint8_t kBaroAddress = 0x5C;
 }  // namespace i2c_address
 }  // namespace a1
