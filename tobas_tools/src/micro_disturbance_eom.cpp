@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas
 {
@@ -34,7 +33,11 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-int MicroDisturbanceEoM::update(const double& V, const double& rho, const double& battery_voltage, const JntArray& q)
+int MicroDisturbanceEoM::update(
+  const double& V,
+  const double& rho,
+  const double& battery_voltage,
+  const kdl::JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);

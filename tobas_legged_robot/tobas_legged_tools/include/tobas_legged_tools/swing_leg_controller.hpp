@@ -61,13 +61,13 @@ private:
 
   kdl::TreeFkSolverPos fk_solver_;
 
-  std::vector<tj::CycloidGenerator3d> ref_traj_;  // {gnd}から見た{gnd}に対する{foot}の軌道を生成する
-  std::vector<bool> is_stand_prev_;               // 各足の接地状態
-  std::vector<TimeType> t_switch_;                // 立脚から遊脚に切り替わった時刻
-  std::vector<kdl::VectorAcc> B_Tdd_BF_;          // {base}から見た{base}に対する{foot}の状態
-  std::vector<kdl::Vector> thigh_0_;              // {base}から見た{base}に対する足の根本の位置
-  kdl::VectorAcc G_Tdd_GF_;                       // {gnd}から見た{gnd}に対する{foot}の状態
-  double roll_, pitch_, yaw_;                     // W_Rot_B
+  std::vector<kdl::CycloidGenerator3d> ref_traj_;  // {gnd}から見た{gnd}に対する{foot}の軌道を生成する
+  std::vector<bool> is_stand_prev_;                // 各足の接地状態
+  std::vector<TimeType> t_switch_;                 // 立脚から遊脚に切り替わった時刻
+  std::vector<kdl::VectorAcc> B_Tdd_BF_;           // {base}から見た{base}に対する{foot}の状態
+  std::vector<kdl::Vector> thigh_0_;               // {base}から見た{base}に対する足の根本の位置
+  kdl::VectorAcc G_Tdd_GF_;                        // {gnd}から見た{gnd}に対する{foot}の状態
+  double roll_, pitch_, yaw_;                      // W_Rot_B
 
   void setThighOrigins();
 };

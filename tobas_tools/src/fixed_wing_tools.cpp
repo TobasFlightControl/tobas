@@ -5,7 +5,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas
 {
@@ -14,7 +13,7 @@ double angleOfAttack(const double& u, const double& w)
   return u > kMinAirSpeedThresh ? atan(w / u) : 0;
 }
 
-double angleOfAttack(const Vector& linvel_B)
+double angleOfAttack(const kdl::Vector& linvel_B)
 {
   return angleOfAttack(linvel_B.x(), linvel_B.z());
 }
@@ -25,7 +24,7 @@ double angleOfSideSlip(const double& u, const double& v, const double& w)
   return V > kMinAirSpeedThresh ? asin(v / V) : 0;
 }
 
-double angleOfSideSlip(const Vector& linvel_B)
+double angleOfSideSlip(const kdl::Vector& linvel_B)
 {
   return angleOfSideSlip(linvel_B.x(), linvel_B.y(), linvel_B.z());
 }

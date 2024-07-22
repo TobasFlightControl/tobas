@@ -5,7 +5,6 @@
 #include "../include/tobas_tools/constants.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas
 {
@@ -20,7 +19,7 @@ void TrimConditions::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
   asd_cog_.updateInternalDataStructures();
 
-  if (inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   W_ = inertia_solver_.getInertia().getMass() * kGravity;
 
@@ -36,7 +35,7 @@ void TrimConditions::updateInternalDataStructures()
   assert(b_ > 0);
 }
 
-int TrimConditions::update(double V, const double& rho, const JntArray& q)
+int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 {
   assert(V > 0);
   assert(rho > 0);

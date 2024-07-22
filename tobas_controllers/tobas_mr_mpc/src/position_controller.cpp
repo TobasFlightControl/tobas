@@ -5,7 +5,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_mpc
 {
@@ -20,13 +19,13 @@ PositionController::PositionController() : lqid_(kStateSize, 3, 3)
 }
 
 void PositionController::update(
-  const Vector& cp,
-  const Vector& cv,
-  const Vector& ca,
-  const Vector& tp,
-  const Vector& tv,
+  const kdl::Vector& cp,
+  const kdl::Vector& cv,
+  const kdl::Vector& ca,
+  const kdl::Vector& tp,
+  const kdl::Vector& tv,
   const double& dt,
-  Vector& ta)
+  kdl::Vector& ta)
 {
   // 現在の状態と設定値を埋める
   lqid_.current_state << cp.x(), cp.y(), cp.z(), cv.x(), cv.y(), cv.z(), ca.x(), ca.y(), ca.z();

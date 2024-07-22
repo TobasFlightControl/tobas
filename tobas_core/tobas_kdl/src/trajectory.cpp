@@ -3,9 +3,8 @@
 #include "../include/tobas_kdl/trajectory.hpp"
 
 using namespace std;
-using namespace kdl;
 
-namespace tj
+namespace kdl
 {
 CycloidGenerator3d::CycloidGenerator3d()
 {
@@ -102,4 +101,4 @@ void CycloidGenerator3d::getAcc(const double& t, const kdl::Rotation& r, Vector&
 
   a = r * a;
 }
-}  // namespace tj
+}  // namespace kdl

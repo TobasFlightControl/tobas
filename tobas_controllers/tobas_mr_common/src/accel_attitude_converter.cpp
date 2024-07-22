@@ -7,7 +7,6 @@
 #include "../include/tobas_mr_common/accel_attitude_converter.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_mr_common
 {
@@ -23,11 +22,11 @@ void AccelAttitudeConverter::updateInternalDataStructures()
 }
 
 void AccelAttitudeConverter::update(
-  const Rotation& cur_rot,
-  const Vector& cur_vel_B,
-  const Vector& cur_wind_W,
+  const kdl::Rotation& cur_rot,
+  const kdl::Vector& cur_vel_B,
+  const kdl::Vector& cur_wind_W,
   const vector<double>& cur_rotor_speeds,
-  const Vector& tar_acc_W,
+  const kdl::Vector& tar_acc_W,
   double& thrust_out,
   double& roll_out,
   double& pitch_out)
@@ -59,8 +58,8 @@ void AccelAttitudeConverter::update(
 }
 
 void AccelAttitudeConverter::update(
-  const Rotation& cur_rot,
-  const Vector& tar_acc_W,
+  const kdl::Rotation& cur_rot,
+  const kdl::Vector& tar_acc_W,
   double& thrust_out,
   double& roll_out,
   double& pitch_out)

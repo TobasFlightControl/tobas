@@ -1,7 +1,6 @@
 #include "../include/tobas_tools/stability_derivatives_cog.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas
 {
@@ -19,7 +18,7 @@ void StabilityDerivativesCG::updateInternalDataStructures()
   c_yaw_delta_cg_.resize(drone_.numControlSurfaces());
 }
 
-int StabilityDerivativesCG::update(const JntArray& q)
+int StabilityDerivativesCG::update(const kdl::JntArray& q)
 {
   error_code_ = E_NO_ERROR;
 

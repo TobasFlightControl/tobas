@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_mpc
 {
@@ -168,7 +167,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     feedback->target_velocity_local = odom->frame.M.inverse(tar_pvay_W_->vel);
     feedback->target_acceleration_global = tar_acc;
     feedback->target_acceleration_local = odom->frame.M.inverse(tar_acc);
-    feedback->position_integral_error = Vector(pos_ctrl_.positionIntegralError());
+    feedback->position_integral_error.data = pos_ctrl_.positionIntegralError();
   }
 
   // Rotation Controller

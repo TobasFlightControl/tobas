@@ -8,7 +8,6 @@
 #define COMMAND_DIMENSION 4  // x, y, z, yaw
 
 using namespace std;
-using namespace kdl;
 using namespace Eigen;
 
 using SplineType = Spline<double, Dynamic>;

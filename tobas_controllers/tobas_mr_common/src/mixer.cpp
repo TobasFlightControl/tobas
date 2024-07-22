@@ -5,7 +5,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_common
 {
@@ -30,7 +29,7 @@ void Mixer::updateInternalDataStructures()
   qp_.setZero();
 
   // 機体の質量
-  if (inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
 
   // QPの決定変数のスケール
@@ -57,7 +56,7 @@ void Mixer::updateInternalDataStructures()
 VectorXd Mixer::solve(
   const double& dt,
   const double& cur_voltage,
-  const JntArray& cur_q,
+  const kdl::JntArray& cur_q,
   const Vector3d& cur_gyro_B,
   const Vector3d& cur_h_moment_B,
   const Vector3d& tar_dgyro_B,
@@ -117,7 +116,7 @@ VectorXd Mixer::solve(
 VectorXd Mixer::solve(
   const double& dt,
   const double& cur_voltage,
-  const JntArray& cur_q,
+  const kdl::JntArray& cur_q,
   const Vector3d& cur_gyro_B,
   const Vector3d& cur_h_moment_B,
   const Vector3d& tar_dgyro_B,

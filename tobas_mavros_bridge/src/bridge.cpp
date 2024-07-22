@@ -7,7 +7,6 @@
 #include "../include/tobas_mavros_bridge/bridge.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_mavros_bridge
 {
@@ -27,7 +26,7 @@ void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs
   mav->pose.position.y = tbs->pos.x();
   mav->pose.position.z = tbs->pos.z();
 
-  const auto quat = Quaternion::RPY(0, 0, tbs->yaw + M_PI_2);
+  const auto quat = kdl::Quaternion::RPY(0, 0, tbs->yaw + M_PI_2);
   quaternionKDLToMsg(quat, mav->pose.orientation);
 
   setpoint_pos_local_pub_.publish(mav);

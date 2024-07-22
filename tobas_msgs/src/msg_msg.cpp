@@ -3,8 +3,6 @@
 
 #include "../include/tobas_msgs/conversions/msg_msg.hpp"
 
-using namespace kdl;
-
 namespace tobas
 {
 void odometryTobasToMsg(const tobas_msgs::Odometry& t, nav_msgs::Odometry& m)

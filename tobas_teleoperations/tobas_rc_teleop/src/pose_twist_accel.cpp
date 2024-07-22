@@ -7,7 +7,6 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_rc_teleop
 {
@@ -65,7 +64,7 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
 
   // 目標速度を世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
-  const auto tar_vel_W = Rotation::RotZ(tar_rpy_.yaw) * tar_vel_F_;
+  const auto tar_vel_W = kdl::Rotation::RotZ(tar_rpy_.yaw) * tar_vel_F_;
 
   // 目標速度とヨーレートを積分
   tar_pos_W_ += tar_vel_W * dt;
@@ -73,7 +72,7 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
 
   // 目標位置とヨー角の偏差を制限
   const auto& cur_pos_W = odom.frame.p;
-  const auto cur_yaw = Euler(odom.frame.M).yaw;
+  const auto cur_yaw = kdl::Euler(odom.frame.M).yaw;
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
   tar_rpy_.yaw = clamp(tar_rpy_.yaw, cur_yaw - kMaxYawError, cur_yaw + kMaxYawError);
 
