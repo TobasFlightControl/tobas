@@ -19,7 +19,7 @@ void MultirotorDynamicsComponents::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
 
-  if (inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
 }
 
@@ -38,17 +38,20 @@ double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_spee
   return res;
 }
 
-Vector MultirotorDynamicsComponents::relativePerpVel(const Rotation& rot, const Vector& vel_B, const Vector& wind_W)
+kdl::Vector MultirotorDynamicsComponents::relativePerpVel(
+  const kdl::Rotation& rot,
+  const kdl::Vector& vel_B,
+  const kdl::Vector& wind_W)
 {
   // TODO: 正確には機体フレームではなくプロペラの位置の速度を使う
   const auto relative_vel_B = vel_B - rot.inverse(wind_W);  // 風に対する相対速度
-  return Vector(relative_vel_B.x(), relative_vel_B.y(), 0);
+  return kdl::Vector(relative_vel_B.x(), relative_vel_B.y(), 0);
 }
 
-Vector MultirotorDynamicsComponents::horizontalForce(
-  const Rotation& rot,
-  const Vector& vel_B,
-  const Vector& wind_W,
+kdl::Vector MultirotorDynamicsComponents::horizontalForce(
+  const kdl::Rotation& rot,
+  const kdl::Vector& vel_B,
+  const kdl::Vector& wind_W,
   const vector<double>& rot_speeds)
 {
   assert(rot_speeds.size() == drone_.numRotors());
@@ -58,11 +61,11 @@ Vector MultirotorDynamicsComponents::horizontalForce(
   return -drag_rotor_sum * rel_vel_perp;
 }
 
-Vector MultirotorDynamicsComponents::horizontalMoment(
-  const Rotation& rot,
-  const Vector& vel_B,
-  const Vector& wind_W,
-  const JntArray& q,
+kdl::Vector MultirotorDynamicsComponents::horizontalMoment(
+  const kdl::Rotation& rot,
+  const kdl::Vector& vel_B,
+  const kdl::Vector& wind_W,
+  const kdl::JntArray& q,
   const vector<double>& rot_speeds)
 {
   assert(rot_speeds.size() == drone_.numRotors());
@@ -73,7 +76,7 @@ Vector MultirotorDynamicsComponents::horizontalMoment(
   const auto P_base_cog = inertia_solver_.getInertia().getCOG();
 
   // 擬似的なモーメントアーム [Ns] を求める
-  Vector h_momemt_arm = Vector::Zero();
+  kdl::Vector h_momemt_arm = kdl::Vector::Zero();
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     // CoG -> Rotor の位置を求める
