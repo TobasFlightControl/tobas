@@ -10,7 +10,7 @@ namespace lr_tools
 LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot_names)
   : foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), inertia_solver_(tree)
 {
-  resize(kGravIdx + 1, nc_ * 3);
+  resize(kStateSize, nc_ * kInputSizePerLeg);
   setZero();
 
   // Fill constant parts
@@ -56,11 +56,14 @@ void LinearDynamics::updateB(
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
   const auto B_Pos_BG = inertia.getCOG();
-  const auto I = inertia.getRotationalInertiaCoG();
+  const auto B_Ins = inertia.getRotationalInertiaCoG();
 
   const auto F_Rot_B = kdl::Rotation::RPY(roll, pitch, 0.);
   const auto B_Rot_F = F_Rot_B.inverse();
-  const Matrix3d R_I_inv = F_Rot_B.data * I.data.inverse();
+
+  const auto F_Ins = F_Rot_B * B_Ins;
+  const Vector3d F_Ins_inv_z = F_Ins.data.inverse().col(2);
+  const Matrix3d R_I_inv = F_Rot_B.data * B_Ins.data.inverse();
 
   for (size_t l = 0; l < nc_; ++l)
   {
@@ -71,12 +74,13 @@ void LinearDynamics::updateB(
 
       const auto& B_Pos_BC = fk_solver_.getFrame().p;
       const auto B_Pos_GC = B_Pos_BC - B_Pos_BG;
-      B.block<3, 3>(3, 3 * l) = R_I_inv * eigen_tools::crossMat(B_Pos_GC.data) * B_Rot_F.data;
-      B.block<3, 3>(6, 3 * l).diagonal().fill(1 / mass);
+      B.block<3, 3>(kGyroXIdx, forceIndex(l)) = R_I_inv * eigen_tools::crossMat(B_Pos_GC.data) * B_Rot_F.data;
+      B.block<3, 1>(kGyroXIdx, torqueIndex(l)) = F_Ins_inv_z;
+      B.block<3, 3>(kVelXIdx, forceIndex(l)).diagonal().fill(1 / mass);
     }
     else
     {
-      B.block<6, 3>(3, 3 * l).setZero();
+      B.block<6, kInputSizePerLeg>(kGyroXIdx, forceIndex(l)).setZero();
     }
   }
 }

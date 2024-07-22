@@ -44,12 +44,14 @@ void StateEstimator::update(
   const kdl::JntArray& qd,
   const vector<bool>& is_stand,
   const vector<double>& contact_probs,
-  const vector<kdl::Vector>& reaction_forces,
+  const vector<kdl::Vector>& foot_forces,
+  const vector<double>& foot_torques,
   const double& dt)
 {
   assert(is_stand.size() == nc_);
   assert(contact_probs.size() == nc_);
-  assert(reaction_forces.size() == nc_);
+  assert(foot_forces.size() == nc_);
+  assert(foot_forces.size() == nc_);
 
   /* ===== 事前計算 ===== */
   W_Quat_B.getRPY(roll_, pitch_, yaw_);
@@ -127,8 +129,12 @@ void StateEstimator::update(
   }
 
   /* ===== 制御入力を更新 ===== */
+  // FIXME: 状態推定が制御入力に依存すると発散のリスクがあるため，
   for (size_t l = 0; l < nc_; ++l)
-    kf_.u.segment<3>(3 * l) = reaction_forces[l].data;
+  {
+    kf_.u.segment<3>(cont_.forceIndex(l)) = foot_forces[l].data;
+    kf_.u(cont_.torqueIndex(l)) = foot_torques[l];
+  }
 
   /* ===== カルマンフィルタを1ステップ進める ===== */
   kf_.update();

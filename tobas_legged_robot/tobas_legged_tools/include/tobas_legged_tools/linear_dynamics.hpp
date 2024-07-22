@@ -7,8 +7,8 @@
 namespace lr_tools
 {
 /**
- * @brief The linear dynamics of point-contact legged robots.\n
- * Dynamic Locomotion in the MIT Cheetah 3 Through Convex Model-Predictive Control [Carlo+, 2018]
+ * @brief The linear dynamics of legged robots. (memo: 2-69)
+ * cf. Dynamic Locomotion in the MIT Cheetah 3 Through Convex Model-Predictive Control [Carlo+, 2018]
  */
 class LinearDynamics : public ctrl::LinearDynamics
 {
@@ -23,11 +23,19 @@ public:
   static constexpr size_t kVelYIdx = 7;
   static constexpr size_t kVelZIdx = 8;
   static constexpr size_t kGravIdx = 9;
+  static constexpr size_t kStateSize = kGravIdx + 1;
+
+  static constexpr size_t kForceSizePerLeg = 3;   // fx, fy, fz
+  static constexpr size_t kTorqueSizePerLeg = 1;  // tz
+  static constexpr size_t kInputSizePerLeg = kForceSizePerLeg + kTorqueSizePerLeg;
 
   explicit LinearDynamics(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
 
   void updateInternalDataStructures();
   void update(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
+
+  inline size_t forceIndex(const size_t& leg) const;
+  inline size_t torqueIndex(const size_t& leg) const;
 
 private:
   const std::vector<std::string> foot_names_;
@@ -39,4 +47,14 @@ private:
   void updateA(const double& pitch);
   void updateB(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
 };
+
+inline size_t LinearDynamics::forceIndex(const size_t& leg) const
+{
+  return kInputSizePerLeg * leg;
+}
+
+inline size_t LinearDynamics::torqueIndex(const size_t& leg) const
+{
+  return kInputSizePerLeg * leg + kForceSizePerLeg;
+}
 }  // namespace lr_tools

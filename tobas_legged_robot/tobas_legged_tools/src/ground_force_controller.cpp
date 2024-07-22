@@ -37,6 +37,8 @@ bool GroundForceController::configure(const GroundForceControllerConfig& cfg)
   // TODO: 有効な値かチェック
 
   friction_coef_ = cfg.friction_coef;
+  foot_diameter_ = cfg.foot_diameter;
+
   normal_force_range_.lower = cfg.min_normal_force;
   normal_force_range_.upper = cfg.max_normal_force;
 
@@ -130,7 +132,7 @@ void GroundForceController::initializeMPC()
   mpc_.input_scale.resize(cont_.inputSize());
   mpc_.control_scale.resize(kCtrlSize);
   mpc_.state_scale << rpy_sc, rpy_sc, size_sc, gyro_sc, gyro_sc, gyro_sc, vel_sc, vel_sc, vel_sc, tobas_std::kGravity;
-  mpc_.input_scale.fill(calcMass() * tobas_std::kGravity);
+  mpc_.input_scale.fill(calcMass() * tobas_std::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
   mpc_.control_scale << rpy_sc, rpy_sc, size_sc, gyro_sc, gyro_sc, gyro_sc, vel_sc, vel_sc, vel_sc;
 
   mpc_.current_state.resize(cont_.stateSize());
@@ -158,17 +160,22 @@ MatrixXd GroundForceController::makeCz()
 
 ctrl::LinearEquation GroundForceController::makeInputConstraint()
 {
-  constexpr size_t kNumConstraintsPerLeg = 6;  // 足1本あたりのハード制約の個数
+  const auto& u = friction_coef_;
+  const auto& d = foot_diameter_;
+  const auto& f_min = normal_force_range_.lower;
+  const auto& f_max = normal_force_range_.upper;
 
-  // 足1本
-  MatrixXd F_(kNumConstraintsPerLeg, 3);
-  F_ << 0, 0, -1, 0, 0, 1, -1, 0, -friction_coef_, 1, 0, -friction_coef_, 0, -1, -friction_coef_, 0, 1, -friction_coef_;
-  VectorXd f_(kNumConstraintsPerLeg);
-  f_ << -normal_force_range_.lower, normal_force_range_.upper, 0, 0, 0, 0;
+  const auto ud = u * d;
 
-  // 足4本
-  const auto F = eigen_tools::blockDiag(F_, nc_);
-  const auto f = eigen_tools::tile(f_, nc_, 0);
+  // 足1本について
+  MatrixXd F1(kNumConstraintsPerLeg, LinearDynamics::kInputSizePerLeg);
+  F1 << 0, 0, -1, 0, 0, 0, 1, 0, -1, 0, -u, 0, 1, 0, -u, 0, 0, -1, -u, 0, 0, 1, -u, 0, 0, 0, -ud, -1, 0, 0, -ud, 1;
+  VectorXd f1(kNumConstraintsPerLeg);
+  f1 << -f_min, f_max, 0, 0, 0, 0, 0, 0;
+
+  // 全ての足について
+  const auto F = eigen_tools::blockDiag(F1, nc_);
+  const auto f = eigen_tools::tile(f1, nc_, 0);
 
   return ctrl::LinearEquation(F, f);
 }

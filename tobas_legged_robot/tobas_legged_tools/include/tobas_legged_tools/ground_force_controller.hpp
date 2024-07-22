@@ -14,7 +14,8 @@ namespace lr_tools
 {
 struct GroundForceControllerConfig
 {
-  double friction_coef;  // [-]
+  double friction_coef;  // [-] 静止摩擦係数
+  double foot_diameter;  // [m] 足の接地面の直径
 
   double min_normal_force;  // [N]
   double max_normal_force;  // [N]
@@ -38,6 +39,7 @@ struct GroundForceControllerConfig
 class GroundForceController
 {
   static constexpr size_t kCtrlSize = 9;
+  static constexpr size_t kNumConstraintsPerLeg = 8;  // 足1本あたりのハード制約の個数
 
 public:
   explicit GroundForceController(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
@@ -62,6 +64,7 @@ public:
   inline const double& timeStep() const;
 
   inline Eigen::Vector3d optimalReactionForce(size_t leg) const;
+  inline double optimalReactionTorque(size_t leg) const;
   inline Eigen::Vector3d optimalDGyro() const;
   inline Eigen::Vector3d optimalAccel() const;
 
@@ -78,6 +81,7 @@ private:
 
   // Config
   double friction_coef_;
+  double foot_diameter_;
   tobas_std::Range<double> normal_force_range_;
 
   kdl::TreeJntToInertiaSolver inertia_solver_;
@@ -92,6 +96,8 @@ private:
   double calcMass();
   double calcSizeScale();
   Eigen::MatrixXd makeCz();
+
+  /* 制御入力に関する不等式ハード制約条件 (memo: 2-68) */
   ctrl::LinearEquation makeInputConstraint();
 };
 
@@ -102,7 +108,12 @@ inline const double& GroundForceController::timeStep() const
 
 inline Eigen::Vector3d GroundForceController::optimalReactionForce(size_t leg) const
 {
-  return mpc_.optimalControlInput().segment<3>(3 * leg);
+  return mpc_.optimalControlInput().segment<3>(cont_.forceIndex(leg));
+}
+
+inline double GroundForceController::optimalReactionTorque(size_t leg) const
+{
+  return mpc_.optimalControlInput()(cont_.torqueIndex(leg));
 }
 
 inline Eigen::Vector3d GroundForceController::optimalDGyro() const
