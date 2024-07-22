@@ -168,5 +168,7 @@ bool I2Cdev::read(size_t length)
     cerr << "I2C read error." << endl;
     return false;
   }
+
+  return true;
 }
 }  // namespace linux
