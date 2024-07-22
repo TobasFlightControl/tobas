@@ -25,8 +25,16 @@ void IMUDriver::mainTimerCb(const ros::TimerEvent& event)
   msg->header.stamp = event.current_real;
 
   // Read IMU
-  imu_.readAcc(msg->accel.x(), msg->accel.y(), msg->accel.z());
-  imu_.readGyro(msg->gyro.x(), msg->gyro.y(), msg->gyro.z());
+  if (!imu_.readAcc(msg->accel.x(), msg->accel.y(), msg->accel.z()))
+  {
+    TOBAS_FATAL("Failed to read accelerometer.");
+    return;
+  }
+  if (!imu_.readGyro(msg->gyro.x(), msg->gyro.y(), msg->gyro.z()))
+  {
+    TOBAS_FATAL("Failed to read gyroscope.");
+    return;
+  }
 
   // TODO: 軸や符号の変換が必要かも
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <tobas_kdl/vector.hpp>
-
 #include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_a1_core/iis2mdc.hpp>
 

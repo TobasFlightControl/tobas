@@ -25,7 +25,11 @@ void MagDriver::mainTimerCb(const ros::TimerEvent& event)
   msg->header.stamp = event.current_real;
 
   // Read sensor
-  mag_.readMag(msg->magnetic_field.x(), msg->magnetic_field.y(), msg->magnetic_field.z());
+  if (!mag_.readMag(msg->magnetic_field.x(), msg->magnetic_field.y(), msg->magnetic_field.z()))
+  {
+    TOBAS_FATAL("Failed to read magnetometer.");
+    return;
+  }
 
   // TODO: 軸や符号の変換が必要かも
 
