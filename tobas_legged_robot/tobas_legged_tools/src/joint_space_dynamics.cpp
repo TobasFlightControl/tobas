@@ -89,7 +89,7 @@ bool JointSpaceDynamics::configure(const JointSpaceDynamicsConfig& cfg)
   return true;
 }
 
-void JointSpaceDynamics::solve(
+bool JointSpaceDynamics::solve(
   const double& roll,
   const double& pitch,
   const kdl::Vector& cur_vel,
@@ -124,7 +124,10 @@ void JointSpaceDynamics::solve(
   for (size_t l = 0; l < nc_; ++l)
   {
     if (jac_solver_.JntToJac(cur_q_, foot_names_[l]) < 0)
-      throw runtime_error("Jacobian solver failed: " + jac_solver_.errorMessage());
+    {
+      error_msg_ = "Jacobian solver failed: " + jac_solver_.errorMessage();
+      return false;
+    }
     const auto& jac = jac_solver_.getJacobian().data;
     J_.block(forceIndex(l), 0, kForceSize, nj_) = jac.topRows<kForceSize>();  // vx, vy, vz
     J_.block(torqueIndex(l), 0, 1, nj_) = jac.row(5);                         // wz
@@ -146,12 +149,20 @@ void JointSpaceDynamics::solve(
 
   // 外力項を除いたトルクを計算
   if (rne_.CartToJnt(cur_q_, cur_qd_, tar_qdd_) < 0)
-    throw runtime_error("RNE failed: " + rne_.errorMessage());
+  {
+    error_msg_ = "RNE failed: " + rne_.errorMessage();
+    return false;
+  }
+
+  // 質量行列を計算
+  if (mass_solver_.JntToMass(cur_q_) < 0)
+  {
+    error_msg_ = "Mass solver failed: " + mass_solver_.errorMessage();
+    return false;
+  }
 
   // QPPを作成
   const Matrix<double, kBaseDoF, Dynamic> Jt_base = J_.leftCols<kBaseDoF>().transpose();
-  if (mass_solver_.JntToMass(cur_q_) < 0)
-    throw runtime_error("Mass solver failed: " + mass_solver_.errorMessage());
   const Matrix<double, kBaseDoF, kBaseDoF> Mb = mass_solver_.getMass().data.topLeftCorner<kBaseDoF, kBaseDoF>();
 
   qp_.problem.G.leftCols(wrench_size_) = Jt_base;
@@ -168,17 +179,23 @@ void JointSpaceDynamics::solve(
   }
 
   // QPPを解く
-  const VectorXd x = qp_.solve();
+  if (!qp_.solve())
+  {
+    error_msg_ = "QP failed: " + qp_.errorMessage();
+    return false;
+  }
 
   // 地面反力と浮遊リンクの加速度の残渣を取得
-  const VectorXd w_res = x.head(wrench_size_);
-  const VectorXd qdd_res = x.tail<kBaseDoF>();
+  const VectorXd w_res = qp_.solution().head(wrench_size_);
+  const VectorXd qdd_res = qp_.solution().tail<kBaseDoF>();
 
   // 修正された地面反力と関節トルクを計算
-  w_out_ = w_ref_ + x.head(wrench_size_);
+  w_out_ = w_ref_ + w_res;
   eff_out_ = rne_.getEfforts().data - J_.transpose() * w_out_;
   eff_out_.head<kBaseDoF>() += Mb * qdd_res;                                       // ベースの修正分
   assert(et::isClose(eff_out_.head<kBaseDoF>().eval(), Vector6d::Zero().eval()));  // ベースのレンチは0になるはず
+
+  return true;
 }
 
 double JointSpaceDynamics::calcMass()

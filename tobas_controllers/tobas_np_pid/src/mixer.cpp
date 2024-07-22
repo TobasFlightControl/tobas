@@ -97,7 +97,10 @@ VectorXd Mixer::solve(
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
-  return qp_.solve();
+  if (!qp_.solve())
+    throw runtime_error("QP failed: " + qp_.errorMessage());
+
+  return qp_.solution();
 }
 
 void Mixer::configure(const MixerConfig& cfg)

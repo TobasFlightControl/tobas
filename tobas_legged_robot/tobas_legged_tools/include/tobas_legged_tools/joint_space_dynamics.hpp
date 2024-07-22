@@ -50,7 +50,7 @@ public:
 
   bool configure(const JointSpaceDynamicsConfig& cfg);
 
-  void solve(
+  bool solve(
     const double& roll,
     const double& pitch,
     const kdl::Vector& cur_vel,
@@ -68,6 +68,8 @@ public:
   inline double getFootTorque(size_t leg) const;
   inline kdl::JntArray getEffort() const;
 
+  inline const std::string& errorMessage() const;
+
 private:
   const kdl::Tree& tree_raw_;
   const std::vector<std::string> foot_names_;
@@ -80,6 +82,7 @@ private:
 
   Eigen::VectorXd w_out_;    // size = 3 * nc_
   Eigen::VectorXd eff_out_;  // size = kBaseDoF + nj_raw_
+  std::string error_msg_;
 
   kdl::Tree tree_;  // 浮遊リンク付きのツリー
   size_t nj_raw_, nj_;
@@ -126,5 +129,10 @@ inline size_t JointSpaceDynamics::forceIndex(const size_t& leg) const
 inline size_t JointSpaceDynamics::torqueIndex(const size_t& leg) const
 {
   return kWrenchSize * leg + kForceSize;
+}
+
+inline const std::string& JointSpaceDynamics::errorMessage() const
+{
+  return error_msg_;
 }
 }  // namespace lr_tools

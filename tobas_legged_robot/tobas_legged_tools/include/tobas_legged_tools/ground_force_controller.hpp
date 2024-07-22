@@ -48,7 +48,7 @@ public:
 
   bool configure(const GroundForceControllerConfig& cfg);
 
-  void solve(
+  bool solve(
     const double& cur_z,
     const kdl::Vector& cur_vel,
     const kdl::Vector& cur_gyro,
@@ -73,6 +73,8 @@ public:
   inline double nextAltitude() const;
   inline Eigen::Vector3d nextGyro() const;
   inline Eigen::Vector3d nextVel() const;
+
+  inline const std::string& errorMessage() const;
 
 private:
   const kdl::Tree& tree_;
@@ -149,5 +151,10 @@ inline Eigen::Vector3d GroundForceController::nextGyro() const
 inline Eigen::Vector3d GroundForceController::nextVel() const
 {
   return x_next_.segment<3>(LinearDynamics::kVelXIdx);
+}
+
+inline const std::string& GroundForceController::errorMessage() const
+{
+  return mpc_.errorMessage();
 }
 }  // namespace lr_tools

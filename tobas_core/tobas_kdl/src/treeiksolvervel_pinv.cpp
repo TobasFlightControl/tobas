@@ -79,7 +79,9 @@ int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
   quadprog::matIneqFromRange(qd_min.data, qd_max.data, qp_solver_.problem.A, qp_solver_.problem.b);
 
   // QPを解く
-  qd_out_.data = qp_solver_.solve();
+  if (!qp_solver_.solve())
+    return setDefaultError(E_QP_FAILED);
+  qd_out_.data = qp_solver_.solution();
 
   return setDefaultError(E_NOERROR);
 }

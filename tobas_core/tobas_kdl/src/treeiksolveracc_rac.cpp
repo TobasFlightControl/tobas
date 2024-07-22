@@ -85,7 +85,9 @@ int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   quadprog::matIneqFromRange(qdd_min_, qdd_max_, qp_solver_.problem.A, qp_solver_.problem.b);
 
   // QPを解く
-  qdd_out_.data = qp_solver_.solve();
+  if (!qp_solver_.solve())
+    return setDefaultError(E_QP_FAILED);
+  qdd_out_.data = qp_solver_.solution();
 
   return setDefaultError(E_NOERROR);
 }

@@ -73,7 +73,7 @@ bool GroundForceController::configure(const GroundForceControllerConfig& cfg)
   return true;
 }
 
-void GroundForceController::solve(
+bool GroundForceController::solve(
   const double& cur_z,
   const kdl::Vector& cur_vel,
   const kdl::Vector& cur_gyro,
@@ -86,11 +86,11 @@ void GroundForceController::solve(
   const vector<kdl::JntArray>& q_pred,
   const vector<vector<bool>>& is_stand_pred)
 {
-  assert(q_pred.size() == mpc_.prediction_steps);
+  assert(q_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
   assert(tobas_std::allOf(q_pred, [this](const kdl::JntArray& q) { return q.size() == tree_.getNrOfJoints(); }));
-  assert(roll_pred.size() == mpc_.prediction_steps);
-  assert(pitch_pred.size() == mpc_.prediction_steps);
-  assert(is_stand_pred.size() == mpc_.prediction_steps);
+  assert(roll_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
+  assert(pitch_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
+  assert(is_stand_pred.size() == static_cast<size_t>(mpc_.prediction_steps));
 
   // Update dynamics
   // ステップ0の連続時間ダイナミクスを後の予測で使うため，未来から逆順で処理する．
@@ -108,12 +108,15 @@ void GroundForceController::solve(
   mpc_.set_state << 0, 0, tar_z, 0, 0, tar_yawrate, tar_vx, tar_vy, 0;
 
   // Solve MPC
-  mpc_.solve();
+  if (!mpc_.solve())
+    return false;
 
   // Prediction
   const auto& u = mpc_.optimalControlInput();
   x_rate_ = cont_.A * mpc_.current_state + cont_.B * u;
   x_next_ = mpc_.discrete_dynamics[0].A * mpc_.current_state + mpc_.discrete_dynamics[0].B * u;
+
+  return true;
 }
 
 void GroundForceController::initializeMPC()

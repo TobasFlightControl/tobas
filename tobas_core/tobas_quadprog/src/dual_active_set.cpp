@@ -20,7 +20,7 @@ DualActiveSetSolver::DualActiveSetSolver() : super()
 {
 }
 
-VectorXd DualActiveSetSolver::solve()
+bool DualActiveSetSolver::solve()
 {
   checkProblemValidity();
 
@@ -62,7 +62,10 @@ VectorXd DualActiveSetSolver::solve()
   // Decompose the matrix P in the form L L^T
   const LLT<MatrixXd> llt(scaled.P);
   if (llt.info() == NumericalIssue)
-    throw runtime_error("Cholesky decomposition failed.");
+  {
+    error_msg_ = "Cholesky decomposition failed.";
+    return false;
+  }
 
 #ifdef TRACE_SOLVER
   cout << "LL^T:\n" << llt.matrixLLT() << endl;
@@ -118,7 +121,10 @@ VectorXd DualActiveSetSolver::solve()
     A_(i) = -i - 1;
 
     if (!addConstraint())
-      throw runtime_error("Constraints are linearly dependent.");
+    {
+      error_msg_ = "Constraints are linearly dependent.";
+      return false;
+    }
   }
 
   // Set iai = K \ A
@@ -155,7 +161,8 @@ VectorXd DualActiveSetSolver::solve()
         if (fabs(psi) <= m_ * EPS * c_ * TOL_FACTOR)
         {
           // Numerically there are not infeasibilities anymore
-          return x_.cwiseProduct(x_scale);
+          x_opt_ = x_.cwiseProduct(x_scale);
+          return true;
         }
 
         // Save old values for u, A, and x
@@ -178,7 +185,8 @@ VectorXd DualActiveSetSolver::solve()
         }
         if (ss_ >= 0.)
         {
-          return x_.cwiseProduct(x_scale);
+          x_opt_ = x_.cwiseProduct(x_scale);
+          return true;
         }
 
         // Set np = n(ip)
@@ -253,7 +261,10 @@ VectorXd DualActiveSetSolver::solve()
 
         // case (i): no step in primal or dual space
         if (t >= INF)
-          throw runtime_error("QPP is infeasible.");
+        {
+          error_msg_ = "QPP is infeasible.";
+          return false;
+        }
 
         // case (ii): step in dual space
         if (t2 >= INF)
@@ -448,26 +459,20 @@ void DualActiveSetSolver::deleteConstraint(const Index& l)
   cout << "Delete constraint " << l << " " << iq_;
 #endif
 
-  Index qq = 0;  // Just to prevent warnings from smart compilers
-  bool found = false;
+  Index qq = 0;  // Initialize qq just to prevent warnings from smart compilers
+  [[maybe_unused]] bool found = false;
 
   // Find the index qq for active constraint l to be removed
   for (Index i = p_; i < iq_; ++i)
   {
-    if (A_(i) == static_cast<int>(l))
+    if (A_(i) == l)
     {
       qq = i;
       found = true;
       break;
     }
   }
-
-  if (!found)
-  {
-    ostringstream os;
-    os << "Attempt to delete non existing constraint, constraint: " << l;
-    throw invalid_argument(os.str());
-  }
+  assert(found);
 
   // Remove the constraint from the active set and the duals
   A_.block(qq, 0, iq_ - 1 - qq, 1) = A_.block(qq + 1, 0, iq_ - 1 - qq, 1);

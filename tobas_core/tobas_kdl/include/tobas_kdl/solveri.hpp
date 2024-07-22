@@ -28,9 +28,10 @@ public:
     E_MAX_ITERATIONS_EXCEEDED = -5,  // Maximum number of iterations exceeded
     E_OUT_OF_RANGE = -6,             // Requested index out of range
     E_NOT_IMPLEMENTED = -7,          // Not yet implemented
-    E_SVD_FAILED = -8,               // Internal svd calculation failed
-    E_NOT_FOUND = -9,                // Something is not found
-    E_NEGATIVE_DELTA_TIME = -10,     // Negative delta time
+    E_SVD_FAILED = -8,               // Internal SVD calculation failed
+    E_QP_FAILED = -9,                // Internal QP calculation failed
+    E_NOT_FOUND = -10,               // Something is not found
+    E_NEGATIVE_DELTA_TIME = -11,     // Negative delta time
     E_UNKNOWN = -99,                 // Unknown error
   };
 
@@ -45,8 +46,8 @@ public:
   inline const std::string& errorMessage() const;
 
 protected:
-  int error_code_ = E_NOERROR;          // Latest error code
-  std::string error_msg_ = "No error";  // Latest error string
+  int error_code_ = E_NOERROR;  // Latest error code
+  std::string error_msg_;       // Latest error string
 
   int copyError(const SolverI& arg);
   int setDefaultError(const int& error_code);

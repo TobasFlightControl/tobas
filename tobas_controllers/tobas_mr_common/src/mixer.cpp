@@ -106,7 +106,10 @@ VectorXd Mixer::solve(
   qp_.problem.b.head(z_rotors_.count()) = max_dthrusts;
   qp_.problem.b.tail(z_rotors_.count()) = -min_dthrusts;
 
-  const VectorXd dx = qp_.solve();
+  if (!qp_.solve())
+    throw runtime_error("QP failed: " + qp_.errorMessage());
+
+  const auto& dx = qp_.solution();
   const auto dthrust = dx.tail(z_rotors_.count());
   return last_thrusts_ = tar_thrusts + dthrust;
 }

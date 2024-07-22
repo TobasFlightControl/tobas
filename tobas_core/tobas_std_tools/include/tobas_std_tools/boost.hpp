@@ -55,7 +55,7 @@ inline std::vector<T> toVector(const boost::array<T, N>& arr)
 template <typename T, size_t N, typename Lambda>
 inline bool allOf(const boost::array<T, N>& arr, const Lambda& lambda)
 {
-  return all_of(arr.begin(), arr.end(), lambda);
+  return std::all_of(arr.begin(), arr.end(), lambda);
 }
 
 /* 配列全体の型変換． */

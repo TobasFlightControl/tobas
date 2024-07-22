@@ -122,11 +122,12 @@ VectorXd OrientationController::solve(
 
   // MPCを解く
   // stopwatch_.start();
-  mpc_.solve();
+  if (!mpc_.solve())
+    throw runtime_error("Failed to solve MPC: " + mpc_.errorMessage());
   // stopwatch_.stop();
 
   // MPCの解
-  const VectorXd& thrusts_des = mpc_.optimalControlInput();
+  const auto& thrusts_des = mpc_.optimalControlInput();
   const VectorXd xd = cont_.dynamics(mpc_.current_state, thrusts_des);
   const Vector3d dgyro_mpc = xd.segment<3>(kGyroIdx);
 
