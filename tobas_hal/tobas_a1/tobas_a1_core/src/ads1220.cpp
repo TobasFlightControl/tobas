@@ -46,7 +46,8 @@ bool ADS1220::readCurrent(double& data)
   // TODO: マルチプレクサを切り替えてリスタートし，DRDYを割り込みフラグとしてデータを読み取る
   // ポーリングの遅延を避けるためにContinuousモードにする必要がある
 
-  throw runtime_error("Not implemented.");
+  cerr << "Not implemented." << endl;
+  return false;
 }
 
 bool ADS1220::reset()
