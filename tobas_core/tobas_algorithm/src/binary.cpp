@@ -6,7 +6,7 @@ using namespace std;
 
 namespace algo
 {
-float decodeBinary32(uint32_t bin)
+float decodeR32(uint32_t bin)
 {
   // exponentは符号付き整数型でなければならない
   // exponentが符号なしだと続く(exponent - 150)がオーバーフローしてしまう

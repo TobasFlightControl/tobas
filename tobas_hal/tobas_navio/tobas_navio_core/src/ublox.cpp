@@ -6,7 +6,6 @@
 #include <tobas_algorithm/binary.hpp>
 
 #include "../include/tobas_navio_core/ublox.hpp"
-#include "../include/tobas_navio_core/util.hpp"
 
 using namespace std;
 using namespace chrono;
@@ -99,7 +98,7 @@ void Ublox::configureDynamicsModel(dynamics_model dyn_model)
 {
   CfgNav5 cfg_nav5;
 
-  cfg_nav5.mask = 1;  // dynModelのみ更新
+  cfg_nav5.mask = 0b10;  // dynModelのみ更新
   cfg_nav5.dynModel = dyn_model;
 
   configure(ID_CFG_NAV5, &cfg_nav5, sizeof(CfgNav5));
@@ -290,18 +289,18 @@ void Ublox::decode(NavCovPayload& data) const
 
   const auto p = scanner_.getPayload();
 
-  data.posCovNN = algo::decodeBinary32((*(p + 19) << 24) | (*(p + 18) << 16) | (*(p + 17) << 8) | (*(p + 16)));
-  data.posCovNE = algo::decodeBinary32((*(p + 23) << 24) | (*(p + 22) << 16) | (*(p + 21) << 8) | (*(p + 20)));
-  data.posCovND = algo::decodeBinary32((*(p + 27) << 24) | (*(p + 26) << 16) | (*(p + 25) << 8) | (*(p + 24)));
-  data.posCovEE = algo::decodeBinary32((*(p + 31) << 24) | (*(p + 30) << 16) | (*(p + 29) << 8) | (*(p + 28)));
-  data.posCovED = algo::decodeBinary32((*(p + 35) << 24) | (*(p + 34) << 16) | (*(p + 33) << 8) | (*(p + 32)));
-  data.posCovDD = algo::decodeBinary32((*(p + 39) << 24) | (*(p + 38) << 16) | (*(p + 37) << 8) | (*(p + 36)));
-  data.velCovNN = algo::decodeBinary32((*(p + 43) << 24) | (*(p + 42) << 16) | (*(p + 41) << 8) | (*(p + 40)));
-  data.velCovNE = algo::decodeBinary32((*(p + 47) << 24) | (*(p + 46) << 16) | (*(p + 45) << 8) | (*(p + 44)));
-  data.velCovND = algo::decodeBinary32((*(p + 51) << 24) | (*(p + 50) << 16) | (*(p + 49) << 8) | (*(p + 48)));
-  data.velCovEE = algo::decodeBinary32((*(p + 55) << 24) | (*(p + 54) << 16) | (*(p + 53) << 8) | (*(p + 52)));
-  data.velCovED = algo::decodeBinary32((*(p + 59) << 24) | (*(p + 58) << 16) | (*(p + 57) << 8) | (*(p + 56)));
-  data.velCovDD = algo::decodeBinary32((*(p + 63) << 24) | (*(p + 62) << 16) | (*(p + 61) << 8) | (*(p + 60)));
+  data.posCovNN = algo::decodeR32((*(p + 19) << 24) | (*(p + 18) << 16) | (*(p + 17) << 8) | (*(p + 16)));
+  data.posCovNE = algo::decodeR32((*(p + 23) << 24) | (*(p + 22) << 16) | (*(p + 21) << 8) | (*(p + 20)));
+  data.posCovND = algo::decodeR32((*(p + 27) << 24) | (*(p + 26) << 16) | (*(p + 25) << 8) | (*(p + 24)));
+  data.posCovEE = algo::decodeR32((*(p + 31) << 24) | (*(p + 30) << 16) | (*(p + 29) << 8) | (*(p + 28)));
+  data.posCovED = algo::decodeR32((*(p + 35) << 24) | (*(p + 34) << 16) | (*(p + 33) << 8) | (*(p + 32)));
+  data.posCovDD = algo::decodeR32((*(p + 39) << 24) | (*(p + 38) << 16) | (*(p + 37) << 8) | (*(p + 36)));
+  data.velCovNN = algo::decodeR32((*(p + 43) << 24) | (*(p + 42) << 16) | (*(p + 41) << 8) | (*(p + 40)));
+  data.velCovNE = algo::decodeR32((*(p + 47) << 24) | (*(p + 46) << 16) | (*(p + 45) << 8) | (*(p + 44)));
+  data.velCovND = algo::decodeR32((*(p + 51) << 24) | (*(p + 50) << 16) | (*(p + 49) << 8) | (*(p + 48)));
+  data.velCovEE = algo::decodeR32((*(p + 55) << 24) | (*(p + 54) << 16) | (*(p + 53) << 8) | (*(p + 52)));
+  data.velCovED = algo::decodeR32((*(p + 59) << 24) | (*(p + 58) << 16) | (*(p + 57) << 8) | (*(p + 56)));
+  data.velCovDD = algo::decodeR32((*(p + 63) << 24) | (*(p + 62) << 16) | (*(p + 61) << 8) | (*(p + 60)));
 }
 
 void Ublox::decode(AckNakPayload& data) const
