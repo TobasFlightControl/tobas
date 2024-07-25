@@ -125,30 +125,6 @@ struct NAV_HPPOSLLH : public Payload
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
-
-  /* Compute the longitude [deg] */
-  inline double longitude() const
-  {
-    return lon + lonHp;
-  }
-
-  /* Compute the latitude [deg] */
-  inline double latitude() const
-  {
-    return lat + latHp;
-  }
-
-  /* Compute the height above ellipsoid [m] */
-  inline double heightEllipsoid() const
-  {
-    return (height + heightHp) * 1e-3;
-  }
-
-  /* Compute the height above mean sea level [m] */
-  inline double heightMSL() const
-  {
-    return (hMSL + hMSLHp) * 1e-3;
-  }
 };
 
 struct NAV_ODO : public Payload
