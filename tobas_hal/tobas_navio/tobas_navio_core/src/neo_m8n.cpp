@@ -5,18 +5,18 @@
 
 #include <tobas_algorithm/binary.hpp>
 
-#include "../include/tobas_navio_core/ublox.hpp"
+#include "../include/tobas_navio_core/neo_m8n.hpp"
 
 using namespace std;
 using namespace chrono;
 
 namespace navio
 {
-Ublox::Ublox() : rate_(chrono::microseconds(kSpiInterval))
+NEOM8N::NEOM8N() : rate_(chrono::microseconds(kSpiInterval))
 {
 }
 
-bool Ublox::initialize()
+bool NEOM8N::initialize()
 {
   if (!spi_dev_.initialize(kDevice, kSpiClockFreq, kUbxBufferLength))
     return false;
@@ -24,7 +24,7 @@ bool Ublox::initialize()
   return true;
 }
 
-void Ublox::clearConfigurations()
+void NEOM8N::clearConfigurations()
 {
   CfgCfg cfg_cfg;
 
@@ -35,7 +35,7 @@ void Ublox::clearConfigurations()
   configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
 }
 
-void Ublox::saveConfigurations()
+void NEOM8N::saveConfigurations()
 {
   CfgCfg cfg_cfg;
 
@@ -46,7 +46,7 @@ void Ublox::saveConfigurations()
   configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
 }
 
-void Ublox::loadConfigurations()
+void NEOM8N::loadConfigurations()
 {
   CfgCfg cfg_cfg;
 
@@ -57,7 +57,7 @@ void Ublox::loadConfigurations()
   configure(ID_CFG_CFG, &cfg_cfg, sizeof(CfgCfg));
 }
 
-void Ublox::enableMsg(message_t msg, bool enable)
+void NEOM8N::enableMsg(message_t msg, bool enable)
 {
   CfgMsg cfg_msg;
 
@@ -68,7 +68,7 @@ void Ublox::enableMsg(message_t msg, bool enable)
   configure(ID_CFG_MSG, &cfg_msg, sizeof(CfgMsg));
 }
 
-void Ublox::enableAllMsgs(bool enable)
+void NEOM8N::enableAllMsgs(bool enable)
 {
   enableMsg(NAV_POSLLH, enable);
   enableMsg(NAV_STATUS, enable);
@@ -83,7 +83,7 @@ void Ublox::enableAllMsgs(bool enable)
   enableMsg(MON_HW2, enable);
 }
 
-void Ublox::configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate, uint16_t time_ref)
+void NEOM8N::configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate, uint16_t time_ref)
 {
   CfgRate cfg_rate;
 
@@ -94,7 +94,7 @@ void Ublox::configureSolutionRate(uint16_t meas_rate, uint16_t nav_rate, uint16_
   configure(ID_CFG_RATE, &cfg_rate, sizeof(CfgRate));
 }
 
-void Ublox::configureDynamicsModel(dynamics_model dyn_model)
+void NEOM8N::configureDynamicsModel(dynamics_model dyn_model)
 {
   CfgNav5 cfg_nav5;
 
@@ -104,7 +104,7 @@ void Ublox::configureDynamicsModel(dynamics_model dyn_model)
   configure(ID_CFG_NAV5, &cfg_nav5, sizeof(CfgNav5));
 }
 
-void Ublox::configurePowerMode(power_setup_value mode, uint16_t period, uint16_t on_time)
+void NEOM8N::configurePowerMode(power_setup_value mode, uint16_t period, uint16_t on_time)
 {
   CfgPms cfg_pms;
 
@@ -115,41 +115,41 @@ void Ublox::configurePowerMode(power_setup_value mode, uint16_t period, uint16_t
   configure(ID_CFG_PMS, &cfg_pms, sizeof(CfgPms));
 }
 
-void Ublox::configureGnss_GPS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
+void NEOM8N::configureGnss_GPS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
 {
   assert(max_track_ch >= kMinMaxTrkChForMajorGnss);
   configureGnss(GPS, res_track_ch, max_track_ch, enable);
 }
 
-void Ublox::configureGnss_SBAS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
+void NEOM8N::configureGnss_SBAS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
 {
   configureGnss(SBAS, res_track_ch, max_track_ch, enable);
 }
 
-void Ublox::configureGnss_Galileo(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
+void NEOM8N::configureGnss_Galileo(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
 {
   assert(max_track_ch >= kMinMaxTrkChForMajorGnss);
   configureGnss(GALILEO, res_track_ch, max_track_ch, enable);
 }
 
-void Ublox::configureGnss_BeiDou(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
+void NEOM8N::configureGnss_BeiDou(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
 {
   assert(max_track_ch >= kMinMaxTrkChForMajorGnss);
   configureGnss(BEIDOU, res_track_ch, max_track_ch, enable);
 }
 
-void Ublox::configureGnss_QZSS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
+void NEOM8N::configureGnss_QZSS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
 {
   configureGnss(QZSS, res_track_ch, max_track_ch, enable);
 }
 
-void Ublox::configureGnss_GLONASS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
+void NEOM8N::configureGnss_GLONASS(bool enable, uint8_t res_track_ch, uint8_t max_track_ch)
 {
   assert(max_track_ch >= kMinMaxTrkChForMajorGnss);
   configureGnss(GLONASS, res_track_ch, max_track_ch, enable);
 }
 
-uint16_t Ublox::update()
+uint16_t NEOM8N::update()
 {
   int status = -1;
   spi_dev_.tx[0] = 0;
@@ -179,9 +179,9 @@ uint16_t Ublox::update()
   return latest_msg_ = (*scanner_.getClass()) << 8 | (*scanner_.getId());
 }
 
-void Ublox::decode(NavPosllhPayload& data) const
+void NEOM8N::decode(NavPosllhPayload& data) const
 {
-  if (latest_msg_ != Ublox::NAV_POSLLH)
+  if (latest_msg_ != NEOM8N::NAV_POSLLH)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -191,9 +191,9 @@ void Ublox::decode(NavPosllhPayload& data) const
   data.hMSL = int((*(p + 19) << 24) | (*(p + 18) << 16) | (*(p + 17) << 8) | (*(p + 16))) * 1e-3;
 }
 
-void Ublox::decode(NavStatusPayload& data) const
+void NEOM8N::decode(NavStatusPayload& data) const
 {
-  if (latest_msg_ != Ublox::NAV_STATUS)
+  if (latest_msg_ != NEOM8N::NAV_STATUS)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -204,14 +204,14 @@ void Ublox::decode(NavStatusPayload& data) const
   data.gpsFixOk = (flags >> 0) & 1;
 }
 
-void Ublox::decode(NavDopPayload&) const
+void NEOM8N::decode(NavDopPayload&) const
 {
   throw;  // TODO
 }
 
-void Ublox::decode(NavPvtPayload& data) const
+void NEOM8N::decode(NavPvtPayload& data) const
 {
-  if (latest_msg_ != Ublox::NAV_PVT)
+  if (latest_msg_ != NEOM8N::NAV_PVT)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -245,9 +245,9 @@ void Ublox::decode(NavPvtPayload& data) const
   data.velD = int((*(p + 59) << 24) | (*(p + 58) << 16) | (*(p + 57) << 8) | (*(p + 56))) * 1e-3;
 }
 
-void Ublox::decode(NavVelnedPayload& data) const
+void NEOM8N::decode(NavVelnedPayload& data) const
 {
-  if (latest_msg_ != Ublox::NAV_VELNED)
+  if (latest_msg_ != NEOM8N::NAV_VELNED)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -257,14 +257,14 @@ void Ublox::decode(NavVelnedPayload& data) const
   data.velD = int((*(p + 15) << 24) | (*(p + 14) << 16) | (*(p + 13) << 8) | (*(p + 12))) * 1e-2;
 }
 
-void Ublox::decode(NavTimegpsPayload&) const
+void NEOM8N::decode(NavTimegpsPayload&) const
 {
   throw;  // TODO
 }
 
-void Ublox::decode(NavTimeutcPayload& data) const
+void NEOM8N::decode(NavTimeutcPayload& data) const
 {
-  if (latest_msg_ != Ublox::NAV_TIMEUTC)
+  if (latest_msg_ != NEOM8N::NAV_TIMEUTC)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -282,9 +282,9 @@ void Ublox::decode(NavTimeutcPayload& data) const
   data.validUTC = (valid >> 2) & 1;
 }
 
-void Ublox::decode(NavCovPayload& data) const
+void NEOM8N::decode(NavCovPayload& data) const
 {
-  if (latest_msg_ != Ublox::NAV_COV)
+  if (latest_msg_ != NEOM8N::NAV_COV)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -303,9 +303,9 @@ void Ublox::decode(NavCovPayload& data) const
   data.velCovDD = algo::decodeR32((*(p + 63) << 24) | (*(p + 62) << 16) | (*(p + 61) << 8) | (*(p + 60)));
 }
 
-void Ublox::decode(AckNakPayload& data) const
+void NEOM8N::decode(AckNakPayload& data) const
 {
-  if (latest_msg_ != Ublox::ACK_NAK)
+  if (latest_msg_ != NEOM8N::ACK_NAK)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -314,9 +314,9 @@ void Ublox::decode(AckNakPayload& data) const
   data.msgID = uint8_t(*(p + 1));
 }
 
-void Ublox::decode(AckAckPayload& data) const
+void NEOM8N::decode(AckAckPayload& data) const
 {
-  if (latest_msg_ != Ublox::ACK_ACK)
+  if (latest_msg_ != NEOM8N::ACK_ACK)
     throw runtime_error("Message type mismatch.");
 
   const auto p = scanner_.getPayload();
@@ -325,17 +325,17 @@ void Ublox::decode(AckAckPayload& data) const
   data.msgID = uint8_t(*(p + 1));
 }
 
-void Ublox::decode(MonHwPayload&) const
+void NEOM8N::decode(MonHwPayload&) const
 {
   throw;  // TODO
 }
 
-void Ublox::decode(MonHw2Payload&) const
+void NEOM8N::decode(MonHw2Payload&) const
 {
   throw;  // TODO
 }
 
-void Ublox::sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size)
+void NEOM8N::sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size)
 {
   UbxHeader header;
   header.sync1 = kUbxSync1;
@@ -354,7 +354,7 @@ void Ublox::sendMessage(uint8_t cls, uint8_t id, void* msg, uint16_t size)
     throw runtime_error("Failed to send SPI message.");
 }
 
-void Ublox::waitForAcknowledge(uint8_t cls, uint8_t id)
+void NEOM8N::waitForAcknowledge(uint8_t cls, uint8_t id)
 {
   AckAckPayload ack;
   AckNakPayload nak;
@@ -368,14 +368,14 @@ void Ublox::waitForAcknowledge(uint8_t cls, uint8_t id)
     const auto msg = update();
     switch (msg)
     {
-      case Ublox::ACK_ACK:
+      case NEOM8N::ACK_ACK:
         decode(ack);
         if (ack.clsID == cls && ack.msgID == id)
           return;
         else
           throw runtime_error("An acknowledment message for an unspecified message is received.");
         break;
-      case Ublox::ACK_NAK:
+      case NEOM8N::ACK_NAK:
         decode(nak);
         if (nak.clsID == cls && nak.msgID == id)
           throw runtime_error("Configuration is rejected: (class, id) = (" + cls_str + ", " + id_str + ")");
@@ -390,13 +390,13 @@ void Ublox::waitForAcknowledge(uint8_t cls, uint8_t id)
   throw runtime_error("Acknowledment message not received: (class, id) = (" + cls_str + ", " + id_str + ")");
 }
 
-void Ublox::configure(uint8_t cfg_id, void* msg, uint16_t size)
+void NEOM8N::configure(uint8_t cfg_id, void* msg, uint16_t size)
 {
   sendMessage(CLASS_CFG, cfg_id, msg, size);
   waitForAcknowledge(CLASS_CFG, cfg_id);
 }
 
-void Ublox::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable)
+void NEOM8N::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_track_ch, bool enable)
 {
   assert(max_track_ch >= res_track_ch);
 
@@ -412,7 +412,7 @@ void Ublox::configureGnss(uint8_t gnss_id, uint8_t res_track_ch, uint8_t max_tra
   configure(ID_CFG_GNSS, &cfg_gnss, sizeof(CfgGnss));
 }
 
-void Ublox::verifyMessage()
+void NEOM8N::verifyMessage()
 {
   // Sync chars
   if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2)
@@ -429,7 +429,7 @@ void Ublox::verifyMessage()
     throw runtime_error("Checksum failed.");
 }
 
-Ublox::CheckSum Ublox::computeChecksum(uint8_t* message, size_t checksum_pos)
+NEOM8N::CheckSum NEOM8N::computeChecksum(uint8_t* message, size_t checksum_pos)
 {
   CheckSum checksum;
   checksum.CK_A = checksum.CK_B = 0;
@@ -443,7 +443,7 @@ Ublox::CheckSum Ublox::computeChecksum(uint8_t* message, size_t checksum_pos)
   return checksum;
 }
 
-int Ublox::spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset)
+int NEOM8N::spliceMemory(uint8_t* dest, const void* const src, size_t size, int dest_offset)
 {
   memmove(dest + dest_offset, src, size);
   return dest_offset + size;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_hal_core/base_sensor_node.hpp>
-#include <tobas_navio_core/ublox.hpp>
+#include <tobas_navio_core/neo_m8n.hpp>
 
 namespace tobas_navio_ros
 {
@@ -18,7 +18,7 @@ public:
   explicit GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
 
 private:
-  navio::Ublox gps_;
+  navio::NEOM8N gps_;
   navio::NavPvtPayload pvt_;
   navio::NavCovPayload cov_;
   navio::NavTimeutcPayload timeutc_;

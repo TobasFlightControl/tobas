@@ -38,12 +38,12 @@ void GpsHandler::configureGnssReceiver()
   gps_.loadConfigurations();
 
   // gps_.enableAllMsgs(false);
-  gps_.enableMsg(navio::Ublox::NAV_PVT, true);
-  gps_.enableMsg(navio::Ublox::NAV_COV, true);
+  gps_.enableMsg(navio::NEOM8N::NAV_PVT, true);
+  gps_.enableMsg(navio::NEOM8N::NAV_COV, true);
 
   gps_.configureSolutionRate(kMeasurementRate);
-  gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G);
-  gps_.configurePowerMode(navio::Ublox::FULL_POWER);
+  gps_.configureDynamicsModel(navio::NEOM8N::AIRBORNE_2G);
+  gps_.configurePowerMode(navio::NEOM8N::FULL_POWER);
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
@@ -62,7 +62,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
 
   switch (msg)
   {
-    case navio::Ublox::NAV_PVT:
+    case navio::NEOM8N::NAV_PVT:
     {
       if (!cov_received_)
         break;
@@ -109,7 +109,7 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
 
       break;
     }
-    case navio::Ublox::NAV_COV:
+    case navio::NEOM8N::NAV_COV:
     {
       gps_.decode(cov_);
 

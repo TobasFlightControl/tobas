@@ -27,11 +27,11 @@ static constexpr double kWaitForGnssAck = 3.;  // [s]
 static constexpr size_t kSpiInterval = 100;
 
 /**
- * @brief Ublox handler.
+ * @brief u-blox NEOM8N handler.
  * datasheet:
  * https://content.u-blox.com/sites/default/files/products/documents/u-blox8-M8_ReceiverDescrProtSpec_UBX-13003221.pdf
  */
-class Ublox
+class NEOM8N
 {
 private:
   enum ubx_protocol_bytes : uint8_t
@@ -134,7 +134,7 @@ public:
     GLONASS = 6,
   };
 
-  explicit Ublox();
+  explicit NEOM8N();
 
   bool initialize();
 

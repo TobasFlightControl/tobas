@@ -2,7 +2,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <tobas_navio_core/ublox.hpp>
+#include <tobas_navio_core/neo_m8n.hpp>
 #include <tobas_navio_core/util.hpp>
 
 #define MEASUREMENT_RATE 100  // [ms]
@@ -16,8 +16,8 @@ int main()
   if (checkAPM())
     return 1;
 
-  // Ublox class instance
-  Ublox gps;
+  // NEOM8N class instance
+  NEOM8N gps;
 
   // Payloads
   NavPosllhPayload posllh;
@@ -27,11 +27,11 @@ int main()
   NavCovPayload cov;
 
   // Set message rate
-  gps.enableMsg(Ublox::NAV_POSLLH, false);
-  gps.enableMsg(Ublox::NAV_STATUS, true);
-  gps.enableMsg(Ublox::NAV_PVT, true);
-  gps.enableMsg(Ublox::NAV_VELNED, false);
-  gps.enableMsg(Ublox::NAV_COV, true);
+  gps.enableMsg(NEOM8N::NAV_POSLLH, false);
+  gps.enableMsg(NEOM8N::NAV_STATUS, true);
+  gps.enableMsg(NEOM8N::NAV_PVT, true);
+  gps.enableMsg(NEOM8N::NAV_VELNED, false);
+  gps.enableMsg(NEOM8N::NAV_COV, true);
 
   // Navigation/measurement rate settings
   gps.configureSolutionRate(MEASUREMENT_RATE);
@@ -48,23 +48,23 @@ int main()
 
     switch (msg_id)
     {
-      case Ublox::NAV_POSLLH:
+      case NEOM8N::NAV_POSLLH:
         gps.decode(posllh);
         cout << "NAV_POSLLH(" << ++cnt_posllh << "):" << endl << posllh << endl;
         break;
-      case Ublox::NAV_STATUS:
+      case NEOM8N::NAV_STATUS:
         gps.decode(status);
         cout << "NAV_STATUS(" << ++cnt_status << "):" << endl << status << endl;
         break;
-      case Ublox::NAV_PVT:
+      case NEOM8N::NAV_PVT:
         gps.decode(pvt);
         cout << "NAV_PVT(" << ++cnt_pvt << "):" << endl << pvt << endl;
         break;
-      case Ublox::NAV_VELNED:
+      case NEOM8N::NAV_VELNED:
         gps.decode(velned);
         cout << "NAV_VELNED(" << ++cnt_velned << "):" << endl << velned << endl;
         break;
-      case Ublox::NAV_COV:
+      case NEOM8N::NAV_COV:
         gps.decode(cov);
         cout << "NAV_COV(" << ++cnt_cov << "):" << endl << cov << endl;
         break;
