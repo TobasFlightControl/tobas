@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <tobas_linux/uart_dev.hpp>
 
 namespace a1
@@ -26,8 +28,8 @@ public:
 
 private:
   linux::UARTdev uart_dev_;
-  uint8_t data_[kDataSize];
-  uint16_t periods_[kChannelSize];
+  std::array<uint8_t, kDataSize> data_;
+  std::array<uint16_t, kChannelSize> periods_;
 
   bool read();
   void decode();
@@ -35,7 +37,6 @@ private:
 
 inline const uint16_t& SBUS::getPeriod(uint8_t channel) const
 {
-  assert(channel < kChannelSize);
-  return periods_[channel];
+  return periods_.at(channel);
 }
 }  // namespace a1

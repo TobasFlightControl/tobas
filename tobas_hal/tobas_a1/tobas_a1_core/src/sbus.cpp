@@ -54,7 +54,7 @@ bool SBUS::read()
       return false;
 
   // Get 22 bytes
-  if (!uart_dev_.receive(data_, kDataSize))
+  if (!uart_dev_.receive(data_.data(), kDataSize))
     return false;
 
   // Skip flags
@@ -75,11 +75,11 @@ void SBUS::decode()
   // 繰り上がりが面倒なので，一旦データを1つのビット列に変換する．
   uint256_t data = 0;
   for (uint8_t idx = 0; idx < kDataSize; ++idx)
-    data |= (static_cast<uint256_t>(data_[idx]) << (kDataBits * idx));
+    data |= (static_cast<uint256_t>(data_.at(idx)) << (kDataBits * idx));
 
   // 11ビットずつ取り出す
   constexpr uint16_t mask = (1 << kChannelBits) - 1;
   for (uint8_t ch = 0; ch < kChannelSize; ++ch)
-    periods_[ch] = ((data >> (kChannelBits * ch)) & mask).convert_to<uint16_t>();
+    periods_.at(ch) = ((data >> (kChannelBits * ch)) & mask).convert_to<uint16_t>();
 }
 }  // namespace a1
