@@ -57,6 +57,7 @@ class ThrottlePublisherWidget(Widget):
 
     def _publish_current_values(self) -> None:
         throttles = ThrottleArray()
+        throttles.header.stamp = rospy.Time.now()
 
         for channel, commander in enumerate(self._commanders):
             throttles.throttles.append(Throttle(channel, commander.get_value()))
