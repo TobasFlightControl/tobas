@@ -32,7 +32,7 @@ private:
   ros::Subscriber velocities_sub_;
   ros::Subscriber efforts_sub_;
 
-  int initialize();
+  bool initialize();
 
   void jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities);
