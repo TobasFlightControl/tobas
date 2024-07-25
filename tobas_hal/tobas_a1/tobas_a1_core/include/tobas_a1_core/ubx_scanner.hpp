@@ -16,12 +16,12 @@ static constexpr size_t kUbxFixedLength = kUbxHeaderLength + kUbxChecksumLength;
 static constexpr uint8_t kUbxSync1 = 0xb5;
 static constexpr uint8_t kUbxSync2 = 0x62;
 
-static constexpr size_t kUbxBufferLength = 1024;
+static constexpr size_t kUbxBufferLength = 256;
 
 class UBXScanner
 {
 public:
-  enum State
+  enum state_t : uint8_t
   {
     Sync1,
     Sync2,
@@ -38,8 +38,9 @@ public:
   explicit UBXScanner();
 
   void reset();
-  int update(const uint8_t& data);
+  bool update(const uint8_t& data);
 
+  inline state_t state() const;
   inline size_t messageLength() const;
 
   inline const uint8_t* getSync1() const;
@@ -54,9 +55,14 @@ public:
 private:
   uint8_t buffer_[kUbxBufferLength];  // Buffer for UBX message
   size_t payload_length_;             // Length of current message payload
-  size_t position_;                   // Indicates current buffer offset
-  State state_;                       // Current scanner state
+  size_t pos_;                        // Indicates current buffer offset
+  state_t state_;                     // Current scanner state
 };
+
+inline UBXScanner::state_t UBXScanner::state() const
+{
+  return state_;
+}
 
 inline size_t UBXScanner::messageLength() const
 {
@@ -65,7 +71,7 @@ inline size_t UBXScanner::messageLength() const
 
 inline const uint8_t* UBXScanner::getSync1() const
 {
-  return buffer_ + position_ - messageLength();
+  return buffer_ + pos_ - messageLength();
 }
 
 inline const uint8_t* UBXScanner::getSync2() const

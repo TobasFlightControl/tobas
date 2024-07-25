@@ -42,13 +42,12 @@ bool ZEDF9P::initialize()
 
 bool ZEDF9P::update()
 {
-  int status = -1;
   spi_dev_.tx[0] = 0;
   scanner_.reset();
+  rate_.start();
 
   // メッセージを1つスキャン
-  rate_.start();
-  while (status != UBXScanner::Done)
+  while (scanner_.state() != UBXScanner::Done)
   {
     // From now on, we will send zeroes to the receiver, which it will ignore
     // However, we are simultaneously getting useful information from it
@@ -59,7 +58,8 @@ bool ZEDF9P::update()
 
     // Scanner checks the message structure with every byte received
     // ほとんど無意味な情報だが，スタックされていくためスリープせず全て読み出す必要がある
-    status = scanner_.update(spi_dev_.rx[0]);
+    if (!scanner_.update(spi_dev_.rx[0]))
+      return false;
 
     // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
     rate_.sleep();

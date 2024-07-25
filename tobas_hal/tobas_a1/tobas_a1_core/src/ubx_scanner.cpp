@@ -1,4 +1,4 @@
-#include <stdexcept>
+#include <iostream>
 
 #include "../include/tobas_a1_core/ubx_scanner.hpp"
 
@@ -13,14 +13,14 @@ UBXScanner::UBXScanner()
 
 void UBXScanner::reset()
 {
-  position_ = 0;
+  pos_ = 0;
   state_ = Sync1;
 }
 
-int UBXScanner::update(const uint8_t& data)
+bool UBXScanner::update(const uint8_t& data)
 {
   if (state_ != Done)
-    buffer_[position_++] = data;
+    buffer_[pos_++] = data;
 
   switch (state_)
   {
@@ -32,13 +32,18 @@ int UBXScanner::update(const uint8_t& data)
       break;
 
     case Sync2:
-      if (data == kUbxSync2)
-        state_ = Class;
-      else if (data == kUbxSync1)
-        state_ = Sync1;
-      else
-        reset();
-      break;
+      switch (data)
+      {
+        case kUbxSync1:
+          state_ = Sync1;
+          break;
+        case kUbxSync2:
+          state_ = Class;
+          break;
+        default:
+          reset();
+          break;
+      }
 
     case Class:
       state_ = ID;
@@ -56,12 +61,15 @@ int UBXScanner::update(const uint8_t& data)
     case Length2:
       payload_length_ += data << 8;
       if (messageLength() > kUbxBufferLength)
-        throw runtime_error("The size of payload is larger than that of UBX buffer.");
+      {
+        cerr << "The size of payload is larger than that of UBX buffer." << endl;
+        return false;
+      }
       state_ = Payload;
       break;
 
     case Payload:
-      if (position_ == kUbxHeaderLength + payload_length_)
+      if (pos_ == kUbxHeaderLength + payload_length_)
         state_ = CK_A;
       break;
 
@@ -80,6 +88,6 @@ int UBXScanner::update(const uint8_t& data)
       throw;
   }
 
-  return state_;
+  return true;
 }
 }  // namespace a1
