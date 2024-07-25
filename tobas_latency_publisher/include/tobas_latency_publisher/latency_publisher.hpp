@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/ThrottleArray.h>
 
 namespace tobas_latency_publisher
 {
@@ -20,8 +20,8 @@ public:
 
 private:
   ros::Publisher latency_pub_;
-  ros::Subscriber tar_rot_speeds_sub_;
+  ros::Subscriber throttles_sub_;
 
-  void targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
+  void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& msg);
 };
 }  // namespace tobas_latency_publisher
