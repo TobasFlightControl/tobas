@@ -68,7 +68,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
         break;
 
       gps_.decode(pvt_);
-      // cout << pvt_ << endl;
 
       // Create GPS message
       const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
@@ -92,7 +91,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->position_covariance(2, 2) = cov_.posCovDD;  // DD
 
       // Fill GPS velocity
-      gps_msg->header.stamp = event.current_real;
       gps_msg->ground_speed.x(pvt_.velN);                  // North velocity [m/s]
       gps_msg->ground_speed.y(-pvt_.velE);                 // West velocity [m/s]
       gps_msg->ground_speed.z(-pvt_.velD);                 // Up velocity [m/s]
@@ -105,12 +103,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->velocity_covariance(2, 0) = cov_.velCovND;  // DN
       gps_msg->velocity_covariance(2, 1) = cov_.velCovED;  // DE
       gps_msg->velocity_covariance(2, 2) = cov_.velCovDD;  // DD
-
-      // Fill the communication delay
-      const auto gps_tp =
-        tobas_std::timePointFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
-      const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
-      gps_msg->delay.fromNSec(chrono::duration_cast<chrono::nanoseconds>(cur_tp - gps_tp).count());
 
       // Publish GPS message
       gps_pub_.publish(gps_msg);
