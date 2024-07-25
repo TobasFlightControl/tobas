@@ -22,7 +22,7 @@ void ACK_ACK::decode(const uint8_t* p)
   msgID = algo::decodeU8(p + 1);
 }
 
-void NAV_CLOCK::decode(const uint8_t* p)
+void NAV_CLOCK::decode(const uint8_t*)
 {
   // TODO
 }
@@ -48,22 +48,22 @@ void NAV_COV::decode(const uint8_t* p)
   velCovDD = algo::decodeR32(p + 60);
 }
 
-void NAV_DOP::decode(const uint8_t* p)
+void NAV_DOP::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_EOE::decode(const uint8_t* p)
+void NAV_EOE::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_GEOFENCE::decode(const uint8_t* p)
+void NAV_GEOFENCE::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_HPPOSECEF::decode(const uint8_t* p)
+void NAV_HPPOSECEF::decode(const uint8_t*)
 {
   // TODO
 }
@@ -91,22 +91,22 @@ void NAV_HPPOSLLH::decode(const uint8_t* p)
   vAcc = algo::decodeU32(p + 32) * 0.1;
 }
 
-void NAV_ODO::decode(const uint8_t* p)
+void NAV_ODO::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_ORB::decode(const uint8_t* p)
+void NAV_ORB::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_PL::decode(const uint8_t* p)
+void NAV_PL::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_POSECEF::decode(const uint8_t* p)
+void NAV_POSECEF::decode(const uint8_t*)
 {
   // TODO
 }
@@ -144,7 +144,7 @@ void NAV_PVT::decode(const uint8_t* p)
   tAcc = algo::decodeU32(p + 12);
   nano = algo::decodeI32(p + 16);
 
-  fixType = static_cast<payload::NAV_PVT::fix_type_t>(algo::decodeU8(p + 20));
+  fixType = static_cast<fix_type_t>(algo::decodeU8(p + 20));
 
   const auto flags = algo::decodeU8(p + 21);
   gnssFixOk = (flags >> 0) & 1;
@@ -183,32 +183,32 @@ void NAV_PVT::decode(const uint8_t* p)
   magAcc = algo::decodeU16(p + 90) * 1e-2;
 }
 
-void NAV_RELPOSNED::decode(const uint8_t* p)
+void NAV_RELPOSNED::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_RESETODO::decode(const uint8_t* p)
+void NAV_RESETODO::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_SAT::decode(const uint8_t* p)
+void NAV_SAT::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_SBAS::decode(const uint8_t* p)
+void NAV_SBAS::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_SIG::decode(const uint8_t* p)
+void NAV_SIG::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_SLAS::decode(const uint8_t* p)
+void NAV_SLAS::decode(const uint8_t*)
 {
   // TODO
 }
@@ -216,7 +216,7 @@ void NAV_SLAS::decode(const uint8_t* p)
 void NAV_STATUS::decode(const uint8_t* p)
 {
   iTOW = algo::decodeU32(p + 0);
-  gpsFix = algo::decodeU8(p + 4);
+  gpsFix = static_cast<fix_type_t>(algo::decodeU8(p + 4));
 
   const auto flags = algo::decodeU8(p + 5);
   gpsFixOk = (flags >> 0) & 1;
@@ -236,47 +236,57 @@ void NAV_STATUS::decode(const uint8_t* p)
   msss = algo::decodeU32(p + 12);
 }
 
-void NAV_SVIN::decode(const uint8_t* p)
+void NAV_SVIN::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_TIMEBDS::decode(const uint8_t* p)
+void NAV_TIMEBDS::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_TIMEGAL::decode(const uint8_t* p)
+void NAV_TIMEGAL::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_TIMEGLO::decode(const uint8_t* p)
+void NAV_TIMEGLO::decode(const uint8_t*)
 {
   // TODO
 }
 
 void NAV_TIMEGPS::decode(const uint8_t* p)
 {
-  // TODO
+  iTOW = algo::decodeU32(p + 0);
+  fTOW = algo::decodeI32(p + 4);
+  week = algo::decodeI16(p + 8);
+  leapS = algo::decodeI8(p + 10);
+
+  const auto valid = algo::decodeU8(p + 11);
+  towValid = (valid >> 0) & 1;
+  weekValid = (valid >> 1) & 1;
+  leapSValid = (valid >> 2) & 1;
+
+  tAcc = algo::decodeU32(p + 12);
 }
 
-void NAV_TIMELS::decode(const uint8_t* p)
+void NAV_TIMELS::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_TIMEQZSS::decode(const uint8_t* p)
+void NAV_TIMEQZSS::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_TIMEUTC::decode(const uint8_t* p)
+void NAV_TIMEUTC::decode(const uint8_t*)
 {
   // TODO
 }
 
-void NAV_VELECEF::decode(const uint8_t* p)
+void NAV_VELECEF::decode(const uint8_t*)
 {
   // TODO
 }
@@ -311,7 +321,7 @@ void ACK_ACK::print(ostream& os) const
   os << "Message ID of the Acknowledged Message: " << (int)msgID << endl;
 }
 
-void NAV_CLOCK::print(ostream& os) const
+void NAV_CLOCK::print(ostream&) const
 {
   // TODO
 }
@@ -337,22 +347,22 @@ void NAV_COV::print(ostream& os) const
   os << "Velocity covariance matrix value v_DD: " << velCovDD << "[m^2/s^2]" << endl;
 }
 
-void NAV_DOP::print(ostream& os) const
+void NAV_DOP::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_EOE::print(ostream& os) const
+void NAV_EOE::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_GEOFENCE::print(ostream& os) const
+void NAV_GEOFENCE::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_HPPOSECEF::print(ostream& os) const
+void NAV_HPPOSECEF::print(ostream&) const
 {
   // TODO
 }
@@ -379,22 +389,22 @@ void NAV_HPPOSLLH::print(ostream& os) const
   os << "Vertical accuracy estimate: " << vAcc << "[mm]" << endl;
 }
 
-void NAV_ODO::print(ostream& os) const
+void NAV_ODO::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_ORB::print(ostream& os) const
+void NAV_ORB::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_PL::print(ostream& os) const
+void NAV_PL::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_POSECEF::print(ostream& os) const
+void NAV_POSECEF::print(ostream&) const
 {
   // TODO
 }
@@ -465,32 +475,32 @@ void NAV_PVT::print(ostream& os) const
   os << "Magnetic declination accuracy: " << magAcc << "[deg]" << endl;
 }
 
-void NAV_RELPOSNED::print(ostream& os) const
+void NAV_RELPOSNED::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_RESETODO::print(ostream& os) const
+void NAV_RESETODO::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_SAT::print(ostream& os) const
+void NAV_SAT::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_SBAS::print(ostream& os) const
+void NAV_SBAS::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_SIG::print(ostream& os) const
+void NAV_SIG::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_SLAS::print(ostream& os) const
+void NAV_SLAS::print(ostream&) const
 {
   // TODO
 }
@@ -515,47 +525,56 @@ void NAV_STATUS::print(ostream& os) const
   os << "Milliseconds since Startup / Reset: " << msss << "[ms]" << endl;
 }
 
-void NAV_SVIN::print(ostream& os) const
+void NAV_SVIN::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEBDS::print(ostream& os) const
+void NAV_TIMEBDS::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEGAL::print(ostream& os) const
+void NAV_TIMEGAL::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEGLO::print(ostream& os) const
+void NAV_TIMEGLO::print(ostream&) const
 {
   // TODO
 }
 
 void NAV_TIMEGPS::print(ostream& os) const
 {
-  // TODO
+  os << "GPS time of week of the navigation epoch: " << iTOW << "[ms]" << endl;
+  os << "Fractional part of iTOW: " << fTOW << "[ns]" << endl;
+  os << "GPS week number of the navigation epoch: " << week << endl;
+  os << "GPS leap seconds (GPS-UTC): " << (int)leapS << "[s]" << endl;
+
+  os << "Valid GPS time of week: " << towValid << endl;
+  os << "Valid GPS week number: " << weekValid << endl;
+  os << "Valid GPS leap seconds: " << leapSValid << endl;
+
+  os << "Time Accuracy Estimate: " << tAcc << "[ns]" << endl;
 }
 
-void NAV_TIMELS::print(ostream& os) const
+void NAV_TIMELS::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEQZSS::print(ostream& os) const
+void NAV_TIMEQZSS::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_TIMEUTC::print(ostream& os) const
+void NAV_TIMEUTC::print(ostream&) const
 {
   // TODO
 }
 
-void NAV_VELECEF::print(ostream& os) const
+void NAV_VELECEF::print(ostream&) const
 {
   // TODO
 }

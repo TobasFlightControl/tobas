@@ -27,12 +27,8 @@ private:
   static constexpr double kWaitForGnssAck = 1.;         // [s]
 
   // SPIで1バイト受け取る間隔 [us]
-  // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる
-  // 50usだと明らかに位置精度が悪くなり，100usだと大きく改善 (2024/5/16)
-  // 100usの場合はPVT (92バイト) を受け取るのに 0.1 x 92 = 9.2ms かかる．
-  // PX4はデフォルトで 38400bit/s のUARTだから，PVTの受信遅延は 92 / (38400 / 8) * 1000 ~ 19.2ms．
-  // どうせ衛生からの通信遅延が70msで固定で，レシーバとFCの通信遅延はボトルネックではないから，速度より精度を重視すべき．
-  static constexpr size_t kReqInterval = 100;
+  // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．
+  static constexpr size_t kReqInterval = 50;  // TODO: M8Nと同じく70usは必要？
 
 public:
   enum ubx_class_t : uint8_t
@@ -51,49 +47,49 @@ public:
 
   enum ubx_ack_id_t : uint8_t
   {
-    ACK = 0x01,
-    NAK = 0x00,
+    ACK_ACK = 0x01,
+    ACK_NAK = 0x00,
   };
 
   enum ubx_cfg_id_t : uint8_t
   {
-    VALDEL = 0x8C,
-    VALGET = 0x8B,
-    VALSET = 0x8A,
+    CFG_VALDEL = 0x8C,
+    CFG_VALGET = 0x8B,
+    CFG_VALSET = 0x8A,
   };
 
   enum ubx_nav_id_t : uint8_t
   {
-    CLOCK = 0x22,      // Clock solution
-    COV = 0x36,        // Covariance matrices
-    DOP = 0x04,        // Dilution of precision
-    EOE = 0x61,        // End of epoch
-    GEOFENCE = 0x39,   // Geofencing status
-    HPPOSECEF = 0x13,  // High precision position solution in ECEF
-    HPPOSLLH = 0x14,   // High precision geodetic position solution
-    ODO = 0x09,        // Odometer solution
-    ORB = 0x34,        // GNSS orbit database info
-    PL = 0x62,         // Protection level information
-    POSECEF = 0x01,    // Position solution in ECEF
-    POSLLH = 0x02,     // Geodetic position solution
-    PVT = 0x07,        // Navigation position velocity time solution
-    RELPOSNED = 0x3C,  // Relative positioning information in NED frame
-    RESETODO = 0x10,   // Reset odometer
-    SAT = 0x35,        // Satellite information
-    SBAS = 0x32,       // SBAS status data
-    SIG = 0x43,        // Signal information
-    SLAS = 0x42,       // QZSS L1S SLAS status data
-    STATUS = 0x03,     // Receiver navigation status
-    SVIN = 0x3B,       // Survey-in data
-    TIMEBDS = 0x24,    // BeiDou time solution
-    TIMEGAL = 0x25,    // Galileo time solution
-    TIMEGLO = 0x23,    // GLONASS time solution
-    TIMEGPS = 0x20,    // GPS time solution
-    TIMELS = 0x26,     // Leap second event information
-    TIMEQZSS = 0x27,   // QZSS time solution
-    TIMEUTC = 0x21,    // UTC time solution
-    VELECEF = 0x11,    // Velocity solution in ECEF
-    VELNED = 0x12,     // Velocity solution in NED frame
+    NAV_CLOCK = 0x22,      // Clock solution
+    NAV_COV = 0x36,        // Covariance matrices
+    NAV_DOP = 0x04,        // Dilution of precision
+    NAV_EOE = 0x61,        // End of epoch
+    NAV_GEOFENCE = 0x39,   // Geofencing status
+    NAV_HPPOSECEF = 0x13,  // High precision position solution in ECEF
+    NAV_HPPOSLLH = 0x14,   // High precision geodetic position solution
+    NAV_ODO = 0x09,        // Odometer solution
+    NAV_ORB = 0x34,        // GNSS orbit database info
+    NAV_PL = 0x62,         // Protection level information
+    NAV_POSECEF = 0x01,    // Position solution in ECEF
+    NAV_POSLLH = 0x02,     // Geodetic position solution
+    NAV_PVT = 0x07,        // Navigation position velocity time solution
+    NAV_RELPOSNED = 0x3C,  // Relative positioning information in NED frame
+    NAV_RESETODO = 0x10,   // Reset odometer
+    NAV_SAT = 0x35,        // Satellite information
+    NAV_SBAS = 0x32,       // SBAS status data
+    NAV_SIG = 0x43,        // Signal information
+    NAV_SLAS = 0x42,       // QZSS L1S SLAS status data
+    NAV_STATUS = 0x03,     // Receiver navigation status
+    NAV_SVIN = 0x3B,       // Survey-in data
+    NAV_TIMEBDS = 0x24,    // BeiDou time solution
+    NAV_TIMEGAL = 0x25,    // Galileo time solution
+    NAV_TIMEGLO = 0x23,    // GLONASS time solution
+    NAV_TIMEGPS = 0x20,    // GPS time solution
+    NAV_TIMELS = 0x26,     // Leap second event information
+    NAV_TIMEQZSS = 0x27,   // QZSS time solution
+    NAV_TIMEUTC = 0x21,    // UTC time solution
+    NAV_VELECEF = 0x11,    // Velocity solution in ECEF
+    NAV_VELNED = 0x12,     // Velocity solution in NED frame
   };
 
   /* Constants for CFG-NAVSPG-DYNMODEL */

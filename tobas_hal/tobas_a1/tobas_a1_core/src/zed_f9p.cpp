@@ -71,94 +71,94 @@ bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
     {
       switch (id)
       {
-        case CLOCK:
+        case NAV_CLOCK:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x69);  // CFG-MSGOUT-UBX_NAV_CLOCK_SPI
           break;
-        case COV:
+        case NAV_COV:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x87);  // CFG-MSGOUT-UBX_NAV_COV_SPI
           break;
-        case DOP:
+        case NAV_DOP:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x3C);  // CFG-MSGOUT-UBX_NAV_DOP_SPI
           break;
-        case EOE:
+        case NAV_EOE:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x63);  // CFG-MSGOUT-UBX_NAV_EOE_SPI
           break;
-        case GEOFENCE:
+        case NAV_GEOFENCE:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0xA5);  // CFG-MSGOUT-UBX_NAV_GEOFENCE_SPI
           break;
-        case HPPOSECEF:
+        case NAV_HPPOSECEF:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x32);  // CFG-MSGOUT-UBX_NAV_HPPOSECEF_SPI
           break;
-        case HPPOSLLH:
+        case NAV_HPPOSLLH:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x37);  // CFG-MSGOUT-UBX_NAV_HPPOSLLH_SPI
           break;
-        case ODO:
+        case NAV_ODO:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x82);  // CFG-MSGOUT-UBX_NAV_ODO_SPI
           break;
-        case ORB:
+        case NAV_ORB:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x14);  // CFG-MSGOUT-UBX_NAV_ORB_SPI
           break;
-        case PL:
+        case NAV_PL:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_PL_SPI
           break;
-        case POSECEF:
+        case NAV_POSECEF:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x28);  // CFG-MSGOUT-UBX_NAV_POSECEF_SPI
           break;
-        case POSLLH:
+        case NAV_POSLLH:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x2D);  // CFG-MSGOUT-UBX_NAV_POSLLH_SPI
           break;
-        case PVT:
+        case NAV_PVT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x0A);  // CFG-MSGOUT-UBX_NAV_PVT_SPI
           break;
-        case RELPOSNED:
+        case NAV_RELPOSNED:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x91);  // CFG-MSGOUT-UBX_NAV_RELPOSNED_SPI
           break;
-        case RESETODO:
+        case NAV_RESETODO:
           cerr << NOT_RECEIVABLE << endl;
-          return;
-        case SAT:
+          return false;
+        case NAV_SAT:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x19);  // CFG-MSGOUT-UBX_NAV_SAT_SPI
           break;
-        case SBAS:
+        case NAV_SBAS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x6E);  // CFG-MSGOUT-UBX_NAV_SBAS_SPI
           break;
-        case SIG:
+        case NAV_SIG:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x49);  // CFG-MSGOUT-UBX_NAV_SIG_SPI
           break;
-        case SLAS:
+        case NAV_SLAS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x3A);  // CFG-MSGOUT-UBX_NAV_SLAS_SPI
           break;
-        case STATUS:
+        case NAV_STATUS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x1E);  // CFG-MSGOUT-UBX_NAV_STATUS_SPI
           break;
-        case SVIN:
+        case NAV_SVIN:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x8C);  // CFG-MSGOUT-UBX_NAV_SVIN_SPI
           break;
-        case TIMEBDS:
+        case NAV_TIMEBDS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x55);  // CFG-MSGOUT-UBX_NAV_TIMEBDS_SPI
           break;
-        case TIMEGAL:
+        case NAV_TIMEGAL:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x5A);  // CFG-MSGOUT-UBX_NAV_TIMEGAL_SPI
           break;
-        case TIMEGLO:
+        case NAV_TIMEGLO:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x50);  // CFG-MSGOUT-UBX_NAV_TIMEGLO_SPI
           break;
-        case TIMEGPS:
+        case NAV_TIMEGPS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x4B);  // CFG-MSGOUT-UBX_NAV_TIMEGPS_SPI
           break;
-        case TIMELS:
+        case NAV_TIMELS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x64);  // CFG-MSGOUT-UBX_NAV_TIMELS_SPI
           break;
-        case TIMEQZSS:
+        case NAV_TIMEQZSS:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x8A);  // CFG-MSGOUT-UBX_NAV_TIMEQZSS_SPI
           break;
-        case TIMEUTC:
+        case NAV_TIMEUTC:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x5F);  // CFG-MSGOUT-UBX_NAV_TIMEUTC_SPI
           break;
-        case VELECEF:
+        case NAV_VELECEF:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x41);  // CFG-MSGOUT-UBX_NAV_VELECEF_SPI
           break;
-        case VELNED:
+        case NAV_VELNED:
           cfg.data[0].key = configKeyID(ONE_BYTE, CFG_MSGOUT, 0x46);  // CFG-MSGOUT-UBX_NAV_VELNED_SPI
           break;
         default:
@@ -176,7 +176,7 @@ bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
 
   cfg.data[0].value = enable ? 1 : 0;  // Enableならば最大レート
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::configureDynamicsModel(dynamics_model_t model)
@@ -187,7 +187,7 @@ bool ZEDF9P::configureDynamicsModel(dynamics_model_t model)
   cfg.data[0].key = configKeyID(ONE_BYTE, CFG_NAVSPG, 0x21);
   cfg.data[0].value = model;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
@@ -198,7 +198,7 @@ bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
   cfg.data[0].key = configKeyID(TWO_BYTES, CFG_RATE, 0x01);
   cfg.data[0].value = period_ms;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableGPS(bool enable)
@@ -217,7 +217,7 @@ bool ZEDF9P::enableGPS(bool enable)
   cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x03);
   cfg.data[2].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableSBAS(bool enable)
@@ -232,7 +232,7 @@ bool ZEDF9P::enableSBAS(bool enable)
   cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x05);
   cfg.data[1].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableGalileo(bool enable)
@@ -251,7 +251,7 @@ bool ZEDF9P::enableGalileo(bool enable)
   cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0A);
   cfg.data[2].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableBeiDou(bool enable)
@@ -270,7 +270,7 @@ bool ZEDF9P::enableBeiDou(bool enable)
   cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0E);
   cfg.data[2].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableQZSS(bool enable)
@@ -293,7 +293,7 @@ bool ZEDF9P::enableQZSS(bool enable)
   cfg.data[3].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x15);
   cfg.data[3].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableGLONASS(bool enable)
@@ -312,7 +312,7 @@ bool ZEDF9P::enableGLONASS(bool enable)
   cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1A);
   cfg.data[2].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableProtocol(cfg_protocol_t prot, bool enable)
@@ -327,7 +327,7 @@ bool ZEDF9P::enableProtocol(cfg_protocol_t prot, bool enable)
   cfg.data[1].key = configKeyID(ONE_BIT, CFG_SPIOUTPROT, prot);
   cfg.data[1].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::setAntennaLength(uint8_t length_m)
@@ -338,7 +338,7 @@ bool ZEDF9P::setAntennaLength(uint8_t length_m)
   cfg.data[0].key = configKeyID(TWO_BYTES, CFG_RATE, 0x01);
   cfg.data[0].value = length_m * kRG174CableDelay;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::enableUSB(bool enable)
@@ -349,7 +349,7 @@ bool ZEDF9P::enableUSB(bool enable)
   cfg.data[0].key = configKeyID(ONE_BIT, CFG_USB, 0x01);
   cfg.data[0].value = enable;
 
-  return configure(VALSET, &cfg, sizeof(cfg));
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
 bool ZEDF9P::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size)
@@ -393,7 +393,7 @@ bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
 
     switch (latestId())
     {
-      case ACK:
+      case ACK_ACK:
         ack.decode(payload());
 
         if (ack.clsID == cls && ack.msgID == id)
@@ -408,7 +408,7 @@ bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
 
         break;
 
-      case NAK:
+      case ACK_NAK:
         nak.decode(payload());
 
         if (nak.clsID == cls && nak.msgID == id)

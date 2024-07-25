@@ -44,6 +44,7 @@ bool UBXScanner::update(const uint8_t& data)
           reset();
           break;
       }
+      break;
 
     case Class:
       state_ = ID;

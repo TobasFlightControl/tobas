@@ -7,6 +7,17 @@ namespace a1
 {
 namespace payload
 {
+// GNSSfix Type
+enum fix_type_t : uint8_t
+{
+  NO_FIX = 0,
+  DEAD_RECKONING_ONLY = 1,
+  FIX_2D = 2,
+  FIX_3D = 3,
+  GPS_DEAD_RECKONING_COMBINED = 4,
+  TIME_ONLY_FIX = 5,
+};
+
 struct Payload
 {
   virtual void decode(const uint8_t* p) = 0;
@@ -195,22 +206,12 @@ struct NAV_PVT : public Payload
   uint32_t tAcc;  // Time accuracy estimate (UTC) [ns]
   int32_t nano;   // Fraction of second, range -1e9 .. 1e9 (UTC) [ns]
 
-  // GNSSfix Type
-  enum fix_type_t : uint8_t
-  {
-    NO_FIX = 0,
-    DEAD_RECKONING_ONLY = 1,
-    FIX_2D = 2,
-    FIX_3D = 3,
-    GNSS_DEAD_RECKONING_COMBINED = 4,
-    TIME_ONLY_FIX = 5,
-  } fixType;
+  fix_type_t fixType;  // GNSSfix Type
 
   // flags: Fix status flags
-  bool gnssFixOk;  // Valid fix (i.e within DOP & accuracy masks)
-  bool diffSoln;   // Differential corrections were applied
-  // Power Save Mode state
-  enum psm_state_t : uint8_t
+  bool gnssFixOk;             // Valid fix (i.e within DOP & accuracy masks)
+  bool diffSoln;              // Differential corrections were applied
+  enum psm_state_t : uint8_t  // Power Save Mode state
   {
     NOT_ACTIVE = 0,
     ENABLED = 1,
@@ -219,9 +220,8 @@ struct NAV_PVT : public Payload
     POWER_OPTIMIXED_TRACKING = 4,
     INACTIVE = 4,
   } psmState;
-  bool headVehValid;  // Heading of vehicle is valid
-                      // Carrier phase range solution status
-  enum carr_soln_t : uint8_t
+  bool headVehValid;          // Heading of vehicle is valid
+  enum carr_soln_t : uint8_t  // Carrier phase range solution status
   {
     NONE = 0,      // No carrier phase range solution
     FLOATING = 1,  // Carrier phase range solution with floating ambiguities
@@ -311,8 +311,8 @@ struct NAV_SLAS : public Payload
 
 struct NAV_STATUS : public Payload
 {
-  uint32_t iTOW;   // GPS time of week [ms]
-  uint8_t gpsFix;  // GPSfix Type, this value does not qualify a fix as valid and within the limits
+  uint32_t iTOW;      // GPS time of week [ms]
+  fix_type_t gpsFix;  // GPSfix Type, this value does not qualify a fix as valid and within the limits
 
   // flags: Navigation Status Flags
   bool gpsFixOk;  // Position and velocity valid and within DOP and ACC Masks
@@ -321,9 +321,8 @@ struct NAV_STATUS : public Payload
   bool towSet;    // Time of Week valid
 
   // fixStat: Fix Status Information
-  bool diffCorr;  // Differential corrections available
-  // Map matching status
-  enum map_matching_t : uint8_t
+  bool diffCorr;                 // Differential corrections available
+  enum map_matching_t : uint8_t  // Map matching status
   {
     // None
     NONE = 0b00,
@@ -338,16 +337,14 @@ struct NAV_STATUS : public Payload
   } mapMatching;
 
   // flags2: Further information about navigation output
-  // Power save mode state
-  enum psm_state_t : uint8_t
+  enum psm_state_t : uint8_t  // Power save mode state
   {
     ACQUISITION = 0,
     TRACKING = 1,
     POWER_OPTIMIXED_TRACKING = 2,
     INACTIVE = 3,
   } psmState;
-  // Spoofing detection state
-  enum spoof_det_state : uint8_t
+  enum spoof_det_state : uint8_t  // Spoofing detection state
   {
     UNKNOWN_OR_DEACTIVATED = 0,
     NO_SPOOFING_INDICATED = 1,
@@ -396,7 +393,17 @@ struct NAV_TIMEGLO : public Payload
 
 struct NAV_TIMEGPS : public Payload
 {
-  // TODO
+  uint32_t iTOW;  // GPS time of week of the navigation epoch [ms]
+  int32_t fTOW;   // Fractional part of iTOW [ns]
+  int16_t week;   // GPS week number of the navigation epoch
+  int8_t leapS;   // GPS leap seconds (GPS-UTC) [s]
+
+  // valid: Validity Flags
+  bool towValid;    // Valid GPS time of week
+  bool weekValid;   // Valid GPS week number
+  bool leapSValid;  // Valid GPS leap seconds
+
+  uint32_t tAcc;  // Time Accuracy Estimate [ns]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
