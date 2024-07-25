@@ -41,7 +41,7 @@ bool ADS1220::readVoltage(double& data)
   return true;
 }
 
-bool ADS1220::readCurrent(double& data)
+bool ADS1220::readCurrent(double&)
 {
   // TODO: マルチプレクサを切り替えてリスタートし，DRDYを割り込みフラグとしてデータを読み取る
   // ポーリングの遅延を避けるためにContinuousモードにする必要がある
