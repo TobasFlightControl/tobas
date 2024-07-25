@@ -1,4 +1,3 @@
-#include <tobas_std_tools/map.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_msgs/Throttle.h>
@@ -30,7 +29,7 @@ void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& t
   for (const auto& in : throttles->throttles)
   {
     // Check channel
-    if (!tobas_std::contains(throttle_pubs_, in.channel))
+    if (!throttle_pubs_.contains(in.channel))
     {
       TOBAS_ERROR("The drone does not have rotor channel ", in.channel, ".");
       return;
@@ -50,7 +49,7 @@ bool RotorCommandHandler::enableRCOutputCb(
   tobas_msgs::EnableRCOutputRequest& req,
   tobas_msgs::EnableRCOutputResponse& res)
 {
-  if (!tobas_std::contains(throttle_pubs_, req.channel))
+  if (!throttle_pubs_.contains(req.channel))
   {
     res.success = false;
     res.message = "The drone does not have rotor channel " + to_string(req.channel) + ".";

@@ -1,6 +1,5 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_tools/constants.hpp>
@@ -112,7 +111,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
       tobas::ControlSurface cs;
 
       getSdfParam(cs_elem, "index", cs.index, NON_NEGATIVE);
-      if (tobas_std::contains(indexes, cs.index))
+      if (indexes.contains(cs.index))
         gzthrow(kPluginName << ": The index of each control surface must be unique.");
 
       getSdfParam(cs_elem, "jointName", cs.joint_name);
@@ -138,7 +137,7 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
     for (size_t i = 0; i < indexes.size(); ++i)
     {
-      if (!tobas_std::contains(indexes, static_cast<int>(i)))
+      if (!indexes.contains(static_cast<int>(i)))
         gzthrow(kPluginName << ": controlSurface index mismatch.");
     }
   }

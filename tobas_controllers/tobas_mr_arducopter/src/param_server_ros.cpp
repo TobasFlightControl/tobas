@@ -2,7 +2,6 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/float.hpp>
-#include <tobas_std_tools/unordered_map.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 
@@ -40,7 +39,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 {
   for (const auto& param : cfg->ints)
   {
-    if (tobas_std::contains(ints_, param.name) && ints_[param.name] == param.value)
+    if (ints_.contains(param.name) && ints_[param.name] == param.value)
       continue;
 
     param_set_msg_.request.param_id = param.name;
@@ -60,7 +59,7 @@ void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
 
   for (const auto& param : cfg->doubles)
   {
-    if (tobas_std::contains(doubles_, param.name) && tobas_std::isClose(doubles_[param.name], param.value))
+    if (doubles_.contains(param.name) && tobas_std::isClose(doubles_[param.name], param.value))
       continue;
 
     param_set_msg_.request.param_id = param.name;
