@@ -19,6 +19,61 @@ struct ACK_ACK
   uint8_t msgID;  // Message ID of the Acknowledged Message
 };
 
+struct NAV_CLOCK
+{
+  // TODO
+};
+
+struct NAV_COV
+{
+  // TODO
+};
+
+struct NAV_DOP
+{
+  // TODO
+};
+
+struct NAV_EOE
+{
+  // TODO
+};
+
+struct NAV_GEOFENCE
+{
+  // TODO
+};
+
+struct NAV_HPPOSECEF
+{
+  // TODO
+};
+
+struct NAV_HPPOSLLH
+{
+  // TODO
+};
+
+struct NAV_ODO
+{
+  // TODO
+};
+
+struct NAV_ORB
+{
+  // TODO
+};
+
+struct NAV_PL
+{
+  // TODO
+};
+
+struct NAV_POSECEF
+{
+  // TODO
+};
+
 struct NAV_POSLLH
 {
   uint32_t iTOW;  // GPS time of week [ms]
@@ -119,6 +174,36 @@ struct NAV_PVT
   friend std::ostream& operator<<(std::ostream& os, const NAV_PVT& arg);
 };
 
+struct NAV_RELPOSNED
+{
+  // TODO
+};
+
+struct NAV_RESETODO
+{
+  // TODO
+};
+
+struct NAV_SAT
+{
+  // TODO
+};
+
+struct NAV_SBAS
+{
+  // TODO
+};
+
+struct NAV_SIG
+{
+  // TODO
+};
+
+struct NAV_SLAS
+{
+  // TODO
+};
+
 struct NAV_STATUS
 {
   uint32_t iTOW;   // GPS time of week [ms]
@@ -169,6 +254,51 @@ struct NAV_STATUS
   uint32_t msss;  // Milliseconds since Startup / Reset [ms]
 
   friend std::ostream& operator<<(std::ostream& os, const NAV_STATUS& arg);
+};
+
+struct NAV_SVIN
+{
+  // TODO
+};
+
+struct NAV_TIMEBDS
+{
+  // TODO
+};
+
+struct NAV_TIMEGAL
+{
+  // TODO
+};
+
+struct NAV_TIMEGLO
+{
+  // TODO
+};
+
+struct NAV_TIMEGPS
+{
+  // TODO
+};
+
+struct NAV_TIMELS
+{
+  // TODO
+};
+
+struct NAV_TIMEQZSS
+{
+  // TODO
+};
+
+struct NAV_TIMEUTC
+{
+  // TODO
+};
+
+struct NAV_VELECEF
+{
+  // TODO
 };
 
 struct NAV_VELNED
