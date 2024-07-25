@@ -29,7 +29,23 @@ void NAV_CLOCK::decode(const uint8_t* p)
 
 void NAV_COV::decode(const uint8_t* p)
 {
-  // TODO
+  iTOW = algo::decodeU32(p + 0);
+  version = algo::decodeU8(p + 4);
+  posCovValid = algo::decodeU8(p + 5);
+  velCovValid = algo::decodeU8(p + 6);
+
+  posCovNN = algo::decodeR32(p + 16);
+  posCovNE = algo::decodeR32(p + 20);
+  posCovND = algo::decodeR32(p + 24);
+  posCovEE = algo::decodeR32(p + 28);
+  posCovED = algo::decodeR32(p + 32);
+  posCovDD = algo::decodeR32(p + 36);
+  velCovNN = algo::decodeR32(p + 40);
+  velCovNE = algo::decodeR32(p + 44);
+  velCovND = algo::decodeR32(p + 48);
+  velCovEE = algo::decodeR32(p + 52);
+  velCovED = algo::decodeR32(p + 56);
+  velCovDD = algo::decodeR32(p + 60);
 }
 
 void NAV_DOP::decode(const uint8_t* p)
@@ -54,7 +70,25 @@ void NAV_HPPOSECEF::decode(const uint8_t* p)
 
 void NAV_HPPOSLLH::decode(const uint8_t* p)
 {
-  // TODO
+  version = algo::decodeU8(p + 0);
+
+  const auto flags = algo::decodeU8(p + 3);
+  invalidLlh = (flags >> 0) & 1;
+
+  iTOW = algo::decodeU32(p + 4);
+
+  lon = algo::decodeI32(p + 8) * 1e-7;
+  lat = algo::decodeI32(p + 12) * 1e-7;
+  height = algo::decodeI32(p + 16);
+  hMSL = algo::decodeI32(p + 20);
+
+  lonHp = algo::decodeI8(p + 24) * 1e-9;
+  latHp = algo::decodeI8(p + 25) * 1e-9;
+  heightHp = algo::decodeI8(p + 26) * 0.1;
+  hMSLHp = algo::decodeI8(p + 27) * 0.1;
+
+  hAcc = algo::decodeU32(p + 28) * 0.1;
+  vAcc = algo::decodeU32(p + 32) * 0.1;
 }
 
 void NAV_ODO::decode(const uint8_t* p)
@@ -267,12 +301,14 @@ void NAV_VELNED::decode(const uint8_t* p)
 
 void ACK_NAK::print(ostream& os) const
 {
-  // TODO
+  os << "Class ID of the Not-Acknowledged Message: " << (int)clsID << endl;
+  os << "Message ID of the Not-Acknowledged Message: " << (int)msgID << endl;
 }
 
 void ACK_ACK::print(ostream& os) const
 {
-  // TODO
+  os << "Class ID of the Acknowledged Message: " << (int)clsID << endl;
+  os << "Message ID of the Acknowledged Message: " << (int)msgID << endl;
 }
 
 void NAV_CLOCK::print(ostream& os) const
@@ -282,7 +318,23 @@ void NAV_CLOCK::print(ostream& os) const
 
 void NAV_COV::print(ostream& os) const
 {
-  // TODO
+  os << "GPS time of week: " << iTOW << "[ms]" << endl;
+  os << "Message version (0x00 for this version): " << version << endl;
+  os << "Position covariance matrix validity flag: " << posCovValid << endl;
+  os << "Velocity covariance matrix validity flag: " << velCovValid << endl;
+
+  os << "Position covariance matrix value p_NN: " << posCovNN << "[m^2]" << endl;
+  os << "Position covariance matrix value p_NE: " << posCovNE << "[m^2]" << endl;
+  os << "Position covariance matrix value p_ND: " << posCovND << "[m^2]" << endl;
+  os << "Position covariance matrix value p_EE: " << posCovEE << "[m^2]" << endl;
+  os << "Position covariance matrix value p_ED: " << posCovED << "[m^2]" << endl;
+  os << "Position covariance matrix value p_DD: " << posCovDD << "[m^2]" << endl;
+  os << "Velocity covariance matrix value v_NN: " << velCovNN << "[m^2/s^2]" << endl;
+  os << "Velocity covariance matrix value v_NE: " << velCovNE << "[m^2/s^2]" << endl;
+  os << "Velocity covariance matrix value v_ND: " << velCovND << "[m^2/s^2]" << endl;
+  os << "Velocity covariance matrix value v_EE: " << velCovEE << "[m^2/s^2]" << endl;
+  os << "Velocity covariance matrix value v_ED: " << velCovED << "[m^2/s^2]" << endl;
+  os << "Velocity covariance matrix value v_DD: " << velCovDD << "[m^2/s^2]" << endl;
 }
 
 void NAV_DOP::print(ostream& os) const
@@ -307,7 +359,24 @@ void NAV_HPPOSECEF::print(ostream& os) const
 
 void NAV_HPPOSLLH::print(ostream& os) const
 {
-  // TODO
+  os << "Message version (0x00 for this version): " << version << endl;
+
+  os << "Invalid lon, lat, height, hMSL, lonHp, latHp, heightHp and hMSLHp: " << invalidLlh << endl;
+
+  os << "GPS time of week: " << iTOW << "[ms]" << endl;
+
+  os << "Longitude: " << lon << "[deg]" << endl;
+  os << "Latitude: " << lat << "[deg]" << endl;
+  os << "Height above ellipsoid: " << height << "[mm]" << endl;
+  os << "Height above mean sea level: " << hMSL << "[mm]" << endl;
+
+  os << "High precision component of longitude: " << lonHp << "[deg]" << endl;
+  os << "High precision component of latitude: " << latHp << "[deg]" << endl;
+  os << "High precision component of height above ellipsoid: " << heightHp << "[mm]" << endl;
+  os << "High precision component of height above mean sea level: " << hMSLHp << "[mm]" << endl;
+
+  os << "Horizontal accuracy estimate: " << hAcc << "[mm]" << endl;
+  os << "Vertical accuracy estimate: " << vAcc << "[mm]" << endl;
 }
 
 void NAV_ODO::print(ostream& os) const

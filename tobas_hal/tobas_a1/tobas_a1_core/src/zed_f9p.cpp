@@ -22,19 +22,6 @@ bool ZEDF9P::initialize()
   if (!spi_dev_.initialize(spi_device::kGnssDev, kSpiClockFreq, kUbxBufferLength))
     return false;
 
-  // Disable unnecessary interfaces
-  // D_SELピンをオフにしているため，I2CとUARTは始めからオフになっているはず．
-  if (!enableUSB(false))
-    return false;
-
-  // Disable unnecessary protocols
-  if (!enableProtocol(NMEA, false))
-    return false;
-  if (!enableProtocol(RTCM3X, false))
-    return false;
-  if (!enableProtocol(SPARTN, false))
-    return false;
-
   return true;
 }
 

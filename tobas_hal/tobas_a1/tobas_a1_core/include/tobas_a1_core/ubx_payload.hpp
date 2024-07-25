@@ -47,7 +47,23 @@ struct NAV_CLOCK : public Payload
 
 struct NAV_COV : public Payload
 {
-  // TODO
+  uint32_t iTOW;     // GPS time of week [ms]
+  uint8_t version;   // Message version (0x00 for this version)
+  bool posCovValid;  // Position covariance matrix validity flag
+  bool velCovValid;  // Velocity covariance matrix validity flag
+
+  float posCovNN;  // Position covariance matrix value p_NN [m^2]
+  float posCovNE;  // Position covariance matrix value p_NE [m^2]
+  float posCovND;  // Position covariance matrix value p_ND [m^2]
+  float posCovEE;  // Position covariance matrix value p_EE [m^2]
+  float posCovED;  // Position covariance matrix value p_ED [m^2]
+  float posCovDD;  // Position covariance matrix value p_DD [m^2]
+  float velCovNN;  // Velocity covariance matrix value v_NN [m^2/s^2]
+  float velCovNE;  // Velocity covariance matrix value v_NE [m^2/s^2]
+  float velCovND;  // Velocity covariance matrix value v_ND [m^2/s^2]
+  float velCovEE;  // Velocity covariance matrix value v_EE [m^2/s^2]
+  float velCovED;  // Velocity covariance matrix value v_ED [m^2/s^2]
+  float velCovDD;  // Velocity covariance matrix value v_DD [m^2/s^2]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
@@ -87,10 +103,52 @@ struct NAV_HPPOSECEF : public Payload
 
 struct NAV_HPPOSLLH : public Payload
 {
-  // TODO
+  uint8_t version;  // Message version (0x00 for this version)
+
+  // flags: Additional flags
+  bool invalidLlh;  // Invalid lon, lat, height, hMSL, lonHp, latHp, heightHp and hMSLHp
+
+  uint32_t iTOW;  // GPS time of week [ms]
+
+  double lon;      // Longitude [deg]
+  double lat;      // Latitude [deg]
+  int32_t height;  // Height above ellipsoid [mm]
+  int32_t hMSL;    // Height above mean sea level [mm]
+
+  double lonHp;     // High precision component of longitude [deg]
+  double latHp;     // High precision component of latitude [deg]
+  double heightHp;  // High precision component of height above ellipsoid [mm]
+  double hMSLHp;    // High precision component of height above mean sea level [mm]
+
+  uint32_t hAcc;  // Horizontal accuracy estimate [mm]
+  uint32_t vAcc;  // Vertical accuracy estimate [mm]
 
   void decode(const uint8_t* p) override;
   void print(std::ostream& os) const override;
+
+  /* Compute the longitude [deg] */
+  inline double longitude() const
+  {
+    return lon + lonHp;
+  }
+
+  /* Compute the latitude [deg] */
+  inline double latitude() const
+  {
+    return lat + latHp;
+  }
+
+  /* Compute the height above ellipsoid [m] */
+  inline double heightEllipsoid() const
+  {
+    return (height + heightHp) * 1e-3;
+  }
+
+  /* Compute the height above mean sea level [m] */
+  inline double heightMSL() const
+  {
+    return (hMSL + hMSLHp) * 1e-3;
+  }
 };
 
 struct NAV_ODO : public Payload
