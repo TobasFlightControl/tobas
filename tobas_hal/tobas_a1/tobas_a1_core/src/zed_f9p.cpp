@@ -1,8 +1,6 @@
 #include <cstring>
 #include <cassert>
 
-#include <tobas_algorithm/binary.hpp>
-
 #include "../include/tobas_a1_core/zed_f9p.hpp"
 #include "../include/tobas_a1_core/constants.hpp"
 
@@ -367,171 +365,6 @@ bool ZEDF9P::enableUSB(bool enable)
   return configure(VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::decode(payload::ACK_NAK& data) const
-{
-  if (!latestMessageTypeMatch(CLASS_ACK, NAK))
-    return false;
-
-  const auto p = scanner_.getPayload();
-
-  data.clsID = algo::decodeU8(p + 0);
-  data.msgID = algo::decodeU8(p + 1);
-
-  return true;
-}
-
-bool ZEDF9P::decode(payload::ACK_ACK& data) const
-{
-  if (!latestMessageTypeMatch(CLASS_ACK, ACK))
-    return false;
-
-  const auto p = scanner_.getPayload();
-
-  data.clsID = algo::decodeU8(p + 0);
-  data.msgID = algo::decodeU8(p + 1);
-
-  return true;
-}
-
-bool ZEDF9P::decode(payload::NAV_POSLLH& data) const
-{
-  if (!latestMessageTypeMatch(CLASS_NAV, POSLLH))
-    return false;
-
-  const auto p = scanner_.getPayload();
-
-  data.iTOW = algo::decodeU32(p + 0);
-
-  data.lon = algo::decodeI32(p + 4) * 1e-7;
-  data.lat = algo::decodeI32(p + 8) * 1e-7;
-  data.height = algo::decodeI32(p + 12);
-  data.hMSL = algo::decodeI32(p + 16);
-
-  data.hAcc = algo::decodeU32(p + 20);
-  data.vAcc = algo::decodeU32(p + 24);
-
-  return true;
-}
-
-bool ZEDF9P::decode(payload::NAV_PVT& data) const
-{
-  if (!latestMessageTypeMatch(CLASS_NAV, PVT))
-    return false;
-
-  const auto p = scanner_.getPayload();
-
-  data.iTOW = algo::decodeU32(p + 0);
-
-  data.year = algo::decodeU16(p + 4);
-  data.month = algo::decodeU8(p + 6);
-  data.day = algo::decodeU8(p + 7);
-  data.hour = algo::decodeU8(p + 8);
-  data.min = algo::decodeU8(p + 9);
-  data.sec = algo::decodeU8(p + 10);
-
-  const auto valid = algo::decodeU8(p + 11);
-  data.validDate = (valid >> 0) & 1;
-  data.validTime = (valid >> 1) & 1;
-  data.fullyResolved = (valid >> 2) & 1;
-  data.validMag = (valid >> 3) & 1;
-
-  data.tAcc = algo::decodeU32(p + 12);
-  data.nano = algo::decodeI32(p + 16);
-
-  data.fixType = static_cast<payload::NAV_PVT::fix_type_t>(algo::decodeU8(p + 20));
-
-  const auto flags = algo::decodeU8(p + 21);
-  data.gnssFixOk = (flags >> 0) & 1;
-  data.diffSoln = (flags >> 1) & 1;
-  data.psmState = static_cast<payload::NAV_PVT::psm_state_t>((flags >> 2) & 0b111);
-  data.headVehValid = (flags >> 5) & 1;
-  data.carrSoln = static_cast<payload::NAV_PVT::carr_soln_t>((flags >> 6) & 0b11);
-
-  const auto flags2 = algo::decodeU8(p + 22);
-  data.confirmedAvai = (flags2 >> 5) & 1;
-  data.confirmedDate = (flags2 >> 6) & 1;
-  data.confirmedTime = (flags2 >> 7) & 1;
-
-  data.numSV = algo::decodeU8(p + 23);
-
-  data.lon = algo::decodeI32(p + 24) * 1e-7;
-  data.lat = algo::decodeI32(p + 28) * 1e-7;
-  data.height = algo::decodeI32(p + 32);
-  data.hMSL = algo::decodeI32(p + 36);
-  data.hAcc = algo::decodeU32(p + 40);
-  data.vAcc = algo::decodeU32(p + 44);
-  data.velN = algo::decodeI32(p + 48);
-  data.velE = algo::decodeI32(p + 52);
-  data.velD = algo::decodeI32(p + 56);
-  data.gSpeed = algo::decodeI32(p + 60);
-  data.headMot = algo::decodeI32(p + 64) * 1e-5;
-  data.sAcc = algo::decodeU32(p + 68);
-  data.headAcc = algo::decodeU32(p + 72) * 1e-5;
-  data.pDOP = algo::decodeU16(p + 76) * 1e-2;
-
-  const auto flags3 = algo::decodeU8(p + 78);
-  data.invalidLlh = (flags3 >> 0) & 1;
-
-  data.headVeh = algo::decodeI32(p + 84) * 1e-5;
-  data.magDec = algo::decodeI16(p + 88) * 1e-2;
-  data.magAcc = algo::decodeU16(p + 90) * 1e-2;
-
-  return true;
-}
-
-bool ZEDF9P::decode(payload::NAV_STATUS& data) const
-{
-  if (!latestMessageTypeMatch(CLASS_NAV, STATUS))
-    return false;
-
-  const auto p = scanner_.getPayload();
-
-  data.iTOW = algo::decodeU32(p + 0);
-  data.gpsFix = algo::decodeU8(p + 4);
-
-  const auto flags = algo::decodeU8(p + 5);
-  data.gpsFixOk = (flags >> 0) & 1;
-  data.diffSoln = (flags >> 1) & 1;
-  data.wknSet = (flags >> 2) & 1;
-  data.towSet = (flags >> 3) & 1;
-
-  const auto fixStat = algo::decodeU8(p + 6);
-  data.diffCorr = (fixStat >> 0) & 1;
-  data.mapMatching = static_cast<payload::NAV_STATUS::map_matching_t>((fixStat >> 6) & 0b11);
-
-  const auto flags2 = algo::decodeU8(p + 7);
-  data.psmState = static_cast<payload::NAV_STATUS::psm_state_t>((flags2 >> 0) & 0b11);
-  data.spoofDetState = static_cast<payload::NAV_STATUS::spoof_det_state>((flags2 >> 3) & 0b11);
-
-  data.ttff = algo::decodeU32(p + 8);
-  data.msss = algo::decodeU32(p + 12);
-
-  return true;
-}
-
-bool ZEDF9P::decode(payload::NAV_VELNED& data) const
-{
-  if (!latestMessageTypeMatch(CLASS_NAV, VELNED))
-    return false;
-
-  const auto p = scanner_.getPayload();
-
-  data.iTOW = algo::decodeU32(p + 0);
-
-  data.velN = algo::decodeI32(p + 4);
-  data.velE = algo::decodeI32(p + 8);
-  data.velD = algo::decodeI32(p + 12);
-
-  data.speed = algo::decodeU32(p + 16);
-  data.gSpeed = algo::decodeU32(p + 20);
-  data.heading = algo::decodeI32(p + 24) * 1e-5;
-
-  data.sAcc = algo::decodeU32(p + 28);
-  data.cAcc = algo::decodeU32(p + 32) * 1e-5;
-
-  return true;
-}
-
 bool ZEDF9P::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size)
 {
   UbxHeader header;
@@ -574,8 +407,7 @@ bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
     switch (latestId())
     {
       case ACK:
-        if (!decode(ack))
-          return false;
+        ack.decode(payload());
 
         if (ack.clsID == cls && ack.msgID == id)
         {
@@ -590,8 +422,7 @@ bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
         break;
 
       case NAK:
-        if (!decode(nak))
-          return false;
+        nak.decode(payload());
 
         if (nak.clsID == cls && nak.msgID == id)
         {
@@ -622,17 +453,6 @@ bool ZEDF9P::configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size)
     return false;
 
   return waitForAcknowledge(CLASS_CFG, cfg_id);
-}
-
-bool ZEDF9P::latestMessageTypeMatch(ubx_class_t cls, uint8_t id) const
-{
-  if (latestClass() != cls || latestId() != id)
-  {
-    cerr << "Message type mismatch." << endl;
-    return false;
-  }
-
-  return true;
 }
 
 bool ZEDF9P::verifyMessage() const

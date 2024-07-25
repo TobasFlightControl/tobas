@@ -147,20 +147,12 @@ public:
 
   bool enableUSB(bool enable);
 
-  /* ===== Decoders ===== */
-
-  bool decode(payload::ACK_NAK& data) const;
-  bool decode(payload::ACK_ACK& data) const;
-
-  bool decode(payload::NAV_POSLLH& data) const;
-  bool decode(payload::NAV_PVT& data) const;
-  bool decode(payload::NAV_STATUS& data) const;
-  bool decode(payload::NAV_VELNED& data) const;
-
   /* ===== Getters ===== */
 
   inline ubx_class_t latestClass() const;
   inline uint8_t latestId() const;
+
+  inline const uint8_t* payload() const;
 
 private:
   /* Supported storage size identifiers */
@@ -266,7 +258,6 @@ private:
   bool sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size);
   bool waitForAcknowledge(ubx_class_t cls, uint8_t id);
   bool configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size);
-  bool latestMessageTypeMatch(ubx_class_t cls, uint8_t id) const;
   bool verifyMessage() const;
 
   /* 5.4 UBX Checksum */
@@ -286,5 +277,10 @@ inline ZEDF9P::ubx_class_t ZEDF9P::latestClass() const
 inline uint8_t ZEDF9P::latestId() const
 {
   return *scanner_.getId();
+}
+
+inline const uint8_t* ZEDF9P::payload() const
+{
+  return scanner_.getPayload();
 }
 }  // namespace a1

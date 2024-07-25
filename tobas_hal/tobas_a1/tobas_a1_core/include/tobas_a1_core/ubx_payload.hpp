@@ -7,74 +7,125 @@ namespace a1
 {
 namespace payload
 {
-struct ACK_NAK
+struct Payload
+{
+  virtual void decode(const uint8_t* p) = 0;
+  virtual void print(std::ostream& os) const = 0;
+
+  friend std::ostream& operator<<(std::ostream& os, const Payload& arg)
+  {
+    arg.print(os);
+    return os;
+  }
+};
+
+struct ACK_NAK : public Payload
 {
   uint8_t clsID;  // Class ID of the Not-Acknowledged Message
   uint8_t msgID;  // Message ID of the Not-Acknowledged Message
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct ACK_ACK
+struct ACK_ACK : public Payload
 {
   uint8_t clsID;  // Class ID of the Acknowledged Message
   uint8_t msgID;  // Message ID of the Acknowledged Message
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_CLOCK
+struct NAV_CLOCK : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_COV
+struct NAV_COV : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_DOP
+struct NAV_DOP : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_EOE
+struct NAV_EOE : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_GEOFENCE
+struct NAV_GEOFENCE : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_HPPOSECEF
+struct NAV_HPPOSECEF : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_HPPOSLLH
+struct NAV_HPPOSLLH : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_ODO
+struct NAV_ODO : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_ORB
+struct NAV_ORB : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_PL
+struct NAV_PL : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_POSECEF
+struct NAV_POSECEF : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_POSLLH
+struct NAV_POSLLH : public Payload
 {
   uint32_t iTOW;  // GPS time of week [ms]
 
@@ -86,10 +137,11 @@ struct NAV_POSLLH
   uint32_t hAcc;  // Horizontal accuracy estimate [mm]
   uint32_t vAcc;  // Vertical accuracy estimate [mm]
 
-  friend std::ostream& operator<<(std::ostream& os, const NAV_POSLLH& arg);
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_PVT
+struct NAV_PVT : public Payload
 {
   uint32_t iTOW;  // GPS time of week [ms]
 
@@ -171,40 +223,59 @@ struct NAV_PVT
   double magDec;   // Magnetic declination [deg]
   double magAcc;   // Magnetic declination accuracy [deg]
 
-  friend std::ostream& operator<<(std::ostream& os, const NAV_PVT& arg);
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_RELPOSNED
+struct NAV_RELPOSNED : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_RESETODO
+struct NAV_RESETODO : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_SAT
+struct NAV_SAT : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_SBAS
+struct NAV_SBAS : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_SIG
+struct NAV_SIG : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_SLAS
+struct NAV_SLAS : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_STATUS
+struct NAV_STATUS : public Payload
 {
   uint32_t iTOW;   // GPS time of week [ms]
   uint8_t gpsFix;  // GPSfix Type, this value does not qualify a fix as valid and within the limits
@@ -253,55 +324,83 @@ struct NAV_STATUS
   uint32_t ttff;  // Time to first fix [ms]
   uint32_t msss;  // Milliseconds since Startup / Reset [ms]
 
-  friend std::ostream& operator<<(std::ostream& os, const NAV_STATUS& arg);
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_SVIN
+struct NAV_SVIN : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_TIMEBDS
+struct NAV_TIMEBDS : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_TIMEGAL
+struct NAV_TIMEGAL : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_TIMEGLO
+struct NAV_TIMEGLO : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_TIMEGPS
+struct NAV_TIMEGPS : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_TIMELS
+struct NAV_TIMELS : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_TIMEQZSS
+struct NAV_TIMEQZSS : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_TIMEUTC
+struct NAV_TIMEUTC : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_VELECEF
+struct NAV_VELECEF : public Payload
 {
   // TODO
+
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 
-struct NAV_VELNED
+struct NAV_VELNED : public Payload
 {
   uint32_t iTOW;  // GPS time of week [ms]
 
@@ -316,7 +415,8 @@ struct NAV_VELNED
   uint32_t sAcc;  // Speed accuracy estimate [cm/s]
   double cAcc;    // Course / Heading accuracy estimate [deg]
 
-  friend std::ostream& operator<<(std::ostream& os, const NAV_VELNED& arg);
+  void decode(const uint8_t* p) override;
+  void print(std::ostream& os) const override;
 };
 }  // namespace payload
 }  // namespace a1
