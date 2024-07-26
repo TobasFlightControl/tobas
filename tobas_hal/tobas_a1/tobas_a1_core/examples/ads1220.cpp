@@ -12,7 +12,7 @@ int main()
 
   if (!adc.initialize())
   {
-    cerr << "Failed to initialize ADC driver." << endl;
+    cerr << "Failed to initialize ADC." << endl;
     return EXIT_FAILURE;
   }
 
