@@ -25,6 +25,7 @@ int main()
     }
 
     cout << "Magnetic Field [gauss]: " << mx << ", " << my << ", " << mz << endl;
+
     sleep(1);
   }
 

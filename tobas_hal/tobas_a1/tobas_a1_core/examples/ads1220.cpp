@@ -25,6 +25,7 @@ int main()
     }
 
     cout << "Voltage: " << voltage << endl;
+
     sleep(1);
   }
 

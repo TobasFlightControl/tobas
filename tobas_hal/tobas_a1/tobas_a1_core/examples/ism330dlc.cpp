@@ -33,6 +33,7 @@ int main()
 
     cout << "Accel [m/s^2]: " << ax << ", " << ay << ", " << az << endl;
     cout << "Gyro [rad/s] : " << gx << ", " << gy << ", " << gz << endl;
+
     sleep(1);
   }
 

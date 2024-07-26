@@ -32,6 +32,7 @@ int main()
 
     cout << "Pressure [Pa]     : " << pres << endl;
     cout << "Temperature [degC]: " << temp << endl;
+
     sleep(1);
   }
 
