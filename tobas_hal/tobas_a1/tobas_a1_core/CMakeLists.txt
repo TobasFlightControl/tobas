@@ -30,9 +30,9 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 # foreach(FILE IN LISTS EXE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-# 	add_executable(${NODE_NAME} ${FILE})
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME} pthread)
+# 	get_filename_component(NAME ${FILE} NAME_WE)
+# 	add_executable(${NAME} ${FILE})
+# 	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME} pthread)
 # endforeach()
 
 install(TARGETS ${PROJECT_NAME}
