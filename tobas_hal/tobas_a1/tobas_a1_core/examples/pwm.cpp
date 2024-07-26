@@ -8,6 +8,7 @@ using namespace std;
 int main()
 {
   a1::PWM pwm;
+  constexpr uint16_t periods[] = { 0, 100, 200, 400, 800, 1200, 1600, 2000 };
 
   if (!pwm.initialize())
   {
@@ -19,8 +20,7 @@ int main()
   {
     for (size_t ch = 0; ch < a1::PWM::kChannelSize; ++ch)
     {
-      const auto period = 2000 * ch / a1::PWM::kChannelSize;
-      if (!pwm.setPeriod(ch, period))
+      if (!pwm.setPeriod(ch, periods[ch]))
       {
         cerr << "Failed to set PWM period of channel " << ch << "." << endl;
         return EXIT_FAILURE;
