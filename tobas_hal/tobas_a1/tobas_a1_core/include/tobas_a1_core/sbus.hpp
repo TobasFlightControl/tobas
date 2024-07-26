@@ -12,11 +12,14 @@ namespace a1
  */
 class SBUS
 {
+public:
+  static constexpr uint8_t kChannelSize = 16;
+
+private:
   static constexpr uint32_t kBaudRate = 100'000;  // [bps]
   static constexpr uint8_t kDataBits = 8;
   static constexpr uint8_t kDataSize = 22;
   static constexpr uint8_t kChannelBits = 11;
-  static constexpr uint8_t kChannelSize = 16;
 
 public:
   explicit SBUS();
