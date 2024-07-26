@@ -5,7 +5,9 @@
 namespace a1
 {
 /**
- * @brief Datasheet: https://www.st.com/resource/en/datasheet/ilps22qs.pdf
+ * @brief A linux driver of full-scale barometer.
+ *
+ * Datasheet: https://www.st.com/resource/en/datasheet/ilps22qs.pdf
  */
 class ILPS22QS
 {

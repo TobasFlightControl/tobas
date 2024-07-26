@@ -5,7 +5,9 @@
 namespace a1
 {
 /**
- * @brief Datasheet: https://www.ti.com/jp/lit/ds/symlink/ads1220.pdf
+ * @brief A linux driver of 2-channel ADC.
+ *
+ * Datasheet: https://www.ti.com/jp/lit/ds/symlink/ads1220.pdf
  */
 class ADS1220
 {
@@ -16,7 +18,10 @@ public:
 
   bool initialize();
 
+  /* Read the current value of the voltage channel [-]. */
   bool readVoltage(double& data);
+
+  /* Read the current value of the current channel [-]. */
   bool readCurrent(double& data);
 
 private:

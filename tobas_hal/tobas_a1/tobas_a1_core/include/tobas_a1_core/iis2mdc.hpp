@@ -5,7 +5,9 @@
 namespace a1
 {
 /**
- * @brief Datasheet: https://www.st.com/resource/en/datasheet/iis2mdc.pdf
+ * @brief A linux driver of 3-axis magnetometer.
+ *
+ * Datasheet: https://www.st.com/resource/en/datasheet/iis2mdc.pdf
  */
 class IIS2MDC
 {
@@ -17,6 +19,7 @@ public:
 
   bool initialize();
 
+  /* Read the current magnetic field [gauss]. */
   bool readMag(double& mx, double& my, double& mz);
 
 private:

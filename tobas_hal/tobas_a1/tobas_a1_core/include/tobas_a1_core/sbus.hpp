@@ -22,6 +22,8 @@ public:
   explicit SBUS();
 
   bool initialize();
+
+  /* Read a S.BUS message from the receiver and update the periods of all the 16 channels. */
   bool update();
 
   inline const uint16_t& getPeriod(uint8_t channel) const;

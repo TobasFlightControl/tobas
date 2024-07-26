@@ -5,7 +5,9 @@
 namespace a1
 {
 /**
- * @brief Datasheet: https://www.st.com/resource/en/datasheet/ism330dlc.pdf
+ * @brief A linux driver of 6-axis IMU.
+ *
+ * Datasheet: https://www.st.com/resource/en/datasheet/ism330dlc.pdf
  */
 class ISM330DLC
 {
@@ -18,7 +20,10 @@ public:
 
   bool initialize();
 
+  /* Read the current acceleration [m/s^2]. */
   bool readAcc(double& ax, double& ay, double& az);
+
+  /* Read the current gyro [rad/s]. */
   bool readGyro(double& gx, double& gy, double& gz);
 
 private:
