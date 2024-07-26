@@ -18,6 +18,7 @@ namespace a1
  * Datasheet: https://content.u-blox.com/sites/default/files/ZED-F9P-04B_DataSheet_UBX-21044850.pdf
  * Interface Description:
  * https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.32_InterfaceDescription_UBX-22008968.pdf
+ * ANN-MB series antenna: https://www.u-blox.com/en/product/ann-mb-series
  */
 class ZEDF9P
 {

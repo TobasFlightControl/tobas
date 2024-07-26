@@ -87,7 +87,7 @@ bool GNSSDriver::configure()
 
   // 同軸ケーブルの長さを設定
   // TODO: GUIから設定できるようにする
-  if (!gnss_.setAntennaLength(1))
+  if (!gnss_.setAntennaLength(5))
   {
     TOBAS_FATAL("Failed to set the antenna length.");
     return false;
