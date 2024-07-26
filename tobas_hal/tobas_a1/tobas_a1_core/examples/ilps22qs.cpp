@@ -30,7 +30,7 @@ int main()
       return EXIT_FAILURE;
     }
 
-    cout << "Pressure [Pa]: " << pres << endl;
+    cout << "Pressure [Pa]     : " << pres << endl;
     cout << "Temperature [degC]: " << temp << endl;
     sleep(1);
   }
