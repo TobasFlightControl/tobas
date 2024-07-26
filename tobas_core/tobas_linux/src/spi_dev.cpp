@@ -16,10 +16,13 @@ SPIdev::SPIdev()
 
 SPIdev::~SPIdev()
 {
-  free(tx);
-  free(rx);
+  if (tx != nullptr)
+    free(tx);
+  if (rx != nullptr)
+    free(rx);
 
-  close(spi_fd_);
+  if (spi_fd_ >= 0)
+    close(spi_fd_);
 }
 
 bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, size_t buf_size)

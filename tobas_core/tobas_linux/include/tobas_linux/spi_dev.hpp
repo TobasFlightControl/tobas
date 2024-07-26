@@ -9,8 +9,8 @@ namespace linux
 class SPIdev
 {
 public:
-  uint8_t* tx;
-  uint8_t* rx;
+  uint8_t* tx = nullptr;
+  uint8_t* rx = nullptr;
 
   explicit SPIdev();
   ~SPIdev();
@@ -20,7 +20,7 @@ public:
 
 private:
   spi_ioc_transfer spi_transfer_;
-  int spi_fd_;
+  int spi_fd_ = -1;
   size_t buf_size_ = 0;
 };
 }  // namespace linux

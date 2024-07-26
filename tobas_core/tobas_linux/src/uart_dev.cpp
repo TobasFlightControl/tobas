@@ -16,7 +16,8 @@ UARTdev::UARTdev()
 
 UARTdev::~UARTdev()
 {
-  close(uart_fd_);
+  if (uart_fd_ >= 0)
+    close(uart_fd_);
 }
 
 bool UARTdev::initialize(const char* uart_dev, bool block_mode)

@@ -39,7 +39,7 @@ public:
 
 private:
   bool block_mode_ = false;
-  int uart_fd_;
+  int uart_fd_ = -1;
   struct termios2 options_;
 
   bool getConfig();

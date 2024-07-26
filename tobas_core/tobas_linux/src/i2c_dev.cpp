@@ -17,11 +17,15 @@ I2Cdev::I2Cdev()
 
 I2Cdev::~I2Cdev()
 {
-  free(tx);
-  free(rx);
-  free(tx_);
+  if (tx != nullptr)
+    free(tx);
+  if (rx != nullptr)
+    free(rx);
+  if (tx_ != nullptr)
+    free(tx_);
 
-  close(i2c_fd_);
+  if (i2c_fd_ >= 0)
+    close(i2c_fd_);
 }
 
 bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr, size_t buf_size)
