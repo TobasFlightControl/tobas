@@ -11,7 +11,7 @@ PWM::PWM()
 
 bool PWM::initialize()
 {
-  if (!spi_.initialize(spi_device::kDshotDev, kSpiClockFreq, kSpiBufSize))
+  if (!spi_.initialize(spi_device::kPwmDev, kSpiClockFreq, kSpiBufSize))
     return false;
 
   return true;
