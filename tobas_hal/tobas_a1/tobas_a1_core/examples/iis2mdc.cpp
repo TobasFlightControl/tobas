@@ -12,7 +12,7 @@ int main()
 
   if (!mag.initialize())
   {
-    cerr << "Failed to initialize Magnetometer." << endl;
+    cerr << "Failed to initialize magnetometer." << endl;
     return EXIT_FAILURE;
   }
 
