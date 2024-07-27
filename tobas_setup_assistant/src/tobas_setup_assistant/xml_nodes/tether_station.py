@@ -5,6 +5,7 @@ from typing import Tuple
 class TetherStationForceModel(ET.Element):
     def __init__(
         self,
+        ns: str,
         link_name: str,
         world_end: Tuple[float, float, float],
         drone_end: Tuple[float, float, float],
@@ -20,6 +21,7 @@ class TetherStationForceModel(ET.Element):
         plugin.attrib["filename"] = "libtobas_gazebo_tether_station_force_plugin.so"
         plugin.attrib["name"] = "tobas_gazebo_tether_station_force_plugin"
 
+        ET.SubElement(plugin, "robotNamespace").text = ns
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "worldEnd").text = " ".join(map(str, world_end))
         ET.SubElement(plugin, "droneEnd").text = " ".join(map(str, drone_end))
@@ -48,10 +50,11 @@ class TetherStationVisualModel(ET.Element):
 
 def add_tether_station_model(
     robot: ET.Element,
+    ns: str,
     link_name: str,
     world_end: Tuple[float, float, float],
     drone_end: Tuple[float, float, float],
     tension: float,
 ):
-    robot.append(TetherStationForceModel(link_name, world_end, drone_end, tension))
+    robot.append(TetherStationForceModel(ns, link_name, world_end, drone_end, tension))
     robot.append(TetherStationVisualModel(link_name, world_end, drone_end))

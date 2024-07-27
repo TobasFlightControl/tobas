@@ -12,7 +12,7 @@ class SensorModel(ET.Element):
         always_on: bool = True,
         visualize: bool = False,
         pose: List[float] = [0.0] * 6,
-    ):
+    ) -> None:
         assert update_rate >= 0.0  # 0のときは寧ろ毎シミュレーション周期発行
         assert len(pose) == 6
 

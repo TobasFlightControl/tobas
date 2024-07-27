@@ -1,9 +1,8 @@
-import math
 from xml.etree import ElementTree as ET
 
 
 class WindModel(ET.Element):
-    def __init__(self, ns: str, link_name: str):
+    def __init__(self, ns: str, link_name: str) -> None:
         super().__init__("gazebo")
 
         plugin = ET.SubElement(self, "plugin")

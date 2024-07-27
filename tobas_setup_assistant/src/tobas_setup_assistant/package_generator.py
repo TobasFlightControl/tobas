@@ -533,6 +533,10 @@ class PackageGenerator(QObject):
         wind_model = WindModel(ns=self._drone_name, link_name=root_link)
         robot.append(wind_model)
 
+        # World Contacts plugin
+        world_contacts = WorldContactsModel(ns=self._drone_name)
+        robot.append(world_contacts)
+
         # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
@@ -545,7 +549,7 @@ class PackageGenerator(QObject):
         )
         robot.append(battery_model)
 
-        # Propulsion System plugin
+        # Propulsion system plugin
         for i in range(self._main.propulsion_system.selected.count()):
             selected: SelectedLinkWidget = self._main.propulsion_system.selected.widget(i)
             motor_model = MotorModel(
@@ -754,6 +758,7 @@ class PackageGenerator(QObject):
         if self._main.tether_station.equipped():
             add_tether_station_model(
                 robot=robot,
+                ns=self._drone_name,
                 link_name=self._main.tether_station.link.get(),
                 world_end=self._main.tether_station.world_end.get(),
                 drone_end=self._main.tether_station.drone_end.get(),
