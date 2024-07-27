@@ -46,16 +46,19 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
   }
 
   // 最初に接地するまでは張力を加えない
-  // 初期位置がずれると，接触が不安定になり加速度に異常が生じる．
+  // 初期位置がずれると，接触が不安定になり加速度に異常が生じる恐れがある．
   if (!first_contact_detected_)
   {
     if (isContactWithPlane())
+    {
+      gzmsg << kPluginName << ": First contact with plane is detected." << endl;
       first_contact_detected_ = true;
+    }
     return;
   }
 
   // 接地時は張力を加えない
-  // 接地時に張力を加えると，接触が不安定になり加速度に異常が生じる．
+  // 接地時に張力を加えると，接触が不安定になり加速度に異常が生じる恐れがある．
   if (isContactWithPlane())
     return;
 
@@ -77,7 +80,7 @@ bool GazeboTetherStationForcePlugin::isThis(const std::string& name)
 
 bool GazeboTetherStationForcePlugin::isPlane(const uint32_t& shape)
 {
-  return (shape & physics::Base::SHAPE & physics::Base::PLANE_SHAPE) > 0;
+  return ((shape & physics::Base::SHAPE) > 0 && (shape & physics::Base::PLANE_SHAPE) > 0);
 }
 
 bool GazeboTetherStationForcePlugin::isContactWithPlane()
