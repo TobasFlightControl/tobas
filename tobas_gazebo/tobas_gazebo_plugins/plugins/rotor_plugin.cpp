@@ -129,12 +129,12 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   // Check topics
   if (battery_ == nullptr)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": " << ns_ + "/" << kBatteryGtTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns_ << "/" << kBatteryGtTopic << " is not received yet.");
     return;
   }
   if (!wind_received_)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": " << ns_ + "/" << kWindGtTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns_ << "/" << kWindGtTopic << " is not received yet.");
     return;
   }
 
