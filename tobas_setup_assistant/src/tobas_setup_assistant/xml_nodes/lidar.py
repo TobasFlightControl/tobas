@@ -2,7 +2,7 @@ from xml.etree import ElementTree as ET
 from typing import Tuple
 
 from tobas_urdf_tools_py.core import *
-from tobas_urdf_tools_py.dummy import DummyLink
+from tobas_urdf_tools_py.dummy import DummyInertialLink
 
 
 def add_lidar_model(
@@ -32,7 +32,7 @@ def add_lidar_model(
     lidar_link = f"{ns}/lidar_link"
 
     # robot/link
-    robot.append(DummyLink(lidar_link))
+    robot.append(DummyInertialLink(lidar_link))
 
     # robot/joint
     robot.append(Joint(name=f"{ns}/lidar_joint", type="fixed", parent=link_name, child=lidar_link, origin=offset))
