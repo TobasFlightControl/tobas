@@ -82,6 +82,18 @@ class PackageLoaderWidget(Widget):
             q_error(self._main, f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
             return
 
+        # URDFの存在を確認
+        urdf_path = get_original_urdf_path(tbs_path)
+        if not osp.isfile(urdf_path):
+            q_error(self._main, f"{urdf_path} does not exist. Please create a new Tobas configuration package.")
+            return
+
+        # ユーザ設定ファイルの存在を確認
+        settings_path = get_settings_path(tbs_path)
+        if not osp.isfile(settings_path):
+            q_error(self._main, f"{settings_path} does not exist. Please create a new Tobas configuration package.")
+            return
+
         # パスをテキストに設定
         self._file_text.setText(tbs_path)
 
@@ -95,7 +107,7 @@ class PackageLoaderWidget(Widget):
         source_tobas_package(tbs_path)
 
         # robot_descriptionをrosparamに登録
-        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = get_original_urdf_path(tbs_path)
+        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = urdf_path
         process = launch(PKG_NAME, "description.launch")
         _, stderr = process.communicate()
         if process.returncode != 0:
@@ -111,7 +123,6 @@ class PackageLoaderWidget(Widget):
         self._main.update_internal_data_structures()
 
         # ユーザ設定を読み込む
-        settings_path = get_settings_path(tbs_path)
         with open(settings_path, "r") as f:
             settings = yaml.safe_load(f)
         if not self._main.load_settings(settings):
