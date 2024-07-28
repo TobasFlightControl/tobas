@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
 
 namespace gazebo
 {
@@ -31,4 +32,7 @@ ignition::math::Quaterniond angleAxisToQuaternion(const ignition::math::Vector3d
 
 /* 3次元ベクトルの外積を表す歪対称行列を計算する． */
 ignition::math::Matrix3d skewMatrix(const ignition::math::Vector3d& v);
+
+/* ロボット全体の質量を計算する． */
+double computeTotalMass(const physics::ModelPtr& model);
 }  // namespace gazebo

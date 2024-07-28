@@ -52,6 +52,8 @@ static constexpr char kRotorStateGtTopicPrefix[] = "gazebo/ground_truth/rotor_st
 static constexpr char kChargeBatterySrv[] = "gazebo/charge_battery";
 static constexpr char kGetWindParamsSrv[] = "gazebo/get_wind_parameters";
 static constexpr char kSetWindParamsSrv[] = "gazebo/set_wind_parameters";
+static constexpr char kGetTetherParamsSrv[] = "gazebo/get_tether_parameters";
+static constexpr char kSetTetherParamsSrv[] = "gazebo/set_tether_parameters";
 
 static const SdfVector3 zero3 = SdfVector3(0., 0., 0.);
 static constexpr double kWarnPeriod = 1.;              // [s]
