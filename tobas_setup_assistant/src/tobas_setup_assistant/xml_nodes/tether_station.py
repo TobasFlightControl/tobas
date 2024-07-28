@@ -1,6 +1,9 @@
 from xml.etree import ElementTree as ET
 from typing import Tuple
 
+from tobas_urdf_tools_py.core import Joint
+from tobas_urdf_tools_py.dummy import DummyVisualLink
+
 
 class TetherStationForceModel(ET.Element):
     def __init__(
@@ -55,6 +58,13 @@ def add_tether_station_model(
     world_end: Tuple[float, float, float],
     drone_end: Tuple[float, float, float],
     tension: float,
-):
+) -> None:
+    # Plugins
     robot.append(TetherStationForceModel(ns, link_name, world_end, drone_end, tension))
     robot.append(TetherStationVisualModel(link_name, world_end, drone_end))
+
+    # VisualPluginが埋め込まれたリンク名で始まるリンクに，Visualタグが設定されている必要がある．
+    dummy_link_name = f"{link_name}_dummy_visual_link"
+    dummy_joint_name = f"{link_name}_dummy_visual_joint"
+    robot.append(DummyVisualLink(dummy_link_name))
+    robot.append(Joint(name=dummy_joint_name, type="fixed", parent=link_name, child=dummy_link_name))

@@ -17,7 +17,7 @@ from tobas_rqt_tools.widgets import Widget
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.constants import PROPERTY_SERVER_GCS, PKG_EXTENSION
-from tobas_tools_py.package import get_urdf_path, get_settings_path
+from tobas_tools_py.package import get_original_urdf_path, get_settings_path
 from tobas_tools_py.command import source_tobas_package
 
 from ...common import TITLE, PKG_NAME, LABEL_PSIZE, Description
@@ -95,7 +95,7 @@ class PackageLoaderWidget(Widget):
         source_tobas_package(tbs_path)
 
         # robot_descriptionをrosparamに登録
-        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = f"{get_urdf_path(tbs_path)} DEBUG:=false"
+        os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = get_original_urdf_path(tbs_path)
         process = launch(PKG_NAME, "description.launch")
         _, stderr = process.communicate()
         if process.returncode != 0:
