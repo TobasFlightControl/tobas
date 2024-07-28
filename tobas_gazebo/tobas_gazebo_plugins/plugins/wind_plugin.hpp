@@ -70,13 +70,13 @@ private:
 
   ros::Publisher wind_pub_;
 
-  ros::ServiceServer get_wind_params_ss_;
-  ros::ServiceServer set_wind_params_ss_;
+  ros::ServiceServer get_params_ss_;
+  ros::ServiceServer set_params_ss_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);
 
-  bool getWindParamsCb(tobas_gazebo_msgs::GetWindParamsRequest& req, tobas_gazebo_msgs::GetWindParamsResponse& res);
-  bool setWindParamsCb(tobas_gazebo_msgs::SetWindParamsRequest& req, tobas_gazebo_msgs::SetWindParamsResponse& res);
+  bool getParamsCb(tobas_gazebo_msgs::GetWindParamsRequest& req, tobas_gazebo_msgs::GetWindParamsResponse& res);
+  bool setParamsCb(tobas_gazebo_msgs::SetWindParamsRequest& req, tobas_gazebo_msgs::SetWindParamsResponse& res);
 };
 }  // namespace gazebo

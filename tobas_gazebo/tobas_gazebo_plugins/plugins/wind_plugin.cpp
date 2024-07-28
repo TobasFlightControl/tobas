@@ -32,8 +32,8 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
   wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
-  get_wind_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getWindParamsCb, this);
-  set_wind_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setWindParamsCb, this);
+  get_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
 }
@@ -107,7 +107,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   wind_pub_.publish(wind_msg);
 }
 
-bool GazeboWindPlugin::getWindParamsCb(
+bool GazeboWindPlugin::getParamsCb(
   tobas_gazebo_msgs::GetWindParamsRequest& req,
   tobas_gazebo_msgs::GetWindParamsResponse& res)
 {
@@ -115,21 +115,17 @@ bool GazeboWindPlugin::getWindParamsCb(
   return true;
 }
 
-bool GazeboWindPlugin::setWindParamsCb(
+bool GazeboWindPlugin::setParamsCb(
   tobas_gazebo_msgs::SetWindParamsRequest& req,
   tobas_gazebo_msgs::SetWindParamsResponse& res)
 {
-  res.success = false;
-  res.params.mean_speed = params_.mean_speed;
-  res.params.direction = params_.direction;
-  res.params.gust_speed_factor = params_.gust_speed_factor;
-  res.params.gust_duration = params_.gust_duration;
-  res.params.gust_interval = params_.gust_interval;
+  res.params = params_;
 
   // Mean speed
   if (req.params.mean_speed < 0)
   {
     gzerr << kPluginName << ": Mean wind speed must be non-negative." << endl;
+    res.success = false;
     return true;
   }
   params_.mean_speed = res.params.mean_speed = req.params.mean_speed;
