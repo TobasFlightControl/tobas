@@ -83,18 +83,18 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
   const auto B_Pos_PQ = W_Rot_B.Inverse() * (W_Pos_WB - W_Pos_WP_) + B_Pos_BQ_;
 
   // ケーブルが伸び切っていない場合は一定張力
-  auto T = params_.tension;
+  auto T = params_.tension;  // [N]
 
   // ケーブル長が限界以上ならばワイヤロープの弾粘性モデル
-  const auto length = B_Pos_PQ.Length();
+  const auto length = B_Pos_PQ.Length();  // [m]
   if (length > params_.maximum_length)
   {
     // ケーブル長の変位を計算
     const auto x = length - params_.maximum_length;  // [m]
 
     // ケーブル長の変化率を計算
-    const auto W_Vel_PQ = W_Vel_WB + W_Gyro_WB.Cross(W_Pos_BQ);
-    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;
+    const auto W_Vel_PQ = W_Vel_WB + W_Gyro_WB.Cross(W_Pos_BQ);  // [m]
+    const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;             // [m/s]
 
     // マスバネダンパ系の係数
     const auto m = computeTotalMass(model_);                // [kg]
@@ -102,7 +102,7 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
     const auto d = 2 * sqrt(m * k);                         // [Ns/m] 臨海減衰する粘性係数
 
     // ケーブルにかかる力を計算
-    T = k * x + d * xd;
+    T = k * x + d * xd;  // [N]
   }
 
   // ケーブルの方向に張力を加える
