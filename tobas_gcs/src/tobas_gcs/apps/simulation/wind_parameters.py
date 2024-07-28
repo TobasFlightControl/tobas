@@ -16,18 +16,18 @@ from tobas_rqt_tools.messages import q_error
 
 from tobas_tools_py.drone import Drone
 from tobas_gazebo_msgs.srv import (
-    GetWindParameters,
-    GetWindParametersRequest,
-    GetWindParametersResponse,
-    SetWindParameters,
-    SetWindParametersRequest,
-    SetWindParametersResponse,
+    GetWindParams,
+    GetWindParamsRequest,
+    GetWindParamsResponse,
+    SetWindParams,
+    SetWindParamsRequest,
+    SetWindParamsResponse,
 )
 
 from ...common import TITLE_PSIZE
 
 
-class WindParametersWidget(QWidget):
+class WindParamsWidget(QWidget):
     WAIT_FOR_SERVICE = 30.0  # [s]
 
     def __init__(self, main: GroundControlStationWidget, drone: Drone) -> None:
@@ -71,8 +71,8 @@ class WindParametersWidget(QWidget):
         form.addRow(QLabel("Gust Interval [s]"), self._gust_interval)
 
     def initialize(self) -> bool:
-        self._get_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/get_wind_parameters", GetWindParameters)
-        self._set_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/set_wind_parameters", SetWindParameters)
+        self._get_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/get_wind_parameters", GetWindParams)
+        self._set_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/set_wind_parameters", SetWindParams)
 
         try:
             self._get_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
@@ -88,21 +88,21 @@ class WindParametersWidget(QWidget):
 
     @pyqtSlot()
     def _on_value_changed(self) -> None:
-        set_params_req = SetWindParametersRequest()
+        set_params_req = SetWindParamsRequest()
         set_params_req.params.mean_speed = self._mean_speed.get()
         set_params_req.params.direction = self._direction.get()
         set_params_req.params.gust_speed_factor = self._gust_speed_factor.get()
         set_params_req.params.gust_duration = self._gust_duration.get()
         set_params_req.params.gust_interval = self._gust_interval.get()
 
-        set_params_res: SetWindParametersResponse = self._set_sc.call(set_params_req)
+        set_params_res: SetWindParamsResponse = self._set_sc.call(set_params_req)
         if not set_params_res.success:
             q_error(self._main, "Failed to set wind parameters.")
             self._load_current_params()
             return
 
     def _load_current_params(self) -> None:
-        get_params_res: GetWindParametersResponse = self._get_sc.call(GetWindParametersRequest())
+        get_params_res: GetWindParamsResponse = self._get_sc.call(GetWindParamsRequest())
         cur_params = get_params_res.params
 
         self._mean_speed.set(cur_params.mean_speed)

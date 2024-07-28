@@ -108,16 +108,16 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
 }
 
 bool GazeboWindPlugin::getWindParamsCb(
-  tobas_gazebo_msgs::GetWindParametersRequest& req,
-  tobas_gazebo_msgs::GetWindParametersResponse& res)
+  tobas_gazebo_msgs::GetWindParamsRequest& req,
+  tobas_gazebo_msgs::GetWindParamsResponse& res)
 {
   res.params = params_;
   return true;
 }
 
 bool GazeboWindPlugin::setWindParamsCb(
-  tobas_gazebo_msgs::SetWindParametersRequest& req,
-  tobas_gazebo_msgs::SetWindParametersResponse& res)
+  tobas_gazebo_msgs::SetWindParamsRequest& req,
+  tobas_gazebo_msgs::SetWindParamsResponse& res)
 {
   res.success = false;
   res.params.mean_speed = params_.mean_speed;

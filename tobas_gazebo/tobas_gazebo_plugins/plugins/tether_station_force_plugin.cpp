@@ -32,9 +32,10 @@ void GazeboTetherStationForcePlugin::getSdfParams(sdf::ElementPtr sdf)
 {
   getSdfParam(sdf, "robotNamespace", ns_);
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "worldEnd", W_Pos_WP_, Vector3d::Zero);
-  getSdfParam(sdf, "droneEnd", B_Pos_BQ_, Vector3d::Zero);
-  getSdfParam(sdf, "tension", tension_, kDefaultTension);
+  getSdfParam(sdf, "worldEnd", W_Pos_WP_);
+  getSdfParam(sdf, "droneEnd", B_Pos_BQ_);
+  getSdfParam(sdf, "initialTension", init_tension_);
+  getSdfParam(sdf, "initialMaximumLength", init_max_length_);
 }
 
 void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
@@ -69,8 +70,8 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
 
   // ケーブルの方向に張力を加える
   const auto axis = -B_Pos_PQ.Normalized();
-  const auto force = tension_ * axis;  // TODO: 実際張力は一定ではない．より詳細な張力モデルを実装．
-  link_->AddLinkForce(force, B_Pos_BQ_);
+  // const auto force = tension_ * axis;  // TODO: 実際張力は一定ではない．より詳細な張力モデルを実装．
+  // link_->AddLinkForce(force, B_Pos_BQ_);
 }
 
 bool GazeboTetherStationForcePlugin::isThis(const std::string& name)

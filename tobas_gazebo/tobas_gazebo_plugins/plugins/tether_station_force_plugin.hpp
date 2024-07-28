@@ -14,7 +14,8 @@ class GazeboTetherStationForcePlugin : public ModelPlugin
   static constexpr char kPluginName[] = "tether_station_force_plugin";
 
   // Default parameters
-  static constexpr double kDefaultTension = 1.;  // [N]
+  static constexpr double kDefaultInitTension = 1.;  // [N]
+  static constexpr double kDefaultInitTension = 1.;  // [N]
 
   using self = GazeboTetherStationForcePlugin;
   using super = ModelPlugin;
@@ -33,7 +34,8 @@ private:
   std::string link_name_;
   ignition::math::Vector3d W_Pos_WP_;
   ignition::math::Vector3d B_Pos_BQ_;
-  double tension_;  // [N]
+  double init_tension_;     // [N]
+  double init_max_length_;  // [m]
 
   physics::ModelPtr model_;
   physics::LinkPtr link_;
