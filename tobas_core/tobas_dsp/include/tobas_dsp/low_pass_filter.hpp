@@ -14,9 +14,7 @@ class LowPassFilter
 public:
   explicit LowPassFilter();
 
-  void initializeFromTimeConst(const double& time_const, const T& init_value);
-  void initializeFromCutoff(const double& cutoff_freq, const T& init_value);
-
+  void initialize(const double& cutoff_freq, const T& init_value);
   void update(const T& u, const double& dt);
 
   inline const T& getOutput() const;
@@ -32,19 +30,13 @@ LowPassFilter<T>::LowPassFilter()
 }
 
 template <typename T>
-void LowPassFilter<T>::initializeFromTimeConst(const double& time_const, const T& init_value)
+void LowPassFilter<T>::initialize(const double& cutoff_freq, const T& init_value)
 {
-  if (time_const <= 0)
-    throw std::runtime_error("Time constant must be positive.");
+  if (cutoff_freq <= 0)
+    throw std::runtime_error("Cutoff frequency must be positive.");
 
-  T_ = 2 * time_const;
+  T_ = 2 * timeConstFromCutoff(cutoff_freq);
   y_ = prev_u_ = init_value;
-}
-
-template <typename T>
-void LowPassFilter<T>::initializeFromCutoff(const double& cutoff_freq, const T& init_value)
-{
-  initializeFromTimeConst(timeConstFromCutoff(cutoff_freq), init_value);
 }
 
 template <typename T>

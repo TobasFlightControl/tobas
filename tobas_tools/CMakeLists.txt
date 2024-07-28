@@ -13,22 +13,24 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_msgs
+	tobas_geomag
 	tobas_ros_tools
 	tobas_kdl
 	tobas_linear_control
 )
 
 catkin_package(
-	INCLUDE_DIRS include XYZgeomag/src
+	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS
 		tobas_msgs
+		tobas_geomag
 		tobas_ros_tools
 		tobas_kdl
 		tobas_linear_control
 )
 
-include_directories(${catkin_INCLUDE_DIRS} XYZgeomag/src)
+include_directories(${catkin_INCLUDE_DIRS})
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
@@ -40,4 +42,3 @@ install(TARGETS ${PROJECT_NAME}
 	RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 )
 install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
-install(FILES XYZgeomag/src/XYZgeomag.hpp DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})

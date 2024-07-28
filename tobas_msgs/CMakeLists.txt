@@ -64,10 +64,10 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 # Executables
 # file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 # foreach(FILE IN LISTS EXE_FILES)
-# 	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-# 	add_executable(${NODE_NAME} ${FILE})
-# 	add_dependencies(${NODE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# 	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES})
+# 	get_filename_component(NAME ${FILE} NAME_WE)
+# 	add_executable(${NAME} ${FILE})
+# 	add_dependencies(${NAME} ${PROJECT_NAME}_generate_messages_cpp)
+# 	target_link_libraries(${NAME} ${catkin_LIBRARIES})
 # endforeach()
 
 install(TARGETS ${PROJECT_NAME}

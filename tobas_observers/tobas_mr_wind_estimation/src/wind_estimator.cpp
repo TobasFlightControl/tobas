@@ -11,7 +11,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_wind_estimation
 {
@@ -35,7 +34,7 @@ void WindEstimator::updateInternalDataStructures()
   dynamics_.updateInternalDataStructures();
 }
 
-Matrix3d WindEstimator::velCoef(const Rotation& R_W_B)
+Matrix3d WindEstimator::velCoef(const kdl::Rotation& R_W_B)
 {
   const auto drag_rotor_sum = dynamics_.dragRotorSum(rotor_speeds_->speeds);
   const auto& mass = dynamics_.mass();

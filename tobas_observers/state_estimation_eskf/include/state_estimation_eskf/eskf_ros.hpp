@@ -24,6 +24,8 @@ namespace state_estimation_eskf
 {
 class ErrorStateKalmanFilterRos : public tobas::BaseNode
 {
+  static constexpr char kFeedbackTopic[] = "eskf_feedback";
+
   using self = ErrorStateKalmanFilterRos;
   using super = tobas::BaseNode;
 

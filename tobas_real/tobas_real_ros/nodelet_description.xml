@@ -8,4 +8,24 @@
     <description>TODO</description>
   </class>
 
+  <class name="tobas_real_ros/ImuHandlerNodelet" type="tobas_real_ros::ImuHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real_ros/MagnetometerHandlerNodelet" type="tobas_real_ros::MagnetometerHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real_ros/BarometerHandlerNodelet" type="tobas_real_ros::BarometerHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real_ros/BatteryHandlerNodelet" type="tobas_real_ros::BatteryHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_real_ros/RCInputHandlerNodelet" type="tobas_real_ros::RCInputHandlerNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
 </library>

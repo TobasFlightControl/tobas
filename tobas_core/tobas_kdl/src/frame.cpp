@@ -32,11 +32,12 @@ void Frame::Make4x4(double* d)
   }
   for (size_t j = 0; j < 3; ++j)
     d[12 + j] = 0.;
-  d[15] = 1;
+  d[15] = 1.;
 }
 
 void Frame::integrate(const Twist& t_this, double sampling_freq)
 {
+  assert(sampling_freq > 0);
   const auto n = t_this.rot.norm() / sampling_freq;
   if (n < kDefaultEpsilon)
     p += M * (t_this.vel / sampling_freq);

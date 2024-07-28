@@ -1,11 +1,10 @@
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "../include/tobas_mr_mpc/position_controller.hpp"
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_mpc
 {
@@ -20,13 +19,13 @@ PositionController::PositionController() : lqid_(kStateSize, 3, 3)
 }
 
 void PositionController::update(
-  const Vector& cp,
-  const Vector& cv,
-  const Vector& ca,
-  const Vector& tp,
-  const Vector& tv,
+  const kdl::Vector& cp,
+  const kdl::Vector& cv,
+  const kdl::Vector& ca,
+  const kdl::Vector& tp,
+  const kdl::Vector& tv,
   const double& dt,
-  Vector& ta)
+  kdl::Vector& ta)
 {
   // 現在の状態と設定値を埋める
   lqid_.current_state << cp.x(), cp.y(), cp.z(), cv.x(), cv.y(), cv.z(), ca.x(), ca.y(), ca.z();
@@ -36,7 +35,7 @@ void PositionController::update(
   ta.data = lqid_.solve(dt, false);  // LTIシステムなのでゲインの再計算は行わない
 
   // 目標加速度をクランプ
-  tobas_std::clamp2d(ta.x(), ta.y(), max_hor_acc_);
+  algo::clamp2d(ta.x(), ta.y(), max_hor_acc_);
   ta.z() = clamp(ta.z(), -max_ver_acc_, max_ver_acc_);
 }
 

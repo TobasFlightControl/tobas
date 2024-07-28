@@ -46,17 +46,15 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
         self._voltage_range.set_lower(self._drone.battery.sag_voltage)
         self._voltage_range.set_minimum(self._drone.battery.sag_voltage)
         self._voltage_range.set_maximum(self._drone.battery.max_voltage)
-        self._voltage_range.start_timer()
 
         self._current_range.clear()
         self._current_range.set_minimum(0.0)
         self._current_range.set_maximum(self._drone.battery.max_current)
-        self._current_range.start_timer()
 
         if self._battery_sub is not None:
             self._battery_sub.unregister()
         self._battery_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.BATTERY_LPF}", Battery, self._battery_cb, queue_size=1
+            f"{self._drone.name}/{Topic.Throttled.BATTERY_LPF}", Battery, self._battery_cb, queue_size=1
         )
 
     def _battery_cb(self, battery: Battery) -> None:
@@ -66,3 +64,6 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
 
         self._current_range.set_value(battery.current)
         self._current_range.set_text(f"{battery.current:.2f} A")
+
+        self._voltage_range.update()
+        self._current_range.update()

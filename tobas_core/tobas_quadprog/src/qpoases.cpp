@@ -14,7 +14,7 @@ QpOasesSolver::QpOasesSolver() : super()
 {
 }
 
-VectorXd QpOasesSolver::solve()
+bool QpOasesSolver::solve()
 {
   checkProblemValidity();
 
@@ -69,11 +69,17 @@ VectorXd QpOasesSolver::solve()
   solver.init(H, g, A, lb, ub, lbA, ubA, nWSR_);
 
   double x_opt[var_size];
-  if (solver.getPrimalSolution(x_opt) != qpOASES::SUCCESSFUL_RETURN)
-    throw runtime_error("Failed to solve QP.");
+  const auto ret = solver.getPrimalSolution(x_opt);
+  if (ret != qpOASES::SUCCESSFUL_RETURN)
+  {
+    error_msg_ = "qpOASES finished with error code " + to_string(ret);
+    return false;
+  }
 
-  // 解を元のスケールに戻して返す
+  // 解を元のスケールに戻す
   VectorXd x_scaled = Map<VectorXd>(x_opt, var_size);
-  return x_scaled.cwiseProduct(x_scale);
+  x_opt_ = x_scaled.cwiseProduct(x_scale);
+
+  return true;
 }
 }  // namespace quadprog

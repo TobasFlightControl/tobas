@@ -5,10 +5,9 @@ from abc import ABC, abstractmethod
 from overrides import override
 from typing import final
 
-from .constants import SERVO_RAIL_SIZE
 from .battery_config import BatteryConfig
 from .joint_config import JointCommandType, JointConfig, JointConfigMap
-from .rotor_config import Axis, EscSignalMode, RotorConfig, RotorConfigs
+from .rotor_config import TurningDirection, RotorAxis, ESCMode, RotorConfig, RotorConfigs
 from .fixed_wing_tools import FixedWingConfig
 
 
@@ -46,7 +45,7 @@ class DroneLoader(ABC):
     LINK_NAME = "link_name"
     DIRECTION = "direction"
     AXIS = "axis"
-    ESC_SIGNAL_MODE = "esc_signal_mode"
+    ESC_MODE = "esc_mode"
     NUM_POLES = "num_poles"
     MAX_ROT_SPEED = "max_rot_speed"
     MOTOR_CONSTANT = "motor_constant"
@@ -56,9 +55,6 @@ class DroneLoader(ABC):
     CHANNEL = "channel"
 
     FIXED_WING = "fixed_wing"
-
-    CCW = "ccw"
-    CW = "cw"
 
     def __init__(self, drone: Drone) -> None:
         self._drone = drone
@@ -138,36 +134,38 @@ class DroneLoader_Param(DroneLoader):
         # Link name
         res.link_name = rospy.get_param(f"{prefix}{self.LINK_NAME}")
 
-        # Direction
-        direction = rospy.get_param(f"{prefix}{self.DIRECTION}").lower()
-        if direction == self.CCW:
-            res.direction = 1
-        elif direction == self.CW:
-            res.direction = -1
+        # Turning Direction
+        direction = rospy.get_param(f"{prefix}{self.DIRECTION}")
+        if direction == TurningDirection.CW.name:
+            res.direction = TurningDirection.CW
+        elif direction == TurningDirection.CCW.name:
+            res.direction = TurningDirection.CCW
         else:
-            raise RuntimeError(f'Invalid rotation direction: {direction}. It must be "{self.CW}" or "{self.CCW}".')
+            raise RuntimeError(
+                f'Invalid rotation direction: {direction}. It must be "{TurningDirection.CW.name}" or "{TurningDirection.CCW.name}".'
+            )
 
-        # Axis
-        axis = rospy.get_param(f"{prefix}{self.AXIS}").lower()
-        if axis == Axis.X_POSITIVE.value:
-            res.axis = Axis.X_POSITIVE
-        elif axis == Axis.Z_POSITIVE.value:
-            res.axis = Axis.Z_POSITIVE
+        # Rotor Axis
+        axis = rospy.get_param(f"{prefix}{self.AXIS}")
+        if axis == RotorAxis.X_POSITIVE.name:
+            res.axis = RotorAxis.X_POSITIVE
+        elif axis == RotorAxis.Z_POSITIVE.name:
+            res.axis = RotorAxis.Z_POSITIVE
         else:
-            res.axis = Axis.UNKNOWN
+            res.axis = RotorAxis.UNKNOWN
 
         # ESC signal mode
-        esc_signal_mode = rospy.get_param(f"{prefix}{self.ESC_SIGNAL_MODE}").lower()
-        if esc_signal_mode == EscSignalMode.BLHELI_OPEN_LOOP.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_OPEN_LOOP
-        elif esc_signal_mode == EscSignalMode.BLHELI_CLOSED_LOOP_LOW_RANGE.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_CLOSED_LOOP_LOW_RANGE
-        elif esc_signal_mode == EscSignalMode.BLHELI_CLOSED_LOOP_MID_RANGE.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_CLOSED_LOOP_MID_RANGE
-        elif esc_signal_mode == EscSignalMode.BLHELI_CLOSED_LOOP_HIGH_RANGE.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_CLOSED_LOOP_HIGH_RANGE
+        esc_mode = rospy.get_param(f"{prefix}{self.ESC_MODE}")
+        if esc_mode == ESCMode.BLHELI_OPEN_LOOP.name:
+            res.esc_mode = ESCMode.BLHELI_OPEN_LOOP
+        elif esc_mode == ESCMode.BLHELI_CLOSED_LOOP_LOW_RANGE.name:
+            res.esc_mode = ESCMode.BLHELI_CLOSED_LOOP_LOW_RANGE
+        elif esc_mode == ESCMode.BLHELI_CLOSED_LOOP_MID_RANGE.name:
+            res.esc_mode = ESCMode.BLHELI_CLOSED_LOOP_MID_RANGE
+        elif esc_mode == ESCMode.BLHELI_CLOSED_LOOP_HIGH_RANGE.name:
+            res.esc_mode = ESCMode.BLHELI_CLOSED_LOOP_HIGH_RANGE
         else:
-            raise RuntimeError(f"Invalid ESC signal mode: {esc_signal_mode}")
+            raise RuntimeError(f"Invalid ESC signal mode: {esc_mode}")
 
         # The number of poles
         res.num_poles = rospy.get_param(f"{prefix}{self.NUM_POLES}")
@@ -185,7 +183,7 @@ class DroneLoader_Param(DroneLoader):
         assert res.rot_speed_coefs[1] >= 0.0
 
         res.channel = rospy.get_param(f"{prefix}{self.CHANNEL}")
-        assert 0 <= res.channel < SERVO_RAIL_SIZE
+        assert res.channel >= 0
 
         return res
 
@@ -268,36 +266,38 @@ class DroneLoader_File(DroneLoader):
         # Link name
         res.link_name = rotor_data[self.LINK_NAME]
 
-        # Direction
-        direction = rotor_data[self.DIRECTION].lower()
-        if direction == self.CCW:
-            res.direction = 1
-        elif direction == self.CW:
-            res.direction = -1
+        # Turning Direction
+        direction = rotor_data[self.DIRECTION]
+        if direction == TurningDirection.CW.name:
+            res.direction = TurningDirection.CW
+        elif direction == TurningDirection.CCW.name:
+            res.direction = TurningDirection.CCW
         else:
-            raise RuntimeError(f'Invalid rotation direction: {direction}. It must be "{self.CW}" or "{self.CCW}".')
+            raise RuntimeError(
+                f'Invalid rotation direction: {direction}. It must be "{TurningDirection.CW.name}" or "{TurningDirection.CCW.name}".'
+            )
 
-        # Axis
-        axis = rotor_data[self.AXIS].lower()
-        if axis == Axis.X_POSITIVE.value:
-            res.axis = Axis.X_POSITIVE
-        elif axis == Axis.Z_POSITIVE.value:
-            res.axis = Axis.Z_POSITIVE
+        # Rotor Axis
+        axis = rotor_data[self.AXIS]
+        if axis == RotorAxis.X_POSITIVE.name:
+            res.axis = RotorAxis.X_POSITIVE
+        elif axis == RotorAxis.Z_POSITIVE.name:
+            res.axis = RotorAxis.Z_POSITIVE
         else:
-            res.axis = Axis.UNKNOWN
+            res.axis = RotorAxis.UNKNOWN
 
         # ESC signal mode
-        esc_signal_mode = rotor_data[self.ESC_SIGNAL_MODE].lower()
-        if esc_signal_mode == EscSignalMode.BLHELI_OPEN_LOOP.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_OPEN_LOOP
-        elif esc_signal_mode == EscSignalMode.BLHELI_CLOSED_LOOP_LOW_RANGE.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_CLOSED_LOOP_LOW_RANGE
-        elif esc_signal_mode == EscSignalMode.BLHELI_CLOSED_LOOP_MID_RANGE.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_CLOSED_LOOP_MID_RANGE
-        elif esc_signal_mode == EscSignalMode.BLHELI_CLOSED_LOOP_HIGH_RANGE.value:
-            res.esc_signal_mode = EscSignalMode.BLHELI_CLOSED_LOOP_HIGH_RANGE
+        esc_mode = rotor_data[self.ESC_MODE]
+        if esc_mode == ESCMode.BLHELI_OPEN_LOOP.name:
+            res.esc_mode = ESCMode.BLHELI_OPEN_LOOP
+        elif esc_mode == ESCMode.BLHELI_CLOSED_LOOP_LOW_RANGE.name:
+            res.esc_mode = ESCMode.BLHELI_CLOSED_LOOP_LOW_RANGE
+        elif esc_mode == ESCMode.BLHELI_CLOSED_LOOP_MID_RANGE.name:
+            res.esc_mode = ESCMode.BLHELI_CLOSED_LOOP_MID_RANGE
+        elif esc_mode == ESCMode.BLHELI_CLOSED_LOOP_HIGH_RANGE.name:
+            res.esc_mode = ESCMode.BLHELI_CLOSED_LOOP_HIGH_RANGE
         else:
-            raise RuntimeError(f"Invalid ESC signal mode: {esc_signal_mode}")
+            raise RuntimeError(f"Invalid ESC signal mode: {esc_mode}")
 
         # The number of poles
         res.num_poles = rotor_data[self.NUM_POLES]
@@ -315,7 +315,7 @@ class DroneLoader_File(DroneLoader):
         assert res.rot_speed_coefs[1] >= 0.0
 
         res.channel = rotor_data[self.CHANNEL]
-        assert 0 <= res.channel < SERVO_RAIL_SIZE
+        assert res.channel >= 0
 
         return res
 

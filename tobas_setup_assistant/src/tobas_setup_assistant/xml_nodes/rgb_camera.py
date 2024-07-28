@@ -1,8 +1,8 @@
 import math
 from xml.etree import ElementTree as ET
 
-from tobas_urdf_tools_py.core import *
-from tobas_urdf_tools_py.dummy import DummyLink
+from tobas_urdf_tools_py.core import Joint, Origin
+from tobas_urdf_tools_py.dummy import DummyInertialLink
 from tobas_urdf_tools_py.gazebo import Camera
 from tobas_urdf_tools_py.noise import GaussianNoise
 
@@ -26,8 +26,8 @@ def add_rgb_camera_model(
     optical_link = f"{ns}/rgb_camera_optical_link"
 
     # robot/link
-    robot.append(DummyLink(rgb_camera_link))
-    robot.append(DummyLink(optical_link))
+    robot.append(DummyInertialLink(rgb_camera_link))
+    robot.append(DummyInertialLink(optical_link))
 
     # robot/joint
     robot.append(

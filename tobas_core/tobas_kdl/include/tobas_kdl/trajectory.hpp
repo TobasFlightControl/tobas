@@ -2,7 +2,7 @@
 
 #include "./frames.hpp"
 
-namespace tj
+namespace kdl
 {
 /* 3次元サイクロイドを生成 */
 class CycloidGenerator3d
@@ -65,4 +65,4 @@ private:
   void getVel(const double& t, const kdl::Rotation& r, kdl::Vector& v) const;
   void getAcc(const double& t, const kdl::Rotation& r, kdl::Vector& a) const;
 };
-}  // namespace tj
+}  // namespace kdl

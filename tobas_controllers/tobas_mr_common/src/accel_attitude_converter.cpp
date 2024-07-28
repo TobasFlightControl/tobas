@@ -1,5 +1,5 @@
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include <tobas_tools/constants.hpp>
@@ -7,7 +7,6 @@
 #include "../include/tobas_mr_common/accel_attitude_converter.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_mr_common
 {
@@ -23,11 +22,11 @@ void AccelAttitudeConverter::updateInternalDataStructures()
 }
 
 void AccelAttitudeConverter::update(
-  const Rotation& cur_rot,
-  const Vector& cur_vel_B,
-  const Vector& cur_wind_W,
+  const kdl::Rotation& cur_rot,
+  const kdl::Vector& cur_vel_B,
+  const kdl::Vector& cur_wind_W,
   const vector<double>& cur_rotor_speeds,
-  const Vector& tar_acc_W,
+  const kdl::Vector& tar_acc_W,
   double& thrust_out,
   double& roll_out,
   double& pitch_out)
@@ -46,7 +45,7 @@ void AccelAttitudeConverter::update(
   // 姿勢の制限を考慮してx, yをクランプ
   const auto tan_max_atti = tan(cfg_.max_attitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
-  tobas_std::clamp2d(x, y, max_xy_norm);
+  algo::clamp2d(x, y, max_xy_norm);
 
   // 3元非線形方程式の解析解を計算
   cur_rot.getRPY(roll_, pitch_, yaw_);
@@ -59,8 +58,8 @@ void AccelAttitudeConverter::update(
 }
 
 void AccelAttitudeConverter::update(
-  const Rotation& cur_rot,
-  const Vector& tar_acc_W,
+  const kdl::Rotation& cur_rot,
+  const kdl::Vector& tar_acc_W,
   double& thrust_out,
   double& roll_out,
   double& pitch_out)

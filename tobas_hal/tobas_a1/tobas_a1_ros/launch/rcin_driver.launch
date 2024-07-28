@@ -1,0 +1,10 @@
+<launch>
+
+  <arg name="nodelet" default="false"/>
+
+  <arg name="sbus_name" value="a1_sbus_driver"/>
+
+  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg sbus_name)" args="load tobas_a1_ros/SBUSDriverNodelet nodelet_manager_high" output="screen" required="true"/>
+  <node unless="$(arg nodelet)" pkg="tobas_a1_ros" type="sbus_driver_node" name="$(arg sbus_name)" output="screen" required="true"/>
+
+</launch>

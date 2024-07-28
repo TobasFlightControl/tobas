@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="tobas_motor_test" type="throttle_publisher_node.py" name="throttle_publisher" output="screen" required="true"/>
+
+</launch>

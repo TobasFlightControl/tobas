@@ -6,7 +6,6 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas_rc_teleop
 {
@@ -24,7 +23,7 @@ void PositionYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh
 void PositionYawController::reset(const tobas_msgs::Odometry& odom)
 {
   pos_yaw_.pos = odom.frame.p;
-  pos_yaw_.yaw = Euler(odom.frame.M).yaw;
+  pos_yaw_.yaw = kdl::Euler(odom.frame.M).yaw;
   t_last_rcin_ = odom.header.stamp;
 }
 
@@ -51,7 +50,7 @@ void PositionYawController::update(const tobas_msgs::RCInput& rcin, const tobas_
   {
     // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
     pos_yaw_.pos = odom.frame.p;
-    pos_yaw_.yaw = Euler(odom.frame.M).yaw;
+    pos_yaw_.yaw = kdl::Euler(odom.frame.M).yaw;
 
     // 上昇コマンドが入力されたかどうかをチェック
     is_up_commanded_ = vel_.z() > 0;

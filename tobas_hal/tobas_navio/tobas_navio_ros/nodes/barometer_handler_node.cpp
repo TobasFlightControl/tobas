@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "barometer_handler");
+  ros::init(argc, argv, "navio_barometer_handler");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
   tobas_navio_ros::BarometerHandler node(nh, pnh);

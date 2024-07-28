@@ -32,7 +32,7 @@ class FixedWingModel(ET.Element):
         c_yaw_p: float,
         c_yaw_r: float,
         control_surfaces: List[ControlSurface],
-    ):
+    ) -> None:
         assert wing_surface > 0.0
         assert wing_span > 0.0
         assert alpha_limit[0] < 0.0 < alpha_limit[1]

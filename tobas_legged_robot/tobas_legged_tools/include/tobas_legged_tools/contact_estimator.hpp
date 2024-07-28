@@ -1,10 +1,10 @@
 #pragma once
 
-#include <tobas_linear_control/kalman_filter.hpp>
 #include <tobas_kdl/treefksolverpos.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_linear_control/kalman_filter.hpp>
 
-namespace tobas_legged_tools
+namespace lr_tools
 {
 /**
  * @brief Contact estimator.
@@ -56,11 +56,12 @@ public:
 
 private:
   const kdl::Tree& tree_;
+  const std::vector<std::string> foot_names_;
+  const size_t nc_;  // The number of contact points
+
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeJntToInertiaSolver inertia_solver_;
 
-  const std::vector<std::string> foot_names_;
-  const size_t nc_;              // The number of contact points
   std::vector<state_t> states_;  // FSMの状態
   ctrl::KalmanFilter kf_;
 
@@ -73,4 +74,4 @@ private:
   Eigen::VectorXd calcProbs_force(const std::vector<double>& contact_forces);
   Eigen::VectorXd calcProbs_pred(const std::vector<bool>& cpg_states, const std::vector<double>& cpg_subphases);
 };
-}  // namespace tobas_legged_tools
+}  // namespace lr_tools

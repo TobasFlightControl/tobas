@@ -47,7 +47,7 @@ public:
 
   /**
    * Adds a new segment to the end of the segment with
-   * hook_name as segment_name
+   * hook_name as seg_name
    *
    * @param segment new segment to add
    * @param hook_name name of the segment to connect this
@@ -57,7 +57,7 @@ public:
 
   /**
    * Adds a complete chain to the end of the segment with
-   * hook_name as segment_name.
+   * hook_name as seg_name.
    *
    * @param hook_name name of the segment to connect the chain with.
    */
@@ -65,7 +65,7 @@ public:
 
   /**
    * Adds a complete tree to the end of the segment with
-   * hookname as segment_name.
+   * hookname as seg_name.
    *
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
@@ -84,28 +84,31 @@ public:
   void getChain(const std::string& chain_root, const std::string& chain_tip, Chain& chain) const;
 
   /**
-   * Extract a tree having segment_name as root. Only child segments of
-   * segment_name are added to the new tree.
+   * Extract a tree having seg_name as root. Only child segments of
+   * seg_name are added to the new tree.
    *
-   * @param segment_name The name of the segment to be used as root of the new tree
+   * @param seg_name The name of the segment to be used as root of the new tree
    * @param tree The resulting sub-tree
    * @param root_mass_ok If false and the new root segment has mass, it will throw an exception
    */
-  void getSubTree(const std::string& segment_name, Tree& tree, bool root_mass_ok = false) const;
+  void getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok = false) const;
 
   inline const size_t& getNrOfJoints() const;
   inline const size_t& getNrOfSegments() const;
-  inline SegmentMap::const_iterator getSegment(const std::string& segment_name) const;
+  inline SegmentMap::const_iterator getSegment(const std::string& seg_name) const;
   inline SegmentMap::const_iterator getRootSegment() const;
   inline const std::string& getRootName() const;
   inline const SegmentMap& getSegments() const;
+
+  inline bool hasSegment(const std::string& seg_name) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Tree& arg);
 
 private:
   SegmentMap segments_;
   std::string root_name_;
-  size_t nj_ = 0, ns_ = 0;
+  size_t nj_ = 0;
+  size_t ns_ = 0;
 
   void addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
@@ -134,9 +137,9 @@ inline const size_t& Tree::getNrOfSegments() const
   return ns_;
 }
 
-inline SegmentMap::const_iterator Tree::getSegment(const std::string& segment_name) const
+inline SegmentMap::const_iterator Tree::getSegment(const std::string& seg_name) const
 {
-  return segments_.find(segment_name);
+  return segments_.find(seg_name);
 }
 
 inline SegmentMap::const_iterator Tree::getRootSegment() const
@@ -152,5 +155,10 @@ inline const std::string& Tree::getRootName() const
 inline const SegmentMap& Tree::getSegments() const
 {
   return segments_;
+}
+
+inline bool Tree::hasSegment(const std::string& seg_name) const
+{
+  return segments_.find(seg_name) != segments_.end();
 }
 }  // namespace kdl

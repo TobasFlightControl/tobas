@@ -51,6 +51,13 @@ inline std::vector<T> toVector(const boost::array<T, N>& arr)
   return std::vector<T>(arr.begin(), arr.end());
 }
 
+/* 全ての要素が条件を満た場合にTrueを返す． */
+template <typename T, size_t N, typename Lambda>
+inline bool allOf(const boost::array<T, N>& arr, const Lambda& lambda)
+{
+  return std::all_of(arr.begin(), arr.end(), lambda);
+}
+
 /* 配列全体の型変換． */
 template <typename After, typename Before, size_t N>
 boost::array<After, N> cast(const boost::array<Before, N>& arr)

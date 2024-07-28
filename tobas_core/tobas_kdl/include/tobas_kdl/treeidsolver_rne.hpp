@@ -36,29 +36,26 @@ public:
    * Function to calculate from Cartesian forces to joint torques.
    * Input parameters;
    * \param q The current joint positions
-   * \param q_dot The current joint velocities
-   * \param q_dotdot The current joint accelerations
+   * \param qd The current joint velocities
+   * \param qdd The current joint accelerations
    * \param f_ext The external forces (no gravity) on the segments
    */
-  int CartToJnt(
-    const JntArray& q,
-    const JntArray& q_dot,
-    const JntArray& q_dotdot,
-    const WrenchMap& f_ext = WrenchMap()) override;
+  int CartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext = WrenchMap())
+    override;
 
 private:
   const Accel ag_;
-
   TwistMap v_;
   AccelMap a_;
   WrenchMap f_;
+  double qj_, qdj_, qddj_;
 
   /* One recursion step */
   void rneStep(
-    const SegmentMap::const_iterator& segment,
+    const SegmentMap::const_iterator& cur_it,
     const JntArray& q,
-    const JntArray& q_dot,
-    const JntArray& q_dotdot,
+    const JntArray& qd,
+    const JntArray& qdd,
     const WrenchMap& f_ext);
 };
 }  // namespace kdl

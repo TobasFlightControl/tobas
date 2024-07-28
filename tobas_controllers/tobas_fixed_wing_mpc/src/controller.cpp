@@ -18,7 +18,7 @@ using namespace Eigen;
 namespace tobas_fixed_wing_mpc
 {
 Controller::Controller(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), x_rotors_(drone_, tobas::Axis::X_POSITIVE), eom_(drone_), server_(pnh_)
+  : super(nh, pnh, name), x_rotors_(drone_, tobas::X_POSITIVE), eom_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
 
@@ -289,8 +289,14 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
   updateCurrentStateVector();
   updateSetStateVector();
 
-  // MPCを解いて最適制御入力を求める
-  mpc_.solve();
+  // MPCを解く
+  if (!mpc_.solve())
+  {
+    TOBAS_FATAL("Failed to solve MPC: ", mpc_.errorMessage());
+    return;
+  }
+
+  // 最適制御入力を計算
   const VectorXd& du = mpc_.optimalControlInput();
   const VectorXd u = eom_.trimInput() + du;
 

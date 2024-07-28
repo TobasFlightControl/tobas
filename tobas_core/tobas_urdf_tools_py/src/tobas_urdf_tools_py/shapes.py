@@ -31,7 +31,7 @@ class Sphere(Shape):
 
 
 class Mesh(Shape):
-    def __init__(self, filename: str, scale_x: float, scale_y: float, scale_z: float) -> None:
+    def __init__(self, filename: str, scale_x: float = 1.0, scale_y: float = 1.0, scale_z: float = 1.0) -> None:
         assert scale_x > 0.0
         assert scale_y > 0.0
         assert scale_z > 0.0

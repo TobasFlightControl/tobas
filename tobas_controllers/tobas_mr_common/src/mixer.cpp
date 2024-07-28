@@ -5,7 +5,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_common
 {
@@ -14,7 +13,7 @@ Mixer::Mixer(const tobas::Drone& drone)
     fk_solver_(drone.tree()),
     jnt_axis_solver_(drone.tree()),
     inertia_solver_(drone.tree()),
-    z_rotors_(drone, tobas::Axis::Z_POSITIVE)
+    z_rotors_(drone, tobas::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -30,7 +29,7 @@ void Mixer::updateInternalDataStructures()
   qp_.setZero();
 
   // 機体の質量
-  if (inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
 
   // QPの決定変数のスケール
@@ -57,7 +56,7 @@ void Mixer::updateInternalDataStructures()
 VectorXd Mixer::solve(
   const double& dt,
   const double& cur_voltage,
-  const JntArray& cur_q,
+  const kdl::JntArray& cur_q,
   const Vector3d& cur_gyro_B,
   const Vector3d& cur_h_moment_B,
   const Vector3d& tar_dgyro_B,
@@ -106,7 +105,10 @@ VectorXd Mixer::solve(
   qp_.problem.b.head(z_rotors_.count()) = max_dthrusts;
   qp_.problem.b.tail(z_rotors_.count()) = -min_dthrusts;
 
-  const VectorXd dx = qp_.solve();
+  if (!qp_.solve())
+    throw runtime_error("QP failed: " + qp_.errorMessage());
+
+  const auto& dx = qp_.solution();
   const auto dthrust = dx.tail(z_rotors_.count());
   return last_thrusts_ = tar_thrusts + dthrust;
 }
@@ -114,7 +116,7 @@ VectorXd Mixer::solve(
 VectorXd Mixer::solve(
   const double& dt,
   const double& cur_voltage,
-  const JntArray& cur_q,
+  const kdl::JntArray& cur_q,
   const Vector3d& cur_gyro_B,
   const Vector3d& cur_h_moment_B,
   const Vector3d& tar_dgyro_B,

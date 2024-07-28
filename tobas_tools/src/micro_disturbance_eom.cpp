@@ -8,16 +8,11 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas
 {
 MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone)
-  : drone_(drone),
-    fk_solver_(drone.tree()),
-    inertia_solver_(drone.tree()),
-    x_rotors_(drone, Axis::X_POSITIVE),
-    trim_(drone)
+  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), x_rotors_(drone, X_POSITIVE), trim_(drone)
 {
   if (drone.isLoaded())
     updateInternalDataStructures();
@@ -38,7 +33,11 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-int MicroDisturbanceEoM::update(const double& V, const double& rho, const double& battery_voltage, const JntArray& q)
+int MicroDisturbanceEoM::update(
+  const double& V,
+  const double& rho,
+  const double& battery_voltage,
+  const kdl::JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);

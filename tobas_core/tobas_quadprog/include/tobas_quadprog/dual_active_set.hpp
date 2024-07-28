@@ -15,7 +15,7 @@ class DualActiveSetSolver : public QuadProgSolver
 public:
   explicit DualActiveSetSolver();
 
-  Eigen::VectorXd solve() override;
+  bool solve() override;
 
 private:
   enum state_t

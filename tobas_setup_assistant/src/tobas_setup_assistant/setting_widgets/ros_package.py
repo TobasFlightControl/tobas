@@ -8,14 +8,15 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import re
+from glob import glob
 from overrides import override
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QFont
 
-from tobas_rqt_tools.path import get_catkin_ws_paths, is_in_catkin_src
+from tobas_rqt_tools.path import get_catkin_ws_path, get_catkin_ws_paths, is_in_catkin_src
 from tobas_rqt_tools.utils import place_center
-from tobas_rqt_tools.messages import q_error_named, yes_or_no, QMessageLevel
+from tobas_rqt_tools.messages import q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.constants import PKG_EXTENSION
 
 from ..common import BODY_PSIZE
@@ -87,19 +88,29 @@ class RosPackageWidget(BaseSettingWidget):
     @override
     def is_valid(self) -> bool:
         pardir = self._pardir.get()
+        tbs_name = self._tbs_name.get()
+        tbs_path = self._tbs_path.text()
+
+        # 親ディレクトリが存在することを確認
         if not osp.isdir(pardir):
-            q_error_named(self._main, self.NAME, f"{pardir} does not exist.")
+            q_error(self._main, f'"{pardir}" does not exist.')
             return False
         if not is_in_catkin_src(pardir):
-            q_error_named(self._main, self.NAME, f"{pardir} is not in the src directory of a catkin workspace.")
+            q_error(self._main, f'"{pardir}" is not in the src directory of a catkin workspace.')
             return False
 
-        tbs_name = self._tbs_name.get()
-        if tbs_name.count("/") or tbs_name.count(".") or tbs_name.count(" "):
-            q_error_named(self._main, self.NAME, f"Invalid package name: {tbs_name}")
+        # パッケージ名が無効な文字を含んでいないことを確認
+        if tbs_name.count("/") > 0 or tbs_name.count(".") > 0 or tbs_name.count(" ") > 0:
+            q_error(self._main, f"Invalid package name: {tbs_name}")
             return False
 
-        tbs_path = self._tbs_path.text()
+        # 同じcatkinワークスペースのソースディレクトリ内に同じ名前でパスが異なるTobasパッケージが存在しないことを確認
+        for same_name_pkg in glob(osp.join(get_catkin_ws_path(pardir), "src", "*", self._tbs_name_with_ext())):
+            if same_name_pkg != tbs_path:
+                q_error(self._main, f'"{self._tbs_name_with_ext()}" already exists.: {same_name_pkg}')
+                return False
+
+        # パッケージパスが既に存在する場合は置換するかどうかをユーザに確認
         if osp.exists(tbs_path):
             if not yes_or_no(self._main, f"{tbs_path} already exists. Do you want to replace it?", QMessageLevel.WARN):
                 return False
@@ -135,7 +146,7 @@ class RosPackageWidget(BaseSettingWidget):
         pardir = self._pardir.get()
         tbs_name = self._tbs_name.get()
 
-        path = pardir + "/" + tbs_name + PKG_EXTENSION
+        path = pardir + "/" + self._tbs_name_with_ext()
         path = re.sub("/*/", "/", path)  # スラッシュの重複を削除
         self._tbs_path.setText(path)
 
@@ -163,3 +174,6 @@ class RosPackageWidget(BaseSettingWidget):
                 cnd_time = last_accessed_time
 
         return cnd_ws
+
+    def _tbs_name_with_ext(self) -> str:
+        return self.tbs_name() + PKG_EXTENSION

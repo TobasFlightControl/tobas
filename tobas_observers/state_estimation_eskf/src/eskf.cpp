@@ -1,5 +1,5 @@
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/assert.hpp>
 #include <tobas_std_tools/console.hpp>
 
@@ -267,7 +267,7 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
 
   // Compute innovation
-  const double delta_yaw = tobas_std::wrapPi(yaw_meas - getYaw());
+  const double delta_yaw = algo::wrapPi(yaw_meas - getYaw());
 
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
   constexpr double kEpsilon = 1e-6;

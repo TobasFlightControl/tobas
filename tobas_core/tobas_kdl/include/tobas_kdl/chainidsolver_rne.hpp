@@ -41,6 +41,8 @@ private:
 
   int j_;
   double qj_, qdj_, qddj_;
+  Wrench f_ee_;
+  Accel ag_;
 
   JntArray effort_out_;
 };

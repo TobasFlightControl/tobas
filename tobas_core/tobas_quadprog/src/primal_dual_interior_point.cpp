@@ -13,7 +13,7 @@ PrimalDualInteriorPointSolver::PrimalDualInteriorPointSolver()
 {
 }
 
-VectorXd PrimalDualInteriorPointSolver::solve()
+bool PrimalDualInteriorPointSolver::solve()
 {
   checkProblemValidity();
 
@@ -22,7 +22,11 @@ VectorXd PrimalDualInteriorPointSolver::solve()
 
   if (is_first_solve_)
   {
-    initialize(scaled);
+    if (!initialize(scaled))
+    {
+      error_msg_ = "Failed to initialize decision variables.";
+      return false;
+    }
     is_first_solve_ = false;
   }
 
@@ -32,10 +36,13 @@ VectorXd PrimalDualInteriorPointSolver::solve()
     const LLT<MatrixXd> llt(scaled.P);
     if (llt.info() == NumericalIssue)
     {
-      throw runtime_error("Cholesky decomposition failed.");
+      error_msg_ = "Cholesky decomposition failed.";
+      return false;
     }
+
     theta_ = -llt.solve(scaled.q);
-    return theta_.cwiseProduct(x_scale);
+    x_opt_ = theta_.cwiseProduct(x_scale);
+    return true;
   }
 
   // Iteration
@@ -82,8 +89,10 @@ VectorXd PrimalDualInteriorPointSolver::solve()
 
   // TODO: 解の収束と実行可能性をチェック
 
-  // 解を元のスケールに戻して終了
-  return theta_.cwiseProduct(x_scale);
+  // 解を元のスケールに戻す
+  x_opt_ = theta_.cwiseProduct(x_scale);
+
+  return true;
 }
 
 bool PrimalDualInteriorPointSolver::setNumberOfIterations(const size_t& num_iter)
@@ -113,7 +122,7 @@ bool PrimalDualInteriorPointSolver::setAlphaTolerance(const double& alpha_tol)
   return true;
 }
 
-void PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
+bool PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
 {
   var_dim_ = scaled.q.rows();
   eq_dim_ = scaled.h.rows();
@@ -123,7 +132,9 @@ void PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
   DualActiveSetSolver active_set_solver_;
   active_set_solver_.problem = scaled;
   active_set_solver_.x_scale = VectorXd::Ones(problem.varSize());
-  theta_ = active_set_solver_.solve();
+  if (!active_set_solver_.solve())
+    return false;
+  theta_ = active_set_solver_.solution();
 
   // 不等式制約のラグランジュ乗数とスラック変数の初期値を1に設定
   lam_ = VectorXd::Ones(ineq_dim_);
@@ -131,6 +142,8 @@ void PrimalDualInteriorPointSolver::initialize(const QuadProgProblem& scaled)
 
   A_ = MatrixXd::Zero(var_dim_ + eq_dim_, var_dim_ + eq_dim_);
   b_ = VectorXd::Zero(var_dim_ + eq_dim_);
+
+  return true;
 }
 
 double PrimalDualInteriorPointSolver::findAlpha(const VectorXd& dlam, const VectorXd& ds) const
@@ -143,7 +156,7 @@ double PrimalDualInteriorPointSolver::findAlpha(const VectorXd& dlam, const Vect
     const auto mid = (lb + ub) / 2;
     const VectorXd lam = lam_ + mid * dlam;
     const VectorXd s = s_ + mid * ds;
-    if ((lam.array() > 0.).all() && (s.array() > 0.).all())
+    if ((lam.array() > 0).all() && (s.array() > 0).all())
       lb = mid;
     else
       ub = mid;

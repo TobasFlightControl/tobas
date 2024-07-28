@@ -1,22 +1,16 @@
 #pragma once
 
-#include <tobas_dsp/noise_variance_filter.hpp>
+#include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_navio_core/ms5611.hpp>
-
-#include "./base_sensor_node.hpp"
 
 namespace tobas_navio_ros
 {
-class BarometerHandler : public BaseSensorNode
+class BarometerHandler : public hal::BaseSensorNode
 {
-  // Constants
-  static constexpr size_t kSamplingRate = 50;           // [Hz]
-  static constexpr double kHpfCutoff = 10.;             // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
-  static constexpr size_t kNoiseStatTimeWindow = 1000;  // [ms]
-  static constexpr size_t kWindowSize = kSamplingRate * kNoiseStatTimeWindow / 1000;
+  static constexpr size_t kSamplingRate = 50;  // [Hz]
 
   using self = BarometerHandler;
-  using super = BaseSensorNode;
+  using super = hal::BaseSensorNode;
 
 public:
   explicit BarometerHandler(
@@ -26,11 +20,9 @@ public:
 
 private:
   navio::MS5611 barometer_;
-  dsp::NoiseVarianceFilter pressure_noise_;
-
   ros::Publisher bar_pub_;
 
-  void initializeNoiseFilter();
+  void initialize();
 
   void mainTimerCb(const ros::TimerEvent& event);
 };

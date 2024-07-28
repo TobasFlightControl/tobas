@@ -65,10 +65,10 @@ target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 set(targets_to_install "")
 foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-	add_executable(${NODE_NAME} ${FILE})
-	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NODE_NAME})
+	get_filename_component(NAME ${FILE} NAME_WE)
+	add_executable(${NAME} ${FILE})
+	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+	list(APPEND targets_to_install ${NAME})
 endforeach()
 
 install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_nodelet

@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 project(tobas_mr_arducopter)
 
+file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
+  message("This package is skipped on Raspberry Pi.")
+  find_package(catkin REQUIRED)
+  catkin_package()
+  return()
+endif()
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
@@ -64,9 +72,9 @@ target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NODE_NAME ${FILE} NAME_WE)
-	add_executable(${NODE_NAME} ${FILE})
-	target_link_libraries(${NODE_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+	get_filename_component(NAME ${FILE} NAME_WE)
+	add_executable(${NAME} ${FILE})
+	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
 endforeach()
 
 install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_nodelet

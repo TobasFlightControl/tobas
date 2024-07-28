@@ -40,7 +40,7 @@ def get_tbsdrn_path(tbs_path: str) -> str:
     return osp.join(get_tbs_config_path(tbs_path), "config", "drone.tbsdrn")
 
 
-def get_urdf_path(tbs_path: str) -> str:
+def get_modified_urdf_path(tbs_path: str) -> str:
     """PC上の drone.xacro の絶対パスを返す．"""
     return osp.join(get_tbs_config_path(tbs_path), "urdf", "drone.xacro")
 
@@ -50,11 +50,16 @@ def get_mesh_path(tbs_path: str) -> str:
     return osp.join(get_tbs_config_path(tbs_path), "mesh")
 
 
-def get_settings_path(tbs_path: str) -> str:
-    """PC上の settings.yaml の絶対パスを返す．"""
-    return osp.join(get_tbs_config_path(tbs_path), "settings.yaml")
-
-
 def get_dynamic_params_path(tbs_path: str) -> str:
     """PC上の dynamic_params.yaml の絶対パスを返す．"""
     return osp.join(get_tbs_config_path(tbs_path), "config", "dynamic_params.yaml")
+
+
+def get_settings_path(tbs_path: str) -> str:
+    """PC上のバックアップ用設定ファイルの絶対パスを返す．"""
+    return osp.join(get_tbs_config_path(tbs_path), "backup", "settings.yaml")
+
+
+def get_original_urdf_path(tbs_path: str) -> str:
+    """PC上のバックアップ用オリジナルURDFの絶対パスを返す．"""
+    return osp.join(get_tbs_config_path(tbs_path), "backup", "original.urdf")

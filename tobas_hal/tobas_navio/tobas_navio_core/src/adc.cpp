@@ -1,11 +1,7 @@
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
-#include <err.h>
 
-#include "../include/tobas_navio_core/util.hpp"
 #include "../include/tobas_navio_core/adc.hpp"
 
 using namespace std;
@@ -16,19 +12,19 @@ ADC::ADC()
 {
 }
 
-int ADC::initialize()
+bool ADC::initialize()
 {
-  for (size_t i = 0; i < kChannelCount; ++i)
+  for (size_t ch = 0; ch < kChannelCount; ++ch)
   {
-    channels_[i] = openChannel(i);
-    if (channels_[i] < 0)
+    channels_[ch] = openChannel(ch);
+    if (channels_[ch] < 0)
     {
-      perror("open");
-      return -1;
+      cerr << "Failed to open ADC channel " << ch << "." << endl;
+      return false;
     }
   }
 
-  return 0;
+  return true;
 }
 
 int ADC::read(const size_t& ch)
@@ -39,9 +35,9 @@ int ADC::read(const size_t& ch)
     return -1;
   }
 
-  if (::pread(channels_[ch], buffer_, ARRAY_SIZE(buffer_), 0) < 0)
+  if (::pread(channels_[ch], buffer_, kBufferSize, 0) < 0)
   {
-    perror("pread");
+    cerr << "Failed to read ADC channel " << ch << "." << endl;
     return -1;
   }
 
@@ -52,10 +48,7 @@ int ADC::openChannel(const size_t& ch)
 {
   char* channel_path;
   if (asprintf(&channel_path, "%s/ch%zu", kAdcSysfsPath, ch) == -1)
-  {
-    err(1, "adc channel: %zu\n", ch);
     return -1;
-  }
 
   const auto fd = ::open(channel_path, O_RDONLY);
   free(channel_path);

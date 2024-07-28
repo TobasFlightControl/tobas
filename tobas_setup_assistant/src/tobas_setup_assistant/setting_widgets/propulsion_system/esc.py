@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 from overrides import override
 from PyQt5.QtWidgets import QVBoxLayout
 
+from tobas_tools_py.rotor_config import ESCMode
+
 from ...parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_ComboBox
 from .base import BaseSelectedLinkSettingWidget
 
@@ -16,10 +18,10 @@ class EscWidget(BaseSelectedLinkSettingWidget):
     NAME = "ESC"
 
     SIGNAL_MODE_MAP = {
-        "BLHeli Open Loop": "blheli_open_loop",
-        "BHLeli Closed Loop (Low Range)": "blheli_closed_loop_low_range",
-        "BHLeli Closed Loop (Middle Range)": "blheli_closed_loop_mid_range",
-        "BHLeli Closed Loop (High Range)": "blheli_closed_loop_high_range",
+        "BLHeli Open Loop": ESCMode.BLHELI_OPEN_LOOP.name,
+        "BHLeli Closed Loop (Low Range)": ESCMode.BLHELI_CLOSED_LOOP_LOW_RANGE.name,
+        "BHLeli Closed Loop (Middle Range)": ESCMode.BLHELI_CLOSED_LOOP_MID_RANGE.name,
+        "BHLeli Closed Loop (High Range)": ESCMode.BLHELI_CLOSED_LOOP_HIGH_RANGE.name,
     }
 
     def __init__(self, main: SetupAssistant, link_name: str) -> None:

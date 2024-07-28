@@ -65,7 +65,7 @@ class PackageGenerator(QObject):
 
         # Build Tobas package
         progress.setLabelText("Building Tobas packages.")
-        if not build_tobas_package(self._main.ros_package.tbs_path()):
+        if not build_tobas_package(self._tbs_path()):
             progress.close()
             q_error(self._main, "Failed to build Tobas package.")
             return
@@ -95,7 +95,7 @@ class PackageGenerator(QObject):
         return True
 
     def _generate_pkg(self) -> None:
-        tbs_path = self._main.ros_package.tbs_path()
+        tbs_path = self._tbs_path()
 
         # Tobasパッケージを作成
         os.makedirs(tbs_path, exist_ok=True)
@@ -113,7 +113,7 @@ class PackageGenerator(QObject):
         self._generate_user_pkg(items)
 
     def _generate_meta_pkg(self, items: dict) -> None:
-        meta_pkg_path = get_tbs_meta_path(self._main.ros_package.tbs_path())
+        meta_pkg_path = get_tbs_meta_path(self._tbs_path())
         os.makedirs(meta_pkg_path, exist_ok=True)
 
         self._meta_env.generate(items, "CMakeLists.txt.tpl", meta_pkg_path)
@@ -122,14 +122,16 @@ class PackageGenerator(QObject):
         create_empty_file(osp.join(meta_pkg_path, "DO_NOT_EDIT_THIS_PACKAGE"), exist_ok=True)
 
     def _generate_config_pkg(self, items: dict) -> None:
-        config_pkg_path = get_tbs_config_path(self._main.ros_package.tbs_path())
+        config_pkg_path = get_tbs_config_path(self._tbs_path())
         os.makedirs(config_pkg_path, exist_ok=True)
 
         # ディレクトリを作成
+        backup_dir = osp.join(config_pkg_path, "backup")
         config_dir = osp.join(config_pkg_path, "config")
         launch_dir = osp.join(config_pkg_path, "launch")
         urdf_dir = osp.join(config_pkg_path, "urdf")
         mesh_dir = osp.join(config_pkg_path, "mesh")
+        os.makedirs(backup_dir, exist_ok=True)
         os.makedirs(config_dir, exist_ok=True)
         os.makedirs(launch_dir, exist_ok=True)
         os.makedirs(urdf_dir, exist_ok=True)
@@ -155,12 +157,14 @@ class PackageGenerator(QObject):
         flight_modes = {self._main.controller.stabilize_mode(), self._main.controller.acrobat_mode()}
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
+        # TODO: コントローラごとに1つずつ
         if PositionYaw.__name__ in flight_modes or PosVelAccYaw.__name__ in flight_modes:
             self._cfg_env.generate(items, "keyboard_teleop/position_yaw/keyboard_teleop.launch.tpl", launch_dir)
         elif SpeedRollDeltaPitch.__name__ in flight_modes:
             self._cfg_env.generate(items, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.tpl", launch_dir)
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
+        # TODO: コントローラごとに1つずつ
         if (
             PositionYaw.__name__ in flight_modes
             or PosVelAccYaw.__name__ in flight_modes
@@ -176,11 +180,11 @@ class PackageGenerator(QObject):
         self._generate_rc_teleop_config(config_dir)
         self._generate_controller_config(config_dir)
         self._generate_observer_config(config_dir)
-        self._generate_urdf(urdf_dir, mesh_dir)
+        self._generate_urdfs(mesh_dir)
 
     def _generate_user_pkg(self, items: dict) -> None:
-        user_pkg_name = get_tbs_user_name(self._main.ros_package.tbs_path())
-        user_pkg_path = get_tbs_user_path(self._main.ros_package.tbs_path())
+        user_pkg_name = get_tbs_user_name(self._tbs_path())
+        user_pkg_path = get_tbs_user_path(self._tbs_path())
         os.makedirs(user_pkg_path, exist_ok=True)
 
         # ディレクトリを作成
@@ -221,7 +225,7 @@ class PackageGenerator(QObject):
             data[setting_widget.NAME] = setting_widget.dump_settings()
 
         # yaml形式で保存
-        settings_path = get_settings_path(self._main.ros_package.tbs_path())
+        settings_path = get_settings_path(self._tbs_path())
         with open(settings_path, "w") as f:
             yaml.safe_dump(data, f)
 
@@ -238,6 +242,9 @@ class PackageGenerator(QObject):
         # Observer
         template_items["observer_pkg"] = self._main.observer.pkg_name()
 
+        # Hardware
+        template_items["hardware_pkg"] = self._main.hardware.pkg_name()
+
         # Simulation
         template_items["gravity"] = self._main.simulation.gravity.get()
 
@@ -246,9 +253,9 @@ class PackageGenerator(QObject):
         template_items["author_email"] = self._main.author_information.email.get()
 
         # Ros Package
-        template_items["meta_pkg_name"] = get_tbs_meta_name(self._main.ros_package.tbs_path())
-        template_items["config_pkg_name"] = get_tbs_config_name(self._main.ros_package.tbs_path())
-        template_items["user_pkg_name"] = get_tbs_user_name(self._main.ros_package.tbs_path())
+        template_items["meta_pkg_name"] = get_tbs_meta_name(self._tbs_path())
+        template_items["config_pkg_name"] = get_tbs_config_name(self._tbs_path())
+        template_items["user_pkg_name"] = get_tbs_user_name(self._tbs_path())
 
         # Joint Controllers
         joint_controllers = "joint_state_controller"
@@ -288,7 +295,7 @@ class PackageGenerator(QObject):
                 "link_name": selected.link_name(),
                 "direction": selected.motor.direction(),
                 "axis": selected.axis_type(),
-                "esc_signal_mode": selected.esc.signal_mode(),
+                "esc_mode": selected.esc.signal_mode(),
                 "num_poles": selected.motor.num_poles(),
                 "max_rot_speed": float(selected.motor.max_rot_speed()),
                 "time_constant_up": float(selected.motor.time_const_up()),
@@ -418,28 +425,28 @@ class PackageGenerator(QObject):
         with open(file_path, "w") as f:
             yaml.safe_dump(items, f)
 
-    def _generate_urdf(self, urdf_dir: str, mesh_dir: str) -> None:
-        robot = self._make_urdf_with_plugins(mesh_dir)
-        urdf_path = osp.join(urdf_dir, f"drone.xacro")
-
-        # Save URDF
-        with open(urdf_path, "w") as f:
-            f.write(prettify(robot))
-
-    def _make_urdf_with_plugins(self, mesh_dir: str) -> ET.Element:
+    def _generate_urdfs(self, mesh_dir: str) -> None:
+        # Parse robot
         description = rospy.get_param("/robot_description")
         robot = ET.fromstring(description)
         assert robot.tag == "robot"
 
+        # Save original URDF
+        with open(get_original_urdf_path(self._tbs_path()), "w") as f:
+            f.write(prettify(robot))
+
+        # Modify robot
         self._resolve_mesh_files(robot, mesh_dir)
         self._screen_xml_elements(robot)
         self._add_xml_elements(robot)
 
-        return robot
+        # Save modified URDF
+        with open(get_modified_urdf_path(self._tbs_path()), "w") as f:
+            f.write(prettify(robot))
 
     def _resolve_mesh_files(self, robot: ET.Element, mesh_dir: str) -> None:
         """全てのメッシュファイルのパスをパッケージ以下に変更する．"""
-        config_pkg_name = get_tbs_config_name(self._main.ros_package.tbs_path())
+        config_pkg_name = get_tbs_config_name(self._tbs_path())
         for mesh in robot.iter("mesh"):
             src_path = resolve_uri(mesh.attrib["filename"])
             base_name = osp.basename(src_path)
@@ -530,6 +537,10 @@ class PackageGenerator(QObject):
         wind_model = WindModel(ns=self._drone_name, link_name=root_link)
         robot.append(wind_model)
 
+        # World Contacts plugin
+        world_contacts = WorldContactsModel(ns=self._drone_name)
+        robot.append(world_contacts)
+
         # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
@@ -542,7 +553,7 @@ class PackageGenerator(QObject):
         )
         robot.append(battery_model)
 
-        # Propulsion System plugin
+        # Propulsion system plugin
         for i in range(self._main.propulsion_system.selected.count()):
             selected: SelectedLinkWidget = self._main.propulsion_system.selected.widget(i)
             motor_model = MotorModel(
@@ -550,15 +561,17 @@ class PackageGenerator(QObject):
                 motor_number=i,
                 link_name=selected.link_name(),
                 joint_name=selected.joint_name(),
-                direction=selected.motor.direction(),
                 rot_speed_coefs=selected.electrodynamics.rot_speed_coefs(),
                 motor_const=selected.aerodynamics.motor_const(),
                 moment_const=selected.aerodynamics.moment_const(),
                 rotor_drag_coef=selected.aerodynamics.rotor_drag_coef(),
                 time_const_up=selected.motor.time_const_up(),
+                direction=selected.motor.direction(),
                 time_const_down=selected.motor.time_const_down(),
                 max_rot_speed=selected.motor.max_rot_speed(),
+                num_poles=selected.motor.num_poles(),
                 max_current=selected.esc.max_current(),
+                esc_mode=selected.esc.signal_mode(),
                 max_model_error_rate=self._main.simulation.max_model_error_rate.get() / 100,
             )
             robot.append(motor_model)
@@ -749,10 +762,14 @@ class PackageGenerator(QObject):
         if self._main.tether_station.equipped():
             add_tether_station_model(
                 robot=robot,
+                ns=self._drone_name,
                 link_name=self._main.tether_station.link.get(),
                 world_end=self._main.tether_station.world_end.get(),
                 drone_end=self._main.tether_station.drone_end.get(),
-                tension=self._main.tether_station.tension.get(),
+                init_tension=self._main.tether_station.tension.get(),
+                init_max_length=self._main.tether_station.max_length.get(),
+                young_modulus=self._main.tether_station.young_modulus.get(),
+                cross_section_area=self._main.tether_station.cross_sectional_area.get(),
             )
 
         # Ground Truth State plugin
@@ -762,3 +779,6 @@ class PackageGenerator(QObject):
         # ROS Control
         ros_control = GazeboRosControl(self._drone_name)
         robot.append(ros_control)
+
+    def _tbs_path(self) -> str:
+        return self._main.ros_package.tbs_path()

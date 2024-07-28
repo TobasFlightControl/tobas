@@ -15,7 +15,7 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int JntToCart(const JntArray& q_in, const std::string& seg_name);
+  int JntToCart(const JntArray& q, const std::string& seg_name);
 
   const Frame& getFrame() const
   {
@@ -25,6 +25,6 @@ public:
 private:
   Frame p_out_;
 
-  Frame recursiveFk(const JntArray& q_in, const SegmentMap::const_iterator& it);
+  Frame recursiveFk(const JntArray& q, const SegmentMap::const_iterator& it);
 };
 }  // namespace kdl

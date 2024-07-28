@@ -18,7 +18,7 @@
 #define ROS_EXIT_NAMED(nh, name, msg) ROS_EXIT(nh, "[" << name << "] " << msg)
 
 /**
- * @brief デバッグモードでも機能するアサーション．
+ * @brief リリースモードでも機能するアサーション．
  * Falseの場合は例外を吐くのではなくROS_FATALの後にノードを落とす．
  */
 #define ROS_CHECK(nh, expr, msg)                                                                                       \

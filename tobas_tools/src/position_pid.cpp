@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/check.hpp>
 
 #include "../include/tobas_tools/position_pid.hpp"

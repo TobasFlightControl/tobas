@@ -13,7 +13,7 @@ from PyQt5.QtGui import QFont
 from tobas_rqt_tools.widgets import LEDColor, LampWidget
 from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
-from tobas_msgs.msg import Gps, RCInput, RCInputError, PreArmCheck
+from tobas_msgs.msg import Gps, RCInput, PreArmCheck
 
 from .base_section import BaseControlSystemSectionWidget
 
@@ -107,7 +107,9 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._arming_sub.unregister()
 
         self._gps_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
-        self._rcin_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1)
+        self._rcin_sub = rospy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
+        )
         self._pre_arm_check_sub = rospy.Subscriber(
             f"{self._drone.name}/{Topic.PRE_ARM_CHECK}", PreArmCheck, self._pre_arm_check_cb, queue_size=1
         )
@@ -121,11 +123,8 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         else:
             self._gps_status.set_no()
 
-    def _rcin_cb(self, rcin: RCInput) -> None:
-        if rcin.error.error == RCInputError.E_NO_ERROR:
-            self._rcin_status.set_yes()
-        else:
-            self._rcin_status.set_no()
+    def _rcin_cb(self, _: RCInput) -> None:
+        self._rcin_status.set_yes()
 
     def _pre_arm_check_cb(self, msg: PreArmCheck) -> None:
         if msg.battery_voltage_sufficient:

@@ -9,12 +9,11 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_mpc
 {
 MultiRotorDynamics::MultiRotorDynamics(const tobas::Drone& drone)
-  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Axis::Z_POSITIVE)
+  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -29,7 +28,7 @@ void MultiRotorDynamics::updateInternalDataStructures()
   setZero();
 }
 
-void MultiRotorDynamics::update(const double& roll, const double& pitch, const JntArray& q)
+void MultiRotorDynamics::update(const double& roll, const double& pitch, const kdl::JntArray& q)
 {
   // 慣性テンソルと重心を計算
   if (inertia_solver_.JntToCart(q) < 0)

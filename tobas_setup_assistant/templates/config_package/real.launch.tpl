@@ -13,8 +13,8 @@
   </include>
 
   <group ns="{{ drone_name }}">
-    <!-- FIXME: Tobas should not depend on each hardware. -->
-    <include file="$(find tobas_navio_ros)/launch/hardware_interfaces.launch">
+    <!-- Launch hardware interfaces -->
+    <include file="$(find {{ hardware_pkg }})/launch/hardware_interfaces.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
 

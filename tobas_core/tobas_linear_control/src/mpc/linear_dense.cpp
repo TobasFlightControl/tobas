@@ -16,7 +16,7 @@ LinearDenseMPC::LinearDenseMPC() : stopwatch_(STOPWATCH_SAMPLES)
 {
 }
 
-void LinearDenseMPC::solve()
+bool LinearDenseMPC::solve()
 {
   // 初期化
   if (is_first_solve_)
@@ -102,12 +102,16 @@ void LinearDenseMPC::solve()
 
   // QPを解く
   // stopwatch_.start();
-  const auto dU = qpsolver_.solve();
+  if (!qpsolver_.solve())
+    return false;
   // stopwatch_.stop();
 
   // 最新の制御入力を更新
+  const auto& dU = qpsolver_.solution();
   const auto du_scaled = dU.head(u_size_);
   last_input_ += du_scaled.cwiseProduct(input_scale);
+
+  return true;
 }
 
 ostream& operator<<(ostream& os, const LinearDenseMPC& arg)

@@ -4,46 +4,44 @@
 #include <tobas_navio_core/util.hpp>
 #include <tobas_navio_core/led.hpp>
 
-using namespace navio;
-
 int main(int, char* argv[])
 {
-  if (checkAPM())
-    return 1;
+  if (navio::checkAPM())
+    return EXIT_FAILURE;
 
   if (getuid())
     fprintf(stderr, "Not root. Please launch like this: sudo %s\n", argv[0]);
 
-  Led led;
+  navio::Led led;
   if (!led.initialize())
     return EXIT_FAILURE;
 
   while (true)
   {
-    led.setColor(Colors::Green);
+    led.setColor(navio::Colors::Green);
     printf("LED is green\n");
     sleep(1);
 
-    led.setColor(Colors::Cyan);
+    led.setColor(navio::Colors::Cyan);
     printf("LED is cyan\n");
     sleep(1);
 
-    led.setColor(Colors::Blue);
+    led.setColor(navio::Colors::Blue);
     printf("LED is blue\n");
     sleep(1);
 
-    led.setColor(Colors::Magenta);
+    led.setColor(navio::Colors::Magenta);
     printf("LED is magenta\n");
     sleep(1);
 
-    led.setColor(Colors::Red);
+    led.setColor(navio::Colors::Red);
     printf("LED is red\n");
     sleep(1);
 
-    led.setColor(Colors::Yellow);
+    led.setColor(navio::Colors::Yellow);
     printf("LED is yellow\n");
     sleep(1);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

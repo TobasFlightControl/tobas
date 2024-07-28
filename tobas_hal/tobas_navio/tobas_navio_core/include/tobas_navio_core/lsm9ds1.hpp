@@ -1,18 +1,20 @@
 #pragma once
 
-#include "./spi_dev.hpp"
+#include <tobas_linux/spi_dev.hpp>
+
 #include "./imu.hpp"
 
 namespace navio
 {
 /**
- * @brief datasheet: https://www.st.com/resource/en/datasheet/lsm9ds1.pdf
+ * @brief Datasheet: https://www.st.com/resource/en/datasheet/lsm9ds1.pdf
  */
 class LSM9DS1 : public InertialSensor
 {
   static constexpr char kAccGyroDevice[] = "/dev/spidev0.3";
   static constexpr char kMagDevice[] = "/dev/spidev0.2";
-  static constexpr uint32_t kSpiSpeedHz = 10000000;  // Maximum frequency is 10MHz
+  static constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz
+  static constexpr size_t kSpiBufSize = 8;
   static constexpr uint8_t kReadFlag = 0x80;
   static constexpr uint8_t kMultipleRead = 0x40;
   static constexpr size_t kInitSleep = 200;  // [us]
@@ -21,8 +23,7 @@ class LSM9DS1 : public InertialSensor
 public:
   explicit LSM9DS1();
 
-  void initialize() override;
-  bool probe() override;
+  bool initialize() override;
   void update() override;
 
   void updateTemperature();
@@ -31,12 +32,6 @@ public:
   void updateMagnetometer();
 
 private:
-  enum who_am_i_t : uint8_t
-  {
-    WHO_AM_I_ACC_GYRO = 0x68,
-    WHO_AM_I_MAG = 0x3D,
-  };
-
   enum registers_t : uint8_t
   {
     XG_ACT_THS = 0x04,
@@ -112,6 +107,12 @@ private:
     M_INT_SRC_M = 0x31,
     M_INT_THS_L_M = 0x32,
     M_INT_THS_H_M = 0x33,
+  };
+
+  enum who_am_i_t : uint8_t
+  {
+    WHO_AM_I_ACC_GYRO = 0x68,
+    WHO_AM_I_MAG = 0x3D,
   };
 
   enum gyro_config_t : uint8_t
@@ -227,10 +228,20 @@ private:
     BITS_BDU = 1 << 6,
   };
 
-  uint8_t writeReg(SPIdev& spi_dev, const uint8_t& write_addr, const uint8_t& write_data);
-  uint8_t readReg(SPIdev& spi_dev, const uint8_t& read_addr);
-  void readRegsImu(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes);
-  void readRegsMag(const uint8_t& read_addr, uint8_t* read_buf, const uint32_t& bytes);
+  linux::SPIdev spi_dev_imu_;
+  linux::SPIdev spi_dev_mag_;
+
+  float gyro_scale_;
+  float acc_scale_;
+  float mag_scale_;
+
+  uint8_t res_[kSpiBufSize - 1];  // The results of readRegs are stored.
+  int16_t bit_data_[3];
+
+  uint8_t writeReg(linux::SPIdev& spi_dev, const uint8_t& addr, const uint8_t& data);
+  uint8_t readReg(linux::SPIdev& spi_dev, const uint8_t& addr);
+  void readRegsImu(const uint8_t& addr, const size_t& bytes);
+  void readRegsMag(const uint8_t& addr, const size_t& bytes);
 
   void initializeGyroscope();
   void initializeAccelerometer();
@@ -239,17 +250,5 @@ private:
   void setGyroScale(const uint8_t& scale);
   void setAccScale(const uint8_t& scale);
   void setMagScale(const uint8_t& scale);
-
-  SPIdev spi_dev_imu_;
-  SPIdev spi_dev_mag_;
-
-  float gyro_scale_;
-  float acc_scale_;
-  float mag_scale_;
-
-  uint8_t tx_[255] = { 0 };
-  uint8_t rx_[255] = { 0 };
-  uint8_t response_[6];
-  int16_t bit_data_[3];
 };
 }  // namespace navio

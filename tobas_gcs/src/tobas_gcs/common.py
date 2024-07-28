@@ -14,7 +14,6 @@ TITLE_PSIZE = 18
 LABEL_PSIZE = 12
 BODY_PSIZE = 9
 WAIT_FOR_SERVER = 5.0  # [s] ラズパイ側のサーバに接続する際のタイムアウト
-PAINT_REFRESH_PERIOD = 100  # [ms] ペイントの更新周期．短すぎるとフリーズの恐れあり．
 
 # Raspberry Pi
 CATKIN_WS_TOBAS = "/etc/tobas/catkin_ws/"  # Tobasパッケージ用ワークスペース

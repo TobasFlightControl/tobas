@@ -17,7 +17,7 @@ class QuadProgppSolver : public QuadProgSolver
 public:
   explicit QuadProgppSolver();
 
-  Eigen::VectorXd solve() override;
+  bool solve() override;
 
 private:
   quadprogpp::Matrix<double> G_;

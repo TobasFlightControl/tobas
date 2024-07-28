@@ -14,12 +14,11 @@
 #define INTERVAL 0.1        // [s]
 
 using namespace std;
-using namespace navio;
 
 int main(int, char** argv)
 {
   // Check superuser authority
-  if (checkAPM())
+  if (navio::checkAPM())
   {
     return 1;
   }
@@ -30,7 +29,7 @@ int main(int, char** argv)
   }
 
   // Initialize PWM handler
-  PWM pwm;
+  navio::PWM pwm;
   for (uint32_t channel = 0; channel < SERVO_RAIL_SIZE; ++channel)
   {
     if (!(pwm.initialize(channel)))

@@ -1,31 +1,21 @@
-#include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/check.hpp>
-#include <tobas_std_tools/console.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_np_pid/mixer.hpp"
 
-#define ACC_SCALE tobas::kGravity
-#define DGYRO_SCALE M_PI
-
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_np_pid
 {
 Mixer::Mixer(const tobas::Drone& drone)
   : drone_(drone), fk_solver_(drone.tree()), jnt_axis_solver_(drone.tree()), inertia_solver_(drone.tree())
 {
-  PRINT_DEBUG("Mixer::Mixer");
-
   updateInternalDataStructures();
 }
 
 void Mixer::updateInternalDataStructures()
 {
-  PRINT_DEBUG("Mixer::updateInternalDataStructures");
-
   fk_solver_.updateInternalDataStructures();
   jnt_axis_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -46,14 +36,12 @@ void Mixer::updateInternalDataStructures()
 
 VectorXd Mixer::solve(
   const double& cur_voltage,
-  const JntArray& cur_q,
-  const Rotation& cur_rot,
-  const Vector& cur_gyro_B,
-  const Vector& tar_acc_W,
-  const Vector& tar_dgyro_B)
+  const kdl::JntArray& cur_q,
+  const kdl::Rotation& cur_rot,
+  const kdl::Vector& cur_gyro_B,
+  const kdl::Vector& tar_acc_W,
+  const kdl::Vector& tar_dgyro_B)
 {
-  PRINT_DEBUG_ONCE("Mixer::solve");
-
   assert(cur_voltage > 0);
 
   // 質量特性を計算
@@ -81,7 +69,7 @@ VectorXd Mixer::solve(
     G_.block<3, 1>(0, i) = axis_B.data;
 
     // 回転
-    const auto& d = drone_.rotorConfig(i).direction;
+    const auto& d = drone_.rotorConfig(i).direction.value;
     const auto& cm = drone_.rotorConfig(i).moment_constant;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.block<3, 1>(3, i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
@@ -89,7 +77,7 @@ VectorXd Mixer::solve(
 
   // EoM行列等式の右辺
   // TODO: H-forceを考慮
-  const Vector grav_W(0, 0, -tobas::kGravity);
+  const kdl::Vector grav_W(0, 0, -tobas::kGravity);
   const auto trans_right = mass * cur_rot.inverse(tar_acc_W - grav_W);
   const auto rot_right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B);
   h_.head<3>() = trans_right.data;
@@ -109,27 +97,28 @@ VectorXd Mixer::solve(
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
-  return qp_.solve();
+  if (!qp_.solve())
+    throw runtime_error("QP failed: " + qp_.errorMessage());
+
+  return qp_.solution();
 }
 
 void Mixer::configure(const MixerConfig& cfg)
 {
-  PRINT_DEBUG("Mixer::configure");
-
   if (!drone_.isLoaded())
     throw runtime_error("Drone is not loaded yet.");
 
   CHECK(cfg.linear_weight > 0);
   CHECK(cfg.angular_weight > 0);
 
-  if (inertia_solver_.JntToCart(JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
   const auto& I = inertia.getRotationalInertia();  // トレースがほしいだけ
 
-  const auto linear_scale = mass * ACC_SCALE;
-  const auto angular_scale = I.trace() / 3 * DGYRO_SCALE;
+  const auto linear_scale = mass * tobas::kGravity;
+  const auto angular_scale = I.trace() / 3 * M_PI;
   const auto thrust_scale = mass * tobas::kGravity / drone_.numRotors();
 
   Q_.diagonal().head<3>().fill(cfg.linear_weight / math::sqr(linear_scale));

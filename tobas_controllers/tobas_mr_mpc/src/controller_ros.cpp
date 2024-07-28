@@ -8,14 +8,13 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_mpc
 {
 ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     js_converter_(drone_.tree()),
-    z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
+    z_rotors_(drone_, tobas::Z_POSITIVE),
     acc_ctrl_(drone_),
     ori_ctrl_(drone_),
     server_(pnh_)
@@ -168,7 +167,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     feedback->target_velocity_local = odom->frame.M.inverse(tar_pvay_W_->vel);
     feedback->target_acceleration_global = tar_acc;
     feedback->target_acceleration_local = odom->frame.M.inverse(tar_acc);
-    feedback->position_integral_error = Vector(pos_ctrl_.positionIntegralError());
+    feedback->position_integral_error.data = pos_ctrl_.positionIntegralError();
   }
 
   // Rotation Controller

@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_np_pid
 {
@@ -105,13 +104,13 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
   // 位置制御器
-  const Vector cur_vel_W = odom->frame.M * odom->twist.vel;  // 世界座標系から見た現在の速度
-  const Vector tar_acc_fb(pos_pid_.update(odom->frame.p.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
-  const Vector tar_acc_W = cmd_->acc + tar_acc_fb;
+  const auto cur_vel_W = odom->frame.M * odom->twist.vel;  // 世界座標系から見た現在の速度
+  const kdl::Vector tar_acc_fb(pos_pid_.update(odom->frame.p.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
+  const auto tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
-  const Vector tar_dgyro_fb = ori_pid_.update(Euler(odom->frame.M), odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
-  const Vector tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
+  const auto tar_dgyro_fb = ori_pid_.update(kdl::Euler(odom->frame.M), odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
+  const auto tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // ミキサーで6軸加速度をプロペラの推力に変換
   const VectorXd thrusts = mixer_.solve(
@@ -143,7 +142,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   feedback->target_accel_global.linear = tar_acc_W;
   feedback->target_accel_global.angular = odom->frame.M * tar_dgyro_B;
   feedback->position_integral_error.data = pos_pid_.integralError();
-  feedback->orientation_integral_error = Euler(ori_pid_.integralError());
+  feedback->orientation_integral_error = kdl::Euler(ori_pid_.integralError());
   feedback_pub_.publish(feedback);
 }
 

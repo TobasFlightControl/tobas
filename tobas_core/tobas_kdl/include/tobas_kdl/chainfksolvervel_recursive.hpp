@@ -20,5 +20,9 @@ public:
   void updateInternalDataStructures() override;
 
   int JntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1) override;
+
+private:
+  size_t j_;
+  double qj_, qdj_;
 };
 }  // namespace kdl

@@ -59,9 +59,10 @@ public:
 
   explicit LinearDenseMPC();
 
-  void solve();
+  bool solve();
 
   inline const Eigen::VectorXd& optimalControlInput() const;
+  inline const std::string& errorMessage() const;
 
   friend std::ostream& operator<<(std::ostream& os, const LinearDenseMPC& arg);
 
@@ -108,5 +109,10 @@ private:
 inline const Eigen::VectorXd& LinearDenseMPC::optimalControlInput() const
 {
   return last_input_;
+}
+
+inline const std::string& LinearDenseMPC::errorMessage() const
+{
+  return qpsolver_.errorMessage();
 }
 }  // namespace ctrl

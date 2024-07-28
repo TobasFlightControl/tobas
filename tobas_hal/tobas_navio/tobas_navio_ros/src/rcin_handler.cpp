@@ -1,7 +1,5 @@
-#include <tobas_math/core.hpp>
-#include <tobas_std_tools/array.hpp>
-#include <tobas_std_tools/console.hpp>
-#include <tobas_msgs/RCInput.h>
+#include <tobas_hal_core/constants.hpp>
+#include <tobas_hal_msgs/Sbus.h>
 
 #include "../include/tobas_navio_ros/rcin_handler.hpp"
 #include "../include/tobas_navio_ros/common.hpp"
@@ -10,203 +8,31 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-RCInputHandler::RCInputHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
+RCInputHandler::RCInputHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  PRINT_DEBUG("RCInputHandler::RCInputHandler");
-
-  if (rcin_.initialize() != navio::RCInput::E_NO_ERROR)
+  if (!rcin_.initialize())
     TOBAS_EXIT("Failed to initialize RC input driver.");
 
-  reloadConfig();
-
-  rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
-  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  rcin_pub_ = nh_.advertise<tobas_hal_msgs::Sbus>(hal::kSbusTopic, 1);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
-
-  PRINT_DEBUG("/RCInputHandler::RCInputHandler");
-}
-
-void RCInputHandler::setToDefaults()
-{
-  roll_range_.set(kPwmMin, kPwmMax);
-  pitch_range_.set(kPwmMax, kPwmMin);
-  yaw_range_.set(kPwmMax, kPwmMin);
-  throttle_range_.set(kPwmMax, kPwmMin);
-
-  modes_[tobas::kFlightModeProgram] = kPwmMin;
-  modes_[tobas::kFlightModeStabilize] = kPwmMid;
-  modes_[tobas::kFlightModeAcrobat] = kPwmMax;
-
-  estop_on_ = kPwmMin;
-  estop_off_ = kPwmMax;
-  gpsw_on_ = kPwmMin;
-  gpsw_off_ = kPwmMax;
-}
-
-bool RCInputHandler::reloadConfig()
-{
-  if (property_client_.get(kConfigKey_RcRollLeft, roll_range_.lower) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcRollRight, roll_range_.upper) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_.get(kConfigKey_RcPitchDown, pitch_range_.lower) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcPitchUp, pitch_range_.upper) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_.get(kConfigKey_RcYawRight, yaw_range_.lower) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcYawLeft, yaw_range_.upper) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_.get(kConfigKey_RcThrottleDown, throttle_range_.lower) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcThrottleUp, throttle_range_.upper) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_.get(kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram]) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize]) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat]) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_.get(kConfigKey_RcEStopOn, estop_on_) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcEStopOff, estop_off_) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_.get(kConfigKey_RcGPSwOn, gpsw_on_) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_.get(kConfigKey_RcGPSwOff, gpsw_off_) < 0)
-  {
-    TOBAS_ERROR(property_client_.errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  return true;
-}
-
-bool RCInputHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
-{
-  if (!reloadConfig())
-  {
-    res.success = false;
-    res.message = "Failed to reload configurations.";
-    return true;
-  }
-
-  res.success = true;
-  return true;
 }
 
 void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
 {
   // Create message
-  const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
+  const auto rcin_msg = boost::make_shared<tobas_hal_msgs::Sbus>();
   rcin_msg->header.stamp = event.current_real;
 
-  // Roll
-  if (rcin_.read(kRcChannelRoll) != navio::RCInput::E_NO_ERROR)
-    rcin_msg->error.error = rcin_.getError();
-  rcin_msg->roll = math::remap<double>(
-    rcin_.getPeriod(), roll_range_.lower, roll_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
-
-  // Pitch
-  if (rcin_.read(kRcChannelPitch) != navio::RCInput::E_NO_ERROR)
-    rcin_msg->error.error = rcin_.getError();
-  rcin_msg->pitch = math::remap<double>(
-    rcin_.getPeriod(), pitch_range_.lower, pitch_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
-
-  // Yaw
-  if (rcin_.read(kRcChannelYaw) != navio::RCInput::E_NO_ERROR)
-    rcin_msg->error.error = rcin_.getError();
-  rcin_msg->yaw =
-    math::remap<double>(rcin_.getPeriod(), yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
-
-  // Throttle
-  if (rcin_.read(kRcChannelThrottle) != navio::RCInput::E_NO_ERROR)
-    rcin_msg->error.error = rcin_.getError();
-  rcin_msg->throttle = math::remap<double>(
-    rcin_.getPeriod(), throttle_range_.lower, throttle_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
-
-  // Mode
-  if (rcin_.read(kRcChannelMode) != navio::RCInput::E_NO_ERROR)
-    rcin_msg->error.error = rcin_.getError();
-  rcin_msg->mode = tobas_std::closestIndex<double>(modes_, rcin_.getPeriod());
-
-  // E-Stop
-  if (rcin_.read(kRcChannelEStop) != navio::RCInput::E_NO_ERROR)
-    rcin_msg->error.error = rcin_.getError();
-  rcin_msg->e_stop = abs(rcin_.getPeriod() - estop_on_) < abs(rcin_.getPeriod() - estop_off_);
-
-  // GPSw
-  if (rcin_.read(kRcChannelGPSw) != navio::RCInput::E_NO_ERROR)
-    rcin_msg->error.error = rcin_.getError();
-  rcin_msg->gpsw = abs(rcin_.getPeriod() - gpsw_on_) < abs(rcin_.getPeriod() - gpsw_off_);
-
-  // Error message
-  if (rcin_msg->error.error != tobas_msgs::RCInputError::E_NO_ERROR)
-    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to read RC input.");
+  // Read each channel
+  for (size_t ch = 0; ch < navio::RCInput::channelCount(); ++ch)
+  {
+    if (!rcin_.read(ch))
+    {
+      TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to read RC input.");
+      return;
+    }
+    rcin_msg->data[ch] = rcin_.getPeriod();
+  }
 
   // Publish message
   rcin_pub_.publish(rcin_msg);

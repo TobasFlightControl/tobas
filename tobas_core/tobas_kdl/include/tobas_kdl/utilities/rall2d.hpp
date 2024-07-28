@@ -32,33 +32,29 @@ public:
   V dd;  // 2nd derivative
 
   // = Constructors
-  inline Rall2d() : t(), d(), dd(){};
+  inline explicit Rall2d() : t(), d(), dd(){};
 
-  explicit inline Rall2d(typename TI<T>::Arg c)
+  inline explicit Rall2d(typename TI<T>::Arg c)
   {
     t = c;
     setToZero(d);
     setToZero(dd);
   }
 
-  inline Rall2d(typename TI<T>::Arg tn, const V& afg) : t(tn), d(afg)
+  inline explicit Rall2d(typename TI<T>::Arg tn, const V& afg) : t(tn), d(afg)
   {
     setToZero(dd);
   }
 
-  inline Rall2d(typename TI<T>::Arg tn, const V& afg, const V& afg2) : t(tn), d(afg), dd(afg2)
+  inline explicit Rall2d(typename TI<T>::Arg tn, const V& afg, const V& afg2) : t(tn), d(afg), dd(afg2)
   {
   }
 
-  // = Copy Constructor
+  /* Copy constructor. */
   inline Rall2d(const Rall2d<T, V, S>& r) : t(r.t), d(r.d), dd(r.dd)
   {
   }
-  // if one defines this constructor, it's better optimized then the
-  // automatically generated one ( that one set's up a loop to copy
-  // word by word.
 
-  // = Member functions to access internal structures :
   inline T& Value()
   {
     return t;
@@ -73,12 +69,14 @@ public:
   {
     return dd;
   }
+
   inline static Rall2d<T, V, S> Zero()
   {
     Rall2d<T, V, S> tmp;
     setToZero(tmp);
     return tmp;
   }
+
   inline static Rall2d<T, V, S> Identity()
   {
     Rall2d<T, V, S> tmp;

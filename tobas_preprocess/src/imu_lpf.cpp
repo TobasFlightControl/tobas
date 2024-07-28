@@ -17,8 +17,8 @@ void ImuLpf::imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw)
   if (last_msg_ == nullptr)
   {
     TOBAS_INFO("First raw IMU message is received.");
-    gyro_lpf_.initializeFromCutoff(kGyroLpfCutoff, imu_raw->gyro);
-    accel_lpf_.initializeFromCutoff(kAccelLpfCutoff, imu_raw->accel);
+    gyro_lpf_.initialize(kGyroLpfCutoff, imu_raw->gyro);
+    accel_lpf_.initialize(kAccelLpfCutoff, imu_raw->accel);
     last_msg_ = imu_raw;
     return;
   }

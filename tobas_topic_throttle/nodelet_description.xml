@@ -1,0 +1,19 @@
+<library path="lib/libtobas_topic_throttle_nodelet">
+
+  <class name="tobas_topic_throttle/BatteryLPFThrottleNodelet" type="tobas_topic_throttle::BatteryLPFThrottleNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_topic_throttle/RCInputThrottleNodelet" type="tobas_topic_throttle::RCInputThrottleNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_topic_throttle/EulerThrottleNodelet" type="tobas_topic_throttle::EulerThrottleNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+  <class name="tobas_topic_throttle/LatencyThrottleNodelet" type="tobas_topic_throttle::LatencyThrottleNodelet" base_class_type="nodelet::Nodelet">
+    <description>TODO</description>
+  </class>
+
+</library>

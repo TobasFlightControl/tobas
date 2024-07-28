@@ -6,7 +6,7 @@
 
 namespace gazebo
 {
-enum Constraint
+enum sdf_constraint_t
 {
   NONE,
   POSITIVE,
@@ -16,7 +16,7 @@ enum Constraint
 };
 
 template <typename T>
-void checkConstraint(const std::string& name, const T& param, const Constraint& constraint)
+void checkConstraint(const std::string& name, const T& param, const sdf_constraint_t& constraint)
 {
   switch (constraint)
   {
@@ -88,7 +88,7 @@ void getSdfParam(
 }
 
 template <typename T>
-void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, T& param, const Constraint& constraint)
+void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, T& param, const sdf_constraint_t& constraint)
 {
   getSdfParam(sdf, name, param);
   checkConstraint(name, param, constraint);
@@ -100,7 +100,7 @@ void getSdfParam(
   const std::string& name,
   T& param,
   const T& default_value,
-  const Constraint& constraint)
+  const sdf_constraint_t& constraint)
 {
   getSdfParam(sdf, name, param, default_value);
   checkConstraint(name, param, constraint);

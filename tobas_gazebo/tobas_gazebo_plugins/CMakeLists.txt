@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(tobas_gazebo_plugins)
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "armv7l")
+file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
+  message("This package is skipped on Raspberry Pi.")
   find_package(catkin REQUIRED)
   catkin_package()
   return()
@@ -18,6 +20,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
+	tobas_gazebo_common
 	tobas_gazebo_msgs
 	tobas_tools
 	tobas_dsp
@@ -33,6 +36,7 @@ catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
 	CATKIN_DEPENDS
+		tobas_gazebo_common
 		tobas_gazebo_msgs
 		tobas_tools
 		tobas_dsp

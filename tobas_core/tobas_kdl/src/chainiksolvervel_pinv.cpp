@@ -51,8 +51,7 @@ int ChainIkSolverVel_pinv::CartToJnt(const JntArray& q, const Twist& v)
   const auto& jac = jnt2jac_.getJacobian();
 
   // 最小二乗解を求める
-  const auto v_ravel = v.ravel();
-  qd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(v_ravel);
+  qd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(v.ravel());
 
   return setDefaultError(E_NOERROR);
 }

@@ -23,7 +23,7 @@ bool PWM::initialize(const size_t& channel)
 {
   PRINT_DEBUG("PWM::initialize(" << channel << ")");
 
-  const auto err = writeFile("/sys/class/pwm/pwmchip0/export", "%u", channel);
+  const auto err = linux::writeFile("/sys/class/pwm/pwmchip0/export", "%u", channel);
 
   // 非rootの場合は，udevによってPWMデバイスがシステムに追加された際にアクセス権の変更等の遅延が生じるため，少し待つ
   if (!linux::isSuperUser())
@@ -36,6 +36,6 @@ bool PWM::remove(const size_t& channel)
 {
   PRINT_DEBUG("PWM::remove(" << channel << ")");
 
-  return writeFile("/sys/class/pwm/pwmchip0/unexport", "%u", channel) >= 0;
+  return linux::writeFile("/sys/class/pwm/pwmchip0/unexport", "%u", channel) >= 0;
 }
 }  // namespace navio

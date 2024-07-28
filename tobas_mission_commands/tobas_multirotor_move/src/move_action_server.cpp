@@ -1,4 +1,4 @@
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_ros_tools/service.hpp>
@@ -123,7 +123,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
   tobas_std::CubicSpline traj_x(odom_->frame.p.x(), goal_pos.x(), goal->duration);
   tobas_std::CubicSpline traj_y(odom_->frame.p.y(), goal_pos.y(), goal->duration);
   tobas_std::CubicSpline traj_z(odom_->frame.p.z(), goal_pos.z(), goal->duration);
-  const auto duration = tobas_std::max(traj_x.duration(), traj_y.duration(), traj_z.duration());
+  const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());
 
   // 初期状態
   const auto start_time = ros::Time::now();

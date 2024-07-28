@@ -17,8 +17,8 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
   if (last_msg_ == nullptr)
   {
     TOBAS_INFO("First raw battery message is received.");
-    voltage_lpf_.initializeFromTimeConst(kLpfTimeConst, battery_raw->voltage);
-    current_lpf_.initializeFromTimeConst(kLpfTimeConst, battery_raw->current);
+    voltage_lpf_.initialize(kLpfCutoff, battery_raw->voltage);
+    current_lpf_.initialize(kLpfCutoff, battery_raw->current);
     last_msg_ = battery_raw;
     return;
   }

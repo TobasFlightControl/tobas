@@ -8,14 +8,13 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas_mr_pid
 {
 ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name),
     js_converter_(drone_.tree()),
-    z_rotors_(drone_, tobas::Axis::Z_POSITIVE),
+    z_rotors_(drone_, tobas::Z_POSITIVE),
     acc_ctrl_(drone_),
     mixer_(drone_),
     server_(pnh_)
@@ -133,7 +132,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     const auto cur_vel_W = odom->frame.M * odom->twist.vel;
 
     // 目標加速度を計算
-    const Vector tar_acc_fb(
+    const kdl::Vector tar_acc_fb(
       pos_ctrl_.update(odom->frame.p.data, cur_vel_W.data, tar_pvay_W_->pos.data, tar_pvay_W_->vel.data, dt));
     const auto tar_acc = tar_pvay_W_->acc + tar_acc_fb;
 
@@ -161,7 +160,8 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
       TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
     // 目標角加速度を計算
-    const auto tar_dgyro = ori_ctrl_.update(Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, Vector::Zero(), dt);
+    const auto tar_dgyro =
+      ori_ctrl_.update(kdl::Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, kdl::Vector::Zero(), dt);
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮

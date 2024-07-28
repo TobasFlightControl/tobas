@@ -1,32 +1,22 @@
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_math/core.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/boost.hpp>
-#include <tobas_std_tools/exception.hpp>
-#include <tobas_std_tools/debug.hpp>
-#include <tobas_eigen_tools/geometry.hpp>
-#include <tobas_eigen_tools/iostream.hpp>
-#include <tobas_kdl/euler.hpp>
 #include <tobas_ros_tools/rosparam.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
-#include <tobas_msgs/conversions/msg_msg.hpp>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
 using namespace std;
 using namespace Eigen;
 
-namespace et = eigen_tools;
-
 namespace state_estimation_eskf
 {
 ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
   : super(nh, pnh, name), server_(pnh_)
 {
-  PRINT_DEBUG("ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos");
-
   getRosParams();
   drone_.loadFromParam(nh_);
 
@@ -52,7 +42,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh, ros::N
 
   // Register publishers
   odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
-  feedback_pub_ = nh_.advertise<FeedbackMsg>("eskf_feedback", 1);
+  feedback_pub_ = nh_.advertise<FeedbackMsg>(kFeedbackTopic, 1);
 
   // Register subscribers
   imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
@@ -221,7 +211,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
 
   mag_ = mag;
 
-  const double yaw_meas = tobas_std::wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
+  const auto yaw_meas = algo::wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
   eskf_.measureYaw(yaw_meas, yaw_var_);
 }
 
@@ -241,7 +231,7 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
   tobas_std::pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
 
   // TODO: bar_offsetを考慮
-  const double z_m = z_abs - alt_0_bar_;
+  const auto z_m = z_abs - alt_0_bar_;
   eskf_.measureAltitude(z_m, z_var);
 }
 
@@ -273,6 +263,10 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
   }
 
   gps_ = gps;
+
+  // TODO: 遅延を考慮
+  // const auto delay = imu_->header.stamp - gps->header.stamp;
+  // cout << "GNSS delay: " << delay << endl;
 
   // 位置の観測値
   tobas_std::gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());

@@ -4,7 +4,7 @@ from tobas_urdf_tools_py.core import *
 
 
 class BaseStaticJoint(ET.Element):
-    def __init__(self, root_link: str):
+    def __init__(self, root_link: str) -> None:
         assert root_link != "world"
 
         super().__init__("xacro:if", value="$(arg DEBUG)")

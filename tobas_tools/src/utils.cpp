@@ -1,13 +1,15 @@
+#include <ros/ros.h>
+
 #include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_geomag/model_params.hpp>
 
 #include "../include/tobas_tools/utils.hpp"
 #include "../include/tobas_tools/constants.hpp"
 
 using namespace std;
-using namespace kdl;
 
 namespace tobas
 {
@@ -18,7 +20,7 @@ double getMass()
     throw runtime_error("Failed to get tobas_kdl tree.");
 
   kdl::TreeJntToInertiaSolver inertia_solver(tree);
-  if (inertia_solver.JntToCart(JntArray::Zero(tree.getNrOfJoints())) < 0)
+  if (inertia_solver.JntToCart(kdl::JntArray::Zero(tree.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver.errorMessage());
 
   return inertia_solver.getInertia().getMass();
@@ -35,8 +37,8 @@ geomag::Elements geomag(const double& lat, const double& lon, const double& heig
   if (year_frac - 2020 > 5)
     PRINT_WARN("It is time to replace the WMM data with the latest version.");
 
-  const auto position = geomag::geodetic2ecef(lat, lon, height);
-  const auto mag_field = geomag::GeoMag(year_frac, position, geomag::WMM2020);
-  return geomag::magField2Elements(mag_field, lat, lon);
+  const auto ecef = geomag::ecefFromGeodetic(lat, lon, height);  // FIXME: geomagの高度は海抜ではなく楕円体
+  const auto mag_field = geomag::magFieldFromECEF(year_frac, ecef, geomag::WMM2020);
+  return geomag::elementsFromMagField(mag_field, lat, lon);
 }
 }  // namespace tobas

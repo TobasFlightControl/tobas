@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_std_tools_py.math import rpm2rps
 from tobas_rqt_tools.messages import q_error_named
+from tobas_tools_py.rotor_config import TurningDirection
 
-from ...common import CW, CCW
 from ...parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_ComboBox
 from .common import PROPULSION_SYSTEM
 from .base import BaseSelectedLinkSettingWidget
@@ -39,7 +39,9 @@ class MotorWidget(BaseSelectedLinkSettingWidget):
             "For instance, in rotary-wing aircraft, "
             "propellers positioned diagonally opposite each other typically rotate in the same direction."
         )
-        self._direction = ParamGetterWidget_ComboBox("Rotating Direction", direction_description, [CW, CCW])
+        self._direction = ParamGetterWidget_ComboBox(
+            "Turning Direction", direction_description, [TurningDirection.CW.name, TurningDirection.CCW.name]
+        )
         self._param_rows.addWidget(self._direction)
 
         kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."

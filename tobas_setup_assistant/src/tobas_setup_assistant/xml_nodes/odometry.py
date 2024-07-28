@@ -21,7 +21,7 @@ class OdometryModel(SensorModel):
         rot_uniform_noise_scale: Tuple[float, float, float],
         linvel_uniform_noise_scale: Tuple[float, float, float],
         angvel_uniform_noise_scale: Tuple[float, float, float],
-    ):
+    ) -> None:
         assert update_rate > 0.0
         assert all_ge(pos_normal_noise_std, 0.0)
         assert all_ge(rot_normal_noise_std, 0.0)

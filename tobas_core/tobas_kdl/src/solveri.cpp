@@ -14,7 +14,7 @@ int SolverI::copyError(const SolverI& arg)
 int SolverI::setDefaultError(const int& error_code)
 {
   error_code_ = error_code;
-  error_msg_ = defaultErrorMessage(error_code);  // TODO: E_NOERRORだけは分離してstring処理を省略
+  error_msg_ = defaultErrorMessage(error_code);
   return error_code_;
 }
 
@@ -23,7 +23,7 @@ string SolverI::defaultErrorMessage(const int& error_code) const
   switch (error_code)
   {
     case E_NOERROR:
-      return "No error";
+      return "";  // 正常時はメモリ割り当てを回避しパフォーマンスを向上させるためにエラーメッセージを空文字にしておく．
     case E_NO_CONVERGE:
       return "Failed to converge";
     case E_UNDEFINED:

@@ -11,17 +11,22 @@
     <rosparam file="$(find {{ config_pkg_name }})/config/dynamic_params.yaml" command="load"/>
     <rosparam file="$(find {{ config_pkg_name }})/config/rc_teleop.yaml" command="load"/>
 
-    <!-- Bringup observer -->
+    <!-- Launch observer -->
     <include file="$(find {{ observer_pkg }})/launch/observer.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
       <arg name="node_name" value="observer"/>
     </include>
 
-    <!-- Bringup controller -->
+    <!-- Launch controller -->
     <include file="$(find {{ controller_pkg }})/launch/controller.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
       <arg name="ground_truth" value="$(arg ground_truth)"/>
       <arg name="node_name" value="controller"/>
+    </include>
+
+    <!-- Launch rotor controller -->
+    <include file="$(find tobas_rotor_controller)/launch/rotor_controller.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
 
     <!-- Launch joint controller -->
@@ -72,6 +77,11 @@
     <include file="$(find {{ move_pkg }})/launch/move_action_server.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
       <arg name="ground_truth" value="$(arg ground_truth)"/>
+    </include>
+
+    <!-- Launch topic throttles -->
+    <include file="$(find tobas_topic_throttle)/launch/topic_throttles.launch">
+      <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
 
     <!-- Launch user launch file -->

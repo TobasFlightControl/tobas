@@ -19,14 +19,10 @@ int TreeFkSolverVel::JntToCart(const JntArray& q, const JntArray& qd, const stri
     return setDefaultError(E_NOT_UP_TO_DATE);
   if (q.rows() != nj_ || qd.rows() != nj_)
     return setDefaultError(E_SIZE_MISMATCH);
+  if (!tree_.hasSegment(seg_name))
+    return setDefaultError(E_OUT_OF_RANGE);
 
   const auto it = tree_.getSegment(seg_name);
-  if (it == tree_.getSegments().end())
-  {
-    error_msg_ = "Segment '" + seg_name + "' is not found in tree";
-    return (error_code_ = E_NOT_FOUND);
-  }
-
   p_out_ = recursiveFk(q, qd, it);
   return setDefaultError(E_NOERROR);
 }
@@ -42,8 +38,8 @@ FrameVel TreeFkSolverVel::recursiveFk(const JntArray& q, const JntArray& qd, con
   const auto twist = cur_seg.twist(q(cur_idx), qd(cur_idx));
   const FrameVel cur_framevel(pose, twist);
 
-  const auto root_iter = tree_.getRootSegment();
-  if (it == root_iter)
+  const auto root_it = tree_.getRootSegment();
+  if (it == root_it)
   {
     return cur_framevel;
   }

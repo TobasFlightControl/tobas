@@ -6,7 +6,12 @@ if TYPE_CHECKING:
 
 from overrides import override
 
-from ..parameter_getters import ParamGetterWidget_ComboBox, ParamGetterWidget_Vector3d, ParamGetterWidget_DoubleSpinBox
+from ..parameter_getters import (
+    ParamGetterWidget_ComboBox,
+    ParamGetterWidget_Vector3d,
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_DoubleSpinBox,
+)
 from .base_setting import OptionalDeviceWidget
 
 
@@ -34,11 +39,34 @@ class TetherStationWidget(OptionalDeviceWidget):
         self.world_end = ParamGetterWidget_Vector3d("Connection Point (Ground)", world_end_description)
         self._add_param_widget(self.world_end)
 
-        tension_description = "The constant tension of the cable."
+        tension_description = "The constant tension of the cable. It can be modified during simulation."
         self.tension = ParamGetterWidget_DoubleSpinBox(
             "Tension", tension_description, decimals=2, minimum=0.0, default=1.0, suffix=" N"
         )
         self._add_param_widget(self.tension)
+
+        max_length_description = "The maximum length of the cable. It can be modified during simulation."
+        self.max_length = ParamGetterWidget_DoubleSpinBox(
+            "Maximum Length", max_length_description, decimals=1, minimum=1.0, default=5.0, suffix=" m"
+        )
+        self._add_param_widget(self.max_length)
+
+        young_modulus_description = "The young modulus of the cable."
+        self.young_modulus = ParamGetterWidget_SpinBox(
+            "Young Modulus", young_modulus_description, minimum=1, default=200, suffix=" MPa"
+        )
+        self._add_param_widget(self.young_modulus)
+
+        cross_sectional_area_description = "The cross-sectional area of the cable."
+        self.cross_sectional_area = ParamGetterWidget_DoubleSpinBox(
+            "Cross-Sectional Area",
+            cross_sectional_area_description,
+            decimals=1,
+            minimum=0.1,
+            default=1.0,
+            suffix=" mm^2",
+        )
+        self._add_param_widget(self.cross_sectional_area)
 
         self._rows.addStretch()
 

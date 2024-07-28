@@ -19,7 +19,7 @@ from tobas_tools_py.util import is_running_under_fc_master
 
 from ...utils.ssh_client import SSHClientWrapper
 from ..base import BaseAppWidget
-from .wind_parameters import WindParametersWidget
+from .wind_parameters import WindParamsWidget
 
 
 class SimulationWidget(BaseAppWidget):
@@ -58,7 +58,7 @@ class SimulationWidget(BaseAppWidget):
 
         button_cols.addStretch()
 
-        self._wind_params = WindParametersWidget(main, drone)
+        self._wind_params = WindParamsWidget(main, drone)
         self._wind_params.setEnabled(False)
         rows.addWidget(self._wind_params)
 

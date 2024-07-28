@@ -5,10 +5,10 @@
 #include <cassert>
 #include <iostream>
 #include <unordered_set>
+#include <functional>
 
 #include <tobas_math/core.hpp>
-
-#include "./kahan.hpp"
+#include <tobas_algorithm/kahan.hpp>
 
 namespace std
 {
@@ -53,7 +53,7 @@ T sum(const std::vector<T>& arr, size_t start, size_t size)
 template <typename T>
 T fsum(const std::vector<T>& arr)
 {
-  Kahan<T> sum;
+  algo::Kahan<T> sum;
   for (const auto& x : arr)
     sum.add(x);
   return sum.get();
@@ -66,7 +66,7 @@ T fsum(const std::vector<T>& arr, size_t start, size_t size)
   const auto stop = start + size;
   assert(stop <= arr.size());
 
-  Kahan<T> sum;
+  algo::Kahan<T> sum;
   for (size_t i = start; i < stop; ++i)
     sum.add(arr[i]);
   return sum.get();
@@ -100,7 +100,7 @@ T variance(const std::vector<T>& arr)
     return 0;
 
   const auto mean = fmean(arr);
-  Kahan<T> sum;
+  algo::Kahan<T> sum;
   for (const auto& x : arr)
     sum.add(math::sqr(x - mean));
   return sum.get() / arr.size();
@@ -117,7 +117,7 @@ T variance(const std::vector<T>& arr, size_t start, size_t size)
     return 0;
 
   const auto mean = fmean(arr, start, size);
-  Kahan<T> sum;
+  algo::Kahan<T> sum;
   for (size_t i = start; i < stop; ++i)
     sum.add(math::sqr(arr[i] - mean));
   return sum.get() / size;
@@ -266,6 +266,13 @@ template <typename T>
 inline bool contains(const std::vector<T>& vec, const T& val)
 {
   return std::find(vec.begin(), vec.end(), val) != vec.end();
+}
+
+/* 全ての要素が条件を満た場合にTrueを返す． */
+template <typename T, typename Lambda>
+inline bool allOf(const std::vector<T>& vec, const Lambda& lambda)
+{
+  return all_of(vec.begin(), vec.end(), lambda);
 }
 
 /* 2つのstd::vectorをマージする． */

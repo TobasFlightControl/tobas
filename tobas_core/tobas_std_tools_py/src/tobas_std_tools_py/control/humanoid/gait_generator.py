@@ -112,4 +112,4 @@ def lip3d(
         p_init, v_init = sub_traj(T_sup)
         sub_traj_list.append(sub_traj)
 
-    return CoMTrajectory(sub_traj_list, T_sup), np.array(fp_des_list), np.array(fp_list)
+    return (CoMTrajectory(sub_traj_list, T_sup), np.array(fp_des_list), np.array(fp_list))

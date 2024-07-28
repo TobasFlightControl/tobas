@@ -5,15 +5,12 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from abc import abstractmethod
-from overrides import override
-from PyQt5.QtWidgets import QVBoxLayout
-
-from tobas_rqt_tools.widgets import Widget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from ...common import TO_DO, Description
 
 
-class BaseController(Widget):
+class BaseController(QWidget):
     NAME = TO_DO
     CONTROLLER_PKG = TO_DO
     TAKEOFF_PKG = TO_DO
@@ -32,10 +29,6 @@ class BaseController(Widget):
 
         abst = Description(self.ABST_TEXT)
         self._rows.addWidget(abst)
-
-    @override
-    def close(self) -> bool:
-        return super().close()
 
     @abstractmethod
     def update_internal_data_structures(self) -> None:

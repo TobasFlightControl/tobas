@@ -4,16 +4,11 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_msgs/Battery.h>
-#include <tobas_msgs/RotorSpeeds.h>
-#include <tobas_msgs/GetArm.h>
-#include <tobas_msgs/SetArm.h>
+#include <tobas_msgs/ThrottleArray.h>
+#include <tobas_msgs/EnableRCOutput.h>
 
 namespace tobas_gazebo_ros
 {
-/**
- * @brief ロータ回転数のコマンドを受け取り，スロットルに変換してGazeboの各モータに指令する．
- */
 class RotorCommandHandler : public tobas::BaseNode
 {
   using self = RotorCommandHandler;
@@ -27,26 +22,12 @@ public:
 
 private:
   tobas::Drone drone_;
-  tobas_msgs::BatteryConstPtr battery_;
-  bool is_armed_ = false;
 
-  ros::Publisher throttles_pub_;
-  ros::Publisher arming_pub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber tar_speeds_sub_;
+  std::map<uint8_t, ros::Publisher> throttle_pubs_;
+  ros::Subscriber throttles_sub_;
+  ros::ServiceServer enable_rcout_srv_;
 
-  ros::ServiceServer get_arm_ss_;
-  ros::ServiceServer set_arm_ss_;
-
-  ros::ServiceClient pre_arm_check_sc_;
-  std_srvs::Trigger pre_arm_check_msg_;
-
-  void publishArming();
-
-  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void targetRotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds);
-
-  bool getArmCb(tobas_msgs::GetArmRequest& req, tobas_msgs::GetArmResponse& res);
-  bool setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res);
+  void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
+  bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);
 };
 }  // namespace tobas_gazebo_ros

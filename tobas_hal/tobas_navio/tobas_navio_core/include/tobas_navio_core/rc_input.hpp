@@ -8,27 +8,14 @@ namespace navio
 class RCInput
 {
   static constexpr size_t kChannelCount = 14;
+  static constexpr size_t kBufferSize = 10;
   static constexpr char kRcinSysfsPath[] = "/sys/kernel/rcio/rcin";
 
 public:
-  enum error_t : int8_t
-  {
-    E_NO_ERROR = 0,
-    E_FAILED_TO_OPEN = -1,
-    E_FAILED_TO_READ = -2,
-    E_NOT_RECEIVED = -3,
-  };
-
   explicit RCInput();
 
-  error_t initialize();
-  error_t read(const size_t& ch);
-
-  /* Get the latest error code. */
-  inline error_t getError() const
-  {
-    return error_;
-  }
+  bool initialize();
+  bool read(const size_t& ch);
 
   /* Get the latest PWM period. */
   inline int getPeriod() const
@@ -43,9 +30,8 @@ public:
   }
 
 private:
-  error_t error_;
   int period_;
   int channels_[kChannelCount];
-  char buffer_[10];
+  char buffer_[kBufferSize];
 };
 }  // namespace navio

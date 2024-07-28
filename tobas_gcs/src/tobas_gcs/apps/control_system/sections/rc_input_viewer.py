@@ -13,7 +13,7 @@ from tobas_rqt_tools.widgets import FramedLabel, HPositionBarWidget, VPositionBa
 from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.constants import RCRange, Topic
 from tobas_tools_py.drone import Drone
-from tobas_msgs.msg import RCInput, RCInputError
+from tobas_msgs.msg import RCInput
 
 from .base_section import BaseControlSystemSectionWidget
 
@@ -113,22 +113,20 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Update subscriber
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
-        self._rcin_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1)
-
-        # Start drawing timers
-        self._roll_range.start_timer()
-        self._pitch_range.start_timer()
-        self._yaw_range.start_timer()
-        self._throttle_range.start_timer()
+        self._rcin_sub = rospy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
+        )
 
     def _rcin_cb(self, rcin: RCInput) -> None:
-        if rcin.error.error != RCInputError.E_NO_ERROR:
-            return
-
         self._roll_range.set_value(rcin.roll)
         self._pitch_range.set_value(rcin.pitch)
         self._yaw_range.set_value(rcin.yaw)
         self._throttle_range.set_value(rcin.throttle)
+
+        self._roll_range.update()
+        self._pitch_range.update()
+        self._yaw_range.update()
+        self._throttle_range.update()
 
         if rcin.mode == RCInput.MODE_PROGRAM:
             self._mode.setText("Program")

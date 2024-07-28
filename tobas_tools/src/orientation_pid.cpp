@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/algorithm.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
@@ -9,7 +9,6 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace kdl;
 
 namespace tobas
 {
@@ -17,21 +16,21 @@ OrientationPid::OrientationPid()
 {
 }
 
-Vector OrientationPid::update(
-  const Euler& cur_rpy,
-  const Vector& cur_gyro,
-  const Euler& tar_rpy,
-  const Vector& tar_gyro,
+kdl::Vector OrientationPid::update(
+  const kdl::Euler& cur_rpy,
+  const kdl::Vector& cur_gyro,
+  const kdl::Euler& tar_rpy,
+  const kdl::Vector& tar_gyro,
   const double& dt)
 {
   // 誤差を計算
   // 角軸ベクトルを使うのが正しいが，姿勢角と方位角のゲインを分けるためにオイラー角で計算する
-  const auto roll_err = tobas_std::wrapPi(tar_rpy.roll - cur_rpy.roll);
-  const auto pitch_err = tobas_std::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
-  const auto yaw_err = tobas_std::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
-  const Vector ep(roll_err, pitch_err, yaw_err);
-  const Vector gyro_error = tar_gyro - cur_gyro;
-  const Vector ed(eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
+  const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
+  const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
+  const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
+  const kdl::Vector ep(roll_err, pitch_err, yaw_err);
+  const kdl::Vector gyro_error = tar_gyro - cur_gyro;
+  const kdl::Vector ed(eigen_tools::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
 
   // 積分誤差を蓄積
   // 制御入力の飽和により姿勢が実現できない状況は無いとして，アンチワインドアップは行わない
@@ -42,7 +41,7 @@ Vector OrientationPid::update(
 
   // オイラー角加速度をDジャイロに変換
   const auto cur_rpyd = eigen_tools::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
-  return Vector(eigen_tools::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
+  return kdl::Vector(eigen_tools::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
 }
 
 void OrientationPid::configure(const OrientationPidConfig& cfg)

@@ -5,7 +5,7 @@ using namespace std;
 
 namespace tobas
 {
-RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, Axis axis) : drone_(drone), axis_(axis)
+RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, const RotorAxis& axis) : drone_(drone), axis_(axis)
 {
   if (drone.isLoaded())
     updateInternalDataStructures();

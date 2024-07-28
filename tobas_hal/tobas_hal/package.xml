@@ -10,7 +10,9 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<exec_depend>tobas_hal_core</exec_depend>
+	<exec_depend>tobas_hal_msgs</exec_depend>
 	<exec_depend>tobas_navio</exec_depend>
+	<exec_depend>tobas_a1</exec_depend>
 
 	<export>
 		<metapackage/>

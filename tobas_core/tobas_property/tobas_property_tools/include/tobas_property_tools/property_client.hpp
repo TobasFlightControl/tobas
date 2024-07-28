@@ -16,22 +16,29 @@ public:
     E_NO_ERROR = 0,
     E_FAILED_TO_CONNECT = -1,
     E_FAILED_TO_CALL = -2,
-    E_SERVER_ERROR = -3,
+    E_OUT_OF_RANGE = -3,
+    E_SERVER_ERROR = -4,
   };
 
   explicit PropertyClient(ros::NodeHandle& nh, const std::string& ns = "", const std::string& section = "DEFAULT");
 
   error_t get(const std::string& key, bool& value, const ros::Duration& timeout = ros::Duration(-1));
   error_t get(const std::string& key, int& value, const ros::Duration& timeout = ros::Duration(-1));
-  error_t get(const std::string& key, float& value, const ros::Duration& timeout = ros::Duration(-1));
   error_t get(const std::string& key, double& value, const ros::Duration& timeout = ros::Duration(-1));
   error_t get(const std::string& key, std::string& value, const ros::Duration& timeout = ros::Duration(-1));
 
+  error_t get(const std::string& key, uint8_t& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t get(const std::string& key, uint16_t& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t get(const std::string& key, float& value, const ros::Duration& timeout = ros::Duration(-1));
+
   error_t set(const std::string& key, const bool& value, const ros::Duration& timeout = ros::Duration(-1));
   error_t set(const std::string& key, const int& value, const ros::Duration& timeout = ros::Duration(-1));
-  error_t set(const std::string& key, const float& value, const ros::Duration& timeout = ros::Duration(-1));
   error_t set(const std::string& key, const double& value, const ros::Duration& timeout = ros::Duration(-1));
   error_t set(const std::string& key, const std::string& value, const ros::Duration& timeout = ros::Duration(-1));
+
+  error_t set(const std::string& key, const uint8_t& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t set(const std::string& key, const uint16_t& value, const ros::Duration& timeout = ros::Duration(-1));
+  error_t set(const std::string& key, const float& value, const ros::Duration& timeout = ros::Duration(-1));
 
   error_t save(const ros::Duration& timeout = ros::Duration(-1));
 

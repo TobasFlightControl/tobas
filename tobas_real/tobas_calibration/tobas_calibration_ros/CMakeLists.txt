@@ -12,14 +12,20 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
-	tobas_navio_ros
+	tobas_real_ros
+	tobas_hal_core
+	tobas_hal_msgs
 	tobas_calibration_msgs
 )
 
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_navio_ros tobas_calibration_msgs
+	CATKIN_DEPENDS
+		tobas_real_ros
+		tobas_hal_core
+		tobas_hal_msgs
+		tobas_calibration_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

@@ -13,7 +13,8 @@ namespace tobas_navio_ros
 {
 GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
 {
-  PRINT_DEBUG("GpsHandler::GpsHandler");
+  if (!gps_.initialize())
+    TOBAS_EXIT("Failed to initialize GNSS receiver.");
 
   try
   {
@@ -28,8 +29,6 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
 
   // Start main timer with maximum rate
   main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
-
-  PRINT_DEBUG("/GpsHandler::GpsHandler");
 }
 
 void GpsHandler::configureGnssReceiver()
@@ -39,12 +38,12 @@ void GpsHandler::configureGnssReceiver()
   gps_.loadConfigurations();
 
   // gps_.enableAllMsgs(false);
-  gps_.enableMsg(navio::Ublox::NAV_PVT, true);
-  gps_.enableMsg(navio::Ublox::NAV_COV, true);
+  gps_.enableMsg(navio::NEOM8N::NAV_PVT, true);
+  gps_.enableMsg(navio::NEOM8N::NAV_COV, true);
 
   gps_.configureSolutionRate(kMeasurementRate);
-  gps_.configureDynamicsModel(navio::Ublox::AIRBORNE_2G);
-  gps_.configurePowerMode(navio::Ublox::FULL_POWER);
+  gps_.configureDynamicsModel(navio::NEOM8N::AIRBORNE_2G);
+  gps_.configurePowerMode(navio::NEOM8N::FULL_POWER);
 
   // データシートを見るに複数のメインGNSSを組み合わせると処理が重くなるから，GPSだけで良さそう
   // https://www.u-blox.com/en/product/neo-m8-series
@@ -63,13 +62,12 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
 
   switch (msg)
   {
-    case navio::Ublox::NAV_PVT:
+    case navio::NEOM8N::NAV_PVT:
     {
       if (!cov_received_)
         break;
 
       gps_.decode(pvt_);
-      // cout << pvt_ << endl;
 
       // Create GPS message
       const auto gps_msg = boost::make_shared<tobas_msgs::Gps>();
@@ -93,7 +91,6 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->position_covariance(2, 2) = cov_.posCovDD;  // DD
 
       // Fill GPS velocity
-      gps_msg->header.stamp = event.current_real;
       gps_msg->ground_speed.x(pvt_.velN);                  // North velocity [m/s]
       gps_msg->ground_speed.y(-pvt_.velE);                 // West velocity [m/s]
       gps_msg->ground_speed.z(-pvt_.velD);                 // Up velocity [m/s]
@@ -107,18 +104,12 @@ void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
       gps_msg->velocity_covariance(2, 1) = cov_.velCovED;  // DE
       gps_msg->velocity_covariance(2, 2) = cov_.velCovDD;  // DD
 
-      // Fill the communication delay
-      const auto gps_tp =
-        tobas_std::timePointFromUTC(pvt_.year, pvt_.month, pvt_.day, pvt_.hour, pvt_.min, pvt_.sec, pvt_.nano);
-      const auto cur_tp = chrono::system_clock::now();  // UTCを得るにはインターネットが必要
-      gps_msg->delay.fromNSec(chrono::duration_cast<chrono::nanoseconds>(cur_tp - gps_tp).count());
-
       // Publish GPS message
       gps_pub_.publish(gps_msg);
 
       break;
     }
-    case navio::Ublox::NAV_COV:
+    case navio::NEOM8N::NAV_COV:
     {
       gps_.decode(cov_);
 

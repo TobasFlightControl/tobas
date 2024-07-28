@@ -56,7 +56,7 @@ QuadProgppSolver::QuadProgppSolver() : super()
 {
 }
 
-VectorXd QuadProgppSolver::solve()
+bool QuadProgppSolver::solve()
 {
   checkProblemValidity();
 
@@ -75,13 +75,16 @@ VectorXd QuadProgppSolver::solve()
   const double f_value = quadprogpp::solve_quadprog(G_, g0_, CE_, ce0_, CI_, ci0_, x_);
   if (f_value > F_VALUE_THRESHOLD)
   {
-    throw runtime_error("Failed to solve QP.");
+    error_msg_ = "QPP is infeasible.";
+    return false;
   }
 
   VectorXd x_scaled(x_.size());
   quadprogpp::vectorQpToEigen(x_, x_scaled);
 
-  // 解を元のスケールに戻して返す
-  return x_scaled.cwiseProduct(x_scale);
+  // 解を元のスケールに戻す
+  x_opt_ = x_scaled.cwiseProduct(x_scale);
+
+  return true;
 }
 }  // namespace quadprog

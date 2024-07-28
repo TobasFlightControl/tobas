@@ -10,5 +10,6 @@
 	<buildtool_depend>catkin</buildtool_depend>
 
 	<depend>tobas_math</depend>
+	<depend>tobas_algorithm</depend>
 
 </package>

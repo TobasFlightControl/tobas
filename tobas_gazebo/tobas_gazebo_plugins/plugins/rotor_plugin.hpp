@@ -6,22 +6,28 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_msgs/Throttles.h>
+#include <tobas_tools/turning_direction.hpp>
+#include <tobas_tools/esc.hpp>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
+#include <tobas_gazebo_msgs/Throttle.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/first_order_filter.hpp"
 
 namespace gazebo
 {
+/* Simulates ESC, rotor and ropeller. */
 class GazeboRotorPlugin : public ModelPlugin
 {
   // Constants
   static constexpr char kPluginName[] = "motor_model_plugin";
   static constexpr char kDebugTopicPrefix[] = "ground_truth/rotor_debug";
-  static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
-  static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
+  static constexpr double kRotorSpeedCheckMargin = 10.;     // [rad/s]
+  static constexpr double kCommandBlankTimeThreshold = 1.;  // [s]
+  static constexpr double kTimeConstWarnThreshold = 0.1;    // [s]
+  static constexpr double kMinBatteryVoltage = 3.;          // [V]
+  static constexpr double kDisarmDuration = 1.5;            // [s] 通常1~2秒らしい
 
   // Default parameters
   static constexpr double kDefaultMaxModelErrorRate = 0.;
@@ -40,29 +46,30 @@ private:
 
   // SDF parameters
   std::string ns_;
+  size_t motor_number_;
   std::string link_name_;
   std::string joint_name_;
-  size_t motor_number_;
-  int direction_;               // turning direction. 1(CCW) or -1(CW).
   SdfVector2 rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
-  double max_model_error_rate_;
+  tobas::TurningDirection direction_;  // Turning direction: 1(CCW) or -1(CW).
   double time_const_up_;
   double time_const_down_;
-  double max_rot_speed_;  // [rad/s] モータ特性が成り立つ最大回転数．最大連続電流によって定まる．
-  double max_current_;  // [A] ESCの最大電流
-  double check_delay_threshold_;
+  double max_rot_speed_;  // [rad/s] 最大連続電流によって定まるモータ特性が成り立つ最大回転数
+  size_t num_poles_;      // モータの極数
+  double max_current_;    // [A] ESCの最大電流
+  tobas::EscMode esc_mode_;  // ESCへの信号の解釈方式
+  double max_model_error_rate_;
 
   double cmd_rot_speed_ = 0.;  // [rad/s]
   tobas_msgs::BatteryConstPtr battery_;
   ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
   common::Time prev_sim_time_;
-  common::Time last_cmd_time_;
+  common::Time last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
+  common::Time disarm_start_time_ = common::Time::Maximum();  // Disarmコマンドの開始時刻
   bool is_intact_ = true;
-  bool is_activated_ = false;
-  bool is_initialized_ = false;
+  bool is_armed_ = false;
   bool wind_received_ = false;
   AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
 
@@ -76,7 +83,7 @@ private:
   // PubSub
   ros::Publisher rotor_state_pub_;
   ros::Publisher debug_pub_;
-  ros::Subscriber throttles_sub_;
+  ros::Subscriber throttle_sub_;
   ros::Subscriber battery_gt_sub_;
   ros::Subscriber wind_gt_sub_;
 
@@ -88,8 +95,9 @@ private:
   void applyForceAndTorque(const double& rot_speed, const common::Time& cur_time);
   void updateRotationSpeed(const double& dt);
   double rotSpeedFromVoltage(const double& voltage);
+  double rotSpeedFromERPM(const double& erpm);
 
-  void throttlesCmdCb(const tobas_msgs::ThrottlesConstPtr& throttles);
+  void throttleCmdCb(const tobas_gazebo_msgs::ThrottleConstPtr& msg);
   void batteryGtCb(const tobas_msgs::BatteryConstPtr& battery);
   void windSpeedGtCb(const tobas_msgs::WindConstPtr& wind);
 };

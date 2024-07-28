@@ -16,7 +16,7 @@ public:
   void updateInternalDataStructures() override;
 
   /* ルートリンク周りの質量特性を計算する． */
-  int JntToCart(const JntArray& q_in);
+  int JntToCart(const JntArray& q);
 
   const RigidBodyInertia& getInertia() const
   {
@@ -26,8 +26,7 @@ public:
 private:
   std::map<std::string, Frame> X_;
   std::map<std::string, RigidBodyInertia> I_;
-  RigidBodyInertia I_tmp_;
 
-  void step(const SegmentMap::const_iterator& segment, const JntArray& q);
+  void step(const SegmentMap::const_iterator& cur_it, const JntArray& q);
 };
 }  // namespace kdl
