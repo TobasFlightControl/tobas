@@ -12,9 +12,15 @@ class TetherStationForceModel(ET.Element):
         link_name: str,
         world_end: Tuple[float, float, float],
         drone_end: Tuple[float, float, float],
-        tension: float,
+        init_tension: float,
+        init_max_length: float,
+        young_modulus: float,
+        cross_section_area: float,
     ) -> None:
-        assert tension >= 0.0
+        assert init_tension >= 0.0
+        assert init_max_length > 0.0
+        assert young_modulus > 0.0
+        assert cross_section_area > 0.0
 
         # robot/gazebo
         super().__init__("gazebo")
@@ -28,7 +34,10 @@ class TetherStationForceModel(ET.Element):
         ET.SubElement(plugin, "linkName").text = link_name
         ET.SubElement(plugin, "worldEnd").text = " ".join(map(str, world_end))
         ET.SubElement(plugin, "droneEnd").text = " ".join(map(str, drone_end))
-        ET.SubElement(plugin, "tension").text = str(tension)
+        ET.SubElement(plugin, "initialTension").text = str(init_tension)
+        ET.SubElement(plugin, "initialMaximumLength").text = str(init_max_length)
+        ET.SubElement(plugin, "youngModulus").text = str(young_modulus)
+        ET.SubElement(plugin, "crossSectionArea").text = str(cross_section_area)
 
 
 class TetherStationVisualModel(ET.Element):
@@ -57,11 +66,25 @@ def add_tether_station_model(
     link_name: str,
     world_end: Tuple[float, float, float],
     drone_end: Tuple[float, float, float],
-    tension: float,
+    init_tension: float,
+    init_max_length: float,
+    young_modulus: float,
+    cross_section_area: float,
 ) -> None:
     # Plugins
-    robot.append(TetherStationForceModel(ns, link_name, world_end, drone_end, tension))
-    robot.append(TetherStationVisualModel(link_name, world_end, drone_end))
+    robot.append(
+        TetherStationForceModel(
+            ns=ns,
+            link_name=link_name,
+            world_end=world_end,
+            drone_end=drone_end,
+            init_tension=init_tension,
+            init_max_length=init_max_length,
+            young_modulus=young_modulus,
+            cross_section_area=cross_section_area,
+        )
+    )
+    robot.append(TetherStationVisualModel(link_name=link_name, world_end=world_end, drone_end=drone_end))
 
     # VisualPluginが埋め込まれたリンク名で始まるリンクに，Visualタグが設定されている必要がある．
     dummy_link_name = f"{link_name}_dummy_visual_link"

@@ -766,7 +766,10 @@ class PackageGenerator(QObject):
                 link_name=self._main.tether_station.link.get(),
                 world_end=self._main.tether_station.world_end.get(),
                 drone_end=self._main.tether_station.drone_end.get(),
-                tension=self._main.tether_station.tension.get(),
+                init_tension=self._main.tether_station.tension.get(),
+                init_max_length=self._main.tether_station.max_length.get(),
+                young_modulus=self._main.tether_station.young_modulus.get(),
+                cross_section_area=self._main.tether_station.cross_sectional_area.get(),
             )
 
         # Ground Truth State plugin
