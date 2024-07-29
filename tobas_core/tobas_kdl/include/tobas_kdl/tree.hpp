@@ -53,7 +53,7 @@ public:
    * @param hook_name name of the segment to connect this
    * segment with.
    */
-  void addSegment(const Segment& segment, const std::string& hook_name);
+  bool addSegment(const Segment& segment, const std::string& hook_name);
 
   /**
    * Adds a complete chain to the end of the segment with
@@ -61,7 +61,7 @@ public:
    *
    * @param hook_name name of the segment to connect the chain with.
    */
-  void addChain(const Chain& chain, const std::string& hook_name);
+  bool addChain(const Chain& chain, const std::string& hook_name);
 
   /**
    * Adds a complete tree to the end of the segment with
@@ -70,7 +70,7 @@ public:
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
    */
-  void addTree(const Tree& tree, const std::string& hook_name);
+  bool addTree(const Tree& tree, const std::string& hook_name);
 
   /**
    * Request the chain of the tree between chain_root and chain_tip.  The chain_root
@@ -81,7 +81,7 @@ public:
    * @param chain_tip the name of the tip segment of the chain
    * @param chain the resulting chain
    */
-  void getChain(const std::string& chain_root, const std::string& chain_tip, Chain& chain) const;
+  bool getChain(const std::string& chain_root, const std::string& chain_tip, Chain& chain) const;
 
   /**
    * Extract a tree having seg_name as root. Only child segments of
@@ -91,7 +91,7 @@ public:
    * @param tree The resulting sub-tree
    * @param root_mass_ok If false and the new root segment has mass, it will throw an exception
    */
-  void getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok = false) const;
+  bool getSubTree(const std::string& seg_name, Tree& tree, bool root_mass_ok = false) const;
 
   inline const size_t& getNrOfJoints() const;
   inline const size_t& getNrOfSegments() const;
@@ -110,7 +110,7 @@ private:
   size_t nj_ = 0;
   size_t ns_ = 0;
 
-  void addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
+  bool addTreeRecursive(const SegmentMap::const_iterator& seg, const std::string& hook_name);
 };
 
 inline TreeElement::TreeElement(const Segment& _segment, const SegmentMap::const_iterator& _parent, const size_t& _q_nr)
