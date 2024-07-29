@@ -47,11 +47,19 @@ JointSpaceDynamics::JointSpaceDynamics(
 
 void JointSpaceDynamics::updateInternalDataStructures()
 {
+  const auto floating_base_name = floating_base_name_.size() > 0 ? floating_base_name_ : tree_raw_.getRootName();
+
+  // ベースリンク以下を抽出
+  kdl::Tree base_sub_tree;
+  if (!tree_raw_.getSubTree(floating_base_name_, base_sub_tree))
+    throw runtime_error("Failed to get sub tree.");
+
   // ツリーに浮遊リンクを接続
   tree_ = kdl::Tree::FloatingBase("world", floating_base_name_);
-  tree_.addTree(tree_raw_, floating_base_name_);
+  if (!tree_.addTree(base_sub_tree, floating_base_name_))
+    throw runtime_error("Failed to add a floating base link to the tree.");
 
-  nj_raw_ = tree_raw_.getNrOfJoints();
+  nj_raw_ = base_sub_tree.getNrOfJoints();
   nj_ = tree_.getNrOfJoints();
   J_.resize(wrench_size_, nj_);
 

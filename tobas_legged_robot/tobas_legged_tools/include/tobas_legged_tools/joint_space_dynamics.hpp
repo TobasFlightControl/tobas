@@ -44,7 +44,7 @@ public:
   explicit JointSpaceDynamics(
     const kdl::Tree& tree,
     const std::vector<std::string>& foot_names,
-    const std::string& floating_base_name);
+    const std::string& floating_base_name = "");
 
   void updateInternalDataStructures();
 
