@@ -99,15 +99,21 @@ void LQD::checkProblemValidity()
   assert(dynamics.isFinite());
 
   assert(state_scale.rows() == x_size);
-  assert((state_scale.array() > 0.).all());
   assert(input_scale.rows() == u_size);
-  assert((input_scale.array() > 0.).all());
-
   assert(state_weight.rows() == x_size);
-  assert((state_weight.array() >= 0.).all());
   assert(input_weight.rows() == u_size);
-  assert((input_weight.array() >= 0.).all());
   assert(input_rate_weight.rows() == u_size);
+
+  assert(eigen_tools::isFinite(state_scale));
+  assert(eigen_tools::isFinite(input_scale));
+  assert(eigen_tools::isFinite(state_weight));
+  assert(eigen_tools::isFinite(input_weight));
+  assert(eigen_tools::isFinite(input_rate_weight));
+
+  assert((state_scale.array() > 0.).all());
+  assert((input_scale.array() > 0.).all());
+  assert((state_weight.array() >= 0.).all());
+  assert((input_weight.array() >= 0.).all());
   assert((input_rate_weight.array() > 0.).all());
 }
 

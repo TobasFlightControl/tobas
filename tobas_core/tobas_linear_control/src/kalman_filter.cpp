@@ -1,4 +1,3 @@
-#include <iostream>
 #include <Eigen/LU>
 
 #include <tobas_eigen_tools/core.hpp>
@@ -53,17 +52,7 @@ void KalmanFilter::initialize(const VectorXd& init_x, const MatrixXd& init_P)
 
 void KalmanFilter::update()
 {
-  assert(ss.isSizeMatch());
-  assert(ss.isFinite());
-  assert(Bv.rows() == stateSize() && Bv.cols() == systemNoiseSize());
-  assert(Q.rows() == systemNoiseSize() && Q.cols() == systemNoiseSize());
-  assert(R.rows() == outputSize() && R.cols() == outputSize());
-  assert(y.size() == outputSize());
-  assert(u.size() == inputSize());
-  assert(ctrl::isControllable(ss.A, Bv));  // FIXME: 本当は可安定で十分
-  assert(ctrl::isObservable(ss.A, ss.C));  // FIXME: 本当は可検出で十分
-  assert(eigen_tools::isSymmetricSemiPositiveDefinite(Q));
-  assert(eigen_tools::isSymmetricPositiveDefinite(R));
+  verify();
 
   // 事前予測
   const VectorXd x_prev = ss.A * x_ + ss.B * u;
@@ -78,6 +67,26 @@ void KalmanFilter::update()
 
   // 強制対称化
   eigen_tools::symmetrise(P_);
+}
+
+void KalmanFilter::verify() const
+{
+  assert(ss.isSizeMatch());
+  assert(Bv.rows() == stateSize() && Bv.cols() == systemNoiseSize());
+  assert(Q.rows() == systemNoiseSize() && Q.cols() == systemNoiseSize());
+  assert(R.rows() == outputSize() && R.cols() == outputSize());
+  assert(y.size() == outputSize());
+  assert(u.size() == inputSize());
+  assert(ss.isFinite());
+  assert(eigen_tools::isFinite(Bv));
+  assert(eigen_tools::isFinite(Q));
+  assert(eigen_tools::isFinite(R));
+  assert(eigen_tools::isFinite(y));
+  assert(eigen_tools::isFinite(u));
+  assert(ctrl::isControllable(ss.A, Bv));  // FIXME: 本当は可安定で十分
+  assert(ctrl::isObservable(ss.A, ss.C));  // FIXME: 本当は可検出で十分
+  assert(eigen_tools::isSymmetricSemiPositiveDefinite(Q));
+  assert(eigen_tools::isSymmetricPositiveDefinite(R));
 }
 
 IdentityKalmanFilter::IdentityKalmanFilter(const Index& size)

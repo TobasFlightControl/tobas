@@ -45,6 +45,8 @@ public:
 private:
   Eigen::VectorXd x_;
   Eigen::MatrixXd P_;
+
+  void verify() const;
 };
 
 /* 白色ノイズを含む一定値の推定． */
