@@ -47,6 +47,8 @@ public:
 
   inline void setZero();
   inline friend void setToZero(JntArray& array);
+
+  friend std::ostream& operator<<(std::ostream& os, const JntArray& arg);
 };
 
 inline JntArray::JntArray()

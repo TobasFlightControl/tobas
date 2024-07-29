@@ -36,16 +36,10 @@ public:
 
   inline void setIdentity();
 
-  // Defines a multiplication R*V between a Rotation R and a Vector V.
-  // Complexity : 9M+6A
-  inline Vector operator*(const Vector& v) const;
-
   // Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set
   inline double& operator()(int i, int j);
   // Access to elements 0..2,0..2, bounds are checked when NDEBUG is not set
   inline double operator()(int i, int j) const;
-
-  friend Rotation operator*(const Rotation& lhs, const Rotation& rhs);
 
   // Sets the value of *this to its inverse.
   inline void setInverse();
@@ -146,10 +140,12 @@ public:
 
   inline double trace() const;
 
-  inline Twist operator*(const Twist& arg) const;
-  inline Accel operator*(const Accel& arg) const;
-  inline Wrench operator*(const Wrench& arg) const;
-  inline SegmentJacobian operator*(const SegmentJacobian& arg) const;
+  inline Rotation operator*(const Rotation& rhs) const;
+  inline Vector operator*(const Vector& rhs) const;
+  inline Twist operator*(const Twist& rhs) const;
+  inline Accel operator*(const Accel& rhs) const;
+  inline Wrench operator*(const Wrench& rhs) const;
+  inline SegmentJacobian operator*(const SegmentJacobian& rhs) const;
 
   /* Compute the difference of two rotations wrt. the same frame. */
   inline Rotation operator-(const Rotation& rhs) const;
@@ -218,29 +214,34 @@ inline void Rotation::setIdentity()
   data.setIdentity();
 }
 
-inline Vector Rotation::operator*(const Vector& v) const
+inline Rotation Rotation::operator*(const Rotation& rhs) const
 {
-  return Vector(data * v.data);
+  return Rotation(data * rhs.data);  // TODO: SO3を維持するための処理
 }
 
-inline Twist Rotation::operator*(const Twist& arg) const
+inline Vector Rotation::operator*(const Vector& rhs) const
 {
-  return Twist((*this) * arg.vel, (*this) * arg.rot);
+  return Vector(data * rhs.data);
 }
 
-inline Accel Rotation::operator*(const Accel& arg) const
+inline Twist Rotation::operator*(const Twist& rhs) const
 {
-  return Accel((*this) * arg.linear, (*this) * arg.angular);
+  return Twist((*this) * rhs.vel, (*this) * rhs.rot);
 }
 
-inline Wrench Rotation::operator*(const Wrench& arg) const
+inline Accel Rotation::operator*(const Accel& rhs) const
 {
-  return Wrench((*this) * arg.force, (*this) * arg.torque);
+  return Accel((*this) * rhs.linear, (*this) * rhs.angular);
 }
 
-inline SegmentJacobian Rotation::operator*(const SegmentJacobian& arg) const
+inline Wrench Rotation::operator*(const Wrench& rhs) const
 {
-  return SegmentJacobian((*this) * arg.linear, (*this) * arg.angular);
+  return Wrench((*this) * rhs.force, (*this) * rhs.torque);
+}
+
+inline SegmentJacobian Rotation::operator*(const SegmentJacobian& rhs) const
+{
+  return SegmentJacobian((*this) * rhs.linear, (*this) * rhs.angular);
 }
 
 inline Rotation Rotation::operator-(const Rotation& rhs) const

@@ -53,9 +53,4 @@ ostream& operator<<(ostream& os, const Wrench& v)
      << "," << v.torque.z() << "]";
   return os;
 }
-
-Rotation operator*(const Rotation& lhs, const Rotation& rhs)
-{
-  return Rotation(lhs.data * rhs.data);
-}
 }  // namespace kdl
