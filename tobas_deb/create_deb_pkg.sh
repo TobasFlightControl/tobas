@@ -11,3 +11,7 @@ fakeroot dpkg-deb --build ${UBUNTU_WS} ${TOBAS_DEB}
 # Navio2
 NAVIO2=$(realpath ${TOBAS_DEB}/navio2)
 fakeroot dpkg-deb --build ${NAVIO2} ${TOBAS_DEB}
+
+# A1
+A1=$(realpath ${TOBAS_DEB}/a1)
+fakeroot dpkg-deb --build ${A1} ${TOBAS_DEB}
