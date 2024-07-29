@@ -94,7 +94,7 @@ void SwingLegController::update(
       continue;
 
     // {gnd}から見た各足先の目標状態を得る
-    const auto t = DurationType(cur_time - t_switch_[l]).count();
+    const auto t = max(DurationType(cur_time - t_switch_[l]).count(), 0.);
     ref_traj_[l].get(t, G_Tdd_GF_.p, G_Tdd_GF_.v, G_Tdd_GF_.dv);
 
     // {gnd}から見た{bs}に対する{foot}の状態を計算
