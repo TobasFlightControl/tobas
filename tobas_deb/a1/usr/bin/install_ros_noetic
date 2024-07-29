@@ -3,7 +3,7 @@
 # cf. https://varhowto.com/install-ros-noetic-raspberry-pi-4/
 
 # Step 1 - Set up ROS Noetic repo on Raspberry Pi 4
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' &&
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu buster main" > /etc/apt/sources.list.d/ros-latest.list' &&
 
 # Step 2 — Add official ROS key
 sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 &&
