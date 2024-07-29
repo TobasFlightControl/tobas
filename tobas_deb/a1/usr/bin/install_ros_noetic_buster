@@ -29,9 +29,9 @@ rosdep update &&
 # Step 6 — Fetch & Install ROS Noetic dependencies
 mkdir ~/.catkin_ws_install &&
 cd ~/.catkin_ws_install &&
-rosinstall_generator desktop --rosdistro noetic --deps --wet-only --tar > noetic_wet.rosinstall &&
+rosinstall_generator ros_comm --rosdistro noetic --deps --wet-only --tar > noetic_wet.rosinstall &&
 wstool init src noetic_wet.rosinstall &&
-rosdep install --from-paths ./src --ignore-packages-from-source --rosdistro noetic -y &&
+rosdep install --from-paths ./src --ignore-packages-from-source --rosdistro noetic --os=debian:buster -y &&
 
 # Step 7 — Compiling Noetic packages on Raspberry Pi 4
 sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -DPYTHON_EXECUTABLE=/usr/bin/python3 &&
