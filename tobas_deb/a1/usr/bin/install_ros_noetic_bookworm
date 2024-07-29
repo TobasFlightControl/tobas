@@ -9,7 +9,19 @@ sudo apt-get update -y &&
 sudo apt-get upgrade -y &&
 
 # 2. Install the needed packages using apt:
-sudo apt install -y build-essential cmake curl python3-rosdep python3-rosinstall-generator python3-wstool python3-rosinstall python3-empy python3-pip python3-catkin python3-catkin-pkg python3-catkin-pkg-modules python3-catkin-tools &&
+sudo apt install -y build-essential &&
+sudo apt install -y cmake &&
+sudo apt install -y curl &&
+sudo apt install -y python3-rosdep &&
+sudo apt install -y python3-rosinstall-generator &&
+sudo apt install -y python3-wstool &&
+sudo apt install -y python3-rosinstall &&
+sudo apt install -y python3-empy &&
+sudo apt install -y python3-pip &&
+sudo apt install -y python3-catkin &&
+sudo apt install -y python3-catkin-pkg &&
+sudo apt install -y python3-catkin-pkg-modules &&
+sudo apt install -y python3-catkin-tools &&
 
 # 3. Initialise rosdep:
 sudo rosdep init || true &&
@@ -34,14 +46,20 @@ sudo apt purge -y hddtemp-build-deps &&
 cd ~/.catkin_ws_install/apt_fix &&
 
 # 7. Fix: We will download and install the other missing packages from bullseye repo:
-wget http://archive.ubuntu.com/ubuntu/pool/universe/g/geographiclib/libgeographic-dev_1.49-2_amd64.deb &&
-wget http://archive.ubuntu.com/ubuntu/pool/universe/g/geographiclib/libgeographic17_1.49-2_amd64.deb &&
-wget http://archive.ubuntu.com/ubuntu/pool/universe/o/orocos-kdl/liborocos-kdl1.4_1.4.0-7build2_amd64.deb &&
-wget http://ftp.de.debian.org/debian/pool/main/o/ogre-1.9/libogre-1.9.0v5_1.9.0+dfsg1-12.1_amd64.deb &&
-wget http://ftp.de.debian.org/debian/pool/main/o/ogre-1.9/libogre-1.9-dev_1.9.0+dfsg1-12.1_amd64.deb &&
-wget http://ftp.de.debian.org/debian/pool/main/l/log4cxx/liblog4cxx11_0.11.0-2_amd64.deb &&
-wget wget http://ftp.de.debian.org/debian/pool/main/l/log4cxx/liblog4cxx-dev_0.11.0-2_amd64.deb &&
-sudo apt install -y ./libgeographic17_1.49-2_amd64.deb ./libgeographic-dev_1.49-2_amd64.deb ./liborocos-kdl1.4_1.4. &&0-7build2_amd64.deb ./libogre-1.9.0v5_1.9.0+dfsg1-12.1_amd64.deb ./libogre-1.9-dev_1.9.0+dfsg1-12.1_amd64.deb ./liblog4cxx11_0.11.0-2_amd64.deb ./liblog4cxx-dev_0.11.0-2_amd64.deb &&
+# wget http://archive.ubuntu.com/ubuntu/pool/universe/g/geographiclib/libgeographic-dev_1.49-2_amd64.deb &&
+# wget http://archive.ubuntu.com/ubuntu/pool/universe/g/geographiclib/libgeographic17_1.49-2_amd64.deb &&
+# wget http://archive.ubuntu.com/ubuntu/pool/universe/o/orocos-kdl/liborocos-kdl1.4_1.4.0-7build2_amd64.deb &&
+# wget http://ftp.de.debian.org/debian/pool/main/o/ogre-1.9/libogre-1.9.0v5_1.9.0+dfsg1-12.1_amd64.deb &&
+# wget http://ftp.de.debian.org/debian/pool/main/o/ogre-1.9/libogre-1.9-dev_1.9.0+dfsg1-12.1_amd64.deb &&
+# wget http://ftp.de.debian.org/debian/pool/main/l/log4cxx/liblog4cxx11_0.11.0-2_amd64.deb &&
+# wget wget http://ftp.de.debian.org/debian/pool/main/l/log4cxx/liblog4cxx-dev_0.11.0-2_amd64.deb &&
+# sudo dpkg install -y ./libgeographic17_1.49-2_amd64.deb &&
+# sudo dpkg install -y ./libgeographic-dev_1.49-2_amd64.deb &&
+# sudo dpkg install -y ./liborocos-kdl1.4_1.4.0-7build2_amd64.deb &&
+# sudo dpkg install -y ./libogre-1.9.0v5_1.9.0+dfsg1-12.1_amd64.deb &&
+# sudo dpkg install -y ./libogre-1.9-dev_1.9.0+dfsg1-12.1_amd64.deb &&
+# sudo dpkg install -y ./liblog4cxx11_0.11.0-2_amd64.deb &&
+# sudo dpkg install -y ./liblog4cxx-dev_0.11.0-2_amd64.deb &&
 
 # 8. Fix: The bookworm repositories don't contain Python 2.7 anymore. Thus download and install pypy with Python 2.7 executable and create symlinks to the binaries, install pip2 and install the future package:
 wget https://downloads.python.org/pypy/pypy2.7-v7.3.12-linux64.tar.bz2 &&
@@ -58,8 +76,8 @@ cd ~/.catkin_ws_install &&
 rosinstall_generator desktop --rosdistro noetic --deps --wet-only --tar | tee ./noetic.rosinstall &&
 
 # Optional: Add mavros ROS packages to the build:
-rosinstall_generator --rosdistro kinetic mavlink | tee -a ./noetic.rosinstall &&
-rosinstall_generator --rosdistro noetic --upstream mavros | tee -a ./noetic.rosinstall &&
+# rosinstall_generator --rosdistro kinetic mavlink | tee -a ./noetic.rosinstall &&
+# rosinstall_generator --rosdistro noetic --upstream mavros | tee -a ./noetic.rosinstall &&
 
 # 10. Fix: wstool would probably throw the following error: load() missing 1 required positional argument: 'Loader' for each of the packages. This can be simply fixed by replacing yaml.load function with yaml.safe_load in the corresponding vcstools script:
 sudo sed -i 's/yaml.load/yaml.safe_load/g' /usr/lib/python3/dist-packages/vcstools/tar.py &&
@@ -72,8 +90,8 @@ cd ~/.catkin_ws_install/src &&
 # git clone -b master https://github.com/ros/roslint.git &&
 # git clone -b noetic-devel https://github.com/ros/diagnostics.git &&
 rm -rf common_msgs && git clone -b noetic-devel https://github.com/ros/common_msgs.git &&  # incomplete
-# git clone -b master https://github.com/ros/angles.git
-# git clone -b noetic-devel https://github.com/ros/geometry.git
+# git clone -b master https://github.com/ros/angles.git &&
+# git clone -b noetic-devel https://github.com/ros/geometry.git &&
 rm -rf geometry2 && git clone -b noetic-devel https://github.com/ros/geometry2.git &&  # missing tf2_eigen
 # git clone -b noetic-devel https://github.com/ros/actionlib.git &&
 # git clone -b kinetic-devel https://github.com/ros/rosconsole_bridge.git &&
