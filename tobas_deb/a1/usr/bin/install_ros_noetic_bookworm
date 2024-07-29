@@ -1,0 +1,104 @@
+#!/bin/bash
+
+# cf. https://gist.github.com/vrbadev/ec168a0940d45f523bf050011d7dff75
+
+# 1. Add ROS repository for older Debian 10 ("buster") to our apt sources list:
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu buster main" > /etc/apt/sources.list.d/ros-latest.list' &&
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 &&
+sudo apt-get update -y &&
+sudo apt-get upgrade -y &&
+
+# 2. Install the needed packages using apt:
+sudo apt install -y build-essential cmake curl python3-rosdep python3-rosinstall-generator python3-wstool python3-rosinstall python3-empy python3-pip python3-catkin python3-catkin-pkg python3-catkin-pkg-modules python3-catkin-tools &&
+
+# 3. Initialise rosdep:
+sudo rosdep init || true &&
+rosdep update &&
+
+# 4. Create a catkin workspace where we are going to build the ROS Noetic distribution and enter it:
+mkdir -p ~/.catkin_ws_install &&
+cd ~/.catkin_ws_install &&
+
+# 5. Create a directory for missing/broken apt packages and enter it:
+mkdir ~/.catkin_ws_install/apt_fix &&
+cd ~/.catkin_ws_install/apt_fix &&
+
+# 6. Fix: We have to build missing package hddtemp package from source, e.g., using the following commands:
+sudo apt install -y packaging-dev debian-keyring devscripts equivs &&
+dget -x http://deb.debian.org/debian/pool/main/h/hddtemp/hddtemp_0.3-beta15-54.dsc &&
+cd ~/.catkin_ws_install/apt_fix/hddtemp-0.3-beta15 &&
+sudo mk-build-deps --install --remove &&
+dpkg-buildpackage -us -uc &&
+sudo apt install -y ../hddtemp_*_*.deb &&
+sudo apt purge -y hddtemp-build-deps &&
+cd ~/.catkin_ws_install/apt_fix &&
+
+# 7. Fix: We will download and install the other missing packages from bullseye repo:
+wget http://archive.ubuntu.com/ubuntu/pool/universe/g/geographiclib/libgeographic-dev_1.49-2_amd64.deb &&
+wget http://archive.ubuntu.com/ubuntu/pool/universe/g/geographiclib/libgeographic17_1.49-2_amd64.deb &&
+wget http://archive.ubuntu.com/ubuntu/pool/universe/o/orocos-kdl/liborocos-kdl1.4_1.4.0-7build2_amd64.deb &&
+wget http://ftp.de.debian.org/debian/pool/main/o/ogre-1.9/libogre-1.9.0v5_1.9.0+dfsg1-12.1_amd64.deb &&
+wget http://ftp.de.debian.org/debian/pool/main/o/ogre-1.9/libogre-1.9-dev_1.9.0+dfsg1-12.1_amd64.deb &&
+wget http://ftp.de.debian.org/debian/pool/main/l/log4cxx/liblog4cxx11_0.11.0-2_amd64.deb &&
+wget wget http://ftp.de.debian.org/debian/pool/main/l/log4cxx/liblog4cxx-dev_0.11.0-2_amd64.deb &&
+sudo apt install -y ./libgeographic17_1.49-2_amd64.deb ./libgeographic-dev_1.49-2_amd64.deb ./liborocos-kdl1.4_1.4. &&0-7build2_amd64.deb ./libogre-1.9.0v5_1.9.0+dfsg1-12.1_amd64.deb ./libogre-1.9-dev_1.9.0+dfsg1-12.1_amd64.deb ./liblog4cxx11_0.11.0-2_amd64.deb ./liblog4cxx-dev_0.11.0-2_amd64.deb &&
+
+# 8. Fix: The bookworm repositories don't contain Python 2.7 anymore. Thus download and install pypy with Python 2.7 executable and create symlinks to the binaries, install pip2 and install the future package:
+wget https://downloads.python.org/pypy/pypy2.7-v7.3.12-linux64.tar.bz2 &&
+tar xvf pypy2.7-v7.3.12-linux64.tar.bz2 &&
+sudo mv pypy2.7-v7.3.12-linux64 /opt/pypy2.7 &&
+sudo ln -s /opt/pypy2.7/bin/python2.7 /usr/bin/python2 &&
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py &&
+sudo python2 get-pip.py &&
+sudo ln -s /opt/pypy2.7/bin/pip2 /usr/bin/pip2 &&
+sudo pip2 install future &&
+
+# 9. Fetch ROS packages list of corresponding git repositories. Replace desktop with ros_comm for a minimal ROS installation:
+cd ~/.catkin_ws_install &&
+rosinstall_generator desktop --rosdistro noetic --deps --wet-only --tar | tee ./noetic.rosinstall &&
+
+# Optional: Add mavros ROS packages to the build:
+rosinstall_generator --rosdistro kinetic mavlink | tee -a ./noetic.rosinstall &&
+rosinstall_generator --rosdistro noetic --upstream mavros | tee -a ./noetic.rosinstall &&
+
+# 10. Fix: wstool would probably throw the following error: load() missing 1 required positional argument: 'Loader' for each of the packages. This can be simply fixed by replacing yaml.load function with yaml.safe_load in the corresponding vcstools script:
+sudo sed -i 's/yaml.load/yaml.safe_load/g' /usr/lib/python3/dist-packages/vcstools/tar.py &&
+
+# 11. Initialize the source directory using the list:
+wstool init src ./noetic.rosinstall &&
+
+# 12. Enter the src directory and add/replace the following git repos (because they the clone is incomplete), you can also add next ROS packages (and their dependency ROS packages) as you wish:
+cd ~/.catkin_ws_install/src &&
+# git clone -b master https://github.com/ros/roslint.git &&
+# git clone -b noetic-devel https://github.com/ros/diagnostics.git &&
+rm -rf common_msgs && git clone -b noetic-devel https://github.com/ros/common_msgs.git &&  # incomplete
+# git clone -b master https://github.com/ros/angles.git
+# git clone -b noetic-devel https://github.com/ros/geometry.git
+rm -rf geometry2 && git clone -b noetic-devel https://github.com/ros/geometry2.git &&  # missing tf2_eigen
+# git clone -b noetic-devel https://github.com/ros/actionlib.git &&
+# git clone -b kinetic-devel https://github.com/ros/rosconsole_bridge.git &&
+# git clone -b melodic-devel https://github.com/ros/urdf.git &&
+# git clone -b noetic-devel https://github.com/ros/dynamic_reconfigure.git &&
+# git clone -b noetic-devel https://github.com/ros/nodelet_core.git &&
+# git clone -b kinetic-devel https://github.com/ros/bond_core.git &&
+# git clone -b noetic-devel https://github.com/ros-perception/image_common.git &&
+git clone -b noetic-devel https://github.com/ros-perception/pcl_msgs.git &&
+git clone -b melodic-devel https://github.com/ros-perception/perception_pcl.git &&
+git clone -b master https://github.com/ros-geographic-info/unique_identifier.git &&
+git clone -b master https://github.com/ros-geographic-info/geographic_info.git &&
+git clone -b noetic-devel https://github.com/clearpathrobotics/robot_upstart.git &&
+git clone -b kinetic-devel https://github.com/ros-controls/control_msgs.git &&
+# git clone -b noetic-devel https://github.com/ros-controls/control_toolbox.git &&
+git clone -b noetic-devel https://github.com/ros-controls/realtime_tools.git &&
+# rm -rf mavlink && git clone https://github.com/mavlink/mavlink.git &&  # if version from generator causes compilation errors
+cd ~/.catkin_ws_install &&
+
+# 13. Install remaining dependencies using rosdep:
+rosdep install -y --from-paths src --ignore-src --rosdistro noetic --os=debian:buster -r &&
+
+# 14. By now, everything should be ready so we build all the ROS packages and install them into /opt/ros/noetic directory:
+sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic &&
+
+# 15. Verify that the installation is successful.
+source /opt/ros/noetic/setup.bash &&
+echo -e "\033[32mROS Noetic is installed successfully.\033[0m"
