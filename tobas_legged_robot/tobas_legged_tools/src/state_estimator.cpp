@@ -52,10 +52,11 @@ void StateEstimator::update(
   assert(contact_probs.size() == nc_);
   assert(foot_forces.size() == nc_);
   assert(foot_forces.size() == nc_);
+  assert(dt >= 0);
 
   /* ===== 事前計算 ===== */
   W_Quat_B.getRPY(roll_, pitch_, yaw_);
-  const auto FP_Rot_B = kdl::Rotation::RPY(roll_, pitch_, 0.);
+  const auto FP_Rot_B = kdl::Rotation::RPY(roll_, pitch_, 0);
   const auto gyro_FP = FP_Rot_B * gyro_B;
 
   /* ===== ダイナミクスを更新 ===== */
