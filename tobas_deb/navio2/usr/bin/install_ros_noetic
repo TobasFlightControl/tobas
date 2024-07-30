@@ -34,7 +34,7 @@ wstool init src noetic_wet.rosinstall &&
 rosdep install --from-paths ./src --ignore-packages-from-source --rosdistro noetic -y &&
 
 # Step 7 — Compiling Noetic packages on Raspberry Pi 4
-sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -DPYTHON_EXECUTABLE=/usr/bin/python3 &&
+sudo src/catkin/bin/catkin_make_isolated --install --install-space /opt/ros/noetic -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3 &&
 
 # Verify Noetic installation on Raspberry Pi 4
 source /opt/ros/noetic/setup.bash &&
