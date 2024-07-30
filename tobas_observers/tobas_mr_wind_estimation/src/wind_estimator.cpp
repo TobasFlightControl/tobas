@@ -1,4 +1,4 @@
-#include <Eigen/LU>
+#include <eigen3/Eigen/LU>
 
 #include <tobas_math/core.hpp>
 #include <tobas_tools/constants.hpp>

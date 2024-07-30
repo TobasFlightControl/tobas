@@ -1,8 +1,8 @@
 #pragma once
 
 #include <map>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 #include "./utilities/constants.hpp"
 

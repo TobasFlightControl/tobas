@@ -1,8 +1,8 @@
 #pragma once
 
 #include <boost/array.hpp>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Quaternion.h>
 

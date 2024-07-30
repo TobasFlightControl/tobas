@@ -2,7 +2,7 @@
 
 #include <ros/ros.h>
 #include <string>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include <tobas_std_tools/vector.hpp>
 

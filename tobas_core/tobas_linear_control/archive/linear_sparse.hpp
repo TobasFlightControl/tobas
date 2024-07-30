@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include "../state_spaces.hpp"
 #include "../equations.hpp"

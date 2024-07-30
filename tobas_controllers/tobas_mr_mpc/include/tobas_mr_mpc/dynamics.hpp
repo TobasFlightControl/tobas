@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include <tobas_linear_control/state_spaces.hpp>
 #include <tobas_kdl/treefksolverpos.hpp>

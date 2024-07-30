@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Eigen/Cholesky>
+#include <eigen3/Eigen/Cholesky>
 
 #include <tobas_math/core.hpp>
 

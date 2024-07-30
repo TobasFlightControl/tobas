@@ -1,4 +1,4 @@
-#include <Eigen/LU>  // inverse()に必要
+#include <eigen3/Eigen/LU>  // inverse()に必要
 
 #include "../../include/tobas_linear_control/c2d/tustin.hpp"
 

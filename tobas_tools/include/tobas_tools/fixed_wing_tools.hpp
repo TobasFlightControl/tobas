@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_kdl/frames.hpp>

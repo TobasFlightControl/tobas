@@ -1,4 +1,4 @@
-#include <Eigen/LU>
+#include <eigen3/Eigen/LU>
 #include <std_msgs/Float64.h>
 
 #include <tobas_math/core.hpp>

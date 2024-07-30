@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_navio_core/lsm9ds1.hpp>

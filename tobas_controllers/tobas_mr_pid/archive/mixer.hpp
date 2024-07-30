@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include <tobas_kdl/frames.hpp>
 #include <tobas_kdl/euler.hpp>

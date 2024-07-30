@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Geometry>
 
 #include <tobas_kdl_msgs/Quaternion.h>
 

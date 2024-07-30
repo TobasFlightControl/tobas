@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <vector>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_eigen_tools/linalg.hpp>

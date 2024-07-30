@@ -2,7 +2,7 @@
 
 #include <ros/serialization.h>
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 namespace tobas_eigen_msgs
 {
