@@ -45,11 +45,6 @@ double Vector::normalize(double eps)
   }
 }
 
-Vector Vector::normalized() const
-{
-  return Vector(data.normalized());
-}
-
 bool Vector::isFinite() const
 {
   return eigen_tools::isFinite(data);
