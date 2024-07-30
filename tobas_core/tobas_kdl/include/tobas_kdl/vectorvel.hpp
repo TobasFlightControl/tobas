@@ -22,8 +22,8 @@ public:
 
   doubleVel norm(double eps = kDefaultEpsilon) const;
 
-  VectorVel& operator+=(const VectorVel& arg);
-  VectorVel& operator-=(const VectorVel& arg);
+  VectorVel& operator+=(const VectorVel& rhs);
+  VectorVel& operator-=(const VectorVel& rhs);
 
   inline friend VectorVel operator+(const VectorVel& r1, const VectorVel& r2);
   inline friend VectorVel operator-(const VectorVel& r1, const VectorVel& r2);
