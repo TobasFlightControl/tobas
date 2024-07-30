@@ -1,3 +1,4 @@
+#include <tobas_math/core.hpp>
 #include <tobas_eigen_tools/core.hpp>
 
 #include "../include/tobas_kdl/vector.hpp"
@@ -16,17 +17,17 @@ double Vector::norm(double eps) const
   {
     tmp2 = fabs(data.z());
     if (tmp1 >= tmp2)
-      return tmp1 < eps ? 0. : tmp1 * sqrt(1 + sqr(data.y() / data.x()) + sqr(data.z() / data.x()));
+      return tmp1 < eps ? 0. : tmp1 * sqrt(1 + math::sqr(data.y() / data.x()) + math::sqr(data.z() / data.x()));
     else
-      return tmp2 * sqrt(1 + sqr(data.x() / data.z()) + sqr(data.y() / data.z()));
+      return tmp2 * sqrt(1 + math::sqr(data.x() / data.z()) + math::sqr(data.y() / data.z()));
   }
   else
   {
     tmp1 = fabs(data.z());
     if (tmp2 > tmp1)
-      return tmp2 * sqrt(1 + sqr(data.x() / data.y()) + sqr(data.z() / data.y()));
+      return tmp2 * sqrt(1 + math::sqr(data.x() / data.y()) + math::sqr(data.z() / data.y()));
     else
-      return tmp1 * sqrt(1 + sqr(data.x() / data.z()) + sqr(data.y() / data.z()));
+      return tmp1 * sqrt(1 + math::sqr(data.x() / data.z()) + math::sqr(data.y() / data.z()));
   }
 }
 
