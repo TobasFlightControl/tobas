@@ -7,7 +7,7 @@
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
-	<buildtool_depend>catkin</buildtool_depend>
+	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
@@ -16,6 +16,10 @@
 
 	<export>
 		<nodelet plugin="${prefix}/nodelet_description.xml"/>
+	</export>
+
+	<export>
+		<build_type>ament_cmake</build_type>
 	</export>
 
 </package>

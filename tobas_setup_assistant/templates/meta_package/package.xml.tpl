@@ -7,13 +7,17 @@
 	<maintainer email="{{ author_email }}">{{ author_name }}</maintainer>
 	<license>BSD</license>
 
-	<buildtool_depend>catkin</buildtool_depend>
+	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>{{ config_pkg_name }}</exec_depend>
 	<exec_depend>{{ user_pkg_name }}</exec_depend>
 
 	<export>
 		<metapackage/>
+	</export>
+
+	<export>
+		<build_type>ament_cmake</build_type>
 	</export>
 
 </package>

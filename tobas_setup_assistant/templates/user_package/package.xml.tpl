@@ -7,7 +7,7 @@
 	<maintainer email="{{ author_email }}">{{ author_name }}</maintainer>
 	<license>BSD</license>
 
-	<buildtool_depend>catkin</buildtool_depend>
+	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
@@ -16,6 +16,10 @@
 
 	<export>
 		<nodelet plugin="${prefix}/nodelet_description.xml"/>
+	</export>
+
+	<export>
+		<build_type>ament_cmake</build_type>
 	</export>
 
 </package>
