@@ -23,10 +23,4 @@ VectorVel& VectorVel::operator-=(const VectorVel& arg)
   v -= arg.v;
   return *this;
 }
-
-void setToZero(VectorVel& v)
-{
-  setToZero(v.p);
-  setToZero(v.v);
-}
 }  // namespace kdl

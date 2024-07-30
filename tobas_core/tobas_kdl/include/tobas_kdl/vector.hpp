@@ -87,9 +87,6 @@ public:
 
   bool isFinite() const;
 
-  /* To have a uniform operator to put an element to zero, for scalar values and for objects. */
-  inline friend void setToZero(Vector& v);
-
   friend std::ostream& operator<<(std::ostream& os, const Vector& arg);
 };
 
@@ -302,10 +299,5 @@ inline Vector operator-(const Vector& lhs, const Vector& rhs)
 inline Vector operator*(const Vector& lhs, const Vector& rhs)
 {
   return Vector(lhs.data.cross(rhs.data));
-}
-
-inline void setToZero(Vector& v)
-{
-  v.data.setZero();
 }
 }  // namespace kdl

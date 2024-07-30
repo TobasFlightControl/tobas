@@ -25,8 +25,6 @@ public:
   VectorVel& operator+=(const VectorVel& arg);
   VectorVel& operator-=(const VectorVel& arg);
 
-  friend void setToZero(VectorVel& v);
-
   inline friend VectorVel operator+(const VectorVel& r1, const VectorVel& r2);
   inline friend VectorVel operator-(const VectorVel& r1, const VectorVel& r2);
   inline friend VectorVel operator+(const Vector& r1, const VectorVel& r2);

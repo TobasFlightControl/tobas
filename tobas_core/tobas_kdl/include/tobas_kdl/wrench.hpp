@@ -40,7 +40,6 @@ public:
   inline friend Wrench operator+(const Wrench& lhs, const Wrench& rhs);
   inline friend Wrench operator-(const Wrench& lhs, const Wrench& rhs);
 
-  inline friend void setToZero(Wrench& v);
 
   friend std::ostream& operator<<(std::ostream& os, const Wrench& arg);
 };
@@ -115,11 +114,5 @@ inline Wrench operator+(const Wrench& lhs, const Wrench& rhs)
 inline Wrench operator-(const Wrench& lhs, const Wrench& rhs)
 {
   return Wrench(lhs.force - rhs.force, lhs.torque - rhs.torque);
-}
-
-inline void setToZero(Wrench& v)
-{
-  setToZero(v.force);
-  setToZero(v.torque);
 }
 }  // namespace kdl
