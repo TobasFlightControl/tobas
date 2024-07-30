@@ -1,3 +1,4 @@
+#include <cinttypes>
 #include <algorithm>
 
 #include "../include/tobas_std_tools/string.hpp"
