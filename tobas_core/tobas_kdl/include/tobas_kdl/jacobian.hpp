@@ -29,19 +29,14 @@ public:
   inline SegmentJacobian getColumn(size_t i) const;
   inline void setColumn(size_t i, const SegmentJacobian& jac);
 
+  inline void changeRefPoint(const Vector& base_AB);
+  inline void changeBase(const Rotation& rot);
+  inline void changeRefFrame(const Frame& frame);
+
   inline double operator()(size_t i, size_t j) const;
   inline double& operator()(size_t i, size_t j);
 
   inline Twist operator*(const JntArray& rhs) const;
-
-  inline friend void setToZero(Jacobian& jac);
-
-  void changeRefPoint(const Vector& base_AB);
-  void changeBase(const Rotation& rot);
-  void changeRefFrame(const Frame& frame);
-  friend bool changeRefPoint(const Jacobian& src1, const Vector& base_AB, Jacobian& dest);
-  friend bool changeBase(const Jacobian& src1, const Rotation& rot, Jacobian& dest);
-  friend bool changeRefFrame(const Jacobian& src1, const Frame& frame, Jacobian& dest);
 };
 
 inline Jacobian::Jacobian()
@@ -84,6 +79,24 @@ inline void Jacobian::setColumn(size_t i, const SegmentJacobian& jac)
   data.col(i).tail<3>() = jac.angular.data;
 }
 
+inline void Jacobian::changeRefPoint(const Vector& base_AB)
+{
+  for (size_t i = 0; i < columns(); ++i)
+    setColumn(i, getColumn(i).refPoint(base_AB));
+}
+
+inline void Jacobian::changeBase(const Rotation& rot)
+{
+  for (size_t i = 0; i < columns(); ++i)
+    setColumn(i, rot * getColumn(i));
+}
+
+inline void Jacobian::changeRefFrame(const Frame& frame)
+{
+  for (size_t i = 0; i < columns(); ++i)
+    setColumn(i, frame * getColumn(i));
+}
+
 inline double Jacobian::operator()(size_t i, size_t j) const
 {
   return data(i, j);
@@ -98,10 +111,5 @@ inline Twist Jacobian::operator*(const JntArray& rhs) const
 {
   const Eigen::Vector6d t = data * rhs.data;
   return Twist(Vector(t.head<3>()), Vector(t.tail<3>()));
-}
-
-inline void setToZero(Jacobian& jac)
-{
-  jac.data.setZero();
 }
 }  // namespace kdl

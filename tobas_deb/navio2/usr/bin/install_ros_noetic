@@ -9,7 +9,7 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main
 sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 &&
 
 # Step 3 — Pull all meta info of ROS Noetic packages
-sudp apt update &&
+sudo apt update &&
 
 # Step 4 — Install build dependencies on Raspberry Pi 4
 sudo apt install -y python3-rosdep &&
@@ -31,10 +31,10 @@ mkdir ~/.catkin_ws_install &&
 cd ~/.catkin_ws_install &&
 rosinstall_generator desktop --rosdistro noetic --deps --wet-only --tar > noetic_wet.rosinstall &&
 wstool init src noetic_wet.rosinstall &&
-rosdep install --from-paths ./src --ignore-packages-from-source --rosdistro noetic -y &&
+rosdep install -iy --from-paths ./src --rosdistro noetic &&
 
 # Step 7 — Compiling Noetic packages on Raspberry Pi 4
-sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -DPYTHON_EXECUTABLE=/usr/bin/python3 &&
+sudo src/catkin/bin/catkin_make_isolated --install --install-space /opt/ros/noetic -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3 &&
 
 # Verify Noetic installation on Raspberry Pi 4
 source /opt/ros/noetic/setup.bash &&

@@ -17,9 +17,7 @@ public:
   inline static JntArray Constant(size_t nj, double value);
 
   inline void resize(size_t nj);
-
-  inline double operator()(size_t i) const;
-  inline double& operator()(size_t i);
+  inline void setZero();
 
   inline size_t size() const;
   inline size_t rows() const;
@@ -31,6 +29,9 @@ public:
   inline JntArray min(double x);
 
   inline JntArray hadamard(const JntArray& arg);
+
+  inline double operator()(size_t i) const;
+  inline double& operator()(size_t i);
 
   inline JntArray operator+(const JntArray& rhs) const;
   inline JntArray operator-(const JntArray& rhs) const;
@@ -45,8 +46,7 @@ public:
   inline friend JntArray operator-(const JntArray& arg);
   inline friend JntArray operator*(const double& lhs, const JntArray& rhs);
 
-  inline void setZero();
-  inline friend void setToZero(JntArray& array);
+  friend std::ostream& operator<<(std::ostream& os, const JntArray& arg);
 };
 
 inline JntArray::JntArray()
@@ -76,14 +76,9 @@ inline void JntArray::resize(size_t nj)
   data.conservativeResize(nj);
 }
 
-inline double JntArray::operator()(size_t i) const
+void JntArray::setZero()
 {
-  return data(i);
-}
-
-inline double& JntArray::operator()(size_t i)
-{
-  return data(i);
+  data.setZero();
 }
 
 inline size_t JntArray::size() const
@@ -120,6 +115,16 @@ inline JntArray JntArray::hadamard(const JntArray& arg)
 {
   assert(rows() == arg.rows());
   return JntArray(data.cwiseProduct(arg.data));
+}
+
+inline double JntArray::operator()(size_t i) const
+{
+  return data(i);
+}
+
+inline double& JntArray::operator()(size_t i)
+{
+  return data(i);
 }
 
 inline JntArray JntArray::operator+(const JntArray& rhs) const
@@ -185,15 +190,5 @@ inline JntArray operator-(const JntArray& arg)
 inline JntArray operator*(const double& lhs, const JntArray& rhs)
 {
   return JntArray(lhs * rhs.data);
-}
-
-void JntArray::setZero()
-{
-  data.setZero();
-}
-
-inline void setToZero(JntArray& array)
-{
-  array.data.setZero();
 }
 }  // namespace kdl

@@ -19,7 +19,6 @@ class Vector
 public:
   Eigen::Vector3d data;
 
-  /* Does not initialise the Vector to zero. use Vector::Zero() or setToZero for that. */
   inline explicit Vector();
   inline explicit Vector(double x, double y, double z);
   inline explicit Vector(const Eigen::Vector3d& data);
@@ -54,7 +53,9 @@ public:
   inline Vector clamp(const double& lb, const double& ub) const;
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
+  inline void setZero();
   inline Vector inverse() const;
+  inline Vector normalized() const;
 
   /* Adds a vector from the Vector object itself. */
   inline Vector& operator+=(const Vector& arg);
@@ -74,20 +75,15 @@ public:
   inline friend Vector operator-(const Vector& lhs, const Vector& rhs);
   inline friend Vector operator*(const Vector& lhs, const Vector& rhs);
 
-  inline void setZero();
-  /* To have a uniform operator to put an element to zero, for scalar values and for objects. */
-  inline friend void setToZero(Vector& v);
-
   /* The norm of the vector */
   double norm(double eps = kDefaultEpsilon) const;
 
-  /** Normalizes this vector and returns it norm
-   * makes v a unitvector and returns the norm of v.
-   * if v is smaller than eps, Vector(1,0,0) is returned with norm 0.
-   * if this is not good, check the return value of this method.
+  /**
+   * @brief Normalizes this vector and returns it norm makes v a unitvector and returns the norm of v.
+   * If v is smaller than eps, Vector(1,0,0) is returned with norm 0.
+   * If this is not good, check the return value of this method.
    */
   double normalize(double eps = kDefaultEpsilon);
-  Vector normalized() const;
 
   bool isFinite() const;
 
@@ -216,10 +212,20 @@ inline Vector Vector::clamp(const Vector& lb, const Vector& ub) const
   return Vector(data.cwiseMax(lb.data).cwiseMin(ub.data));
 }
 
+inline void Vector::setZero()
+{
+  data.setZero();
+}
+
 inline Vector Vector::inverse() const
 {
   assert(x() != 0 && y() != 0 && z() != 0);
   return Vector(data.cwiseInverse());
+}
+
+inline Vector Vector::normalized() const
+{
+  return Vector(data.normalized());
 }
 
 inline Vector& Vector::operator+=(const Vector& arg)
@@ -293,15 +299,5 @@ inline Vector operator-(const Vector& lhs, const Vector& rhs)
 inline Vector operator*(const Vector& lhs, const Vector& rhs)
 {
   return Vector(lhs.data.cross(rhs.data));
-}
-
-inline void Vector::setZero()
-{
-  data.setZero();
-}
-
-inline void setToZero(Vector& v)
-{
-  v.data.setZero();
 }
 }  // namespace kdl

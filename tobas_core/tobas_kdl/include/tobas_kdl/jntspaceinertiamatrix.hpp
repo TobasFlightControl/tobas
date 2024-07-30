@@ -92,7 +92,6 @@ public:
   inline friend void Multiply(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
   inline friend void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSpaceInertiaMatrix& dest);
   inline friend void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest);
-  inline friend void setToZero(JntSpaceInertiaMatrix& matrix);
 };
 
 inline JntSpaceInertiaMatrix::JntSpaceInertiaMatrix()
@@ -152,10 +151,5 @@ inline void Divide(const JntSpaceInertiaMatrix& src, const double& factor, JntSp
 inline void Multiply(const JntSpaceInertiaMatrix& src, const JntArray& vec, JntArray& dest)
 {
   dest.data = src.data.lazyProduct(vec.data);
-}
-
-inline void setToZero(JntSpaceInertiaMatrix& mat)
-{
-  mat.data.setZero();
 }
 }  // namespace kdl

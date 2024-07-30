@@ -29,7 +29,7 @@ public:
 
   void reset();
 
-  void update(
+  bool update(
     double z,
     const kdl::Vector& G_Vel_GB,
     const kdl::Rotation& W_Rot_B,
@@ -38,10 +38,10 @@ public:
     const std::vector<bool>& is_stand,
     const TimeType& cur_time);
 
-  void setRaibertGain(double raibert_gain);
-  void setClearance(double clearance);
-  void setGaitParams(double stand_period, double swing_period);
-  void setVelocity(double vx, double vy, double yawrate);
+  bool setRaibertGain(double raibert_gain);
+  bool setClearance(double clearance);
+  bool setGaitParams(double stand_period, double swing_period);
+  bool setVelocity(double vx, double vy, double yawrate);
 
   inline const kdl::VectorAcc& getFootState(size_t leg) const;
 

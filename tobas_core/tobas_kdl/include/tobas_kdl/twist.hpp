@@ -53,7 +53,6 @@ public:
   // beware all of them have to be expressed in the same reference frame
   inline friend Accel operator*(const Twist& lhs, const Twist& rhs);
 
-  inline friend void setToZero(Twist& v);
   Eigen::Vector6d ravel() const;
 
   friend std::ostream& operator<<(std::ostream& os, const Twist& arg);
@@ -134,11 +133,5 @@ inline Twist operator-(const Twist& lhs, const Twist& rhs)
 inline Accel operator*(const Twist& lhs, const Twist& rhs)
 {
   return Accel(lhs.rot * rhs.vel + lhs.vel * rhs.rot, lhs.rot * rhs.rot);
-}
-
-inline void setToZero(Twist& v)
-{
-  setToZero(v.rot);
-  setToZero(v.vel);
 }
 }  // namespace kdl

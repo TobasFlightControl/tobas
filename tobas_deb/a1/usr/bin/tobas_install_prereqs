@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Install ROS Noetic
+/usr/bin/install_ros2_jazzy &&
+
+# Create catkin workspace for Tobas configuration packages
+sudo mkdir -p /etc/tobas/catkin_ws/src &&
+cd /etc/tobas/catkin_ws &&
+sudo catkin init &&
+
+echo -e "\033[32mInstallation finished successfully. Please reboot.\033[0m"
+sleep infinity

@@ -1,0 +1,5 @@
+# Allow all users to modify the communication latency of the USB devices
+KERNEL=="ttyUSB0", ACTION=="add", PROGRAM="/bin/sh -c '\
+        chown root:dialout /sys/bus/usb-serial/devices/%k/latency_timer;\
+        chmod 770 /sys/bus/usb-serial/devices/%k/latency_timer\
+'"

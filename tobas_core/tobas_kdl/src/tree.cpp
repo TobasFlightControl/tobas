@@ -24,7 +24,8 @@ Tree::Tree(const Tree& in)
   ns_ = 0;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
-  addTree(in, root_name_);
+  if (!addTree(in, root_name_))
+    throw runtime_error("Failed to add \"" + root_name_ + "\".");
 }
 
 Tree& Tree::operator=(const Tree& in)
@@ -37,7 +38,8 @@ Tree& Tree::operator=(const Tree& in)
   ns_ = 0;
 
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
-  addTree(in, root_name_);
+  if (!addTree(in, root_name_))
+    throw runtime_error("Failed to add \"" + root_name_ + "\".");
 
   return *this;
 }
@@ -55,8 +57,9 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   x_jnt.name = x_seg_name + jnt_suffix;
   x_jnt.type = Joint::TransAxis;
   x_jnt.axis(Vector::UnitX());
-  Segment x_seg(x_seg_name, x_jnt);
-  tree.addSegment(x_seg, world_name);
+  const Segment x_seg(x_seg_name, x_jnt);
+  if (!tree.addSegment(x_seg, world_name))
+    throw runtime_error("Failed to add \"" + x_seg_name + "\"");
 
   // Y
   Joint y_jnt;
@@ -64,8 +67,9 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   y_jnt.name = y_seg_name + jnt_suffix;
   y_jnt.type = Joint::TransAxis;
   y_jnt.axis(Vector::UnitY());
-  Segment y_seg(y_seg_name, y_jnt);
-  tree.addSegment(y_seg, x_seg_name);
+  const Segment y_seg(y_seg_name, y_jnt);
+  if (!tree.addSegment(y_seg, x_seg_name))
+    throw runtime_error("Failed to add \"" + y_seg_name + "\"");
 
   // Z
   Joint z_jnt;
@@ -73,8 +77,9 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   z_jnt.name = z_seg_name + jnt_suffix;
   z_jnt.type = Joint::TransAxis;
   z_jnt.axis(Vector::UnitZ());
-  Segment z_seg(z_seg_name, z_jnt);
-  tree.addSegment(z_seg, y_seg_name);
+  const Segment z_seg(z_seg_name, z_jnt);
+  if (!tree.addSegment(z_seg, y_seg_name))
+    throw runtime_error("Failed to add \"" + z_seg_name + "\"");
 
   // Yaw
   Joint yaw_jnt;
@@ -82,8 +87,9 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   yaw_jnt.name = yaw_seg_name + jnt_suffix;
   yaw_jnt.type = Joint::RotAxis;
   yaw_jnt.axis(Vector::UnitZ());
-  Segment yaw_seg(yaw_seg_name, yaw_jnt);
-  tree.addSegment(yaw_seg, z_seg_name);
+  const Segment yaw_seg(yaw_seg_name, yaw_jnt);
+  if (!tree.addSegment(yaw_seg, z_seg_name))
+    throw runtime_error("Failed to add \"" + yaw_seg_name + "\"");
 
   // Pitch
   Joint pitch_jnt;
@@ -91,8 +97,9 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   pitch_jnt.name = pitch_seg_name + jnt_suffix;
   pitch_jnt.type = Joint::RotAxis;
   pitch_jnt.axis(Vector::UnitY());
-  Segment pitch_seg(pitch_seg_name, pitch_jnt);
-  tree.addSegment(pitch_seg, yaw_seg_name);
+  const Segment pitch_seg(pitch_seg_name, pitch_jnt);
+  if (!tree.addSegment(pitch_seg, yaw_seg_name))
+    throw runtime_error("Failed to add \"" + pitch_seg_name + "\"");
 
   // Roll
   Joint roll_jnt;
@@ -100,27 +107,35 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   roll_jnt.name = roll_seg_name + jnt_suffix;
   roll_jnt.type = Joint::RotAxis;
   roll_jnt.axis(Vector::UnitX());
-  Segment roll_seg(roll_seg_name, roll_jnt);
-  tree.addSegment(roll_seg, pitch_seg_name);
+  const Segment roll_seg(roll_seg_name, roll_jnt);
+  if (!tree.addSegment(roll_seg, pitch_seg_name))
+    throw runtime_error("Failed to add \"" + roll_seg_name + "\"");
 
   // Base
   Joint base_jnt;
   base_jnt.name = base_name;
   base_jnt.type = Joint::Fixed;
-  Segment base_seg(base_name, base_jnt);
-  tree.addSegment(base_seg, roll_seg_name);
+  const Segment base_seg(base_name, base_jnt);
+  if (!tree.addSegment(base_seg, roll_seg_name))
+    throw runtime_error("Failed to add \"" + base_name + "\"");
 
   return tree;
 }
 
-void Tree::addSegment(const Segment& segment, const string& hook_name)
+bool Tree::addSegment(const Segment& segment, const string& hook_name)
 {
   if (tobas_std::contains(segments_, segment.name()))
-    throw runtime_error("\"" + segment.name() + "\" already exists in the tree.");
+  {
+    cerr << "\"" + segment.name() + "\" already exists in the tree." << endl;
+    return false;
+  }
 
   const auto parent = segments_.find(hook_name);
   if (parent == segments_.end())
-    throw runtime_error("\"" + hook_name + "\" does not exist in the tree.");
+  {
+    cerr << "\"" + hook_name + "\" does not exist in the tree." << endl;
+    return false;
+  }
 
   // Insert new element
   const auto q_nr = segment.getJoint().type != Joint::Fixed ? nj_ : 0;
@@ -128,7 +143,10 @@ void Tree::addSegment(const Segment& segment, const string& hook_name)
 
   // check if insertion succeeded
   if (!retval.second)
-    throw runtime_error("Failed to insert \"" + segment.name() + "\" into the tree.");
+  {
+    cerr << "Failed to insert \"" + segment.name() + "\" into the tree." << endl;
+    return false;
+  }
 
   // add iterator to new element in parents children list
   parent->second.children.push_back(retval.first);
@@ -139,34 +157,42 @@ void Tree::addSegment(const Segment& segment, const string& hook_name)
   // increase number of joints
   if (segment.getJoint().type != Joint::Fixed)
     ++nj_;
+
+  return true;
 }
 
-void Tree::addChain(const Chain& chain, const string& hook_name)
+bool Tree::addChain(const Chain& chain, const string& hook_name)
 {
   auto parent_name = hook_name;
-  for (size_t i = 0; i < chain.getNrOfSegments(); ++i)
+  for (const auto& segment : chain.segments)
   {
-    addSegment(chain.getSegment(i), parent_name);
-    parent_name = chain.getSegment(i).name();
+    if (!addSegment(segment, parent_name))
+      return false;
+    parent_name = segment.name();
   }
+
+  return true;
 }
 
-void Tree::addTree(const Tree& tree, const string& hook_name)
+bool Tree::addTree(const Tree& tree, const string& hook_name)
 {
   return addTreeRecursive(tree.getRootSegment(), hook_name);
 }
 
-void Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const string& hook_name)
+bool Tree::addTreeRecursive(const SegmentMap::const_iterator& seg, const string& hook_name)
 {
-  for (size_t i = 0; i < seg->second.children.size(); ++i)
+  for (const auto& child : seg->second.children)
   {
-    const auto& child = seg->second.children[i];
-    addSegment(child->second.segment, hook_name);
-    addTreeRecursive(child, child->first);
+    if (!addSegment(child->second.segment, hook_name))
+      return false;
+    if (!addTreeRecursive(child, child->first))
+      return false;
   }
+
+  return true;
 }
 
-void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& chain) const
+bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& chain) const
 {
   // clear chain
   chain.clear();
@@ -180,7 +206,10 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       break;
   }
   if (parents_chain_root.empty() || parents_chain_root.back() != root_name_)
-    throw runtime_error("\"" + chain_root + "\" does not exist in the tree.");
+  {
+    cerr << "\"" + chain_root + "\" does not exist in the tree." << endl;
+    return false;
+  }
 
   for (auto s = getSegment(chain_tip); s != segments_.end(); s = s->second.parent)
   {
@@ -189,7 +218,10 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
       break;
   }
   if (parents_chain_tip.empty() || parents_chain_tip.back() != root_name_)
-    throw runtime_error("\"" + chain_tip + "\" does not exist in the tree.");
+  {
+    cerr << "\"" + chain_tip + "\" does not exist in the tree." << endl;
+    return false;
+  }
 
   // remove common part of segment lists
   auto last_segment = root_name_;
@@ -228,26 +260,37 @@ void Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
   // add the segments from the common frame to the tip frame
   for (auto rit = parents_chain_tip.rbegin(); rit != parents_chain_tip.rend(); ++rit)
     chain.addSegment(getSegment(*rit)->second.segment);
+
+  return true;
 }
 
-void Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) const
+bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) const
 {
   // Confirm that the specified segment exists
   const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end())
-    throw runtime_error("\"" + seg_name + "\" does not exist in the tree.");
+  {
+    cerr << "\"" + seg_name + "\" does not exist in the tree." << endl;
+    return false;
+  }
 
   // Confirm that the new root segment does not have mass
   if (!root_mass_ok)
   {
     const auto& segment = seg_it->second.segment;
     if (segment.getInertia().getMass() > 0)
-      throw runtime_error("KDL does not support a root segment with an inertia.");
+    {
+      cerr << "KDL does not support a root segment with an inertia." << endl;
+      return false;
+    }
   }
 
   // Initialize the tree
   tree = Tree(seg_name);
-  tree.addTreeRecursive(seg_it, seg_name);
+  if (!tree.addTreeRecursive(seg_it, seg_name))
+    return false;
+
+  return true;
 }
 
 ostream& operator<<(ostream& os, const Tree& arg)

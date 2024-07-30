@@ -62,7 +62,7 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
   }
 
   // Change the base of the complete jacobian from the endpoint to the base
-  changeBase(J_out_, T_total_.M, J_out_);
+  J_out_.changeBase(T_total_.M);
 
   return setDefaultError(E_NOERROR);
 }

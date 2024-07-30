@@ -10,7 +10,7 @@ class CycloidGenerator3d
 public:
   explicit CycloidGenerator3d();
 
-  void generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.);
+  bool generate(const kdl::Vector& p0, const kdl::Vector& pf, const double& T, const double& h, const double& k = 5.);
 
   /**
    * @brief 時刻tにおける軌跡を得る
@@ -21,7 +21,7 @@ public:
    * @param v 時刻tにおける速度
    * @param a 時刻tにおける加速度
    */
-  void get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  bool get(const double& t, const kdl::Rotation& r, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * @brief 時刻tにおける軌跡を得る
@@ -31,7 +31,7 @@ public:
    * @param v 時刻tにおける速度
    * @param a 時刻tにおける加速度
    */
-  void get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
+  bool get(const double& t, kdl::Vector& p, kdl::Vector& v, kdl::Vector& a) const;
 
   /**
    * @brief 時刻tにおける軌跡を得る
@@ -40,7 +40,7 @@ public:
    * @param p 時刻tにおける位置
    * @param v 時刻tにおける速度
    */
-  void get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
+  bool get(const double& t, kdl::Vector& p, kdl::Vector& v) const;
 
   /**
    * @brief 時刻tにおける軌跡を得る
@@ -48,7 +48,7 @@ public:
    * @param t 開始点からの時刻
    * @param p 時刻tにおける位置
    */
-  void get(const double& t, kdl::Vector& p) const;
+  bool get(const double& t, kdl::Vector& p) const;
 
 private:
   kdl::Vector p0_;
@@ -64,5 +64,7 @@ private:
   void getPos(const double& t, const kdl::Rotation& r, kdl::Vector& p) const;
   void getVel(const double& t, const kdl::Rotation& r, kdl::Vector& v) const;
   void getAcc(const double& t, const kdl::Rotation& r, kdl::Vector& a) const;
+
+  double computeTheta(const double& t) const;
 };
 }  // namespace kdl

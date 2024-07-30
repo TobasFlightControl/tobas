@@ -10,23 +10,17 @@ doubleVel VectorVel::norm(double eps) const
   return doubleVel(n, p.dot(v) / n);
 }
 
-VectorVel& VectorVel::operator+=(const VectorVel& arg)
+VectorVel& VectorVel::operator+=(const VectorVel& rhs)
 {
-  p += arg.p;
-  v += arg.v;
+  p += rhs.p;
+  v += rhs.v;
   return *this;
 }
 
-VectorVel& VectorVel::operator-=(const VectorVel& arg)
+VectorVel& VectorVel::operator-=(const VectorVel& rhs)
 {
-  p -= arg.p;
-  v -= arg.v;
+  p -= rhs.p;
+  v -= rhs.v;
   return *this;
-}
-
-void setToZero(VectorVel& v)
-{
-  setToZero(v.p);
-  setToZero(v.v);
 }
 }  // namespace kdl

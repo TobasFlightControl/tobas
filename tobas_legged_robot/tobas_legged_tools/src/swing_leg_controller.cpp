@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
 
@@ -39,7 +41,7 @@ void SwingLegController::reset()
   tobas_std::fill(B_Tdd_BF_, kdl::VectorAcc::Zero());  // TODO: ちゃんと初期化
 }
 
-void SwingLegController::update(
+bool SwingLegController::update(
   double z,
   const kdl::Vector& G_Vel_GB,
   const kdl::Rotation& W_Rot_B,
@@ -48,7 +50,11 @@ void SwingLegController::update(
   const vector<bool>& is_stand,
   const TimeType& cur_time)
 {
-  assert(is_stand.size() == nc_);
+  if (is_stand.size() != nc_)
+  {
+    cerr << "The size of is_stand mismatch." << endl;
+    return false;
+  }
 
   W_Rot_B.getRPY(roll_, pitch_, yaw_);
   const auto G_Rot_B = kdl::Rotation::RPY(roll_, pitch_, 0.);
@@ -62,9 +68,12 @@ void SwingLegController::update(
 
       // {gnd}から見た{gnd}に対する{foot}の初期位置を計算
       if (fk_solver_.JntToCart(q, foot_names_[l]) < 0)
-        throw runtime_error("FK failed: " + fk_solver_.errorMessage());
+      {
+        cerr << "FK failed: " << fk_solver_.errorMessage() << endl;
+        return false;
+      }
       const auto& B_Pos_BF = fk_solver_.getFrame().p;
-      const kdl::Vector G_Pos_GB(0., 0., z);
+      const kdl::Vector G_Pos_GB(0, 0, z);
       const auto G_Pos_GF_0 = G_Pos_GB + G_Rot_B * B_Pos_BF;
 
       // {gnd}から見た{gnd}に対する{foot}の最終位置を計算
@@ -82,7 +91,8 @@ void SwingLegController::update(
       const auto G_Pos_GF_f = p_thigh + p_sym + p_cent;
 
       // 軌道生成
-      ref_traj_[l].generate(G_Pos_GF_0, G_Pos_GF_f, swing_period_, clearance_);
+      if (!ref_traj_[l].generate(G_Pos_GF_0, G_Pos_GF_f, swing_period_, clearance_))
+        return false;
     }
 
     /* ===== 接地状態を更新 ===== */
@@ -94,11 +104,12 @@ void SwingLegController::update(
       continue;
 
     // {gnd}から見た各足先の目標状態を得る
-    const auto t = DurationType(cur_time - t_switch_[l]).count();
-    ref_traj_[l].get(t, G_Tdd_GF_.p, G_Tdd_GF_.v, G_Tdd_GF_.dv);
+    const auto t = max(DurationType(cur_time - t_switch_[l]).count(), 0.);
+    if (!ref_traj_[l].get(t, G_Tdd_GF_.p, G_Tdd_GF_.v, G_Tdd_GF_.dv))
+      return false;
 
     // {gnd}から見た{bs}に対する{foot}の状態を計算
-    const kdl::Vector G_Pos_GB(0., 0., z);
+    const kdl::Vector G_Pos_GB(0, 0, z);
     const auto G_Tdd_BF = G_Tdd_GF_ - G_Pos_GB;
 
     // {bs}から見た各足先の目標状態に変換する(memo: 1-50)
@@ -106,33 +117,58 @@ void SwingLegController::update(
     B_Tdd_BF_[l].v = G_Rot_B.inverse(G_Tdd_BF.v - G_Gyro_GB * G_Tdd_BF.p);
     B_Tdd_BF_[l].dv = G_Rot_B.inverse(G_Tdd_BF.dv - 2 * G_Gyro_GB * G_Tdd_BF.v);
   }
+
+  return true;
 }
 
-void SwingLegController::setRaibertGain(double raibert_gain)
+bool SwingLegController::setRaibertGain(double raibert_gain)
 {
-  assert(raibert_gain > 0.);
+  if (raibert_gain <= 0)
+  {
+    cerr << "Raibert gain must be positive." << endl;
+    return false;
+  }
+
   raibert_gain_ = raibert_gain;
+  return true;
 }
 
-void SwingLegController::setClearance(double clearance)
+bool SwingLegController::setClearance(double clearance)
 {
-  assert(clearance > 0.);
+  if (clearance <= 0)
+  {
+    cerr << "Foot clearance must be positive." << endl;
+    return false;
+  }
+
   clearance_ = clearance;
+  return true;
 }
 
-void SwingLegController::setGaitParams(double stand_period, double swing_period)
+bool SwingLegController::setGaitParams(double stand_period, double swing_period)
 {
-  assert(stand_period > 0.);
-  assert(swing_period > 0.);
+  if (stand_period <= 0)
+  {
+    cerr << "Stand period must be positive." << endl;
+    return false;
+  }
+  if (swing_period <= 0)
+  {
+    cerr << "Swing period must be positive." << endl;
+    return false;
+  }
+
   stand_period_ = stand_period;
   swing_period_ = swing_period;
+  return true;
 }
 
-void SwingLegController::setVelocity(double vx, double vy, double yawrate)
+bool SwingLegController::setVelocity(double vx, double vy, double yawrate)
 {
   vx_ = vx;
   vy_ = vy;
   yawrate_ = yawrate;
+  return true;
 }
 
 void SwingLegController::setThighOrigins()
