@@ -2,6 +2,7 @@
 
 #include <map>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "./utilities/constants.hpp"
 
@@ -18,7 +19,6 @@ class Vector
 public:
   Eigen::Vector3d data;
 
-  /* Does not initialise the Vector to zero. use Vector::Zero() or setToZero for that. */
   inline explicit Vector();
   inline explicit Vector(double x, double y, double z);
   inline explicit Vector(const Eigen::Vector3d& data);

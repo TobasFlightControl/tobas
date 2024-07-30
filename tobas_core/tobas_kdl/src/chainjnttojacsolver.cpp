@@ -38,7 +38,7 @@ int ChainJntToJacSolver::JntToJac(const JntArray& q_in, int _seg_nr)
     return setDefaultError(E_OUT_OF_RANGE);
 
   // Initialize Jacobian to zero since only seg_nr columns are computed
-  setToZero(J_out_);
+  J_out_.setZero();
 
   T_tmp_.setIdentity();
   j_ = k_ = 0;

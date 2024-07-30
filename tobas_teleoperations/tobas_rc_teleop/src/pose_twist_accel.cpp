@@ -25,7 +25,7 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 {
   is_up_commanded_ = false;
   t_last_rcin_ = odom.header.stamp;
-  setToZero(tar_vel_F_);
+  tar_vel_F_.setZero();
   tar_pos_W_ = odom.frame.p;
   odom.frame.M.getRPY(tar_rpy_.roll, tar_rpy_.pitch, tar_rpy_.yaw);
 }
