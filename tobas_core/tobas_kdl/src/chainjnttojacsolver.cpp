@@ -51,7 +51,7 @@ int ChainJntToJacSolver::JntToJac(const JntArray& q_in, int _seg_nr)
     const auto T_total = T_tmp_ * seg.pose(qj);  // pose of the new end-point expressed in the base
 
     // Changing Refpoint of all columns to new ee
-    changeRefPoint(J_out_, T_total.p - T_tmp_.p, J_out_);
+    J_out_.changeRefPoint(T_total.p - T_tmp_.p);
 
     // Only increase jointnr if the segment has a joint
     if (seg.getJoint().type != Joint::Fixed)
