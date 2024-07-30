@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 
-include_directories(${catkin_INCLUDE_DIRS} include)
+include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
