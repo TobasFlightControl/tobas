@@ -31,7 +31,7 @@ mkdir ~/.catkin_ws_install &&
 cd ~/.catkin_ws_install &&
 rosinstall_generator desktop --rosdistro noetic --deps --wet-only --tar > noetic_wet.rosinstall &&
 wstool init src noetic_wet.rosinstall &&
-rosdep install --from-paths ./src --ignore-packages-from-source --rosdistro noetic -y &&
+rosdep install -iy --from-paths ./src --rosdistro noetic &&
 
 # Step 7 — Compiling Noetic packages on Raspberry Pi 4
 sudo src/catkin/bin/catkin_make_isolated --install --install-space /opt/ros/noetic -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3 &&
