@@ -13,6 +13,8 @@
 	<exec_depend>tobas_eigen_msgs</exec_depend>
 	<exec_depend>tobas_eigen_tools</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>
+	<exec_depend>tobas_kdl_conversions</exec_depend>
+	<exec_depend>tobas_kdl_conversions_py</exec_depend>
 	<exec_depend>tobas_kdl_msgs</exec_depend>
 	<exec_depend>tobas_kdl_sympy</exec_depend>
 	<exec_depend>tobas_keyboard</exec_depend>
