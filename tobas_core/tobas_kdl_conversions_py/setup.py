@@ -4,26 +4,26 @@ from typing import List
 
 from setuptools import setup
 
-package_name = "tobas_kdl_conversions_py"
+pkg_name = "tobas_kdl_conversions_py"
 
 data_files = []
-data_files.append(("share/ament_index/resource_index/packages", ["resource/" + package_name]))
-data_files.append(("share/" + package_name, ["package.xml"]))
+data_files.append(("share/ament_index/resource_index/packages", ["resource/" + pkg_name]))
+data_files.append(("share/" + pkg_name, ["package.xml"]))
 
 
 def package_files(directory: str, data_files: List[str]) -> List[str]:
-    for path, directories, filenames in os.walk(directory):
-        for filename in filenames:
-            data_files.append(("share/" + package_name + "/" + path, glob(path + "/**/*.*", recursive=True)))
+    for path, _, filenames in os.walk(directory):
+        for _ in filenames:
+            data_files.append(("share/" + pkg_name + "/" + path, glob(path + "/**/*.*", recursive=True)))
     return data_files
 
 
 # data_files = package_files("launch/", data_files)
 
 setup(
-    name=package_name,
+    name=pkg_name,
     version="0.0.0",
-    packages=[package_name],
+    packages=[pkg_name],
     data_files=data_files,
     install_requires=["setuptools"],
     zip_safe=True,
