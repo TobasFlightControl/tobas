@@ -23,6 +23,8 @@ public:
 
   inline Frame getFrame() const;
   inline Twist getTwist() const;
+  inline void setFrame(const Frame& T);
+  inline void setTwist(const Twist& t);
 
   inline FrameVel inverse() const;
   inline VectorVel inverse(const Vector& arg) const;
@@ -72,6 +74,18 @@ inline Frame FrameVel::getFrame() const
 inline Twist FrameVel::getTwist() const
 {
   return Twist(p.v, M.w);
+}
+
+inline void FrameVel::setFrame(const Frame& T)
+{
+  p.p = T.p;
+  M.R = T.M;
+}
+
+inline void FrameVel::setTwist(const Twist& t)
+{
+  p.v = t.vel;
+  M.w = t.rot;
 }
 
 inline FrameVel FrameVel::inverse() const

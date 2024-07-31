@@ -1,8 +1,8 @@
 #pragma once
 
 #include <rclcpp/type_adapter.hpp>
-#include <eigen3/Eigen/Core>
 
+#include <eigen3/Eigen/Core>
 #include <tobas_eigen_msgs/msg/matrix3d.hpp>
 
 template <>
@@ -26,3 +26,8 @@ struct rclcpp::TypeAdapter<Eigen::Matrix3d, tobas_eigen_msgs::msg::Matrix3d>
         dst(r, c) = src.data[r * 3 + c];
   }
 };
+
+namespace tobas_eigen_msgs
+{
+using Matrix3d = rclcpp::TypeAdapter<Eigen::Matrix3d, tobas_eigen_msgs::msg::Matrix3d>;
+}
