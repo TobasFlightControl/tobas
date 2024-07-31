@@ -23,7 +23,14 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} tobas_std_tools rclcpp tf2_ros geometry_msgs sensor_msgs Eigen3)
+ament_target_dependencies(${PROJECT_NAME}
+	tobas_std_tools
+	rclcpp
+	tf2_ros
+	geometry_msgs
+	sensor_msgs
+	Eigen3
+)
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(targets_to_install "")
@@ -47,6 +54,13 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(tobas_std_tools rclcpp tf2_ros geometry_msgs sensor_msgs tf2_ros Eigen3)
+ament_export_dependencies(
+	tobas_std_tools
+	rclcpp
+	tf2_ros
+	geometry_msgs
+	sensor_msgs
+	Eigen3
+)
 
 ament_package()
