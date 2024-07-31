@@ -27,7 +27,7 @@ class Controller : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit Controller(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit Controller(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   // Drone
@@ -39,7 +39,7 @@ private:
   kdl::JntArray q_0_;
 
   double cur_roll_, cur_pitch_, cur_yaw_;
-  sensor_msgs::FluidPressureConstPtr air_pressure_;  // 大気圧
+  sensor_msgs::msg::FluidPressureConstPtr air_pressure_;  // 大気圧
   tobas_msgs::BatteryConstPtr battery_;              // 現在のバッテリーの状態
   tobas_msgs::OdometryConstPtr odom_nwu_;            // 現在の状態 (NWU座標系)
   tobas_msgs::SpeedRollDeltaPitchConstPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
@@ -50,14 +50,14 @@ private:
   ctrl::LQD lqd_;  // 最適レギュレータ
 
   // PubSub
-  ros::Publisher rot_speeds_pub_;
-  ros::Publisher deflections_pub_;
-  ros::Publisher feedback_pub_;
-  ros::Subscriber air_pressure_sub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber odom_sub_;
-  ros::Subscriber arming_sub_;
-  ros::Subscriber cmd_sub_;
+  rclcpp::Publisher rot_speeds_pub_;
+  rclcpp::Publisher deflections_pub_;
+  rclcpp::Publisher feedback_pub_;
+  rclcpp::Subscriber air_pressure_sub_;
+  rclcpp::Subscriber battery_sub_;
+  rclcpp::Subscriber odom_sub_;
+  rclcpp::Subscriber arming_sub_;
+  rclcpp::Subscriber cmd_sub_;
 
   // Dynamic Reconfigure
   ConfigServer server_;
@@ -70,7 +70,7 @@ private:
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
 
-  void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
+  void airPressureCb(const sensor_msgs::msg::FluidPressureConstPtr& msg);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu);
   void armingCb(const std_msgs::BoolConstPtr& arming);

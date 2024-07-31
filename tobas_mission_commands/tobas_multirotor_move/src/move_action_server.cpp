@@ -1,7 +1,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_std_tools/geometry.hpp>
-#include <tobas_ros_tools/service.hpp>
+#include <tobas_ros2_tools/service.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
@@ -13,8 +13,8 @@ using namespace std;
 
 namespace tobas_multirotor_move
 {
-MoveActionServer::MoveActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), as_(nh_, tobas::kMoveAction, boost::bind(&self::executeCb, this, _1), false)
+MoveActionServer::MoveActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), as_(nh_, tobas::kMoveAction, std::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 
@@ -57,7 +57,7 @@ bool MoveActionServer::computeGoalPosition(const GoalType& goal, kdl::Vector& go
 {
   // XY軸
   // FIXME: 平面近似誤差が無視できない場合は目標地点の経緯度を基準にするなどの工夫が必要
-  tobas_ros::ServiceClientWrapper<tobas_msgs::GetGnssOrigin> sc(nh_, tobas::kGetGnssOriginSrv);
+  ros2::ServiceClientWrapper<tobas_msgs::GetGnssOrigin> sc(nh_, tobas::kGetGnssOriginSrv);
   if (!sc.call() || !sc.res.success)
   {
     as_.setAborted(result_, "Failed to get GNSS origin.");
@@ -126,15 +126,15 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
   const auto duration = algo::max(traj_x.duration(), traj_y.duration(), traj_z.duration());
 
   // 初期状態
-  const auto start_time = ros::Time::now();
+  const auto start_time = node->get_clock()->now();
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  ros::Rate rate(kUpdateRate);
+  rclcpp::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
     // 開始からの経過時間を計算
-    const auto t = (ros::Time::now() - start_time).toSec();
+    const auto t = (node->get_clock()->now() - start_time).seconds();
 
     // タイムアウトの確認
     if (goal->timeout > 0 && t > duration + goal->timeout)
@@ -186,7 +186,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
       return;
     }
 
-    ros::spinOnce();
+    rclcpp::spinOnce();
     rate.sleep();
   }
 }

@@ -1,4 +1,4 @@
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
@@ -11,8 +11,8 @@ using namespace Eigen;
 
 namespace tobas_mr_mpc
 {
-ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name),
+ControllerRos::ControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name),
     js_converter_(drone_.tree()),
     z_rotors_(drone_, tobas::Z_POSITIVE),
     acc_ctrl_(drone_),
@@ -30,12 +30,12 @@ ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const st
   registerPublishers();
   registerSubscribers();
 
-  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
+  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ControllerRos::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "do_thrust_correction", do_thrust_correction_, kDefaultDoThrustCorrection);
+  ros2::getParam(pnh_, "do_thrust_correction", do_thrust_correction_, kDefaultDoThrustCorrection);
 }
 
 void ControllerRos::registerPublishers()
@@ -126,7 +126,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   }
 
   // 経過時間を計算してオドメトリを更新
-  const auto dt = (odom->header.stamp - odom_->header.stamp).toSec();
+  const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
   odom_ = odom;
 
   if (!isReadyToControl())
@@ -231,7 +231,7 @@ void ControllerRos::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_s
   rotor_speeds_ = rotor_speeds;
 }
 
-void ControllerRos::jointStateCb(const sensor_msgs::JointStateConstPtr& js)
+void ControllerRos::jointStateCb(const sensor_msgs::msg::JointStateConstPtr& js)
 {
   if (js->name.size() != js->position.size())
   {
@@ -268,7 +268,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
     return;
   }
 
-  if (!cmd_level_handler_.update(pvay->level.data, ros::Time::now()))
+  if (!cmd_level_handler_.update(pvay->level.data, node->get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
@@ -294,7 +294,7 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
     return;
   }
 
-  if (!cmd_level_handler_.update(rpyt->level.data, ros::Time::now()))
+  if (!cmd_level_handler_.update(rpyt->level.data, node->get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;

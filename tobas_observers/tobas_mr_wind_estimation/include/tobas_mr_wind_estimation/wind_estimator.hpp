@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_linear_control/kalman_filter.hpp>
 
@@ -23,9 +23,9 @@ class WindEstimator : public tobas::BaseNode
 
 public:
   explicit WindEstimator(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
   void updateInternalDataStructures();
 
@@ -34,16 +34,16 @@ private:
   tobas_mr_common::MultirotorDynamicsComponents dynamics_;
 
   bool is_initialized_ = false;
-  ros::Time t_last_loop_;
+  rclcpp::Time t_last_loop_;
   ctrl::IdentityKalmanFilter kf_;
   tobas::DrydenComponents dryden_;
 
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
 
   // PubSub
-  ros::Publisher wind_pub_;
-  ros::Subscriber odom_sub_;
-  ros::Subscriber rotor_speeds_sub_;
+  rclcpp::Publisher wind_pub_;
+  rclcpp::Subscriber odom_sub_;
+  rclcpp::Subscriber rotor_speeds_sub_;
 
   Eigen::Matrix3d velCoef(const kdl::Rotation& R_W_B);
 

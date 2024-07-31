@@ -11,8 +11,8 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-RCInputHandler::RCInputHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
+RCInputHandler::RCInputHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
 {
   reloadConfig();
 

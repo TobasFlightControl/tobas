@@ -15,7 +15,7 @@ class GNSSDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit GNSSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit GNSSDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   ZEDF9P gnss_;
@@ -26,15 +26,15 @@ private:
   payload::NAV_COV cov_;
 
   std::map<ZEDF9P::ubx_nav_id_t, bool> is_received_;
-  ros::Duration time_offset_;  // ROS Time - GPS Time
+  rclcpp::Duration time_offset_;  // ROS Time - GPS Time
 
-  ros::Publisher gnss_pub_;
-  ros::Timer set_time_offset_timer_;
+  rclcpp::Publisher gnss_pub_;
+  rclcpp::Timer set_time_offset_timer_;
 
   bool configure();
   void warnUnnecessaryUBXMessage();
 
-  void setTimeOffsetTimerCb(const ros::TimerEvent& event);
-  void mainTimerCb(const ros::TimerEvent& event);
+  void setTimeOffsetTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace a1

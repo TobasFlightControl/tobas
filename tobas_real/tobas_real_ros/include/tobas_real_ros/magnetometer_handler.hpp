@@ -20,9 +20,9 @@ class MagnetometerHandler : public tobas::BaseNode
 
 public:
   explicit MagnetometerHandler(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   // Config
@@ -32,9 +32,9 @@ private:
   ptree::PropertyClient property_client_;
   std::array<dsp::NoiseVarianceFilter, 3> mag_noise_;
 
-  ros::Publisher mag_pub_;
-  ros::Subscriber mag_sub_;
-  ros::ServiceServer reload_config_srv_;
+  rclcpp::Publisher mag_pub_;
+  rclcpp::Subscriber mag_sub_;
+  rclcpp::ServiceServer reload_config_srv_;
 
   bool reloadConfig();
 

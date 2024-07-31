@@ -9,8 +9,8 @@ using namespace std;
 
 namespace tobas_manipulation
 {
-EffortControllerRos::EffortControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name),
+EffortControllerRos::EffortControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name),
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),
     active_jnts_extractor_(drone_.tree()),
@@ -39,7 +39,7 @@ EffortControllerRos::EffortControllerRos(ros::NodeHandle& nh, ros::NodeHandle& p
 
   // ホームポジションを初期目標状態に設定
   if (home_js_.name.size() > 0)
-    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
+    tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
 
   efforts_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointEffortsCmdTopic, 1);
 
@@ -47,7 +47,7 @@ EffortControllerRos::EffortControllerRos(ros::NodeHandle& nh, ros::NodeHandle& p
   tar_js_sub_ = nh_.subscribe(tobas::kEffCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
   tar_ls_sub_ = nh_.subscribe(tobas::kEffCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 
-  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
+  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 int EffortControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg)
@@ -148,17 +148,17 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   return 0;
 }
 
-void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConstPtr& cur_js)
+void EffortControllerRos::currentJointStateCb(const sensor_msgs::msg::JointStateConstPtr& cur_js)
 {
   cur_js_ = cur_js;
 
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
-  const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
+  const auto time_after_last_cmd = (node->get_clock()->now() - t_last_cmd_).seconds();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
+    tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
     TOBAS_WARN(
@@ -190,12 +190,12 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::JointStateConst
   efforts_pub_.publish(efforts_msg);
 }
 
-void EffortControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
+void EffortControllerRos::targetJointStateCb(const sensor_msgs::msg::JointStateConstPtr& tar_js)
 {
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
 
-  t_last_cmd_ = ros::Time::now();
+  t_last_cmd_ = node->get_clock()->now();
   is_commanded_ = true;
 }
 
@@ -204,7 +204,7 @@ void EffortControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayCons
   tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
-  t_last_cmd_ = ros::Time::now();
+  t_last_cmd_ = node->get_clock()->now();
   is_commanded_ = true;
 }
 

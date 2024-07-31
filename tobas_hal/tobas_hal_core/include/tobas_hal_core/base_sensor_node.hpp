@@ -13,14 +13,14 @@ class BaseSensorNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BaseSensorNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name);
+  explicit BaseSensorNode(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name);
 
 protected:
-  ros::Timer main_timer_;
+  rclcpp::Timer main_timer_;
 
 private:
-  ros::ServiceServer start_ss_;
-  ros::ServiceServer stop_ss_;
+  rclcpp::ServiceServer start_ss_;
+  rclcpp::ServiceServer stop_ss_;
 
   bool startMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   bool stopMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);

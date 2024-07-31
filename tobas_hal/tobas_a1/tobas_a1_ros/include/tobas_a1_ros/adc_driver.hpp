@@ -13,12 +13,12 @@ class ADCDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit ADCDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit ADCDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   ADS1220 adc_;
-  ros::Publisher adc_pub_;
+  rclcpp::Publisher adc_pub_;
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace a1

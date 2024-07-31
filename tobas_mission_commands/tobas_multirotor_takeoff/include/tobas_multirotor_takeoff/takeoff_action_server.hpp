@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/node.hpp>
@@ -28,17 +28,17 @@ class TakeoffActionServer : public tobas::BaseNode
 
 public:
   explicit TakeoffActionServer(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   ResultType result_;
   tobas_msgs::OdometryConstPtr odom_;
 
-  ros::Publisher cmd_pub_;
-  ros::Subscriber odom_sub_;
-  ros::ServiceClient set_arm_sc_;
+  rclcpp::Publisher cmd_pub_;
+  rclcpp::Subscriber odom_sub_;
+  rclcpp::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);

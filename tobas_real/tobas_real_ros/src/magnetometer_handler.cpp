@@ -9,8 +9,8 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-MagnetometerHandler::MagnetometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
+MagnetometerHandler::MagnetometerHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
 {
   reloadConfig();
 
@@ -108,7 +108,7 @@ void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag
   }
 
   // Compute time difference
-  const auto dt = (mag_raw->header.stamp - mag_raw_->header.stamp).toSec();
+  const auto dt = (mag_raw->header.stamp - mag_raw_->header.stamp).seconds();
   mag_raw_ = mag_raw;
 
   // Update noise filter

@@ -6,7 +6,7 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-ImuLpf::ImuLpf(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+ImuLpf::ImuLpf(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   imu_lpf_pub_ = nh_.advertise<tobas_msgs::Imu>(tobas::kImuLpfTopic, 1);
   imu_raw_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuRawCb, this, tcpNoDelay());
@@ -23,7 +23,7 @@ void ImuLpf::imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw)
     return;
   }
 
-  const auto dt = (imu_raw->header.stamp - last_msg_->header.stamp).toSec();
+  const auto dt = (imu_raw->header.stamp - last_msg_->header.stamp).seconds();
   last_msg_ = imu_raw;
 
   gyro_lpf_.update(imu_raw->gyro, dt);

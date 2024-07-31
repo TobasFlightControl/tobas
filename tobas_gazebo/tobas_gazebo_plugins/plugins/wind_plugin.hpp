@@ -1,7 +1,7 @@
 #pragma once
 
 #include <random>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
@@ -52,7 +52,7 @@ private:
     NO_GUST,
   };
 
-  ros::NodeHandle nh_;
+  rclcpp::NodeHandle nh_;
 
   // SDF parameters
   std::string ns_;
@@ -68,10 +68,10 @@ private:
   double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
 
-  ros::Publisher wind_pub_;
+  rclcpp::Publisher wind_pub_;
 
-  ros::ServiceServer get_params_ss_;
-  ros::ServiceServer set_params_ss_;
+  rclcpp::ServiceServer get_params_ss_;
+  rclcpp::ServiceServer set_params_ss_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);

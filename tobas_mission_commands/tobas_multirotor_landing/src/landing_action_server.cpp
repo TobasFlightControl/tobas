@@ -1,4 +1,4 @@
-#include <tobas_ros_tools/time.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
@@ -10,10 +10,10 @@ using namespace std;
 
 namespace tobas_multirotor_landing
 {
-LandActionServer::LandActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name),
+LandActionServer::LandActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name),
     alt_buf_(kTimeWindow),
-    as_(nh_, tobas::kLandAction, boost::bind(&self::executeCb, this, _1), false)
+    as_(nh_, tobas::kLandAction, std::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
@@ -24,7 +24,7 @@ LandActionServer::LandActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, co
 
 bool LandActionServer::disarmRotors()
 {
-  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
@@ -52,7 +52,7 @@ void LandActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     return;
 
   // 現在の時刻と高度を履歴に追加
-  const auto cur_time = tobas_ros::chronoFromRosTime(odom->header.stamp);
+  const auto cur_time = ros2::chronoFromRosTime(odom->header.stamp);
   const auto& altitude = odom->frame.p.z();
   alt_buf_.add(cur_time, altitude);
 }
@@ -72,7 +72,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
   alt_buf_.clear();
 
   // 初期状態
-  const auto start_time = ros::Time::now();
+  const auto start_time = node->get_clock()->now();
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
   const auto start_z = odom_->frame.p.z();
@@ -82,7 +82,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
   is_action_running_ = true;
 
   // 高度チェック
-  ros::Rate rate(kUpdateRate);
+  rclcpp::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
     if (alt_buf_.isFilled())
@@ -102,7 +102,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
     }
 
     // コマンドを作成
-    const auto t = (ros::Time::now() - start_time).toSec();
+    const auto t = (node->get_clock()->now() - start_time).seconds();
     const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
     cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
@@ -130,7 +130,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
       return;
     }
 
-    ros::spinOnce();
+    rclcpp::spinOnce();
     rate.sleep();
   }
 

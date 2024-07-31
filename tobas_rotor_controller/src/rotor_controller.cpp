@@ -4,7 +4,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/ThrottleArray.h>
@@ -17,7 +17,7 @@ using namespace std;
 
 namespace tobas_rotor_controller
 {
-RotorController::RotorController(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+RotorController::RotorController(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   drone_.loadFromParam(nh_);
 
@@ -45,11 +45,11 @@ bool RotorController::armRotors()
     return false;
   }
 
-  const auto t_start = ros::Time::now();
-  while ((ros::Time::now() - t_start).toSec() < kDisarmDuration)
+  const auto t_start = node->get_clock()->now();
+  while ((node->get_clock()->now() - t_start).seconds() < kDisarmDuration)
   {
     setThrottleOnAllChannels(kDisarmThrottle);
-    ros::Duration(kDisarmInterval).sleep();
+    rclcpp::Duration(kDisarmInterval).sleep();
   }
 
   is_armed_ = true;
@@ -75,7 +75,7 @@ bool RotorController::disarmRotors()
 
 bool RotorController::enableRCOutputs(const bool& enable)
 {
-  if (!enable_rcout_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!enable_rcout_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kEnableRcOutputSrv, "' server.");
     return false;
@@ -98,7 +98,7 @@ bool RotorController::enableRCOutputs(const bool& enable)
 
 bool RotorController::preArmCheck()
 {
-  if (!pre_arm_check_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!pre_arm_check_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kPreArmCheckSrv, "' server.");
     return false;
@@ -117,7 +117,7 @@ bool RotorController::preArmCheck()
 void RotorController::setThrottleOnAllChannels(const double& throttle)
 {
   const auto throttles = boost::make_shared<tobas_msgs::ThrottleArray>();
-  throttles->header.stamp = ros::Time::now();
+  throttles->header.stamp = node->get_clock()->now();
   for (const auto& rotor : drone_.rotorConfigs())
     throttles->throttles.emplace_back(rotor.channel, throttle);
   throttles_pub_.publish(throttles);
@@ -212,7 +212,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
   throttles_pub_.publish(throttles);
 
   // Update last commanded time
-  last_cmd_time_ = ros::Time::now();
+  last_cmd_time_ = node->get_clock()->now();
 
   // Now the rotors are activated
   is_activated_ = true;
@@ -263,9 +263,9 @@ bool RotorController::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetAr
   return true;
 }
 
-void RotorController::checkIntervalTimerCb(const ros::TimerEvent& event)
+void RotorController::checkIntervalTimerCb(const rclcpp::TimerEvent& event)
 {
-  const auto time_after_last_cmd = (event.current_real - last_cmd_time_).toSec();
+  const auto time_after_last_cmd = (event.current_real - last_cmd_time_).seconds();
   if (time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     setThrottleOnAllChannels(tobas::kMinThrottle);

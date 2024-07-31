@@ -13,7 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_property_msgs
-	tobas_ros_tools
+	tobas_ros2_tools
 	tobas_path_tools
 	tobas_linux
 )
@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 	INCLUDE_DIRS include
 	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_property_msgs tobas_ros_tools tobas_path_tools tobas_linux
+	CATKIN_DEPENDS tobas_property_msgs tobas_ros2_tools tobas_path_tools tobas_linux
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

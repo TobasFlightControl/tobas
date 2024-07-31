@@ -9,8 +9,8 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-JointCommandHandler::JointCommandHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+JointCommandHandler::JointCommandHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name)
 {
   positions_sub_ = nh_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
   velocities_sub_ = nh_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
@@ -21,8 +21,8 @@ bool JointCommandHandler::initialize()
 {
   // ノードの起動順が不確定なため，サービスコールをコンストラクタでやるべきではない
   // 制限時間を設けて成功するまで何度も繰り返すのが正しい
-  ros::ServiceClient sc = nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
-  if (!sc.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  rclcpp::ServiceClient sc = nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
+  if (!sc.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kListControllersSrv, "' service server.");
     return false;

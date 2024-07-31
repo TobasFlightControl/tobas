@@ -30,7 +30,7 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  ros::NodeHandle nh_;
+  rclcpp::NodeHandle nh_;
 
   // SDF parameters
   std::string ns_;
@@ -55,15 +55,15 @@ private:
   NormalDistribution current_noise_;
 
   // Publishers
-  ros::Publisher battery_pub_;
-  ros::Publisher battery_gt_pub_;
+  rclcpp::Publisher battery_pub_;
+  rclcpp::Publisher battery_gt_pub_;
 
   // Subscribers
-  std::vector<ros::Subscriber> rotor_state_subs_;
+  std::vector<rclcpp::Subscriber> rotor_state_subs_;
   std::vector<std::function<void(const tobas_msgs::RotorStateConstPtr&)>> rotor_state_cbs_;
 
   // Service servers
-  ros::ServiceServer charge_srv_;
+  rclcpp::ServiceServer charge_srv_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();

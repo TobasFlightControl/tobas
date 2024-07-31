@@ -6,8 +6,8 @@ using namespace std;
 
 namespace tobas_calibration
 {
-RCInputCalibrationRos::RCInputCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
+RCInputCalibrationRos::RCInputCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
 {
   ss_ = nh_.advertiseService(kServiceName, &self::executeCb, this);
 }

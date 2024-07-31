@@ -5,7 +5,7 @@
 #include "./ansi_text_styles.hpp"
 
 /* Releaseビルドでも機能するアサーション． */
-#define CHECK(expr)                                                                                                    \
+#define TOBAS_CHECK(expr)                                                                                                    \
   {                                                                                                                    \
     if (!static_cast<bool>(expr))                                                                                      \
     {                                                                                                                  \

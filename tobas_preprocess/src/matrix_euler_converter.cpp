@@ -7,8 +7,8 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-MatrixEulerConverter::MatrixEulerConverter(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+MatrixEulerConverter::MatrixEulerConverter(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name)
 {
   euler_pub_ = nh_.advertise<tobas_kdl_msgs::EulerStamped>(tobas::kEulerTopic, 1);
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <rviz/display.h>
 #include <rviz/properties/property.h>
 #include <rviz/properties/string_property.h>
@@ -59,8 +59,8 @@ private:
   void onDisable() override;
   void fixedFrameChanged() override;
 
-  ros::NodeHandle nh_;
-  ros::Subscriber robot_state_sub_;
+  rclcpp::NodeHandle nh_;
+  rclcpp::Subscriber robot_state_sub_;
 
   RobotStateVisualizationPtr robot_;
   rdf_loader::RDFLoaderPtr rdf_loader_;

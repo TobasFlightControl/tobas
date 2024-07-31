@@ -3,16 +3,16 @@
 
 namespace gazebo
 {
-ros::Duration operator-(const common::Time& lhs, const ros::Time& rhs)
+rclcpp::Duration operator-(const common::Time& lhs, const rclcpp::Time& rhs)
 {
-  ros::Time lhs_ros;
+  rclcpp::Time lhs_ros;
   timeGazeboToRos(lhs, lhs_ros);
   return lhs_ros - rhs;
 }
 
-ros::Duration operator-(const ros::Time& lhs, const common::Time& rhs)
+rclcpp::Duration operator-(const rclcpp::Time& lhs, const common::Time& rhs)
 {
-  ros::Time rhs_ros;
+  rclcpp::Time rhs_ros;
   timeGazeboToRos(rhs, rhs_ros);
   return lhs - rhs_ros;
 }

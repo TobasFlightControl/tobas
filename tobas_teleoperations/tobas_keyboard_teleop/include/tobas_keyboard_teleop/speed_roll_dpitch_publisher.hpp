@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/FluidPressure.h>
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_keyboard/keyboard_reader.hpp>
-#include <tobas_ros_tools/timer.hpp>
+#include <tobas_ros2_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/trim_conditions.hpp>
@@ -28,9 +28,9 @@ class SpeedRollDeltaPitchPublisher : public tobas::BaseNode
 
 public:
   explicit SpeedRollDeltaPitchPublisher(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
   void run();
 
@@ -58,20 +58,20 @@ private:
   double max_delta_pitch_;  // ピッチ角の釣り合いからの偏差の最大値
 
   // PubSub
-  ros::Publisher cmd_pub_;
-  ros::Subscriber air_pressure_sub_;
+  rclcpp::Publisher cmd_pub_;
+  rclcpp::Subscriber air_pressure_sub_;
 
   // Timer
-  tobas_ros::Timer check_topics_timer_;
-  tobas_ros::Timer instruction_timer_;
+  ros2::Timer check_topics_timer_;
+  ros2::Timer instruction_timer_;
 
   void getRosParams();
   bool isReady();
   void initialize();
 
-  void airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg);
+  void airPressureCb(const sensor_msgs::msg::FluidPressureConstPtr& msg);
 
-  void checkTopicsTimerCb(const ros::TimerEvent&);
-  void instructionTimerCb(const ros::TimerEvent&);
+  void checkTopicsTimerCb(const rclcpp::TimerEvent&);
+  void instructionTimerCb(const rclcpp::TimerEvent&);
 };
 }  // namespace tobas_keyboard_teleop

@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "state_checker");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_state_checker::StateChecker node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "state_checker");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_state_checker::StateChecker node(node, pnh);
+  rclcpp::spin();
 }

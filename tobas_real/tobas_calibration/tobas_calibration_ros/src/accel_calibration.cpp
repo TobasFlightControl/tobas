@@ -1,5 +1,5 @@
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_ros_tools/util.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_ros/common.hpp>
 
@@ -10,8 +10,8 @@ using namespace Eigen;
 
 namespace tobas_calibration
 {
-AccelCalibrationRos::AccelCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
+AccelCalibrationRos::AccelCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
 {
   ss_ = nh_.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
@@ -27,7 +27,7 @@ bool AccelCalibrationRos::getAccelMean(Eigen::Vector3d& des)
   const auto imu_sub = nh_.subscribe(hal::kImuTopic, 1, &AccelCalibrationRos::imuCb, this);
 
   // データが溜まるまで待機
-  if (!tobas_ros::spinUntil([this]() { return cnt_ == kDataCount; }, kTimeout))
+  if (!ros2::spinUntil([this]() { return cnt_ == kDataCount; }, kTimeout))
     return false;
 
   // 平均を計算

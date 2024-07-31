@@ -42,13 +42,13 @@ void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf
 
   // Listen to the update events
   new_image_frame_connection_ =
-    depth_camera_->ConnectNewImageFrame(boost::bind(&self::onNewImageFrame, this, _1, _2, _3, _4, _5));
+    depth_camera_->ConnectNewImageFrame(std::bind(&self::onNewImageFrame, this, _1, _2, _3, _4, _5));
   new_depth_frame_connection_ =
-    depth_camera_->ConnectNewDepthFrame(boost::bind(&self::onNewDepthFrame, this, _1, _2, _3, _4, _5));
+    depth_camera_->ConnectNewDepthFrame(std::bind(&self::onNewDepthFrame, this, _1, _2, _3, _4, _5));
 
   // GazeboRosCameraUtilsのLoadが完了してからadvertiseを行うように設定する
   // これをせずadvertiseをベタ書きするとsegmentation faultになる
-  load_connection_ = GazeboRosCameraUtils::OnLoad(boost::bind(&self::advertise, this));
+  load_connection_ = GazeboRosCameraUtils::OnLoad(std::bind(&self::advertise, this));
   GazeboRosCameraUtils::Load(parent, sdf);
 
   parent_sensor_->SetActive(true);
@@ -142,15 +142,15 @@ void GazeboNoisyDepthPlugin::setNoiseModel()
 
 void GazeboNoisyDepthPlugin::advertise()
 {
-  ros::AdvertiseOptions depth_image_ao = ros::AdvertiseOptions::create<sensor_msgs::Image>(
-    depth_image_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthImageConnect, this),
-    boost::bind(&GazeboNoisyDepthPlugin::depthImageDisconnect, this), ros::VoidPtr(), &camera_queue_);
+  rclcpp::AdvertiseOptions depth_image_ao = rclcpp::AdvertiseOptions::create<sensor_msgs::msg::Image>(
+    depth_image_topic_, 1, std::bind(&GazeboNoisyDepthPlugin::depthImageConnect, this),
+    std::bind(&GazeboNoisyDepthPlugin::depthImageDisconnect, this), rclcpp::VoidPtr(), &camera_queue_);
 
   depth_image_pub_ = rosnode_->advertise(depth_image_ao);
 
-  ros::AdvertiseOptions depth_info_ao = ros::AdvertiseOptions::create<sensor_msgs::CameraInfo>(
-    depth_info_topic_, 1, boost::bind(&GazeboNoisyDepthPlugin::depthInfoConnect, this),
-    boost::bind(&GazeboNoisyDepthPlugin::depthInfoDisconnect, this), ros::VoidPtr(), &camera_queue_);
+  rclcpp::AdvertiseOptions depth_info_ao = rclcpp::AdvertiseOptions::create<sensor_msgs::msg::CameraInfo>(
+    depth_info_topic_, 1, std::bind(&GazeboNoisyDepthPlugin::depthInfoConnect, this),
+    std::bind(&GazeboNoisyDepthPlugin::depthInfoDisconnect, this), rclcpp::VoidPtr(), &camera_queue_);
 
   depth_info_pub_ = rosnode_->advertise(depth_info_ao);
 }
@@ -187,7 +187,7 @@ void GazeboNoisyDepthPlugin::publishDepthImage(const float* src)
   lock_.lock();  // TODO: ロックはなぜ必要？
 
   // Create an image message
-  const auto image_msg = boost::make_shared<sensor_msgs::Image>();
+  const auto image_msg = boost::make_shared<sensor_msgs::msg::Image>();
 
   // Fill header
   timeGazeboToRos(parent_sensor_->LastMeasurementTime(), image_msg->header.stamp);
@@ -196,7 +196,7 @@ void GazeboNoisyDepthPlugin::publishDepthImage(const float* src)
   // Fill basic information
   image_msg->height = height_;
   image_msg->width = width_;
-  image_msg->encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+  image_msg->encoding = sensor_msgs::msg::image_encodings::TYPE_32FC1;
   image_msg->is_bigendian = 0;
   image_msg->step = sizeof(float) * width_;
 

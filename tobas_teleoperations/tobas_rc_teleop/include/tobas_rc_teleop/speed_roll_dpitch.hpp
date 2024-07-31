@@ -16,7 +16,7 @@ class SpeedRollDeltaPitchController : public BaseController
 public:
   explicit SpeedRollDeltaPitchController(const tobas::Drone& drone);
 
-  void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
+  void initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void
   update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
@@ -29,8 +29,8 @@ private:
   double max_dpitch_;  // [rad]
 
   // PubSub
-  ros::Publisher cmd_pub_;
+  rclcpp::Publisher cmd_pub_;
 
-  void getRosParams(ros::NodeHandle& pnh);
+  void getRosParams(rclcpp::Node::SharedPtr pnh);
 };
 }  // namespace tobas_rc_teleop

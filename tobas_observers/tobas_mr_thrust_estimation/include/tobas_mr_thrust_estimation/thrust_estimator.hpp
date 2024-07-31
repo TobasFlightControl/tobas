@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <dynamic_reconfigure/server.h>
 
 #include <tobas_linear_control/kalman_filter.hpp>
@@ -27,9 +27,9 @@ class ThrustEstimator : public tobas::BaseNode
 
 public:
   explicit ThrustEstimator(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
   void updateInternalDataStructures();
 
@@ -42,9 +42,9 @@ private:
   tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
 
   // PubSub
-  ros::Publisher factor_pub_;
-  ros::Subscriber odom_sub_;
-  ros::Subscriber rotor_speeds_sub_;
+  rclcpp::Publisher factor_pub_;
+  rclcpp::Subscriber odom_sub_;
+  rclcpp::Subscriber rotor_speeds_sub_;
 
   // Dynamic Reconfigure
   ConfigServer server_;

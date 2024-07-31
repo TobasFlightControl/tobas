@@ -69,7 +69,7 @@ private:
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
 
-  ros::NodeHandle nh_;
+  rclcpp::NodeHandle nh_;
   ptree::PropertyClient property_client_;
 
   std::string getLastOpenedDir();

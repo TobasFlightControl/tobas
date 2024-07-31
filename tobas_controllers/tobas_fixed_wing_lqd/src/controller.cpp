@@ -1,7 +1,7 @@
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_kdl/frames.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/conversions/coordinates.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_tools/constants.hpp>
@@ -15,8 +15,8 @@ using namespace Eigen;
 
 namespace tobas_fixed_wing_lqd
 {
-Controller::Controller(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), x_rotors_(drone_, tobas::X_POSITIVE), eom_(drone_), server_(pnh_)
+Controller::Controller(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), x_rotors_(drone_, tobas::X_POSITIVE), eom_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
 
@@ -49,7 +49,7 @@ Controller::Controller(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
   cmd_sub_ = nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 
   // Dynamic Reconfigure
-  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
+  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 bool Controller::isReadyToControl()
@@ -195,7 +195,7 @@ void Controller::publishFeedback(const VectorXd& du)
   feedback_pub_.publish(feedback);
 }
 
-void Controller::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
+void Controller::airPressureCb(const sensor_msgs::msg::FluidPressureConstPtr& msg)
 {
   air_pressure_ = msg;
 }
@@ -214,7 +214,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
   }
 
   // 経過時間を計算してオドメトリを更新
-  const auto dt = (odom_nwu->header.stamp - odom_nwu_->header.stamp).toSec();
+  const auto dt = (odom_nwu->header.stamp - odom_nwu_->header.stamp).seconds();
   odom_nwu_ = odom_nwu;
 
   if (!isReadyToControl())

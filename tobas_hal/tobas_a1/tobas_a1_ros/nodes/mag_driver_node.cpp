@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "a1_mag_driver");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  a1::MagDriver node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "a1_mag_driver");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  a1::MagDriver node(node, pnh);
+  rclcpp::spin();
 }

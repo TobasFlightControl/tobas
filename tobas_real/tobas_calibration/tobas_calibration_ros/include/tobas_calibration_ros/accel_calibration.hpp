@@ -22,9 +22,9 @@ class AccelCalibrationRos : public tobas::BaseNode
 
 public:
   explicit AccelCalibrationRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   size_t cnt_;
@@ -32,7 +32,7 @@ private:
   Eigen::Vector3d acc_top_;
 
   ptree::PropertyClient property_client_;
-  ros::ServiceServer ss_;
+  rclcpp::ServiceServer ss_;
 
   bool getAccelMean(Eigen::Vector3d& des);
 

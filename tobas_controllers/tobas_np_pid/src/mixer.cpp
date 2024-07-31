@@ -108,8 +108,8 @@ void Mixer::configure(const MixerConfig& cfg)
   if (!drone_.isLoaded())
     throw runtime_error("Drone is not loaded yet.");
 
-  CHECK(cfg.linear_weight > 0);
-  CHECK(cfg.angular_weight > 0);
+  TOBAS_CHECK(cfg.linear_weight > 0);
+  TOBAS_CHECK(cfg.angular_weight > 0);
 
   if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());

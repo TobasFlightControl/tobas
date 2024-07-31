@@ -21,32 +21,32 @@ class RotorController : public tobas::BaseNode
 
 public:
   explicit RotorController(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   tobas::Drone drone_;
 
-  ros::Time last_cmd_time_;
+  rclcpp::Time last_cmd_time_;
   bool is_armed_ = false;
   bool is_activated_ = false;
   tobas_msgs::BatteryConstPtr battery_;
 
   // PubSub
-  ros::Publisher throttles_pub_;
-  ros::Publisher arming_pub_;
-  ros::Subscriber tar_speeds_sub_;
-  ros::Subscriber battery_sub_;
+  rclcpp::Publisher throttles_pub_;
+  rclcpp::Publisher arming_pub_;
+  rclcpp::Subscriber tar_speeds_sub_;
+  rclcpp::Subscriber battery_sub_;
 
   // Service
-  ros::ServiceServer get_arm_ss_;
-  ros::ServiceServer set_arm_ss_;
-  ros::ServiceClient enable_rcout_sc_;
-  ros::ServiceClient pre_arm_check_sc_;
+  rclcpp::ServiceServer get_arm_ss_;
+  rclcpp::ServiceServer set_arm_ss_;
+  rclcpp::ServiceClient enable_rcout_sc_;
+  rclcpp::ServiceClient pre_arm_check_sc_;
 
   // Timer
-  ros::Timer check_interval_timer_;
+  rclcpp::Timer check_interval_timer_;
 
   bool armRotors();
   bool disarmRotors();
@@ -61,6 +61,6 @@ private:
   bool getArmCb(tobas_msgs::GetArmRequest& req, tobas_msgs::GetArmResponse& res);
   bool setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res);
 
-  void checkIntervalTimerCb(const ros::TimerEvent& event);
+  void checkIntervalTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_rotor_controller

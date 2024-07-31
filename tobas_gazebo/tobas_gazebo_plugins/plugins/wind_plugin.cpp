@@ -35,7 +35,7 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   get_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
   set_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
 
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboWindPlugin::getSdfParams(sdf::ElementPtr sdf)

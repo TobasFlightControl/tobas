@@ -14,16 +14,16 @@ class BarometerHandler : public hal::BaseSensorNode
 
 public:
   explicit BarometerHandler(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   navio::MS5611 barometer_;
-  ros::Publisher bar_pub_;
+  rclcpp::Publisher bar_pub_;
 
   void initialize();
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

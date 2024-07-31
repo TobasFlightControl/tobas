@@ -1,6 +1,6 @@
-#include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/util.hpp>
-#include <tobas_ros_tools/eigen_conversion.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
+#include <tobas_ros2_tools/util.hpp>
+#include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_eigen.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -15,8 +15,8 @@ using namespace Eigen;
 
 namespace orientation_estimation_complement
 {
-OrientationEstimatorRos::OrientationEstimatorRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name),
+OrientationEstimatorRos::OrientationEstimatorRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name),
     imu_sub_(nh_, tobas::kImuTopic, kQueueSize, tcpNoDelay()),
     mag_sub_(nh_, tobas::kMagTopic, kQueueSize, tcpNoDelay()),
     sync_(SyncPolicy(kQueueSize), imu_sub_, mag_sub_),
@@ -31,17 +31,17 @@ OrientationEstimatorRos::OrientationEstimatorRos(ros::NodeHandle& nh, ros::NodeH
 
 void OrientationEstimatorRos::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "gain_acc", gain_acc_, kDefaultGainAcc);
-  tobas_ros::getParam(pnh_, "gain_mag", gain_mag_, kDefaultGainMag);
-  tobas_ros::getParam(pnh_, "bias_alpha", bias_alpha_, kDefaultBiasAlpha);
-  tobas_ros::getParam(pnh_, "do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
-  tobas_ros::getParam(pnh_, "do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
+  ros2::getParam(pnh_, "gain_acc", gain_acc_, kDefaultGainAcc);
+  ros2::getParam(pnh_, "gain_mag", gain_mag_, kDefaultGainMag);
+  ros2::getParam(pnh_, "bias_alpha", bias_alpha_, kDefaultBiasAlpha);
+  ros2::getParam(pnh_, "do_bias_estimation", do_bias_estimation_, kDefaultDoBiasEstimation);
+  ros2::getParam(pnh_, "do_adaptive_gain", do_adaptive_gain_, kDefaultDoAdaptiveGain);
 }
 
 void OrientationEstimatorRos::initializeFilter()
 {
   tobas_msgs::Gps gps;
-  if (!tobas_ros::subscribeOnce(gps, tobas::kGpsTopic, nh_))
+  if (!ros2::subscribeOnce(gps, tobas::kGpsTopic, nh_))
     TOBAS_EXIT("Failed to get GPS message.");
   const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
   filter_.setReferenceMagneticField(mag.north, mag.east);
@@ -71,7 +71,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
   }
 
   // Calculate dt
-  const auto dt = (imu->header.stamp - imu_->header.stamp).toSec();
+  const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
   imu_ = imu;
 
   // Update the filter
@@ -89,7 +89,7 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
   orientation_pub_.publish(quat_msg);
 }
 
-void OrientationEstimatorRos::checkTopicsTimerCb(const ros::TimerEvent&)
+void OrientationEstimatorRos::checkTopicsTimerCb(const rclcpp::TimerEvent&)
 {
   TOBAS_INFO("Waiting for ", ns(), tobas::kImuTopic);
 }

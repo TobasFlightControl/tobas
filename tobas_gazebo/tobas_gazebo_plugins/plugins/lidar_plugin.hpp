@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <ros/callback_queue.h>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
@@ -37,7 +37,7 @@ protected:
   void OnNewLaserScans() override;
 
 private:
-  ros::NodeHandle nh_;  // pointer to ros node
+  rclcpp::NodeHandle nh_;  // pointer to ros node
 
   // SDF parameters
   std::string ns_;
@@ -53,10 +53,10 @@ private:
   common::Time sim_time_;
 
   boost::mutex lock_;               // A mutex to lock access to fields that are used in message callbacks
-  ros::CallbackQueue laser_queue_;  // Custom Callback Queue
+  rclcpp::CallbackQueue laser_queue_;  // Custom Callback Queue
   boost::thread callback_laser_queue_thread_;
 
-  ros::Publisher pub_;
+  rclcpp::Publisher pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void putLaserData(const common::Time& update_time);

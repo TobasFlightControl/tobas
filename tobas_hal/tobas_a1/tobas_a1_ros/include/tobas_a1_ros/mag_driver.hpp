@@ -13,12 +13,12 @@ class MagDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit MagDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit MagDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   IIS2MDC mag_;
-  ros::Publisher mag_pub_;
+  rclcpp::Publisher mag_pub_;
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace a1

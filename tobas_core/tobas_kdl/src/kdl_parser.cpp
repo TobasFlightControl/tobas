@@ -1,4 +1,4 @@
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <urdf/model.h>
 #include <urdf/urdfdom_compatibility.h>
 #include <urdf_parser/urdf_parser.h>
@@ -137,7 +137,7 @@ bool treeFromParam(const string& param, Tree& tree)
   urdf::Model robot_model;
   if (!robot_model.initParam(param))
   {
-    ROS_ERROR("Failed to generate robot model.");
+    RCLCPP_ERROR("Failed to generate robot model.");
     return false;
   }
   return treeFromUrdfModel(robot_model, tree);
@@ -150,7 +150,7 @@ bool treeFromString(const string& xml, Tree& tree)
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDF(xml);
   if (!robot_model)
   {
-    ROS_ERROR("Failed to generate robot model.");
+    RCLCPP_ERROR("Failed to generate robot model.");
     return false;
   }
   return treeFromUrdfModel(*robot_model, tree);
@@ -162,7 +162,7 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 
   if (!robot_model.getRoot())
   {
-    ROS_ERROR("Failed to get root link.");
+    RCLCPP_ERROR("Failed to get root link.");
     return false;
   }
 
@@ -171,7 +171,7 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
   // Warn if root link has inertia. tobas_kdl does not support this
   if (robot_model.getRoot()->inertial)
   {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(
       "The root link " << robot_model.getRoot()->name << " has an inertia specified in the URDF, "
                        << "but tobas_kdl does not support a root link with an inertia. "
                        << "As a workaround, you can add an extra dummy link to your URDF.");

@@ -69,8 +69,8 @@ void AccelAttitudeConverter::update(
 
 void AccelAttitudeConverter::configure(const AccelAttitudeConverterConfig& cfg)
 {
-  CHECK(0 <= cfg.max_attitude && cfg.max_attitude < M_PI_2);
-  CHECK(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
+  TOBAS_CHECK(0 <= cfg.max_attitude && cfg.max_attitude < M_PI_2);
+  TOBAS_CHECK(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
 
   cfg_ = cfg;
 }

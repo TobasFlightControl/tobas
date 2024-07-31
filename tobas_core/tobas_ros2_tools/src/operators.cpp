@@ -1,6 +1,6 @@
-#include "../include/tobas_ros_tools/operators.hpp"
+#include "../include/tobas_ros2_tools/operators.hpp"
 
-using namespace geometry_msgs;
+using namespace geometry_msgs::msg;
 
 Vector3 operator*(const double& lhs, const Vector3& rhs)
 {

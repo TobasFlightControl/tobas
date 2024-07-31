@@ -22,7 +22,7 @@ class ImuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit ImuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit ImuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   enum stage_t
@@ -44,9 +44,9 @@ private:
   ptree::PropertyClient property_client_;
   std::array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 
-  ros::Publisher imu_pub_;
-  ros::Subscriber imu_sub_;
-  ros::ServiceServer reload_config_srv_;
+  rclcpp::Publisher imu_pub_;
+  rclcpp::Subscriber imu_sub_;
+  rclcpp::ServiceServer reload_config_srv_;
 
   bool reloadConfig();
 

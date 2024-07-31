@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "arducopter_controller");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_mr_arducopter::ControllerRos node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "arducopter_controller");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_mr_arducopter::ControllerRos node(node, pnh);
+  rclcpp::spin();
 }

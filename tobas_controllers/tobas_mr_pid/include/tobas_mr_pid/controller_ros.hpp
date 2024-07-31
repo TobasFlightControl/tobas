@@ -1,7 +1,7 @@
 #pragma once
 
 #include <dynamic_reconfigure/server.h>
-#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Bool.h>
 
@@ -33,9 +33,9 @@ class ControllerRos : public tobas::BaseNode
 
 public:
   explicit ControllerRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   // Drone
@@ -60,7 +60,7 @@ private:
   // Mutable variables
   tobas_msgs::OdometryConstPtr odom_;
   tobas_msgs::BatteryConstPtr battery_;
-  sensor_msgs::JointStateConstPtr js_;
+  sensor_msgs::msg::JointStateConstPtr js_;
   std_msgs::Float64ConstPtr thrust_corr_factor_;
   std_msgs::BoolConstPtr arming_;
   tobas_msgs::PosVelAccYawPtr tar_pvay_W_;      // PosVelYawの目標値 (世界座標系)
@@ -68,17 +68,17 @@ private:
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
-  ros::Publisher rot_speeds_pub_;
-  ros::Publisher feedback_pub_;
+  rclcpp::Publisher rot_speeds_pub_;
+  rclcpp::Publisher feedback_pub_;
 
   // Subscribers
-  ros::Subscriber odom_sub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber js_sub_;
-  ros::Subscriber thrust_corr_factor_sub_;
-  ros::Subscriber arming_sub_;
-  ros::Subscriber pvay_sub_;
-  ros::Subscriber rpyt_sub_;
+  rclcpp::Subscriber odom_sub_;
+  rclcpp::Subscriber battery_sub_;
+  rclcpp::Subscriber js_sub_;
+  rclcpp::Subscriber thrust_corr_factor_sub_;
+  rclcpp::Subscriber arming_sub_;
+  rclcpp::Subscriber pvay_sub_;
+  rclcpp::Subscriber rpyt_sub_;
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
@@ -90,7 +90,7 @@ private:
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void jointStateCb(const sensor_msgs::JointStateConstPtr& js);
+  void jointStateCb(const sensor_msgs::msg::JointStateConstPtr& js);
   void thrustCorrectionFactorCb(const std_msgs::Float64ConstPtr& msg);
   void armingCb(const std_msgs::BoolConstPtr& arming);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay);

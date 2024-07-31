@@ -8,7 +8,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-BarometerHandler::BarometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+BarometerHandler::BarometerHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   initialize();
 
@@ -25,7 +25,7 @@ void BarometerHandler::initialize()
     TOBAS_EXIT("Failed to update barometer.");
 }
 
-void BarometerHandler::mainTimerCb(const ros::TimerEvent& event)
+void BarometerHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // バロメータを更新
   if (!barometer_.update())

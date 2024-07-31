@@ -41,19 +41,19 @@ void PositionController::update(
 
 void PositionController::configure(const PositionControllerConfig& cfg)
 {
-  CHECK(cfg.acc_delay_time_const > 0);
-  CHECK(cfg.hor_pos_weight >= 0);
-  CHECK(cfg.ver_pos_weight >= 0);
-  CHECK(cfg.hor_vel_weight >= 0);
-  CHECK(cfg.ver_vel_weight >= 0);
-  CHECK(cfg.hor_acc_weight >= 0);
-  CHECK(cfg.ver_acc_weight >= 0);
-  CHECK(cfg.hor_posint_weight >= 0);
-  CHECK(cfg.ver_posint_weight >= 0);
-  CHECK(cfg.max_hor_posint_error >= 0);
-  CHECK(cfg.max_ver_posint_error >= 0);
-  CHECK(cfg.max_hor_acc >= 0);
-  CHECK(cfg.max_ver_acc >= 0);
+  TOBAS_CHECK(cfg.acc_delay_time_const > 0);
+  TOBAS_CHECK(cfg.hor_pos_weight >= 0);
+  TOBAS_CHECK(cfg.ver_pos_weight >= 0);
+  TOBAS_CHECK(cfg.hor_vel_weight >= 0);
+  TOBAS_CHECK(cfg.ver_vel_weight >= 0);
+  TOBAS_CHECK(cfg.hor_acc_weight >= 0);
+  TOBAS_CHECK(cfg.ver_acc_weight >= 0);
+  TOBAS_CHECK(cfg.hor_posint_weight >= 0);
+  TOBAS_CHECK(cfg.ver_posint_weight >= 0);
+  TOBAS_CHECK(cfg.max_hor_posint_error >= 0);
+  TOBAS_CHECK(cfg.max_ver_posint_error >= 0);
+  TOBAS_CHECK(cfg.max_hor_acc >= 0);
+  TOBAS_CHECK(cfg.max_ver_acc >= 0);
 
   // 水平方向の加速度は姿勢制御の追従遅れを経て実現される
   lqid_.dynamics.A.block<2, 2>(kAccIdx, kAccIdx).diagonal().fill(-1 / cfg.acc_delay_time_const);

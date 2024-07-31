@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "tobas_bridge");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  TobasBridge node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "tobas_bridge");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  TobasBridge node(node, pnh);
+  rclcpp::spin();
 }

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
 
-#include <tobas_ros_tools/timer.hpp>
+#include <tobas_ros2_tools/timer.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/Imu.h>
 #include <tobas_msgs/MagneticField.h>
@@ -38,9 +38,9 @@ class OrientationEstimatorRos : public tobas::BaseNode
 
 public:
   explicit OrientationEstimatorRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   OrientationEstimator filter_;
@@ -54,18 +54,18 @@ private:
   double bias_alpha_;
 
   // PubSub
-  ros::Publisher orientation_pub_;
+  rclcpp::Publisher orientation_pub_;
   ImuSubscriber imu_sub_;
   MagSubscriber mag_sub_;
   Synchronizer sync_;
 
   // Timer
-  tobas_ros::Timer check_topics_timer_;
+  ros2::Timer check_topics_timer_;
 
   void getRosParams();
   void initializeFilter();
 
   void imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag);
-  void checkTopicsTimerCb(const ros::TimerEvent&);
+  void checkTopicsTimerCb(const rclcpp::TimerEvent&);
 };
 }  // namespace orientation_estimation_complement

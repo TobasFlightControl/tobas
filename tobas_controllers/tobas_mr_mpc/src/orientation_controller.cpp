@@ -143,17 +143,17 @@ VectorXd OrientationController::solve(
 
 void OrientationController::configure(const OrientationControllerConfig& cfg)
 {
-  CHECK(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
-  CHECK(cfg.kp >= 0);
-  CHECK(cfg.kd >= 0);
-  CHECK(cfg.pred_horizon > 0);
-  CHECK(cfg.pred_steps > 0);
-  CHECK(cfg.attitude_decay >= 0);
-  CHECK(cfg.heading_decay >= 0);
-  CHECK(cfg.angvel_decay >= 0);
-  CHECK(cfg.attitude_weight > 0);
-  CHECK(cfg.heading_weight > 0);
-  CHECK(cfg.angvel_weight > 0);
+  TOBAS_CHECK(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
+  TOBAS_CHECK(cfg.kp >= 0);
+  TOBAS_CHECK(cfg.kd >= 0);
+  TOBAS_CHECK(cfg.pred_horizon > 0);
+  TOBAS_CHECK(cfg.pred_steps > 0);
+  TOBAS_CHECK(cfg.attitude_decay >= 0);
+  TOBAS_CHECK(cfg.heading_decay >= 0);
+  TOBAS_CHECK(cfg.angvel_decay >= 0);
+  TOBAS_CHECK(cfg.attitude_weight > 0);
+  TOBAS_CHECK(cfg.heading_weight > 0);
+  TOBAS_CHECK(cfg.angvel_weight > 0);
 
   h_force_comp_rate_ = cfg.h_force_comp_rate;
   kp_ = cfg.kp;

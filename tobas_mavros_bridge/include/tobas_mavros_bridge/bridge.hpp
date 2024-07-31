@@ -1,4 +1,4 @@
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/PositionYaw.h>
@@ -12,14 +12,14 @@ class TobasMavrosBridge : public tobas::BaseNode
 
 public:
   explicit TobasMavrosBridge(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   // PubSub
-  ros::Publisher setpoint_pos_local_pub_;
-  ros::Subscriber pos_yaw_sub_;
+  rclcpp::Publisher setpoint_pos_local_pub_;
+  rclcpp::Subscriber pos_yaw_sub_;
 
   void positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs);
 };

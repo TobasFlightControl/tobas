@@ -1,5 +1,5 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.h>
 
@@ -14,11 +14,11 @@ PoseTwistAccelController::PoseTwistAccelController(const tobas::Drone& drone) : 
 {
 }
 
-void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+void PoseTwistAccelController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
 {
   getRosParams(pnh);
 
-  cmd_pub_ = nh.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
+  cmd_pub_ = node.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
 }
 
 void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
@@ -33,7 +33,7 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
 void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
   // 時刻を更新
-  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
   // GPSwの状態によって水平速度制御モードと姿勢制御モードを切り替える
@@ -99,13 +99,13 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   cmd_pub_.publish(cmd);
 }
 
-void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
+void PoseTwistAccelController::getRosParams(rclcpp::Node::SharedPtr pnh)
 {
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+  ros2::getParam(
+    pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
+  ros2::getParam(
+    pnh, "pose_twist_accel/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
+  ros2::getParam(pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, ros2::POSITIVE);
+  ros2::getParam(pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <std_srvs/Trigger.h>
 
@@ -22,7 +22,7 @@ class PropertyServer
   using self = PropertyServer;
 
 public:
-  explicit PropertyServer(ros::NodeHandle& nh, ros::NodeHandle& pnh);
+  explicit PropertyServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh);
 
 private:
   // ROS parameters
@@ -32,15 +32,15 @@ private:
   boost::property_tree::ptree pt_;
 
   // Service servers
-  ros::ServiceServer get_bool_ss_;
-  ros::ServiceServer get_int_ss_;
-  ros::ServiceServer get_double_ss_;
-  ros::ServiceServer get_string_ss_;
-  ros::ServiceServer set_bool_ss_;
-  ros::ServiceServer set_int_ss_;
-  ros::ServiceServer set_double_ss_;
-  ros::ServiceServer set_string_ss_;
-  ros::ServiceServer save_file_ss_;
+  rclcpp::ServiceServer get_bool_ss_;
+  rclcpp::ServiceServer get_int_ss_;
+  rclcpp::ServiceServer get_double_ss_;
+  rclcpp::ServiceServer get_string_ss_;
+  rclcpp::ServiceServer set_bool_ss_;
+  rclcpp::ServiceServer set_int_ss_;
+  rclcpp::ServiceServer set_double_ss_;
+  rclcpp::ServiceServer set_string_ss_;
+  rclcpp::ServiceServer save_file_ss_;
 
   inline std::string keyWithSection(const std::string& section, const std::string& key) const;
 

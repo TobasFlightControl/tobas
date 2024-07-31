@@ -2,7 +2,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
@@ -14,8 +14,8 @@ using namespace Eigen;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), server_(pnh_)
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -58,19 +58,19 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(ros::NodeHandle& nh, ros::N
   set_gnss_origin_ss_ = nh_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
-  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
+  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "use_barometer", use_bar_, kDefaultUseBarometer);
-  tobas_ros::getParam(pnh_, "use_gps", use_gps_, kDefaultUseGps);
-  tobas_ros::getParam(pnh_, "do_acc_bias_estimation", do_acc_bias_estimation_, kDefaultDoAccBiasEstimation);
-  tobas_ros::getParam(pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
-  tobas_ros::getParam(pnh_, "do_gravity_estimation", do_grav_estimation_, kDefaultDoGravEstimation);
-  tobas_ros::getParam(pnh_, "imu_offset", imu_offset_, Vector3d::Zero());
-  tobas_ros::getParam(pnh_, "barometer_offset", bar_offset_, Vector3d::Zero());
-  tobas_ros::getParam(pnh_, "gps_offset", gps_offset_, Vector3d::Zero());
+  ros2::getParam(pnh_, "use_barometer", use_bar_, kDefaultUseBarometer);
+  ros2::getParam(pnh_, "use_gps", use_gps_, kDefaultUseGps);
+  ros2::getParam(pnh_, "do_acc_bias_estimation", do_acc_bias_estimation_, kDefaultDoAccBiasEstimation);
+  ros2::getParam(pnh_, "do_gyro_bias_estimation", do_gyro_bias_estimation_, kDefaultDoGyroBiasEstimation);
+  ros2::getParam(pnh_, "do_gravity_estimation", do_grav_estimation_, kDefaultDoGravEstimation);
+  ros2::getParam(pnh_, "imu_offset", imu_offset_, Vector3d::Zero());
+  ros2::getParam(pnh_, "barometer_offset", bar_offset_, Vector3d::Zero());
+  ros2::getParam(pnh_, "gps_offset", gps_offset_, Vector3d::Zero());
 
   // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
   if (do_acc_bias_estimation_ && do_grav_estimation_)
@@ -135,7 +135,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   }
 
   // Compute delta time
-  const auto dt = (imu->header.stamp - imu_->header.stamp).toSec();
+  const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
   imu_ = imu;
 
   // Check IMU time gap

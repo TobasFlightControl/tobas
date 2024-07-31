@@ -1,5 +1,5 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 
@@ -14,11 +14,11 @@ PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : supe
 {
 }
 
-void PosVelAccYawController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+void PosVelAccYawController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
 {
   getRosParams(pnh);
 
-  cmd_pub_ = nh.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  cmd_pub_ = node.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 }
 
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
@@ -33,7 +33,7 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
 void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
   // 時刻を更新
-  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
   // RC入力を速度とヨーレートに変換
@@ -77,12 +77,12 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd_pub_.publish(cmd);
 }
 
-void PosVelAccYawController::getRosParams(ros::NodeHandle& pnh)
+void PosVelAccYawController::getRosParams(rclcpp::Node::SharedPtr pnh)
 {
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pos_vel_acc_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "pos_vel_acc_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+  ros2::getParam(
+    pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
+  ros2::getParam(
+    pnh, "pos_vel_acc_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
+  ros2::getParam(pnh, "pos_vel_acc_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

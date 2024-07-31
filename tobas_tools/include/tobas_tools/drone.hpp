@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -23,7 +23,7 @@ public:
   explicit Drone();
 
   /* Load drone configurations from ROS parameter server. */
-  void loadFromParam(ros::NodeHandle& nh);
+  void loadFromParam(rclcpp::Node::SharedPtr node);
 
   inline const kdl::Tree& tree() const;
   inline const BatteryConfig& batteryConfig() const;
@@ -96,18 +96,18 @@ private:
   bool has_fixed_wing_;
   bool is_loaded_ = false;
 
-  void getBatteryConfig(ros::NodeHandle& nh);
-  void getJointConfigs(ros::NodeHandle& nh);
-  void getJointConfig(ros::NodeHandle& nh, size_t jnt_idx);
+  void getBatteryConfig(rclcpp::Node::SharedPtr node);
+  void getJointConfigs(rclcpp::Node::SharedPtr node);
+  void getJointConfig(rclcpp::Node::SharedPtr node, size_t jnt_idx);
 
-  void getRotorConfigs(ros::NodeHandle& nh);
-  void getRotorConfig(ros::NodeHandle& nh, size_t rotor_idx, RotorConfig& des);
+  void getRotorConfigs(rclcpp::Node::SharedPtr node);
+  void getRotorConfig(rclcpp::Node::SharedPtr node, size_t rotor_idx, RotorConfig& des);
 
-  void getFixedWingConfig(ros::NodeHandle& nh);
-  void getVehicleParameters(ros::NodeHandle& nh);
-  void getAerodynamicsCoefficients(ros::NodeHandle& nh);
-  void getControlSurfaces(ros::NodeHandle& nh);
-  void getControlSurface(ros::NodeHandle& nh, size_t cs_idx, ControlSurface& des);
+  void getFixedWingConfig(rclcpp::Node::SharedPtr node);
+  void getVehicleParameters(rclcpp::Node::SharedPtr node);
+  void getAerodynamicsCoefficients(rclcpp::Node::SharedPtr node);
+  void getControlSurfaces(rclcpp::Node::SharedPtr node);
+  void getControlSurface(rclcpp::Node::SharedPtr node, size_t cs_idx, ControlSurface& des);
 };
 
 inline const kdl::Tree& Drone::tree() const

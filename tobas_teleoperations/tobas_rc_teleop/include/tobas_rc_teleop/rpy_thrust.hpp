@@ -13,7 +13,7 @@ class RollPitchYawThrustController : public BaseController
 public:
   explicit RollPitchYawThrustController(const tobas::Drone& drone);
 
-  void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
+  void initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void
   update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
@@ -22,7 +22,7 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   double yaw_;
-  ros::Time t_last_rcin_;
+  rclcpp::Time t_last_rcin_;
 
   // rosparams
   double max_attitude_;  // [rad]
@@ -33,8 +33,8 @@ private:
   double max_thrust_;  // [N] ドローンの最大推力和
 
   // PubSub
-  ros::Publisher rpy_thrust_pub_;
+  rclcpp::Publisher rpy_thrust_pub_;
 
-  void getRosParams(ros::NodeHandle& pnh);
+  void getRosParams(rclcpp::Node::SharedPtr pnh);
 };
 }  // namespace tobas_rc_teleop

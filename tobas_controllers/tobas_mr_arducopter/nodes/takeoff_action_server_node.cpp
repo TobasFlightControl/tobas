@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "takeoff_action_server");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_mr_arducopter::TakeoffActionServer node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "takeoff_action_server");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_mr_arducopter::TakeoffActionServer node(node, pnh);
+  rclcpp::spin();
 }

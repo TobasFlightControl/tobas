@@ -2,8 +2,8 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "rcin_throttle");
-  ros::NodeHandle nh;
-  tobas_topic_throttle::RCInputThrottle node(nh);
-  ros::spin();
+  rclcpp::init(argc, argv, "rcin_throttle");
+  rclcpp::NodeHandle node;
+  tobas_topic_throttle::RCInputThrottle node(node);
+  rclcpp::spin();
 }

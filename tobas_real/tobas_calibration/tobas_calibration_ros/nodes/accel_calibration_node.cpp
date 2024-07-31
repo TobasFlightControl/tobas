@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "accel_calibration");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_calibration::AccelCalibrationRos node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "accel_calibration");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_calibration::AccelCalibrationRos node(node, pnh);
+  rclcpp::spin();
 }

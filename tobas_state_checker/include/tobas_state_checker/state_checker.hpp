@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <actionlib/client/simple_action_client.h>
 #include <std_msgs/Bool.h>
 
@@ -26,22 +26,22 @@ class StateChecker : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit StateChecker(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit StateChecker(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   tobas::Drone drone_;
   std_msgs::BoolConstPtr arming_;
 
   // Publishers
-  ros::Publisher event_pub_;
+  rclcpp::Publisher event_pub_;
 
   // Subscribers
-  ros::Subscriber arming_sub_;
-  ros::Subscriber cpu_sub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber euler_sub_;
+  rclcpp::Subscriber arming_sub_;
+  rclcpp::Subscriber cpu_sub_;
+  rclcpp::Subscriber battery_sub_;
+  rclcpp::Subscriber euler_sub_;
 
-  ros::ServiceClient set_arm_sc_;
+  rclcpp::ServiceClient set_arm_sc_;
   actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
 
   void publishSystemCriticalEvent();

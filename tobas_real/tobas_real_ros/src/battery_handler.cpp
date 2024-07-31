@@ -9,8 +9,8 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-BatteryHandler::BatteryHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
+BatteryHandler::BatteryHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
 {
   reloadConfig();
 

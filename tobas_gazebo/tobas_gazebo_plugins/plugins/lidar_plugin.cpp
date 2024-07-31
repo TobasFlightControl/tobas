@@ -41,16 +41,16 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
   last_update_time_ = world->SimTime();
 
   // Custom Callback Queue
-  ros::AdvertiseOptions ao = ros::AdvertiseOptions::create<sensor_msgs::PointCloud>(
-    "/" + ns_ + "/" + tobas::kLidarTopic, 1, boost::bind(&GazeboLidarPlugin::laserConnect, this),
-    boost::bind(&GazeboLidarPlugin::laserDisconnect, this), ros::VoidPtr(), &laser_queue_);
+  rclcpp::AdvertiseOptions ao = rclcpp::AdvertiseOptions::create<sensor_msgs::msg::PointCloud>(
+    "/" + ns_ + "/" + tobas::kLidarTopic, 1, std::bind(&GazeboLidarPlugin::laserConnect, this),
+    std::bind(&GazeboLidarPlugin::laserDisconnect, this), rclcpp::VoidPtr(), &laser_queue_);
   pub_ = nh_.advertise(ao);
 
   // sensor generation off by default
   parent_ray_sensor_->SetActive(false);
 
   // start custom queue for laser
-  callback_laser_queue_thread_ = boost::thread(boost::bind(&GazeboLidarPlugin::laserQueueThread, this));
+  callback_laser_queue_thread_ = boost::thread(std::bind(&GazeboLidarPlugin::laserQueueThread, this));
 }
 
 void GazeboLidarPlugin::onStats(const boost::shared_ptr<msgs::WorldStatistics const>& msg)
@@ -75,7 +75,7 @@ void GazeboLidarPlugin::OnNewLaserScans()
   const auto sensor_update_time = parent_sensor_->LastUpdateTime();
   if (sensor_update_time < last_update_time_)
   {
-    ROS_WARN_NAMED("block_laser", "Negative sensor update time difference detected.");
+    RCLCPP_WARN_NAMED("block_laser", "Negative sensor update time difference detected.");
     last_update_time_ = sensor_update_time;
   }
 
@@ -111,10 +111,10 @@ void GazeboLidarPlugin::putLaserData(const common::Time& update_time)
   const auto p_diff = ver_max_range.Radian() - ver_min_range.Radian();
 
   // Create a cloud message
-  const auto cloud_msg = boost::make_shared<sensor_msgs::PointCloud>();
+  const auto cloud_msg = boost::make_shared<sensor_msgs::msg::PointCloud>();
 
   // Set size of cloud message everytime
-  cloud_msg->channels.push_back(sensor_msgs::ChannelFloat32());
+  cloud_msg->channels.push_back(sensor_msgs::msg::ChannelFloat32());
 
   // Point scan from laser
   boost::mutex::scoped_lock sclock(lock_);
@@ -174,7 +174,7 @@ void GazeboLidarPlugin::putLaserData(const common::Time& update_time)
       const auto p_angle = (vja + vjb) * p_diff / (ver_ray_count - 1) / 2 + ver_min_range.Radian();
 
       // Point scan from laser
-      geometry_msgs::Point32 point;
+      geometry_msgs::msg::Point32 point;
       // p_angle is rotated by y_angle:
       point.x = r * cos(p_angle) * cos(y_angle);
       point.y = r * cos(p_angle) * sin(y_angle);
@@ -214,7 +214,7 @@ double GazeboLidarPlugin::gaussianKernel(const double& mu, const double& sigma)
 void GazeboLidarPlugin::laserQueueThread()
 {
   while (nh_.ok())
-    laser_queue_.callAvailable(ros::WallDuration(kTimeout));
+    laser_queue_.callAvailable(rclcpp::WallDuration(kTimeout));
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboLidarPlugin);

@@ -56,7 +56,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   registerPubSub();
 
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboFixedWingPlugin::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&GazeboFixedWingPlugin::onUpdate, this, _1));
 }
 
 void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -151,9 +151,9 @@ void GazeboFixedWingPlugin::registerPubSub()
   debug_pub_ = nh_.advertise<tobas_gazebo_msgs::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   deflections_sub_ = nh_.subscribe(
-    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &self::deflectionsCb, this, ros::TransportHints().tcpNoDelay());
+    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this, ros::TransportHints().tcpNoDelay());
+    nh_.subscribe("/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)

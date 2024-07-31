@@ -29,7 +29,7 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
   registerPublishers();
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&self::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
 }
 
 void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)

@@ -15,8 +15,8 @@ using namespace Eigen;
 
 namespace tobas_mr_thrust_estimation
 {
-ThrustEstimator::ThrustEstimator(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
+ThrustEstimator::ThrustEstimator(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
   drone_.loadFromParam(nh_);
   updateInternalDataStructures();
@@ -29,7 +29,7 @@ ThrustEstimator::ThrustEstimator(ros::NodeHandle& nh, ros::NodeHandle& pnh, cons
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
   rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 
-  server_.setCallback(boost::bind(&self::dynamicReconfigureCb, this, _1, _2));
+  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
 void ThrustEstimator::updateInternalDataStructures()

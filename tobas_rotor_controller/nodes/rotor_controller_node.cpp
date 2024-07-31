@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "rotor_controller");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_rotor_controller::RotorController node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "rotor_controller");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_rotor_controller::RotorController node(node, pnh);
+  rclcpp::spin();
 }

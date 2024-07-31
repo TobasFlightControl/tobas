@@ -1,4 +1,4 @@
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <ros/timer.h>
 #include <dynamixel_sdk/dynamixel_sdk.h>
 #include <std_srvs/SetBool.h>
@@ -35,9 +35,9 @@ class DynamixelHandler : public tobas::BaseNode
 
 public:
   explicit DynamixelHandler(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
   ~DynamixelHandler();
 
 private:
@@ -59,7 +59,7 @@ private:
   bool is_enabled_ = true;
 
   // rosparams
-  ros::V_string jnt_names_;
+  rclcpp::V_string jnt_names_;
   std::string device_name_;
   float protocol_version_;
   size_t baudrate_;
@@ -73,24 +73,24 @@ private:
   std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
-  ros::Publisher motor_states_pub_;
-  ros::Subscriber event_sub_;
-  ros::Subscriber positions_sub_;
-  ros::Subscriber velocities_sub_;
-  ros::Subscriber efforts_sub_;
+  rclcpp::Publisher motor_states_pub_;
+  rclcpp::Subscriber event_sub_;
+  rclcpp::Subscriber positions_sub_;
+  rclcpp::Subscriber velocities_sub_;
+  rclcpp::Subscriber efforts_sub_;
 
   // Service
-  ros::ServiceServer enable_torques_ss_;
+  rclcpp::ServiceServer enable_torques_ss_;
 
   // Timer
-  ros::Timer main_timer_;
+  rclcpp::Timer main_timer_;
 
   void getRosParams();
   void registerPublishers();
   void registerSubscribers();
   bool setMinimumLatency();
   void getMotorConfigs();
-  void publishCurrentStates(const ros::Time& cur_time);
+  void publishCurrentStates(const rclcpp::Time& cur_time);
   bool enableTorques();
   bool disableTorques();
   void printHardwareErrorStatus();
@@ -101,6 +101,6 @@ private:
   void jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts);
 
   bool enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_dynamixel_handler

@@ -1,4 +1,4 @@
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <rviz/robot/robot.h>
 #include <rviz/robot/robot_link.h>
 
@@ -329,7 +329,7 @@ string URDFBuilderPanel::getLastOpenedDir()
   string res;
   if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
   {
-    ROS_WARN_STREAM(property_client_.errorMessage());
+    RCLCPP_WARN_STREAM(property_client_.errorMessage());
     res = linux::homeDir();
   }
   return res;

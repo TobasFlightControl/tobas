@@ -48,7 +48,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   debug_pub_ = nh_.advertise<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   // Listen to the update event
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&self::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
 }
 
 void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)

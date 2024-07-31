@@ -8,16 +8,16 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-TimeReferenceServer::TimeReferenceServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+TimeReferenceServer::TimeReferenceServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name)
 {
-  time_ref_pub_ = nh_.advertise<sensor_msgs::TimeReference>(tobas::kTimeReferenceTopic, 1);
+  time_ref_pub_ = nh_.advertise<sensor_msgs::msg::TimeReference>(tobas::kTimeReferenceTopic, 1);
   main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
 }
 
-void TimeReferenceServer::mainTimerCb(const ros::TimerEvent& event)
+void TimeReferenceServer::mainTimerCb(const rclcpp::TimerEvent& event)
 {
-  const auto time_ref = boost::make_shared<sensor_msgs::TimeReference>();
+  const auto time_ref = boost::make_shared<sensor_msgs::msg::TimeReference>();
   time_ref->header.stamp = event.current_real;
   time_ref->time_ref = event.current_real;
   time_ref_pub_.publish(time_ref);

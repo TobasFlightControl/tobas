@@ -30,7 +30,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   registerPubSub();
   charge_srv_ = nh_.advertiseService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
 
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)

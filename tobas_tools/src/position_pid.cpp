@@ -45,14 +45,14 @@ Vector3d PositionPid::update(
 
 void PositionPid::configure(const PositionPidConfig& cfg)
 {
-  CHECK(cfg.hor_natural_freq > 0);
-  CHECK(cfg.hor_damp_ratio > 0);
-  CHECK(cfg.hor_ki > 0);
-  CHECK(cfg.ver_natural_freq > 0);
-  CHECK(cfg.ver_damp_ratio > 0);
-  CHECK(cfg.ver_ki > 0);
-  CHECK(cfg.max_hor_acc > 0);
-  CHECK(cfg.max_ver_acc > 0);
+  TOBAS_CHECK(cfg.hor_natural_freq > 0);
+  TOBAS_CHECK(cfg.hor_damp_ratio > 0);
+  TOBAS_CHECK(cfg.hor_ki > 0);
+  TOBAS_CHECK(cfg.ver_natural_freq > 0);
+  TOBAS_CHECK(cfg.ver_damp_ratio > 0);
+  TOBAS_CHECK(cfg.ver_ki > 0);
+  TOBAS_CHECK(cfg.max_hor_acc > 0);
+  TOBAS_CHECK(cfg.max_ver_acc > 0);
 
   const auto hor_kp = math::sqr(cfg.hor_natural_freq);
   const auto hor_kd = 2 * cfg.hor_damp_ratio * cfg.hor_natural_freq;

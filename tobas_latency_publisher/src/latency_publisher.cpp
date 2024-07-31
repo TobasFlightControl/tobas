@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_latency_publisher
 {
-LatencyPublisher::LatencyPublisher(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+LatencyPublisher::LatencyPublisher(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
   throttles_sub_ = nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
@@ -16,7 +16,7 @@ LatencyPublisher::LatencyPublisher(ros::NodeHandle& nh, ros::NodeHandle& pnh, co
 void LatencyPublisher::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& msg)
 {
   const auto latency = boost::make_shared<tobas_msgs::Latency>();
-  const auto cur_time = ros::Time::now();
+  const auto cur_time = node->get_clock()->now();
   latency->header.stamp = cur_time;
   latency->data = cur_time - msg->header.stamp;
   latency_pub_.publish(latency);

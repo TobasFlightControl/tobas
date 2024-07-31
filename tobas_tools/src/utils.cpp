@@ -1,4 +1,4 @@
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_std_tools/time.hpp>
 #include <tobas_std_tools/console.hpp>
@@ -16,7 +16,7 @@ namespace tobas
 double getMass()
 {
   kdl::Tree tree;
-  if (!treeFromParam(ros::this_node::getNamespace() + "/robot_description", tree))
+  if (!treeFromParam(rclcpp::this_node::getNamespace() + "/robot_description", tree))
     throw runtime_error("Failed to get tobas_kdl tree.");
 
   kdl::TreeJntToInertiaSolver inertia_solver(tree);

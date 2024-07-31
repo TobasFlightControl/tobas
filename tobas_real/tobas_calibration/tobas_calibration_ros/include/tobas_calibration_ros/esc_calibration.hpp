@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/drone.hpp>
@@ -29,18 +29,18 @@ class EscCalibrationRos : public tobas::BaseNode
 
 public:
   explicit EscCalibrationRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   tobas::Drone drone_;
   ResultType result_;
   tobas_msgs::BatteryConstPtr battery_;
 
-  ros::Publisher throttles_pub_;
-  ros::ServiceClient get_arm_sc_;
-  ros::ServiceClient enable_rcout_sc_;
+  rclcpp::Publisher throttles_pub_;
+  rclcpp::ServiceClient get_arm_sc_;
+  rclcpp::ServiceClient enable_rcout_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   void sendMaximum();

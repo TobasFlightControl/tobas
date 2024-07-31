@@ -25,7 +25,7 @@ void GazeboWorldContactsPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sd
 
   contacts_pub_ = nh_.advertise<tobas_gazebo_msgs::ContactStates>("/" + ns_ + "/" + kContactStatesTopic, 1);
 
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboWorldContactsPlugin::getSdfParams(sdf::ElementPtr sdf)

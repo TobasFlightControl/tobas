@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <actionlib/server/simple_action_server.h>
 #include <std_msgs/Bool.h>
 
@@ -24,9 +24,9 @@ class MoveActionServer : public tobas::BaseNode
 
 public:
   explicit MoveActionServer(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   ResultType result_;
@@ -34,9 +34,9 @@ private:
   std_msgs::BoolConstPtr arming_;
   tobas_msgs::OdometryConstPtr odom_;
 
-  ros::Publisher cmd_pub_;
-  ros::Subscriber arming_sub_;
-  ros::Subscriber odom_sub_;
+  rclcpp::Publisher cmd_pub_;
+  rclcpp::Subscriber arming_sub_;
+  rclcpp::Subscriber odom_sub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 

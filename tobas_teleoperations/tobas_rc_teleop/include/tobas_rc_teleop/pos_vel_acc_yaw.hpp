@@ -11,14 +11,14 @@ class PosVelAccYawController : public BaseController
 public:
   explicit PosVelAccYawController(const tobas::Drone& drone);
 
-  void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
+  void initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void
   update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
 
 private:
   bool is_up_commanded_;
-  ros::Time t_last_rcin_;
+  rclcpp::Time t_last_rcin_;
   kdl::Vector tar_vel_F_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
@@ -29,8 +29,8 @@ private:
   double max_yawrate_;  // [rad/s]
 
   // Publisher
-  ros::Publisher cmd_pub_;
+  rclcpp::Publisher cmd_pub_;
 
-  void getRosParams(ros::NodeHandle& pnh);
+  void getRosParams(rclcpp::Node::SharedPtr pnh);
 };
 }  // namespace tobas_rc_teleop

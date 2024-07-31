@@ -7,8 +7,8 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), landing_ac_(tobas::kLandAction)
+StateChecker::StateChecker(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), landing_ac_(tobas::kLandAction)
 {
   drone_.loadFromParam(nh_);
 
@@ -31,7 +31,7 @@ void StateChecker::publishSystemCriticalEvent()
 
 void StateChecker::requestLanding()
 {
-  if (!landing_ac_.waitForServer(ros::Duration(kWaitForActionServerTimeout)))
+  if (!landing_ac_.waitForServer(rclcpp::Duration(kWaitForActionServerTimeout)))
   {
     TOBAS_ERROR(
       "'", tobas::kLandAction, "' action server failed to start within ", kWaitForActionServerTimeout,
@@ -60,7 +60,7 @@ void StateChecker::requestLanding()
 
 void StateChecker::requestDisarmingRotors()
 {
-  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return;

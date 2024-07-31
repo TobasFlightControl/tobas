@@ -16,13 +16,13 @@ class MagCalibrationRos : public tobas::BaseNode
 
 public:
   explicit MagCalibrationRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   ptree::PropertyClient property_client_;
-  ros::ServiceServer ss_;
+  rclcpp::ServiceServer ss_;
 
   bool isValidEllipse(const SrvType::Request& req);
   bool executeCb(SrvType::Request& req, SrvType::Response& res);

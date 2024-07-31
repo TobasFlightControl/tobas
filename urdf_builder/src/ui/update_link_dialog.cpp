@@ -1,5 +1,5 @@
 #include <filesystem>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_linux/core.hpp>
 #include <tobas_tools/constants.hpp>
@@ -424,7 +424,7 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
   string last_dir;
   if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
   {
-    ROS_WARN_STREAM(property_client_.errorMessage());
+    RCLCPP_WARN_STREAM(property_client_.errorMessage());
     last_dir = linux::homeDir();
   }
 
@@ -459,7 +459,7 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
   string last_dir;
   if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
   {
-    ROS_WARN_STREAM(property_client_.errorMessage());
+    RCLCPP_WARN_STREAM(property_client_.errorMessage());
     last_dir = linux::homeDir();
   }
 

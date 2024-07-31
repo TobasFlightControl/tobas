@@ -37,7 +37,7 @@ void GazeboBasePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   registerPubSub();
 
   // Listen to the update event
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboBasePlugin::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&GazeboBasePlugin::onUpdate, this, _1));
 }
 
 void GazeboBasePlugin::getSdfParams(sdf::ElementPtr sdf)

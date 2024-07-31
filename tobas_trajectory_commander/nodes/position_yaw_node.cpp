@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "follow_position_yaw_trajectory_server");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_trajectory_commander::FollowPositionYawTrajectoryServer node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "follow_position_yaw_trajectory_server");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_trajectory_commander::FollowPositionYawTrajectoryServer node(node, pnh);
+  rclcpp::spin();
 }

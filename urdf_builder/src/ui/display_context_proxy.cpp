@@ -46,12 +46,12 @@ DisplayFactory* DisplayContextProxy::getDisplayFactory() const
   return nullptr;
 }
 
-ros::CallbackQueueInterface* DisplayContextProxy::getUpdateQueue()
+rclcpp::CallbackQueueInterface* DisplayContextProxy::getUpdateQueue()
 {
   return nullptr;
 }
 
-ros::CallbackQueueInterface* DisplayContextProxy::getThreadedQueue()
+rclcpp::CallbackQueueInterface* DisplayContextProxy::getThreadedQueue()
 {
   return nullptr;
 }

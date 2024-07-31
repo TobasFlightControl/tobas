@@ -18,17 +18,17 @@ class BatteryHandler : public hal::BaseSensorNode
 
 public:
   explicit BatteryHandler(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   navio::ADC adc_;
-  ros::Publisher adc_pub_;
+  rclcpp::Publisher adc_pub_;
 
   bool getVoltage(double& voltage);
   bool getCurrent(double& current);
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

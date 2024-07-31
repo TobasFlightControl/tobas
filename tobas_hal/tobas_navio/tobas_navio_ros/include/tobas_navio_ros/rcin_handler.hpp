@@ -14,14 +14,14 @@ class RCInputHandler : public hal::BaseSensorNode
 
 public:
   explicit RCInputHandler(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   navio::RCInput rcin_;
-  ros::Publisher rcin_pub_;
+  rclcpp::Publisher rcin_pub_;
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

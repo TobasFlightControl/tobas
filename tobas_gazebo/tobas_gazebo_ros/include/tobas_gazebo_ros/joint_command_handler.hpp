@@ -15,9 +15,9 @@ class JointCommandHandler : public tobas::BaseNode
 
 public:
   explicit JointCommandHandler(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   enum command_type_t : int
@@ -27,10 +27,10 @@ private:
     EFFORT,
   };
 
-  std::unordered_map<std::string, std::pair<command_type_t, ros::Publisher>> ctrl_map_;
-  ros::Subscriber positions_sub_;
-  ros::Subscriber velocities_sub_;
-  ros::Subscriber efforts_sub_;
+  std::unordered_map<std::string, std::pair<command_type_t, rclcpp::Publisher>> ctrl_map_;
+  rclcpp::Subscriber positions_sub_;
+  rclcpp::Subscriber velocities_sub_;
+  rclcpp::Subscriber efforts_sub_;
 
   bool initialize();
 

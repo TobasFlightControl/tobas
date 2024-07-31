@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
@@ -42,7 +42,7 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  ros::NodeHandle nh_;
+  rclcpp::NodeHandle nh_;
 
   // SDF parameters
   std::string ns_;
@@ -81,11 +81,11 @@ private:
   event::ConnectionPtr update_connection_;
 
   // PubSub
-  ros::Publisher rotor_state_pub_;
-  ros::Publisher debug_pub_;
-  ros::Subscriber throttle_sub_;
-  ros::Subscriber battery_gt_sub_;
-  ros::Subscriber wind_gt_sub_;
+  rclcpp::Publisher rotor_state_pub_;
+  rclcpp::Publisher debug_pub_;
+  rclcpp::Subscriber throttle_sub_;
+  rclcpp::Subscriber battery_gt_sub_;
+  rclcpp::Subscriber wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);

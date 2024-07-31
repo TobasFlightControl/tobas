@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/node.hpp>
@@ -27,15 +27,15 @@ class FollowPositionYawTrajectoryServer : tobas::BaseNode
 
 public:
   explicit FollowPositionYawTrajectoryServer(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   ResultType result_;
 
-  ros::Publisher cmd_pub_;
-  ros::Subscriber event_sub_;
+  rclcpp::Publisher cmd_pub_;
+  rclcpp::Subscriber event_sub_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);

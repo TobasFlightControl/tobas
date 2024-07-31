@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-BaroDriver::BaroDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+BaroDriver::BaroDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!baro_.initialize())
     TOBAS_EXIT("Failed to initialize Barometer.");
@@ -16,7 +16,7 @@ BaroDriver::BaroDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void BaroDriver::mainTimerCb(const ros::TimerEvent& event)
+void BaroDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
   const auto msg = boost::make_shared<tobas_hal_msgs::FluidPressure>();

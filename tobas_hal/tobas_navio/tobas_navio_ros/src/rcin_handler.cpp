@@ -8,7 +8,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-RCInputHandler::RCInputHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+RCInputHandler::RCInputHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!rcin_.initialize())
     TOBAS_EXIT("Failed to initialize RC input driver.");
@@ -17,7 +17,7 @@ RCInputHandler::RCInputHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const 
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void RCInputHandler::mainTimerCb(const ros::TimerEvent& event)
+void RCInputHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create message
   const auto rcin_msg = boost::make_shared<tobas_hal_msgs::Sbus>();

@@ -1,8 +1,8 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_keyboard/utils.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_ros_tools/rate.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rate.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -14,13 +14,13 @@ using namespace std;
 namespace tobas_keyboard_teleop
 {
 SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
-  ros::NodeHandle& nh,
-  ros::NodeHandle& pnh,
+  rclcpp::Node::SharedPtr node,
+  rclcpp::Node::SharedPtr pnh,
   const string& name)
-  : super(nh, pnh, name),
+  : super(node, pnh, name),
     trim_(drone_),
-    check_topics_timer_(nh_, tobas::kCheckTopicsMsgPeriod, &self::checkTopicsTimerCb, this, false),
-    instruction_timer_(nh_, kInstructionTimerPeriod, &self::instructionTimerCb, this, false)
+    check_topics_timer_(node_, tobas::kCheckTopicsMsgPeriod, &self::checkTopicsTimerCb, this, false),
+    instruction_timer_(node_, kInstructionTimerPeriod, &self::instructionTimerCb, this, false)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -30,7 +30,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
                  "Ctrl-C    : Quit\n";
 
   getRosParams();
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   trim_.updateInternalDataStructures();
   q_0_ = kdl::JntArray::Zero(drone_.tree().getNrOfJoints());
@@ -39,8 +39,8 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  cmd_pub_ = nh_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
-  air_pressure_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  cmd_pub_ = node_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
+  air_pressure_sub_ = node_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 void SpeedRollDeltaPitchPublisher::run()
@@ -50,8 +50,8 @@ void SpeedRollDeltaPitchPublisher::run()
 
   check_topics_timer_.start();
 
-  tobas_ros::Rate rate(kUpdateRate);
-  while (nh_.ok())
+  rclcpp::Rate rate(kUpdateRate);
+  while (node_.ok())
   {
     if (!is_initialized_)
     {
@@ -61,58 +61,58 @@ void SpeedRollDeltaPitchPublisher::run()
         initialize();
         is_initialized_ = true;
       }
-      ros::spinOnce();
+      rclcpp::spinOnce();
       rate.sleep();
       continue;
     }
 
     if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
     {
-      ROS_ERROR_STREAM(trim_.errorMessage());
+      RCLCPP_ERROR_STREAM(trim_.errorMessage());
       continue;
     }
 
     // コマンドを更新
     const auto c = key_reader_.readKey();
     if (c < 0)
-      ROS_ERROR_STREAM("Failed to read keyboard.");
+      RCLCPP_ERROR_STREAM("Failed to read keyboard.");
 
     switch (c)
     {
       case 'w':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
-        ROS_INFO_STREAM("Increase speed");
+        RCLCPP_INFO_STREAM("Increase speed");
         break;
       }
       case 's':
       {
         cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
-        ROS_INFO_STREAM("Decrease speed");
+        RCLCPP_INFO_STREAM("Decrease speed");
         break;
       }
       case keyboard::UP:
       {
         cmd_.delta_pitch = clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        ROS_INFO_STREAM("Nose up");
+        RCLCPP_INFO_STREAM("Nose up");
         break;
       }
       case keyboard::DOWN:
       {
         cmd_.delta_pitch = clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        ROS_INFO_STREAM("Nose down");
+        RCLCPP_INFO_STREAM("Nose down");
         break;
       }
       case keyboard::LEFT:
       {
         cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
-        ROS_INFO_STREAM("Turn left");
+        RCLCPP_INFO_STREAM("Turn left");
         break;
       }
       case keyboard::RIGHT:
       {
         cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
-        ROS_INFO_STREAM("Turn right");
+        RCLCPP_INFO_STREAM("Turn right");
         break;
       }
     }
@@ -121,17 +121,17 @@ void SpeedRollDeltaPitchPublisher::run()
     const auto cmd_ptr = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>(cmd_);
     cmd_pub_.publish(cmd_ptr);
 
-    ros::spinOnce();
+    rclcpp::spinOnce();
     rate.sleep();
   }
 }
 
 void SpeedRollDeltaPitchPublisher::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "max_linear_acceleration", max_linacc_, kDefaultMaxLinearAcceleration, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh_, "maximum_roll", max_roll_, kDefaultMaximumRoll, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh_, "maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, tobas_ros::POSITIVE);
+  ros2::getParam(pnh_, "max_linear_acceleration", max_linacc_, kDefaultMaxLinearAcceleration, ros2::POSITIVE);
+  ros2::getParam(pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, ros2::POSITIVE);
+  ros2::getParam(pnh_, "maximum_roll", max_roll_, kDefaultMaximumRoll, ros2::POSITIVE);
+  ros2::getParam(pnh_, "maximum_delta_pitch", max_delta_pitch_, kDefaultMaximumDeltaPitch, ros2::POSITIVE);
 }
 
 bool SpeedRollDeltaPitchPublisher::isReady()
@@ -147,10 +147,10 @@ void SpeedRollDeltaPitchPublisher::initialize()
 
   // インストラクションを開始
   instruction_timer_.start();
-  ROS_INFO_STREAM(instruction_);
+  RCLCPP_INFO_STREAM(instruction_);
 }
 
-void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressureConstPtr& msg)
+void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::msg::FluidPressureConstPtr& msg)
 {
   air_density_ = tobas_std::pressureToDensity(msg->fluid_pressure);
 
@@ -158,14 +158,14 @@ void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::FluidPressur
     pressure_received_ = true;
 }
 
-void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const ros::TimerEvent&)
+void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const rclcpp::TimerEvent&)
 {
   if (!pressure_received_)
-    ROS_INFO_STREAM("Waiting for " << ns() << tobas::kAirPressureTopic);
+    RCLCPP_INFO_STREAM("Waiting for " << ns() << tobas::kAirPressureTopic);
 }
 
-void SpeedRollDeltaPitchPublisher::instructionTimerCb(const ros::TimerEvent&)
+void SpeedRollDeltaPitchPublisher::instructionTimerCb(const rclcpp::TimerEvent&)
 {
-  ROS_INFO_STREAM(instruction_);
+  RCLCPP_INFO_STREAM(instruction_);
 }
 }  // namespace tobas_keyboard_teleop

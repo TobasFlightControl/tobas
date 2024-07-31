@@ -28,9 +28,9 @@ class PreArmCheckServer : public tobas::BaseNode
 
 public:
   explicit PreArmCheckServer(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   tobas::Drone drone_;
@@ -42,16 +42,16 @@ private:
   double roll_, pitch_, yaw_;
   tobas_msgs::PreArmCheck pre_arm_check_;
 
-  ros::Publisher pre_arm_check_pub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber odom_sub_;
-  ros::ServiceServer pre_arm_check_ss_;
-  ros::Timer pre_arm_check_timer_;
+  rclcpp::Publisher pre_arm_check_pub_;
+  rclcpp::Subscriber battery_sub_;
+  rclcpp::Subscriber odom_sub_;
+  rclcpp::ServiceServer pre_arm_check_ss_;
+  rclcpp::Timer pre_arm_check_timer_;
 
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
   bool preArmCheckSrvCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
-  void preArmCheckTimerCb(const ros::TimerEvent& event);
+  void preArmCheckTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_pre_arm_check

@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "tobas_mr_pid");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_mr_pid::ControllerRos node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "tobas_mr_pid");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_mr_pid::ControllerRos node(node, pnh);
+  rclcpp::spin();
 }

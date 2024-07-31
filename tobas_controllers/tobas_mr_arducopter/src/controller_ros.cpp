@@ -1,6 +1,6 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_math/core.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_kdl/quaternion.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/ThrottleArray.h>
@@ -13,7 +13,7 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+ControllerRos::ControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   getRosParams();
 
@@ -28,14 +28,14 @@ ControllerRos::ControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const st
 
 void ControllerRos::getRosParams()
 {
-  tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
+  ros2::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
   if (channels_.size() > kMaxMotors)
     TOBAS_EXIT("Too many rotors. The maximum number is ", kMaxMotors, ".");
   if (!tobas_std::isUnique(channels_))
     TOBAS_EXIT("channels are not unique.");
 }
 
-void ControllerRos::receiveAndPublishMotorCommand(const ros::Time& imu_time)
+void ControllerRos::receiveAndPublishMotorCommand(const rclcpp::Time& imu_time)
 {
   // If ArduPilot is online, increase timeout for receive once we detect a packet from FCS.
   // Otherwise skip quickly and do not set control force.
@@ -111,7 +111,7 @@ void ControllerRos::sendState(const tobas_msgs::Odometry& odom)
   FdmPacket pkt;
 
   // Timestamp [sec]
-  pkt.timestamp = odom.header.stamp.toSec();
+  pkt.timestamp = odom.header.stamp.seconds();
 
   // Linear acceleration (Local)
   const auto grav_B_nwu = odom.frame.M.inverse(kdl::Vector(0, 0, tobas::kGravity));

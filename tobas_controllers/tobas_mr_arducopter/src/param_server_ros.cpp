@@ -2,7 +2,7 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/float.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_mr_arducopter/param_server_ros.hpp"
@@ -14,13 +14,13 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-ParamServerRos::ParamServerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), server_(pnh_)
+ParamServerRos::ParamServerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), server_(pnh_)
 {
   getRosParams();
 
   param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
-  if (!param_set_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!param_set_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
     TOBAS_EXIT("Failed to connect to '", kParamSetSrv, "' service server.");
 
   server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
@@ -31,8 +31,8 @@ ParamServerRos::ParamServerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const 
 
 void ParamServerRos::getRosParams()
 {
-  tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_class", frame_class_);
-  tobas_ros::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_type", frame_type_);
+  ros2::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_class", frame_class_);
+  ros2::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_type", frame_type_);
 }
 
 void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
@@ -84,20 +84,20 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
     return;
 
   TOBAS_INFO("System status has become MAV_STATE_STANDBY.");
-  set_init_config_timer_ = nh_.createTimer(ros::Duration(20), &self::setInitConfigTimerCb, this, true);
+  set_init_config_timer_ = nh_.createTimer(rclcpp::Duration(20), &self::setInitConfigTimerCb, this, true);
 
   // Unsubscribe
   state_sub_.shutdown();
 }
 
-void ParamServerRos::localPositionCb(const geometry_msgs::PoseStampedConstPtr&)
+void ParamServerRos::localPositionCb(const geometry_msgs::msg::PoseStampedConstPtr&)
 {
   // 状態推定の開始を確認してから初期パラメータの設定を行う
   TOBAS_INFO(
     "First local position is received. The parameter server will be ready in ", kActivationDelayFromFirstPose,
     " seconds.");
   set_init_params_timer_ =
-    nh_.createTimer(ros::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
+    nh_.createTimer(rclcpp::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
 
   // Unsubscribe
   local_pos_sub_.shutdown();
@@ -123,7 +123,7 @@ void ParamServerRos::paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& c
   TOBAS_INFO("Parameters are updated.");
 }
 
-void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
+void ParamServerRos::setInitConfigTimerCb(const rclcpp::TimerEvent&)
 {
   // FRAME_CLASS
   param_set_msg_.request.param_id = kFrameClass;
@@ -132,7 +132,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
     TOBAS_WARN("Failed to set ", kFrameClass, ". Retrying...");
-    ros::Duration(RETRY_SLEEP).sleep();
+    rclcpp::Duration(RETRY_SLEEP).sleep();
   }
 
   // FRAME_TYPE
@@ -142,7 +142,7 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
     TOBAS_WARN("Failed to set ", kFrameType, ". Retrying...");
-    ros::Duration(RETRY_SLEEP).sleep();
+    rclcpp::Duration(RETRY_SLEEP).sleep();
   }
 
   // ARMING_CHECK
@@ -152,11 +152,11 @@ void ParamServerRos::setInitConfigTimerCb(const ros::TimerEvent&)
   while (!param_set_sc_.call(param_set_msg_) || !param_set_msg_.response.success)
   {
     TOBAS_WARN("Failed to set ", kArmingCheck, ". Retrying...");
-    ros::Duration(RETRY_SLEEP).sleep();
+    rclcpp::Duration(RETRY_SLEEP).sleep();
   }
 }
 
-void ParamServerRos::setInitParamsTimerCb(const ros::TimerEvent&)
+void ParamServerRos::setInitParamsTimerCb(const rclcpp::TimerEvent&)
 {
   setParams(init_cfg_);
   is_init_params_set_ = true;

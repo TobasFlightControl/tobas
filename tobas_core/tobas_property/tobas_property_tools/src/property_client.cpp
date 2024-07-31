@@ -15,32 +15,32 @@ using namespace std;
 
 namespace ptree
 {
-PropertyClient::PropertyClient(ros::NodeHandle& nh, const string& ns, const string& section)
-  : nh_(nh), ns_(ns), section_(section)
+PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& ns, const string& section)
+  : nh_(node), ns_(ns), section_(section)
 {
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, bool& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, bool& value, const rclcpp::Duration& timeout)
 {
   return getProperty<tobas_property_msgs::GetBool, kGetBoolSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, int& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, int& value, const rclcpp::Duration& timeout)
 {
   return getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, double& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, double& value, const rclcpp::Duration& timeout)
 {
   return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, string& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, string& value, const rclcpp::Duration& timeout)
 {
   return getProperty<tobas_property_msgs::GetString, kGetStringSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value, const rclcpp::Duration& timeout)
 {
   int tmp;
 
@@ -54,7 +54,7 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value, c
   return error_code_ = E_NO_ERROR;
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, const rclcpp::Duration& timeout)
 {
   int tmp;
 
@@ -68,49 +68,49 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, 
   return error_code_ = E_NO_ERROR;
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, float& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, float& value, const rclcpp::Duration& timeout)
 {
   return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const bool& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const bool& value, const rclcpp::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetBool, kSetBoolSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const int& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const int& value, const rclcpp::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const double& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const double& value, const rclcpp::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const string& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const string& value, const rclcpp::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetString, kSetStringSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const uint8_t& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const uint8_t& value, const rclcpp::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const uint16_t& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const uint16_t& value, const rclcpp::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const float& value, const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const float& value, const rclcpp::Duration& timeout)
 {
   return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value, timeout);
 }
 
-PropertyClient::error_t PropertyClient::save(const ros::Duration& timeout)
+PropertyClient::error_t PropertyClient::save(const rclcpp::Duration& timeout)
 {
-  ros::ServiceClient client = nh_.serviceClient<std_srvs::Trigger>(path::join(ns_, kSaveFileSrv));
+  rclcpp::ServiceClient client = nh_.serviceClient<std_srvs::Trigger>(path::join(ns_, kSaveFileSrv));
   if (!client.waitForExistence(timeout))
     return error_code_ = E_FAILED_TO_CONNECT;
 

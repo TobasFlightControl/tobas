@@ -19,9 +19,9 @@ class BatteryHandler : public tobas::BaseNode
 
 public:
   explicit BatteryHandler(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   // Config
@@ -30,10 +30,10 @@ private:
 
   ptree::PropertyClient property_client_;
 
-  ros::Publisher battery_pub_;
-  ros::Subscriber adc_sub_;
+  rclcpp::Publisher battery_pub_;
+  rclcpp::Subscriber adc_sub_;
 
-  ros::ServiceServer reload_config_srv_;
+  rclcpp::ServiceServer reload_config_srv_;
 
   bool reloadConfig();
 

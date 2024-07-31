@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-MagDriver::MagDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+MagDriver::MagDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!mag_.initialize())
     TOBAS_EXIT("Failed to initialize Magnetometer.");
@@ -16,7 +16,7 @@ MagDriver::MagDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& na
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void MagDriver::mainTimerCb(const ros::TimerEvent& event)
+void MagDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
   const auto msg = boost::make_shared<tobas_hal_msgs::MagneticField>();

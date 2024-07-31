@@ -1,6 +1,6 @@
 #include <tobas_math/core.hpp>
-#include <tobas_ros_tools/time.hpp>
-#include <tobas_ros_tools/eigen_conversion.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_pre_arm_check/pre_arm_check_server.hpp"
@@ -10,8 +10,8 @@ using namespace Eigen;
 
 namespace tobas_pre_arm_check
 {
-PreArmCheckServer::PreArmCheckServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name),
+PreArmCheckServer::PreArmCheckServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name),
     pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
@@ -42,12 +42,12 @@ void PreArmCheckServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   }
 
   // 評価時の計算量を抑えるために処理頻度を制限
-  if ((odom->header.stamp - odom_->header.stamp).toSec() < kOdomCallbackInterval)
+  if ((odom->header.stamp - odom_->header.stamp).seconds() < kOdomCallbackInterval)
     return;
 
   odom_ = odom;
 
-  const auto stamp = tobas_ros::chronoFromRosTime(odom->header.stamp);
+  const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
   for (size_t i = 0; i < 3; ++i)
     pos_buf_[i].add(stamp, odom->frame.p(i));
 }
@@ -95,7 +95,7 @@ bool PreArmCheckServer::preArmCheckSrvCb(std_srvs::TriggerRequest&, std_srvs::Tr
   return true;
 }
 
-void PreArmCheckServer::preArmCheckTimerCb(const ros::TimerEvent& event)
+void PreArmCheckServer::preArmCheckTimerCb(const rclcpp::TimerEvent& event)
 {
   if (battery_ == nullptr || odom_ == nullptr)
     return;

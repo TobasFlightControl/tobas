@@ -2,7 +2,7 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <dynamic_reconfigure/Config.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/msg/PoseStamped.h>
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/CompanionProcessStatus.h>
 #include <mavros_msgs/ParamSet.h>
@@ -33,9 +33,9 @@ class ParamServerRos : public tobas::BaseNode
 
 public:
   explicit ParamServerRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   // rosparams
@@ -49,16 +49,16 @@ private:
   std::unordered_map<std::string, double> doubles_;  // Double parameters
 
   mavros_msgs::ParamSet param_set_msg_;
-  ros::ServiceClient param_set_sc_;
+  rclcpp::ServiceClient param_set_sc_;
 
-  ros::Publisher server_state_pub_;
-  ros::Subscriber state_sub_;
-  ros::Subscriber local_pos_sub_;
-  ros::Subscriber param_updates_sub_;
+  rclcpp::Publisher server_state_pub_;
+  rclcpp::Subscriber state_sub_;
+  rclcpp::Subscriber local_pos_sub_;
+  rclcpp::Subscriber param_updates_sub_;
 
-  ros::Timer config_timer_;
-  ros::Timer set_init_config_timer_;
-  ros::Timer set_init_params_timer_;
+  rclcpp::Timer config_timer_;
+  rclcpp::Timer set_init_config_timer_;
+  rclcpp::Timer set_init_params_timer_;
 
   ConfigServer server_;
 
@@ -66,10 +66,10 @@ private:
   void setParams(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
   void stateCb(const mavros_msgs::StateConstPtr& state);
-  void localPositionCb(const geometry_msgs::PoseStampedConstPtr&);
+  void localPositionCb(const geometry_msgs::msg::PoseStampedConstPtr&);
   void paramUpdatesCb(const dynamic_reconfigure::ConfigConstPtr& cfg);
 
-  void setInitConfigTimerCb(const ros::TimerEvent&);
-  void setInitParamsTimerCb(const ros::TimerEvent&);
+  void setInitConfigTimerCb(const rclcpp::TimerEvent&);
+  void setInitParamsTimerCb(const rclcpp::TimerEvent&);
 };
 }  // namespace tobas_mr_arducopter

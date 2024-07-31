@@ -6,7 +6,7 @@ ProgramModeController::ProgramModeController(const tobas::Drone& drone) : BaseCo
 {
 }
 
-void ProgramModeController::initialize(ros::NodeHandle&, ros::NodeHandle&)
+void ProgramModeController::initialize(rclcpp::Node::SharedPtr, rclcpp::Node::SharedPtr)
 {
 }
 

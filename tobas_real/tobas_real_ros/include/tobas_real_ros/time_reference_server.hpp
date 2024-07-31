@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <ros/timer.h>
 
 #include <tobas_tools/node.hpp>
@@ -16,14 +16,14 @@ class TimeReferenceServer : public tobas::BaseNode
 
 public:
   explicit TimeReferenceServer(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
-  ros::Publisher time_ref_pub_;
-  ros::Timer main_timer_;
+  rclcpp::Publisher time_ref_pub_;
+  rclcpp::Timer main_timer_;
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_real_ros

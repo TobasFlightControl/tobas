@@ -8,7 +8,7 @@ using namespace std;
 
 namespace a1
 {
-SBUSDriver::SBUSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+SBUSDriver::SBUSDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!sbus_.initialize())
     TOBAS_EXIT("Failed to initialize S.BUS driver.");
@@ -16,10 +16,10 @@ SBUSDriver::SBUSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
   sbus_pub_ = nh_.advertise<tobas_hal_msgs::Sbus>(hal::kSbusTopic, 1);
 
   // S.BUSドライバはブロッキングモードだから，メインタイマーを最大レートで回してもCPU消費は低い．
-  main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
 }
 
-void SBUSDriver::mainTimerCb(const ros::TimerEvent& event)
+void SBUSDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Read S.BUS
   if (!sbus_.update())

@@ -17,14 +17,14 @@ class BatteryLpf : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BatteryLpf(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit BatteryLpf(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   dsp::LowPassFilter<double> voltage_lpf_, current_lpf_;
   tobas_msgs::BatteryConstPtr last_msg_;
 
-  ros::Publisher battery_lpf_pub_;
-  ros::Subscriber battery_raw_sub_;
+  rclcpp::Publisher battery_lpf_pub_;
+  rclcpp::Subscriber battery_raw_sub_;
 
   void batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw);
 };

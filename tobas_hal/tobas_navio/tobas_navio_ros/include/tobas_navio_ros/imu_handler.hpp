@@ -15,13 +15,13 @@ class ImuHandler : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit ImuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit ImuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   navio::LSM9DS1 imu_;
   Eigen::Vector3f acc_, gyro_;
-  ros::Publisher imu_pub_;
+  rclcpp::Publisher imu_pub_;
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

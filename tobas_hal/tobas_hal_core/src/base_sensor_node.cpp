@@ -6,7 +6,7 @@ using namespace std;
 
 namespace hal
 {
-BaseSensorNode::BaseSensorNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+BaseSensorNode::BaseSensorNode(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   start_ss_ = nh_.advertiseService(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
   stop_ss_ = nh_.advertiseService(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);

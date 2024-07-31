@@ -11,8 +11,8 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-TakeoffActionServer::TakeoffActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
+TakeoffActionServer::TakeoffActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), as_(nh_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
 {
   set_mode_sc_ = nh_.serviceClient<mavros_msgs::SetMode>(kSetModeSrvName);
   arming_sc_ = nh_.serviceClient<mavros_msgs::CommandBool>(kArmingSrvName);
@@ -43,19 +43,19 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::waitForServiceExistence()
 {
-  if (!set_mode_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_mode_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to '" + kSetModeSrvName + "' service server.");
     return false;
   }
 
-  if (!arming_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!arming_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to '" + kArmingSrvName + "' service server.");
     return false;
   }
 
-  if (!takeoff_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!takeoff_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
     return false;
@@ -68,7 +68,7 @@ bool TakeoffActionServer::waitForParamServer(const double& timeout)
 {
   while (!is_param_server_ok_)
   {
-    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (node->get_clock()->now() - action_called_time_).seconds() > timeout)
     {
       as_.setAborted(result_, "Timeout while setting flight mode.");
       return false;
@@ -81,8 +81,8 @@ bool TakeoffActionServer::waitForParamServer(const double& timeout)
     }
 
     TOBAS_INFO_THROTTLE(kRetryInterval, "Waiting for ArduCopter to be ready.");
-    ros::Duration(1e-2).sleep();
-    ros::spinOnce();
+    rclcpp::Duration(1e-2).sleep();
+    rclcpp::spinOnce();
   }
 
   return true;
@@ -98,7 +98,7 @@ bool TakeoffActionServer::setMode(const double& timeout)
 
   while (!set_mode_msg.response.mode_sent)
   {
-    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (node->get_clock()->now() - action_called_time_).seconds() > timeout)
     {
       as_.setAborted(result_, "Timeout while setting flight mode.");
       return false;
@@ -113,16 +113,16 @@ bool TakeoffActionServer::setMode(const double& timeout)
     if (!set_mode_sc_.call(set_mode_msg))
     {
       TOBAS_WARN("Failed to call '" + kSetModeSrvName + "'. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
+      rclcpp::Duration(kRetryInterval).sleep();
+      rclcpp::spinOnce();
       continue;
     }
 
     if (!set_mode_msg.response.mode_sent)
     {
       TOBAS_WARN("Failed to send mode. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
+      rclcpp::Duration(kRetryInterval).sleep();
+      rclcpp::spinOnce();
       continue;
     }
   }
@@ -140,7 +140,7 @@ bool TakeoffActionServer::arming(const double& timeout)
 
   while (!arming_msg.response.success)
   {
-    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (node->get_clock()->now() - action_called_time_).seconds() > timeout)
     {
       as_.setAborted(result_, "Timeout while arming.");
       return false;
@@ -155,21 +155,21 @@ bool TakeoffActionServer::arming(const double& timeout)
     if (!arming_sc_.call(arming_msg))
     {
       TOBAS_WARN("Failed to call '" + kArmingSrvName + "'. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
+      rclcpp::Duration(kRetryInterval).sleep();
+      rclcpp::spinOnce();
       continue;
     }
 
     if (!arming_msg.response.success)
     {
       TOBAS_WARN("Arming failed. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
+      rclcpp::Duration(kRetryInterval).sleep();
+      rclcpp::spinOnce();
       continue;
     }
   }
 
-  ros::Duration(kWaitForArming).sleep();  // Armに若干時間がかかるため待機
+  rclcpp::Duration(kWaitForArming).sleep();  // Armに若干時間がかかるため待機
   return true;
 }
 
@@ -184,7 +184,7 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
   // 最低1回は実行するためにDo-While文を用いる
   do
   {
-    if (timeout > 0 && (ros::Time::now() - action_called_time_).toSec() > timeout)
+    if (timeout > 0 && (node->get_clock()->now() - action_called_time_).seconds() > timeout)
     {
       as_.setAborted(result_, "Timeout while takeoff.");
       return false;
@@ -199,21 +199,21 @@ bool TakeoffActionServer::takeoff(const double& timeout, const double& target_al
     if (!takeoff_sc_.call(takeoff_msg))
     {
       TOBAS_WARN("Failed to call '" + kTakeoffSrvName + "'. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
+      rclcpp::Duration(kRetryInterval).sleep();
+      rclcpp::spinOnce();
       continue;
     }
 
     if (!takeoff_msg.response.success)
     {
       TOBAS_WARN("Failed to takeoff. Retrying...");
-      ros::Duration(kRetryInterval).sleep();
-      ros::spinOnce();
+      rclcpp::Duration(kRetryInterval).sleep();
+      rclcpp::spinOnce();
       continue;
     }
 
-    ros::Duration(kRetryInterval).sleep();
-    ros::spinOnce();
+    rclcpp::Duration(kRetryInterval).sleep();
+    rclcpp::spinOnce();
   } while (pose_->pose.position.z < kTakeoffCheckAltThreshold);
 
   return true;
@@ -224,7 +224,7 @@ void TakeoffActionServer::setSucceeded()
   as_.setSucceeded(result_);
 }
 
-void TakeoffActionServer::localPositionCb(const geometry_msgs::PoseStampedConstPtr& pose)
+void TakeoffActionServer::localPositionCb(const geometry_msgs::msg::PoseStampedConstPtr& pose)
 {
   pose_ = pose;
 }
@@ -237,7 +237,7 @@ void TakeoffActionServer::paramServerStateCb(const std_msgs::BoolConstPtr& state
 void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 {
   TOBAS_INFO("Action is called.");
-  action_called_time_ = ros::Time::now();
+  action_called_time_ = node->get_clock()->now();
 
   if (!isGoalValid(*goal))
     return;

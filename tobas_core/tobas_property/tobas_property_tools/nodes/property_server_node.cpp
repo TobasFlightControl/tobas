@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "property_server");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  ptree::PropertyServer node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "property_server");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  ptree::PropertyServer node(node, pnh);
+  rclcpp::spin();
 }

@@ -5,13 +5,13 @@ using namespace std;
 
 namespace tobas
 {
-BaseNode::BaseNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : nh_(nh), pnh_(pnh), name_(name)
+BaseNode::BaseNode(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : nh_(node), pnh_(pnh), name_(name)
 {
   message_pub_ = nh_.advertise<tobas_msgs::Message>(tobas::kMessageTopic, 1);
 }
 
-ros::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
+rclcpp::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)
 {
-  return ros::TransportHints().tcpNoDelay(nodelay);
+  return rclcpp::TransportHints().tcpNoDelay(nodelay);
 }
 }  // namespace tobas

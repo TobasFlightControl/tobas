@@ -1,4 +1,5 @@
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_std_tools/check.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/SpeedRollDeltaPitch.h>
 
@@ -13,11 +14,11 @@ SpeedRollDeltaPitchController::SpeedRollDeltaPitchController(const tobas::Drone&
 {
 }
 
-void SpeedRollDeltaPitchController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+void SpeedRollDeltaPitchController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
 {
   getRosParams(pnh);
 
-  cmd_pub_ = nh.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
+  cmd_pub_ = node.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
 }
 
 void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
@@ -36,13 +37,13 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   cmd_pub_.publish(cmd);
 }
 
-void SpeedRollDeltaPitchController::getRosParams(ros::NodeHandle& pnh)
+void SpeedRollDeltaPitchController::getRosParams(rclcpp::Node::SharedPtr pnh)
 {
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/min_speed", min_speed_, kDefaultMinSpeed, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_speed", max_speed_, kDefaultMaxSpeed, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_roll", max_roll_, kDefaultMaxRoll, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, tobas_ros::POSITIVE);
+  ros2::getParam(pnh, "speed_roll_dpitch/min_speed", min_speed_, kDefaultMinSpeed, ros2::POSITIVE);
+  ros2::getParam(pnh, "speed_roll_dpitch/max_speed", max_speed_, kDefaultMaxSpeed, ros2::POSITIVE);
+  ros2::getParam(pnh, "speed_roll_dpitch/max_roll", max_roll_, kDefaultMaxRoll, ros2::POSITIVE);
+  ros2::getParam(pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, ros2::POSITIVE);
 
-  ROS_CHECK(pnh, min_speed_ < max_speed_, "Maximum speed must be greater than minimum speed.");
+  TOBAS_CHECK(min_speed_ < max_speed_);
 }
 }  // namespace tobas_rc_teleop

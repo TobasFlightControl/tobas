@@ -9,8 +9,8 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-ImuHandler::ImuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, kPropertyServerFC)
+ImuHandler::ImuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
 {
   reloadConfig();
 
@@ -89,7 +89,7 @@ void ImuHandler::imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw)
     case PUBLISH:
     {
       // Compute time difference
-      const auto dt = (imu_raw->header.stamp - imu_raw_->header.stamp).toSec();
+      const auto dt = (imu_raw->header.stamp - imu_raw_->header.stamp).seconds();
       imu_raw_ = imu_raw;
 
       // Update noise filters

@@ -14,8 +14,8 @@ using namespace Eigen;
 
 namespace tobas_mr_wind_estimation
 {
-WindEstimator::WindEstimator(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), dynamics_(drone_), kf_(kStateSize)
+WindEstimator::WindEstimator(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
   drone_.loadFromParam(nh_);
   updateInternalDataStructures();
@@ -67,7 +67,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   }
 
   // 時刻を更新
-  const auto dt = (odom->header.stamp - t_last_loop_).toSec();
+  const auto dt = (odom->header.stamp - t_last_loop_).seconds();
   t_last_loop_ = odom->header.stamp;
 
   const Matrix3d& R_W_B = odom->frame.M.data;

@@ -15,14 +15,14 @@ class ImuLpf : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit ImuLpf(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit ImuLpf(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   dsp::LowPassFilter<kdl::Vector> gyro_lpf_, accel_lpf_;
   tobas_msgs::ImuConstPtr last_msg_;
 
-  ros::Publisher imu_lpf_pub_;
-  ros::Subscriber imu_raw_sub_;
+  rclcpp::Publisher imu_lpf_pub_;
+  rclcpp::Subscriber imu_raw_sub_;
 
   void imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw);
 };

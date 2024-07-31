@@ -29,7 +29,7 @@ RobotStateDisplay::RobotStateDisplay()
     "Unhighlight Link", "", "Unhighlight chosen link.", this, SLOT(changedUnhighlightColor()), this));
 
   robot_state_topic_property_.reset(new rviz::RosTopicProperty(
-    "Robot State Topic", "display_robot_state", ros::message_traits::datatype<moveit_msgs::DisplayRobotState>(),
+    "Robot State Topic", "display_robot_state", rclcpp::message_traits::datatype<moveit_msgs::DisplayRobotState>(),
     "The topic on which the moveit_msgs::RobotState messages are received.", this, SLOT(changedRobotStateTopic()),
     this));
 
@@ -139,7 +139,7 @@ void RobotStateDisplay::calculateOffsetPosition()
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
-  context_->getFrameManager()->getTransform(kmodel_->getModelFrame(), ros::Time(0), position, orientation);
+  context_->getFrameManager()->getTransform(kmodel_->getModelFrame(), rclcpp::Time(0), position, orientation);
 
   scene_node_->setPosition(position);
   scene_node_->setOrientation(orientation);

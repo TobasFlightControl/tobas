@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "keyboard_teleop");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_keyboard_teleop::SpeedRollDeltaPitchPublisher node(nh, pnh);
+  rclcpp::init(argc, argv, "keyboard_teleop");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_keyboard_teleop::SpeedRollDeltaPitchPublisher node(node, pnh);
   node.run();
 }

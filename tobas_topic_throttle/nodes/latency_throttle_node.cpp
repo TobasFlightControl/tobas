@@ -2,8 +2,8 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "latency_throttle");
-  ros::NodeHandle nh;
-  tobas_topic_throttle::LatencyThrottle node(nh);
-  ros::spin();
+  rclcpp::init(argc, argv, "latency_throttle");
+  rclcpp::NodeHandle node;
+  tobas_topic_throttle::LatencyThrottle node(node);
+  rclcpp::spin();
 }

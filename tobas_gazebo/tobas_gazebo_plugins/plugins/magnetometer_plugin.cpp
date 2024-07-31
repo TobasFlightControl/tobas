@@ -45,7 +45,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   mag_pub_ = nh_.advertise<tobas_msgs::MagneticField>("/" + ns_ + "/" + tobas::kMagTopic, 1);
 
   // Listen to the update event
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboMagnetometerPlugin::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboMagnetometerPlugin::onUpdate, this));
 }
 
 void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)

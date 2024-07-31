@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_msgs/ThrottleArray.h>
@@ -14,13 +14,13 @@ class LatencyPublisher : public tobas::BaseNode
 
 public:
   explicit LatencyPublisher(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
-  ros::Publisher latency_pub_;
-  ros::Subscriber throttles_sub_;
+  rclcpp::Publisher latency_pub_;
+  rclcpp::Subscriber throttles_sub_;
 
   void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& msg);
 };

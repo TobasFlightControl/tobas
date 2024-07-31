@@ -21,7 +21,7 @@ class RCTeleop : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RCTeleop(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit RCTeleop(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   enum stage_t
@@ -53,13 +53,13 @@ private:
   std::array<std::unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
 
   // PubSub
-  ros::Subscriber odom_sub_;
-  ros::Subscriber battery_sub_;
-  ros::Subscriber rcin_sub_;
+  rclcpp::Subscriber odom_sub_;
+  rclcpp::Subscriber battery_sub_;
+  rclcpp::Subscriber rcin_sub_;
 
   // Service
-  ros::ServiceClient get_arm_sc_;
-  ros::ServiceClient set_arm_sc_;
+  rclcpp::ServiceClient get_arm_sc_;
+  rclcpp::ServiceClient set_arm_sc_;
 
   void getRosParams();
   bool isRotorsArmed();

@@ -1,4 +1,4 @@
-#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/msg/joint_state.hpp>
 
 #include <tobas_tools/constants.hpp>
 
@@ -6,10 +6,10 @@
 
 #define MAIN_TIMER_FREQ 100
 
-TobasBridge::TobasBridge(ros::NodeHandle& nh, ros::NodeHandle& pnh) : nh_(nh), pnh_(pnh)
+TobasBridge::TobasBridge(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) : nh_(node), pnh_(pnh)
 {
   /* Register publishers */
-  // js_pub_ = nh_.advertise<sensor_msgs::JointState>(tobas::kJointStatesTopic, 1);
+  // js_pub_ = nh_.advertise<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic, 1);
 
   /* Register subscribers */
   // tar_pos_sub_ = nh_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jntPosCmdCb, this);
@@ -35,7 +35,7 @@ void TobasBridge::jntEffCmdCb(const tobas_msgs::JointCommandArrayConstPtr& tar_e
   /* TODO */
 }
 
-void TobasBridge::mainTimerCb(const ros::TimerEvent& event)
+void TobasBridge::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   /* TODO */
 }

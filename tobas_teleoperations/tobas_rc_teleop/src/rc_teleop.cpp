@@ -1,6 +1,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/string.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.h>
 #include <tobas_msgs/PositionYaw.h>
@@ -20,11 +20,11 @@
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std;
-using namespace ros::message_traits;
+using namespace rclcpp::message_traits;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+RCTeleop::RCTeleop(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   getRosParams();
   drone_.loadFromParam(nh_);
@@ -66,13 +66,13 @@ RCTeleop::RCTeleop(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name
 
 void RCTeleop::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "stabilize_mode", modes_[tobas::kFlightModeStabilize]);
-  tobas_ros::getParam(pnh_, "acrobat_mode", modes_[tobas::kFlightModeAcrobat]);
+  ros2::getParam(pnh_, "stabilize_mode", modes_[tobas::kFlightModeStabilize]);
+  ros2::getParam(pnh_, "acrobat_mode", modes_[tobas::kFlightModeAcrobat]);
 }
 
 bool RCTeleop::isRotorsArmed()
 {
-  if (!get_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!get_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kGetArmSrv, "' service server.");
     return false;
@@ -90,7 +90,7 @@ bool RCTeleop::isRotorsArmed()
 
 bool RCTeleop::requestArmingRotors()
 {
-  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
@@ -109,7 +109,7 @@ bool RCTeleop::requestArmingRotors()
 
 bool RCTeleop::requestDisarmingRotors()
 {
-  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
@@ -187,7 +187,7 @@ void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
       }
       if (!requestArmingRotors())
       {
-        ros::Duration(kArmFailRetryInterval).sleep();
+        rclcpp::Duration(kArmFailRetryInterval).sleep();
         break;
       }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 namespace tobas_topic_throttle
 {
@@ -12,24 +12,24 @@ class TopicThrottle
   using self = TopicThrottle;
 
 public:
-  explicit TopicThrottle(ros::NodeHandle& nh);
+  explicit TopicThrottle(rclcpp::Node::SharedPtr node);
 
 private:
-  ros::Rate rate_;
+  rclcpp::Rate rate_;
   typename MsgType::ConstPtr msg_;
 
-  ros::Publisher pub_;
-  ros::Subscriber sub_;
+  rclcpp::Publisher pub_;
+  rclcpp::Subscriber sub_;
 
   void callback(const typename MsgType::ConstPtr& msg);
 };
 
 template <typename MsgType, const char* TopicName>
-TopicThrottle<MsgType, TopicName>::TopicThrottle(ros::NodeHandle& nh) : rate_(kPublishRate)
+TopicThrottle<MsgType, TopicName>::TopicThrottle(rclcpp::Node::SharedPtr node) : rate_(kPublishRate)
 {
   ROS_ASSERT(TopicName[0] != '/');
-  pub_ = nh.advertise<MsgType>(std::string("throttled/") + TopicName, 1);
-  sub_ = nh.subscribe(TopicName, 1, &self::callback, this, ros::TransportHints().tcpNoDelay());
+  pub_ = node.advertise<MsgType>(std::string("throttled/") + TopicName, 1);
+  sub_ = node.subscribe(TopicName, 1, &self::callback, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 template <typename MsgType, const char* TopicName>
@@ -37,7 +37,7 @@ void TopicThrottle<MsgType, TopicName>::callback(const typename MsgType::ConstPt
 {
   if (msg_ == nullptr)
   {
-    ROS_INFO_STREAM("First \"" << TopicName << "\" is received.");
+    RCLCPP_INFO_STREAM("First \"" << TopicName << "\" is received.");
     rate_.reset();
   }
 

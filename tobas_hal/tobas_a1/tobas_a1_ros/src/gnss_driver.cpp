@@ -9,7 +9,7 @@ using namespace std;
 
 namespace a1
 {
-GNSSDriver::GNSSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+GNSSDriver::GNSSDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!gnss_.initialize())
   {
@@ -30,8 +30,8 @@ GNSSDriver::GNSSDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
 
   gnss_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
 
-  set_time_offset_timer_ = nh_.createTimer(ros::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
-  main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this, false, false);
+  set_time_offset_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
+  main_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this, false, false);
 
   // ROS時刻とGPS時刻の間のオフセットを取得する
   // コンストラクタではros::Timeを扱うことは推奨されないため，タイマーコールバックで行う．
@@ -128,7 +128,7 @@ void GNSSDriver::warnUnnecessaryUBXMessage()
   TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
 }
 
-void GNSSDriver::setTimeOffsetTimerCb(const ros::TimerEvent&)
+void GNSSDriver::setTimeOffsetTimerCb(const rclcpp::TimerEvent&)
 {
   // Enable GPS time message only
   if (!gnss_.enableMsg(ZEDF9P::CLASS_NAV, ZEDF9P::NAV_TIMEGPS, true))
@@ -146,8 +146,8 @@ void GNSSDriver::setTimeOffsetTimerCb(const ros::TimerEvent&)
   timegps.decode(gnss_.payload());
 
   // Compute the time offset
-  const ros::Time ros_time = ros::Time::now();
-  const ros::Time gps_time(timegps.iTOW / 1000, (timegps.iTOW % 1000) * 1'000'000 + timegps.fTOW);
+  const rclcpp::Time ros_time = node->get_clock()->now();
+  const rclcpp::Time gps_time(timegps.iTOW / 1000, (timegps.iTOW % 1000) * 1'000'000 + timegps.fTOW);
   time_offset_ = ros_time - gps_time;
 
   // Disable GPS time message
@@ -169,7 +169,7 @@ void GNSSDriver::setTimeOffsetTimerCb(const ros::TimerEvent&)
   main_timer_.start();
 }
 
-void GNSSDriver::mainTimerCb(const ros::TimerEvent&)
+void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
 {
   if (!gnss_.update())
   {
@@ -220,7 +220,7 @@ void GNSSDriver::mainTimerCb(const ros::TimerEvent&)
 
   // Fill time stamp
   const auto& iTOW = hpposllh_.iTOW;  // [ms]
-  const ros::Time gps_time(iTOW / 1000, (iTOW % 1000) * 1'000'000);
+  const rclcpp::Time gps_time(iTOW / 1000, (iTOW % 1000) * 1'000'000);
   gnss_msg->header.stamp = gps_time + time_offset_;
 
   // Fill fix type

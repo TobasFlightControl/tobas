@@ -84,7 +84,7 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 
   if (!urdf_->initFile(file_path.toStdString()))
   {
-    ROS_ERROR_STREAM("Failed to parse URDF.");
+    RCLCPP_ERROR_STREAM("Failed to parse URDF.");
     urdf_ = nullptr;
     return false;
   }

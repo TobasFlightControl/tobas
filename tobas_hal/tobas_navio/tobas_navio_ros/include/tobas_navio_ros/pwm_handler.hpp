@@ -16,15 +16,15 @@ class PwmHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit PwmHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit PwmHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
   ~PwmHandler();
 
 private:
   navio::PWM pwm_;
   std::array<bool, navio::PWM::kChannelCount> is_enabled_;
 
-  ros::Subscriber throttles_sub_;
-  ros::ServiceServer enable_rcout_srv_;
+  rclcpp::Subscriber throttles_sub_;
+  rclcpp::ServiceServer enable_rcout_srv_;
 
   void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
   bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);

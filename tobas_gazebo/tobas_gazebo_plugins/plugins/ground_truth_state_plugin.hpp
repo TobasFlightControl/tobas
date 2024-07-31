@@ -1,7 +1,7 @@
 #pragma once
 
 #include <random>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
@@ -23,7 +23,7 @@ public:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  ros::NodeHandle nh_;
+  rclcpp::NodeHandle nh_;
 
   // SDF parameters
   std::string ns_;
@@ -34,7 +34,7 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
-  ros::Publisher odom_pub_;
+  rclcpp::Publisher odom_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo&);

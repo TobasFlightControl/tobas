@@ -9,7 +9,7 @@ class ProgramModeController : public BaseController
 public:
   explicit ProgramModeController(const tobas::Drone& drone);
 
-  void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
+  void initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void
   update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;

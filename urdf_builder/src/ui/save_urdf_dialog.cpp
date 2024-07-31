@@ -1,4 +1,4 @@
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include "../utils/string.hpp"
 #include "../../include/urdf_builder/ui/save_urdf_dialog.hpp"
@@ -18,21 +18,21 @@ SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
   if (button_box == nullptr)
   {
-    ROS_ERROR("Failed to find the button box.");
+    RCLCPP_ERROR("Failed to find the button box.");
     return;
   }
 
   save_button_ = button_box->button(QDialogButtonBox::Save);
   if (save_button_ == nullptr)
   {
-    ROS_ERROR("Failed to find the save button.");
+    RCLCPP_ERROR("Failed to find the save button.");
     return;
   }
 
   line_edit_ = findChild<QLineEdit*>("fileNameEdit");
   if (line_edit_ == nullptr)
   {
-    ROS_ERROR("Failed to find the line edit.");
+    RCLCPP_ERROR("Failed to find the line edit.");
     return;
   }
 

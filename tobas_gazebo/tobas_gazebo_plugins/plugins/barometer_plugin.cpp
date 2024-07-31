@@ -38,7 +38,7 @@ void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   pressure_pub_ = nh_.advertise<PressureMsg>("/" + ns_ + "/" + tobas::kAirPressureTopic, 1);
 
   // Listen to the update event
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboBarometerPlugin::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboBarometerPlugin::onUpdate, this));
 }
 
 void GazeboBarometerPlugin::getSdfParams(sdf::ElementPtr sdf)
@@ -66,7 +66,7 @@ void GazeboBarometerPlugin::onUpdate()
   pressure += pressure_noise_(rnd_gen_);
 
   // Create a pressure message
-  const auto pressure_msg = boost::make_shared<sensor_msgs::FluidPressure>();
+  const auto pressure_msg = boost::make_shared<sensor_msgs::msg::FluidPressure>();
   timeGazeboToRos(world_->SimTime(), pressure_msg->header.stamp);
   pressure_msg->header.frame_id = link_name_;
   pressure_msg->fluid_pressure = pressure;

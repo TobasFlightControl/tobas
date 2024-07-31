@@ -1,5 +1,5 @@
 #include <tobas_eigen_tools/spline.hpp>
-#include <tobas_ros_tools/rate.hpp>
+#include <tobas_ros2_tools/rate.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_trajectory_commander/position_yaw.hpp"
@@ -17,10 +17,10 @@ namespace tobas_trajectory_commander
 constexpr char FollowPositionYawTrajectoryServer::kActionName[];
 
 FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
-  ros::NodeHandle& nh,
-  ros::NodeHandle& pnh,
+  rclcpp::Node::SharedPtr node,
+  rclcpp::Node::SharedPtr pnh,
   const string& name)
-  : super(nh, pnh, name), as_(nh_, kActionName, boost::bind(&self::executeCb, this, _1), false)
+  : super(node, pnh, name), as_(nh_, kActionName, std::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = nh_.advertise<CommandType>(tobas::kPositionYawCmdTopic, 1);
   as_.start();
@@ -58,7 +58,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   }
 
   // 最初のtime_from_startは0でなければならない
-  if (waypoints[0].time_from_start.toSec() != 0.)
+  if (waypoints[0].time_from_start.seconds() != 0.)
   {
     result_.error_code = ResultType::INVALID_GOAL;
     TOBAS_ERROR("The duration of the first trajectory point must be 0.");
@@ -92,7 +92,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal
   vector<VectorXd> positions(COMMAND_DIMENSION, VectorXd::Zero(waypoints.size()));
   for (size_t i = 0; i < waypoints.size(); ++i)
   {
-    times(i) = waypoints[i].time_from_start.toSec();
+    times(i) = waypoints[i].time_from_start.seconds();
     positions[0](i) = waypoints[i].pos.x();
     positions[1](i) = waypoints[i].pos.y();
     positions[2](i) = waypoints[i].pos.z();
@@ -127,7 +127,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal
     cmd_pub_.publish(cmd);
 
     // Sleep for control rate
-    ros::Duration(kControlnterval).sleep();
+    rclcpp::Duration(kControlnterval).sleep();
   }
 
   result_.error_code = ResultType::NO_ERROR;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/common/Plugin.hh>
@@ -61,8 +61,8 @@ private:
   event::ConnectionPtr new_depth_frame_connection_;
   event::ConnectionPtr load_connection_;
 
-  ros::Publisher depth_image_pub_;
-  ros::Publisher depth_info_pub_;
+  rclcpp::Publisher depth_image_pub_;
+  rclcpp::Publisher depth_info_pub_;
 
   void onNewImageFrame(const uint8_t* image, size_t width, size_t height, size_t depth, const std::string& format);
   void onNewDepthFrame(const float* image, size_t width, size_t height, size_t depth, const std::string& format);

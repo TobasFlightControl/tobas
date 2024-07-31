@@ -12,7 +12,7 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-CpuHandler::CpuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+CpuHandler::CpuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   cpu_pub_ = nh_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
@@ -116,7 +116,7 @@ bool CpuHandler::getLoad(double& load)
   return true;
 }
 
-void CpuHandler::mainTimerCb(const ros::TimerEvent& event)
+void CpuHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create ROS message
   const auto cpu_msg = boost::make_shared<tobas_msgs::Cpu>();

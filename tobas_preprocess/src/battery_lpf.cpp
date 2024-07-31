@@ -6,7 +6,7 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-BatteryLpf::BatteryLpf(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+BatteryLpf::BatteryLpf(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   battery_lpf_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryLpfTopic, 1);
   battery_raw_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryRawCb, this, tcpNoDelay());
@@ -23,7 +23,7 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
     return;
   }
 
-  const auto dt = (battery_raw->header.stamp - last_msg_->header.stamp).toSec();
+  const auto dt = (battery_raw->header.stamp - last_msg_->header.stamp).seconds();
   last_msg_ = battery_raw;
 
   voltage_lpf_.update(battery_raw->voltage, dt);

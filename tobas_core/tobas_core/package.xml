@@ -20,7 +20,7 @@
 	<exec_depend>tobas_linux</exec_depend>
 	<exec_depend>tobas_math</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
-	<exec_depend>tobas_ros_tools</exec_depend>
+	<exec_depend>tobas_ros2_tools</exec_depend>
 	<exec_depend>tobas_rospy</exec_depend>
 	<exec_depend>tobas_rqt_tools</exec_depend>
 	<exec_depend>tobas_std_tools</exec_depend>

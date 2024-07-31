@@ -10,9 +10,9 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-BarometerHandler::BarometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+BarometerHandler::BarometerHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
-  bar_pub_ = nh_.advertise<sensor_msgs::FluidPressure>(tobas::kAirPressureTopic, 1);
+  bar_pub_ = nh_.advertise<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic, 1);
   bar_sub_ = nh_.subscribe(hal::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
@@ -27,7 +27,7 @@ void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressureConstPtr
   }
 
   // Compute time difference
-  const auto dt = (bar_raw->header.stamp - bar_raw_->header.stamp).toSec();
+  const auto dt = (bar_raw->header.stamp - bar_raw_->header.stamp).seconds();
   bar_raw_ = bar_raw;
 
   // Validate
@@ -41,7 +41,7 @@ void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressureConstPtr
   pressure_noise_.update(bar_raw->fluid_pressure, dt);
 
   // Create message
-  const auto bar_msg = boost::make_shared<sensor_msgs::FluidPressure>();
+  const auto bar_msg = boost::make_shared<sensor_msgs::msg::FluidPressure>();
   bar_msg->header = bar_raw->header;
   bar_msg->fluid_pressure = bar_raw->fluid_pressure;
   bar_msg->variance = pressure_noise_.noiseVariance();

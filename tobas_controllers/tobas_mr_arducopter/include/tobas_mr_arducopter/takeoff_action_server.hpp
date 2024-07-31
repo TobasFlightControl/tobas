@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <std_msgs/Bool.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/msg/PoseStamped.h>
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/node.hpp>
@@ -31,22 +31,22 @@ class TakeoffActionServer : public tobas::BaseNode
 
 public:
   explicit TakeoffActionServer(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   bool is_param_server_ok_ = false;
-  geometry_msgs::PoseStampedConstPtr pose_;
+  geometry_msgs::msg::PoseStampedConstPtr pose_;
   ResultType result_;
-  ros::Time action_called_time_;
+  rclcpp::Time action_called_time_;
 
-  ros::Subscriber local_pos_sub_;
-  ros::Subscriber param_server_state_sub_;
+  rclcpp::Subscriber local_pos_sub_;
+  rclcpp::Subscriber param_server_state_sub_;
 
-  ros::ServiceClient set_mode_sc_;
-  ros::ServiceClient arming_sc_;
-  ros::ServiceClient takeoff_sc_;
+  rclcpp::ServiceClient set_mode_sc_;
+  rclcpp::ServiceClient arming_sc_;
+  rclcpp::ServiceClient takeoff_sc_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
@@ -58,7 +58,7 @@ private:
   bool takeoff(const double& timeout, const double& target_altitude);
   void setSucceeded();
 
-  void localPositionCb(const geometry_msgs::PoseStampedConstPtr& pose);
+  void localPositionCb(const geometry_msgs::msg::PoseStampedConstPtr& pose);
   void paramServerStateCb(const std_msgs::BoolConstPtr& state);
 
   void executeCb(const GoalType::ConstPtr& goal);

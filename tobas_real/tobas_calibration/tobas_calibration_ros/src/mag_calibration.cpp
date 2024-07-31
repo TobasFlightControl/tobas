@@ -7,8 +7,8 @@ using namespace std;
 
 namespace tobas_calibration
 {
-MagCalibrationRos::MagCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
+MagCalibrationRos::MagCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
 {
   ss_ = nh_.advertiseService(kServiceName, &self::executeCb, this);
 }

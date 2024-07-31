@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "landing_action_server");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_multirotor_landing::LandActionServer node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "landing_action_server");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_multirotor_landing::LandActionServer node(node, pnh);
+  rclcpp::spin();
 }

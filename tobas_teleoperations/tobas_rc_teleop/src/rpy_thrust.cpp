@@ -1,5 +1,5 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 #include <tobas_tools/utils.hpp>
 #include <tobas_msgs/RollPitchYawThrust.h>
@@ -16,7 +16,7 @@ RollPitchYawThrustController::RollPitchYawThrustController(const tobas::Drone& d
 {
 }
 
-void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+void RollPitchYawThrustController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
 {
   getRosParams(pnh);
 
@@ -25,7 +25,7 @@ void RollPitchYawThrustController::initialize(ros::NodeHandle& nh, ros::NodeHand
   const auto mass = tobas::getMass();
   max_thrust_ = mass * (tobas::kGravity + max_ver_acc_);
 
-  rpy_thrust_pub_ = nh.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic, 1);
+  rpy_thrust_pub_ = node.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic, 1);
 }
 
 void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
@@ -42,7 +42,7 @@ void RollPitchYawThrustController::update(
   assert(battery_voltage > 0);
 
   // 時刻を更新
-  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
   // Yawの目標値を更新
@@ -66,10 +66,10 @@ void RollPitchYawThrustController::update(
   rpy_thrust_pub_.publish(rpyt);
 }
 
-void RollPitchYawThrustController::getRosParams(ros::NodeHandle& pnh)
+void RollPitchYawThrustController::getRosParams(rclcpp::Node::SharedPtr pnh)
 {
-  tobas_ros::getParam(pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, tobas_ros::POSITIVE);
+  ros2::getParam(pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, ros2::POSITIVE);
+  ros2::getParam(pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
+  ros2::getParam(pnh, "rpy_thrust/max_vertical_accel", max_ver_acc_, kDefaultMaxVerAcc, ros2::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

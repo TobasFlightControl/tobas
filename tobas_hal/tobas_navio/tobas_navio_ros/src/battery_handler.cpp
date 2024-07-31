@@ -8,7 +8,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-BatteryHandler::BatteryHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+BatteryHandler::BatteryHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!adc_.initialize())
     TOBAS_EXIT("Failed to initialize ADC driver.");
@@ -49,7 +49,7 @@ bool BatteryHandler::getCurrent(double& current)
   return true;
 }
 
-void BatteryHandler::mainTimerCb(const ros::TimerEvent& event)
+void BatteryHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create battery message
   const auto adc_msg = boost::make_shared<tobas_hal_msgs::Adc>();

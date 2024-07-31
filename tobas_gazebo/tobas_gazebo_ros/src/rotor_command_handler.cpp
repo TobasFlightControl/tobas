@@ -9,8 +9,8 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-RotorCommandHandler::RotorCommandHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+RotorCommandHandler::RotorCommandHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name)
 {
   drone_.loadFromParam(nh_);
 

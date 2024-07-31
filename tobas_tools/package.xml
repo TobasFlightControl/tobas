@@ -11,7 +11,7 @@
 
 	<depend>tobas_msgs</depend>
 	<depend>tobas_geomag</depend>
-	<depend>tobas_ros_tools</depend>
+	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_kdl</depend>
 	<depend>tobas_linear_control</depend>
 

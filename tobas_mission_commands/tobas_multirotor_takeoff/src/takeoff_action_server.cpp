@@ -10,8 +10,8 @@ using namespace std;
 
 namespace tobas_multirotor_takeoff
 {
-TakeoffActionServer::TakeoffActionServer(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), as_(nh_, tobas::kTakeoffAction, boost::bind(&self::executeCb, this, _1), false)
+TakeoffActionServer::TakeoffActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), as_(nh_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
   odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
@@ -44,7 +44,7 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::armRotors()
 {
-  if (!set_arm_sc_.waitForExistence(ros::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
@@ -95,17 +95,17 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
   const auto duration = traj_z.duration();
 
   // 初期状態
-  const auto start_time = ros::Time::now();
+  const auto start_time = node->get_clock()->now();
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  ros::Rate rate(kUpdateRate);
+  rclcpp::Rate rate(kUpdateRate);
   while (nh_.ok())
   {
     // 開始からの経過時間を計算
-    const auto t = (ros::Time::now() - start_time).toSec();
+    const auto t = (node->get_clock()->now() - start_time).seconds();
 
     // タイムアウトの確認
     if (goal->timeout > 0 && t > duration + goal->timeout)
@@ -152,7 +152,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
       return;
     }
 
-    ros::spinOnce();
+    rclcpp::spinOnce();
     rate.sleep();
   }
 }

@@ -31,7 +31,7 @@ void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementP
   get_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
   set_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
 
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboTetherStationForcePlugin::getSdfParams(sdf::ElementPtr sdf)

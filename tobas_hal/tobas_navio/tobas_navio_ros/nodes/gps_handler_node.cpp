@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "navio_gps_handler");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_navio_ros::GpsHandler node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "navio_gps_handler");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_navio_ros::GpsHandler node(node, pnh);
+  rclcpp::spin();
 }

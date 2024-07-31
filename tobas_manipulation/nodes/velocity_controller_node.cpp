@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "tobas_manipulation_velocity");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_manipulation::VelocityControllerRos node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "tobas_manipulation_velocity");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_manipulation::VelocityControllerRos node(node, pnh);
+  rclcpp::spin();
 }

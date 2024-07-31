@@ -1,4 +1,4 @@
-#include <tobas_ros_tools/util.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_ros/common.hpp>
 
@@ -8,8 +8,8 @@ using namespace std;
 
 namespace tobas_calibration
 {
-AdcCalibrationRos::AdcCalibrationRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
+AdcCalibrationRos::AdcCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
 {
   ss_ = nh_.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }
@@ -38,7 +38,7 @@ bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
   const auto adc_sub = nh_.subscribe(hal::kAdcTopic, 1, &AdcCalibrationRos::adcCb, this);
 
   // データが溜まるまで待機
-  if (!tobas_ros::spinUntil([this]() { return cnt_ == kDataCount; }, kTimeout))
+  if (!ros2::spinUntil([this]() { return cnt_ == kDataCount; }, kTimeout))
   {
     res.success = false;
     res.message = "Timeout before ADC data collection is completed.";

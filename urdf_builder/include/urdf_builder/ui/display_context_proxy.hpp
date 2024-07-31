@@ -20,8 +20,8 @@ public:
   QString getFixedFrame() const override;
   uint64_t getFrameCount() const override;
   rviz::DisplayFactory* getDisplayFactory() const override;
-  ros::CallbackQueueInterface* getUpdateQueue() override;
-  ros::CallbackQueueInterface* getThreadedQueue() override;
+  rclcpp::CallbackQueueInterface* getUpdateQueue() override;
+  rclcpp::CallbackQueueInterface* getThreadedQueue() override;
   void handleChar(QKeyEvent*, rviz::RenderPanel*) override;
   void handleMouseEvent(const rviz::ViewportMouseEvent&) override;
   rviz::ToolManager* getToolManager() const override;

@@ -7,8 +7,8 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-MagnetometerHandler::MagnetometerHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+MagnetometerHandler::MagnetometerHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name)
 {
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
@@ -17,7 +17,7 @@ MagnetometerHandler::MagnetometerHandler(ros::NodeHandle& nh, ros::NodeHandle& p
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void MagnetometerHandler::mainTimerCb(const ros::TimerEvent& event)
+void MagnetometerHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Update IMU
   imu_.updateMagnetometer();

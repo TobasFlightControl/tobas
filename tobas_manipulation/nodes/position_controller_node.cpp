@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "tobas_manipulation_position");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_manipulation::PositionControllerRos node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "tobas_manipulation_position");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_manipulation::PositionControllerRos node(node, pnh);
+  rclcpp::spin();
 }

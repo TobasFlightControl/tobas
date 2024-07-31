@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "thrust_estimator");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_mr_thrust_estimation::ThrustEstimator node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "thrust_estimator");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_mr_thrust_estimation::ThrustEstimator node(node, pnh);
+  rclcpp::spin();
 }

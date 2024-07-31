@@ -20,16 +20,16 @@ class AdcCalibrationRos : public tobas::BaseNode
 
 public:
   explicit AdcCalibrationRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   size_t cnt_;
   algo::Kahan<double> voltage_sum_;
 
   ptree::PropertyClient property_client_;
-  ros::ServiceServer ss_;
+  rclcpp::ServiceServer ss_;
 
   void adcCb(const tobas_hal_msgs::AdcConstPtr& adc);
   bool executeCb(SrvType::Request& req, SrvType::Response& res);

@@ -29,9 +29,9 @@ class PositionYawPublisher : public tobas::BaseNode
 
 public:
   explicit PositionYawPublisher(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
   void run();
 
@@ -55,8 +55,8 @@ private:
   tobas_std::Range<double> yaw_limit_;
 
   // Publishers
-  ros::Publisher pos_yaw_pub_;
-  ros::Publisher pvay_pub_;
+  rclcpp::Publisher pos_yaw_pub_;
+  rclcpp::Publisher pvay_pub_;
 
   void getRosParams();
 };

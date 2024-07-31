@@ -3,7 +3,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unordered_map.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
+#include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
 
 #include "../include/tobas_dynamixel_handler/dynamixel_handler.hpp"
@@ -14,7 +14,7 @@ using namespace dynamixel;
 
 namespace tobas_dynamixel_handler
 {
-DynamixelHandler::DynamixelHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+DynamixelHandler::DynamixelHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   // Get ROS parameters
   getRosParams();
@@ -83,7 +83,7 @@ DynamixelHandler::DynamixelHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, co
   enable_torques_ss_ = nh_.advertiseService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
 
   // Start main timer with maximum rate
-  main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
 }
 
 DynamixelHandler::~DynamixelHandler()
@@ -97,17 +97,17 @@ DynamixelHandler::~DynamixelHandler()
 
 void DynamixelHandler::getRosParams()
 {
-  tobas_ros::getParam(pnh_, "joint_names", jnt_names_);
-  tobas_ros::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));
-  tobas_ros::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
-  tobas_ros::getParam(pnh_, "baudrate", baudrate_, kDefaultBaudRate);
-  tobas_ros::getParam(pnh_, "return_delay_time", return_delay_time_, kDefaultReturnDelayTime);
-  tobas_ros::getParam(pnh_, "read_pwm", read_pwm_, kDefaultReadPwm);
-  tobas_ros::getParam(pnh_, "read_current", read_current_, kDefaultReadCurrent);
-  tobas_ros::getParam(pnh_, "read_velocity", read_velocity_, kDefaultReadVelocity);
-  tobas_ros::getParam(pnh_, "read_position", read_position_, kDefaultReadPosition);
-  tobas_ros::getParam(pnh_, "read_voltage", read_voltage_, kDefaultReadVoltage);
-  tobas_ros::getParam(pnh_, "read_temperature", read_temperature_, kDefaultReadTemperature);
+  ros2::getParam(pnh_, "joint_names", jnt_names_);
+  ros2::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));
+  ros2::getParam(pnh_, "protocol_version", protocol_version_, kDefaultProtocolVersion);
+  ros2::getParam(pnh_, "baudrate", baudrate_, kDefaultBaudRate);
+  ros2::getParam(pnh_, "return_delay_time", return_delay_time_, kDefaultReturnDelayTime);
+  ros2::getParam(pnh_, "read_pwm", read_pwm_, kDefaultReadPwm);
+  ros2::getParam(pnh_, "read_current", read_current_, kDefaultReadCurrent);
+  ros2::getParam(pnh_, "read_velocity", read_velocity_, kDefaultReadVelocity);
+  ros2::getParam(pnh_, "read_position", read_position_, kDefaultReadPosition);
+  ros2::getParam(pnh_, "read_voltage", read_voltage_, kDefaultReadVoltage);
+  ros2::getParam(pnh_, "read_temperature", read_temperature_, kDefaultReadTemperature);
 }
 
 void DynamixelHandler::registerPublishers()
@@ -159,7 +159,7 @@ void DynamixelHandler::getMotorConfigs()
   for (const auto& name : jnt_names_)
   {
     // ID
-    tobas_ros::getParam(pnh_, name + "/id", cfg.id, kDefaultId);
+    ros2::getParam(pnh_, name + "/id", cfg.id, kDefaultId);
     if (tobas_std::contains(used_ids, cfg.id))
       TOBAS_EXIT("Motor ID ", static_cast<int>(cfg.id), " is duplicated.");
     used_ids.insert(cfg.id);
@@ -184,7 +184,7 @@ void DynamixelHandler::getMotorConfigs()
     }
 
     // Operating mode
-    tobas_ros::getParam(pnh_, name + "/operating_mode", operating_mode, string(kDefaultOperatingMode));
+    ros2::getParam(pnh_, name + "/operating_mode", operating_mode, string(kDefaultOperatingMode));
     if (operating_mode == "current")
     {
       if (!cfg.current_available)
@@ -322,7 +322,7 @@ void DynamixelHandler::printHardwareErrorStatus()
   }
 }
 
-void DynamixelHandler::publishCurrentStates(const ros::Time& cur_time)
+void DynamixelHandler::publishCurrentStates(const rclcpp::Time& cur_time)
 {
   // Create motor states message
   const auto motor_states = boost::make_shared<tobas_dynamixel_msgs::MotorStateArray>();
@@ -620,7 +620,7 @@ bool DynamixelHandler::enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std
   return true;
 }
 
-void DynamixelHandler::mainTimerCb(const ros::TimerEvent& event)
+void DynamixelHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   if (!is_enabled_)
     return;

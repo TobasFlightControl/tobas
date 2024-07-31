@@ -11,7 +11,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+GpsHandler::GpsHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!gps_.initialize())
     TOBAS_EXIT("Failed to initialize GNSS receiver.");
@@ -28,7 +28,7 @@ GpsHandler::GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
   gps_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
 
   // Start main timer with maximum rate
-  main_timer_ = nh_.createTimer(ros::Duration(0), &self::mainTimerCb, this);
+  main_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
 }
 
 void GpsHandler::configureGnssReceiver()
@@ -55,7 +55,7 @@ void GpsHandler::configureGnssReceiver()
   gps_.configureGnss_GLONASS(false);
 }
 
-void GpsHandler::mainTimerCb(const ros::TimerEvent& event)
+void GpsHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   const auto msg = gps_.update();
   // cout << "Message ID: " << msg << endl;

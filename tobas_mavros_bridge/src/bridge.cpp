@@ -1,4 +1,4 @@
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/msg/PoseStamped.h>
 
 #include <tobas_kdl/quaternion.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
@@ -10,16 +10,16 @@ using namespace std;
 
 namespace tobas_mavros_bridge
 {
-TobasMavrosBridge::TobasMavrosBridge(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+TobasMavrosBridge::TobasMavrosBridge(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name)
 {
-  setpoint_pos_local_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 1);
+  setpoint_pos_local_pub_ = nh_.advertise<geometry_msgs::msg::PoseStamped>("mavros/setpoint_position/local", 1);
   pos_yaw_sub_ = nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
 }
 
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)
 {
-  const auto mav = boost::make_shared<geometry_msgs::PoseStamped>();
+  const auto mav = boost::make_shared<geometry_msgs::msg::PoseStamped>();
 
   // NWU -> ENU
   mav->pose.position.x = -tbs->pos.y();

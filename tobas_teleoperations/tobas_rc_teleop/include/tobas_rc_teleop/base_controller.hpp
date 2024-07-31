@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
@@ -17,7 +17,7 @@ class BaseController
 public:
   explicit BaseController(const tobas::Drone& drone);
 
-  virtual void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) = 0;
+  virtual void initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
   virtual void
   update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) = 0;

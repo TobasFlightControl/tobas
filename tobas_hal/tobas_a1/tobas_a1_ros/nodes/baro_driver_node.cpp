@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "a1_baro_driver");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  a1::BaroDriver node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "a1_baro_driver");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  a1::BaroDriver node(node, pnh);
+  rclcpp::spin();
 }

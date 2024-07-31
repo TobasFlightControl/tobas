@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <ros/timer.h>
 
 #include <tobas_tools/node.hpp>
@@ -17,7 +17,7 @@ class CpuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit CpuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit CpuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   int temp_millidegrees_;
@@ -25,15 +25,15 @@ private:
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
 
   // Publisher
-  ros::Publisher cpu_pub_;
+  rclcpp::Publisher cpu_pub_;
 
   // Timer
-  ros::Timer main_timer_;
+  rclcpp::Timer main_timer_;
 
   bool getTemperature(double& temp);
   bool getFrequency(uint64_t& freq);
   bool getLoad(double& load);
 
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_real_ros

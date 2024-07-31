@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-PWMDriver::PWMDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name) : super(nh, pnh, name)
+PWMDriver::PWMDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name) : super(node, pnh, name)
 {
   if (!pwm_.initialize())
     TOBAS_EXIT("Failed to initialize PWM driver.");

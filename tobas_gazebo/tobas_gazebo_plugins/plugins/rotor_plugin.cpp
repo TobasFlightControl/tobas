@@ -54,7 +54,7 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   registerPubSub();
 
   // Listen to the update event
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&self::onUpdate, this, _1));
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
@@ -181,11 +181,11 @@ void GazeboRotorPlugin::registerPubSub()
   debug_pub_ = nh_.advertise<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
 
   throttle_sub_ = nh_.subscribe(
-    prefix + kThrottleTopicPrefix + suffix, 1, &self::throttleCmdCb, this, ros::TransportHints().tcpNoDelay());
+    prefix + kThrottleTopicPrefix + suffix, 1, &self::throttleCmdCb, this, rclcpp::TransportHints().tcpNoDelay());
   battery_gt_sub_ =
-    nh_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, ros::TransportHints().tcpNoDelay());
+    nh_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_gt_sub_ =
-    nh_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, ros::TransportHints().tcpNoDelay());
+    nh_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()

@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "time_reference_server");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_real_ros::TimeReferenceServer node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "time_reference_server");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_real_ros::TimeReferenceServer node(node, pnh);
+  rclcpp::spin();
 }

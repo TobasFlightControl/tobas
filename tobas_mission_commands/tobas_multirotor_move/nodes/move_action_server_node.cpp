@@ -2,9 +2,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "move_action_server");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_multirotor_move::MoveActionServer node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "move_action_server");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_multirotor_move::MoveActionServer node(node, pnh);
+  rclcpp::spin();
 }

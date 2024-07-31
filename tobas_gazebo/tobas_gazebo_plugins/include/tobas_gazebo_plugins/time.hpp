@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <gazebo/gazebo.hh>
 
 namespace gazebo
 {
-ros::Duration operator-(const common::Time& lhs, const ros::Time& rhs);
+rclcpp::Duration operator-(const common::Time& lhs, const rclcpp::Time& rhs);
 
-ros::Duration operator-(const ros::Time& lhs, const common::Time& rhs);
+rclcpp::Duration operator-(const rclcpp::Time& lhs, const common::Time& rhs);
 }  // namespace gazebo

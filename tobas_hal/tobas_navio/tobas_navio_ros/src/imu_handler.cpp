@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_navio_ros
 {
-ImuHandler::ImuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+ImuHandler::ImuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
@@ -16,7 +16,7 @@ ImuHandler::ImuHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& 
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void ImuHandler::mainTimerCb(const ros::TimerEvent& event)
+void ImuHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Update IMU
   imu_.updateAccelerometer();

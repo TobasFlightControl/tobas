@@ -15,7 +15,7 @@ class GpsHandler : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit GpsHandler(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name = ros::this_node::getName());
+  explicit GpsHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
 
 private:
   navio::NEOM8N gps_;
@@ -25,9 +25,9 @@ private:
   bool cov_received_ = false;
 
   // Publisher
-  ros::Publisher gps_pub_;
+  rclcpp::Publisher gps_pub_;
 
   void configureGnssReceiver();
-  void mainTimerCb(const ros::TimerEvent& event);
+  void mainTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_navio_ros

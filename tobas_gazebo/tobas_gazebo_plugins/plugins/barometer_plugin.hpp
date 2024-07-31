@@ -1,7 +1,7 @@
 #pragma once
 
 #include <random>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
@@ -19,7 +19,7 @@ class GazeboBarometerPlugin : public SensorPlugin
   static constexpr double kDefaultPressureVar = 1.;  // [Pa]
 
   using super = SensorPlugin;
-  using PressureMsg = sensor_msgs::FluidPressure;
+  using PressureMsg = sensor_msgs::msg::FluidPressure;
 
 public:
   explicit GazeboBarometerPlugin();
@@ -27,7 +27,7 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  ros::NodeHandle nh_;
+  rclcpp::NodeHandle nh_;
 
   // SDF parameters
   std::string ns_;
@@ -44,7 +44,7 @@ private:
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
 
-  ros::Publisher pressure_pub_;
+  rclcpp::Publisher pressure_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();

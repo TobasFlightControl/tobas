@@ -1,7 +1,7 @@
 #pragma once
 
 #include <random>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
@@ -27,7 +27,7 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  ros::NodeHandle nh_;
+  rclcpp::NodeHandle nh_;
 
   // SDF parameters
   std::string ns_;
@@ -59,7 +59,7 @@ private:
   event::ConnectionPtr update_connection_;
   std::random_device rnd_dev_;
 
-  ros::Publisher odometry_pub_;
+  rclcpp::Publisher odometry_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void setRandomDistributions();

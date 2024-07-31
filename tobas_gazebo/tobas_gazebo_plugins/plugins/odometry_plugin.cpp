@@ -34,7 +34,7 @@ void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
   registerPublishers();
-  update_connection_ = sensor->ConnectUpdated(boost::bind(&GazeboOdometryPlugin::onUpdate, this));
+  update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboOdometryPlugin::onUpdate, this));
 }
 
 void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)

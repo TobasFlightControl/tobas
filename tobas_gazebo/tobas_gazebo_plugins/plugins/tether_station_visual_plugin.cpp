@@ -29,7 +29,7 @@ void GazeboTetherStationVisualPlugin::Load(rendering::VisualPtr visual, sdf::Ele
   line_->AddPoint(Vector3d::Zero, color);
   line_->AddPoint(B_Pos_BQ_, color);
 
-  update_connection_ = event::Events::ConnectPreRender(boost::bind(&self::onUpdate, this));
+  update_connection_ = event::Events::ConnectPreRender(std::bind(&self::onUpdate, this));
 }
 
 void GazeboTetherStationVisualPlugin::getSdfParams(sdf::ElementPtr sdf)

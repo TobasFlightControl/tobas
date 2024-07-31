@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-ADCDriver::ADCDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+ADCDriver::ADCDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
 {
   if (!adc_.initialize())
     TOBAS_EXIT("Failed to initialize ADC.");
@@ -16,7 +16,7 @@ ADCDriver::ADCDriver(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& na
   main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void ADCDriver::mainTimerCb(const ros::TimerEvent& event)
+void ADCDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
   const auto msg = boost::make_shared<tobas_hal_msgs::Adc>();

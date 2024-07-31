@@ -4,9 +4,9 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "dynamixel_handler");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_dynamixel_handler::DynamixelHandler node(nh, pnh);
-  ros::spin();
+  rclcpp::init(argc, argv, "dynamixel_handler");
+  rclcpp::NodeHandle node;
+  rclcpp::NodeHandle pnh("~");
+  tobas_dynamixel_handler::DynamixelHandler node(node, pnh);
+  rclcpp::spin();
 }

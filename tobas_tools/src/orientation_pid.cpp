@@ -46,12 +46,12 @@ kdl::Vector OrientationPid::update(
 
 void OrientationPid::configure(const OrientationPidConfig& cfg)
 {
-  CHECK(cfg.atti_natural_freq > 0);
-  CHECK(cfg.atti_damp_ratio > 0);
-  CHECK(cfg.atti_ki > 0);
-  CHECK(cfg.head_natural_freq > 0);
-  CHECK(cfg.head_damp_ratio > 0);
-  CHECK(cfg.head_ki > 0);
+  TOBAS_CHECK(cfg.atti_natural_freq > 0);
+  TOBAS_CHECK(cfg.atti_damp_ratio > 0);
+  TOBAS_CHECK(cfg.atti_ki > 0);
+  TOBAS_CHECK(cfg.head_natural_freq > 0);
+  TOBAS_CHECK(cfg.head_damp_ratio > 0);
+  TOBAS_CHECK(cfg.head_ki > 0);
 
   const auto atti_kp = math::sqr(cfg.atti_natural_freq);
   const auto atti_kd = 2 * cfg.atti_damp_ratio * cfg.atti_natural_freq;

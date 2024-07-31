@@ -18,9 +18,9 @@ class ControllerRos : public tobas::BaseNode
 
 public:
   explicit ControllerRos(
-    ros::NodeHandle& nh,
-    ros::NodeHandle& pnh,
-    const std::string& name = ros::this_node::getName());
+    rclcpp::Node::SharedPtr node,
+    rclcpp::Node::SharedPtr pnh,
+    const std::string& name = rclcpp::this_node::getName());
 
 private:
   const kdl::Rotation R_nwu_ned_ = kdl::Rotation::RotX(M_PI);
@@ -34,13 +34,13 @@ private:
   std::vector<int> channels_;  // ArduPilotにおける各モータのチャンネル
 
   // Publishers
-  ros::Publisher throttles_pub_;
+  rclcpp::Publisher throttles_pub_;
 
   // Subscribers
-  ros::Subscriber odom_sub_;
+  rclcpp::Subscriber odom_sub_;
 
   void getRosParams();
-  void receiveAndPublishMotorCommand(const ros::Time& imu_time);
+  void receiveAndPublishMotorCommand(const rclcpp::Time& imu_time);
   void sendState(const tobas_msgs::Odometry& odom);
 
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);

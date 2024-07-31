@@ -8,8 +8,8 @@ using namespace std;
 
 namespace tobas_manipulation
 {
-PositionControllerRos::PositionControllerRos(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name)
-  : super(nh, pnh, name)
+PositionControllerRos::PositionControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+  : super(node, pnh, name)
 {
   drone_.loadFromParam(nh_);
 
@@ -26,7 +26,7 @@ PositionControllerRos::PositionControllerRos(ros::NodeHandle& nh, ros::NodeHandl
 
   // ホームポジションを初期目標状態に設定
   if (home_js_.name.size() > 0)
-    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
+    tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
 
   positions_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic, 1);
 
@@ -51,15 +51,15 @@ int PositionControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray&)
   return 0;
 }
 
-void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateConstPtr&)
+void PositionControllerRos::currentJointStateCb(const sensor_msgs::msg::JointStateConstPtr&)
 {
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
-  const auto time_after_last_cmd = (ros::Time::now() - t_last_cmd_).toSec();
+  const auto time_after_last_cmd = (node->get_clock()->now() - t_last_cmd_).seconds();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    tar_js_ = boost::make_shared<sensor_msgs::JointState>(home_js_);
+    tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
     TOBAS_WARN(
@@ -91,12 +91,12 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::JointStateCon
   positions_pub_.publish(positions_msg);
 }
 
-void PositionControllerRos::targetJointStateCb(const sensor_msgs::JointStateConstPtr& tar_js)
+void PositionControllerRos::targetJointStateCb(const sensor_msgs::msg::JointStateConstPtr& tar_js)
 {
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
 
-  t_last_cmd_ = ros::Time::now();
+  t_last_cmd_ = node->get_clock()->now();
   is_commanded_ = true;
 }
 
@@ -105,7 +105,7 @@ void PositionControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayCo
   tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
-  t_last_cmd_ = ros::Time::now();
+  t_last_cmd_ = node->get_clock()->now();
   is_commanded_ = true;
 }
 }  // namespace tobas_manipulation

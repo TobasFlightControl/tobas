@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tobas_std_tools/stream.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
@@ -43,10 +43,10 @@ namespace tobas
 class BaseNode
 {
 protected:
-  ros::NodeHandle& nh_;
-  ros::NodeHandle& pnh_;
+  rclcpp::Node::SharedPtr nh_;
+  rclcpp::Node::SharedPtr pnh_;
 
-  explicit BaseNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const std::string& name);
+  explicit BaseNode(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name);
 
   inline const std::string& name() const;
   inline std::string ns() const;
@@ -91,16 +91,16 @@ protected:
   template <typename... Args>
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
-  /* Alias for ros::TransportHints().reliable().tcpNoDelay(). */
-  static ros::TransportHints tcpNoDelay(const bool& nodelay = true);
+  /* Alias for rclcpp::TransportHints().reliable().tcpNoDelay(). */
+  static rclcpp::TransportHints tcpNoDelay(const bool& nodelay = true);
 
 private:
   const std::string& name_;
 
   std::unordered_set<std::string> log_once_;
-  std::unordered_map<std::string, ros::Time> log_throttle_;
+  std::unordered_map<std::string, rclcpp::Time> log_throttle_;
 
-  ros::Publisher message_pub_;
+  rclcpp::Publisher message_pub_;
 
   inline static std::string createID(const char* file, int line);
 };
@@ -120,7 +120,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
 {
   // Publish message
   const auto message = boost::make_shared<tobas_msgs::Message>();
-  message->header.stamp = ros::Time::now();
+  message->header.stamp = node->get_clock()->now();
   message->level = level;
   message->name = name_;
   message->message = tobas_std::buildString(args...);
@@ -128,7 +128,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
 
   // Output message to the console
   ROS_LOG_STREAM(
-    static_cast<ros::console::Level>(level), ROSCONSOLE_DEFAULT_NAME, "[" << name_ << "] " << message->message);
+    static_cast<rclcpp::console::Level>(level), ROSCONSOLE_DEFAULT_NAME, "[" << name_ << "] " << message->message);
 }
 
 template <typename... Args>
@@ -145,7 +145,7 @@ template <typename... Args>
 void BaseNode::logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args)
 {
   const auto id = createID(file, line);
-  const auto now = ros::Time::now();
+  const auto now = node->get_clock()->now();
   auto it = log_throttle_.find(id);
   if (it == log_throttle_.end())
   {
@@ -154,7 +154,7 @@ void BaseNode::logThrottle(const char* file, int line, uint8_t level, double per
   }
   else
   {
-    const auto diff = (now - it->second).toSec();
+    const auto diff = (now - it->second).seconds();
     if (diff > period)
     {
       log(level, args...);
