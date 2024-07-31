@@ -5,7 +5,7 @@
 #include <geometry_msgs/msg/vector3.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
-#include <geometry_msgs/msg/Pose.h>
+#include <geometry_msgs/msg/pose.hpp>
 
 namespace gazebo
 {

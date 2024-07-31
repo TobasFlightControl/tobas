@@ -2,8 +2,8 @@
 
 #include <ros/serialization.h>
 
-#include <tobas_kdl_msgs/Frame.h>
-#include <tobas_kdl_msgs/Twist.h>
+#include <tobas_kdl_msgs/frame.hpp>
+#include <tobas_kdl_msgs/twist.hpp>
 #include <tobas_kdl_msgs/Accel.h>
 #include <tobas_kdl_msgs/Wrench.h>
 
