@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
 
 	<name>{{ user_pkg_name }}</name>
 	<version>0.0.0</version>
