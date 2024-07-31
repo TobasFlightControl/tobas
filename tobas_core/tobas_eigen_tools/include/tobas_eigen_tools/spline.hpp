@@ -1,7 +1,7 @@
 #pragma once
 
 #include <eigen3/Eigen/Core>
-#include <unsupported/Eigen/Splines>
+#include <eigen3/unsupported/Eigen/Splines>
 
 namespace eigen_tools
 {
