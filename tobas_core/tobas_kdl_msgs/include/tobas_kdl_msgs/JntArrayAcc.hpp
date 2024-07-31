@@ -31,5 +31,5 @@ struct rclcpp::TypeAdapter<kdl::JntArrayAcc, tobas_kdl_msgs::msg::JntArrayAcc>
 
 namespace tobas_kdl_msgs
 {
-using JntArrayAcc = rclcpp::TypeAdapter<kdl::JntArrayAcc, tobas_kdl_msgs::msg::JntArrayAcc>;
+using JntArrayAccAdapter = rclcpp::TypeAdapter<kdl::JntArrayAcc, tobas_kdl_msgs::msg::JntArrayAcc>;
 }

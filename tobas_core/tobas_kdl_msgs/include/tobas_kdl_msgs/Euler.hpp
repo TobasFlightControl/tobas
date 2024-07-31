@@ -29,5 +29,5 @@ struct rclcpp::TypeAdapter<kdl::Euler, tobas_kdl_msgs::msg::Euler>
 
 namespace tobas_kdl_msgs
 {
-using Euler = rclcpp::TypeAdapter<kdl::Euler, tobas_kdl_msgs::msg::Euler>;
+using EulerAdapter = rclcpp::TypeAdapter<kdl::Euler, tobas_kdl_msgs::msg::Euler>;
 }

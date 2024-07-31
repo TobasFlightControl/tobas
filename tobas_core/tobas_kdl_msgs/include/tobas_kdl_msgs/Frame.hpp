@@ -17,18 +17,18 @@ struct rclcpp::TypeAdapter<kdl::Frame, tobas_kdl_msgs::msg::Frame>
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
-    tobas_kdl_msgs::Vector::convert_to_ros_message(src.p, dst.trans);
-    tobas_kdl_msgs::Rotation::convert_to_ros_message(src.M, dst.rot);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.p, dst.trans);
+    tobas_kdl_msgs::RotationAdapter::convert_to_ros_message(src.M, dst.rot);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
-    tobas_kdl_msgs::Vector::convert_to_custom(src.trans, dst.p);
-    tobas_kdl_msgs::Rotation::convert_to_custom(src.rot, dst.M);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.trans, dst.p);
+    tobas_kdl_msgs::RotationAdapter::convert_to_custom(src.rot, dst.M);
   }
 };
 
 namespace tobas_kdl_msgs
 {
-using Frame = rclcpp::TypeAdapter<kdl::Frame, tobas_kdl_msgs::msg::Frame>;
+using FrameAdapter = rclcpp::TypeAdapter<kdl::Frame, tobas_kdl_msgs::msg::Frame>;
 }

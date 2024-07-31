@@ -27,5 +27,5 @@ struct rclcpp::TypeAdapter<kdl::Rotation, tobas_kdl_msgs::msg::Rotation>
 
 namespace tobas_kdl_msgs
 {
-using Rotation = rclcpp::TypeAdapter<kdl::Rotation, tobas_kdl_msgs::msg::Rotation>;
+using RotationAdapter = rclcpp::TypeAdapter<kdl::Rotation, tobas_kdl_msgs::msg::Rotation>;
 }

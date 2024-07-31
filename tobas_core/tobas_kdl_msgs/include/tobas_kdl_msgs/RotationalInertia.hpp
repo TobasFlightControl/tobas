@@ -27,5 +27,5 @@ struct rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::Rotation
 
 namespace tobas_kdl_msgs
 {
-using RotationalInertia = rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia>;
+using RotationalInertiaAdapter = rclcpp::TypeAdapter<kdl::RotationalInertia, tobas_kdl_msgs::msg::RotationalInertia>;
 }

@@ -29,5 +29,5 @@ struct rclcpp::TypeAdapter<Eigen::Matrix3d, tobas_eigen_msgs::msg::Matrix3d>
 
 namespace tobas_eigen_msgs
 {
-using Matrix3d = rclcpp::TypeAdapter<Eigen::Matrix3d, tobas_eigen_msgs::msg::Matrix3d>;
+using Matrix3dAdapter = rclcpp::TypeAdapter<Eigen::Matrix3d, tobas_eigen_msgs::msg::Matrix3d>;
 }

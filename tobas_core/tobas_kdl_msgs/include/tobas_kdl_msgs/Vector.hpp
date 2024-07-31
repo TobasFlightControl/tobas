@@ -29,5 +29,5 @@ struct rclcpp::TypeAdapter<kdl::Vector, tobas_kdl_msgs::msg::Vector>
 
 namespace tobas_kdl_msgs
 {
-using Vector = rclcpp::TypeAdapter<kdl::Vector, tobas_kdl_msgs::msg::Vector>;
+using VectorAdapter = rclcpp::TypeAdapter<kdl::Vector, tobas_kdl_msgs::msg::Vector>;
 }

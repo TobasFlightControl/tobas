@@ -31,5 +31,5 @@ struct rclcpp::TypeAdapter<kdl::Quaternion, tobas_kdl_msgs::msg::Quaternion>
 
 namespace tobas_kdl_msgs
 {
-using Quaternion = rclcpp::TypeAdapter<kdl::Quaternion, tobas_kdl_msgs::msg::Quaternion>;
+using QuaternionAdapter = rclcpp::TypeAdapter<kdl::Quaternion, tobas_kdl_msgs::msg::Quaternion>;
 }
