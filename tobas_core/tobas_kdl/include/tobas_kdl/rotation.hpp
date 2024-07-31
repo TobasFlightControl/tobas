@@ -29,7 +29,7 @@ public:
     double Yz,
     double Zz);
   inline explicit Rotation(const Vector& x, const Vector& y, const Vector& z);
-  inline explicit Rotation(const Eigen::Matrix3d& data);
+  inline explicit Rotation(const Eigen::Matrix3d& _data);
 
   // Gives back an identity rotaton matrix
   inline static Rotation Identity();
@@ -200,7 +200,7 @@ inline Rotation::Rotation(const Vector& x, const Vector& y, const Vector& z)
   data.col(2) = z.data;
 }
 
-inline Rotation::Rotation(const Eigen::Matrix3d& data) : data(data)
+inline Rotation::Rotation(const Eigen::Matrix3d& _data) : data(_data)
 {
 }
 

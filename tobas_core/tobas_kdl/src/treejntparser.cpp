@@ -44,7 +44,6 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segmen
     max_efforts_(q_nr) = jnt.max_effort;
   }
 
-  SegmentMap::const_iterator child;
   for (const auto& child : segment->second.children)
     parseJntNamesStep(child);
 }

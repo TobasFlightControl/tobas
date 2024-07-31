@@ -1,4 +1,3 @@
-#include <rclcpp/rclcpp.hpp>
 #include <urdf/model.h>
 #include <urdf/urdfdom_compatibility.h>
 #include <urdf_parser/urdf_parser.h>
@@ -130,19 +129,6 @@ bool treeFromFile(const string& file, Tree& tree)
   return treeFromUrdfModel(*robot_model, tree);
 }
 
-bool treeFromParam(const string& param, Tree& tree)
-{
-  PRINT_DEBUG("kdl::treeFromParam");
-
-  urdf::Model robot_model;
-  if (!robot_model.initParam(param))
-  {
-    RCLCPP_ERROR("Failed to generate robot model.");
-    return false;
-  }
-  return treeFromUrdfModel(robot_model, tree);
-}
-
 bool treeFromString(const string& xml, Tree& tree)
 {
   PRINT_DEBUG("kdl::treeFromString");
@@ -150,7 +136,7 @@ bool treeFromString(const string& xml, Tree& tree)
   const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDF(xml);
   if (!robot_model)
   {
-    RCLCPP_ERROR("Failed to generate robot model.");
+    cerr << "Failed to generate robot model." << endl;
     return false;
   }
   return treeFromUrdfModel(*robot_model, tree);
@@ -162,7 +148,7 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 
   if (!robot_model.getRoot())
   {
-    RCLCPP_ERROR("Failed to get root link.");
+    cerr << "Failed to get root link." << endl;
     return false;
   }
 
@@ -171,10 +157,9 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
   // Warn if root link has inertia. tobas_kdl does not support this
   if (robot_model.getRoot()->inertial)
   {
-    RCLCPP_WARN_STREAM(
-      "The root link " << robot_model.getRoot()->name << " has an inertia specified in the URDF, "
-                       << "but tobas_kdl does not support a root link with an inertia. "
-                       << "As a workaround, you can add an extra dummy link to your URDF.");
+    cerr << "The root link " << robot_model.getRoot()->name << " has an inertia specified in the URDF, "
+         << "but tobas_kdl does not support a root link with an inertia. "
+         << "As a workaround, you can add an extra dummy link to your URDF." << endl;
   }
 
   // Add all children

@@ -11,38 +11,59 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(catkin REQUIRED COMPONENTS
+find_package(ament_cmake REQUIRED)
+find_package(tobas_quadprog REQUIRED)
+find_package(tobas_eigen_tools REQUIRED)
+find_package(tobas_std_tools REQUIRED)
+find_package(urdf REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+
+include_directories(include)
+
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME}
 	tobas_quadprog
 	tobas_eigen_tools
 	tobas_std_tools
 	urdf
-	roscpp
+	rclcpp
 	geometry_msgs
 	sensor_msgs
 )
 
-catkin_package(
-	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_quadprog tobas_eigen_tools tobas_std_tools urdf roscpp geometry_msgs sensor_msgs
-)
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
+set(targets_to_install "")
 
-include_directories(${catkin_INCLUDE_DIRS} include)
-
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
-file(GLOB_RECURSE EXE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
-foreach(FILE IN LISTS EXE_CPP_FILES)
+foreach(FILE IN LISTS EXE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)
 	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
+	target_link_libraries(${NAME} ${PROJECT_NAME})
+	list(APPEND targets_to_install ${NAME})
 endforeach()
 
-install(TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+install(
+	TARGETS ${PROJECT_NAME}
+	EXPORT ${PROJECT_NAME}
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
-install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
+
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(
+	tobas_quadprog
+	tobas_eigen_tools
+	tobas_std_tools
+	urdf
+	rclcpp
+	geometry_msgs
+	sensor_msgs
+)
+
+ament_package()

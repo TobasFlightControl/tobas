@@ -14,7 +14,7 @@ public:
   double rho, phi, theta;
 
   explicit SphericalCoordinate();
-  explicit SphericalCoordinate(const double& rho, const double& phi, const double& theta);
+  explicit SphericalCoordinate(const double& _rho, const double& _phi, const double& _theta);
 
   static SphericalCoordinate Cartesian(const Vector& cart);
 

@@ -11,19 +11,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(catkin REQUIRED COMPONENTS
-	tobas_eigen_tools
-)
+find_package(ament_cmake REQUIRED)
+find_package(tobas_eigen_tools REQUIRED)
 
-catkin_package(
-	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_eigen_tools
-)
+include_directories(include)
 
-include_directories(${catkin_INCLUDE_DIRS} include)
-
-# Library
+# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 set(LIB_CPP_FILES
 	src/utils.cpp
 	src/qpsolver.cpp
@@ -33,24 +26,29 @@ set(LIB_CPP_FILES
 	# src/qpoases.cpp
 )
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+ament_target_dependencies(${PROJECT_NAME} tobas_eigen_tools)
 
-# Executives
-# file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
+set(targets_to_install "")
 # foreach(FILE IN LISTS EXE_FILES)
 # 	get_filename_component(NAME ${FILE} NAME_WE)
 # 	add_executable(${NAME} ${FILE})
-# 	target_link_libraries(${NAME}
-# 		${catkin_LIBRARIES}
-# 		${PROJECT_NAME}
-# 		/usr/local/lib/libquadprog.a
-# 		/usr/local/lib/libqpOASES.a
-# 	)
+# 	target_link_libraries(${NAME} ${PROJECT_NAME})
+# 	list(APPEND targets_to_install ${NAME})
 # endforeach()
 
-install(TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+install(
+	TARGETS ${PROJECT_NAME}
+	EXPORT ${PROJECT_NAME}
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
-install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
+
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(tobas_eigen_tools)
+
+ament_package()

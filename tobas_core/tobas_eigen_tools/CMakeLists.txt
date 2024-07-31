@@ -42,6 +42,6 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(tobas_std_tools CACHEEigen3)
+ament_export_dependencies(tobas_std_tools Eigen3)
 
 ament_package()

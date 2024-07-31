@@ -20,7 +20,7 @@ public:
   double roll, pitch, yaw;
 
   inline explicit Euler();
-  inline explicit Euler(const double& roll, const double& pitch, const double& yaw);
+  inline explicit Euler(const double& _roll, const double& _pitch, const double& _yaw);
   inline explicit Euler(const Vector& rpy);
   inline explicit Euler(const Rotation& rot);
 
@@ -44,7 +44,7 @@ inline Euler::Euler() : roll(0), pitch(0), yaw(0)
 {
 }
 
-inline Euler::Euler(const double& roll, const double& pitch, const double& yaw) : roll(roll), pitch(pitch), yaw(yaw)
+inline Euler::Euler(const double& _roll, const double& _pitch, const double& _yaw) : roll(_roll), pitch(_pitch), yaw(_yaw)
 {
 }
 
