@@ -117,7 +117,9 @@ class ParameterTuningWidget(BaseAppWidget):
     def _on_reset_button_clicked(self) -> None:
         # 本当に全てのパラメータをリセットしてよいか確認
         if not yes_or_no(
-            self._main, "Are you sure you want to reset all parameters to their defaults?", QMessageLevel.WARN
+            self._main,
+            "Are you sure you want to reset all parameters to their defaults?",
+            QMessageLevel.WARN,
         ):
             return
 
@@ -151,7 +153,12 @@ class ParameterTuningWidget(BaseAppWidget):
         tbs_path = self._main.tbs_path()  # PC上のTobasパッケージまでのパス
         config_pkg_name = get_tbs_config_name(tbs_path)
         config_path = osp.join(
-            CATKIN_WS_TOBAS, "src", osp.basename(tbs_path), config_pkg_name, "config", "dynamic_params.yaml"
+            CATKIN_WS_TOBAS,
+            "src",
+            osp.basename(tbs_path),
+            config_pkg_name,
+            "config",
+            "dynamic_params.yaml",
         )
         if not self._ssh_client.file_exists(config_path):
             q_error(self._main, f"{config_path} does not exist on FC.")

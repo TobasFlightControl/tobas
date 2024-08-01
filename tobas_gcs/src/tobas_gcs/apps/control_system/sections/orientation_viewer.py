@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 import math
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QPainter, QPaintEvent, QPolygon, QPen
@@ -71,8 +71,11 @@ class _OrientationViewerWidget(Widget):
 
         if self._euler_sub is not None:
             self._euler_sub.unregister()
-        self._euler_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.Throttled.EULER}", EulerStamped, self._euler_cb, queue_size=1
+        self._euler_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.EULER}",
+            EulerStamped,
+            self._euler_cb,
+            queue_size=1,
         )
 
     @override
@@ -110,9 +113,15 @@ class _OrientationViewerWidget(Widget):
         OH = QPoint(0, self.height())
         WH = QPoint(self.width(), self.height())
         XO = QPoint(int(self.width() + (1 - pitch_rate) * self.height() / tan_roll) // 2, 0)
-        XH = QPoint(int(self.width() - (1 + pitch_rate) * self.height() / tan_roll) // 2, self.height())
+        XH = QPoint(
+            int(self.width() - (1 + pitch_rate) * self.height() / tan_roll) // 2,
+            self.height(),
+        )
         OY = QPoint(0, int(self.height() * (1 - pitch_rate) + self.width() * tan_roll) // 2)
-        WY = QPoint(self.width(), int(self.height() * (1 - pitch_rate) - self.width() * tan_roll) // 2)
+        WY = QPoint(
+            self.width(),
+            int(self.height() * (1 - pitch_rate) - self.width() * tan_roll) // 2,
+        )
 
         OO_sky = self._is_sky(OO)
         WO_sky = self._is_sky(WO)
@@ -148,7 +157,7 @@ class _OrientationViewerWidget(Widget):
         elif OO_sky and WO_sky and OH_sky and WH_sky:  # 1111
             points = [OO, WO, WH, OH]
         else:
-            rospy.logerr("Impossible ground-sky pattern.")
+            self.get_logger().error("Impossible ground-sky pattern.")
             return
 
         polygon = QPolygon(points)
@@ -297,7 +306,7 @@ class _OrientationViewerWidget(Widget):
         euler_ = euler.euler
 
         if math.isnan(euler_.roll) or math.isnan(euler_.pitch) or math.isnan(euler_.yaw):
-            rospy.logerr("NaN detected in euler angles.")
+            self.get_logger().error("NaN detected in euler angles.")
             self._reset()
             return
 

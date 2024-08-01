@@ -1,4 +1,6 @@
-import rospy
+import rclpy
+from rclpy.time import Time
+from rclpy.duration import Duration
 from typing import List
 from functools import partial
 from PyQt5.QtCore import pyqtSlot
@@ -43,10 +45,10 @@ class RotorSpeedsPublisherWidget(Widget):
 
         rows.addStretch()
 
-        self._speeds_pub = rospy.Publisher(Topic.Command.ROTOR_SPEEDS, RotorSpeeds, queue_size=1)
+        self._speeds_pub = rclpy.Publisher(Topic.Command.ROTOR_SPEEDS, RotorSpeeds, queue_size=1)
 
         # モータが停止しないよう一定周期でコマンドを発行し続ける
-        rospy.Timer(rospy.Duration(COMMAND_PERIOD), self._command_timer_cb)
+        rclpy.Timer(Duration(COMMAND_PERIOD), self._command_timer_cb)
 
     @pyqtSlot()
     def _on_value_changed(self) -> None:
@@ -59,7 +61,7 @@ class RotorSpeedsPublisherWidget(Widget):
 
     def _publish_current_values(self) -> None:
         rot_speeds = RotorSpeeds()
-        rot_speeds.header.stamp = rospy.Time.now()
+        rot_speeds.header.stamp = Time.now()
         rot_speeds.speeds = [0.0] * len(self._commanders)
 
         for channel, commander in enumerate(self._commanders):

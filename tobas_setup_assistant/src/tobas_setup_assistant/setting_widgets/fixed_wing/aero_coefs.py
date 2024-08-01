@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 import os.path as osp
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QLabel, QPushButton, QFileDialog, QHBoxLayout
@@ -245,14 +245,18 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
         # 前回開いたパスを取得
         res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         # paramsのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, last_opened_dir, "OpenVSP Stability Derivatives (*.stab)", options=options
+            self,
+            TITLE,
+            last_opened_dir,
+            "OpenVSP Stability Derivatives (*.stab)",
+            options=options,
         )
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
@@ -261,9 +265,9 @@ class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
 
         # パラメータを読み込む
         self._load_params(file_path)

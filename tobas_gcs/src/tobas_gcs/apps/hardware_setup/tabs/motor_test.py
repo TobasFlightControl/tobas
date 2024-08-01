@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
+from rclpy.time import Time
+from rclpy.duration import Duration
 from typing import List
 from functools import partial
 from overrides import override
@@ -17,7 +19,14 @@ from tobas_rqt_tools.widgets import IntSliderDisplay, ProgressDialog
 from tobas_tools_py.constants import Topic, Service
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import RotorSpeeds
-from tobas_msgs.srv import GetArm, GetArmRequest, GetArmResponse, SetArm, SetArmRequest, SetArmResponse
+from tobas_msgs.srv import (
+    GetArm,
+    GetArmRequest,
+    GetArmResponse,
+    SetArm,
+    SetArmRequest,
+    SetArmResponse,
+)
 
 from ....common import WAIT_FOR_SERVER, Description
 from .base import BaseHardwareSetupWidget
@@ -121,10 +130,10 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Motor test is finished.")
 
     def _check_disarm(self) -> bool:
-        get_arm_sc = rospy.ServiceProxy(f"{self._drone.name}/{Service.GET_ARM}", GetArm)
+        get_arm_sc = rclpy.ServiceProxy(f"{self._drone.name}/{Service.GET_ARM}", GetArm)
         try:
             get_arm_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
+        except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
 
@@ -141,10 +150,10 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         return True
 
     def _set_arm(self, arming: bool) -> bool:
-        set_arm_sc = rospy.ServiceProxy(f"{self._drone.name}/{Service.SET_ARM}", SetArm)
+        set_arm_sc = rclpy.ServiceProxy(f"{self._drone.name}/{Service.SET_ARM}", SetArm)
         try:
             set_arm_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
+        except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
 
@@ -229,8 +238,10 @@ class RotorSpeedsPublisherWidget(QWidget):
         # 回転数トピックを更新
         if self._speeds_pub is not None:
             self._speeds_pub.unregister()
-        self._speeds_pub = rospy.Publisher(
-            f"{self._drone.name}/{Topic.Command.ROTOR_SPEEDS}", RotorSpeeds, queue_size=1
+        self._speeds_pub = rclpy.Publisher(
+            f"{self._drone.name}/{Topic.Command.ROTOR_SPEEDS}",
+            RotorSpeeds,
+            queue_size=1,
         )
 
     def start(self) -> None:
@@ -244,7 +255,7 @@ class RotorSpeedsPublisherWidget(QWidget):
             button.setEnabled(True)
 
         # モータが停止しないよう一定周期でコマンドを発行し続ける
-        self._publish_timer = rospy.Timer(rospy.Duration(self.COMMAND_PERIOD), self._publish_timer_cb, False)
+        self._publish_timer = rclpy.Timer(Duration(self.COMMAND_PERIOD), self._publish_timer_cb, False)
 
     def stop(self) -> None:
         # コマンダーを無効化
@@ -271,7 +282,7 @@ class RotorSpeedsPublisherWidget(QWidget):
 
     def _publish_current_values(self) -> None:
         rot_speeds = RotorSpeeds()
-        rot_speeds.header.stamp = rospy.Time.now()
+        rot_speeds.header.stamp = Time.now()
         rot_speeds.speeds = [0.0] * len(self._drone.rotors)
 
         for rotor in self._drone.rotors:

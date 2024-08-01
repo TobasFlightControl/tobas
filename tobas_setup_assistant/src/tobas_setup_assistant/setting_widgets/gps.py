@@ -7,7 +7,11 @@ if TYPE_CHECKING:
 from overrides import override
 
 from ..common import SENSOR_OFFSET_DESCRIPTION
-from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleSpinBox, ParamGetterWidget_Vector3d
+from ..parameter_getters import (
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_DoubleSpinBox,
+    ParamGetterWidget_Vector3d,
+)
 from .base_setting import OptionalDeviceWidget
 
 
@@ -30,13 +34,22 @@ class GpsWidget(OptionalDeviceWidget):
 
         delay_description = ""  # TODO
         self.delay = ParamGetterWidget_DoubleSpinBox(
-            "Communication Delay", delay_description, decimals=2, minimum=0.0, default=0.2, suffix=" s"
+            "Communication Delay",
+            delay_description,
+            decimals=2,
+            minimum=0.0,
+            default=0.2,
+            suffix=" s",
         )
         self._add_param_widget(self.delay)
 
         pos_corr_time_description = ""  # TODO
         self.pos_corr_time = ParamGetterWidget_SpinBox(
-            "Position Correction Time Constant", pos_corr_time_description, minimum=1, default=10, suffix=" s"
+            "Position Correction Time Constant",
+            pos_corr_time_description,
+            minimum=1,
+            default=10,
+            suffix=" s",
         )
         self._add_param_widget(self.pos_corr_time)
 

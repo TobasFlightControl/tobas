@@ -1,4 +1,5 @@
-import rospy
+import rclpy
+from rclpy.duration import Duration
 import math
 from copy import deepcopy
 from overrides import override
@@ -26,22 +27,22 @@ class FollowTrajectoryClient_Turn(FollowTrajectoryClient):
 
         # 上昇
         point.pos.z = 2.0
-        point.time_from_start += rospy.Duration.from_sec(5.0)
+        point.time_from_start += Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         # 旋回運動
         for _ in range(5):
             point.yaw += 2 * math.pi
-            point.time_from_start += rospy.Duration.from_sec(5.0)
+            point.time_from_start += Duration.from_sec(5.0)
             goal.waypoints.append(deepcopy(point))
 
             point.yaw -= 2 * math.pi
-            point.time_from_start += rospy.Duration.from_sec(5.0)
+            point.time_from_start += Duration.from_sec(5.0)
             goal.waypoints.append(deepcopy(point))
 
         # 下降
         point.pos.z = -2.0  # 安全のため余分に下げる
-        point.time_from_start += rospy.Duration.from_sec(5.0)
+        point.time_from_start += Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         return goal

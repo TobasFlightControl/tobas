@@ -117,7 +117,11 @@ class ChannelsWidget(QWidget):
 
         # リンク名が被ってたらダメ
         if len(set(self._link_names())) < self._form.rowCount():
-            q_error_named(self._main, ARDUPILOT, "Link names of different channels must be different.")
+            q_error_named(
+                self._main,
+                ARDUPILOT,
+                "Link names of different channels must be different.",
+            )
             return False
 
         return True
@@ -254,8 +258,18 @@ class ArduCopter(BaseController):
             Frame("OCTO QUAD V", octa_quad, v, [ccw, cw, ccw, cw, ccw, cw, ccw, cw]),
             Frame("OCTO QUAD H", octa_quad, h, [cw, ccw, cw, ccw, cw, ccw, cw, ccw]),
             # DodecaHexacopter
-            Frame("DOCECA HEXA X", dodeca_hexa, x, [ccw, cw, cw, ccw, ccw, cw, cw, ccw, ccw, cw, cw, ccw]),
-            Frame("DOCECA HEXA +", dodeca_hexa, plus, [ccw, cw, cw, ccw, ccw, cw, cw, ccw, ccw, cw, cw, ccw]),
+            Frame(
+                "DOCECA HEXA X",
+                dodeca_hexa,
+                x,
+                [ccw, cw, cw, ccw, ccw, cw, cw, ccw, ccw, cw, cw, ccw],
+            ),
+            Frame(
+                "DOCECA HEXA +",
+                dodeca_hexa,
+                plus,
+                [ccw, cw, cw, ccw, ccw, cw, cw, ccw, ccw, cw, cw, ccw],
+            ),
         ]
 
         frame_description = (

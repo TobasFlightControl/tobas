@@ -5,7 +5,8 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
     from .base import BaseSelectedLinkSettingWidget
 
-import rospy
+import rclpy
+from rclpy.duration import Duration
 import numpy as np
 from numpy import linalg as LA
 from typing import List
@@ -48,7 +49,7 @@ class SelectedLinksTabWidget(TabWidget):
         self.setTabsClosable(True)
 
         self._markers = MarkerArray()  # 推力の作用線
-        self._markers_pub = rospy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
+        self._markers_pub = rclpy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
 
         self._publish_markers_timer = QTimer(self)
         self._publish_markers_timer.timeout.connect(self._publish_markers_timer_cb)
@@ -84,7 +85,7 @@ class SelectedLinksTabWidget(TabWidget):
             marker.points.append(Point(*arrow_end))
             marker.scale = Vector3(*arrow_scale)
             marker.color = ColorRGBA(1.0, 0.4, 0.7, 1.0)  # TODO: 回転方向によって色分け
-            marker.lifetime = rospy.Duration(0)  # 無限の生存期間
+            marker.lifetime = Duration(0)  # 無限の生存期間
             marker.frame_locked = True  # TFが変化してもフレームに固定
 
             # マーカを追加
@@ -104,7 +105,11 @@ class SelectedLinksTabWidget(TabWidget):
 
         # 最低1つは登録されていなければならない
         if num_rotors == 0:
-            q_error_named(self._main, PROPULSION_SYSTEM, "Please register at least 1 propulsion systems.")
+            q_error_named(
+                self._main,
+                PROPULSION_SYSTEM,
+                "Please register at least 1 propulsion systems.",
+            )
             return False
 
         return True
@@ -303,7 +308,10 @@ class SelectedLinkWidget(QWidget):
         left: SelectedLinkWidget = selected.widget(self_idx - 1)
         self.copy_from(left)
 
-        q_info(self._main, f"The settings from {left.link_name()} have been copied to {self.link_name()}.")
+        q_info(
+            self._main,
+            f"The settings from {left.link_name()} have been copied to {self.link_name()}.",
+        )
 
     @pyqtSlot()
     def _on_copy_to_all_button_clicked(self) -> None:
@@ -316,4 +324,7 @@ class SelectedLinkWidget(QWidget):
             des: SelectedLinkWidget = selected.widget(i)
             des.copy_from(self)
 
-        q_info(self._main, f"The settings from {self.link_name()} have been copied to all the selected links.")
+        q_info(
+            self._main,
+            f"The settings from {self.link_name()} have been copied to all the selected links.",
+        )

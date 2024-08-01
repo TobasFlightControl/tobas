@@ -6,9 +6,16 @@ if TYPE_CHECKING:
 
 import os
 import os.path as osp
-import rospy
+import rclpy
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import (
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QFileDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+)
 from PyQt5.QtGui import QFont
 
 from tobas_property_tools_py.property_client import PropertyClient
@@ -59,14 +66,18 @@ class URDFLoaderWidget(Widget):
         # 前回開いたパスを取得
         res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         # URDFのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getOpenFileName(
-            self, TITLE, last_opened_dir, "Robot Description (*.urdf *.xacro)", options=options
+            self,
+            TITLE,
+            last_opened_dir,
+            "Robot Description (*.urdf *.xacro)",
+            options=options,
         )
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
@@ -78,9 +89,9 @@ class URDFLoaderWidget(Widget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
 
         # robot_descriptionをrosparamに登録
         os.environ["TOBAS_SETUP_ASSISTANT_DESCRIPTION_PATH"] = file_path
@@ -98,4 +109,7 @@ class URDFLoaderWidget(Widget):
         # URDFを各ウィジェットに反映
         self._main.update_internal_data_structures()
 
-        q_info(self._main, "URDF is loaded successfully. Configure the settings for each tab.")
+        q_info(
+            self._main,
+            "URDF is loaded successfully. Configure the settings for each tab.",
+        )

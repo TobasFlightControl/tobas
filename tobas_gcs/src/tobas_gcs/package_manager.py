@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from .gcs import GroundControlStationWidget
 
 import os.path as osp
-import rospy
+import rclpy
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout
 
@@ -14,7 +14,12 @@ from tobas_rqt_tools.widgets import Widget, ProgressDialog
 from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import PROPERTY_SERVER_GCS, PKG_EXTENSION
 from tobas_tools_py.drone import Drone, DroneLoader_File
-from tobas_tools_py.package import get_tbs_meta_name, get_tbs_config_name, get_tbsdrn_path, get_mesh_path
+from tobas_tools_py.package import (
+    get_tbs_meta_name,
+    get_tbs_config_name,
+    get_tbsdrn_path,
+    get_mesh_path,
+)
 
 from .common import TITLE, PKG_NAME, CATKIN_WS_TOBAS, SOURCE_CMD
 from .utils.ssh_client import SSHClientWrapper
@@ -82,7 +87,7 @@ class PackageManagerWidget(Widget):
         # 前回開いたパスを取得
         res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         # Tobasパッケージのパスを取得
@@ -99,7 +104,10 @@ class PackageManagerWidget(Widget):
 
         # 拡張子をチェック
         if not tbs_path.endswith(PKG_EXTENSION):
-            q_error(self._main, f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
+            q_error(
+                self._main,
+                f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).',
+            )
             return
 
         # ドローンの機体情報を読み込む
@@ -111,9 +119,9 @@ class PackageManagerWidget(Widget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(tbs_path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
 
         # Writeボタンを有効化
         self._send_button.setEnabled(True)
@@ -163,12 +171,15 @@ class PackageManagerWidget(Widget):
         command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin build {meta_pkg_name}"
         success, _, error_output = self._ssh_client.exec_command_super(command)
         if not success:  # ビルドできなければcatkin cleanして再試行
-            rospy.logwarn("Failed to build. Retrying...")
+            rclpy.logwarn("Failed to build. Retrying...")
             command = SOURCE_CMD + f" && cd {CATKIN_WS_TOBAS} && catkin clean -y && catkin build {meta_pkg_name}"
             success, _, error_output = self._ssh_client.exec_command_super(command)
             if not success:
                 progress.close()
-                q_error(self._main, f"Failed to build the Tobas configuration package:\n\n{error_output}")
+                q_error(
+                    self._main,
+                    f"Failed to build the Tobas configuration package:\n\n{error_output}",
+                )
                 return
         progress.progress_step()
 
@@ -176,7 +187,8 @@ class PackageManagerWidget(Widget):
         progress.setLabelText("Setting environment variables.")
         try:
             self._ssh_client.sftp_write_super(
-                "/etc/tobas/config_pkg.env", f"TOBAS_CONFIG_PKG={get_tbs_config_name(self._main.tbs_path())}\n"
+                "/etc/tobas/config_pkg.env",
+                f"TOBAS_CONFIG_PKG={get_tbs_config_name(self._main.tbs_path())}\n",
             )
         except Exception as e:
             progress.close()

@@ -35,7 +35,15 @@ def add_lidar_model(
     robot.append(DummyInertialLink(lidar_link))
 
     # robot/joint
-    robot.append(Joint(name=f"{ns}/lidar_joint", type="fixed", parent=link_name, child=lidar_link, origin=offset))
+    robot.append(
+        Joint(
+            name=f"{ns}/lidar_joint",
+            type="fixed",
+            parent=link_name,
+            child=lidar_link,
+            origin=offset,
+        )
+    )
 
     # robot/gazebo
     gazebo = ET.SubElement(robot, "gazebo")

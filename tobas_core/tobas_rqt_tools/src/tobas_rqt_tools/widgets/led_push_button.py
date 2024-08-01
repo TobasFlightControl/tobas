@@ -15,7 +15,10 @@ class LEDPushButton(QPushButton):
     RECTANGLE = 3
 
     def __init__(
-        self, on_color: LEDColor = LEDColor.GREEN, off_color: LEDColor = LEDColor.BLACK, shape: int = RECTANGLE
+        self,
+        on_color: LEDColor = LEDColor.GREEN,
+        off_color: LEDColor = LEDColor.BLACK,
+        shape: int = RECTANGLE,
     ) -> None:
         super().__init__()
 

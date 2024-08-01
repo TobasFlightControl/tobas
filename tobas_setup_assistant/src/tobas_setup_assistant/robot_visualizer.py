@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .urdf_parser import URDFParser
 
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtWidgets import QHBoxLayout
 from joint_state_publisher import JointStatePublisher
@@ -79,7 +79,7 @@ class RobotVisualizerWidget(Widget):
 
             # バックグラウンドのスレッドを終了
             if not self._jsp_thread.kill():
-                rospy.logwarn("Failed to kill the thread of joint state publisher.")
+                rclpy.logwarn("Failed to kill the thread of joint state publisher.")
 
             # バックグラウンドのプロセスを終了
             self._rsp_process.terminate()

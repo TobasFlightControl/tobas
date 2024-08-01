@@ -224,7 +224,11 @@ class IndependentMPC:
         return self._last_u
 
     def plot_frequency_response(  # TODO: うまくいかない(数値誤差？)
-        self, L: np.ndarray, min_omega: float = 1e-2, num: int = 100, figsize: Tuple[float, float] = (12.0, 9.0)
+        self,
+        L: np.ndarray,
+        min_omega: float = 1e-2,
+        num: int = 100,
+        figsize: Tuple[float, float] = (12.0, 9.0),
     ) -> None:
         """ハード制約がない場合の感度関数の特異値をプロットする(p.244, 演習問題7.6)"""
 
@@ -378,7 +382,11 @@ class IndependentMPC:
         # Hwより前のステップの重みを0にする
         dim = values.shape[0]
         mat_arr_tile = np.concatenate(
-            [np.zeros((Hw - 1, dim, dim)), np.tile(np.diag(values), (Hp - Hw + 1, 1, 1))], axis=0
+            [
+                np.zeros((Hw - 1, dim, dim)),
+                np.tile(np.diag(values), (Hp - Hw + 1, 1, 1)),
+            ],
+            axis=0,
         )
         res = make_mat_diag(mat_arr_tile)
 

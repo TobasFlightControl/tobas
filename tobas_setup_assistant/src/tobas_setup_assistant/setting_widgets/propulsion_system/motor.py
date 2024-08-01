@@ -40,19 +40,25 @@ class MotorWidget(BaseSelectedLinkSettingWidget):
             "propellers positioned diagonally opposite each other typically rotate in the same direction."
         )
         self._direction = ParamGetterWidget_ComboBox(
-            "Turning Direction", direction_description, [TurningDirection.CW.name, TurningDirection.CCW.name]
+            "Turning Direction",
+            direction_description,
+            [TurningDirection.CW.name, TurningDirection.CCW.name],
         )
         self._param_rows.addWidget(self._direction)
 
         kv_description = "Motor's rotational speed under no load, relative to the supplied voltage."
         self._kv = ParamGetterWidget_SpinBox(
-            "Kv", kv_description, minimum=1, maximum=10 ** 5, default=920, suffix=" rpm/V"
+            "Kv", kv_description, minimum=1, maximum=10**5, default=920, suffix=" rpm/V"
         )
         self._param_rows.addWidget(self._kv)
 
         resistance_description = "Internal resistance value of the motor."
         self._resistance = ParamGetterWidget_SpinBox(
-            "Internal Registance", resistance_description, minimum=1, default=250, suffix=" mΩ"
+            "Internal Registance",
+            resistance_description,
+            minimum=1,
+            default=250,
+            suffix=" mΩ",
         )
         self._param_rows.addWidget(self._resistance)
 
@@ -65,7 +71,11 @@ class MotorWidget(BaseSelectedLinkSettingWidget):
             "relative to the command value."
         )
         self._time_const_up = ParamGetterWidget_SpinBox(
-            "Time Constant Up", time_const_up_description, minimum=1, default=15, suffix=" ms"
+            "Time Constant Up",
+            time_const_up_description,
+            minimum=1,
+            default=15,
+            suffix=" ms",
         )
         self._param_rows.addWidget(self._time_const_up)
 
@@ -74,7 +84,11 @@ class MotorWidget(BaseSelectedLinkSettingWidget):
             "relative to the command value."
         )
         self._time_const_down = ParamGetterWidget_SpinBox(
-            "Time Constant Down", time_const_down_description, minimum=1, default=30, suffix=" ms"
+            "Time Constant Down",
+            time_const_down_description,
+            minimum=1,
+            default=30,
+            suffix=" ms",
         )
         self._param_rows.addWidget(self._time_const_down)
 
@@ -87,7 +101,11 @@ class MotorWidget(BaseSelectedLinkSettingWidget):
     @override
     def is_valid(self) -> bool:
         if self.num_poles() % 2 == 1:
-            q_error_named(self, PROPULSION_SYSTEM, "The number of poles of a brushless motor must be even.")
+            q_error_named(
+                self,
+                PROPULSION_SYSTEM,
+                "The number of poles of a brushless motor must be even.",
+            )
             return False
 
         if not self._max_rot_speed.is_valid():

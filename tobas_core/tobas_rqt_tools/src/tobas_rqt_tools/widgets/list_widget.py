@@ -1,4 +1,6 @@
-from __future__ import annotations  # 自クラスをメソッドの引数としてアノテーションするために必要
+from __future__ import (
+    annotations,
+)  # 自クラスをメソッドの引数としてアノテーションするために必要
 from overrides import override
 from typing import Union, Iterator
 from PyQt5.QtCore import Qt, pyqtSignal

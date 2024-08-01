@@ -1,4 +1,4 @@
-from tobas_rospy.utils import get_ros_ip
+from tobas_rclpy.utils import get_ros_ip
 
 
 def is_running_under_fc_master() -> bool:

@@ -144,7 +144,10 @@ class UnscentedKalmanFilter:  # FIXME: Pが発散してうまく機能せず(202
 
     def _calc_X(self, x: np.ndarray, P: np.ndarray) -> np.ndarray:
         assert x.shape == (self._x_dim,), f"{x.shape} != {(self._x_dim,)}"
-        assert P.shape == (self._x_dim, self._x_dim), f"{P.shape} != {(self._x_dim, self._x_dim)}"
+        assert P.shape == (
+            self._x_dim,
+            self._x_dim,
+        ), f"{P.shape} != {(self._x_dim, self._x_dim)}"
 
         sqrt_P = SLA.sqrtm(P)  # Pの平方根行列
         c = np.sqrt(self._x_dim + self._kappa)

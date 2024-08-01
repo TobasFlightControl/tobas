@@ -9,7 +9,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-from tobas_rqt_tools.widgets import ComboBox, SpinBox, DoubleSpinBox, add_expanding_widget
+from tobas_rqt_tools.widgets import (
+    ComboBox,
+    SpinBox,
+    DoubleSpinBox,
+    add_expanding_widget,
+)
 from tobas_rqt_tools.messages import q_error
 from tobas_kdl_sympy.joint import JointType
 
@@ -166,7 +171,7 @@ class SelectedPropellersWidget(QTableWidget):
 
         kv = SpinBox()
         kv.setMinimum(1)
-        kv.setMaximum(10 ** 5)
+        kv.setMaximum(10**5)
         kv.setSuffix(" rpm/V")
         self.kvs.append(kv)
         self.setCellWidget(row, 6, kv)

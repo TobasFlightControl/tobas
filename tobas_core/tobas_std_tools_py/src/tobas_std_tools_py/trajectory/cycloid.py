@@ -76,11 +76,11 @@ class Cycloid3d(Trajectory):
 
     def _get_acc(self, t: float) -> np.ndarray:
         theta = 2 * np.pi * t / self._T
-        tmp = 2 * np.pi / self._T ** 2 * np.sin(theta)
+        tmp = 2 * np.pi / self._T**2 * np.sin(theta)
 
         xdd = self._x_diff * tmp
         ydd = self._y_diff * tmp
-        zdd = 2 * np.pi ** 2 * self._h / self._T ** 2 * np.cos(theta) - self._z_diff * (
+        zdd = 2 * np.pi**2 * self._h / self._T**2 * np.cos(theta) - self._z_diff * (
             self._k / self._T
         ) ** 2 * np.exp(-self._k * t / self._T)
 

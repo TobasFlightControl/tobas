@@ -58,11 +58,21 @@ class ImageModel(AbstractListModel):
 
 
 class WaypointModel(AbstractListModel):
-    FIELDS = [("index", int), ("coordinate", QGeoCoordinate), ("acceptance_radius", float), ("marker_color", str)]
+    FIELDS = [
+        ("index", int),
+        ("coordinate", QGeoCoordinate),
+        ("acceptance_radius", float),
+        ("marker_color", str),
+    ]
 
 
 class LineModel(AbstractListModel):
-    FIELDS = [("latitude_1", float), ("longitude_1", float), ("latitude_2", float), ("longitude_2", float)]
+    FIELDS = [
+        ("latitude_1", float),
+        ("longitude_1", float),
+        ("latitude_2", float),
+        ("longitude_2", float),
+    ]
 
 
 class SystemInfo(QObject):
@@ -110,10 +120,22 @@ class MapWidget(QQuickWidget):
         self._waypoint.clear()
         self._line.clear()
 
-    def add_waypoint(self, index: int, coord: QGeoCoordinate, acceptance_radius: float, marker_color: str) -> None:
+    def add_waypoint(
+        self,
+        index: int,
+        coord: QGeoCoordinate,
+        acceptance_radius: float,
+        marker_color: str,
+    ) -> None:
         self._waypoint.add(index, coord, acceptance_radius, marker_color)
 
-    def add_line(self, latitude_1: float, longitude_1: float, latitude_2: float, longitude_2: float) -> None:
+    def add_line(
+        self,
+        latitude_1: float,
+        longitude_1: float,
+        latitude_2: float,
+        longitude_2: float,
+    ) -> None:
         self._line.add(latitude_1, longitude_1, latitude_2, longitude_2)
 
     def get_center(self) -> Tuple[float, float]:

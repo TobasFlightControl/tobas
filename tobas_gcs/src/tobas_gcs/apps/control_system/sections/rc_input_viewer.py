@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QGridLayout
@@ -113,8 +113,11 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Update subscriber
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
-        self._rcin_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.Throttled.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
+        self._rcin_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.RC_INPUT}",
+            RCInput,
+            self._rcin_cb,
+            queue_size=1,
         )
 
     def _rcin_cb(self, rcin: RCInput) -> None:
@@ -135,7 +138,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         elif rcin.mode == RCInput.MODE_ACROBAT:
             self._mode.setText("Acrobat")
         else:
-            rospy.logerr(f"Unknown flight mode: {rcin.mode}")
+            self.get_logger().error(f"Unknown flight mode: {rcin.mode}")
 
         if rcin.e_stop:
             self._estop.setText("ON")

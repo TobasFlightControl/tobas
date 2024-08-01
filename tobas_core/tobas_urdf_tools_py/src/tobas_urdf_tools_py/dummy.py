@@ -12,7 +12,14 @@ class DummyInertialLink(Link):
             inertial=Inertial(
                 mass=Mass(value=self.MASS),
                 origin=Origin.Zero(),
-                inertia=Inertia(ixx=self.INERTIA, ixy=0.0, ixz=0.0, iyy=self.INERTIA, iyz=0.0, izz=self.INERTIA),
+                inertia=Inertia(
+                    ixx=self.INERTIA,
+                    ixy=0.0,
+                    ixz=0.0,
+                    iyy=self.INERTIA,
+                    iyz=0.0,
+                    izz=self.INERTIA,
+                ),
             ),
             visual=Visual(origin=Origin.Zero(), geometry=Geometry(Mesh())),
         )
@@ -23,6 +30,7 @@ class DummyVisualLink(Link):
         super().__init__(
             name=name,
             visual=Visual(
-                origin=Origin.Zero(), geometry=Geometry(Mesh("package://tobas_description/meshes/empty.dae"))
+                origin=Origin.Zero(),
+                geometry=Geometry(Mesh("package://tobas_description/meshes/empty.dae")),
             ),
         )

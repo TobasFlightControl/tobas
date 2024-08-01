@@ -9,7 +9,11 @@ from overrides import override
 from PyQt5.QtWidgets import QVBoxLayout
 
 from ..common import SENSOR_OFFSET_DESCRIPTION
-from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleSpinBox, ParamGetterWidget_Vector3d
+from ..parameter_getters import (
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_DoubleSpinBox,
+    ParamGetterWidget_Vector3d,
+)
 from .base_setting import BaseSettingWidget
 
 
@@ -35,7 +39,12 @@ class BarometerWidget(BaseSettingWidget):
 
         pressure_var_description = ""
         self.pressure_var = ParamGetterWidget_DoubleSpinBox(
-            "Air Pressure Variance", pressure_var_description, decimals=2, minimum=0.0, default=10.0, suffix=" Pa^2"
+            "Air Pressure Variance",
+            pressure_var_description,
+            decimals=2,
+            minimum=0.0,
+            default=10.0,
+            suffix=" Pa^2",
         )
         self._param_rows.addWidget(self.pressure_var)
 

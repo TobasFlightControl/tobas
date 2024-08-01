@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 import os.path as osp
-import rospy
+import rclpy
 import shutil
 from bisect import bisect_left
 from overrides import override
@@ -13,7 +13,14 @@ from functools import partial
 from typing import Tuple, List
 from pathlib import Path
 from PyQt5.QtCore import QThread
-from PyQt5.QtWidgets import QDialog, QListWidget, QListWidgetItem, QVBoxLayout, QHBoxLayout, QSizePolicy
+from PyQt5.QtWidgets import (
+    QDialog,
+    QListWidget,
+    QListWidgetItem,
+    QVBoxLayout,
+    QHBoxLayout,
+    QSizePolicy,
+)
 from PyQt5.QtPositioning import QGeoCoordinate
 
 from tobas_std_tools_py.algorithm import cumsum
@@ -173,7 +180,11 @@ class MissionPlannerWidget(BaseAppWidget):
 
     @pyqtSlot()
     def _on_cache_button_clicked(self) -> None:
-        if not yes_or_no(self._main, "Do you want to cache map tiles to offline storage?", QMessageLevel.WARN):
+        if not yes_or_no(
+            self._main,
+            "Do you want to cache map tiles to offline storage?",
+            QMessageLevel.WARN,
+        ):
             return
 
         # 確認用のディレクトリパスをPathオブジェクトに変換
@@ -250,8 +261,8 @@ class MissionPlannerWidget(BaseAppWidget):
             return
 
         try:
-            gps: Gps = rospy.wait_for_message(f"{self._drone.name}/gps", Gps, WAIT_FOR_SERVER)
-        except rospy.ROSException:
+            gps: Gps = rclpy.wait_for_message(f"{self._drone.name}/gps", Gps, WAIT_FOR_SERVER)
+        except rclpy.ROSException:
             q_error(self._main, "Failed to get GNSS message.")
             return
 

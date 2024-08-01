@@ -83,11 +83,19 @@ def lip3d(
 
         sx_cur, sy_cur, theta_cur = s_[i]
         trans_cur = np.array([sx_cur, sign * sy_cur])
-        rot_cur = np.array([[math.cos(theta_cur), -math.sin(theta_cur)], [math.sin(theta_cur), math.cos(theta_cur)]])
+        rot_cur = np.array(
+            [
+                [math.cos(theta_cur), -math.sin(theta_cur)],
+                [math.sin(theta_cur), math.cos(theta_cur)],
+            ]
+        )
         sx_next, sy_next, theta_next = s_[i + 1]
         trans_next = np.array([sx_next, -sign * sy_next])
         rot_next = np.array(
-            [[math.cos(theta_next), -math.sin(theta_next)], [math.sin(theta_next), math.cos(theta_next)]]
+            [
+                [math.cos(theta_next), -math.sin(theta_next)],
+                [math.sin(theta_next), math.cos(theta_next)],
+            ]
         )
 
         # (4.49)
@@ -112,4 +120,8 @@ def lip3d(
         p_init, v_init = sub_traj(T_sup)
         sub_traj_list.append(sub_traj)
 
-    return (CoMTrajectory(sub_traj_list, T_sup), np.array(fp_des_list), np.array(fp_list))
+    return (
+        CoMTrajectory(sub_traj_list, T_sup),
+        np.array(fp_des_list),
+        np.array(fp_list),
+    )

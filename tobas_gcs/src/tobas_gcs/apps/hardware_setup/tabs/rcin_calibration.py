@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
 from overrides import override
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 from PyQt5.QtCore import Qt, pyqtSlot
@@ -16,7 +16,11 @@ from tobas_rqt_tools.utils import place_center, create_fixed_height_hboxlayout
 from tobas_tools_py.constants import RCChannel, Service
 from tobas_tools_py.drone import Drone
 from tobas_hal_msgs.msg import Sbus
-from tobas_calibration_msgs.srv import RCInputCalibration, RCInputCalibrationRequest, RCInputCalibrationResponse
+from tobas_calibration_msgs.srv import (
+    RCInputCalibration,
+    RCInputCalibrationRequest,
+    RCInputCalibrationResponse,
+)
 
 from ....common import WAIT_FOR_SERVER, Description
 from .base import BaseHardwareSetupWidget
@@ -137,7 +141,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         cols2.addStretch()
         self._rows.addStretch()
 
-        self._sbus_sub: rospy.Subscriber = None
+        self._sbus_sub: rclpy.Subscriber = None
 
         self._reset()
 
@@ -189,14 +193,14 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         # S.BUSトピックが正常に発行されていることを確認
         sbus_topic = f"{self._drone.name}/hal/sbus"
         try:
-            rospy.wait_for_message(sbus_topic, Sbus, WAIT_FOR_SERVER)
+            rclpy.wait_for_message(sbus_topic, Sbus, WAIT_FOR_SERVER)
         except Exception:
             q_error(self, f"Failed to get RC input message in {WAIT_FOR_SERVER} seconds.")
             self._reset()
             return
 
         # 一時的にS.BUSトピックを購読開始
-        self._sbus_sub = rospy.Subscriber(sbus_topic, Sbus, self._sbus_cb, queue_size=1)
+        self._sbus_sub = rclpy.Subscriber(sbus_topic, Sbus, self._sbus_cb, queue_size=1)
 
         self._start_button.setEnabled(False)
         self._finish_button.setEnabled(True)
@@ -221,10 +225,10 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Radio calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_calibration", RCInputCalibration)
+        calib_sc = rclpy.ServiceProxy(f"{self._drone.name}/rcin_calibration", RCInputCalibration)
         try:
             calib_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
+        except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
 
@@ -258,10 +262,10 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(f"{self._drone.name}/rcin_handler/{Service.RELOAD_CONFIG}", Trigger)
+        reload_config_sc = rclpy.ServiceProxy(f"{self._drone.name}/rcin_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
+        except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
 

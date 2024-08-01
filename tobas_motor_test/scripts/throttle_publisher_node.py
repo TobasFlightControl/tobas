@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-
 import os.path as osp
 import sys
 import signal
 import rospkg
 from PyQt5.QtWidgets import QApplication
 
-from tobas_rospy.utils import init_node
+from tobas_rclpy.utils import init_node
 from tobas_rqt_tools.widgets import MainWidget
 from tobas_rqt_tools.utils import handle_unexpected_exception
 
@@ -19,7 +17,9 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     main_widget = MainWidget(
-        TITLE, osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"), ThrottlePublisherWidget()
+        TITLE,
+        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
+        ThrottlePublisherWidget(),
     )
     main_widget.show()
 

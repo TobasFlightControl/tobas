@@ -1,4 +1,5 @@
-import rospy
+import rclpy
+from rclpy.duration import Duration
 from copy import deepcopy
 from overrides import override
 
@@ -25,16 +26,16 @@ class FollowTrajectoryClient_Hover(FollowTrajectoryClient):
 
         # 上昇
         point.pos.z = 2.0
-        point.time_from_start += rospy.Duration.from_sec(5.0)
+        point.time_from_start += Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         # 待機
-        point.time_from_start += rospy.Duration.from_sec(10.0)
+        point.time_from_start += Duration.from_sec(10.0)
         goal.waypoints.append(deepcopy(point))
 
         # 下降
         point.pos.z = -2.0  # 安全のため余分に下げる
-        point.time_from_start += rospy.Duration.from_sec(5.0)
+        point.time_from_start += Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         return goal

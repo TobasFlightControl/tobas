@@ -1,4 +1,4 @@
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtWidgets import QWidget
 
@@ -11,7 +11,7 @@ class Widget(QWidget):
 
     @override
     def close(self) -> bool:
-        rospy.logdebug(f"{self.__class__.__name__}.close")
+        rclpy.logdebug(f"{self.__class__.__name__}.close")
 
         for child in self.findChildren(Widget):
             child.close()

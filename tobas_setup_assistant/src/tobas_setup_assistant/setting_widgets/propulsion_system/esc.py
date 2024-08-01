@@ -39,7 +39,11 @@ class EscWidget(BaseSelectedLinkSettingWidget):
             "and in the worst case, it could cause failure or fire."
         )
         self._max_current = ParamGetterWidget_SpinBox(
-            "Maximum Current", max_current_description, minimum=1, default=20, suffix=" A"
+            "Maximum Current",
+            max_current_description,
+            minimum=1,
+            default=20,
+            suffix=" A",
         )
         self._param_rows.addWidget(self._max_current)
 

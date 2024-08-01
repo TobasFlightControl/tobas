@@ -1,12 +1,12 @@
 import os.path as osp
-import rospy
+import rclpy
 from xml.etree import ElementTree as ET
 from jinja2 import Environment, FileSystemLoader
 
 
 def get_drone_name() -> str:
     """URDFからドローンの名前を取得する．"""
-    description = rospy.get_param("/robot_description")
+    description = rclpy.get_param("/robot_description")
     root = ET.fromstring(description)
     assert root.tag == "robot"
 

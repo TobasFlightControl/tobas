@@ -1,6 +1,6 @@
 import os
 import signal
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtGui import QIcon, QCloseEvent
@@ -31,7 +31,7 @@ class MainWidget(QWidget):
 
     @override
     def closeEvent(self, _: QCloseEvent) -> None:
-        rospy.logdebug(f"{self.__class__.__name__}.closeEvent")
+        rclpy.logdebug(f"{self.__class__.__name__}.closeEvent")
 
         self._widget.close()
 

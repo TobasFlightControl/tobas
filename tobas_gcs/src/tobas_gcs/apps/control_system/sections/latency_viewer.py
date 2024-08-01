@@ -4,13 +4,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
+from rclpy.duration import Duration
 import pyqtgraph as pg
 from overrides import override
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QWheelEvent
 
-from tobas_rospy.timestamped_buffer import TimestampedBuffer
+from tobas_rclpy.timestamped_buffer import TimestampedBuffer
 from tobas_tools_py.constants import Topic
 from tobas_tools_py.drone import Drone
 from tobas_msgs.msg import Latency
@@ -39,7 +40,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
         self._pw.setBackground("w")
         self._rows.addWidget(self._pw)
 
-        self._buffer = TimestampedBuffer[rospy.Duration](rospy.Duration(self.EXPIRY_DURATION))
+        self._buffer = TimestampedBuffer[Duration](Duration(self.EXPIRY_DURATION))
         self._latency_sub = None
 
     @override
@@ -49,8 +50,11 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
 
         if self._latency_sub is not None:
             self._latency_sub.unregister()
-        self._latency_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.Throttled.LATENCY}", Latency, self._latency_cb, queue_size=1
+        self._latency_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.LATENCY}",
+            Latency,
+            self._latency_cb,
+            queue_size=1,
         )
 
     def _latency_cb(self, latency: Latency) -> None:

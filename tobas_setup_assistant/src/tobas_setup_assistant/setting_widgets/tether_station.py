@@ -41,19 +41,33 @@ class TetherStationWidget(OptionalDeviceWidget):
 
         tension_description = "The constant tension of the cable. It can be modified during simulation."
         self.tension = ParamGetterWidget_DoubleSpinBox(
-            "Tension", tension_description, decimals=2, minimum=0.0, default=1.0, suffix=" N"
+            "Tension",
+            tension_description,
+            decimals=2,
+            minimum=0.0,
+            default=1.0,
+            suffix=" N",
         )
         self._add_param_widget(self.tension)
 
         max_length_description = "The maximum length of the cable. It can be modified during simulation."
         self.max_length = ParamGetterWidget_DoubleSpinBox(
-            "Maximum Length", max_length_description, decimals=1, minimum=1.0, default=5.0, suffix=" m"
+            "Maximum Length",
+            max_length_description,
+            decimals=1,
+            minimum=1.0,
+            default=5.0,
+            suffix=" m",
         )
         self._add_param_widget(self.max_length)
 
         young_modulus_description = "The young modulus of the cable."
         self.young_modulus = ParamGetterWidget_SpinBox(
-            "Young Modulus", young_modulus_description, minimum=1, default=200, suffix=" MPa"
+            "Young Modulus",
+            young_modulus_description,
+            minimum=1,
+            default=200,
+            suffix=" MPa",
         )
         self._add_param_widget(self.young_modulus)
 

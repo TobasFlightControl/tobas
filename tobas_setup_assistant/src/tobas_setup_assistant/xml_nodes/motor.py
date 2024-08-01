@@ -28,7 +28,10 @@ class MotorModel(ET.Element):
         assert motor_const >= 0.0, motor_const
         assert moment_const >= 0.0, moment_const
         assert rotor_drag_coef >= 0.0, rotor_drag_coef
-        assert direction in {TurningDirection.CW.name, TurningDirection.CCW.name}, direction
+        assert direction in {
+            TurningDirection.CW.name,
+            TurningDirection.CCW.name,
+        }, direction
         assert time_const_up > 0.0, time_const_up
         assert time_const_down > 0.0, time_const_down
         assert max_rot_speed > 0.0, max_rot_speed

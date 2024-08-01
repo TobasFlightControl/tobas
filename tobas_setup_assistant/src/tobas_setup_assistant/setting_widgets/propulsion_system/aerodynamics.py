@@ -18,7 +18,10 @@ from tobas_rqt_tools.widgets import ComboBox
 from tobas_rqt_tools.messages import q_error_named
 
 from ...common import AIR_DENSITY, TO_DO, Description
-from ...parameter_getters import ParamGetterWidget_DoubleSpinBox, ParamGetterWidget_DoubleTable
+from ...parameter_getters import (
+    ParamGetterWidget_DoubleSpinBox,
+    ParamGetterWidget_DoubleTable,
+)
 from .common import PROPULSION_SYSTEM
 from .base import BaseSelectedLinkSettingWidget
 from .blade_theory import BladeTheory
@@ -59,7 +62,11 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
     @override
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
-            q_error_named(self._main, PROPULSION_SYSTEM, "Please select aerodynamics setting method.")
+            q_error_named(
+                self._main,
+                PROPULSION_SYSTEM,
+                "Please select aerodynamics setting method.",
+            )
             return False
         else:
             if not self._selected().is_valid():
@@ -218,7 +225,12 @@ class AerodynamicsWidget_Manual(AerodynamicsWidget_Base):
             "the torque generated in the opposite direction to the propeller's rotation, in Newton-meters, is N = c T."
         )
         self._moment_const = ParamGetterWidget_DoubleSpinBox(
-            "Moment Constant", moment_const_description, decimals=6, minimum=0.0, default=0.016, suffix=" m"
+            "Moment Constant",
+            moment_const_description,
+            decimals=6,
+            minimum=0.0,
+            default=0.016,
+            suffix=" m",
         )
         self._add_param_widget(self._moment_const)
 
@@ -289,7 +301,12 @@ class AerodynamicsWidget_BladeTheory(AerodynamicsWidget_Base):
 
     def _blade_thory(self) -> BladeTheory:
         propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
-        return BladeTheory(propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle())
+        return BladeTheory(
+            propeller.num_blade(),
+            propeller.radius(),
+            propeller.blade_chord(),
+            propeller.pitch_angle(),
+        )
 
 
 class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
@@ -313,7 +330,9 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
         data_description = "Please input experimental data from the Thrust Stand."
         self._data = ParamGetterWidget_DoubleTable(
-            "Data from thrust stand", ["RPM", "Thrust", "Torque"], description_text=data_description
+            "Data from thrust stand",
+            ["RPM", "Thrust", "Torque"],
+            description_text=data_description,
         )
         self._data.set_minimum([1e-1, 1e-6, 1e-6])  # TODO: 負の値にも対応
         self._data.set_decimals([0, 6, 6])
@@ -350,7 +369,10 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
         propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
         blade_theory = BladeTheory(
-            propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle()
+            propeller.num_blade(),
+            propeller.radius(),
+            propeller.blade_chord(),
+            propeller.pitch_angle(),
         )
         return blade_theory.rotor_drag_coef()
 
@@ -371,7 +393,9 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
 
         data_description = "Input the Static data for the relevant propeller."
         self._data = ParamGetterWidget_DoubleTable(
-            "Measurements in static condition", ["RPM", "CT", "CP"], description_text=data_description
+            "Measurements in static condition",
+            ["RPM", "CT", "CP"],
+            description_text=data_description,
         )
         self._data.set_minimum([1e-3, 1e-6, 1e-6])
         self._data.set_decimals([3, 6, 6])
@@ -382,7 +406,11 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
     @override
     def is_valid(self) -> bool:
         if self._data.count() == 0:
-            q_error_named(self._main, PROPULSION_SYSTEM, "Measurements in static condition is blank.")
+            q_error_named(
+                self._main,
+                PROPULSION_SYSTEM,
+                "Measurements in static condition is blank.",
+            )
             return False
 
         return True
@@ -395,7 +423,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
 
         propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
-        return (CT * AIR_DENSITY * propeller.diameter() ** 4) / (4 * math.pi ** 2)
+        return (CT * AIR_DENSITY * propeller.diameter() ** 4) / (4 * math.pi**2)
 
     @override
     def moment_const(self) -> float:
@@ -415,6 +443,9 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         # FIXME: ブレードの幾何形状のみから推定するのではなく，他の空力特性を考慮して推定
         propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
         blade_theory = BladeTheory(
-            propeller.num_blade(), propeller.radius(), propeller.blade_chord(), propeller.pitch_angle()
+            propeller.num_blade(),
+            propeller.radius(),
+            propeller.blade_chord(),
+            propeller.pitch_angle(),
         )
         return blade_theory.rotor_drag_coef()

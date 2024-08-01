@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
 from std_msgs.msg import Bool
 from overrides import override
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QGridLayout
@@ -106,14 +106,20 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._pre_arm_check_sub.unregister()
             self._arming_sub.unregister()
 
-        self._gps_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
-        self._rcin_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.Throttled.RC_INPUT}", RCInput, self._rcin_cb, queue_size=1
+        self._gps_sub = rclpy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
+        self._rcin_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.RC_INPUT}",
+            RCInput,
+            self._rcin_cb,
+            queue_size=1,
         )
-        self._pre_arm_check_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.PRE_ARM_CHECK}", PreArmCheck, self._pre_arm_check_cb, queue_size=1
+        self._pre_arm_check_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.PRE_ARM_CHECK}",
+            PreArmCheck,
+            self._pre_arm_check_cb,
+            queue_size=1,
         )
-        self._arming_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.ARMING}", Bool, self._arming_cb, queue_size=1)
+        self._arming_sub = rclpy.Subscriber(f"{self._drone.name}/{Topic.ARMING}", Bool, self._arming_cb, queue_size=1)
 
         self._is_first_update = False
 

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import os
 import signal
-import rospy
+import rclpy
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton
 
@@ -31,11 +31,15 @@ class ShutdownButtonWidget(QPushButton):
     @pyqtSlot()
     def _on_clicked(self) -> None:
         # 本当にシャットダウンしてよいか確認
-        if not yes_or_no(self._main, "Are you sure you want to shut down the FC and the GCS?", QMessageLevel.WARN):
+        if not yes_or_no(
+            self._main,
+            "Are you sure you want to shut down the FC and the GCS?",
+            QMessageLevel.WARN,
+        ):
             return
 
         # SSH接続
-        rospy.loginfo("Connecting to the Raspberry Pi.")
+        self.get_logger().info("Connecting to the Raspberry Pi.")
         try:
             self._ssh_client.connect()
         except Exception as e:
@@ -43,7 +47,7 @@ class ShutdownButtonWidget(QPushButton):
             return
 
         # ラズパイをシャットダウン
-        rospy.loginfo("Shutting down the Raspberry Pi.")
+        self.get_logger().info("Shutting down the Raspberry Pi.")
         self._ssh_client.exec_command_bg_super("poweroff")
 
         # GCSを強制終了

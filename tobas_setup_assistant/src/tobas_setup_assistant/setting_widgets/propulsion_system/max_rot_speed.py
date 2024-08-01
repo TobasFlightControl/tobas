@@ -9,7 +9,14 @@ from abc import abstractmethod
 from overrides import override
 from typing import final, List
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QLabel, QButtonGroup, QCheckBox, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import (
+    QWidget,
+    QLabel,
+    QButtonGroup,
+    QCheckBox,
+    QVBoxLayout,
+    QHBoxLayout,
+)
 from PyQt5.QtGui import QFont
 
 from tobas_std_tools_py.math import rpm2rps
@@ -186,7 +193,7 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
         electrodynamics = self._main.propulsion_system.selected.get_electrodynamics(self._link_name)
         a, b = electrodynamics.rot_speed_coefs()
         V = self._spinbox.value()
-        return (math.sqrt(a ** 2 + 4 * b * V) - a) / (2 * b)
+        return (math.sqrt(a**2 + 4 * b * V) - a) / (2 * b)
 
     @override
     def is_valid(self) -> bool:

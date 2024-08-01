@@ -30,7 +30,11 @@ def jntArrayVelMsgToNp(m: JntArrayVel) -> Tuple[NDArray, NDArray]:
 
 
 def jntArrayAccNpToMsg(q: NDArray, qdot: NDArray, qdotdot: NDArray) -> JntArrayAcc:
-    return JntArrayVel(q=jntArrayNpToMsg(q), qdot=jntArrayNpToMsg(qdot), qdotdot=jntArrayNpToMsg(qdotdot))
+    return JntArrayVel(
+        q=jntArrayNpToMsg(q),
+        qdot=jntArrayNpToMsg(qdot),
+        qdotdot=jntArrayNpToMsg(qdotdot),
+    )
 
 
 def jntArrayAccMsgToNp(m: JntArrayAcc) -> Tuple[NDArray, NDArray, NDArray]:

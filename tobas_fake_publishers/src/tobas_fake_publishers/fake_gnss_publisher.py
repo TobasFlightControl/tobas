@@ -1,4 +1,5 @@
-import rospy
+import rclpy
+from rclpy.duration import Duration
 
 from tobas_tools_py.constants import Topic
 from tobas_msgs.msg import Gps
@@ -10,12 +11,12 @@ class FakeGNSSPublisher:
     DEFAULT_VEL_STDDEV = 0.3  # [m/s]
 
     def __init__(self) -> None:
-        sampling_period = rospy.get_param("~sampling_period", self.DEFAULT_SAMPLING_PERIOD)
-        pos_stddev = rospy.get_param("~position_stddev", self.DEFAULT_POS_STDDEV)
-        vel_stddev = rospy.get_param("~velocity_stddev", self.DEFAULT_VEL_STDDEV)
+        sampling_period = rclpy.get_param("~sampling_period", self.DEFAULT_SAMPLING_PERIOD)
+        pos_stddev = rclpy.get_param("~position_stddev", self.DEFAULT_POS_STDDEV)
+        vel_stddev = rclpy.get_param("~velocity_stddev", self.DEFAULT_VEL_STDDEV)
 
-        pos_var = pos_stddev ** 2
-        vel_var = vel_stddev ** 2
+        pos_var = pos_stddev**2
+        vel_var = vel_stddev**2
 
         self._gnss_msg = Gps()
         self._gnss_msg.fix_type = Gps.FIX_3D
@@ -25,12 +26,32 @@ class FakeGNSSPublisher:
         self._gnss_msg.ground_speed.x = 0.0
         self._gnss_msg.ground_speed.y = 0.0
         self._gnss_msg.ground_speed.z = 0.0
-        self._gnss_msg.position_covariance.data = [pos_var, 0, 0, 0, pos_var, 0, 0, 0, pos_var]
-        self._gnss_msg.velocity_covariance.data = [vel_var, 0, 0, 0, vel_var, 0, 0, 0, vel_var]
+        self._gnss_msg.position_covariance.data = [
+            pos_var,
+            0,
+            0,
+            0,
+            pos_var,
+            0,
+            0,
+            0,
+            pos_var,
+        ]
+        self._gnss_msg.velocity_covariance.data = [
+            vel_var,
+            0,
+            0,
+            0,
+            vel_var,
+            0,
+            0,
+            0,
+            vel_var,
+        ]
 
-        self._gnss_pub = rospy.Publisher(Topic.GNSS, Gps, queue_size=1)
-        self._timer = rospy.Timer(rospy.Duration(sampling_period), self._timer_cb)
+        self._gnss_pub = rclpy.Publisher(Topic.GNSS, Gps, queue_size=1)
+        self._timer = rclpy.Timer(Duration(sampling_period), self._timer_cb)
 
-    def _timer_cb(self, event: rospy.timer.TimerEvent) -> None:
+    def _timer_cb(self, event: rclpy.timer.TimerEvent) -> None:
         self._gnss_msg.header.stamp = event.current_real
         self._gnss_pub.publish(self._gnss_msg)

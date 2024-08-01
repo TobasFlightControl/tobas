@@ -70,7 +70,9 @@ class NonPlanarPid(BaseController):
         assert len(directions) <= 2
         if len(directions) == 1:
             if not yes_or_no(
-                self._main, "All rotors have the same rotation direction. Is that OK?", QMessageLevel.WARN
+                self._main,
+                "All rotors have the same rotation direction. Is that OK?",
+                QMessageLevel.WARN,
             ):
                 return False
 

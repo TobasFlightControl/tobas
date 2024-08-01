@@ -38,7 +38,7 @@ def sc_lognormal(mean: float, std: float, range_: Tuple[float, float] = None) ->
     assert std >= 0.0
 
     sign = np.sign(mean)
-    mu = -np.log((std ** 2 / mean ** 2 + 1.0) / mean ** 2) / 2.0
+    mu = -np.log((std**2 / mean**2 + 1.0) / mean**2) / 2.0
     sigma = np.sqrt(2.0 * (np.log(sign * mean) - mu))
 
     cnd = np.inf
@@ -58,8 +58,8 @@ def sc_gamma(mean: float, std: float, range_: Tuple[float, float] = None) -> flo
     assert std >= 0.0
 
     sign = np.sign(mean)
-    shape = mean ** 2 / std ** 2
-    scale = sign * std ** 2 / mean
+    shape = mean**2 / std**2
+    scale = sign * std**2 / mean
 
     cnd = np.inf
     while cnd < lb or ub < cnd:

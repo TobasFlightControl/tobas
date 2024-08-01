@@ -107,7 +107,10 @@ class SetupAssistant(Widget):
                 widget.on_opened()
                 widget.load_settings(settings[widget.NAME])
             except Exception:
-                q_error(self, f'Failed to load settings of "{widget.NAME}":\n\n{traceback.format_exc()}')
+                q_error(
+                    self,
+                    f'Failed to load settings of "{widget.NAME}":\n\n{traceback.format_exc()}',
+                )
                 success = False
 
         return success

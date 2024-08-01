@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import yaml
-import rospy
+import rclpy
 import rospkg
 import shutil
 from xml.etree import ElementTree as ET
@@ -26,7 +26,12 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import CONTROLLER_NODE_NAME, OBSERVER_NODE_NAME
 from tobas_tools_py.command import build_tobas_package
 from tobas_tools_py.package import *
-from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, SpeedRollDeltaPitch
+from tobas_msgs.msg import (
+    PositionYaw,
+    PosVelAccYaw,
+    PoseTwistAccelCommand,
+    SpeedRollDeltaPitch,
+)
 
 from .common import PKG_NAME
 from .utils import get_drone_name, TemplateGenerator
@@ -72,7 +77,10 @@ class PackageGenerator(QObject):
         progress.progress_step()
 
         progress.close()
-        q_info(self._main, "Tobas configuration package is generated and built successfully.")
+        q_info(
+            self._main,
+            "Tobas configuration package is generated and built successfully.",
+        )
 
     def _is_valid_config(self) -> bool:
         # 全ての設定項目について，単体で問題ないことを確認
@@ -88,7 +96,8 @@ class PackageGenerator(QObject):
         custom_jnt_names = self._main.custom_joints.get_joint_names()
         if not is_unique(prop_jnt_names + cs_jnt_names + custom_jnt_names):
             q_error(
-                self, "The joints set in the propulsion system, control surfaces, and custom joints are duplicated."
+                self,
+                "The joints set in the propulsion system, control surfaces, and custom joints are duplicated.",
             )
             return False
 
@@ -154,14 +163,25 @@ class PackageGenerator(QObject):
         self._cfg_env.generate(items, "rc_teleop.launch.tpl", launch_dir)
         self._cfg_env.generate(items, "jointpos_commander.launch.tpl", launch_dir)
 
-        flight_modes = {self._main.controller.stabilize_mode(), self._main.controller.acrobat_mode()}
+        flight_modes = {
+            self._main.controller.stabilize_mode(),
+            self._main.controller.acrobat_mode(),
+        }
 
         # Keyboard Teleop (コントローラの対応コマンドによって場合分け)
         # TODO: コントローラごとに1つずつ
         if PositionYaw.__name__ in flight_modes or PosVelAccYaw.__name__ in flight_modes:
-            self._cfg_env.generate(items, "keyboard_teleop/position_yaw/keyboard_teleop.launch.tpl", launch_dir)
+            self._cfg_env.generate(
+                items,
+                "keyboard_teleop/position_yaw/keyboard_teleop.launch.tpl",
+                launch_dir,
+            )
         elif SpeedRollDeltaPitch.__name__ in flight_modes:
-            self._cfg_env.generate(items, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.tpl", launch_dir)
+            self._cfg_env.generate(
+                items,
+                "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.tpl",
+                launch_dir,
+            )
 
         # GUI Teleop (コントローラの対応コマンドによって場合分け)
         # TODO: コントローラごとに1つずつ
@@ -318,7 +338,10 @@ class PackageGenerator(QObject):
                 "wing_span": vehicle.wing_span.get(),
                 "mean_aerodynamic_chord": vehicle.mac.get(),
                 "aerodynamic_center": vehicle.aerodynamic_center.get(),
-                "alpha_limit": {"lower": vehicle.alpha_limit.min(), "upper": vehicle.alpha_limit.max()},
+                "alpha_limit": {
+                    "lower": vehicle.alpha_limit.min(),
+                    "upper": vehicle.alpha_limit.max(),
+                },
             }
 
             # Aerodynamic Coefficients
@@ -378,13 +401,19 @@ class PackageGenerator(QObject):
     def _generate_joint_control_config(self, config_dir: str) -> None:
         # yamlファイルに書き込むための辞書を作る
         items = dict()
-        items["joint_state_controller"] = {"type": "joint_state_controller/JointStateController", "publish_rate": 1000}
+        items["joint_state_controller"] = {
+            "type": "joint_state_controller/JointStateController",
+            "publish_rate": 1000,
+        }
         items["gazebo_ros_control"] = {"pid_gains": dict()}
 
         for i in range(self._main.custom_joints.count()):
             jnt_name = self._main.custom_joints.get_joint_name(i)
             controller_name = f"{jnt_name}_controller"
-            items[controller_name] = {"joint": jnt_name, "type": self._main.custom_joints.get_controller_type(i)}
+            items[controller_name] = {
+                "joint": jnt_name,
+                "type": self._main.custom_joints.get_controller_type(i),
+            }
 
             if self._main.custom_joints.pid_enabled(i):
                 items[controller_name]["pid"] = {
@@ -407,7 +436,10 @@ class PackageGenerator(QObject):
         controller = self._main.controller
 
         items = dict()
-        items["rc_teleop"] = {"stabilize_mode": controller.stabilize_mode(), "acrobat_mode": controller.acrobat_mode()}
+        items["rc_teleop"] = {
+            "stabilize_mode": controller.stabilize_mode(),
+            "acrobat_mode": controller.acrobat_mode(),
+        }
 
         file_path = osp.join(config_dir, "rc_teleop.yaml")
         with open(file_path, "w") as f:
@@ -427,7 +459,7 @@ class PackageGenerator(QObject):
 
     def _generate_urdfs(self, mesh_dir: str) -> None:
         # Parse robot
-        description = rospy.get_param("/robot_description")
+        description = rclpy.get_param("/robot_description")
         robot = ET.fromstring(description)
         assert robot.tag == "robot"
 
@@ -529,7 +561,8 @@ class PackageGenerator(QObject):
 
         # Base plugin
         base_plugin = BasePlugin(
-            ns=self._drone_name, rotor_joint_names=self._main.propulsion_system.selected.joint_names()
+            ns=self._drone_name,
+            rotor_joint_names=self._main.propulsion_system.selected.joint_names(),
         )
         robot.append(base_plugin)
 

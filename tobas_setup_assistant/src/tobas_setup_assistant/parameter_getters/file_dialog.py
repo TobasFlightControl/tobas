@@ -1,5 +1,5 @@
 import os.path as osp
-import rospy
+import rclpy
 from overrides import override
 from typing import Optional
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
@@ -62,7 +62,7 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget[str]):
     def _on_browse_button_clicked(self) -> None:
         res, last_opened_dir = self._property_client.get_string(self._last_opened_dir_key)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         path, _ = QFileDialog.getOpenFileName(self, TITLE, last_opened_dir, self._init_filter, self._options)
@@ -72,6 +72,6 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget[str]):
         self._path.setText(path)
 
         if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())

@@ -7,9 +7,16 @@ if TYPE_CHECKING:
 import os
 import os.path as osp
 import yaml
-import rospy
+import rclpy
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import (
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QFileDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+)
 from PyQt5.QtGui import QFont
 
 from tobas_property_tools_py.property_client import PropertyClient
@@ -62,7 +69,7 @@ class PackageLoaderWidget(Widget):
         # 前回開いたパスを取得
         res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         # Tobasパッケージのパスを取得
@@ -79,19 +86,28 @@ class PackageLoaderWidget(Widget):
 
         # 拡張子をチェック
         if not tbs_path.endswith(PKG_EXTENSION):
-            q_error(self._main, f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).')
+            q_error(
+                self._main,
+                f'"{tbs_path}" is not a Tobas configuration package (*{PKG_EXTENSION}).',
+            )
             return
 
         # URDFの存在を確認
         urdf_path = get_original_urdf_path(tbs_path)
         if not osp.isfile(urdf_path):
-            q_error(self._main, f"{urdf_path} does not exist. Please create a new Tobas configuration package.")
+            q_error(
+                self._main,
+                f"{urdf_path} does not exist. Please create a new Tobas configuration package.",
+            )
             return
 
         # ユーザ設定ファイルの存在を確認
         settings_path = get_settings_path(tbs_path)
         if not osp.isfile(settings_path):
-            q_error(self._main, f"{settings_path} does not exist. Please create a new Tobas configuration package.")
+            q_error(
+                self._main,
+                f"{settings_path} does not exist. Please create a new Tobas configuration package.",
+            )
             return
 
         # パスをテキストに設定
@@ -99,9 +115,9 @@ class PackageLoaderWidget(Widget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(tbs_path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
 
         # Tobasパッケージのパスを追加する
         source_tobas_package(tbs_path)

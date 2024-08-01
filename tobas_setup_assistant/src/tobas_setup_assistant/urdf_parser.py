@@ -167,18 +167,31 @@ class URDFParser(QObject):
             elif joint.type in {JointType.FLOATING, JointType.PLANER}:
                 q_error(self.parent(), f'"{joint.name}" has multi DoF joint: {joint.type}')
                 return False
-            elif joint.type in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
+            elif joint.type in {
+                JointType.REVOLUTE,
+                JointType.CONTINUOUS,
+                JointType.PRISMATIC,
+            }:
                 if joint.axis is None:
-                    q_error(self.parent(), f'Joint axis is not specified for "{joint.name}".')
+                    q_error(
+                        self.parent(),
+                        f'Joint axis is not specified for "{joint.name}".',
+                    )
                     return False
                 if LA.norm(joint.axis) < 1e-6:
-                    q_error(self.parent(), f'The norm of movable joint "{joint.name}" must be positive.')
+                    q_error(
+                        self.parent(),
+                        f'The norm of movable joint "{joint.name}" must be positive.',
+                    )
                     return False
 
         # ルートリンクのフレーム座標軸が XYZ = NWU に一致する
         origin: Pose = root_link.origin
         if origin is not None and any(angle != 0 for angle in origin.rpy):
-            q_error(self.parent(), "The frame of the root link must coincide with the NWU coordinate axis.")
+            q_error(
+                self.parent(),
+                "The frame of the root link must coincide with the NWU coordinate axis.",
+            )
             return False
 
         # ルートリンクがInertialを持たない

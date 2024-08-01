@@ -9,7 +9,7 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>rospy</exec_depend>
+	<exec_depend>rclpy</exec_depend>
 	<exec_depend>python3-overrides</exec_depend>	<!-- aptには無いがrosdepには含まれるパッケージ．間接的にsudo pip installが呼ばれる: https://github.com/ros/rosdistro/blob/master/rosdep/python.yaml -->
 	<exec_depend>python3-markdown</exec_depend>
 	<exec_depend>python3-pyqtgraph</exec_depend>

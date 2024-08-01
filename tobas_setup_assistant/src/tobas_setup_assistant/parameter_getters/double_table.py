@@ -1,6 +1,6 @@
 import os.path as osp
 import pandas as pd
-import rospy
+import rclpy
 from overrides import override
 from typing import List, Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
@@ -187,7 +187,10 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
         try:
             data = df.to_numpy(dtype=float)  # 強制的にfloatとして解釈
         except Exception as e:
-            q_error(self.parent(), f"The data contains invalid data type. The error message is: {e}")
+            q_error(
+                self.parent(),
+                f"The data contains invalid data type. The error message is: {e}",
+            )
             return
 
         if not self.set(data.tolist()):
@@ -198,7 +201,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
     def _get_csv_file_path(self) -> str:
         res, last_opened_dir = self._property_client.get_string(self._last_opened_dir_key)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         options = QFileDialog.Options()
@@ -208,9 +211,9 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
         # 最後に開かれたパスを保存
         if file_path != "":
             if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(file_path)) < 0:
-                rospy.logerr(self._property_client.error_message())
+                self.get_logger().error(self._property_client.error_message())
             if self._property_client.save() < 0:
-                rospy.logerr(self._property_client.error_message())
+                self.get_logger().error(self._property_client.error_message())
 
         return file_path
 
@@ -222,7 +225,10 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
             for col in range(self._num_entry):
                 value = row[col]
                 if value < self._minimum[col] or self._maximum[col] < value:
-                    q_error(self, f"{value}[{self._suffix[col]}] is invalid for {self._labels[col]}.")
+                    q_error(
+                        self,
+                        f"{value}[{self._suffix[col]}] is invalid for {self._labels[col]}.",
+                    )
                     return False
 
         return True

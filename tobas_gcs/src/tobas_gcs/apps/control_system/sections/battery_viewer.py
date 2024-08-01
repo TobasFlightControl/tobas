@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtWidgets import QLabel
 
@@ -53,12 +53,21 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
 
         if self._battery_sub is not None:
             self._battery_sub.unregister()
-        self._battery_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.Throttled.BATTERY_LPF}", Battery, self._battery_cb, queue_size=1
+        self._battery_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.BATTERY_LPF}",
+            Battery,
+            self._battery_cb,
+            queue_size=1,
         )
 
     def _battery_cb(self, battery: Battery) -> None:
-        rate = remap(battery.voltage, self._drone.battery.sag_voltage, self._drone.battery.max_voltage, 0, 100)
+        rate = remap(
+            battery.voltage,
+            self._drone.battery.sag_voltage,
+            self._drone.battery.max_voltage,
+            0,
+            100,
+        )
         self._voltage_range.set_upper(battery.voltage)
         self._voltage_range.set_text(f"{battery.voltage:.2f} V ({int(rate)} %)")
 

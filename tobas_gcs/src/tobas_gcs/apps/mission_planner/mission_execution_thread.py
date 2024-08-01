@@ -1,11 +1,20 @@
-import rospy
+import rclpy
+from rclpy.duration import Duration
 import actionlib
 from overrides import override
 from typing import List
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 
 from tobas_tools_py.constants import Service, Action
-from tobas_msgs.msg import CommandLevel, TakeoffAction, TakeoffGoal, LandAction, LandGoal, MoveAction, MoveGoal
+from tobas_msgs.msg import (
+    CommandLevel,
+    TakeoffAction,
+    TakeoffGoal,
+    LandAction,
+    LandGoal,
+    MoveAction,
+    MoveGoal,
+)
 from tobas_msgs.srv import GetGnssOrigin, GetGnssOriginRequest, GetGnssOriginResponse
 
 from ...common import WAIT_FOR_SERVER
@@ -27,7 +36,7 @@ class MissionExecutionThread(QThread):
         self._commands = commands
         self._stop_requested = False
 
-        self._get_gnss_origin_sc = rospy.ServiceProxy(f"/{drone_name}/{Service.GET_GNSS_ORIGIN}", GetGnssOrigin)
+        self._get_gnss_origin_sc = rclpy.ServiceProxy(f"/{drone_name}/{Service.GET_GNSS_ORIGIN}", GetGnssOrigin)
 
         self._takeoff_ac = actionlib.SimpleActionClient(f"/{drone_name}/{Action.TAKEOFF}", TakeoffAction)
         self._land_ac = actionlib.SimpleActionClient(f"/{drone_name}/{Action.LAND}", LandAction)
@@ -59,24 +68,24 @@ class MissionExecutionThread(QThread):
     def _check_server_connections(self) -> bool:
         try:
             self._get_gnss_origin_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
+        except rclpy.ROSException:
             self.finished.emit(False, "Get GNSS origin server is not ready.")
             return False
 
-        if not self._takeoff_ac.wait_for_server(rospy.Duration(WAIT_FOR_SERVER)):
+        if not self._takeoff_ac.wait_for_server(Duration(WAIT_FOR_SERVER)):
             self.finished.emit(False, "Takeoff action server is not ready.")
             return False
-        if not self._land_ac.wait_for_server(rospy.Duration(WAIT_FOR_SERVER)):
+        if not self._land_ac.wait_for_server(Duration(WAIT_FOR_SERVER)):
             self.finished.emit(False, "Land action server is not ready.")
             return False
-        if not self._move_ac.wait_for_server(rospy.Duration(WAIT_FOR_SERVER)):
+        if not self._move_ac.wait_for_server(Duration(WAIT_FOR_SERVER)):
             self.finished.emit(False, "Move action server is not ready.")
             return False
 
         return True
 
     def _execute_command(self, command) -> bool:
-        rospy.loginfo(f"Executing command: {command}")
+        self.get_logger().info(f"Executing command: {command}")
 
         if isinstance(command, Waypoint):
             return self._execute_waypoint(command)
@@ -104,7 +113,7 @@ class MissionExecutionThread(QThread):
         self._move_ac.send_goal(goal)
 
         # 終了フラグを監視しながら待機
-        while not self._move_ac.wait_for_result(rospy.Duration(self.WAIT_FOR_RESULT)):
+        while not self._move_ac.wait_for_result(Duration(self.WAIT_FOR_RESULT)):
             if self._stop_requested:
                 self._move_ac.cancel_goal()
                 return False
@@ -128,7 +137,7 @@ class MissionExecutionThread(QThread):
         self._takeoff_ac.send_goal(goal)
 
         # 終了フラグを監視しながら待機
-        while not self._takeoff_ac.wait_for_result(rospy.Duration(self.WAIT_FOR_RESULT)):
+        while not self._takeoff_ac.wait_for_result(Duration(self.WAIT_FOR_RESULT)):
             if self._stop_requested:
                 self._takeoff_ac.cancel_goal()
                 return False
@@ -148,7 +157,7 @@ class MissionExecutionThread(QThread):
         self._land_ac.send_goal(goal)
 
         # 終了フラグを監視しながら待機
-        while not self._land_ac.wait_for_result(rospy.Duration(self.WAIT_FOR_RESULT)):
+        while not self._land_ac.wait_for_result(Duration(self.WAIT_FOR_RESULT)):
             if self._stop_requested:
                 self._land_ac.cancel_goal()
                 return False
@@ -179,7 +188,7 @@ class MissionExecutionThread(QThread):
         self._move_ac.send_goal(goal)
 
         # 終了フラグを監視しながら待機
-        while not self._move_ac.wait_for_result(rospy.Duration(self.WAIT_FOR_RESULT)):
+        while not self._move_ac.wait_for_result(Duration(self.WAIT_FOR_RESULT)):
             if self._stop_requested:
                 self._move_ac.cancel_goal()
                 return False

@@ -38,19 +38,29 @@ class LidarWidget(OptionalDeviceWidget):
 
         hor_samples_description = ""
         self.hor_samples = ParamGetterWidget_SpinBox(
-            "The Number of Horizontal Samples", hor_samples_description, minimum=1, default=100
+            "The Number of Horizontal Samples",
+            hor_samples_description,
+            minimum=1,
+            default=100,
         )
         self._add_param_widget(self.hor_samples)
 
         ver_samples_description = ""
         self.ver_samples = ParamGetterWidget_SpinBox(
-            "The Number of Vertical Samples", ver_samples_description, minimum=1, default=360
+            "The Number of Vertical Samples",
+            ver_samples_description,
+            minimum=1,
+            default=360,
         )
         self._add_param_widget(self.ver_samples)
 
         hor_fov_description = ""
         self.hor_fov = ParamGetterWidget_DoubleRange(
-            "Horizontal Field of View", hor_fov_description, decimals=3, default=(0.0, 2 * math.pi), suffix=" rad"
+            "Horizontal Field of View",
+            hor_fov_description,
+            decimals=3,
+            default=(0.0, 2 * math.pi),
+            suffix=" rad",
         )
         self._add_param_widget(self.hor_fov)
 
@@ -66,13 +76,22 @@ class LidarWidget(OptionalDeviceWidget):
 
         range_description = ""
         self.range = ParamGetterWidget_DoubleRange(
-            "Laser Distance Range", range_description, decimals=3, default=(0.1, 200.0), suffix=" m"
+            "Laser Distance Range",
+            range_description,
+            decimals=3,
+            default=(0.1, 200.0),
+            suffix=" m",
         )
         self._add_param_widget(self.range)
 
         resolution_description = ""
         self.resolution = ParamGetterWidget_DoubleSpinBox(
-            "Distance Resolution", resolution_description, decimals=3, minimum=1e-3, default=2e-3, suffix=" m"
+            "Distance Resolution",
+            resolution_description,
+            decimals=3,
+            minimum=1e-3,
+            default=2e-3,
+            suffix=" m",
         )
         self._add_param_widget(self.resolution)
 

@@ -1,5 +1,5 @@
 import os.path as osp
-import rospy
+import rclpy
 import csv
 from datetime import datetime
 from typing import List
@@ -54,10 +54,10 @@ class DynamicConfigurationWidget(Widget):
         scroll_area.setLayout(self._form)
 
         self._params = dict()
-        self._local_pose_sub = rospy.Subscriber(
+        self._local_pose_sub = rclpy.Subscriber(
             "mavros/local_position/pose", PoseStamped, self._local_pose_cb, queue_size=1
         )
-        self._param_set_sc = rospy.ServiceProxy(PARAM_SET_SRV_NAME, ParamSet)
+        self._param_set_sc = rclpy.ServiceProxy(PARAM_SET_SRV_NAME, ParamSet)
 
     def _load_params(self, file_path: str) -> None:
         fail_params: List[str] = []  # ロードに失敗したパラメータ
@@ -121,14 +121,14 @@ class DynamicConfigurationWidget(Widget):
                 req.param_id = name
                 try:
                     res: ParamSetResponse = self._param_set_sc(req)
-                except rospy.ServiceException as e:
-                    rospy.logerr(f"Failed to set {name}: {e}")
+                except rclpy.ServiceException as e:
+                    self.get_logger().error(f"Failed to set {name}: {e}")
                     self._form.removeRow(self._form.rowCount() - 1)  # 先程追加した最後の行を削除
                     fail_params.append(name)
                     continue
 
                 if not res.success:
-                    rospy.logerr(f"Failed to set {name}.")
+                    self.get_logger().error(f"Failed to set {name}.")
                     fail_params.append(name)
                     continue
 
@@ -141,7 +141,7 @@ class DynamicConfigurationWidget(Widget):
     def _send_param_set_request(self, req: ParamSetRequest) -> bool:
         try:
             res: ParamSetResponse = self._param_set_sc(req)
-        except rospy.ServiceException as e:
+        except rclpy.ServiceException as e:
             q_error(self, f"Failed to set {req.param_id}: {e}")
             return False
 
@@ -149,13 +149,13 @@ class DynamicConfigurationWidget(Widget):
             q_error(self, f"Failed to set {req.param_id}.")
             return False
 
-        rospy.loginfo(f"{req.param_id} is updated.")
+        self.get_logger().info(f"{req.param_id} is updated.")
         return True
 
     def _local_pose_cb(self, _: PoseStamped) -> None:
         self._load_button.setEnabled(True)
         self._save_button.setEnabled(True)
-        rospy.loginfo("Dynamic configuration is ready.")
+        self.get_logger().info("Dynamic configuration is ready.")
         self._local_pose_sub.unregister()
 
     @pyqtSlot()
@@ -163,14 +163,14 @@ class DynamicConfigurationWidget(Widget):
         # パラメータサーバが利用可能化チェック
         try:
             self._param_set_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException as e:
+        except rclpy.ROSException as e:
             q_error(self, "ArduPilot parameter server is not available.")
             return
 
         # 前回開いたパスを取得
         res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         # paramsのパスを取得
@@ -186,9 +186,9 @@ class DynamicConfigurationWidget(Widget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
 
         # フォームと辞書を初期化
         self._form.clear()
@@ -202,14 +202,18 @@ class DynamicConfigurationWidget(Widget):
         # 前回開いたパスを取得
         res, last_opened_dir = self._property_client.get_string(self.LAST_OPENED_DIR_KEY)
         if res < 0:
-            rospy.logwarn(self._property_client.error_message())
+            rclpy.logwarn(self._property_client.error_message())
             last_opened_dir = osp.expanduser("~")
 
         # paramsのパスを取得
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_path, _ = QFileDialog.getSaveFileName(  # 上書きするかどうかの確認も自動でやってくれる
-            self, TITLE, last_opened_dir, "Parameter Files (*.params)", options=options
+            self,
+            TITLE,
+            last_opened_dir,
+            "Parameter Files (*.params)",
+            options=options,
         )
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
@@ -218,9 +222,9 @@ class DynamicConfigurationWidget(Widget):
 
         # ユーザが開いたディレクトリを保存
         if self._property_client.set_string(self.LAST_OPENED_DIR_KEY, osp.dirname(file_path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            self.get_logger().error(self._property_client.error_message())
 
         # TSVファイルを保存
         try:

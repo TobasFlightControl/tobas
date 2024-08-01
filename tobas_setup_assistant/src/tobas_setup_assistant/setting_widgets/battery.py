@@ -13,7 +13,10 @@ from tobas_rqt_tools.widgets import Widget, ComboBox, StackedWidget
 from tobas_rqt_tools.messages import q_error_named
 
 from ..common import TO_DO
-from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleSpinBox
+from ..parameter_getters import (
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_DoubleSpinBox,
+)
 from .base_setting import BaseSettingWidget
 
 
@@ -172,7 +175,11 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
 
         capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
-            "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
+            "Current Capacity",
+            capacity_description,
+            minimum=1,
+            default=5000,
+            suffix=" mAh",
         )
         self._param_rows.addWidget(self._capacity)
 
@@ -185,13 +192,21 @@ class BatteryWidget_LiPo(BatteryWidget_Base):
             "it can continuously supply up to 2000mA (2A) of current."
         )
         self._C_cont = ParamGetterWidget_SpinBox(
-            "Continuous Discharge Current Rate", C_cont_description, minimum=1, default=50, suffix=" /h"
+            "Continuous Discharge Current Rate",
+            C_cont_description,
+            minimum=1,
+            default=50,
+            suffix=" /h",
         )
         self._param_rows.addWidget(self._C_cont)
 
         registance_description = "Internal resistance value per cell."
         self._registance = ParamGetterWidget_SpinBox(
-            "Internal Registance", registance_description, minimum=0, default=3, suffix=" mΩ"
+            "Internal Registance",
+            registance_description,
+            minimum=0,
+            default=3,
+            suffix=" mΩ",
         )
         self._param_rows.addWidget(self._registance)
 
@@ -254,37 +269,65 @@ class BatteryWidget_Other(BatteryWidget_Base):
 
         nominal_voltage_description = "Nominal voltage of the battery."
         self._nominal_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Nominal Voltage", nominal_voltage_description, decimals=1, minimum=0.1, default=14.8, suffix=" V"
+            "Nominal Voltage",
+            nominal_voltage_description,
+            decimals=1,
+            minimum=0.1,
+            default=14.8,
+            suffix=" V",
         )
         self._param_rows.addWidget(self._nominal_voltage)
 
         max_voltage_description = "Maximum voltage of the battery."
         self._max_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Maximum Voltage", max_voltage_description, decimals=1, minimum=0.1, default=16.8, suffix=" V"
+            "Maximum Voltage",
+            max_voltage_description,
+            decimals=1,
+            minimum=0.1,
+            default=16.8,
+            suffix=" V",
         )
         self._param_rows.addWidget(self._max_voltage)
 
         sag_voltage_description = "Voltage at which the discharge characteristics change abruptly."
         self._sag_voltage = ParamGetterWidget_DoubleSpinBox(
-            "Voltage Threshold", sag_voltage_description, decimals=1, minimum=0.1, default=13.6, suffix=" V"
+            "Voltage Threshold",
+            sag_voltage_description,
+            decimals=1,
+            minimum=0.1,
+            default=13.6,
+            suffix=" V",
         )
         self._param_rows.addWidget(self._sag_voltage)
 
         max_current_description = "Maximum current of the battery."
         self._max_current = ParamGetterWidget_DoubleSpinBox(
-            "Maximum Current", max_current_description, decimals=1, minimum=0.1, default=200.0, suffix=" A"
+            "Maximum Current",
+            max_current_description,
+            decimals=1,
+            minimum=0.1,
+            default=200.0,
+            suffix=" A",
         )
         self._param_rows.addWidget(self._max_current)
 
         capacity_description = "The amount of electric charge that can be drawn from the battery."
         self._capacity = ParamGetterWidget_SpinBox(
-            "Current Capacity", capacity_description, minimum=1, default=5000, suffix=" mAh"
+            "Current Capacity",
+            capacity_description,
+            minimum=1,
+            default=5000,
+            suffix=" mAh",
         )
         self._param_rows.addWidget(self._capacity)
 
         registance_description = "Internal resistance value of the battery."
         self._registance = ParamGetterWidget_SpinBox(
-            "Internal Registance", registance_description, minimum=0, default=12, suffix=" mΩ"
+            "Internal Registance",
+            registance_description,
+            minimum=0,
+            default=12,
+            suffix=" mΩ",
         )
         self._param_rows.addWidget(self._registance)
 
@@ -293,7 +336,11 @@ class BatteryWidget_Other(BatteryWidget_Base):
     @override
     def is_valid(self) -> bool:
         if self._max_voltage.get() <= self._sag_voltage.get():
-            q_error_named(self._main, self.NAME, "Maximum voltage must be greater than voltage threshold.")
+            q_error_named(
+                self._main,
+                self.NAME,
+                "Maximum voltage must be greater than voltage threshold.",
+            )
             return False
 
         return True

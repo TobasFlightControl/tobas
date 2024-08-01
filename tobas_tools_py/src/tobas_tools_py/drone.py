@@ -1,4 +1,4 @@
-import rospy
+import rclpy
 import yaml
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
@@ -7,7 +7,13 @@ from typing import final
 
 from .battery_config import BatteryConfig
 from .joint_config import JointCommandType, JointConfig, JointConfigMap
-from .rotor_config import TurningDirection, RotorAxis, ESCMode, RotorConfig, RotorConfigs
+from .rotor_config import (
+    TurningDirection,
+    RotorAxis,
+    ESCMode,
+    RotorConfig,
+    RotorConfigs,
+)
 from .fixed_wing_tools import FixedWingConfig
 
 
@@ -75,26 +81,26 @@ class DroneLoader_Param(DroneLoader):
     def load(self) -> None:
         self._clear()
 
-        self._drone.name = rospy.get_param(self.DRONE_NAME)
+        self._drone.name = rclpy.get_param(self.DRONE_NAME)
 
         self._get_battery_config()
         self._get_joint_configs()
         self._get_rotor_configs()
 
-        self._drone.has_fixed_wing = rospy.search_param(self.FIXED_WING)
+        self._drone.has_fixed_wing = rclpy.search_param(self.FIXED_WING)
         if self._drone.has_fixed_wing:
             self._get_fixed_wing_config()
 
         self._drone.is_loaded = True
 
     def _get_battery_config(self) -> None:
-        self._drone.battery.nominal_voltage = rospy.get_param(f"{self.BATTERY}/{self.NOMINAL_VOLTAGE}")
-        self._drone.battery.max_voltage = rospy.get_param(f"{self.BATTERY}/{self.MAX_VOLTAGE}")
-        self._drone.battery.sag_voltage = rospy.get_param(f"{self.BATTERY}/{self.SAG_VOLTAGE}")
-        self._drone.battery.max_current = rospy.get_param(f"{self.BATTERY}/{self.MAX_CURRENT}")
+        self._drone.battery.nominal_voltage = rclpy.get_param(f"{self.BATTERY}/{self.NOMINAL_VOLTAGE}")
+        self._drone.battery.max_voltage = rclpy.get_param(f"{self.BATTERY}/{self.MAX_VOLTAGE}")
+        self._drone.battery.sag_voltage = rclpy.get_param(f"{self.BATTERY}/{self.SAG_VOLTAGE}")
+        self._drone.battery.max_current = rclpy.get_param(f"{self.BATTERY}/{self.MAX_CURRENT}")
 
     def _get_joint_configs(self) -> None:
-        num_joints = rospy.get_param(self.NUM_JOINTS)
+        num_joints = rclpy.get_param(self.NUM_JOINTS)
         for joint_idx in range(num_joints):
             self._get_joint_config(joint_idx)
 
@@ -102,12 +108,12 @@ class DroneLoader_Param(DroneLoader):
         prefix = f"{self.JOINT_PREFIX}{joint_idx}/"
         cfg = JointConfig()
 
-        cfg.home_pos = rospy.get_param(f"{prefix}{self.HOME_POSITION}")
-        cfg.min_pos = rospy.get_param(f"{prefix}{self.MIN_POSITION}")
-        cfg.max_pos = rospy.get_param(f"{prefix}{self.MAX_POSITION}")
+        cfg.home_pos = rclpy.get_param(f"{prefix}{self.HOME_POSITION}")
+        cfg.min_pos = rclpy.get_param(f"{prefix}{self.MIN_POSITION}")
+        cfg.max_pos = rclpy.get_param(f"{prefix}{self.MAX_POSITION}")
         assert cfg.min_pos <= cfg.home_pos <= cfg.max_pos
 
-        cmd_type = rospy.get_param(f"{prefix}{self.COMMAND_TYPE}")
+        cmd_type = rclpy.get_param(f"{prefix}{self.COMMAND_TYPE}")
         if cmd_type == JointCommandType.POSITION.value:
             cfg.cmd_type = JointCommandType.POSITION
         elif cmd_type == JointCommandType.VELOCITY.value:
@@ -117,13 +123,13 @@ class DroneLoader_Param(DroneLoader):
         else:
             raise RuntimeError(f"Invalid command type: {cmd_type}")
 
-        name = rospy.get_param(f"{prefix}{self.JOINT_NAME}")
+        name = rclpy.get_param(f"{prefix}{self.JOINT_NAME}")
         self._drone.joint_map[name] = cfg
 
         return cfg
 
     def _get_rotor_configs(self) -> None:
-        num_rotors = rospy.get_param(self.NUM_ROTORS)
+        num_rotors = rclpy.get_param(self.NUM_ROTORS)
         for rotor_idx in range(num_rotors):
             self._drone.rotors.append(self._get_rotor_config(rotor_idx))
 
@@ -132,10 +138,10 @@ class DroneLoader_Param(DroneLoader):
         res = RotorConfig()
 
         # Link name
-        res.link_name = rospy.get_param(f"{prefix}{self.LINK_NAME}")
+        res.link_name = rclpy.get_param(f"{prefix}{self.LINK_NAME}")
 
         # Turning Direction
-        direction = rospy.get_param(f"{prefix}{self.DIRECTION}")
+        direction = rclpy.get_param(f"{prefix}{self.DIRECTION}")
         if direction == TurningDirection.CW.name:
             res.direction = TurningDirection.CW
         elif direction == TurningDirection.CCW.name:
@@ -146,7 +152,7 @@ class DroneLoader_Param(DroneLoader):
             )
 
         # Rotor Axis
-        axis = rospy.get_param(f"{prefix}{self.AXIS}")
+        axis = rclpy.get_param(f"{prefix}{self.AXIS}")
         if axis == RotorAxis.X_POSITIVE.name:
             res.axis = RotorAxis.X_POSITIVE
         elif axis == RotorAxis.Z_POSITIVE.name:
@@ -155,7 +161,7 @@ class DroneLoader_Param(DroneLoader):
             res.axis = RotorAxis.UNKNOWN
 
         # ESC signal mode
-        esc_mode = rospy.get_param(f"{prefix}{self.ESC_MODE}")
+        esc_mode = rclpy.get_param(f"{prefix}{self.ESC_MODE}")
         if esc_mode == ESCMode.BLHELI_OPEN_LOOP.name:
             res.esc_mode = ESCMode.BLHELI_OPEN_LOOP
         elif esc_mode == ESCMode.BLHELI_CLOSED_LOOP_LOW_RANGE.name:
@@ -168,21 +174,21 @@ class DroneLoader_Param(DroneLoader):
             raise RuntimeError(f"Invalid ESC signal mode: {esc_mode}")
 
         # The number of poles
-        res.num_poles = rospy.get_param(f"{prefix}{self.NUM_POLES}")
+        res.num_poles = rclpy.get_param(f"{prefix}{self.NUM_POLES}")
         assert res.num_poles > 0
         assert res.num_poles % 2 == 0
 
-        res.max_rot_speed = rospy.get_param(f"{prefix}{self.MAX_ROT_SPEED}")
-        res.motor_constant = rospy.get_param(f"{prefix}{self.MOTOR_CONSTANT}")
-        res.moment_constant = rospy.get_param(f"{prefix}{self.MOMENT_CONSTANT}")
-        res.drag_constant = rospy.get_param(f"{prefix}{self.DRAG_CONSTANT}")
+        res.max_rot_speed = rclpy.get_param(f"{prefix}{self.MAX_ROT_SPEED}")
+        res.motor_constant = rclpy.get_param(f"{prefix}{self.MOTOR_CONSTANT}")
+        res.moment_constant = rclpy.get_param(f"{prefix}{self.MOMENT_CONSTANT}")
+        res.drag_constant = rclpy.get_param(f"{prefix}{self.DRAG_CONSTANT}")
 
-        res.rot_speed_coefs = rospy.get_param(f"{prefix}{self.ROT_SPEED_COEFS}")
+        res.rot_speed_coefs = rclpy.get_param(f"{prefix}{self.ROT_SPEED_COEFS}")
         assert len(res.rot_speed_coefs) == 2
         assert res.rot_speed_coefs[0] > 0.0
         assert res.rot_speed_coefs[1] >= 0.0
 
-        res.channel = rospy.get_param(f"{prefix}{self.CHANNEL}")
+        res.channel = rclpy.get_param(f"{prefix}{self.CHANNEL}")
         assert res.channel >= 0
 
         return res

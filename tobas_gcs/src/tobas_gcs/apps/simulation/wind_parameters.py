@@ -5,7 +5,8 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 import math
-import rospy
+import rclpy
+from rclpy.duration import Duration
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
@@ -71,13 +72,13 @@ class WindParamsWidget(QWidget):
         form.addRow(QLabel("Gust Interval [s]"), self._gust_interval)
 
     def initialize(self) -> bool:
-        self._get_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/get_wind_parameters", GetWindParams)
-        self._set_sc = rospy.ServiceProxy(f"{self._drone.name}/gazebo/set_wind_parameters", SetWindParams)
+        self._get_sc = rclpy.ServiceProxy(f"{self._drone.name}/gazebo/get_wind_parameters", GetWindParams)
+        self._set_sc = rclpy.ServiceProxy(f"{self._drone.name}/gazebo/set_wind_parameters", SetWindParams)
 
         try:
-            self._get_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
-            self._set_sc.wait_for_service(rospy.Duration(self.WAIT_FOR_SERVICE))
-        except rospy.ROSException:
+            self._get_sc.wait_for_service(Duration(self.WAIT_FOR_SERVICE))
+            self._set_sc.wait_for_service(Duration(self.WAIT_FOR_SERVICE))
+        except rclpy.ROSException:
             q_error(self._main, "Failed to connect to Gazebo wind server.")
             return False
 

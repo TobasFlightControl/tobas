@@ -8,7 +8,10 @@ if TYPE_CHECKING:
 from overrides import override
 from PyQt5.QtWidgets import QVBoxLayout
 
-from ..parameter_getters import ParamGetterWidget_SpinBox, ParamGetterWidget_DoubleSpinBox
+from ..parameter_getters import (
+    ParamGetterWidget_SpinBox,
+    ParamGetterWidget_DoubleSpinBox,
+)
 from .base_setting import BaseSettingWidget
 
 
@@ -28,7 +31,12 @@ class SimulationWidget(BaseSettingWidget):
 
         gravity_description = ""
         self.gravity = ParamGetterWidget_DoubleSpinBox(
-            "Gravity", gravity_description, decimals=6, minimum=0.0, default=9.80665, suffix=" m/s^2"  # 標準重力加速度
+            "Gravity",
+            gravity_description,
+            decimals=6,
+            minimum=0.0,
+            default=9.80665,
+            suffix=" m/s^2",  # 標準重力加速度
         )
         self._param_rows.addWidget(self.gravity)
         self.gravity.setEnabled(False)  # 重力の変化は無視できるため，標準重力加速度のみを使う
@@ -69,7 +77,12 @@ class SimulationWidget(BaseSettingWidget):
 
         max_model_error_rate_description = ""
         self.max_model_error_rate = ParamGetterWidget_SpinBox(
-            "Max Model Error Rate", max_model_error_rate_description, minimum=0, maximum=1000, default=10, suffix=" %"
+            "Max Model Error Rate",
+            max_model_error_rate_description,
+            minimum=0,
+            maximum=1000,
+            default=10,
+            suffix=" %",
         )
         self._param_rows.addWidget(self.max_model_error_rate)
 

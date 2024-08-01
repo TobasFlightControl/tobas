@@ -73,7 +73,10 @@ class MeasurableDisturbanceObserver(BaseObserver):
         C_tilda_cont[-self._d_dim :, -self._d_dim :] = np.identity(self._d_dim)
 
         cont_sys = matlab.ss(
-            A_tilda_cont, B_tilda_cont, C_tilda_cont, np.zeros((C_tilda_cont.shape[0], B_tilda_cont.shape[1]))
+            A_tilda_cont,
+            B_tilda_cont,
+            C_tilda_cont,
+            np.zeros((C_tilda_cont.shape[0], B_tilda_cont.shape[1])),
         )
         disc_sys = matlab.c2d(cont_sys, Ts, method=disc_method)
         A_tilda_disc = np.array(disc_sys.A)

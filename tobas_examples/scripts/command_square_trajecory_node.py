@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-
-import rospy
+import rclpy
 import actionlib
 
 from tobas_msgs.msg import TakeoffAction, TakeoffGoal, PosVelAccYaw
@@ -12,7 +10,7 @@ INTERVAL = 5.0  # [s]
 
 if __name__ == "__main__":
     # ROSノードの初期化
-    rospy.init_node("command_square_trajectory")
+    rclpy.init_node("command_square_trajectory")
 
     # 離陸アクションクライアントの作成
     takeoff_client = actionlib.SimpleActionClient("takeoff_action", TakeoffAction)
@@ -30,21 +28,21 @@ if __name__ == "__main__":
 
     # アクションの結果を取得
     if takeoff_client.get_state() != actionlib.GoalStatus.SUCCEEDED:
-        rospy.logerr("Takeoff action failed.")
-        rospy.signal_shutdown()
+        self.get_logger().error("Takeoff action failed.")
+        rclpy.shutdown()
 
     # コマンドのパブリッシャーを作成
-    command_pub = rospy.Publisher("command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1)
+    command_pub = rclpy.Publisher("command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1)
 
     # 正方形の頂点を指令し続ける
-    while not rospy.is_shutdown():
+    while not rclpy.is_shutdown():
         # 頂点1
         command = PosVelAccYaw()
         command.pos.x = SIDE_LENGTH / 2
         command.pos.y = SIDE_LENGTH / 2
         command.pos.z = ALTITUDE
         command_pub.publish(command)
-        rospy.sleep(INTERVAL)
+        rclpy.sleep(INTERVAL)
 
         # 頂点2
         command = PosVelAccYaw()
@@ -52,7 +50,7 @@ if __name__ == "__main__":
         command.pos.y = SIDE_LENGTH / 2
         command.pos.z = ALTITUDE
         command_pub.publish(command)
-        rospy.sleep(INTERVAL)
+        rclpy.sleep(INTERVAL)
 
         # 頂点3
         command = PosVelAccYaw()
@@ -60,7 +58,7 @@ if __name__ == "__main__":
         command.pos.y = -SIDE_LENGTH / 2
         command.pos.z = ALTITUDE
         command_pub.publish(command)
-        rospy.sleep(INTERVAL)
+        rclpy.sleep(INTERVAL)
 
         # 頂点4
         command = PosVelAccYaw()
@@ -68,4 +66,4 @@ if __name__ == "__main__":
         command.pos.y = -SIDE_LENGTH / 2
         command.pos.z = ALTITUDE
         command_pub.publish(command)
-        rospy.sleep(INTERVAL)
+        rclpy.sleep(INTERVAL)

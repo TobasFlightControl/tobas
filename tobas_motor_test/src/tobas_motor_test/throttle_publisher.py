@@ -1,4 +1,6 @@
-import rospy
+import rclpy
+from rclpy.time import Time
+from rclpy.duration import Duration
 from typing import List
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QGridLayout
@@ -41,10 +43,10 @@ class ThrottlePublisherWidget(Widget):
 
         rows.addStretch()
 
-        self._throttles_pub = rospy.Publisher(Topic.Command.THROTTLES, ThrottleArray, queue_size=1)
+        self._throttles_pub = rclpy.Publisher(Topic.Command.THROTTLES, ThrottleArray, queue_size=1)
 
         # モータが停止しないよう一定周期でコマンドを発行し続ける
-        rospy.Timer(rospy.Duration(COMMAND_PERIOD), self._command_timer_cb)
+        rclpy.Timer(Duration(COMMAND_PERIOD), self._command_timer_cb)
 
     @pyqtSlot()
     def _on_value_changed(self) -> None:
@@ -57,7 +59,7 @@ class ThrottlePublisherWidget(Widget):
 
     def _publish_current_values(self) -> None:
         throttles = ThrottleArray()
-        throttles.header.stamp = rospy.Time.now()
+        throttles.header.stamp = Time.now()
 
         for channel, commander in enumerate(self._commanders):
             throttles.throttles.append(Throttle(channel, commander.get_value()))

@@ -6,9 +6,16 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import math
-import rospy
+import rclpy
 from overrides import override
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty, QStandardPaths, QDateTime, QUrl
+from PyQt5.QtCore import (
+    QObject,
+    pyqtSignal,
+    pyqtProperty,
+    QStandardPaths,
+    QDateTime,
+    QUrl,
+)
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QGridLayout, QSizePolicy
 from PyQt5.QtQuickWidgets import QQuickWidget
 
@@ -147,9 +154,12 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
         if self._gps_sub is not None:
             self._gps_sub.unregister()
             self._euler_sub.unregister()
-        self._gps_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
-        self._euler_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.Throttled.EULER}", EulerStamped, self._euler_cb, queue_size=1
+        self._gps_sub = rclpy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
+        self._euler_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.Throttled.EULER}",
+            EulerStamped,
+            self._euler_cb,
+            queue_size=1,
         )
 
     def _gps_cb(self, gps: Gps) -> None:

@@ -11,7 +11,15 @@ from ..common import BODY_PSIZE
 class IntGetter(QWidget):
     value_changed = pyqtSignal(int)
 
-    def __init__(self, name: str, minimum: int, maximum: int, single_step: int, default: int, suffix: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        minimum: int,
+        maximum: int,
+        single_step: int,
+        default: int,
+        suffix: str,
+    ) -> None:
         assert minimum <= maximum
         assert single_step > 0
 
@@ -52,7 +60,14 @@ class FloatGetter(QWidget):
     value_changed = pyqtSignal(float)
 
     def __init__(
-        self, name: str, decimals: int, minimum: float, maximum: float, single_step: float, default: float, suffix: str
+        self,
+        name: str,
+        decimals: int,
+        minimum: float,
+        maximum: float,
+        single_step: float,
+        default: float,
+        suffix: str,
     ) -> None:
         assert decimals >= 0
         assert minimum < maximum

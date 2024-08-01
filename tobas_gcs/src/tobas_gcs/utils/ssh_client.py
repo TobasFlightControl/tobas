@@ -2,7 +2,7 @@ import os
 import os.path as osp
 import paramiko
 import socket
-import rospy
+import rclpy
 from scp import SCPClient
 from typing import Tuple, Optional
 
@@ -94,13 +94,13 @@ class SSHClientWrapper:
         _exclude_dir : str
             ローカルの除外するディレクトリの絶対パス．
         """
-        rospy.logdebug(f"SSHClientWrapper.scp_put_dir({_local_dir}, {_remote_dir}, {_exclude_dir})")
+        rclpy.logdebug(f"SSHClientWrapper.scp_put_dir({_local_dir}, {_remote_dir}, {_exclude_dir})")
 
         if not osp.isdir(_local_dir):
             raise RuntimeError(f"Local directory {_local_dir} does not exist.")
 
         local_dir_base = osp.basename(_local_dir.rstrip("/"))
-        rospy.logdebug(f"The base name of the local directory is {local_dir_base}.")
+        rclpy.logdebug(f"The base name of the local directory is {local_dir_base}.")
 
         with SCPClient(self._ssh_client.get_transport()) as scp:
             for root, _, files in os.walk(_local_dir):
@@ -118,17 +118,17 @@ class SSHClientWrapper:
                     remote_file = osp.join(_remote_dir, local_dir_base, relative_path)
                     remote_pardir = osp.dirname(remote_file)
                     if not self.dir_exists(remote_pardir):
-                        rospy.logdebug(f"Creating remote directory {remote_pardir}")
+                        rclpy.logdebug(f"Creating remote directory {remote_pardir}")
                         success, _, error_output = self.exec_command(f"mkdir -p {remote_pardir}")
                         if not success:
                             raise RuntimeError(f"Failed to create remote directory {remote_pardir}: {error_output}")
 
-                    rospy.logdebug(f"Sending local file {local_file} into remote directory {remote_pardir}.")
+                    rclpy.logdebug(f"Sending local file {local_file} into remote directory {remote_pardir}.")
                     scp.put(local_file, remote_pardir)
 
     def scp_put_dir_super(self, local_dir: str, remote_dir: str, exclude_dir: Optional[str] = None) -> None:
         """root権限が必要なファイルに書き込む．"""
-        rospy.logdebug(f"SSHClientWrapper.scp_put_dir_super({local_dir}, {remote_dir}, {exclude_dir})")
+        rclpy.logdebug(f"SSHClientWrapper.scp_put_dir_super({local_dir}, {remote_dir}, {exclude_dir})")
 
         # リモートディレクトリが存在することを確かめる
         # 存在しなければローカルオブジェクトがそのままリモートディレクトリのパスとして配置されてしまう

@@ -28,31 +28,54 @@ class VehicleParametersWidget(BaseFixedWingSettingWidget):
 
         wing_surface_description = ""
         self.wing_surface = ParamGetterWidget_DoubleSpinBox(
-            "Wing Surface", wing_surface_description, decimals=3, minimum=0.001, default=0.47, suffix=" m^2"
+            "Wing Surface",
+            wing_surface_description,
+            decimals=3,
+            minimum=0.001,
+            default=0.47,
+            suffix=" m^2",
         )
         self._param_rows.addWidget(self.wing_surface)
 
         wing_span_description = ""
         self.wing_span = ParamGetterWidget_DoubleSpinBox(
-            "Wing Span", wing_span_description, decimals=3, minimum=0.001, default=2.59, suffix=" m"
+            "Wing Span",
+            wing_span_description,
+            decimals=3,
+            minimum=0.001,
+            default=2.59,
+            suffix=" m",
         )
         self._param_rows.addWidget(self.wing_span)
 
         mac_description = ""
         self.mac = ParamGetterWidget_DoubleSpinBox(
-            "Mean Aerodynamic Chord", mac_description, decimals=3, minimum=0.001, default=0.18, suffix=" m"
+            "Mean Aerodynamic Chord",
+            mac_description,
+            decimals=3,
+            minimum=0.001,
+            default=0.18,
+            suffix=" m",
         )
         self._param_rows.addWidget(self.mac)
 
         aerodynamic_center_description = ""
         self.aerodynamic_center = ParamGetterWidget_Vector3d(
-            "Aerodynamic Center", aerodynamic_center_description, decimals=3, default=(0.1, 0.0, 0.0), suffix=" m"
+            "Aerodynamic Center",
+            aerodynamic_center_description,
+            decimals=3,
+            default=(0.1, 0.0, 0.0),
+            suffix=" m",
         )
         self._param_rows.addWidget(self.aerodynamic_center)
 
         alpha_limit_description = ""
         self.alpha_limit = ParamGetterWidget_DoubleRange(
-            "Limitation of Angle of Attack", alpha_limit_description, decimals=3, default=(-0.27, 0.27), suffix=" rad"
+            "Limitation of Angle of Attack",
+            alpha_limit_description,
+            decimals=3,
+            default=(-0.27, 0.27),
+            suffix=" rad",
         )
         self._param_rows.addWidget(self.alpha_limit)
 

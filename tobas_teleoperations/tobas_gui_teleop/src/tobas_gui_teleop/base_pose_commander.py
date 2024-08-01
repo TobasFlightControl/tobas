@@ -1,12 +1,18 @@
 import math
-import rospy
+import rclpy
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_std_tools_py.geometry import euler_from_matrix
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
 from tobas_tools_py.constants import Topic, Service
-from tobas_msgs.msg import PositionYaw, PosVelAccYaw, PoseTwistAccelCommand, CommandLevel, Odometry
+from tobas_msgs.msg import (
+    PositionYaw,
+    PosVelAccYaw,
+    PoseTwistAccelCommand,
+    CommandLevel,
+    Odometry,
+)
 from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
 
 from .common import BUTTON_HEIGHT
@@ -121,28 +127,28 @@ class BasePoseCommanderWidget(Widget):
         rows.addStretch()
 
         # PubSub
-        self._pos_yaw_pub = rospy.Publisher(Topic.Command.POSITION_YAW, PositionYaw, queue_size=1)
-        self._pvay_pub = rospy.Publisher(Topic.Command.POS_VEL_ACC_YAW, PosVelAccYaw, queue_size=1)
-        self._pta_pub = rospy.Publisher(Topic.Command.POSE_TWIST_ACCEL, PoseTwistAccelCommand, queue_size=1)
-        self._odom_sub = rospy.Subscriber(Topic.ODOMETRY, Odometry, self._odom_cb, queue_size=1)
+        self._pos_yaw_pub = rclpy.Publisher(Topic.Command.POSITION_YAW, PositionYaw, queue_size=1)
+        self._pvay_pub = rclpy.Publisher(Topic.Command.POS_VEL_ACC_YAW, PosVelAccYaw, queue_size=1)
+        self._pta_pub = rclpy.Publisher(Topic.Command.POSE_TWIST_ACCEL, PoseTwistAccelCommand, queue_size=1)
+        self._odom_sub = rclpy.Subscriber(Topic.ODOMETRY, Odometry, self._odom_cb, queue_size=1)
 
         # Service
-        self._set_arm_sc = rospy.ServiceProxy(Service.SET_ARM, SetArm)
+        self._set_arm_sc = rclpy.ServiceProxy(Service.SET_ARM, SetArm)
 
     def _get_params(self) -> None:
-        self._x_min = rospy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
-        self._x_max = rospy.get_param("~pose_limit/x/max", self.DEFAULT_MAX_X)
-        self._y_min = rospy.get_param("~pose_limit/y/min", self.DEFAULT_MIN_Y)
-        self._y_max = rospy.get_param("~pose_limit/y/max", self.DEFAULT_MAX_Y)
-        self._z_min = rospy.get_param("~pose_limit/z/min", self.DEFAULT_MIN_Z)
-        self._z_max = rospy.get_param("~pose_limit/z/max", self.DEFAULT_MAX_Z)
-        self._roll_min = rospy.get_param("~pose_limit/roll/min", self.DEFAULT_MIN_ROLL)
-        self._roll_max = rospy.get_param("~pose_limit/roll/max", self.DEFAULT_MAX_ROLL)
-        self._pitch_min = rospy.get_param("~pose_limit/pitch/min", self.DEFAULT_MIN_PITCH)
-        self._pitch_max = rospy.get_param("~pose_limit/pitch/max", self.DEFAULT_MAX_PITCH)
-        self._yaw_min = rospy.get_param("~pose_limit/yaw/min", self.DEFAULT_MIN_YAW)
-        self._yaw_max = rospy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAX_YAW)
-        self._init_elevation = rospy.get_param("~initial_elevation", self.DEFAULT_INIT_ELEVATION)
+        self._x_min = rclpy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
+        self._x_max = rclpy.get_param("~pose_limit/x/max", self.DEFAULT_MAX_X)
+        self._y_min = rclpy.get_param("~pose_limit/y/min", self.DEFAULT_MIN_Y)
+        self._y_max = rclpy.get_param("~pose_limit/y/max", self.DEFAULT_MAX_Y)
+        self._z_min = rclpy.get_param("~pose_limit/z/min", self.DEFAULT_MIN_Z)
+        self._z_max = rclpy.get_param("~pose_limit/z/max", self.DEFAULT_MAX_Z)
+        self._roll_min = rclpy.get_param("~pose_limit/roll/min", self.DEFAULT_MIN_ROLL)
+        self._roll_max = rclpy.get_param("~pose_limit/roll/max", self.DEFAULT_MAX_ROLL)
+        self._pitch_min = rclpy.get_param("~pose_limit/pitch/min", self.DEFAULT_MIN_PITCH)
+        self._pitch_max = rclpy.get_param("~pose_limit/pitch/max", self.DEFAULT_MAX_PITCH)
+        self._yaw_min = rclpy.get_param("~pose_limit/yaw/min", self.DEFAULT_MIN_YAW)
+        self._yaw_max = rclpy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAX_YAW)
+        self._init_elevation = rclpy.get_param("~initial_elevation", self.DEFAULT_INIT_ELEVATION)
 
         assert self._x_min <= 0.0 <= self._x_max
         assert self._y_min <= 0.0 <= self._y_max
@@ -155,8 +161,8 @@ class BasePoseCommanderWidget(Widget):
     def _set_arm(self, arming: bool) -> bool:
         try:
             self._set_arm_sc.wait_for_service(self.WAIT_FOR_SERVICE)
-        except rospy.ROSException as e:
-            rospy.logerr(f'Failed to connect to "{Service.SET_ARM}" service server.')
+        except rclpy.ROSException as e:
+            self.get_logger().error(f'Failed to connect to "{Service.SET_ARM}" service server.')
             return False
 
         req = SetArmRequest()
@@ -165,11 +171,11 @@ class BasePoseCommanderWidget(Widget):
         try:
             res: SetArmResponse = self._set_arm_sc.call(req)
         except Exception as e:
-            rospy.logerr(f'Failed to call "{Service.SET_ARM}" service: {e}')
+            self.get_logger().error(f'Failed to call "{Service.SET_ARM}" service: {e}')
             return False
 
         if not res.success:
-            rospy.logerr(f"Failed to arm rotors: {res.message}")
+            self.get_logger().error(f"Failed to arm rotors: {res.message}")
             return False
 
         return True
@@ -179,9 +185,9 @@ class BasePoseCommanderWidget(Widget):
             return
 
         # Arming
-        rospy.loginfo("Arming")
+        self.get_logger().info("Arming")
         if not self._set_arm(True):
-            rospy.sleep(self.ARM_RETRY_INTERVAL)
+            rclpy.sleep(self.ARM_RETRY_INTERVAL)
             return
 
         # 初期コマンドを設定
@@ -203,7 +209,7 @@ class BasePoseCommanderWidget(Widget):
         # 1回きりで終了
         self._odom_sub.unregister()
 
-        rospy.loginfo("GUI teleoperation is ready.")
+        self.get_logger().info("GUI teleoperation is ready.")
 
     @pyqtSlot()
     def _publish_current_command(self) -> None:

@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 import os.path as osp
 import numpy as np
 import numpy.linalg as LA
-import rospy
+import rclpy
 import rospkg
 from enum import Enum
 from collections import deque
@@ -23,7 +23,11 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_tools_py.constants import Service
 from tobas_tools_py.drone import Drone
 from tobas_hal_msgs.msg import MagneticField
-from tobas_calibration_msgs.srv import MagCalibration, MagCalibrationRequest, MagCalibrationResponse
+from tobas_calibration_msgs.srv import (
+    MagCalibration,
+    MagCalibrationRequest,
+    MagCalibrationResponse,
+)
 
 from ....common import PKG_NAME, WAIT_FOR_SERVER, Description
 from .base import BaseHardwareSetupWidget
@@ -96,8 +100,8 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         self._point_history_length = display.subProp("History Length")
 
         # PubSub
-        self._point_pub = rospy.Publisher(self.RVIZ_POINT_TOPIC, PointStamped, queue_size=1)
-        self._mag_raw_sub: rospy.Subscriber = None
+        self._point_pub = rclpy.Publisher(self.RVIZ_POINT_TOPIC, PointStamped, queue_size=1)
+        self._mag_raw_sub: rclpy.Subscriber = None
 
         self.setEnabled(False)
 
@@ -136,14 +140,17 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         # 地磁気トピックが正常に発行されていることを確認
         mag_topic = f"{self._drone.name}/hal/magnetic_field"
         try:
-            rospy.wait_for_message(mag_topic, MagneticField, WAIT_FOR_SERVER)
+            rclpy.wait_for_message(mag_topic, MagneticField, WAIT_FOR_SERVER)
         except Exception:
-            q_error(self, f"Failed to get magnetometer message in {WAIT_FOR_SERVER} seconds.")
+            q_error(
+                self,
+                f"Failed to get magnetometer message in {WAIT_FOR_SERVER} seconds.",
+            )
             self._reset()
             return
 
         # 一時的に地磁気トピックを購読開始
-        self._mag_raw_sub = rospy.Subscriber(mag_topic, MagneticField, self._mag_raw_cb, queue_size=1)
+        self._mag_raw_sub = rclpy.Subscriber(mag_topic, MagneticField, self._mag_raw_cb, queue_size=1)
         self._point_history_length.setValue(self.MAX_DATA_SIZE)
 
         self._start_button.setEnabled(False)
@@ -169,11 +176,11 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Magnet calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_sc = rospy.ServiceProxy(f"{self._drone.name}/mag_calibration", MagCalibration)
+        calib_sc = rclpy.ServiceProxy(f"{self._drone.name}/mag_calibration", MagCalibration)
 
         try:
             calib_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
+        except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
 
@@ -229,9 +236,9 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             rx = (x_max - x_min) / 2
             ry = (y_max - y_min) / 2
             rz = (z_max - z_min) / 2
-            rx2 = rx ** 2
-            ry2 = ry ** 2
-            rz2 = rz ** 2
+            rx2 = rx**2
+            ry2 = ry**2
+            rz2 = rz**2
 
             req.a_xx = 1 / rx2
             req.a_yy = 1 / ry2
@@ -242,7 +249,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             req.b_x = -2 * x0 / rx2
             req.b_y = -2 * y0 / ry2
             req.b_z = -2 * z0 / rz2
-            req.c = x0 ** 2 / rx2 + y0 ** 2 / ry2 + z0 ** 2 / rz2 - 1
+            req.c = x0**2 / rx2 + y0**2 / ry2 + z0**2 / rz2 - 1
         else:
             # 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
             # SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
@@ -285,12 +292,12 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         return req
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rospy.ServiceProxy(
+        reload_config_sc = rclpy.ServiceProxy(
             f"{self._drone.name}/magnetometer_handler/{Service.RELOAD_CONFIG}", Trigger
         )
         try:
             reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
-        except rospy.ROSException:
+        except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
 

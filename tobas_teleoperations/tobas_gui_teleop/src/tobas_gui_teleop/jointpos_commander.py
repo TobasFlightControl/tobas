@@ -1,4 +1,5 @@
-import rospy
+import rclpy
+from rclpy.duration import Duration
 from typing import Dict
 from functools import partial
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
@@ -47,9 +48,9 @@ class JointPositionsCommanderWidget(Widget):
                 raise RuntimeError(f"Unknown joint command type: {cmd_type}")
 
         # Publishers
-        self._tar_pos_pub = rospy.Publisher(Topic.Manipulation.POS_CTRL_JS, JointState, queue_size=1)
-        self._tar_js_vel_pub = rospy.Publisher(Topic.Manipulation.VEL_CTRL_JS, JointState, queue_size=1)
-        self._tar_js_eff_pub = rospy.Publisher(Topic.Manipulation.EFF_CTRL_JS, JointState, queue_size=1)
+        self._tar_pos_pub = rclpy.Publisher(Topic.Manipulation.POS_CTRL_JS, JointState, queue_size=1)
+        self._tar_js_vel_pub = rclpy.Publisher(Topic.Manipulation.VEL_CTRL_JS, JointState, queue_size=1)
+        self._tar_js_eff_pub = rclpy.Publisher(Topic.Manipulation.EFF_CTRL_JS, JointState, queue_size=1)
 
         # メインレイアウト
         rows = QVBoxLayout()
@@ -87,16 +88,16 @@ class JointPositionsCommanderWidget(Widget):
 
         rows.addStretch()
 
-        self._publish_commands_timer = rospy.Timer(
-            rospy.Duration(self.PUBILSH_CMDS_TIMER_PERIOD), self._publish_commands_timer_cb
+        self._publish_commands_timer = rclpy.Timer(
+            Duration(self.PUBILSH_CMDS_TIMER_PERIOD), self._publish_commands_timer_cb
         )
 
     def _get_params(self) -> None:
-        num_joints = rospy.get_param("num_joints")
+        num_joints = rclpy.get_param("num_joints")
         for i in range(num_joints):
-            jnt_name = rospy.get_param(f"joint_{i}/name")
-            home_pos = rospy.get_param(f"joint_{i}/home_position")
-            cmd_type = rospy.get_param(f"joint_{i}/command_type")
+            jnt_name = rclpy.get_param(f"joint_{i}/name")
+            home_pos = rclpy.get_param(f"joint_{i}/home_position")
+            cmd_type = rclpy.get_param(f"joint_{i}/command_type")
             self._home_positions[jnt_name] = home_pos
             self._cmd_types[jnt_name] = cmd_type
 

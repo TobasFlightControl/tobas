@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtWidgets import QLabel
 
@@ -50,7 +50,7 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
 
         if self._cpu_sub is not None:
             self._cpu_sub.unregister()
-        self._cpu_sub = rospy.Subscriber(f"{self._drone.name}/{Topic.CPU}", Cpu, self._cpu_cb, queue_size=1)
+        self._cpu_sub = rclpy.Subscriber(f"{self._drone.name}/{Topic.CPU}", Cpu, self._cpu_cb, queue_size=1)
 
     def _cpu_cb(self, cpu: Cpu) -> None:
         # Temperature

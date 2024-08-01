@@ -1,4 +1,5 @@
-import rospy
+import rclpy
+from rclpy.duration import Duration
 import numpy as np
 from copy import deepcopy
 from overrides import override
@@ -29,7 +30,7 @@ class FollowTrajectoryClient_Circle(FollowTrajectoryClient):
 
         # 上昇
         point.pos.z = 2.0
-        point.time_from_start += rospy.Duration.from_sec(5.0)
+        point.time_from_start += Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         # 円運動
@@ -39,12 +40,12 @@ class FollowTrajectoryClient_Circle(FollowTrajectoryClient):
             theta = 2 * np.pi * t / self.PERIOD
             point.pos.x = self.RADIUS * np.sin(theta)
             point.pos.y = self.RADIUS * (1 - np.cos(theta))
-            point.time_from_start = circle_start_time + rospy.Duration.from_sec(t)
+            point.time_from_start = circle_start_time + Duration.from_sec(t)
             goal.waypoints.append(deepcopy(point))
 
         # 下降
         point.pos.z = -2.0  # 安全のため余分に下げる
-        point.time_from_start += rospy.Duration.from_sec(5.0)
+        point.time_from_start += Duration.from_sec(5.0)
         goal.waypoints.append(deepcopy(point))
 
         return goal

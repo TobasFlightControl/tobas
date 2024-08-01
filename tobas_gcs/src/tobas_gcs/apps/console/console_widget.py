@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem, QVBoxLayout
 from PyQt5.QtGui import QColor
@@ -58,8 +58,11 @@ class ConsoleWidget(BaseAppWidget):
 
         if self._message_sub is not None:
             self._message_sub.unregister()
-        self._message_sub = rospy.Subscriber(
-            f"{self._drone.name}/{Topic.MESSAGE}", Message, self._message_cb, queue_size=1
+        self._message_sub = rclpy.Subscriber(
+            f"{self._drone.name}/{Topic.MESSAGE}",
+            Message,
+            self._message_cb,
+            queue_size=1,
         )
 
     def _message_cb(self, message: Message) -> None:
@@ -104,7 +107,7 @@ class ConsoleWidget(BaseAppWidget):
             level_item.setForeground(QColor(self.COLOR_FATAL))
             message_item.setForeground(QColor(self.COLOR_FATAL))
         else:
-            rospy.logerr(f"Unknown message level: {message.level}")
+            self.get_logger().error(f"Unknown message level: {message.level}")
             level_item = QTableWidgetItem("Unknown")
             level_item.setForeground(QColor(self.COLOR_UNKNOWN))
             message_item.setForeground(QColor(self.COLOR_UNKNOWN))

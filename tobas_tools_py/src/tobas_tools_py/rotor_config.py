@@ -32,7 +32,10 @@ class RotorConfig:
     motor_constant: float = 0.0  # 推力係数 [kg*m/rad^2]
     moment_constant: float = 0.0  # 反トルク係数 [m]
     drag_constant: float = 0.0  # 空気効力定数 [kg/rad]
-    rot_speed_coefs: Tuple[float, float] = (0.0, 0.0)  # V = c1 w + c2 w^2 (V[V], w[rad/s])
+    rot_speed_coefs: Tuple[float, float] = (
+        0.0,
+        0.0,
+    )  # V = c1 w + c2 w^2 (V[V], w[rad/s])
     channel: int = 0  # モータが接続されているRC出力チャンネル
 
 

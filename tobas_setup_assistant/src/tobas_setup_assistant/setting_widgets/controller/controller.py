@@ -62,7 +62,11 @@ class ControllerWidget(BaseSettingWidget):
     @override
     def is_valid(self) -> bool:
         if not self._selected().is_applicable():
-            q_error_named(self._main, self.NAME, "The selected controller is not applicable to the airframe.")
+            q_error_named(
+                self._main,
+                self.NAME,
+                "The selected controller is not applicable to the airframe.",
+            )
             return False
 
         if not self._selected().is_valid():

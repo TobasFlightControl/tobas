@@ -66,7 +66,11 @@ class CustomJointsWidget(BaseSettingWidget):
 
         for joint in self._main.urdf_parser.get_joints():
             # ジョイントタイプが回転または直動でない場合はスキップ
-            if joint.type not in {JointType.REVOLUTE, JointType.CONTINUOUS, JointType.PRISMATIC}:
+            if joint.type not in {
+                JointType.REVOLUTE,
+                JointType.CONTINUOUS,
+                JointType.PRISMATIC,
+            }:
                 continue
 
             # トランスミッションを持たない場合はスキップ
@@ -160,7 +164,11 @@ class CustomJointsWidget(BaseSettingWidget):
                 q_error_named(self, self.NAME, f'Position limit of joint "{jnt_name}" is invalid.')
                 return False
             if home_pos < min_pos or max_pos < home_pos:
-                q_error_named(self, self.NAME, f'Home position of joint "{jnt_name}" is out of limit.')
+                q_error_named(
+                    self,
+                    self.NAME,
+                    f'Home position of joint "{jnt_name}" is out of limit.',
+                )
                 return False
 
         return True
@@ -187,7 +195,11 @@ class CustomJointsWidget(BaseSettingWidget):
         for joint_name, data_ in data.items():
             row = self._get_row(joint_name)
             if row < 0:
-                q_error_named(self, self.NAME, f'"{joint_name}" does not exist in the custom joint list.')
+                q_error_named(
+                    self,
+                    self.NAME,
+                    f'"{joint_name}" does not exist in the custom joint list.',
+                )
                 continue
 
             self.set_home_position(row, data_[CustomJointField.HOME_POSITION.name])

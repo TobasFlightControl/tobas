@@ -45,7 +45,7 @@ class Vector:
 
     def norm(self) -> Symbol:
         """ノルムを返す．"""
-        return sympy.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+        return sympy.sqrt(self.x**2 + self.y**2 + self.z**2)
 
     def normalize(self) -> Vector:
         """正規化する．"""
@@ -108,7 +108,9 @@ class Vector:
 
     def simplify(self, chop=False) -> Vector:
         return Vector(
-            sympy.simplify(self.x, chop=chop), sympy.simplify(self.y, chop=chop), sympy.simplify(self.z, chop=chop)
+            sympy.simplify(self.x, chop=chop),
+            sympy.simplify(self.y, chop=chop),
+            sympy.simplify(self.z, chop=chop),
         )
 
     def __add__(self, rhs: Vector) -> Vector:
@@ -135,7 +137,16 @@ class Vector:
 
 class Rotation:
     def __init__(
-        self, Xx: Symbol, Yx: Symbol, Zx: Symbol, Xy: Symbol, Yy: Symbol, Zy: Symbol, Xz: Symbol, Yz: Symbol, Zz: Symbol
+        self,
+        Xx: Symbol,
+        Yx: Symbol,
+        Zx: Symbol,
+        Xy: Symbol,
+        Yy: Symbol,
+        Zy: Symbol,
+        Xz: Symbol,
+        Yz: Symbol,
+        Zz: Symbol,
     ) -> None:
         self.data = Matrix([[Xx, Yx, Zx], [Xy, Yy, Zy], [Xz, Yz, Zz]])
 

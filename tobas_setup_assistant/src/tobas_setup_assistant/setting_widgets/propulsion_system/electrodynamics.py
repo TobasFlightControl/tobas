@@ -242,7 +242,7 @@ class MotorDynamicsWidget_Experiment(MotorDynamicsWidget_Base):
         omega = rpm2rps(rpm)
 
         # 最小二乗法で係数を推定
-        X = np.c_[omega, omega ** 2]
+        X = np.c_[omega, omega**2]
         a, b = LA.lstsq(X, motor_voltage, rcond=None)[0].squeeze()
 
         return a, b

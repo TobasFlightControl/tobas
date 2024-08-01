@@ -31,19 +31,32 @@ class PropellerWidget(BaseSelectedLinkSettingWidget):
 
         diameter_description = "Diameter of the propeller's rotational plane."
         self._diameter = ParamGetterWidget_SpinBox(
-            "Propeller Diameter", diameter_description, minimum=1, default=10, suffix=" inch"
+            "Propeller Diameter",
+            diameter_description,
+            minimum=1,
+            default=10,
+            suffix=" inch",
         )
         self._param_rows.addWidget(self._diameter)
 
         blade_chord_description = "Chord length at 75% of the distance from the blade's center."
         self._blade_chord = ParamGetterWidget_SpinBox(
-            "75% Blade chord", blade_chord_description, minimum=1, default=15, suffix=" mm"
+            "75% Blade chord",
+            blade_chord_description,
+            minimum=1,
+            default=15,
+            suffix=" mm",
         )
         self._param_rows.addWidget(self._blade_chord)
 
         pitch_angle_description = "Twist angle at 75% of the distance from the blade's center."
         self._pitch_angle = ParamGetterWidget_SpinBox(
-            "75% Blade pitch angle", pitch_angle_description, minimum=1, maximum=90, default=15, suffix=" deg"
+            "75% Blade pitch angle",
+            pitch_angle_description,
+            minimum=1,
+            maximum=90,
+            default=15,
+            suffix=" deg",
         )
         self._param_rows.addWidget(self._pitch_angle)
 

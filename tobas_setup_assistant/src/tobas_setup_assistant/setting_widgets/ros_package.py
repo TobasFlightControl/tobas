@@ -14,7 +14,11 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QFont
 
-from tobas_rqt_tools.path import get_catkin_ws_path, get_catkin_ws_paths, is_in_catkin_src
+from tobas_rqt_tools.path import (
+    get_catkin_ws_path,
+    get_catkin_ws_paths,
+    is_in_catkin_src,
+)
 from tobas_rqt_tools.utils import place_center
 from tobas_rqt_tools.messages import q_error, yes_or_no, QMessageLevel
 from tobas_tools_py.constants import PKG_EXTENSION
@@ -96,7 +100,10 @@ class RosPackageWidget(BaseSettingWidget):
             q_error(self._main, f'"{pardir}" does not exist.')
             return False
         if not is_in_catkin_src(pardir):
-            q_error(self._main, f'"{pardir}" is not in the src directory of a catkin workspace.')
+            q_error(
+                self._main,
+                f'"{pardir}" is not in the src directory of a catkin workspace.',
+            )
             return False
 
         # パッケージ名が無効な文字を含んでいないことを確認
@@ -107,12 +114,19 @@ class RosPackageWidget(BaseSettingWidget):
         # 同じcatkinワークスペースのソースディレクトリ内に同じ名前でパスが異なるTobasパッケージが存在しないことを確認
         for same_name_pkg in glob(osp.join(get_catkin_ws_path(pardir), "src", "*", self._tbs_name_with_ext())):
             if same_name_pkg != tbs_path:
-                q_error(self._main, f'"{self._tbs_name_with_ext()}" already exists.: {same_name_pkg}')
+                q_error(
+                    self._main,
+                    f'"{self._tbs_name_with_ext()}" already exists.: {same_name_pkg}',
+                )
                 return False
 
         # パッケージパスが既に存在する場合は置換するかどうかをユーザに確認
         if osp.exists(tbs_path):
-            if not yes_or_no(self._main, f"{tbs_path} already exists. Do you want to replace it?", QMessageLevel.WARN):
+            if not yes_or_no(
+                self._main,
+                f"{tbs_path} already exists. Do you want to replace it?",
+                QMessageLevel.WARN,
+            ):
                 return False
 
         return True

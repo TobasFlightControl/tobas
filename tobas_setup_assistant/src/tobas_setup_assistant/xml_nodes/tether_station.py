@@ -42,7 +42,10 @@ class TetherStationForceModel(ET.Element):
 
 class TetherStationVisualModel(ET.Element):
     def __init__(
-        self, link_name: str, world_end: Tuple[float, float, float], drone_end: Tuple[float, float, float]
+        self,
+        link_name: str,
+        world_end: Tuple[float, float, float],
+        drone_end: Tuple[float, float, float],
     ) -> None:
 
         # robot/gazebo

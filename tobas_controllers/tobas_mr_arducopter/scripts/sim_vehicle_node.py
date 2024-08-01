@@ -1,15 +1,13 @@
-#!/usr/bin/env python3
-
-import rospy
+import rclpy
+from rclpy import Node
 import subprocess
-import signal
-
-from tobas_rospy.utils import init_node
 
 
-class SimVehicleLauncher:
+class SimVehicleLauncher(Node):
     def __init__(self) -> None:
-        self._timer = rospy.Timer(rospy.Duration(1e-3), self._run_sim_vehicle, oneshot=True)
+        super().__init__("sim_vehicle_launcher")
+
+        self._timer = self.create_timer(0, self._run_sim_vehicle)
 
     def _run_sim_vehicle(self, event) -> None:
         # ArduCopterのシミュレータを起動
@@ -22,13 +20,19 @@ class SimVehicleLauncher:
                 check=True,
             )
         except Exception as e:
-            reason = "Failed to launch ArduPilot SITL"
-            rospy.logerr(f"{reason}: {e}")
-            rospy.signal_shutdown(reason)
+            self.get_logger().error(f"Failed to launch ArduPilot SITL: {e}")
+            rclpy.shutdown()
+
+        self._timer.cancel()
+
+
+def main(args=None) -> None:
+    rclpy.init(args=args)
+    node = SimVehicleLauncher()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == "__main__":
-    init_node()
-    node = SimVehicleLauncher()
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    rospy.spin()
+    main()

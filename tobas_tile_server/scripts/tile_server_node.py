@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import os.path as osp
 import sqlite3
 from flask import Flask, send_file, abort
@@ -15,7 +13,10 @@ def serve_tile(z: int, x: int, y: int):
         cursor = conn.cursor()
 
         # クエリで圧縮画像を取得
-        cursor.execute("SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?", (z, x, y))
+        cursor.execute(
+            "SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=?",
+            (z, x, y),
+        )
         data = cursor.fetchone()
         if not data:
             return abort(404)  # Not Found

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
-import rospy
+import rclpy
 from overrides import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QHBoxLayout
@@ -14,7 +14,11 @@ from tobas_rqt_tools.messages import q_info, q_error
 from tobas_rqt_tools.roslaunch import launch
 from tobas_tools_py.drone import Drone
 from tobas_tools_py.package import get_tbs_config_name
-from tobas_tools_py.command import kill_gazebo, build_tobas_package, source_tobas_package
+from tobas_tools_py.command import (
+    kill_gazebo,
+    build_tobas_package,
+    source_tobas_package,
+)
 from tobas_tools_py.util import is_running_under_fc_master
 
 from ...utils.ssh_client import SSHClientWrapper
@@ -146,7 +150,7 @@ class SimulationWidget(BaseAppWidget):
         # Gazebo内で機体が静止するまで待つ
         # TODO: Gazebo内で一定時間経過するまで待つ
         progress.setLabelText("Waiting for the aircraft to be static.")
-        rospy.sleep(self.WAIT_GAZEBO_TO_OPEN)
+        rclpy.sleep(self.WAIT_GAZEBO_TO_OPEN)
         progress.progress_step()
 
         # Launch Tobas flight controller
@@ -221,7 +225,10 @@ class SimulationWidget(BaseAppWidget):
             success, _, error_output = self._ssh_client.exec_command_super(command)
             if not success:
                 progress.close()
-                q_error(self._main, f"Failed to restart tobas_real.service:\n\n{error_output}")
+                q_error(
+                    self._main,
+                    f"Failed to restart tobas_real.service:\n\n{error_output}",
+                )
                 return
             progress.progress_step()
 
