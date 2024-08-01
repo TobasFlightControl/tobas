@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-BatteryHandler::BatteryHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
+BatteryHandler::BatteryHandler(, const string& name)
+  : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
-  adc_sub_ = nh_.subscribe(hal::kAdcTopic, 1, &self::adcCb, this, tcpNoDelay());
+  battery_pub_ = node_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
+  adc_sub_ = node_.subscribe(hal::kAdcTopic, 1, &self::adcCb, this, tcpNoDelay());
 
-  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool BatteryHandler::reloadConfig()
@@ -33,7 +33,7 @@ bool BatteryHandler::reloadConfig()
   return true;
 }
 
-bool BatteryHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
+bool BatteryHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::srv::Trigger::Response& res)
 {
   if (!reloadConfig())
   {

@@ -13,7 +13,7 @@ class PWMDriver : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit PWMDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit PWMDriver(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   PWM pwm_;

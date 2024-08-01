@@ -6,18 +6,18 @@
 
 #define MAIN_TIMER_FREQ 100
 
-TobasBridge::TobasBridge(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) : nh_(node), pnh_(pnh)
+TobasBridge::TobasBridge() : node_(node), pnh_(pnh)
 {
   /* Register publishers */
-  // js_pub_ = nh_.advertise<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic, 1);
+  // js_pub_ = node_.advertise<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic, 1);
 
   /* Register subscribers */
-  // tar_pos_sub_ = nh_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jntPosCmdCb, this);
-  // tar_vel_sub_ = nh_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jntVelCmdCb, this);
-  // tar_eff_sub_ = nh_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jntEffCmdCb, this);
+  // tar_pos_sub_ = node_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jntPosCmdCb, this);
+  // tar_vel_sub_ = node_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jntVelCmdCb, this);
+  // tar_eff_sub_ = node_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jntEffCmdCb, this);
 
   /* Create main timer */
-  // main_timer_ = nh_.createTimer(MAIN_TIMER_FREQ, &self::mainTimerCb, this);
+  // main_timer_ = node_.createTimer(MAIN_TIMER_FREQ, &self::mainTimerCb, this);
 }
 
 void TobasBridge::jntPosCmdCb(const tobas_msgs::JointCommandArrayConstPtr& tar_pos)

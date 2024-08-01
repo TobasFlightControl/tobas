@@ -14,7 +14,7 @@ PoseTwistAccelController::PoseTwistAccelController(const tobas::Drone& drone) : 
 {
 }
 
-void PoseTwistAccelController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
+void PoseTwistAccelController::initialize()
 {
   getRosParams(pnh);
 

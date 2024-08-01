@@ -1,28 +1,29 @@
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
 #include <boost/property_tree/ini_parser.hpp>
-#include <std_srvs/Trigger.h>
+#include <rclcpp/rclcpp.hpp>
+#include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_property_msgs/GetBool.h>
-#include <tobas_property_msgs/GetInt.h>
-#include <tobas_property_msgs/GetDouble.h>
-#include <tobas_property_msgs/GetString.h>
-#include <tobas_property_msgs/SetBool.h>
-#include <tobas_property_msgs/SetInt.h>
-#include <tobas_property_msgs/SetDouble.h>
-#include <tobas_property_msgs/SetString.h>
+#include <tobas_property_msgs/srv/get_bool.hpp>
+#include <tobas_property_msgs/srv/get_int.hpp>
+#include <tobas_property_msgs/srv/get_double.hpp>
+#include <tobas_property_msgs/srv/get_string.hpp>
+#include <tobas_property_msgs/srv/set_bool.hpp>
+#include <tobas_property_msgs/srv/set_int.hpp>
+#include <tobas_property_msgs/srv/set_double.hpp>
+#include <tobas_property_msgs/srv/set_string.hpp>
 
 namespace ptree
 {
-class PropertyServer
+class PropertyServer : public rclcpp::Node
 {
   static constexpr char kIniPathParam[] = "ini_path";
 
   using self = PropertyServer;
+  using super = rclcpp::Node;
 
 public:
-  explicit PropertyServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh);
+  explicit PropertyServer();
 
 private:
   // ROS parameters
@@ -32,15 +33,15 @@ private:
   boost::property_tree::ptree pt_;
 
   // Service servers
-  rclcpp::ServiceServer get_bool_ss_;
-  rclcpp::ServiceServer get_int_ss_;
-  rclcpp::ServiceServer get_double_ss_;
-  rclcpp::ServiceServer get_string_ss_;
-  rclcpp::ServiceServer set_bool_ss_;
-  rclcpp::ServiceServer set_int_ss_;
-  rclcpp::ServiceServer set_double_ss_;
-  rclcpp::ServiceServer set_string_ss_;
-  rclcpp::ServiceServer save_file_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::GetBool>::SharedPtr get_bool_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::GetInt>::SharedPtr get_int_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::GetDouble>::SharedPtr get_double_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::GetString>::SharedPtr get_string_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::SetBool>::SharedPtr set_bool_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::SetInt>::SharedPtr set_int_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::SetDouble>::SharedPtr set_double_ss_;
+  rclcpp::Service<tobas_property_msgs::srv::SetString>::SharedPtr set_string_ss_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr save_file_ss_;
 
   inline std::string keyWithSection(const std::string& section, const std::string& key) const;
 
@@ -49,12 +50,14 @@ private:
   template <typename T>
   void set(const std::string& section, const std::string& key, const T& value);
 
-  template <typename ReqType, typename ResType>
-  bool getCb(ReqType& req, ResType& res);
-  template <typename ReqType, typename ResType>
-  bool setCb(ReqType& req, ResType& res);
+  template <typename SrvType>
+  bool getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
+  template <typename SrvType>
+  bool setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
 
-  bool saveFileCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool saveFileCb(
+    const std_srvs::srv::Trigger::Request::ConstSharedPtr& req,
+    const std_srvs::srv::Trigger::Response::SharedPtr& res);
 };
 
 inline std::string PropertyServer::keyWithSection(const std::string& section, const std::string& key) const
@@ -79,30 +82,30 @@ void PropertyServer::set(const std::string& section, const std::string& key, con
   pt_.put(keyWithSection(section, key), value);
 }
 
-template <typename ReqType, typename ResType>
-bool PropertyServer::getCb(ReqType& req, ResType& res)
+template <typename SrvType>
+bool PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  if (get(req.section, req.key, res.value))
+  if (get(req->section, req->key, res->value))
   {
-    res.success = true;
-    res.message = "";
+    res->success = true;
+    res->message = "";
   }
   else
   {
-    res.success = false;
-    res.message = "Failed to get " + req.key + " in section " + req.section + ".";
+    res->success = false;
+    res->message = "Failed to get " + req->key + " in section " + req->section + ".";
   }
 
   return true;
 }
 
-template <typename ReqType, typename ResType>
-bool PropertyServer::setCb(ReqType& req, ResType& res)
+template <typename SrvType>
+bool PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  set(req.section, req.key, req.value);
+  set(req->section, req->key, req->value);
 
-  res.success = true;
-  res.message = "";
+  res->success = true;
+  res->message = "";
 
   return true;
 }

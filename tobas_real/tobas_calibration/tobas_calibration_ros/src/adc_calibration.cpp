@@ -8,10 +8,10 @@ using namespace std;
 
 namespace tobas_calibration
 {
-AdcCalibrationRos::AdcCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
+AdcCalibrationRos::AdcCalibrationRos(, const string& name)
+  : super(node, pnh, name), property_client_(node_, tobas_real_ros::kPropertyServerFC)
 {
-  ss_ = nh_.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
+  ss_ = node_.advertiseService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }
 
 void AdcCalibrationRos::adcCb(const tobas_hal_msgs::AdcConstPtr& adc)
@@ -35,7 +35,7 @@ bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
   voltage_sum_.reset();
 
   // 一時的にADCの購読を開始
-  const auto adc_sub = nh_.subscribe(hal::kAdcTopic, 1, &AdcCalibrationRos::adcCb, this);
+  const auto adc_sub = node_.subscribe(hal::kAdcTopic, 1, &AdcCalibrationRos::adcCb, this);
 
   // データが溜まるまで待機
   if (!ros2::spinUntil([this]() { return cnt_ == kDataCount; }, kTimeout))

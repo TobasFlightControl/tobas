@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-ImuHandler::ImuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
+ImuHandler::ImuHandler(, const string& name)
+  : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  imu_pub_ = nh_.advertise<tobas_msgs::Imu>(tobas::kImuTopic, 1);
-  imu_sub_ = nh_.subscribe(hal::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
+  imu_pub_ = node_.advertise<tobas_msgs::Imu>(tobas::kImuTopic, 1);
+  imu_sub_ = node_.subscribe(hal::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
 
-  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool ImuHandler::reloadConfig()
@@ -126,7 +126,7 @@ void ImuHandler::imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw)
   }
 }
 
-bool ImuHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
+bool ImuHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::srv::Trigger::Response& res)
 {
   if (!reloadConfig())
   {

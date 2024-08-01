@@ -7,13 +7,13 @@ using namespace std;
 
 namespace a1
 {
-ADCDriver::ADCDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+ADCDriver::ADCDriver(, const string& name) : super(node, pnh, name)
 {
   if (!adc_.initialize())
     TOBAS_EXIT("Failed to initialize ADC.");
 
-  adc_pub_ = nh_.advertise<tobas_hal_msgs::Adc>(hal::kAdcTopic, 1);
-  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  adc_pub_ = node_.advertise<tobas_hal_msgs::Adc>(hal::kAdcTopic, 1);
+  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void ADCDriver::mainTimerCb(const rclcpp::TimerEvent& event)

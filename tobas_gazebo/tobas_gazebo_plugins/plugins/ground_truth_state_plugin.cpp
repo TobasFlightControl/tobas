@@ -34,7 +34,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
   // Advertise publisher
-  odom_pub_ = nh_.advertise<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic, 1);
+  odom_pub_ = node_.advertise<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic, 1);
 
   // Listen to the update event
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));

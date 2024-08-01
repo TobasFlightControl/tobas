@@ -16,7 +16,7 @@ class SpeedRollDeltaPitchController : public BaseController
 public:
   explicit SpeedRollDeltaPitchController(const tobas::Drone& drone);
 
-  void initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh) override;
+  void initialize() override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void
   update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;

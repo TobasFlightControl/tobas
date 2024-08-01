@@ -68,7 +68,7 @@ void GazeboGpsPlugin::setRandomDistribuitons()
 
 void GazeboGpsPlugin::registerPublishers()
 {
-  gps_pub_ = nh_.advertise<tobas_msgs::Gps>("/" + ns_ + "/" + tobas::kGpsTopic, 1);
+  gps_pub_ = node_.advertise<tobas_msgs::Gps>("/" + ns_ + "/" + tobas::kGpsTopic, 1);
 }
 
 void GazeboGpsPlugin::onUpdate()

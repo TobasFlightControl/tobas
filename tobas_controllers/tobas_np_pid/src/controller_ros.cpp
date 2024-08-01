@@ -11,10 +11,10 @@ using namespace Eigen;
 
 namespace tobas_np_pid
 {
-ControllerRos::ControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+ControllerRos::ControllerRos(, const string& name)
   : super(node, pnh, name), js_converter_(drone_.tree()), mixer_(drone_), server_(pnh_)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   js_converter_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
@@ -27,19 +27,19 @@ ControllerRos::ControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedP
 
 void ControllerRos::registerPublishers()
 {
-  rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
-  feedback_pub_ = nh_.advertise<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
+  rot_speeds_pub_ = node_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
+  feedback_pub_ = node_.advertise<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
 }
 
 void ControllerRos::registerSubscribers()
 {
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
   if (drone_.isTransformable())
-    js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
+    js_sub_ = node_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
 
-  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
-  cmd_sub_ = nh_.subscribe(tobas::kPoseTwistAccelCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
+  arming_sub_ = node_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
+  cmd_sub_ = node_.subscribe(tobas::kPoseTwistAccelCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 }
 
 bool ControllerRos::isReadyToControl()

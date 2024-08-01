@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-MagnetometerHandler::MagnetometerHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
+MagnetometerHandler::MagnetometerHandler(, const string& name)
+  : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  mag_pub_ = nh_.advertise<tobas_msgs::MagneticField>(tobas::kMagTopic, 1);
-  mag_sub_ = nh_.subscribe(hal::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
+  mag_pub_ = node_.advertise<tobas_msgs::MagneticField>(tobas::kMagTopic, 1);
+  mag_sub_ = node_.subscribe(hal::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
 
-  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool MagnetometerHandler::reloadConfig()
@@ -133,7 +133,7 @@ void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag
   mag_pub_.publish(mag_msg);
 }
 
-bool MagnetometerHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
+bool MagnetometerHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::srv::Trigger::Response& res)
 {
   if (!reloadConfig())
   {

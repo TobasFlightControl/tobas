@@ -31,7 +31,7 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle nh_;
+  rclcpp::NodeHandle node_;
 
   // SDF parameters
   std::string ns_;

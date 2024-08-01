@@ -44,8 +44,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, zero3);
 
   // Advertise
-  imu_pub_ = nh_.advertise<tobas_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);
-  debug_pub_ = nh_.advertise<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
+  imu_pub_ = node_.advertise<tobas_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);
+  debug_pub_ = node_.advertise<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));

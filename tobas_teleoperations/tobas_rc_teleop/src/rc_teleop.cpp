@@ -24,10 +24,10 @@ using namespace rclcpp::message_traits;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+RCTeleop::RCTeleop(, const string& name) : super(node, pnh, name)
 {
   getRosParams();
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   // プログラムモードのダミーコントローラを設定
   controllers_[tobas::kFlightModeProgram] = make_unique<ProgramModeController>(drone_);
@@ -53,15 +53,15 @@ RCTeleop::RCTeleop(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, co
       controllers_[i] = make_unique<ProgramModeController>(drone_);
     }
 
-    controllers_[i]->initialize(nh_, pnh_);
+    controllers_[i]->initialize(node_, pnh_);
   }
 
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  rcin_sub_ = nh_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  rcin_sub_ = node_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
 
-  get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
-  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void RCTeleop::getRosParams()
@@ -72,7 +72,7 @@ void RCTeleop::getRosParams()
 
 bool RCTeleop::isRotorsArmed()
 {
-  if (!get_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!get_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kGetArmSrv, "' service server.");
     return false;
@@ -90,7 +90,7 @@ bool RCTeleop::isRotorsArmed()
 
 bool RCTeleop::requestArmingRotors()
 {
-  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
@@ -109,7 +109,7 @@ bool RCTeleop::requestArmingRotors()
 
 bool RCTeleop::requestDisarmingRotors()
 {
-  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;

@@ -238,7 +238,7 @@ void RobotStateDisplay::unsetHighlight(const string& link_name)
 void RobotStateDisplay::restartSubscribers()
 {
   robot_state_sub_.shutdown();
-  robot_state_sub_ = nh_.subscribe(robot_state_topic_property_->getStdString(), 1, &self::robotStateCb, this);
+  robot_state_sub_ = node_.subscribe(robot_state_topic_property_->getStdString(), 1, &self::robotStateCb, this);
 }
 
 void RobotStateDisplay::robotStateCb(const moveit_msgs::DisplayRobotStateConstPtr& state_msg)

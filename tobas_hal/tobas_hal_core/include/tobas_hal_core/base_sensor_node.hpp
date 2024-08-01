@@ -13,7 +13,7 @@ class BaseSensorNode : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BaseSensorNode(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name);
+  explicit BaseSensorNode(, const std::string& name);
 
 protected:
   rclcpp::Timer main_timer_;

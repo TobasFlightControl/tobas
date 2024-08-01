@@ -7,13 +7,13 @@ using namespace std;
 
 namespace a1
 {
-MagDriver::MagDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+MagDriver::MagDriver(, const string& name) : super(node, pnh, name)
 {
   if (!mag_.initialize())
     TOBAS_EXIT("Failed to initialize Magnetometer.");
 
-  mag_pub_ = nh_.advertise<tobas_hal_msgs::MagneticField>(hal::kMagTopic, 1);
-  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  mag_pub_ = node_.advertise<tobas_hal_msgs::MagneticField>(hal::kMagTopic, 1);
+  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void MagDriver::mainTimerCb(const rclcpp::TimerEvent& event)

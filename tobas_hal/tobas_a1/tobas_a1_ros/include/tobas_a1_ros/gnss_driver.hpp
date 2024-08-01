@@ -15,7 +15,7 @@ class GNSSDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit GNSSDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit GNSSDriver(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   ZEDF9P gnss_;

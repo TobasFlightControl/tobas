@@ -30,7 +30,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* item)
   : rviz::Panel(item),
     ui_(new Ui::URDFBuilderPanelUI()),
     ogre_ctrl_(nullptr),
-    property_client_(nh_, tobas::kPropertyServerGCS, kPropertySection)
+    property_client_(node_, tobas::kPropertyServerGCS, kPropertySection)
 {
   ui_->setupUi(this);
 

@@ -7,17 +7,18 @@
 #include "../include/tobas_property_tools/constants.hpp"
 
 using namespace std;
-using namespace tobas_property_msgs;
+using namespace std_srvs::srv;
+using namespace tobas_property_msgs::srv;
 
 namespace ptree
 {
-PropertyServer::PropertyServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
+PropertyServer::PropertyServer() : super("property_server")
 {
-  // Get configuration file path
-  if (!pnh.getParam(kIniPathParam, ini_path_))
+  declare_parameter<std::string>(kIniPathParam, "");
+  if (!get_parameter(kIniPathParam, ini_path_) || ini_path_.empty())
   {
-    RCLCPP_FATAL_STREAM("\"" << kIniPathParam << "\" is not specified. Exiting...");
-    node.shutdown();
+    RCLCPP_FATAL_STREAM(get_logger(), "\"" << kIniPathParam << "\" is not specified. Exiting...");
+    rclcpp::shutdown();
     return;
   }
   ini_path_ = linux::expandUser(ini_path_);
@@ -31,37 +32,46 @@ PropertyServer::PropertyServer(rclcpp::Node::SharedPtr node, rclcpp::Node::Share
     }
     catch (...)
     {
-      RCLCPP_FATAL_STREAM(ini_path_ << " exists, but failed to load it.");
-      node.shutdown();
+      RCLCPP_FATAL_STREAM(get_logger(), ini_path_ << " exists, but failed to load it.");
+      rclcpp::shutdown();
       return;
     }
   }
   else
   {
     // If configuration file does not exist, create a new one.
-    RCLCPP_INFO_STREAM(ini_path_ << " does not exist. Creating...");
+    RCLCPP_INFO_STREAM(get_logger(), ini_path_ << " does not exist. Creating...");
     if (!path::createFilePath(ini_path_))
     {
-      RCLCPP_FATAL_STREAM("Failed to create " << ini_path_ << ".");
-      node.shutdown();
+      RCLCPP_FATAL_STREAM(get_logger(), "Failed to create " << ini_path_ << ".");
+      rclcpp::shutdown();
       return;
     }
   }
 
   // Advertise service servers
-  const auto prefix = rclcpp::this_node::getName() + "/";
-  get_bool_ss_ = node.advertiseService(prefix + kGetBoolSrv, &self::getCb<GetBoolRequest, GetBoolResponse>, this);
-  get_int_ss_ = node.advertiseService(prefix + kGetIntSrv, &self::getCb<GetIntRequest, GetIntResponse>, this);
-  get_double_ss_ = node.advertiseService(prefix + kGetDoubleSrv, &self::getCb<GetDoubleRequest, GetDoubleResponse>, this);
-  get_string_ss_ = node.advertiseService(prefix + kGetStringSrv, &self::getCb<GetStringRequest, GetStringResponse>, this);
-  set_bool_ss_ = node.advertiseService(prefix + kSetBoolSrv, &self::setCb<SetBoolRequest, SetBoolResponse>, this);
-  set_int_ss_ = node.advertiseService(prefix + kSetIntSrv, &self::setCb<SetIntRequest, SetIntResponse>, this);
-  set_double_ss_ = node.advertiseService(prefix + kSetDoubleSrv, &self::setCb<SetDoubleRequest, SetDoubleResponse>, this);
-  set_string_ss_ = node.advertiseService(prefix + kSetStringSrv, &self::setCb<SetStringRequest, SetStringResponse>, this);
-  save_file_ss_ = node.advertiseService(prefix + kSaveFileSrv, &self::saveFileCb, this);
+  const auto prefix = string(get_name()) + "/";
+  get_bool_ss_ = create_service<GetBool>(
+    prefix + kGetBoolSrv, bind(&self::getCb<GetBool>, this, placeholders::_1, placeholders::_2));
+  get_int_ss_ =
+    create_service<GetInt>(prefix + kGetIntSrv, bind(&self::getCb<GetInt>, this, placeholders::_1, placeholders::_2));
+  get_double_ss_ = create_service<GetDouble>(
+    prefix + kGetDoubleSrv, bind(&self::getCb<GetDouble>, this, placeholders::_1, placeholders::_2));
+  get_string_ss_ = create_service<GetString>(
+    prefix + kGetStringSrv, bind(&self::getCb<GetString>, this, placeholders::_1, placeholders::_2));
+  set_bool_ss_ = create_service<SetBool>(
+    prefix + kSetBoolSrv, bind(&self::setCb<SetBool>, this, placeholders::_1, placeholders::_2));
+  set_int_ss_ =
+    create_service<SetInt>(prefix + kSetIntSrv, bind(&self::setCb<SetInt>, this, placeholders::_1, placeholders::_2));
+  set_double_ss_ = create_service<SetDouble>(
+    prefix + kSetDoubleSrv, bind(&self::setCb<SetDouble>, this, placeholders::_1, placeholders::_2));
+  set_string_ss_ = create_service<SetString>(
+    prefix + kSetStringSrv, bind(&self::setCb<SetString>, this, placeholders::_1, placeholders::_2));
+  save_file_ss_ =
+    create_service<Trigger>(prefix + kSaveFileSrv, bind(&self::saveFileCb, this, placeholders::_1, placeholders::_2));
 }
 
-bool PropertyServer::saveFileCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
+bool PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
 {
   try
   {
@@ -69,13 +79,13 @@ bool PropertyServer::saveFileCb(std_srvs::TriggerRequest&, std_srvs::TriggerResp
   }
   catch (...)
   {
-    res.success = false;
-    res.message = "Failed to load " + ini_path_ + ".";
+    res->success = false;
+    res->message = "Failed to load " + ini_path_ + ".";
     return true;
   }
 
-  res.success = true;
-  res.message = "";
+  res->success = true;
+  res->message = "";
 
   return true;
 }

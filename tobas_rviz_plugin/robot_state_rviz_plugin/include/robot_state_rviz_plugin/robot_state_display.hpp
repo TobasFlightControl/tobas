@@ -59,7 +59,7 @@ private:
   void onDisable() override;
   void fixedFrameChanged() override;
 
-  rclcpp::NodeHandle nh_;
+  rclcpp::NodeHandle node_;
   rclcpp::Subscriber robot_state_sub_;
 
   RobotStateVisualizationPtr robot_;

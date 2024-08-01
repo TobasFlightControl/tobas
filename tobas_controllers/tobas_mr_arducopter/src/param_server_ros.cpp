@@ -14,25 +14,25 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-ParamServerRos::ParamServerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+ParamServerRos::ParamServerRos(, const string& name)
   : super(node, pnh, name), server_(pnh_)
 {
   getRosParams();
 
-  param_set_sc_ = nh_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
-  if (!param_set_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  param_set_sc_ = node_.serviceClient<mavros_msgs::ParamSet>(kParamSetSrv);
+  if (!param_set_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
     TOBAS_EXIT("Failed to connect to '", kParamSetSrv, "' service server.");
 
-  server_state_pub_ = nh_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
-  state_sub_ = nh_.subscribe(kStateTopic, 1, &self::stateCb, this);
-  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
-  param_updates_sub_ = nh_.subscribe(name + "/parameter_updates", 1, &self::paramUpdatesCb, this);
+  server_state_pub_ = node_.advertise<std_msgs::Bool>(kParamServerStateTopic, 1, true);
+  state_sub_ = node_.subscribe(kStateTopic, 1, &self::stateCb, this);
+  local_pos_sub_ = node_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
+  param_updates_sub_ = node_.subscribe(name + "/parameter_updates", 1, &self::paramUpdatesCb, this);
 }
 
 void ParamServerRos::getRosParams()
 {
-  ros2::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_class", frame_class_);
-  ros2::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/frame_type", frame_type_);
+  ros2::getParam(node_, node_.getNamespace() + kArduCopterNS + "/frame_class", frame_class_);
+  ros2::getParam(node_, node_.getNamespace() + kArduCopterNS + "/frame_type", frame_type_);
 }
 
 void ParamServerRos::setParams(const dynamic_reconfigure::ConfigConstPtr& cfg)
@@ -84,7 +84,7 @@ void ParamServerRos::stateCb(const mavros_msgs::StateConstPtr& state)
     return;
 
   TOBAS_INFO("System status has become MAV_STATE_STANDBY.");
-  set_init_config_timer_ = nh_.createTimer(rclcpp::Duration(20), &self::setInitConfigTimerCb, this, true);
+  set_init_config_timer_ = node_.createTimer(rclcpp::Duration(20), &self::setInitConfigTimerCb, this, true);
 
   // Unsubscribe
   state_sub_.shutdown();
@@ -97,7 +97,7 @@ void ParamServerRos::localPositionCb(const geometry_msgs::msg::PoseStampedConstP
     "First local position is received. The parameter server will be ready in ", kActivationDelayFromFirstPose,
     " seconds.");
   set_init_params_timer_ =
-    nh_.createTimer(rclcpp::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
+    node_.createTimer(rclcpp::Duration(kActivationDelayFromFirstPose), &self::setInitParamsTimerCb, this, true);
 
   // Unsubscribe
   local_pos_sub_.shutdown();

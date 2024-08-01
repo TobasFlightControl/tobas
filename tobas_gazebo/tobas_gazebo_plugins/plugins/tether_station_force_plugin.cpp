@@ -27,9 +27,9 @@ void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementP
   if (link_ == nullptr)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
-  contacts_sub_ = nh_.subscribe("/" + ns_ + "/" + kContactStatesTopic, 1, &self::contactStatesCb, this);
-  get_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
+  contacts_sub_ = node_.subscribe("/" + ns_ + "/" + kContactStatesTopic, 1, &self::contactStatesCb, this);
+  get_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }

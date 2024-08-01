@@ -52,7 +52,7 @@ private:
     NO_GUST,
   };
 
-  rclcpp::NodeHandle nh_;
+  rclcpp::NodeHandle node_;
 
   // SDF parameters
   std::string ns_;

@@ -13,7 +13,7 @@ class ADCDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit ADCDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit ADCDriver(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   ADS1220 adc_;

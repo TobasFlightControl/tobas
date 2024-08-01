@@ -10,10 +10,10 @@ using namespace Eigen;
 
 namespace tobas_calibration
 {
-AccelCalibrationRos::AccelCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
+AccelCalibrationRos::AccelCalibrationRos(, const string& name)
+  : super(node, pnh, name), property_client_(node_, tobas_real_ros::kPropertyServerFC)
 {
-  ss_ = nh_.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
+  ss_ = node_.advertiseService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
 
 bool AccelCalibrationRos::getAccelMean(Eigen::Vector3d& des)
@@ -24,7 +24,7 @@ bool AccelCalibrationRos::getAccelMean(Eigen::Vector3d& des)
     sum.reset();
 
   // 一時的にIMUの購読を開始
-  const auto imu_sub = nh_.subscribe(hal::kImuTopic, 1, &AccelCalibrationRos::imuCb, this);
+  const auto imu_sub = node_.subscribe(hal::kImuTopic, 1, &AccelCalibrationRos::imuCb, this);
 
   // データが溜まるまで待機
   if (!ros2::spinUntil([this]() { return cnt_ == kDataCount; }, kTimeout))

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>

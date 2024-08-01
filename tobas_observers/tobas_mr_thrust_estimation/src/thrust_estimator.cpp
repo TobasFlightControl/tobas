@@ -15,19 +15,19 @@ using namespace Eigen;
 
 namespace tobas_mr_thrust_estimation
 {
-ThrustEstimator::ThrustEstimator(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+ThrustEstimator::ThrustEstimator(, const string& name)
   : super(node, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
   updateInternalDataStructures();
 
   kf_.initialize(Scalard(1), Scalard(kInitFactorStddev));
   kf_.setZero();
 
-  factor_pub_ = nh_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
+  factor_pub_ = node_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
 
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  rotor_speeds_sub_ = node_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }

@@ -9,7 +9,7 @@
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
     fatal(__VA_ARGS__);                                                                                                \
-    nh_.shutdown();                                                                                                    \
+    node_.shutdown();                                                                                                    \
     return;                                                                                                            \
   }
 
@@ -43,10 +43,10 @@ namespace tobas
 class BaseNode
 {
 protected:
-  rclcpp::Node::SharedPtr nh_;
+  rclcpp::Node::SharedPtr node_;
   rclcpp::Node::SharedPtr pnh_;
 
-  explicit BaseNode(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name);
+  explicit BaseNode(, const std::string& name);
 
   inline const std::string& name() const;
   inline std::string ns() const;
@@ -112,7 +112,7 @@ inline const std::string& BaseNode::name() const
 
 inline std::string BaseNode::ns() const
 {
-  return nh_.getNamespace() + "/";
+  return node_.getNamespace() + "/";
 }
 
 template <typename... Args>

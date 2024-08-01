@@ -26,7 +26,7 @@ class StateChecker : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit StateChecker(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit StateChecker(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   tobas::Drone drone_;

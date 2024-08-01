@@ -13,13 +13,13 @@ using namespace std;
 
 namespace tobas_multirotor_move
 {
-MoveActionServer::MoveActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), as_(nh_, tobas::kMoveAction, std::bind(&self::executeCb, this, _1), false)
+MoveActionServer::MoveActionServer(, const string& name)
+  : super(node, pnh, name), as_(node_, tobas::kMoveAction, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  cmd_pub_ = node_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
 
-  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this);
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
+  arming_sub_ = node_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this);
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
 
   as_.start();
 }
@@ -57,7 +57,7 @@ bool MoveActionServer::computeGoalPosition(const GoalType& goal, kdl::Vector& go
 {
   // XY軸
   // FIXME: 平面近似誤差が無視できない場合は目標地点の経緯度を基準にするなどの工夫が必要
-  ros2::ServiceClientWrapper<tobas_msgs::GetGnssOrigin> sc(nh_, tobas::kGetGnssOriginSrv);
+  ros2::ServiceClientWrapper<tobas_msgs::GetGnssOrigin> sc(node_, tobas::kGetGnssOriginSrv);
   if (!sc.call() || !sc.res.success)
   {
     as_.setAborted(result_, "Failed to get GNSS origin.");
@@ -131,7 +131,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
 
   // 軌道を発行
   rclcpp::Rate rate(kUpdateRate);
-  while (nh_.ok())
+  while (node_.ok())
   {
     // 開始からの経過時間を計算
     const auto t = (node->get_clock()->now() - start_time).seconds();

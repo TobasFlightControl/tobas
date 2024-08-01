@@ -9,7 +9,7 @@ using namespace std;
 
 namespace a1
 {
-GNSSDriver::GNSSDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+GNSSDriver::GNSSDriver(, const string& name) : super(node, pnh, name)
 {
   if (!gnss_.initialize())
   {
@@ -28,10 +28,10 @@ GNSSDriver::GNSSDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh
   is_received_[ZEDF9P::NAV_VELNED] = false;
   is_received_[ZEDF9P::NAV_COV] = false;
 
-  gnss_pub_ = nh_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
+  gnss_pub_ = node_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
 
-  set_time_offset_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
-  main_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this, false, false);
+  set_time_offset_timer_ = node_.createTimer(rclcpp::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
+  main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this, false, false);
 
   // ROS時刻とGPS時刻の間のオフセットを取得する
   // コンストラクタではros::Timeを扱うことは推奨されないため，タイマーコールバックで行う．

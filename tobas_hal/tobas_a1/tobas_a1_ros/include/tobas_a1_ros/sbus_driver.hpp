@@ -11,7 +11,7 @@ class SBUSDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit SBUSDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit SBUSDriver(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   SBUS sbus_;

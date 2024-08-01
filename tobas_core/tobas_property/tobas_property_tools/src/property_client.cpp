@@ -1,50 +1,52 @@
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_property_msgs/GetBool.h>
-#include <tobas_property_msgs/GetInt.h>
-#include <tobas_property_msgs/GetDouble.h>
-#include <tobas_property_msgs/GetString.h>
-#include <tobas_property_msgs/SetBool.h>
-#include <tobas_property_msgs/SetInt.h>
-#include <tobas_property_msgs/SetDouble.h>
-#include <tobas_property_msgs/SetString.h>
+#include <tobas_property_msgs/srv/get_bool.hpp>
+#include <tobas_property_msgs/srv/get_int.hpp>
+#include <tobas_property_msgs/srv/get_double.hpp>
+#include <tobas_property_msgs/srv/get_string.hpp>
+#include <tobas_property_msgs/srv/set_bool.hpp>
+#include <tobas_property_msgs/srv/set_int.hpp>
+#include <tobas_property_msgs/srv/set_double.hpp>
+#include <tobas_property_msgs/srv/set_string.hpp>
 
 #include "../include/tobas_property_tools/property_client.hpp"
 
 using namespace std;
+using namespace std_srvs::srv;
+using namespace tobas_property_msgs::srv;
 
 namespace ptree
 {
 PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& ns, const string& section)
-  : nh_(node), ns_(ns), section_(section)
+  : node_(node), ns_(ns), section_(section)
 {
 }
 
 PropertyClient::error_t PropertyClient::get(const string& key, bool& value, const rclcpp::Duration& timeout)
 {
-  return getProperty<tobas_property_msgs::GetBool, kGetBoolSrv>(key, value, timeout);
+  return getProperty<GetBool, kGetBoolSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::get(const string& key, int& value, const rclcpp::Duration& timeout)
 {
-  return getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, value, timeout);
+  return getProperty<GetInt, kGetIntSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::get(const string& key, double& value, const rclcpp::Duration& timeout)
 {
-  return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value, timeout);
+  return getProperty<GetDouble, kGetDoubleSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::get(const string& key, string& value, const rclcpp::Duration& timeout)
 {
-  return getProperty<tobas_property_msgs::GetString, kGetStringSrv>(key, value, timeout);
+  return getProperty<GetString, kGetStringSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value, const rclcpp::Duration& timeout)
 {
   int tmp;
 
-  if (getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
+  if (getProperty<GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
     return error_code_;
 
   if (tmp < 0 || UINT8_MAX < tmp)
@@ -58,7 +60,7 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, 
 {
   int tmp;
 
-  if (getProperty<tobas_property_msgs::GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
+  if (getProperty<GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
     return error_code_;
 
   if (tmp < 0 || UINT16_MAX < tmp)
@@ -70,57 +72,60 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, 
 
 PropertyClient::error_t PropertyClient::get(const string& key, float& value, const rclcpp::Duration& timeout)
 {
-  return getProperty<tobas_property_msgs::GetDouble, kGetDoubleSrv>(key, value, timeout);
+  return getProperty<GetDouble, kGetDoubleSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const bool& value, const rclcpp::Duration& timeout)
 {
-  return setProperty<tobas_property_msgs::SetBool, kSetBoolSrv>(key, value, timeout);
+  return setProperty<SetBool, kSetBoolSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const int& value, const rclcpp::Duration& timeout)
 {
-  return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
+  return setProperty<SetInt, kSetIntSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const double& value, const rclcpp::Duration& timeout)
 {
-  return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value, timeout);
+  return setProperty<SetDouble, kSetDoubleSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const string& value, const rclcpp::Duration& timeout)
 {
-  return setProperty<tobas_property_msgs::SetString, kSetStringSrv>(key, value, timeout);
+  return setProperty<SetString, kSetStringSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const uint8_t& value, const rclcpp::Duration& timeout)
 {
-  return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
+  return setProperty<SetInt, kSetIntSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const uint16_t& value, const rclcpp::Duration& timeout)
 {
-  return setProperty<tobas_property_msgs::SetInt, kSetIntSrv>(key, value, timeout);
+  return setProperty<SetInt, kSetIntSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::set(const string& key, const float& value, const rclcpp::Duration& timeout)
 {
-  return setProperty<tobas_property_msgs::SetDouble, kSetDoubleSrv>(key, value, timeout);
+  return setProperty<SetDouble, kSetDoubleSrv>(key, value, timeout);
 }
 
 PropertyClient::error_t PropertyClient::save(const rclcpp::Duration& timeout)
 {
-  rclcpp::ServiceClient client = nh_.serviceClient<std_srvs::Trigger>(path::join(ns_, kSaveFileSrv));
-  if (!client.waitForExistence(timeout))
+  auto client = node_->create_client<Trigger>(path::join(ns_, kSaveFileSrv));
+  if (!client->wait_for_service(timeout.to_chrono<chrono::milliseconds>()))
     return error_code_ = E_FAILED_TO_CONNECT;
 
-  std_srvs::Trigger msg;
-  if (!client.call(msg))
+  const auto req = make_shared<Trigger::Request>();
+
+  auto id = client->async_send_request(req);
+  if (rclcpp::spin_until_future_complete(node_, id) != rclcpp::FutureReturnCode::SUCCESS)
     return error_code_ = E_FAILED_TO_CALL;
 
-  if (!msg.response.success)
+  const auto res = id.get();
+  if (!res->success)
   {
-    server_error_msg_ = msg.response.message;
+    server_error_msg_ = res->message;
     return error_code_ = E_SERVER_ERROR;
   }
 

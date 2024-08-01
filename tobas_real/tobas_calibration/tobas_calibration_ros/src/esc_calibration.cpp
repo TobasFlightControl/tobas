@@ -12,14 +12,14 @@ using namespace std;
 
 namespace tobas_calibration
 {
-EscCalibrationRos::EscCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+EscCalibrationRos::EscCalibrationRos(, const string& name)
   : super(node, pnh, name), as_(node, kActionName, std::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
-  throttles_pub_ = nh_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
-  get_arm_sc_ = nh_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
-  enable_rcout_sc_ = nh_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
+  throttles_pub_ = node_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
+  get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
   as_.start();
 }
@@ -100,7 +100,7 @@ bool EscCalibrationRos::checkBatteryDisconnected()
   tobas_msgs::Battery battery;
 
   // バッテリー状態を取得
-  if (!ros2::subscribeOnce(battery, tobas::kBatteryTopic, nh_, kTimeout))
+  if (!ros2::subscribeOnce(battery, tobas::kBatteryTopic, node_, kTimeout))
   {
     as_.setAborted(result_, "Failed to receive battery status.");
     return false;
@@ -122,7 +122,7 @@ bool EscCalibrationRos::waitForBatteryConnection()
   battery_ = nullptr;
 
   // 一時的にバッテリーの購読を開始
-  const auto battery_sub = nh_.subscribe(tobas::kBatteryTopic, 1, &EscCalibrationRos::batteryCb, this);
+  const auto battery_sub = node_.subscribe(tobas::kBatteryTopic, 1, &EscCalibrationRos::batteryCb, this);
 
   // バッテリー電圧が閾値を超えるまで最大値を指令し続ける
   const auto start_time = node->get_clock()->now();
@@ -149,12 +149,12 @@ void EscCalibrationRos::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
 void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
 {
   // 各サービスサーバへの接続をチェック
-  if (!get_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!get_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to " + string(tobas::kGetArmSrv) + " service server.");
     return;
   }
-  if (!enable_rcout_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!enable_rcout_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to " + string(tobas::kEnableRcOutputSrv) + " service server.");
     return;

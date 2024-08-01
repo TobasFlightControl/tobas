@@ -40,7 +40,7 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle nh_;
+  rclcpp::NodeHandle node_;
 
   // SDF parameters
   std::string ns_;

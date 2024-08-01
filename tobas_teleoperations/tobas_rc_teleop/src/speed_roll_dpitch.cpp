@@ -14,7 +14,7 @@ SpeedRollDeltaPitchController::SpeedRollDeltaPitchController(const tobas::Drone&
 {
 }
 
-void SpeedRollDeltaPitchController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
+void SpeedRollDeltaPitchController::initialize()
 {
   getRosParams(pnh);
 

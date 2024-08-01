@@ -14,7 +14,7 @@ PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : supe
 {
 }
 
-void PosVelAccYawController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
+void PosVelAccYawController::initialize()
 {
   getRosParams(pnh);
 

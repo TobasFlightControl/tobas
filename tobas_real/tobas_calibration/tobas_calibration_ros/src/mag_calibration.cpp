@@ -7,10 +7,10 @@ using namespace std;
 
 namespace tobas_calibration
 {
-MagCalibrationRos::MagCalibrationRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), property_client_(nh_, tobas_real_ros::kPropertyServerFC)
+MagCalibrationRos::MagCalibrationRos(, const string& name)
+  : super(node, pnh, name), property_client_(node_, tobas_real_ros::kPropertyServerFC)
 {
-  ss_ = nh_.advertiseService(kServiceName, &self::executeCb, this);
+  ss_ = node_.advertiseService(kServiceName, &self::executeCb, this);
 }
 
 bool MagCalibrationRos::isValidEllipse(const SrvType::Request& req)

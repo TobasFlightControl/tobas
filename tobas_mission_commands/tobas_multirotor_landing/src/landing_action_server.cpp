@@ -10,21 +10,21 @@ using namespace std;
 
 namespace tobas_multirotor_landing
 {
-LandActionServer::LandActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+LandActionServer::LandActionServer(, const string& name)
   : super(node, pnh, name),
     alt_buf_(kTimeWindow),
-    as_(nh_, tobas::kLandAction, std::bind(&self::executeCb, this, _1), false)
+    as_(node_, tobas::kLandAction, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  cmd_pub_ = node_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 
   as_.start();
 }
 
 bool LandActionServer::disarmRotors()
 {
-  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
@@ -83,7 +83,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
 
   // 高度チェック
   rclcpp::Rate rate(kUpdateRate);
-  while (nh_.ok())
+  while (node_.ok())
   {
     if (alt_buf_.isFilled())
     {

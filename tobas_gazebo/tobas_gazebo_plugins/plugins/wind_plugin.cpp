@@ -31,9 +31,9 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   if (link_ == nullptr)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
-  wind_pub_ = nh_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
-  get_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = nh_.advertiseService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
+  wind_pub_ = node_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
+  get_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }

@@ -13,7 +13,7 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-ControllerRos::ControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+ControllerRos::ControllerRos(, const string& name) : super(node, pnh, name)
 {
   getRosParams();
 
@@ -22,13 +22,13 @@ ControllerRos::ControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedP
   if (!socket_out_.connect(kFdmAddr, kFdmPortOut))
     TOBAS_EXIT("failed to bind with ", kFdmAddr, ":", kFdmPortOut, ".");
 
-  throttles_pub_ = nh_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  throttles_pub_ = node_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void ControllerRos::getRosParams()
 {
-  ros2::getParam(nh_, nh_.getNamespace() + kArduCopterNS + "/channels", channels_);
+  ros2::getParam(node_, node_.getNamespace() + kArduCopterNS + "/channels", channels_);
   if (channels_.size() > kMaxMotors)
     TOBAS_EXIT("Too many rotors. The maximum number is ", kMaxMotors, ".");
   if (!tobas_std::isUnique(channels_))
@@ -45,7 +45,7 @@ void ControllerRos::receiveAndPublishMotorCommand(const rclcpp::Time& imu_time)
 
   // Drain the socket in the case we're backed up
   ServoPacket last_pkt;
-  while (nh_.ok())
+  while (node_.ok())
   {
     const ssize_t recv_size_last = socket_in_.recv(&last_pkt, sizeof(ServoPacket), 0);
     if (recv_size_last == -1)

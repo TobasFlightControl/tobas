@@ -8,10 +8,10 @@ using namespace std;
 
 namespace tobas_manipulation
 {
-PositionControllerRos::PositionControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+PositionControllerRos::PositionControllerRos(, const string& name)
   : super(node, pnh, name)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   // 位置指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
@@ -28,11 +28,11 @@ PositionControllerRos::PositionControllerRos(rclcpp::Node::SharedPtr node, rclcp
   if (home_js_.name.size() > 0)
     tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
 
-  positions_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic, 1);
+  positions_pub_ = node_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic, 1);
 
-  cur_js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ = nh_.subscribe(tobas::kPosCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_ls_sub_ = nh_.subscribe(tobas::kPosCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+  cur_js_sub_ = node_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
+  tar_js_sub_ = node_.subscribe(tobas::kPosCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_ls_sub_ = node_.subscribe(tobas::kPosCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 }
 
 int PositionControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg)

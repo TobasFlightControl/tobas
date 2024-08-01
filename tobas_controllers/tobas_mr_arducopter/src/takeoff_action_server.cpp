@@ -11,15 +11,15 @@ using namespace std;
 
 namespace tobas_mr_arducopter
 {
-TakeoffActionServer::TakeoffActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), as_(nh_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
+TakeoffActionServer::TakeoffActionServer(, const string& name)
+  : super(node, pnh, name), as_(node_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
 {
-  set_mode_sc_ = nh_.serviceClient<mavros_msgs::SetMode>(kSetModeSrvName);
-  arming_sc_ = nh_.serviceClient<mavros_msgs::CommandBool>(kArmingSrvName);
-  takeoff_sc_ = nh_.serviceClient<mavros_msgs::CommandTOL>(kTakeoffSrvName);
+  set_mode_sc_ = node_.serviceClient<mavros_msgs::SetMode>(kSetModeSrvName);
+  arming_sc_ = node_.serviceClient<mavros_msgs::CommandBool>(kArmingSrvName);
+  takeoff_sc_ = node_.serviceClient<mavros_msgs::CommandTOL>(kTakeoffSrvName);
 
-  local_pos_sub_ = nh_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
-  param_server_state_sub_ = nh_.subscribe(kParamServerStateTopic, 1, &self::paramServerStateCb, this);
+  local_pos_sub_ = node_.subscribe(kLocalPositionPoseTopic, 1, &self::localPositionCb, this);
+  param_server_state_sub_ = node_.subscribe(kParamServerStateTopic, 1, &self::paramServerStateCb, this);
 
   as_.start();
 }
@@ -43,19 +43,19 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::waitForServiceExistence()
 {
-  if (!set_mode_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_mode_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to '" + kSetModeSrvName + "' service server.");
     return false;
   }
 
-  if (!arming_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!arming_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to '" + kArmingSrvName + "' service server.");
     return false;
   }
 
-  if (!takeoff_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!takeoff_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to '" + kTakeoffSrvName + "' service server.");
     return false;

@@ -177,15 +177,15 @@ void GazeboRotorPlugin::registerPubSub()
   const string prefix = "/" + ns_ + "/";
   const string suffix = "_" + to_string(motor_number_);
 
-  rotor_state_pub_ = nh_.advertise<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix, 1);
-  debug_pub_ = nh_.advertise<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
+  rotor_state_pub_ = node_.advertise<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix, 1);
+  debug_pub_ = node_.advertise<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
 
-  throttle_sub_ = nh_.subscribe(
+  throttle_sub_ = node_.subscribe(
     prefix + kThrottleTopicPrefix + suffix, 1, &self::throttleCmdCb, this, rclcpp::TransportHints().tcpNoDelay());
   battery_gt_sub_ =
-    nh_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, rclcpp::TransportHints().tcpNoDelay());
+    node_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_gt_sub_ =
-    nh_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, rclcpp::TransportHints().tcpNoDelay());
+    node_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()

@@ -13,7 +13,7 @@ PositionYawController::PositionYawController(const tobas::Drone& drone) : super(
 {
 }
 
-void PositionYawController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
+void PositionYawController::initialize()
 {
   getRosParams(pnh);
   pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_property_tools/property_client.hpp>
@@ -39,6 +39,6 @@ private:
   bool reloadConfig();
 
   void magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag_raw);
-  bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
 };
 }  // namespace tobas_real_ros

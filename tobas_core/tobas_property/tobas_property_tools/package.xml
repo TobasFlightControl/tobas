@@ -13,6 +13,7 @@
 	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_path_tools</depend>
 	<depend>tobas_linux</depend>
+	<depend>std_srvs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

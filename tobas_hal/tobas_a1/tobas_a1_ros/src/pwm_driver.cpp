@@ -7,12 +7,12 @@ using namespace std;
 
 namespace a1
 {
-PWMDriver::PWMDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name) : super(node, pnh, name)
+PWMDriver::PWMDriver(, const std::string& name) : super(node, pnh, name)
 {
   if (!pwm_.initialize())
     TOBAS_EXIT("Failed to initialize PWM driver.");
 
-  pwms_sub_ = nh_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());
+  pwms_sub_ = node_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());
 }
 
 void PWMDriver::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)

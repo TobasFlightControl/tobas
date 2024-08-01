@@ -10,10 +10,10 @@ class TobasBridge
   using self = TobasBridge;
 
 public:
-  explicit TobasBridge(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh);
+  explicit TobasBridge();
 
 private:
-  rclcpp::Node::SharedPtr nh_;
+  rclcpp::Node::SharedPtr node_;
   rclcpp::Node::SharedPtr pnh_;
 
   rclcpp::Publisher js_pub_;

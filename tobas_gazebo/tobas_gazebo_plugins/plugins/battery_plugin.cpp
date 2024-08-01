@@ -28,7 +28,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
   registerPubSub();
-  charge_srv_ = nh_.advertiseService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
+  charge_srv_ = node_.advertiseService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
@@ -50,8 +50,8 @@ void GazeboBatteryPlugin::registerPubSub()
 {
   const string prefix = "/" + ns_ + "/";
 
-  battery_pub_ = nh_.advertise<tobas_msgs::Battery>(prefix + tobas::kBatteryTopic, 1);
-  battery_gt_pub_ = nh_.advertise<tobas_msgs::Battery>(prefix + kBatteryGtTopic, 1);
+  battery_pub_ = node_.advertise<tobas_msgs::Battery>(prefix + tobas::kBatteryTopic, 1);
+  battery_gt_pub_ = node_.advertise<tobas_msgs::Battery>(prefix + kBatteryGtTopic, 1);
 
   // モータ状態のコールバックとサブスクライバを設定
   for (size_t i = 0; i < num_rotors_; ++i)
@@ -60,7 +60,7 @@ void GazeboBatteryPlugin::registerPubSub()
 
     const string suffix = "_" + to_string(i);
     const string topic = prefix + kRotorStateGtTopicPrefix + suffix;
-    rotor_state_subs_.push_back(nh_.subscribe<tobas_msgs::RotorState>(topic, 1, rotor_state_cbs_[i]));
+    rotor_state_subs_.push_back(node_.subscribe<tobas_msgs::RotorState>(topic, 1, rotor_state_cbs_[i]));
   }
 }
 

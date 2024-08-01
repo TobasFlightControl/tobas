@@ -17,10 +17,10 @@ using namespace Eigen;
 
 namespace tobas_fixed_wing_mpc
 {
-Controller::Controller(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+Controller::Controller(, const string& name)
   : super(node, pnh, name), x_rotors_(drone_, tobas::X_POSITIVE), eom_(drone_), server_(pnh_)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   x_rotors_.updateInternalDataStructures();
   eom_.updateInternalDataStructures();
@@ -41,16 +41,16 @@ Controller::Controller(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh
   mpc_.set_state.resize(kCtrlSize);
 
   // Register publishers
-  rot_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
-  deflections_pub_ = nh_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
-  feedback_pub_ = nh_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
+  rot_speeds_pub_ = node_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
+  deflections_pub_ = node_.advertise<tobas_msgs::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic, 1);
+  feedback_pub_ = node_.advertise<tobas_msgs::FixedWingControllerFeedback>("fixed_wing_controller_feedback", 1);
 
   // Register subscribers
-  air_pressure_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
-  cmd_sub_ = nh_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
+  air_pressure_sub_ = node_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  arming_sub_ = node_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
+  cmd_sub_ = node_.subscribe(tobas::kSpeedRollDpitchCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
 
   // Dynamic Reconfigure
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));

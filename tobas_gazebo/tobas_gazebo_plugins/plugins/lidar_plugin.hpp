@@ -37,7 +37,7 @@ protected:
   void OnNewLaserScans() override;
 
 private:
-  rclcpp::NodeHandle nh_;  // pointer to ros node
+  rclcpp::NodeHandle node_;  // pointer to ros node
 
   // SDF parameters
   std::string ns_;

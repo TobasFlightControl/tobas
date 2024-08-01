@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_property_tools/property_client.hpp>
@@ -42,6 +42,6 @@ private:
   bool reloadConfig();
 
   void sbusCb(const tobas_hal_msgs::SbusConstPtr& sbus);
-  bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
 };
 }  // namespace tobas_real_ros

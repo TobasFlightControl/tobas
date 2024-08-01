@@ -10,12 +10,12 @@ using namespace std;
 
 namespace tobas_multirotor_takeoff
 {
-TakeoffActionServer::TakeoffActionServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), as_(nh_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
+TakeoffActionServer::TakeoffActionServer(, const string& name)
+  : super(node, pnh, name), as_(node_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = nh_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
-  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  cmd_pub_ = node_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
+  set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
   as_.start();
 }
 
@@ -44,7 +44,7 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::armRotors()
 {
-  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;
@@ -102,7 +102,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
 
   // 軌道を発行
   rclcpp::Rate rate(kUpdateRate);
-  while (nh_.ok())
+  while (node_.ok())
   {
     // 開始からの経過時間を計算
     const auto t = (node->get_clock()->now() - start_time).seconds();

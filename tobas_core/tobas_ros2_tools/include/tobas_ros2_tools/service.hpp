@@ -16,7 +16,7 @@ public:
     client_ = node->create_client<SrvType>(service_name);
   }
 
-  bool waitForExistence(double timeout = -1)
+  bool wait_for_service(double timeout = -1)
   {
     return client_.wait_for_service(timeout);
   }

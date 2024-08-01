@@ -6,10 +6,10 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-ImuLpf::ImuLpf(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+ImuLpf::ImuLpf(, const string& name) : super(node, pnh, name)
 {
-  imu_lpf_pub_ = nh_.advertise<tobas_msgs::Imu>(tobas::kImuLpfTopic, 1);
-  imu_raw_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuRawCb, this, tcpNoDelay());
+  imu_lpf_pub_ = node_.advertise<tobas_msgs::Imu>(tobas::kImuLpfTopic, 1);
+  imu_raw_sub_ = node_.subscribe(tobas::kImuTopic, 1, &self::imuRawCb, this, tcpNoDelay());
 }
 
 void ImuLpf::imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw)

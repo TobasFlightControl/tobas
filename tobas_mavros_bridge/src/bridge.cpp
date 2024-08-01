@@ -10,11 +10,11 @@ using namespace std;
 
 namespace tobas_mavros_bridge
 {
-TobasMavrosBridge::TobasMavrosBridge(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+TobasMavrosBridge::TobasMavrosBridge(, const string& name)
   : super(node, pnh, name)
 {
-  setpoint_pos_local_pub_ = nh_.advertise<geometry_msgs::msg::PoseStamped>("mavros/setpoint_position/local", 1);
-  pos_yaw_sub_ = nh_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
+  setpoint_pos_local_pub_ = node_.advertise<geometry_msgs::msg::PoseStamped>("mavros/setpoint_position/local", 1);
+  pos_yaw_sub_ = node_.subscribe(tobas::kPositionYawCmdTopic, 1, &self::positionYawCb, this, tcpNoDelay());
 }
 
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)

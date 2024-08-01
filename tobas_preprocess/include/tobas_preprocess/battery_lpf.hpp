@@ -17,7 +17,7 @@ class BatteryLpf : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BatteryLpf(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit BatteryLpf(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   dsp::LowPassFilter<double> voltage_lpf_, current_lpf_;

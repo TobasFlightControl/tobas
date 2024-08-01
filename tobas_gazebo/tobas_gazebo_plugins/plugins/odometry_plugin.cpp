@@ -76,7 +76,7 @@ void GazeboOdometryPlugin::setRandomDistributions()
 
 void GazeboOdometryPlugin::registerPublishers()
 {
-  odometry_pub_ = nh_.advertise<nav_msgs::Odometry>("/" + ns_ + "/" + tobas::kExternalOdomTopic, 1);
+  odometry_pub_ = node_.advertise<nav_msgs::Odometry>("/" + ns_ + "/" + tobas::kExternalOdomTopic, 1);
 }
 
 void GazeboOdometryPlugin::onUpdate()

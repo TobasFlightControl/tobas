@@ -9,7 +9,7 @@ using namespace std;
 
 namespace tobas_manipulation
 {
-VelocityControllerRos::VelocityControllerRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+VelocityControllerRos::VelocityControllerRos(, const string& name)
   : super(node, pnh, name),
     cur_js_conv_(drone_.tree()),
     tar_js_conv_(drone_.tree()),
@@ -17,7 +17,7 @@ VelocityControllerRos::VelocityControllerRos(rclcpp::Node::SharedPtr node, rclcp
     vel_ctrl_(drone_.tree()),
     server_(pnh_)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   cur_js_conv_.updateInternalDataStructures();
   tar_js_conv_.updateInternalDataStructures();
@@ -39,11 +39,11 @@ VelocityControllerRos::VelocityControllerRos(rclcpp::Node::SharedPtr node, rclcp
   if (home_js_.name.size() > 0)
     tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
 
-  velocities_pub_ = nh_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic, 1);
+  velocities_pub_ = node_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic, 1);
 
-  cur_js_sub_ = nh_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ = nh_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_ls_sub_ = nh_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+  cur_js_sub_ = node_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
+  tar_js_sub_ = node_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
+  tar_ls_sub_ = node_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
 
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_property_tools/property_client.hpp>
@@ -22,7 +22,7 @@ class ImuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit ImuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit ImuHandler(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   enum stage_t
@@ -51,6 +51,6 @@ private:
   bool reloadConfig();
 
   void imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw);
-  bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
 };
 }  // namespace tobas_real_ros

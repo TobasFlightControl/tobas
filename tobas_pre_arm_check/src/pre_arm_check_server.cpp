@@ -10,22 +10,22 @@ using namespace Eigen;
 
 namespace tobas_pre_arm_check
 {
-PreArmCheckServer::PreArmCheckServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+PreArmCheckServer::PreArmCheckServer(, const string& name)
   : super(node, pnh, name),
     pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
-  pre_arm_check_pub_ = nh_.advertise<tobas_msgs::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
+  pre_arm_check_pub_ = node_.advertise<tobas_msgs::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
 
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this);
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
+  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this);
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
 
-  pre_arm_check_ss_ = nh_.advertiseService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
+  pre_arm_check_ss_ = node_.advertiseService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
 
-  pre_arm_check_timer_ = nh_.createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
+  pre_arm_check_timer_ = node_.createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
 }
 
 void PreArmCheckServer::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
@@ -52,7 +52,7 @@ void PreArmCheckServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     pos_buf_[i].add(stamp, odom->frame.p(i));
 }
 
-bool PreArmCheckServer::preArmCheckSrvCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
+bool PreArmCheckServer::preArmCheckSrvCb(std_srvs::srv::Trigger::Request&, std_srvs::srv::Trigger::Response& res)
 {
   // 問題がなければ終了
   res.success = pre_arm_check_.ok;

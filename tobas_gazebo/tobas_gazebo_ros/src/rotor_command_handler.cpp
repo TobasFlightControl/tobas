@@ -9,19 +9,19 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-RotorCommandHandler::RotorCommandHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+RotorCommandHandler::RotorCommandHandler(, const string& name)
   : super(node, pnh, name)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   for (const auto& rotor : drone_.rotorConfigs())
   {
     const auto topic = string(gazebo::kThrottleTopicPrefix) + "_" + to_string(rotor.channel);
-    throttle_pubs_[rotor.channel] = nh_.advertise<tobas_gazebo_msgs::Throttle>(topic, 1);
+    throttle_pubs_[rotor.channel] = node_.advertise<tobas_gazebo_msgs::Throttle>(topic, 1);
   }
 
-  throttles_sub_ = nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
-  enable_rcout_srv_ = nh_.advertiseService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
+  throttles_sub_ = node_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
+  enable_rcout_srv_ = node_.advertiseService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
 void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)

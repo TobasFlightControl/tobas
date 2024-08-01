@@ -28,7 +28,7 @@ class Controller : public tobas::BaseNode
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit Controller(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit Controller(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   // Drone

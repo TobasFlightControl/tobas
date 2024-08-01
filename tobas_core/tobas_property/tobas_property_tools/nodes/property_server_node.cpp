@@ -2,9 +2,8 @@
 
 int main(int argc, char** argv)
 {
-  rclcpp::init(argc, argv, "property_server");
-  rclcpp::NodeHandle node;
-  rclcpp::NodeHandle pnh("~");
-  ptree::PropertyServer node(node, pnh);
-  rclcpp::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<ptree::PropertyServer>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
 }

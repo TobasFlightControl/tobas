@@ -20,9 +20,9 @@ FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
   rclcpp::Node::SharedPtr node,
   rclcpp::Node::SharedPtr pnh,
   const string& name)
-  : super(node, pnh, name), as_(nh_, kActionName, std::bind(&self::executeCb, this, _1), false)
+  : super(node, pnh, name), as_(node_, kActionName, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = nh_.advertise<CommandType>(tobas::kPositionYawCmdTopic, 1);
+  cmd_pub_ = node_.advertise<CommandType>(tobas::kPositionYawCmdTopic, 1);
   as_.start();
 }
 

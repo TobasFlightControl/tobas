@@ -14,19 +14,19 @@ using namespace Eigen;
 
 namespace tobas_mr_wind_estimation
 {
-WindEstimator::WindEstimator(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+WindEstimator::WindEstimator(, const string& name)
   : super(node, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
   updateInternalDataStructures();
 
   kf_.initialize(Vector2d::Zero(), Vector2d::Constant(math::sqr(kInitWindStddev)).asDiagonal());
   kf_.setZero();
 
-  wind_pub_ = nh_.advertise<tobas_msgs::Wind>(tobas::kWindTopic, 1);
+  wind_pub_ = node_.advertise<tobas_msgs::Wind>(tobas::kWindTopic, 1);
 
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  rotor_speeds_sub_ = node_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
 }
 
 void WindEstimator::updateInternalDataStructures()

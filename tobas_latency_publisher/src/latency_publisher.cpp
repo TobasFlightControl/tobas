@@ -7,10 +7,10 @@ using namespace std;
 
 namespace tobas_latency_publisher
 {
-LatencyPublisher::LatencyPublisher(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+LatencyPublisher::LatencyPublisher(, const string& name) : super(node, pnh, name)
 {
-  latency_pub_ = nh_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
-  throttles_sub_ = nh_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
+  latency_pub_ = node_.advertise<tobas_msgs::Latency>(tobas::kLatencyTopic, 1);
+  throttles_sub_ = node_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
 }
 
 void LatencyPublisher::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& msg)

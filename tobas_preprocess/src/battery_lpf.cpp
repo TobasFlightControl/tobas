@@ -6,10 +6,10 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-BatteryLpf::BatteryLpf(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+BatteryLpf::BatteryLpf(, const string& name) : super(node, pnh, name)
 {
-  battery_lpf_pub_ = nh_.advertise<tobas_msgs::Battery>(tobas::kBatteryLpfTopic, 1);
-  battery_raw_sub_ = nh_.subscribe(tobas::kBatteryTopic, 1, &self::batteryRawCb, this, tcpNoDelay());
+  battery_lpf_pub_ = node_.advertise<tobas_msgs::Battery>(tobas::kBatteryLpfTopic, 1);
+  battery_raw_sub_ = node_.subscribe(tobas::kBatteryTopic, 1, &self::batteryRawCb, this, tcpNoDelay());
 }
 
 void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)

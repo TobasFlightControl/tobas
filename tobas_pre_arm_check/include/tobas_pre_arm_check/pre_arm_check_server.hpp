@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_tools/node.hpp>
@@ -51,7 +51,7 @@ private:
   void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
   void odomCb(const tobas_msgs::OdometryConstPtr& odom);
 
-  bool preArmCheckSrvCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool preArmCheckSrvCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
   void preArmCheckTimerCb(const rclcpp::TimerEvent& event);
 };
 }  // namespace tobas_pre_arm_check

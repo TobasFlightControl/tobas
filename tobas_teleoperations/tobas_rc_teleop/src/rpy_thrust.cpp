@@ -16,7 +16,7 @@ RollPitchYawThrustController::RollPitchYawThrustController(const tobas::Drone& d
 {
 }
 
-void RollPitchYawThrustController::initialize(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh)
+void RollPitchYawThrustController::initialize()
 {
   getRosParams(pnh);
 

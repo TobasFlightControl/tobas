@@ -14,11 +14,11 @@ using namespace Eigen;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(, const string& name)
   : super(node, pnh, name), server_(pnh_)
 {
   getRosParams();
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
   // Initialize ESKF
   const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0;
@@ -41,21 +41,21 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(rclcpp::Node::SharedPtr nod
   tf_.child_frame_id = drone_.tree().getRootName();
 
   // Register publishers
-  odom_pub_ = nh_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
-  feedback_pub_ = nh_.advertise<FeedbackMsg>(kFeedbackTopic, 1);
+  odom_pub_ = node_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
+  feedback_pub_ = node_.advertise<FeedbackMsg>(kFeedbackTopic, 1);
 
   // Register subscribers
-  imu_sub_ = nh_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
-  imu_filtered_sub_ = nh_.subscribe(tobas::kImuLpfTopic, 1, &self::imuFilteredCb, this, tcpNoDelay());
-  mag_sub_ = nh_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
+  imu_sub_ = node_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
+  imu_filtered_sub_ = node_.subscribe(tobas::kImuLpfTopic, 1, &self::imuFilteredCb, this, tcpNoDelay());
+  mag_sub_ = node_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
   if (use_bar_)
-    bar_sub_ = nh_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
+    bar_sub_ = node_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
   if (use_gps_)
-    gps_sub_ = nh_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
+    gps_sub_ = node_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
 
   // Register service servers
-  get_gnss_origin_ss_ = nh_.advertiseService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ = nh_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = node_.advertiseService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = node_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));

@@ -19,7 +19,7 @@ GazeboLidarPlugin::~GazeboLidarPlugin()
   // Finalize the controller / Custom Callback Queue
   laser_queue_.clear();
   laser_queue_.disable();
-  nh_.shutdown();
+  node_.shutdown();
   callback_laser_queue_thread_.join();
 }
 
@@ -44,7 +44,7 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
   rclcpp::AdvertiseOptions ao = rclcpp::AdvertiseOptions::create<sensor_msgs::msg::PointCloud>(
     "/" + ns_ + "/" + tobas::kLidarTopic, 1, std::bind(&GazeboLidarPlugin::laserConnect, this),
     std::bind(&GazeboLidarPlugin::laserDisconnect, this), rclcpp::VoidPtr(), &laser_queue_);
-  pub_ = nh_.advertise(ao);
+  pub_ = node_.advertise(ao);
 
   // sensor generation off by default
   parent_ray_sensor_->SetActive(false);
@@ -213,7 +213,7 @@ double GazeboLidarPlugin::gaussianKernel(const double& mu, const double& sigma)
 
 void GazeboLidarPlugin::laserQueueThread()
 {
-  while (nh_.ok())
+  while (node_.ok())
     laser_queue_.callAvailable(rclcpp::WallDuration(kTimeout));
 }
 

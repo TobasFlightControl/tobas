@@ -21,7 +21,7 @@ class RCTeleop : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RCTeleop(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit RCTeleop(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   enum stage_t

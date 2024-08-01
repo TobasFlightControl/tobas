@@ -7,19 +7,19 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+StateChecker::StateChecker(, const string& name)
   : super(node, pnh, name), landing_ac_(tobas::kLandAction)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
-  event_pub_ = nh_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
+  event_pub_ = node_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
 
-  arming_sub_ = nh_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
-  cpu_sub_ = nh_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  euler_sub_ = nh_.subscribe(tobas::kEulerTopic, 1, &self::eulerCb, this, tcpNoDelay());
+  arming_sub_ = node_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
+  cpu_sub_ = node_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
+  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  euler_sub_ = node_.subscribe(tobas::kEulerTopic, 1, &self::eulerCb, this, tcpNoDelay());
 
-  set_arm_sc_ = nh_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void StateChecker::publishSystemCriticalEvent()
@@ -60,7 +60,7 @@ void StateChecker::requestLanding()
 
 void StateChecker::requestDisarmingRotors()
 {
-  if (!set_arm_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return;

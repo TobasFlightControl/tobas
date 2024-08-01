@@ -12,10 +12,10 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-CpuHandler::CpuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+CpuHandler::CpuHandler(, const string& name) : super(node, pnh, name)
 {
-  cpu_pub_ = nh_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
-  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  cpu_pub_ = node_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
+  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 bool CpuHandler::getTemperature(double& temp)

@@ -62,7 +62,7 @@ void GazeboBasePlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboBasePlugin::registerPubSub()
 {
-  rotor_speeds_pub_ = nh_.advertise<tobas_msgs::RotorSpeeds>("/" + ns_ + "/" + tobas::kRotorSpeedsTopic, 1);
+  rotor_speeds_pub_ = node_.advertise<tobas_msgs::RotorSpeeds>("/" + ns_ + "/" + tobas::kRotorSpeedsTopic, 1);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboBasePlugin);

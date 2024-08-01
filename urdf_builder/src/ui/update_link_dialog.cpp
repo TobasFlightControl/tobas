@@ -23,7 +23,7 @@ UpdateLinkDialog::UpdateLinkDialog(URDFBuilderPanel* main)
     main_(main),
     ui_(new Ui::UpdateLinkDialogUI()),
     link_vm_(new view_model::LinkViewModel(nullptr)),
-    property_client_(nh_, tobas::kPropertyServerGCS, kPropertySection)
+    property_client_(node_, tobas::kPropertyServerGCS, kPropertySection)
 {
   ui_->setupUi(this);
 

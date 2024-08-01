@@ -14,7 +14,7 @@ using namespace dynamixel;
 
 namespace tobas_dynamixel_handler
 {
-DynamixelHandler::DynamixelHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+DynamixelHandler::DynamixelHandler(, const string& name) : super(node, pnh, name)
 {
   // Get ROS parameters
   getRosParams();
@@ -80,10 +80,10 @@ DynamixelHandler::DynamixelHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::S
   registerSubscribers();
 
   // Register service servers
-  enable_torques_ss_ = nh_.advertiseService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
+  enable_torques_ss_ = node_.advertiseService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
 
   // Start main timer with maximum rate
-  main_timer_ = nh_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
+  main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
 }
 
 DynamixelHandler::~DynamixelHandler()
@@ -112,15 +112,15 @@ void DynamixelHandler::getRosParams()
 
 void DynamixelHandler::registerPublishers()
 {
-  motor_states_pub_ = nh_.advertise<tobas_dynamixel_msgs::MotorStateArray>(kMotorStatesTopic, 1);
+  motor_states_pub_ = node_.advertise<tobas_dynamixel_msgs::MotorStateArray>(kMotorStatesTopic, 1);
 }
 
 void DynamixelHandler::registerSubscribers()
 {
-  event_sub_ = nh_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this);
-  positions_sub_ = nh_.subscribe(kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
-  velocities_sub_ = nh_.subscribe(kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
-  efforts_sub_ = nh_.subscribe(kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
+  event_sub_ = node_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this);
+  positions_sub_ = node_.subscribe(kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
+  velocities_sub_ = node_.subscribe(kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
+  efforts_sub_ = node_.subscribe(kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
 }
 
 bool DynamixelHandler::setMinimumLatency()

@@ -7,11 +7,11 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-MatrixEulerConverter::MatrixEulerConverter(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+MatrixEulerConverter::MatrixEulerConverter(, const string& name)
   : super(node, pnh, name)
 {
-  euler_pub_ = nh_.advertise<tobas_kdl_msgs::EulerStamped>(tobas::kEulerTopic, 1);
-  odom_sub_ = nh_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  euler_pub_ = node_.advertise<tobas_kdl_msgs::EulerStamped>(tobas::kEulerTopic, 1);
+  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
 }
 
 void MatrixEulerConverter::odomCb(const tobas_msgs::OdometryConstPtr& odom)

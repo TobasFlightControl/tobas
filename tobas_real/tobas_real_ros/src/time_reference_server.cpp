@@ -8,11 +8,11 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-TimeReferenceServer::TimeReferenceServer(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+TimeReferenceServer::TimeReferenceServer(, const string& name)
   : super(node, pnh, name)
 {
-  time_ref_pub_ = nh_.advertise<sensor_msgs::msg::TimeReference>(tobas::kTimeReferenceTopic, 1);
-  main_timer_ = nh_.createTimer(kUpdateRate, &self::mainTimerCb, this);
+  time_ref_pub_ = node_.advertise<sensor_msgs::msg::TimeReference>(tobas::kTimeReferenceTopic, 1);
+  main_timer_ = node_.createTimer(kUpdateRate, &self::mainTimerCb, this);
 }
 
 void TimeReferenceServer::mainTimerCb(const rclcpp::TimerEvent& event)

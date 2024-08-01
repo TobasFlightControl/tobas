@@ -13,7 +13,7 @@ class IMUDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit IMUDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit IMUDriver(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   ISM330DLC imu_;

@@ -11,15 +11,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-RCInputHandler::RCInputHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
-  : super(node, pnh, name), property_client_(nh_, kPropertyServerFC)
+RCInputHandler::RCInputHandler(, const string& name)
+  : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  rcin_pub_ = nh_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
-  sbus_sub_ = nh_.subscribe(hal::kSbusTopic, 1, &self::sbusCb, this, tcpNoDelay());
+  rcin_pub_ = node_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
+  sbus_sub_ = node_.subscribe(hal::kSbusTopic, 1, &self::sbusCb, this, tcpNoDelay());
 
-  reload_config_srv_ = nh_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 void RCInputHandler::setToDefaults()
@@ -167,7 +167,7 @@ void RCInputHandler::sbusCb(const tobas_hal_msgs::SbusConstPtr& sbus)
   rcin_pub_.publish(rcin_msg);
 }
 
-bool RCInputHandler::reloadConfigCb(std_srvs::TriggerRequest&, std_srvs::TriggerResponse& res)
+bool RCInputHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::srv::Trigger::Response& res)
 {
   if (!reloadConfig())
   {

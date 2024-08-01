@@ -9,20 +9,20 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-JointCommandHandler::JointCommandHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name)
+JointCommandHandler::JointCommandHandler(, const string& name)
   : super(node, pnh, name)
 {
-  positions_sub_ = nh_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
-  velocities_sub_ = nh_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
-  efforts_sub_ = nh_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
+  positions_sub_ = node_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
+  velocities_sub_ = node_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
+  efforts_sub_ = node_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
 }
 
 bool JointCommandHandler::initialize()
 {
   // ノードの起動順が不確定なため，サービスコールをコンストラクタでやるべきではない
   // 制限時間を設けて成功するまで何度も繰り返すのが正しい
-  rclcpp::ServiceClient sc = nh_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
-  if (!sc.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  rclcpp::ServiceClient sc = node_.serviceClient<controller_manager_msgs::ListControllers>(tobas::kListControllersSrv);
+  if (!sc.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kListControllersSrv, "' service server.");
     return false;
@@ -57,7 +57,7 @@ bool JointCommandHandler::initialize()
 
     const auto& jnt_name = item.claimed_resources[0].resources[0];
     const auto topic = item.name + "/command";
-    ctrl_map_[jnt_name] = make_pair(cmd_type, nh_.advertise<std_msgs::Float64>(topic, 1));
+    ctrl_map_[jnt_name] = make_pair(cmd_type, node_.advertise<std_msgs::Float64>(topic, 1));
   }
 
   return true;

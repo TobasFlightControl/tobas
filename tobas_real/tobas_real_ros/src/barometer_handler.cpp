@@ -10,10 +10,10 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-BarometerHandler::BarometerHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+BarometerHandler::BarometerHandler(, const string& name) : super(node, pnh, name)
 {
-  bar_pub_ = nh_.advertise<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic, 1);
-  bar_sub_ = nh_.subscribe(hal::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  bar_pub_ = node_.advertise<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic, 1);
+  bar_sub_ = node_.subscribe(hal::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
 void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressureConstPtr& bar_raw)

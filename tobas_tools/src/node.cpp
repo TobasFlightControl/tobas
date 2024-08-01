@@ -5,9 +5,9 @@ using namespace std;
 
 namespace tobas
 {
-BaseNode::BaseNode(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : nh_(node), pnh_(pnh), name_(name)
+BaseNode::BaseNode(, const string& name) : node_(node), pnh_(pnh), name_(name)
 {
-  message_pub_ = nh_.advertise<tobas_msgs::Message>(tobas::kMessageTopic, 1);
+  message_pub_ = node_.advertise<tobas_msgs::Message>(tobas::kMessageTopic, 1);
 }
 
 rclcpp::TransportHints BaseNode::tcpNoDelay(const bool& nodelay)

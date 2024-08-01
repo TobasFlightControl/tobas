@@ -14,7 +14,7 @@ class DShotDriver : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit DShotDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit DShotDriver(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   DShot dshot_;

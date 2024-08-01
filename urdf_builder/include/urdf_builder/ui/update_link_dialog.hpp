@@ -85,7 +85,7 @@ private:
     std::map<QString, QFrame*> collision_geom;
   } frame_map_;
 
-  rclcpp::NodeHandle nh_;
+  rclcpp::NodeHandle node_;
   ptree::PropertyClient property_client_;
 
   void defineConnections();

@@ -148,12 +148,12 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = nh_.advertise<tobas_gazebo_msgs::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
+  debug_pub_ = node_.advertise<tobas_gazebo_msgs::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
 
-  deflections_sub_ = nh_.subscribe(
+  deflections_sub_ = node_.subscribe(
     "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_sub_ =
-    nh_.subscribe("/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
+    node_.subscribe("/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)

@@ -13,7 +13,7 @@ class BaroDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit BaroDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit BaroDriver(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   ILPS22QS baro_;

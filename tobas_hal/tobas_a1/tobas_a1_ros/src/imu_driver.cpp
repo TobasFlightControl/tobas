@@ -7,13 +7,13 @@ using namespace std;
 
 namespace a1
 {
-IMUDriver::IMUDriver(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+IMUDriver::IMUDriver(, const string& name) : super(node, pnh, name)
 {
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
 
-  imu_pub_ = nh_.advertise<tobas_hal_msgs::Imu>(hal::kImuTopic, 1);
-  main_timer_ = nh_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  imu_pub_ = node_.advertise<tobas_hal_msgs::Imu>(hal::kImuTopic, 1);
+  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void IMUDriver::mainTimerCb(const rclcpp::TimerEvent& event)

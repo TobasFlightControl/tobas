@@ -17,7 +17,7 @@ class CpuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit CpuHandler(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const std::string& name = rclcpp::this_node::getName());
+  explicit CpuHandler(, const std::string& name = rclcpp::this_node::getName());
 
 private:
   int temp_millidegrees_;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/node.hpp>
@@ -37,7 +37,7 @@ private:
 
   bool reloadConfig();
 
-  bool reloadConfigCb(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
   void adcCb(const tobas_hal_msgs::AdcConstPtr& adc);
 };
 }  // namespace tobas_real_ros

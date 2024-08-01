@@ -35,7 +35,7 @@ void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
 
   // Advertise
-  pressure_pub_ = nh_.advertise<PressureMsg>("/" + ns_ + "/" + tobas::kAirPressureTopic, 1);
+  pressure_pub_ = node_.advertise<PressureMsg>("/" + ns_ + "/" + tobas::kAirPressureTopic, 1);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboBarometerPlugin::onUpdate, this));

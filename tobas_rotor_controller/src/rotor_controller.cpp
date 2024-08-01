@@ -1,5 +1,5 @@
 #include <std_msgs/Bool.h>
-#include <std_srvs/Trigger.h>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
@@ -17,22 +17,22 @@ using namespace std;
 
 namespace tobas_rotor_controller
 {
-RotorController::RotorController(rclcpp::Node::SharedPtr node, rclcpp::Node::SharedPtr pnh, const string& name) : super(node, pnh, name)
+RotorController::RotorController(, const string& name) : super(node, pnh, name)
 {
-  drone_.loadFromParam(nh_);
+  drone_.loadFromParam(node_);
 
-  throttles_pub_ = nh_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
-  arming_pub_ = nh_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
+  throttles_pub_ = node_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
+  arming_pub_ = node_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
 
-  tar_speeds_sub_ = nh_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
-  battery_sub_ = nh_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  tar_speeds_sub_ = node_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
+  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
 
-  get_arm_ss_ = nh_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
-  set_arm_ss_ = nh_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
-  enable_rcout_sc_ = nh_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
-  pre_arm_check_sc_ = nh_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
+  get_arm_ss_ = node_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
+  set_arm_ss_ = node_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
+  enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
+  pre_arm_check_sc_ = node_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
-  check_interval_timer_ = nh_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
+  check_interval_timer_ = node_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
   publishArming();
 }
@@ -75,7 +75,7 @@ bool RotorController::disarmRotors()
 
 bool RotorController::enableRCOutputs(const bool& enable)
 {
-  if (!enable_rcout_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!enable_rcout_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kEnableRcOutputSrv, "' server.");
     return false;
@@ -98,7 +98,7 @@ bool RotorController::enableRCOutputs(const bool& enable)
 
 bool RotorController::preArmCheck()
 {
-  if (!pre_arm_check_sc_.waitForExistence(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!pre_arm_check_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kPreArmCheckSrv, "' server.");
     return false;
