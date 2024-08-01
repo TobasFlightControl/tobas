@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(tobas_tools_py)
 
-find_package(catkin REQUIRED)
+find_package(ament_cmake REQUIRED)
 
 catkin_python_setup()
-catkin_package()
+ament_package()
 
 install(DIRECTORY
 	src/${PROJECT_NAME}/

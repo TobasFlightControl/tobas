@@ -5,7 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_python_setup()
-catkin_package()
+ament_package()
 
 install(DIRECTORY
   src/${PROJECT_NAME}/
