@@ -1,7 +1,6 @@
 import os
 from glob import glob
 from typing import List
-
 from setuptools import setup
 
 pkg_name = "tobas_kdl_conversions_py"

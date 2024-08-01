@@ -16,10 +16,10 @@ class Tree:
         self._robot = Robot()
         self._q_map = {}
 
-    def load_from_param(self, param: str = "robot_description") -> None:
+    def load_from_xml_string(self, xml_string: str) -> None:
         self.clear()
 
-        self._robot = Robot.from_parameter_server(param)
+        self._robot = Robot.from_xml_string(xml_string)
 
         for i, joint in enumerate(self.get_joints()):
             if joint.type == JointType.FIXED:
