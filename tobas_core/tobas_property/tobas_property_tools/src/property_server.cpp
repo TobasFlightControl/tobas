@@ -14,14 +14,7 @@ namespace ptree
 {
 PropertyServer::PropertyServer() : super("property_server")
 {
-  declare_parameter<std::string>(kIniPathParam, "");
-  if (!get_parameter(kIniPathParam, ini_path_) || ini_path_.empty())
-  {
-    RCLCPP_FATAL_STREAM(get_logger(), "\"" << kIniPathParam << "\" is not specified. Exiting...");
-    rclcpp::shutdown();
-    return;
-  }
-  ini_path_ = linux::expandUser(ini_path_);
+  ini_path_ = linux::expandUser(getStringParam(kIniPathParam, "hoge"));
 
   if (filesystem::exists(ini_path_))
   {
@@ -51,27 +44,18 @@ PropertyServer::PropertyServer() : super("property_server")
 
   // Advertise service servers
   const auto prefix = string(get_name()) + "/";
-  get_bool_ss_ = create_service<GetBool>(
-    prefix + kGetBoolSrv, bind(&self::getCb<GetBool>, this, placeholders::_1, placeholders::_2));
-  get_int_ss_ =
-    create_service<GetInt>(prefix + kGetIntSrv, bind(&self::getCb<GetInt>, this, placeholders::_1, placeholders::_2));
-  get_double_ss_ = create_service<GetDouble>(
-    prefix + kGetDoubleSrv, bind(&self::getCb<GetDouble>, this, placeholders::_1, placeholders::_2));
-  get_string_ss_ = create_service<GetString>(
-    prefix + kGetStringSrv, bind(&self::getCb<GetString>, this, placeholders::_1, placeholders::_2));
-  set_bool_ss_ = create_service<SetBool>(
-    prefix + kSetBoolSrv, bind(&self::setCb<SetBool>, this, placeholders::_1, placeholders::_2));
-  set_int_ss_ =
-    create_service<SetInt>(prefix + kSetIntSrv, bind(&self::setCb<SetInt>, this, placeholders::_1, placeholders::_2));
-  set_double_ss_ = create_service<SetDouble>(
-    prefix + kSetDoubleSrv, bind(&self::setCb<SetDouble>, this, placeholders::_1, placeholders::_2));
-  set_string_ss_ = create_service<SetString>(
-    prefix + kSetStringSrv, bind(&self::setCb<SetString>, this, placeholders::_1, placeholders::_2));
-  save_file_ss_ =
-    create_service<Trigger>(prefix + kSaveFileSrv, bind(&self::saveFileCb, this, placeholders::_1, placeholders::_2));
+  get_bool_ss_ = createService<GetBool>(prefix + kGetBoolSrv, &self::getCb<GetBool>, this);
+  get_int_ss_ = createService<GetInt>(prefix + kGetIntSrv, &self::getCb<GetInt>, this);
+  get_double_ss_ = createService<GetDouble>(prefix + kGetDoubleSrv, &self::getCb<GetDouble>, this);
+  get_string_ss_ = createService<GetString>(prefix + kGetStringSrv, &self::getCb<GetString>, this);
+  set_bool_ss_ = createService<SetBool>(prefix + kSetBoolSrv, &self::setCb<SetBool>, this);
+  set_int_ss_ = createService<SetInt>(prefix + kSetIntSrv, &self::setCb<SetInt>, this);
+  set_double_ss_ = createService<SetDouble>(prefix + kSetDoubleSrv, &self::setCb<SetDouble>, this);
+  set_string_ss_ = createService<SetString>(prefix + kSetStringSrv, &self::setCb<SetString>, this);
+  save_file_ss_ = createService<Trigger>(prefix + kSaveFileSrv, &self::saveFileCb, this);
 }
 
-bool PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
+void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
 {
   try
   {
@@ -81,12 +65,10 @@ bool PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const T
   {
     res->success = false;
     res->message = "Failed to load " + ini_path_ + ".";
-    return true;
+    return;
   }
 
   res->success = true;
   res->message = "";
-
-  return true;
 }
 }  // namespace ptree

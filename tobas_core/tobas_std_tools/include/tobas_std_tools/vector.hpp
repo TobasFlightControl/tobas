@@ -14,12 +14,21 @@ namespace std
 {
 /* std::vectorのコンソール出力 */
 template <typename T>
-ostream& operator<<(ostream& os, const vector<T>& vec)
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
+  const auto size = vec.size();
+
+  if (size == 0)
+  {
+    os << "[]";
+    return os;
+  }
+
   os << "[";
-  for (const auto& x : vec)
-    os << x << " ";
-  os << "]";
+  for (size_t i = 0; i < size - 1; ++i)
+    os << vec[i] << " ";
+  os << vec[size - 1] << "]";
+
   return os;
 }
 }  // namespace std

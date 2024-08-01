@@ -1,8 +1,9 @@
 #pragma once
 
 #include <boost/property_tree/ini_parser.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/trigger.hpp>
+
+#include <tobas_ros2_tools/node.hpp>
 
 #include <tobas_property_msgs/srv/get_bool.hpp>
 #include <tobas_property_msgs/srv/get_int.hpp>
@@ -15,12 +16,12 @@
 
 namespace ptree
 {
-class PropertyServer : public rclcpp::Node
+class PropertyServer : public ros2::Node
 {
   static constexpr char kIniPathParam[] = "ini_path";
 
   using self = PropertyServer;
-  using super = rclcpp::Node;
+  using super = ros2::Node;
 
 public:
   explicit PropertyServer();
@@ -51,11 +52,11 @@ private:
   void set(const std::string& section, const std::string& key, const T& value);
 
   template <typename SrvType>
-  bool getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
+  void getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
   template <typename SrvType>
-  bool setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
+  void setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
 
-  bool saveFileCb(
+  void saveFileCb(
     const std_srvs::srv::Trigger::Request::ConstSharedPtr& req,
     const std_srvs::srv::Trigger::Response::SharedPtr& res);
 };
@@ -83,7 +84,7 @@ void PropertyServer::set(const std::string& section, const std::string& key, con
 }
 
 template <typename SrvType>
-bool PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
+void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
   if (get(req->section, req->key, res->value))
   {
@@ -95,18 +96,14 @@ bool PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const Sr
     res->success = false;
     res->message = "Failed to get " + req->key + " in section " + req->section + ".";
   }
-
-  return true;
 }
 
 template <typename SrvType>
-bool PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
+void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
   set(req->section, req->key, req->value);
 
   res->success = true;
   res->message = "";
-
-  return true;
 }
 }  // namespace ptree
