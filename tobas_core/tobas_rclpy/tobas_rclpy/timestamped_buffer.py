@@ -1,25 +1,27 @@
-import rospy
+from rclpy.time import Time
+from rclpy.duration import Duration
 from collections import deque
 from threading import Lock
 from typing import Deque, Tuple, Iterator, TypeVar, Generic
+
 
 T = TypeVar("T")
 
 
 class TimestampedBuffer(Generic[T]):
-    def __init__(self, expiry_duration: rospy.Duration) -> None:
-        assert expiry_duration >= rospy.Duration(0)
+    def __init__(self, expiry_duration: Duration) -> None:
+        assert expiry_duration >= Duration(0)
 
         self._expiry_duration = expiry_duration
-        self._que: Deque[Tuple[rospy.Time, T]] = deque()
+        self._que: Deque[Tuple[Time, T]] = deque()
         self._index = 0
         self._lock = Lock()  # dequeにアクセスする部分をスレッドセーフにする
 
-    def __iter__(self) -> Iterator[Tuple[rospy.Time, T]]:
+    def __iter__(self) -> Iterator[Tuple[Time, T]]:
         self._index = 0
         return self
 
-    def __next__(self) -> Tuple[rospy.Time, T]:
+    def __next__(self) -> Tuple[Time, T]:
         with self._lock:
             if self._index >= self.size():
                 raise StopIteration()
@@ -28,7 +30,7 @@ class TimestampedBuffer(Generic[T]):
         self._index += 1
         return res
 
-    def add(self, cur_time: rospy.Time, data: T) -> None:
+    def add(self, cur_time: Time, data: T) -> None:
         # 要素を追加
         with self._lock:
             self._que.append((cur_time, data))
@@ -43,7 +45,7 @@ class TimestampedBuffer(Generic[T]):
     def size(self) -> int:
         return len(self._que)
 
-    def _remove_expired_data(self, cur_time: rospy.Time) -> None:
+    def _remove_expired_data(self, cur_time: Time) -> None:
         # 繰り返し処理全体をロックすると遅延が大きくなるため，各繰り返し処理のみロックする．
         while True:
             with self._lock:

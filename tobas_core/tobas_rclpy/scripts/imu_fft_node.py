@@ -1,34 +1,37 @@
-#!/usr/bin/env python3
-
 import numpy as np
 from numpy import fft
 import matplotlib.pyplot as plt
-import rospy
+import rclpy
+from rclpy.node import Node
+from rclpy.time import Time
 from sensor_msgs.msg import Imu
 
-from tobas_rospy.utils import init_node
-from tobas_rospy.conversions.np_msg import vectorMsgToNp
+from tobas_rclpy.util import seconds_from_duration
+from tobas_rclpy.conversions.np_msg import vectorMsgToNp
 
 
-class ImuFft:
+class ImuFft(Node):
     DEFAULT_DATA_SIZE = 5000
 
     def __init__(self) -> None:
-        self._data_size = rospy.get_param("~data_size", self.DEFAULT_DATA_SIZE)
+        super().__init__("imu_fft")
+
+        self.declare_parameter("data_size", self.DEFAULT_DATA_SIZE)
+        self._data_size = self.get_parameter("data_size").get_parameter_value().integer_value
         assert self._data_size > 0
 
         self._acc_data = np.empty((self._data_size, 3))
         self._gyro_data = np.empty((self._data_size, 3))
         self._cnt = 0
-        self._start_time = rospy.Time()
+        self._start_time = Time()
 
-        self._imu_sub = rospy.Subscriber("imu", Imu, self._imu_cb)
+        self._imu_sub = self.create_subscription(Imu, "imu", self._imu_cb, 1)
 
-        rospy.loginfo("Start to measure IMU.")
+        self.get_logger().info("Start to measure IMU.")
 
     def _imu_cb(self, msg: Imu) -> None:
         if self._cnt == 0:
-            rospy.loginfo("First IMU message is received.")
+            self.get_logger().info("First IMU message is received.")
             self._start_time = msg.header.stamp
 
         self._acc_data[self._cnt, :] = vectorMsgToNp(msg.linear_acceleration)
@@ -36,7 +39,7 @@ class ImuFft:
         self._cnt += 1
 
         if self._cnt == self._data_size:
-            self._imu_sub.unregister()
+            self.destroy_subscription(self._imu_sub)
 
             # 平均を除いてフーリエ変換 (データ数による正規化を忘れずに)
             acc_data = self._acc_data - self._acc_data.mean(axis=0, keepdims=True)
@@ -45,7 +48,7 @@ class ImuFft:
             gyro_fft = fft.fftn(gyro_data, axes=(0,)) / self._data_size * 2  # [rad/s]
 
             end_time = msg.header.stamp
-            Ts = (end_time - self._start_time).to_sec() / self._data_size
+            Ts = seconds_from_duration(end_time - self._start_time) / self._data_size
             fs = 1 / Ts
             freq = fft.fftfreq(self._data_size, Ts)
 
@@ -70,10 +73,16 @@ class ImuFft:
             plt.tight_layout()
             plt.show()
 
-            rospy.signal_shutdown("Finished")
+            rclpy.shutdown()
+
+
+def main(args=None) -> None:
+    rclpy.init(args=args)
+    node = ImuFft()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == "__main__":
-    init_node()
-    node = ImuFft()
-    rospy.spin()
+    main()

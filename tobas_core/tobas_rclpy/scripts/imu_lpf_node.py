@@ -1,31 +1,31 @@
-#!/usr/bin/env python3
-
 import numpy as np
-import rospy
+import rclpy
+from rclpy.time import Time
+from rclpy.node import Node
 from sensor_msgs.msg import Imu
 
-from tobas_rospy.conversions.np_msg import *
-from tobas_rospy.utils import init_node
+from tobas_rclpy.conversions.np_msg import vectorMsgToNp, vectorNpToMsg
+from tobas_rclpy.util import seconds_from_duration
 
 
-class ImuLpf:
+class ImuLpf(Node):
     CUTOFF_FREQ = 30.0  # [Hz]
 
     def __init__(self) -> None:
+        super().__init__("imu_lpf")
+
         self._tau = 0.5 / np.pi / self.CUTOFF_FREQ
-        self._t_last = rospy.Time(0)
+        self._t_last = Time()
         self._acc = np.zeros((3,))
         self._gyro = np.zeros((3,))
 
-        self._filterd_imu_pub = rospy.Publisher("filtered_imu", Imu, queue_size=1)
-        self._imu_sub = rospy.Subscriber("imu", Imu, self._imu_cb)
+        self._filterd_imu_pub = self.create_publisher(Imu, "filtered_imu", 1)
+        self._imu_sub = self.create_subscription(Imu, "imu", self._imu_cb, 1)
 
-        rospy.loginfo("Start to measure IMU.")
+        self.get_logger().info("Start to measure IMU.")
 
     def _imu_cb(self, imu: Imu) -> None:
-        rospy.loginfo_once("First IMU message is received.")
-
-        ts = max((imu.header.stamp - self._t_last).to_sec(), 0.0)
+        ts = max(seconds_from_duration(imu.header.stamp - self._t_last), 0.0)
         self._t_last = imu.header.stamp
 
         acc_raw = vectorMsgToNp(imu.linear_acceleration)
@@ -41,7 +41,13 @@ class ImuLpf:
         self._filterd_imu_pub.publish(imu)
 
 
-if __name__ == "__main__":
-    init_node()
+def main(args=None) -> None:
+    rclpy.init(args=args)
     node = ImuLpf()
-    rospy.spin()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()
