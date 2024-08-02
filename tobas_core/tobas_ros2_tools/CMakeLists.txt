@@ -61,6 +61,7 @@ install(
 	INCLUDES DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

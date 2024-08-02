@@ -203,13 +203,13 @@ void Node::log(uint8_t level, const Args&... args) const
 {
   // Create message
   auto message = std::make_unique<tobas_std_msgs::msg::Message>();
-  message->header.stamp = get_clock()->now();
+  message->stamp = get_clock()->now();
   message->level = level;
   message->name = get_name();
   message->message = tobas_std::buildString(args...);
 
   // Output message to the console
-  rclcppLog(level, "[" + message->name + "] " + message->message);
+  rclcppLog(level, message->message);
 
   // Publish message
   message_pub_->publish(std::move(message));

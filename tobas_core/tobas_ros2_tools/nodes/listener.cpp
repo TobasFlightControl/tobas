@@ -2,14 +2,14 @@
 
 namespace ros2
 {
-Listener::Listener(const rclcpp::NodeOptions&) : super("listener", rclcpp::NodeOptions().use_intra_process_comms(true))
+Listener::Listener(const rclcpp::NodeOptions& options) : super("listener", options)
 {
   sub_ = createSubscriber<std_msgs::msg::String>("chatter", 1, &self::msgCb, this);
 }
 
 void Listener::msgCb(const std_msgs::msg::String::ConstSharedPtr& msg)
 {
-  TOBAS_INFO("I heard: ", msg->data);
+  TOBAS_INFO("I heard: \"", msg->data, "\" (", &(msg->data), ")");
 }
 }  // namespace ros2
 

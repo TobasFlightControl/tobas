@@ -1,4 +1,4 @@
-std_msgs/Header header
+builtin_interfaces/Time stamp
 uint8 level
 string name
 string message
