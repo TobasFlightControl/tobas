@@ -117,7 +117,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B);
 
   // 目標回転数を発行
-  const auto tar_rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  const auto tar_rot_speeds = make_unique<tobas_msgs::RotorSpeeds>();
   tar_rot_speeds->header.stamp = odom->header.stamp;
   tar_rot_speeds->speeds.resize(drone_.numRotors(), 0.);
   for (size_t rotor_idx = 0; rotor_idx < static_cast<size_t>(thrusts.rows()); ++rotor_idx)
@@ -129,7 +129,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 
   // フィードバックを発行
   // 目標位置速度はコマンドそのままだが，発行されていない間も安定して描画するためにメッセージに含めている
-  const auto feedback = boost::make_shared<tobas_np_pid::ControllerFeedback>();
+  const auto feedback = make_unique<tobas_np_pid::ControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
   feedback->target_position = cmd_->pos;
   feedback->target_orientation = cmd_->rpy;
@@ -189,7 +189,7 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
   }
 
   // コマンドを更新
-  cmd_ = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>(*cmd);
+  cmd_ = make_unique<tobas_msgs::PoseTwistAccelCommand>(*cmd);
 
   // グローバル座標系に変換
   if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *cmd_))

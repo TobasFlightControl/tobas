@@ -24,7 +24,7 @@ class PropertyServer : public ros2::Node
   using super = ros2::Node;
 
 public:
-  explicit PropertyServer();
+  explicit PropertyServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   // ROS parameters

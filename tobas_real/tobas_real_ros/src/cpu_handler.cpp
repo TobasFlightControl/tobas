@@ -119,7 +119,7 @@ bool CpuHandler::getLoad(double& load)
 void CpuHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create ROS message
-  const auto cpu_msg = boost::make_shared<tobas_msgs::Cpu>();
+  const auto cpu_msg = make_unique<tobas_msgs::Cpu>();
   cpu_msg->header.stamp = event.current_real;
 
   // Get CPU temperature

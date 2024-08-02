@@ -148,7 +148,7 @@ void Controller::updateSetStateVector()
 
 void Controller::publishRotSpeeds(const VectorXd& thrust)
 {
-  const auto rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  const auto rot_speeds = make_unique<tobas_msgs::RotorSpeeds>();
   rot_speeds->header.stamp = odom_ned_.header.stamp;
 
   rot_speeds->speeds.resize(drone_.numRotors(), 0.);
@@ -160,7 +160,7 @@ void Controller::publishRotSpeeds(const VectorXd& thrust)
 
 void Controller::publishDeflections(const VectorXd& deflections)
 {
-  const auto deflections_msg = boost::make_shared<tobas_msgs::ControlSurfaceDeflections>();
+  const auto deflections_msg = make_unique<tobas_msgs::ControlSurfaceDeflections>();
   deflections_msg->header.stamp = odom_ned_.header.stamp;
   deflections_msg->deflections = eigen_tools::toStdVector(deflections);
   deflections_pub_.publish(deflections_msg);
@@ -169,7 +169,7 @@ void Controller::publishDeflections(const VectorXd& deflections)
 void Controller::publishFeedback(const VectorXd& du)
 {
   const auto& trim = eom_.trimCondition();
-  const auto feedback = boost::make_shared<tobas_msgs::FixedWingControllerFeedback>();
+  const auto feedback = make_unique<tobas_msgs::FixedWingControllerFeedback>();
 
   feedback->trim_thrusts.resize(drone_.numRotors());
   feedback->delta_thrusts.resize(drone_.numRotors());

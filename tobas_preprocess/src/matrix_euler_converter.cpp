@@ -16,7 +16,7 @@ MatrixEulerConverter::MatrixEulerConverter(, const string& name)
 
 void MatrixEulerConverter::odomCb(const tobas_msgs::OdometryConstPtr& odom)
 {
-  const auto euler = boost::make_shared<tobas_kdl_msgs::EulerStamped>();
+  const auto euler = make_unique<tobas_kdl_msgs::EulerStamped>();
   euler->header = odom->header;
   odom->frame.M.getRPY(euler->euler.roll, euler->euler.pitch, euler->euler.yaw);
   euler_pub_.publish(euler);

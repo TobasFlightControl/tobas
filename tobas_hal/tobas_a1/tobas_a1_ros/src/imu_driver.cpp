@@ -19,7 +19,7 @@ IMUDriver::IMUDriver(, const string& name) : super(node, pnh, name)
 void IMUDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
-  const auto msg = boost::make_shared<tobas_hal_msgs::Imu>();
+  const auto msg = make_unique<tobas_hal_msgs::Imu>();
 
   // Fill headers
   msg->header.stamp = event.current_real;

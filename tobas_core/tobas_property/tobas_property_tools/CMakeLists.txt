@@ -8,7 +8,7 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
@@ -30,7 +30,14 @@ ament_target_dependencies(${PROJECT_NAME}
 	std_srvs
 )
 
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp examples/[^.]*.cpp)
+file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+rclcpp_components_register_nodes(${PROJECT_NAME}_node
+	"ptree::PropertyServer"
+)
+
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(targets_to_install "")
 
 foreach(FILE IN LISTS EXE_FILES)

@@ -19,7 +19,7 @@ MagDriver::MagDriver(, const string& name) : super(node, pnh, name)
 void MagDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
-  const auto msg = boost::make_shared<tobas_hal_msgs::MagneticField>();
+  const auto msg = make_unique<tobas_hal_msgs::MagneticField>();
 
   // Fill headers
   msg->header.stamp = event.current_real;

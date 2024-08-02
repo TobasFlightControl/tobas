@@ -66,7 +66,7 @@ void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   kf_.update();
 
   // Publish estimated thrust correction factor
-  const auto factor_msg = boost::make_shared<std_msgs::Float64>();
+  const auto factor_msg = make_unique<std_msgs::Float64>();
   factor_msg->data = kf_.state()(0);
   factor_pub_.publish(factor_msg);
 }

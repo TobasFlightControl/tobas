@@ -15,7 +15,7 @@ LatencyPublisher::LatencyPublisher(, const string& name) : super(node, pnh, name
 
 void LatencyPublisher::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& msg)
 {
-  const auto latency = boost::make_shared<tobas_msgs::Latency>();
+  const auto latency = make_unique<tobas_msgs::Latency>();
   const auto cur_time = node->get_clock()->now();
   latency->header.stamp = cur_time;
   latency->data = cur_time - msg->header.stamp;

@@ -19,7 +19,7 @@ TobasMavrosBridge::TobasMavrosBridge(, const string& name)
 
 void TobasMavrosBridge::positionYawCb(const tobas_msgs::PositionYawConstPtr& tbs)
 {
-  const auto mav = boost::make_shared<geometry_msgs::msg::PoseStamped>();
+  const auto mav = make_unique<geometry_msgs::msg::PoseStamped>();
 
   // NWU -> ENU
   mav->pose.position.x = -tbs->pos.y();

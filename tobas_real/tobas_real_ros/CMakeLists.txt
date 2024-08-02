@@ -46,7 +46,7 @@ file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cp
 add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
 target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
 
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp examples/[^.]*.cpp)
+file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(targets_to_install "")
 foreach(FILE IN LISTS EXE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)

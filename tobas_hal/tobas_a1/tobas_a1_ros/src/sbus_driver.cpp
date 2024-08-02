@@ -29,7 +29,7 @@ void SBUSDriver::mainTimerCb(const rclcpp::TimerEvent& event)
   }
 
   // Create message
-  const auto sbus_msg = boost::make_shared<tobas_hal_msgs::Sbus>();
+  const auto sbus_msg = make_unique<tobas_hal_msgs::Sbus>();
   sbus_msg->header.stamp = event.current_real;
   for (size_t ch = 0; ch < sbus_msg->data.size(); ++ch)
     sbus_msg->data[ch] = sbus_.getPeriod(ch);

@@ -36,7 +36,7 @@ void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& t
     }
 
     // Create throttle message
-    const auto out = boost::make_shared<tobas_gazebo_msgs::Throttle>();
+    const auto out = make_unique<tobas_gazebo_msgs::Throttle>();
     out->header = throttles->header;
     out->data = in.throttle;
 

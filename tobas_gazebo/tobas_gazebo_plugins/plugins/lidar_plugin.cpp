@@ -111,7 +111,7 @@ void GazeboLidarPlugin::putLaserData(const common::Time& update_time)
   const auto p_diff = ver_max_range.Radian() - ver_min_range.Radian();
 
   // Create a cloud message
-  const auto cloud_msg = boost::make_shared<sensor_msgs::msg::PointCloud>();
+  const auto cloud_msg = make_unique<sensor_msgs::msg::PointCloud>();
 
   // Set size of cloud message everytime
   cloud_msg->channels.push_back(sensor_msgs::msg::ChannelFloat32());

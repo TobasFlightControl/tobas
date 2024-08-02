@@ -83,7 +83,7 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArra
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == POSITION)
     {
-      const auto cmd = boost::make_shared<std_msgs::Float64>();
+      const auto cmd = make_unique<std_msgs::Float64>();
       cmd->data = positions->commands[i].data;
       pub.publish(cmd);
     }
@@ -117,7 +117,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArr
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == VELOCITY)
     {
-      const auto cmd = boost::make_shared<std_msgs::Float64>();
+      const auto cmd = make_unique<std_msgs::Float64>();
       cmd->data = velocities->commands[i].data;
       pub.publish(cmd);
     }
@@ -150,7 +150,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayC
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == EFFORT)
     {
-      const auto cmd = boost::make_shared<std_msgs::Float64>();
+      const auto cmd = make_unique<std_msgs::Float64>();
       cmd->data = efforts->commands[i].data;
       pub.publish(cmd);
     }

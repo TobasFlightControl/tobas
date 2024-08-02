@@ -133,7 +133,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     return;
 
   // Create a feedback message
-  const auto feedback = boost::make_shared<tobas_mr_mpc::ControllerFeedback>();
+  const auto feedback = make_unique<tobas_mr_mpc::ControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
 
   // Translation Controller
@@ -141,7 +141,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   {
     if (tar_rpyt_ == nullptr)
     {
-      tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
+      tar_rpyt_ = make_unique<tobas_msgs::RollPitchYawThrust>();
     }
 
     // 世界座標系から見た現在の速度，加速度を計算
@@ -195,7 +195,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     }
 
     // 目標回転数を発行
-    const auto tar_rot_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+    const auto tar_rot_speeds = make_unique<tobas_msgs::RotorSpeeds>();
     tar_rot_speeds->header.stamp = odom->header.stamp;
     tar_rot_speeds->speeds.resize(drone_.numRotors(), 0.);
     for (size_t i = 0; i < static_cast<size_t>(thrusts.rows()); ++i)
@@ -275,7 +275,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   }
 
   // コマンドを更新
-  tar_pvay_W_ = boost::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
+  tar_pvay_W_ = make_unique<tobas_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
   if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *tar_pvay_W_))
@@ -304,7 +304,7 @@ void ControllerRos::rpyThrustCb(const tobas_msgs::RollPitchYawThrustConstPtr& rp
   tar_pvay_W_ = nullptr;
 
   // コマンドを更新
-  tar_rpyt_ = boost::make_shared<tobas_msgs::RollPitchYawThrust>(*rpyt);
+  tar_rpyt_ = make_unique<tobas_msgs::RollPitchYawThrust>(*rpyt);
 }
 
 void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)

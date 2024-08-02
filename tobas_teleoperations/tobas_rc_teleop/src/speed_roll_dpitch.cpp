@@ -28,7 +28,7 @@ void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, const double&)
 {
   // コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>();
+  const auto cmd = make_unique<tobas_msgs::SpeedRollDeltaPitch>();
   cmd->speed = remap(rcin.throttle, min_speed_, max_speed_);  // TODO: 機体の制限速度を考慮
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);

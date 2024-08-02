@@ -50,7 +50,7 @@ void RollPitchYawThrustController::update(
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  const auto rpyt = boost::make_shared<tobas_msgs::RollPitchYawThrust>();
+  const auto rpyt = make_unique<tobas_msgs::RollPitchYawThrust>();
   rpyt->level.data = tobas_msgs::CommandLevel::MANUAL;
 
   // 姿勢と推力を埋める

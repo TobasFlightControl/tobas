@@ -153,7 +153,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     }
 
     // コマンドを作成
-    const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+    const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
     cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
 
@@ -169,7 +169,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     cmd_pub_.publish(cmd);
 
     // フィードバックを発行
-    const auto feedback = boost::make_shared<FeedbackType>();
+    const auto feedback = make_unique<FeedbackType>();
     feedback->current_position = cur_pos;
     feedback->target_position = cmd->pos;
     feedback->position_error = cmd->pos - cur_pos;

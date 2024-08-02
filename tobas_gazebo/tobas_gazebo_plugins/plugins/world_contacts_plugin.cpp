@@ -35,7 +35,7 @@ void GazeboWorldContactsPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboWorldContactsPlugin::onUpdate(const common::UpdateInfo& info)
 {
-  const auto msg = boost::make_shared<tobas_gazebo_msgs::ContactStates>();
+  const auto msg = make_unique<tobas_gazebo_msgs::ContactStates>();
 
   timeGazeboToRos(info.simTime, msg->header.stamp);
 

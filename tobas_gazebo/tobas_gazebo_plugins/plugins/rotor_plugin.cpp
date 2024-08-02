@@ -254,14 +254,14 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   }
 
   // Publish rotor state
-  const auto rotor_state = boost::make_shared<tobas_msgs::RotorState>();
+  const auto rotor_state = make_unique<tobas_msgs::RotorState>();
   timeGazeboToRos(cur_time, rotor_state->header.stamp);
   rotor_state->speed = rot_speed;
   rotor_state->current = current;
   rotor_state_pub_.publish(rotor_state);
 
   // Publish debug message
-  const auto debug_msg = boost::make_shared<tobas_gazebo_msgs::RotorDebug>();
+  const auto debug_msg = make_unique<tobas_gazebo_msgs::RotorDebug>();
   timeGazeboToRos(cur_time, debug_msg->header.stamp);
   debug_msg->rotation_speed = joint_->GetVelocity(0) * kRotorSpeedSlowdownSim;
   vectorGazeboToKDL(thrust_W, debug_msg->thrust_force);

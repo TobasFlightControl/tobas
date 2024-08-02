@@ -118,7 +118,7 @@ void SpeedRollDeltaPitchPublisher::run()
     }
 
     // コマンドを発行
-    const auto cmd_ptr = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>(cmd_);
+    const auto cmd_ptr = make_unique<tobas_msgs::SpeedRollDeltaPitch>(cmd_);
     cmd_pub_.publish(cmd_ptr);
 
     rclcpp::spinOnce();

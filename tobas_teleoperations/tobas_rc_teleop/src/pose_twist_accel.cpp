@@ -85,7 +85,7 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   }
 
   // コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>();
+  const auto cmd = make_unique<tobas_msgs::PoseTwistAccelCommand>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
   cmd->pos = tar_pos_W_;

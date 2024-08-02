@@ -86,6 +86,8 @@ PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& v
     return error_code_ = E_SERVER_ERROR;
   }
 
+  value = res->value;
+
   return error_code_ = E_NO_ERROR;
 }
 

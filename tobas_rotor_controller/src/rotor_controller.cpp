@@ -116,7 +116,7 @@ bool RotorController::preArmCheck()
 
 void RotorController::setThrottleOnAllChannels(const double& throttle)
 {
-  const auto throttles = boost::make_shared<tobas_msgs::ThrottleArray>();
+  const auto throttles = make_unique<tobas_msgs::ThrottleArray>();
   throttles->header.stamp = node->get_clock()->now();
   for (const auto& rotor : drone_.rotorConfigs())
     throttles->throttles.emplace_back(rotor.channel, throttle);
@@ -125,7 +125,7 @@ void RotorController::setThrottleOnAllChannels(const double& throttle)
 
 void RotorController::publishArming()
 {
-  const auto arming_msg = boost::make_shared<std_msgs::Bool>();
+  const auto arming_msg = make_unique<std_msgs::Bool>();
   arming_msg->data = is_armed_;
   arming_pub_.publish(arming_msg);
 }
@@ -149,7 +149,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
   }
 
   // Create throttle message
-  const auto throttles = boost::make_shared<tobas_msgs::ThrottleArray>();
+  const auto throttles = make_unique<tobas_msgs::ThrottleArray>();
   throttles->header = tar_speeds->header;
 
   // Update throttles

@@ -12,8 +12,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_std_msgs REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -24,8 +26,10 @@ include_directories(include)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}
+	tobas_std_msgs
 	tobas_std_tools
 	rclcpp
+	rclcpp_components
 	tf2_ros
 	geometry_msgs
 	sensor_msgs
@@ -55,8 +59,10 @@ install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(
+	tobas_std_msgs
 	tobas_std_tools
 	rclcpp
+	rclcpp_components
 	tf2_ros
 	geometry_msgs
 	sensor_msgs

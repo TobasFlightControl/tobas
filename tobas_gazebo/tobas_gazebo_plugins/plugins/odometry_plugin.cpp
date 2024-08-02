@@ -142,7 +142,7 @@ void GazeboOdometryPlugin::publishOdomMsg(
   ignition::math::Vector3d& linvel,
   ignition::math::Vector3d& angvel) const
 {
-  const auto odom_msg = boost::make_shared<nav_msgs::Odometry>();
+  const auto odom_msg = make_unique<nav_msgs::Odometry>();
 
   timeGazeboToRos(world_->SimTime(), odom_msg->header.stamp);
   odom_msg->header.frame_id = "world";

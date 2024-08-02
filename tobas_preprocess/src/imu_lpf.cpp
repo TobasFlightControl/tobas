@@ -29,7 +29,7 @@ void ImuLpf::imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw)
   gyro_lpf_.update(imu_raw->gyro, dt);
   accel_lpf_.update(imu_raw->accel, dt);
 
-  const auto imu_filtered = boost::make_shared<tobas_msgs::Imu>(*imu_raw);
+  const auto imu_filtered = make_unique<tobas_msgs::Imu>(*imu_raw);
   imu_filtered->gyro = gyro_lpf_.getOutput();
   imu_filtered->accel = accel_lpf_.getOutput();
   imu_lpf_pub_.publish(imu_filtered);

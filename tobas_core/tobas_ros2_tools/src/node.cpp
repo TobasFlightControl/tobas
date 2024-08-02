@@ -6,8 +6,9 @@ using namespace std;
 
 namespace ros2
 {
-Node::Node(const string& node_name) : super(node_name)
+Node::Node(const string& node_name, const rclcpp::NodeOptions& options) : super(node_name, options)
 {
+  message_pub_ = create_publisher<tobas_std_msgs::msg::Message>(kMessageTopic, 1);
 }
 
 bool Node::getBoolParam(const string& name)

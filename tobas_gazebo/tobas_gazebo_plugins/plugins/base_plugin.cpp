@@ -49,7 +49,7 @@ void GazeboBasePlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboBasePlugin::onUpdate(const common::UpdateInfo& info)
 {
   // Publish rotor speeds
-  const auto rotor_speeds = boost::make_shared<tobas_msgs::RotorSpeeds>();
+  const auto rotor_speeds = make_unique<tobas_msgs::RotorSpeeds>();
   timeGazeboToRos(info.simTime, rotor_speeds->header.stamp);
   for (const auto& joint : rotor_joints_)
   {

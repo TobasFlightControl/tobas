@@ -57,7 +57,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     }
 
     // 風速推定器は制御器と相互依存しているため，準備ができるまでは風速0を発行する．
-    const auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
+    const auto wind_msg = make_unique<tobas_msgs::Wind>();
     wind_msg->header.frame_id = tobas::kWorldFrame;
     wind_msg->header.stamp = odom->header.stamp;
     wind_msg->vel.data.setZero();
@@ -104,7 +104,7 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   kf_.update();
 
   // Publish wind message
-  const auto wind_msg = boost::make_shared<tobas_msgs::Wind>();
+  const auto wind_msg = make_unique<tobas_msgs::Wind>();
   wind_msg->header.frame_id = tobas::kWorldFrame;
   wind_msg->header.stamp = odom->header.stamp;
   wind_msg->vel.data.head(kStateSize) = kf_.state();

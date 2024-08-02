@@ -19,7 +19,7 @@ BaroDriver::BaroDriver(, const string& name) : super(node, pnh, name)
 void BaroDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
-  const auto msg = boost::make_shared<tobas_hal_msgs::FluidPressure>();
+  const auto msg = make_unique<tobas_hal_msgs::FluidPressure>();
 
   // Fill headers
   msg->header.stamp = event.current_real;

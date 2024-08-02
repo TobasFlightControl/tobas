@@ -116,7 +116,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal
     }
 
     // Create command message
-    const auto cmd = boost::make_shared<CommandType>();
+    const auto cmd = make_unique<CommandType>();
     cmd->level = goal->level;
     cmd->pos.x(splines[0](t));
     cmd->pos.y(splines[1](t));

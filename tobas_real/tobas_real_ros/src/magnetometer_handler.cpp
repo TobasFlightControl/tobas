@@ -116,7 +116,7 @@ void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag
     mag_noise_[i].update(mag_unit(i), dt);
 
   // Create message
-  const auto mag_msg = boost::make_shared<tobas_msgs::MagneticField>();
+  const auto mag_msg = make_unique<tobas_msgs::MagneticField>();
 
   // Fill header
   mag_msg->header = mag_raw->header;

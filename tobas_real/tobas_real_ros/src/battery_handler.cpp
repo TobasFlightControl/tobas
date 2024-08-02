@@ -49,7 +49,7 @@ bool BatteryHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::
 void BatteryHandler::adcCb(const tobas_hal_msgs::AdcConstPtr& adc)
 {
   // Create battery message
-  const auto battery_msg = boost::make_shared<tobas_msgs::Battery>();
+  const auto battery_msg = make_unique<tobas_msgs::Battery>();
   battery_msg->header = adc->header;
 
   // Fill values

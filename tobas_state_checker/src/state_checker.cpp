@@ -24,7 +24,7 @@ StateChecker::StateChecker(, const string& name)
 
 void StateChecker::publishSystemCriticalEvent()
 {
-  const auto event = boost::make_shared<tobas_msgs::Event>();
+  const auto event = make_unique<tobas_msgs::Event>();
   event->data = tobas_msgs::Event::SYSTEM_CRITICAL;
   event_pub_.publish(event);
 }

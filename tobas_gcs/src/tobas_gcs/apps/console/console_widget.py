@@ -59,7 +59,7 @@ class ConsoleWidget(BaseAppWidget):
         if self._message_sub is not None:
             self._message_sub.unregister()
         self._message_sub = rclpy.Subscriber(
-            f"{self._drone.name}/{Topic.MESSAGE}",
+            f"{self._drone.name}/message",
             Message,
             self._message_cb,
             queue_size=1,

@@ -89,14 +89,14 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);       // 観測ノイズを受けた観測電圧
 
   // 観測したバッテリーの状態を発行
-  const auto battery = boost::make_shared<tobas_msgs::Battery>();
+  const auto battery = make_unique<tobas_msgs::Battery>();
   timeGazeboToRos(info.simTime, battery->header.stamp);
   battery->voltage = voltage_obs;
   battery->current = current_obs;
   battery_pub_.publish(battery);
 
   // 真のバッテリーの状態を発行
-  const auto battery_gt = boost::make_shared<tobas_msgs::Battery>();
+  const auto battery_gt = make_unique<tobas_msgs::Battery>();
   timeGazeboToRos(info.simTime, battery_gt->header.stamp);
   battery_gt->voltage = voltage_out;
   battery_gt->current = current;

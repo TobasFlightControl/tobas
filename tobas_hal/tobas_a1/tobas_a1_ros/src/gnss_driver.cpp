@@ -216,7 +216,7 @@ void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
     received = false;
 
   // Create GNSS message
-  const auto gnss_msg = boost::make_shared<tobas_msgs::Gps>();
+  const auto gnss_msg = make_unique<tobas_msgs::Gps>();
 
   // Fill time stamp
   const auto& iTOW = hpposllh_.iTOW;  // [ms]

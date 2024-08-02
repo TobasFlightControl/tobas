@@ -325,7 +325,7 @@ void DynamixelHandler::printHardwareErrorStatus()
 void DynamixelHandler::publishCurrentStates(const rclcpp::Time& cur_time)
 {
   // Create motor states message
-  const auto motor_states = boost::make_shared<tobas_dynamixel_msgs::MotorStateArray>();
+  const auto motor_states = make_unique<tobas_dynamixel_msgs::MotorStateArray>();
   motor_states->header.stamp = cur_time;
 
   // Read packets

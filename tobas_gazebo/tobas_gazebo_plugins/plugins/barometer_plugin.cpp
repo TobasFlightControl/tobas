@@ -66,7 +66,7 @@ void GazeboBarometerPlugin::onUpdate()
   pressure += pressure_noise_(rnd_gen_);
 
   // Create a pressure message
-  const auto pressure_msg = boost::make_shared<sensor_msgs::msg::FluidPressure>();
+  const auto pressure_msg = make_unique<sensor_msgs::msg::FluidPressure>();
   timeGazeboToRos(world_->SimTime(), pressure_msg->header.stamp);
   pressure_msg->header.frame_id = link_name_;
   pressure_msg->fluid_pressure = pressure;

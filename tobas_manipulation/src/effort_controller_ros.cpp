@@ -39,7 +39,7 @@ EffortControllerRos::EffortControllerRos(, const string& name)
 
   // ホームポジションを初期目標状態に設定
   if (home_js_.name.size() > 0)
-    tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
+    tar_js_ = make_unique<sensor_msgs::msg::JointState>(home_js_);
 
   efforts_pub_ = node_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointEffortsCmdTopic, 1);
 
@@ -158,7 +158,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::msg::JointState
   const auto time_after_last_cmd = (node->get_clock()->now() - t_last_cmd_).seconds();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    tar_js_ = boost::make_shared<sensor_msgs::msg::JointState>(home_js_);
+    tar_js_ = make_unique<sensor_msgs::msg::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
     TOBAS_WARN(
@@ -167,7 +167,7 @@ void EffortControllerRos::currentJointStateCb(const sensor_msgs::msg::JointState
   }
 
   // Create joint efforts command
-  const auto efforts_msg = boost::make_shared<tobas_msgs::JointCommandArray>();
+  const auto efforts_msg = make_unique<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)

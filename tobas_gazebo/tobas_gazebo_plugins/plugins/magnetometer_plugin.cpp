@@ -92,7 +92,7 @@ void GazeboMagnetometerPlugin::onUpdate()
 
 void GazeboMagnetometerPlugin::publishMagMsg(const ignition::math::Vector3d& field) const
 {
-  const auto mag_msg = boost::make_shared<tobas_msgs::MagneticField>();
+  const auto mag_msg = make_unique<tobas_msgs::MagneticField>();
 
   timeGazeboToRos(world_->SimTime(), mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;

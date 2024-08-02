@@ -65,7 +65,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   }
 
   // コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+  const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
   cmd->pos = tar_pos_W_;

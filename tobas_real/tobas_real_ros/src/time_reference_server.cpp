@@ -17,7 +17,7 @@ TimeReferenceServer::TimeReferenceServer(, const string& name)
 
 void TimeReferenceServer::mainTimerCb(const rclcpp::TimerEvent& event)
 {
-  const auto time_ref = boost::make_shared<sensor_msgs::msg::TimeReference>();
+  const auto time_ref = make_unique<sensor_msgs::msg::TimeReference>();
   time_ref->header.stamp = event.current_real;
   time_ref->time_ref = event.current_real;
   time_ref_pub_.publish(time_ref);

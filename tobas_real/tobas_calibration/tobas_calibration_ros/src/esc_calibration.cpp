@@ -40,7 +40,7 @@ void EscCalibrationRos::sendMinimum()
 
 void EscCalibrationRos::setThrottle(const double& throttle)
 {
-  const auto throttles = boost::make_shared<tobas_msgs::ThrottleArray>();
+  const auto throttles = make_unique<tobas_msgs::ThrottleArray>();
   throttles->header.stamp = node->get_clock()->now();
   for (const auto& rotor : drone_.rotorConfigs())
     throttles->throttles.emplace_back(rotor.channel, throttle);

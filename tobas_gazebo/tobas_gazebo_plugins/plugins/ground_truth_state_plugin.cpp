@@ -51,7 +51,7 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   const auto& T_W_B = link_->WorldPose();
 
   // Create Pose & Twist message
-  const auto odom = boost::make_shared<tobas_msgs::Odometry>();
+  const auto odom = make_unique<tobas_msgs::Odometry>();
   odom->header.frame_id = link_name_;
 
   // Update time stamp

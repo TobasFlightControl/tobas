@@ -144,7 +144,7 @@ bool RCInputHandler::reloadConfig()
 void RCInputHandler::sbusCb(const tobas_hal_msgs::SbusConstPtr& sbus)
 {
   // Create message
-  const auto rcin_msg = boost::make_shared<tobas_msgs::RCInput>();
+  const auto rcin_msg = make_unique<tobas_msgs::RCInput>();
 
   // Fill header
   rcin_msg->header = sbus->header;

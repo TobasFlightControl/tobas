@@ -243,7 +243,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   link_->AddRelativeTorque(air_moment);
 
   // デバッグ用メッセージを発行
-  const auto debug_msg = boost::make_shared<tobas_gazebo_msgs::FixedWingDebug>();
+  const auto debug_msg = make_unique<tobas_gazebo_msgs::FixedWingDebug>();
   timeGazeboToRos(info.simTime, debug_msg->header.stamp);
   vectorGazeboToKDL(linvel_B, debug_msg->relative_body_velocity);
   debug_msg->alpha = alpha;

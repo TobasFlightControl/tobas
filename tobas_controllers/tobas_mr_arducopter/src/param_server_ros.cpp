@@ -163,7 +163,7 @@ void ParamServerRos::setInitParamsTimerCb(const rclcpp::TimerEvent&)
   TOBAS_INFO("Initial parameters are set.");
 
   // サーバの準備が完了したことをROSメッセージで他のノードに伝える
-  const auto server_state = boost::make_shared<std_msgs::Bool>();
+  const auto server_state = make_unique<std_msgs::Bool>();
   server_state->data = true;
   server_state_pub_.publish(server_state);
 }

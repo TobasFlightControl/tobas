@@ -43,7 +43,6 @@ class Topic:
     EULER = "euler"
     WIND = "wind"
     EVENT = "event"
-    MESSAGE = "message"
     LATENCY = "latency"
     ARMING = "arming"
     PRE_ARM_CHECK = "pre_arm_check"

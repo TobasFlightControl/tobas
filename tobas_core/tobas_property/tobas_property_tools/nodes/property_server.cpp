@@ -3,7 +3,7 @@
 #include <tobas_linux/core.hpp>
 #include <tobas_path_tools/core.hpp>
 
-#include "../include/tobas_property_tools/property_server.hpp"
+#include "./property_server.hpp"
 #include "../include/tobas_property_tools/constants.hpp"
 
 using namespace std;
@@ -12,9 +12,9 @@ using namespace tobas_property_msgs::srv;
 
 namespace ptree
 {
-PropertyServer::PropertyServer() : super("property_server")
+PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
 {
-  ini_path_ = linux::expandUser(getStringParam(kIniPathParam, "hoge"));
+  ini_path_ = linux::expandUser(getStringParam(kIniPathParam));
 
   if (filesystem::exists(ini_path_))
   {
@@ -25,9 +25,7 @@ PropertyServer::PropertyServer() : super("property_server")
     }
     catch (...)
     {
-      RCLCPP_FATAL_STREAM(get_logger(), ini_path_ << " exists, but failed to load it.");
-      rclcpp::shutdown();
-      return;
+      TOBAS_EXIT(ini_path_, " exists, but failed to load it.");
     }
   }
   else
@@ -35,11 +33,7 @@ PropertyServer::PropertyServer() : super("property_server")
     // If configuration file does not exist, create a new one.
     RCLCPP_INFO_STREAM(get_logger(), ini_path_ << " does not exist. Creating...");
     if (!path::createFilePath(ini_path_))
-    {
-      RCLCPP_FATAL_STREAM(get_logger(), "Failed to create " << ini_path_ << ".");
-      rclcpp::shutdown();
-      return;
-    }
+      TOBAS_EXIT("Failed to create ", ini_path_, ".");
   }
 
   // Advertise service servers
@@ -72,3 +66,5 @@ void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const T
   res->message = "";
 }
 }  // namespace ptree
+
+RCLCPP_COMPONENTS_REGISTER_NODE(ptree::PropertyServer)

@@ -87,7 +87,7 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
   const Vector3d B_Acc = imu_filtered_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
   const Vector3d B_Gyro = imu_filtered_->gyro.data - eskf_.getGyroBias();
 
-  const auto odom = boost::make_shared<OdomMsg>();
+  const auto odom = make_unique<OdomMsg>();
 
   // Header
   odom->header.stamp = imu_->header.stamp;
@@ -183,7 +183,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   tf_br_.sendTransform(tf_);
 
   // フィードバックを発行
-  const auto feedback = boost::make_shared<FeedbackMsg>();
+  const auto feedback = make_unique<FeedbackMsg>();
   feedback->header = imu->header;
   feedback->acc_bias.data = eskf_.getAccelBias();
   feedback->gyro_bias.data = eskf_.getGyroBias();

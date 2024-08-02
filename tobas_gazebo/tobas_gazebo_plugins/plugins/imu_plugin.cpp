@@ -141,7 +141,7 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
 
 void GazeboImuPlugin::publishImuMsg(const double& dt) const
 {
-  const auto imu_msg = boost::make_shared<tobas_msgs::Imu>();
+  const auto imu_msg = make_unique<tobas_msgs::Imu>();
 
   timeGazeboToRos(world_->SimTime(), imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
@@ -159,7 +159,7 @@ void GazeboImuPlugin::publishImuMsg(const double& dt) const
 
 void GazeboImuPlugin::publishDebugMsg() const
 {
-  const auto debug_msg = boost::make_shared<tobas_gazebo_msgs::ImuDebug>();
+  const auto debug_msg = make_unique<tobas_gazebo_msgs::ImuDebug>();
 
   timeGazeboToRos(world_->SimTime(), debug_msg->header.stamp);
   debug_msg->header.frame_id = link_name_;

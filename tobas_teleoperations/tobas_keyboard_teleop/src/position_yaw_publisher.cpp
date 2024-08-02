@@ -154,13 +154,13 @@ void PositionYawPublisher::run()
     }
 
     // コマンドを発行
-    const auto pos_yaw_msg = boost::make_shared<tobas_msgs::PositionYaw>();
+    const auto pos_yaw_msg = make_unique<tobas_msgs::PositionYaw>();
     pos_yaw_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
     pos_yaw_msg->pos = cmd_pos_;
     pos_yaw_msg->yaw = cmd_yaw_;
     pos_yaw_pub_.publish(pos_yaw_msg);
 
-    const auto pvay_msg = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+    const auto pvay_msg = make_unique<tobas_msgs::PosVelAccYaw>();
     pvay_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
     pvay_msg->pos = cmd_pos_;
     pvay_msg->vel.setZero();

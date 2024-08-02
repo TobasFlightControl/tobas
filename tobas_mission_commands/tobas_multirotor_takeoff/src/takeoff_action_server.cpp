@@ -123,7 +123,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
     }
 
     // コマンドを作成
-    const auto cmd = boost::make_shared<tobas_msgs::PosVelAccYaw>();
+    const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
     cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
     cmd->pos.setZero();

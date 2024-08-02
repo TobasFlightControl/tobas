@@ -58,7 +58,7 @@ void PositionYawController::update(const tobas_msgs::RCInput& rcin, const tobas_
 
   // コマンドを発行
   // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
-  const auto pos_yaw_ptr = boost::make_shared<tobas_msgs::PositionYaw>(pos_yaw_);
+  const auto pos_yaw_ptr = make_unique<tobas_msgs::PositionYaw>(pos_yaw_);
   pos_yaw_pub_.publish(pos_yaw_ptr);
 }
 
