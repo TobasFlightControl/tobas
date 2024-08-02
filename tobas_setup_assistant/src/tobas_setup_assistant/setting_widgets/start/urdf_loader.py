@@ -40,8 +40,8 @@ class URDFLoaderWidget(Widget):
         self.setLayout(rows)
 
         label = QLabel("Description Path")
-        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignTop)
+        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Weight.Bold))
+        label.setAlignment(Qt.AlignmentFlag.AlignTop)
         rows.addWidget(label)
 
         instruction = Description("Please set the path for the robot description and press the load button.")
@@ -52,7 +52,7 @@ class URDFLoaderWidget(Widget):
 
         self._file_text = QLineEdit()
         self._file_text.setReadOnly(True)
-        self._file_text.setFocusPolicy(Qt.NoFocus)
+        self._file_text.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cols.addWidget(self._file_text)
 
         self._load_button = QPushButton("Load")

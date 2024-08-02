@@ -35,8 +35,8 @@ class BaseHardwareSetupWidget(ScrollArea):
         self.setLayout(self._rows)
 
         title = QLabel(self.TITLE)
-        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        title.setAlignment(Qt.AlignTop)
+        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignTop)
         self._rows.addWidget(title)
 
         self._rows.addSpacing(50)

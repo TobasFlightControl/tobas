@@ -1,6 +1,6 @@
 import os.path as osp
 import rclpy
-from overrides import override
+from typing import override
 from typing import Optional
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QFileDialog, QHBoxLayout
@@ -37,7 +37,7 @@ class ParamGetterWidget_FileDialog(ParamGetterWidget[str]):
 
         self._path = QLineEdit(default)
         self._path.setReadOnly(True)
-        self._path.setFocusPolicy(Qt.NoFocus)
+        self._path.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cols.addWidget(self._path)
 
         self.browse_button = QPushButton("Browse")

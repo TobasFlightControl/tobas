@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 import numpy as np
 from numpy import linalg as LA
 from abc import abstractmethod
-from overrides import override
+from typing import override
 from typing import Tuple, List
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QVBoxLayout

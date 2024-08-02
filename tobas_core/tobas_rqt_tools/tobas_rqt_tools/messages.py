@@ -37,17 +37,17 @@ def yes_or_no(parent: QWidget, text: str, level: QMessageLevel) -> bool:
     msg_box = QMessageBox(parent)
 
     # メッセージレベルを設定
-    if level is not None:
-        if level == QMessageLevel.INFO:
-            msg_box.setIcon(QMessageBox.Information)
+    match level:
+        case QMessageLevel.INFO:
+            msg_box.setIcon(QMessageBox.Icon.Information)
             msg_box.setWindowTitle(QMessageLevel.INFO.name)
-        elif level == QMessageLevel.WARN:
-            msg_box.setIcon(QMessageBox.Warning)
+        case QMessageLevel.WARN:
+            msg_box.setIcon(QMessageBox.Icon.Warning)
             msg_box.setWindowTitle(QMessageLevel.WARN.name)
-        elif level == QMessageLevel.WARN:
-            msg_box.setIcon(QMessageBox.Critical)
+        case QMessageLevel.ERROR:
+            msg_box.setIcon(QMessageBox.Icon.Critical)
             msg_box.setWindowTitle(QMessageLevel.ERROR.name)
-        else:
+        case _:
             raise NotImplementedError()
 
     # テキストの設定
@@ -55,8 +55,8 @@ def yes_or_no(parent: QWidget, text: str, level: QMessageLevel) -> bool:
 
     # ボタンの設定
     # 配置は自動で決まる．明確な規則は無いが，全体でルールを統一することが大事: https://nanika.design/blog/1162/
-    msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-    msg_box.setDefaultButton(QMessageBox.No)
+    msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+    msg_box.setDefaultButton(QMessageBox.StandardButton.No)
 
     # ユーザの返事を取得し，Yesの場合にTrueを返す
-    return msg_box.exec() == QMessageBox.Yes
+    return msg_box.exec() == QMessageBox.StandardButton.Yes

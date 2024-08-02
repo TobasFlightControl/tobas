@@ -18,7 +18,7 @@ def place_center(widget: QWidget, rows: QVBoxLayout) -> None:
     """ウィジェットをレイアウトの中央に配置する．"""
     cols = QHBoxLayout()
     cols.addWidget(widget)
-    cols.setAlignment(widget, Qt.AlignCenter)
+    cols.setAlignment(widget, Qt.AlignmentFlag.AlignCenter)
     rows.addLayout(cols)
 
 

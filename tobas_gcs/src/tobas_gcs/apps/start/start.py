@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QLabel, QVBoxLayout
 from PyQt5.QtGui import QFont
 
@@ -27,11 +27,11 @@ class StartWidget(BaseAppWidget):
         self.setLayout(rows)
 
         title = QLabel("Tobas", self)
-        title.setFont(QFont("Default", pointSize=self.TITLE_PSIZE, weight=QFont.Bold))
+        title.setFont(QFont("Default", pointSize=self.TITLE_PSIZE, weight=QFont.Weight.Bold))
         place_center(title, rows)
 
         sub_title = QLabel("— The Flight Controller for All Drones —", self)  # Em dash: Ctrl+Shift+u -> 2014 -> Enter
-        sub_title.setFont(QFont("Default", pointSize=self.SUBTITLE_PSIZE, weight=QFont.Bold))
+        sub_title.setFont(QFont("Default", pointSize=self.SUBTITLE_PSIZE, weight=QFont.Weight.Bold))
         place_center(sub_title, rows)
 
         # TODO: ニュース，リリースノート，関連リンクなど

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from overrides import override
+from typing import override
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QFont
@@ -29,7 +29,7 @@ class BasePropertyWidget(QWidget):
         self.setLayout(rows)
 
         label = QLabel(self.NAME)
-        label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
+        label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Weight.Bold))
         place_center(label, rows)
 
         rows.addSpacing(30)

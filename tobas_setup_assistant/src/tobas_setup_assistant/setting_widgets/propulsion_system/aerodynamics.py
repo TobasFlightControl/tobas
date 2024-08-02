@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 import math
 import numpy as np
 from abc import abstractmethod
-from overrides import override
+from typing import override
 from typing import List
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QVBoxLayout

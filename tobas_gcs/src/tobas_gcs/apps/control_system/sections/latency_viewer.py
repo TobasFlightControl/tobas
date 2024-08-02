@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 import rclpy
 from rclpy.duration import Duration
 import pyqtgraph as pg
-from overrides import override
+from typing import override
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QWheelEvent
 

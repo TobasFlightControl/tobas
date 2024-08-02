@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import rclpy
 from std_msgs.msg import Bool
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QGridLayout
 from PyQt5.QtGui import QFont
 

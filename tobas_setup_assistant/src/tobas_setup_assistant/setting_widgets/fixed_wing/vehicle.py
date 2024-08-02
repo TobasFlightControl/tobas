@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
     from ...parameter_getters import ParamGetterWidget
 
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QVBoxLayout
 
 from ...parameter_getters import (

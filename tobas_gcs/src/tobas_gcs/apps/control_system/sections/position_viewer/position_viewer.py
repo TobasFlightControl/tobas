@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 import os.path as osp
 import math
 import rclpy
-from overrides import override
+from typing import override
 from PyQt5.QtCore import (
     QObject,
     pyqtSignal,

@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
 from enum import Enum
-from overrides import override
+from typing import override
 from typing import List
 from PyQt5.QtWidgets import QLabel
 

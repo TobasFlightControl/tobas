@@ -18,7 +18,7 @@ class IntSliderDisplay(QWidget):
         super().__init__()
         self._suffix = ""
 
-        font = QFont("Default", self.PSIZE, QFont.Bold)
+        font = QFont("Default", self.PSIZE, QFont.Weight.Bold)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -31,13 +31,13 @@ class IntSliderDisplay(QWidget):
         cols.addWidget(self._text)
 
         self._value = QLineEdit()
-        self._value.setAlignment(Qt.AlignRight)
+        self._value.setAlignment(Qt.AlignmentFlag.AlignRight)
         self._value.setFont(font)
         self._value.setReadOnly(True)
-        self._value.setFocusPolicy(Qt.NoFocus)
+        self._value.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cols.addWidget(self._value)
 
-        self._slider = Slider(Qt.Horizontal)
+        self._slider = Slider(Qt.Orientation.Horizontal)
         rows.addWidget(self._slider)
 
         self.update()
@@ -93,7 +93,7 @@ class FloatSliderDisplay(QWidget):
         super().__init__()
         self._suffix = ""
 
-        font = QFont("Default", self.PSIZE, QFont.Bold)
+        font = QFont("Default", self.PSIZE, QFont.Weight.Bold)
 
         rows = QVBoxLayout()
         self.setLayout(rows)
@@ -106,13 +106,13 @@ class FloatSliderDisplay(QWidget):
         cols.addWidget(self._text)
 
         self._value = QLineEdit()
-        self._value.setAlignment(Qt.AlignRight)
+        self._value.setAlignment(Qt.AlignmentFlag.AlignRight)
         self._value.setFont(font)
         self._value.setReadOnly(True)
-        self._value.setFocusPolicy(Qt.NoFocus)
+        self._value.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cols.addWidget(self._value)
 
-        self._slider = FloatSlider(Qt.Horizontal)
+        self._slider = FloatSlider(Qt.Orientation.Horizontal)
         rows.addWidget(self._slider)
 
         self.update()

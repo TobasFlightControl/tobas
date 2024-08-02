@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import override
+from typing import override
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QFont
@@ -29,8 +29,8 @@ class PropulsionSystemWidget(BaseSettingWidget):
         super().__init__(main)
 
         links_label = QLabel("Available Links")
-        links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Bold))
-        links_label.setAlignment(Qt.AlignLeft)
+        links_label.setFont(QFont("Default", pointSize=self.LABEL_PSIZE, weight=QFont.Weight.Bold))
+        links_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self._rows.addWidget(links_label)
 
         self._available = AvailableLinksWidget(main)

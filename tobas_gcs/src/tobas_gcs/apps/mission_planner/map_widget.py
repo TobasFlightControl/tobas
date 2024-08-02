@@ -1,5 +1,5 @@
 import os.path as osp
-from overrides import override
+from typing import override
 from typing import Tuple, List, Tuple, Dict, Type
 from PyQt5.QtCore import (
     Qt,
@@ -29,13 +29,13 @@ class AbstractListModel(QAbstractListModel):
 
     @override
     def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> QVariant:
-        return self._list[index.row()][role - Qt.UserRole]
+        return self._list[index.row()][role - Qt.ItemDataRole.UserRole]
 
     @override
     def roleNames(self) -> Dict[Qt.ItemDataRole, bytes]:
         res = dict()
         for i, (name, _) in enumerate(self.FIELDS):
-            res[Qt.UserRole + i] = name.encode()
+            res[Qt.ItemDataRole.UserRole + i] = name.encode()
         return res
 
     def add(self, *args) -> None:

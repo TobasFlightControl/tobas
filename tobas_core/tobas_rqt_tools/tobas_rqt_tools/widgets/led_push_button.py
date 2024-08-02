@@ -1,6 +1,5 @@
 import numpy as np
-from overrides import override
-from typing import Tuple
+from typing import override, Tuple
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import QPushButton

@@ -9,7 +9,7 @@ import os
 import os.path as osp
 import re
 from glob import glob
-from overrides import override
+from typing import override
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QFont
@@ -60,13 +60,13 @@ class RosPackageWidget(BaseSettingWidget):
         text = QLabel("The package will be generated as")
         text.setFont(QFont("Default", pointSize=BODY_PSIZE))
         text.setFixedHeight(self.TEXT_HEIGHT)
-        self.setAlignment(Qt.AlignTop)
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self._rows.addWidget(text)
 
         self._tbs_path = QLabel(main)
-        self._tbs_path.setFont(QFont("Default", pointSize=BODY_PSIZE, weight=QFont.Bold))
+        self._tbs_path.setFont(QFont("Default", pointSize=BODY_PSIZE, weight=QFont.Weight.Bold))
         self._tbs_path.setFixedHeight(self.TEXT_HEIGHT)
-        self._tbs_path.setAlignment(Qt.AlignTop)
+        self._tbs_path.setAlignment(Qt.AlignmentFlag.AlignTop)
         self._rows.addWidget(self._tbs_path)
 
         # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある

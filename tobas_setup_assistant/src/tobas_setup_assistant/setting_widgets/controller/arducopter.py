@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import override
+from typing import override
 from typing import List
 from dataclasses import dataclass
 from PyQt5.QtCore import Qt, pyqtSlot
@@ -82,8 +82,8 @@ class ChannelsWidget(QWidget):
         self.setLayout(rows)
 
         label = QLabel("Channels")
-        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignLeft)
+        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Weight.Bold))
+        label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         rows.addWidget(label)
 
         description = Description(

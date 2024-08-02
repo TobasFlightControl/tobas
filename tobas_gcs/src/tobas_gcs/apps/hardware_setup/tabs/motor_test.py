@@ -9,7 +9,7 @@ from rclpy.time import Time
 from rclpy.duration import Duration
 from typing import List
 from functools import partial
-from overrides import override
+from typing import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QGridLayout
 

@@ -1,8 +1,5 @@
-from __future__ import (
-    annotations,
-)  # 自クラスをメソッドの引数としてアノテーションするために必要
-from overrides import override
-from typing import Union, Iterator
+from __future__ import annotations  # 自クラスをメソッドの引数としてアノテーションするために必要
+from typing import override, Union, Iterator
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QDropEvent
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
@@ -45,4 +42,4 @@ class ListWidgetItem(QListWidgetItem):
 
     @override
     def __lt__(self, other: ListWidgetItem) -> bool:
-        return self.data(Qt.UserRole) < other.data(Qt.UserRole)
+        return self.data(Qt.ItemDataRole.UserRole) < other.data(Qt.ItemDataRole.UserRole)

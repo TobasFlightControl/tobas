@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ..parameter_getters import ParamGetterWidget
 
 import os
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_std_tools_py.string import is_valid_email

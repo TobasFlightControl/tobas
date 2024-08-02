@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from overrides import override
+from typing import override
 
 from ..common import SENSOR_OFFSET_DESCRIPTION
 from ..parameter_getters import (

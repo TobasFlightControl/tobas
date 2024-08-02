@@ -2,7 +2,7 @@ import rclpy
 import yaml
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-from overrides import override
+from typing import override
 from typing import final
 
 from .battery_config import BatteryConfig

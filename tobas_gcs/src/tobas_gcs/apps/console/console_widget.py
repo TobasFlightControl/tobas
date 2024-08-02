@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
 import rclpy
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QHeaderView, QTableWidgetItem, QVBoxLayout
 from PyQt5.QtGui import QColor
 

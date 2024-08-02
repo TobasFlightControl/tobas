@@ -43,8 +43,8 @@ class PackageLoaderWidget(Widget):
         self.setLayout(rows)
 
         label = QLabel("Tobas Configuration Package Path")
-        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignTop)
+        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Weight.Bold))
+        label.setAlignment(Qt.AlignmentFlag.AlignTop)
         rows.addWidget(label)
 
         instruction = Description("Please set the path for the Tobas configuration package and press the load button.")
@@ -55,7 +55,7 @@ class PackageLoaderWidget(Widget):
 
         self._file_text = QLineEdit()
         self._file_text.setReadOnly(True)
-        self._file_text.setFocusPolicy(Qt.NoFocus)
+        self._file_text.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cols.addWidget(self._file_text)
 
         self._load_button = QPushButton("Load")

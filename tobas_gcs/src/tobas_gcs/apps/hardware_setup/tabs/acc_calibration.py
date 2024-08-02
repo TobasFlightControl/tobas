@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import rclpy
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
-from overrides import override
+from typing import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton
 

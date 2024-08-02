@@ -1,6 +1,6 @@
 import math
 from abc import abstractmethod
-from overrides import override
+from typing import override
 from typing import TypeVar, Generic
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout
@@ -37,7 +37,7 @@ class IntSliderTextWidget(SliderTextWidget[int]):
 
         cols.addWidget(QLabel(str(minimum)))
 
-        self._slider = Slider(Qt.Horizontal)
+        self._slider = Slider(Qt.Orientation.Horizontal)
         self._slider.setRange(minimum, maximum)
         self._slider.sliderReleased.connect(self._on_slider_released)
         cols.addWidget(self._slider)
@@ -96,7 +96,7 @@ class FloatSliderTextWidget(SliderTextWidget[float]):
 
         cols.addWidget(QLabel(format(minimum, f".{self._decimals}f")))
 
-        self._slider = FloatSlider(Qt.Horizontal)
+        self._slider = FloatSlider(Qt.Orientation.Horizontal)
         self._slider.setRange(minimum, maximum)
         self._slider.sliderReleased.connect(self._on_slider_released)
         cols.addWidget(self._slider)

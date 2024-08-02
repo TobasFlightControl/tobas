@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QButtonGroup, QCheckBox, QStackedWidget
 
 from ..base_setting import BaseSettingWidget

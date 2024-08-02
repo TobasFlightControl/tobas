@@ -24,6 +24,6 @@ class Description(QLabel):
         super().__init__(text)
 
         self.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self.setAlignment(Qt.AlignTop)
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setWordWrap(True)
         self.setOpenExternalLinks(True)

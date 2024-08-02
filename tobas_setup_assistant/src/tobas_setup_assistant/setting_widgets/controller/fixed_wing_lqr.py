@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
-from overrides import override
+from typing import override
 
 from tobas_kdl_sympy.frames import Vector
 from tobas_msgs.msg import SpeedRollDeltaPitch

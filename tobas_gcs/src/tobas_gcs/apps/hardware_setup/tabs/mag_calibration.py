@@ -11,7 +11,7 @@ import rclpy
 import rospkg
 from enum import Enum
 from collections import deque
-from overrides import override
+from typing import override
 from typing import Deque, List
 from geometry_msgs.msg import PointStamped
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse

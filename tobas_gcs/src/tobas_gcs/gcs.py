@@ -48,9 +48,9 @@ class GroundControlStationWidget(Widget):
         cols.addWidget(combo_box)
         cols.addWidget(self._package_manager)
         cols.addWidget(self._shutdown_button)
-        cols.setAlignment(combo_box, Qt.AlignLeft)
-        cols.setAlignment(self._package_manager, Qt.AlignCenter)
-        cols.setAlignment(self._shutdown_button, Qt.AlignRight)
+        cols.setAlignment(combo_box, Qt.AlignmentFlag.AlignLeft)
+        cols.setAlignment(self._package_manager, Qt.AlignmentFlag.AlignCenter)
+        cols.setAlignment(self._shutdown_button, Qt.AlignmentFlag.AlignRight)
         rows.addWidget(stacked_widget)
 
     def update_internal_data_structures(self) -> None:

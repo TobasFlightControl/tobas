@@ -35,7 +35,7 @@ class ParamBlockWidget(QWidget):
         self.setLayout(rows)
 
         label_widget = QLabel(label)
-        label_widget.setFont(QFont("Default", self.LABEL_PSIZE, QFont.Bold))
+        label_widget.setFont(QFont("Default", self.LABEL_PSIZE, QFont.Weight.Bold))
         place_center(label_widget, rows)
 
         self._form = FormLayout()

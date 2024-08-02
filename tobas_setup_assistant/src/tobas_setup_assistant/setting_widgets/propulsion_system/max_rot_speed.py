@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import math
 from abc import abstractmethod
-from overrides import override
+from typing import override
 from typing import final, List
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import (
@@ -36,8 +36,8 @@ class MaxRotationSpeedWidget(QWidget):
         self.setLayout(rows)
 
         label = QLabel("Max Rotation Speed")
-        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        label.setAlignment(Qt.AlignTop)
+        label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Weight.Bold))
+        label.setAlignment(Qt.AlignmentFlag.AlignTop)
         rows.addWidget(label)
 
         description = Description("")  # TODO

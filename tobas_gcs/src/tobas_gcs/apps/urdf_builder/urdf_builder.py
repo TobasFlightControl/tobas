@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import os.path as osp
 import rospkg
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.rviz import create_rviz_frame

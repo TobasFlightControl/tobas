@@ -8,7 +8,7 @@ import os.path as osp
 import rclpy
 import shutil
 from bisect import bisect_left
-from overrides import override
+from typing import override
 from functools import partial
 from typing import Tuple, List
 from pathlib import Path

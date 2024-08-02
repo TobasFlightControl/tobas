@@ -1,5 +1,4 @@
-from overrides import override
-from typing import Optional
+from typing import override, Optional
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QProgressDialog
 
@@ -26,7 +25,7 @@ class ProgressDialog(QProgressDialog):
 
         super().__init__(parent=parent)
 
-        self.setWindowModality(Qt.WindowModal)  # ユーザーが他のUI要素と対話できないようにする
+        self.setWindowModality(Qt.WindowModality.WindowModal)  # ユーザーが他のUI要素と対話できないようにする
         self.setWindowTitle(title)
 
         self._num_steps = num_steps

@@ -1,4 +1,4 @@
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QWidget, QScrollArea, QLayout
 
 

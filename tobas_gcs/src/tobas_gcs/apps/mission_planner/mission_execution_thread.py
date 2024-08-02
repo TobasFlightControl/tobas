@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.duration import Duration
 import actionlib
-from overrides import override
+from typing import override
 from typing import List
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 

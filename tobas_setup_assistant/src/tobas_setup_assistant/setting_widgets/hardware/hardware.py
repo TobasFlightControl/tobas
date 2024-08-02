@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
     from .base import BaseHardwareWidget
 
-from overrides import override
+from typing import override
 
 from tobas_rqt_tools.widgets import ComboBox, StackedWidget
 

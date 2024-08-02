@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import math
 from enum import Enum
-from overrides import override
+from typing import override
 from typing import List, Union, Optional
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QHBoxLayout
@@ -59,8 +59,8 @@ class ControlSurfacesWidget(BaseFixedWingSettingWidget):
         super().__init__(main)
 
         available_links_label = QLabel("Available Links")
-        available_links_label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        available_links_label.setAlignment(Qt.AlignLeft)
+        available_links_label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Weight.Bold))
+        available_links_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self._rows.addWidget(available_links_label)
 
         self.available_links = AvailableLinksWidget(main)
@@ -313,12 +313,12 @@ class SelectedLinksWidget(TableWidget):
 
         link_name_label = QLabel(link_name)
         link_name_label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        link_name_label.setAlignment(Qt.AlignCenter)
+        link_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCellWidget(row, ControlSufraceField.LINK_NAME.value, link_name_label)
 
         joint_name_label = QLabel(joint.name)
         joint_name_label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        joint_name_label.setAlignment(Qt.AlignCenter)
+        joint_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCellWidget(row, ControlSufraceField.JOINT_NAME.value, joint_name_label)
 
         min_angle = DoubleSpinBox()

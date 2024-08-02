@@ -1,8 +1,7 @@
 import sys
 import math
 from abc import abstractmethod
-from overrides import override
-from typing import Union
+from typing import override, Union
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPaintEvent, QPen, QFont
@@ -91,10 +90,10 @@ class PositionBarWidget(QWidget):
         painter = QPainter(self)
 
         # 背景を描画
-        painter.fillRect(event.rect(), Qt.white)
+        painter.fillRect(event.rect(), Qt.GlobalColor.white)
 
         # 枠を描画
-        painter.setPen(Qt.black)
+        painter.setPen(Qt.GlobalColor.black)
         painter.drawRect(0, 0, self.width(), self.height())
 
         # 値の範囲を塗りつぶす
@@ -133,11 +132,11 @@ class HPositionBarWidget(PositionBarWidget):
         upper_pos = int(remap(self._upper, self._minimum, self._maximum, 0, self.width()))
 
         # 最小値と最大値の間を緑色で塗る
-        painter.setBrush(Qt.green)
+        painter.setBrush(Qt.GlobalColor.green)
         painter.drawRect(lower_pos, 0, upper_pos - lower_pos, self.height())
 
         # 最小値と最大値の位置に黒色の線を描画
-        painter.setPen(QPen(Qt.black, self._line_width))
+        painter.setPen(QPen(Qt.GlobalColor.black, self._line_width))
         painter.drawLine(lower_pos, 0, lower_pos, self.height())
         painter.drawLine(upper_pos, 0, upper_pos, self.height())
 
@@ -147,14 +146,14 @@ class HPositionBarWidget(PositionBarWidget):
         value_pos = int(remap(self._value, self._minimum, self._maximum, 0, self.width()))
 
         # 現在値の位置に赤色の線を描画
-        painter.setPen(QPen(Qt.red, self._line_width))
+        painter.setPen(QPen(Qt.GlobalColor.red, self._line_width))
         painter.drawLine(value_pos, 0, value_pos, self.height())
 
     @override
     def _draw_text(self, painter: QPainter) -> None:
-        painter.setPen(Qt.gray)
+        painter.setPen(Qt.GlobalColor.gray)
         painter.setFont(QFont("Default", self._text_psize))
-        painter.drawText(QRect(0, 0, self.width(), self.height()), Qt.AlignCenter, self._text)
+        painter.drawText(QRect(0, 0, self.width(), self.height()), Qt.AlignmentFlag.AlignCenter, self._text)
 
 
 class VPositionBarWidget(PositionBarWidget):
@@ -165,11 +164,11 @@ class VPositionBarWidget(PositionBarWidget):
         upper_pos = int(remap(self._upper, self._minimum, self._maximum, 0, self.height()))
 
         # 最小値と最大値の間を緑色で塗る
-        painter.setBrush(Qt.green)
+        painter.setBrush(Qt.GlobalColor.green)
         painter.drawRect(0, lower_pos, self.width(), upper_pos - lower_pos)
 
         # 最小値と最大値の位置に黒色の線を描画
-        painter.setPen(QPen(Qt.black, self._line_width))
+        painter.setPen(QPen(Qt.GlobalColor.black, self._line_width))
         painter.drawLine(0, lower_pos, self.width(), lower_pos)
         painter.drawLine(0, upper_pos, self.width(), upper_pos)
 
@@ -179,13 +178,13 @@ class VPositionBarWidget(PositionBarWidget):
         value_pos = int(remap(self._value, self._minimum, self._maximum, 0, self.height()))
 
         # 現在値の位置に赤色の線を描画
-        painter.setPen(QPen(Qt.red, self._line_width))
+        painter.setPen(QPen(Qt.GlobalColor.red, self._line_width))
         painter.drawLine(0, value_pos, self.width(), value_pos)
 
     @override
     def _draw_text(self, painter: QPainter) -> None:
         # フォントを設定
-        painter.setPen(Qt.gray)
+        painter.setPen(Qt.GlobalColor.gray)
         painter.setFont(QFont("Default", self._text_psize))
 
         # ペインターの回転と移動を設定
@@ -194,4 +193,4 @@ class VPositionBarWidget(PositionBarWidget):
 
         # 回転した状態でテキストを描画
         text_rect = QRect(-self.height() / 2, -self.width() / 2, self.height(), self.width())
-        painter.drawText(text_rect, Qt.AlignCenter, self._text)
+        painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, self._text)

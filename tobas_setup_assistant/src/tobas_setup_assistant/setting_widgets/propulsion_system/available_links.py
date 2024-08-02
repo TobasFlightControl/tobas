@@ -66,7 +66,7 @@ class AvailableLinksWidget(QListWidget):
 
         item = ListWidgetItem()
         item.setSizeHint(QSize(0, self.ITEM_HEIGHT))  # 横幅が小さすぎる場合は自動で引き伸ばされる
-        item.setData(Qt.UserRole, link_name)  # リンク名をソート基準にする
+        item.setData(Qt.ItemDataRole.UserRole, link_name)  # リンク名をソート基準にする
         self.addItem(item)
 
         widget = AvailableLinkItemWidget(link_name)
@@ -109,7 +109,7 @@ class AvailableLinkItemWidget(QListWidget):
 
         self._link_label = QLabel(link_name)
         self._link_label.setFont(QFont("Default", pointSize=BODY_PSIZE))
-        self._link_label.setAlignment(Qt.AlignLeft)
+        self._link_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         cols.addWidget(self._link_label)
 
         self._add_button = QPushButton("Add")

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...gcs import GroundControlStationWidget
 
-from overrides import override
+from typing import override
 
 from tobas_rqt_tools.layouts import ScrollableVBoxLayout
 from tobas_tools_py.drone import Drone

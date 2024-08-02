@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 import rclpy
 from rclpy.duration import Duration
 import actionlib
-from overrides import override
+from typing import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton
 

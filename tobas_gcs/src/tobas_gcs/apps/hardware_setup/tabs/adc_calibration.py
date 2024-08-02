@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import rclpy
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
-from overrides import override
+from typing import override
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QLabel, QLineEdit, QHBoxLayout
 
@@ -69,7 +69,7 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         self._adc_coef = QLineEdit()
         self._adc_coef.setFixedWidth(self.WIDTH)
         self._adc_coef.setReadOnly(True)
-        self._adc_coef.setFocusPolicy(Qt.NoFocus)
+        self._adc_coef.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cols2.addWidget(self._adc_coef)
 
         cols2.addStretch()

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..setup_assistant import SetupAssistant
 
-from overrides import override
+from typing import override
 
 from tobas_std_tools_py.enum import ExtEnum
 from tobas_rqt_tools.messages import q_error_named

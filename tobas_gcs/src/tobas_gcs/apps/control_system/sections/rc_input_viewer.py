@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 import rclpy
-from overrides import override
+from typing import override
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QGridLayout
 
@@ -53,11 +53,11 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         rows1.addLayout(cols3)
 
         pitch_label = QLabel(f"Pitch")
-        pitch_label.setAlignment(Qt.AlignLeft)
+        pitch_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         cols3.addWidget(pitch_label)
 
         throttle_label = QLabel(f"Throttle")
-        throttle_label.setAlignment(Qt.AlignRight)
+        throttle_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         cols3.addWidget(throttle_label)
 
         rows1.addStretch()

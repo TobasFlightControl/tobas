@@ -10,7 +10,7 @@ from rclpy.duration import Duration
 import numpy as np
 from numpy import linalg as LA
 from typing import List
-from overrides import override
+from typing import override
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QTimer
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout
 from std_msgs.msg import ColorRGBA

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ...parameter_getters import ParamGetterWidget
 
 import math
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QVBoxLayout
 
 from ...parameter_getters import ParamGetterWidget_SpinBox

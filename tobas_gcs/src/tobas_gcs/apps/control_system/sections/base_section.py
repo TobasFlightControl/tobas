@@ -26,7 +26,7 @@ class BaseControlSystemSectionWidget(Widget):
         self.setLayout(self._rows)
 
         label = QLabel(self.LABEL)
-        label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
+        label.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Weight.Bold))
         self._rows.addWidget(label)
 
     @abstractmethod

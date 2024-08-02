@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ..parameter_getters import ParamGetterWidget
 
 from abc import abstractmethod
-from overrides import override
+from typing import override
 from typing import final
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QCheckBox, QVBoxLayout
@@ -32,8 +32,8 @@ class BaseSettingWidget(ScrollArea):
         self.setLayout(self._rows)
 
         title = QLabel(self.TITLE_TEXT)
-        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        title.setAlignment(Qt.AlignTop)
+        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignTop)
         self._rows.addWidget(title)
 
         abst = Description(self.ABST_TEXT)

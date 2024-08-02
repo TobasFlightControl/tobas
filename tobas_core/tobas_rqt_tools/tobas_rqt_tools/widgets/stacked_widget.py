@@ -1,4 +1,4 @@
-from overrides import override
+from typing import override
 from typing import Iterator
 from PyQt5.QtWidgets import QWidget, QStackedWidget
 

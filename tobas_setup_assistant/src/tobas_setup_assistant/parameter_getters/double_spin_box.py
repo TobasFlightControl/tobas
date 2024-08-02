@@ -1,4 +1,4 @@
-from overrides import override
+from typing import override
 from typing import Optional
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 

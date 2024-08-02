@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ....gcs import GroundControlStationWidget
 
 import rclpy
-from overrides import override
+from typing import override
 from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout
@@ -97,11 +97,11 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
         rows1.addLayout(cols4)
 
         pitch_label = QLabel(f"Pitch (CH{RCChannel.PITCH + 1})")
-        pitch_label.setAlignment(Qt.AlignLeft)
+        pitch_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         cols4.addWidget(pitch_label)
 
         throttle_label = QLabel(f"Throttle (CH{RCChannel.THROTTLE + 1})")
-        throttle_label.setAlignment(Qt.AlignRight)
+        throttle_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         cols4.addWidget(throttle_label)
 
         rows1.addStretch()

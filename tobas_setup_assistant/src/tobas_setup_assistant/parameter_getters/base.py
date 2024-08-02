@@ -19,8 +19,8 @@ class ParamGetterWidget(QWidget, Generic[T]):
         self.setLayout(self._rows)
 
         self._label = QLabel(param_name)
-        self._label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
-        self._label.setAlignment(Qt.AlignTop)
+        self._label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Weight.Bold))
+        self._label.setAlignment(Qt.AlignmentFlag.AlignTop)
         self._rows.addWidget(self._label)
 
         if description_text:

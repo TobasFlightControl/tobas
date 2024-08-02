@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from .urdf_parser import URDFParser
 
 import rclpy
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QHBoxLayout
 from joint_state_publisher import JointStatePublisher
 from joint_state_publisher_gui import JointStatePublisherGui

@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
     from .base import BaseFixedWingSettingWidget
 
-from overrides import override
+from typing import override
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QCheckBox, QVBoxLayout
 from PyQt5.QtGui import QFont

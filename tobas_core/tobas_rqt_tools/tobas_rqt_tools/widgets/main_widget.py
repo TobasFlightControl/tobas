@@ -1,7 +1,6 @@
 import os
 import signal
-import rclpy
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtGui import QIcon, QCloseEvent
 
@@ -31,8 +30,6 @@ class MainWidget(QWidget):
 
     @override
     def closeEvent(self, _: QCloseEvent) -> None:
-        rclpy.logdebug(f"{self.__class__.__name__}.closeEvent")
-
         self._widget.close()
 
         # クローズ時にプロセスごと落とすことで確実に終了させる

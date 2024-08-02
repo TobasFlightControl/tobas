@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.duration import Duration
 from copy import deepcopy
-from overrides import override
+from typing import override
 
 from tobas_msgs.msg import CommandLevel, PositionYawTrajectoryPoint
 from tobas_trajectory_commander.msg import FollowPositionYawTrajectoryGoal

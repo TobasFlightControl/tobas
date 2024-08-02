@@ -44,8 +44,8 @@ class WindParamsWidget(QWidget):
         self.setLayout(rows)
 
         title = QLabel("Wind Parameters")
-        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Bold))
-        title.setAlignment(Qt.AlignTop)
+        title.setFont(QFont("Default", pointSize=TITLE_PSIZE, weight=QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignTop)
         rows.addWidget(title)
 
         form = FormLayout()

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ..parameter_getters import ParamGetterWidget
 
 from abc import abstractmethod
-from overrides import override
+from typing import override
 from PyQt5.QtWidgets import QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, ComboBox, StackedWidget

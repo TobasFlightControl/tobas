@@ -48,7 +48,7 @@ class PackageManagerWidget(Widget):
         self._tbs_path = QLineEdit()
         self._tbs_path.setFixedWidth(self.PATH_WIDTH)
         self._tbs_path.setReadOnly(True)
-        self._tbs_path.setFocusPolicy(Qt.NoFocus)
+        self._tbs_path.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cols.addWidget(self._tbs_path)
 
         self._load_button = QPushButton("Load")

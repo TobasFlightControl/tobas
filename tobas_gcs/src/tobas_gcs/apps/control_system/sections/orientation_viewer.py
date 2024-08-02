@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 import math
 import rclpy
-from overrides import override
+from typing import override
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QPainter, QPaintEvent, QPolygon, QPen
 
@@ -99,7 +99,7 @@ class _OrientationViewerWidget(Widget):
         self._y_intercept = self.height() / 2
 
     def _draw_ground(self, painter: QPainter) -> None:
-        painter.fillRect(self.rect(), Qt.green)
+        painter.fillRect(self.rect(), Qt.GlobalColor.green)
 
     def _draw_sky(self, painter: QPainter) -> None:
         """空に含まれる領域を塗りつぶす． (memo: 2-59)"""
@@ -161,7 +161,7 @@ class _OrientationViewerWidget(Widget):
             return
 
         polygon = QPolygon(points)
-        painter.setBrush(Qt.blue)
+        painter.setBrush(Qt.GlobalColor.blue)
         painter.drawPolygon(polygon)
 
         # リセット
@@ -184,7 +184,7 @@ class _OrientationViewerWidget(Widget):
         painter.rotate(-math.degrees(self._roll))
 
         # 円を描画
-        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+        painter.setPen(QPen(Qt.GlobalColor.white, self.LINE_WIDTH))
         painter.drawEllipse(QPoint(0, 0), self.ROLL_RADIUS, self.ROLL_RADIUS)
 
         # 各値を描画
@@ -203,7 +203,7 @@ class _OrientationViewerWidget(Widget):
         # 現在の位置に目印を描く
         self._reset_painter(painter)
         painter.translate(self.width() / 2, self.height() / 2)
-        painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
+        painter.setPen(QPen(Qt.GlobalColor.red, self.LINE_WIDTH))
         painter.drawLine(0, -self.ROLL_RADIUS - self.ROLL_TICK_LENGTH * 2, 0, -self.ROLL_RADIUS)
 
         # リセット
@@ -227,7 +227,7 @@ class _OrientationViewerWidget(Widget):
         text_x = -line_half - 30
         text_y = 5
         y_interval = self._pitch2height(math.radians(self.SCALE_INTERVAL))
-        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+        painter.setPen(QPen(Qt.GlobalColor.white, self.LINE_WIDTH))
         for deg in range(pitch_min, pitch_max + 1, self.SCALE_INTERVAL):
             # 目盛りを描画
             painter.drawLine(-line_half, 0, line_half, 0)
@@ -242,7 +242,7 @@ class _OrientationViewerWidget(Widget):
         self._reset_painter(painter)
         painter.translate(self.width() / 2, self.height() / 2)
         painter.rotate(-math.degrees(self._roll))
-        painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
+        painter.setPen(QPen(Qt.GlobalColor.red, self.LINE_WIDTH))
         painter.drawLine(-line_half, 0, line_half, 0)
 
         # リセット
@@ -254,7 +254,7 @@ class _OrientationViewerWidget(Widget):
         painter.translate(self._yaw2width(beta), self.YAW_LINE_Y)
 
         # 数直線を描画
-        painter.setPen(QPen(Qt.white, self.LINE_WIDTH))
+        painter.setPen(QPen(Qt.GlobalColor.white, self.LINE_WIDTH))
         painter.drawLine(-self.width() / 2, 0, self.width() / 2, 0)
 
         # 描画する値の範囲を決める
@@ -282,7 +282,7 @@ class _OrientationViewerWidget(Widget):
         # 現在の位置に目印を描く
         self._reset_painter(painter)
         painter.translate(self._yaw2width(beta), self.YAW_LINE_Y)
-        painter.setPen(QPen(Qt.red, self.LINE_WIDTH))
+        painter.setPen(QPen(Qt.GlobalColor.red, self.LINE_WIDTH))
         painter.drawLine(0, 0, 0, -self.YAW_TICK_LENGTH * 2)
 
         # リセット
@@ -298,7 +298,7 @@ class _OrientationViewerWidget(Widget):
 
     @staticmethod
     def _reset_painter(painter: QPainter) -> None:
-        painter.setPen(Qt.black)
+        painter.setPen(Qt.GlobalColor.black)
         painter.setBrush(Qt.NoBrush)
         painter.resetTransform()
 

@@ -20,10 +20,10 @@ class FormLayout(QFormLayout):
 
     def get_label(self, row: int) -> QWidget:
         """指定した行のラベルを取得する．"""
-        item = self.itemAt(row, QFormLayout.LabelRole)
+        item = self.itemAt(row, QFormLayout.ItemRole.LabelRole)
         return item.widget()
 
     def get_widget(self, row: int) -> QWidget:
         """指定した行のウィジェットを取得する．"""
-        item = self.itemAt(row, QFormLayout.FieldRole)
+        item = self.itemAt(row, QFormLayout.ItemRole.FieldRole)
         return item.widget()
