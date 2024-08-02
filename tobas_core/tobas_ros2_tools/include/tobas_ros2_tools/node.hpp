@@ -3,33 +3,11 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
+#include <tobas_std_tools/debug.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/stream.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
-
-#define TOBAS_LOG(level, ...)                                                                                          \
-  switch (level)                                                                                                       \
-  {                                                                                                                    \
-    case tobas_std_msgs::msg::Message::DEBUG:                                                                          \
-      RCLCPP_DEBUG_STREAM(get_logger(), __VA_ARGS__);                                                                  \
-      break;                                                                                                           \
-    case tobas_std_msgs::msg::Message::INFO:                                                                           \
-      RCLCPP_INFO_STREAM(get_logger(), __VA_ARGS__);                                                                   \
-      break;                                                                                                           \
-    case tobas_std_msgs::msg::Message::WARN:                                                                           \
-      RCLCPP_WARN_STREAM(get_logger(), __VA_ARGS__);                                                                   \
-      break;                                                                                                           \
-    case tobas_std_msgs::msg::Message::ERROR:                                                                          \
-      RCLCPP_ERROR_STREAM(get_logger(), __VA_ARGS__);                                                                  \
-      break;                                                                                                           \
-    case tobas_std_msgs::msg::Message::FATAL:                                                                          \
-      RCLCPP_FATAL_STREAM(get_logger(), __VA_ARGS__);                                                                  \
-      break;                                                                                                           \
-    default:                                                                                                           \
-      RCLCPP_ERROR_STREAM(get_logger(), "Invalid log level: " << level);                                               \
-      break;                                                                                                           \
-  }
 
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
@@ -75,16 +53,40 @@ class Node : public rclcpp::Node
   using self = Node;
 
 public:
-  explicit Node(const std::string& node_name, const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit Node(const std::string& node_name, const rclcpp::NodeOptions& options);
 
 protected:
+  template <typename MsgType>
+  using PublisherPtr = rclcpp::Publisher<MsgType>::SharedPtr;
+  template <typename MsgType>
+  using SubscriberPtr = rclcpp::Subscription<MsgType>::SharedPtr;
+  template <typename SrvType>
+  using ServicePtr = rclcpp::Service<SrvType>::SharedPtr;
+  template <typename SrvType>
+  using ClientPtr = rclcpp::Client<SrvType>::SharedPtr;
+
+  using TimerPtr = rclcpp::TimerBase::SharedPtr;
+
   inline std::string ns() const;
+
+  template <typename MsgType>
+  PublisherPtr<MsgType> createPublisher(const std::string& topic_name, const rclcpp::QoS& qos);
+
+  template <typename MsgType, typename Obj>
+  SubscriberPtr<MsgType> createSubscriber(
+    const std::string& topic_name,
+    const rclcpp::QoS& qos,
+    void (Obj::*fp)(const typename MsgType::ConstSharedPtr&),
+    Obj* obj);
 
   template <typename SrvType, typename Obj>
   typename rclcpp::Service<SrvType>::SharedPtr createService(
     const std::string& srv_name,
     void (Obj::*fp)(const typename SrvType::Request::ConstSharedPtr&, const typename SrvType::Response::SharedPtr&),
     Obj* obj);
+
+  template <typename DurationRepType, typename DurationType, typename Obj>
+  TimerPtr createTimer(std::chrono::duration<DurationRepType, DurationType> period, void (Obj::*fp)(void), Obj* obj);
 
   template <typename... Args>
   void log(uint8_t level, const Args&... args) const;
@@ -155,12 +157,30 @@ private:
   template <typename T>
   void declareParam(const std::string& name, const T& _default);
 
+  void rclcppLog(uint8_t level, const std::string& text) const;
+
   inline static std::string createID(const char* file, int line);
 };
 
 inline std::string Node::ns() const
 {
   return std::string(get_namespace()) + "/";
+}
+
+template <typename MsgType>
+Node::PublisherPtr<MsgType> Node::createPublisher(const std::string& topic_name, const rclcpp::QoS& qos)
+{
+  return create_publisher<MsgType>(topic_name, qos);
+}
+
+template <typename MsgType, typename Obj>
+Node::SubscriberPtr<MsgType> Node::createSubscriber(
+  const std::string& topic_name,
+  const rclcpp::QoS& qos,
+  void (Obj::*fp)(const typename MsgType::ConstSharedPtr&),
+  Obj* obj)
+{
+  return create_subscription<MsgType>(topic_name, qos, std::bind(fp, obj, std::placeholders::_1));
 }
 
 template <typename SrvType, typename Obj>
@@ -172,19 +192,27 @@ typename rclcpp::Service<SrvType>::SharedPtr Node::createService(
   return create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
 }
 
+template <typename DurationRepT, typename DurationT, typename Obj>
+Node::TimerPtr Node::createTimer(std::chrono::duration<DurationRepT, DurationT> period, void (Obj::*fp)(void), Obj* obj)
+{
+  return create_timer(period, bind(fp, obj));
+}
+
 template <typename... Args>
 void Node::log(uint8_t level, const Args&... args) const
 {
-  // Publish message
+  // Create message
   auto message = std::make_unique<tobas_std_msgs::msg::Message>();
   message->header.stamp = get_clock()->now();
   message->level = level;
   message->name = get_name();
   message->message = tobas_std::buildString(args...);
-  message_pub_->publish(std::move(message));
 
   // Output message to the console
-  TOBAS_LOG(level, "[" << get_name() << "] " << message->message);
+  rclcppLog(level, "[" + message->name + "] " + message->message);
+
+  // Publish message
+  message_pub_->publish(std::move(message));
 }
 
 template <typename... Args>
@@ -222,91 +250,91 @@ void Node::logThrottle(const char* file, int line, uint8_t level, double period,
 template <typename... Args>
 inline void Node::debug(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::DEBUG, args...);
+  log(tobas_std_msgs::msg::Message::LEVEL_DEBUG, args...);
 }
 
 template <typename... Args>
 inline void Node::info(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::INFO, args...);
+  log(tobas_std_msgs::msg::Message::LEVEL_INFO, args...);
 }
 
 template <typename... Args>
 inline void Node::warn(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::WARN, args...);
+  log(tobas_std_msgs::msg::Message::LEVEL_WARN, args...);
 }
 
 template <typename... Args>
 inline void Node::error(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::ERROR, args...);
+  log(tobas_std_msgs::msg::Message::LEVEL_ERROR, args...);
 }
 
 template <typename... Args>
 inline void Node::fatal(const Args&... args) const
 {
-  log(tobas_std_msgs::msg::Message::FATAL, args...);
+  log(tobas_std_msgs::msg::Message::LEVEL_FATAL, args...);
 }
 
 template <typename... Args>
 inline void Node::debugOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::DEBUG, args...);
+  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_DEBUG, args...);
 }
 
 template <typename... Args>
 inline void Node::infoOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::INFO, args...);
+  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_INFO, args...);
 }
 
 template <typename... Args>
 inline void Node::warnOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::WARN, args...);
+  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_WARN, args...);
 }
 
 template <typename... Args>
 inline void Node::errorOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::ERROR, args...);
+  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_ERROR, args...);
 }
 
 template <typename... Args>
 inline void Node::fatalOnce(const char* file, int line, const Args&... args)
 {
-  logOnce(file, line, tobas_std_msgs::msg::Message::FATAL, args...);
+  logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, args...);
 }
 
 template <typename... Args>
 inline void Node::debugThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::DEBUG, period, args...);
+  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_DEBUG, period, args...);
 }
 
 template <typename... Args>
 inline void Node::infoThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::INFO, period, args...);
+  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_INFO, period, args...);
 }
 
 template <typename... Args>
 inline void Node::warnThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::WARN, period, args...);
+  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_WARN, period, args...);
 }
 
 template <typename... Args>
 inline void Node::errorThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::ERROR, period, args...);
+  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_ERROR, period, args...);
 }
 
 template <typename... Args>
 inline void Node::fatalThrottle(const char* file, int line, double period, const Args&... args)
 {
-  logThrottle(file, line, tobas_std_msgs::msg::Message::FATAL, period, args...);
+  logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, period, args...);
 }
 
 template <typename T>

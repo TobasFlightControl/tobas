@@ -36,6 +36,12 @@ ament_target_dependencies(${PROJECT_NAME}
 	Eigen3
 )
 
+file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ros2::Talker" EXECUTABLE talker)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ros2::Listener" EXECUTABLE listener)
+
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(targets_to_install "")
 
@@ -47,7 +53,7 @@ foreach(FILE IN LISTS EXE_FILES)
 endforeach()
 
 install(
-	TARGETS ${PROJECT_NAME}
+	TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
 	EXPORT ${PROJECT_NAME}
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib

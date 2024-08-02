@@ -8,7 +8,7 @@ namespace ros2
 {
 Node::Node(const string& node_name, const rclcpp::NodeOptions& options) : super(node_name, options)
 {
-  message_pub_ = create_publisher<tobas_std_msgs::msg::Message>(kMessageTopic, 1);
+  message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(kMessageTopic, 1);
 }
 
 bool Node::getBoolParam(const string& name)
@@ -135,5 +135,30 @@ vector<string> Node::getStringArrayParam(const string& name, const vector<string
   if (!has_parameter(name))
     declareParam(name, _default);
   return get_parameter(name).as_string_array();
+}
+
+void Node::rclcppLog(uint8_t level, const std::string& text) const
+{
+  switch (level)
+  {
+    case tobas_std_msgs::msg::Message::LEVEL_DEBUG:
+      RCLCPP_DEBUG_STREAM(get_logger(), text);
+      break;
+    case tobas_std_msgs::msg::Message::LEVEL_INFO:
+      RCLCPP_INFO_STREAM(get_logger(), text);
+      break;
+    case tobas_std_msgs::msg::Message::LEVEL_WARN:
+      RCLCPP_WARN_STREAM(get_logger(), text);
+      break;
+    case tobas_std_msgs::msg::Message::LEVEL_ERROR:
+      RCLCPP_ERROR_STREAM(get_logger(), text);
+      break;
+    case tobas_std_msgs::msg::Message::LEVEL_FATAL:
+      RCLCPP_FATAL_STREAM(get_logger(), text);
+      break;
+    default:
+      RCLCPP_ERROR_STREAM(get_logger(), "Invalid log level: " << static_cast<int>(level));
+      break;
+  }
 }
 }  // namespace ros2
