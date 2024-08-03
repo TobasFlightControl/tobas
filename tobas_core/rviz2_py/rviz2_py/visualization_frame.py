@@ -1,10 +1,10 @@
 from typing import Optional
 from PyQt5.QtWidgets import QWidget
 
-from librviz2 import VisualizationFrame as _VisualizationFrame
+from rviz2_python_binding import rviz2
 
 
-class VisualizationFrame(_VisualizationFrame):
+class VisualizationFrame(rviz2.VisualizationFrame):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)

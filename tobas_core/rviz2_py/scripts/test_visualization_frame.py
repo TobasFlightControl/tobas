@@ -1,8 +1,5 @@
 import sys
-import signal
 from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout
-
-from tobas_rqt_tools.utils import handle_unexpected_exception
 
 from rviz2_py import VisualizationFrame
 
@@ -30,7 +27,8 @@ def main(args=None) -> None:
     main_widget = MainWidget()
     main_widget.show()
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-    sys.excepthook = handle_unexpected_exception
-
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

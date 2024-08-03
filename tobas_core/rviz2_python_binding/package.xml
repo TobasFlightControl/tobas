@@ -8,9 +8,9 @@
 	<license>TODO</license>
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
+	<buildtool_depend>ament_cmake_python</buildtool_depend>
 
-	<depend>rviz</depend>
-	<depend>python_qt_binding</depend>
+	<depend>pybind11_dev</depend>
 	<depend>rviz_common</depend>
 
 	<export>
