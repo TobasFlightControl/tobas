@@ -1,4 +1,3 @@
-from typing import Optional
 from PyQt5.QtWidgets import QWidget
 
 from rviz2_python_binding import rviz2
@@ -6,7 +5,7 @@ from rviz2_python_binding import rviz2
 
 class VisualizationFrame(rviz2.VisualizationFrame):
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
     def setHelpPath(self, help_path: str) -> None:

@@ -5,7 +5,7 @@
 using namespace rviz_common;
 namespace py = pybind11;
 
-PYBIND11_MODULE(rviz2, m)
+PYBIND11_MODULE(librviz2, m)
 {
   py::class_<VisualizationFramePy>(m, "VisualizationFrame")
     .def(py::init<QWidget*>())
