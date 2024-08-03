@@ -1,11 +1,11 @@
-namespace rviz
+namespace rviz_common
 {
 
 class ViewManager: QObject /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/view_manager.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/view_manager.h>
 %End
 
 public:
@@ -18,39 +18,39 @@ public:
 
   /** @brief Return the current ViewController in use for the main
    * RenderWindow. */
-  rviz::ViewController* getCurrent() const;
+  rviz_common::ViewController* getCurrent() const;
 
-  rviz::ViewController* create( const QString& type );
+  rviz_common::ViewController* create( const QString& type );
 
   int getNumViews() const;
 
-  rviz::ViewController* getViewAt( int index ) const;
+  rviz_common::ViewController* getViewAt( int index ) const;
 
-  void add( rviz::ViewController* view, int index = -1 );
+  void add( rviz_common::ViewController* view, int index = -1 );
 
   /** @brief Remove the given ViewController from the list and return
    * it.  If it is not in the list, NULL is returned and nothing
    * changes. */
-  rviz::ViewController* take( rviz::ViewController* view );
+  rviz_common::ViewController* take( rviz_common::ViewController* view );
 
   /** @brief Remove the ViewController at the given index from the
    * list and return it.  If the index is not valid, NULL is returned
    * and nothing changes. */
-  rviz::ViewController* takeAt( int index );
+  rviz_common::ViewController* takeAt( int index );
 
 //  PropertyTreeModel* getPropertyModel() { return property_model_; }
 
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
+  virtual void load( const rviz_common::Config& config );
+  virtual void save( rviz_common::Config config ) const;
 
   /** @brief Make a copy of @a view_to_copy and install that as the new current ViewController. */
-  void setCurrentFrom( rviz::ViewController* view_to_copy );
+  void setCurrentFrom( rviz_common::ViewController* view_to_copy );
 
   /** @brief Return a copy of source, made by serializing source to
    * YAML and instantiating and loading a new one from that YAML. */
-  rviz::ViewController* copy( rviz::ViewController* source );
+  rviz_common::ViewController* copy( rviz_common::ViewController* source );
 
-//  PluginlibFactory<rviz::ViewController>* getFactory() const { return factory_; }
+//  PluginlibFactory<rviz_common::ViewController>* getFactory() const { return factory_; }
 
 public slots:
 

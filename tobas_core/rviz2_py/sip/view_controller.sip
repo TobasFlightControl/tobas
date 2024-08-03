@@ -1,11 +1,11 @@
-namespace rviz
+namespace rviz_common
 {
 
-class ViewController: rviz::Property /NoDefaultCtors/
+class ViewController: rviz_common::Property /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/view_controller.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/view_controller.h>
 %End
 
 public:
@@ -53,7 +53,7 @@ public:
    * @a source_view must return a valid @c Ogre::Camera* from getCamera().
    *
    * This base class implementation does nothing. */
-  virtual void mimic( rviz::ViewController* source_view );
+  virtual void mimic( rviz_common::ViewController* source_view );
 
   /** @brief Called by ViewManager when this ViewController is being made current.
    * @param previous_view is the previous "current" view, and will not be NULL.
@@ -63,7 +63,7 @@ public:
    * viewpoint.
    *
    * This base class implementation does nothing. */
-  virtual void transitionFrom( rviz::ViewController* previous_view );
+  virtual void transitionFrom( rviz_common::ViewController* previous_view );
 
   /** @brief Subclasses should call this whenever a change is made which would change the results of toString(). */
   void emitConfigChanged();
@@ -79,8 +79,8 @@ public:
    * Typically this will be set by the factory object which created it. */
   virtual void setClassId( const QString& class_id );
 
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
+  virtual void load( const rviz_common::Config& config );
+  virtual void save( rviz_common::Config config ) const;
 
   bool isActive() const;
 

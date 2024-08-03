@@ -1,34 +1,34 @@
-namespace rviz
+namespace rviz_common
 {
 
 class Config /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/config.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/config.h>
 %End
 
 public:
   /** @brief Default constructor.  Creates an empty config object. */
   Config();
   /** @brief Copy constructor.  Copies only the reference to the data, so creates a shallow copy. */
-  Config( const rviz::Config& source );
+  Config( const rviz_common::Config& source );
   /** @brief Convenience constructor, makes a Value type Config object with the given value. */
   Config( QVariant value );
 
   enum Type { Map, List, Value, Empty, Invalid };
-  rviz::Config::Type getType() const;
-  void setType( rviz::Config::Type );
+  rviz_common::Config::Type getType() const;
+  void setType( rviz_common::Config::Type );
 
   /** @brief Returns getType() != Invalid. */
   bool isValid() const;
 
   void mapSetValue( const QString& key, QVariant value );
-  rviz::Config mapMakeChild( const QString& key );
-  rviz::Config mapGetChild( const QString& key ) const;
+  rviz_common::Config mapMakeChild( const QString& key );
+  rviz_common::Config mapGetChild( const QString& key ) const;
 
   /** @brief Return a new iterator for looping over key/value pairs. */
-  rviz::Config::MapIterator mapIterator() const;
+  rviz_common::Config::MapIterator mapIterator() const;
 
   /** @brief Ensures this is a valid Config object, sets the type to Value then sets the value. */
   void setValue( const QVariant& value );
@@ -36,14 +36,14 @@ public:
   QVariant getValue() const;
 
   int listLength() const;
-  rviz::Config listChildAt( int i ) const;
-  rviz::Config listAppendNew();
+  rviz_common::Config listChildAt( int i ) const;
+  rviz_common::Config listAppendNew();
 
   class MapIterator /NoDefaultCtors/
   {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/config.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/config.h>
 %End
   public:
     /** @brief Advance iterator to next entry. */
@@ -59,7 +59,7 @@ public:
     QString currentKey();
 
     /** @brief Return the config reference of the current map entry. */
-    rviz::Config currentChild();
+    rviz_common::Config currentChild();
   };
 };
 

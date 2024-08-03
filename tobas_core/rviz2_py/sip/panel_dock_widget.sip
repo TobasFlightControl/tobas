@@ -1,10 +1,10 @@
-namespace rviz
+namespace rviz_common
 {
 
 class PanelDockWidget: QDockWidget /NoDefaultCtors/
 {
 %TypeHeaderCode
-#include <rviz/panel_dock_widget.h>
+#include <rviz_common/panel_dock_widget.h>
 %End
 
 public:

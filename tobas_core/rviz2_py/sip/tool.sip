@@ -1,11 +1,11 @@
-namespace rviz
+namespace rviz_common
 {
 
 class Tool /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/tool.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/tool.h>
 %End
 
 public:
@@ -25,7 +25,7 @@ public:
 //  void initialize( DisplayContext* context );
 
   /** @brief Return the container for properties of this Tool.. */
-  virtual rviz::Property* getPropertyContainer();
+  virtual rviz_common::Property* getPropertyContainer();
 
   char getShortcutKey();
 
@@ -71,8 +71,8 @@ public:
    * Typically this will be set by the factory object which created it. */
   virtual void setClassId( const QString& class_id );
 
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
+  virtual void load( const rviz_common::Config& config );
+  virtual void save( rviz_common::Config config ) const;
 
   /** @brief Set the toolbar icon for this tool (will also set its cursor). */
   void setIcon( const QIcon& icon );

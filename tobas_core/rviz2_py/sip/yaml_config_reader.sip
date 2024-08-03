@@ -1,11 +1,11 @@
-namespace rviz
+namespace rviz_common
 {
 
 class YamlConfigReader /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/yaml_config_reader.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/yaml_config_reader.h>
 %End
 
 public:
@@ -13,13 +13,13 @@ public:
   YamlConfigReader();
 
   /** @brief Read config data from a file.  This potentially changes the return value sof error(), statusMessage(), and config(). */
-  void readFile( rviz::Config& config, const QString& filename );
+  void readFile( rviz_common::Config& config, const QString& filename );
 
   /** @brief Read config data from a string.  This potentially changes the return value sof error(), statusMessage(), and config(). */
-  void readString( rviz::Config& config, const QString& data, const QString& filename = "data string" );
+  void readString( rviz_common::Config& config, const QString& data, const QString& filename = "data string" );
 
   /** @brief Read config data from a std::istream.  This potentially changes the return value sof error(), statusMessage(), and config(). */
-//  void readStream( rviz::Config& config, std::istream& in, const QString& filename = "data stream" );
+//  void readStream( rviz_common::Config& config, std::istream& in, const QString& filename = "data stream" );
 
   /** @brief Return true if the latest readFile() or readString() call had an error. */
   bool error();

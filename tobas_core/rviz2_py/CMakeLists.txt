@@ -13,7 +13,7 @@ include(${python_qt_binding_DIR}/sip_helper.cmake)
 file(GLOB_RECURSE SIP_FILES RELATIVE ${PROJECT_SOURCE_DIR} sip/[^.]*.sip)
 file(GLOB_RECURSE RVIZ_COMMON_HEADERS /opt/ros/jazzy/include/rviz_common/rviz_common/[^.]*.hpp)
 
-# Create a dummy target
+# Create a dummy target to avoid error
 add_custom_target(dummy_target ALL)
 
 build_sip_binding(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/sip/rviz.sip

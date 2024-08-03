@@ -1,11 +1,11 @@
-namespace rviz
+namespace rviz_common
 {
 
 class ToolManager: QObject /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/tool_manager.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/tool_manager.h>
 %End
 
 public:
@@ -16,26 +16,26 @@ public:
    * Loads standard RViz tools. */
   void initialize();
 
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
+  virtual void load( const rviz_common::Config& config );
+  virtual void save( rviz_common::Config config ) const;
 
 //  PropertyTreeModel* getPropertyModel() const { return property_tree_model_; }
 
   /** @brief Create a tool by class lookup name, add it to the list, and return it. */
-  rviz::Tool* addTool( const QString& tool_class_lookup_name );
+  rviz_common::Tool* addTool( const QString& tool_class_lookup_name );
 
   /**
    * \brief Return the tool currently in use.
    * \sa setCurrentTool()
    */
-  rviz::Tool* getCurrentTool();
+  rviz_common::Tool* getCurrentTool();
 
   /**
    * \brief Return the tool at a given index in the Tool list.
    * If index is less than 0 or greater than the number of tools, this
    * will fail an assertion.
    */
-  rviz::Tool* getTool( int index );
+  rviz_common::Tool* getTool( int index );
 
   int numTools();
   void removeTool( int index );
@@ -49,7 +49,7 @@ public:
    * handleChar().
    * \sa getCurrentTool()
    */
-  void setCurrentTool( rviz::Tool* tool );
+  void setCurrentTool( rviz_common::Tool* tool );
 
   /**
    * \brief Set the default tool.
@@ -62,13 +62,13 @@ public:
    * release event.
    * \sa getDefaultTool()
    */
-  void setDefaultTool( rviz::Tool* tool );
+  void setDefaultTool( rviz_common::Tool* tool );
 
   /**
    * \brief Get the default tool.
    * \sa setDefaultTool()
    */
-  rviz::Tool* getDefaultTool();
+  rviz_common::Tool* getDefaultTool();
 
   QStringList getToolClasses();
 
@@ -81,13 +81,13 @@ signals:
   void configChanged();
 
   /** @brief Emitted by addTool() after the tool is added to the list of tools. */
-  void toolAdded( rviz::Tool* );
+  void toolAdded( rviz_common::Tool* );
 
   /** @brief Emitted by setCurrentTool() after the newly chosen tool
    * is activated. */
-  void toolChanged( rviz::Tool* );
+  void toolChanged( rviz_common::Tool* );
 
-  void toolRemoved( rviz::Tool* );
+  void toolRemoved( rviz_common::Tool* );
 
 };
 

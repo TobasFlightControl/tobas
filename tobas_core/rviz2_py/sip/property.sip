@@ -1,11 +1,11 @@
-namespace rviz
+namespace rviz_common
 {
 
 class Property: QObject /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/properties/property.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/properties/property.h>
 %End
 
 public:
@@ -38,7 +38,7 @@ public:
    Property( const QString& name = QString(),
             const QVariant default_value = QVariant(),
             const QString& description = QString(),
-            rviz::Property* parent = 0 );
+            rviz_common::Property* parent = 0 );
 
   /** @brief Destructor.  Removes this property from its parent's list
    * of children.
@@ -107,7 +107,7 @@ public:
    * message will be printed, but the program will not crash here.
    *
    * This is an Order(N) operation in the number of subproperties. */
-   rviz::Property* subProp( const QString& sub_name );
+   rviz_common::Property* subProp( const QString& sub_name );
 
   /** @brief Return the number of child objects (Property or otherwise).
    *
@@ -122,17 +122,17 @@ public:
    * This just checks the index against 0 and numChildren() and then
    * calls childAtUnchecked(), so it does not need to be overridden in
    * a subclass. */
-  rviz::Property* childAt( int index ) const;
+  rviz_common::Property* childAt( int index ) const;
 
   /** @brief Return the child Property with the given index, without
    * checking whether the index is within bounds.
    *
    * You can override this in a subclass to implement different child
    * storage. */
-  virtual rviz::Property* childAtUnchecked( int index ) const;
+  virtual rviz_common::Property* childAtUnchecked( int index ) const;
 
   /** @brief Return the parent Property. */
-  rviz::Property* getParent() const;
+  rviz_common::Property* getParent() const;
 
   /** @brief Set parent property, without telling the parent.
    *
@@ -140,7 +140,7 @@ public:
    * setParent() does not have any immediate side effects, like adding
    * itself to be a child of the parent.  It should only be used by
    * implementations of addChild() and takeChild() and such. */
-  void setParent( rviz::Property* new_parent );
+  void setParent( rviz_common::Property* new_parent );
 
   /** @brief Return data appropriate for the given column (0 or 1) and role for this Property.
    * @param column 0 for left column, 1 for right column.
@@ -197,7 +197,7 @@ public:
   /** @brief Returns true if @c this is an ancestor of
    * @a possible_child, meaning is the parent or parent of parent
    * etc. */
-  bool isAncestorOf( rviz::Property* possible_child ) const;
+  bool isAncestorOf( rviz_common::Property* possible_child ) const;
 
   /** @brief Remove a given child object and return a pointer to it.
    * @return If child is contained here, it is returned; otherwise NULL.
@@ -207,20 +207,20 @@ public:
    * This uses only virtual functions, numChildren(),
    * childAtUnchecked(), and takeChildAt(), so it does not need to be
    * virtual itself. */
-  rviz::Property* takeChild( rviz::Property* child );
+  rviz_common::Property* takeChild( rviz_common::Property* child );
 
   /** @brief Take a child out of the child list, but don't destroy it.
    * @return Returns the child property at the given index, or NULL if the index is out of bounds.
    *
    * This notifies the model about the removal. */
-  virtual rviz::Property* takeChildAt( int index );
+  virtual rviz_common::Property* takeChildAt( int index );
 
   /** @brief Add a child property.
    * @param child The child property to add.
    * @param index [optional] The index at which to add the child.  If
    *   less than 0 or greater than the number of child properties, the
    *   child will be added at the end. */
-  virtual void addChild( rviz::Property* child, int index = -1 );
+  virtual void addChild( rviz_common::Property* child, int index = -1 );
 
   /** @brief Set the model managing this Property and all its child properties, recursively. */
 //  void setModel( PropertyTreeModel* model );
@@ -239,8 +239,8 @@ public:
   /** @brief Move the child at from_index to to_index. */
   virtual void moveChild( int from_index, int to_index );
 
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
+  virtual void load( const rviz_common::Config& config );
+  virtual void save( rviz_common::Config config ) const;
 
   /** @brief Returns true if the property has data worth saving. */
   bool shouldBeSaved() const;

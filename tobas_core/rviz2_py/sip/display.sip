@@ -1,91 +1,55 @@
-namespace rviz
+namespace rviz_common
 {
-
-class Display: rviz::Property /NoDefaultCtors/
+// class Display
+// {
+class Display: rviz_common::Property /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/display.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/display.hpp>
 %End
 
 public:
-  /** @brief Main initialization, called after constructor, before load() or setEnabled(). */
-//  void initialize( DisplayContext* context );
+  Display();
+  ~Display();
 
-  /** @brief Return data appropriate for the given column (0 or 1) and
-   * role for this Display.
-   */
-//  virtual QVariant getViewData( int column, int role ) const;
-
-  /** @brief Return item flags appropriate for the given column (0 or
-   * 1) for this Display. */
-//  virtual Qt::ItemFlags getViewFlags( int column ) const;
-
-  /** @brief Return the class identifier which was used to create this
-   * instance.  This version just returns whatever was set with
-   * setClassId(). */
-  virtual QString getClassId() const;
-
-  /** @brief Set the class identifier used to create this instance.
-   * Typically this will be set by the factory object which created it. */
-  virtual void setClassId( const QString& class_id );
-
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
-
-  /** @brief Return true if this Display is enabled, false if not. */
+  // void initialize(DisplayContext* context);
+  // QVariant getViewData(int column, int role) const;
+  // Qt::ItemFlags getViewFlags(int column) const;
+  QString getClassId() const;
+  void setClassId(const QString& class_id);
+  // void load(const Config& config);
+  // void save(Config config) const;
+  void setTopic(const QString& topic, const QString& datatype);
   bool isEnabled() const;
+  void setFixedFrame(const QString& fixed_frame);
+  void update(float wall_dt, float ros_dt);
+  void reset();
+  // void setStatus(properties::StatusProperty::Level level, const QString& name, const QString& text);
+  // void setStatusStd(properties::StatusProperty::Level level, const std::string& name, const std::string& text);
+  void setMissingTransformToFixedFrame(const std::string& frame, const std::string& additional_info = "");
+  void setTransformOk();
+  void deleteStatus(const QString& name);
+  void deleteStatusStd(const std::string& name);
+  void setVisibilityBits(uint32_t bits);
+  void unsetVisibilityBits(uint32_t bits);
+  uint32_t getVisibilityBits();
+  // Ogre::SceneNode* getSceneNode() const;
+  void setAssociatedWidget(QWidget* widget);
+  QWidget* getAssociatedWidget() const;
+  // PanelDockWidget* getAssociatedWidgetPanel();
+  void setName(const QString& name) final;
+  void emitTimeSignal(rclcpp::Time time);
+  properties::Property* findProperty(const QString& name);
+  bool updateFrame(const std::string& frame);
+  bool updateFrame(const std::string& frame, rclcpp::Time time);
 
-  /** @brief Set the fixed frame in this display. */
-  void setFixedFrame( const QString& fixed_frame );
-
-  /** @brief Called periodically by the visualization manager.
-   * @param wall_dt Wall-clock time, in seconds, since the last time the update list was run through.
-   * @param ros_dt ROS time, in seconds, since the last time the update list was run through. */
-  virtual void update( float wall_dt, float ros_dt );
-
-  /** @brief Called to tell the display to clear its state */
-  virtual void reset();
-
-  /** @brief Show status level and text.
-   * @param level One of StatusProperty::Ok, StatusProperty::Warn, or StatusProperty::Error.
-   * @param name The name of the child entry to set.
-   * @param text Description of the child's state.
-   *
-   * Every Display has a StatusList to indicate how it is doing.  The
-   * StatusList has StatusPropertychildren indicating the status of
-   * various subcomponents of the Display.  Each child of the status
-   * has a level, a name, and descriptive text.  The top-level
-   * StatusList has a level which is set to the worst of all the
-   * children's levels.
-   */
-//  virtual void setStatus( StatusProperty::Level level, const QString& name, const QString& text );
-
-  /** @brief Show status level and text, using a std::string.
-   * Convenience function which converts std::string to QString
-   * and calls setStatus(). */
-//  void setStatusStd( StatusProperty::Level level, const std::string& name, const std::string& text )
-//    {
-//      setStatus( level, QString::fromStdString( name ), QString::fromStdString( text ));
-//    }
-
-  /** @brief Delete the status entry with the given name. */
-  virtual void deleteStatus( const QString& name );
-
-  /** @brief Delete the status entry with the given std::string name. */
-//  void deleteStatusStd( const std::string& name ) { deleteStatus( QString::fromStdString( name )); }
-
-  void setIcon( const QIcon& icon );
-
-public slots:
-  /** @brief Enable or disable this Display.
-   *
-   * SetEnabled is called after initialize() and at the end of load(),
-   * if the Display settings are being loaded from a file. */
-  void setEnabled( bool enabled );
-
-  /** @brief Convenience function which calls context_->queueRender(). */
+public Q_SLOTS:
+  void setEnabled(bool enabled);
   void queueRender();
-};
+  void setIcon(const QIcon& icon);
 
+Q_SIGNALS:
+  void timeSignal(rviz_common::Display* display, rclcpp::Time time);
 };
+};  // namespace rviz_common

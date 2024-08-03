@@ -14,11 +14,7 @@ class VisualizationFramePy : public VisualizationFrame
 
 public:
   explicit VisualizationFramePy(QWidget* parent = nullptr);
-
-  ~VisualizationFramePy()
-  {
-    client_.shutdown();
-  }
+  ~VisualizationFramePy();
 
   void initialize(const QString& display_config_file = "");
 

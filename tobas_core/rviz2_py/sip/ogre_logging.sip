@@ -1,11 +1,11 @@
-namespace rviz
+namespace rviz_common
 {
 
 class OgreLogging /NoDefaultCtors/
 {
 %TypeHeaderCode
-#define ROS_PACKAGE_NAME "rviz"
-#include <rviz/ogre_helpers/ogre_logging.h>
+#define ROS_PACKAGE_NAME "rviz_common"
+#include <rviz_common/ogre_helpers/ogre_logging.h>
 %End
 
 public:

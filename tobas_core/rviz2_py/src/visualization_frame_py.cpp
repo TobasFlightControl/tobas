@@ -8,6 +8,11 @@ VisualizationFramePy::VisualizationFramePy(QWidget* parent)
   rviz_ros_node_ = client_.init(0, nullptr, "rviz", false);
 }
 
+VisualizationFramePy::~VisualizationFramePy()
+{
+  client_.shutdown();
+}
+
 void VisualizationFramePy::initialize(const QString& display_config_file)
 {
   VisualizationFrame::initialize(rviz_ros_node_, display_config_file);
