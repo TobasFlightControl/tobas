@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+
+	<name>rviz2_py</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<exec_depend>rviz2_python_binding</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+
+</package>

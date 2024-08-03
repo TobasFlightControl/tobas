@@ -12,11 +12,6 @@ class MainWidget(QWidget):
     - 最新のウィンドウ位置とサイズを保存
     """
 
-    POS_X_KEY = "main_window/pos_x"
-    POS_Y_KEY = "main_window/pos_y"
-    WIDTH_KEY = "main_window/width"
-    HEIGHT_KEY = "main_window/height"
-
     def __init__(self, title: str, icon_path: str, widget: QWidget) -> None:
         super().__init__()
 
