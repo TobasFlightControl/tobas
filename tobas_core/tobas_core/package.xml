@@ -9,9 +9,11 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<exec_depend>tobas_algorithm</exec_depend>
 	<exec_depend>tobas_dsp</exec_depend>
 	<exec_depend>tobas_eigen_msgs</exec_depend>
 	<exec_depend>tobas_eigen_tools</exec_depend>
+	<exec_depend>tobas_geomag</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>
 	<exec_depend>tobas_kdl_conversions</exec_depend>
 	<exec_depend>tobas_kdl_conversions_py</exec_depend>
@@ -21,19 +23,17 @@
 	<exec_depend>tobas_linear_control</exec_depend>
 	<exec_depend>tobas_linux</exec_depend>
 	<exec_depend>tobas_math</exec_depend>
+	<exec_depend>tobas_path_tools</exec_depend>
+	<exec_depend>tobas_property</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
-	<exec_depend>tobas_ros2_tools</exec_depend>
 	<exec_depend>tobas_rclpy</exec_depend>
+	<exec_depend>tobas_ros2_tools</exec_depend>
 	<exec_depend>tobas_rqt_tools</exec_depend>
 	<exec_depend>tobas_std_msgs</exec_depend>
 	<exec_depend>tobas_std_tools</exec_depend>
 	<exec_depend>tobas_std_tools_py</exec_depend>
 	<exec_depend>tobas_urdf_tools_py</exec_depend>
 	<exec_depend>wpa_supplicant_parser_py</exec_depend>
-
-	<export>
-		<metapackage/>
-	</export>
 
 	<export>
 		<build_type>ament_cmake</build_type>
