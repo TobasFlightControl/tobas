@@ -1,4 +1,4 @@
-# rviz2_python_binding
+# rviz2_py
 
 ## メモ
 

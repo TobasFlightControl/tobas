@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout
 

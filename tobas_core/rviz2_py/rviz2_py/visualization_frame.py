@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget
 
-from rviz2_python_binding import rviz2
+from rviz2_py import rviz2
 
 
 class VisualizationFrame(rviz2.VisualizationFrame):

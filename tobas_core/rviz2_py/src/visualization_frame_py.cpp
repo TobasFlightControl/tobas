@@ -1,4 +1,4 @@
-#include "../include/rviz2_python_binding/visualization_frame_py.hpp"
+#include "../include/rviz2_py/visualization_frame_py.hpp"
 
 namespace rviz_common
 {
