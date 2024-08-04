@@ -30,7 +30,6 @@
 	<exec_depend>tobas_gcs</exec_depend>
 	<exec_depend>tobas_latency_publisher</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
-	<exec_depend>tobas_mavros_bridge</exec_depend>
 	<exec_depend>tobas_motor_test</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_multirotor_trajectory</exec_depend>
