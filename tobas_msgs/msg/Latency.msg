@@ -1,2 +1,2 @@
 std_msgs/Header header
-duration data
+builtin_interfaces/Duration data

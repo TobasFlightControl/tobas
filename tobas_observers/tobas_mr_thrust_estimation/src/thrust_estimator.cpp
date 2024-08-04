@@ -60,7 +60,7 @@ void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // 実際は加速度ノイズとジャイロノイズの分散に比例する値のはずだが，
   // どうせプロセスノイズのスケールがわからないため観測ノイズのスケールも適当でよい．
   // 簡単のため最も影響の大きいと思われる加速度ノイズの分散をそのまま使う．
-  kf_.R(0, 0) = odom->linear_acceleration_covariance(2, 2) + EPS;
+  kf_.R(0, 0) = odom->accel_covariance(2, 2) + EPS;
 
   // カルマンフィルタを更新
   kf_.update();

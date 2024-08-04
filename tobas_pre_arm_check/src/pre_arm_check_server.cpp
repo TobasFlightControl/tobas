@@ -142,7 +142,7 @@ void PreArmCheckServer::preArmCheckTimerCb(const rclcpp::TimerEvent& event)
     pre_arm_check_.ok = false;
 
   // 速度推定の共分散
-  const auto vel_var = odom_->linear_velocity_covariance.diagonal().maxCoeff();
+  const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
   pre_arm_check_.velocity_accurate = vel_var < math::sqr(kVelStddevThresh);
   if (!pre_arm_check_.velocity_accurate)
     pre_arm_check_.ok = false;

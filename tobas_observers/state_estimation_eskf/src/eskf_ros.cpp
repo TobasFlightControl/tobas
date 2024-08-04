@@ -105,7 +105,7 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
 
   // Linear velocity (Local): IMU frame -> Base frame
   odom->twist.vel.data = B_Rot_W * W_Vel_WI - B_Gyro.cross(imu_offset_);
-  odom->linear_velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
+  odom->velocity_covariance = B_Rot_W * eskf_.getVelocityCovariance() * W_Rot_B;
 
   // Orientation (Global)
   odom->frame.M.data = W_Rot_B.toRotationMatrix();
@@ -113,15 +113,15 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
 
   // Angular velocity (Local)
   odom->twist.rot.data = B_Gyro;
-  odom->angular_velocity_covariance = imu_->gyro_covariance;
+  odom->gyro_covariance = imu_->gyro_covariance;
 
   // Linear acceleration (Local)
   odom->accel.linear.data = B_Acc;
-  odom->linear_acceleration_covariance = imu_->accel_covariance;
+  odom->accel_covariance = imu_->accel_covariance;
 
   // Angular acceleration (Local)
   odom->accel.angular.fill(nan(tobas::kUnknown));
-  odom->angular_acceleration_covariance.fill(nan(tobas::kUnknown));
+  odom->dgyro_covariance.fill(nan(tobas::kUnknown));
 
   return odom;
 }

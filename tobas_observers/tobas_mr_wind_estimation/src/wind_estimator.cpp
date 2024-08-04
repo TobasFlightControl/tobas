@@ -95,9 +95,9 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   kf_.Q(1, 1) = math::sqr(dryden_.noiseStddevLat());
 
   // 観測ノイズの共分散
-  const auto vel_cov_W = R_W_B * odom->linear_velocity_covariance * R_W_B.transpose();
+  const auto vel_cov_W = R_W_B * odom->velocity_covariance * R_W_B.transpose();
   const auto hor_vel_cov_W = vel_cov_W.topLeftCorner(kStateSize, kStateSize);
-  const auto hor_acc_cov_B = odom->linear_acceleration_covariance.topLeftCorner(kStateSize, kStateSize);
+  const auto hor_acc_cov_B = odom->accel_covariance.topLeftCorner(kStateSize, kStateSize);
   kf_.R = hor_vel_cov_W + Cv_hor_inv * hor_acc_cov_B * Cv_hor_inv.transpose();
 
   // カルマンフィルタを更新
