@@ -63,4 +63,4 @@ include_directories(SYSTEM ${QT_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS})
 
 add_subdirectory(robot_state_rviz_plugin)
 
-install(FILES robot_state_rviz_plugin_description.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(FILES robot_state_rviz_plugin_description.xml DESTINATION share/${PROJECT_NAME})

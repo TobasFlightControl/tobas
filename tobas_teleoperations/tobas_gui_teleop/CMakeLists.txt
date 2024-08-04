@@ -9,12 +9,12 @@ if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATC
   return()
 endif()
 
-find_package(catkin REQUIRED COMPONENTS)
+find_package(ament_cmake REQUIRED)
 
 catkin_python_setup()
 ament_package()
 
-install(DIRECTORY resources DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY resources DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY
   src/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}

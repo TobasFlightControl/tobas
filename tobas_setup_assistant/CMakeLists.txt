@@ -15,7 +15,7 @@ catkin_python_setup()
 ament_package()
 
 # Install
-install(DIRECTORY config data launch resources templates DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY config data launch resources templates DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY
   src/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}

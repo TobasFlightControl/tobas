@@ -7,7 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_python_setup()
 ament_package()
 
-install(DIRECTORY launch resources DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY launch resources DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY
   src/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}

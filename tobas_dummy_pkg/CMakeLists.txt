@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 project(tobas_dummy_pkg)
-find_package(catkin REQUIRED COMPONENTS)
+find_package(ament_cmake REQUIRED)
 ament_package()
-install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
