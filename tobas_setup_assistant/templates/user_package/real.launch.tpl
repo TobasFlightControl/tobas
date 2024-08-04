@@ -2,7 +2,7 @@
 
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
 
   <!-- Bringup Tobas bridge -->
   <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="tobas_bridge" args="load TobasBridgeNodelet nodelet_manager_medium" output="screen" required="true"/>

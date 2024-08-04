@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
   <arg name="ground_truth" default="false"/>
 
   <include file="$(find tobas_manipulation)/launch/position_controller.launch">

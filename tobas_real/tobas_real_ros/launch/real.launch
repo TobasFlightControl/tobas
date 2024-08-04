@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
 
   <arg name="time_name" value="time_reference_server"/>
   <arg name="cpu_name" value="cpu_handler"/>

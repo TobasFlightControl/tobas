@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
 
   <arg name="sbus_name" value="a1_sbus_driver"/>
 

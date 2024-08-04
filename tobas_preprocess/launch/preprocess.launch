@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
 
   <arg name="imu_lpf_name" value="imu_lpf"/>
   <arg name="battery_lpf_name" value="battery_lpf"/>

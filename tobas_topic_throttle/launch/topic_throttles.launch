@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
 
   <arg name="battery_lpf_name" value="battery_lpf_throttle"/>
   <arg name="rcin_name" value="rcin_throttle"/>

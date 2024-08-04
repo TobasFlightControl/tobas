@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
+
 
   <!-- Load common parameters -->
   <include file="$(find {{ config_pkg_name }})/launch/common_params.launch">

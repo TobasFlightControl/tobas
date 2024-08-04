@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="true"/>
+
   <arg name="num_worker_threads" default="16"/>
   <arg name="ground_truth" default="false"/>
 

@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
   <arg name="ground_truth" default="false"/>
   <arg name="node_name" default="tobas_fixed_wing_mpc"/>
 

@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
   <arg name="config_path" default="$(find tobas_dynamixel_handler)/config/motor_config.yaml"/>
 
   <arg name="node_name" value="dynamixel_handler"/>

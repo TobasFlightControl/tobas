@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="nodelet" default="false"/>
+
 
   <arg name="imu_name" value="a1_imu_driver"/>
   <arg name="mag_name" value="a1_mag_driver"/>
