@@ -104,8 +104,9 @@ void URDFBuilderPanel::LoadButtonClicked()
 {
   ROS_DEBUG_STREAM("URDFBuilderPanel::LoadButtonClicked");
 
+  // URDFまたはXACROのパスを取得
   const auto last_opened_dir = getLastOpenedDir();
-  auto file_path = QFileDialog::getOpenFileName(
+  const auto file_path = QFileDialog::getOpenFileName(
     this, tr("Load URDF"), QString::fromStdString(last_opened_dir),
     tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
 
@@ -114,25 +115,44 @@ void URDFBuilderPanel::LoadButtonClicked()
 
   setLastOpenedDir(file_path.toStdString());
 
-  // xacroが指定された場合は展開する
-  if (file_path.endsWith(".xacro"))
+  if (file_path.endsWith(".urdf"))
   {
+    // URDFを解析
+    if (!vm_.loadRobot(file_path))
+    {
+      QMessageBox::warning(this, kError, "Failed to parse URDF.");
+      return;
+    }
+
+    // URDFのパスを設定
+    ui_->Path->setText(file_path);
+  }
+  else if (file_path.endsWith(".xacro"))
+  {
+    // XACROを展開
     const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
     if (system(command.toUtf8()) != 0)
     {
       QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
       return;
     }
-    file_path = TMP_URDF_PATH;
-  }
 
-  if (!vm_.loadRobot(file_path))
+    // URDFを解析
+    if (!vm_.loadRobot(TMP_URDF_PATH))
+    {
+      QMessageBox::warning(this, kError, "Failed to parse XACRO.");
+      return;
+    }
+
+    // XACROをURDFで上書きするのはまずいため保存用パスを消去
+    ui_->Path->clear();
+  }
+  else
   {
-    QMessageBox::warning(this, kError, "Failed to parse URDF.");
+    QMessageBox::warning(this, kError, "Invalid file format: " + file_path);
     return;
   }
 
-  ui_->Path->setText(file_path);
   ui_->RobotName->setText(QString::fromStdString(vm_.name()));
 
   reload();
