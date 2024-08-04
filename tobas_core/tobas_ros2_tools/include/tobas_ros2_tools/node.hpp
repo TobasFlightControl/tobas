@@ -76,13 +76,15 @@ protected:
   SubscriberPtr<MsgType> createSubscriber(
     const std::string& topic_name,
     const rclcpp::QoS& qos,
-    void (Obj::*fp)(const typename MsgType::ConstSharedPtr&),
+    void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
     Obj* obj);
 
   template <typename SrvType, typename Obj>
-  typename rclcpp::Service<SrvType>::SharedPtr createService(
+  rclcpp::Service<SrvType>::SharedPtr createService(
     const std::string& srv_name,
-    void (Obj::*fp)(const typename SrvType::Request::ConstSharedPtr&, const typename SrvType::Response::SharedPtr&),
+    void (Obj::*fp)(
+      const std::shared_ptr<const typename SrvType::Request>&,
+      const std::shared_ptr<typename SrvType::Response>&),
     Obj* obj);
 
   template <typename DurationRepType, typename DurationType, typename Obj>
@@ -177,16 +179,18 @@ template <typename MsgType, typename Obj>
 Node::SubscriberPtr<MsgType> Node::createSubscriber(
   const std::string& topic_name,
   const rclcpp::QoS& qos,
-  void (Obj::*fp)(const typename MsgType::ConstSharedPtr&),
+  void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
   Obj* obj)
 {
   return create_subscription<MsgType>(topic_name, qos, std::bind(fp, obj, std::placeholders::_1));
 }
 
 template <typename SrvType, typename Obj>
-typename rclcpp::Service<SrvType>::SharedPtr Node::createService(
+rclcpp::Service<SrvType>::SharedPtr Node::createService(
   const std::string& srv_name,
-  void (Obj::*fp)(const typename SrvType::Request::ConstSharedPtr&, const typename SrvType::Response::SharedPtr&),
+  void (Obj::*fp)(
+    const std::shared_ptr<const typename SrvType::Request>&,
+    const std::shared_ptr<typename SrvType::Response>&),
   Obj* obj)
 {
   return create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
