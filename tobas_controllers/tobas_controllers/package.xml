@@ -14,7 +14,6 @@
 	<exec_depend>tobas_mr_common</exec_depend>
 	<exec_depend>tobas_mr_pid</exec_depend>
 	<exec_depend>tobas_mr_mpc</exec_depend>
-	<exec_depend>tobas_mr_arducopter</exec_depend>
 	<exec_depend>tobas_np_pid</exec_depend>
 
 	<export>

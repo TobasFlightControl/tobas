@@ -1,1 +1,0 @@
-# ardupilot_dynamic_configuration

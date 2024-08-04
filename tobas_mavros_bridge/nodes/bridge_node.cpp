@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-  rclcpp::init(argc, argv, "tobas_mr_arducopter");
+  rclcpp::init(argc, argv, "tobas_mavros_bridge");
   rclcpp::NodeHandle node;
   rclcpp::NodeHandle pnh("~");
   tobas_mavros_bridge::TobasMavrosBridge node(node, pnh);

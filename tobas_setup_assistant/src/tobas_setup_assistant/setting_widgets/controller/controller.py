@@ -13,7 +13,6 @@ from ..base_setting import BaseSettingWidget
 from .base import BaseController
 from .multirotor_pid import MultirotorPid
 from .multirotor_mpc import MultirotorMpc
-from .arducopter import ArduCopter
 from .non_planar_pid import NonPlanarPid
 from .fixed_wing_lqr import FixedWingLQR
 from .custom import CustomController
@@ -41,7 +40,6 @@ class ControllerWidget(BaseSettingWidget):
         for controller_class in [
             MultirotorPid,
             MultirotorMpc,
-            ArduCopter,
             NonPlanarPid,
             FixedWingLQR,
             CustomController,
