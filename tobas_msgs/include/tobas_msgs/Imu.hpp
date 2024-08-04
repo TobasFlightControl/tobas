@@ -16,6 +16,9 @@ struct Imu
   kdl::Vector accel;
   Eigen::Matrix3d gyro_covariance;
   Eigen::Matrix3d accel_covariance;
+
+  using SharedPtr = std::shared_ptr<Imu>;
+  using ConstSharedPtr = std::shared_ptr<const Imu>;
 };
 }  // namespace tobas_msgs
 

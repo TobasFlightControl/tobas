@@ -19,6 +19,9 @@ struct PoseTwistAccelCommand
   kdl::Euler rpy;
   kdl::Vector gyro;
   kdl::Vector dgyro;
+
+  using SharedPtr = std::shared_ptr<PoseTwistAccelCommand>;
+  using ConstSharedPtr = std::shared_ptr<const PoseTwistAccelCommand>;
 };
 }  // namespace tobas_msgs
 

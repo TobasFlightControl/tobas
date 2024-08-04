@@ -14,6 +14,9 @@ struct MagneticField
   std_msgs::msg::Header header;
   kdl::Vector magnetic_field;
   Eigen::Matrix3d covariance;
+
+  using SharedPtr = std::shared_ptr<MagneticField>;
+  using ConstSharedPtr = std::shared_ptr<const MagneticField>;
 };
 }  // namespace tobas_msgs
 

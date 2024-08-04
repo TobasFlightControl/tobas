@@ -16,6 +16,9 @@ struct PosVelAccYaw
   kdl::Vector vel;
   kdl::Vector acc;
   double yaw;
+
+  using SharedPtr = std::shared_ptr<PosVelAccYaw>;
+  using ConstSharedPtr = std::shared_ptr<const PosVelAccYaw>;
 };
 }  // namespace tobas_msgs
 

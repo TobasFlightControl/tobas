@@ -14,19 +14,19 @@ namespace tobas_msgs
 struct Odometry
 {
   std_msgs::msg::Header header;
-
   kdl::Frame frame;
   kdl::Twist twist;
   kdl::Accel accel;
-
   Eigen::Matrix3d position_covariance;
   Eigen::Matrix3d orientation_covariance;
   Eigen::Matrix3d velocity_covariance;
   Eigen::Matrix3d gyro_covariance;
   Eigen::Matrix3d accel_covariance;
   Eigen::Matrix3d dgyro_covariance;
-
   int8_t status;
+
+  using SharedPtr = std::shared_ptr<Odometry>;
+  using ConstSharedPtr = std::shared_ptr<const Odometry>;
 };
 }  // namespace tobas_msgs
 

@@ -12,16 +12,16 @@ namespace tobas_msgs
 struct Gps
 {
   std_msgs::msg::Header header;
-
   uint8_t fix_type;
-
   double latitude;
   double longitude;
   double altitude;
   Eigen::Matrix3d position_covariance;
-
   kdl::Vector ground_speed;
   Eigen::Matrix3d velocity_covariance;
+
+  using SharedPtr = std::shared_ptr<Gps>;
+  using ConstSharedPtr = std::shared_ptr<const Gps>;
 };
 }  // namespace tobas_msgs
 
