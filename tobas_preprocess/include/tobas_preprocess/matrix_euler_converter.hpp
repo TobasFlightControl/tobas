@@ -3,7 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 
 namespace tobas_preprocess
 {

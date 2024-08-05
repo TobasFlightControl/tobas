@@ -11,7 +11,7 @@
 #include <tobas_msgs/Imu.h>
 #include <tobas_msgs/MagneticField.h>
 #include <tobas_msgs/Gps.h>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/GetGnssOrigin.h>
 #include <tobas_msgs/SetGnssOrigin.h>
 

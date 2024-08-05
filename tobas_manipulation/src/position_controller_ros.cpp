@@ -14,7 +14,7 @@ PositionControllerRos::PositionControllerRos(, const string& name)
   drone_.loadFromParam(node_);
 
   // 位置指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
+  for (const auto& [jnt_name, jnt_cfg] : drone_.joints)
   {
     if (jnt_cfg.cmd_type != tobas::JointConfig::POSITION)
       continue;

@@ -12,9 +12,9 @@
 #include <tobas_tools/orientation_pid.hpp>
 #include <tobas_mr_common/accel_attitude_converter.hpp>
 #include <tobas_mr_common/mixer.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/Battery.h>
-#include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/RollPitchYawThrust.h>
 
 #include <tobas_mr_pid/ControllerConfig.h>

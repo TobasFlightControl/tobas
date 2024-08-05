@@ -97,7 +97,7 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   if (arming_ == nullptr || !arming_->data)
     return;
 
-  if (battery->voltage < drone_.batteryConfig().sag_voltage)
+  if (battery->voltage < drone_.battery.sag_voltage)
   {
     TOBAS_WARN_THROTTLE(
       kWarnPeriod, "Battery voltage is too low: ", battery->voltage, " [V]. It is time to stop flying.");

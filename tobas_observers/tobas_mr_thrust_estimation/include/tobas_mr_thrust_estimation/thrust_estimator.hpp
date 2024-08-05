@@ -7,7 +7,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_mr_common/dynamics.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 
 #include <tobas_mr_thrust_estimation/ThrustEstimationConfig.h>

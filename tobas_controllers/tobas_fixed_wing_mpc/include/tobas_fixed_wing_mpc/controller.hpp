@@ -10,8 +10,8 @@
 #include <tobas_tools/drone.hpp>
 #include <tobas_tools/rotor_axis_extractor.hpp>
 #include <tobas_tools/micro_disturbance_eom.hpp>
-#include <tobas_msgs/Odometry.h>
-#include <tobas_msgs/SpeedRollDeltaPitch.h>
+#include <tobas_msgs/Odometry.hpp>
+#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/ControlSurfaceDeflections.h>
 #include <tobas_msgs/FixedWingControllerFeedback.h>
@@ -46,7 +46,7 @@ private:
   tobas_msgs::SpeedRollDeltaPitchConstPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
   tobas_msgs::Odometry odom_ned_;                    // 現在の状態 (NED座標系)
   std_msgs::BoolConstPtr arming_;                    // ロータのアーム状態
-  tobas_msgs::SpeedRollDeltaPitch cmd_ned_;          // 現在のコマンド (NED座標系)
+  tobas_msgs::msg::SpeedRollDeltaPitch cmd_ned_;          // 現在のコマンド (NED座標系)
 
   ctrl::C2D_RK4 c2d_;         // 状態方程式を離散化
   ctrl::LinearDenseMPC mpc_;  // 線形モデル予測制御

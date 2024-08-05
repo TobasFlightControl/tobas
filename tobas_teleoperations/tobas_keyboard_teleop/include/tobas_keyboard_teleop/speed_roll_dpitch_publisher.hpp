@@ -9,7 +9,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/trim_conditions.hpp>
-#include <tobas_msgs/SpeedRollDeltaPitch.h>
+#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 
 namespace tobas_keyboard_teleop
 {
@@ -49,7 +49,7 @@ private:
   bool is_initialized_ = false;
   bool pressure_received_ = false;
   double air_density_;  // 現在の大気密度
-  tobas_msgs::SpeedRollDeltaPitch cmd_;
+  tobas_msgs::msg::SpeedRollDeltaPitch cmd_;
 
   // rosparams
   double max_linacc_;       // 並進加速度の大きさの最大値

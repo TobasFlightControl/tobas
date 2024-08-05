@@ -39,7 +39,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  cmd_pub_ = node_.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
+  cmd_pub_ = node_.advertise<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
   air_pressure_sub_ = node_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
 }
 
@@ -118,7 +118,7 @@ void SpeedRollDeltaPitchPublisher::run()
     }
 
     // コマンドを発行
-    const auto cmd_ptr = make_unique<tobas_msgs::SpeedRollDeltaPitch>(cmd_);
+    const auto cmd_ptr = make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
     cmd_pub_.publish(cmd_ptr);
 
     rclcpp::spinOnce();

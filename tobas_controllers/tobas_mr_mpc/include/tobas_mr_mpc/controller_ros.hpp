@@ -8,11 +8,11 @@
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/command_level_handler.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/Wind.h>
 #include <tobas_msgs/RotorSpeeds.h>
-#include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 

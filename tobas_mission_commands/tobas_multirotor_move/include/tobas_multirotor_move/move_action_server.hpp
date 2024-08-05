@@ -5,7 +5,7 @@
 #include <std_msgs/Bool.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/MoveAction.h>
 
 namespace tobas_multirotor_move

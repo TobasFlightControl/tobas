@@ -1,7 +1,7 @@
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/SetArm.h>
 
 #include "../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"

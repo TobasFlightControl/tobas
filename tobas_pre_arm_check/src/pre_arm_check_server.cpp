@@ -104,7 +104,7 @@ void PreArmCheckServer::preArmCheckTimerCb(const rclcpp::TimerEvent& event)
   pre_arm_check_.ok = true;
 
   // バッテリー電圧
-  pre_arm_check_.battery_voltage_sufficient = battery_->voltage > drone_.batteryConfig().sag_voltage;
+  pre_arm_check_.battery_voltage_sufficient = battery_->voltage > drone_.battery.sag_voltage;
   if (!pre_arm_check_.battery_voltage_sufficient)
     pre_arm_check_.ok = false;
 

@@ -10,9 +10,9 @@ namespace tobas
 {
 struct VehicleParameters
 {
-  double wing_surface;                   // Wing surface [m^2]
-  double wing_span;                      // Wing span [m]
-  double mac;                            // Mean Aerodynamic Chord [m]
+  double wing_surface = -1;              // Wing surface [m^2]
+  double wing_span = -1;                 // Wing span [m]
+  double mac = -1;                       // Mean Aerodynamic Chord [m]
   kdl::Vector ac;                        // Aerodynamic Center wrt the frame origin (NWU) [m]
   tobas_std::Range<double> alpha_limit;  // Stall angles [rad]
 };

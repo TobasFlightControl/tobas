@@ -27,7 +27,7 @@ EffortControllerRos::EffortControllerRos(, const string& name)
   pid_ts_.updateInternalDataStructures();
 
   // 力指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone_.jointConfigMap())
+  for (const auto& [jnt_name, jnt_cfg] : drone_.joints)
   {
     if (jnt_cfg.cmd_type != tobas::JointConfig::EFFORT)
       continue;

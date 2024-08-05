@@ -1,7 +1,7 @@
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/PosVelAccYaw.hpp>
 
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"

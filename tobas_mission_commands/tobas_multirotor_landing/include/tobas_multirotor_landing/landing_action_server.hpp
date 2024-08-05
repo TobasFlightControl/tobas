@@ -5,7 +5,7 @@
 
 #include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/LandAction.h>
 
 namespace tobas_multirotor_landing

@@ -2,11 +2,11 @@
 #include <tobas_std_tools/string.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PosVelAccYaw.h>
+#include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/PositionYaw.h>
 #include <tobas_msgs/RollPitchYawThrust.h>
-#include <tobas_msgs/PoseTwistAccelCommand.h>
-#include <tobas_msgs/SpeedRollDeltaPitch.h>
+#include <tobas_msgs/PoseTwistAccelCommand.hpp>
+#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/GetArm.h>
 #include <tobas_msgs/SetArm.h>
 
@@ -45,7 +45,7 @@ RCTeleop::RCTeleop(, const string& name) : super(node, pnh, name)
       controllers_[i] = make_unique<RollPitchYawThrustController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
       controllers_[i] = make_unique<PoseTwistAccelController>(drone_);
-    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::SpeedRollDeltaPitch>::value(), '/').back())
+    else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::msg::SpeedRollDeltaPitch>::value(), '/').back())
       controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
     else
     {

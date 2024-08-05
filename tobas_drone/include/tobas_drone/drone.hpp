@@ -20,15 +20,12 @@ class Drone
   static constexpr double kArmThrottle = 0.1;  // TODO: メソッド類をtobas_toolsのクラスに移植
 
 public:
+  std::string name;
   kdl::Tree tree;
-
   BatteryConfig battery;
   JointConfigMap joints;  // プロペラ，舵面以外の可動関節
   RotorConfigs rotors;
   FixedWingConfig fixed_wing;
-
-  std::string drone_name;
-  bool has_fixed_wing;
 
   /* 機械回転数 [rad/s] を電気回転数 [rpm] に変換する． */
   inline double erpmFromRotSpeed(size_t rotor_idx, double rot_speed);

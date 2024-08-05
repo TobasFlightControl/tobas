@@ -1,6 +1,6 @@
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 
 #include "./ground_truth_state_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common.hpp"

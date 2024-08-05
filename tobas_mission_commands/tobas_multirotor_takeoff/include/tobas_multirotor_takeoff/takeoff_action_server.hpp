@@ -4,7 +4,7 @@
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_msgs/Odometry.h>
+#include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/TakeoffAction.h>
 
 namespace tobas_multirotor_takeoff
