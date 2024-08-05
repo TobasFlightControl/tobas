@@ -1,0 +1,11 @@
+string link_name
+int32 direction
+int32 axis
+int32 esc_mode
+uint8 num_poles
+float64 max_rot_speed
+float64 motor_constant
+float64 moment_constant
+float64 drag_constant
+float64[2] rot_speed_coefs
+uint8 channel

@@ -1,0 +1,3 @@
+tobas_drone_msgs/VehicleParameters vehicle
+tobas_drone_msgs/AerodynamicsCoefficients aerodynamics
+tobas_drone_msgs/ControlSurface[] control_surfaces
