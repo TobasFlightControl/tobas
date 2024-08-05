@@ -1,4 +1,4 @@
-# tobas_drone
+# tobas_drone_core
 
 ドローンの構造を定義．
 
