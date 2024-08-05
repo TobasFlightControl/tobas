@@ -5,10 +5,10 @@
 #include <tobas_kdl/tree.hpp>
 
 #include "./constants.hpp"
-#include "./battery_config.hpp"
-#include "./joint_config.hpp"
-#include "./rotor_config.hpp"
-#include "./fixed_wing_tools.hpp"
+#include "./battery.hpp"
+#include "./joint.hpp"
+#include "./rotor.hpp"
+#include "./fixed_wing.hpp"
 
 namespace tobas
 {
