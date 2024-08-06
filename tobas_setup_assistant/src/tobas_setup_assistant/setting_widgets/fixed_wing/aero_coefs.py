@@ -21,7 +21,7 @@ from .common import STABILITY_COEF_DECIMALS
 from .base import BaseFixedWingSettingWidget
 
 
-class AerodynamicsCoefficientsWidget(BaseFixedWingSettingWidget):
+class AerodynamicCoefficientsWidget(BaseFixedWingSettingWidget):
     NAME = "Aerodynamic Coefficients"
 
     BTN_HEIGHT = 30

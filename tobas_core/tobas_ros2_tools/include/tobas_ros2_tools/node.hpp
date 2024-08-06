@@ -66,21 +66,25 @@ protected:
   using ClientPtr = rclcpp::Client<SrvType>::SharedPtr;
 
   using TimerPtr = rclcpp::TimerBase::SharedPtr;
+  using ParamHandlePtr = std::shared_ptr<rclcpp::ParameterCallbackHandle>;
 
   inline std::string ns() const;
 
   template <typename MsgType>
-  PublisherPtr<MsgType> createPublisher(const std::string& topic_name, const rclcpp::QoS& qos);
+  PublisherPtr<MsgType>
+  createPublisher(const std::string& topic_name, bool latch = false, bool reliable = true, size_t queue_size = 1);
 
   template <typename MsgType, typename Obj>
   SubscriberPtr<MsgType> createSubscriber(
     const std::string& topic_name,
-    const rclcpp::QoS& qos,
     void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
-    Obj* obj);
+    Obj* obj,
+    bool latch = false,
+    bool reliable = true,
+    size_t queue_size = 1);
 
   template <typename SrvType, typename Obj>
-  rclcpp::Service<SrvType>::SharedPtr createService(
+  ServicePtr<SrvType> createService(
     const std::string& srv_name,
     void (Obj::*fp)(
       const std::shared_ptr<const typename SrvType::Request>&,
@@ -89,6 +93,9 @@ protected:
 
   template <typename DurationRepType, typename DurationType, typename Obj>
   TimerPtr createTimer(std::chrono::duration<DurationRepType, DurationType> period, void (Obj::*fp)(void), Obj* obj);
+
+  template <typename Obj>
+  ParamHandlePtr addParamCallback(const std::string& name, void (Obj::*fp)(const rclcpp::Parameter&), Obj* obj);
 
   template <typename... Args>
   void log(uint8_t level, const Args&... args) const;
@@ -155,13 +162,15 @@ private:
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
 
   rclcpp::Publisher<tobas_std_msgs::msg::Message>::SharedPtr message_pub_;
+  std::shared_ptr<rclcpp::ParameterEventHandler> param_sub_;
 
   template <typename T>
   void declareParam(const std::string& name, const T& _default);
 
   void rclcppLog(uint8_t level, const std::string& text) const;
 
-  inline static std::string createID(const char* file, int line);
+  static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
+  static std::string createID(const char* file, int line);
 };
 
 inline std::string Node::ns() const
@@ -170,23 +179,27 @@ inline std::string Node::ns() const
 }
 
 template <typename MsgType>
-Node::PublisherPtr<MsgType> Node::createPublisher(const std::string& topic_name, const rclcpp::QoS& qos)
+Node::PublisherPtr<MsgType>
+Node::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
-  return create_publisher<MsgType>(topic_name, qos);
+  return create_publisher<MsgType>(topic_name, makeQoS(latch, reliable, queue_size));
 }
 
 template <typename MsgType, typename Obj>
 Node::SubscriberPtr<MsgType> Node::createSubscriber(
   const std::string& topic_name,
-  const rclcpp::QoS& qos,
   void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
-  Obj* obj)
+  Obj* obj,
+  bool latch,
+  bool reliable,
+  size_t queue_size)
 {
-  return create_subscription<MsgType>(topic_name, qos, std::bind(fp, obj, std::placeholders::_1));
+  return create_subscription<MsgType>(
+    topic_name, makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
 }
 
 template <typename SrvType, typename Obj>
-rclcpp::Service<SrvType>::SharedPtr Node::createService(
+Node::ServicePtr<SrvType> Node::createService(
   const std::string& srv_name,
   void (Obj::*fp)(
     const std::shared_ptr<const typename SrvType::Request>&,
@@ -200,6 +213,13 @@ template <typename DurationRepT, typename DurationT, typename Obj>
 Node::TimerPtr Node::createTimer(std::chrono::duration<DurationRepT, DurationT> period, void (Obj::*fp)(void), Obj* obj)
 {
   return create_timer(period, bind(fp, obj));
+}
+
+template <typename Obj>
+Node::ParamHandlePtr
+Node::addParamCallback(const std::string& name, void (Obj::*fp)(const rclcpp::Parameter&), Obj* obj)
+{
+  return param_sub_->add_parameter_callback(name, std::bind(fp, obj, std::placeholders::_1));
 }
 
 template <typename... Args>
@@ -359,10 +379,5 @@ void Node::declareParam(const std::string& name, const T& _default)
       get_logger(), "Parameter \"" << name << "\" is not specified. The default \"" << _default << "\" is set.");
     declare_parameter(name, _default);
   }
-}
-
-inline std::string Node::createID(const char* file, int line)
-{
-  return std::string(file) + ":" + std::to_string(line);
 }
 }  // namespace ros2

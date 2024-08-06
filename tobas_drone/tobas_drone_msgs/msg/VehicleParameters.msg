@@ -1,9 +1,5 @@
-
 float64 wing_surface
 float64 wing_span
 float64 mac
-float64 ac_x
-float64 ac_y
-float64 ac_z
-float64 alpha_min
-float64 alpha_max
+tobas_kdl_msgs/Vector ac
+tobas_std_msgs/RangeFloat64 alpha_limit

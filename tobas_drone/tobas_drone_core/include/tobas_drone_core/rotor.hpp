@@ -3,6 +3,7 @@
 #include <cinttypes>
 #include <string>
 #include <vector>
+#include <yaml-cpp/yaml.h>
 
 #include "./turning_direction.hpp"
 #include "./rotor_axis.hpp"
@@ -10,19 +11,35 @@
 
 namespace tobas
 {
-struct RotorConfig
+class RotorConfig
 {
-  std::string link_name;                      // プロペラのリンク名
-  TurningDirection direction;                 // 回転方向: CCW(1) or CW(-1)
-  RotorAxis axis;                             // 回転軸
-  EscMode esc_mode;                           // ESCのスロットルの解釈方式
-  uint8_t num_poles;                          // モータの極数
-  double max_rot_speed;                       // 最大連続回転数 [rad/s]
-  double motor_constant;                      // 推力係数 [kg*m/rad^2]
-  double moment_constant;                     // 反トルク係数 [m]
-  double drag_constant;                       // 空気効力定数 [kg/rad]
-  std::pair<double, double> rot_speed_coefs;  // V = c1 w + c2 w^2 (V[V], w[rad/s])
-  uint8_t channel;                            // モータが接続されているチャンネル
+  static constexpr char kChannelKey[] = "channel";
+  static constexpr char kLinkNameKey[] = "link_name";
+  static constexpr char kDirectionKey[] = "direction";
+  static constexpr char kAxisKey[] = "axis";
+  static constexpr char kEscModeKey[] = "esc_mode";
+  static constexpr char kNumPolesKey[] = "num_poles";
+  static constexpr char kMaxRotSpeedKey[] = "max_rot_speed";
+  static constexpr char kMotorConstKey[] = "motor_constant";
+  static constexpr char kMomentConstKey[] = "moment_constant";
+  static constexpr char kRotSpeedCoefKey[] = "rot_speed_coef";
+
+public:
+  uint32_t channel = 0;                                  // モータが接続されているチャンネル
+  std::string link_name = "";                            // プロペラのリンク名
+  turning_direction_t direction = CCW;                   // 回転方向: CCW(1) or CW(-1)
+  rotor_axis_t axis = UNKNOWN;                           // 回転軸
+  esc_mode_t esc_mode = BLHELI_OPEN_LOOP;                // ESCのスロットルの解釈方式
+  uint32_t num_poles = 0;                                // モータの極数
+  double max_rot_speed = 0;                              // 最大連続回転数 [rad/s]
+  double motor_constant = 0;                             // 推力係数 [kg*m/rad^2]
+  double moment_constant = 0;                            // 反トルク係数 [m]
+  double drag_constant = 0;                              // 空気効力定数 [kg/rad]
+  std::pair<double, double> rot_speed_coefs = { 0, 0 };  // V = c1 w + c2 w^2 (V[V], w[rad/s])
+
+  bool isValid() const;
+  bool load(const YAML::Node& node);
+  YAML::Node dump() const;
 };
 
 using RotorConfigs = std::vector<RotorConfig>;

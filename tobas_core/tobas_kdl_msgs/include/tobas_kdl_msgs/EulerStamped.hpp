@@ -40,3 +40,5 @@ namespace tobas_kdl_msgs
 {
 using EulerStampedAdapter = rclcpp::TypeAdapter<tobas_kdl_msgs::EulerStamped, tobas_kdl_msgs::msg::EulerStamped>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::EulerStamped, tobas_kdl_msgs::msg::EulerStamped);

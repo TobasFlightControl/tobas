@@ -1,7 +1,6 @@
-int32 index
+uint32 channel
 string joint_name
-float64 angle_min
-float64 angle_max
+tobas_std_msgs/RangeFloat64 angle_limit
 float64 max_angle_rate
 
 float64 c_lift_delta

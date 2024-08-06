@@ -51,7 +51,7 @@ private:
   std::string link_name_;
   double alt_0_;  // 基準点の幾何的高度
   tobas::VehicleParameters vehicle_params_;
-  tobas::AerodynamicsCoefficients aero_coefs_;
+  tobas::AerodynamicCoefficients aero_coefs_;
   std::vector<tobas::ControlSurface> control_surfaces_;
 
   std::vector<physics::JointPtr> cs_joints_;       // 制御面のジョイントへのポインタ

@@ -41,3 +41,5 @@ namespace tobas_kdl_msgs
 using RotationStampedAdapter =
   rclcpp::TypeAdapter<tobas_kdl_msgs::RotationStamped, tobas_kdl_msgs::msg::RotationStamped>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::RotationStamped, tobas_kdl_msgs::msg::RotationStamped);

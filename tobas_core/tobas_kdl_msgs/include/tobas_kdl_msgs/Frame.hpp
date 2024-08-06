@@ -32,3 +32,5 @@ namespace tobas_kdl_msgs
 {
 using FrameAdapter = rclcpp::TypeAdapter<kdl::Frame, tobas_kdl_msgs::msg::Frame>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Frame, tobas_kdl_msgs::msg::Frame);

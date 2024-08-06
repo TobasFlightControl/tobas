@@ -1,10 +1,11 @@
 #pragma once
 
+#include <filesystem>
+#include <yaml-cpp/yaml.h>
+
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_kdl/tree.hpp>
 
-#include "./constants.hpp"
 #include "./battery.hpp"
 #include "./joint.hpp"
 #include "./rotor.hpp"
@@ -17,15 +18,29 @@ namespace tobas
  */
 class Drone
 {
+  static constexpr char kNameKey[] = "name";
+  static constexpr char kBatteryKey[] = "battery";
+  static constexpr char kJointsKey[] = "joints";
+  static constexpr char kRotorsKey[] = "rotors";
+  static constexpr char kFixedWingKey[] = "fixed_wing";
+
   static constexpr double kArmThrottle = 0.1;  // TODO: メソッド類をtobas_toolsのクラスに移植
 
 public:
-  std::string name;
-  kdl::Tree tree;
-  BatteryConfig battery;
-  JointConfigMap joints;  // プロペラ，舵面以外の可動関節
-  RotorConfigs rotors;
-  FixedWingConfig fixed_wing;
+  static constexpr char kDroneExt[] = ".tbsdrn";
+
+  std::string name = "";       // The name of this drone
+  BatteryConfig battery;       // The battery configurations
+  JointConfigMap joints;       // The joint configurations
+  RotorConfigs rotors;         // The rotor configurations
+  FixedWingConfig fixed_wing;  // The fixed wing configurations
+
+  bool isValid() const;
+  bool load(const YAML::Node& node);
+  YAML::Node dump() const;
+
+  bool load(const std::filesystem::path& path);
+  bool save(const std::filesystem::path& path) const;
 
   /* 機械回転数 [rad/s] を電気回転数 [rpm] に変換する． */
   inline double erpmFromRotSpeed(size_t rotor_idx, double rot_speed);

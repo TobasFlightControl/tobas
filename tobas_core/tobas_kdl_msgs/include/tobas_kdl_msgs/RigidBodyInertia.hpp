@@ -40,3 +40,5 @@ namespace tobas_kdl_msgs
 {
 using RigidBodyInertiaAdapter = rclcpp::TypeAdapter<kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia);

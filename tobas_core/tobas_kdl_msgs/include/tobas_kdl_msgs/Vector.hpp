@@ -31,3 +31,5 @@ namespace tobas_kdl_msgs
 {
 using VectorAdapter = rclcpp::TypeAdapter<kdl::Vector, tobas_kdl_msgs::msg::Vector>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::Vector, tobas_kdl_msgs::msg::Vector);

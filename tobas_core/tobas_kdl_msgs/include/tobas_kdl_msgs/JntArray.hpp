@@ -29,3 +29,5 @@ namespace tobas_kdl_msgs
 {
 using JntArrayAdapter = rclcpp::TypeAdapter<kdl::JntArray, tobas_kdl_msgs::msg::JntArray>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::JntArray, tobas_kdl_msgs::msg::JntArray);

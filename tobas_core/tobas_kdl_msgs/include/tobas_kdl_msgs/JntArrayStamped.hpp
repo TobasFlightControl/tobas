@@ -41,3 +41,5 @@ namespace tobas_kdl_msgs
 using JntArrayStampedAdapter =
   rclcpp::TypeAdapter<tobas_kdl_msgs::JntArrayStamped, tobas_kdl_msgs::msg::JntArrayStamped>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::JntArrayStamped, tobas_kdl_msgs::msg::JntArrayStamped);

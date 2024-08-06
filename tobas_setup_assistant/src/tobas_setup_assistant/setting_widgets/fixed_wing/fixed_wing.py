@@ -13,7 +13,7 @@ from PyQt5.QtGui import QFont
 from ...common import BODY_PSIZE
 from ..base_setting import BaseSettingWidget
 from .vehicle import VehicleParametersWidget
-from .aero_coefs import AerodynamicsCoefficientsWidget
+from .aero_coefs import AerodynamicCoefficientsWidget
 from .control_surfaces import ControlSurfacesWidget
 
 
@@ -43,7 +43,7 @@ class FixedWingWidget(BaseSettingWidget):
         self._setting_rows.addWidget(self.vehicle)
 
         # Aerodynamic Coefficients
-        self.aero_coefs = AerodynamicsCoefficientsWidget(self._main)
+        self.aero_coefs = AerodynamicCoefficientsWidget(self._main)
         self._setting_rows.addWidget(self.aero_coefs)
 
         # Control Surfaces

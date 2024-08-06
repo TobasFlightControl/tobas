@@ -32,20 +32,20 @@ class JointPositionsCommanderWidget(Widget):
         self._tar_js_pos = JointState()
         self._tar_js_vel = JointState()
         self._tar_js_eff = JointState()
-        for jnt_name, cmd_type in self._cmd_types.items():
+        for jnt_name, control_type in self._cmd_types.items():
             home_pos = self._home_positions[jnt_name]
-            if cmd_type == self.POSITION:
+            if control_type == self.POSITION:
                 self._tar_js_pos.name.append(jnt_name)
                 self._tar_js_pos.position.append(home_pos)
-            elif cmd_type == self.VELOCITY:
+            elif control_type == self.VELOCITY:
                 self._tar_js_vel.name.append(jnt_name)
                 self._tar_js_vel.position.append(home_pos)
-            elif cmd_type == self.EFFORT:
+            elif control_type == self.EFFORT:
                 self._tar_js_eff.name.append(jnt_name)
                 self._tar_js_eff.position.append(home_pos)
                 self._tar_js_eff.velocity.append(0.0)
             else:
-                raise RuntimeError(f"Unknown joint command type: {cmd_type}")
+                raise RuntimeError(f"Unknown joint command type: {control_type}")
 
         # Publishers
         self._tar_pos_pub = rclpy.Publisher(Topic.Manipulation.POS_CTRL_JS, JointState, queue_size=1)
@@ -97,9 +97,9 @@ class JointPositionsCommanderWidget(Widget):
         for i in range(num_joints):
             jnt_name = rclpy.get_param(f"joint_{i}/name")
             home_pos = rclpy.get_param(f"joint_{i}/home_position")
-            cmd_type = rclpy.get_param(f"joint_{i}/command_type")
+            control_type = rclpy.get_param(f"joint_{i}/command_type")
             self._home_positions[jnt_name] = home_pos
-            self._cmd_types[jnt_name] = cmd_type
+            self._cmd_types[jnt_name] = control_type
 
     def _publish_current_commands(self) -> None:
         self._tar_pos_pub.publish(self._tar_js_pos)
@@ -111,22 +111,22 @@ class JointPositionsCommanderWidget(Widget):
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float, jnt_name: str) -> None:
-        cmd_type = self._cmd_types[jnt_name]
+        control_type = self._cmd_types[jnt_name]
 
-        if cmd_type == self.POSITION:
+        if control_type == self.POSITION:
             idx = self._tar_js_pos.name.index(jnt_name)
             self._tar_js_pos.position[idx] = value
             self._tar_pos_pub.publish(self._tar_js_pos)
-        elif cmd_type == self.VELOCITY:
+        elif control_type == self.VELOCITY:
             idx = self._tar_js_vel.name.index(jnt_name)
             self._tar_js_vel.position[idx] = value
             self._tar_js_vel_pub.publish(self._tar_js_vel)
-        elif cmd_type == self.EFFORT:
+        elif control_type == self.EFFORT:
             idx = self._tar_js_eff.name.index(jnt_name)
             self._tar_js_eff.position[idx] = value
             self._tar_js_eff_pub.publish(self._tar_js_eff)
         else:
-            raise RuntimeError(f"Unknown joint command type: {cmd_type}")
+            raise RuntimeError(f"Unknown joint command type: {control_type}")
 
     @pyqtSlot()
     def _on_home_button_clicked(self) -> None:

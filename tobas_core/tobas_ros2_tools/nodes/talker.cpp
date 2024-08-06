@@ -6,7 +6,7 @@ namespace ros2
 {
 Talker::Talker(const rclcpp::NodeOptions& options) : super("talker", options)
 {
-  pub_ = createPublisher<std_msgs::msg::String>("chatter", 1);
+  pub_ = createPublisher<std_msgs::msg::String>("chatter");
   timer_ = createTimer(1s, &self::timerCb, this);
 }
 

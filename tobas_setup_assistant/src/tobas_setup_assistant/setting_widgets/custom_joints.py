@@ -112,7 +112,7 @@ class CustomJointsWidget(BaseSettingWidget):
             else:
                 raise RuntimeError(f"Joint type '{joint.type}' is unexpected.")
 
-            cmd_type = ComboBox()
+            control_type = ComboBox()
             p_gain = DoubleSpinBox()
             i_gain = DoubleSpinBox()
             d_gain = DoubleSpinBox()
@@ -126,19 +126,19 @@ class CustomJointsWidget(BaseSettingWidget):
             d_gain.setValue(self.DEFAULT_D_GAIN)
 
             if hi == HardwareInterface.POSITION:
-                cmd_type.addItem(self.POSITION)
+                control_type.addItem(self.POSITION)
                 p_gain.setEnabled(False)
                 i_gain.setEnabled(False)
                 d_gain.setEnabled(False)
             elif hi == HardwareInterface.VELOCITY:
-                cmd_type.addItem(self.POSITION)
-                cmd_type.addItem(self.VELOCITY)
-                cmd_type.setCurrentText(self.VELOCITY)
+                control_type.addItem(self.POSITION)
+                control_type.addItem(self.VELOCITY)
+                control_type.setCurrentText(self.VELOCITY)
             elif hi == HardwareInterface.EFFORT:
-                cmd_type.addItem(self.POSITION)
-                cmd_type.addItem(self.VELOCITY)
-                cmd_type.addItem(self.EFFORT)
-                cmd_type.setCurrentText(self.EFFORT)
+                control_type.addItem(self.POSITION)
+                control_type.addItem(self.VELOCITY)
+                control_type.addItem(self.EFFORT)
+                control_type.setCurrentText(self.EFFORT)
             else:
                 raise RuntimeError(f"Unknown hardware interface: {hi.value}")
 
@@ -146,7 +146,7 @@ class CustomJointsWidget(BaseSettingWidget):
             self._table.setCellWidget(row, CustomJointField.HOME_POSITION.value, home_pos)
             self._table.setCellWidget(row, CustomJointField.MIN_POSITION.value, min_pos)
             self._table.setCellWidget(row, CustomJointField.MAX_POSITION.value, max_pos)
-            self._table.setCellWidget(row, CustomJointField.COMMAND_TYPE.value, cmd_type)
+            self._table.setCellWidget(row, CustomJointField.COMMAND_TYPE.value, control_type)
             self._table.setCellWidget(row, CustomJointField.P_GAIN.value, p_gain)
             self._table.setCellWidget(row, CustomJointField.I_GAIN.value, i_gain)
             self._table.setCellWidget(row, CustomJointField.D_GAIN.value, d_gain)
@@ -293,12 +293,12 @@ class CustomJointsWidget(BaseSettingWidget):
         else:
             raise RuntimeError()
 
-        cmd_type = self.get_command_type(row)
-        if cmd_type == self.POSITION:
+        control_type = self.get_command_type(row)
+        if control_type == self.POSITION:
             controller = "JointPositionController"
-        elif cmd_type == self.VELOCITY:
+        elif control_type == self.VELOCITY:
             controller = "JointVelocityController"
-        elif cmd_type == self.EFFORT:
+        elif control_type == self.EFFORT:
             controller = "JointEffortController"
         else:
             raise RuntimeError()
@@ -308,13 +308,13 @@ class CustomJointsWidget(BaseSettingWidget):
     def pid_enabled(self, row: int) -> bool:
         jnt_name = self.get_joint_name(row)
         hi = self._main.urdf_parser.hardware_interface(jnt_name)
-        cmd_type: str = self.get_command_type(row)
+        control_type: str = self.get_command_type(row)
 
-        if hi == HardwareInterface.POSITION and cmd_type == self.POSITION:
+        if hi == HardwareInterface.POSITION and control_type == self.POSITION:
             return False
-        if hi == HardwareInterface.VELOCITY and cmd_type == self.VELOCITY:
+        if hi == HardwareInterface.VELOCITY and control_type == self.VELOCITY:
             return False
-        if hi == HardwareInterface.EFFORT and cmd_type == self.EFFORT:
+        if hi == HardwareInterface.EFFORT and control_type == self.EFFORT:
             return False
         return True
 

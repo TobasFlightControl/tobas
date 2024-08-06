@@ -27,7 +27,7 @@ VelocityControllerRos::VelocityControllerRos(, const string& name)
   // 速度指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone_.joints)
   {
-    if (jnt_cfg.cmd_type != tobas::JointConfig::VELOCITY)
+    if (jnt_cfg.control_type != tobas::JointConfig::VELOCITY)
       continue;
     home_js_.name.push_back(jnt_name);
     home_js_.position.push_back(jnt_cfg.home_pos);

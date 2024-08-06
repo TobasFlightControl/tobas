@@ -37,3 +37,5 @@ namespace tobas_kdl_msgs
 {
 using FrameVelAdapter = rclcpp::TypeAdapter<kdl::FrameVel, tobas_kdl_msgs::msg::FrameVel>;
 }
+
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(kdl::FrameVel, tobas_kdl_msgs::msg::FrameVel);

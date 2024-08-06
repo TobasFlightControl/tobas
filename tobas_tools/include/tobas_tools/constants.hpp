@@ -35,6 +35,7 @@ static constexpr char kRobotDescriptionParam[] = "robot_description";
 
 // ROS topics
 static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
+static constexpr char kDroneTopic[] = "drone";
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kBatteryLpfTopic[] = "battery_filtered";
 static constexpr char kCpuTopic[] = "cpu";

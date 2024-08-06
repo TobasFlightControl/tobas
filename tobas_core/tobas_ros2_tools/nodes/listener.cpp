@@ -4,7 +4,7 @@ namespace ros2
 {
 Listener::Listener(const rclcpp::NodeOptions& options) : super("listener", options)
 {
-  sub_ = createSubscriber<std_msgs::msg::String>("chatter", 1, &self::msgCb, this);
+  sub_ = createSubscriber<std_msgs::msg::String>("chatter", &self::msgCb, this);
 }
 
 void Listener::msgCb(const std_msgs::msg::String::ConstSharedPtr& msg)

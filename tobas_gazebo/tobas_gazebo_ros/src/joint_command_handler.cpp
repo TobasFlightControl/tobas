@@ -35,7 +35,7 @@ bool JointCommandHandler::initialize()
     return false;
   }
 
-  command_type_t cmd_type;
+  command_type_t control_type;
   for (const auto& item : msg.response.controller)
   {
     if (item.claimed_resources.size() != 1)
@@ -44,11 +44,11 @@ bool JointCommandHandler::initialize()
       continue;
 
     if (item.type.ends_with("JointPositionController"))
-      cmd_type = POSITION;
+      control_type = POSITION;
     else if (item.type.ends_with("JointVelocityController"))
-      cmd_type = VELOCITY;
+      control_type = VELOCITY;
     else if (item.type.ends_with("JointEffortController"))
-      cmd_type = EFFORT;
+      control_type = EFFORT;
     else
     {
       TOBAS_ERROR("Unknown controller type: ", item.type);
@@ -57,7 +57,7 @@ bool JointCommandHandler::initialize()
 
     const auto& jnt_name = item.claimed_resources[0].resources[0];
     const auto topic = item.name + "/command";
-    ctrl_map_[jnt_name] = make_pair(cmd_type, node_.advertise<std_msgs::Float64>(topic, 1));
+    ctrl_map_[jnt_name] = make_pair(control_type, node_.advertise<std_msgs::Float64>(topic, 1));
   }
 
   return true;

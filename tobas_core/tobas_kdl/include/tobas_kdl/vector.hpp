@@ -19,8 +19,8 @@ class Vector
 public:
   Eigen::Vector3d data;
 
-  inline explicit Vector();
-  inline explicit Vector(double x, double y, double z);
+  inline Vector();
+  inline Vector(double x, double y, double z);
   inline explicit Vector(const Eigen::Vector3d& _data);
 
   inline static Vector Zero();
