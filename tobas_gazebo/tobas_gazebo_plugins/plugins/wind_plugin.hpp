@@ -7,7 +7,7 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/physics/physics.hh>
 
-#include <tobas_tools/dryden_wind_model.hpp>
+#include <tobas_wind_model/dryden.hpp>
 #include <tobas_gazebo_msgs/GetWindParams.h>
 #include <tobas_gazebo_msgs/SetWindParams.h>
 

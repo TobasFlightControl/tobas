@@ -6,7 +6,7 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/utils.hpp>
+
 #include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/RotorSpeeds.h>
 #include <tobas_msgs/EnableRCOutput.h>

@@ -1,9 +1,10 @@
 #include <cassert>
 
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/console.hpp>
+#include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_tools/dryden_wind_model.hpp"
-#include "../include/tobas_tools/constants.hpp"
+#include "../include/tobas_wind_model/dryden.hpp"
 
 using namespace std;
 
@@ -19,7 +20,7 @@ void DrydenComponents::update(const double& relative_wind_speed, const double& a
   assert(dt >= 0);
 
   const auto h = max(altitude, dryden::kMinimumAltitude);  // 高度が正であることを保証
-  const auto h_ft = h * kMeterToFeet;
+  const auto h_ft = h * tobas_std::kMeterToFeet;
   if (h_ft > dryden::kLowAltitudeThreshold)
   {
     PRINT_WARN(

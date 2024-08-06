@@ -1,6 +1,11 @@
+#include <cmath>
+#include <iostream>
+
+#include <tobas_std_tools/console.hpp>
+
 #include "../include/tobas_geomag/core.hpp"
 
-#include <cmath>
+using namespace std;
 
 namespace geomag
 {
@@ -127,5 +132,20 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
     }
   }
   return { -px * 1e-9, -py * 1e-9, -pz * 1e-9 };
+}
+
+Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, const ConstModel& WMM)
+{
+  if (dyear <= WMM.epoch)
+    PRINT_ERROR("The year should be greater than the epoch of the magnetic field model.");
+
+  // 5年ごとに新しいデータが出るので，それを過ぎたら警告する
+  // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
+  if (dyear - WMM.epoch > 5)
+    PRINT_WARN("It is time to replace the WMM data with the latest version.");
+
+  const auto ecef = geomag::ecefFromGeodetic(lat, lon, h);
+  const auto mag_field = geomag::magFieldFromECEF(dyear, ecef, WMM);
+  return geomag::elementsFromMagField(mag_field, lat, lon);
 }
 }  // namespace geomag

@@ -6,7 +6,7 @@
 
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
-#include <tobas_tools/dryden_wind_model.hpp>
+#include <tobas_wind_model/dryden.hpp>
 #include <tobas_mr_common/dynamics.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/RotorSpeeds.h>

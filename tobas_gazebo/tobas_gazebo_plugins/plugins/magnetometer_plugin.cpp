@@ -1,7 +1,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
+#include <tobas_std_tools/time.hpp>
+#include <tobas_geomag/core.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/utils.hpp>
 #include <tobas_msgs/MagneticField.h>
 
 #include "./magnetometer_plugin.hpp"
@@ -77,7 +78,7 @@ void GazeboMagnetometerPlugin::onUpdate()
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // 経緯度と高度から地磁気の参照値を計算
-  const auto mag = tobas::geomag(lat_, lon_, alt);
+  const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tobas_std::yearFraction());
 
   // 機体座標系から見た地磁気を計算
   Vector3d mag_W(mag.north, -mag.east, -mag.down);  // [nT]

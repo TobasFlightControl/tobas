@@ -2,10 +2,11 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
+#include <tobas_std_tools/time.hpp>
+#include <tobas_geomag/core.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/utils.hpp>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
@@ -14,8 +15,7 @@ using namespace Eigen;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(, const string& name)
-  : super(node, pnh, name), server_(pnh_)
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(, const string& name) : super(node, pnh, name), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(node_);
@@ -254,7 +254,7 @@ void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
 
     // GPSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
-    const auto mag = tobas::geomag(lat_0_, lon_0_, alt_0_gps_);
+    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gps_, tobas_std::yearFraction());
     yaw_0_ = atan2(-mag.east, mag.north);
 
     // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)

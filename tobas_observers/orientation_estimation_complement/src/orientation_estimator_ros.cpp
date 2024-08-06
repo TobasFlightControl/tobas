@@ -1,9 +1,11 @@
+#include <tobas_std_tools/time.hpp>
+#include <tobas_geomag/core.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_eigen.hpp>
 #include <tobas_tools/constants.hpp>
-#include <tobas_tools/utils.hpp>
+
 
 #include <tobas_kdl_msgs/QuaternionStamped.h>
 #include <tobas_msgs/Gps.h>
@@ -43,7 +45,7 @@ void OrientationEstimatorRos::initializeFilter()
   tobas_msgs::Gps gps;
   if (!ros2::subscribeOnce(gps, tobas::kGpsTopic, node_))
     TOBAS_EXIT("Failed to get GPS message.");
-  const auto mag = tobas::geomag(gps.latitude, gps.longitude, gps.altitude);
+  const auto mag = geomag::elementsFromGeodetic(gps.latitude, gps.longitude, gps.altitude, tobas_std::yearFraction());
   filter_.setReferenceMagneticField(mag.north, mag.east);
 
   if (!filter_.setGravity(tobas::kGravity))
