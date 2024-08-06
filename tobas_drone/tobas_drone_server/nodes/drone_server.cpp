@@ -1,9 +1,4 @@
-#include <fstream>
-#include <yaml-cpp/yaml.h>
-
 #include <tobas_ros2_tools/node.hpp>
-
-#include <tobas_drone_core/joint.hpp>
 #include <tobas_drone_msgs/Drone.hpp>
 
 using namespace std;
@@ -32,7 +27,7 @@ DroneServer::DroneServer(const rclcpp::NodeOptions& options) : super("drone_serv
 {
   declare_parameter<string>(kFilePath);
 
-  file_handle_ = addParamCallback(kFilePath, &self::fileParamCb, this);  // コールバックを定義した時点で一度呼ばれる
+  file_handle_ = addParamCallback(kFilePath, &self::fileParamCb, this);  // コールバック関数を追加した時点で一度呼ばれる
 
   // TODO: tobas_constantsにトピックをまとめて使う
   drone_pub_ = createPublisher<Drone>("drone", true);
