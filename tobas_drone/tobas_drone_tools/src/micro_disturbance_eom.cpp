@@ -1,8 +1,10 @@
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
+#include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_tools/micro_disturbance_eom.hpp"
-#include "../include/tobas_tools/constants.hpp"
+#include "../include/tobas_drone_tools/micro_disturbance_eom.hpp"
+#include "../include/tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
 #define X_AXIS Vector3d(1, 0, 0)
 
@@ -11,10 +13,15 @@ using namespace Eigen;
 
 namespace tobas
 {
-MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone)
-  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), x_rotors_(drone, X_POSITIVE), trim_(drone)
+MicroDisturbanceEoM::MicroDisturbanceEoM(const kdl::Tree& tree, const Drone& drone)
+  : tree_(tree),
+    drone_(drone),
+    fk_solver_(tree),
+    inertia_solver_(tree),
+    x_rotors_(drone, X_POSITIVE),
+    trim_(tree, drone)
 {
-  if (drone.isLoaded())
+  if (drone.fixed_wing.equipped)
     updateInternalDataStructures();
 }
 
@@ -25,7 +32,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   x_rotors_.updateInternalDataStructures();
   trim_.updateInternalDataStructures();
 
-  u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
+  u_size_ = x_rotors_.count() + drone_.fixed_wing.control_surfaces.size();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
   u_0_ = VectorXd::Zero(u_size_);
@@ -42,7 +49,7 @@ int MicroDisturbanceEoM::update(
   assert(V > 0.);
   assert(rho > 0.);
   assert(battery_voltage);
-  assert(q.rows() == drone_.tree().getNrOfJoints());
+  assert(q.rows() == tree_.getNrOfJoints());
 
   error_code_ = E_NO_ERROR;
 
@@ -55,8 +62,8 @@ int MicroDisturbanceEoM::update(
     return error_code_;
 
   // エイリアス
-  const auto& vehicle = drone_.vehicle();
-  const auto& aero = drone_.aerodynamics();
+  const auto& vehicle = drone_.fixed_wing.vehicle;
+  const auto& aero = drone_.fixed_wing.aerodynamics;
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 重心と慣性テンソル
@@ -115,7 +122,7 @@ int MicroDisturbanceEoM::update(
   const auto M_u_dash = M_u + M_alpha_rate * Z_u_bar;
   const auto M_alpha_dash = M_alpha + M_alpha_rate * Z_alpha_bar;
   const auto M_q_dash = M_q + M_alpha_rate;
-  const auto M_theta_dash = -kGravity * sin(trim_.theta()) / V * M_alpha_rate;
+  const auto M_theta_dash = -tobas_std::kGravity * sin(trim_.theta()) / V * M_alpha_rate;
 
   // (3.2-22)
   const auto N_beta_dash = q_S_b / I_z_tilde * (asd_cog.cYawBeta() + I_xz / I_x * aero.c_roll_beta);
@@ -125,15 +132,15 @@ int MicroDisturbanceEoM::update(
   // Aを更新
   A_(kStateIdx_u, kStateIdx_u) = X_u;
   A_(kStateIdx_u, kStateIdx_alpha) = X_alpha;
-  A_(kStateIdx_u, kStateIdx_theta) = -kGravity * cos(trim_.theta());
+  A_(kStateIdx_u, kStateIdx_theta) = -tobas_std::kGravity * cos(trim_.theta());
 
   A_(kStateIdx_alpha, kStateIdx_u) = Z_u_bar;
   A_(kStateIdx_alpha, kStateIdx_alpha) = Z_alpha_bar;
-  A_(kStateIdx_alpha, kStateIdx_theta) = -kGravity * sin(trim_.theta()) / V;
+  A_(kStateIdx_alpha, kStateIdx_theta) = -tobas_std::kGravity * sin(trim_.theta()) / V;
   A_(kStateIdx_alpha, kStateIdx_q) = 1;
 
   A_(kStateIdx_beta, kStateIdx_beta) = Y_beta_bar;
-  A_(kStateIdx_beta, kStateIdx_phi) = kGravity * cos(trim_.theta()) / V;
+  A_(kStateIdx_beta, kStateIdx_phi) = tobas_std::kGravity * cos(trim_.theta()) / V;
   A_(kStateIdx_beta, kStateIdx_p) = trim_.alpha();
   A_(kStateIdx_beta, kStateIdx_r) = -1;
 
@@ -170,7 +177,7 @@ int MicroDisturbanceEoM::update(
       return error_code_ = E_ERROR;
     }
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
-    const auto& d = x_rotors_.direction(i);
+    const auto d = x_rotors_.sign(i);
     const auto& c = x_rotors_.momentConstant(i);
     Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
     eigen_tools::vectorNwuToNed(v);                                                // NWU -> NED
@@ -178,9 +185,9 @@ int MicroDisturbanceEoM::update(
   }
 
   // deflection
-  for (size_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
+  for (size_t cs_idx = 0; cs_idx < drone_.fixed_wing.control_surfaces.size(); ++cs_idx)
   {
-    const auto& cs = drone_.controlSurface(cs_idx);
+    const auto& cs = drone_.fixed_wing.control_surfaces.at(cs_idx);
 
     const auto Y_delta_bar = q_S / P * cs.c_side_delta;   // (3.2-20)
     const auto Z_delta_bar = -q_S / P * cs.c_lift_delta;  // (2.2-37)
@@ -252,9 +259,9 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
     max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
   }
 
-  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.fixed_wing.control_surfaces.size(); ++i)
   {
-    const auto& cs = drone_.controlSurface(i);
+    const auto& cs = drone_.fixed_wing.control_surfaces.at(i);
     min_u_(x_rotors_.count() + i) = cs.angle_limit.lower;
     max_u_(x_rotors_.count() + i) = cs.angle_limit.upper;
   }

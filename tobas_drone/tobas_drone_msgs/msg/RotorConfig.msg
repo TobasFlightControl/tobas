@@ -1,6 +1,6 @@
 uint32 channel
 string link_name
-int32 direction
+uint8 direction
 uint8 axis
 uint8 esc_mode
 uint32 num_poles

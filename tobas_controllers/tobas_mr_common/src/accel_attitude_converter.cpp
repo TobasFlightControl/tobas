@@ -64,7 +64,7 @@ void AccelAttitudeConverter::update(
   double& roll_out,
   double& pitch_out)
 {
-  update(cur_rot, zero_, zero_, vector<double>(drone_.numRotors(), 0), tar_acc_W, thrust_out, roll_out, pitch_out);
+  update(cur_rot, zero_, zero_, vector<double>(drone_.rotors.size(), 0), tar_acc_W, thrust_out, roll_out, pitch_out);
 }
 
 void AccelAttitudeConverter::configure(const AccelAttitudeConverterConfig& cfg)

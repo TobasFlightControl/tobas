@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include <tobas_kdl/tree.hpp>
+#include <tobas_drone_core/drone.hpp>
 
 namespace tobas
 {

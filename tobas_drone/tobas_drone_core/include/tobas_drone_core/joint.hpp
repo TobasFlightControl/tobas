@@ -24,7 +24,7 @@ public:
   double min_pos = 0;   // [rad | m]
   double max_pos = 0;   // [rad | m]
 
-  joint_control_type_t control_type = POSITION_CONTROL;
+  joint_control_type_t control_type = joint_control_type_t::POSITION_CONTROL;
 
   bool isValid() const;
   bool load(const YAML::Node& node);

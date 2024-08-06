@@ -5,6 +5,7 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "./battery.hpp"
 #include "./joint.hpp"
@@ -23,8 +24,6 @@ class Drone
   static constexpr char kJointsKey[] = "joints";
   static constexpr char kRotorsKey[] = "rotors";
   static constexpr char kFixedWingKey[] = "fixed_wing";
-
-  static constexpr double kArmThrottle = 0.1;  // TODO: メソッド類をtobas_toolsのクラスに移植
 
 public:
   static constexpr char kDroneExt[] = ".tbsdrn";

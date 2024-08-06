@@ -8,7 +8,7 @@ using namespace Eigen;
 namespace tobas_mr_common
 {
 MultirotorDynamicsComponents::MultirotorDynamicsComponents(const tobas::Drone& drone)
-  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Z_POSITIVE)
+  : drone_(drone), fk_solver_(tree_), inertia_solver_(tree_), z_rotors_(drone, tobas::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -19,13 +19,13 @@ void MultirotorDynamicsComponents::updateInternalDataStructures()
   inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
 
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
 }
 
 double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_speeds) const
 {
-  assert(rot_speeds.size() == drone_.numRotors());
+  assert(rot_speeds.size() == drone_.rotors.size());
 
   double res = 0.;
   for (size_t i = 0; i < z_rotors_.count(); ++i)
@@ -54,7 +54,7 @@ kdl::Vector MultirotorDynamicsComponents::horizontalForce(
   const kdl::Vector& wind_W,
   const vector<double>& rot_speeds)
 {
-  assert(rot_speeds.size() == drone_.numRotors());
+  assert(rot_speeds.size() == drone_.rotors.size());
 
   const auto drag_rotor_sum = dragRotorSum(rot_speeds);
   const auto rel_vel_perp = relativePerpVel(rot, vel_B, wind_W);
@@ -68,7 +68,7 @@ kdl::Vector MultirotorDynamicsComponents::horizontalMoment(
   const kdl::JntArray& q,
   const vector<double>& rot_speeds)
 {
-  assert(rot_speeds.size() == drone_.numRotors());
+  assert(rot_speeds.size() == drone_.rotors.size());
 
   // 重心を求める
   if (inertia_solver_.JntToCart(q) < 0)

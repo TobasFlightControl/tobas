@@ -11,11 +11,11 @@ namespace tobas_manipulation
 {
 EffortControllerRos::EffortControllerRos(, const string& name)
   : super(node, pnh, name),
-    cur_js_conv_(drone_.tree()),
-    tar_js_conv_(drone_.tree()),
-    active_jnts_extractor_(drone_.tree()),
-    pid_js_(drone_.tree()),
-    pid_ts_(drone_.tree()),
+    cur_js_conv_(tree_),
+    tar_js_conv_(tree_),
+    active_jnts_extractor_(tree_),
+    pid_js_(tree_),
+    pid_ts_(tree_),
     server_(pnh_)
 {
   drone_.loadFromParam(node_);
@@ -108,7 +108,7 @@ int EffortControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& efforts
   kdl::WrenchMap f_ext;
   for (const auto& ls : tar_ls_->states)
   {
-    if (!tf_listener_.lookupTransform(drone_.tree().getRootName(), tar_ls_->header.frame_id))
+    if (!tf_listener_.lookupTransform(tree_.getRootName(), tar_ls_->header.frame_id))
     {
       TOBAS_ERROR(tf_listener_.getErrorMessage());
       continue;

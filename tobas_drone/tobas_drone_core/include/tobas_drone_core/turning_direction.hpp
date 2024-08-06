@@ -4,10 +4,10 @@
 
 namespace tobas
 {
-enum turning_direction_t : int
+enum turning_direction_t : uint8_t
 {
-  CCW = 1,
-  CW = -1,
+  CCW,
+  CW,
 };
 }  // namespace tobas
 

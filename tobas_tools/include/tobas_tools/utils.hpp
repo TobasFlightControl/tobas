@@ -4,9 +4,6 @@
 
 namespace tobas
 {
-/* rosparamに登録されているdescriptionから質量 [kg] を求める． */
-double getMass();
-
 /**
  * @brief 経緯高度から地磁気の参照値を求める．
  *

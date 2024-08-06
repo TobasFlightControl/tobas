@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-enum joint_control_type_t : uint8_t
+enum struct joint_control_type_t : uint8_t
 {
   POSITION_CONTROL,
   VELOCITY_CONTROL,

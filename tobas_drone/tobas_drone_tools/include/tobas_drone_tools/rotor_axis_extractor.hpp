@@ -1,7 +1,8 @@
 #pragma once
 
+#include <tobas_drone_core/drone.hpp>
+
 #include "./solveri.hpp"
-#include "./drone.hpp"
 
 namespace tobas
 {
@@ -11,7 +12,7 @@ namespace tobas
 class RotorAxisExtractor : public SolverI
 {
 public:
-  explicit RotorAxisExtractor(const Drone& drone, const RotorAxis& axis);
+  explicit RotorAxisExtractor(const Drone& drone, const rotor_axis_t& axis);
 
   void updateInternalDataStructures() override;
 
@@ -25,10 +26,10 @@ public:
   inline const std::string& linkName(const size_t& inner_idx) const;
 
   /* 回転軸． */
-  inline const RotorAxis& axis(const size_t& inner_idx) const;
+  inline const rotor_axis_t& axis(const size_t& inner_idx) const;
 
   /* 回転方向: CCW(1) or CW(-1)． */
-  inline const int& direction(const size_t& inner_idx) const;
+  inline int sign(const size_t& inner_idx) const;
 
   /* 推力係数 [kg*m/rad^2]． */
   inline const double& motorConstant(const size_t& inner_idx) const;
@@ -77,7 +78,7 @@ public:
 
 private:
   const Drone& drone_;
-  const RotorAxis axis_;
+  const rotor_axis_t axis_;
 
   size_t count_;  // The number of rotors with the specified rotation axis
   std::vector<size_t> rotor_idxs_;
@@ -95,37 +96,37 @@ inline const size_t& RotorAxisExtractor::rotorIdx(const size_t& inner_idx) const
 
 inline const std::string& RotorAxisExtractor::linkName(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).link_name;
+  return drone_.rotors.at(rotorIdx(inner_idx)).link_name;
 }
 
-inline const RotorAxis& RotorAxisExtractor::axis(const size_t& inner_idx) const
+inline const rotor_axis_t& RotorAxisExtractor::axis(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).axis;
+  return drone_.rotors.at(rotorIdx(inner_idx)).axis;
 }
 
-inline const int& RotorAxisExtractor::direction(const size_t& inner_idx) const
+inline int RotorAxisExtractor::sign(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).direction.value;
+  return drone_.rotors.at(rotorIdx(inner_idx)).sign();
 }
 
 inline const double& RotorAxisExtractor::motorConstant(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).motor_constant;
+  return drone_.rotors.at(rotorIdx(inner_idx)).motor_constant;
 }
 
 inline const double& RotorAxisExtractor::momentConstant(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).moment_constant;
+  return drone_.rotors.at(rotorIdx(inner_idx)).moment_constant;
 }
 
 inline const double& RotorAxisExtractor::dragConstant(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).drag_constant;
+  return drone_.rotors.at(rotorIdx(inner_idx)).drag_constant;
 }
 
 inline const std::pair<double, double>& RotorAxisExtractor::rotSpeedCoefs(const size_t& inner_idx) const
 {
-  return drone_.rotorConfig(rotorIdx(inner_idx)).rot_speed_coefs;
+  return drone_.rotors.at(rotorIdx(inner_idx)).rot_speed_coefs;
 }
 
 inline double RotorAxisExtractor::maxMechanicalThrust(const size_t& inner_idx) const

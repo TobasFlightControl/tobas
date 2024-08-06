@@ -1,9 +1,9 @@
 #pragma once
 
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_drone_core/drone.hpp>
 
 #include "./solveri.hpp"
-#include "./drone.hpp"
 
 namespace tobas
 {
@@ -13,7 +13,7 @@ namespace tobas
 class StabilityDerivativesCG : public SolverI
 {
 public:
-  explicit StabilityDerivativesCG(const Drone& drone);
+  explicit StabilityDerivativesCG(const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures() override;
 
@@ -25,6 +25,7 @@ public:
   inline const double& cYawDelta(const size_t& cs_idx) const;
 
 private:
+  const kdl::Tree& tree_;
   const Drone& drone_;
 
   kdl::TreeJntToInertiaSolver inertia_solver_;

@@ -33,7 +33,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   drone_.loadFromParam(node_);
 
   trim_.updateInternalDataStructures();
-  q_0_ = kdl::JntArray::Zero(drone_.tree().getNrOfJoints());
+  q_0_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
   const auto repeat_interval = keyboard::getKeyboardRepeatInterval();
   delta_speed_ = max_linacc_ * repeat_interval;

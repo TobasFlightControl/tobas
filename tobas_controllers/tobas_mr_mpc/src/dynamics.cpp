@@ -13,7 +13,7 @@ using namespace Eigen;
 namespace tobas_mr_mpc
 {
 MultiRotorDynamics::MultiRotorDynamics(const tobas::Drone& drone)
-  : drone_(drone), fk_solver_(drone.tree()), inertia_solver_(drone.tree()), z_rotors_(drone, tobas::Z_POSITIVE)
+  : drone_(drone), fk_solver_(tree_), inertia_solver_(tree_), z_rotors_(drone, tobas::Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -48,7 +48,7 @@ void MultiRotorDynamics::update(const double& roll, const double& pitch, const k
     if (fk_solver_.JntToCart(q, z_rotors_.linkName(i)) < 0)
       throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
-    const auto& d = z_rotors_.direction(i);
+    const auto d = z_rotors_.sign(i);
     const auto& cm = z_rotors_.momentConstant(i);
     B.block<3, 1>(kGyroIdx, i) = I_cog_inv * (P_cog_rotor.data.cross(UNIT_Z) - (d * cm) * UNIT_Z);
   }

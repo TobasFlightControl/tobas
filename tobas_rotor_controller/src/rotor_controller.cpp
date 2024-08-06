@@ -142,9 +142,9 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
   }
 
   const auto data_size = tar_speeds->speeds.size();
-  if (data_size != drone_.numRotors())
+  if (data_size != drone_.rotors.size())
   {
-    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.numRotors());
+    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.rotors.size());
     return;
   }
 

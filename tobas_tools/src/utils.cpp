@@ -13,19 +13,6 @@ using namespace std;
 
 namespace tobas
 {
-double getMass()
-{
-  kdl::Tree tree;
-  if (!treeFromParam(rclcpp::this_node::getNamespace() + "/robot_description", tree))
-    throw runtime_error("Failed to get tobas_kdl tree.");
-
-  kdl::TreeJntToInertiaSolver inertia_solver(tree);
-  if (inertia_solver.JntToCart(kdl::JntArray::Zero(tree.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver.errorMessage());
-
-  return inertia_solver.getInertia().getMass();
-}
-
 geomag::Elements geomag(const double& lat, const double& lon, const double& height)
 {
   const auto year_frac = tobas_std::yearFraction();

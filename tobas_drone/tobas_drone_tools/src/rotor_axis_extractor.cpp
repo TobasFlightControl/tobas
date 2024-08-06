@@ -1,14 +1,12 @@
-#include "../include/tobas_tools/rotor_axis_extractor.hpp"
-#include "../include/tobas_tools/constants.hpp"
+#include "../include/tobas_drone_tools/rotor_axis_extractor.hpp"
 
 using namespace std;
 
 namespace tobas
 {
-RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, const RotorAxis& axis) : drone_(drone), axis_(axis)
+RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, const rotor_axis_t& axis) : drone_(drone), axis_(axis)
 {
-  if (drone.isLoaded())
-    updateInternalDataStructures();
+  updateInternalDataStructures();
 }
 
 void RotorAxisExtractor::updateInternalDataStructures()
@@ -16,9 +14,9 @@ void RotorAxisExtractor::updateInternalDataStructures()
   count_ = 0;
   rotor_idxs_.clear();
 
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
+  for (size_t i = 0; i < drone_.rotors.size(); ++i)
   {
-    if (drone_.rotorConfig(i).axis == axis_)
+    if (drone_.rotors.at(i).axis == axis_)
     {
       ++count_;
       rotor_idxs_.emplace_back(i);
@@ -28,7 +26,7 @@ void RotorAxisExtractor::updateInternalDataStructures()
 
 double RotorAxisExtractor::thrustSum(const vector<double>& rot_speeds) const
 {
-  assert(rot_speeds.size() == drone_.numRotors());
+  assert(rot_speeds.size() == drone_.rotors.size());
 
   double res = 0.;
   for (const auto& rotor_idx : rotor_idxs_)

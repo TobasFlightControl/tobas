@@ -20,8 +20,7 @@ OrientationController::OrientationController(const tobas::Drone& drone)
     dynamics_(drone),
     mixer_(drone),
     cont_(drone),
-    c2d_(kStateSize, z_rotors_.count()),
-    stopwatch_(tobas::kStopwatchSamples)
+    c2d_(kStateSize, z_rotors_.count())
 {
   mpc_.Cz = MatrixXd::Zero(kCtrlSize, kStateSize);
   mpc_.Cz.block<kCtrlSize, kCtrlSize>(kRotIdx, kRotIdx).diagonal().setOnes();
@@ -120,10 +119,8 @@ VectorXd OrientationController::solve(
   }
 
   // MPCを解く
-  // stopwatch_.start();
   if (!mpc_.solve())
     throw runtime_error("Failed to solve MPC: " + mpc_.errorMessage());
-  // stopwatch_.stop();
 
   // MPCの解
   const auto& thrusts_des = mpc_.optimalControlInput();
@@ -199,7 +196,7 @@ void OrientationController::updateCurrentState(
   // TODO: 予測区間での推力の変化を反映し，より真値に近い回転数を用いて計算
   const double thrust_sum = thrust_z / (cos(cur_rpy.roll) * cos(cur_rpy.pitch));  // 合計推力
   const double thrust_mean = thrust_sum / z_rotors_.count();
-  vector<double> rot_speeds(drone_.numRotors(), 0);
+  vector<double> rot_speeds(drone_.rotors.size(), 0);
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     const double rot_speed = z_rotors_.rotSpeedFromThrust(i, thrust_mean);

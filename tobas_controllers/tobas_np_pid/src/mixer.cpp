@@ -9,7 +9,7 @@ using namespace Eigen;
 namespace tobas_np_pid
 {
 Mixer::Mixer(const tobas::Drone& drone)
-  : drone_(drone), fk_solver_(drone.tree()), jnt_axis_solver_(drone.tree()), inertia_solver_(drone.tree())
+  : drone_(drone), fk_solver_(tree_), jnt_axis_solver_(tree_), inertia_solver_(tree_)
 {
   updateInternalDataStructures();
 }
@@ -20,18 +20,18 @@ void Mixer::updateInternalDataStructures()
   jnt_axis_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
-  qp_.resize(drone_.numRotors(), 0, drone_.numRotors() * 2);
+  qp_.resize(drone_.rotors.size(), 0, drone_.rotors.size() * 2);
   qp_.setZero();
 
   // QPの決定変数のスケール．推力のみなので統一してよい．
   qp_.x_scale.setOnes();
 
   // QPPの定数部分
-  qp_.problem.A.topRows(drone_.numRotors()).diagonal().fill(1);
-  qp_.problem.A.bottomRows(drone_.numRotors()).diagonal().fill(-1);
+  qp_.problem.A.topRows(drone_.rotors.size()).diagonal().fill(1);
+  qp_.problem.A.bottomRows(drone_.rotors.size()).diagonal().fill(-1);
 
-  R_.resize(drone_.numRotors());
-  G_.resize(NoChange, drone_.numRotors());
+  R_.resize(drone_.rotors.size());
+  G_.resize(NoChange, drone_.rotors.size());
 }
 
 VectorXd Mixer::solve(
@@ -53,10 +53,10 @@ VectorXd Mixer::solve(
   const auto& mass = inertia.getMass();
 
   // EoM行列等式の左辺
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
+  for (size_t i = 0; i < drone_.rotors.size(); ++i)
   {
     // FKと回転軸を更新
-    const auto& link_name = drone_.rotorConfig(i).link_name;
+    const auto& link_name = drone_.rotors.at(i).link_name;
     if (fk_solver_.JntToCart(cur_q, link_name) < 0)
       throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
     if (jnt_axis_solver_.JntToCart(cur_q, link_name) < 0)
@@ -69,8 +69,8 @@ VectorXd Mixer::solve(
     G_.block<3, 1>(0, i) = axis_B.data;
 
     // 回転
-    const auto& d = drone_.rotorConfig(i).direction.value;
-    const auto& cm = drone_.rotorConfig(i).moment_constant;
+    const auto& d = drone_.rotors.at(i).sign();
+    const auto& cm = drone_.rotors.at(i).moment_constant;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.block<3, 1>(3, i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
@@ -89,10 +89,10 @@ VectorXd Mixer::solve(
   qp_.problem.q = -h_.transpose() * Q_ * G_;
 
   // 不等式制約
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
+  for (size_t i = 0; i < drone_.rotors.size(); ++i)
   {
     qp_.problem.b(i) = drone_.maxThrust(i, cur_voltage);
-    qp_.problem.b(drone_.numRotors() + i) = -drone_.minThrust(i, cur_voltage);
+    qp_.problem.b(drone_.rotors.size() + i) = -drone_.minThrust(i, cur_voltage);
   }
 
   // QPPを解く
@@ -111,7 +111,7 @@ void Mixer::configure(const MixerConfig& cfg)
   TOBAS_CHECK(cfg.linear_weight > 0);
   TOBAS_CHECK(cfg.angular_weight > 0);
 
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
@@ -119,7 +119,7 @@ void Mixer::configure(const MixerConfig& cfg)
 
   const auto linear_scale = mass * tobas::kGravity;
   const auto angular_scale = I.trace() / 3 * M_PI;
-  const auto thrust_scale = mass * tobas::kGravity / drone_.numRotors();
+  const auto thrust_scale = mass * tobas::kGravity / drone_.rotors.size();
 
   Q_.diagonal().head<3>().fill(cfg.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg.angular_weight / math::sqr(angular_scale));

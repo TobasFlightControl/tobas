@@ -12,7 +12,7 @@ using namespace Eigen;
 namespace tobas_np_pid
 {
 ControllerRos::ControllerRos(, const string& name)
-  : super(node, pnh, name), js_converter_(drone_.tree()), mixer_(drone_), server_(pnh_)
+  : super(node, pnh, name), js_converter_(tree_), mixer_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(node_);
 
@@ -119,7 +119,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   // 目標回転数を発行
   const auto tar_rot_speeds = make_unique<tobas_msgs::RotorSpeeds>();
   tar_rot_speeds->header.stamp = odom->header.stamp;
-  tar_rot_speeds->speeds.resize(drone_.numRotors(), 0.);
+  tar_rot_speeds->speeds.resize(drone_.rotors.size(), 0.);
   for (size_t rotor_idx = 0; rotor_idx < static_cast<size_t>(thrusts.rows()); ++rotor_idx)
   {
     const auto thrust = max(0., thrusts(rotor_idx));

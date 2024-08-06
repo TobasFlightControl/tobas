@@ -1,19 +1,9 @@
 #pragma once
 
 #include <cinttypes>
-#include <cmath>
-
-#include <tobas_kdl/vector.hpp>
 
 namespace tobas
 {
-// Universal constants
-static constexpr double kGravity = 9.80665;  // 重力加速度 [m/s^2]
-static constexpr double kDeg2Rad = M_PI / 180;
-static constexpr double kRad2Deg = 1 / kDeg2Rad;
-static constexpr double kFeetToMeter = 0.3048;
-static constexpr double kMeterToFeet = 1 / kFeetToMeter;
-
 // PWM duty period
 static constexpr uint16_t kPwmMin = 1000;                     // [us]
 static constexpr uint16_t kPwmMax = 2000;                     // [us]
@@ -120,7 +110,4 @@ static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速
-static constexpr size_t kStopwatchSamples = 100;
-
-static const kdl::Vector kWorldGravity(0, 0, -kGravity);  // (0, 0, -9.80xxx)
 }  // namespace tobas

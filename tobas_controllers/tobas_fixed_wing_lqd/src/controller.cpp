@@ -26,7 +26,7 @@ Controller::Controller(, const string& name)
   if (x_rotors_.count() == 0)
     TOBAS_EXIT("The number of propellers is zero.");
 
-  q_0_.resize(drone_.tree().getNrOfJoints());
+  q_0_.resize(tree_.getNrOfJoints());
 
   setScales();
   lqd_.state_weight.resize(eom_.kStateSize);
@@ -95,7 +95,7 @@ void Controller::setScales()
   // 状態変数のスケール
   lqd_.state_scale.resize(eom_.kStateSize);
   lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(kStandardAirDensity);
-  lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.vehicle().alpha_limit.range();
+  lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.fixed_wing.vehicle.alpha_limit.range();
   lqd_.state_scale(eom_.kStateIdx_beta) = M_PI_4;
   lqd_.state_scale(eom_.kStateIdx_phi) = M_PI_4;
   lqd_.state_scale(eom_.kStateIdx_theta) = M_PI_4;
@@ -107,8 +107,8 @@ void Controller::setScales()
   lqd_.input_scale.resize(eom_.inputSize());
   const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
   lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
-  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
-    lqd_.input_scale(x_rotors_.count() + i) = drone_.controlSurface(i).angle_limit.range();
+  for (size_t i = 0; i < drone_.fixed_wing.control_surfaces.size(); ++i)
+    lqd_.input_scale(x_rotors_.count() + i) = drone_.fixed_wing.control_surfaces.at(i).angle_limit.range();
 }
 
 void Controller::updateCurrentStateVector()
@@ -151,7 +151,7 @@ void Controller::publishRotSpeeds(const VectorXd& thrust)
   const auto rot_speeds = make_unique<tobas_msgs::RotorSpeeds>();
   rot_speeds->header.stamp = odom_ned_.header.stamp;
 
-  rot_speeds->speeds.resize(drone_.numRotors(), 0.);
+  rot_speeds->speeds.resize(drone_.rotors.size(), 0.);
   for (size_t i = 0; i < static_cast<size_t>(thrust.rows()); ++i)
     rot_speeds->speeds[x_rotors_.rotorIdx(i)] = x_rotors_.rotSpeedFromThrust(i, max(0., thrust(i)));
 
@@ -171,10 +171,10 @@ void Controller::publishFeedback(const VectorXd& du)
   const auto& trim = eom_.trimCondition();
   const auto feedback = make_unique<tobas_msgs::FixedWingControllerFeedback>();
 
-  feedback->trim_thrusts.resize(drone_.numRotors());
-  feedback->delta_thrusts.resize(drone_.numRotors());
-  feedback->trim_deflections.resize(drone_.numControlSurfaces());
-  feedback->delta_deflections.resize(drone_.numControlSurfaces());
+  feedback->trim_thrusts.resize(drone_.rotors.size());
+  feedback->delta_thrusts.resize(drone_.rotors.size());
+  feedback->trim_deflections.resize(drone_.fixed_wing.control_surfaces.size());
+  feedback->delta_deflections.resize(drone_.fixed_wing.control_surfaces.size());
 
   feedback->trim_u = trim.u();
   feedback->trim_alpha = trim.alpha();
@@ -185,7 +185,7 @@ void Controller::publishFeedback(const VectorXd& du)
     feedback->delta_thrusts[x_rotors_.rotorIdx(i)] = du(i);
   }
 
-  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (size_t i = 0; i < drone_.fixed_wing.control_surfaces.size(); ++i)
   {
     const auto u_idx = x_rotors_.count() + i;
     feedback->trim_deflections[i] = eom_.trimInput()[u_idx];
@@ -261,7 +261,7 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
   // cout << lqd_ << endl;
 
   const VectorXd thrust = u.block(0, 0, x_rotors_.count(), 1);
-  const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
+  const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.fixed_wing.control_surfaces.size(), 1);
 
   // Publish
   publishRotSpeeds(thrust);
@@ -336,13 +336,13 @@ void Controller::dynamicReconfigureCb(const ConfigType& cfg, size_t)
   const auto thrust_weight = exp10(cfg.thrust_weight_log10);
   const auto deflection_weight = exp10(cfg.deflection_weight_log10);
   lqd_.input_weight.head(x_rotors_.count()).fill(thrust_weight);
-  lqd_.input_weight.tail(drone_.numControlSurfaces()).fill(deflection_weight);
+  lqd_.input_weight.tail(drone_.fixed_wing.control_surfaces.size()).fill(deflection_weight);
 
   // 制御入力の変化率の重み
   const auto thrust_rate_weight = exp10(cfg.thrust_rate_weight_log10);
   const auto deflection_rate_weight = exp10(cfg.deflection_rate_weight_log10);
   lqd_.input_rate_weight.head(x_rotors_.count()).fill(thrust_rate_weight);
-  lqd_.input_rate_weight.tail(drone_.numControlSurfaces()).fill(deflection_rate_weight);
+  lqd_.input_rate_weight.tail(drone_.fixed_wing.control_surfaces.size()).fill(deflection_rate_weight);
 
   TOBAS_INFO("Dynamic parameters are updated.");
 }

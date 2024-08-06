@@ -10,9 +10,9 @@ namespace tobas_mr_common
 {
 Mixer::Mixer(const tobas::Drone& drone)
   : drone_(drone),
-    fk_solver_(drone.tree()),
-    jnt_axis_solver_(drone.tree()),
-    inertia_solver_(drone.tree()),
+    fk_solver_(tree_),
+    jnt_axis_solver_(tree_),
+    inertia_solver_(tree_),
     z_rotors_(drone, tobas::Z_POSITIVE)
 {
   updateInternalDataStructures();
@@ -29,7 +29,7 @@ void Mixer::updateInternalDataStructures()
   qp_.setZero();
 
   // 機体の質量
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(drone_.tree().getNrOfJoints())) < 0)
+  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
 
   // QPの決定変数のスケール
@@ -85,7 +85,7 @@ VectorXd Mixer::solve(
     const auto& B_Pos_B2P = fk_solver_.getFrame().p;
     const auto& axis_B = jnt_axis_solver_.getAxis();
 
-    const auto& d = z_rotors_.direction(i);
+    const auto d = z_rotors_.sign(i);
     const auto& cm = z_rotors_.momentConstant(i);
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     U_.col(i) = ((d * cm) * axis_B - B_Pos_G2P * axis_B).data;

@@ -38,7 +38,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(, const string& name)
 
   // Fill the static part of the transform message
   tf_.header.frame_id = tobas::kWorldFrame;
-  tf_.child_frame_id = drone_.tree().getRootName();
+  tf_.child_frame_id = tree_.getRootName();
 
   // Register publishers
   odom_pub_ = node_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);

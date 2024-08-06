@@ -3,8 +3,7 @@
 #include <eigen3/Eigen/Core>
 
 #include <tobas_math/linalg.hpp>
-
-#include "./constants.hpp"
+#include <tobas_constants/constants.hpp>
 
 namespace tobas
 {

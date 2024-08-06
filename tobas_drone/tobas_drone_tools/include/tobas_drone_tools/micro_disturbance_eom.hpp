@@ -27,7 +27,7 @@ public:
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Matrix<double, kStateSize, 1>;
 
-  explicit MicroDisturbanceEoM(const Drone& drone);
+  explicit MicroDisturbanceEoM(const kdl::Tree& tree, const Drone& drone);
 
   void updateInternalDataStructures() override;
 
@@ -126,6 +126,7 @@ public:
   inline const double& r_delta(const size_t& cs_idx) const;
 
 private:
+  const kdl::Tree& tree_;
   const Drone& drone_;
 
   kdl::TreeFkSolverPos fk_solver_;

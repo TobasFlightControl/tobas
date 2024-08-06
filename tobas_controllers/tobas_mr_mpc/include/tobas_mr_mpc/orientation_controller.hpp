@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_kdl/frames.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_linear_control/c2d/tustin.hpp>
@@ -73,8 +72,6 @@ private:
   double h_force_comp_rate_;
   double kp_;
   double kd_;
-
-  tobas_std::Stopwatch stopwatch_;
 
   void updateCurrentState(
     const kdl::Euler& cur_rpy,

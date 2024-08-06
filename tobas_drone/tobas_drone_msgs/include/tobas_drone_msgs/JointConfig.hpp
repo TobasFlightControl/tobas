@@ -18,7 +18,7 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
     dst.home_pos = src.home_pos;
     dst.min_pos = src.min_pos;
     dst.max_pos = src.max_pos;
-    dst.control_type = src.control_type;
+    dst.control_type = static_cast<uint8_t>(src.control_type);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
