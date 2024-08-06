@@ -278,7 +278,7 @@ void ControllerRos::posVelAccYawCb(const tobas_msgs::PosVelAccYawConstPtr& pvay)
   tar_pvay_W_ = make_unique<tobas_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *tar_pvay_W_))
+  if (!tobas::changeFrame(tobas_msgs::msg::FrameId::WORLD, odom_->frame.M, *tar_pvay_W_))
   {
     TOBAS_ERROR("Failed to change command frame. Probably the frame id is invalid.");
     tar_pvay_W_ = nullptr;

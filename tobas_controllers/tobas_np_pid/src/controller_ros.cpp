@@ -192,7 +192,7 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
   cmd_ = make_unique<tobas_msgs::PoseTwistAccelCommand>(*cmd);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::FrameId::WORLD, odom_->frame.M, *cmd_))
+  if (!tobas::changeFrame(tobas_msgs::msg::FrameId::WORLD, odom_->frame.M, *cmd_))
   {
     TOBAS_ERROR("Failed to change command frame. Probably the frame id is invalid.");
     cmd_ = nullptr;

@@ -262,8 +262,8 @@ void Controller::odomCb(const tobas_msgs::OdometryConstPtr& odom_nwu)
     return;
 
   // NWU -> NED
-  tf::odometryNwuToNed(*odom_nwu_, odom_ned_);
-  tf::speedRollDeltaPitchNwuToNed(*cmd_nwu_, cmd_ned_);
+  tobas::odometryNwuToNed(*odom_nwu_, odom_ned_);
+  tobas::speedRollDeltaPitchNwuToNed(*cmd_nwu_, cmd_ned_);
 
   // 状態方程式を更新
   const auto rho = tobas_std::pressureToDensity(air_pressure_->fluid_pressure);

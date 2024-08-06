@@ -12,23 +12,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_msgs)
-find_package(tobas_geomag)
-find_package(tobas_ros2_tools)
-find_package(tobas_kdl)
-find_package(tobas_linear_control)
+find_package(rclcpp REQUIRED)
+find_package(tobas_kdl REQUIRED)
+find_package(tobas_msgs REQUIRED)
 
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}
-	tobas_msgs
-	tobas_geomag
-	tobas_ros2_tools
-	tobas_kdl
-	tobas_linear_control
-)
+ament_target_dependencies(${PROJECT_NAME} rclcpp tobas_kdl tobas_msgs)
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
 set(targets_to_install "")
@@ -52,12 +44,6 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(
-	tobas_msgs
-	tobas_geomag
-	tobas_ros2_tools
-	tobas_kdl
-	tobas_linear_control
-)
+ament_export_dependencies(rclcpp tobas_kdl tobas_msgs)
 
 ament_package()

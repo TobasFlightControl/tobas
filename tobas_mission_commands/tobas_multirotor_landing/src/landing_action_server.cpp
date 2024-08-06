@@ -105,7 +105,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
     const auto t = (node->get_clock()->now() - start_time).seconds();
     const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
-    cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
+    cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
     cmd->pos.x(start_x);
     cmd->pos.y(start_y);
     cmd->pos.z(start_z - kVerticalSpeed * t);

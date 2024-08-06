@@ -155,7 +155,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     // コマンドを作成
     const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
-    cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
+    cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
 
     // ヨー角は初期状態を維持
     cmd->yaw = start_yaw;

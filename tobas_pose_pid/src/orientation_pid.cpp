@@ -5,7 +5,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
-#include "../include/tobas_tools/orientation_pid.hpp"
+#include "../include/tobas_pose_pid/orientation_pid.hpp"
 
 using namespace std;
 using namespace Eigen;

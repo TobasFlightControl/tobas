@@ -9,7 +9,6 @@ file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR} msg/[^.]*.msg srv/[^.
 rosidl_generate_interfaces(${PROJECT_NAME} ${MSG_FILES})
 
 add_library(${PROJECT_NAME}_if INTERFACE)
-target_link_libraries(${PROJECT_NAME}_if INTERFACE Eigen3)
 
 install(
   TARGETS ${PROJECT_NAME}_if
