@@ -47,10 +47,6 @@
 	<exec_depend>urdf_builder</exec_depend>
 
 	<export>
-		<metapackage/>
-	</export>
-
-	<export>
 		<build_type>ament_cmake</build_type>
 	</export>
 

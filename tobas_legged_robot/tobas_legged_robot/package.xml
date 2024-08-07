@@ -12,10 +12,6 @@
 	<exec_depend>tobas_legged_tools</exec_depend>
 
 	<export>
-		<metapackage/>
-	</export>
-
-	<export>
 		<build_type>ament_cmake</build_type>
 	</export>
 

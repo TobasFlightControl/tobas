@@ -13,10 +13,6 @@
 	<exec_depend>tobas_dynamixel_msgs</exec_depend>
 
 	<export>
-		<metapackage/>
-	</export>
-
-	<export>
 		<build_type>ament_cmake</build_type>
 	</export>
 
