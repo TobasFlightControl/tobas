@@ -5,7 +5,7 @@
 #include <tobas_drone_core/drone.hpp>
 
 #include "./solveri.hpp"
-#include "./stability_derivatives_cog.hpp"
+#include "./fw_stability_derivatives_cog.hpp"
 
 namespace tobas
 {
@@ -15,7 +15,7 @@ namespace tobas
 class TrimConditions : public SolverI
 {
 public:
-  explicit TrimConditions(const kdl::Tree& tree, const Drone& drone);
+  explicit TrimConditions(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures() override;
 
@@ -66,8 +66,8 @@ public:
   double takeOffSpeed(const double& rho) const;
 
 private:
-  const kdl::Tree& tree_;
   const Drone& drone_;
+  const kdl::Tree& tree_;
 
   kdl::TreeJntToInertiaSolver inertia_solver_;
   StabilityDerivativesCG asd_cog_;

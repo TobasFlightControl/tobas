@@ -1,19 +1,21 @@
 #include <tobas_std_tools/console.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_mr_common/mixer.hpp"
+#include "../include/tobas_drone_tools/mr_mixer.hpp"
 
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_mr_common
+namespace tobas
 {
-Mixer::Mixer(const tobas::Drone& drone)
+Mixer::Mixer(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone),
-    fk_solver_(tree_),
-    jnt_axis_solver_(tree_),
-    inertia_solver_(tree_),
-    z_rotors_(drone, tobas::Z_POSITIVE)
+    tree_(tree),
+    fk_solver_(tree),
+    jnt_axis_solver_(tree),
+    inertia_solver_(tree),
+    z_rotors_(drone, Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -36,7 +38,7 @@ void Mixer::updateInternalDataStructures()
   constexpr double dgyro_scale = M_PI;
   qp_.x_scale.head(3).fill(dgyro_scale);
   const auto& mass = inertia_solver_.getInertia().getMass();
-  const auto thrust_scale = mass * tobas::kGravity / z_rotors_.count();
+  const auto thrust_scale = mass * tobas_std::kGravity / z_rotors_.count();
   qp_.x_scale.tail(z_rotors_.count()).fill(thrust_scale);
 
   // QPPの定数部分
@@ -185,4 +187,4 @@ void Mixer::updateThrustLimits(const double& dt, const double& cur_voltage, cons
     min_thrusts_.fill(0);
   }
 }
-}  // namespace tobas_mr_common
+}  // namespace tobas

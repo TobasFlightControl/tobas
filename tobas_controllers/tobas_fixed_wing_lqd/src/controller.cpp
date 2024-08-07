@@ -4,7 +4,7 @@
 #include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_tools/conversions/coordinates.hpp>
 
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 
 #include "../include/tobas_fixed_wing_lqd/controller.hpp"
@@ -105,7 +105,7 @@ void Controller::setScales()
 
   // 制御入力のスケール
   lqd_.input_scale.resize(eom_.inputSize());
-  const auto thrust_scale = tobas::getMass() * tobas::kGravity / x_rotors_.count();
+  const auto thrust_scale = tobas::getMass() * tobas_std::kGravity / x_rotors_.count();
   lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
   for (size_t i = 0; i < drone_.fixed_wing.control_surfaces.size(); ++i)
     lqd_.input_scale(x_rotors_.count() + i) = drone_.fixed_wing.control_surfaces.at(i).angle_limit.range();

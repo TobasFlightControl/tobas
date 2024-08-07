@@ -5,10 +5,9 @@
 #include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
-#include <tobas_tools/drone.hpp>
-#include <tobas_tools/rotor_axis_extractor.hpp>
+#include "./rotor_axis_extractor.hpp"
 
-namespace tobas_mr_common
+namespace tobas
 {
 struct MixerConfig
 {
@@ -30,7 +29,7 @@ class Mixer
   static constexpr size_t kEqualityConstSize = 4;
 
 public:
-  explicit Mixer(const tobas::Drone& drone);
+  explicit Mixer(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
@@ -55,11 +54,13 @@ public:
   void configure(const MixerConfig& cfg);
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
+  const kdl::Tree& tree_;
+
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeJntAxisSolver jnt_axis_solver_;
   kdl::TreeJntToInertiaSolver inertia_solver_;
-  tobas::RotorAxisExtractor z_rotors_;
+  RotorAxisExtractor z_rotors_;
 
   MixerConfig cfg_;
 
@@ -72,4 +73,4 @@ private:
   void updateQpWeight();
   void updateThrustLimits(const double& dt, const double& cur_voltage, const double& thrusts_sum);
 };
-}  // namespace tobas_mr_common
+}  // namespace tobas

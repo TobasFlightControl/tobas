@@ -14,7 +14,7 @@
 	<depend>pluginlib</depend>
 	<depend>message_generation</depend>
 
-	<depend>tobas_mr_common</depend>
+	<depend>tobas_drone_tools</depend>
 	<depend>tobas_linear_control</depend>
 
 	<export>

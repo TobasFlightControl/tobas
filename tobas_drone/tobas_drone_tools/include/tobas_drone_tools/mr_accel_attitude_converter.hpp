@@ -1,9 +1,8 @@
 #pragma once
 
-#include <tobas_tools/drone.hpp>
-#include <tobas_mr_common/dynamics.hpp>
+#include "./mr_dynamics.hpp"
 
-namespace tobas_mr_common
+namespace tobas
 {
 struct AccelAttitudeConverterConfig
 {
@@ -14,7 +13,7 @@ struct AccelAttitudeConverterConfig
 class AccelAttitudeConverter
 {
 public:
-  explicit AccelAttitudeConverter(const tobas::Drone& drone);
+  explicit AccelAttitudeConverter(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
@@ -42,12 +41,14 @@ public:
 private:
   AccelAttitudeConverterConfig cfg_;
 
-  const tobas::Drone& drone_;
-  tobas_mr_common::MultirotorDynamicsComponents dynamics_;
+  const Drone& drone_;
+  const kdl::Tree& tree_;
+
+  tobas::MultirotorDynamicsComponents dynamics_;
 
   const kdl::Vector grav_W_;
   const kdl::Vector zero_;
 
   double roll_, pitch_, yaw_;
 };
-}  // namespace tobas_mr_common
+}  // namespace tobas

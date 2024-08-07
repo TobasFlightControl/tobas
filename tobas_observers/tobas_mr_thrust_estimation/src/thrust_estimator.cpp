@@ -3,12 +3,12 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_mr_thrust_estimation/thrust_estimator.hpp"
 
 #define EPS 1e-6
-#define GRAV_W Vector3d(0, 0, tobas::kGravity)
+#define GRAV_W Vector3d(0, 0, tobas_std::kGravity)
 
 using namespace std;
 using namespace Eigen;

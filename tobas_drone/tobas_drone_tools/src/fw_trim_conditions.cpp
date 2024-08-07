@@ -2,15 +2,15 @@
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/assert.hpp>
 
-#include "../include/tobas_drone_tools/trim_conditions.hpp"
+#include "../include/tobas_drone_tools/fw_trim_conditions.hpp"
 #include "../include/tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
 using namespace std;
 
 namespace tobas
 {
-TrimConditions::TrimConditions(const kdl::Tree& tree, const Drone& drone)
-  : tree_(tree), drone_(drone), inertia_solver_(tree), asd_cog_(tree, drone)
+TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
+  : drone_(drone), tree_(tree), inertia_solver_(tree), asd_cog_(drone, tree)
 {
   if (drone.fixed_wing.equipped)
     updateInternalDataStructures();

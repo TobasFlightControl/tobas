@@ -8,7 +8,7 @@
 #include <tobas_ros2_tools/timer.hpp>
 
 #include <tobas_tools/node.hpp>
-#include <tobas_tools/trim_conditions.hpp>
+#include <tobas_tools/fw_trim_conditions.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 
 namespace tobas_keyboard_teleop

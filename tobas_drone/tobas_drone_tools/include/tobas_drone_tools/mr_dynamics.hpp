@@ -3,16 +3,15 @@
 #include <tobas_kdl/treefksolverpos.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
-#include <tobas_tools/drone.hpp>
-#include <tobas_tools/rotor_axis_extractor.hpp>
+#include "./rotor_axis_extractor.hpp"
 
-namespace tobas_mr_common
+namespace tobas
 {
 /* 平面配置マルチコプターの運動方程式の要素． */
 class MultirotorDynamicsComponents
 {
 public:
-  explicit MultirotorDynamicsComponents(const tobas::Drone& tobas);
+  explicit MultirotorDynamicsComponents(const Drone& tobas, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
@@ -50,11 +49,12 @@ public:
     const std::vector<double>& rot_speeds);
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
+  const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeJntToInertiaSolver inertia_solver_;
-  tobas::RotorAxisExtractor z_rotors_;
+  RotorAxisExtractor z_rotors_;
 };
 
 inline const double& MultirotorDynamicsComponents::mass() const
@@ -76,4 +76,4 @@ inline double MultirotorDynamicsComponents::minThrustSum(const double& battery_v
 {
   return z_rotors_.minThrustSum(battery_voltage);
 }
-}  // namespace tobas_mr_common
+}  // namespace tobas

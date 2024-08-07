@@ -7,7 +7,7 @@
 #include <gazebo/sensors/sensors.hh>
 
 #include <tobas_dsp/low_pass_filter.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 
@@ -23,7 +23,7 @@ class GazeboImuPlugin : public SensorPlugin
   static constexpr double kDefaultAccNoiseDensity = 2. * 2e-3;
   static constexpr double kDefaultAccRandomWalk = 2. * 3e-3;
   static constexpr double kDefaultAccBiasCorrTime = 300.;
-  static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas::kGravity;
+  static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas_std::kGravity;
   static constexpr double kDefaultAccLpfCutoffFreq = 20.;
   static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * tobas::kDeg2Rad;
   static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * tobas::kDeg2Rad;

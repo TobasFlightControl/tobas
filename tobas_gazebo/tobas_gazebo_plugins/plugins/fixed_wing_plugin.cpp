@@ -2,7 +2,7 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_tools/fixed_wing_tools.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_msgs/FixedWingDebug.h>
 
 #include "./fixed_wing_plugin.hpp"

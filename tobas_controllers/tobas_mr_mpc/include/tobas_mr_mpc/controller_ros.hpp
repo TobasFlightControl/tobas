@@ -16,7 +16,7 @@
 #include <tobas_msgs/RollPitchYawThrust.h>
 #include <tobas_msgs/RotorSpeeds.h>
 
-#include <tobas_mr_common/accel_attitude_converter.hpp>
+#include <tobas_drone_tools/accel_attitude_converter.hpp>
 #include <tobas_mr_mpc/ControllerConfig.h>
 
 #include "./position_controller.hpp"
@@ -51,12 +51,12 @@ private:
 
   // Controllers
   tobas_mr_mpc::PositionController pos_ctrl_;
-  tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
+  tobas::AccelAttitudeConverter acc_ctrl_;
   tobas_mr_mpc::OrientationController ori_ctrl_;
 
   // Dynamic parameters
   tobas_mr_mpc::PositionControllerConfig pos_cfg_;
-  tobas_mr_common::AccelAttitudeConverterConfig acc_cfg_;
+  tobas::AccelAttitudeConverterConfig acc_cfg_;
   tobas_mr_mpc::OrientationControllerConfig ori_cfg_;
 
   // Mutable variables

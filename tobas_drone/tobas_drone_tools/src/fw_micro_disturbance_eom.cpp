@@ -3,7 +3,7 @@
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_drone_tools/micro_disturbance_eom.hpp"
+#include "../include/tobas_drone_tools/fw_micro_disturbance_eom.hpp"
 #include "../include/tobas_drone_tools/utils/fixed_wing_tools.hpp"
 
 #define X_AXIS Vector3d(1, 0, 0)
@@ -13,13 +13,13 @@ using namespace Eigen;
 
 namespace tobas
 {
-MicroDisturbanceEoM::MicroDisturbanceEoM(const kdl::Tree& tree, const Drone& drone)
-  : tree_(tree),
-    drone_(drone),
+MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree)
+  : drone_(drone),
+    tree_(tree),
     fk_solver_(tree),
     inertia_solver_(tree),
     x_rotors_(drone, X_POSITIVE),
-    trim_(tree, drone)
+    trim_(drone, tree)
 {
   if (drone.fixed_wing.equipped)
     updateInternalDataStructures();

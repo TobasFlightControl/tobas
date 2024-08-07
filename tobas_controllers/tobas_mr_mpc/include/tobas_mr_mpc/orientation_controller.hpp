@@ -5,8 +5,8 @@
 #include <tobas_linear_control/c2d/tustin.hpp>
 #include <tobas_linear_control/mpc/linear_dense.hpp>
 
-#include <tobas_mr_common/dynamics.hpp>
-#include <tobas_mr_common/mixer.hpp>
+#include <tobas_drone_tools/dynamics.hpp>
+#include <tobas_drone_tools/mixer.hpp>
 
 #include "./dynamics.hpp"
 
@@ -61,8 +61,8 @@ private:
   const tobas::Drone& drone_;
 
   tobas::RotorAxisExtractor z_rotors_;
-  tobas_mr_common::MultirotorDynamicsComponents dynamics_;
-  tobas_mr_common::Mixer mixer_;
+  tobas::MultirotorDynamicsComponents dynamics_;
+  tobas::Mixer mixer_;
 
   MultiRotorDynamics cont_;
   ctrl::C2D_Tustin c2d_;

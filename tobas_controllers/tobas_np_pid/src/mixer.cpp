@@ -1,5 +1,5 @@
 #include <tobas_std_tools/check.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_np_pid/mixer.hpp"
 
@@ -77,7 +77,7 @@ VectorXd Mixer::solve(
 
   // EoM行列等式の右辺
   // TODO: H-forceを考慮
-  const kdl::Vector grav_W(0, 0, -tobas::kGravity);
+  const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
   const auto trans_right = mass * cur_rot.inverse(tar_acc_W - grav_W);
   const auto rot_right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B);
   h_.head<3>() = trans_right.data;
@@ -117,9 +117,9 @@ void Mixer::configure(const MixerConfig& cfg)
   const auto& mass = inertia.getMass();
   const auto& I = inertia.getRotationalInertia();  // トレースがほしいだけ
 
-  const auto linear_scale = mass * tobas::kGravity;
+  const auto linear_scale = mass * tobas_std::kGravity;
   const auto angular_scale = I.trace() / 3 * M_PI;
-  const auto thrust_scale = mass * tobas::kGravity / drone_.rotors.size();
+  const auto thrust_scale = mass * tobas_std::kGravity / drone_.rotors.size();
 
   Q_.diagonal().head<3>().fill(cfg.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg.angular_weight / math::sqr(angular_scale));

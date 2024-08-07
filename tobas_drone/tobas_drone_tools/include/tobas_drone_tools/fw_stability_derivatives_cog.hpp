@@ -13,7 +13,7 @@ namespace tobas
 class StabilityDerivativesCG : public SolverI
 {
 public:
-  explicit StabilityDerivativesCG(const kdl::Tree& tree, const Drone& drone);
+  explicit StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures() override;
 
@@ -25,8 +25,8 @@ public:
   inline const double& cYawDelta(const size_t& cs_idx) const;
 
 private:
-  const kdl::Tree& tree_;
   const Drone& drone_;
+  const kdl::Tree& tree_;
 
   kdl::TreeJntToInertiaSolver inertia_solver_;
 

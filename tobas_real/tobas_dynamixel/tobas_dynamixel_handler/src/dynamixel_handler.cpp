@@ -4,7 +4,7 @@
 #include <tobas_std_tools/unordered_map.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_dynamixel_handler/dynamixel_handler.hpp"
 #include "../include/tobas_dynamixel_handler/constants.hpp"

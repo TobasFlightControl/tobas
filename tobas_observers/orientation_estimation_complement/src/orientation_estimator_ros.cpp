@@ -4,7 +4,7 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_eigen.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 
 #include <tobas_kdl_msgs/QuaternionStamped.h>
@@ -48,7 +48,7 @@ void OrientationEstimatorRos::initializeFilter()
   const auto mag = geomag::elementsFromGeodetic(gps.latitude, gps.longitude, gps.altitude, tobas_std::yearFraction());
   filter_.setReferenceMagneticField(mag.north, mag.east);
 
-  if (!filter_.setGravity(tobas::kGravity))
+  if (!filter_.setGravity(tobas_std::kGravity))
     TOBAS_EXIT("Invalid gravity");
 
   if (!filter_.setGainAcc(gain_acc_))

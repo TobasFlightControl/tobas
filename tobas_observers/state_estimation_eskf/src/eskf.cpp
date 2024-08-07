@@ -3,7 +3,7 @@
 #include <tobas_std_tools/assert.hpp>
 #include <tobas_std_tools/console.hpp>
 
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/state_estimation_eskf/eskf.hpp"
 
@@ -65,7 +65,7 @@ void ErrorStateKalmanFilter::initialize(
   x_.segment<3>(kPosIdx) = init_pos;
   x_.segment<3>(kVelIdx) = init_vel;
   x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(init_quat).normalized();
-  x_(kGravIdx) = tobas::kGravity;
+  x_(kGravIdx) = tobas_std::kGravity;
 
   // 共分散行列を初期化
   P_.setZero();

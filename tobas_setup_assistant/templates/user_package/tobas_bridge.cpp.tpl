@@ -1,6 +1,6 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/{{ user_pkg_name }}/tobas_bridge.hpp"
 

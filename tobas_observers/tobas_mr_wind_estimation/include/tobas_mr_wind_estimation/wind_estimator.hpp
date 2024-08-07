@@ -7,7 +7,7 @@
 #include <tobas_tools/node.hpp>
 #include <tobas_tools/drone.hpp>
 #include <tobas_wind_model/dryden.hpp>
-#include <tobas_mr_common/dynamics.hpp>
+#include <tobas_drone_tools/dynamics.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/RotorSpeeds.h>
 
@@ -31,7 +31,7 @@ public:
 
 private:
   tobas::Drone drone_;
-  tobas_mr_common::MultirotorDynamicsComponents dynamics_;
+  tobas::MultirotorDynamicsComponents dynamics_;
 
   bool is_initialized_ = false;
   rclcpp::Time t_last_loop_;

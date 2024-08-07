@@ -1,11 +1,11 @@
-#include "../include/tobas_drone_tools/stability_derivatives_cog.hpp"
+#include "../include/tobas_drone_tools/fw_stability_derivatives_cog.hpp"
 
 using namespace std;
 
 namespace tobas
 {
-StabilityDerivativesCG::StabilityDerivativesCG(const kdl::Tree& tree, const Drone& drone)
-  : tree_(tree), drone_(drone), inertia_solver_(tree)
+StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree)
+  : drone_(drone), tree_(tree), inertia_solver_(tree)
 {
   if (drone.fixed_wing.equipped)
     updateInternalDataStructures();

@@ -3,7 +3,7 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_linear_control/util.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 
 #include "../include/tobas_mr_mpc/orientation_controller.hpp"
@@ -54,7 +54,7 @@ void OrientationController::updateInternalDataStructures()
 
   // 制御入力のスケール
   mpc_.input_scale.resize(z_rotors_.count());
-  mpc_.input_scale.fill(tobas::getMass() * tobas::kGravity / z_rotors_.count());
+  mpc_.input_scale.fill(tobas::getMass() * tobas_std::kGravity / z_rotors_.count());
 
   // 推力の和が一定だから，推力の二乗和の重みが大きいほど各プロペラの推力を均等にしようとする力が働く．
   // 回転翼機の制御においてそれは致命傷になりうるため，推力の重みは0で固定する．

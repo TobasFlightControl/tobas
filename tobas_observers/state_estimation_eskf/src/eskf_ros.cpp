@@ -6,7 +6,7 @@
 #include <tobas_geomag/core.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/state_estimation_eskf/eskf_ros.hpp"
 
@@ -83,7 +83,7 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
   const Vector3d W_Vel_WI = eskf_.getVelocity();
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
-  const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas::kGravity);
+  const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas_std::kGravity);
   const Vector3d B_Acc = imu_filtered_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
   const Vector3d B_Gyro = imu_filtered_->gyro.data - eskf_.getGyroBias();
 

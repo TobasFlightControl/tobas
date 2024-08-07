@@ -1,13 +1,13 @@
 #include <eigen3/Eigen/LU>
 
 #include <tobas_math/core.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Wind.h>
 
 #include "../include/tobas_mr_wind_estimation/wind_estimator.hpp"
 
 #define E_XY DiagonalMatrix<double, 3>(1, 1, 0)
-#define GRAV_W Vector3d(0, 0, tobas::kGravity)
+#define GRAV_W Vector3d(0, 0, tobas_std::kGravity)
 
 using namespace std;
 using namespace Eigen;

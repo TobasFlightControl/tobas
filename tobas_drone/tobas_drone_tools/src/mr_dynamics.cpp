@@ -1,14 +1,14 @@
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_mr_common/dynamics.hpp"
+#include "../include/tobas_drone_tools/mr_dynamics.hpp"
 
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_mr_common
+namespace tobas
 {
-MultirotorDynamicsComponents::MultirotorDynamicsComponents(const tobas::Drone& drone)
-  : drone_(drone), fk_solver_(tree_), inertia_solver_(tree_), z_rotors_(drone, tobas::Z_POSITIVE)
+MultirotorDynamicsComponents::MultirotorDynamicsComponents(const Drone& drone, const kdl::Tree& tree)
+  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -93,4 +93,4 @@ kdl::Vector MultirotorDynamicsComponents::horizontalMoment(
   const auto vel_perp = relativePerpVel(rot, vel_B, wind_W);
   return -h_momemt_arm * vel_perp;
 }
-}  // namespace tobas_mr_common
+}  // namespace tobas

@@ -1,6 +1,6 @@
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/rosparam.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/RollPitchYawThrust.h>
 
@@ -23,7 +23,7 @@ void RollPitchYawThrustController::initialize()
   z_rotors_.updateInternalDataStructures();
 
   const auto mass = tobas::getMass();
-  max_thrust_ = mass * (tobas::kGravity + max_ver_acc_);
+  max_thrust_ = mass * (tobas_std::kGravity + max_ver_acc_);
 
   rpy_thrust_pub_ = node.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic, 1);
 }

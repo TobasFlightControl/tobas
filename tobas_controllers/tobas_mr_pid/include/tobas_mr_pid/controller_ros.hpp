@@ -10,8 +10,8 @@
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/position_pid.hpp>
 #include <tobas_tools/orientation_pid.hpp>
-#include <tobas_mr_common/accel_attitude_converter.hpp>
-#include <tobas_mr_common/mixer.hpp>
+#include <tobas_drone_tools/accel_attitude_converter.hpp>
+#include <tobas_drone_tools/mixer.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/Battery.h>
 #include <tobas_msgs/PosVelAccYaw.hpp>
@@ -48,13 +48,13 @@ private:
 
   // Controllers
   tobas::PositionPid pos_ctrl_;
-  tobas_mr_common::AccelAttitudeConverter acc_ctrl_;
+  tobas::AccelAttitudeConverter acc_ctrl_;
   tobas::OrientationPid ori_ctrl_;
-  tobas_mr_common::Mixer mixer_;
+  tobas::Mixer mixer_;
 
   // Dynamic parameters
   tobas::PositionPidConfig pos_cfg_;
-  tobas_mr_common::AccelAttitudeConverterConfig acc_cfg_;
+  tobas::AccelAttitudeConverterConfig acc_cfg_;
   tobas::OrientationPidConfig ori_cfg_;
 
   // Mutable variables

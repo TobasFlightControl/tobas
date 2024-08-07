@@ -2,7 +2,7 @@
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_geomag/core.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_msgs/MagneticField.h>
 
 #include "./magnetometer_plugin.hpp"

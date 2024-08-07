@@ -11,7 +11,7 @@
 
 	<exec_depend>tobas_fixed_wing_lqd</exec_depend>
 	<exec_depend>tobas_fixed_wing_mpc</exec_depend>
-	<exec_depend>tobas_mr_common</exec_depend>
+	<exec_depend>tobas_drone_tools</exec_depend>
 	<exec_depend>tobas_mr_pid</exec_depend>
 	<exec_depend>tobas_mr_mpc</exec_depend>
 	<exec_depend>tobas_np_pid</exec_depend>

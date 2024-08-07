@@ -4,7 +4,7 @@
 
 #include "./solveri.hpp"
 #include "./rotor_axis_extractor.hpp"
-#include "./trim_conditions.hpp"
+#include "./fw_trim_conditions.hpp"
 
 namespace tobas
 {
@@ -27,7 +27,7 @@ public:
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Matrix<double, kStateSize, 1>;
 
-  explicit MicroDisturbanceEoM(const kdl::Tree& tree, const Drone& drone);
+  explicit MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures() override;
 
@@ -126,8 +126,8 @@ public:
   inline const double& r_delta(const size_t& cs_idx) const;
 
 private:
-  const kdl::Tree& tree_;
   const Drone& drone_;
+  const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeJntToInertiaSolver inertia_solver_;

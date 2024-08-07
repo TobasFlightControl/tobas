@@ -6,7 +6,7 @@
 #include <tobas_std_tools/range.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_tools/node.hpp>
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_hal_msgs/Sbus.h>
 
 namespace tobas_real_ros

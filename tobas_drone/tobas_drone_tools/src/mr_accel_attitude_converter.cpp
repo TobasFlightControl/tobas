@@ -1,17 +1,18 @@
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/check.hpp>
 
-#include <tobas_tools/constants.hpp>
+#include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_mr_common/accel_attitude_converter.hpp"
+#include "../include/tobas_drone_tools/mr_accel_attitude_converter.hpp"
 
 using namespace std;
 
-namespace tobas_mr_common
+namespace tobas
 {
-AccelAttitudeConverter::AccelAttitudeConverter(const tobas::Drone& drone)
-  : drone_(drone), dynamics_(drone), grav_W_(0, 0, tobas::kGravity), zero_(kdl::Vector::Zero())
+AccelAttitudeConverter::AccelAttitudeConverter(const Drone& drone, const kdl::Tree& tree)
+  : drone_(drone), tree_(tree), dynamics_(drone, tree), grav_W_(0, 0, tobas_std::kGravity), zero_(kdl::Vector::Zero())
 {
   updateInternalDataStructures();
 }
@@ -74,4 +75,4 @@ void AccelAttitudeConverter::configure(const AccelAttitudeConverterConfig& cfg)
 
   cfg_ = cfg;
 }
-}  // namespace tobas_mr_common
+}  // namespace tobas
