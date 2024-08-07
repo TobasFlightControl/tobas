@@ -56,7 +56,7 @@ private:
   rclcpp::CallbackQueue laser_queue_;  // Custom Callback Queue
   boost::thread callback_laser_queue_thread_;
 
-  rclcpp::Publisher pub_;
+  PublisherPtr<> pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void putLaserData(const common::Time& update_time);

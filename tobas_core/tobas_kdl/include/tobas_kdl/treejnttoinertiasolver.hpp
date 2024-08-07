@@ -18,7 +18,7 @@ public:
   /* ルートリンク周りの質量特性を計算する． */
   int JntToCart(const JntArray& q);
 
-  const RigidBodyInertia& getInertia() const
+  inline const RigidBodyInertia& getInertia() const
   {
     return I_.at(tree_.getRootSegment()->first);
   }

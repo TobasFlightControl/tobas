@@ -177,15 +177,15 @@ void GazeboRotorPlugin::registerPubSub()
   const string prefix = "/" + ns_ + "/";
   const string suffix = "_" + to_string(motor_number_);
 
-  rotor_state_pub_ = node_.advertise<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix, 1);
-  debug_pub_ = node_.advertise<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix, 1);
+  rotor_state_pub_ = createPublisher<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix);
 
-  throttle_sub_ = node_.subscribe(
+  throttle_sub_ = createSubscriber(
     prefix + kThrottleTopicPrefix + suffix, 1, &self::throttleCmdCb, this, rclcpp::TransportHints().tcpNoDelay());
   battery_gt_sub_ =
-    node_.subscribe(prefix + kBatteryGtTopic, 1, &self::batteryGtCb, this, rclcpp::TransportHints().tcpNoDelay());
+    createSubscriber(prefix + kBatteryGtTopic, &self::batteryGtCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_gt_sub_ =
-    node_.subscribe(prefix + kWindGtTopic, 1, &self::windSpeedGtCb, this, rclcpp::TransportHints().tcpNoDelay());
+    createSubscriber(prefix + kWindGtTopic, &self::windSpeedGtCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()
@@ -254,20 +254,20 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   }
 
   // Publish rotor state
-  const auto rotor_state = make_unique<tobas_msgs::RotorState>();
+  const auto rotor_state =std::make_unique<tobas_msgs::RotorState>();
   timeGazeboToRos(cur_time, rotor_state->header.stamp);
   rotor_state->speed = rot_speed;
   rotor_state->current = current;
-  rotor_state_pub_.publish(rotor_state);
+  rotor_state_pub_->publish(rotor_state);
 
   // Publish debug message
-  const auto debug_msg = make_unique<tobas_gazebo_msgs::RotorDebug>();
+  const auto debug_msg =std::make_unique<tobas_gazebo_msgs::RotorDebug>();
   timeGazeboToRos(cur_time, debug_msg->header.stamp);
   debug_msg->rotation_speed = joint_->GetVelocity(0) * kRotorSpeedSlowdownSim;
   vectorGazeboToKDL(thrust_W, debug_msg->thrust_force);
   vectorGazeboToKDL(h_force_W, debug_msg->horizontal_force);
   vectorGazeboToKDL(drag_torque_parent, debug_msg->drag_torque);
-  debug_pub_.publish(debug_msg);
+  debug_pub_->publish(debug_msg);
 }
 
 void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
@@ -315,7 +315,7 @@ double GazeboRotorPlugin::rotSpeedFromERPM(const double& erpm)
   return tobas_std::rpm2rps(erpm * 2 / num_poles_);
 }
 
-void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::ThrottleConstPtr& msg)
+void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::Throttle::ConstSharedPtr& msg)
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
   if (battery_ == nullptr || battery_->voltage < kMinBatteryVoltage)
@@ -381,12 +381,12 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::ThrottleConstPtr&
   }
 }
 
-void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::BatteryConstPtr& battery)
+void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
 
-void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::WindConstPtr& wind)
+void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind)
 {
   vectorKDLToGazebo(wind->vel, wind_vel_W_);
 

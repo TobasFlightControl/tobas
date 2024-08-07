@@ -48,7 +48,7 @@ private:
   std::random_device rnd_dev_;
   NormalDistribution3dPtr noise_;
 
-  rclcpp::Publisher mag_pub_;
+  PublisherPtr<> mag_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();

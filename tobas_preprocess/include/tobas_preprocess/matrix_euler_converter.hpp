@@ -2,7 +2,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/Odometry.hpp>
 
 namespace tobas_preprocess
@@ -22,9 +22,9 @@ public:
     const std::string& name = rclcpp::this_node::getName());
 
 private:
-  rclcpp::Publisher euler_pub_;
-  rclcpp::Subscriber odom_sub_;
+  PublisherPtr<> euler_pub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
 }  // namespace tobas_preprocess

@@ -3,9 +3,9 @@
 #include <rclcpp/rclcpp.hpp>
 #include <actionlib/server/simple_action_server.h>
 
-#include <tobas_tools/drone.hpp>
-#include <tobas_tools/node.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_drone_core/drone.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_calibration_msgs/EscCalibrationAction.h>
 
 namespace tobas_calibration
@@ -36,9 +36,9 @@ public:
 private:
   tobas::Drone drone_;
   ResultType result_;
-  tobas_msgs::BatteryConstPtr battery_;
+  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
-  rclcpp::Publisher throttles_pub_;
+  PublisherPtr<> throttles_pub_;
   rclcpp::ServiceClient get_arm_sc_;
   rclcpp::ServiceClient enable_rcout_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
@@ -52,7 +52,7 @@ private:
   bool checkBatteryDisconnected();
   bool waitForBatteryConnection();
 
-  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void executeCb(const GoalType::ConstPtr& goal);
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void executeCb(const GoalType::ConstSharedPtr& goal);
 };
 }  // namespace tobas_calibration

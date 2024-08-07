@@ -9,7 +9,7 @@ using namespace std;
 
 namespace tobas_manipulation
 {
-VelocityControllerRos::VelocityControllerRos(, const string& name)
+VelocityControllerRos::VelocityControllerRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name),
     cur_js_conv_(tree_),
     tar_js_conv_(tree_),
@@ -37,13 +37,13 @@ VelocityControllerRos::VelocityControllerRos(, const string& name)
 
   // ホームポジションを初期目標状態に設定
   if (home_js_.name.size() > 0)
-    tar_js_ = make_unique<sensor_msgs::msg::JointState>(home_js_);
+    tar_js_ =std::make_unique<sensor_msgs::msg::JointState>(home_js_);
 
-  velocities_pub_ = node_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic, 1);
+  velocities_pub_ = createPublisher<tobas_msgs::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
 
-  cur_js_sub_ = node_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ = node_.subscribe(tobas::kVelCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_ls_sub_ = node_.subscribe(tobas::kVelCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+  cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(tobas::kVelCtrlJSTopic, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(tobas::kVelCtrlLSTopic, &self::targetLinkStateCb, this);
 
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
@@ -132,7 +132,7 @@ int VelocityControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray& veloc
   return 0;
 }
 
-void VelocityControllerRos::currentJointStateCb(const sensor_msgs::msg::JointStateConstPtr& cur_js)
+void VelocityControllerRos::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js)
 {
   cur_js_ = cur_js;
 
@@ -142,7 +142,7 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::msg::JointSta
   const auto time_after_last_cmd = (node->get_clock()->now() - t_last_cmd_).seconds();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    tar_js_ = make_unique<sensor_msgs::msg::JointState>(home_js_);
+    tar_js_ =std::make_unique<sensor_msgs::msg::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
     TOBAS_WARN(
@@ -151,7 +151,7 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::msg::JointSta
   }
 
   // Create joint velocities command
-  const auto velocities_msg = make_unique<tobas_msgs::JointCommandArray>();
+  const auto velocities_msg =std::make_unique<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)
@@ -171,10 +171,10 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::msg::JointSta
   }
 
   // Publish joint velocities command
-  velocities_pub_.publish(velocities_msg);
+  velocities_pub_->publish(velocities_msg);
 }
 
-void VelocityControllerRos::targetJointStateCb(const sensor_msgs::msg::JointStateConstPtr& tar_js)
+void VelocityControllerRos::targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js)
 {
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
@@ -183,7 +183,7 @@ void VelocityControllerRos::targetJointStateCb(const sensor_msgs::msg::JointStat
   is_commanded_ = true;
 }
 
-void VelocityControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls)
+void VelocityControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
 {
   tar_ls_ = tar_ls;
   tar_js_ = nullptr;

@@ -3,7 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <ros/timer.h>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 
 namespace tobas_real_ros
 {
@@ -17,7 +17,7 @@ class CpuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit CpuHandler(, const std::string& name = rclcpp::this_node::getName());
+  explicit CpuHandler(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   int temp_millidegrees_;
@@ -25,7 +25,7 @@ private:
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
 
   // Publisher
-  rclcpp::Publisher cpu_pub_;
+  PublisherPtr<> cpu_pub_;
 
   // Timer
   rclcpp::Timer main_timer_;

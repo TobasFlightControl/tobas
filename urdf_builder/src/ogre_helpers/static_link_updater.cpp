@@ -51,7 +51,7 @@ void StaticLinkUpdater::setLinkStatus(rviz::StatusLevel, const std::string&, con
 {
 }
 
-Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& link)
+Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::Link::ConstSharedPtr& link)
 {
   std::vector<Ogre::Matrix4> matrices;
 

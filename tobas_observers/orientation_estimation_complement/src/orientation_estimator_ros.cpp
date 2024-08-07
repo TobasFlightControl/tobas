@@ -1,6 +1,6 @@
 #include <tobas_std_tools/time.hpp>
 #include <tobas_geomag/core.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_kdl_msgs/conversion/kdl_eigen.hpp>
@@ -17,7 +17,7 @@ using namespace Eigen;
 
 namespace orientation_estimation_complement
 {
-OrientationEstimatorRos::OrientationEstimatorRos(, const string& name)
+OrientationEstimatorRos::OrientationEstimatorRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name),
     imu_sub_(node_, tobas::kImuTopic, kQueueSize, tcpNoDelay()),
     mag_sub_(node_, tobas::kMagTopic, kQueueSize, tcpNoDelay()),
@@ -27,7 +27,7 @@ OrientationEstimatorRos::OrientationEstimatorRos(, const string& name)
   getRosParams();
   initializeFilter();
 
-  orientation_pub_ = node_.advertise<tobas_kdl_msgs::QuaternionStamped>("orientation", kQueueSize);
+  orientation_pub_ = createPublisher<tobas_kdl_msgs::QuaternionStamped>("orientation", kQueueSize);
   sync_.registerCallback(&OrientationEstimatorRos::imuMagCb, this);
 }
 
@@ -61,7 +61,7 @@ void OrientationEstimatorRos::initializeFilter()
   filter_.setDoAdaptiveGain(do_adaptive_gain_);
 }
 
-void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag)
+void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstSharedPtr& imu, const MagMsg::ConstSharedPtr& mag)
 {
   // Initialize
   if (imu_ == nullptr)
@@ -83,12 +83,12 @@ void OrientationEstimatorRos::imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg
   const auto q = filter_.getOrientation();
 
   // Create the orientation message
-  const auto quat_msg = make_unique<tobas_kdl_msgs::QuaternionStamped>();
+  const auto quat_msg =std::make_unique<tobas_kdl_msgs::QuaternionStamped>();
   quat_msg->header = imu->header;
   kdl::quaternionEigenToKDL(q, quat_msg->quaternion);
 
   // Publish the orientation message
-  orientation_pub_.publish(quat_msg);
+  orientation_pub_->publish(quat_msg);
 }
 
 void OrientationEstimatorRos::checkTopicsTimerCb(const rclcpp::TimerEvent&)

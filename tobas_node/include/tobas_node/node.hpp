@@ -3,11 +3,10 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
-#include <tobas_std_tools/debug.hpp>
-#include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/stream.hpp>
-#include <tobas_std_tools/unordered_set.hpp>
+#include <tobas_std_tools/vector.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_dynamic_param_msgs/msg/parameters.hpp>
 
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
@@ -43,17 +42,15 @@
 #define TOBAS_ERROR_THROTTLE(period, ...) errorThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
 #define TOBAS_FATAL_THROTTLE(period, ...) fatalThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
 
-namespace ros2
+namespace tobas
 {
-class Node : public rclcpp::Node
+class BaseNode : public rclcpp::Node
 {
-  static constexpr char kMessageTopic[] = "message";
-
   using super = rclcpp::Node;
-  using self = Node;
+  using self = BaseNode;
 
 public:
-  explicit Node(const std::string& node_name, const rclcpp::NodeOptions& options);
+  explicit BaseNode(const std::string& node_name, const rclcpp::NodeOptions& options);
 
 protected:
   template <typename MsgType>
@@ -93,9 +90,6 @@ protected:
 
   template <typename DurationRepType, typename DurationType, typename Obj>
   TimerPtr createTimer(std::chrono::duration<DurationRepType, DurationType> period, void (Obj::*fp)(void), Obj* obj);
-
-  template <typename Obj>
-  ParamHandlePtr addParamCallback(const std::string& name, void (Obj::*fp)(const rclcpp::Parameter&), Obj* obj);
 
   template <typename... Args>
   void log(uint8_t level, const Args&... args) const;
@@ -137,6 +131,37 @@ protected:
   template <typename... Args>
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
+  template <typename Obj>
+  void
+  addDynamicBoolParam(const std::string& name, bool (Obj::*fp)(const bool&), Obj* obj, const bool& _default = false);
+
+  template <typename Obj>
+  void addDynamicIntParam(
+    const std::string& name,
+    bool (Obj::*fp)(const long&),
+    Obj* obj,
+    const long& _default = 0,
+    const long& _min = std::numeric_limits<long>::lowest(),
+    const long& _max = std::numeric_limits<long>::max());
+
+  template <typename Obj>
+  void addDynamicDoubleParam(
+    const std::string& name,
+    bool (Obj::*fp)(const double&),
+    Obj* obj,
+    const double& _default = 0.,
+    const double& _min = std::numeric_limits<double>::lowest(),
+    const double& _max = std::numeric_limits<double>::max());
+
+  template <typename Obj>
+  void addDynamicStringParam(
+    const std::string& name,
+    bool (Obj::*fp)(const std::string&),
+    Obj* obj,
+    const std::string& _default = "");
+
+  void publishDynamicParameterDescriptions();
+
   bool getBoolParam(const std::string& name);
   long getIntParam(const std::string& name);
   double getDoubleParam(const std::string& name);
@@ -161,11 +186,12 @@ private:
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
 
-  rclcpp::Publisher<tobas_std_msgs::msg::Message>::SharedPtr message_pub_;
-  std::shared_ptr<rclcpp::ParameterEventHandler> param_sub_;
+  PublisherPtr<tobas_std_msgs::msg::Message> message_pub_;
 
-  template <typename T>
-  void declareParam(const std::string& name, const T& _default);
+  tobas_dynamic_param_msgs::msg::Parameters dparams_;
+  PublisherPtr<tobas_dynamic_param_msgs::msg::Parameters> dparams_pub_;
+  std::shared_ptr<rclcpp::ParameterEventHandler> dparam_sub_;
+  std::vector<ParamHandlePtr> dparam_handles_;
 
   void rclcppLog(uint8_t level, const std::string& text) const;
 
@@ -173,20 +199,20 @@ private:
   static std::string createID(const char* file, int line);
 };
 
-inline std::string Node::ns() const
+inline std::string BaseNode::ns() const
 {
   return std::string(get_namespace()) + "/";
 }
 
 template <typename MsgType>
-Node::PublisherPtr<MsgType>
-Node::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
+BaseNode::PublisherPtr<MsgType>
+BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
   return create_publisher<MsgType>(topic_name, makeQoS(latch, reliable, queue_size));
 }
 
 template <typename MsgType, typename Obj>
-Node::SubscriberPtr<MsgType> Node::createSubscriber(
+BaseNode::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   const std::string& topic_name,
   void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
   Obj* obj,
@@ -199,7 +225,7 @@ Node::SubscriberPtr<MsgType> Node::createSubscriber(
 }
 
 template <typename SrvType, typename Obj>
-Node::ServicePtr<SrvType> Node::createService(
+BaseNode::ServicePtr<SrvType> BaseNode::createService(
   const std::string& srv_name,
   void (Obj::*fp)(
     const std::shared_ptr<const typename SrvType::Request>&,
@@ -210,20 +236,168 @@ Node::ServicePtr<SrvType> Node::createService(
 }
 
 template <typename DurationRepT, typename DurationT, typename Obj>
-Node::TimerPtr Node::createTimer(std::chrono::duration<DurationRepT, DurationT> period, void (Obj::*fp)(void), Obj* obj)
+BaseNode::TimerPtr
+BaseNode::createTimer(std::chrono::duration<DurationRepT, DurationT> period, void (Obj::*fp)(void), Obj* obj)
 {
   return create_timer(period, bind(fp, obj));
 }
 
 template <typename Obj>
-Node::ParamHandlePtr
-Node::addParamCallback(const std::string& name, void (Obj::*fp)(const rclcpp::Parameter&), Obj* obj)
+void BaseNode::addDynamicBoolParam(
+  const std::string& name,
+  bool (Obj::*fp)(const bool&),
+  Obj* obj,
+  const bool& _default)
 {
-  return param_sub_->add_parameter_callback(name, std::bind(fp, obj, std::placeholders::_1));
+  if (has_parameter(name))
+  {
+    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+    return;
+  }
+
+  declare_parameter(name, _default);
+
+  const auto cb = [this, name, fp, obj, _default](const rclcpp::Parameter& param)
+  {
+    const auto value = param.as_bool();
+    if ((obj->*fp)(value))
+      TOBAS_INFO("Boolean parameter \"", name, "\" is updated successfully.");
+    else
+      TOBAS_ERROR("Failed to update bool parameter \"", name, "\".");
+  };
+  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  dparam_handles_.push_back(cb_handle);
+
+  tobas_dynamic_param_msgs::msg::BoolParam bool_param;
+  bool_param.name = name;
+  bool_param.dflt = _default;
+  dparams_.bools.push_back(bool_param);
+}
+
+template <typename Obj>
+void BaseNode::addDynamicIntParam(
+  const std::string& name,
+  bool (Obj::*fp)(const long&),
+  Obj* obj,
+  const long& _default,
+  const long& _min,
+  const long& _max)
+{
+  assert(_min <= _default && _default <= _max);
+
+  if (has_parameter(name))
+  {
+    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+    return;
+  }
+
+  declare_parameter(name, _default);
+
+  const auto cb = [this, name, fp, obj, _default, _min, _max](const rclcpp::Parameter& param)
+  {
+    auto value = param.as_int();
+    if (value < _min || _max < value)
+    {
+      value = std::clamp(value, _min, _max);
+      TOBAS_WARN(
+        "You attempted to set \"", name, "\" to ", value, ", but since it was outside the range [", _min, ", ", _max,
+        "], it was clamped to ", value, ".");
+    }
+    if ((obj->*fp)(value))
+      TOBAS_INFO("Integer parameter \"", name, "\" is updated successfully.");
+    else
+      TOBAS_ERROR("Failed to update integer parameter \"", name, "\".");
+  };
+  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  dparam_handles_.push_back(cb_handle);
+
+  tobas_dynamic_param_msgs::msg::IntParam int_param;
+  int_param.name = name;
+  int_param.dflt = _default;
+  int_param.min = _min;
+  int_param.max = _max;
+  dparams_.ints.push_back(int_param);
+}
+
+template <typename Obj>
+void BaseNode::addDynamicDoubleParam(
+  const std::string& name,
+  bool (Obj::*fp)(const double&),
+  Obj* obj,
+  const double& _default,
+  const double& _min,
+  const double& _max)
+{
+  assert(_min <= _default && _default <= _max);
+
+  if (has_parameter(name))
+  {
+    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+    return;
+  }
+
+  declare_parameter(name, _default);
+
+  const auto cb = [this, name, fp, obj, _default, _min, _max](const rclcpp::Parameter& param)
+  {
+    auto value = param.as_double();
+    if (value < _min || _max < value)
+    {
+      value = std::clamp(value, _min, _max);
+      TOBAS_WARN(
+        "You attempted to set \"", name, "\" to ", value, ", but since it was outside the range [", _min, ", ", _max,
+        "], it was clamped to ", value, ".");
+    }
+    if ((obj->*fp)(value))
+      TOBAS_INFO("Double parameter \"", name, "\" is updated successfully.");
+    else
+      TOBAS_ERROR("Failed to update double parameter \"", name, "\".");
+  };
+  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  dparam_handles_.push_back(cb_handle);
+
+  tobas_dynamic_param_msgs::msg::DoubleParam double_param;
+  double_param.name = name;
+  double_param.dflt = _default;
+  double_param.min = _min;
+  double_param.max = _max;
+  dparams_.doubles.push_back(double_param);
+}
+
+template <typename Obj>
+void BaseNode::addDynamicStringParam(
+  const std::string& name,
+  bool (Obj::*fp)(const std::string&),
+  Obj* obj,
+  const std::string& _default)
+{
+  if (has_parameter(name))
+  {
+    TOBAS_ERROR("Parameter \"", name, "\" is already declared.");
+    return;
+  }
+
+  declare_parameter(name, _default);
+
+  const auto cb = [this, name, fp, obj, _default](const rclcpp::Parameter& param)
+  {
+    const auto& value = param.as_string();
+    if ((obj->*fp)(value))
+      TOBAS_INFO("String parameter \"", name, "\" is updated successfully.");
+    else
+      TOBAS_ERROR("Failed to update string parameter \"", name, "\".");
+  };
+  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  dparam_handles_.push_back(cb_handle);
+
+  tobas_dynamic_param_msgs::msg::StringParam string_param;
+  string_param.name = name;
+  string_param.dflt = _default;
+  dparams_.strings.push_back(string_param);
 }
 
 template <typename... Args>
-void Node::log(uint8_t level, const Args&... args) const
+void BaseNode::log(uint8_t level, const Args&... args) const
 {
   // Create message
   auto message = std::make_unique<tobas_std_msgs::msg::Message>();
@@ -240,17 +414,17 @@ void Node::log(uint8_t level, const Args&... args) const
 }
 
 template <typename... Args>
-void Node::logOnce(const char* file, int line, uint8_t level, const Args&... args)
+void BaseNode::logOnce(const char* file, int line, uint8_t level, const Args&... args)
 {
   const auto id = createID(file, line);
-  if (tobas_std::contains(log_once_, id))
+  if (log_once_.contains(id))
     return;
   log(level, args...);
   log_once_.insert(id);
 }
 
 template <typename... Args>
-void Node::logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args)
+void BaseNode::logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args)
 {
   const auto id = createID(file, line);
   const auto now = get_clock()->now();
@@ -272,112 +446,92 @@ void Node::logThrottle(const char* file, int line, uint8_t level, double period,
 }
 
 template <typename... Args>
-inline void Node::debug(const Args&... args) const
+inline void BaseNode::debug(const Args&... args) const
 {
   log(tobas_std_msgs::msg::Message::LEVEL_DEBUG, args...);
 }
 
 template <typename... Args>
-inline void Node::info(const Args&... args) const
+inline void BaseNode::info(const Args&... args) const
 {
   log(tobas_std_msgs::msg::Message::LEVEL_INFO, args...);
 }
 
 template <typename... Args>
-inline void Node::warn(const Args&... args) const
+inline void BaseNode::warn(const Args&... args) const
 {
   log(tobas_std_msgs::msg::Message::LEVEL_WARN, args...);
 }
 
 template <typename... Args>
-inline void Node::error(const Args&... args) const
+inline void BaseNode::error(const Args&... args) const
 {
   log(tobas_std_msgs::msg::Message::LEVEL_ERROR, args...);
 }
 
 template <typename... Args>
-inline void Node::fatal(const Args&... args) const
+inline void BaseNode::fatal(const Args&... args) const
 {
   log(tobas_std_msgs::msg::Message::LEVEL_FATAL, args...);
 }
 
 template <typename... Args>
-inline void Node::debugOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::debugOnce(const char* file, int line, const Args&... args)
 {
   logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_DEBUG, args...);
 }
 
 template <typename... Args>
-inline void Node::infoOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::infoOnce(const char* file, int line, const Args&... args)
 {
   logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_INFO, args...);
 }
 
 template <typename... Args>
-inline void Node::warnOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::warnOnce(const char* file, int line, const Args&... args)
 {
   logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_WARN, args...);
 }
 
 template <typename... Args>
-inline void Node::errorOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::errorOnce(const char* file, int line, const Args&... args)
 {
   logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_ERROR, args...);
 }
 
 template <typename... Args>
-inline void Node::fatalOnce(const char* file, int line, const Args&... args)
+inline void BaseNode::fatalOnce(const char* file, int line, const Args&... args)
 {
   logOnce(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, args...);
 }
 
 template <typename... Args>
-inline void Node::debugThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::debugThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_DEBUG, period, args...);
 }
 
 template <typename... Args>
-inline void Node::infoThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::infoThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_INFO, period, args...);
 }
 
 template <typename... Args>
-inline void Node::warnThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::warnThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_WARN, period, args...);
 }
 
 template <typename... Args>
-inline void Node::errorThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::errorThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_ERROR, period, args...);
 }
 
 template <typename... Args>
-inline void Node::fatalThrottle(const char* file, int line, double period, const Args&... args)
+inline void BaseNode::fatalThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, period, args...);
 }
-
-template <typename T>
-void Node::declareParam(const std::string& name, const T& _default)
-{
-  try
-  {
-    declare_parameter<T>(name);
-  }
-  catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException&)
-  {
-    RCLCPP_WARN_STREAM(get_logger(), "Parameter \"" << name << "\" is already declared.");
-    return;
-  }
-  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&)
-  {
-    RCLCPP_WARN_STREAM(
-      get_logger(), "Parameter \"" << name << "\" is not specified. The default \"" << _default << "\" is set.");
-    declare_parameter(name, _default);
-  }
-}
-}  // namespace ros2
+}  // namespace tobas

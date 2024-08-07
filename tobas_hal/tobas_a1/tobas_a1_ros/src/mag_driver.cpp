@@ -7,19 +7,19 @@ using namespace std;
 
 namespace a1
 {
-MagDriver::MagDriver(, const string& name) : super(node, pnh, name)
+MagDriver::MagDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   if (!mag_.initialize())
     TOBAS_EXIT("Failed to initialize Magnetometer.");
 
-  mag_pub_ = node_.advertise<tobas_hal_msgs::MagneticField>(hal::kMagTopic, 1);
+  mag_pub_ = createPublisher<tobas_hal_msgs::MagneticField>(hal::kMagTopic);
   main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void MagDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
-  const auto msg = make_unique<tobas_hal_msgs::MagneticField>();
+  const auto msg =std::make_unique<tobas_hal_msgs::MagneticField>();
 
   // Fill headers
   msg->header.stamp = event.current_real;
@@ -34,6 +34,6 @@ void MagDriver::mainTimerCb(const rclcpp::TimerEvent& event)
   // TODO: 軸や符号の変換が必要かも
 
   // Publish message
-  mag_pub_.publish(msg);
+  mag_pub_->publish(msg);
 }
 }  // namespace a1

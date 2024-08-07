@@ -2,9 +2,9 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <actionlib/server/simple_action_server.h>
-#include <std_msgs/Bool.h>
+#include <std_msgs/msg/bool.hpp>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/MoveAction.h>
 
@@ -31,21 +31,21 @@ public:
 private:
   ResultType result_;
 
-  std_msgs::BoolConstPtr arming_;
-  tobas_msgs::OdometryConstPtr odom_;
+  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::Odometry::ConstSharedPtr odom_;
 
-  rclcpp::Publisher cmd_pub_;
-  rclcpp::Subscriber arming_sub_;
-  rclcpp::Subscriber odom_sub_;
+  PublisherPtr<> cmd_pub_;
+  SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);
   bool computeGoalPosition(const GoalType& goal, kdl::Vector& goal_pos);
 
-  void armingCb(const std_msgs::BoolConstPtr& arming);
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
-  void executeCb(const GoalType::ConstPtr& goal);
+  void executeCb(const GoalType::ConstSharedPtr& goal);
 };
 }  // namespace tobas_multirotor_move

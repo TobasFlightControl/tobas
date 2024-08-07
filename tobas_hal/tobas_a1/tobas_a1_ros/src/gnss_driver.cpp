@@ -9,7 +9,7 @@ using namespace std;
 
 namespace a1
 {
-GNSSDriver::GNSSDriver(, const string& name) : super(node, pnh, name)
+GNSSDriver::GNSSDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   if (!gnss_.initialize())
   {
@@ -28,7 +28,7 @@ GNSSDriver::GNSSDriver(, const string& name) : super(node, pnh, name)
   is_received_[ZEDF9P::NAV_VELNED] = false;
   is_received_[ZEDF9P::NAV_COV] = false;
 
-  gnss_pub_ = node_.advertise<tobas_msgs::Gps>(tobas::kGpsTopic, 1);
+  gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
 
   set_time_offset_timer_ = node_.createTimer(rclcpp::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
   main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this, false, false);
@@ -216,7 +216,7 @@ void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
     received = false;
 
   // Create GNSS message
-  const auto gnss_msg = make_unique<tobas_msgs::Gps>();
+  const auto gnss_msg =std::make_unique<tobas_msgs::Gps>();
 
   // Fill time stamp
   const auto& iTOW = hpposllh_.iTOW;  // [ms]
@@ -257,6 +257,6 @@ void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
   gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
 
   // Publish GNSS message
-  gnss_pub_.publish(gnss_msg);
+  gnss_pub_->publish(gnss_msg);
 }
 }  // namespace a1

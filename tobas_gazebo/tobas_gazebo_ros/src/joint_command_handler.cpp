@@ -9,12 +9,12 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-JointCommandHandler::JointCommandHandler(, const string& name)
+JointCommandHandler::JointCommandHandler(const rclcpp::NodeOptions& options)
   : super(node, pnh, name)
 {
-  positions_sub_ = node_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
-  velocities_sub_ = node_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
-  efforts_sub_ = node_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
+  positions_sub_ = createSubscriber(tobas::kJointPositionsCmdTopic, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(tobas::kJointVelocitiesCmdTopic, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
 }
 
 bool JointCommandHandler::initialize()
@@ -57,13 +57,13 @@ bool JointCommandHandler::initialize()
 
     const auto& jnt_name = item.claimed_resources[0].resources[0];
     const auto topic = item.name + "/command";
-    ctrl_map_[jnt_name] = make_pair(control_type, node_.advertise<std_msgs::Float64>(topic, 1));
+    ctrl_map_[jnt_name] = make_pair(control_type, createPublisher<std_msgs::Float64>(topic, 1));
   }
 
   return true;
 }
 
-void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions)
+void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& positions)
 {
   if (ctrl_map_.size() == 0 && !initialize())
   {
@@ -83,7 +83,7 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArra
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == POSITION)
     {
-      const auto cmd = make_unique<std_msgs::Float64>();
+      const auto cmd =std::make_unique<std_msgs::Float64>();
       cmd->data = positions->commands[i].data;
       pub.publish(cmd);
     }
@@ -96,7 +96,7 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArra
   }
 }
 
-void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities)
+void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& velocities)
 {
   if (ctrl_map_.size() == 0 && !initialize())
   {
@@ -117,7 +117,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArr
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == VELOCITY)
     {
-      const auto cmd = make_unique<std_msgs::Float64>();
+      const auto cmd =std::make_unique<std_msgs::Float64>();
       cmd->data = velocities->commands[i].data;
       pub.publish(cmd);
     }
@@ -130,7 +130,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArr
   }
 }
 
-void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts)
+void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& efforts)
 {
   if (ctrl_map_.size() == 0 && !initialize())
   {
@@ -150,7 +150,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayC
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == EFFORT)
     {
-      const auto cmd = make_unique<std_msgs::Float64>();
+      const auto cmd =std::make_unique<std_msgs::Float64>();
       cmd->data = efforts->commands[i].data;
       pub.publish(cmd);
     }

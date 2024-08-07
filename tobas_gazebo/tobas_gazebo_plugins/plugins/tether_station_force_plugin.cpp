@@ -27,9 +27,9 @@ void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementP
   if (link_ == nullptr)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
-  contacts_sub_ = node_.subscribe("/" + ns_ + "/" + kContactStatesTopic, 1, &self::contactStatesCb, this);
-  get_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
+  contacts_sub_ = createSubscriber("/" + ns_ + "/" + kContactStatesTopic, &self::contactStatesCb, this);
+  get_params_ss_ = createPublisherService("/" + ns_ + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = createPublisherService("/" + ns_ + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
@@ -134,7 +134,7 @@ bool GazeboTetherStationForcePlugin::isContactWithPlane()
   return false;
 }
 
-void GazeboTetherStationForcePlugin::contactStatesCb(const tobas_gazebo_msgs::ContactStatesConstPtr& contacts)
+void GazeboTetherStationForcePlugin::contactStatesCb(const tobas_gazebo_msgs::ContactStates::ConstSharedPtr& contacts)
 {
   contacts_ = contacts;
 }

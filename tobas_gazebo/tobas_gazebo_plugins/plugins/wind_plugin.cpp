@@ -31,9 +31,9 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   if (link_ == nullptr)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
-  wind_pub_ = node_.advertise<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic, 1);
-  get_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = node_.advertiseService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
+  wind_pub_ = createPublisher<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic);
+  get_params_ss_ = createPublisherService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = createPublisherService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
@@ -99,12 +99,12 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   const auto wind_W = steady_W + link_->WorldPose().Rot() * turb_B;
 
   // 風速メッセージを作成
-  const auto wind_msg = make_unique<tobas_msgs::Wind>();
+  const auto wind_msg =std::make_unique<tobas_msgs::Wind>();
   wind_msg->header.frame_id = "world";
   vectorGazeboToKDL(wind_W, wind_msg->vel);
 
   // 風速を発行
-  wind_pub_.publish(wind_msg);
+  wind_pub_->publish(wind_msg);
 }
 
 bool GazeboWindPlugin::getParamsCb(

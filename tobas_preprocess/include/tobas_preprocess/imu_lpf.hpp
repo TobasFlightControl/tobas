@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_dsp/low_pass_filter.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/Imu.h>
 
 namespace tobas_preprocess
@@ -15,15 +15,15 @@ class ImuLpf : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit ImuLpf(, const std::string& name = rclcpp::this_node::getName());
+  explicit ImuLpf(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   dsp::LowPassFilter<kdl::Vector> gyro_lpf_, accel_lpf_;
-  tobas_msgs::ImuConstPtr last_msg_;
+  tobas_msgs::Imu::ConstSharedPtr last_msg_;
 
-  rclcpp::Publisher imu_lpf_pub_;
-  rclcpp::Subscriber imu_raw_sub_;
+  PublisherPtr<> imu_lpf_pub_;
+  SubscriberPtr<> imu_raw_sub_;
 
-  void imuRawCb(const tobas_msgs::ImuConstPtr& imu_raw);
+  void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
 };
 }  // namespace tobas_preprocess

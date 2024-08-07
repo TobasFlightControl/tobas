@@ -71,8 +71,8 @@ private:
   std::mt19937 rnd_gen_;
   NormalDistribution noise_;
 
-  rclcpp::Publisher imu_pub_;
-  rclcpp::Publisher debug_pub_;
+  PublisherPtr<> imu_pub_;
+  PublisherPtr<> debug_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();

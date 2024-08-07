@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-MagnetometerHandler::MagnetometerHandler(, const string& name)
+MagnetometerHandler::MagnetometerHandler(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  mag_pub_ = node_.advertise<tobas_msgs::MagneticField>(tobas::kMagTopic, 1);
-  mag_sub_ = node_.subscribe(hal::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
+  mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
 
-  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool MagnetometerHandler::reloadConfig()
@@ -93,7 +93,7 @@ bool MagnetometerHandler::reloadConfig()
   return true;
 }
 
-void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag_raw)
+void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw)
 {
   // Project data to unit sphere
   const auto mag_unit = mag_trans_.transform(mag_raw->magnetic_field.data);
@@ -116,7 +116,7 @@ void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag
     mag_noise_[i].update(mag_unit(i), dt);
 
   // Create message
-  const auto mag_msg = make_unique<tobas_msgs::MagneticField>();
+  const auto mag_msg =std::make_unique<tobas_msgs::MagneticField>();
 
   // Fill header
   mag_msg->header = mag_raw->header;
@@ -130,7 +130,7 @@ void MagnetometerHandler::magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag
     mag_msg->covariance(i, i) = mag_noise_[i].noiseVariance();
 
   // Publish message
-  mag_pub_.publish(mag_msg);
+  mag_pub_->publish(mag_msg);
 }
 
 bool MagnetometerHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::srv::Trigger::Response& res)

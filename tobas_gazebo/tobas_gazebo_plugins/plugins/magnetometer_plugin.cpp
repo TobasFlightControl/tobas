@@ -43,7 +43,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   init_bias_ = init_bias_dist.get();
 
   // Advertise publisher
-  mag_pub_ = node_.advertise<tobas_msgs::MagneticField>("/" + ns_ + "/" + tobas::kMagTopic, 1);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>("/" + ns_ + "/" + tobas::kMagTopic);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboMagnetometerPlugin::onUpdate, this));
@@ -93,7 +93,7 @@ void GazeboMagnetometerPlugin::onUpdate()
 
 void GazeboMagnetometerPlugin::publishMagMsg(const ignition::math::Vector3d& field) const
 {
-  const auto mag_msg = make_unique<tobas_msgs::MagneticField>();
+  const auto mag_msg =std::make_unique<tobas_msgs::MagneticField>();
 
   timeGazeboToRos(world_->SimTime(), mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
@@ -104,7 +104,7 @@ void GazeboMagnetometerPlugin::publishMagMsg(const ignition::math::Vector3d& fie
   for (size_t i = 0; i < 3; ++i)
     mag_msg->covariance.diagonal()(i) = math::sqr(noise_normal_[i]);
 
-  mag_pub_.publish(mag_msg);
+  mag_pub_->publish(mag_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboMagnetometerPlugin);

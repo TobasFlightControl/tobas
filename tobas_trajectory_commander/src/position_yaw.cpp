@@ -22,7 +22,7 @@ FollowPositionYawTrajectoryServer::FollowPositionYawTrajectoryServer(
   const string& name)
   : super(node, pnh, name), as_(node_, kActionName, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = node_.advertise<CommandType>(tobas::kPositionYawCmdTopic, 1);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPositionYawCmdTopic);
   as_.start();
 }
 
@@ -81,7 +81,7 @@ bool FollowPositionYawTrajectoryServer::isGoalValid(const GoalType& goal)
   return true;
 }
 
-void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal)
+void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstSharedPtr& goal)
 {
   if (!isGoalValid(*goal))
     return;
@@ -116,7 +116,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal
     }
 
     // Create command message
-    const auto cmd = make_unique<CommandType>();
+    const auto cmd =std::make_unique<CommandType>();
     cmd->level = goal->level;
     cmd->pos.x(splines[0](t));
     cmd->pos.y(splines[1](t));
@@ -124,7 +124,7 @@ void FollowPositionYawTrajectoryServer::executeCb(const GoalType::ConstPtr& goal
     cmd->yaw = splines[3](t);
 
     // Publish command message
-    cmd_pub_.publish(cmd);
+    cmd_pub_->publish(cmd);
 
     // Sleep for control rate
     rclcpp::Duration(kControlnterval).sleep();

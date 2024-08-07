@@ -23,7 +23,7 @@ void GazeboWorldContactsPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sd
   contact_manager_ = model->GetWorld()->Physics()->GetContactManager();
   contact_manager_->SetNeverDropContacts(true);  // 購読者がいなくても接触情報を保持するようにする
 
-  contacts_pub_ = node_.advertise<tobas_gazebo_msgs::ContactStates>("/" + ns_ + "/" + kContactStatesTopic, 1);
+  contacts_pub_ = createPublisher<tobas_gazebo_msgs::ContactStates>("/" + ns_ + "/" + kContactStatesTopic);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
@@ -35,7 +35,7 @@ void GazeboWorldContactsPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboWorldContactsPlugin::onUpdate(const common::UpdateInfo& info)
 {
-  const auto msg = make_unique<tobas_gazebo_msgs::ContactStates>();
+  const auto msg =std::make_unique<tobas_gazebo_msgs::ContactStates>();
 
   timeGazeboToRos(info.simTime, msg->header.stamp);
 
@@ -55,7 +55,7 @@ void GazeboWorldContactsPlugin::onUpdate(const common::UpdateInfo& info)
     msg->states[i].collision2.shape_type = col2->GetShapeType();
   }
 
-  contacts_pub_.publish(msg);
+  contacts_pub_->publish(msg);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboWorldContactsPlugin);

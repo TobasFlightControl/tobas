@@ -1,7 +1,7 @@
 #include <tobas_std_tools/vector.hpp>
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_msgs/msg/battery.hpp>
 
 #include "./battery_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common.hpp"
@@ -28,7 +28,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
   registerPubSub();
-  charge_srv_ = node_.advertiseService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
+  charge_srv_ = createPublisherService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
@@ -50,17 +50,17 @@ void GazeboBatteryPlugin::registerPubSub()
 {
   const string prefix = "/" + ns_ + "/";
 
-  battery_pub_ = node_.advertise<tobas_msgs::Battery>(prefix + tobas::kBatteryTopic, 1);
-  battery_gt_pub_ = node_.advertise<tobas_msgs::Battery>(prefix + kBatteryGtTopic, 1);
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(prefix + tobas::kBatteryTopic);
+  battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(prefix + kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
   for (size_t i = 0; i < num_rotors_; ++i)
   {
-    rotor_state_cbs_.push_back([this, i](const tobas_msgs::RotorStateConstPtr& msg) { currents_[i] = msg->current; });
+    rotor_state_cbs_.push_back([this, i](const tobas_msgs::RotorState::ConstSharedPtr& msg) { currents_[i] = msg->current; });
 
     const string suffix = "_" + to_string(i);
     const string topic = prefix + kRotorStateGtTopicPrefix + suffix;
-    rotor_state_subs_.push_back(node_.subscribe<tobas_msgs::RotorState>(topic, 1, rotor_state_cbs_[i]));
+    rotor_state_subs_.push_back(createSubscriber<tobas_msgs::RotorState>(topic, 1, rotor_state_cbs_[i]));
   }
 }
 
@@ -89,18 +89,18 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);       // 観測ノイズを受けた観測電圧
 
   // 観測したバッテリーの状態を発行
-  const auto battery = make_unique<tobas_msgs::Battery>();
+  const auto battery =std::make_unique<tobas_msgs::msg::Battery>();
   timeGazeboToRos(info.simTime, battery->header.stamp);
   battery->voltage = voltage_obs;
   battery->current = current_obs;
-  battery_pub_.publish(battery);
+  battery_pub_->publish(battery);
 
   // 真のバッテリーの状態を発行
-  const auto battery_gt = make_unique<tobas_msgs::Battery>();
+  const auto battery_gt =std::make_unique<tobas_msgs::msg::Battery>();
   timeGazeboToRos(info.simTime, battery_gt->header.stamp);
   battery_gt->voltage = voltage_out;
   battery_gt->current = current;
-  battery_gt_pub_.publish(battery_gt);
+  battery_gt_pub_->publish(battery_gt);
 }
 
 double GazeboBatteryPlugin::currentVoltage()

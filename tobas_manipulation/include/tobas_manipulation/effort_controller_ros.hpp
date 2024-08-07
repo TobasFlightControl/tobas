@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dynamic_reconfigure/server.h>
+
 #include <sensor_msgs/msg/joint_state.hpp>
 
 #include <tobas_kdl/treejointstateconverter.hpp>
@@ -9,8 +9,8 @@
 #include <tobas_kdl/treetaskspacepid.hpp>
 #include <tobas_ros2_tools/tf_listener.hpp>
 
-#include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_msgs/JointCommandArray.h>
 #include <tobas_msgs/LinkStateArray.h>
 
@@ -45,18 +45,18 @@ private:
   rclcpp::Time t_last_cmd_;
   bool is_commanded_ = false;
 
-  sensor_msgs::msg::JointStateConstPtr cur_js_;
-  sensor_msgs::msg::JointStateConstPtr tar_js_;
-  tobas_msgs::LinkStateArrayConstPtr tar_ls_;
+  sensor_msgs::msg::JointState::ConstSharedPtr cur_js_;
+  sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
+  tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
 
   // Publishers
-  rclcpp::Publisher efforts_pub_;
+  PublisherPtr<> efforts_pub_;
 
   // Subscribers
-  rclcpp::Subscriber odom_sub_;
-  rclcpp::Subscriber cur_js_sub_;
-  rclcpp::Subscriber tar_js_sub_;
-  rclcpp::Subscriber tar_ls_sub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  SubscriberPtr<> cur_js_sub_;
+  SubscriberPtr<> tar_js_sub_;
+  SubscriberPtr<> tar_ls_sub_;
 
   // Dynamic Reconfigure Server
   ConfigServer server_;
@@ -64,9 +64,9 @@ private:
   int jointSpaceControl(tobas_msgs::JointCommandArray& efforts_msg);
   int taskSpaceControl(tobas_msgs::JointCommandArray& efforts_msg);
 
-  void currentJointStateCb(const sensor_msgs::msg::JointStateConstPtr& cur_js);
-  void targetJointStateCb(const sensor_msgs::msg::JointStateConstPtr& tar_js);
-  void targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls);
+  void currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js);
+  void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
+  void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
 
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };

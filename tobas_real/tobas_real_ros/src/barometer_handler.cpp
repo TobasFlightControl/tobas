@@ -1,4 +1,4 @@
-#include <sensor_msgs/FluidPressure.h>
+#include <sensor_msgs/msg/fluid_pressure.hpp>
 
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
@@ -10,13 +10,13 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-BarometerHandler::BarometerHandler(, const string& name) : super(node, pnh, name)
+BarometerHandler::BarometerHandler(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
-  bar_pub_ = node_.advertise<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic, 1);
-  bar_sub_ = node_.subscribe(hal::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  bar_pub_ = createPublisher<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
+  bar_sub_ = createSubscriber(hal::kAirPressureTopic, &self::airPressureCb, this);
 }
 
-void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressureConstPtr& bar_raw)
+void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressure::ConstSharedPtr& bar_raw)
 {
   // Initialize
   if (bar_raw_ == nullptr)
@@ -41,12 +41,12 @@ void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressureConstPtr
   pressure_noise_.update(bar_raw->fluid_pressure, dt);
 
   // Create message
-  const auto bar_msg = make_unique<sensor_msgs::msg::FluidPressure>();
+  const auto bar_msg =std::make_unique<sensor_msgs::msg::FluidPressure>();
   bar_msg->header = bar_raw->header;
   bar_msg->fluid_pressure = bar_raw->fluid_pressure;
   bar_msg->variance = pressure_noise_.noiseVariance();
 
   // Publish message
-  bar_pub_.publish(bar_msg);
+  bar_pub_->publish(bar_msg);
 }
 }  // namespace tobas_real_ros

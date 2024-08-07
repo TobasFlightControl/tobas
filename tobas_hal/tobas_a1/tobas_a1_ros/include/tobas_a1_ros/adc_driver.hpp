@@ -13,11 +13,11 @@ class ADCDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit ADCDriver(, const std::string& name = rclcpp::this_node::getName());
+  explicit ADCDriver(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ADS1220 adc_;
-  rclcpp::Publisher adc_pub_;
+  PublisherPtr<> adc_pub_;
 
   void mainTimerCb(const rclcpp::TimerEvent& event);
 };

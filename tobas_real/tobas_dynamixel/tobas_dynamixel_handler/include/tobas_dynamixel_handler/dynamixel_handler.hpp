@@ -4,7 +4,7 @@
 #include <std_srvs/SetBool.h>
 
 #include <tobas_std_tools/range.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/JointCommandArray.h>
 #include <tobas_dynamixel_msgs/MotorStateArray.h>
@@ -73,11 +73,11 @@ private:
   std::unordered_map<std::string, DynamixelConfig> motors_;
 
   // PubSub
-  rclcpp::Publisher motor_states_pub_;
-  rclcpp::Subscriber event_sub_;
-  rclcpp::Subscriber positions_sub_;
-  rclcpp::Subscriber velocities_sub_;
-  rclcpp::Subscriber efforts_sub_;
+  PublisherPtr<> motor_states_pub_;
+  SubscriberPtr<> event_sub_;
+  SubscriberPtr<> positions_sub_;
+  SubscriberPtr<> velocities_sub_;
+  SubscriberPtr<> efforts_sub_;
 
   // Service
   rclcpp::ServiceServer enable_torques_ss_;
@@ -95,10 +95,10 @@ private:
   bool disableTorques();
   void printHardwareErrorStatus();
 
-  void eventCb(const tobas_msgs::EventConstPtr& event);
-  void jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts);
+  void eventCb(const tobas_msgs::Event::ConstSharedPtr& event);
+  void jointPositionsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& velocities);
+  void jointEffortsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& efforts);
 
   bool enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
   void mainTimerCb(const rclcpp::TimerEvent& event);

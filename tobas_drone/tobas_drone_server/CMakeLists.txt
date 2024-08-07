@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
+find_package(tobas_node REQUIRED)
 find_package(tobas_drone_core REQUIRED)
 find_package(tobas_drone_msgs REQUIRED)
 
@@ -20,8 +20,8 @@ include_directories(include)
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}_node tobas_ros2_tools tobas_drone_core tobas_drone_msgs)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::DroneServer" EXECUTABLE drone_server)
+ament_target_dependencies(${PROJECT_NAME}_node tobas_node tobas_drone_core tobas_drone_msgs)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas::DroneServerNode" EXECUTABLE drone_server)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
@@ -33,6 +33,6 @@ install(
 )
 # install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
-ament_export_dependencies(tobas_ros2_tools tobas_drone_core tobas_drone_msgs)
+ament_export_dependencies(tobas_node tobas_drone_core tobas_drone_msgs)
 
 ament_package()

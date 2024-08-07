@@ -31,7 +31,7 @@ private:
   kdl::Euler tar_rpy_;
 
   // Publisher
-  rclcpp::Publisher cmd_pub_;
+  PublisherPtr<> cmd_pub_;
 
   void getRosParams(rclcpp::Node::SharedPtr pnh);
 };

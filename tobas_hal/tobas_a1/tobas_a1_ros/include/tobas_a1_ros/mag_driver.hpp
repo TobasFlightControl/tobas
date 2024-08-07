@@ -13,11 +13,11 @@ class MagDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit MagDriver(, const std::string& name = rclcpp::this_node::getName());
+  explicit MagDriver(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   IIS2MDC mag_;
-  rclcpp::Publisher mag_pub_;
+  PublisherPtr<> mag_pub_;
 
   void mainTimerCb(const rclcpp::TimerEvent& event);
 };

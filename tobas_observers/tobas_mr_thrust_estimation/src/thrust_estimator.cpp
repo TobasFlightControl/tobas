@@ -15,7 +15,7 @@ using namespace Eigen;
 
 namespace tobas_mr_thrust_estimation
 {
-ThrustEstimator::ThrustEstimator(, const string& name)
+ThrustEstimator::ThrustEstimator(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
 {
   drone_.loadFromParam(node_);
@@ -24,10 +24,10 @@ ThrustEstimator::ThrustEstimator(, const string& name)
   kf_.initialize(Scalard(1), Scalard(kInitFactorStddev));
   kf_.setZero();
 
-  factor_pub_ = node_.advertise<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic, 1);
+  factor_pub_ = createPublisher<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic);
 
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ = node_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  rotor_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsTopic, &self::rotorSpeedsCb, this);
 
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
@@ -37,9 +37,9 @@ void ThrustEstimator::updateInternalDataStructures()
   dynamics_.updateInternalDataStructures();
 }
 
-void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void ThrustEstimator::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+  if (odom->status != tobas_msgs::msg::Odometry::NO_ERROR)
     return;
 
   if (rotor_speeds_ == nullptr)
@@ -66,12 +66,12 @@ void ThrustEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   kf_.update();
 
   // Publish estimated thrust correction factor
-  const auto factor_msg = make_unique<std_msgs::Float64>();
+  const auto factor_msg =std::make_unique<std_msgs::Float64>();
   factor_msg->data = kf_.state()(0);
-  factor_pub_.publish(factor_msg);
+  factor_pub_->publish(factor_msg);
 }
 
-void ThrustEstimator::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
+void ThrustEstimator::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds)
 {
   rotor_speeds_ = rotor_speeds;
 }

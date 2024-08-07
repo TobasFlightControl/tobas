@@ -12,11 +12,11 @@ DShotDriver::DShotDriver(, const std::string& name) : super(node, pnh, name)
   if (!dshot_.initialize())
     TOBAS_EXIT("Failed to initialize DSHOT driver.");
 
-  throttles_sub_ = node_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
-  enable_rcout_srv_ = node_.advertiseService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
+  throttles_sub_ = createSubscriber(tobas::kThrottlesCmdTopic, &self::throttlesCb, this);
+  enable_rcout_srv_ = createPublisherService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
-void DShotDriver::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)
+void DShotDriver::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles)
 {
   // Set throttles of each channel
   for (const auto& elem : throttles->throttles)

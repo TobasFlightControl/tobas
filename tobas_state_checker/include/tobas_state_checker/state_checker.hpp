@@ -2,15 +2,15 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <actionlib/client/simple_action_client.h>
-#include <std_msgs/Bool.h>
+#include <std_msgs/msg/bool.hpp>
 
-#include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_kdl_msgs/EulerStamped.h>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/Cpu.h>
-#include <tobas_msgs/Battery.h>
+#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/LandAction.h>
 
 namespace tobas_state_checker
@@ -26,20 +26,20 @@ class StateChecker : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit StateChecker(, const std::string& name = rclcpp::this_node::getName());
+  explicit StateChecker(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas::Drone drone_;
-  std_msgs::BoolConstPtr arming_;
+  std_msgs::msg::Bool::ConstSharedPtr arming_;
 
   // Publishers
-  rclcpp::Publisher event_pub_;
+  PublisherPtr<> event_pub_;
 
   // Subscribers
-  rclcpp::Subscriber arming_sub_;
-  rclcpp::Subscriber cpu_sub_;
-  rclcpp::Subscriber battery_sub_;
-  rclcpp::Subscriber euler_sub_;
+  SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  SubscriberPtr<> cpu_sub_;
+  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  SubscriberPtr<> euler_sub_;
 
   rclcpp::ServiceClient set_arm_sc_;
   actionlib::SimpleActionClient<tobas_msgs::LandAction> landing_ac_;
@@ -48,9 +48,9 @@ private:
   void requestLanding();
   void requestDisarmingRotors();
 
-  void armingCb(const std_msgs::BoolConstPtr& arming);
-  void cpuCb(const tobas_msgs::CpuConstPtr& cpu);
-  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void eulerCb(const tobas_kdl_msgs::EulerStampedConstPtr& euler);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void cpuCb(const tobas_msgs::Cpu::ConstSharedPtr& cpu);
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 };
 }  // namespace tobas_state_checker

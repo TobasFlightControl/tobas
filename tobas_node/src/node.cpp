@@ -1,144 +1,154 @@
 #include <tobas_std_tools/string.hpp>
+#include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_ros2_tools/node.hpp"
+#include "../include/tobas_node/node.hpp"
 
 using namespace std;
 
-namespace ros2
+namespace tobas
 {
-Node::Node(const string& node_name, const rclcpp::NodeOptions& options) : super(node_name, options)
+BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options) : super(node_name, options)
 {
   message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(kMessageTopic);
-  param_sub_ = std::make_shared<rclcpp::ParameterEventHandler>(this);
+  dparams_pub_ =
+    createPublisher<tobas_dynamic_param_msgs::msg::Parameters>(node_name + "/" + kDynamicParamsTopic, true);
+
+  dparam_sub_ = std::make_shared<rclcpp::ParameterEventHandler>(this);
 }
 
-bool Node::getBoolParam(const string& name)
+void BaseNode::publishDynamicParameterDescriptions()
+{
+  auto dparams = std::make_unique<tobas_dynamic_param_msgs::msg::Parameters>(dparams_);
+  dparams_pub_->publish(move(dparams));
+}
+
+bool BaseNode::getBoolParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<bool>(name);
   return get_parameter(name).as_bool();
 }
 
-long Node::getIntParam(const string& name)
+long BaseNode::getIntParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<long>(name);
   return get_parameter(name).as_int();
 }
 
-double Node::getDoubleParam(const string& name)
+double BaseNode::getDoubleParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<double>(name);
   return get_parameter(name).as_double();
 }
 
-string Node::getStringParam(const string& name)
+string BaseNode::getStringParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<string>(name);
   return get_parameter(name).as_string();
 }
 
-vector<bool> Node::getBoolArrayParam(const string& name)
+vector<bool> BaseNode::getBoolArrayParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<vector<bool>>(name);
   return get_parameter(name).as_bool_array();
 }
 
-vector<uint8_t> Node::getByteArrayParam(const string& name)
+vector<uint8_t> BaseNode::getByteArrayParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<vector<uint8_t>>(name);
   return get_parameter(name).as_byte_array();
 }
 
-vector<long> Node::getIntArrayParam(const string& name)
+vector<long> BaseNode::getIntArrayParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<vector<long>>(name);
   return get_parameter(name).as_integer_array();
 }
 
-vector<double> Node::getDoubleArrayParam(const string& name)
+vector<double> BaseNode::getDoubleArrayParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<vector<double>>(name);
   return get_parameter(name).as_double_array();
 }
 
-vector<string> Node::getStringArrayParam(const string& name)
+vector<string> BaseNode::getStringArrayParam(const string& name)
 {
   if (!has_parameter(name))
     declare_parameter<vector<string>>(name);
   return get_parameter(name).as_string_array();
 }
 
-bool Node::getBoolParam(const string& name, const bool& _default)
+bool BaseNode::getBoolParam(const string& name, const bool& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_bool();
 }
 
-long Node::getIntParam(const string& name, const long& _default)
+long BaseNode::getIntParam(const string& name, const long& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_int();
 }
 
-double Node::getDoubleParam(const string& name, const double& _default)
+double BaseNode::getDoubleParam(const string& name, const double& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_double();
 }
 
-string Node::getStringParam(const string& name, const string& _default)
+string BaseNode::getStringParam(const string& name, const string& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_string();
 }
 
-vector<bool> Node::getBoolArrayParam(const string& name, const vector<bool>& _default)
+vector<bool> BaseNode::getBoolArrayParam(const string& name, const vector<bool>& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_bool_array();
 }
 
-vector<uint8_t> Node::getByteArrayParam(const string& name, const vector<uint8_t>& _default)
+vector<uint8_t> BaseNode::getByteArrayParam(const string& name, const vector<uint8_t>& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_byte_array();
 }
 
-vector<long> Node::getIntArrayParam(const string& name, const vector<long>& _default)
+vector<long> BaseNode::getIntArrayParam(const string& name, const vector<long>& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_integer_array();
 }
 
-vector<double> Node::getDoubleArrayParam(const string& name, const vector<double>& _default)
+vector<double> BaseNode::getDoubleArrayParam(const string& name, const vector<double>& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_double_array();
 }
 
-vector<string> Node::getStringArrayParam(const string& name, const vector<string>& _default)
+vector<string> BaseNode::getStringArrayParam(const string& name, const vector<string>& _default)
 {
   if (!has_parameter(name))
-    declareParam(name, _default);
+    declare_parameter(name, _default);
   return get_parameter(name).as_string_array();
 }
 
-void Node::rclcppLog(uint8_t level, const string& text) const
+void BaseNode::rclcppLog(uint8_t level, const string& text) const
 {
   switch (level)
   {
@@ -163,7 +173,7 @@ void Node::rclcppLog(uint8_t level, const string& text) const
   }
 }
 
-rclcpp::QoS Node::makeQoS(bool latch, bool reliable, size_t queue_size)
+rclcpp::QoS BaseNode::makeQoS(bool latch, bool reliable, size_t queue_size)
 {
   auto qos = rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST, queue_size));
 
@@ -180,8 +190,8 @@ rclcpp::QoS Node::makeQoS(bool latch, bool reliable, size_t queue_size)
   return qos;
 }
 
-string Node::createID(const char* file, int line)
+string BaseNode::createID(const char* file, int line)
 {
   return string(file) + ":" + to_string(line);
 }
-}  // namespace ros2
+}  // namespace tobas

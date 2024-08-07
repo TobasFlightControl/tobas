@@ -148,12 +148,12 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = node_.advertise<tobas_gazebo_msgs::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic);
 
-  deflections_sub_ = node_.subscribe(
-    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, 1, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
+  deflections_sub_ = createSubscriber(
+    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_sub_ =
-    node_.subscribe("/" + ns_ + "/" + kWindGtTopic, 1, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
+    createSubscriber("/" + ns_ + "/" + kWindGtTopic, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
@@ -243,7 +243,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   link_->AddRelativeTorque(air_moment);
 
   // デバッグ用メッセージを発行
-  const auto debug_msg = make_unique<tobas_gazebo_msgs::FixedWingDebug>();
+  const auto debug_msg =std::make_unique<tobas_gazebo_msgs::FixedWingDebug>();
   timeGazeboToRos(info.simTime, debug_msg->header.stamp);
   vectorGazeboToKDL(linvel_B, debug_msg->relative_body_velocity);
   debug_msg->alpha = alpha;
@@ -252,7 +252,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   vectorGazeboToKDL(air_moment, debug_msg->air_moment);
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
     debug_msg->deflections.push_back(cs_angle_models_[i].currentPosition());
-  debug_pub_.publish(debug_msg);
+  debug_pub_->publish(debug_msg);
 }
 
 void GazeboFixedWingPlugin::updateDeflections(const double& dt)
@@ -406,7 +406,7 @@ double GazeboFixedWingPlugin::dynamicPressure(const double& V)
   return rho * math::sqr(V) / 2.;
 }
 
-void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::ControlSurfaceDeflectionsConstPtr& deflections)
+void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr& deflections)
 {
   // Check array size
   if (deflections->deflections.size() != control_surfaces_.size())
@@ -423,7 +423,7 @@ void GazeboFixedWingPlugin::deflectionsCb(const tobas_msgs::ControlSurfaceDeflec
   last_cmd_time_ = prev_sim_time_;
 }
 
-void GazeboFixedWingPlugin::windSpeedCb(const tobas_msgs::WindConstPtr& wind)
+void GazeboFixedWingPlugin::windSpeedCb(const tobas_msgs::Wind::ConstSharedPtr& wind)
 {
   vectorKDLToGazebo(wind->vel, wind_vel_W_);
 }

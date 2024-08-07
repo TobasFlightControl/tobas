@@ -72,7 +72,7 @@ private:
   NormalDistribution3dPtr vel_noise_;
 
   // Publishers
-  rclcpp::Publisher gps_pub_;
+  PublisherPtr<> gps_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void setRandomDistribuitons();

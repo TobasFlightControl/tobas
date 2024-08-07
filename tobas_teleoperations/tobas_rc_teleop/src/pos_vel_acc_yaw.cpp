@@ -1,5 +1,5 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.hpp>
 
@@ -18,7 +18,7 @@ void PosVelAccYawController::initialize()
 {
   getRosParams(pnh);
 
-  cmd_pub_ = node.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  cmd_pub_ = node.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
 }
 
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
@@ -65,7 +65,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   }
 
   // コマンドを作成
-  const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
+  const auto cmd =std::make_unique<tobas_msgs::PosVelAccYaw>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;
@@ -74,7 +74,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行
-  cmd_pub_.publish(cmd);
+  cmd_pub_->publish(cmd);
 }
 
 void PosVelAccYawController::getRosParams(rclcpp::Node::SharedPtr pnh)

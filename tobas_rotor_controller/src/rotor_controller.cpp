@@ -1,14 +1,14 @@
-#include <std_msgs/Bool.h>
+#include <std_msgs/msg/bool.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/ThrottleArray.h>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/msg/rotor_speeds.hpp>
 #include <tobas_msgs/EnableRCOutput.h>
 
 #include "../include/tobas_rotor_controller/rotor_controller.hpp"
@@ -17,18 +17,18 @@ using namespace std;
 
 namespace tobas_rotor_controller
 {
-RotorController::RotorController(, const string& name) : super(node, pnh, name)
+RotorController::RotorController(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   drone_.loadFromParam(node_);
 
-  throttles_pub_ = node_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
-  arming_pub_ = node_.advertise<std_msgs::Bool>(tobas::kArmingTopic, 1, true);
+  throttles_pub_ = createPublisher<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic);
+  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic, 1, true);
 
-  tar_speeds_sub_ = node_.subscribe(tobas::kRotorSpeedsCmdTopic, 1, &self::rotSpeedsCmdCb, this, tcpNoDelay());
-  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::rotSpeedsCmdCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
 
-  get_arm_ss_ = node_.advertiseService(tobas::kGetArmSrv, &self::getArmCb, this);
-  set_arm_ss_ = node_.advertiseService(tobas::kSetArmSrv, &self::setArmCb, this);
+  get_arm_ss_ = createPublisherService(tobas::kGetArmSrv, &self::getArmCb, this);
+  set_arm_ss_ = createPublisherService(tobas::kSetArmSrv, &self::setArmCb, this);
   enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
   pre_arm_check_sc_ = node_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
@@ -116,21 +116,21 @@ bool RotorController::preArmCheck()
 
 void RotorController::setThrottleOnAllChannels(const double& throttle)
 {
-  const auto throttles = make_unique<tobas_msgs::ThrottleArray>();
+  const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
   throttles->header.stamp = node->get_clock()->now();
   for (const auto& rotor : drone_.rotorConfigs())
     throttles->throttles.emplace_back(rotor.channel, throttle);
-  throttles_pub_.publish(throttles);
+  throttles_pub_->publish(throttles);
 }
 
 void RotorController::publishArming()
 {
-  const auto arming_msg = make_unique<std_msgs::Bool>();
+  const auto arming_msg =std::make_unique<std_msgs::msg::Bool>();
   arming_msg->data = is_armed_;
-  arming_pub_.publish(arming_msg);
+  arming_pub_->publish(arming_msg);
 }
 
-void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_speeds)
+void RotorController::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& tar_speeds)
 {
   if (!is_armed_)
     return;
@@ -149,7 +149,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
   }
 
   // Create throttle message
-  const auto throttles = make_unique<tobas_msgs::ThrottleArray>();
+  const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
   throttles->header = tar_speeds->header;
 
   // Update throttles
@@ -209,7 +209,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
   }
 
   // Publish throttle commands
-  throttles_pub_.publish(throttles);
+  throttles_pub_->publish(throttles);
 
   // Update last commanded time
   last_cmd_time_ = node->get_clock()->now();
@@ -218,7 +218,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::RotorSpeedsConstPtr& tar_
   is_activated_ = true;
 }
 
-void RotorController::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void RotorController::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }

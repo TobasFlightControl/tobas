@@ -9,7 +9,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_std_msgs</depend>
 	<depend>tobas_std_tools</depend>
 	<depend>rclcpp</depend>
 	<depend>rclcpp_components</depend>

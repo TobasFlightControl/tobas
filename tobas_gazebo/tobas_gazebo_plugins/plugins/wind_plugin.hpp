@@ -68,7 +68,7 @@ private:
   double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
 
-  rclcpp::Publisher wind_pub_;
+  PublisherPtr<> wind_pub_;
 
   rclcpp::ServiceServer get_params_ss_;
   rclcpp::ServiceServer set_params_ss_;

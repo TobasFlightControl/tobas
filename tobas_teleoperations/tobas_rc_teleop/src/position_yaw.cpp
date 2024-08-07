@@ -1,5 +1,5 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_rc_teleop/position_yaw.hpp"
@@ -17,7 +17,7 @@ void PositionYawController::initialize()
 {
   getRosParams(pnh);
   pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
-  pos_yaw_pub_ = node.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
+  pos_yaw_pub_ = node.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic);
 }
 
 void PositionYawController::reset(const tobas_msgs::Odometry& odom)
@@ -58,8 +58,8 @@ void PositionYawController::update(const tobas_msgs::RCInput& rcin, const tobas_
 
   // コマンドを発行
   // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
-  const auto pos_yaw_ptr = make_unique<tobas_msgs::PositionYaw>(pos_yaw_);
-  pos_yaw_pub_.publish(pos_yaw_ptr);
+  const auto pos_yaw_ptr =std::make_unique<tobas_msgs::PositionYaw>(pos_yaw_);
+  pos_yaw_pub_->publish(pos_yaw_ptr);
 }
 
 void PositionYawController::getRosParams(rclcpp::Node::SharedPtr pnh)

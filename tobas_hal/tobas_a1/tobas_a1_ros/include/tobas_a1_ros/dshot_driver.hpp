@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/EnableRCOutput.h>
 
@@ -14,16 +14,16 @@ class DShotDriver : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit DShotDriver(, const std::string& name = rclcpp::this_node::getName());
+  explicit DShotDriver(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   DShot dshot_;
   std::array<bool, DShot::kChannelSize> is_enabled_;
 
-  rclcpp::Subscriber throttles_sub_;
+  SubscriberPtr<> throttles_sub_;
   rclcpp::ServiceServer enable_rcout_srv_;
 
-  void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
+  void throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles);
   bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);
 };
 }  // namespace a1

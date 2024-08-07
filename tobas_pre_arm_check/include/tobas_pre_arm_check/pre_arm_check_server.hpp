@@ -3,9 +3,9 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_std_tools/timestamped_buffer.hpp>
-#include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_node/node.hpp>
+#include <tobas_drone_core/drone.hpp>
+#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/PreArmCheck.h>
 
@@ -35,21 +35,21 @@ public:
 private:
   tobas::Drone drone_;
 
-  tobas_msgs::BatteryConstPtr battery_;
-  tobas_msgs::OdometryConstPtr odom_;
+  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
+  tobas_msgs::Odometry::ConstSharedPtr odom_;
 
   std::array<tobas_std::TimestampedBufferDouble, 3> pos_buf_;
   double roll_, pitch_, yaw_;
   tobas_msgs::PreArmCheck pre_arm_check_;
 
-  rclcpp::Publisher pre_arm_check_pub_;
-  rclcpp::Subscriber battery_sub_;
-  rclcpp::Subscriber odom_sub_;
+  PublisherPtr<> pre_arm_check_pub_;
+  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   rclcpp::ServiceServer pre_arm_check_ss_;
   rclcpp::Timer pre_arm_check_timer_;
 
-  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   bool preArmCheckSrvCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
   void preArmCheckTimerCb(const rclcpp::TimerEvent& event);

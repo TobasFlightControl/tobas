@@ -1,13 +1,13 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/FluidPressure.h>
+#include <sensor_msgs/msg/fluid_pressure.hpp>
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_ros2_tools/timer.hpp>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_tools/fw_trim_conditions.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 
@@ -58,8 +58,8 @@ private:
   double max_delta_pitch_;  // ピッチ角の釣り合いからの偏差の最大値
 
   // PubSub
-  rclcpp::Publisher cmd_pub_;
-  rclcpp::Subscriber air_pressure_sub_;
+  PublisherPtr<> cmd_pub_;
+  SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
 
   // Timer
   ros2::Timer check_topics_timer_;
@@ -69,7 +69,7 @@ private:
   bool isReady();
   void initialize();
 
-  void airPressureCb(const sensor_msgs::msg::FluidPressureConstPtr& msg);
+  void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg);
 
   void checkTopicsTimerCb(const rclcpp::TimerEvent&);
   void instructionTimerCb(const rclcpp::TimerEvent&);

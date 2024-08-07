@@ -61,8 +61,8 @@ private:
   event::ConnectionPtr new_depth_frame_connection_;
   event::ConnectionPtr load_connection_;
 
-  rclcpp::Publisher depth_image_pub_;
-  rclcpp::Publisher depth_info_pub_;
+  PublisherPtr<> depth_image_pub_;
+  PublisherPtr<> depth_info_pub_;
 
   void onNewImageFrame(const uint8_t* image, size_t width, size_t height, size_t depth, const std::string& format);
   void onNewDepthFrame(const float* image, size_t width, size_t height, size_t depth, const std::string& format);

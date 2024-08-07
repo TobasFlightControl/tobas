@@ -25,6 +25,8 @@ static constexpr char kRobotDescriptionParam[] = "robot_description";
 
 // ROS topics
 static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
+static constexpr char kMessageTopic[] = "message";
+static constexpr char kDynamicParamsTopic[] = "dynamic_parameters";
 static constexpr char kDroneTopic[] = "drone";
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kBatteryLpfTopic[] = "battery_filtered";
@@ -88,6 +90,10 @@ static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
 static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
+
+// Node names
+static constexpr char kControllerNode[] = "controller";
+static constexpr char kObserverNode[] = "observer";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";

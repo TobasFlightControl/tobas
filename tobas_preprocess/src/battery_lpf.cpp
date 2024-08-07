@@ -6,13 +6,13 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-BatteryLpf::BatteryLpf(, const string& name) : super(node, pnh, name)
+BatteryLpf::BatteryLpf(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
-  battery_lpf_pub_ = node_.advertise<tobas_msgs::Battery>(tobas::kBatteryLpfTopic, 1);
-  battery_raw_sub_ = node_.subscribe(tobas::kBatteryTopic, 1, &self::batteryRawCb, this, tcpNoDelay());
+  battery_lpf_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryLpfTopic);
+  battery_raw_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryRawCb, this);
 }
 
-void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
+void BatteryLpf::batteryRawCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_raw)
 {
   if (last_msg_ == nullptr)
   {
@@ -29,9 +29,9 @@ void BatteryLpf::batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw)
   voltage_lpf_.update(battery_raw->voltage, dt);
   current_lpf_.update(battery_raw->current, dt);
 
-  const auto battery_filtered = make_unique<tobas_msgs::Battery>(*battery_raw);
+  const auto battery_filtered =std::make_unique<tobas_msgs::msg::Battery>(*battery_raw);
   battery_filtered->voltage = voltage_lpf_.getOutput();
   battery_filtered->current = current_lpf_.getOutput();
-  battery_lpf_pub_.publish(battery_filtered);
+  battery_lpf_pub_->publish(battery_filtered);
 }
 }  // namespace tobas_preprocess

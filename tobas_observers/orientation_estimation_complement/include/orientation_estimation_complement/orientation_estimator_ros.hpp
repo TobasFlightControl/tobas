@@ -6,7 +6,7 @@
 #include <message_filters/synchronizer.h>
 
 #include <tobas_ros2_tools/timer.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/Imu.h>
 #include <tobas_msgs/MagneticField.h>
 
@@ -44,7 +44,7 @@ public:
 
 private:
   OrientationEstimator filter_;
-  ImuMsg::ConstPtr imu_;
+  ImuMsg::ConstSharedPtr imu_;
 
   // RosParams
   bool do_bias_estimation_;
@@ -54,7 +54,7 @@ private:
   double bias_alpha_;
 
   // PubSub
-  rclcpp::Publisher orientation_pub_;
+  PublisherPtr<> orientation_pub_;
   ImuSubscriber imu_sub_;
   MagSubscriber mag_sub_;
   Synchronizer sync_;
@@ -65,7 +65,7 @@ private:
   void getRosParams();
   void initializeFilter();
 
-  void imuMagCb(const ImuMsg::ConstPtr& imu, const MagMsg::ConstPtr& mag);
+  void imuMagCb(const ImuMsg::ConstSharedPtr& imu, const MagMsg::ConstSharedPtr& mag);
   void checkTopicsTimerCb(const rclcpp::TimerEvent&);
 };
 }  // namespace orientation_estimation_complement

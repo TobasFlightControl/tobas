@@ -10,13 +10,13 @@ using namespace std;
 
 namespace tobas_multirotor_landing
 {
-LandActionServer::LandActionServer(, const string& name)
+LandActionServer::LandActionServer(const rclcpp::NodeOptions& options)
   : super(node, pnh, name),
     alt_buf_(kTimeWindow),
     as_(node_, tobas::kLandAction, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = node_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 
   as_.start();
@@ -41,9 +41,9 @@ bool LandActionServer::disarmRotors()
   return true;
 }
 
-void LandActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void LandActionServer::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+  if (odom->status != tobas_msgs::msg::Odometry::NO_ERROR)
     return;
 
   odom_ = odom;
@@ -57,7 +57,7 @@ void LandActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   alt_buf_.add(cur_time, altitude);
 }
 
-void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
+void LandActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
 {
   TOBAS_INFO("Action is called.");
 
@@ -103,7 +103,7 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
 
     // コマンドを作成
     const auto t = (node->get_clock()->now() - start_time).seconds();
-    const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
+    const auto cmd =std::make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
     cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
     cmd->pos.x(start_x);
@@ -116,14 +116,14 @@ void LandActionServer::executeCb(const GoalType::ConstPtr& goal)
     cmd->yaw = start_yaw;
 
     // コマンドを発行
-    cmd_pub_.publish(cmd);
+    cmd_pub_->publish(cmd);
 
     // アクション中止の場合は目標速度・加速度を0にして終了
     if (as_.isPreemptRequested())
     {
       cmd->vel.setZero();
       cmd->acc.setZero();
-      cmd_pub_.publish(cmd);
+      cmd_pub_->publish(cmd);
 
       as_.setPreempted(result_);
       is_action_running_ = false;

@@ -28,7 +28,7 @@ private:
   physics::ContactManager* contact_manager_;
   event::ConnectionPtr update_connection_;
 
-  rclcpp::Publisher contacts_pub_;
+  PublisherPtr<> contacts_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);

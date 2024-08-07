@@ -9,28 +9,28 @@
 TobasBridge::TobasBridge() : node_(node), pnh_(pnh)
 {
   /* Register publishers */
-  // js_pub_ = node_.advertise<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic, 1);
+  // js_pub_ = createPublisher<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);
 
   /* Register subscribers */
-  // tar_pos_sub_ = node_.subscribe(tobas::kJointPositionsCmdTopic, 1, &self::jntPosCmdCb, this);
-  // tar_vel_sub_ = node_.subscribe(tobas::kJointVelocitiesCmdTopic, 1, &self::jntVelCmdCb, this);
-  // tar_eff_sub_ = node_.subscribe(tobas::kJointEffortsCmdTopic, 1, &self::jntEffCmdCb, this);
+  // tar_pos_sub_ = createSubscriber(tobas::kJointPositionsCmdTopic, &self::jntPosCmdCb, this);
+  // tar_vel_sub_ = createSubscriber(tobas::kJointVelocitiesCmdTopic, &self::jntVelCmdCb, this);
+  // tar_eff_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jntEffCmdCb, this);
 
   /* Create main timer */
   // main_timer_ = node_.createTimer(MAIN_TIMER_FREQ, &self::mainTimerCb, this);
 }
 
-void TobasBridge::jntPosCmdCb(const tobas_msgs::JointCommandArrayConstPtr& tar_pos)
+void TobasBridge::jntPosCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_pos)
 {
   /* TODO */
 }
 
-void TobasBridge::jntVelCmdCb(const tobas_msgs::JointCommandArrayConstPtr& tar_vel)
+void TobasBridge::jntVelCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_vel)
 {
   /* TODO */
 }
 
-void TobasBridge::jntEffCmdCb(const tobas_msgs::JointCommandArrayConstPtr& tar_eff)
+void TobasBridge::jntEffCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_eff)
 {
   /* TODO */
 }

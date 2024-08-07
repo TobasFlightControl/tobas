@@ -5,7 +5,7 @@
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_hal_msgs/MagneticField.h>
 
 namespace tobas_real_ros
@@ -28,17 +28,17 @@ private:
   // Config
   math::EllipseTransformer mag_trans_;
 
-  tobas_hal_msgs::MagneticFieldConstPtr mag_raw_;
+  tobas_hal_msgs::MagneticField::ConstSharedPtr mag_raw_;
   ptree::PropertyClient property_client_;
   std::array<dsp::NoiseVarianceFilter, 3> mag_noise_;
 
-  rclcpp::Publisher mag_pub_;
-  rclcpp::Subscriber mag_sub_;
+  PublisherPtr<> mag_pub_;
+  SubscriberPtr<> mag_sub_;
   rclcpp::ServiceServer reload_config_srv_;
 
   bool reloadConfig();
 
-  void magCb(const tobas_hal_msgs::MagneticFieldConstPtr& mag_raw);
+  void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
   bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
 };
 }  // namespace tobas_real_ros

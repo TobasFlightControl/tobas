@@ -2,7 +2,7 @@
 
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_property_tools/property_client.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_hal_msgs/Adc.h>
 #include <tobas_calibration_msgs/AdcCalibration.h>
 
@@ -31,7 +31,7 @@ private:
   ptree::PropertyClient property_client_;
   rclcpp::ServiceServer ss_;
 
-  void adcCb(const tobas_hal_msgs::AdcConstPtr& adc);
+  void adcCb(const tobas_hal_msgs::Adc::ConstSharedPtr& adc);
   bool executeCb(SrvType::Request& req, SrvType::Response& res);
 };
 }  // namespace tobas_calibration

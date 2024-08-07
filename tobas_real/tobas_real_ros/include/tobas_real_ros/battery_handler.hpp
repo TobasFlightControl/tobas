@@ -3,7 +3,7 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_property_tools/property_client.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_hal_msgs/Adc.h>
 
 namespace tobas_real_ros
@@ -30,14 +30,14 @@ private:
 
   ptree::PropertyClient property_client_;
 
-  rclcpp::Publisher battery_pub_;
-  rclcpp::Subscriber adc_sub_;
+  PublisherPtr<> battery_pub_;
+  SubscriberPtr<> adc_sub_;
 
   rclcpp::ServiceServer reload_config_srv_;
 
   bool reloadConfig();
 
   bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
-  void adcCb(const tobas_hal_msgs::AdcConstPtr& adc);
+  void adcCb(const tobas_hal_msgs::Adc::ConstSharedPtr& adc);
 };
 }  // namespace tobas_real_ros

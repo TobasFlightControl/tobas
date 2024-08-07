@@ -11,12 +11,12 @@ class SBUSDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit SBUSDriver(, const std::string& name = rclcpp::this_node::getName());
+  explicit SBUSDriver(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   SBUS sbus_;
 
-  rclcpp::Publisher sbus_pub_;
+  PublisherPtr<> sbus_pub_;
 
   void mainTimerCb(const rclcpp::TimerEvent& event);
 };

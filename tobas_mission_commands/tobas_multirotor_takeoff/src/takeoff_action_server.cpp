@@ -10,11 +10,11 @@ using namespace std;
 
 namespace tobas_multirotor_takeoff
 {
-TakeoffActionServer::TakeoffActionServer(, const string& name)
+TakeoffActionServer::TakeoffActionServer(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), as_(node_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = node_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
+  cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
   as_.start();
 }
@@ -61,12 +61,12 @@ bool TakeoffActionServer::armRotors()
   return true;
 }
 
-void TakeoffActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void TakeoffActionServer::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }
 
-void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
+void TakeoffActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
 {
   TOBAS_INFO("Action is called.");
 
@@ -80,7 +80,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
     as_.setAborted(result_, "Odometry message is not received yet.");
     return;
   }
-  if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
+  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     as_.setAborted(result_, "There is a problem with the state estimation.");
     return;
@@ -123,7 +123,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
     }
 
     // コマンドを作成
-    const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
+    const auto cmd =std::make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
     cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
     cmd->pos.setZero();
@@ -139,14 +139,14 @@ void TakeoffActionServer::executeCb(const GoalType::ConstPtr& goal)
     traj_z.get(t, cmd->pos.z(), cmd->vel.z(), cmd->acc.z());
 
     // コマンドを発行
-    cmd_pub_.publish(cmd);
+    cmd_pub_->publish(cmd);
 
     // アクション中止の場合は目標速度・加速度を0にして終了
     if (as_.isPreemptRequested())
     {
       cmd->vel.setZero();
       cmd->acc.setZero();
-      cmd_pub_.publish(cmd);
+      cmd_pub_->publish(cmd);
 
       as_.setPreempted(result_);
       return;

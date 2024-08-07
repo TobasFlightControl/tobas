@@ -3,7 +3,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_ros2_tools/node.hpp>
+#include <tobas_node/node.hpp>
 
 #include <tobas_property_msgs/srv/get_bool.hpp>
 #include <tobas_property_msgs/srv/get_int.hpp>
@@ -16,12 +16,12 @@
 
 namespace ptree
 {
-class PropertyServer : public ros2::Node
+class PropertyServer : public tobas::BaseNode
 {
   static constexpr char kIniPathParam[] = "ini_path";
 
   using self = PropertyServer;
-  using super = ros2::Node;
+  using super = tobas::BaseNode;
 
 public:
   explicit PropertyServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

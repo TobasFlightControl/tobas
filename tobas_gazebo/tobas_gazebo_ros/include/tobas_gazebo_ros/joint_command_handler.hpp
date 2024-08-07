@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/JointCommandArray.h>
 
 namespace tobas_gazebo_ros
@@ -27,15 +27,15 @@ private:
     EFFORT,
   };
 
-  std::unordered_map<std::string, std::pair<command_type_t, rclcpp::Publisher>> ctrl_map_;
-  rclcpp::Subscriber positions_sub_;
-  rclcpp::Subscriber velocities_sub_;
-  rclcpp::Subscriber efforts_sub_;
+  std::unordered_map<std::string, std::pair<command_type_t, PublisherPtr<>>> ctrl_map_;
+  SubscriberPtr<> positions_sub_;
+  SubscriberPtr<> velocities_sub_;
+  SubscriberPtr<> efforts_sub_;
 
   bool initialize();
 
-  void jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts);
+  void jointPositionsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& velocities);
+  void jointEffortsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& efforts);
 };
 }  // namespace tobas_gazebo_ros

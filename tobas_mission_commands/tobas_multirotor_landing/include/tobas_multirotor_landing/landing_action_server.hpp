@@ -4,7 +4,7 @@
 #include <actionlib/server/simple_action_server.h>
 
 #include <tobas_std_tools/timestamped_buffer.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/LandAction.h>
 
@@ -34,18 +34,18 @@ public:
 private:
   bool is_action_running_ = false;
   tobas_std::TimestampedBuffer<double> alt_buf_;
-  tobas_msgs::OdometryConstPtr odom_;
+  tobas_msgs::Odometry::ConstSharedPtr odom_;
   ResultType result_;
 
-  rclcpp::Publisher cmd_pub_;
-  rclcpp::Subscriber odom_sub_;
+  PublisherPtr<> cmd_pub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   rclcpp::ServiceClient set_arm_sc_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool disarmRotors();
 
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
-  void executeCb(const GoalType::ConstPtr& goal);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void executeCb(const GoalType::ConstSharedPtr& goal);
 };
 }  // namespace tobas_multirotor_landing

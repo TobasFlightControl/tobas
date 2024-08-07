@@ -1,39 +1,37 @@
-#include <tobas_ros2_tools/node.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_drone_msgs/Drone.hpp>
 
 using namespace std;
 
 namespace tobas
 {
-class DroneServer : public ros2::Node
+class DroneServerNode : public BaseNode
 {
   static constexpr char kFilePath[] = "tbsdrn_path";
 
-  using self = DroneServer;
-  using super = ros2::Node;
+  using self = DroneServerNode;
+  using super = BaseNode;
 
 public:
-  explicit DroneServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ParamHandlePtr file_handle_;
   PublisherPtr<Drone> drone_pub_;
 
   bool publishDrone(const string& file_path) const;
-  void fileParamCb(const rclcpp::Parameter& p);
+  bool fileParamCb(const string& p);
 };
 
-DroneServer::DroneServer(const rclcpp::NodeOptions& options) : super("drone_server", options)
+DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
 {
-  declare_parameter<string>(kFilePath);
+  addDynamicStringParam(kFilePath, &self::fileParamCb, this);
+  publishDynamicParameterDescriptions();
 
-  file_handle_ = addParamCallback(kFilePath, &self::fileParamCb, this);  // コールバック関数を追加した時点で一度呼ばれる
-
-  // TODO: tobas_constantsにトピックをまとめて使う
-  drone_pub_ = createPublisher<Drone>("drone", true);
+  drone_pub_ = createPublisher<Drone>(tobas::kDroneTopic, true);
 }
 
-bool DroneServer::publishDrone(const string& file_path) const
+bool DroneServerNode::publishDrone(const string& file_path) const
 {
   auto drone = std::make_unique<Drone>();
 
@@ -48,14 +46,10 @@ bool DroneServer::publishDrone(const string& file_path) const
   return true;
 }
 
-void DroneServer::fileParamCb(const rclcpp::Parameter& p)
+bool DroneServerNode::fileParamCb(const string& p)
 {
-  if (!publishDrone(p.as_string()))
-    return;
-
-  TOBAS_INFO("Drone structure is updated.");
-  return;
+  return publishDrone(p);
 }
 }  // namespace tobas
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas::DroneServer)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas::DroneServerNode)

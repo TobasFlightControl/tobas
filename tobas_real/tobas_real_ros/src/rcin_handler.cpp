@@ -11,15 +11,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-RCInputHandler::RCInputHandler(, const string& name)
+RCInputHandler::RCInputHandler(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  rcin_pub_ = node_.advertise<tobas_msgs::RCInput>(tobas::kRcInputTopic, 1);
-  sbus_sub_ = node_.subscribe(hal::kSbusTopic, 1, &self::sbusCb, this, tcpNoDelay());
+  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::kRcInputTopic);
+  sbus_sub_ = createSubscriber(hal::kSbusTopic, &self::sbusCb, this);
 
-  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 void RCInputHandler::setToDefaults()
@@ -141,10 +141,10 @@ bool RCInputHandler::reloadConfig()
   return true;
 }
 
-void RCInputHandler::sbusCb(const tobas_hal_msgs::SbusConstPtr& sbus)
+void RCInputHandler::sbusCb(const tobas_hal_msgs::Sbus::ConstSharedPtr& sbus)
 {
   // Create message
-  const auto rcin_msg = make_unique<tobas_msgs::RCInput>();
+  const auto rcin_msg =std::make_unique<tobas_msgs::RCInput>();
 
   // Fill header
   rcin_msg->header = sbus->header;
@@ -164,7 +164,7 @@ void RCInputHandler::sbusCb(const tobas_hal_msgs::SbusConstPtr& sbus)
   rcin_msg->gpsw = abs(sbus->data[kRcChannelGPSw] - gpsw_on_) < abs(sbus->data[kRcChannelGPSw] - gpsw_off_);
 
   // Publish message
-  rcin_pub_.publish(rcin_msg);
+  rcin_pub_->publish(rcin_msg);
 }
 
 bool RCInputHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::srv::Trigger::Response& res)

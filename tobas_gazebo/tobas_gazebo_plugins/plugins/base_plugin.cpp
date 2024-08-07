@@ -1,5 +1,5 @@
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/msg/rotor_speeds.hpp>
 
 #include "./base_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
@@ -49,7 +49,7 @@ void GazeboBasePlugin::getSdfParams(sdf::ElementPtr sdf)
 void GazeboBasePlugin::onUpdate(const common::UpdateInfo& info)
 {
   // Publish rotor speeds
-  const auto rotor_speeds = make_unique<tobas_msgs::RotorSpeeds>();
+  const auto rotor_speeds =std::make_unique<tobas_msgs::msg::RotorSpeeds>();
   timeGazeboToRos(info.simTime, rotor_speeds->header.stamp);
   for (const auto& joint : rotor_joints_)
   {
@@ -57,12 +57,12 @@ void GazeboBasePlugin::onUpdate(const common::UpdateInfo& info)
     const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
     rotor_speeds->speeds.push_back(abs(rot_speed_real));
   }
-  rotor_speeds_pub_.publish(rotor_speeds);
+  rotor_speeds_pub_->publish(rotor_speeds);
 }
 
 void GazeboBasePlugin::registerPubSub()
 {
-  rotor_speeds_pub_ = node_.advertise<tobas_msgs::RotorSpeeds>("/" + ns_ + "/" + tobas::kRotorSpeedsTopic, 1);
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>("/" + ns_ + "/" + tobas::kRotorSpeedsTopic);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboBasePlugin);

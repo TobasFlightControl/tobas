@@ -44,8 +44,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, zero3);
 
   // Advertise
-  imu_pub_ = node_.advertise<tobas_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic, 1);
-  debug_pub_ = node_.advertise<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic, 1);
+  imu_pub_ = createPublisher<tobas_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
@@ -141,7 +141,7 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
 
 void GazeboImuPlugin::publishImuMsg(const double& dt) const
 {
-  const auto imu_msg = make_unique<tobas_msgs::Imu>();
+  const auto imu_msg =std::make_unique<tobas_msgs::Imu>();
 
   timeGazeboToRos(world_->SimTime(), imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
@@ -154,12 +154,12 @@ void GazeboImuPlugin::publishImuMsg(const double& dt) const
   const auto gyro_var = math::sqr(gyro_noise_density_obs_) / dt;
   imu_msg->gyro_covariance = Eigen::Vector3d::Constant(gyro_var).asDiagonal();
 
-  imu_pub_.publish(imu_msg);
+  imu_pub_->publish(imu_msg);
 }
 
 void GazeboImuPlugin::publishDebugMsg() const
 {
-  const auto debug_msg = make_unique<tobas_gazebo_msgs::ImuDebug>();
+  const auto debug_msg =std::make_unique<tobas_gazebo_msgs::ImuDebug>();
 
   timeGazeboToRos(world_->SimTime(), debug_msg->header.stamp);
   debug_msg->header.frame_id = link_name_;
@@ -167,7 +167,7 @@ void GazeboImuPlugin::publishDebugMsg() const
   vectorGazeboToKDL(acc_bias_, debug_msg->acc_bias);
   vectorGazeboToKDL(gyro_bias_, debug_msg->gyro_bias);
 
-  debug_pub_.publish(debug_msg);
+  debug_pub_->publish(debug_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboImuPlugin);

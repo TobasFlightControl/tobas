@@ -1,7 +1,7 @@
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/msg/rotor_speeds.hpp>
 #include <tobas_np_pid/ControllerFeedback.h>
 
 #include "../include/tobas_np_pid/controller_ros.hpp"
@@ -11,7 +11,7 @@ using namespace Eigen;
 
 namespace tobas_np_pid
 {
-ControllerRos::ControllerRos(, const string& name)
+ControllerRos::ControllerRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), js_converter_(tree_), mixer_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(node_);
@@ -27,19 +27,19 @@ ControllerRos::ControllerRos(, const string& name)
 
 void ControllerRos::registerPublishers()
 {
-  rot_speeds_pub_ = node_.advertise<tobas_msgs::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, 1);
-  feedback_pub_ = node_.advertise<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic, 1);
+  rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);
+  feedback_pub_ = createPublisher<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic);
 }
 
 void ControllerRos::registerSubscribers()
 {
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   if (drone_.isTransformable())
-    js_sub_ = node_.subscribe(tobas::kJointStatesTopic, 1, &self::jointStateCb, this, tcpNoDelay());
+    js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
 
-  arming_sub_ = node_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
-  cmd_sub_ = node_.subscribe(tobas::kPoseTwistAccelCmdTopic, 1, &self::commandCb, this, tcpNoDelay());
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
 }
 
 bool ControllerRos::isReadyToControl()
@@ -50,7 +50,7 @@ bool ControllerRos::isReadyToControl()
     return false;
   }
 
-  if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
+  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
     return false;
@@ -80,7 +80,7 @@ bool ControllerRos::isReadyToControl()
   return true;
 }
 
-void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void ControllerRos::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   if (odom_ == nullptr)
   {
@@ -117,7 +117,7 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B);
 
   // 目標回転数を発行
-  const auto tar_rot_speeds = make_unique<tobas_msgs::RotorSpeeds>();
+  const auto tar_rot_speeds =std::make_unique<tobas_msgs::msg::RotorSpeeds>();
   tar_rot_speeds->header.stamp = odom->header.stamp;
   tar_rot_speeds->speeds.resize(drone_.rotors.size(), 0.);
   for (size_t rotor_idx = 0; rotor_idx < static_cast<size_t>(thrusts.rows()); ++rotor_idx)
@@ -125,11 +125,11 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     const auto thrust = max(0., thrusts(rotor_idx));
     tar_rot_speeds->speeds[rotor_idx] = drone_.rotSpeedFromThrust(rotor_idx, thrust);
   }
-  rot_speeds_pub_.publish(tar_rot_speeds);
+  rot_speeds_pub_->publish(tar_rot_speeds);
 
   // フィードバックを発行
   // 目標位置速度はコマンドそのままだが，発行されていない間も安定して描画するためにメッセージに含めている
-  const auto feedback = make_unique<tobas_np_pid::ControllerFeedback>();
+  const auto feedback =std::make_unique<tobas_np_pid::ControllerFeedback>();
   feedback->header.stamp = odom->header.stamp;
   feedback->target_position = cmd_->pos;
   feedback->target_orientation = cmd_->rpy;
@@ -143,15 +143,15 @@ void ControllerRos::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   feedback->target_accel_global.angular = odom->frame.M * tar_dgyro_B;
   feedback->position_integral_error.data = pos_pid_.integralError();
   feedback->orientation_integral_error = kdl::Euler(ori_pid_.integralError());
-  feedback_pub_.publish(feedback);
+  feedback_pub_->publish(feedback);
 }
 
-void ControllerRos::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void ControllerRos::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
 
-void ControllerRos::jointStateCb(const sensor_msgs::msg::JointStateConstPtr& js)
+void ControllerRos::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
 {
   if (js->name.size() != js->position.size())
   {
@@ -162,7 +162,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::msg::JointStateConstPtr& js)
   js_ = js;
 }
 
-void ControllerRos::armingCb(const std_msgs::BoolConstPtr& arming)
+void ControllerRos::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
 
@@ -174,7 +174,7 @@ void ControllerRos::armingCb(const std_msgs::BoolConstPtr& arming)
   }
 }
 
-void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& cmd)
+void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd)
 {
   if (!isReadyToControl())
   {
@@ -189,7 +189,7 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommandConstPtr& c
   }
 
   // コマンドを更新
-  cmd_ = make_unique<tobas_msgs::PoseTwistAccelCommand>(*cmd);
+  cmd_ =std::make_unique<tobas_msgs::PoseTwistAccelCommand>(*cmd);
 
   // グローバル座標系に変換
   if (!tobas::changeFrame(tobas_msgs::msg::FrameId::WORLD, odom_->frame.M, *cmd_))

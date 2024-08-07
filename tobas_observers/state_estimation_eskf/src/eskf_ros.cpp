@@ -4,7 +4,7 @@
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/time.hpp>
 #include <tobas_geomag/core.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -15,7 +15,7 @@ using namespace Eigen;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(, const string& name) : super(node, pnh, name), server_(pnh_)
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(const rclcpp::NodeOptions& options) : super(node, pnh, name), server_(pnh_)
 {
   getRosParams();
   drone_.loadFromParam(node_);
@@ -41,21 +41,21 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(, const string& name) : sup
   tf_.child_frame_id = tree_.getRootName();
 
   // Register publishers
-  odom_pub_ = node_.advertise<OdomMsg>(tobas::kOdometryTopic, 1);
-  feedback_pub_ = node_.advertise<FeedbackMsg>(kFeedbackTopic, 1);
+  odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
+  feedback_pub_ = createPublisher<FeedbackMsg>(kFeedbackTopic);
 
   // Register subscribers
-  imu_sub_ = node_.subscribe(tobas::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
-  imu_filtered_sub_ = node_.subscribe(tobas::kImuLpfTopic, 1, &self::imuFilteredCb, this, tcpNoDelay());
-  mag_sub_ = node_.subscribe(tobas::kMagTopic, 1, &self::magCb, this, tcpNoDelay());
+  imu_sub_ = createSubscriber(tobas::kImuTopic, &self::imuCb, this);
+  imu_filtered_sub_ = createSubscriber(tobas::kImuLpfTopic, &self::imuFilteredCb, this);
+  mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
   if (use_bar_)
-    bar_sub_ = node_.subscribe(tobas::kAirPressureTopic, 1, &self::barCb, this, tcpNoDelay());
+    bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::barCb, this);
   if (use_gps_)
-    gps_sub_ = node_.subscribe(tobas::kGpsTopic, 1, &self::gpsCb, this, tcpNoDelay());
+    gps_sub_ = createSubscriber(tobas::kGpsTopic, &self::gpsCb, this);
 
   // Register service servers
-  get_gnss_origin_ss_ = node_.advertiseService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ = node_.advertiseService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = createPublisherService(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = createPublisherService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
@@ -77,7 +77,7 @@ void ErrorStateKalmanFilterRos::getRosParams()
     TOBAS_EXIT("You cannot enable both accelerometer bias estimation and gravity estimation.");
 }
 
-ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdometryMsg() const
+ErrorStateKalmanFilterRos::OdomMsg::ConstSharedPtr ErrorStateKalmanFilterRos::makeOdometryMsg() const
 {
   const Vector3d W_Pos_WI = eskf_.getPosition();
   const Vector3d W_Vel_WI = eskf_.getVelocity();
@@ -87,7 +87,7 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
   const Vector3d B_Acc = imu_filtered_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
   const Vector3d B_Gyro = imu_filtered_->gyro.data - eskf_.getGyroBias();
 
-  const auto odom = make_unique<OdomMsg>();
+  const auto odom =std::make_unique<OdomMsg>();
 
   // Header
   odom->header.stamp = imu_->header.stamp;
@@ -126,7 +126,7 @@ ErrorStateKalmanFilterRos::OdomMsg::ConstPtr ErrorStateKalmanFilterRos::makeOdom
   return odom;
 }
 
-void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
+void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstSharedPtr& imu)
 {
   if (imu_ == nullptr)
   {
@@ -175,7 +175,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
 
   // 推定状態を発行
   const auto odom = makeOdometryMsg();
-  odom_pub_.publish(odom);
+  odom_pub_->publish(odom);
 
   // TFを発行
   tf_.header.stamp = odom->header.stamp;
@@ -183,7 +183,7 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   tf_br_.sendTransform(tf_);
 
   // フィードバックを発行
-  const auto feedback = make_unique<FeedbackMsg>();
+  const auto feedback =std::make_unique<FeedbackMsg>();
   feedback->header = imu->header;
   feedback->acc_bias.data = eskf_.getAccelBias();
   feedback->gyro_bias.data = eskf_.getGyroBias();
@@ -192,15 +192,15 @@ void ErrorStateKalmanFilterRos::imuCb(const ImuMsg::ConstPtr& imu)
   feedback->gyro_bias_covariance = eskf_.getGyroBiasCovariance();
   feedback->gravity_variance = eskf_.getGravityVariance();
   feedback->gps_anormaly_score = gps_anormaly_score_;
-  feedback_pub_.publish(feedback);
+  feedback_pub_->publish(feedback);
 }
 
-void ErrorStateKalmanFilterRos::imuFilteredCb(const ImuMsg::ConstPtr& imu_filtered)
+void ErrorStateKalmanFilterRos::imuFilteredCb(const ImuMsg::ConstSharedPtr& imu_filtered)
 {
   imu_filtered_ = imu_filtered;
 }
 
-void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
+void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstSharedPtr& mag)
 {
   if (imu_ == nullptr)
     return;
@@ -215,7 +215,7 @@ void ErrorStateKalmanFilterRos::magCb(const MagMsg::ConstPtr& mag)
   eskf_.measureYaw(yaw_meas, yaw_var_);
 }
 
-void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
+void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstSharedPtr& bar)
 {
   if (imu_ == nullptr)
     return;
@@ -235,7 +235,7 @@ void ErrorStateKalmanFilterRos::barCb(const BarMsg::ConstPtr& bar)
   eskf_.measureAltitude(z_m, z_var);
 }
 
-void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstPtr& gps)
+void ErrorStateKalmanFilterRos::gpsCb(const GpsMsg::ConstSharedPtr& gps)
 {
   if (imu_ == nullptr)
     return;

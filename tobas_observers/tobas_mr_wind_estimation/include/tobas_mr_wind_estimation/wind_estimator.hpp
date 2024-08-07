@@ -4,12 +4,12 @@
 
 #include <tobas_linear_control/kalman_filter.hpp>
 
-#include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_wind_model/dryden.hpp>
 #include <tobas_drone_tools/dynamics.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/msg/rotor_speeds.hpp>
 
 namespace tobas_mr_wind_estimation
 {
@@ -38,16 +38,16 @@ private:
   ctrl::IdentityKalmanFilter kf_;
   tobas::DrydenComponents dryden_;
 
-  tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
+  tobas_msgs::msg::RotorSpeeds::ConstSharedPtr rotor_speeds_;
 
   // PubSub
-  rclcpp::Publisher wind_pub_;
-  rclcpp::Subscriber odom_sub_;
-  rclcpp::Subscriber rotor_speeds_sub_;
+  PublisherPtr<> wind_pub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  SubscriberPtr<> rotor_speeds_sub_;
 
   Eigen::Matrix3d velCoef(const kdl::Rotation& R_W_B);
 
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
-  void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds);
 };
 }  // namespace tobas_mr_wind_estimation

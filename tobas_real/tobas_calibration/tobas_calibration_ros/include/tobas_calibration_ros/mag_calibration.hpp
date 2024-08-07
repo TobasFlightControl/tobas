@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_property_tools/property_client.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_calibration_msgs/MagCalibration.h>
 
 namespace tobas_calibration

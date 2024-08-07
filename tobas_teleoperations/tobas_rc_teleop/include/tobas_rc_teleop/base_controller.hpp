@@ -5,7 +5,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
 
-#include <tobas_tools/drone.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/RCInput.h>

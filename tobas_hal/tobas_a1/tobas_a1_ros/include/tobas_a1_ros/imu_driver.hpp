@@ -13,11 +13,11 @@ class IMUDriver : public hal::BaseSensorNode
   using super = hal::BaseSensorNode;
 
 public:
-  explicit IMUDriver(, const std::string& name = rclcpp::this_node::getName());
+  explicit IMUDriver(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ISM330DLC imu_;
-  rclcpp::Publisher imu_pub_;
+  PublisherPtr<> imu_pub_;
 
   void mainTimerCb(const rclcpp::TimerEvent& event);
 };

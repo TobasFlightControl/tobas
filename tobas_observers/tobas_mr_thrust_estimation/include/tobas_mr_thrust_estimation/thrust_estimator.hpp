@@ -1,14 +1,14 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
-#include <dynamic_reconfigure/server.h>
+
 
 #include <tobas_linear_control/kalman_filter.hpp>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_drone_tools/dynamics.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/RotorSpeeds.h>
+#include <tobas_msgs/msg/rotor_speeds.hpp>
 
 #include <tobas_mr_thrust_estimation/ThrustEstimationConfig.h>
 
@@ -39,18 +39,18 @@ private:
 
   bool is_initialized_ = false;
   ctrl::IdentityKalmanFilter kf_;
-  tobas_msgs::RotorSpeedsConstPtr rotor_speeds_;
+  tobas_msgs::msg::RotorSpeeds::ConstSharedPtr rotor_speeds_;
 
   // PubSub
-  rclcpp::Publisher factor_pub_;
-  rclcpp::Subscriber odom_sub_;
-  rclcpp::Subscriber rotor_speeds_sub_;
+  PublisherPtr<> factor_pub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  SubscriberPtr<> rotor_speeds_sub_;
 
   // Dynamic Reconfigure
   ConfigServer server_;
 
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
-  void rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds);
 
   void dynamicReconfigureCb(const ConfigType& cfg, size_t);
 };

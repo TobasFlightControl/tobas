@@ -187,7 +187,7 @@ void GazeboNoisyDepthPlugin::publishDepthImage(const float* src)
   lock_.lock();  // TODO: ロックはなぜ必要？
 
   // Create an image message
-  const auto image_msg = make_unique<sensor_msgs::msg::Image>();
+  const auto image_msg =std::make_unique<sensor_msgs::msg::Image>();
 
   // Fill header
   timeGazeboToRos(parent_sensor_->LastMeasurementTime(), image_msg->header.stamp);
@@ -209,7 +209,7 @@ void GazeboNoisyDepthPlugin::publishDepthImage(const float* src)
   noise_model_->applyNoise(width_, height_, dest);
 
   // Publish image
-  depth_image_pub_.publish(image_msg);
+  depth_image_pub_->publish(image_msg);
 
   lock_.unlock();
 }

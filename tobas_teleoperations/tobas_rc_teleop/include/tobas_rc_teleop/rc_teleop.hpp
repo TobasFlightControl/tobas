@@ -2,10 +2,10 @@
 
 #include <map>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/RCInput.h>
 
 #include "./base_controller.hpp"
@@ -21,7 +21,7 @@ class RCTeleop : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RCTeleop(, const std::string& name = rclcpp::this_node::getName());
+  explicit RCTeleop(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   enum stage_t
@@ -46,16 +46,16 @@ private:
 
   // Mutables
   uint8_t last_mode_;
-  tobas_msgs::OdometryConstPtr odom_;
-  tobas_msgs::BatteryConstPtr battery_;
+  tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
   // Controllers
   std::array<std::unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
 
   // PubSub
-  rclcpp::Subscriber odom_sub_;
-  rclcpp::Subscriber battery_sub_;
-  rclcpp::Subscriber rcin_sub_;
+  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  SubscriberPtr<> rcin_sub_;
 
   // Service
   rclcpp::ServiceClient get_arm_sc_;
@@ -66,8 +66,8 @@ private:
   bool requestArmingRotors();
   bool requestDisarmingRotors();
 
-  void odomCb(const tobas_msgs::OdometryConstPtr& odom);
-  void batteryCb(const tobas_msgs::BatteryConstPtr& battery);
-  void rcInputCb(const tobas_msgs::RCInputConstPtr& rcin);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace tobas_rc_teleop

@@ -34,7 +34,7 @@ private:
   event::ConnectionPtr update_connection_;
 
   // PubSub
-  rclcpp::Publisher rotor_speeds_pub_;
+  PublisherPtr<> rotor_speeds_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);

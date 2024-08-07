@@ -12,10 +12,10 @@ PWMDriver::PWMDriver(, const std::string& name) : super(node, pnh, name)
   if (!pwm_.initialize())
     TOBAS_EXIT("Failed to initialize PWM driver.");
 
-  pwms_sub_ = node_.subscribe(tobas::kPwmCmdTopic, 1, &self::pwmsCb, this, tcpNoDelay());
+  pwms_sub_ = createSubscriber(tobas::kPwmCmdTopic, &self::pwmsCb, this);
 }
 
-void PWMDriver::pwmsCb(const tobas_msgs::PwmArrayConstPtr& pwms)
+void PWMDriver::pwmsCb(const tobas_msgs::PwmArray::ConstSharedPtr& pwms)
 {
   // Set PWM periods of each channel
   for (const auto& elem : pwms->pwms)

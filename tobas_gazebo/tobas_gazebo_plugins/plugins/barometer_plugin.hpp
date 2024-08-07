@@ -44,7 +44,7 @@ private:
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
 
-  rclcpp::Publisher pressure_pub_;
+  PublisherPtr<> pressure_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate();

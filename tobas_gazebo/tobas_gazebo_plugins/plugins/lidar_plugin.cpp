@@ -44,7 +44,7 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
   rclcpp::AdvertiseOptions ao = rclcpp::AdvertiseOptions::create<sensor_msgs::msg::PointCloud>(
     "/" + ns_ + "/" + tobas::kLidarTopic, 1, std::bind(&GazeboLidarPlugin::laserConnect, this),
     std::bind(&GazeboLidarPlugin::laserDisconnect, this), rclcpp::VoidPtr(), &laser_queue_);
-  pub_ = node_.advertise(ao);
+  pub_ = createPublisher(ao);
 
   // sensor generation off by default
   parent_ray_sensor_->SetActive(false);
@@ -111,7 +111,7 @@ void GazeboLidarPlugin::putLaserData(const common::Time& update_time)
   const auto p_diff = ver_max_range.Radian() - ver_min_range.Radian();
 
   // Create a cloud message
-  const auto cloud_msg = make_unique<sensor_msgs::msg::PointCloud>();
+  const auto cloud_msg =std::make_unique<sensor_msgs::msg::PointCloud>();
 
   // Set size of cloud message everytime
   cloud_msg->channels.push_back(sensor_msgs::msg::ChannelFloat32());
@@ -195,7 +195,7 @@ void GazeboLidarPlugin::putLaserData(const common::Time& update_time)
   parent_ray_sensor_->SetActive(true);
 
   // send data out via ros message
-  pub_.publish(cloud_msg);
+  pub_->publish(cloud_msg);
 }
 
 double GazeboLidarPlugin::gaussianKernel(const double& mu, const double& sigma)

@@ -1,7 +1,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_keyboard/utils.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_ros2_tools/rate.hpp>
 
 #include <tobas_constants/constants.hpp>
@@ -39,8 +39,8 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  cmd_pub_ = node_.advertise<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
-  air_pressure_sub_ = node_.subscribe(tobas::kAirPressureTopic, 1, &self::airPressureCb, this, tcpNoDelay());
+  cmd_pub_ = createPublisher<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
+  air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
 }
 
 void SpeedRollDeltaPitchPublisher::run()
@@ -118,8 +118,8 @@ void SpeedRollDeltaPitchPublisher::run()
     }
 
     // コマンドを発行
-    const auto cmd_ptr = make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
-    cmd_pub_.publish(cmd_ptr);
+    const auto cmd_ptr =std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
+    cmd_pub_->publish(cmd_ptr);
 
     rclcpp::spinOnce();
     rate.sleep();
@@ -150,7 +150,7 @@ void SpeedRollDeltaPitchPublisher::initialize()
   RCLCPP_INFO_STREAM(instruction_);
 }
 
-void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::msg::FluidPressureConstPtr& msg)
+void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg)
 {
   air_density_ = tobas_std::pressureToDensity(msg->fluid_pressure);
 

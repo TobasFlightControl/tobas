@@ -8,7 +8,7 @@
 
 #include <tobas_tools/turning_direction.hpp>
 #include <tobas_tools/esc.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/Wind.h>
 #include <tobas_gazebo_msgs/Throttle.h>
 
@@ -63,7 +63,7 @@ private:
   double max_model_error_rate_;
 
   double cmd_rot_speed_ = 0.;  // [rad/s]
-  tobas_msgs::BatteryConstPtr battery_;
+  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
   common::Time prev_sim_time_;
   common::Time last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
@@ -81,11 +81,11 @@ private:
   event::ConnectionPtr update_connection_;
 
   // PubSub
-  rclcpp::Publisher rotor_state_pub_;
-  rclcpp::Publisher debug_pub_;
-  rclcpp::Subscriber throttle_sub_;
-  rclcpp::Subscriber battery_gt_sub_;
-  rclcpp::Subscriber wind_gt_sub_;
+  PublisherPtr<> rotor_state_pub_;
+  PublisherPtr<> debug_pub_;
+  SubscriberPtr<> throttle_sub_;
+  SubscriberPtr<> battery_gt_sub_;
+  SubscriberPtr<> wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);
@@ -97,8 +97,8 @@ private:
   double rotSpeedFromVoltage(const double& voltage);
   double rotSpeedFromERPM(const double& erpm);
 
-  void throttleCmdCb(const tobas_gazebo_msgs::ThrottleConstPtr& msg);
-  void batteryGtCb(const tobas_msgs::BatteryConstPtr& battery);
-  void windSpeedGtCb(const tobas_msgs::WindConstPtr& wind);
+  void throttleCmdCb(const tobas_gazebo_msgs::Throttle::ConstSharedPtr& msg);
+  void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind);
 };
 }  // namespace gazebo

@@ -4,7 +4,7 @@
 
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_property_tools/property_client.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_hal_msgs/Imu.h>
 #include <tobas_calibration_msgs/AccelCalibration.h>
 
@@ -36,7 +36,7 @@ private:
 
   bool getAccelMean(Eigen::Vector3d& des);
 
-  void imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw);
+  void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
   bool executeCb(SrvType::Request& req, SrvType::Response& res);
 };
 }  // namespace tobas_calibration

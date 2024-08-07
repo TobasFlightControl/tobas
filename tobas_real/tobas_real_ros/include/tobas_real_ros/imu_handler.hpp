@@ -6,7 +6,7 @@
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_hal_msgs/Imu.h>
 
 namespace tobas_real_ros
@@ -22,7 +22,7 @@ class ImuHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit ImuHandler(, const std::string& name = rclcpp::this_node::getName());
+  explicit ImuHandler(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   enum stage_t
@@ -40,17 +40,17 @@ private:
   size_t gyro_bias_cnt_ = 0;
   std::array<algo::Kahan<double>, 3> gyro_sum_;
 
-  tobas_hal_msgs::ImuConstPtr imu_raw_;
+  tobas_hal_msgs::Imu::ConstSharedPtr imu_raw_;
   ptree::PropertyClient property_client_;
   std::array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 
-  rclcpp::Publisher imu_pub_;
-  rclcpp::Subscriber imu_sub_;
+  PublisherPtr<> imu_pub_;
+  SubscriberPtr<> imu_sub_;
   rclcpp::ServiceServer reload_config_srv_;
 
   bool reloadConfig();
 
-  void imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw);
+  void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
   bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
 };
 }  // namespace tobas_real_ros

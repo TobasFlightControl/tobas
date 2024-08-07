@@ -3,7 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <actionlib/server/simple_action_server.h>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/PositionYaw.h>
 
 #include <tobas_trajectory_commander/FollowPositionYawTrajectoryAction.h>
@@ -34,11 +34,11 @@ public:
 private:
   ResultType result_;
 
-  rclcpp::Publisher cmd_pub_;
-  rclcpp::Subscriber event_sub_;
+  PublisherPtr<> cmd_pub_;
+  SubscriberPtr<> event_sub_;
   actionlib::SimpleActionServer<ActionType> as_;
 
   bool isGoalValid(const GoalType& goal);
-  void executeCb(const GoalType::ConstPtr& goal);
+  void executeCb(const GoalType::ConstSharedPtr& goal);
 };
 }  // namespace tobas_trajectory_commander

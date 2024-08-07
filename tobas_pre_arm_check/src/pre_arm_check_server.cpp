@@ -10,7 +10,7 @@ using namespace Eigen;
 
 namespace tobas_pre_arm_check
 {
-PreArmCheckServer::PreArmCheckServer(, const string& name)
+PreArmCheckServer::PreArmCheckServer(const rclcpp::NodeOptions& options)
   : super(node, pnh, name),
     pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
@@ -18,22 +18,22 @@ PreArmCheckServer::PreArmCheckServer(, const string& name)
 {
   drone_.loadFromParam(node_);
 
-  pre_arm_check_pub_ = node_.advertise<tobas_msgs::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
+  pre_arm_check_pub_ = createPublisher<tobas_msgs::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
 
-  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this);
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
-  pre_arm_check_ss_ = node_.advertiseService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
+  pre_arm_check_ss_ = createPublisherService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
 
   pre_arm_check_timer_ = node_.createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
 }
 
-void PreArmCheckServer::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void PreArmCheckServer::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
 
-void PreArmCheckServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void PreArmCheckServer::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   if (odom_ == nullptr)
   {
@@ -147,6 +147,6 @@ void PreArmCheckServer::preArmCheckTimerCb(const rclcpp::TimerEvent& event)
   if (!pre_arm_check_.velocity_accurate)
     pre_arm_check_.ok = false;
 
-  pre_arm_check_pub_.publish(pre_arm_check_);
+  pre_arm_check_pub_->publish(pre_arm_check_);
 }
 }  // namespace tobas_pre_arm_check

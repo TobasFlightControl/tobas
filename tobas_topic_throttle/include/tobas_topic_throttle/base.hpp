@@ -16,24 +16,24 @@ public:
 
 private:
   rclcpp::Rate rate_;
-  typename MsgType::ConstPtr msg_;
+  typename MsgType::ConstSharedPtr msg_;
 
-  rclcpp::Publisher pub_;
-  rclcpp::Subscriber sub_;
+  PublisherPtr<> pub_;
+  SubscriberPtr<> sub_;
 
-  void callback(const typename MsgType::ConstPtr& msg);
+  void callback(const typename MsgType::ConstSharedPtr& msg);
 };
 
 template <typename MsgType, const char* TopicName>
 TopicThrottle<MsgType, TopicName>::TopicThrottle(rclcpp::Node::SharedPtr node) : rate_(kPublishRate)
 {
   ROS_ASSERT(TopicName[0] != '/');
-  pub_ = node.advertise<MsgType>(std::string("throttled/") + TopicName, 1);
+  pub_ = node.advertise<MsgType>(std::string("throttled/") + TopicName);
   sub_ = node.subscribe(TopicName, 1, &self::callback, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 template <typename MsgType, const char* TopicName>
-void TopicThrottle<MsgType, TopicName>::callback(const typename MsgType::ConstPtr& msg)
+void TopicThrottle<MsgType, TopicName>::callback(const typename MsgType::ConstSharedPtr& msg)
 {
   if (msg_ == nullptr)
   {
@@ -42,7 +42,7 @@ void TopicThrottle<MsgType, TopicName>::callback(const typename MsgType::ConstPt
   }
 
   msg_ = msg;
-  pub_.publish(msg);
+  pub_->publish(msg);
   rate_.sleep();
 }
 }  // namespace tobas_topic_throttle

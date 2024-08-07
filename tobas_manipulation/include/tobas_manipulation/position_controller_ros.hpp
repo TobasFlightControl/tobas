@@ -5,8 +5,8 @@
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_kdl/treeactivejointsextractor.hpp>
 #include <tobas_ros2_tools/tf_listener.hpp>
-#include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_msgs/JointCommandArray.h>
 #include <tobas_msgs/LinkStateArray.h>
 
@@ -30,22 +30,22 @@ private:
   rclcpp::Time t_last_cmd_;
   bool is_commanded_ = false;
 
-  sensor_msgs::msg::JointStateConstPtr tar_js_;
-  tobas_msgs::LinkStateArrayConstPtr tar_ls_;
+  sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
+  tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
 
   // Publishers
-  rclcpp::Publisher positions_pub_;
+  PublisherPtr<> positions_pub_;
 
   // Subscribers
-  rclcpp::Subscriber cur_js_sub_;
-  rclcpp::Subscriber tar_js_sub_;
-  rclcpp::Subscriber tar_ls_sub_;
+  SubscriberPtr<> cur_js_sub_;
+  SubscriberPtr<> tar_js_sub_;
+  SubscriberPtr<> tar_ls_sub_;
 
   int jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg);
   int taskSpaceControl(tobas_msgs::JointCommandArray& positions_msg);
 
-  void currentJointStateCb(const sensor_msgs::msg::JointStateConstPtr& cur_js);
-  void targetJointStateCb(const sensor_msgs::msg::JointStateConstPtr& tar_js);
-  void targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls);
+  void currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js);
+  void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
+  void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
 };
 }  // namespace tobas_manipulation

@@ -29,7 +29,7 @@ private:
   double max_yawrate_;  // [rad/s]
 
   // Publisher
-  rclcpp::Publisher cmd_pub_;
+  PublisherPtr<> cmd_pub_;
 
   void getRosParams(rclcpp::Node::SharedPtr pnh);
 };

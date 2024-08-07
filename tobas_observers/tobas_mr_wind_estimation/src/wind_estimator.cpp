@@ -14,7 +14,7 @@ using namespace Eigen;
 
 namespace tobas_mr_wind_estimation
 {
-WindEstimator::WindEstimator(, const string& name)
+WindEstimator::WindEstimator(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
   drone_.loadFromParam(node_);
@@ -23,10 +23,10 @@ WindEstimator::WindEstimator(, const string& name)
   kf_.initialize(Vector2d::Zero(), Vector2d::Constant(math::sqr(kInitWindStddev)).asDiagonal());
   kf_.setZero();
 
-  wind_pub_ = node_.advertise<tobas_msgs::Wind>(tobas::kWindTopic, 1);
+  wind_pub_ = createPublisher<tobas_msgs::Wind>(tobas::kWindTopic);
 
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  rotor_speeds_sub_ = node_.subscribe(tobas::kRotorSpeedsTopic, 1, &self::rotorSpeedsCb, this, tcpNoDelay());
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  rotor_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsTopic, &self::rotorSpeedsCb, this);
 }
 
 void WindEstimator::updateInternalDataStructures()
@@ -42,9 +42,9 @@ Matrix3d WindEstimator::velCoef(const kdl::Rotation& R_W_B)
   return (drag_rotor_sum / mass) * E_XY * R_B_W;
 }
 
-void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void WindEstimator::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+  if (odom->status != tobas_msgs::msg::Odometry::NO_ERROR)
     return;
 
   if (!is_initialized_)
@@ -57,11 +57,11 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
     }
 
     // 風速推定器は制御器と相互依存しているため，準備ができるまでは風速0を発行する．
-    const auto wind_msg = make_unique<tobas_msgs::Wind>();
+    const auto wind_msg =std::make_unique<tobas_msgs::Wind>();
     wind_msg->header.frame_id = tobas::kWorldFrame;
     wind_msg->header.stamp = odom->header.stamp;
     wind_msg->vel.data.setZero();
-    wind_pub_.publish(wind_msg);
+    wind_pub_->publish(wind_msg);
 
     return;
   }
@@ -104,14 +104,14 @@ void WindEstimator::odomCb(const tobas_msgs::OdometryConstPtr& odom)
   kf_.update();
 
   // Publish wind message
-  const auto wind_msg = make_unique<tobas_msgs::Wind>();
+  const auto wind_msg =std::make_unique<tobas_msgs::Wind>();
   wind_msg->header.frame_id = tobas::kWorldFrame;
   wind_msg->header.stamp = odom->header.stamp;
   wind_msg->vel.data.head(kStateSize) = kf_.state();
-  wind_pub_.publish(wind_msg);
+  wind_pub_->publish(wind_msg);
 }
 
-void WindEstimator::rotorSpeedsCb(const tobas_msgs::RotorSpeedsConstPtr& rotor_speeds)
+void WindEstimator::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds)
 {
   rotor_speeds_ = rotor_speeds;
 }

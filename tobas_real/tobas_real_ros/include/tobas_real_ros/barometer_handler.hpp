@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_hal_msgs/FluidPressure.h>
 
 namespace tobas_real_ros
@@ -24,12 +24,12 @@ public:
     const std::string& name = rclcpp::this_node::getName());
 
 private:
-  tobas_hal_msgs::FluidPressureConstPtr bar_raw_;
+  tobas_hal_msgs::FluidPressure::ConstSharedPtr bar_raw_;
   dsp::NoiseVarianceFilter pressure_noise_;
 
-  rclcpp::Publisher bar_pub_;
-  rclcpp::Subscriber bar_sub_;
+  PublisherPtr<> bar_pub_;
+  SubscriberPtr<> bar_sub_;
 
-  void airPressureCb(const tobas_hal_msgs::FluidPressureConstPtr& bar_raw);
+  void airPressureCb(const tobas_hal_msgs::FluidPressure::ConstSharedPtr& bar_raw);
 };
 }  // namespace tobas_real_ros

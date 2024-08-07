@@ -59,7 +59,7 @@ private:
   event::ConnectionPtr update_connection_;
   std::random_device rnd_dev_;
 
-  rclcpp::Publisher odometry_pub_;
+  PublisherPtr<> odometry_pub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void setRandomDistributions();

@@ -8,7 +8,7 @@ using namespace std;
 
 namespace tobas_manipulation
 {
-PositionControllerRos::PositionControllerRos(, const string& name)
+PositionControllerRos::PositionControllerRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name)
 {
   drone_.loadFromParam(node_);
@@ -26,13 +26,13 @@ PositionControllerRos::PositionControllerRos(, const string& name)
 
   // ホームポジションを初期目標状態に設定
   if (home_js_.name.size() > 0)
-    tar_js_ = make_unique<sensor_msgs::msg::JointState>(home_js_);
+    tar_js_ =std::make_unique<sensor_msgs::msg::JointState>(home_js_);
 
-  positions_pub_ = node_.advertise<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic, 1);
+  positions_pub_ = createPublisher<tobas_msgs::JointCommandArray>(tobas::kJointPositionsCmdTopic);
 
-  cur_js_sub_ = node_.subscribe(tobas::kJointStatesTopic, 1, &self::currentJointStateCb, this, tcpNoDelay());
-  tar_js_sub_ = node_.subscribe(tobas::kPosCtrlJSTopic, 1, &self::targetJointStateCb, this, tcpNoDelay());
-  tar_ls_sub_ = node_.subscribe(tobas::kPosCtrlLSTopic, 1, &self::targetLinkStateCb, this, tcpNoDelay());
+  cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
+  tar_js_sub_ = createSubscriber(tobas::kPosCtrlJSTopic, &self::targetJointStateCb, this);
+  tar_ls_sub_ = createSubscriber(tobas::kPosCtrlLSTopic, &self::targetLinkStateCb, this);
 }
 
 int PositionControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& positions_msg)
@@ -51,7 +51,7 @@ int PositionControllerRos::taskSpaceControl(tobas_msgs::JointCommandArray&)
   return 0;
 }
 
-void PositionControllerRos::currentJointStateCb(const sensor_msgs::msg::JointStateConstPtr&)
+void PositionControllerRos::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr&)
 {
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
@@ -59,7 +59,7 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::msg::JointSta
   const auto time_after_last_cmd = (node->get_clock()->now() - t_last_cmd_).seconds();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
-    tar_js_ = make_unique<sensor_msgs::msg::JointState>(home_js_);
+    tar_js_ =std::make_unique<sensor_msgs::msg::JointState>(home_js_);
     tar_ls_ = nullptr;
     is_commanded_ = false;
     TOBAS_WARN(
@@ -68,7 +68,7 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::msg::JointSta
   }
 
   // Create joint velocities command
-  const auto positions_msg = make_unique<tobas_msgs::JointCommandArray>();
+  const auto positions_msg =std::make_unique<tobas_msgs::JointCommandArray>();
 
   // Joint space control or Task space control
   if (tar_js_ != nullptr)
@@ -88,10 +88,10 @@ void PositionControllerRos::currentJointStateCb(const sensor_msgs::msg::JointSta
   }
 
   // Publish joint velocities command
-  positions_pub_.publish(positions_msg);
+  positions_pub_->publish(positions_msg);
 }
 
-void PositionControllerRos::targetJointStateCb(const sensor_msgs::msg::JointStateConstPtr& tar_js)
+void PositionControllerRos::targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js)
 {
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
@@ -100,7 +100,7 @@ void PositionControllerRos::targetJointStateCb(const sensor_msgs::msg::JointStat
   is_commanded_ = true;
 }
 
-void PositionControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArrayConstPtr& tar_ls)
+void PositionControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
 {
   tar_ls_ = tar_ls;
   tar_js_ = nullptr;

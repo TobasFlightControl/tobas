@@ -2,7 +2,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_msgs/ThrottleArray.h>
 
 namespace tobas_latency_publisher
@@ -19,9 +19,9 @@ public:
     const std::string& name = rclcpp::this_node::getName());
 
 private:
-  rclcpp::Publisher latency_pub_;
-  rclcpp::Subscriber throttles_sub_;
+  PublisherPtr<> latency_pub_;
+  SubscriberPtr<> throttles_sub_;
 
-  void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& msg);
+  void throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& msg);
 };
 }  // namespace tobas_latency_publisher

@@ -1,5 +1,5 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.hpp>
 
@@ -18,7 +18,7 @@ void PoseTwistAccelController::initialize()
 {
   getRosParams(pnh);
 
-  cmd_pub_ = node.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
+  cmd_pub_ = node.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic);
 }
 
 void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
@@ -85,7 +85,7 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   }
 
   // コマンドを作成
-  const auto cmd = make_unique<tobas_msgs::PoseTwistAccelCommand>();
+  const auto cmd =std::make_unique<tobas_msgs::PoseTwistAccelCommand>();
   cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;
@@ -96,7 +96,7 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   cmd->dgyro.setZero();
 
   // コマンドを発行
-  cmd_pub_.publish(cmd);
+  cmd_pub_->publish(cmd);
 }
 
 void PoseTwistAccelController::getRosParams(rclcpp::Node::SharedPtr pnh)

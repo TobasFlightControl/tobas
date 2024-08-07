@@ -9,7 +9,7 @@ using namespace std;
 
 namespace tobas_gazebo_ros
 {
-RotorCommandHandler::RotorCommandHandler(, const string& name)
+RotorCommandHandler::RotorCommandHandler(const rclcpp::NodeOptions& options)
   : super(node, pnh, name)
 {
   drone_.loadFromParam(node_);
@@ -17,14 +17,14 @@ RotorCommandHandler::RotorCommandHandler(, const string& name)
   for (const auto& rotor : drone_.rotorConfigs())
   {
     const auto topic = string(gazebo::kThrottleTopicPrefix) + "_" + to_string(rotor.channel);
-    throttle_pubs_[rotor.channel] = node_.advertise<tobas_gazebo_msgs::Throttle>(topic, 1);
+    throttle_pubs_[rotor.channel] = createPublisher<tobas_gazebo_msgs::Throttle>(topic);
   }
 
-  throttles_sub_ = node_.subscribe(tobas::kThrottlesCmdTopic, 1, &self::throttlesCb, this, tcpNoDelay());
-  enable_rcout_srv_ = node_.advertiseService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
+  throttles_sub_ = createSubscriber(tobas::kThrottlesCmdTopic, &self::throttlesCb, this);
+  enable_rcout_srv_ = createPublisherService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
-void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles)
+void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles)
 {
   for (const auto& in : throttles->throttles)
   {
@@ -36,7 +36,7 @@ void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& t
     }
 
     // Create throttle message
-    const auto out = make_unique<tobas_gazebo_msgs::Throttle>();
+    const auto out =std::make_unique<tobas_gazebo_msgs::Throttle>();
     out->header = throttles->header;
     out->data = in.throttle;
 

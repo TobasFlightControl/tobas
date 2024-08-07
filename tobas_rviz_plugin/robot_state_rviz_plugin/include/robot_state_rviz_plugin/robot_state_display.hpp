@@ -52,7 +52,7 @@ private:
   void setHighlight(const std::string& link_name, const std_msgs::ColorRGBA& color);
   void unsetHighlight(const std::string& link_name);
   void restartSubscribers();
-  void robotStateCb(const moveit_msgs::DisplayRobotStateConstPtr& state);
+  void robotStateCb(const moveit_msgs::DisplayRobotState::ConstSharedPtr& state);
 
   void onInitialize() override;
   void onEnable() override;
@@ -60,11 +60,11 @@ private:
   void fixedFrameChanged() override;
 
   rclcpp::NodeHandle node_;
-  rclcpp::Subscriber robot_state_sub_;
+  SubscriberPtr<> robot_state_sub_;
 
   RobotStateVisualizationPtr robot_;
   rdf_loader::RDFLoaderPtr rdf_loader_;
-  robot_model::RobotModelConstPtr kmodel_;
+  robot_model::RobotModel::ConstSharedPtr kmodel_;
   robot_state::RobotStatePtr kstate_;
   std::map<std::string, std_msgs::ColorRGBA> highlights_;
   bool update_state_ = false;

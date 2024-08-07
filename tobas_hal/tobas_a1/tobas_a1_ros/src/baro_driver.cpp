@@ -7,19 +7,19 @@ using namespace std;
 
 namespace a1
 {
-BaroDriver::BaroDriver(, const string& name) : super(node, pnh, name)
+BaroDriver::BaroDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   if (!baro_.initialize())
     TOBAS_EXIT("Failed to initialize Barometer.");
 
-  baro_pub_ = node_.advertise<tobas_hal_msgs::FluidPressure>(hal::kAirPressureTopic, 1);
+  baro_pub_ = createPublisher<tobas_hal_msgs::FluidPressure>(hal::kAirPressureTopic);
   main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void BaroDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
-  const auto msg = make_unique<tobas_hal_msgs::FluidPressure>();
+  const auto msg =std::make_unique<tobas_hal_msgs::FluidPressure>();
 
   // Fill headers
   msg->header.stamp = event.current_real;
@@ -32,6 +32,6 @@ void BaroDriver::mainTimerCb(const rclcpp::TimerEvent& event)
   }
 
   // Publish message
-  baro_pub_.publish(msg);
+  baro_pub_->publish(msg);
 }
 }  // namespace a1

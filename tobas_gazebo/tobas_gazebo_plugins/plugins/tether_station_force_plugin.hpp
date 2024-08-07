@@ -48,10 +48,10 @@ private:
   event::ConnectionPtr update_connection_;
 
   bool first_contact_detected_ = false;
-  tobas_gazebo_msgs::ContactStatesConstPtr contacts_;
+  tobas_gazebo_msgs::ContactStates::ConstSharedPtr contacts_;
   tobas_gazebo_msgs::TetherParams params_;
 
-  rclcpp::Subscriber contacts_sub_;
+  SubscriberPtr<> contacts_sub_;
 
   rclcpp::ServiceServer get_params_ss_;
   rclcpp::ServiceServer set_params_ss_;
@@ -63,7 +63,7 @@ private:
   bool isPlane(const uint32_t& shape);
   bool isContactWithPlane();
 
-  void contactStatesCb(const tobas_gazebo_msgs::ContactStatesConstPtr& contacts);
+  void contactStatesCb(const tobas_gazebo_msgs::ContactStates::ConstSharedPtr& contacts);
   bool getParamsCb(tobas_gazebo_msgs::GetTetherParamsRequest& req, tobas_gazebo_msgs::GetTetherParamsResponse& res);
   bool setParamsCb(tobas_gazebo_msgs::SetTetherParamsRequest& req, tobas_gazebo_msgs::SetTetherParamsResponse& res);
 };

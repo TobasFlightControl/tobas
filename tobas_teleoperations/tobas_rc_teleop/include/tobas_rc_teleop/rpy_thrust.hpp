@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_tools/rotor_axis_extractor.hpp>
+#include <tobas_drone_tools/rotor_axis_extractor.hpp>
 
 #include "./base_controller.hpp"
 
@@ -33,7 +33,7 @@ private:
   double max_thrust_;  // [N] ドローンの最大推力和
 
   // PubSub
-  rclcpp::Publisher rpy_thrust_pub_;
+  PublisherPtr<> rpy_thrust_pub_;
 
   void getRosParams(rclcpp::Node::SharedPtr pnh);
 };

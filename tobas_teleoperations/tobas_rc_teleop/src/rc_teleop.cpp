@@ -1,6 +1,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/string.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/PositionYaw.h>
@@ -24,41 +24,41 @@ using namespace rclcpp::message_traits;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(, const string& name) : super(node, pnh, name)
+RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   getRosParams();
   drone_.loadFromParam(node_);
 
   // プログラムモードのダミーコントローラを設定
-  controllers_[tobas::kFlightModeProgram] = make_unique<ProgramModeController>(drone_);
+  controllers_[tobas::kFlightModeProgram] =std::make_unique<ProgramModeController>(drone_);
 
   // その他の飛行モードのコントローラを設定
   for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
   {
     if (modes_[i] == "")
-      controllers_[i] = make_unique<ProgramModeController>(drone_);
+      controllers_[i] =std::make_unique<ProgramModeController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
-      controllers_[i] = make_unique<PosVelAccYawController>(drone_);
+      controllers_[i] =std::make_unique<PosVelAccYawController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
-      controllers_[i] = make_unique<PositionYawController>(drone_);
+      controllers_[i] =std::make_unique<PositionYawController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
-      controllers_[i] = make_unique<RollPitchYawThrustController>(drone_);
+      controllers_[i] =std::make_unique<RollPitchYawThrustController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
-      controllers_[i] = make_unique<PoseTwistAccelController>(drone_);
+      controllers_[i] =std::make_unique<PoseTwistAccelController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::msg::SpeedRollDeltaPitch>::value(), '/').back())
-      controllers_[i] = make_unique<SpeedRollDeltaPitchController>(drone_);
+      controllers_[i] =std::make_unique<SpeedRollDeltaPitchController>(drone_);
     else
     {
       TOBAS_ERROR("Invalid flight mode: ", modes_[i], ". The RC command for this mode will not be published.");
-      controllers_[i] = make_unique<ProgramModeController>(drone_);
+      controllers_[i] =std::make_unique<ProgramModeController>(drone_);
     }
 
     controllers_[i]->initialize(node_, pnh_);
   }
 
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
-  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  rcin_sub_ = node_.subscribe(tobas::kRcInputTopic, 1, &self::rcInputCb, this, tcpNoDelay());
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
 
   get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
   set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
@@ -126,20 +126,20 @@ bool RCTeleop::requestDisarmingRotors()
   return true;
 }
 
-void RCTeleop::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void RCTeleop::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom->status != tobas_msgs::Odometry::NO_ERROR)
+  if (odom->status != tobas_msgs::msg::Odometry::NO_ERROR)
     return;
 
   odom_ = odom;
 }
 
-void RCTeleop::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void RCTeleop::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
 
-void RCTeleop::rcInputCb(const tobas_msgs::RCInputConstPtr& rcin)
+void RCTeleop::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   switch (stage_)
   {

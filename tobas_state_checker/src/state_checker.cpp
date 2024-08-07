@@ -7,26 +7,26 @@ using namespace std;
 
 namespace tobas_state_checker
 {
-StateChecker::StateChecker(, const string& name)
+StateChecker::StateChecker(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), landing_ac_(tobas::kLandAction)
 {
   drone_.loadFromParam(node_);
 
-  event_pub_ = node_.advertise<tobas_msgs::Event>(tobas::kEventTopic, 1);
+  event_pub_ = createPublisher<tobas_msgs::Event>(tobas::kEventTopic);
 
-  arming_sub_ = node_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this, tcpNoDelay());
-  cpu_sub_ = node_.subscribe(tobas::kCpuTopic, 1, &self::cpuCb, this, tcpNoDelay());
-  battery_sub_ = node_.subscribe(tobas::kBatteryLpfTopic, 1, &self::batteryCb, this, tcpNoDelay());
-  euler_sub_ = node_.subscribe(tobas::kEulerTopic, 1, &self::eulerCb, this, tcpNoDelay());
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  euler_sub_ = createSubscriber(tobas::kEulerTopic, &self::eulerCb, this);
 
   set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void StateChecker::publishSystemCriticalEvent()
 {
-  const auto event = make_unique<tobas_msgs::Event>();
+  const auto event =std::make_unique<tobas_msgs::Event>();
   event->data = tobas_msgs::Event::SYSTEM_CRITICAL;
-  event_pub_.publish(event);
+  event_pub_->publish(event);
 }
 
 void StateChecker::requestLanding()
@@ -75,12 +75,12 @@ void StateChecker::requestDisarmingRotors()
   }
 }
 
-void StateChecker::armingCb(const std_msgs::BoolConstPtr& arming)
+void StateChecker::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }
 
-void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
+void StateChecker::cpuCb(const tobas_msgs::Cpu::ConstSharedPtr& cpu)
 {
   if (arming_ == nullptr || !arming_->data)
     return;
@@ -92,7 +92,7 @@ void StateChecker::cpuCb(const tobas_msgs::CpuConstPtr& cpu)
   }
 }
 
-void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void StateChecker::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   if (arming_ == nullptr || !arming_->data)
     return;
@@ -104,7 +104,7 @@ void StateChecker::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
   }
 }
 
-void StateChecker::eulerCb(const tobas_kdl_msgs::EulerStampedConstPtr& euler)
+void StateChecker::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
 {
   if (arming_ == nullptr || !arming_->data)
     return;

@@ -7,18 +7,18 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-MatrixEulerConverter::MatrixEulerConverter(, const string& name)
+MatrixEulerConverter::MatrixEulerConverter(const rclcpp::NodeOptions& options)
   : super(node, pnh, name)
 {
-  euler_pub_ = node_.advertise<tobas_kdl_msgs::EulerStamped>(tobas::kEulerTopic, 1);
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this, tcpNoDelay());
+  euler_pub_ = createPublisher<tobas_kdl_msgs::EulerStamped>(tobas::kEulerTopic);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 }
 
-void MatrixEulerConverter::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void MatrixEulerConverter::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  const auto euler = make_unique<tobas_kdl_msgs::EulerStamped>();
+  const auto euler =std::make_unique<tobas_kdl_msgs::EulerStamped>();
   euler->header = odom->header;
   odom->frame.M.getRPY(euler->euler.roll, euler->euler.pitch, euler->euler.yaw);
-  euler_pub_.publish(euler);
+  euler_pub_->publish(euler);
 }
 }  // namespace tobas_preprocess

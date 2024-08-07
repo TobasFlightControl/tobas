@@ -27,7 +27,7 @@ private:
   urdf::ModelSharedPtr urdf_;
   std::unordered_map<std::string, Ogre::Matrix4> transforms_;
 
-  Ogre::Matrix4 findTransform(const urdf::LinkConstSharedPtr& link);
+  Ogre::Matrix4 findTransform(const urdf::Link::ConstSharedPtr& link);
 };
 
 using StaticLinkUpdaterPtr = std::shared_ptr<StaticLinkUpdater>;

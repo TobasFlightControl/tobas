@@ -68,7 +68,7 @@ void GazeboGpsPlugin::setRandomDistribuitons()
 
 void GazeboGpsPlugin::registerPublishers()
 {
-  gps_pub_ = node_.advertise<tobas_msgs::Gps>("/" + ns_ + "/" + tobas::kGpsTopic, 1);
+  gps_pub_ = createPublisher<tobas_msgs::Gps>("/" + ns_ + "/" + tobas::kGpsTopic);
 }
 
 void GazeboGpsPlugin::onUpdate()
@@ -111,7 +111,7 @@ void GazeboGpsPlugin::onUpdate()
   tie(gps_time, T_W_B, W_Linvel_WB, B_Angvel_WB) = history_.front();
 
   // GPSメッセージを作成
-  const auto gps_msg = make_unique<tobas_msgs::Gps>();
+  const auto gps_msg =std::make_unique<tobas_msgs::Gps>();
   gps_msg->header.frame_id = link_name_;
   timeGazeboToRos(gps_time, gps_msg->header.stamp);
   gps_msg->fix_type = tobas_msgs::Gps::FIX_3D;
@@ -120,7 +120,7 @@ void GazeboGpsPlugin::onUpdate()
   updateVelocity(*gps_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
 
   // メッセージを発行
-  gps_pub_.publish(gps_msg);
+  gps_pub_->publish(gps_msg);
 }
 
 void GazeboGpsPlugin::fillCovariances(tobas_msgs::Gps& gps_msg)

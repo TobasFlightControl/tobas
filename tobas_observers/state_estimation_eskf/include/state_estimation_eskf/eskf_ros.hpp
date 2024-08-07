@@ -1,13 +1,13 @@
 #pragma once
 
 #include <tf2_ros/transform_broadcaster.h>
-#include <dynamic_reconfigure/server.h>
-#include <sensor_msgs/FluidPressure.h>
+
+#include <sensor_msgs/msg/fluid_pressure.hpp>
 #include <geometry_msgs/msg/TransformStamped.h>
 
 #include <tobas_ros2_tools/timer.hpp>
-#include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_msgs/Imu.h>
 #include <tobas_msgs/MagneticField.h>
 #include <tobas_msgs/Gps.h>
@@ -55,10 +55,10 @@ private:
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
   double yaw_0_;      // ヨー角のゼロ点 (Base Frame)
 
-  ImuMsg::ConstPtr imu_, imu_filtered_;
-  MagMsg::ConstPtr mag_;
-  BarMsg::ConstPtr bar_;
-  GpsMsg::ConstPtr gps_;
+  ImuMsg::ConstSharedPtr imu_, imu_filtered_;
+  MagMsg::ConstSharedPtr mag_;
+  BarMsg::ConstSharedPtr bar_;
+  GpsMsg::ConstSharedPtr gps_;
   bool gps_fix_ = false;
   double gps_anormaly_score_ = 0.;
 
@@ -82,13 +82,13 @@ private:
   Eigen::Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
 
   // PubSub
-  rclcpp::Publisher odom_pub_;
-  rclcpp::Publisher feedback_pub_;
-  rclcpp::Subscriber imu_sub_;
-  rclcpp::Subscriber imu_filtered_sub_;
-  rclcpp::Subscriber mag_sub_;
-  rclcpp::Subscriber bar_sub_;
-  rclcpp::Subscriber gps_sub_;
+  PublisherPtr<> odom_pub_;
+  PublisherPtr<> feedback_pub_;
+  SubscriberPtr<> imu_sub_;
+  SubscriberPtr<> imu_filtered_sub_;
+  SubscriberPtr<> mag_sub_;
+  SubscriberPtr<> bar_sub_;
+  SubscriberPtr<> gps_sub_;
 
   // Service
   rclcpp::ServiceServer get_gnss_origin_ss_;
@@ -102,13 +102,13 @@ private:
   ConfigServer server_;
 
   void getRosParams();
-  OdomMsg::ConstPtr makeOdometryMsg() const;
+  OdomMsg::ConstSharedPtr makeOdometryMsg() const;
 
-  void imuCb(const ImuMsg::ConstPtr& imu);
-  void imuFilteredCb(const ImuMsg::ConstPtr& imu_filtered);
-  void magCb(const MagMsg::ConstPtr& mag);
-  void barCb(const BarMsg::ConstPtr& bar);
-  void gpsCb(const GpsMsg::ConstPtr& gps);
+  void imuCb(const ImuMsg::ConstSharedPtr& imu);
+  void imuFilteredCb(const ImuMsg::ConstSharedPtr& imu_filtered);
+  void magCb(const MagMsg::ConstSharedPtr& mag);
+  void barCb(const BarMsg::ConstSharedPtr& bar);
+  void gpsCb(const GpsMsg::ConstSharedPtr& gps);
 
   bool getGnssOriginCb(tobas_msgs::GetGnssOriginRequest& req, tobas_msgs::GetGnssOriginResponse& res);
   bool setGnssOriginCb(tobas_msgs::SetGnssOriginRequest& req, tobas_msgs::SetGnssOriginResponse& res);

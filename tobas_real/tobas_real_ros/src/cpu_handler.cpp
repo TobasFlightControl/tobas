@@ -12,9 +12,9 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-CpuHandler::CpuHandler(, const string& name) : super(node, pnh, name)
+CpuHandler::CpuHandler(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
-  cpu_pub_ = node_.advertise<tobas_msgs::Cpu>(tobas::kCpuTopic, 1);
+  cpu_pub_ = createPublisher<tobas_msgs::Cpu>(tobas::kCpuTopic);
   main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
@@ -119,7 +119,7 @@ bool CpuHandler::getLoad(double& load)
 void CpuHandler::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create ROS message
-  const auto cpu_msg = make_unique<tobas_msgs::Cpu>();
+  const auto cpu_msg =std::make_unique<tobas_msgs::Cpu>();
   cpu_msg->header.stamp = event.current_real;
 
   // Get CPU temperature
@@ -135,6 +135,6 @@ void CpuHandler::mainTimerCb(const rclcpp::TimerEvent& event)
     return;
 
   // Publish ROS message
-  cpu_pub_.publish(cpu_msg);
+  cpu_pub_->publish(cpu_msg);
 }
 }  // namespace tobas_real_ros

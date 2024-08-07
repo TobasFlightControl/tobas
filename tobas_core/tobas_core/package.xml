@@ -24,7 +24,6 @@
 	<exec_depend>tobas_linux</exec_depend>
 	<exec_depend>tobas_math</exec_depend>
 	<exec_depend>tobas_path_tools</exec_depend>
-	<exec_depend>tobas_property</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
 	<exec_depend>tobas_rclpy</exec_depend>
 	<exec_depend>tobas_ros2_tools</exec_depend>

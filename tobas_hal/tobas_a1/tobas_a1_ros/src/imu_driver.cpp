@@ -7,19 +7,19 @@ using namespace std;
 
 namespace a1
 {
-IMUDriver::IMUDriver(, const string& name) : super(node, pnh, name)
+IMUDriver::IMUDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
 
-  imu_pub_ = node_.advertise<tobas_hal_msgs::Imu>(hal::kImuTopic, 1);
+  imu_pub_ = createPublisher<tobas_hal_msgs::Imu>(hal::kImuTopic);
   main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void IMUDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 {
   // Create messages
-  const auto msg = make_unique<tobas_hal_msgs::Imu>();
+  const auto msg =std::make_unique<tobas_hal_msgs::Imu>();
 
   // Fill headers
   msg->header.stamp = event.current_real;
@@ -39,6 +39,6 @@ void IMUDriver::mainTimerCb(const rclcpp::TimerEvent& event)
   // TODO: 軸や符号の変換が必要かも
 
   // Publish message
-  imu_pub_.publish(msg);
+  imu_pub_->publish(msg);
 }
 }  // namespace a1

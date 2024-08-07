@@ -13,13 +13,13 @@ using namespace std;
 
 namespace tobas_multirotor_move
 {
-MoveActionServer::MoveActionServer(, const string& name)
+MoveActionServer::MoveActionServer(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), as_(node_, tobas::kMoveAction, std::bind(&self::executeCb, this, _1), false)
 {
-  cmd_pub_ = node_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
 
-  arming_sub_ = node_.subscribe(tobas::kArmingTopic, 1, &self::armingCb, this);
-  odom_sub_ = node_.subscribe(tobas::kOdometryTopic, 1, &self::odomCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
   as_.start();
 }
@@ -76,17 +76,17 @@ bool MoveActionServer::computeGoalPosition(const GoalType& goal, kdl::Vector& go
   return true;
 }
 
-void MoveActionServer::armingCb(const std_msgs::BoolConstPtr& arming)
+void MoveActionServer::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }
 
-void MoveActionServer::odomCb(const tobas_msgs::OdometryConstPtr& odom)
+void MoveActionServer::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }
 
-void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
+void MoveActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
 {
   TOBAS_INFO("Action is called.");
 
@@ -107,7 +107,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     as_.setAborted(result_, "Odometry message is not received yet.");
     return;
   }
-  if (odom_->status != tobas_msgs::Odometry::NO_ERROR)
+  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     as_.setAborted(result_, "There is a problem with the state estimation.");
     return;
@@ -153,7 +153,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     }
 
     // コマンドを作成
-    const auto cmd = make_unique<tobas_msgs::PosVelAccYaw>();
+    const auto cmd =std::make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
     cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
 
@@ -166,10 +166,10 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     traj_z.get(t, cmd->pos.z(), cmd->vel.z(), cmd->acc.z());
 
     // コマンドを発行
-    cmd_pub_.publish(cmd);
+    cmd_pub_->publish(cmd);
 
     // フィードバックを発行
-    const auto feedback = make_unique<FeedbackType>();
+    const auto feedback =std::make_unique<FeedbackType>();
     feedback->current_position = cur_pos;
     feedback->target_position = cmd->pos;
     feedback->position_error = cmd->pos - cur_pos;
@@ -180,7 +180,7 @@ void MoveActionServer::executeCb(const GoalType::ConstPtr& goal)
     {
       cmd->vel.setZero();
       cmd->acc.setZero();
-      cmd_pub_.publish(cmd);
+      cmd_pub_->publish(cmd);
 
       as_.setPreempted(result_);
       return;

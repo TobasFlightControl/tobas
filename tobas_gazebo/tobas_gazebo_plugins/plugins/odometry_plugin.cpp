@@ -76,7 +76,7 @@ void GazeboOdometryPlugin::setRandomDistributions()
 
 void GazeboOdometryPlugin::registerPublishers()
 {
-  odometry_pub_ = node_.advertise<nav_msgs::Odometry>("/" + ns_ + "/" + tobas::kExternalOdomTopic, 1);
+  odometry_pub_ = createPublisher<nav_msgs::Odometry>("/" + ns_ + "/" + tobas::kExternalOdomTopic);
 }
 
 void GazeboOdometryPlugin::onUpdate()
@@ -142,7 +142,7 @@ void GazeboOdometryPlugin::publishOdomMsg(
   ignition::math::Vector3d& linvel,
   ignition::math::Vector3d& angvel) const
 {
-  const auto odom_msg = make_unique<nav_msgs::Odometry>();
+  const auto odom_msg =std::make_unique<nav_msgs::Odometry>();
 
   timeGazeboToRos(world_->SimTime(), odom_msg->header.stamp);
   odom_msg->header.frame_id = "world";
@@ -166,7 +166,7 @@ void GazeboOdometryPlugin::publishOdomMsg(
     math::sqr(noise_normal_angvel_.Z());
   twist_covariance = twist_covd.asDiagonal();
 
-  odometry_pub_.publish(odom_msg);
+  odometry_pub_->publish(odom_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboOdometryPlugin);

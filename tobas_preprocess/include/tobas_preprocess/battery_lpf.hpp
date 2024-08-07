@@ -1,8 +1,8 @@
 #pragma once
 
 #include <tobas_dsp/low_pass_filter.hpp>
-#include <tobas_tools/node.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_node/node.hpp>
+#include <tobas_msgs/msg/battery.hpp>
 
 namespace tobas_preprocess
 {
@@ -17,15 +17,15 @@ class BatteryLpf : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BatteryLpf(, const std::string& name = rclcpp::this_node::getName());
+  explicit BatteryLpf(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   dsp::LowPassFilter<double> voltage_lpf_, current_lpf_;
-  tobas_msgs::BatteryConstPtr last_msg_;
+  tobas_msgs::msg::Battery::ConstSharedPtr last_msg_;
 
-  rclcpp::Publisher battery_lpf_pub_;
-  rclcpp::Subscriber battery_raw_sub_;
+  PublisherPtr<> battery_lpf_pub_;
+  SubscriberPtr<> battery_raw_sub_;
 
-  void batteryRawCb(const tobas_msgs::BatteryConstPtr& battery_raw);
+  void batteryRawCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_raw);
 };
 }  // namespace tobas_preprocess

@@ -5,7 +5,7 @@
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_property_tools/property_client.hpp>
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_msgs/Sbus.h>
 
@@ -34,14 +34,14 @@ private:
 
   ptree::PropertyClient property_client_;
 
-  rclcpp::Publisher rcin_pub_;
-  rclcpp::Subscriber sbus_sub_;
+  PublisherPtr<> rcin_pub_;
+  SubscriberPtr<> sbus_sub_;
   rclcpp::ServiceServer reload_config_srv_;
 
   void setToDefaults();
   bool reloadConfig();
 
-  void sbusCb(const tobas_hal_msgs::SbusConstPtr& sbus);
+  void sbusCb(const tobas_hal_msgs::Sbus::ConstSharedPtr& sbus);
   bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
 };
 }  // namespace tobas_real_ros

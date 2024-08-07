@@ -7,8 +7,8 @@
 #include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
-#include <tobas_tools/drone.hpp>
-#include <tobas_tools/rotor_axis_extractor.hpp>
+#include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_tools/rotor_axis_extractor.hpp>
 
 namespace tobas_np_pid
 {

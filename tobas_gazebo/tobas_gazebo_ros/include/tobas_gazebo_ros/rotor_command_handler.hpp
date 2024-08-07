@@ -2,8 +2,8 @@
 
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_tools/node.hpp>
-#include <tobas_tools/drone.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_msgs/ThrottleArray.h>
 #include <tobas_msgs/EnableRCOutput.h>
 
@@ -23,11 +23,11 @@ public:
 private:
   tobas::Drone drone_;
 
-  std::map<uint8_t, rclcpp::Publisher> throttle_pubs_;
-  rclcpp::Subscriber throttles_sub_;
+  std::map<uint8_t, PublisherPtr<>> throttle_pubs_;
+  SubscriberPtr<> throttles_sub_;
   rclcpp::ServiceServer enable_rcout_srv_;
 
-  void throttlesCb(const tobas_msgs::ThrottleArrayConstPtr& throttles);
+  void throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles);
   bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);
 };
 }  // namespace tobas_gazebo_ros

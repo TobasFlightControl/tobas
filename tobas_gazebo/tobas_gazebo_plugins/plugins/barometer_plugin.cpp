@@ -1,4 +1,4 @@
-#include <sensor_msgs/FluidPressure.h>
+#include <sensor_msgs/msg/fluid_pressure.hpp>
 
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_constants/constants.hpp>
@@ -35,7 +35,7 @@ void GazeboBarometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
 
   // Advertise
-  pressure_pub_ = node_.advertise<PressureMsg>("/" + ns_ + "/" + tobas::kAirPressureTopic, 1);
+  pressure_pub_ = createPublisher<PressureMsg>("/" + ns_ + "/" + tobas::kAirPressureTopic);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboBarometerPlugin::onUpdate, this));
@@ -66,14 +66,14 @@ void GazeboBarometerPlugin::onUpdate()
   pressure += pressure_noise_(rnd_gen_);
 
   // Create a pressure message
-  const auto pressure_msg = make_unique<sensor_msgs::msg::FluidPressure>();
+  const auto pressure_msg =std::make_unique<sensor_msgs::msg::FluidPressure>();
   timeGazeboToRos(world_->SimTime(), pressure_msg->header.stamp);
   pressure_msg->header.frame_id = link_name_;
   pressure_msg->fluid_pressure = pressure;
   pressure_msg->variance = pressure_var_;
 
   // Publish the pressure message
-  pressure_pub_.publish(pressure_msg);
+  pressure_pub_->publish(pressure_msg);
 }
 
 GZ_REGISTER_SENSOR_PLUGIN(GazeboBarometerPlugin);

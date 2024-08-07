@@ -12,12 +12,12 @@ using namespace std;
 
 namespace tobas_calibration
 {
-EscCalibrationRos::EscCalibrationRos(, const string& name)
+EscCalibrationRos::EscCalibrationRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), as_(node, kActionName, std::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
   drone_.loadFromParam(node_);
 
-  throttles_pub_ = node_.advertise<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic, 1);
+  throttles_pub_ = createPublisher<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic);
   get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
   enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
@@ -40,11 +40,11 @@ void EscCalibrationRos::sendMinimum()
 
 void EscCalibrationRos::setThrottle(const double& throttle)
 {
-  const auto throttles = make_unique<tobas_msgs::ThrottleArray>();
+  const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
   throttles->header.stamp = node->get_clock()->now();
   for (const auto& rotor : drone_.rotorConfigs())
     throttles->throttles.emplace_back(rotor.channel, throttle);
-  throttles_pub_.publish(throttles);
+  throttles_pub_->publish(throttles);
 }
 
 void EscCalibrationRos::setThrottleAndSleep(const double& throttle)
@@ -97,7 +97,7 @@ bool EscCalibrationRos::enableRCOutput(bool enable)
 
 bool EscCalibrationRos::checkBatteryDisconnected()
 {
-  tobas_msgs::Battery battery;
+  tobas_msgs::msg::Battery battery;
 
   // バッテリー状態を取得
   if (!ros2::subscribeOnce(battery, tobas::kBatteryTopic, node_, kTimeout))
@@ -122,7 +122,7 @@ bool EscCalibrationRos::waitForBatteryConnection()
   battery_ = nullptr;
 
   // 一時的にバッテリーの購読を開始
-  const auto battery_sub = node_.subscribe(tobas::kBatteryTopic, 1, &EscCalibrationRos::batteryCb, this);
+  const auto battery_sub = createSubscriber(tobas::kBatteryTopic, &EscCalibrationRos::batteryCb, this);
 
   // バッテリー電圧が閾値を超えるまで最大値を指令し続ける
   const auto start_time = node->get_clock()->now();
@@ -141,12 +141,12 @@ bool EscCalibrationRos::waitForBatteryConnection()
   return true;
 }
 
-void EscCalibrationRos::batteryCb(const tobas_msgs::BatteryConstPtr& battery)
+void EscCalibrationRos::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
 
-void EscCalibrationRos::executeCb(const GoalType::ConstPtr&)
+void EscCalibrationRos::executeCb(const GoalType::ConstSharedPtr&)
 {
   // 各サービスサーバへの接続をチェック
   if (!get_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))

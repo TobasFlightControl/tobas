@@ -1,6 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_msgs/Battery.h>
+#include <tobas_msgs/msg/battery.hpp>
 
 #include "../include/tobas_real_ros/battery_handler.hpp"
 #include "../include/tobas_real_ros/common.hpp"
@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-BatteryHandler::BatteryHandler(, const string& name)
+BatteryHandler::BatteryHandler(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  battery_pub_ = node_.advertise<tobas_msgs::Battery>(tobas::kBatteryTopic, 1);
-  adc_sub_ = node_.subscribe(hal::kAdcTopic, 1, &self::adcCb, this, tcpNoDelay());
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  adc_sub_ = createSubscriber(hal::kAdcTopic, &self::adcCb, this);
 
-  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool BatteryHandler::reloadConfig()
@@ -46,10 +46,10 @@ bool BatteryHandler::reloadConfigCb(std_srvs::srv::Trigger::Request&, std_srvs::
   return true;
 }
 
-void BatteryHandler::adcCb(const tobas_hal_msgs::AdcConstPtr& adc)
+void BatteryHandler::adcCb(const tobas_hal_msgs::Adc::ConstSharedPtr& adc)
 {
   // Create battery message
-  const auto battery_msg = make_unique<tobas_msgs::Battery>();
+  const auto battery_msg =std::make_unique<tobas_msgs::msg::Battery>();
   battery_msg->header = adc->header;
 
   // Fill values
@@ -57,6 +57,6 @@ void BatteryHandler::adcCb(const tobas_hal_msgs::AdcConstPtr& adc)
   battery_msg->current = adc->current * current_coef_;
 
   // Publish battery message
-  battery_pub_.publish(battery_msg);
+  battery_pub_->publish(battery_msg);
 }
 }  // namespace tobas_real_ros

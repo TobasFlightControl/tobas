@@ -34,7 +34,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
   // Advertise publisher
-  odom_pub_ = node_.advertise<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic, 1);
+  odom_pub_ = createPublisher<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic);
 
   // Listen to the update event
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
@@ -51,14 +51,14 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   const auto& T_W_B = link_->WorldPose();
 
   // Create Pose & Twist message
-  const auto odom = make_unique<tobas_msgs::Odometry>();
+  const auto odom =std::make_unique<tobas_msgs::Odometry>();
   odom->header.frame_id = link_name_;
 
   // Update time stamp
   timeGazeboToRos(world_->SimTime(), odom->header.stamp);
 
   // Update status
-  odom->status = tobas_msgs::Odometry::NO_ERROR;
+  odom->status = tobas_msgs::msg::Odometry::NO_ERROR;
 
   // Update position
   vectorGazeboToKDL(T_W_B.Pos(), odom->frame.p);
@@ -80,7 +80,7 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   vectorGazeboToKDL(link_->RelativeAngularAccel(), odom->accel.angular);
 
   // Publish state message
-  odom_pub_.publish(odom);
+  odom_pub_->publish(odom);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboGroundTruthStatePlugin);

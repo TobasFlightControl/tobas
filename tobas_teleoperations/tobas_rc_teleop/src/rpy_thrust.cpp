@@ -1,5 +1,5 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/RollPitchYawThrust.h>
@@ -25,7 +25,7 @@ void RollPitchYawThrustController::initialize()
   const auto mass = tobas::getMass();
   max_thrust_ = mass * (tobas_std::kGravity + max_ver_acc_);
 
-  rpy_thrust_pub_ = node.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic, 1);
+  rpy_thrust_pub_ = node.advertise<tobas_msgs::RollPitchYawThrust>(tobas::kRpyThrustCmdTopic);
 }
 
 void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
@@ -50,7 +50,7 @@ void RollPitchYawThrustController::update(
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  const auto rpyt = make_unique<tobas_msgs::RollPitchYawThrust>();
+  const auto rpyt =std::make_unique<tobas_msgs::RollPitchYawThrust>();
   rpyt->level.data = tobas_msgs::CommandLevel::MANUAL;
 
   // 姿勢と推力を埋める
@@ -63,7 +63,7 @@ void RollPitchYawThrustController::update(
   rpyt->thrust = remap(rcin.throttle, min_thrust, max_thrust);
 
   // コマンドを発行
-  rpy_thrust_pub_.publish(rpyt);
+  rpy_thrust_pub_->publish(rpyt);
 }
 
 void RollPitchYawThrustController::getRosParams(rclcpp::Node::SharedPtr pnh)

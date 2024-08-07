@@ -4,7 +4,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_keyboard/utils.hpp>
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_ros2_tools/rate.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
@@ -24,7 +24,7 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-PositionYawPublisher::PositionYawPublisher(, const string& name)
+PositionYawPublisher::PositionYawPublisher(const rclcpp::NodeOptions& options)
   : super(node, pnh, name)
 {
   instruction_ = "Control your drone!\n"
@@ -41,8 +41,8 @@ PositionYawPublisher::PositionYawPublisher(, const string& name)
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  pos_yaw_pub_ = node_.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic, 1);
-  pvay_pub_ = node_.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic, 1);
+  pos_yaw_pub_ = createPublisher<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic);
+  pvay_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
 }
 
 void PositionYawPublisher::run()
@@ -75,7 +75,7 @@ void PositionYawPublisher::run()
 
   // 初期コマンドを設定
   tobas_msgs::Odometry odom;
-  if (ros2::subscribeOnce(odom, tobas::kOdometryTopic, node_) && odom.status == tobas_msgs::Odometry::NO_ERROR)
+  if (ros2::subscribeOnce(odom, tobas::kOdometryTopic, node_) && odom.status == tobas_msgs::msg::Odometry::NO_ERROR)
   {
     cmd_pos_ = odom.frame.p;
     cmd_yaw_ = kdl::Euler(odom.frame.M).yaw;
@@ -154,19 +154,19 @@ void PositionYawPublisher::run()
     }
 
     // コマンドを発行
-    const auto pos_yaw_msg = make_unique<tobas_msgs::PositionYaw>();
+    const auto pos_yaw_msg =std::make_unique<tobas_msgs::PositionYaw>();
     pos_yaw_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
     pos_yaw_msg->pos = cmd_pos_;
     pos_yaw_msg->yaw = cmd_yaw_;
-    pos_yaw_pub_.publish(pos_yaw_msg);
+    pos_yaw_pub_->publish(pos_yaw_msg);
 
-    const auto pvay_msg = make_unique<tobas_msgs::PosVelAccYaw>();
+    const auto pvay_msg =std::make_unique<tobas_msgs::PosVelAccYaw>();
     pvay_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
     pvay_msg->pos = cmd_pos_;
     pvay_msg->vel.setZero();
     pvay_msg->acc.setZero();
     pvay_msg->yaw = cmd_yaw_;
-    pvay_pub_.publish(pvay_msg);
+    pvay_pub_->publish(pvay_msg);
 
     rclcpp::spinOnce();
     rate.sleep();

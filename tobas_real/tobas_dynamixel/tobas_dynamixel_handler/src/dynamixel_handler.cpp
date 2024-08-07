@@ -3,7 +3,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unordered_map.hpp>
 #include <tobas_std_tools/unordered_set.hpp>
-#include <tobas_ros2_tools/rosparam.hpp>
+
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_dynamixel_handler/dynamixel_handler.hpp"
@@ -14,7 +14,7 @@ using namespace dynamixel;
 
 namespace tobas_dynamixel_handler
 {
-DynamixelHandler::DynamixelHandler(, const string& name) : super(node, pnh, name)
+DynamixelHandler::DynamixelHandler(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   // Get ROS parameters
   getRosParams();
@@ -80,7 +80,7 @@ DynamixelHandler::DynamixelHandler(, const string& name) : super(node, pnh, name
   registerSubscribers();
 
   // Register service servers
-  enable_torques_ss_ = node_.advertiseService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
+  enable_torques_ss_ = createPublisherService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
 
   // Start main timer with maximum rate
   main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
@@ -112,15 +112,15 @@ void DynamixelHandler::getRosParams()
 
 void DynamixelHandler::registerPublishers()
 {
-  motor_states_pub_ = node_.advertise<tobas_dynamixel_msgs::MotorStateArray>(kMotorStatesTopic, 1);
+  motor_states_pub_ = createPublisher<tobas_dynamixel_msgs::MotorStateArray>(kMotorStatesTopic);
 }
 
 void DynamixelHandler::registerSubscribers()
 {
-  event_sub_ = node_.subscribe(tobas::kEventTopic, 1, &self::eventCb, this);
-  positions_sub_ = node_.subscribe(kJointPositionsCmdTopic, 1, &self::jointPositionsCmdCb, this, tcpNoDelay());
-  velocities_sub_ = node_.subscribe(kJointVelocitiesCmdTopic, 1, &self::jointVelocitiesCmdCb, this, tcpNoDelay());
-  efforts_sub_ = node_.subscribe(kJointEffortsCmdTopic, 1, &self::jointEffortsCmdCb, this, tcpNoDelay());
+  event_sub_ = createSubscriber(tobas::kEventTopic, &self::eventCb, this);
+  positions_sub_ = createSubscriber(kJointPositionsCmdTopic, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(kJointVelocitiesCmdTopic, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
 }
 
 bool DynamixelHandler::setMinimumLatency()
@@ -325,7 +325,7 @@ void DynamixelHandler::printHardwareErrorStatus()
 void DynamixelHandler::publishCurrentStates(const rclcpp::Time& cur_time)
 {
   // Create motor states message
-  const auto motor_states = make_unique<tobas_dynamixel_msgs::MotorStateArray>();
+  const auto motor_states =std::make_unique<tobas_dynamixel_msgs::MotorStateArray>();
   motor_states->header.stamp = cur_time;
 
   // Read packets
@@ -451,10 +451,10 @@ void DynamixelHandler::publishCurrentStates(const rclcpp::Time& cur_time)
   }
 
   // Publish motor states message
-  motor_states_pub_.publish(motor_states);
+  motor_states_pub_->publish(motor_states);
 }
 
-void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
+void DynamixelHandler::eventCb(const tobas_msgs::Event::ConstSharedPtr& event)
 {
   switch (event->data)
   {
@@ -467,7 +467,7 @@ void DynamixelHandler::eventCb(const tobas_msgs::EventConstPtr& event)
   }
 }
 
-void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& positions)
+void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& positions)
 {
   if (!is_enabled_)
   {
@@ -514,7 +514,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArrayCo
     TOBAS_ERROR("Failed to transmit a sync write instruction packet of positions.");
 }
 
-void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayConstPtr& velocities)
+void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& velocities)
 {
   if (!is_enabled_)
   {
@@ -558,7 +558,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArrayC
     TOBAS_ERROR("Failed to transmit a sync write instruction packet of velocities.");
 }
 
-void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArrayConstPtr& efforts)
+void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& efforts)
 {
   if (!is_enabled_)
   {

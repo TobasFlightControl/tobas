@@ -4,7 +4,7 @@
 #include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_kdl/frames.hpp>
 
-#include <tobas_tools/node.hpp>
+#include <tobas_node/node.hpp>
 
 namespace tobas_keyboard_teleop
 {
@@ -55,8 +55,8 @@ private:
   tobas_std::Range<double> yaw_limit_;
 
   // Publishers
-  rclcpp::Publisher pos_yaw_pub_;
-  rclcpp::Publisher pvay_pub_;
+  PublisherPtr<> pos_yaw_pub_;
+  PublisherPtr<> pvay_pub_;
 
   void getRosParams();
 };

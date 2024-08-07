@@ -9,15 +9,15 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-ImuHandler::ImuHandler(, const string& name)
+ImuHandler::ImuHandler(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 
-  imu_pub_ = node_.advertise<tobas_msgs::Imu>(tobas::kImuTopic, 1);
-  imu_sub_ = node_.subscribe(hal::kImuTopic, 1, &self::imuCb, this, tcpNoDelay());
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuTopic);
+  imu_sub_ = createSubscriber(hal::kImuTopic, &self::imuCb, this);
 
-  reload_config_srv_ = node_.advertiseService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool ImuHandler::reloadConfig()
@@ -44,7 +44,7 @@ bool ImuHandler::reloadConfig()
   return true;
 }
 
-void ImuHandler::imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw)
+void ImuHandler::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
 {
   switch (stage_)
   {
@@ -100,7 +100,7 @@ void ImuHandler::imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw)
       }
 
       // Create message
-      const auto imu_msg = make_unique<tobas_msgs::Imu>();
+      const auto imu_msg =std::make_unique<tobas_msgs::Imu>();
 
       // Fill header
       imu_msg->header = imu_raw->header;
@@ -119,7 +119,7 @@ void ImuHandler::imuCb(const tobas_hal_msgs::ImuConstPtr& imu_raw)
       }
 
       // Publish message
-      imu_pub_.publish(imu_msg);
+      imu_pub_->publish(imu_msg);
 
       break;
     }

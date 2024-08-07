@@ -55,12 +55,12 @@ private:
   NormalDistribution current_noise_;
 
   // Publishers
-  rclcpp::Publisher battery_pub_;
-  rclcpp::Publisher battery_gt_pub_;
+  PublisherPtr<> battery_pub_;
+  PublisherPtr<> battery_gt_pub_;
 
   // Subscribers
-  std::vector<rclcpp::Subscriber> rotor_state_subs_;
-  std::vector<std::function<void(const tobas_msgs::RotorStateConstPtr&)>> rotor_state_cbs_;
+  std::vector<SubscriberPtr<>> rotor_state_subs_;
+  std::vector<std::function<void(const tobas_msgs::RotorState::ConstSharedPtr&)>> rotor_state_cbs_;
 
   // Service servers
   rclcpp::ServiceServer charge_srv_;

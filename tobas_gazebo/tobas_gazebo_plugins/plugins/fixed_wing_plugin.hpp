@@ -8,7 +8,7 @@
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/fixed_wing_tools.hpp>
-#include <tobas_msgs/ControlSurfaceDeflections.h>
+#include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/Wind.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
@@ -62,15 +62,15 @@ private:
   common::Time last_cmd_time_;
   bool is_initialized_ = false;
   ignition::math::Vector3d wind_vel_W_ = zero3;                   // 風速 [m/s]
-  tobas_msgs::ControlSurfaceDeflectionsConstPtr cs_deflections_;  // 舵角 [rad]
+  tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr cs_deflections_;  // 舵角 [rad]
 
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
   // PubSub
-  rclcpp::Publisher debug_pub_;
-  rclcpp::Subscriber deflections_sub_;
-  rclcpp::Subscriber wind_sub_;
+  PublisherPtr<> debug_pub_;
+  SubscriberPtr<> deflections_sub_;
+  SubscriberPtr<> wind_sub_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();
@@ -88,8 +88,8 @@ private:
   double yawCoefficient(const double& beta, const double& p, const double& r, const double& V);
   double dynamicPressure(const double& V);
 
-  void deflectionsCb(const tobas_msgs::ControlSurfaceDeflectionsConstPtr& deflections);
-  void windSpeedCb(const tobas_msgs::WindConstPtr& wind);
+  void deflectionsCb(const tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr& deflections);
+  void windSpeedCb(const tobas_msgs::Wind::ConstSharedPtr& wind);
 
   /* ControlSurfaceをindexで並べ替えるためのキー． */
   static bool sortKey(const tobas::ControlSurface& l, const tobas::ControlSurface& r);
