@@ -1,7 +1,0 @@
-<library path="lib/libtobas_fixed_wing_mpc_nodelet">
-
-  <class name="tobas_fixed_wing_mpc/ControllerNodelet" type="tobas_fixed_wing_mpc::ControllerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

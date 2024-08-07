@@ -11,9 +11,8 @@ from tobas_rqt_tools.messages import q_error_named
 
 from ..base_setting import BaseSettingWidget
 from .base import BaseController
-from .multirotor_pid import MultirotorPid
-from .multirotor_mpc import MultirotorMpc
-from .non_planar_pid import NonPlanarPid
+from .multirotor_pid import MultirotorPID
+from .non_planar_pid import NonPlanarPID
 from .fixed_wing_lqr import FixedWingLQR
 from .custom import CustomController
 
@@ -38,9 +37,8 @@ class ControllerWidget(BaseSettingWidget):
         self._type.currentIndexChanged.connect(self._controllers.setCurrentIndex)
 
         for controller_class in [
-            MultirotorPid,
-            MultirotorMpc,
-            NonPlanarPid,
+            MultirotorPID,
+            NonPlanarPID,
             FixedWingLQR,
             CustomController,
         ]:

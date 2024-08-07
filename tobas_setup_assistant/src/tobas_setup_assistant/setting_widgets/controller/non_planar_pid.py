@@ -14,7 +14,7 @@ from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 
-class NonPlanarPid(BaseController):
+class NonPlanarPID(BaseController):
     NAME = "Non-Planar Multirotor PID"
     CONTROLLER_PKG = "tobas_np_pid"
     TAKEOFF_PKG = "tobas_dummy_pkg"  # TODO

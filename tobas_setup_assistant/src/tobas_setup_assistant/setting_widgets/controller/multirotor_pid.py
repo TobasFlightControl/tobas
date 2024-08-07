@@ -14,7 +14,7 @@ from ...common import PROP_TILT_TOL
 from .base import BaseController
 
 
-class MultirotorPid(BaseController):
+class MultirotorPID(BaseController):
     NAME = "Multirotor PID"
     CONTROLLER_PKG = "tobas_mr_pid"
     TAKEOFF_PKG = "tobas_multirotor_takeoff"

@@ -10,9 +10,7 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>tobas_fixed_wing_lqd</exec_depend>
-	<exec_depend>tobas_fixed_wing_mpc</exec_depend>
 	<exec_depend>tobas_mr_pid</exec_depend>
-	<exec_depend>tobas_mr_mpc</exec_depend>
 	<exec_depend>tobas_np_pid</exec_depend>
 
 	<export>
