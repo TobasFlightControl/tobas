@@ -31,7 +31,6 @@ install(
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-# install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_export_dependencies(tobas_node tobas_drone_core tobas_drone_msgs)
 

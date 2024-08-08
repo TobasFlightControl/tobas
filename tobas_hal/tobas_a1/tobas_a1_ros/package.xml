@@ -14,12 +14,9 @@
 	<depend>tobas_property_tools</depend>
 	<depend>tobas_hal_core</depend>
 	<depend>tobas_hal_msgs</depend>
-	<depend>nodelet</depend>
-	<depend>pluginlib</depend>
 
-	<export>
-		<nodelet plugin="${prefix}/nodelet_description.xml"/>
-	</export>
+
+
 
 	<export>
 		<build_type>ament_cmake</build_type>

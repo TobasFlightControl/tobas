@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <rclcpp/rclcpp.hpp>
+#include <builtin_interfaces/msg/time.hpp>
+#include <builtin_interfaces/msg/duration.hpp>
 
 namespace ros2
 {
@@ -10,3 +12,5 @@ inline std::chrono::steady_clock::time_point chronoFromRosTime(const rclcpp::Tim
   return std::chrono::steady_clock::time_point(std::chrono::nanoseconds(ros_time.nanoseconds()));
 }
 }  // namespace ros2
+
+rclcpp::Duration operator-(const builtin_interfaces::msg::Time& lhs, const builtin_interfaces::msg::Time& rhs);

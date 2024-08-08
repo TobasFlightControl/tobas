@@ -28,6 +28,9 @@ class Drone
 public:
   static constexpr char kDroneExt[] = ".tbsdrn";
 
+  using SharedPtr = std::shared_ptr<Drone>;
+  using ConstSharedPtr = std::shared_ptr<const Drone>;
+
   std::string name = "";       // The name of this drone
   BatteryConfig battery;       // The battery configurations
   JointConfigMap joints;       // The joint configurations

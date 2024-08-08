@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <chrono>
 
 namespace tobas
 {
@@ -20,14 +21,12 @@ static constexpr double kMaxThrottle = 1.;
 static constexpr double kRCInputMin = -1.;
 static constexpr double kRCInputMax = 1.;
 
-// ROS parameters
-static constexpr char kRobotDescriptionParam[] = "robot_description";
-
 // ROS topics
 static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
 static constexpr char kMessageTopic[] = "message";
 static constexpr char kDynamicParamsTopic[] = "dynamic_parameters";
 static constexpr char kDroneTopic[] = "drone";
+static constexpr char kRobotDescriptionTopic[] = "robot_description";
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kBatteryLpfTopic[] = "battery_filtered";
 static constexpr char kCpuTopic[] = "cpu";
@@ -111,7 +110,8 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 // Others
 static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
-static constexpr double kWaitForServiceExistence = 1.;   // [s]
+static constexpr auto kWaitForServiceExistence = std::chrono::seconds(1);
+static constexpr auto kWaitForMessage = std::chrono::seconds(1);
 static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]

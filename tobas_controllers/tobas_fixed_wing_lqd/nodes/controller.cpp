@@ -1,16 +1,18 @@
-#pragma once
-
+#include <rclcpp/wait_for_message.hpp>
 #include <sensor_msgs/msg/fluid_pressure.hpp>
+#include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_std_tools/debug.hpp>
 #include <tobas_eigen_tools/core.hpp>
+#include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_kdl/treemassholder.hpp>
 #include <tobas_linear_control/lqd.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/rotor_axis_extractor.hpp>
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
@@ -21,12 +23,26 @@
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/msg/fixed_wing_controller_feedback.hpp>
 #include <tobas_msgs/Odometry.hpp>
+#include <tobas_drone_msgs/Drone.hpp>
 
 using namespace std;
 using namespace Eigen;
 
 namespace tobas_fixed_wing_lqd
 {
+struct ControllerParameters
+{
+  long forward_speed_weight;
+  long alpha_weight;
+  long beta_weight;
+  long attitude_weight;
+  long angular_velocity_weight;
+  long thrust_weight_log10;
+  long thrust_rate_weight_log10;
+  long deflection_weight_log10;
+  long deflection_rate_weight_log10;
+};
+
 class ControllerNode : public tobas::BaseNode
 {
   using self = ControllerNode;
@@ -46,6 +62,9 @@ private:
   // 固定値
   kdl::JntArray q_0_;
 
+  bool is_initialized_ = false;
+  bool drone_received_ = false;
+  bool description_received_ = false;
   double cur_roll_, cur_pitch_, cur_yaw_;
   sensor_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;  // 大気圧
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;              // 現在のバッテリーの状態
@@ -54,7 +73,7 @@ private:
   tobas_msgs::Odometry odom_ned_;                                 // 現在の状態 (NED座標系)
   std_msgs::msg::Bool::ConstSharedPtr arming_;                    // ロータのアーム状態
   tobas_msgs::msg::SpeedRollDeltaPitch cmd_ned_;                  // 現在のコマンド (NED座標系)
-
+  ControllerParameters params_;
   ctrl::LQD lqd_;  // 最適レギュレータ
 
   // Publishers
@@ -63,25 +82,32 @@ private:
   PublisherPtr<tobas_msgs::msg::FixedWingControllerFeedback> feedback_pub_;
 
   // Subscribers
+  SubscriberPtr<tobas::Drone> drone_sub_;
+  SubscriberPtr<std_msgs::msg::String> description_sub_;
   SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
   SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   SubscriberPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
 
+  void initialize();
   bool isReadyToControl();
-  void setScales();
   void updateCurrentStateVector();
   void updateSetStateVector();
   void publishRotSpeeds(const Eigen::VectorXd& thrust);
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
 
-  void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg);
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
-  void commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
+  void updateForwardSpeedWeight();
+  void updateAlphaWeight();
+  void updateBetaWeight();
+  void updateAttitudeWeight();
+  void updateAngularVelicityWeight();
+  void updateThrustWeightLog10();
+  void updateThrustRateWeightLog10();
+  void updateDeflectionWeightLog10();
+  void updateDeflectionRateWeightLog10();
+  void updateParameters();
 
   bool forwardSpeedWeightCb(const long& p);
   bool alphaWeightCb(const long& p);
@@ -92,6 +118,14 @@ private:
   bool thrustRateWeightLog10Cb(const long& p);
   bool deflectionWeightLog10Cb(const long& p);
   bool deflectionRateWeightLog10Cb(const long& p);
+
+  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void descriptionCb(const std_msgs::msg::String::ConstSharedPtr& description);
+  void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -100,34 +134,14 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
     x_rotors_(drone_, tobas::X_POSITIVE),
     eom_(drone_, tree_)
 {
-  // TODO: Drone, Treeを取得
-
-  // FixedWingを持つことを確認
-
-  mass_holder_.updateInternalDataStructures();
-  x_rotors_.updateInternalDataStructures();
-  eom_.updateInternalDataStructures();
-
-  if (x_rotors_.count() == 0)
-    TOBAS_EXIT("The number of propellers is zero.");
-
-  q_0_.resize(tree_.getNrOfJoints());
-  q_0_.setZero();
-
-  setScales();
-  lqd_.state_weight.resize(eom_.kStateSize);
-  lqd_.input_weight.resize(eom_.inputSize());
-  lqd_.input_rate_weight.resize(eom_.inputSize());
-  lqd_.current_state.resize(eom_.kStateSize);
-  lqd_.target_state.resize(eom_.kStateSize);
-  lqd_.last_input = VectorXd::Zero(eom_.inputSize());
-
   // Register publishers
   rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);
   deflections_pub_ = createPublisher<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
   feedback_pub_ = createPublisher<tobas_msgs::msg::FixedWingControllerFeedback>(tobas::kControllerFeedbackTopic);
 
   // Register subscribers
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this);
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
@@ -136,12 +150,71 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("alpha_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("beta_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("attitude_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("angular_velocity_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("thrust_weight_log10", &self::forwardSpeedWeightCb, this, -3, -3, 3);
+  addDynamicIntParam("thrust_rate_weight_log10", &self::forwardSpeedWeightCb, this, -1, -3, 3);
+  addDynamicIntParam("deflection_weight_log10", &self::forwardSpeedWeightCb, this, -3, -3, 3);
+  addDynamicIntParam("deflection_rate_weight_log10", &self::forwardSpeedWeightCb, this, -1, -3, 3);
 
   publishDynamicParameterDescriptions();
 }
 
+void ControllerNode::initialize()
+{
+  mass_holder_.updateInternalDataStructures();
+  x_rotors_.updateInternalDataStructures();
+  eom_.updateInternalDataStructures();
+
+  q_0_.resize(tree_.getNrOfJoints());
+  q_0_.setZero();
+
+  // 状態変数のスケール
+  lqd_.state_scale.resize(eom_.kStateSize);
+  lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(tobas_std::kStandardAirDensity);
+  lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.fixed_wing.vehicle.alpha_limit.range();
+  lqd_.state_scale(eom_.kStateIdx_beta) = M_PI_4;
+  lqd_.state_scale(eom_.kStateIdx_phi) = M_PI_4;
+  lqd_.state_scale(eom_.kStateIdx_theta) = M_PI_4;
+  lqd_.state_scale(eom_.kStateIdx_p) = M_PI;
+  lqd_.state_scale(eom_.kStateIdx_q) = M_PI;
+  lqd_.state_scale(eom_.kStateIdx_r) = M_PI;
+
+  // 制御入力のスケール
+  lqd_.input_scale.resize(eom_.inputSize());
+  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / x_rotors_.count();
+  lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
+  for (size_t i = 0; i < drone_.fixed_wing.control_surfaces.size(); ++i)
+    lqd_.input_scale(x_rotors_.count() + i) = drone_.fixed_wing.control_surfaces.at(i).angle_limit.range();
+
+  lqd_.state_weight.resize(eom_.kStateSize);
+  lqd_.input_weight.resize(eom_.inputSize());
+  lqd_.input_rate_weight.resize(eom_.inputSize());
+  lqd_.current_state.resize(eom_.kStateSize);
+  lqd_.target_state.resize(eom_.kStateSize);
+  lqd_.last_input = VectorXd::Zero(eom_.inputSize());
+
+  updateParameters();
+
+  is_initialized_ = true;
+}
+
 bool ControllerNode::isReadyToControl()
 {
+  if (!drone_received_)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kDroneTopic);
+    return false;
+  }
+
+  if (!description_received_)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kRobotDescriptionTopic);
+    return false;
+  }
+
   if (air_pressure_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kAirPressureTopic);
@@ -176,27 +249,6 @@ bool ControllerNode::isReadyToControl()
     return false;
 
   return true;
-}
-
-void ControllerNode::setScales()
-{
-  // 状態変数のスケール
-  lqd_.state_scale.resize(eom_.kStateSize);
-  lqd_.state_scale(eom_.kStateIdx_u) = eom_.trimCondition().takeOffSpeed(tobas_std::kStandardAirDensity);
-  lqd_.state_scale(eom_.kStateIdx_alpha) = drone_.fixed_wing.vehicle.alpha_limit.range();
-  lqd_.state_scale(eom_.kStateIdx_beta) = M_PI_4;
-  lqd_.state_scale(eom_.kStateIdx_phi) = M_PI_4;
-  lqd_.state_scale(eom_.kStateIdx_theta) = M_PI_4;
-  lqd_.state_scale(eom_.kStateIdx_p) = M_PI;
-  lqd_.state_scale(eom_.kStateIdx_q) = M_PI;
-  lqd_.state_scale(eom_.kStateIdx_r) = M_PI;
-
-  // 制御入力のスケール
-  lqd_.input_scale.resize(eom_.inputSize());
-  const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / x_rotors_.count();
-  lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
-  for (size_t i = 0; i < drone_.fixed_wing.control_surfaces.size(); ++i)
-    lqd_.input_scale(x_rotors_.count() + i) = drone_.fixed_wing.control_surfaces.at(i).angle_limit.range();
 }
 
 void ControllerNode::updateCurrentStateVector()
@@ -283,9 +335,177 @@ void ControllerNode::publishFeedback(const VectorXd& du)
   feedback_pub_->publish(move(feedback));
 }
 
-void ControllerNode::airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg)
+void ControllerNode::updateForwardSpeedWeight()
 {
-  air_pressure_ = msg;
+  lqd_.state_weight(eom_.kStateIdx_u) = params_.forward_speed_weight;
+}
+
+void ControllerNode::updateAlphaWeight()
+{
+  lqd_.state_weight(eom_.kStateIdx_alpha) = params_.alpha_weight;
+}
+
+void ControllerNode::updateBetaWeight()
+{
+  lqd_.state_weight(eom_.kStateIdx_beta) = params_.beta_weight;
+}
+
+void ControllerNode::updateAttitudeWeight()
+{
+  lqd_.state_weight(eom_.kStateIdx_phi) = params_.attitude_weight;
+  lqd_.state_weight(eom_.kStateIdx_theta) = params_.attitude_weight;
+}
+
+void ControllerNode::updateAngularVelicityWeight()
+{
+  lqd_.state_weight(eom_.kStateIdx_p) = params_.angular_velocity_weight;
+  lqd_.state_weight(eom_.kStateIdx_q) = params_.angular_velocity_weight;
+  lqd_.state_weight(eom_.kStateIdx_r) = params_.angular_velocity_weight;
+}
+
+void ControllerNode::updateThrustWeightLog10()
+{
+  const auto thrust_weight = exp10(params_.thrust_weight_log10);
+  lqd_.input_weight.head(x_rotors_.count()).fill(thrust_weight);
+}
+
+void ControllerNode::updateThrustRateWeightLog10()
+{
+  const auto thrust_rate_weight = exp10(params_.thrust_rate_weight_log10);
+  lqd_.input_rate_weight.head(x_rotors_.count()).fill(thrust_rate_weight);
+}
+
+void ControllerNode::updateDeflectionWeightLog10()
+{
+  const auto deflection_weight = exp10(params_.deflection_weight_log10);
+  lqd_.input_weight.tail(drone_.fixed_wing.control_surfaces.size()).fill(deflection_weight);
+}
+
+void ControllerNode::updateDeflectionRateWeightLog10()
+{
+  const auto deflection_rate_weight = exp10(params_.deflection_rate_weight_log10);
+  lqd_.input_rate_weight.tail(drone_.fixed_wing.control_surfaces.size()).fill(deflection_rate_weight);
+}
+
+void ControllerNode::updateParameters()
+{
+  updateForwardSpeedWeight();
+  updateAlphaWeight();
+  updateBetaWeight();
+  updateAttitudeWeight();
+  updateAngularVelicityWeight();
+  updateThrustWeightLog10();
+  updateThrustRateWeightLog10();
+  updateDeflectionWeightLog10();
+  updateDeflectionRateWeightLog10();
+}
+
+bool ControllerNode::forwardSpeedWeightCb(const long& p)
+{
+  params_.forward_speed_weight = p;
+  if (is_initialized_)
+    updateForwardSpeedWeight();
+  return true;
+}
+
+bool ControllerNode::alphaWeightCb(const long& p)
+{
+  params_.alpha_weight = p;
+  if (is_initialized_)
+    updateAlphaWeight();
+  return true;
+}
+
+bool ControllerNode::betaWeightCb(const long& p)
+{
+  params_.beta_weight = p;
+  if (is_initialized_)
+    updateBetaWeight();
+  return true;
+}
+
+bool ControllerNode::attitudeWeightCb(const long& p)
+{
+  params_.attitude_weight = p;
+  if (is_initialized_)
+    updateAttitudeWeight();
+  return true;
+}
+
+bool ControllerNode::angularVelicityWeightCb(const long& p)
+{
+  params_.angular_velocity_weight = p;
+  if (is_initialized_)
+    updateAngularVelicityWeight();
+  return true;
+}
+
+bool ControllerNode::thrustWeightLog10Cb(const long& p)
+{
+  params_.thrust_weight_log10 = p;
+  if (is_initialized_)
+    updateThrustWeightLog10();
+  return true;
+}
+
+bool ControllerNode::thrustRateWeightLog10Cb(const long& p)
+{
+  params_.thrust_rate_weight_log10 = p;
+  if (is_initialized_)
+    updateThrustRateWeightLog10();
+  return true;
+}
+
+bool ControllerNode::deflectionWeightLog10Cb(const long& p)
+{
+  params_.deflection_weight_log10 = p;
+  if (is_initialized_)
+    updateDeflectionWeightLog10();
+  return true;
+}
+
+bool ControllerNode::deflectionRateWeightLog10Cb(const long& p)
+{
+  params_.deflection_rate_weight_log10 = p;
+  if (is_initialized_)
+    updateDeflectionRateWeightLog10();
+  return true;
+}
+
+void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+{
+  if (!drone->fixed_wing.equipped)
+  {
+    TOBAS_ERROR("Drone is not equipped with a fixed wing.");
+    return;
+  }
+
+  drone_ = *drone;
+  drone_received_ = true;
+
+  if (drone_received_ && description_received_)
+    initialize();
+}
+
+void ControllerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& description)
+{
+  kdl::Tree tree;
+  if (!kdl::treeFromString(description->data, tree))
+  {
+    TOBAS_ERROR("Failed to parse tree.");
+    return;
+  }
+
+  tree_ = tree;
+  description_received_ = true;
+
+  if (drone_received_ && description_received_)
+    initialize();
+}
+
+void ControllerNode::airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& pressure)
+{
+  air_pressure_ = pressure;
 }
 
 void ControllerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
@@ -376,50 +596,6 @@ void ControllerNode::commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::Const
 
   cmd_nwu_ = cmd_nwu;
 }
-
-bool ControllerNode::forwardSpeedWeightCb(const long& p)
-{
-  lqd_.state_weight(eom_.kStateIdx_u) = p;
-  return true;
-}
-
-bool ControllerNode::alphaWeightCb(const long& p)
-{
-  // TODO
-}
-
-bool ControllerNode::betaWeightCb(const long& p)
-{
-  // TODO
-}
-
-bool ControllerNode::attitudeWeightCb(const long& p)
-{
-  // TODO
-}
-
-bool ControllerNode::angularVelicityWeightCb(const long& p)
-{
-  // TODO
-}
-
-bool ControllerNode::thrustWeightLog10Cb(const long& p)
-{
-  // TODO
-}
-
-bool ControllerNode::thrustRateWeightLog10Cb(const long& p)
-{
-  // TODO
-}
-
-bool ControllerNode::deflectionWeightLog10Cb(const long& p)
-{
-  // TODO
-}
-
-bool ControllerNode::deflectionRateWeightLog10Cb(const long& p)
-{
-  // TODO
-}
 }  // namespace tobas_fixed_wing_lqd
+
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_fixed_wing_lqd::ControllerNode)

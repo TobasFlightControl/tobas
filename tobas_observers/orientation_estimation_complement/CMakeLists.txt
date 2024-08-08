@@ -14,8 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
   tobas_tools
   message_filters
-	nodelet
-	pluginlib
+
   sensor_msgs
 )
 

@@ -14,9 +14,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	tf2_ros
-	nodelet
-	pluginlib
-	dynamic_reconfigure
+
+
 )
 
 # catkin_python_setup()

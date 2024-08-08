@@ -18,8 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_linux
 	tobas_property_tools
 	tobas_dsp
-	nodelet
-	pluginlib
+
 )
 
 catkin_package(
@@ -32,8 +31,7 @@ catkin_package(
 		tobas_linux
 		tobas_property_tools
 		tobas_dsp
-		nodelet
-		pluginlib
+
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)

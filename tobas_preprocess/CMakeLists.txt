@@ -14,8 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	tobas_dsp
-	nodelet
-	pluginlib
+
 )
 
 # catkin_python_setup()

@@ -10,15 +10,12 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>tf2_ros</depend>
-	<depend>nodelet</depend>
-	<depend>pluginlib</depend>
-	<depend>dynamic_reconfigure</depend>
+
+
 
 	<depend>tobas_tools</depend>
 
-	<export>
-		<nodelet plugin="${prefix}/nodelet_description.xml"/>
-	</export>
+
 
 	<export>
 		<build_type>ament_cmake</build_type>

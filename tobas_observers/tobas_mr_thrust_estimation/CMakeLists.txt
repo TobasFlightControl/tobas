@@ -14,9 +14,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_drone_tools
 	tobas_linear_control
-	dynamic_reconfigure
-	nodelet
-	pluginlib
+
+
 )
 
 # catkin_python_setup()

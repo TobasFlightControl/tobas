@@ -15,8 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_dynamixel_msgs
 	tobas_tools
 	dynamixel_sdk
-	nodelet
-	pluginlib
+
 )
 
 # catkin_python_setup()

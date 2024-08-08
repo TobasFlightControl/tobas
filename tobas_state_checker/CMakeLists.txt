@@ -14,8 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
 	actionlib
-	nodelet
-	pluginlib
+
 )
 
 catkin_package(
@@ -24,8 +23,7 @@ catkin_package(
 	CATKIN_DEPENDS
 		tobas_tools
 		actionlib
-		nodelet
-		pluginlib
+
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

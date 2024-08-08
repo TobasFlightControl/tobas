@@ -13,8 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(catkin REQUIRED COMPONENTS
 	tobas_tools
-	nodelet
-	pluginlib
+
 )
 
 # file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
@@ -33,8 +32,7 @@ catkin_package(
 	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
 	CATKIN_DEPENDS
 		tobas_tools
-		nodelet
-		pluginlib
+
 )
 
 include_directories(${catkin_INCLUDE_DIRS})

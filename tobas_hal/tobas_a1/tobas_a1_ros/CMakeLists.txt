@@ -16,8 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tobas_a1_core
 	tobas_hal_core
 	tobas_hal_msgs
-	nodelet
-	pluginlib
+
 )
 
 catkin_package(
@@ -28,8 +27,7 @@ catkin_package(
 		tobas_a1_core
 		tobas_hal_core
 		tobas_hal_msgs
-		nodelet
-		pluginlib
+
 )
 
 include_directories(${catkin_INCLUDE_DIRS} include)
