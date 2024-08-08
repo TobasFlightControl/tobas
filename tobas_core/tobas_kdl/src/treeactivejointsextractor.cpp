@@ -32,7 +32,7 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
     while (it != root)
     {
       const auto& ele = it->second;
-      const auto& joint = ele.segment.getJoint();
+      const auto& joint = ele.segment.joint();
       if (joint.type != Joint::Fixed && !tobas_std::contains(active_joints_set_, joint.name))
       {
         active_joints_vec_.push_back(joint.name);

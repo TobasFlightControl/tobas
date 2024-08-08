@@ -1,8 +1,7 @@
+#include <iostream>
 #include <urdf/model.h>
 #include <urdf/urdfdom_compatibility.h>
 #include <urdf_parser/urdf_parser.h>
-
-#include <tobas_std_tools/console.hpp>
 
 #include "../include/tobas_kdl/kdl_parser.hpp"
 
@@ -31,7 +30,7 @@ Frame toKdl(const urdf::Pose& p)
 // construct joint
 Joint toKdl(const urdf::Joint& jnt)
 {
-  const Frame F_parent_jnt = toKdl(jnt.parent_to_joint_origin_transform);
+  const auto F_parent_jnt = toKdl(jnt.parent_to_joint_origin_transform);
 
   Joint res;
   res.name = jnt.name;
@@ -73,13 +72,13 @@ Joint toKdl(const urdf::Joint& jnt)
 // construct inertia
 RigidBodyInertia toKdl(const urdf::Inertial& i)
 {
-  const Frame origin = toKdl(i.origin);
+  const auto origin = toKdl(i.origin);
 
   // the mass is frame independent
-  const double& kdl_mass = i.mass;
+  const auto& kdl_mass = i.mass;
 
   // kdl and urdf both specify the com position in the reference frame of the link
-  const Vector& kdl_com = origin.p;
+  const auto& kdl_com = origin.p;
 
   // kdl specifies the inertia matrix in the reference frame of the link,
   // while the urdf specifies the inertia matrix in the inertia reference frame
@@ -100,15 +99,13 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 // recursive function to walk through tree
 void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
-  PRINT_DEBUG_ONCE("kdl::addChildrenToTree");
-
   // constructs the optional inertia
   RigidBodyInertia inertia(0);
   if (root->inertial)
     inertia = toKdl(*root->inertial);
 
   // constructs the kdl joint
-  const Joint jnt = toKdl(*root->parent_joint);
+  const auto jnt = toKdl(*root->parent_joint);
 
   // construct the kdl segment
   const Segment sgm(root->name, jnt, toKdl(root->parent_joint->parent_to_joint_origin_transform), inertia);
@@ -123,17 +120,13 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 
 bool treeFromFile(const string& file, Tree& tree)
 {
-  PRINT_DEBUG("kdl::treeFromFile");
-
-  const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDFFile(file);
+  const auto robot_model = urdf::parseURDFFile(file);
   return treeFromUrdfModel(*robot_model, tree);
 }
 
 bool treeFromString(const string& xml, Tree& tree)
 {
-  PRINT_DEBUG("kdl::treeFromString");
-
-  const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDF(xml);
+  const auto robot_model = urdf::parseURDF(xml);
   if (!robot_model)
   {
     cerr << "Failed to generate robot model." << endl;
@@ -144,8 +137,6 @@ bool treeFromString(const string& xml, Tree& tree)
 
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 {
-  PRINT_DEBUG("kdl::treeFromUrdfModel");
-
   if (!robot_model.getRoot())
   {
     cerr << "Failed to get root link." << endl;

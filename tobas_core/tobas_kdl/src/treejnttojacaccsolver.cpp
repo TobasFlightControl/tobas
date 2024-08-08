@@ -44,7 +44,7 @@ void TreeJntToJacAccSolver::JntToCartRec(
   // Do forward calculations
   const auto& j = segment->second.q_nr;
   double qj, qdj;
-  if (seg.getJoint().type != Joint::Fixed)
+  if (seg.joint().type != Joint::Fixed)
   {
     qj = q(j);
     qdj = qd(j);

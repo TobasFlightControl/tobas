@@ -15,14 +15,14 @@ namespace kdl
 class Joint
 {
 public:
-  enum JointType
+  enum JointType : uint8_t
   {
     RotAxis,
     TransAxis,
     Fixed,
   };
 
-  std::string name = "NoName";
+  std::string name = "";
   Joint::JointType type = Fixed;
   Vector origin = Vector::Zero();
   double damping = 0.;

@@ -24,7 +24,7 @@ int TreeJntAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)
 
   const auto& cur_it = tree_.getSegment(seg_name);
   const auto& cur_ele = cur_it->second;
-  const auto& cur_jnt = cur_ele.segment.getJoint();
+  const auto& cur_jnt = cur_ele.segment.joint();
   const auto& par_name = cur_ele.parent->first;
 
   if (fk_solver_.JntToCart(q_in, par_name) < 0)

@@ -110,8 +110,7 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 // Others
 static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
-static constexpr auto kWaitForServiceExistence = std::chrono::seconds(1);
-static constexpr auto kWaitForMessage = std::chrono::seconds(1);
+static constexpr double kWaitForServiceExistence = 1.;   // [s]
 static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
