@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <rclcpp/type_adapter.hpp>
 
+#include <tobas_std_tools/debug.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
 
@@ -18,12 +19,16 @@ struct rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.segments.clear();
+
     for (const auto& [_, elem] : src.getSegments())
     {
       dst.segments.emplace_back();
       tobas_kdl_msgs::SegmentAdapter::convert_to_ros_message(elem.segment, dst.segments.back().segment);
       dst.segments.back().q_nr = elem.q_nr;
-      dst.segments.back().parent_name = elem.parent->first;
+
+      // ルートリンクでなければ親の名前を追加
+      if (elem.segment.name() != src.getRootName())
+        dst.segments.back().parent_name = elem.parent->first;
     }
 
     dst.root_name = src.getRootName();

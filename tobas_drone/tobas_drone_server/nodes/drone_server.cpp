@@ -4,22 +4,19 @@
 
 using namespace std;
 
-namespace tobas
-{
-class DroneServerNode : public BaseNode
+class DroneServerNode : public tobas::BaseNode
 {
   static constexpr char kFilePath[] = "tbsdrn_path";
 
   using self = DroneServerNode;
-  using super = BaseNode;
+  using super = tobas::BaseNode;
 
 public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  PublisherPtr<Drone> drone_pub_;
+  PublisherPtr<tobas::Drone> drone_pub_;
 
-  bool publishDrone(const string& file_path) const;
   bool fileParamCb(const string& p);
 };
 
@@ -28,16 +25,16 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
   addDynamicStringParam(kFilePath, &self::fileParamCb, this);
   publishDynamicParameterDescriptions();
 
-  drone_pub_ = createPublisher<Drone>(tobas::kDroneTopic, true);
+  drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true);
 }
 
-bool DroneServerNode::publishDrone(const string& file_path) const
+bool DroneServerNode::fileParamCb(const string& p)
 {
-  auto drone = std::make_unique<Drone>();
+  auto drone = std::make_unique<tobas::Drone>();
 
-  if (!drone->load(file_path))
+  if (!drone->load(p))
   {
-    TOBAS_ERROR("Failed to load drone configurations from \"", file_path, "\".");
+    TOBAS_ERROR("Failed to load drone configurations from \"", p, "\".");
     return false;
   }
 
@@ -46,10 +43,4 @@ bool DroneServerNode::publishDrone(const string& file_path) const
   return true;
 }
 
-bool DroneServerNode::fileParamCb(const string& p)
-{
-  return publishDrone(p);
-}
-}  // namespace tobas
-
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas::DroneServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(DroneServerNode)

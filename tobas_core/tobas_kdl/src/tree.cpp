@@ -1,5 +1,4 @@
-#include <tobas_std_tools/map.hpp>
-#include <tobas_std_tools/console.hpp>
+#include <iostream>
 
 #include "../include/tobas_kdl/tree.hpp"
 
@@ -9,15 +8,11 @@ namespace kdl
 {
 Tree::Tree(const string& root_name) : root_name_(root_name)
 {
-  PRINT_DEBUG("Tree::Tree(\"" << root_name_ << "\")");
-
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
 }
 
 Tree::Tree(const Tree& in)
 {
-  PRINT_DEBUG("Tree::Tree(const Tree&)");
-
   segments_.clear();
   root_name_ = in.root_name_;
   nj_ = 0;
@@ -30,8 +25,6 @@ Tree::Tree(const Tree& in)
 
 Tree& Tree::operator=(const Tree& in)
 {
-  PRINT_DEBUG("Tree::operator=(const Tree&)");
-
   segments_.clear();
   root_name_ = in.root_name_;
   nj_ = 0;
@@ -124,7 +117,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
 
 bool Tree::addSegment(const Segment& segment, const string& hook_name)
 {
-  if (tobas_std::contains(segments_, segment.name()))
+  if (segments_.contains(segment.name()))
   {
     cerr << "\"" + segment.name() + "\" already exists in the tree." << endl;
     return false;

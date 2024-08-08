@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_drone_server)
+project(tobas_tree_server)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -13,15 +13,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_drone_core REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
+find_package(tobas_kdl REQUIRED)
+find_package(tobas_kdl_msgs REQUIRED)
 
 include_directories(include)
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}_node tobas_node tobas_drone_core tobas_drone_msgs)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DroneServerNode" EXECUTABLE drone_server)
+ament_target_dependencies(${PROJECT_NAME}_node tobas_node tobas_kdl tobas_kdl_msgs)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TreeServerNode" EXECUTABLE tree_server)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
@@ -32,6 +32,6 @@ install(
 	INCLUDES DESTINATION include
 )
 
-ament_export_dependencies(tobas_node tobas_drone_core tobas_drone_msgs)
+ament_export_dependencies(tobas_node tobas_kdl tobas_kdl_msgs)
 
 ament_package()
