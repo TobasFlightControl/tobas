@@ -3,7 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <ros/timer.h>
 
-#include <tobas_msgs/JointCommandArray.h>
+#include <tobas_msgs/msg/joint_command_array.hpp>
 
 class TobasBridge
 {
@@ -23,9 +23,9 @@ private:
 
   rclcpp::Timer main_timer_;
 
-  void jntPosCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_pos);
-  void jntVelCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_vel);
-  void jntEffCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_eff);
+  void jntPosCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_pos);
+  void jntVelCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_vel);
+  void jntEffCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_eff);
 
   void mainTimerCb(const rclcpp::TimerEvent& event);
 };

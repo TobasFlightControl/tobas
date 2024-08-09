@@ -63,7 +63,7 @@ bool JointCommandHandler::initialize()
   return true;
 }
 
-void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& positions)
+void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
   if (ctrl_map_.size() == 0 && !initialize())
   {
@@ -96,7 +96,7 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArra
   }
 }
 
-void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& velocities)
+void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
   if (ctrl_map_.size() == 0 && !initialize())
   {
@@ -130,7 +130,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArr
   }
 }
 
-void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& efforts)
+void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
   if (ctrl_map_.size() == 0 && !initialize())
   {

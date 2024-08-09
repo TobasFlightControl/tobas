@@ -20,17 +20,17 @@ TobasBridge::TobasBridge() : node_(node), pnh_(pnh)
   // main_timer_ = node_.createTimer(MAIN_TIMER_FREQ, &self::mainTimerCb, this);
 }
 
-void TobasBridge::jntPosCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_pos)
+void TobasBridge::jntPosCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_pos)
 {
   /* TODO */
 }
 
-void TobasBridge::jntVelCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_vel)
+void TobasBridge::jntVelCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_vel)
 {
   /* TODO */
 }
 
-void TobasBridge::jntEffCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& tar_eff)
+void TobasBridge::jntEffCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_eff)
 {
   /* TODO */
 }

@@ -66,6 +66,8 @@ private:
   PublisherPtr<tobas_debug_msgs::NonPlanarControllerFeedback> feedback_pub_;
 
   // Subscribers
+  SubscriberPtr<tobas::Drone> drone_sub_;
+  SubscriberPtr<kdl::Tree> tree_sub_;
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
@@ -130,6 +132,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   feedback_pub_ = createPublisher<tobas_debug_msgs::NonPlanarControllerFeedback>(tobas::kControllerFeedbackTopic);
 
   // Register subscribers
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   if (drone_.isTransformable())

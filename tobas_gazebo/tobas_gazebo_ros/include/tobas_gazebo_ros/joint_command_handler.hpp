@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_node/node.hpp>
-#include <tobas_msgs/JointCommandArray.h>
+#include <tobas_msgs/msg/joint_command_array.hpp>
 
 namespace tobas_gazebo_ros
 {
@@ -32,8 +32,8 @@ private:
 
   bool initialize();
 
-  void jointPositionsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& positions);
-  void jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& velocities);
-  void jointEffortsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& efforts);
+  void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
+  void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
+  void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
 };
 }  // namespace tobas_gazebo_ros

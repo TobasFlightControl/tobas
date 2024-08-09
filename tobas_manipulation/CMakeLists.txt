@@ -11,66 +11,52 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(catkin REQUIRED COMPONENTS
-	tobas_tools
-	tf2_ros
+find_package(ament_cmake REQUIRED)
+find_package(tobas_kdl_conversions REQUIRED)
+find_package(tobas_ros2_tools REQUIRED)
+find_package(tobas_node REQUIRED)
+find_package(tobas_msgs REQUIRED)
+find_package(tobas_drone_core REQUIRED)
+find_package(tobas_drone_msgs REQUIRED)
 
-
-)
-
-# catkin_python_setup()
-
-# file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
-# add_message_files(FILES ${MSG_FILES})
-# file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
-# add_service_files(FILES ${SRV_FILES})
-# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
-# add_action_files(FILES ${ACTION_FILES})
-
-# generate_messages(DEPENDENCIES
-# 	actionlib_msgs
-# )
-
-file(GLOB_RECURSE CFG_FILES RELATIVE ${PROJECT_SOURCE_DIR} cfg/[^.]*.cfg)
-generate_dynamic_reconfigure_options(${CFG_FILES})
-
-catkin_package(
-	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS tobas_tools tf2_ros nodelet pluginlib dynamic_reconfigure
-# 	DEPENDS
-)
-
-include_directories(${catkin_INCLUDE_DIRS} include)
+include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
-file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
-add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
-target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME})
-
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-set(targets_to_install "")
-foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NAME ${FILE} NAME_WE)
-	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NAME})
-endforeach()
-
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+ament_target_dependencies(${PROJECT_NAME}
+	tobas_kdl_conversions
+	tobas_ros2_tools
+	tobas_node
+	tobas_msgs
+	tobas_drone_core
+	tobas_drone_msgs
 )
-install(TARGETS ${targets_to_install}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+
+file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PositionControllerNode" EXECUTABLE position_controller)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "VelocityControllerNode" EXECUTABLE velocity_controller)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "EffortControllerNode" EXECUTABLE effort_controller)
+
+install(
+	TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+	EXPORT ${PROJECT_NAME}
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
-install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
-install(FILES nodelet_description.xml DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(
+	tobas_kdl_conversions
+	tobas_ros2_tools
+	tobas_node
+	tobas_msgs
+	tobas_drone_core
+	tobas_drone_msgs
+)
+
+ament_package()

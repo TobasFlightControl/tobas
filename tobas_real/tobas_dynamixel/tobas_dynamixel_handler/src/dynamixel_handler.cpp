@@ -467,7 +467,7 @@ void DynamixelHandler::eventCb(const tobas_msgs::Event::ConstSharedPtr& event)
   }
 }
 
-void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& positions)
+void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
   if (!is_enabled_)
   {
@@ -514,7 +514,7 @@ void DynamixelHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArray::
     TOBAS_ERROR("Failed to transmit a sync write instruction packet of positions.");
 }
 
-void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& velocities)
+void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
   if (!is_enabled_)
   {
@@ -558,7 +558,7 @@ void DynamixelHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArray:
     TOBAS_ERROR("Failed to transmit a sync write instruction packet of velocities.");
 }
 
-void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArray::ConstSharedPtr& efforts)
+void DynamixelHandler::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
   if (!is_enabled_)
   {
