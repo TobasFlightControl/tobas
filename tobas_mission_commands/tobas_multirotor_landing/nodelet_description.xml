@@ -1,7 +1,0 @@
-<library path="lib/libtobas_multirotor_landing_nodelet">
-
-  <class name="tobas_multirotor_landing/LandActionServerNodelet" type="tobas_multirotor_landing::LandActionServerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

@@ -1,7 +1,0 @@
-<library path="lib/libtobas_latency_publisher_nodelet">
-
-  <class name="tobas_latency_publisher/LatencyPublisherNodelet" type="tobas_latency_publisher::LatencyPublisherNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>
