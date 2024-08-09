@@ -26,11 +26,9 @@
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_examples</exec_depend>
 	<exec_depend>tobas_fake_publishers</exec_depend>
-	<exec_depend>tobas_fkie_master</exec_depend>
 	<exec_depend>tobas_gcs</exec_depend>
 	<exec_depend>tobas_latency_publisher</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
-	<exec_depend>tobas_motor_test</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_multirotor_trajectory</exec_depend>
 	<exec_depend>tobas_pre_arm_check</exec_depend>
@@ -39,7 +37,6 @@
 	<exec_depend>tobas_rviz_plugin</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_state_checker</exec_depend>
-	<exec_depend>dh_tile_server</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>
 	<exec_depend>tobas_tools_py</exec_depend>
 	<exec_depend>tobas_topic_throttle</exec_depend>
