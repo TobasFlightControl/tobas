@@ -17,9 +17,9 @@ void TreeIdSolver_RNE::updateInternalDataStructures()
 
   for (const auto& [cur_name, _] : tree_.getSegments())
   {
-    v_[cur_name] = Twist();
-    a_[cur_name] = Accel();
-    f_[cur_name] = Wrench();
+    v_[cur_name] = Twist::Zero();
+    a_[cur_name] = Accel::Zero();
+    f_[cur_name] = Wrench::Zero();
   }
 
   effort_out_ = JntArray::Zero(nj_);
