@@ -64,7 +64,7 @@ struct rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>
         // 現在のリンクをツリーに追加
         tobas_kdl_msgs::SegmentAdapter::convert_to_custom(elem.segment, seg);
         if (!tree.addSegment(seg, elem.parent_name))
-          throw runtime_error("Failed to add segment \"" + elem.segment.name + "\".");
+          throw std::runtime_error("Failed to add segment \"" + elem.segment.name + "\".");
         added_segs.insert(elem.segment.name);
 
         // 可動関節の場合は次の番号の関節をもつリンクを探索

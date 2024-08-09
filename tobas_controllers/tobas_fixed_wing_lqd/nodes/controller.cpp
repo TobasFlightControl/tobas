@@ -1,5 +1,6 @@
 #include <rclcpp/wait_for_message.hpp>
 #include <sensor_msgs/msg/fluid_pressure.hpp>
+
 #include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/bool.hpp>
 
@@ -7,7 +8,6 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/debug.hpp>
 #include <tobas_eigen_tools/core.hpp>
-#include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_kdl/treemassholder.hpp>
 #include <tobas_linear_control/lqd.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -17,6 +17,7 @@
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_tools/conversions/coordinates.hpp>
+
 #include <tobas_msgs/msg/rotor_speeds.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -24,6 +25,7 @@
 #include <tobas_msgs/msg/fixed_wing_controller_feedback.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_kdl_msgs/Tree.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -83,7 +85,7 @@ private:
 
   // Subscribers
   SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<std_msgs::msg::String> description_sub_;
+  SubscriberPtr<kdl::Tree> tree_sub_;
   SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
   SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
@@ -120,7 +122,7 @@ private:
   bool deflectionRateWeightLog10Cb(const long& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
-  void descriptionCb(const std_msgs::msg::String::ConstSharedPtr& description);
+  void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
@@ -141,7 +143,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 
   // Register subscribers
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
-  description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
@@ -487,16 +489,9 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     initialize();
 }
 
-void ControllerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& description)
+void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
-  kdl::Tree tree;
-  if (!kdl::treeFromString(description->data, tree))
-  {
-    TOBAS_ERROR("Failed to parse tree.");
-    return;
-  }
-
-  tree_ = tree;
+  tree_ = *tree;
   description_received_ = true;
 
   if (drone_received_ && description_received_)

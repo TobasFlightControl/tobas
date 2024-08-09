@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "./chain.hpp"
 
 namespace kdl
@@ -30,6 +32,9 @@ private:
 class Tree
 {
 public:
+  using SharedPtr = std::shared_ptr<Tree>;
+  using ConstSharedPtr = std::shared_ptr<const Tree>;
+
   /**
    * The constructor of a tree, a new tree is always empty
    */
