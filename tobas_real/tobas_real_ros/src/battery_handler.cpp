@@ -17,7 +17,7 @@ BatteryHandler::BatteryHandler(const rclcpp::NodeOptions& options)
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   adc_sub_ = createSubscriber(hal::kAdcTopic, &self::adcCb, this);
 
-  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool BatteryHandler::reloadConfig()

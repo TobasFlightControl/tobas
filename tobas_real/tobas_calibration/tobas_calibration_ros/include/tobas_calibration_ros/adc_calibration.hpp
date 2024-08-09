@@ -27,7 +27,7 @@ private:
   algo::Kahan<double> voltage_sum_;
 
   ptree::PropertyClient property_client_;
-  rclcpp::ServiceServer ss_;
+  ServicePtr<> ss_;
 
   void adcCb(const tobas_hal_msgs::Adc::ConstSharedPtr& adc);
   bool executeCb(SrvType::Request& req, SrvType::Response& res);

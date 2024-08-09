@@ -2,7 +2,7 @@
 
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_msgs/Imu.h>
+#include <tobas_msgs/Imu.hpp>
 
 namespace tobas_preprocess
 {

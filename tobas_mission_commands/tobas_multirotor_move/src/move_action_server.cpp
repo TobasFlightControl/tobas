@@ -5,7 +5,7 @@
 #include <tobas_kdl/euler.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.hpp>
-#include <tobas_msgs/GetGnssOrigin.h>
+#include <tobas_msgs/srv/get_gnss_origin.hpp>
 
 #include "../include/tobas_multirotor_move/move_action_server.hpp"
 

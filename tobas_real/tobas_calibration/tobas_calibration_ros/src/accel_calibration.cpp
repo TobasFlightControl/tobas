@@ -13,7 +13,7 @@ namespace tobas_calibration
 AccelCalibrationRos::AccelCalibrationRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), property_client_(node_, tobas_real_ros::kPropertyServerFC)
 {
-  ss_ = createPublisherService(kServiceName, &AccelCalibrationRos::executeCb, this);
+  ss_ = createService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
 
 bool AccelCalibrationRos::getAccelMean(Eigen::Vector3d& des)

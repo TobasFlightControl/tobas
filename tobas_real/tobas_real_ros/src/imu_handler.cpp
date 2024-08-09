@@ -1,6 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_msgs/Imu.h>
+#include <tobas_msgs/Imu.hpp>
 
 #include "../include/tobas_real_ros/imu_handler.hpp"
 #include "../include/tobas_real_ros/common.hpp"
@@ -17,7 +17,7 @@ ImuHandler::ImuHandler(const rclcpp::NodeOptions& options)
   imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuTopic);
   imu_sub_ = createSubscriber(hal::kImuTopic, &self::imuCb, this);
 
-  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool ImuHandler::reloadConfig()

@@ -2,7 +2,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/assert.hpp>
 #include <tobas_std_tools/console.hpp>
-
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../include/state_estimation_eskf/eskf.hpp"
@@ -14,7 +14,7 @@ using namespace Eigen;
 
 namespace et = eigen_tools;
 
-namespace state_estimation_eskf
+namespace eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 {
@@ -385,4 +385,4 @@ void ErrorStateKalmanFilter::injectErrorState(const DeltaStateVector& error_stat
   //   G_theta * P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) * G_theta.transpose();
   // et::symmetrise(P_);
 }
-}  // namespace state_estimation_eskf
+}  // namespace eskf

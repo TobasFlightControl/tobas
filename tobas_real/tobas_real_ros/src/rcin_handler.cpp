@@ -19,7 +19,7 @@ RCInputHandler::RCInputHandler(const rclcpp::NodeOptions& options)
   rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::kRcInputTopic);
   sbus_sub_ = createSubscriber(hal::kSbusTopic, &self::sbusCb, this);
 
-  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 void RCInputHandler::setToDefaults()

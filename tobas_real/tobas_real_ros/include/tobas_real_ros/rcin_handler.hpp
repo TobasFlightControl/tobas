@@ -34,7 +34,7 @@ private:
 
   PublisherPtr<> rcin_pub_;
   SubscriberPtr<> sbus_sub_;
-  rclcpp::ServiceServer reload_config_srv_;
+  ServicePtr<> reload_config_srv_;
 
   void setToDefaults();
   bool reloadConfig();

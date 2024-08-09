@@ -44,8 +44,7 @@ private:
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   SubscriberPtr<> rotor_speeds_sub_;
 
-  // Dynamic Reconfigure
-  ConfigServer server_;
+
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds);

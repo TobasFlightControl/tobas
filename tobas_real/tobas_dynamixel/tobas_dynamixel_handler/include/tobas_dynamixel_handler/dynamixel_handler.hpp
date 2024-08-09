@@ -78,12 +78,12 @@ private:
   SubscriberPtr<> efforts_sub_;
 
   // Service
-  rclcpp::ServiceServer enable_torques_ss_;
+  ServicePtr<> enable_torques_ss_;
 
   // Timer
   rclcpp::Timer main_timer_;
 
-  void getRosParams();
+  void getStaticRosParams();
   void registerPublishers();
   void registerSubscribers();
   bool setMinimumLatency();

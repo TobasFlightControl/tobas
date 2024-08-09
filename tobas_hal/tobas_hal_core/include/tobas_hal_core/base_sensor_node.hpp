@@ -19,8 +19,8 @@ protected:
   rclcpp::Timer main_timer_;
 
 private:
-  rclcpp::ServiceServer start_ss_;
-  rclcpp::ServiceServer stop_ss_;
+  ServicePtr<> start_ss_;
+  ServicePtr<> stop_ss_;
 
   bool startMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
   bool stopMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);

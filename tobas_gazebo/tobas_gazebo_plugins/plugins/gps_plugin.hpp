@@ -6,7 +6,7 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
 
-#include <tobas_msgs/Gps.h>
+#include <tobas_msgs/Gps.hpp>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"

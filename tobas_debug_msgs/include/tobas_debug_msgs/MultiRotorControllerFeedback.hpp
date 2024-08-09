@@ -63,7 +63,7 @@ struct rclcpp::
 
 namespace tobas_debug_msgs
 {
-using GpsAdapter = rclcpp::
+using MultiRotorControllerFeedbackAdapter = rclcpp::
   TypeAdapter<tobas_debug_msgs::MultiRotorControllerFeedback, tobas_debug_msgs::msg::MultiRotorControllerFeedback>;
 }
 

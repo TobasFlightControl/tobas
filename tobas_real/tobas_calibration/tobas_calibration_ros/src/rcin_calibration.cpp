@@ -9,7 +9,7 @@ namespace tobas_calibration
 RCInputCalibrationRos::RCInputCalibrationRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), property_client_(node_, tobas_real_ros::kPropertyServerFC)
 {
-  ss_ = createPublisherService(kServiceName, &self::executeCb, this);
+  ss_ = createService(kServiceName, &self::executeCb, this);
 }
 
 bool RCInputCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)

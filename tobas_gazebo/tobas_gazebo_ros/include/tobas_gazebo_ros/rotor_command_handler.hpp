@@ -23,7 +23,7 @@ private:
 
   std::map<uint8_t, PublisherPtr<>> throttle_pubs_;
   SubscriberPtr<> throttles_sub_;
-  rclcpp::ServiceServer enable_rcout_srv_;
+  ServicePtr<> enable_rcout_srv_;
 
   void throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles);
   bool enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res);

@@ -23,7 +23,7 @@ PreArmCheckServer::PreArmCheckServer(const rclcpp::NodeOptions& options)
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
-  pre_arm_check_ss_ = createPublisherService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
+  pre_arm_check_ss_ = createService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
 
   pre_arm_check_timer_ = node_.createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
 }

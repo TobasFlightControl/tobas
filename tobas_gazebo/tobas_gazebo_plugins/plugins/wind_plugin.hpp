@@ -70,8 +70,8 @@ private:
 
   PublisherPtr<> wind_pub_;
 
-  rclcpp::ServiceServer get_params_ss_;
-  rclcpp::ServiceServer set_params_ss_;
+  ServicePtr<> get_params_ss_;
+  ServicePtr<> set_params_ss_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void onUpdate(const common::UpdateInfo& info);

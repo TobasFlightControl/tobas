@@ -11,7 +11,7 @@ namespace tobas_calibration
 AdcCalibrationRos::AdcCalibrationRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), property_client_(node_, tobas_real_ros::kPropertyServerFC)
 {
-  ss_ = createPublisherService(kServiceName, &AdcCalibrationRos::executeCb, this);
+  ss_ = createService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }
 
 void AdcCalibrationRos::adcCb(const tobas_hal_msgs::Adc::ConstSharedPtr& adc)

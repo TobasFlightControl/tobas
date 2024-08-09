@@ -63,7 +63,7 @@ private:
   ros2::Timer check_topics_timer_;
   ros2::Timer instruction_timer_;
 
-  void getRosParams();
+  void getStaticRosParams();
   bool isReady();
   void initialize();
 

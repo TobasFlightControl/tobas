@@ -35,7 +35,7 @@ PositionYawPublisher::PositionYawPublisher(const rclcpp::NodeOptions& options)
                  "Left/Right: Turn left/right along Z-axis in WCSs\n"
                  "Ctrl-C    : Quit\n";
 
-  getRosParams();
+  getStaticRosParams();
 
   const auto repeat_interval = keyboard::getKeyboardRepeatInterval();
   delta_pos_ = max_linvel_ * repeat_interval;
@@ -173,7 +173,7 @@ void PositionYawPublisher::run()
   }
 }
 
-void PositionYawPublisher::getRosParams()
+void PositionYawPublisher::getStaticRosParams()
 {
   ros2::getParam(pnh_, "max_linear_velocity", max_linvel_, kDefaultMaxLinearVelocity, ros2::POSITIVE);
   ros2::getParam(pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, ros2::POSITIVE);

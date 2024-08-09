@@ -31,6 +31,6 @@ private:
   // PubSub
   PublisherPtr<> cmd_pub_;
 
-  void getRosParams(rclcpp::Node::SharedPtr pnh);
+  void getStaticRosParams(rclcpp::Node::SharedPtr pnh);
 };
 }  // namespace tobas_rc_teleop

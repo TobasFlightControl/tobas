@@ -1,5 +1,5 @@
 #include <tobas_std_tools/zip.hpp>
-#include <tobas_kdl_msgs/conversion/kdl_msg.hpp>
+#include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_manipulation/velocity_controller_ros.hpp"

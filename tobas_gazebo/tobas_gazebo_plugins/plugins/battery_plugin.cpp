@@ -28,7 +28,7 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
   registerPubSub();
-  charge_srv_ = createPublisherService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
+  charge_srv_ = createService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }

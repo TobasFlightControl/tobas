@@ -1,6 +1,6 @@
 #include <tobas_std_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Gps.h>
+#include <tobas_msgs/Gps.hpp>
 
 #include "../include/tobas_a1_ros/gnss_driver.hpp"
 #include "../include/tobas_a1_ros/common.hpp"

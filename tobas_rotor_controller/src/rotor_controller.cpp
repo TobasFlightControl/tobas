@@ -27,8 +27,8 @@ RotorController::RotorController(const rclcpp::NodeOptions& options) : super(nod
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::rotSpeedsCmdCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
 
-  get_arm_ss_ = createPublisherService(tobas::kGetArmSrv, &self::getArmCb, this);
-  set_arm_ss_ = createPublisherService(tobas::kSetArmSrv, &self::setArmCb, this);
+  get_arm_ss_ = createService(tobas::kGetArmSrv, &self::getArmCb, this);
+  set_arm_ss_ = createService(tobas::kSetArmSrv, &self::setArmCb, this);
   enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
   pre_arm_check_sc_ = node_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 

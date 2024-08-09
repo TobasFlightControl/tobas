@@ -1,6 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_msgs/MagneticField.h>
+#include <tobas_msgs/MagneticField.hpp>
 
 #include "../include/tobas_real_ros/magnetometer_handler.hpp"
 #include "../include/tobas_real_ros/common.hpp"
@@ -17,7 +17,7 @@ MagnetometerHandler::MagnetometerHandler(const rclcpp::NodeOptions& options)
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
   mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
 
-  reload_config_srv_ = createPublisherService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+  reload_config_srv_ = createService(name + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
 }
 
 bool MagnetometerHandler::reloadConfig()

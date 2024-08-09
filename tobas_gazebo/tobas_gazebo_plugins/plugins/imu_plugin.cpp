@@ -1,5 +1,5 @@
 #include <tobas_math/core.hpp>
-#include <tobas_msgs/Imu.h>
+#include <tobas_msgs/Imu.hpp>
 #include <tobas_gazebo_msgs/ImuDebug.h>
 
 #include "./imu_plugin.hpp"

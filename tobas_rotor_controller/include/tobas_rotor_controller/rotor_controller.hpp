@@ -38,8 +38,8 @@ private:
   SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
 
   // Service
-  rclcpp::ServiceServer get_arm_ss_;
-  rclcpp::ServiceServer set_arm_ss_;
+  ServicePtr<> get_arm_ss_;
+  ServicePtr<> set_arm_ss_;
   rclcpp::ServiceClient enable_rcout_sc_;
   rclcpp::ServiceClient pre_arm_check_sc_;
 

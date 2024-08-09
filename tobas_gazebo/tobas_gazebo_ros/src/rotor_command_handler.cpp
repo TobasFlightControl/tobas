@@ -21,7 +21,7 @@ RotorCommandHandler::RotorCommandHandler(const rclcpp::NodeOptions& options)
   }
 
   throttles_sub_ = createSubscriber(tobas::kThrottlesCmdTopic, &self::throttlesCb, this);
-  enable_rcout_srv_ = createPublisherService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
+  enable_rcout_srv_ = createService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
 void RotorCommandHandler::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles)

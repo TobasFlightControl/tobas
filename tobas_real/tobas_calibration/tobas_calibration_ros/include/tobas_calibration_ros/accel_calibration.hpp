@@ -30,7 +30,7 @@ private:
   Eigen::Vector3d acc_top_;
 
   ptree::PropertyClient property_client_;
-  rclcpp::ServiceServer ss_;
+  ServicePtr<> ss_;
 
   bool getAccelMean(Eigen::Vector3d& des);
 

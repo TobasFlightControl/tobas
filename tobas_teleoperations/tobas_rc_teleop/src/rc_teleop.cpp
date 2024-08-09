@@ -26,7 +26,7 @@ namespace tobas_rc_teleop
 {
 RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
-  getRosParams();
+  getStaticRosParams();
 
 
   // プログラムモードのダミーコントローラを設定
@@ -64,7 +64,7 @@ RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(node, pnh, name)
   set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
-void RCTeleop::getRosParams()
+void RCTeleop::getStaticRosParams()
 {
   ros2::getParam(pnh_, "stabilize_mode", modes_[tobas::kFlightModeStabilize]);
   ros2::getParam(pnh_, "acrobat_mode", modes_[tobas::kFlightModeAcrobat]);

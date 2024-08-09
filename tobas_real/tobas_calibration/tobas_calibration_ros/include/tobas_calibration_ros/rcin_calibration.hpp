@@ -23,7 +23,7 @@ public:
 
 private:
   ptree::PropertyClient property_client_;
-  rclcpp::ServiceServer ss_;
+  ServicePtr<> ss_;
 
   bool executeCb(SrvType::Request& req, SrvType::Response& res);
 };

@@ -66,7 +66,7 @@ struct rclcpp::
 
 namespace tobas_debug_msgs
 {
-using GpsAdapter = rclcpp::
+using NonPlanarControllerFeedbackAdapter = rclcpp::
   TypeAdapter<tobas_debug_msgs::NonPlanarControllerFeedback, tobas_debug_msgs::msg::NonPlanarControllerFeedback>;
 }
 

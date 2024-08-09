@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace state_estimation_eskf
+namespace eskf
 {
 // ノミナル状態の添字
 static constexpr size_t kPosIdx = 0;
@@ -45,4 +45,4 @@ static constexpr double kWarnPeriod = 1.;               // [s]
 static constexpr double kPrintStddevPeriod = 1.;        // [s]
 static constexpr double kImuTimeGapThreshold = 0.05;    // [s]
 static constexpr double kAnormalyScoreThreshold = 10.;  // [-]
-}  // namespace state_estimation_eskf
+}  // namespace eskf

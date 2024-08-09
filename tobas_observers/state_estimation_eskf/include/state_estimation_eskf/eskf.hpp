@@ -11,7 +11,7 @@
 
 #include "./constants.hpp"
 
-namespace state_estimation_eskf
+namespace eskf
 {
 /**
  * @brief 誤差状態カルマンフィルタ．
@@ -326,4 +326,4 @@ double ErrorStateKalmanFilter::correct(
   const double anormaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
   return anormaly_score;
 }
-}  // namespace state_estimation_eskf
+}  // namespace eskf

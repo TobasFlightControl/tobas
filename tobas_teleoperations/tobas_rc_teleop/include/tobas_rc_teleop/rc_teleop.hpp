@@ -61,7 +61,7 @@ private:
   rclcpp::ServiceClient get_arm_sc_;
   rclcpp::ServiceClient set_arm_sc_;
 
-  void getRosParams();
+  void getStaticRosParams();
   bool isRotorsArmed();
   bool requestArmingRotors();
   bool requestDisarmingRotors();

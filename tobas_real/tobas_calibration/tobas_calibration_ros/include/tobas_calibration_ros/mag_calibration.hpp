@@ -20,7 +20,7 @@ public:
 
 private:
   ptree::PropertyClient property_client_;
-  rclcpp::ServiceServer ss_;
+  ServicePtr<> ss_;
 
   bool isValidEllipse(const SrvType::Request& req);
   bool executeCb(SrvType::Request& req, SrvType::Response& res);

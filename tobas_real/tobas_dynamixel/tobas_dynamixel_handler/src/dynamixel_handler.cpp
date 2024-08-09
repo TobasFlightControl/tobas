@@ -17,7 +17,7 @@ namespace tobas_dynamixel_handler
 DynamixelHandler::DynamixelHandler(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   // Get ROS parameters
-  getRosParams();
+  getStaticRosParams();
 
   // Initialize Dynamixel SDK
   poh_ = PortHandler::getPortHandler(device_name_.c_str());
@@ -80,7 +80,7 @@ DynamixelHandler::DynamixelHandler(const rclcpp::NodeOptions& options) : super(n
   registerSubscribers();
 
   // Register service servers
-  enable_torques_ss_ = createPublisherService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
+  enable_torques_ss_ = createService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
 
   // Start main timer with maximum rate
   main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
@@ -95,7 +95,7 @@ DynamixelHandler::~DynamixelHandler()
   poh_->closePort();
 }
 
-void DynamixelHandler::getRosParams()
+void DynamixelHandler::getStaticRosParams()
 {
   ros2::getParam(pnh_, "joint_names", jnt_names_);
   ros2::getParam(pnh_, "device_name", device_name_, string(kDefaultDeviceName));

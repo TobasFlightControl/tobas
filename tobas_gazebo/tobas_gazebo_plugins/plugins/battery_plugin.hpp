@@ -63,7 +63,7 @@ private:
   std::vector<std::function<void(const tobas_msgs::RotorState::ConstSharedPtr&)>> rotor_state_cbs_;
 
   // Service servers
-  rclcpp::ServiceServer charge_srv_;
+  ServicePtr<> charge_srv_;
 
   void getSdfParams(sdf::ElementPtr sdf);
   void registerPubSub();

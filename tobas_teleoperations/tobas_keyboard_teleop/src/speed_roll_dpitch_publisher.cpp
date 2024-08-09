@@ -29,7 +29,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
                  "Left/Right: Turn left/right\n"
                  "Ctrl-C    : Quit\n";
 
-  getRosParams();
+  getStaticRosParams();
 
 
   trim_.updateInternalDataStructures();
@@ -126,7 +126,7 @@ void SpeedRollDeltaPitchPublisher::run()
   }
 }
 
-void SpeedRollDeltaPitchPublisher::getRosParams()
+void SpeedRollDeltaPitchPublisher::getStaticRosParams()
 {
   ros2::getParam(pnh_, "max_linear_acceleration", max_linacc_, kDefaultMaxLinearAcceleration, ros2::POSITIVE);
   ros2::getParam(pnh_, "max_angular_velocity", max_angvel_, kDefaultMaxAngularVelocity, ros2::POSITIVE);

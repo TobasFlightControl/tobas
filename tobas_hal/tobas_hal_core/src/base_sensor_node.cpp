@@ -8,8 +8,8 @@ namespace hal
 {
 BaseSensorNode::BaseSensorNode(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
-  start_ss_ = createPublisherService(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
-  stop_ss_ = createPublisherService(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
+  start_ss_ = createService(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
+  stop_ss_ = createService(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
 }
 
 bool BaseSensorNode::startMainTimerSrvCb(std_srvs::EmptyRequest&, std_srvs::EmptyResponse&)

@@ -46,7 +46,7 @@ private:
 
   PublisherPtr<> imu_pub_;
   SubscriberPtr<> imu_sub_;
-  rclcpp::ServiceServer reload_config_srv_;
+  ServicePtr<> reload_config_srv_;
 
   bool reloadConfig();
 

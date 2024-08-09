@@ -16,7 +16,7 @@ PoseTwistAccelController::PoseTwistAccelController(const tobas::Drone& drone) : 
 
 void PoseTwistAccelController::initialize()
 {
-  getRosParams(pnh);
+  getStaticRosParams(pnh);
 
   cmd_pub_ = node.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic);
 }
@@ -99,7 +99,7 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   cmd_pub_->publish(cmd);
 }
 
-void PoseTwistAccelController::getRosParams(rclcpp::Node::SharedPtr pnh)
+void PoseTwistAccelController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
 {
   ros2::getParam(
     pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);

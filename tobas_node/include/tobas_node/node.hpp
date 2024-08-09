@@ -262,8 +262,6 @@ void BaseNode::addDynamicBoolParam(
     const auto value = param.as_bool();
     if ((obj->*fp)(value))
       TOBAS_INFO("Boolean parameter \"", name, "\" is updated successfully.");
-    else
-      TOBAS_ERROR("Failed to update bool parameter \"", name, "\".");
   };
   const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -305,8 +303,6 @@ void BaseNode::addDynamicIntParam(
     }
     if ((obj->*fp)(value))
       TOBAS_INFO("Integer parameter \"", name, "\" is updated successfully.");
-    else
-      TOBAS_ERROR("Failed to update integer parameter \"", name, "\".");
   };
   const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -350,8 +346,6 @@ void BaseNode::addDynamicDoubleParam(
     }
     if ((obj->*fp)(value))
       TOBAS_INFO("Double parameter \"", name, "\" is updated successfully.");
-    else
-      TOBAS_ERROR("Failed to update double parameter \"", name, "\".");
   };
   const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -384,8 +378,6 @@ void BaseNode::addDynamicStringParam(
     const auto& value = param.as_string();
     if ((obj->*fp)(value))
       TOBAS_INFO("String parameter \"", name, "\" is updated successfully.");
-    else
-      TOBAS_ERROR("Failed to update string parameter \"", name, "\".");
   };
   const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);

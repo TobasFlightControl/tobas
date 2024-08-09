@@ -13,7 +13,7 @@ DShotDriver::DShotDriver(, const std::string& name) : super(node, pnh, name)
     TOBAS_EXIT("Failed to initialize DSHOT driver.");
 
   throttles_sub_ = createSubscriber(tobas::kThrottlesCmdTopic, &self::throttlesCb, this);
-  enable_rcout_srv_ = createPublisherService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
+  enable_rcout_srv_ = createService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
 void DShotDriver::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles)

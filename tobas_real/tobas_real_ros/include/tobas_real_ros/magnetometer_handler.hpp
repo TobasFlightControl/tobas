@@ -32,7 +32,7 @@ private:
 
   PublisherPtr<> mag_pub_;
   SubscriberPtr<> mag_sub_;
-  rclcpp::ServiceServer reload_config_srv_;
+  ServicePtr<> reload_config_srv_;
 
   bool reloadConfig();
 

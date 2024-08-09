@@ -3,7 +3,7 @@
 #include <tobas_std_tools/time.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/MagneticField.h>
+#include <tobas_msgs/MagneticField.hpp>
 
 #include "./magnetometer_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"

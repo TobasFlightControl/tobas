@@ -16,7 +16,7 @@ SpeedRollDeltaPitchController::SpeedRollDeltaPitchController(const tobas::Drone&
 
 void SpeedRollDeltaPitchController::initialize()
 {
-  getRosParams(pnh);
+  getStaticRosParams(pnh);
 
   cmd_pub_ = node.advertise<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
 }
@@ -37,7 +37,7 @@ void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, cons
   cmd_pub_->publish(cmd);
 }
 
-void SpeedRollDeltaPitchController::getRosParams(rclcpp::Node::SharedPtr pnh)
+void SpeedRollDeltaPitchController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
 {
   ros2::getParam(pnh, "speed_roll_dpitch/min_speed", min_speed_, kDefaultMinSpeed, ros2::POSITIVE);
   ros2::getParam(pnh, "speed_roll_dpitch/max_speed", max_speed_, kDefaultMaxSpeed, ros2::POSITIVE);

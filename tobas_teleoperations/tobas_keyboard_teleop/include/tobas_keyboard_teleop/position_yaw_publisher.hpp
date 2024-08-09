@@ -56,6 +56,6 @@ private:
   PublisherPtr<> pos_yaw_pub_;
   PublisherPtr<> pvay_pub_;
 
-  void getRosParams();
+  void getStaticRosParams();
 };
 }  // namespace tobas_keyboard_teleop

@@ -16,7 +16,7 @@ PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : supe
 
 void PosVelAccYawController::initialize()
 {
-  getRosParams(pnh);
+  getStaticRosParams(pnh);
 
   cmd_pub_ = node.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
 }
@@ -77,7 +77,7 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   cmd_pub_->publish(cmd);
 }
 
-void PosVelAccYawController::getRosParams(rclcpp::Node::SharedPtr pnh)
+void PosVelAccYawController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
 {
   ros2::getParam(
     pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);

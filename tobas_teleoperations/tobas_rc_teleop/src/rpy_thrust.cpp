@@ -18,7 +18,7 @@ RollPitchYawThrustController::RollPitchYawThrustController(const tobas::Drone& d
 
 void RollPitchYawThrustController::initialize()
 {
-  getRosParams(pnh);
+  getStaticRosParams(pnh);
 
   z_rotors_.updateInternalDataStructures();
 
@@ -66,7 +66,7 @@ void RollPitchYawThrustController::update(
   rpy_thrust_pub_->publish(rpyt);
 }
 
-void RollPitchYawThrustController::getRosParams(rclcpp::Node::SharedPtr pnh)
+void RollPitchYawThrustController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
 {
   ros2::getParam(pnh, "rpy_thrust/max_attitude", max_attitude_, kDefaultMaxAttitude, ros2::POSITIVE);
   ros2::getParam(pnh, "rpy_thrust/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
