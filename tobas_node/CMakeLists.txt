@@ -16,7 +16,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_std_msgs REQUIRED)
-find_package(tobas_dynamic_param_msgs REQUIRED)
+find_package(tobas_dparam_msgs REQUIRED)
 find_package(tobas_constants REQUIRED)
 
 include_directories(include)
@@ -28,7 +28,7 @@ ament_target_dependencies(${PROJECT_NAME}
 	rclcpp_components
 	tobas_std_tools
 	tobas_std_msgs
-	tobas_dynamic_param_msgs
+	tobas_dparam_msgs
 	tobas_constants
 )
 
@@ -48,7 +48,7 @@ ament_export_dependencies(
 	rclcpp_components
 	tobas_std_tools
 	tobas_std_msgs
-	tobas_dynamic_param_msgs
+	tobas_dparam_msgs
 	tobas_constants
 )
 

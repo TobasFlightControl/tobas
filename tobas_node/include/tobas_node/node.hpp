@@ -6,7 +6,7 @@
 #include <tobas_std_tools/stream.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
-#include <tobas_dynamic_param_msgs/msg/parameters.hpp>
+#include <tobas_dparam_msgs/msg/parameters.hpp>
 
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
@@ -188,8 +188,8 @@ private:
 
   PublisherPtr<tobas_std_msgs::msg::Message> message_pub_;
 
-  tobas_dynamic_param_msgs::msg::Parameters dparams_;
-  PublisherPtr<tobas_dynamic_param_msgs::msg::Parameters> dparams_pub_;
+  tobas_dparam_msgs::msg::Parameters dparams_;
+  PublisherPtr<tobas_dparam_msgs::msg::Parameters> dparams_pub_;
   rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ParamHandlePtr> dparam_handles_;
 
@@ -266,7 +266,7 @@ void BaseNode::addDynamicBoolParam(
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
-  tobas_dynamic_param_msgs::msg::BoolParam bool_param;
+  tobas_dparam_msgs::msg::BoolParam bool_param;
   bool_param.name = name;
   bool_param.dflt = _default;
   dparams_.bools.push_back(bool_param);
@@ -307,7 +307,7 @@ void BaseNode::addDynamicIntParam(
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
-  tobas_dynamic_param_msgs::msg::IntParam int_param;
+  tobas_dparam_msgs::msg::IntParam int_param;
   int_param.name = name;
   int_param.dflt = _default;
   int_param.min = _min;
@@ -350,7 +350,7 @@ void BaseNode::addDynamicDoubleParam(
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
-  tobas_dynamic_param_msgs::msg::DoubleParam double_param;
+  tobas_dparam_msgs::msg::DoubleParam double_param;
   double_param.name = name;
   double_param.dflt = _default;
   double_param.min = _min;
@@ -382,7 +382,7 @@ void BaseNode::addDynamicStringParam(
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
-  tobas_dynamic_param_msgs::msg::StringParam string_param;
+  tobas_dparam_msgs::msg::StringParam string_param;
   string_param.name = name;
   string_param.dflt = _default;
   dparams_.strings.push_back(string_param);

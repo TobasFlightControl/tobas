@@ -13,7 +13,7 @@
 	<depend>rclcpp_components</depend>
 	<depend>tobas_std_tools</depend>
 	<depend>tobas_std_msgs</depend>
-	<depend>tobas_dynamic_param_msgs</depend>
+	<depend>tobas_dparam_msgs</depend>
 	<depend>tobas_constants</depend>
 
 	<exec_depend>ros2launch</exec_depend>

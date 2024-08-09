@@ -1,4 +1,3 @@
-#include <tobas_std_tools/string.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_node/node.hpp"
@@ -11,15 +10,14 @@ BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
   : super(node_name, options), dparam_sub_(this)
 {
   message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(kMessageTopic);
-  TOBAS_INFO("Initializing \"", node_name, "\".");
+  dparams_pub_ = createPublisher<tobas_dparam_msgs::msg::Parameters>(node_name + "/" + kDynamicParamsTopic, true);
 
-  dparams_pub_ =
-    createPublisher<tobas_dynamic_param_msgs::msg::Parameters>(node_name + "/" + kDynamicParamsTopic, true);
+  TOBAS_INFO("Initializing \"", node_name, "\".");
 }
 
 void BaseNode::publishDynamicParameterDescriptions()
 {
-  auto dparams = std::make_unique<tobas_dynamic_param_msgs::msg::Parameters>(dparams_);
+  auto dparams = std::make_unique<tobas_dparam_msgs::msg::Parameters>(dparams_);
   dparams_pub_->publish(move(dparams));
 }
 
