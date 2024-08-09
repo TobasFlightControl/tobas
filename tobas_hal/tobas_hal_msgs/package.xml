@@ -10,7 +10,7 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>tobas_kdl_msgs</depend>
-	<depend>message_generation</depend>
+
 
 	<export>
 		<build_type>ament_cmake</build_type>

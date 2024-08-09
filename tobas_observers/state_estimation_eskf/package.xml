@@ -13,7 +13,7 @@
 	<depend>actionlib</depend>
 
 	<depend>tf2_ros</depend>
-	<depend>message_generation</depend>
+
 
 	<depend>tobas_tools</depend>
 

@@ -9,13 +9,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>message_generation</depend>
-
-
-
-	<depend>tobas_drone_tools</depend>
-
-
 
 	<export>
 		<build_type>ament_cmake</build_type>
