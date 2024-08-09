@@ -55,8 +55,7 @@ private:
   SubscriberPtr<> tar_js_sub_;
   SubscriberPtr<> tar_ls_sub_;
 
-  // Dynamic Reconfigure Server
-  ConfigServer server_;
+
 
   int jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
   int taskSpaceControl(tobas_msgs::JointCommandArray& velocities_msg);
@@ -65,6 +64,6 @@ private:
   void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
 
-  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
+
 };
 }  // namespace tobas_manipulation

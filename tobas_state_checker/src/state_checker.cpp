@@ -10,7 +10,7 @@ namespace tobas_state_checker
 StateChecker::StateChecker(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), landing_ac_(tobas::kLandAction)
 {
-  drone_.loadFromParam(node_);
+
 
   event_pub_ = createPublisher<tobas_msgs::Event>(tobas::kEventTopic);
 

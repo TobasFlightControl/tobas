@@ -12,7 +12,7 @@ namespace tobas_gazebo_ros
 RotorCommandHandler::RotorCommandHandler(const rclcpp::NodeOptions& options)
   : super(node, pnh, name)
 {
-  drone_.loadFromParam(node_);
+
 
   for (const auto& rotor : drone_.rotorConfigs())
   {

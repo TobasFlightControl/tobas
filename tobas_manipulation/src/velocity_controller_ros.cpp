@@ -15,9 +15,9 @@ VelocityControllerRos::VelocityControllerRos(const rclcpp::NodeOptions& options)
     tar_js_conv_(tree_),
     active_jnts_extractor_(tree_),
     vel_ctrl_(tree_),
-    server_(pnh_)
+
 {
-  drone_.loadFromParam(node_);
+
 
   cur_js_conv_.updateInternalDataStructures();
   tar_js_conv_.updateInternalDataStructures();
@@ -45,7 +45,7 @@ VelocityControllerRos::VelocityControllerRos(const rclcpp::NodeOptions& options)
   tar_js_sub_ = createSubscriber(tobas::kVelCtrlJSTopic, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(tobas::kVelCtrlLSTopic, &self::targetLinkStateCb, this);
 
-  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
+
 }
 
 int VelocityControllerRos::jointSpaceControl(tobas_msgs::JointCommandArray& velocities_msg)
@@ -139,7 +139,7 @@ void VelocityControllerRos::currentJointStateCb(const sensor_msgs::msg::JointSta
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
-  const auto time_after_last_cmd = (node->get_clock()->now() - t_last_cmd_).seconds();
+  const auto time_after_last_cmd = (get_clock()->now() - t_last_cmd_).seconds();
   if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     tar_js_ =std::make_unique<sensor_msgs::msg::JointState>(home_js_);
@@ -179,7 +179,7 @@ void VelocityControllerRos::targetJointStateCb(const sensor_msgs::msg::JointStat
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
 
-  t_last_cmd_ = node->get_clock()->now();
+  t_last_cmd_ = get_clock()->now();
   is_commanded_ = true;
 }
 
@@ -188,7 +188,7 @@ void VelocityControllerRos::targetLinkStateCb(const tobas_msgs::LinkStateArray::
   tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
-  t_last_cmd_ = node->get_clock()->now();
+  t_last_cmd_ = get_clock()->now();
   is_commanded_ = true;
 }
 

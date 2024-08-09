@@ -19,7 +19,7 @@ namespace tobas_rotor_controller
 {
 RotorController::RotorController(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
-  drone_.loadFromParam(node_);
+
 
   throttles_pub_ = createPublisher<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic);
   arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic, 1, true);
@@ -45,8 +45,8 @@ bool RotorController::armRotors()
     return false;
   }
 
-  const auto t_start = node->get_clock()->now();
-  while ((node->get_clock()->now() - t_start).seconds() < kDisarmDuration)
+  const auto t_start = get_clock()->now();
+  while ((get_clock()->now() - t_start).seconds() < kDisarmDuration)
   {
     setThrottleOnAllChannels(kDisarmThrottle);
     rclcpp::Duration(kDisarmInterval).sleep();
@@ -117,7 +117,7 @@ bool RotorController::preArmCheck()
 void RotorController::setThrottleOnAllChannels(const double& throttle)
 {
   const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
-  throttles->header.stamp = node->get_clock()->now();
+  throttles->header.stamp = get_clock()->now();
   for (const auto& rotor : drone_.rotorConfigs())
     throttles->throttles.emplace_back(rotor.channel, throttle);
   throttles_pub_->publish(throttles);
@@ -142,9 +142,9 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSh
   }
 
   const auto data_size = tar_speeds->speeds.size();
-  if (data_size != drone_.rotors.size())
+  if (data_size != drone_.numRotors())
   {
-    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.rotors.size());
+    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_.numRotors());
     return;
   }
 
@@ -212,7 +212,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSh
   throttles_pub_->publish(throttles);
 
   // Update last commanded time
-  last_cmd_time_ = node->get_clock()->now();
+  last_cmd_time_ = get_clock()->now();
 
   // Now the rotors are activated
   is_activated_ = true;

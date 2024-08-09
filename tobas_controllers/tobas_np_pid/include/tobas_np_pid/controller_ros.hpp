@@ -60,18 +60,17 @@ private:
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
-  PublisherPtr<> rot_speeds_pub_;
+  PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
   PublisherPtr<> feedback_pub_;
 
   // Subscribers
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
-  SubscriberPtr<> js_sub_;
+  SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
   SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   SubscriberPtr<> cmd_sub_;
 
-  // Dynamic Reconfigure Server
-  ConfigServer server_;
+
 
   void registerPublishers();
   void registerSubscribers();
@@ -83,6 +82,6 @@ private:
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
 
-  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
+
 };
 }  // namespace tobas_np_pid

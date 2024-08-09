@@ -72,7 +72,7 @@ void LandActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
   alt_buf_.clear();
 
   // 初期状態
-  const auto start_time = node->get_clock()->now();
+  const auto start_time = get_clock()->now();
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
   const auto start_z = odom_->frame.p.z();
@@ -102,7 +102,7 @@ void LandActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
     }
 
     // コマンドを作成
-    const auto t = (node->get_clock()->now() - start_time).seconds();
+    const auto t = (get_clock()->now() - start_time).seconds();
     const auto cmd =std::make_unique<tobas_msgs::PosVelAccYaw>();
     cmd->level = goal->level;
     cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;

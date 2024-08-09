@@ -15,10 +15,10 @@ using namespace Eigen;
 
 namespace state_estimation_eskf
 {
-ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(const rclcpp::NodeOptions& options) : super(node, pnh, name), server_(pnh_)
+ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(const rclcpp::NodeOptions& options) : super(node, pnh, name),
 {
   getRosParams();
-  drone_.loadFromParam(node_);
+
 
   // Initialize ESKF
   const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0;
@@ -58,7 +58,7 @@ ErrorStateKalmanFilterRos::ErrorStateKalmanFilterRos(const rclcpp::NodeOptions& 
   set_gnss_origin_ss_ = createPublisherService(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 
   // Dynamic Reconfigureの設定．この時点で1度コールバックが呼ばれる．
-  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
+
 }
 
 void ErrorStateKalmanFilterRos::getRosParams()

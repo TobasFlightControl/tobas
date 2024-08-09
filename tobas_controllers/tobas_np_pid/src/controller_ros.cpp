@@ -12,9 +12,9 @@ using namespace Eigen;
 namespace tobas_np_pid
 {
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), js_converter_(tree_), mixer_(drone_), server_(pnh_)
+  : super(node, pnh, name), js_converter_(tree_), mixer_(drone_),
 {
-  drone_.loadFromParam(node_);
+
 
   js_converter_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
@@ -22,7 +22,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   registerPublishers();
   registerSubscribers();
 
-  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
+
 }
 
 void ControllerNode::registerPublishers()
@@ -119,7 +119,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 目標回転数を発行
   const auto tar_rot_speeds =std::make_unique<tobas_msgs::msg::RotorSpeeds>();
   tar_rot_speeds->header.stamp = odom->header.stamp;
-  tar_rot_speeds->speeds.resize(drone_.rotors.size(), 0.);
+  tar_rot_speeds->speeds.resize(drone_.numRotors(), 0.);
   for (size_t rotor_idx = 0; rotor_idx < static_cast<size_t>(thrusts.rows()); ++rotor_idx)
   {
     const auto thrust = max(0., thrusts(rotor_idx));
@@ -182,7 +182,7 @@ void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSha
     return;
   }
 
-  if (!cmd_level_handler_.update(cmd->level.data, node->get_clock()->now()))
+  if (!cmd_level_handler_.update(cmd->level.data, get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;

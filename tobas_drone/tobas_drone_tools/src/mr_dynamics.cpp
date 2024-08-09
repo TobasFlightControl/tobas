@@ -25,7 +25,7 @@ void MultirotorDynamicsComponents::updateInternalDataStructures()
 
 double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_speeds) const
 {
-  assert(rot_speeds.size() == drone_.rotors.size());
+  assert(rot_speeds.size() == drone_.numRotors());
 
   double res = 0.;
   for (size_t i = 0; i < z_rotors_.count(); ++i)
@@ -54,7 +54,7 @@ kdl::Vector MultirotorDynamicsComponents::horizontalForce(
   const kdl::Vector& wind_W,
   const vector<double>& rot_speeds)
 {
-  assert(rot_speeds.size() == drone_.rotors.size());
+  assert(rot_speeds.size() == drone_.numRotors());
 
   const auto drag_rotor_sum = dragRotorSum(rot_speeds);
   const auto rel_vel_perp = relativePerpVel(rot, vel_B, wind_W);
@@ -68,7 +68,7 @@ kdl::Vector MultirotorDynamicsComponents::horizontalMoment(
   const kdl::JntArray& q,
   const vector<double>& rot_speeds)
 {
-  assert(rot_speeds.size() == drone_.rotors.size());
+  assert(rot_speeds.size() == drone_.numRotors());
 
   // 重心を求める
   if (inertia_solver_.JntToCart(q) < 0)

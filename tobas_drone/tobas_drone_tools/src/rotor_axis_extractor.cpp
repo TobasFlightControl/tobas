@@ -14,7 +14,7 @@ void RotorAxisExtractor::updateInternalDataStructures()
   count_ = 0;
   rotor_idxs_.clear();
 
-  for (size_t i = 0; i < drone_.rotors.size(); ++i)
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     if (drone_.rotors.at(i).axis == axis_)
     {
@@ -26,7 +26,7 @@ void RotorAxisExtractor::updateInternalDataStructures()
 
 double RotorAxisExtractor::thrustSum(const vector<double>& rot_speeds) const
 {
-  assert(rot_speeds.size() == drone_.rotors.size());
+  assert(rot_speeds.size() == drone_.numRotors());
 
   double res = 0.;
   for (const auto& rotor_idx : rotor_idxs_)

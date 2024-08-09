@@ -16,7 +16,7 @@ PreArmCheckServer::PreArmCheckServer(const rclcpp::NodeOptions& options)
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
-  drone_.loadFromParam(node_);
+
 
   pre_arm_check_pub_ = createPublisher<tobas_msgs::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
 

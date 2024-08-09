@@ -95,7 +95,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
   const auto duration = traj_z.duration();
 
   // 初期状態
-  const auto start_time = node->get_clock()->now();
+  const auto start_time = get_clock()->now();
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
@@ -105,7 +105,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
   while (node_.ok())
   {
     // 開始からの経過時間を計算
-    const auto t = (node->get_clock()->now() - start_time).seconds();
+    const auto t = (get_clock()->now() - start_time).seconds();
 
     // タイムアウトの確認
     if (goal->timeout > 0 && t > duration + goal->timeout)

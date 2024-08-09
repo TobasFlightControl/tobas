@@ -17,7 +17,7 @@ namespace tobas_mr_wind_estimation
 WindEstimator::WindEstimator(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), dynamics_(drone_), kf_(kStateSize)
 {
-  drone_.loadFromParam(node_);
+
   updateInternalDataStructures();
 
   kf_.initialize(Vector2d::Zero(), Vector2d::Constant(math::sqr(kInitWindStddev)).asDiagonal());

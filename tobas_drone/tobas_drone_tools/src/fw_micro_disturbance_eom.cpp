@@ -32,7 +32,7 @@ void MicroDisturbanceEoM::updateInternalDataStructures()
   x_rotors_.updateInternalDataStructures();
   trim_.updateInternalDataStructures();
 
-  u_size_ = x_rotors_.count() + drone_.fixed_wing.control_surfaces.size();
+  u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
   u_0_ = VectorXd::Zero(u_size_);
@@ -185,7 +185,7 @@ int MicroDisturbanceEoM::update(
   }
 
   // deflection
-  for (size_t cs_idx = 0; cs_idx < drone_.fixed_wing.control_surfaces.size(); ++cs_idx)
+  for (size_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
   {
     const auto& cs = drone_.fixed_wing.control_surfaces.at(cs_idx);
 
@@ -259,7 +259,7 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
     max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
   }
 
-  for (size_t i = 0; i < drone_.fixed_wing.control_surfaces.size(); ++i)
+  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto& cs = drone_.fixed_wing.control_surfaces.at(i);
     min_u_(x_rotors_.count() + i) = cs.angle_limit.lower;

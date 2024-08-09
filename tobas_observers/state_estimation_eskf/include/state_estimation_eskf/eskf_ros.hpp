@@ -113,6 +113,6 @@ private:
   bool getGnssOriginCb(tobas_msgs::GetGnssOriginRequest& req, tobas_msgs::GetGnssOriginResponse& res);
   bool setGnssOriginCb(tobas_msgs::SetGnssOriginRequest& req, tobas_msgs::SetGnssOriginResponse& res);
 
-  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
+
 };
 }  // namespace state_estimation_eskf

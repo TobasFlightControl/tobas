@@ -146,7 +146,7 @@ void GNSSDriver::setTimeOffsetTimerCb(const rclcpp::TimerEvent&)
   timegps.decode(gnss_.payload());
 
   // Compute the time offset
-  const rclcpp::Time ros_time = node->get_clock()->now();
+  const rclcpp::Time ros_time = get_clock()->now();
   const rclcpp::Time gps_time(timegps.iTOW / 1000, (timegps.iTOW % 1000) * 1'000'000 + timegps.fTOW);
   time_offset_ = ros_time - gps_time;
 

@@ -4,7 +4,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/PositionYaw.h>
-#include <tobas_msgs/msg/roll_pitch_yaw_thrust.hpp>
+#include <tobas_msgs/RollPitchYawThrust.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/GetArm.h>
@@ -27,7 +27,7 @@ namespace tobas_rc_teleop
 RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(node, pnh, name)
 {
   getRosParams();
-  drone_.loadFromParam(node_);
+
 
   // プログラムモードのダミーコントローラを設定
   controllers_[tobas::kFlightModeProgram] =std::make_unique<ProgramModeController>(drone_);

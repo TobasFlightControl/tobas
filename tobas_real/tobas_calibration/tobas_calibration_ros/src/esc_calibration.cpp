@@ -15,7 +15,7 @@ namespace tobas_calibration
 EscCalibrationRos::EscCalibrationRos(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), as_(node, kActionName, std::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
-  drone_.loadFromParam(node_);
+
 
   throttles_pub_ = createPublisher<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic);
   get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
@@ -26,22 +26,22 @@ EscCalibrationRos::EscCalibrationRos(const rclcpp::NodeOptions& options)
 
 void EscCalibrationRos::sendMaximum()
 {
-  const auto start_time = node->get_clock()->now();
-  while ((node->get_clock()->now() - start_time).seconds() < kHighDuration)
+  const auto start_time = get_clock()->now();
+  while ((get_clock()->now() - start_time).seconds() < kHighDuration)
     setThrottleAndSleep(tobas::kMaxThrottle);
 }
 
 void EscCalibrationRos::sendMinimum()
 {
-  const auto start_time = node->get_clock()->now();
-  while ((node->get_clock()->now() - start_time).seconds() < kLowDuration)
+  const auto start_time = get_clock()->now();
+  while ((get_clock()->now() - start_time).seconds() < kLowDuration)
     setThrottleAndSleep(tobas::kMinThrottle);
 }
 
 void EscCalibrationRos::setThrottle(const double& throttle)
 {
   const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
-  throttles->header.stamp = node->get_clock()->now();
+  throttles->header.stamp = get_clock()->now();
   for (const auto& rotor : drone_.rotorConfigs())
     throttles->throttles.emplace_back(rotor.channel, throttle);
   throttles_pub_->publish(throttles);
@@ -125,10 +125,10 @@ bool EscCalibrationRos::waitForBatteryConnection()
   const auto battery_sub = createSubscriber(tobas::kBatteryTopic, &EscCalibrationRos::batteryCb, this);
 
   // バッテリー電圧が閾値を超えるまで最大値を指令し続ける
-  const auto start_time = node->get_clock()->now();
+  const auto start_time = get_clock()->now();
   while (battery_ == nullptr || battery_->voltage < kVoltageThreshold)
   {
-    if ((node->get_clock()->now() - start_time).seconds() > kTimeout)
+    if ((get_clock()->now() - start_time).seconds() > kTimeout)
     {
       enableRCOutput(false);
       as_.setAborted(result_, "Battery connection is not detected before timeout.");

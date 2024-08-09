@@ -16,7 +16,7 @@ LatencyPublisher::LatencyPublisher(const rclcpp::NodeOptions& options) : super(n
 void LatencyPublisher::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& msg)
 {
   const auto latency =std::make_unique<tobas_msgs::Latency>();
-  const auto cur_time = node->get_clock()->now();
+  const auto cur_time = get_clock()->now();
   latency->header.stamp = cur_time;
   latency->data = cur_time - msg->header.stamp;
   latency_pub_->publish(latency);

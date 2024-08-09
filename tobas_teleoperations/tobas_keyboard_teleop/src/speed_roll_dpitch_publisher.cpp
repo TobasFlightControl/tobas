@@ -30,7 +30,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
                  "Ctrl-C    : Quit\n";
 
   getRosParams();
-  drone_.loadFromParam(node_);
+
 
   trim_.updateInternalDataStructures();
   q_0_ = kdl::JntArray::Zero(tree_.getNrOfJoints());

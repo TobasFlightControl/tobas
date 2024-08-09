@@ -44,6 +44,12 @@ public:
   bool load(const std::filesystem::path& path);
   bool save(const std::filesystem::path& path) const;
 
+  inline size_t numJoints() const;
+  inline size_t numRotors() const;
+  inline size_t numControlSurfaces() const;
+
+  inline bool isTransformable() const;
+
   /* 機械回転数 [rad/s] を電気回転数 [rpm] に変換する． */
   inline double erpmFromRotSpeed(size_t rotor_idx, double rot_speed);
 
@@ -83,6 +89,26 @@ public:
   /* 推力 [N] からスロットル [0,1] を求める． */
   inline double throttleFromThrust(size_t rotor_idx, double thrust, double battery_voltage) const;
 };
+
+inline size_t Drone::numJoints() const
+{
+  return joints.size();
+}
+
+inline size_t Drone::numRotors() const
+{
+  return rotors.size();
+}
+
+inline size_t Drone::numControlSurfaces() const
+{
+  return fixed_wing.control_surfaces.size();
+}
+
+inline bool Drone::isTransformable() const
+{
+  return numJoints() > 0;
+}
 
 inline double Drone::erpmFromRotSpeed(size_t rotor_idx, double rot_speed)
 {

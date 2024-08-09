@@ -20,18 +20,18 @@ void Mixer::updateInternalDataStructures()
   jnt_axis_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
-  qp_.resize(drone_.rotors.size(), 0, drone_.rotors.size() * 2);
+  qp_.resize(drone_.numRotors(), 0, drone_.numRotors() * 2);
   qp_.setZero();
 
   // QPの決定変数のスケール．推力のみなので統一してよい．
   qp_.x_scale.setOnes();
 
   // QPPの定数部分
-  qp_.problem.A.topRows(drone_.rotors.size()).diagonal().fill(1);
-  qp_.problem.A.bottomRows(drone_.rotors.size()).diagonal().fill(-1);
+  qp_.problem.A.topRows(drone_.numRotors()).diagonal().fill(1);
+  qp_.problem.A.bottomRows(drone_.numRotors()).diagonal().fill(-1);
 
-  R_.resize(drone_.rotors.size());
-  G_.resize(NoChange, drone_.rotors.size());
+  R_.resize(drone_.numRotors());
+  G_.resize(NoChange, drone_.numRotors());
 }
 
 VectorXd Mixer::solve(
@@ -53,7 +53,7 @@ VectorXd Mixer::solve(
   const auto& mass = inertia.getMass();
 
   // EoM行列等式の左辺
-  for (size_t i = 0; i < drone_.rotors.size(); ++i)
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     // FKと回転軸を更新
     const auto& link_name = drone_.rotors.at(i).link_name;
@@ -89,10 +89,10 @@ VectorXd Mixer::solve(
   qp_.problem.q = -h_.transpose() * Q_ * G_;
 
   // 不等式制約
-  for (size_t i = 0; i < drone_.rotors.size(); ++i)
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
     qp_.problem.b(i) = drone_.maxThrust(i, cur_voltage);
-    qp_.problem.b(drone_.rotors.size() + i) = -drone_.minThrust(i, cur_voltage);
+    qp_.problem.b(drone_.numRotors() + i) = -drone_.minThrust(i, cur_voltage);
   }
 
   // QPPを解く
@@ -119,7 +119,7 @@ void Mixer::configure(const MixerConfig& cfg)
 
   const auto linear_scale = mass * tobas_std::kGravity;
   const auto angular_scale = I.trace() / 3 * M_PI;
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.rotors.size();
+  const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();
 
   Q_.diagonal().head<3>().fill(cfg.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg.angular_weight / math::sqr(angular_scale));

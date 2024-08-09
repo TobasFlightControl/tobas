@@ -52,6 +52,6 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds);
 
-  void dynamicReconfigureCb(const ConfigType& cfg, size_t);
+
 };
 }  // namespace tobas_mr_thrust_estimation

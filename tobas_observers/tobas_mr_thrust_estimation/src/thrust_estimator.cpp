@@ -16,20 +16,20 @@ using namespace Eigen;
 namespace tobas_mr_thrust_estimation
 {
 ThrustEstimator::ThrustEstimator(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), dynamics_(drone_), kf_(1), server_(pnh_)
+  : super(node, pnh, name), dynamics_(drone_), kf_(1),
 {
-  drone_.loadFromParam(node_);
+
   updateInternalDataStructures();
 
   kf_.initialize(Scalard(1), Scalard(kInitFactorStddev));
   kf_.setZero();
 
-  factor_pub_ = createPublisher<std_msgs::Float64>(tobas::kThrustCorrectionFactorTopic);
+  factor_pub_ = createPublisher<std_msgs::msg::Float64>(tobas::kThrustCorrectionFactorTopic);
 
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   rotor_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsTopic, &self::rotorSpeedsCb, this);
 
-  server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
+
 }
 
 void ThrustEstimator::updateInternalDataStructures()
@@ -66,7 +66,7 @@ void ThrustEstimator::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   kf_.update();
 
   // Publish estimated thrust correction factor
-  const auto factor_msg =std::make_unique<std_msgs::Float64>();
+  const auto factor_msg =std::make_unique<std_msgs::msg::Float64>();
   factor_msg->data = kf_.state()(0);
   factor_pub_->publish(factor_msg);
 }

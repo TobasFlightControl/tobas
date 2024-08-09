@@ -57,7 +57,7 @@ bool JointCommandHandler::initialize()
 
     const auto& jnt_name = item.claimed_resources[0].resources[0];
     const auto topic = item.name + "/command";
-    ctrl_map_[jnt_name] = make_pair(control_type, createPublisher<std_msgs::Float64>(topic, 1));
+    ctrl_map_[jnt_name] = make_pair(control_type, createPublisher<std_msgs::msg::Float64>(topic, 1));
   }
 
   return true;
@@ -83,7 +83,7 @@ void JointCommandHandler::jointPositionsCmdCb(const tobas_msgs::JointCommandArra
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == POSITION)
     {
-      const auto cmd =std::make_unique<std_msgs::Float64>();
+      const auto cmd =std::make_unique<std_msgs::msg::Float64>();
       cmd->data = positions->commands[i].data;
       pub.publish(cmd);
     }
@@ -117,7 +117,7 @@ void JointCommandHandler::jointVelocitiesCmdCb(const tobas_msgs::JointCommandArr
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == VELOCITY)
     {
-      const auto cmd =std::make_unique<std_msgs::Float64>();
+      const auto cmd =std::make_unique<std_msgs::msg::Float64>();
       cmd->data = velocities->commands[i].data;
       pub.publish(cmd);
     }
@@ -150,7 +150,7 @@ void JointCommandHandler::jointEffortsCmdCb(const tobas_msgs::JointCommandArray:
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == EFFORT)
     {
-      const auto cmd =std::make_unique<std_msgs::Float64>();
+      const auto cmd =std::make_unique<std_msgs::msg::Float64>();
       cmd->data = efforts->commands[i].data;
       pub.publish(cmd);
     }
