@@ -9,7 +9,7 @@
 #include <tobas_tools/turning_direction.hpp>
 #include <tobas_tools/esc.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/Wind.h>
+#include <tobas_msgs/Wind.hpp>
 #include <tobas_gazebo_msgs/Throttle.h>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"

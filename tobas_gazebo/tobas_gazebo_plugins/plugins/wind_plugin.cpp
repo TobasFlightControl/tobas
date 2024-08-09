@@ -1,5 +1,5 @@
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Wind.h>
+#include <tobas_msgs/Wind.hpp>
 
 #include "./wind_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"

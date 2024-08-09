@@ -9,7 +9,7 @@
 #include <tobas_std_tools/range.hpp>
 #include <tobas_tools/fixed_wing_tools.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
-#include <tobas_msgs/Wind.h>
+#include <tobas_msgs/Wind.hpp>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"

@@ -190,7 +190,7 @@ private:
 
   tobas_dynamic_param_msgs::msg::Parameters dparams_;
   PublisherPtr<tobas_dynamic_param_msgs::msg::Parameters> dparams_pub_;
-  std::shared_ptr<rclcpp::ParameterEventHandler> dparam_sub_;
+  rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ParamHandlePtr> dparam_handles_;
 
   void rclcppLog(uint8_t level, const std::string& text) const;
@@ -263,7 +263,7 @@ void BaseNode::addDynamicBoolParam(
     if ((obj->*fp)(value))
       TOBAS_INFO("Boolean parameter \"", name, "\" is updated successfully.");
   };
-  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
   tobas_dynamic_param_msgs::msg::BoolParam bool_param;
@@ -304,7 +304,7 @@ void BaseNode::addDynamicIntParam(
     if ((obj->*fp)(value))
       TOBAS_INFO("Integer parameter \"", name, "\" is updated successfully.");
   };
-  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
   tobas_dynamic_param_msgs::msg::IntParam int_param;
@@ -347,7 +347,7 @@ void BaseNode::addDynamicDoubleParam(
     if ((obj->*fp)(value))
       TOBAS_INFO("Double parameter \"", name, "\" is updated successfully.");
   };
-  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
   tobas_dynamic_param_msgs::msg::DoubleParam double_param;
@@ -379,7 +379,7 @@ void BaseNode::addDynamicStringParam(
     if ((obj->*fp)(value))
       TOBAS_INFO("String parameter \"", name, "\" is updated successfully.");
   };
-  const auto cb_handle = dparam_sub_->add_parameter_callback(name, cb);
+  const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
 
   tobas_dynamic_param_msgs::msg::StringParam string_param;

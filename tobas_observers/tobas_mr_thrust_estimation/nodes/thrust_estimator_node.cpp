@@ -37,7 +37,6 @@ private:
 
   tobas::MultirotorDynamicsComponents dynamics_;
 
-  bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
   ctrl::IdentityKalmanFilter kf_;
@@ -52,7 +51,7 @@ private:
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   SubscriberPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_sub_;
 
-  void initialize();
+  void updateInternalDataStructures();
 
   bool processNoiseVarianceLog10Cb(const long& p);
 
@@ -81,10 +80,9 @@ ThrustEstimatorNode::ThrustEstimatorNode(const rclcpp::NodeOptions& options)
   rotor_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsTopic, &self::rotorSpeedsCb, this);
 }
 
-void ThrustEstimatorNode::initialize()
+void ThrustEstimatorNode::updateInternalDataStructures()
 {
   dynamics_.updateInternalDataStructures();
-  is_initialized_ = true;
 }
 
 bool ThrustEstimatorNode::processNoiseVarianceLog10Cb(const long& p)
@@ -99,7 +97,7 @@ void ThrustEstimatorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   drone_received_ = true;
 
   if (tree_received_)
-    initialize();
+    updateInternalDataStructures();
 }
 
 void ThrustEstimatorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -108,12 +106,15 @@ void ThrustEstimatorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 
   if (drone_received_)
-    initialize();
+    updateInternalDataStructures();
 }
 
 void ThrustEstimatorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (!is_initialized_)
+  if (!drone_received_)
+    return;
+
+  if (!tree_received_)
     return;
 
   if (odom->status != tobas_msgs::msg::Odometry::NO_ERROR)

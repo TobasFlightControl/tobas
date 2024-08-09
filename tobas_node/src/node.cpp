@@ -7,13 +7,14 @@ using namespace std;
 
 namespace tobas
 {
-BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options) : super(node_name, options)
+BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
+  : super(node_name, options), dparam_sub_(this)
 {
   message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(kMessageTopic);
+  TOBAS_INFO("Initializing \"", node_name, "\".");
+
   dparams_pub_ =
     createPublisher<tobas_dynamic_param_msgs::msg::Parameters>(node_name + "/" + kDynamicParamsTopic, true);
-
-  dparam_sub_ = std::make_shared<rclcpp::ParameterEventHandler>(this);
 }
 
 void BaseNode::publishDynamicParameterDescriptions()

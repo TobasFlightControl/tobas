@@ -68,7 +68,7 @@ private:
   double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
 
-  PublisherPtr<> wind_pub_;
+  PublisherPtr<tobas_msgs::Wind> wind_pub_;
 
   ServicePtr<> get_params_ss_;
   ServicePtr<> set_params_ss_;
