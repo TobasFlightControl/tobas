@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
 
-	<name>tobas_fixed_wing_lqd</name>
+	<name>tobas_debug_msgs</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -9,13 +9,11 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_linear_control</depend>
-	<depend>tobas_ros2_tools</depend>
-	<depend>tobas_node</depend>
-	<depend>tobas_tools</depend>
-	<depend>tobas_drone_tools</depend>
-	<depend>tobas_drone_msgs</depend>
-	<depend>tobas_debug_msgs</depend>
+	<build_depend>rosidl_default_generators</build_depend>
+	<exec_depend>rosidl_default_runtime</exec_depend>
+	<member_of_group>rosidl_interface_packages</member_of_group>
+
+	<depend>tobas_kdl_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

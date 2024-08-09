@@ -15,9 +15,10 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_linear_control REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_drone_msgs REQUIRED)
-find_package(tobas_tools REQUIRED)
+find_package(tobas_debug_msgs REQUIRED)
 
 include_directories(include)
 
@@ -27,11 +28,12 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_linear_control
 	tobas_ros2_tools
 	tobas_node
+	tobas_tools
 	tobas_drone_tools
 	tobas_drone_msgs
-	tobas_tools
+	tobas_debug_msgs
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas_fixed_wing_lqd::ControllerNode" EXECUTABLE controller)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ControllerNode" EXECUTABLE controller)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
@@ -46,9 +48,10 @@ ament_export_dependencies(
 	tobas_linear_control
 	tobas_ros2_tools
 	tobas_node
+	tobas_tools
 	tobas_drone_tools
 	tobas_drone_msgs
-	tobas_tools
+	tobas_debug_msgs
 )
 
 ament_package()

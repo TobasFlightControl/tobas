@@ -1,11 +1,11 @@
 std_msgs/Header header
 
 tobas_kdl_msgs/Vector target_position
+tobas_kdl_msgs/Euler target_orientation
 tobas_kdl_msgs/Vector target_velocity_global
 tobas_kdl_msgs/Vector target_velocity_local
-tobas_kdl_msgs/Vector target_acceleration_global
-tobas_kdl_msgs/Vector target_acceleration_local
-tobas_kdl_msgs/Euler target_orientation
+tobas_kdl_msgs/Vector target_accel_global
+tobas_kdl_msgs/Vector target_accel_local
 float64 target_thrust
 
 tobas_kdl_msgs/Vector position_integral_error

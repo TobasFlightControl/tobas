@@ -2,7 +2,7 @@
 
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_msgs/RollPitchYawThrust.h>
+#include <tobas_msgs/msg/roll_pitch_yaw_thrust.hpp>
 
 #include "../include/tobas_rc_teleop/rpy_thrust.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"

@@ -11,7 +11,7 @@ using namespace Eigen;
 
 namespace tobas_np_pid
 {
-ControllerRos::ControllerRos(const rclcpp::NodeOptions& options)
+ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(node, pnh, name), js_converter_(tree_), mixer_(drone_), server_(pnh_)
 {
   drone_.loadFromParam(node_);
@@ -25,13 +25,13 @@ ControllerRos::ControllerRos(const rclcpp::NodeOptions& options)
   server_.setCallback(std::bind(&self::dynamicReconfigureCb, this, _1, _2));
 }
 
-void ControllerRos::registerPublishers()
+void ControllerNode::registerPublishers()
 {
   rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);
   feedback_pub_ = createPublisher<tobas_np_pid::ControllerFeedback>(tobas::kControllerFeedbackTopic);
 }
 
-void ControllerRos::registerSubscribers()
+void ControllerNode::registerSubscribers()
 {
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
@@ -42,7 +42,7 @@ void ControllerRos::registerSubscribers()
   cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
 }
 
-bool ControllerRos::isReadyToControl()
+bool ControllerNode::isReadyToControl()
 {
   if (odom_ == nullptr)
   {
@@ -80,7 +80,7 @@ bool ControllerRos::isReadyToControl()
   return true;
 }
 
-void ControllerRos::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   if (odom_ == nullptr)
   {
@@ -146,12 +146,12 @@ void ControllerRos::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback_pub_->publish(feedback);
 }
 
-void ControllerRos::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void ControllerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
 
-void ControllerRos::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
+void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
 {
   if (js->name.size() != js->position.size())
   {
@@ -162,7 +162,7 @@ void ControllerRos::jointStateCb(const sensor_msgs::msg::JointState::ConstShared
   js_ = js;
 }
 
-void ControllerRos::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
 
@@ -174,7 +174,7 @@ void ControllerRos::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
   }
 }
 
-void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd)
+void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd)
 {
   if (!isReadyToControl())
   {
@@ -200,7 +200,7 @@ void ControllerRos::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstShar
   }
 }
 
-void ControllerRos::dynamicReconfigureCb(const ConfigType& cfg, size_t)
+void ControllerNode::dynamicReconfigureCb(const ConfigType& cfg, size_t)
 {
   // 位置制御
   pos_cfg_.hor_natural_freq = cfg.horizontal_natural_frequency;

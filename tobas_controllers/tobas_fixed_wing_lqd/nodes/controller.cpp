@@ -1,4 +1,3 @@
-#include <rclcpp/wait_for_message.hpp>
 #include <sensor_msgs/msg/fluid_pressure.hpp>
 
 #include <std_msgs/msg/string.hpp>
@@ -13,25 +12,23 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_tools/conversions/coordinates.hpp>
 #include <tobas_drone_tools/rotor_axis_extractor.hpp>
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
-#include <tobas_tools/conversions/coordinates.hpp>
 
 #include <tobas_msgs/msg/rotor_speeds.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
-#include <tobas_msgs/msg/fixed_wing_controller_feedback.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_drone_msgs/Drone.hpp>
 #include <tobas_kdl_msgs/Tree.hpp>
+#include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
 
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_fixed_wing_lqd
-{
 struct ControllerParameters
 {
   long forward_speed_weight;
@@ -81,7 +78,7 @@ private:
   // Publishers
   PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
   PublisherPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_pub_;
-  PublisherPtr<tobas_msgs::msg::FixedWingControllerFeedback> feedback_pub_;
+  PublisherPtr<tobas_debug_msgs::msg::FixedWingControllerFeedback> feedback_pub_;
 
   // Subscribers
   SubscriberPtr<tobas::Drone> drone_sub_;
@@ -139,7 +136,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   // Register publishers
   rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);
   deflections_pub_ = createPublisher<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
-  feedback_pub_ = createPublisher<tobas_msgs::msg::FixedWingControllerFeedback>(tobas::kControllerFeedbackTopic);
+  feedback_pub_ = createPublisher<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kControllerFeedbackTopic);
 
   // Register subscribers
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
@@ -311,7 +308,7 @@ void ControllerNode::publishDeflections(const VectorXd& deflections)
 void ControllerNode::publishFeedback(const VectorXd& du)
 {
   const auto& trim = eom_.trimCondition();
-  auto feedback = std::make_unique<tobas_msgs::msg::FixedWingControllerFeedback>();
+  auto feedback = std::make_unique<tobas_debug_msgs::msg::FixedWingControllerFeedback>();
 
   feedback->trim_thrusts.resize(drone_.rotors.size());
   feedback->delta_thrusts.resize(drone_.rotors.size());
@@ -591,6 +588,5 @@ void ControllerNode::commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::Const
 
   cmd_nwu_ = cmd_nwu;
 }
-}  // namespace tobas_fixed_wing_lqd
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_fixed_wing_lqd::ControllerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)

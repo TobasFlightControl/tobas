@@ -10,8 +10,8 @@
 #include <tobas_node/node.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_tools/position_pid.hpp>
-#include <tobas_tools/orientation_pid.hpp>
+#include <tobas_pose_pid/position_pid.hpp>
+#include <tobas_pose_pid/orientation_pid.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.hpp>
@@ -22,16 +22,16 @@
 
 namespace tobas_np_pid
 {
-class ControllerRos : public tobas::BaseNode
+class ControllerNode : public tobas::BaseNode
 {
-  using self = ControllerRos;
+  using self = ControllerNode;
   using super = tobas::BaseNode;
 
   using ConfigType = tobas_np_pid::ControllerConfig;
   using ConfigServer = dynamic_reconfigure::Server<ConfigType>;
 
 public:
-  explicit ControllerRos(
+  explicit ControllerNode(
     rclcpp::Node::SharedPtr node,
     rclcpp::Node::SharedPtr pnh,
     const std::string& name = rclcpp::this_node::getName());
