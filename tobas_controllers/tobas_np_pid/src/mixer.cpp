@@ -1,4 +1,5 @@
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_np_pid/mixer.hpp"
@@ -6,15 +7,15 @@
 using namespace std;
 using namespace Eigen;
 
-namespace tobas_np_pid
+namespace tobas
 {
-Mixer::Mixer(const tobas::Drone& drone)
-  : drone_(drone), fk_solver_(tree_), jnt_axis_solver_(tree_), inertia_solver_(tree_)
+NonPlanarMixer::NonPlanarMixer(const Drone& drone, const kdl::Tree& tree)
+  : drone_(drone), tree_(tree), fk_solver_(tree), jnt_axis_solver_(tree), inertia_solver_(tree)
 {
   updateInternalDataStructures();
 }
 
-void Mixer::updateInternalDataStructures()
+void NonPlanarMixer::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
   jnt_axis_solver_.updateInternalDataStructures();
@@ -34,7 +35,7 @@ void Mixer::updateInternalDataStructures()
   G_.resize(NoChange, drone_.numRotors());
 }
 
-VectorXd Mixer::solve(
+VectorXd NonPlanarMixer::solve(
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
@@ -103,11 +104,9 @@ VectorXd Mixer::solve(
   return qp_.solution();
 }
 
-void Mixer::configure(const MixerConfig& cfg)
+void NonPlanarMixer::configure(const NonPlanarMixerConfig& cfg)
 {
-  if (!drone_.isLoaded())
-    throw runtime_error("Drone is not loaded yet.");
-
+  TOBAS_CHECK(drone_.numRotors() > 0);
   TOBAS_CHECK(cfg.linear_weight > 0);
   TOBAS_CHECK(cfg.angular_weight > 0);
 
@@ -125,4 +124,4 @@ void Mixer::configure(const MixerConfig& cfg)
   Q_.diagonal().tail<3>().fill(cfg.angular_weight / math::sqr(angular_scale));
   R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / math::sqr(thrust_scale));
 }
-}  // namespace tobas_np_pid
+}  // namespace tobas

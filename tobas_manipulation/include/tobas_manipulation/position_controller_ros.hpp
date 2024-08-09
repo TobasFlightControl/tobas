@@ -19,9 +19,7 @@ class PositionControllerRos : public tobas::BaseNode
 
 public:
   explicit PositionControllerRos(
-    rclcpp::Node::SharedPtr node,
-    rclcpp::Node::SharedPtr pnh,
-    const std::string& name = rclcpp::this_node::getName());
+    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas::Drone drone_;

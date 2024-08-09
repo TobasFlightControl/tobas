@@ -28,9 +28,7 @@ class TakeoffActionServer : public tobas::BaseNode
 
 public:
   explicit TakeoffActionServer(
-    rclcpp::Node::SharedPtr node,
-    rclcpp::Node::SharedPtr pnh,
-    const std::string& name = rclcpp::this_node::getName());
+    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ResultType result_;

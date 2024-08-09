@@ -10,9 +10,9 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/rotor_axis_extractor.hpp>
 
-namespace tobas_np_pid
+namespace tobas
 {
-struct MixerConfig
+struct NonPlanarMixerConfig
 {
   double linear_weight;
   double angular_weight;
@@ -22,10 +22,10 @@ struct MixerConfig
 /**
  * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 2-43)
  */
-class Mixer
+class NonPlanarMixer
 {
 public:
-  explicit Mixer(const tobas::Drone& drone);
+  explicit NonPlanarMixer(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
@@ -37,10 +37,11 @@ public:
     const kdl::Vector& tar_acc_W,
     const kdl::Vector& tar_dgyro_B);
 
-  void configure(const MixerConfig& cfg);
+  void configure(const NonPlanarMixerConfig& cfg);
 
 private:
-  const tobas::Drone& drone_;
+  const Drone& drone_;
+  const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeJntAxisSolver jnt_axis_solver_;
@@ -52,4 +53,4 @@ private:
   Eigen::Matrix6Xd G_;                // EoM行列等式の左辺
   Eigen::Vector6d h_;                 // EoM行列等式の右辺
 };
-}  // namespace tobas_np_pid
+}  // namespace tobas
