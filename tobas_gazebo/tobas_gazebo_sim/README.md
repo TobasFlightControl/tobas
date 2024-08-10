@@ -1,4 +1,4 @@
-# tobas_gazebo_resources
+# tobas_gazebo_sim
 
 ## 参考
 

@@ -3,7 +3,7 @@
   <arg name="world_name" default="basic"/>
 
   <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
-    <arg name="gz_args" value="$(find-pkg-share tobas_gazebo_resources)/worlds/$(var world_name).world"/>
+    <arg name="gz_args" value="$(find-pkg-share tobas_gazebo_sim)/worlds/$(var world_name).world"/>
   </include>
 
 </launch>

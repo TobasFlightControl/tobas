@@ -19,7 +19,7 @@
       <uri>models/ground_plane</uri>
 
       <!-- パスを正しく追加していればパッケージからのURI指定も可能． -->
-      <!-- <uri>package://tobas_gazebo_resources/models/ground_plane</uri> -->
+      <!-- <uri>package://tobas_gazebo_sim/models/ground_plane</uri> -->
     </include>
 
   </world>
