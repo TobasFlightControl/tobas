@@ -1,7 +1,0 @@
-<launch>
-
-  <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find tobas_gazebo_ros)/worlds/download_models.world"/>
-  </include>
-
-</launch>

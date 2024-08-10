@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
 
-	<name>tobas_gazebo_ros</name>
+	<name>tobas_gazebo_resources</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -9,12 +9,8 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>ros_control</exec_depend>
-	<exec_depend>ros_controllers</exec_depend>
-
-	<depend>tobas_gazebo_common</depend>
-	<depend>tobas_gazebo_msgs</depend>
-	<depend>tobas_tools</depend>
+	<exec_depend>ros_gz</exec_depend>
+	<exec_depend>gz_sim_vendor</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
