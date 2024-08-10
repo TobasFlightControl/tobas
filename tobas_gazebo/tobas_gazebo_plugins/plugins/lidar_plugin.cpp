@@ -6,7 +6,7 @@
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -42,7 +42,7 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 
   // Custom Callback Queue
   rclcpp::AdvertiseOptions ao = rclcpp::AdvertiseOptions::create<sensor_msgs::msg::PointCloud>(
-    "/" + ns_ + "/" + tobas::kLidarTopic, 1, std::bind(&GazeboLidarPlugin::laserConnect, this),
+    "/" + ns() + "/" + tobas::kLidarTopic, 1, std::bind(&GazeboLidarPlugin::laserConnect, this),
     std::bind(&GazeboLidarPlugin::laserDisconnect, this), rclcpp::VoidPtr(), &laser_queue_);
   pub_ = createPublisher(ao);
 
@@ -86,9 +86,9 @@ void GazeboLidarPlugin::OnNewLaserScans()
   }
 }
 
-void GazeboLidarPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboLidarPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "frameName", frame_name_, kDefaultFrameName);
   getSdfParam(sdf, "gaussianNoiseStddev", noise_stddev_, kDefaultNoiseStddev);
 }

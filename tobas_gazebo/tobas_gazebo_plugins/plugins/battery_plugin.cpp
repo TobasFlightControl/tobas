@@ -28,14 +28,14 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
   registerPubSub();
-  charge_srv_ = createService("/" + ns_ + "/" + kChargeBatterySrv, &self::chargeCb, this);
+  charge_srv_ = createService("/" + ns() + "/" + kChargeBatterySrv, &self::chargeCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
-void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "maxVoltage", max_voltage_, POSITIVE);
   getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
@@ -48,7 +48,7 @@ void GazeboBatteryPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboBatteryPlugin::registerPubSub()
 {
-  const string prefix = "/" + ns_ + "/";
+  const string prefix = "/" + ns() + "/";
 
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(prefix + tobas::kBatteryTopic);
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(prefix + kBatteryGtTopic);

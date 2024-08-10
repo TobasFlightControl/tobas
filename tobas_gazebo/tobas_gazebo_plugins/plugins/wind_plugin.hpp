@@ -37,7 +37,7 @@ class GazeboWindPlugin : public ModelPlugin
   static constexpr double kDefaultGustInterval = 10.;          // [s]
 
   using self = GazeboWindPlugin;
-  using super = ModelPlugin;
+
 
 public:
   explicit GazeboWindPlugin();
@@ -52,10 +52,9 @@ private:
     NO_GUST,
   };
 
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
 
   physics::LinkPtr link_;
@@ -73,7 +72,7 @@ private:
   ServicePtr<> get_params_ss_;
   ServicePtr<> set_params_ss_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);
 
   bool getParamsCb(tobas_gazebo_msgs::GetWindParamsRequest& req, tobas_gazebo_msgs::GetWindParamsResponse& res);

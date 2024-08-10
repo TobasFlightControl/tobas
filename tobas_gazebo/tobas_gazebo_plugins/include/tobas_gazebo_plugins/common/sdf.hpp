@@ -2,7 +2,7 @@
 
 #include <string>
 #include <iostream>
-#include <gazebo/gazebo.hh>
+#include <sdf/sdf.hh>
 
 namespace gazebo
 {
@@ -52,21 +52,17 @@ void checkConstraint(const std::string& name, const T& param, const sdf_constrai
 }
 
 template <typename T>
-void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, T& param)
+void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param)
 {
   if (sdf->HasElement(name))
-  {
     param = sdf->GetElement(name)->Get<T>();
-  }
   else
-  {
     gzthrow("Please specify '" << name << "'.");
-  }
 }
 
 template <typename T>
 void getSdfParam(
-  const sdf::ElementPtr& sdf,
+  const sdf::ElementConstPtr& sdf,
   const std::string& name,
   T& param,
   const T& default_value,
@@ -88,7 +84,7 @@ void getSdfParam(
 }
 
 template <typename T>
-void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, T& param, const sdf_constraint_t& constraint)
+void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const sdf_constraint_t& constraint)
 {
   getSdfParam(sdf, name, param);
   checkConstraint(name, param, constraint);
@@ -96,7 +92,7 @@ void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, T& param, 
 
 template <typename T>
 void getSdfParam(
-  const sdf::ElementPtr& sdf,
+  const sdf::ElementConstPtr& sdf,
   const std::string& name,
   T& param,
   const T& default_value,
@@ -108,15 +104,13 @@ void getSdfParam(
 
 /* SDFからリストを取得． */
 template <typename T>
-void getSdfParam(const sdf::ElementPtr& sdf, const std::string& name, std::vector<T>& params)
+void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params)
 {
   params.clear();
 
   auto list_elem = sdf->GetElement(name);
   if (list_elem == nullptr)
-  {
     gzthrow("Please specify '" << name << "'.");
-  }
 
   auto item_elem = list_elem->GetElement("item");
   while (item_elem)

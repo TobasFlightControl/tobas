@@ -3,8 +3,8 @@
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv, "battery_lpf");
-  rclcpp::NodeHandle node;
-  rclcpp::NodeHandle pnh("~");
+  rclcpp::Node::SharedPtr node;
+  rclcpp::Node::SharedPtr pnh("~");
   tobas_preprocess::BatteryLpf node(node, pnh);
   rclcpp::spin();
 }

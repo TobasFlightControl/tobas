@@ -1,21 +1,9 @@
 #include "../../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
-void timeGazeboToRos(const common::Time& g, rclcpp::Time& r)
-{
-  r.sec = g.sec;
-  r.nsec = g.nsec;
-}
-
-void timeRosToGazebo(const rclcpp::Time& r, common::Time& g)
-{
-  g.sec = r.sec;
-  g.nsec = r.nsec;
-}
-
 void vectorGazeboToRos(const Vector3d& g, geometry_msgs::msg::Vector3& r)
 {
   r.x = g.X();

@@ -2,7 +2,7 @@
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -32,7 +32,7 @@ void GazeboTetherStationVisualPlugin::Load(rendering::VisualPtr visual, sdf::Ele
   update_connection_ = event::Events::ConnectPreRender(std::bind(&self::onUpdate, this));
 }
 
-void GazeboTetherStationVisualPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboTetherStationVisualPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "worldEnd", W_Pos_WP_, Vector3d::Zero);
   getSdfParam(sdf, "droneEnd", B_Pos_BQ_, Vector3d::Zero);

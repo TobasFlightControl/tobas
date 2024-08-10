@@ -22,7 +22,7 @@ class GazeboTetherStationForcePlugin : public ModelPlugin
   static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
 
   using self = GazeboTetherStationForcePlugin;
-  using super = ModelPlugin;
+
 
 public:
   explicit GazeboTetherStationForcePlugin();
@@ -31,13 +31,12 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
-  ignition::math::Vector3d W_Pos_WP_;
-  ignition::math::Vector3d B_Pos_BQ_;
+  gz::math::Vector3d W_Pos_WP_;
+  gz::math::Vector3d B_Pos_BQ_;
   double init_tension_;     // [N]
   double init_max_length_;  // [m]
   double young_;            // [MPa] ヤング率 (Young Modulus)
@@ -56,7 +55,7 @@ private:
   ServicePtr<> get_params_ss_;
   ServicePtr<> set_params_ss_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);
 
   bool isThis(const std::string& name);

@@ -12,7 +12,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -43,15 +43,15 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   init_bias_ = init_bias_dist.get();
 
   // Advertise publisher
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>("/" + ns_ + "/" + tobas::kMagTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>("/" + ns() + "/" + tobas::kMagTopic);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboMagnetometerPlugin::onUpdate, this));
 }
 
-void GazeboMagnetometerPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, zero3);
 
@@ -91,7 +91,7 @@ void GazeboMagnetometerPlugin::onUpdate()
   publishMagMsg(field_B);
 }
 
-void GazeboMagnetometerPlugin::publishMagMsg(const ignition::math::Vector3d& field) const
+void GazeboMagnetometerPlugin::publishMagMsg(const gz::math::Vector3d& field) const
 {
   const auto mag_msg =std::make_unique<tobas_msgs::MagneticField>();
 

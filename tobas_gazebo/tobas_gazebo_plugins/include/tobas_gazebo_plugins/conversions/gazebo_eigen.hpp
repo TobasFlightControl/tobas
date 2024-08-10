@@ -1,12 +1,12 @@
 #pragma once
 
 #include <eigen3/Eigen/Core>
-#include <gazebo/gazebo.hh>
+#include <gz/math/Vector3.hh>
 
 namespace gazebo
 {
 template <typename T>
-void vectorGazeboToEigen(const ignition::math::Vector3<T>& g, Eigen::Matrix<T, 3, 1>& e)
+void vectorGazeboToEigen(const gz::math::Vector3<T>& g, Eigen::Matrix<T, 3, 1>& e)
 {
   e.x() = g.X();
   e.y() = g.Y();
@@ -14,7 +14,7 @@ void vectorGazeboToEigen(const ignition::math::Vector3<T>& g, Eigen::Matrix<T, 3
 }
 
 template <typename T>
-void vectorEigenToGazebo(const Eigen::Matrix<T, 3, 1>& e, ignition::math::Vector3<T>& g)
+void vectorEigenToGazebo(const Eigen::Matrix<T, 3, 1>& e, gz::math::Vector3<T>& g)
 {
   g.X() = e.x();
   g.Y() = e.y();

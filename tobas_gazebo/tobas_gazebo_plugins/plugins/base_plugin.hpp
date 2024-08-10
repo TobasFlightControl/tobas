@@ -13,7 +13,7 @@ class GazeboBasePlugin : public ModelPlugin
   // Constants
   static constexpr char kPluginName[] = "base_plugin";
 
-  using super = ModelPlugin;
+
 
 public:
   explicit GazeboBasePlugin();
@@ -22,10 +22,9 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::vector<std::string> rotor_joint_names_;
 
   // Gazebo objects
@@ -36,7 +35,7 @@ private:
   // PubSub
   PublisherPtr<> rotor_speeds_pub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void onUpdate(const common::UpdateInfo& info);
   void registerPubSub();
 };

@@ -14,7 +14,7 @@
 #include "../include/tobas_gazebo_plugins/time.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -59,9 +59,9 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&GazeboFixedWingPlugin::onUpdate, this, _1));
 }
 
-void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
 
@@ -148,12 +148,12 @@ void GazeboFixedWingPlugin::getSdfParams(sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::FixedWingDebug>("/" + ns_ + "/" + kDebugPubTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::FixedWingDebug>("/" + ns() + "/" + kDebugPubTopic);
 
   deflections_sub_ = createSubscriber(
-    "/" + ns_ + "/" + tobas::kDeflectionCmdTopic, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
+    "/" + ns() + "/" + tobas::kDeflectionCmdTopic, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_sub_ =
-    createSubscriber("/" + ns_ + "/" + kWindGtTopic, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
+    createSubscriber("/" + ns() + "/" + kWindGtTopic, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)

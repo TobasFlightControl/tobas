@@ -37,10 +37,9 @@ protected:
   void OnNewLaserScans() override;
 
 private:
-  rclcpp::NodeHandle node_;  // pointer to ros node
+  rclcpp::Node::SharedPtr node_;  // pointer to ros node
 
   // SDF parameters
-  std::string ns_;
   std::string frame_name_;  // frame transform name, should match link name
   double noise_stddev_;     // Gaussian noise
 
@@ -58,7 +57,7 @@ private:
 
   PublisherPtr<> pub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void putLaserData(const common::Time& update_time);
   void laserConnect();
   void laserDisconnect();

@@ -2,7 +2,7 @@
 
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {

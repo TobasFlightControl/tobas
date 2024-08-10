@@ -7,7 +7,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -40,9 +40,9 @@ void GazeboBasePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&GazeboBasePlugin::onUpdate, this, _1));
 }
 
-void GazeboBasePlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboBasePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "rotorJointNames", rotor_joint_names_);
 }
 
@@ -62,7 +62,7 @@ void GazeboBasePlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboBasePlugin::registerPubSub()
 {
-  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>("/" + ns_ + "/" + tobas::kRotorSpeedsTopic);
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>("/" + ns() + "/" + tobas::kRotorSpeedsTopic);
 }
 
 GZ_REGISTER_MODEL_PLUGIN(GazeboBasePlugin);

@@ -32,7 +32,7 @@ class GazeboImuPlugin : public SensorPlugin
   static constexpr double kDefaultGyroLpfCutoffFreq = 20.;
 
   using self = GazeboImuPlugin;
-  using super = SensorPlugin;
+
 
 public:
   explicit GazeboImuPlugin();
@@ -40,12 +40,11 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
-  SdfVector3 offset_;               // B_Pos_BS
+  math::Vector3d offset_;               // B_Pos_BS
   double acc_noise_density_sig_;    // Accel noise density actually added to signal [m/s^2/sqrt(Hz)]
   double acc_noise_density_obs_;    // Accel noise density that is observerd [m/s^2/sqrt(Hz)]
   double acc_random_walk_;          // Accel bias random walk [m/s^2/s/sqrt(Hz)]
@@ -63,9 +62,9 @@ private:
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
   common::Time last_time_ = common::Time(0);
-  ignition::math::Vector3d acc_bias_ = zero3, gyro_bias_ = zero3;
-  ignition::math::Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;
-  dsp::LowPassFilter<ignition::math::Vector3d> acc_lpf_, gyro_lpf_;  // Internal LPF
+  gz::math::Vector3d acc_bias_ = zero3, gyro_bias_ = zero3;
+  gz::math::Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;
+  dsp::LowPassFilter<gz::math::Vector3d> acc_lpf_, gyro_lpf_;  // Internal LPF
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -74,9 +73,9 @@ private:
   PublisherPtr<> imu_pub_;
   PublisherPtr<> debug_pub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void onUpdate();
-  void addNoise(ignition::math::Vector3d& acc, ignition::math::Vector3d& gyro, const double& dt);
+  void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
   void publishImuMsg(const double& dt) const;
   void publishDebugMsg() const;
 };

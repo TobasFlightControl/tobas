@@ -9,7 +9,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -34,15 +34,15 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
   // Advertise publisher
-  odom_pub_ = createPublisher<tobas_msgs::Odometry>("/" + ns_ + "/" + kOdometryGtTopic);
+  odom_pub_ = createPublisher<tobas_msgs::Odometry>("/" + ns() + "/" + kOdometryGtTopic);
 
   // Listen to the update event
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
-void GazeboGroundTruthStatePlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
 }
 

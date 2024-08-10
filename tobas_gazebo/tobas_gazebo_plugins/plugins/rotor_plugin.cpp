@@ -15,7 +15,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -59,7 +59,7 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "motorNumber", motor_number_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "jointName", joint_name_);
@@ -129,12 +129,12 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   // Check topics
   if (battery_ == nullptr)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns_ << "/" << kBatteryGtTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns() << "/" << kBatteryGtTopic << " is not received yet.");
     return;
   }
   if (!wind_received_)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns_ << "/" << kWindGtTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns() << "/" << kWindGtTopic << " is not received yet.");
     return;
   }
 
@@ -174,7 +174,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboRotorPlugin::registerPubSub()
 {
-  const string prefix = "/" + ns_ + "/";
+  const string prefix = "/" + ns() + "/";
   const string suffix = "_" + to_string(motor_number_);
 
   rotor_state_pub_ = createPublisher<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix);

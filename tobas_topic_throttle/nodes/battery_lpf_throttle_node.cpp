@@ -3,7 +3,7 @@
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv, "battery_lpf_throttle");
-  rclcpp::NodeHandle node;
+  rclcpp::Node::SharedPtr node;
   tobas_topic_throttle::BatteryLPFThrottle node(node);
   rclcpp::spin();
 }

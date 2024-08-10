@@ -3,8 +3,8 @@
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv, "esc_calibration");
-  rclcpp::NodeHandle node;
-  rclcpp::NodeHandle pnh("~");
+  rclcpp::Node::SharedPtr node;
+  rclcpp::Node::SharedPtr pnh("~");
   tobas_calibration::EscCalibrationRos node(node, pnh);
   rclcpp::spin();
 }

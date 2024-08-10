@@ -6,7 +6,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -31,16 +31,16 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   if (link_ == nullptr)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
-  wind_pub_ = createPublisher<tobas_msgs::Wind>("/" + ns_ + "/" + kWindGtTopic);
-  get_params_ss_ = createService("/" + ns_ + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = createService("/" + ns_ + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
+  wind_pub_ = createPublisher<tobas_msgs::Wind>("/" + ns() + "/" + kWindGtTopic);
+  get_params_ss_ = createService("/" + ns() + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = createService("/" + ns() + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
-void GazeboWindPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
 }
 

@@ -67,7 +67,7 @@ private:
   void onNewImageFrame(const uint8_t* image, size_t width, size_t height, size_t depth, const std::string& format);
   void onNewDepthFrame(const float* image, size_t width, size_t height, size_t depth, const std::string& format);
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void setNoiseModel();
   void advertise();
   void depthImageConnect();

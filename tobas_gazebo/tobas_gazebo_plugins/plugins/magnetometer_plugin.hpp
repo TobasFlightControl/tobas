@@ -17,7 +17,7 @@ class GazeboMagnetometerPlugin : public SensorPlugin
   static constexpr char kPluginName[] = "magnetometer_plugin";
 
   using self = GazeboMagnetometerPlugin;
-  using super = SensorPlugin;
+
 
 public:
   explicit GazeboMagnetometerPlugin();
@@ -25,24 +25,23 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
-  SdfVector3 offset_;                      // [m] B_Pos_BS
+  math::Vector3d offset_;                      // [m] B_Pos_BS
   double lat_0_;                           // [deg] 原点の北緯
   double lon_0_;                           // [deg] 原点の東経
   double alt_0_;                           // [m] 原点の高度
-  SdfVector3 noise_normal_;                // [nT]
-  SdfVector3 noise_uniform_initial_bias_;  // [nT]
+  math::Vector3d noise_normal_;                // [nT]
+  math::Vector3d noise_uniform_initial_bias_;  // [nT]
 
   physics::WorldPtr world_;
   physics::ModelPtr model_;
   physics::LinkPtr link_;
   event::ConnectionPtr update_connection_;
 
-  ignition::math::Vector3d init_bias_;  // [nT] 世界座標系の地磁気に加わるバイアス
+  gz::math::Vector3d init_bias_;  // [nT] 世界座標系の地磁気に加わるバイアス
   double lat_, lon_;                    // [deg] 現在位置の経緯度
 
   std::random_device rnd_dev_;
@@ -50,8 +49,8 @@ private:
 
   PublisherPtr<> mag_pub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void onUpdate();
-  void publishMagMsg(const ignition::math::Vector3d& field) const;
+  void publishMagMsg(const gz::math::Vector3d& field) const;
 };
 }  // namespace gazebo

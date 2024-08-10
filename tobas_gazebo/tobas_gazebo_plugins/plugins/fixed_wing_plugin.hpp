@@ -35,7 +35,7 @@ class GazeboFixedWingPlugin : public ModelPlugin
   static constexpr double kDefaultUpperStallAngle = 20. * tobas::kDeg2Rad;
 
   using self = GazeboFixedWingPlugin;
-  using super = ModelPlugin;
+
 
 public:
   explicit GazeboFixedWingPlugin();
@@ -44,10 +44,9 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
   double alt_0_;  // 基準点の幾何的高度
   tobas::VehicleParameters vehicle_params_;
@@ -61,7 +60,7 @@ private:
   common::Time prev_sim_time_;
   common::Time last_cmd_time_;
   bool is_initialized_ = false;
-  ignition::math::Vector3d wind_vel_W_ = zero3;                   // 風速 [m/s]
+  gz::math::Vector3d wind_vel_W_ = zero3;                   // 風速 [m/s]
   tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr cs_deflections_;  // 舵角 [rad]
 
   physics::LinkPtr link_;
@@ -72,12 +71,12 @@ private:
   SubscriberPtr<> deflections_sub_;
   SubscriberPtr<> wind_sub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
   void updateDeflections(const double& dt);
-  ignition::math::Vector3d nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta);
-  ignition::math::Vector3d
+  gz::math::Vector3d nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta);
+  gz::math::Vector3d
   nonDimentionalAeroCoefs_Moment(const double& alpha, const double& beta, const double& alpha_rate, const double& V);
   double liftCoefficient(const double& alpha);
   double dragCoefficient(const double& alpha);

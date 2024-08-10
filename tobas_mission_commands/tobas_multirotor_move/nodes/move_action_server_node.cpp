@@ -3,8 +3,8 @@
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv, "move_action_server");
-  rclcpp::NodeHandle node;
-  rclcpp::NodeHandle pnh("~");
+  rclcpp::Node::SharedPtr node;
+  rclcpp::Node::SharedPtr pnh("~");
   tobas_multirotor_move::MoveActionServer node(node, pnh);
   rclcpp::spin();
 }

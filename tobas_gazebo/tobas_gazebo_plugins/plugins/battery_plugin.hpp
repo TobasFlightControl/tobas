@@ -21,7 +21,7 @@ class GazeboBatteryPlugin : public ModelPlugin
   static constexpr double kDefaultCurrentNoiseStddev = 0.;   // [A]
 
   using self = GazeboBatteryPlugin;
-  using super = ModelPlugin;
+
 
 public:
   explicit GazeboBatteryPlugin();
@@ -30,10 +30,9 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   double max_voltage_;  // [V] 満充電時の電圧
   double sag_voltage_;  // [V] 放電特性が急激に変化する電圧．LiPoなら1セルあたり3.4Vくらい．
   double max_current_;  // [A] 最大電流
@@ -65,7 +64,7 @@ private:
   // Service servers
   ServicePtr<> charge_srv_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
   void onUpdate(const common::UpdateInfo& info);
   double currentVoltage();

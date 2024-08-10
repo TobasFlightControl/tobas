@@ -3,8 +3,8 @@
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv, "latency_publisher");
-  rclcpp::NodeHandle node;
-  rclcpp::NodeHandle pnh("~");
+  rclcpp::Node::SharedPtr node;
+  rclcpp::Node::SharedPtr pnh("~");
   tobas_latency_publisher::LatencyPublisher node(node, pnh);
   rclcpp::spin();
 }

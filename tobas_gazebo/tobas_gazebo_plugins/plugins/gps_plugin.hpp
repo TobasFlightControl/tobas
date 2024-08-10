@@ -31,9 +31,9 @@ class GazeboGpsPlugin : public SensorPlugin
   static constexpr double kDefaultVerVelStdDev = 0.1;   // [m/s]
 
   using self = GazeboGpsPlugin;
-  using super = SensorPlugin;
+
   using HistoryType =
-    std::tuple<common::Time, ignition::math::Pose3d, ignition::math::Vector3d, ignition::math::Vector3d>;
+    std::tuple<common::Time, gz::math::Pose3d, gz::math::Vector3d, gz::math::Vector3d>;
 
 public:
   explicit GazeboGpsPlugin();
@@ -41,12 +41,11 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
-  SdfVector3 offset_;   // B_Pos_BS
+  math::Vector3d offset_;   // B_Pos_BS
   double update_rate_;  // 更新頻度 [Hz]
   double delay_;        // GPSの遅延時間 [s]
   double pos_corr_time_;
@@ -65,7 +64,7 @@ private:
   std::deque<HistoryType> history_;
   bool is_history_filled_;
   common::Time t_last_loop_, t_last_publish_;
-  ignition::math::Vector3d pos_bias_ = zero3;
+  gz::math::Vector3d pos_bias_ = zero3;
 
   std::random_device rnd_dev_;
   NormalDistribution3dPtr dpos_noise_;
@@ -74,16 +73,16 @@ private:
   // Publishers
   PublisherPtr<> gps_pub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void setRandomDistribuitons();
   void registerPublishers();
   void onUpdate();
   void fillCovariances(tobas_msgs::Gps& gps_msg);
-  void updatePosition(tobas_msgs::Gps& gps_msg, const ignition::math::Pose3d& T_W_B);
+  void updatePosition(tobas_msgs::Gps& gps_msg, const gz::math::Pose3d& T_W_B);
   void updateVelocity(
     tobas_msgs::Gps& gps_msg,
-    const ignition::math::Quaterniond& W_Rot_B,
-    const ignition::math::Vector3d& W_Linvel_WB,
-    const ignition::math::Vector3d& B_Angvel_WB);
+    const gz::math::Quaterniond& W_Rot_B,
+    const gz::math::Vector3d& W_Linvel_WB,
+    const gz::math::Vector3d& B_Angvel_WB);
 };
 }  // namespace gazebo

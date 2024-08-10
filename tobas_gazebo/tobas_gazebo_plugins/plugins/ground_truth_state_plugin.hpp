@@ -15,7 +15,7 @@ class GazeboGroundTruthStatePlugin : public ModelPlugin
   static constexpr char kPluginName[] = "ground_truth_state_plugin";
 
   using self = GazeboGroundTruthStatePlugin;
-  using super = ModelPlugin;
+
 
 public:
   explicit GazeboGroundTruthStatePlugin();
@@ -23,10 +23,9 @@ public:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
 
   physics::WorldPtr world_;
@@ -36,7 +35,7 @@ private:
 
   PublisherPtr<> odom_pub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void onUpdate(const common::UpdateInfo&);
 };
 }  // namespace gazebo

@@ -33,7 +33,7 @@ class GazeboRotorPlugin : public ModelPlugin
   static constexpr double kDefaultMaxModelErrorRate = 0.;
 
   using self = GazeboRotorPlugin;
-  using super = ModelPlugin;
+
 
 public:
   explicit GazeboRotorPlugin();
@@ -42,14 +42,13 @@ protected:
   void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   size_t motor_number_;
   std::string link_name_;
   std::string joint_name_;
-  SdfVector2 rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
+  math::Vector2d rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
   double motor_const_;
   double moment_const_;
   double rotor_drag_coef_;
@@ -64,7 +63,7 @@ private:
 
   double cmd_rot_speed_ = 0.;  // [rad/s]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
-  ignition::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
+  gz::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
   common::Time prev_sim_time_;
   common::Time last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   common::Time disarm_start_time_ = common::Time::Maximum();  // Disarmコマンドの開始時刻

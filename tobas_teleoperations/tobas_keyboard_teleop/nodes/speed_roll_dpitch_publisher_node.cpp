@@ -3,8 +3,8 @@
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv, "keyboard_teleop");
-  rclcpp::NodeHandle node;
-  rclcpp::NodeHandle pnh("~");
+  rclcpp::Node::SharedPtr node;
+  rclcpp::Node::SharedPtr pnh("~");
   tobas_keyboard_teleop::SpeedRollDeltaPitchPublisher node(node, pnh);
   node.run();
 }

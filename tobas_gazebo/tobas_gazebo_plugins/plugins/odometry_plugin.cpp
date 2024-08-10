@@ -37,9 +37,9 @@ void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboOdometryPlugin::onUpdate, this));
 }
 
-void GazeboOdometryPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboOdometryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, zero3);
@@ -76,7 +76,7 @@ void GazeboOdometryPlugin::setRandomDistributions()
 
 void GazeboOdometryPlugin::registerPublishers()
 {
-  odometry_pub_ = createPublisher<nav_msgs::Odometry>("/" + ns_ + "/" + tobas::kExternalOdomTopic);
+  odometry_pub_ = createPublisher<nav_msgs::Odometry>("/" + ns() + "/" + tobas::kExternalOdomTopic);
 }
 
 void GazeboOdometryPlugin::onUpdate()
@@ -87,7 +87,7 @@ void GazeboOdometryPlugin::onUpdate()
   const auto B_Angvel_WB = link_->RelativeAngularVel();
 
   // センサフレームに変換
-  const ignition::math::Pose3d T_B_S(offset_, ignition::math::Quaterniond::Identity);
+  const gz::math::Pose3d T_B_S(offset_, gz::math::Quaterniond::Identity);
   auto T_W_S = T_W_B * T_B_S;
   auto B_Linvel_WS = B_Linvel_WB + B_Angvel_WB.Cross(offset_);
   auto B_Angvel_WS = B_Angvel_WB;  // オフセットが並進のみならば角速度は同じ
@@ -117,9 +117,9 @@ void GazeboOdometryPlugin::onUpdate()
 }
 
 void GazeboOdometryPlugin::addNoise(
-  ignition::math::Pose3d& pose,
-  ignition::math::Vector3d& linvel,
-  ignition::math::Vector3d& angvel) const
+  gz::math::Pose3d& pose,
+  gz::math::Vector3d& linvel,
+  gz::math::Vector3d& angvel) const
 {
   // Add position noise
   pose.Pos() += position_n_->get() + position_u_->get();
@@ -138,9 +138,9 @@ void GazeboOdometryPlugin::addNoise(
 }
 
 void GazeboOdometryPlugin::publishOdomMsg(
-  ignition::math::Pose3d& pose,
-  ignition::math::Vector3d& linvel,
-  ignition::math::Vector3d& angvel) const
+  gz::math::Pose3d& pose,
+  gz::math::Vector3d& linvel,
+  gz::math::Vector3d& angvel) const
 {
   const auto odom_msg =std::make_unique<nav_msgs::Odometry>();
 

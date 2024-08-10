@@ -8,7 +8,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -32,9 +32,9 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
 }
 
-void GazeboGpsPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboGpsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
 
   getSdfParam(sdf, "offset", offset_, zero3);
@@ -68,7 +68,7 @@ void GazeboGpsPlugin::setRandomDistribuitons()
 
 void GazeboGpsPlugin::registerPublishers()
 {
-  gps_pub_ = createPublisher<tobas_msgs::Gps>("/" + ns_ + "/" + tobas::kGpsTopic);
+  gps_pub_ = createPublisher<tobas_msgs::Gps>("/" + ns() + "/" + tobas::kGpsTopic);
 }
 
 void GazeboGpsPlugin::onUpdate()

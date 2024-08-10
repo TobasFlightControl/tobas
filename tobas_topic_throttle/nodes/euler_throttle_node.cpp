@@ -3,7 +3,7 @@
 int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv, "euler_throttle");
-  rclcpp::NodeHandle node;
+  rclcpp::Node::SharedPtr node;
   tobas_topic_throttle::EulerThrottle node(node);
   rclcpp::spin();
 }

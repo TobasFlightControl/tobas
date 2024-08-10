@@ -110,7 +110,7 @@ void GazeboNoisyDepthPlugin::onNewDepthFrame(
   publishCameraInfo();
 }
 
-void GazeboNoisyDepthPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboNoisyDepthPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "irImageTopic", image_topic_name_, kDefaultIrImageTopic);
   getSdfParam(sdf, "irInfoTopic", camera_info_topic_name_, kDefaultIrInfoTopic);

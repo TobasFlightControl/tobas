@@ -4,7 +4,7 @@
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -27,16 +27,16 @@ void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementP
   if (link_ == nullptr)
     gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
 
-  contacts_sub_ = createSubscriber("/" + ns_ + "/" + kContactStatesTopic, &self::contactStatesCb, this);
-  get_params_ss_ = createService("/" + ns_ + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = createService("/" + ns_ + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
+  contacts_sub_ = createSubscriber("/" + ns() + "/" + kContactStatesTopic, &self::contactStatesCb, this);
+  get_params_ss_ = createService("/" + ns() + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = createService("/" + ns() + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
-void GazeboTetherStationForcePlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "worldEnd", W_Pos_WP_, zero3);
   getSdfParam(sdf, "droneEnd", B_Pos_BQ_, zero3);
@@ -50,7 +50,7 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
 {
   if (contacts_ == nullptr)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns_ << "/" << kContactStatesTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns() << "/" << kContactStatesTopic << " is not received yet.");
     return;
   }
 

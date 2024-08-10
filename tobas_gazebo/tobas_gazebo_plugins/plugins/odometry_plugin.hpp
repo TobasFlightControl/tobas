@@ -19,7 +19,7 @@ class GazeboOdometryPlugin : public SensorPlugin
   // Default values
   static constexpr double kDefaultCovarianceImageScale = 1.;
 
-  using super = SensorPlugin;
+
 
 public:
   explicit GazeboOdometryPlugin();
@@ -27,20 +27,19 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::NodeHandle node_;
+  rclcpp::Node::SharedPtr node_;
 
   // SDF parameters
-  std::string ns_;
   std::string link_name_;
-  SdfVector3 offset_;  // B_Pos_BS
-  SdfVector3 noise_normal_position_;
-  SdfVector3 noise_normal_rotation_;
-  SdfVector3 noise_normal_linvel_;
-  SdfVector3 noise_normal_angvel_;
-  SdfVector3 noise_uniform_position_;
-  SdfVector3 noise_uniform_rotation_;
-  SdfVector3 noise_uniform_linvel_;
-  SdfVector3 noise_uniform_angvel_;
+  math::Vector3d offset_;  // B_Pos_BS
+  math::Vector3d noise_normal_position_;
+  math::Vector3d noise_normal_rotation_;
+  math::Vector3d noise_normal_linvel_;
+  math::Vector3d noise_normal_angvel_;
+  math::Vector3d noise_uniform_position_;
+  math::Vector3d noise_uniform_rotation_;
+  math::Vector3d noise_uniform_linvel_;
+  math::Vector3d noise_uniform_angvel_;
   cv::Mat covariance_image_;
   double cov_image_scale_;
 
@@ -61,12 +60,12 @@ private:
 
   PublisherPtr<> odometry_pub_;
 
-  void getSdfParams(sdf::ElementPtr sdf);
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
   void setRandomDistributions();
   void registerPublishers();
   void onUpdate();
-  void addNoise(ignition::math::Pose3d& pose, ignition::math::Vector3d& linvel, ignition::math::Vector3d& angvel) const;
-  void publishOdomMsg(ignition::math::Pose3d& pose, ignition::math::Vector3d& linvel, ignition::math::Vector3d& angvel)
+  void addNoise(gz::math::Pose3d& pose, gz::math::Vector3d& linvel, gz::math::Vector3d& angvel) const;
+  void publishOdomMsg(gz::math::Pose3d& pose, gz::math::Vector3d& linvel, gz::math::Vector3d& angvel)
     const;
 };
 }  // namespace gazebo

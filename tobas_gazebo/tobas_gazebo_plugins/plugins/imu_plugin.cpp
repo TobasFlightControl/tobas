@@ -9,7 +9,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -44,16 +44,16 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, zero3);
 
   // Advertise
-  imu_pub_ = createPublisher<tobas_msgs::Imu>("/" + ns_ + "/" + tobas::kImuTopic);
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::ImuDebug>("/" + ns_ + "/" + kDebugPubTopic);
+  imu_pub_ = createPublisher<tobas_msgs::Imu>("/" + ns() + "/" + tobas::kImuTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::ImuDebug>("/" + ns() + "/" + kDebugPubTopic);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
 }
 
-void GazeboImuPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, zero3);
 

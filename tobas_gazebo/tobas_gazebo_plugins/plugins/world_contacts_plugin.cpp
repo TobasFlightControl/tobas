@@ -6,7 +6,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {
@@ -23,14 +23,14 @@ void GazeboWorldContactsPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sd
   contact_manager_ = model->GetWorld()->Physics()->GetContactManager();
   contact_manager_->SetNeverDropContacts(true);  // 購読者がいなくても接触情報を保持するようにする
 
-  contacts_pub_ = createPublisher<tobas_gazebo_msgs::ContactStates>("/" + ns_ + "/" + kContactStatesTopic);
+  contacts_pub_ = createPublisher<tobas_gazebo_msgs::ContactStates>("/" + ns() + "/" + kContactStatesTopic);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
-void GazeboWorldContactsPlugin::getSdfParams(sdf::ElementPtr sdf)
+void GazeboWorldContactsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  getSdfParam(sdf, "robotNamespace", ns());
 }
 
 void GazeboWorldContactsPlugin::onUpdate(const common::UpdateInfo& info)
