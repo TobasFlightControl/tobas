@@ -113,7 +113,7 @@ PropertyClient::error_t PropertyClient::set(const string& key, const float& valu
 PropertyClient::error_t PropertyClient::save(const rclcpp::Duration& timeout)
 {
   auto client = node_->create_client<Trigger>(path::join(ns_, kSaveFileSrv));
-  if (!client->wait_for_service(timeout.to_chrono<chrono::milliseconds>()))
+  if (!client->wait_for_service(timeout.to_chrono<chrono::nanoseconds>()))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   const auto req = make_shared<Trigger::Request>();

@@ -10,7 +10,7 @@
 #include <tobas_tools/esc.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/Wind.hpp>
-#include <tobas_gazebo_msgs/Throttle.h>
+#include <tobas_gazebo_msgs/msg/throttle.hpp>
 
 #include "../include/tobas_gazebo_plugins/common.hpp"
 #include "../include/tobas_gazebo_plugins/first_order_filter.hpp"
@@ -97,7 +97,7 @@ private:
   double rotSpeedFromVoltage(const double& voltage);
   double rotSpeedFromERPM(const double& erpm);
 
-  void throttleCmdCb(const tobas_gazebo_msgs::Throttle::ConstSharedPtr& msg);
+  void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
   void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind);
 };

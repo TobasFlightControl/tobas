@@ -16,7 +16,7 @@ DShotDriver::DShotDriver(, const std::string& name) : super(node, pnh, name)
   enable_rcout_srv_ = createService(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
 }
 
-void DShotDriver::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& throttles)
+void DShotDriver::throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& throttles)
 {
   // Set throttles of each channel
   for (const auto& elem : throttles->throttles)
@@ -51,7 +51,7 @@ void DShotDriver::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& t
     TOBAS_ERROR("Failed to send DSHOT command.");
 }
 
-bool DShotDriver::enableRCOutputCb(tobas_msgs::EnableRCOutputRequest& req, tobas_msgs::EnableRCOutputResponse& res)
+bool DShotDriver::enableRCOutputCb(tobas_msgs::srv::EnableRCOutput::Request& req, tobas_msgs::srv::EnableRCOutput::Response& res)
 {
   if (req.channel >= DShot::kChannelSize)
   {

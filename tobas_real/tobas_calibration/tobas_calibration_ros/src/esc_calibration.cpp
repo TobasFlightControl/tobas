@@ -2,9 +2,9 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_ros/common.hpp>
-#include <tobas_msgs/ThrottleArray.h>
+#include <tobas_msgs/msg/throttle_array.hpp>
 #include <tobas_msgs/GetArm.h>
-#include <tobas_msgs/EnableRCOutput.h>
+#include <tobas_msgs/srv/enable_rc_output.hpp>
 
 #include "../include/tobas_calibration_ros/esc_calibration.hpp"
 
@@ -17,7 +17,7 @@ EscCalibrationRos::EscCalibrationRos(const rclcpp::NodeOptions& options)
 {
 
 
-  throttles_pub_ = createPublisher<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic);
+  throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
   get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
   enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
@@ -40,9 +40,9 @@ void EscCalibrationRos::sendMinimum()
 
 void EscCalibrationRos::setThrottle(const double& throttle)
 {
-  const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
+  const auto throttles =std::make_unique<tobas_msgs::msg::ThrottleArray>();
   throttles->header.stamp = get_clock()->now();
-  for (const auto& rotor : drone_.rotorConfigs())
+  for (const auto& rotor : drone_.rotors)
     throttles->throttles.emplace_back(rotor.channel, throttle);
   throttles_pub_->publish(throttles);
 }
@@ -75,7 +75,7 @@ bool EscCalibrationRos::enableRCOutput(bool enable)
   tobas_msgs::EnableRCOutput enable_rcout_msg;
   enable_rcout_msg.request.enable = enable;
 
-  for (const auto& rotor : drone_.rotorConfigs())
+  for (const auto& rotor : drone_.rotors)
   {
     enable_rcout_msg.request.channel = rotor.channel;
 

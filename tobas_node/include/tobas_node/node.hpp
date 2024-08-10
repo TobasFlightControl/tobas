@@ -88,8 +88,8 @@ protected:
       const std::shared_ptr<typename SrvType::Response>&),
     Obj* obj);
 
-  template <typename DurationRepType, typename DurationType, typename Obj>
-  TimerPtr createTimer(std::chrono::duration<DurationRepType, DurationType> period, void (Obj::*fp)(void), Obj* obj);
+  template <typename RepType, typename DurType, typename Obj>
+  TimerPtr createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj);
 
   template <typename... Args>
   void log(uint8_t level, const Args&... args) const;
@@ -235,9 +235,9 @@ BaseNode::ServicePtr<SrvType> BaseNode::createService(
   return create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
 }
 
-template <typename DurationRepT, typename DurationT, typename Obj>
+template <typename RepType, typename DurationT, typename Obj>
 BaseNode::TimerPtr
-BaseNode::createTimer(std::chrono::duration<DurationRepT, DurationT> period, void (Obj::*fp)(void), Obj* obj)
+BaseNode::createTimer(std::chrono::duration<RepType, DurationT> period, void (Obj::*fp)(void), Obj* obj)
 {
   return create_timer(period, bind(fp, obj));
 }

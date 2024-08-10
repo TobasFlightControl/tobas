@@ -15,16 +15,17 @@ public:
 
   bool call(const SrvType::Request::SharedPtr& req, const rclcpp::Duration& timeout = rclcpp::Duration(-1, 0))
   {
-    if (!client_->wait_for_service(timeout.to_chrono<chrono::milliseconds>()))
+    if (!client_->wait_for_service(timeout.to_chrono<std::chrono::nanoseconds>()))
     {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to connect to " << srv_name << " server.");
+      RCLCPP_ERROR_STREAM(
+        node_->get_logger(), "Failed to connect to \"" << client_->get_service_name() << "\" server.");
       return false;
     }
 
     auto id = client_->async_send_request(req);
     if (rclcpp::spin_until_future_complete(node_, id) != rclcpp::FutureReturnCode::SUCCESS)
     {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to call " << srv_name << " service.");
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to call \"" << client_->get_service_name() << "\".");
       return false;
     }
 
@@ -33,7 +34,7 @@ public:
     return true;
   }
 
-  inline const SrvType::Response::SharedPtr& getResult() const
+  inline const SrvType::Response::SharedPtr& getResponse() const
   {
     return res_;
   }

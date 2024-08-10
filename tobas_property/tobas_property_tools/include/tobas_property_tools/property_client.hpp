@@ -68,7 +68,7 @@ template <typename SrvType, const char* SrvName, typename T>
 PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& value, const rclcpp::Duration& timeout)
 {
   auto client = node_->create_client<SrvType>(path::join(ns_, SrvName));
-  if (!client->wait_for_service(timeout.to_chrono<std::chrono::milliseconds>()))
+  if (!client->wait_for_service(timeout.to_chrono<std::chrono::nanoseconds>()))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   const auto req = std::make_shared<typename SrvType::Request>();
@@ -95,7 +95,7 @@ template <typename SrvType, const char* SrvName, typename T>
 PropertyClient::error_t PropertyClient::setProperty(const std::string& key, T& value, const rclcpp::Duration& timeout)
 {
   auto client = node_->create_client<SrvType>(path::join(ns_, SrvName));
-  if (!client->wait_for_service(timeout.to_chrono<std::chrono::milliseconds>()))
+  if (!client->wait_for_service(timeout.to_chrono<std::chrono::nanoseconds>()))
     return error_code_ = E_FAILED_TO_CONNECT;
 
   const auto req = std::make_shared<typename SrvType::Request>();

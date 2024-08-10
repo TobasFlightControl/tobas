@@ -315,7 +315,7 @@ double GazeboRotorPlugin::rotSpeedFromERPM(const double& erpm)
   return tobas_std::rpm2rps(erpm * 2 / num_poles_);
 }
 
-void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::Throttle::ConstSharedPtr& msg)
+void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
   if (battery_ == nullptr || battery_->voltage < kMinBatteryVoltage)

@@ -13,7 +13,7 @@ LatencyPublisher::LatencyPublisher(const rclcpp::NodeOptions& options) : super(n
   throttles_sub_ = createSubscriber(tobas::kThrottlesCmdTopic, &self::throttlesCb, this);
 }
 
-void LatencyPublisher::throttlesCb(const tobas_msgs::ThrottleArray::ConstSharedPtr& msg)
+void LatencyPublisher::throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& msg)
 {
   const auto latency =std::make_unique<tobas_msgs::Latency>();
   const auto cur_time = get_clock()->now();

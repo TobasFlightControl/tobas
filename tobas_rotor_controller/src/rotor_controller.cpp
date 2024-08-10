@@ -7,9 +7,9 @@
 
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_msgs/ThrottleArray.h>
+#include <tobas_msgs/msg/throttle_array.hpp>
 #include <tobas_msgs/msg/rotor_speeds.hpp>
-#include <tobas_msgs/EnableRCOutput.h>
+#include <tobas_msgs/srv/enable_rc_output.hpp>
 
 #include "../include/tobas_rotor_controller/rotor_controller.hpp"
 
@@ -21,7 +21,7 @@ RotorController::RotorController(const rclcpp::NodeOptions& options) : super(nod
 {
 
 
-  throttles_pub_ = createPublisher<tobas_msgs::ThrottleArray>(tobas::kThrottlesCmdTopic);
+  throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
   arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic, 1, true);
 
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::rotSpeedsCmdCb, this);
@@ -82,7 +82,7 @@ bool RotorController::enableRCOutputs(const bool& enable)
   }
 
   tobas_msgs::EnableRCOutput enable_rcout_msg;
-  for (const auto& rotor : drone_.rotorConfigs())
+  for (const auto& rotor : drone_.rotors)
   {
     enable_rcout_msg.request.channel = rotor.channel;
     enable_rcout_msg.request.enable = enable;
@@ -116,9 +116,9 @@ bool RotorController::preArmCheck()
 
 void RotorController::setThrottleOnAllChannels(const double& throttle)
 {
-  const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
+  const auto throttles =std::make_unique<tobas_msgs::msg::ThrottleArray>();
   throttles->header.stamp = get_clock()->now();
-  for (const auto& rotor : drone_.rotorConfigs())
+  for (const auto& rotor : drone_.rotors)
     throttles->throttles.emplace_back(rotor.channel, throttle);
   throttles_pub_->publish(throttles);
 }
@@ -149,7 +149,7 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSh
   }
 
   // Create throttle message
-  const auto throttles =std::make_unique<tobas_msgs::ThrottleArray>();
+  const auto throttles =std::make_unique<tobas_msgs::msg::ThrottleArray>();
   throttles->header = tar_speeds->header;
 
   // Update throttles
