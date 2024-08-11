@@ -21,8 +21,13 @@ GazeboOdometryPlugin::GazeboOdometryPlugin() : super()
 {
 }
 
-void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
+void GazeboOdometryPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
+  initialize(sdf);
 
 
   getSdfParams(sdf);
@@ -41,15 +46,15 @@ void GazeboOdometryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
 
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, zero3);
-  getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, zero3);
-  getSdfParam(sdf, "noiseNormalRotation", noise_normal_rotation_, zero3);
-  getSdfParam(sdf, "noiseNormalLinearVelocity", noise_normal_linvel_, zero3);
-  getSdfParam(sdf, "noiseNormalAngularVelocity", noise_normal_angvel_, zero3);
-  getSdfParam(sdf, "noiseUniformPosition", noise_uniform_position_, zero3);
-  getSdfParam(sdf, "noiseUniformRotation", noise_uniform_rotation_, zero3);
-  getSdfParam(sdf, "noiseUniformLinearVelocity", noise_uniform_linvel_, zero3);
-  getSdfParam(sdf, "noiseUniformAngularVelocity", noise_uniform_angvel_, zero3);
+  getSdfParam(sdf, "offset", offset_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseNormalRotation", noise_normal_rotation_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseNormalLinearVelocity", noise_normal_linvel_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseNormalAngularVelocity", noise_normal_angvel_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseUniformPosition", noise_uniform_position_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseUniformRotation", noise_uniform_rotation_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseUniformLinearVelocity", noise_uniform_linvel_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseUniformAngularVelocity", noise_uniform_angvel_, math::Vector3d::Zero);
 
   if (sdf->HasElement("covarianceImage"))
   {
@@ -64,10 +69,10 @@ void GazeboOdometryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboOdometryPlugin::setRandomDistributions()
 {
-  position_n_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_position_));
-  rotation_n_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_rotation_));
-  linvel_n_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_linvel_));
-  angvel_n_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_angvel_));
+  position_n_.reset(new NormalDistribution3d(rnd_dev_, math::Vector3d::Zero, noise_normal_position_));
+  rotation_n_.reset(new NormalDistribution3d(rnd_dev_, math::Vector3d::Zero, noise_normal_rotation_));
+  linvel_n_.reset(new NormalDistribution3d(rnd_dev_, math::Vector3d::Zero, noise_normal_linvel_));
+  angvel_n_.reset(new NormalDistribution3d(rnd_dev_, math::Vector3d::Zero, noise_normal_angvel_));
   position_u_.reset(new UniformDistribution3d(rnd_dev_, -noise_uniform_position_, noise_uniform_position_));
   rotation_u_.reset(new UniformDistribution3d(rnd_dev_, -noise_uniform_rotation_, noise_uniform_rotation_));
   linvel_u_.reset(new UniformDistribution3d(rnd_dev_, -noise_uniform_linvel_, noise_uniform_linvel_));
@@ -79,7 +84,7 @@ void GazeboOdometryPlugin::registerPublishers()
   odometry_pub_ = createPublisher<nav_msgs::Odometry>(path::join(ns(), tobas::kExternalOdomTopic);
 }
 
-void GazeboOdometryPlugin::onUpdate()
+void GazeboOdometryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   // ベースフレームの状態を取得
   const auto& T_W_B = link_->WorldPose();

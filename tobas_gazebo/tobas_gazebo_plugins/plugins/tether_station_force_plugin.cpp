@@ -4,7 +4,8 @@
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
@@ -42,8 +43,8 @@ void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sd
 {
 
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "worldEnd", W_Pos_WP_, zero3);
-  getSdfParam(sdf, "droneEnd", B_Pos_BQ_, zero3);
+  getSdfParam(sdf, "worldEnd", W_Pos_WP_, math::Vector3d::Zero);
+  getSdfParam(sdf, "droneEnd", B_Pos_BQ_, math::Vector3d::Zero);
   getSdfParam(sdf, "initialTension", init_tension_, kDefaultInitTension, NON_NEGATIVE);
   getSdfParam(sdf, "initialMaximumLength", init_max_length_, kDefaultInitMaxLength, POSITIVE);
   getSdfParam(sdf, "youngModulus", young_, kDefaultYoungModulus, POSITIVE);

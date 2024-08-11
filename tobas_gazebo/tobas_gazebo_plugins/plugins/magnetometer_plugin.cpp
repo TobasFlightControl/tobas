@@ -12,7 +12,8 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
@@ -20,9 +21,14 @@ GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : super()
 {
 }
 
-void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
+void GazeboMagnetometerPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
 
+  initialize(sdf);
 
   // Get SDF parameters
   getSdfParams(sdf);
@@ -36,7 +42,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
     TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
   // Create the normal noise distributions
-  noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_));
+  noise_.reset(new NormalDistribution3d(rnd_dev_, math::Vector3d::Zero, noise_normal_));
 
   // Create the initial bias
   UniformDistribution3d init_bias_dist(rnd_dev_, -noise_uniform_initial_bias_, noise_uniform_initial_bias_);
@@ -53,19 +59,19 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
 
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, zero3);
+  getSdfParam(sdf, "offset", offset_, math::Vector3d::Zero);
 
   getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
   getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
 
-  getSdfParam(sdf, "noiseNormal", noise_normal_, zero3);
-  getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, zero3);
+  getSdfParam(sdf, "noiseNormal", noise_normal_, math::Vector3d::Zero);
+  getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, math::Vector3d::Zero);
   if (!allGreaterEqual(noise_normal_, 0.) || !allGreaterEqual(noise_uniform_initial_bias_, 0.))
     TOBAS_EXIT("Noise std. dev cannot be negative.");
 }
 
-void GazeboMagnetometerPlugin::onUpdate()
+void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   // Get the sensor pose
   const auto& T_W_B = link_->WorldPose();

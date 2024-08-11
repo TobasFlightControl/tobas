@@ -6,7 +6,8 @@
 
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
@@ -25,6 +26,7 @@ GazeboLidarPlugin::~GazeboLidarPlugin()
 
 void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 {
+  initialize(sdf);
 
 
   RayPlugin::Load(parent, sdf);
@@ -93,7 +95,7 @@ void GazeboLidarPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "gaussianNoiseStddev", noise_stddev_, kDefaultNoiseStddev);
 }
 
-void GazeboLidarPlugin::putLaserData(const common::Time& update_time)
+void GazeboLidarPlugin::putLaserData(const chrono::steady_clock::duration& update_time)
 {
   parent_ray_sensor_->SetActive(false);
 

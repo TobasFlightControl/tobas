@@ -66,10 +66,10 @@ private:
 
   double cmd_rot_speed_ = 0.;  // [rad/s]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
-  gz::math::Vector3d wind_vel_W_ = zero3;  // [m/s]
-  common::Time prev_sim_time_;
-  common::Time last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
-  common::Time disarm_start_time_ = common::Time::Maximum();  // Disarmコマンドの開始時刻
+  gz::math::Vector3d wind_vel_W_ = math::Vector3d::Zero;  // [m/s]
+  chrono::steady_clock::duration prev_sim_time_;
+  chrono::steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
+  chrono::steady_clock::duration disarm_start_time_ = chrono::steady_clock::duration::Maximum();  // Disarmコマンドの開始時刻
   bool is_intact_ = true;
   bool is_armed_ = false;
   bool wind_received_ = false;
@@ -94,7 +94,7 @@ private:
   void registerPubSub();
   bool isReady();
   void addModelError();
-  void applyForceAndTorque(const double& rot_speed, const common::Time& cur_time);
+  void applyForceAndTorque(const double& rot_speed, const chrono::steady_clock::duration& cur_time);
   void updateRotationSpeed(const double& dt);
   double rotSpeedFromVoltage(const double& voltage);
   double rotSpeedFromERPM(const double& erpm);

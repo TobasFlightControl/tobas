@@ -14,7 +14,8 @@
 #include "../include/tobas_gazebo_plugins/time.hpp"
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {

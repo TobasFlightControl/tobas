@@ -53,7 +53,7 @@ private:
   std::unique_ptr<DepthNoiseModel> noise_model_;
   int depth_image_connect_count_ = 0;
   int depth_info_connect_count_ = 0;
-  common::Time last_depth_info_update_time_ = common::Time(0);
+  chrono::steady_clock::duration last_depth_info_update_time_ = chrono::steady_clock::duration(0);
 
   event::ConnectionPtr new_image_frame_connection_;
   event::ConnectionPtr new_depth_frame_connection_;

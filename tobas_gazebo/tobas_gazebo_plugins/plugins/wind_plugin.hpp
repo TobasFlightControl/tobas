@@ -63,8 +63,8 @@ private:
 
 
   tobas_gazebo_msgs::WindParams params_;
-  common::Time prev_sim_time_;
-  common::Time gust_state_change_time_;
+  chrono::steady_clock::duration prev_sim_time_;
+  chrono::steady_clock::duration gust_state_change_time_;
   gust_state_t gust_state_ = NO_GUST;
   double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;

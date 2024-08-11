@@ -23,7 +23,11 @@ class GazeboOdometryPlugin : public SensorPlugin
 public:
   explicit GazeboOdometryPlugin();
 
-  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
+  void Configure(
+    const sim::Entity& model,
+    const sdf::ElementConstPtr& sdf,
+    sim::EntityComponentManager& ecm,
+    sim::EventManager&) override;
 
 private:
 
@@ -62,7 +66,7 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void setRandomDistributions();
   void registerPublishers();
-  void onUpdate();
+
   void addNoise(gz::math::Pose3d& pose, gz::math::Vector3d& linvel, gz::math::Vector3d& angvel) const;
   void publishOdomMsg(gz::math::Pose3d& pose, gz::math::Vector3d& linvel, gz::math::Vector3d& angvel)
     const;

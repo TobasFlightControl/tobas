@@ -47,8 +47,8 @@ private:
   physics::MultiRayShapePtr shape_;
 
   size_t laser_connect_count_ = 0;  // Keep track of number of connctions
-  common::Time last_update_time_;
-  common::Time sim_time_;
+  chrono::steady_clock::duration last_update_time_;
+  chrono::steady_clock::duration sim_time_;
 
   boost::mutex lock_;               // A mutex to lock access to fields that are used in message callbacks
   rclcpp::CallbackQueue laser_queue_;  // Custom Callback Queue
@@ -57,7 +57,7 @@ private:
   PublisherPtr<> pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void putLaserData(const common::Time& update_time);
+  void putLaserData(const chrono::steady_clock::duration& update_time);
   void laserConnect();
   void laserDisconnect();
   double gaussianKernel(const double& mu, const double& sigma);

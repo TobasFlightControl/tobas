@@ -36,7 +36,11 @@ class GazeboImuPlugin : public SensorPlugin
 public:
   explicit GazeboImuPlugin();
 
-  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
+  void Configure(
+    const sim::Entity& model,
+    const sdf::ElementConstPtr& sdf,
+    sim::EntityComponentManager& ecm,
+    sim::EventManager&) override;
 
 private:
 
@@ -60,8 +64,8 @@ private:
   physics::WorldPtr world_;
   physics::LinkPtr link_;
 
-  common::Time last_time_ = common::Time(0);
-  gz::math::Vector3d acc_bias_ = zero3, gyro_bias_ = zero3;
+  chrono::steady_clock::duration last_time_ = chrono::steady_clock::duration(0);
+  gz::math::Vector3d acc_bias_ = math::Vector3d::Zero, gyro_bias_ = math::Vector3d::Zero;
   gz::math::Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;
   dsp::LowPassFilter<gz::math::Vector3d> acc_lpf_, gyro_lpf_;  // Internal LPF
 
@@ -73,7 +77,7 @@ private:
   PublisherPtr<> debug_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void onUpdate();
+
   void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
   void publishImuMsg(const double& dt) const;
   void publishDebugMsg() const;

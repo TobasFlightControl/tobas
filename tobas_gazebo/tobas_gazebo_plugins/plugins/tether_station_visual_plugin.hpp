@@ -29,6 +29,6 @@ private:
   rendering::DynamicLines* line_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void onUpdate();
+
 };
 }  // namespace gazebo

@@ -1,10 +1,10 @@
-#include <random>
 #include <sensor_msgs/msg/fluid_pressure.hpp>
 
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
+
 #include <tobas_gazebo_tools/link_world_pose_solver.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
@@ -47,7 +47,7 @@ private:
   double alt_0_;
   double pressure_var_;
 
-  sim::Entity link_ = sim::kNullEntity;
+  sim::Entity link_;
 
   LinkWorldPoseSolver pose_solver_;
   RateManager::SharedPtr rate_manager_;

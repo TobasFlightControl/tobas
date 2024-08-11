@@ -1,43 +1,136 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_msgs/Gps.hpp>
 
-#include "./gps_plugin.hpp"
-
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
+#include "../include/tobas_gazebo_plugins/random.hpp"
+#include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 
 using namespace std;
+using namespace gz;
 using namespace gz::math;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
-GazeboGpsPlugin::GazeboGpsPlugin() : super(), is_history_filled_(false)
+/**
+ * @brief GPSの位置データと速度データを発行するプラグイン．
+ */
+class GazeboGpsPlugin : public BaseNode, public sim::System, public sim::ISystemConfigure, public sim::ISystemPostUpdate
+{
+  // Default values
+  static constexpr double kDefaultUpdateRate = 5.;      // [Hz]
+  static constexpr double kDefaultDelay = 0.;           // [s]
+  static constexpr double kDefaultPosCorrTime = 10.;    // [s]
+  static constexpr double kDefaultHorPosAccuracy = 2;   // [m]
+  static constexpr double kDefaultVerPosAccuracy = 4.;  // [m]
+  static constexpr double kDefaultHorVelStdDev = 0.1;   // [m/s]
+  static constexpr double kDefaultVerVelStdDev = 0.1;   // [m/s]
+
+  using HistoryType = tuple<chrono::steady_clock::duration, Pose3d, Vector3d, Vector3d>;
+
+public:
+  explicit GazeboGpsPlugin();
+
+  void Configure(
+    const sim::Entity& model,
+    const sdf::ElementConstPtr& sdf,
+    sim::EntityComponentManager& ecm,
+    sim::EventManager&) override;
+
+  void PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm) override;
+
+private:
+  // SDF parameters
+  string link_name_;
+  Vector3d offset_;     // B_Pos_BS
+  double update_rate_;  // 更新頻度 [Hz]
+  double delay_;        // GPSの遅延時間 [s]
+  double pos_corr_time_;
+  double hor_pos_accuracy_;
+  double ver_pos_accuracy_;
+  double hor_vel_stddev_;
+  double ver_vel_stddev_;
+  double lat_0_;  // 原点の北緯
+  double lon_0_;  // 原点の東経
+  double alt_0_;  // 原点の高度
+
+  cmp::WorldPose* pose_W_;
+  cmp::WorldLinearVelocity* vel_W_;
+  cmp::AngularVelocity* gyro_B_;
+
+  RateManager::SharedPtr rate_manager_;
+
+  deque<HistoryType> history_;
+  bool is_history_filled_;
+  chrono::steady_clock::duration t_last_publish_;
+  Vector3d pos_bias_ = Vector3d::Zero;
+
+  random_device rnd_dev_;
+  NormalDistribution3dPtr dpos_noise_;
+  NormalDistribution3dPtr vel_noise_;
+
+  // Publishers
+  PublisherPtr<tobas_msgs::Gps> gps_pub_;
+
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
+  void setRandomDistribuitons();
+  void fillCovariances(tobas_msgs::Gps& gps_msg);
+  void updatePosition(tobas_msgs::Gps& gps_msg, const Pose3d& T_W_B);
+  void updateVelocity(
+    tobas_msgs::Gps& gps_msg,
+    const Quaterniond& W_Rot_B,
+    const Vector3d& W_Linvel_WB,
+    const Vector3d& B_Angvel_WB);
+};
+
+GazeboGpsPlugin::GazeboGpsPlugin() : BaseNode("gps_plugin"), is_history_filled_(false)
 {
 }
 
-void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
+void GazeboGpsPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
-
-
+  initialize(sdf);
   getSdfParams(sdf);
   setRandomDistribuitons();
+  rate_manager_ = make_shared<RateManager>(update_rate_);
 
-  world_ = physics::get_world(sensor->WorldName());
-  link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
-  if (link_ == nullptr)
-    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
+  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
+  if (link == sim::kNullEntity)
+    TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
-  registerPublishers();
-  update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
+  if (ecm.EntityHasComponentType(link, cmp::WorldPose().TypeId()))
+    pose_W_ = ecm.Component<cmp::WorldPose>(link);
+  else
+    pose_W_ = ecm.CreateComponent(link, cmp::WorldPose());
+
+  if (ecm.EntityHasComponentType(link, cmp::WorldLinearVelocity().TypeId()))
+    vel_W_ = ecm.Component<cmp::WorldLinearVelocity>(link);
+  else
+    vel_W_ = ecm.CreateComponent(link, cmp::WorldLinearVelocity());
+
+  if (ecm.EntityHasComponentType(link, cmp::AngularVelocity().TypeId()))
+    gyro_B_ = ecm.Component<cmp::AngularVelocity>(link);
+  else
+    gyro_B_ = ecm.CreateComponent(link, cmp::AngularVelocity());
+
+  gps_pub_ = createPublisher<tobas_msgs::Gps>(path::join(ns(), tobas::kGpsTopic));
 }
 
 void GazeboGpsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-
   getSdfParam(sdf, "linkName", link_name_);
 
-  getSdfParam(sdf, "offset", offset_, zero3);
+  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, POSITIVE);
   getSdfParam(sdf, "delay", delay_, kDefaultDelay, NON_NEGATIVE);
   getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kDefaultPosCorrTime, POSITIVE);
@@ -59,37 +152,29 @@ void GazeboGpsPlugin::setRandomDistribuitons()
   const auto hor_dpos_stddev = hor_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
   const auto ver_dpos_stddev = ver_pos_accuracy_ * sqrt(M_PI / pos_corr_time_);
   const Vector3d dpos_stddev(hor_dpos_stddev, hor_dpos_stddev, ver_dpos_stddev);
-  dpos_noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, dpos_stddev));
+  dpos_noise_.reset(new NormalDistribution3d(rnd_dev_, Vector3d::Zero, dpos_stddev));
 
   // 速度の乱数生成器
   const Vector3d vel_stddev(hor_vel_stddev_, hor_vel_stddev_, ver_vel_stddev_);
-  vel_noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, vel_stddev));
+  vel_noise_.reset(new NormalDistribution3d(rnd_dev_, Vector3d::Zero, vel_stddev));
 }
 
-void GazeboGpsPlugin::registerPublishers()
-{
-  gps_pub_ = createPublisher<tobas_msgs::Gps>(path::join(ns(), tobas::kGpsTopic);
-}
-
-void GazeboGpsPlugin::onUpdate()
+void GazeboGpsPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
 {
   // 現在の状態を履歴に追加
-  const auto cur_time = world_->SimTime();
-  history_.emplace_back(cur_time, link_->WorldPose(), link_->WorldLinearVel(), link_->RelativeAngularVel());
+  const auto& cur_time = info.simTime;
+  history_.emplace_back(cur_time, pose_W_->Data(), vel_W_->Data(), gyro_B_->Data());
 
   // 古い履歴を削除
-  while ((cur_time - get<0>(history_.front())).Double() > delay_)
+  while (chrono::duration<double>(cur_time - get<0>(history_.front())).count() > delay_)
   {
     history_.pop_front();
     if (!is_history_filled_)
       is_history_filled_ = true;
   }
 
-  // ループ時刻を更新
-  const auto dt = (cur_time - t_last_loop_).Double();
-  t_last_loop_ = cur_time;
-
   // オルンシュタイン＝ウーベンレック過程に従って位置のバイアスを更新
+  const auto dt = chrono::duration<double>(info.dt).count();
   pos_bias_ += (dpos_noise_->get() - pos_bias_ / pos_corr_time_) * dt;
 
   // 履歴が溜まっていなければ発行しない
@@ -97,44 +182,44 @@ void GazeboGpsPlugin::onUpdate()
     return;
 
   // 更新時刻になっていなければ発行しない
-  if ((cur_time - t_last_publish_).Double() < 1 / update_rate_)
+  if (!rate_manager_->update(info.simTime))
     return;
 
   // 最新の発行時刻を更新
   t_last_publish_ = cur_time;
 
   // 最も古い (= delay分遅れている) 状態を取得
-  common::Time gps_time;
+  chrono::steady_clock::duration gps_time;
   Pose3d T_W_B;
   Vector3d W_Linvel_WB;
   Vector3d B_Angvel_WB;
   tie(gps_time, T_W_B, W_Linvel_WB, B_Angvel_WB) = history_.front();
 
   // GPSメッセージを作成
-  const auto gps_msg =std::make_unique<tobas_msgs::Gps>();
+  auto gps_msg = make_unique<tobas_msgs::Gps>();
   gps_msg->header.frame_id = link_name_;
   ros2::timeChronoToMsg(gps_time, gps_msg->header.stamp);
-  gps_msg->fix_type = tobas_msgs::Gps::FIX_3D;
+  gps_msg->fix_type = tobas_msgs::msg::Gps::FIX_3D;
   fillCovariances(*gps_msg);
   updatePosition(*gps_msg, T_W_B);
   updateVelocity(*gps_msg, T_W_B.Rot(), W_Linvel_WB, B_Angvel_WB);
 
   // メッセージを発行
-  gps_pub_->publish(gps_msg);
+  gps_pub_->publish(move(gps_msg));
 }
 
 void GazeboGpsPlugin::fillCovariances(tobas_msgs::Gps& gps_msg)
 {
   // FIXME: 正確度と共分散は異なる．しかしGNSSは白色ノイズではないし，どう共分散を計算している？
   gps_msg.position_covariance.setZero();
-  gps_msg.position_covariance.diagonal()(0) = math::sqr(hor_pos_accuracy_);
-  gps_msg.position_covariance.diagonal()(1) = math::sqr(hor_pos_accuracy_);
-  gps_msg.position_covariance.diagonal()(2) = math::sqr(ver_pos_accuracy_);
+  gps_msg.position_covariance.diagonal()(0) = ::math::sqr(hor_pos_accuracy_);
+  gps_msg.position_covariance.diagonal()(1) = ::math::sqr(hor_pos_accuracy_);
+  gps_msg.position_covariance.diagonal()(2) = ::math::sqr(ver_pos_accuracy_);
 
   gps_msg.velocity_covariance.setZero();
-  gps_msg.velocity_covariance.diagonal()(0) = math::sqr(hor_vel_stddev_);
-  gps_msg.velocity_covariance.diagonal()(1) = math::sqr(hor_vel_stddev_);
-  gps_msg.velocity_covariance.diagonal()(2) = math::sqr(ver_vel_stddev_);
+  gps_msg.velocity_covariance.diagonal()(0) = ::math::sqr(hor_vel_stddev_);
+  gps_msg.velocity_covariance.diagonal()(1) = ::math::sqr(hor_vel_stddev_);
+  gps_msg.velocity_covariance.diagonal()(2) = ::math::sqr(ver_vel_stddev_);
 }
 
 void GazeboGpsPlugin::updatePosition(tobas_msgs::Gps& gps_msg, const Pose3d& T_W_B)
@@ -170,6 +255,10 @@ void GazeboGpsPlugin::updateVelocity(
   // Fill the ground speed message.
   vectorGazeboToKDL(W_Linvel_WS, gps_msg.ground_speed);
 }
-
-GZ_REGISTER_SENSOR_PLUGIN(GazeboGpsPlugin);
 }  // namespace gazebo
+
+GZ_ADD_PLUGIN(
+  gazebo::GazeboGpsPlugin,
+  sim::System,
+  gazebo::GazeboGpsPlugin::ISystemConfigure,
+  gazebo::GazeboGpsPlugin::ISystemPostUpdate)

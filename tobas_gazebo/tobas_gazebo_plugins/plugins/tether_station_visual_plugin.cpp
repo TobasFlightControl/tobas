@@ -2,7 +2,8 @@
 
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
@@ -17,6 +18,7 @@ GazeboTetherStationVisualPlugin::~GazeboTetherStationVisualPlugin()
 
 void GazeboTetherStationVisualPlugin::Load(rendering::VisualPtr visual, sdf::ElementPtr sdf)
 {
+  initialize(sdf);
 
 
   getSdfParams(sdf);
@@ -38,7 +40,7 @@ void GazeboTetherStationVisualPlugin::getSdfParams(const sdf::ElementConstPtr& s
   getSdfParam(sdf, "droneEnd", B_Pos_BQ_, Vector3d::Zero);
 }
 
-void GazeboTetherStationVisualPlugin::onUpdate()
+void GazeboTetherStationVisualPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   const auto& W_Pos_WB = visual_->WorldPose().Pos();
   const auto& W_Rot_B = visual_->WorldPose().Rot();

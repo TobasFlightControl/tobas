@@ -15,7 +15,8 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
@@ -210,7 +211,7 @@ void GazeboRotorPlugin::addModelError()
   rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
 }
 
-void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const common::Time& cur_time)
+void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const chrono::steady_clock::duration& cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering

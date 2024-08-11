@@ -20,7 +20,11 @@ class GazeboMagnetometerPlugin : public SensorPlugin
 public:
   explicit GazeboMagnetometerPlugin();
 
-  void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
+  void Configure(
+    const sim::Entity& model,
+    const sdf::ElementConstPtr& sdf,
+    sim::EntityComponentManager& ecm,
+    sim::EventManager&) override;
 
 private:
 
@@ -48,7 +52,7 @@ private:
   PublisherPtr<> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void onUpdate();
+
   void publishMagMsg(const gz::math::Vector3d& field) const;
 };
 }  // namespace gazebo

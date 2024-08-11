@@ -6,7 +6,8 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {

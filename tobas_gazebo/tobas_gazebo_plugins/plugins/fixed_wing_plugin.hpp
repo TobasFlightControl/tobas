@@ -60,10 +60,10 @@ private:
   std::vector<SimpleJointModel> cs_angle_models_;  // 制御面の角度モデル
 
   double prev_alpha_ = 0.;
-  common::Time prev_sim_time_;
-  common::Time last_cmd_time_;
+  chrono::steady_clock::duration prev_sim_time_;
+  chrono::steady_clock::duration last_cmd_time_;
   bool is_initialized_ = false;
-  gz::math::Vector3d wind_vel_W_ = zero3;                   // 風速 [m/s]
+  gz::math::Vector3d wind_vel_W_ = math::Vector3d::Zero;                   // 風速 [m/s]
   tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr cs_deflections_;  // 舵角 [rad]
 
   physics::LinkPtr link_;

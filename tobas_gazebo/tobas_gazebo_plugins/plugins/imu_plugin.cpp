@@ -9,7 +9,8 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
-using namespace gz::math;
+using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
@@ -17,8 +18,13 @@ GazeboImuPlugin::GazeboImuPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 
-void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
+void GazeboImuPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
+  initialize(sdf);
 
 
   // Get SDF parameters
@@ -40,22 +46,22 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   }
 
   // Initialize LPFs
-  acc_lpf_.initialize(acc_lpf_cutoff_freq_, zero3);
-  gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, zero3);
+  acc_lpf_.initialize(acc_lpf_cutoff_freq_, math::Vector3d::Zero);
+  gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, math::Vector3d::Zero);
 
   // Advertise
   imu_pub_ = createPublisher<tobas_msgs::Imu>(path::join(ns(), tobas::kImuTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::ImuDebug>(path::join(ns(), kDebugPubTopic);
 
   // Listen to the update event
-  update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
+
 }
 
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
 
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, zero3);
+  getSdfParam(sdf, "offset", offset_, math::Vector3d::Zero);
 
   getSdfParam(sdf, "accelNoiseDensityOnSignal", acc_noise_density_sig_, kDefaultAccNoiseDensity, POSITIVE);
   getSdfParam(sdf, "accelNoiseDensityObserved", acc_noise_density_obs_, kDefaultAccNoiseDensity, POSITIVE);
@@ -72,7 +78,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "gyroLpfCutoffFreq", gyro_lpf_cutoff_freq_, kDefaultGyroLpfCutoffFreq, POSITIVE);
 }
 
-void GazeboImuPlugin::onUpdate()
+void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   const auto cur_time = world_->SimTime();
   const auto dt = (cur_time - last_time_).Double();

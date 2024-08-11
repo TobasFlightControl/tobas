@@ -73,6 +73,7 @@ set(PLUGIN_CPP_FILES
 	plugins/barometer_plugin.cpp
 	plugins/rotor_speeds_publisher_plugin.cpp
 	plugins/battery_plugin.cpp
+	plugins/gps_plugin.cpp
 )
 set(targets_to_install "")
 
