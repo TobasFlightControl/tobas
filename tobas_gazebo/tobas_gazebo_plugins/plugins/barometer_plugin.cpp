@@ -9,6 +9,7 @@
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
+#include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 
 using namespace std;
 using namespace gz;
@@ -46,13 +47,13 @@ private:
   double pressure_var_;
 
   sim::Entity link_ = sim::kNullEntity;
-  chrono::steady_clock::duration t_next_ = 0ns;
 
   LinkWorldPoseSolver pose_solver_;
+  RateManager::SharedPtr rate_manager_;
 
-  NormalDistribution pressure_noise_;
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
+  NormalDistribution pressure_noise_;
 
   PublisherPtr<sensor_msgs::msg::FluidPressure> pressure_pub_;
 
@@ -79,10 +80,9 @@ void GazeboBarometerPlugin::Configure(
   if (!pose_solver_.initialize(model, ecm))
     TOBAS_EXIT("Failed to initialize pose solver.");
 
-  // Initialize the normal distribution for pressure
+  rate_manager_ = std::make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
 
-  // Advertise
   pressure_pub_ = createPublisher<PressureMsg>(path::join(ns(), tobas::kAirPressureTopic));
 }
 
@@ -97,9 +97,8 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
-  if (info.simTime < t_next_)
+  if (!rate_manager_->update(info.simTime))
     return;
-  t_next_ += chrono::nanoseconds(1'000'000'000 / update_rate_);
 
   if (!pose_solver_.solve(link_, ecm))
   {
