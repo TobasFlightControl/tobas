@@ -9,4 +9,4 @@ bool belongsTo(
   const gz::sim::Entity& entity,
   const gz::sim::Entity& target,
   const gz::sim::EntityComponentManager& ecm);
-}
+}  // namespace gazebo

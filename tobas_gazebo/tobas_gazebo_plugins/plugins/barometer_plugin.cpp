@@ -8,6 +8,7 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
 using namespace gz;
@@ -46,7 +47,6 @@ private:
   double pressure_var_;
 
   const cmp::WorldPose* pose_W_;
-
   RateManager::SharedPtr rate_manager_;
 
   random_device rnd_dev_;
@@ -75,11 +75,7 @@ void GazeboBarometerPlugin::Configure(
   if (link == sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
-  if (ecm.EntityHasComponentType(link, cmp::WorldPose().TypeId()))
-    pose_W_ = ecm.Component<cmp::WorldPose>(link);
-  else
-    pose_W_ = ecm.CreateComponent(link, cmp::WorldPose());
-
+  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   rate_manager_ = make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
 

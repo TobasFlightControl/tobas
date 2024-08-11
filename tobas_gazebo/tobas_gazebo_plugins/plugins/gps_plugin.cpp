@@ -8,8 +8,9 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
-#include "../include/tobas_gazebo_plugins/random.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_plugins/random.hpp"
+#include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
 using namespace gz;
@@ -108,20 +109,9 @@ void GazeboGpsPlugin::Configure(
   if (link == sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
-  if (ecm.EntityHasComponentType(link, cmp::WorldPose().TypeId()))
-    pose_W_ = ecm.Component<cmp::WorldPose>(link);
-  else
-    pose_W_ = ecm.CreateComponent(link, cmp::WorldPose());
-
-  if (ecm.EntityHasComponentType(link, cmp::WorldLinearVelocity().TypeId()))
-    vel_W_ = ecm.Component<cmp::WorldLinearVelocity>(link);
-  else
-    vel_W_ = ecm.CreateComponent(link, cmp::WorldLinearVelocity());
-
-  if (ecm.EntityHasComponentType(link, cmp::AngularVelocity().TypeId()))
-    gyro_B_ = ecm.Component<cmp::AngularVelocity>(link);
-  else
-    gyro_B_ = ecm.CreateComponent(link, cmp::AngularVelocity());
+  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
+  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
   gps_pub_ = createPublisher<tobas_msgs::Gps>(path::join(ns(), tobas::kGpsTopic));
 }
