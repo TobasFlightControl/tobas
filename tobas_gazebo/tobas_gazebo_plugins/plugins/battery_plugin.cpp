@@ -136,7 +136,7 @@ void GazeboBatteryPlugin::registerPubSub()
       TOBAS_INFO("hoge");
       currents_[i] = msg->current;
     };
-    const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, 1, cb);
+    const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, makeQoS(false, false, 1), cb);
     rotor_state_subs_.push_back(sub);
   }
 }

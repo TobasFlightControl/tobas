@@ -82,7 +82,7 @@ protected:
     void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
     Obj* obj,
     bool latch = false,
-    bool reliable = true,
+    bool reliable = false,
     size_t queue_size = 1);
 
   template <typename SrvType, typename Obj>
@@ -152,6 +152,8 @@ protected:
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
 
+  static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
+
 private:
   const std::string name_;
   std::string ns_;
@@ -163,7 +165,6 @@ private:
 
   void gazeboLog(uint8_t level, const std::string& text) const;
 
-  static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
   static std::string createID(const char* file, int line);
 };
 

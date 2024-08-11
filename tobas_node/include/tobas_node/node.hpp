@@ -77,7 +77,7 @@ protected:
     void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
     Obj* obj,
     bool latch = false,
-    bool reliable = true,
+    bool reliable = false,
     size_t queue_size = 1);
 
   template <typename SrvType, typename Obj>
@@ -182,6 +182,8 @@ protected:
   std::vector<double> getDoubleArrayParam(const std::string& name, const std::vector<double>& _default);
   std::vector<std::string> getStringArrayParam(const std::string& name, const std::vector<std::string>& _default);
 
+  static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
+
 private:
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
@@ -195,7 +197,6 @@ private:
 
   void rclcppLog(uint8_t level, const std::string& text) const;
 
-  static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
   static std::string createID(const char* file, int line);
 };
 
