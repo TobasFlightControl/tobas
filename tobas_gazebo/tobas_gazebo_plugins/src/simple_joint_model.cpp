@@ -1,7 +1,4 @@
-#include <gazebo/gazebo.hh>
-
 #include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
-#include "../include/tobas_gazebo_plugins/common.hpp"
 
 #define POS_MARGIN 1e-2  // [rad]
 
@@ -22,12 +19,7 @@ void SimpleJointModel::update(double tar_pos, double dt)
 {
   assert(dt >= 0);
 
-  if (!pos_limit_.inRange(tar_pos, POS_MARGIN))
-  {
-    GZ_ERROR_THROTTLE(
-      kErrorPeriod, "The target position " << tar_pos << "[rad] is out of range " << pos_limit_ << "[rad].");
-    tar_pos = pos_limit_.clamp(tar_pos);
-  }
+  tar_pos = pos_limit_.clamp(tar_pos);
 
   // 速度制限
   const auto ideal_delta_angle = tar_pos - cur_pos_;

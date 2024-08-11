@@ -11,8 +11,6 @@ namespace gazebo
 {
 class GazeboGroundTruthStatePlugin : public ModelPlugin
 {
-  // Constants
-  static constexpr char kPluginName[] = "ground_truth_state_plugin";
 
   using self = GazeboGroundTruthStatePlugin;
 

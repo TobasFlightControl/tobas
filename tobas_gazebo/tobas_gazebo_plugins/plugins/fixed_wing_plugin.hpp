@@ -27,7 +27,6 @@ namespace gazebo
 class GazeboFixedWingPlugin : public ModelPlugin
 {
   // Constants
-  static constexpr char kPluginName[] = "fixed_wing_plugin";
   static constexpr char kDebugPubTopic[] = "ground_truth/fixed_wing_debug";
 
   // Default values

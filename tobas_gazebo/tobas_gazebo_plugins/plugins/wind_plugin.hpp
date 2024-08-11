@@ -26,8 +26,6 @@ namespace gazebo
  */
 class GazeboWindPlugin : public ModelPlugin
 {
-  // Constants
-  static constexpr char kPluginName[] = "wind_plugin";
 
   // Default parameters
   static constexpr double kDefaultMeanWindSpeed = 0.;          // [m/s]

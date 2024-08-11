@@ -16,7 +16,6 @@ namespace gazebo
 class GazeboLidarPlugin : public RayPlugin
 {
   // Constants
-  static constexpr char kPluginName[] = "lidar_plugin";
   static constexpr double kEpsilonDiff = 1e-6;
   static constexpr double kTimeout = 1e-2;
 

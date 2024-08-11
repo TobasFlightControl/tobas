@@ -8,7 +8,6 @@ namespace gazebo
 {
 class GazeboWorldContactsPlugin : public ModelPlugin
 {
-  static constexpr char kPluginName[] = "world_contacts_plugin";
 
   using self = GazeboWorldContactsPlugin;
 

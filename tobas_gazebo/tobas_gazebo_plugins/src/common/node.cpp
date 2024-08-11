@@ -1,7 +1,8 @@
+
+#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../../include/tobas_gazebo_plugins/common/ros.hpp"
-#include "../../include/tobas_gazebo_plugins/common/sdf.hpp"
+#include "../../include/tobas_gazebo_plugins/common/node.hpp"
 
 using namespace std;
 
@@ -13,20 +14,21 @@ BaseNode::BaseNode(const string& name) : name_(name)
 
 void BaseNode::initialize(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns_);
+  ignmsg << "Initializing \"" << name_ << "\"." << endl;
+
+  if (!sdf->Get<string>("robotNamespace", ns_, "/"))
+    gzwarn << "[" << name_ << "] Namespace is not specified." << endl;
 
   if (!rclcpp::ok())
     rclcpp::init(0, nullptr);
 
-  node_ = rclcpp::Node::make_shared(name_, ns);
+  node_ = rclcpp::Node::make_shared(name_, ns_);
   executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
   executor_->add_node(node_);
   auto spin = [this]() { executor_->spin(); };
   spin_thread_ = thread(spin);
 
-  message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
-
-  TOBAS_INFO("Initializing \"", name_, "\".");
+  message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(path::join(ns_, tobas::kMessageTopic));
 }
 
 const string& BaseNode::name() const
@@ -39,27 +41,27 @@ const std::string& BaseNode::ns() const
   return ns_;
 }
 
-void BaseNode::rclcppLog(uint8_t level, const string& text) const
+void BaseNode::gazeboLog(uint8_t level, const string& text) const
 {
   switch (level)
   {
     case tobas_std_msgs::msg::Message::LEVEL_DEBUG:
-      RCLCPP_DEBUG_STREAM(node_->get_logger(), text);
+      tbsdbg << text << endl;
       break;
     case tobas_std_msgs::msg::Message::LEVEL_INFO:
-      RCLCPP_INFO_STREAM(node_->get_logger(), text);
+      tbsmsg << text << endl;
       break;
     case tobas_std_msgs::msg::Message::LEVEL_WARN:
-      RCLCPP_WARN_STREAM(node_->get_logger(), text);
+      tbswarn << text << endl;
       break;
     case tobas_std_msgs::msg::Message::LEVEL_ERROR:
-      RCLCPP_ERROR_STREAM(node_->get_logger(), text);
+      tbserr << text << endl;
       break;
     case tobas_std_msgs::msg::Message::LEVEL_FATAL:
-      RCLCPP_FATAL_STREAM(node_->get_logger(), text);
+      tbserr << text << endl;
       break;
     default:
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Invalid log level: " << static_cast<int>(level));
+      tbserr << "Invalid log level: " << static_cast<int>(level) << endl;
       break;
   }
 }

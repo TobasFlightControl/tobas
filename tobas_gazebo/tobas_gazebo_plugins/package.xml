@@ -9,14 +9,17 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_gazebo_common</depend>
-	<depend>tobas_gazebo_msgs</depend>
-	<depend>tobas_tools</depend>
-	<depend>tobas_dsp</depend>
-	<depend>gazebo_plugins</depend>
-	<depend>laser_geometry</depend>
 	<depend>sensor_msgs</depend>
 	<depend>geometry_msgs</depend>
+	<depend>laser_geometry</depend>
+	<depend>tobas_dsp</depend>
+	<depend>tobas_kdl</depend>
+	<depend>tobas_path_tools</depend>
+	<depend>tobas_ros2_tools</depend>
+	<depend>tobas_node</depend>
+	<depend>tobas_gazebo_common</depend>
+	<depend>tobas_gazebo_tools</depend>
+	<depend>tobas_gazebo_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

@@ -13,8 +13,6 @@ namespace gazebo
 {
 class GazeboMagnetometerPlugin : public SensorPlugin
 {
-  // Constants
-  static constexpr char kPluginName[] = "magnetometer_plugin";
 
   using self = GazeboMagnetometerPlugin;
 

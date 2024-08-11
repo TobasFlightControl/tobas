@@ -13,7 +13,6 @@ namespace gazebo
 class GazeboBatteryPlugin : public ModelPlugin
 {
   // Constants
-  static constexpr char kPluginName[] = "battery_plugin";
   static constexpr double kSagCapRate = 0.2;  // [-] 放電特性が急激に変化する点における電気残率
 
   // Default parameters

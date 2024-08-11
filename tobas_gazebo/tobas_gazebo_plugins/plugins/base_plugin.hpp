@@ -10,8 +10,6 @@ namespace gazebo
 {
 class GazeboBasePlugin : public ModelPlugin
 {
-  // Constants
-  static constexpr char kPluginName[] = "base_plugin";
 
 
 

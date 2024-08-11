@@ -16,7 +16,6 @@ namespace gazebo
 class GazeboImuPlugin : public SensorPlugin
 {
   // Constants
-  static constexpr char kPluginName[] = "imu_plugin";
   static constexpr char kDebugPubTopic[] = "ground_truth/imu_debug";
 
   // Default values

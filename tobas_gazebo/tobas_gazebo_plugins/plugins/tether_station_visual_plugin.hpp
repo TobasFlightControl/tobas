@@ -8,8 +8,6 @@ namespace gazebo
 {
 class GazeboTetherStationVisualPlugin : public VisualPlugin
 {
-  // Constants
-  static constexpr char kPluginName[] = "tether_station_visual_plugin";
 
   using self = GazeboTetherStationVisualPlugin;
 

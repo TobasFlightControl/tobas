@@ -1,9 +1,9 @@
 #pragma once
 
 #include <random>
-#include <gazebo/gazebo.hh>
+#include <gz/math/Vector3.hh>
 
-#include "./common.hpp"
+#include "./common/definitions.hpp"
 
 namespace gazebo
 {

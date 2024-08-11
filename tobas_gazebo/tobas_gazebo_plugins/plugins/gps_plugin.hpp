@@ -18,8 +18,6 @@ namespace gazebo
  */
 class GazeboGpsPlugin : public SensorPlugin
 {
-  // Constants
-  static constexpr char kPluginName[] = "gps_plugin";
 
   // Default values
   static constexpr double kDefaultUpdateRate = 5.;      // [Hz]

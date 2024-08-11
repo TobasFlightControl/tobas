@@ -1,9 +1,10 @@
 <launch>
 
   <arg name="world_name" default="basic"/>
+  <arg name="log_level" default="3"/>
 
   <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
-    <arg name="gz_args" value="$(find-pkg-share tobas_gazebo_sim)/worlds/$(var world_name).world"/>
+    <arg name="gz_args" value="worlds/$(var world_name).world -r -v $(var log_level)"/>
   </include>
 
 </launch>

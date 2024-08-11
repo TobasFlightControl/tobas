@@ -12,8 +12,6 @@ namespace gazebo
 {
 class GazeboTetherStationForcePlugin : public ModelPlugin
 {
-  // Constants
-  static constexpr char kPluginName[] = "tether_station_force_plugin";
 
   // Default parameters
   static constexpr double kDefaultInitTension = 1.;       // [N]

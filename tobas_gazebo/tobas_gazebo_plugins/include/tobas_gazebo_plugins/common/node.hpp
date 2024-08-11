@@ -2,23 +2,20 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sdf/sdf.hh>
+#include <gz/common/Console.hh>
 
+#include <tobas_std_tools/stream.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
+
+#define tbsdbg gzdbg << "[" << name_ << "] "
+#define tbsmsg gzmsg << "[" << name_ << "] "
+#define tbswarn gzwarn << "[" << name_ << "] "
+#define tbserr gzerr << "[" << name_ << "] "
 
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
     TOBAS_FATAL(__VA_ARGS__);                                                                                          \
-    rclcpp::shutdown();                                                                                                \
-  }
-
-/* リリースモードでも機能するアサーション．ほとんど失敗し得ない操作の成否を一応確認するために使う． */
-#define TOBAS_ASSERT(expr)                                                                                             \
-  {                                                                                                                    \
-    if (!static_cast<bool>(expr))                                                                                      \
-    {                                                                                                                  \
-      TOBAS_FATAL("Assertion failed: ", __FILE__, ": ", __LINE__);                                                     \
-      rclcpp::shutdown();                                                                                              \
-    }                                                                                                                  \
+    throw;                                                                                                             \
   }
 
 #define TOBAS_DEBUG(...) debug(__VA_ARGS__)
@@ -47,6 +44,16 @@ public:
   explicit BaseNode(const std::string& name);
 
 protected:
+  /* SDFパラメータの制約． */
+  enum sdf_constr_t : uint8_t
+  {
+    NONE,
+    POSITIVE,
+    NEGATIVE,
+    NON_NEGATIVE,
+    NON_POSITIVE,
+  };
+
   template <typename MsgType>
   using PublisherPtr = rclcpp::Publisher<MsgType>::SharedPtr;
   template <typename MsgType>
@@ -126,6 +133,23 @@ protected:
   template <typename... Args>
   inline void fatalThrottle(const char* file, int line, double period, const Args&... args);
 
+  template <typename T>
+  void checkConstraint(const std::string& name, const T& param, const sdf_constr_t& constr) const;
+  template <typename T>
+  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const;
+  template <typename T>
+  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const;
+  template <typename T>
+  void
+  getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const sdf_constr_t& constr) const;
+  template <typename T>
+  void getSdfParam(
+    const sdf::ElementConstPtr& sdf,
+    const std::string& name,
+    T& param,
+    const T& dflt,
+    const sdf_constr_t& constr) const;
+
 private:
   const std::string name_;
   std::string ns_;
@@ -135,7 +159,7 @@ private:
 
   PublisherPtr<tobas_std_msgs::msg::Message> message_pub_;
 
-  void rclcppLog(uint8_t level, const std::string& text) const;
+  void gazeboLog(uint8_t level, const std::string& text) const;
 
   static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
   static std::string createID(const char* file, int line);
@@ -177,13 +201,13 @@ void BaseNode::log(uint8_t level, const Args&... args) const
 {
   // Create message
   auto message = std::make_unique<tobas_std_msgs::msg::Message>();
-  message->stamp = get_clock()->now();
+  message->stamp = node_->get_clock()->now();
   message->level = level;
-  message->name = get_name();
+  message->name = node_->get_name();
   message->message = tobas_std::buildString(args...);
 
   // Output message to the console
-  rclcppLog(level, message->message);
+  gazeboLog(level, message->message);
 
   // Publish message
   message_pub_->publish(std::move(message));
@@ -203,7 +227,7 @@ template <typename... Args>
 void BaseNode::logThrottle(const char* file, int line, uint8_t level, double period, const Args&... args)
 {
   const auto id = createID(file, line);
-  const auto now = get_clock()->now();
+  const auto now = node_->get_clock()->now();
   auto it = log_throttle_.find(id);
   if (it == log_throttle_.end())
   {
@@ -309,5 +333,71 @@ template <typename... Args>
 inline void BaseNode::fatalThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, period, args...);
+}
+
+template <typename T>
+void BaseNode::checkConstraint(const std::string& name, const T& param, const sdf_constr_t& constr) const
+{
+  switch (constr)
+  {
+    case NONE:
+      break;
+    case POSITIVE:
+      if (param <= 0)
+        TOBAS_EXIT(name, " must be positive.");
+      break;
+    case NEGATIVE:
+      if (param >= 0)
+        TOBAS_EXIT(name, " must be negative.");
+      break;
+    case NON_NEGATIVE:
+      if (param < 0)
+        TOBAS_EXIT(name, " must be non-negative.");
+      break;
+    case NON_POSITIVE:
+      if (param > 0)
+        TOBAS_EXIT(name, " must be non-positive.");
+      break;
+    default:
+      TOBAS_EXIT("Invalid constr type.");
+  }
+}
+
+template <typename T>
+void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const
+{
+  if (!sdf->HasElement(name))
+    TOBAS_EXIT("Please specify '", name, "'.");
+  param = sdf->Get<T>(name);
+}
+
+template <typename T>
+void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const
+{
+  if (!sdf->Get(name, param, dflt))
+    TOBAS_WARN("SDF parameter '", name, "' is not specified. The default value '", dflt, "' is used.");
+}
+
+template <typename T>
+void BaseNode::getSdfParam(
+  const sdf::ElementConstPtr& sdf,
+  const std::string& name,
+  T& param,
+  const sdf_constr_t& constr) const
+{
+  getSdfParam(sdf, name, param);
+  checkConstraint(name, param, constr);
+}
+
+template <typename T>
+void BaseNode::getSdfParam(
+  const sdf::ElementConstPtr& sdf,
+  const std::string& name,
+  T& param,
+  const T& dflt,
+  const sdf_constr_t& constr) const
+{
+  getSdfParam(sdf, name, param, dflt);
+  checkConstraint(name, param, constr);
 }
 }  // namespace gazebo

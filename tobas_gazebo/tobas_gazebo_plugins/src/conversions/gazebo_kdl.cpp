@@ -28,9 +28,9 @@ void quaternionGazeboToKDL(const gz::math::Quaterniond& g, kdl::Quaternion& k)
 
 void quaternionKDLToGazebo(const kdl::Quaternion& k, gz::math::Quaterniond& g)
 {
-  g.X(k.x);
-  g.Y(k.y);
-  g.Z(k.z);
-  g.W(k.w);
+  g.SetX(k.x);
+  g.SetY(k.y);
+  g.SetZ(k.z);
+  g.SetW(k.w);
 }
 }  // namespace gazebo

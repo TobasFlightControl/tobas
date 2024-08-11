@@ -13,8 +13,7 @@
 namespace gazebo
 {
 class GazeboOdometryPlugin : public SensorPlugin
-{  // Constants
-  static constexpr char kPluginName[] = "odometry_plugin";
+{ 
 
   // Default values
   static constexpr double kDefaultCovarianceImageScale = 1.;

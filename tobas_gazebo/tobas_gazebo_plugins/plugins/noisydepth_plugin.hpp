@@ -17,8 +17,6 @@ namespace gazebo
  */
 class GazeboNoisyDepthPlugin : public SensorPlugin, GazeboRosCameraUtils
 {
-  // Constants
-  static constexpr char kPluginName[] = "noisydepth_plugin";
 
   // Default values
   const std::string kDefaultIrImageTopic = "ir/image_raw";
