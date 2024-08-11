@@ -3,7 +3,7 @@
 #include <tobas_constants/constants.hpp>
 
 #include "./lidar_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 
 using namespace std;
 using namespace gz::math;

@@ -31,6 +31,6 @@ private:
   PublisherPtr<> contacts_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void onUpdate(const common::UpdateInfo& info);
+
 };
 }  // namespace gazebo

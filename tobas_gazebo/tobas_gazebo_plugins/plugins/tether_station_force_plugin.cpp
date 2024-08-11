@@ -1,6 +1,6 @@
 #include "./tether_station_force_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
@@ -17,7 +17,7 @@ void GazeboTetherStationForcePlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{
+{initialize(sdf);
 
 
   getSdfParams(sdf);
@@ -50,11 +50,11 @@ void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sd
   getSdfParam(sdf, "crossSectionArea", csa_, kDefaultCrossSectionArea, POSITIVE);
 }
 
-void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
+void GazeboTetherStationForcePlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   if (contacts_ == nullptr)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kContactStatesTopic << " is not received yet.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kContactStatesTopic << " is not received yet.");
     return;
   }
 

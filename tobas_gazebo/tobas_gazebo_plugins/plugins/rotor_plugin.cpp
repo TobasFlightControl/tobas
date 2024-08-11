@@ -4,11 +4,11 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_gazebo_common/constants.hpp>
-#include <tobas_msgs/RotorState.h>
+#include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_gazebo_msgs/RotorDebug.h>
 
 #include "./rotor_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/time.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
@@ -28,7 +28,7 @@ void GazeboRotorPlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{
+{initialize(sdf);
   // Get SDF parameters
   getSdfParams(sdf);
 
@@ -125,17 +125,17 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
-void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
+void GazeboRotorPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   // Check topics
   if (battery_ == nullptr)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kBatteryGtTopic << " is not received yet.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kBatteryGtTopic << " is not received yet.");
     return;
   }
   if (!wind_received_)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kWindGtTopic << " is not received yet.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kWindGtTopic << " is not received yet.");
     return;
   }
 
@@ -160,7 +160,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   // Check aliasing
   if (abs(rot_speed_sim) * dt > M_PI)
   {
-    GZ_WARN_THROTTLE(
+    TOBAS_WARN_THROTTLE(
       kWarnPeriod, "Aliasing on motor [" << motor_number_ << "] might occur. Lower simulation time step.");
   }
 
@@ -176,7 +176,7 @@ void GazeboRotorPlugin::registerPubSub()
 {
   const string suffix = "_" + to_string(motor_number_);
 
-  rotor_state_pub_ = createPublisher<tobas_msgs::RotorState>(path::join(ns(), kRotorStateGtTopicPrefix + suffix));
+  rotor_state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(ns(), kRotorStateGtTopicPrefix + suffix));
   debug_pub_ = createPublisher<tobas_gazebo_msgs::RotorDebug>(path::join(ns(), kDebugTopicPrefix + suffix));
 
   throttle_sub_ = createSubscriber(
@@ -254,7 +254,7 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   }
 
   // Publish rotor state
-  const auto rotor_state = std::make_unique<tobas_msgs::RotorState>();
+  const auto rotor_state = std::make_unique<tobas_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, rotor_state->header.stamp);
   rotor_state->speed = rot_speed;
   rotor_state->current = current;

@@ -10,7 +10,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_eigen.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 #include "../include/tobas_gazebo_plugins/time.hpp"
 
 using namespace std;
@@ -27,7 +27,7 @@ void GazeboFixedWingPlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{
+{initialize(sdf);
 
 
   getSdfParams(sdf);
@@ -160,7 +160,7 @@ void GazeboFixedWingPlugin::registerPubSub()
     createSubscriber(path::join(ns(), kWindGtTopic, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
-void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
+void GazeboFixedWingPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   // 最新のコマンドからの経過時間を確認
   const auto& cur_time = info.simTime;

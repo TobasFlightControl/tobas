@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ros/timer.h>
-#include <std_srvs/Empty.h>
+#include <std_srvs/srv/empty.hpp>
 
 #include <tobas_node/node.hpp>
 
@@ -22,7 +22,7 @@ private:
   ServicePtr<> start_ss_;
   ServicePtr<> stop_ss_;
 
-  bool startMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
-  bool stopMainTimerSrvCb(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& res);
+  bool startMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr& req, const std_srvs::srv::Empty::Response::SharedPtr& res);
+  bool stopMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr& req, const std_srvs::srv::Empty::Response::SharedPtr& res);
 };
 }  // namespace hal

@@ -1,5 +1,5 @@
 #include "./tether_station_visual_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 
 using namespace std;
 using namespace gz::math;

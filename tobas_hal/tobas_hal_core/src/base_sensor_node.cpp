@@ -12,13 +12,13 @@ BaseSensorNode::BaseSensorNode(const rclcpp::NodeOptions& options) : super(node,
   stop_ss_ = createService(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
 }
 
-bool BaseSensorNode::startMainTimerSrvCb(std_srvs::EmptyRequest&, std_srvs::EmptyResponse&)
+bool BaseSensorNode::startMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr&, const std_srvs::srv::Empty::Response::SharedPtr&)
 {
   main_timer_.start();
   return true;
 }
 
-bool BaseSensorNode::stopMainTimerSrvCb(std_srvs::EmptyRequest&, std_srvs::EmptyResponse&)
+bool BaseSensorNode::stopMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr&, const std_srvs::srv::Empty::Response::SharedPtr&)
 {
   main_timer_.stop();
   return true;

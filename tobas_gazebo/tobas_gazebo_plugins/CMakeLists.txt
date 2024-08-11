@@ -23,6 +23,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 find_package(laser_geometry REQUIRED)
 find_package(tobas_dsp REQUIRED)
 find_package(tobas_kdl REQUIRED)
@@ -48,6 +49,7 @@ add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}
 	sensor_msgs
 	geometry_msgs
+	std_srvs
 	laser_geometry
 	tobas_dsp
 	tobas_kdl
@@ -70,6 +72,7 @@ target_link_libraries(${PROJECT_NAME}
 set(PLUGIN_CPP_FILES
 	plugins/barometer_plugin.cpp
 	plugins/rotor_speeds_publisher_plugin.cpp
+	plugins/battery_plugin.cpp
 )
 set(targets_to_install "")
 

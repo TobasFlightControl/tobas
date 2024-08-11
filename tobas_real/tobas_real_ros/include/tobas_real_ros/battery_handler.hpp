@@ -28,7 +28,7 @@ private:
 
   ptree::PropertyClient property_client_;
 
-  PublisherPtr<> battery_pub_;
+  PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
   SubscriberPtr<> adc_sub_;
 
   ServicePtr<> reload_config_srv_;

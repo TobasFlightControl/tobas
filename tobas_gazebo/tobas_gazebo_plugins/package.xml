@@ -11,6 +11,7 @@
 
 	<depend>sensor_msgs</depend>
 	<depend>geometry_msgs</depend>
+	<depend>std_srvs</depend>
 	<depend>laser_geometry</depend>
 	<depend>tobas_dsp</depend>
 	<depend>tobas_kdl</depend>

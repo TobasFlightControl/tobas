@@ -2,7 +2,7 @@
 #include <tobas_msgs/Wind.hpp>
 
 #include "./wind_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
 using namespace std;
@@ -19,7 +19,7 @@ void GazeboWindPlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{
+{initialize(sdf);
 
 
   // Initialize wind parameters
@@ -48,7 +48,7 @@ void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "linkName", link_name_);
 }
 
-void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
+void GazeboWindPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   // 時刻を更新
   const auto& cur_time = info.simTime;

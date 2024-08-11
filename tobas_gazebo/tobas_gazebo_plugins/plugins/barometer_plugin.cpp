@@ -41,7 +41,7 @@ public:
 
 private:
   // SDF parameters
-  std::string link_name_;
+  string link_name_;
   size_t update_rate_;
   math::Vector3d offset_;  // B_Pos_BS
   double alt_0_;
@@ -52,8 +52,8 @@ private:
   LinkWorldPoseSolver pose_solver_;
   RateManager::SharedPtr rate_manager_;
 
-  std::random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
+  random_device rnd_dev_;
+  mt19937 rnd_gen_;
   NormalDistribution pressure_noise_;
 
   PublisherPtr<sensor_msgs::msg::FluidPressure> pressure_pub_;
@@ -81,7 +81,7 @@ void GazeboBarometerPlugin::Configure(
   if (!pose_solver_.initialize(model, ecm))
     TOBAS_EXIT("Failed to initialize pose solver.");
 
-  rate_manager_ = std::make_shared<RateManager>(update_rate_);
+  rate_manager_ = make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
 
   pressure_pub_ = createPublisher<PressureMsg>(path::join(ns(), tobas::kAirPressureTopic));
@@ -121,7 +121,7 @@ void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::E
   pressure += pressure_noise_(rnd_gen_);
 
   // Create a pressure message
-  auto pressure_msg = std::make_unique<sensor_msgs::msg::FluidPressure>();
+  auto pressure_msg = make_unique<sensor_msgs::msg::FluidPressure>();
   ros2::timeChronoToMsg(info.simTime, pressure_msg->header.stamp);
   pressure_msg->header.frame_id = link_name_;
   pressure_msg->fluid_pressure = pressure;

@@ -4,7 +4,7 @@
 
 #include "./ground_truth_state_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
 
@@ -22,7 +22,7 @@ void GazeboGroundTruthStatePlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{
+{initialize(sdf);
 
 
   // Get SDF parameters

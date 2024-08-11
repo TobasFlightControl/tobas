@@ -90,7 +90,7 @@ private:
   SubscriberPtr<> wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementPtr& sdf);
-  void onUpdate(const common::UpdateInfo& info);
+
   void registerPubSub();
   bool isReady();
   void addModelError();

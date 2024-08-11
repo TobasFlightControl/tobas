@@ -75,7 +75,7 @@ private:
   ServicePtr<> set_params_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void onUpdate(const common::UpdateInfo& info);
+
 
   bool getParamsCb(tobas_gazebo_msgs::GetWindParamsRequest& req, tobas_gazebo_msgs::GetWindParamsResponse& res);
   bool setParamsCb(tobas_gazebo_msgs::SetWindParamsRequest& req, tobas_gazebo_msgs::SetWindParamsResponse& res);

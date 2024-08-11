@@ -58,7 +58,7 @@ private:
   ServicePtr<> set_params_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void onUpdate(const common::UpdateInfo& info);
+
 
   bool isThis(const std::string& name);
   bool isPlane(const uint32_t& shape);

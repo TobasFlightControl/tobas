@@ -76,7 +76,7 @@ private:
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
-  void onUpdate(const common::UpdateInfo& info);
+
   void updateDeflections(const double& dt);
   gz::math::Vector3d nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta);
   gz::math::Vector3d

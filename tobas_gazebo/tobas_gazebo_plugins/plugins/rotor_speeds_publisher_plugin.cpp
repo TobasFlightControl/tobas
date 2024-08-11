@@ -30,10 +30,10 @@ public:
 
 private:
   // SDF parameters
-  std::vector<std::string> rotor_joint_names_;
+  vector<string> rotor_joint_names_;
 
   // Gazebo objects
-  std::vector<sim::Entity> rotor_joints_;
+  vector<sim::Entity> rotor_joints_;
 
   // PubSub
   PublisherPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_pub_;
@@ -75,7 +75,7 @@ void GazeboRotorSpeedsPublisherPlugin::getSdfParams(const sdf::ElementConstPtr& 
 void GazeboRotorSpeedsPublisherPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   // Publish rotor speeds
-  auto rotor_speeds = std::make_unique<tobas_msgs::msg::RotorSpeeds>();
+  auto rotor_speeds = make_unique<tobas_msgs::msg::RotorSpeeds>();
   ros2::timeChronoToMsg(info.simTime, rotor_speeds->header.stamp);
   for (const auto& joint : rotor_joints_)
   {

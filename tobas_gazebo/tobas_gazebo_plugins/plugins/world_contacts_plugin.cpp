@@ -2,7 +2,7 @@
 
 #include "./world_contacts_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
@@ -19,7 +19,7 @@ void GazeboWorldContactsPlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{
+{initialize(sdf);
 
 
   getSdfParams(sdf);
@@ -37,7 +37,7 @@ void GazeboWorldContactsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 }
 
-void GazeboWorldContactsPlugin::onUpdate(const common::UpdateInfo& info)
+void GazeboWorldContactsPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
   const auto msg =std::make_unique<tobas_gazebo_msgs::ContactStates>();
 

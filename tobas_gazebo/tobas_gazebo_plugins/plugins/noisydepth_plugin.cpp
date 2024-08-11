@@ -3,7 +3,7 @@
 #include <sensor_msgs/Image.h>
 
 #include "./noisydepth_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/sdfparam.hpp"
+
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
 using namespace std;
