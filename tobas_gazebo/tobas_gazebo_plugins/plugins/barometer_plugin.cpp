@@ -5,8 +5,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_gazebo_tools/link_world_pose_solver.hpp>
-
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
@@ -47,9 +45,8 @@ private:
   double alt_0_;
   double pressure_var_;
 
-  sim::Entity link_;
+  const cmp::WorldPose* pose_W_;
 
-  LinkWorldPoseSolver pose_solver_;
   RateManager::SharedPtr rate_manager_;
 
   random_device rnd_dev_;
@@ -74,12 +71,14 @@ void GazeboBarometerPlugin::Configure(
   initialize(sdf);
   getSdfParams(sdf);
 
-  link_ = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link_ == sim::kNullEntity)
+  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
+  if (link == sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
-  if (!pose_solver_.initialize(model, ecm))
-    TOBAS_EXIT("Failed to initialize pose solver.");
+  if (ecm.EntityHasComponentType(link, cmp::WorldPose().TypeId()))
+    pose_W_ = ecm.Component<cmp::WorldPose>(link);
+  else
+    pose_W_ = ecm.CreateComponent(link, cmp::WorldPose());
 
   rate_manager_ = make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
@@ -96,19 +95,13 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);
 }
 
-void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
+void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime))
     return;
 
-  if (!pose_solver_.solve(link_, ecm))
-  {
-    TOBAS_ERROR("Failed to get the world pose of \"", link_name_, "\".");
-    return;
-  }
-
   // Get the current geometric height of sensor
-  const auto& T_W_B = pose_solver_.getWorldPose();
+  const auto& T_W_B = pose_W_->Data();
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& W_Rot_B = T_W_B.Rot();
   const auto W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;

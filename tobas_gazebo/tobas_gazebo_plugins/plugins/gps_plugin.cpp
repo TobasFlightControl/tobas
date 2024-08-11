@@ -60,9 +60,9 @@ private:
   double lon_0_;  // 原点の東経
   double alt_0_;  // 原点の高度
 
-  cmp::WorldPose* pose_W_;
-  cmp::WorldLinearVelocity* vel_W_;
-  cmp::AngularVelocity* gyro_B_;
+  const cmp::WorldPose* pose_W_;
+  const cmp::WorldLinearVelocity* vel_W_;
+  const cmp::AngularVelocity* gyro_B_;
 
   RateManager::SharedPtr rate_manager_;
 
@@ -177,12 +177,12 @@ void GazeboGpsPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityC
   const auto dt = chrono::duration<double>(info.dt).count();
   pos_bias_ += (dpos_noise_->get() - pos_bias_ / pos_corr_time_) * dt;
 
-  // 履歴が溜まっていなければ発行しない
-  if (!is_history_filled_)
-    return;
-
   // 更新時刻になっていなければ発行しない
   if (!rate_manager_->update(info.simTime))
+    return;
+
+  // 履歴が溜まっていなければ発行しない
+  if (!is_history_filled_)
     return;
 
   // 最新の発行時刻を更新
