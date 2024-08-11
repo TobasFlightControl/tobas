@@ -6,7 +6,7 @@
 
 #include <tobas_msgs/RotorState.h>
 
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 
 namespace gazebo
 {
@@ -26,10 +26,14 @@ public:
   explicit GazeboBatteryPlugin();
 
 protected:
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   double max_voltage_;  // [V] 満充電時の電圧
@@ -44,7 +48,7 @@ private:
   std::vector<double> currents_;  // [A] 各モータに流れる電流
   double q_;                      // [As] 現在の電気量
   common::Time t_last_;
-  event::ConnectionPtr update_connection_;
+
 
   // Random generator
   std::random_device rnd_dev_;

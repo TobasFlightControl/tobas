@@ -36,7 +36,7 @@ protected:
   void OnNewLaserScans() override;
 
 private:
-  rclcpp::Node::SharedPtr node_;  // pointer to ros node
+    // pointer to ros node
 
   // SDF parameters
   std::string frame_name_;  // frame transform name, should match link name

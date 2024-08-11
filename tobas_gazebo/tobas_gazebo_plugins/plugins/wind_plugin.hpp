@@ -11,7 +11,7 @@
 #include <tobas_gazebo_msgs/GetWindParams.h>
 #include <tobas_gazebo_msgs/SetWindParams.h>
 
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 
 namespace gazebo
 {
@@ -41,7 +41,11 @@ public:
   explicit GazeboWindPlugin();
 
 protected:
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&) override;
 
 private:
   enum gust_state_t : uint8_t
@@ -50,13 +54,13 @@ private:
     NO_GUST,
   };
 
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   std::string link_name_;
 
   physics::LinkPtr link_;
-  event::ConnectionPtr update_connection_;
+
 
   tobas_gazebo_msgs::WindParams params_;
   common::Time prev_sim_time_;

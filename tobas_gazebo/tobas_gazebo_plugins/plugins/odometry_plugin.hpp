@@ -7,13 +7,13 @@
 #include <gazebo/sensors/sensors.hh>
 #include <opencv2/core/core.hpp>
 
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"
 
 namespace gazebo
 {
 class GazeboOdometryPlugin : public SensorPlugin
-{ 
+{
 
   // Default values
   static constexpr double kDefaultCovarianceImageScale = 1.;
@@ -26,7 +26,7 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   std::string link_name_;
@@ -54,7 +54,7 @@ private:
 
   physics::WorldPtr world_;
   physics::LinkPtr link_;
-  event::ConnectionPtr update_connection_;
+
   std::random_device rnd_dev_;
 
   PublisherPtr<> odometry_pub_;

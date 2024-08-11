@@ -14,9 +14,13 @@ GazeboWindPlugin::GazeboWindPlugin() : super()
 {
 }
 
-void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboWindPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   // Initialize wind parameters
   params_.mean_speed = kDefaultMeanWindSpeed;
@@ -29,18 +33,18 @@ void GazeboWindPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
   link_ = model->GetLink(link_name_);
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
-  wind_pub_ = createPublisher<tobas_msgs::Wind>("/" + ns() + "/" + kWindGtTopic);
-  get_params_ss_ = createService("/" + ns() + "/" + kGetWindParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = createService("/" + ns() + "/" + kSetWindParamsSrv, &self::setParamsCb, this);
+  wind_pub_ = createPublisher<tobas_msgs::Wind>(path::join(ns(), kWindGtTopic);
+  get_params_ss_ = createService(path::join(ns(), kGetWindParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = createService(path::join(ns(), kSetWindParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
 }
 
@@ -82,7 +86,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
     }
     default:
     {
-      gzthrow("Invalid gust state: " << static_cast<int>(gust_state_));
+      TOBAS_EXIT("Invalid gust state: " << static_cast<int>(gust_state_));
     }
   }
 
@@ -124,7 +128,7 @@ bool GazeboWindPlugin::setParamsCb(
   // Mean speed
   if (req.params.mean_speed < 0)
   {
-    gzerr << kPluginName << ": Mean wind speed must be non-negative." << endl;
+    gzerr << "Mean wind speed must be non-negative." << endl;
     res.success = false;
     return true;
   }
@@ -137,19 +141,19 @@ bool GazeboWindPlugin::setParamsCb(
   if (req.params.gust_speed_factor > 0)
     params_.gust_speed_factor = res.params.gust_speed_factor = req.params.gust_speed_factor;
   else
-    gzwarn << kPluginName << ": Gust speed factor remains unchanged." << endl;
+    gzwarn << "Gust speed factor remains unchanged." << endl;
 
   // Gust duration
   if (req.params.gust_duration > 0)
     params_.gust_duration = res.params.gust_duration = req.params.gust_duration;
   else
-    gzwarn << kPluginName << ": Gust duration remains unchanged." << endl;
+    gzwarn << "Gust duration remains unchanged." << endl;
 
   // Gust interval
   if (req.params.gust_interval > 0)
     params_.gust_interval = res.params.gust_interval = req.params.gust_interval;
   else
-    gzwarn << kPluginName << ": Gust interval remains unchanged." << endl;
+    gzwarn << "Gust interval remains unchanged." << endl;
 
   // Update dryden wind model
   dryden_.setMeanWindSpeed(req.params.mean_speed);

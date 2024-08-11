@@ -9,7 +9,7 @@
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 
 namespace gazebo
 {
@@ -39,7 +39,7 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   std::string link_name_;
@@ -59,7 +59,7 @@ private:
 
   physics::WorldPtr world_;
   physics::LinkPtr link_;
-  event::ConnectionPtr update_connection_;
+
   common::Time last_time_ = common::Time(0);
   gz::math::Vector3d acc_bias_ = zero3, gyro_bias_ = zero3;
   gz::math::Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;

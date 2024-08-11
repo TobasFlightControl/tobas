@@ -1,5 +1,5 @@
 from .base_static_joint import BaseStaticJoint
-from .base_plugin import BasePlugin
+from .rotor_speeds_publisher_plugin import RotorSpeedsPublisherPlugin
 from .state_gt import GroundTruthStateModel
 from .wind import WindModel
 from .world_contacts import WorldContactsModel

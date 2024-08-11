@@ -13,7 +13,7 @@ public:
   explicit TobasBridge();
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
   rclcpp::Node::SharedPtr pnh_;
 
   PublisherPtr<> js_pub_;

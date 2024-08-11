@@ -11,7 +11,7 @@
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/Wind.hpp>
 
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/simple_joint_model.hpp"
 
 namespace gazebo
@@ -40,10 +40,14 @@ public:
   explicit GazeboFixedWingPlugin();
 
 protected:
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   std::string link_name_;
@@ -63,7 +67,7 @@ private:
   tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr cs_deflections_;  // 舵角 [rad]
 
   physics::LinkPtr link_;
-  event::ConnectionPtr update_connection_;
+
 
   // PubSub
   PublisherPtr<> debug_pub_;

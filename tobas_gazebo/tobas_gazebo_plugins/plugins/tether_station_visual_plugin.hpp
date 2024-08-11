@@ -24,7 +24,7 @@ private:
   gz::math::Vector3d W_Pos_WP_;
   gz::math::Vector3d B_Pos_BQ_;
 
-  event::ConnectionPtr update_connection_;
+
   rendering::VisualPtr visual_;
   rendering::DynamicLines* line_;
 

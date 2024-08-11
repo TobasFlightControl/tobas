@@ -23,7 +23,7 @@ GazeboOdometryPlugin::GazeboOdometryPlugin() : super()
 
 void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   getSdfParams(sdf);
   setRandomDistributions();
@@ -31,7 +31,7 @@ void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   world_ = physics::get_world(sensor->WorldName());
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
   registerPublishers();
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboOdometryPlugin::onUpdate, this));
@@ -39,7 +39,7 @@ void GazeboOdometryPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboOdometryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, zero3);
   getSdfParam(sdf, "noiseNormalPosition", noise_normal_position_, zero3);
@@ -56,7 +56,7 @@ void GazeboOdometryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
     const auto image_name = sdf->GetElement("covarianceImage")->Get<string>();
     covariance_image_ = cv::imread(image_name, cv::IMREAD_GRAYSCALE);
     if (covariance_image_.data == nullptr)
-      gzthrow(kPluginName << ": Loading covariance image " << image_name << " failed.");
+      TOBAS_EXIT("Loading covariance image " << image_name << " failed.");
 
     getSdfParam(sdf, "covarianceImageScale", cov_image_scale_, kDefaultCovarianceImageScale, POSITIVE);
   }
@@ -76,7 +76,7 @@ void GazeboOdometryPlugin::setRandomDistributions()
 
 void GazeboOdometryPlugin::registerPublishers()
 {
-  odometry_pub_ = createPublisher<nav_msgs::Odometry>("/" + ns() + "/" + tobas::kExternalOdomTopic);
+  odometry_pub_ = createPublisher<nav_msgs::Odometry>(path::join(ns(), tobas::kExternalOdomTopic);
 }
 
 void GazeboOdometryPlugin::onUpdate()
@@ -144,7 +144,7 @@ void GazeboOdometryPlugin::publishOdomMsg(
 {
   const auto odom_msg =std::make_unique<nav_msgs::Odometry>();
 
-  timeGazeboToRos(world_->SimTime(), odom_msg->header.stamp);
+  ros2::timeChronoToMsg(world_->SimTime(), odom_msg->header.stamp);
   odom_msg->header.frame_id = "world";
   odom_msg->child_frame_id = link_name_;
 

@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace gz;
+namespace cmp = sim::components;
 
 namespace gazebo
 {
@@ -73,7 +74,7 @@ void GazeboBarometerPlugin::Configure(
   initialize(sdf);
   getSdfParams(sdf);
 
-  link_ = ecm.EntityByComponents(sim::components::Name(link_name_), sim::components::Link());
+  link_ = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
   if (link_ == sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
@@ -133,6 +134,6 @@ void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::E
 
 GZ_ADD_PLUGIN(
   gazebo::GazeboBarometerPlugin,
-  gz::sim::System,
+  sim::System,
   gazebo::GazeboBarometerPlugin::ISystemConfigure,
   gazebo::GazeboBarometerPlugin::ISystemPostUpdate)

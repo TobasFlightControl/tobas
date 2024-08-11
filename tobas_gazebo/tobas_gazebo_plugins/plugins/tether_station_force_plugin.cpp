@@ -1,5 +1,5 @@
 #include "./tether_station_force_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
@@ -12,9 +12,13 @@ GazeboTetherStationForcePlugin::GazeboTetherStationForcePlugin() : super()
 {
 }
 
-void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboTetherStationForcePlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   getSdfParams(sdf);
 
@@ -25,18 +29,18 @@ void GazeboTetherStationForcePlugin::Load(physics::ModelPtr model, sdf::ElementP
 
   link_ = model->GetLink(link_name_);
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
-  contacts_sub_ = createSubscriber("/" + ns() + "/" + kContactStatesTopic, &self::contactStatesCb, this);
-  get_params_ss_ = createService("/" + ns() + "/" + kGetTetherParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = createService("/" + ns() + "/" + kSetTetherParamsSrv, &self::setParamsCb, this);
+  contacts_sub_ = createSubscriber(path::join(ns(), kContactStatesTopic, &self::contactStatesCb, this);
+  get_params_ss_ = createService(path::join(ns(), kGetTetherParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = createService(path::join(ns(), kSetTetherParamsSrv, &self::setParamsCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "worldEnd", W_Pos_WP_, zero3);
   getSdfParam(sdf, "droneEnd", B_Pos_BQ_, zero3);
@@ -50,7 +54,7 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
 {
   if (contacts_ == nullptr)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns() << "/" << kContactStatesTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kContactStatesTopic << " is not received yet.");
     return;
   }
 
@@ -60,7 +64,7 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
   {
     if (isContactWithPlane())
     {
-      gzmsg << kPluginName << ": First contact with plane is detected." << endl;
+      gzmsg << "First contact with plane is detected." << endl;
       first_contact_detected_ = true;
     }
     return;
@@ -156,7 +160,7 @@ bool GazeboTetherStationForcePlugin::setParamsCb(
   // Tension
   if (req.params.tension < 0)
   {
-    gzerr << kPluginName << ": Tension must be non-negative." << endl;
+    gzerr << "Tension must be non-negative." << endl;
     res.success = false;
     return true;
   }
@@ -165,7 +169,7 @@ bool GazeboTetherStationForcePlugin::setParamsCb(
   // Maximum length
   if (req.params.maximum_length <= 0)
   {
-    gzerr << kPluginName << ": Maximum length must be positive." << endl;
+    gzerr << "Maximum length must be positive." << endl;
     res.success = false;
     return true;
   }

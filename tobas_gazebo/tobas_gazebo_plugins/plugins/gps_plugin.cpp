@@ -18,7 +18,7 @@ GazeboGpsPlugin::GazeboGpsPlugin() : super(), is_history_filled_(false)
 
 void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   getSdfParams(sdf);
   setRandomDistribuitons();
@@ -26,7 +26,7 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   world_ = physics::get_world(sensor->WorldName());
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
   registerPublishers();
   update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
@@ -34,7 +34,7 @@ void GazeboGpsPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboGpsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
 
   getSdfParam(sdf, "offset", offset_, zero3);
@@ -68,7 +68,7 @@ void GazeboGpsPlugin::setRandomDistribuitons()
 
 void GazeboGpsPlugin::registerPublishers()
 {
-  gps_pub_ = createPublisher<tobas_msgs::Gps>("/" + ns() + "/" + tobas::kGpsTopic);
+  gps_pub_ = createPublisher<tobas_msgs::Gps>(path::join(ns(), tobas::kGpsTopic);
 }
 
 void GazeboGpsPlugin::onUpdate()
@@ -113,7 +113,7 @@ void GazeboGpsPlugin::onUpdate()
   // GPSメッセージを作成
   const auto gps_msg =std::make_unique<tobas_msgs::Gps>();
   gps_msg->header.frame_id = link_name_;
-  timeGazeboToRos(gps_time, gps_msg->header.stamp);
+  ros2::timeChronoToMsg(gps_time, gps_msg->header.stamp);
   gps_msg->fix_type = tobas_msgs::Gps::FIX_3D;
   fillCovariances(*gps_msg);
   updatePosition(*gps_msg, T_W_B);

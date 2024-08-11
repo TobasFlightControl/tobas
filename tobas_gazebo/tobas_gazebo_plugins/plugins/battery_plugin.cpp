@@ -4,7 +4,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 
 #include "./battery_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 
@@ -16,9 +16,13 @@ GazeboBatteryPlugin::GazeboBatteryPlugin() : super(), rnd_gen_(rnd_dev_())
 {
 }
 
-void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboBatteryPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   getSdfParams(sdf);
 
@@ -28,14 +32,14 @@ void GazeboBatteryPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
   registerPubSub();
-  charge_srv_ = createService("/" + ns() + "/" + kChargeBatterySrv, &self::chargeCb, this);
+  charge_srv_ = createService(path::join(ns(), kChargeBatterySrv, &self::chargeCb, this);
 
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
 }
 
 void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "maxVoltage", max_voltage_, POSITIVE);
   getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
@@ -76,7 +80,7 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
   {
     GZ_WARN_THROTTLE(
       kWarnPeriod,
-      kPluginName << ": The battery current is over limit: " << current << " > " << max_current_ << " [A]" << endl);
+      "The battery current is over limit: " << current << " > " << max_current_ << " [A]" << endl);
   }
   const auto current_obs = current + current_noise_(rnd_gen_);  // 観測ノイズを受けた観測電流
 
@@ -90,14 +94,14 @@ void GazeboBatteryPlugin::onUpdate(const common::UpdateInfo& info)
 
   // 観測したバッテリーの状態を発行
   const auto battery =std::make_unique<tobas_msgs::msg::Battery>();
-  timeGazeboToRos(info.simTime, battery->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, battery->header.stamp);
   battery->voltage = voltage_obs;
   battery->current = current_obs;
   battery_pub_->publish(battery);
 
   // 真のバッテリーの状態を発行
   const auto battery_gt =std::make_unique<tobas_msgs::msg::Battery>();
-  timeGazeboToRos(info.simTime, battery_gt->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, battery_gt->header.stamp);
   battery_gt->voltage = voltage_out;
   battery_gt->current = current;
   battery_gt_pub_->publish(battery_gt);
@@ -118,7 +122,7 @@ double GazeboBatteryPlugin::currentVoltage()
 bool GazeboBatteryPlugin::chargeCb(std_srvs::EmptyRequest&, std_srvs::EmptyResponse&)
 {
   q_ = capacity_;
-  gzmsg << kPluginName << ": Battery is charged." << endl;
+  gzmsg << "Battery is charged." << endl;
   return true;
 }
 

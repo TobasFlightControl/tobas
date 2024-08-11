@@ -18,10 +18,14 @@ class GazeboGroundTruthStatePlugin : public ModelPlugin
 public:
   explicit GazeboGroundTruthStatePlugin();
 
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   std::string link_name_;
@@ -29,7 +33,7 @@ private:
   physics::WorldPtr world_;
   physics::ModelPtr model_;
   physics::LinkPtr link_;
-  event::ConnectionPtr update_connection_;
+
 
   PublisherPtr<> odom_pub_;
 

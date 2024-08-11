@@ -12,7 +12,7 @@
 #include <tobas_msgs/Wind.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/first_order_filter.hpp"
 
 namespace gazebo
@@ -38,10 +38,14 @@ public:
   explicit GazeboRotorPlugin();
 
 protected:
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   size_t motor_number_;
@@ -76,7 +80,7 @@ private:
   physics::JointPtr joint_;
   physics::LinkPtr link_;
   physics::LinkPtr parent_link_;
-  event::ConnectionPtr update_connection_;
+
 
   // PubSub
   PublisherPtr<> rotor_state_pub_;

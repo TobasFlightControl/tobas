@@ -19,7 +19,7 @@ GazeboImuPlugin::GazeboImuPlugin() : super(), rnd_gen_(rnd_dev_())
 
 void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   // Get SDF parameters
   getSdfParams(sdf);
@@ -30,7 +30,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   // Get the pointer to the link
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
   noise_ = NormalDistribution(0, 1);
   for (size_t i = 0; i < 3; ++i)
@@ -44,8 +44,8 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
   gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, zero3);
 
   // Advertise
-  imu_pub_ = createPublisher<tobas_msgs::Imu>("/" + ns() + "/" + tobas::kImuTopic);
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::ImuDebug>("/" + ns() + "/" + kDebugPubTopic);
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(path::join(ns(), tobas::kImuTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::ImuDebug>(path::join(ns(), kDebugPubTopic);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&self::onUpdate, this));
@@ -53,7 +53,7 @@ void GazeboImuPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, zero3);
 
@@ -143,7 +143,7 @@ void GazeboImuPlugin::publishImuMsg(const double& dt) const
 {
   const auto imu_msg =std::make_unique<tobas_msgs::Imu>();
 
-  timeGazeboToRos(world_->SimTime(), imu_msg->header.stamp);
+  ros2::timeChronoToMsg(world_->SimTime(), imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
 
   vectorGazeboToKDL(acc_lpf_.getOutput(), imu_msg->accel);
@@ -161,7 +161,7 @@ void GazeboImuPlugin::publishDebugMsg() const
 {
   const auto debug_msg =std::make_unique<tobas_gazebo_msgs::ImuDebug>();
 
-  timeGazeboToRos(world_->SimTime(), debug_msg->header.stamp);
+  ros2::timeChronoToMsg(world_->SimTime(), debug_msg->header.stamp);
   debug_msg->header.frame_id = link_name_;
 
   vectorGazeboToKDL(acc_bias_, debug_msg->acc_bias);

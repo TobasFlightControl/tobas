@@ -22,7 +22,7 @@ GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : super()
 
 void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   // Get SDF parameters
   getSdfParams(sdf);
@@ -33,7 +33,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   // Get the pointer to the link
   link_ = dynamic_pointer_cast<physics::Link>(world_->EntityByName(link_name_));
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
   // Create the normal noise distributions
   noise_.reset(new NormalDistribution3d(rnd_dev_, zero3, noise_normal_));
@@ -43,7 +43,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
   init_bias_ = init_bias_dist.get();
 
   // Advertise publisher
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>("/" + ns() + "/" + tobas::kMagTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(path::join(ns(), tobas::kMagTopic);
 
   // Listen to the update event
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboMagnetometerPlugin::onUpdate, this));
@@ -51,7 +51,7 @@ void GazeboMagnetometerPlugin::Load(sensors::SensorPtr sensor, sdf::ElementPtr s
 
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, zero3);
 
@@ -62,7 +62,7 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "noiseNormal", noise_normal_, zero3);
   getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, zero3);
   if (!allGreaterEqual(noise_normal_, 0.) || !allGreaterEqual(noise_uniform_initial_bias_, 0.))
-    gzthrow(kPluginName << ": Noise std. dev cannot be negative.");
+    TOBAS_EXIT("Noise std. dev cannot be negative.");
 }
 
 void GazeboMagnetometerPlugin::onUpdate()
@@ -95,7 +95,7 @@ void GazeboMagnetometerPlugin::publishMagMsg(const gz::math::Vector3d& field) co
 {
   const auto mag_msg =std::make_unique<tobas_msgs::MagneticField>();
 
-  timeGazeboToRos(world_->SimTime(), mag_msg->header.stamp);
+  ros2::timeChronoToMsg(world_->SimTime(), mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
 
   vectorGazeboToKDL(field, mag_msg->magnetic_field);

@@ -22,16 +22,20 @@ GazeboFixedWingPlugin::GazeboFixedWingPlugin() : super()
 {
 }
 
-void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboFixedWingPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   getSdfParams(sdf);
 
   // ボディフレームを取得
   link_ = model->GetLink(link_name_);
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
   // 制御面のジョイントと角度モデル
   for (const auto& cs : control_surfaces_)
@@ -39,15 +43,15 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
     // ジョイントを取得
     const auto joint = model->GetJoint(cs.joint_name);
     if (joint == nullptr)
-      gzthrow(kPluginName << ": Couldn't find the control surface joint \"" << cs.joint_name << "\".");
+      TOBAS_EXIT("Couldn't find the control surface joint \"" << cs.joint_name << "\".");
 
     // ジョイントの制限をチェック
     if (joint->LowerLimit(0) >= joint->UpperLimit(0))
-      gzthrow(kPluginName << ": The position limit of " << cs.joint_name << " is invalid.");
+      TOBAS_EXIT("The position limit of " << cs.joint_name << " is invalid.");
     if (joint->GetVelocityLimit(0) <= 0.)
-      gzthrow(kPluginName << ": The velocity limit of " << cs.joint_name << " must be positive.");
+      TOBAS_EXIT("The velocity limit of " << cs.joint_name << " must be positive.");
     if (joint->GetEffortLimit(0) <= 0.)
-      gzthrow(kPluginName << ": The effort limit of " << cs.joint_name << " must be positive.");
+      TOBAS_EXIT("The effort limit of " << cs.joint_name << " must be positive.");
 
     // ジョイントモデルを追加
     cs_joints_.push_back(joint);
@@ -61,7 +65,7 @@ void GazeboFixedWingPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
 
@@ -77,7 +81,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower, kDefaultLowerStallAngle);
   getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper, kDefaultUpperStallAngle);
   if (!vehicle_params_.alpha_limit.isValid())
-    gzthrow(kPluginName << ": Invalid stall angles");
+    TOBAS_EXIT("Invalid stall angles");
 
   // Aerodynamics
   getSdfParam(sdf, "cLift0", aero_coefs_.c_lift_0, POSITIVE);
@@ -112,14 +116,14 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
       getSdfParam(cs_elem, "index", cs.index, NON_NEGATIVE);
       if (indexes.contains(cs.index))
-        gzthrow(kPluginName << ": The index of each control surface must be unique.");
+        TOBAS_EXIT("The index of each control surface must be unique.");
 
       getSdfParam(cs_elem, "jointName", cs.joint_name);
 
       getSdfParam(cs_elem, "minAngle", cs.angle_limit.lower);
       getSdfParam(cs_elem, "maxAngle", cs.angle_limit.upper);
       if (!cs.angle_limit.isValid() || !cs.angle_limit.inRange(0.))
-        gzthrow(kPluginName << ": Invalid range of control surface angle");
+        TOBAS_EXIT("Invalid range of control surface angle");
 
       getSdfParam(cs_elem, "maxAngleRate", cs.max_angle_rate, POSITIVE);
 
@@ -138,7 +142,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
     for (size_t i = 0; i < indexes.size(); ++i)
     {
       if (!indexes.contains(static_cast<int>(i)))
-        gzthrow(kPluginName << ": controlSurface index mismatch.");
+        TOBAS_EXIT("controlSurface index mismatch.");
     }
   }
 
@@ -148,12 +152,12 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::FixedWingDebug>("/" + ns() + "/" + kDebugPubTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::FixedWingDebug>(path::join(ns(), kDebugPubTopic);
 
   deflections_sub_ = createSubscriber(
-    "/" + ns() + "/" + tobas::kDeflectionCmdTopic, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
+    path::join(ns(), tobas::kDeflectionCmdTopic, &self::deflectionsCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_sub_ =
-    createSubscriber("/" + ns() + "/" + kWindGtTopic, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
+    createSubscriber(path::join(ns(), kWindGtTopic, &self::windSpeedCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
@@ -164,7 +168,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   if (time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     cs_deflections_ = nullptr;
-    gzmsg << kPluginName << ": Deflection angles of control surfaces are automatically reset because "
+    gzmsg << "Deflection angles of control surfaces are automatically reset because "
           << tobas::kAutoResetTimeThreshold << " seconds have elapsed since the last command." << endl;
   }
 
@@ -190,7 +194,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
   if (!vehicle_params_.alpha_limit.inRange(alpha))
   {
     GZ_ERROR_THROTTLE(
-      kErrorPeriod, kPluginName << ": The angle of attack " << alpha << " is not within the valid range "
+      kErrorPeriod, "The angle of attack " << alpha << " is not within the valid range "
                                 << vehicle_params_.alpha_limit
                                 << ". The accuracy of the physics simulation may be compromised.");
   }
@@ -244,7 +248,7 @@ void GazeboFixedWingPlugin::onUpdate(const common::UpdateInfo& info)
 
   // デバッグ用メッセージを発行
   const auto debug_msg =std::make_unique<tobas_gazebo_msgs::FixedWingDebug>();
-  timeGazeboToRos(info.simTime, debug_msg->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
   vectorGazeboToKDL(linvel_B, debug_msg->relative_body_velocity);
   debug_msg->alpha = alpha;
   debug_msg->beta = beta;
@@ -268,7 +272,7 @@ void GazeboFixedWingPlugin::updateDeflections(const double& dt)
     // Gazebo内の関節角を更新
     // これは単なるアニメーションであり，制御面を動かすことによる機体への反作用は考慮しない
     if (!cs_joints_[i]->SetPosition(0, cs_angle_models_[i].currentPosition(), true))
-      gzerr << kPluginName << ": Failed to set control surface deflection." << endl;
+      gzerr << "Failed to set control surface deflection." << endl;
   }
 }
 

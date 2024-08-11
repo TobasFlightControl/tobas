@@ -22,11 +22,11 @@ GazeboNoisyDepthPlugin::~GazeboNoisyDepthPlugin()
 
 void GazeboNoisyDepthPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   parent_sensor_ = dynamic_pointer_cast<sensors::DepthCameraSensor>(parent);
   if (!parent_sensor_)
-    gzthrow(kPluginName << ": Depth camera sensor is not attached.");
+    TOBAS_EXIT("Depth camera sensor is not attached.");
   depth_camera_ = parent_sensor_->DepthCamera();
 
   // Copy from DepthCamera into GazeboRosCameraUtils
@@ -122,7 +122,7 @@ void GazeboNoisyDepthPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "depthNoiseMinDist", noise_min_dist_, kDefaultDepthNoiseMinDist, NON_NEGATIVE);
   getSdfParam(sdf, "depthNoiseMaxDist", noise_max_dist_, kDefaultDepthNoiseMaxDist, NON_NEGATIVE);
   if (noise_min_dist_ >= noise_max_dist_)
-    gzthrow(kPluginName << ": Invalid noise distance range.");
+    TOBAS_EXIT("Invalid noise distance range.");
 
   getSdfParam(sdf, "horizontalFOV", horizontal_fov_, kDefaultHorizontalFOV, POSITIVE);
   getSdfParam(sdf, "baseline", baseline_, kDefaultBaseline, POSITIVE);
@@ -137,7 +137,7 @@ void GazeboNoisyDepthPlugin::setNoiseModel()
   else if (noise_model_name_ == "D435")
     noise_model_.reset(new D435DepthNoiseModel(noise_min_dist_, noise_max_dist_, horizontal_fov_, baseline_));
   else
-    gzthrow(kPluginName << ": Invalid depth noise model: " << noise_model_name_);
+    TOBAS_EXIT("Invalid depth noise model: " << noise_model_name_);
 }
 
 void GazeboNoisyDepthPlugin::advertise()
@@ -190,7 +190,7 @@ void GazeboNoisyDepthPlugin::publishDepthImage(const float* src)
   const auto image_msg =std::make_unique<sensor_msgs::msg::Image>();
 
   // Fill header
-  timeGazeboToRos(parent_sensor_->LastMeasurementTime(), image_msg->header.stamp);
+  ros2::timeChronoToMsg(parent_sensor_->LastMeasurementTime(), image_msg->header.stamp);
   image_msg->header.frame_id = frame_name_;
 
   // Fill basic information

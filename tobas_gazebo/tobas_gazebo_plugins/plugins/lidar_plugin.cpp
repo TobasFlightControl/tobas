@@ -25,7 +25,7 @@ GazeboLidarPlugin::~GazeboLidarPlugin()
 
 void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   RayPlugin::Load(parent, sdf);
   getSdfParams(sdf);
@@ -34,7 +34,7 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
   parent_sensor_ = parent;
   parent_ray_sensor_ = dynamic_pointer_cast<sensors::RaySensor>(parent_sensor_);
   if (!parent_ray_sensor_)
-    gzthrow(kPluginName << ": Requires a Ray Sensor as its parent.");
+    TOBAS_EXIT("Requires a Ray Sensor as its parent.");
   shape_ = parent_ray_sensor_->LaserShape();
 
   const auto world = physics::get_world(parent->WorldName());
@@ -42,7 +42,7 @@ void GazeboLidarPlugin::Load(sensors::SensorPtr parent, sdf::ElementPtr sdf)
 
   // Custom Callback Queue
   rclcpp::AdvertiseOptions ao = rclcpp::AdvertiseOptions::create<sensor_msgs::msg::PointCloud>(
-    "/" + ns() + "/" + tobas::kLidarTopic, 1, std::bind(&GazeboLidarPlugin::laserConnect, this),
+    path::join(ns(), tobas::kLidarTopic, 1, std::bind(&GazeboLidarPlugin::laserConnect, this),
     std::bind(&GazeboLidarPlugin::laserDisconnect, this), rclcpp::VoidPtr(), &laser_queue_);
   pub_ = createPublisher(ao);
 
@@ -88,7 +88,7 @@ void GazeboLidarPlugin::OnNewLaserScans()
 
 void GazeboLidarPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "frameName", frame_name_, kDefaultFrameName);
   getSdfParam(sdf, "gaussianNoiseStddev", noise_stddev_, kDefaultNoiseStddev);
 }

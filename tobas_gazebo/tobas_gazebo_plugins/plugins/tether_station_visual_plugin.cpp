@@ -17,7 +17,7 @@ GazeboTetherStationVisualPlugin::~GazeboTetherStationVisualPlugin()
 
 void GazeboTetherStationVisualPlugin::Load(rendering::VisualPtr visual, sdf::ElementPtr sdf)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   getSdfParams(sdf);
 

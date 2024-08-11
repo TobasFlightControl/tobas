@@ -149,6 +149,8 @@ protected:
     T& param,
     const T& dflt,
     const sdf_constr_t& constr) const;
+  template <typename T>
+  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
 
 private:
   const std::string name_;
@@ -399,5 +401,23 @@ void BaseNode::getSdfParam(
 {
   getSdfParam(sdf, name, param, dflt);
   checkConstraint(name, param, constr);
+}
+
+template <typename T>
+void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const
+{
+  params.clear();
+
+  const auto list_elem = sdf->FindElement(name);
+  if (list_elem == nullptr)
+    TOBAS_EXIT("Please specify '", name, "'.");
+
+  auto item_elem = list_elem->FindElement("item");
+  while (item_elem)
+  {
+    const auto value = item_elem->Get<T>();
+    params.push_back(value);
+    item_elem = item_elem->GetNextElement("item");
+  }
 }
 }  // namespace gazebo

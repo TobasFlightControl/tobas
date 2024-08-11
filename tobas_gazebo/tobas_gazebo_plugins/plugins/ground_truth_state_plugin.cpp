@@ -3,7 +3,7 @@
 #include <tobas_msgs/Odometry.hpp>
 
 #include "./ground_truth_state_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
@@ -17,24 +17,28 @@ GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin() : super()
 {
 }
 
-void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboGroundTruthStatePlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
+
 
   // Get SDF parameters
   getSdfParams(sdf);
 
-  // Store the pointer to the model
+  // Store the model entity
   model_ = model;
   world_ = model_->GetWorld();
 
   // Get the pointer to the link
   link_ = model_->GetLink(link_name_);
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
 
   // Advertise publisher
-  odom_pub_ = createPublisher<tobas_msgs::Odometry>("/" + ns() + "/" + kOdometryGtTopic);
+  odom_pub_ = createPublisher<tobas_msgs::Odometry>(path::join(ns(), kOdometryGtTopic);
 
   // Listen to the update event
   update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
@@ -42,7 +46,7 @@ void GazeboGroundTruthStatePlugin::Load(physics::ModelPtr model, sdf::ElementPtr
 
 void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
+
   getSdfParam(sdf, "linkName", link_name_);
 }
 
@@ -55,7 +59,7 @@ void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
   odom->header.frame_id = link_name_;
 
   // Update time stamp
-  timeGazeboToRos(world_->SimTime(), odom->header.stamp);
+  ros2::timeChronoToMsg(world_->SimTime(), odom->header.stamp);
 
   // Update status
   odom->status = tobas_msgs::msg::Odometry::NO_ERROR;

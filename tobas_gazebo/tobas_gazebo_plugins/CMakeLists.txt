@@ -29,6 +29,7 @@ find_package(tobas_kdl REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_msgs REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_tools REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
@@ -53,6 +54,7 @@ ament_target_dependencies(${PROJECT_NAME}
 	tobas_path_tools
 	tobas_ros2_tools
 	tobas_node
+	tobas_msgs
 	tobas_gazebo_common
 	tobas_gazebo_tools
 	tobas_gazebo_msgs
@@ -65,7 +67,10 @@ target_link_libraries(${PROJECT_NAME}
 
 # Build each plugin
 # file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*.cpp)
-set(PLUGIN_CPP_FILES plugins/barometer_plugin.cpp)
+set(PLUGIN_CPP_FILES
+	plugins/barometer_plugin.cpp
+	plugins/rotor_speeds_publisher_plugin.cpp
+)
 set(targets_to_install "")
 
 foreach(FILE IN LISTS PLUGIN_CPP_FILES)

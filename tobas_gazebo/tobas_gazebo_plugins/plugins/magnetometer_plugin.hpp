@@ -6,7 +6,7 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
 
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"
 
 namespace gazebo
@@ -23,7 +23,7 @@ public:
   void Load(sensors::SensorPtr sensor, sdf::ElementPtr sdf) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   std::string link_name_;
@@ -37,7 +37,7 @@ private:
   physics::WorldPtr world_;
   physics::ModelPtr model_;
   physics::LinkPtr link_;
-  event::ConnectionPtr update_connection_;
+
 
   gz::math::Vector3d init_bias_;  // [nT] 世界座標系の地磁気に加わるバイアス
   double lat_, lon_;                    // [deg] 現在位置の経緯度

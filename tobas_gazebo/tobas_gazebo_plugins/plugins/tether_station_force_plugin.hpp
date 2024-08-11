@@ -26,10 +26,14 @@ public:
   explicit GazeboTetherStationForcePlugin();
 
 protected:
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   // SDF parameters
   std::string link_name_;
@@ -42,7 +46,7 @@ private:
 
   physics::ModelPtr model_;
   physics::LinkPtr link_;
-  event::ConnectionPtr update_connection_;
+
 
   bool first_contact_detected_ = false;
   tobas_gazebo_msgs::ContactStates::ConstSharedPtr contacts_;

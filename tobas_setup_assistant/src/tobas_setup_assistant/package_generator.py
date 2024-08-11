@@ -560,11 +560,11 @@ class PackageGenerator(QObject):
         robot.append(base_fix_joint)
 
         # Base plugin
-        base_plugin = BasePlugin(
+        rotor_speeds_publisher_plugin = RotorSpeedsPublisherPlugin(
             ns=self._drone_name,
             rotor_joint_names=self._main.propulsion_system.selected.joint_names(),
         )
-        robot.append(base_plugin)
+        robot.append(rotor_speeds_publisher_plugin)
 
         # Wind plugin
         wind_model = WindModel(ns=self._drone_name, link_name=root_link)

@@ -9,7 +9,7 @@
 
 #include "./rotor_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/sdfparam.hpp"
-#include "../include/tobas_gazebo_plugins/common.hpp"
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/time.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
@@ -23,28 +23,30 @@ GazeboRotorPlugin::GazeboRotorPlugin() : super()
 {
 }
 
-void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
+void GazeboRotorPlugin::Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&)
 {
-  gzmsg << "Loading " << kPluginName << "." << endl;
-
   // Get SDF parameters
   getSdfParams(sdf);
 
   // Add model error to the model constants
   addModelError();
 
-  // Store the pointer to the model
+  // Store the model entity
   model_ = model;
 
   // Get the pointer to the joint
   joint_ = model_->GetJoint(joint_name_);
   if (joint_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified joint \"" << joint_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified joint \"" << joint_name_ << "\".");
 
   // Get the pointer to the link
   link_ = model_->GetLink(link_name_);
   if (link_ == nullptr)
-    gzthrow(kPluginName << ": Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
   parent_link_ = link_->GetParentJointsLinks()[0];
 
   // Initialize the first order filter
@@ -59,16 +61,15 @@ void GazeboRotorPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf)
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
 {
-  getSdfParam(sdf, "robotNamespace", ns());
   getSdfParam(sdf, "motorNumber", motor_number_);
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "jointName", joint_name_);
 
   getSdfParam(sdf, "rotSpeedCoefficients", rot_speed_coefs_);
   if (rot_speed_coefs_.X() <= 0)
-    gzthrow(kPluginName << ": The first term of 'rotationSpeedCoefficients' must be positive.");
+    TOBAS_EXIT("The first term of 'rotationSpeedCoefficients' must be positive.");
   if (rot_speed_coefs_.Y() < 0)
-    gzthrow(kPluginName << ": The second term of 'rotationSpeedCoefficients' must be non-negative.");
+    TOBAS_EXIT("The second term of 'rotationSpeedCoefficients' must be non-negative.");
 
   getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
@@ -82,29 +83,29 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
     else if (turning_direction == tobas::CCW.name)
       direction_ = tobas::CCW;
     else
-      gzthrow(kPluginName << ": Please only use 'CW' or 'CCW' as turningDirection.");
+      TOBAS_EXIT("Please only use 'CW' or 'CCW' as turningDirection.");
   }
   else
   {
-    gzthrow(kPluginName << ": Please specify a turning direction ('CW' or 'CCW').");
+    TOBAS_EXIT("Please specify a turning direction ('CW' or 'CCW').");
   }
 
   getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
   getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
   if (time_const_up_ > kTimeConstWarnThreshold)
-    gzwarn << kPluginName << ": The value provided for 'timeConstantUp' appears to be too large: " << time_const_up_
+    gzwarn << "The value provided for 'timeConstantUp' appears to be too large: " << time_const_up_
            << "[s]. Please check settings and datasheet." << endl;
   if (time_const_down_ > kTimeConstWarnThreshold)
-    gzwarn << kPluginName << ": The value provided for 'timeConstantDown' appears to be too large: " << time_const_down_
+    gzwarn << "The value provided for 'timeConstantDown' appears to be too large: " << time_const_down_
            << "[s]. Please check settings and datasheet." << endl;
 
   getSdfParam(sdf, "maxRotationSpeed", max_rot_speed_, POSITIVE);
 
   getSdfParam(sdf, "numPoles", num_poles_);
   if (num_poles_ <= 0)
-    gzthrow(kPluginName << ": The number of poles must be positive.");
+    TOBAS_EXIT("The number of poles must be positive.");
   if (num_poles_ % 2 != 0)
-    gzthrow(kPluginName << ": The number of poles must be even.");
+    TOBAS_EXIT("The number of poles must be even.");
 
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
@@ -119,7 +120,7 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)
   else if (esc_mode == tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE.name)
     esc_mode_ = tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE;
   else
-    gzthrow(kPluginName << ": Invalid ESC signal mode: " << esc_mode);
+    TOBAS_EXIT("Invalid ESC signal mode: " << esc_mode);
 
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
@@ -129,12 +130,12 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   // Check topics
   if (battery_ == nullptr)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns() << "/" << kBatteryGtTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kBatteryGtTopic << " is not received yet.");
     return;
   }
   if (!wind_received_)
   {
-    GZ_WARN_THROTTLE(kWarnPeriod, kPluginName << ": /" << ns() << "/" << kWindGtTopic << " is not received yet.");
+    GZ_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kWindGtTopic << " is not received yet.");
     return;
   }
 
@@ -160,8 +161,7 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
   if (abs(rot_speed_sim) * dt > M_PI)
   {
     GZ_WARN_THROTTLE(
-      kWarnPeriod,
-      kPluginName << ": Aliasing on motor [" << motor_number_ << "] might occur. Lower simulation time step.");
+      kWarnPeriod, "Aliasing on motor [" << motor_number_ << "] might occur. Lower simulation time step.");
   }
 
   // Update simulation state
@@ -174,18 +174,18 @@ void GazeboRotorPlugin::onUpdate(const common::UpdateInfo& info)
 
 void GazeboRotorPlugin::registerPubSub()
 {
-  const string prefix = "/" + ns() + "/";
   const string suffix = "_" + to_string(motor_number_);
 
-  rotor_state_pub_ = createPublisher<tobas_msgs::RotorState>(prefix + kRotorStateGtTopicPrefix + suffix);
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::RotorDebug>(prefix + kDebugTopicPrefix + suffix);
+  rotor_state_pub_ = createPublisher<tobas_msgs::RotorState>(path::join(ns(), kRotorStateGtTopicPrefix + suffix));
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::RotorDebug>(path::join(ns(), kDebugTopicPrefix + suffix));
 
   throttle_sub_ = createSubscriber(
-    prefix + kThrottleTopicPrefix + suffix, 1, &self::throttleCmdCb, this, rclcpp::TransportHints().tcpNoDelay());
-  battery_gt_sub_ =
-    createSubscriber(prefix + kBatteryGtTopic, &self::batteryGtCb, this, rclcpp::TransportHints().tcpNoDelay());
+    path::join(ns(), kThrottleTopicPrefix + suffix), 1, &self::throttleCmdCb, this,
+    rclcpp::TransportHints().tcpNoDelay());
+  battery_gt_sub_ = createSubscriber(
+    path::join(ns(), kBatteryGtTopic), &self::batteryGtCb, this, rclcpp::TransportHints().tcpNoDelay());
   wind_gt_sub_ =
-    createSubscriber(prefix + kWindGtTopic, &self::windSpeedGtCb, this, rclcpp::TransportHints().tcpNoDelay());
+    createSubscriber(path::join(ns(), kWindGtTopic), &self::windSpeedGtCb, this, rclcpp::TransportHints().tcpNoDelay());
 }
 
 bool GazeboRotorPlugin::isReady()
@@ -247,22 +247,22 @@ void GazeboRotorPlugin::applyForceAndTorque(const double& rot_speed, const commo
   // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
   if (current > max_current_)
   {
-    gzerr << kPluginName << ": The ESC of rotor " << motor_number_ << " is critically damaged due to an overcurrent of "
-          << current << " A, which exceeded its maximum current capacity of " << max_current_ << " A." << endl;
+    gzerr << "The ESC of rotor " << motor_number_ << " is critically damaged due to an overcurrent of " << current
+          << " A, which exceeded its maximum current capacity of " << max_current_ << " A." << endl;
     joint_->SetVelocity(0, 0.);
     is_intact_ = false;
   }
 
   // Publish rotor state
-  const auto rotor_state =std::make_unique<tobas_msgs::RotorState>();
-  timeGazeboToRos(cur_time, rotor_state->header.stamp);
+  const auto rotor_state = std::make_unique<tobas_msgs::RotorState>();
+  ros2::timeChronoToMsg(cur_time, rotor_state->header.stamp);
   rotor_state->speed = rot_speed;
   rotor_state->current = current;
   rotor_state_pub_->publish(rotor_state);
 
   // Publish debug message
-  const auto debug_msg =std::make_unique<tobas_gazebo_msgs::RotorDebug>();
-  timeGazeboToRos(cur_time, debug_msg->header.stamp);
+  const auto debug_msg = std::make_unique<tobas_gazebo_msgs::RotorDebug>();
+  ros2::timeChronoToMsg(cur_time, debug_msg->header.stamp);
   debug_msg->rotation_speed = joint_->GetVelocity(0) * kRotorSpeedSlowdownSim;
   vectorGazeboToKDL(thrust_W, debug_msg->thrust_force);
   vectorGazeboToKDL(h_force_W, debug_msg->horizontal_force);
@@ -286,15 +286,15 @@ void GazeboRotorPlugin::updateRotationSpeed(const double& dt)
   const auto max_rot_speed = min(max_rot_speed_, rotSpeedFromVoltage(battery_->voltage));
   if (cmd_rot_speed_ < 0)
   {
-    gzerr << kPluginName << ": Negative rotor speed is commanded on index " << motor_number_ << ": " << cmd_rot_speed_
-          << " < 0 [rad/s]" << endl;
+    gzerr << "Negative rotor speed is commanded on index " << motor_number_ << ": " << cmd_rot_speed_ << " < 0 [rad/s]"
+          << endl;
     set_rot_speed = 0.;
   }
   else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
   {
     GZ_ERROR_THROTTLE(
-      kErrorPeriod, kPluginName << ": Target rotor speed on index " << motor_number_
-                                << " is too high: " << cmd_rot_speed_ << " > " << max_rot_speed << " [rad/s]");
+      kErrorPeriod, "Target rotor speed on index " << motor_number_ << " is too high: " << cmd_rot_speed_ << " > "
+                                                   << max_rot_speed << " [rad/s]");
     set_rot_speed = max_rot_speed;
   }
 
@@ -376,7 +376,7 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
     if ((prev_sim_time_ - disarm_start_time_).Double() > kDisarmDuration)
     {
       is_armed_ = true;
-      gzmsg << kPluginName << ": Rotor " << motor_number_ << " is armed." << endl;
+      gzmsg << "Rotor " << motor_number_ << " is armed." << endl;
     }
   }
 }

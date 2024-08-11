@@ -16,13 +16,17 @@ public:
   explicit GazeboWorldContactsPlugin();
 
 protected:
-  void Load(physics::ModelPtr model, sdf::ElementPtr sdf) override;
+  void Configure(
+  const sim::Entity& model,
+  const sdf::ElementConstPtr& sdf,
+  sim::EntityComponentManager& ecm,
+  sim::EventManager&) override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+
 
   physics::ContactManager* contact_manager_;
-  event::ConnectionPtr update_connection_;
+
 
   PublisherPtr<> contacts_pub_;
 
