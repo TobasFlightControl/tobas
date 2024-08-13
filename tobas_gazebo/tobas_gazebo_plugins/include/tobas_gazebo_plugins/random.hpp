@@ -10,6 +10,8 @@ namespace gazebo
 class NormalDistribution3d
 {
 public:
+  using SharedPtr = std::shared_ptr<NormalDistribution3d>;
+
   explicit NormalDistribution3d(
     std::random_device& rnd_dev,
     const gz::math::Vector3d& mean,
@@ -26,6 +28,8 @@ private:
 class UniformDistribution3d
 {
 public:
+  using SharedPtr = std::shared_ptr<UniformDistribution3d>;
+
   explicit UniformDistribution3d(
     std::random_device& rnd_dev,
     const gz::math::Vector3d& lb,
@@ -38,7 +42,4 @@ private:
   UniformDistribution noise_[3];
   gz::math::Vector3d values_;
 };
-
-using NormalDistribution3dPtr = std::shared_ptr<NormalDistribution3d>;
-using UniformDistribution3dPtr = std::shared_ptr<UniformDistribution3d>;
 }  // namespace gazebo

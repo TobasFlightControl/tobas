@@ -59,7 +59,7 @@ private:
   double lat_, lon_;    // [deg] 現在位置の経緯度
 
   random_device rnd_dev_;
-  NormalDistribution3dPtr noise_;
+  NormalDistribution3d::SharedPtr noise_;
 
   PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
 
