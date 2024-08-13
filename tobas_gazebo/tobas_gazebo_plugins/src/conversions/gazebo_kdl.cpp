@@ -14,9 +14,7 @@ void vectorGazeboToKDL(const gz::math::Vector3d& g, kdl::Vector& k)
 
 void vectorKDLToGazebo(const kdl::Vector& k, gz::math::Vector3d& g)
 {
-  g.X(k.x());
-  g.Y(k.y());
-  g.Z(k.z());
+  g.Set(k.x(), k.y(), k.z());
 }
 
 void rotationGazeboToKDL(const gz::math::Quaterniond& g, kdl::Rotation& k)
@@ -33,18 +31,15 @@ void rotationKDLToGazebo(const kdl::Rotation& k, gz::math::Quaterniond& g)
 
 void quaternionGazeboToKDL(const gz::math::Quaterniond& g, kdl::Quaternion& k)
 {
+  k.w = g.W();
   k.x = g.X();
   k.y = g.Y();
   k.z = g.Z();
-  k.w = g.W();
 }
 
 void quaternionKDLToGazebo(const kdl::Quaternion& k, gz::math::Quaterniond& g)
 {
-  g.SetX(k.x);
-  g.SetY(k.y);
-  g.SetZ(k.z);
-  g.SetW(k.w);
+  g.Set(k.w, k.x, k.y, k.z);
 }
 
 void poseGazeboToKDL(const gz::math::Pose3d& g, kdl::Frame& k)

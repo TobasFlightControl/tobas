@@ -75,6 +75,7 @@ set(PLUGIN_CPP_FILES
 	plugins/battery_plugin.cpp
 	plugins/gps_plugin.cpp
 	plugins/ground_truth_state_plugin.cpp
+	plugins/imu_plugin.cpp
 )
 set(targets_to_install "")
 

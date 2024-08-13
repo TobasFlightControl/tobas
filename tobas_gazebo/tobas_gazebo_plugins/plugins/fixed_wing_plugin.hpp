@@ -27,11 +27,11 @@ namespace gazebo
 class GazeboFixedWingPlugin : public ModelPlugin
 {
   // Constants
-  static constexpr char kDebugPubTopic[] = "ground_truth/fixed_wing_debug";
+  static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
 
   // Default values
-  static constexpr double kDefaultLowerStallAngle = -10. * tobas::kDeg2Rad;
-  static constexpr double kDefaultUpperStallAngle = 20. * tobas::kDeg2Rad;
+  static constexpr double kDefaultLowerStallAngle = -10. * tobas_std::kDeg2Rad;
+  static constexpr double kDefaultUpperStallAngle = 20. * tobas_std::kDeg2Rad;
 
   using self = GazeboFixedWingPlugin;
 

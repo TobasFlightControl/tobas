@@ -90,6 +90,9 @@ void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboGroundTruthStatePlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
 {
+  if (!rate_manager_->update(info.simTime))
+    return;
+
   // Create Pose & Twist message
   auto odom = std::make_unique<tobas_msgs::Odometry>();
   odom->header.frame_id = link_name_;

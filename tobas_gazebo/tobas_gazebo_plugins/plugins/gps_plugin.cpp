@@ -25,8 +25,8 @@ namespace gazebo
 class GazeboGpsPlugin : public BaseNode, public sim::System, public sim::ISystemConfigure, public sim::ISystemPostUpdate
 {
   // Default values
-  static constexpr double kDefaultUpdateRate = 5.;      // [Hz]
-  static constexpr double kDefaultDelay = 0.1;           // [s]
+  static constexpr size_t kDefaultUpdateRate = 5;       // [Hz]
+  static constexpr double kDefaultDelay = 0.1;          // [s]
   static constexpr double kDefaultPosCorrTime = 10.;    // [s]
   static constexpr double kDefaultHorPosAccuracy = 2;   // [m]
   static constexpr double kDefaultVerPosAccuracy = 4.;  // [m]
@@ -50,7 +50,7 @@ private:
   // SDF parameters
   string link_name_;
   Vector3d offset_;     // B_Pos_BS
-  double update_rate_;  // 更新頻度 [Hz]
+  size_t update_rate_;  // 更新頻度 [Hz]
   double delay_;        // GPSの遅延時間 [s]
   double pos_corr_time_;
   double hor_pos_accuracy_;
@@ -61,11 +61,11 @@ private:
   double lon_0_;  // 原点の東経
   double alt_0_;  // 原点の高度
 
+  RateManager::SharedPtr rate_manager_;
+
   const cmp::WorldPose* pose_W_;
   const cmp::WorldLinearVelocity* vel_W_;
   const cmp::AngularVelocity* gyro_B_;
-
-  RateManager::SharedPtr rate_manager_;
 
   deque<HistoryType> history_;
   bool is_history_filled_;
@@ -103,6 +103,7 @@ void GazeboGpsPlugin::Configure(
   initialize(sdf);
   getSdfParams(sdf);
   setRandomDistribuitons();
+
   rate_manager_ = make_shared<RateManager>(update_rate_);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));

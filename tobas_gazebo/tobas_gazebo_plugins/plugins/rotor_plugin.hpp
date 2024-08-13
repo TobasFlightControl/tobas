@@ -21,7 +21,7 @@ namespace gazebo
 class GazeboRotorPlugin : public ModelPlugin
 {
   // Constants
-  static constexpr char kDebugTopicPrefix[] = "ground_truth/rotor_debug";
+  static constexpr char kDebugTopicPrefix[] = "gazebo/rotor_debug";
   static constexpr double kRotorSpeedCheckMargin = 10.;     // [rad/s]
   static constexpr double kCommandBlankTimeThreshold = 1.;  // [s]
   static constexpr double kTimeConstWarnThreshold = 0.1;    // [s]

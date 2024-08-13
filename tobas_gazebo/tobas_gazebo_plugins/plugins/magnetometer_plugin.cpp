@@ -51,7 +51,7 @@ void GazeboMagnetometerPlugin::Configure(
   // Advertise publisher
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(path::join(ns(), tobas::kMagTopic);
 
-  // Listen to the update event
+
   update_connection_ = sensor->ConnectUpdated(std::bind(&GazeboMagnetometerPlugin::onUpdate, this));
 }
 
