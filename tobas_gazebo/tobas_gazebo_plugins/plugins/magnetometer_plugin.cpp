@@ -64,8 +64,6 @@ private:
   PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-
-  void publishMagMsg(const chrono::steady_clock::duration& time, const Vector3d& field) const;
 };
 
 GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : BaseNode("magnetometer_plugin")
@@ -138,23 +136,16 @@ void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim
   // Add noise
   field_B += noise_->get();
 
-  // Publish message
-  publishMagMsg(info.simTime, field_B);
-}
-
-void GazeboMagnetometerPlugin::publishMagMsg(const chrono::steady_clock::duration& time, const Vector3d& field) const
-{
+  // Create message
   auto mag_msg = make_unique<tobas_msgs::MagneticField>();
-
-  ros2::timeChronoToMsg(time, mag_msg->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
-
-  vectorGazeboToKDL(field, mag_msg->magnetic_field);
-
+  vectorGazeboToKDL(field_B, mag_msg->magnetic_field);
   mag_msg->covariance.setZero();
   for (size_t i = 0; i < 3; ++i)
     mag_msg->covariance.diagonal()(i) = ::math::sqr(noise_normal_[i]);
 
+  // Publish message
   mag_pub_->publish(move(mag_msg));
 }
 }  // namespace gazebo
