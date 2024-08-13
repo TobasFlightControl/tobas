@@ -26,7 +26,7 @@ class GazeboGpsPlugin : public BaseNode, public sim::System, public sim::ISystem
 {
   // Default values
   static constexpr double kDefaultUpdateRate = 5.;      // [Hz]
-  static constexpr double kDefaultDelay = 0.;           // [s]
+  static constexpr double kDefaultDelay = 0.1;           // [s]
   static constexpr double kDefaultPosCorrTime = 10.;    // [s]
   static constexpr double kDefaultHorPosAccuracy = 2;   // [m]
   static constexpr double kDefaultVerPosAccuracy = 4.;  // [m]
