@@ -27,6 +27,7 @@ find_package(std_srvs REQUIRED)
 find_package(laser_geometry REQUIRED)
 find_package(tobas_dsp REQUIRED)
 find_package(tobas_kdl REQUIRED)
+find_package(tobas_geomag REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
@@ -53,6 +54,7 @@ ament_target_dependencies(${PROJECT_NAME}
 	laser_geometry
 	tobas_dsp
 	tobas_kdl
+	tobas_geomag
 	tobas_path_tools
 	tobas_ros2_tools
 	tobas_node
@@ -76,6 +78,7 @@ set(PLUGIN_CPP_FILES
 	plugins/gps_plugin.cpp
 	plugins/ground_truth_state_plugin.cpp
 	plugins/imu_plugin.cpp
+	plugins/magnetometer_plugin.cpp
 )
 set(targets_to_install "")
 
