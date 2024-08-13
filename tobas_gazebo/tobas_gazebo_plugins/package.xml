@@ -19,6 +19,7 @@
 	<depend>tobas_path_tools</depend>
 	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_node</depend>
+	<depend>tobas_wind_model</depend>
 	<depend>tobas_msgs</depend>
 	<depend>tobas_gazebo_common</depend>
 	<depend>tobas_gazebo_tools</depend>

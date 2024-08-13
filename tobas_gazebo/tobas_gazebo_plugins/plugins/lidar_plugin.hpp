@@ -20,7 +20,7 @@ class GazeboLidarPlugin : public RayPlugin
   static constexpr double kTimeout = 1e-2;
 
   // Default values
-  const std::string kDefaultFrameName = "world";
+  const std::string kDefaultFrameName = tobas::kWorldFrame;
   static constexpr double kDefaultNoiseStddev = 0.;
 
   using super = RayPlugin;

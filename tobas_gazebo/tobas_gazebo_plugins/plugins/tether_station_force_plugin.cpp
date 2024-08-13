@@ -36,7 +36,7 @@ void GazeboTetherStationForcePlugin::Configure(
   get_params_ss_ = createService(path::join(ns(), kGetTetherParamsSrv, &self::getParamsCb, this);
   set_params_ss_ = createService(path::join(ns(), kSetTetherParamsSrv, &self::setParamsCb, this);
 
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
+
 }
 
 void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

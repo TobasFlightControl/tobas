@@ -30,7 +30,7 @@ void GazeboWorldContactsPlugin::Configure(
 
   contacts_pub_ = createPublisher<tobas_gazebo_msgs::ContactStates>(path::join(ns(), kContactStatesTopic);
 
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
+
 }
 
 void GazeboWorldContactsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
