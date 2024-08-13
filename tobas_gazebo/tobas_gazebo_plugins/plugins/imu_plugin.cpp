@@ -80,7 +80,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
-  const auto cur_time = world_->SimTime();
+  const auto cur_time = info.simTime;
   const auto dt = (cur_time - last_time_).Double();
   last_time_ = cur_time;
 
@@ -149,7 +149,7 @@ void GazeboImuPlugin::publishImuMsg(const double& dt) const
 {
   const auto imu_msg =std::make_unique<tobas_msgs::Imu>();
 
-  ros2::timeChronoToMsg(world_->SimTime(), imu_msg->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
 
   vectorGazeboToKDL(acc_lpf_.getOutput(), imu_msg->accel);
@@ -167,7 +167,7 @@ void GazeboImuPlugin::publishDebugMsg() const
 {
   const auto debug_msg =std::make_unique<tobas_gazebo_msgs::ImuDebug>();
 
-  ros2::timeChronoToMsg(world_->SimTime(), debug_msg->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
   debug_msg->header.frame_id = link_name_;
 
   vectorGazeboToKDL(acc_bias_, debug_msg->acc_bias);

@@ -1,12 +1,14 @@
 #include <tobas_std_tools/geometry.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
 
-#include "./ground_truth_state_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
-
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
+#include "../include/tobas_gazebo_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
 using namespace gz;
@@ -14,7 +16,45 @@ namespace cmp = sim::components;
 
 namespace gazebo
 {
-GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin() : super()
+class GazeboGroundTruthStatePlugin : public BaseNode,
+                                     public sim::System,
+                                     public sim::ISystemConfigure,
+                                     public sim::ISystemPostUpdate
+{
+  static constexpr size_t kDefaultUpdateRate = 0;  // [Hz]
+
+  using self = GazeboGroundTruthStatePlugin;
+
+public:
+  explicit GazeboGroundTruthStatePlugin();
+
+  void Configure(
+    const sim::Entity& model,
+    const sdf::ElementConstPtr& sdf,
+    sim::EntityComponentManager& ecm,
+    sim::EventManager&) override;
+
+  void PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm) override;
+
+private:
+  // SDF parameters
+  std::string link_name_;
+  size_t update_rate_;
+
+  const cmp::WorldPose* pose_W_;
+  const cmp::LinearVelocity* vel_B_;
+  const cmp::AngularVelocity* gyro_B_;
+  const cmp::LinearAcceleration* acc_B_;
+  const cmp::AngularAcceleration* dgyro_B_;
+
+  RateManager::SharedPtr rate_manager_;
+
+  PublisherPtr<tobas_msgs::Odometry> odom_pub_;
+
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
+};
+
+GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin() : BaseNode("ground_truth_state_plugin")
 {
 }
 
@@ -23,70 +63,65 @@ void GazeboGroundTruthStatePlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{initialize(sdf);
-
-
-  // Get SDF parameters
+{
+  initialize(sdf);
   getSdfParams(sdf);
 
-  // Store the model entity
-  model_ = model;
-  world_ = model_->GetWorld();
+  const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
+  if (link == sim::kNullEntity)
+    TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
-  // Get the pointer to the link
-  link_ = model_->GetLink(link_name_);
-  if (link_ == nullptr)
-    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
+  pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
+  vel_B_ = getComponent<cmp::LinearVelocity>(link, ecm);
+  gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
+  acc_B_ = getComponent<cmp::LinearAcceleration>(link, ecm);
+  dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
 
-  // Advertise publisher
-  odom_pub_ = createPublisher<tobas_msgs::Odometry>(path::join(ns(), kOdometryGtTopic);
+  rate_manager_ = make_shared<RateManager>(update_rate_);
 
-  // Listen to the update event
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
+  odom_pub_ = createPublisher<tobas_msgs::Odometry>(path::join(ns(), kOdometryGtTopic));
 }
 
 void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-
   getSdfParam(sdf, "linkName", link_name_);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
 }
 
-void GazeboGroundTruthStatePlugin::onUpdate(const common::UpdateInfo&)
+void GazeboGroundTruthStatePlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
 {
-  const auto& T_W_B = link_->WorldPose();
-
   // Create Pose & Twist message
-  const auto odom =std::make_unique<tobas_msgs::Odometry>();
+  auto odom = std::make_unique<tobas_msgs::Odometry>();
   odom->header.frame_id = link_name_;
 
   // Update time stamp
-  ros2::timeChronoToMsg(world_->SimTime(), odom->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, odom->header.stamp);
 
   // Update status
   odom->status = tobas_msgs::msg::Odometry::NO_ERROR;
 
-  // Update position
-  vectorGazeboToKDL(T_W_B.Pos(), odom->frame.p);
-
-  // Update rotation
-  const auto& q = T_W_B.Rot();
-  odom->frame.M = kdl::Rotation::Quaternion(q.X(), q.Y(), q.Z(), q.W());
+  // Update pose (Global)
+  poseGazeboToKDL(pose_W_->Data(), odom->frame);
 
   // Update linear velocity (Local)
-  vectorGazeboToKDL(link_->RelativeLinearVel(), odom->twist.vel);
+  vectorGazeboToKDL(vel_B_->Data(), odom->twist.vel);
 
   // Update angular velocity (Local)
-  vectorGazeboToKDL(link_->RelativeAngularVel(), odom->twist.rot);
+  vectorGazeboToKDL(gyro_B_->Data(), odom->twist.rot);
 
   // Update linear acceleration (Local)
-  vectorGazeboToKDL(link_->RelativeLinearAccel(), odom->accel.linear);
+  vectorGazeboToKDL(acc_B_->Data(), odom->accel.linear);
 
   // Update angular acceleration (Local)
-  vectorGazeboToKDL(link_->RelativeAngularAccel(), odom->accel.angular);
+  vectorGazeboToKDL(dgyro_B_->Data(), odom->accel.angular);
 
   // Publish state message
-  odom_pub_->publish(odom);
+  odom_pub_->publish(move(odom));
 }
-
-GZ_REGISTER_MODEL_PLUGIN(GazeboGroundTruthStatePlugin);
 }  // namespace gazebo
+
+GZ_ADD_PLUGIN(
+  gazebo::GazeboGroundTruthStatePlugin,
+  sim::System,
+  gazebo::GazeboGroundTruthStatePlugin::ISystemConfigure,
+  gazebo::GazeboGroundTruthStatePlugin::ISystemPostUpdate)

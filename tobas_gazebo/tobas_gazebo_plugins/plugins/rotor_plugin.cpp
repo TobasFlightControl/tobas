@@ -56,8 +56,7 @@ void GazeboRotorPlugin::Configure(
   // Register publishers and subscribers to the ROS master
   registerPubSub();
 
-  // Listen to the update event
-  update_connection_ = event::Events::ConnectWorldUpdateBegin(std::bind(&self::onUpdate, this, _1));
+
 }
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementPtr& sdf)

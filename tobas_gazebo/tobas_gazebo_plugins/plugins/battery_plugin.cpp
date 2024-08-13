@@ -110,7 +110,7 @@ void GazeboBatteryPlugin::Configure(
 
 void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, POSITIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
   getSdfParam(sdf, "maxVoltage", max_voltage_, POSITIVE);
   getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);

@@ -149,7 +149,7 @@ void GazeboOdometryPlugin::publishOdomMsg(
 {
   const auto odom_msg =std::make_unique<nav_msgs::Odometry>();
 
-  ros2::timeChronoToMsg(world_->SimTime(), odom_msg->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, odom_msg->header.stamp);
   odom_msg->header.frame_id = "world";
   odom_msg->child_frame_id = link_name_;
 

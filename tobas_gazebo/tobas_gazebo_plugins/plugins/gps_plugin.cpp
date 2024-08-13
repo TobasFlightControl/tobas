@@ -121,7 +121,7 @@ void GazeboGpsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "linkName", link_name_);
 
   getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, POSITIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
   getSdfParam(sdf, "delay", delay_, kDefaultDelay, NON_NEGATIVE);
   getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kDefaultPosCorrTime, POSITIVE);
 

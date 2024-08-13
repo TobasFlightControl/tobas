@@ -74,6 +74,7 @@ set(PLUGIN_CPP_FILES
 	plugins/rotor_speeds_publisher_plugin.cpp
 	plugins/battery_plugin.cpp
 	plugins/gps_plugin.cpp
+	plugins/ground_truth_state_plugin.cpp
 )
 set(targets_to_install "")
 

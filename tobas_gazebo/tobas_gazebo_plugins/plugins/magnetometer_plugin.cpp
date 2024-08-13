@@ -101,7 +101,7 @@ void GazeboMagnetometerPlugin::publishMagMsg(const gz::math::Vector3d& field) co
 {
   const auto mag_msg =std::make_unique<tobas_msgs::MagneticField>();
 
-  ros2::timeChronoToMsg(world_->SimTime(), mag_msg->header.stamp);
+  ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
 
   vectorGazeboToKDL(field, mag_msg->magnetic_field);
