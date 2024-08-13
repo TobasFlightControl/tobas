@@ -3,7 +3,7 @@
 #include "./world_contacts_plugin.hpp"
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/gazebo_msg.hpp"
 
 using namespace std;
 using namespace gz;
@@ -20,8 +20,8 @@ void GazeboWorldContactsPlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{initialize(sdf);
-
+{
+  initialize(sdf);
 
   getSdfParams(sdf);
 
@@ -29,18 +29,15 @@ void GazeboWorldContactsPlugin::Configure(
   contact_manager_->SetNeverDropContacts(true);  // 購読者がいなくても接触情報を保持するようにする
 
   contacts_pub_ = createPublisher<tobas_gazebo_msgs::ContactStates>(path::join(ns(), kContactStatesTopic);
-
-
 }
 
 void GazeboWorldContactsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-
 }
 
 void GazeboWorldContactsPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
 {
-  const auto msg =std::make_unique<tobas_gazebo_msgs::ContactStates>();
+  const auto msg = std::make_unique<tobas_gazebo_msgs::ContactStates>();
 
   ros2::timeChronoToMsg(info.simTime, msg->header.stamp);
 

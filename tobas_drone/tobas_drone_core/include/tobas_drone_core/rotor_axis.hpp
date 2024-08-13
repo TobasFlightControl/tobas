@@ -11,6 +11,13 @@ enum rotor_axis_t : uint8_t
   Z_POSITIVE,
   UNKNOWN,
 };
+
+namespace rotor_axis
+{
+static constexpr char kXPositiveName[] = "X_POSITIVE";
+static constexpr char kZPositiveName[] = "Z_POSITIVE";
+static constexpr char kUnknownName[] = "UNKNOWN";
+}  // namespace rotor_axis
 }  // namespace tobas
 
 namespace YAML
@@ -25,13 +32,13 @@ struct convert<tobas::rotor_axis_t>
     switch (rhs)
     {
       case tobas::rotor_axis_t::X_POSITIVE:
-        node = "X_POSITIVE";
+        node = tobas::rotor_axis::kXPositiveName;
         break;
       case tobas::rotor_axis_t::Z_POSITIVE:
-        node = "Z_POSITIVE";
+        node = tobas::rotor_axis::kZPositiveName;
         break;
       case tobas::rotor_axis_t::UNKNOWN:
-        node = "UNKNOWN";
+        node = tobas::rotor_axis::kUnknownName;
         break;
     }
 
@@ -44,11 +51,11 @@ struct convert<tobas::rotor_axis_t>
       return false;
 
     const auto value = node.as<std::string>();
-    if (value == "X_POSITIVE")
+    if (value == tobas::rotor_axis::kXPositiveName)
       rhs = tobas::rotor_axis_t::X_POSITIVE;
-    else if (value == "Z_POSITIVE")
+    else if (value == tobas::rotor_axis::kZPositiveName)
       rhs = tobas::rotor_axis_t::Z_POSITIVE;
-    else if (value == "UNKNOWN")
+    else if (value == tobas::rotor_axis::kUnknownName)
       rhs = tobas::rotor_axis_t::UNKNOWN;
     else
       return false;

@@ -1,6 +1,5 @@
 #include "./tether_station_visual_plugin.hpp"
 
-
 using namespace std;
 using namespace gz;
 namespace cmp = sim::components;
@@ -19,7 +18,6 @@ GazeboTetherStationVisualPlugin::~GazeboTetherStationVisualPlugin()
 void GazeboTetherStationVisualPlugin::Load(rendering::VisualPtr visual, sdf::ElementPtr sdf)
 {
   initialize(sdf);
-
 
   getSdfParams(sdf);
 
@@ -44,7 +42,7 @@ void GazeboTetherStationVisualPlugin::PostUpdate(const sim::UpdateInfo& info, co
 {
   const auto& W_Pos_WB = visual_->WorldPose().Pos();
   const auto& W_Rot_B = visual_->WorldPose().Rot();
-  const auto B_Pos_BP = W_Rot_B.Inverse() * (W_Pos_WP_ - W_Pos_WB);
+  const auto B_Pos_BP = W_Rot_B.RotateVectorReverse(W_Pos_WP_ - W_Pos_WB);
   line_->SetPoint(0, B_Pos_BP);
 }
 

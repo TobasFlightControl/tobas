@@ -183,19 +183,19 @@ void RotorController::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSh
       case tobas::BLHELI_CLOSED_LOOP_LOW_RANGE.value:
       {
         const auto erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        throttle = math::remap(erpm, 0., tobas::kBLHeliCLLowMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
+        throttle = math::remap(erpm, 0., tobas::esc::kBLHeliCLLowMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
         break;
       }
       case tobas::BLHELI_CLOSED_LOOP_MID_RANGE.value:
       {
         const auto erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        throttle = math::remap(erpm, 0., tobas::kBLHeliCLMidMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
+        throttle = math::remap(erpm, 0., tobas::esc::kBLHeliCLMidMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
         break;
       }
       case tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE.value:
       {
         const auto erpm = drone_.erpmFromRotSpeed(rotor_idx, tar_speed);
-        throttle = math::remap(erpm, 0., tobas::kBLHeliCLHighMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
+        throttle = math::remap(erpm, 0., tobas::esc::kBLHeliCLHighMaxERPM, tobas::kMinThrottle, tobas::kMaxThrottle);
         break;
       }
       default:

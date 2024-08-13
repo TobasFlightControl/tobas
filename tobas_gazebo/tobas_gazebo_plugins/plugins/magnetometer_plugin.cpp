@@ -120,7 +120,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim
   const auto& T_W_B = pose_W_->Data();
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& W_Rot_B = T_W_B.Rot();
-  const auto W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
+  const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
   // デカルト座標から経緯度と高度を計算
   tobas_std::cartToGpsRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, lat_, lon_);

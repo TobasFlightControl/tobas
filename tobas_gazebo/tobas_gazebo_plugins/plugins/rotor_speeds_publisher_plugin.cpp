@@ -4,7 +4,8 @@
 #include <tobas_msgs/msg/rotor_speeds.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/gazebo_msg.hpp"
+#include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
 using namespace gz;
@@ -33,7 +34,7 @@ private:
   vector<string> rotor_joint_names_;
 
   // Gazebo objects
-  vector<sim::Entity> rotor_joints_;
+  vector<cmp::JointVelocity*> rotor_jntvels_;
 
   // PubSub
   PublisherPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_pub_;
@@ -60,7 +61,8 @@ void GazeboRotorSpeedsPublisherPlugin::Configure(
     const auto joint = ecm.EntityByComponents(cmp::Joint(), cmp::ParentEntity(model), cmp::Name(joint_name));
     if (joint == sim::kNullEntity)
       TOBAS_EXIT("Failed to find specified joint \"", joint_name, "\".");
-    rotor_joints_.push_back(joint);
+    const auto jntvel = getComponent<cmp::JointVelocity>(joint, ecm);
+    rotor_jntvels_.push_back(jntvel);
   }
 
   // Register publishers
@@ -72,17 +74,14 @@ void GazeboRotorSpeedsPublisherPlugin::getSdfParams(const sdf::ElementConstPtr& 
   getSdfParam(sdf, "rotorJointNames", rotor_joint_names_);
 }
 
-void GazeboRotorSpeedsPublisherPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
+void GazeboRotorSpeedsPublisherPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
 {
   // Publish rotor speeds
   auto rotor_speeds = make_unique<tobas_msgs::msg::RotorSpeeds>();
   ros2::timeChronoToMsg(info.simTime, rotor_speeds->header.stamp);
-  for (const auto& joint : rotor_joints_)
+  for (const auto& jntvel : rotor_jntvels_)
   {
-    const auto joint_vel = ecm.Component<cmp::JointVelocity>(joint);
-    if (!joint_vel)
-      TOBAS_ERROR("Failed to get velocity of joint ", joint);
-    const auto rot_speed_sim = joint_vel->Data().at(0);
+    const auto rot_speed_sim = jntvel->Data().at(0);
     const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
     rotor_speeds->speeds.push_back(abs(rot_speed_real));
   }

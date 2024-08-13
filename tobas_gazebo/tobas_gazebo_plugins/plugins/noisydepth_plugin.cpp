@@ -4,7 +4,7 @@
 
 #include "./noisydepth_plugin.hpp"
 
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/gazebo_msg.hpp"
 
 using namespace std;
 

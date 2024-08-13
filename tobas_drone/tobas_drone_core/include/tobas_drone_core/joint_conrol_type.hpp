@@ -4,13 +4,20 @@
 
 namespace tobas
 {
-enum struct joint_control_type_t : uint8_t
+enum joint_control_type_t : uint8_t
 {
   POSITION_CONTROL,
   VELOCITY_CONTROL,
   EFFORT_CONTROL,
 };
-}
+
+namespace joint_control_type
+{
+static constexpr char kPosCtrlName[] = "POSITION_CONTROL";
+static constexpr char kVelCtrlName[] = "VELOCITY_CONTROL";
+static constexpr char kEffCtrlName[] = "EFFORT_CONTROL";
+}  // namespace joint_control_type
+}  // namespace tobas
 
 namespace YAML
 {
@@ -24,13 +31,13 @@ struct convert<tobas::joint_control_type_t>
     switch (rhs)
     {
       case tobas::joint_control_type_t::POSITION_CONTROL:
-        node = "POSITION_CONTROL";
+        node = tobas::joint_control_type::kPosCtrlName;
         break;
       case tobas::joint_control_type_t::VELOCITY_CONTROL:
-        node = "VELOCITY_CONTROL";
+        node = tobas::joint_control_type::kVelCtrlName;
         break;
       case tobas::joint_control_type_t::EFFORT_CONTROL:
-        node = "EFFORT_CONTROL";
+        node = tobas::joint_control_type::kEffCtrlName;
         break;
     }
 
@@ -43,11 +50,11 @@ struct convert<tobas::joint_control_type_t>
       return false;
 
     const auto value = node.as<std::string>();
-    if (value == "POSITION_CONTROL")
+    if (value == tobas::joint_control_type::kPosCtrlName)
       rhs = tobas::joint_control_type_t::POSITION_CONTROL;
-    else if (value == "VELOCITY_CONTROL")
+    else if (value == tobas::joint_control_type::kVelCtrlName)
       rhs = tobas::joint_control_type_t::VELOCITY_CONTROL;
-    else if (value == "EFFORT_CONTROL")
+    else if (value == tobas::joint_control_type::kEffCtrlName)
       rhs = tobas::joint_control_type_t::EFFORT_CONTROL;
     else
       return false;

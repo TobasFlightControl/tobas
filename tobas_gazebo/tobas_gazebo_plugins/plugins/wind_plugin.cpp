@@ -166,7 +166,7 @@ void GazeboWindPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Entity
   const math::Vector3d turb_B(dryden_.u(), dryden_.v(), dryden_.w());
 
   // 全体の風速を計算
-  const auto wind_W = steady_W + pose_W_->Data().Rot() * turb_B;
+  const auto wind_W = steady_W + pose_W_->Data().Rot().RotateVector(turb_B);
 
   // 風速メッセージを作成
   auto wind_msg = make_unique<tobas_msgs::Wind>();

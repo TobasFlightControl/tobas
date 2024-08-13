@@ -5,8 +5,7 @@
 #include <tobas_msgs/Odometry.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 

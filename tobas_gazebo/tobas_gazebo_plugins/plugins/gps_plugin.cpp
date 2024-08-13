@@ -6,8 +6,7 @@
 #include <tobas_msgs/Gps.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 #include "../include/tobas_gazebo_plugins/random.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
@@ -218,7 +217,7 @@ void GazeboGpsPlugin::updatePosition(tobas_msgs::Gps& gps_msg, const Pose3d& T_W
   // オフセットを考慮してGPSレシーバーの位置を計算
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& W_Rot_B = T_W_B.Rot();
-  auto W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
+  auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
   // Add the altitude of the origin to the z-coordinate
   W_Pos_WS.Z() += alt_0_;
@@ -238,7 +237,7 @@ void GazeboGpsPlugin::updateVelocity(
   const Vector3d& B_Angvel_WB)
 {
   // オフセットを考慮してGPSレシーバの速度を計算
-  auto W_Linvel_WS = W_Linvel_WB + W_Rot_B * B_Angvel_WB.Cross(offset_);
+  auto W_Linvel_WS = W_Linvel_WB + W_Rot_B.RotateVector(B_Angvel_WB.Cross(offset_));
 
   // Apply noise to ground speed
   W_Linvel_WS += vel_noise_->get();

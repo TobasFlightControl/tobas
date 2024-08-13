@@ -9,6 +9,12 @@ enum turning_direction_t : uint8_t
   CCW,
   CW,
 };
+
+namespace turning_direction
+{
+static constexpr char kCCWName[] = "CCW";
+static constexpr char kCWName[] = "CW";
+}  // namespace turning_direction
 }  // namespace tobas
 
 namespace YAML
@@ -23,10 +29,10 @@ struct convert<tobas::turning_direction_t>
     switch (rhs)
     {
       case tobas::turning_direction_t::CCW:
-        node = "CCW";
+        node = tobas::turning_direction::kCCWName;
         break;
       case tobas::turning_direction_t::CW:
-        node = "CW";
+        node = tobas::turning_direction::kCWName;
         break;
     }
 
@@ -39,9 +45,9 @@ struct convert<tobas::turning_direction_t>
       return false;
 
     const auto value = node.as<std::string>();
-    if (value == "CCW")
+    if (value == tobas::turning_direction::kCCWName)
       rhs = tobas::turning_direction_t::CCW;
-    else if (value == "CW")
+    else if (value == tobas::turning_direction::kCWName)
       rhs = tobas::turning_direction_t::CW;
     else
       return false;

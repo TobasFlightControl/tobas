@@ -6,9 +6,7 @@
 #include <tobas_gazebo_msgs/FixedWingDebug.h>
 
 #include "./fixed_wing_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_ros.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_eigen.hpp"
-#include "../include/tobas_gazebo_plugins/conversions/gazebo_kdl.hpp"
+#include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 #include "../include/tobas_gazebo_plugins/time.hpp"
@@ -194,7 +192,7 @@ void GazeboFixedWingPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::E
   // 迎角の範囲チェック
   if (!vehicle_params_.alpha_limit.inRange(alpha))
   {
-    GZ_ERROR_THROTTLE(
+    TOBAS_ERROR_THROTTLE(
       kErrorPeriod, "The angle of attack " << alpha << " is not within the valid range "
                                 << vehicle_params_.alpha_limit
                                 << ". The accuracy of the physics simulation may be compromised.");

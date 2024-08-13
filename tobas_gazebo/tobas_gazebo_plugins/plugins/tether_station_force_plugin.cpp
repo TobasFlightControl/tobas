@@ -18,8 +18,8 @@ void GazeboTetherStationForcePlugin::Configure(
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
-{initialize(sdf);
-
+{
+  initialize(sdf);
 
   getSdfParams(sdf);
 
@@ -35,13 +35,10 @@ void GazeboTetherStationForcePlugin::Configure(
   contacts_sub_ = createSubscriber(path::join(ns(), kContactStatesTopic, &self::contactStatesCb, this);
   get_params_ss_ = createService(path::join(ns(), kGetTetherParamsSrv, &self::getParamsCb, this);
   set_params_ss_ = createService(path::join(ns(), kSetTetherParamsSrv, &self::setParamsCb, this);
-
-
 }
 
 void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "worldEnd", W_Pos_WP_, math::Vector3d::Zero);
   getSdfParam(sdf, "droneEnd", B_Pos_BQ_, math::Vector3d::Zero);
@@ -83,9 +80,9 @@ void GazeboTetherStationForcePlugin::PostUpdate(const sim::UpdateInfo& info, con
   const auto W_Gyro_WB = link_->WorldAngularVel();
 
   // ケーブルの端点間ベクトルを計算
-  const auto W_Pos_BQ = W_Rot_B * B_Pos_BQ_;
+  const auto W_Pos_BQ = W_Rot_B.RotateVector(B_Pos_BQ_);
   const auto W_Pos_PQ = W_Pos_WB - W_Pos_WP_ + W_Pos_BQ;
-  const auto B_Pos_PQ = W_Rot_B.Inverse() * (W_Pos_WB - W_Pos_WP_) + B_Pos_BQ_;
+  const auto B_Pos_PQ = W_Rot_B.RotateVectorReverse(W_Pos_WB - W_Pos_WP_) + B_Pos_BQ_;
 
   // ケーブルが伸び切っていない場合は一定張力
   auto T = params_.tension;  // [N]
