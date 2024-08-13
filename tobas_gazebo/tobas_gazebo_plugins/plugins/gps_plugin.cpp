@@ -73,8 +73,8 @@ private:
   Vector3d pos_bias_ = Vector3d::Zero;
 
   random_device rnd_dev_;
-  NormalDistribution3dPtr dpos_noise_;
-  NormalDistribution3dPtr vel_noise_;
+  NormalDistribution3d::SharedPtr dpos_noise_;
+  NormalDistribution3d::SharedPtr vel_noise_;
 
   // Publishers
   PublisherPtr<tobas_msgs::Gps> gps_pub_;

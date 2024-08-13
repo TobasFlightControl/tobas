@@ -52,8 +52,7 @@ class ErrorStateKalmanFilter(BaseObserver):
     def is_valid(self) -> bool:
         # 絶対位置が取得できないとダメ
         no_gps = not self._main.gps.equipped()
-        no_odom = not self._main.odometry.equipped()
-        if no_gps and no_odom:
+        if no_gps:
             q_error_named(
                 self._main,
                 self.NAME,

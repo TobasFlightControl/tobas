@@ -40,7 +40,6 @@ find_package(gz_sim_vendor REQUIRED)
 find_package(gz-sim REQUIRED)
 find_package(gz_plugin_vendor REQUIRED)
 find_package(gz-plugin REQUIRED)
-find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -66,7 +65,6 @@ ament_target_dependencies(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
 	gz-sim::gz-sim
 	gz-plugin::register
-	${OpenCV_LIBRARIES}
 )
 
 # Build each plugin

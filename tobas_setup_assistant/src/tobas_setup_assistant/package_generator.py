@@ -773,23 +773,7 @@ class PackageGenerator(QObject):
                 noise_stddev=self._main.lidar.noise_stddev.get(),
             )
 
-        # Odometry plugin
-        if self._main.odometry.equipped():
-            odometry_model = OdometryModel(
-                ns=self._drone_name,
-                link_name=root_link,
-                update_rate=self._main.odometry.update_rate.get(),
-                offset=self._main.odometry.offset.get(),
-                pos_normal_noise_std=self._main.odometry.pos_normal_noise_std.get(),
-                rot_normal_noise_std=self._main.odometry.rot_normal_noise_std.get(),
-                linvel_normal_noise_std=self._main.odometry.linvel_normal_noise_std.get(),
-                angvel_normal_noise_std=self._main.odometry.angvel_normal_noise_std.get(),
-                pos_uniform_noise_scale=self._main.odometry.pos_uniform_noise_scale.get(),
-                rot_uniform_noise_scale=self._main.odometry.rot_uniform_noise_scale.get(),
-                linvel_uniform_noise_scale=self._main.odometry.linvel_uniform_noise_scale.get(),
-                angvel_uniform_noise_scale=self._main.odometry.angvel_uniform_noise_scale.get(),
-            )
-            robot.append(odometry_model)
+
 
         # Tether Station plugin
         if self._main.tether_station.equipped():

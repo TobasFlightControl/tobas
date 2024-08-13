@@ -13,5 +13,4 @@ from .gps import GpsModel
 from .rgb_camera import add_rgb_camera_model
 from .depth_camera import add_depth_camera_model
 from .lidar import add_lidar_model
-from .odometry import OdometryModel
 from .tether_station import add_tether_station_model
