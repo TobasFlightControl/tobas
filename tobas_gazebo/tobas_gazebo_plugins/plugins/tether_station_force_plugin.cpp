@@ -30,7 +30,7 @@ void GazeboTetherStationForcePlugin::Configure(
 
   link_ = model->GetLink(link_name_);
   if (link_ == nullptr)
-    TOBAS_EXIT("Couldn't find specified link \"" << link_name_ << "\".");
+    TOBAS_EXIT("Failed to find specified link \"" << link_name_ << "\".");
 
   contacts_sub_ = createSubscriber(path::join(ns(), kContactStatesTopic, &self::contactStatesCb, this);
   get_params_ss_ = createService(path::join(ns(), kGetTetherParamsSrv, &self::getParamsCb, this);

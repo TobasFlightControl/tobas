@@ -136,8 +136,6 @@ void GazeboRotorPlugin::Configure(
 
   // Get joint
   const auto joint_entity = model.JointByName(ecm, joint_name_);
-  if (joint_entity == sim::kNullEntity)
-    TOBAS_EXIT("Failed to find specified joint \"", joint_name_, "\".");
   joint_ = make_shared<sim::Joint>(joint_entity);
   if (!joint_->Valid(ecm))
     TOBAS_EXIT("Failed to find specified joint \"", joint_name_, "\".");
@@ -328,13 +326,13 @@ void GazeboRotorPlugin::applyWrench(
   const auto rot_speed_sgn = ::math::sign(rot_speed);
   const auto thrust = direction_ * rot_speed_sgn * motor_const_ * ::math::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
-  link_->AddWorldForce(ecm, thrust_W);
+  link_->AddWorldWrench(ecm, thrust_W, Vector3d::Zero);
 
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
   const auto h_force_W = (-abs(rot_speed) * rotor_drag_coef_) * linvel_perp_W;
-  link_->AddWorldForce(ecm, h_force_W);
+  link_->AddWorldWrench(ecm, h_force_W, Vector3d::Zero);
 
   // (2) first term: Rotor drag torque
   const auto torque = moment_const_ * thrust;
@@ -351,7 +349,7 @@ void GazeboRotorPlugin::applyWrench(
     TOBAS_ERROR(
       "The ESC of rotor ", channel_, " is critically damaged due to an overcurrent of ", current,
       " A, which exceeded its maximum current capacity of ", max_current_, " A.");
-    joint_->SetVelocity(ecm, vector(1, 0.));
+    joint_->SetVelocity(ecm, { 0. });
     is_intact_ = false;
   }
 
@@ -379,7 +377,7 @@ void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, co
   // アクティベートされていなければ無回転
   if (!is_armed_)
   {
-    joint_->SetVelocity(ecm, vector(1, 0.));
+    joint_->SetVelocity(ecm, { 0. });
     return;
   }
 
@@ -401,7 +399,7 @@ void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, co
 
   // Apply the filter on the rotation speed
   const auto ref_rot_speed = rotor_speed_filter_.update(set_rot_speed, dt);
-  joint_->SetVelocity(ecm, vector(1, direction_ * ref_rot_speed / kRotorSpeedSlowdownSim));
+  joint_->SetVelocity(ecm, { direction_ * ref_rot_speed / kRotorSpeedSlowdownSim });
 }
 
 double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)

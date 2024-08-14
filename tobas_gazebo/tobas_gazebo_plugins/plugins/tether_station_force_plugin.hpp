@@ -25,7 +25,7 @@ class GazeboTetherStationForcePlugin : public ModelPlugin
 public:
   explicit GazeboTetherStationForcePlugin();
 
-protected:
+
   void Configure(
   const sim::Entity& model,
   const sdf::ElementConstPtr& sdf,

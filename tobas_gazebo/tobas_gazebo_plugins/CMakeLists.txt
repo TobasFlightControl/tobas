@@ -33,7 +33,7 @@ find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_wind_model REQUIRED)
 find_package(tobas_msgs REQUIRED)
-find_package(tobas_drone_core REQUIRED)
+find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_tools REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
@@ -61,7 +61,7 @@ ament_target_dependencies(${PROJECT_NAME}
 	tobas_node
 	tobas_wind_model
 	tobas_msgs
-	tobas_drone_core
+	tobas_drone_tools
 	tobas_gazebo_common
 	tobas_gazebo_tools
 	tobas_gazebo_msgs
@@ -83,6 +83,7 @@ set(PLUGIN_CPP_FILES
 	plugins/magnetometer_plugin.cpp
 	plugins/wind_plugin.cpp
 	plugins/rotor_plugin.cpp
+	plugins/fixed_wing_plugin.cpp
 )
 set(targets_to_install "")
 

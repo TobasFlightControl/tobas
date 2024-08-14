@@ -97,7 +97,7 @@ public:
   double getRotAngle(Vector& axis) const;
 
   // Gives back a rotation matrix specified with Quaternion convention
-  // the norm of (x,y,z,w) should be equal to 1
+  // The norm of (x,y,z,w) should be equal to 1
   static Rotation Quaternion(double x, double y, double z, double w);
 
   // Get the quaternion of this matrix

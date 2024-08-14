@@ -18,23 +18,23 @@
     throw;                                                                                                             \
   }
 
-#define TOBAS_DEBUG(...) debug(__VA_ARGS__)
-#define TOBAS_INFO(...) info(__VA_ARGS__)
-#define TOBAS_WARN(...) warn(__VA_ARGS__)
-#define TOBAS_ERROR(...) error(__VA_ARGS__)
-#define TOBAS_FATAL(...) fatal(__VA_ARGS__)
+#define TOBAS_DEBUG(...) this->debug(__VA_ARGS__)
+#define TOBAS_INFO(...) this->info(__VA_ARGS__)
+#define TOBAS_WARN(...) this->warn(__VA_ARGS__)
+#define TOBAS_ERROR(...) this->error(__VA_ARGS__)
+#define TOBAS_FATAL(...) this->fatal(__VA_ARGS__)
 
-#define TOBAS_DEBUG_ONCE(...) debugOnce(__FILE__, __LINE__, __VA_ARGS__)
-#define TOBAS_INFO_ONCE(...) infoOnce(__FILE__, __LINE__, __VA_ARGS__)
-#define TOBAS_WARN_ONCE(...) warnOnce(__FILE__, __LINE__, __VA_ARGS__)
-#define TOBAS_ERROR_ONCE(...) errorOnce(__FILE__, __LINE__, __VA_ARGS__)
-#define TOBAS_FATAL_ONCE(...) fatalOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_DEBUG_ONCE(...) this->debugOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_INFO_ONCE(...) this->infoOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_WARN_ONCE(...) this->warnOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_ERROR_ONCE(...) this->errorOnce(__FILE__, __LINE__, __VA_ARGS__)
+#define TOBAS_FATAL_ONCE(...) this->fatalOnce(__FILE__, __LINE__, __VA_ARGS__)
 
-#define TOBAS_DEBUG_THROTTLE(period, ...) debugThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
-#define TOBAS_INFO_THROTTLE(period, ...) infoThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
-#define TOBAS_WARN_THROTTLE(period, ...) warnThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
-#define TOBAS_ERROR_THROTTLE(period, ...) errorThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
-#define TOBAS_FATAL_THROTTLE(period, ...) fatalThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_DEBUG_THROTTLE(period, ...) this->debugThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_INFO_THROTTLE(period, ...) this->infoThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_WARN_THROTTLE(period, ...) this->warnThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_ERROR_THROTTLE(period, ...) this->errorThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
+#define TOBAS_FATAL_THROTTLE(period, ...) this->fatalThrottle(__FILE__, __LINE__, period, __VA_ARGS__)
 
 namespace gazebo
 {

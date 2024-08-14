@@ -32,7 +32,7 @@ public:
   void Load(sensors::SensorPtr parent, sdf::ElementPtr sdf) override;
   void onStats(const boost::shared_ptr<msgs::WorldStatistics const>& msg);
 
-protected:
+
   void OnNewLaserScans() override;
 
 private:

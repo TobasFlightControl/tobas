@@ -15,7 +15,7 @@ class GazeboWorldContactsPlugin : public ModelPlugin
 public:
   explicit GazeboWorldContactsPlugin();
 
-protected:
+
   void Configure(
   const sim::Entity& model,
   const sdf::ElementConstPtr& sdf,
