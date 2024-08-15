@@ -2,7 +2,6 @@ from .base_static_joint import BaseStaticJoint
 from .rotor_speeds_publisher_plugin import RotorSpeedsPublisherPlugin
 from .state_gt import GroundTruthStateModel
 from .wind import WindModel
-from .world_contacts import WorldContactsModel
 from .battery import BatteryModel
 from .motor import MotorModel
 from .fixed_wing import FixedWingModel

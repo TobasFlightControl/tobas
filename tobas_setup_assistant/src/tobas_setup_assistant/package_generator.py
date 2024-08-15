@@ -570,10 +570,6 @@ class PackageGenerator(QObject):
         wind_model = WindModel(ns=self._drone_name, link_name=root_link)
         robot.append(wind_model)
 
-        # World Contacts plugin
-        world_contacts = WorldContactsModel(ns=self._drone_name)
-        robot.append(world_contacts)
-
         # Battery plugin
         battery_model = BatteryModel(
             ns=self._drone_name,
@@ -772,8 +768,6 @@ class PackageGenerator(QObject):
                 resolution=self._main.lidar.resolution.get(),
                 noise_stddev=self._main.lidar.noise_stddev.get(),
             )
-
-
 
         # Tether Station plugin
         if self._main.tether_station.equipped():
