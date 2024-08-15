@@ -3,7 +3,6 @@
 namespace gazebo
 {
 // ROS Topics
-static constexpr char kContactStatesTopic[] = "gazebo/contact_states";
 static constexpr char kBatteryGtTopic[] = "gazebo/ground_truth/battery";
 static constexpr char kOdometryGtTopic[] = "gazebo/ground_truth/odom";
 static constexpr char kWindGtTopic[] = "gazebo/ground_truth/wind";

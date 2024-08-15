@@ -15,7 +15,6 @@
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 
 #include <tobas_gazebo_tools/math.hpp>
-#include <tobas_gazebo_tools/wrench.hpp>
 #include <tobas_gazebo_msgs/msg/fixed_wing_debug.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
@@ -343,34 +342,29 @@ void GazeboFixedWingPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCo
   const auto q_bar = tobas::dynamicPressure(rho, V);  // 動圧 (p.15) [Pa]
   const auto& S = vehicle_params_.wing_surface;       // 主翼面積 [m^2]
 
-  // 空力中心に働くレンチを計算
-  Wrench air_wrench_AC;
+  // 空力中心に働く空気力 (1.8-1)
+  auto force_B = q_bar * S * force_coefs;  // [N]
 
-  // 空気力 (1.8-1)
-  air_wrench_AC.force = q_bar * S * force_coefs;  // [N]
-
-  // 空気モーメント (1.8-7)
-  const auto& C_l = moment_coefs.X();                                          // [-]
-  const auto& C_m = moment_coefs.Y();                                          // [-]
-  const auto& C_n = moment_coefs.Z();                                          // [-]
-  const auto& b = vehicle_params_.wing_span;                                   // [m]
-  const auto& c_bar = vehicle_params_.mac;                                     // [m]
-  air_wrench_AC.torque = q_bar * S * Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
+  // 空力中心に働く空気モーメント (1.8-7)
+  const auto& C_l = moment_coefs.X();                                   // [-]
+  const auto& C_m = moment_coefs.Y();                                   // [-]
+  const auto& C_n = moment_coefs.Z();                                   // [-]
+  const auto& b = vehicle_params_.wing_span;                            // [m]
+  const auto& c_bar = vehicle_params_.mac;                              // [m]
+  auto torque_B = q_bar * S * Vector3d(b * C_l, c_bar * C_m, b * C_n);  // [Nm]
 
   // NED coordinates -> NWU coordinates
-  NED2NWU(air_wrench_AC.force);
-  NED2NWU(air_wrench_AC.torque);
-
-  // ベースフレームの原点に働くレンチに変換
-  Vector3d ac;
-  vectorKDLToGazebo(vehicle_params_.ac, ac);
-  const auto air_wrench_B = air_wrench_AC.refPoint(-ac);
+  NED2NWU(force_B);
+  NED2NWU(torque_B);
 
   // 世界座標系に変換
-  const auto air_wrench_W = R_W_B * air_wrench_B;
+  const auto force_W = R_W_B.RotateVector(force_B);
+  const auto torque_W = R_W_B.RotateVector(torque_B);
 
   // 空気力を作用させる
-  link_->AddWorldWrench(ecm, air_wrench_W.force, air_wrench_W.torque);
+  Vector3d B_Pos_BC;
+  vectorKDLToGazebo(vehicle_params_.ac, B_Pos_BC);
+  link_->AddWorldWrench(ecm, force_W, torque_W, B_Pos_BC);
 
   // デバッグ用メッセージを発行
   auto debug_msg = make_unique<tobas_gazebo_msgs::msg::FixedWingDebug>();
@@ -378,8 +372,8 @@ void GazeboFixedWingPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCo
   vectorGazeboToMsg(vel_B, debug_msg->relative_body_velocity);
   debug_msg->alpha = alpha;
   debug_msg->beta = beta;
-  vectorGazeboToMsg(air_wrench_AC.force, debug_msg->air_force);
-  vectorGazeboToMsg(air_wrench_AC.torque, debug_msg->air_moment);
+  vectorGazeboToMsg(force_B, debug_msg->air_force);
+  vectorGazeboToMsg(torque_B, debug_msg->air_moment);
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
     debug_msg->deflections.push_back(cs_angle_models_[i].currentPosition());
   debug_pub_->publish(move(debug_msg));

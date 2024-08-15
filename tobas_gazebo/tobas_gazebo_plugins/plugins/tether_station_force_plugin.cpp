@@ -3,9 +3,7 @@
 
 #include <tobas_path_tools/join.hpp>
 
-#include <tobas_gazebo_tools/wrench.hpp>
 #include <tobas_gazebo_tools/model_mass_holder.hpp>
-#include <tobas_gazebo_msgs/msg/contact_states.hpp>
 #include <tobas_gazebo_msgs/srv/get_tether_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_tether_params.hpp>
 
@@ -64,19 +62,13 @@ private:
   string model_name_;
   ModelMassHolder mass_holder_;
 
-  bool first_contact_detected_ = false;
-  tobas_gazebo_msgs::msg::ContactStates::ConstSharedPtr contacts_;
   tobas_gazebo_msgs::msg::TetherParams params_;
-
-  SubscriberPtr<tobas_gazebo_msgs::msg::ContactStates> contacts_sub_;
 
   ServicePtr<GetSrv> get_params_ss_;
   ServicePtr<SetSrv> set_params_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  bool isContact();
 
-  void contactStatesCb(const tobas_gazebo_msgs::msg::ContactStates::ConstSharedPtr& contacts);
   void getParamsCb(const GetSrv::Request::ConstSharedPtr& req, const GetSrv::Response::SharedPtr& res);
   void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
 };
@@ -115,7 +107,6 @@ void GazeboTetherStationForcePlugin::Configure(
   if (!mass_holder_.initialize(model_entity, ecm))
     TOBAS_EXIT("Failed to initialize model mass holder.");
 
-  contacts_sub_ = createSubscriber(path::join(ns(), kContactStatesTopic), &self::contactStatesCb, this);
   get_params_ss_ = createService<GetSrv>(path::join(ns(), kGetTetherParamsSrv), &self::getParamsCb, this);
   set_params_ss_ = createService<SetSrv>(path::join(ns(), kSetTetherParamsSrv), &self::setParamsCb, this);
 }
@@ -133,29 +124,6 @@ void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sd
 
 void GazeboTetherStationForcePlugin::PreUpdate(const sim::UpdateInfo&, sim::EntityComponentManager& ecm)
 {
-  if (contacts_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, kContactStatesTopic, " is not received yet.");
-    return;
-  }
-
-  // 最初に接地するまでは張力を加えない
-  // 初期位置がずれると，接触が不安定になり加速度に異常が生じる恐れがある．
-  if (!first_contact_detected_)
-  {
-    if (isContact())
-    {
-      TOBAS_INFO("First contact with plane is detected.");
-      first_contact_detected_ = true;
-    }
-    return;
-  }
-
-  // 接地時は張力を加えない
-  // 接地時に張力を加えると，接触が不安定になり加速度に異常が生じる恐れがある．
-  if (isContact())
-    return;
-
   // 現在の状態を取得
   const auto& W_Pos_WB = pose_W_->Data().Pos();
   const auto& W_Rot_B = pose_W_->Data().Rot();
@@ -191,28 +159,8 @@ void GazeboTetherStationForcePlugin::PreUpdate(const sim::UpdateInfo&, sim::Enti
 
   // ケーブルの方向に張力を加える
   const auto W_axis = -W_Pos_PQ.Normalized();
-  const Wrench W_Wrench_Q(T * W_axis, math::Vector3d::Zero);  // Qに働くレンチ
-  const auto W_Wrench_B = W_Wrench_Q.refPoint(-W_Pos_BQ);     // Bに働くレンチ
-  link_->AddWorldWrench(ecm, W_Wrench_B.force, W_Wrench_B.torque);
-}
-
-bool GazeboTetherStationForcePlugin::isContact()
-{
-  for (const auto& state : contacts_->states)
-  {
-    const auto& col1 = state.collision1;
-    const auto& col2 = state.collision2;
-    if (col1.name == model_name_ || col2.name == model_name_)
-      return true;
-  }
-
-  return false;
-}
-
-void GazeboTetherStationForcePlugin::contactStatesCb(
-  const tobas_gazebo_msgs::msg::ContactStates::ConstSharedPtr& contacts)
-{
-  contacts_ = contacts;
+  const auto W_force = T * W_axis;  // Qに働く力
+  link_->AddWorldWrench(ecm, W_force, math::Vector3d::Zero, B_Pos_BQ_);
 }
 
 void GazeboTetherStationForcePlugin::getParamsCb(
