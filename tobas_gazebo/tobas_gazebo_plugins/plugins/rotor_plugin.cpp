@@ -133,6 +133,8 @@ void GazeboRotorPlugin::Configure(
 
   // Get robot model
   sim::Model model(model_entity);
+  if (!model.Valid(ecm))
+    TOBAS_EXIT("Failed to find model.");
 
   // Get joint
   const auto joint_entity = model.JointByName(ecm, joint_name_);

@@ -1,6 +1,15 @@
-#include "./tether_station_force_plugin.hpp"
-#include "../include/tobas_gazebo_plugins/common/common.hpp"
+#include <gz/sim/Model.hh>
+#include <gz/sim/Link.hh>
 
+#include <tobas_path_tools/join.hpp>
+
+#include <tobas_gazebo_tools/wrench.hpp>
+#include <tobas_gazebo_tools/model_mass_holder.hpp>
+#include <tobas_gazebo_msgs/msg/contact_states.hpp>
+#include <tobas_gazebo_msgs/srv/get_tether_params.hpp>
+#include <tobas_gazebo_msgs/srv/set_tether_params.hpp>
+
+#include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
@@ -9,32 +18,106 @@ namespace cmp = sim::components;
 
 namespace gazebo
 {
-GazeboTetherStationForcePlugin::GazeboTetherStationForcePlugin() : super()
+class GazeboTetherStationForcePlugin : public BaseNode,
+                                       public sim::System,
+                                       public sim::ISystemConfigure,
+                                       public sim::ISystemPreUpdate
+{
+  // Default parameters
+  static constexpr double kDefaultInitTension = 1.;       // [N]
+  static constexpr double kDefaultInitMaxLength = 5.;     // [N]
+  static constexpr double kDefaultYoungModulus = 200.;    // [MPa] 低密度ポリエチレン
+  static constexpr double kDefaultCrossSectionArea = 1.;  // [mm^2]
+
+  using self = GazeboTetherStationForcePlugin;
+  using GetSrv = tobas_gazebo_msgs::srv::GetTetherParams;
+  using SetSrv = tobas_gazebo_msgs::srv::SetTetherParams;
+
+public:
+  explicit GazeboTetherStationForcePlugin();
+
+  void Configure(
+    const sim::Entity& model_entity,
+    const sdf::ElementConstPtr& sdf,
+    sim::EntityComponentManager& ecm,
+    sim::EventManager&) override;
+
+  void PreUpdate(const sim::UpdateInfo& info, sim::EntityComponentManager& ecm) override;
+
+private:
+  // SDF parameters
+  std::string link_name_;
+  gz::math::Vector3d W_Pos_WP_;
+  gz::math::Vector3d B_Pos_BQ_;
+  double init_tension_;     // [N]
+  double init_max_length_;  // [m]
+  double young_;            // [MPa] ヤング率 (Young Modulus)
+  double csa_;              // [mm^2] 断面積 (Cross-Sectional Area)
+
+  shared_ptr<sim::Model> model_;
+  shared_ptr<sim::Link> link_;
+
+  const cmp::WorldPose* pose_W_;
+  const cmp::WorldLinearVelocity* vel_W_;
+  const cmp::WorldAngularVelocity* gyro_W_;
+
+  string model_name_;
+  ModelMassHolder mass_holder_;
+
+  bool first_contact_detected_ = false;
+  tobas_gazebo_msgs::msg::ContactStates::ConstSharedPtr contacts_;
+  tobas_gazebo_msgs::msg::TetherParams params_;
+
+  SubscriberPtr<tobas_gazebo_msgs::msg::ContactStates> contacts_sub_;
+
+  ServicePtr<GetSrv> get_params_ss_;
+  ServicePtr<SetSrv> set_params_ss_;
+
+  void getSdfParams(const sdf::ElementConstPtr& sdf);
+  bool isContact();
+
+  void contactStatesCb(const tobas_gazebo_msgs::msg::ContactStates::ConstSharedPtr& contacts);
+  void getParamsCb(const GetSrv::Request::ConstSharedPtr& req, const GetSrv::Response::SharedPtr& res);
+  void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
+};
+
+GazeboTetherStationForcePlugin::GazeboTetherStationForcePlugin() : BaseNode("tether_station_force_plugin")
 {
 }
 
 void GazeboTetherStationForcePlugin::Configure(
-  const sim::Entity& model,
+  const sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
   initialize(sdf);
-
   getSdfParams(sdf);
 
   params_.tension = init_tension_;
   params_.maximum_length = init_max_length_;
 
-  model_ = model;
+  model_ = make_shared<sim::Model>(model_entity);
+  if (!model_->Valid(ecm))
+    TOBAS_EXIT("Failed to find model.");
 
-  link_ = model->GetLink(link_name_);
-  if (link_ == nullptr)
-    TOBAS_EXIT("Failed to find specified link \"" << link_name_ << "\".");
+  const auto link_entity = model_->LinkByName(ecm, link_name_);
+  link_ = make_shared<sim::Link>(link_entity);
+  if (!link_->Valid(ecm))
+    TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
-  contacts_sub_ = createSubscriber(path::join(ns(), kContactStatesTopic, &self::contactStatesCb, this);
-  get_params_ss_ = createService(path::join(ns(), kGetTetherParamsSrv, &self::getParamsCb, this);
-  set_params_ss_ = createService(path::join(ns(), kSetTetherParamsSrv, &self::setParamsCb, this);
+  pose_W_ = getComponent<cmp::WorldPose>(link_entity, ecm);
+  vel_W_ = getComponent<cmp::WorldLinearVelocity>(link_entity, ecm);
+  gyro_W_ = getComponent<cmp::WorldAngularVelocity>(link_entity, ecm);
+
+  model_name_ = model_->Name(ecm);
+
+  if (!mass_holder_.initialize(model_entity, ecm))
+    TOBAS_EXIT("Failed to initialize model mass holder.");
+
+  contacts_sub_ = createSubscriber(path::join(ns(), kContactStatesTopic), &self::contactStatesCb, this);
+  get_params_ss_ = createService<GetSrv>(path::join(ns(), kGetTetherParamsSrv), &self::getParamsCb, this);
+  set_params_ss_ = createService<SetSrv>(path::join(ns(), kSetTetherParamsSrv), &self::setParamsCb, this);
 }
 
 void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -48,11 +131,11 @@ void GazeboTetherStationForcePlugin::getSdfParams(const sdf::ElementConstPtr& sd
   getSdfParam(sdf, "crossSectionArea", csa_, kDefaultCrossSectionArea, POSITIVE);
 }
 
-void GazeboTetherStationForcePlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm)
+void GazeboTetherStationForcePlugin::PreUpdate(const sim::UpdateInfo&, sim::EntityComponentManager& ecm)
 {
   if (contacts_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "/" << ns() << "/" << kContactStatesTopic << " is not received yet.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, kContactStatesTopic, " is not received yet.");
     return;
   }
 
@@ -60,9 +143,9 @@ void GazeboTetherStationForcePlugin::PostUpdate(const sim::UpdateInfo& info, con
   // 初期位置がずれると，接触が不安定になり加速度に異常が生じる恐れがある．
   if (!first_contact_detected_)
   {
-    if (isContactWithPlane())
+    if (isContact())
     {
-      gzmsg << "First contact with plane is detected." << endl;
+      TOBAS_INFO("First contact with plane is detected.");
       first_contact_detected_ = true;
     }
     return;
@@ -70,25 +153,24 @@ void GazeboTetherStationForcePlugin::PostUpdate(const sim::UpdateInfo& info, con
 
   // 接地時は張力を加えない
   // 接地時に張力を加えると，接触が不安定になり加速度に異常が生じる恐れがある．
-  if (isContactWithPlane())
+  if (isContact())
     return;
 
   // 現在の状態を取得
-  const auto& W_Pos_WB = link_->WorldPose().Pos();
-  const auto& W_Rot_B = link_->WorldPose().Rot();
-  const auto W_Vel_WB = link_->WorldLinearVel();
-  const auto W_Gyro_WB = link_->WorldAngularVel();
+  const auto& W_Pos_WB = pose_W_->Data().Pos();
+  const auto& W_Rot_B = pose_W_->Data().Rot();
+  const auto& W_Vel_WB = vel_W_->Data();
+  const auto& W_Gyro_WB = gyro_W_->Data();
 
   // ケーブルの端点間ベクトルを計算
   const auto W_Pos_BQ = W_Rot_B.RotateVector(B_Pos_BQ_);
   const auto W_Pos_PQ = W_Pos_WB - W_Pos_WP_ + W_Pos_BQ;
-  const auto B_Pos_PQ = W_Rot_B.RotateVectorReverse(W_Pos_WB - W_Pos_WP_) + B_Pos_BQ_;
 
   // ケーブルが伸び切っていない場合は一定張力
   auto T = params_.tension;  // [N]
 
   // ケーブル長が限界以上ならばワイヤロープの弾粘性モデル
-  const auto length = B_Pos_PQ.Length();  // [m]
+  const auto length = W_Pos_PQ.Length();  // [m]
   if (length > params_.maximum_length)
   {
     // ケーブル長の変位を計算
@@ -99,7 +181,7 @@ void GazeboTetherStationForcePlugin::PostUpdate(const sim::UpdateInfo& info, con
     const auto xd = W_Vel_PQ.Dot(W_Pos_PQ) / length;             // [m/s]
 
     // マスバネダンパ系の係数
-    const auto m = computeTotalMass(model_);                // [kg]
+    const auto m = mass_holder_.getMass();                  // [kg]
     const auto k = young_ * csa_ * params_.maximum_length;  // [N/m]
     const auto d = 2 * sqrt(m * k);                         // [Ns/m] 臨海減衰する粘性係数
 
@@ -108,74 +190,70 @@ void GazeboTetherStationForcePlugin::PostUpdate(const sim::UpdateInfo& info, con
   }
 
   // ケーブルの方向に張力を加える
-  const auto axis = -B_Pos_PQ.Normalized();
-  const auto force = T * axis;
-  link_->AddLinkForce(force, B_Pos_BQ_);
+  const auto W_axis = -W_Pos_PQ.Normalized();
+  const Wrench W_Wrench_Q(T * W_axis, math::Vector3d::Zero);  // Qに働くレンチ
+  const auto W_Wrench_B = W_Wrench_Q.refPoint(-W_Pos_BQ);     // Bに働くレンチ
+  link_->AddWorldWrench(ecm, W_Wrench_B.force, W_Wrench_B.torque);
 }
 
-bool GazeboTetherStationForcePlugin::isThis(const std::string& name)
-{
-  return name == model_->GetName();
-}
-
-bool GazeboTetherStationForcePlugin::isPlane(const uint32_t& shape)
-{
-  return ((shape & physics::Base::SHAPE) > 0 && (shape & physics::Base::PLANE_SHAPE) > 0);
-}
-
-bool GazeboTetherStationForcePlugin::isContactWithPlane()
+bool GazeboTetherStationForcePlugin::isContact()
 {
   for (const auto& state : contacts_->states)
   {
     const auto& col1 = state.collision1;
     const auto& col2 = state.collision2;
-    if ((isThis(col1.name) && isPlane(col2.shape_type)) || (isThis(col2.name) && isPlane(col1.shape_type)))
+    if (col1.name == model_name_ || col2.name == model_name_)
       return true;
   }
 
   return false;
 }
 
-void GazeboTetherStationForcePlugin::contactStatesCb(const tobas_gazebo_msgs::ContactStates::ConstSharedPtr& contacts)
+void GazeboTetherStationForcePlugin::contactStatesCb(
+  const tobas_gazebo_msgs::msg::ContactStates::ConstSharedPtr& contacts)
 {
   contacts_ = contacts;
 }
 
-bool GazeboTetherStationForcePlugin::getParamsCb(
-  tobas_gazebo_msgs::GetTetherParamsRequest& req,
-  tobas_gazebo_msgs::GetTetherParamsResponse& res)
+void GazeboTetherStationForcePlugin::getParamsCb(
+  const GetSrv::Request::ConstSharedPtr&,
+  const GetSrv::Response::SharedPtr& res)
 {
-  res.params = params_;
-  return true;
+  res->params = params_;
+  return;
 }
 
-bool GazeboTetherStationForcePlugin::setParamsCb(
-  tobas_gazebo_msgs::SetTetherParamsRequest& req,
-  tobas_gazebo_msgs::SetTetherParamsResponse& res)
+void GazeboTetherStationForcePlugin::setParamsCb(
+  const SetSrv::Request::ConstSharedPtr& req,
+  const SetSrv::Response::SharedPtr& res)
 {
-  res.params = params_;
+  res->params = params_;
 
   // Tension
-  if (req.params.tension < 0)
+  if (req->params.tension < 0)
   {
     gzerr << "Tension must be non-negative." << endl;
-    res.success = false;
-    return true;
+    res->success = false;
+    return;
   }
-  params_.tension = res.params.tension = req.params.tension;
+  params_.tension = res->params.tension = req->params.tension;
 
   // Maximum length
-  if (req.params.maximum_length <= 0)
+  if (req->params.maximum_length <= 0)
   {
     gzerr << "Maximum length must be positive." << endl;
-    res.success = false;
-    return true;
+    res->success = false;
+    return;
   }
-  params_.maximum_length = res.params.maximum_length = req.params.maximum_length;
+  params_.maximum_length = res->params.maximum_length = req->params.maximum_length;
 
-  res.success = true;
-  return true;
+  res->success = true;
+  return;
 }
-
-GZ_REGISTER_MODEL_PLUGIN(GazeboTetherStationForcePlugin);
 }  // namespace gazebo
+
+GZ_ADD_PLUGIN(
+  gazebo::GazeboTetherStationForcePlugin,
+  sim::System,
+  gazebo::GazeboTetherStationForcePlugin::ISystemConfigure,
+  gazebo::GazeboTetherStationForcePlugin::ISystemPreUpdate)

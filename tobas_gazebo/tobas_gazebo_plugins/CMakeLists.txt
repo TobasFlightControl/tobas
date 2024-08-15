@@ -84,6 +84,7 @@ set(PLUGIN_CPP_FILES
 	plugins/wind_plugin.cpp
 	plugins/rotor_plugin.cpp
 	plugins/fixed_wing_plugin.cpp
+	plugins/tether_station_force_plugin.cpp
 )
 set(targets_to_install "")
 

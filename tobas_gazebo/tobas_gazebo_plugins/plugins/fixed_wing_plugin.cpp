@@ -133,6 +133,8 @@ void GazeboFixedWingPlugin::Configure(
 
   // Get robot model
   sim::Model model(model_entity);
+  if (!model.Valid(ecm))
+    TOBAS_EXIT("Failed to find model.");
 
   // Get body link
   const auto link_entity = model.LinkByName(ecm, link_name_);
