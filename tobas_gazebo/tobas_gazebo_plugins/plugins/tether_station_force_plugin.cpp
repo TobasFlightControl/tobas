@@ -78,9 +78,9 @@ void GazeboTetherStationForcePlugin::onUpdate(const common::UpdateInfo& info)
   const auto W_Gyro_WB = link_->WorldAngularVel();
 
   // ケーブルの端点間ベクトルを計算
-  const auto W_Pos_BQ = W_Rot_B * B_Pos_BQ_;
+  const auto W_Pos_BQ = W_Rot_B.RotateVector(B_Pos_BQ_);
   const auto W_Pos_PQ = W_Pos_WB - W_Pos_WP_ + W_Pos_BQ;
-  const auto B_Pos_PQ = W_Rot_B.Inverse() * (W_Pos_WB - W_Pos_WP_) + B_Pos_BQ_;
+  const auto B_Pos_PQ = W_Rot_B.RotateVectorReverse(W_Pos_WB - W_Pos_WP_) + B_Pos_BQ_;
 
   // ケーブルが伸び切っていない場合は一定張力
   auto T = params_.tension;  // [N]

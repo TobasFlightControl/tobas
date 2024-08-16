@@ -96,7 +96,7 @@ void GazeboWindPlugin::onUpdate(const common::UpdateInfo& info)
   const Vector3d turb_B(dryden_.u(), dryden_.v(), dryden_.w());
 
   // 全体の風速を計算
-  const auto wind_W = steady_W + link_->WorldPose().Rot() * turb_B;
+  const auto wind_W = steady_W + link_->WorldPose().Rot().RotateVector(turb_B);
 
   // 風速メッセージを作成
   const auto wind_msg = boost::make_shared<tobas_msgs::Wind>();

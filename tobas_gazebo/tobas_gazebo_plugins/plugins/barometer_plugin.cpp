@@ -56,7 +56,7 @@ void GazeboBarometerPlugin::onUpdate()
   const auto& T_W_B = link_->WorldPose();
   const auto& W_Pos_WB = T_W_B.Pos();
   const auto& W_Rot_B = T_W_B.Rot();
-  const auto W_Pos_WS = W_Pos_WB + W_Rot_B * offset_;
+  const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
   const auto altitude = alt_0_ + W_Pos_WS.Z();
 
   // Compute the air pressure at the current altitude

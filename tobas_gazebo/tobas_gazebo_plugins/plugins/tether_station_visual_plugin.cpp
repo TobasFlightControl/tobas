@@ -42,7 +42,7 @@ void GazeboTetherStationVisualPlugin::onUpdate()
 {
   const auto& W_Pos_WB = visual_->WorldPose().Pos();
   const auto& W_Rot_B = visual_->WorldPose().Rot();
-  const auto B_Pos_BP = W_Rot_B.Inverse() * (W_Pos_WP_ - W_Pos_WB);
+  const auto B_Pos_BP = W_Rot_B.RotateVectorReverse(W_Pos_WP_ - W_Pos_WB);
   line_->SetPoint(0, B_Pos_BP);
 }
 

@@ -162,7 +162,7 @@ void GazeboGpsPlugin::updateVelocity(
   const Vector3d& B_Angvel_WB)
 {
   // オフセットを考慮してGPSレシーバの速度を計算
-  auto W_Linvel_WS = W_Linvel_WB + W_Rot_B * B_Angvel_WB.Cross(offset_);
+  auto W_Linvel_WS = W_Linvel_WB + W_Rot_B.RotateVector(B_Angvel_WB.Cross(offset_));
 
   // Apply noise to ground speed
   W_Linvel_WS += vel_noise_->get();
