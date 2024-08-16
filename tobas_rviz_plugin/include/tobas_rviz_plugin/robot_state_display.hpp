@@ -1,0 +1,27 @@
+#pragma once
+
+#include <moveit/robot_state_rviz_plugin/robot_state_display.h>
+
+namespace tobas_rviz_plugin
+{
+class RobotStateDisplay : public moveit_rviz_plugin::RobotStateDisplay
+{
+  Q_OBJECT
+
+  static constexpr float kHighlightR = 0;
+  static constexpr float kHighlightG = 255;
+  static constexpr float kHighlightB = 0;
+  static constexpr float kHighlightA = 0.7;
+
+public:
+  explicit RobotStateDisplay();
+
+private:
+  rviz_common::properties::StringProperty* highlight_link_;
+  rviz_common::properties::StringProperty* unhighlight_link_;
+
+private Q_SLOTS:
+  void changedHighlightColor();
+  void changedUnhighlightColor();
+};
+}  // namespace tobas_rviz_plugin

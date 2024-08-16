@@ -1,5 +1,5 @@
 <library path="libtobas_robot_state_rviz_plugin">
-  <class name="tobas/RobotState" type="moveit_rviz_plugin::RobotStateDisplay" base_class_type="rviz::Display">
+  <class name="tobas/RobotState" type="tobas_rviz_plugin::RobotStateDisplay" base_class_type="rviz_common::Display">
     <description>Displays a robot state.</description>
   </class>
 </library>

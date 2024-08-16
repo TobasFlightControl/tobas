@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(tobas_rviz_plugin)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
   message("This package is skipped on Raspberry Pi.")
   find_package(ament_cmake REQUIRED)
@@ -19,48 +20,30 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Needed for boost/math/constants/constants.hpp included by Ogre to compile
-add_definitions(-DBOOST_MATH_DISABLE_FLOAT128)
+find_package(moveit_common REQUIRED)
+find_package(moveit_ros_visualization REQUIRED)
 
-find_package(catkin REQUIRED COMPONENTS
-  moveit_ros_visualization
-  class_loader
-  pluginlib
-  roscpp
-  rviz
-)
-find_package(Boost REQUIRED thread date_time system filesystem)
-find_package(PkgConfig REQUIRED)
+include_directories(include)
 
-# Ogre
-pkg_check_modules(OGRE OGRE)
-link_directories(${OGRE_LIBRARY_DIRS})
+# ヘッダもライブラリに加える必要がある．加えないとハイライト系のスロットが無いと言われる．
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+file(GLOB_RECURSE LIB_HPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}[^.]*.hpp)
+add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES} ${LIB_HPP_FILES})
+ament_target_dependencies(${PROJECT_NAME} moveit_ros_visualization)
 
-# Qt Stuff
-find_package(Qt5 ${rviz_QT_VERSION} REQUIRED Core Widgets)
-set(QT_LIBRARIES Qt5::Widgets)
+pluginlib_export_plugin_description_file(rviz_common robot_state_rviz_plugin_description.xml)
 
-macro(qt_wrap_ui)
-  qt5_wrap_ui(${ARGN})
-endmacro()
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-add_definitions(-DQT_NO_KEYWORDS)
-
-catkin_package(
-  INCLUDE_DIRS robot_state_rviz_plugin/include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS moveit_ros_visualization class_loader pluginlib roscpp rviz
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
 )
 
-include_directories(
-  robot_state_rviz_plugin/include
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-)
-include_directories(SYSTEM ${QT_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS})
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(moveit_ros_visualization)
 
-add_subdirectory(robot_state_rviz_plugin)
-
-install(FILES robot_state_rviz_plugin_description.xml DESTINATION share/${PROJECT_NAME})
+ament_package()
