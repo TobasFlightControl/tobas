@@ -31,7 +31,7 @@ file(GLOB_RECURSE LIB_HPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT
 add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES} ${LIB_HPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} moveit_ros_visualization)
 
-pluginlib_export_plugin_description_file(rviz_common robot_state_rviz_plugin_description.xml)
+pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
 
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(

@@ -13,7 +13,7 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <rviz plugin="${prefix}/robot_state_rviz_plugin_description.xml"/>
+    <rviz plugin="${prefix}/rviz_plugin_description.xml"/>
   </export>
 
 </package>
