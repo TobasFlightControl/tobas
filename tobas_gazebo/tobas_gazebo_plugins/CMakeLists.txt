@@ -72,20 +72,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 # Build each plugin
-# file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*.cpp)
-set(PLUGIN_CPP_FILES
-	plugins/barometer_plugin.cpp
-	plugins/rotor_speeds_publisher_plugin.cpp
-	plugins/battery_plugin.cpp
-	plugins/gps_plugin.cpp
-	plugins/ground_truth_state_plugin.cpp
-	plugins/imu_plugin.cpp
-	plugins/magnetometer_plugin.cpp
-	plugins/wind_plugin.cpp
-	plugins/rotor_plugin.cpp
-	plugins/fixed_wing_plugin.cpp
-	plugins/tether_station_force_plugin.cpp
-)
+file(GLOB_RECURSE PLUGIN_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} plugins/[^.]*.cpp)
 set(targets_to_install "")
 
 foreach(FILE IN LISTS PLUGIN_CPP_FILES)

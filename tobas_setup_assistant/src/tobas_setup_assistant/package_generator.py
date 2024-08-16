@@ -559,7 +559,7 @@ class PackageGenerator(QObject):
         base_fix_joint = BaseStaticJoint(root_link=root_link)
         robot.append(base_fix_joint)
 
-        # Base plugin
+        # Rotor speeds publisher plugin
         rotor_speeds_publisher_plugin = RotorSpeedsPublisherPlugin(
             ns=self._drone_name,
             rotor_joint_names=self._main.propulsion_system.selected.joint_names(),
@@ -703,85 +703,6 @@ class PackageGenerator(QObject):
                 altitude_0=self._main.simulation.altitude_0.get(),
             )
             robot.append(gps_model)
-
-        # RGB Camera plugin
-        if self._main.rgb_camera.equipped():
-            add_rgb_camera_model(
-                robot=robot,
-                ns=self._drone_name,
-                link_name=self._main.rgb_camera.link.get(),
-                offset=Origin(
-                    x=self._main.rgb_camera.offset.x(),
-                    y=self._main.rgb_camera.offset.y(),
-                    z=self._main.rgb_camera.offset.z(),
-                    roll=self._main.rgb_camera.offset.roll(),
-                    pitch=self._main.rgb_camera.offset.pitch(),
-                    yaw=self._main.rgb_camera.offset.yaw(),
-                ),
-                frame_rate=self._main.rgb_camera.update_rate.get(),
-                width=self._main.rgb_camera.image_width.get(),
-                height=self._main.rgb_camera.image_height.get(),
-                near=self._main.rgb_camera.depth_range.min(),
-                far=self._main.rgb_camera.depth_range.max(),
-                fov=self._main.rgb_camera.fov.get(),
-                noise_mean=0.0,
-                noise_stddev=self._main.rgb_camera.noise_stddev.get(),
-            )
-
-        # Depth Camera plugin
-        if self._main.depth_camera.equipped():
-            add_depth_camera_model(
-                robot=robot,
-                ns=self._drone_name,
-                link_name=self._main.depth_camera.link.get(),
-                offset=Origin(
-                    x=self._main.depth_camera.offset.x(),
-                    y=self._main.depth_camera.offset.y(),
-                    z=self._main.depth_camera.offset.z(),
-                    roll=self._main.depth_camera.offset.roll(),
-                    pitch=self._main.depth_camera.offset.pitch(),
-                    yaw=self._main.depth_camera.offset.yaw(),
-                ),
-                frame_rate=self._main.depth_camera.update_rate.get(),
-                width=self._main.depth_camera.image_width.get(),
-                height=self._main.depth_camera.image_height.get(),
-                near=self._main.depth_camera.depth_range.min(),
-                far=self._main.depth_camera.depth_range.max(),
-                fov=self._main.depth_camera.fov.get(),
-                baseline=self._main.depth_camera.baseline.get(),
-                noise_model=self._main.depth_camera.noise_model.get(),
-            )
-
-        # LiDAR plugin
-        if self._main.lidar.equipped():
-            add_lidar_model(
-                robot=robot,
-                ns=self._drone_name,
-                link_name=root_link,
-                offset=Origin.Trans(*self._main.lidar.offset.get()),
-                update_rate=self._main.lidar.update_rate.get(),
-                hor_samples=self._main.lidar.hor_samples.get(),
-                ver_samples=self._main.lidar.ver_samples.get(),
-                hor_fov=self._main.lidar.hor_fov.get(),
-                ver_fov=self._main.lidar.ver_fov.get(),
-                dist_range=self._main.lidar.range.get(),
-                resolution=self._main.lidar.resolution.get(),
-                noise_stddev=self._main.lidar.noise_stddev.get(),
-            )
-
-        # Tether Station plugin
-        if self._main.tether_station.equipped():
-            add_tether_station_model(
-                robot=robot,
-                ns=self._drone_name,
-                link_name=self._main.tether_station.link.get(),
-                world_end=self._main.tether_station.world_end.get(),
-                drone_end=self._main.tether_station.drone_end.get(),
-                init_tension=self._main.tether_station.tension.get(),
-                init_max_length=self._main.tether_station.max_length.get(),
-                young_modulus=self._main.tether_station.young_modulus.get(),
-                cross_section_area=self._main.tether_station.cross_sectional_area.get(),
-            )
 
         # Ground Truth State plugin
         state_gt_model = GroundTruthStateModel(self._drone_name, root_link)
