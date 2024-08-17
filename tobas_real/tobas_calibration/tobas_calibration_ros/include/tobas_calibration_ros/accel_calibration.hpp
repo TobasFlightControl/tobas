@@ -5,7 +5,7 @@
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_hal_msgs/Imu.h>
+#include <tobas_hal_msgs/Imu.hpp>
 #include <tobas_calibration_msgs/AccelCalibration.h>
 
 namespace tobas_calibration
