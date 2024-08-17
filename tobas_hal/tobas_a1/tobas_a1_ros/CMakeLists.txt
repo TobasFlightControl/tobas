@@ -36,7 +36,7 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GNSSDriverNode" EXE
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ADCDriverNode" EXECUTABLE adc_driver)
 # rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "SBUSDriverNode" EXECUTABLE sbus_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DShotDriverNode" EXECUTABLE dshot_driver)
-# rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PWMDriverNode" EXECUTABLE pwm_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PWMDriverNode" EXECUTABLE pwm_driver)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
