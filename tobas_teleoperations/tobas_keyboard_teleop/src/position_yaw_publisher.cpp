@@ -25,7 +25,7 @@ using namespace std;
 namespace tobas_keyboard_teleop
 {
 PositionYawPublisher::PositionYawPublisher(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name)
+  : super(name, options)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"

@@ -14,7 +14,7 @@ using namespace dynamixel;
 
 namespace tobas_dynamixel_handler
 {
-DynamixelHandler::DynamixelHandler(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+DynamixelHandler::DynamixelHandler(const rclcpp::NodeOptions& options) : super(name, options)
 {
   // Get ROS parameters
   getStaticRosParams();

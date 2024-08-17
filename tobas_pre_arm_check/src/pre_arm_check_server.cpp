@@ -11,7 +11,7 @@ using namespace Eigen;
 namespace tobas_pre_arm_check
 {
 PreArmCheckServer::PreArmCheckServer(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name),
+  : super(name, options),
     pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }

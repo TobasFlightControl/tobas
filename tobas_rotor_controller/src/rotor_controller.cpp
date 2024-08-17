@@ -17,7 +17,7 @@ using namespace std;
 
 namespace tobas_rotor_controller
 {
-RotorController::RotorController(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+RotorController::RotorController(const rclcpp::NodeOptions& options) : super(name, options)
 {
 
 

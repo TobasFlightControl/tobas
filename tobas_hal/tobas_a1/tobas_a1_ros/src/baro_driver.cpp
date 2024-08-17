@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-BaroDriver::BaroDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+BaroDriver::BaroDriver(const rclcpp::NodeOptions& options) : super(name, options)
 {
   if (!baro_.initialize())
     TOBAS_EXIT("Failed to initialize Barometer.");

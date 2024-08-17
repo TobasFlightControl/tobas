@@ -9,7 +9,7 @@ using namespace std;
 namespace tobas_calibration
 {
 AdcCalibrationRos::AdcCalibrationRos(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), property_client_(node_, tobas_real_ros::kPropertyServerFC)
+  : super(name, options), property_client_(node_, tobas_real_ros::kPropertyServerFC)
 {
   ss_ = createService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }

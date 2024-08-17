@@ -6,7 +6,7 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-ImuLpf::ImuLpf(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+ImuLpf::ImuLpf(const rclcpp::NodeOptions& options) : super(name, options)
 {
   imu_lpf_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuLpfTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuTopic, &self::imuRawCb, this);

@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-MagDriver::MagDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+MagDriver::MagDriver(const rclcpp::NodeOptions& options) : super(name, options)
 {
   if (!mag_.initialize())
     TOBAS_EXIT("Failed to initialize Magnetometer.");

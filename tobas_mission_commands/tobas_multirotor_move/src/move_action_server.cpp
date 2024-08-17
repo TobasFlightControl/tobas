@@ -14,7 +14,7 @@ using namespace std;
 namespace tobas_multirotor_move
 {
 MoveActionServer::MoveActionServer(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), as_(node_, tobas::kMoveAction, std::bind(&self::executeCb, this, _1), false)
+  : super(name, options), as_(node_, tobas::kMoveAction, std::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
 

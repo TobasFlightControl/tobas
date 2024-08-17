@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-IMUDriver::IMUDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+IMUDriver::IMUDriver(const rclcpp::NodeOptions& options) : super(name, options)
 {
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");

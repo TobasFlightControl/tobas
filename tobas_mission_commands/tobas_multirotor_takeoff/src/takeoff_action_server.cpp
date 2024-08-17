@@ -11,7 +11,7 @@ using namespace std;
 namespace tobas_multirotor_takeoff
 {
 TakeoffActionServer::TakeoffActionServer(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), as_(node_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
+  : super(name, options), as_(node_, tobas::kTakeoffAction, std::bind(&self::executeCb, this, _1), false)
 {
   cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);

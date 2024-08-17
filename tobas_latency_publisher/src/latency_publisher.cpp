@@ -7,7 +7,7 @@ using namespace std;
 
 namespace tobas_latency_publisher
 {
-LatencyPublisher::LatencyPublisher(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+LatencyPublisher::LatencyPublisher(const rclcpp::NodeOptions& options) : super(name, options)
 {
   latency_pub_ = createPublisher<tobas_msgs::Latency>(tobas::kLatencyTopic);
   throttles_sub_ = createSubscriber(tobas::kThrottlesCmdTopic, &self::throttlesCb, this);

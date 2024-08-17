@@ -12,7 +12,7 @@ using namespace std;
 namespace tobas_real_ros
 {
 RCInputHandler::RCInputHandler(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), property_client_(node_, kPropertyServerFC)
+  : super(name, options), property_client_(node_, kPropertyServerFC)
 {
   reloadConfig();
 

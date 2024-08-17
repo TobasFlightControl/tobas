@@ -13,7 +13,7 @@ using namespace std;
 namespace tobas_calibration
 {
 EscCalibrationRos::EscCalibrationRos(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), as_(node, kActionName, std::bind(&EscCalibrationRos::executeCb, this, _1), false)
+  : super(name, options), as_(node, kActionName, std::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
 
 

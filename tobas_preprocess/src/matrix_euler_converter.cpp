@@ -8,7 +8,7 @@ using namespace std;
 namespace tobas_preprocess
 {
 MatrixEulerConverter::MatrixEulerConverter(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name)
+  : super(name, options)
 {
   euler_pub_ = createPublisher<tobas_kdl_msgs::EulerStamped>(tobas::kEulerTopic);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);

@@ -6,21 +6,19 @@ using namespace std;
 
 namespace hal
 {
-BaseSensorNode::BaseSensorNode(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options) : super(name, options)
 {
-  start_ss_ = createService(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
-  stop_ss_ = createService(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
+  start_ss_ = createService<Empty>(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
+  stop_ss_ = createService<Empty>(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
 }
 
-bool BaseSensorNode::startMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr&, const std_srvs::srv::Empty::Response::SharedPtr&)
+void BaseSensorNode::startMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, const Empty::Response::SharedPtr&)
 {
-  main_timer_.start();
-  return true;
+  main_timer_->reset();
 }
 
-bool BaseSensorNode::stopMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr&, const std_srvs::srv::Empty::Response::SharedPtr&)
+void BaseSensorNode::stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, const Empty::Response::SharedPtr&)
 {
-  main_timer_.stop();
-  return true;
+  main_timer_->cancel();
 }
 }  // namespace hal

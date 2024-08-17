@@ -9,7 +9,7 @@ using namespace std;
 
 namespace a1
 {
-GNSSDriver::GNSSDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+GNSSDriver::GNSSDriver(const rclcpp::NodeOptions& options) : super(name, options)
 {
   if (!gnss_.initialize())
   {

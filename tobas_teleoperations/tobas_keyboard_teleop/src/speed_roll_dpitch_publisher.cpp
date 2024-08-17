@@ -17,7 +17,7 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
   rclcpp::Node::SharedPtr node,
   rclcpp::Node::SharedPtr pnh,
   const string& name)
-  : super(node, pnh, name),
+  : super(name, options),
     trim_(drone_),
     check_topics_timer_(node_, tobas::kCheckTopicsMsgPeriod, &self::checkTopicsTimerCb, this, false),
     instruction_timer_(node_, kInstructionTimerPeriod, &self::instructionTimerCb, this, false)

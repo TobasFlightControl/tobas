@@ -11,7 +11,7 @@ using namespace std;
 namespace tobas_multirotor_landing
 {
 LandActionServer::LandActionServer(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name),
+  : super(name, options),
     alt_buf_(kTimeWindow),
     as_(node_, tobas::kLandAction, std::bind(&self::executeCb, this, _1), false)
 {

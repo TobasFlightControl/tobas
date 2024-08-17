@@ -8,7 +8,7 @@ using namespace std;
 namespace tobas_state_checker
 {
 StateChecker::StateChecker(const rclcpp::NodeOptions& options)
-  : super(node, pnh, name), landing_ac_(tobas::kLandAction)
+  : super(name, options), landing_ac_(tobas::kLandAction)
 {
 
 

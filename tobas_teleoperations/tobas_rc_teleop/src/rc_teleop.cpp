@@ -24,7 +24,7 @@ using namespace rclcpp::message_traits;
 
 namespace tobas_rc_teleop
 {
-RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(name, options)
 {
   getStaticRosParams();
 

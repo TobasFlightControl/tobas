@@ -6,7 +6,7 @@ using namespace std;
 
 namespace tobas_preprocess
 {
-BatteryLpf::BatteryLpf(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+BatteryLpf::BatteryLpf(const rclcpp::NodeOptions& options) : super(name, options)
 {
   battery_lpf_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryLpfTopic);
   battery_raw_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryRawCb, this);

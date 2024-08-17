@@ -12,7 +12,7 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-CpuHandler::CpuHandler(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+CpuHandler::CpuHandler(const rclcpp::NodeOptions& options) : super(name, options)
 {
   cpu_pub_ = createPublisher<tobas_msgs::Cpu>(tobas::kCpuTopic);
   main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);

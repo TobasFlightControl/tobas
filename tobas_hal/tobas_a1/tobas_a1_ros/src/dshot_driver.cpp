@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-DShotDriver::DShotDriver(, const std::string& name) : super(node, pnh, name)
+DShotDriver::DShotDriver(, const std::string& name) : super(name, options)
 {
   if (!dshot_.initialize())
     TOBAS_EXIT("Failed to initialize DSHOT driver.");

@@ -8,7 +8,7 @@ using namespace std;
 
 namespace a1
 {
-SBUSDriver::SBUSDriver(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+SBUSDriver::SBUSDriver(const rclcpp::NodeOptions& options) : super(name, options)
 {
   if (!sbus_.initialize())
     TOBAS_EXIT("Failed to initialize S.BUS driver.");

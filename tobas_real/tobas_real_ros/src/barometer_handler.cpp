@@ -10,7 +10,7 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-BarometerHandler::BarometerHandler(const rclcpp::NodeOptions& options) : super(node, pnh, name)
+BarometerHandler::BarometerHandler(const rclcpp::NodeOptions& options) : super(name, options)
 {
   bar_pub_ = createPublisher<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
   bar_sub_ = createSubscriber(hal::kAirPressureTopic, &self::airPressureCb, this);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ros/timer.h>
 #include <std_srvs/srv/empty.hpp>
 
 #include <tobas_node/node.hpp>
@@ -12,17 +11,19 @@ class BaseSensorNode : public tobas::BaseNode
   using self = BaseSensorNode;
   using super = tobas::BaseNode;
 
+  using Empty = std_srvs::srv::Empty;
+
 public:
-  explicit BaseSensorNode(, const std::string& name);
+  explicit BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options);
 
 protected:
-  rclcpp::Timer main_timer_;
+  TimerPtr main_timer_;
 
 private:
-  ServicePtr<> start_ss_;
-  ServicePtr<> stop_ss_;
+  ServicePtr<Empty> start_ss_;
+  ServicePtr<Empty> stop_ss_;
 
-  bool startMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr& req, const std_srvs::srv::Empty::Response::SharedPtr& res);
-  bool stopMainTimerSrvCb(const std_srvs::srv::Empty::Request::ConstSharedPtr& req, const std_srvs::srv::Empty::Response::SharedPtr& res);
+  void startMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
+  void stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
 };
 }  // namespace hal
