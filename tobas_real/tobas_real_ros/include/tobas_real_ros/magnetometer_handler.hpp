@@ -6,7 +6,7 @@
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_hal_msgs/MagneticField.h>
+#include <tobas_hal_msgs/MagneticField.hpp>
 
 namespace tobas_real_ros
 {

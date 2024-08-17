@@ -30,7 +30,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_a1_core
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "IMUDriverNode" EXECUTABLE imu_driver)
-# rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagDriverNode" EXECUTABLE mag_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagDriverNode" EXECUTABLE mag_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BaroDriverNode" EXECUTABLE baro_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GNSSDriverNode" EXECUTABLE gnss_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ADCDriverNode" EXECUTABLE adc_driver)
