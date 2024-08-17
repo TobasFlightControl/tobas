@@ -9,11 +9,9 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-
-
-	<depend>tobas_tools</depend>
-
-
+	<depend>tobas_node</depend>
+	<depend>tobas_constants</depend>
+	<depend>tobas_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

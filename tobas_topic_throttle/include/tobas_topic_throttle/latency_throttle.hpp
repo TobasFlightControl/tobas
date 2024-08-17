@@ -7,5 +7,5 @@
 
 namespace tobas_topic_throttle
 {
-using LatencyThrottle = TopicThrottle<tobas_msgs::Latency, tobas::kLatencyTopic>;
+using LatencyThrottle = TopicThrottle<tobas_msgs::msg::Latency, tobas::kLatencyTopic>;
 }
