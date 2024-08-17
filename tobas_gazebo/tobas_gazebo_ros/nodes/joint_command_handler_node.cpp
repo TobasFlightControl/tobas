@@ -57,7 +57,7 @@ bool JointCommandHandlerNode::initialize()
   const auto req = std::make_shared<controller_manager_msgs::srv::ListControllers::Request>();
   if (!sc.call(req))
   {
-    TOBAS_ERROR("Failed to call '", tobas::kListControllersSrv, "'.");
+    TOBAS_ERROR("Failed to call \"", tobas::kListControllersSrv, "\" service.");
     return false;
   }
 

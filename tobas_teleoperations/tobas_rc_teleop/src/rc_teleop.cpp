@@ -7,8 +7,8 @@
 #include <tobas_msgs/RollPitchYawThrust.hpp>
 #include <tobas_msgs/PoseTwistAccelCommand.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
-#include <tobas_msgs/GetArm.h>
-#include <tobas_msgs/SetArm.h>
+#include <tobas_msgs/srv/get_arm.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
 
 #include "../include/tobas_rc_teleop/rc_teleop.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -60,8 +60,8 @@ RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(name, options)
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
 
-  get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
-  set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  get_arm_sc_ = createClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  set_arm_sc_ = createClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void RCTeleop::getStaticRosParams()
@@ -72,7 +72,7 @@ void RCTeleop::getStaticRosParams()
 
 bool RCTeleop::isRotorsArmed()
 {
-  if (!get_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!get_arm_sc_->wait_for_service(kWaitForServiceExistence))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kGetArmSrv, "' service server.");
     return false;
@@ -90,7 +90,7 @@ bool RCTeleop::isRotorsArmed()
 
 bool RCTeleop::requestArmingRotors()
 {
-  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_->wait_for_service(kWaitForServiceExistence))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
@@ -109,7 +109,7 @@ bool RCTeleop::requestArmingRotors()
 
 bool RCTeleop::requestDisarmingRotors()
 {
-  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_->wait_for_service(kWaitForServiceExistence))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;

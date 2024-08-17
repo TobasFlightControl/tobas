@@ -13,9 +13,9 @@ static constexpr uint16_t kPwmMid = (kPwmMin + kPwmMax) / 2;  // [us]
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
-static constexpr double kArmThrottle = 0.1;
-static constexpr double kMinThrottle = 0.;
-static constexpr double kMaxThrottle = 1.;
+static constexpr double kArmThrot = 0.1;
+static constexpr double kMinThrot = 0.;  // The minimum throttle
+static constexpr double kMaxThrot = 1.;  // The maximum throttle
 
 // RCInput
 static constexpr double kRCInputMin = -1.;
@@ -111,7 +111,7 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 // Others
 static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
-static constexpr double kWaitForServiceExistence = 1.;   // [s]
+static constexpr auto kWaitForServiceExistence = std::chrono::seconds(1);
 static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]

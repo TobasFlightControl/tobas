@@ -3,7 +3,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_ros/common.hpp>
 #include <tobas_msgs/msg/throttle_array.hpp>
-#include <tobas_msgs/GetArm.h>
+#include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/enable_rc_output.hpp>
 
 #include "../include/tobas_calibration_ros/esc_calibration.hpp"
@@ -18,8 +18,8 @@ EscCalibrationRos::EscCalibrationRos(const rclcpp::NodeOptions& options)
 
 
   throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
-  get_arm_sc_ = node_.serviceClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
-  enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
+  get_arm_sc_ = createClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
+  enable_rcout_sc_ = createClient<tobas_msgs::srv::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
   as_.start();
 }
@@ -28,14 +28,14 @@ void EscCalibrationRos::sendMaximum()
 {
   const auto start_time = get_clock()->now();
   while ((get_clock()->now() - start_time).seconds() < kHighDuration)
-    setThrottleAndSleep(tobas::kMaxThrottle);
+    setThrottleAndSleep(tobas::kMaxThrot);
 }
 
 void EscCalibrationRos::sendMinimum()
 {
   const auto start_time = get_clock()->now();
   while ((get_clock()->now() - start_time).seconds() < kLowDuration)
-    setThrottleAndSleep(tobas::kMinThrottle);
+    setThrottleAndSleep(tobas::kMinThrot);
 }
 
 void EscCalibrationRos::setThrottle(const double& throttle)
@@ -72,7 +72,7 @@ bool EscCalibrationRos::checkDisarmed()
 
 bool EscCalibrationRos::enableRCOutput(bool enable)
 {
-  tobas_msgs::EnableRCOutput enable_rcout_msg;
+  tobas_msgs::srv::EnableRCOutput enable_rcout_msg;
   enable_rcout_msg.request.enable = enable;
 
   for (const auto& rotor : drone_.rotors)
@@ -134,7 +134,7 @@ bool EscCalibrationRos::waitForBatteryConnection()
       as_.setAborted(result_, "Battery connection is not detected before timeout.");
       return false;
     }
-    setThrottleAndSleep(tobas::kMaxThrottle);
+    setThrottleAndSleep(tobas::kMaxThrot);
     rclcpp::spinOnce();
   }
 
@@ -149,12 +149,12 @@ void EscCalibrationRos::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr
 void EscCalibrationRos::executeCb(const GoalType::ConstSharedPtr&)
 {
   // 各サービスサーバへの接続をチェック
-  if (!get_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!get_arm_sc_->wait_for_service(kWaitForServiceExistence))
   {
     as_.setAborted(result_, "Failed to connect to " + string(tobas::kGetArmSrv) + " service server.");
     return;
   }
-  if (!enable_rcout_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!enable_rcout_sc_->wait_for_service(kWaitForServiceExistence))
   {
     as_.setAborted(result_, "Failed to connect to " + string(tobas::kEnableRcOutputSrv) + " service server.");
     return;

@@ -2,7 +2,7 @@
 #include <tobas_kdl/euler.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/PosVelAccYaw.hpp>
-#include <tobas_msgs/SetArm.h>
+#include <tobas_msgs/srv/set_arm.hpp>
 
 #include "../include/tobas_multirotor_takeoff/takeoff_action_server.hpp"
 
@@ -15,7 +15,7 @@ TakeoffActionServer::TakeoffActionServer(const rclcpp::NodeOptions& options)
 {
   cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  set_arm_sc_ = createClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
   as_.start();
 }
 
@@ -44,7 +44,7 @@ bool TakeoffActionServer::isGoalValid(const GoalType& goal)
 
 bool TakeoffActionServer::armRotors()
 {
-  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_->wait_for_service(kWaitForServiceExistence))
   {
     as_.setAborted(result_, "Failed to connect to arming service server.");
     return false;

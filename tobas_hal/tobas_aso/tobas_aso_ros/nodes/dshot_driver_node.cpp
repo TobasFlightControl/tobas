@@ -54,15 +54,15 @@ void DShotDriverNode::throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSha
       continue;
     }
 
-    if (elem.throttle < tobas::kMinThrottle)
+    if (elem.throttle < tobas::kMinThrot)
     {
       TOBAS_ASSERT(dshot_.setThrottle(elem.channel, aso::DShot::DISARM));
     }
     else
     {
       auto throttle = static_cast<uint16_t>(math::remap<double>(
-        elem.throttle, tobas::kMinThrottle, tobas::kMaxThrottle, aso::DShot::kMinThrottle, aso::DShot::kMaxThrottle));
-      throttle = clamp(throttle, aso::DShot::kMinThrottle, aso::DShot::kMaxThrottle);
+        elem.throttle, tobas::kMinThrot, tobas::kMaxThrot, aso::DShot::kMinThrot, aso::DShot::kMaxThrot));
+      throttle = clamp(throttle, aso::DShot::kMinThrot, aso::DShot::kMaxThrot);
       TOBAS_ASSERT(dshot_.setThrottle(elem.channel, throttle));
     }
   }

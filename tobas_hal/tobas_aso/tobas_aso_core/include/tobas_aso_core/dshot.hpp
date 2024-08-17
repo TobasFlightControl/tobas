@@ -9,8 +9,8 @@ namespace aso
 class DShot
 {
 public:
-  static constexpr uint16_t kMinThrottle = 48;
-  static constexpr uint16_t kMaxThrottle = 2047;
+  static constexpr uint16_t kMinThrot = 48;
+  static constexpr uint16_t kMaxThrot = 2047;
   static constexpr size_t kChannelSize = 8;
 
   enum command_t : uint16_t

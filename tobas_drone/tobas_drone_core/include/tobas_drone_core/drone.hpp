@@ -51,7 +51,7 @@ public:
   inline bool isTransformable() const;
 
   /* 機械回転数 [rad/s] を電気回転数 [rpm] に変換する． */
-  inline double erpmFromRotSpeed(size_t rotor_idx, double rot_speed);
+  inline double erpmFromRotSpeed(size_t rotor_idx, double rot_speed) const;
 
   /* 与えられたバッテリー電圧で出力できる最大回転数．*/
   inline double maxRotSpeed(size_t rotor_idx, double battery_voltage) const;
@@ -110,7 +110,7 @@ inline bool Drone::isTransformable() const
   return numJoints() > 0;
 }
 
-inline double Drone::erpmFromRotSpeed(size_t rotor_idx, double rot_speed)
+inline double Drone::erpmFromRotSpeed(size_t rotor_idx, double rot_speed) const
 {
   return tobas_std::rps2rpm(rot_speed) * rotors.at(rotor_idx).num_poles / 2;
 }
@@ -122,7 +122,7 @@ inline double Drone::maxRotSpeed(size_t rotor_idx, double battery_voltage) const
 
 inline double Drone::minRotSpeed(size_t rotor_idx, double battery_voltage) const
 {
-  const auto min_voltage = battery_voltage * kArmThrottle;
+  const auto min_voltage = battery_voltage * kArmThrot;
   return std::min(rotors.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, min_voltage));
 }
 
@@ -140,7 +140,7 @@ inline double Drone::maxThrust(size_t rotor_idx, double battery_voltage) const
 
 inline double Drone::minThrust(size_t rotor_idx, double battery_voltage) const
 {
-  const auto min_voltage = battery_voltage * kArmThrottle;
+  const auto min_voltage = battery_voltage * kArmThrot;
   return std::min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, min_voltage));
 }
 

@@ -88,6 +88,9 @@ protected:
       const std::shared_ptr<typename SrvType::Response>&),
     Obj* obj);
 
+  template <typename SrvType>
+  ClientPtr<SrvType> createClient(const std::string& srv_name);
+
   template <typename RepType, typename DurType, typename Obj>
   TimerPtr createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj);
 
@@ -234,6 +237,12 @@ BaseNode::ServicePtr<SrvType> BaseNode::createService(
   Obj* obj)
 {
   return create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
+}
+
+template <typename SrvType>
+BaseNode::ClientPtr<SrvType> BaseNode::createClient(const std::string& srv_name)
+{
+  return create_client<SrvType>(srv_name);
 }
 
 template <typename RepType, typename DurationT, typename Obj>

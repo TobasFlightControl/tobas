@@ -428,36 +428,33 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   if (is_armed_)
   {
     // スロットルの範囲を制限
-    const auto throttle = std::clamp(msg->data, tobas::kMinThrottle, tobas::kMaxThrottle);
+    const auto throt = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
 
     // スロットルを目標回転数に変換
     switch (esc_mode_)
     {
       case tobas::BLHELI_OPEN_LOOP:
       {
-        const auto input_voltage =
-          ::math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., battery_->voltage);
+        const auto input_voltage = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., battery_->voltage);
         cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
         break;
       }
       case tobas::BLHELI_CLOSED_LOOP_LOW_RANGE:
       {
-        const auto erpm =
-          ::math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., tobas::esc::kBLHeliCLLowMaxERPM);
+        const auto erpm = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., tobas::esc::kBLHeliCLLowMaxERPM);
         cmd_rot_speed_ = rotSpeedFromERPM(erpm);
         break;
       }
       case tobas::BLHELI_CLOSED_LOOP_MID_RANGE:
       {
-        const auto erpm =
-          ::math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., tobas::esc::kBLHeliCLMidMaxERPM);
+        const auto erpm = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., tobas::esc::kBLHeliCLMidMaxERPM);
         cmd_rot_speed_ = rotSpeedFromERPM(erpm);
         break;
       }
       case tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE:
       {
         const auto erpm =
-          ::math::remap(throttle, tobas::kMinThrottle, tobas::kMaxThrottle, 0., tobas::esc::kBLHeliCLHighMaxERPM);
+          ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., tobas::esc::kBLHeliCLHighMaxERPM);
         cmd_rot_speed_ = rotSpeedFromERPM(erpm);
         break;
       }
@@ -470,7 +467,7 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   else
   {
     // 最小スロットルでなければDisarm開始時刻をリセット
-    if (msg->data > tobas::kMinThrottle)
+    if (msg->data > tobas::kMinThrot)
       disarm_start_time_ = prev_sim_time_;
 
     // Disarmの時間が一定時間を超えたらArmする

@@ -13,9 +13,10 @@ public:
     client_ = node_->create_client<SrvType>(srv_name);
   }
 
-  bool call(const SrvType::Request::SharedPtr& req, const rclcpp::Duration& timeout = rclcpp::Duration(-1, 0))
+  bool
+  call(const SrvType::Request::SharedPtr& req, const std::chrono::nanoseconds timeout = std::chrono::nanoseconds(-1))
   {
-    if (!client_->wait_for_service(timeout.to_chrono<std::chrono::nanoseconds>()))
+    if (!client_->wait_for_service(timeout))
     {
       RCLCPP_ERROR_STREAM(
         node_->get_logger(), "Failed to connect to \"" << client_->get_service_name() << "\" server.");

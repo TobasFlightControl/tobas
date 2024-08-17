@@ -1,5 +1,5 @@
 #include <tobas_math/core.hpp>
-#include <tobas_msgs/SetArm.h>
+#include <tobas_msgs/srv/set_arm.hpp>
 
 #include "../include/tobas_state_checker/state_checker.hpp"
 
@@ -19,7 +19,7 @@ StateChecker::StateChecker(const rclcpp::NodeOptions& options)
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   euler_sub_ = createSubscriber(tobas::kEulerTopic, &self::eulerCb, this);
 
-  set_arm_sc_ = node_.serviceClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
+  set_arm_sc_ = createClient<tobas_msgs::SetArm>(tobas::kSetArmSrv);
 }
 
 void StateChecker::publishSystemCriticalEvent()
@@ -60,7 +60,7 @@ void StateChecker::requestLanding()
 
 void StateChecker::requestDisarmingRotors()
 {
-  if (!set_arm_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!set_arm_sc_->wait_for_service(kWaitForServiceExistence))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return;

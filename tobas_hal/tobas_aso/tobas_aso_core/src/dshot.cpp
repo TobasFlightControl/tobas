@@ -27,7 +27,7 @@ bool DShot::initialize()
 bool DShot::setThrottle(size_t ch, uint16_t throttle, bool telem)
 {
   // Check throttle range
-  if (throttle > kMaxThrottle)
+  if (throttle > kMaxThrot)
   {
     cerr << "DSHOT thrrotle out of range." << endl;
     return false;
