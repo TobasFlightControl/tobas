@@ -18,8 +18,7 @@ class BatteryHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BatteryHandler(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit BatteryHandler(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   // Config

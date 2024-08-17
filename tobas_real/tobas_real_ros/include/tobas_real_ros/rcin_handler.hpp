@@ -17,8 +17,7 @@ class RCInputHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit RCInputHandler(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RCInputHandler(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   // Config

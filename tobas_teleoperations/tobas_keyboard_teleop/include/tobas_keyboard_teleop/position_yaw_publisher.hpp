@@ -28,8 +28,7 @@ class PositionYawPublisher : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit PositionYawPublisher(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit PositionYawPublisher(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
   void run();
 

@@ -8,6 +8,8 @@ template <typename SrvType>
 class SimpleServiceClient
 {
 public:
+  using SharedPtr = std::shared_ptr<SimpleServiceClient>;
+
   inline explicit SimpleServiceClient(rclcpp::Node::SharedPtr node, const std::string& srv_name) : node_(node)
   {
     client_ = node_->create_client<SrvType>(srv_name);
@@ -19,17 +21,16 @@ public:
     if (!client_->wait_for_service(timeout))
     {
       RCLCPP_ERROR_STREAM(
-        node_->get_logger(), "Failed to connect to \"" << client_->get_service_name() << "\" server.");
+        node_->get_logger(), "Failed to connect to \"" << client_->get_service_name() << "\" service server.");
       return false;
     }
 
     auto id = client_->async_send_request(req);
     if (rclcpp::spin_until_future_complete(node_, id) != rclcpp::FutureReturnCode::SUCCESS)
     {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to call \"" << client_->get_service_name() << "\".");
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to call \"" << client_->get_service_name() << "\" service.");
       return false;
     }
-
     res_ = id.get();
 
     return true;

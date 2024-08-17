@@ -13,6 +13,9 @@ struct RotationalInertiaStamped
 {
   std_msgs::msg::Header header;
   kdl::RotationalInertia inertia;
+
+  using SharedPtr = std::shared_ptr<RotationalInertiaStamped>;
+  using ConstSharedPtr = std::shared_ptr<const RotationalInertiaStamped>;
 };
 }  // namespace tobas_kdl_msgs
 
@@ -42,4 +45,6 @@ using RotationalInertiaStampedAdapter =
   rclcpp::TypeAdapter<tobas_kdl_msgs::RotationalInertiaStamped, tobas_kdl_msgs::msg::RotationalInertiaStamped>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::RotationalInertiaStamped, tobas_kdl_msgs::msg::RotationalInertiaStamped);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
+  tobas_kdl_msgs::RotationalInertiaStamped,
+  tobas_kdl_msgs::msg::RotationalInertiaStamped);

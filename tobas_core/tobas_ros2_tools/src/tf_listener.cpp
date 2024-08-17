@@ -4,7 +4,8 @@ using namespace std;
 
 namespace ros2
 {
-TransformListener::TransformListener(rclcpp::Node::SharedPtr node) : tf_buffer_(node->get_clock()), tf_listener_(tf_buffer_)
+TransformListener::TransformListener(rclcpp::Node::SharedPtr node)
+  : tf_buffer_(node->get_clock()), tf_listener_(tf_buffer_)
 {
 }
 

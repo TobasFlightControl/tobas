@@ -2,7 +2,6 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-
 #include <tobas_node/node.hpp>
 
 namespace tobas_real_ros

@@ -65,8 +65,8 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
   }
 
   // コマンドを作成
-  const auto cmd =std::make_unique<tobas_msgs::PosVelAccYaw>();
-  cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
+  const auto cmd = std::make_unique<tobas_msgs::PosVelAccYaw>();
+  cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
@@ -79,10 +79,8 @@ void PosVelAccYawController::update(const tobas_msgs::RCInput& rcin, const tobas
 
 void PosVelAccYawController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
 {
-  ros2::getParam(
-    pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
-  ros2::getParam(
-    pnh, "pos_vel_acc_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
+  ros2::getParam(pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
+  ros2::getParam(pnh, "pos_vel_acc_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
   ros2::getParam(pnh, "pos_vel_acc_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
 }
 }  // namespace tobas_rc_teleop

@@ -2,7 +2,6 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-
 #include <tobas_node/node.hpp>
 
 namespace tobas_real_ros
@@ -15,8 +14,7 @@ class TimeReferenceServer : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit TimeReferenceServer(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit TimeReferenceServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   PublisherPtr<> time_ref_pub_;

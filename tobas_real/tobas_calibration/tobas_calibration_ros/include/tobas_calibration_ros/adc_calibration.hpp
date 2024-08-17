@@ -19,8 +19,7 @@ class AdcCalibrationRos : public tobas::BaseNode
   using SrvType = tobas_calibration_msgs::AdcCalibration;
 
 public:
-  explicit AdcCalibrationRos(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit AdcCalibrationRos(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   size_t cnt_;

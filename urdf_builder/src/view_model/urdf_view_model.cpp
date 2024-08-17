@@ -186,15 +186,15 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
     const auto& old_parent_link = old_parent_link_it->second;
 
     auto& child_links = old_parent_link->child_links;
-    const auto& it1 = remove_if(child_links.begin(), child_links.end(), [&](const urdf::LinkSharedPtr& link) {
-      return link->name == old_link_vm->name().toStdString();
-    });
+    const auto& it1 = remove_if(
+      child_links.begin(), child_links.end(),
+      [&](const urdf::LinkSharedPtr& link) { return link->name == old_link_vm->name().toStdString(); });
     child_links.erase(it1, child_links.end());
 
     auto& child_joints = old_parent_link->child_joints;
-    const auto& it2 = remove_if(child_joints.begin(), child_joints.end(), [&](const urdf::JointSharedPtr& joint) {
-      return joint->name == old_joint->name().toStdString();
-    });
+    const auto& it2 = remove_if(
+      child_joints.begin(), child_joints.end(),
+      [&](const urdf::JointSharedPtr& joint) { return joint->name == old_joint->name().toStdString(); });
     child_joints.erase(it2, child_joints.end());
   }
 

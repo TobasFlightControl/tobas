@@ -325,7 +325,7 @@ void DynamixelHandler::printHardwareErrorStatus()
 void DynamixelHandler::publishCurrentStates(const rclcpp::Time& cur_time)
 {
   // Create motor states message
-  const auto motor_states =std::make_unique<tobas_dynamixel_msgs::MotorStateArray>();
+  const auto motor_states = std::make_unique<tobas_dynamixel_msgs::MotorStateArray>();
   motor_states->header.stamp = cur_time;
 
   // Read packets
@@ -454,11 +454,11 @@ void DynamixelHandler::publishCurrentStates(const rclcpp::Time& cur_time)
   motor_states_pub_->publish(motor_states);
 }
 
-void DynamixelHandler::eventCb(const tobas_msgs::Event::ConstSharedPtr& event)
+void DynamixelHandler::eventCb(const tobas_msgs::msg::Event::ConstSharedPtr& event)
 {
   switch (event->data)
   {
-    case tobas_msgs::Event::SYSTEM_CRITICAL:
+    case tobas_msgs::msg::Event::SYSTEM_CRITICAL:
       TOBAS_WARN("System critical event message is received. Disabling torques.");
       disableTorques();
       break;

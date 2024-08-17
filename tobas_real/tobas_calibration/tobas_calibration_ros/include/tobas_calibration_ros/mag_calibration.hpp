@@ -15,8 +15,7 @@ class MagCalibrationRos : public tobas::BaseNode
   using SrvType = tobas_calibration_msgs::MagCalibration;
 
 public:
-  explicit MagCalibrationRos(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MagCalibrationRos(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ptree::PropertyClient property_client_;

@@ -17,6 +17,6 @@ public:
 
 private:
   const size_t update_rate_;
-  std::chrono::steady_clock::duration t_next_ ;
+  std::chrono::steady_clock::duration t_next_;
 };
 }  // namespace gazebo

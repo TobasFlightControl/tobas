@@ -23,8 +23,7 @@ class MoveActionServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::MoveFeedback;
 
 public:
-  explicit MoveActionServer(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MoveActionServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ResultType result_;

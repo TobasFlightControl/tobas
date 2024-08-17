@@ -6,7 +6,7 @@
 #include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/LandAction.h>
+#include <tobas_msgs/action/land.hpp>
 
 namespace tobas_multirotor_landing
 {
@@ -26,8 +26,7 @@ class LandActionServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::LandFeedback;
 
 public:
-  explicit LandActionServer(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit LandActionServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   bool is_action_running_ = false;

@@ -13,6 +13,9 @@ struct JntArrayStamped
 {
   std_msgs::msg::Header header;
   kdl::JntArray q;
+
+  using SharedPtr = std::shared_ptr<JntArrayStamped>;
+  using ConstSharedPtr = std::shared_ptr<const JntArrayStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

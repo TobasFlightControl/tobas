@@ -100,7 +100,7 @@ void ImuHandler::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
       }
 
       // Create message
-      const auto imu_msg =std::make_unique<tobas_msgs::Imu>();
+      const auto imu_msg = std::make_unique<tobas_msgs::Imu>();
 
       // Fill header
       imu_msg->header = imu_raw->header;

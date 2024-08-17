@@ -13,6 +13,9 @@ struct FrameStamped
 {
   std_msgs::msg::Header header;
   kdl::Frame frame;
+
+  using SharedPtr = std::shared_ptr<FrameStamped>;
+  using ConstSharedPtr = std::shared_ptr<const FrameStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

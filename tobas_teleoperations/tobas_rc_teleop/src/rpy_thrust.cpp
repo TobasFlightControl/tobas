@@ -50,8 +50,8 @@ void RollPitchYawThrustController::update(
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  const auto rpyt =std::make_unique<tobas_msgs::RollPitchYawThrust>();
-  rpyt->level.data = tobas_msgs::CommandLevel::MANUAL;
+  const auto rpyt = std::make_unique<tobas_msgs::RollPitchYawThrust>();
+  rpyt->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
 
   // 姿勢と推力を埋める
   rpyt->rpy.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);

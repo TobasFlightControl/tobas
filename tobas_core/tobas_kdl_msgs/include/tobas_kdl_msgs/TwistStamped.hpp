@@ -13,6 +13,9 @@ struct TwistStamped
 {
   std_msgs::msg::Header header;
   kdl::Twist twist;
+
+  using SharedPtr = std::shared_ptr<TwistStamped>;
+  using ConstSharedPtr = std::shared_ptr<const TwistStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

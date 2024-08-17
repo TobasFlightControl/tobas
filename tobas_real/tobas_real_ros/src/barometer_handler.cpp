@@ -41,7 +41,7 @@ void BarometerHandler::airPressureCb(const tobas_hal_msgs::msg::FluidPressure::C
   pressure_noise_.update(bar_raw->fluid_pressure, dt);
 
   // Create message
-  const auto bar_msg =std::make_unique<sensor_msgs::msg::FluidPressure>();
+  const auto bar_msg = std::make_unique<sensor_msgs::msg::FluidPressure>();
   bar_msg->header = bar_raw->header;
   bar_msg->fluid_pressure = bar_raw->fluid_pressure;
   bar_msg->variance = pressure_noise_.noiseVariance();

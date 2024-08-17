@@ -13,6 +13,9 @@ struct AccelStamped
 {
   std_msgs::msg::Header header;
   kdl::Accel accel;
+
+  using SharedPtr = std::shared_ptr<AccelStamped>;
+  using ConstSharedPtr = std::shared_ptr<const AccelStamped>;
 };
 }  // namespace tobas_kdl_msgs
 

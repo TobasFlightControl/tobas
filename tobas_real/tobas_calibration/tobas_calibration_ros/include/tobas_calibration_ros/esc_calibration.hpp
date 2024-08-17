@@ -28,8 +28,7 @@ class EscCalibrationRos : public tobas::BaseNode
   using FeedbackType = tobas_calibration_msgs::EscCalibrationFeedback;
 
 public:
-  explicit EscCalibrationRos(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit EscCalibrationRos(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas::Drone drone_;

@@ -27,8 +27,7 @@ class TakeoffActionServer : public tobas::BaseNode
   using FeedbackType = tobas_msgs::TakeoffFeedback;
 
 public:
-  explicit TakeoffActionServer(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit TakeoffActionServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ResultType result_;

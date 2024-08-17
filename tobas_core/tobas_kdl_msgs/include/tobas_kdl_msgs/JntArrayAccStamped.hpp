@@ -13,6 +13,9 @@ struct JntArrayAccStamped
 {
   std_msgs::msg::Header header;
   kdl::JntArrayAcc q;
+
+  using SharedPtr = std::shared_ptr<JntArrayAccStamped>;
+  using ConstSharedPtr = std::shared_ptr<const JntArrayAccStamped>;
 };
 }  // namespace tobas_kdl_msgs
 
@@ -42,4 +45,6 @@ using JntArrayAccStampedAdapter =
   rclcpp::TypeAdapter<tobas_kdl_msgs::JntArrayAccStamped, tobas_kdl_msgs::msg::JntArrayAccStamped>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_kdl_msgs::JntArrayAccStamped, tobas_kdl_msgs::msg::JntArrayAccStamped);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
+  tobas_kdl_msgs::JntArrayAccStamped,
+  tobas_kdl_msgs::msg::JntArrayAccStamped);

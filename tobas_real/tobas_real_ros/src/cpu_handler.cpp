@@ -4,7 +4,7 @@
 #include <tobas_std_tools/string.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Cpu.h>
+#include <tobas_msgs/msg/cpu.hpp>
 
 #include "../include/tobas_real_ros/cpu_handler.hpp"
 
@@ -14,7 +14,7 @@ namespace tobas_real_ros
 {
 CpuHandler::CpuHandler(const rclcpp::NodeOptions& options) : super(name, options)
 {
-  cpu_pub_ = createPublisher<tobas_msgs::Cpu>(tobas::kCpuTopic);
+  cpu_pub_ = createPublisher<tobas_msgs::msg::Cpu>(tobas::kCpuTopic);
   main_timer_ = createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
@@ -119,7 +119,7 @@ bool CpuHandler::getLoad(double& load)
 void CpuHandler::mainTimerCb()
 {
   // Create ROS message
-  const auto cpu_msg =std::make_unique<tobas_msgs::Cpu>();
+  const auto cpu_msg = std::make_unique<tobas_msgs::msg::Cpu>();
   cpu_msg->header.stamp = get_clock()->now();
 
   // Get CPU temperature

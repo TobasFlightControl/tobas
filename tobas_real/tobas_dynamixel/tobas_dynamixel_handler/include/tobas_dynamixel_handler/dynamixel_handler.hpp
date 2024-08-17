@@ -5,7 +5,7 @@
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_msgs/Event.h>
+#include <tobas_msgs/msg/event.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_dynamixel_msgs/MotorStateArray.h>
 
@@ -34,8 +34,7 @@ class DynamixelHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit DynamixelHandler(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit DynamixelHandler(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
   ~DynamixelHandler();
 
 private:
@@ -93,7 +92,7 @@ private:
   bool disableTorques();
   void printHardwareErrorStatus();
 
-  void eventCb(const tobas_msgs::Event::ConstSharedPtr& event);
+  void eventCb(const tobas_msgs::msg::Event::ConstSharedPtr& event);
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);

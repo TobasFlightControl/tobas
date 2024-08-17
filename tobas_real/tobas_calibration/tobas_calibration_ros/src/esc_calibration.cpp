@@ -15,8 +15,6 @@ namespace tobas_calibration
 EscCalibrationRos::EscCalibrationRos(const rclcpp::NodeOptions& options)
   : super(name, options), as_(node, kActionName, std::bind(&EscCalibrationRos::executeCb, this, _1), false)
 {
-
-
   throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
   get_arm_sc_ = createClient<tobas_msgs::GetArm>(tobas::kGetArmSrv);
   enable_rcout_sc_ = createClient<tobas_msgs::srv::EnableRCOutput>(tobas::kEnableRcOutputSrv);
@@ -40,7 +38,7 @@ void EscCalibrationRos::sendMinimum()
 
 void EscCalibrationRos::setThrottle(const double& throttle)
 {
-  const auto throttles =std::make_unique<tobas_msgs::msg::ThrottleArray>();
+  const auto throttles = std::make_unique<tobas_msgs::msg::ThrottleArray>();
   throttles->header.stamp = get_clock()->now();
   for (const auto& rotor : drone_.rotors)
     throttles->throttles.emplace_back(rotor.channel, throttle);

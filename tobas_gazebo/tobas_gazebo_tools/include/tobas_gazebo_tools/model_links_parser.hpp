@@ -5,7 +5,7 @@
 
 namespace gazebo
 {
-  /* モデルに属する全てのリンクを保持する． */
+/* モデルに属する全てのリンクを保持する． */
 class ModelLinksParser
 {
 public:

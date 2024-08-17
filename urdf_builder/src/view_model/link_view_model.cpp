@@ -47,9 +47,9 @@ void LinkViewModel::sync()
 
   // visual, visual_array
   model_->visual_array.clear();
-  transform(visuals_.begin(), visuals_.end(), back_inserter(model_->visual_array), [](const VisualViewModelPtr& vvm) {
-    return vvm->model();
-  });
+  transform(
+    visuals_.begin(), visuals_.end(), back_inserter(model_->visual_array),
+    [](const VisualViewModelPtr& vvm) { return vvm->model(); });
   if (model_->visual_array.empty())
     model_->visual = nullptr;
   else

@@ -24,8 +24,7 @@ using namespace std;
 
 namespace tobas_keyboard_teleop
 {
-PositionYawPublisher::PositionYawPublisher(const rclcpp::NodeOptions& options)
-  : super(name, options)
+PositionYawPublisher::PositionYawPublisher(const rclcpp::NodeOptions& options) : super(name, options)
 {
   instruction_ = "Control your drone!\n"
                  "---------------------------\n"
@@ -59,7 +58,7 @@ void PositionYawPublisher::run()
   // 離陸
   RCLCPP_INFO_STREAM("Requesting takeoff action.");
   tobas_msgs::TakeoffGoal takeoff_goal;
-  takeoff_goal.level.data = tobas_msgs::CommandLevel::NORMAL;
+  takeoff_goal.level.data = tobas_msgs::msg::CommandLevel::NORMAL;
   takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
   takeoff_goal.altitude_tolerance = TAKEOFF_ALTITUDE_TOLERANCE;
   takeoff_goal.duration = TAKEOFF_DURATION;
@@ -154,14 +153,14 @@ void PositionYawPublisher::run()
     }
 
     // コマンドを発行
-    const auto pos_yaw_msg =std::make_unique<tobas_msgs::PositionYaw>();
-    pos_yaw_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
+    const auto pos_yaw_msg = std::make_unique<tobas_msgs::PositionYaw>();
+    pos_yaw_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
     pos_yaw_msg->pos = cmd_pos_;
     pos_yaw_msg->yaw = cmd_yaw_;
     pos_yaw_pub_->publish(pos_yaw_msg);
 
-    const auto pvay_msg =std::make_unique<tobas_msgs::PosVelAccYaw>();
-    pvay_msg->level.data = tobas_msgs::CommandLevel::NORMAL;
+    const auto pvay_msg = std::make_unique<tobas_msgs::PosVelAccYaw>();
+    pvay_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
     pvay_msg->pos = cmd_pos_;
     pvay_msg->vel.setZero();
     pvay_msg->acc.setZero();

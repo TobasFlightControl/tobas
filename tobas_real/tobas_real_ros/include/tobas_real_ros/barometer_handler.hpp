@@ -18,8 +18,7 @@ class BarometerHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit BarometerHandler(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit BarometerHandler(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas_hal_msgs::msg::FluidPressure::ConstSharedPtr bar_raw_;

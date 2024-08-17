@@ -44,7 +44,8 @@ inline Euler::Euler() : roll(0), pitch(0), yaw(0)
 {
 }
 
-inline Euler::Euler(const double& _roll, const double& _pitch, const double& _yaw) : roll(_roll), pitch(_pitch), yaw(_yaw)
+inline Euler::Euler(const double& _roll, const double& _pitch, const double& _yaw)
+  : roll(_roll), pitch(_pitch), yaw(_yaw)
 {
 }
 

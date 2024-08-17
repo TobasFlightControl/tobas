@@ -85,8 +85,8 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   }
 
   // コマンドを作成
-  const auto cmd =std::make_unique<tobas_msgs::PoseTwistAccelCommand>();
-  cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
+  const auto cmd = std::make_unique<tobas_msgs::PoseTwistAccelCommand>();
+  cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
@@ -101,10 +101,8 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
 
 void PoseTwistAccelController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
 {
-  ros2::getParam(
-    pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
-  ros2::getParam(
-    pnh, "pose_twist_accel/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
+  ros2::getParam(pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
+  ros2::getParam(pnh, "pose_twist_accel/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
   ros2::getParam(pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, ros2::POSITIVE);
   ros2::getParam(pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
 }

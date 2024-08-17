@@ -18,8 +18,7 @@ class RCInputCalibrationRos : public tobas::BaseNode
   using SrvType = tobas_calibration_msgs::RCInputCalibration;
 
 public:
-  explicit RCInputCalibrationRos(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RCInputCalibrationRos(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   ptree::PropertyClient property_client_;

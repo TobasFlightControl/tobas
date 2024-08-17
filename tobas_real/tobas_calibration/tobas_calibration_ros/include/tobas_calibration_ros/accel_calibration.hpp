@@ -21,8 +21,7 @@ class AccelCalibrationRos : public tobas::BaseNode
   using SrvType = tobas_calibration_msgs::AccelCalibration;
 
 public:
-  explicit AccelCalibrationRos(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit AccelCalibrationRos(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   size_t cnt_;

@@ -31,7 +31,6 @@ SpeedRollDeltaPitchPublisher::SpeedRollDeltaPitchPublisher(
 
   getStaticRosParams();
 
-
   trim_.updateInternalDataStructures();
   q_0_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
@@ -118,7 +117,7 @@ void SpeedRollDeltaPitchPublisher::run()
     }
 
     // コマンドを発行
-    const auto cmd_ptr =std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
+    const auto cmd_ptr = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
     cmd_pub_->publish(cmd_ptr);
 
     rclcpp::spinOnce();

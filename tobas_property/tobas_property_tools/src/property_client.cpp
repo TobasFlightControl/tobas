@@ -22,31 +22,31 @@ PropertyClient::PropertyClient(rclcpp::Node::SharedPtr node, const string& ns, c
 {
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, bool& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, bool& value)
 {
-  return getProperty<GetBool, kGetBoolSrv>(key, value, timeout);
+  return getProperty<GetBool, kGetBoolSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, int& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, int& value)
 {
-  return getProperty<GetInt, kGetIntSrv>(key, value, timeout);
+  return getProperty<GetInt, kGetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, double& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, double& value)
 {
-  return getProperty<GetDouble, kGetDoubleSrv>(key, value, timeout);
+  return getProperty<GetDouble, kGetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, string& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, string& value)
 {
-  return getProperty<GetString, kGetStringSrv>(key, value, timeout);
+  return getProperty<GetString, kGetStringSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value)
 {
   int tmp;
 
-  if (getProperty<GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
+  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0)
     return error_code_;
 
   if (tmp < 0 || UINT8_MAX < tmp)
@@ -56,11 +56,11 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint8_t& value, c
   return error_code_ = E_NO_ERROR;
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value)
 {
   int tmp;
 
-  if (getProperty<GetInt, kGetIntSrv>(key, tmp, timeout) < 0)
+  if (getProperty<GetInt, kGetIntSrv>(key, tmp) < 0)
     return error_code_;
 
   if (tmp < 0 || UINT16_MAX < tmp)
@@ -70,51 +70,51 @@ PropertyClient::error_t PropertyClient::get(const string& key, uint16_t& value, 
   return error_code_ = E_NO_ERROR;
 }
 
-PropertyClient::error_t PropertyClient::get(const string& key, float& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::get(const string& key, float& value)
 {
-  return getProperty<GetDouble, kGetDoubleSrv>(key, value, timeout);
+  return getProperty<GetDouble, kGetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const bool& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const bool& value)
 {
-  return setProperty<SetBool, kSetBoolSrv>(key, value, timeout);
+  return setProperty<SetBool, kSetBoolSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const int& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const int& value)
 {
-  return setProperty<SetInt, kSetIntSrv>(key, value, timeout);
+  return setProperty<SetInt, kSetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const double& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const double& value)
 {
-  return setProperty<SetDouble, kSetDoubleSrv>(key, value, timeout);
+  return setProperty<SetDouble, kSetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const string& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const string& value)
 {
-  return setProperty<SetString, kSetStringSrv>(key, value, timeout);
+  return setProperty<SetString, kSetStringSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const uint8_t& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const uint8_t& value)
 {
-  return setProperty<SetInt, kSetIntSrv>(key, value, timeout);
+  return setProperty<SetInt, kSetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const uint16_t& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const uint16_t& value)
 {
-  return setProperty<SetInt, kSetIntSrv>(key, value, timeout);
+  return setProperty<SetInt, kSetIntSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::set(const string& key, const float& value, const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::set(const string& key, const float& value)
 {
-  return setProperty<SetDouble, kSetDoubleSrv>(key, value, timeout);
+  return setProperty<SetDouble, kSetDoubleSrv>(key, value);
 }
 
-PropertyClient::error_t PropertyClient::save(const rclcpp::Duration& timeout)
+PropertyClient::error_t PropertyClient::save()
 {
   auto client = node_->create_client<Trigger>(path::join(ns_, kSaveFileSrv));
-  if (!client->wait_for_service(timeout.to_chrono<chrono::nanoseconds>()))
-    return error_code_ = E_FAILED_TO_CONNECT;
+  if (!client->service_is_ready())
+    return error_code_ = E_SERVICE_NOT_READY;
 
   const auto req = make_shared<Trigger::Request>();
 
@@ -143,8 +143,8 @@ string PropertyClient::errorMessage() const
   {
     case E_NO_ERROR:
       return "No error.";
-    case E_FAILED_TO_CONNECT:
-      return "Failed to connect to service server.";
+    case E_SERVICE_NOT_READY:
+      return "Service server is not ready.";
     case E_FAILED_TO_CALL:
       return "Failed to call service.";
     case E_OUT_OF_RANGE:

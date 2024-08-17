@@ -8,7 +8,7 @@ namespace dryden
 {
 static constexpr double kLowAltitudeThreshold = 1000.;  // [ft]
 static constexpr double kMinimumAltitude = 1.;          // [m]
-};                                                      // namespace dryden
+};  // namespace dryden
 
 /**
  * @brief Dryden turbulance model

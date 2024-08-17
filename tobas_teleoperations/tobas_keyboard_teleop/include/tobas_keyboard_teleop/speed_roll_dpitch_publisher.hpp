@@ -27,8 +27,7 @@ class SpeedRollDeltaPitchPublisher : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit SpeedRollDeltaPitchPublisher(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit SpeedRollDeltaPitchPublisher(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
   void run();
 

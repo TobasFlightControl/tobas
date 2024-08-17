@@ -19,8 +19,7 @@ class MagnetometerHandler : public tobas::BaseNode
   using super = tobas::BaseNode;
 
 public:
-  explicit MagnetometerHandler(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MagnetometerHandler(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   // Config

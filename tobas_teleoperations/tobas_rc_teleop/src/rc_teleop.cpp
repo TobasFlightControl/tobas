@@ -28,29 +28,28 @@ RCTeleop::RCTeleop(const rclcpp::NodeOptions& options) : super(name, options)
 {
   getStaticRosParams();
 
-
   // プログラムモードのダミーコントローラを設定
-  controllers_[tobas::kFlightModeProgram] =std::make_unique<ProgramModeController>(drone_);
+  controllers_[tobas::kFlightModeProgram] = std::make_unique<ProgramModeController>(drone_);
 
   // その他の飛行モードのコントローラを設定
   for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
   {
     if (modes_[i] == "")
-      controllers_[i] =std::make_unique<ProgramModeController>(drone_);
+      controllers_[i] = std::make_unique<ProgramModeController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PosVelAccYaw>::value(), '/').back())
-      controllers_[i] =std::make_unique<PosVelAccYawController>(drone_);
+      controllers_[i] = std::make_unique<PosVelAccYawController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PositionYaw>::value(), '/').back())
-      controllers_[i] =std::make_unique<PositionYawController>(drone_);
+      controllers_[i] = std::make_unique<PositionYawController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::RollPitchYawThrust>::value(), '/').back())
-      controllers_[i] =std::make_unique<RollPitchYawThrustController>(drone_);
+      controllers_[i] = std::make_unique<RollPitchYawThrustController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::PoseTwistAccelCommand>::value(), '/').back())
-      controllers_[i] =std::make_unique<PoseTwistAccelController>(drone_);
+      controllers_[i] = std::make_unique<PoseTwistAccelController>(drone_);
     else if (modes_[i] == tobas_std::split(DataType<tobas_msgs::msg::SpeedRollDeltaPitch>::value(), '/').back())
-      controllers_[i] =std::make_unique<SpeedRollDeltaPitchController>(drone_);
+      controllers_[i] = std::make_unique<SpeedRollDeltaPitchController>(drone_);
     else
     {
       TOBAS_ERROR("Invalid flight mode: ", modes_[i], ". The RC command for this mode will not be published.");
-      controllers_[i] =std::make_unique<ProgramModeController>(drone_);
+      controllers_[i] = std::make_unique<ProgramModeController>(drone_);
     }
 
     controllers_[i]->initialize(node_, pnh_);

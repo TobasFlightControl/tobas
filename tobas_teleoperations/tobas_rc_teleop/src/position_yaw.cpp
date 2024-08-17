@@ -16,7 +16,7 @@ PositionYawController::PositionYawController(const tobas::Drone& drone) : super(
 void PositionYawController::initialize()
 {
   getStaticRosParams(pnh);
-  pos_yaw_.level.data = tobas_msgs::CommandLevel::MANUAL;
+  pos_yaw_.level.data = tobas_msgs::msg::CommandLevel::MANUAL;
   pos_yaw_pub_ = node.advertise<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic);
 }
 
@@ -58,14 +58,13 @@ void PositionYawController::update(const tobas_msgs::RCInput& rcin, const tobas_
 
   // コマンドを発行
   // 発行後にメッセージが変更されないことを保証するため，コピーへのshared_ptrを作成
-  const auto pos_yaw_ptr =std::make_unique<tobas_msgs::PositionYaw>(pos_yaw_);
+  const auto pos_yaw_ptr = std::make_unique<tobas_msgs::PositionYaw>(pos_yaw_);
   pos_yaw_pub_->publish(pos_yaw_ptr);
 }
 
 void PositionYawController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
 {
-  ros2::getParam(
-    pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
+  ros2::getParam(pnh, "position_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
   ros2::getParam(pnh, "position_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
   ros2::getParam(pnh, "position_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
 }
