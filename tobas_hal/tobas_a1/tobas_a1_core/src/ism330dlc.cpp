@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 
 #include <tobas_std_tools/universal_constants.hpp>
 
@@ -64,8 +65,7 @@ bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
   if (!spi_.transfer(bytes + 1))
     return false;
 
-  for (size_t i = 0; i < bytes; ++i)
-    res_[i] = spi_.rx[i + 1];
+  memcpy(res_, spi_.rx + 1, bytes);
 
   return true;
 }
