@@ -7,7 +7,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_kdl_msgs/EulerStamped.h>
+#include <tobas_kdl_msgs/EulerStamped.hpp>
 #include <tobas_msgs/Event.h>
 #include <tobas_msgs/Cpu.h>
 #include <tobas_msgs/msg/battery.hpp>
