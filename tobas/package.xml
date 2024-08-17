@@ -30,7 +30,7 @@
 	<exec_depend>tobas_latency_publisher</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
-	<exec_depend>tobas_pre_arm_check</exec_depend>
+	<exec_depend>tobas_prearm_check</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
 	<exec_depend>tobas_rotor_controller</exec_depend>
 	<exec_depend>tobas_rviz_plugin</exec_depend>

@@ -46,7 +46,7 @@
     </include>
 
     <!-- Launch pre-arm check server -->
-    <include file="$(find tobas_pre_arm_check)/launch/pre_arm_check.launch">
+    <include file="$(find tobas_prearm_check)/launch/prearm_check.launch">
       <arg name="nodelet" value="$(arg nodelet)"/>
     </include>
 

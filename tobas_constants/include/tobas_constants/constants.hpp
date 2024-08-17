@@ -47,7 +47,7 @@ static constexpr char kWindTopic[] = "wind";
 static constexpr char kEventTopic[] = "event";
 static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kArmingTopic[] = "arming";
-static constexpr char kPreArmCheckTopic[] = "pre_arm_check";
+static constexpr char kPreArmCheckTopic[] = "prearm_check";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 // Command
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
@@ -81,7 +81,7 @@ static constexpr char kGetArmSrv[] = "get_arm";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
-static constexpr char kPreArmCheckSrv[] = "pre_arm_check";
+static constexpr char kPreArmCheckSrv[] = "prearm_check";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
 static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";

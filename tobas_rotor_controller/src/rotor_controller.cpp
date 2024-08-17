@@ -30,7 +30,7 @@ RotorController::RotorController(const rclcpp::NodeOptions& options) : super(nam
   get_arm_ss_ = createService(tobas::kGetArmSrv, &self::getArmCb, this);
   set_arm_ss_ = createService(tobas::kSetArmSrv, &self::setArmCb, this);
   enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
-  pre_arm_check_sc_ = node_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
+  prearm_check_sc_ = node_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
   check_interval_timer_ = createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
@@ -98,16 +98,16 @@ bool RotorController::enableRCOutputs(const bool& enable)
 
 bool RotorController::preArmCheck()
 {
-  if (!pre_arm_check_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
+  if (!prearm_check_sc_.wait_for_service(rclcpp::Duration(tobas::kWaitForServiceExistence)))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kPreArmCheckSrv, "' server.");
     return false;
   }
 
-  std_srvs::Trigger pre_arm_check_msg;
-  if (!pre_arm_check_sc_.call(pre_arm_check_msg) || !pre_arm_check_msg.response.success)
+  std_srvs::Trigger prearm_check_msg;
+  if (!prearm_check_sc_.call(prearm_check_msg) || !prearm_check_msg.response.success)
   {
-    TOBAS_ERROR(pre_arm_check_msg.response.message);
+    TOBAS_ERROR(prearm_check_msg.response.message);
     return false;
   }
 
@@ -233,7 +233,7 @@ bool RotorController::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetAr
 {
   if (!is_armed_ && req.arming)
   {
-    if (!req.ignore_pre_arm_check && !preArmCheck())
+    if (!req.ignore_prearm_check && !preArmCheck())
     {
       res.success = false;
       res.message = "Pre-arm check failed.";

@@ -82,7 +82,7 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
 
         self._gps_sub = None
         self._rcin_sub = None
-        self._pre_arm_check_sub = None
+        self._prearm_check_sub = None
         self._arming_sub = None
 
         self._is_first_update = True
@@ -103,7 +103,7 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
         if not self._is_first_update:
             self._gps_sub.unregister()
             self._rcin_sub.unregister()
-            self._pre_arm_check_sub.unregister()
+            self._prearm_check_sub.unregister()
             self._arming_sub.unregister()
 
         self._gps_sub = self.create_subscription(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, 1)
@@ -113,10 +113,10 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
             self._rcin_cb,
             1,
         )
-        self._pre_arm_check_sub = self.create_subscription(
+        self._prearm_check_sub = self.create_subscription(
             f"{self._drone.name}/{Topic.PRE_ARM_CHECK}",
             PreArmCheck,
-            self._pre_arm_check_cb,
+            self._prearm_check_cb,
             1,
         )
         self._arming_sub = self.create_subscription(f"{self._drone.name}/{Topic.ARMING}", Bool, self._arming_cb, 1)
@@ -132,7 +132,7 @@ class StatusViewerWidget(BaseControlSystemSectionWidget):
     def _rcin_cb(self, _: RCInput) -> None:
         self._rcin_status.set_yes()
 
-    def _pre_arm_check_cb(self, msg: PreArmCheck) -> None:
+    def _prearm_check_cb(self, msg: PreArmCheck) -> None:
         if msg.battery_voltage_sufficient:
             self._voltage_status.set_yes()
         else:
