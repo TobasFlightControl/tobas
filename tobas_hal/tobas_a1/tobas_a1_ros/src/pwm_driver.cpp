@@ -7,7 +7,7 @@ using namespace std;
 
 namespace a1
 {
-PWMDriver::PWMDriver(, const std::string& name) : super(name, options)
+PWMDriver::PWMDriver(const rclcpp::NodeOptions& options) : super(name, options)
 {
   if (!pwm_.initialize())
     TOBAS_EXIT("Failed to initialize PWM driver.");
