@@ -50,6 +50,6 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   bool preArmCheckSrvCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
-  void preArmCheckTimerCb(const rclcpp::TimerEvent& event);
+  void preArmCheckTimerCb();
 };
 }  // namespace tobas_pre_arm_check

@@ -34,7 +34,7 @@ private:
   bool configure();
   void warnUnnecessaryUBXMessage();
 
-  void setTimeOffsetTimerCb(const rclcpp::TimerEvent& event);
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void setTimeOffsetTimerCb();
+  void mainTimerCb();
 };
 }  // namespace a1

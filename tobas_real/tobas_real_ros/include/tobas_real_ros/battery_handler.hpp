@@ -4,7 +4,7 @@
 
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_hal_msgs/Adc.h>
+#include <tobas_hal_msgs/msg/adc.hpp>
 
 namespace tobas_real_ros
 {
@@ -36,6 +36,6 @@ private:
   bool reloadConfig();
 
   bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
-  void adcCb(const tobas_hal_msgs::Adc::ConstSharedPtr& adc);
+  void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
 };
 }  // namespace tobas_real_ros

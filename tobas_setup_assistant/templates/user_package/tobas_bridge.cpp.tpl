@@ -35,7 +35,7 @@ void TobasBridge::jntEffCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSha
   /* TODO */
 }
 
-void TobasBridge::mainTimerCb(const rclcpp::TimerEvent& event)
+void TobasBridge::mainTimerCb()
 {
   /* TODO */
 }

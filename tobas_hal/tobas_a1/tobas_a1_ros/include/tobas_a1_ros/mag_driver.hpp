@@ -19,6 +19,6 @@ private:
   IIS2MDC mag_;
   PublisherPtr<> mag_pub_;
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 }  // namespace a1

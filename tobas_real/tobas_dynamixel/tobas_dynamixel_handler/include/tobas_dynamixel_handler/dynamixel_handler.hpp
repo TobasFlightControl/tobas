@@ -99,6 +99,6 @@ private:
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
 
   bool enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 }  // namespace tobas_dynamixel_handler

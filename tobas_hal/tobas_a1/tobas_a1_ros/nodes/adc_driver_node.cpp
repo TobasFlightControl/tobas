@@ -1,46 +1,44 @@
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/Adc.h>
+#include <tobas_hal_msgs/msg/adc.hpp>
 
 #include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_a1_core/ads1220.hpp>
 
-#include "../include/tobas_a1_ros/adc_driver.hpp"
-
 using namespace std;
 
-class ADCDriver : public hal::BaseSensorNode
+class ADCDriverNode : public hal::BaseSensorNode
 {
-  static constexpr size_t kSamplingRate = 100;  // [Hz]
+  static constexpr auto kSamplingPeriod = 10ms;
 
-  using self = ADCDriver;
+  using self = ADCDriverNode;
   using super = hal::BaseSensorNode;
 
 public:
-  explicit ADCDriver(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ADCDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ADS1220 adc_;
-  PublisherPtr<> adc_pub_;
+  a1::ADS1220 adc_;
+  PublisherPtr<tobas_hal_msgs::msg::Adc> adc_pub_;
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 
-ADCDriver::ADCDriver(const rclcpp::NodeOptions& options) : super(name, options)
+ADCDriverNode::ADCDriverNode(const rclcpp::NodeOptions& options) : super("a1_adc_driver", options)
 {
   if (!adc_.initialize())
     TOBAS_EXIT("Failed to initialize ADC.");
 
-  adc_pub_ = createPublisher<tobas_hal_msgs::Adc>(hal::kAdcTopic);
-  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  adc_pub_ = createPublisher<tobas_hal_msgs::msg::Adc>(hal::kAdcTopic);
+  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
-void ADCDriver::mainTimerCb(const rclcpp::TimerEvent& event)
+void ADCDriverNode::mainTimerCb()
 {
   // Create messages
-  const auto msg =std::make_unique<tobas_hal_msgs::Adc>();
+  auto msg = std::make_unique<tobas_hal_msgs::msg::Adc>();
 
   // Fill headers
-  msg->header.stamp = event.current_real;
+  msg->header.stamp = get_clock()->now();
 
   // Read ADC
   if (!adc_.readVoltage(msg->voltage))
@@ -51,5 +49,7 @@ void ADCDriver::mainTimerCb(const rclcpp::TimerEvent& event)
   msg->current = 0.;  // TODO
 
   // Publish message
-  adc_pub_->publish(msg);
+  adc_pub_->publish(move(msg));
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(ADCDriverNode)

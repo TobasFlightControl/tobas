@@ -16,13 +16,13 @@ MagDriver::MagDriver(const rclcpp::NodeOptions& options) : super(name, options)
   main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void MagDriver::mainTimerCb(const rclcpp::TimerEvent& event)
+void MagDriver::mainTimerCb()
 {
   // Create messages
   const auto msg =std::make_unique<tobas_hal_msgs::MagneticField>();
 
   // Fill headers
-  msg->header.stamp = event.current_real;
+  msg->header.stamp = get_clock()->now();
 
   // Read sensor
   if (!mag_.readMag(msg->magnetic_field.x(), msg->magnetic_field.y(), msg->magnetic_field.z()))

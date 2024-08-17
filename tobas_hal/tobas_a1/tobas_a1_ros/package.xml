@@ -9,14 +9,9 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_tools</depend>
-	<depend>tobas_a1_core</depend>
-	<depend>tobas_property_tools</depend>
 	<depend>tobas_hal_core</depend>
 	<depend>tobas_hal_msgs</depend>
-
-
-
+	<depend>tobas_a1_core</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

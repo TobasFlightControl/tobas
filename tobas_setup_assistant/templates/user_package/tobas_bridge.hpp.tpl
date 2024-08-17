@@ -27,5 +27,5 @@ private:
   void jntVelCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_vel);
   void jntEffCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_eff);
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };

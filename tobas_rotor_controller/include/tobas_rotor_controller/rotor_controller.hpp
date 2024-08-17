@@ -59,6 +59,6 @@ private:
   bool getArmCb(tobas_msgs::GetArmRequest& req, tobas_msgs::GetArmResponse& res);
   bool setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetArmResponse& res);
 
-  void checkIntervalTimerCb(const rclcpp::TimerEvent& event);
+  void checkIntervalTimerCb();
 };
 }  // namespace tobas_rotor_controller

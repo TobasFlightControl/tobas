@@ -22,6 +22,6 @@ private:
   PublisherPtr<> time_ref_pub_;
   rclcpp::Timer main_timer_;
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 }  // namespace tobas_real_ros

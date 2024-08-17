@@ -14,7 +14,7 @@ AdcCalibrationRos::AdcCalibrationRos(const rclcpp::NodeOptions& options)
   ss_ = createService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }
 
-void AdcCalibrationRos::adcCb(const tobas_hal_msgs::Adc::ConstSharedPtr& adc)
+void AdcCalibrationRos::adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc)
 {
   ++cnt_;
   voltage_sum_.add(adc->voltage);

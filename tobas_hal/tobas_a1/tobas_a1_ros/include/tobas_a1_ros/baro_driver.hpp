@@ -19,6 +19,6 @@ private:
   ILPS22QS baro_;
   PublisherPtr<> baro_pub_;
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 }  // namespace a1

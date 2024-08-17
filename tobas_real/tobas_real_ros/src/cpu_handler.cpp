@@ -116,11 +116,11 @@ bool CpuHandler::getLoad(double& load)
   return true;
 }
 
-void CpuHandler::mainTimerCb(const rclcpp::TimerEvent& event)
+void CpuHandler::mainTimerCb()
 {
   // Create ROS message
   const auto cpu_msg =std::make_unique<tobas_msgs::Cpu>();
-  cpu_msg->header.stamp = event.current_real;
+  cpu_msg->header.stamp = get_clock()->now();
 
   // Get CPU temperature
   if (!getTemperature(cpu_msg->temperature))

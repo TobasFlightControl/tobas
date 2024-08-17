@@ -620,11 +620,11 @@ bool DynamixelHandler::enableTorquesServiceCb(std_srvs::SetBoolRequest& req, std
   return true;
 }
 
-void DynamixelHandler::mainTimerCb(const rclcpp::TimerEvent& event)
+void DynamixelHandler::mainTimerCb()
 {
   if (!is_enabled_)
     return;
 
-  publishCurrentStates(event.current_real);
+  publishCurrentStates(get_clock()->now());
 }
 }  // namespace tobas_dynamixel_handler

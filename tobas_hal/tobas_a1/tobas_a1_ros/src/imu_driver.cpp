@@ -16,13 +16,13 @@ IMUDriver::IMUDriver(const rclcpp::NodeOptions& options) : super(name, options)
   main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
-void IMUDriver::mainTimerCb(const rclcpp::TimerEvent& event)
+void IMUDriver::mainTimerCb()
 {
   // Create messages
   const auto msg =std::make_unique<tobas_hal_msgs::Imu>();
 
   // Fill headers
-  msg->header.stamp = event.current_real;
+  msg->header.stamp = get_clock()->now();
 
   // Read IMU
   if (!imu_.readAcc(msg->accel.x(), msg->accel.y(), msg->accel.z()))

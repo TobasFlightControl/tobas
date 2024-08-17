@@ -19,7 +19,7 @@ SBUSDriver::SBUSDriver(const rclcpp::NodeOptions& options) : super(name, options
   main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
 }
 
-void SBUSDriver::mainTimerCb(const rclcpp::TimerEvent& event)
+void SBUSDriver::mainTimerCb()
 {
   // Read S.BUS
   if (!sbus_.update())
@@ -30,7 +30,7 @@ void SBUSDriver::mainTimerCb(const rclcpp::TimerEvent& event)
 
   // Create message
   const auto sbus_msg =std::make_unique<tobas_hal_msgs::Sbus>();
-  sbus_msg->header.stamp = event.current_real;
+  sbus_msg->header.stamp = get_clock()->now();
   for (size_t ch = 0; ch < sbus_msg->data.size(); ++ch)
     sbus_msg->data[ch] = sbus_.getPeriod(ch);
 

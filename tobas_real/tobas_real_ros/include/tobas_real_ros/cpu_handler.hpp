@@ -34,6 +34,6 @@ private:
   bool getFrequency(uint64_t& freq);
   bool getLoad(double& load);
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 }  // namespace tobas_real_ros

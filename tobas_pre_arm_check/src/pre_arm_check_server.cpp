@@ -95,12 +95,12 @@ bool PreArmCheckServer::preArmCheckSrvCb(std_srvs::srv::Trigger::Request&, std_s
   return true;
 }
 
-void PreArmCheckServer::preArmCheckTimerCb(const rclcpp::TimerEvent& event)
+void PreArmCheckServer::preArmCheckTimerCb()
 {
   if (battery_ == nullptr || odom_ == nullptr)
     return;
 
-  pre_arm_check_.header.stamp = event.current_real;
+  pre_arm_check_.header.stamp = get_clock()->now();
   pre_arm_check_.ok = true;
 
   // バッテリー電圧

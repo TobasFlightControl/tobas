@@ -263,9 +263,9 @@ bool RotorController::setArmCb(tobas_msgs::SetArmRequest& req, tobas_msgs::SetAr
   return true;
 }
 
-void RotorController::checkIntervalTimerCb(const rclcpp::TimerEvent& event)
+void RotorController::checkIntervalTimerCb()
 {
-  const auto time_after_last_cmd = (event.current_real - last_cmd_time_).seconds();
+  const auto time_after_last_cmd = (get_clock()->now() - last_cmd_time_).seconds();
   if (time_after_last_cmd > tobas::kAutoResetTimeThreshold)
   {
     setThrottleOnAllChannels(tobas::kMinThrottle);

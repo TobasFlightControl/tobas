@@ -7,6 +7,8 @@ namespace a1
 {
 class SBUSDriver : public hal::BaseSensorNode
 {
+static constexpr double kErrorPeriod = 1.;  // [s]
+
   using self = SBUSDriver;
   using super = hal::BaseSensorNode;
 
@@ -18,6 +20,6 @@ private:
 
   PublisherPtr<> sbus_pub_;
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 }  // namespace a1

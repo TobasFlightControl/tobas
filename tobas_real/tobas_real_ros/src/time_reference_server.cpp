@@ -8,18 +8,18 @@ using namespace std;
 
 namespace tobas_real_ros
 {
-TimeReferenceServer::TimeReferenceServer(const rclcpp::NodeOptions& options)
-  : super(name, options)
+TimeReferenceServer::TimeReferenceServer(const rclcpp::NodeOptions& options) : super(name, options)
 {
   time_ref_pub_ = createPublisher<sensor_msgs::msg::TimeReference>(tobas::kTimeReferenceTopic);
   main_timer_ = node_.createTimer(kUpdateRate, &self::mainTimerCb, this);
 }
 
-void TimeReferenceServer::mainTimerCb(const rclcpp::TimerEvent& event)
+void TimeReferenceServer::mainTimerCb()
 {
-  const auto time_ref =std::make_unique<sensor_msgs::msg::TimeReference>();
-  time_ref->header.stamp = event.current_real;
-  time_ref->time_ref = event.current_real;
+  const auto time_ref = std::make_unique<sensor_msgs::msg::TimeReference>();
+  const auto now = get_clock()->now();
+  time_ref->header.stamp = now;
+  time_ref->time_ref = now;
   time_ref_pub_->publish(time_ref);
 }
 }  // namespace tobas_real_ros

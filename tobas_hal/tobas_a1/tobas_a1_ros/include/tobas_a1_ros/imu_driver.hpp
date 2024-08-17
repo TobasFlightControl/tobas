@@ -19,6 +19,6 @@ private:
   ISM330DLC imu_;
   PublisherPtr<> imu_pub_;
 
-  void mainTimerCb(const rclcpp::TimerEvent& event);
+  void mainTimerCb();
 };
 }  // namespace a1
