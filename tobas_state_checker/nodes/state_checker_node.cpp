@@ -138,10 +138,10 @@ void StateCheckerNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 
 void StateCheckerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
-  if (drone_ == nullptr)
+  if (arming_ == nullptr || !arming_->data)
     return;
 
-  if (arming_ == nullptr || !arming_->data)
+  if (drone_ == nullptr)
     return;
 
   if (battery->voltage < drone_->battery.sag_voltage)
