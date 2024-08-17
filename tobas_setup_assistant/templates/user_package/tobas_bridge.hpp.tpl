@@ -21,7 +21,7 @@ private:
   SubscriberPtr<> tar_vel_sub_;
   SubscriberPtr<> tar_eff_sub_;
 
-  rclcpp::Timer main_timer_;
+  TimerPtr main_timer_;
 
   void jntPosCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_pos);
   void jntVelCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_vel);

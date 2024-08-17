@@ -28,7 +28,7 @@ private:
   PublisherPtr<> cpu_pub_;
 
   // Timer
-  rclcpp::Timer main_timer_;
+  TimerPtr main_timer_;
 
   bool getTemperature(double& temp);
   bool getFrequency(uint64_t& freq);

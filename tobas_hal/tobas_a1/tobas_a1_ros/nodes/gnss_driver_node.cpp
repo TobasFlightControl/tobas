@@ -1,15 +1,48 @@
 #include <tobas_std_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_msgs/Gps.hpp>
 
-#include "../include/tobas_a1_ros/gnss_driver.hpp"
-#include "../include/tobas_a1_ros/common.hpp"
+#include <tobas_a1_core/zed_f9p.hpp>
 
 using namespace std;
 
-namespace a1
+class GNSSDriverNode : public hal::BaseSensorNode
 {
-GNSSDriver::GNSSDriver(const rclcpp::NodeOptions& options) : super(name, options)
+  // GNSSレシーバの更新周期 [ms]
+  // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
+  static constexpr size_t kMeasPeriod = 1000 / 20;
+  static constexpr double kWarnPeriod = 3.;  // [s]
+
+  using self = GNSSDriverNode;
+  using super = hal::BaseSensorNode;
+
+public:
+  explicit GNSSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  a1::ZEDF9P gnss_;
+
+  a1::payload::NAV_STATUS status_;
+  a1::payload::NAV_HPPOSLLH hpposllh_;
+  a1::payload::NAV_VELNED velned_;
+  a1::payload::NAV_COV cov_;
+
+  std::map<a1::ZEDF9P::ubx_nav_id_t, bool> is_received_;
+  rclcpp::Duration time_offset_;  // ROS Time - GPS Time
+
+  PublisherPtr<tobas_msgs::Gps> gnss_pub_;
+  TimerPtr set_time_offset_timer_;
+
+  bool configure();
+  void warnUnnecessaryUBXMessage();
+
+  void setTimeOffsetTimerCb();
+  void mainTimerCb();
+};
+
+GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options)
+  : super("a1_gnss_driver", options), time_offset_(0, 0)
 {
   if (!gnss_.initialize())
   {
@@ -23,24 +56,21 @@ GNSSDriver::GNSSDriver(const rclcpp::NodeOptions& options) : super(name, options
     return;
   }
 
-  is_received_[ZEDF9P::NAV_STATUS] = false;
-  is_received_[ZEDF9P::NAV_POSLLH] = false;
-  is_received_[ZEDF9P::NAV_VELNED] = false;
-  is_received_[ZEDF9P::NAV_COV] = false;
+  is_received_[a1::ZEDF9P::NAV_STATUS] = false;
+  is_received_[a1::ZEDF9P::NAV_POSLLH] = false;
+  is_received_[a1::ZEDF9P::NAV_VELNED] = false;
+  is_received_[a1::ZEDF9P::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
 
-  set_time_offset_timer_ = createTimer(rclcpp::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
-  main_timer_ = createTimer(rclcpp::Duration(0), &self::mainTimerCb, this, false, false);
-
   // ROS時刻とGPS時刻の間のオフセットを取得する
-  // コンストラクタではros::Timeを扱うことは推奨されないため，タイマーコールバックで行う．
-  set_time_offset_timer_.start();
+  // コンストラクタでROS時刻を取得することは推奨されないため，タイマーコールバックで行う．
+  set_time_offset_timer_ = createTimer(0ns, &self::setTimeOffsetTimerCb, this);
 }
 
-bool GNSSDriver::configure()
+bool GNSSDriverNode::configure()
 {
-  if (!gnss_.configureDynamicsModel(ZEDF9P::AIRBORNE_2G))
+  if (!gnss_.configureDynamicsModel(a1::ZEDF9P::AIRBORNE_2G))
   {
     TOBAS_FATAL("Failed to configure dynamics model.");
     return false;
@@ -94,17 +124,17 @@ bool GNSSDriver::configure()
   }
 
   // 不要なプロトコルを無効化
-  if (!gnss_.enableProtocol(ZEDF9P::NMEA, false))
+  if (!gnss_.enableProtocol(a1::ZEDF9P::NMEA, false))
   {
     TOBAS_FATAL("Failed to disable NMEA protocol.");
     return false;
   }
-  if (!gnss_.enableProtocol(ZEDF9P::RTCM3X, false))
+  if (!gnss_.enableProtocol(a1::ZEDF9P::RTCM3X, false))
   {
     TOBAS_FATAL("Failed to disable RTCM3X protocol.");
     return false;
   }
-  if (!gnss_.enableProtocol(ZEDF9P::SPARTN, false))
+  if (!gnss_.enableProtocol(a1::ZEDF9P::SPARTN, false))
   {
     TOBAS_FATAL("Failed to disable SPARTN protocol.");
     return false;
@@ -121,29 +151,36 @@ bool GNSSDriver::configure()
   return true;
 }
 
-void GNSSDriver::warnUnnecessaryUBXMessage()
+void GNSSDriverNode::warnUnnecessaryUBXMessage()
 {
   const auto cls = gnss_.latestClass();
   const auto id = gnss_.latestId();
   TOBAS_WARN("Unnecessary UBX message is received: (Class, ID) = (", (int)cls, ", ", (int)id, ")");
 }
 
-void GNSSDriver::setTimeOffsetTimerCb(const rclcpp::TimerEvent&)
+void GNSSDriverNode::setTimeOffsetTimerCb()
 {
   // Enable GPS time message only
-  if (!gnss_.enableMsg(ZEDF9P::CLASS_NAV, ZEDF9P::NAV_TIMEGPS, true))
+  if (!gnss_.enableMsg(a1::ZEDF9P::CLASS_NAV, a1::ZEDF9P::NAV_TIMEGPS, true))
     TOBAS_EXIT("Failed to enable NAV_TIMEGPS message.");
 
   // Get the first GNSS message, which is expected to be NAV_TIMEGPS.
   // NAV_TIMEGPSを有効化した直後に最初に受け取ったメッセージがNAV_TIMEGPSだったら，バッファサイズは0で遅延は最小のはず．
   if (!gnss_.update())
     TOBAS_EXIT("Failed to update GNSS driver.");
-  if (gnss_.latestClass() != ZEDF9P::CLASS_NAV || gnss_.latestId() != ZEDF9P::NAV_TIMEGPS)
+  if (gnss_.latestClass() != a1::ZEDF9P::CLASS_NAV || gnss_.latestId() != a1::ZEDF9P::NAV_TIMEGPS)
     TOBAS_EXIT("The first message must be NAV_TIMEGPS.");
 
   // Decode NAV_TIMEGPS
-  payload::NAV_TIMEGPS timegps;
+  a1::payload::NAV_TIMEGPS timegps;
   timegps.decode(gnss_.payload());
+
+  // Check validity
+  if (!timegps.towValid || !timegps.weekValid || !timegps.leapSValid)
+  {
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "Failed to get GPS time. Retrying...");
+    return;
+  }
 
   // Compute the time offset
   const rclcpp::Time ros_time = get_clock()->now();
@@ -151,25 +188,26 @@ void GNSSDriver::setTimeOffsetTimerCb(const rclcpp::TimerEvent&)
   time_offset_ = ros_time - gps_time;
 
   // Disable GPS time message
-  if (!gnss_.enableMsg(ZEDF9P::CLASS_NAV, ZEDF9P::NAV_TIMEGPS, false))
+  if (!gnss_.enableMsg(a1::ZEDF9P::CLASS_NAV, a1::ZEDF9P::NAV_TIMEGPS, false))
     TOBAS_EXIT("Failed to disable NAV_TIMEGPS message.");
 
   // Enable main messages
-  if (!gnss_.enableMsg(ZEDF9P::CLASS_NAV, ZEDF9P::NAV_STATUS, true))
+  if (!gnss_.enableMsg(a1::ZEDF9P::CLASS_NAV, a1::ZEDF9P::NAV_STATUS, true))
     TOBAS_EXIT("Failed to enable NAV_STATUS message.");
-  if (!gnss_.enableMsg(ZEDF9P::CLASS_NAV, ZEDF9P::NAV_HPPOSLLH, true))
+  if (!gnss_.enableMsg(a1::ZEDF9P::CLASS_NAV, a1::ZEDF9P::NAV_HPPOSLLH, true))
     TOBAS_EXIT("Failed to enable NAV_HPPOSLLH message.");
-  if (!gnss_.enableMsg(ZEDF9P::CLASS_NAV, ZEDF9P::NAV_VELNED, true))
+  if (!gnss_.enableMsg(a1::ZEDF9P::CLASS_NAV, a1::ZEDF9P::NAV_VELNED, true))
     TOBAS_EXIT("Failed to enable NAV_VELNED message.");
-  if (!gnss_.enableMsg(ZEDF9P::CLASS_NAV, ZEDF9P::NAV_COV, true))
+  if (!gnss_.enableMsg(a1::ZEDF9P::CLASS_NAV, a1::ZEDF9P::NAV_COV, true))
     TOBAS_EXIT("Failed to enable NAV_COV message.");
 
   // Start main timer with maximum rate
-  set_time_offset_timer_.stop();
-  main_timer_.start();
+  TOBAS_INFO("GPS time offset has been measured. Start to publish GNSS messages.");
+  set_time_offset_timer_->cancel();
+  main_timer_ = createTimer(0ns, &self::mainTimerCb, this);
 }
 
-void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
+void GNSSDriverNode::mainTimerCb()
 {
   if (!gnss_.update())
   {
@@ -177,7 +215,7 @@ void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
     return;
   }
 
-  if (gnss_.latestClass() != ZEDF9P::CLASS_NAV)
+  if (gnss_.latestClass() != a1::ZEDF9P::CLASS_NAV)
   {
     warnUnnecessaryUBXMessage();
     return;
@@ -185,21 +223,21 @@ void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
 
   switch (gnss_.latestId())
   {
-    case ZEDF9P::NAV_STATUS:
+    case a1::ZEDF9P::NAV_STATUS:
       status_.decode(gnss_.payload());
-      is_received_.at(ZEDF9P::NAV_STATUS) = true;
+      is_received_.at(a1::ZEDF9P::NAV_STATUS) = true;
       break;
-    case ZEDF9P::NAV_HPPOSLLH:
+    case a1::ZEDF9P::NAV_HPPOSLLH:
       hpposllh_.decode(gnss_.payload());
-      is_received_.at(ZEDF9P::NAV_HPPOSLLH) = true;
+      is_received_.at(a1::ZEDF9P::NAV_HPPOSLLH) = true;
       break;
-    case ZEDF9P::NAV_VELNED:
+    case a1::ZEDF9P::NAV_VELNED:
       velned_.decode(gnss_.payload());
-      is_received_.at(ZEDF9P::NAV_VELNED) = true;
+      is_received_.at(a1::ZEDF9P::NAV_VELNED) = true;
       break;
-    case ZEDF9P::NAV_COV:
+    case a1::ZEDF9P::NAV_COV:
       cov_.decode(gnss_.payload());
-      is_received_.at(ZEDF9P::NAV_COV) = true;
+      is_received_.at(a1::ZEDF9P::NAV_COV) = true;
       break;
     default:
       warnUnnecessaryUBXMessage();
@@ -216,7 +254,7 @@ void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
     received = false;
 
   // Create GNSS message
-  const auto gnss_msg =std::make_unique<tobas_msgs::Gps>();
+  auto gnss_msg = std::make_unique<tobas_msgs::Gps>();
 
   // Fill time stamp
   const auto& iTOW = hpposllh_.iTOW;  // [ms]
@@ -257,6 +295,7 @@ void GNSSDriver::mainTimerCb(const rclcpp::TimerEvent&)
   gnss_msg->velocity_covariance(2, 2) = cov_.velCovDD;
 
   // Publish GNSS message
-  gnss_pub_->publish(gnss_msg);
+  gnss_pub_->publish(move(gnss_msg));
 }
-}  // namespace a1
+
+RCLCPP_COMPONENTS_REGISTER_NODE(GNSSDriverNode)

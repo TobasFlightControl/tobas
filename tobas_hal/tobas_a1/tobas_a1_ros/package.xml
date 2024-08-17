@@ -9,6 +9,7 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<depend>tobas_kdl</depend>
 	<depend>tobas_msgs</depend>
 	<depend>tobas_hal_core</depend>
 	<depend>tobas_hal_msgs</depend>

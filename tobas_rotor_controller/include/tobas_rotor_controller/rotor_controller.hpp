@@ -44,7 +44,7 @@ private:
   rclcpp::ServiceClient pre_arm_check_sc_;
 
   // Timer
-  rclcpp::Timer check_interval_timer_;
+  TimerPtr check_interval_timer_;
 
   bool armRotors();
   bool disarmRotors();

@@ -69,7 +69,7 @@ private:
 
   void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg);
 
-  void checkTopicsTimerCb(const rclcpp::TimerEvent&);
-  void instructionTimerCb(const rclcpp::TimerEvent&);
+  void checkTopicsTimerCb();
+  void instructionTimerCb();
 };
 }  // namespace tobas_keyboard_teleop

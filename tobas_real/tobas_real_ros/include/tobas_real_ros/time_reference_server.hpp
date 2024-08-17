@@ -20,7 +20,7 @@ public:
 
 private:
   PublisherPtr<> time_ref_pub_;
-  rclcpp::Timer main_timer_;
+  TimerPtr main_timer_;
 
   void mainTimerCb();
 };

@@ -44,7 +44,7 @@ private:
   SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ServicePtr<> pre_arm_check_ss_;
-  rclcpp::Timer pre_arm_check_timer_;
+  TimerPtr pre_arm_check_timer_;
 
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);

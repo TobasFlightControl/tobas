@@ -158,13 +158,13 @@ void SpeedRollDeltaPitchPublisher::airPressureCb(const sensor_msgs::msg::FluidPr
     pressure_received_ = true;
 }
 
-void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb(const rclcpp::TimerEvent&)
+void SpeedRollDeltaPitchPublisher::checkTopicsTimerCb()
 {
   if (!pressure_received_)
     RCLCPP_INFO_STREAM("Waiting for " << ns() << tobas::kAirPressureTopic);
 }
 
-void SpeedRollDeltaPitchPublisher::instructionTimerCb(const rclcpp::TimerEvent&)
+void SpeedRollDeltaPitchPublisher::instructionTimerCb()
 {
   RCLCPP_INFO_STREAM(instruction_);
 }

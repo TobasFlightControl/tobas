@@ -81,7 +81,7 @@ private:
   ServicePtr<> enable_torques_ss_;
 
   // Timer
-  rclcpp::Timer main_timer_;
+  TimerPtr main_timer_;
 
   void getStaticRosParams();
   void registerPublishers();
