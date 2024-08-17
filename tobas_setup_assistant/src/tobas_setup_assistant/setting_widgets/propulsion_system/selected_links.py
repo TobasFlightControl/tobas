@@ -49,7 +49,7 @@ class SelectedLinksTabWidget(TabWidget):
         self.setTabsClosable(True)
 
         self._markers = MarkerArray()  # 推力の作用線
-        self._markers_pub = rclpy.Publisher("visualization_marker_array", MarkerArray, queue_size=1)
+        self._markers_pub = self.create_publisher("visualization_marker_array", MarkerArray, queue_size=1)
 
         self._publish_markers_timer = QTimer(self)
         self._publish_markers_timer.timeout.connect(self._publish_markers_timer_cb)

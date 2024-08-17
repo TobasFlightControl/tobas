@@ -127,10 +127,10 @@ class BasePoseCommanderWidget(Widget):
         rows.addStretch()
 
         # PubSub
-        self._pos_yaw_pub = rclpy.Publisher(Topic.Command.POSITION_YAW, PositionYaw, queue_size=1)
-        self._pvay_pub = rclpy.Publisher(Topic.Command.POS_VEL_ACC_YAW, PosVelAccYaw, queue_size=1)
-        self._pta_pub = rclpy.Publisher(Topic.Command.POSE_TWIST_ACCEL, PoseTwistAccelCommand, queue_size=1)
-        self._odom_sub = rclpy.Subscriber(Topic.ODOMETRY, Odometry, self._odom_cb, queue_size=1)
+        self._pos_yaw_pub = self.create_publisher(Topic.Command.POSITION_YAW, PositionYaw, queue_size=1)
+        self._pvay_pub = self.create_publisher(Topic.Command.POS_VEL_ACC_YAW, PosVelAccYaw, queue_size=1)
+        self._pta_pub = self.create_publisher(Topic.Command.POSE_TWIST_ACCEL, PoseTwistAccelCommand, queue_size=1)
+        self._odom_sub = self.create_subscription(Topic.ODOMETRY, Odometry, self._odom_cb, queue_size=1)
 
         # Service
         self._set_arm_sc = rclpy.ServiceProxy(Service.SET_ARM, SetArm)
