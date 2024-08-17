@@ -238,7 +238,7 @@ class RotorSpeedsPublisherWidget(QWidget):
         # 回転数トピックを更新
         if self._speeds_pub is not None:
             self._speeds_pub.unregister()
-        self._speeds_pub = rclpy.Publisher(
+        self._speeds_pub = self.create_publisher(
             f"{self._drone.name}/{Topic.Command.ROTOR_SPEEDS}",
             RotorSpeeds,
             queue_size=1,

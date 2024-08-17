@@ -113,7 +113,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         # Update subscriber
         if self._rcin_sub is not None:
             self._rcin_sub.unregister()
-        self._rcin_sub = rclpy.Subscriber(
+        self._rcin_sub = self.create_subscription(
             f"{self._drone.name}/{Topic.Throttled.RC_INPUT}",
             RCInput,
             self._rcin_cb,

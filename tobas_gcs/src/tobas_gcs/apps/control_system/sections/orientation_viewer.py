@@ -71,7 +71,7 @@ class _OrientationViewerWidget(Widget):
 
         if self._euler_sub is not None:
             self._euler_sub.unregister()
-        self._euler_sub = rclpy.Subscriber(
+        self._euler_sub = self.create_subscription(
             f"{self._drone.name}/{Topic.Throttled.EULER}",
             EulerStamped,
             self._euler_cb,

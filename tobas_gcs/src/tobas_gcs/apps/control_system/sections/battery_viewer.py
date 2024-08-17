@@ -53,7 +53,7 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
 
         if self._battery_sub is not None:
             self._battery_sub.unregister()
-        self._battery_sub = rclpy.Subscriber(
+        self._battery_sub = self.create_subscription(
             f"{self._drone.name}/{Topic.Throttled.BATTERY_LPF}",
             Battery,
             self._battery_cb,

@@ -1,69 +1,86 @@
 import rclpy
-import actionlib
+from rclpy.node import Node
+from rclpy.action import ActionClient
 
-from tobas_msgs.msg import TakeoffAction, TakeoffGoal, PosVelAccYaw
+from tobas_msgs.msg import PosVelAccYaw
+from tobas_msgs.action import Takeoff
 
-ALTITUDE = 3.0  # [m]
-SIDE_LENGTH = 5.0  # [m]
-INTERVAL = 5.0  # [s]
+
+class CommandSquareTrajectoryNode(Node):
+    ALTITUDE = 3.0  # [m]
+    SIDE_LENGTH = 5.0  # [m]
+    INTERVAL = 5.0  # [s]
+
+    def __init__(self) -> None:
+        super().__init__("command_square_trajectory")
+
+        # 離陸アクションクライアントの作成
+        self._takeoff_client = ActionClient(self, Takeoff, "takeoff_action")
+
+        # コマンドのパブリッシャーを作成
+        self._command_pub = self.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", 1)
+
+    def run(self) -> None:
+        # アクションサーバーが起動するのを待つ
+        self.get_logger().info("Waiting for takeoff action server.")
+        if not self._takeoff_client.wait_for_server():
+            self.get_logger().error("Failed to connect to takeoff action server.")
+            return
+
+        # アクションゴールを作成
+        takeoff_goal = Takeoff.Goal()
+        takeoff_goal.target_altitude = self.ALTITUDE
+        takeoff_goal.duration = self.INTERVAL
+
+        # アクションを実行
+        takeoff_result: Takeoff.Result = self._takeoff_client.send_goal(takeoff_goal)
+
+        # アクションの結果を取得
+        self._takeoff_client
+        if takeoff_result.success:
+            self.get_logger().error(f"Takeoff action failed: {takeoff_result.message}")
+            return
+
+        # 正方形の頂点を指令し続ける
+        while rclpy.ok():
+            # 頂点1
+            command = PosVelAccYaw()
+            command.pos.x = self.SIDE_LENGTH / 2
+            command.pos.y = self.SIDE_LENGTH / 2
+            command.pos.z = self.ALTITUDE
+            self._command_pub.publish(command)
+            rclpy.sleep(self.INTERVAL)
+
+            # 頂点2
+            command = PosVelAccYaw()
+            command.pos.x = -self.SIDE_LENGTH / 2
+            command.pos.y = self.SIDE_LENGTH / 2
+            command.pos.z = self.ALTITUDE
+            self._command_pub.publish(command)
+            rclpy.sleep(self.INTERVAL)
+
+            # 頂点3
+            command = PosVelAccYaw()
+            command.pos.x = -self.SIDE_LENGTH / 2
+            command.pos.y = -self.SIDE_LENGTH / 2
+            command.pos.z = self.ALTITUDE
+            self._command_pub.publish(command)
+            rclpy.sleep(self.INTERVAL)
+
+            # 頂点4
+            command = PosVelAccYaw()
+            command.pos.x = self.SIDE_LENGTH / 2
+            command.pos.y = -self.SIDE_LENGTH / 2
+            command.pos.z = self.ALTITUDE
+            self._command_pub.publish(command)
+            rclpy.sleep(self.INTERVAL)
+
+
+def main(args=None) -> None:
+    rclpy.init(args=args)
+    node = CommandSquareTrajectoryNode()
+    node.run()
 
 
 if __name__ == "__main__":
-    # ROSノードの初期化
-    rclpy.init_node("command_square_trajectory")
-
-    # 離陸アクションクライアントの作成
-    takeoff_client = actionlib.SimpleActionClient("takeoff_action", TakeoffAction)
-
-    # アクションサーバーが起動するのを待つ
-    takeoff_client.wait_for_server()
-
-    # アクションゴールを作成
-    takeoff_goal = TakeoffGoal()
-    takeoff_goal.target_altitude = ALTITUDE
-    takeoff_goal.duration = INTERVAL
-
-    # アクションゴールを送信
-    takeoff_client.send_goal_and_wait(takeoff_goal)
-
-    # アクションの結果を取得
-    if takeoff_client.get_state() != actionlib.GoalStatus.SUCCEEDED:
-        self.get_logger().error("Takeoff action failed.")
-        rclpy.shutdown()
-
-    # コマンドのパブリッシャーを作成
-    command_pub = rclpy.Publisher("command/pos_vel_acc_yaw", PosVelAccYaw, queue_size=1)
-
-    # 正方形の頂点を指令し続ける
-    while not rclpy.is_shutdown():
-        # 頂点1
-        command = PosVelAccYaw()
-        command.pos.x = SIDE_LENGTH / 2
-        command.pos.y = SIDE_LENGTH / 2
-        command.pos.z = ALTITUDE
-        command_pub.publish(command)
-        rclpy.sleep(INTERVAL)
-
-        # 頂点2
-        command = PosVelAccYaw()
-        command.pos.x = -SIDE_LENGTH / 2
-        command.pos.y = SIDE_LENGTH / 2
-        command.pos.z = ALTITUDE
-        command_pub.publish(command)
-        rclpy.sleep(INTERVAL)
-
-        # 頂点3
-        command = PosVelAccYaw()
-        command.pos.x = -SIDE_LENGTH / 2
-        command.pos.y = -SIDE_LENGTH / 2
-        command.pos.z = ALTITUDE
-        command_pub.publish(command)
-        rclpy.sleep(INTERVAL)
-
-        # 頂点4
-        command = PosVelAccYaw()
-        command.pos.x = SIDE_LENGTH / 2
-        command.pos.y = -SIDE_LENGTH / 2
-        command.pos.z = ALTITUDE
-        command_pub.publish(command)
-        rclpy.sleep(INTERVAL)
+    main()

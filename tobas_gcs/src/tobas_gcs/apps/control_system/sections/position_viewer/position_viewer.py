@@ -154,8 +154,8 @@ class PositionViewerWidget(BaseControlSystemSectionWidget):
         if self._gps_sub is not None:
             self._gps_sub.unregister()
             self._euler_sub.unregister()
-        self._gps_sub = rclpy.Subscriber(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
-        self._euler_sub = rclpy.Subscriber(
+        self._gps_sub = self.create_subscription(f"{self._drone.name}/{Topic.GNSS}", Gps, self._gps_cb, queue_size=1)
+        self._euler_sub = self.create_subscription(
             f"{self._drone.name}/{Topic.Throttled.EULER}",
             EulerStamped,
             self._euler_cb,

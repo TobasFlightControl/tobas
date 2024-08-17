@@ -50,7 +50,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
 
         if self._latency_sub is not None:
             self._latency_sub.unregister()
-        self._latency_sub = rclpy.Subscriber(
+        self._latency_sub = self.create_subscription(
             f"{self._drone.name}/{Topic.Throttled.LATENCY}",
             Latency,
             self._latency_cb,

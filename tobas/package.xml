@@ -30,7 +30,6 @@
 	<exec_depend>tobas_latency_publisher</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
-	<exec_depend>tobas_multirotor_trajectory</exec_depend>
 	<exec_depend>tobas_pre_arm_check</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
 	<exec_depend>tobas_rotor_controller</exec_depend>
@@ -40,7 +39,6 @@
 	<exec_depend>tobas_tools</exec_depend>
 	<exec_depend>tobas_tools_py</exec_depend>
 	<exec_depend>tobas_topic_throttle</exec_depend>
-	<exec_depend>tobas_trajectory_commander</exec_depend>
 	<exec_depend>urdf_builder</exec_depend>
 
 	<export>

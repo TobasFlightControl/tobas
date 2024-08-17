@@ -19,7 +19,7 @@ class FakeBatteryPublisher:
         self._battery_msg.voltage = voltage
         self._battery_msg.current = current
 
-        self._battery_pub = rclpy.Publisher(Topic.BATTERY, Battery, queue_size=1)
+        self._battery_pub = self.create_publisher(Topic.BATTERY, Battery, queue_size=1)
         self._timer = rclpy.Timer(Duration(sampling_period), self._timer_cb)
 
     def _timer_cb(self, event: rclpy.timer.TimerEvent) -> None:

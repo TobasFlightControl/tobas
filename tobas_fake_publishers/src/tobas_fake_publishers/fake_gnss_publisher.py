@@ -49,7 +49,7 @@ class FakeGNSSPublisher:
             vel_var,
         ]
 
-        self._gnss_pub = rclpy.Publisher(Topic.GNSS, Gps, queue_size=1)
+        self._gnss_pub = self.create_publisher(Topic.GNSS, Gps, queue_size=1)
         self._timer = rclpy.Timer(Duration(sampling_period), self._timer_cb)
 
     def _timer_cb(self, event: rclpy.timer.TimerEvent) -> None:

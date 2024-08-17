@@ -8,6 +8,8 @@ float64 timeout             # [s] Timeout after command duration. By default, ti
 ---
 
 # Result
+bool success
+string message
 
 ---
 
