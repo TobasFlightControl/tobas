@@ -141,7 +141,7 @@ bool RCInputHandler::reloadConfig()
   return true;
 }
 
-void RCInputHandler::sbusCb(const tobas_hal_msgs::Sbus::ConstSharedPtr& sbus)
+void RCInputHandler::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
   // Create message
   const auto rcin_msg =std::make_unique<tobas_msgs::RCInput>();

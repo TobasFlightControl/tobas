@@ -7,7 +7,7 @@
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_msgs/Sbus.h>
+#include <tobas_hal_msgs/msg/sbus.hpp>
 
 namespace tobas_real_ros
 {
@@ -39,7 +39,7 @@ private:
   void setToDefaults();
   bool reloadConfig();
 
-  void sbusCb(const tobas_hal_msgs::Sbus::ConstSharedPtr& sbus);
+  void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
   bool reloadConfigCb(std_srvs::srv::Trigger::Request& req, std_srvs::srv::Trigger::Response& res);
 };
 }  // namespace tobas_real_ros

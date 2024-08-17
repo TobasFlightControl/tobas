@@ -34,7 +34,7 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagDriverNode" EXEC
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BaroDriverNode" EXECUTABLE baro_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "GNSSDriverNode" EXECUTABLE gnss_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ADCDriverNode" EXECUTABLE adc_driver)
-# rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "SBUSDriverNode" EXECUTABLE sbus_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "SBUSDriverNode" EXECUTABLE sbus_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DShotDriverNode" EXECUTABLE dshot_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PWMDriverNode" EXECUTABLE pwm_driver)
 
