@@ -12,25 +12,25 @@
   <arg name="pwm_name" value="a1_pwm_driver"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg imu_name)" args="load tobas_a1_ros/IMUDriverNodelet nodelet_manager_high" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg mag_name)" args="load tobas_a1_ros/MagDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg baro_name)" args="load tobas_a1_ros/BaroDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg gnss_name)" args="load tobas_a1_ros/GNSSDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg adc_name)" args="load tobas_a1_ros/ADCDriverNodelet nodelet_manager_medium" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg sbus_name)" args="load tobas_a1_ros/SBUSDriverNodelet nodelet_manager_high" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg dshot_name)" args="load tobas_a1_ros/DShotDriverNodelet nodelet_manager_high" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg pwm_name)" args="load tobas_a1_ros/PWMDriverNodelet nodelet_manager_high" output="screen" required="true"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg imu_name)" args="load tobas_a1_ros/IMUDriverNodelet nodelet_manager_high" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg mag_name)" args="load tobas_a1_ros/MagDriverNodelet nodelet_manager_medium" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg baro_name)" args="load tobas_a1_ros/BaroDriverNodelet nodelet_manager_medium" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg gnss_name)" args="load tobas_a1_ros/GNSSDriverNodelet nodelet_manager_medium" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg adc_name)" args="load tobas_a1_ros/ADCDriverNodelet nodelet_manager_medium" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg sbus_name)" args="load tobas_a1_ros/SBUSDriverNodelet nodelet_manager_high" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg dshot_name)" args="load tobas_a1_ros/DShotDriverNodelet nodelet_manager_high" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg pwm_name)" args="load tobas_a1_ros/PWMDriverNodelet nodelet_manager_high" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_a1_ros" type="imu_driver_node" name="$(arg imu_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="mag_driver_node" name="$(arg mag_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="baro_driver_node" name="$(arg baro_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="gnss_driver_node" name="$(arg gnss_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="adc_driver_node" name="$(arg adc_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="sbus_driver_node" name="$(arg sbus_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="dshot_driver_node" name="$(arg dshot_name)" output="screen" required="true"/>
-    <node pkg="tobas_a1_ros" type="pwm_driver_node" name="$(arg pwm_name)" output="screen" required="true"/>
+    <node pkg="tobas_a1_ros" exec="imu_driver_node" name="$(arg imu_name)" output="screen"/>
+    <node pkg="tobas_a1_ros" exec="mag_driver_node" name="$(arg mag_name)" output="screen"/>
+    <node pkg="tobas_a1_ros" exec="baro_driver_node" name="$(arg baro_name)" output="screen"/>
+    <node pkg="tobas_a1_ros" exec="gnss_driver_node" name="$(arg gnss_name)" output="screen"/>
+    <node pkg="tobas_a1_ros" exec="adc_driver_node" name="$(arg adc_name)" output="screen"/>
+    <node pkg="tobas_a1_ros" exec="sbus_driver_node" name="$(arg sbus_name)" output="screen"/>
+    <node pkg="tobas_a1_ros" exec="dshot_driver_node" name="$(arg dshot_name)" output="screen"/>
+    <node pkg="tobas_a1_ros" exec="pwm_driver_node" name="$(arg pwm_name)" output="screen"/>
   </group>
 
 </launch>

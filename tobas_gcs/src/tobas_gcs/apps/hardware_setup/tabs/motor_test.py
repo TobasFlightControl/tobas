@@ -241,7 +241,7 @@ class RotorSpeedsPublisherWidget(QWidget):
         self._speeds_pub = self.create_publisher(
             f"{self._drone.name}/{Topic.Command.ROTOR_SPEEDS}",
             RotorSpeeds,
-            queue_size=1,
+            1,
         )
 
     def start(self) -> None:

@@ -200,7 +200,7 @@ class RcinCalibrationWidget(BaseHardwareSetupWidget):
             return
 
         # 一時的にS.BUSトピックを購読開始
-        self._sbus_sub = self.create_subscription(sbus_topic, Sbus, self._sbus_cb, queue_size=1)
+        self._sbus_sub = self.create_subscription(sbus_topic, Sbus, self._sbus_cb, 1)
 
         self._start_button.setEnabled(False)
         self._finish_button.setEnabled(True)

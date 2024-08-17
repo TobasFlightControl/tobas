@@ -54,7 +54,7 @@ class LatencyViewerWidget(BaseControlSystemSectionWidget):
             f"{self._drone.name}/{Topic.Throttled.LATENCY}",
             Latency,
             self._latency_cb,
-            queue_size=1,
+            1,
         )
 
     def _latency_cb(self, latency: Latency) -> None:

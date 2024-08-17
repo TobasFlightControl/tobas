@@ -100,7 +100,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         self._point_history_length = display.subProp("History Length")
 
         # PubSub
-        self._point_pub = self.create_publisher(self.RVIZ_POINT_TOPIC, PointStamped, queue_size=1)
+        self._point_pub = self.create_publisher(self.RVIZ_POINT_TOPIC, PointStamped, 1)
         self._mag_raw_sub: self.create_subscription = None
 
         self.setEnabled(False)
@@ -150,7 +150,7 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
             return
 
         # 一時的に地磁気トピックを購読開始
-        self._mag_raw_sub = self.create_subscription(mag_topic, MagneticField, self._mag_raw_cb, queue_size=1)
+        self._mag_raw_sub = self.create_subscription(mag_topic, MagneticField, self._mag_raw_cb, 1)
         self._point_history_length.setValue(self.MAX_DATA_SIZE)
 
         self._start_button.setEnabled(False)

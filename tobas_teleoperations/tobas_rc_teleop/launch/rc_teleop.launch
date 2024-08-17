@@ -4,7 +4,7 @@
 
   <arg name="node_name" value="rc_teleop"/>
 
-  <node if="$(arg nodelet)" pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load tobas_rc_teleop/RCTeleopNodelet nodelet_manager_high" output="screen" required="true"/>
-  <node unless="$(arg nodelet)" pkg="tobas_rc_teleop" type="rc_teleop_node" name="$(arg node_name)" output="screen" required="true"/>
+  <node if="$(arg nodelet)" pkg="nodelet" exec="nodelet" name="$(arg node_name)" args="load tobas_rc_teleop/RCTeleopNodelet nodelet_manager_high" output="screen"/>
+  <node unless="$(arg nodelet)" pkg="tobas_rc_teleop" exec="rc_teleop_node" name="$(arg node_name)" output="screen"/>
 
 </launch>

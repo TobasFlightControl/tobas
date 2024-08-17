@@ -62,7 +62,7 @@ class ConsoleWidget(BaseAppWidget):
             f"{self._drone.name}/message",
             Message,
             self._message_cb,
-            queue_size=1,
+            1,
         )
 
     def _message_cb(self, message: Message) -> None:

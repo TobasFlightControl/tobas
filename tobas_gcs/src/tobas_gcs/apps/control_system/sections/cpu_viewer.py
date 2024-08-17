@@ -50,7 +50,7 @@ class CpuViewerWidget(BaseControlSystemSectionWidget):
 
         if self._cpu_sub is not None:
             self._cpu_sub.unregister()
-        self._cpu_sub = self.create_subscription(f"{self._drone.name}/{Topic.CPU}", Cpu, self._cpu_cb, queue_size=1)
+        self._cpu_sub = self.create_subscription(f"{self._drone.name}/{Topic.CPU}", Cpu, self._cpu_cb, 1)
 
     def _cpu_cb(self, cpu: Cpu) -> None:
         # Temperature

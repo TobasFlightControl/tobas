@@ -16,8 +16,9 @@ class ImuFft(Node):
     def __init__(self) -> None:
         super().__init__("imu_fft")
 
-        self.declare_parameter("data_size", self.DEFAULT_DATA_SIZE)
-        self._data_size = self.get_parameter("data_size").get_parameter_value().integer_value
+        self._data_size = (
+            self.declare_parameter("data_size", self.DEFAULT_DATA_SIZE).get_parameter_value().integer_value
+        )
         assert self._data_size > 0
 
         self._acc_data = np.empty((self._data_size, 3))

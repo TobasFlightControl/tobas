@@ -75,7 +75,7 @@ class _OrientationViewerWidget(Widget):
             f"{self._drone.name}/{Topic.Throttled.EULER}",
             EulerStamped,
             self._euler_cb,
-            queue_size=1,
+            1,
         )
 
     @override

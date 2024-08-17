@@ -48,9 +48,9 @@ class JointPositionsCommanderWidget(Widget):
                 raise RuntimeError(f"Unknown joint command type: {control_type}")
 
         # Publishers
-        self._tar_pos_pub = self.create_publisher(Topic.Manipulation.POS_CTRL_JS, JointState, queue_size=1)
-        self._tar_js_vel_pub = self.create_publisher(Topic.Manipulation.VEL_CTRL_JS, JointState, queue_size=1)
-        self._tar_js_eff_pub = self.create_publisher(Topic.Manipulation.EFF_CTRL_JS, JointState, queue_size=1)
+        self._tar_pos_pub = self.create_publisher(Topic.Manipulation.POS_CTRL_JS, JointState, 1)
+        self._tar_js_vel_pub = self.create_publisher(Topic.Manipulation.VEL_CTRL_JS, JointState, 1)
+        self._tar_js_eff_pub = self.create_publisher(Topic.Manipulation.EFF_CTRL_JS, JointState, 1)
 
         # メインレイアウト
         rows = QVBoxLayout()

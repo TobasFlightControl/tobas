@@ -3,11 +3,11 @@
   <arg name="log_level" default="info"/>
   <arg name="launch_fkie_master" default="true"/>
 
-  <node pkg="tobas_gcs" type="Tobas" name="tobas_gcs" output="screen" required="true" args="--log_level $(arg log_level)"/>
+  <node pkg="tobas_gcs" exec="Tobas" name="tobas_gcs" output="screen" args="--log_level $(arg log_level)"/>
 
   <include if="$(arg launch_fkie_master)" file="$(find tobas_fkie_master)/launch/fkie_master.launch"/>
 
-  <node pkg="tobas_property_tools" type="property_server_node" name="property_server_gcs" output="screen" required="true">
+  <node pkg="tobas_property_tools" exec="property_server_node" name="property_server_gcs" output="screen">
     <param name="ini_path" value="~/.config/tobas/config.ini"/>
   </node>
 

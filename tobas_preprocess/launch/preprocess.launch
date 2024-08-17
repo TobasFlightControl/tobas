@@ -7,15 +7,15 @@
   <arg name="euler_converter_name" value="matrix_euler_converter"/>
 
   <group if="$(arg nodelet)">
-    <node pkg="nodelet" type="nodelet" name="$(arg imu_lpf_name)" args="load tobas_preprocess/ImuLpfNodelet nodelet_manager_high" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg battery_lpf_name)" args="load tobas_preprocess/BatteryLpfNodelet nodelet_manager_medium" output="screen" required="true"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg euler_converter_name)" args="load tobas_preprocess/MatrixEulerConverterNodelet nodelet_manager_medium" output="screen" required="true"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg imu_lpf_name)" args="load tobas_preprocess/ImuLpfNodelet nodelet_manager_high" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg battery_lpf_name)" args="load tobas_preprocess/BatteryLpfNodelet nodelet_manager_medium" output="screen"/>
+    <node pkg="nodelet" exec="nodelet" name="$(arg euler_converter_name)" args="load tobas_preprocess/MatrixEulerConverterNodelet nodelet_manager_medium" output="screen"/>
   </group>
 
   <group unless="$(arg nodelet)">
-    <node pkg="tobas_preprocess" type="imu_lpf_node" name="$(arg imu_lpf_name)" output="screen" required="true"/>
-    <node pkg="tobas_preprocess" type="battery_lpf_node" name="$(arg battery_lpf_name)" output="screen" required="true"/>
-    <node pkg="tobas_preprocess" type="matrix_euler_converter_node" name="$(arg euler_converter_name)" output="screen" required="true"/>
+    <node pkg="tobas_preprocess" exec="imu_lpf_node" name="$(arg imu_lpf_name)" output="screen"/>
+    <node pkg="tobas_preprocess" exec="battery_lpf_node" name="$(arg battery_lpf_name)" output="screen"/>
+    <node pkg="tobas_preprocess" exec="matrix_euler_converter_node" name="$(arg euler_converter_name)" output="screen"/>
   </group>
 
 </launch>

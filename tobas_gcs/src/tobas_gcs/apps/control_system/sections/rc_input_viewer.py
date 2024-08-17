@@ -117,7 +117,7 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
             f"{self._drone.name}/{Topic.Throttled.RC_INPUT}",
             RCInput,
             self._rcin_cb,
-            queue_size=1,
+            1,
         )
 
     def _rcin_cb(self, rcin: RCInput) -> None:

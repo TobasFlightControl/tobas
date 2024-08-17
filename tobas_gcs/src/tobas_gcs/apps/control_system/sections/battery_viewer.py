@@ -57,7 +57,7 @@ class BatteryViewerWidget(BaseControlSystemSectionWidget):
             f"{self._drone.name}/{Topic.Throttled.BATTERY_LPF}",
             Battery,
             self._battery_cb,
-            queue_size=1,
+            1,
         )
 
     def _battery_cb(self, battery: Battery) -> None:
