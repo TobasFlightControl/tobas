@@ -16,7 +16,7 @@ SBUSDriver::SBUSDriver(const rclcpp::NodeOptions& options) : super(name, options
   sbus_pub_ = createPublisher<tobas_hal_msgs::Sbus>(hal::kSbusTopic);
 
   // S.BUSドライバはブロッキングモードだから，メインタイマーを最大レートで回してもCPU消費は低い．
-  main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
+  main_timer_ = createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
 }
 
 void SBUSDriver::mainTimerCb()

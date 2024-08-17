@@ -83,7 +83,7 @@ DynamixelHandler::DynamixelHandler(const rclcpp::NodeOptions& options) : super(n
   enable_torques_ss_ = createService(kEnableTorquesSrv, &self::enableTorquesServiceCb, this);
 
   // Start main timer with maximum rate
-  main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
+  main_timer_ = createTimer(rclcpp::Duration(0), &self::mainTimerCb, this);
 }
 
 DynamixelHandler::~DynamixelHandler()

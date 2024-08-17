@@ -13,7 +13,7 @@ IMUDriver::IMUDriver(const rclcpp::NodeOptions& options) : super(name, options)
     TOBAS_EXIT("Failed to initialize IMU.");
 
   imu_pub_ = createPublisher<tobas_hal_msgs::Imu>(hal::kImuTopic);
-  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  main_timer_ = createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void IMUDriver::mainTimerCb()

@@ -30,8 +30,8 @@ GNSSDriver::GNSSDriver(const rclcpp::NodeOptions& options) : super(name, options
 
   gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
 
-  set_time_offset_timer_ = node_.createTimer(rclcpp::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
-  main_timer_ = node_.createTimer(rclcpp::Duration(0), &self::mainTimerCb, this, false, false);
+  set_time_offset_timer_ = createTimer(rclcpp::Duration(0), &self::setTimeOffsetTimerCb, this, true, false);
+  main_timer_ = createTimer(rclcpp::Duration(0), &self::mainTimerCb, this, false, false);
 
   // ROS時刻とGPS時刻の間のオフセットを取得する
   // コンストラクタではros::Timeを扱うことは推奨されないため，タイマーコールバックで行う．

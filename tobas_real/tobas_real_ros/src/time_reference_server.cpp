@@ -11,7 +11,7 @@ namespace tobas_real_ros
 TimeReferenceServer::TimeReferenceServer(const rclcpp::NodeOptions& options) : super(name, options)
 {
   time_ref_pub_ = createPublisher<sensor_msgs::msg::TimeReference>(tobas::kTimeReferenceTopic);
-  main_timer_ = node_.createTimer(kUpdateRate, &self::mainTimerCb, this);
+  main_timer_ = createTimer(kUpdateRate, &self::mainTimerCb, this);
 }
 
 void TimeReferenceServer::mainTimerCb()

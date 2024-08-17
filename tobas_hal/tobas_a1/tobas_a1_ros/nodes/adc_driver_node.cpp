@@ -1,7 +1,7 @@
+#include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/adc.hpp>
 
-#include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_a1_core/ads1220.hpp>
 
 using namespace std;

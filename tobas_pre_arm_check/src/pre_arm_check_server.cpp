@@ -25,7 +25,7 @@ PreArmCheckServer::PreArmCheckServer(const rclcpp::NodeOptions& options)
 
   pre_arm_check_ss_ = createService(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
 
-  pre_arm_check_timer_ = node_.createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
+  pre_arm_check_timer_ = createTimer(kPreArmCheckTimerRate, &self::preArmCheckTimerCb, this);
 }
 
 void PreArmCheckServer::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)

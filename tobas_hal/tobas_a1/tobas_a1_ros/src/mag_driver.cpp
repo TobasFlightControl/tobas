@@ -13,7 +13,7 @@ MagDriver::MagDriver(const rclcpp::NodeOptions& options) : super(name, options)
     TOBAS_EXIT("Failed to initialize Magnetometer.");
 
   mag_pub_ = createPublisher<tobas_hal_msgs::MagneticField>(hal::kMagTopic);
-  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  main_timer_ = createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 void MagDriver::mainTimerCb()

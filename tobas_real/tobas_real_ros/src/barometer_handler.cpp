@@ -16,7 +16,7 @@ BarometerHandler::BarometerHandler(const rclcpp::NodeOptions& options) : super(n
   bar_sub_ = createSubscriber(hal::kAirPressureTopic, &self::airPressureCb, this);
 }
 
-void BarometerHandler::airPressureCb(const tobas_hal_msgs::FluidPressure::ConstSharedPtr& bar_raw)
+void BarometerHandler::airPressureCb(const tobas_hal_msgs::msg::FluidPressure::ConstSharedPtr& bar_raw)
 {
   // Initialize
   if (bar_raw_ == nullptr)

@@ -26,6 +26,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_a1_core
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ADCDriverNode" EXECUTABLE adc_driver)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BaroDriverNode" EXECUTABLE baro_driver)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
@@ -35,7 +36,7 @@ install(
 	RUNTIME DESTINATION bin
 	INCLUDES DESTINATION include
 )
-install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_export_dependencies(
 	tobas_hal_core

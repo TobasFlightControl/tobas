@@ -32,7 +32,7 @@ RotorController::RotorController(const rclcpp::NodeOptions& options) : super(nam
   enable_rcout_sc_ = node_.serviceClient<tobas_msgs::EnableRCOutput>(tobas::kEnableRcOutputSrv);
   pre_arm_check_sc_ = node_.serviceClient<std_srvs::Trigger>(tobas::kPreArmCheckSrv);
 
-  check_interval_timer_ = node_.createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
+  check_interval_timer_ = createTimer(kCheckIntervalTimerRate, &self::checkIntervalTimerCb, this, false, false);
 
   publishArming();
 }

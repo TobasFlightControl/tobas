@@ -15,7 +15,7 @@ namespace tobas_real_ros
 CpuHandler::CpuHandler(const rclcpp::NodeOptions& options) : super(name, options)
 {
   cpu_pub_ = createPublisher<tobas_msgs::Cpu>(tobas::kCpuTopic);
-  main_timer_ = node_.createTimer(kSamplingRate, &self::mainTimerCb, this);
+  main_timer_ = createTimer(kSamplingRate, &self::mainTimerCb, this);
 }
 
 bool CpuHandler::getTemperature(double& temp)

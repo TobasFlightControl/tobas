@@ -17,7 +17,7 @@ TobasBridge::TobasBridge() : node_(node), pnh_(pnh)
   // tar_eff_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jntEffCmdCb, this);
 
   /* Create main timer */
-  // main_timer_ = node_.createTimer(MAIN_TIMER_FREQ, &self::mainTimerCb, this);
+  // main_timer_ = createTimer(MAIN_TIMER_FREQ, &self::mainTimerCb, this);
 }
 
 void TobasBridge::jntPosCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_pos)
