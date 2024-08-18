@@ -11,6 +11,8 @@ namespace ptree
 class PropertyClient
 {
 public:
+  using SharedPtr = std::shared_ptr<PropertyClient>;
+
   enum error_t
   {
     E_NO_ERROR = 0,

@@ -142,13 +142,13 @@ string PropertyClient::errorMessage() const
   switch (error_code_)
   {
     case E_NO_ERROR:
-      return "No error.";
+      return "";
     case E_SERVICE_NOT_READY:
-      return "Service server is not ready.";
+      return "Property server is not ready.";
     case E_FAILED_TO_CALL:
-      return "Failed to call service.";
+      return "Failed to call property service.";
     case E_OUT_OF_RANGE:
-      return "The value is out of numerical range.";
+      return "The property value is out of numerical range.";
     case E_SERVER_ERROR:
       return server_error_msg_;
     default:

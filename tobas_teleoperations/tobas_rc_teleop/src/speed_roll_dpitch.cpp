@@ -25,7 +25,7 @@ void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 {
 }
 
-void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, const double&)
+void SpeedRollDeltaPitchController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&, const double&)
 {
   // コマンドを作成
   const auto cmd = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>();

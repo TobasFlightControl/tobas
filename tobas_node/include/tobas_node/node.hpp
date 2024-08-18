@@ -66,6 +66,7 @@ protected:
   using ParamHandlePtr = std::shared_ptr<rclcpp::ParameterCallbackHandle>;
 
   inline std::string ns() const;
+  inline std::string name() const;
 
   template <typename MsgType>
   PublisherPtr<MsgType>
@@ -206,6 +207,11 @@ private:
 inline std::string BaseNode::ns() const
 {
   return std::string(get_namespace()) + "/";
+}
+
+inline std::string BaseNode::name() const
+{
+  return std::string(get_name());
 }
 
 template <typename MsgType>

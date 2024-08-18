@@ -6,7 +6,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/RCInput.h>
+#include <tobas_msgs/msg/rc_input.hpp>
 
 #include "./base_controller.hpp"
 
@@ -68,6 +68,6 @@ private:
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
-  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
+  void rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace tobas_rc_teleop

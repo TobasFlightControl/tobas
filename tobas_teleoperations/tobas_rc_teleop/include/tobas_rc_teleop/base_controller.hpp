@@ -8,7 +8,7 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/RCInput.h>
+#include <tobas_msgs/msg/rc_input.hpp>
 
 namespace tobas_rc_teleop
 {
@@ -20,7 +20,7 @@ public:
   virtual void initialize() = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
   virtual void
-  update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) = 0;
+  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) = 0;
 
 protected:
   const tobas::Drone& drone_;

@@ -86,7 +86,7 @@ private:
   } frame_map_;
 
   rclcpp::Node::SharedPtr node_;
-  ptree::PropertyClient property_client_;
+  ptree::PropertyClient::SharedPtr property_client_;
 
   void defineConnections();
 

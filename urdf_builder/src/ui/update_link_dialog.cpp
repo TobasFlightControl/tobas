@@ -422,9 +422,9 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   string last_dir;
-  if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
+  if (property_client_->get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
   {
-    RCLCPP_WARN_STREAM(property_client_.errorMessage());
+    RCLCPP_WARN_STREAM(property_client_->errorMessage());
     last_dir = linux::homeDir();
   }
 
@@ -439,14 +439,14 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0)
+  if (property_client_->set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_->errorMessage()));
     return;
   }
-  if (property_client_.save() < 0)
+  if (property_client_->save() < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_->errorMessage()));
     return;
   }
 }
@@ -457,9 +457,9 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   string last_dir;
-  if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
+  if (property_client_->get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
   {
-    RCLCPP_WARN_STREAM(property_client_.errorMessage());
+    RCLCPP_WARN_STREAM(property_client_->errorMessage());
     last_dir = linux::homeDir();
   }
 
@@ -474,14 +474,14 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0)
+  if (property_client_->set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_->errorMessage()));
     return;
   }
-  if (property_client_.save() < 0)
+  if (property_client_->save() < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_->errorMessage()));
     return;
   }
 }

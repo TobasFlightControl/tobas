@@ -35,7 +35,7 @@ void RollPitchYawThrustController::reset(const tobas_msgs::Odometry& odom)
 }
 
 void RollPitchYawThrustController::update(
-  const tobas_msgs::RCInput& rcin,
+  const tobas_msgs::msg::RCInput& rcin,
   const tobas_msgs::Odometry&,
   const double& battery_voltage)
 {

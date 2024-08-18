@@ -27,7 +27,7 @@ void PositionYawController::reset(const tobas_msgs::Odometry& odom)
   t_last_rcin_ = odom.header.stamp;
 }
 
-void PositionYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
+void PositionYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();

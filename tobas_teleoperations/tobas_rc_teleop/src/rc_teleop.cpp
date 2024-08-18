@@ -138,7 +138,7 @@ void RCTeleop::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery
   battery_ = battery;
 }
 
-void RCTeleop::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
+void RCTeleop::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
 {
   switch (stage_)
   {

@@ -14,7 +14,7 @@ void ProgramModeController::reset(const tobas_msgs::Odometry&)
 {
 }
 
-void ProgramModeController::update(const tobas_msgs::RCInput&, const tobas_msgs::Odometry&, const double&)
+void ProgramModeController::update(const tobas_msgs::msg::RCInput&, const tobas_msgs::Odometry&, const double&)
 {
 }
 }  // namespace tobas_rc_teleop

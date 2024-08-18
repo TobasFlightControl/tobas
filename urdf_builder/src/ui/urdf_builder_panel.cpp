@@ -347,9 +347,9 @@ void URDFBuilderPanel::LinkDialogChanged()
 string URDFBuilderPanel::getLastOpenedDir()
 {
   string res;
-  if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
+  if (property_client_->get(kConfigKey_LastOpenedDir, res) < 0)
   {
-    RCLCPP_WARN_STREAM(property_client_.errorMessage());
+    RCLCPP_WARN_STREAM(property_client_->errorMessage());
     res = linux::homeDir();
   }
   return res;
@@ -360,14 +360,14 @@ void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
   boost::filesystem::path p(file_path);
   const auto dir = p.parent_path().string();
 
-  if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
+  if (property_client_->set(kConfigKey_LastOpenedDir, dir) < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_->errorMessage()));
     return;
   }
-  if (property_client_.save() < 0)
+  if (property_client_->save() < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    QMessageBox::warning(this, kError, QString::fromStdString(property_client_->errorMessage()));
     return;
   }
 }

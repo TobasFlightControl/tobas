@@ -11,7 +11,7 @@ using namespace Eigen;
 namespace tobas_calibration
 {
 AccelCalibrationRos::AccelCalibrationRos(const rclcpp::NodeOptions& options)
-  : super(name, options), property_client_(node_, tobas_real_ros::kPropertyServerFC)
+  : super(name, options), property_client_(node_, real::kPropertyServerFC)
 {
   ss_ = createService(kServiceName, &AccelCalibrationRos::executeCb, this);
 }
@@ -62,28 +62,28 @@ bool AccelCalibrationRos::executeCb(SrvType::Request&, SrvType::Response& res)
   const Vector3d acc_offset = acc_top_ - Vector3d(0, 0, tobas_std::kGravity);
 
   // Configに保存
-  if (property_client_.set(tobas_real_ros::kConfigKey_AccOffsetX, acc_offset.x()) < 0)
+  if (property_client_->set(real::kConfigKey_AccOffsetX, acc_offset.x()) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_AccOffsetY, acc_offset.y()) < 0)
+  if (property_client_->set(real::kConfigKey_AccOffsetY, acc_offset.y()) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_AccOffsetZ, acc_offset.z()) < 0)
+  if (property_client_->set(real::kConfigKey_AccOffsetZ, acc_offset.z()) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.save() < 0)
+  if (property_client_->save() < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
 

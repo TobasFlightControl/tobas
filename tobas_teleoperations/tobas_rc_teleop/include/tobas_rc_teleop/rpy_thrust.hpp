@@ -16,7 +16,7 @@ public:
   void initialize() override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void
-  update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
+  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
 
 private:
   tobas::RotorAxisExtractor z_rotors_;

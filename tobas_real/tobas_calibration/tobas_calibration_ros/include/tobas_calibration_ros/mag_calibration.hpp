@@ -18,7 +18,7 @@ public:
   explicit MagCalibrationRos(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ptree::PropertyClient property_client_;
+  ptree::PropertyClient::SharedPtr property_client_;
   ServicePtr<> ss_;
 
   bool isValidEllipse(const SrvType::Request& req);

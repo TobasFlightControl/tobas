@@ -25,7 +25,7 @@ private:
   size_t cnt_;
   algo::Kahan<double> voltage_sum_;
 
-  ptree::PropertyClient property_client_;
+  ptree::PropertyClient::SharedPtr property_client_;
   ServicePtr<> ss_;
 
   void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);

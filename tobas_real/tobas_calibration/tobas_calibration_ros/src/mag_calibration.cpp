@@ -8,7 +8,7 @@ using namespace std;
 namespace tobas_calibration
 {
 MagCalibrationRos::MagCalibrationRos(const rclcpp::NodeOptions& options)
-  : super(name, options), property_client_(node_, tobas_real_ros::kPropertyServerFC)
+  : super(name, options), property_client_(node_, real::kPropertyServerFC)
 {
   ss_ = createService(kServiceName, &self::executeCb, this);
 }
@@ -42,70 +42,70 @@ bool MagCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
   }
 
   // Configに保存
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseAxx, req.a_xx) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseAxx, req.a_xx) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseAyy, req.a_yy) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseAyy, req.a_yy) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseAzz, req.a_zz) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseAzz, req.a_zz) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseAxy, req.a_xy) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseAxy, req.a_xy) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseAyz, req.a_yz) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseAyz, req.a_yz) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseAzx, req.a_zx) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseAzx, req.a_zx) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseBx, req.b_x) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseBx, req.b_x) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseBy, req.b_y) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseBy, req.b_y) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseBz, req.b_z) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseBz, req.b_z) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.set(tobas_real_ros::kConfigKey_MagEllipseC, req.c) < 0)
+  if (property_client_->set(real::kConfigKey_MagEllipseC, req.c) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.save() < 0)
+  if (property_client_->save() < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
 

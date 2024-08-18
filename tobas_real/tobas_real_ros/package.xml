@@ -9,15 +9,15 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<depend>sensor_msgs</depend>
+	<depend>tobas_dsp</depend>
+	<depend>tobas_kdl</depend>
+	<depend>tobas_linux</depend>
+	<depend>tobas_ros2_tools</depend>
+	<depend>tobas_property_tools</depend>
+	<depend>tobas_msgs</depend>
 	<depend>tobas_hal_core</depend>
 	<depend>tobas_hal_msgs</depend>
-	<depend>tobas_tools</depend>
-	<depend>tobas_linux</depend>
-	<depend>tobas_property_tools</depend>
-	<depend>tobas_dsp</depend>
-
-
-
 
 	<export>
 		<build_type>ament_cmake</build_type>

@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-namespace tobas_real_ros
+namespace real
 {
 static constexpr char kPropertyServerFC[] = "/property_server_fc";
 
@@ -53,4 +53,4 @@ static constexpr size_t kRcChannelGPSw = 7;      // CH8
 
 static constexpr double kWarnPeriod = 3.;   // [s]
 static constexpr double kErrorPeriod = 1.;  // [s]
-}  // namespace tobas_real_ros
+}  // namespace

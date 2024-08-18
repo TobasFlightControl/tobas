@@ -28,7 +28,7 @@ private:
   std::array<algo::Kahan<double>, 3> acc_sum_;
   Eigen::Vector3d acc_top_;
 
-  ptree::PropertyClient property_client_;
+  ptree::PropertyClient::SharedPtr property_client_;
   ServicePtr<> ss_;
 
   bool getAccelMean(Eigen::Vector3d& des);

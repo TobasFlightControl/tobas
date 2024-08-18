@@ -70,7 +70,7 @@ private:
   view_model::LinkViewModelPtr old_link_vm_;
 
   rclcpp::Node::SharedPtr node_;
-  ptree::PropertyClient property_client_;
+  ptree::PropertyClient::SharedPtr property_client_;
 
   std::string getLastOpenedDir();
   void setLastOpenedDir(const std::string& file_path);

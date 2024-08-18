@@ -9,7 +9,7 @@ using namespace std;
 namespace tobas_calibration
 {
 AdcCalibrationRos::AdcCalibrationRos(const rclcpp::NodeOptions& options)
-  : super(name, options), property_client_(node_, tobas_real_ros::kPropertyServerFC)
+  : super(name, options), property_client_(node_, real::kPropertyServerFC)
 {
   ss_ = createService(kServiceName, &AdcCalibrationRos::executeCb, this);
 }
@@ -50,16 +50,16 @@ bool AdcCalibrationRos::executeCb(SrvType::Request& req, SrvType::Response& res)
   res.coefficient = req.voltage / voltage_mean;
 
   // 設定ファイルに係数を書き込む
-  if (property_client_.set(tobas_real_ros::kConfigKey_AdcVoltageCoef, res.coefficient) < 0)
+  if (property_client_->set(real::kConfigKey_AdcVoltageCoef, res.coefficient) < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
-  if (property_client_.save() < 0)
+  if (property_client_->save() < 0)
   {
     res.success = false;
-    res.message = property_client_.errorMessage();
+    res.message = property_client_->errorMessage();
     return true;
   }
 
