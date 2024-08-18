@@ -20,10 +20,7 @@ class LandActionServerNode : public tobas::BaseNode
 
   using self = LandActionServerNode;
   using super = tobas::BaseNode;
-
   using ActionType = tobas_msgs::action::Land;
-  using GoalHandle = rclcpp_action::ServerGoalHandle<ActionType>;
-  using GoalHandlePtr = shared_ptr<GoalHandle>;
 
 public:
   explicit LandActionServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -43,8 +40,8 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
-  rclcpp_action::CancelResponse handleCancel(GoalHandlePtr goal_handle);
-  void execute(GoalHandlePtr goal_handle);
+  rclcpp_action::CancelResponse handleCancel(ActionGoalHandlePtr<ActionType> goal_handle);
+  void execute(ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 LandActionServerNode::LandActionServerNode(const rclcpp::NodeOptions& options)
@@ -99,12 +96,12 @@ LandActionServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goa
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse LandActionServerNode::handleCancel(GoalHandlePtr)
+rclcpp_action::CancelResponse LandActionServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
 {
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void LandActionServerNode::execute(GoalHandlePtr goal_handle)
+void LandActionServerNode::execute(ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Landing action is executing.");
 
