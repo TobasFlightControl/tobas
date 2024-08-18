@@ -10,7 +10,7 @@
 #include <tobas_hal_msgs/MagneticField.hpp>
 #include <tobas_msgs/MagneticField.hpp>
 
-#include "../include/tobas_real_ros/common.hpp"
+#include <tobas_real_common/constants.hpp>
 
 using namespace std;
 

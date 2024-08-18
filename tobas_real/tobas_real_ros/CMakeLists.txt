@@ -21,6 +21,7 @@ find_package(tobas_property_tools REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_hal_core REQUIRED)
 find_package(tobas_hal_msgs REQUIRED)
+find_package(tobas_real_common REQUIRED)
 
 include_directories(include)
 
@@ -36,6 +37,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_msgs
 	tobas_hal_core
 	tobas_hal_msgs
+	tobas_real_common
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BarometerHandlerNode" EXECUTABLE barometer_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryHandlerNode" EXECUTABLE battery_handler)

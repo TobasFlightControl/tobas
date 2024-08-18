@@ -11,7 +11,7 @@
 #include <tobas_hal_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 
-#include "../include/tobas_real_ros/common.hpp"
+#include <tobas_real_common/constants.hpp>
 
 using namespace std;
 

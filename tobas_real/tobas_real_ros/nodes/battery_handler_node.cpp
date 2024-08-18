@@ -7,7 +7,7 @@
 #include <tobas_hal_msgs/msg/adc.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 
-#include "../include/tobas_real_ros/common.hpp"
+#include <tobas_real_common/constants.hpp>
 
 using namespace std;
 

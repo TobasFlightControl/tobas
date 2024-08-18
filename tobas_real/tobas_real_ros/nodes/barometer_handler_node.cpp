@@ -7,7 +7,7 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/fluid_pressure.hpp>
 
-#include "../include/tobas_real_ros/common.hpp"
+#include <tobas_real_common/constants.hpp>
 
 using namespace std;
 
@@ -58,7 +58,7 @@ void BarometerHandlerNode::airPressureCb(const tobas_hal_msgs::msg::FluidPressur
   // Validate
   if (bar_raw->fluid_pressure < kMinAirPressure || kMaxAirPressure < bar_raw->fluid_pressure)
   {
-    TOBAS_ERROR_THROTTLE(real::kErrorPeriod, "Strange air pressure: ", bar_raw->fluid_pressure, " [Pa]");
+    TOBAS_ERROR_THROTTLE(1, "Strange air pressure: ", bar_raw->fluid_pressure, " [Pa]");
     return;
   }
 

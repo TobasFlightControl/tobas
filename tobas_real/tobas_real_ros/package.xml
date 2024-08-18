@@ -18,6 +18,7 @@
 	<depend>tobas_msgs</depend>
 	<depend>tobas_hal_core</depend>
 	<depend>tobas_hal_msgs</depend>
+	<depend>tobas_real_common</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

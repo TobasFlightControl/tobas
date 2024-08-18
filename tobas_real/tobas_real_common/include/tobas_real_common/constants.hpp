@@ -50,7 +50,4 @@ static constexpr size_t kRcChannelYaw = 3;       // CH4
 static constexpr size_t kRcChannelMode = 4;      // CH5
 static constexpr size_t kRcChannelEStop = 6;     // CH7
 static constexpr size_t kRcChannelGPSw = 7;      // CH8
-
-static constexpr double kWarnPeriod = 3.;   // [s]
-static constexpr double kErrorPeriod = 1.;  // [s]
-}  // namespace
+}  // namespace real
