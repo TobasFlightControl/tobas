@@ -90,7 +90,7 @@ void PositionYawPublisher::run()
 
   // キーボード入力による位置コマンドを発行し続ける
   rclcpp::Rate rate(kUpdateRate);
-  while (node_.ok())
+  while (rclcpp::ok())
   {
     // インストラクション
     TOBAS_INFO_THROTTLE(kInstructionTimerPeriod, instruction_);
@@ -167,7 +167,7 @@ void PositionYawPublisher::run()
     pvay_msg->yaw = cmd_yaw_;
     pvay_pub_->publish(pvay_msg);
 
-    rclcpp::spinOnce();
+    rclcpp::spin_some(shared_from_this());
     rate.sleep();
   }
 }

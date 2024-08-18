@@ -102,7 +102,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
 
   // 軌道を発行
   rclcpp::Rate rate(kUpdateRate);
-  while (node_.ok())
+  while (rclcpp::ok())
   {
     // 開始からの経過時間を計算
     const auto t = (get_clock()->now() - start_time).seconds();
@@ -152,7 +152,7 @@ void TakeoffActionServer::executeCb(const GoalType::ConstSharedPtr& goal)
       return;
     }
 
-    rclcpp::spinOnce();
+    rclcpp::spin_some(shared_from_this());
     rate.sleep();
   }
 }

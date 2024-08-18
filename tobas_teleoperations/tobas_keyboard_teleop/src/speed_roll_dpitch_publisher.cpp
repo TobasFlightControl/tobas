@@ -50,7 +50,7 @@ void SpeedRollDeltaPitchPublisher::run()
   check_topics_timer_.start();
 
   rclcpp::Rate rate(kUpdateRate);
-  while (node_.ok())
+  while (rclcpp::ok())
   {
     if (!is_initialized_)
     {
@@ -60,7 +60,7 @@ void SpeedRollDeltaPitchPublisher::run()
         initialize();
         is_initialized_ = true;
       }
-      rclcpp::spinOnce();
+      rclcpp::spin_some(shared_from_this());
       rate.sleep();
       continue;
     }
@@ -120,7 +120,7 @@ void SpeedRollDeltaPitchPublisher::run()
     const auto cmd_ptr = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
     cmd_pub_->publish(cmd_ptr);
 
-    rclcpp::spinOnce();
+    rclcpp::spin_some(shared_from_this());
     rate.sleep();
   }
 }

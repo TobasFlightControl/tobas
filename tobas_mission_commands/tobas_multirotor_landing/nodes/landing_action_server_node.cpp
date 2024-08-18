@@ -26,14 +26,12 @@ public:
   explicit LandActionServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  bool is_action_running_ = false;
-  tobas_std::TimestampedBuffer<double> alt_buf_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_std::TimestampedBuffer<double> alt_buf_;
+  tobas_msgs::PosVelAccYaw cmd_;
 
   PublisherPtr<tobas_msgs::PosVelAccYaw> cmd_pub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-
-  rclcpp_action::Server<ActionType>::SharedPtr as_;
+  ActionPtr<ActionType> as_;
 
   bool disarmRotors();
 
@@ -48,8 +46,6 @@ LandActionServerNode::LandActionServerNode(const rclcpp::NodeOptions& options)
   : super("land_action_server", options), alt_buf_(kTimeWindow)
 {
   cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
@@ -81,9 +77,6 @@ void LandActionServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& od
 
   odom_ = odom;
 
-  if (!is_action_running_)
-    return;
-
   // 現在の時刻と高度を履歴に追加
   const auto cur_time = ros2::chronoFromRosTime(odom->header.stamp);
   const auto& altitude = odom->frame.p.z();
@@ -107,15 +100,20 @@ void LandActionServerNode::execute(ActionGoalHandlePtr<ActionType> goal_handle)
 
   const auto result = std::make_shared<ActionType::Result>();
 
+  // ベース状態のデータを初期化
+  odom_ = nullptr;
+  alt_buf_.clear();
+
+  // 一時的にオドメトリの購読を開始
+  const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+
   // オドメトリが発行されていることを確認
+  rclcpp::spin_some(shared_from_this());
   if (odom_ == nullptr)
   {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
   }
-
-  // 高度のバッファを初期化
-  alt_buf_.clear();
 
   // 初期状態
   const auto start_time = get_clock()->now();
@@ -123,9 +121,6 @@ void LandActionServerNode::execute(ActionGoalHandlePtr<ActionType> goal_handle)
   const auto start_y = odom_->frame.p.y();
   const auto start_z = odom_->frame.p.z();
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
-
-  // Now the action is running
-  is_action_running_ = true;
 
   // 高度チェック
   rclcpp::Rate rate(kUpdateRate);
@@ -139,55 +134,51 @@ void LandActionServerNode::execute(ActionGoalHandlePtr<ActionType> goal_handle)
       if (alt_range < kStableAltitudeRange)
       {
         TOBAS_INFO("Landing detected. Stopping motors.");
-        is_action_running_ = false;
         if (!disarmRotors())
         {
           result->message = "Failed to disarm rotors.";
           goal_handle->abort(result);
-          break;
+          return;
         }
 
         result->message.clear();
         goal_handle->succeed(result);
-        break;
+        return;
       }
     }
 
     // コマンドを作成
-    tobas_msgs::PosVelAccYaw cmd;
     const auto t = (get_clock()->now() - start_time).seconds();
-    cmd.level = goal_handle->get_goal()->level;
-    cmd.frame_id.data = tobas_msgs::msg::FrameId::WORLD;
-    cmd.pos.x(start_x);
-    cmd.pos.y(start_y);
-    cmd.pos.z(start_z - kVerticalSpeed * t);
-    cmd.vel.x(0);
-    cmd.vel.y(0);
-    cmd.vel.z(-kVerticalSpeed);
-    cmd.acc.setZero();
-    cmd.yaw = start_yaw;
+    cmd_.level = goal_handle->get_goal()->level;
+    cmd_.frame_id.data = tobas_msgs::msg::FrameId::WORLD;
+    cmd_.pos.x(start_x);
+    cmd_.pos.y(start_y);
+    cmd_.pos.z(start_z - kVerticalSpeed * t);
+    cmd_.vel.x(0);
+    cmd_.vel.y(0);
+    cmd_.vel.z(-kVerticalSpeed);
+    cmd_.acc.setZero();
+    cmd_.yaw = start_yaw;
 
     // コマンドを発行
-    const auto cmd_ptr = std::make_unique<tobas_msgs::PosVelAccYaw>(cmd);
-    cmd_pub_->publish(move(cmd));
+    const auto cmd_ptr = std::make_unique<tobas_msgs::PosVelAccYaw>(cmd_);
+    cmd_pub_->publish(move(cmd_));
 
     // アクション中止の場合は目標速度・加速度を0にして終了
     if (goal_handle->is_canceling())
     {
-      cmd.vel.setZero();
-      cmd.acc.setZero();
-      cmd_pub_->publish(cmd);
+      cmd_.vel.setZero();
+      cmd_.acc.setZero();
+      cmd_pub_->publish(cmd_);
 
       result->message.clear();
       goal_handle->canceled(result);
-      break;
+      return;
     }
 
     rclcpp::spin_some(shared_from_this());
     rate.sleep();
   }
-
-  is_action_running_ = false;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(LandActionServerNode)
