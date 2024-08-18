@@ -9,15 +9,12 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>roscpp</depend>
-
+	<depend>std_srvs</depend>
 	<depend>dynamixel_sdk</depend>
-
-	<depend>tobas_ros2_tools</depend>
-	<depend>tobas_tools</depend>
+	<depend>tobas_node</depend>
+	<depend>tobas_constants</depend>
+	<depend>tobas_msgs</depend>
 	<depend>tobas_dynamixel_msgs</depend>
-
-
 
 	<export>
 		<build_type>ament_cmake</build_type>
