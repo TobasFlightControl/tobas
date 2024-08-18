@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <tobas_std_tools/stream.hpp>
@@ -59,8 +60,10 @@ protected:
   using SubscriberPtr = rclcpp::Subscription<MsgType>::SharedPtr;
   template <typename SrvType>
   using ServicePtr = rclcpp::Service<SrvType>::SharedPtr;
-  template <typename SrvType>
-  using ClientPtr = rclcpp::Client<SrvType>::SharedPtr;
+  template <typename ActionType>
+  using ActionPtr = rclcpp_action::Server<ActionType>::SharedPtr;
+  template <typename ActionType>
+  using ActionGoalHandlePtr = std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>>;
 
   using TimerPtr = rclcpp::TimerBase::SharedPtr;
   using ParamHandlePtr = std::shared_ptr<rclcpp::ParameterCallbackHandle>;
@@ -89,8 +92,14 @@ protected:
       const std::shared_ptr<typename SrvType::Response>&),
     Obj* obj);
 
-  template <typename SrvType>
-  ClientPtr<SrvType> createClient(const std::string& srv_name);
+  template <typename ActionType, typename Obj>
+  ActionPtr<ActionType> createAction(
+    const std::string& action_name,
+    rclcpp_action::GoalResponse (
+      Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
+    rclcpp_action::CancelResponse (Obj::*handle_cancel)(ActionGoalHandlePtr<ActionType>),
+    void (Obj::*execute)(ActionGoalHandlePtr<ActionType>),
+    Obj* obj);
 
   template <typename RepType, typename DurType, typename Obj>
   TimerPtr createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj);
@@ -245,10 +254,26 @@ BaseNode::ServicePtr<SrvType> BaseNode::createService(
   return create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
 }
 
-template <typename SrvType>
-BaseNode::ClientPtr<SrvType> BaseNode::createClient(const std::string& srv_name)
+template <typename ActionType, typename Obj>
+BaseNode::ActionPtr<ActionType> BaseNode::createAction(
+  const std::string& action_name,
+  rclcpp_action::GoalResponse (
+    Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
+  rclcpp_action::CancelResponse (Obj::*handle_cancel)(ActionGoalHandlePtr<ActionType>),
+  void (Obj::*execute)(ActionGoalHandlePtr<ActionType>),
+  Obj* obj)
 {
-  return create_client<SrvType>(srv_name);
+  auto handle_accepted = [obj, execute](ActionGoalHandlePtr<ActionType> goal_handle)
+  {
+    // This needs to return quickly to avoid blocking the executor.
+    // So we declare a lambda function to be called inside a new thread.
+    auto execute_in_thread = [obj, execute, goal_handle]() { return (obj->*execute)(goal_handle); };
+    std::thread{ execute_in_thread }.detach();
+  };
+
+  return rclcpp_action::create_server<ActionType>(
+    obj, action_name, std::bind(handle_goal, obj, std::placeholders::_1, std::placeholders::_2),
+    std::bind(handle_cancel, obj, std::placeholders::_1), handle_accepted);
 }
 
 template <typename RepType, typename DurationT, typename Obj>

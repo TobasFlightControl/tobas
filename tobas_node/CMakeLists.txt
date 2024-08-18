@@ -13,6 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_std_msgs REQUIRED)
@@ -25,6 +26,7 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}
 	rclcpp
+	rclcpp_action
 	rclcpp_components
 	tobas_std_tools
 	tobas_std_msgs
@@ -45,6 +47,7 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(
 	rclcpp
+	rclcpp_action
 	rclcpp_components
 	tobas_std_tools
 	tobas_std_msgs

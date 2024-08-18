@@ -86,7 +86,7 @@ void StateCheckerNode::requestLanding()
   }
 
   const auto& res = ac.getResult();
-  if (!res.result->success)
+  if (res.code != rclcpp_action::ResultCode::SUCCEEDED)
   {
     TOBAS_FATAL("Failed to land: ", res.result->message);
     return;
