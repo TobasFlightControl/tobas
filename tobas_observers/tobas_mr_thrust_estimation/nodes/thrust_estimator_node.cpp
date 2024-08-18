@@ -74,8 +74,8 @@ ThrustEstimatorNode::ThrustEstimatorNode(const rclcpp::NodeOptions& options)
   factor_pub_ = createPublisher<std_msgs::msg::Float64>(tobas::kThrustCorrectionFactorTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   rotor_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsTopic, &self::rotorSpeedsCb, this);
 }

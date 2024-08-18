@@ -1,9 +1,0 @@
-<launch>
-
-  <node pkg="tobas_calibration_ros" exec="accel_calibration_node" name="accel_calibration" output="screen"/>
-  <node pkg="tobas_calibration_ros" exec="mag_calibration_node" name="mag_calibration" output="screen"/>
-  <node pkg="tobas_calibration_ros" exec="adc_calibration_node" name="adc_calibration" output="screen"/>
-  <node pkg="tobas_calibration_ros" exec="rcin_calibration_node" name="rcin_calibration" output="screen"/>
-  <node pkg="tobas_calibration_ros" exec="esc_calibration_node" name="esc_calibration" output="screen"/>
-
-</launch>

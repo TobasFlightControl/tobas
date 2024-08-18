@@ -132,8 +132,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   feedback_pub_ = createPublisher<tobas_debug_msgs::NonPlanarControllerFeedback>(tobas::kControllerFeedbackTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   if (drone_.isTransformable())

@@ -36,7 +36,7 @@ private:
 RotorCommandHandlerNode::RotorCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_rotor_command_handler", options)
 {
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
 }
 
 void RotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

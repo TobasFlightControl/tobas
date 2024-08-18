@@ -65,7 +65,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
 {
   prearm_check_pub_ = createPublisher<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 

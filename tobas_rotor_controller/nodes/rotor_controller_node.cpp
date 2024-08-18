@@ -78,7 +78,7 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
   throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
   arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic, 1, true);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::rotSpeedsCmdCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
 
