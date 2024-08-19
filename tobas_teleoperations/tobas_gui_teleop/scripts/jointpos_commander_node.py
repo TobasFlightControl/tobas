@@ -1,10 +1,10 @@
-import os.path as osp
 import sys
 import signal
-import rospkg
+import rclpy
+from rclpy.node import Node
+from ament_index_python.packages import get_package_share_path
 from PyQt5.QtWidgets import QApplication
 
-from tobas_rclpy.utils import init_node
 from tobas_rqt_tools.widgets import MainWidget
 from tobas_rqt_tools.utils import handle_unexpected_exception
 
@@ -12,14 +12,16 @@ from tobas_gui_teleop.jointpos_commander import JointPositionsCommanderWidget
 from tobas_gui_teleop.common import PKG_NAME
 
 
-if __name__ == "__main__":
-    init_node()
+def main(args=None):
+    rclpy.init(args=args)
+    node = Node("joint_position_commander")
+
     app = QApplication(sys.argv)
 
     main_widget = MainWidget(
         "Joint Position Commander",
-        osp.join(rospkg.RosPack().get_path(PKG_NAME), "resources/icon.png"),
-        JointPositionsCommanderWidget(),
+        str(get_package_share_path(PKG_NAME) / "images/icon.png"),
+        JointPositionsCommanderWidget(node),
     )
     main_widget.show()
 
@@ -27,3 +29,7 @@ if __name__ == "__main__":
     sys.excepthook = handle_unexpected_exception
 
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

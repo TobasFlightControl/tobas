@@ -15,13 +15,11 @@ public:
     client_ = node_->create_client<SrvType>(srv_name);
   }
 
-  bool
-  call(const SrvType::Request::SharedPtr& req, const std::chrono::nanoseconds timeout = std::chrono::nanoseconds(-1))
+  bool call(const SrvType::Request::SharedPtr& req)
   {
-    if (!client_->wait_for_service(timeout))
+    if (!client_->service_is_ready())
     {
-      RCLCPP_ERROR_STREAM(
-        node_->get_logger(), "Failed to connect to \"" << client_->get_service_name() << "\" service server.");
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
       return false;
     }
 

@@ -176,10 +176,10 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Magnet calibration is cancelled.")
 
     def _finish_calibration(self) -> bool:
-        calib_sc = rclpy.ServiceProxy(f"{self._drone.name}/mag_calibration", MagCalibration)
+        calib_sc = self._node.create_client(f"{self._drone.name}/mag_calibration", MagCalibration)
 
         try:
-            calib_sc.wait_for_service(WAIT_FOR_SERVER)
+            calib_sc.service_is_ready(WAIT_FOR_SERVER)
         except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -292,11 +292,11 @@ class MagCalibrationWidget(BaseHardwareSetupWidget):
         return req
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rclpy.ServiceProxy(
+        reload_config_sc = self._node.create_client(
             f"{self._drone.name}/magnetometer_handler/{Service.RELOAD_CONFIG}", Trigger
         )
         try:
-            reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
+            reload_config_sc.service_is_ready(WAIT_FOR_SERVER)
         except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False

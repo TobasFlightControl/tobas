@@ -1,14 +1,17 @@
-import rclpy
-from rclpy.duration import Duration
 from typing import Dict
 from functools import partial
+
+import rclpy
+from rclpy.node import Node
+from rclpy.wait_for_message import wait_for_message
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
+from std_msgs.msg import String
 from sensor_msgs.msg import JointState
+
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
-from tobas_tools_py.constants import Topic
 
 from .common import BUTTON_HEIGHT
 
@@ -18,10 +21,12 @@ class JointPositionsCommanderWidget(Widget):
     VELOCITY = "velocity"
     EFFORT = "effort"
 
-    PUBILSH_CMDS_TIMER_PERIOD = 0.1  # [s]
+    WAIT_FOR_ROBOT_DESCRIPTION = 1.0  # [s]
+    PUBILSH_CMDS_PERIOD = 0.1  # [s]
 
-    def __init__(self) -> None:
+    def __init__(self, node: Node) -> None:
         super().__init__()
+        self._node = node
 
         # rosparams
         self._home_positions: Dict[str, float] = {}
@@ -48,16 +53,25 @@ class JointPositionsCommanderWidget(Widget):
                 raise RuntimeError(f"Unknown joint command type: {control_type}")
 
         # Publishers
-        self._tar_pos_pub = self.create_publisher(Topic.Manipulation.POS_CTRL_JS, JointState, 1)
-        self._tar_js_vel_pub = self.create_publisher(Topic.Manipulation.VEL_CTRL_JS, JointState, 1)
-        self._tar_js_eff_pub = self.create_publisher(Topic.Manipulation.EFF_CTRL_JS, JointState, 1)
+        self._tar_pos_pub = self._node.create_publisher(JointState, "joint_position_controller/target_joint_states", 1)
+        self._tar_js_vel_pub = self._node.create_publisher(
+            JointState, "joint_velocity_controller/target_joint_states", 1
+        )
+        self._tar_js_eff_pub = self._node.create_publisher(JointState, "joint_effort_controller/target_joint_states", 1)
 
         # メインレイアウト
         rows = QVBoxLayout()
         self.setLayout(rows)
 
+        # Robot descriptionを取得
+        self._node.get_logger().info("Waiting for robot description.")
+        sucess, robot_description = wait_for_message(String, self._node, "robot_description", time_to_wait=1.0)
+        if not sucess:
+            self._node.get_logger().error("Failed to get robot description from topic.")
+            rclpy.shutdown()
+
         # Commandersをセット
-        robot: Robot = Robot.from_parameter_server("robot_description")
+        robot: Robot = Robot.from_xml_string(robot_description)
         self._commanders: Dict[str, FloatSliderDisplay] = {}
         for jnt_name in self._cmd_types.keys():
             joint: Joint = robot.joint_map[jnt_name]
@@ -88,16 +102,14 @@ class JointPositionsCommanderWidget(Widget):
 
         rows.addStretch()
 
-        self._publish_commands_timer = rclpy.Timer(
-            Duration(self.PUBILSH_CMDS_TIMER_PERIOD), self._publish_commands_timer_cb
-        )
+        self._publish_cmds_timer = self._node.create_timer(self.PUBILSH_CMDS_PERIOD, self._publish_commands_timer_cb)
 
     def _get_params(self) -> None:
-        num_joints = rclpy.get_param("num_joints")
+        num_joints = self._node.declare_parameter("num_joints", 0).get_parameter_value().integer_value
         for i in range(num_joints):
-            jnt_name = rclpy.get_param(f"joint_{i}/name")
-            home_pos = rclpy.get_param(f"joint_{i}/home_position")
-            control_type = rclpy.get_param(f"joint_{i}/command_type")
+            jnt_name = self._node.declare_parameter(f"joint_{i}/name").get_parameter_value().string_value
+            home_pos = self._node.declare_parameter(f"joint_{i}/home_position").get_parameter_value().double_value
+            control_type = self._node.declare_parameter(f"joint_{i}/command_type").get_parameter_value().string_value
             self._home_positions[jnt_name] = home_pos
             self._cmd_types[jnt_name] = control_type
 
@@ -106,7 +118,7 @@ class JointPositionsCommanderWidget(Widget):
         self._tar_js_vel_pub.publish(self._tar_js_vel)
         self._tar_js_eff_pub.publish(self._tar_js_eff)
 
-    def _publish_commands_timer_cb(self, _) -> None:
+    def _publish_commands_timer_cb(self) -> None:
         self._publish_current_commands()
 
     @pyqtSlot(float)

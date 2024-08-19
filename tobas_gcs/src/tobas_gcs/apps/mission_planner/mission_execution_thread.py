@@ -36,7 +36,7 @@ class MissionExecutionThread(QThread):
         self._commands = commands
         self._stop_requested = False
 
-        self._get_gnss_origin_sc = rclpy.ServiceProxy(f"/{drone_name}/{Service.GET_GNSS_ORIGIN}", GetGnssOrigin)
+        self._get_gnss_origin_sc = self._node.create_client(f"/{drone_name}/{Service.GET_GNSS_ORIGIN}", GetGnssOrigin)
 
         self._takeoff_ac = actionlib.SimpleActionClient(f"/{drone_name}/{Action.TAKEOFF}", TakeoffAction)
         self._land_ac = actionlib.SimpleActionClient(f"/{drone_name}/{Action.LAND}", LandAction)
@@ -67,7 +67,7 @@ class MissionExecutionThread(QThread):
 
     def _check_server_connections(self) -> bool:
         try:
-            self._get_gnss_origin_sc.wait_for_service(WAIT_FOR_SERVER)
+            self._get_gnss_origin_sc.service_is_ready(WAIT_FOR_SERVER)
         except rclpy.ROSException:
             self.finished.emit(False, "Get GNSS origin server is not ready.")
             return False

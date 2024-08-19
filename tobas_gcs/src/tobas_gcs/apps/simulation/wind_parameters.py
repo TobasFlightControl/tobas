@@ -72,12 +72,12 @@ class WindParamsWidget(QWidget):
         form.addRow(QLabel("Gust Interval [s]"), self._gust_interval)
 
     def initialize(self) -> bool:
-        self._get_sc = rclpy.ServiceProxy(f"{self._drone.name}/gazebo/get_wind_parameters", GetWindParams)
-        self._set_sc = rclpy.ServiceProxy(f"{self._drone.name}/gazebo/set_wind_parameters", SetWindParams)
+        self._get_sc = self._node.create_client(f"{self._drone.name}/gazebo/get_wind_parameters", GetWindParams)
+        self._set_sc = self._node.create_client(f"{self._drone.name}/gazebo/set_wind_parameters", SetWindParams)
 
         try:
-            self._get_sc.wait_for_service(Duration(self.WAIT_FOR_SERVICE))
-            self._set_sc.wait_for_service(Duration(self.WAIT_FOR_SERVICE))
+            self._get_sc.service_is_ready(Duration(self.WAIT_FOR_SERVICE))
+            self._set_sc.service_is_ready(Duration(self.WAIT_FOR_SERVICE))
         except rclpy.ROSException:
             q_error(self._main, "Failed to connect to Gazebo wind server.")
             return False

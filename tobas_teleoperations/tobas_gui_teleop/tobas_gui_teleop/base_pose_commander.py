@@ -1,11 +1,11 @@
 import math
 import rclpy
+from rclpy.node import Node
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_std_tools_py.geometry import euler_from_matrix
 from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
-from tobas_tools_py.constants import Topic, Service
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
@@ -13,7 +13,7 @@ from tobas_msgs.msg import (
     CommandLevel,
     Odometry,
 )
-from tobas_msgs.srv import SetArm, SetArmRequest, SetArmResponse
+from tobas_msgs.srv import SetArm
 
 from .common import BUTTON_HEIGHT
 
@@ -39,8 +39,9 @@ class BasePoseCommanderWidget(Widget):
     DEFAULT_MIN_YAW = -math.pi  # [rad]
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
-    def __init__(self) -> None:
+    def __init__(self, node: Node) -> None:
         super().__init__()
+        self._node = node
 
         # rosparams
         self._x_min = 0.0
@@ -127,28 +128,64 @@ class BasePoseCommanderWidget(Widget):
         rows.addStretch()
 
         # PubSub
-        self._pos_yaw_pub = self.create_publisher(Topic.Command.POSITION_YAW, PositionYaw, 1)
-        self._pvay_pub = self.create_publisher(Topic.Command.POS_VEL_ACC_YAW, PosVelAccYaw, 1)
-        self._pta_pub = self.create_publisher(Topic.Command.POSE_TWIST_ACCEL, PoseTwistAccelCommand, 1)
-        self._odom_sub = self.create_subscription(Topic.ODOMETRY, Odometry, self._odom_cb, 1)
+        self._pos_yaw_pub = self._node.create_publisher(PositionYaw, "command/position_yaw", 1)
+        self._pvay_pub = self._node.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", 1)
+        self._pta_pub = self._node.create_publisher(PoseTwistAccelCommand, "command/pose_twist_accel", 1)
+        self._odom_sub = self._node.create_subscription(Odometry, "odom", self._odom_cb, 1)
 
         # Service
-        self._set_arm_sc = rclpy.ServiceProxy(Service.SET_ARM, SetArm)
+        self._set_arm_sc = self._node.create_client(SetArm, "set_arm")
 
     def _get_params(self) -> None:
-        self._x_min = rclpy.get_param("~pose_limit/x/min", self.DEFAULT_MIN_X)
-        self._x_max = rclpy.get_param("~pose_limit/x/max", self.DEFAULT_MAX_X)
-        self._y_min = rclpy.get_param("~pose_limit/y/min", self.DEFAULT_MIN_Y)
-        self._y_max = rclpy.get_param("~pose_limit/y/max", self.DEFAULT_MAX_Y)
-        self._z_min = rclpy.get_param("~pose_limit/z/min", self.DEFAULT_MIN_Z)
-        self._z_max = rclpy.get_param("~pose_limit/z/max", self.DEFAULT_MAX_Z)
-        self._roll_min = rclpy.get_param("~pose_limit/roll/min", self.DEFAULT_MIN_ROLL)
-        self._roll_max = rclpy.get_param("~pose_limit/roll/max", self.DEFAULT_MAX_ROLL)
-        self._pitch_min = rclpy.get_param("~pose_limit/pitch/min", self.DEFAULT_MIN_PITCH)
-        self._pitch_max = rclpy.get_param("~pose_limit/pitch/max", self.DEFAULT_MAX_PITCH)
-        self._yaw_min = rclpy.get_param("~pose_limit/yaw/min", self.DEFAULT_MIN_YAW)
-        self._yaw_max = rclpy.get_param("~pose_limit/yaw/max", self.DEFAULT_MAX_YAW)
-        self._init_elevation = rclpy.get_param("~initial_elevation", self.DEFAULT_INIT_ELEVATION)
+        self._x_min = (
+            self._node.declare_parameter("pose_limit/x/min", self.DEFAULT_MIN_X).get_parameter_value().double_value
+        )
+        self._x_max = (
+            self._node.declare_parameter("pose_limit/x/max", self.DEFAULT_MAX_X).get_parameter_value().double_value
+        )
+        self._y_min = (
+            self._node.declare_parameter("pose_limit/y/min", self.DEFAULT_MIN_Y).get_parameter_value().double_value
+        )
+        self._y_max = (
+            self._node.declare_parameter("pose_limit/y/max", self.DEFAULT_MAX_Y).get_parameter_value().double_value
+        )
+        self._z_min = (
+            self._node.declare_parameter("pose_limit/z/min", self.DEFAULT_MIN_Z).get_parameter_value().double_value
+        )
+        self._z_max = (
+            self._node.declare_parameter("pose_limit/z/max", self.DEFAULT_MAX_Z).get_parameter_value().double_value
+        )
+        self._roll_min = (
+            self._node.declare_parameter("pose_limit/roll/min", self.DEFAULT_MIN_ROLL)
+            .get_parameter_value()
+            .double_value
+        )
+        self._roll_max = (
+            self._node.declare_parameter("pose_limit/roll/max", self.DEFAULT_MAX_ROLL)
+            .get_parameter_value()
+            .double_value
+        )
+        self._pitch_min = (
+            self._node.declare_parameter("pose_limit/pitch/min", self.DEFAULT_MIN_PITCH)
+            .get_parameter_value()
+            .double_value
+        )
+        self._pitch_max = (
+            self._node.declare_parameter("pose_limit/pitch/max", self.DEFAULT_MAX_PITCH)
+            .get_parameter_value()
+            .double_value
+        )
+        self._yaw_min = (
+            self._node.declare_parameter("pose_limit/yaw/min", self.DEFAULT_MIN_YAW).get_parameter_value().double_value
+        )
+        self._yaw_max = (
+            self._node.declare_parameter("pose_limit/yaw/max", self.DEFAULT_MAX_YAW).get_parameter_value().double_value
+        )
+        self._init_elevation = (
+            self._node.declare_parameter("initial_elevation", self.DEFAULT_INIT_ELEVATION)
+            .get_parameter_value()
+            .double_value
+        )
 
         assert self._x_min <= 0.0 <= self._x_max
         assert self._y_min <= 0.0 <= self._y_max
@@ -159,23 +196,16 @@ class BasePoseCommanderWidget(Widget):
         assert self._init_elevation >= 0.0
 
     def _set_arm(self, arming: bool) -> bool:
-        try:
-            self._set_arm_sc.wait_for_service(self.WAIT_FOR_SERVICE)
-        except rclpy.ROSException as e:
-            self.get_logger().error(f'Failed to connect to "{Service.SET_ARM}" service server.')
+        if not self._set_arm_sc.service_is_ready():
+            self._node.get_logger().error("Set-Arm service is not ready.")
             return False
 
-        req = SetArmRequest()
+        req = SetArm.Request()
         req.arming = arming
 
-        try:
-            res: SetArmResponse = self._set_arm_sc.call(req)
-        except Exception as e:
-            self.get_logger().error(f'Failed to call "{Service.SET_ARM}" service: {e}')
-            return False
-
+        res: SetArm.Response = self._set_arm_sc.call(req)
         if not res.success:
-            self.get_logger().error(f"Failed to arm rotors: {res.message}")
+            self._node.get_logger().error(f"Failed to arm rotors: {res.message}")
             return False
 
         return True
@@ -185,7 +215,7 @@ class BasePoseCommanderWidget(Widget):
             return
 
         # Arming
-        self.get_logger().info("Arming")
+        self._node.get_logger().info("Arming")
         if not self._set_arm(True):
             rclpy.sleep(self.ARM_RETRY_INTERVAL)
             return
@@ -209,7 +239,7 @@ class BasePoseCommanderWidget(Widget):
         # 1回きりで終了
         self._odom_sub.unregister()
 
-        self.get_logger().info("GUI teleoperation is ready.")
+        self._node.get_logger().info("GUI teleoperation is ready.")
 
     @pyqtSlot()
     def _publish_current_command(self) -> None:

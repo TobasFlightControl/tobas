@@ -25,7 +25,7 @@ from tobas_msgs.srv import (
     GetArmResponse,
     SetArm,
     SetArmRequest,
-    SetArmResponse,
+    SetArm.Response,
 )
 
 from ....common import WAIT_FOR_SERVER, Description
@@ -130,9 +130,9 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         q_info(self._main, "Motor test is finished.")
 
     def _check_disarm(self) -> bool:
-        get_arm_sc = rclpy.ServiceProxy(f"{self._drone.name}/{Service.GET_ARM}", GetArm)
+        get_arm_sc = self._node.create_client(f"{self._drone.name}/{Service.GET_ARM}", GetArm)
         try:
-            get_arm_sc.wait_for_service(WAIT_FOR_SERVER)
+            get_arm_sc.service_is_ready(WAIT_FOR_SERVER)
         except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -150,9 +150,9 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         return True
 
     def _set_arm(self, arming: bool) -> bool:
-        set_arm_sc = rclpy.ServiceProxy(f"{self._drone.name}/{Service.SET_ARM}", SetArm)
+        set_arm_sc = self._node.create_client(f"{self._drone.name}/{Service.SET_ARM}", SetArm)
         try:
-            set_arm_sc.wait_for_service(WAIT_FOR_SERVER)
+            set_arm_sc.service_is_ready(WAIT_FOR_SERVER)
         except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -162,7 +162,7 @@ class MotorTestWidget(BaseHardwareSetupWidget):
         req.ignore_prearm_check = True
 
         try:
-            res: SetArmResponse = set_arm_sc.call(req)
+            res: SetArm.Response = set_arm_sc.call(req)
         except Exception as e:
             q_error(self, f"{self.E_FAILED_TO_CALL_SRV}: {e}")
             return False

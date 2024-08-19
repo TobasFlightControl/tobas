@@ -104,9 +104,9 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         q_info(self._main, "ADC calibration finished.")
 
     def _calibrate(self) -> bool:
-        adc_calib_sc = rclpy.ServiceProxy(f"{self._drone.name}/adc_calibration", AdcCalibration)
+        adc_calib_sc = self._node.create_client(f"{self._drone.name}/adc_calibration", AdcCalibration)
         try:
-            adc_calib_sc.wait_for_service(WAIT_FOR_SERVER)
+            adc_calib_sc.service_is_ready(WAIT_FOR_SERVER)
         except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False
@@ -129,9 +129,9 @@ class AdcCalibrationWidget(BaseHardwareSetupWidget):
         return True
 
     def _reload_config(self) -> bool:
-        reload_config_sc = rclpy.ServiceProxy(f"{self._drone.name}/battery_handler/{Service.RELOAD_CONFIG}", Trigger)
+        reload_config_sc = self._node.create_client(f"{self._drone.name}/battery_handler/{Service.RELOAD_CONFIG}", Trigger)
         try:
-            reload_config_sc.wait_for_service(WAIT_FOR_SERVER)
+            reload_config_sc.service_is_ready(WAIT_FOR_SERVER)
         except rclpy.ROSException:
             q_error(self, self.E_FAILED_TO_CONNECT)
             return False

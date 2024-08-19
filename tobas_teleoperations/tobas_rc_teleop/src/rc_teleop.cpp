@@ -71,7 +71,7 @@ void RCTeleop::getStaticRosParams()
 
 bool RCTeleop::isRotorsArmed()
 {
-  if (!get_arm_sc_->wait_for_service(kWaitForServiceExistence))
+  if (!get_arm_sc_->service_is_ready(kWaitForServiceExistence))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kGetArmSrv, "' service server.");
     return false;
@@ -89,7 +89,7 @@ bool RCTeleop::isRotorsArmed()
 
 bool RCTeleop::requestArmingRotors()
 {
-  if (!set_arm_sc_->wait_for_service(kWaitForServiceExistence))
+  if (!set_arm_sc_->service_is_ready(kWaitForServiceExistence))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
@@ -108,7 +108,7 @@ bool RCTeleop::requestArmingRotors()
 
 bool RCTeleop::requestDisarmingRotors()
 {
-  if (!set_arm_sc_->wait_for_service(kWaitForServiceExistence))
+  if (!set_arm_sc_->service_is_ready(kWaitForServiceExistence))
   {
     TOBAS_ERROR("Failed to connect to '", tobas::kSetArmSrv, "' service server.");
     return false;
