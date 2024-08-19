@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_multirotor_move)
+project(tobas_mr_actions)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -31,7 +31,9 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_constants
 	tobas_msgs
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MoveActionServerNode" EXECUTABLE move_action_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas_mr_actions::TakeoffServerNode" EXECUTABLE takeoff_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas_mr_actions::LandServerNode" EXECUTABLE land_server)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "tobas_mr_actions::MoveServerNode" EXECUTABLE move_server)
 
 install(
 	TARGETS ${PROJECT_NAME}_node

@@ -9,29 +9,30 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/action/move.hpp>
 
+#include "../include/tobas_mr_actions/common.hpp"
+
 using namespace std;
 
-class MoveActionServerNode : public tobas::BaseNode
+namespace tobas_mr_actions
 {
-  static constexpr double kUpdateRate = 100.;  // [Hz]
-
-  using self = MoveActionServerNode;
+class MoveServerNode : public tobas::BaseNode
+{
+  using self = MoveServerNode;
   using super = tobas::BaseNode;
   using ActionType = tobas_msgs::action::Move;
 
 public:
-  explicit MoveActionServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit MoveServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_msgs::PosVelAccYaw cmd_;
+  CommandType cmd_;
 
-  PublisherPtr<tobas_msgs::PosVelAccYaw> cmd_pub_;
+  PublisherPtr<CommandType> cmd_pub_;
   SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
@@ -47,9 +48,9 @@ private:
   void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-MoveActionServerNode::MoveActionServerNode(const rclcpp::NodeOptions& options) : super("move_action_server", options)
+MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_move_action_server", options)
 {
-  cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
 
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
@@ -57,7 +58,7 @@ MoveActionServerNode::MoveActionServerNode(const rclcpp::NodeOptions& options) :
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
 }
 
-bool MoveActionServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos)
+bool MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos)
 {
   // XY軸
   // FIXME: 平面近似誤差が無視できない場合は目標地点の経緯度を基準にするなどの工夫が必要
@@ -90,18 +91,18 @@ bool MoveActionServerNode::computeGoalPosition(const ActionType::Goal::ConstShar
   return true;
 }
 
-void MoveActionServerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void MoveServerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }
 
-void MoveActionServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void MoveServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }
 
 rclcpp_action::GoalResponse
-MoveActionServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
+MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
   if (goal->target_latitude < -90 || 90 < goal->target_latitude)
   {
@@ -130,12 +131,12 @@ MoveActionServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goa
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse MoveActionServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
+rclcpp_action::CancelResponse MoveServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
 {
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void MoveActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
+void MoveServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Moving action is executing.");
 
@@ -188,7 +189,7 @@ void MoveActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  rclcpp::Rate rate(kUpdateRate);
+  rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok())
   {
     // 開始からの経過時間を計算
@@ -225,7 +226,7 @@ void MoveActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
     traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), cmd_.acc.z());
 
     // コマンドを発行
-    auto cmd_ptr = std::make_unique<tobas_msgs::PosVelAccYaw>(cmd_);
+    auto cmd_ptr = std::make_unique<CommandType>(cmd_);
     cmd_pub_->publish(move(cmd_ptr));
 
     // フィードバックを発行
@@ -251,5 +252,6 @@ void MoveActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
     rate.sleep();
   }
 }
+}  // namespace tobas_mr_actions
 
-RCLCPP_COMPONENTS_REGISTER_NODE(MoveActionServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_mr_actions::MoveServerNode)

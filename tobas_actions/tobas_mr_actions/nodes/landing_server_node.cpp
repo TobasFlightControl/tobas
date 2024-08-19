@@ -5,32 +5,34 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/action/land.hpp>
 
+#include "../include/tobas_mr_actions/common.hpp"
+
 using namespace std;
 
-class LandActionServerNode : public tobas::BaseNode
+namespace tobas_mr_actions
 {
-  static constexpr double kUpdateRate = 100.;           // [Hz]
+class LandServerNode : public tobas::BaseNode
+{
   static constexpr double kVerticalSpeed = 0.3;         // [m/s]
   static constexpr double kTimeWindow = 5.;             // [s] 高度の変化を見る時間窓の長さ
   static constexpr double kStableAltitudeRange = 0.03;  // [m]
 
-  using self = LandActionServerNode;
+  using self = LandServerNode;
   using super = tobas::BaseNode;
   using ActionType = tobas_msgs::action::Land;
 
 public:
-  explicit LandActionServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit LandServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_std::TimestampedBuffer<double> alt_buf_;
-  tobas_msgs::PosVelAccYaw cmd_;
+  CommandType cmd_;
 
-  PublisherPtr<tobas_msgs::PosVelAccYaw> cmd_pub_;
+  PublisherPtr<CommandType> cmd_pub_;
   ActionPtr<ActionType> as_;
 
   bool disarmRotors();
@@ -42,14 +44,14 @@ private:
   void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-LandActionServerNode::LandActionServerNode(const rclcpp::NodeOptions& options)
-  : super("land_action_server", options), alt_buf_(kTimeWindow)
+LandServerNode::LandServerNode(const rclcpp::NodeOptions& options)
+  : super("mr_land_action_server", options), alt_buf_(kTimeWindow)
 {
-  cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
 }
 
-bool LandActionServerNode::disarmRotors()
+bool LandServerNode::disarmRotors()
 {
   ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
 
@@ -71,7 +73,7 @@ bool LandActionServerNode::disarmRotors()
   return true;
 }
 
-void LandActionServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void LandServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   if (odom->status != tobas_msgs::msg::Odometry::NO_ERROR)
     return;
@@ -84,18 +86,17 @@ void LandActionServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& od
   alt_buf_.add(cur_time, altitude);
 }
 
-rclcpp_action::GoalResponse
-LandActionServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr)
+rclcpp_action::GoalResponse LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr)
 {
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse LandActionServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
+rclcpp_action::CancelResponse LandServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
 {
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void LandActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
+void LandServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Landing action is executing.");
 
@@ -125,7 +126,7 @@ void LandActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 高度チェック
-  rclcpp::Rate rate(kUpdateRate);
+  rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok())
   {
     if (alt_buf_.isFilled())
@@ -163,7 +164,7 @@ void LandActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
     cmd_.yaw = start_yaw;
 
     // コマンドを発行
-    const auto cmd_ptr = std::make_unique<tobas_msgs::PosVelAccYaw>(cmd_);
+    const auto cmd_ptr = std::make_unique<CommandType>(cmd_);
     cmd_pub_->publish(move(cmd_));
 
     // アクション中止の場合は目標速度・加速度を0にして終了
@@ -182,5 +183,6 @@ void LandActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
     rate.sleep();
   }
 }
+}  // namespace tobas_mr_actions
 
-RCLCPP_COMPONENTS_REGISTER_NODE(LandActionServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_mr_actions::LandServerNode)

@@ -4,33 +4,34 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/action/takeoff.hpp>
 
+#include "../include/tobas_mr_actions/common.hpp"
+
 using namespace std;
 
+namespace tobas_mr_actions
+{
 /**
  * @brief マルチコプターの離陸指令を発行するアクションサーバ．
  * X,Y,Yawをアクション開始時の値に保ったままZのみを増やしていく．
  * cf. https://docs.px4.io/main/en/flight_modes/takeoff.html
  */
-class TakeoffActionServerNode : public tobas::BaseNode
+class TakeoffServerNode : public tobas::BaseNode
 {
-  static constexpr double kUpdateRate = 100.;  // [Hz]
-
-  using self = TakeoffActionServerNode;
+  using self = TakeoffServerNode;
   using super = tobas::BaseNode;
   using ActionType = tobas_msgs::action::Takeoff;
 
 public:
-  explicit TakeoffActionServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit TakeoffServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_msgs::PosVelAccYaw cmd_;
+  CommandType cmd_;
 
-  PublisherPtr<tobas_msgs::PosVelAccYaw> cmd_pub_;
+  PublisherPtr<CommandType> cmd_pub_;
   SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   ActionPtr<ActionType> as_;
@@ -44,16 +45,16 @@ private:
   void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-TakeoffActionServerNode::TakeoffActionServerNode(const rclcpp::NodeOptions& options)
-  : super("takeoff_action_server", options)
+TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options)
+  : super("mr_takeoff_action_server", options)
 {
-  cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
 }
 
-bool TakeoffActionServerNode::armRotors()
+bool TakeoffServerNode::armRotors()
 {
   ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
 
@@ -75,13 +76,13 @@ bool TakeoffActionServerNode::armRotors()
   return true;
 }
 
-void TakeoffActionServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void TakeoffServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
 }
 
 rclcpp_action::GoalResponse
-TakeoffActionServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
+TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr goal)
 {
   if (goal->target_altitude <= 0)
   {
@@ -104,12 +105,12 @@ TakeoffActionServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse TakeoffActionServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
+rclcpp_action::CancelResponse TakeoffServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
 {
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void TakeoffActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
+void TakeoffServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Takeoff action is called.");
 
@@ -148,7 +149,7 @@ void TakeoffActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goa
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  rclcpp::Rate rate(kUpdateRate);
+  rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok())
   {
     // 開始からの経過時間を計算
@@ -187,7 +188,7 @@ void TakeoffActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goa
     traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), cmd_.acc.z());
 
     // コマンドを発行
-    auto cmd_ptr = std::make_unique<tobas_msgs::PosVelAccYaw>(cmd_);
+    auto cmd_ptr = std::make_unique<CommandType>(cmd_);
     cmd_pub_->publish(move(cmd_ptr));
 
     // アクション中止の場合は目標速度・加速度を0にして終了
@@ -206,5 +207,6 @@ void TakeoffActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goa
     rate.sleep();
   }
 }
+}  // namespace tobas_mr_actions
 
-RCLCPP_COMPONENTS_REGISTER_NODE(TakeoffActionServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_mr_actions::TakeoffServerNode)
