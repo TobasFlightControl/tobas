@@ -154,7 +154,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
   cmd_sub_ = createSubscriber(tobas::kSpeedRollDpitchCmdTopic, &self::commandCb, this);
 }
 

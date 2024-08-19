@@ -138,7 +138,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   if (drone_.isTransformable())
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
   cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
 }
 
