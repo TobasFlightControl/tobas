@@ -33,9 +33,6 @@ private:
   CommandType cmd_;
 
   PublisherPtr<CommandType> cmd_pub_;
-  SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-
   ActionPtr<ActionType> as_;
 
   bool computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos);
@@ -51,10 +48,6 @@ private:
 MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_move_action_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
-
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
 }
 
@@ -142,6 +135,11 @@ void MoveServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
+
+  // 一時的にトピックを購読
+  const auto arming_sub = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
+  const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  rclcpp::spin_all(shared_from_this(), kWaitForTopic);
 
   // Check if rotors are armed
   if (arming_ == nullptr || !arming_->data)

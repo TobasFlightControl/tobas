@@ -32,8 +32,6 @@ private:
   CommandType cmd_;
 
   PublisherPtr<CommandType> cmd_pub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-
   ActionPtr<ActionType> as_;
 
   bool armRotors();
@@ -45,12 +43,9 @@ private:
   void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options)
-  : super("mr_takeoff_action_server", options)
+TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("mr_takeoff_action_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
 }
 
@@ -116,6 +111,10 @@ void TakeoffServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_hand
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
+
+  // 一時的にトピックを購読
+  const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  rclcpp::spin_all(shared_from_this(), kWaitForTopic);
 
   // Check odometry
   if (odom_ == nullptr)

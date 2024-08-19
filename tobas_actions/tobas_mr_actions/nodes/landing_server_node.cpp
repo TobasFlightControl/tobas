@@ -107,11 +107,11 @@ void LandServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
   odom_ = nullptr;
   alt_buf_.clear();
 
-  // 一時的にオドメトリの購読を開始
+  // 一時的にトピックを購読
   const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  rclcpp::spin_all(shared_from_this(), kWaitForTopic);
 
   // オドメトリが発行されていることを確認
-  rclcpp::spin_some(shared_from_this());
   if (odom_ == nullptr)
   {
     result->message = "Odometry is not received yet.";
