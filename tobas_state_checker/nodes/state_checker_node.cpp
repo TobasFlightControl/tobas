@@ -100,6 +100,7 @@ void StateCheckerNode::requestDisarmingRotors()
   ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
+  req->arming = false;
   if (!sc.call(req))
   {
     TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");

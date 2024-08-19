@@ -139,6 +139,7 @@ void MoveActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
 {
   TOBAS_INFO("Moving action is executing.");
 
+  // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
   // Check if rotors are armed

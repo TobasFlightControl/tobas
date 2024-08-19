@@ -51,16 +51,17 @@ LandActionServerNode::LandActionServerNode(const rclcpp::NodeOptions& options)
 
 bool LandActionServerNode::disarmRotors()
 {
-  ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> set_arm_sc(shared_from_this(), tobas::kSetArmSrv);
+  ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  if (!set_arm_sc.call(req))
+  req->arming = false;
+  if (!sc.call(req))
   {
     TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");
     return false;
   }
 
-  const auto& res = set_arm_sc.getResponse();
+  const auto& res = sc.getResponse();
   if (!res->success)
   {
     TOBAS_ERROR("Failed to disarm rotors: ", res->message);
@@ -98,6 +99,7 @@ void LandActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_h
 {
   TOBAS_INFO("Landing action is executing.");
 
+  // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
   // ベース状態のデータを初期化

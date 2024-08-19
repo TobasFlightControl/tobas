@@ -12,8 +12,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_kdl REQUIRED)
+find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_constants REQUIRED)
