@@ -44,7 +44,7 @@ private:
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ActionGoalHandlePtr<ActionType> goal_handle);
-  void execute(ActionGoalHandlePtr<ActionType> goal_handle);
+  void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 MoveActionServerNode::MoveActionServerNode(const rclcpp::NodeOptions& options) : super("move_action_server", options)
@@ -54,7 +54,7 @@ MoveActionServerNode::MoveActionServerNode(const rclcpp::NodeOptions& options) :
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
-  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
+  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
 }
 
 bool MoveActionServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos)
@@ -135,7 +135,7 @@ rclcpp_action::CancelResponse MoveActionServerNode::handleCancel(ActionGoalHandl
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void MoveActionServerNode::execute(ActionGoalHandlePtr<ActionType> goal_handle)
+void MoveActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Moving action is executing.");
 

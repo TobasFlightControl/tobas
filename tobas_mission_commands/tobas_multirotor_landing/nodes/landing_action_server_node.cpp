@@ -39,14 +39,14 @@ private:
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ActionGoalHandlePtr<ActionType> goal_handle);
-  void execute(ActionGoalHandlePtr<ActionType> goal_handle);
+  void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 LandActionServerNode::LandActionServerNode(const rclcpp::NodeOptions& options)
   : super("land_action_server", options), alt_buf_(kTimeWindow)
 {
   cmd_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
-  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
+  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
 }
 
 bool LandActionServerNode::disarmRotors()
@@ -94,7 +94,7 @@ rclcpp_action::CancelResponse LandActionServerNode::handleCancel(ActionGoalHandl
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void LandActionServerNode::execute(ActionGoalHandlePtr<ActionType> goal_handle)
+void LandActionServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Landing action is executing.");
 

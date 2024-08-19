@@ -98,7 +98,7 @@ protected:
     rclcpp_action::GoalResponse (
       Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
     rclcpp_action::CancelResponse (Obj::*handle_cancel)(ActionGoalHandlePtr<ActionType>),
-    void (Obj::*execute)(ActionGoalHandlePtr<ActionType>),
+    void (Obj::*handle_accepted)(ActionGoalHandlePtr<ActionType>),
     Obj* obj);
 
   template <typename RepType, typename DurType, typename Obj>
@@ -260,20 +260,12 @@ BaseNode::ActionPtr<ActionType> BaseNode::createAction(
   rclcpp_action::GoalResponse (
     Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
   rclcpp_action::CancelResponse (Obj::*handle_cancel)(ActionGoalHandlePtr<ActionType>),
-  void (Obj::*execute)(ActionGoalHandlePtr<ActionType>),
+  void (Obj::*handle_accepted)(ActionGoalHandlePtr<ActionType>),
   Obj* obj)
 {
-  auto handle_accepted = [obj, execute](ActionGoalHandlePtr<ActionType> goal_handle)
-  {
-    // This needs to return quickly to avoid blocking the executor.
-    // So we declare a lambda function to be called inside a new thread.
-    auto execute_in_thread = [obj, execute, goal_handle]() { return (obj->*execute)(goal_handle); };
-    std::thread{ execute_in_thread }.detach();
-  };
-
   return rclcpp_action::create_server<ActionType>(
     obj, action_name, std::bind(handle_goal, obj, std::placeholders::_1, std::placeholders::_2),
-    std::bind(handle_cancel, obj, std::placeholders::_1), handle_accepted);
+    std::bind(handle_cancel, obj, std::placeholders::_1), std::bind(handle_accepted, obj, std::placeholders::_1));
 }
 
 template <typename RepType, typename DurationT, typename Obj>
