@@ -70,16 +70,24 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 
 Rotation Rotation::RPY(double roll, double pitch, double yaw)
 {
-  double ca1, cb1, cc1, sa1, sb1, sc1;
-  ca1 = cos(yaw);
-  sa1 = sin(yaw);
-  cb1 = cos(pitch);
-  sb1 = sin(pitch);
-  cc1 = cos(roll);
-  sc1 = sin(roll);
-  return Rotation(
-    ca1 * cb1, ca1 * sb1 * sc1 - sa1 * cc1, ca1 * sb1 * cc1 + sa1 * sc1, sa1 * cb1, sa1 * sb1 * sc1 + ca1 * cc1,
-    sa1 * sb1 * cc1 - ca1 * sc1, -sb1, cb1 * sc1, cb1 * cc1);
+  const auto ca = cos(yaw);
+  const auto sa = sin(yaw);
+  const auto cb = cos(pitch);
+  const auto sb = sin(pitch);
+  const auto cc = cos(roll);
+  const auto sc = sin(roll);
+
+  const auto xx = ca * cb;
+  const auto yx = ca * sb * sc - sa * cc;
+  const auto zx = ca * sb * cc + sa * sc;
+  const auto xy = sa * cb;
+  const auto yy = sa * sb * sc + ca * cc;
+  const auto zy = sa * sb * cc - ca * sc;
+  const auto xz = -sb;
+  const auto yz = cb * sc;
+  const auto zz = cb * cc;
+
+  return Rotation(xx, yx, zx, xy, yy, zy, xz, yz, zz);
 }
 
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
