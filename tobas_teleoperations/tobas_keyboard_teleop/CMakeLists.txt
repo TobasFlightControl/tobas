@@ -22,6 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(tobas_path_tools REQUIRED)
 find_package(tobas_keyboard REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
@@ -33,24 +34,34 @@ find_package(tobas_drone_msgs REQUIRED)
 include_directories(include)
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-set(targets_to_install "")
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME}_node
+  sensor_msgs
+  tobas_path_tools
+  tobas_keyboard
+  tobas_ros2_tools
+  tobas_node
+  tobas_constants
+  tobas_msgs
+  tobas_drone_tools
+  tobas_drone_msgs
+)
+rclcpp_components_register_node(${PROJECT_NAME}_node
+  PLUGIN "tobas_keyboard_teleop::PositionYawPublisherNode"
+  EXECUTABLE position_yaw_publiser
+)
+rclcpp_components_register_node(${PROJECT_NAME}_node
+  PLUGIN "tobas_keyboard_teleop::SpeedRollDeltaPitchPublisherNode"
+  EXECUTABLE speed_roll_dpitch_publisher
+)
 
-foreach(FILE IN LISTS NODE_CPP_FILES)
-  get_filename_component(NAME ${FILE} NAME_WE)
-  add_executable(${NAME} ${FILE})
-  ament_target_dependencies(${NAME}
-    sensor_msgs
-    tobas_keyboard
-    tobas_ros2_tools
-    tobas_node
-    tobas_constants
-    tobas_msgs
-    tobas_drone_tools
-    tobas_drone_msgs
-  )
-  list(APPEND targets_to_install ${NAME})
-endforeach()
-
-install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
+install(
+  TARGETS ${PROJECT_NAME}_node
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
 
 ament_package()

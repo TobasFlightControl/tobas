@@ -13,6 +13,7 @@
   {                                                                                                                    \
     TOBAS_FATAL(__VA_ARGS__);                                                                                          \
     rclcpp::shutdown();                                                                                                \
+    return;                                                                                                            \
   }
 
 /* リリースモードでも機能するアサーション．ほとんど失敗し得ない操作の成否を一応確認するために使う． */
@@ -22,6 +23,7 @@
     {                                                                                                                  \
       TOBAS_FATAL("Assertion failed: ", __FILE__, ": ", __LINE__);                                                     \
       rclcpp::shutdown();                                                                                              \
+      return;                                                                                                          \
     }                                                                                                                  \
   }
 
@@ -215,7 +217,7 @@ private:
 
 inline std::string BaseNode::ns() const
 {
-  return std::string(get_namespace()) + "/";
+  return std::string(get_namespace());
 }
 
 inline std::string BaseNode::name() const

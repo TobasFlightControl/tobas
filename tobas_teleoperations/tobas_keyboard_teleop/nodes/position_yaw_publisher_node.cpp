@@ -20,7 +20,6 @@
 #define TAKEOFF_DURATION 5.             // [s]
 
 using namespace std;
-using namespace chrono;
 
 namespace tobas_keyboard_teleop
 {
@@ -40,13 +39,19 @@ class PositionYawPublisherNode : public tobas::BaseNode
   static constexpr double kDefaultMinimumYaw = -M_PI;           // [rad]
   static constexpr double kDefaultMaximumYaw = M_PI;            // [rad]
 
+  static constexpr char kInstruction[] = "Control your drone!\n"
+                                         "---------------------------\n"
+                                         "W/S       : Move in the positive/negative direction along X-axis in WCSs\n"
+                                         "A/D       : Move in the positive/negative direction along Y-axis in WCSs\n"
+                                         "Up/Down   : Move in the positive/negative direction along Z-axis in WCSs\n"
+                                         "Left/Right: Turn left/right along Z-axis in WCSs\n"
+                                         "Ctrl-C    : Quit\n";
+
   using self = PositionYawPublisherNode;
   using super = tobas::BaseNode;
 
 public:
   explicit PositionYawPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-
-  void run();
 
 private:
   keyboard::KeyboardReader key_reader_;
@@ -55,7 +60,6 @@ private:
   double cmd_yaw_;
 
   // 固定値
-  std::string instruction_;
   double delta_pos_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;  // 1度のキーボード入力での回転位置の変化量
 
@@ -71,20 +75,20 @@ private:
   PublisherPtr<tobas_msgs::PositionYaw> pos_yaw_pub_;
   PublisherPtr<tobas_msgs::PosVelAccYaw> pvay_pub_;
 
+  // Timers
+  TimerPtr process_timer_;
+  TimerPtr instruction_timer_;
+
   void getStaticRosParams();
+
+  void initializeTimerCb();
+  void mainTimerCb();
+  void instructionTimerCb();
 };
 
 PositionYawPublisherNode::PositionYawPublisherNode(const rclcpp::NodeOptions& options)
   : super("position_yaw_publiser", options)
 {
-  instruction_ = "Control your drone!\n"
-                 "---------------------------\n"
-                 "W/S       : Move in the positive/negative direction along X-axis in WCSs\n"
-                 "A/D       : Move in the positive/negative direction along Y-axis in WCSs\n"
-                 "Up/Down   : Move in the positive/negative direction along Z-axis in WCSs\n"
-                 "Left/Right: Turn left/right along Z-axis in WCSs\n"
-                 "Ctrl-C    : Quit\n";
-
   getStaticRosParams();
 
   const auto repeat_interval = keyboard::getKeyboardRepeatInterval();
@@ -93,130 +97,8 @@ PositionYawPublisherNode::PositionYawPublisherNode(const rclcpp::NodeOptions& op
 
   pos_yaw_pub_ = createPublisher<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic);
   pvay_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
-}
 
-void PositionYawPublisherNode::run()
-{
-  // 離陸アクションクライアントを用意
-  ros2::SimpleActionClient<tobas_msgs::action::Takeoff> takeoff_ac(shared_from_this(), tobas::kTakeoffAction);
-  TOBAS_INFO("Waiting for '", tobas::kTakeoffAction, "' action server.");
-
-  // 離陸
-  TOBAS_INFO("Requesting takeoff_ac action.");
-  tobas_msgs::action::Takeoff::Goal takeoff_goal;
-  takeoff_goal.level.data = tobas_msgs::msg::CommandLevel::NORMAL;
-  takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
-  takeoff_goal.altitude_tolerance = TAKEOFF_ALTITUDE_TOLERANCE;
-  takeoff_goal.duration = TAKEOFF_DURATION;
-  takeoff_ac.sendGoalAndWait(takeoff_goal);
-  const auto takeoff_result = takeoff_ac.getResult();
-  if (takeoff_result.code != rclcpp_action::ResultCode::SUCCEEDED)
-  {
-    TOBAS_ERROR("Takeoff action failed: ", takeoff_result.result->message);
-    return;
-  }
-  TOBAS_INFO("Takeoff finished successfully.");
-
-  // 初期コマンドを設定
-  tobas_msgs::Odometry odom;
-  if (
-    rclcpp::wait_for_message(odom, shared_from_this(), tobas::kOdometryTopic)
-    && odom.status == tobas_msgs::msg::Odometry::NO_ERROR)
-  {
-    cmd_pos_ = odom.frame.p;
-    cmd_yaw_ = kdl::Euler(odom.frame.M).yaw;
-  }
-  else
-  {
-    TOBAS_ERROR("Failed to get ", tobas::kOdometryTopic, ".");
-    cmd_pos_.x() = 0;
-    cmd_pos_.y() = 0;
-    cmd_pos_.z() = takeoff_goal.target_altitude;
-    cmd_yaw_ = 0;
-  }
-
-  // キーボード入力による位置コマンドを発行し続ける
-  rclcpp::Rate rate(rclcpp::Duration::from_nanoseconds(duration_cast<nanoseconds>(kCommandPeriod).count()));
-  while (rclcpp::ok())
-  {
-    // インストラクション
-    TOBAS_INFO_THROTTLE(kInstructionTimerPeriod.count(), instruction_);
-
-    // キーボード入力に依ってコマンドを更新
-    const auto c = key_reader_.readKey();
-    if (c < 0)
-      TOBAS_ERROR("Failed to read keyboard.");
-
-    switch (c)
-    {
-      case 'w':  // X+
-      {
-        cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() + delta_pos_));
-        TOBAS_INFO("[Moving forward] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-      case 's':  // X-
-      {
-        cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() - delta_pos_));
-        TOBAS_INFO("[Moving backward] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-      case 'a':  // Y+
-      {
-        cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() + delta_pos_));
-        TOBAS_INFO("[Moving left] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-      case 'd':  // Y-
-      {
-        cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() - delta_pos_));
-        TOBAS_INFO("[Moving right] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-      case keyboard::UP:  // Z+
-      {
-        cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() + delta_pos_));
-        TOBAS_INFO("[Moving up] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-      case keyboard::DOWN:  // Z-
-      {
-        cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() - delta_pos_));
-        TOBAS_INFO("[Moving down] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-      case keyboard::LEFT:  // Yaw+
-      {
-        cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ + delta_rot_);
-        TOBAS_INFO("[Rotating left] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-      case keyboard::RIGHT:  // Yaw-
-      {
-        cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ - delta_rot_);
-        TOBAS_INFO("[Rotating right] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
-        break;
-      }
-    }
-
-    // コマンドを発行
-    auto pos_yaw_msg = std::make_unique<tobas_msgs::PositionYaw>();
-    pos_yaw_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
-    pos_yaw_msg->pos = cmd_pos_;
-    pos_yaw_msg->yaw = cmd_yaw_;
-    pos_yaw_pub_->publish(move(pos_yaw_msg));
-
-    auto pvay_msg = std::make_unique<tobas_msgs::PosVelAccYaw>();
-    pvay_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
-    pvay_msg->pos = cmd_pos_;
-    pvay_msg->vel.setZero();
-    pvay_msg->acc.setZero();
-    pvay_msg->yaw = cmd_yaw_;
-    pvay_pub_->publish(move(pvay_msg));
-
-    rclcpp::spin_some(shared_from_this());
-    rate.sleep();
-  }
+  process_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
 }
 
 void PositionYawPublisherNode::getStaticRosParams()
@@ -240,11 +122,135 @@ void PositionYawPublisherNode::getStaticRosParams()
   TOBAS_ASSERT(z_limit_.isValid());
   TOBAS_ASSERT(yaw_limit_.isValid());
 }
+
+void PositionYawPublisherNode::initializeTimerCb()
+{
+  // 離陸アクションクライアントを用意
+  ros2::SimpleActionClient<tobas_msgs::action::Takeoff> takeoff_ac(shared_from_this(), tobas::kTakeoffAction);
+
+  // 離陸
+  TOBAS_INFO("Requesting takeoff_ac action.");
+  tobas_msgs::action::Takeoff::Goal takeoff_goal;
+  takeoff_goal.level.data = tobas_msgs::msg::CommandLevel::NORMAL;
+  takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
+  takeoff_goal.altitude_tolerance = TAKEOFF_ALTITUDE_TOLERANCE;
+  takeoff_goal.duration = TAKEOFF_DURATION;
+  if (!takeoff_ac.sendGoalAndWait(takeoff_goal))
+    TOBAS_EXIT("Takeoff action failed.");
+  const auto takeoff_result = takeoff_ac.getResult();
+  if (takeoff_result.code != rclcpp_action::ResultCode::SUCCEEDED)
+    TOBAS_EXIT("Takeoff action failed: ", takeoff_result.result->message);
+  TOBAS_INFO("Takeoff finished successfully.");
+
+  // 初期コマンドを設定
+  tobas_msgs::Odometry odom;
+  if (
+    rclcpp::wait_for_message(odom, shared_from_this(), tobas::kOdometryTopic)
+    && odom.status == tobas_msgs::msg::Odometry::NO_ERROR)
+  {
+    cmd_pos_ = odom.frame.p;
+    cmd_yaw_ = kdl::Euler(odom.frame.M).yaw;
+  }
+  else
+  {
+    TOBAS_ERROR("Failed to get ", tobas::kOdometryTopic, ".");
+    cmd_pos_.x() = 0;
+    cmd_pos_.y() = 0;
+    cmd_pos_.z() = takeoff_goal.target_altitude;
+    cmd_yaw_ = 0;
+  }
+
+  // メインプロセスに以降
+  process_timer_->cancel();
+  process_timer_ = createTimer(kCommandPeriod, &self::mainTimerCb, this);
+
+  // インストラクションの表示を開始
+  cout << kInstruction << endl;
+  instruction_timer_ = createTimer(kInstructionTimerPeriod, &self::instructionTimerCb, this);
+}
+
+void PositionYawPublisherNode::mainTimerCb()
+{
+  // キーボード入力に依ってコマンドを更新
+  const auto c = key_reader_.readKey();
+  if (c < 0)
+  {
+    TOBAS_ERROR("Failed to read keyboard.");
+    return;
+  }
+
+  switch (c)
+  {
+    case 'w':  // X+
+    {
+      cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() + delta_pos_));
+      TOBAS_INFO("[Moving forward] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+    case 's':  // X-
+    {
+      cmd_pos_.x(x_limit_.clamp(cmd_pos_.x() - delta_pos_));
+      TOBAS_INFO("[Moving backward] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+    case 'a':  // Y+
+    {
+      cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() + delta_pos_));
+      TOBAS_INFO("[Moving left] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+    case 'd':  // Y-
+    {
+      cmd_pos_.y(y_limit_.clamp(cmd_pos_.y() - delta_pos_));
+      TOBAS_INFO("[Moving right] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+    case keyboard::UP:  // Z+
+    {
+      cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() + delta_pos_));
+      TOBAS_INFO("[Moving up] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+    case keyboard::DOWN:  // Z-
+    {
+      cmd_pos_.z(z_limit_.clamp(cmd_pos_.z() - delta_pos_));
+      TOBAS_INFO("[Moving down] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+    case keyboard::LEFT:  // Yaw+
+    {
+      cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ + delta_rot_);
+      TOBAS_INFO("[Rotating left] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+    case keyboard::RIGHT:  // Yaw-
+    {
+      cmd_yaw_ = yaw_limit_.clamp(cmd_yaw_ - delta_rot_);
+      TOBAS_INFO("[Rotating right] pos[m]: ", cmd_pos_, ", yaw[rad]: ", cmd_yaw_);
+      break;
+    }
+  }
+
+  // コマンドを発行
+  auto pos_yaw_msg = std::make_unique<tobas_msgs::PositionYaw>();
+  pos_yaw_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
+  pos_yaw_msg->pos = cmd_pos_;
+  pos_yaw_msg->yaw = cmd_yaw_;
+  pos_yaw_pub_->publish(move(pos_yaw_msg));
+
+  auto pvay_msg = std::make_unique<tobas_msgs::PosVelAccYaw>();
+  pvay_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
+  pvay_msg->pos = cmd_pos_;
+  pvay_msg->vel.setZero();
+  pvay_msg->acc.setZero();
+  pvay_msg->yaw = cmd_yaw_;
+  pvay_pub_->publish(move(pvay_msg));
+}
+
+void PositionYawPublisherNode::instructionTimerCb()
+{
+  cout << kInstruction << endl;
+}
 }  // namespace tobas_keyboard_teleop
 
-int main(int argc, char* argv[])
-{
-  rclcpp::init(argc, argv);
-  tobas_keyboard_teleop::PositionYawPublisherNode node;
-  node.run();
-}
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_keyboard_teleop::PositionYawPublisherNode)

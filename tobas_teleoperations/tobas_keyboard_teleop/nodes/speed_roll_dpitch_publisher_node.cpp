@@ -1,6 +1,7 @@
 #include <sensor_msgs/msg/fluid_pressure.hpp>
 
 #include <tobas_algorithm/core.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_keyboard/utils.hpp>
@@ -8,12 +9,14 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_tools/fw_trim_conditions.hpp>
+
+#include <tobas_kdl_msgs/Tree.hpp>
+#include <tobas_drone_msgs/Drone.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
 using namespace std;
-using namespace chrono;
 
 namespace tobas_keyboard_teleop
 {
@@ -27,13 +30,18 @@ class SpeedRollDeltaPitchPublisherNode : public tobas::BaseNode
   static constexpr double kDefaultMaximumRoll = M_PI_2;
   static constexpr double kDefaultMaximumDeltaPitch = M_PI_4;
 
+  static constexpr char kInstruction[] = "Control your drone!\n"
+                                         "---------------------------\n"
+                                         "W/S       : Increase/Decrease speed\n"
+                                         "Up/Down   : Nose up/down\n"
+                                         "Left/Right: Turn left/right\n"
+                                         "Ctrl-C    : Quit\n";
+
   using self = SpeedRollDeltaPitchPublisherNode;
   using super = tobas::BaseNode;
 
 public:
   explicit SpeedRollDeltaPitchPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-
-  void run();
 
 private:
   tobas::Drone drone_;
@@ -43,7 +51,6 @@ private:
   keyboard::KeyboardReader key_reader_;
 
   // 固定値
-  std::string instruction_;
   kdl::JntArray q_0_;
   double delta_speed_;  // 1度のキーボード入力での並進位置の変化量
   double delta_rot_;    // 1度のキーボード入力での回転位置の変化量
@@ -69,6 +76,7 @@ private:
   SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
 
   // Timer
+  TimerPtr process_timer_;
   TimerPtr check_topics_timer_;
   TimerPtr instruction_timer_;
 
@@ -79,6 +87,7 @@ private:
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg);
 
+  void mainTimerCb();
   void checkTopicsTimerCb();
   void instructionTimerCb();
 };
@@ -86,13 +95,6 @@ private:
 SpeedRollDeltaPitchPublisherNode::SpeedRollDeltaPitchPublisherNode(const rclcpp::NodeOptions& options)
   : super("speed_roll_dpitch_publisher", options), trim_(drone_, tree_)
 {
-  instruction_ = "Control your drone!\n"
-                 "---------------------------\n"
-                 "W/S       : Increase/Decrease speed\n"
-                 "Up/Down   : Nose up/down\n"
-                 "Left/Right: Turn left/right\n"
-                 "Ctrl-C    : Quit\n";
-
   getStaticRosParams();
 
   const auto repeat_interval = keyboard::getKeyboardRepeatInterval();
@@ -105,92 +107,10 @@ SpeedRollDeltaPitchPublisherNode::SpeedRollDeltaPitchPublisherNode(const rclcpp:
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true);
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
 
+  process_timer_ = createTimer(kCommandPeriod, &self::mainTimerCb, this);
   check_topics_timer_ = createTimer(kCheckTopicsTimerPeriod, &self::checkTopicsTimerCb, this);
-  instruction_timer_ = createTimer(kInstructionTimerPeriod, &self::instructionTimerCb, this);
 
-  instruction_timer_->cancel();
-}
-
-void SpeedRollDeltaPitchPublisherNode::run()
-{
-  // TODO: 離陸アクションを呼ぶ or Arming
-  // TODO: 終了時にDisarming
-
-  rclcpp::Rate rate(rclcpp::Duration::from_nanoseconds(duration_cast<nanoseconds>(kCommandPeriod).count()));
-
-  while (rclcpp::ok())
-  {
-    if (!is_initialized_)
-    {
-      if (drone_received_ && tree_received_ && pressure_received_)
-      {
-        check_topics_timer_->cancel();
-        initialize();
-        is_initialized_ = true;
-      }
-      rclcpp::spin_some(shared_from_this());
-      rate.sleep();
-      continue;
-    }
-
-    if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
-    {
-      TOBAS_ERROR(trim_.errorMessage());
-      continue;
-    }
-
-    // コマンドを更新
-    const auto c = key_reader_.readKey();
-    if (c < 0)
-      TOBAS_ERROR("Failed to read keyboard.");
-
-    switch (c)
-    {
-      case 'w':
-      {
-        cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
-        TOBAS_INFO("Increase speed");
-        break;
-      }
-      case 's':
-      {
-        cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
-        TOBAS_INFO("Decrease speed");
-        break;
-      }
-      case keyboard::UP:
-      {
-        cmd_.delta_pitch = clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        TOBAS_INFO("Nose up");
-        break;
-      }
-      case keyboard::DOWN:
-      {
-        cmd_.delta_pitch = clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
-        TOBAS_INFO("Nose down");
-        break;
-      }
-      case keyboard::LEFT:
-      {
-        cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
-        TOBAS_INFO("Turn left");
-        break;
-      }
-      case keyboard::RIGHT:
-      {
-        cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
-        TOBAS_INFO("Turn right");
-        break;
-      }
-    }
-
-    // コマンドを発行
-    auto cmd_ptr = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
-    cmd_pub_->publish(move(cmd_ptr));
-
-    rclcpp::spin_some(shared_from_this());
-    rate.sleep();
-  }
+  // TODO: メインプロセスを起動する前に離陸アクションを呼ぶ or Arming
 }
 
 void SpeedRollDeltaPitchPublisherNode::getStaticRosParams()
@@ -215,9 +135,9 @@ void SpeedRollDeltaPitchPublisherNode::initialize()
   cmd_.roll = 0.;
   cmd_.delta_pitch = 0.;
 
-  // インストラクションを開始
-  instruction_timer_->reset();
-  TOBAS_INFO(instruction_);
+  // インストラクションの表示を開始
+  cout << kInstruction << endl;
+  instruction_timer_ = createTimer(kInstructionTimerPeriod, &self::instructionTimerCb, this);
 }
 
 void SpeedRollDeltaPitchPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -238,27 +158,91 @@ void SpeedRollDeltaPitchPublisherNode::airPressureCb(const sensor_msgs::msg::Flu
   pressure_received_ = true;
 }
 
+void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
+{
+  if (!is_initialized_)
+  {
+    if (drone_received_ && tree_received_ && pressure_received_)
+    {
+      check_topics_timer_->cancel();
+      initialize();
+      is_initialized_ = true;
+    }
+    return;
+  }
+
+  if (trim_.update(cmd_.speed, air_density_, q_0_) < 0)
+  {
+    TOBAS_ERROR(trim_.errorMessage());
+    return;
+  }
+
+  // コマンドを更新
+  const auto c = key_reader_.readKey();
+  if (c < 0)
+    TOBAS_ERROR("Failed to read keyboard.");
+
+  switch (c)
+  {
+    case 'w':
+    {
+      cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed + delta_speed_);
+      TOBAS_INFO("Increase speed");
+      break;
+    }
+    case 's':
+    {
+      cmd_.speed = trim_.speedLimit(air_density_).clamp(cmd_.speed - delta_speed_);
+      TOBAS_INFO("Decrease speed");
+      break;
+    }
+    case keyboard::UP:
+    {
+      cmd_.delta_pitch = clamp(cmd_.delta_pitch - delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+      TOBAS_INFO("Nose up");
+      break;
+    }
+    case keyboard::DOWN:
+    {
+      cmd_.delta_pitch = clamp(cmd_.delta_pitch + delta_rot_, -max_delta_pitch_, max_delta_pitch_);
+      TOBAS_INFO("Nose down");
+      break;
+    }
+    case keyboard::LEFT:
+    {
+      cmd_.roll = clamp(cmd_.roll - delta_rot_, -max_roll_, max_roll_);
+      TOBAS_INFO("Turn left");
+      break;
+    }
+    case keyboard::RIGHT:
+    {
+      cmd_.roll = clamp(cmd_.roll + delta_rot_, -max_roll_, max_roll_);
+      TOBAS_INFO("Turn right");
+      break;
+    }
+  }
+
+  // コマンドを発行
+  auto cmd_ptr = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
+  cmd_pub_->publish(move(cmd_ptr));
+}
+
 void SpeedRollDeltaPitchPublisherNode::checkTopicsTimerCb()
 {
   if (!drone_received_)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kDroneTopic);
+    TOBAS_INFO("Waiting for ", path::join(ns(), tobas::kDroneTopic));
 
   if (!tree_received_)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kKDLTreeTopic);
+    TOBAS_INFO("Waiting for ", path::join(ns(), tobas::kKDLTreeTopic));
 
   if (!pressure_received_)
-    TOBAS_INFO("Waiting for ", ns(), tobas::kAirPressureTopic);
+    TOBAS_INFO("Waiting for ", path::join(ns(), tobas::kAirPressureTopic));
 }
 
 void SpeedRollDeltaPitchPublisherNode::instructionTimerCb()
 {
-  TOBAS_INFO(instruction_);
+  TOBAS_INFO(kInstruction);
 }
 }  // namespace tobas_keyboard_teleop
 
-int main(int argc, char* argv[])
-{
-  rclcpp::init(argc, argv);
-  tobas_keyboard_teleop::SpeedRollDeltaPitchPublisherNode node;
-  node.run();
-}
+RCLCPP_COMPONENTS_REGISTER_NODE(tobas_keyboard_teleop::SpeedRollDeltaPitchPublisherNode)

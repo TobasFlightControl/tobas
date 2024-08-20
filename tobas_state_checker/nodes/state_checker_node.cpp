@@ -81,7 +81,7 @@ void StateCheckerNode::requestLanding()
 
   if (!ac.sendGoalAndWait(goal))
   {
-    TOBAS_ERROR("Failed to execute \"", tobas::kLandAction, "\" action.");
+    TOBAS_ERROR("Landing action failed.");
     return;
   }
 
