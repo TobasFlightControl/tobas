@@ -188,7 +188,7 @@ bool ControllerNode::isReadyToControl()
 
   if (drone_.isTransformable() && js_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for "\", ntobas::kJointStatesTopic, "\".");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
     return false;
   }
 
