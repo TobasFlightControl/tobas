@@ -9,8 +9,14 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_multirotor_takeoff</depend>
+	<depend>sensor_msgs</depend>
 	<depend>tobas_keyboard</depend>
+	<depend>tobas_ros2_tools</depend>
+	<depend>tobas_node</depend>
+	<depend>tobas_constants</depend>
+	<depend>tobas_msgs</depend>
+	<depend>tobas_drone_tools</depend>
+	<depend>tobas_drone_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

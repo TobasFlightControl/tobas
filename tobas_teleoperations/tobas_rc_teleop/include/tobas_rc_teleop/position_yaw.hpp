@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/PositionYaw.h>
+#include <tobas_msgs/PositionYaw.hpp>
 
 #include "./base_controller.hpp"
 
@@ -30,7 +30,7 @@ private:
   double max_yawrate_;  // [rad/s]
 
   // Publisher
-  PublisherPtr<> pos_yaw_pub_;
+  PublisherPtr<tobas_msgs::PositionYaw> pos_yaw_pub_;
 
   void getStaticRosParams(rclcpp::Node::SharedPtr pnh);
 };
