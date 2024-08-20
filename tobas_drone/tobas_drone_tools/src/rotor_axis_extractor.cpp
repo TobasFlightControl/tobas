@@ -34,6 +34,18 @@ double RotorAxisExtractor::thrustSum(const vector<double>& rot_speeds) const
   return res;
 }
 
+double RotorAxisExtractor::thrustSum(const double& battery_voltage, const double& throttle)
+{
+  assert(battery_voltage >= 0);
+  assert(0 <= throttle && throttle <= 1);
+
+  const auto input_voltage = battery_voltage * throttle;  // 印加電圧
+  double res = 0.;
+  for (const auto& rotor_idx : rotor_idxs_)
+    res += drone_.thrustFromVoltage(rotor_idx, input_voltage);
+  return res;
+}
+
 double RotorAxisExtractor::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0.;

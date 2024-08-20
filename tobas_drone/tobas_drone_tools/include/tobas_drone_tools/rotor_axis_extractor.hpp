@@ -67,8 +67,11 @@ public:
   /* 推力 [N] からスロットル [0,1] を求める． */
   inline double throttleFromThrust(const size_t& inner_idx, const double& thrust, const double& battery_voltage);
 
-  /* 回転数から合計推力を求める． */
+  /* 各ロータの回転数から合計推力を求める． */
   double thrustSum(const std::vector<double>& rot_speeds) const;
+
+  /* スロットル [0,1] から合計推力を求める． */
+  double thrustSum(const double& battery_voltage, const double& throttle);
 
   /* 最大推力の合計 [N]． */
   double maxThrustSum(const double& battery_voltage) const;
