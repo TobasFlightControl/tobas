@@ -331,7 +331,7 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   // フィルタリング済みIMUを受け取るまでは発行しない
   if (imu_filtered_ == nullptr)
   {
-    TOBAS_INFO_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for ", ns(), tobas::kImuLpfTopic);
+    TOBAS_INFO_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kImuLpfTopic, "\".");
     return;
   }
 

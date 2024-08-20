@@ -1,7 +1,6 @@
 #include <sensor_msgs/msg/fluid_pressure.hpp>
 
 #include <tobas_algorithm/core.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_keyboard/utils.hpp>
@@ -230,13 +229,13 @@ void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
 void SpeedRollDeltaPitchPublisherNode::checkTopicsTimerCb()
 {
   if (!drone_received_)
-    TOBAS_INFO("Waiting for ", path::join(ns(), tobas::kDroneTopic));
+    TOBAS_INFO("Waiting for \"", tobas::kDroneTopic, "\".");
 
   if (!tree_received_)
-    TOBAS_INFO("Waiting for ", path::join(ns(), tobas::kKDLTreeTopic));
+    TOBAS_INFO("Waiting for \"", tobas::kKDLTreeTopic, "\".");
 
   if (!pressure_received_)
-    TOBAS_INFO("Waiting for ", path::join(ns(), tobas::kAirPressureTopic));
+    TOBAS_INFO("Waiting for \"", tobas::kAirPressureTopic, "\".");
 }
 
 void SpeedRollDeltaPitchPublisherNode::instructionTimerCb()

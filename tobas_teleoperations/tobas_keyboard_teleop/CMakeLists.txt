@@ -22,7 +22,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(tobas_path_tools REQUIRED)
 find_package(tobas_keyboard REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
@@ -37,7 +36,6 @@ file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node
   sensor_msgs
-  tobas_path_tools
   tobas_keyboard
   tobas_ros2_tools
   tobas_node
