@@ -85,8 +85,8 @@ private:
   std::mt19937 rnd_gen_;
   NormalDistribution noise_;
 
-  PublisherPtr<tobas_msgs::Imu> imu_pub_;
-  PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
+  ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 

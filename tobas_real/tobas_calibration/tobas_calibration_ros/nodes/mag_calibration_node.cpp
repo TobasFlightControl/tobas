@@ -19,7 +19,7 @@ public:
   explicit MagCalibrationNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ServicePtr<SrvType> ss_;
+  ros2::ServicePtr<SrvType> ss_;
 
   bool isValidEllipse(const SrvType::Request::ConstSharedPtr& req);
   void executeCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);

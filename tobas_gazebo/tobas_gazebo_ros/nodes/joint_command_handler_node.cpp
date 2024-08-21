@@ -27,10 +27,10 @@ private:
     EFFORT,
   };
 
-  std::unordered_map<std::string, std::pair<command_type_t, PublisherPtr<std_msgs::msg::Float64>>> ctrl_map_;
-  SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
-  SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
-  SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
+  std::unordered_map<std::string, std::pair<command_type_t, ros2::PublisherPtr<std_msgs::msg::Float64>>> ctrl_map_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
 
   bool initialize();
 

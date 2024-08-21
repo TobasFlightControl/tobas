@@ -16,7 +16,6 @@ find_package(sensor_msgs REQUIRED)
 find_package(tobas_dsp REQUIRED)
 find_package(tobas_kdl REQUIRED)
 find_package(tobas_linux REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_tools REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_hal_core REQUIRED)
@@ -32,7 +31,6 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_dsp
 	tobas_kdl
 	tobas_linux
-	tobas_ros2_tools
 	tobas_property_tools
 	tobas_msgs
 	tobas_hal_core

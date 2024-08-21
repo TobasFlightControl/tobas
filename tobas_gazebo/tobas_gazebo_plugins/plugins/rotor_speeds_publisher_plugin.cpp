@@ -37,7 +37,7 @@ private:
   vector<cmp::JointVelocity*> rotor_jntvels_;
 
   // PubSub
-  PublisherPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };

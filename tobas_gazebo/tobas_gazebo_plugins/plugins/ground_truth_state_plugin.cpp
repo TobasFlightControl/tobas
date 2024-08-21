@@ -48,7 +48,7 @@ private:
 
   RateManager::SharedPtr rate_manager_;
 
-  PublisherPtr<tobas_msgs::Odometry> odom_pub_;
+  ros2::PublisherPtr<tobas_msgs::Odometry> odom_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };

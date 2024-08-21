@@ -10,7 +10,6 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>tobas_linear_control</depend>
-	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_wind_model</depend>
 	<depend>tobas_drone_tools</depend>
 	<depend>tobas_drone_msgs</depend>

@@ -10,7 +10,6 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>tobas_kdl</depend>
-	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_property_tools</depend>
 	<depend>tobas_msgs</depend>
 	<depend>tobas_drone_core</depend>

@@ -61,7 +61,7 @@ private:
   random_device rnd_dev_;
   NormalDistribution3d::SharedPtr noise_;
 
-  PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };

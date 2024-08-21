@@ -5,6 +5,7 @@
 #include <gz/common/Console.hh>
 
 #include <tobas_std_tools/stream.hpp>
+#include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
 
 #define tbsdbg gzdbg << "[" << name_ << "] "
@@ -54,15 +55,6 @@ protected:
     NON_POSITIVE,
   };
 
-  template <typename MsgType>
-  using PublisherPtr = rclcpp::Publisher<MsgType>::SharedPtr;
-  template <typename MsgType>
-  using SubscriberPtr = rclcpp::Subscription<MsgType>::SharedPtr;
-  template <typename SrvType>
-  using ServicePtr = rclcpp::Service<SrvType>::SharedPtr;
-  template <typename SrvType>
-  using ClientPtr = rclcpp::Client<SrvType>::SharedPtr;
-
   rclcpp::Node::SharedPtr node_;
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
   std::thread spin_thread_;
@@ -73,11 +65,11 @@ protected:
   const std::string& ns() const;
 
   template <typename MsgType>
-  PublisherPtr<MsgType>
-  createPublisher(const std::string& topic_name, bool latch = false, bool reliable = true, size_t queue_size = 1);
+  ros2::PublisherPtr<MsgType>
+  createPublisher(const std::string& topic_name, bool latch = false, bool reliable = false, size_t queue_size = 1);
 
   template <typename MsgType, typename Obj>
-  SubscriberPtr<MsgType> createSubscriber(
+  ros2::SubscriberPtr<MsgType> createSubscriber(
     const std::string& topic_name,
     void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
     Obj* obj,
@@ -86,7 +78,7 @@ protected:
     size_t queue_size = 1);
 
   template <typename SrvType, typename Obj>
-  ServicePtr<SrvType> createService(
+  ros2::ServicePtr<SrvType> createService(
     const std::string& srv_name,
     void (Obj::*fp)(
       const std::shared_ptr<const typename SrvType::Request>&,
@@ -161,7 +153,7 @@ private:
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
 
-  PublisherPtr<tobas_std_msgs::msg::Message> message_pub_;
+  ros2::PublisherPtr<tobas_std_msgs::msg::Message> message_pub_;
 
   void gazeboLog(uint8_t level, const std::string& text) const;
 
@@ -169,14 +161,14 @@ private:
 };
 
 template <typename MsgType>
-BaseNode::PublisherPtr<MsgType>
+ros2::PublisherPtr<MsgType>
 BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
   return node_->create_publisher<MsgType>(topic_name, makeQoS(latch, reliable, queue_size));
 }
 
 template <typename MsgType, typename Obj>
-BaseNode::SubscriberPtr<MsgType> BaseNode::createSubscriber(
+ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   const std::string& topic_name,
   void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
   Obj* obj,
@@ -189,7 +181,7 @@ BaseNode::SubscriberPtr<MsgType> BaseNode::createSubscriber(
 }
 
 template <typename SrvType, typename Obj>
-BaseNode::ServicePtr<SrvType> BaseNode::createService(
+ros2::ServicePtr<SrvType> BaseNode::createService(
   const std::string& srv_name,
   void (Obj::*fp)(
     const std::shared_ptr<const typename SrvType::Request>&,

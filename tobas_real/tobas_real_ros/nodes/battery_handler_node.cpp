@@ -30,12 +30,12 @@ private:
 
   ptree::PropertyClient::SharedPtr property_client_;
 
-  PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
-  SubscriberPtr<tobas_hal_msgs::msg::Adc> adc_sub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
+  ros2::SubscriberPtr<tobas_hal_msgs::msg::Adc> adc_sub_;
 
-  ServicePtr<std_srvs::srv::Trigger> reload_config_srv_;
+  ros2::ServicePtr<std_srvs::srv::Trigger> reload_config_srv_;
 
-  TimerPtr initialize_timer_;
+  ros2::TimerPtr initialize_timer_;
   void initializeTimerCb();
 
   bool reloadConfig();

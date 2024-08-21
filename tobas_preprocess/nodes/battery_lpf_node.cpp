@@ -21,8 +21,8 @@ private:
   dsp::LowPassFilter<double> voltage_lpf_, current_lpf_;
   tobas_msgs::msg::Battery::ConstSharedPtr last_msg_;
 
-  PublisherPtr<tobas_msgs::msg::Battery> battery_lpf_pub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_raw_sub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_lpf_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_raw_sub_;
 
   void batteryRawCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_raw);
 };

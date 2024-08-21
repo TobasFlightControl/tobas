@@ -74,18 +74,18 @@ private:
   ctrl::LQD lqd_;  // 最適レギュレータ
 
   // Publishers
-  PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
-  PublisherPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_pub_;
-  PublisherPtr<tobas_debug_msgs::msg::FixedWingControllerFeedback> feedback_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_pub_;
+  ros2::PublisherPtr<tobas_debug_msgs::msg::FixedWingControllerFeedback> feedback_pub_;
 
   // Subscribers
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<kdl::Tree> tree_sub_;
-  SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  SubscriberPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<kdl::Tree> tree_sub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
 
   void initialize();
   bool isReadyToControl();

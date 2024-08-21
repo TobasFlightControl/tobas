@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_msgs/PoseTwistAccelCommand.hpp>
+
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
@@ -9,12 +11,12 @@ class PoseTwistAccelController : public BaseController
   using super = BaseController;
 
 public:
-  explicit PoseTwistAccelController(const tobas::Drone& drone);
+  explicit PoseTwistAccelController();
 
-  void initialize() override;
+  void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void
-  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
+  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
+    override;
 
 private:
   // rosparams
@@ -31,8 +33,8 @@ private:
   kdl::Euler tar_rpy_;
 
   // Publisher
-  PublisherPtr<> cmd_pub_;
+  ros2::PublisherPtr<tobas_msgs::PoseTwistAccelCommand> cmd_pub_;
 
-  void getStaticRosParams(rclcpp::Node::SharedPtr pnh);
+  void getStaticRosParams(tobas::BaseNode* node);
 };
 }  // namespace tobas_rc_teleop

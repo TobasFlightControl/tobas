@@ -95,11 +95,11 @@ private:
   shared_ptr<sim::Link> parent_link_;
 
   // PubSub
-  PublisherPtr<tobas_msgs::msg::RotorState> rotor_state_pub_;
-  PublisherPtr<tobas_gazebo_msgs::msg::RotorDebug> debug_pub_;
-  SubscriberPtr<tobas_gazebo_msgs::msg::Throttle> throttle_sub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_gt_sub_;
-  SubscriberPtr<tobas_msgs::Wind> wind_gt_sub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorState> rotor_state_pub_;
+  ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorDebug> debug_pub_;
+  ros2::SubscriberPtr<tobas_gazebo_msgs::msg::Throttle> throttle_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_gt_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Wind> wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 

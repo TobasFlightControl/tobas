@@ -7,11 +7,11 @@ namespace tobas_rc_teleop
 class ProgramModeController : public BaseController
 {
 public:
-  explicit ProgramModeController(const tobas::Drone& drone);
+  explicit ProgramModeController();
 
-  void initialize() override;
+  void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void
-  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
+  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 };
 }  // namespace tobas_rc_teleop

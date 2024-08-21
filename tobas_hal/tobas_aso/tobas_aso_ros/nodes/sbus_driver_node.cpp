@@ -19,7 +19,7 @@ public:
 private:
   aso::SBUS sbus_;
 
-  PublisherPtr<tobas_hal_msgs::msg::Sbus> sbus_pub_;
+  ros2::PublisherPtr<tobas_hal_msgs::msg::Sbus> sbus_pub_;
 
   void mainTimerCb();
 };

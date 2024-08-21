@@ -14,8 +14,8 @@ public:
   explicit LatencyPublisherNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  PublisherPtr<tobas_msgs::msg::Latency> latency_pub_;
-  SubscriberPtr<tobas_msgs::msg::ThrottleArray> throttles_sub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Latency> latency_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::ThrottleArray> throttles_sub_;
 
   void throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& msg);
 };

@@ -16,12 +16,12 @@ private:
 
   rclcpp::Node::SharedPtr pnh_;
 
-  PublisherPtr<> js_pub_;
-  SubscriberPtr<> tar_pos_sub_;
-  SubscriberPtr<> tar_vel_sub_;
-  SubscriberPtr<> tar_eff_sub_;
+  ros2::PublisherPtr<> js_pub_;
+  ros2::SubscriberPtr<> tar_pos_sub_;
+  ros2::SubscriberPtr<> tar_vel_sub_;
+  ros2::SubscriberPtr<> tar_eff_sub_;
 
-  TimerPtr main_timer_;
+  ros2::TimerPtr main_timer_;
 
   void jntPosCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_pos);
   void jntVelCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& tar_vel);

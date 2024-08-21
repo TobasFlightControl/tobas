@@ -14,7 +14,6 @@
 
 	<depend>std_srvs</depend>
 	<depend>controller_manager_msgs</depend>
-	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_constants</depend>
 	<depend>tobas_drone_core</depend>

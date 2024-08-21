@@ -17,8 +17,8 @@ public:
   explicit TreeServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  PublisherPtr<kdl::Tree> tree_pub_;
-  SubscriberPtr<std_msgs::msg::String> description_sub_;
+  ros2::PublisherPtr<kdl::Tree> tree_pub_;
+  ros2::SubscriberPtr<std_msgs::msg::String> description_sub_;
 
   void descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg);
 };

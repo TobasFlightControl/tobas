@@ -62,17 +62,17 @@ private:
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
-  PublisherPtr<tobas_debug_msgs::NonPlanarControllerFeedback> feedback_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
+  ros2::PublisherPtr<tobas_debug_msgs::NonPlanarControllerFeedback> feedback_pub_;
 
   // Subscribers
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<kdl::Tree> tree_sub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
-  SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
-  SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<kdl::Tree> tree_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
 
   void initialize();
   bool isReadyToControl();

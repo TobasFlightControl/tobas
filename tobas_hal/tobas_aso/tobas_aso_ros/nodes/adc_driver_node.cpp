@@ -18,7 +18,7 @@ public:
 
 private:
   aso::ADS1220 adc_;
-  PublisherPtr<tobas_hal_msgs::msg::Adc> adc_pub_;
+  ros2::PublisherPtr<tobas_hal_msgs::msg::Adc> adc_pub_;
 
   void mainTimerCb();
 };

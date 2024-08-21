@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
@@ -14,12 +16,11 @@ class SpeedRollDeltaPitchController : public BaseController
   using super = BaseController;
 
 public:
-  explicit SpeedRollDeltaPitchController(const tobas::Drone& drone);
+  explicit SpeedRollDeltaPitchController();
 
-  void initialize() override;
+  void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void
-  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
+  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   // rosparams
@@ -29,8 +30,8 @@ private:
   double max_dpitch_;  // [rad]
 
   // PubSub
-  PublisherPtr<> cmd_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
 
-  void getStaticRosParams(rclcpp::Node::SharedPtr pnh);
+  void getStaticRosParams(tobas::BaseNode* node);
 };
 }  // namespace tobas_rc_teleop

@@ -76,7 +76,7 @@ private:
   NormalDistribution3d::SharedPtr vel_noise_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::Gps> gps_pub_;
+  ros2::PublisherPtr<tobas_msgs::Gps> gps_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void setRandomDistribuitons();

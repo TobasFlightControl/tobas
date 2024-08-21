@@ -48,13 +48,13 @@ private:
   tobas_msgs::msg::RotorSpeeds::ConstSharedPtr rotor_speeds_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::Wind> wind_pub_;
+  ros2::PublisherPtr<tobas_msgs::Wind> wind_pub_;
 
   // Subscribers
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<kdl::Tree> tree_sub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  SubscriberPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_sub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<kdl::Tree> tree_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_sub_;
 
   void updateInternalDataStructures();
   Matrix3d velCoef(const kdl::Rotation& R_W_B);

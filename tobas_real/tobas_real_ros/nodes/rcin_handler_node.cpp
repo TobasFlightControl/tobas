@@ -35,11 +35,11 @@ private:
 
   ptree::PropertyClient::SharedPtr property_client_;
 
-  PublisherPtr<tobas_msgs::msg::RCInput> rcin_pub_;
-  SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
-  ServicePtr<std_srvs::srv::Trigger> reload_config_srv_;
+  ros2::PublisherPtr<tobas_msgs::msg::RCInput> rcin_pub_;
+  ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
+  ros2::ServicePtr<std_srvs::srv::Trigger> reload_config_srv_;
 
-  TimerPtr initialize_timer_;
+  ros2::TimerPtr initialize_timer_;
   void initializeTimerCb();
 
   void setToDefaults();

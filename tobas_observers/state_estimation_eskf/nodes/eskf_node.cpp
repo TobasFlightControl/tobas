@@ -82,19 +82,19 @@ private:
   Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
 
   // Publishers
-  PublisherPtr<OdomMsg> odom_pub_;
-  PublisherPtr<FeedbackMsg> feedback_pub_;
+  ros2::PublisherPtr<OdomMsg> odom_pub_;
+  ros2::PublisherPtr<FeedbackMsg> feedback_pub_;
 
   // Subscribers
-  SubscriberPtr<ImuMsg> imu_sub_;
-  SubscriberPtr<ImuMsg> imu_filtered_sub_;
-  SubscriberPtr<MagMsg> mag_sub_;
-  SubscriberPtr<BarMsg> bar_sub_;
-  SubscriberPtr<GpsMsg> gps_sub_;
+  ros2::SubscriberPtr<ImuMsg> imu_sub_;
+  ros2::SubscriberPtr<ImuMsg> imu_filtered_sub_;
+  ros2::SubscriberPtr<MagMsg> mag_sub_;
+  ros2::SubscriberPtr<BarMsg> bar_sub_;
+  ros2::SubscriberPtr<GpsMsg> gps_sub_;
 
   // Services
-  ServicePtr<GetGnssOrigin> get_gnss_origin_ss_;
-  ServicePtr<SetGnssOrigin> set_gnss_origin_ss_;
+  ros2::ServicePtr<GetGnssOrigin> get_gnss_origin_ss_;
+  ros2::ServicePtr<SetGnssOrigin> set_gnss_origin_ss_;
 
   // TF
   geometry_msgs::msg::TransformStamped tf_;

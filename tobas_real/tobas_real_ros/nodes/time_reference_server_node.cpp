@@ -16,8 +16,8 @@ public:
   explicit TimeReferenceServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  PublisherPtr<sensor_msgs::msg::TimeReference> time_ref_pub_;
-  TimerPtr main_timer_;
+  ros2::PublisherPtr<sensor_msgs::msg::TimeReference> time_ref_pub_;
+  ros2::TimerPtr main_timer_;
 
   void mainTimerCb();
 };

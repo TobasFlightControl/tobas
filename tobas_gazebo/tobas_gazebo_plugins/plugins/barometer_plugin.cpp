@@ -53,7 +53,7 @@ private:
   mt19937 rnd_gen_;
   NormalDistribution pressure_noise_;
 
-  PublisherPtr<sensor_msgs::msg::FluidPressure> pressure_pub_;
+  ros2::PublisherPtr<sensor_msgs::msg::FluidPressure> pressure_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };

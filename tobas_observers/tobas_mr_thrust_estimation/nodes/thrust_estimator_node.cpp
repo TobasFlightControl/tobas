@@ -43,13 +43,13 @@ private:
   tobas_msgs::msg::RotorSpeeds::ConstSharedPtr rotor_speeds_;
 
   // Publishers
-  PublisherPtr<std_msgs::msg::Float64> factor_pub_;
+  ros2::PublisherPtr<std_msgs::msg::Float64> factor_pub_;
 
   // Subscribers
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<kdl::Tree> tree_sub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  SubscriberPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_sub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<kdl::Tree> tree_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_sub_;
 
   void updateInternalDataStructures();
 

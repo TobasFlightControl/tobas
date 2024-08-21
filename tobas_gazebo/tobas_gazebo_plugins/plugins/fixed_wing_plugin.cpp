@@ -86,9 +86,9 @@ private:
   tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr cs_deflections_;  // 舵角 [rad]
 
   // PubSub
-  PublisherPtr<tobas_gazebo_msgs::msg::FixedWingDebug> debug_pub_;
-  SubscriberPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_sub_;
-  SubscriberPtr<tobas_msgs::Wind> wind_sub_;
+  ros2::PublisherPtr<tobas_gazebo_msgs::msg::FixedWingDebug> debug_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Wind> wind_sub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();

@@ -21,8 +21,8 @@ private:
   dsp::LowPassFilter<kdl::Vector> gyro_lpf_, accel_lpf_;
   tobas_msgs::Imu::ConstSharedPtr last_msg_;
 
-  PublisherPtr<tobas_msgs::Imu> imu_lpf_pub_;
-  SubscriberPtr<tobas_msgs::Imu> imu_raw_sub_;
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_lpf_pub_;
+  ros2::SubscriberPtr<tobas_msgs::Imu> imu_raw_sub_;
 
   void imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw);
 };

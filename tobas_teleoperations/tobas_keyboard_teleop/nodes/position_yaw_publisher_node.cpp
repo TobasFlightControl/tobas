@@ -72,12 +72,12 @@ private:
   tobas_std::Range<double> yaw_limit_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::PositionYaw> pos_yaw_pub_;
-  PublisherPtr<tobas_msgs::PosVelAccYaw> pvay_pub_;
+  ros2::PublisherPtr<tobas_msgs::PositionYaw> pos_yaw_pub_;
+  ros2::PublisherPtr<tobas_msgs::PosVelAccYaw> pvay_pub_;
 
   // Timers
-  TimerPtr process_timer_;
-  TimerPtr instruction_timer_;
+  ros2::TimerPtr process_timer_;
+  ros2::TimerPtr instruction_timer_;
 
   void getStaticRosParams();
 

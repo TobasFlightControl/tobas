@@ -17,13 +17,20 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speeds.hpp>
 #include <tobas_msgs/PosVelAccYaw.hpp>
-#include <tobas_msgs/RollPitchYawThrust.hpp>
+#include <tobas_msgs/RollPitchYawThrottle.hpp>
 #include <tobas_kdl_msgs/Tree.hpp>
 #include <tobas_drone_msgs/Drone.hpp>
 #include <tobas_debug_msgs/MultiRotorControllerFeedback.hpp>
 
 using namespace std;
 using namespace Eigen;
+
+struct RollPitchYawThrust
+{
+  tobas_msgs::msg::CommandLevel level;
+  kdl::Euler rpy;
+  double thrust;
+};
 
 class ControllerNode : public tobas::BaseNode
 {
@@ -63,24 +70,24 @@ private:
   sensor_msgs::msg::JointState::ConstSharedPtr js_;
   std_msgs::msg::Float64::ConstSharedPtr thrust_corr_factor_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
-  tobas_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;      // PosVelYawの目標値 (世界座標系)
-  tobas_msgs::RollPitchYawThrust::SharedPtr tar_rpyt_;  // RollPitchYawThrustの目標値
+  tobas_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;  // PosVelYawの目標値 (世界座標系)
+  shared_ptr<RollPitchYawThrust> tar_rpyt_;         // RollPitchYawThrustの目標値
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
-  PublisherPtr<tobas_debug_msgs::MultiRotorControllerFeedback> feedback_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
+  ros2::PublisherPtr<tobas_debug_msgs::MultiRotorControllerFeedback> feedback_pub_;
 
   // Subscribers
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<kdl::Tree> tree_sub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
-  SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
-  SubscriberPtr<std_msgs::msg::Float64> thrust_factor_sub_;
-  SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  SubscriberPtr<tobas_msgs::PosVelAccYaw> pvay_sub_;
-  SubscriberPtr<tobas_msgs::RollPitchYawThrust> rpyt_sub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<kdl::Tree> tree_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Float64> thrust_factor_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::PosVelAccYaw> pvay_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RollPitchYawThrottle> rpyt_sub_;
 
   void initialize();
   bool isReadyToControl();
@@ -109,7 +116,7 @@ private:
   void thrustFactorCb(const std_msgs::msg::Float64::ConstSharedPtr& msg);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
-  void rpyThrustCb(const tobas_msgs::RollPitchYawThrust::ConstSharedPtr& rpyt);
+  void rpyThrustCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -159,7 +166,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
     thrust_factor_sub_ = createSubscriber(tobas::kThrustCorrectionFactorTopic, &self::thrustFactorCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
   pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCb, this);
-  rpyt_sub_ = createSubscriber(tobas::kRpyThrustCmdTopic, &self::rpyThrustCb, this);
+  rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
 }
 
 void ControllerNode::initialize()
@@ -393,7 +400,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   if (tar_pvay_W_ != nullptr)
   {
     if (tar_rpyt_ == nullptr)
-      tar_rpyt_ = std::make_shared<tobas_msgs::RollPitchYawThrust>();
+      tar_rpyt_ = std::make_shared<RollPitchYawThrust>();
 
     // 世界座標系から見た現在の速度を計算
     const auto cur_vel_W = odom->frame.M * odom->twist.vel;
@@ -516,7 +523,7 @@ void ControllerNode::posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedP
   }
 }
 
-void ControllerNode::rpyThrustCb(const tobas_msgs::RollPitchYawThrust::ConstSharedPtr& rpyt)
+void ControllerNode::rpyThrustCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle)
 {
   if (!isReadyToControl())
   {
@@ -524,7 +531,7 @@ void ControllerNode::rpyThrustCb(const tobas_msgs::RollPitchYawThrust::ConstShar
     return;
   }
 
-  if (!cmd_level_handler_.update(rpyt->level.data, get_clock()->now()))
+  if (!cmd_level_handler_.update(rpy_throttle->level.data, get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
@@ -534,7 +541,11 @@ void ControllerNode::rpyThrustCb(const tobas_msgs::RollPitchYawThrust::ConstShar
   tar_pvay_W_ = nullptr;
 
   // コマンドを更新
-  tar_rpyt_ = std::make_shared<tobas_msgs::RollPitchYawThrust>(*rpyt);
+  if (tar_rpyt_ == nullptr)
+    tar_rpyt_ = std::make_shared<RollPitchYawThrust>();
+  tar_rpyt_->level = rpy_throttle->level;
+  tar_rpyt_->rpy = rpy_throttle->rpy;
+  tar_rpyt_->thrust = z_rotors_.thrustSum(battery_->voltage, rpy_throttle->throttle);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)

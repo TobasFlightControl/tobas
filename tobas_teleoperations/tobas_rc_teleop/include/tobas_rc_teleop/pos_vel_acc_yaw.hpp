@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_msgs/PosVelAccYaw.hpp>
+
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
@@ -9,16 +11,16 @@ class PosVelAccYawController : public BaseController
   using super = BaseController;
 
 public:
-  explicit PosVelAccYawController(const tobas::Drone& drone);
+  explicit PosVelAccYawController();
 
-  void initialize() override;
+  void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void
-  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
+  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
+    override;
 
 private:
   bool is_up_commanded_;
-  rclcpp::Time t_last_rcin_;
+  builtin_interfaces::msg::Time t_last_rcin_;
   kdl::Vector tar_vel_F_;
   kdl::Vector tar_pos_W_;
   double tar_yaw_;
@@ -29,8 +31,8 @@ private:
   double max_yawrate_;  // [rad/s]
 
   // Publisher
-  PublisherPtr<> cmd_pub_;
+  ros2::PublisherPtr<tobas_msgs::PosVelAccYaw> cmd_pub_;
 
-  void getStaticRosParams(rclcpp::Node::SharedPtr pnh);
+  void getStaticRosParams(tobas::BaseNode* node);
 };
 }  // namespace tobas_rc_teleop

@@ -34,14 +34,14 @@ private:
   std_msgs::msg::Bool::ConstSharedPtr arming_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::msg::Event> event_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Event> event_pub_;
 
   // Subscribers
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
-  SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   void publishSystemCriticalEvent();
   void requestLanding();

@@ -43,18 +43,18 @@ private:
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
   // PubSub
-  PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
-  PublisherPtr<std_msgs::msg::Bool> arming_pub_;
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<tobas_msgs::msg::RotorSpeeds> tar_speeds_sub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
+  ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeeds> tar_speeds_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
 
   // Service
-  ServicePtr<GetSrv> get_arm_ss_;
-  ServicePtr<SetSrv> set_arm_ss_;
+  ros2::ServicePtr<GetSrv> get_arm_ss_;
+  ros2::ServicePtr<SetSrv> set_arm_ss_;
 
   // Timer
-  TimerPtr check_interval_timer_;
+  ros2::TimerPtr check_interval_timer_;
 
   bool armRotors();
   bool disarmRotors();

@@ -12,7 +12,6 @@
 	<depend>tobas_eigen_tools</depend>
 	<depend>tobas_geomag</depend>
 	<depend>tobas_kdl_conversions</depend>
-	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs</depend>
 	<depend>tobas_debug_msgs</depend>

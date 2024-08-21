@@ -17,7 +17,7 @@ public:
 
 private:
   aso::PWM pwm_;
-  SubscriberPtr<tobas_msgs::msg::PwmArray> pwms_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::PwmArray> pwms_sub_;
 
   void pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms);
 };

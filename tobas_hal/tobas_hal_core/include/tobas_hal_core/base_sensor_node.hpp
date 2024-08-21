@@ -17,11 +17,11 @@ public:
   explicit BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options);
 
 protected:
-  TimerPtr main_timer_;
+  ros2::TimerPtr main_timer_;
 
 private:
-  ServicePtr<Empty> start_ss_;
-  ServicePtr<Empty> stop_ss_;
+  ros2::ServicePtr<Empty> start_ss_;
+  ros2::ServicePtr<Empty> stop_ss_;
 
   void startMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
   void stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);

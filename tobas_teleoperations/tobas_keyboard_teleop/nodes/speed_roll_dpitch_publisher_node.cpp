@@ -69,15 +69,15 @@ private:
   double max_delta_pitch_;  // ピッチ角の釣り合いからの偏差の最大値
 
   // PubSub
-  PublisherPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<kdl::Tree> tree_sub_;
-  SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::PublisherPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<kdl::Tree> tree_sub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
 
   // Timer
-  TimerPtr process_timer_;
-  TimerPtr check_topics_timer_;
-  TimerPtr instruction_timer_;
+  ros2::TimerPtr process_timer_;
+  ros2::TimerPtr check_topics_timer_;
+  ros2::TimerPtr instruction_timer_;
 
   void getStaticRosParams();
   void initialize();

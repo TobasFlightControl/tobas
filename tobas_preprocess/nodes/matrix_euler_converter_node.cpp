@@ -17,8 +17,8 @@ public:
   explicit MatrixEulerConverterNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  PublisherPtr<tobas_kdl_msgs::EulerStamped> euler_pub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::PublisherPtr<tobas_kdl_msgs::EulerStamped> euler_pub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };

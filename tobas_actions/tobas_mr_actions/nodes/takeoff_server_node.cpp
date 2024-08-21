@@ -31,16 +31,16 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   CommandType cmd_;
 
-  PublisherPtr<CommandType> cmd_pub_;
-  ActionPtr<ActionType> as_;
+  ros2::PublisherPtr<CommandType> cmd_pub_;
+  ros2::ActionPtr<ActionType> as_;
 
   bool armRotors();
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
-  rclcpp_action::CancelResponse handleCancel(ActionGoalHandlePtr<ActionType> goal_handle);
-  void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
+  rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
+  void handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("mr_takeoff_action_server", options)
@@ -100,12 +100,12 @@ TakeoffServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse TakeoffServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
+rclcpp_action::CancelResponse TakeoffServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void TakeoffServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
+void TakeoffServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Takeoff action is called.");
 

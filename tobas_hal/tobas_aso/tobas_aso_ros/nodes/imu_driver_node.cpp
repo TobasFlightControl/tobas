@@ -18,7 +18,7 @@ public:
 
 private:
   aso::ISM330DLC imu_;
-  PublisherPtr<tobas_hal_msgs::Imu> imu_pub_;
+  ros2::PublisherPtr<tobas_hal_msgs::Imu> imu_pub_;
 
   void mainTimerCb();
 };

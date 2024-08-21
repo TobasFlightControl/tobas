@@ -15,7 +15,6 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_eigen_tools REQUIRED)
 find_package(tobas_geomag REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_debug_msgs REQUIRED)
@@ -28,7 +27,6 @@ ament_target_dependencies(${PROJECT_NAME}
 	tobas_eigen_tools
 	tobas_geomag
 	tobas_kdl_conversions
-	tobas_ros2_tools
 	tobas_node
 	tobas_msgs
 	tobas_debug_msgs
@@ -54,7 +52,6 @@ ament_export_dependencies(
 	tobas_eigen_tools
 	tobas_geomag
 	tobas_kdl_conversions
-	tobas_ros2_tools
 	tobas_node
 	tobas_msgs
 	tobas_debug_msgs

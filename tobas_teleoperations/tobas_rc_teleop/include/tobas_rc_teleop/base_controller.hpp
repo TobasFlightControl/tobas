@@ -1,11 +1,8 @@
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
-
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/range.hpp>
-
-#include <tobas_drone_core/drone.hpp>
+#include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/Odometry.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
@@ -15,15 +12,14 @@ namespace tobas_rc_teleop
 class BaseController
 {
 public:
-  explicit BaseController(const tobas::Drone& drone);
+  explicit BaseController();
 
-  virtual void initialize() = 0;
+  virtual void initialize(tobas::BaseNode* node) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
   virtual void
-  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) = 0;
+  update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
 
 protected:
-  const tobas::Drone& drone_;
   const tobas_std::Range<double> dead_zone_;
 
   /* RCInputの値を範囲[a, b]に投影する． */

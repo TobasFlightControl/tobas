@@ -13,7 +13,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_drone_core REQUIRED)
@@ -25,7 +24,6 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}
 	tobas_kdl_conversions
-	tobas_ros2_tools
 	tobas_node
 	tobas_msgs
 	tobas_drone_core
@@ -52,7 +50,6 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(
 	tobas_kdl_conversions
-	tobas_ros2_tools
 	tobas_node
 	tobas_msgs
 	tobas_drone_core

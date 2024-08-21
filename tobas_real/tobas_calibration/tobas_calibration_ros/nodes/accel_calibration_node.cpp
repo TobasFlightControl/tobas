@@ -31,7 +31,7 @@ private:
   array<algo::Kahan<double>, 3> acc_sum_;
   Eigen::Vector3d acc_top_;
 
-  ServicePtr<SrvType> ss_;
+  ros2::ServicePtr<SrvType> ss_;
 
   bool getAccelMean(Eigen::Vector3d& des);
 

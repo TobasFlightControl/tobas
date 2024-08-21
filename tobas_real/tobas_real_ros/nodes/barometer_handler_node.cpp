@@ -29,8 +29,8 @@ private:
   tobas_hal_msgs::msg::FluidPressure::ConstSharedPtr bar_raw_;
   dsp::NoiseVarianceFilter pressure_noise_;
 
-  PublisherPtr<sensor_msgs::msg::FluidPressure> bar_pub_;
-  SubscriberPtr<tobas_hal_msgs::msg::FluidPressure> bar_sub_;
+  ros2::PublisherPtr<sensor_msgs::msg::FluidPressure> bar_pub_;
+  ros2::SubscriberPtr<tobas_hal_msgs::msg::FluidPressure> bar_sub_;
 
   void airPressureCb(const tobas_hal_msgs::msg::FluidPressure::ConstSharedPtr& bar_raw);
 };

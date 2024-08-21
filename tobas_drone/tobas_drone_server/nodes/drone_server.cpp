@@ -15,7 +15,7 @@ public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  PublisherPtr<tobas::Drone> drone_pub_;
+  ros2::PublisherPtr<tobas::Drone> drone_pub_;
 
   bool fileParamCb(const string& p);
 };

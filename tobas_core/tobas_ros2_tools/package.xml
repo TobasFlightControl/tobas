@@ -9,11 +9,11 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_std_tools</depend>
 	<depend>rclcpp</depend>
 	<depend>tf2_ros</depend>
 	<depend>geometry_msgs</depend>
 	<depend>sensor_msgs</depend>
+	<depend>tobas_std_tools</depend>
 
 	<exec_depend>ros2launch</exec_depend>
 

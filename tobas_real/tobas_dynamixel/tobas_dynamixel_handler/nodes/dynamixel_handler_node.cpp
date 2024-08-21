@@ -75,17 +75,17 @@ private:
   unordered_map<string, DynamixelConfig> motors_;
 
   // PubSub
-  PublisherPtr<tobas_dynamixel_msgs::msg::MotorStateArray> motor_states_pub_;
-  SubscriberPtr<tobas_msgs::msg::Event> event_sub_;
-  SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
-  SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
-  SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
+  ros2::PublisherPtr<tobas_dynamixel_msgs::msg::MotorStateArray> motor_states_pub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Event> event_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
 
   // Service
-  ServicePtr<std_srvs::srv::SetBool> enable_torques_ss_;
+  ros2::ServicePtr<std_srvs::srv::SetBool> enable_torques_ss_;
 
   // Timer
-  TimerPtr main_timer_;
+  ros2::TimerPtr main_timer_;
 
   void getStaticRosParams();
   void registerPublishers();

@@ -30,8 +30,8 @@ private:
   std::map<aso::ZEDF9P::ubx_nav_id_t, bool> is_received_;
   rclcpp::Duration time_offset_;  // ROS Time - GPS Time
 
-  PublisherPtr<tobas_msgs::Gps> gnss_pub_;
-  TimerPtr set_time_offset_timer_;
+  ros2::PublisherPtr<tobas_msgs::Gps> gnss_pub_;
+  ros2::TimerPtr set_time_offset_timer_;
 
   bool configure();
   void warnUnnecessaryUBXMessage();

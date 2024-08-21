@@ -28,7 +28,7 @@ private:
   size_t cnt_;
   algo::Kahan<double> voltage_sum_;
 
-  ServicePtr<SrvType> ss_;
+  ros2::ServicePtr<SrvType> ss_;
 
   void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
   void executeCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);

@@ -1,7 +1,6 @@
 #include <tobas_kdl/euler.hpp>
-
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
 
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -10,15 +9,15 @@ using namespace std;
 
 namespace tobas_rc_teleop
 {
-PosVelAccYawController::PosVelAccYawController(const tobas::Drone& drone) : super(drone)
+PosVelAccYawController::PosVelAccYawController()
 {
 }
 
-void PosVelAccYawController::initialize()
+void PosVelAccYawController::initialize(tobas::BaseNode* node)
 {
-  getStaticRosParams(pnh);
+  getStaticRosParams(node);
 
-  cmd_pub_ = node.advertise<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
 }
 
 void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
@@ -30,7 +29,9 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = kdl::Euler(odom.frame.M).yaw;
 }
 
-void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
+void PosVelAccYawController::update(
+  const tobas_msgs::msg::RCInput& rcin,
+  const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -65,7 +66,7 @@ void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const 
   }
 
   // コマンドを作成
-  const auto cmd = std::make_unique<tobas_msgs::PosVelAccYaw>();
+  auto cmd = std::make_unique<tobas_msgs::PosVelAccYaw>();
   cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;
@@ -74,13 +75,30 @@ void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const 
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行
-  cmd_pub_->publish(cmd);
+  cmd_pub_->publish(move(cmd));
 }
 
-void PosVelAccYawController::getStaticRosParams(rclcpp::Node::SharedPtr pnh)
+void PosVelAccYawController::getStaticRosParams(tobas::BaseNode* node)
 {
-  ros2::getParam(pnh, "pos_vel_acc_yaw/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, ros2::POSITIVE);
-  ros2::getParam(pnh, "pos_vel_acc_yaw/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, ros2::POSITIVE);
-  ros2::getParam(pnh, "pos_vel_acc_yaw/max_yawrate", max_yawrate_, kDefaultMaxYawrate, ros2::POSITIVE);
+  max_hor_vel_ = node->getDoubleParam("max_horizontal_velocity", kDefaultMaxHorVel);
+  if (max_hor_vel_ < 0)
+  {
+    node->error("Maximum horizontal velocity must be positive.");
+    max_hor_vel_ = kDefaultMaxHorVel;
+  }
+
+  max_ver_vel_ = node->getDoubleParam("max_vertical_velocity", kDefaultMaxVerVel);
+  if (max_ver_vel_ < 0)
+  {
+    node->error("Maximum vertical velocity must be positive.");
+    max_ver_vel_ = kDefaultMaxVerVel;
+  }
+
+  max_yawrate_ = node->getDoubleParam("max_yawrate", kDefaultMaxYawrate);
+  if (max_yawrate_ < 0)
+  {
+    node->error("Maximum yawrate must be positive.");
+    max_yawrate_ = kDefaultMaxYawrate;
+  }
 }
 }  // namespace tobas_rc_teleop

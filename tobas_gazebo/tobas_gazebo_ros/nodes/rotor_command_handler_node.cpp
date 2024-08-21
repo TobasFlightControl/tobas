@@ -21,10 +21,10 @@ public:
   explicit RotorCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  std::map<uint8_t, PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<tobas_msgs::msg::ThrottleArray> throttles_sub_;
-  ServicePtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_srv_;
+  std::map<uint8_t, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::ThrottleArray> throttles_sub_;
+  ros2::ServicePtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_srv_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& throttles);

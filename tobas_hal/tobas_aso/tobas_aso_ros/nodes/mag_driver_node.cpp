@@ -18,7 +18,7 @@ public:
 
 private:
   aso::IIS2MDC mag_;
-  PublisherPtr<tobas_hal_msgs::MagneticField> mag_pub_;
+  ros2::PublisherPtr<tobas_hal_msgs::MagneticField> mag_pub_;
 
   void mainTimerCb();
 };

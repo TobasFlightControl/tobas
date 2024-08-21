@@ -33,13 +33,13 @@ private:
   tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::msg::JointCommandArray> positions_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> positions_pub_;
 
   // Subscribers
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<sensor_msgs::msg::JointState> cur_js_sub_;
-  SubscriberPtr<sensor_msgs::msg::JointState> tar_js_sub_;
-  SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::JointState> cur_js_sub_;
+  ros2::SubscriberPtr<sensor_msgs::msg::JointState> tar_js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
 
   void initialize();
 

@@ -32,16 +32,16 @@ private:
   tobas_std::TimestampedBuffer<double> alt_buf_;
   CommandType cmd_;
 
-  PublisherPtr<CommandType> cmd_pub_;
-  ActionPtr<ActionType> as_;
+  ros2::PublisherPtr<CommandType> cmd_pub_;
+  ros2::ActionPtr<ActionType> as_;
 
   bool disarmRotors();
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
-  rclcpp_action::CancelResponse handleCancel(ActionGoalHandlePtr<ActionType> goal_handle);
-  void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
+  rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
+  void handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 LandServerNode::LandServerNode(const rclcpp::NodeOptions& options)
@@ -91,12 +91,12 @@ rclcpp_action::GoalResponse LandServerNode::handleGoal(const rclcpp_action::Goal
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse LandServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
+rclcpp_action::CancelResponse LandServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void LandServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
+void LandServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Landing action is executing.");
 

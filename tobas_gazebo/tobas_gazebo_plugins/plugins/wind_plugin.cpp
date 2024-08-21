@@ -70,10 +70,10 @@ private:
   double gust_speed_ = 0.;
   tobas::DrydenSimulator dryden_;
 
-  PublisherPtr<tobas_msgs::Wind> wind_pub_;
+  ros2::PublisherPtr<tobas_msgs::Wind> wind_pub_;
 
-  ServicePtr<GetSrv> get_params_ss_;
-  ServicePtr<SetSrv> set_params_ss_;
+  ros2::ServicePtr<GetSrv> get_params_ss_;
+  ros2::ServicePtr<SetSrv> set_params_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 

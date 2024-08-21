@@ -66,14 +66,14 @@ private:
   NormalDistribution current_noise_;
 
   // Publishers
-  PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
-  PublisherPtr<tobas_msgs::msg::Battery> battery_gt_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_gt_pub_;
 
   // Subscribers
-  vector<SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
+  vector<ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
 
   // Service servers
-  ServicePtr<std_srvs::srv::Empty> charge_srv_;
+  ros2::ServicePtr<std_srvs::srv::Empty> charge_srv_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();

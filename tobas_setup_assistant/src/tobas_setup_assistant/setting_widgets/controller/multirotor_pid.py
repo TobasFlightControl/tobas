@@ -8,7 +8,7 @@ from typing import override
 
 from tobas_rqt_tools.messages import q_error_named
 from tobas_kdl_sympy.frames import Vector
-from tobas_msgs.msg import PosVelAccYaw, RollPitchYawThrust
+from tobas_msgs.msg import PosVelAccYaw, RollPitchYawThrottle
 
 from ...common import PROP_TILT_TOL
 from .base import BaseController
@@ -21,7 +21,7 @@ class MultirotorPID(BaseController):
     LANDING_PKG = "tobas_mr_actions"
     MOVE_PKG = "tobas_multirotor_move"
     STABLIZE_MODE = PosVelAccYaw.__name__
-    ACROBAT_MODE = RollPitchYawThrust.__name__
+    ACROBAT_MODE = RollPitchYawThrottle.__name__
     ABST_TEXT = "This controller for planar multirotors employs PID for both position and attitude control."
 
     MIN_NUM_PROP = 3

@@ -32,8 +32,8 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   CommandType cmd_;
 
-  PublisherPtr<CommandType> cmd_pub_;
-  ActionPtr<ActionType> as_;
+  ros2::PublisherPtr<CommandType> cmd_pub_;
+  ros2::ActionPtr<ActionType> as_;
 
   bool computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos);
 
@@ -41,8 +41,8 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
-  rclcpp_action::CancelResponse handleCancel(ActionGoalHandlePtr<ActionType> goal_handle);
-  void handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle);
+  rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
+  void handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_move_action_server", options)
@@ -124,12 +124,12 @@ MoveServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::Con
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse MoveServerNode::handleCancel(ActionGoalHandlePtr<ActionType>)
+rclcpp_action::CancelResponse MoveServerNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
 {
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void MoveServerNode::handleAccepted(ActionGoalHandlePtr<ActionType> goal_handle)
+void MoveServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Moving action is executing.");
 

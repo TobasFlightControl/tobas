@@ -18,7 +18,7 @@ public:
 
 private:
   aso::ILPS22QS baro_;
-  PublisherPtr<tobas_hal_msgs::msg::FluidPressure> baro_pub_;
+  ros2::PublisherPtr<tobas_hal_msgs::msg::FluidPressure> baro_pub_;
 
   void mainTimerCb();
 };

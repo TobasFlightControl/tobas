@@ -14,7 +14,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(tobas_kdl REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_msgs REQUIRED)
@@ -28,7 +27,6 @@ add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node
 	std_srvs
 	tobas_kdl
-	tobas_ros2_tools
 	tobas_node
 	tobas_constants
 	tobas_msgs

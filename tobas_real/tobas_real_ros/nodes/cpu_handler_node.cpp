@@ -27,10 +27,10 @@ private:
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
 
   // Publisher
-  PublisherPtr<tobas_msgs::msg::Cpu> cpu_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Cpu> cpu_pub_;
 
   // Timer
-  TimerPtr main_timer_;
+  ros2::TimerPtr main_timer_;
 
   bool getTemperature(double& temp);
   bool getFrequency(uint64_t& freq);

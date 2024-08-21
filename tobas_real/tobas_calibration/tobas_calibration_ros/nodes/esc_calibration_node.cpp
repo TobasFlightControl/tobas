@@ -37,9 +37,9 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
-  PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  ServicePtr<SrvType> ss_;
+  ros2::PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::ServicePtr<SrvType> ss_;
 
   void sendMaximum();
   void sendMinimum();

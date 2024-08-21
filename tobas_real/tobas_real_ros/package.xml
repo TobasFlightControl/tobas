@@ -13,7 +13,6 @@
 	<depend>tobas_dsp</depend>
 	<depend>tobas_kdl</depend>
 	<depend>tobas_linux</depend>
-	<depend>tobas_ros2_tools</depend>
 	<depend>tobas_property_tools</depend>
 	<depend>tobas_msgs</depend>
 	<depend>tobas_hal_core</depend>

@@ -6,7 +6,7 @@
 
 #define MAIN_TIMER_FREQ 100
 
-TobasBridge::TobasBridge() : node_(node), pnh_(pnh)
+TobasBridge::TobasBridge() : node_(node), pnh_(node)
 {
   /* Register publishers */
   // js_pub_ = createPublisher<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);

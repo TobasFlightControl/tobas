@@ -42,12 +42,12 @@ private:
   double roll_, pitch_, yaw_;
   tobas_msgs::msg::PreArmCheck prearm_check_;
 
-  PublisherPtr<tobas_msgs::msg::PreArmCheck> prearm_check_pub_;
-  SubscriberPtr<tobas::Drone> drone_sub_;
-  SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
-  SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ServicePtr<Trigger> prearm_check_ss_;
-  TimerPtr prearm_check_timer_;
+  ros2::PublisherPtr<tobas_msgs::msg::PreArmCheck> prearm_check_pub_;
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::ServicePtr<Trigger> prearm_check_ss_;
+  ros2::TimerPtr prearm_check_timer_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
