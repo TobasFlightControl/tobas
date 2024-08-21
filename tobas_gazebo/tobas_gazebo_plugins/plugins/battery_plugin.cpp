@@ -132,7 +132,7 @@ void GazeboBatteryPlugin::registerPubSub()
     const string suffix = "_" + to_string(i);
     const string topic = path::join(ns(), kRotorStateGtTopicPrefix + suffix);
     const auto cb = [this, i](const tobas_msgs::msg::RotorState::ConstSharedPtr& msg) { currents_[i] = msg->current; };
-    const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, makeQoS(false, false, 1), cb);
+    const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, ros2::makeQoS(false, false, 1), cb);
     rotor_state_subs_.push_back(sub);
   }
 }

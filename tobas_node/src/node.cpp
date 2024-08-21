@@ -147,23 +147,6 @@ vector<string> BaseNode::getStringArrayParam(const string& name, const vector<st
   return get_parameter(name).as_string_array();
 }
 
-rclcpp::QoS BaseNode::makeQoS(bool latch, bool reliable, size_t queue_size)
-{
-  auto qos = rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_LAST, queue_size));
-
-  if (latch)
-    qos.durability(RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL);
-  else
-    qos.durability(RMW_QOS_POLICY_DURABILITY_VOLATILE);
-
-  if (reliable)
-    qos.reliability(RMW_QOS_POLICY_RELIABILITY_RELIABLE);
-  else
-    qos.reliability(RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
-
-  return qos;
-}
-
 void BaseNode::rclcppLog(uint8_t level, const string& text) const
 {
   switch (level)

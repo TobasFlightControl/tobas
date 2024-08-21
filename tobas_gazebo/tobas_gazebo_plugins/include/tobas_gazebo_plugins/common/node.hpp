@@ -6,6 +6,7 @@
 
 #include <tobas_std_tools/stream.hpp>
 #include <tobas_ros2_tools/definitions.hpp>
+#include <tobas_ros2_tools/qos.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
 
 #define tbsdbg gzdbg << "[" << name_ << "] "
@@ -144,8 +145,6 @@ protected:
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
 
-  static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
-
 private:
   const std::string name_;
   std::string ns_;
@@ -164,7 +163,7 @@ template <typename MsgType>
 ros2::PublisherPtr<MsgType>
 BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
-  return node_->create_publisher<MsgType>(topic_name, makeQoS(latch, reliable, queue_size));
+  return node_->create_publisher<MsgType>(topic_name, ros2::makeQoS(latch, reliable, queue_size));
 }
 
 template <typename MsgType, typename Obj>
@@ -177,7 +176,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   size_t queue_size)
 {
   return node_->create_subscription<MsgType>(
-    topic_name, makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
+    topic_name, ros2::makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
 }
 
 template <typename SrvType, typename Obj>

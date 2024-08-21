@@ -5,6 +5,7 @@
 #include <tobas_std_tools/stream.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros2_tools/definitions.hpp>
+#include <tobas_ros2_tools/qos.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
 #include <tobas_dparam_msgs/msg/parameters.hpp>
 
@@ -181,8 +182,6 @@ public:
   std::vector<double> getDoubleArrayParam(const std::string& name, const std::vector<double>& _default);
   std::vector<std::string> getStringArrayParam(const std::string& name, const std::vector<std::string>& _default);
 
-  static rclcpp::QoS makeQoS(bool latch, bool reliable, size_t queue_size);
-
 private:
   std::unordered_set<std::string> log_once_;
   std::unordered_map<std::string, rclcpp::Time> log_throttle_;
@@ -213,7 +212,7 @@ template <typename MsgType>
 ros2::PublisherPtr<MsgType>
 BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
-  return create_publisher<MsgType>(topic_name, makeQoS(latch, reliable, queue_size));
+  return create_publisher<MsgType>(topic_name, ros2::makeQoS(latch, reliable, queue_size));
 }
 
 template <typename MsgType, typename Obj>
@@ -226,7 +225,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   size_t queue_size)
 {
   return create_subscription<MsgType>(
-    topic_name, makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
+    topic_name, ros2::makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
 }
 
 template <typename SrvType, typename Obj>
