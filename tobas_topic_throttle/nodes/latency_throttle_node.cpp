@@ -1,9 +1,7 @@
-#include "../include/tobas_topic_throttle/latency_throttle.hpp"
+#include <tobas_msgs/msg/latency.hpp>
 
-int main(int argc, char** argv)
-{
-  rclcpp::init(argc, argv, "latency_throttle");
-  rclcpp::Node::SharedPtr node;
-  tobas_topic_throttle::LatencyThrottle node(node);
-  rclcpp::spin();
-}
+#include "./base.hpp"
+
+using LatencyThrottleNode = TopicThrottleNode<tobas_msgs::msg::Latency, tobas::kLatencyTopic>;
+
+RCLCPP_COMPONENTS_REGISTER_NODE(LatencyThrottleNode)

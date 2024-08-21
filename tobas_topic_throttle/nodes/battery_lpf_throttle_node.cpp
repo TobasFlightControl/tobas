@@ -1,9 +1,7 @@
-#include "../include/tobas_topic_throttle/battery_lpf_throttle.hpp"
+#include <tobas_msgs/msg/battery.hpp>
 
-int main(int argc, char** argv)
-{
-  rclcpp::init(argc, argv, "battery_lpf_throttle");
-  rclcpp::Node::SharedPtr node;
-  tobas_topic_throttle::BatteryLPFThrottle node(node);
-  rclcpp::spin();
-}
+#include "./base.hpp"
+
+using BatteryLPFThrottleNode = TopicThrottleNode<tobas_msgs::msg::Battery, tobas::kBatteryLpfTopic>;
+
+RCLCPP_COMPONENTS_REGISTER_NODE(BatteryLPFThrottleNode)

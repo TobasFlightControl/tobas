@@ -1,9 +1,7 @@
-#include "../include/tobas_topic_throttle/euler_throttle.hpp"
+#include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
 
-int main(int argc, char** argv)
-{
-  rclcpp::init(argc, argv, "euler_throttle");
-  rclcpp::Node::SharedPtr node;
-  tobas_topic_throttle::EulerThrottle node(node);
-  rclcpp::spin();
-}
+#include "./base.hpp"
+
+using EulerThrottleNode = TopicThrottleNode<tobas_kdl_msgs::EulerStamped, tobas::kEulerTopic>;
+
+RCLCPP_COMPONENTS_REGISTER_NODE(EulerThrottleNode)

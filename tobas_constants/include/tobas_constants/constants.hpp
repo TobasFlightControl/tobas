@@ -49,6 +49,7 @@ static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "prearm_check";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
+static constexpr char kThrottledTopicPrefix[] = "throttled";
 // Command
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
