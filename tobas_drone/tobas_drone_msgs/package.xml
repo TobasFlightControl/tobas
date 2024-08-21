@@ -15,7 +15,6 @@
 
 	<depend>tobas_std_msgs</depend>
 	<depend>tobas_kdl_msgs</depend>
-	<depend>tobas_drone_core</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

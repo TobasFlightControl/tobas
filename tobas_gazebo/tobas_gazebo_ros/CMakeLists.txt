@@ -24,10 +24,8 @@ find_package(ament_cmake REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(controller_manager_msgs REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_drone_core REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
-find_package(tobas_msgs REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_gazebo_common REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 
@@ -39,10 +37,8 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	std_srvs
 	controller_manager_msgs
 	tobas_node
-	tobas_constants
-	tobas_drone_core
-	tobas_drone_msgs
-	tobas_msgs
+	tobas_drone_msgs_adapter
+	tobas_msgs_adapter
 	tobas_gazebo_common
 	tobas_gazebo_msgs
 )
@@ -62,10 +58,8 @@ ament_export_dependencies(
 	std_srvs
 	controller_manager_msgs
 	tobas_node
-	tobas_constants
-	tobas_drone_core
-	tobas_drone_msgs
-	tobas_msgs
+	tobas_drone_msgs_adapter
+	tobas_msgs_adapter
 	tobas_gazebo_common
 	tobas_gazebo_msgs
 )

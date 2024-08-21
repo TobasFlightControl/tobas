@@ -17,8 +17,8 @@ find_package(tobas_node REQUIRED)
 find_package(tobas_pose_pid REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
-find_package(tobas_debug_msgs REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_debug_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -30,8 +30,8 @@ ament_target_dependencies(${PROJECT_NAME}
 	tobas_pose_pid
 	tobas_tools
 	tobas_drone_tools
-	tobas_drone_msgs
-	tobas_debug_msgs
+	tobas_drone_msgs_adapter
+	tobas_debug_msgs_adapter
 )
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
@@ -56,8 +56,8 @@ ament_export_dependencies(
 	tobas_pose_pid
 	tobas_tools
 	tobas_drone_tools
-	tobas_drone_msgs
-	tobas_debug_msgs
+	tobas_drone_msgs_adapter
+	tobas_debug_msgs_adapter
 )
 
 ament_package()

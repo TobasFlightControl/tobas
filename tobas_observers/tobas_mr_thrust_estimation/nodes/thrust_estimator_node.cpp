@@ -9,10 +9,10 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_tools/mr_dynamics.hpp>
 
-#include <tobas_msgs/Odometry.hpp>
+#include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/msg/rotor_speeds.hpp>
-#include <tobas_kdl_msgs/Tree.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_kdl_msgs_adapter/Tree.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 
 #define EPS 1e-6
 #define GRAV_W Vector3d(0, 0, tobas_std::kGravity)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/LinkStateArray.hpp>
+#include <tobas_msgs_adapter/LinkStateArray.hpp>
 
 namespace manipulation
 {

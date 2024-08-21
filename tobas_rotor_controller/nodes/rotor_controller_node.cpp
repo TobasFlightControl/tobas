@@ -14,7 +14,7 @@
 #include <tobas_msgs/srv/enable_rc_output.hpp>
 #include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 
 using namespace std;
 

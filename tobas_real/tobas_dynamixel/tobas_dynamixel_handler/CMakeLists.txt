@@ -15,8 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(dynamixel_sdk REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_dynamixel_msgs REQUIRED)
 
 include_directories(include)
@@ -27,8 +26,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	std_srvs
 	dynamixel_sdk
 	tobas_node
-	tobas_constants
-	tobas_msgs
+	tobas_msgs_adapter
 	tobas_dynamixel_msgs
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DynamixelHandlerNode" EXECUTABLE dynamixel_handler)

@@ -13,14 +13,14 @@
 #include <tobas_drone_tools/mr_mixer.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_msgs/Odometry.hpp>
+#include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speeds.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
-#include <tobas_msgs/RollPitchYawThrottle.hpp>
-#include <tobas_kdl_msgs/Tree.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
-#include <tobas_debug_msgs/MultiRotorControllerFeedback.hpp>
+#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
+#include <tobas_kdl_msgs_adapter/Tree.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_debug_msgs_adapter/MultiRotorControllerFeedback.hpp>
 
 using namespace std;
 using namespace Eigen;

@@ -19,9 +19,9 @@
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
-#include <tobas_msgs/Odometry.hpp>
-#include <tobas_kdl_msgs/Tree.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_kdl_msgs_adapter/Tree.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
 
 using namespace std;

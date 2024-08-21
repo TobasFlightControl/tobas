@@ -14,12 +14,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tobas_dsp REQUIRED)
-find_package(tobas_kdl REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_property_tools REQUIRED)
-find_package(tobas_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_hal_core REQUIRED)
-find_package(tobas_hal_msgs REQUIRED)
+find_package(tobas_hal_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
 
 include_directories(include)
@@ -29,12 +28,11 @@ add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node
 	sensor_msgs
 	tobas_dsp
-	tobas_kdl
 	tobas_linux
 	tobas_property_tools
-	tobas_msgs
+	tobas_msgs_adapter
 	tobas_hal_core
-	tobas_hal_msgs
+	tobas_hal_msgs_adapter
 	tobas_real_common
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BarometerHandlerNode" EXECUTABLE barometer_handler)

@@ -11,6 +11,7 @@
 
 	<exec_depend>tobas_hal_core</exec_depend>
 	<exec_depend>tobas_hal_msgs</exec_depend>
+	<exec_depend>tobas_hal_msgs_adapter</exec_depend>
 	<exec_depend>tobas_aso</exec_depend>
 
 	<export>

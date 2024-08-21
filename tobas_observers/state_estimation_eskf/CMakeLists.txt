@@ -16,8 +16,8 @@ find_package(tobas_eigen_tools REQUIRED)
 find_package(tobas_geomag REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_msgs REQUIRED)
-find_package(tobas_debug_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_debug_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -28,8 +28,8 @@ ament_target_dependencies(${PROJECT_NAME}
 	tobas_geomag
 	tobas_kdl_conversions
 	tobas_node
-	tobas_msgs
-	tobas_debug_msgs
+	tobas_msgs_adapter
+	tobas_debug_msgs_adapter
 )
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
@@ -53,8 +53,8 @@ ament_export_dependencies(
 	tobas_geomag
 	tobas_kdl_conversions
 	tobas_node
-	tobas_msgs
-	tobas_debug_msgs
+	tobas_msgs_adapter
+	tobas_debug_msgs_adapter
 )
 
 ament_package()

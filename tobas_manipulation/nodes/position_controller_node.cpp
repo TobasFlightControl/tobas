@@ -8,8 +8,8 @@
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
-#include <tobas_msgs/LinkStateArray.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_msgs_adapter/LinkStateArray.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 
 using namespace std;
 

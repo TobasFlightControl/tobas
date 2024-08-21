@@ -8,9 +8,9 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/simple_action_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/PositionYaw.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/PositionYaw.hpp>
+#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
 #include <tobas_msgs/action/takeoff.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"

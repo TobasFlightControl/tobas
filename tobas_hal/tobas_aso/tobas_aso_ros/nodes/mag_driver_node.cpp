@@ -1,6 +1,6 @@
 #include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/MagneticField.hpp>
+#include <tobas_hal_msgs_adapter/MagneticField.hpp>
 
 #include <tobas_aso_core/iis2mdc.hpp>
 

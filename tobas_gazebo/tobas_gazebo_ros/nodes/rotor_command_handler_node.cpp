@@ -3,7 +3,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_msgs/msg/throttle_array.hpp>
 #include <tobas_msgs/srv/enable_rc_output.hpp>
 

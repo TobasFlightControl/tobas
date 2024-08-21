@@ -29,9 +29,7 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = kdl::Euler(odom.frame.M).yaw;
 }
 
-void PosVelAccYawController::update(
-  const tobas_msgs::msg::RCInput& rcin,
-  const tobas_msgs::Odometry& odom)
+void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();

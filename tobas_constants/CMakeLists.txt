@@ -15,6 +15,6 @@ install(
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 
-ament_export_targets(${PROJECT_NAME})
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
 ament_package()

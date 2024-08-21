@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
 
 #include "./base_controller.hpp"
 
@@ -15,8 +15,7 @@ public:
 
   void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
-    override;
+  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   bool is_up_commanded_;

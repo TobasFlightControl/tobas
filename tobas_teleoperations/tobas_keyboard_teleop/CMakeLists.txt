@@ -24,10 +24,9 @@ find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tobas_keyboard REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_constants REQUIRED)
-find_package(tobas_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -37,10 +36,9 @@ ament_target_dependencies(${PROJECT_NAME}_node
   sensor_msgs
   tobas_keyboard
   tobas_node
-  tobas_constants
-  tobas_msgs
+  tobas_msgs_adapter
   tobas_drone_tools
-  tobas_drone_msgs
+  tobas_drone_msgs_adapter
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node
   PLUGIN "tobas_keyboard_teleop::PositionYawPublisherNode"

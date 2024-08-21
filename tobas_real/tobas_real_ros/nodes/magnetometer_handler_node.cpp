@@ -7,8 +7,8 @@
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/MagneticField.hpp>
-#include <tobas_msgs/MagneticField.hpp>
+#include <tobas_hal_msgs_adapter/MagneticField.hpp>
+#include <tobas_msgs_adapter/MagneticField.hpp>
 
 #include <tobas_real_common/constants.hpp>
 

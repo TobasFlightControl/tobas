@@ -4,7 +4,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/Imu.hpp>
+#include <tobas_hal_msgs_adapter/Imu.hpp>
 
 #include <tobas_real_common/constants.hpp>
 #include <tobas_calibration_msgs/srv/accel_calibration.hpp>

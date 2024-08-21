@@ -16,8 +16,8 @@ find_package(tobas_linear_control REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
-find_package(tobas_debug_msgs REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_debug_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -28,8 +28,8 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_node
 	tobas_tools
 	tobas_drone_tools
-	tobas_drone_msgs
-	tobas_debug_msgs
+	tobas_drone_msgs_adapter
+	tobas_debug_msgs_adapter
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ControllerNode" EXECUTABLE controller)
 
@@ -47,8 +47,8 @@ ament_export_dependencies(
 	tobas_node
 	tobas_tools
 	tobas_drone_tools
-	tobas_drone_msgs
-	tobas_debug_msgs
+	tobas_drone_msgs_adapter
+	tobas_debug_msgs_adapter
 )
 
 ament_package()

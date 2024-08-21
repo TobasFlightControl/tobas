@@ -9,37 +9,42 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<!-- Meta Packages -->
+	<exec_depend>tobas_actions</exec_depend>
+	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
-	<exec_depend>tobas_gazebo</exec_depend>
-	<exec_depend>tobas_hal</exec_depend>
-	<exec_depend>tobas_legged_robot</exec_depend>
-	<exec_depend>tobas_actions</exec_depend>
-	<exec_depend>tobas_observers</exec_depend>
-	<exec_depend>tobas_property</exec_depend>
-	<exec_depend>tobas_real</exec_depend>
-	<exec_depend>tobas_teleoperations</exec_depend>
-
-	<!-- Others -->
+	<exec_depend>tobas_debug_msgs</exec_depend>
+	<exec_depend>tobas_debug_msgs_adapter</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
+	<exec_depend>tobas_dparam_msgs</exec_depend>
+	<exec_depend>tobas_drone</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_examples</exec_depend>
 	<exec_depend>tobas_fake_publishers</exec_depend>
-	<exec_depend>tobas_gcs</exec_depend>
+	<exec_depend>tobas_gazebo</exec_depend>
+	<!-- <exec_depend>tobas_gcs</exec_depend> -->
+	<exec_depend>tobas_hal</exec_depend>
 	<exec_depend>tobas_latency_publisher</exec_depend>
+	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
+	<exec_depend>tobas_msgs_adapter</exec_depend>
+	<exec_depend>tobas_node</exec_depend>
+	<exec_depend>tobas_observers</exec_depend>
+	<exec_depend>tobas_pose_pid</exec_depend>
 	<exec_depend>tobas_prearm_check</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
+	<exec_depend>tobas_property</exec_depend>
+	<exec_depend>tobas_real</exec_depend>
+	<exec_depend>tobas_robot_state_publisher</exec_depend>
 	<exec_depend>tobas_rotor_controller</exec_depend>
 	<exec_depend>tobas_rviz_plugin</exec_depend>
-	<exec_depend>tobas_setup_assistant</exec_depend>
+	<!-- <exec_depend>tobas_setup_assistant</exec_depend> -->
 	<exec_depend>tobas_state_checker</exec_depend>
+	<exec_depend>tobas_teleoperations</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>
-	<exec_depend>tobas_tools_py</exec_depend>
-	<exec_depend>tobas_topic_throttle</exec_depend>
-	<exec_depend>urdf_builder</exec_depend>
+	<!-- <exec_depend>tobas_topic_throttle</exec_depend> -->
+	<!-- <exec_depend>urdf_builder</exec_depend> -->
 
 	<export>
 		<build_type>ament_cmake</build_type>

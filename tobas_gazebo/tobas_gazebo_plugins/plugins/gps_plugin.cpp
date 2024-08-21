@@ -3,7 +3,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Gps.hpp>
+#include <tobas_msgs_adapter/Gps.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"

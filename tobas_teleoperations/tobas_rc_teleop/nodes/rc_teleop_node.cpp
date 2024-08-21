@@ -4,15 +4,15 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_msgs/Odometry.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
-#include <tobas_msgs/PositionYaw.hpp>
-#include <tobas_msgs/RollPitchYawThrottle.hpp>
-#include <tobas_msgs/PoseTwistAccelCommand.hpp>
-#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/PositionYaw.hpp>
+#include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
+#include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
 
 #include "../include/tobas_rc_teleop/common.hpp"
 #include "../include/tobas_rc_teleop/program_mode.hpp"

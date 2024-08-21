@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_kdl_msgs/EulerStamped.hpp>
+#include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
 
 #include "./base.hpp"
 

@@ -4,7 +4,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Imu.hpp>
+#include <tobas_msgs_adapter/Imu.hpp>
 #include <tobas_gazebo_msgs/msg/imu_debug.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"

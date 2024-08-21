@@ -2,7 +2,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Imu.hpp>
+#include <tobas_msgs_adapter/Imu.hpp>
 
 using namespace std;
 

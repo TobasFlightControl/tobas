@@ -12,7 +12,7 @@
 #include <tobas_drone_core/esc.hpp>
 #include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/Wind.hpp>
+#include <tobas_msgs_adapter/Wind.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>

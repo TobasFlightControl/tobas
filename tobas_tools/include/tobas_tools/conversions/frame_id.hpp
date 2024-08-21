@@ -1,8 +1,8 @@
 #pragma once
 
 #include <tobas_kdl/rotation.hpp>
-#include <tobas_msgs/PosVelAccYaw.hpp>
-#include <tobas_msgs/PoseTwistAccelCommand.hpp>
+#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
 
 namespace tobas
 {

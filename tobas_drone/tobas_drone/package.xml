@@ -11,6 +11,7 @@
 
 	<exec_depend>tobas_drone_core</exec_depend>
 	<exec_depend>tobas_drone_msgs</exec_depend>
+	<exec_depend>tobas_drone_msgs_adapter</exec_depend>
 	<exec_depend>tobas_drone_server</exec_depend>
 	<exec_depend>tobas_drone_tools</exec_depend>
 

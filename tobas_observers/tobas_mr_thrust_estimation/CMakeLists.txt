@@ -14,9 +14,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_linear_control REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -25,9 +25,9 @@ add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_linear_control
 	tobas_drone_tools
-	tobas_drone_msgs
+	tobas_drone_msgs_adapter
 	tobas_node
-	tobas_msgs
+	tobas_msgs_adapter
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ThrustEstimatorNode" EXECUTABLE thrust_estimator)
 
@@ -43,9 +43,9 @@ install(
 ament_export_dependencies(
 	tobas_linear_control
 	tobas_drone_tools
-	tobas_drone_msgs
+	tobas_drone_msgs_adapter
 	tobas_node
-	tobas_msgs
+	tobas_msgs_adapter
 )
 
 ament_package()

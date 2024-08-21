@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/RollPitchYawThrottle.hpp>
+#include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
 
 #include "./base_controller.hpp"
 

@@ -15,13 +15,13 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_msgs/Imu.hpp>
-#include <tobas_msgs/MagneticField.hpp>
-#include <tobas_msgs/Gps.hpp>
-#include <tobas_msgs/Odometry.hpp>
+#include <tobas_msgs_adapter/Imu.hpp>
+#include <tobas_msgs_adapter/MagneticField.hpp>
+#include <tobas_msgs_adapter/Gps.hpp>
+#include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
-#include <tobas_debug_msgs/ObserverFeedback.hpp>
+#include <tobas_debug_msgs_adapter/ObserverFeedback.hpp>
 
 #include "../include/state_estimation_eskf/eskf.hpp"
 

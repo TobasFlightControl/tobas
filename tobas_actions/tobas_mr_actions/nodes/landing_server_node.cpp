@@ -4,7 +4,7 @@
 #include <tobas_ros2_tools/simple_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Odometry.hpp>
+#include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/action/land.hpp>
 

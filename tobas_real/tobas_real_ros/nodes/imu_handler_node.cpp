@@ -8,8 +8,8 @@
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/Imu.hpp>
-#include <tobas_msgs/Imu.hpp>
+#include <tobas_hal_msgs_adapter/Imu.hpp>
+#include <tobas_msgs_adapter/Imu.hpp>
 
 #include <tobas_real_common/constants.hpp>
 

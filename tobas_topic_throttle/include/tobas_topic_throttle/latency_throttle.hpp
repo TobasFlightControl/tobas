@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/Latency.h>
+#include <tobas_msgs_adapter/Latency.h>
 
 #include "./base.hpp"
 

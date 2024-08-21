@@ -8,7 +8,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/enable_rc_output.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 
 #include <tobas_real_common/constants.hpp>
 #include <tobas_calibration_msgs/srv/esc_calibration.hpp>

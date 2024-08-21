@@ -9,8 +9,8 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_tools/fw_trim_conditions.hpp>
 
-#include <tobas_kdl_msgs/Tree.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_kdl_msgs_adapter/Tree.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"

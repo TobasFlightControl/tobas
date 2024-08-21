@@ -1,6 +1,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/base_sensor_node.hpp>
-#include <tobas_msgs/Gps.hpp>
+#include <tobas_msgs_adapter/Gps.hpp>
 
 #include <tobas_aso_core/zed_f9p.hpp>
 

@@ -14,9 +14,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_msgs REQUIRED)
-find_package(tobas_drone_core REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -25,9 +24,8 @@ add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}
 	tobas_kdl_conversions
 	tobas_node
-	tobas_msgs
-	tobas_drone_core
-	tobas_drone_msgs
+	tobas_msgs_adapter
+	tobas_drone_msgs_adapter
 )
 
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
@@ -51,9 +49,8 @@ ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(
 	tobas_kdl_conversions
 	tobas_node
-	tobas_msgs
-	tobas_drone_core
-	tobas_drone_msgs
+	tobas_msgs_adapter
+	tobas_drone_msgs_adapter
 )
 
 ament_package()

@@ -11,7 +11,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/fixed_wing.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
-#include <tobas_msgs/Wind.hpp>
+#include <tobas_msgs_adapter/Wind.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 
 #include <tobas_gazebo_tools/math.hpp>

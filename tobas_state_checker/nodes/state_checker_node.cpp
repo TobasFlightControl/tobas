@@ -7,13 +7,13 @@
 #include <tobas_node/node.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_kdl_msgs/EulerStamped.hpp>
+#include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/msg/event.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/action/land.hpp>
-#include <tobas_drone_msgs/Drone.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 
 using namespace std;
 
