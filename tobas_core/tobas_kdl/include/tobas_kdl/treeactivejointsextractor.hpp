@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_std_tools/unordered_set.hpp>
+#include <unordered_set>
 
 #include "./treesolveri.hpp"
 
@@ -33,6 +33,6 @@ inline const std::vector<std::string>& TreeActiveJointsExtractor::activeJointNam
 
 inline bool TreeActiveJointsExtractor::isActiveJoint(const std::string& jnt_name) const
 {
-  return tobas_std::contains(active_joints_set_, jnt_name);
+  return active_joints_set_.contains(jnt_name);
 }
 }  // namespace kdl

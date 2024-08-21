@@ -6,22 +6,6 @@
 
 namespace tobas_std
 {
-/**
- * @brief 要素を含むか調べる．
- */
-template <typename T>
-inline bool contains(const std::unordered_set<T>& set, const T& key)
-{
-  return set.find(key) != set.end();
-}
-
-/* std::vectorに変換する． */
-template <typename T>
-inline std::vector<T> toVector(const std::unordered_set<T>& set)
-{
-  return std::vector<T>(set.begin(), set.end());
-}
-
 /* 要素の最小値を返す． */
 template <typename T>
 T min(const std::unordered_set<T>& set)
