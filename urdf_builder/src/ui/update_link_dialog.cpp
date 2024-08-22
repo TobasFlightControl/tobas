@@ -441,12 +441,12 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
   if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    ROS_WARN_STREAM(property_client_.errorMessage());
     return;
   }
   if (property_client_.save() < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    ROS_WARN_STREAM(property_client_.errorMessage());
     return;
   }
 }
@@ -476,12 +476,12 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
   if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    ROS_WARN_STREAM(property_client_.errorMessage());
     return;
   }
   if (property_client_.save() < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    ROS_WARN_STREAM(property_client_.errorMessage());
     return;
   }
 }
