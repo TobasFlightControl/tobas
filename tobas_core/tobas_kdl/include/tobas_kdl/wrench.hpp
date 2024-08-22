@@ -40,7 +40,6 @@ public:
   inline friend Wrench operator+(const Wrench& lhs, const Wrench& rhs);
   inline friend Wrench operator-(const Wrench& lhs, const Wrench& rhs);
 
-
   friend std::ostream& operator<<(std::ostream& os, const Wrench& arg);
 };
 
