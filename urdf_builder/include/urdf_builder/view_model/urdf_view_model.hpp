@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <tinyxml2.h>
 #include <urdf/model.h>
 
 #include "./link_view_model.hpp"
@@ -49,7 +50,7 @@ public:
   void removeLink(const LinkViewModelPtr& link_vm);
   void updateLink(const LinkViewModelPtr& old_link_vm, const LinkViewModelPtr& new_link_vm);
 
-  static void removeTextureTagsWithoutFilename(TiXmlElement* element);
+  static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element);
 
 private:
   urdf::ModelSharedPtr urdf_;

@@ -35,6 +35,7 @@ public:
 
   void done(int code) override;
 
+  void onInitialize(rclcpp::Node::SharedPtr node);
   void readFromVM(const view_model::LinkViewModelPtr& link_vm);
   void setTabsEnabled(bool enabled);
 
@@ -85,7 +86,6 @@ private:
     std::map<QString, QFrame*> collision_geom;
   } frame_map_;
 
-  rclcpp::Node::SharedPtr node_;
   ptree::PropertyClient::SharedPtr property_client_;
 
   void defineConnections();

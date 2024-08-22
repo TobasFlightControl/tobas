@@ -1,13 +1,11 @@
-#include <OGRE/OgreSceneManager.h>
-#include <rviz/robot/robot.h>
-#include <rviz/robot/robot_link.h>
-#include <rviz/ogre_helpers/axes.h>
-#include <rviz/ogre_helpers/movable_text.h>
-#include <rviz/visualization_manager.h>
+#include <OgreSceneManager.h>
+#include <rviz_default_plugins/robot/robot.hpp>
+#include <rviz_default_plugins/robot/robot_link.hpp>
+#include <rviz_rendering/objects/axes.hpp>
+#include <rviz_rendering/objects/movable_text.hpp>
 
 #include "../../include/urdf_builder/ogre_helpers/static_link_updater.hpp"
 #include "../../include/urdf_builder/ogre_helpers/ogre_controller.hpp"
-#include "../../include/urdf_builder/ui/display_context_proxy.hpp"
 #include "../../include/urdf_builder/utils/constants.hpp"
 
 using namespace std;
@@ -18,16 +16,13 @@ namespace ogre_helpers
 {
 struct OgreController::PImpl
 {
-  explicit PImpl(rviz::VisualizationManager* visualization_manager)
-    : rviz(visualization_manager), ogre(visualization_manager->getSceneManager()), link_updater(nullptr)
+  explicit PImpl(rviz_common::DisplayContext* context) : ogre(context->getSceneManager()), link_updater(nullptr)
   {
     ogre.root_node = ogre.scene_manager->getRootSceneNode();
     ogre.robot_node = ogre.root_node->createChildSceneNode();
     ogre.axes_node = ogre.root_node->createChildSceneNode();
     ogre.names_node = ogre.root_node->createChildSceneNode();
-    display_context_proxy =
-      new ui::DisplayContextProxy(ogre.scene_manager, visualization_manager->getSelectionManager());
-    rviz.robot.reset(new rviz::Robot(ogre.robot_node, display_context_proxy, "urdf_robot_model", nullptr));
+    rviz.robot = new rviz_default_plugins::robot::Robot(ogre.robot_node, context, "urdf_robot_model", nullptr);
 
     rviz.robot->setAlpha(kDefaultRobotAlpha);  // ロボット全体のAlpha
     rviz.robot->setVisualVisible(kDefaultVisualVisible);
@@ -36,23 +31,15 @@ struct OgreController::PImpl
 
   ~PImpl()
   {
-    delete display_context_proxy;
-
-    // FIXME: ogreのメモリ解放時にエラーが出る (実用上PImplのメモリはリークしても問題ないかも)
+    // FIXME: ogreのメモリ解放時にエラーが出る (実用上はPImplの開放時にプロセスごと落とすためメモリリークしても問題ない)
     // ogre.root_node->removeAndDestroyAllChildren();
     // ogre.scene_manager->destroySceneNode(ogre.root_node->getName());
   }
 
   struct RvizPrivate_
   {
-    explicit RvizPrivate_(rviz::VisualizationManager* _visualization_manager)
-      : visualization_manager(_visualization_manager)
-    {
-    }
-
-    rviz::VisualizationManager* visualization_manager;
-    rviz::RobotPtr robot;
-    vector<rviz::AxesPtr> axes;
+    rviz_default_plugins::robot::Robot* robot;
+    vector<shared_ptr<rviz_rendering::Axes>> axes;
   } rviz;
 
   struct OgrePrivate_
@@ -68,12 +55,10 @@ struct OgreController::PImpl
     Ogre::SceneNode* names_node = nullptr;
   } ogre;
 
-  ogre_helpers::StaticLinkUpdaterPtr link_updater;
-  ui::DisplayContextProxy* display_context_proxy;
+  ogre_helpers::StaticLinkUpdater::SharedPtr link_updater;
 };
 
-OgreController::OgreController(rviz::VisualizationManager* visualization_manager)
-  : pimpl_(new OgreController::PImpl(visualization_manager))
+OgreController::OgreController(rviz_common::DisplayContext* context) : pimpl_(new OgreController::PImpl(context))
 {
 }
 
@@ -104,12 +89,12 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
     const auto& name = pair.first;
     const auto& link = pair.second;
 
-    if (highlighted_links_.contains(name))
+    if (highlighted_links_.find(name) == highlighted_links_.end())
       link->setColor(kHighlightR, kHighlightG, kHighlightB);
     else
       link->unsetColor();
 
-    if (hidden_links_.contains(name))
+    if (hidden_links_.find(name) == hidden_links_.end())
       link->setRobotAlpha(0.);
     else
       link->setRobotAlpha(kDefaultRobotAlpha);
@@ -129,13 +114,14 @@ void OgreController::reloadAxes(const view_model::URDFViewModel& vm)
     if (!pimpl_->link_updater->getLinkTransforms(pair.second->name, position, orientation, position, orientation))
       continue;
 
-    rviz::AxesPtr axes(new rviz::Axes(pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius));
+    const auto axes =
+      make_shared<rviz_rendering::Axes>(pimpl_->ogre.scene_manager, pimpl_->ogre.axes_node, kAxesLength, kAxesRadius);
     axes->setPosition(position);
     axes->setOrientation(orientation);
     pimpl_->rviz.axes.push_back(axes);
 
-    auto name_text = new rviz::MovableText(pair.second->name, "Liberation Sans", kCharHeight);
-    name_text->setTextAlignment(rviz::MovableText::H_CENTER, rviz::MovableText::V_BELOW);
+    auto name_text = new rviz_rendering::MovableText(pair.second->name, "Liberation Sans", kCharHeight);
+    name_text->setTextAlignment(rviz_rendering::MovableText::H_CENTER, rviz_rendering::MovableText::V_BELOW);
 
     auto name_node = pimpl_->ogre.names_node->createChildSceneNode();
     name_node->setPosition(position);

@@ -1,6 +1,8 @@
 #include <queue>
 #include <urdf_parser/urdf_parser.h>
 
+#include <tobas_std_tools/console.hpp>
+
 #include "../../include/urdf_builder/view_model/urdf_view_model.hpp"
 
 using namespace std;
@@ -84,7 +86,7 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 
   if (!urdf_->initFile(file_path.toStdString()))
   {
-    RCLCPP_ERROR_STREAM("Failed to parse URDF.");
+    PRINT_ERROR("Failed to parse URDF.");
     urdf_ = nullptr;
     return false;
   }
@@ -95,10 +97,19 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 
 bool URDFViewModel::saveRobot(const QString& file_path)
 {
-  urdf_->root_link_->inertial = nullptr;         // ルートリンクのイナーシャを削除
-  TiXmlDocument* xml(urdf::exportURDF(*urdf_));  // TiXmlは生ポインタで扱うのが基本
+  // URDFを修正してXMLに変換
+  urdf_->root_link_->inertial = nullptr;                 // ルートリンクのイナーシャを削除
+  tinyxml2::XMLDocument* xml(urdf::exportURDF(*urdf_));  // TiXmlは生ポインタで扱うのが基本
   removeTextureTagsWithoutFilename(xml->RootElement());
-  return xml->SaveFile(file_path.toStdString());
+
+  // XMLを保存
+  if (xml->SaveFile(file_path.toStdString().c_str()) != tinyxml2::XMLError::XML_SUCCESS)
+  {
+    PRINT_ERROR("Failed to save URDF: " << xml->ErrorStr());
+    return false;
+  }
+
+  return true;
 }
 
 void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
@@ -220,7 +231,7 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
   }
 }
 
-void URDFViewModel::removeTextureTagsWithoutFilename(TiXmlElement* element)
+void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element)
 {
   if (element == nullptr)
     return;
@@ -228,7 +239,7 @@ void URDFViewModel::removeTextureTagsWithoutFilename(TiXmlElement* element)
   for (auto child = element->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
   {
     if (string(child->Value()) == "texture" && !child->Attribute("filename"))
-      element->RemoveChild(child);
+      element->DeleteChild(child);
 
     // 再帰的に子要素もチェック
     removeTextureTagsWithoutFilename(child);

@@ -33,7 +33,7 @@ class RvizWidget(Widget):
         self._frame = create_rviz_frame(rviz_config_path)
 
         # Setup robot_model_display
-        # rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
+        # rviz_common::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
         self._manager = self._frame.getManager()
         self._display = self._manager.getRootDisplayGroup().getDisplayAt(self.ROBOT_STATE_DISPLAY_IDX)
         assert self._display.getName() == "RobotState"

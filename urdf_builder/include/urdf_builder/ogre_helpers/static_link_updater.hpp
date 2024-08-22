@@ -1,17 +1,23 @@
 #pragma once
 
-#include <unordered_map>
+// OGREは"/usr/include/OGRE"ではなく"/opt/ros/jazzy/opt/rviz_ogre_vendor/include/OGRE"からインクルードする．
+// パスに"OGRE/"を含めれば前者，含めなければ後者からインクルードされる．
+#include <OgreVector.h>
+#include <OgreMatrix4.h>
+#include <OgreQuaternion.h>
+
 #include <urdf/model.h>
-#include <rviz/robot/link_updater.h>
-#include <OGRE/OgreMatrix4.h>
+#include <rviz_default_plugins/robot/link_updater.hpp>
 
 namespace urdf_builder
 {
 namespace ogre_helpers
 {
-class StaticLinkUpdater : public rviz::LinkUpdater
+class StaticLinkUpdater : public rviz_default_plugins::robot::LinkUpdater
 {
 public:
+  using SharedPtr = std::shared_ptr<StaticLinkUpdater>;
+
   explicit StaticLinkUpdater(urdf::ModelSharedPtr urdfPtr);
 
   bool getLinkTransforms(
@@ -21,15 +27,14 @@ public:
     Ogre::Vector3& collision_position,
     Ogre::Quaternion& collision_orientation) const override;
 
-  void setLinkStatus(rviz::StatusLevel level, const std::string& link_name, const std::string& text) const override;
+  void setLinkStatus(rviz_common::properties::StatusLevel level, const std::string& link_name, const std::string& text)
+    const override;
 
 private:
   urdf::ModelSharedPtr urdf_;
   std::unordered_map<std::string, Ogre::Matrix4> transforms_;
 
-  Ogre::Matrix4 findTransform(const urdf::Link::ConstSharedPtr& link);
+  Ogre::Matrix4 findTransform(const urdf::LinkConstSharedPtr& link);
 };
-
-using StaticLinkUpdaterPtr = std::shared_ptr<StaticLinkUpdater>;
 }  // namespace ogre_helpers
 }  // namespace urdf_builder

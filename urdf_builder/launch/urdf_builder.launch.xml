@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="rviz2" exec="rviz2" name="urdf_builder" args="-d $(find-pkg-share urdf_builder)/config/urdf_builder.rviz" output="screen"/>
+
+</launch>

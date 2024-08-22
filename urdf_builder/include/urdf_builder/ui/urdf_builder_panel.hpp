@@ -3,7 +3,8 @@
 #include <boost/filesystem.hpp>
 #include <QtCore/QtCore>
 #include <QtWidgets/QtWidgets>
-#include <rviz/panel.h>
+#include <rviz_common/panel.hpp>
+#include <rviz_common/ros_integration/ros_node_abstraction_iface.hpp>
 
 #include <tobas_property_tools/property_client.hpp>
 
@@ -24,9 +25,10 @@ namespace urdf_builder
 {
 namespace ui
 {
-class LinkTreeWidgetItem;
-
-class URDFBuilderPanel : public rviz::Panel
+/**
+ * @brief Rvizのメインウィジェットにプラグインするメインパネル．
+ */
+class URDFBuilderPanel : public rviz_common::Panel
 {
   Q_OBJECT
 
@@ -37,8 +39,8 @@ public:
   ~URDFBuilderPanel() override;
 
   void onInitialize() override;
-  void load(const rviz::Config& config) override;
-  void save(rviz::Config config) const override;
+  void load(const rviz_common::Config& config) override;
+  void save(rviz_common::Config config) const override;
 
   QStringList linkNames() const;
   QStringList jointNames() const;
@@ -63,13 +65,12 @@ private Q_SLOTS:
 private:
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;
-  ogre_helpers::OgreControllerPtr ogre_ctrl_;
+  ogre_helpers::OgreController::SharedPtr ogre_ctrl_;
   QTimer* update_timer_;
 
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
 
-  rclcpp::Node::SharedPtr node_;
   ptree::PropertyClient::SharedPtr property_client_;
 
   std::string getLastOpenedDir();

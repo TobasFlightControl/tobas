@@ -1,6 +1,3 @@
-#include <OGRE/OgreVector3.h>
-#include <OGRE/OgreQuaternion.h>
-
 #include "../../include/urdf_builder/ogre_helpers/static_link_updater.hpp"
 
 inline static Ogre::Vector3 URDFVector3ToOgre(const urdf::Vector3& v)
@@ -33,25 +30,26 @@ bool StaticLinkUpdater::getLinkTransforms(
   const auto link = urdf_->getLink(link_name);
   if (link == nullptr)
   {
-    setLinkStatus(rviz::StatusProperty::Error, link_name, "Transform not found");
+    setLinkStatus(rviz_common::properties::StatusProperty::Error, link_name, "Transform not found");
     return false;
   }
 
   const auto& vt = transforms_.at(link->name);
   visual_position = vt.getTrans();
-  visual_orientation = vt.extractQuaternion();
+  visual_orientation = vt.linear();
   collision_position = visual_position;
   collision_orientation = visual_orientation;
 
-  setLinkStatus(rviz::StatusProperty::Ok, link_name, "Transform OK");
+  setLinkStatus(rviz_common::properties::StatusProperty::Ok, link_name, "Transform OK");
   return true;
 }
 
-void StaticLinkUpdater::setLinkStatus(rviz::StatusLevel, const std::string&, const std::string&) const
+void StaticLinkUpdater::setLinkStatus(rviz_common::properties::StatusLevel, const std::string&, const std::string&)
+  const
 {
 }
 
-Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::Link::ConstSharedPtr& link)
+Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::LinkConstSharedPtr& link)
 {
   std::vector<Ogre::Matrix4> matrices;
 
@@ -62,7 +60,7 @@ Ogre::Matrix4 StaticLinkUpdater::findTransform(const urdf::Link::ConstSharedPtr&
       break;
     const auto& pose = cur->parent_joint->parent_to_joint_origin_transform;
     Ogre::Matrix4 m;
-    m.makeTransform(URDFVector3ToOgre(pose.position), Ogre::Vector3(1.0, 1.0, 1.0), URDFRotationToOgre(pose.rotation));
+    m.makeTransform(URDFVector3ToOgre(pose.position), Ogre::Vector3(1, 1, 1), URDFRotationToOgre(pose.rotation));
 
     matrices.push_back(m);
     cur = urdf_->getLink(cur->parent_joint->parent_link_name);

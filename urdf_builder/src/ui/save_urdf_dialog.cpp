@@ -1,4 +1,4 @@
-#include <rclcpp/rclcpp.hpp>
+#include <tobas_std_tools/console.hpp>
 
 #include "../utils/string.hpp"
 #include "../../include/urdf_builder/ui/save_urdf_dialog.hpp"
@@ -18,21 +18,21 @@ SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
   const auto button_box = findChild<QDialogButtonBox*>("buttonBox");
   if (button_box == nullptr)
   {
-    RCLCPP_ERROR("Failed to find the button box.");
+    PRINT_ERROR("Failed to find the button box.");
     return;
   }
 
   save_button_ = button_box->button(QDialogButtonBox::Save);
   if (save_button_ == nullptr)
   {
-    RCLCPP_ERROR("Failed to find the save button.");
+    PRINT_ERROR("Failed to find the save button.");
     return;
   }
 
   line_edit_ = findChild<QLineEdit*>("fileNameEdit");
   if (line_edit_ == nullptr)
   {
-    RCLCPP_ERROR("Failed to find the line edit.");
+    PRINT_ERROR("Failed to find the line edit.");
     return;
   }
 
@@ -42,7 +42,7 @@ SaveUrdfDialog::SaveUrdfDialog(QWidget* parent, const QString& dir)
 
 bool SaveUrdfDialog::eventFilter(QObject* obj, QEvent* event)
 {
-  ROS_DEBUG("SaveUrdfDialog::eventFilter");
+  PRINT_DEBUG("SaveUrdfDialog::eventFilter");
 
   if (obj == line_edit_ && event->type() == QEvent::KeyPress)
   {
@@ -63,7 +63,7 @@ bool SaveUrdfDialog::eventFilter(QObject* obj, QEvent* event)
 
 void SaveUrdfDialog::onLineEditTextChanged()
 {
-  ROS_DEBUG("SaveUrdfDialog::onLineEditTextChanged");
+  PRINT_DEBUG("SaveUrdfDialog::onLineEditTextChanged");
 
   // Enable the save button only if the file name is valid
   const auto file_name = line_edit_->text();

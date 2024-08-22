@@ -2,17 +2,9 @@
 
 #include <memory>
 #include <unordered_set>
+#include <rviz_common/display_context.hpp>
 
 #include "../view_model/urdf_view_model.hpp"
-
-namespace rviz
-{
-class Robot;
-class Axes;
-
-using RobotPtr = std::shared_ptr<Robot>;
-using AxesPtr = std::shared_ptr<Axes>;
-}  // namespace rviz
 
 namespace urdf_builder
 {
@@ -28,8 +20,9 @@ class OgreController
   static constexpr float kHighlightB = 0.;
 
 public:
-  explicit OgreController(rviz::VisualizationManager* visualizationManager);
+  using SharedPtr = std::shared_ptr<OgreController>;
 
+  explicit OgreController(rviz_common::DisplayContext* context);
   ~OgreController();
 
   void update();
@@ -52,7 +45,5 @@ private:
   std::unordered_set<std::string> highlighted_links_;
   std::unordered_set<std::string> hidden_links_;
 };
-
-using OgreControllerPtr = std::shared_ptr<OgreController>;
 }  // namespace ogre_helpers
 }  // namespace urdf_builder
