@@ -71,6 +71,7 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
+install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 pluginlib_export_plugin_description_file(rviz_common plugin_description.xml)
 

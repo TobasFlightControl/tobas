@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
 
-  <name>urdf_builder</name>
+  <name>tobas_setup_assistant</name>
   <version>0.0.0</version>
   <description>TODO</description>
   <maintainer email="denys.kotelovych@gmail.com">Denys Kotelovych</maintainer>
