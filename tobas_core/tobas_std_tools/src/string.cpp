@@ -33,6 +33,22 @@ vector<string> split(const string& str, const char& del)
   return res;
 }
 
+string lstrip(const string& str, const string& del)
+{
+  if (str.find(del) == 0)
+    return str.substr(del.length());
+  else
+    return str;
+}
+
+string rstrip(const string& str, const string& del)
+{
+  if (str.size() >= del.size() && str.compare(str.size() - del.size(), del.size(), del) == 0)
+    return str.substr(0, str.size() - del.size());
+  else
+    return str;
+}
+
 string deleteNl(const string& str)
 {
   string res;

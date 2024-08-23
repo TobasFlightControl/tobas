@@ -8,6 +8,12 @@ namespace tobas_std
 /* 文字列をdelで区切ってvectorにして返す． */
 std::vector<std::string> split(const std::string& str, const char& del);
 
+/* 先頭の特定の文字列を削除する． */
+std::string lstrip(const std::string& str, const std::string& del);
+
+/* 末尾の特定の文字列を削除する． */
+std::string rstrip(const std::string& str, const std::string& del);
+
 /* 文字列中の改行コードを削除． */
 std::string deleteNl(const std::string& str);
 

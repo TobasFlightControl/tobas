@@ -14,23 +14,29 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tobas_std_tools REQUIRED)
+find_package(tobas_path_tools REQUIRED)
+
+set(AMENT_DEPENDENCIES
+	Eigen3
+	rclcpp
+	ament_index_cpp
+	tf2_ros
+	geometry_msgs
+	sensor_msgs
+	tobas_std_tools
+	tobas_path_tools
+)
 
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}
-	Eigen3
-	rclcpp
-	tf2_ros
-	geometry_msgs
-	sensor_msgs
-	tobas_std_tools
-)
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(
 	TARGETS ${PROJECT_NAME}
@@ -43,13 +49,6 @@ install(
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(
-	Eigen3
-	rclcpp
-	tf2_ros
-	geometry_msgs
-	sensor_msgs
-	tobas_std_tools
-)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()
