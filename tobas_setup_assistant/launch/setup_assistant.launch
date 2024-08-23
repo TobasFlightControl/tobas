@@ -1,7 +1,0 @@
-<launch>
-
-  <arg name="log_level" default="info"/>
-
-  <node pkg="tobas_setup_assistant" exec="setup_assistant_node" name="tobas_setup_assistant" output="screen" args="--log_level $(arg log_level)"/>
-
-</launch>

@@ -1,1 +1,0 @@
-from .position_viewer import PositionViewerWidget
