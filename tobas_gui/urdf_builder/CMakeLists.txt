@@ -50,8 +50,8 @@ set(AMENT_DEPENDENCIES
 set(CMAKE_AUTOMOC ON)
 add_definitions(-DQT_NO_KEYWORDS)
 
-file(GLOB_RECURSE MO_FILES RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/ui/[^.]*.hpp)
-qt5_wrap_cpp(MOC_FILES ${MO_FILES})
+file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/ui/[^.]*.hpp)
+qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
 file(GLOB_RECURSE UI_FILES RELATIVE ${PROJECT_SOURCE_DIR} ui/[^.]*.ui)
 qt5_wrap_ui(UIC_FILES ${UI_FILES})
@@ -59,7 +59,7 @@ qt5_wrap_ui(UIC_FILES ${UI_FILES})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}) # catkin_ws/build/${PROJECT_NAME}/
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} SHARED ${MOC_FILES} ${UIC_FILES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${UIC_FILES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
