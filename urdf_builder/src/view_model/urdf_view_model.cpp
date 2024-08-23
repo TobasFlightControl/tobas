@@ -129,7 +129,7 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
   for (const auto& visual : link_vm->visuals())
     urdf_->materials_[visual->material()->name().toStdString()] = visual->material()->model();
 
-  if (!urdf_->root_link_)
+  if (urdf_->root_link_ == nullptr)
   {
     urdf_->root_link_ = link_vm->model();
     urdf_->joints_.erase(urdf_->root_link_->parent_joint->name);

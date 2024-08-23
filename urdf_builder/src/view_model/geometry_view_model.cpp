@@ -1,3 +1,5 @@
+#include <tobas_std_tools/console.hpp>
+
 #include "../../include/urdf_builder/view_model/geometry_view_model.hpp"
 
 using namespace std;
@@ -72,7 +74,7 @@ void GeometryViewModel::sync()
     }
     default:
     {
-      throw runtime_error("Invalid geometry type.");
+      PRINT_ERROR("Invalid geometry type: " << type_);
       break;
     }
   }
@@ -199,7 +201,7 @@ void GeometryViewModel::load()
     }
     default:
     {
-      throw runtime_error("Invalid geometry type.");
+      PRINT_ERROR("Invalid geometry type: " << type_);
       break;
     }
   }

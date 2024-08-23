@@ -89,12 +89,12 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
     const auto& name = pair.first;
     const auto& link = pair.second;
 
-    if (highlighted_links_.find(name) == highlighted_links_.end())
+    if (highlighted_links_.find(name) != highlighted_links_.end())
       link->setColor(kHighlightR, kHighlightG, kHighlightB);
     else
       link->unsetColor();
 
-    if (hidden_links_.find(name) == hidden_links_.end())
+    if (hidden_links_.find(name) != hidden_links_.end())
       link->setRobotAlpha(0.);
     else
       link->setRobotAlpha(kDefaultRobotAlpha);

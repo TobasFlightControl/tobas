@@ -451,7 +451,7 @@ void URDFBuilderPanel::reloadLinkTree()
     item->setSelected(link_vm->name() == selected_link_name);
 
     // チェック状態を保持
-    if (unchecked_links.find(link_vm->name().toStdString()) == unchecked_links.end())
+    if (unchecked_links.find(link_vm->name().toStdString()) != unchecked_links.end())
       item->setCheckState(0, Qt::Unchecked);
     else
       item->setCheckState(0, Qt::Checked);
@@ -554,7 +554,10 @@ bool URDFBuilderPanel::isJointsValid()
 void URDFBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, unordered_set<string>& set)
 {
   if (item->checkState(0) == Qt::Unchecked)
-    set.insert(item->text(0).toStdString());
+  {
+    const auto link_name = item->text(0).toStdString();
+    set.insert(link_name);
+  }
 
   // 子アイテムを走査
   for (int i = 0; i < item->childCount(); ++i)
