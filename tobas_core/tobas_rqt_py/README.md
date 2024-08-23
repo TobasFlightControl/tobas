@@ -1,3 +1,3 @@
-# tobas_rqt_tools
+# tobas_rqt_py
 
 ROS + Qtでアプリケーションを作る際に便利なライブラリ

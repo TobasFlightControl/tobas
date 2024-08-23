@@ -11,7 +11,7 @@ from sensor_msgs.msg import JointState
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
-from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
+from tobas_rqt_py.widgets import Widget, FloatSliderDisplay
 
 from .common import BUTTON_HEIGHT
 

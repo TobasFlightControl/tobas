@@ -7,7 +7,7 @@
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
-	<exec_depend>tobas_rqt_tools</exec_depend>
+	<exec_depend>tobas_rqt_py</exec_depend>
 
 	<export>
 		<build_type>ament_python</build_type>

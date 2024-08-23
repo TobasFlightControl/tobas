@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_std_tools_py.geometry import euler_from_matrix
-from tobas_rqt_tools.widgets import Widget, FloatSliderDisplay
+from tobas_rqt_py.widgets import Widget, FloatSliderDisplay
 from tobas_msgs.msg import (
     PositionYaw,
     PosVelAccYaw,
