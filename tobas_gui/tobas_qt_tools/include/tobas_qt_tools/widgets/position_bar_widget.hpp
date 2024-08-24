@@ -2,8 +2,6 @@
 
 #include <optional>
 #include <QWidget>
-#include <QPainter>
-#include <QPaintEvent>
 
 namespace qt
 {
@@ -24,12 +22,6 @@ public:
     int line_width = kDefaultLineWidth,
     int text_psize = kDefaultTextPSize,
     QWidget* parent = nullptr);
-
-  virtual void drawRange(QPainter& painter, double lower, double upper) = 0;
-  virtual void drawValue(QPainter& painter, double value) = 0;
-  virtual void drawText(QPainter& painter, const QString& text) = 0;
-
-  void paintEvent(QPaintEvent* event) override;
 
   double getMinimum() const;
   double getMaximum() const;
@@ -52,6 +44,9 @@ public:
 
   void clear();
 
+protected:
+  void paintEvent(QPaintEvent* event) override;
+
 private:
   bool fill_range_;
   double minimum_;
@@ -63,12 +58,17 @@ private:
   std::optional<double> value_;
   std::optional<double> lower_;
   std::optional<double> upper_;
+
+  virtual void drawRange(QPainter& painter, double lower, double upper) = 0;
+  virtual void drawValue(QPainter& painter, double value) = 0;
+  virtual void drawText(QPainter& painter, const QString& text) = 0;
 };
 
 class HPositionBarWidget : public PositionBarWidget
 {
   Q_OBJECT
 
+private:
   void drawRange(QPainter& painter, double lower, double upper) override;
   void drawValue(QPainter& painter, double value) override;
   void drawText(QPainter& painter, const QString& text) override;
@@ -78,6 +78,7 @@ class VPositionBarWidget : public PositionBarWidget
 {
   Q_OBJECT
 
+private:
   void drawRange(QPainter& painter, double lower, double upper) override;
   void drawValue(QPainter& painter, double value) override;
   void drawText(QPainter& painter, const QString& text) override;

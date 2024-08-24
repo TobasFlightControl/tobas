@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QComboBox>
-#include <QWheelEvent>
 
 namespace qt
 {

@@ -1,15 +1,10 @@
 #include <QVariant>
+#include <QDropEvent>
 
 #include "tobas_qt_tools/widgets/list_widget.hpp"
 
 namespace qt
 {
-void ListWidget::dropEvent(QDropEvent* event)
-{
-  QListWidget::dropEvent(event);
-  Q_EMIT itemMoved(selectedItems().at(0));
-}
-
 void ListWidget::remove(QListWidgetItem* item)
 {
   takeItem(row(item));
@@ -22,6 +17,12 @@ QListWidgetItem* ListWidget::selectedItem()
     return selected_items.at(0);
   else
     return nullptr;
+}
+
+void ListWidget::dropEvent(QDropEvent* event)
+{
+  QListWidget::dropEvent(event);
+  Q_EMIT itemMoved(selectedItems().at(0));
 }
 
 bool ListWidgetItem::operator<(QListWidgetItem* rhs) const

@@ -1,3 +1,5 @@
+#include <QWheelEvent>
+
 #include <tobas_math/core.hpp>
 
 #include "tobas_qt_tools/widgets/slider.hpp"

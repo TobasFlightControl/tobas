@@ -2,8 +2,6 @@
 
 #include <QLabel>
 #include <QLineEdit>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 
 #include "./slider.hpp"
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QSlider>
-#include <QWheelEvent>
 
 namespace qt
 {

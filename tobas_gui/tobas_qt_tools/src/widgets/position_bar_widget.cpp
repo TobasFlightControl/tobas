@@ -1,3 +1,6 @@
+#include <QPainter>
+#include <QPaintEvent>
+
 #include <tobas_math/core.hpp>
 
 #include "tobas_qt_tools/widgets/position_bar_widget.hpp"
@@ -18,45 +21,6 @@ PositionBarWidget::PositionBarWidget(
     line_width_(line_width),
     text_psize_(text_psize)
 {
-}
-
-void PositionBarWidget::paintEvent(QPaintEvent* event)
-{
-  // QPainterはpaintEvent内でのみ定義できる
-  QPainter painter(this);
-
-  // 背景を描画
-  painter.fillRect(event->rect(), Qt::white);
-
-  // 枠を描画
-  painter.save();
-  painter.setPen(Qt::black);
-  painter.drawRect(0, 0, width(), height());
-  painter.restore();
-
-  // 値の範囲を塗りつぶす
-  if (fill_range_ && lower_.has_value() && upper_.has_value())
-  {
-    painter.save();
-    drawRange(painter, lower_.value(), upper_.value());
-    painter.restore();
-  }
-
-  // 値の位置を表示
-  if (value_.has_value())
-  {
-    painter.save();
-    drawValue(painter, value_.value());
-    painter.restore();
-  }
-
-  // テキストを表示
-  if (text_.has_value())
-  {
-    painter.save();
-    drawText(painter, text_.value());
-    painter.restore();
-  }
 }
 
 double PositionBarWidget::getMinimum() const
@@ -155,6 +119,45 @@ void PositionBarWidget::clear()
   lower_.reset();
   upper_.reset();
   update();
+}
+
+void PositionBarWidget::paintEvent(QPaintEvent* event)
+{
+  // QPainterはpaintEvent内でのみ定義できる
+  QPainter painter(this);
+
+  // 背景を描画
+  painter.fillRect(event->rect(), Qt::white);
+
+  // 枠を描画
+  painter.save();
+  painter.setPen(Qt::black);
+  painter.drawRect(0, 0, width(), height());
+  painter.restore();
+
+  // 値の範囲を塗りつぶす
+  if (fill_range_ && lower_.has_value() && upper_.has_value())
+  {
+    painter.save();
+    drawRange(painter, lower_.value(), upper_.value());
+    painter.restore();
+  }
+
+  // 値の位置を表示
+  if (value_.has_value())
+  {
+    painter.save();
+    drawValue(painter, value_.value());
+    painter.restore();
+  }
+
+  // テキストを表示
+  if (text_.has_value())
+  {
+    painter.save();
+    drawText(painter, text_.value());
+    painter.restore();
+  }
 }
 
 void HPositionBarWidget::drawRange(QPainter& painter, double lower, double upper)

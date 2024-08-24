@@ -1,3 +1,5 @@
+#include <QWheelEvent>
+
 #include "tobas_qt_tools/widgets/combo_box.hpp"
 
 namespace qt

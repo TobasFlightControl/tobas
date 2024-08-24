@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QListWidget>
-#include <QDropEvent>
 
 namespace qt
 {
@@ -22,12 +21,13 @@ Q_SIGNALS:
 public:
   using super::QListWidget;
 
-  void dropEvent(QDropEvent* event) override;
-
   void remove(QListWidgetItem* item);
 
   /* 選択中のアイテムのうち，最も上のものを返す．存在しない場合はNULLを返す． */
   QListWidgetItem* selectedItem();
+
+protected:
+  void dropEvent(QDropEvent* event) override;
 };
 
 /**
