@@ -11,7 +11,7 @@ class ScrollableVBoxLayout : public QVBoxLayout
   Q_OBJECT
 
 public:
-  explicit ScrollableVBoxLayout();
+  explicit ScrollableVBoxLayout(QWidget* parent = nullptr);
 
   void addWidget(QWidget* widget);
   void addLayout(QLayout* layout);

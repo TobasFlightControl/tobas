@@ -17,16 +17,20 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
+find_package(tobas_math REQUIRED)
+find_package(tobas_std_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
   Qt5Core
   Qt5Widgets
+  tobas_math
+  tobas_std_tools
 )
 
 set(CMAKE_AUTOMOC ON)

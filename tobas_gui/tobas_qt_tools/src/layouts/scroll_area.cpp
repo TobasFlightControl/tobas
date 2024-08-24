@@ -2,7 +2,7 @@
 
 namespace qt
 {
-ScrollableVBoxLayout::ScrollableVBoxLayout()
+ScrollableVBoxLayout::ScrollableVBoxLayout(QWidget* parent) : QVBoxLayout(parent)
 {
   auto scroll_area = new ScrollArea();
   addWidget(scroll_area);

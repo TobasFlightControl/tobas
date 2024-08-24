@@ -2,7 +2,7 @@
 
 namespace qt
 {
-ScrollArea::ScrollArea()
+ScrollArea::ScrollArea(QWidget* parent) : QScrollArea(parent)
 {
   setWidgetResizable(true);
 }

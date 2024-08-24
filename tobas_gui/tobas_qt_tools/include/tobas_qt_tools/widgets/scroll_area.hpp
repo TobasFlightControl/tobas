@@ -13,8 +13,10 @@ class ScrollArea : public QScrollArea
 {
   Q_OBJECT
 
+  using super = QScrollArea;
+
 public:
-  explicit ScrollArea();
+  explicit ScrollArea(QWidget* parent = nullptr);
 
   void setLayout(QLayout* layout);
 };

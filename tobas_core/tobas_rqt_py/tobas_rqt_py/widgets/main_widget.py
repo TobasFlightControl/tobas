@@ -6,11 +6,6 @@ from PyQt5.QtGui import QIcon, QCloseEvent
 
 
 class MainWidget(QWidget):
-    """
-    メイン画面
-    - Configを作成
-    - 最新のウィンドウ位置とサイズを保存
-    """
 
     def __init__(self, title: str, icon_path: str, widget: QWidget) -> None:
         super().__init__()

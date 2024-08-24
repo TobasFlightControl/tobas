@@ -1,0 +1,33 @@
+#include <QVariant>
+
+#include "tobas_qt_tools/widgets/list_widget.hpp"
+
+namespace qt
+{
+void ListWidget::dropEvent(QDropEvent* event)
+{
+  QListWidget::dropEvent(event);
+  Q_EMIT itemMoved(selectedItems().at(0));
+}
+
+void ListWidget::remove(QListWidgetItem* item)
+{
+  takeItem(row(item));
+}
+
+QListWidgetItem* ListWidget::selectedItem()
+{
+  const auto& selected_items = selectedItems();
+  if (selected_items.size() > 0)
+    return selected_items.at(0);
+  else
+    return nullptr;
+}
+
+bool ListWidgetItem::operator<(QListWidgetItem* rhs) const
+{
+  const auto ldata = data(Qt::UserRole);
+  const auto rdata = rhs->data(Qt::UserRole);
+  return ldata < rdata;
+}
+}  // namespace qt

@@ -58,8 +58,7 @@ class ProgressDialog(QProgressDialog):
         self.setValue(value, reflesh=reflesh)
 
     def progress_step(self, reflesh: bool = True) -> None:
-        self._step += 1
-        self.set_step(self._step, reflesh=reflesh)
+        self.set_step(self._step + 1, reflesh=reflesh)
 
     def reflesh(self) -> None:
         # 画面更新のためにメインループを進める必要がある
