@@ -1,6 +1,6 @@
 #include <QMessageBox>
 
-#include "../include/tobas_qt_tools/message.hpp"
+#include "tobas_qt_tools/message.hpp"
 
 namespace qt
 {
@@ -29,12 +29,15 @@ bool yesOrNo(QWidget* parent, const QString& text, QMessageLevel level)
     case QMessageLevel::INFO:
       msg_box.setIcon(QMessageBox::Icon::Information);
       msg_box.setWindowTitle("INFO");
+      break;
     case QMessageLevel::WARN:
       msg_box.setIcon(QMessageBox::Icon::Warning);
       msg_box.setWindowTitle("WARN");
+      break;
     case QMessageLevel::ERROR:
       msg_box.setIcon(QMessageBox::Icon::Critical);
       msg_box.setWindowTitle("ERROR");
+      break;
     default:
       throw;
   }
