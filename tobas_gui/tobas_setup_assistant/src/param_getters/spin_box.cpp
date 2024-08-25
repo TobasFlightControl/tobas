@@ -33,6 +33,7 @@ ParamGetterWidget_SpinBox::ParamGetterWidget_SpinBox(
   }
   spin_box_->setSuffix(QString::fromStdString(tobas_std::convertToSuperscript(suffix.toStdString())));
   spin_box_->setFocusPolicy(Qt::StrongFocus);
+
   connect(spin_box_, SIGNAL(qt::SpinBox::valueChanged(int)), this, SLOT(onValueChanged(int)));
 }
 
