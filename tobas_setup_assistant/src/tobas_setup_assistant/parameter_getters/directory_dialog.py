@@ -67,6 +67,8 @@ class ParamGetterWidget_DirDialog(ParamGetterWidget[str]):
         self._path.setText(path)
 
         if self._property_client.set_string(self._last_opened_dir_key, osp.dirname(path)) < 0:
-            rospy.logerr(self._property_client.error_message())
+            rospy.logwarn(self._property_client.error_message())
+            return
         if self._property_client.save() < 0:
-            rospy.logerr(self._property_client.error_message())
+            rospy.logwarn(self._property_client.error_message())
+            return

@@ -54,7 +54,6 @@ class FloatGetter(QWidget):
     def __init__(
         self, name: str, decimals: int, minimum: float, maximum: float, single_step: float, default: float, suffix: str
     ) -> None:
-        assert decimals >= 0
         assert minimum < maximum
         assert single_step > 0.0
 

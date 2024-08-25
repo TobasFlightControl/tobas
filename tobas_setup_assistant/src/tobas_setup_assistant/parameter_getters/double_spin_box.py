@@ -22,9 +22,8 @@ class ParamGetterWidget_DoubleSpinBox(ParamGetterWidget[float]):
         default: Optional[float] = None,
         suffix: str = "",
     ) -> None:
-        assert minimum < maximum
+        assert minimum <= maximum
         assert single_step > 0.0
-        assert decimals >= 0
 
         super().__init__(param_name, description_text)
 
