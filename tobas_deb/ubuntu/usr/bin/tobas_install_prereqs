@@ -20,6 +20,12 @@ sudo apt install -y python3-vcstool python3-catkin-tools &&
 sudo rosdep init || true  # 既に初期化済みの場合も正常終了
 rosdep update &&
 
+# ===== Install Rapidcsv =====
+cd /tmp
+git clone https://github.com/d99kris/rapidcsv.git
+cd rapidcsv
+bash ./make.sh install
+
 # ===== Install balenaEtcher =====
 curl -sLf 'https://dl.cloudsmith.io/public/balena/etcher/setup.deb.sh' | sudo -E bash &&
 sudo apt update &&

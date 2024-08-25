@@ -9,6 +9,10 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>tobas_linux</depend>
+  <depend>tobas_property_tools</depend>
+  <depend>tobas_qt_tools</depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

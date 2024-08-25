@@ -1,5 +1,6 @@
 #include <cinttypes>
 #include <algorithm>
+#include <map>
 
 #include "../include/tobas_std_tools/string.hpp"
 
@@ -68,6 +69,47 @@ string toUpper(string arg)
 {
   transform(arg.begin(), arg.end(), arg.begin(), [](uint8_t c) { return toupper(c); });
   return arg;
+}
+
+string replace(string str, const string& from, const string& to)
+{
+  size_t start_pos = 0;
+  while ((start_pos = str.find(from, start_pos)) != string::npos)
+  {
+    str.replace(start_pos, from.length(), to);
+    start_pos += to.length();  // 次の検索位置を設定
+  }
+  return str;
+}
+
+string convertToSuperscript(const string& input)
+{
+  // 上付き文字の対応表
+  const map<string, string> superscripts = {
+    { "^0", "⁰" }, { "^1", "¹" }, { "^2", "²" }, { "^3", "³" }, { "^4", "⁴" },
+    { "^5", "⁵" }, { "^6", "⁶" }, { "^7", "⁷" }, { "^8", "⁸" }, { "^9", "⁹" },
+  };
+
+  string output;
+  size_t pos = 0;
+
+  while (pos < input.size())
+  {
+    if (input[pos] == '^' && pos + 1 < input.size() && isdigit(input[pos + 1]))
+    {
+      const auto key = input.substr(pos, 2);  // "^N" を取得
+      if (superscripts.find(key) != superscripts.end())
+      {
+        output += superscripts.at(key);  // 上付き文字に変換
+        pos += 2;
+        continue;
+      }
+    }
+    output += input[pos];
+    ++pos;
+  }
+
+  return output;
 }
 
 bool contains(const string& str, const string& sub)
