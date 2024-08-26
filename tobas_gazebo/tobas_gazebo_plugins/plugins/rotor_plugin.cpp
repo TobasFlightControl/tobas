@@ -177,7 +177,7 @@ void GazeboRotorPlugin::Configure(
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "motorNumber", channel_);
+  getSdfParam(sdf, "channel", channel_);
   getSdfParam(sdf, "jointName", joint_name_);
 
   getSdfParam(sdf, "rotSpeedCoefficients", rot_speed_coefs_);

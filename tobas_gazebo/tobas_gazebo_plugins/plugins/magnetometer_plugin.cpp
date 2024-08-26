@@ -43,8 +43,8 @@ public:
 private:
   // SDF parameters
   string link_name_;
-  Vector3d offset_;                      // [m] B_Pos_BS
   size_t update_rate_;                   // [Hz] Update rate
+  Vector3d offset_;                      // [m] B_Pos_BS
   double lat_0_;                         // [deg] 原点の北緯
   double lon_0_;                         // [deg] 原点の東経
   double alt_0_;                         // [m] 原点の高度
@@ -98,8 +98,8 @@ void GazeboMagnetometerPlugin::Configure(
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
 
   getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
   getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);

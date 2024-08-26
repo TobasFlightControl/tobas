@@ -48,8 +48,8 @@ public:
 private:
   // SDF parameters
   string link_name_;
-  Vector3d offset_;     // B_Pos_BS
   size_t update_rate_;  // 更新頻度 [Hz]
+  Vector3d offset_;     // B_Pos_BS
   double delay_;        // GPSの遅延時間 [s]
   double pos_corr_time_;
   double hor_pos_accuracy_;
@@ -119,9 +119,9 @@ void GazeboGpsPlugin::Configure(
 void GazeboGpsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-
-  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
+
   getSdfParam(sdf, "delay", delay_, kDefaultDelay, NON_NEGATIVE);
   getSdfParam(sdf, "positionCorrTime", pos_corr_time_, kDefaultPosCorrTime, POSITIVE);
 

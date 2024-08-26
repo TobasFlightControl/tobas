@@ -54,8 +54,8 @@ public:
 private:
   // SDF parameters
   std::string link_name_;
-  Vector3d offset_;                 // B_Pos_BS
   size_t update_rate_;              // Update rate [Hz]
+  Vector3d offset_;                 // B_Pos_BS
   double acc_noise_density_sig_;    // Accel noise density actually added to signal [m/s^2/sqrt(Hz)]
   double acc_noise_density_obs_;    // Accel noise density that is observerd [m/s^2/sqrt(Hz)]
   double acc_random_walk_;          // Accel bias random walk [m/s^2/s/sqrt(Hz)]
@@ -143,8 +143,8 @@ void GazeboImuPlugin::Configure(
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
 
   getSdfParam(sdf, "accelNoiseDensityOnSignal", acc_noise_density_sig_, kDefaultAccNoiseDensity, POSITIVE);
   getSdfParam(sdf, "accelNoiseDensityObserved", acc_noise_density_obs_, kDefaultAccNoiseDensity, POSITIVE);
