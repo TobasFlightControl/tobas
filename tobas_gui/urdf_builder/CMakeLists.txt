@@ -47,8 +47,8 @@ set(AMENT_DEPENDENCIES
   tobas_property_tools
 )
 
-set(CMAKE_AUTOMOC ON)
 add_definitions(-DQT_NO_KEYWORDS)
+set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/ui/[^.]*.hpp)
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})

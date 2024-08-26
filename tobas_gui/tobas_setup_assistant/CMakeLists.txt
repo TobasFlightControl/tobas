@@ -33,8 +33,8 @@ set(AMENT_DEPENDENCIES
   tobas_qt_tools
 )
 
+# add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
-add_definitions(-DQT_NO_KEYWORDS)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})

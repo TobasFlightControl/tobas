@@ -23,18 +23,20 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
+find_package(rviz_common REQUIRED)
 find_package(tobas_math REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
   Qt5Core
   Qt5Widgets
+  rviz_common
   tobas_math
   tobas_std_tools
 )
 
+# add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
-add_definitions(-DQT_NO_KEYWORDS)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR}
   include/${PROJECT_NAME}/widgets/[^.]*.hpp
