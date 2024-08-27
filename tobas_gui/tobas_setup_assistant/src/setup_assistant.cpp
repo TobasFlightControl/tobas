@@ -19,9 +19,24 @@ const rclcpp::Node::SharedPtr& SetupAssistant::node()
   return node_;
 }
 
+const kdl::Tree& SetupAssistant::tree()
+{
+  return tree_;
+}
+
 const TreeInformation& SetupAssistant::treeInfo()
 {
   return tree_info_;
+}
+
+RvizWidget* SetupAssistant::rviz()
+{
+  return rviz_;
+}
+
+FrameTreeWidget* SetupAssistant::frameTree()
+{
+  return frame_tree_;
 }
 }  // namespace setup_assistant
 }  // namespace gui

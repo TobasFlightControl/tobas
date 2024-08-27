@@ -12,10 +12,5 @@ void TreeInformation::updateInternalDataStructures()
 {
   super::updateInternalDataStructures();
 }
-
-const std::string& TreeInformation::getRootName() const
-{
-  return tree_.getRootName();
-}
 }  // namespace setup_assistant
 }  // namespace gui

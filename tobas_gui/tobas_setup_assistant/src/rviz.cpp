@@ -9,8 +9,6 @@
 #include <tobas_qt_tools/rviz.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
-#include "tobas_setup_assistant/rviz.hpp"
-#include "tobas_setup_assistant/common.hpp"
 
 namespace gui
 {
@@ -70,7 +68,7 @@ void RvizWidget::updateInternalDataStructures()
   display_->setBool(true);
 
   // 固定フレームをルートリンクに設定
-  const auto& root_name = main_->treeInfo().getRootName();
+  const auto& root_name = main_->tree().getRootName();
   manager_->setFixedFrame(QString::fromStdString(root_name));
 
   // ロボットモデルをリロード

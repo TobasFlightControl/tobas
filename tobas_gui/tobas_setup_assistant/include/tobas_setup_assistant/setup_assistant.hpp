@@ -5,7 +5,10 @@
 #include <tobas_qt_tools/widgets/widget.hpp>
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
+#include "./common.hpp"
 #include "./tree_information.hpp"
+#include "./rviz.hpp"
+#include "./frame_tree.hpp"
 
 namespace gui
 {
@@ -27,7 +30,10 @@ public:
   const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr& rvizRosNode();
   const rclcpp::Node::SharedPtr& node();
 
+  const kdl::Tree& tree();
   const TreeInformation& treeInfo();
+  RvizWidget* rviz();
+  FrameTreeWidget* frameTree();
 
   // TODO
 
@@ -37,6 +43,9 @@ private:
 
   kdl::Tree tree_;
   TreeInformation tree_info_;
+
+  RvizWidget* rviz_;
+  FrameTreeWidget* frame_tree_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

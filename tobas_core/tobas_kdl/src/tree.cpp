@@ -286,6 +286,14 @@ bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) con
   return true;
 }
 
+inline bool Tree::isEndSegment(const string& seg_name) const
+{
+  const auto seg_it = segments_.find(seg_name);
+  if (seg_it == segments_.end())
+    return false;
+  return seg_it->second.children.size() == 0;
+}
+
 ostream& operator<<(ostream& os, const Tree& arg)
 {
   for (const auto& it : arg.segments_)

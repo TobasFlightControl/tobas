@@ -14,8 +14,6 @@ public:
   explicit TreeInformation(const kdl::Tree& tree);
 
   void updateInternalDataStructures() override;
-
-  const std::string& getRootName() const;
 };
 }  // namespace setup_assistant
 }  // namespace gui
