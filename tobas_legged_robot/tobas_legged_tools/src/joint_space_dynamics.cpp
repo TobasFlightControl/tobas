@@ -47,16 +47,19 @@ JointSpaceDynamics::JointSpaceDynamics(
 
 void JointSpaceDynamics::updateInternalDataStructures()
 {
-  const auto floating_base_name = floating_base_name_.size() > 0 ? floating_base_name_ : tree_raw_.getRootName();
+  // 浮遊リンクの名前を取得
+  auto floating_base_name = floating_base_name_;
+  if (floating_base_name.empty())
+    floating_base_name = tree_raw_.getRootName();
 
   // ベースリンク以下を抽出
   kdl::Tree base_sub_tree;
-  if (!tree_raw_.getSubTree(floating_base_name_, base_sub_tree))
+  if (!tree_raw_.getSubTree(floating_base_name, base_sub_tree))
     throw runtime_error("Failed to get sub tree.");
 
   // ツリーに浮遊リンクを接続
-  tree_ = kdl::Tree::FloatingBase("world", floating_base_name_);
-  if (!tree_.addTree(base_sub_tree, floating_base_name_))
+  tree_ = kdl::Tree::FloatingBase("world", floating_base_name);
+  if (!tree_.addTree(base_sub_tree, floating_base_name))
     throw runtime_error("Failed to add a floating base link to the tree.");
 
   nj_raw_ = base_sub_tree.getNrOfJoints();
@@ -108,15 +111,13 @@ bool JointSpaceDynamics::solve(
   const kdl::Euler& tar_rpydd,
   const kdl::JntArray& tar_qdd,
   const vector<kdl::Vector>& tar_force,
-  const vector<double>& tar_torque,
-  const vector<bool>& is_stand)
+  const vector<double>& tar_torque)
 {
   assert(cur_q.size() == nj_raw_);
   assert(cur_qd.size() == nj_raw_);
   assert(tar_qdd.size() == nj_raw_);
   assert(tar_force.size() == nc_);
   assert(tar_torque.size() == nc_);
-  assert(is_stand.size() == nc_);
 
   // 浮遊リンクを含む関節状態の現在値を更新
   cur_q_.data.segment<3>(kPosIdx).setZero();  // 並進位置は関係ない
@@ -180,7 +181,9 @@ bool JointSpaceDynamics::solve(
 
   for (size_t l = 0; l < nc_; ++l)
   {
-    if (is_stand[l])
+    // 各足の接地状態を制御対象として扱うため，目標地面反力から接地状態を決定する．
+    const auto is_stand = tar_force[l].z() > kStandLegNormalForceThresh;
+    if (is_stand)
       qp_.problem.b.segment<kIneqSize>(kIneqSize * l) = b1_st_ - A1_ * w_ref_.segment<kWrenchSize>(forceIndex(l));
     else
       qp_.problem.b.segment<kIneqSize>(kIneqSize * l) = b1_sw_ - A1_ * w_ref_.segment<kWrenchSize>(forceIndex(l));
