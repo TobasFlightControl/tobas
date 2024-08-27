@@ -17,14 +17,11 @@ AddLinkDialog::AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_nam
 
   enableOkButton(false);
 
+  connect(ui_->LinkNameLineEdit, &QLineEdit::textChanged, this, &self::LinkNameLineEditTextChanged);
+  connect(ui_->JointNameLineEdit, &QLineEdit::textChanged, this, &self::JointNameLineEditTextChanged);
   connect(
-    ui_->LinkNameLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(LinkNameLineEditTextChanged(const QString&)));
-  connect(
-    ui_->JointNameLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(JointNameLineEditTextChanged(const QString&)));
-  connect(
-    ui_->JointParentLinkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(JointParentComboBoxIndexChanged(int)));
+    ui_->JointParentLinkComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    &self::JointParentComboBoxIndexChanged);
 }
 
 void AddLinkDialog::LinkNameLineEditTextChanged(const QString& text)

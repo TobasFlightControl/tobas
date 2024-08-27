@@ -26,7 +26,7 @@ StringInputDialog::StringInputDialog(
 
   line_edit_ = new QLineEdit();
   line_edit_->setText(default_text);
-  connect(line_edit_, SIGNAL(textChanged(const QString&)), this, SLOT(LineEditTextChanged(const QString&)));
+  connect(line_edit_, &QLineEdit::textChanged, this, &self::LineEditTextChanged);
   cols->addWidget(line_edit_);
 
   warn_label_ = new QLabel();
@@ -37,8 +37,8 @@ StringInputDialog::StringInputDialog(
   button_box_->setOrientation(Qt::Horizontal);
   button_box_->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
   enableOkButton(false);
-  QObject::connect(button_box_, SIGNAL(accepted()), this, SLOT(accept()));
-  QObject::connect(button_box_, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(button_box_, &QDialogButtonBox::accepted, this, &self::accept);
+  connect(button_box_, &QDialogButtonBox::rejected, this, &self::reject);
   rows->addWidget(button_box_);
 }
 

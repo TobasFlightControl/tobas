@@ -17,7 +17,7 @@ IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* pare
 
   slider_ = new Slider(Qt::Horizontal);
   slider_->setRange(minimum, maximum);
-  connect(slider_, SIGNAL(Slider::sliderReleased()), this, SLOT(onSliderReleased()));
+  connect(slider_, &Slider::sliderReleased, this, &self::onSliderReleased);
   cols->addWidget(slider_);
 
   cols->addWidget(new QLabel(QString::number(maximum)));
@@ -25,7 +25,7 @@ IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* pare
   line_edit_ = new QLineEdit();
   line_edit_->setFixedWidth(VALUE_WIDTH);
   line_edit_->setValidator(new QIntValidator(minimum, maximum));
-  connect(slider_, SIGNAL(QLineEdit::returnPressed()), this, SLOT(onLineEditReturnPressed()));
+  connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);
   cols->addWidget(line_edit_);
 }
 
@@ -78,7 +78,7 @@ DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, i
 
   slider_ = new DoubleSlider(Qt::Horizontal);
   slider_->setRange(minimum, maximum);
-  connect(slider_, SIGNAL(Slider::sliderReleased()), this, SLOT(onSliderReleased()));
+  connect(slider_, &Slider::sliderReleased, this, &self::onSliderReleased);
   cols->addWidget(slider_);
 
   cols->addWidget(new QLabel(QString::number(maximum, 'f', decimals)));
@@ -86,7 +86,7 @@ DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, i
   line_edit_ = new QLineEdit();
   line_edit_->setFixedWidth(VALUE_WIDTH);
   line_edit_->setValidator(new QDoubleValidator(minimum, maximum, decimals));
-  connect(slider_, SIGNAL(QLineEdit::returnPressed()), this, SLOT(onLineEditReturnPressed()));
+  connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);
   cols->addWidget(line_edit_);
 }
 

@@ -7,153 +7,224 @@ namespace ui
 {
 void UpdateLinkDialog::defineConnections()
 {
+  connect(ui_->LinkNameLineEdit, &QLineEdit::textChanged, this, &self::LinkNameLineEditTextChanged);
+  connect(ui_->JointNameLineEdit, &QLineEdit::textChanged, this, &self::JointNameLineEditTextChanged);
+  connect(ui_->VisualNameLineEdit, &QLineEdit::textChanged, this, &self::VisualNameLineEditTextChanged);
   connect(
-    ui_->LinkNameLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(LinkNameLineEditTextChanged(const QString&)));
+    ui_->VisualGeometryMeshPathLineEdit, &QLineEdit::textChanged, this,
+    &self::VisualGeometryMeshPathLineEditTextChanged);
+
+  connect(ui_->CollisionNameLineEdit, &QLineEdit::textChanged, this, &self::CollisionNameLineEditTextChanged);
   connect(
-    ui_->JointNameLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(JointNameLineEditTextChanged(const QString&)));
+    ui_->CollisionGeometryMeshPathLineEdit, &QLineEdit::textChanged, this,
+    &self::CollisionGeometryMeshPathEditTextChanged);
+
+  connect(ui_->MaterialNameLineEdit, &QLineEdit::textChanged, this, &self::MaterialNameLineEditTextChanged);
   connect(
-    ui_->VisualNameLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(VisualNameLineEditTextChanged(const QString&)));
-  connect(
-    ui_->VisualGeometryMeshPathLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(VisualGeometryMeshPathLineEditTextChanged(const QString&)));
+    ui_->MaterialTexturePathLineEdit, &QLineEdit::textChanged, this, &self::MaterialTexturePathLineEditTextChanged);
 
   connect(
-    ui_->CollisionNameLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(CollisionNameLineEditTextChanged(const QString&)));
+    ui_->VisualGeometryTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    &self::VisualGeometryTypeComboBoxIndexChanged);
   connect(
-    ui_->CollisionGeometryMeshPathLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(CollisionGeometryMeshPathEditTextChanged(const QString&)));
+    ui_->CollisionGeometryTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    &self::CollisionGeometryTypeComboBoxIndexChanged);
 
   connect(
-    ui_->MaterialNameLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(MaterialNameLineEditTextChanged(const QString&)));
+    ui_->VisualOriginXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
   connect(
-    ui_->MaterialTexturePathLineEdit, SIGNAL(textChanged(const QString&)), this,
-    SLOT(MaterialTexturePathLineEditTextChanged(const QString&)));
+    ui_->VisualOriginYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualOriginZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualOriginRollSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualOriginPitchSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualOriginYawSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualGeometryBoxWidthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualGeometryBoxLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualGeometryBoxHeightSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualGeometrySphereRadiusSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualGeometryCylinderLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualGeometryCylinderRadiusSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->VisualGeometryMeshScaleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->MaterialColorRedSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->MaterialColorGreenSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
+  connect(
+    ui_->MaterialColorBlueSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::VisualSpinBoxValueChanged);
 
   connect(
-    ui_->VisualGeometryTypeComboBox, SIGNAL(currentIndexChanged(int)), this,
-    SLOT(VisualGeometryTypeComboBoxIndexChanged(int)));
+    ui_->CollisionOriginXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->CollisionGeometryTypeComboBox, SIGNAL(currentIndexChanged(int)), this,
-    SLOT(CollisionGeometryTypeComboBoxIndexChanged(int)));
-
-  connect(ui_->VisualOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->VisualOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->VisualOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->VisualOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->VisualOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->VisualOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->CollisionOriginYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->VisualGeometryBoxWidthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->CollisionOriginZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->VisualGeometryBoxLengthSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->CollisionOriginRollSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->VisualGeometryBoxHeightSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
+    ui_->CollisionOriginPitchSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->VisualGeometrySphereRadiusSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualGeometryCylinderLengthSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualGeometryCylinderRadiusSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(VisualSpinBoxValueChanged(double)));
-  connect(
-    ui_->VisualGeometryMeshScaleSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->MaterialColorRedSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->MaterialColorGreenSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-  connect(ui_->MaterialColorBlueSpinBox, SIGNAL(valueChanged(double)), this, SLOT(VisualSpinBoxValueChanged(double)));
-
-  connect(ui_->CollisionOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(ui_->CollisionOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(ui_->CollisionOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(
-    ui_->CollisionOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(
-    ui_->CollisionOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
-  connect(
-    ui_->CollisionOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionOriginYawSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
 
   connect(
-    ui_->CollisionGeometryBoxWidthSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionGeometryBoxWidthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->CollisionGeometryBoxLengthSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionGeometryBoxLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->CollisionGeometryBoxHeightSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionGeometryBoxHeightSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->CollisionGeometrySphereRadiusSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionGeometrySphereRadiusSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->CollisionGeometryCylinderLengthSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionGeometryCylinderLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->CollisionGeometryCylinderRadiusSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionGeometryCylinderRadiusSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
   connect(
-    ui_->CollisionGeometryMeshScaleSpinBox, SIGNAL(valueChanged(double)), this,
-    SLOT(CollisionSpinBoxValueChanged(double)));
+    ui_->CollisionGeometryMeshScaleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::CollisionSpinBoxValueChanged);
+
+  connect(ui_->VisualListWidget, &QListWidget::itemClicked, this, &self::VisualListWidgetItemClicked);
+  connect(ui_->CollisionListWidget, &QListWidget::itemClicked, this, &self::CollisionListWidgetItemClicked);
 
   connect(
-    ui_->VisualListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this,
-    SLOT(VisualListWidgetItemClicked(QListWidgetItem*)));
+    ui_->JointOriginXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
   connect(
-    ui_->CollisionListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this,
-    SLOT(CollisionListWidgetItemClicked(QListWidgetItem*)));
+    ui_->JointOriginYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointOriginZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointOriginRollSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointOriginPitchSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointOriginYawSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointAxisXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointAxisYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointAxisZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointLimitLowerSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointLimitUpperSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointLimitEffortSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
+  connect(
+    ui_->JointLimitVelocitySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::JointSpinBoxValueChanged);
 
-  connect(ui_->JointOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointAxisXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointAxisYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointAxisZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointLimitLowerSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointLimitUpperSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointLimitEffortSpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
-  connect(ui_->JointLimitVelocitySpinBox, SIGNAL(valueChanged(double)), this, SLOT(JointSpinBoxValueChanged(double)));
+  connect(
+    ui_->JointParentLinkComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    &self::JointParentComboBoxIndexChanged);
+  connect(
+    ui_->JointTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    &self::JointTypeComboBoxIndexChanged);
 
   connect(
-    ui_->JointParentLinkComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(JointParentComboBoxIndexChanged(int)));
-  connect(ui_->JointTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(JointTypeComboBoxIndexChanged(int)));
+    ui_->InertialOriginXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertialOriginYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertialOriginZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertialOriginRollSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertialOriginPitchSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertialOriginYawSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertialMassSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertiaIXXSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertiaIXYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertiaIXZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertiaIYYSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertiaIYZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
+  connect(
+    ui_->InertiaIZZSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    &self::InertialSpinBoxValueChanged);
 
-  connect(ui_->InertialOriginXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertialOriginYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertialOriginZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+  connect(ui_->RenameLinkButton, &QPushButton::released, this, &self::RenameLinkButtonClicked);
+  connect(ui_->RenameJointButton, &QPushButton::released, this, &self::RenameJointButtonClicked);
+  connect(ui_->AddVisualButton, &QPushButton::released, this, &self::AddVisualButtonClicked);
+  connect(ui_->RemoveVisualButton, &QPushButton::released, this, &self::RemoveVisualButtonClicked);
+  connect(ui_->AddCollisionButton, &QPushButton::released, this, &self::AddCollisionButtonClicked);
+  connect(ui_->RemoveCollisionButton, &QPushButton::released, this, &self::RemoveCollisionButtonClicked);
   connect(
-    ui_->InertialOriginRollSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
+    ui_->VisualGeometryMeshBrowseButton, &QPushButton::released, this, &self::VisualGeometryMeshBrowseButtonClicked);
   connect(
-    ui_->InertialOriginPitchSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertialOriginYawSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertialMassSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertiaIXXSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertiaIXYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertiaIXZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertiaIYYSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertiaIYZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-  connect(ui_->InertiaIZZSpinBox, SIGNAL(valueChanged(double)), this, SLOT(InertialSpinBoxValueChanged(double)));
-
-  connect(ui_->RenameLinkButton, SIGNAL(released()), this, SLOT(RenameLinkButtonClicked()));
-  connect(ui_->RenameJointButton, SIGNAL(released()), this, SLOT(RenameJointButtonClicked()));
-  connect(ui_->AddVisualButton, SIGNAL(released()), this, SLOT(AddVisualButtonClicked()));
-  connect(ui_->RemoveVisualButton, SIGNAL(released()), this, SLOT(RemoveVisualButtonClicked()));
-  connect(ui_->AddCollisionButton, SIGNAL(released()), this, SLOT(AddCollisionButtonClicked()));
-  connect(ui_->RemoveCollisionButton, SIGNAL(released()), this, SLOT(RemoveCollisionButtonClicked()));
-  connect(ui_->VisualGeometryMeshBrowseButton, SIGNAL(released()), this, SLOT(VisualGeometryMeshBrowseButtonClicked()));
-  connect(
-    ui_->CollisionGeometryMeshBrowseButton, SIGNAL(released()), this, SLOT(CollisionGeometryMeshBrowseButtonClicked()));
-  connect(ui_->MaterialColorPickButton, SIGNAL(released()), this, SLOT(MaterialColorPickButtonClicked()));
-  connect(ui_->BuildInertiaBoxButton, SIGNAL(released()), this, SLOT(BuildInertiaBoxButtonClicked()));
-  connect(ui_->BuildInertiaCylinderButton, SIGNAL(released()), this, SLOT(BuildInertiaCylinderButtonClicked()));
-  connect(ui_->BuildInertiaSphereButton, SIGNAL(released()), this, SLOT(BuildInertiaSphereButtonClicked()));
+    ui_->CollisionGeometryMeshBrowseButton, &QPushButton::released, this,
+    &self::CollisionGeometryMeshBrowseButtonClicked);
+  connect(ui_->MaterialColorPickButton, &QPushButton::released, this, &self::MaterialColorPickButtonClicked);
+  connect(ui_->BuildInertiaBoxButton, &QPushButton::released, this, &self::BuildInertiaBoxButtonClicked);
+  connect(ui_->BuildInertiaCylinderButton, &QPushButton::released, this, &self::BuildInertiaCylinderButtonClicked);
+  connect(ui_->BuildInertiaSphereButton, &QPushButton::released, this, &self::BuildInertiaSphereButtonClicked);
 }
 }  // namespace ui
 }  // namespace urdf_builder

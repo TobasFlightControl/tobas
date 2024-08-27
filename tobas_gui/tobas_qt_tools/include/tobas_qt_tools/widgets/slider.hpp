@@ -12,6 +12,7 @@ class Slider : public QSlider
 {
   Q_OBJECT
 
+  using self = Slider;
   using super = QSlider;
 
 public:
@@ -24,6 +25,7 @@ class DoubleSlider : public Slider
 {
   Q_OBJECT
 
+  using self = DoubleSlider;
   using super = Slider;
 
   static constexpr int kRange = 10000;

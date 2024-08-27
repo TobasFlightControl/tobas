@@ -11,6 +11,9 @@ class DoubleMapInputDialog : public QDialog
 {
   Q_OBJECT
 
+  using self = DoubleMapInputDialog;
+  using super = QDialog;
+
   static constexpr double kMaxValue = 1000.;
   static constexpr double kMinValue = 0.;
   static constexpr double kDefaultValue = kMinValue;

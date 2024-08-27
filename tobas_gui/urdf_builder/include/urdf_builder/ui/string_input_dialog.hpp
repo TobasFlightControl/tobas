@@ -10,6 +10,9 @@ class StringInputDialog : public QDialog
 {
   Q_OBJECT
 
+  using self = StringInputDialog;
+  using super = QDialog;
+
 public:
   explicit StringInputDialog(
     QWidget* parent,

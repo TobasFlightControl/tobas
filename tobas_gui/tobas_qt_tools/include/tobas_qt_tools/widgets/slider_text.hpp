@@ -11,6 +11,7 @@ class IntSliderTextWidget : public QWidget
 {
   Q_OBJECT
 
+  using self = IntSliderTextWidget;
   using super = QWidget;
 
 Q_SIGNALS:
@@ -38,6 +39,7 @@ class DoubleSliderTextWidget : public QWidget
 {
   Q_OBJECT
 
+  using self = DoubleSliderTextWidget;
   using super = QWidget;
 
 Q_SIGNALS:

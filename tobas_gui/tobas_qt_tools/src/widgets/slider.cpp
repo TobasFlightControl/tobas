@@ -16,7 +16,7 @@ DoubleSlider::DoubleSlider(Qt::Orientation orientation, QWidget* parent) : super
   setRange(0, kRange);
   setValue(kRange / 2);
 
-  connect(this, SIGNAL(super::valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
+  connect(this, &super::valueChanged, this, &self::onSliderValueChanged);
 }
 
 double DoubleSlider::minimum() const

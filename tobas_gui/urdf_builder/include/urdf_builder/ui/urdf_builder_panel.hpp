@@ -32,6 +32,9 @@ class URDFBuilderPanel : public rviz_common::Panel
 {
   Q_OBJECT
 
+  using self = URDFBuilderPanel;
+  using super = rviz_common::Panel;
+
   static constexpr char kConfigKey_LastOpenedDir[] = "last_opened_dir";
 
 public:

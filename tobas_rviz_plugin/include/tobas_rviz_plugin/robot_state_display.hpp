@@ -8,6 +8,9 @@ class RobotStateDisplay : public moveit_rviz_plugin::RobotStateDisplay
 {
   Q_OBJECT
 
+  using self = RobotStateDisplay;
+  using super = moveit_rviz_plugin::RobotStateDisplay;
+
   static constexpr float kHighlightR = 0;
   static constexpr float kHighlightG = 255;
   static constexpr float kHighlightB = 0;

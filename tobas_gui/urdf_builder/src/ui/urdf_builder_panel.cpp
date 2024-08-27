@@ -376,32 +376,26 @@ void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
 
 void URDFBuilderPanel::defineConnections()
 {
-  connect(ui_->RobotName, SIGNAL(textChanged(const QString&)), this, SLOT(RobotNameTextChanged(const QString&)));
+  connect(ui_->RobotName, &QLineEdit::textChanged, this, &self::RobotNameTextChanged);
 
-  connect(ui_->LoadButton, SIGNAL(released()), this, SLOT(LoadButtonClicked()));
-  connect(ui_->NewButton, SIGNAL(released()), this, SLOT(NewButtonClicked()));
-  connect(ui_->SaveButton, SIGNAL(released()), this, SLOT(SaveButtonClicked()));
-  connect(ui_->SaveAsButton, SIGNAL(released()), this, SLOT(SaveAsButtonClicked()));
+  connect(ui_->LoadButton, &QPushButton::released, this, &self::LoadButtonClicked);
+  connect(ui_->NewButton, &QPushButton::released, this, &self::NewButtonClicked);
+  connect(ui_->SaveButton, &QPushButton::released, this, &self::SaveButtonClicked);
+  connect(ui_->SaveAsButton, &QPushButton::released, this, &self::SaveAsButtonClicked);
 
-  connect(ui_->EnableVisualCheckBox, SIGNAL(toggled(bool)), this, SLOT(EnableVisualCheckBoxToggled(bool)));
-  connect(ui_->EnableCollisionCheckBox, SIGNAL(toggled(bool)), this, SLOT(EnableCollisionCheckBoxToggled(bool)));
+  connect(ui_->EnableVisualCheckBox, &QCheckBox::toggled, this, &self::EnableVisualCheckBoxToggled);
+  connect(ui_->EnableCollisionCheckBox, &QCheckBox::toggled, this, &self::EnableCollisionCheckBoxToggled);
 
-  connect(
-    ui_->LinkTreeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this,
-    SLOT(LinkTreeWidgetItemClicked(QTreeWidgetItem*, int)));
-  connect(
-    ui_->LinkTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this,
-    SLOT(LinkTreeWidgetItemChanged(QTreeWidgetItem*, int)));
-  connect(
-    ui_->LinkTreeWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-    SLOT(LinkTreeContextMenuRequested(const QPoint&)));
+  connect(ui_->LinkTreeWidget, &QTreeWidget::itemClicked, this, &self::LinkTreeWidgetItemClicked);
+  connect(ui_->LinkTreeWidget, &QTreeWidget::itemChanged, this, &self::LinkTreeWidgetItemChanged);
+  connect(ui_->LinkTreeWidget, &QTreeWidget::customContextMenuRequested, this, &self::LinkTreeContextMenuRequested);
 
-  connect(ui_->AddLinkAction, SIGNAL(triggered(bool)), this, SLOT(AddLinkActionToggled(bool)));
-  connect(ui_->RemoveLinkAction, SIGNAL(triggered(bool)), this, SLOT(RemoveLinkActionToggled(bool)));
-  connect(ui_->CloneLinkAction, SIGNAL(triggered(bool)), this, SLOT(CloneLinkActionToggled(bool)));
+  connect(ui_->AddLinkAction, &QAction::triggered, this, &self::AddLinkActionToggled);
+  connect(ui_->RemoveLinkAction, &QAction::triggered, this, &self::RemoveLinkActionToggled);
+  connect(ui_->CloneLinkAction, &QAction::triggered, this, &self::CloneLinkActionToggled);
 
-  connect(update_timer_, SIGNAL(timeout()), this, SLOT(OnUpdate()));
-  connect(link_dialog_, SIGNAL(Changed()), this, SLOT(LinkDialogChanged()));
+  connect(update_timer_, &QTimer::timeout, this, &self::OnUpdate);
+  connect(link_dialog_, &UpdateLinkDialog::Changed, this, &self::LinkDialogChanged);
 }
 
 void URDFBuilderPanel::reload()
