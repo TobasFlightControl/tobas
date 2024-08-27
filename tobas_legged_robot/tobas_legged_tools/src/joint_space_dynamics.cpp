@@ -42,7 +42,8 @@ JointSpaceDynamics::JointSpaceDynamics(
   qp_.resize(wrench_size_ + kBaseDoF, kBaseDoF, kIneqSize * nc_);
   qp_.setZero();
 
-  updateInternalDataStructures();
+  if (tree.getNrOfJoints() > 0)
+    updateInternalDataStructures();
 }
 
 void JointSpaceDynamics::updateInternalDataStructures()
