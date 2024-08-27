@@ -10,6 +10,7 @@ class IntGetter : public QWidget
 {
   Q_OBJECT
 
+  using self = IntGetter;
   using super = QWidget;
 
 Q_SIGNALS:
@@ -38,6 +39,7 @@ class DoubleGetter : public QWidget
 {
   Q_OBJECT
 
+  using self = DoubleGetter;
   using super = QWidget;
 
 Q_SIGNALS:

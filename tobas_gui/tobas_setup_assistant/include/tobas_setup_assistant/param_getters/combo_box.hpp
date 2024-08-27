@@ -12,6 +12,7 @@ class ParamGetterWidget_ComboBox : public ParamGetterWidget<QString>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_ComboBox;
   using super = ParamGetterWidget<QString>;
 
 Q_SIGNALS:

@@ -19,6 +19,7 @@ class RvizWidget : public qt::Widget
 {
   Q_OBJECT
 
+  using self = RvizWidget;
   using super = qt::Widget;
 
   static constexpr int kMinWidth = 300;

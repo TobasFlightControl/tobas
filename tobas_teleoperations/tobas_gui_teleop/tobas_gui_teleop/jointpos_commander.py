@@ -21,7 +21,6 @@ class JointPositionsCommanderWidget(Widget):
     VELOCITY = "velocity"
     EFFORT = "effort"
 
-    WAIT_FOR_ROBOT_DESCRIPTION = 1.0  # [s]
     PUBILSH_CMDS_PERIOD = 0.1  # [s]
 
     def __init__(self, node: Node) -> None:

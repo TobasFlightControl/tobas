@@ -19,8 +19,8 @@ ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(
   if (!_default.isEmpty())
     box_->setCurrentText(_default);
 
-  connect(box_, SIGNAL(qt::ComboBox::currentIndexChanged(int)), this, SLOT(onIndexChanged(int)));
-  connect(box_, SIGNAL(qt::ComboBox::currentTextChanged(const QString&)), this, SLOT(onTextChanged(const QString&)));
+  connect(box_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::onIndexChanged);
+  connect(box_, &qt::ComboBox::currentTextChanged, this, &self::onTextChanged);
 }
 
 QString ParamGetterWidget_ComboBox::get() const

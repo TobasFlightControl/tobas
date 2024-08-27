@@ -12,6 +12,7 @@ class ParamGetterWidget_CheckBox : public ParamGetterWidget<bool>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_CheckBox;
   using super = ParamGetterWidget<bool>;
 
 Q_SIGNALS:

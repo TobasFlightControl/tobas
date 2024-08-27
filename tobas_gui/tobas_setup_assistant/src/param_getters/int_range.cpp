@@ -23,8 +23,8 @@ ParamGetterWidget_IntRange::ParamGetterWidget_IntRange(
   max_ = new IntGetter("max", minimum, maximum, single_step, _default.second, suffix);
   cols->addWidget(max_);
 
-  connect(min_, SIGNAL(IntGetter::valueChanged(int)), this, SLOT(onValueChanged(int)));
-  connect(max_, SIGNAL(IntGetter::valueChanged(int)), this, SLOT(onValueChanged(int)));
+  connect(min_, &IntGetter::valueChanged, this, &self::onValueChanged);
+  connect(max_, &IntGetter::valueChanged, this, &self::onValueChanged);
 }
 
 std::pair<int, int> ParamGetterWidget_IntRange::get() const

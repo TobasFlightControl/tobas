@@ -12,6 +12,7 @@ class ParamGetterWidget_LineEdit : public ParamGetterWidget<QString>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_LineEdit;
   using super = ParamGetterWidget<QString>;
 
 Q_SIGNALS:

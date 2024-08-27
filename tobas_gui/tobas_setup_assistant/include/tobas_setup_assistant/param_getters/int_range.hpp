@@ -11,6 +11,7 @@ class ParamGetterWidget_IntRange : public ParamGetterWidget<std::pair<int, int>>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_IntRange;
   using super = ParamGetterWidget<std::pair<int, int>>;
 
 Q_SIGNALS:

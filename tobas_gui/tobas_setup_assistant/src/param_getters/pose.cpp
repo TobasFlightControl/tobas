@@ -45,12 +45,12 @@ ParamGetterWidget_Pose::ParamGetterWidget_Pose(
   cols_rpy->addWidget(yaw_);
 
   // Connections
-  connect(x_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
-  connect(y_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
-  connect(z_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
-  connect(roll_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
-  connect(pitch_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
-  connect(yaw_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
+  connect(x_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
+  connect(y_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
+  connect(z_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
+  connect(roll_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
+  connect(pitch_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
+  connect(yaw_, &DoubleGetter::valueChanged, this, &self::onValueChanged);
 }
 
 std::pair<Eigen::Vector3d, Eigen::Vector3d> ParamGetterWidget_Pose::get() const

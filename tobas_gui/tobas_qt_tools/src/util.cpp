@@ -1,3 +1,5 @@
+#include <tobas_std_tools/console.hpp>
+
 #include "tobas_qt_tools/util.hpp"
 
 namespace qt
@@ -39,5 +41,32 @@ QHBoxLayout* createFixedHeightQHBoxLayout(int height, QBoxLayout* parent)
   widget->setLayout(res);
 
   return res;
+}
+
+void clearLayout(QLayout* layout)
+{
+  while (QLayoutItem* item = layout->takeAt(0))
+  {
+    if (QWidget* widget = item->widget())
+    {
+      widget->hide();
+      layout->removeWidget(widget);
+      delete widget;
+    }
+    else if (QLayout* sub_layout = item->layout())
+    {
+      clearLayout(sub_layout);  // 再帰的にサブレイアウトを削除
+      delete sub_layout;
+    }
+    else if (item->spacerItem())
+    {
+      delete item->spacerItem();  // スペーサーアイテムを削除
+    }
+    else
+    {
+      PRINT_WARN("Unknown layout item type. Failed to delete it.");
+    }
+    delete item;
+  }
 }
 }  // namespace qt

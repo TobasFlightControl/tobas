@@ -292,4 +292,15 @@ std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
   res.insert(res.end(), vec2.begin(), vec2.end());
   return res;
 }
+
+/* 要素のインデックスを返す． */
+template <typename T>
+ssize_t index(const std::vector<T>& vec, const T& value)
+{
+  const auto it = std::find(vec.begin(), vec.end(), value);
+  if (it != vec.end())
+    return std::distance(vec.begin(), it);
+  else
+    return -1;
+}
 }  // namespace tobas_std

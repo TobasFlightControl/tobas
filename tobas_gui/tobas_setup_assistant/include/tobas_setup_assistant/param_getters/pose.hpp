@@ -13,6 +13,7 @@ class ParamGetterWidget_Pose : public ParamGetterWidget<std::pair<Eigen::Vector3
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_Pose;
   using super = ParamGetterWidget<std::pair<Eigen::Vector3d, Eigen::Vector3d>>;
 
   static constexpr double kXYZSingleStep = 0.1;

@@ -32,7 +32,7 @@ IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
   rows->addWidget(slider_);
 
   update();
-  connect(slider_, SIGNAL(Slider::valueChanged(int)), this, SLOT(onValueChanged(int)));
+  connect(slider_, &Slider::valueChanged, this, &self::onValueChanged);
 }
 
 void IntSliderDisplay::update()
@@ -109,7 +109,7 @@ DoubleSliderDisplay::DoubleSliderDisplay(int decimals, QWidget* parent) : super(
   rows->addWidget(slider_);
 
   update();
-  connect(slider_, SIGNAL(Slider::valueChanged(double)), this, SLOT(onValueChanged(double)));
+  connect(slider_, &DoubleSlider::valueChanged, this, &self::onValueChanged);
 }
 
 void DoubleSliderDisplay::update()

@@ -17,6 +17,7 @@ class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_DoubleTable;
   using super = ParamGetterWidget<Eigen::MatrixXd>;
 
   static constexpr int kButtonHeight = 30;

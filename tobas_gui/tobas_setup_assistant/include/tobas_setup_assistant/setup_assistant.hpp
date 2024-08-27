@@ -9,6 +9,7 @@
 #include "./tree_information.hpp"
 #include "./rviz.hpp"
 #include "./frame_tree.hpp"
+#include "./joint_state_publisher.hpp"
 
 namespace gui
 {
@@ -18,6 +19,7 @@ class SetupAssistant : public qt::Widget
 {
   Q_OBJECT
 
+  using self = SetupAssistant;
   using super = qt::Widget;
 
   static constexpr int kTabHeight = 30;  // 30以上無いと何故かTabBarの文字が横に見切れてしまう
@@ -32,6 +34,7 @@ public:
 
   const kdl::Tree& tree();
   const TreeInformation& treeInfo();
+
   RvizWidget* rviz();
   FrameTreeWidget* frameTree();
 

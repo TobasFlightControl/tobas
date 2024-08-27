@@ -12,6 +12,7 @@ class FrameTreeWidget : public QTreeWidget
 {
   Q_OBJECT
 
+  using self = FrameTreeWidget;
   using super = QTreeWidget;
 
   static constexpr int kWidth = 200;

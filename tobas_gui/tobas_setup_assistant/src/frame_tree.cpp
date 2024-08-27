@@ -15,10 +15,9 @@ FrameTreeWidget::FrameTreeWidget(SetupAssistant* main) : main_(main)
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  connect(
-    this, SIGNAL(QTreeWidget::itemClicked(QTreeWidgetItem*, int)), this, SLOT(onItemClicked(QTreeWidgetItem*, int)));
-  connect(this, SIGNAL(QTreeWidget::itemExpanded()), this, SLOT(resizeColumns()));
-  connect(this, SIGNAL(QTreeWidget::itemCollapsed()), this, SLOT(resizeColumns()));
+  connect(this, &self::itemClicked, this, &self::onItemClicked);
+  connect(this, &self::itemExpanded, this, &self::resizeColumns);
+  connect(this, &self::itemCollapsed, this, &self::resizeColumns);
 }
 
 void FrameTreeWidget::updateInternalDataStructures()

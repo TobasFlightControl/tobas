@@ -13,6 +13,7 @@ class ParamGetterWidget_Vector3d : public ParamGetterWidget<Eigen::Vector3d>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_Vector3d;
   using super = ParamGetterWidget<Eigen::Vector3d>;
 
 Q_SIGNALS:

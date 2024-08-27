@@ -11,6 +11,7 @@ class IntSliderDisplay : public QWidget
 {
   Q_OBJECT
 
+  using self = IntSliderDisplay;
   using super = QWidget;
 
 Q_SIGNALS:
@@ -44,6 +45,7 @@ class DoubleSliderDisplay : public QWidget
 {
   Q_OBJECT
 
+  using self = DoubleSliderDisplay;
   using super = QWidget;
 
 Q_SIGNALS:

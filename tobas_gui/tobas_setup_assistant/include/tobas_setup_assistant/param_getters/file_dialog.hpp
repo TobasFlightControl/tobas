@@ -16,6 +16,7 @@ class ParamGetterWidget_FileDialog : public ParamGetterWidget<QString>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_FileDialog;
   using super = ParamGetterWidget<QString>;
 
 Q_SIGNALS:

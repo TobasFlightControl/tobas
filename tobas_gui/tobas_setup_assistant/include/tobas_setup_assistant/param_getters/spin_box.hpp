@@ -12,6 +12,7 @@ class ParamGetterWidget_SpinBox : public ParamGetterWidget<int>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_SpinBox;
   using super = ParamGetterWidget<int>;
 
 Q_SIGNALS:

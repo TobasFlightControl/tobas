@@ -65,17 +65,20 @@ protected:
   const std::string& ns() const;
 
   template <typename MsgType>
-  ros2::PublisherPtr<MsgType>
-  createPublisher(const std::string& topic_name, bool latch = false, bool reliable = false, size_t queue_size = 1);
+  ros2::PublisherPtr<MsgType> createPublisher(
+    const std::string& topic_name,
+    bool latch = qos::kDefaultLatch,
+    bool reliable = qos::kDefaultReliable,
+    size_t queue_size = qos::kDefaultQueueSize);
 
   template <typename MsgType, typename Obj>
   ros2::SubscriberPtr<MsgType> createSubscriber(
     const std::string& topic_name,
     void (Obj::*fp)(const std::shared_ptr<const MsgType>&),
     Obj* obj,
-    bool latch = false,
-    bool reliable = false,
-    size_t queue_size = 1);
+    bool latch = qos::kDefaultLatch,
+    bool reliable = qos::kDefaultReliable,
+    size_t queue_size = qos::kDefaultQueueSize);
 
   template <typename SrvType, typename Obj>
   ros2::ServicePtr<SrvType> createService(

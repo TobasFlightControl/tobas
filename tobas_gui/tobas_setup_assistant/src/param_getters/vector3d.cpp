@@ -27,9 +27,9 @@ ParamGetterWidget_Vector3d::ParamGetterWidget_Vector3d(
   z_ = new DoubleGetter("z", decimals, minimum, maximum, single_step, _default.z(), suffix);
   cols->addWidget(z_);
 
-  connect(x_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
-  connect(y_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
-  connect(z_, SIGNAL(IntGetter::valueChanged(double)), this, SLOT(onValueChanged(double)));
+  connect(x_, QOverload<double>::of(&DoubleGetter::valueChanged), this, &self::onValueChanged);
+  connect(y_, QOverload<double>::of(&DoubleGetter::valueChanged), this, &self::onValueChanged);
+  connect(z_, QOverload<double>::of(&DoubleGetter::valueChanged), this, &self::onValueChanged);
 }
 
 Eigen::Vector3d ParamGetterWidget_Vector3d::get() const

@@ -58,8 +58,8 @@ RvizWidget::RvizWidget(SetupAssistant* main) : main_(main)
   setMinimumWidth(kMinWidth);
 
   // Connections
-  connect(visual_box, SIGNAL(QCheckBox::toggled(bool)), this, SLOT(onVisualBoxToggled(bool)));
-  connect(collision_box, SIGNAL(QCheckBox::toggled(bool)), this, SLOT(onCollisionBoxToggled(bool)));
+  connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);
+  connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
 }
 
 void RvizWidget::updateInternalDataStructures()

@@ -68,10 +68,10 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   rows_->addWidget(table_);
 
   // Connections
-  connect(add_row_btn, SIGNAL(QPushButton::clicked()), this, SLOT(addRow()));
-  connect(delete_row_btn, SIGNAL(QPushButton::clicked()), this, SLOT(deleteRow()));
-  connect(clear_btn, SIGNAL(QPushButton::clicked()), table_, SLOT(removeAll()));
-  connect(load_csv_btn, SIGNAL(QPushButton::clicked()), this, SLOT(loadCSV()));
+  connect(add_row_btn, &QPushButton::clicked, this, &self::addRow);
+  connect(delete_row_btn, &QPushButton::clicked, this, &self::deleteRow);
+  connect(clear_btn, &QPushButton::clicked, table_, &qt::TableWidget::removeAll);
+  connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCSV);
 }
 
 MatrixXd ParamGetterWidget_DoubleTable::get() const
@@ -169,7 +169,7 @@ void ParamGetterWidget_DoubleTable::addRow()
     cell->setValue(default_[col]);
     cell->setDecimals(decimals_[col]);
     cell->setSuffix(suffix_[col]);
-    connect(cell, SIGNAL(qt::DoubleSpinBox::valueChanged()), this, SLOT(onCellValueChanged()));
+    connect(cell, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onCellValueChanged);
     table_->setCellWidget(rows, col, cell);
   }
 }

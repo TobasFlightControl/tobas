@@ -18,4 +18,7 @@ QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent);
 
 /* 高さ固定のQVBoxLayoutを作成する． */
 QHBoxLayout* createFixedHeightQHBoxLayout(int width, QBoxLayout* parent);
+
+/* レイアウト内の全てのウィジェットを削除する． */
+void clearLayout(QLayout* layout);
 }  // namespace qt

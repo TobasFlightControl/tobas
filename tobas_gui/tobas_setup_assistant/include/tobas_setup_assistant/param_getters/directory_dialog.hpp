@@ -16,6 +16,7 @@ class ParamGetterWidget_DirDialog : public ParamGetterWidget<QString>
 {
   Q_OBJECT
 
+  using self = ParamGetterWidget_DirDialog;
   using super = ParamGetterWidget<QString>;
 
 Q_SIGNALS:

@@ -41,7 +41,7 @@ IntGetter::IntGetter(
   data_->setFocusPolicy(Qt::StrongFocus);
   cols->addWidget(data_);
 
-  connect(data_, SIGNAL(qt::SpinBox::valueChanged(int)), this, SLOT(onValueChanged(int)));
+  connect(data_, QOverload<int>::of(&qt::SpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 int IntGetter::get() const
@@ -94,7 +94,7 @@ DoubleGetter::DoubleGetter(
   data_->setFocusPolicy(Qt::StrongFocus);
   cols->addWidget(data_);
 
-  connect(data_, SIGNAL(qt::DoubleSpinBox::valueChanged(double)), this, SLOT(onValueChanged(double)));
+  connect(data_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 double DoubleGetter::get() const

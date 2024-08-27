@@ -13,7 +13,7 @@ ParamGetterWidget_CheckBox::ParamGetterWidget_CheckBox(
 {
   box_ = new QCheckBox(check_box_text);
   box_->setChecked(_default);
-  connect(box_, SIGNAL(QCheckBox::toggled(bool)), this, SLOT(onToggled(bool)));
+  connect(box_, &QCheckBox::toggled, this, &self::onToggled);
   rows_->addWidget(box_);
 }
 

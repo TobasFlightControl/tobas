@@ -37,8 +37,8 @@ ParamGetterWidget_FileDialog::ParamGetterWidget_FileDialog(
   auto browse_button = new QPushButton("Browse");
   cols->addWidget(browse_button);
 
-  connect(path_, SIGNAL(QLineEdit::textChanged(const QString&)), this, SLOT(onTextChanged(const QString&)));
-  connect(browse_button, SIGNAL(QPushButton::clicked()), this, SLOT(onBrowseButtonClicked()));
+  connect(path_, &QLineEdit::textChanged, this, &self::onTextChanged);
+  connect(browse_button, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
 }
 
 QString ParamGetterWidget_FileDialog::get() const

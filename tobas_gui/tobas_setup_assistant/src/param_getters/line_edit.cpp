@@ -13,7 +13,7 @@ ParamGetterWidget_LineEdit::ParamGetterWidget_LineEdit(
   line_ = new QLineEdit(_default);
   rows_->addWidget(line_);
 
-  connect(line_, SIGNAL(QLineEdit::textChanged(const QString&)), this, SLOT(onTextChanged(const QString&)));
+  connect(line_, &QLineEdit::textChanged, this, &self::onTextChanged);
 }
 
 QString ParamGetterWidget_LineEdit::get() const

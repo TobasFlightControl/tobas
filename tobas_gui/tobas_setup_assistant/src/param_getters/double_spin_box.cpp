@@ -36,7 +36,7 @@ ParamGetterWidget_DoubleSpinBox::ParamGetterWidget_DoubleSpinBox(
   spin_box_->setSuffix(QString::fromStdString(tobas_std::convertToSuperscript(suffix.toStdString())));
   spin_box_->setFocusPolicy(Qt::StrongFocus);
 
-  connect(spin_box_, SIGNAL(qt::DoubleSpinBox::valueChanged(double)), this, SLOT(onValueChanged(double)));
+  connect(spin_box_, QOverload<double>::of(&qt::DoubleSpinBox::valueChanged), this, &self::onValueChanged);
 }
 
 double ParamGetterWidget_DoubleSpinBox::get() const
