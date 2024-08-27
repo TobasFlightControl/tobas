@@ -8,6 +8,7 @@
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_qt_tools/widgets/widget.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
+#include <tobas_qt_tools/layouts/scroll_area.hpp>
 
 namespace gui
 {
@@ -35,7 +36,7 @@ private Q_SLOTS:
 private:
   SetupAssistant* main_;
   QVBoxLayout* rows_;
-  QVBoxLayout* slider_rows_;
+  qt::ScrollableVBoxLayout* slider_rows_;
   QVBoxLayout* button_rows_;
 
   sensor_msgs::msg::JointState js_;

@@ -16,7 +16,7 @@ namespace setup_assistant
 JointStatePublisherWidget::JointStatePublisherWidget(SetupAssistant* main) : main_(main)
 {
   rows_ = new QVBoxLayout();
-  slider_rows_ = new QVBoxLayout();
+  slider_rows_ = new qt::ScrollableVBoxLayout();
   button_rows_ = new QVBoxLayout();
 
   setLayout(rows_);
