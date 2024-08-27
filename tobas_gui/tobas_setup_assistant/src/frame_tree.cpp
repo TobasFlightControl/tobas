@@ -8,7 +8,6 @@ namespace setup_assistant
 {
 FrameTreeWidget::FrameTreeWidget(SetupAssistant* main) : main_(main)
 {
-  setFixedWidth(kWidth);
   setColumnCount(1);
   setHeaderLabels({ "Frames Tree" });
 

@@ -55,7 +55,6 @@ RvizWidget::RvizWidget(SetupAssistant* main) : main_(main)
   cols->addStretch();
   cols->addWidget(visual_box);
   cols->addWidget(collision_box);
-  setMinimumWidth(kMinWidth);
 
   // Connections
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);

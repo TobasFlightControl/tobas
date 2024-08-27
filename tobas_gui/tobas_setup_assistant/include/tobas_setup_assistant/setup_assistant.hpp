@@ -22,12 +22,16 @@ class SetupAssistant : public qt::Widget
   using self = SetupAssistant;
   using super = qt::Widget;
 
+  static constexpr int kHeaderHeight = 350;
+  static constexpr int kFrameTreeWidth = 200;
+  static constexpr int kRvizMinWidth = 200;
+  static constexpr int kJointStatePublisherWidth = 200;
   static constexpr int kTabHeight = 30;  // 30以上無いと何故かTabBarの文字が横に見切れてしまう
   static constexpr int kTabWidth = 70;
   static constexpr int kSettingsMinHeight = 300;
 
 public:
-  explicit SetupAssistant();
+  explicit SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node);
 
   const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr& rvizRosNode();
   const rclcpp::Node::SharedPtr& node();
@@ -35,8 +39,9 @@ public:
   const kdl::Tree& tree();
   const TreeInformation& treeInfo();
 
-  RvizWidget* rviz();
   FrameTreeWidget* frameTree();
+  RvizWidget* rviz();
+  JointStatePublisherWidget* jointStatePublisher();
 
   // TODO
 
@@ -47,8 +52,9 @@ private:
   kdl::Tree tree_;
   TreeInformation tree_info_;
 
-  RvizWidget* rviz_;
   FrameTreeWidget* frame_tree_;
+  RvizWidget* rviz_;
+  JointStatePublisherWidget* js_pub_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

@@ -22,7 +22,6 @@ class RvizWidget : public qt::Widget
   using self = RvizWidget;
   using super = qt::Widget;
 
-  static constexpr int kMinWidth = 300;
   static constexpr int kRobotStateDisplayIndex = 0;  // rvizファイルと合わせる必要あり
   static constexpr bool kDefaultVisualEnabled = true;
   static constexpr bool kDefaultCollisionEnabled = false;

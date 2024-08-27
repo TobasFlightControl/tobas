@@ -15,8 +15,6 @@ class FrameTreeWidget : public QTreeWidget
   using self = FrameTreeWidget;
   using super = QTreeWidget;
 
-  static constexpr int kWidth = 200;
-
 public:
   explicit FrameTreeWidget(SetupAssistant* main);
 

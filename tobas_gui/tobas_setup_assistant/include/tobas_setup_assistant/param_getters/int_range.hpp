@@ -24,7 +24,7 @@ public:
     int minimum = std::numeric_limits<int>::lowest(),
     int maximum = std::numeric_limits<int>::max(),
     int single_step = 1,
-  const std::pair<int, int>& _default = {0,0},
+    const std::pair<int, int>& _default = { 0, 0 },
     const QString& suffix = "");
 
   std::pair<int, int> get() const override;
