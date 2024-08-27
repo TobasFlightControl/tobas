@@ -5,8 +5,7 @@
 #include <gz/common/Console.hh>
 
 #include <tobas_std_tools/stream.hpp>
-#include <tobas_ros2_tools/definitions.hpp>
-#include <tobas_ros2_tools/qos.hpp>
+#include <tobas_ros2_tools/register.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
 
 #define tbsdbg gzdbg << "[" << name_ << "] "
@@ -163,7 +162,7 @@ template <typename MsgType>
 ros2::PublisherPtr<MsgType>
 BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
-  return node_->create_publisher<MsgType>(topic_name, ros2::makeQoS(latch, reliable, queue_size));
+  return ros2::createPublisher<MsgType>(node_, topic_name, latch, reliable, queue_size);
 }
 
 template <typename MsgType, typename Obj>
@@ -175,8 +174,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   bool reliable,
   size_t queue_size)
 {
-  return node_->create_subscription<MsgType>(
-    topic_name, ros2::makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
+  return ros2::createSubscriber<MsgType>(node_, topic_name, fp, obj, latch, reliable, queue_size);
 }
 
 template <typename SrvType, typename Obj>
@@ -187,7 +185,7 @@ ros2::ServicePtr<SrvType> BaseNode::createService(
     const std::shared_ptr<typename SrvType::Response>&),
   Obj* obj)
 {
-  return node_->create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
+  return ros2::createService<SrvType>(node_, srv_name, fp, obj);
 }
 
 template <typename... Args>
