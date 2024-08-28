@@ -52,9 +52,14 @@ public:
 
 protected:
   SetupAssistant* main_;
-  QVBoxLayout* rows_;
 
   void addTitleAndDescription();
+  void addWidget(QWidget* widget);
+  void addLayout(QLayout* layout);
+
+private:
+  QVBoxLayout* header_rows_;
+  QVBoxLayout* content_rows_;
 };
 };  // namespace setup_assistant
 }  // namespace gui

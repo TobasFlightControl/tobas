@@ -19,14 +19,12 @@ Q_SIGNALS:
   void toggled(bool checked);
 
 public:
-  explicit ParamGetterWidget_CheckBox(
-    const QString& param_name,
-    const QString& description_text = "",
-    const QString& check_box_text = "",
-    bool _default = false);
+  explicit ParamGetterWidget_CheckBox(const QString& param_name, const QString& description_text);
 
-  bool get() const override;
-  bool set(const bool& src) override;
+  bool getValue() const override;
+  bool setValue(const bool& src) override;
+
+  void setText(const QString& text);
 
 private Q_SLOTS:
   void onToggled(bool checked);

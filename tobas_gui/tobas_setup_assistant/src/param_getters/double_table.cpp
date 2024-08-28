@@ -74,7 +74,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   connect(load_csv_btn, &QPushButton::clicked, this, &self::loadCSV);
 }
 
-MatrixXd ParamGetterWidget_DoubleTable::get() const
+MatrixXd ParamGetterWidget_DoubleTable::getValue() const
 {
   const auto rows = count();
 
@@ -91,7 +91,7 @@ MatrixXd ParamGetterWidget_DoubleTable::get() const
   return res;
 }
 
-bool ParamGetterWidget_DoubleTable::set(const MatrixXd& src)
+bool ParamGetterWidget_DoubleTable::setValue(const MatrixXd& src)
 {
   if (!isValidData(src))
     return false;
@@ -223,7 +223,7 @@ void ParamGetterWidget_DoubleTable::loadCSV()
   }
 
   // Set data
-  if (!set(data_array))
+  if (!setValue(data_array))
     return;
 
   qt::qInfoBox(this, "Data is loaded successfully.");

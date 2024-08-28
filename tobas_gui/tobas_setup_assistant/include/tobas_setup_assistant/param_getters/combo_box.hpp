@@ -20,14 +20,10 @@ Q_SIGNALS:
   void textChanged(const QString& text);
 
 public:
-  explicit ParamGetterWidget_ComboBox(
-    const QString& param_name,
-    const QString& description_text = "",
-    const QStringList& choices = {},
-    const QString& _default = "");
+  explicit ParamGetterWidget_ComboBox(const QString& param_name, const QString& description_text);
 
-  QString get() const override;
-  bool set(const QString& src) override;
+  QString getValue() const override;
+  bool setValue(const QString& src) override;
 
   int currentIndex() const;
   void addChoices(const QStringList& items);

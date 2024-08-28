@@ -17,8 +17,7 @@ namespace setup_assistant
 ParamGetterWidget_DirDialog::ParamGetterWidget_DirDialog(
   rclcpp::Node::SharedPtr node,
   const QString& param_name,
-  const QString& description_text,
-  const QString& _default)
+  const QString& description_text)
   : super(param_name, description_text),
     node_(node),
     last_opend_dir_key_("last_opened_dir/dir_dialog/" + tobas_std::replace(param_name.toStdString(), " ", "_")),
@@ -27,7 +26,7 @@ ParamGetterWidget_DirDialog::ParamGetterWidget_DirDialog(
   auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
-  path_ = new QLineEdit(_default);
+  path_ = new QLineEdit();
   path_->setReadOnly(true);
   path_->setFocusPolicy(Qt::NoFocus);
   cols->addWidget(path_);
@@ -39,12 +38,12 @@ ParamGetterWidget_DirDialog::ParamGetterWidget_DirDialog(
   connect(browse_button, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
 }
 
-QString ParamGetterWidget_DirDialog::get() const
+QString ParamGetterWidget_DirDialog::getValue() const
 {
   return path_->text();
 }
 
-bool ParamGetterWidget_DirDialog::set(const QString& src)
+bool ParamGetterWidget_DirDialog::setValue(const QString& src)
 {
   path_->setText(src);
   return true;

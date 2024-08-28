@@ -4,28 +4,28 @@ namespace gui
 {
 namespace setup_assistant
 {
-ParamGetterWidget_CheckBox::ParamGetterWidget_CheckBox(
-  const QString& param_name,
-  const QString& description_text,
-  const QString& check_box_text,
-  bool _default)
+ParamGetterWidget_CheckBox::ParamGetterWidget_CheckBox(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
-  box_ = new QCheckBox(check_box_text);
-  box_->setChecked(_default);
+  box_ = new QCheckBox();
   connect(box_, &QCheckBox::toggled, this, &self::onToggled);
   rows_->addWidget(box_);
 }
 
-bool ParamGetterWidget_CheckBox::get() const
+bool ParamGetterWidget_CheckBox::getValue() const
 {
   return box_->isChecked();
 }
 
-bool ParamGetterWidget_CheckBox::set(const bool& src)
+bool ParamGetterWidget_CheckBox::setValue(const bool& src)
 {
   box_->setChecked(src);
   return true;
+}
+
+void ParamGetterWidget_CheckBox::setText(const QString& text)
+{
+  box_->setText(text);
 }
 
 void ParamGetterWidget_CheckBox::onToggled(bool checked)

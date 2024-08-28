@@ -17,19 +17,16 @@ namespace setup_assistant
 ParamGetterWidget_FileDialog::ParamGetterWidget_FileDialog(
   rclcpp::Node::SharedPtr node,
   const QString& param_name,
-  const QString& description_text,
-  const QString& _default,
-  const QString& initial_filter)
+  const QString& description_text)
   : super(param_name, description_text),
     node_(node),
     last_opend_dir_key_("last_opened_dir/file_dialog/" + tobas_std::replace(param_name.toStdString(), " ", "_")),
-    init_filter_(initial_filter),
     property_client_(node, tobas::kPropertyServerGCS, kPackageName)
 {
   auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
-  path_ = new QLineEdit(_default);
+  path_ = new QLineEdit();
   path_->setReadOnly(true);
   path_->setFocusPolicy(Qt::NoFocus);
   cols->addWidget(path_);
@@ -41,12 +38,12 @@ ParamGetterWidget_FileDialog::ParamGetterWidget_FileDialog(
   connect(browse_button, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
 }
 
-QString ParamGetterWidget_FileDialog::get() const
+QString ParamGetterWidget_FileDialog::getValue() const
 {
   return path_->text();
 }
 
-bool ParamGetterWidget_FileDialog::set(const QString& src)
+bool ParamGetterWidget_FileDialog::setValue(const QString& src)
 {
   path_->setText(src);
   return true;
@@ -86,6 +83,11 @@ void ParamGetterWidget_FileDialog::onBrowseButtonClicked()
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     return;
   }
+}
+
+void ParamGetterWidget_FileDialog::setInitialFilter(const QString& init_filter)
+{
+  init_filter_ = init_filter;
 }
 }  // namespace setup_assistant
 }  // namespace gui

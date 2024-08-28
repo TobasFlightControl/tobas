@@ -4,24 +4,21 @@ namespace gui
 {
 namespace setup_assistant
 {
-ParamGetterWidget_LineEdit::ParamGetterWidget_LineEdit(
-  const QString& param_name,
-  const QString& description_text,
-  const QString& _default)
+ParamGetterWidget_LineEdit::ParamGetterWidget_LineEdit(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
-  line_ = new QLineEdit(_default);
+  line_ = new QLineEdit();
   rows_->addWidget(line_);
 
   connect(line_, &QLineEdit::textChanged, this, &self::onTextChanged);
 }
 
-QString ParamGetterWidget_LineEdit::get() const
+QString ParamGetterWidget_LineEdit::getValue() const
 {
   return line_->text();
 }
 
-bool ParamGetterWidget_LineEdit::set(const QString& src)
+bool ParamGetterWidget_LineEdit::setValue(const QString& src)
 {
   line_->setText(src);
   return true;

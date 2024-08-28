@@ -20,12 +20,12 @@ class ParamGetterWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit ParamGetterWidget(const QString& param_name, const QString& description_text = "");
+  explicit ParamGetterWidget(const QString& param_name, const QString& description_text);
 
-  virtual T get() const = 0;
-  virtual bool set(const T& src) = 0;
+  virtual T getValue() const = 0;
+  virtual bool setValue(const T& src) = 0;
 
-  QString name() const;
+  std::string name() const;
 
 protected:
   QVBoxLayout* rows_;
@@ -51,9 +51,9 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
 }
 
 template <typename T>
-QString ParamGetterWidget<T>::name() const
+std::string ParamGetterWidget<T>::name() const
 {
-  return label_->text();
+  return label_->text().toStdString();
 }
 }  // namespace setup_assistant
 }  // namespace gui

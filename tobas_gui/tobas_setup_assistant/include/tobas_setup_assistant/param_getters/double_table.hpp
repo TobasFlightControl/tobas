@@ -33,10 +33,10 @@ public:
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
     const QStringList& labels,
-    const QString& description_text = "");
+    const QString& description_text);
 
-  Eigen::MatrixXd get() const override;
-  bool set(const Eigen::MatrixXd& src) override;
+  Eigen::MatrixXd getValue() const override;
+  bool setValue(const Eigen::MatrixXd& src) override;
 
   void setMinimum(const QVector<double>& minimum);
   void setMaximum(const QVector<double>& maximum);

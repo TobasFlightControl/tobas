@@ -1,0 +1,42 @@
+#pragma once
+
+#include "./base_setting.hpp"
+#include "../param_getters/spin_box.hpp"
+#include "../param_getters/double_spin_box.hpp"
+
+namespace gui
+{
+namespace setup_assistant
+{
+class SetupAssistant;
+
+class SimulationWidget : public BaseSettingWidget
+{
+  Q_OBJECT
+
+  using self = SimulationWidget;
+  using super = BaseSettingWidget;
+
+public:
+  using super::BaseSettingWidget;
+
+  const char* name() override;
+  const char* title() override;
+  const char* description() override;
+
+  void onInit() override;
+  void onOpened() override;
+  void updateInternalDataStructures() override;
+  bool isValid() override;
+
+  YAML::Node dump() override;
+  void load(const YAML::Node& node) override;
+
+private:
+  ParamGetterWidget_DoubleSpinBox* latitude_zero_;
+  ParamGetterWidget_DoubleSpinBox* longitude_zero_;
+  ParamGetterWidget_DoubleSpinBox* altitude_zero_;
+  ParamGetterWidget_SpinBox* max_model_error_rate_;
+};
+};  // namespace setup_assistant
+}  // namespace gui

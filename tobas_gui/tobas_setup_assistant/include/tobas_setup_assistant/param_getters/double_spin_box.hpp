@@ -19,18 +19,16 @@ Q_SIGNALS:
   void valueChanged(double value);
 
 public:
-  explicit ParamGetterWidget_DoubleSpinBox(
-    const QString& param_name,
-    const QString& description_text = "",
-    int decimals = 12,
-    double minimum = std::numeric_limits<double>::lowest(),
-    double maximum = std::numeric_limits<double>::max(),
-    double single_step = 1.,
-    std::optional<double> _default = std::nullopt,
-    const QString& suffix = "");
+  explicit ParamGetterWidget_DoubleSpinBox(const QString& param_name, const QString& description_text);
 
-  double get() const override;
-  bool set(const double& src) override;
+  double getValue() const override;
+  bool setValue(const double& src) override;
+
+  void setDecimals(int decimals);
+  void setMinimum(double minimum);
+  void setMaximum(double maximum);
+  void setSingleStep(double single_step);
+  void setSuffix(const QString& suffix);
 
 private Q_SLOTS:
   void onValueChanged(double value);

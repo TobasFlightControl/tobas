@@ -18,17 +18,15 @@ Q_SIGNALS:
   void valueChanged(std::pair<int, int> value);
 
 public:
-  explicit ParamGetterWidget_IntRange(
-    const QString& param_name,
-    const QString& description_text = "",
-    int minimum = std::numeric_limits<int>::lowest(),
-    int maximum = std::numeric_limits<int>::max(),
-    int single_step = 1,
-    const std::pair<int, int>& _default = { 0, 0 },
-    const QString& suffix = "");
+  explicit ParamGetterWidget_IntRange(const QString& param_name, const QString& description_text);
 
-  std::pair<int, int> get() const override;
-  bool set(const std::pair<int, int>& src) override;
+  std::pair<int, int> getValue() const override;
+  bool setValue(const std::pair<int, int>& src) override;
+
+  void setMinimum(int minimum);
+  void setMaximum(int maximum);
+  void setSingleStep(int single_step);
+  void setSuffix(const QString& suffix);
 
   int min() const;
   int max() const;

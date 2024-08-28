@@ -4,31 +4,22 @@ namespace gui
 {
 namespace setup_assistant
 {
-ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(
-  const QString& param_name,
-  const QString& description_text,
-  const QStringList& choices,
-  const QString& _default)
+ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
   box_ = new qt::ComboBox();
   rows_->addWidget(box_);
 
-  box_->addItems(choices);
-
-  if (!_default.isEmpty())
-    box_->setCurrentText(_default);
-
   connect(box_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::onIndexChanged);
   connect(box_, &qt::ComboBox::currentTextChanged, this, &self::onTextChanged);
 }
 
-QString ParamGetterWidget_ComboBox::get() const
+QString ParamGetterWidget_ComboBox::getValue() const
 {
   return box_->currentText();
 }
 
-bool ParamGetterWidget_ComboBox::set(const QString& src)
+bool ParamGetterWidget_ComboBox::setValue(const QString& src)
 {
   if (!box_->contains(src))
     return false;

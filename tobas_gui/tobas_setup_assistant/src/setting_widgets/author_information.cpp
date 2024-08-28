@@ -29,12 +29,13 @@ const char* AuthorInformationWidget::description()
 
 void AuthorInformationWidget::onInit()
 {
-  name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "", QString::fromStdString(linux::userName()));
-  rows_->addWidget(name_);
+  name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
+  name_->setValue(QString::fromStdString(linux::userName()));
+  addWidget(name_);
 
-  email_ =
-    new ParamGetterWidget_LineEdit("Email of the Maintainer", "", QString::fromStdString(linux::getGitUserEmail()));
-  rows_->addWidget(email_);
+  email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
+  email_->setValue(QString::fromStdString(linux::getGitUserEmail()));
+  addWidget(email_);
 }
 
 void AuthorInformationWidget::onOpened()
@@ -49,14 +50,14 @@ void AuthorInformationWidget::updateInternalDataStructures()
 
 bool AuthorInformationWidget::isValid()
 {
-  const auto author_name = name_->get();
+  const auto author_name = name_->getValue();
   if (author_name.isEmpty())
   {
     qt::qErrorBox(this, "Author name is blank.");
     return false;
   }
 
-  const auto author_email = email_->get();
+  const auto author_email = email_->getValue();
   if (!tobas_std::isValidEmail(author_email.toStdString()))
   {
     qt::qErrorBox(this, "Invalid email address.");
@@ -70,16 +71,16 @@ YAML::Node AuthorInformationWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[name_->name().toStdString()] = name_->get();
-  node[email_->name().toStdString()] = email_->get();
+  node[name_->name()] = name_->getValue();
+  node[email_->name()] = email_->getValue();
 
   return node;
 }
 
 void AuthorInformationWidget::load(const YAML::Node& node)
 {
-  name_->set(yaml::load<QString>(name_->name().toStdString(), node));
-  email_->set(yaml::load<QString>(email_->name().toStdString(), node));
+  name_->setValue(yaml::load<QString>(name_->name(), node));
+  email_->setValue(yaml::load<QString>(email_->name(), node));
 }
 }  // namespace setup_assistant
 }  // namespace gui

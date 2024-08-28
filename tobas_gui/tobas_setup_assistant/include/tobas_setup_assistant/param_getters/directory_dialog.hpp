@@ -26,11 +26,10 @@ public:
   explicit ParamGetterWidget_DirDialog(
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
-    const QString& description_text = "",
-    const QString& _default = "");
+    const QString& description_text);
 
-  QString get() const override;
-  bool set(const QString& src) override;
+  QString getValue() const override;
+  bool setValue(const QString& src) override;
 
 private Q_SLOTS:
   void onTextChanged(const QString& text);

@@ -20,18 +20,16 @@ Q_SIGNALS:
   void valueChanged(Eigen::Vector3d value);
 
 public:
-  explicit ParamGetterWidget_Vector3d(
-    const QString& param_name,
-    const QString& description_text = "",
-    int decimals = 3,
-    double minimum = std::numeric_limits<double>::lowest(),
-    double maximum = std::numeric_limits<double>::max(),
-    double single_step = 1.,
-    const Eigen::Vector3d& _default = Eigen::Vector3d::Zero(),
-    const QString& suffix = "");
+  explicit ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text);
 
-  Eigen::Vector3d get() const override;
-  bool set(const Eigen::Vector3d& src) override;
+  Eigen::Vector3d getValue() const override;
+  bool setValue(const Eigen::Vector3d& src) override;
+
+  void setDecimals(int decimals);
+  void setMinimum(double minimum);
+  void setMaximum(double maximum);
+  void setSingleStep(double single_step);
+  void setSuffix(const QString& suffix);
 
   double x() const;
   double y() const;

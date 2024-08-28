@@ -16,8 +16,11 @@ class ParamGetterWidget_Pose : public ParamGetterWidget<std::pair<Eigen::Vector3
   using self = ParamGetterWidget_Pose;
   using super = ParamGetterWidget<std::pair<Eigen::Vector3d, Eigen::Vector3d>>;
 
-  static constexpr double kXYZSingleStep = 0.1;
-  static constexpr double kRPYSingleStep = 0.1;
+  static constexpr int kDecimals = 3;
+  static constexpr double kSingleStep = 0.1;
+  static constexpr double kDefaultValue = 0.;
+  static constexpr char kXYZSuffix[] = " m";
+  static constexpr char kRPYSuffix[] = " rad";
 
 Q_SIGNALS:
   void valueChanged(std::pair<Eigen::Vector3d, Eigen::Vector3d> value);
@@ -25,19 +28,10 @@ Q_SIGNALS:
 public:
   explicit ParamGetterWidget_Pose(
     const QString& param_name,
-    const QString& description_text = "",
-    int decimals = 3,
-    double xyz_min = std::numeric_limits<double>::lowest(),
-    double xyz_max = std::numeric_limits<double>::max(),
-    const Eigen::Vector3d& xyz_default = Eigen::Vector3d::Zero(),
-    const QString& xyz_suffix = " m",
-    double rpy_min = std::numeric_limits<double>::lowest(),
-    double rpy_max = std::numeric_limits<double>::max(),
-    const Eigen::Vector3d& rpy_default = Eigen::Vector3d::Zero(),
-    const QString& rpy_suffix = " rad");
+    const QString& description_text);
 
-  std::pair<Eigen::Vector3d, Eigen::Vector3d> get() const override;
-  bool set(const std::pair<Eigen::Vector3d, Eigen::Vector3d>& src) override;
+  std::pair<Eigen::Vector3d, Eigen::Vector3d> getValue() const override;
+  bool setValue(const std::pair<Eigen::Vector3d, Eigen::Vector3d>& src) override;
 
   double x() const;
   double y() const;

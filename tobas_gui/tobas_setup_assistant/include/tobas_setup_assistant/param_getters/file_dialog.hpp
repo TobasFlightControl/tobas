@@ -26,12 +26,12 @@ public:
   explicit ParamGetterWidget_FileDialog(
     rclcpp::Node::SharedPtr node,
     const QString& param_name,
-    const QString& description_text = "",
-    const QString& _default = "",
-    const QString& initial_filter = "All (*)");
+    const QString& description_text);
 
-  QString get() const override;
-  bool set(const QString& src) override;
+  QString getValue() const override;
+  bool setValue(const QString& src) override;
+
+  void setInitialFilter(const QString& init_filter);
 
 private Q_SLOTS:
   void onTextChanged(const QString& text);
@@ -40,7 +40,7 @@ private Q_SLOTS:
 private:
   const rclcpp::Node::SharedPtr node_;
   const std::string last_opend_dir_key_;
-  const QString init_filter_;
+  QString init_filter_ = "All (*)";
   ptree::PropertyClient property_client_;
   QLineEdit* path_;
 };

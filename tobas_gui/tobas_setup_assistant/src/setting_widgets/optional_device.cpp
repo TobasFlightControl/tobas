@@ -15,19 +15,17 @@ void OptionalDeviceWidget::initialize()
   equipped_->setFont(qt::DefaultFont(kBodyPSize));
   equipped_->setChecked(defaultEquipped());
   connect(equipped_, &QCheckBox::toggled, this, &self::onEquippedToggled);
-  rows_->addWidget(equipped_);
+  addWidget(equipped_);
 
   // Enable, Disableを一括で管理するために，設定ウィジェットを全て1つのウィジェットの子にする．
   config_ = new QWidget();
   config_->setEnabled(defaultEquipped());
-  rows_->addWidget(config_);
+  addWidget(config_);
 
   param_rows_ = new QVBoxLayout();
   config_->setLayout(param_rows_);
 
   onInit();
-
-  rows_->addStretch();
 }
 
 void OptionalDeviceWidget::onEquippedToggled(bool checked)
