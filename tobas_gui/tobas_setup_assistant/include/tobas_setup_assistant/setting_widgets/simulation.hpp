@@ -8,8 +8,6 @@ namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant;
-
 class SimulationWidget : public BaseSettingWidget
 {
   Q_OBJECT
@@ -20,9 +18,9 @@ class SimulationWidget : public BaseSettingWidget
 public:
   using super::BaseSettingWidget;
 
-  const char* name() override;
-  const char* title() override;
-  const char* description() override;
+  const char* name() const override;
+  const char* title() const override;
+  const char* description() const override;
 
   void onInit() override;
   void onOpened() override;

@@ -10,17 +10,17 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* AuthorInformationWidget::name()
+const char* AuthorInformationWidget::name() const
 {
   return "Author Info";
 }
 
-const char* AuthorInformationWidget::title()
+const char* AuthorInformationWidget::title() const
 {
   return "Specify Author Information";
 }
 
-const char* AuthorInformationWidget::description()
+const char* AuthorInformationWidget::description() const
 {
   return "Enter the name and email address of the person administering the Tobas package "
          "that you're creating with the Setup Assistant. "

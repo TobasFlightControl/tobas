@@ -7,24 +7,25 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* GpsWidget::name()
+const char* GPSWidget::name() const
 {
   return "GPS";
 }
 
-const char* GpsWidget::title()
+const char* GPSWidget::title() const
 {
   return "Define Global Positioning System";
 }
 
-const char* GpsWidget::description()
+const char* GPSWidget::description() const
 {
   return "";  // TODO
 }
 
-void GpsWidget::onInit()
+void GPSWidget::onInit()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
+  offset_->setSuffix(" m");
   addParamWidget(offset_);
 
   update_rate_ = new ParamGetterWidget_SpinBox("Update Rate", "");  // TODO
@@ -77,17 +78,17 @@ void GpsWidget::onInit()
   addParamWidget(vertical_vel_stddev_);
 }
 
-void GpsWidget::onOpened()
+void GPSWidget::onOpened()
 {
   return;
 }
 
-void GpsWidget::updateInternalDataStructures()
+void GPSWidget::updateInternalDataStructures()
 {
   return;
 }
 
-bool GpsWidget::isValid()
+bool GPSWidget::isValid()
 {
   if (!equipped())
     return true;
@@ -95,7 +96,7 @@ bool GpsWidget::isValid()
   return true;
 }
 
-YAML::Node GpsWidget::dump()
+YAML::Node GPSWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -113,7 +114,7 @@ YAML::Node GpsWidget::dump()
   return node;
 }
 
-void GpsWidget::load(const YAML::Node& node)
+void GPSWidget::load(const YAML::Node& node)
 {
   equipped_->setChecked(yaml::load<bool>(kEquippedKey, node));
 
@@ -127,7 +128,7 @@ void GpsWidget::load(const YAML::Node& node)
   vertical_vel_stddev_->setValue(yaml::load<double>(vertical_vel_stddev_->name(), node));
 }
 
-bool GpsWidget::defaultEquipped() const
+bool GPSWidget::defaultEquipped() const
 {
   return true;
 }

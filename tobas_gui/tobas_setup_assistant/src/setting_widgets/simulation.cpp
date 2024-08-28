@@ -6,17 +6,17 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* SimulationWidget::name()
+const char* SimulationWidget::name() const
 {
   return "Simulation";
 }
 
-const char* SimulationWidget::title()
+const char* SimulationWidget::title() const
 {
   return "Define Simulation Environment";
 }
 
-const char* SimulationWidget::description()
+const char* SimulationWidget::description() const
 {
   return "Configure the settings for the Gazebo simulation environment. "
          "To enhance the accuracy of the simulation, please input information about the actual operating environment.";

@@ -1,17 +1,19 @@
 #pragma once
 
 #include "./base_setting.hpp"
-#include "../param_getters/line_edit.hpp"
+#include "../param_getters/spin_box.hpp"
+#include "../param_getters/double_spin_box.hpp"
+#include "../param_getters/vector3d.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
-class AuthorInformationWidget : public BaseSettingWidget
+class BarometerWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = AuthorInformationWidget;
+  using self = BarometerWidget;
   using super = BaseSettingWidget;
 
 public:
@@ -30,8 +32,9 @@ public:
   void load(const YAML::Node& node) override;
 
 private:
-  ParamGetterWidget_LineEdit* name_;
-  ParamGetterWidget_LineEdit* email_;
+  ParamGetterWidget_Vector3d* offset_;
+  ParamGetterWidget_SpinBox* update_rate_;
+  ParamGetterWidget_DoubleSpinBox* pressure_var_;
 };
 };  // namespace setup_assistant
 }  // namespace gui

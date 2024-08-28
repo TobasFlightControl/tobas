@@ -28,9 +28,9 @@ public:
 
   virtual void initialize();
 
-  virtual const char* name() = 0;
-  virtual const char* title() = 0;
-  virtual const char* description() = 0;
+  virtual const char* name() const = 0;
+  virtual const char* title() const = 0;
+  virtual const char* description() const = 0;
 
   /* 初期化時の処理． */
   virtual void onInit() = 0;
