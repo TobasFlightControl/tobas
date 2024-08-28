@@ -28,6 +28,15 @@ bool load(const std::string& key, const YAML::Node& parent, T& value)
   return true;
 }
 
+template <typename T>
+T load(const std::string& key, const YAML::Node& parent)
+{
+  T value;
+  if (!load(key, parent, value))
+    throw;
+  return value;
+}
+
 bool load(const std::filesystem::path& path, YAML::Node& node);
 bool save(const std::filesystem::path& path, const YAML::Node& node);
 }  // namespace yaml

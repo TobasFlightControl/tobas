@@ -1,6 +1,7 @@
 #include <cinttypes>
 #include <algorithm>
 #include <map>
+#include <regex>
 
 #include "../include/tobas_std_tools/string.hpp"
 
@@ -82,6 +83,22 @@ string replace(string str, const string& from, const string& to)
   return str;
 }
 
+bool contains(const string& str, const string& sub)
+{
+  return str.find(sub) != string::npos;
+}
+
+bool contains(const string& str, const char& sub)
+{
+  return str.find(sub) != string::npos;
+}
+
+bool isValidEmail(const string& email)
+{
+  const regex pattern(R"(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b)");
+  return regex_match(email, pattern);
+}
+
 string convertToSuperscript(const string& input)
 {
   // 上付き文字の対応表
@@ -110,15 +127,5 @@ string convertToSuperscript(const string& input)
   }
 
   return output;
-}
-
-bool contains(const string& str, const string& sub)
-{
-  return str.find(sub) != string::npos;
-}
-
-bool contains(const string& str, const char& sub)
-{
-  return str.find(sub) != string::npos;
 }
 }  // namespace tobas_std

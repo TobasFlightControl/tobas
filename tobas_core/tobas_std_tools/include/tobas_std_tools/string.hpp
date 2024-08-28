@@ -26,12 +26,18 @@ std::string toUpper(std::string arg);
 /* 文字列中の特定の文字列を別の文字列に変換する． */
 std::string replace(std::string str, const std::string& from, const std::string& to);
 
-/* Converts digits following a caret (^) into their superscript equivalent. */
-std::string convertToSuperscript(const std::string& input);
-
 /* 部分文字列が含まれるかどうかを調べる． */
 bool contains(const std::string& str, const std::string& sub);
 
 /* 部分文字列が含まれるかどうかを調べる． */
 bool contains(const std::string& str, const char& sub);
+
+/**
+ * @brief Emailアドレスが有効かどうかを判定する．
+ * cf. https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
+ */
+bool isValidEmail(const std::string& email);
+
+/* Converts digits following a caret (^) into their superscript equivalent. */
+std::string convertToSuperscript(const std::string& input);
 }  // namespace tobas_std

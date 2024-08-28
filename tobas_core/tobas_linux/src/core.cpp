@@ -62,4 +62,14 @@ string executeCommand(const char* cmd)
     result += buffer.data();
   return result;
 }
+
+std::string getGitUserName()
+{
+  return executeCommand("git config --global user.name");
+}
+
+std::string getGitUserEmail()
+{
+  return executeCommand("git config --global user.email");
+}
 }  // namespace linux
