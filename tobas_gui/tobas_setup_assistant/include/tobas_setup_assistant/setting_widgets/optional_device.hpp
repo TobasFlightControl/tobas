@@ -15,12 +15,19 @@ class OptionalDeviceWidget : public BaseSettingWidget
   using self = OptionalDeviceWidget;
   using super = BaseSettingWidget;
 
+protected:
+  static constexpr char kEquippedKey[] = "equipped";
+
 public:
   using super::BaseSettingWidget;
 
   void initialize() override;
 
+  bool equipped() const;
+
 protected:
+  QCheckBox* equipped_;
+
   virtual bool defaultEquipped() const = 0;
 
   /* Equippedがチェックされているときだけ有効になるウィジェットを追加する． */
@@ -31,11 +38,8 @@ private Q_SLOTS:
   void onEquippedToggled(bool checked);
 
 private:
-  QCheckBox* equipped_;
   QWidget* config_;
   QVBoxLayout* param_rows_;
-
-  bool equipped() const;
 };
 
 template <typename T>

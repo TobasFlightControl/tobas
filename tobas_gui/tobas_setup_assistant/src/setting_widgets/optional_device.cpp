@@ -1,3 +1,4 @@
+#include <tobas_yaml_tools/core.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/font.hpp>
 
@@ -28,14 +29,14 @@ void OptionalDeviceWidget::initialize()
   onInit();
 }
 
-void OptionalDeviceWidget::onEquippedToggled(bool checked)
-{
-  config_->setEnabled(checked);
-}
-
 bool OptionalDeviceWidget::equipped() const
 {
   return equipped_->isChecked();
+}
+
+void OptionalDeviceWidget::onEquippedToggled(bool checked)
+{
+  config_->setEnabled(checked);
 }
 }  // namespace setup_assistant
 }  // namespace gui

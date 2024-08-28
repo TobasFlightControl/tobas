@@ -1,5 +1,4 @@
 #include <tobas_yaml_tools/core.hpp>
-#include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_widgets/simulation.hpp"
 
