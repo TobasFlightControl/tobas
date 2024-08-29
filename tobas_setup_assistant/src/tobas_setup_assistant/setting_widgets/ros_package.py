@@ -65,7 +65,6 @@ class RosPackageWidget(BaseSettingWidget):
         self._tbs_path.setAlignment(Qt.AlignTop)
         self._rows.addWidget(self._tbs_path)
 
-        # ボタンを中央に配置するためにLayoutとWidgetを噛ませる必要がある
         self._generate_button = QPushButton("Generate")
         self._generate_button.setFixedSize(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
         self._generate_button.setEnabled(False)

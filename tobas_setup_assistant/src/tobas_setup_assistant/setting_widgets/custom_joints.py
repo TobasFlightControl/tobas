@@ -151,11 +151,11 @@ class CustomJointsWidget(BaseSettingWidget):
 
     @override
     def is_valid(self) -> bool:
-        for i in range(self.count()):
-            jnt_name = self.get_joint_name(i)
-            home_pos = self.get_home_position(i)
-            min_pos = self.get_min_position(i)
-            max_pos = self.get_max_position(i)
+        for row in range(self.count()):
+            jnt_name = self.get_joint_name(row)
+            home_pos = self.get_home_position(row)
+            min_pos = self.get_min_position(row)
+            max_pos = self.get_max_position(row)
             if min_pos > max_pos:
                 q_error_named(self, self.NAME, f'Position limit of joint "{jnt_name}" is invalid.')
                 return False
