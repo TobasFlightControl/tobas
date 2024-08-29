@@ -1,5 +1,4 @@
 #include <tobas_std_tools/string.hpp>
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -79,8 +78,8 @@ YAML::Node AuthorInformationWidget::dump()
 
 void AuthorInformationWidget::load(const YAML::Node& node)
 {
-  name_->setValue(yaml::load<QString>(name_->name(), node));
-  email_->setValue(yaml::load<QString>(email_->name(), node));
+  name_->setValue(node[name_->name()].as<QString>());
+  email_->setValue(node[email_->name()].as<QString>());
 }
 }  // namespace setup_assistant
 }  // namespace gui

@@ -24,7 +24,7 @@ protected:
   static constexpr int kDescriptionHeight = 100;
 
 public:
-  explicit BaseSettingWidget(SetupAssistant* main);
+  explicit BaseSettingWidget();
 
   virtual void initialize();
 
@@ -51,8 +51,6 @@ public:
   virtual void load(const YAML::Node& node) = 0;
 
 protected:
-  SetupAssistant* main_;
-
   void addTitleAndDescription();
   void addWidget(QWidget* widget);
   void addLayout(QLayout* layout);

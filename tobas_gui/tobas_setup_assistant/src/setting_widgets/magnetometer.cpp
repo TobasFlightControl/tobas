@@ -1,4 +1,3 @@
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_widgets/magnetometer.hpp"
@@ -76,10 +75,10 @@ YAML::Node MagnetometerWidget::dump()
 
 void MagnetometerWidget::load(const YAML::Node& node)
 {
-  offset_->setValue(yaml::load<Eigen::Vector3d>(offset_->name(), node));
-  update_rate_->setValue(yaml::load<int>(update_rate_->name(), node));
-  gauss_noise_->setValue(yaml::load<int>(gauss_noise_->name(), node));
-  uniform_noise_->setValue(yaml::load<int>(uniform_noise_->name(), node));
+  offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
+  update_rate_->setValue(node[update_rate_->name()].as<int>());
+  gauss_noise_->setValue(node[gauss_noise_->name()].as<int>());
+  uniform_noise_->setValue(node[uniform_noise_->name()].as<int>());
 }
 }  // namespace setup_assistant
 }  // namespace gui

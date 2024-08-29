@@ -1,4 +1,3 @@
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_widgets/imu.hpp"
@@ -142,18 +141,18 @@ YAML::Node IMUWidget::dump()
 
 void IMUWidget::load(const YAML::Node& node)
 {
-  offset_->setValue(yaml::load<Eigen::Vector3d>(offset_->name(), node));
-  update_rate_->setValue(yaml::load<int>(update_rate_->name(), node));
-  gyro_noise_density_->setValue(yaml::load<double>(gyro_noise_density_->name(), node));
-  gyro_random_walk_->setValue(yaml::load<double>(gyro_random_walk_->name(), node));
-  gyro_bias_corr_time_->setValue(yaml::load<int>(gyro_bias_corr_time_->name(), node));
-  gyro_turn_on_bias_sigma_->setValue(yaml::load<double>(gyro_turn_on_bias_sigma_->name(), node));
-  gyro_lpf_cutoff_freq_->setValue(yaml::load<int>(gyro_lpf_cutoff_freq_->name(), node));
-  acc_noise_density_->setValue(yaml::load<double>(acc_noise_density_->name(), node));
-  acc_random_walk_->setValue(yaml::load<double>(acc_random_walk_->name(), node));
-  acc_bias_corr_time_->setValue(yaml::load<int>(acc_bias_corr_time_->name(), node));
-  acc_turn_on_bias_sigma_->setValue(yaml::load<double>(acc_turn_on_bias_sigma_->name(), node));
-  acc_lpf_cutoff_freq_->setValue(yaml::load<int>(acc_lpf_cutoff_freq_->name(), node));
+  offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
+  update_rate_->setValue(node[update_rate_->name()].as<int>());
+  gyro_noise_density_->setValue(node[gyro_noise_density_->name()].as<double>());
+  gyro_random_walk_->setValue(node[gyro_random_walk_->name()].as<double>());
+  gyro_bias_corr_time_->setValue(node[gyro_bias_corr_time_->name()].as<int>());
+  gyro_turn_on_bias_sigma_->setValue(node[gyro_turn_on_bias_sigma_->name()].as<double>());
+  gyro_lpf_cutoff_freq_->setValue(node[gyro_lpf_cutoff_freq_->name()].as<int>());
+  acc_noise_density_->setValue(node[acc_noise_density_->name()].as<double>());
+  acc_random_walk_->setValue(node[acc_random_walk_->name()].as<double>());
+  acc_bias_corr_time_->setValue(node[acc_bias_corr_time_->name()].as<int>());
+  acc_turn_on_bias_sigma_->setValue(node[acc_turn_on_bias_sigma_->name()].as<double>());
+  acc_lpf_cutoff_freq_->setValue(node[acc_lpf_cutoff_freq_->name()].as<int>());
 }
 }  // namespace setup_assistant
 }  // namespace gui

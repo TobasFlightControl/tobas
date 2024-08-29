@@ -1,5 +1,3 @@
-#include <tobas_yaml_tools/core.hpp>
-
 #include "tobas_setup_assistant/setting_widgets/simulation.hpp"
 
 namespace gui
@@ -84,10 +82,10 @@ YAML::Node SimulationWidget::dump()
 
 void SimulationWidget::load(const YAML::Node& node)
 {
-  latitude_zero_->setValue(yaml::load<double>(latitude_zero_->name(), node));
-  longitude_zero_->setValue(yaml::load<double>(longitude_zero_->name(), node));
-  altitude_zero_->setValue(yaml::load<double>(altitude_zero_->name(), node));
-  max_model_error_rate_->setValue(yaml::load<double>(max_model_error_rate_->name(), node));
+  latitude_zero_->setValue(node[latitude_zero_->name()].as<double>());
+  longitude_zero_->setValue(node[longitude_zero_->name()].as<double>());
+  altitude_zero_->setValue(node[altitude_zero_->name()].as<double>());
+  max_model_error_rate_->setValue(node[max_model_error_rate_->name()].as<double>());
 }
 }  // namespace setup_assistant
 }  // namespace gui

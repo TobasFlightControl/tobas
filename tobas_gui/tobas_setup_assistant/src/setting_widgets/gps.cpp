@@ -1,4 +1,3 @@
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_widgets/gps.hpp"
@@ -116,16 +115,16 @@ YAML::Node GPSWidget::dump()
 
 void GPSWidget::load(const YAML::Node& node)
 {
-  equipped_->setChecked(yaml::load<bool>(kEquippedKey, node));
+  equipped_->setChecked(node[kEquippedKey].as<bool>());
 
-  offset_->setValue(yaml::load<Eigen::Vector3d>(offset_->name(), node));
-  update_rate_->setValue(yaml::load<int>(update_rate_->name(), node));
-  delay_->setValue(yaml::load<double>(delay_->name(), node));
-  pos_corr_time_->setValue(yaml::load<int>(pos_corr_time_->name(), node));
-  horizontal_pos_accuracy_->setValue(yaml::load<double>(horizontal_pos_accuracy_->name(), node));
-  vertical_pos_accuracy_->setValue(yaml::load<double>(vertical_pos_accuracy_->name(), node));
-  horizontal_vel_stddev_->setValue(yaml::load<double>(horizontal_vel_stddev_->name(), node));
-  vertical_vel_stddev_->setValue(yaml::load<double>(vertical_vel_stddev_->name(), node));
+  offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
+  update_rate_->setValue(node[update_rate_->name()].as<int>());
+  delay_->setValue(node[delay_->name()].as<double>());
+  pos_corr_time_->setValue(node[pos_corr_time_->name()].as<int>());
+  horizontal_pos_accuracy_->setValue(node[horizontal_pos_accuracy_->name()].as<double>());
+  vertical_pos_accuracy_->setValue(node[vertical_pos_accuracy_->name()].as<double>());
+  horizontal_vel_stddev_->setValue(node[horizontal_vel_stddev_->name()].as<double>());
+  vertical_vel_stddev_->setValue(node[vertical_vel_stddev_->name()].as<double>());
 }
 
 bool GPSWidget::defaultEquipped() const

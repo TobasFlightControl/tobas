@@ -7,7 +7,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-BaseSettingWidget::BaseSettingWidget(SetupAssistant* main) : main_(main)
+BaseSettingWidget::BaseSettingWidget()
 {
   auto rows = new QVBoxLayout();
   header_rows_ = new QVBoxLayout();

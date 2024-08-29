@@ -1,4 +1,3 @@
-#include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_widgets/barometer.hpp"
@@ -70,9 +69,9 @@ YAML::Node BarometerWidget::dump()
 
 void BarometerWidget::load(const YAML::Node& node)
 {
-  offset_->setValue(yaml::load<Eigen::Vector3d>(offset_->name(), node));
-  update_rate_->setValue(yaml::load<int>(update_rate_->name(), node));
-  pressure_var_->setValue(yaml::load<double>(pressure_var_->name(), node));
+  offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
+  update_rate_->setValue(node[update_rate_->name()].as<int>());
+  pressure_var_->setValue(node[pressure_var_->name()].as<double>());
 }
 }  // namespace setup_assistant
 }  // namespace gui
