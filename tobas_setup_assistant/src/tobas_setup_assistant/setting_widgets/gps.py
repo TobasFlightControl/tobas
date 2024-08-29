@@ -53,7 +53,7 @@ class GpsWidget(OptionalDeviceWidget):
 
         vertical_pos_accuracy_description = ""  # TODO
         self.vertical_pos_accuracy = ParamGetterWidget_DoubleSpinBox(
-            "Hertical Position Accuracy",
+            "Vertical Position Accuracy",
             vertical_pos_accuracy_description,
             decimals=2,
             minimum=0.0,

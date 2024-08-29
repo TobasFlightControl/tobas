@@ -53,6 +53,7 @@ class ParamGetterWidget_Pose(ParamGetterWidget[Tuple[float, float, float, float,
         self._yaw = FloatGetter("yaw", decimals, rpy_min[2], rpy_max[2], 0.1, rpy_default[2], rpy_suffix)
         cols_rpy.addWidget(self._yaw)
 
+        # Connections
         self._x.value_changed.connect(self._on_value_changed)
         self._y.value_changed.connect(self._on_value_changed)
         self._z.value_changed.connect(self._on_value_changed)
