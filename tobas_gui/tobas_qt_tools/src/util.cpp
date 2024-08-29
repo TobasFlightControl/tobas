@@ -11,7 +11,7 @@ void blockSignalsRec(QObject* obj, bool block)
     blockSignalsRec(child, block);
 }
 
-void placeCenter(QWidget* widget, QVBoxLayout* rows)
+void addWidgetCenter(QWidget* widget, QVBoxLayout* rows)
 {
   auto cols = new QHBoxLayout();
   cols->addWidget(widget);

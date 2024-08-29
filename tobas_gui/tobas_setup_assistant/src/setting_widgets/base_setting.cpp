@@ -1,5 +1,6 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/font.hpp>
+#include <tobas_qt_tools/util.hpp>
 
 #include "tobas_setup_assistant/setting_widgets/base_setting.hpp"
 
@@ -40,6 +41,11 @@ void BaseSettingWidget::addTitleAndDescription()
 void BaseSettingWidget::addWidget(QWidget* widget)
 {
   content_rows_->addWidget(widget);
+}
+
+void BaseSettingWidget::addWidgetCenter(QWidget* widget)
+{
+  qt::addWidgetCenter(widget, content_rows_);
 }
 
 void BaseSettingWidget::addLayout(QLayout* layout)

@@ -10,8 +10,8 @@ namespace qt
 /* 子ウィジェットを再帰的に走査し，全てのシグナルをブロックする． */
 void blockSignalsRec(QObject* obj, bool block);
 
-/* ウィジェットをレイアウトの中央に配置する． */
-void placeCenter(QWidget* widget, QVBoxLayout* rows);
+/* ウィジェットをレイアウトの中央に追加する． */
+void addWidgetCenter(QWidget* widget, QVBoxLayout* rows);
 
 /* 幅固定のQVBoxLayoutを作成する． */
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent);

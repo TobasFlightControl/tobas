@@ -38,6 +38,8 @@ public:
   const kdl::Tree& tree() const;
   const hardware_interface::HardwareInfo& hardware() const;
 
+  const std::string& robotName() const;
+
   hw_interface::type_t hardwareInterface(const std::string& jnt_name) const;
 
 private:

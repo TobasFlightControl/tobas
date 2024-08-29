@@ -34,6 +34,11 @@ const hardware_interface::HardwareInfo& RobotInfo::hardware() const
   return hardware_;
 }
 
+const std::string& RobotInfo::robotName() const
+{
+  return hardware_.name;
+}
+
 hw_interface::type_t RobotInfo::hardwareInterface(const string& jnt_name) const
 {
   for (const auto& transmission : hardware_.transmissions)

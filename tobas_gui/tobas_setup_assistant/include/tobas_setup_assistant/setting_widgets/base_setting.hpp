@@ -53,6 +53,7 @@ public:
 protected:
   void addTitleAndDescription();
   void addWidget(QWidget* widget);
+  void addWidgetCenter(QWidget* widget);
   void addLayout(QLayout* layout);
 
 private:
