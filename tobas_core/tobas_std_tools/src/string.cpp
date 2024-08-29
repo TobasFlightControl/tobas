@@ -128,4 +128,56 @@ string convertToSuperscript(const string& input)
 
   return output;
 }
+
+string pascalFromTitle(const string& title_case)
+{
+  return regex_replace(title_case, regex(" "), "");
+}
+
+string pascalFromSnake(const string& snake_case)
+{
+  stringstream result;
+  stringstream ss(snake_case);
+  string item;
+  while (getline(ss, item, '_'))
+  {
+    item[0] = toupper(item[0]);
+    result << item;
+  }
+  return result.str();
+}
+
+string titleFromSnake(const string& snake_case)
+{
+  stringstream result;
+  stringstream ss(snake_case);
+  string item;
+  bool first = true;
+  while (getline(ss, item, '_'))
+  {
+    item[0] = toupper(item[0]);
+    if (!first)
+      result << " ";
+    result << item;
+    first = false;
+  }
+  return result.str();
+}
+
+string snakeFromPascal(const string& pascal_case)
+{
+  stringstream result;
+  for (size_t i = 0; i < pascal_case.size(); ++i)
+  {
+    if (isupper(pascal_case[i]) && i > 0)
+      result << "_";
+    result << static_cast<char>(tolower(pascal_case[i]));
+  }
+  return result.str();
+}
+
+string snakeFromTitle(const string& title_case)
+{
+  return snakeFromPascal(pascalFromTitle(title_case));
+}
 }  // namespace tobas_std

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QVBoxLayout>
-
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <moveit_msgs/msg/display_robot_state.hpp>
 
@@ -10,12 +8,12 @@
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 #include <tobas_qt_tools/layouts/scroll_area.hpp>
 
+#include "./robot_info.hpp"
+
 namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant;
-
 class JointStatePublisherWidget : public qt::Widget
 {
   Q_OBJECT
@@ -24,17 +22,18 @@ class JointStatePublisherWidget : public qt::Widget
   using super = qt::Widget;
 
 public:
-  explicit JointStatePublisherWidget(SetupAssistant* main);
+  explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
   void updateInternalDataStructures();
 
 private Q_SLOTS:
   void onValueChanged(double value, const std::string& jnt_name);
   void onCenterButtonClicked();
-  void onRandomButtonClicked();
 
 private:
-  SetupAssistant* main_;
+  rclcpp::Node::SharedPtr node_;
+  const RobotInfo& robot_;
+
   QVBoxLayout* rows_;
   qt::ScrollableVBoxLayout* slider_rows_;
   QVBoxLayout* button_rows_;

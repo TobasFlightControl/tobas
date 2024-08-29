@@ -2,12 +2,12 @@
 
 #include <QTreeWidget>
 
+#include "./rviz.hpp"
+
 namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant;
-
 class FrameTreeWidget : public QTreeWidget
 {
   Q_OBJECT
@@ -16,7 +16,7 @@ class FrameTreeWidget : public QTreeWidget
   using super = QTreeWidget;
 
 public:
-  explicit FrameTreeWidget(SetupAssistant* main);
+  explicit FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz);
 
   void updateInternalDataStructures();
 
@@ -27,7 +27,8 @@ private Q_SLOTS:
   void resizeColumns();
 
 private:
-  SetupAssistant* main_;
+  const RobotInfo& robot_;
+  RvizWidget* rviz_;
 
   void addTreeItemsRec(QTreeWidgetItem* parent_item);
 };

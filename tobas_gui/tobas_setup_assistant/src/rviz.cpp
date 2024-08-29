@@ -8,18 +8,22 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/rviz.hpp>
 
-#include "tobas_setup_assistant/setup_assistant.hpp"
+#include "tobas_setup_assistant/rviz.hpp"
+#include "tobas_setup_assistant/common.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
-RvizWidget::RvizWidget(SetupAssistant* main) : main_(main)
+RvizWidget::RvizWidget(
+  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
+  const RobotInfo& robot)
+  : robot_(robot)
 {
   // Create Rviz frame widget
   const auto pkg_path = ament_index_cpp::get_package_share_directory(kPackageName);
   const auto rviz_config_path = path::join(pkg_path, "config/setup_assistant.rviz");
-  auto frame = qt::createRvizFrame(main->rvizRosNode(), QString::fromStdString(rviz_config_path));
+  auto frame = qt::createRvizFrame(rviz_ros_node, QString::fromStdString(rviz_config_path));
 
   // Setup robot_model_display
   // rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
@@ -67,7 +71,7 @@ void RvizWidget::updateInternalDataStructures()
   display_->setBool(true);
 
   // 固定フレームをルートリンクに設定
-  const auto& root_name = main_->tree().getRootName();
+  const auto& root_name = robot_.tree().getRootName();
   manager_->setFixedFrame(QString::fromStdString(root_name));
 
   // ロボットモデルをリロード

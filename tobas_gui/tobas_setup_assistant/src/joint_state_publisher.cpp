@@ -5,7 +5,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-#include "tobas_setup_assistant/setup_assistant.hpp"
+#include "tobas_setup_assistant/joint_state_publisher.hpp"
 
 using namespace std;
 
@@ -13,7 +13,8 @@ namespace gui
 {
 namespace setup_assistant
 {
-JointStatePublisherWidget::JointStatePublisherWidget(SetupAssistant* main) : main_(main)
+JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
+  : node_(node), robot_(robot)
 {
   rows_ = new QVBoxLayout();
   slider_rows_ = new qt::ScrollableVBoxLayout();
@@ -30,11 +31,11 @@ JointStatePublisherWidget::JointStatePublisherWidget(SetupAssistant* main) : mai
   rows_->addStretch();
 
   // Register publishers
-  js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(main->node(), tobas::kJointStatesTopic);
-  drs_pub_ = ros2::createPublisher<moveit_msgs::msg::DisplayRobotState>(main->node(), "display_robot_state");
+  js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, tobas::kJointStatesTopic);
+  drs_pub_ = ros2::createPublisher<moveit_msgs::msg::DisplayRobotState>(node_, "display_robot_state");
 
   // Create timers
-  publish_timer_ = ros2::createTimer(main->node(), 100ms, &self::publish, this);
+  publish_timer_ = ros2::createTimer(node_, 100ms, &self::publish, this);
 }
 
 void JointStatePublisherWidget::updateInternalDataStructures()
@@ -44,7 +45,7 @@ void JointStatePublisherWidget::updateInternalDataStructures()
   sliders_.clear();
   qt::clearLayout(slider_rows_);
 
-  for (const auto& [seg_name, seg_ele] : main_->tree().getSegments())
+  for (const auto& [seg_name, seg_ele] : robot_.tree().getSegments())
   {
     const auto& joint = seg_ele.segment.joint();
     if (joint.type == kdl::Joint::Fixed)
@@ -72,7 +73,7 @@ void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_n
   const auto idx = tobas_std::index(js_.name, jnt_name);
   if (idx < 0)
   {
-    RCLCPP_ERROR_STREAM(main_->node()->get_logger(), "Joint \"" << jnt_name << "\" does not exist.");
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "Joint \"" << jnt_name << "\" does not exist.");
     return;
   }
 
@@ -87,7 +88,7 @@ void JointStatePublisherWidget::onCenterButtonClicked()
 
 void JointStatePublisherWidget::publish()
 {
-  js_.header.stamp = main_->node()->get_clock()->now();
+  js_.header.stamp = node_->get_clock()->now();
 
   auto js = make_unique<sensor_msgs::msg::JointState>(js_);
   js_pub_->publish(std::move(js));

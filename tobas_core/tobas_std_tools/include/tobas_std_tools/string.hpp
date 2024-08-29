@@ -40,4 +40,19 @@ bool isValidEmail(const std::string& email);
 
 /* Converts digits following a caret (^) into their superscript equivalent. */
 std::string convertToSuperscript(const std::string& input);
+
+/* Title CaseをPascalCaseに変換する． */
+std::string pascalFromTitle(const std::string& title_case);
+
+/* snake_caseをPascalCaseに変換する． */
+std::string pascalFromSnake(const std::string& snake_case);
+
+/* snake_caseをTitle Caseに変換する． */
+std::string titleFromSnake(const std::string& snake_case);
+
+/* PascalCaseをsnake_caseに変換する． */
+std::string snakeFromPascal(const std::string& pascal_case);
+
+/* Title Caseをsnake_caseに変換する． */
+std::string snakeFromTitle(const std::string& title_case);
 }  // namespace tobas_std

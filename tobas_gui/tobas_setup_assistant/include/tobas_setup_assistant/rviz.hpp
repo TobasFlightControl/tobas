@@ -7,14 +7,12 @@
 
 #include <tobas_qt_tools/widgets/widget.hpp>
 
-#include "./tree_information.hpp"
+#include "./robot_info.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant;
-
 class RvizWidget : public qt::Widget
 {
   Q_OBJECT
@@ -27,7 +25,9 @@ class RvizWidget : public qt::Widget
   static constexpr bool kDefaultCollisionEnabled = false;
 
 public:
-  explicit RvizWidget(SetupAssistant* main);
+  explicit RvizWidget(
+    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
+    const RobotInfo& robot);
 
   void updateInternalDataStructures();
 
@@ -39,7 +39,8 @@ private Q_SLOTS:
   void onCollisionBoxToggled(bool checked);
 
 private:
-  SetupAssistant* main_;
+  const RobotInfo& robot_;
+
   rviz_common::VisualizationManager* manager_;
   rviz_common::Display* display_;
 

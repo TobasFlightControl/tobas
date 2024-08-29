@@ -6,7 +6,7 @@
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./common.hpp"
-#include "./tree_information.hpp"
+#include "./robot_info.hpp"
 #include "./rviz.hpp"
 #include "./frame_tree.hpp"
 #include "./joint_state_publisher.hpp"
@@ -33,24 +33,13 @@ class SetupAssistant : public qt::Widget
 public:
   explicit SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node);
 
-  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr& rvizRosNode();
-  const rclcpp::Node::SharedPtr& node();
-
-  const kdl::Tree& tree();
-  const TreeInformation& treeInfo();
-
-  FrameTreeWidget* frameTree();
-  RvizWidget* rviz();
-  JointStatePublisherWidget* jointStatePublisher();
-
   // TODO
 
 private:
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node_;
   rclcpp::Node::SharedPtr node_;
 
-  kdl::Tree tree_;
-  TreeInformation tree_info_;
+  RobotInfo robot_;
 
   FrameTreeWidget* frame_tree_;
   RvizWidget* rviz_;
