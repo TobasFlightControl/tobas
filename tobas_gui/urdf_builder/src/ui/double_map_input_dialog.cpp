@@ -9,16 +9,14 @@ DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title
 {
   setWindowTitle(title);
 
-  const auto root_layout = new QVBoxLayout();
-  setLayout(root_layout);
+  const auto root_layout = new QVBoxLayout(this);
 
   for (const auto& field_name : field_names)
   {
     const auto layout = new QHBoxLayout();
     root_layout->addLayout(layout);
 
-    const auto label = new QLabel();
-    label->setText(field_name);
+    const auto label = new QLabel(field_name);
     layout->addWidget(label);
 
     const auto spin_box = new QDoubleSpinBox();

@@ -29,8 +29,7 @@ StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Setting
   ckb_group->setExclusive(true);  // 1つのみ有効
 
   // Layout
-  auto rows = new QVBoxLayout();
-  setLayout(rows);
+  auto rows = new QVBoxLayout(this);
   rows->addWidget(new_ckb);
   rows->addWidget(edit_ckb);
   rows->addWidget(stack);

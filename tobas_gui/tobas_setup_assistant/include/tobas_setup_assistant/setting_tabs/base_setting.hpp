@@ -26,6 +26,7 @@ protected:
 public:
   explicit BaseSettingWidget();
 
+  /* コンストラクタで派生クラスのメソッドにアクセスすることはできないため，別で初期化関数を定義． */
   virtual void initialize();
 
   virtual const char* name() const = 0;

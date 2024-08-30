@@ -1,0 +1,47 @@
+#pragma once
+
+#include <rclcpp/node.hpp>
+
+#include <tobas_qt_tools/widgets/combo_box.hpp>
+#include <tobas_qt_tools/widgets/stacked_widget.hpp>
+
+#include "./base.hpp"
+#include "../base.hpp"
+#include "../propeller.hpp"
+
+namespace gui
+{
+namespace setup_assistant
+{
+class AerodynamicsWidget : public BaseSelectedLinkSettingWidget<AerodynamicsWidget>
+{
+  Q_OBJECT
+
+public:
+  explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWidget* propeller);
+
+  const char* name() override;
+  bool isValid() override;
+  void copyFrom(const AerodynamicsWidget* src) override;
+
+  YAML::Node dump() override;
+  void load(const YAML::Node& node) override;
+
+  /* [kg*m/rad^2] */
+  double motorConst() const;
+
+  /* [m] */
+  double momentConst() const;
+
+  /* [kg/rad] */
+  double rotorDragCoef() const;
+
+private:
+  qt::ComboBox* method_name_;
+  qt::StackedWidget* methods_;
+
+  AerodynamicsWidget_Base* selected();
+  const AerodynamicsWidget_Base* selected() const;
+};
+}  // namespace setup_assistant
+}  // namespace gui

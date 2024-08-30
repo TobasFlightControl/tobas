@@ -33,16 +33,17 @@ void BatteryWidget::onInit()
   addWidget(type_);
   addWidget(batteries_);
 
+  batteries_->addWidget(new BatteryWidget_LiPo());
+  batteries_->addWidget(new BatteryWidget_Other());
+
+  for (int i = 0; i < batteries_->count(); ++i)
+  {
+    const auto battery = qobject_cast<BatteryWidget_Base*>(batteries_->widget(i));
+    type_->addItem(battery->name());
+  }
+
   connect(
     type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), batteries_, &qt::StackedWidget::setCurrentIndex);
-
-  auto lipo = new BatteryWidget_LiPo();
-  type_->addItem(lipo->name());
-  batteries_->addWidget(lipo);
-
-  auto other = new BatteryWidget_Other();
-  type_->addItem(other->name());
-  batteries_->addWidget(other);
 }
 
 void BatteryWidget::onOpened()
@@ -71,7 +72,7 @@ YAML::Node BatteryWidget::dump()
 
   for (int i = 0; i < batteries_->count(); ++i)
   {
-    auto battery = qobject_cast<BatteryWidget_Base*>(batteries_->widget(i));
+    const auto battery = qobject_cast<BatteryWidget_Base*>(batteries_->widget(i));
     node[battery->name()] = battery->dump();
   }
 
@@ -84,7 +85,7 @@ void BatteryWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < batteries_->count(); ++i)
   {
-    auto battery = qobject_cast<BatteryWidget_Base*>(batteries_->widget(i));
+    const auto battery = qobject_cast<BatteryWidget_Base*>(batteries_->widget(i));
     battery->load(node[battery->name()]);
   }
 }
@@ -122,6 +123,11 @@ double BatteryWidget::internalRegistance()
 BatteryWidget_Base* BatteryWidget::selected()
 {
   return qobject_cast<BatteryWidget_Base*>(batteries_->currentWidget());
+}
+
+const BatteryWidget_Base* BatteryWidget::selected() const
+{
+  return qobject_cast<const BatteryWidget_Base*>(batteries_->currentWidget());
 }
 }  // namespace setup_assistant
 }  // namespace gui

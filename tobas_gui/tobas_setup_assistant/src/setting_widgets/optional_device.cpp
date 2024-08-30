@@ -22,8 +22,7 @@ void OptionalDeviceWidget::initialize()
   config_->setEnabled(defaultEquipped());
   addWidget(config_);
 
-  param_rows_ = new QVBoxLayout();
-  config_->setLayout(param_rows_);
+  param_rows_ = new QVBoxLayout(config_);
 
   onInit();
 }

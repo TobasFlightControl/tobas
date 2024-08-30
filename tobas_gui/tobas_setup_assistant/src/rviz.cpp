@@ -51,9 +51,8 @@ RvizWidget::RvizWidget(
   collision_box->setChecked(kDefaultCollisionEnabled);
 
   // レイアウト
-  auto rows = new QVBoxLayout();
+  auto rows = new QVBoxLayout(this);
   auto cols = new QHBoxLayout();
-  setLayout(rows);
   rows->addWidget(frame);
   rows->addLayout(cols);
   cols->addStretch();

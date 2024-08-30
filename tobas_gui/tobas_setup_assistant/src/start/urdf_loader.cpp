@@ -19,8 +19,7 @@ namespace setup_assistant
 URDFLoaderWidget::URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
   : node_(node), robot_(robot), settings_(settings), property_client_(node, tobas::kPropertyServerGCS, kPackageName)
 {
-  auto rows = new QVBoxLayout();
-  setLayout(rows);
+  auto rows = new QVBoxLayout(this);
 
   auto label = new QLabel("Description Path");
   label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));

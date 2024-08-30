@@ -6,8 +6,7 @@ namespace setup_assistant
 {
 BatteryWidget_LiPo::BatteryWidget_LiPo()
 {
-  auto rows = new QVBoxLayout();
-  setLayout(rows);
+  auto rows = new QVBoxLayout(this);
 
   num_cells_ = new ParamGetterWidget_SpinBox("Number of Cells", "The number of cells in the battery.");
   num_cells_->setMinimum(1);

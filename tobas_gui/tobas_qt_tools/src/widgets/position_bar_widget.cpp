@@ -4,6 +4,7 @@
 #include <tobas_math/core.hpp>
 
 #include "tobas_qt_tools/widgets/position_bar_widget.hpp"
+#include "tobas_qt_tools/font.hpp"
 
 namespace qt
 {
@@ -189,7 +190,7 @@ void HPositionBarWidget::drawValue(QPainter& painter, double value)
 void HPositionBarWidget::drawText(QPainter& painter, const QString& text)
 {
   painter.setPen(Qt::gray);
-  painter.setFont(QFont("Default", getTextPSize()));
+  painter.setFont(DefaultFont(getTextPSize()));
   painter.drawText(QRect(0, 0, width(), height()), Qt::AlignCenter, text);
 }
 
@@ -223,7 +224,7 @@ void VPositionBarWidget::drawText(QPainter& painter, const QString& text)
 {
   // フォントを設定
   painter.setPen(Qt::gray);
-  painter.setFont(QFont("Default", getTextPSize()));
+  painter.setFont(DefaultFont(getTextPSize()));
 
   // ペインターの回転と移動を設定
   painter.translate(width() / 2, height() / 2);

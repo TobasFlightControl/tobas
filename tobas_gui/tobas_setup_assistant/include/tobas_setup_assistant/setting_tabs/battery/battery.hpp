@@ -46,6 +46,7 @@ private:
   qt::StackedWidget* batteries_;
 
   BatteryWidget_Base* selected();
+  const BatteryWidget_Base* selected() const;
 };
 };  // namespace setup_assistant
 }  // namespace gui

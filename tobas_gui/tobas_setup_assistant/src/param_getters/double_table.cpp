@@ -111,6 +111,12 @@ bool ParamGetterWidget_DoubleTable::setValue(const MatrixXd& src)
   return true;
 }
 
+void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& decimals)
+{
+  TOBAS_CHECK(decimals.size() == num_entry_);
+  decimals_ = decimals;
+}
+
 void ParamGetterWidget_DoubleTable::setMinimum(const QVector<double>& minimum)
 {
   TOBAS_CHECK(minimum.size() == num_entry_);
@@ -127,12 +133,6 @@ void ParamGetterWidget_DoubleTable::setDefault(const QVector<double>& _default)
 {
   TOBAS_CHECK(default_.size() == num_entry_);
   default_ = _default;
-}
-
-void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& decimals)
-{
-  TOBAS_CHECK(decimals.size() == num_entry_);
-  decimals_ = decimals;
 }
 
 void ParamGetterWidget_DoubleTable::setSuffix(const QVector<QString>& suffix)

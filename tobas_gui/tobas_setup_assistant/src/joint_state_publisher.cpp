@@ -16,11 +16,10 @@ namespace setup_assistant
 JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
 {
-  rows_ = new QVBoxLayout();
+  rows_ = new QVBoxLayout(this);
+
   slider_rows_ = new qt::ScrollableVBoxLayout();
   button_rows_ = new QVBoxLayout();
-
-  setLayout(rows_);
   rows_->addLayout(slider_rows_);
   rows_->addLayout(button_rows_);
 

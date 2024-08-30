@@ -2,6 +2,7 @@
 #include <QHBoxLayout>
 
 #include "tobas_qt_tools/widgets/slider_display.hpp"
+#include "tobas_qt_tools/font.hpp"
 
 #define TEXT_PSIZE 9
 
@@ -9,10 +10,9 @@ namespace qt
 {
 IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
 {
-  QFont font("Default", TEXT_PSIZE, QFont::Bold);
+  DefaultFont font(TEXT_PSIZE, QFont::Bold);
 
-  auto rows = new QVBoxLayout();
-  setLayout(rows);
+  auto rows = new QVBoxLayout(this);
 
   auto cols = new QHBoxLayout();
   rows->addLayout(cols);
@@ -86,10 +86,9 @@ void IntSliderDisplay::onValueChanged(int)
 
 DoubleSliderDisplay::DoubleSliderDisplay(int decimals, QWidget* parent) : super(parent), decimals_(decimals)
 {
-  QFont font("Default", TEXT_PSIZE, QFont::Bold);
+  DefaultFont font(TEXT_PSIZE, QFont::Bold);
 
-  auto rows = new QVBoxLayout();
-  setLayout(rows);
+  auto rows = new QVBoxLayout(this);
 
   auto cols = new QHBoxLayout();
   rows->addLayout(cols);

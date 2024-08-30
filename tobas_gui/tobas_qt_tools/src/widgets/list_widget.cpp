@@ -10,6 +10,12 @@ void ListWidget::remove(QListWidgetItem* item)
   takeItem(row(item));
 }
 
+bool ListWidget::contains(const QString& text)
+{
+  const auto items = findItems(text, Qt::MatchExactly);
+  return items.size() > 0;
+}
+
 QListWidgetItem* ListWidget::selectedItem()
 {
   const auto& selected_items = selectedItems();

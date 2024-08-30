@@ -12,8 +12,7 @@ namespace setup_assistant
 SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node)
   : rviz_ros_node_(rviz_ros_node), node_(rviz_ros_node.lock()->get_raw_node())
 {
-  auto rows = new QVBoxLayout();
-  setLayout(rows);
+  auto rows = new QVBoxLayout(this);
 
   // Start
   start_ = new StartWidget(node_, robot_, settings_);

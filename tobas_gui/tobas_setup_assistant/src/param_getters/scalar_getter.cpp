@@ -14,8 +14,7 @@ namespace setup_assistant
 {
 IntGetter::IntGetter(const QString& name)
 {
-  auto cols = new QHBoxLayout();
-  setLayout(cols);
+  auto cols = new QHBoxLayout(this);
 
   auto label = new QLabel(name + ":");
   label->setFont(qt::DefaultFont(kBodyPSize));

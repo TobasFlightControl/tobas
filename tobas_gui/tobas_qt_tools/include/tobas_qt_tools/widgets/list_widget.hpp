@@ -23,6 +23,9 @@ public:
 
   void remove(QListWidgetItem* item);
 
+  /* リストにテキストが含まれる場合にtrueを返す． */
+  bool contains(const QString& text);
+
   /* 選択中のアイテムのうち，最も上のものを返す．存在しない場合はNULLを返す． */
   QListWidgetItem* selectedItem();
 

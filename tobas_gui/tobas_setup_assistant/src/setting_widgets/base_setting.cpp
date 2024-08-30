@@ -10,13 +10,13 @@ namespace setup_assistant
 {
 BaseSettingWidget::BaseSettingWidget()
 {
-  auto rows = new QVBoxLayout();
+  auto rows = new QVBoxLayout(this);
+
   header_rows_ = new QVBoxLayout();
   content_rows_ = new QVBoxLayout();
-
-  setLayout(rows);
   rows->addLayout(header_rows_);
   rows->addLayout(content_rows_);
+
   rows->addStretch();
 }
 
