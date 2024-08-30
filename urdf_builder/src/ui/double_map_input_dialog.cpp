@@ -9,8 +9,7 @@ DoubleMapInputDialog::DoubleMapInputDialog(QWidget* parent, const QString& title
 {
   setWindowTitle(title);
 
-  const auto root_layout = new QVBoxLayout();
-  setLayout(root_layout);
+  const auto root_layout = new QVBoxLayout(this);
 
   for (const auto& field_name : field_names)
   {
