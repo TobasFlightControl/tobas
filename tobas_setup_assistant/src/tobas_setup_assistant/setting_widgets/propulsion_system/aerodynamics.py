@@ -117,12 +117,10 @@ class AerodynamicsWidget(BaseSelectedLinkSettingWidget):
         method_name = self._method_name.currentText()
 
         for method in self._methods:
-            method.setVisible(False)
-
-        for method in self._methods:
             if method.NAME == method_name:
                 method.setVisible(True)
-                return
+            else:
+                method.setVisible(False)
 
     @pyqtSlot(str)
     def _on_type_changed(self, _: str) -> None:
@@ -356,7 +354,7 @@ class AerodynamicsWidget_ThrustStand(AerodynamicsWidget_Base):
 
 
 class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
-    NAME = "Estimate from UIUC Propeller Data iSte"
+    NAME = "Estimate from UIUC Propeller Data"
     ABST_TEXT = (
         "If the propeller is listed in the "
         "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
@@ -395,7 +393,7 @@ class AerodynamicsWidget_UIUC(AerodynamicsWidget_Base):
         CT = np.mean(CTs)
 
         propeller = self._main.propulsion_system.selected.get_propeller(self._link_name)
-        return (CT * AIR_DENSITY * propeller.diameter() ** 4) / (4 * math.pi ** 2)
+        return (CT * AIR_DENSITY * propeller.diameter() ** 4) / (4 * math.pi**2)
 
     @override
     def moment_const(self) -> float:
