@@ -33,6 +33,11 @@ int ParamGetterWidget_ComboBox::currentIndex() const
   return box_->currentIndex();
 }
 
+void ParamGetterWidget_ComboBox::addChoice(const QString& item)
+{
+  box_->addItem(item);
+}
+
 void ParamGetterWidget_ComboBox::addChoices(const QStringList& items)
 {
   box_->addItems(items);

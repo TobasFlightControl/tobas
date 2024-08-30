@@ -26,6 +26,7 @@ public:
   bool setValue(const QString& src) override;
 
   int currentIndex() const;
+  void addChoice(const QString& item);
   void addChoices(const QStringList& items);
   void setChoices(const QStringList& items);
 

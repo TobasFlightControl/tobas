@@ -1,0 +1,36 @@
+#pragma once
+
+#include "tobas_setup_assistant/param_getters/spin_box.hpp"
+#include "tobas_setup_assistant/param_getters/combo_box.hpp"
+
+#include "./base.hpp"
+
+namespace gui
+{
+namespace setup_assistant
+{
+class ESCWidget : public BaseSelectedLinkSettingWidget<ESCWidget>
+{
+  Q_OBJECT
+
+public:
+  explicit ESCWidget();
+
+  const char* name() override;
+  bool isValid() override;
+  void copyFrom(const ESCWidget* src) override;
+
+  YAML::Node dump() override;
+  void load(const YAML::Node& node) override;
+
+  double maxCurrent() const;
+  std::string signalMode() const;
+
+private:
+  const std::map<QString, std::string> signal_mode_map_;
+
+  ParamGetterWidget_SpinBox* max_current_;
+  ParamGetterWidget_ComboBox* signal_mode_;
+};
+}  // namespace setup_assistant
+}  // namespace gui
