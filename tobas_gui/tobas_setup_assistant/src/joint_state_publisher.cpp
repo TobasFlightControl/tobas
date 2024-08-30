@@ -38,7 +38,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   publish_timer_ = ros2::createTimer(node_, 100ms, &self::publish, this);
 }
 
-void JointStatePublisherWidget::updateInternalDataStructures()
+void JointStatePublisherWidget::onRobotLoaded()
 {
   js_.name.clear();
   js_.position.clear();

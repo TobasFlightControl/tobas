@@ -29,12 +29,11 @@ public:
     rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
     const RobotInfo& robot);
 
-  void updateInternalDataStructures();
-
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
 private Q_SLOTS:
+  void onRobotLoaded();
   void onVisualBoxToggled(bool checked);
   void onCollisionBoxToggled(bool checked);
 

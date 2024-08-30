@@ -24,9 +24,8 @@ class JointStatePublisherWidget : public qt::Widget
 public:
   explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
-  void updateInternalDataStructures();
-
 private Q_SLOTS:
+  void onRobotLoaded();
   void onValueChanged(double value, const std::string& jnt_name);
   void onCenterButtonClicked();
 

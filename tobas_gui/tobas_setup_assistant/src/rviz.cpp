@@ -65,7 +65,7 @@ RvizWidget::RvizWidget(
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
 }
 
-void RvizWidget::updateInternalDataStructures()
+void RvizWidget::onRobotLoaded()
 {
   // 有効化
   display_->setBool(true);

@@ -3,7 +3,7 @@
 #include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/message.hpp>
 
-#include "tobas_setup_assistant/setting_widgets/custom_joints.hpp"
+#include "tobas_setup_assistant/setting_tabs/custom_joints.hpp"
 
 namespace gui
 {

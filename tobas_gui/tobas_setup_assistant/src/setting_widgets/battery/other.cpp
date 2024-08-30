@@ -1,6 +1,6 @@
 #include <tobas_qt_tools/message.hpp>
 
-#include "tobas_setup_assistant/setting_widgets/battery/other.hpp"
+#include "tobas_setup_assistant/setting_tabs/battery/other.hpp"
 
 namespace gui
 {

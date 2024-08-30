@@ -7,7 +7,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 
-#include "tobas_setup_assistant/setting_widgets/ros_package.hpp"
+#include "tobas_setup_assistant/setting_tabs/ros_package.hpp"
 
 namespace gui
 {

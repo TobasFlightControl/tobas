@@ -18,9 +18,8 @@ class FrameTreeWidget : public QTreeWidget
 public:
   explicit FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz);
 
-  void updateInternalDataStructures();
-
 private Q_SLOTS:
+  void onRobotLoaded();
   void onItemClicked(QTreeWidgetItem* item, int col);
 
   /* 文字列の長さに応じて列の幅を調整する． */

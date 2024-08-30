@@ -1,8 +1,8 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
-#include "tobas_setup_assistant/setting_widgets/battery/battery.hpp"
-#include "tobas_setup_assistant/setting_widgets/battery/lipo.hpp"
-#include "tobas_setup_assistant/setting_widgets/battery/other.hpp"
+#include "tobas_setup_assistant/setting_tabs/battery/battery.hpp"
+#include "tobas_setup_assistant/setting_tabs/battery/lipo.hpp"
+#include "tobas_setup_assistant/setting_tabs/battery/other.hpp"
 
 namespace gui
 {

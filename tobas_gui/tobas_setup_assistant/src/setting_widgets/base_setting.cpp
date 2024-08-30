@@ -2,7 +2,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-#include "tobas_setup_assistant/setting_widgets/base_setting.hpp"
+#include "tobas_setup_assistant/setting_tabs/base_setting.hpp"
 
 namespace gui
 {

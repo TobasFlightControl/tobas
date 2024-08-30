@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QObject>
+
 #include <hardware_interface/hardware_info.hpp>
 
 #include <tobas_kdl/tree.hpp>
@@ -27,13 +29,17 @@ static constexpr char kVelocityInterface[] = "hardware_interface/VelocityJointIn
 static constexpr char kEffortInterface[] = "hardware_interface/EffortJointInterface";
 }  // namespace hw_interface
 
-class RobotInfo
+class RobotInfo : public QObject
 {
+  Q_OBJECT
+
+Q_SIGNALS:
+  void loaded();
+
 public:
   explicit RobotInfo();
 
-  void loadFromPath(const std::string& path);
-  void loadFromString(const std::string& xml);
+  bool loadFromPath(const std::string& path);
 
   const kdl::Tree& tree() const;
   const hardware_interface::HardwareInfo& hardware() const;

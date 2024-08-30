@@ -1,6 +1,6 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
-#include "tobas_setup_assistant/setting_widgets/gps.hpp"
+#include "tobas_setup_assistant/setting_tabs/gps.hpp"
 
 namespace gui
 {

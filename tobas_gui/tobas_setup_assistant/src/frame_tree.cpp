@@ -19,7 +19,7 @@ FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : rob
   connect(this, &self::itemCollapsed, this, &self::resizeColumns);
 }
 
-void FrameTreeWidget::updateInternalDataStructures()
+void FrameTreeWidget::onRobotLoaded()
 {
   // ツリーを消去
   clear();

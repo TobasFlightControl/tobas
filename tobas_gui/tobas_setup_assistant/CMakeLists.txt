@@ -25,6 +25,7 @@ find_package(hardware_interface REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_property_tools REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
@@ -33,6 +34,7 @@ set(AMENT_DEPENDENCIES
   moveit_msgs
   tobas_linux
   tobas_property_tools
+  tobas_tools
   tobas_drone_msgs_adapter
   tobas_qt_tools
 )

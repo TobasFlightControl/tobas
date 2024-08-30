@@ -12,16 +12,12 @@ RobotInfo::RobotInfo()
 {
 }
 
-void RobotInfo::loadFromPath(const string& path)
+bool RobotInfo::loadFromPath(const std::string& path)
 {
-  cout << path << endl;
-  // TODO
-}
+  cout << path << endl;  // TODO: urdf_parser.load_from_param
 
-void RobotInfo::loadFromString(const string& xml)
-{
-  cout << xml << endl;
-  // TODO
+  Q_EMIT loaded();
+  return true;
 }
 
 const kdl::Tree& RobotInfo::tree() const

@@ -1,6 +1,7 @@
-#include <tobas_qt_tools/util.hpp>
-
+#include <format>
 #include <hardware_interface/component_parser.hpp>
+
+#include <tobas_qt_tools/util.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
@@ -14,6 +15,11 @@ SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionI
   auto rows = new QVBoxLayout();
   setLayout(rows);
 
+  // Start
+  start_ = new StartWidget(node_, robot_, settings_);
+  rows->addWidget(start_);
+
+  // Visualization
   auto cols = qt::createFixedHeightQHBoxLayout(kHeaderHeight, rows);
   rows->addLayout(cols);
 
@@ -29,7 +35,9 @@ SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionI
   js_pub_->setFixedWidth(kJointStatePublisherWidth);
   cols->addWidget(js_pub_);
 
-  // TODO: Tabs
+  // Settings
+  settings_ = new SettingsWidget();
+  rows->addWidget(settings_);
 }
 }  // namespace setup_assistant
 }  // namespace gui

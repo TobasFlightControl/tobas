@@ -1,4 +1,4 @@
-#include "tobas_setup_assistant/setting_widgets/battery/lipo.hpp"
+#include "tobas_setup_assistant/setting_tabs/battery/lipo.hpp"
 
 namespace gui
 {

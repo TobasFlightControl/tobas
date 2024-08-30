@@ -3,7 +3,7 @@
 #include <tobas_linux/core.hpp>
 #include <tobas_qt_tools/message.hpp>
 
-#include "tobas_setup_assistant/setting_widgets/author_information.hpp"
+#include "tobas_setup_assistant/setting_tabs/author_information.hpp"
 
 namespace gui
 {

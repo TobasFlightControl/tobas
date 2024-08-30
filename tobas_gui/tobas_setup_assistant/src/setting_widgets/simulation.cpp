@@ -1,4 +1,4 @@
-#include "tobas_setup_assistant/setting_widgets/simulation.hpp"
+#include "tobas_setup_assistant/setting_tabs/simulation.hpp"
 
 namespace gui
 {
