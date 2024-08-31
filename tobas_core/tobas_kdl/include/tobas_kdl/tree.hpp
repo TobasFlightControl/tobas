@@ -104,6 +104,7 @@ public:
   inline bool hasSegment(const std::string& seg_name) const;
 
   bool isEndSegment(const std::string& seg_name) const;
+  bool isFixedToRoot(const std::string& seg_name) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Tree& arg);
 

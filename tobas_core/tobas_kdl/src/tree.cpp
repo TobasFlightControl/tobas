@@ -286,12 +286,28 @@ bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) con
   return true;
 }
 
-inline bool Tree::isEndSegment(const string& seg_name) const
+bool Tree::isEndSegment(const string& seg_name) const
 {
   const auto seg_it = segments_.find(seg_name);
   if (seg_it == segments_.end())
     return false;
   return seg_it->second.children.size() == 0;
+}
+
+bool Tree::isFixedToRoot(const std::string& seg_name) const
+{
+  if (seg_name == root_name_)
+    return true;
+
+  const auto seg_it = getSegment(seg_name);
+  const auto& elem = seg_it->second;
+
+  const auto& joint = elem.segment.joint();
+  if (joint.type != Joint::Fixed)
+    return false;
+
+  const auto& parent_name = elem.parent->first;
+  return isFixedToRoot(parent_name);
 }
 
 ostream& operator<<(ostream& os, const Tree& arg)

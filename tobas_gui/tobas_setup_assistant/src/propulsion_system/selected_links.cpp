@@ -32,10 +32,10 @@ void SelectedLinksWidget::updateInternalDataStructures()
 
   // 全ての可動リンクのマーカを保持しておく
   size_t id = 0;
-  for (const auto& [seg_name, seg_ele] : robot_.tree().getSegments())
+  for (const auto& [link_name, elem] : robot_.tree().getSegments())
   {
     // ジョイントを取得
-    const auto& joint = seg_ele.segment.joint();
+    const auto& joint = elem.segment.joint();
     if (joint.type != kdl::Joint::RotAxis)
       continue;
 
@@ -47,7 +47,7 @@ void SelectedLinksWidget::updateInternalDataStructures()
     // マーカを作成
     visualization_msgs::msg::Marker marker;
 
-    marker.header.frame_id = seg_name;
+    marker.header.frame_id = link_name;
     marker.id = id++;
     marker.type = visualization_msgs::msg::Marker::ARROW;
     marker.action = visualization_msgs::msg::Marker::DELETE;  // デフォルトでは非表示

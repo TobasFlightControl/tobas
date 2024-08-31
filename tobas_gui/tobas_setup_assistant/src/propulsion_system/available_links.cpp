@@ -45,21 +45,25 @@ void AvailableLinksWidget::updateInternalDataStructures()
 {
   clear();
 
-  for (const auto& [seg_name, seg_ele] : robot_.tree().getSegments())
+  for (const auto& [link_name, elem] : robot_.tree().getSegments())
   {
-    const auto& joint = seg_ele.segment.joint();
+    const auto& joint = elem.segment.joint();
 
-    // 回転関節のみ
+    // 回転関節をもつことを確認
     if (joint.type != kdl::Joint::RotAxis)
       continue;
 
-    // トランスミッションをもたない
+    // トランスミッションをもたないことを確認
     // TODO: プロペラ専用のトランスミッションを用意する
     if (robot_.hardwareInterface(joint.name) != hw_interface::NONE)
       continue;
 
+    // エンドリンクであることを確認
+    if (!robot_.tree().isEndSegment(link_name))
+      continue;
+
     // リンク名をリストに追加
-    add(QString::fromStdString(seg_name));
+    add(QString::fromStdString(link_name));
   }
 
   sortItems();

@@ -44,9 +44,9 @@ void JointStatePublisherWidget::onRobotLoaded()
   sliders_.clear();
   qt::clearLayout(slider_rows_);
 
-  for (const auto& [seg_name, seg_ele] : robot_.tree().getSegments())
+  for (const auto& [_, elem] : robot_.tree().getSegments())
   {
-    const auto& joint = seg_ele.segment.joint();
+    const auto& joint = elem.segment.joint();
     if (joint.type == kdl::Joint::Fixed)
       return;
 

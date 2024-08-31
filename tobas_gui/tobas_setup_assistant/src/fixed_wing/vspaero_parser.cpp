@@ -76,11 +76,11 @@ bool VSPAEROParser::parse(const string& stab_path)
     }
   }
 
-  for (const auto& [line, found] : line_found)
+  for (const auto& [line_name, found] : line_found)
   {
     if (!found)
     {
-      cerr << "\"" << line << "\" line is not found." << endl;
+      cerr << "\"" << line_name << "\" line is not found." << endl;
       return false;
     }
   }
