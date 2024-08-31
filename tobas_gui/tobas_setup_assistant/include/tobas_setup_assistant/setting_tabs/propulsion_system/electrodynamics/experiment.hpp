@@ -1,0 +1,41 @@
+#pragma once
+
+#include <rclcpp/node.hpp>
+
+#include "tobas_setup_assistant/param_getters/double_table.hpp"
+
+#include "./base.hpp"
+
+namespace gui
+{
+namespace setup_assistant
+{
+class ElectroDynamicsWidget_Experiment : public ElectrodynamicsWidget_Base
+{
+  Q_OBJECT
+
+  static constexpr int kTableHeight = 500;
+  static constexpr int kTableColWidth = 180;
+
+public:
+  explicit ElectroDynamicsWidget_Experiment(rclcpp::Node::SharedPtr node);
+
+  const char* name() const override;
+  const char* description() const override;
+
+  void onInit() override;
+
+  bool isValid() override;
+  void copyFrom(const ElectrodynamicsWidget_Base* src) override;
+
+  YAML::Node dump() override;
+  void load(const YAML::Node& node) override;
+
+  std::pair<double, double> rotSpeedCoefs() const override;
+
+private:
+  rclcpp::Node::SharedPtr node_;
+  ParamGetterWidget_DoubleTable* data_;
+};
+}  // namespace setup_assistant
+}  // namespace gui

@@ -22,6 +22,7 @@ ESCWidget::ESCWidget()
   max_current_->setMinimum(1);
   max_current_->setValue(20);
   max_current_->setSuffix(" A");
+  rows->addWidget(max_current_);
 
   signal_mode_ = new ParamGetterWidget_ComboBox("Signal Mode", "");
   for (const auto& [text, _] : signal_mode_map_)
@@ -59,8 +60,8 @@ YAML::Node ESCWidget::dump()
 
 void ESCWidget::load(const YAML::Node& node)
 {
-  max_current_->setValue(node[max_current_->getValue()].as<int>());
-  signal_mode_->setValue(node[signal_mode_->getValue()].as<QString>());
+  max_current_->setValue(node[max_current_->name()].as<int>());
+  signal_mode_->setValue(node[signal_mode_->name()].as<QString>());
 }
 
 double ESCWidget::maxCurrent() const
@@ -72,6 +73,5 @@ std::string ESCWidget::signalMode() const
 {
   return signal_mode_map_.at(signal_mode_->getValue());
 }
-
 }  // namespace setup_assistant
 }  // namespace gui

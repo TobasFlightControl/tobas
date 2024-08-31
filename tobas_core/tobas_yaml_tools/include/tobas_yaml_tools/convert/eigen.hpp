@@ -10,6 +10,9 @@ struct convert<Eigen::Matrix<Scalar, Rows, Cols>>
 {
   static Node encode(const Eigen::Matrix<Scalar, Rows, Cols>& rhs)
   {
+    static_assert(Rows > 0);
+    static_assert(Cols > 0);
+
     Node node(NodeType::Sequence);
 
     for (int r = 0; r < Rows; ++r)
@@ -21,6 +24,9 @@ struct convert<Eigen::Matrix<Scalar, Rows, Cols>>
 
   static bool decode(const Node& node, Eigen::Matrix<Scalar, Rows, Cols>& rhs)
   {
+    static_assert(Rows > 0);
+    static_assert(Cols > 0);
+
     if (!node.IsSequence())
       return false;
     if (node.size() != Rows * Cols)

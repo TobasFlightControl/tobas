@@ -1,3 +1,5 @@
+#include <tobas_yaml_tools/convert/qstring.hpp>
+
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/aerodynamics/aerodynamics.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/aerodynamics/manual.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/aerodynamics/blade_theory.hpp"
@@ -37,7 +39,7 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWi
 
 const char* AerodynamicsWidget::name()
 {
-  return "Propeller";
+  return "Aerodynamics";
 }
 
 bool AerodynamicsWidget::isValid()
@@ -62,6 +64,8 @@ YAML::Node AerodynamicsWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[kMethodNameKey] = method_name_->currentText();
+
   for (int i = 0; i < methods_->count(); ++i)
   {
     const auto method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));
@@ -73,6 +77,8 @@ YAML::Node AerodynamicsWidget::dump()
 
 void AerodynamicsWidget::load(const YAML::Node& node)
 {
+  method_name_->setCurrentText(node[kMethodNameKey].as<QString>());
+
   for (int i = 0; i < methods_->count(); ++i)
   {
     const auto method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));
