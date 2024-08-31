@@ -10,7 +10,9 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>hardware_interface</depend>
+  <depend>visualization_msgs</depend>
   <depend>moveit_msgs</depend>
+  <depend>tobas_kdl_conversions</depend>
   <depend>tobas_linux</depend>
   <depend>tobas_property_tools</depend>
   <depend>tobas_tools</depend>

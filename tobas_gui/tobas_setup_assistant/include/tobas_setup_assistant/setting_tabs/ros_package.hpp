@@ -48,7 +48,7 @@ private Q_SLOTS:
   void onGenerateButtonClicked();
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
 
   ParamGetterWidget_DirDialog* pardir_;

@@ -88,5 +88,35 @@ void SelectedLinkWidget::load(const YAML::Node& node)
     widget->load(node[widget->name()]);
   }
 }
+
+const ESCWidget* SelectedLinkWidget::esc() const
+{
+  return esc_;
+}
+
+const MotorWidget* SelectedLinkWidget::motor() const
+{
+  return motor_;
+}
+
+const PropellerWidget* SelectedLinkWidget::propeller() const
+{
+  return propeller_;
+}
+
+const ElectrodynamicsWidget* SelectedLinkWidget::electrodynamics() const
+{
+  return electrodynamics_;
+}
+
+const AerodynamicsWidget* SelectedLinkWidget::aerodynamics() const
+{
+  return aerodynamics_;
+}
+
+const SpeedLimitWidget* SelectedLinkWidget::speed_limit() const
+{
+  return speed_limit_;
+}
 }  // namespace setup_assistant
 }  // namespace gui

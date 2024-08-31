@@ -29,7 +29,7 @@ private Q_SLOTS:
   void onLoadButtonClicked();
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   RobotInfo& robot_;
   SettingsWidget* settings_;
 

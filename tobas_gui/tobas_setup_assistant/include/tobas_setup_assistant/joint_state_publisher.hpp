@@ -30,7 +30,7 @@ private Q_SLOTS:
   void onCenterButtonClicked();
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
 
   QVBoxLayout* rows_;

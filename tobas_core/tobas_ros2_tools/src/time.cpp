@@ -1,5 +1,7 @@
 #include "../include/tobas_ros2_tools/time.hpp"
 
+#define BILLION 1'000'000'000
+
 using namespace std;
 
 namespace ros2
@@ -8,8 +10,8 @@ void timeChronoToMsg(const chrono::steady_clock::duration& c, builtin_interfaces
 {
   const auto nsec = c.count();
   assert(nsec >= 0);
-  m.sec = nsec / 1'000'000'000;
-  m.nanosec = nsec % 1'000'000'000;
+  m.sec = nsec / BILLION;
+  m.nanosec = nsec % BILLION;
 }
 
 void timeMsgToChrono(const builtin_interfaces::msg::Time& m, chrono::steady_clock::duration& c)

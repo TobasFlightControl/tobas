@@ -3,7 +3,6 @@
 #include <rclcpp/node.hpp>
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
-
 #include "./base.hpp"
 #include "../propeller.hpp"
 
@@ -37,7 +36,7 @@ public:
   double rotorDragCoef() const override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   PropellerWidget* propeller_;
   ParamGetterWidget_DoubleTable* data_;
 };

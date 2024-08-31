@@ -37,6 +37,13 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
+  const ESCWidget* esc() const;
+  const MotorWidget* motor() const;
+  const PropellerWidget* propeller() const;
+  const ElectrodynamicsWidget* electrodynamics() const;
+  const AerodynamicsWidget* aerodynamics() const;
+  const SpeedLimitWidget* speed_limit() const;
+
 private:
   qt::TabWidget* tabs_;
 

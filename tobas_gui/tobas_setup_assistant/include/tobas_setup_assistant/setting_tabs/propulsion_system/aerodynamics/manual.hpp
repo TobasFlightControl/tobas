@@ -1,7 +1,6 @@
 #pragma once
 
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
-
 #include "./base.hpp"
 
 namespace gui

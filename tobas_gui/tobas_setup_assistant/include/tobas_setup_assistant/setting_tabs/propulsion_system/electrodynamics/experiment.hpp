@@ -3,7 +3,6 @@
 #include <rclcpp/node.hpp>
 
 #include "tobas_setup_assistant/param_getters/double_table.hpp"
-
 #include "./base.hpp"
 
 namespace gui
@@ -34,7 +33,7 @@ public:
   std::pair<double, double> rotSpeedCoefs() const override;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   ParamGetterWidget_DoubleTable* data_;
 };
 }  // namespace setup_assistant

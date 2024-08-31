@@ -34,7 +34,7 @@ public:
 
   explicit Joint();
 
-  /* Get joint axis. */
+  /* Get the normalized joint axis. */
   inline const Vector& axis() const;
   /* Set joint axis. */
   inline void axis(const Vector& axis);
