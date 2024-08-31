@@ -105,6 +105,14 @@ void SelectedLinksWidget::add(const QString& link_name)
 
   // 指定リンクのマーカを表示
   setAction(link_name, visualization_msgs::msg::Marker::ADD);
+
+  // Connections
+  connect(
+    link_widget, &SelectedLinkWidget::copyFromLeftButtonClicked, this,
+    std::bind(&self::onCopyFromLeftButtonClicked, this, link_name));
+  connect(
+    link_widget, &SelectedLinkWidget::copyToAllButtonClicked, this,
+    std::bind(&self::onCopyToAllButtonClicked, this, link_name));
 }
 
 void SelectedLinksWidget::remove(const QString& link_name)
@@ -116,10 +124,15 @@ void SelectedLinksWidget::remove(const QString& link_name)
   setAction(link_name, visualization_msgs::msg::Marker::DELETE);
 }
 
+QString SelectedLinksWidget::linkName(int index) const
+{
+  return tabText(index);
+}
+
 int SelectedLinksWidget::index(const QString& link_name) const
 {
   for (int i = 0; i < count(); ++i)
-    if (tabText(i) == link_name)
+    if (linkName(i) == link_name)
       return i;
 
   PRINT_WARN("Link \"" << link_name << "\" is not selected as a propulsion system.");
@@ -160,9 +173,42 @@ void SelectedLinksWidget::publishTimerCb()
 
 void SelectedLinksWidget::onTabCloseRequested(int index)
 {
-  const auto link_name = tabText(index);
+  const auto link_name = linkName(index);
   remove(link_name);
   Q_EMIT linkRemoved(link_name);
+}
+
+void SelectedLinksWidget::onCopyFromLeftButtonClicked(const QString& link_name)
+{
+  const auto dst_idx = index(link_name);
+  const auto src_idx = dst_idx - 1;
+  if (src_idx < 0)
+  {
+    qt::qWarnBox(this, "There are no tabs on the left side.");
+    return;
+  }
+
+  const auto dst_widget = widget(dst_idx);
+  const auto src_widget = widget(src_idx);
+  dst_widget->copyFrom(src_widget);
+
+  qt::qInfoBox(this, "The settings of \"" + linkName(src_idx) + "\" have been copied to \"" + link_name + "\".");
+}
+
+void SelectedLinksWidget::onCopyToAllButtonClicked(const QString& link_name)
+{
+  const auto src_idx = index(link_name);
+  const auto src_widget = widget(src_idx);
+
+  for (int dst_idx = 0; dst_idx < count(); ++dst_idx)
+  {
+    if (dst_idx == src_idx)
+      continue;
+    const auto dst_widget = widget(dst_idx);
+    dst_widget->copyFrom(src_widget);
+  }
+
+  qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other selected links.");
 }
 
 void SelectedLinksWidget::setAction(const QString& link_name, int action)

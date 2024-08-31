@@ -26,9 +26,7 @@ Q_SIGNALS:
   void valueChanged(std::pair<Eigen::Vector3d, Eigen::Vector3d> value);
 
 public:
-  explicit ParamGetterWidget_Pose(
-    const QString& param_name,
-    const QString& description_text);
+  explicit ParamGetterWidget_Pose(const QString& param_name, const QString& description_text);
 
   std::pair<Eigen::Vector3d, Eigen::Vector3d> getValue() const override;
   bool setValue(const std::pair<Eigen::Vector3d, Eigen::Vector3d>& src) override;

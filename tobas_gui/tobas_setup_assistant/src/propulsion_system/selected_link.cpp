@@ -18,7 +18,7 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
 
   copy_to_all_button_ = new QPushButton("Copy To All");
   copy_to_all_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(copy_to_all_button_, &QPushButton::clicked, [&]() { Q_EMIT copyToALlButtonClicked(); });
+  connect(copy_to_all_button_, &QPushButton::clicked, [&]() { Q_EMIT copyToAllButtonClicked(); });
   button_cols->addWidget(copy_to_all_button_);
 
   button_cols->addStretch();

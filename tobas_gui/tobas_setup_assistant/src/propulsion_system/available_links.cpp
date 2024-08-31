@@ -59,7 +59,7 @@ void AvailableLinksWidget::updateInternalDataStructures()
       continue;
 
     // リンク名をリストに追加
-    addLink(QString::fromStdString(seg_name));
+    add(QString::fromStdString(seg_name));
   }
 
   sortItems();
@@ -70,7 +70,7 @@ bool AvailableLinksWidget::isValid()
   return true;
 }
 
-void AvailableLinksWidget::addLink(const QString& link_name)
+void AvailableLinksWidget::add(const QString& link_name)
 {
   TOBAS_CHECK(robot_.tree().hasSegment(link_name.toStdString()));
   TOBAS_CHECK(!contains(link_name));
@@ -87,7 +87,7 @@ void AvailableLinksWidget::addLink(const QString& link_name)
   sortItems();
 }
 
-void AvailableLinksWidget::removeLink(const QString& link_name)
+void AvailableLinksWidget::remove(const QString& link_name)
 {
   for (int row = 0; row < count(); ++row)
   {

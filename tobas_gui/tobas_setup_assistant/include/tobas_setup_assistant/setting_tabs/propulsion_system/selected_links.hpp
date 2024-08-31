@@ -38,7 +38,9 @@ public:
   void add(const QString& link_name);
   void remove(const QString& link_name);
 
-  /* タブのインデックスを返す． */
+  QString linkName(int index) const;
+
+  /* タブのインデックスを返す．存在しなければ-1を返す． */
   int index(const QString& link_name) const;
 
   SelectedLinkWidget* widget(int index);
@@ -49,6 +51,8 @@ public:
 private Q_SLOTS:
   void publishTimerCb();
   void onTabCloseRequested(int index);
+  void onCopyFromLeftButtonClicked(const QString& link_name);
+  void onCopyToAllButtonClicked(const QString& link_name);
 
 private:
   const rclcpp::Node::SharedPtr node_;

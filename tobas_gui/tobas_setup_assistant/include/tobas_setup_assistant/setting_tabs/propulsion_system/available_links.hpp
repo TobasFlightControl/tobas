@@ -57,8 +57,8 @@ public:
 
   bool isValid();
 
-  void addLink(const QString& link_name);
-  void removeLink(const QString& link_name);
+  void add(const QString& link_name);
+  void remove(const QString& link_name);
 
 private Q_SLOTS:
   void onAddButtonClicked(const QString& link_name);

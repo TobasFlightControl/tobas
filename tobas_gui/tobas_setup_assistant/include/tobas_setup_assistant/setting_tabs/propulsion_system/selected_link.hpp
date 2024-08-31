@@ -26,7 +26,7 @@ class SelectedLinkWidget : public QWidget
 
 Q_SIGNALS:
   void copyFromLeftButtonClicked();
-  void copyToALlButtonClicked();
+  void copyToAllButtonClicked();
 
 public:
   explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node);
