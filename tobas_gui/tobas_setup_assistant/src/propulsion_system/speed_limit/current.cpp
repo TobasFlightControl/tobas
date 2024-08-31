@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 SpeedLimitWidget_Current::SpeedLimitWidget_Current(
   ElectrodynamicsWidget* electrodynamics,
   AerodynamicsWidget* aerodynamics)
@@ -43,5 +45,6 @@ double SpeedLimitWidget_Current::maxRotSpeed() const
 
   return sqrt(max_thrust / motor_const);
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

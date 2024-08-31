@@ -9,6 +9,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class ElectroDynamicsWidget_Experiment : public ElectrodynamicsWidget_Base
 {
   Q_OBJECT
@@ -36,5 +38,6 @@ private:
   const rclcpp::Node::SharedPtr node_;
   ParamGetterWidget_DoubleTable* data_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

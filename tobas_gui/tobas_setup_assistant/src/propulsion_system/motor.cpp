@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 MotorWidget::MotorWidget()
 {
   const auto rows = new QVBoxLayout(this);
@@ -137,5 +139,6 @@ double MotorWidget::timeConstDown() const
 {
   return time_const_down_->getValue() * 1e-3;
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class ESCWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
@@ -31,5 +33,6 @@ private:
   ParamGetterWidget_SpinBox* max_current_;
   ParamGetterWidget_ComboBox* signal_mode_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

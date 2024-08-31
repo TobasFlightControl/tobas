@@ -1,10 +1,12 @@
 #include <QDebug>
 
-#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surfaces/available_links.hpp"
+#include "tobas_setup_assistant/setting_tabs/fixed_wing/control_surface/available_links.hpp"
 
 namespace gui
 {
 namespace setup_assistant
+{
+namespace fixed_wing
 {
 AvailableLinksWidget::AvailableLinksWidget(const RobotInfo& robot) : robot_(robot)
 {
@@ -91,5 +93,6 @@ void AvailableLinksWidget::remove(const QString& link_name)
 
   takeItem(row(items[0]));
 }
+}  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

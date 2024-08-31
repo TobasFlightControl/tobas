@@ -11,6 +11,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 ElectroDynamicsWidget_Experiment::ElectroDynamicsWidget_Experiment(rclcpp::Node::SharedPtr node) : node_(node)
 {
 }
@@ -86,5 +88,6 @@ std::pair<double, double> ElectroDynamicsWidget_Experiment::rotSpeedCoefs() cons
   const Eigen::Vector2d coefs = X.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(motor_voltage);
   return { coefs(0), coefs(1) };
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

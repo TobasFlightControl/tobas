@@ -4,6 +4,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 ElectrodynamicsWidget_Spec::ElectrodynamicsWidget_Spec(MotorWidget* motor, AerodynamicsWidget* aerodynamics)
   : motor_(motor), aerodynamics_(aerodynamics)
 {
@@ -54,5 +56,6 @@ std::pair<double, double> ElectrodynamicsWidget_Spec::rotSpeedCoefs() const
 
   return { ke, resistance * ct * cm / kt };
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

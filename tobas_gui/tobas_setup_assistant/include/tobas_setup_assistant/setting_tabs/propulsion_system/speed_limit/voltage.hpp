@@ -7,6 +7,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class SpeedLimitWidget_Voltage : public SpeedLimitWidget_Base
 {
   Q_OBJECT
@@ -25,5 +27,6 @@ public:
 private:
   ElectrodynamicsWidget* electrodynamics_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

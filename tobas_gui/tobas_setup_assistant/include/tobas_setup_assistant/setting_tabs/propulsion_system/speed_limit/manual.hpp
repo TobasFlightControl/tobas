@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class SpeedLimitWidget_Manual : public SpeedLimitWidget_Base
 {
   Q_OBJECT
@@ -19,5 +21,6 @@ public:
 
   double maxRotSpeed() const override;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

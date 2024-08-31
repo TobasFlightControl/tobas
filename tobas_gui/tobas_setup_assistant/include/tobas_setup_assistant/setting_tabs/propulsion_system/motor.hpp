@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class MotorWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
@@ -48,5 +50,6 @@ private:
   ParamGetterWidget_SpinBox* time_const_up_;
   ParamGetterWidget_SpinBox* time_const_down_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

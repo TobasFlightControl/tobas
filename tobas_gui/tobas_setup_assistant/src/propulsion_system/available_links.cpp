@@ -11,6 +11,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 AvailableLinkItemWidget::AvailableLinkItemWidget(const QString& link_name)
 {
   auto cols = new QHBoxLayout(this);
@@ -105,5 +107,6 @@ void AvailableLinksWidget::remove(const QString& link_name)
 
   qt::qErrorBox(this, "Failed to remove link \"" + link_name + "\" from the available link list.");
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

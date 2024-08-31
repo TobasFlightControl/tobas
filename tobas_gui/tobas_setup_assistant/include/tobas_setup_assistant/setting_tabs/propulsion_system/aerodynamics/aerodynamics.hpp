@@ -13,6 +13,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
@@ -45,5 +47,6 @@ private:
   AerodynamicsWidget_Base* selected();
   const AerodynamicsWidget_Base* selected() const;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

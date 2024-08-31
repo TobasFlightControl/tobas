@@ -10,6 +10,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class SpeedLimitWidget_Base : public QWidget
 {
   Q_OBJECT
@@ -45,5 +47,6 @@ private Q_SLOTS:
 private:
   QCheckBox* checkbox_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

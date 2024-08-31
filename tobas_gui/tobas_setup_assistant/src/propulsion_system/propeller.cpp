@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 PropellerWidget::PropellerWidget()
 {
   auto rows = new QVBoxLayout(this);
@@ -105,5 +107,6 @@ double PropellerWidget::pitchAngle() const
 {
   return tobas_std::deg2rad(pitch_angle_->getValue());
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

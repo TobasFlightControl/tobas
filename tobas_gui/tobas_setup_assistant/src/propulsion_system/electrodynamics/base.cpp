@@ -10,6 +10,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 void ElectrodynamicsWidget_Base::initialize()
 {
   auto rows = new QVBoxLayout(this);
@@ -37,5 +39,6 @@ void ElectrodynamicsWidget_Base::addLayout(QLayout* layout)
 {
   content_rows_->addLayout(layout);
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

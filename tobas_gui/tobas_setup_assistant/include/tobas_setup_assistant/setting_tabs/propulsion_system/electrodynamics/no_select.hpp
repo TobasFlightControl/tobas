@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class ElectrodynamicsWidget_NoSelect : public ElectrodynamicsWidget_Base
 {
   Q_OBJECT
@@ -24,5 +26,6 @@ public:
 
   std::pair<double, double> rotSpeedCoefs() const override;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

@@ -7,6 +7,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 ESCWidget::ESCWidget()
   : signal_mode_map_{ { "BLHeli Open Loop", tobas::esc::kBLHeliOpenLoopName },
                       { "BHLeli Closed Loop (Low Range)", tobas::esc::kBLHeliCloseLoopLowName },
@@ -74,5 +76,6 @@ std::string ESCWidget::signalMode() const
 {
   return signal_mode_map_.at(signal_mode_->getValue());
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 /**
  * @brief Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019]
  */
@@ -38,5 +40,6 @@ private:
 
   BladeTheory bladeTheory() const;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

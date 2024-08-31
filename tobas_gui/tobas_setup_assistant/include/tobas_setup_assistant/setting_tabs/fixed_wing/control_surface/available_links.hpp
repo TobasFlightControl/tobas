@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace fixed_wing
+{
 class AvailableLinksWidget : public qt::ListWidget
 {
   Q_OBJECT
@@ -29,5 +31,6 @@ public:
 private:
   const RobotInfo& robot_;
 };
+}  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

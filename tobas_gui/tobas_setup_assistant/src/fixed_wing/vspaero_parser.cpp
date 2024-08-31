@@ -11,6 +11,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace fixed_wing
+{
 bool VSPAEROParser::parse(const string& stab_path)
 {
   ifstream file(stab_path);
@@ -167,5 +169,6 @@ double VSPAEROParser::c_yaw_r() const
 {
   return c_yaw_r_;
 }
+}  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

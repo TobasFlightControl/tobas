@@ -11,8 +11,6 @@ namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant;
-
 class BaseSettingWidget : public qt::ScrollArea
 {
   Q_OBJECT

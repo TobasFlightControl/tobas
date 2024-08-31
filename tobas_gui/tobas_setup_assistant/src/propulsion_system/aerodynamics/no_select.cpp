@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 const char* AerodynamicsWidget_NoSelect::name() const
 {
   return "Select Setting Method";
@@ -53,5 +55,6 @@ double AerodynamicsWidget_NoSelect::rotorDragCoef() const
 {
   throw;
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

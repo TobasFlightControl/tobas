@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class ElectrodynamicsWidget_Base : public QWidget
 {
   Q_OBJECT
@@ -37,5 +39,6 @@ private:
   QVBoxLayout* header_rows_;
   QVBoxLayout* content_rows_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

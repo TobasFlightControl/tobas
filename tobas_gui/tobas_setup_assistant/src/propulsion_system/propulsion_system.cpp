@@ -7,6 +7,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
 {
@@ -103,5 +105,6 @@ void PropulsionSystemWidget::onSelectedLinkRemoved(const QString& link_name)
 {
   available_->add(link_name);
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

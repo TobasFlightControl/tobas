@@ -10,6 +10,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
 {
@@ -224,5 +226,6 @@ void SelectedLinksWidget::setAction(const QString& link_name, int action)
 
   PRINT_WARN("Link \"" << link_name << "\" not found.");
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

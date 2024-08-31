@@ -12,6 +12,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class SelectedLinksWidget : public qt::TabWidget
 {
   Q_OBJECT
@@ -66,5 +68,6 @@ private:
   /* 指定されたリンクのマーカのアクションを設定する． */
   void setAction(const QString& link_name, int action);
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

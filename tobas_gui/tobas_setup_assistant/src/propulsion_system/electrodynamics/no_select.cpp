@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 const char* ElectrodynamicsWidget_NoSelect::name() const
 {
   return "Select Setting Method";
@@ -43,5 +45,6 @@ std::pair<double, double> ElectrodynamicsWidget_NoSelect::rotSpeedCoefs() const
 {
   throw;
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

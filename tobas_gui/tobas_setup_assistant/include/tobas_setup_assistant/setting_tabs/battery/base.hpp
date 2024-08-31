@@ -8,8 +8,6 @@ namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant;
-
 class BatteryWidget_Base : public qt::Widget
 {
   Q_OBJECT

@@ -10,8 +10,6 @@ namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant;
-
 class CustomJointsWidget : public BaseSettingWidget
 {
   Q_OBJECT

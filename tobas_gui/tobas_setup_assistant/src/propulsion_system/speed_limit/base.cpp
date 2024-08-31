@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 void SpeedLimitWidget_Base::initialize(QButtonGroup* ckb_group)
 {
   const auto cols = new QHBoxLayout();
@@ -54,5 +56,6 @@ void SpeedLimitWidget_Base::onCheckBoxToggled(bool toggled)
 {
   spinbox_->setEnabled(toggled);
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

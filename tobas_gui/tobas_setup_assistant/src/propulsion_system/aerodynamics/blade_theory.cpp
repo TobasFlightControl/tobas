@@ -4,6 +4,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 AerodynamicsWidget_BladeTheory::AerodynamicsWidget_BladeTheory(PropellerWidget* propeller) : propeller_(propeller)
 {
 }
@@ -63,5 +65,6 @@ BladeTheory AerodynamicsWidget_BladeTheory::bladeTheory() const
 {
   return BladeTheory(propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle());
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

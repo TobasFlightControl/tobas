@@ -13,6 +13,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace fixed_wing
+{
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node)
   : node_(node), property_client_(node)
 {
@@ -295,5 +297,6 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "Coefficients are loaded successfully.");
 }
+}  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

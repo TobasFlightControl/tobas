@@ -4,6 +4,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
 {
   const auto rows = new QVBoxLayout(this);
@@ -118,5 +120,6 @@ const SpeedLimitWidget* SelectedLinkWidget::speed_limit() const
 {
   return speed_limit_;
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

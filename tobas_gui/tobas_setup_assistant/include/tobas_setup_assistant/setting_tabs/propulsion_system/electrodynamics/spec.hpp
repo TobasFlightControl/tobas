@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class ElectrodynamicsWidget_Spec : public ElectrodynamicsWidget_Base
 {
   Q_OBJECT
@@ -32,5 +34,6 @@ private:
   MotorWidget* motor_;
   AerodynamicsWidget* aerodynamics_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

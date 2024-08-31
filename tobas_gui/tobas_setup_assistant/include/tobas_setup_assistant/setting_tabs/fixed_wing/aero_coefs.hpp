@@ -12,6 +12,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace fixed_wing
+{
 class AerodynamicsCoefficientsWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
@@ -75,5 +77,6 @@ private:
   qt::DoubleSpinBox* c_yaw_p_;
   qt::DoubleSpinBox* c_yaw_r_;
 };
+}  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

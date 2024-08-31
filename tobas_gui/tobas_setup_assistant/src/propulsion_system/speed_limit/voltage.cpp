@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 SpeedLimitWidget_Voltage::SpeedLimitWidget_Voltage(ElectrodynamicsWidget* electrodynamics)
   : electrodynamics_(electrodynamics)
 {
@@ -35,5 +37,6 @@ double SpeedLimitWidget_Voltage::maxRotSpeed() const
   const auto [a, b] = electrodynamics_->rotSpeedCoefs();
   return (sqrt(math::sqr(a) + 4 * b * V) - a) / (2 * b);
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

@@ -15,6 +15,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class SelectedLinkWidget : public QWidget
 {
   Q_OBJECT
@@ -57,5 +59,6 @@ private:
   AerodynamicsWidget* aerodynamics_;
   SpeedLimitWidget* speed_limit_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

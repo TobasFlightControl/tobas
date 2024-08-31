@@ -10,6 +10,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class AerodynamicsWidget_UIUC : public AerodynamicsWidget_Base
 {
   Q_OBJECT
@@ -40,5 +42,6 @@ private:
   PropellerWidget* propeller_;
   ParamGetterWidget_DoubleTable* data_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

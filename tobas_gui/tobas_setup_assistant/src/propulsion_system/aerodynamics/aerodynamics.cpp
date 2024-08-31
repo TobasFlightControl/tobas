@@ -11,6 +11,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
 {
   const auto rows = new QVBoxLayout(this);
@@ -114,5 +116,6 @@ const AerodynamicsWidget_Base* AerodynamicsWidget::selected() const
 {
   return qobject_cast<const AerodynamicsWidget_Base*>(methods_->currentWidget());
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

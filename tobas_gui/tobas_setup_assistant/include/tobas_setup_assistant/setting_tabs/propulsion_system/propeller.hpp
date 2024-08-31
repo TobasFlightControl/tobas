@@ -7,6 +7,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class PropellerWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
@@ -42,5 +44,6 @@ private:
   ParamGetterWidget_SpinBox* blade_chord_;
   ParamGetterWidget_SpinBox* pitch_angle_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

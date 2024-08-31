@@ -7,6 +7,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class BaseSelectedLinkSettingWidget : public QWidget
 {
   Q_OBJECT
@@ -19,5 +21,6 @@ public:
   virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

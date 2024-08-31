@@ -6,6 +6,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace fixed_wing
+{
 class VSPAEROParser
 {
   static constexpr char CL[] = "CL";
@@ -53,5 +55,6 @@ private:
   double c_yaw_p_;
   double c_yaw_r_;
 };
+}  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

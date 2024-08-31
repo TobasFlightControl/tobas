@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 /**
  * @brief 最大連続電流からロータの最大回転数を推定．
  * 最大連続電流を超える高負荷になると，T = kt Iが成り立たなくなり，トルクが飽和する．
@@ -33,5 +35,6 @@ private:
   ElectrodynamicsWidget* electrodynamics_;
   AerodynamicsWidget* aerodynamics_;
 };
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

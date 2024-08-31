@@ -8,6 +8,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 class PropulsionSystemWidget : public BaseSettingWidget
 {
   Q_OBJECT
@@ -41,5 +43,6 @@ private:
   AvailableLinksWidget* available_;
   SelectedLinksWidget* selected_;
 };
-};  // namespace setup_assistant
+};  // namespace propulsion_system
+}  // namespace setup_assistant
 }  // namespace gui

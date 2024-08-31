@@ -4,6 +4,8 @@ namespace gui
 {
 namespace setup_assistant
 {
+namespace propulsion_system
+{
 AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
 {
 }
@@ -101,5 +103,6 @@ double AerodynamicsWidget_Manual::rotorDragCoef() const
 {
   return rotor_drag_coef_->getValue();
 }
+}  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui
