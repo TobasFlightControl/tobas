@@ -28,7 +28,7 @@ class MaxRotationSpeedWidget(QWidget):
         rows = QVBoxLayout()
         self.setLayout(rows)
 
-        label = QLabel("Max Rotation Speed")
+        label = QLabel("Maximum Rotation Speed")
         label.setFont(QFont("Default", pointSize=LABEL_PSIZE, weight=QFont.Bold))
         label.setAlignment(Qt.AlignTop)
         rows.addWidget(label)
@@ -59,7 +59,7 @@ class MaxRotationSpeedWidget(QWidget):
                     return False
                 break
         else:
-            q_error_named(self._main, PROPULSION_SYSTEM, "Please set max rotation speed.")
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please set maximum rotation speed.")
             return False
 
         return True
@@ -141,10 +141,7 @@ class MaxRotationSpeedMethod(QWidget):
 
     @pyqtSlot(bool)
     def _on_checkbox_toggled(self, toggled: bool) -> None:
-        if toggled:
-            self._spinbox.setEnabled(True)
-        else:
-            self._spinbox.setEnabled(False)
+        self._spinbox.setEnabled(toggled)
 
 
 class MaxRotationSpeedMethod_Manual(MaxRotationSpeedMethod):
@@ -186,7 +183,7 @@ class MaxRotationSpeedMethod_Voltage(MaxRotationSpeedMethod):
         electrodynamics = self._main.propulsion_system.selected.get_electrodynamics(self._link_name)
         a, b = electrodynamics.rot_speed_coefs()
         V = self._spinbox.value()
-        return (math.sqrt(a ** 2 + 4 * b * V) - a) / (2 * b)
+        return (math.sqrt(a**2 + 4 * b * V) - a) / (2 * b)
 
     @override
     def is_valid(self) -> bool:

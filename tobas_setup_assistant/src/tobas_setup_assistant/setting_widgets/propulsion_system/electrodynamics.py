@@ -56,7 +56,7 @@ class ElectrodynamicsWidget(BaseSelectedLinkSettingWidget):
     @override
     def is_valid(self) -> bool:
         if self._method_name.currentText() == self.NO_SELECT:
-            q_error_named(self._main, PROPULSION_SYSTEM, "Please select motor setting method.")
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please select electrodynamics setting method.")
             return False
 
         if not self._selected().is_valid():
@@ -238,11 +238,11 @@ class MotorDynamicsWidget_Experiment(MotorDynamicsWidget_Base):
 
         # データを取得
         throttle, battery_voltage, rpm = np.hsplit(np.array(self._data.get()), 3)
-        motor_voltage = battery_voltage * throttle / 100.0
-        omega = rpm2rps(rpm)
+        motor_voltage = battery_voltage * throttle / 100.0  # [V]
+        omega = rpm2rps(rpm)  # [rad/s]
 
         # 最小二乗法で係数を推定
-        X = np.c_[omega, omega ** 2]
+        X = np.c_[omega, omega**2]
         a, b = LA.lstsq(X, motor_voltage, rcond=None)[0].squeeze()
 
         return a, b
