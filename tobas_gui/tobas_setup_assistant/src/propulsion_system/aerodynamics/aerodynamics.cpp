@@ -39,7 +39,7 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWi
     &qt::StackedWidget::setCurrentIndex);
 }
 
-const char* AerodynamicsWidget::name()
+const char* AerodynamicsWidget::name() const
 {
   return "Aerodynamics";
 }
@@ -52,17 +52,19 @@ bool AerodynamicsWidget::isValid()
   return true;
 }
 
-void AerodynamicsWidget::copyFrom(const AerodynamicsWidget* src)
+void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
+  const auto derived = qobject_cast<const AerodynamicsWidget*>(src);
+
   for (int i = 0; i < methods_->count(); ++i)
   {
     const auto des_method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));
-    const auto src_method = qobject_cast<AerodynamicsWidget_Base*>(src->methods_->widget(i));
+    const auto src_method = qobject_cast<AerodynamicsWidget_Base*>(derived->methods_->widget(i));
     des_method->copyFrom(src_method);
   }
 }
 
-YAML::Node AerodynamicsWidget::dump()
+YAML::Node AerodynamicsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

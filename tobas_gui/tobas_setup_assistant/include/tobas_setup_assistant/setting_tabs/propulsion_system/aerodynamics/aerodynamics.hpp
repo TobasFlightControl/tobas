@@ -13,7 +13,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-class AerodynamicsWidget : public BaseSelectedLinkSettingWidget<AerodynamicsWidget>
+class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
@@ -22,11 +22,11 @@ class AerodynamicsWidget : public BaseSelectedLinkSettingWidget<AerodynamicsWidg
 public:
   explicit AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWidget* propeller);
 
-  const char* name() override;
+  const char* name() const override;
   bool isValid() override;
-  void copyFrom(const AerodynamicsWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   /* [kg*m/rad^2] */

@@ -9,18 +9,18 @@ namespace gui
 {
 namespace setup_assistant
 {
-class MotorWidget : public BaseSelectedLinkSettingWidget<MotorWidget>
+class MotorWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
 public:
   explicit MotorWidget();
 
-  const char* name() override;
+  const char* name() const override;
   bool isValid() override;
-  void copyFrom(const MotorWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   /* Motor rotation direction (CW or CCW) */

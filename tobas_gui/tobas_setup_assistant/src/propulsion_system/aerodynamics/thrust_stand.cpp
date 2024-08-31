@@ -56,7 +56,7 @@ void AerodynamicsWidget_ThrustStand::copyFrom(const AerodynamicsWidget_Base* src
   data_->setValue(derived->data_->getValue());
 }
 
-YAML::Node AerodynamicsWidget_ThrustStand::dump()
+YAML::Node AerodynamicsWidget_ThrustStand::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

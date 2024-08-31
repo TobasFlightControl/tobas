@@ -38,7 +38,7 @@ ElectrodynamicsWidget::ElectrodynamicsWidget(
     &qt::StackedWidget::setCurrentIndex);
 }
 
-const char* ElectrodynamicsWidget::name()
+const char* ElectrodynamicsWidget::name() const
 {
   return "Electrodynamics";
 }
@@ -51,17 +51,19 @@ bool ElectrodynamicsWidget::isValid()
   return true;
 }
 
-void ElectrodynamicsWidget::copyFrom(const ElectrodynamicsWidget* src)
+void ElectrodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
+  const auto derived = qobject_cast<const ElectrodynamicsWidget*>(src);
+
   for (int i = 0; i < methods_->count(); ++i)
   {
     const auto des_method = qobject_cast<ElectrodynamicsWidget_Base*>(methods_->widget(i));
-    const auto src_method = qobject_cast<ElectrodynamicsWidget_Base*>(src->methods_->widget(i));
+    const auto src_method = qobject_cast<ElectrodynamicsWidget_Base*>(derived->methods_->widget(i));
     des_method->copyFrom(src_method);
   }
 }
 
-YAML::Node ElectrodynamicsWidget::dump()
+YAML::Node ElectrodynamicsWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

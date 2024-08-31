@@ -62,7 +62,7 @@ MotorWidget::MotorWidget()
   rows->addStretch();
 }
 
-const char* MotorWidget::name()
+const char* MotorWidget::name() const
 {
   return "Motor";
 }
@@ -72,17 +72,19 @@ bool MotorWidget::isValid()
   return true;
 }
 
-void MotorWidget::copyFrom(const MotorWidget* src)
+void MotorWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  direction_->setValue(src->direction_->getValue());
-  kv_->setValue(src->kv_->getValue());
-  resistance_->setValue(src->resistance_->getValue());
-  num_poles_->setValue(src->num_poles_->getValue());
-  time_const_up_->setValue(src->time_const_up_->getValue());
-  time_const_down_->setValue(src->time_const_down_->getValue());
+  const auto derived = qobject_cast<const MotorWidget*>(src);
+
+  direction_->setValue(derived->direction_->getValue());
+  kv_->setValue(derived->kv_->getValue());
+  resistance_->setValue(derived->resistance_->getValue());
+  num_poles_->setValue(derived->num_poles_->getValue());
+  time_const_up_->setValue(derived->time_const_up_->getValue());
+  time_const_down_->setValue(derived->time_const_down_->getValue());
 }
 
-YAML::Node MotorWidget::dump()
+YAML::Node MotorWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

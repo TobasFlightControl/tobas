@@ -69,7 +69,7 @@ void AerodynamicsWidget_Manual::copyFrom(const AerodynamicsWidget_Base* src)
   rotor_drag_coef_->setValue(derived->rotor_drag_coef_->getValue());
 }
 
-YAML::Node AerodynamicsWidget_Manual::dump()
+YAML::Node AerodynamicsWidget_Manual::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

@@ -9,18 +9,18 @@ namespace gui
 {
 namespace setup_assistant
 {
-class ESCWidget : public BaseSelectedLinkSettingWidget<ESCWidget>
+class ESCWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
 public:
   explicit ESCWidget();
 
-  const char* name() override;
+  const char* name() const override;
   bool isValid() override;
-  void copyFrom(const ESCWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   double maxCurrent() const;

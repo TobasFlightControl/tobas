@@ -32,7 +32,7 @@ SpeedLimitWidget::SpeedLimitWidget(ElectrodynamicsWidget* electrodynamics, Aerod
   }
 }
 
-const char* SpeedLimitWidget::name()
+const char* SpeedLimitWidget::name() const
 {
   return "Speed Limit";
 }
@@ -47,17 +47,19 @@ bool SpeedLimitWidget::isValid()
   return false;
 }
 
-void SpeedLimitWidget::copyFrom(const SpeedLimitWidget* src)
+void SpeedLimitWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
+  const auto derived = qobject_cast<const SpeedLimitWidget*>(src);
+
   for (size_t i = 0; i < methods_.size(); ++i)
   {
     const auto& des_method = methods_.at(i);
-    const auto& src_method = src->methods_.at(i);
+    const auto& src_method = derived->methods_.at(i);
     des_method->copyFrom(src_method);
   }
 }
 
-YAML::Node SpeedLimitWidget::dump()
+YAML::Node SpeedLimitWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

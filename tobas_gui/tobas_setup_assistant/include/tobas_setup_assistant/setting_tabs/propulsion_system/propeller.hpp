@@ -7,16 +7,18 @@ namespace gui
 {
 namespace setup_assistant
 {
-class PropellerWidget : public BaseSelectedLinkSettingWidget<PropellerWidget>
+class PropellerWidget : public BaseSelectedLinkSettingWidget
 {
+  Q_OBJECT
+
 public:
   explicit PropellerWidget();
 
-  const char* name() override;
+  const char* name() const override;
   bool isValid() override;
-  void copyFrom(const PropellerWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   /* Number of blades per propeller */

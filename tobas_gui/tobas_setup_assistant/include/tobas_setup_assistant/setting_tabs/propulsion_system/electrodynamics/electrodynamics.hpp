@@ -14,7 +14,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-class ElectrodynamicsWidget : public BaseSelectedLinkSettingWidget<ElectrodynamicsWidget>
+class ElectrodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
@@ -23,11 +23,11 @@ class ElectrodynamicsWidget : public BaseSelectedLinkSettingWidget<Electrodynami
 public:
   explicit ElectrodynamicsWidget(rclcpp::Node::SharedPtr node, MotorWidget* motor, AerodynamicsWidget* aerodynamics);
 
-  const char* name() override;
+  const char* name() const override;
   bool isValid() override;
-  void copyFrom(const ElectrodynamicsWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   /* V = a w + b w^2 (V[V], w[rad/s]) */

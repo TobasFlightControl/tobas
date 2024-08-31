@@ -30,7 +30,7 @@ void AerodynamicsWidget_NoSelect::copyFrom(const AerodynamicsWidget_Base*)
 {
 }
 
-YAML::Node AerodynamicsWidget_NoSelect::dump()
+YAML::Node AerodynamicsWidget_NoSelect::dump() const
 {
   return YAML::Node();
 }

@@ -32,7 +32,7 @@ ESCWidget::ESCWidget()
   rows->addStretch();
 }
 
-const char* ESCWidget::name()
+const char* ESCWidget::name() const
 {
   return "ESC";
 }
@@ -42,13 +42,14 @@ bool ESCWidget::isValid()
   return true;
 }
 
-void ESCWidget::copyFrom(const ESCWidget* src)
+void ESCWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  max_current_->setValue(src->max_current_->getValue());
-  signal_mode_->setValue(src->signal_mode_->getValue());
+  const auto derived = qobject_cast<const ESCWidget*>(src);
+  max_current_->setValue(derived->max_current_->getValue());
+  signal_mode_->setValue(derived->signal_mode_->getValue());
 }
 
-YAML::Node ESCWidget::dump()
+YAML::Node ESCWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

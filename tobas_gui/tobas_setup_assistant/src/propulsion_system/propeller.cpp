@@ -41,7 +41,7 @@ PropellerWidget::PropellerWidget()
   rows->addStretch();
 }
 
-const char* PropellerWidget::name()
+const char* PropellerWidget::name() const
 {
   return "Propeller";
 }
@@ -51,15 +51,17 @@ bool PropellerWidget::isValid()
   return true;
 }
 
-void PropellerWidget::copyFrom(const PropellerWidget* src)
+void PropellerWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
-  num_blade_->setValue(src->num_blade_->getValue());
-  diameter_->setValue(src->diameter_->getValue());
-  blade_chord_->setValue(src->blade_chord_->getValue());
-  pitch_angle_->setValue(src->pitch_angle_->getValue());
+  const auto derived = qobject_cast<const PropellerWidget*>(src);
+
+  num_blade_->setValue(derived->num_blade_->getValue());
+  diameter_->setValue(derived->diameter_->getValue());
+  blade_chord_->setValue(derived->blade_chord_->getValue());
+  pitch_angle_->setValue(derived->pitch_angle_->getValue());
 }
 
-YAML::Node PropellerWidget::dump()
+YAML::Node PropellerWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

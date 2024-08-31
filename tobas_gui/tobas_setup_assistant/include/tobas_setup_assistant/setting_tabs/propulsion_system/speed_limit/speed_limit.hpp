@@ -9,7 +9,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-class SpeedLimitWidget : public BaseSelectedLinkSettingWidget<SpeedLimitWidget>
+class SpeedLimitWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
@@ -18,11 +18,11 @@ class SpeedLimitWidget : public BaseSelectedLinkSettingWidget<SpeedLimitWidget>
 public:
   explicit SpeedLimitWidget(ElectrodynamicsWidget* electrodynamics, AerodynamicsWidget* aerodynamics);
 
-  const char* name() override;
+  const char* name() const override;
   bool isValid() override;
-  void copyFrom(const SpeedLimitWidget* src) override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   /* Maximum rotation speed [rad/s] */

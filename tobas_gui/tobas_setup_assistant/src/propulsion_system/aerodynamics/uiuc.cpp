@@ -56,7 +56,7 @@ void AerodynamicsWidget_UIUC::copyFrom(const AerodynamicsWidget_Base* src)
   data_->setValue(derived->data_->getValue());
 }
 
-YAML::Node AerodynamicsWidget_UIUC::dump()
+YAML::Node AerodynamicsWidget_UIUC::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

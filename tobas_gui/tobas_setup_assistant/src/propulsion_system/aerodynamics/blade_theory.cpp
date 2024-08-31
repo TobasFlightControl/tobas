@@ -35,7 +35,7 @@ void AerodynamicsWidget_BladeTheory::copyFrom(const AerodynamicsWidget_Base*)
 {
 }
 
-YAML::Node AerodynamicsWidget_BladeTheory::dump()
+YAML::Node AerodynamicsWidget_BladeTheory::dump() const
 {
   return YAML::Node();
 }
