@@ -1,5 +1,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 
+#include "tobas_setup_assistant/setting_tabs/propulsion_system/electrodynamics/no_select.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electrodynamics/electrodynamics.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electrodynamics/spec.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electrodynamics/experiment.hpp"
@@ -21,6 +22,7 @@ ElectrodynamicsWidget::ElectrodynamicsWidget(
   rows->addWidget(method_name_);
   rows->addWidget(methods_);
 
+  methods_->addWidget(new ElectrodynamicsWidget_NoSelect());
   methods_->addWidget(new ElectrodynamicsWidget_Spec(motor, aerodynamics));
   methods_->addWidget(new ElectroDynamicsWidget_Experiment(node));
 
