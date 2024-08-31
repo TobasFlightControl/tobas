@@ -27,7 +27,7 @@ public:
   bool isValid() override;
   void copyFrom(const ElectrodynamicsWidget_Base* src) override;
 
-  YAML::Node dump() override;
+  YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
   std::pair<double, double> rotSpeedCoefs() const override;

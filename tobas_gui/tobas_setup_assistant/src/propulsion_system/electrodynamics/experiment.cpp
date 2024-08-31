@@ -54,7 +54,7 @@ void ElectroDynamicsWidget_Experiment::copyFrom(const ElectrodynamicsWidget_Base
   data_->setValue(derived->data_->getValue());
 }
 
-YAML::Node ElectroDynamicsWidget_Experiment::dump()
+YAML::Node ElectroDynamicsWidget_Experiment::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 

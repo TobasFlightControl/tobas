@@ -32,7 +32,7 @@ void ElectrodynamicsWidget_Spec::copyFrom(const ElectrodynamicsWidget_Base*)
 {
 }
 
-YAML::Node ElectrodynamicsWidget_Spec::dump()
+YAML::Node ElectrodynamicsWidget_Spec::dump() const
 {
   return YAML::Node();
 }

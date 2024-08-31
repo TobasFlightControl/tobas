@@ -23,7 +23,7 @@ public:
   virtual bool isValid() = 0;
   virtual void copyFrom(const ElectrodynamicsWidget_Base* src) = 0;
 
-  virtual YAML::Node dump() = 0;
+  virtual YAML::Node dump() const = 0;
   virtual void load(const YAML::Node& node) = 0;
 
   /* V = a w + b w^2 (V[V], w[rad/s]) */

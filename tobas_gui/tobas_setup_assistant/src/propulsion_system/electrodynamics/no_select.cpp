@@ -30,7 +30,7 @@ void ElectrodynamicsWidget_NoSelect::copyFrom(const ElectrodynamicsWidget_Base*)
 {
 }
 
-YAML::Node ElectrodynamicsWidget_NoSelect::dump()
+YAML::Node ElectrodynamicsWidget_NoSelect::dump() const
 {
   return YAML::Node();
 }
