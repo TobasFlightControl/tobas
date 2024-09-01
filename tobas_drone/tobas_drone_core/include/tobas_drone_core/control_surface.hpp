@@ -29,15 +29,15 @@ class ControlSurface
 public:
   uint32_t channel = 0;  // モータが接続されているチャンネル
   std::string joint_name = "";
-  tobas_std::Range<double> angle_limit = { 0, 0 };  // [rad]
-  double max_angle_rate = 0;                        // [rad/s]
+  tobas_std::Range<double> angle_limit = { 0., 0. };  // [rad]
+  double max_angle_rate = 0.;                         // [rad/s]
 
-  double c_lift_delta = 0;      // [/rad]
-  double c_drag_abs_delta = 0;  // [/rad], 舵角の正負にかかわらず抗力が発生するモデル
-  double c_side_delta = 0;      // [/rad]
-  double c_roll_delta = 0;      // [/rad]
-  double c_pitch_delta = 0;     // [/rad]
-  double c_yaw_delta = 0;       // [/rad]
+  double c_lift_delta = 0.;      // [/rad]
+  double c_drag_abs_delta = 0.;  // [/rad], 舵角の正負にかかわらず抗力が発生するモデル
+  double c_side_delta = 0.;      // [/rad]
+  double c_roll_delta = 0.;      // [/rad]
+  double c_pitch_delta = 0.;     // [/rad]
+  double c_yaw_delta = 0.;       // [/rad]
 
   bool isValid() const;
   bool load(const YAML::Node& node);

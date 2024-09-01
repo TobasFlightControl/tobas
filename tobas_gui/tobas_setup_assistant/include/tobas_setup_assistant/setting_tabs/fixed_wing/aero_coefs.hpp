@@ -1,7 +1,5 @@
 #pragma once
 
-#include <rclcpp/node.hpp>
-
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 

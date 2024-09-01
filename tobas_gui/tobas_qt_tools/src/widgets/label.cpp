@@ -1,9 +1,10 @@
 #include "tobas_qt_tools/widgets/label.hpp"
+#include "tobas_qt_tools/font.hpp"
 
 namespace qt
 {
-FramedLable::FramedLable(const QString& text, QWidget* parent) : super(text, parent)
+Label::Label(const QString& text, int point_size, int weight, bool italic, QWidget* parent) : super(text, parent)
 {
-  setStyleSheet("QLabel { border: 1px solid black; background-color: white; }");
+  setFont(DefaultFont(point_size, weight, italic));
 }
 }  // namespace qt

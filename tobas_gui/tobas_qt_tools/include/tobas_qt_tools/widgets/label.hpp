@@ -4,11 +4,20 @@
 
 namespace qt
 {
-class FramedLable : public QLabel
+/**
+ * ===== QLabelとの違い =====
+ * - コンストラクタでフォントを指定可
+ */
+class Label : public QLabel
 {
   using super = QLabel;
 
 public:
-  explicit FramedLable(const QString& text = "", QWidget* parent = nullptr);
+  explicit Label(
+    const QString& text = "",
+    int point_size = -1,
+    int weight = -1,
+    bool italic = false,
+    QWidget* parent = nullptr);
 };
 }  // namespace qt
