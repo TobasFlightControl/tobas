@@ -216,7 +216,6 @@ class AvailableLinksWidget(QListWidget):
 
 class SelectedLinksWidget(TableWidget):
     COL_WIDTH = 120
-    COEF_DECIMALS = 6
     ANGLE_LIMIT = math.pi / 4
 
     def __init__(self, main: SetupAssistant) -> None:
