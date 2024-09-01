@@ -1,4 +1,5 @@
-#include <tobas_std_tools/console.hpp>
+#include <QDebug>
+
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -137,7 +138,7 @@ int SelectedLinksWidget::index(const QString& link_name) const
     if (linkName(i) == link_name)
       return i;
 
-  PRINT_WARN("Link \"" << link_name << "\" is not selected as a propulsion system.");
+  qWarning() << link_name << " is not selected as a propulsion system.";
   return -1;
 }
 
@@ -224,7 +225,7 @@ void SelectedLinksWidget::setAction(const QString& link_name, int action)
     }
   }
 
-  PRINT_WARN("Link \"" << link_name << "\" not found.");
+  qWarning() << link_name << " not found.";
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant
