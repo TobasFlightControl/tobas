@@ -1,18 +1,11 @@
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/string.hpp>
 #include <tobas_ros2_tools/simple_service_client.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
-#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
-#include <tobas_msgs_adapter/PositionYaw.hpp>
-#include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
-#include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
 
 #include "../include/tobas_rc_teleop/common.hpp"
 #include "../include/tobas_rc_teleop/program_mode.hpp"
@@ -56,7 +49,7 @@ private:
   };
 
   // rosparams
-  array<string, tobas::kNumFlightModes> modes_;
+  array<tobas::rc_command_t, tobas::kNumFlightModes> modes_;
 
   // Mutables
   uint8_t last_mode_;
@@ -90,8 +83,8 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
 
 void RCTeleopNode::getStaticRosParams()
 {
-  modes_[tobas::kFlightModeStabilize] = getStringParam("stabilize_mode");
-  modes_[tobas::kFlightModeAcrobat] = getStringParam("acrobat_mode");
+  modes_[tobas::kFlightModeStabilize] = static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode"));
+  modes_[tobas::kFlightModeAcrobat] = static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode"));
 }
 
 void RCTeleopNode::initializeControllers()
@@ -102,22 +95,23 @@ void RCTeleopNode::initializeControllers()
   // その他の飛行モードのコントローラを設定
   for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
   {
-    if (modes_[i] == "")
-      controllers_[i] = std::make_unique<ProgramModeController>();
-    else if (modes_[i] == tobas_std::split(rosidl_generator_traits::name<PosVelAccYaw>(), '/').back())
-      controllers_[i] = std::make_unique<PosVelAccYawController>();
-    else if (modes_[i] == tobas_std::split(rosidl_generator_traits::name<PositionYaw>(), '/').back())
-      controllers_[i] = std::make_unique<PositionYawController>();
-    else if (modes_[i] == tobas_std::split(rosidl_generator_traits::name<RollPitchYawThrottle>(), '/').back())
-      controllers_[i] = std::make_unique<RollPitchYawThrottleController>();
-    else if (modes_[i] == tobas_std::split(rosidl_generator_traits::name<PoseTwistAccelCommand>(), '/').back())
-      controllers_[i] = std::make_unique<PoseTwistAccelController>();
-    else if (modes_[i] == tobas_std::split(rosidl_generator_traits::name<SpeedRollDeltaPitch>(), '/').back())
-      controllers_[i] = std::make_unique<SpeedRollDeltaPitchController>();
-    else
+    switch (modes_[i])
     {
-      TOBAS_ERROR("Invalid flight mode: ", modes_[i], ". The RC command for this mode will not be published.");
-      controllers_[i] = std::make_unique<ProgramModeController>();
+      case tobas::rc_command_t::PROGRAM:
+        controllers_[i] = std::make_unique<ProgramModeController>();
+      case tobas::rc_command_t::POS_VEL_ACC_YAW:
+        controllers_[i] = std::make_unique<PosVelAccYawController>();
+      case tobas::rc_command_t::POSITION_YAW:
+        controllers_[i] = std::make_unique<PositionYawController>();
+      case tobas::rc_command_t::ROLL_PITCH_YAW_THROTTLE:
+        controllers_[i] = std::make_unique<RollPitchYawThrottleController>();
+      case tobas::rc_command_t::POSE_TWIST_ACCEL:
+        controllers_[i] = std::make_unique<PoseTwistAccelController>();
+      case tobas::rc_command_t::SPEED_ROLL_DPITCH:
+        controllers_[i] = std::make_unique<SpeedRollDeltaPitchController>();
+      default:
+        TOBAS_ERROR("Invalid flight mode. The RC command for this mode will not be published.");
+        controllers_[i] = std::make_unique<ProgramModeController>();
     }
 
     controllers_[i]->initialize(this);

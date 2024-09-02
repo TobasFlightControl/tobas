@@ -92,6 +92,11 @@ tobas::ControlSurfaces ControlSurfacesWidget::controlSurfaces() const
 
   return res;
 }
+
+int ControlSurfacesWidget::count() const
+{
+  return selected_->rowCount();
+}
 }  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

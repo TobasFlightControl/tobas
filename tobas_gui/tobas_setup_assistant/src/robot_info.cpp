@@ -8,13 +8,17 @@ namespace gui
 {
 namespace setup_assistant
 {
-RobotInfo::RobotInfo()
+RobotInfo::RobotInfo() : axis_solver_(tree_)
 {
 }
 
 bool RobotInfo::loadFromPath(const std::string& path)
 {
   cout << path << endl;  // TODO: urdf_parser.load_from_param
+
+  axis_solver_.updateInternalDataStructures();
+
+  q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
   Q_EMIT loaded();
   return true;
@@ -66,6 +70,36 @@ hw_interface::type_t RobotInfo::hardwareInterface(const string& jnt_name) const
   }
 
   return hw_interface::NONE;
+}
+
+bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis, double tol)
+{
+  assert(tol > 0.);
+
+  const auto seg_it = tree_.getSegment(seg_name);
+
+  // 問題なくルートリンクまで遡れた場合はtrue．
+  if (seg_it == tree_.getRootSegment())
+    return true;
+
+  // ある関節角に対し，チェーンを構成する全てのジョイント軸が目標と平行であることが必要十分条件．
+  // つまり，可動関節で且つジョイント軸が目標と平行でないリンクが存在する場合はfalse．
+  const auto& joint = seg_it->second.segment.joint();
+  if (joint.type != kdl::Joint::Fixed)
+  {
+    if (!axis_solver_.JntToCart(q_zeros_, seg_name))
+    {
+      cerr << "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage() << endl;
+      return false;
+    }
+    const auto& cur_axis = axis_solver_.getAxis();
+    if (cur_axis.argument(tar_axis) > tol)
+      return false;
+  }
+
+  // 親リンクについて調べる
+  const auto& par_name = seg_it->second.parent->first;
+  return isJntAxisAlwaysCollinear(par_name, tar_axis, tol);
 }
 }  // namespace setup_assistant
 }  // namespace gui

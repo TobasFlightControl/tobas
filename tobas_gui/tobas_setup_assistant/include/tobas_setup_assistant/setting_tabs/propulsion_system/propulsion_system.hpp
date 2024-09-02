@@ -32,6 +32,9 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
+  const AvailableLinksWidget* available() const;
+  const SelectedLinksWidget* selected() const;
+
 private Q_SLOTS:
   void onAvailableLinkRemoved(const QString& link_name);
   void onSelectedLinkRemoved(const QString& link_name);

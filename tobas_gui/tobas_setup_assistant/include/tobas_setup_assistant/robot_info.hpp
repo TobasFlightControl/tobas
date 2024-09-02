@@ -5,6 +5,7 @@
 #include <hardware_interface/hardware_info.hpp>
 
 #include <tobas_kdl/tree.hpp>
+#include <tobas_kdl/treejntaxissolver.hpp>
 
 namespace gui
 {
@@ -48,9 +49,16 @@ public:
 
   hw_interface::type_t hardwareInterface(const std::string& jnt_name) const;
 
+  /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
+  bool isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis, double tol = 1e-6);
+
 private:
   kdl::Tree tree_;
   hardware_interface::HardwareInfo hardware_;
+
+  kdl::TreeJntAxisSolver axis_solver_;
+
+  kdl::JntArray q_zeros_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

@@ -96,6 +96,16 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
   }
 }
 
+const AvailableLinksWidget* PropulsionSystemWidget::available() const
+{
+  return available_;
+}
+
+const SelectedLinksWidget* PropulsionSystemWidget::selected() const
+{
+  return selected_;
+}
+
 void PropulsionSystemWidget::onAvailableLinkRemoved(const QString& link_name)
 {
   selected_->add(link_name);

@@ -17,12 +17,10 @@ void TreeJntAxisSolver::updateInternalDataStructures()
 
 int TreeJntAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)
 {
-  if (!isUpToDate())
-    return setDefaultError(E_NOT_UP_TO_DATE);
-  if (q_in.rows() != nj_)
-    return setDefaultError(E_SIZE_MISMATCH);
+  const auto cur_it = tree_.getSegment(seg_name);
+  if (cur_it == tree_.getSegments().end())
+    return setDefaultError(E_OUT_OF_RANGE);
 
-  const auto& cur_it = tree_.getSegment(seg_name);
   const auto& cur_ele = cur_it->second;
   const auto& cur_jnt = cur_ele.segment.joint();
   const auto& par_name = cur_ele.parent->first;

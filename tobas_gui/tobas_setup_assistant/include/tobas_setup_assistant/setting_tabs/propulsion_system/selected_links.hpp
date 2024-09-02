@@ -50,6 +50,9 @@ public:
   SelectedLinkWidget* widget(const QString& link_name);
   const SelectedLinkWidget* widget(const QString& link_name) const;
 
+  /* 両方の回転方向のプロペラが設定されていることを確かめる． */
+  bool hasBothRotationalDirections() const;
+
 private Q_SLOTS:
   void publishTimerCb();
   void onTabCloseRequested(int index);

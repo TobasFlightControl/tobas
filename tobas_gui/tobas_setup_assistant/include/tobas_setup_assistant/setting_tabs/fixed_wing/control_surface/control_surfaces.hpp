@@ -31,6 +31,9 @@ public:
 
   tobas::ControlSurfaces controlSurfaces() const;
 
+  /* 登録された制御面の個数を返す． */
+  int count() const;
+
 private:
   AvailableLinksWidget* available_;
   SelectedLinksWidget* selected_;

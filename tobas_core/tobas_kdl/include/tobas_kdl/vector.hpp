@@ -45,8 +45,17 @@ public:
   inline void z(double z);
 
   inline void fill(double value);
+
+  /* 2つのベクトルの内積を計算する． */
   inline double dot(const Vector& rhs) const;
+
+  /* 2つのベクトルの要素積を計算する． */
   inline Vector hadamard(const Vector& rhs) const;
+
+  /* 2つのベクトル間の偏角 [rad] を計算する． */
+  inline double argument(const Vector& rhs) const;
+
+  /* ベクトルが要素を含む場合にtrueを返す． */
   inline bool contains(double value) const;
 
   /* Clamp each value. */
@@ -197,9 +206,9 @@ inline Vector Vector::hadamard(const Vector& rhs) const
   return Vector(data.cwiseProduct(rhs.data));
 }
 
-inline bool Vector::contains(double value) const
+inline double Vector::argument(const Vector& rhs) const
 {
-  return x() == value || y() == value || z() == value;
+  return acos(normalized().dot(rhs.normalized()));
 }
 
 inline Vector Vector::clamp(const double& lb, const double& ub) const

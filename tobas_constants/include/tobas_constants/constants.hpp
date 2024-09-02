@@ -109,6 +109,16 @@ static constexpr uint8_t kFlightModeStabilize = kFlightModeProgram + 1;
 static constexpr uint8_t kFlightModeAcrobat = kFlightModeStabilize + 1;
 static constexpr uint8_t kNumFlightModes = kFlightModeAcrobat + 1;
 
+enum rc_command_t
+{
+  PROGRAM,
+  POS_VEL_ACC_YAW,
+  POSITION_YAW,
+  ROLL_PITCH_YAW_THROTTLE,
+  POSE_TWIST_ACCEL,
+  SPEED_ROLL_DPITCH,
+};
+
 // Console message period
 static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]

@@ -162,6 +162,22 @@ const SelectedLinkWidget* SelectedLinksWidget::widget(const QString& link_name) 
   return widget(index(link_name));
 }
 
+bool SelectedLinksWidget::hasBothRotationalDirections() const
+{
+  std::unordered_set<std::string> set;
+  for (int i = 0; i < count(); ++i)
+    set.insert(widget(i)->motor()->direction());
+
+  const auto num = set.size();
+  if (num > 2)
+  {
+    qWarning() << "Invalid number of rotational directions: " << num;
+    return false;
+  }
+
+  return num == 2;
+}
+
 void SelectedLinksWidget::publishTimerCb()
 {
   // Fill timestamps
