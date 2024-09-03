@@ -49,7 +49,11 @@ set(CMAKE_AUTOMOC ON)
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
-include_directories(include)
+include_directories(
+  include
+  ${PROJECT_SOURCE_DIR}/../../third_party/rapidcsv/src
+  ${PROJECT_SOURCE_DIR}/../../third_party/inja/include
+)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
@@ -66,6 +70,7 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
+
 # install(TARGETS ${PROJECT_NAME}_main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY config data resources templates DESTINATION share/${PROJECT_NAME})
