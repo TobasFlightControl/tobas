@@ -5,26 +5,23 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
 #include "../base_setting.hpp"
-#include "../imu.hpp"
-#include "../barometer.hpp"
-#include "../gps.hpp"
 #include "./base.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
-class ObserverWidget : public BaseSettingWidget
+class HardwareWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = ObserverWidget;
+  using self = HardwareWidget;
   using super = BaseSettingWidget;
 
-  static constexpr char kTypeKey[] = "observer_type";
+  static constexpr char kTypeKey[] = "hardware_type";
 
 public:
-  explicit ObserverWidget(const IMUWidget* imu, const BarometerWidget* baro, const GPSWidget* gps);
+  explicit HardwareWidget();
 
   const char* name() const override;
   const char* title() const override;
@@ -38,24 +35,18 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
-  const char* observerPackage() const;
-
-  YAML::Node staticParams() const;
+  const char* hardwarePackage() const;
 
 private Q_SLOTS:
-  void setCurrentObserver(int index);
+  void setCurrentHardware(int index);
 
 private:
-  const IMUWidget* imu_;
-  const BarometerWidget* baro_;
-  const GPSWidget* gps_;
-
   qt::ComboBox* type_;
-  qt::StackedWidget* observers_;
+  qt::StackedWidget* hardwares_;
   qt::DescriptionWidget* description_;
 
-  BaseObserverWidget* selected();
-  const BaseObserverWidget* selected() const;
+  BaseHardwareWidget* selected();
+  const BaseHardwareWidget* selected() const;
 };
 };  // namespace setup_assistant
 }  // namespace gui
