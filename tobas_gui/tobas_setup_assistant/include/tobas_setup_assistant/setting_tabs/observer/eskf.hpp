@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tobas_setup_assistant/robot_info.hpp"
 #include "../imu.hpp"
 #include "../barometer.hpp"
 #include "../gps.hpp"
@@ -14,7 +15,11 @@ class ErrorStateKalmanFilterWidget : public BaseObserverWidget
   Q_OBJECT
 
 public:
-  explicit ErrorStateKalmanFilterWidget(const IMUWidget* imu, const BarometerWidget* baro, const GPSWidget* gps);
+  explicit ErrorStateKalmanFilterWidget(
+    const RobotInfo& robot,
+    const IMUWidget* imu,
+    const BarometerWidget* baro,
+    const GPSWidget* gps);
 
   const char* name() const override;
   const char* description() const override;
@@ -28,6 +33,7 @@ public:
   bool isValid() override;
 
 private:
+  const RobotInfo& robot_;
   const IMUWidget* imu_;
   const BarometerWidget* baro_;
   const GPSWidget* gps_;

@@ -8,10 +8,11 @@ namespace gui
 namespace setup_assistant
 {
 ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
+  const RobotInfo& robot,
   const IMUWidget* imu,
   const BarometerWidget* baro,
   const GPSWidget* gps)
-  : imu_(imu), baro_(baro), gps_(gps)
+  : robot_(robot), imu_(imu), baro_(baro), gps_(gps)
 {
   const auto rows = new QVBoxLayout(this);
 
@@ -60,6 +61,7 @@ YAML::Node ErrorStateKalmanFilterWidget::staticParams() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node["frame_id"] = robot_.tree().getRootName();
   node["use_barometer"] = false;  // TODO: 選択できるように
   node["use_gps"] = gps_->equipped();
   node["do_acc_bias_estimation"] = do_acc_bias_estimation_->isChecked();

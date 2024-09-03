@@ -9,8 +9,12 @@ namespace gui
 {
 namespace setup_assistant
 {
-ObserverWidget::ObserverWidget(const IMUWidget* imu, const BarometerWidget* baro, const GPSWidget* gps)
-  : imu_(imu), baro_(baro), gps_(gps)
+ObserverWidget::ObserverWidget(
+  const RobotInfo& robot,
+  const IMUWidget* imu,
+  const BarometerWidget* baro,
+  const GPSWidget* gps)
+  : robot_(robot), imu_(imu), baro_(baro), gps_(gps)
 {
 }
 
@@ -40,7 +44,7 @@ void ObserverWidget::onInit()
   addWidget(description_);
   addWidget(observers_);
 
-  observers_->addWidget(new ErrorStateKalmanFilterWidget(imu_, baro_, gps_));
+  observers_->addWidget(new ErrorStateKalmanFilterWidget(robot_, imu_, baro_, gps_));
   observers_->addWidget(new CustomObserverWidget());
 
   for (int i = 0; i < observers_->count(); ++i)

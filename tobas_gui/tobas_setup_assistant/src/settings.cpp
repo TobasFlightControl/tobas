@@ -6,13 +6,37 @@ namespace gui
 {
 namespace setup_assistant
 {
-SettingsWidget::SettingsWidget()
+SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
 {
-  battery_ = new BatteryWidget();
-  // TODO
+  battery = new BatteryWidget();
+  propulsion_system = new propulsion_system::PropulsionSystemWidget(node, robot);
+  fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
+  custom_joints = new CustomJointsWidget(robot);
+  imu = new IMUWidget();
+  magnetometer = new MagnetometerWidget();
+  barometer = new BarometerWidget();
+  gps = new GPSWidget();
+  controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
+  observer = new ObserverWidget(robot, imu, barometer, gps);
+  hardware = new HardwareWidget();
+  simulation = new SimulationWidget();
+  author_info = new AuthorInformationWidget();
+  ros_package = new ROSPackageWidget(node, robot);
 
-  addTab(battery_, battery_->name());
-  // TODO
+  addTab(battery, battery->name());
+  addTab(propulsion_system, propulsion_system->name());
+  addTab(fixed_wing, fixed_wing->name());
+  addTab(custom_joints, custom_joints->name());
+  addTab(imu, imu->name());
+  addTab(magnetometer, magnetometer->name());
+  addTab(barometer, barometer->name());
+  addTab(gps, gps->name());
+  addTab(controller, controller->name());
+  addTab(observer, observer->name());
+  addTab(hardware, hardware->name());
+  addTab(simulation, simulation->name());
+  addTab(author_info, author_info->name());
+  addTab(ros_package, ros_package->name());
 
   setMinimumHeight(kSettingsMinHeight);
   setStyleSheet(
@@ -71,6 +95,12 @@ bool SettingsWidget::load(const YAML::Node& node)
   }
 
   return success;
+}
+
+void SettingsWidget::onCurrentChanged(int index)
+{
+  const auto cur_widget = qobject_cast<BaseSettingWidget*>(widget(index));
+  cur_widget->onOpened();
 }
 }  // namespace setup_assistant
 }  // namespace gui

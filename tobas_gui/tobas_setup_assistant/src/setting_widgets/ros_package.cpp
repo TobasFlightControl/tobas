@@ -13,27 +13,27 @@ namespace gui
 {
 namespace setup_assistant
 {
-RosPackageWidget::RosPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
+ROSPackageWidget::ROSPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
 {
 }
 
-const char* RosPackageWidget::name() const
+const char* ROSPackageWidget::name() const
 {
   return "ROS Package";
 }
 
-const char* RosPackageWidget::title() const
+const char* ROSPackageWidget::title() const
 {
   return "Generate ROS Package";
 }
 
-const char* RosPackageWidget::description() const
+const char* ROSPackageWidget::description() const
 {
   return "Based on the previous settings, we will generate the necessary ROS packages for using Tobas. "
          "Please specify the path for the package and click the \"Generate\" button.";
 }
 
-void RosPackageWidget::onInit()
+void ROSPackageWidget::onInit()
 {
   pardir_ = new ParamGetterWidget_DirDialog(node_, "Parent Directory", "");
   connect(pardir_, &ParamGetterWidget_DirDialog::pathChanged, this, &self::onPathChanged);
@@ -62,12 +62,12 @@ void RosPackageWidget::onInit()
   addWidgetCenter(generate_button_);
 }
 
-void RosPackageWidget::onOpened()
+void ROSPackageWidget::onOpened()
 {
   return;
 }
 
-void RosPackageWidget::updateInternalDataStructures()
+void ROSPackageWidget::updateInternalDataStructures()
 {
   // デフォルトの親ディレクトリを設定
   const auto default_pardir = path::join(linux::expandUser(tobas::kColconWSPath), "src");
@@ -83,7 +83,7 @@ void RosPackageWidget::updateInternalDataStructures()
   tbs_name_->setValue(QString::fromStdString(tbs_name));
 }
 
-bool RosPackageWidget::isValid()
+bool ROSPackageWidget::isValid()
 {
   const auto pardir = pardir_->getValue();
   const auto tbs_name = tbs_name_->getValue();
@@ -111,7 +111,7 @@ bool RosPackageWidget::isValid()
   return true;
 }
 
-YAML::Node RosPackageWidget::dump()
+YAML::Node ROSPackageWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -121,23 +121,23 @@ YAML::Node RosPackageWidget::dump()
   return node;
 }
 
-void RosPackageWidget::load(const YAML::Node& node)
+void ROSPackageWidget::load(const YAML::Node& node)
 {
   pardir_->setValue(node[pardir_->name()].as<QString>());
   tbs_name_->setValue(node[tbs_name_->name()].as<QString>());
 }
 
-QString RosPackageWidget::tbsName() const
+QString ROSPackageWidget::tbsName() const
 {
   return tbs_name_->getValue();
 }
 
-QString RosPackageWidget::tbsPath() const
+QString ROSPackageWidget::tbsPath() const
 {
   return tbs_path_->text();
 }
 
-void RosPackageWidget::onPathChanged()
+void ROSPackageWidget::onPathChanged()
 {
   const auto pardir = pardir_->getValue().toStdString();
   const auto tbs_name = tbs_name_->getValue().toStdString();
@@ -148,7 +148,7 @@ void RosPackageWidget::onPathChanged()
   generate_button_->setEnabled(!pardir.empty() && !tbs_name.empty());
 }
 
-void RosPackageWidget::onGenerateButtonClicked()
+void ROSPackageWidget::onGenerateButtonClicked()
 {
   Q_EMIT generateButtonClicked();
 }

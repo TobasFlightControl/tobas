@@ -32,7 +32,7 @@ public:
   explicit SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node);
 
 private:
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node_;
+  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node_;
   const rclcpp::Node::SharedPtr node_;
 
   RobotInfo robot_;

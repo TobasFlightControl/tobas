@@ -4,6 +4,7 @@
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
+#include "tobas_setup_assistant/robot_info.hpp"
 #include "../base_setting.hpp"
 #include "../imu.hpp"
 #include "../barometer.hpp"
@@ -24,7 +25,11 @@ class ObserverWidget : public BaseSettingWidget
   static constexpr char kTypeKey[] = "observer_type";
 
 public:
-  explicit ObserverWidget(const IMUWidget* imu, const BarometerWidget* baro, const GPSWidget* gps);
+  explicit ObserverWidget(
+    const RobotInfo& robot,
+    const IMUWidget* imu,
+    const BarometerWidget* baro,
+    const GPSWidget* gps);
 
   const char* name() const override;
   const char* title() const override;
@@ -46,6 +51,7 @@ private Q_SLOTS:
   void setCurrentObserver(int index);
 
 private:
+  const RobotInfo& robot_;
   const IMUWidget* imu_;
   const BarometerWidget* baro_;
   const GPSWidget* gps_;

@@ -11,11 +11,11 @@ namespace gui
 {
 namespace setup_assistant
 {
-class RosPackageWidget : public BaseSettingWidget
+class ROSPackageWidget : public BaseSettingWidget
 {
   Q_OBJECT
 
-  using self = RosPackageWidget;
+  using self = ROSPackageWidget;
   using super = BaseSettingWidget;
 
   static constexpr int kTextHeight = 50;
@@ -26,7 +26,7 @@ Q_SIGNALS:
   void generateButtonClicked();
 
 public:
-  explicit RosPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
+  explicit ROSPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 
   const char* name() const override;
   const char* title() const override;

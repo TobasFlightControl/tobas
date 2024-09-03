@@ -35,7 +35,7 @@ SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionI
   cols->addWidget(js_pub_);
 
   // Settings
-  settings_ = new SettingsWidget();
+  settings_ = new SettingsWidget(node_, robot_);
   rows->addWidget(settings_);
 }
 }  // namespace setup_assistant
