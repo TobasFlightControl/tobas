@@ -154,5 +154,65 @@ void IMUWidget::load(const YAML::Node& node)
   acc_turn_on_bias_sigma_->setValue(node[acc_turn_on_bias_sigma_->name()].as<double>());
   acc_lpf_cutoff_freq_->setValue(node[acc_lpf_cutoff_freq_->name()].as<int>());
 }
+
+Eigen::Vector3d IMUWidget::offset() const
+{
+  return offset_->getValue();
+}
+
+int IMUWidget::updateRate() const
+{
+  return update_rate_->getValue();
+}
+
+double IMUWidget::gyroNoiseDensity() const
+{
+  return gyro_noise_density_->getValue();
+}
+
+double IMUWidget::gyroRandomWalk() const
+{
+  return gyro_random_walk_->getValue();
+}
+
+int IMUWidget::gyroBiasCorrTime() const
+{
+  return gyro_bias_corr_time_->getValue();
+}
+
+double IMUWidget::gyroTurnOnBiasSigma() const
+{
+  return gyro_turn_on_bias_sigma_->getValue();
+}
+
+int IMUWidget::gyroLPFCutoffFreq() const
+{
+  return gyro_lpf_cutoff_freq_->getValue();
+}
+
+double IMUWidget::accNoiseDensity() const
+{
+  return acc_noise_density_->getValue();
+}
+
+double IMUWidget::accRandomWalk() const
+{
+  return acc_random_walk_->getValue();
+}
+
+int IMUWidget::accBiasCorrTime() const
+{
+  return acc_bias_corr_time_->getValue();
+}
+
+double IMUWidget::accTurnOnBiasSigma() const
+{
+  return acc_turn_on_bias_sigma_->getValue();
+}
+
+int IMUWidget::accLPFCutoffFreq() const
+{
+  return acc_lpf_cutoff_freq_->getValue();
+}
 }  // namespace setup_assistant
 }  // namespace gui

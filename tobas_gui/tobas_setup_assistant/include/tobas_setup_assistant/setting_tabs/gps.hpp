@@ -31,6 +31,15 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
+  Eigen::Vector3d offset() const;
+  int updateRate() const;
+  double delay() const;
+  int positionCorrectionTime() const;
+  double horizontalPositionAccuracy() const;
+  double verticalPositionAccuracy() const;
+  double horizontalVelocityStddev() const;
+  double verticalVelocityStddev() const;
+
 protected:
   bool defaultEquipped() const override;
 

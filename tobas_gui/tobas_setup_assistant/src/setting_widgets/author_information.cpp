@@ -81,5 +81,15 @@ void AuthorInformationWidget::load(const YAML::Node& node)
   name_->setValue(node[name_->name()].as<QString>());
   email_->setValue(node[email_->name()].as<QString>());
 }
+
+QString AuthorInformationWidget::authorName() const
+{
+  return name_->getValue();
+}
+
+QString AuthorInformationWidget::authorEmail() const
+{
+  return email_->getValue();
+}
 }  // namespace setup_assistant
 }  // namespace gui

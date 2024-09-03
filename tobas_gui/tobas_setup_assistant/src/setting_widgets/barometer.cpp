@@ -73,5 +73,20 @@ void BarometerWidget::load(const YAML::Node& node)
   update_rate_->setValue(node[update_rate_->name()].as<int>());
   pressure_var_->setValue(node[pressure_var_->name()].as<double>());
 }
+
+Eigen::Vector3d BarometerWidget::offset() const
+{
+  return offset_->getValue();
+}
+
+int BarometerWidget::updateRate() const
+{
+  return update_rate_->getValue();
+}
+
+double BarometerWidget::pressureVariance() const
+{
+  return pressure_var_->getValue();
+}
 }  // namespace setup_assistant
 }  // namespace gui

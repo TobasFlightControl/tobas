@@ -29,6 +29,9 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
+  QString authorName() const;
+  QString authorEmail() const;
+
 private:
   ParamGetterWidget_LineEdit* name_;
   ParamGetterWidget_LineEdit* email_;

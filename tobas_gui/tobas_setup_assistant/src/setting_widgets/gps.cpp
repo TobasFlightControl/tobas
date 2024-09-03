@@ -40,7 +40,7 @@ void GPSWidget::onInit()
   delay_->setSuffix(" s");
   addParamWidget(delay_);
 
-  pos_corr_time_ = new ParamGetterWidget_SpinBox("Communication Delay", "");  // TODO
+  pos_corr_time_ = new ParamGetterWidget_SpinBox("Position Correction Time Constant", "");  // TODO
   pos_corr_time_->setMinimum(1);
   pos_corr_time_->setValue(10);
   pos_corr_time_->setSuffix(" s");
@@ -125,6 +125,46 @@ void GPSWidget::load(const YAML::Node& node)
   vertical_pos_accuracy_->setValue(node[vertical_pos_accuracy_->name()].as<double>());
   horizontal_vel_stddev_->setValue(node[horizontal_vel_stddev_->name()].as<double>());
   vertical_vel_stddev_->setValue(node[vertical_vel_stddev_->name()].as<double>());
+}
+
+Eigen::Vector3d GPSWidget::offset() const
+{
+  return offset_->getValue();
+}
+
+int GPSWidget::updateRate() const
+{
+  return update_rate_->getValue();
+}
+
+double GPSWidget::delay() const
+{
+  return delay_->getValue();
+}
+
+int GPSWidget::positionCorrectionTime() const
+{
+  return pos_corr_time_->getValue();
+}
+
+double GPSWidget::horizontalPositionAccuracy() const
+{
+  return horizontal_pos_accuracy_->getValue();
+}
+
+double GPSWidget::verticalPositionAccuracy() const
+{
+  return vertical_pos_accuracy_->getValue();
+}
+
+double GPSWidget::horizontalVelocityStddev() const
+{
+  return horizontal_vel_stddev_->getValue();
+}
+
+double GPSWidget::verticalVelocityStddev() const
+{
+  return vertical_vel_stddev_->getValue();
 }
 
 bool GPSWidget::defaultEquipped() const

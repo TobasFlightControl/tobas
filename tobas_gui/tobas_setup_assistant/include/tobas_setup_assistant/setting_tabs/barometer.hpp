@@ -31,6 +31,10 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
+  Eigen::Vector3d offset() const;
+  int updateRate() const;
+  double pressureVariance() const;
+
 private:
   ParamGetterWidget_Vector3d* offset_;
   ParamGetterWidget_SpinBox* update_rate_;

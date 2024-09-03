@@ -31,6 +31,19 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
+  Eigen::Vector3d offset() const;
+  int updateRate() const;
+  double gyroNoiseDensity() const;
+  double gyroRandomWalk() const;
+  int gyroBiasCorrTime() const;
+  double gyroTurnOnBiasSigma() const;
+  int gyroLPFCutoffFreq() const;
+  double accNoiseDensity() const;
+  double accRandomWalk() const;
+  int accBiasCorrTime() const;
+  double accTurnOnBiasSigma() const;
+  int accLPFCutoffFreq() const;
+
 private:
   ParamGetterWidget_Vector3d* offset_;
   ParamGetterWidget_SpinBox* update_rate_;

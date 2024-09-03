@@ -80,5 +80,25 @@ void MagnetometerWidget::load(const YAML::Node& node)
   gauss_noise_->setValue(node[gauss_noise_->name()].as<int>());
   uniform_noise_->setValue(node[uniform_noise_->name()].as<int>());
 }
+
+Eigen::Vector3d MagnetometerWidget::offset() const
+{
+  return offset_->getValue();
+}
+
+int MagnetometerWidget::updateRate() const
+{
+  return update_rate_->getValue();
+}
+
+int MagnetometerWidget::gaussNoise() const
+{
+  return gauss_noise_->getValue();
+}
+
+int MagnetometerWidget::uniformNoise() const
+{
+  return uniform_noise_->getValue();
+}
 }  // namespace setup_assistant
 }  // namespace gui

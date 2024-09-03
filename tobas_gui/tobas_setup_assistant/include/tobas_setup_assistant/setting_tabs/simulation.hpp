@@ -30,6 +30,11 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
+  double latitudeZero() const;
+  double longitudeZero() const;
+  double altitudeZero() const;
+  double maxModelErrorRate() const;
+
 private:
   ParamGetterWidget_DoubleSpinBox* latitude_zero_;
   ParamGetterWidget_DoubleSpinBox* longitude_zero_;

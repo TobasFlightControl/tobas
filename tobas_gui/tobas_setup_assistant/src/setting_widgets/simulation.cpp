@@ -87,5 +87,25 @@ void SimulationWidget::load(const YAML::Node& node)
   altitude_zero_->setValue(node[altitude_zero_->name()].as<double>());
   max_model_error_rate_->setValue(node[max_model_error_rate_->name()].as<double>());
 }
+
+double SimulationWidget::latitudeZero() const
+{
+  return latitude_zero_->getValue();
+}
+
+double SimulationWidget::longitudeZero() const
+{
+  return longitude_zero_->getValue();
+}
+
+double SimulationWidget::altitudeZero() const
+{
+  return altitude_zero_->getValue();
+}
+
+double SimulationWidget::maxModelErrorRate() const
+{
+  return static_cast<double>(max_model_error_rate_->getValue()) / 100.;
+}
 }  // namespace setup_assistant
 }  // namespace gui
