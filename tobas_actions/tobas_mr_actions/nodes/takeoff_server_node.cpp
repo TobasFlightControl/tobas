@@ -11,8 +11,6 @@
 
 using namespace std;
 
-namespace tobas_mr_actions
-{
 /**
  * @brief マルチコプターの離陸指令を発行するアクションサーバ．
  * X,Y,Yawをアクション開始時の値に保ったままZのみを増やしていく．
@@ -206,6 +204,5 @@ void TakeoffServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goa
     rate.sleep();
   }
 }
-}  // namespace tobas_mr_actions
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_mr_actions::TakeoffServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(TakeoffServerNode)

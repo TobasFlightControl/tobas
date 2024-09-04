@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node, LoadComposableNodes
+from launch_ros.actions import LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
 
 

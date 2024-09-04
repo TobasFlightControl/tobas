@@ -1,0 +1,17 @@
+[Unit]
+Description=High Priority Component Container
+Requires=tobas_roscore.service
+After=tobas_roscore.service
+PartOf=tobas_component_managers.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tobas/config_pkg.env
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/colcon_ws/install/setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} component_manager_high.launch.xml'
+Restart=always
+RestartSec=5
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=90
+
+[Install]
+WantedBy=multi-user.target

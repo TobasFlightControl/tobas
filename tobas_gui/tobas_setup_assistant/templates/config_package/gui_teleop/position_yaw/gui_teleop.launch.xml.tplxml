@@ -1,0 +1,14 @@
+<launch>
+
+  <arg name="use_sim_time" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+  <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
+
+  <group ns="{{ drone_name }}">
+    <node pkg="tobas_gui_teleop" exec="base_pose_commander_node.py" output="screen">
+      <remap if="$(var ground_truth)" from="odom" to="ground_truth/odom"/>
+    </node>
+  </group>
+
+</launch>

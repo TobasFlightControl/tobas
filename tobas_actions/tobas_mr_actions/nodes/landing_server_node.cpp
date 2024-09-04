@@ -12,8 +12,6 @@
 
 using namespace std;
 
-namespace tobas_mr_actions
-{
 class LandServerNode : public tobas::BaseNode
 {
   static constexpr double kVerticalSpeed = 0.3;         // [m/s]
@@ -183,6 +181,5 @@ void LandServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
     rate.sleep();
   }
 }
-}  // namespace tobas_mr_actions
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_mr_actions::LandServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(LandServerNode)

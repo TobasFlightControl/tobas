@@ -1,0 +1,63 @@
+<launch>
+
+  <!-- Load robot description -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.xml"/>
+
+  <!-- Launch Tobas core software -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py"/>
+
+  <group ns="{{ drone_name }}">
+    <!-- Launch hardware interfaces -->
+    <include file="$(find-pkg-share {{ hardware_pkg }})/launch/hardware_interfaces.launch.py"/>
+
+    <!-- Launch high priority nodes -->
+    <load_composable_node target="component_manager_high">
+      <composable_node pkg="tobas_real_ros" plugin="ImuHandlerNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+    </load_composable_node>
+
+    <!-- Launch medium priority nodes -->
+    <load_composable_node target="component_manager_medium">
+      <composable_node pkg="tobas_real_ros" plugin="MagnetometerHandlerNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+      <composable_node pkg="tobas_real_ros" plugin="BarometerHandlerNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+      <composable_node pkg="tobas_real_ros" plugin="BatteryHandlerNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+    </load_composable_node>
+
+    <!-- Launch low priority nodes -->
+    <load_composable_node target="component_manager_low">
+      <composable_node pkg="tobas_real_ros" plugin="CpuHandlerNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+      <composable_node pkg="tobas_real_ros" plugin="TimeReferenceServerNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+
+      <composable_node pkg="tobas_calibration_ros" plugin="AccelCalibrationNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+      <composable_node pkg="tobas_calibration_ros" plugin="AdcCalibrationNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+      <composable_node pkg="tobas_calibration_ros" plugin="EscCalibrationNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+      <composable_node pkg="tobas_calibration_ros" plugin="MagCalibrationNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+      <composable_node pkg="tobas_calibration_ros" plugin="RCInputCalibrationNode">
+        <extra_arg name="use_intra_process_comms" value="true"/>
+      </composable_node>
+    </load_composable_node>
+  </group>
+
+  <!-- Launch user nodes -->
+  <include file="$(find-pkg-share {{ user_pkg_name }})/launch/real.launch.py"/>
+
+</launch>

@@ -1,5 +1,3 @@
-#include <tobas_std_tools/check.hpp>
-
 #include "tobas_setup_assistant/template_generator.hpp"
 
 namespace fs = std::filesystem;
@@ -18,8 +16,6 @@ void TemplateGenerator::generate(
   const fs::path& out_dir,
   bool overwrite = true)
 {
-  TOBAS_CHECK(rel_path.extension() == ".tpl");
-
   const auto tpl_path = tpl_dir_ / rel_path;
   const auto out_path = out_dir / rel_path.filename().stem();
 

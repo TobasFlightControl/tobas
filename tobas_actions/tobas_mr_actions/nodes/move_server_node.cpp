@@ -16,8 +16,6 @@
 
 using namespace std;
 
-namespace tobas_mr_actions
-{
 class MoveServerNode : public tobas::BaseNode
 {
   using self = MoveServerNode;
@@ -250,6 +248,5 @@ void MoveServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
     rate.sleep();
   }
 }
-}  // namespace tobas_mr_actions
 
-RCLCPP_COMPONENTS_REGISTER_NODE(tobas_mr_actions::MoveServerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(MoveServerNode)

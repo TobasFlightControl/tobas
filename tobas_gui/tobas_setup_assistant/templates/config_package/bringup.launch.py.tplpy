@@ -1,0 +1,222 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+from launch_ros.actions import LoadComposableNodes, SetParameter
+from launch_ros.descriptions import ComposableNode
+from launch_ros.substitutions import FindPackageShare
+
+USE_SIM_TIME = "use_sim_time"
+GROUND_TRUTH = "ground_truth"
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Declare arguments
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
+
+    # Get arguments
+    use_sim_time = LaunchConfiguration(USE_SIM_TIME)
+    ground_truth = LaunchConfiguration(GROUND_TRUTH)
+
+    # Apply use_sim_time to all nodes below
+    # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
+    ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
+
+    config_pkg_share = FindPackageShare("{{ config_pkg_name }}")
+    user_pkg_share = FindPackageShare("{{ user_pkg_name }}")
+    odom_remap = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+    extra_arguments = [{"use_intra_process_comms": True}]
+
+    # Launch high priority nodes
+    ld.add_action(
+        LoadComposableNodes(
+            target_container="{{ drone_name }}/component_manager_high",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="{{ observer_pkg }}",
+                    plugin="ObserverNode",
+                    name="observer",
+                    namespace="{{ drone_name }}",
+                    parameters=[
+                        PathJoinSubstitution(config_pkg_share, "config", "observer.yaml"),
+                        PathJoinSubstitution(config_pkg_share, "config", "dynamic_params.yaml"),
+                    ],
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="{{ controller_pkg }}",
+                    plugin="ObserverNode",
+                    name="controller",
+                    namespace="{{ drone_name }}",
+                    parameters=[
+                        PathJoinSubstitution(config_pkg_share, "config", "controller.yaml"),
+                        PathJoinSubstitution(config_pkg_share, "config", "dynamic_params.yaml"),
+                    ],
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_rc_teleop",
+                    plugin="tobas_rc_teleop::RCTeleopNode",
+                    namespace="{{ drone_name }}",
+                    parameters=[PathJoinSubstitution(config_pkg_share, "config", "rc_teleop.yaml")],
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_preprocess",
+                    plugin="IMULPFNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_rotor_controller",
+                    plugin="RotorControllerNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+            ],
+        )
+    )
+
+    # Launch medium priority nodes
+    ld.add_action(
+        LoadComposableNodes(
+            target_container="{{ drone_name }}/component_manager_medium",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="tobas_preprocess",
+                    plugin="BatteryLPFNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_preprocess",
+                    plugin="MatrixEulerConverterNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_latency_publisher",
+                    plugin="LatencyPublisherNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_manipulation",
+                    plugin="PositionControllerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_manipulation",
+                    plugin="VelocityControllerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_manipulation",
+                    plugin="EffortControllerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+            ],
+        )
+    )
+
+    # Launch low priority nodes
+    ld.add_action(
+        LoadComposableNodes(
+            target_container="{{ drone_name }}/component_manager_low",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="{{ actions_pkg }}",
+                    plugin="TakeoffServerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="{{ actions_pkg }}",
+                    plugin="LandServerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="{{ actions_pkg }}",
+                    plugin="MoveServerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_tree_server",
+                    plugin="TreeServerNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_drone_server",
+                    plugin="DroneServerNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_pre_arm_check",
+                    plugin="PreArmCheckerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_state_checker",
+                    plugin="StateCheckerNode",
+                    namespace="{{ drone_name }}",
+                    remappings=odom_remap,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_topic_throttle",
+                    plugin="BatteryLPFThrottleNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_topic_throttle",
+                    plugin="EulerThrottleNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_topic_throttle",
+                    plugin="LatencyThrottleNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_topic_throttle",
+                    plugin="RCInputThrottleNode",
+                    namespace="{{ drone_name }}",
+                    extra_arguments=extra_arguments,
+                ),
+            ],
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([PathJoinSubstitution([user_pkg_share, "launch", "common.launch.py"])])
+        )
+    )
+
+    return ld

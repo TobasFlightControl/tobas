@@ -1,0 +1,23 @@
+<launch>
+
+  <arg name="use_sim_time" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+  <!-- Apply use_sim_time to all nodes below -->
+  <!-- cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe -->
+  <set_parameter name="use_sim_time" value="true"/>
+
+  <!-- Launch Tobas core software -->
+  <!-- TODO: Improve communication latency and launch bringup.launch on the flight controller side. -->
+  <!-- <include file="$(find {{ config_pkg_name }})/launch/bringup.launch.py">
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="ground_truth" value="$(var ground_truth)"/>
+  </include> -->
+
+  <group ns="{{ drone_name }}">
+    <!-- Launch minimal hardware interfaces -->
+    <include file="$(find-pkg-share {{ hardware_pkg }})/launch/rcin_driver.launch.py"/>
+    <node pkg="tobas_real_ros" exec="rcin_handler" output="screen" />
+  </group>
+
+</launch>

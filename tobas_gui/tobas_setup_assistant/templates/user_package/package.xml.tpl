@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
 
 	<name>{{ user_pkg_name }}</name>
 	<version>0.0.0</version>
@@ -7,7 +7,7 @@
 	<maintainer email="{{ author_email }}">{{ author_name }}</maintainer>
 	<license>BSD</license>
 
-	<buildtool_depend>catkin</buildtool_depend>
+	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>nodelet</depend>
 	<depend>pluginlib</depend>
