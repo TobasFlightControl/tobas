@@ -1,0 +1,16 @@
+[Unit]
+Description=High Priority Component Container
+Requires=tobas_roscore.service
+After=tobas_roscore.service
+PartOf=tobas_component_containers.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run rclcpp_components component_container --ros-args -r __node:=component_container_high'
+Restart=always
+RestartSec=5
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=90
+
+[Install]
+WantedBy=multi-user.target

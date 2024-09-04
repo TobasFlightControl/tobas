@@ -1,0 +1,16 @@
+[Unit]
+Description=Medium Priority Component Container
+Requires=tobas_roscore.service
+After=tobas_roscore.service
+PartOf=tobas_component_containers.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && ros2 run rclcpp_components component_container --ros-args -r __node:=component_container_medium'
+Restart=always
+RestartSec=5
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=50
+
+[Install]
+WantedBy=multi-user.target

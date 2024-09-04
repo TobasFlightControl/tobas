@@ -1,0 +1,16 @@
+[Unit]
+Description=Tobas Flight Controller
+Requires=tobas_property_server.service tobas_component_containers.target
+Conflicts=tobas_hil.service
+PartOf=tobas_main.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tobas/config_pkg.env
+ExecStartPre=/etc/tobas/wait_for_rosmaster.sh
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/colcon_ws/install/setup.bash && /opt/ros/jazzy/bin/ros2 launch ${TOBAS_CONFIG_PKG} real.launch.xml'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

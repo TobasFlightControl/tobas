@@ -1,0 +1,14 @@
+[Unit]
+Description=Tobas Property Server
+Requires=tobas_roscore.service
+After=tobas_roscore.service
+PartOf=tobas_main.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && /opt/ros/jazzy/bin/ros2 run tobas_property_tools property_server_node --ros-args -r __name:=property_server_fc -p ini_path:=/etc/tobas/config.ini'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
