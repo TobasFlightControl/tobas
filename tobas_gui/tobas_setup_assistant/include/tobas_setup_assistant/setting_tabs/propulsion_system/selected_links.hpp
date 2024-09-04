@@ -41,6 +41,7 @@ public:
   void remove(const QString& link_name);
 
   QString linkName(int index) const;
+  QStringList linkNames() const;
 
   /* タブのインデックスを返す．存在しなければ-1を返す． */
   int index(const QString& link_name) const;

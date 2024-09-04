@@ -92,6 +92,9 @@ public:
   void pitchCoef(int row, double value);
   void yawCoef(int row, double value);
 
+  QStringList linkNames() const;
+  QStringList jointNames() const;
+
 private:
   const RobotInfo& robot_;
 };

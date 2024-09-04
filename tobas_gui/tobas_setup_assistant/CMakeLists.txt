@@ -53,6 +53,7 @@ include_directories(
   include
   ${PROJECT_SOURCE_DIR}/../../third_party/rapidcsv/src
   ${PROJECT_SOURCE_DIR}/../../third_party/inja/include
+  ${PROJECT_SOURCE_DIR}/../../third_party/inja/third_party/include
 )
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)

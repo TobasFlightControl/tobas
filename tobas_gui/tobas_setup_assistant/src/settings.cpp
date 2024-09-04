@@ -62,6 +62,40 @@ void SettingsWidget::updateInternalDataStructures()
   }
 }
 
+bool SettingsWidget::isValid()
+{
+  // 全ての設定項目について，単体で問題ないことを確認
+  for (int i = 0; i < count(); ++i)
+  {
+    const auto cur_widget = qobject_cast<BaseSettingWidget*>(widget(i));
+    if (!cur_widget->isValid())
+    {
+      switchTab(cur_widget);
+      return false;
+    }
+  }
+
+  // Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを確認
+  const auto prop_links = propulsion_system->selected()->linkNames();
+  const auto cs_links = fixed_wing->controlSurfaces()->selected()->linkNames();
+  const auto custom_links = custom_joints->getLinkNames();
+  QSet<QString> registered_links_set;
+  for (const auto& link_list : { prop_links, cs_links, custom_links })
+  {
+    for (const auto& link_name : link_list)
+    {
+      if (registered_links_set.contains(link_name))
+      {
+        qt::qErrorBox(this, "Link name \"" + link_name + "\" is registered to multiple actuators.");
+        return false;
+      }
+      registered_links_set.insert(link_name);
+    }
+  }
+
+  return true;
+}
+
 YAML::Node SettingsWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);

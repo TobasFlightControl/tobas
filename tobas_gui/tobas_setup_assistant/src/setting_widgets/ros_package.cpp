@@ -1,6 +1,5 @@
 #include <filesystem>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_constants/constants.hpp>
@@ -8,6 +7,8 @@
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/ros_package.hpp"
+
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -74,8 +75,8 @@ void ROSPackageWidget::updateInternalDataStructures()
   pardir_->setValue(QString::fromStdString(default_pardir));
 
   // デフォルトの親ディレクトリが存在しなければ作成
-  if (!std::filesystem::exists(default_pardir))
-    if (!std::filesystem::create_directories(default_pardir))
+  if (!fs::exists(default_pardir))
+    if (!fs::create_directories(default_pardir))
       qt::qErrorBox(this, QString::fromStdString("Failed to create \"" + default_pardir + "\"."));
 
   // デフォルトのTBSパッケージ名を設定
@@ -90,7 +91,7 @@ bool ROSPackageWidget::isValid()
   const auto tbs_path = tbs_path_->text();
 
   // 親ディレクトリが存在することを確認
-  if (!std::filesystem::is_directory(pardir.toStdString()))
+  if (!fs::is_directory(pardir.toStdString()))
   {
     qt::qErrorBox(this, pardir + " does not exist.");
     return false;
@@ -104,7 +105,7 @@ bool ROSPackageWidget::isValid()
   }
 
   // パッケージパスが既に存在する場合は置換するかどうかをユーザに確認
-  if (std::filesystem::exists(tbs_path.toStdString()))
+  if (fs::exists(tbs_path.toStdString()))
     if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN))
       return false;
 
@@ -142,7 +143,7 @@ void ROSPackageWidget::onPathChanged()
   const auto pardir = pardir_->getValue().toStdString();
   const auto tbs_name = tbs_name_->getValue().toStdString();
 
-  const auto path = path::join(pardir, tbs_name + tobas::kTBSExtension);
+  const auto path = fs::path(pardir) / (tbs_name + tobas::kTBSExtension);
   tbs_path_->setText(QString::fromStdString(path));
 
   generate_button_->setEnabled(!pardir.empty() && !tbs_name.empty());

@@ -309,6 +309,22 @@ void SelectedLinksWidget::yawCoef(int row, double value)
   const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kYawCoefCol));
   return cell->setValue(value);
 }
+
+QStringList SelectedLinksWidget::linkNames() const
+{
+  QStringList res;
+  for (int row = 0; row < rowCount(); ++row)
+    res.append(linkName(row));
+  return res;
+}
+
+QStringList SelectedLinksWidget::jointNames() const
+{
+  QStringList res;
+  for (int row = 0; row < rowCount(); ++row)
+    res.append(jointName(row));
+  return res;
+}
 }  // namespace fixed_wing
 }  // namespace setup_assistant
 }  // namespace gui

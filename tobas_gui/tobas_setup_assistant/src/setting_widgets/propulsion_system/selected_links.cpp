@@ -132,6 +132,14 @@ QString SelectedLinksWidget::linkName(int index) const
   return tabText(index);
 }
 
+QStringList SelectedLinksWidget::linkNames() const
+{
+  QStringList res;
+  for (int i = 0; i < count(); ++i)
+    res.append(linkName(i));
+  return res;
+}
+
 int SelectedLinksWidget::index(const QString& link_name) const
 {
   for (int i = 0; i < count(); ++i)

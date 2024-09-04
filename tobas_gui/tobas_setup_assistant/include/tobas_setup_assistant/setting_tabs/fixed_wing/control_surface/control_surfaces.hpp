@@ -29,6 +29,9 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
+  const AvailableLinksWidget* available() const;
+  const SelectedLinksWidget* selected() const;
+
   tobas::ControlSurfaces controlSurfaces() const;
 
   /* 登録された制御面の個数を返す． */

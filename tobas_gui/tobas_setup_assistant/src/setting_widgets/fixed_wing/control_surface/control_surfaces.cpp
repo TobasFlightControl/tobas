@@ -71,6 +71,16 @@ void ControlSurfacesWidget::load(const YAML::Node& node)
   }
 }
 
+const AvailableLinksWidget* ControlSurfacesWidget::available() const
+{
+  return available_;
+}
+
+const SelectedLinksWidget* ControlSurfacesWidget::selected() const
+{
+  return selected_;
+}
+
 tobas::ControlSurfaces ControlSurfacesWidget::controlSurfaces() const
 {
   tobas::ControlSurfaces res(selected_->rowCount());

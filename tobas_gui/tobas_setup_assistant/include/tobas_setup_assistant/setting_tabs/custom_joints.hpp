@@ -19,17 +19,19 @@ class CustomJointsWidget : public BaseSettingWidget
 
   enum field_t : int
   {
-    JOINT_NAME = 0,
-    HOME_POSITION = 1,
-    MIN_POSITION = 2,
-    MAX_POSITION = 3,
-    COMMAND_TYPE = 4,
-    P_GAIN = 5,
-    I_GAIN = 6,
-    D_GAIN = 7,
+    LINK_NAME,
+    JOINT_NAME,
+    HOME_POSITION,
+    MIN_POSITION,
+    MAX_POSITION,
+    COMMAND_TYPE,
+    P_GAIN,
+    I_GAIN,
+    D_GAIN,
   };
 
-  static constexpr char kJntNameLabel[] = "Joint Name";
+  static constexpr char kLinkNameLabel[] = "Link Name";
+  static constexpr char kJointNameLabel[] = "Joint Name";
   static constexpr char kHomePosLabel[] = "Home Position";
   static constexpr char kMinPosLabel[] = "Min Position";
   static constexpr char kMaxPosLabel[] = "Max Position";
@@ -68,6 +70,9 @@ public:
   /* ジョイント数． */
   int count() const;
 
+  QString getLinkName(int row) const;
+  void setLinkName(int row, const QString& text);
+
   QString getJointName(int row) const;
   void setJointName(int row, const QString& text);
 
@@ -92,6 +97,7 @@ public:
   double getDGain(int row) const;
   void setDGain(int row, double value);
 
+  QStringList getLinkNames() const;
   QStringList getJointNames() const;
   QString getControllerType(int row) const;
   bool pidEnabled(int row) const;

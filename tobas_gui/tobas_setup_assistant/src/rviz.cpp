@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <QCheckBox>
 #include <QVBoxLayout>
@@ -5,11 +6,12 @@
 #include <rviz_common/display_group.hpp>
 
 #include <tobas_std_tools/check.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_qt_tools/rviz.hpp>
 
 #include "tobas_setup_assistant/rviz.hpp"
 #include "tobas_setup_assistant/common.hpp"
+
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -21,8 +23,8 @@ RvizWidget::RvizWidget(
   : robot_(robot)
 {
   // Create Rviz frame widget
-  const auto pkg_path = ament_index_cpp::get_package_share_directory(kPackageName);
-  const auto rviz_config_path = path::join(pkg_path, "config/setup_assistant.rviz");
+  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
+  const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
   auto frame = qt::createRvizFrame(rviz_ros_node, QString::fromStdString(rviz_config_path));
 
   // Setup robot_model_display

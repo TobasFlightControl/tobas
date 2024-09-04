@@ -54,6 +54,8 @@ public:
 
   void updateInternalDataStructures();
 
+  bool isValid();
+
   YAML::Node dump();
   bool load(const YAML::Node& node);
 

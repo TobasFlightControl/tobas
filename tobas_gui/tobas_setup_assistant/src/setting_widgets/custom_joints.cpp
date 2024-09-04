@@ -31,8 +31,8 @@ const char* CustomJointsWidget::description() const
 
 void CustomJointsWidget::onInit()
 {
-  const QStringList labels{ kJntNameLabel, kHomePosLabel, kMinPosLabel, kMaxPosLabel,
-                            kCmdTypeLabel, kPGainLabel,   kIGainLabel,  kDGainLabel };
+  const QStringList labels{ kLinkNameLabel, kJointNameLabel, kHomePosLabel, kMinPosLabel, kMaxPosLabel,
+                            kCmdTypeLabel,  kPGainLabel,     kIGainLabel,   kDGainLabel };
   table_ = new qt::TableWidget(0, labels.size());
   table_->setHorizontalHeaderLabels(labels);
   for (int c = 0; c < table_->columnCount(); ++c)
@@ -50,7 +50,7 @@ void CustomJointsWidget::updateInternalDataStructures()
   table_->removeAll();
   int row = 0;
 
-  for (const auto& [_, elem] : robot_.tree().getSegments())
+  for (const auto& [link_name, elem] : robot_.tree().getSegments())
   {
     const auto& joint = elem.segment.joint();
 
@@ -65,11 +65,12 @@ void CustomJointsWidget::updateInternalDataStructures()
 
     table_->insertRow(row);
 
-    auto jnt_name = new QLabel(QString::fromStdString(joint.name));
+    const auto link_name_label = new QLabel(QString::fromStdString(link_name));
+    const auto jnt_name_label = new QLabel(QString::fromStdString(joint.name));
 
-    auto home_pos = new qt::DoubleSpinBox();
-    auto min_pos = new qt::DoubleSpinBox();
-    auto max_pos = new qt::DoubleSpinBox();
+    const auto home_pos = new qt::DoubleSpinBox();
+    const auto min_pos = new qt::DoubleSpinBox();
+    const auto max_pos = new qt::DoubleSpinBox();
 
     home_pos->setDecimals(kPosDecimals);
     min_pos->setDecimals(kPosDecimals);
@@ -142,7 +143,8 @@ void CustomJointsWidget::updateInternalDataStructures()
         continue;
     }
 
-    table_->setCellWidget(row, static_cast<int>(JOINT_NAME), jnt_name);
+    table_->setCellWidget(row, static_cast<int>(LINK_NAME), link_name_label);
+    table_->setCellWidget(row, static_cast<int>(JOINT_NAME), jnt_name_label);
     table_->setCellWidget(row, static_cast<int>(HOME_POSITION), home_pos);
     table_->setCellWidget(row, static_cast<int>(MIN_POSITION), min_pos);
     table_->setCellWidget(row, static_cast<int>(MAX_POSITION), max_pos);
@@ -186,7 +188,7 @@ YAML::Node CustomJointsWidget::dump()
   for (int row = 0; row < count(); ++row)
   {
     YAML::Node jnt_node(YAML::NodeType::Map);
-    jnt_node[kJntNameLabel] = getJointName(row);
+    jnt_node[kJointNameLabel] = getJointName(row);
     jnt_node[kHomePosLabel] = getHomePosition(row);
     jnt_node[kMinPosLabel] = getMinPosition(row);
     jnt_node[kMaxPosLabel] = getMaxPosition(row);
@@ -204,7 +206,7 @@ void CustomJointsWidget::load(const YAML::Node& node)
 {
   for (const auto& jnt_node : node)
   {
-    const auto jnt_name = jnt_node[kJntNameLabel].as<QString>();
+    const auto jnt_name = jnt_node[kJointNameLabel].as<QString>();
     const auto row = getRow(jnt_name);
     if (row < 0)
       qt::qErrorBox(this, "\"" + jnt_name + "\" does not exist in the custom joint list.");
@@ -223,6 +225,18 @@ void CustomJointsWidget::load(const YAML::Node& node)
 int CustomJointsWidget::count() const
 {
   return table_->rowCount();
+}
+
+QString CustomJointsWidget::getLinkName(int row) const
+{
+  auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(LINK_NAME)));
+  return cell->text();
+}
+
+void CustomJointsWidget::setLinkName(int row, const QString& text)
+{
+  auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(LINK_NAME)));
+  cell->setText(text);
 }
 
 QString CustomJointsWidget::getJointName(int row) const
@@ -319,6 +333,14 @@ void CustomJointsWidget::setDGain(int row, double value)
 {
   auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(D_GAIN)));
   cell->setValue(value);
+}
+
+QStringList CustomJointsWidget::getLinkNames() const
+{
+  QStringList res;
+  for (int row = 0; row < count(); ++row)
+    res.append(getLinkName(row));
+  return res;
 }
 
 QStringList CustomJointsWidget::getJointNames() const
