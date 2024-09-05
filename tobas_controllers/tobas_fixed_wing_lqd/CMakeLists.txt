@@ -19,11 +19,7 @@ find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_debug_msgs_adapter REQUIRED)
 
-include_directories(include)
-
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}_node
+set(AMENT_DEPENDENCIES
 	tobas_linear_control
 	tobas_node
 	tobas_tools
@@ -31,6 +27,12 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_drone_msgs_adapter
 	tobas_debug_msgs_adapter
 )
+
+include_directories(include)
+
+file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ControllerNode" EXECUTABLE controller)
 
 install(
@@ -42,13 +44,6 @@ install(
 	INCLUDES DESTINATION include
 )
 
-ament_export_dependencies(
-	tobas_linear_control
-	tobas_node
-	tobas_tools
-	tobas_drone_tools
-	tobas_drone_msgs_adapter
-	tobas_debug_msgs_adapter
-)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()
