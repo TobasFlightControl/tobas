@@ -1,35 +1,26 @@
-import os.path as osp
-import xacro
-from launch import LaunchDescription, LaunchContext
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
-from launch.substitutions import LaunchConfiguration
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, Command, FindExecutable
+
 from launch_ros.actions import Node
 
 DESCRIPTION_PATH = "description_path"
-
-
-def launch_setup(context: LaunchContext):
-    desc_path = LaunchConfiguration(DESCRIPTION_PATH).perform(context)
-
-    ext = osp.splitext(desc_path)[-1].lower()
-    if ext != ".urdf" and ext != ".xacro":
-        raise RuntimeError(f"Invalid description format: {ext}")
-
-    urdf = xacro.process_file(desc_path).toprettyxml(indent="\t")
-
-    rsp_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[{"robot_description": urdf}],
-    )
-
-    return [rsp_node]
 
 
 def generate_launch_description():
     ld = LaunchDescription()
 
     ld.add_action(DeclareLaunchArgument(DESCRIPTION_PATH))
-    ld.add_action(OpaqueFunction(function=launch_setup))
+
+    desc_path = LaunchConfiguration(DESCRIPTION_PATH)
+    urdf_content = Command([FindExecutable(name="xacro"), " ", desc_path])
+
+    ld.add_action(
+        Node(
+            package="robot_state_publisher",
+            executable="robot_state_publisher",
+            parameters=[{"robot_description": urdf_content}],
+        )
+    )
 
     return ld
