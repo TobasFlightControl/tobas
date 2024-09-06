@@ -60,8 +60,8 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-# add_executable(${PROJECT_NAME}_main nodes/main.cpp)
-# target_link_libraries(${PROJECT_NAME}_main ${PROJECT_NAME})
+add_executable(main nodes/main.cpp)
+target_link_libraries(main ${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -72,9 +72,9 @@ install(
   INCLUDES DESTINATION include
 )
 
-# install(TARGETS ${PROJECT_NAME}_main DESTINATION lib/${PROJECT_NAME})
+install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY config data resources templates DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config data launch resources templates DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

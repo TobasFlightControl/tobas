@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rclcpp/rclcpp.hpp>
 #include <QObject>
 
 #include <hardware_interface/hardware_info.hpp>
@@ -42,7 +43,7 @@ Q_SIGNALS:
   void loaded();
 
 public:
-  explicit RobotInfo();
+  explicit RobotInfo(rclcpp::Node::SharedPtr node);
 
   bool loadFromPath(const std::string& path);
 
@@ -59,6 +60,9 @@ public:
   tobas::rotor_axis_t rotorAxisType(const std::string& seg_name);
 
 private:
+  rclcpp::Node::SharedPtr node_;
+  rclcpp::SyncParametersClient rsp_client_;
+
   kdl::Tree tree_;
   hardware_interface::HardwareInfo hardware_;
 

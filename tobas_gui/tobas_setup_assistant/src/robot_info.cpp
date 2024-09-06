@@ -12,7 +12,8 @@ namespace gui
 {
 namespace setup_assistant
 {
-RobotInfo::RobotInfo() : axis_solver_(tree_)
+RobotInfo::RobotInfo(rclcpp::Node::SharedPtr node)
+  : node_(node), rsp_client_(node, "robot_state_publisher"), axis_solver_(tree_)
 {
 }
 
@@ -22,6 +23,19 @@ bool RobotInfo::loadFromPath(const std::string& path)
   string urdf_content;
   if (!ros2::xacro(path, urdf_content))
     return false;
+
+  // Update RSP parameter
+  if (!rsp_client_.service_is_ready())
+  {
+    RCLCPP_ERROR(node_->get_logger(), "Robot state publisher is not ready.");
+    return false;
+  }
+  const auto res = rsp_client_.set_parameters({ rclcpp::Parameter("robot_description", urdf_content) }).at(0);
+  if (!res.successful)
+  {
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to set robot description parameter of RSP: " << res.reason);
+    return false;
+  }
 
   // Load KDL tree
   if (!kdl::treeFromString(urdf_content, tree_))

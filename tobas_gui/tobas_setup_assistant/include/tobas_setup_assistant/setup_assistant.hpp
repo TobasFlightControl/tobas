@@ -17,11 +17,11 @@ namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistant : public qt::Widget
+class SetupAssistantWidget : public qt::Widget
 {
   Q_OBJECT
 
-  using self = SetupAssistant;
+  using self = SetupAssistantWidget;
   using super = qt::Widget;
 
   static constexpr int kHeaderHeight = 350;
@@ -30,7 +30,7 @@ class SetupAssistant : public qt::Widget
   static constexpr int kJointStatePublisherWidth = 200;
 
 public:
-  explicit SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node);
+  explicit SetupAssistantWidget(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node);
 
 private Q_SLOTS:
   void onGenerateButtonClicked();

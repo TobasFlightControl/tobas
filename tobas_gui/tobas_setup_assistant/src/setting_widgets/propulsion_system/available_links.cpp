@@ -107,6 +107,12 @@ void AvailableLinksWidget::remove(const QString& link_name)
 
   qt::qErrorBox(this, "Failed to remove link \"" + link_name + "\" from the available link list.");
 }
+
+void AvailableLinksWidget::onAddButtonClicked(const QString& link_name)
+{
+  remove(link_name);
+  Q_EMIT linkRemoved(link_name);
+}
 }  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

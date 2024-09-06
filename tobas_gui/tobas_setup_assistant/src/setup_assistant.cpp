@@ -6,8 +6,11 @@ namespace gui
 {
 namespace setup_assistant
 {
-SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node)
-  : rviz_ros_node_(rviz_ros_node), node_(rviz_ros_node.lock()->get_raw_node()), pkg_generator_(node_, robot_, settings_)
+SetupAssistantWidget::SetupAssistantWidget(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node)
+  : rviz_ros_node_(rviz_ros_node),
+    node_(rviz_ros_node.lock()->get_raw_node()),
+    robot_(node_),
+    pkg_generator_(node_, robot_, settings_)
 {
   auto rows = new QVBoxLayout(this);
 
@@ -39,7 +42,7 @@ SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionI
   connect(settings_->ros_package, &ROSPackageWidget::generateButtonClicked, this, &self::onGenerateButtonClicked);
 }
 
-void SetupAssistant::onGenerateButtonClicked()
+void SetupAssistantWidget::onGenerateButtonClicked()
 {
   pkg_generator_.generate();
 }
