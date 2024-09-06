@@ -99,13 +99,13 @@ bool URDFViewModel::saveRobot(const QString& file_path)
 {
   // URDFを修正してXMLに変換
   urdf_->root_link_->inertial = nullptr;                 // ルートリンクのイナーシャを削除
-  tinyxml2::XMLDocument* xml(urdf::exportURDF(*urdf_));  // TiXmlは生ポインタで扱うのが基本
-  removeTextureTagsWithoutFilename(xml->RootElement());
+  tinyxml2::XMLDocument* doc(urdf::exportURDF(*urdf_));  // TiXmlは生ポインタで扱うのが基本
+  removeTextureTagsWithoutFilename(doc->RootElement());
 
   // XMLを保存
-  if (xml->SaveFile(file_path.toStdString().c_str()) != tinyxml2::XMLError::XML_SUCCESS)
+  if (doc->SaveFile(file_path.toStdString().c_str()) != tinyxml2::XML_SUCCESS)
   {
-    PRINT_ERROR("Failed to save URDF: " << xml->ErrorStr());
+    PRINT_ERROR("Failed to save URDF: " << doc->ErrorStr());
     return false;
   }
 
@@ -238,7 +238,8 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* eleme
 
   for (auto child = element->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
   {
-    if (string(child->Value()) == "texture" && !child->Attribute("filename"))
+    // FIXME: 繰り返し中にツリー構造を変えるのはまずいかも．対象要素をリストしておいて後で消すべき．
+    if (string(child->Name()) == "texture" && !child->Attribute("filename"))
       element->DeleteChild(child);
 
     // 再帰的に子要素もチェック

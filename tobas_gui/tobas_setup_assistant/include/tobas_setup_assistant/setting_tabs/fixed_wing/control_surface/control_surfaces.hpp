@@ -1,7 +1,5 @@
 #pragma once
 
-#include <tobas_drone_core/control_surface.hpp>
-
 #include "../base.hpp"
 #include "./available_links.hpp"
 #include "./selected_links.hpp"
@@ -31,8 +29,6 @@ public:
 
   const AvailableLinksWidget* available() const;
   const SelectedLinksWidget* selected() const;
-
-  tobas::ControlSurfaces controlSurfaces() const;
 
   /* 登録された制御面の個数を返す． */
   int count() const;

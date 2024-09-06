@@ -2,6 +2,7 @@
 
 #include <tobas_kdl/tree.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
+#include <tobas_drone_core/joint_conrol_type.hpp>
 
 #include "./base_setting.hpp"
 #include "../robot_info.hpp"
@@ -85,8 +86,8 @@ public:
   double getMaxPosition(int row) const;
   void setMaxPosition(int row, double value);
 
-  QString getCommandType(int row) const;
-  void setCommandType(int row, const QString& text);
+  tobas::joint_control_type_t getCommandType(int row) const;
+  void setCommandType(int row, const tobas::joint_control_type_t& value);
 
   double getPGain(int row) const;
   void setPGain(int row, double value);

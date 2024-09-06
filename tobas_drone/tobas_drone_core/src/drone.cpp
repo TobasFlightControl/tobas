@@ -51,7 +51,7 @@ bool Drone::load(const YAML::Node& node)
     return false;
 
   // Battery
-  if (!node[kBatteryKey].IsDefined())
+  if (!node[kBatteryKey].IsMap())
   {
     cerr << "Battery field is not defined." << endl;
     return false;
@@ -64,7 +64,7 @@ bool Drone::load(const YAML::Node& node)
 
   // Joints
   joints.clear();
-  if (!node[kJointsKey].IsDefined())
+  if (!node[kJointsKey].IsSequence())
   {
     cerr << "Joints field is not defined." << endl;
     return false;
@@ -82,7 +82,7 @@ bool Drone::load(const YAML::Node& node)
 
   // Rotors
   rotors.clear();
-  if (!node[kRotorsKey].IsDefined())
+  if (!node[kRotorsKey].IsSequence())
   {
     cerr << "Rotors field is not defined." << endl;
     return false;
@@ -99,7 +99,7 @@ bool Drone::load(const YAML::Node& node)
   }
 
   // Fixed wing
-  if (!node[kFixedWingKey].IsDefined())
+  if (!node[kFixedWingKey].IsMap())
   {
     cerr << "Fixed wing field is not defined." << endl;
     return false;

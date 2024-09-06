@@ -99,12 +99,12 @@ double VehicleParametersWidget::mac() const
   return mac_->getValue();
 }
 
-Eigen::Vector3d VehicleParametersWidget::aerodynamicCenter()
+Eigen::Vector3d VehicleParametersWidget::aerodynamicCenter() const
 {
   return aerodynamic_center_->getValue();
 }
 
-std::pair<double, double> VehicleParametersWidget::alphaLimit()
+std::pair<double, double> VehicleParametersWidget::alphaLimit() const
 {
   return alpha_limit_->getValue();
 }

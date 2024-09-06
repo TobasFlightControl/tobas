@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_drone_core/esc.hpp>
+
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/combo_box.hpp"
 #include "./base.hpp"
@@ -25,10 +27,10 @@ public:
   void load(const YAML::Node& node) override;
 
   double maxCurrent() const;
-  std::string signalMode() const;
+  tobas::esc_mode_t signalMode() const;
 
 private:
-  const std::map<QString, std::string> signal_mode_map_;
+  const std::map<QString, tobas::esc_mode_t> signal_mode_map_;
 
   ParamGetterWidget_SpinBox* max_current_;
   ParamGetterWidget_ComboBox* signal_mode_;

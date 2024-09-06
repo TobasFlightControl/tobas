@@ -172,7 +172,7 @@ const SelectedLinkWidget* SelectedLinksWidget::widget(const QString& link_name) 
 
 bool SelectedLinksWidget::hasBothRotationalDirections() const
 {
-  std::unordered_set<std::string> set;
+  std::unordered_set<tobas::turning_direction_t> set;
   for (int i = 0; i < count(); ++i)
     set.insert(widget(i)->motor()->direction());
 

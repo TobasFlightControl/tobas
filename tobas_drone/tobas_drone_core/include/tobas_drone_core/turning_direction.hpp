@@ -10,11 +10,19 @@ enum turning_direction_t : uint8_t
   CW,
 };
 
-namespace turning_direction
+/* CCW = 1, CW = -1 */
+constexpr inline int sign(turning_direction_t direction)
 {
-static constexpr char kCCWName[] = "CCW";
-static constexpr char kCWName[] = "CW";
-}  // namespace turning_direction
+  switch (direction)
+  {
+    case turning_direction_t::CCW:
+      return 1;
+    case turning_direction_t::CW:
+      return -1;
+    default:
+      throw;
+  }
+}
 }  // namespace tobas
 
 namespace YAML
@@ -24,19 +32,7 @@ struct convert<tobas::turning_direction_t>
 {
   static Node encode(const tobas::turning_direction_t& rhs)
   {
-    Node node;
-
-    switch (rhs)
-    {
-      case tobas::turning_direction_t::CCW:
-        node = tobas::turning_direction::kCCWName;
-        break;
-      case tobas::turning_direction_t::CW:
-        node = tobas::turning_direction::kCWName;
-        break;
-    }
-
-    return node;
+    return Node(static_cast<int>(rhs));
   }
 
   static bool decode(const Node& node, tobas::turning_direction_t& rhs)
@@ -44,14 +40,7 @@ struct convert<tobas::turning_direction_t>
     if (!node.IsScalar())
       return false;
 
-    const auto value = node.as<std::string>();
-    if (value == tobas::turning_direction::kCCWName)
-      rhs = tobas::turning_direction_t::CCW;
-    else if (value == tobas::turning_direction::kCWName)
-      rhs = tobas::turning_direction_t::CW;
-    else
-      return false;
-
+    rhs = static_cast<tobas::turning_direction_t>(node.as<int>());
     return true;
   }
 };

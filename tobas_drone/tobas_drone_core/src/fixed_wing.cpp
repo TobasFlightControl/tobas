@@ -42,7 +42,7 @@ bool FixedWingConfig::load(const YAML::Node& node)
     return false;
 
   // Vehicle
-  if (!node[kVehicleKey].IsDefined())
+  if (!node[kVehicleKey].IsMap())
   {
     cerr << "Vehicle parameters field is not defined." << endl;
     return false;
@@ -54,7 +54,7 @@ bool FixedWingConfig::load(const YAML::Node& node)
   }
 
   // Aerodynamics
-  if (!node[kAerodynamicsKey].IsDefined())
+  if (!node[kAerodynamicsKey].IsMap())
   {
     cerr << "Aerodynamics parameters field is not defined." << endl;
     return false;
@@ -67,7 +67,7 @@ bool FixedWingConfig::load(const YAML::Node& node)
 
   // Control surfaces
   control_surfaces.clear();
-  if (!node[kControlSurfacesKey].IsDefined())
+  if (!node[kControlSurfacesKey].IsSequence())
   {
     cerr << "Control surface field is not defined." << endl;
     return false;

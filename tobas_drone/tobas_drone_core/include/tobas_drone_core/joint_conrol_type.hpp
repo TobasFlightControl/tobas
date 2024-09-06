@@ -10,13 +10,6 @@ enum joint_control_type_t : uint8_t
   VELOCITY_CONTROL,
   EFFORT_CONTROL,
 };
-
-namespace joint_control_type
-{
-static constexpr char kPosCtrlName[] = "POSITION_CONTROL";
-static constexpr char kVelCtrlName[] = "VELOCITY_CONTROL";
-static constexpr char kEffCtrlName[] = "EFFORT_CONTROL";
-}  // namespace joint_control_type
 }  // namespace tobas
 
 namespace YAML
@@ -26,22 +19,7 @@ struct convert<tobas::joint_control_type_t>
 {
   static Node encode(const tobas::joint_control_type_t& rhs)
   {
-    Node node;
-
-    switch (rhs)
-    {
-      case tobas::joint_control_type_t::POSITION_CONTROL:
-        node = tobas::joint_control_type::kPosCtrlName;
-        break;
-      case tobas::joint_control_type_t::VELOCITY_CONTROL:
-        node = tobas::joint_control_type::kVelCtrlName;
-        break;
-      case tobas::joint_control_type_t::EFFORT_CONTROL:
-        node = tobas::joint_control_type::kEffCtrlName;
-        break;
-    }
-
-    return node;
+    return Node(static_cast<int>(rhs));
   }
 
   static bool decode(const Node& node, tobas::joint_control_type_t& rhs)
@@ -49,16 +27,7 @@ struct convert<tobas::joint_control_type_t>
     if (!node.IsScalar())
       return false;
 
-    const auto value = node.as<std::string>();
-    if (value == tobas::joint_control_type::kPosCtrlName)
-      rhs = tobas::joint_control_type_t::POSITION_CONTROL;
-    else if (value == tobas::joint_control_type::kVelCtrlName)
-      rhs = tobas::joint_control_type_t::VELOCITY_CONTROL;
-    else if (value == tobas::joint_control_type::kEffCtrlName)
-      rhs = tobas::joint_control_type_t::EFFORT_CONTROL;
-    else
-      return false;
-
+    rhs = static_cast<tobas::joint_control_type_t>(node.as<int>());
     return true;
   }
 };

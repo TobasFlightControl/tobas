@@ -81,28 +81,6 @@ const SelectedLinksWidget* ControlSurfacesWidget::selected() const
   return selected_;
 }
 
-tobas::ControlSurfaces ControlSurfacesWidget::controlSurfaces() const
-{
-  tobas::ControlSurfaces res(selected_->rowCount());
-
-  for (int row = 0; row < selected_->rowCount(); ++row)
-  {
-    res[row].channel = row;
-    res[row].joint_name = selected_->jointName(row).toStdString();
-    res[row].angle_limit.lower = selected_->minAngle(row);
-    res[row].angle_limit.upper = selected_->maxAngle(row);
-    res[row].max_angle_rate = selected_->maxAngleRate(row);
-    res[row].c_lift_delta = selected_->liftCoef(row);
-    res[row].c_drag_abs_delta = selected_->dragCoef(row);  // FIXME: 正負の確認が必要？
-    res[row].c_side_delta = selected_->sideCoef(row);
-    res[row].c_roll_delta = selected_->rollCoef(row);
-    res[row].c_pitch_delta = selected_->pitchCoef(row);
-    res[row].c_yaw_delta = selected_->yawCoef(row);
-  }
-
-  return res;
-}
-
 int ControlSurfacesWidget::count() const
 {
   return selected_->rowCount();

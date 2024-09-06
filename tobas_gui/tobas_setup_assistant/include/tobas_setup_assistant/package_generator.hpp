@@ -2,6 +2,8 @@
 
 #include <tinyxml2.h>
 
+#include <tobas_drone_core/drone.hpp>
+
 #include "./robot_info.hpp"
 #include "./settings.hpp"
 #include "./template_generator.hpp"
@@ -12,13 +14,19 @@ namespace setup_assistant
 {
 class PackageGenerator
 {
+  static constexpr char kROSParamsKey[] = "ros__parameters";
+
+  static constexpr char kDoNotEditThisPackage[] = "DO_NOT_EDIT_THIS_PACKAGE";
+  static constexpr char kYouCanEditThisPackage[] = "YOU_CAN_EDIT_THIS_PACKAGE";
+
 public:
-  explicit PackageGenerator(const RobotInfo& robot, SettingsWidget* settings);
+  explicit PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
 
   void generate();
 
 private:
-  const RobotInfo& robot_;
+  rclcpp::Node::SharedPtr node_;
+  RobotInfo& robot_;
   SettingsWidget* settings_;
 
   std::shared_ptr<TemplateGenerator> meta_env_;
@@ -29,35 +37,40 @@ private:
   std::string tbsPath() const;
 
   inja::json createTemplateData();
+  tobas::Drone createDrone();
 
-  void generatePackage();
-  void generateMetaPackage(const inja::json& data);
-  void generateConfigPackage(const inja::json& data);
-  void generateUserPackage(const inja::json& data);
+  bool generatePackage();
+  bool generateMetaPackage(const inja::json& data);
+  bool generateConfigPackage(const inja::json& data);
+  bool generateUserPackage(const inja::json& data);
 
-  void generateDroneConfig(const std::filesystem::path& config_dir);
-  void generateJointControlConfig(const std::filesystem::path& config_dir);
-  void generateRCTeleopConfig(const std::filesystem::path& config_dir);
-  void generateControllerConfig(const std::filesystem::path& config_dir);
-  void generateObserverConfig(const std::filesystem::path& config_dir);
-  void generateURDFs(const std::filesystem::path& mesh_dir);
+  bool generateDroneConfig(const std::filesystem::path& config_dir);
+  bool generateJointControlConfig(const std::filesystem::path& config_dir);
+  bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
+  bool generateControllerConfig(const std::filesystem::path& config_dir);
+  bool generateObserverConfig(const std::filesystem::path& config_dir);
+  bool generateURDFs(const std::filesystem::path& mesh_dir);
+
+  /* 空のファイルを作成する． */
+  bool createEmptyFile(const std::filesystem::path& file_path);
+
+  /* YAML::Nodeを保存する． */
+  bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
 
   /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
-  void resolveMeshFiles(tinyxml2::XMLElement* robot, const std::filesystem::path& mesh_dir);
+  bool resolveMeshFiles(tinyxml2::XMLElement* elem, const std::filesystem::path& mesh_dir);
 
   /* 悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す． */
-  void screenXMLElements(tinyxml2::XMLElement* robot);
-
-  bool isDeletableGazeboNode(tinyxml2::XMLElement* gazebo);
+  bool screenXMLElements(tinyxml2::XMLElement* robot);
 
   /* プラグインを強制削除すべきかどうかを判定する． */
   bool isDeletableGazeboPlugin(tinyxml2::XMLElement* plugin);
 
-  /* 属性を確認した上でGazeboの子ノードを削除する． */
+  /* Gazeboの子要素を削除してよいかユーザに尋ねる． */
   bool askRemoveOrKeepGazeboChild(tinyxml2::XMLElement* child);
 
   /* Gazeboプラグイン等をXMLに追加する． */
-  void addXMLElements(tinyxml2::XMLElement* robot);
+  bool addXMLElements(tinyxml2::XMLElement* robot);
 };
 }  // namespace setup_assistant
 }  // namespace gui

@@ -72,10 +72,8 @@ hw_interface::type_t RobotInfo::hardwareInterface(const string& jnt_name) const
   return hw_interface::NONE;
 }
 
-bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis, double tol)
+bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis)
 {
-  assert(tol > 0.);
-
   const auto seg_it = tree_.getSegment(seg_name);
 
   // 問題なくルートリンクまで遡れた場合はtrue．
@@ -93,13 +91,23 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl:
       return false;
     }
     const auto& cur_axis = axis_solver_.getAxis();
-    if (cur_axis.argument(tar_axis) > tol)
+    if (cur_axis.argument(tar_axis) > kJntAxisCollinearTol)
       return false;
   }
 
   // 親リンクについて調べる
   const auto& par_name = seg_it->second.parent->first;
-  return isJntAxisAlwaysCollinear(par_name, tar_axis, tol);
+  return isJntAxisAlwaysCollinear(par_name, tar_axis);
+}
+
+tobas::rotor_axis_t RobotInfo::rotorAxisType(const std::string& seg_name)
+{
+  if (isJntAxisAlwaysCollinear(seg_name, kdl::Vector::UnitX()))
+    return tobas::rotor_axis_t::X_POSITIVE;
+  else if (isJntAxisAlwaysCollinear(seg_name, kdl::Vector::UnitZ()))
+    return tobas::rotor_axis_t::Z_POSITIVE;
+  else
+    return tobas::rotor_axis_t::UNKNOWN;
 }
 }  // namespace setup_assistant
 }  // namespace gui

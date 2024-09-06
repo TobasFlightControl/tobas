@@ -11,7 +11,7 @@ namespace tobas
 /* プロペラ，舵面以外の可動関節． */
 class JointConfig
 {
-  static constexpr char kNameKey[] = "name";
+  static constexpr char kNameKey[] = "joint_name";
   static constexpr char kHomePosKey[] = "home_position";
   static constexpr char kMinPosKey[] = "min_position";
   static constexpr char kMaxPosKey[] = "max_position";

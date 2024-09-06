@@ -1,10 +1,9 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include <filesystem>
 
 namespace ros2
 {
 /* URDF中のファイルの絶対パスを返す． */
-std::string resolveURI(const std::string& uri);
+std::filesystem::path resolveURI(const std::string& uri);
 }  // namespace ros2

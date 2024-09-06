@@ -44,7 +44,7 @@ public:
   const PropellerWidget* propeller() const;
   const ElectrodynamicsWidget* electrodynamics() const;
   const AerodynamicsWidget* aerodynamics() const;
-  const SpeedLimitWidget* speed_limit() const;
+  const SpeedLimitWidget* speedLimit() const;
 
 private:
   qt::TabWidget* tabs_;

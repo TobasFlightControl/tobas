@@ -49,6 +49,8 @@ public:
 
   YAML::Node staticParams() const;
 
+  bool isCommandCompatible(tobas::rc_command_t command) const;
+
 private Q_SLOTS:
   void setCurrentController(int index);
 

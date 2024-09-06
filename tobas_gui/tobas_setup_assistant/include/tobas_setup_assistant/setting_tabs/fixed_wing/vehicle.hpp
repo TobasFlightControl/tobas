@@ -32,8 +32,8 @@ public:
   double wingSurface() const;
   double wingSpan() const;
   double mac() const;
-  Eigen::Vector3d aerodynamicCenter();
-  std::pair<double, double> alphaLimit();
+  Eigen::Vector3d aerodynamicCenter() const;
+  std::pair<double, double> alphaLimit() const;
 
 private:
   ParamGetterWidget_DoubleSpinBox* wing_surface_;

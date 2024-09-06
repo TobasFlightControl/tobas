@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_drone_core/turning_direction.hpp>
+
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/combo_box.hpp"
 #include "./base.hpp"
@@ -14,6 +16,9 @@ class MotorWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
+  static constexpr char kCWName[] = "CW";
+  static constexpr char kCCWName[] = "CCW";
+
 public:
   explicit MotorWidget();
 
@@ -25,7 +30,7 @@ public:
   void load(const YAML::Node& node) override;
 
   /* Motor rotation direction (CW or CCW) */
-  std::string direction() const;
+  tobas::turning_direction_t direction() const;
 
   /* Kv [rad/s/V] */
   double kv() const;

@@ -2,9 +2,9 @@
 
 #include <eigen3/Eigen/Core>
 #include <tinyxml2.h>
-#include <QStringList>
 
-#include <tobas_drone_core/control_surface.hpp>
+#include <tobas_drone_core/rotor.hpp>
+#include <tobas_drone_core/fixed_wing.hpp>
 
 namespace gui
 {
@@ -12,7 +12,7 @@ namespace setup_assistant
 {
 void addBatteryPlugin(
   tinyxml2::XMLElement* robot,
-  const char* ns,
+  const std::string& ns,
   double update_rate,
   double max_voltage,
   double sag_voltage,
@@ -23,8 +23,8 @@ void addBatteryPlugin(
 
 void addIMUPlugin(
   tinyxml2::XMLElement* robot,
-  const char* ns,
-  const char* link_name,
+  const std::string& ns,
+  const std::string& link_name,
   double update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
@@ -40,8 +40,8 @@ void addIMUPlugin(
 
 void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,
-  const char* ns,
-  const char* link_name,
+  const std::string& ns,
+  const std::string& link_name,
   double update_rate,
   const Eigen::Vector3d& offset,
   double latitude_zero,
@@ -52,8 +52,8 @@ void addMagnetometerPlugin(
 
 void addBarometerPlugin(
   tinyxml2::XMLElement* robot,
-  const char* ns,
-  const char* link_name,
+  const std::string& ns,
+  const std::string& link_name,
   double update_rate,
   const Eigen::Vector3d& offset,
   double altitude_zero,
@@ -61,8 +61,8 @@ void addBarometerPlugin(
 
 void addGPSPlugin(
   tinyxml2::XMLElement* robot,
-  const char* ns,
-  const char* link_name,
+  const std::string& ns,
+  const std::string& link_name,
   double update_rate,
   const Eigen::Vector3d& offset,
   double delay,
@@ -77,54 +77,37 @@ void addGPSPlugin(
 
 void addRotorPlugin(
   tinyxml2::XMLElement* robot,
-  const char* ns,
-  int channel,
-  const char* joint_name,
-  const std::pair<double, double>& rot_speed_coefs,
-  double motor_const,
-  double moment_const,
-  double rotor_drag_coef,
-  const char* turning_direction,
+  const std::string& ns,
+  const std::string& joint_name,
+  const tobas::RotorConfig& rotor,
   double time_const_up,
   double time_const_down,
-  double max_rot_speed,
-  int num_poles,
   double max_current,
-  const char* esc_mode,
   double max_model_error_rate);
 
 void addFixedWingPlugin(
   tinyxml2::XMLElement* robot,
-  const char* ns,
-  const char* link_name,
+  const std::string& ns,
+  const std::string& link_name,
   double altitude_zero,
-  double wing_surface,
-  double wing_span,
-  double mean_aerodynamic_chord,
-  const Eigen::Vector3d& aerodynamic_center,
-  std::pair<double, double> alpha_limit,
-  double c_lift_0,
-  double c_lift_alpha,
-  double c_drag_0,
-  double c_drag_alpha,
-  double c_side_beta,
-  double c_roll_beta,
-  double c_roll_p,
-  double c_roll_r,
-  double c_pitch_0,
-  double c_pitch_alpha,
-  double c_pitch_abs_beta,
-  double c_pitch_alpha_rate,
-  double c_pitch_q,
-  double c_yaw_beta,
-  double c_yaw_p,
-  double c_yaw_r,
-  const tobas::ControlSurfaces& control_surfaces);
+  const tobas::FixedWingConfig& fixed_wing);
 
-void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const char* ns, const char* link_name);
+void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
-void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const char* ns, const char* link_name);
+void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
-void addRotorSpeedsPublisherPlugin(tinyxml2::XMLElement* robot, const char* ns, const QStringList& rotor_joint_names);
+void addRotorSpeedsPublisherPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::vector<std::string>& rotor_joint_names);
+
+/* https://github.com/ros-controls/gz_ros2_control/tree/jazzy */
+void addGazeboROSControlPlugin(
+  tinyxml2::XMLElement* robot,
+  const std::string& ns,
+  const std::string& pkg_name,
+  const std::string& params_rel_path);
+
+void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
 }  // namespace setup_assistant
 }  // namespace gui

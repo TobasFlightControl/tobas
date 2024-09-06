@@ -14,10 +14,10 @@ void TemplateGenerator::generate(
   const inja::json& data,
   const fs::path& rel_path,
   const fs::path& out_dir,
-  bool overwrite = true)
+  bool overwrite)
 {
   const auto tpl_path = tpl_dir_ / rel_path;
-  const auto out_path = out_dir / rel_path.filename().stem();
+  const auto out_path = out_dir / rel_path.stem();
 
   if (!overwrite && fs::exists(out_path))
     return;

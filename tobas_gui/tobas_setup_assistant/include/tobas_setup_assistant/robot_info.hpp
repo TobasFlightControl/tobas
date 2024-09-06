@@ -4,8 +4,10 @@
 
 #include <hardware_interface/hardware_info.hpp>
 
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/treejntaxissolver.hpp>
+#include <tobas_drone_core/rotor_axis.hpp>
 
 namespace gui
 {
@@ -34,6 +36,8 @@ class RobotInfo : public QObject
 {
   Q_OBJECT
 
+  static constexpr double kJntAxisCollinearTol = tobas_std::deg2rad(5);
+
 Q_SIGNALS:
   void loaded();
 
@@ -50,7 +54,9 @@ public:
   hw_interface::type_t hardwareInterface(const std::string& jnt_name) const;
 
   /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
-  bool isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis, double tol = 1e-6);
+  bool isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis);
+
+  tobas::rotor_axis_t rotorAxisType(const std::string& seg_name);
 
 private:
   kdl::Tree tree_;

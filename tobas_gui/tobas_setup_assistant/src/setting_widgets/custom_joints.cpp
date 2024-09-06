@@ -215,7 +215,7 @@ void CustomJointsWidget::load(const YAML::Node& node)
     setHomePosition(row, jnt_node[kHomePosLabel].as<double>());
     setMinPosition(row, jnt_node[kMinPosLabel].as<double>());
     setMaxPosition(row, jnt_node[kMaxPosLabel].as<double>());
-    setCommandType(row, jnt_node[kCmdTypeLabel].as<QString>());
+    setCommandType(row, jnt_node[kCmdTypeLabel].as<tobas::joint_control_type_t>());
     setPGain(row, jnt_node[kPGainLabel].as<double>());
     setIGain(row, jnt_node[kIGainLabel].as<double>());
     setDGain(row, jnt_node[kDGainLabel].as<double>());
@@ -287,14 +287,39 @@ void CustomJointsWidget::setMaxPosition(int row, double value)
   cell->setValue(value);
 }
 
-QString CustomJointsWidget::getCommandType(int row) const
+tobas::joint_control_type_t CustomJointsWidget::getCommandType(int row) const
 {
   auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, static_cast<int>(COMMAND_TYPE)));
-  return cell->currentText();
+  const auto text = cell->currentText();
+
+  if (text == kPositionLabel)
+    return tobas::joint_control_type_t::POSITION_CONTROL;
+  else if (text == kVelocityLabel)
+    return tobas::joint_control_type_t::VELOCITY_CONTROL;
+  else if (text == kEffortLabel)
+    return tobas::joint_control_type_t::EFFORT_CONTROL;
+  else
+    throw;
 }
 
-void CustomJointsWidget::setCommandType(int row, const QString& text)
+void CustomJointsWidget::setCommandType(int row, const tobas::joint_control_type_t& value)
 {
+  QString text;
+  switch (value)
+  {
+    case tobas::joint_control_type_t::POSITION_CONTROL:
+      text = kPositionLabel;
+      break;
+    case tobas::joint_control_type_t::VELOCITY_CONTROL:
+      text = kVelocityLabel;
+      break;
+    case tobas::joint_control_type_t::EFFORT_CONTROL:
+      text = kEffortLabel;
+      break;
+    default:
+      throw;
+  }
+
   auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, static_cast<int>(COMMAND_TYPE)));
   cell->setCurrentText(text);
 }
@@ -373,14 +398,20 @@ QString CustomJointsWidget::getControllerType(int row) const
   }
 
   const auto cmd_type = getCommandType(row);
-  if (cmd_type == kPositionLabel)
-    controller = "JointPositionController";
-  else if (cmd_type == kVelocityLabel)
-    controller = "JointVelocityController";
-  else if (cmd_type == kEffortLabel)
-    controller = "JointEffortController";
-  else
-    throw;
+  switch (cmd_type)
+  {
+    case tobas::joint_control_type_t::POSITION_CONTROL:
+      controller = "JointGroupPositionController";
+      break;
+    case tobas::joint_control_type_t::VELOCITY_CONTROL:
+      controller = "JointGroupVelocityController";
+      break;
+    case tobas::joint_control_type_t::EFFORT_CONTROL:
+      controller = "JointGroupEffortController";
+      break;
+    default:
+      throw;
+  }
 
   return group + "/" + controller;
 }
@@ -391,11 +422,11 @@ bool CustomJointsWidget::pidEnabled(int row) const
   const auto hi = robot_.hardwareInterface(jnt_name.toStdString());
   const auto cmd_type = getCommandType(row);
 
-  if (hi == hw_interface::POSITION && cmd_type == kPositionLabel)
+  if (hi == hw_interface::POSITION && cmd_type == tobas::joint_control_type_t::POSITION_CONTROL)
     return false;
-  if (hi == hw_interface::VELOCITY && cmd_type == kVelocityLabel)
+  if (hi == hw_interface::VELOCITY && cmd_type == tobas::joint_control_type_t::VELOCITY_CONTROL)
     return false;
-  if (hi == hw_interface::EFFORT && cmd_type == kEffortLabel)
+  if (hi == hw_interface::EFFORT && cmd_type == tobas::joint_control_type_t::EFFORT_CONTROL)
     return false;
 
   return true;

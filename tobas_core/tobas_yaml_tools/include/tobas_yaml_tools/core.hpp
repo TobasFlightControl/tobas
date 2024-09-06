@@ -9,9 +9,15 @@ namespace yaml
 template <typename T>
 bool load(const std::string& key, const YAML::Node& parent, T& value)
 {
-  if (!parent[key].IsDefined())
+  if (!parent.IsMap())
   {
-    std::cerr << "Key \"" << key << "\" is not defined." << std::endl;
+    std::cerr << "The type of the parent node of key \"" << key << "\" is not map." << std::endl;
+    return false;
+  }
+
+  if (!parent[key].IsScalar())
+  {
+    std::cerr << "Key \"" << key << "\" is not scalar." << std::endl;
     return false;
   }
 

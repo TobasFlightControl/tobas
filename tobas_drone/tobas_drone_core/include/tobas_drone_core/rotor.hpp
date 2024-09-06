@@ -44,15 +44,7 @@ public:
   /* CCW = 1, CW = -1 */
   inline int sign() const
   {
-    switch (direction)
-    {
-      case CCW:
-        return 1;
-      case CW:
-        return -1;
-      default:
-        throw;
-    }
+    return tobas::sign(direction);
   }
 };
 

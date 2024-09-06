@@ -10,10 +10,10 @@ namespace setup_assistant
 namespace propulsion_system
 {
 ESCWidget::ESCWidget()
-  : signal_mode_map_{ { "BLHeli Open Loop", tobas::esc::kBLHeliOpenLoopName },
-                      { "BHLeli Closed Loop (Low Range)", tobas::esc::kBLHeliCloseLoopLowName },
-                      { "BHLeli Closed Loop (Middle Range)", tobas::esc::kBLHeliCloseLoopMidName },
-                      { "BHLeli Closed Loop (High Range)", tobas::esc::kBLHeliCloseLoopHighName } }
+  : signal_mode_map_{ { "BLHeli Open Loop", tobas::esc_mode_t::BLHELI_OPEN_LOOP },
+                      { "BHLeli Closed Loop (Low Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_LOW_RANGE },
+                      { "BHLeli Closed Loop (Middle Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_MID_RANGE },
+                      { "BHLeli Closed Loop (High Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_HIGH_RANGE } }
 {
   const auto rows = new QVBoxLayout(this);
 
@@ -72,7 +72,7 @@ double ESCWidget::maxCurrent() const
   return max_current_->getValue();
 }
 
-std::string ESCWidget::signalMode() const
+tobas::esc_mode_t ESCWidget::signalMode() const
 {
   return signal_mode_map_.at(signal_mode_->getValue());
 }

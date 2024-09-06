@@ -11,7 +11,7 @@ namespace tobas
 string getTBSName(const fs::path& tbs_path)
 {
   TOBAS_CHECK(tbs_path.extension() == tobas::kTBSExtension);
-  return tbs_path.filename().stem();
+  return tbs_path.stem();
 }
 
 string getTBSMetaName(const fs::path& tbs_path)

@@ -1,6 +1,5 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_drone_core/turning_direction.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/motor.hpp"
 
@@ -21,7 +20,7 @@ MotorWidget::MotorWidget()
                          "For instance, in rotary-wing aircraft, "
                          "propellers positioned diagonally opposite each other "
                          "typically rotate in the same direction.");
-  direction_->setChoices({ tobas::turning_direction::kCWName, tobas::turning_direction::kCCWName });
+  direction_->setChoices({ kCWName, kCCWName });
   rows->addWidget(direction_);
 
   kv_ =
@@ -110,9 +109,15 @@ void MotorWidget::load(const YAML::Node& node)
   time_const_down_->setValue(node[time_const_down_->name()].as<int>());
 }
 
-std::string MotorWidget::direction() const
+tobas::turning_direction_t MotorWidget::direction() const
 {
-  return direction_->getValue().toStdString();
+  const auto text = direction_->getValue();
+  if (text == kCWName)
+    return tobas::turning_direction_t::CW;
+  else if (text == kCCWName)
+    return tobas::turning_direction_t::CCW;
+  else
+    throw;
 }
 
 double MotorWidget::kv() const

@@ -116,7 +116,7 @@ const AerodynamicsWidget* SelectedLinkWidget::aerodynamics() const
   return aerodynamics_;
 }
 
-const SpeedLimitWidget* SelectedLinkWidget::speed_limit() const
+const SpeedLimitWidget* SelectedLinkWidget::speedLimit() const
 {
   return speed_limit_;
 }

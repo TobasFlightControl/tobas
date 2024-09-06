@@ -190,14 +190,9 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
 
-  string turning_direction;
+  int turning_direction;
   getSdfParam(sdf, "turningDirection", turning_direction);
-  if (turning_direction == tobas::turning_direction::kCCWName)
-    direction_ = 1;
-  else if (turning_direction == tobas::turning_direction::kCWName)
-    direction_ = -1;
-  else
-    TOBAS_EXIT("Please specify 'CW' or 'CCW' as turningDirection.");
+  direction_ = tobas::sign(static_cast<tobas::turning_direction_t>(turning_direction));
 
   getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
   getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
@@ -220,18 +215,9 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
-  string esc_mode;
+  int esc_mode;
   getSdfParam(sdf, "escMode", esc_mode);
-  if (esc_mode == tobas::esc::kBLHeliOpenLoopName)
-    esc_mode_ = tobas::BLHELI_OPEN_LOOP;
-  else if (esc_mode == tobas::esc::kBLHeliCloseLoopLowName)
-    esc_mode_ = tobas::BLHELI_CLOSED_LOOP_LOW_RANGE;
-  else if (esc_mode == tobas::esc::kBLHeliCloseLoopMidName)
-    esc_mode_ = tobas::BLHELI_CLOSED_LOOP_MID_RANGE;
-  else if (esc_mode == tobas::esc::kBLHeliCloseLoopHighName)
-    esc_mode_ = tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE;
-  else
-    TOBAS_EXIT("Invalid ESC signal mode: ", esc_mode);
+  esc_mode_ = static_cast<tobas::esc_mode_t>(esc_mode);
 
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }

@@ -11,7 +11,7 @@ namespace fs = filesystem;
 
 namespace ros2
 {
-string resolveURI(const string& uri)
+fs::path resolveURI(const string& uri)
 {
   static constexpr char kPackagePrefix[] = "package://";
   static constexpr char kAbsPathPrefix[] = "file://";

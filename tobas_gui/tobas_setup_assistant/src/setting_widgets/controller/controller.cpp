@@ -136,6 +136,11 @@ YAML::Node ControllerWidget::staticParams() const
   return selected()->staticParams();
 }
 
+bool ControllerWidget::isCommandCompatible(tobas::rc_command_t command) const
+{
+  return command == stabilizeModeCommand() || command == acrobatModeCommand();
+}
+
 void ControllerWidget::setCurrentController(int index)
 {
   controllers_->setCurrentIndex(index);
