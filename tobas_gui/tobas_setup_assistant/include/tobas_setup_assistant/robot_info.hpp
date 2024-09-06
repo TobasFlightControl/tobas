@@ -39,7 +39,7 @@ class RobotInfo : public QObject
   static constexpr double kJntAxisCollinearTol = tobas_std::deg2rad(5);
 
 Q_SIGNALS:
-  void loaded();
+  void loaded(const QString& urdf_content);
 
 public:
   explicit RobotInfo(rclcpp::Node::SharedPtr node);

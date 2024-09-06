@@ -26,21 +26,21 @@ class RvizWidget : public qt::Widget
 
 public:
   explicit RvizWidget(
-    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
+    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
     const RobotInfo& robot);
 
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
 private Q_SLOTS:
-  void onRobotLoaded();
+  void onRobotLoaded(const QString& urdf_content);
   void onVisualBoxToggled(bool checked);
   void onCollisionBoxToggled(bool checked);
 
 private:
   const RobotInfo& robot_;
 
-  const rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr rviz_node_;
 
   rviz_common::VisualizationManager* manager_;
   rviz_common::Display* display_;

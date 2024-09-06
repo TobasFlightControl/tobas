@@ -14,9 +14,9 @@ namespace ptree
 {
 PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
 {
-  ini_path_ = linux::expandUser(getStringParam(kIniPathParam, "~/.config/tobas/config.ini"));
+  ini_path_ = linux::expandUser(getStringParam("ini_path", "~/.config/tobas/config.ini"));
 
-  if (filesystem::exists(ini_path_))
+  if (filesystem::is_regular_file(ini_path_))
   {
     // If configuration file exists, try to load it.
     try

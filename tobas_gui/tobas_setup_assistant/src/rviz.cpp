@@ -6,7 +6,9 @@
 #include <rviz_common/display_group.hpp>
 
 #include <tobas_std_tools/check.hpp>
+#include <tobas_ros2_tools/parameter.hpp>
 #include <tobas_qt_tools/rviz.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "tobas_setup_assistant/rviz.hpp"
 #include "tobas_setup_assistant/common.hpp"
@@ -18,14 +20,18 @@ namespace gui
 namespace setup_assistant
 {
 RvizWidget::RvizWidget(
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
+  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
   const RobotInfo& robot)
-  : robot_(robot), node_(rviz_ros_node.lock()->get_raw_node())
+  : robot_(robot), rviz_node_(rviz_node_if.lock()->get_raw_node())
 {
+  // Declare rosparams
+  ros2::declareParam(rviz_node_, kRobotDescriptionParam, tobas::kMinimulURDF);
+  ros2::declareParam(rviz_node_, kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
+
   // Create Rviz frame widget
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
-  const auto frame = qt::createRvizFrame(rviz_ros_node, QString::fromStdString(rviz_config_path));
+  const auto frame = qt::createRvizFrame(rviz_node_if, QString::fromStdString(rviz_config_path));
 
   // Setup robot_model_display
   // rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
@@ -63,11 +69,14 @@ RvizWidget::RvizWidget(
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
 }
 
-void RvizWidget::onRobotLoaded()
+void RvizWidget::onRobotLoaded(const QString& urdf_content)
 {
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
   manager_->setFixedFrame(QString::fromStdString(root_name));
+
+  // URDFを更新
+  rviz_node_->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_content.toStdString()));
 
   // ロボットモデルをリロード
   reload_->setBool(false);

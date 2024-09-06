@@ -20,6 +20,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   const auto rows = new QVBoxLayout(this);
 
   const auto scroll_area = new qt::ScrollArea();
+  scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   rows->addWidget(scroll_area);
 
   slider_rows_ = new QVBoxLayout();
@@ -32,14 +33,9 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   button_rows->addWidget(center_button);
 
-  rows->addStretch();
-
   // Register publishers
   js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, tobas::kJointStatesTopic);
   drs_pub_ = ros2::createPublisher<moveit_msgs::msg::DisplayRobotState>(node_, "display_robot_state");
-
-  // Create timers
-  publish_timer_ = ros2::createTimer(node_, 100ms, &self::publish, this);
 }
 
 void JointStatePublisherWidget::onRobotLoaded()
@@ -70,6 +66,9 @@ void JointStatePublisherWidget::onRobotLoaded()
     sliders_.push_back(slider);
     slider_rows_->addWidget(slider);
   }
+
+  // Start to publish joint states
+  publish_timer_ = ros2::createTimer(node_, 100ms, &self::publish, this);
 }
 
 void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_name)

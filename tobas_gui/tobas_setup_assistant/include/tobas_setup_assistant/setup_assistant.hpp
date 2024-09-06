@@ -30,14 +30,16 @@ class SetupAssistantWidget : public qt::Widget
   static constexpr int kJointStatePublisherWidth = 200;
 
 public:
-  explicit SetupAssistantWidget(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node);
+  explicit SetupAssistantWidget(
+    rclcpp::Node::SharedPtr node,
+    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if);
 
 private Q_SLOTS:
   void onGenerateButtonClicked();
 
 private:
-  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node_;
   const rclcpp::Node::SharedPtr node_;
+  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
 
   RobotInfo robot_;
   PackageGenerator pkg_generator_;

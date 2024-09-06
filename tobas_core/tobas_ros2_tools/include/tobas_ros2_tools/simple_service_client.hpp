@@ -23,13 +23,9 @@ public:
       return false;
     }
 
-    auto id = client_->async_send_request(req);
-    if (rclcpp::spin_until_future_complete(node_, id) != rclcpp::FutureReturnCode::SUCCESS)
-    {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to call \"" << client_->get_service_name() << "\" service.");
-      return false;
-    }
-    res_ = id.get();
+    auto future = client->async_send_request(req);
+    future.wait();
+    res_ = future.get();
 
     return true;
   }

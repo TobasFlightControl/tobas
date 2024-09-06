@@ -17,9 +17,8 @@ public:
   {
     E_NO_ERROR = 0,
     E_SERVICE_NOT_READY = -1,
-    E_FAILED_TO_CALL = -2,
-    E_OUT_OF_RANGE = -3,
-    E_SERVER_ERROR = -4,
+    E_OUT_OF_RANGE = -2,
+    E_SERVER_ERROR = -3,
   };
 
   explicit PropertyClient(
@@ -51,7 +50,7 @@ public:
   std::string errorMessage() const;
 
 private:
-  rclcpp::Node::SharedPtr node_;
+  const rclcpp::Node::SharedPtr node_;
   const std::string ns_;
   const std::string section_;
 
@@ -68,7 +67,9 @@ private:
 template <typename SrvType, const char* SrvName, typename T>
 PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& value)
 {
-  auto client = node_->create_client<SrvType>(path::join(ns_, SrvName));
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "Get property requested: " << key);
+
+  const auto client = node_->create_client<SrvType>(path::join(ns_, SrvName));
   if (!client->service_is_ready())
     return error_code_ = E_SERVICE_NOT_READY;
 
@@ -76,11 +77,12 @@ PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& v
   req->section = section_;
   req->key = key;
 
-  auto id = client->async_send_request(req);
-  if (rclcpp::spin_until_future_complete(node_, id) != rclcpp::FutureReturnCode::SUCCESS)
-    return error_code_ = E_FAILED_TO_CALL;
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "Sending property service request.");
+  auto future = client->async_send_request(req);
+  future.wait();
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "Property service response is received.");
 
-  const auto res = id.get();
+  const auto res = future.get();
   if (!res->success)
   {
     server_error_msg_ = res->message;
@@ -95,7 +97,9 @@ PropertyClient::error_t PropertyClient::getProperty(const std::string& key, T& v
 template <typename SrvType, const char* SrvName, typename T>
 PropertyClient::error_t PropertyClient::setProperty(const std::string& key, T& value)
 {
-  auto client = node_->create_client<SrvType>(path::join(ns_, SrvName));
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "Set property requested: " << key << ", " << value);
+
+  const auto client = node_->create_client<SrvType>(path::join(ns_, SrvName));
   if (!client->service_is_ready())
     return error_code_ = E_SERVICE_NOT_READY;
 
@@ -104,11 +108,12 @@ PropertyClient::error_t PropertyClient::setProperty(const std::string& key, T& v
   req->key = key;
   req->value = value;
 
-  auto id = client->async_send_request(req);
-  if (rclcpp::spin_until_future_complete(node_, id) != rclcpp::FutureReturnCode::SUCCESS)
-    return error_code_ = E_FAILED_TO_CALL;
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "Sending property service request.");
+  auto future = client->async_send_request(req);
+  future.wait();
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "Property service response is received.");
 
-  const auto res = id.get();
+  const auto res = future.get();
   if (!res->success)
   {
     server_error_msg_ = res->message;

@@ -26,20 +26,11 @@ public:
     }
 
     auto send_goal_id = client_->async_send_goal(goal);
-    if (rclcpp::spin_until_future_complete(node_->shared_from_this(), send_goal_id) != rclcpp::FutureReturnCode::SUCCESS)
-    {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to send \"" << action_name_ << "\" action goal.");
-      return false;
-    }
+    send_goal_id.wait();
     const auto goal_handle = send_goal_id.get();
 
     auto get_result_id = client_->async_get_result(goal_handle);
-    if (
-      rclcpp::spin_until_future_complete(node_->shared_from_this(), get_result_id) != rclcpp::FutureReturnCode::SUCCESS)
-    {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to get \"" << action_name_ << "\" action result.");
-      return false;
-    }
+    get_result_id.wait();
     result_ = get_result_id.get();
 
     return true;

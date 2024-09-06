@@ -5,7 +5,7 @@
 namespace qt
 {
 rviz_common::VisualizationFrame* createRvizFrame(
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
+  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
   const QString& config_path,
   QWidget* parent)
 {
@@ -15,8 +15,8 @@ rviz_common::VisualizationFrame* createRvizFrame(
   reader.readFile(config, config_path);
 
   // Setup visualization frame
-  const auto frame = new rviz_common::VisualizationFrame(rviz_ros_node, parent);
-  frame->initialize(rviz_ros_node);
+  const auto frame = new rviz_common::VisualizationFrame(rviz_node_if, parent);
+  frame->initialize(rviz_node_if);
   frame->setHelpPath("");
   frame->setSplashPath("");
   frame->load(config);

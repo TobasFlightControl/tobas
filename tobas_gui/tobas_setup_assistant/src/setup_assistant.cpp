@@ -1,6 +1,4 @@
-#include <tobas_ros2_tools/parameter.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
@@ -8,16 +6,11 @@ namespace gui
 {
 namespace setup_assistant
 {
-SetupAssistantWidget::SetupAssistantWidget(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node)
-  : rviz_ros_node_(rviz_ros_node),
-    node_(rviz_ros_node.lock()->get_raw_node()),
-    robot_(node_),
-    pkg_generator_(node_, robot_, settings_)
+SetupAssistantWidget::SetupAssistantWidget(
+  rclcpp::Node::SharedPtr node,
+  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
+  : node_(node), rviz_node_if_(rviz_node_if), robot_(node_), pkg_generator_(node_, robot_, settings_)
 {
-  // Declare rosparams
-  ros2::declareParam(node_, kRobotDescriptionParam, tobas::kMinimulURDF);
-  ros2::declareParam(node_, kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
-
   const auto rows = new QVBoxLayout(this);
 
   // Start
@@ -32,7 +25,7 @@ SetupAssistantWidget::SetupAssistantWidget(rviz_common::ros_integration::RosNode
   frame_tree_->setFixedWidth(kFrameTreeWidth);
   cols->addWidget(frame_tree_);
 
-  rviz_ = new RvizWidget(rviz_ros_node, robot_);
+  rviz_ = new RvizWidget(rviz_node_if, robot_);
   rviz_->setMinimumWidth(kRvizMinWidth);
   cols->addWidget(rviz_);
 

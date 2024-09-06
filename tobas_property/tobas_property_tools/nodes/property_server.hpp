@@ -18,8 +18,6 @@ namespace ptree
 {
 class PropertyServer : public tobas::BaseNode
 {
-  static constexpr char kIniPathParam[] = "ini_path";
-
   using self = PropertyServer;
   using super = tobas::BaseNode;
 
@@ -69,6 +67,8 @@ inline std::string PropertyServer::keyWithSection(const std::string& section, co
 template <typename T>
 bool PropertyServer::get(const std::string& section, const std::string& key, T& value) const
 {
+  RCLCPP_DEBUG_STREAM(get_logger(), "Get requested: " << section << ", " << key);
+
   const auto optional = pt_.get_optional<T>(keyWithSection(section, key));
   if (!optional)
     return false;
@@ -80,6 +80,8 @@ bool PropertyServer::get(const std::string& section, const std::string& key, T& 
 template <typename T>
 void PropertyServer::set(const std::string& section, const std::string& key, const T& value)
 {
+  RCLCPP_DEBUG_STREAM(get_logger(), "Set requested: " << section << ", " << key << ", " << value);
+
   pt_.put(keyWithSection(section, key), value);
 }
 

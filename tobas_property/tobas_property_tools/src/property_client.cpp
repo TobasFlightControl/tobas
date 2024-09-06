@@ -112,17 +112,16 @@ PropertyClient::error_t PropertyClient::set(const string& key, const float& valu
 
 PropertyClient::error_t PropertyClient::save()
 {
-  auto client = node_->create_client<Trigger>(path::join(ns_, kSaveFileSrv));
+  const auto client = node_->create_client<Trigger>(path::join(ns_, kSaveFileSrv));
   if (!client->service_is_ready())
     return error_code_ = E_SERVICE_NOT_READY;
 
   const auto req = make_shared<Trigger::Request>();
 
-  auto id = client->async_send_request(req);
-  if (rclcpp::spin_until_future_complete(node_, id) != rclcpp::FutureReturnCode::SUCCESS)
-    return error_code_ = E_FAILED_TO_CALL;
+  auto future = client->async_send_request(req);
+  future.wait();
 
-  const auto res = id.get();
+  const auto res = future.get();
   if (!res->success)
   {
     server_error_msg_ = res->message;
@@ -145,8 +144,6 @@ string PropertyClient::errorMessage() const
       return "";
     case E_SERVICE_NOT_READY:
       return "Property server is not ready.";
-    case E_FAILED_TO_CALL:
-      return "Failed to call property service.";
     case E_OUT_OF_RANGE:
       return "The property value is out of numerical range.";
     case E_SERVER_ERROR:

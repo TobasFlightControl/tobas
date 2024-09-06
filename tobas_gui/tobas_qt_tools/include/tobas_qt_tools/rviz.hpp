@@ -5,7 +5,7 @@
 namespace qt
 {
 rviz_common::VisualizationFrame* createRvizFrame(
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
+  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
   const QString& config_path,
   QWidget* parent = nullptr);
 }

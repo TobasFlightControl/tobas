@@ -25,9 +25,6 @@ bool RobotInfo::loadFromPath(const std::string& path)
   if (!ros2::xacro(path, urdf_content))
     return false;
 
-  // Update paremeter
-  node_->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_content));
-
   // Update RSP parameter
   if (!rsp_client_.setParam("robot_description", urdf_content))
     return false;
@@ -52,7 +49,7 @@ bool RobotInfo::loadFromPath(const std::string& path)
   axis_solver_.updateInternalDataStructures();
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
-  Q_EMIT loaded();
+  Q_EMIT loaded(QString::fromStdString(urdf_content));
   return true;
 }
 
