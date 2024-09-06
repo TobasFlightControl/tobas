@@ -1,4 +1,5 @@
 #include <array>
+#include <cstddef>
 #include <cassert>
 
 #include <tobas_algorithm/kahan.hpp>

@@ -12,7 +12,7 @@ int main(int argc, char** argv)
   if (argc != 2)
   {
     cerr << "Usage: " << argv[0] << " <Data Size>" << endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
   const auto data_size = atoi(argv[1]);
@@ -49,8 +49,8 @@ int main(int argc, char** argv)
   if (!tobas_std::isClose(mean_1, mean_2) || !tobas_std::isClose(var_1, var_2))
   {
     cerr << "Welford method is inaccurate." << endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

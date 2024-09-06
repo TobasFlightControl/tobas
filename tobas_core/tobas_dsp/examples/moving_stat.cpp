@@ -12,7 +12,7 @@ int main(int argc, char** argv)
   if (argc != 3)
   {
     cerr << "Usage: " << argv[0] << " <Window Size> <Steps>" << endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
   const auto window_size = atoi(argv[1]);
@@ -55,12 +55,12 @@ int main(int argc, char** argv)
     if (!tobas_std::isClose(mean_1, mean_2) || !tobas_std::isClose(var_1, var_2))
     {
       cerr << "Moving statistics is inaccurate." << endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     // Add next data
     moving_stat_.add(incoming_data[i]);
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }

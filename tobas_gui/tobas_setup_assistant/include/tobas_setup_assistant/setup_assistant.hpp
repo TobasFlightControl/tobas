@@ -6,6 +6,7 @@
 
 #include "./common.hpp"
 #include "./robot_info.hpp"
+#include "./package_generator.hpp"
 #include "./start/start.hpp"
 #include "./frame_tree.hpp"
 #include "./rviz.hpp"
@@ -31,11 +32,15 @@ class SetupAssistant : public qt::Widget
 public:
   explicit SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node);
 
+private Q_SLOTS:
+  void onGenerateButtonClicked();
+
 private:
   const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node_;
   const rclcpp::Node::SharedPtr node_;
 
   RobotInfo robot_;
+  PackageGenerator pkg_generator_;
 
   StartWidget* start_;
   FrameTreeWidget* frame_tree_;

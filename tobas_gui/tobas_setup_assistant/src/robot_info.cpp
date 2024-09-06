@@ -1,4 +1,8 @@
 #include <iostream>
+#include <hardware_interface/component_parser.hpp>
+
+#include <tobas_kdl/kdl_parser.hpp>
+#include <tobas_ros2_tools/xacro.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
 
@@ -14,10 +18,29 @@ RobotInfo::RobotInfo() : axis_solver_(tree_)
 
 bool RobotInfo::loadFromPath(const std::string& path)
 {
-  cout << path << endl;  // TODO: urdf_parser.load_from_param
+  // Parse URDF
+  string urdf_content;
+  if (!ros2::xacro(path, urdf_content))
+    return false;
 
+  // Load KDL tree
+  if (!kdl::treeFromString(urdf_content, tree_))
+  {
+    cerr << "Failed to load KDL tree." << endl;
+    return false;
+  }
+
+  // Load hardware information
+  const auto hardware_infos = hardware_interface::parse_control_resources_from_urdf(urdf_content);
+  if (hardware_infos.size() != 1)
+  {
+    cerr << "The number of hardware information objects must be 1." << endl;
+    return false;
+  }
+  hardware_ = hardware_infos.at(0);
+
+  // Update KDL objects
   axis_solver_.updateInternalDataStructures();
-
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
   Q_EMIT loaded();

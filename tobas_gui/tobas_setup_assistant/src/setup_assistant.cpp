@@ -1,6 +1,3 @@
-#include <format>
-#include <hardware_interface/component_parser.hpp>
-
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
@@ -10,7 +7,7 @@ namespace gui
 namespace setup_assistant
 {
 SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node)
-  : rviz_ros_node_(rviz_ros_node), node_(rviz_ros_node.lock()->get_raw_node())
+  : rviz_ros_node_(rviz_ros_node), node_(rviz_ros_node.lock()->get_raw_node()), pkg_generator_(node_, robot_, settings_)
 {
   auto rows = new QVBoxLayout(this);
 
@@ -37,6 +34,14 @@ SetupAssistant::SetupAssistant(rviz_common::ros_integration::RosNodeAbstractionI
   // Settings
   settings_ = new SettingsWidget(node_, robot_);
   rows->addWidget(settings_);
+
+  // Connections
+  connect(settings_->ros_package, &ROSPackageWidget::generateButtonClicked, this, &self::onGenerateButtonClicked);
+}
+
+void SetupAssistant::onGenerateButtonClicked()
+{
+  pkg_generator_.generate();
 }
 }  // namespace setup_assistant
 }  // namespace gui
