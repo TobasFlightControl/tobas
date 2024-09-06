@@ -16,7 +16,7 @@ void blockSignalsRec(QObject* obj, bool block)
 
 void addWidgetCenter(QWidget* widget, QVBoxLayout* rows)
 {
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   cols->addWidget(widget);
   cols->setAlignment(widget, Qt::AlignCenter);
   rows->addLayout(cols);
@@ -24,7 +24,7 @@ void addWidgetCenter(QWidget* widget, QVBoxLayout* rows)
 
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent)
 {
-  auto widget = new QWidget();
+  const auto widget = new QWidget();
   widget->setFixedWidth(width);
   parent->addWidget(widget);
   return new QVBoxLayout(widget);
@@ -32,7 +32,7 @@ QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent)
 
 QHBoxLayout* createFixedHeightQHBoxLayout(int height, QBoxLayout* parent)
 {
-  auto widget = new QWidget();
+  const auto widget = new QWidget();
   widget->setFixedHeight(height);
   parent->addWidget(widget);
   return new QHBoxLayout(widget);

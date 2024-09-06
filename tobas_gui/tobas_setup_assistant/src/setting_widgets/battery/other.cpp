@@ -8,7 +8,7 @@ namespace setup_assistant
 {
 BatteryWidget_Other::BatteryWidget_Other()
 {
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
   nominal_voltage_ = new ParamGetterWidget_DoubleSpinBox("Nominal Voltage", "Nominal voltage of the battery.");
   nominal_voltage_->setDecimals(1);

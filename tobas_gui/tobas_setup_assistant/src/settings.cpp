@@ -45,7 +45,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   // 各タブを初期化
   for (int i = 0; i < count(); ++i)
   {
-    auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
     tab->initialize();
     tab->updateInternalDataStructures();
     tab->setEnabled(false);  // 最初は無効化
@@ -56,7 +56,7 @@ void SettingsWidget::updateInternalDataStructures()
 {
   for (int i = 0; i < count(); ++i)
   {
-    auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
     tab->updateInternalDataStructures();
     tab->setEnabled(true);
   }
@@ -102,7 +102,7 @@ YAML::Node SettingsWidget::dump()
 
   for (int i = 0; i < count(); ++i)
   {
-    auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
     node[tab->name()] = tab->dump();
   }
 
@@ -115,7 +115,7 @@ bool SettingsWidget::load(const YAML::Node& node)
 
   for (int i = 0; i < count(); ++i)
   {
-    auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
+    const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
     try
     {
       tab->onOpened();

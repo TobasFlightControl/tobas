@@ -7,7 +7,7 @@ namespace setup_assistant
 ParamGetterWidget_Vector3d::ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
   x_ = new DoubleGetter("x");

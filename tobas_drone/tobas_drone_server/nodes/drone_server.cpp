@@ -6,8 +6,6 @@ using namespace std;
 
 class DroneServerNode : public tobas::BaseNode
 {
-  static constexpr char kFilePath[] = "tbsdrn_path";
-
   using self = DroneServerNode;
   using super = tobas::BaseNode;
 
@@ -22,7 +20,7 @@ private:
 
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
 {
-  addDynamicStringParam(kFilePath, &self::fileParamCb, this);
+  addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
   publishDynamicParameterDescriptions();
 
   drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true);

@@ -14,12 +14,12 @@ namespace propulsion_system
 {
 void ElectrodynamicsWidget_Base::initialize()
 {
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
   header_rows_ = new QVBoxLayout();
   rows->addLayout(header_rows_);
 
-  auto description_label = new qt::DescriptionWidget(description(), kBodyPSize);
+  const auto description_label = new qt::DescriptionWidget(description(), kBodyPSize);
   header_rows_->addWidget(description_label);
 
   content_rows_ = new QVBoxLayout();

@@ -41,22 +41,22 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   decimals_.fill(kDefaultDecimals, num_entry_);
   suffix_.fill("", num_entry_);
 
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
-  auto add_row_btn = new QPushButton("Add Row");
+  const auto add_row_btn = new QPushButton("Add Row");
   add_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
   cols->addWidget(add_row_btn);
 
-  auto delete_row_btn = new QPushButton("Delete Row");
+  const auto delete_row_btn = new QPushButton("Delete Row");
   delete_row_btn->setFixedSize(kButtonWidth, kButtonHeight);
   cols->addWidget(delete_row_btn);
 
-  auto clear_btn = new QPushButton("Clear");
+  const auto clear_btn = new QPushButton("Clear");
   clear_btn->setFixedSize(kButtonWidth, kButtonHeight);
   cols->addWidget(clear_btn);
 
-  auto load_csv_btn = new QPushButton("Load CSV");
+  const auto load_csv_btn = new QPushButton("Load CSV");
   load_csv_btn->setFixedSize(kButtonWidth, kButtonHeight);
   cols->addWidget(load_csv_btn);
 
@@ -163,7 +163,7 @@ void ParamGetterWidget_DoubleTable::addRow()
 
   for (int col = 0; col < num_entry_; ++col)
   {
-    auto cell = new qt::DoubleSpinBox();
+    const auto cell = new qt::DoubleSpinBox();
     cell->setMinimum(minimum_[col]);
     cell->setMaximum(maximum_[col]);
     cell->setValue(default_[col]);

@@ -14,9 +14,9 @@ namespace setup_assistant
 {
 IntGetter::IntGetter(const QString& name)
 {
-  auto cols = new QHBoxLayout(this);
+  const auto cols = new QHBoxLayout(this);
 
-  auto label = new QLabel(name + ":");
+  const auto label = new QLabel(name + ":");
   label->setFont(qt::DefaultFont(kBodyPSize));
   cols->addWidget(label);
 
@@ -69,10 +69,9 @@ void IntGetter::onValueChanged(int value)
 
 DoubleGetter::DoubleGetter(const QString& name)
 {
-  auto cols = new QHBoxLayout();
-  setLayout(cols);
+  const auto cols = new QHBoxLayout(this);
 
-  auto label = new QLabel(name + ":");
+  const auto label = new QLabel(name + ":");
   label->setFont(qt::DefaultFont(kBodyPSize));
   cols->addWidget(label);
 

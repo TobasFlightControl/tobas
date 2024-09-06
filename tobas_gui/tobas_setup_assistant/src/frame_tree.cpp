@@ -27,7 +27,7 @@ void FrameTreeWidget::onRobotLoaded()
   // ルートリンクから再帰的にリンクをTreeに追加していく．
   // cf. https://doc.qt.io/qtforpython/tutorials/basictutorial/treewidget.html
   const auto& root_name = robot_.tree().getRootName();
-  auto root_item = new QTreeWidgetItem({ QString::fromStdString(root_name) });
+  const auto root_item = new QTreeWidgetItem({ QString::fromStdString(root_name) });
   addTreeItemsRec(root_item);
   insertTopLevelItem(0, root_item);
 
@@ -57,7 +57,7 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
   for (const auto& child_it : parent_it->second.children)
   {
     const auto& child_name = child_it->first;
-    auto child_item = new QTreeWidgetItem({ QString::fromStdString(child_name) });
+    const auto child_item = new QTreeWidgetItem({ QString::fromStdString(child_name) });
     parent_item->addChild(child_item);
     addTreeItemsRec(child_item);
   }

@@ -12,14 +12,14 @@ SetupAssistantWidget::SetupAssistantWidget(rviz_common::ros_integration::RosNode
     robot_(node_),
     pkg_generator_(node_, robot_, settings_)
 {
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
   // Start
   start_ = new StartWidget(node_, robot_, settings_);
   rows->addWidget(start_);
 
   // Visualization
-  auto cols = qt::createFixedHeightQHBoxLayout(kHeaderHeight, rows);
+  const auto cols = qt::createFixedHeightQHBoxLayout(kHeaderHeight, rows);
   rows->addLayout(cols);
 
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);

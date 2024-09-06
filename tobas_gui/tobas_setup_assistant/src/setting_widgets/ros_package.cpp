@@ -44,7 +44,7 @@ void ROSPackageWidget::onInit()
   connect(tbs_name_, &ParamGetterWidget_LineEdit::textChanged, this, &self::onPathChanged);
   addWidget(tbs_name_);
 
-  auto text = new QLabel("The package will be generated as");
+  const auto text = new QLabel("The package will be generated as");
   text->setFont(qt::DefaultFont(kBodyPSize));
   text->setFixedHeight(kTextHeight);
   setAlignment(Qt::AlignTop);

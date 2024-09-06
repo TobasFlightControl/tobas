@@ -10,7 +10,7 @@ namespace setup_assistant
 {
 BaseSettingWidget::BaseSettingWidget()
 {
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
   header_rows_ = new QVBoxLayout();
   content_rows_ = new QVBoxLayout();
@@ -28,12 +28,12 @@ void BaseSettingWidget::initialize()
 
 void BaseSettingWidget::addTitleAndDescription()
 {
-  auto title_label = new QLabel(title());
+  const auto title_label = new QLabel(title());
   title_label->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
   title_label->setAlignment(Qt::AlignTop);
   header_rows_->addWidget(title_label);
 
-  auto description_label = new qt::DescriptionWidget(description(), kBodyPSize);
+  const auto description_label = new qt::DescriptionWidget(description(), kBodyPSize);
   description_label->setFixedHeight(kDescriptionHeight);
   header_rows_->addWidget(description_label);
 }

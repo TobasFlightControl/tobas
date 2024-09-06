@@ -44,7 +44,7 @@ ParamGetterWidget<T>::ParamGetterWidget(const QString& param_name, const QString
 
   if (!description_text.isEmpty())
   {
-    auto description = new qt::DescriptionWidget(description_text, kBodyPSize);
+    const auto description = new qt::DescriptionWidget(description_text, kBodyPSize);
     rows_->addWidget(description);
   }
 }

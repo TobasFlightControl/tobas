@@ -177,6 +177,11 @@ def generate_launch_description():
                     package="tobas_drone_server",
                     plugin="DroneServerNode",
                     namespace=DRONE_NAME,
+                    parameters=[
+                        {
+                            "tbsdrn_path": PathJoinSubstitution(config_pkg_share, "config", "drone.tbsdrn"),
+                        }
+                    ],
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(

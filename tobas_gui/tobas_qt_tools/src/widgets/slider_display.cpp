@@ -12,9 +12,9 @@ IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
 {
   DefaultFont font(TEXT_PSIZE, QFont::Bold);
 
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
 
   text_ = new QLabel();
@@ -88,9 +88,9 @@ DoubleSliderDisplay::DoubleSliderDisplay(int decimals, QWidget* parent) : super(
 {
   DefaultFont font(TEXT_PSIZE, QFont::Bold);
 
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
 
   text_ = new QLabel();

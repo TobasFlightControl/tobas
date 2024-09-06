@@ -7,7 +7,7 @@ namespace setup_assistant
 ParamGetterWidget_IntRange::ParamGetterWidget_IntRange(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
 {
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
   min_ = new IntGetter("min");

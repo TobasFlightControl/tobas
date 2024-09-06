@@ -23,7 +23,7 @@ ParamGetterWidget_DirDialog::ParamGetterWidget_DirDialog(
     last_opend_dir_key_("last_opened_dir/dir_dialog/" + tobas_std::replace(param_name.toStdString(), " ", "_")),
     property_client_(node, tobas::kPropertyServerGCS, kPackageName)
 {
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   rows_->addLayout(cols);
 
   path_ = new QLineEdit();
@@ -31,7 +31,7 @@ ParamGetterWidget_DirDialog::ParamGetterWidget_DirDialog(
   path_->setFocusPolicy(Qt::NoFocus);
   cols->addWidget(path_);
 
-  auto browse_button = new QPushButton("Browse");
+  const auto browse_button = new QPushButton("Browse");
   cols->addWidget(browse_button);
 
   connect(path_, &QLineEdit::textChanged, this, &self::onTextChanged);

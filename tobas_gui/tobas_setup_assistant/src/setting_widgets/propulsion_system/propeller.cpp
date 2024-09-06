@@ -12,7 +12,7 @@ namespace propulsion_system
 {
 PropellerWidget::PropellerWidget()
 {
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
   num_blade_ = new ParamGetterWidget_SpinBox("Number of blades", "Number of blades per propeller.");
   num_blade_->setMinimum(1);

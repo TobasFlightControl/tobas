@@ -105,11 +105,11 @@ void CustomJointsWidget::updateInternalDataStructures()
         continue;
     }
 
-    auto cmd_type = new qt::ComboBox();
+    const auto cmd_type = new qt::ComboBox();
 
-    auto p_gain = new qt::DoubleSpinBox();
-    auto i_gain = new qt::DoubleSpinBox();
-    auto d_gain = new qt::DoubleSpinBox();
+    const auto p_gain = new qt::DoubleSpinBox();
+    const auto i_gain = new qt::DoubleSpinBox();
+    const auto d_gain = new qt::DoubleSpinBox();
 
     p_gain->setDecimals(kGainDecimals);
     i_gain->setDecimals(kGainDecimals);
@@ -229,67 +229,67 @@ int CustomJointsWidget::count() const
 
 QString CustomJointsWidget::getLinkName(int row) const
 {
-  auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(LINK_NAME)));
+  const auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(LINK_NAME)));
   return cell->text();
 }
 
 void CustomJointsWidget::setLinkName(int row, const QString& text)
 {
-  auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(LINK_NAME)));
+  const auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(LINK_NAME)));
   cell->setText(text);
 }
 
 QString CustomJointsWidget::getJointName(int row) const
 {
-  auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(JOINT_NAME)));
+  const auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(JOINT_NAME)));
   return cell->text();
 }
 
 void CustomJointsWidget::setJointName(int row, const QString& text)
 {
-  auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(JOINT_NAME)));
+  const auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, static_cast<int>(JOINT_NAME)));
   cell->setText(text);
 }
 
 double CustomJointsWidget::getHomePosition(int row) const
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(HOME_POSITION)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(HOME_POSITION)));
   return cell->value();
 }
 
 void CustomJointsWidget::setHomePosition(int row, double value)
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(HOME_POSITION)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(HOME_POSITION)));
   cell->setValue(value);
 }
 
 double CustomJointsWidget::getMinPosition(int row) const
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MIN_POSITION)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MIN_POSITION)));
   return cell->value();
 }
 
 void CustomJointsWidget::setMinPosition(int row, double value)
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MIN_POSITION)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MIN_POSITION)));
   cell->setValue(value);
 }
 
 double CustomJointsWidget::getMaxPosition(int row) const
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MAX_POSITION)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MAX_POSITION)));
   return cell->value();
 }
 
 void CustomJointsWidget::setMaxPosition(int row, double value)
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MAX_POSITION)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(MAX_POSITION)));
   cell->setValue(value);
 }
 
 tobas::joint_control_type_t CustomJointsWidget::getCommandType(int row) const
 {
-  auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, static_cast<int>(COMMAND_TYPE)));
+  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, static_cast<int>(COMMAND_TYPE)));
   const auto text = cell->currentText();
 
   if (text == kPositionLabel)
@@ -320,43 +320,43 @@ void CustomJointsWidget::setCommandType(int row, const tobas::joint_control_type
       throw;
   }
 
-  auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, static_cast<int>(COMMAND_TYPE)));
+  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, static_cast<int>(COMMAND_TYPE)));
   cell->setCurrentText(text);
 }
 
 double CustomJointsWidget::getPGain(int row) const
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(P_GAIN)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(P_GAIN)));
   return cell->value();
 }
 
 void CustomJointsWidget::setPGain(int row, double value)
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(P_GAIN)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(P_GAIN)));
   cell->setValue(value);
 }
 
 double CustomJointsWidget::getIGain(int row) const
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(I_GAIN)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(I_GAIN)));
   return cell->value();
 }
 
 void CustomJointsWidget::setIGain(int row, double value)
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(I_GAIN)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(I_GAIN)));
   cell->setValue(value);
 }
 
 double CustomJointsWidget::getDGain(int row) const
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(D_GAIN)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(D_GAIN)));
   return cell->value();
 }
 
 void CustomJointsWidget::setDGain(int row, double value)
 {
-  auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(D_GAIN)));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(D_GAIN)));
   cell->setValue(value);
 }
 

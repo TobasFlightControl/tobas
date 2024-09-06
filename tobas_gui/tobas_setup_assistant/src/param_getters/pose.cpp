@@ -8,7 +8,7 @@ ParamGetterWidget_Pose::ParamGetterWidget_Pose(const QString& param_name, const 
   : super(param_name, description_text)
 {
   // XYZ
-  auto cols_xyz = new QHBoxLayout();
+  const auto cols_xyz = new QHBoxLayout();
   rows_->addLayout(cols_xyz);
 
   x_ = new DoubleGetter("x");
@@ -36,7 +36,7 @@ ParamGetterWidget_Pose::ParamGetterWidget_Pose(const QString& param_name, const 
   cols_xyz->addWidget(z_);
 
   // RPY
-  auto cols_rpy = new QHBoxLayout();
+  const auto cols_rpy = new QHBoxLayout();
   rows_->addLayout(cols_rpy);
 
   roll_ = new DoubleGetter("roll");

@@ -25,7 +25,7 @@ RvizWidget::RvizWidget(
   // Create Rviz frame widget
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
-  auto frame = qt::createRvizFrame(rviz_ros_node, QString::fromStdString(rviz_config_path));
+  const auto frame = qt::createRvizFrame(rviz_ros_node, QString::fromStdString(rviz_config_path));
 
   // Setup robot_model_display
   // rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
@@ -47,14 +47,14 @@ RvizWidget::RvizWidget(
   enable_collision_->setBool(kDefaultCollisionEnabled);
 
   // 可視化ボタン
-  auto visual_box = new QCheckBox("Show Visual Geometry");
+  const auto visual_box = new QCheckBox("Show Visual Geometry");
   visual_box->setChecked(kDefaultVisualEnabled);
-  auto collision_box = new QCheckBox("Show Collision Geometry");
+  const auto collision_box = new QCheckBox("Show Collision Geometry");
   collision_box->setChecked(kDefaultCollisionEnabled);
 
   // レイアウト
-  auto rows = new QVBoxLayout(this);
-  auto cols = new QHBoxLayout();
+  const auto rows = new QVBoxLayout(this);
+  const auto cols = new QHBoxLayout();
   rows->addWidget(frame);
   rows->addLayout(cols);
   cols->addStretch();

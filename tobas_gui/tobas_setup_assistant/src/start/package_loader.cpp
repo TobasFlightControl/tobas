@@ -21,18 +21,18 @@ namespace setup_assistant
 PackageLoaderWidget::PackageLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
   : node_(node), robot_(robot), settings_(settings), property_client_(node, tobas::kPropertyServerGCS, kPackageName)
 {
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
-  auto label = new QLabel("Tobas Configuration Package Path");
+  const auto label = new QLabel("Tobas Configuration Package Path");
   label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
   label->setAlignment(Qt::AlignTop);
   rows->addWidget(label);
 
-  auto instruction = new qt::DescriptionWidget(
+  const auto instruction = new qt::DescriptionWidget(
     "Please set the path for the Tobas configuration package and press the load button.", kBodyPSize);
   rows->addWidget(instruction);
 
-  auto cols = new QHBoxLayout();
+  const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
 
   file_text_ = new QLineEdit();

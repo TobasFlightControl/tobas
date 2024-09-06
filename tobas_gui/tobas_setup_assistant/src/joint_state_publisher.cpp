@@ -23,7 +23,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   rows_->addLayout(slider_rows_);
   rows_->addLayout(button_rows_);
 
-  auto center_button = new QPushButton("Center");
+  const auto center_button = new QPushButton("Center");
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   button_rows_->addWidget(center_button);
 
@@ -53,7 +53,7 @@ void JointStatePublisherWidget::onRobotLoaded()
     js_.name.push_back(joint.name);
     js_.position.push_back(0.);
 
-    auto slider = new qt::DoubleSliderDisplay();
+    const auto slider = new qt::DoubleSliderDisplay();
     slider->setText(QString::fromStdString(joint.name));
     slider->setMinimum(joint.lower_limit);
     slider->setMaximum(joint.upper_limit);
