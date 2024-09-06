@@ -18,4 +18,7 @@ def generate_launch_description():
         )
     )
 
+    # Launch property server
+    ld.add_action(Node(package="tobas_property_tools", executable="property_server", name="property_server_gcs"))
+
     return ld

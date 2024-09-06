@@ -20,7 +20,7 @@ namespace setup_assistant
 RvizWidget::RvizWidget(
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
   const RobotInfo& robot)
-  : robot_(robot), node_(rviz_ros_node.lock()->get_raw_node()), rviz_client_(node_, "rviz")
+  : robot_(robot), node_(rviz_ros_node.lock()->get_raw_node())
 {
   // Create Rviz frame widget
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
@@ -32,9 +32,6 @@ RvizWidget::RvizWidget(
   manager_ = frame->getManager();
   display_ = manager_->getRootDisplayGroup()->getDisplayAt(kRobotStateDisplayIndex);
   TOBAS_CHECK(display_->getName() == "RobotState");
-
-  // 最初は機能をオフにしておく．さもないとrobot_descriptionが見つからないというエラーが出る．
-  display_->setBool(false);
 
   // 使用するプロパティを取得
   enable_visual_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Visual Enabled"));
@@ -66,18 +63,11 @@ RvizWidget::RvizWidget(
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
 }
 
-void RvizWidget::onRobotLoaded(const QString& urdf_content)
+void RvizWidget::onRobotLoaded()
 {
-  // 有効化
-  display_->setBool(true);
-
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
   manager_->setFixedFrame(QString::fromStdString(root_name));
-
-  // Rvizのdescriptionパラメータを更新
-  if (!rviz_client_.setParam("robot_description", urdf_content.toStdString()))
-    return;
 
   // ロボットモデルをリロード
   reload_->setBool(false);

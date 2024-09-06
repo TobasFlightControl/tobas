@@ -1,4 +1,6 @@
+#include <tobas_ros2_tools/parameter.hpp>
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
@@ -12,6 +14,10 @@ SetupAssistantWidget::SetupAssistantWidget(rviz_common::ros_integration::RosNode
     robot_(node_),
     pkg_generator_(node_, robot_, settings_)
 {
+  // Declare rosparams
+  ros2::declareParam(node_, kRobotDescriptionParam, tobas::kMinimulURDF);
+  ros2::declareParam(node_, kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
+
   const auto rows = new QVBoxLayout(this);
 
   // Start

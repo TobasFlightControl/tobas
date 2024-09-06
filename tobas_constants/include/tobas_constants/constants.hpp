@@ -126,6 +126,7 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 // Others
 static constexpr char kPropertyServerGCS[] = "/property_server_gcs";
 static constexpr char kUnknown[] = "unknown";
+static constexpr char kMinimulURDF[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
 static constexpr auto kWaitForServiceExistence = std::chrono::seconds(1);
 static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]

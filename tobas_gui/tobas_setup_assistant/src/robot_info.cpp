@@ -5,6 +5,7 @@
 #include <tobas_ros2_tools/xacro.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
+#include "tobas_setup_assistant/common.hpp"
 
 using namespace std;
 
@@ -23,6 +24,9 @@ bool RobotInfo::loadFromPath(const std::string& path)
   string urdf_content;
   if (!ros2::xacro(path, urdf_content))
     return false;
+
+  // Update paremeter
+  node_->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_content));
 
   // Update RSP parameter
   if (!rsp_client_.setParam("robot_description", urdf_content))
@@ -48,7 +52,7 @@ bool RobotInfo::loadFromPath(const std::string& path)
   axis_solver_.updateInternalDataStructures();
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
-  Q_EMIT loaded(QString::fromStdString(urdf_content));
+  Q_EMIT loaded();
   return true;
 }
 

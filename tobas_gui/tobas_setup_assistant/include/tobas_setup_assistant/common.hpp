@@ -7,6 +7,10 @@ namespace setup_assistant
 static constexpr char kPackageName[] = "tobas_setup_assistant";
 static constexpr char kTitle[] = "Tobas Setup Assistant";
 
+// ROS parameters
+static constexpr char kRobotDescriptionParam[] = "robot_description";
+static constexpr char kRobotDescriptionSemanticParam[] = "robot_description_semantic";  // Moveitのエラー回避のため
+
 // Point Sizes
 static constexpr int kTitlePSize = 18;
 static constexpr int kLabelPSize = 12;
