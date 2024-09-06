@@ -15,10 +15,10 @@ rviz_common::VisualizationFrame* createRvizFrame(
   reader.readFile(config, config_path);
 
   // Setup visualization frame
-  auto frame = new rviz_common::VisualizationFrame(rviz_ros_node, parent);
+  const auto frame = new rviz_common::VisualizationFrame(rviz_ros_node, parent);
+  frame->initialize(rviz_ros_node);
   frame->setHelpPath("");
   frame->setSplashPath("");
-  frame->initialize(rviz_ros_node);
   frame->load(config);
   frame->setMenuBar(nullptr);
   frame->setStatusBar(nullptr);

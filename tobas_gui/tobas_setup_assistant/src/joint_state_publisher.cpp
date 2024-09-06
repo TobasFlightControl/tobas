@@ -3,6 +3,7 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_setup_assistant/joint_state_publisher.hpp"
@@ -16,18 +17,22 @@ namespace setup_assistant
 JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
 {
-  rows_ = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
 
-  slider_rows_ = new qt::ScrollableVBoxLayout();
-  button_rows_ = new QVBoxLayout();
-  rows_->addLayout(slider_rows_);
-  rows_->addLayout(button_rows_);
+  const auto scroll_area = new qt::ScrollArea();
+  rows->addWidget(scroll_area);
+
+  slider_rows_ = new QVBoxLayout();
+  rows->addLayout(slider_rows_);
+
+  const auto button_rows = new QVBoxLayout();
+  rows->addLayout(button_rows);
 
   const auto center_button = new QPushButton("Center");
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
-  button_rows_->addWidget(center_button);
+  button_rows->addWidget(center_button);
 
-  rows_->addStretch();
+  rows->addStretch();
 
   // Register publishers
   js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, tobas::kJointStatesTopic);

@@ -1,12 +1,13 @@
 #pragma once
 
+#include <QVBoxLayout>
+
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <moveit_msgs/msg/display_robot_state.hpp>
 
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_qt_tools/widgets/widget.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
-#include <tobas_qt_tools/layouts/scroll_area.hpp>
 
 #include "./robot_info.hpp"
 
@@ -33,9 +34,7 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
 
-  QVBoxLayout* rows_;
-  qt::ScrollableVBoxLayout* slider_rows_;
-  QVBoxLayout* button_rows_;
+  QVBoxLayout* slider_rows_;
 
   sensor_msgs::msg::JointState js_;
   std::vector<qt::DoubleSliderDisplay*> sliders_;

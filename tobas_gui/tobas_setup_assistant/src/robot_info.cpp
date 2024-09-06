@@ -25,17 +25,8 @@ bool RobotInfo::loadFromPath(const std::string& path)
     return false;
 
   // Update RSP parameter
-  if (!rsp_client_.service_is_ready())
-  {
-    RCLCPP_ERROR(node_->get_logger(), "Robot state publisher is not ready.");
+  if (!rsp_client_.setParam("robot_description", urdf_content))
     return false;
-  }
-  const auto res = rsp_client_.set_parameters({ rclcpp::Parameter("robot_description", urdf_content) }).at(0);
-  if (!res.successful)
-  {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to set robot description parameter of RSP: " << res.reason);
-    return false;
-  }
 
   // Load KDL tree
   if (!kdl::treeFromString(urdf_content, tree_))
@@ -57,7 +48,7 @@ bool RobotInfo::loadFromPath(const std::string& path)
   axis_solver_.updateInternalDataStructures();
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
-  Q_EMIT loaded();
+  Q_EMIT loaded(QString::fromStdString(urdf_content));
   return true;
 }
 

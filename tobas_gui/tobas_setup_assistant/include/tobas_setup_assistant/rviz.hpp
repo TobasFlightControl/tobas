@@ -5,6 +5,7 @@
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
+#include <tobas_ros2_tools/simple_param_client.hpp>
 #include <tobas_qt_tools/widgets/widget.hpp>
 
 #include "./robot_info.hpp"
@@ -33,21 +34,24 @@ public:
   void unheightLink(const QString& link_name);
 
 private Q_SLOTS:
-  void onRobotLoaded();
+  void onRobotLoaded(const QString& urdf_content);
   void onVisualBoxToggled(bool checked);
   void onCollisionBoxToggled(bool checked);
 
 private:
   const RobotInfo& robot_;
 
+  const rclcpp::Node::SharedPtr node_;
+  ros2::SimpleParamClient rviz_client_;
+
   rviz_common::VisualizationManager* manager_;
   rviz_common::Display* display_;
 
   rviz_common::properties::BoolProperty* enable_visual_;
   rviz_common::properties::BoolProperty* enable_collision_;
-  rviz_common::properties::BoolProperty* reload_;
   rviz_common::properties::StringProperty* highlight_link_;
   rviz_common::properties::StringProperty* unhighlight_link_;
+  rviz_common::properties::BoolProperty* reload_;
 
   QString highlighted_link_;
 };

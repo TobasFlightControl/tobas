@@ -23,13 +23,22 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(moveit_common REQUIRED)
 find_package(moveit_ros_visualization REQUIRED)
 
+set(AMENT_DEPENDENCIES
+  moveit_common
+  moveit_ros_visualization
+)
+
+add_definitions(-DQT_NO_KEYWORDS)
+set(CMAKE_AUTOMOC ON)
+
+file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
+qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
+
 include_directories(include)
 
-# ヘッダもライブラリに加える必要がある．加えないとハイライト系のスロットが無いと言われる．
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-file(GLOB_RECURSE LIB_HPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}[^.]*.hpp)
-add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES} ${LIB_HPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} moveit_ros_visualization)
+add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
 
@@ -44,6 +53,6 @@ install(
 )
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(moveit_ros_visualization)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

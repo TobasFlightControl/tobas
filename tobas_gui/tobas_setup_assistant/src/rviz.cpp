@@ -20,7 +20,7 @@ namespace setup_assistant
 RvizWidget::RvizWidget(
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_ros_node,
   const RobotInfo& robot)
-  : robot_(robot)
+  : robot_(robot), node_(rviz_ros_node.lock()->get_raw_node()), rviz_client_(node_, "rviz")
 {
   // Create Rviz frame widget
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
@@ -39,9 +39,9 @@ RvizWidget::RvizWidget(
   // 使用するプロパティを取得
   enable_visual_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Visual Enabled"));
   enable_collision_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Collision Enabled"));
-  reload_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Reload"));
   highlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Highlight Link"));
   unhighlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Unhighlight Link"));
+  reload_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Reload"));
 
   enable_visual_->setBool(kDefaultVisualEnabled);
   enable_collision_->setBool(kDefaultCollisionEnabled);
@@ -66,7 +66,7 @@ RvizWidget::RvizWidget(
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
 }
 
-void RvizWidget::onRobotLoaded()
+void RvizWidget::onRobotLoaded(const QString& urdf_content)
 {
   // 有効化
   display_->setBool(true);
@@ -74,6 +74,10 @@ void RvizWidget::onRobotLoaded()
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
   manager_->setFixedFrame(QString::fromStdString(root_name));
+
+  // Rvizのdescriptionパラメータを更新
+  if (!rviz_client_.setParam("robot_description", urdf_content.toStdString()))
+    return;
 
   // ロボットモデルをリロード
   reload_->setBool(false);

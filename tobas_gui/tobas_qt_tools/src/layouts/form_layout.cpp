@@ -10,13 +10,13 @@ void FormLayout::clear()
 
 QWidget* FormLayout::getLabel(int row)
 {
-  auto item = itemAt(row, QFormLayout::LabelRole);
+  const auto item = itemAt(row, QFormLayout::LabelRole);
   return item->widget();
 }
 
 QWidget* FormLayout::getWidget(int row)
 {
-  auto item = itemAt(row, QFormLayout::FieldRole);
+  const auto item = itemAt(row, QFormLayout::FieldRole);
   return item->widget();
 }
 }  // namespace qt

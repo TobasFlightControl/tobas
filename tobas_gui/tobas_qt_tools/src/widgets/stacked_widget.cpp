@@ -8,7 +8,7 @@ void StackedWidget::clear()
 {
   while (count() > 0)
   {
-    auto tar_widget = widget(0);
+    const auto tar_widget = widget(0);
     removeWidget(tar_widget);
     tar_widget->deleteLater();
   }

@@ -12,7 +12,7 @@ MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* 
   setWindowTitle(title);
   setWindowIcon(QIcon(icon_path));
 
-  auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout(this);
   rows->addWidget(widget);
 }
 

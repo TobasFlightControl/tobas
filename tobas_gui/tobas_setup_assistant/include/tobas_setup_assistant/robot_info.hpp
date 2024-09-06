@@ -1,11 +1,10 @@
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
 #include <QObject>
-
 #include <hardware_interface/hardware_info.hpp>
 
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_ros2_tools/simple_param_client.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_drone_core/rotor_axis.hpp>
@@ -40,7 +39,7 @@ class RobotInfo : public QObject
   static constexpr double kJntAxisCollinearTol = tobas_std::deg2rad(5);
 
 Q_SIGNALS:
-  void loaded();
+  void loaded(const QString& urdf_content);
 
 public:
   explicit RobotInfo(rclcpp::Node::SharedPtr node);
@@ -61,7 +60,7 @@ public:
 
 private:
   rclcpp::Node::SharedPtr node_;
-  rclcpp::SyncParametersClient rsp_client_;
+  ros2::SimpleParamClient rsp_client_;
 
   kdl::Tree tree_;
   hardware_interface::HardwareInfo hardware_;

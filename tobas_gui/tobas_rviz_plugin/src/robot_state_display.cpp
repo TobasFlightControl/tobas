@@ -1,5 +1,5 @@
+#include <pluginlib/class_list_macros.hpp>
 #include <rviz_common/properties/string_property.hpp>
-#include <class_loader/class_loader.hpp>
 
 #include "../include/tobas_rviz_plugin/robot_state_display.hpp"
 
@@ -14,6 +14,9 @@ RobotStateDisplay::RobotStateDisplay()
 
   unhighlight_link_ = new rviz_common::properties::StringProperty(
     "Unhighlight Link", "", "Unhighlight chosen link.", this, SLOT(changedUnhighlightColor()), this);
+
+  reload_ =
+    new rviz_common::properties::BoolProperty("Reload", true, "Reload robot model.", this, SLOT(changedReload()), this);
 }
 
 void RobotStateDisplay::changedHighlightColor()
@@ -44,6 +47,12 @@ void RobotStateDisplay::changedUnhighlightColor()
   unsetHighlight(unhighlight_link_->getStdString());
   update_state_ = true;
 }
+
+void RobotStateDisplay::changedReload()
+{
+  if (reload_->getBool())
+    reset();
+}
 }  // namespace tobas_rviz_plugin
 
-CLASS_LOADER_REGISTER_CLASS(tobas_rviz_plugin::RobotStateDisplay, rviz_common::Display)
+PLUGINLIB_EXPORT_CLASS(tobas_rviz_plugin::RobotStateDisplay, rviz_common::Display)

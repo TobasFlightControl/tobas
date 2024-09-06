@@ -22,9 +22,11 @@ public:
 private:
   rviz_common::properties::StringProperty* highlight_link_;
   rviz_common::properties::StringProperty* unhighlight_link_;
+  rviz_common::properties::BoolProperty* reload_;
 
 private Q_SLOTS:
   void changedHighlightColor();
   void changedUnhighlightColor();
+  void changedReload();
 };
 }  // namespace tobas_rviz_plugin
