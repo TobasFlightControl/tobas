@@ -53,18 +53,20 @@ class PackageGenerator(QObject):
         progress.setCancelButton(None)
         progress.show()
 
+        # Verify user settings
         progress.setLabelText("Verifying the validity of the user settings.")
         if not self._is_valid_config():
             progress.close()
             return
         progress.progress_step()
 
-        progress.setLabelText("Generating Tobas packages.")
+        # Generate Tobas package
+        progress.setLabelText("Generating Tobas package.")
         self._generate_pkg()
         progress.progress_step()
 
         # Build Tobas package
-        progress.setLabelText("Building Tobas packages.")
+        progress.setLabelText("Building Tobas package.")
         if not build_tobas_package(self._tbs_path()):
             progress.close()
             q_error(self._main, "Failed to build Tobas package.")
@@ -370,7 +372,7 @@ class PackageGenerator(QObject):
                 "command_type": self._main.custom_joints.get_command_type(i),
             }
 
-        # TBSFファイルを作成
+        # TBSDRNファイルを作成
         drone_config_path = osp.join(config_dir, "drone.tbsdrn")
         with open(drone_config_path, "w") as f:
             yaml.safe_dump(drone_config, f)
