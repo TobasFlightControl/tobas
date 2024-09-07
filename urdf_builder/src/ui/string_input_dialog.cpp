@@ -14,7 +14,8 @@ StringInputDialog::StringInputDialog(
 {
   setWindowTitle(title);
 
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
