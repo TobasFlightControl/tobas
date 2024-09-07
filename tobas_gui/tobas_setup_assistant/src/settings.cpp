@@ -47,7 +47,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   {
     const auto tab = qobject_cast<BaseSettingWidget*>(widget(i));
     tab->initialize();
-    tab->updateInternalDataStructures();
     tab->setEnabled(false);  // 最初は無効化
   }
 }
