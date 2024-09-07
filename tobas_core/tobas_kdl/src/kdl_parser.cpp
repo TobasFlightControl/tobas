@@ -101,7 +101,7 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
   // constructs the optional inertia
   RigidBodyInertia inertia(0);
-  if (root->inertial)
+  if (root->inertial != nullptr)
     inertia = toKdl(*root->inertial);
 
   // constructs the kdl joint
@@ -127,7 +127,7 @@ bool treeFromFile(const string& file, Tree& tree)
 bool treeFromString(const string& xml, Tree& tree)
 {
   const auto robot_model = urdf::parseURDF(xml);
-  if (!robot_model)
+  if (robot_model == nullptr)
   {
     cerr << "Failed to generate robot model." << endl;
     return false;
@@ -137,24 +137,25 @@ bool treeFromString(const string& xml, Tree& tree)
 
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 {
-  if (!robot_model.getRoot())
+  const auto root_link = robot_model.getRoot();
+  if (root_link == nullptr)
   {
     cerr << "Failed to get root link." << endl;
     return false;
   }
 
-  tree = Tree(robot_model.getRoot()->name);
+  tree = Tree(root_link->name);
 
   // Warn if root link has inertia. tobas_kdl does not support this
-  if (robot_model.getRoot()->inertial)
+  if (root_link->inertial != nullptr)
   {
-    cerr << "The root link " << robot_model.getRoot()->name << " has an inertia specified in the URDF, "
+    cerr << "The root link " << root_link->name << " has an inertia specified in the URDF, "
          << "but tobas_kdl does not support a root link with an inertia. "
          << "As a workaround, you can add an extra dummy link to your URDF." << endl;
   }
 
   // Add all children
-  for (const auto& child : robot_model.getRoot()->child_links)
+  for (const auto& child : root_link->child_links)
     addChildrenToTree(child, tree);
 
   return true;

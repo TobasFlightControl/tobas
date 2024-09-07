@@ -44,8 +44,9 @@ private:
   bool generateConfigPackage(const inja::json& data);
   bool generateUserPackage(const inja::json& data);
 
-  bool generateDroneConfig(const std::filesystem::path& config_dir);
+  bool generateControllerManagerLaunch(const std::filesystem::path& launch_dir);
   bool generateJointControlConfig(const std::filesystem::path& config_dir);
+  bool generateDroneConfig(const std::filesystem::path& config_dir);
   bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
   bool generateControllerConfig(const std::filesystem::path& config_dir);
   bool generateObserverConfig(const std::filesystem::path& config_dir);

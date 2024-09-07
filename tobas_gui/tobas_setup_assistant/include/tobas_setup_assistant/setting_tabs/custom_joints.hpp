@@ -26,9 +26,6 @@ class CustomJointsWidget : public BaseSettingWidget
     MIN_POSITION,
     MAX_POSITION,
     COMMAND_TYPE,
-    P_GAIN,
-    I_GAIN,
-    D_GAIN,
   };
 
   static constexpr char kLinkNameLabel[] = "Link Name";
@@ -37,17 +34,10 @@ class CustomJointsWidget : public BaseSettingWidget
   static constexpr char kMinPosLabel[] = "Min Position";
   static constexpr char kMaxPosLabel[] = "Max Position";
   static constexpr char kCmdTypeLabel[] = "Command Type";
-  static constexpr char kPGainLabel[] = "P Gain";
-  static constexpr char kIGainLabel[] = "I Gain";
-  static constexpr char kDGainLabel[] = "D Gain";
 
   static constexpr char kPositionLabel[] = "position";
   static constexpr char kVelocityLabel[] = "velocity";
   static constexpr char kEffortLabel[] = "effort";
-
-  static constexpr double kDefaultPGain = 10.;
-  static constexpr double kDefaultIGain = 0.1;
-  static constexpr double kDefaultDGain = 1.;
 
   static constexpr int kColWidth = 120;
   static constexpr int kPosDecimals = 3;
@@ -89,19 +79,8 @@ public:
   tobas::joint_control_type_t getCommandType(int row) const;
   void setCommandType(int row, const tobas::joint_control_type_t& value);
 
-  double getPGain(int row) const;
-  void setPGain(int row, double value);
-
-  double getIGain(int row) const;
-  void setIGain(int row, double value);
-
-  double getDGain(int row) const;
-  void setDGain(int row, double value);
-
   QStringList getLinkNames() const;
   QStringList getJointNames() const;
-  QString getControllerType(int row) const;
-  bool pidEnabled(int row) const;
 
 private:
   const RobotInfo& robot_;

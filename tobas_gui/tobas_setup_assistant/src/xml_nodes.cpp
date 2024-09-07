@@ -345,12 +345,22 @@ void addRotorSpeedsPublisherPlugin(
   util::addList(plugin, "rotorJointNames", rotor_joint_names);
 }
 
-void addGazeboROSControlPlugin(
+void addGazeboROS2SimSystem()
+{
+  // TODO: Custom Jointに登録された全てのジョイントのcommand_interfaceとstate_interface
+  // cf. https://github.com/ros-controls/gz_ros2_control/tree/rolling/gz_ros2_control_demos/urdf
+
+  // TODO: 既に存在するならば消して上書き
+}
+
+void addGazeboSimROS2ControlPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
   const string& pkg_name,
   const string& params_rel_path)
 {
+  // TODO: 既に存在するならば消して上書き
+
   const auto plugin =
     util::addGazeboPlugin(robot, "gz_ros2_control-system", "gz_ros2_control::GazeboSimROS2ControlPlugin");
 

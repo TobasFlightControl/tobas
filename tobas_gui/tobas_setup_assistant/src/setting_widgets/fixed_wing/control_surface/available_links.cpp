@@ -39,11 +39,6 @@ void AvailableLinksWidget::updateInternalDataStructures()
     if (joint.max_effort <= 0.)
       continue;
 
-    // トランスミッションをもたないことを確認
-    // TODO: 操舵面専用のトランスミッションを用意する
-    if (robot_.hardwareInterface(joint.name) != hw_interface::NONE)
-      continue;
-
     // エンドリンクであることを確認
     if (!robot_.tree().isEndSegment(link_name))
       continue;

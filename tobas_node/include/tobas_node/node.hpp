@@ -256,8 +256,8 @@ ros2::ActionPtr<ActionType> BaseNode::createAction(
     std::bind(handle_cancel, obj, std::placeholders::_1), std::bind(handle_accepted, obj, std::placeholders::_1));
 }
 
-template <typename RepType, typename DurationT, typename Obj>
-ros2::TimerPtr BaseNode::createTimer(std::chrono::duration<RepType, DurationT> period, void (Obj::*fp)(void), Obj* obj)
+template <typename RepType, typename DurType, typename Obj>
+ros2::TimerPtr BaseNode::createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj)
 {
   return create_timer(period, bind(fp, obj));
 }

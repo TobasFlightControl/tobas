@@ -1,5 +1,5 @@
 #include <iostream>
-#include <hardware_interface/component_parser.hpp>
+#include <urdf_parser/urdf_parser.h>
 
 #include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_ros2_tools/xacro.hpp>
@@ -18,7 +18,7 @@ RobotInfo::RobotInfo(rclcpp::Node::SharedPtr node)
 {
 }
 
-bool RobotInfo::loadFromPath(const std::string& path)
+bool RobotInfo::loadFromPath(const string& path)
 {
   // Parse URDF
   string urdf_content;
@@ -29,21 +29,20 @@ bool RobotInfo::loadFromPath(const std::string& path)
   if (!rsp_client_.setParam("robot_description", urdf_content))
     return false;
 
-  // Load KDL tree
-  if (!kdl::treeFromString(urdf_content, tree_))
+  // Parse URDF
+  urdf_ = urdf::parseURDF(urdf_content);
+  if (urdf_ == nullptr)
   {
-    cerr << "Failed to load KDL tree." << endl;
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to parse URDF.");
     return false;
   }
 
-  // Load hardware information
-  const auto hardware_infos = hardware_interface::parse_control_resources_from_urdf(urdf_content);
-  if (hardware_infos.size() != 1)
+  // Load KDL tree
+  if (!kdl::treeFromUrdfModel(*urdf_, tree_))
   {
-    cerr << "The number of hardware information objects must be 1." << endl;
+    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to load KDL tree.");
     return false;
   }
-  hardware_ = hardware_infos.at(0);
 
   // Update KDL objects
   axis_solver_.updateInternalDataStructures();
@@ -53,55 +52,17 @@ bool RobotInfo::loadFromPath(const std::string& path)
   return true;
 }
 
+const string& RobotInfo::robotName() const
+{
+  return urdf_->getName();
+}
+
 const kdl::Tree& RobotInfo::tree() const
 {
   return tree_;
 }
 
-const hardware_interface::HardwareInfo& RobotInfo::hardware() const
-{
-  return hardware_;
-}
-
-const std::string& RobotInfo::robotName() const
-{
-  return hardware_.name;
-}
-
-hw_interface::type_t RobotInfo::hardwareInterface(const string& jnt_name) const
-{
-  for (const auto& transmission : hardware_.transmissions)
-  {
-    for (const auto& joint : transmission.joints)
-    {
-      if (joint.name == jnt_name)
-      {
-        const auto& hi = transmission.type;
-        if (hi == hw_interface::kPositionInterface)
-        {
-          return hw_interface::POSITION;
-        }
-        else if (hi == hw_interface::kVelocityInterface)
-        {
-          return hw_interface::VELOCITY;
-        }
-        else if (hi == hw_interface::kEffortInterface)
-        {
-          return hw_interface::EFFORT;
-        }
-        else
-        {
-          cerr << "Invalid hardware interface of joint " << jnt_name << ": " << hi << endl;
-          return hw_interface::UNKNOWN;
-        }
-      }
-    }
-  }
-
-  return hw_interface::NONE;
-}
-
-bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis)
+bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vector& tar_axis)
 {
   const auto seg_it = tree_.getSegment(seg_name);
 
@@ -129,7 +90,7 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl:
   return isJntAxisAlwaysCollinear(par_name, tar_axis);
 }
 
-tobas::rotor_axis_t RobotInfo::rotorAxisType(const std::string& seg_name)
+tobas::rotor_axis_t RobotInfo::rotorAxisType(const string& seg_name)
 {
   if (isJntAxisAlwaysCollinear(seg_name, kdl::Vector::UnitX()))
     return tobas::rotor_axis_t::X_POSITIVE;

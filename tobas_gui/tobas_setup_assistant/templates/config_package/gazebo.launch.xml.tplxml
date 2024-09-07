@@ -29,21 +29,18 @@
     <!-- Spawn robot in Gazebo -->
     <node pkg="ros_gz_sim" exec="create" output="screen" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw_rad)"/>
 
-    <!-- Load joint controller configurations from YAML file to parameter server -->
-    <rosparam file="$(find-pkg-share {{ config_pkg_name }})/config/joint_control.yaml" command="load"/>
-
-    <!-- Load the joint controllers -->
-    <node pkg="controller_manager" exec="spawner" name="controller_spawner" output="screen" args="{{ joint_controllers }} --param-file $(find-pkg-share {{ config_pkg_name }})/config/joint_control.yaml"/>
+    <!-- Launch joint controllers -->
+    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/controller_manager.launch.xml"/>
 
     <!-- Launch Gazebo command handlers -->
     <node pkg="tobas_gazebo_ros" exec="robor_command_handler" name="robor_command_handler" output="screen"/>
     <node pkg="tobas_gazebo_ros" exec="joint_command_handler" name="joint_command_handler" output="screen"/>
-
-    <!-- Launch component containers -->
-    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_high.launch.xml"/>
-    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_medium.launch.xml"/>
-    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_low.launch.xml"/>
   </group>
+
+  <!-- Launch component containers -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_high.launch.xml"/>
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_medium.launch.xml"/>
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_low.launch.xml"/>
 
   <!-- Launch user nodes -->
   <include file="$(find-pkg-share {{ user_pkg_name }})/launch/gazebo.launch.py"/>

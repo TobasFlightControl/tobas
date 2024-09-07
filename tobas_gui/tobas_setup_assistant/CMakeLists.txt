@@ -21,7 +21,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(hardware_interface REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
@@ -32,7 +31,6 @@ find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  hardware_interface
   visualization_msgs
   moveit_msgs
   tobas_kdl_conversions

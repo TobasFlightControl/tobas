@@ -1,12 +1,15 @@
-#include <std_msgs/msg/float64.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
 #include <controller_manager_msgs/srv/list_controllers.hpp>
 
+#include <tobas_std_tools/string.hpp>
 #include <tobas_ros2_tools/simple_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_drone_core/joint_conrol_type.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
 using namespace std;
+using namespace std_msgs::msg;
 
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，Gazeboのトランスミッションに指令する．
@@ -20,14 +23,7 @@ public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  enum command_type_t : int
-  {
-    POSITION,
-    VELOCITY,
-    EFFORT,
-  };
-
-  std::unordered_map<std::string, std::pair<command_type_t, ros2::PublisherPtr<std_msgs::msg::Float64>>> ctrl_map_;
+  unordered_map<string, pair<tobas::joint_control_type_t, ros2::PublisherPtr<Float64MultiArray>>> ctrl_map_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
@@ -50,7 +46,6 @@ JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& opti
 bool JointCommandHandlerNode::initialize()
 {
   // ノードの起動順が不確定なため，サービスコールをコンストラクタでやるべきではない
-  // 制限時間を設けて成功するまで何度も繰り返すのが正しい
   ros2::SimpleServiceClient<controller_manager_msgs::srv::ListControllers> sc(
     shared_from_this(), tobas::kListControllersSrv);
 
@@ -61,27 +56,38 @@ bool JointCommandHandlerNode::initialize()
     return false;
   }
 
-  command_type_t control_type;
   for (const auto& item : sc.getResponse()->controller)
   {
-    if (item.claimed_interfaces.size() != 1)
-      continue;
-
-    if (item.type.ends_with("JointPositionController"))
-      control_type = POSITION;
-    else if (item.type.ends_with("JointVelocityController"))
-      control_type = VELOCITY;
-    else if (item.type.ends_with("JointEffortController"))
-      control_type = EFFORT;
-    else
+    if (item.claimed_interfaces.size() == 0)
     {
-      TOBAS_ERROR("Unknown controller type: ", item.type);
-      return false;
+      TOBAS_WARN("No joints are registered to \"", item.name, "\".");
+      continue;
+    }
+    else if (item.claimed_interfaces.size() >= 2)
+    {
+      TOBAS_WARN("Controllers that handle multiple joints are not supported.");
+      continue;
     }
 
-    const auto& jnt_name = item.claimed_interfaces.at(0);
-    const auto topic = item.name + "/command";
-    ctrl_map_[jnt_name] = make_pair(control_type, createPublisher<std_msgs::msg::Float64>(topic, 1));
+    // TODO: item.typeによる場合分けは必要？
+
+    const auto& [jnt_name, interface] = tobas_std::rsplit(item.claimed_interfaces.at(0), '/');
+
+    tobas::joint_control_type_t control_type;
+    if (interface == tobas::controller_manager::interface::kPositionInterface)
+      control_type = tobas::joint_control_type_t::POSITION_CONTROL;
+    else if (interface == tobas::controller_manager::interface::kVelocityInterface)
+      control_type = tobas::joint_control_type_t::VELOCITY_CONTROL;
+    else if (interface == tobas::controller_manager::interface::kEffortInterface)
+      control_type = tobas::joint_control_type_t::EFFORT_CONTROL;
+    else
+    {
+      TOBAS_WARN("Unknown command interface: ", interface);
+      continue;
+    }
+
+    const auto topic = item.name + "/commands";
+    ctrl_map_[jnt_name] = make_pair(control_type, createPublisher<Float64MultiArray>(topic, 1));
   }
 
   return true;
@@ -89,10 +95,13 @@ bool JointCommandHandlerNode::initialize()
 
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
-  if (ctrl_map_.size() == 0 && !initialize())
+  if (ctrl_map_.size() == 0)
   {
-    ctrl_map_.clear();
-    return;
+    if (!initialize())
+    {
+      ctrl_map_.clear();
+      return;
+    }
   }
 
   for (size_t i = 0; i < positions->commands.size(); ++i)
@@ -100,21 +109,21 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     const auto& jnt_name = positions->commands[i].name;
     if (!ctrl_map_.contains(jnt_name))
     {
-      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
-      continue;
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      return;
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == POSITION)
+    if (type == tobas::joint_control_type_t::POSITION_CONTROL)
     {
-      auto cmd = std::make_unique<std_msgs::msg::Float64>();
-      cmd->data = positions->commands[i].data;
+      auto cmd = std::make_unique<Float64MultiArray>();
+      cmd->data.push_back(positions->commands[i].data);
       pub->publish(move(cmd));
     }
     else
     {
       TOBAS_WARN(
-        "Transmission type for joint '", jnt_name, "' is not position. So received position command for joint '",
+        "Controller type for joint '", jnt_name, "' is not position. So received position command for joint '",
         jnt_name, "' is ignored.");
     }
   }
@@ -122,10 +131,13 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
 
 void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
-  if (ctrl_map_.size() == 0 && !initialize())
+  if (ctrl_map_.size() == 0)
   {
-    ctrl_map_.clear();
-    return;
+    if (!initialize())
+    {
+      ctrl_map_.clear();
+      return;
+    }
   }
 
   for (size_t i = 0; i < velocities->commands.size(); ++i)
@@ -134,21 +146,21 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
 
     if (!ctrl_map_.contains(jnt_name))
     {
-      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
-      continue;
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      return;
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == VELOCITY)
+    if (type == tobas::joint_control_type_t::VELOCITY_CONTROL)
     {
-      auto cmd = std::make_unique<std_msgs::msg::Float64>();
-      cmd->data = velocities->commands[i].data;
+      auto cmd = std::make_unique<Float64MultiArray>();
+      cmd->data.push_back(velocities->commands[i].data);
       pub->publish(move(cmd));
     }
     else
     {
       TOBAS_WARN(
-        "Transmission type for joint '", jnt_name, "' is not velocity. So received velocity command for joint '",
+        "Controller type for joint '", jnt_name, "' is not velocity. So received velocity command for joint '",
         jnt_name, "' is ignored.");
     }
   }
@@ -156,10 +168,13 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
 
 void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
-  if (ctrl_map_.size() == 0 && !initialize())
+  if (ctrl_map_.size() == 0)
   {
-    ctrl_map_.clear();
-    return;
+    if (!initialize())
+    {
+      ctrl_map_.clear();
+      return;
+    }
   }
 
   for (size_t i = 0; i < efforts->commands.size(); ++i)
@@ -167,21 +182,21 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     const auto& jnt_name = efforts->commands[i].name;
     if (!ctrl_map_.contains(jnt_name))
     {
-      TOBAS_ERROR("Transmission for joint '", jnt_name, "' is not found.");
-      continue;
+      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      return;
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == EFFORT)
+    if (type == tobas::joint_control_type_t::EFFORT_CONTROL)
     {
-      auto cmd = std::make_unique<std_msgs::msg::Float64>();
-      cmd->data = efforts->commands[i].data;
+      auto cmd = std::make_unique<Float64MultiArray>();
+      cmd->data.push_back(efforts->commands[i].data);
       pub->publish(move(cmd));
     }
     else
     {
       TOBAS_WARN(
-        "Transmission type for joint '", jnt_name, "' is not effort. So received effort command for joint '", jnt_name,
+        "Controller type for joint '", jnt_name, "' is not effort. So received effort command for joint '", jnt_name,
         "' is ignored.");
     }
   }

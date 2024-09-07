@@ -102,11 +102,13 @@ void addRotorSpeedsPublisherPlugin(
   const std::vector<std::string>& rotor_joint_names);
 
 /* https://github.com/ros-controls/gz_ros2_control/tree/jazzy */
-void addGazeboROSControlPlugin(
+void addGazeboSimROS2ControlPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& pkg_name,
   const std::string& params_rel_path);
+
+void addGazeboROS2SimSystem();
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
 }  // namespace setup_assistant

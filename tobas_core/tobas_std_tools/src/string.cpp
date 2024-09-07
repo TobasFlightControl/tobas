@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <map>
 #include <regex>
+#include <iostream>
 
 #include "../include/tobas_std_tools/string.hpp"
 
@@ -33,6 +34,24 @@ vector<string> split(const string& str, const char& del)
     }
   }
   return res;
+}
+
+pair<string, string> rsplit(const string& str, const char& c)
+{
+  // 最後の'/'を探す
+  size_t pos = str.rfind(c);
+
+  if (pos != string::npos)
+  {
+    string before = str.substr(0, pos);
+    string after = str.substr(pos + 1);
+    return { before, after };
+  }
+  else
+  {
+    cerr << "String \"" << str << "\" does not contain '" << c << "'" << endl;
+    return { str, "" };
+  }
 }
 
 string lstrip(const string& str, const string& del)

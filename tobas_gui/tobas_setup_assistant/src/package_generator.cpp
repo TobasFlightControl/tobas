@@ -6,6 +6,7 @@
 #include <QMessageBox>
 
 #include <tobas_std_tools/check.hpp>
+#include <tobas_std_tools/string.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_ros2_tools/path.hpp>
@@ -315,9 +316,11 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!createEmptyFile(config_dir / "dynamic_params.yaml"))
     return false;
-  if (!generateDroneConfig(config_dir))
+  if (!generateControllerManagerLaunch(launch_dir))
     return false;
   if (!generateJointControlConfig(config_dir))
+    return false;
+  if (!generateDroneConfig(config_dir))
     return false;
   if (!generateRCTeleopConfig(config_dir))
     return false;
@@ -357,6 +360,69 @@ bool PackageGenerator::generateUserPackage(const inja::json& tpl_data)
   return true;
 }
 
+bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_dir)
+{
+  // TODO: コントローラごとにノードを立ち上げる
+  // cf. gz_ros2_control_demos/launch/gripper_mimic_joint_example_effort.launch.xml
+
+  ofstream file(launch_dir / "controller_manager.launch.xml");
+  if (!file)
+    return false;
+  file << "<launch></launch>" << endl;
+  file.close();
+
+  return true;
+}
+
+bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
+{
+  // cf. https://github.com/ros-controls/gz_ros2_control/tree/rolling/gz_ros2_control_demos/config
+
+  // Create data
+  YAML::Node root_node(YAML::NodeType::Map);
+
+  // Controller manager
+  root_node["controller_manager"][kROSParamsKey]["update_rate"] = 1000;  // TODO: GUIで設定できるように
+
+  // Joint state broadcaster
+  YAML::Node jsb_node(YAML::NodeType::Map);
+  jsb_node["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
+  root_node["joint_state_broadcaster"][kROSParamsKey] = jsb_node;
+
+  // Each joint controllers
+  for (int i = 0; i < settings_->custom_joints->count(); ++i)
+  {
+    const auto jnt_name = settings_->custom_joints->getJointName(i).toStdString();
+    const auto controller_name = jnt_name + "_controller";
+
+    YAML::Node controller_node(YAML::NodeType::Map);
+    controller_node["type"] = tobas::controller_manager::type::kForwardCommandController;
+    controller_node["joints"].push_back(jnt_name);
+    switch (settings_->custom_joints->getCommandType(i))
+    {
+      case tobas::joint_control_type_t::POSITION_CONTROL:
+        controller_node["interface_name"] = tobas::controller_manager::interface::kPositionInterface;
+        break;
+      case tobas::joint_control_type_t::VELOCITY_CONTROL:
+        controller_node["interface_name"] = tobas::controller_manager::interface::kVelocityInterface;
+        break;
+      case tobas::joint_control_type_t::EFFORT_CONTROL:
+        controller_node["interface_name"] = tobas::controller_manager::interface::kEffortInterface;
+        break;
+      default:
+        throw;
+    }
+
+    root_node[controller_name][kROSParamsKey] = controller_node;
+  }
+
+  // Save data
+  if (!saveYamlNode(config_dir / "joint_control.yaml", root_node))
+    return false;
+
+  return true;
+}
+
 bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
 {
   const auto drone = createDrone();
@@ -366,39 +432,6 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
     qt::qErrorBox(settings_, "Failed to save drone configuration.");
     return false;
   }
-
-  return true;
-}
-
-bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
-{
-  // Create data
-  YAML::Node rosparam_node(YAML::NodeType::Map);
-
-  // joint_state_broadcaster
-  YAML::Node jsb_node(YAML::NodeType::Map);
-  jsb_node["publish_rate"] = 1000;
-  jsb_node["type"] = "joint_state_broadcaster/JointStateBroadcaster";
-
-  // Each joint controllers
-  for (int i = 0; i < settings_->custom_joints->count(); ++i)
-  {
-    const auto jnt_name = settings_->custom_joints->getJointName(i).toStdString();
-    const auto controller_name = jnt_name + "_controller";
-
-    YAML::Node controller_node(YAML::NodeType::Map);
-    controller_node["type"] = settings_->custom_joints->getControllerType(i).toStdString();
-    controller_node["joints"].push_back(jnt_name);
-
-    rosparam_node[controller_name] = controller_node;
-  }
-
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node["controller_manager"][kROSParamsKey] = rosparam_node;
-
-  // Save data
-  if (!saveYamlNode(config_dir / "joint_control.yaml", root_node))
-    return false;
 
   return true;
 }
@@ -460,7 +493,7 @@ bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
 
   // Get robot element
   const auto robot = doc->RootElement();
-  if (!robot->Name())
+  if (strcmp(robot->Name(), "robot") != 0)
   {
     qt::qErrorBox(settings_, "Robot description is invalid.");
     return false;
@@ -580,12 +613,14 @@ bool PackageGenerator::isDeletableGazeboPlugin(tinyxml2::XMLElement* plugin)
 
   const string filename_str(filename);
 
-  // Tobasのプラグインは削除
+  // Tobasのプラグインを削除
   if (filename_str.starts_with("tobas") || filename_str.starts_with("libtobas"))
     return true;
 
-  // Gazebo ROS2 Controlは削除
-  if (filename_str.ends_with("gazebo_ros2_control.so"))
+  // GazeboのROS2インターフェースを削除
+  if (tobas_std::contains(filename_str, "gazebo_ros2_control"))  // Gazebo Classic
+    return true;
+  if (tobas_std::contains(filename_str, "gz_ros2_control-system"))  // Gazebo Ignition
     return true;
 
   return false;
@@ -702,8 +737,11 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   }
   addRotorSpeedsPublisherPlugin(robot, ns, rotor_jnt_names);
 
-  // Gazebo ROS control plugin
-  addGazeboROSControlPlugin(robot, ns, tobas::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
+  // Gazebo ROS2 control plugin
+  addGazeboSimROS2ControlPlugin(robot, ns, tobas::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
+
+  // Gazebo ROS2 control system  // TODO
+  addGazeboROS2SimSystem();
 
   // Base static joint for debug
   addBaseStaticJoint(robot, robot_.tree().getRootName());

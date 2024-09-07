@@ -1,8 +1,30 @@
 #include <array>
 #include <cstddef>
 #include <cassert>
+#include <iostream>
 
 #include <tobas_algorithm/kahan.hpp>
+
+namespace std
+{
+/* std::arrayのコンソール出力 */
+template <typename T, size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr)
+{
+  if (N == 0)
+  {
+    os << "[]";
+    return os;
+  }
+
+  os << "[";
+  for (size_t i = 0; i < N - 1; ++i)
+    os << arr[i] << " ";
+  os << arr[N - 1] << "]";
+
+  return os;
+}
+}  // namespace std
 
 namespace tobas_std
 {

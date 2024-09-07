@@ -1,12 +1,15 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace tobas_std
 {
 /* 文字列をdelで区切ってvectorにして返す． */
 std::vector<std::string> split(const std::string& str, const char& del);
+
+/* 文字列を最後の指定文字で区切る． */
+std::pair<std::string, std::string> rsplit(const std::string& str, const char& c);
 
 /* 先頭の特定の文字列を削除する． */
 std::string lstrip(const std::string& str, const std::string& del);

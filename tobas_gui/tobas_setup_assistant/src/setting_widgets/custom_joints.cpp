@@ -31,8 +31,7 @@ const char* CustomJointsWidget::description() const
 
 void CustomJointsWidget::onInit()
 {
-  const QStringList labels{ kLinkNameLabel, kJointNameLabel, kHomePosLabel, kMinPosLabel, kMaxPosLabel,
-                            kCmdTypeLabel,  kPGainLabel,     kIGainLabel,   kDGainLabel };
+  const QStringList labels{ kLinkNameLabel, kJointNameLabel, kHomePosLabel, kMinPosLabel, kMaxPosLabel, kCmdTypeLabel };
   table_ = new qt::TableWidget(0, labels.size());
   table_->setHorizontalHeaderLabels(labels);
   for (int c = 0; c < table_->columnCount(); ++c)
@@ -57,11 +56,6 @@ void CustomJointsWidget::updateInternalDataStructures()
     // 可動ジョイントでない場合はスキップ
     if (joint.type == kdl::Joint::Fixed)
       continue;
-
-    // トランスミッションが無効な場合はスキップ
-    const auto hi = robot_.hardwareInterface(joint.name);
-    if (hi < 0)
-      return;
 
     table_->insertRow(row);
 
@@ -106,42 +100,7 @@ void CustomJointsWidget::updateInternalDataStructures()
     }
 
     const auto cmd_type = new qt::ComboBox();
-
-    const auto p_gain = new qt::DoubleSpinBox();
-    const auto i_gain = new qt::DoubleSpinBox();
-    const auto d_gain = new qt::DoubleSpinBox();
-
-    p_gain->setDecimals(kGainDecimals);
-    i_gain->setDecimals(kGainDecimals);
-    d_gain->setDecimals(kGainDecimals);
-
-    p_gain->setValue(kDefaultPGain);
-    i_gain->setValue(kDefaultIGain);
-    d_gain->setValue(kDefaultDGain);
-
-    switch (hi)
-    {
-      case hw_interface::POSITION:
-        cmd_type->addItem(kPositionLabel);
-        p_gain->setEnabled(false);
-        i_gain->setEnabled(false);
-        d_gain->setEnabled(false);
-        break;
-      case hw_interface::VELOCITY:
-        cmd_type->addItem(kPositionLabel);
-        cmd_type->addItem(kVelocityLabel);
-        cmd_type->setCurrentText(kVelocityLabel);
-        break;
-      case hw_interface::EFFORT:
-        cmd_type->addItem(kPositionLabel);
-        cmd_type->addItem(kVelocityLabel);
-        cmd_type->addItem(kEffortLabel);
-        cmd_type->setCurrentText(kEffortLabel);
-        break;
-      default:
-        qt::qErrorBox(this, QString::fromStdString(std::format("Unknown hardware interface: {}", (int)hi)));
-        continue;
-    }
+    cmd_type->addItems({ kPositionLabel, kVelocityLabel, kEffortLabel });
 
     table_->setCellWidget(row, static_cast<int>(LINK_NAME), link_name_label);
     table_->setCellWidget(row, static_cast<int>(JOINT_NAME), jnt_name_label);
@@ -149,9 +108,6 @@ void CustomJointsWidget::updateInternalDataStructures()
     table_->setCellWidget(row, static_cast<int>(MIN_POSITION), min_pos);
     table_->setCellWidget(row, static_cast<int>(MAX_POSITION), max_pos);
     table_->setCellWidget(row, static_cast<int>(COMMAND_TYPE), cmd_type);
-    table_->setCellWidget(row, static_cast<int>(P_GAIN), p_gain);
-    table_->setCellWidget(row, static_cast<int>(I_GAIN), i_gain);
-    table_->setCellWidget(row, static_cast<int>(D_GAIN), d_gain);
 
     ++row;
   }
@@ -193,9 +149,6 @@ YAML::Node CustomJointsWidget::dump()
     jnt_node[kMinPosLabel] = getMinPosition(row);
     jnt_node[kMaxPosLabel] = getMaxPosition(row);
     jnt_node[kCmdTypeLabel] = getCommandType(row);
-    jnt_node[kPGainLabel] = getPGain(row);
-    jnt_node[kIGainLabel] = getIGain(row);
-    jnt_node[kDGainLabel] = getDGain(row);
     node.push_back(jnt_node);
   }
 
@@ -216,9 +169,6 @@ void CustomJointsWidget::load(const YAML::Node& node)
     setMinPosition(row, jnt_node[kMinPosLabel].as<double>());
     setMaxPosition(row, jnt_node[kMaxPosLabel].as<double>());
     setCommandType(row, jnt_node[kCmdTypeLabel].as<tobas::joint_control_type_t>());
-    setPGain(row, jnt_node[kPGainLabel].as<double>());
-    setIGain(row, jnt_node[kIGainLabel].as<double>());
-    setDGain(row, jnt_node[kDGainLabel].as<double>());
   }
 }
 
@@ -324,42 +274,6 @@ void CustomJointsWidget::setCommandType(int row, const tobas::joint_control_type
   cell->setCurrentText(text);
 }
 
-double CustomJointsWidget::getPGain(int row) const
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(P_GAIN)));
-  return cell->value();
-}
-
-void CustomJointsWidget::setPGain(int row, double value)
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(P_GAIN)));
-  cell->setValue(value);
-}
-
-double CustomJointsWidget::getIGain(int row) const
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(I_GAIN)));
-  return cell->value();
-}
-
-void CustomJointsWidget::setIGain(int row, double value)
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(I_GAIN)));
-  cell->setValue(value);
-}
-
-double CustomJointsWidget::getDGain(int row) const
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(D_GAIN)));
-  return cell->value();
-}
-
-void CustomJointsWidget::setDGain(int row, double value)
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, static_cast<int>(D_GAIN)));
-  cell->setValue(value);
-}
-
 QStringList CustomJointsWidget::getLinkNames() const
 {
   QStringList res;
@@ -374,62 +288,6 @@ QStringList CustomJointsWidget::getJointNames() const
   for (int row = 0; row < count(); ++row)
     res.append(getJointName(row));
   return res;
-}
-
-QString CustomJointsWidget::getControllerType(int row) const
-{
-  QString group, controller;
-
-  const auto jnt_name = getJointName(row);
-  const auto hi = robot_.hardwareInterface(jnt_name.toStdString());
-  switch (hi)
-  {
-    case hw_interface::POSITION:
-      group = "position_controllers";
-      break;
-    case hw_interface::VELOCITY:
-      group = "velocity_controllers";
-      break;
-    case hw_interface::EFFORT:
-      group = "effort_controllers";
-      break;
-    default:
-      throw;
-  }
-
-  const auto cmd_type = getCommandType(row);
-  switch (cmd_type)
-  {
-    case tobas::joint_control_type_t::POSITION_CONTROL:
-      controller = "JointGroupPositionController";
-      break;
-    case tobas::joint_control_type_t::VELOCITY_CONTROL:
-      controller = "JointGroupVelocityController";
-      break;
-    case tobas::joint_control_type_t::EFFORT_CONTROL:
-      controller = "JointGroupEffortController";
-      break;
-    default:
-      throw;
-  }
-
-  return group + "/" + controller;
-}
-
-bool CustomJointsWidget::pidEnabled(int row) const
-{
-  const auto jnt_name = getJointName(row);
-  const auto hi = robot_.hardwareInterface(jnt_name.toStdString());
-  const auto cmd_type = getCommandType(row);
-
-  if (hi == hw_interface::POSITION && cmd_type == tobas::joint_control_type_t::POSITION_CONTROL)
-    return false;
-  if (hi == hw_interface::VELOCITY && cmd_type == tobas::joint_control_type_t::VELOCITY_CONTROL)
-    return false;
-  if (hi == hw_interface::EFFORT && cmd_type == tobas::joint_control_type_t::EFFORT_CONTROL)
-    return false;
-
-  return true;
 }
 
 int CustomJointsWidget::getRow(const QString& jnt_name)

@@ -55,11 +55,6 @@ void AvailableLinksWidget::updateInternalDataStructures()
     if (joint.type != kdl::Joint::RotAxis)
       continue;
 
-    // トランスミッションをもたないことを確認
-    // TODO: プロペラ専用のトランスミッションを用意する
-    if (robot_.hardwareInterface(joint.name) != hw_interface::NONE)
-      continue;
-
     // エンドリンクであることを確認
     if (!robot_.tree().isEndSegment(link_name))
       continue;

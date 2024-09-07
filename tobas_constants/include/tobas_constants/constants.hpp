@@ -92,6 +92,23 @@ static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
 
+// Controller Manager
+namespace controller_manager
+{
+namespace interface
+{
+static constexpr char kPositionInterface[] = "position";
+static constexpr char kVelocityInterface[] = "velocity";
+static constexpr char kEffortInterface[] = "effort";
+}  // namespace interface
+
+namespace type
+{
+static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster/JointStateBroadcaster";
+static constexpr char kForwardCommandController[] = "forward_command_controller/ForwardCommandController";
+}  // namespace type
+}  // namespace controller_manager
+
 // Node names
 static constexpr char kControllerNode[] = "controller";
 static constexpr char kObserverNode[] = "observer";
