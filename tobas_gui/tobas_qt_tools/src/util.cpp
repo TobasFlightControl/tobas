@@ -24,18 +24,30 @@ void addWidgetCenter(QWidget* widget, QVBoxLayout* rows)
 
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent)
 {
+  // parent > widget > layout
+
   const auto widget = new QWidget();
   widget->setFixedWidth(width);
   parent->addWidget(widget);
-  return new QVBoxLayout(widget);
+
+  const auto layout = new QVBoxLayout();
+  widget->setLayout(layout);
+
+  return layout;
 }
 
 QHBoxLayout* createFixedHeightQHBoxLayout(int height, QBoxLayout* parent)
 {
+  // parent > widget > layout
+
   const auto widget = new QWidget();
   widget->setFixedHeight(height);
   parent->addWidget(widget);
-  return new QHBoxLayout(widget);
+
+  const auto layout = new QHBoxLayout();
+  widget->setLayout(layout);
+
+  return layout;
 }
 
 void clearLayout(QLayout* layout)
@@ -71,7 +83,8 @@ QWidget* createVerticalWidgetsContainer(const std::vector<QWidget*>& widgets)
   const auto container = new QWidget();
 
   // 垂直レイアウトを作成
-  const auto rows = new QVBoxLayout(container);
+  const auto rows = new QVBoxLayout();
+  container->setLayout(rows);
 
   // 受け取ったウィジェットをレイアウトに追加
   for (const auto widget : widgets)
@@ -87,7 +100,8 @@ QWidget* createHorizontalWidgetsContainer(const std::vector<QWidget*>& widgets)
   const auto container = new QWidget();
 
   // 水平レイアウトを作成
-  const auto cols = new QHBoxLayout(container);
+  const auto cols = new QHBoxLayout();
+  container->setLayout(cols);
 
   // 受け取ったウィジェットをレイアウトに追加
   for (const auto widget : widgets)

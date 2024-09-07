@@ -10,7 +10,8 @@ namespace propulsion_system
 {
 void SpeedLimitWidget_Base::initialize(QButtonGroup* ckb_group)
 {
-  const auto cols = new QHBoxLayout(this);
+  const auto cols = new QHBoxLayout();
+  setLayout(cols);
 
   checkbox_ = new QCheckBox(name());
   cols->addWidget(checkbox_);

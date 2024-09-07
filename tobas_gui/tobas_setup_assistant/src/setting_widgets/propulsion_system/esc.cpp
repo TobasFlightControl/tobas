@@ -15,7 +15,8 @@ ESCWidget::ESCWidget()
                       { "BHLeli Closed Loop (Middle Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_MID_RANGE },
                       { "BHLeli Closed Loop (High Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_HIGH_RANGE } }
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   max_current_ = new ParamGetterWidget_SpinBox(
     "Maximum Current", "Maximum current that the ESC (Electronic Speed Controller) can safely handle. "

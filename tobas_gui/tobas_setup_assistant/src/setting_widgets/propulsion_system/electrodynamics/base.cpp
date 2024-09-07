@@ -14,7 +14,8 @@ namespace propulsion_system
 {
 void ElectrodynamicsWidget_Base::initialize()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   header_rows_ = new QVBoxLayout();
   rows->addLayout(header_rows_);

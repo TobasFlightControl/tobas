@@ -16,7 +16,8 @@ ElectrodynamicsWidget::ElectrodynamicsWidget(
   MotorWidget* motor,
   AerodynamicsWidget* aerodynamics)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   method_name_ = new qt::ComboBox();
   methods_ = new qt::StackedWidget();

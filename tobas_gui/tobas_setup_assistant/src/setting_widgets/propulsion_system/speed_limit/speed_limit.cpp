@@ -16,7 +16,8 @@ namespace propulsion_system
 {
 SpeedLimitWidget::SpeedLimitWidget(ElectrodynamicsWidget* electrodynamics, AerodynamicsWidget* aerodynamics)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   rows->addWidget(new qt::DescriptionWidget("", kBodyPSize));  // TODO
 

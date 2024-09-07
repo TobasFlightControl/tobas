@@ -15,7 +15,8 @@ namespace propulsion_system
 {
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   method_name_ = new qt::ComboBox();
   methods_ = new qt::StackedWidget();

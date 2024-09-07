@@ -8,7 +8,8 @@ namespace propulsion_system
 {
 SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   const auto button_cols = new QHBoxLayout();
   rows->addLayout(button_cols);

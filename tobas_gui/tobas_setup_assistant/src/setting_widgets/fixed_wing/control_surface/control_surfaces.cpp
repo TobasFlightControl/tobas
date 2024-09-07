@@ -15,7 +15,8 @@ namespace fixed_wing
 {
 ControlSurfacesWidget::ControlSurfacesWidget(const RobotInfo& robot)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   const auto available_links_label = new QLabel("Available Links");
   available_links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));

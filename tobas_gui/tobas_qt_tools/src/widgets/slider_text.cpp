@@ -10,7 +10,8 @@ namespace qt
 {
 IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* parent) : super(parent)
 {
-  const auto cols = new QHBoxLayout(this);
+  const auto cols = new QHBoxLayout();
+  setLayout(cols);
 
   cols->addWidget(new QLabel(QString::number(minimum)));
 
@@ -70,7 +71,8 @@ void IntSliderTextWidget::setLineEditText(int value)
 DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, int decimals, QWidget* parent)
   : super(parent), decimals_(decimals)
 {
-  const auto cols = new QHBoxLayout(this);
+  const auto cols = new QHBoxLayout();
+  setLayout(cols);
 
   cols->addWidget(new QLabel(QString::number(minimum, 'f', decimals)));
 

@@ -15,7 +15,8 @@ namespace propulsion_system
 {
 AvailableLinkItemWidget::AvailableLinkItemWidget(const QString& link_name)
 {
-  const auto cols = new QHBoxLayout(this);
+  const auto cols = new QHBoxLayout();
+  setLayout(cols);
 
   link_label_ = new QLabel(link_name);
   link_label_->setFont(qt::DefaultFont(kBodyPSize));

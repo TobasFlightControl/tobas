@@ -11,7 +11,8 @@ namespace propulsion_system
 {
 MotorWidget::MotorWidget()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   direction_ = new ParamGetterWidget_ComboBox(
     "Turning Direction", "Motor rotation direction. "

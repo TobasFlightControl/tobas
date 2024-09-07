@@ -11,7 +11,8 @@ namespace fixed_wing
 {
 VehicleParametersWidget::VehicleParametersWidget()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   wing_surface_ = new ParamGetterWidget_DoubleSpinBox("Wing Surface", "");
   wing_surface_->setDecimals(3);

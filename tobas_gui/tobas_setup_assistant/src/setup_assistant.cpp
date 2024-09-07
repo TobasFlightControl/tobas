@@ -24,7 +24,8 @@ SetupAssistantWidget::SetupAssistantWidget(
   js_pub_->setFixedWidth(kJointStatePublisherWidth);
 
   // Layout
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
   rows->addWidget(start_);
   const auto cols = qt::createFixedHeightQHBoxLayout(kHeaderHeight, rows);
   rows->addLayout(cols);

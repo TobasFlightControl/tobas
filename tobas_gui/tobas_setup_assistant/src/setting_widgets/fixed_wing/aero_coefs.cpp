@@ -18,7 +18,8 @@ namespace fixed_wing
 AerodynamicsCoefficientsWidget::AerodynamicsCoefficientsWidget(rclcpp::Node::SharedPtr node)
   : node_(node), property_client_(node)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);

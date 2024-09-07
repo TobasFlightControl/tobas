@@ -10,7 +10,8 @@ namespace setup_assistant
 {
 BaseSettingWidget::BaseSettingWidget()
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   header_rows_ = new QVBoxLayout();
   content_rows_ = new QVBoxLayout();

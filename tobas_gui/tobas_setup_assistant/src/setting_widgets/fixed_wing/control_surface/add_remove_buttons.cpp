@@ -16,7 +16,8 @@ AddRemoveButtonsWidget::AddRemoveButtonsWidget(
   SelectedLinksWidget* selected_links)
   : available_links_(available_links), selected_links_(selected_links)
 {
-  const auto cols = new QHBoxLayout(this);
+  const auto cols = new QHBoxLayout();
+  setLayout(cols);
 
   const auto add_button = new QPushButton("⬇");
   add_button->setFixedSize(kButtonWidth, kButtonHeight);

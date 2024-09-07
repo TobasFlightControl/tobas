@@ -14,7 +14,8 @@ ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   const GPSWidget* gps)
   : robot_(robot), imu_(imu), baro_(baro), gps_(gps)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   do_acc_bias_estimation_ = new QCheckBox("Do Accelerometer Bias Estimation");
   do_acc_bias_estimation_->setChecked(false);

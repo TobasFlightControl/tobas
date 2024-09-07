@@ -17,7 +17,8 @@ namespace setup_assistant
 JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
 {
-  const auto rows = new QVBoxLayout(this);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   const auto scroll_area = new qt::ScrollArea();
   scroll_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
