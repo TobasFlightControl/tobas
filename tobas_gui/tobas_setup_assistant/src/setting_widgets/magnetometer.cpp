@@ -8,12 +8,12 @@ namespace setup_assistant
 {
 const char* MagnetometerWidget::name() const
 {
-  return "Magnetometer";
+  return "Compass";
 }
 
 const char* MagnetometerWidget::title() const
 {
-  return "Define Magnetometer";
+  return "Define Compass";
 }
 
 const char* MagnetometerWidget::description() const

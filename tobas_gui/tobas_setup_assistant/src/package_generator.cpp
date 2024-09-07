@@ -103,15 +103,6 @@ inja::json PackageGenerator::createTemplateData()
   tpl_data["config_pkg_name"] = tobas::getTBSConfigName(tbsPath());
   tpl_data["user_pkg_name"] = tobas::getTBSUserName(tbsPath());
 
-  // Joint Controllers
-  string joint_controllers = "joint_state_controller";
-  for (int i = 0; i < settings_->custom_joints->count(); ++i)
-  {
-    const auto jnt_name = settings_->custom_joints->getJointName(i);
-    joint_controllers += " " + jnt_name.toStdString() + "_controller";
-  }
-  tpl_data["joint_controllers"] = joint_controllers;
-
   return tpl_data;
 }
 
@@ -129,26 +120,27 @@ tobas::Drone PackageGenerator::createDrone()
   drone.battery.max_current = settings_->battery->maxCurrent();
 
   // Joints
-  for (int i = 0; i < settings_->custom_joints->count(); ++i)
+  const auto servos = settings_->servo_joints->selected();
+  for (int i = 0; i < servos->rowCount(); ++i)
   {
     tobas::JointConfig joint;
-    joint.name = settings_->custom_joints->getJointName(i).toStdString();
-    joint.home_pos = settings_->custom_joints->getHomePosition(i);
-    joint.min_pos = settings_->custom_joints->getMinPosition(i);
-    joint.max_pos = settings_->custom_joints->getMaxPosition(i);
-    joint.control_type = settings_->custom_joints->getCommandType(i);
+    joint.name = servos->jointName(i).toStdString();
+    joint.home_pos = servos->homePosition(i);
+    joint.min_pos = servos->minPosition(i);
+    joint.max_pos = servos->maxPosition(i);
+    joint.control_type = servos->commandType(i);
 
     drone.joints[joint.name] = joint;
   }
 
   // Rotors
-  const auto selected_props = settings_->propulsion_system->selected();
-  const auto num_rotors = selected_props->count();
+  const auto props = settings_->propulsion_system->selected();
+  const auto num_rotors = props->count();
   drone.rotors.resize(num_rotors);
   for (int i = 0; i < num_rotors; ++i)
   {
-    const auto link_name = selected_props->linkName(i).toStdString();
-    const auto prop_config = selected_props->widget(i);
+    const auto link_name = props->linkName(i).toStdString();
+    const auto prop_config = props->widget(i);
     drone.rotors.at(i).channel = i;
     drone.rotors.at(i).link_name = link_name;
     drone.rotors.at(i).direction = prop_config->motor()->direction();
@@ -390,15 +382,16 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
   root_node["joint_state_broadcaster"][kROSParamsKey] = jsb_node;
 
   // Each joint controllers
-  for (int i = 0; i < settings_->custom_joints->count(); ++i)
+  const auto servos = settings_->servo_joints->selected();
+  for (int i = 0; i < servos->rowCount(); ++i)
   {
-    const auto jnt_name = settings_->custom_joints->getJointName(i).toStdString();
+    const auto jnt_name = servos->jointName(i).toStdString();
     const auto controller_name = jnt_name + "_controller";
 
     YAML::Node controller_node(YAML::NodeType::Map);
     controller_node["type"] = tobas::controller_manager::type::kForwardCommandController;
     controller_node["joints"].push_back(jnt_name);
-    switch (settings_->custom_joints->getCommandType(i))
+    switch (servos->commandType(i))
     {
       case tobas::joint_control_type_t::POSITION_CONTROL:
         controller_node["interface_name"] = tobas::controller_manager::interface::kPositionInterface;

@@ -11,7 +11,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   battery = new BatteryWidget();
   propulsion_system = new propulsion_system::PropulsionSystemWidget(node, robot);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
-  custom_joints = new CustomJointsWidget(robot);
+  servo_joints = new servo_joint::ServoJointsWidget(robot);
   imu = new IMUWidget();
   magnetometer = new MagnetometerWidget();
   barometer = new BarometerWidget();
@@ -26,7 +26,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   addTab(battery, battery->name());
   addTab(propulsion_system, propulsion_system->name());
   addTab(fixed_wing, fixed_wing->name());
-  addTab(custom_joints, custom_joints->name());
+  addTab(servo_joints, servo_joints->name());
   addTab(imu, imu->name());
   addTab(magnetometer, magnetometer->name());
   addTab(barometer, barometer->name());
@@ -77,9 +77,9 @@ bool SettingsWidget::isValid()
   // Propulsion System, Control Surfaces, Custom Jointsの関節名が重複していないことを確認
   const auto prop_links = propulsion_system->selected()->linkNames();
   const auto cs_links = fixed_wing->controlSurfaces()->selected()->linkNames();
-  const auto custom_links = custom_joints->getLinkNames();
+  const auto servo_links = servo_joints->selected()->linkNames();
   QSet<QString> registered_links_set;
-  for (const auto& link_list : { prop_links, cs_links, custom_links })
+  for (const auto& link_list : { prop_links, cs_links, servo_links })
   {
     for (const auto& link_name : link_list)
     {

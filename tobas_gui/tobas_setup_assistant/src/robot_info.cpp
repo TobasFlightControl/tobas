@@ -52,14 +52,19 @@ bool RobotInfo::loadFromPath(const string& path)
   return true;
 }
 
-const string& RobotInfo::robotName() const
+urdf::ModelInterfaceConstSharedPtr RobotInfo::urdf() const
 {
-  return urdf_->getName();
+  return urdf_;
 }
 
 const kdl::Tree& RobotInfo::tree() const
 {
   return tree_;
+}
+
+const string& RobotInfo::robotName() const
+{
+  return urdf_->getName();
 }
 
 bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vector& tar_axis)

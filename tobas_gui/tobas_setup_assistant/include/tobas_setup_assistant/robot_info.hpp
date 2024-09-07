@@ -27,8 +27,10 @@ public:
 
   bool loadFromPath(const std::string& path);
 
-  const std::string& robotName() const;
+  urdf::ModelInterfaceConstSharedPtr urdf() const;
   const kdl::Tree& tree() const;
+
+  const std::string& robotName() const;
 
   /* 指定したリンクの関節軸が，一般化座標に依らず指定した軸と平行であるかどうかを調べる． */
   bool isJntAxisAlwaysCollinear(const std::string& seg_name, const kdl::Vector& tar_axis);

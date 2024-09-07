@@ -7,7 +7,7 @@
 #include "./setting_tabs/battery/battery.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
-#include "./setting_tabs/custom_joints.hpp"
+#include "./setting_tabs/servo_joint/servo_joint.hpp"
 #include "./setting_tabs/imu.hpp"
 #include "./setting_tabs/magnetometer.hpp"
 #include "./setting_tabs/barometer.hpp"
@@ -38,7 +38,7 @@ public:
   BatteryWidget* battery;
   propulsion_system::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
-  CustomJointsWidget* custom_joints;
+  servo_joint::ServoJointsWidget* servo_joints;
   IMUWidget* imu;
   MagnetometerWidget* magnetometer;
   BarometerWidget* barometer;
