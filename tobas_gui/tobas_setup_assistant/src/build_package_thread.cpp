@@ -4,8 +4,13 @@ namespace gui
 {
 namespace setup_assistant
 {
-BuildPackageThread::BuildPackageThread(const QString& tbs_path) : tbs_path_(tbs_path)
+BuildPackageThread::BuildPackageThread()
 {
+}
+
+void BuildPackageThread::setPackagePath(const QString& tbs_path)
+{
+  tbs_path_ = tbs_path;
 }
 
 void BuildPackageThread::run()

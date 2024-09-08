@@ -37,8 +37,8 @@ private:
   RobotInfo robot_;
   std::unique_ptr<PackageGenerator> pkg_generator_;
 
-  qt::WaitSpinnerWidget* spinner_;
-  BuildPackageThread* build_thread_;
+  qt::WaitSpinnerWidget spinner_;
+  BuildPackageThread build_thread_;
 
   StartWidget* start_;
   FrameTreeWidget* frame_tree_;

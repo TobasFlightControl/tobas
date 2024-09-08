@@ -14,10 +14,8 @@ namespace setup_assistant
 SetupAssistantWidget::SetupAssistantWidget(
   rclcpp::Node::SharedPtr node,
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
-  : robot_(node)
+  : robot_(node), spinner_(Qt::WindowModal, this)
 {
-  spinner_ = new qt::WaitSpinnerWidget(Qt::WindowModal, this);
-
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる
   settings_ = new SettingsWidget(node, robot_);
@@ -45,6 +43,7 @@ SetupAssistantWidget::SetupAssistantWidget(
 
   // Connections
   connect(settings_->ros_package, &ROSPackageWidget::generateButtonClicked, this, &self::onGenerateButtonClicked);
+  connect(&build_thread_, &BuildPackageThread::finished, this, &self::onBuildPackageFinished);
 }
 
 void SetupAssistantWidget::onGenerateButtonClicked()
@@ -64,25 +63,19 @@ void SetupAssistantWidget::onGenerateButtonClicked()
     return;
 
   // スピナーを開始
-  spinner_->show();
-  spinner_->start();
+  spinner_.show();
+  spinner_.start();
 
   // 別スレッドでTobasパッケージをビルド
-  build_thread_ = new BuildPackageThread(settings_->ros_package->tbsPath());
-  connect(build_thread_, &BuildPackageThread::finished, this, &self::onBuildPackageFinished);
-  build_thread_->start();
+  build_thread_.setPackagePath(settings_->ros_package->tbsPath());
+  build_thread_.start();
 }
 
 void SetupAssistantWidget::onBuildPackageFinished(bool success, const QString& output)
 {
-  // 別スレッドを終了
-  build_thread_->quit();
-  build_thread_->wait();
-  delete build_thread_;
-
   // スピナーを停止
-  spinner_->hide();
-  spinner_->stop();
+  spinner_.hide();
+  spinner_.stop();
 
   // 結果を表示
   if (success)
