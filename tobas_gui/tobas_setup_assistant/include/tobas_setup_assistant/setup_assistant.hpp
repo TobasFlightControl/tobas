@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_tools/package_builder.hpp>
+
 #include "./common.hpp"
 #include "./robot_info.hpp"
 #include "./package_generator.hpp"
@@ -36,6 +38,7 @@ private Q_SLOTS:
 private:
   RobotInfo robot_;
   std::unique_ptr<PackageGenerator> pkg_generator_;
+  tobas::PackageBuilder package_builder_;
 
   StartWidget* start_;
   FrameTreeWidget* frame_tree_;

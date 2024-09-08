@@ -1,5 +1,4 @@
-#include <array>
-#include <memory>
+#include <stdexcept>
 #include <unistd.h>
 
 #include "../include/tobas_linux/core.hpp"
@@ -49,28 +48,5 @@ string expandUser(const string& path)
 bool isSuperUser()
 {
   return getuid() == 0;
-}
-
-string executeCommand(const char* cmd)
-{
-  array<char, 128> buffer;
-  string result;
-  unique_ptr<FILE, int (*)(FILE*)> pipe(popen(cmd, "r"), pclose);
-  if (!pipe)
-    throw runtime_error("popen() failed.");
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-    result += buffer.data();
-  result.pop_back();  // 末尾のの改行コードを削除
-  return result;
-}
-
-std::string getGitUserName()
-{
-  return executeCommand("git config --global user.name");
-}
-
-std::string getGitUserEmail()
-{
-  return executeCommand("git config --global user.email");
 }
 }  // namespace linux

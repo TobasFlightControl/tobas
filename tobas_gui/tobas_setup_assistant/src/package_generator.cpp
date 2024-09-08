@@ -13,7 +13,6 @@
 #include <tobas_tools/package.hpp>
 #include <tobas_tools/command.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/widgets/progress_dialog.hpp>
 
 #include "tobas_setup_assistant/package_generator.hpp"
 #include "tobas_setup_assistant/xml_nodes.hpp"
@@ -35,33 +34,31 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
   user_env_ = make_shared<TemplateGenerator>(templates_path / "user_package");
 }
 
-void PackageGenerator::generate()
+bool PackageGenerator::generatePackage()
 {
-  qt::ProgressDialog progress("Generate Package", 2, settings_);
-  progress.setCancelButton(nullptr);
-  progress.show();
-
-  // Generate Tobas package
-  progress.setLabelText("Generating Tobas package.");
-  if (!generatePackage())
+  // Tobasパッケージを作成
+  if (!path::createDirectories(tbsPath()))
   {
-    progress.close();
-    return;
+    qt::qErrorBox(settings_, "Failed to create Tobas package path.");
+    return false;
   }
-  progress.progressStep();
 
-  // Build Tobas package
-  progress.setLabelText("Building Tobas package.");
-  if (!tobas::buildTobasPackage(tbsPath()))
-  {
-    progress.close();
-    qt::qErrorBox(settings_, "Failed to build Tobas package.");
-    return;
-  }
-  progress.progressStep();
+  // テンプレート用アイテムを作成
+  const auto tpl_data = createTemplateData();
 
-  progress.close();
-  qt::qInfoBox(settings_, "Tobas configuration package is generated and built successfully.");
+  // メタパッケージを作成
+  if (!generateMetaPackage(tpl_data))
+    return false;
+
+  // 設定パッケージを作成
+  if (!generateConfigPackage(tpl_data))
+    return false;
+
+  // ユーザパッケージを作成
+  if (!generateUserPackage(tpl_data))
+    return false;
+
+  return true;
 }
 
 string PackageGenerator::tbsPath() const
@@ -198,33 +195,6 @@ tobas::Drone PackageGenerator::createDrone()
   }
 
   return drone;
-}
-
-bool PackageGenerator::generatePackage()
-{
-  // Tobasパッケージを作成
-  if (!path::createDirectories(tbsPath()))
-  {
-    qt::qErrorBox(settings_, "Failed to create Tobas package path.");
-    return false;
-  }
-
-  // テンプレート用アイテムを作成
-  const auto tpl_data = createTemplateData();
-
-  // メタパッケージを作成
-  if (!generateMetaPackage(tpl_data))
-    return false;
-
-  // 設定パッケージを作成
-  if (!generateConfigPackage(tpl_data))
-    return false;
-
-  // ユーザパッケージを作成
-  if (!generateUserPackage(tpl_data))
-    return false;
-
-  return true;
 }
 
 bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)

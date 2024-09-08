@@ -21,7 +21,7 @@ bool xacro(const string& xacro_path, string& urdf_content)
 
   // XACROを展開してURDFを作成
   const auto command = "xacro " + xacro_path + " > " + tmp_urdf_path;
-  if (system(command.c_str()) != 0)
+  if (system(command.c_str()) != EXIT_SUCCESS)
   {
     cerr << "Failed to convert XACRO to URDF." << endl;
     return false;

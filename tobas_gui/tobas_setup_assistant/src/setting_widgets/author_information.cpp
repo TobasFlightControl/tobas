@@ -1,6 +1,7 @@
 #include <tobas_std_tools/string.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_linux/core.hpp>
+#include <tobas_linux/git.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/author_information.hpp"
@@ -33,7 +34,7 @@ void AuthorInformationWidget::onInit()
   addWidget(name_);
 
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
-  email_->setValue(QString::fromStdString(linux::getGitUserEmail()));
+  email_->setValue(QString::fromStdString(linux::GitHandler().getUserEmail()));
   addWidget(email_);
 }
 

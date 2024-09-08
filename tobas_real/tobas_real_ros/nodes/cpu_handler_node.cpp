@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include <tobas_std_tools/string.hpp>
-#include <tobas_linux/core.hpp>
+#include <tobas_linux/command_executor.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
@@ -25,6 +25,7 @@ private:
   int temp_millidegrees_;
   std::string cpu_line_, token_;
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
+  linux::CommandExecutor command_executor_;
 
   // Publisher
   ros2::PublisherPtr<tobas_msgs::msg::Cpu> cpu_pub_;
@@ -60,9 +61,14 @@ bool CpuHandlerNode::getTemperature(double& temp)
 
 bool CpuHandlerNode::getFrequency(uint64_t& freq)
 {
-  const auto vcgencmd_out = linux::executeCommand("vcgencmd measure_clock arm");
-  const auto freq_str = tobas_std::split(vcgencmd_out, '=').back();  // 数値部分のみ抜き出す
-  freq = stoul(freq_str);                                            // str -> uint64
+  if (!command_executor_.execute("vcgencmd measure_clock arm"))
+  {
+    TOBAS_ERROR("Failed to get CPU clock frequency.");
+    return false;
+  }
+
+  const auto freq_str = tobas_std::split(command_executor_.getOutput(), '=').back();  // 数値部分のみ抜き出す
+  freq = stoul(freq_str);                                                             // str -> uint64
   return true;
 }
 

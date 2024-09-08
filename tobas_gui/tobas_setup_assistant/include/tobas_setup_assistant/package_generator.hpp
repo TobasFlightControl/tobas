@@ -22,7 +22,7 @@ class PackageGenerator
 public:
   explicit PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
 
-  void generate();
+  bool generatePackage();
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -39,7 +39,6 @@ private:
   inja::json createTemplateData();
   tobas::Drone createDrone();
 
-  bool generatePackage();
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);
   bool generateUserPackage(const inja::json& data);

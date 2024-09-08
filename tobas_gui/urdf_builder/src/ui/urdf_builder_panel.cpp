@@ -133,7 +133,7 @@ void URDFBuilderPanel::LoadButtonClicked()
   {
     // XACROを展開
     const auto command = "xacro " + file_path + " > " + TMP_URDF_PATH;
-    if (system(command.toUtf8()) != 0)
+    if (system(command.toUtf8()) != EXIT_SUCCESS)
     {
       QMessageBox::warning(this, kError, "Failed to convert XACRO to URDF.");
       return;

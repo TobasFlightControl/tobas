@@ -2,6 +2,7 @@
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/progress_dialog.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
@@ -58,7 +59,17 @@ void SetupAssistantWidget::onGenerateButtonClicked()
       return;
 
   // パッケージを作成
-  pkg_generator_->generate();
+  if (!pkg_generator_->generatePackage())
+    return;
+
+  // Tobasパッケージをビルド
+  if (!package_builder_.build(tbs_path.toStdString()))
+  {
+    qt::qErrorBox(settings_, "Tobas configuration package is generated, but failed to build it.");
+    return;
+  }
+
+  qt::qInfoBox(settings_, "Tobas configuration package is generated and built successfully.");
 }
 }  // namespace setup_assistant
 }  // namespace gui
