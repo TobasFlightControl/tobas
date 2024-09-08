@@ -16,9 +16,26 @@ bool isReadable(const fs::path& file_path)
 
 bool isWritable(const fs::path& file_path)
 {
-  // 既存ファイルを破壊しないようにappendモードで開く
-  const ofstream ofs(file_path, ios::app);
+  const ofstream ofs(file_path, ios::app);  // 既存ファイルを破壊しないようにappendモードで開く
   return ofs.good();
+}
+
+bool createDirectories(const fs::path& dir_path, bool exist_ok)
+{
+  if (fs::is_directory(dir_path))
+  {
+    if (exist_ok)
+    {
+      return true;
+    }
+    else
+    {
+      cerr << "\"" << dir_path << "\" already exists.";
+      return false;
+    }
+  }
+
+  return fs::create_directories(dir_path);
 }
 
 bool createFilePath(const fs::path& file_path, bool exist_ok)
@@ -38,12 +55,12 @@ bool createFilePath(const fs::path& file_path, bool exist_ok)
   }
 
   // ファイルのパスからディレクトリ部分のみを取得
-  const auto dir_path = filesystem::path(file_path).parent_path();
+  const auto dir_path = fs::path(file_path).parent_path();
 
   // ディレクトリが存在しなければ作成
-  if (!filesystem::is_directory(dir_path))
+  if (!fs::is_directory(dir_path))
   {
-    if (!filesystem::create_directories(dir_path))
+    if (!fs::create_directories(dir_path))
     {
       cerr << "Failed to create \"" << dir_path << "\".";
       return false;

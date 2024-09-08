@@ -20,7 +20,7 @@ public:
     bool overwrite = true);
 
 private:
-  const std::filesystem::path& tpl_dir_;
+  const std::filesystem::path tpl_dir_;
 
   inja::Environment env_;
 };

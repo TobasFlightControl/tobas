@@ -203,7 +203,11 @@ tobas::Drone PackageGenerator::createDrone()
 bool PackageGenerator::generatePackage()
 {
   // Tobasパッケージを作成
-  fs::create_directories(tbsPath());
+  if (!path::createDirectories(tbsPath()))
+  {
+    qt::qErrorBox(settings_, "Failed to create Tobas package path.");
+    return false;
+  }
 
   // テンプレート用アイテムを作成
   const auto tpl_data = createTemplateData();
@@ -277,11 +281,11 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     settings_->controller->isCommandCompatible(tobas::rc_command_t::POSITION_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW))
   {
-    cfg_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.tplxml", launch_dir);
+    cfg_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.xml.tplxml", launch_dir);
   }
   else if (settings_->controller->isCommandCompatible(tobas::rc_command_t::SPEED_ROLL_DPITCH))
   {
-    cfg_env_->generate(tpl_data, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.tplxml", launch_dir);
+    cfg_env_->generate(tpl_data, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.xml.tplxml", launch_dir);
   }
 
   // GUI Teleop (コントローラの対応コマンドによって場合分け)
@@ -291,7 +295,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POSE_TWIST_ACCEL))
   {
-    cfg_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.tplxml", launch_dir);
+    cfg_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.xml.tplxml", launch_dir);
   }
 
   // その他
