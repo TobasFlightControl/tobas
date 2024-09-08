@@ -1,10 +1,11 @@
 #pragma once
 
-#include <tobas_tools/package_builder.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 #include "./common.hpp"
 #include "./robot_info.hpp"
 #include "./package_generator.hpp"
+#include "./build_package_thread.hpp"
 #include "./start/start.hpp"
 #include "./frame_tree.hpp"
 #include "./rviz.hpp"
@@ -32,19 +33,22 @@ public:
     rclcpp::Node::SharedPtr node,
     rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if);
 
-private Q_SLOTS:
-  void onGenerateButtonClicked();
-
 private:
   RobotInfo robot_;
   std::unique_ptr<PackageGenerator> pkg_generator_;
-  tobas::PackageBuilder package_builder_;
+
+  qt::WaitSpinnerWidget* spinner_;
+  BuildPackageThread* build_thread_;
 
   StartWidget* start_;
   FrameTreeWidget* frame_tree_;
   RvizWidget* rviz_;
   JointStatePublisherWidget* jsp_;
   SettingsWidget* settings_;
+
+private Q_SLOTS:
+  void onGenerateButtonClicked();
+  void onBuildPackageFinished(bool success, const QString& output);
 };
 }  // namespace setup_assistant
 }  // namespace gui
