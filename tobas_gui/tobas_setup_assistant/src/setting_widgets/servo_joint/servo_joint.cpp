@@ -20,18 +20,17 @@ ServoJointsWidget::ServoJointsWidget(const RobotInfo& robot) : robot_(robot)
 
 const char* ServoJointsWidget::name() const
 {
-  return "Custom Joints";
+  return "Servo Joints";
 }
 
 const char* ServoJointsWidget::title() const
 {
-  return "Define Custom Joints";
+  return "Define Servo Joints";
 }
 
 const char* ServoJointsWidget::description() const
 {
-  return "Configure the settings for joints with transmissions "
-         "other than those in the propulsion system and fixed-wing control surfaces.";
+  return "";  // TODO
 }
 
 void ServoJointsWidget::onInit()

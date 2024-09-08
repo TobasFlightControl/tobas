@@ -80,9 +80,10 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vect
   const auto& joint = seg_it->second.segment.joint();
   if (joint.type != kdl::Joint::Fixed)
   {
-    if (!axis_solver_.JntToCart(q_zeros_, seg_name))
+    if (axis_solver_.JntToCart(q_zeros_, seg_name) < 0)
     {
-      cerr << "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage() << endl;
+      RCLCPP_ERROR_STREAM(
+        node_->get_logger(), "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage());
       return false;
     }
     const auto& cur_axis = axis_solver_.getAxis();

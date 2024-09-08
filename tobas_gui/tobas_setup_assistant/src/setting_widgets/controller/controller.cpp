@@ -63,7 +63,16 @@ void ControllerWidget::onInit()
 
 void ControllerWidget::onOpened()
 {
-  return;
+  for (int i = 0; i < controllers_->count(); ++i)
+  {
+    const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
+
+    // 現在の機体設定で適用できない場合は選択肢にその旨を表示する
+    if (controller->isApplicable())
+      type_->setItemText(i, controller->name());
+    else
+      type_->setItemText(i, QString(controller->name()) + " (Not Applicable)");
+  }
 }
 
 void ControllerWidget::updateInternalDataStructures()

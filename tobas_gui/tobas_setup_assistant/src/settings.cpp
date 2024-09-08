@@ -23,6 +23,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   author_info = new AuthorInformationWidget();
   ros_package = new ROSPackageWidget(node, robot);
 
+  // 各タブを追加
   addTab(battery, battery->name());
   addTab(propulsion_system, propulsion_system->name());
   addTab(fixed_wing, fixed_wing->name());
@@ -38,10 +39,6 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   addTab(author_info, author_info->name());
   addTab(ros_package, ros_package->name());
 
-  setMinimumHeight(kSettingsMinHeight);
-  setStyleSheet(
-    QString::fromStdString(std::format("QTabBar::tab {{ height: {}px; width: {}px; }}", kTabHeight, kTabWidth)));
-
   // 各タブを初期化
   for (int i = 0; i < count(); ++i)
   {
@@ -49,6 +46,14 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
     tab->initialize();
     tab->setEnabled(false);  // 最初は無効化
   }
+
+  // レイアウト
+  setMinimumHeight(kSettingsMinHeight);
+  setStyleSheet(
+    QString::fromStdString(std::format("QTabBar::tab {{ height: {}px; width: {}px; }}", kTabHeight, kTabWidth)));
+
+  // Connections
+  connect(this, &self::currentChanged, this, &self::onCurrentChanged);
 }
 
 void SettingsWidget::updateInternalDataStructures()
