@@ -17,11 +17,11 @@ SetupAssistantWidget::SetupAssistantWidget(
   start_ = new StartWidget(node_, robot_, settings_);
   rviz_ = new RvizWidget(rviz_node_if, robot_);
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);
-  js_pub_ = new JointStatePublisherWidget(node_, robot_);
+  jsp_ = new JointStatePublisherWidget(node_, robot_);
 
   frame_tree_->setFixedWidth(kFrameTreeWidth);
   rviz_->setMinimumWidth(kRvizMinWidth);
-  js_pub_->setFixedWidth(kJointStatePublisherWidth);
+  jsp_->setMinimumWidth(kJointStatePublisherMinWidth);
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -31,7 +31,7 @@ SetupAssistantWidget::SetupAssistantWidget(
   rows->addLayout(cols);
   cols->addWidget(frame_tree_);
   cols->addWidget(rviz_);
-  cols->addWidget(js_pub_);
+  cols->addWidget(jsp_);
   rows->addWidget(settings_);
 
   // Connections

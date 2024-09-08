@@ -14,6 +14,7 @@ FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : rob
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
+  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(this, &self::itemClicked, this, &self::onItemClicked);
   connect(this, &self::itemExpanded, this, &self::resizeColumns);
   connect(this, &self::itemCollapsed, this, &self::resizeColumns);
@@ -21,6 +22,8 @@ FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : rob
 
 void FrameTreeWidget::onRobotLoaded()
 {
+  RCLCPP_DEBUG(rviz_->rvizNode()->get_logger(), "FrameTreeWidget::onRobotLoaded");
+
   // ツリーを消去
   clear();
 

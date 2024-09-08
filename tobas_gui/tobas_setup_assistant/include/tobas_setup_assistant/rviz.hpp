@@ -32,6 +32,8 @@ public:
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
+  const rclcpp::Node::SharedPtr& rvizNode() const;
+
 private Q_SLOTS:
   void onRobotLoaded(const QString& urdf_content);
   void onVisualBoxToggled(bool checked);

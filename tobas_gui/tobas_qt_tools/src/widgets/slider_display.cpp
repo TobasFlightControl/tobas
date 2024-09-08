@@ -32,15 +32,7 @@ IntSliderDisplay::IntSliderDisplay(QWidget* parent) : super(parent)
   slider_ = new Slider(Qt::Horizontal);
   rows->addWidget(slider_);
 
-  update();
-  connect(slider_, &Slider::valueChanged, this, &self::onValueChanged);
-}
-
-void IntSliderDisplay::update()
-{
-  const auto value = getValue();
-  value_->setText(QString::number(value) + suffix_);
-  Q_EMIT valueChanged(value);
+  connect(slider_, &Slider::valueChanged, this, &self::onSliderValueChanged);
 }
 
 int IntSliderDisplay::getValue() const
@@ -50,7 +42,12 @@ int IntSliderDisplay::getValue() const
 
 void IntSliderDisplay::setValue(int value)
 {
+  slider_->blockSignals(true);
   slider_->setValue(value);
+  slider_->blockSignals(false);
+
+  value_->setText(QString::number(value) + suffix_);
+  Q_EMIT valueChanged(value);
 }
 
 void IntSliderDisplay::setText(const QString& text)
@@ -71,7 +68,7 @@ void IntSliderDisplay::setMaximum(int maximum)
 void IntSliderDisplay::setSuffix(const QString& suffix)
 {
   suffix_ = suffix;
-  update();
+  value_->setText(QString::number(getValue()) + suffix_);
 }
 
 void IntSliderDisplay::setCenterValue()
@@ -80,9 +77,10 @@ void IntSliderDisplay::setCenterValue()
   setValue(value);
 }
 
-void IntSliderDisplay::onValueChanged(int)
+void IntSliderDisplay::onSliderValueChanged(int value)
 {
-  update();
+  value_->setText(QString::number(value) + suffix_);
+  Q_EMIT valueChanged(value);
 }
 
 DoubleSliderDisplay::DoubleSliderDisplay(int decimals, QWidget* parent) : super(parent), decimals_(decimals)
@@ -109,15 +107,7 @@ DoubleSliderDisplay::DoubleSliderDisplay(int decimals, QWidget* parent) : super(
   slider_ = new DoubleSlider(Qt::Horizontal);
   rows->addWidget(slider_);
 
-  update();
-  connect(slider_, &DoubleSlider::valueChanged, this, &self::onValueChanged);
-}
-
-void DoubleSliderDisplay::update()
-{
-  const auto value = getValue();
-  value_->setText(QString::number(value, 'f', decimals_) + suffix_);
-  Q_EMIT valueChanged(value);
+  connect(slider_, &DoubleSlider::valueChanged, this, &self::onSliderValueChanged);
 }
 
 double DoubleSliderDisplay::getValue() const
@@ -127,7 +117,12 @@ double DoubleSliderDisplay::getValue() const
 
 void DoubleSliderDisplay::setValue(double value)
 {
+  slider_->blockSignals(true);
   slider_->setValue(value);
+  slider_->blockSignals(false);
+
+  value_->setText(QString::number(value, 'f', decimals_) + suffix_);
+  Q_EMIT valueChanged(value);
 }
 
 void DoubleSliderDisplay::setText(const QString& text)
@@ -148,7 +143,7 @@ void DoubleSliderDisplay::setMaximum(double maximum)
 void DoubleSliderDisplay::setSuffix(const QString& suffix)
 {
   suffix_ = suffix;
-  update();
+  value_->setText(QString::number(getValue(), 'f', decimals_) + suffix_);
 }
 
 void DoubleSliderDisplay::setCenterValue()
@@ -157,8 +152,9 @@ void DoubleSliderDisplay::setCenterValue()
   setValue(value);
 }
 
-void DoubleSliderDisplay::onValueChanged(double)
+void DoubleSliderDisplay::onSliderValueChanged(double value)
 {
-  update();
+  value_->setText(QString::number(value, 'f', decimals_) + suffix_);
+  Q_EMIT valueChanged(value);
 }
 }  // namespace qt

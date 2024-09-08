@@ -27,7 +27,7 @@ class SetupAssistantWidget : public qt::Widget
   static constexpr int kHeaderHeight = 350;
   static constexpr int kFrameTreeWidth = 200;
   static constexpr int kRvizMinWidth = 200;
-  static constexpr int kJointStatePublisherWidth = 200;
+  static constexpr int kJointStatePublisherMinWidth = 300;
 
 public:
   explicit SetupAssistantWidget(
@@ -47,7 +47,7 @@ private:
   StartWidget* start_;
   FrameTreeWidget* frame_tree_;
   RvizWidget* rviz_;
-  JointStatePublisherWidget* js_pub_;
+  JointStatePublisherWidget* jsp_;
   SettingsWidget* settings_;
 };
 }  // namespace setup_assistant

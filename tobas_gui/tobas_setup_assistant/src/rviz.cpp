@@ -66,18 +66,22 @@ RvizWidget::RvizWidget(
   cols->addWidget(collision_box);
 
   // Connections
+  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
 }
 
 void RvizWidget::onRobotLoaded(const QString& urdf_content)
 {
+  RCLCPP_DEBUG(rviz_node_->get_logger(), "RvizWidget::onRobotLoaded");
+
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
   manager_->setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
   rviz_node_->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_content.toStdString()));
+  rviz_node_->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_content.toStdString()));
 
   // ロボットモデルをリロード
   reload_->setBool(false);
@@ -99,6 +103,11 @@ void RvizWidget::heightLink(const QString& link_name)
 void RvizWidget::unheightLink(const QString& link_name)
 {
   unhighlight_link_->setValue(link_name);
+}
+
+const rclcpp::Node::SharedPtr& RvizWidget::rvizNode() const
+{
+  return rviz_node_;
 }
 
 void RvizWidget::onVisualBoxToggled(bool checked)

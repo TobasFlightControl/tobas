@@ -25,22 +25,27 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   rows->addWidget(scroll_area);
 
   slider_rows_ = new QVBoxLayout();
-  rows->addLayout(slider_rows_);
+  scroll_area->setLayout(slider_rows_);
 
   const auto button_rows = new QVBoxLayout();
   rows->addLayout(button_rows);
 
   const auto center_button = new QPushButton("Center");
-  connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   button_rows->addWidget(center_button);
 
   // Register publishers
   js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, tobas::kJointStatesTopic);
   drs_pub_ = ros2::createPublisher<moveit_msgs::msg::DisplayRobotState>(node_, "display_robot_state");
+
+  // Connections
+  connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
+  connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
 }
 
 void JointStatePublisherWidget::onRobotLoaded()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "JointStatePublisherWidget::onRobotLoaded");
+
   js_.name.clear();
   js_.position.clear();
   sliders_.clear();
@@ -50,22 +55,34 @@ void JointStatePublisherWidget::onRobotLoaded()
   {
     const auto& joint = elem.segment.joint();
     if (joint.type == kdl::Joint::Fixed)
-      return;
+      continue;
 
     js_.name.push_back(joint.name);
     js_.position.push_back(0.);
 
     const auto slider = new qt::DoubleSliderDisplay();
     slider->setText(QString::fromStdString(joint.name));
-    slider->setMinimum(joint.lower_limit);
-    slider->setMaximum(joint.upper_limit);
+
+    auto lower_limit = joint.lower_limit;
+    auto upper_limit = joint.upper_limit;
+    if (joint.type == kdl::Joint::RotAxis && upper_limit - lower_limit > 2 * M_PI)
+    {
+      lower_limit = -M_PI;
+      upper_limit = +M_PI;
+    }
+    slider->setMinimum(lower_limit);
+    slider->setMaximum(upper_limit);
+
     slider->setValue(0.);
+
     connect(
       slider, &qt::DoubleSliderDisplay::valueChanged, this,
       bind(&self::onValueChanged, this, placeholders::_1, joint.name));
 
     sliders_.push_back(slider);
     slider_rows_->addWidget(slider);
+
+    RCLCPP_DEBUG_STREAM(node_->get_logger(), "\"" << joint.name << "\" is added to the JSP slider.");
   }
 
   // Start to publish joint states

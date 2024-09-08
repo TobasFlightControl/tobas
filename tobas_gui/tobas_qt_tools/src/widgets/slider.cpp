@@ -13,8 +13,8 @@ void Slider::wheelEvent(QWheelEvent* event)
 
 DoubleSlider::DoubleSlider(Qt::Orientation orientation, QWidget* parent) : super(orientation, parent)
 {
-  setRange(0, kRange);
-  setValue(kRange / 2);
+  super::setRange(0, kRange);
+  super::setValue(kRange / 2);
 
   connect(this, &super::valueChanged, this, &self::onSliderValueChanged);
 }

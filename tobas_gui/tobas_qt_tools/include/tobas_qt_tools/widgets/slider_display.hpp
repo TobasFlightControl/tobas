@@ -20,8 +20,6 @@ Q_SIGNALS:
 public:
   explicit IntSliderDisplay(QWidget* parent = nullptr);
 
-  void update();
-
   int getValue() const;
   void setValue(int value);
 
@@ -32,13 +30,14 @@ public:
   void setCenterValue();
 
 private Q_SLOTS:
-  void onValueChanged(int value);
+  void onSliderValueChanged(int value);
 
 private:
+  QString suffix_;
+
   QLabel* text_;
   QLineEdit* value_;
   Slider* slider_;
-  QString suffix_;
 };
 
 class DoubleSliderDisplay : public QWidget
@@ -54,8 +53,6 @@ Q_SIGNALS:
 public:
   explicit DoubleSliderDisplay(int decimals = 6, QWidget* parent = nullptr);
 
-  void update();
-
   double getValue() const;
   void setValue(double value);
 
@@ -66,7 +63,7 @@ public:
   void setCenterValue();
 
 private Q_SLOTS:
-  void onValueChanged(double value);
+  void onSliderValueChanged(double value);
 
 private:
   const int decimals_;
