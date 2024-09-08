@@ -202,6 +202,8 @@ void SelectedLinksWidget::publishTimerCb()
 
 void SelectedLinksWidget::onTabCloseRequested(int index)
 {
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "SelectedLinksWidget::onTabCloseRequested(" << index << ")");
+
   const auto link_name = linkName(index);
   remove(link_name);
   Q_EMIT linkRemoved(link_name);
@@ -209,6 +211,8 @@ void SelectedLinksWidget::onTabCloseRequested(int index)
 
 void SelectedLinksWidget::onCopyFromLeftButtonClicked(const QString& link_name)
 {
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "SelectedLinksWidget::onCopyFromLeftButtonClicked(" << link_name << ")");
+
   const auto dst_idx = index(link_name);
   const auto src_idx = dst_idx - 1;
   if (src_idx < 0)
@@ -226,6 +230,8 @@ void SelectedLinksWidget::onCopyFromLeftButtonClicked(const QString& link_name)
 
 void SelectedLinksWidget::onCopyToAllButtonClicked(const QString& link_name)
 {
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "SelectedLinksWidget::onCopyToAllButtonClicked(" << link_name << ")");
+
   const auto src_idx = index(link_name);
   const auto src_widget = widget(src_idx);
 

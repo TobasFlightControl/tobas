@@ -76,20 +76,15 @@ bool MultirotorPIDWidget::isApplicable()
       return false;
   }
 
+  // 両方の回転方向のプロペラをもつ
+  if (!propulsion_system_->selected()->hasBothRotationalDirections())
+    return false;
+
   return true;
 }
 
 bool MultirotorPIDWidget::isValid()
 {
-  // 両方の回転方向のプロペラをもつ
-  if (!propulsion_system_->selected()->hasBothRotationalDirections())
-  {
-    qt::qErrorBox(
-      this, "All rotors have the same rotation direction. "
-            "Rotors that rotate in both clockwise (CW) and counterclockwise (CCW) are required.");
-    return false;
-  }
-
   return true;
 }
 }  // namespace setup_assistant

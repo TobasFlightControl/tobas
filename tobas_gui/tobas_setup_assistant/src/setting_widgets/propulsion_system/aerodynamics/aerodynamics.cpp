@@ -59,6 +59,8 @@ void AerodynamicsWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
   const auto derived = qobject_cast<const AerodynamicsWidget*>(src);
 
+  method_name_->setCurrentIndex(derived->method_name_->currentIndex());
+
   for (int i = 0; i < methods_->count(); ++i)
   {
     const auto des_method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));

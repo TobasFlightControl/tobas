@@ -16,6 +16,11 @@ class ESCWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
+  static constexpr char kBLHeliOpenLoopLabel[] = "BLHeli Open Loop";
+  static constexpr char kBLHeliClosedLoopLowLabel[] = "BHLeli Closed Loop (Low Range)";
+  static constexpr char kBLHeliClosedLoopMiddleLabel[] = "BHLeli Closed Loop (Middle Range)";
+  static constexpr char kBLHeliClosedLoopHighLabel[] = "BHLeli Closed Loop (High Range)";
+
 public:
   explicit ESCWidget();
 

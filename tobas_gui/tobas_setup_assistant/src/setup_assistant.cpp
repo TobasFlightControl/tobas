@@ -1,6 +1,11 @@
+#include <filesystem>
+
 #include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
+
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -42,6 +47,17 @@ SetupAssistantWidget::SetupAssistantWidget(
 
 void SetupAssistantWidget::onGenerateButtonClicked()
 {
+  // ユーザ設定に問題がないか確認
+  if (!settings_->isValid())
+    return;
+
+  // パッケージパスが既に存在する場合は置換するかどうかをユーザに確認
+  const auto tbs_path = settings_->ros_package->tbsPath();
+  if (fs::exists(tbs_path.toStdString()))
+    if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN))
+      return;
+
+  // パッケージを作成
   pkg_generator_->generate();
 }
 }  // namespace setup_assistant

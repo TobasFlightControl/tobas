@@ -104,11 +104,6 @@ bool ROSPackageWidget::isValid()
     return false;
   }
 
-  // パッケージパスが既に存在する場合は置換するかどうかをユーザに確認
-  if (fs::exists(tbs_path.toStdString()))
-    if (!qt::yesOrNo(this, tbs_path + " already exists. Do you want to replace it?", qt::QMessageLevel::WARN))
-      return false;
-
   return true;
 }
 

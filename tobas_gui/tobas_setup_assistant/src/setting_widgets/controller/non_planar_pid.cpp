@@ -87,7 +87,7 @@ bool NonPlanarPIDWidget::isApplicable()
 
 bool NonPlanarPIDWidget::isValid()
 {
-  // 両方の回転方向のプロペラをもつ
+  // 全てのプロペラの回転方向が同じ場合は警告
   if (!propulsion_system_->selected()->hasBothRotationalDirections())
   {
     if (!qt::yesOrNo(this, "All rotors have the same rotation direction. Is that OK?", qt::QMessageLevel::WARN))

@@ -37,7 +37,7 @@ void ProgressDialog::setLabelText(const QString& text)
 
 void ProgressDialog::setStep(int step)
 {
-  TOBAS_CHECK(0 <= step || step <= num_steps_);
+  TOBAS_CHECK(0 <= step && step <= num_steps_);
 
   step_ = step;
   const auto value = math::remap(step, 0, num_steps_, minimum(), maximum());

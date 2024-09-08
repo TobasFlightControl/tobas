@@ -60,6 +60,7 @@ string executeCommand(const char* cmd)
     throw runtime_error("popen() failed.");
   while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
     result += buffer.data();
+  result.pop_back();  // 末尾のの改行コードを削除
   return result;
 }
 

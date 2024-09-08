@@ -37,6 +37,7 @@ public:
   void load(const YAML::Node& node);
 
   bool isChecked() const;
+  void setChecked(bool checked);
 
 protected:
   qt::DoubleSpinBox* spinbox_;

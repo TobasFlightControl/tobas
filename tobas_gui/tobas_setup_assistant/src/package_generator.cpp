@@ -37,18 +37,9 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
 
 void PackageGenerator::generate()
 {
-  qt::ProgressDialog progress("Generate Package", 3, settings_);
+  qt::ProgressDialog progress("Generate Package", 2, settings_);
   progress.setCancelButton(nullptr);
   progress.show();
-
-  // Verify user settings
-  progress.setLabelText("Verifying the validity of the user settings.");
-  if (settings_->isValid())
-  {
-    progress.close();
-    return;
-  }
-  progress.progressStep();
 
   // Generate Tobas package
   progress.setLabelText("Generating Tobas package.");

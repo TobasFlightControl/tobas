@@ -10,10 +10,10 @@ namespace setup_assistant
 namespace propulsion_system
 {
 ESCWidget::ESCWidget()
-  : signal_mode_map_{ { "BLHeli Open Loop", tobas::esc_mode_t::BLHELI_OPEN_LOOP },
-                      { "BHLeli Closed Loop (Low Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_LOW_RANGE },
-                      { "BHLeli Closed Loop (Middle Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_MID_RANGE },
-                      { "BHLeli Closed Loop (High Range)", tobas::esc_mode_t::BLHELI_CLOSED_LOOP_HIGH_RANGE } }
+  : signal_mode_map_{ { kBLHeliOpenLoopLabel, tobas::esc_mode_t::BLHELI_OPEN_LOOP },
+                      { kBLHeliClosedLoopLowLabel, tobas::esc_mode_t::BLHELI_CLOSED_LOOP_LOW_RANGE },
+                      { kBLHeliClosedLoopMiddleLabel, tobas::esc_mode_t::BLHELI_CLOSED_LOOP_MID_RANGE },
+                      { kBLHeliClosedLoopHighLabel, tobas::esc_mode_t::BLHELI_CLOSED_LOOP_HIGH_RANGE } }
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -30,6 +30,7 @@ ESCWidget::ESCWidget()
   signal_mode_ = new ParamGetterWidget_ComboBox("Signal Mode", "");
   for (const auto& [text, _] : signal_mode_map_)
     signal_mode_->addChoice(text);
+  signal_mode_->setValue(kBLHeliOpenLoopLabel);  // Default
   rows->addWidget(signal_mode_);
 
   rows->addStretch();

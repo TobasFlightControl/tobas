@@ -28,6 +28,7 @@ void SpeedLimitWidget_Base::initialize(QButtonGroup* ckb_group)
 
 void SpeedLimitWidget_Base::copyFrom(const SpeedLimitWidget_Base* src)
 {
+  checkbox_->setChecked(src->checkbox_->isChecked());
   spinbox_->setValue(src->spinbox_->value());
 }
 
@@ -50,6 +51,11 @@ void SpeedLimitWidget_Base::load(const YAML::Node& node)
 bool SpeedLimitWidget_Base::isChecked() const
 {
   return checkbox_->isChecked();
+}
+
+void SpeedLimitWidget_Base::setChecked(bool checked)
+{
+  checkbox_->setChecked(checked);
 }
 
 void SpeedLimitWidget_Base::onCheckBoxToggled(bool toggled)
