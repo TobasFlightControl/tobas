@@ -41,6 +41,7 @@ def generate_launch_description():
         package="tobas_setup_assistant",
         executable="main",
         arguments=["--ros-args", "--log-level", log_level],
+        output="screen",
     )
     ld.add_action(setup_assistant)
 

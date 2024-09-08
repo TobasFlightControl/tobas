@@ -34,17 +34,20 @@ bool buildTobasPackage(const fs::path& tbs_path)
     return false;
   }
 
-  // Build the meta package
+  // Create build command
   const auto meta_name = getTBSMetaName(tbs_path);
   const auto command = format(
     "colcon build "
     "--symlink-install "
     "--parallel-workers $(nproc) "
     "--cmake-args -DCMAKE_BUILD_TYPE=Release "
-    "--build-base {}"
-    "--install-base {}"
+    "--build-base {} "
+    "--install-base {} "
     "--packages-up-to {}",
     build_path.string(), install_path.string(), meta_name);
+
+  // Build Tobas package
+  cout << "Executing \"" << command << "\" on " << tbs_path << "." << endl;
   if (system(command.c_str()) != 0)
   {
     cerr << "Failed to build \"" << meta_name << "\"." << endl;
