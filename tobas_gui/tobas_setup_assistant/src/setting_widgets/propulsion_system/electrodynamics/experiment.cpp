@@ -19,12 +19,15 @@ ElectroDynamicsWidget_Experiment::ElectroDynamicsWidget_Experiment(rclcpp::Node:
 
 const char* ElectroDynamicsWidget_Experiment::name() const
 {
-  return "Estimate from Motor Spec";
+  return "Estimate from Experimental Data (Recommended)";
 }
 
 const char* ElectroDynamicsWidget_Experiment::description() const
 {
-  return "Estimate the motor dynamics from the motor's Kv value and internal registance.";
+  return "Estimate the motor dynamics from the data obtained from the Thrust Stand. "
+         "Please input the data directly or load it from a CSV file. "
+         "Ensure that the experiments are conducted using the battery intended for the aircraft "
+         "and with the actual propeller attached.";
 }
 
 void ElectroDynamicsWidget_Experiment::onInit()

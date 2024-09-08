@@ -33,6 +33,8 @@ SpeedLimitWidget::SpeedLimitWidget(ElectrodynamicsWidget* electrodynamics, Aerod
     method->initialize(ckb_group);
     rows->addWidget(method);
   }
+
+  rows->addStretch();
 }
 
 const char* SpeedLimitWidget::name() const

@@ -7,6 +7,8 @@
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/selected_links.hpp"
 
+using namespace std;
+
 namespace gui
 {
 namespace setup_assistant
@@ -22,9 +24,6 @@ SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const Rob
   setTabsClosable(true);
 
   markers_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array");
-
-  publish_markers_timer_ = new QTimer(this);
-  connect(publish_markers_timer_, &QTimer::timeout, this, &self::publishTimerCb);
 
   connect(this, &qt::TabWidget::tabCloseRequested, this, &self::onTabCloseRequested);
 }
@@ -44,7 +43,7 @@ void SelectedLinksWidget::updateInternalDataStructures()
 
     // 推力の作用線
     const auto arrow_start = kdl::Vector::Zero();
-    const auto arrow_end = joint.axis();
+    const auto arrow_end = joint.axis() * kArrowLength;
     const auto arrow_scale = kdl::Vector(0.1, 0.2, 0.3) * kArrowLength;
 
     // マーカを作成
@@ -72,13 +71,16 @@ void SelectedLinksWidget::updateInternalDataStructures()
     // マーカを追加
     markers_.markers.push_back(marker);
   }
+
+  // マーカを発行開始
+  publish_markers_timer_ = ros2::createTimer(node_, 100ms, &self::publishTimerCb, this);
 }
 
 void SelectedLinksWidget::clear()
 {
   super::clear();
   markers_.markers.clear();
-  publish_markers_timer_->stop();
+  publish_markers_timer_ = nullptr;
 }
 
 bool SelectedLinksWidget::isValid()
@@ -112,10 +114,10 @@ void SelectedLinksWidget::add(const QString& link_name)
   // Connections
   connect(
     link_widget, &SelectedLinkWidget::copyFromLeftButtonClicked, this,
-    std::bind(&self::onCopyFromLeftButtonClicked, this, link_name));
+    bind(&self::onCopyFromLeftButtonClicked, this, link_name));
   connect(
     link_widget, &SelectedLinkWidget::copyToAllButtonClicked, this,
-    std::bind(&self::onCopyToAllButtonClicked, this, link_name));
+    bind(&self::onCopyToAllButtonClicked, this, link_name));
 }
 
 void SelectedLinksWidget::remove(const QString& link_name)
@@ -172,7 +174,7 @@ const SelectedLinkWidget* SelectedLinksWidget::widget(const QString& link_name) 
 
 bool SelectedLinksWidget::hasBothRotationalDirections() const
 {
-  std::unordered_set<tobas::turning_direction_t> set;
+  unordered_set<tobas::turning_direction_t> set;
   for (int i = 0; i < count(); ++i)
     set.insert(widget(i)->motor()->direction());
 
@@ -194,7 +196,7 @@ void SelectedLinksWidget::publishTimerCb()
     marker.header.stamp = now;
 
   // Publish markers
-  auto markers_ptr = std::make_unique<visualization_msgs::msg::MarkerArray>(markers_);
+  auto markers_ptr = make_unique<visualization_msgs::msg::MarkerArray>(markers_);
   markers_pub_->publish(std::move(markers_ptr));
 }
 

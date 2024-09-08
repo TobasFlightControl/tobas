@@ -1,7 +1,6 @@
 #pragma once
 
 #include <visualization_msgs/msg/marker_array.hpp>
-#include <QTimer>
 
 #include <tobas_ros2_tools/definitions.hpp>
 
@@ -24,7 +23,6 @@ class SelectedLinksWidget : public qt::TabWidget
   static constexpr int kTabWidth = 150;
   static constexpr int kTabHeight = 50;
   static constexpr double kArrowLength = 0.2;  // TODO: 想定される推力の最大値を矢印の長さに反映
-  static constexpr double kPublishMarkerPeriod = 100;  // [ms]
 
 Q_SIGNALS:
   void linkRemoved(const QString& link_name);
@@ -55,7 +53,6 @@ public:
   bool hasBothRotationalDirections() const;
 
 private Q_SLOTS:
-  void publishTimerCb();
   void onTabCloseRequested(int index);
   void onCopyFromLeftButtonClicked(const QString& link_name);
   void onCopyToAllButtonClicked(const QString& link_name);
@@ -67,10 +64,12 @@ private:
   visualization_msgs::msg::MarkerArray markers_;
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
 
-  QTimer* publish_markers_timer_;
+  ros2::TimerPtr publish_markers_timer_;
 
   /* 指定されたリンクのマーカのアクションを設定する． */
   void setAction(const QString& link_name, int action);
+
+  void publishTimerCb();
 };
 }  // namespace propulsion_system
 }  // namespace setup_assistant

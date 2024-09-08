@@ -18,7 +18,7 @@ AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, P
 
 const char* AerodynamicsWidget_UIUC::name() const
 {
-  return "Estimate from UIUC Propeller Data";
+  return "Estimate from UIUC Propeller Data (Recommended)";
 }
 
 const char* AerodynamicsWidget_UIUC::description() const
