@@ -1,8 +1,9 @@
 #include <filesystem>
+#include <QThread>
 
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
 
@@ -63,11 +64,18 @@ void SetupAssistantWidget::onGenerateButtonClicked()
     return;
 
   // Tobasパッケージをビルド
+  const auto spinner = new qt::WaitSpinnerWidget(Qt::WindowModal, this);
+  spinner->show();
+  QThread::msleep(1000);
+  spinner->start();
   if (!package_builder_.build(tbs_path.toStdString()))
   {
-    qt::qErrorBox(settings_, "Tobas configuration package is generated, but failed to build it.");
+    qt::qErrorBox(
+      settings_, "Tobas configuration package is generated, but failed to build it:\n\n"
+                   + QString::fromStdString(package_builder_.getOutput()));
     return;
   }
+  spinner->stop();
 
   qt::qInfoBox(settings_, "Tobas configuration package is generated and built successfully.");
 }
