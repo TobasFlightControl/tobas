@@ -117,7 +117,7 @@ AerodynamicsWidget_Base* AerodynamicsWidget::selected()
 
 const AerodynamicsWidget_Base* AerodynamicsWidget::selected() const
 {
-  return qobject_cast<const AerodynamicsWidget_Base*>(methods_->currentWidget());
+  return qobject_cast<AerodynamicsWidget_Base*>(methods_->currentWidget());
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

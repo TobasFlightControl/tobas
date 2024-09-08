@@ -146,8 +146,8 @@ YAML::Node AerodynamicsCoefficientsWidget::dump() const
 
   for (int row = 0; row < form_->rowCount(); ++row)
   {
-    const auto label = qobject_cast<const QLabel*>(form_->getLabel(row));
-    const auto widget = qobject_cast<const qt::DoubleSpinBox*>(form_->getWidget(row));
+    const auto label = qobject_cast<QLabel*>(form_->getLabel(row));
+    const auto widget = qobject_cast<qt::DoubleSpinBox*>(form_->getWidget(row));
     node[label->text().toStdString()] = widget->value();
   }
 
@@ -158,7 +158,7 @@ void AerodynamicsCoefficientsWidget::load(const YAML::Node& node)
 {
   for (int row = 0; row < form_->rowCount(); ++row)
   {
-    const auto label = qobject_cast<const QLabel*>(form_->getLabel(row));
+    const auto label = qobject_cast<QLabel*>(form_->getLabel(row));
     const auto widget = qobject_cast<qt::DoubleSpinBox*>(form_->getWidget(row));
     widget->setValue(node[label->text().toStdString()].as<double>());
   }

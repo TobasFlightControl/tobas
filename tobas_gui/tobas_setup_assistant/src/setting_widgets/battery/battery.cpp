@@ -127,7 +127,7 @@ BatteryWidget_Base* BatteryWidget::selected()
 
 const BatteryWidget_Base* BatteryWidget::selected() const
 {
-  return qobject_cast<const BatteryWidget_Base*>(batteries_->currentWidget());
+  return qobject_cast<BatteryWidget_Base*>(batteries_->currentWidget());
 }
 }  // namespace setup_assistant
 }  // namespace gui

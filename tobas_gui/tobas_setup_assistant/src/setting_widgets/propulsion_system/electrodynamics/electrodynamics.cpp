@@ -106,7 +106,7 @@ ElectrodynamicsWidget_Base* ElectrodynamicsWidget::selected()
 
 const ElectrodynamicsWidget_Base* ElectrodynamicsWidget::selected() const
 {
-  return qobject_cast<const ElectrodynamicsWidget_Base*>(methods_->currentWidget());
+  return qobject_cast<ElectrodynamicsWidget_Base*>(methods_->currentWidget());
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

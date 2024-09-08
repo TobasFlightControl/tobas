@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <ament_index_cpp/get_package_share_directory.hpp>
+#include <urdf_parser/urdf_parser.h>
 #include <QCheckBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -71,7 +72,7 @@ RvizWidget::RvizWidget(
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
 }
 
-void RvizWidget::onRobotLoaded(const QString& urdf_content)
+void RvizWidget::onRobotLoaded()
 {
   RCLCPP_DEBUG(rvizNode()->get_logger(), "RvizWidget::onRobotLoaded");
 
@@ -80,8 +81,8 @@ void RvizWidget::onRobotLoaded(const QString& urdf_content)
   vis_manager_->setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
-  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_content.toStdString()));
-  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_content.toStdString()));
+  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, robot_.urdfText()));
+  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, robot_.urdfText()));
 
   // ロボットモデルをリロード
   reload_->setBool(false);

@@ -146,37 +146,37 @@ void SelectedLinksWidget::remove(const QString& link_name)
 
 QString SelectedLinksWidget::linkName(int row) const
 {
-  const auto cell = qobject_cast<const QLabel*>(cellWidget(row, kLinkNameCol));
+  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kLinkNameCol));
   return cell->text();
 }
 
 QString SelectedLinksWidget::jointName(int row) const
 {
-  const auto cell = qobject_cast<const QLabel*>(cellWidget(row, kJointNameCol));
+  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kJointNameCol));
   return cell->text();
 }
 
 double SelectedLinksWidget::homePosition(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::minPosition(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::maxPosition(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
   return cell->value();
 }
 
 tobas::joint_control_type_t SelectedLinksWidget::commandType(int row) const
 {
-  const auto cell = qobject_cast<const qt::ComboBox*>(cellWidget(row, kHomePosCol));
+  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kHomePosCol));
   const auto text = cell->currentText();
 
   if (text == kPositionLabel)

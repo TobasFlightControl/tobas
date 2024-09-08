@@ -14,7 +14,7 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-SpeedLimitWidget::SpeedLimitWidget(ElectrodynamicsWidget* electrodynamics, AerodynamicsWidget* aerodynamics)
+SpeedLimitWidget::SpeedLimitWidget(AerodynamicsWidget* aerodynamics, ElectrodynamicsWidget* electrodynamics)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);

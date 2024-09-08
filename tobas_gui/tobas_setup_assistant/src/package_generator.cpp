@@ -1,5 +1,5 @@
-#include <rclcpp/wait_for_message.hpp>
 #include <ament_index_cpp/get_package_share_directory.hpp>
+#include <urdf_parser/urdf_parser.h>
 #include <std_msgs/msg/string.hpp>
 
 #include <QDebug>
@@ -333,12 +333,12 @@ bool PackageGenerator::generateUserPackage(const inja::json& tpl_data)
   fs::create_directory(nodes_dir);
 
   // テンプレートから作成 (存在する場合は上書きしない)
-  cfg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", user_pkg_path, false);
-  cfg_env_->generate(tpl_data, "package.xml.tplxml", user_pkg_path, false);
-  cfg_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
-  cfg_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
-  cfg_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
-  cfg_env_->generate(tpl_data, "tobas_bridge_node.cpp.tplcpp", nodes_dir, false);
+  user_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", user_pkg_path, false);
+  user_env_->generate(tpl_data, "package.xml.tplxml", user_pkg_path, false);
+  user_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
+  user_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
+  user_env_->generate(tpl_data, "tobas_bridge_node.cpp.tplcpp", nodes_dir, false);
 
   // その他
   if (!createEmptyFile(user_pkg_path / kYouCanEditThisPackage))
@@ -463,17 +463,9 @@ bool PackageGenerator::generateObserverConfig(const fs::path& config_dir)
 
 bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
 {
-  // Get robot description
-  std_msgs::msg::String robot_description;
-  if (!rclcpp::wait_for_message(robot_description, node_, tobas::kRobotDescriptionTopic, 1s))
-  {
-    qt::qErrorBox(settings_, "Failed to get robot description.");
-    return false;
-  }
-
   // Parse robot description
   const auto doc = new tinyxml2::XMLDocument();
-  if (!doc->Parse(robot_description.data.c_str()) != tinyxml2::XML_SUCCESS)
+  if (doc->Parse(robot_.urdfText().c_str()) != tinyxml2::XML_SUCCESS)
   {
     qt::qErrorBox(settings_, "Failed to parse robot description.");
     return false;

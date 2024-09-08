@@ -20,13 +20,14 @@ class RobotInfo : public QObject
   static constexpr double kJntAxisCollinearTol = tobas_std::deg2rad(5);
 
 Q_SIGNALS:
-  void loaded(const QString& urdf_content);
+  void loaded();
 
 public:
   explicit RobotInfo(rclcpp::Node::SharedPtr node);
 
   bool loadFromPath(const std::string& path);
 
+  const std::string& urdfText() const;
   urdf::ModelInterfaceConstSharedPtr urdf() const;
   const kdl::Tree& tree() const;
 
@@ -42,6 +43,7 @@ private:
   ros2::SimpleParamClient rsp_client_;
 
   // URDF information
+  std::string urdf_text_;
   urdf::ModelInterfaceSharedPtr urdf_;
   kdl::Tree tree_;
 

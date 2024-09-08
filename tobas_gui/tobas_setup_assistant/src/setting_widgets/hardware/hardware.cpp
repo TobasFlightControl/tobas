@@ -111,7 +111,7 @@ BaseHardwareWidget* HardwareWidget::selected()
 
 const BaseHardwareWidget* HardwareWidget::selected() const
 {
-  return qobject_cast<const BaseHardwareWidget*>(hardwares_->currentWidget());
+  return qobject_cast<BaseHardwareWidget*>(hardwares_->currentWidget());
 }
 }  // namespace setup_assistant
 }  // namespace gui

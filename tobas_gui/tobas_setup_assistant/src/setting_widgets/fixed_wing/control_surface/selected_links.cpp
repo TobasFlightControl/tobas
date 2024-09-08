@@ -180,67 +180,67 @@ void SelectedLinksWidget::remove(const QString& link_name)
 
 QString SelectedLinksWidget::linkName(int row) const
 {
-  const auto cell = qobject_cast<const QLabel*>(cellWidget(row, kLinkNameCol));
+  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kLinkNameCol));
   return cell->text();
 }
 
 QString SelectedLinksWidget::jointName(int row) const
 {
-  const auto cell = qobject_cast<const QLabel*>(cellWidget(row, kJointNameCol));
+  const auto cell = qobject_cast<QLabel*>(cellWidget(row, kJointNameCol));
   return cell->text();
 }
 
 double SelectedLinksWidget::minAngle(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kMinAngleCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMinAngleCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::maxAngle(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::maxAngleRate(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleRateCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleRateCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::liftCoef(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kLiftCoefCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kLiftCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::dragCoef(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kDragCoefCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kDragCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::sideCoef(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kSideCoefCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kSideCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::rollCoef(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kRollCoefCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kRollCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::pitchCoef(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kPitchCoefCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kPitchCoefCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::yawCoef(int row) const
 {
-  const auto cell = qobject_cast<const qt::DoubleSpinBox*>(cellWidget(row, kYawCoefCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kYawCoefCol));
   return cell->value();
 }
 

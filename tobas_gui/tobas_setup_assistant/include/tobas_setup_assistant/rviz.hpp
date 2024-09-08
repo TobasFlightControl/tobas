@@ -36,7 +36,7 @@ public:
   rclcpp::Node::ConstSharedPtr rvizNode() const;
 
 private Q_SLOTS:
-  void onRobotLoaded(const QString& urdf_content);
+  void onRobotLoaded();
   void onVisualBoxToggled(bool checked);
   void onCollisionBoxToggled(bool checked);
 

@@ -124,7 +124,7 @@ BaseObserverWidget* ObserverWidget::selected()
 
 const BaseObserverWidget* ObserverWidget::selected() const
 {
-  return qobject_cast<const BaseObserverWidget*>(observers_->currentWidget());
+  return qobject_cast<BaseObserverWidget*>(observers_->currentWidget());
 }
 }  // namespace setup_assistant
 }  // namespace gui

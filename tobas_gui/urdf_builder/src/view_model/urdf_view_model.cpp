@@ -98,8 +98,8 @@ bool URDFViewModel::loadRobot(const QString& file_path)
 bool URDFViewModel::saveRobot(const QString& file_path)
 {
   // URDFを修正してXMLに変換
-  urdf_->root_link_->inertial = nullptr;                 // ルートリンクのイナーシャを削除
-  tinyxml2::XMLDocument* doc(urdf::exportURDF(*urdf_));  // TiXmlは生ポインタで扱うのが基本
+  urdf_->root_link_->inertial = nullptr;      // ルートリンクのイナーシャを削除
+  const auto doc = urdf::exportURDF(*urdf_);  // TiXmlは生ポインタで扱うのが基本
   removeTextureTagsWithoutFilename(doc->RootElement());
 
   // XMLを保存

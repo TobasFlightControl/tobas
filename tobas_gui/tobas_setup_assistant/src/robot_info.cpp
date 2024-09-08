@@ -21,16 +21,15 @@ RobotInfo::RobotInfo(rclcpp::Node::SharedPtr node)
 bool RobotInfo::loadFromPath(const string& path)
 {
   // Parse URDF
-  string urdf_content;
-  if (!ros2::xacro(path, urdf_content))
+  if (!ros2::xacro(path, urdf_text_))
     return false;
 
   // Update RSP parameter
-  if (!rsp_client_.setParam("robot_description", urdf_content))
+  if (!rsp_client_.setParam("robot_description", urdf_text_))
     return false;
 
   // Parse URDF
-  urdf_ = urdf::parseURDF(urdf_content);
+  urdf_ = urdf::parseURDF(urdf_text_);
   if (urdf_ == nullptr)
   {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to parse URDF.");
@@ -48,8 +47,13 @@ bool RobotInfo::loadFromPath(const string& path)
   axis_solver_.updateInternalDataStructures();
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
-  Q_EMIT loaded(QString::fromStdString(urdf_content));
+  Q_EMIT loaded();
   return true;
+}
+
+const std::string& RobotInfo::urdfText() const
+{
+  return urdf_text_;
 }
 
 urdf::ModelInterfaceConstSharedPtr RobotInfo::urdf() const
