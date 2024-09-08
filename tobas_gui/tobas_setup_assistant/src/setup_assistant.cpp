@@ -9,19 +9,21 @@ namespace setup_assistant
 SetupAssistantWidget::SetupAssistantWidget(
   rclcpp::Node::SharedPtr node,
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
-  : node_(node), rviz_node_if_(rviz_node_if), robot_(node_), pkg_generator_(node_, robot_, settings_)
+  : robot_(node)
 {
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
-  // さもないと確保時にメモリ配置が変わってセグフォになる危険性がある
-  settings_ = new SettingsWidget(node_, robot_);
-  start_ = new StartWidget(node_, robot_, settings_);
+  // さもないと確保時にメモリ配置が変わってセグフォになる
+  settings_ = new SettingsWidget(node, robot_);
+  start_ = new StartWidget(node, robot_, settings_);
   rviz_ = new RvizWidget(rviz_node_if, robot_);
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);
-  jsp_ = new JointStatePublisherWidget(node_, robot_);
+  jsp_ = new JointStatePublisherWidget(node, robot_);
 
   frame_tree_->setFixedWidth(kFrameTreeWidth);
   rviz_->setMinimumWidth(kRvizMinWidth);
   jsp_->setMinimumWidth(kJointStatePublisherMinWidth);
+
+  pkg_generator_ = std::make_unique<PackageGenerator>(node, robot_, settings_);
 
   // Layout
   const auto rows = new QVBoxLayout();
@@ -40,7 +42,7 @@ SetupAssistantWidget::SetupAssistantWidget(
 
 void SetupAssistantWidget::onGenerateButtonClicked()
 {
-  pkg_generator_.generate();
+  pkg_generator_->generate();
 }
 }  // namespace setup_assistant
 }  // namespace gui

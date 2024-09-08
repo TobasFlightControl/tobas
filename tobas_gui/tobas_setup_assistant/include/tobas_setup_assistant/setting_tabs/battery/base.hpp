@@ -1,19 +1,18 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-
-#include <tobas_qt_tools/widgets/widget.hpp>
+#include <QWidget>
 
 namespace gui
 {
 namespace setup_assistant
 {
-class BatteryWidget_Base : public qt::Widget
+class BatteryWidget_Base : public QWidget
 {
   Q_OBJECT
 
   using self = BatteryWidget_Base;
-  using super = qt::Widget;
+  using super = QWidget;
 
 public:
   virtual const char* name() const = 0;

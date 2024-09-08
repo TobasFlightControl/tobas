@@ -1,9 +1,5 @@
 #pragma once
 
-#include <rviz_common/ros_integration/ros_node_abstraction_iface.hpp>
-
-#include <tobas_qt_tools/widgets/widget.hpp>
-
 #include "./common.hpp"
 #include "./robot_info.hpp"
 #include "./package_generator.hpp"
@@ -17,12 +13,12 @@ namespace gui
 {
 namespace setup_assistant
 {
-class SetupAssistantWidget : public qt::Widget
+class SetupAssistantWidget : public QWidget
 {
   Q_OBJECT
 
   using self = SetupAssistantWidget;
-  using super = qt::Widget;
+  using super = QWidget;
 
   static constexpr int kHeaderHeight = 350;
   static constexpr int kFrameTreeWidth = 200;
@@ -38,11 +34,8 @@ private Q_SLOTS:
   void onGenerateButtonClicked();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
-  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
-
   RobotInfo robot_;
-  PackageGenerator pkg_generator_;
+  std::unique_ptr<PackageGenerator> pkg_generator_;
 
   StartWidget* start_;
   FrameTreeWidget* frame_tree_;

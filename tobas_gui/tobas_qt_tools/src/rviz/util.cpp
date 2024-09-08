@@ -1,6 +1,6 @@
 #include <rviz_common/yaml_config_reader.hpp>
 
-#include "tobas_qt_tools/rviz.hpp"
+#include "tobas_qt_tools/rviz/util.hpp"
 
 namespace qt
 {

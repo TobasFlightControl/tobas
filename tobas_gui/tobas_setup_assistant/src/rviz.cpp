@@ -7,7 +7,7 @@
 
 #include <tobas_std_tools/check.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
-#include <tobas_qt_tools/rviz.hpp>
+#include <tobas_qt_tools/rviz/util.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "tobas_setup_assistant/rviz.hpp"
@@ -22,11 +22,11 @@ namespace setup_assistant
 RvizWidget::RvizWidget(
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
   const RobotInfo& robot)
-  : robot_(robot), rviz_node_(rviz_node_if.lock()->get_raw_node())
+  : rviz_node_if_(rviz_node_if), robot_(robot)
 {
   // Declare rosparams
-  ros2::declareParam(rviz_node_, kRobotDescriptionParam, tobas::kMinimulURDF);
-  ros2::declareParam(rviz_node_, kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
+  ros2::declareParam(rvizNode(), kRobotDescriptionParam, tobas::kMinimulURDF);
+  ros2::declareParam(rvizNode(), kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
 
   // Create Rviz frame widget
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
@@ -35,8 +35,8 @@ RvizWidget::RvizWidget(
 
   // Setup robot_model_display
   // rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
-  manager_ = frame->getManager();
-  display_ = manager_->getRootDisplayGroup()->getDisplayAt(kRobotStateDisplayIndex);
+  vis_manager_ = frame->getManager();
+  display_ = vis_manager_->getRootDisplayGroup()->getDisplayAt(kRobotStateDisplayIndex);
   TOBAS_CHECK(display_->getName() == "RobotState");
 
   // 使用するプロパティを取得
@@ -73,15 +73,15 @@ RvizWidget::RvizWidget(
 
 void RvizWidget::onRobotLoaded(const QString& urdf_content)
 {
-  RCLCPP_DEBUG(rviz_node_->get_logger(), "RvizWidget::onRobotLoaded");
+  RCLCPP_DEBUG(rvizNode()->get_logger(), "RvizWidget::onRobotLoaded");
 
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
-  manager_->setFixedFrame(QString::fromStdString(root_name));
+  vis_manager_->setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
-  rviz_node_->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_content.toStdString()));
-  rviz_node_->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_content.toStdString()));
+  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, urdf_content.toStdString()));
+  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, urdf_content.toStdString()));
 
   // ロボットモデルをリロード
   reload_->setBool(false);
@@ -105,9 +105,14 @@ void RvizWidget::unheightLink(const QString& link_name)
   unhighlight_link_->setValue(link_name);
 }
 
-const rclcpp::Node::SharedPtr& RvizWidget::rvizNode() const
+rclcpp::Node::SharedPtr RvizWidget::rvizNode()
 {
-  return rviz_node_;
+  return rviz_node_if_.lock()->get_raw_node();
+}
+
+rclcpp::Node::ConstSharedPtr RvizWidget::rvizNode() const
+{
+  return rviz_node_if_.lock()->get_raw_node();
 }
 
 void RvizWidget::onVisualBoxToggled(bool checked)

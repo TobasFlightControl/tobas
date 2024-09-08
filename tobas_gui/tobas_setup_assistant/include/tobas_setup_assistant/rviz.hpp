@@ -1,11 +1,11 @@
 #pragma once
 
+#include <QWidget>
+
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/display.hpp>
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
-
-#include <tobas_qt_tools/widgets/widget.hpp>
 
 #include "./robot_info.hpp"
 
@@ -13,12 +13,12 @@ namespace gui
 {
 namespace setup_assistant
 {
-class RvizWidget : public qt::Widget
+class RvizWidget : public QWidget
 {
   Q_OBJECT
 
   using self = RvizWidget;
-  using super = qt::Widget;
+  using super = QWidget;
 
   static constexpr int kRobotStateDisplayIndex = 0;  // rvizファイルと合わせる必要あり
   static constexpr bool kDefaultVisualEnabled = true;
@@ -32,7 +32,8 @@ public:
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
-  const rclcpp::Node::SharedPtr& rvizNode() const;
+  rclcpp::Node::SharedPtr rvizNode();
+  rclcpp::Node::ConstSharedPtr rvizNode() const;
 
 private Q_SLOTS:
   void onRobotLoaded(const QString& urdf_content);
@@ -40,11 +41,10 @@ private Q_SLOTS:
   void onCollisionBoxToggled(bool checked);
 
 private:
+  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
   const RobotInfo& robot_;
 
-  const rclcpp::Node::SharedPtr rviz_node_;
-
-  rviz_common::VisualizationManager* manager_;
+  rviz_common::VisualizationManager* vis_manager_;
   rviz_common::Display* display_;
 
   rviz_common::properties::BoolProperty* enable_visual_;

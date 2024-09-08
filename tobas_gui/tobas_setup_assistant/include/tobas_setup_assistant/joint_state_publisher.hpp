@@ -6,7 +6,6 @@
 #include <moveit_msgs/msg/display_robot_state.hpp>
 
 #include <tobas_ros2_tools/definitions.hpp>
-#include <tobas_qt_tools/widgets/widget.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 
 #include "./robot_info.hpp"
@@ -15,12 +14,12 @@ namespace gui
 {
 namespace setup_assistant
 {
-class JointStatePublisherWidget : public qt::Widget
+class JointStatePublisherWidget : public QWidget
 {
   Q_OBJECT
 
   using self = JointStatePublisherWidget;
-  using super = qt::Widget;
+  using super = QWidget;
 
 public:
   explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
