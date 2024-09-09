@@ -96,7 +96,7 @@ rclcpp_action::CancelResponse LandServerNode::handleCancel(ros2::ActionGoalHandl
 
 void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Landing action is called.");
+  TOBAS_INFO("Landing action is requested.");
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();

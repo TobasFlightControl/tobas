@@ -92,6 +92,13 @@ static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
 
+// Calibration
+static constexpr char kAccelCalibSrv[] = "accel_calibration";
+static constexpr char kMagCalibSrv[] = "mag_calibration";
+static constexpr char kADCCalibSrv[] = "adc_calibration";
+static constexpr char kRCInputCalibSrv[] = "rcin_calibration";
+static constexpr char kESCCalibAction[] = "esc_calibration";
+
 // Controller Manager
 namespace controller_manager
 {

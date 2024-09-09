@@ -105,7 +105,7 @@ rclcpp_action::CancelResponse TakeoffServerNode::handleCancel(ros2::ActionGoalHa
 
 void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Takeoff action is called.");
+  TOBAS_INFO("Takeoff action is requested.");
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();

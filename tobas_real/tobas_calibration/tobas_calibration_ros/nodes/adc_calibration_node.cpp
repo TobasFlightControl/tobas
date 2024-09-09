@@ -1,6 +1,7 @@
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/adc.hpp>
@@ -12,8 +13,6 @@ using namespace std;
 
 class AdcCalibrationNode : public tobas::BaseNode
 {
-  static constexpr char kServiceName[] = "adc_calibration";
-
   static constexpr size_t kDataCount = 100;
   static constexpr double kTimeout = 5.;  // [s]
 
@@ -36,7 +35,7 @@ private:
 
 AdcCalibrationNode::AdcCalibrationNode(const rclcpp::NodeOptions& options) : super("adc_calibration", options)
 {
-  ss_ = createService<SrvType>(kServiceName, &self::executeCb, this);
+  ss_ = createService<SrvType>(tobas::kADCCalibSrv, &self::executeCb, this);
 }
 
 void AdcCalibrationNode::adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc)

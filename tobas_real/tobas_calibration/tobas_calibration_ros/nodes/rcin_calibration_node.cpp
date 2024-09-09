@@ -1,4 +1,5 @@
 #include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_hal_msgs/msg/sbus.hpp>
 
@@ -9,8 +10,6 @@ using namespace std;
 
 class RCInputCalibrationNode : public tobas::BaseNode
 {
-  static constexpr char kServiceName[] = "rcin_calibration";
-
   static constexpr size_t kMinSignalRange = 300;
 
   using self = RCInputCalibrationNode;
@@ -28,7 +27,7 @@ private:
 
 RCInputCalibrationNode::RCInputCalibrationNode(const rclcpp::NodeOptions& options) : super("rcin_calibration", options)
 {
-  ss_ = createService<SrvType>(kServiceName, &self::executeCb, this);
+  ss_ = createService<SrvType>(tobas::kRCInputCalibSrv, &self::executeCb, this);
 }
 
 void RCInputCalibrationNode::executeCb(

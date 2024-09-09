@@ -2,6 +2,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_property_tools/property_client.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs_adapter/Imu.hpp>
@@ -14,8 +15,6 @@ using namespace Eigen;
 
 class AccelCalibrationNode : public tobas::BaseNode
 {
-  static constexpr char kServiceName[] = "accel_calibration";
-
   static constexpr size_t kDataCount = 1000;
   static constexpr double kTimeout = 5.;  // [s]
 
@@ -41,7 +40,7 @@ private:
 
 AccelCalibrationNode::AccelCalibrationNode(const rclcpp::NodeOptions& options) : super("accel_calibration", options)
 {
-  ss_ = createService<SrvType>(kServiceName, &self::executeCb, this);
+  ss_ = createService<SrvType>(tobas::kAccelCalibSrv, &self::executeCb, this);
 }
 
 bool AccelCalibrationNode::getAccelMean(Eigen::Vector3d& des)

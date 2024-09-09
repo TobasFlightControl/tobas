@@ -1,5 +1,6 @@
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_property_tools/property_client.hpp>
 
 #include <tobas_real_common/constants.hpp>
@@ -9,8 +10,6 @@ using namespace std;
 
 class MagCalibrationNode : public tobas::BaseNode
 {
-  static constexpr char kServiceName[] = "mag_calibration";
-
   using self = MagCalibrationNode;
   using super = tobas::BaseNode;
   using SrvType = tobas_calibration_msgs::srv::MagCalibration;
@@ -27,7 +26,7 @@ private:
 
 MagCalibrationNode::MagCalibrationNode(const rclcpp::NodeOptions& options) : super("mag_calibration", options)
 {
-  ss_ = createService<SrvType>(kServiceName, &self::executeCb, this);
+  ss_ = createService<SrvType>(tobas::kMagCalibSrv, &self::executeCb, this);
 }
 
 bool MagCalibrationNode::isValidEllipse(const SrvType::Request::ConstSharedPtr& req)

@@ -11,14 +11,12 @@
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 #include <tobas_real_common/constants.hpp>
-#include <tobas_calibration_msgs/srv/esc_calibration.hpp>
+#include <tobas_calibration_msgs/action/esc_calibration.hpp>
 
 using namespace std;
 
 class EscCalibrationNode : public tobas::BaseNode
 {
-  static constexpr char kServiceName[] = "esc_calibration";
-
   static constexpr double kHighDuration = 3.;      // [s]
   static constexpr double kLowDuration = 5.;       // [s]
   static constexpr double kTimeout = 30.;          // [s]
@@ -28,7 +26,7 @@ class EscCalibrationNode : public tobas::BaseNode
 
   using self = EscCalibrationNode;
   using super = tobas::BaseNode;
-  using SrvType = tobas_calibration_msgs::srv::EscCalibration;
+  using ActionType = tobas_calibration_msgs::action::ESCCalibration;
 
 public:
   explicit EscCalibrationNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -39,7 +37,7 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::ServicePtr<SrvType> ss_;
+  ros2::ActionPtr<ActionType> as_;
 
   void sendMaximum();
   void sendMinimum();
@@ -52,14 +50,17 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
-  void executeCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
+
+  rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
+  rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
+  void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 EscCalibrationNode::EscCalibrationNode(const rclcpp::NodeOptions& options) : super("esc_calibration", options)
 {
   throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
   drone_sub_ = createSubscriber<tobas::Drone>(tobas::kDroneTopic, &self::droneCb, this, true);
-  ss_ = createService<SrvType>(kServiceName, &self::executeCb, this);
+  as_ = createAction(tobas::kESCCalibAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
 void EscCalibrationNode::sendMaximum()
@@ -182,7 +183,6 @@ bool EscCalibrationNode::waitForBatteryConnection(string& message)
       return false;
     }
     setThrottleAndSleep(tobas::kMaxThrot);
-    rclcpp::spin_some(shared_from_this());
   }
 
   return true;
@@ -198,41 +198,57 @@ void EscCalibrationNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPt
   battery_ = battery;
 }
 
-void EscCalibrationNode::executeCb(const SrvType::Request::ConstSharedPtr&, const SrvType::Response::SharedPtr& res)
+rclcpp_action::GoalResponse
+EscCalibrationNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr)
 {
+  return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+
+rclcpp_action::CancelResponse EscCalibrationNode::handleCancel(ros2::ActionGoalHandlePtr<ActionType>)
+{
+  return rclcpp_action::CancelResponse::ACCEPT;
+}
+
+void EscCalibrationNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+{
+  TOBAS_INFO("ESC calibration is requested.");
+
+  // Create result
+  const auto result = std::make_shared<ActionType::Result>();
+
   if (drone_ == nullptr)
   {
-    res->success = false;
-    res->message = "Drone configuration has not been received yet.";
+    result->message = "Drone configuration has not been received yet.";
+    goal_handle->abort(result);
     return;
   }
 
   // アームされていないことを確認
-  if (!checkDisarmed(res->message))
+  if (!checkDisarmed(result->message))
   {
-    res->success = false;
+    goal_handle->abort(result);
     return;
   }
 
   // バッテリーが接続されていないことを確認
-  if (!checkBatteryDisconnected(res->message))
+  if (!checkBatteryDisconnected(result->message))
   {
-    res->success = false;
+    goal_handle->abort(result);
     return;
   }
 
   // RC出力を有効化
-  if (!enableRCOutputs(true, res->message))
+  if (!enableRCOutputs(true, result->message))
   {
-    res->success = false;
+    goal_handle->abort(result);
     return;
   }
 
   // バッテリーが接続されるのを待つ
   TOBAS_INFO("Waiting for battery connection.");
-  if (!waitForBatteryConnection(res->message))
+  if (!waitForBatteryConnection(result->message))
   {
-    res->success = false;
+    goal_handle->abort(result);
     return;
   }
 
@@ -245,14 +261,14 @@ void EscCalibrationNode::executeCb(const SrvType::Request::ConstSharedPtr&, cons
   sendMinimum();
 
   // RC出力を無効化
-  if (!enableRCOutputs(false, res->message))
+  if (!enableRCOutputs(false, result->message))
   {
-    res->success = false;
+    goal_handle->abort(result);
     return;
   }
 
-  res->success = true;
-  res->message.clear();
+  result->message.clear();
+  goal_handle->succeed(result);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(EscCalibrationNode)

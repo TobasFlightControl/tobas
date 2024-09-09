@@ -129,7 +129,7 @@ rclcpp_action::CancelResponse MoveServerNode::handleCancel(ros2::ActionGoalHandl
 
 void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Moving action is called.");
+  TOBAS_INFO("Moving action is requested.");
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
