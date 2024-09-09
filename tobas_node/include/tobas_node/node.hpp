@@ -82,13 +82,25 @@ public:
       const std::shared_ptr<typename SrvType::Response>&),
     Obj* obj);
 
+  /**
+   * @brief アクションサーバを作成する．
+   *
+   * @tparam ActionType
+   * @tparam Obj
+   * @param action_name
+   * @param handle_goal
+   * @param handle_cancel
+   * @param execute 別スレッドで実行されるアクションの実行関数
+   * @param obj
+   * @return ros2::ActionPtr<ActionType>
+   */
   template <typename ActionType, typename Obj>
   ros2::ActionPtr<ActionType> createAction(
     const std::string& action_name,
     rclcpp_action::GoalResponse (
       Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
     rclcpp_action::CancelResponse (Obj::*handle_cancel)(ros2::ActionGoalHandlePtr<ActionType>),
-    void (Obj::*handle_accepted)(ros2::ActionGoalHandlePtr<ActionType>),
+    void (Obj::*execute)(ros2::ActionGoalHandlePtr<ActionType>),
     Obj* obj);
 
   template <typename RepType, typename DurType, typename Obj>
@@ -248,12 +260,20 @@ ros2::ActionPtr<ActionType> BaseNode::createAction(
   rclcpp_action::GoalResponse (
     Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
   rclcpp_action::CancelResponse (Obj::*handle_cancel)(ros2::ActionGoalHandlePtr<ActionType>),
-  void (Obj::*handle_accepted)(ros2::ActionGoalHandlePtr<ActionType>),
+  void (Obj::*execute)(ros2::ActionGoalHandlePtr<ActionType>),
   Obj* obj)
 {
+  // Callback functions need to return quickly to avoid blocking the executor,
+  // so we declare a lambda function to be called inside a new thread.
+  auto handle_accepted = [execute, obj](ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+  {
+    auto execute_in_thread = [execute, obj, goal_handle]() { return (obj->*execute)(goal_handle); };
+    std::thread(execute_in_thread).detach();
+  };
+
   return rclcpp_action::create_server<ActionType>(
     obj, action_name, std::bind(handle_goal, obj, std::placeholders::_1, std::placeholders::_2),
-    std::bind(handle_cancel, obj, std::placeholders::_1), std::bind(handle_accepted, obj, std::placeholders::_1));
+    std::bind(handle_cancel, obj, std::placeholders::_1), handle_accepted);
 }
 
 template <typename RepType, typename DurType, typename Obj>
@@ -277,7 +297,7 @@ void BaseNode::addDynamicBoolParam(
 
   declare_parameter(name, _default);
 
-  const auto cb = [this, name, fp, obj, _default](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto value = param.as_bool();
     if ((obj->*fp)(value))
@@ -311,7 +331,7 @@ void BaseNode::addDynamicIntParam(
 
   declare_parameter(name, _default);
 
-  const auto cb = [this, name, fp, obj, _default, _min, _max](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
   {
     auto value = param.as_int();
     if (value < _min || _max < value)
@@ -354,7 +374,7 @@ void BaseNode::addDynamicDoubleParam(
 
   declare_parameter(name, _default);
 
-  const auto cb = [this, name, fp, obj, _default, _min, _max](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj, _min, _max](const rclcpp::Parameter& param)
   {
     auto value = param.as_double();
     if (value < _min || _max < value)
@@ -393,7 +413,7 @@ void BaseNode::addDynamicStringParam(
 
   declare_parameter(name, _default);
 
-  const auto cb = [this, name, fp, obj, _default](const rclcpp::Parameter& param)
+  const auto cb = [this, name, fp, obj](const rclcpp::Parameter& param)
   {
     const auto& value = param.as_string();
     if ((obj->*fp)(value))

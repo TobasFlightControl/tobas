@@ -17,10 +17,11 @@ public:
     client_ = rclcpp_action::create_client<ActionType>(node, action_name);
   }
 
-  template <typename RepType = int64_t, typename DurType = std::ratio<1L>>
   bool sendGoalAndWait(
     const ActionType::Goal& goal,
-    std::chrono::duration<RepType, DurType> timeout = std::chrono::seconds(0))
+    std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds::max(),
+    std::chrono::milliseconds send_goal_timeout = std::chrono::milliseconds(1000),
+    std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(1000))
   {
     if (!client_->action_server_is_ready())
     {
@@ -29,33 +30,33 @@ public:
     }
 
     auto send_goal_future = client_->async_send_goal(goal);
-    if (timeout.count() > 0)
+    if (send_goal_future.wait_for(send_goal_timeout) == std::future_status::timeout)
     {
-      if (send_goal_future.wait_for(timeout) == std::future_status::timeout)
-      {
-        RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << action_name_ << "\" response.");
-        return false;
-      }
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before sending \"" << action_name_ << "\" action goal.");
+      return false;
     }
-    else
-    {
-      send_goal_future.wait();
-    }
-    const auto goal_handle = send_goal_future.get();
 
+    const auto goal_handle = send_goal_future.get();
+    if (goal_handle == nullptr)
+    {
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Goal was rejected by \"" << action_name_ << "\" action server.");
+      return false;
+    }
+
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Waiting for \"" << action_name_ << "\" action result...");
     auto get_result_future = client_->async_get_result(goal_handle);
-    if (timeout.count() > 0)
+    if (get_result_future.wait_for(get_result_timeout) == std::future_status::timeout)
     {
-      if (get_result_future.wait_for(timeout) == std::future_status::timeout)
-      {
-        RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << action_name_ << "\" response.");
-        return false;
-      }
+      RCLCPP_ERROR_STREAM(
+        node_->get_logger(), "Timeout before getting \"" << action_name_ << "\" action result. Cancelling goal...");
+
+      auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
+      if (cancel_goal_future.wait_for(cancel_goal_timeout) == std::future_status::timeout)
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to cancel \"" << action_name_ << "\" action goal.");
+
+      return false;
     }
-    else
-    {
-      get_result_future.wait();
-    }
+
     result_ = get_result_future.get();
 
     return true;

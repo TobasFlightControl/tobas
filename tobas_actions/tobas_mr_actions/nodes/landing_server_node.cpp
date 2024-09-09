@@ -39,14 +39,14 @@ private:
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
-  void handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
+  void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 LandServerNode::LandServerNode(const rclcpp::NodeOptions& options)
   : super("mr_land_action_server", options), alt_buf_(kTimeWindow)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
-  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
+  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
 bool LandServerNode::disarmRotors()
@@ -73,15 +73,15 @@ bool LandServerNode::disarmRotors()
 
 void LandServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom->status != tobas_msgs::msg::Odometry::NO_ERROR)
-    return;
-
   odom_ = odom;
 
-  // 現在の時刻と高度を履歴に追加
-  const auto cur_time = ros2::chronoFromRosTime(odom->header.stamp);
-  const auto& altitude = odom->frame.p.z();
-  alt_buf_.add(cur_time, altitude);
+  // 異常がなければ現在の時刻と高度を履歴に追加
+  if (odom->status == tobas_msgs::msg::Odometry::NO_ERROR)
+  {
+    const auto cur_time = ros2::chronoFromRosTime(odom->header.stamp);
+    const auto& altitude = odom->frame.p.z();
+    alt_buf_.add(cur_time, altitude);
+  }
 }
 
 rclcpp_action::GoalResponse LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr)
@@ -94,9 +94,9 @@ rclcpp_action::CancelResponse LandServerNode::handleCancel(ros2::ActionGoalHandl
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void LandServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Landing action is executing.");
+  TOBAS_INFO("Landing action is called.");
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
@@ -107,13 +107,31 @@ void LandServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
 
   // 一時的にトピックを購読
   const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  rclcpp::spin_all(shared_from_this(), kWaitForTopic);
 
-  // オドメトリが発行されていることを確認
-  if (odom_ == nullptr)
+  // オドメトリを受け取るまで待機
+  TOBAS_INFO("Waiting for odometry.");
+  rclcpp::Rate wait_for_topic_rate(kWaitForTopicRate);
+  while (rclcpp::ok())
   {
-    result->message = "Odometry is not received yet.";
+    if (odom_ != nullptr)
+      break;
+
+    if (goal_handle->is_canceling())
+    {
+      result->message = "Failed to get odometry.";
+      goal_handle->canceled(result);
+      return;
+    }
+
+    wait_for_topic_rate.sleep();
+  }
+
+  // Check odometry
+  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
+  {
+    result->message = "There is a problem with the state estimation.";
     goal_handle->abort(result);
+    return;
   }
 
   // 初期状態
@@ -124,7 +142,7 @@ void LandServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 高度チェック
-  rclcpp::Rate rate(kCommandRate);
+  rclcpp::Rate cmd_rate(kCommandRate);
   while (rclcpp::ok())
   {
     if (alt_buf_.isFilled())
@@ -177,8 +195,7 @@ void LandServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
       return;
     }
 
-    rclcpp::spin_some(shared_from_this());
-    rate.sleep();
+    cmd_rate.sleep();
   }
 }
 

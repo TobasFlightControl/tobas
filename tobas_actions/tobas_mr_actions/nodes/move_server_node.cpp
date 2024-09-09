@@ -40,13 +40,13 @@ private:
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
-  void handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
+  void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_move_action_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
-  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
+  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
 bool MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos)
@@ -127,9 +127,9 @@ rclcpp_action::CancelResponse MoveServerNode::handleCancel(ros2::ActionGoalHandl
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void MoveServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
-  TOBAS_INFO("Moving action is executing.");
+  TOBAS_INFO("Moving action is called.");
 
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
@@ -137,23 +137,34 @@ void MoveServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
   // 一時的にトピックを購読
   const auto arming_sub = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
   const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  rclcpp::spin_all(shared_from_this(), kWaitForTopic);
+
+  // Wait for topics
+  TOBAS_INFO("Waiting for arming status and odometry.");
+  rclcpp::Rate wait_for_topic_rate(kWaitForTopicRate);
+  while (rclcpp::ok())
+  {
+    if (arming_ != nullptr && odom_ != nullptr)
+      break;
+
+    if (goal_handle->is_canceling())
+    {
+      result->message = "Failed to get necessary topics.";
+      goal_handle->canceled(result);
+      return;
+    }
+
+    wait_for_topic_rate.sleep();
+  }
 
   // Check if rotors are armed
-  if (arming_ == nullptr || !arming_->data)
+  if (!arming_->data)
   {
-    result->message = "Rotors are disarmed.";
+    result->message = "Rotors are not armed.";
     goal_handle->abort(result);
     return;
   }
 
   // Check odometry
-  if (odom_ == nullptr)
-  {
-    result->message = "Odometry message is not received yet.";
-    goal_handle->abort(result);
-    return;
-  }
   if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     result->message = "There is a problem with the state estimation.";
@@ -185,7 +196,7 @@ void MoveServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  rclcpp::Rate rate(kCommandRate);
+  rclcpp::Rate cmd_rate(kCommandRate);
   while (rclcpp::ok())
   {
     // 開始からの経過時間を計算
@@ -244,8 +255,7 @@ void MoveServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_h
       return;
     }
 
-    rclcpp::spin_some(shared_from_this());
-    rate.sleep();
+    cmd_rate.sleep();
   }
 }
 

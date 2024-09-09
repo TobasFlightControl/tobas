@@ -14,11 +14,11 @@ public:
   {
   }
 
-  template <typename T, typename RepType = int64_t, typename DurType = std::ratio<1L>>
+  template <typename T>
   bool setParam(
     const std::string& param_name,
     const T& value,
-    std::chrono::duration<RepType, DurType> timeout = std::chrono::seconds(0))
+    std::chrono::milliseconds timeout = std::chrono::milliseconds::max())
   {
     if (!client_.service_is_ready())
     {
@@ -27,18 +27,10 @@ public:
     }
 
     auto future = client_.set_parameters({ rclcpp::Parameter(param_name, value) });
-
-    if (timeout.count() > 0)
+    if (future.wait_for(timeout) == std::future_status::timeout)
     {
-      if (future.wait_for(timeout) == std::future_status::timeout)
-      {
-        RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before setting \"" << param_name << "\".");
-        return false;
-      }
-    }
-    else
-    {
-      future.wait();
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before setting \"" << param_name << "\".");
+      return false;
     }
 
     const auto results = future.get();

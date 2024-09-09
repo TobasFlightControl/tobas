@@ -38,13 +38,13 @@ private:
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
-  void handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
+  void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
 TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("mr_takeoff_action_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
-  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::handleAccepted, this);
+  as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
 bool TakeoffServerNode::armRotors()
@@ -103,7 +103,7 @@ rclcpp_action::CancelResponse TakeoffServerNode::handleCancel(ros2::ActionGoalHa
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void TakeoffServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
+void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 {
   TOBAS_INFO("Takeoff action is called.");
 
@@ -112,15 +112,26 @@ void TakeoffServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goa
 
   // 一時的にトピックを購読
   const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  rclcpp::spin_all(shared_from_this(), kWaitForTopic);
+
+  // オドメトリを受け取るまで待機
+  TOBAS_INFO("Waiting for odometry.");
+  rclcpp::Rate wait_for_topic_rate(kWaitForTopicRate);
+  while (rclcpp::ok())
+  {
+    if (odom_ != nullptr)
+      break;
+
+    if (goal_handle->is_canceling())
+    {
+      result->message = "Failed to get odometry.";
+      goal_handle->canceled(result);
+      return;
+    }
+
+    wait_for_topic_rate.sleep();
+  }
 
   // Check odometry
-  if (odom_ == nullptr)
-  {
-    result->message = "Odometry message is not received yet.";
-    goal_handle->abort(result);
-    return;
-  }
   if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     result->message = "There is a problem with the state estimation.";
@@ -146,7 +157,7 @@ void TakeoffServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goa
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  rclcpp::Rate rate(kCommandRate);
+  rclcpp::Rate cmd_rate(kCommandRate);
   while (rclcpp::ok())
   {
     // 開始からの経過時間を計算
@@ -200,8 +211,7 @@ void TakeoffServerNode::handleAccepted(ros2::ActionGoalHandlePtr<ActionType> goa
       return;
     }
 
-    rclcpp::spin_some(shared_from_this());
-    rate.sleep();
+    cmd_rate.sleep();
   }
 }
 

@@ -15,10 +15,8 @@ public:
     client_ = node->create_client<SrvType>(srv_name);
   }
 
-  template <typename RepType = int64_t, typename DurType = std::ratio<1L>>
-  bool call(
-    const SrvType::Request::SharedPtr& req,
-    std::chrono::duration<RepType, DurType> timeout = std::chrono::seconds(0))
+  bool
+  call(const SrvType::Request::SharedPtr& req, std::chrono::milliseconds timeout = std::chrono::milliseconds::max())
   {
     if (!client_->service_is_ready())
     {
@@ -27,18 +25,10 @@ public:
     }
 
     auto future = client_->async_send_request(req);
-
-    if (timeout.count() > 0)
+    if (future.wait_for(timeout) == std::future_status::timeout)
     {
-      if (future.wait_for(timeout) == std::future_status::timeout)
-      {
-        RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
-        return false;
-      }
-    }
-    else
-    {
-      future.wait();
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
+      return false;
     }
 
     res_ = future.get();
