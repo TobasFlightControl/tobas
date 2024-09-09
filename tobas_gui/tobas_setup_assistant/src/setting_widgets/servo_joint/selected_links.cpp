@@ -1,5 +1,6 @@
 #include <QLabel>
 #include <QDebug>
+#include <QHeaderView>
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/font.hpp>
@@ -18,6 +19,8 @@ namespace servo_joint
 {
 SelectedLinksWidget::SelectedLinksWidget(const RobotInfo& robot) : super(0, kNumCols), robot_(robot)
 {
+  horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
+
   setHorizontalHeaderLabels({
     kLinkNameLabel,
     kJointNameLabel,
@@ -26,8 +29,6 @@ SelectedLinksWidget::SelectedLinksWidget(const RobotInfo& robot) : super(0, kNum
     kMaxPosLabel,
     kCmdTypeLabel,
   });
-
-  setColumnsWidth(kColWidth);
 }
 
 void SelectedLinksWidget::updateInternalDataStructures()
@@ -84,9 +85,6 @@ void SelectedLinksWidget::add(const QString& link_name)
   const auto seg_it = robot_.tree().getSegment(link_name.toStdString());
   const auto& joint = seg_it->second.segment.joint();
 
-  const auto row = rowCount();
-  insertRow(row);
-
   const auto link_name_label = new QLabel(link_name);
   const auto jnt_name_label = new QLabel(QString::fromStdString(joint.name));
 
@@ -129,6 +127,8 @@ void SelectedLinksWidget::add(const QString& link_name)
   const auto cmd_type = new qt::ComboBox();
   cmd_type->addItems({ kPositionLabel, kVelocityLabel, kEffortLabel });
 
+  const auto row = rowCount();
+  insertRow(row);
   setCellWidget(row, kLinkNameCol, link_name_label);
   setCellWidget(row, kJointNameCol, jnt_name_label);
   setCellWidget(row, kHomePosCol, home_pos);

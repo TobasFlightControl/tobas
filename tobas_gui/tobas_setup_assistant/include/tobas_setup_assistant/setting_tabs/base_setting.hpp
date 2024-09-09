@@ -54,6 +54,7 @@ protected:
   void addWidget(QWidget* widget);
   void addWidgetCenter(QWidget* widget);
   void addLayout(QLayout* layout);
+  void addStretch();
 
 private:
   QVBoxLayout* header_rows_;

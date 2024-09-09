@@ -1,3 +1,5 @@
+#include <QVBoxLayout>
+
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
@@ -12,6 +14,10 @@ NonPlanarPIDWidget::NonPlanarPIDWidget(
   const fixed_wing::FixedWingWidget* fixed_wing)
   : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
 {
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
+  rows->addStretch();
 }
 
 const char* NonPlanarPIDWidget::name() const

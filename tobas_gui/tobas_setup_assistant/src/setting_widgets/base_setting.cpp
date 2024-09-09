@@ -17,8 +17,6 @@ BaseSettingWidget::BaseSettingWidget()
   content_rows_ = new QVBoxLayout();
   rows->addLayout(header_rows_);
   rows->addLayout(content_rows_);
-
-  rows->addStretch();
 }
 
 void BaseSettingWidget::initialize()
@@ -52,6 +50,11 @@ void BaseSettingWidget::addWidgetCenter(QWidget* widget)
 void BaseSettingWidget::addLayout(QLayout* layout)
 {
   content_rows_->addLayout(layout);
+}
+
+void BaseSettingWidget::addStretch()
+{
+  content_rows_->addStretch();
 }
 }  // namespace setup_assistant
 }  // namespace gui

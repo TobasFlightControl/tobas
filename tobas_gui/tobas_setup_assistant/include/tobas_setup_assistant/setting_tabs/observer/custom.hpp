@@ -11,6 +11,8 @@ class CustomObserverWidget : public BaseObserverWidget
   Q_OBJECT
 
 public:
+  explicit CustomObserverWidget();
+
   const char* name() const override;
   const char* description() const override;
   const char* observerPackage() const override;

@@ -22,5 +22,8 @@ public:
 
   /* 全ての列幅を一様に固定する． */
   void setColumnsWidth(int width);
+
+  /* 内容に合わせてテーブルの高さを調整する． */
+  void resizeHeightToContents();
 };
 }  // namespace qt

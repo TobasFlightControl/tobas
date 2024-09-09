@@ -50,6 +50,8 @@ void SimulationWidget::onInit()
   max_model_error_rate_->setValue(10);
   max_model_error_rate_->setSuffix(" %");
   addWidget(max_model_error_rate_);
+
+  addStretch();
 }
 
 void SimulationWidget::onOpened()

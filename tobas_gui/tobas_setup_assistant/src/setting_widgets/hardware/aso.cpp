@@ -1,9 +1,19 @@
+#include <QVBoxLayout>
+
 #include "tobas_setup_assistant/setting_tabs/hardware/aso.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
+AsoWidget::AsoWidget()
+{
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
+  rows->addStretch();
+}
+
 const char* AsoWidget::name() const
 {
   return "Aso | Tobas";

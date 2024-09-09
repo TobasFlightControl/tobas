@@ -75,6 +75,8 @@ void GPSWidget::onInit()
   vertical_vel_stddev_->setValue(0.1);
   vertical_vel_stddev_->setSuffix(" m/s");
   addParamWidget(vertical_vel_stddev_);
+
+  addStretch();
 }
 
 void GPSWidget::onOpened()

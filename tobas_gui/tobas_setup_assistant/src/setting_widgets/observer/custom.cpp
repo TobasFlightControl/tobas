@@ -1,9 +1,19 @@
+#include <QVBoxLayout>
+
 #include "tobas_setup_assistant/setting_tabs/observer/custom.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
+CustomObserverWidget::CustomObserverWidget()
+{
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
+  rows->addStretch();
+}
+
 const char* CustomObserverWidget::name() const
 {
   return "Use Custom Observer";

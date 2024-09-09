@@ -1,9 +1,19 @@
+#include <QVBoxLayout>
+
 #include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
+CustomControllerWidget::CustomControllerWidget()
+{
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
+  rows->addStretch();
+}
+
 const char* CustomControllerWidget::name() const
 {
   return "Use Custom Controller";

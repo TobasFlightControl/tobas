@@ -44,6 +44,8 @@ void MagnetometerWidget::onInit()
   uniform_noise_->setValue(400);
   uniform_noise_->setSuffix(" nT");
   addWidget(uniform_noise_);
+
+  addStretch();
 }
 
 void MagnetometerWidget::onOpened()

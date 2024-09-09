@@ -102,6 +102,8 @@ void IMUWidget::onInit()
   acc_lpf_cutoff_freq_->setValue(50);  // Same as LSM9DS1
   acc_lpf_cutoff_freq_->setSuffix(" Hz");
   addWidget(gyro_lpf_cutoff_freq_);
+
+  addStretch();
 }
 
 void IMUWidget::onOpened()

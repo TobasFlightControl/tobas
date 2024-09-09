@@ -13,4 +13,12 @@ void TableWidget::setColumnsWidth(int width)
   for (int col = 0; col < columnCount(); ++col)
     setColumnWidth(col, width);
 }
+
+void TableWidget::resizeHeightToContents()
+{
+  int total_height = 0;
+  for (int row = 0; row < rowCount(); ++row)
+    total_height += rowHeight(row);
+  setFixedHeight(total_height);
+}
 }  // namespace qt

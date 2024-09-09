@@ -61,6 +61,8 @@ void ROSPackageWidget::onInit()
   generate_button_->setEnabled(false);
   connect(generate_button_, &QPushButton::clicked, this, &self::onGenerateButtonClicked);
   addWidgetCenter(generate_button_);
+
+  addStretch();
 }
 
 void ROSPackageWidget::onOpened()

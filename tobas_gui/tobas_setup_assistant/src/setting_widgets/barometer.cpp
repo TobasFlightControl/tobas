@@ -39,6 +39,8 @@ void BarometerWidget::onInit()
   pressure_var_->setValue(10.);
   pressure_var_->setSuffix(" Pa^2");
   addWidget(pressure_var_);
+
+  addStretch();
 }
 
 void BarometerWidget::onOpened()

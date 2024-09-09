@@ -1,3 +1,5 @@
+#include <QVBoxLayout>
+
 #include "tobas_setup_assistant/setting_tabs/controller/fixed_wing_lqr.hpp"
 
 namespace gui
@@ -10,6 +12,10 @@ FixedWingLQRWidget::FixedWingLQRWidget(
   const fixed_wing::FixedWingWidget* fixed_wing)
   : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
 {
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
+
+  rows->addStretch();
 }
 
 const char* FixedWingLQRWidget::name() const

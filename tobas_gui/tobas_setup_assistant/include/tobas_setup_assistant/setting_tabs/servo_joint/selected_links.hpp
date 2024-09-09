@@ -20,7 +20,6 @@ class SelectedLinksWidget : public qt::TableWidget
   using self = SelectedLinksWidget;
   using super = qt::TableWidget;
 
-  static constexpr int kColWidth = 120;
   static constexpr int kPosDecimals = 3;
 
   // Columns

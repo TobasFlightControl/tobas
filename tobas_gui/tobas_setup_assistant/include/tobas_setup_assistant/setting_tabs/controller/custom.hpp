@@ -11,6 +11,8 @@ class CustomControllerWidget : public BaseControllerWidget
   Q_OBJECT
 
 public:
+  explicit CustomControllerWidget();
+
   const char* name() const override;
   const char* description() const override;
   const char* controllerPackage() const override;

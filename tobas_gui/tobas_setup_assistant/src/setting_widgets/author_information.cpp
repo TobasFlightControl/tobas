@@ -36,6 +36,8 @@ void AuthorInformationWidget::onInit()
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
   email_->setValue(QString::fromStdString(linux::GitHandler().getUserEmail()));
   addWidget(email_);
+
+  addStretch();
 }
 
 void AuthorInformationWidget::onOpened()
