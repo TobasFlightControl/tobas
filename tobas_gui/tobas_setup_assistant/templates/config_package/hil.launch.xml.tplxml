@@ -14,7 +14,9 @@
     <arg name="ground_truth" value="$(var ground_truth)"/>
   </include> -->
 
-  <group ns="{{ drone_name }}">
+  <group>
+    <push_ros_namespace namespace="{{ drone_name }}"/>
+
     <!-- Launch minimal hardware interfaces -->
     <include file="$(find-pkg-share {{ hardware_pkg }})/launch/rcin_driver.launch.py"/>
     <node pkg="tobas_real_ros" exec="rcin_handler" output="screen" />

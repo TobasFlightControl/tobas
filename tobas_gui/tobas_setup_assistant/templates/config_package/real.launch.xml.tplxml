@@ -1,12 +1,14 @@
 <launch>
 
   <!-- Load robot description -->
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.xml"/>
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py"/>
 
   <!-- Launch Tobas core software -->
   <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py"/>
 
-  <group ns="{{ drone_name }}">
+  <group>
+    <push_ros_namespace namespace="{{ drone_name }}"/>
+
     <!-- Launch hardware interfaces -->
     <include file="$(find-pkg-share {{ hardware_pkg }})/launch/hardware_interfaces.launch.py"/>
 

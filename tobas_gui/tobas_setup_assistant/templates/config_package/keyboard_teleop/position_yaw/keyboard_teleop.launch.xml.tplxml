@@ -5,7 +5,9 @@
 
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
-  <group ns="{{ drone_name }}">
+  <group>
+    <push_ros_namespace namespace="{{ drone_name }}"/>
+
     <node pkg="tobas_keyboard_teleop" exec="position_yaw_publisher_node" output="screen">
       <remap if="$(var ground_truth)" from="odom" to="ground_truth/odom"/>
     </node>

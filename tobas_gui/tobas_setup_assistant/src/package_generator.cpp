@@ -243,7 +243,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   cfg_env_->generate(tpl_data, "real.launch.xml.tplxml", launch_dir);
   cfg_env_->generate(tpl_data, "bringup.launch.py.tplpy", launch_dir);
   cfg_env_->generate(tpl_data, "hil.launch.xml.tplxml", launch_dir);
-  cfg_env_->generate(tpl_data, "robot_state_publisher.launch.xml.tplxml", launch_dir);
+  cfg_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
   // Keyboard Teleop (コントローラの対応コマンドによって場合分け)
   // TODO: コントローラごとに1つずつ

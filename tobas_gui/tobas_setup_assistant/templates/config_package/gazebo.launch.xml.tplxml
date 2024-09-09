@@ -4,18 +4,15 @@
   <arg name="use_sim_time" default="true"/>
   <arg name="user_debug" default="false"/>
   <arg name="log_level" default="3"/>
-  <arg name="x" default="0.0"/>
-  <arg name="y" default="0.0"/>
-  <arg name="z" default="0.3"/>
-  <arg name="yaw" default="0.0" doc="Initial yaw angle in degrees."/>
-
-  <let name="pi" value="3.14159265359"/>
-  <let name="yaw_rad" value="$(eval arg('yaw') * arg('pi') / 180)"/>
+  <arg name="x" default="0.0" description="Initial X position in meters."/>
+  <arg name="y" default="0.0" description="Initial Y position in meters."/>
+  <arg name="z" default="0.3" description="Initial Z position in meters."/>
+  <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
 
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
   <!-- Load robot description -->
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.xml">
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py">
     <arg name="user_debug" value="$(var user_debug)"/>
   </include>
 
@@ -25,9 +22,11 @@
     <arg name="log_level" value="$(var log_level)"/>
   </include>
 
-  <group ns="{{ drone_name }}">
+  <group>
+    <push_ros_namespace namespace="{{ drone_name }}"/>
+
     <!-- Spawn robot in Gazebo -->
-    <node pkg="ros_gz_sim" exec="create" output="screen" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw_rad)"/>
+    <node pkg="ros_gz_sim" exec="create" output="screen" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)"/>
 
     <!-- Launch joint controllers -->
     <include file="$(find-pkg-share {{ config_pkg_name }})/launch/controller_manager.launch.xml"/>

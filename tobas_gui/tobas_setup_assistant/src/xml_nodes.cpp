@@ -14,14 +14,20 @@ namespace setup_assistant
 {
 namespace util
 {
-const char* format(const pair<double, double>& data)
+string toString(double data)
 {
-  return std::format("{} {}", data.first, data.second).c_str();
+  return std::format("{}", data);  // 最適な表記方法を自動判定
 }
 
-const char* format(const Eigen::Vector3d& data)
+string toString(const pair<double, double>& data)
 {
-  return std::format("{} {} {}", data.x(), data.y(), data.z()).c_str();
+  // std::format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
+  return toString(data.first) + " " + toString(data.second);
+}
+
+string toString(const Eigen::Vector3d& data)
+{
+  return toString(data.x()) + " " + toString(data.y()) + " " + toString(data.z());
 }
 
 void addList(tinyxml2::XMLElement* parent, const string& list_name, const vector<string>& items)
@@ -107,7 +113,7 @@ void addIMUPlugin(
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
-  plugin->InsertNewChildElement("offset")->SetText(util::format(offset));
+  plugin->InsertNewChildElement("offset")->SetText(util::toString(offset).c_str());
   plugin->InsertNewChildElement("gyroNoiseDensityOnSignal")->SetText(gyro_noise_density);
   plugin->InsertNewChildElement("gyroNoiseDensityObserved")->SetText(gyro_noise_density);
   plugin->InsertNewChildElement("gyroRandomWalk")->SetText(gyro_random_walk);
@@ -143,7 +149,7 @@ void addMagnetometerPlugin(
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
-  plugin->InsertNewChildElement("offset")->SetText(util::format(offset));
+  plugin->InsertNewChildElement("offset")->SetText(util::toString(offset).c_str());
   plugin->InsertNewChildElement("latitudeZero")->SetText(latitude_zero);
   plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
@@ -168,7 +174,7 @@ void addBarometerPlugin(
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
-  plugin->InsertNewChildElement("offset")->SetText(util::format(offset));
+  plugin->InsertNewChildElement("offset")->SetText(util::toString(offset).c_str());
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
   plugin->InsertNewChildElement("pressureVariance")->SetText(pressure_variance);
 }
@@ -204,7 +210,7 @@ void addGPSPlugin(
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
-  plugin->InsertNewChildElement("offset")->SetText(util::format(offset));
+  plugin->InsertNewChildElement("offset")->SetText(util::toString(offset).c_str());
   plugin->InsertNewChildElement("delay")->SetText(delay);
   plugin->InsertNewChildElement("positionCorrTime")->SetText(position_corr_time);
   plugin->InsertNewChildElement("horPosAccuracy")->SetText(hor_pos_accuracy);
@@ -241,7 +247,7 @@ void addRotorPlugin(
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("channel")->SetText(rotor.channel);
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
-  plugin->InsertNewChildElement("rotSpeedCoefficients")->SetText(util::format(rotor.rot_speed_coefs));
+  plugin->InsertNewChildElement("rotSpeedCoefficients")->SetText(util::toString(rotor.rot_speed_coefs).c_str());
   plugin->InsertNewChildElement("motorConstant")->SetText(rotor.motor_constant);
   plugin->InsertNewChildElement("momentConstant")->SetText(rotor.moment_constant);
   plugin->InsertNewChildElement("rotorDragCoefficient")->SetText(rotor.drag_constant);
@@ -279,7 +285,7 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("wingSurface")->SetText(vehicle.wing_surface);
   plugin->InsertNewChildElement("wingSpan")->SetText(vehicle.wing_span);
   plugin->InsertNewChildElement("meanAerodynamicChord")->SetText(vehicle.mac);
-  plugin->InsertNewChildElement("aerodynamicCenter")->SetText(util::format(vehicle.ac.data));
+  plugin->InsertNewChildElement("aerodynamicCenter")->SetText(util::toString(vehicle.ac.data).c_str());
   plugin->InsertNewChildElement("lowerStallAngle")->SetText(vehicle.alpha_limit.lower);
   plugin->InsertNewChildElement("upperStallAngle")->SetText(vehicle.alpha_limit.upper);
 
