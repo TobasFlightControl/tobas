@@ -12,10 +12,13 @@ public:
 
   inline explicit SimpleServiceClient(rclcpp::Node::SharedPtr node, const std::string& srv_name) : node_(node)
   {
-    client_ = node_->create_client<SrvType>(srv_name);
+    client_ = node->create_client<SrvType>(srv_name);
   }
 
-  bool call(const SrvType::Request::SharedPtr& req)
+  template <typename RepType = int64_t, typename DurType = std::ratio<1L>>
+  bool call(
+    const SrvType::Request::SharedPtr& req,
+    std::chrono::duration<RepType, DurType> timeout = std::chrono::seconds(0))
   {
     if (!client_->service_is_ready())
     {
@@ -23,8 +26,21 @@ public:
       return false;
     }
 
-    auto future = client->async_send_request(req);
-    future.wait();
+    auto future = client_->async_send_request(req);
+
+    if (timeout.count() > 0)
+    {
+      if (future.wait_for(timeout) == std::future_status::timeout)
+      {
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
+        return false;
+      }
+    }
+    else
+    {
+      future.wait();
+    }
+
     res_ = future.get();
 
     return true;

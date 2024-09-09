@@ -17,7 +17,10 @@ public:
     client_ = rclcpp_action::create_client<ActionType>(node, action_name);
   }
 
-  bool sendGoalAndWait(const ActionType::Goal& goal)
+  template <typename RepType = int64_t, typename DurType = std::ratio<1L>>
+  bool sendGoalAndWait(
+    const ActionType::Goal& goal,
+    std::chrono::duration<RepType, DurType> timeout = std::chrono::seconds(0))
   {
     if (!client_->action_server_is_ready())
     {
@@ -25,13 +28,35 @@ public:
       return false;
     }
 
-    auto send_goal_id = client_->async_send_goal(goal);
-    send_goal_id.wait();
-    const auto goal_handle = send_goal_id.get();
+    auto send_goal_future = client_->async_send_goal(goal);
+    if (timeout.count() > 0)
+    {
+      if (send_goal_future.wait_for(timeout) == std::future_status::timeout)
+      {
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << action_name_ << "\" response.");
+        return false;
+      }
+    }
+    else
+    {
+      send_goal_future.wait();
+    }
+    const auto goal_handle = send_goal_future.get();
 
-    auto get_result_id = client_->async_get_result(goal_handle);
-    get_result_id.wait();
-    result_ = get_result_id.get();
+    auto get_result_future = client_->async_get_result(goal_handle);
+    if (timeout.count() > 0)
+    {
+      if (get_result_future.wait_for(timeout) == std::future_status::timeout)
+      {
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << action_name_ << "\" response.");
+        return false;
+      }
+    }
+    else
+    {
+      get_result_future.wait();
+    }
+    result_ = get_result_future.get();
 
     return true;
   }
