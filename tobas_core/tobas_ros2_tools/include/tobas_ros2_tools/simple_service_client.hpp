@@ -2,6 +2,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include "./future.hpp"
+
 namespace ros2
 {
 template <typename SrvType>
@@ -15,8 +17,7 @@ public:
     client_ = node->create_client<SrvType>(srv_name);
   }
 
-  bool
-  call(const SrvType::Request::SharedPtr& req, std::chrono::milliseconds timeout = std::chrono::milliseconds::max())
+  bool call(const SrvType::Request::SharedPtr& req, std::chrono::milliseconds timeout = std::chrono::milliseconds(0))
   {
     if (!client_->service_is_ready())
     {
@@ -25,7 +26,7 @@ public:
     }
 
     auto future = client_->async_send_request(req);
-    if (future.wait_for(timeout) == std::future_status::timeout)
+    if (waitForFuture(future, timeout) != std::future_status::ready)
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before \"" << client_->get_service_name() << "\" response.");
       return false;

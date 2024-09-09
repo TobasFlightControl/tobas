@@ -3,6 +3,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 
+#include "./future.hpp"
+
 namespace ros2
 {
 template <typename ActionType>
@@ -19,9 +21,9 @@ public:
 
   bool sendGoalAndWait(
     const ActionType::Goal& goal,
-    std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds::max(),
-    std::chrono::milliseconds send_goal_timeout = std::chrono::milliseconds(1000),
-    std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(1000))
+    std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(0),
+    std::chrono::milliseconds send_goal_timeout = std::chrono::milliseconds(0),
+    std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(0))
   {
     if (!client_->action_server_is_ready())
     {
@@ -30,7 +32,7 @@ public:
     }
 
     auto send_goal_future = client_->async_send_goal(goal);
-    if (send_goal_future.wait_for(send_goal_timeout) == std::future_status::timeout)
+    if (waitForFuture(send_goal_future, send_goal_timeout) != std::future_status::ready)
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before sending \"" << action_name_ << "\" action goal.");
       return false;
@@ -45,13 +47,13 @@ public:
 
     RCLCPP_INFO_STREAM(node_->get_logger(), "Waiting for \"" << action_name_ << "\" action result...");
     auto get_result_future = client_->async_get_result(goal_handle);
-    if (get_result_future.wait_for(get_result_timeout) == std::future_status::timeout)
+    if (waitForFuture(get_result_future, get_result_timeout) != std::future_status::ready)
     {
       RCLCPP_ERROR_STREAM(
         node_->get_logger(), "Timeout before getting \"" << action_name_ << "\" action result. Cancelling goal...");
 
       auto cancel_goal_future = client_->async_cancel_goal(goal_handle);
-      if (cancel_goal_future.wait_for(cancel_goal_timeout) == std::future_status::timeout)
+      if (waitForFuture(cancel_goal_future, cancel_goal_timeout) != std::future_status::ready)
         RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to cancel \"" << action_name_ << "\" action goal.");
 
       return false;

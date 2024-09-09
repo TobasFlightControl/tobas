@@ -2,6 +2,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include "./future.hpp"
+
 namespace ros2
 {
 class SimpleParamClient
@@ -18,7 +20,7 @@ public:
   bool setParam(
     const std::string& param_name,
     const T& value,
-    std::chrono::milliseconds timeout = std::chrono::milliseconds::max())
+    std::chrono::milliseconds timeout = std::chrono::milliseconds(0))
   {
     if (!client_.service_is_ready())
     {
@@ -27,7 +29,7 @@ public:
     }
 
     auto future = client_.set_parameters({ rclcpp::Parameter(param_name, value) });
-    if (future.wait_for(timeout) == std::future_status::timeout)
+    if (waitForFuture(future, timeout) != std::future_status::ready)
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before setting \"" << param_name << "\".");
       return false;
