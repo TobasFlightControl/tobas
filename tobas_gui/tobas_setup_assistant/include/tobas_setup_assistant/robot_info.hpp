@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_ros2_tools/simple_param_client.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_drone_core/rotor_axis.hpp>
@@ -23,7 +22,7 @@ Q_SIGNALS:
   void loaded();
 
 public:
-  explicit RobotInfo(rclcpp::Node::SharedPtr node);
+  explicit RobotInfo();
 
   bool loadFromPath(const std::string& path);
 
@@ -39,9 +38,6 @@ public:
   tobas::rotor_axis_t rotorAxisType(const std::string& seg_name);
 
 private:
-  rclcpp::Node::SharedPtr node_;
-  ros2::SimpleParamClient rsp_client_;
-
   // URDF information
   std::string urdf_text_;
   urdf::ModelInterfaceSharedPtr urdf_;

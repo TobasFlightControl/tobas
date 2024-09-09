@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_ros2_tools/simple_param_client.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 #include "./common.hpp"
@@ -37,6 +38,8 @@ private:
   RobotInfo robot_;
   std::unique_ptr<PackageGenerator> pkg_generator_;
 
+  ros2::SimpleParamClient rsp_client_;
+
   qt::WaitSpinnerWidget spinner_;
   BuildPackageThread build_thread_;
 
@@ -47,6 +50,7 @@ private:
   SettingsWidget* settings_;
 
 private Q_SLOTS:
+  void onRobotLoaded();
   void onGenerateButtonClicked();
   void onBuildPackageFinished(bool success, const QString& output);
 };

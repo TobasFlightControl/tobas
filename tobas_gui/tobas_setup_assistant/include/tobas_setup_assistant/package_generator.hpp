@@ -60,15 +60,6 @@ private:
   /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
   bool resolveMeshFiles(tinyxml2::XMLElement* elem, const std::filesystem::path& mesh_dir);
 
-  /* 悪影響を与えるかもしれないXML要素を，ユーザに確認した上で消す． */
-  bool screenXMLElements(tinyxml2::XMLElement* robot);
-
-  /* プラグインを強制削除すべきかどうかを判定する． */
-  bool isDeletableGazeboPlugin(tinyxml2::XMLElement* plugin);
-
-  /* Gazeboの子要素を削除してよいかユーザに尋ねる． */
-  bool askRemoveOrKeepGazeboChild(tinyxml2::XMLElement* child);
-
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXMLElements(tinyxml2::XMLElement* robot);
 };

@@ -433,13 +433,9 @@ bool PackageGenerator::generateObserverConfig(const fs::path& config_dir)
 
 bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
 {
-  // Parse robot description
-  const auto doc = new tinyxml2::XMLDocument();
-  if (doc->Parse(robot_.urdfText().c_str()) != tinyxml2::XML_SUCCESS)
-  {
-    qt::qErrorBox(settings_, "Failed to parse robot description.");
-    return false;
-  }
+  // Export the original URDF
+  // コメントやGazeboプラグインなどの不確定要素を排するため，テキストそのままではなく一度URDFオブジェクトを介してエクスポートする．
+  const auto doc = urdf::exportURDF(*robot_.urdf());
 
   // Get robot element
   const auto robot = doc->RootElement();
@@ -458,8 +454,6 @@ bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
 
   // Modify robot
   if (!resolveMeshFiles(robot, mesh_dir))
-    return false;
-  if (!screenXMLElements(robot))
     return false;
   if (!addXMLElements(robot))
     return false;
@@ -531,79 +525,6 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
   }
 
   return true;
-}
-
-bool PackageGenerator::screenXMLElements(tinyxml2::XMLElement* robot)
-{
-  for (auto gazebo = robot->FirstChildElement(); gazebo != nullptr; gazebo = gazebo->NextSiblingElement())
-  {
-    if (strcmp(gazebo->Name(), "gazebo") == 0)
-      continue;
-
-    for (auto plugin = gazebo->FirstChildElement(); plugin != nullptr; plugin = plugin->NextSiblingElement())
-    {
-      if (strcmp(plugin->Name(), "plugin") == 0)
-        continue;
-
-      if (isDeletableGazeboPlugin(plugin) || askRemoveOrKeepGazeboChild(plugin))
-        gazebo->DeleteChild(plugin);
-    }
-  }
-
-  return true;
-}
-
-bool PackageGenerator::isDeletableGazeboPlugin(tinyxml2::XMLElement* plugin)
-{
-  const auto filename = plugin->Attribute("filename");
-
-  // ファイル名が指定されていなければ削除
-  if (filename == nullptr)
-    return true;
-
-  const string filename_str(filename);
-
-  // Tobasのプラグインを削除
-  if (filename_str.starts_with("tobas") || filename_str.starts_with("libtobas"))
-    return true;
-
-  // GazeboのROS2インターフェースを削除
-  if (tobas_std::contains(filename_str, "gazebo_ros2_control"))  // Gazebo Classic
-    return true;
-  if (tobas_std::contains(filename_str, "gz_ros2_control-system"))  // Gazebo Ignition
-    return true;
-
-  return false;
-}
-
-bool PackageGenerator::askRemoveOrKeepGazeboChild(tinyxml2::XMLElement* child)
-{
-  // メッセージボックスを作成
-  const auto msg_box = new QMessageBox(settings_);  // 親を設定しておけば親の開放時に開放される
-
-  // テキストの設定
-  const QString tag(child->Name());
-  auto text = "Gazebo " + tag + " is detected.\n\n";
-  for (auto attr = child->FirstAttribute(); attr != nullptr; attr = attr->Next())
-  {
-    const QString attr_name(attr->Name());
-    const QString attr_value(attr->Value());
-    text += "    " + attr_name + ": " + attr_value + "\n";
-  }
-  text += "\nThis may interfere with components automatically added by Tobas.";
-  msg_box->setText(text);
-  msg_box->setInformativeText("Do you remove this " + tag + " or keep it?");
-
-  // ボタンの設定
-  const auto remove_button = msg_box->addButton("Remove", QMessageBox::ActionRole);
-  msg_box->addButton("Keep", QMessageBox::ActionRole);
-  msg_box->setDefaultButton(remove_button);
-
-  // ユーザの返事を取得
-  msg_box->exec();
-
-  // Removeが選択されたらTrue
-  return msg_box->clickedButton() == remove_button;
 }
 
 bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)

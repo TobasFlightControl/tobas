@@ -14,7 +14,7 @@ namespace setup_assistant
 SetupAssistantWidget::SetupAssistantWidget(
   rclcpp::Node::SharedPtr node,
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
-  : robot_(node), spinner_(Qt::WindowModal, this)
+  : rsp_client_(node, "robot_state_publisher"), spinner_(Qt::WindowModal, this)
 {
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる
@@ -42,8 +42,16 @@ SetupAssistantWidget::SetupAssistantWidget(
   rows->addWidget(settings_);
 
   // Connections
+  connect(&robot_, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(settings_->ros_package, &ROSPackageWidget::generateButtonClicked, this, &self::onGenerateButtonClicked);
   connect(&build_thread_, &BuildPackageThread::finished, this, &self::onBuildPackageFinished);
+}
+
+void SetupAssistantWidget::onRobotLoaded()
+{
+  // Update RSP parameter
+  if (!rsp_client_.setParam("robot_description", robot_.urdfText()))
+    qt::qErrorBox(this, "Failed to update robot state publisher.");
 }
 
 void SetupAssistantWidget::onGenerateButtonClicked()
@@ -79,9 +87,9 @@ void SetupAssistantWidget::onBuildPackageFinished(bool success, const QString& o
 
   // 結果を表示
   if (success)
-    qt::qInfoBox(settings_, "Tobas configuration package is generated and built successfully.");
+    qt::qInfoBox(this, "Tobas configuration package is generated and built successfully.");
   else
-    qt::qErrorBox(settings_, "Tobas configuration package is generated, but failed to build it:\n\n" + output);
+    qt::qErrorBox(this, "Tobas configuration package is generated, but failed to build it:\n\n" + output);
 }
 }  // namespace setup_assistant
 }  // namespace gui

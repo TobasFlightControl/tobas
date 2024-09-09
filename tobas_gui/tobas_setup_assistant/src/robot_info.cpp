@@ -13,8 +13,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-RobotInfo::RobotInfo(rclcpp::Node::SharedPtr node)
-  : node_(node), rsp_client_(node, "robot_state_publisher"), axis_solver_(tree_)
+RobotInfo::RobotInfo() : axis_solver_(tree_)
 {
 }
 
@@ -24,22 +23,18 @@ bool RobotInfo::loadFromPath(const string& path)
   if (!ros2::xacro(path, urdf_text_))
     return false;
 
-  // Update RSP parameter
-  if (!rsp_client_.setParam("robot_description", urdf_text_))
-    return false;
-
   // Parse URDF
   urdf_ = urdf::parseURDF(urdf_text_);
   if (urdf_ == nullptr)
   {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to parse URDF.");
+    cerr << "Failed to parse URDF." << endl;
     return false;
   }
 
   // Load KDL tree
   if (!kdl::treeFromUrdfModel(*urdf_, tree_))
   {
-    RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to load KDL tree.");
+    cerr << "Failed to load KDL tree." << endl;
     return false;
   }
 
@@ -86,8 +81,7 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vect
   {
     if (axis_solver_.JntToCart(q_zeros_, seg_name) < 0)
     {
-      RCLCPP_ERROR_STREAM(
-        node_->get_logger(), "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage());
+      cerr << "Failed to get the joint axis of " << seg_name << ": " << axis_solver_.errorMessage() << endl;
       return false;
     }
     const auto& cur_axis = axis_solver_.getAxis();
