@@ -31,8 +31,7 @@ SelectedLinksWidget::SelectedLinksWidget(const RobotInfo& robot) : super(0, kNum
     kYawCoefLabel,
   });
 
-  for (int col = 0; col < kNumCols; ++col)
-    setColumnWidth(col, kColWidth);
+  setColumnsWidth(kColWidth);
 }
 
 void SelectedLinksWidget::updateInternalDataStructures()

@@ -38,13 +38,13 @@ public:
   Eigen::MatrixXd getValue() const override;
   bool setValue(const Eigen::MatrixXd& src) override;
 
+  qt::TableWidget* table();
+
   void setDecimals(const QVector<int>& decimals);
   void setMinimum(const QVector<double>& minimum);
   void setMaximum(const QVector<double>& maximum);
   void setDefault(const QVector<double>& _default);
   void setSuffix(const QVector<QString>& suffix);
-  void setFixedHeight(int height);
-  void setColumnWidth(int width);
 
   int count() const;
 

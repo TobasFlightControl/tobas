@@ -19,5 +19,8 @@ public:
 
   /* 全ての行を削除する．clearとは異なり，内容に加えセルまで削除する． */
   void removeAll();
+
+  /* 全ての列幅を一様に固定する． */
+  void setColumnsWidth(int width);
 };
 }  // namespace qt

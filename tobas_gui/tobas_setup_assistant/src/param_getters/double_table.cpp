@@ -63,8 +63,8 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   cols->addStretch();  // ボタンを左詰めにする
 
   table_ = new qt::TableWidget(0, num_entry_);
-  table_->setHorizontalHeaderLabels(labels);
   table_->verticalHeader()->setVisible(true);  // 行番号を表示
+  table_->setHorizontalHeaderLabels(labels);
   rows_->addWidget(table_);
 
   // Connections
@@ -111,6 +111,11 @@ bool ParamGetterWidget_DoubleTable::setValue(const MatrixXd& src)
   return true;
 }
 
+qt::TableWidget* ParamGetterWidget_DoubleTable::table()
+{
+  return table_;
+}
+
 void ParamGetterWidget_DoubleTable::setDecimals(const QVector<int>& decimals)
 {
   TOBAS_CHECK(decimals.size() == num_entry_);
@@ -139,16 +144,6 @@ void ParamGetterWidget_DoubleTable::setSuffix(const QVector<QString>& suffix)
 {
   TOBAS_CHECK(suffix.size() == num_entry_);
   suffix_ = suffix;
-}
-
-void ParamGetterWidget_DoubleTable::setFixedHeight(int height)
-{
-  table_->setFixedHeight(height);
-}
-
-void ParamGetterWidget_DoubleTable::setColumnWidth(int width)
-{
-  table_->setFixedWidth(width);
 }
 
 int ParamGetterWidget_DoubleTable::count() const

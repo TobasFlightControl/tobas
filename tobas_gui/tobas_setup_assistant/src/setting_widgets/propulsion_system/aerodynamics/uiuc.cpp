@@ -36,8 +36,8 @@ void AerodynamicsWidget_UIUC::onInit()
   data_->setDecimals({ 3, 6, 6 });
   data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
   data_->setSuffix({ " rpm", " N", " Nm" });
-  data_->setFixedHeight(kTableHeight);
-  data_->setColumnWidth(kTableColWidth);
+  data_->table()->setFixedHeight(kTableHeight);
+  data_->table()->setColumnsWidth(kTableColWidth);
   addWidget(data_);
 }
 

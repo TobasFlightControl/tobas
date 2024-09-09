@@ -37,8 +37,8 @@ void ElectroDynamicsWidget_Experiment::onInit()
   data_->setMinimum({ 1.0, 1.0, 1.0 });
   data_->setMaximum({ 100., 1e+9, 1e+9 });
   data_->setSuffix({ " %", " V", " rpm" });
-  data_->setFixedHeight(kTableHeight);
-  data_->setColumnWidth(kTableColWidth);
+  data_->table()->setFixedHeight(kTableHeight);
+  data_->table()->setColumnsWidth(kTableColWidth);
   addWidget(data_);
 }
 
