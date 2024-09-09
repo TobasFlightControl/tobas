@@ -15,6 +15,7 @@
 	<depend>geometry_msgs</depend>
 	<depend>sensor_msgs</depend>
 	<depend>tobas_std_tools</depend>
+	<depend>tobas_path_tools</depend>
 
 	<exec_depend>ros2launch</exec_depend>
 
