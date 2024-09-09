@@ -1,5 +1,0 @@
-float64 voltage
----
-bool success
-string message
-float64 coefficient

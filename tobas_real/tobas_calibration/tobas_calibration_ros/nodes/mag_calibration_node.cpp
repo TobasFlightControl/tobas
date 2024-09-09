@@ -49,6 +49,8 @@ bool MagCalibrationNode::isValidEllipse(const SrvType::Request::ConstSharedPtr& 
 
 void MagCalibrationNode::executeCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
+  TOBAS_INFO("Magnetometer calibration is requested.");
+
   // 楕円体であることを確認
   if (!isValidEllipse(req))
   {

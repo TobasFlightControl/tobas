@@ -93,9 +93,9 @@ static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
 
 // Calibration
-static constexpr char kAccelCalibSrv[] = "accel_calibration";
+static constexpr char kAccelCalibAction[] = "accel_calibration";
 static constexpr char kMagCalibSrv[] = "mag_calibration";
-static constexpr char kADCCalibSrv[] = "adc_calibration";
+static constexpr char kADCCalibAction[] = "adc_calibration";
 static constexpr char kRCInputCalibSrv[] = "rcin_calibration";
 static constexpr char kESCCalibAction[] = "esc_calibration";
 

@@ -34,6 +34,8 @@ void RCInputCalibrationNode::executeCb(
   const SrvType::Request::ConstSharedPtr& req,
   const SrvType::Response::SharedPtr& res)
 {
+  TOBAS_INFO("RC input calibration is requested.");
+
   // 各チャンネルの値の範囲をチェック
   if (abs(req->roll_left - req->roll_right) < kMinSignalRange)
   {
