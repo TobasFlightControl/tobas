@@ -99,19 +99,26 @@ void RCTeleopNode::initializeControllers()
     {
       case tobas::rc_command_t::PROGRAM:
         controllers_[i] = std::make_unique<ProgramModeController>();
+        break;
       case tobas::rc_command_t::POS_VEL_ACC_YAW:
         controllers_[i] = std::make_unique<PosVelAccYawController>();
+        break;
       case tobas::rc_command_t::POSITION_YAW:
         controllers_[i] = std::make_unique<PositionYawController>();
+        break;
       case tobas::rc_command_t::ROLL_PITCH_YAW_THROTTLE:
         controllers_[i] = std::make_unique<RollPitchYawThrottleController>();
+        break;
       case tobas::rc_command_t::POSE_TWIST_ACCEL:
         controllers_[i] = std::make_unique<PoseTwistAccelController>();
+        break;
       case tobas::rc_command_t::SPEED_ROLL_DPITCH:
         controllers_[i] = std::make_unique<SpeedRollDeltaPitchController>();
+        break;
       default:
         TOBAS_ERROR("Invalid flight mode. The RC command for this mode will not be published.");
         controllers_[i] = std::make_unique<ProgramModeController>();
+        break;
     }
 
     controllers_[i]->initialize(this);
