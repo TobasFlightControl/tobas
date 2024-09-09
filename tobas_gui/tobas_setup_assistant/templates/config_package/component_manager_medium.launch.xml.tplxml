@@ -1,13 +1,9 @@
 <launch>
 
-  <arg name="thread_num" default="0" description="number of threads to have in the thread pool, the default 0 will use the number of cpu cores found instead"/>
-
   <group>
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" output="screen">
-      <param name="thread_num" value="$(var thread_num)"/>
-    </node>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" output="screen"/>
   </group>
 
 </launch>

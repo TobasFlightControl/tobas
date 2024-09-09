@@ -32,8 +32,8 @@
     <include file="$(find-pkg-share {{ config_pkg_name }})/launch/controller_manager.launch.xml"/>
 
     <!-- Launch Gazebo command handlers -->
-    <node pkg="tobas_gazebo_ros" exec="robor_command_handler" name="robor_command_handler" output="screen"/>
-    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" name="joint_command_handler" output="screen"/>
+    <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" output="screen"/>
+    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" output="screen"/>
   </group>
 
   <!-- Launch component containers -->
