@@ -84,7 +84,7 @@ struct convert<Eigen::MatrixXd>
     rhs.conservativeResize(rows, cols);
     for (int r = 0; r < rows; ++r)
       for (int c = 0; c < cols; ++c)
-        rhs(r, c) = node[r * cols + c].as<double>();
+        rhs(r, c) = data[r * cols + c].as<double>();
 
     return true;
   }
