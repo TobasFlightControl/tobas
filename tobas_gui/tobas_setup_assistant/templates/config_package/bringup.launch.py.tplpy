@@ -62,7 +62,7 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package=CONTROLLER_PKG,
-                    plugin="ObserverNode",
+                    plugin="ControllerNode",
                     name="controller",
                     namespace=DRONE_NAME,
                     parameters=[
@@ -189,7 +189,7 @@ def generate_launch_description():
                     extra_arguments=extra_arguments,
                 ),
                 ComposableNode(
-                    package="tobas_pre_arm_check",
+                    package="tobas_prearm_check",
                     plugin="PreArmCheckerNode",
                     namespace=DRONE_NAME,
                     remappings=odom_remap,
