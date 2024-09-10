@@ -51,6 +51,9 @@ public:
   YAML::Node dump(const QString& link_name) const;
   void load(const QString& link_name, const YAML::Node& node);
 
+  /* 登録されているジョイント数． */
+  int count() const;
+
   /* 現在選択されているリンク名を返す．存在しない場合は空文字を返す． */
   QString selected() const;
 

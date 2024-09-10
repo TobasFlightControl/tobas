@@ -64,6 +64,11 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
   interface(row, node[kCmdTypeLabel].as<tobas::joint_interface_t>());
 }
 
+int SelectedLinksWidget::count() const
+{
+  return rowCount();
+}
+
 QString SelectedLinksWidget::selected() const
 {
   const auto row = currentRow();

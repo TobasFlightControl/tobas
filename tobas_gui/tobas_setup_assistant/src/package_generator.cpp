@@ -15,7 +15,7 @@
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/package_generator.hpp"
-#include "tobas_setup_assistant/xml_nodes.hpp"
+#include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
 
 using namespace std;
 namespace fs = filesystem;
@@ -109,7 +109,7 @@ tobas::Drone PackageGenerator::createDrone()
 
   // Joints
   const auto servos = settings_->servo_joints->selected();
-  for (int i = 0; i < servos->rowCount(); ++i)
+  for (int i = 0; i < servos->count(); ++i)
   {
     tobas::JointConfig joint;
     joint.name = servos->jointName(i).toStdString();
@@ -176,7 +176,7 @@ tobas::Drone PackageGenerator::createDrone()
 
     // Control Surfaces
     const auto css = settings_->fixed_wing->controlSurfaces()->selected();
-    const auto num_cs = css->rowCount();
+    const auto num_cs = css->count();
     drone.fixed_wing.control_surfaces.resize(num_cs);
     for (int i = 0; i < num_cs; ++i)
     {
@@ -319,14 +319,39 @@ bool PackageGenerator::generateUserPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_dir)
 {
-  // TODO: コントローラごとにノードを立ち上げる
-  // cf. gz_ros2_control_demos/launch/gripper_mimic_joint_example_effort.launch.xml
+  const auto servos = settings_->servo_joints->selected();
 
-  ofstream file(launch_dir / "controller_manager.launch.xml");
-  if (!file)
+  // XMLを作成
+  const auto doc = new tinyxml2::XMLDocument();
+  const auto launch = doc->NewElement("launch");
+  doc->InsertFirstChild(launch);
+
+  // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
+  if (servos->count() > 0)
+  {
+    const auto config_pkg_name = tobas::getTBSConfigName(tbsPath());
+    const auto param_file = "$(find-pkg-share " + config_pkg_name + ")/config/joint_control.yaml";
+
+    // Joint state broadcaster
+    const auto jsb_node = addNode(launch, "controller_manager", "spawner", "", "", "joint_state_broadcaster");
+    addNodeParam(jsb_node, "use_sim_time", "true");
+
+    // コントローラごとにノードを立ち上げる
+    for (int i = 0; i < servos->count(); ++i)
+    {
+      const auto controller_name = servos->jointName(i).toStdString() + "_controller";
+      const auto args = controller_name + "  --param-file " + param_file;
+      const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", "", args);
+      addNodeParam(ctrl_node, "use_sim_time", "true");
+    }
+  }
+
+  // XMLを保存
+  if (doc->SaveFile((launch_dir / "controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS)
+  {
+    qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
     return false;
-  file << "<launch></launch>" << endl;
-  file.close();
+  }
 
   return true;
 }
@@ -346,17 +371,17 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
 
   // Each joint controllers
   const auto servos = settings_->servo_joints->selected();
-  for (int i = 0; i < servos->rowCount(); ++i)
+  for (int i = 0; i < servos->count(); ++i)
   {
     const auto jnt_name = servos->jointName(i).toStdString();
-    const auto controller_name = jnt_name + "_controller";
+    const auto ctrl_name = jnt_name + "_controller";
 
     YAML::Node controller_node(YAML::NodeType::Map);
     controller_node["type"] = tobas::controller_manager::type::kForwardCommandController;
     controller_node["joints"].push_back(jnt_name);
     controller_node["interface_name"] = tobas::jointIFEnumToText(servos->interface(i));
 
-    root_node[controller_name][kROSParamsKey] = controller_node;
+    root_node[ctrl_name][kROSParamsKey] = controller_node;
   }
 
   // Save data
@@ -534,6 +559,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   const auto& batt = settings_->battery;
   const auto& props = settings_->propulsion_system->selected();
   const auto& fixed_wing = settings_->fixed_wing;
+  const auto& joints = settings_->servo_joints->selected();
   const auto& imu = settings_->imu;
   const auto& mag = settings_->magnetometer;
   const auto& baro = settings_->barometer;
@@ -608,7 +634,9 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   addRotorSpeedsPublisherPlugin(robot, ns, rotor_jnt_names);
 
   // Gazebo ROS2 control plugin
-  addGazeboSimROS2ControlPlugin(robot, ns, tobas::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
+  // FIXME: ジョイントが1つも設定されてないとフリーズする？
+  if (joints->count() > 0)
+    addGazeboSimROS2ControlPlugin(robot, ns, tobas::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
 
   // Gazebo ROS2 control system
   addGazeboROS2SimSystem(robot, drone.joints);

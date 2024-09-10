@@ -77,6 +77,11 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
   yawCoef(row, node[kYawCoefLabel].as<double>());
 }
 
+int SelectedLinksWidget::count() const
+{
+  return rowCount();
+}
+
 QString SelectedLinksWidget::selected() const
 {
   const auto row = currentRow();
