@@ -43,13 +43,8 @@ def generate_launch_description():
             namespace=DRONE_NAME,
             package="robot_state_publisher",
             executable="robot_state_publisher",
-            parameters=[
-                {
-                    "robot_description": urdf_content,
-                    "log_level": log_level,
-                    "use_sim_time": use_sim_time,
-                }
-            ],
+            parameters=[{"robot_description": urdf_content, "use_sim_time": use_sim_time}],
+            ros_arguments=["--log-level", log_level],
         )
     )
 

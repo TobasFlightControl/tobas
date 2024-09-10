@@ -2,9 +2,6 @@
 
   <arg name="log_level" default="info"/>
 
-  <!-- Set common parameters -->
-  <set_parameter name="log_level" value="$(var log_level)"/>
-
   <!-- Load robot description -->
   <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py">
     <arg name="log_level" value="$(var log_level)"/>
@@ -67,7 +64,6 @@
 
   <!-- Launch Tobas core software -->
   <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py">
-    <arg name="log_level" value="$(var log_level)"/>
     <arg name="use_sim_time" value="false"/>
     <arg name="user_debug" value="false"/>
   </include>

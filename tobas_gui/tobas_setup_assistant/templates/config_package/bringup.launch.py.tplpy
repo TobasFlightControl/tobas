@@ -16,7 +16,6 @@ CONTROLLER_PKG = "{{ controller_pkg }}"
 ACTIONS_PKG = "{{ actions_pkg }}"
 
 # Arguments
-LOG_LEVEL = "log_level"
 USE_SIM_TIME = "use_sim_time"
 GROUND_TRUTH = "ground_truth"
 
@@ -25,18 +24,15 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Declare arguments
-    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
     ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
 
     # Get arguments
-    log_level = LaunchConfiguration(LOG_LEVEL)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
     # Set common parameters
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
-    ld.add_action(SetParameter(LOG_LEVEL, value=log_level))
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)

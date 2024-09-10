@@ -12,7 +12,6 @@
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
 
   <!-- Set common parameters -->
-  <set_parameter name="log_level" value="$(var log_level)"/>
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
   <!-- Load robot description -->
@@ -32,24 +31,23 @@
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
     <!-- Spawn robot in Gazebo -->
-    <node pkg="ros_gz_sim" exec="create" output="screen" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)"/>
+    <node pkg="ros_gz_sim" exec="create" output="screen" ros_args="--log-level $(var log_level)" args="-topic robot_description -name f450 -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)"/>
 
     <!-- Launch joint controllers -->
-    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/controller_manager.launch.xml"/>
+    <include file="$(find-pkg-share tobas_f450_config)/launch/controller_manager.launch.xml"/>
 
     <!-- Launch Gazebo command handlers -->
-    <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" output="screen"/>
-    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" output="screen"/>
+    <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" output="screen" ros_args="--log-level $(var log_level)"/>
+    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" output="screen" ros_args="--log-level $(var log_level)"/>
 
     <!-- Launch component containers -->
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_high" output="screen"/>
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" output="screen"/>
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_low" output="screen"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_high" output="screen" ros_args="--log-level $(var log_level)"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" output="screen" ros_args="--log-level $(var log_level)"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_low" output="screen" ros_args="--log-level $(var log_level)"/>
   </group>
 
   <!-- Launch Tobas core software -->
   <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py">
-    <arg name="log_level" value="$(var log_level)"/>
     <arg name="use_sim_time" value="$(var use_sim_time)"/>
     <arg name="ground_truth" value="$(var ground_truth)"/>
   </include>

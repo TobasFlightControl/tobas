@@ -3,7 +3,7 @@ from launch.actions import DeclareLaunchArgument, RegisterEventHandler, Shutdown
 from launch.substitutions import LaunchConfiguration
 from launch.event_handlers import OnProcessExit
 
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -18,15 +18,13 @@ def generate_launch_description():
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
 
-    # Set common parameters
-    ld.add_action(SetParameter(LOG_LEVEL, value=log_level))
-
     # Launch robot state publisher with minimul URDF
     minimul_urdf = '<robot name="empty"><link name="root"/></robot>'
     rsp = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[{"robot_description": minimul_urdf}],
+        ros_arguments=["--log-level", log_level],
     )
     ld.add_action(rsp)
 
@@ -35,6 +33,7 @@ def generate_launch_description():
         package="tobas_property_tools",
         executable="property_server",
         name="property_server_gcs",
+        ros_arguments=["--log-level", log_level],
     )
     ld.add_action(property_server)
 
@@ -42,6 +41,7 @@ def generate_launch_description():
     setup_assistant = Node(
         package="tobas_setup_assistant",
         executable="main",
+        ros_arguments=["--log-level", log_level],
         output="screen",
     )
     ld.add_action(setup_assistant)

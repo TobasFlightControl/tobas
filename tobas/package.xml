@@ -42,6 +42,8 @@
 	<exec_depend>tobas_teleoperations</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>
 	<exec_depend>tobas_topic_throttle</exec_depend>
+	<exec_depend>tobas_tree_server</exec_depend>
+	<exec_depend>tobas_wind_model</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

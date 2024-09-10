@@ -5,13 +5,11 @@
   <arg name="ground_truth" default="false"/>
 
   <!-- Set common parameters -->
-  <set_parameter name="log_level" value="$(var log_level)"/>
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
   <!-- Launch Tobas core software -->
   <!-- TODO: Improve communication latency and launch bringup.launch on the flight controller side. -->
   <!-- <include file="$(find {{ config_pkg_name }})/launch/bringup.launch.py">
-    <arg name="log_level" value="$(var log_level)"/>
     <arg name="use_sim_time" value="$(var use_sim_time)"/>
     <arg name="ground_truth" value="$(var ground_truth)"/>
   </include> -->
