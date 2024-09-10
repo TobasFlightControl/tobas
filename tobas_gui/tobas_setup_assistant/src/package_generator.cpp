@@ -339,12 +339,10 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
   YAML::Node root_node(YAML::NodeType::Map);
 
   // Controller manager
-  root_node["controller_manager"][kROSParamsKey]["update_rate"] = 1000;  // TODO: GUIで設定できるように
-
-  // Joint state broadcaster
-  YAML::Node jsb_node(YAML::NodeType::Map);
-  jsb_node["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
-  root_node["joint_state_broadcaster"][kROSParamsKey] = jsb_node;
+  YAML::Node manager_params_node(YAML::NodeType::Map);
+  manager_params_node["update_rate"] = 1000;  // TODO: GUIで設定できるように
+  manager_params_node["joint_state_broadcaster"]["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
+  root_node["controller_manager"][kROSParamsKey] = manager_params_node;
 
   // Each joint controllers
   const auto servos = settings_->servo_joints->selected();
