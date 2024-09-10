@@ -1,9 +1,0 @@
-<launch>
-
-  <group>
-    <push_ros_namespace namespace="{{ drone_name }}"/>
-
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" output="screen"/>
-  </group>
-
-</launch>

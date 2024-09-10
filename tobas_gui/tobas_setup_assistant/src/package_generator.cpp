@@ -236,9 +236,6 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   // テンプレートから生成
   cfg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", config_pkg_path);
   cfg_env_->generate(tpl_data, "package.xml.tplxml", config_pkg_path);
-  cfg_env_->generate(tpl_data, "component_manager_high.launch.xml.tplxml", launch_dir);
-  cfg_env_->generate(tpl_data, "component_manager_medium.launch.xml.tplxml", launch_dir);
-  cfg_env_->generate(tpl_data, "component_manager_low.launch.xml.tplxml", launch_dir);
   cfg_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
   cfg_env_->generate(tpl_data, "real.launch.xml.tplxml", launch_dir);
   cfg_env_->generate(tpl_data, "bringup.launch.py.tplpy", launch_dir);

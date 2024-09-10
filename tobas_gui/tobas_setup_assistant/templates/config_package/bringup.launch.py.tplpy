@@ -34,7 +34,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
-    # Apply use_sim_time to all nodes below
+    # Set common parameters
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
     ld.add_action(SetParameter(LOG_LEVEL, value=log_level))
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))

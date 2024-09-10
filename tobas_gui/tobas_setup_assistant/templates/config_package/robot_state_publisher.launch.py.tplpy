@@ -10,6 +10,7 @@ DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 
 # Arguments
+LOG_LEVEL = "log_level"
 USE_SIM_TIME = "use_sim_time"
 USER_DEBUG = "user_debug"
 
@@ -18,10 +19,12 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Declare arguments
-    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
-    ld.add_action(DeclareLaunchArgument(USER_DEBUG, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME))
+    ld.add_action(DeclareLaunchArgument(USER_DEBUG))
 
     # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     user_debug = LaunchConfiguration(USER_DEBUG)
 
@@ -40,7 +43,13 @@ def generate_launch_description():
             namespace=DRONE_NAME,
             package="robot_state_publisher",
             executable="robot_state_publisher",
-            parameters=[{"robot_description": urdf_content, "use_sim_time": use_sim_time}],
+            parameters=[
+                {
+                    "robot_description": urdf_content,
+                    "log_level": log_level,
+                    "use_sim_time": use_sim_time,
+                }
+            ],
         )
     )
 

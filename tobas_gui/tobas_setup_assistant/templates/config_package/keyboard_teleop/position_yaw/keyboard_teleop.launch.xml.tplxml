@@ -1,8 +1,10 @@
 <launch>
 
+  <arg name="log_level" default="info"/>
   <arg name="use_sim_time" default="false"/>
   <arg name="ground_truth" default="false"/>
 
+  <set_parameter name="log_level" value="$(var log_level)"/>
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
   <group>

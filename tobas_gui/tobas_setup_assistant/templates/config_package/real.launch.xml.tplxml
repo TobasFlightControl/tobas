@@ -1,10 +1,16 @@
 <launch>
 
-  <!-- Load robot description -->
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py"/>
+  <arg name="log_level" default="info"/>
 
-  <!-- Launch Tobas core software -->
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py"/>
+  <!-- Set common parameters -->
+  <set_parameter name="log_level" value="$(var log_level)"/>
+
+  <!-- Load robot description -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py">
+    <arg name="log_level" value="$(var log_level)"/>
+    <arg name="use_sim_time" value="false"/>
+    <arg name="user_debug" value="false"/>
+  </include>
 
   <group>
     <push_ros_namespace namespace="{{ drone_name }}"/>
@@ -58,6 +64,13 @@
       </composable_node>
     </load_composable_node>
   </group>
+
+  <!-- Launch Tobas core software -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py">
+    <arg name="log_level" value="$(var log_level)"/>
+    <arg name="use_sim_time" value="false"/>
+    <arg name="user_debug" value="false"/>
+  </include>
 
   <!-- Launch user nodes -->
   <include file="$(find-pkg-share {{ user_pkg_name }})/launch/real.launch.py"/>

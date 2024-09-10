@@ -1,25 +1,31 @@
 <launch>
 
-  <arg name="world_name" default="basic"/>
+  <arg name="log_level" default="info"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="user_debug" default="false"/>
-  <arg name="log_level" default="3"/>
+  <arg name="world_name" default="basic"/>
+  <arg name="verbose" default="3"/>
+  <arg name="ground_truth" default="false"/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
   <arg name="z" default="0.3" description="Initial Z position in meters."/>
   <arg name="yaw" default="0.0" description="Initial yaw angle in radians."/>
 
+  <!-- Set common parameters -->
+  <set_parameter name="log_level" value="$(var log_level)"/>
   <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
 
   <!-- Load robot description -->
   <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py">
+    <arg name="log_level" value="$(var log_level)"/>
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
     <arg name="user_debug" value="$(var user_debug)"/>
   </include>
 
   <!-- Launch a Gazebo world -->
   <include file="$(find-pkg-share tobas_gazebo_sim)/launch/gazebo.launch.xml">
     <arg name="world_name" value="$(var world_name)"/>
-    <arg name="log_level" value="$(var log_level)"/>
+    <arg name="verbose" value="$(var verbose)"/>
   </include>
 
   <group>
@@ -34,12 +40,19 @@
     <!-- Launch Gazebo command handlers -->
     <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" output="screen"/>
     <node pkg="tobas_gazebo_ros" exec="joint_command_handler" output="screen"/>
+
+    <!-- Launch component containers -->
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_high" output="screen"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" output="screen"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_low" output="screen"/>
   </group>
 
-  <!-- Launch component containers -->
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_high.launch.xml"/>
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_medium.launch.xml"/>
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/component_manager_low.launch.xml"/>
+  <!-- Launch Tobas core software -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py">
+    <arg name="log_level" value="$(var log_level)"/>
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="ground_truth" value="$(var ground_truth)"/>
+  </include>
 
   <!-- Launch user nodes -->
   <include file="$(find-pkg-share {{ user_pkg_name }})/launch/gazebo.launch.py"/>
