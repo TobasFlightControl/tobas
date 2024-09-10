@@ -51,6 +51,7 @@
     mesh="">
     <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -65,6 +66,7 @@
     mesh="">
     <origin xyz="0 ${arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -79,6 +81,7 @@
     mesh="">
     <origin xyz="-${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -93,5 +96,6 @@
     mesh="">
     <origin xyz="0 -${arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 </robot>

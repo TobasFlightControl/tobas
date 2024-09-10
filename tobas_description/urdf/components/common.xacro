@@ -62,19 +62,19 @@
     <collision>
       <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 0"/>
       <geometry>
-        <box size="${sqrt3*side} ${side} ${height}"/>
+        <box size="${sqrt3 * side} ${side} ${height}"/>
       </geometry>
     </collision>
     <collision>
       <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 ${60*deg2rad}"/>
       <geometry>
-        <box size="${sqrt3*side} ${side} ${height}"/>
+        <box size="${sqrt3 * side} ${side} ${height}"/>
       </geometry>
     </collision>
     <collision>
       <origin xyz="${x0} ${y0} ${z0}" rpy="0 0 ${-60*deg2rad}"/>
       <geometry>
-        <box size="${sqrt3*side} ${side} ${height}"/>
+        <box size="${sqrt3 * side} ${side} ${height}"/>
       </geometry>
     </collision>
   </xacro:macro>

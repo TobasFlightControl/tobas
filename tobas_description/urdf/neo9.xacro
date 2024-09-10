@@ -52,11 +52,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="0"
-    color="Red"
     use_own_mesh="true"
     mesh="package://tobas_description/meshes/neo9_propeller_ccw.dae">
     <origin xyz="${front_propeller_x} ${front_propeller_y} ${rotor_offset_top}" rpy="${5*pi/180} 0 ${30*pi/180}"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -66,11 +66,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="1"
-    color="Blue"
     use_own_mesh="true"
     mesh="package://tobas_description/meshes/neo9_propeller_cw.dae">
     <origin xyz="${side_propeller_x} ${side_propeller_y} ${rotor_offset_top}" rpy="0 ${-5*pi/180} 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -80,11 +80,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="2"
-    color="Blue"
     use_own_mesh="true"
     mesh="package://tobas_description/meshes/neo9_propeller_ccw.dae">
     <origin xyz="${back_propeller_x} ${back_propeller_y} ${rotor_offset_top}" rpy="${5*pi/180} 0 ${150*pi/180}"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -94,11 +94,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="3"
-    color="Blue"
     use_own_mesh="true"
     mesh="package://tobas_description/meshes/neo9_propeller_cw.dae">
     <origin xyz="${back_propeller_x} -${back_propeller_y} ${rotor_offset_top}" rpy="${-5*pi/180} 0 ${-150*pi/180}"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -113,6 +113,7 @@
     mesh="package://tobas_description/meshes/neo9_propeller_ccw.dae">
     <origin xyz="${side_propeller_x} -${side_propeller_y} ${rotor_offset_top}" rpy="0 ${5*pi/180} ${pi}"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -127,6 +128,7 @@
     mesh="package://tobas_description/meshes/neo9_propeller_cw.dae">
     <origin xyz="${front_propeller_x} -${front_propeller_y} ${rotor_offset_top}" rpy="${-5*pi/180} 0 ${-30*pi/180}"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
 </robot>
