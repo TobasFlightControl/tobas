@@ -40,7 +40,7 @@ bool save(const filesystem::path& path, const YAML::Node& node)
     return false;
   }
 
-  fout << emitter.c_str();
+  fout << emitter.c_str() << endl;
   fout.close();
 
   return true;
