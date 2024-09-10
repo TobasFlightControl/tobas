@@ -502,6 +502,7 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
         }
       }
 
+      // メッシュファイルをTobasパッケージ以下にコピー
       if (!fs::copy_file(src_path, dst_path))
       {
         qt::qErrorBox(
@@ -510,7 +511,11 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
         return false;
       }
 
-      const auto new_filename = "package://" + tobas::getTBSConfigName(tbsPath()) + "/meshes/" + base_name.string();
+      // メッシュファイルへのパスを置換
+      // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
+      // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
+      const auto config_pkg_name = tobas::getTBSConfigName(tbsPath());
+      const auto new_filename = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
       elem->SetAttribute("filename", new_filename.c_str());
     }
   }

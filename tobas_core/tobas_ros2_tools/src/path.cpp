@@ -26,6 +26,8 @@ fs::path resolveURI(const string& uri)
   else if (uri.starts_with(kAbsPathPrefix))
   {
     const auto path = tobas_std::lstrip(uri, kAbsPathPrefix);
+    if (path.find("$(") != string::npos)
+      throw runtime_error("Embedded xacro command is not supported.");  // TODO: $(find package_name)を置換
     return fs::absolute(path);
   }
   else
