@@ -5,7 +5,7 @@
 #include <tobas_ros2_tools/simple_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/joint_conrol_type.hpp>
+#include <tobas_drone_core/joint_interface.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
 using namespace std;
@@ -23,7 +23,7 @@ public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  unordered_map<string, pair<tobas::joint_control_type_t, ros2::PublisherPtr<Float64MultiArray>>> ctrl_map_;
+  unordered_map<string, pair<tobas::joint_interface_t, ros2::PublisherPtr<Float64MultiArray>>> ctrl_map_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
@@ -71,23 +71,11 @@ bool JointCommandHandlerNode::initialize()
 
     // TODO: item.typeによる場合分けは必要？
 
-    const auto& [jnt_name, interface] = tobas_std::rsplit(item.claimed_interfaces.at(0), '/');
-
-    tobas::joint_control_type_t control_type;
-    if (interface == tobas::controller_manager::interface::kPositionInterface)
-      control_type = tobas::joint_control_type_t::POSITION_CONTROL;
-    else if (interface == tobas::controller_manager::interface::kVelocityInterface)
-      control_type = tobas::joint_control_type_t::VELOCITY_CONTROL;
-    else if (interface == tobas::controller_manager::interface::kEffortInterface)
-      control_type = tobas::joint_control_type_t::EFFORT_CONTROL;
-    else
-    {
-      TOBAS_WARN("Unknown command interface: ", interface);
-      continue;
-    }
+    const auto& [jnt_name, jnt_cmd_if] = tobas_std::rsplit(item.claimed_interfaces.at(0), '/');
+    const auto interface = tobas::jointIFTextToEnum(jnt_cmd_if);
 
     const auto topic = item.name + "/commands";
-    ctrl_map_[jnt_name] = make_pair(control_type, createPublisher<Float64MultiArray>(topic, 1));
+    ctrl_map_[jnt_name] = make_pair(interface, createPublisher<Float64MultiArray>(topic, 1));
   }
 
   return true;
@@ -114,7 +102,7 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::joint_control_type_t::POSITION_CONTROL)
+    if (type == tobas::joint_interface_t::POSITION)
     {
       auto cmd = std::make_unique<Float64MultiArray>();
       cmd->data.push_back(positions->commands[i].data);
@@ -151,7 +139,7 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::joint_control_type_t::VELOCITY_CONTROL)
+    if (type == tobas::joint_interface_t::VELOCITY)
     {
       auto cmd = std::make_unique<Float64MultiArray>();
       cmd->data.push_back(velocities->commands[i].data);
@@ -187,7 +175,7 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::joint_control_type_t::EFFORT_CONTROL)
+    if (type == tobas::joint_interface_t::EFFORT)
     {
       auto cmd = std::make_unique<Float64MultiArray>();
       cmd->data.push_back(efforts->commands[i].data);

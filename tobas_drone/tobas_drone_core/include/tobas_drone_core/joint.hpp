@@ -4,7 +4,7 @@
 #include <map>
 #include <yaml-cpp/yaml.h>
 
-#include "./joint_conrol_type.hpp"
+#include "./joint_interface.hpp"
 
 namespace tobas
 {
@@ -15,7 +15,7 @@ class JointConfig
   static constexpr char kHomePosKey[] = "home_position";
   static constexpr char kMinPosKey[] = "min_position";
   static constexpr char kMaxPosKey[] = "max_position";
-  static constexpr char kControlTypeKey[] = "control_type";
+  static constexpr char kInterfaceKey[] = "interface";
 
 public:
   std::string name = "";
@@ -24,7 +24,7 @@ public:
   double min_pos = 0;   // [rad | m]
   double max_pos = 0;   // [rad | m]
 
-  joint_control_type_t control_type = joint_control_type_t::POSITION_CONTROL;
+  joint_interface_t interface = joint_interface_t::POSITION;
 
   bool isValid() const;
   bool load(const YAML::Node& node);

@@ -102,13 +102,6 @@ static constexpr char kESCCalibAction[] = "esc_calibration";
 // Controller Manager
 namespace controller_manager
 {
-namespace interface
-{
-static constexpr char kPositionInterface[] = "position";
-static constexpr char kVelocityInterface[] = "velocity";
-static constexpr char kEffortInterface[] = "effort";
-}  // namespace interface
-
 namespace type
 {
 static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster/JointStateBroadcaster";

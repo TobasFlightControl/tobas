@@ -2,4 +2,4 @@ string name
 float64 home_pos
 float64 min_pos
 float64 max_pos
-uint8 control_type
+uint8 interface

@@ -116,7 +116,7 @@ tobas::Drone PackageGenerator::createDrone()
     joint.home_pos = servos->homePosition(i);
     joint.min_pos = servos->minPosition(i);
     joint.max_pos = servos->maxPosition(i);
-    joint.control_type = servos->commandType(i);
+    joint.interface = servos->interface(i);
 
     drone.joints[joint.name] = joint;
   }
@@ -356,20 +356,7 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
     YAML::Node controller_node(YAML::NodeType::Map);
     controller_node["type"] = tobas::controller_manager::type::kForwardCommandController;
     controller_node["joints"].push_back(jnt_name);
-    switch (servos->commandType(i))
-    {
-      case tobas::joint_control_type_t::POSITION_CONTROL:
-        controller_node["interface_name"] = tobas::controller_manager::interface::kPositionInterface;
-        break;
-      case tobas::joint_control_type_t::VELOCITY_CONTROL:
-        controller_node["interface_name"] = tobas::controller_manager::interface::kVelocityInterface;
-        break;
-      case tobas::joint_control_type_t::EFFORT_CONTROL:
-        controller_node["interface_name"] = tobas::controller_manager::interface::kEffortInterface;
-        break;
-      default:
-        throw;
-    }
+    controller_node["interface_name"] = tobas::jointIFEnumToText(servos->interface(i));
 
     root_node[controller_name][kROSParamsKey] = controller_node;
   }
@@ -620,8 +607,8 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Gazebo ROS2 control plugin
   addGazeboSimROS2ControlPlugin(robot, ns, tobas::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
 
-  // Gazebo ROS2 control system  // TODO
-  addGazeboROS2SimSystem();
+  // Gazebo ROS2 control system
+  addGazeboROS2SimSystem(robot, drone.joints);
 
   // Base static joint for debug
   addBaseStaticJoint(robot, robot_.tree().getRootName());

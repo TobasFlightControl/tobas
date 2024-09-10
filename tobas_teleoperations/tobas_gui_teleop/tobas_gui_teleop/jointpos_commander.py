@@ -29,27 +29,27 @@ class JointPositionsCommanderWidget(Widget):
 
         # rosparams
         self._home_positions: Dict[str, float] = {}
-        self._cmd_types: Dict[str, str] = {}
+        self._interfaces: Dict[str, str] = {}
         self._get_params()
 
         # コマンド
         self._tar_js_pos = JointState()
         self._tar_js_vel = JointState()
         self._tar_js_eff = JointState()
-        for jnt_name, control_type in self._cmd_types.items():
+        for jnt_name, interface in self._interfaces.items():
             home_pos = self._home_positions[jnt_name]
-            if control_type == self.POSITION:
+            if interface == self.POSITION:
                 self._tar_js_pos.name.append(jnt_name)
                 self._tar_js_pos.position.append(home_pos)
-            elif control_type == self.VELOCITY:
+            elif interface == self.VELOCITY:
                 self._tar_js_vel.name.append(jnt_name)
                 self._tar_js_vel.position.append(home_pos)
-            elif control_type == self.EFFORT:
+            elif interface == self.EFFORT:
                 self._tar_js_eff.name.append(jnt_name)
                 self._tar_js_eff.position.append(home_pos)
                 self._tar_js_eff.velocity.append(0.0)
             else:
-                raise RuntimeError(f"Unknown joint command type: {control_type}")
+                raise RuntimeError(f"Unknown joint command type: {interface}")
 
         # Publishers
         self._tar_pos_pub = self._node.create_publisher(JointState, "joint_position_controller/target_joint_states", 1)
@@ -72,7 +72,7 @@ class JointPositionsCommanderWidget(Widget):
         # Commandersをセット
         robot: Robot = Robot.from_xml_string(robot_description)
         self._commanders: Dict[str, FloatSliderDisplay] = {}
-        for jnt_name in self._cmd_types.keys():
+        for jnt_name in self._interfaces.keys():
             joint: Joint = robot.joint_map[jnt_name]
             limit: JointLimit = joint.limit
             commander = FloatSliderDisplay()
@@ -108,9 +108,9 @@ class JointPositionsCommanderWidget(Widget):
         for i in range(num_joints):
             jnt_name = self._node.declare_parameter(f"joint_{i}/name").get_parameter_value().string_value
             home_pos = self._node.declare_parameter(f"joint_{i}/home_position").get_parameter_value().double_value
-            control_type = self._node.declare_parameter(f"joint_{i}/command_type").get_parameter_value().string_value
+            interface = self._node.declare_parameter(f"joint_{i}/interface").get_parameter_value().string_value
             self._home_positions[jnt_name] = home_pos
-            self._cmd_types[jnt_name] = control_type
+            self._interfaces[jnt_name] = interface
 
     def _publish_current_commands(self) -> None:
         self._tar_pos_pub.publish(self._tar_js_pos)
@@ -122,22 +122,22 @@ class JointPositionsCommanderWidget(Widget):
 
     @pyqtSlot(float)
     def _on_value_changed(self, value: float, jnt_name: str) -> None:
-        control_type = self._cmd_types[jnt_name]
+        interface = self._interfaces[jnt_name]
 
-        if control_type == self.POSITION:
+        if interface == self.POSITION:
             idx = self._tar_js_pos.name.index(jnt_name)
             self._tar_js_pos.position[idx] = value
             self._tar_pos_pub.publish(self._tar_js_pos)
-        elif control_type == self.VELOCITY:
+        elif interface == self.VELOCITY:
             idx = self._tar_js_vel.name.index(jnt_name)
             self._tar_js_vel.position[idx] = value
             self._tar_js_vel_pub.publish(self._tar_js_vel)
-        elif control_type == self.EFFORT:
+        elif interface == self.EFFORT:
             idx = self._tar_js_eff.name.index(jnt_name)
             self._tar_js_eff.position[idx] = value
             self._tar_js_eff_pub.publish(self._tar_js_eff)
         else:
-            raise RuntimeError(f"Unknown joint command type: {control_type}")
+            raise RuntimeError(f"Unknown joint interface: {interface}")
 
     @pyqtSlot()
     def _on_home_button_clicked(self) -> None:

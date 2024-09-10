@@ -70,7 +70,7 @@ void PositionControllerNode::initialize()
   // 位置指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone_.joints)
   {
-    if (jnt_cfg.control_type != tobas::joint_control_type_t::POSITION_CONTROL)
+    if (jnt_cfg.interface != tobas::joint_interface_t::POSITION)
       continue;
     home_js_.name.push_back(jnt_name);
     home_js_.position.push_back(jnt_cfg.home_pos);

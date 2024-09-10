@@ -49,6 +49,26 @@ tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const string&
 
   return plugin;
 }
+
+tinyxml2::XMLElement*
+addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t interface, double init_value = 0.)
+{
+  const auto state_if_elem = joint->InsertNewChildElement("state_interface");
+  state_if_elem->SetAttribute("name", tobas::jointIFEnumToText(interface).c_str());
+
+  const auto init_value_elem = state_if_elem->InsertNewChildElement("param");
+  init_value_elem->SetAttribute("name", "initial_value");
+  init_value_elem->SetText(init_value);
+
+  return state_if_elem;
+}
+
+tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t interface)
+{
+  const auto command_if_elem = joint->InsertNewChildElement("command_interface");
+  command_if_elem->SetAttribute("name", tobas::jointIFEnumToText(interface).c_str());
+  return command_if_elem;
+}
 }  // namespace util
 
 void addBatteryPlugin(
@@ -351,12 +371,32 @@ void addRotorSpeedsPublisherPlugin(
   util::addList(plugin, "rotorJointNames", rotor_joint_names);
 }
 
-void addGazeboROS2SimSystem()
+void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints)
 {
-  // TODO: Custom Jointに登録された全てのジョイントのcommand_interfaceとstate_interface
-  // cf. https://github.com/ros-controls/gz_ros2_control/tree/rolling/gz_ros2_control_demos/urdf
+  // robot/ros2_control
+  const auto ros2_control = robot->InsertNewChildElement("ros2_control");
+  ros2_control->SetAttribute("name", "GazeboSimSystem");
+  ros2_control->SetAttribute("type", "system");
 
-  // TODO: 既に存在するならば消して上書き
+  // robot/ros2_control/hardware
+  const auto hardware = ros2_control->InsertNewChildElement("hardware");
+  hardware->InsertNewChildElement("plugin")->SetText("gz_ros2_control/GazeboSimSystem");
+
+  // robot/ros2_control/joint
+  for (const auto& [jnt_name, jnt_cfg] : joints)
+  {
+    const auto joint = ros2_control->InsertNewChildElement("joint");
+
+    joint->SetAttribute("name", jnt_name.c_str());
+
+    // robot/ros2_control/joint/state_interface
+    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::POSITION, jnt_cfg.home_pos);
+    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::VELOCITY);
+    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::EFFORT);
+
+    // robot/ros2_control/joint/command_interface
+    util::addROS2ControlCommandIF(joint, jnt_cfg.interface);
+  }
 }
 
 void addGazeboSimROS2ControlPlugin(
@@ -365,8 +405,6 @@ void addGazeboSimROS2ControlPlugin(
   const string& pkg_name,
   const string& params_rel_path)
 {
-  // TODO: 既に存在するならば消して上書き
-
   const auto plugin =
     util::addGazeboPlugin(robot, "gz_ros2_control-system", "gz_ros2_control::GazeboSimROS2ControlPlugin");
 

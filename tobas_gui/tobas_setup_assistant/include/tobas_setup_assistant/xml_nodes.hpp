@@ -3,8 +3,7 @@
 #include <eigen3/Eigen/Core>
 #include <tinyxml2.h>
 
-#include <tobas_drone_core/rotor.hpp>
-#include <tobas_drone_core/fixed_wing.hpp>
+#include <tobas_drone_core/drone.hpp>
 
 namespace gui
 {
@@ -108,7 +107,7 @@ void addGazeboSimROS2ControlPlugin(
   const std::string& pkg_name,
   const std::string& params_rel_path);
 
-void addGazeboROS2SimSystem();
+void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints);
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
 }  // namespace setup_assistant

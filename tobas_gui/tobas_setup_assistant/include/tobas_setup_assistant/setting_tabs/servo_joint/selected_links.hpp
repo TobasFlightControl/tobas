@@ -3,7 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_drone_core/joint_conrol_type.hpp>
+#include <tobas_drone_core/joint_interface.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
 
@@ -66,7 +66,7 @@ public:
   double homePosition(int row) const;
   double minPosition(int row) const;
   double maxPosition(int row) const;
-  tobas::joint_control_type_t commandType(int row) const;
+  tobas::joint_interface_t interface(int row) const;
 
   // Setters
   void linkName(int row, const QString& text);
@@ -74,7 +74,7 @@ public:
   void homePosition(int row, double value);
   void minPosition(int row, double value);
   void maxPosition(int row, double value);
-  void commandType(int row, tobas::joint_control_type_t value);
+  void interface(int row, tobas::joint_interface_t value);
 
   QStringList linkNames() const;
   QStringList jointNames() const;

@@ -47,7 +47,7 @@ YAML::Node SelectedLinksWidget::dump(const QString& link_name) const
   node[kHomePosLabel] = homePosition(row);
   node[kMinPosLabel] = minPosition(row);
   node[kMaxPosLabel] = maxPosition(row);
-  node[kCmdTypeLabel] = commandType(row);
+  node[kCmdTypeLabel] = interface(row);
 
   return node;
 }
@@ -61,7 +61,7 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
   homePosition(row, node[kHomePosLabel].as<double>());
   minPosition(row, node[kMinPosLabel].as<double>());
   maxPosition(row, node[kMaxPosLabel].as<double>());
-  commandType(row, node[kCmdTypeLabel].as<tobas::joint_control_type_t>());
+  interface(row, node[kCmdTypeLabel].as<tobas::joint_interface_t>());
 }
 
 QString SelectedLinksWidget::selected() const
@@ -173,17 +173,17 @@ double SelectedLinksWidget::maxPosition(int row) const
   return cell->value();
 }
 
-tobas::joint_control_type_t SelectedLinksWidget::commandType(int row) const
+tobas::joint_interface_t SelectedLinksWidget::interface(int row) const
 {
   const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kHomePosCol));
   const auto text = cell->currentText();
 
   if (text == kPositionLabel)
-    return tobas::joint_control_type_t::POSITION_CONTROL;
+    return tobas::joint_interface_t::POSITION;
   else if (text == kVelocityLabel)
-    return tobas::joint_control_type_t::VELOCITY_CONTROL;
+    return tobas::joint_interface_t::VELOCITY;
   else if (text == kEffortLabel)
-    return tobas::joint_control_type_t::EFFORT_CONTROL;
+    return tobas::joint_interface_t::EFFORT;
   else
     throw;
 }
@@ -218,18 +218,18 @@ void SelectedLinksWidget::maxPosition(int row, double value)
   cell->setValue(value);
 }
 
-void SelectedLinksWidget::commandType(int row, tobas::joint_control_type_t value)
+void SelectedLinksWidget::interface(int row, tobas::joint_interface_t value)
 {
   QString text;
   switch (value)
   {
-    case tobas::joint_control_type_t::POSITION_CONTROL:
+    case tobas::joint_interface_t::POSITION:
       text = kPositionLabel;
       break;
-    case tobas::joint_control_type_t::VELOCITY_CONTROL:
+    case tobas::joint_interface_t::VELOCITY:
       text = kVelocityLabel;
       break;
-    case tobas::joint_control_type_t::EFFORT_CONTROL:
+    case tobas::joint_interface_t::EFFORT:
       text = kEffortLabel;
       break;
     default:
