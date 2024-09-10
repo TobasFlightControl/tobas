@@ -15,7 +15,6 @@
 	<depend>laser_geometry</depend>
 	<depend>tobas_dsp</depend>
 	<depend>tobas_geomag</depend>
-	<depend>tobas_path_tools</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_wind_model</depend>
 	<depend>tobas_msgs_adapter</depend>

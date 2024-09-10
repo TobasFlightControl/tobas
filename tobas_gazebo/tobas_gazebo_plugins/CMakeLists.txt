@@ -27,7 +27,6 @@ find_package(std_srvs REQUIRED)
 find_package(laser_geometry REQUIRED)
 find_package(tobas_dsp REQUIRED)
 find_package(tobas_geomag REQUIRED)
-find_package(tobas_path_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_wind_model REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
@@ -53,7 +52,6 @@ ament_target_dependencies(${PROJECT_NAME}
 	laser_geometry
 	tobas_dsp
 	tobas_geomag
-	tobas_path_tools
 	tobas_node
 	tobas_wind_model
 	tobas_msgs_adapter

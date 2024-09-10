@@ -1,5 +1,3 @@
-
-#include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../../include/tobas_gazebo_plugins/common/node.hpp"
@@ -30,7 +28,7 @@ void BaseNode::initialize(const string& name, const sdf::ElementConstPtr& sdf)
   auto spin = [this]() { executor_->spin(); };
   spin_thread_ = thread(spin);
 
-  message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(path::join(ns_, tobas::kMessageTopic));
+  message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
 }
 
 const string& BaseNode::name() const
