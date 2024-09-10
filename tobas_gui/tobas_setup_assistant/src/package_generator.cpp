@@ -221,7 +221,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   const auto config_dir = config_pkg_path / "config";
   const auto launch_dir = config_pkg_path / "launch";
   const auto urdf_dir = config_pkg_path / "urdf";
-  const auto mesh_dir = config_pkg_path / "mesh";
+  const auto mesh_dir = config_pkg_path / "meshes";
   fs::create_directory(backup_dir);
   fs::create_directory(config_dir);
   fs::create_directory(launch_dir);
@@ -510,7 +510,7 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
         return false;
       }
 
-      const auto new_filename = "package://" + tobas::getTBSConfigName(tbsPath()) + "/mesh/" + base_name.string();
+      const auto new_filename = "package://" + tobas::getTBSConfigName(tbsPath()) + "/meshes/" + base_name.string();
       elem->SetAttribute("filename", new_filename.c_str());
     }
   }
