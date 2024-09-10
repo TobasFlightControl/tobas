@@ -6,6 +6,7 @@
 #include <rviz_common/panel.hpp>
 #include <rviz_common/ros_integration/ros_node_abstraction_iface.hpp>
 
+#include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_property_tools/property_client.hpp>
 
 #ifndef Q_MOC_RUN
@@ -66,6 +67,9 @@ private Q_SLOTS:
   void LinkDialogChanged();
 
 private:
+  ros2::AsyncNodeManager node_manager_;  // Qtと別のスレッドで動作するノード
+  ptree::PropertyClient property_client_;
+
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;
   ogre_helpers::OgreController::SharedPtr ogre_ctrl_;
@@ -73,8 +77,6 @@ private:
 
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
-
-  ptree::PropertyClient::SharedPtr property_client_;
 
   std::string getLastOpenedDir();
   void setLastOpenedDir(const std::string& file_path);

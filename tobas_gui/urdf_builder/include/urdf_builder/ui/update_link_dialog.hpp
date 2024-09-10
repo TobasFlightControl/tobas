@@ -34,11 +34,10 @@ Q_SIGNALS:
   void Changed();
 
 public:
-  explicit UpdateLinkDialog(URDFBuilderPanel* main);
+  explicit UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPanel* main);
 
   void done(int code) override;
 
-  void onInitialize(rclcpp::Node::SharedPtr node);
   void readFromVM(const view_model::LinkViewModelPtr& link_vm);
   void setTabsEnabled(bool enabled);
 
@@ -77,6 +76,8 @@ private Q_SLOTS:
   void BuildInertiaSphereButtonClicked();
 
 private:
+  ptree::PropertyClient property_client_;
+
   URDFBuilderPanel* main_;
   Ui::UpdateLinkDialogUIPtr ui_;
   view_model::LinkViewModelPtr link_vm_;
@@ -88,8 +89,6 @@ private:
     std::map<QString, QFrame*> visual_geom;
     std::map<QString, QFrame*> collision_geom;
   } frame_map_;
-
-  ptree::PropertyClient::SharedPtr property_client_;
 
   void defineConnections();
 

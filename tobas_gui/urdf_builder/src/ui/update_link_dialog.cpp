@@ -19,8 +19,12 @@ namespace urdf_builder
 {
 namespace ui
 {
-UpdateLinkDialog::UpdateLinkDialog(URDFBuilderPanel* main)
-  : QDialog(main), main_(main), ui_(new Ui::UpdateLinkDialogUI()), link_vm_(new view_model::LinkViewModel())
+UpdateLinkDialog::UpdateLinkDialog(rclcpp::Node::SharedPtr node, URDFBuilderPanel* main)
+  : QDialog(main),
+    property_client_(node, tobas::kPropertyServerGCS, kPropertySection),
+    main_(main),
+    ui_(new Ui::UpdateLinkDialogUI()),
+    link_vm_(new view_model::LinkViewModel())
 {
   ui_->setupUi(this);
 
@@ -59,11 +63,6 @@ void UpdateLinkDialog::done(int code)
     QMessageBox::warning(this, kError, "No name specified");
   else
     QDialog::done(code);
-}
-
-void UpdateLinkDialog::onInitialize(rclcpp::Node::SharedPtr node)
-{
-  property_client_ = make_shared<ptree::PropertyClient>(node, tobas::kPropertyServerGCS, kPropertySection);
 }
 
 void UpdateLinkDialog::readFromVM(const view_model::LinkViewModelPtr& link_vm)
@@ -424,9 +423,9 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   string last_dir;
-  if (property_client_->get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
+  if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     last_dir = linux::homeDir();
   }
 
@@ -441,14 +440,14 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  if (property_client_->set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0)
+  if (property_client_.set(kConfigKey_VisualGeometryMeshBrowseDir, new_dir) < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     return;
   }
-  if (property_client_->save() < 0)
+  if (property_client_.save() < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     return;
   }
 }
@@ -459,9 +458,9 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを取得
   string last_dir;
-  if (property_client_->get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
+  if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     last_dir = linux::homeDir();
   }
 
@@ -476,14 +475,14 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
 
   // 最後に開いたディレクトリを保存
   const auto new_dir = filesystem::path(file_path.toStdString()).parent_path().string();
-  if (property_client_->set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0)
+  if (property_client_.set(kConfigKey_CollisionGeometryMeshBrowseDir, new_dir) < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     return;
   }
-  if (property_client_->save() < 0)
+  if (property_client_.save() < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     return;
   }
 }

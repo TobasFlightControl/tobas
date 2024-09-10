@@ -27,8 +27,13 @@ namespace urdf_builder
 namespace ui
 {
 URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
-  : rviz_common::Panel(parent), ui_(new Ui::URDFBuilderPanelUI()), ogre_ctrl_(nullptr)
+  : rviz_common::Panel(parent),
+    node_manager_(0, nullptr, "urdf_builder"),
+    property_client_(node_manager_.node(), tobas::kPropertyServerGCS, kPropertySection)
 {
+  setWindowTitle("URDF Builder");
+
+  ui_ = new Ui::URDFBuilderPanelUI();
   ui_->setupUi(this);
 
   ui_->EnableVisualCheckBox->setChecked(kDefaultVisualVisible);
@@ -36,7 +41,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
 
   update_timer_ = new QTimer();
 
-  link_dialog_ = new UpdateLinkDialog(this);
+  link_dialog_ = new UpdateLinkDialog(node_manager_.node(), this);
   link_dialog_->hide();
   ui_->scrollAreaWidgetContents->layout()->addWidget(link_dialog_);
 
@@ -54,12 +59,7 @@ void URDFBuilderPanel::onInitialize()
 {
   Panel::onInitialize();
 
-  const auto context = getDisplayContext();
-  const auto node = context->getRosNodeAbstraction().lock()->get_raw_node();
-
-  link_dialog_->onInitialize(node);
-  property_client_ = make_shared<ptree::PropertyClient>(node, tobas::kPropertyServerGCS, kPropertySection);
-  ogre_ctrl_ = make_shared<ogre_helpers::OgreController>(context);
+  ogre_ctrl_ = make_shared<ogre_helpers::OgreController>(getDisplayContext());
   update_timer_->start(ROBOT_MODEL_UPDATE_INTERVAL);
 }
 
@@ -349,9 +349,9 @@ void URDFBuilderPanel::LinkDialogChanged()
 string URDFBuilderPanel::getLastOpenedDir()
 {
   string res;
-  if (property_client_->get(kConfigKey_LastOpenedDir, res) < 0)
+  if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     res = linux::homeDir();
   }
   return res;
@@ -362,14 +362,14 @@ void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
   boost::filesystem::path p(file_path);
   const auto dir = p.parent_path().string();
 
-  if (property_client_->set(kConfigKey_LastOpenedDir, dir) < 0)
+  if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     return;
   }
-  if (property_client_->save() < 0)
+  if (property_client_.save() < 0)
   {
-    PRINT_WARN(property_client_->errorMessage());
+    PRINT_WARN(property_client_.errorMessage());
     return;
   }
 }

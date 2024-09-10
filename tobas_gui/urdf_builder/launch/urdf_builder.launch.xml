@@ -1,5 +1,12 @@
 <launch>
 
-  <node pkg="rviz2" exec="rviz2" name="urdf_builder" args="-d $(find-pkg-share urdf_builder)/config/urdf_builder.rviz" output="screen"/>
+  <arg name="log_level" default="info"/>
+
+  <!-- Launch URDF Builder -->
+  <!-- ノード名を指定すると内部で作成する非同期ノードの名前も変更されるため指定しない． -->
+  <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share urdf_builder)/config/urdf_builder.rviz --ros-args --log-level $(var log_level)" output="screen"/>
+
+  <!-- Launch property server -->
+  <node pkg="tobas_property_tools" exec="property_server" name="property_server_gcs" args="--ros-args --log-level $(var log_level)" output="screen"/>
 
 </launch>
