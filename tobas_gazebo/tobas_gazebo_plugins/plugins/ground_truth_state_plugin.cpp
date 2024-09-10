@@ -53,7 +53,7 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
-GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin() : BaseNode("ground_truth_state_plugin")
+GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin()
 {
 }
 
@@ -63,7 +63,7 @@ void GazeboGroundTruthStatePlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_ground_truth_state_plugin", sdf);
   getSdfParams(sdf);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));

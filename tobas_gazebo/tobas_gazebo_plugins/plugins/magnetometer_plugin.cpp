@@ -66,7 +66,7 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
-GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : BaseNode("magnetometer_plugin"), rnd_gen_(rnd_dev_())
+GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : rnd_gen_(rnd_dev_())
 {
 }
 
@@ -76,7 +76,7 @@ void GazeboMagnetometerPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_magnetometer_plugin", sdf);
   getSdfParams(sdf);
 
   rate_manager_ = make_shared<RateManager>(update_rate_);

@@ -42,7 +42,7 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
-GazeboRotorSpeedsPublisherPlugin::GazeboRotorSpeedsPublisherPlugin() : BaseNode("rotor_speeds_publisher_plugin")
+GazeboRotorSpeedsPublisherPlugin::GazeboRotorSpeedsPublisherPlugin()
 {
 }
 
@@ -52,7 +52,7 @@ void GazeboRotorSpeedsPublisherPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_rotor_speeds_publisher_plugin", sdf);
   getSdfParams(sdf);
 
   // Get the pointer to the rotor joints

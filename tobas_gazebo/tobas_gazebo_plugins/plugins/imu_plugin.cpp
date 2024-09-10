@@ -95,7 +95,7 @@ private:
   void publishDebugMsg(const chrono::steady_clock::duration& time) const;
 };
 
-GazeboImuPlugin::GazeboImuPlugin() : BaseNode("imu_plugin"), rnd_gen_(rnd_dev_())
+GazeboImuPlugin::GazeboImuPlugin() : rnd_gen_(rnd_dev_())
 {
 }
 
@@ -105,7 +105,7 @@ void GazeboImuPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_imu_plugin", sdf);
   getSdfParams(sdf);
 
   rate_manager_ = make_shared<RateManager>(update_rate_);

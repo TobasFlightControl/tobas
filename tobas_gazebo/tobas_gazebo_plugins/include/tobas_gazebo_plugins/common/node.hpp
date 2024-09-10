@@ -42,7 +42,7 @@ namespace gazebo
 class BaseNode
 {
 public:
-  explicit BaseNode(const std::string& name);
+  explicit BaseNode();
 
 protected:
   /* SDFパラメータの制約． */
@@ -59,7 +59,7 @@ protected:
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
   std::thread spin_thread_;
 
-  void initialize(const sdf::ElementConstPtr& sdf);
+  void initialize(const std::string& name, const sdf::ElementConstPtr& sdf);
 
   const std::string& name() const;
   const std::string& ns() const;
@@ -148,7 +148,7 @@ protected:
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
 
 private:
-  const std::string name_;
+  std::string name_;
   std::string ns_;
 
   std::unordered_set<std::string> log_once_;

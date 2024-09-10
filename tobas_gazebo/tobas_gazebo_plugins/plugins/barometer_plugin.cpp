@@ -58,7 +58,7 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
-GazeboBarometerPlugin::GazeboBarometerPlugin() : BaseNode("barometer_plugin"), rnd_gen_(rnd_dev_())
+GazeboBarometerPlugin::GazeboBarometerPlugin() : rnd_gen_(rnd_dev_())
 {
 }
 
@@ -68,7 +68,7 @@ void GazeboBarometerPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_barometer_plugin", sdf);
   getSdfParams(sdf);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));

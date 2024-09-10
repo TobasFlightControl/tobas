@@ -67,7 +67,7 @@ private:
   const cmp::AngularVelocity* gyro_B_;
 
   deque<HistoryType> history_;
-  bool is_history_filled_;
+  bool is_history_filled_ = false;
   chrono::steady_clock::duration t_last_publish_;
   Vector3d pos_bias_ = Vector3d::Zero;
 
@@ -89,7 +89,7 @@ private:
     const Vector3d& B_Angvel_WB);
 };
 
-GazeboGpsPlugin::GazeboGpsPlugin() : BaseNode("gps_plugin"), is_history_filled_(false)
+GazeboGpsPlugin::GazeboGpsPlugin()
 {
 }
 
@@ -99,7 +99,7 @@ void GazeboGpsPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_gps_plugin", sdf);
   getSdfParams(sdf);
   setRandomDistribuitons();
 

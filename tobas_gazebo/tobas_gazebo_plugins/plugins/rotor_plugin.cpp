@@ -115,7 +115,7 @@ private:
   void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind);
 };
 
-GazeboRotorPlugin::GazeboRotorPlugin() : BaseNode("rotor_plugin")
+GazeboRotorPlugin::GazeboRotorPlugin()
 {
 }
 
@@ -125,8 +125,8 @@ void GazeboRotorPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
   getSdfParams(sdf);
+  initialize("gazebo_rotor_plugin_" + to_string(channel_), sdf);
   addModelError();
 
   rotor_speed_filter_.initialize(time_const_up_, time_const_down_, 0.);

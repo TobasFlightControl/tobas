@@ -8,21 +8,23 @@ using namespace std;
 
 namespace gazebo
 {
-BaseNode::BaseNode(const string& name) : name_(name)
+BaseNode::BaseNode()
 {
 }
 
-void BaseNode::initialize(const sdf::ElementConstPtr& sdf)
+void BaseNode::initialize(const string& name, const sdf::ElementConstPtr& sdf)
 {
-  ignmsg << "Initializing \"" << name_ << "\"." << endl;
+  ignmsg << "Initializing \"" << name << "\"." << endl;
+
+  name_ = name;
 
   if (!sdf->Get<string>("robotNamespace", ns_, "/"))
-    gzwarn << "[" << name_ << "] Namespace is not specified." << endl;
+    gzwarn << "[" << name << "] Namespace is not specified." << endl;
 
   if (!rclcpp::ok())
     rclcpp::init(0, nullptr);
 
-  node_ = rclcpp::Node::make_shared(name_, ns_);
+  node_ = rclcpp::Node::make_shared(name, ns_);
   executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
   executor_->add_node(node_);
   auto spin = [this]() { executor_->spin(); };

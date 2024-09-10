@@ -117,7 +117,7 @@ private:
   static bool sortKey(const tobas::ControlSurface& l, const tobas::ControlSurface& r);
 };
 
-GazeboFixedWingPlugin::GazeboFixedWingPlugin() : BaseNode("fixed_wing_plugin")
+GazeboFixedWingPlugin::GazeboFixedWingPlugin()
 {
 }
 
@@ -127,7 +127,7 @@ void GazeboFixedWingPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_fixed_wing_plugin", sdf);
   getSdfParams(sdf);
 
   // Get robot model

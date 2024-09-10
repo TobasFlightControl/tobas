@@ -84,7 +84,7 @@ private:
     const std_srvs::srv::Empty::Response::SharedPtr& res);
 };
 
-GazeboBatteryPlugin::GazeboBatteryPlugin() : BaseNode("battery_plugin"), rnd_gen_(rnd_dev_())
+GazeboBatteryPlugin::GazeboBatteryPlugin() : rnd_gen_(rnd_dev_())
 {
 }
 
@@ -94,7 +94,7 @@ void GazeboBatteryPlugin::Configure(
   sim::EntityComponentManager&,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_battery_plugin", sdf);
   getSdfParams(sdf);
 
   currents_.resize(num_rotors_, 0.);

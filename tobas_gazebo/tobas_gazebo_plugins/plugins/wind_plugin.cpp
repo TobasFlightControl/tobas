@@ -81,7 +81,7 @@ private:
   void setParamsCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
 };
 
-GazeboWindPlugin::GazeboWindPlugin() : BaseNode("wind_plugin")
+GazeboWindPlugin::GazeboWindPlugin()
 {
 }
 
@@ -91,7 +91,7 @@ void GazeboWindPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  initialize(sdf);
+  initialize("gazebo_wind_plugin", sdf);
   getSdfParams(sdf);
 
   // Initialize wind parameters
