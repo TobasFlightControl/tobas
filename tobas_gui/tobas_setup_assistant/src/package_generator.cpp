@@ -492,37 +492,46 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
 
 bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::path& mesh_dir)
 {
-  const auto config_pkg_name = tobas::getTBSConfigName(tbsPath());
-
-  for (auto child = elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+  if (strcmp(elem->Name(), "mesh") == 0)
   {
-    if (strcmp(elem->Name(), "mesh") == 0)
+    const auto filename = elem->Attribute("filename");
+    if (filename == nullptr)
     {
-      const auto filename = elem->Attribute("filename");
-      if (filename == nullptr)
+      qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
+      return false;
+    }
+
+    const auto src_path = ros2::resolveURI(filename);
+    const auto base_name = src_path.filename();
+    const auto dst_path = mesh_dir / base_name;
+    if (src_path != dst_path)
+    {
+      if (fs::exists(dst_path))
       {
-        qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
-        return false;
-      }
-      const auto src_path = ros2::resolveURI(elem->Attribute("filename"));
-      const auto base_name = src_path.filename();
-      const auto dst_path = mesh_dir / base_name;
-      if (src_path != dst_path)
-      {
-        if (!fs::copy_file(src_path, dst_path))
+        if (!fs::remove(dst_path))
         {
-          qt::qErrorBox(
-            settings_,
-            "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
+          qt::qErrorBox(settings_, QString::fromStdString(dst_path) + " already exists, but failed to overwrite it.");
           return false;
         }
       }
-    }
 
-    // 再帰的に子要素もチェック
+      if (!fs::copy_file(src_path, dst_path))
+      {
+        qt::qErrorBox(
+          settings_,
+          "Failed to copy " + QString::fromStdString(src_path) + " to " + QString::fromStdString(dst_path) + ".");
+        return false;
+      }
+
+      const auto new_filename = "package://" + tobas::getTBSConfigName(tbsPath()) + "/mesh/" + base_name.string();
+      elem->SetAttribute("filename", new_filename.c_str());
+    }
+  }
+
+  // 再帰的に子要素もチェック
+  for (auto child = elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
     if (!resolveMeshFiles(child, mesh_dir))
       return false;
-  }
 
   return true;
 }
