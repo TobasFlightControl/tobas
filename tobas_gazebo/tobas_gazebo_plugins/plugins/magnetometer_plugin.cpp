@@ -1,7 +1,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/time.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_constants/constants.hpp>
@@ -94,7 +93,7 @@ void GazeboMagnetometerPlugin::Configure(
   init_bias_.Y(init_bias_dist(rnd_gen_));
   init_bias_.Z(init_bias_dist(rnd_gen_));
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(path::join(ns(), tobas::kMagTopic));
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
 }
 
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

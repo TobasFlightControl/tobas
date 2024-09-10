@@ -5,7 +5,6 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/turning_direction.hpp>
@@ -271,12 +270,12 @@ void GazeboRotorPlugin::registerPubSub()
 {
   const string suffix = "_" + to_string(channel_);
 
-  rotor_state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(ns(), kRotorStateGtTopicPrefix + suffix));
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(path::join(ns(), kDebugTopicPrefix + suffix));
+  rotor_state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateGtTopicPrefix + suffix);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(kDebugTopicPrefix + suffix);
 
-  throttle_sub_ = createSubscriber(path::join(ns(), kThrottleTopicPrefix + suffix), &self::throttleCmdCb, this);
-  battery_gt_sub_ = createSubscriber(path::join(ns(), kBatteryGtTopic), &self::batteryGtCb, this);
-  wind_gt_sub_ = createSubscriber(path::join(ns(), kWindGtTopic), &self::windSpeedGtCb, this);
+  throttle_sub_ = createSubscriber(kThrottleTopicPrefix + suffix, &self::throttleCmdCb, this);
+  battery_gt_sub_ = createSubscriber(kBatteryGtTopic, &self::batteryGtCb, this);
+  wind_gt_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedGtCb, this);
 }
 
 void GazeboRotorPlugin::addModelError()

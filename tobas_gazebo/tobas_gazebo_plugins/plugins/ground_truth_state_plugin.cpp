@@ -1,5 +1,4 @@
 #include <tobas_std_tools/geometry.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
@@ -78,7 +77,7 @@ void GazeboGroundTruthStatePlugin::Configure(
 
   rate_manager_ = make_shared<RateManager>(update_rate_);
 
-  odom_pub_ = createPublisher<tobas_msgs::Odometry>(path::join(ns(), kOdometryGtTopic));
+  odom_pub_ = createPublisher<tobas_msgs::Odometry>(kOdometryGtTopic);
 }
 
 void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

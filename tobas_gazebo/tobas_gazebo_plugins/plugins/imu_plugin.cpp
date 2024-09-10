@@ -1,6 +1,5 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_constants/constants.hpp>
@@ -136,8 +135,8 @@ void GazeboImuPlugin::Configure(
   gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, Vector3d::Zero);
 
   // Advertise
-  imu_pub_ = createPublisher<tobas_msgs::Imu>(path::join(ns(), tobas::kImuTopic));
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(path::join(ns(), kDebugPubTopic));
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuTopic);
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
 }
 
 void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

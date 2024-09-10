@@ -6,7 +6,6 @@
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/fixed_wing.hpp>
@@ -265,10 +264,10 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboFixedWingPlugin::registerPubSub()
 {
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(path::join(ns(), kDebugPubTopic));
+  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::FixedWingDebug>(kDebugPubTopic);
 
-  deflections_sub_ = createSubscriber(path::join(ns(), tobas::kDeflectionCmdTopic), &self::deflectionsCb, this);
-  wind_sub_ = createSubscriber(path::join(ns(), kWindGtTopic), &self::windSpeedCb, this);
+  deflections_sub_ = createSubscriber(tobas::kDeflectionCmdTopic, &self::deflectionsCb, this);
+  wind_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedCb, this);
 }
 
 void GazeboFixedWingPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityComponentManager& ecm)

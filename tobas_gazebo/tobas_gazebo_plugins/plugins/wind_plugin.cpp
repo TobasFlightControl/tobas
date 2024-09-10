@@ -1,4 +1,3 @@
-#include <tobas_path_tools/join.hpp>
 #include <tobas_wind_model/dryden.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Wind.hpp>
@@ -108,9 +107,9 @@ void GazeboWindPlugin::Configure(
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
 
-  wind_pub_ = createPublisher<tobas_msgs::Wind>(path::join(ns(), kWindGtTopic));
-  get_params_ss_ = createService<GetSrv>(path::join(ns(), kGetWindParamsSrv), &self::getParamsCb, this);
-  set_params_ss_ = createService<SetSrv>(path::join(ns(), kSetWindParamsSrv), &self::setParamsCb, this);
+  wind_pub_ = createPublisher<tobas_msgs::Wind>(kWindGtTopic);
+  get_params_ss_ = createService<GetSrv>(kGetWindParamsSrv, &self::getParamsCb, this);
+  set_params_ss_ = createService<SetSrv>(kSetWindParamsSrv, &self::setParamsCb, this);
 }
 
 void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

@@ -1,7 +1,6 @@
 #include <std_srvs/srv/empty.hpp>
 
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -105,7 +104,7 @@ void GazeboBatteryPlugin::Configure(
   current_noise_ = NormalDistribution(0., current_noise_stddev_);
 
   registerPubSub();
-  charge_srv_ = createService<std_srvs::srv::Empty>(path::join(ns(), kChargeBatterySrv), &self::chargeCb, this);
+  charge_srv_ = createService<std_srvs::srv::Empty>(kChargeBatterySrv, &self::chargeCb, this);
 }
 
 void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -123,14 +122,14 @@ void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
 void GazeboBatteryPlugin::registerPubSub()
 {
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(path::join(ns(), tobas::kBatteryTopic));
-  battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(path::join(ns(), kBatteryGtTopic));
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
   for (size_t i = 0; i < num_rotors_; ++i)
   {
     const string suffix = "_" + to_string(i);
-    const string topic = path::join(ns(), kRotorStateGtTopicPrefix + suffix);
+    const string topic = kRotorStateGtTopicPrefix + suffix;
     const auto cb = [this, i](const tobas_msgs::msg::RotorState::ConstSharedPtr& msg) { currents_[i] = msg->current; };
     const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, ros2::makeQoS(false, false, 1), cb);
     rotor_state_subs_.push_back(sub);

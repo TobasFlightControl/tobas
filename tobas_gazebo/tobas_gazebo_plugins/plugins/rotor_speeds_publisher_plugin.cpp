@@ -1,4 +1,3 @@
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/rotor_speeds.hpp>
@@ -66,7 +65,7 @@ void GazeboRotorSpeedsPublisherPlugin::Configure(
   }
 
   // Register publishers
-  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(path::join(ns(), tobas::kRotorSpeedsTopic));
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsTopic);
 }
 
 void GazeboRotorSpeedsPublisherPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

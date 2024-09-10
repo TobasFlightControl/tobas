@@ -1,6 +1,5 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/geometry.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
@@ -113,7 +112,7 @@ void GazeboGpsPlugin::Configure(
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
   gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
-  gps_pub_ = createPublisher<tobas_msgs::Gps>(path::join(ns(), tobas::kGpsTopic));
+  gps_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
 }
 
 void GazeboGpsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
