@@ -15,12 +15,6 @@ bool load(const std::string& key, const YAML::Node& parent, T& value)
     return false;
   }
 
-  if (!parent[key].IsScalar())
-  {
-    std::cerr << "Key \"" << key << "\" is not scalar." << std::endl;
-    return false;
-  }
-
   try
   {
     value = parent[key].as<T>();
