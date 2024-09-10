@@ -271,8 +271,6 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   // その他
   if (!createEmptyFile(config_pkg_path / kDoNotEditThisPackage))
     return false;
-  if (!createEmptyFile(config_dir / "dynamic_params.yaml"))
-    return false;
   if (!generateControllerManagerLaunch(launch_dir))
     return false;
   if (!generateJointControlConfig(config_dir))
@@ -284,6 +282,8 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateControllerConfig(config_dir))
     return false;
   if (!generateObserverConfig(config_dir))
+    return false;
+  if (!generateDynamicParams(config_dir))
     return false;
   if (!generateURDFs(mesh_dir))
     return false;
@@ -436,6 +436,19 @@ bool PackageGenerator::generateObserverConfig(const fs::path& config_dir)
   root_node[tobas::kObserverNode][kROSParamsKey] = settings_->observer->staticParams();
 
   if (!saveYamlNode(config_dir / "observer.yaml", root_node))
+    return false;
+
+  return true;
+}
+
+bool PackageGenerator::generateDynamicParams(const fs::path& config_dir)
+{
+  YAML::Node root_node(YAML::NodeType::Map);
+
+  root_node[tobas::kControllerNode][kROSParamsKey] = YAML::Node();
+  root_node[tobas::kObserverNode][kROSParamsKey] = YAML::Node();
+
+  if (!saveYamlNode(config_dir / "dynamic_params.yaml", root_node))
     return false;
 
   return true;

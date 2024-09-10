@@ -16,6 +16,7 @@ CONTROLLER_PKG = "{{ controller_pkg }}"
 ACTIONS_PKG = "{{ actions_pkg }}"
 
 # Arguments
+LOG_LEVEL = "log_level"
 USE_SIM_TIME = "use_sim_time"
 GROUND_TRUTH = "ground_truth"
 
@@ -24,15 +25,18 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
     ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
 
     # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
     # Apply use_sim_time to all nodes below
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
+    ld.add_action(SetParameter(LOG_LEVEL, value=log_level))
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
@@ -51,8 +55,8 @@ def generate_launch_description():
                     name="observer",
                     namespace=DRONE_NAME,
                     parameters=[
-                        PathJoinSubstitution(config_pkg_share, "config", "observer.yaml"),
-                        PathJoinSubstitution(config_pkg_share, "config", "dynamic_params.yaml"),
+                        PathJoinSubstitution([config_pkg_share, "config", "observer.yaml"]),
+                        PathJoinSubstitution([config_pkg_share, "config", "dynamic_params.yaml"]),
                     ],
                     extra_arguments=extra_arguments,
                 ),
@@ -62,8 +66,8 @@ def generate_launch_description():
                     name="controller",
                     namespace=DRONE_NAME,
                     parameters=[
-                        PathJoinSubstitution(config_pkg_share, "config", "controller.yaml"),
-                        PathJoinSubstitution(config_pkg_share, "config", "dynamic_params.yaml"),
+                        PathJoinSubstitution([config_pkg_share, "config", "controller.yaml"]),
+                        PathJoinSubstitution([config_pkg_share, "config", "dynamic_params.yaml"]),
                     ],
                     remappings=odom_remap,
                     extra_arguments=extra_arguments,
@@ -72,7 +76,7 @@ def generate_launch_description():
                     package="tobas_rc_teleop",
                     plugin="tobas_rc_teleop::RCTeleopNode",
                     namespace=DRONE_NAME,
-                    parameters=[PathJoinSubstitution(config_pkg_share, "config", "rc_teleop.yaml")],
+                    parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop.yaml"])],
                     remappings=odom_remap,
                     extra_arguments=extra_arguments,
                 ),
@@ -179,7 +183,7 @@ def generate_launch_description():
                     namespace=DRONE_NAME,
                     parameters=[
                         {
-                            "tbsdrn_path": PathJoinSubstitution(config_pkg_share, "config", "drone.tbsdrn"),
+                            "tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"]),
                         }
                     ],
                     extra_arguments=extra_arguments,

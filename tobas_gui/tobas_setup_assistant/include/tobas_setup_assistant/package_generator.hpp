@@ -49,6 +49,7 @@ private:
   bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
   bool generateControllerConfig(const std::filesystem::path& config_dir);
   bool generateObserverConfig(const std::filesystem::path& config_dir);
+  bool generateDynamicParams(const std::filesystem::path& config_dir);
   bool generateURDFs(const std::filesystem::path& mesh_dir);
 
   /* 空のファイルを作成する． */
