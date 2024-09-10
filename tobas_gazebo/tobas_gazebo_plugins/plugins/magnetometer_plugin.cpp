@@ -12,7 +12,6 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
-#include "../include/tobas_gazebo_plugins/random.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
@@ -43,13 +42,13 @@ public:
 private:
   // SDF parameters
   string link_name_;
-  size_t update_rate_;                   // [Hz] Update rate
-  Vector3d offset_;                      // [m] B_Pos_BS
-  double lat_0_;                         // [deg] 原点の北緯
-  double lon_0_;                         // [deg] 原点の東経
-  double alt_0_;                         // [m] 原点の高度
-  Vector3d noise_normal_;                // [nT]
-  Vector3d noise_uniform_initial_bias_;  // [nT]
+  size_t update_rate_;              // [Hz] Update rate
+  Vector3d offset_;                 // [m] B_Pos_BS
+  double lat_0_;                    // [deg] 原点の北緯
+  double lon_0_;                    // [deg] 原点の東経
+  double alt_0_;                    // [m] 原点の高度
+  double noise_normal_;             // [nT]
+  double noise_uniform_init_bias_;  // [nT]
 
   RateManager::SharedPtr rate_manager_;
 
@@ -59,14 +58,15 @@ private:
   double lat_, lon_;    // [deg] 現在位置の経緯度
 
   random_device rnd_dev_;
-  NormalDistribution3d::SharedPtr noise_;
+  std::mt19937 rnd_gen_;
+  NormalDistribution noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
-GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : BaseNode("magnetometer_plugin")
+GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : BaseNode("magnetometer_plugin"), rnd_gen_(rnd_dev_())
 {
 }
 
@@ -87,10 +87,12 @@ void GazeboMagnetometerPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
 
-  noise_.reset(new NormalDistribution3d(rnd_dev_, Vector3d::Zero, noise_normal_));
+  noise_ = NormalDistribution(0, noise_normal_);
 
-  UniformDistribution3d init_bias_dist(rnd_dev_, -noise_uniform_initial_bias_, noise_uniform_initial_bias_);
-  init_bias_ = init_bias_dist.get();
+  UniformDistribution init_bias_dist(-noise_uniform_init_bias_, noise_uniform_init_bias_);
+  init_bias_.X(init_bias_dist(rnd_gen_));
+  init_bias_.Y(init_bias_dist(rnd_gen_));
+  init_bias_.Z(init_bias_dist(rnd_gen_));
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(path::join(ns(), tobas::kMagTopic));
 }
@@ -105,10 +107,8 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
 
-  getSdfParam(sdf, "noiseNormal", noise_normal_, Vector3d::Zero);
-  getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_initial_bias_, Vector3d::Zero);
-  if (!allGreaterEqual(noise_normal_, 0.) || !allGreaterEqual(noise_uniform_initial_bias_, 0.))
-    TOBAS_EXIT("Noise std. dev cannot be negative.");
+  getSdfParam(sdf, "noiseNormal", noise_normal_, 0., NON_NEGATIVE);
+  getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_init_bias_, 0., NON_NEGATIVE);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
@@ -134,7 +134,9 @@ void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim
   auto field_B = T_W_B.Rot().RotateVectorReverse(mag_W + init_bias_);
 
   // Add noise
-  field_B += noise_->get();
+  field_B.X() += noise_(rnd_gen_);
+  field_B.Y() += noise_(rnd_gen_);
+  field_B.Z() += noise_(rnd_gen_);
 
   // Create message
   auto mag_msg = make_unique<tobas_msgs::MagneticField>();
@@ -142,8 +144,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim
   mag_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(field_B, mag_msg->magnetic_field);
   mag_msg->covariance.setZero();
-  for (size_t i = 0; i < 3; ++i)
-    mag_msg->covariance.diagonal()(i) = ::math::sqr(noise_normal_[i]);
+  mag_msg->covariance.diagonal().fill(noise_normal_);
 
   // Publish message
   mag_pub_->publish(move(mag_msg));
