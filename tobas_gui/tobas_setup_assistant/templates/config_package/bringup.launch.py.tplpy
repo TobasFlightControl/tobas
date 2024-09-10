@@ -51,8 +51,8 @@ def generate_launch_description():
                     name="observer",
                     namespace=DRONE_NAME,
                     parameters=[
-                        PathJoinSubstitution([config_pkg_share, "config", "observer.yaml"]),
-                        PathJoinSubstitution([config_pkg_share, "config", "dynamic_params.yaml"]),
+                        PathJoinSubstitution([config_pkg_share, "config", "observer_static.yaml"]),
+                        PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
                     ],
                     extra_arguments=extra_arguments,
                 ),
@@ -62,8 +62,8 @@ def generate_launch_description():
                     name="controller",
                     namespace=DRONE_NAME,
                     parameters=[
-                        PathJoinSubstitution([config_pkg_share, "config", "controller.yaml"]),
-                        PathJoinSubstitution([config_pkg_share, "config", "dynamic_params.yaml"]),
+                        PathJoinSubstitution([config_pkg_share, "config", "controller_static.yaml"]),
+                        PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
                     ],
                     remappings=odom_remap,
                     extra_arguments=extra_arguments,

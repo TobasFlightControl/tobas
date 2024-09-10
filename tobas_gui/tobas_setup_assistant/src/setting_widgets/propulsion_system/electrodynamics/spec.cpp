@@ -36,7 +36,7 @@ void ElectrodynamicsWidget_Spec::copyFrom(const ElectrodynamicsWidget_Base*)
 
 YAML::Node ElectrodynamicsWidget_Spec::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void ElectrodynamicsWidget_Spec::load(const YAML::Node&)

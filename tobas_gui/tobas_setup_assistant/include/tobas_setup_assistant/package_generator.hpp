@@ -47,13 +47,15 @@ private:
   bool generateJointControlConfig(const std::filesystem::path& config_dir);
   bool generateDroneConfig(const std::filesystem::path& config_dir);
   bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
-  bool generateControllerConfig(const std::filesystem::path& config_dir);
-  bool generateObserverConfig(const std::filesystem::path& config_dir);
-  bool generateDynamicParams(const std::filesystem::path& config_dir);
+  bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
+  bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
   bool generateURDFs(const std::filesystem::path& mesh_dir);
 
   /* 空のファイルを作成する． */
   bool createEmptyFile(const std::filesystem::path& file_path);
+
+  /* Map型で要素を持たないyamlファイルを作成する． */
+  bool createEmptyYaml(const std::filesystem::path& file_path, bool overwrite = false);
 
   /* YAML::Nodeを保存する． */
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);

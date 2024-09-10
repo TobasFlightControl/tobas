@@ -46,12 +46,12 @@ tobas::rc_command_t CustomControllerWidget::acrobatModeCommand() const
 
 YAML::Node CustomControllerWidget::staticParams() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 YAML::Node CustomControllerWidget::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void CustomControllerWidget::load(const YAML::Node&)

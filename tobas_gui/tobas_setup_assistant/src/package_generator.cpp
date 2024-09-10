@@ -265,6 +265,12 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     cfg_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.xml.tplxml", launch_dir);
   }
 
+  // Dynamic parameters
+  if (!createEmptyYaml(config_dir / "controller_dynamic.yaml", false))
+    return false;
+  if (!createEmptyYaml(config_dir / "observer_dynamic.yaml", false))
+    return false;
+
   // その他
   if (!createEmptyFile(config_pkg_path / kDoNotEditThisPackage))
     return false;
@@ -276,11 +282,9 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateRCTeleopConfig(config_dir))
     return false;
-  if (!generateControllerConfig(config_dir))
+  if (!generateControllerStaticConfig(config_dir))
     return false;
-  if (!generateObserverConfig(config_dir))
-    return false;
-  if (!generateDynamicParams(config_dir))
+  if (!generateObserverStaticConfig(config_dir))
     return false;
   if (!generateURDFs(mesh_dir))
     return false;
@@ -403,12 +407,10 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
 
 bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
 {
-  YAML::Node rosparam_node(YAML::NodeType::Map);
-  rosparam_node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
-  rosparam_node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
-
+  // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node["rc_teleop"][kROSParamsKey] = rosparam_node;
+  root_node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
+  root_node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
 
   if (!saveYamlNode(config_dir / "rc_teleop.yaml", root_node))
     return false;
@@ -416,36 +418,23 @@ bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateControllerConfig(const fs::path& config_dir)
+bool PackageGenerator::generateControllerStaticConfig(const fs::path& config_dir)
 {
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node[tobas::kControllerNode][kROSParamsKey] = settings_->controller->staticParams();
+  const auto node = settings_->controller->staticParams();
+  TOBAS_CHECK(node.IsMap());
 
-  if (!saveYamlNode(config_dir / "controller.yaml", root_node))
+  if (!saveYamlNode(config_dir / "controller_static.yaml", node))
     return false;
 
   return true;
 }
 
-bool PackageGenerator::generateObserverConfig(const fs::path& config_dir)
+bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
 {
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node[tobas::kObserverNode][kROSParamsKey] = settings_->observer->staticParams();
+  const auto node = settings_->observer->staticParams();
+  TOBAS_CHECK(node.IsMap());
 
-  if (!saveYamlNode(config_dir / "observer.yaml", root_node))
-    return false;
-
-  return true;
-}
-
-bool PackageGenerator::generateDynamicParams(const fs::path& config_dir)
-{
-  YAML::Node root_node(YAML::NodeType::Map);
-
-  root_node[tobas::kControllerNode][kROSParamsKey] = YAML::Node();
-  root_node[tobas::kObserverNode][kROSParamsKey] = YAML::Node();
-
-  if (!saveYamlNode(config_dir / "dynamic_params.yaml", root_node))
+  if (!saveYamlNode(config_dir / "observer_static.yaml", node))
     return false;
 
   return true;
@@ -495,6 +484,17 @@ bool PackageGenerator::createEmptyFile(const fs::path& file_path)
     qt::qErrorBox(settings_, "Failed to create \"" + QString::fromStdString(file_path) + "\".");
     return false;
   }
+
+  return true;
+}
+
+bool PackageGenerator::createEmptyYaml(const fs::path& file_path, bool overwrite)
+{
+  if (!overwrite && fs::is_regular_file(file_path))
+    return true;
+
+  if (!saveYamlNode(file_path, YAML::Node(YAML::NodeType::Map)))
+    return false;
 
   return true;
 }

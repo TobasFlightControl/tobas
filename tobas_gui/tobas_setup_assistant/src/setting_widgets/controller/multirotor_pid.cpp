@@ -52,12 +52,12 @@ tobas::rc_command_t MultirotorPIDWidget::acrobatModeCommand() const
 
 YAML::Node MultirotorPIDWidget::staticParams() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 YAML::Node MultirotorPIDWidget::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void MultirotorPIDWidget::load(const YAML::Node&)

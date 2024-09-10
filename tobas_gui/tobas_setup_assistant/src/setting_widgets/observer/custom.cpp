@@ -31,12 +31,12 @@ const char* CustomObserverWidget::observerPackage() const
 
 YAML::Node CustomObserverWidget::staticParams() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 YAML::Node CustomObserverWidget::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void CustomObserverWidget::load(const YAML::Node&)

@@ -52,12 +52,12 @@ tobas::rc_command_t NonPlanarPIDWidget::acrobatModeCommand() const
 
 YAML::Node NonPlanarPIDWidget::staticParams() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 YAML::Node NonPlanarPIDWidget::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void NonPlanarPIDWidget::load(const YAML::Node&)

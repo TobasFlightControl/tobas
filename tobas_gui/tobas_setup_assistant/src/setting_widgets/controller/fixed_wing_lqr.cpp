@@ -52,12 +52,12 @@ tobas::rc_command_t FixedWingLQRWidget::acrobatModeCommand() const
 
 YAML::Node FixedWingLQRWidget::staticParams() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 YAML::Node FixedWingLQRWidget::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void FixedWingLQRWidget::load(const YAML::Node&)

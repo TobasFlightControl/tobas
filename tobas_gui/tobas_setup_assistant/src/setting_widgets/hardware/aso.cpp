@@ -31,7 +31,7 @@ const char* AsoWidget::hardwarePackage() const
 
 YAML::Node AsoWidget::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void AsoWidget::load(const YAML::Node&)

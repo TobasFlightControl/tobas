@@ -34,7 +34,7 @@ void ElectrodynamicsWidget_NoSelect::copyFrom(const ElectrodynamicsWidget_Base*)
 
 YAML::Node ElectrodynamicsWidget_NoSelect::dump() const
 {
-  return YAML::Node();
+  return YAML::Node(YAML::NodeType::Map);
 }
 
 void ElectrodynamicsWidget_NoSelect::load(const YAML::Node&)
