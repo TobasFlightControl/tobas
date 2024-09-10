@@ -3,12 +3,14 @@
 #include <yaml-cpp/yaml.h>
 #include <eigen3/Eigen/Core>
 
+#include "./util.hpp"
+
 namespace YAML
 {
-template <typename Scalar, int Rows, int Cols>  // Rows, Colsの型はEigen::Indexではなくintである必要がある
-struct convert<Eigen::Matrix<Scalar, Rows, Cols>>
+template <int Rows, int Cols>  // Rows, Colsの型はEigen::Indexではなくintである必要がある
+struct convert<Eigen::Matrix<double, Rows, Cols>>
 {
-  static Node encode(const Eigen::Matrix<Scalar, Rows, Cols>& rhs)
+  static Node encode(const Eigen::Matrix<double, Rows, Cols>& rhs)
   {
     static_assert(Rows > 0);
     static_assert(Cols > 0);
@@ -17,12 +19,12 @@ struct convert<Eigen::Matrix<Scalar, Rows, Cols>>
 
     for (int r = 0; r < Rows; ++r)
       for (int c = 0; c < Cols; ++c)
-        node.push_back(rhs(r, c));
+        node.push_back(util::format(rhs(r, c)));
 
     return node;
   }
 
-  static bool decode(const Node& node, Eigen::Matrix<Scalar, Rows, Cols>& rhs)
+  static bool decode(const Node& node, Eigen::Matrix<double, Rows, Cols>& rhs)
   {
     static_assert(Rows > 0);
     static_assert(Cols > 0);
@@ -34,7 +36,7 @@ struct convert<Eigen::Matrix<Scalar, Rows, Cols>>
 
     for (int r = 0; r < Rows; ++r)
       for (int c = 0; c < Cols; ++c)
-        rhs(r, c) = node[r * Cols + c].as<Scalar>();
+        rhs(r, c) = node[r * Cols + c].as<double>();
 
     return true;
   }
@@ -60,7 +62,7 @@ struct convert<Eigen::MatrixXd>
     Node data(NodeType::Sequence);
     for (int r = 0; r < rows; ++r)
       for (int c = 0; c < cols; ++c)
-        data.push_back(rhs(r, c));
+        data.push_back(util::format(rhs(r, c)));
     node[kDataKey] = data;
 
     return node;
