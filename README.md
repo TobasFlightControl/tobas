@@ -159,5 +159,4 @@ $ roslaunch tobas_navio_ros rcin_handler.launch __ns:=drone_name
 
 ```bash
 $ roslaunch tobas_iris_config gazebo.launch
-$ roslaunch tobas_iris_config bringup.launch
 ```

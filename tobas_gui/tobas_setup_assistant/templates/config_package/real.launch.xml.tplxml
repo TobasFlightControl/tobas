@@ -63,7 +63,7 @@
   </group>
 
   <!-- Launch Tobas core software -->
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/bringup.launch.py">
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/core_component.launch.py">
     <arg name="use_sim_time" value="false"/>
     <arg name="user_debug" value="false"/>
   </include>

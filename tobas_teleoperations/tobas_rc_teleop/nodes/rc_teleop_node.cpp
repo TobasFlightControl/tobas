@@ -83,8 +83,10 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
 
 void RCTeleopNode::getStaticRosParams()
 {
-  modes_[tobas::kFlightModeStabilize] = static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode"));
-  modes_[tobas::kFlightModeAcrobat] = static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode"));
+  modes_[tobas::kFlightModeStabilize] =
+    static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode", tobas::rc_command_t::PROGRAM));
+  modes_[tobas::kFlightModeAcrobat] =
+    static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode", tobas::rc_command_t::PROGRAM));
 }
 
 void RCTeleopNode::initializeControllers()
