@@ -1,7 +1,6 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler, Shutdown
+from launch.actions import DeclareLaunchArgument, Shutdown
 from launch.substitutions import LaunchConfiguration
-from launch.event_handlers import OnProcessExit
 
 from launch_ros.actions import Node
 
@@ -50,12 +49,8 @@ def generate_launch_description():
         executable="main",
         ros_arguments=ros_args,
         output=output,
+        on_exit=Shutdown(),
     )
     ld.add_action(setup_assistant)
-
-    # Require setup assistant
-    ld.add_action(
-        RegisterEventHandler(event_handler=OnProcessExit(target_action=setup_assistant, on_exit=[Shutdown()]))
-    )
 
     return ld

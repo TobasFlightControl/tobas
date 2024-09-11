@@ -249,11 +249,11 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     settings_->controller->isCommandCompatible(tobas::rc_command_t::POSITION_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW))
   {
-    cfg_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.xml.tplxml", launch_dir);
+    cfg_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.py.tplpy", launch_dir);
   }
   else if (settings_->controller->isCommandCompatible(tobas::rc_command_t::SPEED_ROLL_DPITCH))
   {
-    cfg_env_->generate(tpl_data, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.xml.tplxml", launch_dir);
+    cfg_env_->generate(tpl_data, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.py.tplpy", launch_dir);
   }
 
   // GUI Teleop (コントローラの対応コマンドによって場合分け)
@@ -263,7 +263,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POSE_TWIST_ACCEL))
   {
-    cfg_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.xml.tplxml", launch_dir);
+    cfg_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.py.tplpy", launch_dir);
   }
 
   // Dynamic parameters
