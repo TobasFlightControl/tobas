@@ -7,7 +7,7 @@ PartOf=tobas_component_managers.target
 [Service]
 Type=simple
 EnvironmentFile=/etc/tobas/config_pkg.env
-ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && /opt/ros/jazzy/bin/ros2 run rclcpp_components component_container_mt --ros-args -r __node:=component_manager_high __ns:=${DRONE_NAME}'
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && /opt/ros/jazzy/bin/ros2 run rclcpp_components component_container_mt --ros-args -r __node:=component_manager_high -r __ns:=${DRONE_NAME}'
 Restart=always
 RestartSec=5
 CPUSchedulingPolicy=rr

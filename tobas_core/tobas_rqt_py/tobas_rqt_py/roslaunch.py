@@ -5,7 +5,7 @@ from typing import Dict, Optional
 def rosrun(pkg_name: str, node_type: str, node_name: Optional[str] = None) -> Popen:
     command = ["ros2", "run", pkg_name, node_type]
     if node_name is not None:
-        command += ["--ros-args", "--remap", f"__node:={node_name}"]
+        command += ["--ros-args", "-r", f"__node:={node_name}"]
 
     # 別プロセスでrosrunを実行
     return Popen(command)
