@@ -157,8 +157,10 @@ void ImuHandlerNode::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
       // Update noise filters
       for (size_t i = 0; i < 3; ++i)
       {
-        acc_noise_[i].update(imu_raw->accel(i), dt);
-        gyro_noise_[i].update(imu_raw->gyro(i), dt);
+        if (acc_noise_[i].update(imu_raw->accel(i), dt) < 0)
+          TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Accel noise filter failed: ", acc_noise_[i].errorMessage());
+        if (gyro_noise_[i].update(imu_raw->gyro(i), dt) < 0)
+          TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Gyro noise filter failed: ", gyro_noise_[i].errorMessage());
       }
 
       // Create message

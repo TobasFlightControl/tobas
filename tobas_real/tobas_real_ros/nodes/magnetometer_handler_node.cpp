@@ -161,7 +161,8 @@ void MagnetometerHandlerNode::magCb(const tobas_hal_msgs::MagneticField::ConstSh
 
   // Update noise filter
   for (size_t i = 0; i < 3; ++i)
-    mag_noise_[i].update(mag_unit(i), dt);
+    if (mag_noise_[i].update(mag_unit(i), dt) < 0)
+      TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", mag_noise_[i].errorMessage());
 
   // Create message
   auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();

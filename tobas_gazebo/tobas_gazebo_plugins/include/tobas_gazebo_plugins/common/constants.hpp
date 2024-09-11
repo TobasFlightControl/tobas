@@ -15,7 +15,7 @@ static constexpr char kSetWindParamsSrv[] = "gazebo/set_wind_parameters";
 static constexpr char kGetTetherParamsSrv[] = "gazebo/get_tether_parameters";
 static constexpr char kSetTetherParamsSrv[] = "gazebo/set_tether_parameters";
 
-static constexpr double kWarnPeriod = 1.;              // [s]
+static constexpr double kWarnPeriod = 3.;              // [s]
 static constexpr double kErrorPeriod = 1.;             // [s]
 static constexpr double kRotorSpeedSlowdownSim = 10.;  // [-]
 

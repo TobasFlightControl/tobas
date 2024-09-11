@@ -187,8 +187,10 @@ void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityC
   addNoise(acc_raw, gyro_raw, dt);
 
   // Update LPFs
-  acc_lpf_.update(acc_raw, dt);
-  gyro_lpf_.update(gyro_raw, dt);
+  if (acc_lpf_.update(acc_raw, dt) < 0)
+    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to update accel LPF: ", acc_lpf_.errorMessage());
+  if (gyro_lpf_.update(gyro_raw, dt) < 0)
+    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to update gyro LPF: ", gyro_lpf_.errorMessage());
 
   // Publish messages
   publishImuMsg(info.simTime, dt);

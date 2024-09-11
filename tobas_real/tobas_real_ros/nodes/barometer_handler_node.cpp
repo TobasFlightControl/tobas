@@ -63,7 +63,8 @@ void BarometerHandlerNode::airPressureCb(const tobas_hal_msgs::msg::FluidPressur
   }
 
   // Update noise filter
-  pressure_noise_.update(bar_raw->fluid_pressure, dt);
+  if (pressure_noise_.update(bar_raw->fluid_pressure, dt) < 0)
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", pressure_noise_.errorMessage());
 
   // Create message
   auto bar_msg = std::make_unique<sensor_msgs::msg::FluidPressure>();

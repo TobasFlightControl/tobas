@@ -49,8 +49,10 @@ void BatteryLPFNode::batteryRawCb(const tobas_msgs::msg::Battery::ConstSharedPtr
   const auto dt = (battery_raw->header.stamp - last_msg_->header.stamp).seconds();
   last_msg_ = battery_raw;
 
-  voltage_lpf_.update(battery_raw->voltage, dt);
-  current_lpf_.update(battery_raw->current, dt);
+  if (voltage_lpf_.update(battery_raw->voltage, dt) < 0)
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update voltage LPF: ", voltage_lpf_.errorMessage());
+  if (current_lpf_.update(battery_raw->current, dt) < 0)
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update current LPF: ", current_lpf_.errorMessage());
 
   auto battery_filtered = std::make_unique<tobas_msgs::msg::Battery>(*battery_raw);
   battery_filtered->voltage = voltage_lpf_.getOutput();
