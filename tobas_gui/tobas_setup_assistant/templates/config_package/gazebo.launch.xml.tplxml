@@ -6,6 +6,7 @@
   <arg name="world_name" default="basic"/>
   <arg name="verbose" default="3"/>
   <arg name="ground_truth" default="false"/>
+  <arg name="launch_core" default="true"/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
   <arg name="z" default="0.3" description="Initial Z position in meters."/>
@@ -47,10 +48,12 @@
   </group>
 
   <!-- Launch Tobas core software -->
-  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/core_component.launch.py">
-    <arg name="use_sim_time" value="$(var use_sim_time)"/>
-    <arg name="ground_truth" value="$(var ground_truth)"/>
-  </include>
+  <group if="$(var launch_core)">
+    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/core_component.launch.py">
+      <arg name="use_sim_time" value="$(var use_sim_time)"/>
+      <arg name="ground_truth" value="$(var ground_truth)"/>
+    </include>
+  </group>
 
   <!-- Launch user nodes -->
   <include file="$(find-pkg-share {{ user_pkg_name }})/launch/gazebo.launch.py"/>
