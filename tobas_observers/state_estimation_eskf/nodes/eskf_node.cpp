@@ -335,17 +335,19 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
     return;
   }
 
-  // 推定状態を発行
+  // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
   fillOdometryMsg(*odom);
-  odom_pub_->publish(move(odom));
 
-  // TFを発行
+  // Create TF message
   tf_.header.stamp = odom->header.stamp;
   transformKDLToMsg(odom->frame, tf_.transform);
+
+  // Publish odometry and TF
+  odom_pub_->publish(move(odom));
   tf_br_.sendTransform(tf_);
 
-  // フィードバックを発行
+  // Publish feedback
   auto feedback = std::make_unique<FeedbackMsg>();
   feedback->header = imu->header;
   feedback->acc_bias.data = eskf_.getAccelBias();
