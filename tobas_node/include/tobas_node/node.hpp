@@ -208,6 +208,9 @@ private:
   rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ros2::ParamHandlePtr> dparam_handles_;
 
+  template <typename T>
+  T declareParam(const std::string& name, const T& _default);
+
   void rclcppLog(uint8_t level, const std::string& text) const;
 
   static std::string createID(const char* file, int line);
@@ -565,5 +568,25 @@ template <typename... Args>
 inline void BaseNode::fatalThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, period, args...);
+}
+
+template <typename T>
+T BaseNode::declareParam(const std::string& name, const T& _default)
+{
+  try
+  {
+    return declare_parameter<T>(name);
+  }
+  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException&)
+  {
+    TOBAS_WARN("Parameter \"", name, "\" is not initialized. The default value \"", _default, "\" is set.");
+
+    // この時点で宣言だけは済んでいるので，デフォルト値をセットする．
+    const auto set_param_res = set_parameter(rclcpp::Parameter(name, _default));
+    if (!set_param_res.successful)
+      TOBAS_ERROR("Failed to set \"", name, "\": ", set_param_res.reason);
+
+    return _default;
+  }
 }
 }  // namespace tobas

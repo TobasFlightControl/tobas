@@ -86,65 +86,74 @@ vector<string> BaseNode::getStringArrayParam(const string& name)
 
 bool BaseNode::getBoolParam(const string& name, const bool& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_bool();
+  if (has_parameter(name))
+    return get_parameter(name).as_bool();
+  else
+    return declareParam(name, _default);
 }
 
 long BaseNode::getIntParam(const string& name, const long& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_int();
+  if (has_parameter(name))
+    return get_parameter(name).as_int();
+  else
+    return declareParam(name, _default);
 }
 
 double BaseNode::getDoubleParam(const string& name, const double& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_double();
+  if (has_parameter(name))
+    return get_parameter(name).as_double();
+  else
+    return declareParam(name, _default);
 }
 
 string BaseNode::getStringParam(const string& name, const string& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_string();
+  if (has_parameter(name))
+    return get_parameter(name).as_string();
+  else
+    return declareParam(name, _default);
 }
 
 vector<bool> BaseNode::getBoolArrayParam(const string& name, const vector<bool>& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_bool_array();
+  if (has_parameter(name))
+    return get_parameter(name).as_bool_array();
+  else
+    return declareParam(name, _default);
 }
 
 vector<uint8_t> BaseNode::getByteArrayParam(const string& name, const vector<uint8_t>& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_byte_array();
+  if (has_parameter(name))
+    return get_parameter(name).as_byte_array();
+  else
+    return declareParam(name, _default);
 }
 
 vector<long> BaseNode::getIntArrayParam(const string& name, const vector<long>& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_integer_array();
+  if (has_parameter(name))
+    return get_parameter(name).as_integer_array();
+  else
+    return declareParam(name, _default);
 }
 
 vector<double> BaseNode::getDoubleArrayParam(const string& name, const vector<double>& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_double_array();
+  if (has_parameter(name))
+    return get_parameter(name).as_double_array();
+  else
+    return declareParam(name, _default);
 }
 
 vector<string> BaseNode::getStringArrayParam(const string& name, const vector<string>& _default)
 {
-  if (!has_parameter(name))
-    declare_parameter(name, _default);
-  return get_parameter(name).as_string_array();
+  if (has_parameter(name))
+    return get_parameter(name).as_string_array();
+  else
+    return declareParam(name, _default);
 }
 
 void BaseNode::rclcppLog(uint8_t level, const string& text) const
