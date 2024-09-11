@@ -1,10 +1,12 @@
 <launch>
 
   <arg name="log_level" default="info"/>
+  <arg name="output" default="screen"/>
 
   <!-- Load robot description -->
   <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py">
     <arg name="log_level" value="$(var log_level)"/>
+    <arg name="output" value="$(var output)"/>
     <arg name="use_sim_time" value="false"/>
     <arg name="user_debug" value="false"/>
   </include>

@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="log_level" default="info"/>
+  <arg name="output" default="screen"/>
   <arg name="use_sim_time" default="false"/>
   <arg name="ground_truth" default="false"/>
 
@@ -19,7 +19,7 @@
 
     <!-- Launch minimal hardware interfaces -->
     <include file="$(find-pkg-share {{ hardware_pkg }})/launch/rcin_driver.launch.py"/>
-    <node pkg="tobas_real_ros" exec="rcin_handler" output="screen"/>
+    <node pkg="tobas_real_ros" exec="rcin_handler" output="$(var output)"/>
   </group>
 
 </launch>

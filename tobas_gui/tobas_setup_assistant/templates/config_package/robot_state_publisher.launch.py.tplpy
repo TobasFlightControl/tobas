@@ -11,6 +11,7 @@ CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
+OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 USER_DEBUG = "user_debug"
 
@@ -20,11 +21,13 @@ def generate_launch_description():
 
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL))
+    ld.add_action(DeclareLaunchArgument(OUTPUT))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME))
     ld.add_action(DeclareLaunchArgument(USER_DEBUG))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     user_debug = LaunchConfiguration(USER_DEBUG)
 
@@ -45,6 +48,7 @@ def generate_launch_description():
             executable="robot_state_publisher",
             parameters=[{"robot_description": urdf_content, "use_sim_time": use_sim_time}],
             ros_arguments=["--log-level", log_level],
+            output=output,
         )
     )
 

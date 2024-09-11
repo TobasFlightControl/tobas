@@ -7,6 +7,7 @@ from launch_ros.actions import Node
 
 # Arguments
 LOG_LEVEL = "log_level"
+OUTPUT = "output"
 
 
 def generate_launch_description():
@@ -14,9 +15,13 @@ def generate_launch_description():
 
     # Declare arguments
     ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
+
+    ros_args = ["--log-level", log_level]
 
     # Launch robot state publisher with minimul URDF
     minimul_urdf = '<robot name="empty"><link name="root"/></robot>'
@@ -24,7 +29,8 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[{"robot_description": minimul_urdf}],
-        ros_arguments=["--log-level", log_level],
+        ros_arguments=ros_args,
+        output=output,
     )
     ld.add_action(rsp)
 
@@ -33,7 +39,8 @@ def generate_launch_description():
         package="tobas_property_tools",
         executable="property_server",
         name="property_server_gcs",
-        ros_arguments=["--log-level", log_level],
+        ros_arguments=ros_args,
+        output=output,
     )
     ld.add_action(property_server)
 
@@ -41,8 +48,8 @@ def generate_launch_description():
     setup_assistant = Node(
         package="tobas_setup_assistant",
         executable="main",
-        ros_arguments=["--log-level", log_level],
-        output="screen",
+        ros_arguments=ros_args,
+        output=output,
     )
     ld.add_action(setup_assistant)
 

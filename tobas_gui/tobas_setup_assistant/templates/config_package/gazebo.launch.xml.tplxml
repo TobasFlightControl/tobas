@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="log_level" default="info"/>
+  <arg name="output" default="screen"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="user_debug" default="false"/>
   <arg name="world_name" default="basic"/>
@@ -18,6 +19,7 @@
   <!-- Load robot description -->
   <include file="$(find-pkg-share {{ config_pkg_name }})/launch/robot_state_publisher.launch.py">
     <arg name="log_level" value="$(var log_level)"/>
+    <arg name="output" value="$(var output)"/>
     <arg name="use_sim_time" value="$(var use_sim_time)"/>
     <arg name="user_debug" value="$(var user_debug)"/>
   </include>
@@ -32,19 +34,19 @@
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
     <!-- Spawn robot in Gazebo -->
-    <node pkg="ros_gz_sim" exec="create" output="screen" ros_args="--log-level $(var log_level)" args="-topic robot_description -name f450 -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)"/>
+    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name f450 -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
 
     <!-- Launch joint controllers -->
     <include file="$(find-pkg-share tobas_f450_config)/launch/controller_manager.launch.xml"/>
 
     <!-- Launch Gazebo command handlers -->
-    <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" output="screen" ros_args="--log-level $(var log_level)"/>
-    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" output="screen" ros_args="--log-level $(var log_level)"/>
+    <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
 
     <!-- Launch component containers -->
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_high" output="screen" ros_args="--log-level $(var log_level)"/>
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" output="screen" ros_args="--log-level $(var log_level)"/>
-    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_low" output="screen" ros_args="--log-level $(var log_level)"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_high" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_medium" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_low" ros_args="--log-level $(var log_level)" output="$(var output)"/>
   </group>
 
   <!-- Launch Tobas core software -->
