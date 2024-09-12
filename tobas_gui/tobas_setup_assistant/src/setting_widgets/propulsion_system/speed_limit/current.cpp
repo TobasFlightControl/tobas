@@ -37,7 +37,7 @@ double SpeedLimitWidget_Current::maxRotSpeed() const
 {
   const auto [kt, _] = electrodynamics_->rotSpeedCoefs();
   const auto motor_const = aerodynamics_->motorConst();
-  const auto moment_const = aerodynamics_->motorConst();
+  const auto moment_const = aerodynamics_->momentConst();
 
   const auto max_current = spinbox_->value();
   const auto max_torque = kt * max_current;
