@@ -33,7 +33,7 @@ TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree
 
 void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg)
 {
-  TOBAS_ERROR("New robot description is received.");
+  TOBAS_INFO("New robot description is received.");
 
   auto tree = std::make_unique<kdl::Tree>();
   if (!kdl::treeFromString(msg->data, *tree))
