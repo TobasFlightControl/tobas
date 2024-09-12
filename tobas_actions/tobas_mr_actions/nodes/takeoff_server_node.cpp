@@ -1,6 +1,6 @@
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros2_tools/simple_service_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
@@ -51,7 +51,7 @@ TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super
 
 bool TakeoffServerNode::armRotors()
 {
-  ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
+  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = true;

@@ -1,7 +1,7 @@
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_math/core.hpp>
-#include <tobas_ros2_tools/simple_service_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/srv/set_arm.hpp>

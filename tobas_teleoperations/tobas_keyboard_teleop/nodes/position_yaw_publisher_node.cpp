@@ -6,7 +6,7 @@
 #include <tobas_keyboard/utils.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_ros2_tools/simple_action_client.hpp>
+#include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs_adapter/PositionYaw.hpp>
@@ -127,7 +127,7 @@ void PositionYawPublisherNode::initializeTimerCb()
 {
   // 離陸アクションクライアントを用意
   // FIXME: コールバックの中でfuture.wait()を呼ぶとデッドロックするため，keyboard_teleopはメイン関数にベタ書きする．
-  ros2::SimpleActionClient<tobas_msgs::action::Takeoff> takeoff_ac(shared_from_this(), tobas::kTakeoffAction);
+  ros2::SyncActionClient<tobas_msgs::action::Takeoff> takeoff_ac(shared_from_this(), tobas::kTakeoffAction);
 
   // 離陸
   TOBAS_INFO("Requesting takeoff_ac action.");

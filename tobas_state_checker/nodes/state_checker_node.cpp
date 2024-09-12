@@ -2,7 +2,7 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_ros2_tools/simple_service_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_constants/constants.hpp>

@@ -1,6 +1,6 @@
 #include <std_msgs/msg/bool.hpp>
 
-#include <tobas_ros2_tools/simple_service_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
@@ -101,7 +101,7 @@ void EscCalibrationNode::setThrottleAndSleep(const double& throttle)
 
 bool EscCalibrationNode::enableRCOutputs(bool enable, string& message)
 {
-  ros2::SimpleServiceClient<tobas_msgs::srv::EnableRCOutput> sc(shared_from_this(), tobas::kEnableRcOutputSrv);
+  ros2::SyncServiceClient<tobas_msgs::srv::EnableRCOutput> sc(shared_from_this(), tobas::kEnableRcOutputSrv);
 
   for (const auto& rotor : drone_->rotors)
   {

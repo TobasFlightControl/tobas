@@ -10,21 +10,29 @@ namespace ros2
 {
 // using SrvType = std_srvs::srv::Empty;
 template <typename SrvType>
-class SimpleServiceClient
+class SyncServiceClient
 {
 public:
-  using SharedPtr = std::shared_ptr<SimpleServiceClient>;
+  using SharedPtr = std::shared_ptr<SyncServiceClient>;
 
-  inline explicit SimpleServiceClient(
+  inline explicit SyncServiceClient(
     rclcpp::Node::SharedPtr node,
-    const std::string& srv_name,
-    rclcpp::CallbackGroup::SharedPtr callback_group = nullptr)
+    const std::string& name,
+    rclcpp::CallbackGroup::SharedPtr group = nullptr)
     : node_(node)
   {
-    client_ = node->create_client<SrvType>(srv_name, rclcpp::ServicesQoS(), callback_group);
+    client_ = node->create_client<SrvType>(name, rclcpp::ServicesQoS(), group);
   }
 
-  bool call(const SrvType::Request::SharedPtr& req, std::chrono::milliseconds timeout = std::chrono::milliseconds(0))
+  /**
+   * @brief サービスを呼び，結果が得られるまで待機する．
+   *
+   * @param req サービスリクエスト．
+   * @param timeout レスポンスが得られるまでのタイムアウト．非正ならば無限待機．
+   *
+   * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
+   */
+  bool call(const SrvType::Request::SharedPtr& req, std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
     if (!client_->service_is_ready())
     {

@@ -8,22 +8,33 @@
 namespace ros2
 {
 template <typename ActionType>
-class SimpleActionClient
+class SyncActionClient
 {
 public:
-  using SharedPtr = std::shared_ptr<SimpleActionClient>;
+  using SharedPtr = std::shared_ptr<SyncActionClient>;
 
-  inline explicit SimpleActionClient(rclcpp::Node::SharedPtr node, const std::string& action_name)
-    : node_(node), action_name_(action_name)
+  inline explicit SyncActionClient(
+    rclcpp::Node::SharedPtr node,
+    const std::string& name,
+    rclcpp::CallbackGroup::SharedPtr group = nullptr)
+    : node_(node), action_name_(name)
   {
-    client_ = rclcpp_action::create_client<ActionType>(node, action_name);
+    client_ = rclcpp_action::create_client<ActionType>(node, name, group);
   }
 
+  /**
+   * @brief アクションを呼び，結果が得られるまで待機する．
+   *
+   * @param goal アクションゴール．
+   * @param get_result_timeout,send_goal_timeout,cancel_goal_timeout 該当ステップのタイムアウト．非正ならば無限待機．
+   *
+   * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
+   */
   bool sendGoalAndWait(
     const ActionType::Goal& goal,
-    std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(0),
-    std::chrono::milliseconds send_goal_timeout = std::chrono::milliseconds(0),
-    std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(0))
+    std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(-1),
+    std::chrono::milliseconds send_goal_timeout = std::chrono::milliseconds(-1),
+    std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
   {
     if (!client_->action_server_is_ready())
     {

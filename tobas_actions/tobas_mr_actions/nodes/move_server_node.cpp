@@ -5,7 +5,7 @@
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
-#include <tobas_ros2_tools/simple_service_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>

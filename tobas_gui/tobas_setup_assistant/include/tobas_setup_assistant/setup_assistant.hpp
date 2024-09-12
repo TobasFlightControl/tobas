@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_ros2_tools/simple_param_client.hpp>
+#include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 #include "./common.hpp"
@@ -38,7 +38,7 @@ private:
   RobotInfo robot_;
   std::unique_ptr<PackageGenerator> pkg_generator_;
 
-  ros2::SimpleParamClient rsp_client_;
+  ros2::SyncParamClient rsp_client_;
 
   qt::WaitSpinnerWidget spinner_;
   BuildPackageThread build_thread_;
