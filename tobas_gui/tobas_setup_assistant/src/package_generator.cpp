@@ -363,9 +363,10 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
 
 bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesystem::path& config_dir)
 {
-  YAML::Node params_node(YAML::NodeType::Map);
-
   const auto servos = settings_->servo_joints->selected();
+
+  // 空の配列はyamlを読み込んだ時点で"No parameter value set"エラーが出るため，長さが0ならパラメータ自体を設定しない．
+  YAML::Node params_node(YAML::NodeType::Map);
   for (int i = 0; i < servos->count(); ++i)
   {
     params_node["joint_names"].push_back(servos->jointName(i));
@@ -373,7 +374,7 @@ bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesy
   }
 
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node["gazebo_joint_command_handler"][kROSParamsKey] = params_node;
+  root_node[robot_.robotName()]["gazebo_joint_command_handler"][kROSParamsKey] = params_node;
 
   if (!saveYamlNode(config_dir / "gazebo_joint_command_handler.yaml", root_node))
     return false;
@@ -392,7 +393,7 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
   YAML::Node manager_params_node(YAML::NodeType::Map);
   manager_params_node["update_rate"] = 1000;  // TODO: GUIで設定できるように
   manager_params_node["joint_state_broadcaster"]["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
-  root_node["controller_manager"][kROSParamsKey] = manager_params_node;
+  root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
 
   // Each joint controllers
   const auto servos = settings_->servo_joints->selected();
@@ -406,7 +407,7 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
     controller_node["joints"].push_back(jnt_name);
     controller_node["interface_name"] = tobas::jointIFEnumToText(servos->interface(i));
 
-    root_node[ctrl_name][kROSParamsKey] = controller_node;
+    root_node[robot_.robotName()][ctrl_name][kROSParamsKey] = controller_node;
   }
 
   // Save data

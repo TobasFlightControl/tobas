@@ -12,8 +12,7 @@
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
     TOBAS_FATAL(__VA_ARGS__);                                                                                          \
-    rclcpp::shutdown();                                                                                                \
-    return;                                                                                                            \
+    throw;                                                                                                             \
   }
 
 /* リリースモードでも機能するアサーション．ほとんど失敗し得ない操作の成否を一応確認するために使う． */
@@ -22,8 +21,7 @@
     if (!static_cast<bool>(expr))                                                                                      \
     {                                                                                                                  \
       TOBAS_FATAL("Assertion failed: ", __FILE__, ": ", __LINE__);                                                     \
-      rclcpp::shutdown();                                                                                              \
-      return;                                                                                                          \
+      throw;                                                                                                           \
     }                                                                                                                  \
   }
 
@@ -207,6 +205,9 @@ private:
   ros2::PublisherPtr<tobas_dparam_msgs::msg::Parameters> dparams_pub_;
   rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ros2::ParamHandlePtr> dparam_handles_;
+
+  template <typename T>
+  T declareParam(const std::string& name);
 
   template <typename T>
   T declareParam(const std::string& name, const T& _default);
@@ -568,6 +569,19 @@ template <typename... Args>
 inline void BaseNode::fatalThrottle(const char* file, int line, double period, const Args&... args)
 {
   logThrottle(file, line, tobas_std_msgs::msg::Message::LEVEL_FATAL, period, args...);
+}
+
+template <typename T>
+T BaseNode::declareParam(const std::string& name)
+{
+  try
+  {
+    return declare_parameter<T>(name);
+  }
+  catch (const rclcpp::exceptions::UninitializedStaticallyTypedParameterException& e)
+  {
+    TOBAS_EXIT(e.what());
+  }
 }
 
 template <typename T>

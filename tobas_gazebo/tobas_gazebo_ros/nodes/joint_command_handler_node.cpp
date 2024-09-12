@@ -39,8 +39,8 @@ JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& opti
   : super("gazebo_joint_command_handler", options)
 {
   // Register publishers
-  const auto joint_names = getStringArrayParam("joint_names");
-  const auto interfaces = getIntArrayParam("interfaces");
+  const auto joint_names = getStringArrayParam("joint_names", {});
+  const auto interfaces = getIntArrayParam("interfaces", {});
   if (joint_names.size() != interfaces.size())
     TOBAS_EXIT("The sizes of joint name array and interface array are different.");
   for (const auto& [jnt_name, iface] : tobas_std::zip(joint_names, interfaces))
