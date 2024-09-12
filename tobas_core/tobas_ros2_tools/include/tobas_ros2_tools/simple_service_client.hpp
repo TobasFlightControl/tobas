@@ -2,19 +2,26 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+// #include <std_srvs/srv/empty.hpp>
+
 #include "./future.hpp"
 
 namespace ros2
 {
+// using SrvType = std_srvs::srv::Empty;
 template <typename SrvType>
 class SimpleServiceClient
 {
 public:
   using SharedPtr = std::shared_ptr<SimpleServiceClient>;
 
-  inline explicit SimpleServiceClient(rclcpp::Node::SharedPtr node, const std::string& srv_name) : node_(node)
+  inline explicit SimpleServiceClient(
+    rclcpp::Node::SharedPtr node,
+    const std::string& srv_name,
+    rclcpp::CallbackGroup::SharedPtr callback_group = nullptr)
+    : node_(node)
   {
-    client_ = node->create_client<SrvType>(srv_name);
+    client_ = node->create_client<SrvType>(srv_name, rclcpp::ServicesQoS(), callback_group);
   }
 
   bool call(const SrvType::Request::SharedPtr& req, std::chrono::milliseconds timeout = std::chrono::milliseconds(0))

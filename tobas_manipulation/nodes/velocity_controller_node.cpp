@@ -96,8 +96,8 @@ VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& option
   velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
   cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
   tar_js_sub_ = createSubscriber(tobas::kVelCtrlJSTopic, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(tobas::kVelCtrlLSTopic, &self::targetLinkStateCb, this);

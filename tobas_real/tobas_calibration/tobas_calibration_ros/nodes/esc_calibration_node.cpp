@@ -1,4 +1,4 @@
-#include <rclcpp/wait_for_message.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 #include <tobas_ros2_tools/simple_service_client.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -6,7 +6,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/throttle_array.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/enable_rc_output.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
@@ -33,22 +32,24 @@ public:
 
 private:
   tobas::Drone::ConstSharedPtr drone_;
+  std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
 
   ros2::PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::ActionPtr<ActionType> as_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::ActionServerPtr<ActionType> as_;
 
   void sendMaximum();
   void sendMinimum();
   void setThrottle(const double& throttle);
   void setThrottleAndSleep(const double& throttle);
-  bool checkDisarmed(string& message);
   bool enableRCOutputs(bool enable, string& message);
-  bool checkBatteryDisconnected(string& message);
   bool waitForBatteryConnection(string& message);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
@@ -59,7 +60,9 @@ private:
 EscCalibrationNode::EscCalibrationNode(const rclcpp::NodeOptions& options) : super("esc_calibration", options)
 {
   throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
-  drone_sub_ = createSubscriber<tobas::Drone>(tobas::kDroneTopic, &self::droneCb, this, true);
+  drone_sub_ = createSubscriber<tobas::Drone>(tobas::kDroneTopic, &self::droneCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &EscCalibrationNode::batteryCb, this);
   as_ = createAction(tobas::kESCCalibAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
@@ -96,27 +99,6 @@ void EscCalibrationNode::setThrottleAndSleep(const double& throttle)
   rclcpp::sleep_for(kInterval);
 }
 
-bool EscCalibrationNode::checkDisarmed(string& message)
-{
-  ros2::SimpleServiceClient<tobas_msgs::srv::GetArm> sc(shared_from_this(), tobas::kGetArmSrv);
-
-  const auto req = std::make_shared<tobas_msgs::srv::GetArm::Request>();
-  if (!sc.call(req))
-  {
-    message = "Failed to get arming status.";
-    return false;
-  }
-
-  const auto& res = sc.getResponse();
-  if (res->arming)
-  {
-    message = "Cannot execute ESC calibration because the motors are armed now.";
-    return false;
-  }
-
-  return true;
-}
-
 bool EscCalibrationNode::enableRCOutputs(bool enable, string& message)
 {
   ros2::SimpleServiceClient<tobas_msgs::srv::EnableRCOutput> sc(shared_from_this(), tobas::kEnableRcOutputSrv);
@@ -143,38 +125,11 @@ bool EscCalibrationNode::enableRCOutputs(bool enable, string& message)
   return true;
 }
 
-bool EscCalibrationNode::checkBatteryDisconnected(string& message)
-{
-  tobas_msgs::msg::Battery battery;
-
-  // バッテリー状態を取得
-  if (!rclcpp::wait_for_message(battery, shared_from_this(), tobas::kBatteryTopic, kWaitForBatteryTopic))
-  {
-    message = "Failed to get battery status.";
-    return false;
-  }
-
-  // バッテリー電圧が閾値以下であることを確認
-  if (battery.voltage > kVoltageThreshold)
-  {
-    message = "Please disconnect battery before starting ESC calibration.";
-    return false;
-  }
-
-  return true;
-}
-
 bool EscCalibrationNode::waitForBatteryConnection(string& message)
 {
-  // バッテリーメッセージを初期化
-  battery_ = nullptr;
-
-  // 一時的にバッテリーの購読を開始
-  const auto battery_sub = createSubscriber(tobas::kBatteryTopic, &EscCalibrationNode::batteryCb, this);
-
   // バッテリー電圧が閾値を超えるまで最大値を指令し続ける
   const auto start_time = get_clock()->now();
-  while (battery_ == nullptr || battery_->voltage < kVoltageThreshold)
+  while (battery_->voltage < kVoltageThreshold)
   {
     if ((get_clock()->now() - start_time).seconds() > kTimeout)
     {
@@ -191,6 +146,11 @@ bool EscCalibrationNode::waitForBatteryConnection(string& message)
 void EscCalibrationNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
+}
+
+void EscCalibrationNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 
 void EscCalibrationNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
@@ -216,23 +176,38 @@ void EscCalibrationNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_hand
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
+  // Check topics
   if (drone_ == nullptr)
   {
-    result->message = "Drone configuration has not been received yet.";
+    result->message = "Drone configuration is not received yet.";
+    goal_handle->abort(result);
+    return;
+  }
+  if (arming_ == nullptr)
+  {
+    result->message = "Arming status is not received yet.";
+    goal_handle->abort(result);
+    return;
+  }
+  if (battery_ == nullptr)
+  {
+    result->message = "Battery status is not received yet.";
     goal_handle->abort(result);
     return;
   }
 
   // アームされていないことを確認
-  if (!checkDisarmed(result->message))
+  if (arming_->data)
   {
+    result->message = "Cannot execute ESC calibration because the motors are armed now.";
     goal_handle->abort(result);
     return;
   }
 
   // バッテリーが接続されていないことを確認
-  if (!checkBatteryDisconnected(result->message))
+  if (battery_->voltage > kVoltageThreshold)
   {
+    result->message = "Please disconnect battery before starting ESC calibration.";
     goal_handle->abort(result);
     return;
   }

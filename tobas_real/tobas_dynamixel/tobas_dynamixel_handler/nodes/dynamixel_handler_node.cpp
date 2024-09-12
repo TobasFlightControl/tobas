@@ -82,7 +82,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
 
   // Service
-  ros2::ServicePtr<std_srvs::srv::SetBool> enable_torques_ss_;
+  ros2::ServiceServerPtr<std_srvs::srv::SetBool> enable_torques_ss_;
 
   // Timer
   ros2::TimerPtr main_timer_;

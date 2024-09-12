@@ -8,8 +8,8 @@
 #include <tobas_ros2_tools/simple_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/action/move.hpp>
 
 #include "../include/tobas_mr_actions/common.hpp"
@@ -26,17 +26,22 @@ public:
   explicit MoveServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
+  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gps_origin_;
   CommandType cmd_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
-  ros2::ActionPtr<ActionType> as_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gps_origin_sub_;
+  ros2::ActionServerPtr<ActionType> as_;
 
   bool computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos);
 
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void gpsOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gps_origin);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
@@ -46,33 +51,20 @@ private:
 MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_move_action_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
+
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  gps_origin_sub_ = createSubscriber(tobas::kGpsOriginTopic, &self::gpsOriginCb, this, true);
+
   as_ = createAction(tobas::kMoveAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
 bool MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos)
 {
-  // XY軸
-  // FIXME: 平面近似誤差が無視できない場合は目標地点の経緯度を基準にするなどの工夫が必要
-  ros2::SimpleServiceClient<tobas_msgs::srv::GetGnssOrigin> sc(shared_from_this(), tobas::kGetGnssOriginSrv);
-
-  const auto req = std::make_shared<tobas_msgs::srv::GetGnssOrigin::Request>();
-  if (!sc.call(req))
-  {
-    TOBAS_ERROR("Failed to call \"", tobas::kGetGnssOriginSrv, "\" service.");
-    return false;
-  }
-
-  const auto& res = sc.getResponse();
-  if (!res->success)
-  {
-    TOBAS_ERROR("Failed to get GNSS origin: ", res->message);
-    return false;
-  }
-
   const auto& tar_lat = goal->target_latitude;
   const auto& tar_lon = goal->target_longitude;
-  const auto& lat_0 = res->latitude;
-  const auto& lon_0 = res->longitude;
+  const auto& lat_0 = gps_origin_->latitude;
+  const auto& lon_0 = gps_origin_->longitude;
   tobas_std::gpsToCartRelative(tar_lat, tar_lon, lat_0, lon_0, goal_pos.x(), goal_pos.y());
 
   // Z軸
@@ -82,14 +74,19 @@ bool MoveServerNode::computeGoalPosition(const ActionType::Goal::ConstSharedPtr&
   return true;
 }
 
+void MoveServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+{
+  odom_ = odom;
+}
+
 void MoveServerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }
 
-void MoveServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
+void MoveServerNode::gpsOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gps_origin)
 {
-  odom_ = odom;
+  gps_origin_ = gps_origin;
 }
 
 rclcpp_action::GoalResponse
@@ -134,26 +131,24 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
-  // 一時的にトピックを購読
-  const auto arming_sub = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
-  const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-
-  // Wait for topics
-  TOBAS_INFO("Waiting for arming status and odometry.");
-  rclcpp::Rate wait_for_topic_rate(kWaitForTopicRate);
-  while (rclcpp::ok())
+  // Check if necessary topics are received
+  if (odom_ == nullptr)
   {
-    if (arming_ != nullptr && odom_ != nullptr)
-      break;
-
-    if (goal_handle->is_canceling())
-    {
-      result->message = "Failed to get necessary topics.";
-      goal_handle->canceled(result);
-      return;
-    }
-
-    wait_for_topic_rate.sleep();
+    result->message = "Odometry is not received yet.";
+    goal_handle->abort(result);
+    return;
+  }
+  if (arming_ == nullptr)
+  {
+    result->message = "Arming status is not received yet.";
+    goal_handle->abort(result);
+    return;
+  }
+  if (gps_origin_ == nullptr)
+  {
+    result->message = "GPS origin is not received yet.";
+    goal_handle->abort(result);
+    return;
   }
 
   // Check if rotors are armed
@@ -196,7 +191,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  rclcpp::Rate cmd_rate(kCommandRate);
+  rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok())
   {
     // 開始からの経過時間を計算
@@ -255,7 +250,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
       return;
     }
 
-    cmd_rate.sleep();
+    rate.sleep();
   }
 }
 

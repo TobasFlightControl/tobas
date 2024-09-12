@@ -71,8 +71,8 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::Wind> wind_pub_;
 
-  ros2::ServicePtr<GetSrv> get_params_ss_;
-  ros2::ServicePtr<SetSrv> set_params_ss_;
+  ros2::ServiceServerPtr<GetSrv> get_params_ss_;
+  ros2::ServiceServerPtr<SetSrv> set_params_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 

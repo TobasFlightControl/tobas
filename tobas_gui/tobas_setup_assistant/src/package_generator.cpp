@@ -9,6 +9,7 @@
 #include <tobas_std_tools/string.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_tools/package.hpp>
 #include <tobas_tools/command.hpp>
@@ -277,6 +278,8 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateControllerManagerLaunch(launch_dir))
     return false;
+  if (!generateGazeboJointCommandHandlerConfig(config_dir))
+    return false;
   if (!generateJointControlConfig(config_dir))
     return false;
   if (!generateDroneConfig(config_dir))
@@ -358,6 +361,26 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   return true;
 }
 
+bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesystem::path& config_dir)
+{
+  YAML::Node params_node(YAML::NodeType::Map);
+
+  const auto servos = settings_->servo_joints->selected();
+  for (int i = 0; i < servos->count(); ++i)
+  {
+    params_node["joint_names"].push_back(servos->jointName(i));
+    params_node["interfaces"].push_back(servos->interface(i));
+  }
+
+  YAML::Node root_node(YAML::NodeType::Map);
+  root_node["gazebo_joint_command_handler"][kROSParamsKey] = params_node;
+
+  if (!saveYamlNode(config_dir / "gazebo_joint_command_handler.yaml", root_node))
+    return false;
+
+  return true;
+}
+
 bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
 {
   // cf. https://github.com/ros-controls/gz_ros2_control/tree/rolling/gz_ros2_control_demos/config
@@ -375,7 +398,7 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
   const auto servos = settings_->servo_joints->selected();
   for (int i = 0; i < servos->count(); ++i)
   {
-    const auto jnt_name = servos->jointName(i).toStdString();
+    const auto jnt_name = servos->jointName(i);
     const auto ctrl_name = jnt_name + "_controller";
 
     YAML::Node controller_node(YAML::NodeType::Map);

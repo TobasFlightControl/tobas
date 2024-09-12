@@ -156,15 +156,15 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   feedback_pub_ = createPublisher<tobas_debug_msgs::MultiRotorControllerFeedback>(tobas::kControllerFeedbackTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   if (drone_.isTransformable())
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
   if (do_thrust_correction_)
     thrust_factor_sub_ = createSubscriber(tobas::kThrustCorrectionFactorTopic, &self::thrustFactorCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCb, this);
   rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
 }
@@ -193,7 +193,7 @@ bool ControllerNode::isReadyToControl()
 
   if (!tree_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kRobotDescriptionTopic, "\".");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kKDLTreeTopic, "\".");
     return false;
   }
 

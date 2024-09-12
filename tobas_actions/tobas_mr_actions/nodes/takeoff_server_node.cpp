@@ -30,7 +30,8 @@ private:
   CommandType cmd_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
-  ros2::ActionPtr<ActionType> as_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::ActionServerPtr<ActionType> as_;
 
   bool armRotors();
 
@@ -44,6 +45,7 @@ private:
 TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("mr_takeoff_action_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   as_ = createAction(tobas::kTakeoffAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
@@ -110,28 +112,13 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
-  // 一時的にトピックを購読
-  const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-
-  // オドメトリを受け取るまで待機
-  TOBAS_INFO("Waiting for odometry.");
-  rclcpp::Rate wait_for_topic_rate(kWaitForTopicRate);
-  while (rclcpp::ok())
+  // Check if odometry is received and is in good status
+  if (odom_ == nullptr)
   {
-    if (odom_ != nullptr)
-      break;
-
-    if (goal_handle->is_canceling())
-    {
-      result->message = "Failed to get odometry.";
-      goal_handle->canceled(result);
-      return;
-    }
-
-    wait_for_topic_rate.sleep();
+    result->message = "Odometry is not received yet.";
+    goal_handle->abort(result);
+    return;
   }
-
-  // Check odometry
   if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     result->message = "There is a problem with the state estimation.";
@@ -157,7 +144,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  rclcpp::Rate cmd_rate(kCommandRate);
+  rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok())
   {
     // 開始からの経過時間を計算
@@ -211,7 +198,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
       return;
     }
 
-    cmd_rate.sleep();
+    rate.sleep();
   }
 }
 

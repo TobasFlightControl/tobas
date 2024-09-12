@@ -3,7 +3,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_ros2_tools/simple_service_client.hpp>
-#include <tobas_ros2_tools/simple_action_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_constants/constants.hpp>
@@ -43,8 +42,10 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
+  // Service
+  ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
+
   void publishSystemCriticalEvent();
-  void requestLanding();
   void requestDisarmingRotors();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -58,11 +59,13 @@ StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options) : super("
 {
   event_pub_ = createPublisher<tobas_msgs::msg::Event>(tobas::kEventTopic);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   euler_sub_ = createSubscriber(tobas::kEulerTopic, &self::eulerCb, this);
+
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
 }
 
 void StateCheckerNode::publishSystemCriticalEvent()
@@ -72,47 +75,17 @@ void StateCheckerNode::publishSystemCriticalEvent()
   event_pub_->publish(move(event));
 }
 
-void StateCheckerNode::requestLanding()
-{
-  ros2::SimpleActionClient<tobas_msgs::action::Land> ac(shared_from_this(), tobas::kLandAction);
-
-  auto goal = tobas_msgs::action::Land::Goal();
-  goal.level.data = tobas_msgs::msg::CommandLevel::DEFENSIVE;
-
-  if (!ac.sendGoalAndWait(goal))
-  {
-    TOBAS_ERROR("Landing action failed.");
-    return;
-  }
-
-  const auto& res = ac.getResult();
-  if (res.code != rclcpp_action::ResultCode::SUCCEEDED)
-  {
-    TOBAS_FATAL("Failed to land: ", res.result->message);
-    return;
-  }
-
-  TOBAS_INFO("Landing action finished successfully.");
-}
-
 void StateCheckerNode::requestDisarmingRotors()
 {
-  ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
+  if (!set_arm_sc_->service_is_ready())
+  {
+    TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" service is not ready.");
+    return;
+  }
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = false;
-  if (!sc.call(req))
-  {
-    TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");
-    return;
-  }
-
-  const auto& res = sc.getResponse();
-  if (!res->success)
-  {
-    TOBAS_ERROR("Failed to disarm rotors: ", res->message);
-    return;
-  }
+  set_arm_sc_->async_send_request(req);
 }
 
 void StateCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

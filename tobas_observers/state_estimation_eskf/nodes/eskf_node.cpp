@@ -15,11 +15,11 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
+#include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs_adapter/Imu.hpp>
 #include <tobas_msgs_adapter/MagneticField.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_debug_msgs_adapter/ObserverFeedback.hpp>
 
@@ -38,9 +38,9 @@ class ObserverNode : public tobas::BaseNode
   using BarMsg = sensor_msgs::msg::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
   using OdomMsg = tobas_msgs::Odometry;
+  using GpsOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
   using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
 
-  using GetGnssOrigin = tobas_msgs::srv::GetGnssOrigin;
   using SetGnssOrigin = tobas_msgs::srv::SetGnssOrigin;
 
 public:
@@ -83,6 +83,7 @@ private:
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
+  ros2::PublisherPtr<GpsOriginMsg> gps_origin_pub_;
   ros2::PublisherPtr<FeedbackMsg> feedback_pub_;
 
   // Subscribers
@@ -93,8 +94,7 @@ private:
   ros2::SubscriberPtr<GpsMsg> gps_sub_;
 
   // Services
-  ros2::ServicePtr<GetGnssOrigin> get_gnss_origin_ss_;
-  ros2::ServicePtr<SetGnssOrigin> set_gnss_origin_ss_;
+  ros2::ServiceServerPtr<SetGnssOrigin> set_gnss_origin_ss_;
 
   // TF
   geometry_msgs::msg::TransformStamped tf_;
@@ -102,6 +102,7 @@ private:
 
   void getStaticRosParams();
   void fillOdometryMsg(OdomMsg& odom) const;
+  void publishGPSOrigin();
 
   bool gravityVarianceCb(const long& p);
   bool yawVarianceCb(const long& p);
@@ -115,8 +116,6 @@ private:
   void barCb(const BarMsg::ConstSharedPtr& bar);
   void gpsCb(const GpsMsg::ConstSharedPtr& gps);
 
-  void
-  getGnssOriginCb(const GetGnssOrigin::Request::ConstSharedPtr& req, const GetGnssOrigin::Response::SharedPtr& res);
   void
   setGnssOriginCb(const SetGnssOrigin::Request::ConstSharedPtr& req, const SetGnssOrigin::Response::SharedPtr& res);
 };
@@ -155,6 +154,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
 
   // Register publishers
   odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
+  gps_origin_pub_ = createPublisher<GpsOriginMsg>(tobas::kGpsOriginTopic, true);
   feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObserverFeedbackTopic);
 
   // Register subscribers
@@ -167,7 +167,6 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
     gps_sub_ = createSubscriber(tobas::kGpsTopic, &self::gpsCb, this);
 
   // Register service servers
-  get_gnss_origin_ss_ = createService<GetGnssOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
   set_gnss_origin_ss_ = createService<SetGnssOrigin>(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 }
 
@@ -235,6 +234,18 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   // Angular acceleration (Local)
   odom.accel.angular.fill(nan(tobas::kUnknown));
   odom.dgyro_covariance.fill(nan(tobas::kUnknown));
+}
+
+void ObserverNode::publishGPSOrigin()
+{
+  auto gps_origin = std::make_unique<GpsOriginMsg>();
+
+  gps_origin->header.stamp = get_clock()->now();
+  gps_origin->latitude = lat_0_;
+  gps_origin->longitude = lon_0_;
+  gps_origin->altitude = alt_0_gps_;
+
+  gps_origin_pub_->publish(move(gps_origin));
 }
 
 bool ObserverNode::gravityVarianceCb(const long& p)
@@ -417,6 +428,9 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     lon_0_ = gps->longitude;
     alt_0_gps_ = gps->altitude;
 
+    // GPSの初期位置を発行
+    publishGPSOrigin();
+
     // GPSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
     const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gps_, tobas_std::yearFraction());
@@ -447,24 +461,6 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     TOBAS_WARN_THROTTLE(eskf::kWarnPeriod, "The position estimation using GNSS is unstable.");
 }
 
-void ObserverNode::getGnssOriginCb(
-  const GetGnssOrigin::Request::ConstSharedPtr&,
-  const GetGnssOrigin::Response::SharedPtr& res)
-{
-  if (!gps_fix_)
-  {
-    res->success = false;
-    res->message = "GNSS is not fixed.";
-    return;
-  }
-
-  res->latitude = lat_0_;
-  res->longitude = lon_0_;
-
-  res->success = true;
-  return;
-}
-
 void ObserverNode::setGnssOriginCb(
   const SetGnssOrigin::Request::ConstSharedPtr& req,
   const SetGnssOrigin::Response::SharedPtr& res)
@@ -478,6 +474,8 @@ void ObserverNode::setGnssOriginCb(
 
   lat_0_ = req->latitude;
   lon_0_ = req->longitude;
+
+  publishGPSOrigin();
 
   res->success = true;
   return;

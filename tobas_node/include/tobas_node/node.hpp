@@ -75,7 +75,7 @@ public:
     size_t queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename SrvType, typename Obj>
-  ros2::ServicePtr<SrvType> createService(
+  ros2::ServiceServerPtr<SrvType> createService(
     const std::string& srv_name,
     void (Obj::*fp)(
       const std::shared_ptr<const typename SrvType::Request>&,
@@ -92,10 +92,10 @@ public:
    * @param handle_cancel
    * @param execute 別スレッドで実行されるアクションの実行関数
    * @param obj
-   * @return ros2::ActionPtr<ActionType>
+   * @return ros2::ActionServerPtr<ActionType>
    */
   template <typename ActionType, typename Obj>
-  ros2::ActionPtr<ActionType> createAction(
+  ros2::ActionServerPtr<ActionType> createAction(
     const std::string& action_name,
     rclcpp_action::GoalResponse (
       Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),
@@ -247,7 +247,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
 }
 
 template <typename SrvType, typename Obj>
-ros2::ServicePtr<SrvType> BaseNode::createService(
+ros2::ServiceServerPtr<SrvType> BaseNode::createService(
   const std::string& srv_name,
   void (Obj::*fp)(
     const std::shared_ptr<const typename SrvType::Request>&,
@@ -258,7 +258,7 @@ ros2::ServicePtr<SrvType> BaseNode::createService(
 }
 
 template <typename ActionType, typename Obj>
-ros2::ActionPtr<ActionType> BaseNode::createAction(
+ros2::ActionServerPtr<ActionType> BaseNode::createAction(
   const std::string& action_name,
   rclcpp_action::GoalResponse (
     Obj::*handle_goal)(const rclcpp_action::GoalUUID&, std::shared_ptr<const typename ActionType::Goal>),

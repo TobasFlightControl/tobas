@@ -46,14 +46,12 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::ServicePtr<Trigger> prearm_check_ss_;
   ros2::TimerPtr prearm_check_timer_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
-  void preArmCheckSrvCb(const Trigger::Request::ConstSharedPtr& req, const Trigger::Response::SharedPtr& res);
   void preArmCheckTimerCb();
 };
 
@@ -63,13 +61,11 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
-  prearm_check_pub_ = createPublisher<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, 1, true);
+  prearm_check_pub_ = createPublisher<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, true, true);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-
-  prearm_check_ss_ = createService<Trigger>(tobas::kPreArmCheckSrv, &self::preArmCheckSrvCb, this);
 
   prearm_check_timer_ = createTimer(kPreArmCheckTimerPeriod, &self::preArmCheckTimerCb, this);
 }
@@ -101,51 +97,6 @@ void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
   for (size_t i = 0; i < 3; ++i)
     pos_buf_[i].add(stamp, odom->frame.p(i));
-}
-
-void PreArmCheckerNode::preArmCheckSrvCb(
-  const Trigger::Request::ConstSharedPtr&,
-  const Trigger::Response::SharedPtr& res)
-{
-  // 問題がなければ終了
-  res->success = prearm_check_.ok;
-  if (res->success)
-    return;
-
-  // 問題があるなら1番始めのメッセージを返す
-  if (!prearm_check_.battery_voltage_sufficient)
-  {
-    res->message = "Battery voltage is too low.";
-    return;
-  }
-  if (!prearm_check_.attitude_horizontal)
-  {
-    res->message = "Attitude angle is too large.";
-    return;
-  }
-  if (!prearm_check_.position_stable)
-  {
-    res->message = "Position drift is detected.";
-    return;
-  }
-  if (!prearm_check_.position_accurate)
-  {
-    res->message = "The accuracy of position estimation is too low.";
-    return;
-  }
-  if (!prearm_check_.position_accurate)
-  {
-    res->message = "The accuracy of orientation estimation is too low.";
-    return;
-  }
-  if (!prearm_check_.position_accurate)
-  {
-    res->message = "The accuracy of velocity estimation is too low.";
-    return;
-  }
-
-  res->message = "Unknown error.";
-  return;
 }
 
 void PreArmCheckerNode::preArmCheckTimerCb()

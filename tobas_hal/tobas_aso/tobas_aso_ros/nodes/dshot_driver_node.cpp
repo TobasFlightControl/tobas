@@ -22,7 +22,7 @@ private:
   std::array<bool, aso::DShot::kChannelSize> is_enabled_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::ThrottleArray> throttles_sub_;
-  ros2::ServicePtr<EnableSrv> enable_rcout_srv_;
+  ros2::ServiceServerPtr<EnableSrv> enable_rcout_srv_;
 
   void throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& throttles);
   void enableRCOutputCb(const EnableSrv::Request::ConstSharedPtr& req, const EnableSrv::Response::SharedPtr& res);

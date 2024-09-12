@@ -3,6 +3,7 @@ from functools import partial
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from rclpy.wait_for_message import wait_for_message
 from urdf_parser_py.urdf import Robot, Joint, JointLimit
 from std_msgs.msg import String
@@ -52,11 +53,21 @@ class JointPositionsCommanderWidget(Widget):
                 raise RuntimeError(f"Unknown joint command type: {interface}")
 
         # Publishers
-        self._tar_pos_pub = self._node.create_publisher(JointState, "joint_position_controller/target_joint_states", 1)
-        self._tar_js_vel_pub = self._node.create_publisher(
-            JointState, "joint_velocity_controller/target_joint_states", 1
+        qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            durability=DurabilityPolicy.VOLATILE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
         )
-        self._tar_js_eff_pub = self._node.create_publisher(JointState, "joint_effort_controller/target_joint_states", 1)
+        self._tar_pos_pub = self._node.create_publisher(
+            JointState, "joint_position_controller/target_joint_states", qos
+        )
+        self._tar_js_vel_pub = self._node.create_publisher(
+            JointState, "joint_velocity_controller/target_joint_states", qos
+        )
+        self._tar_js_eff_pub = self._node.create_publisher(
+            JointState, "joint_effort_controller/target_joint_states", qos
+        )
 
         # メインレイアウト
         rows = QVBoxLayout()

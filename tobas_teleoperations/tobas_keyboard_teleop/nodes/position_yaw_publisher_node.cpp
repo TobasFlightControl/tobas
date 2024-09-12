@@ -126,6 +126,7 @@ void PositionYawPublisherNode::getStaticRosParams()
 void PositionYawPublisherNode::initializeTimerCb()
 {
   // 離陸アクションクライアントを用意
+  // FIXME: コールバックの中でfuture.wait()を呼ぶとデッドロックするため，keyboard_teleopはメイン関数にベタ書きする．
   ros2::SimpleActionClient<tobas_msgs::action::Takeoff> takeoff_ac(shared_from_this(), tobas::kTakeoffAction);
 
   // 離陸

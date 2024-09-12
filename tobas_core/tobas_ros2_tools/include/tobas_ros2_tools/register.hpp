@@ -31,7 +31,7 @@ SubscriberPtr<MsgType> createSubscriber(
 }
 
 template <typename SrvType, typename Obj>
-ServicePtr<SrvType> createService(
+ServiceServerPtr<SrvType> createService(
   rclcpp::Node::SharedPtr node,
   const std::string& srv_name,
   void (Obj::*fp)(

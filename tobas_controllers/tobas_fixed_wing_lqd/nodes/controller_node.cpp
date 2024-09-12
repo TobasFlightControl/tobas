@@ -149,12 +149,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   feedback_pub_ = createPublisher<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kControllerFeedbackTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   cmd_sub_ = createSubscriber(tobas::kSpeedRollDpitchCmdTopic, &self::commandCb, this);
 }
 
@@ -207,7 +207,7 @@ bool ControllerNode::isReadyToControl()
 
   if (!tree_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kRobotDescriptionTopic, "\".");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kKDLTreeTopic, "\".");
     return false;
   }
 

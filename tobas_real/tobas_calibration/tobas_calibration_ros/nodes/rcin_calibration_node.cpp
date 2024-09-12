@@ -20,7 +20,7 @@ public:
   explicit RCInputCalibrationNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ros2::ServicePtr<SrvType> ss_;
+  ros2::ServiceServerPtr<SrvType> ss_;
 
   void executeCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
 };

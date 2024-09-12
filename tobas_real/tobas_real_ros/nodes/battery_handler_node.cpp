@@ -33,7 +33,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Adc> adc_sub_;
 
-  ros2::ServicePtr<std_srvs::srv::Trigger> reload_config_srv_;
+  ros2::ServiceServerPtr<std_srvs::srv::Trigger> reload_config_srv_;
 
   ros2::TimerPtr initialize_timer_;
   void initializeTimerCb();

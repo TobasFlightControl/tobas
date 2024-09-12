@@ -29,7 +29,7 @@ private:
   size_t cnt_;
   algo::Kahan<double> voltage_sum_;
 
-  ros2::ActionPtr<ActionType> as_;
+  ros2::ActionServerPtr<ActionType> as_;
 
   void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
 

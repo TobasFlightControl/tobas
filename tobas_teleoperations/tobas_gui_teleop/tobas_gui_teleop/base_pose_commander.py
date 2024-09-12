@@ -1,6 +1,8 @@
 import math
+import time
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
@@ -128,10 +130,16 @@ class BasePoseCommanderWidget(Widget):
         rows.addStretch()
 
         # PubSub
-        self._pos_yaw_pub = self._node.create_publisher(PositionYaw, "command/position_yaw", 1)
-        self._pvay_pub = self._node.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", 1)
-        self._pta_pub = self._node.create_publisher(PoseTwistAccelCommand, "command/pose_twist_accel", 1)
-        self._odom_sub = self._node.create_subscription(Odometry, "odom", self._odom_cb, 1)
+        qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            durability=DurabilityPolicy.VOLATILE,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
+        self._pos_yaw_pub = self._node.create_publisher(PositionYaw, "command/position_yaw", qos)
+        self._pvay_pub = self._node.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", qos)
+        self._pta_pub = self._node.create_publisher(PoseTwistAccelCommand, "command/pose_twist_accel", qos)
+        self._odom_sub = self._node.create_subscription(Odometry, "odom", self._odom_cb, qos)
 
         # Service
         self._set_arm_sc = self._node.create_client(SetArm, "set_arm")
@@ -203,7 +211,11 @@ class BasePoseCommanderWidget(Widget):
         req = SetArm.Request()
         req.arming = arming
 
-        res: SetArm.Response = self._set_arm_sc.call(req)
+        future = self._set_arm_sc.call_async(req)
+        while not future.done():
+            time.sleep(0.1)
+
+        res: SetArm.Response = future.result()
         if not res.success:
             self._node.get_logger().error(f"Failed to arm rotors: {res.message}")
             return False

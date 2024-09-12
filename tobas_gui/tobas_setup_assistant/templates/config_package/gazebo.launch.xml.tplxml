@@ -41,7 +41,9 @@
 
     <!-- Launch Gazebo command handlers -->
     <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
-    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)">
+      <param from="$(find-pkg-share {{ config_pkg_name }})/config/gazebo_joint_command_handler.yaml"/>
+    </node>
 
     <!-- Launch component containers -->
     <node pkg="rclcpp_components" exec="component_container_mt" name="component_manager_high" ros_args="--log-level $(var log_level)" output="$(var output)"/>

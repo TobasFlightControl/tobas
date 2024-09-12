@@ -4,15 +4,15 @@
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_ros2_tools/simple_service_client.hpp>
+#include <tobas_std_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/msg/throttle_array.hpp>
 #include <tobas_msgs/msg/rotor_speeds.hpp>
 #include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/srv/enable_rc_output.hpp>
-#include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
@@ -29,9 +29,6 @@ class RotorControllerNode : public tobas::BaseNode
   using self = RotorControllerNode;
   using super = tobas::BaseNode;
 
-  using GetSrv = tobas_msgs::srv::GetArm;
-  using SetSrv = tobas_msgs::srv::SetArm;
-
 public:
   explicit RotorControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -41,6 +38,7 @@ private:
   bool is_activated_ = false;
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
+  tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   // PubSub
   ros2::PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
@@ -48,10 +46,11 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeeds> tar_speeds_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
 
   // Service
-  ros2::ServicePtr<GetSrv> get_arm_ss_;
-  ros2::ServicePtr<SetSrv> set_arm_ss_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::SetArm> set_arm_ss_;
+  ros2::ServiceClientPtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_sc_;
 
   // Timer
   ros2::TimerPtr check_interval_timer_;
@@ -59,16 +58,17 @@ private:
   bool armRotors();
   bool disarmRotors();
   bool enableRCOutputs(const bool& enable);
-  bool preArmCheck();
   void setThrottleOnAllChannels(const double& throttle);
   void publishArming();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& tar_speeds);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 
-  void getArmCb(const GetSrv::Request::ConstSharedPtr& req, const GetSrv::Response::SharedPtr& res);
-  void setArmCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res);
+  void setArmCb(
+    const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::SetArm::Response::SharedPtr& res);
 
   void checkIntervalTimerCb();
 };
@@ -76,14 +76,15 @@ private:
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
 {
   throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
-  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic, 1, true);
+  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic, true, true);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::rotSpeedsCmdCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
 
-  get_arm_ss_ = createService<GetSrv>(tobas::kGetArmSrv, &self::getArmCb, this);
-  set_arm_ss_ = createService<SetSrv>(tobas::kSetArmSrv, &self::setArmCb, this);
+  set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
+  enable_rcout_sc_ = create_client<tobas_msgs::srv::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
   check_interval_timer_ = createTimer(kCheckIntervalTimerPeriod, &self::checkIntervalTimerCb, this);
   check_interval_timer_->cancel();
@@ -129,46 +130,19 @@ bool RotorControllerNode::disarmRotors()
 
 bool RotorControllerNode::enableRCOutputs(const bool& enable)
 {
-  ros2::SimpleServiceClient<tobas_msgs::srv::EnableRCOutput> sc(shared_from_this(), tobas::kEnableRcOutputSrv);
+  if (!enable_rcout_sc_->service_is_ready())
+  {
+    TOBAS_ERROR("\"", tobas::kEnableRcOutputSrv, "\" is not ready.");
+    return false;
+  }
 
   for (const auto& rotor : drone_->rotors)
   {
     const auto req = std::make_shared<tobas_msgs::srv::EnableRCOutput::Request>();
     req->channel = rotor.channel;
     req->enable = enable;
-    if (!sc.call(req))
-    {
-      TOBAS_ERROR("Failed to call \"", tobas::kEnableRcOutputSrv, "\" service.");
-      return false;
-    }
 
-    const auto& res = sc.getResponse();
-    if (!res->success)
-    {
-      TOBAS_ERROR("Failed to enable RC output: ", res->message);
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool RotorControllerNode::preArmCheck()
-{
-  ros2::SimpleServiceClient<std_srvs::srv::Trigger> sc(shared_from_this(), tobas::kPreArmCheckSrv);
-
-  const auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
-  if (!sc.call(req))
-  {
-    TOBAS_ERROR("Failed to call \"", tobas::kPreArmCheckSrv, "\" service.");
-    return false;
-  }
-
-  const auto& res = sc.getResponse();
-  if (!res->success)
-  {
-    TOBAS_ERROR("Pre-arm check failed: ", res->message);
-    return false;
+    enable_rcout_sc_->async_send_request(req);  // TODO: 結果を確認
   }
 
   return true;
@@ -302,20 +276,34 @@ void RotorControllerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedP
   battery_ = battery;
 }
 
-void RotorControllerNode::getArmCb(const GetSrv::Request::ConstSharedPtr&, const GetSrv::Response::SharedPtr& res)
+void RotorControllerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
-  res->arming = is_armed_;
+  prearm_check_ = prearm_check;
 }
 
-void RotorControllerNode::setArmCb(const SetSrv::Request::ConstSharedPtr& req, const SetSrv::Response::SharedPtr& res)
+void RotorControllerNode::setArmCb(
+  const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::SetArm::Response::SharedPtr& res)
 {
+  TOBAS_INFO("Set arm requested.");
+
   if (!is_armed_ && req->arming)
   {
-    if (!req->ignore_prearm_check && !preArmCheck())
+    if (!req->ignore_prearm_check)
     {
-      res->success = false;
-      res->message = "Pre-arm check failed.";
-      return;
+      if (prearm_check_ == nullptr)
+      {
+        res->success = false;
+        res->message = "Pre-arm check status is not received yet.";
+        return;
+      }
+
+      if (!prearm_check_->ok)
+      {
+        res->success = false;
+        res->message = "Pre-arm check failed.";
+        return;
+      }
     }
 
     if (!armRotors())

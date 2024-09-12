@@ -20,8 +20,8 @@ protected:
   ros2::TimerPtr main_timer_;
 
 private:
-  ros2::ServicePtr<Empty> start_ss_;
-  ros2::ServicePtr<Empty> stop_ss_;
+  ros2::ServiceServerPtr<Empty> start_ss_;
+  ros2::ServiceServerPtr<Empty> stop_ss_;
 
   void startMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);
   void stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr& req, const Empty::Response::SharedPtr& res);

@@ -16,6 +16,7 @@ static void sigIntHandler(int)
 
 int main(int argc, char** argv)
 {
+  // ノードを起動
   qt::RvizNodeManager rviz_manager(argc, argv, "tobas_setup_assistant_rviz");
   ros2::AsyncNodeManager node_manager(argc, argv, "tobas_setup_assistant");
 

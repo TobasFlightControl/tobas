@@ -1,8 +1,7 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <controller_manager_msgs/srv/list_controllers.hpp>
 
-#include <tobas_std_tools/string.hpp>
-#include <tobas_ros2_tools/simple_service_client.hpp>
+#include <tobas_std_tools/zip.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/joint_interface.hpp>
@@ -24,11 +23,12 @@ public:
 
 private:
   unordered_map<string, pair<tobas::joint_interface_t, ros2::PublisherPtr<Float64MultiArray>>> ctrl_map_;
+
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
 
-  bool initialize();
+  ros2::ServiceClientPtr<controller_manager_msgs::srv::ListControllers> list_controllers_sc_;
 
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
@@ -38,60 +38,26 @@ private:
 JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_joint_command_handler", options)
 {
+  // Register publishers
+  const auto joint_names = getStringArrayParam("joint_names");
+  const auto interfaces = getIntArrayParam("interfaces");
+  if (joint_names.size() != interfaces.size())
+    TOBAS_EXIT("The sizes of joint name array and interface array are different.");
+  for (const auto& [jnt_name, iface] : tobas_std::zip(joint_names, interfaces))
+  {
+    const auto controller_name = jnt_name + "_controller";
+    const auto topic = controller_name + "/commands";
+    ctrl_map_[jnt_name] = { static_cast<tobas::joint_interface_t>(iface), createPublisher<Float64MultiArray>(topic) };
+  }
+
+  // Register subscribers
   positions_sub_ = createSubscriber(tobas::kJointPositionsCmdTopic, &self::jointPositionsCmdCb, this);
   velocities_sub_ = createSubscriber(tobas::kJointVelocitiesCmdTopic, &self::jointVelocitiesCmdCb, this);
   efforts_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
 }
 
-bool JointCommandHandlerNode::initialize()
-{
-  // ノードの起動順が不確定なため，サービスコールをコンストラクタでやるべきではない
-  ros2::SimpleServiceClient<controller_manager_msgs::srv::ListControllers> sc(
-    shared_from_this(), tobas::kListControllersSrv);
-
-  const auto req = std::make_shared<controller_manager_msgs::srv::ListControllers::Request>();
-  if (!sc.call(req))
-  {
-    TOBAS_ERROR("Failed to call \"", tobas::kListControllersSrv, "\" service.");
-    return false;
-  }
-
-  for (const auto& item : sc.getResponse()->controller)
-  {
-    if (item.claimed_interfaces.size() == 0)
-    {
-      TOBAS_WARN("No joints are registered to \"", item.name, "\".");
-      continue;
-    }
-    else if (item.claimed_interfaces.size() >= 2)
-    {
-      TOBAS_WARN("Controllers that handle multiple joints are not supported.");
-      continue;
-    }
-
-    // TODO: item.typeによる場合分けは必要？
-
-    const auto& [jnt_name, jnt_cmd_if] = tobas_std::rsplit(item.claimed_interfaces.at(0), '/');
-    const auto interface = tobas::jointIFTextToEnum(jnt_cmd_if);
-
-    const auto topic = item.name + "/commands";
-    ctrl_map_[jnt_name] = make_pair(interface, createPublisher<Float64MultiArray>(topic, 1));
-  }
-
-  return true;
-}
-
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
-  if (ctrl_map_.size() == 0)
-  {
-    if (!initialize())
-    {
-      ctrl_map_.clear();
-      return;
-    }
-  }
-
   for (size_t i = 0; i < positions->commands.size(); ++i)
   {
     const auto& jnt_name = positions->commands[i].name;
@@ -119,15 +85,6 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
 
 void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
-  if (ctrl_map_.size() == 0)
-  {
-    if (!initialize())
-    {
-      ctrl_map_.clear();
-      return;
-    }
-  }
-
   for (size_t i = 0; i < velocities->commands.size(); ++i)
   {
     const auto& jnt_name = velocities->commands[i].name;
@@ -156,15 +113,6 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
 
 void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
-  if (ctrl_map_.size() == 0)
-  {
-    if (!initialize())
-    {
-      ctrl_map_.clear();
-      return;
-    }
-  }
-
   for (size_t i = 0; i < efforts->commands.size(); ++i)
   {
     const auto& jnt_name = efforts->commands[i].name;

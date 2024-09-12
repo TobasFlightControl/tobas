@@ -32,7 +32,7 @@ private:
   array<algo::Kahan<double>, 3> acc_sum_;
   Eigen::Vector3d acc_top_;
 
-  ros2::ActionPtr<ActionType> as_;
+  ros2::ActionServerPtr<ActionType> as_;
 
   bool getAccelMean(Eigen::Vector3d& des);
 

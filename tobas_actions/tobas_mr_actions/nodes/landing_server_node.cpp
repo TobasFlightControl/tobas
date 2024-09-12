@@ -27,11 +27,11 @@ public:
 
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_std::TimestampedBuffer<double> alt_buf_;
   CommandType cmd_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
-  ros2::ActionPtr<ActionType> as_;
+  ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::ActionServerPtr<ActionType> as_;
 
   bool disarmRotors();
 
@@ -42,10 +42,10 @@ private:
   void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-LandServerNode::LandServerNode(const rclcpp::NodeOptions& options)
-  : super("mr_land_action_server", options), alt_buf_(kTimeWindow)
+LandServerNode::LandServerNode(const rclcpp::NodeOptions& options) : super("mr_land_action_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
+  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
@@ -57,7 +57,7 @@ bool LandServerNode::disarmRotors()
   req->arming = false;
   if (!sc.call(req))
   {
-    TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");
+    TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
     return false;
   }
 
@@ -74,14 +74,6 @@ bool LandServerNode::disarmRotors()
 void LandServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
-
-  // 異常がなければ現在の時刻と高度を履歴に追加
-  if (odom->status == tobas_msgs::msg::Odometry::NO_ERROR)
-  {
-    const auto cur_time = ros2::chronoFromRosTime(odom->header.stamp);
-    const auto& altitude = odom->frame.p.z();
-    alt_buf_.add(cur_time, altitude);
-  }
 }
 
 rclcpp_action::GoalResponse LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr)
@@ -101,32 +93,13 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
-  // ベース状態のデータを初期化
-  odom_ = nullptr;
-  alt_buf_.clear();
-
-  // 一時的にトピックを購読
-  const auto odom_sub = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-
-  // オドメトリを受け取るまで待機
-  TOBAS_INFO("Waiting for odometry.");
-  rclcpp::Rate wait_for_topic_rate(kWaitForTopicRate);
-  while (rclcpp::ok())
+  // Check if odometry is received and is in good status
+  if (odom_ == nullptr)
   {
-    if (odom_ != nullptr)
-      break;
-
-    if (goal_handle->is_canceling())
-    {
-      result->message = "Failed to get odometry.";
-      goal_handle->canceled(result);
-      return;
-    }
-
-    wait_for_topic_rate.sleep();
+    result->message = "Odometry is not received yet.";
+    goal_handle->abort(result);
+    return;
   }
-
-  // Check odometry
   if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     result->message = "There is a problem with the state estimation.";
@@ -141,15 +114,28 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto start_z = odom_->frame.p.z();
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
+  // 高度データを初期化
+  tobas_std::TimestampedBuffer<double> alt_buf(kTimeWindow);
+  builtin_interfaces::msg::Time t_last;
+
   // 高度チェック
-  rclcpp::Rate cmd_rate(kCommandRate);
+  rclcpp::Rate rate(kCommandRate);
   while (rclcpp::ok())
   {
-    if (alt_buf_.isFilled())
+    // オドメトリが更新されたら高度データを追加
+    if (odom_->header.stamp != t_last)
+    {
+      const auto cur_time = ros2::chronoFromRosTime(odom_->header.stamp);
+      const auto& altitude = odom_->frame.p.z();
+      alt_buf.add(cur_time, altitude);
+      t_last = odom_->header.stamp;
+    }
+
+    if (alt_buf.isFilled())
     {
       // 一定時間幅の高度が一定の範囲内ならモータを停止して終了
       // FIXME: 着陸判定が甘い．IMU等も利用してより正確に判定しないと危険．
-      const auto alt_range = abs(alt_buf_.firstValue() - alt_buf_.lastValue());
+      const auto alt_range = abs(alt_buf.firstValue() - alt_buf.lastValue());
       if (alt_range < kStableAltitudeRange)
       {
         TOBAS_INFO("Landing detected. Stopping motors.");
@@ -195,7 +181,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
       return;
     }
 
-    cmd_rate.sleep();
+    rate.sleep();
   }
 }
 

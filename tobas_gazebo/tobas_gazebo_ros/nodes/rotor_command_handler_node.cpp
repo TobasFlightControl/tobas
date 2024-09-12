@@ -24,7 +24,7 @@ private:
   std::map<uint8_t, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::ThrottleArray> throttles_sub_;
-  ros2::ServicePtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_srv_;
+  ros2::ServiceServerPtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_srv_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& throttles);
@@ -36,7 +36,7 @@ private:
 RotorCommandHandlerNode::RotorCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_rotor_command_handler", options)
 {
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
 }
 
 void RotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

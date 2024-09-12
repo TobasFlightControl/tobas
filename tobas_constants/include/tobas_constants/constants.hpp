@@ -37,6 +37,7 @@ static constexpr char kImuLpfTopic[] = "imu_filtered";
 static constexpr char kMagTopic[] = "magnetic_field";
 static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kGpsTopic[] = "gps";
+static constexpr char kGpsOriginTopic[] = "gps_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
@@ -78,11 +79,8 @@ static constexpr char kObserverFeedbackTopic[] = "feedback/observer";
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kEnableRcOutputSrv[] = "enable_rc_output";
-static constexpr char kGetArmSrv[] = "get_arm";
 static constexpr char kSetArmSrv[] = "set_arm";
-static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
-static constexpr char kPreArmCheckSrv[] = "prearm_check";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
 static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
@@ -149,6 +147,7 @@ static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速
+static constexpr double kTypicalInfoPeriod = 5.;         // [s]
 static constexpr double kTypicalWarnPeriod = 3.;         // [s]
 static constexpr double kTypicalErrorPeriod = 1.;        // [s]
 }  // namespace tobas

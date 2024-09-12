@@ -81,7 +81,7 @@ protected:
     size_t queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename SrvType, typename Obj>
-  ros2::ServicePtr<SrvType> createService(
+  ros2::ServiceServerPtr<SrvType> createService(
     const std::string& srv_name,
     void (Obj::*fp)(
       const std::shared_ptr<const typename SrvType::Request>&,
@@ -181,7 +181,7 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
 }
 
 template <typename SrvType, typename Obj>
-ros2::ServicePtr<SrvType> BaseNode::createService(
+ros2::ServiceServerPtr<SrvType> BaseNode::createService(
   const std::string& srv_name,
   void (Obj::*fp)(
     const std::shared_ptr<const typename SrvType::Request>&,

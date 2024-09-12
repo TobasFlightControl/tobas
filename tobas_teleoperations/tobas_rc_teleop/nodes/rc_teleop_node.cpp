@@ -1,8 +1,9 @@
+#include <std_msgs/msg/bool.hpp>
+
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/simple_service_client.hpp>
 #include <tobas_node/node.hpp>
 
-#include <tobas_msgs/srv/get_arm.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
@@ -24,7 +25,7 @@ namespace tobas_rc_teleop
 class RCTeleopNode : public tobas::BaseNode
 {
   static constexpr double kInitThrottleMargin = 0.05;
-  static constexpr auto kArmFailRetryInterval = 1s;
+  static constexpr auto kRequestArmingInterval = 3s;
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -54,21 +55,25 @@ private:
   // Mutables
   uint8_t last_mode_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
+  std_msgs::msg::Bool::ConstSharedPtr arming_;
 
   // Controllers
   array<unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
 
   // PubSub
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<RCInput> rcin_sub_;
+
+  // Service
+  ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
 
   void getStaticRosParams();
   void initializeControllers();
-  bool isRotorsArmed();
-  bool requestArmingRotors();
-  bool requestDisarmingRotors();
+  void requestArmingRotors(bool arming);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void rcInputCb(const RCInput::ConstSharedPtr& rcin);
 };
 
@@ -78,7 +83,10 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
   initializeControllers();
 
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
+
+  set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
 }
 
 void RCTeleopNode::getStaticRosParams()
@@ -127,71 +135,27 @@ void RCTeleopNode::initializeControllers()
   }
 }
 
-bool RCTeleopNode::isRotorsArmed()
+void RCTeleopNode::requestArmingRotors(bool arming)
 {
-  ros2::SimpleServiceClient<tobas_msgs::srv::GetArm> sc(shared_from_this(), tobas::kGetArmSrv);
-
-  const auto req = std::make_shared<tobas_msgs::srv::GetArm::Request>();
-  if (!sc.call(req))
+  if (!set_arm_sc_->service_is_ready())
   {
-    TOBAS_ERROR("Failed to get arming status.");
-    return false;
+    TOBAS_ERROR("\"", tobas::kSetArmSrv, "\" is not ready.");
+    return;
   }
-
-  const auto& res = sc.getResponse();
-  return res->arming;
-}
-
-bool RCTeleopNode::requestArmingRotors()
-{
-  ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = true;
-  if (!sc.call(req))
-  {
-    TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");
-    return false;
-  }
-
-  const auto& res = sc.getResponse();
-  if (!res->success)
-  {
-    TOBAS_ERROR("Failed to arm rotors: ", res->message);
-    return false;
-  }
-
-  return true;
-}
-
-bool RCTeleopNode::requestDisarmingRotors()
-{
-  ros2::SimpleServiceClient<tobas_msgs::srv::SetArm> sc(shared_from_this(), tobas::kSetArmSrv);
-
-  const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = false;
-  if (!sc.call(req))
-  {
-    TOBAS_ERROR("Failed to call \"", tobas::kSetArmSrv, "\" service.");
-    return false;
-  }
-
-  const auto& res = sc.getResponse();
-  if (!res->success)
-  {
-    TOBAS_ERROR("Failed to disarm rotors: ", res->message);
-    return false;
-  }
-
-  return true;
+  req->arming = arming;
+  set_arm_sc_->async_send_request(req);
 }
 
 void RCTeleopNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom->status != Odometry::NO_ERROR)
-    return;
-
   odom_ = odom;
+}
+
+void RCTeleopNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 
 void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
@@ -200,8 +164,23 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
   {
     case CHECK_PREREQUISITES:
     {
-      if (odom_ != nullptr)
-        stage_ = WAIT_FOR_ESTOP;
+      if (odom_ == nullptr)
+      {
+        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for odometry.");
+        break;
+      }
+      if (odom_->status != Odometry::NO_ERROR)
+      {
+        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "State estimation problem.");
+        break;
+      }
+      if (arming_ == nullptr)
+      {
+        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for arming status.");
+        break;
+      }
+
+      stage_ = WAIT_FOR_ESTOP;
       break;
     }
 
@@ -216,38 +195,36 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       }
       else
       {
-        TOBAS_INFO_THROTTLE(kInfoPeriod, "Please start with the transmitter's E-Stop toggle ON.");
+        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Please start with the transmitter's E-Stop toggle ON.");
       }
       break;
     }
 
     case ESTOP_ON:
     {
-      // E-StopがONのままならスキップ
+      // E-STOPがONのままならスキップ
       if (rcin->e_stop)
         break;
 
-      // 既にアームされていたら，即コマンドを送信開始 (緊急的に制御を奪いたいときなど)
-      if (isRotorsArmed())
+      // E-STOPがOFF且つアームされていればコマンド送信開始
+      if (arming_->data)
       {
         stage_ = FIRST_COMMAND;
         break;
       }
 
-      // アームされていなければ，スロットルレバーを確認してアームする
+      // スロットルレバーが下がっていないとアームできない
       if (rcin->throttle > tobas::kRCInputMin + kInitThrottleMargin)
       {
-        TOBAS_WARN_THROTTLE(kWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
-        break;
-      }
-      if (!requestArmingRotors())
-      {
-        rclcpp::sleep_for(kArmFailRetryInterval);
+        TOBAS_WARN_THROTTLE(
+          tobas::kTypicalWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
         break;
       }
 
-      // 問題なければコマンドを送信開始
-      stage_ = FIRST_COMMAND;
+      // スロットルレバーが下がっているならアームをリクエストして終了
+      TOBAS_INFO("Starting rotors.");
+      requestArmingRotors(true);
+      rclcpp::sleep_for(kRequestArmingInterval);
       break;
     }
 
@@ -256,7 +233,7 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
-        TOBAS_ERROR_THROTTLE(kErrorPeriod, "Invalid flight mode.");
+        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
         return;
       }
 
@@ -274,14 +251,14 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       if (rcin->e_stop)
       {
         TOBAS_WARN("Stopping rotors.");
-        requestDisarmingRotors();
+        requestArmingRotors(false);
         stage_ = ESTOP_ON;
       }
 
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
-        TOBAS_ERROR_THROTTLE(kErrorPeriod, "Invalid flight mode.");
+        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
         return;
       }
 

@@ -72,7 +72,7 @@ private:
   vector<ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
 
   // Service servers
-  ros2::ServicePtr<std_srvs::srv::Empty> charge_srv_;
+  ros2::ServiceServerPtr<std_srvs::srv::Empty> charge_srv_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
