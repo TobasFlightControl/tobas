@@ -1,6 +1,5 @@
 [Unit]
 Description=Tobas HIL
-Requires=tobas_property_server.service
 Conflicts=tobas_real.service
 
 [Service]

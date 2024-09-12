@@ -13,6 +13,7 @@
 	<exec_depend>tobas_property_common</exec_depend>
 	<exec_depend>tobas_property_msgs</exec_depend>
 	<exec_depend>tobas_property_server</exec_depend>
+	<exec_depend>tobas_property_tree</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

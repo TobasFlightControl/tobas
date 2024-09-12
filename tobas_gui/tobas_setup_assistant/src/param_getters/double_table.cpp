@@ -31,7 +31,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
     last_opend_dir_key_("last_opened_dir/double_table/" + tobas_std::replace(param_name.toStdString(), " ", "_")),
     labels_(labels),
     num_entry_(labels.size()),
-    property_client_(node, tobas::kPropertyServerGCS, kPackageName)
+    property_client_(node, tobas::kPropertyServerName, kPackageName)
 {
   TOBAS_CHECK(num_entry_ > 0);
 

@@ -1,11 +1,19 @@
-#include <filesystem>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_linux/core.hpp>
 #include <tobas_path_tools/core.hpp>
+#include <tobas_node/node.hpp>
 
+#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_property_common/constants.hpp>
-
-#include "./property_server.hpp"
+#include <tobas_property_msgs/srv/get_bool.hpp>
+#include <tobas_property_msgs/srv/get_int.hpp>
+#include <tobas_property_msgs/srv/get_double.hpp>
+#include <tobas_property_msgs/srv/get_string.hpp>
+#include <tobas_property_msgs/srv/set_bool.hpp>
+#include <tobas_property_msgs/srv/set_int.hpp>
+#include <tobas_property_msgs/srv/set_double.hpp>
+#include <tobas_property_msgs/srv/set_string.hpp>
 
 using namespace std;
 using namespace std_srvs::srv;
@@ -13,29 +21,42 @@ using namespace tobas_property_msgs::srv;
 
 namespace ptree
 {
+class PropertyServer : public tobas::BaseNode
+{
+  using self = PropertyServer;
+  using super = tobas::BaseNode;
+
+public:
+  explicit PropertyServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  // Property tree
+  PropertyTree pt_;
+
+  // Service servers
+  rclcpp::Service<GetBool>::SharedPtr get_bool_ss_;
+  rclcpp::Service<GetInt>::SharedPtr get_int_ss_;
+  rclcpp::Service<GetDouble>::SharedPtr get_double_ss_;
+  rclcpp::Service<GetString>::SharedPtr get_string_ss_;
+  rclcpp::Service<SetBool>::SharedPtr set_bool_ss_;
+  rclcpp::Service<SetInt>::SharedPtr set_int_ss_;
+  rclcpp::Service<SetDouble>::SharedPtr set_double_ss_;
+  rclcpp::Service<SetString>::SharedPtr set_string_ss_;
+  rclcpp::Service<Trigger>::SharedPtr save_file_ss_;
+
+  template <typename SrvType>
+  void getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
+  template <typename SrvType>
+  void setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res);
+
+  void saveFileCb(const Trigger::Request::ConstSharedPtr& req, const Trigger::Response::SharedPtr& res);
+};
+
 PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
 {
-  ini_path_ = linux::expandUser(getStringParam("ini_path", "~/.config/tobas/config.ini"));
-
-  if (filesystem::is_regular_file(ini_path_))
-  {
-    // If configuration file exists, try to load it.
-    try
-    {
-      boost::property_tree::ini_parser::read_ini(ini_path_, pt_);
-    }
-    catch (...)
-    {
-      TOBAS_EXIT(ini_path_, " exists, but failed to load it.");
-    }
-  }
-  else
-  {
-    // If configuration file does not exist, create a new one.
-    RCLCPP_INFO_STREAM(get_logger(), ini_path_ << " does not exist. Creating...");
-    if (!path::createFilePath(ini_path_))
-      TOBAS_EXIT("Failed to create ", ini_path_, ".");
-  }
+  const auto file_path = getStringParam("file_path", "~/.config/tobas/config.ini");
+  if (!pt_.initialize(linux::expandUser(file_path)))
+    TOBAS_EXIT("Failed to initialize property tree.");
 
   // Advertise service servers
   const auto prefix = string(get_name()) + "/";
@@ -50,17 +71,36 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
   save_file_ss_ = createService<Trigger>(prefix + kSaveFileSrv, &self::saveFileCb, this);
 }
 
-void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
+template <typename SrvType>
+void PropertyServer::getCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
 {
-  try
+  if (pt_.get(req->section, req->key, res->value))
   {
-    boost::property_tree::ini_parser::write_ini(ini_path_, pt_);
+    res->success = true;
+    res->message = "";
   }
-  catch (...)
+  else
   {
     res->success = false;
-    res->message = "Failed to load " + ini_path_ + ".";
-    return;
+    res->message = "Failed to get " + req->key + " in section " + req->section + ".";
+  }
+}
+
+template <typename SrvType>
+void PropertyServer::setCb(const SrvType::Request::ConstSharedPtr& req, const SrvType::Response::SharedPtr& res)
+{
+  pt_.set(req->section, req->key, req->value);
+
+  res->success = true;
+  res->message = "";
+}
+
+void PropertyServer::saveFileCb(const Trigger::Request::ConstSharedPtr&, const Trigger::Response::SharedPtr& res)
+{
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save properties to \"" + pt_.filePath().string() + "\".";
   }
 
   res->success = true;

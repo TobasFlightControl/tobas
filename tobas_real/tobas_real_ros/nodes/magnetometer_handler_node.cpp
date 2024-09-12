@@ -1,10 +1,11 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/ellipse_transformer.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs_adapter/MagneticField.hpp>
@@ -13,6 +14,7 @@
 #include <tobas_real_common/constants.hpp>
 
 using namespace std;
+using namespace real::handler::mag;
 
 class MagnetometerHandlerNode : public tobas::BaseNode
 {
@@ -30,111 +32,150 @@ private:
   math::EllipseTransformer mag_trans_;
 
   tobas_hal_msgs::MagneticField::ConstSharedPtr mag_raw_;
-  ptree::PropertyClient::SharedPtr property_client_;
+  ptree::PropertyTree pt_;
   std::array<dsp::NoiseVarianceFilter, 3> mag_noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_sub_;
-  ros2::ServiceServerPtr<std_srvs::srv::Trigger> reload_config_srv_;
 
-  ros2::TimerPtr initialize_timer_;
-  void initializeTimerCb();
+  void readConfig();
 
-  bool reloadConfig();
-
+  bool paramsCb(const std::vector<double>& params);
   void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
-  void reloadConfigCb(
-    const std_srvs::srv::Trigger::Request::ConstSharedPtr& req,
-    const std_srvs::srv::Trigger::Response::SharedPtr& res);
 };
 
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
   : super("magnetometer_handler", options)
 {
-  initialize_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
-}
+  if (!pt_.initialize(linux::expandUser(kIniPath)))
+    TOBAS_EXIT("Failed to initialize property tree.");
 
-void MagnetometerHandlerNode::initializeTimerCb()
-{
-  property_client_ = std::make_shared<ptree::PropertyClient>(shared_from_this(), real::kPropertyServerFC);
-  reloadConfig();
+  readConfig();
+
+  addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
   mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
-
-  reload_config_srv_ =
-    createService<std_srvs::srv::Trigger>(name() + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
-
-  initialize_timer_->cancel();
 }
 
-bool MagnetometerHandlerNode::reloadConfig()
+void MagnetometerHandlerNode::readConfig()
 {
-  if (property_client_->get(real::kConfigKey_MagEllipseAxx, mag_trans_.a_xx) < 0)
+  if (pt_.get(kAxxKey, mag_trans_.a_xx) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kAxxKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseAyy, mag_trans_.a_yy) < 0)
+  if (pt_.get(kAyyKey, mag_trans_.a_yy) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kAyyKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseAzz, mag_trans_.a_zz) < 0)
+  if (pt_.get(kAzzKey, mag_trans_.a_zz) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kAzzKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseAxy, mag_trans_.a_xy) < 0)
+  if (pt_.get(kAxyKey, mag_trans_.a_xy) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kAxyKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseAyz, mag_trans_.a_yz) < 0)
+  if (pt_.get(kAyzKey, mag_trans_.a_yz) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kAyzKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseAzx, mag_trans_.a_zx) < 0)
+  if (pt_.get(kAzxKey, mag_trans_.a_zx) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kAzxKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseBx, mag_trans_.b_x) < 0)
+  if (pt_.get(kBxKey, mag_trans_.b_x) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kBxKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseBy, mag_trans_.b_y) < 0)
+  if (pt_.get(kByKey, mag_trans_.b_y) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kByKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseBz, mag_trans_.b_z) < 0)
+  if (pt_.get(kBzKey, mag_trans_.b_z) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kBzKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
-  if (property_client_->get(real::kConfigKey_MagEllipseC, mag_trans_.c) < 0)
+  if (pt_.get(kCKey, mag_trans_.c) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kCKey, "\". from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
-    return false;
+    return;
   }
 
   if (!mag_trans_.initialize())
   {
-    TOBAS_ERROR("Failed to initialize ellipse transformer.");
+    TOBAS_ERROR("Failed to initialize ellipse transformer. All params are set to defaults.");
     mag_trans_.setIdentity();
+    return;
+  }
+}
+
+bool MagnetometerHandlerNode::paramsCb(const std::vector<double>& params)
+{
+  // Skip first call
+  if (params.size() == 0)
+    return false;
+
+  // Check size
+  if (params.size() != kParamSize)
+  {
+    TOBAS_ERROR("Parameter size mismatch.");
+    return false;
+  }
+
+  // Update parameters
+  mag_trans_.a_xx = params.at(kAxxChannel);
+  mag_trans_.a_yy = params.at(kAyyChannel);
+  mag_trans_.a_zz = params.at(kAzzChannel);
+  mag_trans_.a_xy = params.at(kAxyChannel);
+  mag_trans_.a_yz = params.at(kAyzChannel);
+  mag_trans_.a_zx = params.at(kAzxChannel);
+  mag_trans_.b_x = params.at(kBxChannel);
+  mag_trans_.b_y = params.at(kByChannel);
+  mag_trans_.b_z = params.at(kBzChannel);
+  mag_trans_.c = params.at(kCChannel);
+
+  // Verify parameters
+  if (!mag_trans_.initialize())
+  {
+    TOBAS_ERROR("Failed to initialize ellipse transformer. Reloading...");
+    readConfig();
+    return;
+  }
+
+  // Save parameters
+  pt_.set(kAxxKey, params.at(kAxxChannel));
+  pt_.set(kAyyKey, params.at(kAyyChannel));
+  pt_.set(kAzzKey, params.at(kAzzChannel));
+  pt_.set(kAxyKey, params.at(kAxyChannel));
+  pt_.set(kAyzKey, params.at(kAyzChannel));
+  pt_.set(kAzxKey, params.at(kAzxChannel));
+  pt_.set(kBxKey, params.at(kBxChannel));
+  pt_.set(kByKey, params.at(kByChannel));
+  pt_.set(kBzKey, params.at(kBzChannel));
+  pt_.set(kCKey, params.at(kCChannel));
+  if (pt_.save())
+  {
+    TOBAS_ERROR("Failed to save parameters.");
     return false;
   }
 
@@ -180,21 +221,6 @@ void MagnetometerHandlerNode::magCb(const tobas_hal_msgs::MagneticField::ConstSh
 
   // Publish message
   mag_pub_->publish(move(mag_msg));
-}
-
-void MagnetometerHandlerNode::reloadConfigCb(
-  const std_srvs::srv::Trigger::Request::ConstSharedPtr&,
-  const std_srvs::srv::Trigger::Response::SharedPtr& res)
-{
-  if (!reloadConfig())
-  {
-    res->success = false;
-    res->message = "Failed to reload configurations.";
-    return;
-  }
-
-  res->success = true;
-  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(MagnetometerHandlerNode)

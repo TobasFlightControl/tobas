@@ -1,11 +1,11 @@
-#include <array>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_algorithm/kahan.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs_adapter/Imu.hpp>
@@ -14,6 +14,7 @@
 #include <tobas_real_common/constants.hpp>
 
 using namespace std;
+using namespace real::handler::imu;
 
 class ImuHandlerNode : public tobas::BaseNode
 {
@@ -45,61 +46,80 @@ private:
   std::array<algo::Kahan<double>, 3> gyro_sum_;
 
   tobas_hal_msgs::Imu::ConstSharedPtr imu_raw_;
-  ptree::PropertyClient::SharedPtr property_client_;
+  ptree::PropertyTree pt_;
   std::array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::Imu> imu_sub_;
-  ros2::ServiceServerPtr<std_srvs::srv::Trigger> reload_config_srv_;
 
-  ros2::TimerPtr initialize_timer_;
-  void initializeTimerCb();
+  void readConfig();
 
-  bool reloadConfig();
-
+  bool paramsCb(const std::vector<double>& params);
   void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
-  void reloadConfigCb(
-    const std_srvs::srv::Trigger::Request::ConstSharedPtr& req,
-    const std_srvs::srv::Trigger::Response::SharedPtr& res);
 };
 
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_handler", options)
 {
-  initialize_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
-}
+  if (!pt_.initialize(linux::expandUser(kIniPath)))
+    TOBAS_EXIT("Failed to initialize property tree.");
 
-void ImuHandlerNode::initializeTimerCb()
-{
-  property_client_ = std::make_shared<ptree::PropertyClient>(shared_from_this(), real::kPropertyServerFC);
-  reloadConfig();
+  readConfig();
+
+  addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
 
   imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuTopic);
   imu_sub_ = createSubscriber(hal::kImuTopic, &self::imuCb, this);
-
-  reload_config_srv_ =
-    createService<std_srvs::srv::Trigger>(name() + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
-
-  initialize_timer_->cancel();
 }
 
-bool ImuHandlerNode::reloadConfig()
+void ImuHandlerNode::readConfig()
 {
-  if (property_client_->get(real::kConfigKey_AccOffsetX, acc_bias_.x()) < 0)
+  if (pt_.get(kOffsetXKey, acc_bias_.x()) < 0)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
+    TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
     acc_bias_.setZero();
+    return;
+  }
+
+  if (pt_.get(kOffsetYKey, acc_bias_.y()) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
+    acc_bias_.setZero();
+    return;
+  }
+
+  if (pt_.get(kOffsetZKey, acc_bias_.z()) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
+    acc_bias_.setZero();
+    return;
+  }
+}
+
+bool ImuHandlerNode::paramsCb(const std::vector<double>& params)
+{
+  // Skip first call
+  if (params.size() == 0)
+    return false;
+
+  // Check size
+  if (params.size() != kParamSize)
+  {
+    TOBAS_ERROR("Parameter size mismatch.");
     return false;
   }
-  if (property_client_->get(real::kConfigKey_AccOffsetY, acc_bias_.y()) < 0)
+
+  // Update parameters
+  acc_bias_.x(params.at(kOffsetXChannel));
+  acc_bias_.y(params.at(kOffsetYChannel));
+  acc_bias_.z(params.at(kOffsetZChannel));
+
+  // Save parameters
+  pt_.set(kOffsetXKey, params.at(kOffsetXChannel));
+  pt_.set(kOffsetYKey, params.at(kOffsetYChannel));
+  pt_.set(kOffsetZKey, params.at(kOffsetZChannel));
+  if (pt_.save())
   {
-    TOBAS_ERROR(property_client_->errorMessage());
-    acc_bias_.setZero();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_AccOffsetZ, acc_bias_.z()) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    acc_bias_.setZero();
+    TOBAS_ERROR("Failed to save parameters.");
     return false;
   }
 
@@ -188,21 +208,6 @@ void ImuHandlerNode::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
       break;
     }
   }
-}
-
-void ImuHandlerNode::reloadConfigCb(
-  const std_srvs::srv::Trigger::Request::ConstSharedPtr&,
-  const std_srvs::srv::Trigger::Response::SharedPtr& res)
-{
-  if (!reloadConfig())
-  {
-    res->success = false;
-    res->message = "Failed to reload configurations.";
-    return;
-  }
-
-  res->success = true;
-  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ImuHandlerNode)

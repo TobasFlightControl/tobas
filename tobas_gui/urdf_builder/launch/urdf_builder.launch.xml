@@ -7,6 +7,6 @@
   <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share urdf_builder)/config/urdf_builder.rviz --ros-args --log-level $(var log_level)" output="screen"/>
 
   <!-- Launch property server -->
-  <node pkg="tobas_property_server" exec="property_server" name="property_server_gcs" args="--ros-args --log-level $(var log_level)" output="screen"/>
+  <node pkg="tobas_property_server" exec="property_server" name="property_server" args="--ros-args --log-level $(var log_level)" output="screen"/>
 
 </launch>

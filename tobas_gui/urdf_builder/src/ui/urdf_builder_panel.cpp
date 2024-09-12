@@ -29,7 +29,7 @@ namespace ui
 URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
   : rviz_common::Panel(parent),
     node_manager_(0, nullptr, "urdf_builder"),
-    property_client_(node_manager_.node(), tobas::kPropertyServerGCS, kPropertySection)
+    property_client_(node_manager_.node(), tobas::kPropertyServerName, kPropertySection)
 {
   setWindowTitle("URDF Builder");
 

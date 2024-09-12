@@ -1,11 +1,11 @@
-#include <array>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/range.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/sbus.hpp>
@@ -14,6 +14,7 @@
 #include <tobas_real_common/constants.hpp>
 
 using namespace std;
+using namespace real::handler::rcin;
 
 class RCInputHandlerNode : public tobas::BaseNode
 {
@@ -28,46 +29,134 @@ private:
   tobas_std::Range<uint16_t> roll_range_;
   tobas_std::Range<uint16_t> pitch_range_;
   tobas_std::Range<uint16_t> yaw_range_;
-  tobas_std::Range<uint16_t> throttle_range_;
+  tobas_std::Range<uint16_t> throt_range_;
   std::array<uint16_t, tobas::kNumFlightModes> modes_;
   uint16_t estop_on_, estop_off_;
   uint16_t gpsw_on_, gpsw_off_;
 
-  ptree::PropertyClient::SharedPtr property_client_;
+  ptree::PropertyTree pt_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RCInput> rcin_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
-  ros2::ServiceServerPtr<std_srvs::srv::Trigger> reload_config_srv_;
 
-  ros2::TimerPtr initialize_timer_;
-  void initializeTimerCb();
-
+  void readConfig();
   void setToDefaults();
-  bool reloadConfig();
 
+  bool paramsCb(const std::vector<double>& params);
   void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
-  void reloadConfigCb(
-    const std_srvs::srv::Trigger::Request::ConstSharedPtr& req,
-    const std_srvs::srv::Trigger::Response::SharedPtr& res);
 };
 
 RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("rcin_handler", options)
 {
-  initialize_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
-}
+  if (!pt_.initialize(linux::expandUser(kIniPath)))
+    TOBAS_EXIT("Failed to initialize property tree.");
 
-void RCInputHandlerNode::initializeTimerCb()
-{
-  property_client_ = std::make_shared<ptree::PropertyClient>(shared_from_this(), real::kPropertyServerFC);
-  reloadConfig();
+  readConfig();
+
+  addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
 
   rcin_pub_ = createPublisher<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
   sbus_sub_ = createSubscriber(hal::kSbusTopic, &self::sbusCb, this);
+}
 
-  reload_config_srv_ =
-    createService<std_srvs::srv::Trigger>(name() + tobas::kReloadConfigSrvSuffix, &self::reloadConfigCb, this);
+void RCInputHandlerNode::readConfig()
+{
+  if (pt_.get(kRollLeftKey, roll_range_.lower) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kRollLeftKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kRollRightKey, roll_range_.upper) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kRollRightKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
 
-  initialize_timer_->cancel();
+  if (pt_.get(kPitchDownKey, pitch_range_.lower) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kPitchDownKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kPitchUpKey, pitch_range_.upper) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kPitchUpKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+
+  if (pt_.get(kYawRightKey, yaw_range_.lower) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kYawRightKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kYawLeftKey, yaw_range_.upper) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kYawLeftKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+
+  if (pt_.get(kThrotDownKey, throt_range_.lower) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kThrotDownKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kThrotUpKey, throt_range_.upper) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kThrotUpKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+
+  if (pt_.get(kModeProgramKey, modes_.at(tobas::kFlightModeProgram)) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kModeProgramKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kModeStabilizeKey, modes_.at(tobas::kFlightModeStabilize)) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kModeStabilizeKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kModeAcrobatKey, modes_.at(tobas::kFlightModeAcrobat)) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kModeAcrobatKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+
+  if (pt_.get(kEStopOnKey, estop_on_) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kEStopOnKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kEStopOffKey, estop_off_) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kEStopOffKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+
+  if (pt_.get(kGPSwOnKey, gpsw_on_) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kGPSwOnKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
+  if (pt_.get(kGPSwOffKey, gpsw_off_) < 0)
+  {
+    TOBAS_WARN("Failed to get \"", kGPSwOffKey, "\". from configuration file. All params are set to defaults.");
+    setToDefaults();
+    return;
+  }
 }
 
 void RCInputHandlerNode::setToDefaults()
@@ -75,7 +164,7 @@ void RCInputHandlerNode::setToDefaults()
   roll_range_.set(tobas::kPwmMin, tobas::kPwmMax);
   pitch_range_.set(tobas::kPwmMax, tobas::kPwmMin);
   yaw_range_.set(tobas::kPwmMax, tobas::kPwmMin);
-  throttle_range_.set(tobas::kPwmMax, tobas::kPwmMin);
+  throt_range_.set(tobas::kPwmMax, tobas::kPwmMin);
 
   modes_[tobas::kFlightModeProgram] = tobas::kPwmMin;
   modes_[tobas::kFlightModeStabilize] = tobas::kPwmMid;
@@ -87,102 +176,55 @@ void RCInputHandlerNode::setToDefaults()
   gpsw_off_ = tobas::kPwmMax;
 }
 
-bool RCInputHandlerNode::reloadConfig()
+bool RCInputHandlerNode::paramsCb(const std::vector<double>& params)
 {
-  if (property_client_->get(real::kConfigKey_RcRollLeft, roll_range_.lower) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
+  // Skip first call
+  if (params.size() == 0)
     return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcRollRight, roll_range_.upper) < 0)
+
+  // Check size
+  if (params.size() != kParamSize)
   {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
+    TOBAS_ERROR("Parameter size mismatch.");
     return false;
   }
 
-  if (property_client_->get(real::kConfigKey_RcPitchDown, pitch_range_.lower) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcPitchUp, pitch_range_.upper) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
+  // Update parameters
+  roll_range_.lower = params.at(kRollLeftChannel);
+  roll_range_.upper = params.at(kRollRightChannel);
+  pitch_range_.lower = params.at(kPitchDownChannel);
+  pitch_range_.upper = params.at(kPitchUpChannel);
+  yaw_range_.lower = params.at(kYawRightChannel);
+  yaw_range_.upper = params.at(kYawLeftChannel);
+  throt_range_.lower = params.at(kThrotDownChannel);
+  throt_range_.upper = params.at(kThrotUpChannel);
+  modes_.at(tobas::kFlightModeProgram) = params.at(kModeProgramChannel);
+  modes_.at(tobas::kFlightModeStabilize) = params.at(kModeStabilizeChannel);
+  modes_.at(tobas::kFlightModeAcrobat) = params.at(kModeAcrobatChannel);
+  estop_on_ = params.at(kEStopOnChannel);
+  estop_off_ = params.at(kEStopOffChannel);
+  gpsw_on_ = params.at(kGPSwOnChannel);
+  gpsw_off_ = params.at(kGPSwOffChannel);
 
-  if (property_client_->get(real::kConfigKey_RcYawRight, yaw_range_.lower) < 0)
+  // Save parameters
+  pt_.set(kRollLeftKey, params.at(kRollLeftChannel));
+  pt_.set(kRollRightKey, params.at(kRollRightChannel));
+  pt_.set(kPitchDownKey, params.at(kPitchDownChannel));
+  pt_.set(kPitchUpKey, params.at(kPitchUpChannel));
+  pt_.set(kYawRightKey, params.at(kYawRightChannel));
+  pt_.set(kYawLeftKey, params.at(kYawLeftChannel));
+  pt_.set(kThrotDownKey, params.at(kThrotDownChannel));
+  pt_.set(kThrotUpKey, params.at(kThrotUpChannel));
+  pt_.set(kModeProgramKey, params.at(kModeProgramChannel));
+  pt_.set(kModeStabilizeKey, params.at(kModeStabilizeChannel));
+  pt_.set(kModeAcrobatKey, params.at(kModeAcrobatChannel));
+  pt_.set(kEStopOnKey, params.at(kEStopOnChannel));
+  pt_.set(kEStopOffKey, params.at(kEStopOffChannel));
+  pt_.set(kGPSwOnKey, params.at(kGPSwOnChannel));
+  pt_.set(kGPSwOffKey, params.at(kGPSwOffChannel));
+  if (pt_.save())
   {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcYawLeft, yaw_range_.upper) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_->get(real::kConfigKey_RcThrottleDown, throttle_range_.lower) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcThrottleUp, throttle_range_.upper) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_->get(real::kConfigKey_RcModeProgram, modes_[tobas::kFlightModeProgram]) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcModeStabilize, modes_[tobas::kFlightModeStabilize]) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcModeAcrobat, modes_[tobas::kFlightModeAcrobat]) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_->get(real::kConfigKey_RcEStopOn, estop_on_) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcEStopOff, estop_off_) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-
-  if (property_client_->get(real::kConfigKey_RcGPSwOn, gpsw_on_) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
-    return false;
-  }
-  if (property_client_->get(real::kConfigKey_RcGPSwOff, gpsw_off_) < 0)
-  {
-    TOBAS_ERROR(property_client_->errorMessage());
-    setToDefaults();
+    TOBAS_ERROR("Failed to save parameters.");
     return false;
   }
 
@@ -205,7 +247,7 @@ void RCInputHandlerNode::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr&
   rcin_msg->yaw = math::remap<double>(
     sbus->data[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
   rcin_msg->throttle = math::remap<double>(
-    sbus->data[real::kRcChannelThrottle], throttle_range_.lower, throttle_range_.upper, tobas::kRCInputMin,
+    sbus->data[real::kRcChannelThrottle], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin,
     tobas::kRCInputMax);
   rcin_msg->mode = tobas_std::closestIndex(modes_, sbus->data[real::kRcChannelMode]);
   rcin_msg->e_stop =
@@ -214,21 +256,6 @@ void RCInputHandlerNode::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr&
 
   // Publish message
   rcin_pub_->publish(move(rcin_msg));
-}
-
-void RCInputHandlerNode::reloadConfigCb(
-  const std_srvs::srv::Trigger::Request::ConstSharedPtr&,
-  const std_srvs::srv::Trigger::Response::SharedPtr& res)
-{
-  if (!reloadConfig())
-  {
-    res->success = false;
-    res->message = "Failed to reload configurations.";
-    return;
-  }
-
-  res->success = true;
-  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(RCInputHandlerNode)
