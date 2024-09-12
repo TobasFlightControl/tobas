@@ -31,6 +31,8 @@ class ControllerNode : public tobas::BaseNode
   using self = ControllerNode;
   using super = tobas::BaseNode;
 
+  static constexpr long kMaxWeight = 100;
+
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -44,11 +46,6 @@ private:
   tobas::PositionPid pos_pid_;
   tobas::OrientationPid ori_pid_;
   tobas::NonPlanarMixer mixer_;
-
-  // Dynamic parameters
-  tobas::PositionPidConfig pos_cfg_;
-  tobas::OrientationPidConfig ori_cfg_;
-  tobas::NonPlanarMixerConfig mixer_cfg_;
 
   // Mutable variables
   bool is_initialized_ = false;
@@ -74,7 +71,7 @@ private:
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
 
-  void initialize();
+  void updateInternalDataStructures();
   bool isReadyToControl();
 
   bool horizontalNaturalFrequencyCb(const double& p);
@@ -122,8 +119,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.1, 0.1, 20.);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 10., 1., 15.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 8., 1., 10.);
-  addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, 50, 1, 100);
-  addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, 50, 1, 100);
+  addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
+  addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
   addDynamicIntParam("mixer_thrust_weight_log10", &self::mixerThrustWeightLog10Cb, this, -6, -9, 0);
   publishDynamicParameterDescriptions();
 
@@ -142,16 +139,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
 }
 
-void ControllerNode::initialize()
+void ControllerNode::updateInternalDataStructures()
 {
   js_converter_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
-
-  pos_pid_.configure(pos_cfg_);
-  ori_pid_.configure(ori_cfg_);
-  mixer_.configure(mixer_cfg_);
-
-  is_initialized_ = true;
 }
 
 bool ControllerNode::isReadyToControl()
@@ -206,138 +197,87 @@ bool ControllerNode::isReadyToControl()
 
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
 {
-  pos_cfg_.hor_natural_freq = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setHorizontalNaturalFrequency(p);
 }
 
 bool ControllerNode::horizontalDampingRatioCb(const double& p)
 {
-  pos_cfg_.hor_damp_ratio = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setHorizontalDampingRatio(p);
 }
 
 bool ControllerNode::horizontalIGainCb(const double& p)
 {
-  pos_cfg_.hor_ki = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setHorizontalIntegralGain(p);
 }
 
 bool ControllerNode::verticalNaturalFrequencyCb(const double& p)
 {
-  pos_cfg_.ver_natural_freq = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setVerticalNaturalFrequency(p);
 }
 
 bool ControllerNode::verticalDampingRatioCb(const double& p)
 {
-  pos_cfg_.ver_damp_ratio = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setVerticalDampingRatio(p);
 }
 
 bool ControllerNode::verticalIGainCb(const double& p)
 {
-  pos_cfg_.ver_ki = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setVerticalIntegralGain(p);
 }
 
 bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
 {
-  ori_cfg_.atti_natural_freq = p;
-  if (is_initialized_)
-    ori_pid_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setAttitudeNaturalFrequency(p);
 }
 
 bool ControllerNode::attitudeDampingRatioCb(const double& p)
 {
-  ori_cfg_.atti_damp_ratio = p;
-  if (is_initialized_)
-    ori_pid_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setAttitudeDampingRatio(p);
 }
 
 bool ControllerNode::attitudeIGainCb(const double& p)
 {
-  ori_cfg_.atti_ki = p;
-  if (is_initialized_)
-    ori_pid_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setAttitudeIntegralGain(p);
 }
 
 bool ControllerNode::headingNaturalFrequencyCb(const double& p)
 {
-  ori_cfg_.head_natural_freq = p;
-  if (is_initialized_)
-    ori_pid_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setHeadingNaturalFrequency(p);
 }
 
 bool ControllerNode::headingDampingRatioCb(const double& p)
 {
-  ori_cfg_.head_damp_ratio = p;
-  if (is_initialized_)
-    ori_pid_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setHeadingDampingRatio(p);
 }
 
 bool ControllerNode::headingIGainCb(const double& p)
 {
-  ori_cfg_.head_ki = p;
-  if (is_initialized_)
-    ori_pid_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setHeadingIntegralGain(p);
 }
 
 bool ControllerNode::maxHorizontalAccelCb(const double& p)
 {
-  pos_cfg_.max_hor_acc = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setMaximumHorizontalAccel(p);
 }
 
 bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
-  pos_cfg_.max_ver_acc = p;
-  if (is_initialized_)
-    pos_pid_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setMaximumVerticalAccel(p);
 }
 
 bool ControllerNode::mixerLinearWeightCb(const long& p)
 {
-  mixer_cfg_.linear_weight = p;
-  if (is_initialized_)
-    mixer_.configure(mixer_cfg_);
-  return true;
+  return mixer_.setLinearWeight(static_cast<double>(p) / static_cast<double>(kMaxWeight));
 }
 
 bool ControllerNode::mixerAngularWeightCb(const long& p)
 {
-  mixer_cfg_.angular_weight = p;
-  if (is_initialized_)
-    mixer_.configure(mixer_cfg_);
-  return true;
+  return mixer_.setAngularWeight(static_cast<double>(p) / static_cast<double>(kMaxWeight));
 }
 
 bool ControllerNode::mixerThrustWeightLog10Cb(const long& p)
 {
-  mixer_cfg_.thrust_weight_log10 = p;
-  if (is_initialized_)
-    mixer_.configure(mixer_cfg_);
-  return true;
+  return mixer_.setThrustWeight(exp10(p));
 }
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -346,7 +286,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   drone_received_ = true;
 
   if (tree_received_)
-    initialize();
+    updateInternalDataStructures();
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -355,7 +295,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 
   if (drone_received_)
-    initialize();
+    updateInternalDataStructures();
 }
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)

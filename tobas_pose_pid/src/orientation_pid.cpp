@@ -36,36 +36,87 @@ kdl::Vector OrientationPid::update(
   // 制御入力の飽和により姿勢が実現できない状況は無いとして，アンチワインドアップは行わない
   ei_ += ep * dt;
 
+  // ゲインを計算
+  const kdl::Vector kp = natural_freq_.sqr();
+  const kdl::Vector kd = 2 * damp_ratio_.hadamard(natural_freq_);
+
   // 目標オイラー角加速度を計算
-  const auto tar_euler_acc = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
+  const auto tar_euler_acc = kp.hadamard(ep) + kd.hadamard(ed) + ki_.hadamard(ei_);
 
   // オイラー角加速度をDジャイロに変換
   const auto cur_rpyd = eigen_tools::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
   return kdl::Vector(eigen_tools::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
 }
 
-void OrientationPid::configure(const OrientationPidConfig& cfg)
+bool OrientationPid::setAttitudeNaturalFrequency(double p)
 {
-  TOBAS_CHECK(cfg.atti_natural_freq > 0);
-  TOBAS_CHECK(cfg.atti_damp_ratio > 0);
-  TOBAS_CHECK(cfg.atti_ki > 0);
-  TOBAS_CHECK(cfg.head_natural_freq > 0);
-  TOBAS_CHECK(cfg.head_damp_ratio > 0);
-  TOBAS_CHECK(cfg.head_ki > 0);
+  if (p <= 0.)
+  {
+    cerr << "Attitude natural frequency must be positive." << endl;
+    return false;
+  }
 
-  const auto atti_kp = math::sqr(cfg.atti_natural_freq);
-  const auto atti_kd = 2 * cfg.atti_damp_ratio * cfg.atti_natural_freq;
-  const auto head_kp = math::sqr(cfg.head_natural_freq);
-  const auto head_kd = 2 * cfg.head_damp_ratio * cfg.head_natural_freq;
+  natural_freq_.x() = natural_freq_.y() = p;
+  return true;
+}
 
-  kp_.x() = atti_kp;
-  kp_.y() = atti_kp;
-  kp_.z() = head_kp;
-  ki_.x() = cfg.atti_ki;
-  ki_.y() = cfg.atti_ki;
-  ki_.z() = cfg.head_ki;
-  kd_.x() = atti_kd;
-  kd_.y() = atti_kd;
-  kd_.z() = head_kd;
+bool OrientationPid::setAttitudeDampingRatio(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Attitude damping ratio must be positive." << endl;
+    return false;
+  }
+
+  damp_ratio_.x() = damp_ratio_.y() = p;
+  return true;
+}
+
+bool OrientationPid::setAttitudeIntegralGain(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Attitude integral gain must be positive." << endl;
+    return false;
+  }
+
+  ki_.x() = ki_.y() = p;
+  return true;
+}
+
+bool OrientationPid::setHeadingNaturalFrequency(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Heading natural frequency must be positive." << endl;
+    return false;
+  }
+
+  natural_freq_.z() = p;
+  return true;
+}
+
+bool OrientationPid::setHeadingDampingRatio(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Heading damping ratio must be positive." << endl;
+    return false;
+  }
+
+  damp_ratio_.z() = p;
+  return true;
+}
+
+bool OrientationPid::setHeadingIntegralGain(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Heading integral gain must be positive." << endl;
+    return false;
+  }
+
+  ki_.z() = p;
+  return true;
 }
 }  // namespace tobas

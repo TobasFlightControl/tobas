@@ -12,13 +12,6 @@
 
 namespace tobas
 {
-struct NonPlanarMixerConfig
-{
-  double linear_weight;
-  double angular_weight;
-  double thrust_weight_log10;
-};
-
 /**
  * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 2-43)
  */
@@ -37,9 +30,16 @@ public:
     const kdl::Vector& tar_acc_W,
     const kdl::Vector& tar_dgyro_B);
 
-  void configure(const NonPlanarMixerConfig& cfg);
+  bool setLinearWeight(double p);
+  bool setAngularWeight(double p);
+  bool setThrustWeight(double p);
 
 private:
+  // Config
+  double linear_weight_ = 1.;
+  double angular_weight_ = 1.;
+  double thrust_weight_ = 1e-6;
+
   const Drone& drone_;
   const kdl::Tree& tree_;
 
@@ -52,5 +52,7 @@ private:
   Eigen::DiagonalXd R_;               // 推力の重み
   Eigen::Matrix6Xd G_;                // EoM行列等式の左辺
   Eigen::Vector6d h_;                 // EoM行列等式の右辺
+
+  void updateWeight();
 };
 }  // namespace tobas

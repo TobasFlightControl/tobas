@@ -33,6 +33,9 @@ void NonPlanarMixer::updateInternalDataStructures()
 
   R_.resize(drone_.numRotors());
   G_.resize(NoChange, drone_.numRotors());
+
+  // 重みを更新
+  updateWeight();
 }
 
 VectorXd NonPlanarMixer::solve(
@@ -104,11 +107,49 @@ VectorXd NonPlanarMixer::solve(
   return qp_.solution();
 }
 
-void NonPlanarMixer::configure(const NonPlanarMixerConfig& cfg)
+bool NonPlanarMixer::setLinearWeight(double p)
 {
-  TOBAS_CHECK(drone_.numRotors() > 0);
-  TOBAS_CHECK(cfg.linear_weight > 0);
-  TOBAS_CHECK(cfg.angular_weight > 0);
+  if (p <= 0.)
+  {
+    cerr << "Linear weight must be positive." << endl;
+    return false;
+  }
+
+  linear_weight_ = p;
+  updateWeight();
+  return true;
+}
+
+bool NonPlanarMixer::setAngularWeight(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Angular weight must be positive." << endl;
+    return false;
+  }
+
+  angular_weight_ = p;
+  updateWeight();
+  return true;
+}
+
+bool NonPlanarMixer::setThrustWeight(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Thrust weight must be positive." << endl;
+    return false;
+  }
+
+  thrust_weight_ = p;
+  updateWeight();
+  return true;
+}
+
+void NonPlanarMixer::updateWeight()
+{
+  if (drone_.numRotors() == 0)
+    return;
 
   if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
@@ -120,8 +161,8 @@ void NonPlanarMixer::configure(const NonPlanarMixerConfig& cfg)
   const auto angular_scale = I.trace() / 3 * M_PI;
   const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();
 
-  Q_.diagonal().head<3>().fill(cfg.linear_weight / math::sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(cfg.angular_weight / math::sqr(angular_scale));
-  R_.diagonal().fill(exp10(cfg.thrust_weight_log10) / math::sqr(thrust_scale));
+  Q_.diagonal().head<3>().fill(linear_weight_ / math::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(angular_weight_ / math::sqr(angular_scale));
+  R_.diagonal().fill(thrust_weight_ / math::sqr(thrust_scale));
 }
 }  // namespace tobas

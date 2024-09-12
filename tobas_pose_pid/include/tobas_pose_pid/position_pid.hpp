@@ -4,18 +4,6 @@
 
 namespace tobas
 {
-struct PositionPidConfig
-{
-  double hor_natural_freq;  // [rad/s]
-  double hor_damp_ratio;    // [-]
-  double hor_ki;            // [1/s^3]
-  double ver_natural_freq;  // [rad/s]
-  double ver_damp_ratio;    // [-]
-  double ver_ki;            // [1/s^3]
-  double max_hor_acc;       // [m/s^2]
-  double max_ver_acc;       // [m/s^2]
-};
-
 class PositionPid
 {
 public:
@@ -28,16 +16,23 @@ public:
     const Eigen::Vector3d& tar_vel,
     const double& dt);
 
-  void configure(const PositionPidConfig& cfg);
+  bool setHorizontalNaturalFrequency(double p);
+  bool setHorizontalDampingRatio(double p);
+  bool setHorizontalIntegralGain(double p);
+  bool setVerticalNaturalFrequency(double p);
+  bool setVerticalDampingRatio(double p);
+  bool setVerticalIntegralGain(double p);
+  bool setMaximumHorizontalAccel(double p);
+  bool setMaximumVerticalAccel(double p);
 
   inline const Eigen::Vector3d& integralError() const;
 
 private:
   // Config
-  Eigen::Vector3d kp_;
-  Eigen::Vector3d ki_;
-  Eigen::Vector3d kd_;
-  Eigen::Vector3d max_acc_;
+  Eigen::Vector3d natural_freq_ = { 1., 1., 1. };  // [rad/s]
+  Eigen::Vector3d damp_ratio_ = { 1., 1., 1. };    // [-]
+  Eigen::Vector3d ki_ = { 0.1, 0.1, 0.1 };         // [/s^3]
+  Eigen::Vector3d max_acc_ = { 10., 10., 10. };    // [m/s^2]
 
   Eigen::Vector3d ei_ = Eigen::Vector3d::Zero();
 };

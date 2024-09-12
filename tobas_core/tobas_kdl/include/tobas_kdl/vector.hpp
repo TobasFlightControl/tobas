@@ -63,6 +63,7 @@ public:
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
+  inline Vector sqr() const;
   inline Vector inverse() const;
   inline Vector normalized() const;
 
@@ -224,6 +225,11 @@ inline Vector Vector::clamp(const Vector& lb, const Vector& ub) const
 inline void Vector::setZero()
 {
   data.setZero();
+}
+
+inline Vector Vector::sqr() const
+{
+  return Vector(data.cwiseAbs2());
 }
 
 inline Vector Vector::inverse() const

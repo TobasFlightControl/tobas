@@ -51,15 +51,10 @@ private:
   bool do_thrust_correction_;
 
   // Controllers
-  tobas::PositionPid pos_ctrl_;
-  tobas::AccelAttitudeConverter acc_ctrl_;
-  tobas::OrientationPid ori_ctrl_;
+  tobas::PositionPid pos_pid_;
+  tobas::AccelAttitudeConverter acc_atti_conv_;
+  tobas::OrientationPid ori_pid_;
   tobas::Mixer mixer_;
-
-  // Dynamic parameters
-  tobas::PositionPidConfig pos_cfg_;
-  tobas::AccelAttitudeConverterConfig acc_cfg_;
-  tobas::OrientationPidConfig ori_cfg_;
 
   // Mutable variables
   bool is_initialized_ = false;
@@ -89,7 +84,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::PosVelAccYaw> pvay_sub_;
   ros2::SubscriberPtr<tobas_msgs::RollPitchYawThrottle> rpyt_sub_;
 
-  void initialize();
+  void updateInternalDataStructures();
   bool isReadyToControl();
 
   bool horizontalNaturalFrequencyCb(const double& p);
@@ -123,12 +118,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::kControllerNode, options),
     js_converter_(tree_),
     z_rotors_(drone_, tobas::Z_POSITIVE),
-    acc_ctrl_(drone_, tree_),
+    acc_atti_conv_(drone_, tree_),
     mixer_(drone_, tree_)
 {
   // TODO: 動的パラメータで調節できるように
   // TODO: そもそも風の補償方法を見直すべき
-  acc_cfg_.h_force_comp_rate = 0;
+  acc_atti_conv_.setHForceCompRate(0.);
 
   // Get static parameters
   do_thrust_correction_ = getBoolParam("do_thrust_correction", false);
@@ -169,18 +164,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
 }
 
-void ControllerNode::initialize()
+void ControllerNode::updateInternalDataStructures()
 {
   z_rotors_.updateInternalDataStructures();
   js_converter_.updateInternalDataStructures();
-  acc_ctrl_.updateInternalDataStructures();
+  acc_atti_conv_.updateInternalDataStructures();
   mixer_.updateInternalDataStructures();
-
-  pos_ctrl_.configure(pos_cfg_);
-  acc_ctrl_.configure(acc_cfg_);
-  ori_ctrl_.configure(ori_cfg_);
-
-  is_initialized_ = true;
 }
 
 bool ControllerNode::isReadyToControl()
@@ -241,122 +230,77 @@ bool ControllerNode::isReadyToControl()
 
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
 {
-  pos_cfg_.hor_natural_freq = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setHorizontalNaturalFrequency(p);
 }
 
 bool ControllerNode::horizontalDampingRatioCb(const double& p)
 {
-  pos_cfg_.hor_damp_ratio = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setHorizontalDampingRatio(p);
 }
 
 bool ControllerNode::horizontalIGainCb(const double& p)
 {
-  pos_cfg_.hor_ki = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setHorizontalIntegralGain(p);
 }
 
 bool ControllerNode::verticalNaturalFrequencyCb(const double& p)
 {
-  pos_cfg_.ver_natural_freq = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setVerticalNaturalFrequency(p);
 }
 
 bool ControllerNode::verticalDampingRatioCb(const double& p)
 {
-  pos_cfg_.ver_damp_ratio = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setVerticalDampingRatio(p);
 }
 
 bool ControllerNode::verticalIGainCb(const double& p)
 {
-  pos_cfg_.ver_ki = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setVerticalIntegralGain(p);
 }
 
 bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
 {
-  ori_cfg_.atti_natural_freq = p;
-  if (is_initialized_)
-    ori_ctrl_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setAttitudeNaturalFrequency(p);
 }
 
 bool ControllerNode::attitudeDampingRatioCb(const double& p)
 {
-  ori_cfg_.atti_damp_ratio = p;
-  if (is_initialized_)
-    ori_ctrl_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setAttitudeDampingRatio(p);
 }
 
 bool ControllerNode::attitudeIGainCb(const double& p)
 {
-  ori_cfg_.atti_ki = p;
-  if (is_initialized_)
-    ori_ctrl_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setAttitudeIntegralGain(p);
 }
 
 bool ControllerNode::headingNaturalFrequencyCb(const double& p)
 {
-  ori_cfg_.head_natural_freq = p;
-  if (is_initialized_)
-    ori_ctrl_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setHeadingNaturalFrequency(p);
 }
 
 bool ControllerNode::headingDampingRatioCb(const double& p)
 {
-  ori_cfg_.head_damp_ratio = p;
-  if (is_initialized_)
-    ori_ctrl_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setHeadingDampingRatio(p);
 }
 
 bool ControllerNode::headingIGainCb(const double& p)
 {
-  ori_cfg_.head_ki = p;
-  if (is_initialized_)
-    ori_ctrl_.configure(ori_cfg_);
-  return true;
+  return ori_pid_.setHeadingIntegralGain(p);
 }
 
 bool ControllerNode::maxHorizontalAccelCb(const double& p)
 {
-  pos_cfg_.max_hor_acc = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setMaximumHorizontalAccel(p);
 }
 
 bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
-  pos_cfg_.max_ver_acc = p;
-  if (is_initialized_)
-    pos_ctrl_.configure(pos_cfg_);
-  return true;
+  return pos_pid_.setMaximumVerticalAccel(p);
 }
 
 bool ControllerNode::maxAttitudeCb(const double& p)
 {
-  acc_cfg_.max_attitude = p;
-  if (is_initialized_)
-    acc_ctrl_.configure(acc_cfg_);
-  return true;
+  return acc_atti_conv_.setMaxAttitude(p);
 }
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -365,7 +309,7 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   drone_received_ = true;
 
   if (tree_received_)
-    initialize();
+    updateInternalDataStructures();
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -374,7 +318,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 
   if (drone_received_)
-    initialize();
+    updateInternalDataStructures();
 }
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
@@ -407,11 +351,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 目標加速度を計算
     const kdl::Vector tar_acc_fb(
-      pos_ctrl_.update(odom->frame.p.data, cur_vel_W.data, tar_pvay_W_->pos.data, tar_pvay_W_->vel.data, dt));
+      pos_pid_.update(odom->frame.p.data, cur_vel_W.data, tar_pvay_W_->pos.data, tar_pvay_W_->vel.data, dt));
     const auto tar_acc = tar_pvay_W_->acc + tar_acc_fb;
 
     // 推力和と目標姿勢を計算
-    acc_ctrl_.update(odom->frame.M, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
+    acc_atti_conv_.update(odom->frame.M, tar_acc, tar_rpyt_->thrust, tar_rpyt_->rpy.roll, tar_rpyt_->rpy.pitch);
 
     // コマンドレベルとヨー角は加速度指令をそのまま流す
     tar_rpyt_->level = tar_pvay_W_->level;
@@ -423,7 +367,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     feedback->target_velocity_local = odom->frame.M.inverse(tar_pvay_W_->vel);
     feedback->target_accel_global = tar_acc;
     feedback->target_accel_local = odom->frame.M.inverse(tar_acc);
-    feedback->position_integral_error.data = pos_ctrl_.integralError();
+    feedback->position_integral_error.data = pos_pid_.integralError();
   }
 
   // Rotation Controller
@@ -435,7 +379,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 目標角加速度を計算
     const auto tar_dgyro =
-      ori_ctrl_.update(kdl::Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, kdl::Vector::Zero(), dt);
+      ori_pid_.update(kdl::Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, kdl::Vector::Zero(), dt);
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮

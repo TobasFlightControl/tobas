@@ -4,12 +4,6 @@
 
 namespace tobas
 {
-struct AccelAttitudeConverterConfig
-{
-  double max_attitude;
-  double h_force_comp_rate;
-};
-
 class AccelAttitudeConverter
 {
 public:
@@ -36,10 +30,13 @@ public:
     double& roll_out,
     double& pitch_out);
 
-  void configure(const AccelAttitudeConverterConfig& cfg);
+  bool setMaxAttitude(double p);
+  bool setHForceCompRate(double p);
 
 private:
-  AccelAttitudeConverterConfig cfg_;
+  // Config
+  double max_attitude_ = M_PI_4;   // [rad]
+  double h_force_comp_rate_ = 0.;  // [0, 1]
 
   const Drone& drone_;
   const kdl::Tree& tree_;

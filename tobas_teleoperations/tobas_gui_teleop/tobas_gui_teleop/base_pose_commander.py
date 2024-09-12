@@ -212,13 +212,15 @@ class BasePoseCommanderWidget(Widget):
         req.arming = arming
 
         future = self._set_arm_sc.call_async(req)
-        while not future.done():
-            time.sleep(0.1)
+        # while not future.done():
+        #     time.sleep(0.1)
 
-        res: SetArm.Response = future.result()
-        if not res.success:
-            self._node.get_logger().error(f"Failed to arm rotors: {res.message}")
-            return False
+        # res: SetArm.Response = future.result()
+        # if not res.success:
+        #     self._node.get_logger().error(f"Failed to arm rotors: {res.message}")
+        #     return False
+
+        time.sleep(5)
 
         return True
 
@@ -229,7 +231,7 @@ class BasePoseCommanderWidget(Widget):
         # Arming
         self._node.get_logger().info("Arming")
         if not self._set_arm(True):
-            rclpy.sleep(self.ARM_RETRY_INTERVAL)
+            time.sleep(self.ARM_RETRY_INTERVAL)
             return
 
         # 初期コマンドを設定
@@ -249,7 +251,7 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_yaw.setEnabled(True)
 
         # 1回きりで終了
-        self._odom_sub.unregister()
+        self._odom_sub.destroy()
 
         self._node.get_logger().info("GUI teleoperation is ready.")
 

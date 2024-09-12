@@ -29,47 +29,117 @@ Vector3d PositionPid::update(
   // 積分誤差を蓄積
   ei_ += ep * dt;
 
+  // ゲインを計算
+  const Vector3d kp = natural_freq_.cwiseAbs2();
+  const Vector3d kd = 2 * damp_ratio_.cwiseProduct(natural_freq_);
+
   // 最大加速度からP加速度を除いた値でI加速度を制限する (動的なアンチワインドアップ)
   // PI加速度が最大加速度を超える場合，I成分の効果は不安定化とオーバーシュートのみとなってしまう
-  const Vector3d tar_acc_p = kp_.cwiseProduct(ep).cwiseMax(-max_acc_).cwiseMin(max_acc_);
+  const Vector3d tar_acc_p = kp.cwiseProduct(ep).cwiseMax(-max_acc_).cwiseMin(max_acc_);
   const Vector3d min_ei = (-max_acc_ - tar_acc_p).cwiseProduct(ki_.cwiseInverse());
   const Vector3d max_ei = (max_acc_ - tar_acc_p).cwiseProduct(ki_.cwiseInverse());
   ei_ = ei_.cwiseMax(min_ei).cwiseMin(max_ei);
 
   // PID
-  const Vector3d tar_acc = kp_.cwiseProduct(ep) + ki_.cwiseProduct(ei_) + kd_.cwiseProduct(ed);
+  const Vector3d tar_acc = kp.cwiseProduct(ep) + ki_.cwiseProduct(ei_) + kd.cwiseProduct(ed);
 
   // 目標加速度を制限して出力
   return tar_acc.cwiseMax(-max_acc_).cwiseMin(max_acc_);
 }
 
-void PositionPid::configure(const PositionPidConfig& cfg)
+bool PositionPid::setHorizontalNaturalFrequency(double p)
 {
-  TOBAS_CHECK(cfg.hor_natural_freq > 0);
-  TOBAS_CHECK(cfg.hor_damp_ratio > 0);
-  TOBAS_CHECK(cfg.hor_ki > 0);
-  TOBAS_CHECK(cfg.ver_natural_freq > 0);
-  TOBAS_CHECK(cfg.ver_damp_ratio > 0);
-  TOBAS_CHECK(cfg.ver_ki > 0);
-  TOBAS_CHECK(cfg.max_hor_acc > 0);
-  TOBAS_CHECK(cfg.max_ver_acc > 0);
+  if (p <= 0.)
+  {
+    cerr << "Horizontal natural frequency must be positive." << endl;
+    return false;
+  }
 
-  const auto hor_kp = math::sqr(cfg.hor_natural_freq);
-  const auto hor_kd = 2 * cfg.hor_damp_ratio * cfg.hor_natural_freq;
-  const auto ver_kp = math::sqr(cfg.ver_natural_freq);
-  const auto ver_kd = 2 * cfg.ver_damp_ratio * cfg.ver_natural_freq;
+  natural_freq_.x() = natural_freq_.y() = p;
+  return true;
+}
 
-  kp_.x() = hor_kp;
-  kp_.y() = hor_kp;
-  kp_.z() = ver_kp;
-  ki_.x() = cfg.hor_ki;
-  ki_.y() = cfg.hor_ki;
-  ki_.z() = cfg.ver_ki;
-  kd_.x() = hor_kd;
-  kd_.y() = hor_kd;
-  kd_.z() = ver_kd;
-  max_acc_.x() = cfg.max_hor_acc;
-  max_acc_.y() = cfg.max_hor_acc;
-  max_acc_.z() = cfg.max_ver_acc;
+bool PositionPid::setHorizontalDampingRatio(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Horizontal damping ratio must be positive." << endl;
+    return false;
+  }
+
+  damp_ratio_.x() = damp_ratio_.y() = p;
+  return true;
+}
+
+bool PositionPid::setHorizontalIntegralGain(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Horizontal integral gain must be positive." << endl;
+    return false;
+  }
+
+  ki_.x() = ki_.y() = p;
+  return true;
+}
+
+bool PositionPid::setVerticalNaturalFrequency(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Vertical natural frequency must be positive." << endl;
+    return false;
+  }
+
+  natural_freq_.z() = p;
+  return true;
+}
+
+bool PositionPid::setVerticalDampingRatio(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Vertical damping ratio must be positive." << endl;
+    return false;
+  }
+
+  damp_ratio_.z() = p;
+  return true;
+}
+
+bool PositionPid::setVerticalIntegralGain(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Vertical integral gain must be positive." << endl;
+    return false;
+  }
+
+  ki_.z() = p;
+  return true;
+}
+
+bool PositionPid::setMaximumHorizontalAccel(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Maximum horizontal accel must be positive." << endl;
+    return false;
+  }
+
+  max_acc_.x() = max_acc_.y() = p;
+  return true;
+}
+
+bool PositionPid::setMaximumVerticalAccel(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Maximum vertical accel must be positive." << endl;
+    return false;
+  }
+
+  max_acc_.z() = p;
+  return true;
 }
 }  // namespace tobas

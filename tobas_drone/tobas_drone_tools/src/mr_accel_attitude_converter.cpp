@@ -38,13 +38,13 @@ void AccelAttitudeConverter::update(
 
   // 並進EoMの左辺
   const auto& mass = dynamics_.mass();
-  const auto xyz = mass * (tar_acc_W + grav_W_) - cfg_.h_force_comp_rate * air_drag_W;
+  const auto xyz = mass * (tar_acc_W + grav_W_) - h_force_comp_rate_ * air_drag_W;
   auto x = xyz.x();
   auto y = xyz.y();
   const auto& z = xyz.z();
 
   // 姿勢の制限を考慮してx, yをクランプ
-  const auto tan_max_atti = tan(cfg_.max_attitude);
+  const auto tan_max_atti = tan(max_attitude_);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
   algo::clamp2d(x, y, max_xy_norm);
 
@@ -68,11 +68,27 @@ void AccelAttitudeConverter::update(
   update(cur_rot, zero_, zero_, vector<double>(drone_.numRotors(), 0), tar_acc_W, thrust_out, roll_out, pitch_out);
 }
 
-void AccelAttitudeConverter::configure(const AccelAttitudeConverterConfig& cfg)
+bool AccelAttitudeConverter::setMaxAttitude(double p)
 {
-  TOBAS_CHECK(0 <= cfg.max_attitude && cfg.max_attitude < M_PI_2);
-  TOBAS_CHECK(0 <= cfg.h_force_comp_rate && cfg.h_force_comp_rate <= 1);
+  if (p <= 0.)
+  {
+    cerr << "Maximum attitude must be positive." << endl;
+    return false;
+  }
 
-  cfg_ = cfg;
+  max_attitude_ = p;
+  return true;
+}
+
+bool AccelAttitudeConverter::setHForceCompRate(double p)
+{
+  if (p < 0. || 1. < p)
+  {
+    cerr << "H-Force compensate rate must be in range of [0, 1]." << endl;
+    return false;
+  }
+
+  h_force_comp_rate_ = p;
+  return true;
 }
 }  // namespace tobas

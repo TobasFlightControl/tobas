@@ -4,16 +4,6 @@
 
 namespace tobas
 {
-struct OrientationPidConfig
-{
-  double atti_natural_freq;  // [rad/s]
-  double atti_damp_ratio;    // [-]
-  double atti_ki;            // [1/s^3]
-  double head_natural_freq;  // [rad/s]
-  double head_damp_ratio;    // [-]
-  double head_ki;            // [1/s^3]
-};
-
 class OrientationPid
 {
 public:
@@ -26,15 +16,20 @@ public:
     const kdl::Vector& tar_gyro,
     const double& dt);
 
-  void configure(const OrientationPidConfig& cfg);
+  bool setAttitudeNaturalFrequency(double p);
+  bool setAttitudeDampingRatio(double p);
+  bool setAttitudeIntegralGain(double p);
+  bool setHeadingNaturalFrequency(double p);
+  bool setHeadingDampingRatio(double p);
+  bool setHeadingIntegralGain(double p);
 
   inline kdl::Vector integralError() const;
 
 private:
   // Config
-  kdl::Vector kp_;
-  kdl::Vector ki_;
-  kdl::Vector kd_;
+  kdl::Vector natural_freq_ = { 10., 10., 10. };  // [rad/s]
+  kdl::Vector damp_ratio_ = { 1., 1., 1. };       // [-]
+  kdl::Vector ki_ = { 0.1, 0.1, 0.1 };            // [/s^3]
 
   kdl::Vector ei_ = kdl::Vector::Zero();
 };
