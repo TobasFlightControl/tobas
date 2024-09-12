@@ -40,19 +40,19 @@ private:
 
   array<tobas_std::TimestampedBufferDouble, 3> pos_buf_;
   double roll_, pitch_, yaw_;
-  tobas_msgs::msg::PreArmCheck prearm_check_;
 
   ros2::PublisherPtr<tobas_msgs::msg::PreArmCheck> prearm_check_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::TimerPtr prearm_check_timer_;
+
+  ros2::TimerPtr main_timer_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
-  void preArmCheckTimerCb();
+  void mainTimerCb();
 };
 
 PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
@@ -67,7 +67,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
-  prearm_check_timer_ = createTimer(kPreArmCheckTimerPeriod, &self::preArmCheckTimerCb, this);
+  main_timer_ = createTimer(kPreArmCheckTimerPeriod, &self::mainTimerCb, this);
 }
 
 void PreArmCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -99,33 +99,48 @@ void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     pos_buf_[i].add(stamp, odom->frame.p(i));
 }
 
-void PreArmCheckerNode::preArmCheckTimerCb()
+void PreArmCheckerNode::mainTimerCb()
 {
-  if (drone_ == nullptr || battery_ == nullptr || odom_ == nullptr)
+  if (drone_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
     return;
+  }
+  if (battery_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery information is not received yet.");
+    return;
+  }
+  if (odom_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Odometry is not received yet.");
+    return;
+  }
 
-  prearm_check_.header.stamp = get_clock()->now();
-  prearm_check_.ok = true;
+  auto prearm_check = std::make_unique<tobas_msgs::msg::PreArmCheck>();
+
+  prearm_check->header.stamp = get_clock()->now();
+  prearm_check->ok = true;
 
   // バッテリー電圧
-  prearm_check_.battery_voltage_sufficient = battery_->voltage > drone_->battery.sag_voltage;
-  if (!prearm_check_.battery_voltage_sufficient)
-    prearm_check_.ok = false;
+  prearm_check->battery_voltage_sufficient = battery_->voltage > drone_->battery.sag_voltage;
+  if (!prearm_check->battery_voltage_sufficient)
+    prearm_check->ok = false;
 
   // 姿勢角
   odom_->frame.M.getRPY(roll_, pitch_, yaw_);
-  prearm_check_.attitude_horizontal = max(abs(roll_), abs(pitch_)) < kAttitudeThresh;
-  if (!prearm_check_.attitude_horizontal)
-    prearm_check_.ok = false;
+  prearm_check->attitude_horizontal = max(abs(roll_), abs(pitch_)) < kAttitudeThresh;
+  if (!prearm_check->attitude_horizontal)
+    prearm_check->ok = false;
 
   // 位置のドリフト
-  prearm_check_.position_stable = true;
+  prearm_check->position_stable = true;
   for (size_t i = 0; i < 3; ++i)
   {
     if (!pos_buf_[i].isFilled() || pos_buf_[i].range() > kPosDriftThresh)
     {
-      prearm_check_.position_stable = false;
-      prearm_check_.ok = false;
+      prearm_check->position_stable = false;
+      prearm_check->ok = false;
       break;
     }
   }
@@ -134,24 +149,24 @@ void PreArmCheckerNode::preArmCheckTimerCb()
   const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
   const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
   const auto ver_pos_var = pos_cov_diag.z();
-  prearm_check_.position_accurate =
+  prearm_check->position_accurate =
     hor_pos_var < math::sqr(kHorPosStddevThresh) && ver_pos_var < math::sqr(kVerPosStddevThresh);
-  if (!prearm_check_.position_accurate)
-    prearm_check_.ok = false;
+  if (!prearm_check->position_accurate)
+    prearm_check->ok = false;
 
   // 姿勢推定の共分散
   const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
-  prearm_check_.orientation_accurate = rot_var < math::sqr(kRotStddevThresh);
-  if (!prearm_check_.orientation_accurate)
-    prearm_check_.ok = false;
+  prearm_check->orientation_accurate = rot_var < math::sqr(kRotStddevThresh);
+  if (!prearm_check->orientation_accurate)
+    prearm_check->ok = false;
 
   // 速度推定の共分散
   const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
-  prearm_check_.velocity_accurate = vel_var < math::sqr(kVelStddevThresh);
-  if (!prearm_check_.velocity_accurate)
-    prearm_check_.ok = false;
+  prearm_check->velocity_accurate = vel_var < math::sqr(kVelStddevThresh);
+  if (!prearm_check->velocity_accurate)
+    prearm_check->ok = false;
 
-  prearm_check_pub_->publish(prearm_check_);
+  prearm_check_pub_->publish(move(prearm_check));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(PreArmCheckerNode)
