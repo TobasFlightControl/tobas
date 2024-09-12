@@ -61,97 +61,97 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
 
 void RCInputHandlerNode::readConfig()
 {
-  if (pt_.get(kRollLeftKey, roll_range_.lower) < 0)
+  if (!pt_.get(kRollLeftKey, roll_range_.lower))
   {
     TOBAS_WARN("Failed to get \"", kRollLeftKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kRollRightKey, roll_range_.upper) < 0)
+  if (!pt_.get(kRollRightKey, roll_range_.upper))
   {
     TOBAS_WARN("Failed to get \"", kRollRightKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
 
-  if (pt_.get(kPitchDownKey, pitch_range_.lower) < 0)
+  if (!pt_.get(kPitchDownKey, pitch_range_.lower))
   {
     TOBAS_WARN("Failed to get \"", kPitchDownKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kPitchUpKey, pitch_range_.upper) < 0)
+  if (!pt_.get(kPitchUpKey, pitch_range_.upper))
   {
     TOBAS_WARN("Failed to get \"", kPitchUpKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
 
-  if (pt_.get(kYawRightKey, yaw_range_.lower) < 0)
+  if (!pt_.get(kYawRightKey, yaw_range_.lower))
   {
     TOBAS_WARN("Failed to get \"", kYawRightKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kYawLeftKey, yaw_range_.upper) < 0)
+  if (!pt_.get(kYawLeftKey, yaw_range_.upper))
   {
     TOBAS_WARN("Failed to get \"", kYawLeftKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
 
-  if (pt_.get(kThrotDownKey, throt_range_.lower) < 0)
+  if (!pt_.get(kThrotDownKey, throt_range_.lower))
   {
     TOBAS_WARN("Failed to get \"", kThrotDownKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kThrotUpKey, throt_range_.upper) < 0)
+  if (!pt_.get(kThrotUpKey, throt_range_.upper))
   {
     TOBAS_WARN("Failed to get \"", kThrotUpKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
 
-  if (pt_.get(kModeProgramKey, modes_.at(tobas::kFlightModeProgram)) < 0)
+  if (!pt_.get(kModeProgramKey, modes_.at(tobas::kFlightModeProgram)))
   {
     TOBAS_WARN("Failed to get \"", kModeProgramKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kModeStabilizeKey, modes_.at(tobas::kFlightModeStabilize)) < 0)
+  if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::kFlightModeStabilize)))
   {
     TOBAS_WARN("Failed to get \"", kModeStabilizeKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kModeAcrobatKey, modes_.at(tobas::kFlightModeAcrobat)) < 0)
+  if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::kFlightModeAcrobat)))
   {
     TOBAS_WARN("Failed to get \"", kModeAcrobatKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
 
-  if (pt_.get(kEStopOnKey, estop_on_) < 0)
+  if (!pt_.get(kEStopOnKey, estop_on_))
   {
     TOBAS_WARN("Failed to get \"", kEStopOnKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kEStopOffKey, estop_off_) < 0)
+  if (!pt_.get(kEStopOffKey, estop_off_))
   {
     TOBAS_WARN("Failed to get \"", kEStopOffKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
 
-  if (pt_.get(kGPSwOnKey, gpsw_on_) < 0)
+  if (!pt_.get(kGPSwOnKey, gpsw_on_))
   {
     TOBAS_WARN("Failed to get \"", kGPSwOnKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (pt_.get(kGPSwOffKey, gpsw_off_) < 0)
+  if (!pt_.get(kGPSwOffKey, gpsw_off_))
   {
     TOBAS_WARN("Failed to get \"", kGPSwOffKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();

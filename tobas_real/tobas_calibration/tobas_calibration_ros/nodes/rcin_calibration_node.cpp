@@ -82,91 +82,91 @@ void RCInputCalibrationNode::executeCb(
 
   // Configに保存
   ptree::PropertyClient property_client(shared_from_this(), real::kPropertyServerFC);
-  if (property_client.set(real::kConfigKey_RcRollLeft, req->roll_left) < 0)
+  if (property_client.set(real::kRollLeftKey, req->roll_left) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcRollRight, req->roll_right) < 0)
+  if (property_client.set(real::kRollRightKey, req->roll_right) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcPitchUp, req->pitch_up) < 0)
+  if (property_client.set(real::kPitchUpKey, req->pitch_up) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcPitchDown, req->pitch_down) < 0)
+  if (property_client.set(real::kPitchDownKey, req->pitch_down) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcYawLeft, req->yaw_left) < 0)
+  if (property_client.set(real::kYawLeftKey, req->yaw_left) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcYawRight, req->yaw_right) < 0)
+  if (property_client.set(real::kYawRightKey, req->yaw_right) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcThrottleUp, req->throttle_up) < 0)
+  if (property_client.set(real::kThrotUpKey, req->throttle_up) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcThrottleDown, req->throttle_down) < 0)
+  if (property_client.set(real::kThrotDownKey, req->throttle_down) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcModeProgram, req->mode_program) < 0)
+  if (property_client.set(real::kModeProgramKey, req->mode_program) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcModeStabilize, req->mode_stabilize) < 0)
+  if (property_client.set(real::kModeStabilizeKey, req->mode_stabilize) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcModeAcrobat, req->mode_acrobat) < 0)
+  if (property_client.set(real::kModeAcrobatKey, req->mode_acrobat) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcEStopOn, req->estop_on) < 0)
+  if (property_client.set(real::kEStopOnKey, req->estop_on) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcEStopOff, req->estop_off) < 0)
+  if (property_client.set(real::kEStopOffKey, req->estop_off) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcGPSwOn, req->gpsw_on) < 0)
+  if (property_client.set(real::kGPSwOnKey, req->gpsw_on) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_RcGPSwOff, req->gpsw_off) < 0)
+  if (property_client.set(real::kGPSwOffKey, req->gpsw_off) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();

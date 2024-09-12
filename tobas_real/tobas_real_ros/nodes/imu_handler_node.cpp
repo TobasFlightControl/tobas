@@ -73,21 +73,21 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_
 
 void ImuHandlerNode::readConfig()
 {
-  if (pt_.get(kOffsetXKey, acc_bias_.x()) < 0)
+  if (!pt_.get(kOffsetXKey, acc_bias_.x()))
   {
     TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
     acc_bias_.setZero();
     return;
   }
 
-  if (pt_.get(kOffsetYKey, acc_bias_.y()) < 0)
+  if (!pt_.get(kOffsetYKey, acc_bias_.y()))
   {
     TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
     acc_bias_.setZero();
     return;
   }
 
-  if (pt_.get(kOffsetZKey, acc_bias_.z()) < 0)
+  if (!pt_.get(kOffsetZKey, acc_bias_.z()))
   {
     TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
     acc_bias_.setZero();

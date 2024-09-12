@@ -1,7 +1,6 @@
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_property_client/property_client.hpp>
 
 #include <tobas_real_common/constants.hpp>
 #include <tobas_calibration_msgs/srv/mag_calibration.hpp>
@@ -61,61 +60,61 @@ void MagCalibrationNode::executeCb(const SrvType::Request::ConstSharedPtr& req, 
 
   // Configに保存
   ptree::PropertyClient property_client(shared_from_this(), real::kPropertyServerFC);
-  if (property_client.set(real::kConfigKey_MagEllipseAxx, req->a_xx) < 0)
+  if (property_client.set(real::kAxxKey, req->a_xx) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseAyy, req->a_yy) < 0)
+  if (property_client.set(real::kAyyKey, req->a_yy) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseAzz, req->a_zz) < 0)
+  if (property_client.set(real::kAzzKey, req->a_zz) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseAxy, req->a_xy) < 0)
+  if (property_client.set(real::kAxyKey, req->a_xy) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseAyz, req->a_yz) < 0)
+  if (property_client.set(real::kAyzKey, req->a_yz) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseAzx, req->a_zx) < 0)
+  if (property_client.set(real::kAzxKey, req->a_zx) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseBx, req->b_x) < 0)
+  if (property_client.set(real::kBxKey, req->b_x) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseBy, req->b_y) < 0)
+  if (property_client.set(real::kByKey, req->b_y) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseBz, req->b_z) < 0)
+  if (property_client.set(real::kBzKey, req->b_z) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();
     return;
   }
-  if (property_client.set(real::kConfigKey_MagEllipseC, req->c) < 0)
+  if (property_client.set(real::kCKey, req->c) < 0)
   {
     res->success = false;
     res->message = property_client.errorMessage();

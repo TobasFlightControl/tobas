@@ -2,7 +2,6 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/adc.hpp>
 
@@ -12,6 +11,7 @@
 #include "./util.hpp"
 
 using namespace std;
+using namespace real::handler::adc;
 
 class AdcCalibrationNode : public tobas::BaseNode
 {
@@ -97,7 +97,7 @@ void AdcCalibrationNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_hand
 
   // 設定ファイルに係数を書き込む
   ptree::PropertyClient property_client(shared_from_this(), real::kPropertyServerFC);
-  if (property_client.set(real::kConfigKey_AdcVoltageCoef, coefficient) < 0)
+  if (property_client.set(real::kVoltageKey, coefficient) < 0)
   {
     result->message = property_client.errorMessage();
     goal_handle->abort(result);

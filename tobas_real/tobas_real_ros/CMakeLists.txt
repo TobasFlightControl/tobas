@@ -15,6 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tobas_dsp REQUIRED)
 find_package(tobas_linux REQUIRED)
+find_package(tobas_property_tree REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_hal_core REQUIRED)
 find_package(tobas_hal_msgs_adapter REQUIRED)
@@ -28,7 +29,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	sensor_msgs
 	tobas_dsp
 	tobas_linux
-	tobas_property_client
+	tobas_property_tree
 	tobas_msgs_adapter
 	tobas_hal_core
 	tobas_hal_msgs_adapter

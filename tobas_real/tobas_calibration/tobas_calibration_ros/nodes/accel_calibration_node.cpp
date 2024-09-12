@@ -3,7 +3,6 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_property_client/property_client.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs_adapter/Imu.hpp>
 
@@ -115,19 +114,19 @@ void AccelCalibrationNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_ha
 
   // Configに保存
   ptree::PropertyClient property_client(shared_from_this(), real::kPropertyServerFC);
-  if (property_client.set(real::kConfigKey_AccOffsetX, acc_offset.x()) < 0)
+  if (property_client.set(real::kOffsetXKey, acc_offset.x()) < 0)
   {
     result->message = property_client.errorMessage();
     goal_handle->abort(result);
     return;
   }
-  if (property_client.set(real::kConfigKey_AccOffsetY, acc_offset.y()) < 0)
+  if (property_client.set(real::kOffsetYKey, acc_offset.y()) < 0)
   {
     result->message = property_client.errorMessage();
     goal_handle->abort(result);
     return;
   }
-  if (property_client.set(real::kConfigKey_AccOffsetZ, acc_offset.z()) < 0)
+  if (property_client.set(real::kOffsetZKey, acc_offset.z()) < 0)
   {
     result->message = property_client.errorMessage();
     goal_handle->abort(result);
