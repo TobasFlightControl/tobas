@@ -7,4 +7,8 @@
     <arg name="gz_args" value="worlds/$(var world_name).world -r -v $(var verbose)"/>
   </include>
 
+  <!-- Bridge communication between ROS and Gazebo Transport: https://index.ros.org/p/ros_gz_bridge/ -->
+  <!-- cf. https://github.com/gazebosim/ros_gz/issues/341 -->
+  <node pkg="ros_gz_bridge" exec="parameter_bridge" args="/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock"/>
+
 </launch>
