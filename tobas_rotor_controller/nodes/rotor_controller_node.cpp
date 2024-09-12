@@ -295,6 +295,7 @@ void RotorControllerNode::setArmCb(
       {
         res->success = false;
         res->message = "Pre-arm check status is not received yet.";
+        TOBAS_ERROR(res->message);
         return;
       }
 
@@ -302,6 +303,7 @@ void RotorControllerNode::setArmCb(
       {
         res->success = false;
         res->message = "Pre-arm check failed.";
+        TOBAS_ERROR(res->message);
         return;
       }
     }
@@ -310,6 +312,7 @@ void RotorControllerNode::setArmCb(
     {
       res->success = false;
       res->message = "Failed to enable rotors.";
+      TOBAS_ERROR(res->message);
       return;
     }
   }
@@ -319,6 +322,7 @@ void RotorControllerNode::setArmCb(
     {
       res->success = false;
       res->message = "Failed to disable rotors.";
+      TOBAS_ERROR(res->message);
       return;
     }
   }
