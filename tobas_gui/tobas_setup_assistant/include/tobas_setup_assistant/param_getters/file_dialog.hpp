@@ -3,7 +3,7 @@
 #include <QLineEdit>
 #include <QFileDialog>
 
-#include <tobas_property_tools/property_client.hpp>
+#include <tobas_property_client/property_client.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "./base.hpp"

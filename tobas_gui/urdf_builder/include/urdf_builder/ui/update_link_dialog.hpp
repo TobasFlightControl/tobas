@@ -3,7 +3,7 @@
 #include <map>
 #include <QtWidgets/QtWidgets>
 
-#include <tobas_property_tools/property_client.hpp>
+#include <tobas_property_client/property_client.hpp>
 
 #include "../view_model/link_view_model.hpp"
 #include "../view_model/joint_view_model.hpp"

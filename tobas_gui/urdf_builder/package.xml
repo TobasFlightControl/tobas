@@ -14,9 +14,12 @@
   <depend>rviz_rendering</depend>
   <depend>tobas_linux</depend>
   <depend>tobas_std_tools</depend>
-  <depend>tobas_property_tools</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_property_client</depend>
+  <depend>tobas_constants</depend>
 
   <exec_depend>xacro</exec_depend>
+  <exec_depend>tobas_property_server</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

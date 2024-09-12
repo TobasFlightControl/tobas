@@ -2,7 +2,7 @@
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_property_tools/property_client.hpp>
+#include <tobas_property_client/property_client.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/adc.hpp>
 

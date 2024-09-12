@@ -4,7 +4,7 @@
 
 #include <tobas_path_tools/join.hpp>
 
-#include "./constants.hpp"
+#include <tobas_property_common/constants.hpp>
 
 namespace ptree
 {

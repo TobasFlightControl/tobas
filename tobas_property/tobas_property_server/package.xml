@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
 
-	<name>tobas_property_tools</name>
+	<name>tobas_property_server</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -9,11 +9,12 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_property_msgs</depend>
-	<depend>tobas_node</depend>
+	<depend>std_srvs</depend>
 	<depend>tobas_path_tools</depend>
 	<depend>tobas_linux</depend>
-	<depend>std_srvs</depend>
+	<depend>tobas_node</depend>
+	<depend>tobas_property_common</depend>
+	<depend>tobas_property_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

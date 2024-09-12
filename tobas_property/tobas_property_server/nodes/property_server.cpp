@@ -3,8 +3,9 @@
 #include <tobas_linux/core.hpp>
 #include <tobas_path_tools/core.hpp>
 
+#include <tobas_property_common/constants.hpp>
+
 #include "./property_server.hpp"
-#include "../include/tobas_property_tools/constants.hpp"
 
 using namespace std;
 using namespace std_srvs::srv;

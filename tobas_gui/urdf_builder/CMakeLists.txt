@@ -17,7 +17,7 @@ endif()
 set(CMAKE_CXX_STANDARD 17) # C++20はOGREが依存しているstd::allocator<void>が削除されているため使えない
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow") # TODO: -Werror
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Disable warnings about Ogre
@@ -33,7 +33,9 @@ find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_std_tools REQUIRED)
-find_package(tobas_property_tools REQUIRED)
+find_package(tobas_ros2_tools REQUIRED)
+find_package(tobas_property_client REQUIRED)
+find_package(tobas_constants REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem)
 
 set(AMENT_DEPENDENCIES
@@ -44,7 +46,9 @@ set(AMENT_DEPENDENCIES
   rviz_rendering
   tobas_linux
   tobas_std_tools
-  tobas_property_tools
+  tobas_ros2_tools
+  tobas_property_client
+  tobas_constants
 )
 
 add_definitions(-DQT_NO_KEYWORDS)

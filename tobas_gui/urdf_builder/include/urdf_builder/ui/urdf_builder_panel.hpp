@@ -7,7 +7,7 @@
 #include <rviz_common/ros_integration/ros_node_abstraction_iface.hpp>
 
 #include <tobas_ros2_tools/async_node_manager.hpp>
-#include <tobas_property_tools/property_client.hpp>
+#include <tobas_property_client/property_client.hpp>
 
 #ifndef Q_MOC_RUN
 #include <urdf/model.h>

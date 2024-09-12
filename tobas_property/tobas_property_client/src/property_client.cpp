@@ -9,7 +9,7 @@
 #include <tobas_property_msgs/srv/set_double.hpp>
 #include <tobas_property_msgs/srv/set_string.hpp>
 
-#include "../include/tobas_property_tools/property_client.hpp"
+#include "../include/tobas_property_client/property_client.hpp"
 
 using namespace std;
 using namespace std_srvs::srv;

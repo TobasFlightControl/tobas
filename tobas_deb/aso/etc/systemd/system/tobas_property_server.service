@@ -6,7 +6,7 @@ PartOf=tobas_main.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && /opt/ros/jazzy/bin/ros2 run tobas_property_tools property_server_node --ros-args -r __node:=property_server_fc -p ini_path:=/etc/tobas/config.ini'
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && /opt/ros/jazzy/bin/ros2 run tobas_property_server property_server_node --ros-args -r __node:=property_server_fc -p ini_path:=/etc/tobas/config.ini'
 Restart=always
 RestartSec=5
 

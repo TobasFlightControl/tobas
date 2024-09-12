@@ -13,7 +13,8 @@
   <depend>moveit_msgs</depend>
   <depend>tobas_kdl_conversions</depend>
   <depend>tobas_linux</depend>
-  <depend>tobas_property_tools</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_property_client</depend>
   <depend>tobas_tools</depend>
   <depend>tobas_drone_msgs_adapter</depend>
   <depend>tobas_qt_tools</depend>
@@ -23,6 +24,7 @@
   <exec_depend>forward_command_controller</exec_depend>
   <exec_depend>tobas_rviz_plugin</exec_depend>
   <exec_depend>tobas_description</exec_depend>
+  <exec_depend>tobas_property_server</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

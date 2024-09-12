@@ -4,7 +4,7 @@
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-#include <tobas_property_tools/property_client.hpp>
+#include <tobas_property_client/property_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs_adapter/MagneticField.hpp>

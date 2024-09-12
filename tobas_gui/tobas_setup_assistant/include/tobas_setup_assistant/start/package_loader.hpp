@@ -4,7 +4,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include <tobas_property_tools/property_client.hpp>
+#include <tobas_property_client/property_client.hpp>
 
 #include "../robot_info.hpp"
 #include "../settings.hpp"

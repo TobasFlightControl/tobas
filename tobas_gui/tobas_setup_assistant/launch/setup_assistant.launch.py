@@ -35,7 +35,7 @@ def generate_launch_description():
 
     # Launch property server
     property_server = Node(
-        package="tobas_property_tools",
+        package="tobas_property_server",
         executable="property_server",
         name="property_server_gcs",
         ros_arguments=ros_args,
