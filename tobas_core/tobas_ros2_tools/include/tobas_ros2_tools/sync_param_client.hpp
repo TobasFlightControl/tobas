@@ -2,6 +2,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include "./future.hpp"
+
 namespace ros2
 {
 class SyncParamClient
@@ -9,8 +11,8 @@ class SyncParamClient
 public:
   using SharedPtr = std::shared_ptr<SyncParamClient>;
 
-  inline explicit SyncParamClient(rclcpp::Node::SharedPtr node, const std::string& remove_node_name)
-    : node_(node), remove_node_name_(remove_node_name), client_(node, remove_node_name)
+  explicit SyncParamClient(rclcpp::Node::SharedPtr node, const std::string& remote_node_name)
+    : node_(node), remote_node_name_(remote_node_name), client_(node, remote_node_name)
   {
   }
 
@@ -22,11 +24,18 @@ public:
   {
     if (!client_.service_is_ready())
     {
-      RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << remove_node_name_ << "\" parameter server is not ready.");
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << remote_node_name_ << "\" parameter server is not ready.");
       return false;
     }
 
-    const auto results = client_.set_parameters({ rclcpp::Parameter(param_name, value) }, timeout);
+    auto future = client_.set_parameters({ rclcpp::Parameter(param_name, value) });
+    if (waitForFuture(future, timeout) != std::future_status::ready)
+    {
+      RCLCPP_ERROR_STREAM(node_->get_logger(), "Timeout before setting \"" << param_name << "\".");
+      return false;
+    }
+
+    const auto results = future.get();
     if (results.size() != 1)
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Result size mismatch.");
@@ -45,10 +54,10 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const std::string remove_node_name_;
+  const std::string remote_node_name_;
 
   // 非同期のパラメータクライアント
   // 同期版はspinするからエグゼキュータ上では使えない
-  rclcpp::SyncParametersClient client_;
+  rclcpp::AsyncParametersClient client_;
 };
 }  // namespace ros2
