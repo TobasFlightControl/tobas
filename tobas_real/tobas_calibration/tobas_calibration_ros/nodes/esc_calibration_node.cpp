@@ -60,8 +60,8 @@ private:
 EscCalibrationNode::EscCalibrationNode(const rclcpp::NodeOptions& options) : super("esc_calibration", options)
 {
   throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
-  drone_sub_ = createSubscriber<tobas::Drone>(tobas::kDroneTopic, &self::droneCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true, true);
   battery_sub_ = createSubscriber(tobas::kBatteryTopic, &EscCalibrationNode::batteryCb, this);
   as_ = createAction(tobas::kESCCalibAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }

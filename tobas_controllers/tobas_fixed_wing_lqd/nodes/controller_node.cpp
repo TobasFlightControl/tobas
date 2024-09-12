@@ -118,10 +118,10 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
 };
 
@@ -149,12 +149,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   feedback_pub_ = createPublisher<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kControllerFeedbackTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true, true);
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   cmd_sub_ = createSubscriber(tobas::kSpeedRollDpitchCmdTopic, &self::commandCb, this);
 }
 
@@ -492,6 +492,18 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
     initialize();
 }
 
+void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
+
+  if (!arming->data)
+  {
+    cmd_nwu_ = nullptr;
+    lqd_.last_input.setZero();
+    TOBAS_INFO("ControllerNode is reset.");
+  }
+}
+
 void ControllerNode::airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& pressure)
 {
   air_pressure_ = pressure;
@@ -559,18 +571,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   publishRotSpeeds(thrust);
   publishDeflections(deflections);
   publishFeedback(du);
-}
-
-void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
-{
-  arming_ = arming;
-
-  if (!arming->data)
-  {
-    cmd_nwu_ = nullptr;
-    lqd_.last_input.setZero();
-    TOBAS_INFO("ControllerNode is reset.");
-  }
 }
 
 void ControllerNode::commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu)

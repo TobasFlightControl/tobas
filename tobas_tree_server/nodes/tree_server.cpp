@@ -26,12 +26,14 @@ private:
 TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", options)
 {
   tree_pub_ = createPublisher<kdl::Tree>(tobas::kKDLTreeTopic, true, true);
-  description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this, true);
+
+  // 後から確実にrobot descriptionを受け取るためには，TRANSIENT LOCAL且つRELIABLEが必須．
+  description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this, true, true);
 }
 
 void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg)
 {
-  TOBAS_INFO("New robot description is received.");
+  TOBAS_ERROR("New robot description is received.");
 
   auto tree = std::make_unique<kdl::Tree>();
   if (!kdl::treeFromString(msg->data, *tree))

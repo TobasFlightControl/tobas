@@ -154,7 +154,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
 
   // Register publishers
   odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
-  gps_origin_pub_ = createPublisher<GpsOriginMsg>(tobas::kGpsOriginTopic, true);
+  gps_origin_pub_ = createPublisher<GpsOriginMsg>(tobas::kGpsOriginTopic, true, true);
   feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObserverFeedbackTopic);
 
   // Register subscribers

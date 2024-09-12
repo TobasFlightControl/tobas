@@ -104,8 +104,8 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
   efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffortsCmdTopic);
 
   // Register subscribers
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
-  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
   tar_js_sub_ = createSubscriber(tobas::kEffCtrlJSTopic, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(tobas::kEffCtrlLSTopic, &self::targetLinkStateCb, this);

@@ -59,8 +59,8 @@ StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options) : super("
 {
   event_pub_ = createPublisher<tobas_msgs::msg::Event>(tobas::kEventTopic);
 
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true, true);
   cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   euler_sub_ = createSubscriber(tobas::kEulerTopic, &self::eulerCb, this);

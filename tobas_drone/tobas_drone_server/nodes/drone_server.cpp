@@ -23,7 +23,7 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
   publishDynamicParameterDescriptions();
 
-  drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true);
+  drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
 }
 
 bool DroneServerNode::fileParamCb(const string& p)
