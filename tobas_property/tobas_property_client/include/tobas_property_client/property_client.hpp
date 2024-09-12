@@ -8,6 +8,10 @@
 
 namespace ptree
 {
+/**
+ * @brief プロパティサーバのクライアント．
+ * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
+ */
 class PropertyClient
 {
 public:
