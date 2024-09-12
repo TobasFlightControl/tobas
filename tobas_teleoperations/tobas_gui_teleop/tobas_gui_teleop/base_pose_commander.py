@@ -1,8 +1,9 @@
 import math
 import time
-import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
+from std_msgs.msg import Bool
+
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
@@ -23,8 +24,6 @@ from .common import BUTTON_HEIGHT
 class BasePoseCommanderWidget(Widget):
     # Constants
     HOME_ALTITUDE = 3.0  # [m]
-    WAIT_FOR_SERVICE = 1.0  # [s]
-    ARM_RETRY_INTERVAL = 1.0  # [s]
 
     # Default parameters
     DEFAULT_INIT_ELEVATION = 0.0  # [m]
@@ -60,6 +59,8 @@ class BasePoseCommanderWidget(Widget):
         self._yaw_max = 0.0
         self._init_elevation = 0.0
         self._get_params()
+
+        self._arming = Bool(data=False)
 
         # メインレイアウト
         rows = QVBoxLayout()
@@ -120,9 +121,10 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_yaw.setEnabled(False)
         rows.addWidget(self._cmd_yaw)
 
-        # 初期位置にボタン
+        # 初期位置に戻るボタン
         self._home_button = QPushButton("Home")
         self._home_button.setFixedHeight(BUTTON_HEIGHT)
+        self._home_button.setEnabled(False)
         self._home_button.clicked.connect(self._on_home_button_clicked)
         rows.addWidget(self._home_button)
 
@@ -140,6 +142,7 @@ class BasePoseCommanderWidget(Widget):
         self._pvay_pub = self._node.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", qos)
         self._pta_pub = self._node.create_publisher(PoseTwistAccelCommand, "command/pose_twist_accel", qos)
         self._odom_sub = self._node.create_subscription(Odometry, "odom", self._odom_cb, qos)
+        self._arming_sub = self._node.create_subscription(Bool, "arming", self._arming_cb, qos)
 
         # Service
         self._set_arm_sc = self._node.create_client(SetArm, "set_arm")
@@ -203,35 +206,25 @@ class BasePoseCommanderWidget(Widget):
         assert self._yaw_min <= 0.0 <= self._yaw_max
         assert self._init_elevation >= 0.0
 
-    def _set_arm(self, arming: bool) -> bool:
+    def _request_arming(self) -> None:
         if not self._set_arm_sc.service_is_ready():
             self._node.get_logger().error("Set-Arm service is not ready.")
             return False
 
         req = SetArm.Request()
-        req.arming = arming
+        req.arming = True
 
-        future = self._set_arm_sc.call_async(req)
-        # while not future.done():
-        #     time.sleep(0.1)
-
-        # res: SetArm.Response = future.result()
-        # if not res.success:
-        #     self._node.get_logger().error(f"Failed to arm rotors: {res.message}")
-        #     return False
-
-        time.sleep(5)
-
-        return True
+        self._node.get_logger().info("Requesting arming...")
+        self._set_arm_sc.call_async(req)
 
     def _odom_cb(self, odom: Odometry) -> None:
         if odom.status != Odometry.NO_ERROR:
             return
 
         # Arming
-        self._node.get_logger().info("Arming")
-        if not self._set_arm(True):
-            time.sleep(self.ARM_RETRY_INTERVAL)
+        if not self._arming.data:
+            self._request_arming()
+            time.sleep(3)
             return
 
         # 初期コマンドを設定
@@ -242,18 +235,22 @@ class BasePoseCommanderWidget(Widget):
         self._cmd_pitch.set_value(0.0)
         self._cmd_yaw.set_value(euler_from_matrix(odom.frame.rot.data)[2])
 
-        # バーを有効化
+        # 有効化
         self._cmd_x.setEnabled(True)
         self._cmd_y.setEnabled(True)
         self._cmd_z.setEnabled(True)
         self._cmd_roll.setEnabled(True)
         self._cmd_pitch.setEnabled(True)
         self._cmd_yaw.setEnabled(True)
+        self._home_button.setEnabled(True)
 
         # 1回きりで終了
-        self._odom_sub.destroy()
+        self._node.destroy_subscription(self._odom_sub)
 
         self._node.get_logger().info("GUI teleoperation is ready.")
+
+    def _arming_cb(self, arming: Bool) -> None:
+        self._arming = arming
 
     @pyqtSlot()
     def _publish_current_command(self) -> None:
