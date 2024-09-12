@@ -1,3 +1,4 @@
+import time
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
@@ -49,7 +50,7 @@ class CommandSquareTrajectoryNode(Node):
             command.pos.y = self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE
             self._command_pub.publish(command)
-            rclpy.sleep(self.INTERVAL)
+            time.sleep(self.INTERVAL)
 
             # 頂点2
             command = PosVelAccYaw()
@@ -57,7 +58,7 @@ class CommandSquareTrajectoryNode(Node):
             command.pos.y = self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE
             self._command_pub.publish(command)
-            rclpy.sleep(self.INTERVAL)
+            time.sleep(self.INTERVAL)
 
             # 頂点3
             command = PosVelAccYaw()
@@ -65,7 +66,7 @@ class CommandSquareTrajectoryNode(Node):
             command.pos.y = -self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE
             self._command_pub.publish(command)
-            rclpy.sleep(self.INTERVAL)
+            time.sleep(self.INTERVAL)
 
             # 頂点4
             command = PosVelAccYaw()
@@ -73,7 +74,7 @@ class CommandSquareTrajectoryNode(Node):
             command.pos.y = -self.SIDE_LENGTH / 2
             command.pos.z = self.ALTITUDE
             self._command_pub.publish(command)
-            rclpy.sleep(self.INTERVAL)
+            time.sleep(self.INTERVAL)
 
 
 def main(args=None) -> None:
