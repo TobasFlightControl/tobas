@@ -43,6 +43,7 @@ class GazeboFixedWingPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
+  static constexpr double kAutoStopTimeThresh = 0.5;  // [s]
 
   // Default values
   static constexpr double kDefaultLowerStallAngle = -10 * tobas_std::kDeg2Rad;
@@ -273,13 +274,12 @@ void GazeboFixedWingPlugin::registerPubSub()
 void GazeboFixedWingPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityComponentManager& ecm)
 {
   // 最新のコマンドからの経過時間を確認
-  const auto& cur_time = info.simTime;
-  const auto time_after_last_cmd = chrono::duration<double>(cur_time - last_cmd_time_).count();
-  if (time_after_last_cmd > tobas::kAutoResetTimeThreshold)
+  const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
+  if (cs_deflections_ != nullptr && secs_from_last_cmd > kAutoStopTimeThresh)
   {
     cs_deflections_ = nullptr;
     TOBAS_INFO(
-      "Deflection angles of control surfaces are automatically reset because ", tobas::kAutoResetTimeThreshold,
+      "Deflection angles of control surfaces are automatically reset because ", kAutoStopTimeThresh,
       " seconds have elapsed since the last command.");
   }
 
@@ -325,7 +325,7 @@ void GazeboFixedWingPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCo
   // 時刻と迎角の変化率を更新
   const auto dt = chrono::duration<double>(info.dt).count();
   const auto alpha_rate = (alpha - prev_alpha_) / dt;  // [rad/s]
-  prev_sim_time_ = cur_time;
+  prev_sim_time_ = info.simTime;
   prev_alpha_ = alpha;
 
   // 舵角を更新

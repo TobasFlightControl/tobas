@@ -142,8 +142,6 @@ static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 static constexpr char kPropertyServerName[] = "/property_server";
 static constexpr char kUnknown[] = "unknown";
 static constexpr char kMinimulURDF[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
-static constexpr auto kWaitForServiceExistence = std::chrono::seconds(1);
-static constexpr double kAutoResetTimeThreshold = 0.5;   // [s]
 static constexpr double kTakeoffAltitudeThreshold = 1.;  // [m]
 static constexpr double kRotSpeedMargin = 10.;           // [rad/s]
 static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算を行う最小風速

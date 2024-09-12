@@ -102,7 +102,8 @@ public:
     Obj* obj);
 
   template <typename RepType, typename DurType, typename Obj>
-  ros2::TimerPtr createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj);
+  ros2::TimerPtr
+  createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj, bool autostart = true);
 
   template <typename... Args>
   void log(uint8_t level, const Args&... args) const;
@@ -309,9 +310,15 @@ ros2::ActionServerPtr<ActionType> BaseNode::createAction(
 }
 
 template <typename RepType, typename DurType, typename Obj>
-ros2::TimerPtr BaseNode::createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj)
+ros2::TimerPtr
+BaseNode::createTimer(std::chrono::duration<RepType, DurType> period, void (Obj::*fp)(void), Obj* obj, bool autostart)
 {
-  return create_timer(period, bind(fp, obj));
+  const auto timer = create_timer(period, bind(fp, obj));
+
+  if (!autostart)
+    timer->cancel();
+
+  return timer;
 }
 
 template <typename Obj>

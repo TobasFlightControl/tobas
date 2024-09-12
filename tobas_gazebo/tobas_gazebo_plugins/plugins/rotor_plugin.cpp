@@ -38,11 +38,11 @@ class GazeboRotorPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugTopicPrefix[] = "gazebo/rotor_debug";
-  static constexpr double kRotorSpeedCheckMargin = 10.;     // [rad/s]
-  static constexpr double kCommandBlankTimeThreshold = 1.;  // [s]
-  static constexpr double kTimeConstWarnThreshold = 0.1;    // [s]
-  static constexpr double kMinBatteryVoltage = 3.;          // [V]
-  static constexpr double kDisarmDuration = 1.5;            // [s] 通常1~2秒らしい
+  static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
+  static constexpr double kAutoStopTimeThresh = 0.5;      // [s]
+  static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
+  static constexpr double kMinBatteryVoltage = 3.;        // [V]
+  static constexpr double kDisarmDuration = 1.5;          // [s] 通常1~2秒らしい
 
   // Default parameters
   static constexpr double kDefaultMaxModelErrorRate = 0.;
@@ -239,8 +239,8 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
   }
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にDisarmする
-  const auto time_after_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
-  if (time_after_last_cmd > kCommandBlankTimeThreshold)
+  const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
+  if (secs_from_last_cmd > kAutoStopTimeThresh)
   {
     cmd_rot_speed_ = 0.;
     disarm_start_time_ = info.simTime;

@@ -11,6 +11,8 @@
 #include <tobas_msgs_adapter/LinkStateArray.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
+#include "../include/tobas_manipulation/constants.hpp"
+
 using namespace std;
 
 class PositionControllerNode : public tobas::BaseNode
@@ -25,9 +27,7 @@ private:
   tobas::Drone drone_;
 
   bool is_initialized_ = false;
-  bool is_commanded_ = false;
   sensor_msgs::msg::JointState home_js_;
-  rclcpp::Time t_last_cmd_;
 
   sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
   tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
@@ -41,6 +41,9 @@ private:
   ros2::SubscriberPtr<sensor_msgs::msg::JointState> tar_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
 
+  // Timer
+  ros2::TimerPtr auto_reset_timer_;
+
   void initialize();
 
   bool jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
@@ -50,19 +53,21 @@ private:
   void currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
+
+  void autoResetTimerCb();
 };
 
 PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& options)
   : super("position_controller", options)
 {
-  // Register publishers
   positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPositionsCmdTopic);
 
-  // Register subscribers
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
   tar_js_sub_ = createSubscriber(tobas::kPosCtrlJSTopic, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(tobas::kPosCtrlLSTopic, &self::targetLinkStateCb, this);
+
+  auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }
 
 void PositionControllerNode::initialize()
@@ -119,17 +124,6 @@ void PositionControllerNode::currentJointStateCb(const sensor_msgs::msg::JointSt
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
-  const auto time_after_last_cmd = (get_clock()->now() - t_last_cmd_).seconds();
-  if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
-  {
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
-    tar_ls_ = nullptr;
-    is_commanded_ = false;
-    TOBAS_WARN(
-      "The target joint states are automatically reset because ", tobas::kAutoResetTimeThreshold,
-      " seconds have elapsed since the last command.");
-  }
-
   // Create joint velocities command
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
@@ -159,8 +153,7 @@ void PositionControllerNode::targetJointStateCb(const sensor_msgs::msg::JointSta
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
 
-  t_last_cmd_ = get_clock()->now();
-  is_commanded_ = true;
+  auto_reset_timer_->reset();
 }
 
 void PositionControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
@@ -168,8 +161,19 @@ void PositionControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray:
   tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
-  t_last_cmd_ = get_clock()->now();
-  is_commanded_ = true;
+  auto_reset_timer_->reset();
+}
+
+void PositionControllerNode::autoResetTimerCb()
+{
+  tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  tar_ls_ = nullptr;
+
+  TOBAS_WARN(
+    "The target joint states are automatically reset because ", manipulation::kAutoResetTimeThresh,
+    " seconds have elapsed since the last command.");
+
+  auto_reset_timer_->cancel();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(PositionControllerNode)

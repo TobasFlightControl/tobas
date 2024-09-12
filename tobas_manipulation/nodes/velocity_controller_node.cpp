@@ -14,6 +14,7 @@
 #include <tobas_kdl_msgs_adapter/Tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
+#include "../include/tobas_manipulation/constants.hpp"
 #include "../include/tobas_manipulation/util.hpp"
 
 using namespace std;
@@ -38,11 +39,9 @@ private:
   bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
-  bool is_commanded_ = false;
   ros2::TransformListener::SharedPtr tf_listener_;
   double jnt_time_const_;
   sensor_msgs::msg::JointState home_js_;
-  rclcpp::Time t_last_cmd_;
 
   sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
   tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
@@ -56,6 +55,9 @@ private:
   ros2::SubscriberPtr<sensor_msgs::msg::JointState> cur_js_sub_;
   ros2::SubscriberPtr<sensor_msgs::msg::JointState> tar_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
+
+  // Timer
+  ros2::TimerPtr auto_reset_timer_;
 
   void initialize();
 
@@ -77,6 +79,8 @@ private:
   void currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js);
   void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
+
+  void autoResetTimerCb();
 };
 
 VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& options)
@@ -86,21 +90,20 @@ VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& option
     active_jnts_extractor_(tree_),
     vel_ctrl_(tree_)
 {
-  // Register dynamic parameters
   addDynamicDoubleParam("joint_time_constant", &self::jointTimeConstCb, this, 0.3, 0.01, 1.);
   addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.5, 0.01, 1.);
   addDynamicDoubleParam("angular_time_constant", &self::angularTimeConstCb, this, 0.5, 0.01, 1.);
   publishDynamicParameterDescriptions();
 
-  // Register publishers
   velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
 
-  // Register subscribers
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
   tar_js_sub_ = createSubscriber(tobas::kVelCtrlJSTopic, &self::targetJointStateCb, this);
   tar_ls_sub_ = createSubscriber(tobas::kVelCtrlLSTopic, &self::targetLinkStateCb, this);
+
+  auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }
 
 void VelocityControllerNode::initialize()
@@ -282,17 +285,6 @@ void VelocityControllerNode::currentJointStateCb(const sensor_msgs::msg::JointSt
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
-  const auto time_after_last_cmd = (get_clock()->now() - t_last_cmd_).seconds();
-  if (is_commanded_ && time_after_last_cmd > tobas::kAutoResetTimeThreshold)
-  {
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
-    tar_ls_ = nullptr;
-    is_commanded_ = false;
-    TOBAS_WARN(
-      "The target joint states are automatically reset because ", tobas::kAutoResetTimeThreshold,
-      " seconds have elapsed since the last command.");
-  }
-
   // Create joint velocities command
   auto velocities_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
@@ -322,8 +314,7 @@ void VelocityControllerNode::targetJointStateCb(const sensor_msgs::msg::JointSta
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
 
-  t_last_cmd_ = get_clock()->now();
-  is_commanded_ = true;
+  auto_reset_timer_->reset();
 }
 
 void VelocityControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls)
@@ -331,8 +322,19 @@ void VelocityControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray:
   tar_ls_ = tar_ls;
   tar_js_ = nullptr;
 
-  t_last_cmd_ = get_clock()->now();
-  is_commanded_ = true;
+  auto_reset_timer_->reset();
+}
+
+void VelocityControllerNode::autoResetTimerCb()
+{
+  tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  tar_ls_ = nullptr;
+
+  TOBAS_WARN(
+    "The target joint states are automatically reset because ", manipulation::kAutoResetTimeThresh,
+    " seconds have elapsed since the last command.");
+
+  auto_reset_timer_->cancel();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(VelocityControllerNode)
