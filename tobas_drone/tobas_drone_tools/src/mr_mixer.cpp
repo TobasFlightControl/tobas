@@ -180,11 +180,16 @@ void Mixer::updateThrustLimits(const double& dt, const double& cur_voltage, cons
   }
 
   // 合計推力の等式制約を満たせない場合は，不等式制約を取り除く
-  if (thrusts_sum < min_thrusts_.sum() || max_thrusts_.sum() < thrusts_sum)
+  const auto min_thrusts_sum = min_thrusts_.sum();
+  const auto max_thrusts_sum = max_thrusts_.sum();
+  if (thrusts_sum < min_thrusts_sum || max_thrusts_sum < thrusts_sum)
   {
-    PRINT_ERROR("Target thrust sum is not within the limit.");
     max_thrusts_.fill(numeric_limits<double>::max());
-    min_thrusts_.fill(0);
+    min_thrusts_.fill(0.);
+    if (thrusts_sum < min_thrusts_sum)
+      PRINT_ERROR("Target thrust sum [N] is too small: " << thrusts_sum << " < " << min_thrusts_sum);
+    else
+      PRINT_ERROR("Target thrust sum [N] is too large: " << thrusts_sum << " > " << max_thrusts_sum);
   }
 }
 }  // namespace tobas
