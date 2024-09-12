@@ -36,8 +36,15 @@ bool DroneServerNode::fileParamCb(const string& p)
     return false;
   }
 
+  if (!drone->isValid())
+  {
+    TOBAS_ERROR("Drone configurations are invalid.");
+    return false;
+  }
+
   drone_pub_->publish(move(drone));
 
+  TOBAS_INFO("New drone configuration message is published.");
   return true;
 }
 

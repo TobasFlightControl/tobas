@@ -57,7 +57,6 @@ private:
   tobas::Mixer mixer_;
 
   // Mutable variables
-  bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
@@ -305,6 +304,12 @@ bool ControllerNode::maxAttitudeCb(const double& p)
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
+  if (!drone->isValid())
+  {
+    TOBAS_ERROR("Invalid drone configurations are received.");
+    return;
+  }
+
   drone_ = *drone;
   drone_received_ = true;
 
@@ -384,7 +389,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // プロペラの推力を計算
     // TODO: H-momentを考慮
     const VectorXd thrusts = mixer_.solve(
-      dt, battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
+      battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
       tar_rpyt_->thrust);
 
     // 目標回転数を発行

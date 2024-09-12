@@ -88,6 +88,9 @@ bool RotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kMomentConstKey, node, moment_constant))
     return false;
 
+  if (!yaml::load(kDragConstKey, node, drag_constant))
+    return false;
+
   if (!yaml::load(kRotSpeedCoefKey, node, rot_speed_coefs))
     return false;
 
@@ -107,6 +110,7 @@ YAML::Node RotorConfig::dump() const
   node[kMaxRotSpeedKey] = max_rot_speed;
   node[kMotorConstKey] = motor_constant;
   node[kMomentConstKey] = moment_constant;
+  node[kDragConstKey] = drag_constant;
   node[kRotSpeedCoefKey] = rot_speed_coefs;
 
   return node;

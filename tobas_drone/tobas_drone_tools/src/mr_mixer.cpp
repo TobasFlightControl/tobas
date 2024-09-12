@@ -56,7 +56,6 @@ void Mixer::updateInternalDataStructures()
 }
 
 VectorXd Mixer::solve(
-  const double& dt,
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const Vector3d& cur_gyro_B,
@@ -64,7 +63,6 @@ VectorXd Mixer::solve(
   const Vector3d& tar_dgyro_B,
   const VectorXd& tar_thrusts)
 {
-  assert(dt >= 0);
   assert(cur_voltage > 0);
   assert(static_cast<size_t>(tar_thrusts.size()) == z_rotors_.count());
 
@@ -101,7 +99,7 @@ VectorXd Mixer::solve(
   qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - U_ * tar_thrusts;
   // qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - U_ * tar_thrusts;  // コリオリ力無視の場合
 
-  updateThrustLimits(dt, cur_voltage, tar_thrusts.sum());
+  updateThrustLimits(cur_voltage, tar_thrusts.sum());
   const auto max_dthrusts = max_thrusts_ - tar_thrusts;
   const auto min_dthrusts = min_thrusts_ - tar_thrusts;
   qp_.problem.b.head(z_rotors_.count()) = max_dthrusts;
@@ -116,7 +114,6 @@ VectorXd Mixer::solve(
 }
 
 VectorXd Mixer::solve(
-  const double& dt,
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const Vector3d& cur_gyro_B,
@@ -126,57 +123,47 @@ VectorXd Mixer::solve(
 {
   // 均等に推力が分散されている状態を参照とする
   VectorXd tar_thrusts = VectorXd::Constant(z_rotors_.count(), tar_thrusts_sum / z_rotors_.count());
-  return solve(dt, cur_voltage, cur_q, cur_gyro_B, cur_h_moment_B, tar_dgyro_B, tar_thrusts);
+  return solve(cur_voltage, cur_q, cur_gyro_B, cur_h_moment_B, tar_dgyro_B, tar_thrusts);
 }
 
-void Mixer::configure(const MixerConfig& cfg)
+bool Mixer::setDGyroWeight(double p)
 {
-  assert(cfg.dgyro_weight > 0);
-  assert(cfg.thrust_weight > 0);
-  assert(cfg.max_rot_acc > 0);
+  if (p <= 0.)
+  {
+    cerr << "DGyro weight must be positive." << endl;
+    return false;
+  }
 
-  cfg_ = cfg;
+  dgyro_weight_ = p;
   updateQpWeight();
+  return true;
+}
+
+bool Mixer::setThrustWeight(double p)
+{
+  if (p <= 0.)
+  {
+    cerr << "Thrust weight must be positive." << endl;
+    return false;
+  }
+
+  thrust_weight_ = p;
+  updateQpWeight();
+  return true;
 }
 
 void Mixer::updateQpWeight()
 {
-  qp_.problem.P.diagonal().head(3).fill(cfg_.dgyro_weight);
-  qp_.problem.P.diagonal().tail(z_rotors_.count()).fill(cfg_.thrust_weight);
+  qp_.problem.P.diagonal().head(3).fill(dgyro_weight_);
+  qp_.problem.P.diagonal().tail(z_rotors_.count()).fill(thrust_weight_);
 }
 
-void Mixer::updateThrustLimits(const double& dt, const double& cur_voltage, const double& thrusts_sum)
+void Mixer::updateThrustLimits(const double& cur_voltage, const double& thrusts_sum)
 {
-  tobas_std::Range<double> thrust_limit_1;
-  tobas_std::Range<double> thrust_limit_2;
-
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
-    // ハードウェアによる制約
-    thrust_limit_1.upper = z_rotors_.maxThrust(i, cur_voltage);
-    thrust_limit_1.lower = z_rotors_.minThrust(i, cur_voltage);
-
-    // 回転数の変化率による制約
-    const auto max_drot = cfg_.max_rot_acc * dt;  // 回転数の変化量の最大値
-    const auto& ct = z_rotors_.motorConstant(i);
-    const auto& last_thrust = last_thrusts_(i);
-    const auto max_dthrust = 2 * sqrt(ct * last_thrust) * max_drot + ct * math::sqr(max_drot);
-    thrust_limit_2.upper = last_thrust + max_dthrust;
-    thrust_limit_2.lower = last_thrust - max_dthrust;
-
-    if (thrust_limit_1.isOverlapped(thrust_limit_2))
-    {
-      // 2つの制約の共通部分を求める
-      const auto overlap = thrust_limit_1.overlappedArea(thrust_limit_2);
-      max_thrusts_(i) = overlap.upper;
-      min_thrusts_(i) = overlap.lower;
-    }
-    else
-    {
-      // 共通範囲が存在しない場合はハードウェア制約を優先
-      max_thrusts_(i) = thrust_limit_1.upper;
-      min_thrusts_(i) = thrust_limit_1.lower;
-    }
+    min_thrusts_(i) = z_rotors_.minThrust(i, cur_voltage);
+    max_thrusts_(i) = z_rotors_.maxThrust(i, cur_voltage);
   }
 
   // 合計推力の等式制約を満たせない場合は，不等式制約を取り除く
@@ -184,8 +171,8 @@ void Mixer::updateThrustLimits(const double& dt, const double& cur_voltage, cons
   const auto max_thrusts_sum = max_thrusts_.sum();
   if (thrusts_sum < min_thrusts_sum || max_thrusts_sum < thrusts_sum)
   {
-    max_thrusts_.fill(numeric_limits<double>::max());
     min_thrusts_.fill(0.);
+    max_thrusts_.fill(numeric_limits<double>::max());
     if (thrusts_sum < min_thrusts_sum)
       PRINT_ERROR("Target thrust sum [N] is too small: " << thrusts_sum << " < " << min_thrusts_sum);
     else

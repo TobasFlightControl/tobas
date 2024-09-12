@@ -22,6 +22,7 @@ class RotorConfig
   static constexpr char kMaxRotSpeedKey[] = "max_rot_speed";
   static constexpr char kMotorConstKey[] = "motor_constant";
   static constexpr char kMomentConstKey[] = "moment_constant";
+  static constexpr char kDragConstKey[] = "drag_constant";
   static constexpr char kRotSpeedCoefKey[] = "rot_speed_coef";
 
 public:

@@ -12,6 +12,9 @@
 #include "./rotor.hpp"
 #include "./fixed_wing.hpp"
 
+using namespace std;
+namespace fs = filesystem;
+
 namespace tobas
 {
 /**
@@ -28,10 +31,10 @@ class Drone
 public:
   static constexpr char kDroneExt[] = ".tbsdrn";
 
-  using SharedPtr = std::shared_ptr<Drone>;
-  using ConstSharedPtr = std::shared_ptr<const Drone>;
+  using SharedPtr = shared_ptr<Drone>;
+  using ConstSharedPtr = shared_ptr<const Drone>;
 
-  std::string name = "";       // The name of this drone
+  string name = "";            // The name of this drone
   BatteryConfig battery;       // The battery configurations
   JointConfigMap joints;       // The joint configurations
   RotorConfigs rotors;         // The rotor configurations
@@ -41,8 +44,8 @@ public:
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
 
-  bool load(const std::filesystem::path& path);
-  bool save(const std::filesystem::path& path) const;
+  bool load(const fs::path& path);
+  bool save(const fs::path& path) const;
 
   inline size_t numJoints() const;
   inline size_t numRotors() const;
@@ -117,13 +120,13 @@ inline double Drone::erpmFromRotSpeed(size_t rotor_idx, double rot_speed) const
 
 inline double Drone::maxRotSpeed(size_t rotor_idx, double battery_voltage) const
 {
-  return std::min(rotors.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, battery_voltage));
+  return min(rotors.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, battery_voltage));
 }
 
 inline double Drone::minRotSpeed(size_t rotor_idx, double battery_voltage) const
 {
   const auto min_voltage = battery_voltage * kArmThrot;
-  return std::min(rotors.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, min_voltage));
+  return min(rotors.at(rotor_idx).max_rot_speed, rotSpeedFromVoltage(rotor_idx, min_voltage));
 }
 
 inline double Drone::maxMechanicalThrust(size_t rotor_idx) const
@@ -135,13 +138,13 @@ inline double Drone::maxMechanicalThrust(size_t rotor_idx) const
 inline double Drone::maxThrust(size_t rotor_idx, double battery_voltage) const
 {
   // 機械的な限界とエネルギー的な限界の最小値を計算
-  return std::min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, battery_voltage));
+  return min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, battery_voltage));
 }
 
 inline double Drone::minThrust(size_t rotor_idx, double battery_voltage) const
 {
   const auto min_voltage = battery_voltage * kArmThrot;
-  return std::min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, min_voltage));
+  return min(maxMechanicalThrust(rotor_idx), thrustFromVoltage(rotor_idx, min_voltage));
 }
 
 inline double Drone::thrustFromRotSpeed(size_t rotor_idx, double tar_speed) const
@@ -168,6 +171,7 @@ inline double Drone::voltageFromRotSpeed(size_t rotor_idx, double tar_speed) con
 
 inline double Drone::rotSpeedFromVoltage(size_t rotor_idx, double voltage) const
 {
+  assert(isValid());
   assert(voltage >= 0);
 
   const auto& a = rotors[rotor_idx].rot_speed_coefs.first;
