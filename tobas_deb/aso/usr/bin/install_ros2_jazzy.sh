@@ -22,6 +22,7 @@ sudo apt update &&
 sudo apt upgrade -y &&
 sudo apt install -y ros-dev-tools &&
 sudo apt install -y python3-colcon-common-extensions &&
+sudo apt install -y python3-colcon-clean &&
 # sudo apt install -y python3-flake8-blind-except &&
 # sudo apt install -y python3-flake8-class-newline &&
 # sudo apt install -y python3-flake8-deprecated &&

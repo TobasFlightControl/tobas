@@ -23,7 +23,6 @@
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>forward_command_controller</exec_depend>
   <exec_depend>tobas_rviz_plugin</exec_depend>
-  <exec_depend>tobas_description</exec_depend>
   <exec_depend>tobas_property_server</exec_depend>
 
   <export>
