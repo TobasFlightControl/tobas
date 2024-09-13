@@ -4,4 +4,4 @@ Architecture: arm64
 Version: 2.0.0
 Description: Tobas Flight Controller
 Homepage: https://tobas-wiki-ja.readthedocs.io/ja/stable/
-Depends: hostapd, dnsmasq, netfilter-persistent, iptables-persistent
+Depends: hostapd, dnsmasq, dhcpcd, netfilter-persistent, iptables-persistent
