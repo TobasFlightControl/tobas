@@ -19,10 +19,10 @@ rm -rf ~/.ssh/* &&
 rosclean purge -y &&
 
 # Clean catkin workspaces
-cd ~/catkin_ws/ &&
+cd ~/colcon_ws/ &&
 catkin clean -y &&
 rm -rf ./src/* &&
-cd /etc/tobas/catkin_ws/ &&
+cd /etc/tobas/colcon_ws/ &&
 sudo catkin clean -y &&
 sudo rm -rf ./src/* &&
 

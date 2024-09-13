@@ -61,7 +61,7 @@ file(GLOB_RECURSE UI_FILES RELATIVE ${PROJECT_SOURCE_DIR} ui/[^.]*.ui)
 qt5_wrap_ui(UIC_FILES ${UI_FILES})
 
 include_directories(include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}) # catkin_ws/build/${PROJECT_NAME}/
+include_directories(${CMAKE_CURRENT_BINARY_DIR}) # colcon_ws/build/${PROJECT_NAME}/
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${UIC_FILES} ${LIB_CPP_FILES})

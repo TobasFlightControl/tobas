@@ -25,6 +25,4 @@ sudo netfilter-persistent save
 sudo systemctl disable hciuart.service
 
 # Enable Tobas services
-sudo systemctl enable tobas_roscore.service
-sudo systemctl enable tobas_fkie_master.service
 sudo systemctl enable tobas_real.service
