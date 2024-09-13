@@ -1,6 +1,6 @@
 Package: tobas
 Maintainer: Masayoshi Dohi <masa0u0masa1215@gmail.com>
-Architecture: aarch64
+Architecture: arm64
 Version: 2.0.0
 Description: Tobas Flight Controller
 Homepage: https://tobas-wiki-ja.readthedocs.io/ja/stable/
