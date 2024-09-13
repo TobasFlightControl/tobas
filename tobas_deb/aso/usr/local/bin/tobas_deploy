@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Build and install Tobas
-tobas_build Release &&
+# Install Tobas
+cd ~/colcon_ws &&
+colcon build  --cmake-clean-first --parallel-workers $(nproc) --install-base /opt/tobas --build-base ~/colcon_ws/release_build --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to tobas &&
 
 # Remove unnecessary files
 sudo rm -rf /tmp/* &&
@@ -10,24 +11,19 @@ sudo rm -rf /var/log/* &&
 rm -rf ~/.cache/* &&
 rm -rf ~/.emacs.d/* &&
 rm -rf ~/.vscode-server/* &&
+rm -rf ~/.ros/*
 
 # Remove personal information
 rm -rf ~/.gnupg/* &&
 rm -rf ~/.ssh/* &&
 
-# Clean ROS
-rosclean purge -y &&
-
-# Clean catkin workspaces
+# Clean colcon workspaces
 cd ~/colcon_ws/ &&
-catkin clean -y &&
+colcon clean workspace -y &&
 rm -rf ./src/* &&
 cd /etc/tobas/colcon_ws/ &&
-sudo catkin clean -y &&
+sudo colcon clean workspace -y &&
 sudo rm -rf ./src/* &&
-
-# Clear configuration file
-sudo truncate -s 0 /etc/tobas/config.ini &&
 
 # Clear network settings
 sudo sed -i '4,$ d' /etc/wpa_supplicant/wpa_supplicant.conf &&
