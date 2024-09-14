@@ -90,6 +90,6 @@ private:
   bool start();
   bool powerDown();
   bool sendStandAloneCommand(const uint8_t& cmd);
-  bool configure(const uint8_t& reg, const uint8_t& cfg);
+  bool configure(const uint8_t& rr, const uint8_t& tar_cfg);
 };
 }  // namespace aso

@@ -52,8 +52,6 @@ void IMUDriverNode::mainTimerCb()
     return;
   }
 
-  // TODO: 軸や符号の変換が必要かも
-
   // Publish message
   imu_pub_->publish(move(msg));
 }

@@ -6,6 +6,7 @@
 #include <linux/i2c-dev.h>
 
 #include "../include/tobas_linux/i2c_dev.hpp"
+#include "../include/tobas_linux/errer.hpp"
 
 using namespace std;
 
@@ -30,6 +31,12 @@ I2Cdev::~I2Cdev()
 
 bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr, size_t buf_size)
 {
+  if (dev_addr >= 0x80)
+  {
+    cerr << "Invalid slave address. It must be 7-bit." << endl;
+    return false;
+  }
+
   i2c_fd_ = open(i2c_dev, O_RDWR);
   if (i2c_fd_ < 0)
   {
@@ -114,7 +121,7 @@ bool I2Cdev::checkDataLength(size_t length) const
 {
   if (length > buf_size_)
   {
-    cerr << "Data length is greater than buffer size." << endl;
+    cerr << "Data length cannot be greater than buffer size." << endl;
     return false;
   }
 
@@ -146,9 +153,22 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length)
   // 5. Register Address (Master -> Slave)
   // 6. ACK (Slave -> Master)
   // 7. Stop Condition (Master -> Slave)
-  if (::write(i2c_fd_, tx_, length + 1) != static_cast<ssize_t>(length + 1))
+  const auto req_length = length + 1;
+  const auto res_length = ::write(i2c_fd_, tx_, req_length);
+  if (res_length < 0)
   {
-    cerr << "I2C write error." << endl;
+    cerr << "I2C write failed: " << strError() << endl;
+    switch (errno)
+    {
+      case EREMOTEIO:
+        cerr << "Please ensure that the correct 7-bit slave address is set." << endl;
+        break;
+    }
+    return false;
+  }
+  if (res_length != static_cast<ssize_t>(req_length))
+  {
+    cerr << "Tried to write " << req_length << " bytes, but " << res_length << " bytes were written." << endl;
     return false;
   }
 
@@ -167,9 +187,15 @@ bool I2Cdev::read(size_t length)
   // 6. Register Value (Slave -> Master)
   // 7. NAK (Master -> Slave)
   // 8. Stop Condition (Master -> Slave)
-  if (::read(i2c_fd_, rx, length) != static_cast<ssize_t>(length))
+  const auto res_length = ::read(i2c_fd_, rx, length);
+  if (res_length < 0)
   {
-    cerr << "I2C read error." << endl;
+    cerr << "I2C read failed: " << strError() << endl;
+    return false;
+  }
+  if (res_length != static_cast<ssize_t>(length))
+  {
+    cerr << "Tried to read " << length << " bytes, but " << res_length << " bytes were read." << endl;
     return false;
   }
 

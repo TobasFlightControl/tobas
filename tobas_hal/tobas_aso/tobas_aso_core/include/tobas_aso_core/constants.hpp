@@ -22,7 +22,7 @@ static constexpr char kGnssDev[] = "/dev/spidev1.2";
 
 namespace i2c_address
 {
-static constexpr uint8_t kMagAddress = 0x3C;
-static constexpr uint8_t kBaroAddress = 0x5C;
+static constexpr uint8_t kMagAddress = 0b0011110;
+static constexpr uint8_t kBaroAddress = 0b1011100;
 }  // namespace i2c_address
 }  // namespace aso

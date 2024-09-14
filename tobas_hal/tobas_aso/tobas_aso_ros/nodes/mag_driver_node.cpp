@@ -47,8 +47,6 @@ void MagDriverNode::mainTimerCb()
     return;
   }
 
-  // TODO: 軸や符号の変換が必要かも
-
   // Publish message
   mag_pub_->publish(move(msg));
 }
