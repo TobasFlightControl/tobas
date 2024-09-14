@@ -98,10 +98,10 @@ void ILPS22QS::setPressureScale(const uint8_t& fs_mode)
   switch (fs_mode)
   {
     case FS_MODE_1260HPA:
-      pres_scale_ = 4.096;
+      pres_scale_ = 40.96;
       break;
     case FS_MODE_4060HPA:
-      pres_scale_ = 2.048;
+      pres_scale_ = 20.48;
       break;
     default:
       throw;
