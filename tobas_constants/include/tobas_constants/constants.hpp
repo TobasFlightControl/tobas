@@ -114,10 +114,6 @@ static constexpr char kObserverNode[] = "observer";
 // Frames
 static constexpr char kWorldFrame[] = "world";
 
-// Path
-static constexpr char kColconWSPath[] = "~/Tobas/colcon_ws";
-static constexpr char kTBSExtension[] = ".TBS";
-
 // Flight mode
 static constexpr uint8_t kFlightModeProgram = 0;
 static constexpr uint8_t kFlightModeStabilize = kFlightModeProgram + 1;

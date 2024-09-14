@@ -2,7 +2,9 @@
 
 #include <filesystem>
 
-namespace tobas
+namespace gui
+{
+namespace common
 {
 /* パスから拡張子を除いたTobasパッケージ名を抽出する． */
 std::string getTBSName(const std::filesystem::path& tbs_path);
@@ -42,4 +44,5 @@ std::filesystem::path getSettingsPath(const std::filesystem::path& tbs_path);
 
 /* PC上のバックアップ用オリジナルURDFの絶対パスを返す． */
 std::filesystem::path getOriginalURDFPath(const std::filesystem::path& tbs_path);
-}  // namespace tobas
+}  // namespace common
+}  // namespace gui

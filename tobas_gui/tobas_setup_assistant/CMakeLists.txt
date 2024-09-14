@@ -27,7 +27,7 @@ find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
-find_package(tobas_tools REQUIRED)
+find_package(tobas_gui_common REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
@@ -38,7 +38,7 @@ set(AMENT_DEPENDENCIES
   tobas_linux
   tobas_ros2_tools
   tobas_property_client
-  tobas_tools
+  tobas_gui_common
   tobas_drone_msgs_adapter
   tobas_qt_tools
 )

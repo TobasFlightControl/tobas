@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_tools)
+project(tobas_gui_common)
+
+file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+
+if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
+	message("This package is skipped on Raspberry Pi.")
+	find_package(ament_cmake REQUIRED)
+	ament_package()
+	return()
+endif()
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,12 +21,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_std_tools REQUIRED)
+find_package(tobas_linux REQUIRED)
+find_package(tobas_constants REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	rclcpp
-	tobas_msgs_adapter
+	tobas_std_tools
+	tobas_linux
+	tobas_constants
 )
 
 include_directories(include)

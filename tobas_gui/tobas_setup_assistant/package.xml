@@ -15,7 +15,7 @@
   <depend>tobas_linux</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_property_client</depend>
-  <depend>tobas_tools</depend>
+  <depend>tobas_gui_common</depend>
   <depend>tobas_drone_msgs_adapter</depend>
   <depend>tobas_qt_tools</depend>
 

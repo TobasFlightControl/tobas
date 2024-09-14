@@ -2,7 +2,10 @@
 
 #include <filesystem>
 
-namespace tobas
+namespace gui
+{
+namespace common
 {
 bool sourceTobasPackage(const std::filesystem::path& tbs_path);
-}  // namespace tobas
+}  // namespace common
+}  // namespace gui

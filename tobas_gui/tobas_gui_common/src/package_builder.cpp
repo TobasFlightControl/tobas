@@ -4,13 +4,16 @@
 #include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_tools/package_builder.hpp"
-#include "../include/tobas_tools/package.hpp"
+#include "../include/tobas_gui_common/package_builder.hpp"
+#include "../include/tobas_gui_common/constants.hpp"
+#include "../include/tobas_gui_common/package.hpp"
 
 using namespace std;
 namespace fs = filesystem;
 
-namespace tobas
+namespace gui
+{
+namespace common
 {
 PackageBuilder::PackageBuilder()
 {
@@ -65,4 +68,5 @@ const string& PackageBuilder::getOutput() const
 {
   return command_executor_.getOutput();
 }
-}  // namespace tobas
+}  // namespace common
+}  // namespace gui

@@ -5,6 +5,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_gui_common/constants.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/ros_package.hpp"
 
@@ -73,7 +74,7 @@ void ROSPackageWidget::onOpened()
 void ROSPackageWidget::updateInternalDataStructures()
 {
   // デフォルトの親ディレクトリを設定
-  const auto default_pardir = path::join(linux::expandUser(tobas::kColconWSPath), "src");
+  const auto default_pardir = path::join(linux::expandUser(common::kColconWSPath), "src");
   pardir_->setValue(QString::fromStdString(default_pardir));
 
   // デフォルトの親ディレクトリが存在しなければ作成
@@ -140,7 +141,7 @@ void ROSPackageWidget::onPathChanged()
   const auto pardir = pardir_->getValue().toStdString();
   const auto tbs_name = tbs_name_->getValue().toStdString();
 
-  const auto path = fs::path(pardir) / (tbs_name + tobas::kTBSExtension);
+  const auto path = fs::path(pardir) / (tbs_name + common::kTBSExtension);
   tbs_path_->setText(QString::fromStdString(path));
 
   generate_button_->setEnabled(!pardir.empty() && !tbs_name.empty());

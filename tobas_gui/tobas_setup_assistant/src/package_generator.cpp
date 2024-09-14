@@ -11,9 +11,10 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_ros2_tools/path.hpp>
-#include <tobas_tools/package.hpp>
-#include <tobas_tools/command.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_gui_common/package.hpp>
+#include <tobas_gui_common/command.hpp>
 
 #include "tobas_setup_assistant/package_generator.hpp"
 #include "tobas_setup_assistant/xml_elements/xml_elements.hpp"
@@ -88,9 +89,9 @@ inja::json PackageGenerator::createTemplateData()
   tpl_data["author_email"] = settings_->author_info->authorEmail().toStdString();
 
   // Ros Package
-  tpl_data["meta_pkg_name"] = tobas::getTBSMetaName(tbsPath());
-  tpl_data["config_pkg_name"] = tobas::getTBSConfigName(tbsPath());
-  tpl_data["user_pkg_name"] = tobas::getTBSUserName(tbsPath());
+  tpl_data["meta_pkg_name"] = common::getTBSMetaName(tbsPath());
+  tpl_data["config_pkg_name"] = common::getTBSConfigName(tbsPath());
+  tpl_data["user_pkg_name"] = common::getTBSUserName(tbsPath());
 
   return tpl_data;
 }
@@ -200,7 +201,7 @@ tobas::Drone PackageGenerator::createDrone()
 
 bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 {
-  const auto meta_pkg_path = tobas::getTBSMetaPath(tbsPath());
+  const auto meta_pkg_path = common::getTBSMetaPath(tbsPath());
   fs::create_directory(meta_pkg_path);
 
   meta_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", meta_pkg_path);
@@ -214,7 +215,7 @@ bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 {
-  const auto config_pkg_path = tobas::getTBSConfigPath(tbsPath());
+  const auto config_pkg_path = common::getTBSConfigPath(tbsPath());
   fs::create_directory(config_pkg_path);
 
   // ディレクトリを作成
@@ -231,7 +232,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 
   // バックアップ用ファイル
   const auto backup_data = settings_->dump();
-  if (!saveYamlNode(tobas::getSettingsPath(tbsPath()), backup_data))
+  if (!saveYamlNode(common::getSettingsPath(tbsPath()), backup_data))
     return false;
 
   // テンプレートから生成
@@ -298,7 +299,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateUserPackage(const inja::json& tpl_data)
 {
-  const auto user_pkg_path = tobas::getTBSUserPath(tbsPath());
+  const auto user_pkg_path = common::getTBSUserPath(tbsPath());
   fs::create_directory(user_pkg_path);
 
   // ディレクトリを作成
@@ -334,7 +335,7 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
   if (servos->count() > 0)
   {
-    const auto config_pkg_name = tobas::getTBSConfigName(tbsPath());
+    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
     const auto param_file = "$(find-pkg-share " + config_pkg_name + ")/config/joint_control.yaml";
 
     // Joint state broadcaster
@@ -480,7 +481,7 @@ bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
   }
 
   // Save original URDF
-  if (doc->SaveFile(tobas::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
+  if (doc->SaveFile(common::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
   {
     qt::qErrorBox(settings_, "Failed to save the original URDF.");
     return false;
@@ -493,7 +494,7 @@ bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
     return false;
 
   // Save modified URDF
-  if (doc->SaveFile(tobas::getModifiedURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
+  if (doc->SaveFile(common::getModifiedURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
   {
     qt::qErrorBox(settings_, "Failed to save the original URDF.");
     return false;
@@ -572,7 +573,7 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
       // メッシュファイルへのパスを置換
       // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
       // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
-      const auto config_pkg_name = tobas::getTBSConfigName(tbsPath());
+      const auto config_pkg_name = common::getTBSConfigName(tbsPath());
       const auto new_filename = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
       elem->SetAttribute("filename", new_filename.c_str());
     }
@@ -671,7 +672,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Gazebo ROS2 control plugin
   // FIXME: ジョイントが1つも設定されてないとフリーズする？
   if (joints->count() > 0)
-    addGazeboSimROS2ControlPlugin(robot, ns, tobas::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
+    addGazeboSimROS2ControlPlugin(robot, ns, common::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
 
   // Gazebo ROS2 control system
   addGazeboROS2SimSystem(robot, drone.joints);

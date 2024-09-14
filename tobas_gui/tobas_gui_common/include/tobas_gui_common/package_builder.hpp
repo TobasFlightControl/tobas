@@ -4,7 +4,9 @@
 
 #include <tobas_linux/command_executor.hpp>
 
-namespace tobas
+namespace gui
+{
+namespace common
 {
 class PackageBuilder
 {
@@ -18,4 +20,5 @@ public:
 private:
   linux::CommandExecutor command_executor_;
 };
-}  // namespace tobas
+}  // namespace common
+}  // namespace gui

@@ -6,10 +6,11 @@
 #include <tobas_linux/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_tools/package.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <tobas_gui_common/constants.hpp>
+#include <tobas_gui_common/package.hpp>
 
 #include "tobas_setup_assistant/start/package_loader.hpp"
 #include "tobas_setup_assistant/common.hpp"
@@ -68,14 +69,14 @@ void PackageLoaderWidget::onLoadButtonClicked()
     return;
 
   // 拡張子をチェック
-  if (!tbs_path.endsWith(tobas::kTBSExtension))
+  if (!tbs_path.endsWith(common::kTBSExtension))
   {
-    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
+    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + common::kTBSExtension + ").");
     return;
   }
 
   // URDFの存在を確認
-  const auto urdf_path = tobas::getOriginalURDFPath(tbs_path.toStdString());
+  const auto urdf_path = common::getOriginalURDFPath(tbs_path.toStdString());
   if (!std::filesystem::is_regular_file(urdf_path))
   {
     qt::qErrorBox(
@@ -85,7 +86,7 @@ void PackageLoaderWidget::onLoadButtonClicked()
   }
 
   // ユーザ設定ファイルの存在を確認
-  const auto settings_path = tobas::getSettingsPath(tbs_path.toStdString());
+  const auto settings_path = common::getSettingsPath(tbs_path.toStdString());
   if (!std::filesystem::is_regular_file(settings_path))
   {
     qt::qErrorBox(

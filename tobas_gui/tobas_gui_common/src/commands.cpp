@@ -1,13 +1,15 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "../include/tobas_tools/command.hpp"
-#include "../include/tobas_tools/package.hpp"
+#include "../include/tobas_gui_common/command.hpp"
+#include "../include/tobas_gui_common/package.hpp"
 
 using namespace std;
 namespace fs = filesystem;
 
-namespace tobas
+namespace gui
+{
+namespace common
 {
 bool sourceTobasPackage(const fs::path& tbs_path)
 {
@@ -33,4 +35,5 @@ bool sourceTobasPackage(const fs::path& tbs_path)
 
   return false;
 }
-}  // namespace tobas
+}  // namespace common
+}  // namespace gui
