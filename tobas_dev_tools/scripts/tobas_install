@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Set paths
+export COLCON_WS=~/colcon_ws
+export RELEASE_DIR=${COLCON_WS}/release
+export INSTALL_BASE=${RELEASE_DIR}/install
+
+sudo cp -r ${INSTALL_BASE} /opt/tobas
