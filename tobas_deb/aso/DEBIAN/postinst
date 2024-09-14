@@ -23,5 +23,8 @@ sudo netfilter-persistent save
 # Disable Bluetooth HCI (Host Controller Interface) to enable GPIO UART
 sudo systemctl disable hciuart.service
 
+# Disable swap because the access speed to SD card is too slow
+sudo systemctl disable dphys-swapfile
+
 # Enable Tobas services
 sudo systemctl enable tobas_real.service
