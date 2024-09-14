@@ -8,10 +8,6 @@ arm_64bit=1
 # Enable SPI interface
 dtparam=spi=on
 
-# Enable I2C interface (fast mode plus)
-dtparam=i2c1=on
-dtparam=i2c1_baudrate=1000000
-
 # Assign the fast UART to GPIOs 4-5 (/dev/serial0)
 dtoverlay=disable-bt
 
@@ -35,6 +31,9 @@ force_turbo=0
 
 # Allow full current to USB devices
 usb_max_current_enable=1
+
+# Enable I2C interface (fast mode plus)
+dtoverlay=i2c1-pi5,baudrate=1000000
 
 # Additional UART interfaces
 dtoverlay=uart2-pi5
