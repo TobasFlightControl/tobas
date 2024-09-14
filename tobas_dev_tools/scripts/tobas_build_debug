@@ -1,0 +1,18 @@
+#!/bin/bash
+
+export COLCON_WS=~/colcon_ws
+export RELEASE_DIR=${COLCON_WS}/debug
+export COLCON_LOG_PATH=${RELEASE_DIR}/log
+export INSTALL_BASE=${RELEASE_DIR}/install
+export BUILD_BASE=${RELEASE_DIR}/build
+
+cd ${COLCON_WS}
+
+# Build
+colcon build --symlink-install --parallel-workers $(nproc) --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Debug $1 $2
+if [$? -ne 0]; then
+  echo "Failed to build."
+  exit 1
+fi
+
+echo -e "\033[32mFinished successfully.\033[0m"
