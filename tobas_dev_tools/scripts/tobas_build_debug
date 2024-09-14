@@ -1,16 +1,21 @@
 #!/bin/bash
 
+# Set paths
 export COLCON_WS=~/colcon_ws
 export RELEASE_DIR=${COLCON_WS}/debug
 export COLCON_LOG_PATH=${RELEASE_DIR}/log
 export INSTALL_BASE=${RELEASE_DIR}/install
 export BUILD_BASE=${RELEASE_DIR}/build
 
+# Navigate to the colcon workspace
 cd ${COLCON_WS}
 
+# Limit the number of threads used to build a single package
+export MAKEFLAGS="-j2"
+
 # Build
-colcon build --symlink-install --parallel-workers $(nproc) --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Debug $1 $2
-if [$? -ne 0]; then
+colcon build --symlink-install --parallel-workers 2 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Debug $1 $2
+if [ $? -ne 0 ]; then
   echo "Failed to build."
   exit 1
 fi

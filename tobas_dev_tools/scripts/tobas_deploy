@@ -3,7 +3,7 @@
 # Install Tobas
 PARDIR=$(realpath $(dirname "$0"))
 bash ${PARDIR}/tobas_build_release_upto tobas
-if [$? -ne 0]; then
+if [ $? -ne 0 ]; then
   echo "Failed to build."
   exit 1
 fi
@@ -28,7 +28,7 @@ sudo rm -rf ./src/*
 
 # Clear network settings
 sudo sed -i '4,$ d' /etc/wpa_supplicant/wpa_supplicant.conf
-if [$? -ne 0]; then
+if [ $? -ne 0 ]; then
   echo "Failed to edit /etc/wpa_supplicant/wpa_supplicant.conf."
   exit 1
 fi
