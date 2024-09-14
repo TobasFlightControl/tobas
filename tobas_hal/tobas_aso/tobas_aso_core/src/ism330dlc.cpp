@@ -39,9 +39,10 @@ bool ISM330DLC::readAcc(double& ax, double& ay, double& az)
   if (!readRegs(REG_OUTX_L_XL, 6))
     return false;
 
-  ax = (((int16_t)res_[1] << 8) | res_[0]) * acc_scale_;
-  ay = (((int16_t)res_[3] << 8) | res_[2]) * acc_scale_;
-  az = (((int16_t)res_[5] << 8) | res_[4]) * acc_scale_;
+  // 正負両方の値を表現するために，一度符号付き16ビット整数型に変換する必要がある
+  ax = static_cast<int16_t>((res_[1] << 8) | res_[0]) * acc_scale_;
+  ay = static_cast<int16_t>((res_[3] << 8) | res_[2]) * acc_scale_;
+  az = static_cast<int16_t>((res_[5] << 8) | res_[4]) * acc_scale_;
 
   return true;
 }
@@ -51,9 +52,9 @@ bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
   if (!readRegs(REG_OUTX_L_G, 6))
     return false;
 
-  gx = (((int16_t)res_[1] << 8) | res_[0]) * gyro_scale_;
-  gy = (((int16_t)res_[3] << 8) | res_[2]) * gyro_scale_;
-  gz = (((int16_t)res_[5] << 8) | res_[4]) * gyro_scale_;
+  gx = static_cast<int16_t>((res_[1] << 8) | res_[0]) * gyro_scale_;
+  gy = static_cast<int16_t>((res_[3] << 8) | res_[2]) * gyro_scale_;
+  gz = static_cast<int16_t>((res_[5] << 8) | res_[4]) * gyro_scale_;
 
   return true;
 }
