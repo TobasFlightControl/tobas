@@ -5,9 +5,6 @@
 # The kernel will be started in 64-bit mode
 arm_64bit=1
 
-# Enable SPI interface
-dtparam=spi=on
-
 # Assign the fast UART to GPIOs 4-5 (/dev/serial0)
 dtoverlay=disable-bt
 
@@ -32,9 +29,14 @@ force_turbo=0
 # Allow full current to USB devices
 usb_max_current_enable=1
 
-# Enable I2C interface (fast mode plus)
+# Enable SPI interfaces
+dtoverlay=spi0-2cs
+dtoverlay=spi1-3cs
+
+# Enable I2C interface
 dtoverlay=i2c1-pi5,baudrate=1000000
 
 # Additional UART interfaces
 dtoverlay=uart2-pi5
 dtoverlay=uart4-pi5
+dtparam=i2c_arm=on
