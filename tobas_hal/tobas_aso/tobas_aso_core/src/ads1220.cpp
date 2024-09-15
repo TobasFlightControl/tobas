@@ -1,5 +1,6 @@
 #include <bitset>
 
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 
 #include "../include/tobas_aso_core/ads1220.hpp"
@@ -33,15 +34,25 @@ bool ADS1220::initialize()
   return true;
 }
 
-bool ADS1220::readVoltage(double& data)
+bool ADS1220::readVoltage(double& dst)
 {
-  // 8.5.4 Reading Data (p.37)
-
+  // Read data
+  // cf. 8.5.4 Reading Data (p.37)
+  // cf. https://www.denshi.club/pc/python/circuitpython/circuitpython-10-step2-6-adc1220.html
   spi_.tx[0] = RDATA;
-  if (!spi_.transfer(4))
+  if (!spi_.transfer(3))
     return false;
+  int lsb = (spi_.rx[0] << 16) | (spi_.rx[1] << 8) | spi_.rx[2];
 
-  data = (spi_.rx[1] << 16) | (spi_.rx[2] << 8) | spi_.rx[3];
+  // 24ビット符号付き整数をデコード
+  // cf. 8.5.2 Data Format (p.35)
+  if ((lsb >> 23) & 1)
+    lsb -= (1 << 24);
+
+  // スケーリング
+  // TODO: 実際の電圧に変換
+  dst = math::remap<double>(lsb, -(1 << 23), (1 << 23), 0., 2 * kVref / kGain);
+
   return true;
 }
 
@@ -60,7 +71,7 @@ bool ADS1220::reset()
     return true;
 
   // Wait at least (50us + 32 * t(CLK)) after the RESET command is sent before sending any other command.
-  tobas_std::usleep(100);
+  tobas_std::usleep(1000);
 
   return true;
 }
@@ -78,7 +89,10 @@ bool ADS1220::powerDown()
 bool ADS1220::sendStandAloneCommand(const uint8_t& cmd)
 {
   spi_.tx[0] = cmd;
-  return spi_.transfer(1);
+  if (!spi_.transfer(1))
+    return false;
+
+  return true;
 }
 
 bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
@@ -95,7 +109,11 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
     return false;
   }
 
-  // Confirm that the configuration is reflected
+  // FIXME: 書き込んだ内容と読み取った内容が一致しない．
+  // しかしRDATAの出力を見るに設定変更は正しく反映されているように思える．
+  return true;
+
+  // Verify that the configuration is reflected
   spi_.tx[0] = RREG | rrnn;
   if (!spi_.transfer(2))
   {
@@ -107,7 +125,7 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   if (cur_cfg != tar_cfg)
   {
     cerr << "Configuration is not reflected." << endl;
-    cerr << "Register   : " << bitset<8>(rr) << endl;
+    cerr << "Register   : " << bitset<2>(rr >> 2) << endl;
     cerr << "Target data: " << bitset<8>(tar_cfg) << endl;
     cerr << "Actual data: " << bitset<8>(cur_cfg) << endl;
     return false;

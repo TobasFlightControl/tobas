@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cinttypes>
+#include <cstdint>
 #include <vector>
 #include <yaml-cpp/yaml.h>
 

@@ -24,7 +24,7 @@ int main()
       return EXIT_FAILURE;
     }
 
-    cout << "Voltage: " << voltage << endl;
+    cout << "Voltage Channel: " << voltage << endl;
 
     sleep(1);
   }

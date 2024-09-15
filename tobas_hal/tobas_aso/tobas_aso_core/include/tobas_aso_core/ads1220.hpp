@@ -12,17 +12,19 @@ namespace aso
 class ADS1220
 {
   static constexpr uint32_t kSpiClockFreq = 5'000'000;  // Minimum period is 150ns (6.67MHz)
+  static constexpr double kVref = 2.048;                // Internal 2.048-V reference (p.42)
+  static constexpr double kGain = 1.;
 
 public:
   explicit ADS1220();
 
   bool initialize();
 
-  /* Read the current value of the voltage channel [-]. */
-  bool readVoltage(double& data);
+  /* Read the current value of the voltage channel [-1, 1] */
+  bool readVoltage(double& dst);
 
-  /* Read the current value of the current channel [-]. */
-  bool readCurrent(double& data);
+  /* Read the current value of the current channel [-1, 1] */
+  bool readCurrent(double& dst);
 
 private:
   /* 8.5.3: Commands */
@@ -34,6 +36,8 @@ private:
     RDATA = 0b00010000,      // Read data by command
     RREG = 0b00100000,       // Read nn registers starting at address rr
     WREG = 0b01000000,       // Write nn registers starting at address rr
+
+    DUMMY = 0xFF,
   };
 
   /* 8.6: Register Map (p.39) */

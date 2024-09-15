@@ -52,7 +52,7 @@ bool SPIdev::transfer(uint32_t length)
 {
   if (length > buf_size_)
   {
-    cerr << "Data length is greater than buffer size." << endl;
+    cerr << "Data length cannot be greater than buffer size." << endl;
     return false;
   }
 
