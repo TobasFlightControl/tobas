@@ -8,8 +8,6 @@ namespace linux
 {
 class UARTdev
 {
-  static constexpr uint32_t kDefaultBaudRate = 9600;  // [bps]
-
 public:
   enum parity_mode_t : tcflag_t
   {
@@ -22,7 +20,8 @@ public:
 
   bool initialize(const char* uart_dev, bool block_mode = false);
 
-  bool setBaudRate(uint32_t baud_rate);
+  bool setStandardBaudRate(uint32_t baud_rate_flag);
+  bool setNonStandardBaudRate(uint32_t baud_rate);
   bool setDataBits(uint8_t data_bits);
   bool setSingleStopBit();
   bool setDoubleStopBit();

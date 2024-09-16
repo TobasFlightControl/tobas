@@ -154,8 +154,8 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length)
   // 6. ACK (Slave -> Master)
   // 7. Stop Condition (Master -> Slave)
   const auto req_length = length + 1;
-  const auto res_length = ::write(i2c_fd_, tx_, req_length);
-  if (res_length < 0)
+  const auto res = ::write(i2c_fd_, tx_, req_length);
+  if (res < 0)
   {
     cerr << "I2C write failed: " << strError() << endl;
     switch (errno)
@@ -166,9 +166,9 @@ bool I2Cdev::write(uint8_t reg_addr, size_t length)
     }
     return false;
   }
-  if (res_length != static_cast<ssize_t>(req_length))
+  if (res != static_cast<ssize_t>(req_length))
   {
-    cerr << "Tried to write " << req_length << " bytes, but " << res_length << " bytes were written." << endl;
+    cerr << "Tried to write " << req_length << " bytes, but " << res << " bytes were written." << endl;
     return false;
   }
 
@@ -187,15 +187,15 @@ bool I2Cdev::read(size_t length)
   // 6. Register Value (Slave -> Master)
   // 7. NAK (Master -> Slave)
   // 8. Stop Condition (Master -> Slave)
-  const auto res_length = ::read(i2c_fd_, rx, length);
-  if (res_length < 0)
+  const auto res = ::read(i2c_fd_, rx, length);
+  if (res < 0)
   {
     cerr << "I2C read failed: " << strError() << endl;
     return false;
   }
-  if (res_length != static_cast<ssize_t>(length))
+  if (res != static_cast<ssize_t>(length))
   {
-    cerr << "Tried to read " << length << " bytes, but " << res_length << " bytes were read." << endl;
+    cerr << "Tried to read " << length << " bytes, but " << res << " bytes were read." << endl;
     return false;
   }
 

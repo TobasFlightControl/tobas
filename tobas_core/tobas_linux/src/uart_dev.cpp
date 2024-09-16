@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 
 #include "../include/tobas_linux/uart_dev.hpp"
+#include "../include/tobas_linux/errer.hpp"
 
 using namespace std;
 
@@ -39,11 +40,6 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   if (!getConfig())
     return false;
 
-  // Set raw mode
-  options_.c_iflag = 0;
-  options_.c_oflag = 0;
-  options_.c_lflag = 0;
-
   // Set control mode flags
   options_.c_cflag &= ~CSIZE;   // Clear data bit size
   options_.c_cflag |= CS8;      // 8 bit size
@@ -53,15 +49,20 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   options_.c_cflag &= ~HUPCL;   // No hung-up
   options_.c_cflag |= CLOCAL;   // Set local mode
 
+  // Set raw mode
+  options_.c_lflag &= ~ICANON;
+  options_.c_lflag &= ~ECHO;
+  options_.c_lflag &= ~ECHOE;
+  options_.c_lflag &= ~ECHONL;
+  options_.c_lflag &= ~ISIG;
+  options_.c_iflag &= ~(IXON | IXOFF | IXANY);
+  options_.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL);
+  options_.c_oflag &= ~OPOST;
+  options_.c_oflag &= ~ONLCR;
+
   // Set minimum characters
   options_.c_cc[VMIN] = 0;   // Wait for 0 characters
   options_.c_cc[VTIME] = 0;  // Infinite timeout
-
-  // Set baud rate
-  options_.c_cflag &= ~CBAUD;            // Remove current baud rate
-  options_.c_cflag |= BOTHER;            // Allow custom baud rate using int input
-  options_.c_ispeed = kDefaultBaudRate;  // Set the input baud rate
-  options_.c_ospeed = kDefaultBaudRate;  // Set the output baud rate
 
   // Set the new configuration of the serial interface
   if (!setConfig())
@@ -70,10 +71,27 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   return true;
 }
 
-bool UARTdev::setBaudRate(uint32_t baud_rate)
+bool UARTdev::setStandardBaudRate(uint32_t baud_rate_flag)
 {
+  options_.c_cflag &= ~CBAUD;          // Remove current baud rate
+  options_.c_cflag |= baud_rate_flag;  // Set baud rate flag
+
+  // Clear non-standard baud rates
+  options_.c_ispeed = 0;
+  options_.c_ospeed = 0;
+
+  return setConfig();
+}
+
+bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
+{
+  options_.c_cflag &= ~CBAUD;  // Remove current baud rate
+  options_.c_cflag |= BOTHER;  // Allow non-standard baud rate using int input
+
+  // Set baud rate
   options_.c_ispeed = baud_rate;
   options_.c_ospeed = baud_rate;
+
   return setConfig();
 }
 
@@ -166,21 +184,35 @@ bool UARTdev::setMinimumChars(uint8_t num)
 
 bool UARTdev::send(const uint8_t* data, size_t length)
 {
-  if (write(uart_fd_, data, length) != static_cast<ssize_t>(length))
+  const auto res = ::write(uart_fd_, data, length);
+  if (res < 0)
   {
-    cerr << "UART TX error." << endl;
+    cerr << "UART TX failed: " << strError() << endl;
     return false;
   }
+  if (res != static_cast<ssize_t>(length))
+  {
+    cerr << "Tried to transmit " << length << " bytes, but " << res << " bytes were transmitted." << endl;
+    return false;
+  }
+
   return true;
 }
 
 bool UARTdev::receive(uint8_t* data, size_t length)
 {
-  if (read(uart_fd_, data, length) != static_cast<ssize_t>(length))
+  const auto res = ::read(uart_fd_, data, length);
+  if (res < 0)
   {
-    cerr << "UART RX error." << endl;
+    cerr << "UART RX failed: " << strError() << endl;
     return false;
   }
+  if (res != static_cast<ssize_t>(length))
+  {
+    cerr << "Tried to receive " << length << " bytes, but " << res << " bytes were received." << endl;
+    return false;
+  }
+
   return true;
 }
 

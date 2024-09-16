@@ -14,6 +14,7 @@ int main()
     cerr << "Failed to initialize S.BUS driver." << endl;
     return EXIT_FAILURE;
   }
+  cout << "S.BUS driver is initialized." << endl;
 
   while (true)
   {

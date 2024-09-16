@@ -8,7 +8,7 @@ static constexpr char kRasPiI2CDev[] = "/dev/i2c-1";
 
 namespace uart_device
 {
-static constexpr char kSbusDev[] = "/dev/serial0";
+static constexpr char kSbusDev[] = "/dev/ttyAMA0";
 }
 
 namespace spi_device
