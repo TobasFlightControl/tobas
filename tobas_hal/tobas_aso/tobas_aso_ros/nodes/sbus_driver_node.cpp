@@ -1,15 +1,16 @@
+#include <SBUS.h>
+
+#include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/sbus.hpp>
 
-#include <tobas_aso_core/sbus.hpp>
+#include <tobas_aso_core/constants.hpp>
 
 using namespace std;
 
 class SBUSDriverNode : public hal::BaseSensorNode
 {
-  static constexpr double kErrorPeriod = 1.;  // [s]
-
   using self = SBUSDriverNode;
   using super = hal::BaseSensorNode;
 
@@ -17,7 +18,8 @@ public:
   explicit SBUSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  aso::SBUS sbus_;
+  SBUS sbus_;
+  sbus_err_t error_;
 
   ros2::PublisherPtr<tobas_hal_msgs::msg::Sbus> sbus_pub_;
 
@@ -26,8 +28,8 @@ private:
 
 SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options) : super("aso_sbus_driver", options)
 {
-  if (!sbus_.initialize())
-    TOBAS_EXIT("Failed to initialize S.BUS driver.");
+  if ((error_ = sbus_.install(aso::uart_device::kSbusDev, true)) != SBUS_OK)
+    TOBAS_EXIT("Failed to install S.BUS with error code ", error_, ".");
 
   sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSbusTopic);
 
@@ -38,17 +40,17 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
 void SBUSDriverNode::mainTimerCb()
 {
   // Read S.BUS
-  if (!sbus_.update())
+  if ((error_ = sbus_.read()) != SBUS_OK)
   {
-    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to read S.BUS.");
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to read S.BUS with error code ", error_, ".");
     return;
   }
 
   // Create message
+  const auto& packet = sbus_.lastPacket();
   auto sbus_msg = std::make_unique<tobas_hal_msgs::msg::Sbus>();
   sbus_msg->header.stamp = get_clock()->now();
-  for (size_t ch = 0; ch < sbus_msg->data.size(); ++ch)
-    sbus_msg->data[ch] = sbus_.getPeriod(ch);
+  copy(begin(packet.channels), end(packet.channels), sbus_msg->data.begin());
 
   // Publish message
   sbus_pub_->publish(move(sbus_msg));

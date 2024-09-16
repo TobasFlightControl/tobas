@@ -19,6 +19,11 @@ find_package(tobas_aso_core REQUIRED)
 
 include_directories(include)
 
+# Build raspberry-sbus
+set(RASPBERRY_SBUS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/raspberry-sbus)
+set_directory_properties(PROPERTIES DIRECTORY ${RASPBERRY_SBUS_PATH} COMPILE_OPTIONS "-w") # Ignore all warnings
+add_subdirectory(${RASPBERRY_SBUS_PATH} ${CMAKE_CURRENT_BINARY_DIR}/raspberry-sbus)
+
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node
@@ -27,6 +32,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_hal_msgs_adapter
 	tobas_aso_core
 )
+target_link_libraries(${PROJECT_NAME}_node libsbus)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "IMUDriverNode" EXECUTABLE imu_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagDriverNode" EXECUTABLE mag_driver)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BaroDriverNode" EXECUTABLE baro_driver)
