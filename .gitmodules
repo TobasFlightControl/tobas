@@ -4,3 +4,6 @@
 [submodule "third_party/inja"]
 	path = third_party/inja
 	url = https://github.com/pantor/inja.git
+[submodule "third_party/raspberry-sbus"]
+	path = third_party/raspberry-sbus
+	url = https://github.com/Carbon225/raspberry-sbus.git
