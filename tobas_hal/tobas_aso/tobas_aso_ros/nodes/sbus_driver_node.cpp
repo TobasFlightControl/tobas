@@ -28,12 +28,14 @@ private:
 
 SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options) : super("aso_sbus_driver", options)
 {
+  // Initialize S.BUS driver with blocking mode
   if ((error_ = sbus_.install(aso::uart_device::kSbusDev, true)) != SBUS_OK)
     TOBAS_EXIT("Failed to install S.BUS with error code ", error_, ".");
 
+  // Advertise publisher
   sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSbusTopic);
 
-  // S.BUSドライバはブロッキングモードだから，メインタイマーを最大レートで回してもCPU消費は低い．
+  // Start main timer with maximum rate
   main_timer_ = createTimer(0ns, &self::mainTimerCb, this);
 }
 
