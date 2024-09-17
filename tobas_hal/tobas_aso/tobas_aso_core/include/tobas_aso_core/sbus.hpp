@@ -29,6 +29,7 @@ public:
   /* Read a S.BUS message from the receiver and update the periods of all the 16 channels. */
   bool update();
 
+  inline const std::array<uint16_t, kChannelSize> getPeriods() const;
   inline const uint16_t& getPeriod(uint8_t channel) const;
 
 private:
@@ -39,6 +40,11 @@ private:
   bool read();
   void decode();
 };
+
+inline const std::array<uint16_t, SBUS::kChannelSize> SBUS::getPeriods() const
+{
+  return periods_;
+}
 
 inline const uint16_t& SBUS::getPeriod(uint8_t channel) const
 {
