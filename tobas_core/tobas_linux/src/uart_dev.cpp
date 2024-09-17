@@ -187,6 +187,12 @@ bool UARTdev::disableHungupClose()
   return setConfig();
 }
 
+bool UARTdev::setTimeout(cc_t msec_100)
+{
+  options_.c_cc[VTIME] = msec_100;
+  return setConfig();
+}
+
 bool UARTdev::setMinimumChars(uint8_t num)
 {
   if (!block_mode_ && num > 0)

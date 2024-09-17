@@ -1,8 +1,6 @@
 #include <iostream>
 #include <boost/multiprecision/cpp_int.hpp>
 
-#include <tobas_std_tools/console.hpp>
-
 #include "../include/tobas_aso_core/sbus.hpp"
 #include "../include/tobas_aso_core/constants.hpp"
 
@@ -29,8 +27,11 @@ bool SBUS::initialize()
   if (!uart_dev_.setDoubleStopBit())
     return false;
 
-  // TODO: S.BUSは偶数パリティのはずだが，パリティチェックを有効にすると1バイトも取得できない．
+  // TODO: SBUSは偶数パリティのはずだが，パリティチェックを有効にすると1バイトも取得できない．
   if (!uart_dev_.disableParity())
+    return false;
+
+  if (!uart_dev_.setTimeout(1))  // S.BUSは50 ~ 100Hzだから，インターバルの最大値は20ms
     return false;
 
   return true;
@@ -41,70 +42,84 @@ bool SBUS::update()
   if (!read())
     return false;
 
-  decode();
+  decodeData();
+  decodeFlags();
 
   return true;
 }
 
 bool SBUS::read()
 {
-  uint8_t byte = 0x00;
+  // SBUSのパケットを取得
+  // 一定時間のLOWでブレークポイントとみなされるため，25バイトを取得したときそれが複数のパケットにまたがっていることはない．
+  const auto read_size = ::read(uart_dev_.fd(), packet_.data(), kPacketSize);
 
-  // Wait for start byte
-  PRINT_DEBUG("Waiting for S.BUS start byte.");
-  while (byte != 0x0F)
+  // 読み取ったデータサイズに応じて場合分け
+  switch (read_size)
   {
-    PRINT_DEBUG("Byte: " << hex << uppercase << (int)byte);
-
-    if (!uart_dev_.receive(&byte, 1))
+    case kPacketSize:
     {
-      cerr << "Failed to receive 1 byte while waiting for S.BUS start byte." << endl;
-      return false;
+      // Check start byte
+      const auto& start_byte = packet_.at(kStartIdx);
+      if (start_byte != 0x0F)
+      {
+        cerr << "Invalid start byte: " << hex << uppercase << (int)start_byte << endl;
+        return false;
+      }
+
+      // Check end byte
+      const auto& end_byte = packet_.at(kEndIdx);
+      switch (end_byte)
+      {
+        case 0x00:  // SBUS1
+          break;
+        case 0x04:  // SBUS2 telemetry slots 0-7
+          break;
+        case 0x14:  // SBUS2 telemetry slots 8-15
+          break;
+        case 0x24:  // SBUS2 telemetry slots 16-23
+          break;
+        case 0x34:  // SBUS2 telemetry slots 24-31
+          break;
+        default:
+          cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
+          return false;
+      }
+
+      break;
     }
-  }
 
-  // Get data bytes
-  PRINT_DEBUG("Waiting for S.BUS data bytes.");
-  if (!uart_dev_.receive(data_.data(), kDataSize))
-  {
-    cerr << "Failed to receive " << kDataSize << " bytes." << endl;
-    return false;
-  }
+    case kTelemSize:
+      // TODO
+      break;
 
-  // Skip flags
-  PRINT_DEBUG("Waiting for S.BUS skip byte.");
-  if (!uart_dev_.receive(&byte, 1))
-  {
-    cerr << "Failed to receive S.BUS flags byte." << endl;
-    return false;
-  }
-
-  // Check end byte
-  PRINT_DEBUG("Waiting for S.BUS end byte.");
-  if (!uart_dev_.receive(&byte, 1))
-  {
-    cerr << "Failed to receive S.BUS end byte." << endl;
-    return false;
-  }
-  if (byte != 0x00)
-  {
-    cerr << "S.BUS end byte is invalid: " << (int)byte << endl;
-    return false;
+    default:
+      cerr << "Invalid packet size: " << read_size << endl;
+      return false;
   }
 
   return true;
 }
 
-void SBUS::decode()
+void SBUS::decodeData()
 {
   // 繰り上がりが面倒なので，一旦データを1つのビット列に変換する．
   uint256_t data = 0;
-  for (uint8_t idx = 0; idx < kDataSize; ++idx)
-    data |= (static_cast<uint256_t>(data_.at(idx)) << (kDataBits * idx));
+  for (size_t idx = 0; idx < kDataSize; ++idx)
+    data |= (static_cast<uint256_t>(packet_.at(kDataIdx + idx)) << (kDataBits * idx));
 
   // 11ビットずつ取り出す
-  constexpr uint16_t mask = (1 << kChannelBits) - 1;
-  for (uint8_t ch = 0; ch < kChannelSize; ++ch)
-    periods_.at(ch) = ((data >> (kChannelBits * ch)) & mask).convert_to<uint16_t>();
+  constexpr uint16_t kMask = (1 << kChannelBits) - 1;
+  for (size_t ch = 0; ch < kChannelSize; ++ch)
+    out_.periods.at(ch) = ((data >> (kChannelBits * ch)) & kMask).convert_to<uint16_t>();
+}
+
+void SBUS::decodeFlags()
+{
+  const auto& flags_byte = packet_.at(kFlagsIdx);
+  out_.ch17 = (flags_byte >> 0) & 1;
+  out_.ch18 = (flags_byte >> 1) & 1;
+  out_.frame_lost = (flags_byte >> 2) & 1;
+  out_.failsave_activated = (flags_byte >> 3) & 1;
 }
 }  // namespace aso

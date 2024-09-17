@@ -33,12 +33,15 @@ public:
   bool disableParity();
   bool enableHungupClose();
   bool disableHungupClose();
+  bool setTimeout(cc_t msec_100);
 
   /* Set the minimum number of characters which we wait for in receive(). */
   bool setMinimumChars(uint8_t num);
 
   bool send(const uint8_t* data, size_t length);
   bool receive(uint8_t* data, size_t length);
+
+  inline const int& fd() const;
 
 private:
   bool block_mode_ = false;
@@ -48,4 +51,9 @@ private:
   bool getConfig();
   bool setConfig();
 };
+
+inline const int& UARTdev::fd() const
+{
+  return uart_fd_;
+}
 }  // namespace linux
