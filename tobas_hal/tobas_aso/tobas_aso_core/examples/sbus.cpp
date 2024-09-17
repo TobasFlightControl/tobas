@@ -18,15 +18,22 @@ int main()
 
   while (true)
   {
-    if (!sbus.update())
+    switch (sbus.update())
     {
-      cerr << "Failed to update S.BUS message." << endl;
-      return EXIT_FAILURE;
+      case aso::SBUS::ERROR:
+        cerr << "Failed to update S.BUS message." << endl;
+        return EXIT_FAILURE;
+      case aso::SBUS::THROTTLE:
+        for (size_t ch = 0; ch < aso::SBUS::kChannelSize; ++ch)
+          cout << "Channel " << ch << ": " << sbus.getPeriod(ch) << endl;
+        cout << endl;
+        break;
+      case aso::SBUS::TELEMETRY:
+        break;
+      default:
+        cerr << "Unknown message type received." << endl;
+        return false;
     }
-
-    for (size_t ch = 0; ch < aso::SBUS::kChannelSize; ++ch)
-      cout << "Channel " << ch << ": " << sbus.getPeriod(ch) << endl;
-    cout << endl;
   }
 
   return EXIT_SUCCESS;

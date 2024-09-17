@@ -40,11 +40,8 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
 void SBUSDriverNode::mainTimerCb()
 {
   // Read S.BUS
-  if (!sbus_.update())
-  {
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to read S.BUS.");
+  if (sbus_.update() != aso::SBUS::THROTTLE)
     return;
-  }
 
   // Create message
   auto sbus_msg = std::make_unique<tobas_hal_msgs::msg::Sbus>();

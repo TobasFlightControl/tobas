@@ -29,12 +29,19 @@ private:
   static constexpr size_t kPacketSize = kEndIdx + 1;
 
 public:
+  enum message_t : int
+  {
+    ERROR = -1,
+    THROTTLE = 0,
+    TELEMETRY = 1,
+  };
+
   explicit SBUS();
 
   bool initialize();
 
   /* Read a S.BUS message from the receiver and update the periods of all the 16 channels. */
-  bool update();
+  message_t update();
 
   inline const std::array<uint16_t, kChannelSize> getPeriods() const;
   inline const uint16_t& getPeriod(uint8_t channel) const;
@@ -46,7 +53,6 @@ public:
 private:
   linux::UARTdev uart_dev_;
   std::array<uint8_t, kPacketSize> packet_;
-  bool telem_ready_ = false;
 
   struct Output
   {
@@ -57,7 +63,6 @@ private:
     bool failsave_activated;
   } out_;
 
-  bool read();
   void decodeData();
   void decodeFlags();
 };

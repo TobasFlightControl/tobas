@@ -37,18 +37,7 @@ bool SBUS::initialize()
   return true;
 }
 
-bool SBUS::update()
-{
-  if (!read())
-    return false;
-
-  decodeData();
-  decodeFlags();
-
-  return true;
-}
-
-bool SBUS::read()
+SBUS::message_t SBUS::update()
 {
   // SBUSのパケットを取得
   // 一定時間のLOWでブレークポイントとみなされるため，25バイトを取得したときそれが複数のパケットにまたがっていることはない．
@@ -64,7 +53,7 @@ bool SBUS::read()
       if (start_byte != 0x0F)
       {
         cerr << "Invalid start byte: " << hex << uppercase << (int)start_byte << endl;
-        return false;
+        return ERROR;
       }
 
       // Check end byte
@@ -83,22 +72,23 @@ bool SBUS::read()
           break;
         default:
           cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
-          return false;
+          return ERROR;
       }
 
-      break;
+      decodeData();
+      decodeFlags();
+
+      return THROTTLE;
     }
 
     case kTelemSize:
-      // TODO
+      return TELEMETRY;
       break;
 
     default:
       cerr << "Invalid packet size: " << read_size << endl;
-      return false;
+      return ERROR;
   }
-
-  return true;
 }
 
 void SBUS::decodeData()
