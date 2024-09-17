@@ -32,9 +32,6 @@ bool SBUS::initialize()
   if (!uart_dev_.enableParity(linux::UARTdev::PARITY_EVEN))
     return false;
 
-  if (!uart_dev_.setMinimumChars(1))
-    return false;
-
   return true;
 }
 
@@ -56,7 +53,7 @@ bool SBUS::read()
   PRINT_DEBUG("Waiting for S.BUS start byte.");
   while (byte != 0x0F)
   {
-    PRINT_DEBUG("Byte:" << (int)byte);
+    PRINT_DEBUG("Byte:" << hex << uppercase << (int)byte);
 
     if (!uart_dev_.receive(&byte, 1))
     {

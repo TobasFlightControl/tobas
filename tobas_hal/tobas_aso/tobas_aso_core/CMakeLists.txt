@@ -17,6 +17,11 @@ find_package(tobas_std_tools REQUIRED)
 
 include_directories(include)
 
+# Build raspberry-sbus
+set(RASPBERRY_SBUS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/raspberry-sbus)
+set_directory_properties(PROPERTIES DIRECTORY ${RASPBERRY_SBUS_PATH} COMPILE_OPTIONS "-w") # Ignore all warnings
+add_subdirectory(${RASPBERRY_SBUS_PATH} ${CMAKE_CURRENT_BINARY_DIR}/raspberry-sbus)
+
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} tobas_linux tobas_std_tools)
@@ -27,7 +32,7 @@ set(targets_to_install "")
 foreach(FILE IN LISTS EXE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)
 	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${PROJECT_NAME})
+	target_link_libraries(${NAME} ${PROJECT_NAME} libsbus)
 	list(APPEND targets_to_install ${NAME})
 endforeach()
 

@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 
 #include "../include/tobas_linux/uart_dev.hpp"
+#include "../include/tobas_linux/termios.hpp"
 #include "../include/tobas_linux/errer.hpp"
 
 using namespace std;
@@ -40,32 +41,44 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   if (!getConfig())
     return false;
 
-  // Set control mode flags
-  options_.c_cflag &= ~CSIZE;   // Clear data bit size
-  options_.c_cflag |= CS8;      // 8 bit size
-  options_.c_cflag &= ~CSTOPB;  // 1 stop bit
-  options_.c_cflag |= CREAD;    // Enable receiver
-  options_.c_cflag &= ~PARENB;  // No parity
-  options_.c_cflag &= ~HUPCL;   // No hung-up
-  options_.c_cflag |= CLOCAL;   // Set local mode
+  // Set flags. See termbits.h and termbits-common.h.
 
-  // Set raw mode
-  options_.c_lflag &= ~ICANON;
-  options_.c_lflag &= ~ECHO;
-  options_.c_lflag &= ~ECHOE;
-  options_.c_lflag &= ~ECHONL;
-  options_.c_lflag &= ~ISIG;
-  options_.c_iflag &= ~(IXON | IXOFF | IXANY);
-  options_.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL);
-  options_.c_oflag &= ~OPOST;
-  options_.c_oflag &= ~ONLCR;
+  // c_cflag bits
+  options_.c_cflag &= ~CSIZE;    // Clear data bit size
+  options_.c_cflag |= CS8;       // 8 bit size
+  options_.c_cflag &= ~CSTOPB;   // 1 stop bit
+  options_.c_cflag |= CREAD;     // Enable receiver
+  options_.c_cflag &= ~PARENB;   // No parity
+  options_.c_cflag &= ~HUPCL;    // No hung-up
+  options_.c_cflag |= CLOCAL;    // Set local mode
+  options_.c_cflag &= ~CMSPAR;   // Disable mark or space parity
+  options_.c_cflag &= ~CRTSCTS;  // Disable RTS/CTS flow control
+
+  // c_iflag bits
+  options_.c_iflag = 0;
+  options_.c_iflag |= IGNBRK;  // Ignore BREAK condition
+  options_.c_iflag |= IGNPAR;  // Ignore characters with parity errors
+  options_.c_iflag |= INPCK;   // Enable parity checking
+
+  // c_oflag bits
+  options_.c_oflag = 0;
+
+  // c_lflag bits
+  options_.c_lflag = 0;
+
+  // Ignore control characters
+  for (auto& c_cc : options_.c_cc)
+    c_cc = 0;
 
   // Set minimum characters
-  options_.c_cc[VMIN] = 0;   // Wait for 0 characters
-  options_.c_cc[VTIME] = 0;  // Infinite timeout
+  options_.c_cc[VMIN] = block_mode ? 1 : 0;
 
   // Set the new configuration of the serial interface
   if (!setConfig())
+    return false;
+
+  // Reset input buffer
+  if (tcflush(uart_fd_, TCIFLUSH) != 0)
     return false;
 
   return true;
@@ -85,8 +98,8 @@ bool UARTdev::setStandardBaudRate(uint32_t baud_rate_flag)
 
 bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
 {
-  options_.c_cflag &= ~CBAUD;  // Remove current baud rate
-  options_.c_cflag |= BOTHER;  // Allow non-standard baud rate using int input
+  options_.c_cflag &= ~CBAUD;   // Remove current baud rate
+  options_.c_cflag |= CBAUDEX;  // Allow non-standard baud rate using int input
 
   // Set baud rate
   options_.c_ispeed = baud_rate;
