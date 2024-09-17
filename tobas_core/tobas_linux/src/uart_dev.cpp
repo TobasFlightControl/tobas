@@ -5,7 +5,6 @@
 #include <sys/ioctl.h>
 
 #include "../include/tobas_linux/uart_dev.hpp"
-#include "../include/tobas_linux/termios.hpp"
 #include "../include/tobas_linux/errer.hpp"
 
 using namespace std;
@@ -41,8 +40,6 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   if (!getConfig())
     return false;
 
-  // Set flags. See termbits.h and termbits-common.h.
-
   // c_cflag bits
   options_.c_cflag &= ~CSIZE;    // Clear data bit size
   options_.c_cflag |= CS8;       // 8 bit size
@@ -56,9 +53,6 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 
   // c_iflag bits
   options_.c_iflag = 0;
-  options_.c_iflag |= IGNBRK;  // Ignore BREAK condition
-  options_.c_iflag |= IGNPAR;  // Ignore characters with parity errors
-  options_.c_iflag |= INPCK;   // Enable parity checking
 
   // c_oflag bits
   options_.c_oflag = 0;
@@ -79,7 +73,10 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 
   // Reset input buffer
   if (tcflush(uart_fd_, TCIFLUSH) != 0)
+  {
+    cerr << "Failed to reset input buffer";
     return false;
+  }
 
   return true;
 }
@@ -163,12 +160,18 @@ bool UARTdev::enableParity(parity_mode_t mode)
   }
 
   options_.c_cflag |= PARENB;
+  options_.c_iflag |= IGNPAR;
+  options_.c_iflag |= INPCK;
+
   return setConfig();
 }
 
 bool UARTdev::disableParity()
 {
   options_.c_cflag &= ~PARENB;
+  options_.c_iflag &= ~IGNPAR;
+  options_.c_iflag &= ~INPCK;
+
   return setConfig();
 }
 
@@ -231,7 +234,7 @@ bool UARTdev::receive(uint8_t* data, size_t length)
 
 bool UARTdev::getConfig()
 {
-  if (ioctl(uart_fd_, TCGETS2, &options_) < 0)
+  if (tcgetattr(uart_fd_, &options_) != 0)
   {
     cerr << "Failed to get serial port settings." << endl;
     return false;
@@ -241,7 +244,7 @@ bool UARTdev::getConfig()
 
 bool UARTdev::setConfig()
 {
-  if (ioctl(uart_fd_, TCSETS2, &options_) < 0)
+  if (tcsetattr(uart_fd_, TCSANOW, &options_) != 0)
   {
     cerr << "Failed to set serial port settings." << endl;
     return false;

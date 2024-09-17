@@ -29,7 +29,8 @@ bool SBUS::initialize()
   if (!uart_dev_.setDoubleStopBit())
     return false;
 
-  if (!uart_dev_.enableParity(linux::UARTdev::PARITY_EVEN))
+  // TODO: S.BUSは偶数パリティのはずだが，パリティチェックを有効にすると1バイトも取得できない．
+  if (!uart_dev_.disableParity())
     return false;
 
   return true;
@@ -53,7 +54,7 @@ bool SBUS::read()
   PRINT_DEBUG("Waiting for S.BUS start byte.");
   while (byte != 0x0F)
   {
-    PRINT_DEBUG("Byte:" << hex << uppercase << (int)byte);
+    PRINT_DEBUG("Byte: " << hex << uppercase << (int)byte);
 
     if (!uart_dev_.receive(&byte, 1))
     {

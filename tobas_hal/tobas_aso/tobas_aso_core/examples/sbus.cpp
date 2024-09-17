@@ -26,8 +26,7 @@ int main()
 
     for (size_t ch = 0; ch < aso::SBUS::kChannelSize; ++ch)
       cout << "Channel " << ch << ": " << sbus.getPeriod(ch) << endl;
-
-    sleep(1);
+    cout << endl;
   }
 
   return EXIT_SUCCESS;

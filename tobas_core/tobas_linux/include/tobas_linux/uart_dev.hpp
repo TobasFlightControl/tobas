@@ -2,10 +2,14 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <asm/termbits.h>
+#include <termios.h>  // <asm/termios.h>ではダメ
 
 namespace linux
 {
+/**
+ * @brief UARTドライバ．
+ * cf. [pySerial](https://github.com/pyserial/pyserial/tree/7aeea35429d15f3eefed10bbb659674638903e3a)
+ */
 class UARTdev
 {
 public:
@@ -39,7 +43,7 @@ public:
 private:
   bool block_mode_ = false;
   int uart_fd_ = -1;
-  struct termios2 options_;
+  struct termios options_;
 
   bool getConfig();
   bool setConfig();
