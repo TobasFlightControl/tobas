@@ -174,7 +174,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
 
   // データを整理
   VectorXf x(size), y(size), z(size);
-  for (size_t i = 0; i < size; ++i)
+  for (int i = 0; i < size; ++i)
   {
     x(i) = mag_data_[i].x();
     y(i) = mag_data_[i].y();

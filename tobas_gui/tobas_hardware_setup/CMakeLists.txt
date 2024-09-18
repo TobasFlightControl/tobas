@@ -21,6 +21,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_hal_core REQUIRED)
 find_package(tobas_hal_msgs_adapter REQUIRED)
@@ -29,6 +30,7 @@ find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
+  tobas_kdl_conversions
   tobas_drone_msgs_adapter
   tobas_hal_core
   tobas_hal_msgs_adapter
@@ -37,7 +39,7 @@ set(AMENT_DEPENDENCIES
   tobas_gui_common
 )
 
-add_definitions(-DQT_NO_KEYWORDS)
+# add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
