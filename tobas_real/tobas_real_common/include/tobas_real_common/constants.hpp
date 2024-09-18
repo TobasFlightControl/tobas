@@ -9,7 +9,7 @@ namespace real
 // チャンネルは8までを想定．9以上は受信機が対応していないことがある
 static constexpr size_t kRcChannelRoll = 0;      // CH1
 static constexpr size_t kRcChannelPitch = 1;     // CH2
-static constexpr size_t kRcChannelThrottle = 2;  // CH3
+static constexpr size_t kRcChannelThrot = 2;  // CH3
 static constexpr size_t kRcChannelYaw = 3;       // CH4
 static constexpr size_t kRcChannelMode = 4;      // CH5
 static constexpr size_t kRcChannelEStop = 6;     // CH7

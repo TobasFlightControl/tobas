@@ -301,7 +301,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
     return;
   }
 
-  qt::qInfoBox(this, "ADC calibration finished successfully.");
+  qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
   reset();
 }
 }  // namespace hardware_setup

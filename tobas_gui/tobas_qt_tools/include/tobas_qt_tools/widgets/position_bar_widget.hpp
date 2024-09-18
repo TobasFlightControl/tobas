@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <QWidget>
 
 namespace qt
@@ -11,17 +10,8 @@ class PositionBarWidget : public QWidget
 
   using super = QWidget;
 
-  static constexpr int kDefaultLineWidth = 3;
-  static constexpr int kDefaultTextPSize = 10;
-
 public:
-  explicit PositionBarWidget(
-    bool fill_range = true,
-    double minimum = 0.,
-    double maximum = 0.,
-    int line_width = kDefaultLineWidth,
-    int text_psize = kDefaultTextPSize,
-    QWidget* parent = nullptr);
+  explicit PositionBarWidget(double minimum, double maximum, QWidget* parent = nullptr);
 
   double getMinimum() const;
   double getMaximum() const;
@@ -32,9 +22,11 @@ public:
   double getLower() const;
   double getUpper() const;
   double getMiddle() const;
+  double getRange() const;
 
   void setMinimum(double minimum);
   void setMaximum(double maximum);
+  void setFillRange(bool fill_range);
   void setLineWidth(int line_width);
   void setTextPSize(int text_psize);
   void setText(const QString& text);
@@ -48,11 +40,11 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  bool fill_range_;
   double minimum_;
   double maximum_;
-  int line_width_;
-  int text_psize_;
+  bool fill_range_ = true;
+  int line_width_ = 3;
+  int text_psize_ = 10;
 
   std::optional<QString> text_;
   std::optional<double> value_;
@@ -68,6 +60,9 @@ class HPositionBarWidget : public PositionBarWidget
 {
   Q_OBJECT
 
+public:
+  using PositionBarWidget::PositionBarWidget;
+
 private:
   void drawRange(QPainter& painter, double lower, double upper) override;
   void drawValue(QPainter& painter, double value) override;
@@ -77,6 +72,9 @@ private:
 class VPositionBarWidget : public PositionBarWidget
 {
   Q_OBJECT
+
+public:
+  using PositionBarWidget::PositionBarWidget;
 
 private:
   void drawRange(QPainter& painter, double lower, double upper) override;

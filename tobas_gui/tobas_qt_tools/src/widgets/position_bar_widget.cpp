@@ -8,19 +8,8 @@
 
 namespace qt
 {
-PositionBarWidget::PositionBarWidget(
-  bool fill_range,
-  double minimum,
-  double maximum,
-  int line_width,
-  int text_psize,
-  QWidget* parent)
-  : super(parent),
-    fill_range_(fill_range),
-    minimum_(minimum),
-    maximum_(maximum),
-    line_width_(line_width),
-    text_psize_(text_psize)
+PositionBarWidget::PositionBarWidget(double minimum, double maximum, QWidget* parent)
+  : super(parent), minimum_(minimum), maximum_(maximum)
 {
 }
 
@@ -69,6 +58,11 @@ double PositionBarWidget::getMiddle() const
   return (lower_.value() + upper_.value()) / 2;
 }
 
+double PositionBarWidget::getRange() const
+{
+  return upper_.value() - lower_.value();
+}
+
 void PositionBarWidget::setMinimum(double minimum)
 {
   minimum_ = minimum;
@@ -77,6 +71,11 @@ void PositionBarWidget::setMinimum(double minimum)
 void PositionBarWidget::setMaximum(double maximum)
 {
   maximum_ = maximum;
+}
+
+void PositionBarWidget::setFillRange(bool fill_range)
+{
+  fill_range_ = fill_range;
 }
 
 void PositionBarWidget::setLineWidth(int line_width)

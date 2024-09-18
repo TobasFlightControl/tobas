@@ -30,7 +30,7 @@ private:
   tobas_std::Range<uint16_t> pitch_range_;
   tobas_std::Range<uint16_t> yaw_range_;
   tobas_std::Range<uint16_t> throt_range_;
-  std::array<uint16_t, tobas::kNumFlightModes> modes_;
+  array<uint16_t, tobas::kNumFlightModes> modes_;
   uint16_t estop_on_, estop_off_;
   uint16_t gpsw_on_, gpsw_off_;
 
@@ -42,7 +42,7 @@ private:
   void readConfig();
   void setToDefaults();
 
-  bool paramsCb(const std::vector<double>& params);
+  bool paramsCb(const vector<double>& params);
   void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
 };
 
@@ -176,7 +176,7 @@ void RCInputHandlerNode::setToDefaults()
   gpsw_off_ = tobas::kPwmMax;
 }
 
-bool RCInputHandlerNode::paramsCb(const std::vector<double>& params)
+bool RCInputHandlerNode::paramsCb(const vector<double>& params)
 {
   // Skip first call
   if (params.size() == 0)
@@ -247,8 +247,7 @@ void RCInputHandlerNode::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr&
   rcin_msg->yaw = math::remap<double>(
     sbus->data[real::kRcChannelYaw], yaw_range_.lower, yaw_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
   rcin_msg->throttle = math::remap<double>(
-    sbus->data[real::kRcChannelThrottle], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin,
-    tobas::kRCInputMax);
+    sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
   rcin_msg->mode = tobas_std::closestIndex(modes_, sbus->data[real::kRcChannelMode]);
   rcin_msg->e_stop =
     abs(sbus->data[real::kRcChannelEStop] - estop_on_) < abs(sbus->data[real::kRcChannelEStop] - estop_off_);
