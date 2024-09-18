@@ -21,11 +21,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_constants REQUIRED)
 
 set(AMENT_DEPENDENCIES
+	ament_index_cpp
 	tobas_std_tools
 	tobas_linux
 	tobas_constants
@@ -56,6 +58,7 @@ install(
 	INCLUDES DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+install(DIRECTORY resources DESTINATION share/${PROJECT_NAME})
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

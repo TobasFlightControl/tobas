@@ -1,13 +1,11 @@
-#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <QApplication>
 
 #include <tobas_ros2_tools/async_node_manager.hpp>
 #include <tobas_qt_tools/rviz/node_manager.hpp>
 #include <tobas_qt_tools/widgets/main_widget.hpp>
+#include <tobas_gui_common/util.hpp>
 
 #include <tobas_setup_assistant/setup_assistant.hpp>
-
-namespace fs = std::filesystem;
 
 static void sigIntHandler(int)
 {
@@ -23,7 +21,7 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qt_app(argc, argv);
   const auto saw = new gui::setup_assistant::SetupAssistantWidget(node_manager.node(), rviz_manager.node());
-  qt::MainWidget main("Tobas Setup Assistant", "", saw);
+  qt::MainWidget main("Tobas Setup Assistant", QString::fromStdString(gui::common::getIconPath()), saw);
   main.show();
 
   // Ctrl+Cで即終了
