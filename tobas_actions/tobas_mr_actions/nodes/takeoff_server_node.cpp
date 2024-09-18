@@ -144,7 +144,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
 
   // 軌道を発行
-  rclcpp::Rate rate(kCommandRate);
+  rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok())
   {
     // 開始からの経過時間を計算

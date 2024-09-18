@@ -119,7 +119,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   builtin_interfaces::msg::Time t_last;
 
   // 高度チェック
-  rclcpp::Rate rate(kCommandRate);
+  rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok())
   {
     // オドメトリが更新されたら高度データを追加

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_setup_assistant)
+project(tobas_hardware_setup)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 
@@ -17,44 +17,33 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic") # TODO: -Wshadow -Werror
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(visualization_msgs REQUIRED)
-find_package(moveit_msgs REQUIRED)
-find_package(tobas_kdl_conversions REQUIRED)
-find_package(tobas_linux REQUIRED)
-find_package(tobas_ros2_tools REQUIRED)
-find_package(tobas_property_client REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_hal_core REQUIRED)
+find_package(tobas_hal_msgs_adapter REQUIRED)
+find_package(tobas_real_common REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  visualization_msgs
-  moveit_msgs
-  tobas_kdl_conversions
-  tobas_linux
-  tobas_ros2_tools
-  tobas_property_client
   tobas_drone_msgs_adapter
+  tobas_hal_core
+  tobas_hal_msgs_adapter
+  tobas_real_common
   tobas_qt_tools
   tobas_gui_common
 )
 
-# add_definitions(-DQT_NO_KEYWORDS)
+add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
-include_directories(
-  include
-  ${PROJECT_SOURCE_DIR}/../../third_party/rapidcsv/src
-  ${PROJECT_SOURCE_DIR}/../../third_party/inja/include
-  ${PROJECT_SOURCE_DIR}/../../third_party/inja/third_party/include
-)
+include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
@@ -74,7 +63,7 @@ install(
 
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY config data launch templates DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

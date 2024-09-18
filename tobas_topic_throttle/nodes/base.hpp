@@ -27,7 +27,7 @@ private:
 
 template <typename MsgType, const char* TopicName>
 TopicThrottleNode<MsgType, TopicName>::TopicThrottleNode(const rclcpp::NodeOptions& options)
-  : super(std::string(TopicName) + "_throttle", options), rate_(kPublishRate)
+  : super(std::string(TopicName) + "_throttle", options), rate_(kPublishRate, get_clock())
 {
   static_assert(TopicName[0] != '/');
   pub_ = createPublisher<MsgType>(path::join(tobas::kThrottledTopicPrefix, TopicName));
