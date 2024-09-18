@@ -10,7 +10,9 @@ namespace qt
 MainWidget::MainWidget(const QString& title, const QString& icon_path, QWidget* widget) : widget_(widget)
 {
   setWindowTitle(title);
-  setWindowIcon(QIcon(icon_path));
+
+  if (!icon_path.isEmpty())
+    setWindowIcon(QIcon(icon_path));
 
   const auto rows = new QVBoxLayout();
   setLayout(rows);

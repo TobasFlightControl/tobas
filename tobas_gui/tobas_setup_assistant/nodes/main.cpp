@@ -22,9 +22,8 @@ int main(int argc, char** argv)
 
   // GUIを表示
   QApplication qt_app(argc, argv);
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(gui::setup_assistant::kPackageName));
   const auto saw = new gui::setup_assistant::SetupAssistantWidget(node_manager.node(), rviz_manager.node());
-  qt::MainWidget main("Tobas Setup Assistant", QString::fromStdString(pkg_path / "resources/icon.png"), saw);
+  qt::MainWidget main("Tobas Setup Assistant", "", saw);
   main.show();
 
   // Ctrl+Cで即終了
