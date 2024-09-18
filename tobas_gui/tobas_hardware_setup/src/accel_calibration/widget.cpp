@@ -30,7 +30,6 @@ void AccelCalibrationWidget::onInit()
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(100, 40);
-  start_button_->setEnabled(false);
 
   // TODO: Rvizで重力方向と測定結果を表示
 
@@ -42,19 +41,22 @@ void AccelCalibrationWidget::onInit()
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(&thread_, &AccelCalibrationThread::finished, this, &self::onCalibrationFinished);
+
+  // ドローンが得られるまでは無効
+  setEnabled(false);
 }
 
 void AccelCalibrationWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
-  start_button_->setEnabled(true);
+  setEnabled(true);
 }
 
 void AccelCalibrationWidget::onStartButtonClicked()
 {
   if (drone_ == nullptr)
   {
-    qt::qErrorBox(this, "Drone configuration is not received yet.");
+    qt::qWarnBox(this, "Drone configuration is not received yet.");
     return;
   }
 

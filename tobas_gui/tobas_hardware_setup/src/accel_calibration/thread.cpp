@@ -41,7 +41,7 @@ void AccelCalibrationThread::run()
   ros2::SyncParamClient param_client_(node_, ns_ + "/imu_handler");
   if (!param_client_.setParam(real::handler::kParamName, params))
   {
-    Q_EMIT finished(false, "Failed to set parameters.");
+    Q_EMIT finished(false, "Failed to send calibration results.");
     return;
   }
 

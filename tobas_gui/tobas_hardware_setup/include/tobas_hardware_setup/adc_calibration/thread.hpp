@@ -1,21 +1,20 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
 #include <rclcpp/node.hpp>
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
-#include <tobas_hal_msgs_adapter/Imu.hpp>
+#include <tobas_hal_msgs/msg/adc.hpp>
 
 namespace gui
 {
 namespace hardware_setup
 {
-class AccelCalibrationThread : public QThread
+class ADCCalibrationThread : public QThread
 {
   Q_OBJECT
 
-  using self = AccelCalibrationThread;
+  using self = ADCCalibrationThread;
   using super = QThread;
 
   static constexpr size_t kDataCount = 1000;
@@ -25,23 +24,23 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit AccelCalibrationThread(rclcpp::Node::SharedPtr node);
+  explicit ADCCalibrationThread(rclcpp::Node::SharedPtr node);
 
   void run() override;
 
   void setNamespace(const std::string& ns);
+  void setCurrentVoltage(double voltage);
 
 private:
   const rclcpp::Node::SharedPtr node_;
 
   std::string ns_;
+  double voltage_;
 
   size_t cnt_;
-  std::array<algo::Kahan<double>, 3> acc_sum_;
-  Eigen::Vector3d acc_top_;
+  algo::Kahan<double> voltage_sum_;
 
-  bool getAccelMean(Eigen::Vector3d& des);
-  void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
+  void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
 };
 }  // namespace hardware_setup
 }  // namespace gui
