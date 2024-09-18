@@ -2,6 +2,7 @@
 
 #include <QPushButton>
 
+#include <tobas_ros2_tools/register.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
@@ -36,6 +37,8 @@ private:
   AccelCalibrationThread thread_;
 
   tobas::Drone::ConstSharedPtr drone_;
+
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
 

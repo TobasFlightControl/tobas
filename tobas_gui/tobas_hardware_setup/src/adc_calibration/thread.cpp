@@ -28,7 +28,7 @@ void ADCCalibrationThread::run()
   voltage_sum_.reset();
 
   // 一時的にADCの購読を開始
-  auto adc_sub = ros2::createSubscriber(node_, hal::kAdcTopic, &ADCCalibrationThread::adcCb, this);
+  auto adc_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kAdcTopic, &ADCCalibrationThread::adcCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kTimeout))
@@ -50,8 +50,8 @@ void ADCCalibrationThread::run()
   params.at(real::handler::adc::kCurrentChannel) = 1.;  // TODO
 
   // パラメータを更新
-  ros2::SyncParamClient param_client_(node_, ns_ + "/imu_handler");
-  if (!param_client_.setParam(real::handler::kParamName, params))
+  ros2::SyncParamClient param_client(node_, ns_ + "/adc_handler");
+  if (!param_client.setParam(real::handler::kParamName, params))
   {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;

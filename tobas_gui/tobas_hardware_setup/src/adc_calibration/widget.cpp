@@ -46,7 +46,7 @@ void ADCCalibrationWidget::onInit()
   cols1->addStretch();
 
   start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(100, 40);
+  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   rows_->addWidget(start_button_);
 
@@ -69,6 +69,8 @@ void ADCCalibrationWidget::onInit()
 
   // ドローンが得られるまでは無効
   setEnabled(false);
+
+  drone_sub_ = ros2::createSubscriber(node_, tobas::kDroneTopic, &self::droneCb, this, true, true);
 }
 
 void ADCCalibrationWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)

@@ -38,8 +38,8 @@ void AccelCalibrationThread::run()
   params.at(real::handler::imu::kOffsetZChannel) = acc_offset.z();
 
   // パラメータを更新
-  ros2::SyncParamClient param_client_(node_, ns_ + "/imu_handler");
-  if (!param_client_.setParam(real::handler::kParamName, params))
+  ros2::SyncParamClient param_client(node_, ns_ + "/imu_handler");
+  if (!param_client.setParam(real::handler::kParamName, params))
   {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
@@ -61,7 +61,7 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
     sum.reset();
 
   // 一時的にIMUの購読を開始
-  auto imu_sub = ros2::createSubscriber(node_, hal::kImuTopic, &self::imuCb, this);
+  auto imu_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kImuTopic, &self::imuCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kTimeout))

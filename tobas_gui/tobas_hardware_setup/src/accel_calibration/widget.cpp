@@ -29,7 +29,7 @@ void AccelCalibrationWidget::onInit()
     "Press \"Start\" button with the flight controller\'s TOP surface facing up.\n\n", kBodyPSize);
 
   start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(100, 40);
+  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   // TODO: Rvizで重力方向と測定結果を表示
 
@@ -44,6 +44,8 @@ void AccelCalibrationWidget::onInit()
 
   // ドローンが得られるまでは無効
   setEnabled(false);
+
+  drone_sub_ = ros2::createSubscriber(node_, tobas::kDroneTopic, &self::droneCb, this, true, true);
 }
 
 void AccelCalibrationWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)
