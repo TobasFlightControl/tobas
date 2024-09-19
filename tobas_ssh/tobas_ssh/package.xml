@@ -10,7 +10,6 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>tobas_ssh_client</exec_depend>
-	<exec_depend>tobas_ssh_common</exec_depend>
 	<exec_depend>tobas_ssh_msgs</exec_depend>
 	<exec_depend>tobas_ssh_server</exec_depend>
 
