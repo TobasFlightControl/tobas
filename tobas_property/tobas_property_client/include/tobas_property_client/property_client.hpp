@@ -51,7 +51,7 @@ public:
   error_t save();
 
   error_t errorCode() const;
-  std::string errorMessage() const;
+  const char* errorMessage() const;
 
 private:
   const rclcpp::Node::SharedPtr node_;

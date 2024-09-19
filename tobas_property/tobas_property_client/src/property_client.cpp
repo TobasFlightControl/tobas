@@ -136,7 +136,7 @@ PropertyClient::error_t PropertyClient::errorCode() const
   return error_code_;
 }
 
-string PropertyClient::errorMessage() const
+const char* PropertyClient::errorMessage() const
 {
   switch (error_code_)
   {
@@ -147,7 +147,7 @@ string PropertyClient::errorMessage() const
     case E_OUT_OF_RANGE:
       return "The property value is out of numerical range.";
     case E_SERVER_ERROR:
-      return server_error_msg_;
+      return server_error_msg_.c_str();
     default:
       throw;
   }
