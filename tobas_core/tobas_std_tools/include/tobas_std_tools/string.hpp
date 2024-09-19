@@ -17,6 +17,15 @@ std::string lstrip(const std::string& str, const std::string& del);
 /* 末尾の特定の文字列を削除する． */
 std::string rstrip(const std::string& str, const std::string& del);
 
+/* 引用符を削除する． */
+std::string stripQuates(const std::string& str);
+
+/* 行頭・行末の空白，タブに加えて改行などの制御文字を削除する． */
+std::string trim(const std::string& str);
+
+/* 行を分割する． */
+std::vector<std::string> splitLines(const std::string& text);
+
 /* 文字列中の改行コードを削除． */
 std::string deleteNl(const std::string& str);
 

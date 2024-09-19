@@ -70,6 +70,36 @@ string rstrip(const string& str, const string& del)
     return str;
 }
 
+string stripQuates(const string& str)
+{
+  if (str.front() == '"' && str.back() == '"')
+    return str.substr(1, str.size() - 2);
+  return str;
+}
+
+string trim(const string& str)
+{
+  // 空文字のときはそのまま返す．でないとfind_(first, last)_not_ofがinfを返してしまう．
+  if (str == "")
+    return "";
+
+  static constexpr char del[] = " \t\n\r\f\v";
+  const auto first = str.find_first_not_of(del);
+  const auto last = str.find_last_not_of(del);
+
+  return str.substr(first, last - first + 1);
+}
+
+vector<string> splitLines(const string& text)
+{
+  vector<string> lines;
+  istringstream stream(text);
+  string line;
+  while (getline(stream, line))
+    lines.push_back(line);
+  return lines;
+}
+
 string deleteNl(const string& str)
 {
   string res;

@@ -36,6 +36,7 @@
 	<exec_depend>tobas_std_tools_py</exec_depend>
 	<exec_depend>tobas_urdf_tools_py</exec_depend>
 	<exec_depend>tobas_yaml_tools</exec_depend>
+	<exec_depend>wpa_supplicant_parser</exec_depend>
 	<exec_depend>wpa_supplicant_parser_py</exec_depend>
 
 	<export>
