@@ -10,8 +10,5 @@ static constexpr char kTitle[] = "Tobas Hardware Setup";
 static constexpr int kTitlePSize = 18;
 static constexpr int kLabelPSize = 12;
 static constexpr int kBodyPSize = 9;
-
-static constexpr int kButtonWidth = 100;
-static constexpr int kButtonHeight = 40;
 }  // namespace hardware_setup
 }  // namespace gui

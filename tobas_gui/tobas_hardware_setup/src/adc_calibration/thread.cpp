@@ -4,8 +4,8 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 
-#include "../include/tobas_hardware_setup/adc_calibration/thread.hpp"
-#include "../include/tobas_hardware_setup/util.hpp"
+#include "tobas_hardware_setup/adc_calibration/thread.hpp"
+#include "tobas_hardware_setup/util.hpp"
 
 namespace gui
 {

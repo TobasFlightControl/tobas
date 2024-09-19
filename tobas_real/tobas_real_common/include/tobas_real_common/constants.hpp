@@ -7,13 +7,13 @@ namespace real
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
 // チャンネルは8までを想定．9以上は受信機が対応していないことがある
-static constexpr size_t kRcChannelRoll = 0;      // CH1
-static constexpr size_t kRcChannelPitch = 1;     // CH2
+static constexpr size_t kRcChannelRoll = 0;   // CH1
+static constexpr size_t kRcChannelPitch = 1;  // CH2
 static constexpr size_t kRcChannelThrot = 2;  // CH3
-static constexpr size_t kRcChannelYaw = 3;       // CH4
-static constexpr size_t kRcChannelMode = 4;      // CH5
-static constexpr size_t kRcChannelEStop = 6;     // CH7
-static constexpr size_t kRcChannelGPSw = 7;      // CH8
+static constexpr size_t kRcChannelYaw = 3;    // CH4
+static constexpr size_t kRcChannelMode = 4;   // CH5
+static constexpr size_t kRcChannelEStop = 6;  // CH7
+static constexpr size_t kRcChannelGPSw = 7;   // CH8
 
 namespace handler
 {

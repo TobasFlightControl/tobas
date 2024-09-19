@@ -23,6 +23,8 @@ class ADCCalibrationWidget : public BaseHardwareSetupWidget
   using super = BaseHardwareSetupWidget;
 
   static constexpr int kBoxWidth = 100;
+  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonHeight = 40;
 
 public:
   explicit ADCCalibrationWidget(rclcpp::Node::SharedPtr node);

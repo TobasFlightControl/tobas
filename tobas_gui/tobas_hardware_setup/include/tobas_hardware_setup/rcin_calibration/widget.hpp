@@ -29,6 +29,9 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr char kModeText[] = "Program               Stabilize               Acrobat";
   static constexpr char kOnOffText[] = "ON                                                       OFF";
 
+  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonHeight = 40;
+
 public:
   explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node);
 

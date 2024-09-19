@@ -20,6 +20,9 @@ class AccelCalibrationWidget : public BaseHardwareSetupWidget
   using self = AccelCalibrationWidget;
   using super = BaseHardwareSetupWidget;
 
+  static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonHeight = 40;
+
 public:
   explicit AccelCalibrationWidget(rclcpp::Node::SharedPtr node);
 
