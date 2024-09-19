@@ -112,16 +112,14 @@ PropertyClient::error_t PropertyClient::set(const string& key, const float& valu
 
 PropertyClient::error_t PropertyClient::save()
 {
-  const auto client = node_->create_client<Trigger>(path::join(ns_, kSaveFileSrv));
-  if (!client->service_is_ready())
-    return error_code_ = E_SERVICE_NOT_READY;
+  ros2::SyncServiceClient<Trigger> sc(node_, path::join(ns_, kSaveFileSrv));
 
   const auto req = make_shared<Trigger::Request>();
 
-  auto future = client->async_send_request(req);
-  future.wait();
+  if (!sc.call(req))
+    return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto res = future.get();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->message;

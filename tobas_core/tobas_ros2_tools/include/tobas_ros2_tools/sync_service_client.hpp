@@ -32,7 +32,9 @@ public:
    *
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
-  bool call(const SrvType::Request::SharedPtr& req, std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
+  bool call(
+    const typename SrvType::Request::SharedPtr& req,
+    std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
     if (!client_->service_is_ready())
     {
@@ -52,14 +54,14 @@ public:
     return true;
   }
 
-  inline const SrvType::Response::SharedPtr& getResponse() const
+  inline const typename SrvType::Response::SharedPtr& getResponse() const
   {
     return res_;
   }
 
 private:
   rclcpp::Node::SharedPtr node_;
-  rclcpp::Client<SrvType>::SharedPtr client_;
-  SrvType::Response::SharedPtr res_;
+  typename rclcpp::Client<SrvType>::SharedPtr client_;
+  typename SrvType::Response::SharedPtr res_;
 };
 }  // namespace ros2

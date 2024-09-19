@@ -31,7 +31,7 @@ public:
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
   bool sendGoalAndWait(
-    const ActionType::Goal& goal,
+    const typename ActionType::Goal& goal,
     std::chrono::milliseconds get_result_timeout = std::chrono::milliseconds(-1),
     std::chrono::milliseconds send_goal_timeout = std::chrono::milliseconds(-1),
     std::chrono::milliseconds cancel_goal_timeout = std::chrono::milliseconds(-1))
@@ -75,7 +75,7 @@ public:
     return true;
   }
 
-  inline const rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult& getResult() const
+  inline const typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult& getResult() const
   {
     return result_;
   }
@@ -83,7 +83,7 @@ public:
 private:
   rclcpp::Node::SharedPtr node_;
   std::string action_name_;
-  rclcpp_action::Client<ActionType>::SharedPtr client_;
-  rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult result_;
+  typename rclcpp_action::Client<ActionType>::SharedPtr client_;
+  typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult result_;
 };
 }  // namespace ros2
