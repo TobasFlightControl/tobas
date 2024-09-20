@@ -28,8 +28,29 @@ bool SSHClient::isConnected() const
   return connection_->data;
 }
 
+bool SSHClient::fileExists(const std::filesystem::path& file_path)
+{
+  if (!isConnected())
+    return false;
+
+  std::string output;
+  return execute("[ -f {" + file_path.string() + " ]", output) == E_NO_ERROR;
+}
+
+bool SSHClient::dirExists(const std::filesystem::path& dir_path)
+{
+  if (!isConnected())
+    return false;
+
+  std::string output;
+  return execute("[ -d {" + dir_path.string() + " ]", output) == E_NO_ERROR;
+}
+
 SSHClient::error_t SSHClient::execute(const string& command, string& output, bool superuser, bool background)
 {
+  if (!isConnected())
+    return error_code_ = E_NO_CONNECTION;
+
   const auto req = make_shared<Execute::Request>();
   req->command = command;
   req->superuser = superuser;
@@ -52,6 +73,9 @@ SSHClient::error_t SSHClient::execute(const string& command, string& output, boo
 SSHClient::error_t
 SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vector<string>& exclude_dirs, bool superuser)
 {
+  if (!isConnected())
+    return error_code_ = E_NO_CONNECTION;
+
   const auto req = make_shared<SCPPut::Request>();
   req->local_dir = local_dir;
   req->remote_dir = remote_dir;
@@ -73,6 +97,9 @@ SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vecto
 
 SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text)
 {
+  if (!isConnected())
+    return error_code_ = E_NO_CONNECTION;
+
   const auto req = make_shared<SFTPRead::Request>();
   req->remote_path = remote_path;
 
@@ -92,6 +119,9 @@ SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text)
 
 SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string& text, bool superuser)
 {
+  if (!isConnected())
+    return error_code_ = E_NO_CONNECTION;
+
   const auto req = make_shared<SFTPWrite::Request>();
   req->remote_path = remote_path;
   req->text = text;
@@ -121,12 +151,14 @@ const char* SSHClient::errorMessage() const
   {
     case E_NO_ERROR:
       return "";
+    case E_NO_CONNECTION:
+      return "No connection.";
     case E_SERVICE_NOT_READY:
       return "Service server is not ready.";
     case E_SERVER_ERROR:
       return server_error_msg_.c_str();
     default:
-      throw;
+      return "Unknown error";
   }
 }
 

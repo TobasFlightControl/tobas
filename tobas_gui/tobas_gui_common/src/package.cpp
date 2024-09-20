@@ -11,6 +11,11 @@ namespace gui
 {
 namespace common
 {
+fs::path getRemoteTBSPath(const fs::path& tbs_path)
+{
+  return "/etc/tobas/colcon_ws/src" / tbs_path.filename();
+}
+
 string getTBSName(const fs::path& tbs_path)
 {
   TOBAS_CHECK(tbs_path.extension() == kTBSExtension);
@@ -62,9 +67,14 @@ fs::path getMeshPath(const fs::path& tbs_path)
   return getTBSConfigPath(tbs_path) / "mesh";
 }
 
-fs::path getDynamicParamsPath(const fs::path& tbs_path)
+fs::path getControllerDynamicParamsPath(const fs::path& tbs_path)
 {
-  return getTBSConfigPath(tbs_path) / "config" / "dynamic_params.yaml";
+  return getTBSConfigPath(tbs_path) / "config" / "controller_dynamic.yaml";
+}
+
+fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
+{
+  return getTBSConfigPath(tbs_path) / "config" / "controller_dynamic.yaml";
 }
 
 fs::path getSettingsPath(const fs::path& tbs_path)

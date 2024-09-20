@@ -21,7 +21,6 @@ private:
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
 {
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
-  publishDynamicParameterDescriptions();
 
   drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
 }

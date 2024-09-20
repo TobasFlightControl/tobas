@@ -9,16 +9,11 @@ namespace tobas
 BaseNode::BaseNode(const string& node_name, const rclcpp::NodeOptions& options)
   : super(node_name, options), dparam_sub_(this)
 {
+  RCLCPP_INFO_STREAM(get_logger(), "Initializing \"" << node_name << "\".");
+
   message_pub_ = createPublisher<tobas_std_msgs::msg::Message>(kMessageTopic);
-  dparams_pub_ = createPublisher<tobas_dparam_msgs::msg::Parameters>(node_name + "/" + kDynamicParamsTopic, true);
-
-  TOBAS_INFO("Initializing \"", node_name, "\".");
-}
-
-void BaseNode::publishDynamicParameterDescriptions()
-{
-  auto dparams = std::make_unique<tobas_dparam_msgs::msg::Parameters>(dparams_);
-  dparams_pub_->publish(move(dparams));
+  get_dparam_ss_ = createService<tobas_dparam_msgs::srv::GetParams>(
+    node_name + "/" + tobas::kGetDynamicParamsSrv, &self::getDParamCb, this);
 }
 
 bool BaseNode::getBoolParam(const string& name)
@@ -188,6 +183,13 @@ void BaseNode::rclcppLog(uint8_t level, const string& text) const
       RCLCPP_ERROR_STREAM(get_logger(), "Invalid log level: " << static_cast<int>(level));
       break;
   }
+}
+
+void BaseNode::getDParamCb(
+  const tobas_dparam_msgs::srv::GetParams::Request::ConstSharedPtr&,
+  const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res)
+{
+  res->params = dparams_;
 }
 
 string BaseNode::createID(const char* file, int line)

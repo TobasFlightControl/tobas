@@ -68,7 +68,6 @@ ThrustEstimatorNode::ThrustEstimatorNode(const rclcpp::NodeOptions& options)
 
   // Register dynamic parameters
   addDynamicIntParam("process_noise_variance_log10", &self::processNoiseVarianceLog10Cb, this, -6, -10, 0);
-  publishDynamicParameterDescriptions();
 
   // Register publishers
   factor_pub_ = createPublisher<std_msgs::msg::Float64>(tobas::kThrustCorrectionFactorTopic);

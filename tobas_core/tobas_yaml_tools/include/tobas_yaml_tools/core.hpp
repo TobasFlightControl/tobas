@@ -28,6 +28,9 @@ bool load(const std::string& key, const YAML::Node& parent, T& value)
   return true;
 }
 
+/* YAML::Nodeをテキストに変換する． */
+std::string dump(const YAML::Node& node);
+
 bool load(const std::filesystem::path& path, YAML::Node& node);
 bool save(const std::filesystem::path& path, const YAML::Node& node);
 }  // namespace yaml

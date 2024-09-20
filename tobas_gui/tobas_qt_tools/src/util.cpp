@@ -4,6 +4,7 @@
 #include <tobas_std_tools/console.hpp>
 
 #include "tobas_qt_tools/util.hpp"
+#include "tobas_qt_tools/widgets/scroll_area.hpp"
 
 namespace qt
 {
@@ -109,5 +110,16 @@ QWidget* createHorizontalWidgetsContainer(const std::vector<QWidget*>& widgets)
 
   // コンテナウィジェットを返す
   return container;
+}
+
+QVBoxLayout* createScrollableQVBoxLayout(QBoxLayout* parent)
+{
+  const auto scroll_area = new qt::ScrollArea();
+  parent->addWidget(scroll_area);
+
+  const auto rows = new QVBoxLayout();
+  scroll_area->setLayout(rows);
+
+  return rows;
 }
 }  // namespace qt

@@ -141,7 +141,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicIntParam("thrust_rate_weight_log10", &self::forwardSpeedWeightCb, this, -1, -3, 3);
   addDynamicIntParam("deflection_weight_log10", &self::forwardSpeedWeightCb, this, -3, -3, 3);
   addDynamicIntParam("deflection_rate_weight_log10", &self::forwardSpeedWeightCb, this, -1, -3, 3);
-  publishDynamicParameterDescriptions();
 
   // Register publishers
   rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);

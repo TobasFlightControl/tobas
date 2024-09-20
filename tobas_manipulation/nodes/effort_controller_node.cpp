@@ -101,7 +101,6 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("angular_stiffness", &self::angularStiffnessCb, this, 25., 0.1, 100.);
   addDynamicDoubleParam("linear_damping", &self::linearDampingCb, this, 10., 0.1, 20.);
   addDynamicDoubleParam("angular_damping", &self::angularDampingCb, this, 10., 0.1, 20.);
-  publishDynamicParameterDescriptions();
 
   efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffortsCmdTopic);
 

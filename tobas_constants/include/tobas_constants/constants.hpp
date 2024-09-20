@@ -24,7 +24,6 @@ static constexpr double kRCInputMax = 1.;
 // ROS topics
 static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
 static constexpr char kMessageTopic[] = "message";
-static constexpr char kDynamicParamsTopic[] = "dynamic_parameters";
 static constexpr char kDroneTopic[] = "drone";
 static constexpr char kKDLTreeTopic[] = "kdl_tree";
 static constexpr char kRobotDescriptionTopic[] = "robot_description";
@@ -78,6 +77,7 @@ static constexpr char kObserverFeedbackTopic[] = "feedback/observer";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
+static constexpr char kGetDynamicParamsSrv[] = "get_dynamic_parameters";
 static constexpr char kEnableRcOutputSrv[] = "enable_rc_output";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_ros2_tools/definitions.hpp>
@@ -31,13 +32,12 @@ public:
   enum error_t
   {
     E_NO_ERROR = 0,
-    E_SERVICE_NOT_READY = -1,
-    E_SERVER_ERROR = -2,
+    E_NO_CONNECTION = -1,
+    E_SERVICE_NOT_READY = -2,
+    E_SERVER_ERROR = -3,
   };
 
   explicit SSHClient(rclcpp::Node::SharedPtr node);
-
-  bool isConnected() const;
 
   error_t execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
 
@@ -49,6 +49,10 @@ public:
 
   error_t sftpRead(const std::string& remote_path, std::string& text);
   error_t sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
+
+  bool isConnected() const;
+  bool fileExists(const std::filesystem::path& file_path);
+  bool dirExists(const std::filesystem::path& dir_path);
 
   error_t errorCode() const;
   const char* errorMessage() const;

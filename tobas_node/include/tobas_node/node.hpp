@@ -7,7 +7,7 @@
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_ros2_tools/qos.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
-#include <tobas_dparam_msgs/msg/parameters.hpp>
+#include <tobas_dparam_msgs/srv/get_params.hpp>
 
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
@@ -202,8 +202,6 @@ public:
     Obj* obj,
     const std::vector<std::string>& _default = {});
 
-  void publishDynamicParameterDescriptions();
-
   bool getBoolParam(const std::string& name);
   long getIntParam(const std::string& name);
   double getDoubleParam(const std::string& name);
@@ -230,10 +228,10 @@ private:
 
   ros2::PublisherPtr<tobas_std_msgs::msg::Message> message_pub_;
 
-  tobas_dparam_msgs::msg::Parameters dparams_;
-  ros2::PublisherPtr<tobas_dparam_msgs::msg::Parameters> dparams_pub_;
+  tobas_dparam_msgs::msg::Parameters dparams_;  // 動的パラメータの設定と現在の値をまとめた構造体
   rclcpp::ParameterEventHandler dparam_sub_;
   std::vector<ros2::ParamHandlePtr> dparam_handles_;
+  ros2::ServiceServerPtr<tobas_dparam_msgs::srv::GetParams> get_dparam_ss_;
 
   template <typename T>
   T declareParam(const std::string& name);
@@ -242,6 +240,10 @@ private:
   T declareParam(const std::string& name, const T& _default);
 
   void rclcppLog(uint8_t level, const std::string& text) const;
+
+  void getDParamCb(
+    const tobas_dparam_msgs::srv::GetParams::Request::ConstSharedPtr& req,
+    const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res);
 
   static std::string createID(const char* file, int line);
 };
@@ -340,7 +342,17 @@ void BaseNode::addDynamicBoolParam(
   {
     const auto value = param.as_bool();
     if ((obj->*fp)(value))
+    {
+      for (auto& bool_param : dparams_.bools)
+      {
+        if (bool_param.name == name)
+        {
+          bool_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("Boolean parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -381,7 +393,17 @@ void BaseNode::addDynamicIntParam(
         "], it was clamped to ", value, ".");
     }
     if ((obj->*fp)(value))
+    {
+      for (auto& int_param : dparams_.ints)
+      {
+        if (int_param.name == name)
+        {
+          int_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("Integer parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -424,7 +446,17 @@ void BaseNode::addDynamicDoubleParam(
         "], it was clamped to ", value, ".");
     }
     if ((obj->*fp)(value))
+    {
+      for (auto& double_param : dparams_.doubles)
+      {
+        if (double_param.name == name)
+        {
+          double_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("Double parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -456,7 +488,17 @@ void BaseNode::addDynamicStringParam(
   {
     const auto& value = param.as_string();
     if ((obj->*fp)(value))
+    {
+      for (auto& string_param : dparams_.strings)
+      {
+        if (string_param.name == name)
+        {
+          string_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("String parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -486,7 +528,17 @@ void BaseNode::addDynamicBoolArrayParam(
   {
     const auto& value = param.as_bool_array();
     if ((obj->*fp)(value))
+    {
+      for (auto& bool_array_param : dparams_.bool_arrays)
+      {
+        if (bool_array_param.name == name)
+        {
+          bool_array_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("Boolean array parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -516,7 +568,17 @@ void BaseNode::addDynamicIntArrayParam(
   {
     const auto& value = param.as_integer_array();
     if ((obj->*fp)(value))
+    {
+      for (auto& int_array_param : dparams_.int_arrays)
+      {
+        if (int_array_param.name == name)
+        {
+          int_array_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("Integer array parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -546,7 +608,17 @@ void BaseNode::addDynamicDoubleArrayParam(
   {
     const auto& value = param.as_double_array();
     if ((obj->*fp)(value))
+    {
+      for (auto& double_array_param : dparams_.double_arrays)
+      {
+        if (double_array_param.name == name)
+        {
+          double_array_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("Double array parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);
@@ -576,7 +648,17 @@ void BaseNode::addDynamicStringArrayParam(
   {
     const auto& value = param.as_string_array();
     if ((obj->*fp)(value))
+    {
+      for (auto& string_array_param : dparams_.string_arrays)
+      {
+        if (string_array_param.name == name)
+        {
+          string_array_param.value = value;
+          break;
+        }
+      }
       TOBAS_INFO("String array parameter \"", name, "\" is updated successfully.");
+    }
   };
   const auto cb_handle = dparam_sub_.add_parameter_callback(name, cb);
   dparam_handles_.push_back(cb_handle);

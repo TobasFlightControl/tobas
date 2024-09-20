@@ -6,6 +6,9 @@ namespace gui
 {
 namespace common
 {
+/* FC側のTobasパッケージのパスを返す． */
+std::filesystem::path getRemoteTBSPath(const std::filesystem::path& tbs_path);
+
 /* パスから拡張子を除いたTobasパッケージ名を抽出する． */
 std::string getTBSName(const std::filesystem::path& tbs_path);
 
@@ -36,8 +39,11 @@ std::filesystem::path getModifiedURDFPath(const std::filesystem::path& tbs_path)
 /* PC上の meshディレクトリの絶対パスを返す． */
 std::filesystem::path getMeshPath(const std::filesystem::path& tbs_path);
 
-/* PC上の dynamic_params.yaml の絶対パスを返す． */
-std::filesystem::path getDynamicParamsPath(const std::filesystem::path& tbs_path);
+/* PC上の controller_dynamic.yaml の絶対パスを返す． */
+std::filesystem::path getControllerDynamicParamsPath(const std::filesystem::path& tbs_path);
+
+/* PC上の observer_dynamic.yaml の絶対パスを返す． */
+std::filesystem::path getObserverDynamicParamsPath(const std::filesystem::path& tbs_path);
 
 /* PC上のバックアップ用設定ファイルの絶対パスを返す． */
 std::filesystem::path getSettingsPath(const std::filesystem::path& tbs_path);

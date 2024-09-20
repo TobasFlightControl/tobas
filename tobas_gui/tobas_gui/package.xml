@@ -17,8 +17,6 @@
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>urdf_builder</exec_depend>
 
-	<!-- TODO -->
-
 	<export>
 		<build_type>ament_cmake</build_type>
 	</export>
