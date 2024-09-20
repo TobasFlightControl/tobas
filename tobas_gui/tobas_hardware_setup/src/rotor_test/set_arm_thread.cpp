@@ -39,7 +39,7 @@ void SetArmThread::setNamespace(const std::string& ns)
   ns_ = ns;
 }
 
-bool SetArmThread::setArming(bool arming)
+void SetArmThread::setArming(bool arming)
 {
   arming_ = arming;
 }

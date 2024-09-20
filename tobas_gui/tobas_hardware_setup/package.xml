@@ -10,6 +10,9 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>tobas_kdl_conversions</depend>
+  <depend>wpa_supplicant_parser</depend>
+  <depend>tobas_ssh_client</depend>
+  <depend>tobas_msgs_adapter</depend>
   <depend>tobas_drone_msgs_adapter</depend>
   <depend>tobas_hal_core</depend>
   <depend>tobas_hal_msgs_adapter</depend>

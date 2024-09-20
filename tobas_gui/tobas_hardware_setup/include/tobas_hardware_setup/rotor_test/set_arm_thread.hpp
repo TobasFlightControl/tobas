@@ -23,7 +23,7 @@ public:
   void run() override;
 
   void setNamespace(const std::string& ns);
-  bool setArming(bool arming);
+  void setArming(bool arming);
 
 private:
   const rclcpp::Node::SharedPtr node_;

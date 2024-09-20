@@ -8,7 +8,7 @@ namespace hardware_setup
 {
 HardwareSetupWidget::HardwareSetupWidget(
   rclcpp::Node::SharedPtr node,
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr)
+  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -16,10 +16,26 @@ HardwareSetupWidget::HardwareSetupWidget(
   tabs_ = new qt::VerticalTabWidget();
   rows->addWidget(tabs_);
 
+  network_setting_ = new NetworkSettingWidget(node);
   accel_calib_ = new AccelCalibrationWidget(node);
-  // TODO
+  mag_calib_ = new MagCalibrationWidget(node, rviz_node_if);
+  adc_calib_ = new ADCCalibrationWidget(node);
+  rcin_calib_ = new RCInputCalibrationWidget(node);
+  rotor_test_ = new RotorTestWidget(node);
 
+  network_setting_->initialize();
+  accel_calib_->initialize();
+  mag_calib_->initialize();
+  adc_calib_->initialize();
+  rcin_calib_->initialize();
+  rotor_test_->initialize();
+
+  tabs_->addTab(network_setting_, network_setting_->name());
   tabs_->addTab(accel_calib_, accel_calib_->name());
+  tabs_->addTab(mag_calib_, mag_calib_->name());
+  tabs_->addTab(adc_calib_, adc_calib_->name());
+  tabs_->addTab(rcin_calib_, rcin_calib_->name());
+  tabs_->addTab(rotor_test_, rotor_test_->name());
 
   tabs_->setMinimumHeight(kMinHeight);
   tabs_->setStyleSheet(

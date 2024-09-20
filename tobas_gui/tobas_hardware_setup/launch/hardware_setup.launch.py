@@ -20,13 +20,25 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
-    setup_assistant = Node(
+    ros_args = ["--log-level", log_level]
+
+    # Launch SSH server
+    ssh_server = Node(
+        package="tobas_ssh_server",
+        executable="ssh_server",
+        ros_arguments=ros_args,
+        output=output,
+    )
+    ld.add_action(ssh_server)
+
+    # Launch hardware setup
+    hardware_setup = Node(
         package="tobas_hardware_setup",
         executable="main",
-        ros_arguments=["--log-level", log_level],
+        ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),
     )
-    ld.add_action(setup_assistant)
+    ld.add_action(hardware_setup)
 
     return ld

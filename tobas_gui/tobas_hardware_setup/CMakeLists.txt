@@ -22,6 +22,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
+find_package(wpa_supplicant_parser REQUIRED)
+find_package(tobas_ssh_client REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_hal_core REQUIRED)
 find_package(tobas_hal_msgs_adapter REQUIRED)
@@ -31,6 +34,9 @@ find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
   tobas_kdl_conversions
+  wpa_supplicant_parser
+  tobas_ssh_client
+  tobas_msgs_adapter
   tobas_drone_msgs_adapter
   tobas_hal_core
   tobas_hal_msgs_adapter
