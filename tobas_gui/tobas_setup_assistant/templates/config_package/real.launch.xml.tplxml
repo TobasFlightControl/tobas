@@ -45,22 +45,6 @@
       <composable_node pkg="tobas_real_ros" plugin="TimeReferenceServerNode">
         <extra_arg name="use_intra_process_comms" value="true"/>
       </composable_node>
-
-      <composable_node pkg="tobas_calibration_ros" plugin="AccelCalibrationNode">
-        <extra_arg name="use_intra_process_comms" value="true"/>
-      </composable_node>
-      <composable_node pkg="tobas_calibration_ros" plugin="AdcCalibrationNode">
-        <extra_arg name="use_intra_process_comms" value="true"/>
-      </composable_node>
-      <composable_node pkg="tobas_calibration_ros" plugin="EscCalibrationNode">
-        <extra_arg name="use_intra_process_comms" value="true"/>
-      </composable_node>
-      <composable_node pkg="tobas_calibration_ros" plugin="MagCalibrationNode">
-        <extra_arg name="use_intra_process_comms" value="true"/>
-      </composable_node>
-      <composable_node pkg="tobas_calibration_ros" plugin="RCInputCalibrationNode">
-        <extra_arg name="use_intra_process_comms" value="true"/>
-      </composable_node>
     </load_composable_node>
   </group>
 

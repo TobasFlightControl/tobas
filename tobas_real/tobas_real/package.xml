@@ -9,7 +9,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_calibration</exec_depend>
 	<exec_depend>tobas_dynamixel</exec_depend>
 	<exec_depend>tobas_real_common</exec_depend>
 	<exec_depend>tobas_real_ros</exec_depend>
