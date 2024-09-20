@@ -7,9 +7,11 @@
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
-	<exec_depend>rclpy</exec_depend>
 	<exec_depend>python3-paramiko</exec_depend>
 	<exec_depend>python3-scp</exec_depend>
+	<exec_depend>rclpy</exec_depend>
+	<exec_depend>std_msgs</exec_depend>
+	<exec_depend>tobas_ssh_msgs</exec_depend>
 
 	<export>
 		<build_type>ament_python</build_type>

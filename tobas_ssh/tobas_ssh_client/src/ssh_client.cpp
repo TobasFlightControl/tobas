@@ -1,3 +1,5 @@
+#include <tobas_ros2_tools/register.hpp>
+
 #include "../include/tobas_ssh_client/ssh_client.hpp"
 
 using namespace std;
@@ -12,6 +14,18 @@ SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
     sftp_read_sc_(node, kSFTPReadSrv),
     sftp_write_sc_(node, kSFTPWriteSrv)
 {
+  connection_sub_ = ros2::createSubscriber(node, kConnectionTopic, &SSHClient::connectionCb, this);
+}
+
+bool SSHClient::isConnected() const
+{
+  if (connection_ == nullptr)
+  {
+    RCLCPP_WARN(node_->get_logger(), "SSH connection status is not received yet.");
+    return false;
+  }
+
+  return connection_->data;
 }
 
 SSHClient::error_t SSHClient::execute(const string& command, string& output, bool superuser, bool background)
@@ -114,5 +128,10 @@ const char* SSHClient::errorMessage() const
     default:
       throw;
   }
+}
+
+void SSHClient::connectionCb(const std_msgs::msg::Bool::ConstSharedPtr& connection)
+{
+  connection_ = connection;
 }
 }  // namespace ssh

@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import Bool
 
 from tobas_ssh_msgs.srv import Execute, SCPPut, SFTPRead, SFTPWrite
 from .ssh_client import SSHClientWrapper
@@ -18,6 +19,8 @@ class SSHServerNode(Node):
 
         self._ssh_client = SSHClientWrapper(host, port, user, passwd)
         self._is_connected = False
+
+        self._connection_pub = self.create_publisher(Bool, "ssh/connection", 1)
 
         self._execute_ss = self.create_service(Execute, "ssh/execute", self._execute_cb)
         self._scp_put_ss = self.create_service(SCPPut, "ssh/scp_put", self._scp_put_cb)
@@ -119,6 +122,11 @@ class SSHServerNode(Node):
         except Exception as e:
             self.get_logger().warn(f"{e}")
             self._is_connected = False
+
+        # Publish connection status
+        connection_msg = Bool()
+        connection_msg.data = self._is_connected
+        self._connection_pub.publish(connection_msg)
 
 
 def main(args=None) -> None:
