@@ -25,7 +25,7 @@ def generate_launch_description():
     # Launch SSH server
     ssh_server = Node(
         package="tobas_ssh_server",
-        executable="ssh_server",
+        executable="ssh_server_node",
         ros_arguments=ros_args,
         output=output,
     )

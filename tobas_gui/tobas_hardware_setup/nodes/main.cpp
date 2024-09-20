@@ -21,7 +21,7 @@ int main(int argc, char** argv)
   // GUIを表示
   QApplication qt_app(argc, argv);
   const auto widget = new gui::hardware_setup::HardwareSetupWidget(node_manager.node(), rviz_manager.node());
-  qt::MainWidget main("Tobas Setup Assistant", QString::fromStdString(gui::common::getIconPath()), widget);
+  qt::MainWidget main("Tobas Hardware Setup", QString::fromStdString(gui::common::getIconPath()), widget);
   main.show();
 
   // Ctrl+Cで即終了

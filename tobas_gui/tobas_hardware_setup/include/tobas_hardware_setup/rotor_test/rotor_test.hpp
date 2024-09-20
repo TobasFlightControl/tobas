@@ -2,6 +2,7 @@
 
 #include <std_msgs/msg/bool.hpp>
 
+#include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 #include "../base.hpp"
