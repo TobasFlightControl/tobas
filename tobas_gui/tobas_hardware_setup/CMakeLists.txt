@@ -25,7 +25,7 @@ find_package(tobas_kdl_conversions REQUIRED)
 find_package(wpa_supplicant_parser REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_drone_core REQUIRED)
 find_package(tobas_hal_core REQUIRED)
 find_package(tobas_hal_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
@@ -37,7 +37,7 @@ set(AMENT_DEPENDENCIES
   wpa_supplicant_parser
   tobas_ssh_client
   tobas_msgs_adapter
-  tobas_drone_msgs_adapter
+  tobas_drone_core
   tobas_hal_core
   tobas_hal_msgs_adapter
   tobas_real_common
@@ -57,9 +57,6 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-add_executable(main nodes/main.cpp)
-target_link_libraries(main ${PROJECT_NAME})
-
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}
@@ -68,10 +65,8 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
-
-install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

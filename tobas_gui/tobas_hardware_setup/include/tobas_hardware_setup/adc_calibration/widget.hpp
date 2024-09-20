@@ -3,8 +3,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
 
@@ -34,21 +32,15 @@ public:
 
   void onInit() override;
 
-private:
-  const rclcpp::Node::SharedPtr node_;
+  void setNamespace(const std::string& ns);
 
+private:
   qt::DoubleSpinBox* voltage_;
   QPushButton* start_button_;
   QLineEdit* adc_coef_;
 
   qt::WaitSpinnerWidget spinner_;
   ADCCalibrationThread thread_;
-
-  tobas::Drone::ConstSharedPtr drone_;
-
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
 
 private Q_SLOTS:
   void onStartButtonClicked();

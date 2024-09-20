@@ -3,7 +3,6 @@
 #include <QPushButton>
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_hal_msgs/msg/sbus.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 
@@ -40,8 +39,12 @@ public:
 
   void onInit() override;
 
+  void setNamespace(const std::string& ns);
+
 private:
   const rclcpp::Node::SharedPtr node_;
+
+  std::string ns_;
 
   QPushButton* start_button_;
   QPushButton* finish_button_;
@@ -55,15 +58,11 @@ private:
   qt::HPositionBarWidget* estop_range_;
   qt::HPositionBarWidget* gpsw_range_;
 
-  tobas::Drone::ConstSharedPtr drone_;
-
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
 
   void reset();
 
   void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
 
 private Q_SLOTS:
   void onStartButtonClicked();

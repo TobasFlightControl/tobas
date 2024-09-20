@@ -13,8 +13,8 @@ namespace gui
 {
 namespace hardware_setup
 {
-RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), spinner_(Qt::WindowModal, this), arm_thread_(node, true), disarm_thread_(node, false)
+RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
+  : node_(node), drone_(drone), spinner_(Qt::WindowModal, this), arm_thread_(node, true), disarm_thread_(node, false)
 {
 }
 
@@ -55,7 +55,6 @@ void RotorTestWidget::onInit()
 
   speeds_publisher_ = new RotorSpeedsPublisherWidget(node_, drone_);
 
-  // ドローンが得られるまでは無効
   setEnabled(false);
 
   // Layout
@@ -77,14 +76,17 @@ void RotorTestWidget::onInit()
 
   // Register subscribers
   arming_sub_ = ros2::createSubscriber(node_, tobas::kArmingTopic, &self::armingCb, this, true, true);
-  drone_sub_ = ros2::createSubscriber(node_, tobas::kDroneTopic, &self::droneCb, this, true, true);
+}
+
+void RotorTestWidget::updateInternalDataStructures()
+{
+  reset();
+  speeds_publisher_->updateInternalDataStructures();
 }
 
 void RotorTestWidget::reset()
 {
-  if (speeds_publisher_ != nullptr)
-    speeds_publisher_->stop();
-  speeds_publisher_ = nullptr;
+  speeds_publisher_->stop();
 
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
@@ -95,20 +97,6 @@ void RotorTestWidget::reset()
 void RotorTestWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
-}
-
-void RotorTestWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)
-{
-  drone_ = *drone;
-
-  if (is_running_)
-  {
-    reset();
-    speeds_publisher_->updateInternalDataStructures();
-    qt::qWarnBox(this, "Rotor test is interrupted because drone configuration has changed.");
-  }
-
-  setEnabled(true);
 }
 
 void RotorTestWidget::onStartButtonClicked()

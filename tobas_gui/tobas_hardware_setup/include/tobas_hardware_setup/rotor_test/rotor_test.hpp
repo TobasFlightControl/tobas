@@ -1,8 +1,9 @@
 #pragma once
 
+#include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/bool.hpp>
 
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
 #include "../base.hpp"
@@ -24,15 +25,18 @@ class RotorTestWidget : public BaseHardwareSetupWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit RotorTestWidget(rclcpp::Node::SharedPtr node);
+  explicit RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
   const char* name() const override;
   const char* title() const override;
 
   void onInit() override;
 
+  void updateInternalDataStructures();
+
 private:
   const rclcpp::Node::SharedPtr node_;
+  const tobas::Drone& drone_;
 
   QPushButton* start_button_;
   QPushButton* stop_button_;
@@ -43,16 +47,13 @@ private:
   SetArmThread disarm_thread_;
 
   std_msgs::msg::Bool::ConstSharedPtr arming_;
-  tobas::Drone drone_;
   bool is_running_ = false;
 
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
 
   void reset();
 
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
 
 private Q_SLOTS:
   void onStartButtonClicked();

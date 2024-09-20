@@ -9,7 +9,7 @@ namespace gui
 namespace hardware_setup
 {
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
+  : spinner_(Qt::WindowModal, this), thread_(node)
 {
 }
 
@@ -42,30 +42,20 @@ void AccelCalibrationWidget::onInit()
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(&thread_, &AccelCalibrationThread::finished, this, &self::onCalibrationFinished);
 
-  // ドローンが得られるまでは無効
   setEnabled(false);
-
-  drone_sub_ = ros2::createSubscriber(node_, tobas::kDroneTopic, &self::droneCb, this, true, true);
 }
 
-void AccelCalibrationWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void AccelCalibrationWidget::setNamespace(const std::string& ns)
 {
-  drone_ = drone;
+  thread_.setNamespace(ns);
   setEnabled(true);
 }
 
 void AccelCalibrationWidget::onStartButtonClicked()
 {
-  if (drone_ == nullptr)
-  {
-    qt::qWarnBox(this, "Drone configuration is not received yet.");
-    return;
-  }
-
   spinner_.show();
   spinner_.start();
 
-  thread_.setNamespace(drone_->name);
   thread_.start();
 }
 

@@ -9,7 +9,7 @@ namespace gui
 namespace hardware_setup
 {
 ADCCalibrationWidget::ADCCalibrationWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
+  : spinner_(Qt::WindowModal, this), thread_(node)
 {
 }
 
@@ -67,26 +67,17 @@ void ADCCalibrationWidget::onInit()
 
   rows_->addStretch();
 
-  // ドローンが得られるまでは無効
   setEnabled(false);
-
-  drone_sub_ = ros2::createSubscriber(node_, tobas::kDroneTopic, &self::droneCb, this, true, true);
 }
 
-void ADCCalibrationWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void ADCCalibrationWidget::setNamespace(const std::string& ns)
 {
-  drone_ = drone;
+  thread_.setNamespace(ns);
   setEnabled(true);
 }
 
 void ADCCalibrationWidget::onStartButtonClicked()
 {
-  if (drone_ == nullptr)
-  {
-    qt::qWarnBox(this, "Drone configuration is not received yet.");
-    return;
-  }
-
   if (voltage_->value() <= 0.)
   {
     qt::qWarnBox(this, "Please set positive battery voltage.");
@@ -95,9 +86,7 @@ void ADCCalibrationWidget::onStartButtonClicked()
   spinner_.show();
   spinner_.start();
 
-  thread_.setNamespace(drone_->name);
   thread_.setCurrentVoltage(voltage_->value());
-
   thread_.start();
 }
 

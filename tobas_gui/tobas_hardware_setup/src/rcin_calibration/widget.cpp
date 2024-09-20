@@ -1,4 +1,3 @@
-#include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
@@ -133,10 +132,14 @@ void RCInputCalibrationWidget::onInit()
 
   reset();
 
-  // ドローンが得られるまでは無効
   setEnabled(false);
+}
 
-  drone_sub_ = ros2::createSubscriber(node_, tobas::kDroneTopic, &self::droneCb, this, true, true);
+void RCInputCalibrationWidget::setNamespace(const string& ns)
+{
+  ns_ = ns;
+  reset();
+  setEnabled(true);
 }
 
 void RCInputCalibrationWidget::reset()
@@ -180,22 +183,10 @@ void RCInputCalibrationWidget::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstShar
   gpsw_range_->update();
 }
 
-void RCInputCalibrationWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)
-{
-  drone_ = drone;
-  setEnabled(true);
-}
-
 void RCInputCalibrationWidget::onStartButtonClicked()
 {
-  if (drone_ == nullptr)
-  {
-    qt::qWarnBox(this, "Drone configuration is not received yet.");
-    return;
-  }
-
   // 一時的にSBUSトピックを購読開始
-  sbus_sub_ = ros2::createSubscriber(node_, hal::kSbusTopic, &self::sbusCb, this);
+  sbus_sub_ = ros2::createSubscriber(node_, ns_ + "/" + hal::kSbusTopic, &self::sbusCb, this);
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);
@@ -275,7 +266,7 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   params.at(real::handler::rcin::kGPSwOffChannel) = gpsw_range_->getUpper();
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, drone_->name + "/rcin_handler");
+  ros2::SyncParamClient param_client(node_, ns_ + "/rcin_handler");
   if (!param_client.setParam(real::handler::kParamName, params))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");

@@ -3,6 +3,7 @@
 #include <rviz_common/visualization_manager.hpp>
 #include <rviz_common/display_group.hpp>
 
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -17,8 +18,9 @@
 #include "tobas_hardware_setup/mag_calibration/method.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
+using namespace std;
 using namespace Eigen;
-namespace fs = std::filesystem;
+namespace fs = filesystem;
 
 namespace gui
 {
@@ -92,17 +94,20 @@ void MagCalibrationWidget::onInit()
   // データバッファ関連
   history_length_ = display->subProp("History Length");
 
-  // ドローンが得られるまでは無効
   setEnabled(false);
+}
 
-  point_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointTopic);
-  drone_sub_ = ros2::createSubscriber(node_, tobas::kDroneTopic, &self::droneCb, this, true, true);
+void MagCalibrationWidget::setNamespace(const string& ns)
+{
+  ns_ = ns;
+  reset();
+  setEnabled(true);
 }
 
 void MagCalibrationWidget::reset()
 {
-  if (mag_raw_sub_ != nullptr)
-    mag_raw_sub_ = nullptr;
+  point_pub_ = nullptr;
+  mag_raw_sub_ = nullptr;
 
   history_length_->setValue(0);
 
@@ -124,25 +129,15 @@ void MagCalibrationWidget::magCb(const tobas_hal_msgs::MagneticField::ConstShare
   point_pub_->publish(std::move(point_msg));
 }
 
-void MagCalibrationWidget::droneCb(const tobas::Drone::ConstSharedPtr& drone)
-{
-  drone_ = drone;
-  setEnabled(true);
-}
-
 void MagCalibrationWidget::onStartButtonClicked()
 {
-  if (drone_ == nullptr)
-  {
-    qt::qWarnBox(this, "Drone configuration is not received yet.");
-    return;
-  }
-
   // カウンターをリセット
   cnt_ = 0;
 
-  // 一時的に地磁気トピックを購読開始
-  mag_raw_sub_ = ros2::createSubscriber(node_, hal::kMagTopic, &self::magCb, this);
+  // 一時的にトピック通信を開始
+  point_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, ns_ + "/" + kRvizPointTopic);
+  mag_raw_sub_ = ros2::createSubscriber(node_, ns_ + "/" + hal::kMagTopic, &self::magCb, this);
+
   history_length_->setValue(kMaxDataSize);
 
   start_button_->setEnabled(false);
@@ -280,7 +275,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
 
   // パラメータを作成
-  std::vector<double> params(real::handler::mag::kParamSize);
+  vector<double> params(real::handler::mag::kParamSize);
   params.at(real::handler::mag::kAxxChannel) = mag_trans_.a_xx;
   params.at(real::handler::mag::kAyyChannel) = mag_trans_.a_yy;
   params.at(real::handler::mag::kAzzChannel) = mag_trans_.a_zz;
@@ -293,7 +288,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   params.at(real::handler::mag::kCChannel) = mag_trans_.c;
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, drone_->name + "/adc_handler");
+  ros2::SyncParamClient param_client(node_, ns_ + "/adc_handler");
   if (!param_client.setParam(real::handler::kParamName, params))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");

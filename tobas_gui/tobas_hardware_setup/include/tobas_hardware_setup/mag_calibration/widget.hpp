@@ -7,7 +7,6 @@
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_hal_msgs_adapter/MagneticField.hpp>
 
 #include "../base.hpp"
@@ -39,15 +38,17 @@ public:
 
   void onInit() override;
 
+  void setNamespace(const std::string& ns);
+
 private:
   const rclcpp::Node::SharedPtr node_;
   const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
 
+  std::string ns_;
+
   QPushButton* start_button_;
   QPushButton* finish_button_;
   QPushButton* cancel_button_;
-
-  tobas::Drone::ConstSharedPtr drone_;
 
   int cnt_;
   std::array<Eigen::Vector3d, kMaxDataSize> mag_data_;
@@ -57,12 +58,10 @@ private:
 
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> point_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_raw_sub_;
-  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
 
   void reset();
 
   void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
-  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
 
 private Q_SLOTS:
   void onStartButtonClicked();

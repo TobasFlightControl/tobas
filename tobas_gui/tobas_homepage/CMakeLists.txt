@@ -52,7 +52,6 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
-
 install(TARGETS main DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})

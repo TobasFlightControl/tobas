@@ -29,9 +29,16 @@ class HardwareSetupWidget : public QWidget
 public:
   explicit HardwareSetupWidget(
     rclcpp::Node::SharedPtr node,
-    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if);
+    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
+    const tobas::Drone& drone);
+
+  void updateInternalDataStructures();
 
 private:
+  const rclcpp::Node::SharedPtr node_;
+  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
+  const tobas::Drone& drone_;
+
   qt::VerticalTabWidget* tabs_;
 
   NetworkSettingWidget* network_setting_;

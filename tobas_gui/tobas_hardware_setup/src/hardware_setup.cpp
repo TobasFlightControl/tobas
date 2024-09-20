@@ -8,7 +8,9 @@ namespace hardware_setup
 {
 HardwareSetupWidget::HardwareSetupWidget(
   rclcpp::Node::SharedPtr node,
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
+  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
+  const tobas::Drone& drone)
+  : node_(node), rviz_node_if_(rviz_node_if), drone_(drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -21,7 +23,7 @@ HardwareSetupWidget::HardwareSetupWidget(
   mag_calib_ = new MagCalibrationWidget(node, rviz_node_if);
   adc_calib_ = new ADCCalibrationWidget(node);
   rcin_calib_ = new RCInputCalibrationWidget(node);
-  rotor_test_ = new RotorTestWidget(node);
+  rotor_test_ = new RotorTestWidget(node, drone);
 
   network_setting_->initialize();
   accel_calib_->initialize();
@@ -40,6 +42,15 @@ HardwareSetupWidget::HardwareSetupWidget(
   tabs_->setMinimumHeight(kMinHeight);
   tabs_->setStyleSheet(
     QString::fromStdString(std::format("QTabBar::tab {{ height: {}px; width: {}px; }}", kTabHeight, kTabWidth)));
+}
+
+void HardwareSetupWidget::updateInternalDataStructures()
+{
+  accel_calib_->setNamespace(drone_.name);
+  mag_calib_->setNamespace(drone_.name);
+  adc_calib_->setNamespace(drone_.name);
+  rcin_calib_->setNamespace(drone_.name);
+  rotor_test_->updateInternalDataStructures();
 }
 }  // namespace hardware_setup
 }  // namespace gui
