@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import QApplication
 from tobas_rqt_py.widgets import MainWidget
 from tobas_rqt_py.utils import handle_unexpected_exception
 
-from tobas_gui_teleop.base_pose_commander import BasePoseCommanderWidget
-from tobas_gui_teleop.common import PKG_NAME
+from .base_pose_commander import BasePoseCommanderWidget
+from .common import PKG_NAME
 
 
 def main(args=None):

@@ -21,9 +21,9 @@ data_files = package_files("launch/", data_files)
 
 
 console_scripts = []
-for node_file in glob(f"scripts/*_node.py"):
+for node_file in glob(f"{pkg_name}/*_node.py"):
     node_name = osp.basename(osp.splitext(node_file)[0])
-    console_scripts.append(f"{node_name} = scripts.{node_name}:main")
+    console_scripts.append(f"{node_name} = {pkg_name}.{node_name}:main")
 
 
 setup(
