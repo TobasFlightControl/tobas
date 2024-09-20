@@ -33,7 +33,7 @@ MagCalibrationWidget::MagCalibrationWidget(
 
 const char* MagCalibrationWidget::name() const
 {
-  return "Magnetometer Calibration";
+  return "Magnetometer\nCalibration";
 }
 
 const char* MagCalibrationWidget::title() const
