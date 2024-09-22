@@ -31,9 +31,14 @@ public:
   Inertia inertia() const;
   void inertia(const Inertia& inertia);
 
-  void buildInertiaSphere(double radius);
-  void buildInertiaCylinder(double radius, double length);
+  /* Inertia wrt. CoM of a box. */
   void buildInertiaBox(double x, double y, double z);
+
+  /* Inertia wrt. CoM of a cylinder. */
+  void buildInertiaCylinder(double radius, double length);
+
+  /* Inertia wrt. CoM of a sphere. */
+  void buildInertiaSphere(double radius);
 };
 
 using InertialViewModelPtr = std::shared_ptr<InertialViewModel>;
