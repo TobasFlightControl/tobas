@@ -173,5 +173,10 @@ void OgreController::setCollisionVisible(bool visible)
 {
   pimpl_->rviz.robot->setCollisionVisible(visible);
 }
+
+void OgreController::setInertiaVisible(bool visible)
+{
+  pimpl_->rviz.robot->setInertiaVisible(visible);
+}
 }  // namespace ogre_helpers
 }  // namespace urdf_builder

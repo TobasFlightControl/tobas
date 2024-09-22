@@ -38,6 +38,7 @@ public:
   void hide(const std::string& link_name);
   void setVisualVisible(bool visible);
   void setCollisionVisible(bool visible);
+  void setInertiaVisible(bool visible);
 
 private:
   struct PImpl;

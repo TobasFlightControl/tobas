@@ -57,6 +57,7 @@ private Q_SLOTS:
   void SaveAsButtonClicked();
   void EnableVisualCheckBoxToggled(bool checked);
   void EnableCollisionCheckBoxToggled(bool checked);
+  void EnableInertiaCheckBoxToggled(bool checked);
   void LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
   void LinkTreeWidgetItemChanged(QTreeWidgetItem* item, int column);
   void LinkTreeContextMenuRequested(const QPoint&);

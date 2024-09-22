@@ -38,6 +38,7 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
 
   ui_->EnableVisualCheckBox->setChecked(kDefaultVisualVisible);
   ui_->EnableCollisionCheckBox->setChecked(kDefaultCollisionVisible);
+  ui_->EnableInertiaCheckBox->setChecked(kDefaultInertiaVisible);
 
   update_timer_ = new QTimer();
 
@@ -200,18 +201,25 @@ void URDFBuilderPanel::SaveAsButtonClicked()
   ui_->Path->setText(file_path);
 }
 
-void URDFBuilderPanel::EnableVisualCheckBoxToggled(bool ckecked)
+void URDFBuilderPanel::EnableVisualCheckBoxToggled(bool checked)
 {
-  PRINT_DEBUG("URDFBuilderPanel::EnableVisualCheckBoxToggled(" << ckecked << ")");
+  PRINT_DEBUG("URDFBuilderPanel::EnableVisualCheckBoxToggled(" << checked << ")");
 
-  ogre_ctrl_->setVisualVisible(ckecked);
+  ogre_ctrl_->setVisualVisible(checked);
 }
 
-void URDFBuilderPanel::EnableCollisionCheckBoxToggled(bool ckecked)
+void URDFBuilderPanel::EnableCollisionCheckBoxToggled(bool checked)
 {
-  PRINT_DEBUG("URDFBuilderPanel::EnableCollisiolCheckBoxToggled(" << ckecked << ")");
+  PRINT_DEBUG("URDFBuilderPanel::EnableCollisiolCheckBoxToggled(" << checked << ")");
 
-  ogre_ctrl_->setCollisionVisible(ckecked);
+  ogre_ctrl_->setCollisionVisible(checked);
+}
+
+void URDFBuilderPanel::EnableInertiaCheckBoxToggled(bool checked)
+{
+  PRINT_DEBUG("URDFBuilderPanel::EnableInertiaCheckBoxToggled(" << checked << ")");
+
+  ogre_ctrl_->setInertiaVisible(checked);
 }
 
 void URDFBuilderPanel::LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
@@ -385,6 +393,7 @@ void URDFBuilderPanel::defineConnections()
 
   connect(ui_->EnableVisualCheckBox, &QCheckBox::toggled, this, &self::EnableVisualCheckBoxToggled);
   connect(ui_->EnableCollisionCheckBox, &QCheckBox::toggled, this, &self::EnableCollisionCheckBoxToggled);
+  connect(ui_->EnableInertiaCheckBox, &QCheckBox::toggled, this, &self::EnableInertiaCheckBoxToggled);
 
   connect(ui_->LinkTreeWidget, &QTreeWidget::itemClicked, this, &self::LinkTreeWidgetItemClicked);
   connect(ui_->LinkTreeWidget, &QTreeWidget::itemChanged, this, &self::LinkTreeWidgetItemChanged);
