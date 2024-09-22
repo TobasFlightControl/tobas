@@ -20,11 +20,13 @@ public:
   explicit RobotStateDisplay();
 
 private:
+  rviz_common::properties::BoolProperty* enable_inertia_visible_;
   rviz_common::properties::StringProperty* highlight_link_;
   rviz_common::properties::StringProperty* unhighlight_link_;
   rviz_common::properties::BoolProperty* reload_;
 
 private Q_SLOTS:
+  void changedEnableInertiaVisible();
   void changedHighlightColor();
   void changedUnhighlightColor();
   void changedReload();

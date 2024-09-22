@@ -43,18 +43,22 @@ RvizWidget::RvizWidget(
   // 使用するプロパティを取得
   enable_visual_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Visual Enabled"));
   enable_collision_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Collision Enabled"));
+  enable_inertia_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Inertia Enabled"));
   highlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Highlight Link"));
   unhighlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Unhighlight Link"));
   reload_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Reload"));
 
   enable_visual_->setBool(kDefaultVisualEnabled);
   enable_collision_->setBool(kDefaultCollisionEnabled);
+  enable_inertia_->setBool(kDefaultInertiaEnabled);
 
   // 可視化ボタン
-  const auto visual_box = new QCheckBox("Show Visual Geometry");
+  const auto visual_box = new QCheckBox("Show Visual");
   visual_box->setChecked(kDefaultVisualEnabled);
-  const auto collision_box = new QCheckBox("Show Collision Geometry");
+  const auto collision_box = new QCheckBox("Show Collision");
   collision_box->setChecked(kDefaultCollisionEnabled);
+  const auto inertia_box = new QCheckBox("Show Inertia");
+  inertia_box->setChecked(kDefaultInertiaEnabled);
 
   // レイアウト
   const auto rows = new QVBoxLayout();
@@ -65,11 +69,13 @@ RvizWidget::RvizWidget(
   cols->addStretch();
   cols->addWidget(visual_box);
   cols->addWidget(collision_box);
+  cols->addWidget(inertia_box);
 
   // Connections
   connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);
+  connect(inertia_box, &QCheckBox::toggled, this, &self::onInertiaBoxToggled);
 }
 
 void RvizWidget::onRobotLoaded()
@@ -124,6 +130,11 @@ void RvizWidget::onVisualBoxToggled(bool checked)
 void RvizWidget::onCollisionBoxToggled(bool checked)
 {
   enable_collision_->setBool(checked);
+}
+
+void RvizWidget::onInertiaBoxToggled(bool checked)
+{
+  enable_inertia_->setBool(checked);
 }
 }  // namespace setup_assistant
 }  // namespace gui

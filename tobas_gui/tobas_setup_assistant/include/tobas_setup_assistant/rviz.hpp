@@ -23,6 +23,7 @@ class RvizWidget : public QWidget
   static constexpr int kRobotStateDisplayIndex = 0;  // rvizファイルと合わせる必要あり
   static constexpr bool kDefaultVisualEnabled = true;
   static constexpr bool kDefaultCollisionEnabled = false;
+  static constexpr bool kDefaultInertiaEnabled = false;
 
 public:
   explicit RvizWidget(
@@ -39,6 +40,7 @@ private Q_SLOTS:
   void onRobotLoaded();
   void onVisualBoxToggled(bool checked);
   void onCollisionBoxToggled(bool checked);
+  void onInertiaBoxToggled(bool checked);
 
 private:
   const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
@@ -49,6 +51,7 @@ private:
 
   rviz_common::properties::BoolProperty* enable_visual_;
   rviz_common::properties::BoolProperty* enable_collision_;
+  rviz_common::properties::BoolProperty* enable_inertia_;
   rviz_common::properties::StringProperty* highlight_link_;
   rviz_common::properties::StringProperty* unhighlight_link_;
   rviz_common::properties::BoolProperty* reload_;
