@@ -48,7 +48,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   }
 
   // レイアウト
-  setMinimumHeight(kSettingsMinHeight);
+  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   setStyleSheet(
     QString::fromStdString(std::format("QTabBar::tab {{ height: {}px; width: {}px; }}", kTabHeight, kTabWidth)));
 

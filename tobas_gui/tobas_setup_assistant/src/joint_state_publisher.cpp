@@ -83,6 +83,8 @@ void JointStatePublisherWidget::onRobotLoaded()
     RCLCPP_DEBUG_STREAM(node_->get_logger(), "\"" << joint.name << "\" is added to the JSP slider.");
   }
 
+  slider_rows_->addStretch();
+
   // Start to publish joint states
   publish_timer_ = ros2::createTimer(node_, 100ms, &self::publish, this);
 }

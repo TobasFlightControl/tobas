@@ -66,14 +66,6 @@ void clearLayout(QLayout* layout)
       clearLayout(sub_layout);  // 再帰的にサブレイアウトを削除
       delete sub_layout;
     }
-    else if (item->spacerItem())
-    {
-      delete item->spacerItem();  // スペーサーアイテムを削除
-    }
-    else
-    {
-      PRINT_WARN("Unknown layout item type. Failed to delete it.");
-    }
     delete item;
   }
 }

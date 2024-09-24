@@ -32,7 +32,6 @@ class SettingsWidget : public qt::VerticalTabWidget
 
   static constexpr int kTabHeight = 30;  // 30以上無いと何故かTabBarの文字が横に見切れてしまう
   static constexpr int kTabWidth = 70;
-  static constexpr int kSettingsMinHeight = 300;
 
 public:
   BatteryWidget* battery;

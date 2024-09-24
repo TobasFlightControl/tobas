@@ -1,6 +1,5 @@
 #include <filesystem>
 
-#include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setup_assistant.hpp"
@@ -32,7 +31,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   const auto rows = new QVBoxLayout();
   setLayout(rows);
   rows->addWidget(start_);
-  const auto cols = qt::createFixedHeightQHBoxLayout(kHeaderHeight, rows);
+  const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
   cols->addWidget(frame_tree_);
   cols->addWidget(rviz_);

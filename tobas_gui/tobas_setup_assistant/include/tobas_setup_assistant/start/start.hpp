@@ -14,6 +14,8 @@ class StartWidget : public QWidget
   using self = StartWidget;
   using super = QWidget;
 
+  static constexpr int kHeight = 200;
+
 public:
   explicit StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings);
 
