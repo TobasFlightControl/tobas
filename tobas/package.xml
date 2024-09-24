@@ -41,6 +41,7 @@
 	<exec_depend>tobas_ssh</exec_depend>
 	<exec_depend>tobas_state_checker</exec_depend>
 	<exec_depend>tobas_teleoperations</exec_depend>
+	<exec_depend>tobas_third_party</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>
 	<exec_depend>tobas_topic_throttle</exec_depend>
 	<exec_depend>tobas_tree_server</exec_depend>

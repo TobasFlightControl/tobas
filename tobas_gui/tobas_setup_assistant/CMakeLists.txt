@@ -23,6 +23,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
+find_package(inja_ament REQUIRED)
+find_package(rapidcsv_ament REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
@@ -34,6 +36,8 @@ find_package(tobas_gui_common REQUIRED)
 set(AMENT_DEPENDENCIES
   visualization_msgs
   moveit_msgs
+  inja_ament
+  rapidcsv_ament
   tobas_kdl_conversions
   tobas_linux
   tobas_ros2_tools
@@ -49,12 +53,7 @@ set(CMAKE_AUTOMOC ON)
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
 qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 
-include_directories(
-  include
-  ${PROJECT_SOURCE_DIR}/../../third_party/rapidcsv/src
-  ${PROJECT_SOURCE_DIR}/../../third_party/inja/include
-  ${PROJECT_SOURCE_DIR}/../../third_party/inja/third_party/include
-)
+include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})

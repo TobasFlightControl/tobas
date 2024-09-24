@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <rclcpp/rclcpp.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
@@ -21,6 +22,7 @@
 #define TMP_URDF_PATH "/tmp/urdf_builder.urdf"
 
 using namespace std;
+namespace fs = filesystem;
 
 namespace urdf_builder
 {
@@ -367,7 +369,7 @@ string URDFBuilderPanel::getLastOpenedDir()
 
 void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
 {
-  boost::filesystem::path p(file_path);
+  fs::path p(file_path);
   const auto dir = p.parent_path().string();
 
   if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
