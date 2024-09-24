@@ -19,5 +19,7 @@ public:
 private:
   std::shared_ptr<rviz_common::ros_integration::RosNodeAbstraction> node_;
   rviz_common::VisualizationFrame* frame_;
+
+  void removeDefaultColorMaterials();
 };
 }  // namespace qt
