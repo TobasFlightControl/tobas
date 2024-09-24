@@ -44,8 +44,6 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
 
 void JointStatePublisherWidget::onRobotLoaded()
 {
-  RCLCPP_DEBUG(node_->get_logger(), "JointStatePublisherWidget::onRobotLoaded");
-
   js_.name.clear();
   js_.position.clear();
   sliders_.clear();

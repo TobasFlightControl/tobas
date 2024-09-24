@@ -2,8 +2,6 @@
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <QVBoxLayout>
 
-#include <tobas_qt_tools/rviz/util.hpp>
-
 #include "tobas_gui_core/urdf_builder.hpp"
 
 namespace fs = std::filesystem;
@@ -12,15 +10,15 @@ namespace gui
 {
 namespace core
 {
-URDFBuilder::URDFBuilder(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
+URDFBuilder::URDFBuilder()
 {
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory("urdf_builder"));
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory("urdf_builder"));
   const auto config_path = pkg_path / "config/urdf_builder.rviz";
-  frame_ = qt::createRvizFrame(rviz_node_if, QString::fromStdString(config_path));
+  rviz_manager_.initialize("urdf_builder", QString::fromStdString(config_path));
 
   const auto rows = new QVBoxLayout();
   setLayout(rows);
-  rows->addWidget(frame_);
+  rows->addWidget(rviz_manager_.frame());
 }
 }  // namespace core
 }  // namespace gui

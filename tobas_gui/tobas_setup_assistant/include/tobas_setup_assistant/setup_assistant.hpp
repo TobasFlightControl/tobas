@@ -30,9 +30,7 @@ class SetupAssistantWidget : public QWidget
   static constexpr int kJointStatePublisherMinWidth = 300;
 
 public:
-  explicit SetupAssistantWidget(
-    rclcpp::Node::SharedPtr node,
-    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if);
+  explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 
 private:
   RobotInfo robot_;

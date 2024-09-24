@@ -12,7 +12,6 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_qt_tools/rviz/util.hpp>
 
 #include "tobas_hardware_setup/mag_calibration/widget.hpp"
 #include "tobas_hardware_setup/mag_calibration/method.hpp"
@@ -26,10 +25,7 @@ namespace gui
 {
 namespace hardware_setup
 {
-MagCalibrationWidget::MagCalibrationWidget(
-  rclcpp::Node::SharedPtr node,
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
-  : node_(node), rviz_node_if_(rviz_node_if)
+MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
 }
 
@@ -76,15 +72,15 @@ void MagCalibrationWidget::onInit()
 
   cols->addStretch();
 
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/mag_calibration.rviz";
-  const auto frame = qt::createRvizFrame(rviz_node_if_, QString::fromStdString(rviz_config_path));
-  rows_->addWidget(frame);
+  rviz_manager_.initialize("rviz_mag_calibration", QString::fromStdString(rviz_config_path));
+  rows_->addWidget(rviz_manager_.frame());
 
   rows_->addStretch();
 
   // Point表示用ディスプレイを取得
-  const auto manager = frame->getManager();
+  const auto manager = rviz_manager_.frame()->getManager();
   const auto display = manager->getRootDisplayGroup()->getDisplayAt(0);
   TOBAS_CHECK(display->getName() == "PointStamped");
 

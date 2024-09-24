@@ -8,7 +8,6 @@
 
 #include <tobas_std_tools/check.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
-#include <tobas_qt_tools/rviz/util.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "tobas_setup_assistant/rviz.hpp"
@@ -20,23 +19,20 @@ namespace gui
 {
 namespace setup_assistant
 {
-RvizWidget::RvizWidget(
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
-  const RobotInfo& robot)
-  : rviz_node_if_(rviz_node_if), robot_(robot)
+RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot)
 {
-  // Declare rosparams
-  ros2::declareParam(rvizNode(), kRobotDescriptionParam, tobas::kMinimulURDF);
-  ros2::declareParam(rvizNode(), kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
-
-  // Create Rviz frame widget
-  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
+  // Initialize Rviz
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
-  const auto frame = qt::createRvizFrame(rviz_node_if, QString::fromStdString(rviz_config_path));
+  rviz_manager_.initialize("rviz_robot_state_display", QString::fromStdString(rviz_config_path));
+
+  // Declare rosparams
+  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, tobas::kMinimulURDF);
+  ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
 
   // Setup robot_model_display
   // rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
-  vis_manager_ = frame->getManager();
+  vis_manager_ = rviz_manager_.frame()->getManager();
   display_ = vis_manager_->getRootDisplayGroup()->getDisplayAt(kRobotStateDisplayIndex);
   TOBAS_CHECK(display_->getName() == "RobotState");
 
@@ -64,7 +60,7 @@ RvizWidget::RvizWidget(
   const auto rows = new QVBoxLayout();
   setLayout(rows);
   const auto cols = new QHBoxLayout();
-  rows->addWidget(frame);
+  rows->addWidget(rviz_manager_.frame());
   rows->addLayout(cols);
   cols->addStretch();
   cols->addWidget(visual_box);
@@ -80,15 +76,13 @@ RvizWidget::RvizWidget(
 
 void RvizWidget::onRobotLoaded()
 {
-  RCLCPP_DEBUG(rvizNode()->get_logger(), "RvizWidget::onRobotLoaded");
-
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
   vis_manager_->setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
-  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, robot_.urdfText()));
-  rvizNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, robot_.urdfText()));
+  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, robot_.urdfText()));
+  rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionSemanticParam, robot_.urdfText()));
 
   // ロボットモデルをリロード
   reload_->setBool(false);
@@ -110,16 +104,6 @@ void RvizWidget::heightLink(const QString& link_name)
 void RvizWidget::unheightLink(const QString& link_name)
 {
   unhighlight_link_->setValue(link_name);
-}
-
-rclcpp::Node::SharedPtr RvizWidget::rvizNode()
-{
-  return rviz_node_if_.lock()->get_raw_node();
-}
-
-rclcpp::Node::ConstSharedPtr RvizWidget::rvizNode() const
-{
-  return rviz_node_if_.lock()->get_raw_node();
 }
 
 void RvizWidget::onVisualBoxToggled(bool checked)

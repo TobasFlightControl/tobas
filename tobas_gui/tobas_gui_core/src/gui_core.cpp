@@ -20,14 +20,8 @@ namespace gui
 {
 namespace core
 {
-GUICoreWidget::GUICoreWidget(
-  rclcpp::Node::SharedPtr node,
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
-  : node_(node),
-    rviz_node_if_(rviz_node_if),
-    property_cli_(node, tobas::kPropertyServerName, kPkgName),
-    ssh_cli_(node),
-    package_builder_(node)
+GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
+  : node_(node), property_cli_(node, tobas::kPropertyServerName, kPkgName), ssh_cli_(node), package_builder_(node)
 {
   // Applications
   const auto app_cb = new qt::ComboBox();
@@ -38,15 +32,15 @@ GUICoreWidget::GUICoreWidget(
   app_cb->addItem("Homepage");
   app_sw->addWidget(homepage_);
 
-  urdf_builder_ = new URDFBuilder(rviz_node_if);
+  urdf_builder_ = new URDFBuilder();
   app_cb->addItem("URDF Builder");
   app_sw->addWidget(urdf_builder_);
 
-  setup_assistant_ = new setup_assistant::SetupAssistantWidget(node, rviz_node_if);
+  setup_assistant_ = new setup_assistant::SetupAssistantWidget(node);
   app_cb->addItem("Setup Assistant");
   app_sw->addWidget(setup_assistant_);
 
-  hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, rviz_node_if, drone_);
+  hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, drone_);
   app_cb->addItem("Hardware Setup");
   app_sw->addWidget(hardware_setup_);
 

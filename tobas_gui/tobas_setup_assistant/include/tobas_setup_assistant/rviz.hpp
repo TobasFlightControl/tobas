@@ -7,6 +7,8 @@
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
+#include <tobas_qt_tools/rviz.hpp>
+
 #include "./robot_info.hpp"
 
 namespace gui
@@ -26,15 +28,10 @@ class RvizWidget : public QWidget
   static constexpr bool kDefaultInertiaEnabled = false;
 
 public:
-  explicit RvizWidget(
-    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
-    const RobotInfo& robot);
+  explicit RvizWidget(const RobotInfo& robot);
 
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
-
-  rclcpp::Node::SharedPtr rvizNode();
-  rclcpp::Node::ConstSharedPtr rvizNode() const;
 
 private Q_SLOTS:
   void onRobotLoaded();
@@ -43,9 +40,9 @@ private Q_SLOTS:
   void onInertiaBoxToggled(bool checked);
 
 private:
-  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
   const RobotInfo& robot_;
 
+  qt::RvizFrameManager rviz_manager_;
   rviz_common::VisualizationManager* vis_manager_;
   rviz_common::Display* display_;
 

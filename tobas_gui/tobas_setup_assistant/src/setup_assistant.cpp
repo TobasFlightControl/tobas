@@ -11,16 +11,14 @@ namespace gui
 {
 namespace setup_assistant
 {
-SetupAssistantWidget::SetupAssistantWidget(
-  rclcpp::Node::SharedPtr node,
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if)
+SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : rsp_client_(node, "robot_state_publisher"), spinner_(Qt::WindowModal, this)
 {
   // 他のクラスにポインタを渡す際は必ずメモリ確保してから！
   // さもないと確保時にメモリ配置が変わってセグフォになる
   settings_ = new SettingsWidget(node, robot_);
   start_ = new StartWidget(node, robot_, settings_);
-  rviz_ = new RvizWidget(rviz_node_if, robot_);
+  rviz_ = new RvizWidget(robot_);
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);
   jsp_ = new JointStatePublisherWidget(node, robot_);
 

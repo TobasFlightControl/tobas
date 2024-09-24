@@ -6,11 +6,8 @@ namespace gui
 {
 namespace hardware_setup
 {
-HardwareSetupWidget::HardwareSetupWidget(
-  rclcpp::Node::SharedPtr node,
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
-  const tobas::Drone& drone)
-  : node_(node), rviz_node_if_(rviz_node_if), drone_(drone)
+HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
+  : node_(node), drone_(drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -20,7 +17,7 @@ HardwareSetupWidget::HardwareSetupWidget(
 
   network_setting_ = new NetworkSettingWidget(node);
   accel_calib_ = new AccelCalibrationWidget(node);
-  mag_calib_ = new MagCalibrationWidget(node, rviz_node_if);
+  mag_calib_ = new MagCalibrationWidget(node);
   adc_calib_ = new ADCCalibrationWidget(node);
   rcin_calib_ = new RCInputCalibrationWidget(node);
   rotor_test_ = new RotorTestWidget(node, drone);

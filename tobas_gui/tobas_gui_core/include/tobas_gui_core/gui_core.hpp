@@ -32,13 +32,10 @@ class GUICoreWidget : public QWidget
   static constexpr int kButtonWidth = 50;
 
 public:
-  explicit GUICoreWidget(
-    rclcpp::Node::SharedPtr node,
-    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if);
+  explicit GUICoreWidget(rclcpp::Node::SharedPtr node);
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
 
   tobas::Drone drone_;
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <rviz_common/ros_integration/ros_node_abstraction_iface.hpp>
-
 #include <tobas_qt_tools/widgets/vertical_tab_widget.hpp>
 
 #include "./network_setting/widget.hpp"
@@ -27,16 +25,12 @@ class HardwareSetupWidget : public QWidget
   static constexpr int kMinHeight = 300;
 
 public:
-  explicit HardwareSetupWidget(
-    rclcpp::Node::SharedPtr node,
-    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if,
-    const tobas::Drone& drone);
+  explicit HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
   void updateInternalDataStructures();
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
   const tobas::Drone& drone_;
 
   qt::VerticalTabWidget* tabs_;

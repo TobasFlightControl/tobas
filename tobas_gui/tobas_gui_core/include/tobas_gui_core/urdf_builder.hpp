@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rviz_common/visualization_frame.hpp>
+#include <tobas_qt_tools/rviz.hpp>
 
 namespace gui
 {
@@ -11,10 +11,10 @@ class URDFBuilder : public QWidget
   Q_OBJECT
 
 public:
-  explicit URDFBuilder(rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if);
+  explicit URDFBuilder();
 
 private:
-  rviz_common::VisualizationFrame* frame_;
+  qt::RvizFrameManager rviz_manager_;
 };
 }  // namespace core
 }  // namespace gui

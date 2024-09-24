@@ -22,8 +22,6 @@ FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : rob
 
 void FrameTreeWidget::onRobotLoaded()
 {
-  RCLCPP_DEBUG(rviz_->rvizNode()->get_logger(), "FrameTreeWidget::onRobotLoaded");
-
   // ツリーを消去
   clear();
 

@@ -2,12 +2,12 @@
 
 #include <QPushButton>
 #include <geometry_msgs/msg/point_stamped.hpp>
-#include <rviz_common/ros_integration/ros_node_abstraction_iface.hpp>
 #include <rviz_common/properties/int_property.hpp>
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_hal_msgs_adapter/MagneticField.hpp>
+#include <tobas_qt_tools/rviz.hpp>
 
 #include "../base.hpp"
 
@@ -29,9 +29,7 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit MagCalibrationWidget(
-    rclcpp::Node::SharedPtr node,
-    rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if);
+  explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node);
 
   const char* name() const override;
   const char* title() const override;
@@ -42,7 +40,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  const rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rviz_node_if_;
+  qt::RvizFrameManager rviz_manager_;
 
   std::string ns_;
 
