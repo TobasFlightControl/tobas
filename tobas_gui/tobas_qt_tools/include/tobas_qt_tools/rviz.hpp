@@ -8,9 +8,9 @@ namespace qt
 class RvizFrameManager
 {
 public:
-  explicit RvizFrameManager();
+  explicit RvizFrameManager(const std::string& node_name);
 
-  void initialize(const std::string& node_name, const QString& config_path, QWidget* parent = nullptr);
+  void initialize(const QString& config_path, QWidget* parent = nullptr);
 
   rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr rvizNode();
   rclcpp::Node::SharedPtr rawNode();

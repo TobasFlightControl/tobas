@@ -19,16 +19,16 @@ namespace gui
 {
 namespace setup_assistant
 {
-RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot)
+RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("rviz_robot_state_display")
 {
-  // Initialize Rviz
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
-  const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
-  rviz_manager_.initialize("rviz_robot_state_display", QString::fromStdString(rviz_config_path));
-
   // Declare rosparams
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionParam, tobas::kMinimulURDF);
   ros2::declareParam(rviz_manager_.rawNode(), kRobotDescriptionSemanticParam, tobas::kMinimulURDF);  // MoveItが要求
+
+  // Initialize Rviz
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
+  const auto rviz_config_path = pkg_path / "config/setup_assistant.rviz";
+  rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
   // Setup robot_model_display
   // rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html

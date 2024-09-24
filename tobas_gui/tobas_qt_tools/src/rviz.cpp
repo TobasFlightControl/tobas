@@ -4,11 +4,7 @@
 
 namespace qt
 {
-RvizFrameManager::RvizFrameManager()
-{
-}
-
-void RvizFrameManager::initialize(const std::string& node_name, const QString& config_path, QWidget* parent)
+RvizFrameManager::RvizFrameManager(const std::string& node_name)
 {
   // Initialize ROS node
   if (!rclcpp::ok())
@@ -16,7 +12,10 @@ void RvizFrameManager::initialize(const std::string& node_name, const QString& c
 
   // Create Rviz ROS interface
   node_ = std::make_shared<rviz_common::ros_integration::RosNodeAbstraction>(node_name);
+}
 
+void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
+{
   // Read configuration
   rviz_common::YamlConfigReader reader;
   rviz_common::Config config;

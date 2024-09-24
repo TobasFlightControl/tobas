@@ -25,7 +25,8 @@ namespace gui
 {
 namespace hardware_setup
 {
-MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node) : node_(node)
+MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
+  : node_(node), rviz_manager_("rviz_mag_calibration")
 {
 }
 
@@ -74,7 +75,7 @@ void MagCalibrationWidget::onInit()
 
   const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/mag_calibration.rviz";
-  rviz_manager_.initialize("rviz_mag_calibration", QString::fromStdString(rviz_config_path));
+  rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
   rows_->addWidget(rviz_manager_.frame());
 
   rows_->addStretch();
