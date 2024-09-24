@@ -143,7 +143,6 @@ class PackageManagerWidget(Widget):
         progress.progress_step()
 
         # Tobasパッケージを送信
-        # FIXME: メッシュファイルを送るのに多大な時間がかかる．ラズパイ側では不要だから省略したい．
         progress.setLabelText("Sending Tobas configuration package.")
         mesh_path = get_mesh_path(tbs_path)
         remote_dir = osp.join(CATKIN_WS_TOBAS, "src/")
