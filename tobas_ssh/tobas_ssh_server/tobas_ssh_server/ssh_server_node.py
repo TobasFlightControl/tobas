@@ -8,6 +8,7 @@ from .ssh_client import SSHClientWrapper
 
 class SSHServerNode(Node):
     NO_CONNECTION_ERROR = "No connection with SSH server."
+    CONNECT_TIMER_PERIOD = 1.0  # [s]
 
     def __init__(self) -> None:
         super().__init__("ssh_server")
@@ -27,7 +28,7 @@ class SSHServerNode(Node):
         self._sftp_read_ss = self.create_service(SFTPRead, "ssh/sftp_read", self._sftp_read_cb)
         self._sftp_write_ss = self.create_service(SFTPWrite, "ssh/sftp_write", self._sftp_write_cb)
 
-        self._connect_timer = self.create_timer(1.0, self._connect_timer_cb)
+        self._connect_timer = self.create_timer(self.CONNECT_TIMER_PERIOD, self._connect_timer_cb)
 
     def _execute_cb(self, req: Execute.Request, res: Execute.Response) -> Execute.Response:
         if not self._is_connected:
@@ -120,7 +121,7 @@ class SSHServerNode(Node):
             self._ssh_client.connect()
             self._is_connected = True
         except Exception as e:
-            self.get_logger().warn(f"{e}")
+            self.get_logger().warning(f"{e}")
             self._is_connected = False
 
         # Publish connection status

@@ -19,8 +19,8 @@ class ParameterTuningWidget : public QWidget
   using self = ParameterTuningWidget;
   using super = QWidget;
 
-  static constexpr int kButtonHeight = 100;
-  static constexpr int kButtonWidth = 40;
+  static constexpr int kButtonHeight = 40;
+  static constexpr int kButtonWidth = 100;
 
 public:
   explicit ParameterTuningWidget(rclcpp::Node::SharedPtr node);
