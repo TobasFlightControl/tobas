@@ -13,6 +13,7 @@
 	<depend>tobas_std_tools</depend>
 	<depend>tobas_linux</depend>
 	<depend>tobas_constants</depend>
+	<depend>tobas_ssh_client</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

@@ -2,7 +2,7 @@
 
 #include <QThread>
 
-#include <tobas_gui_common/package_builder.hpp>
+#include <tobas_gui_common/local_package_builder.hpp>
 
 namespace gui
 {
@@ -24,7 +24,7 @@ public:
 
 private:
   QString tbs_path_;
-  common::PackageBuilder package_builder_;
+  common::LocalPackageBuilder package_builder_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

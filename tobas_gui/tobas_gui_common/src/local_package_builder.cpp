@@ -4,7 +4,7 @@
 #include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_gui_common/package_builder.hpp"
+#include "../include/tobas_gui_common/local_package_builder.hpp"
 #include "../include/tobas_gui_common/constants.hpp"
 #include "../include/tobas_gui_common/package.hpp"
 
@@ -15,11 +15,11 @@ namespace gui
 {
 namespace common
 {
-PackageBuilder::PackageBuilder()
+LocalPackageBuilder::LocalPackageBuilder()
 {
 }
 
-bool PackageBuilder::build(const fs::path& tbs_path)
+bool LocalPackageBuilder::build(const fs::path& tbs_path)
 {
   // Navigate to the Tobas package
   if (chdir(tbs_path.c_str()) != 0)
@@ -29,7 +29,7 @@ bool PackageBuilder::build(const fs::path& tbs_path)
   }
 
   // Get paths needed for building
-  const fs::path ws_path = linux::expandUser(kColconWSPath);
+  const fs::path ws_path = linux::expandUser(kColconWSPathPC);
   const auto build_path = ws_path / "build";
   const auto install_path = ws_path / "install";
   const auto log_path = ws_path / "log";
@@ -64,7 +64,7 @@ bool PackageBuilder::build(const fs::path& tbs_path)
   return true;
 }
 
-const string& PackageBuilder::getOutput() const
+const string& LocalPackageBuilder::getOutput() const
 {
   return command_executor_.getOutput();
 }

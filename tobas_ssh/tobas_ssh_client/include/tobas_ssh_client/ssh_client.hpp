@@ -40,6 +40,7 @@ public:
   explicit SSHClient(rclcpp::Node::SharedPtr node);
 
   error_t execute(const std::string& command, std::string& output, bool superuser = false, bool background = false);
+  error_t execute(const std::string& command, bool superuser = false, bool background = false);
 
   error_t scpPut(
     const std::string& local_dir,

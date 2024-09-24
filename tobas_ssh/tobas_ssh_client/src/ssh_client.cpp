@@ -70,6 +70,12 @@ SSHClient::error_t SSHClient::execute(const string& command, string& output, boo
   return error_code_ = E_NO_ERROR;
 }
 
+SSHClient::error_t SSHClient::execute(const std::string& command, bool superuser, bool background)
+{
+  std::string output;
+  return execute(command, output, superuser, background);
+}
+
 SSHClient::error_t
 SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vector<string>& exclude_dirs, bool superuser)
 {

@@ -74,7 +74,7 @@ void ROSPackageWidget::onOpened()
 void ROSPackageWidget::updateInternalDataStructures()
 {
   // デフォルトの親ディレクトリを設定
-  const auto default_pardir = path::join(linux::expandUser(common::kColconWSPath), "src");
+  const auto default_pardir = path::join(linux::expandUser(common::kColconWSPathPC), "src");
   pardir_->setValue(QString::fromStdString(default_pardir));
 
   // デフォルトの親ディレクトリが存在しなければ作成

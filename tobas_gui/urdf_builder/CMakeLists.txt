@@ -36,7 +36,6 @@ find_package(tobas_std_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
 find_package(tobas_constants REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem)
 
 set(AMENT_DEPENDENCIES
   Qt5Core

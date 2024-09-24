@@ -139,8 +139,7 @@ void NetworkSettingWidget::onWriteButtonClicked()
   }
 
   // WiFiを再起動
-  std::string output;
-  if (ssh_client_.execute("wpa_cli -i wlan0 reconfigure", output, true) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("wpa_cli -i wlan0 reconfigure", true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "Failed to restart DHCPCD: " + QString(ssh_client_.errorMessage()));
     return;

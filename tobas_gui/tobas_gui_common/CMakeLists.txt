@@ -25,12 +25,14 @@ find_package(ament_index_cpp REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_constants REQUIRED)
+find_package(tobas_ssh_client REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	ament_index_cpp
 	tobas_std_tools
 	tobas_linux
 	tobas_constants
+	tobas_ssh_client
 )
 
 include_directories(include)
