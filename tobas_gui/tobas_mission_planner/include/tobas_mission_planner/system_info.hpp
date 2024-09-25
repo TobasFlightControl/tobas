@@ -12,7 +12,7 @@ class SystemInfo : public QObject
 {
   Q_OBJECT
 
-  Q_PROPERTY(QString homeDirectory READ homeDirectory NOTIFY homeDirectoryChanged);
+  Q_PROPERTY(QString homeDirectory READ homeDirectory NOTIFY homeDirectoryChanged)
 
 Q_SIGNALS:
   void homeDirectoryChanged();

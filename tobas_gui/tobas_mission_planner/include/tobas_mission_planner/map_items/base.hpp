@@ -27,13 +27,13 @@ private:
 };
 
 template <typename... Args>
-int MapItemModel<Args...>::rowCount(const QModelIndex& parent = QModelIndex()) const
+int MapItemModel<Args...>::rowCount(const QModelIndex&) const
 {
   return list_.size();
 }
 
 template <typename... Args>
-QVariant MapItemModel<Args...>::data(const QModelIndex& index, int role = Qt::DisplayRole) const
+QVariant MapItemModel<Args...>::data(const QModelIndex& index, int role) const
 {
   return list_[index.row()][role - Qt::UserRole];
 }
@@ -45,13 +45,14 @@ QHash<int, QByteArray> MapItemModel<Args...>::roleNames() const
   const auto arg_names = argNames();
   for (int i = 0; i < arg_names.size(); ++i)
     res[Qt::UserRole + i] = arg_names[i];
+  return res;
 }
 
 template <typename... Args>
 void MapItemModel<Args...>::add(const Args&... args)
 {
   beginInsertRows(QModelIndex(), rowCount(), rowCount());
-  list_.append({ QVariant(args)... });
+  list_.append({ QVariant::fromValue(args)... });
   endInsertRows();
 }
 

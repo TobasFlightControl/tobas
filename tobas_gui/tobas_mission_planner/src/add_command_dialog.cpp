@@ -1,6 +1,7 @@
-#include <magic_enum.hpp>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include <magic_enum/magic_enum.hpp>
 
 #include "tobas_mission_planner/add_command_dialog.hpp"
 

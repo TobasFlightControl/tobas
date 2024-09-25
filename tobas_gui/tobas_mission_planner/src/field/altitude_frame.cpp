@@ -1,5 +1,6 @@
-#include <magic_enum.hpp>
 #include <QHBoxLayout>
+
+#include <magic_enum/magic_enum.hpp>
 
 #include "tobas_mission_planner/fields/altitude_frame.hpp"
 

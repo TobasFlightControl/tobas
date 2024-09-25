@@ -10,7 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>qtpositioning5-dev</depend>
-  <depend>magic_enum</depend>
+  <depend>magic_enum_ament</depend>
   <depend>tobas_constants</depend>
   <depend>tobas_msgs_adapter</depend>
   <depend>tobas_qt_tools</depend>
