@@ -4,3 +4,6 @@
 [submodule "tobas_third_party/rapidcsv_ament/rapidcsv"]
 	path = tobas_third_party/rapidcsv_ament/rapidcsv
 	url = https://github.com/d99kris/rapidcsv.git
+[submodule "tobas_third_party/magic_enum_ament/magic_enum"]
+	path = tobas_third_party/magic_enum_ament/magic_enum
+	url = https://github.com/Neargye/magic_enum.git
