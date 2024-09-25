@@ -14,6 +14,8 @@ namespace mission_planner
 {
 struct WaypointData : public BaseCommandData
 {
+  using SharedPtr = std::shared_ptr<WaypointData>;
+
   double latitude;
   double longitude;
   double altitude;

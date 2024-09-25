@@ -3,7 +3,7 @@
 #include "./base.hpp"
 #include "../fields/altitude.hpp"
 #include "../fields/altitude_frame.hpp"
-#include "../fields/acceptance_radius.hpp"
+#include "../fields/altitude_tolerance.hpp"
 #include "../fields/duration.hpp"
 
 namespace gui
@@ -12,9 +12,11 @@ namespace mission_planner
 {
 struct TakeoffData : public BaseCommandData
 {
+  using SharedPtr = std::shared_ptr<TakeoffData>;
+
   double altitude;
   altitude_frame_t altitude_frame;
-  double acceptance_radius;
+  double altitude_tolerance;
   double duration;
 
   command_t type() const
@@ -39,7 +41,7 @@ public:
 private:
   field::AltitudeWidget* altitude_;
   field::AltitudeFrameWidget* altitude_frame_;
-  field::AcceptanceRadiusWidget* acceptance_radius_;
+  field::AltitudeToleranceWidget* altitude_tolerance_;
   field::DurationWidget* duration_;
 };
 }  // namespace mission_planner

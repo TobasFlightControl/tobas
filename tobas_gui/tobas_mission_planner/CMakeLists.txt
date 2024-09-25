@@ -23,6 +23,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(Qt5 REQUIRED COMPONENTS Positioning)
 find_package(magic_enum_ament REQUIRED)
+find_package(tobas_path_tools REQUIRED)
+find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
@@ -30,6 +32,8 @@ find_package(tobas_qt_tools REQUIRED)
 set(AMENT_DEPENDENCIES
   Qt5
   magic_enum_ament
+  tobas_path_tools
+  tobas_ros2_tools
   tobas_constants
   tobas_msgs_adapter
   tobas_qt_tools

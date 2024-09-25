@@ -80,6 +80,7 @@ static constexpr char kListControllersSrv[] = "controller_manager/list_controlle
 static constexpr char kGetDynamicParamsSrv[] = "get_dynamic_parameters";
 static constexpr char kEnableRcOutputSrv[] = "enable_rc_output";
 static constexpr char kSetArmSrv[] = "set_arm";
+static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";

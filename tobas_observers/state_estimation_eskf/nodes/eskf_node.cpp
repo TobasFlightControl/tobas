@@ -20,6 +20,7 @@
 #include <tobas_msgs_adapter/MagneticField.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_debug_msgs_adapter/ObserverFeedback.hpp>
 
@@ -41,6 +42,7 @@ class ObserverNode : public tobas::BaseNode
   using GpsOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
   using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
 
+  using GetGnssOrigin = tobas_msgs::srv::GetGnssOrigin;
   using SetGnssOrigin = tobas_msgs::srv::SetGnssOrigin;
 
 public:
@@ -94,6 +96,7 @@ private:
   ros2::SubscriberPtr<GpsMsg> gps_sub_;
 
   // Services
+  ros2::ServiceServerPtr<GetGnssOrigin> get_gnss_origin_ss_;
   ros2::ServiceServerPtr<SetGnssOrigin> set_gnss_origin_ss_;
 
   // TF
@@ -116,6 +119,8 @@ private:
   void barCb(const BarMsg::ConstSharedPtr& bar);
   void gpsCb(const GpsMsg::ConstSharedPtr& gps);
 
+  void
+  getGnssOriginCb(const GetGnssOrigin::Request::ConstSharedPtr& req, const GetGnssOrigin::Response::SharedPtr& res);
   void
   setGnssOriginCb(const SetGnssOrigin::Request::ConstSharedPtr& req, const SetGnssOrigin::Response::SharedPtr& res);
 };
@@ -166,6 +171,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
     gps_sub_ = createSubscriber(tobas::kGpsTopic, &self::gpsCb, this);
 
   // Register service servers
+  get_gnss_origin_ss_ = createService<GetGnssOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
   set_gnss_origin_ss_ = createService<SetGnssOrigin>(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 }
 
@@ -460,6 +466,25 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     TOBAS_WARN_THROTTLE(eskf::kWarnPeriod, "The position estimation using GNSS is unstable.");
 }
 
+void ObserverNode::getGnssOriginCb(
+  const GetGnssOrigin::Request::ConstSharedPtr&,
+  const GetGnssOrigin::Response::SharedPtr& res)
+{
+  if (!gps_fix_)
+  {
+    res->success = false;
+    res->message = "GNSS position is not fixed.";
+    return;
+  }
+
+  res->latitude = lat_0_;
+  res->longitude = lon_0_;
+
+  res->success = true;
+  res->message.clear();
+  return;
+}
+
 void ObserverNode::setGnssOriginCb(
   const SetGnssOrigin::Request::ConstSharedPtr& req,
   const SetGnssOrigin::Response::SharedPtr& res)
@@ -467,7 +492,7 @@ void ObserverNode::setGnssOriginCb(
   if (!gps_fix_)
   {
     res->success = false;
-    res->message = "GNSS is not fixed.";
+    res->message = "GNSS position is not fixed.";
     return;
   }
 
@@ -477,6 +502,7 @@ void ObserverNode::setGnssOriginCb(
   publishGPSOrigin();
 
   res->success = true;
+  res->message.clear();
   return;
 }
 

@@ -12,6 +12,8 @@ namespace mission_planner
 {
 struct ReturnToHomeData : public BaseCommandData
 {
+  using SharedPtr = std::shared_ptr<ReturnToHomeData>;
+
   double altitude;
   altitude_frame_t altitude_frame;
   double acceptance_radius;
@@ -19,7 +21,7 @@ struct ReturnToHomeData : public BaseCommandData
 
   command_t type() const
   {
-    return command_t::WAYPOINT;
+    return command_t::RETURN_TO_HOME;
   }
 };
 

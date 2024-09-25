@@ -1,7 +1,6 @@
 #pragma once
 
 #include "./base.hpp"
-#include "../fields/duration.hpp"
 
 namespace gui
 {
@@ -9,11 +8,11 @@ namespace mission_planner
 {
 struct LandData : public BaseCommandData
 {
-  double duration;
+  using SharedPtr = std::shared_ptr<LandData>;
 
   command_t type() const
   {
-    return command_t::WAYPOINT;
+    return command_t::LAND;
   }
 };
 
@@ -31,7 +30,6 @@ public:
   BaseCommandData::SharedPtr data() const override;
 
 private:
-  field::DurationWidget* duration_;
 };
 }  // namespace mission_planner
 }  // namespace gui
