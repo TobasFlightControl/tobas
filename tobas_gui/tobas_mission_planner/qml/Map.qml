@@ -118,7 +118,7 @@ Rectangle {
       model: LineModel
       delegate: MapPolyline {
         line.width: 3
-        line.color:"green"
+        line.color: "green"
         path: [
         {latitude: model.latitude_1, longitude: model.longitude_1},
         {latitude: model.latitude_2, longitude: model.longitude_2},

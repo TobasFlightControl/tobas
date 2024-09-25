@@ -21,19 +21,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Positioning)
 find_package(magic_enum REQUIRED)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
+  Qt5::Positioning
   magic_enum
   tobas_constants
   tobas_msgs_adapter
   tobas_qt_tools
 )
 
-# add_definitions(-DQT_NO_KEYWORDS)
+add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
@@ -54,7 +56,7 @@ install(
   INCLUDES DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY qml DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})
