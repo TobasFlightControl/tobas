@@ -10,6 +10,7 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>inja_ament</exec_depend>
+	<exec_depend>magic_enum_ament</exec_depend>
 	<exec_depend>rapidcsv_ament</exec_depend>
 
 	<export>
