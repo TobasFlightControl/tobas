@@ -11,9 +11,9 @@ class LatitudeSpinBox(DoubleSpinBox):
     def __init__(self) -> None:
         super().__init__()
 
+        self.setDecimals(LAT_LON_DECIMALS)
         self.setMinimum(-90.0)
         self.setMaximum(+90.0)
-        self.setDecimals(LAT_LON_DECIMALS)
         self.setSuffix(" deg")
 
 
@@ -23,9 +23,9 @@ class LongitudeSpinBox(DoubleSpinBox):
     def __init__(self) -> None:
         super().__init__()
 
+        self.setDecimals(LAT_LON_DECIMALS)
         self.setMinimum(-180.0)
         self.setMaximum(+180.0)
-        self.setDecimals(LAT_LON_DECIMALS)
         self.setSuffix(" deg")
 
 
@@ -35,8 +35,8 @@ class AltitudeSpinBox(DoubleSpinBox):
     def __init__(self) -> None:
         super().__init__()
 
-        self.setValue(5.0)
         self.setDecimals(3)
+        self.setValue(5.0)
         self.setSuffix(" m")
 
 
@@ -56,9 +56,9 @@ class AcceptanceRadiusSpinBox(DoubleSpinBox):
     def __init__(self) -> None:
         super().__init__()
 
+        self.setDecimals(3)
         self.setMinimum(1e-3)
         self.setValue(1.0)
-        self.setDecimals(3)
         self.setSuffix(" m")
 
 
@@ -68,9 +68,9 @@ class AltitudeToleranceSpinBox(DoubleSpinBox):
     def __init__(self) -> None:
         super().__init__()
 
+        self.setDecimals(3)
         self.setMinimum(1e-3)
         self.setValue(0.1)
-        self.setDecimals(3)
         self.setSuffix(" m")
 
 
