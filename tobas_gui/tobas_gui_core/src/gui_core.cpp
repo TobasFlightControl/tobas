@@ -44,6 +44,10 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   app_cb->addItem("Hardware Setup");
   app_sw->addWidget(hardware_setup_);
 
+  mission_planner_ = new mission_planner::MissionPlannerWidget(node);
+  app_cb->addItem("Mission Planner");
+  app_sw->addWidget(mission_planner_);
+
   param_tuning_ = new param_tuning::ParameterTuningWidget(node);
   app_cb->addItem("Parameter Tuning");
   app_sw->addWidget(param_tuning_);
@@ -88,6 +92,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
 void GUICoreWidget::updateInternalDataStructures()
 {
   hardware_setup_->updateInternalDataStructures();
+  mission_planner_->updateNamespace(drone_.name);
   param_tuning_->updateTBSPath(tbsPath());
 }
 

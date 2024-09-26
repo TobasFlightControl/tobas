@@ -21,7 +21,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(Qt5 REQUIRED COMPONENTS Positioning)
 find_package(magic_enum_ament REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_path_tools REQUIRED)
@@ -29,9 +28,7 @@ find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
-
 set(AMENT_DEPENDENCIES
-  Qt5
   magic_enum_ament
   tobas_linux
   tobas_path_tools
@@ -40,6 +37,10 @@ set(AMENT_DEPENDENCIES
   tobas_msgs_adapter
   tobas_qt_tools
 )
+
+find_package(Qt5QuickWidgets REQUIRED)
+find_package(Qt5Positioning REQUIRED)
+set(QT_LIBRARIES Qt5::QuickWidgets Qt5::Positioning)
 
 add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
@@ -51,7 +52,8 @@ include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+ament_target_dependencies(${PROJECT_NAME} PUBLIC ${AMENT_DEPENDENCIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${QT_LIBRARIES})
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -65,6 +67,6 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY qml DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(${AMENT_DEPENDENCIES})
+ament_export_dependencies(${AMENT_DEPENDENCIES} Qt5QuickWidgets Qt5Positioning)
 
 ament_package()

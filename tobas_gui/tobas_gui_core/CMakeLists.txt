@@ -25,6 +25,7 @@ find_package(tobas_homepage REQUIRED)
 find_package(urdf_builder REQUIRED)
 find_package(tobas_setup_assistant REQUIRED)
 find_package(tobas_hardware_setup REQUIRED)
+find_package(tobas_mission_planner REQUIRED)
 find_package(tobas_parameter_tuning_gui REQUIRED)
 
 set(AMENT_DEPENDENCIES
@@ -32,6 +33,7 @@ set(AMENT_DEPENDENCIES
   urdf_builder
   tobas_setup_assistant
   tobas_hardware_setup
+  tobas_mission_planner
   tobas_parameter_tuning_gui
 )
 
