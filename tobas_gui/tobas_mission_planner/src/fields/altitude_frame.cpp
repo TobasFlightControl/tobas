@@ -13,8 +13,9 @@ namespace field
 AltitudeFrameWidget::AltitudeFrameWidget()
 {
   combobox_ = new qt::ComboBox();
-  for (const auto& alt_frame : magic_enum::enum_values<altitude_frame_t>())
-    combobox_->addItem(altFrameToText(alt_frame));
+  combobox_->addItem(altFrameToText(altitude_frame_t::RELATIVE_TO_HOME));  // TODO: 他の選択肢も選べるようにする
+  // for (const auto& alt_frame : magic_enum::enum_values<altitude_frame_t>())
+  //   combobox_->addItem(altFrameToText(alt_frame));
 
   const auto cols = new QHBoxLayout();
   setLayout(cols);
