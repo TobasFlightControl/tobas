@@ -137,8 +137,10 @@ void MissionPlannerWidget::listToCommands()
 
   // 何も選択されていなければ強制的に最初の要素を選択
   if (selected_item == nullptr)
+  {
     command_list_->setCurrentRow(0);
-  selected_item = command_list_->item(0);
+    selected_item = command_list_->item(0);
+  }
 
   // 選択アイテムに対応するコマンドを表示
   for (const auto& [item, command] : pairs_)
@@ -169,16 +171,6 @@ void MissionPlannerWidget::commandsToMap()
 
     switch (cmd_type)
     {
-      case command_t::TAKEOFF:
-      {
-        // TODO
-        break;
-      }
-      case command_t::LAND:
-      {
-        // TODO
-        break;
-      }
       case command_t::WAYPOINT:
       {
         const auto waypoint = qobject_cast<WaypointWidget*>(cmd_widget);
@@ -198,6 +190,16 @@ void MissionPlannerWidget::commandsToMap()
         last_coord.setLatitude(latitude);
         last_coord.setLongitude(longitude);
 
+        break;
+      }
+      case command_t::TAKEOFF:
+      {
+        // TODO
+        break;
+      }
+      case command_t::LAND:
+      {
+        // TODO
         break;
       }
       case command_t::RETURN_TO_HOME:
@@ -241,16 +243,22 @@ void MissionPlannerWidget::gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps)
 
 void MissionPlannerWidget::onLoadButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onLoadButtonClicked");
+
   qt::qWarnBox(this, "Not implemented yet.");  // TODO
 }
 
 void MissionPlannerWidget::onSaveButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onSaveButtonClicked");
+
   qt::qWarnBox(this, "Not implemented yet.");  // TODO
 }
 
 void MissionPlannerWidget::onAddButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onAddButtonClicked");
+
   AddCommandDialog dialog(this);
 
   const auto res = dialog.exec();
@@ -261,6 +269,15 @@ void MissionPlannerWidget::onAddButtonClicked()
   BaseCommandWidget* cmd_widget;
   switch (cmd_type)
   {
+    case command_t::WAYPOINT:
+    {
+      const auto [latitude, longitude] = map_->getCenter();
+      const auto waypoint = new WaypointWidget();
+      waypoint->latitude(latitude);
+      waypoint->longitude(longitude);
+      cmd_widget = waypoint;
+      break;
+    }
     case command_t::TAKEOFF:
     {
       cmd_widget = new TakeoffWidget();
@@ -269,15 +286,6 @@ void MissionPlannerWidget::onAddButtonClicked()
     case command_t::LAND:
     {
       cmd_widget = new LandWidget();
-      break;
-    }
-    case command_t::WAYPOINT:
-    {
-      const auto [latitude, longitude] = map_->getCenter();
-      const auto waypoint = new WaypointWidget();
-      waypoint->latitude(latitude);
-      waypoint->longitude(longitude);
-      cmd_widget = waypoint;
       break;
     }
     case command_t::RETURN_TO_HOME:
@@ -308,6 +316,8 @@ void MissionPlannerWidget::onAddButtonClicked()
 
 void MissionPlannerWidget::onClearButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onClearButtonClicked");
+
   if (!qt::yesOrNo(this, "Do you want to clear all the commands?", qt::QMessageLevel::WARN))
     return;
 
@@ -319,6 +329,8 @@ void MissionPlannerWidget::onClearButtonClicked()
 
 void MissionPlannerWidget::onCacheButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCacheButtonClicked");
+
   if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::QMessageLevel::WARN))
     return;
 
@@ -373,6 +385,8 @@ void MissionPlannerWidget::onCacheButtonClicked()
 
 void MissionPlannerWidget::onExecuteButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onExecuteButtonClicked");
+
   if (!qt::yesOrNo(this, "Do you want to execute the mission?", qt::QMessageLevel::WARN))
     return;
 
@@ -399,6 +413,8 @@ void MissionPlannerWidget::onExecuteButtonClicked()
 
 void MissionPlannerWidget::onCancelButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onCancelButtonClicked");
+
   if (!qt::yesOrNo(this, "Do you want to cancel the mission?", qt::QMessageLevel::WARN))
     return;
 
@@ -413,6 +429,8 @@ void MissionPlannerWidget::onCancelButtonClicked()
 
 void MissionPlannerWidget::onFocusButtonClicked()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onFocusButtonClicked");
+
   if (gps_ == nullptr)
   {
     qt::qWarnBox(this, "GNSS data is not received yet.");
@@ -424,6 +442,8 @@ void MissionPlannerWidget::onFocusButtonClicked()
 
 void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, BaseCommandWidget* target_widget)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onDeleteButtonClicked");
+
   command_list_->remove(target_item);
   commands_->removeWidget(target_widget);
 
@@ -447,17 +467,23 @@ void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, B
 
 void MissionPlannerWidget::onListItemChanged()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onListItemChanged");
+
   listToCommands();
   commandsToMap();
 }
 
 void MissionPlannerWidget::onMissionUpdated()
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onMissionUpdated");
+
   commandsToMap();
 }
 
 void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double longitude)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onWaypointMoved");
+
   if (mission_thread_.isRunning())
   {
     qt::qWarnBox(this, "You cannot edit the mission while executing it.");
@@ -486,6 +512,8 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
 
 void MissionPlannerWidget::onMissionFinished(bool success, const QString& message)
 {
+  RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onMissionFinished");
+
   if (success)
     qt::qInfoBox(this, "The mission is completed.");
   else

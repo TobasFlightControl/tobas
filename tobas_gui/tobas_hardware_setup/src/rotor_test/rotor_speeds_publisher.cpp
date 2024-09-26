@@ -51,7 +51,7 @@ void RotorSpeedsPublisherWidget::updateInternalDataStructures()
     rotor_channels.insert(ch);
     commanders_.at(ch)->setText("CH" + QString::number(ch) + ": " + QString::fromStdString(rotor.link_name));
     commanders_.at(ch)->setMaximum(tobas_std::rps2rpm(rotor.max_rot_speed));
-    commanders_.at(ch)->setValue(0);
+    commanders_.at(ch)->setValue(0, true);
   }
 
   // モータとして登録されていないチャンネルを無効化
@@ -74,7 +74,7 @@ void RotorSpeedsPublisherWidget::start()
   // コマンダーを有効化
   for (const auto& rotor : drone_.rotors)
   {
-    commanders_.at(rotor.channel)->setValue(0);
+    commanders_.at(rotor.channel)->setValue(0, true);
     commanders_.at(rotor.channel)->setEnabled(true);
   }
 
@@ -91,7 +91,7 @@ void RotorSpeedsPublisherWidget::stop()
   // コマンダーを無効化
   for (const auto& rotor : drone_.rotors)
   {
-    commanders_.at(rotor.channel)->setValue(0);
+    commanders_.at(rotor.channel)->setValue(0, true);
     commanders_.at(rotor.channel)->setEnabled(false);
   }
 
@@ -100,17 +100,24 @@ void RotorSpeedsPublisherWidget::stop()
     button->setEnabled(false);
 
   // タイマーを停止
-  publish_timer_->cancel();
+  if (publish_timer_ != nullptr)
+    publish_timer_->cancel();
 }
 
 void RotorSpeedsPublisherWidget::setAllValues(int value)
 {
   for (const auto& rotor : drone_.rotors)
-    commanders_.at(rotor.channel)->setValue(value);
+    commanders_.at(rotor.channel)->setValue(value, true);
 }
 
 void RotorSpeedsPublisherWidget::publishCurrentValues()
 {
+  if (speeds_pub_ == nullptr)
+  {
+    RCLCPP_ERROR(node_->get_logger(), "Publisher is not registered.");
+    return;
+  }
+
   auto rot_speeds = std::make_unique<tobas_msgs::msg::RotorSpeeds>();
   rot_speeds->header.stamp = node_->get_clock()->now();
   rot_speeds->speeds.resize(drone_.numRotors());

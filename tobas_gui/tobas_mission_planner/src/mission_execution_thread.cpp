@@ -59,12 +59,12 @@ bool MissionExecutionThread::execute(BaseCommandData::SharedPtr command)
 
   switch (cmd_type)
   {
+        case command_t::WAYPOINT:
+      return execute(dynamic_pointer_cast<WaypointData>(command));
     case command_t::TAKEOFF:
       return execute(dynamic_pointer_cast<TakeoffData>(command));
     case command_t::LAND:
       return execute(dynamic_pointer_cast<LandData>(command));
-    case command_t::WAYPOINT:
-      return execute(dynamic_pointer_cast<WaypointData>(command));
     case command_t::RETURN_TO_HOME:
       return execute(dynamic_pointer_cast<ReturnToHomeData>(command));
     default:
