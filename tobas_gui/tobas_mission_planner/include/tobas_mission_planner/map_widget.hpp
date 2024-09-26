@@ -37,7 +37,7 @@ private:
   map::WaypointModel* waypoint_;
   map::LineModel* line_;
 
-private:
+private Q_SLOTS:
   void onWaypointMoved(int index, double latitude, double longitude);
 };
 }  // namespace mission_planner

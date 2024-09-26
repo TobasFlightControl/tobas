@@ -507,7 +507,8 @@ void MissionPlannerWidget::onWaypointMoved(int index, double latitude, double lo
     }
   }
 
-  throw std::runtime_error(std::format("Index {} is out of range.", index));
+  if (cur_idx != index)
+    throw std::runtime_error(std::format("Index {} is out of range.", index));
 }
 
 void MissionPlannerWidget::onMissionFinished(bool success, const QString& message)
