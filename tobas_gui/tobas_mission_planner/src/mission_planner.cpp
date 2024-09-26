@@ -95,7 +95,6 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
   ns_ = ns;
 
   gps_ = nullptr;
-
   gps_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kGpsTopic), &self::gpsCb, this);
 
   setEnabled(true);
