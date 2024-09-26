@@ -4,7 +4,6 @@ import QtPositioning 5.12
 
 Rectangle {
   id: rectangle
-  height: 500  // QMLに定義できる値はなるべくQMLに定義
 
   Plugin {
     id: osmPlugin

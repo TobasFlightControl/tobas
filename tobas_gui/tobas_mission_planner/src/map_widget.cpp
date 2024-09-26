@@ -17,7 +17,8 @@ namespace mission_planner
 {
 MapWidget::MapWidget()
 {
-  // リサイズモードの指定 (必須)
+  // サイズポリシーとリサイズモードの指定 (しないとウィジェットが潰れてしまう)
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
   // モデルオブジェクトの設定

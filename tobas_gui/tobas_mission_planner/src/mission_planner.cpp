@@ -21,7 +21,6 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   setLayout(rows);
 
   map_ = new MapWidget();
-  map_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   rows->addWidget(map_);
 
   const auto button_cols = new QHBoxLayout();
