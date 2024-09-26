@@ -4,6 +4,7 @@
 #include "../include/tobas_linux/core.hpp"
 
 using namespace std;
+namespace fs = filesystem;
 
 namespace linux
 {
@@ -22,7 +23,7 @@ string userName()
   }
 }
 
-string homeDir()
+fs::path homeDir()
 {
   if (isSuperUser())
   {
@@ -33,14 +34,14 @@ string homeDir()
     const auto home_dir = getenv("HOME");
     if (home_dir == nullptr)
       throw runtime_error("HOME environment variable not set.");
-    return string(home_dir);
+    return home_dir;
   }
 }
 
-string expandUser(const string& path)
+fs::path expandUser(const string& path)
 {
-  if (path.size() > 0 && path[0] == '~')
-    return homeDir() + path.substr(1);
+  if (path.substr(0, 2) == "~/")
+    return homeDir() / path.substr(2);
   else
     return path;
 }

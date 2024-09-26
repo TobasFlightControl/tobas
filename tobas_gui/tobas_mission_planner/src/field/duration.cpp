@@ -31,6 +31,11 @@ int DurationWidget::value() const
 {
   return spinbox_->value();
 }
+
+void DurationWidget::setValue(int value)
+{
+  spinbox_->setValue(value);
+}
 }  // namespace field
 }  // namespace mission_planner
 }  // namespace gui

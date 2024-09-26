@@ -33,6 +33,11 @@ double LatitudeWidget::value() const
 {
   return spinbox_->value();
 }
+
+void LatitudeWidget::setValue(double value)
+{
+  spinbox_->setValue(value);
+}
 }  // namespace field
 }  // namespace mission_planner
 }  // namespace gui

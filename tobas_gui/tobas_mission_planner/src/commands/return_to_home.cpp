@@ -27,11 +27,31 @@ const char* ReturnToHomeWidget::name() const
 BaseCommandData::SharedPtr ReturnToHomeWidget::data() const
 {
   const auto res = std::make_shared<ReturnToHomeData>();
-  res->altitude = altitude_->value();
-  res->altitude_frame = altitude_frame_->value();
-  res->acceptance_radius = acceptance_radius_->value();
-  res->duration = duration_->value();
+  res->altitude = altitude();
+  res->altitude_frame = altitudeFrame();
+  res->acceptance_radius = acceptanceRadius();
+  res->duration = duration();
   return res;
+}
+
+double ReturnToHomeWidget::altitude() const
+{
+  return altitude_->value();
+}
+
+altitude_frame_t ReturnToHomeWidget::altitudeFrame() const
+{
+  return altitude_frame_->value();
+}
+
+double ReturnToHomeWidget::acceptanceRadius() const
+{
+  return acceptance_radius_->value();
+}
+
+double ReturnToHomeWidget::duration() const
+{
+  return duration_->value();
 }
 }  // namespace mission_planner
 }  // namespace gui

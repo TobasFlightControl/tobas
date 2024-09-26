@@ -31,6 +31,11 @@ double AltitudeWidget::value() const
 {
   return spinbox_->value();
 }
+
+void AltitudeWidget::setValue(double value)
+{
+  spinbox_->setValue(value);
+}
 }  // namespace field
 }  // namespace mission_planner
 }  // namespace gui

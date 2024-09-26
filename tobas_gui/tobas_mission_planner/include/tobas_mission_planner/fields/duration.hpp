@@ -18,6 +18,7 @@ public:
   const char* label() const override;
 
   int value() const;
+  void setValue(int value);
 
 private:
   qt::SpinBox* spinbox_;

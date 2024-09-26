@@ -27,11 +27,31 @@ const char* TakeoffWidget::name() const
 BaseCommandData::SharedPtr TakeoffWidget::data() const
 {
   const auto res = std::make_shared<TakeoffData>();
-  res->altitude = altitude_->value();
-  res->altitude_frame = altitude_frame_->value();
-  res->altitude_tolerance = altitude_tolerance_->value();
-  res->duration = duration_->value();
+  res->altitude = altitude();
+  res->altitude_frame = altitudeFrame();
+  res->altitude_tolerance = altitudeTolerance();
+  res->duration = duration();
   return res;
+}
+
+double TakeoffWidget::altitude() const
+{
+  return altitude_->value();
+}
+
+altitude_frame_t TakeoffWidget::altitudeFrame() const
+{
+  return altitude_frame_->value();
+}
+
+double TakeoffWidget::altitudeTolerance() const
+{
+  return altitude_tolerance_->value();
+}
+
+double TakeoffWidget::duration() const
+{
+  return duration_->value();
 }
 }  // namespace mission_planner
 }  // namespace gui

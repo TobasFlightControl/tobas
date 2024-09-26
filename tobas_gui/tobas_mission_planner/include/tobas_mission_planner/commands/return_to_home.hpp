@@ -38,6 +38,11 @@ public:
   const char* name() const override;
   BaseCommandData::SharedPtr data() const override;
 
+  double altitude() const;
+  altitude_frame_t altitudeFrame() const;
+  double acceptanceRadius() const;
+  double duration() const;
+
 private:
   field::AltitudeWidget* altitude_;
   field::AltitudeFrameWidget* altitude_frame_;

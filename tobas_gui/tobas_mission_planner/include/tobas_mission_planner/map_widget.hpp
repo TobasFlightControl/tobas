@@ -30,7 +30,7 @@ public:
   void addWaypoint(int index, const QGeoCoordinate& coord, double acceptance_radius, const QString& marker_color);
   void addLine(double latitude_1, double longitude_1, double latitude_2, double longitude_2);
 
-  void getCenter(double& latitude, double& longitude);
+  std::pair<double, double> getCenter();
   void setCenter(double latitude, double longitude);
 
 private:

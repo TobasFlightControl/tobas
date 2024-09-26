@@ -31,13 +31,73 @@ const char* WaypointWidget::name() const
 BaseCommandData::SharedPtr WaypointWidget::data() const
 {
   const auto res = std::make_shared<WaypointData>();
-  res->latitude = latitude_->value();
-  res->longitude = longitude_->value();
-  res->altitude = altitude_->value();
-  res->altitude_frame = altitude_frame_->value();
-  res->acceptance_radius = acceptance_radius_->value();
-  res->duration = duration_->value();
+  res->latitude = latitude();
+  res->longitude = longitude();
+  res->altitude = altitude();
+  res->altitude_frame = altitudeFrame();
+  res->acceptance_radius = acceptanceRadius();
+  res->duration = duration();
   return res;
+}
+
+double WaypointWidget::latitude() const
+{
+  return latitude_->value();
+}
+
+double WaypointWidget::longitude() const
+{
+  return longitude_->value();
+}
+
+double WaypointWidget::altitude() const
+{
+  return altitude_->value();
+}
+
+altitude_frame_t WaypointWidget::altitudeFrame() const
+{
+  return altitude_frame_->value();
+}
+
+double WaypointWidget::acceptanceRadius() const
+{
+  return acceptance_radius_->value();
+}
+
+double WaypointWidget::duration() const
+{
+  return duration_->value();
+}
+
+void WaypointWidget::latitude(double value)
+{
+  latitude_->setValue(value);
+}
+
+void WaypointWidget::longitude(double value)
+{
+  longitude_->setValue(value);
+}
+
+void WaypointWidget::altitude(double value)
+{
+  altitude_->setValue(value);
+}
+
+void WaypointWidget::altitudeFrame(altitude_frame_t value)
+{
+  altitude_frame_->setValue(value);
+}
+
+void WaypointWidget::acceptanceRadius(double value)
+{
+  acceptance_radius_->setValue(value);
+}
+
+void WaypointWidget::duration(double value)
+{
+  duration_->setValue(value);
 }
 }  // namespace mission_planner
 }  // namespace gui

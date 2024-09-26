@@ -32,6 +32,11 @@ double AltitudeToleranceWidget::value() const
 {
   return spinbox_->value();
 }
+
+void AltitudeToleranceWidget::setValue(double value)
+{
+  spinbox_->setValue(value);
+}
 }  // namespace field
 }  // namespace mission_planner
 }  // namespace gui

@@ -42,6 +42,20 @@ public:
   const char* name() const override;
   BaseCommandData::SharedPtr data() const override;
 
+  double latitude() const;
+  double longitude() const;
+  double altitude() const;
+  altitude_frame_t altitudeFrame() const;
+  double acceptanceRadius() const;
+  double duration() const;
+
+  void latitude(double value);
+  void longitude(double value);
+  void altitude(double value);
+  void altitudeFrame(altitude_frame_t value);
+  void acceptanceRadius(double value);
+  void duration(double value);
+
 private:
   field::LatitudeWidget* latitude_;
   field::LongitudeWidget* longitude_;

@@ -32,6 +32,11 @@ double AcceptanceRadiusWidget::value() const
 {
   return spinbox_->value();
 }
+
+void AcceptanceRadiusWidget::setValue(double value)
+{
+  spinbox_->setValue(value);
+}
 }  // namespace field
 }  // namespace mission_planner
 }  // namespace gui

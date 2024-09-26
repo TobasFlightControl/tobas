@@ -32,6 +32,11 @@ altitude_frame_t AltitudeFrameWidget::value() const
 {
   return textToAltFrame(combobox_->currentText().toUtf8());
 }
+
+void AltitudeFrameWidget::setValue(altitude_frame_t value)
+{
+  combobox_->setCurrentText(altFrameToText(value));
+}
 }  // namespace field
 }  // namespace mission_planner
 }  // namespace gui

@@ -60,12 +60,11 @@ void MapWidget::addLine(double latitude_1, double longitude_1, double latitude_2
   line_->add(latitude_1, longitude_1, latitude_2, longitude_2);
 }
 
-void MapWidget::getCenter(double& latitude, double& longitude)
+std::pair<double, double> MapWidget::getCenter()
 {
   const auto map = rootObject()->findChild<QObject*>("map");
   const auto center = map->property("center").value<QGeoCoordinate>();
-  latitude = center.latitude();
-  longitude = center.longitude();
+  return { center.latitude(), center.longitude() };
 }
 
 void MapWidget::setCenter(double latitude, double longitude)
