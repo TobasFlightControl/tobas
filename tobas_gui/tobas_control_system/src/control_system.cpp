@@ -12,19 +12,28 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tob
 {
   // Components
   pose_viewer_ = new PoseViewerWidget(node);
+  battery_cpu_viewer_ = new BatteryCPUViewerWidget(node, drone);
   mission_planner_ = new MissionPlannerWidget(node);
   // TODO
 
   // Layout
-  const auto cols1 = new QHBoxLayout();
-  const auto rows1 = new QVBoxLayout();
+  const auto rows2 = new QVBoxLayout();
+  rows2->addWidget(battery_cpu_viewer_);
+  // TODO
 
-  rows1->addWidget(pose_viewer_);
+  const auto cols2 = new QHBoxLayout();
+  cols2->addLayout(rows2);
+  // TODO: Status Viewer
+
+  const auto rows1 = new QVBoxLayout();
+  rows1->addWidget(pose_viewer_, 1);
+  rows1->addLayout(cols2, 1);
+
+  const auto cols1 = new QHBoxLayout();
+  cols1->addLayout(rows1, 1);
+  cols1->addWidget(mission_planner_, 1);
 
   setLayout(cols1);
-  cols1->addLayout(rows1, 1);
-  // TODO
-  cols1->addWidget(mission_planner_, 1);
 }
 
 void ControlSystemWidget::updateInternalDataStructures()

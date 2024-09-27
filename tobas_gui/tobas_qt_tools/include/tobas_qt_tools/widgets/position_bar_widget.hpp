@@ -11,6 +11,7 @@ class PositionBarWidget : public QWidget
   using super = QWidget;
 
 public:
+  explicit PositionBarWidget(QWidget* parent = nullptr);
   explicit PositionBarWidget(double minimum, double maximum, QWidget* parent = nullptr);
 
   double getMinimum() const;
@@ -29,6 +30,9 @@ public:
   void setFillRange(bool fill_range);
   void setLineWidth(int line_width);
   void setTextPSize(int text_psize);
+  void setFillColor(Qt::GlobalColor color);
+  void setLimitLineColor(Qt::GlobalColor color);
+  void setValueLineColor(Qt::GlobalColor color);
   void setText(const QString& text);
   void setValue(double value);
   void setLower(double lower);
@@ -39,12 +43,14 @@ public:
 protected:
   void paintEvent(QPaintEvent* event) override;
 
-private:
-  double minimum_;
-  double maximum_;
+  double minimum_ = 0.;
+  double maximum_ = 0.;
   bool fill_range_ = true;
   int line_width_ = 3;
   int text_psize_ = 10;
+  Qt::GlobalColor fill_color_ = Qt::green;
+  Qt::GlobalColor limit_line_color_ = Qt::black;
+  Qt::GlobalColor value_line_color_ = Qt::red;
 
   std::optional<QString> text_;
   std::optional<double> value_;

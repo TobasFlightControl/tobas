@@ -8,6 +8,10 @@
 
 namespace qt
 {
+PositionBarWidget::PositionBarWidget(QWidget* parent) : super(parent)
+{
+}
+
 PositionBarWidget::PositionBarWidget(double minimum, double maximum, QWidget* parent)
   : super(parent), minimum_(minimum), maximum_(maximum)
 {
@@ -86,6 +90,21 @@ void PositionBarWidget::setLineWidth(int line_width)
 void PositionBarWidget::setTextPSize(int text_psize)
 {
   text_psize_ = text_psize;
+}
+
+void PositionBarWidget::setFillColor(Qt::GlobalColor color)
+{
+  fill_color_ = color;
+}
+
+void PositionBarWidget::setLimitLineColor(Qt::GlobalColor color)
+{
+  limit_line_color_ = color;
+}
+
+void PositionBarWidget::setValueLineColor(Qt::GlobalColor color)
+{
+  value_line_color_ = color;
 }
 
 void PositionBarWidget::setText(const QString& text)
@@ -167,11 +186,11 @@ void HPositionBarWidget::drawRange(QPainter& painter, double lower, double upper
   const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, width());
 
   // 最小値と最大値の間を緑色で塗る
-  painter.setBrush(Qt::green);
+  painter.setBrush(fill_color_);
   painter.drawRect(lower_pos, 0, upper_pos - lower_pos, height());
 
   // 最小値と最大値の位置に黒色の線を描画
-  painter.setPen(QPen(Qt::black, getLineWidth()));
+  painter.setPen(QPen(limit_line_color_, getLineWidth()));
   painter.drawLine(lower_pos, 0, lower_pos, height());
   painter.drawLine(upper_pos, 0, upper_pos, height());
 }
@@ -182,7 +201,7 @@ void HPositionBarWidget::drawValue(QPainter& painter, double value)
   const int value_pos = math::remap<double>(value, getMinimum(), getMaximum(), 0, width());
 
   // 現在値の位置に赤色の線を描画
-  painter.setPen(QPen(Qt::red, getLineWidth()));
+  painter.setPen(QPen(value_line_color_, getLineWidth()));
   painter.drawLine(value_pos, 0, value_pos, height());
 }
 
@@ -200,11 +219,11 @@ void VPositionBarWidget::drawRange(QPainter& painter, double lower, double upper
   const int upper_pos = math::remap<double>(upper, getMinimum(), getMaximum(), 0, height());
 
   // 最小値と最大値の間を緑色で塗る
-  painter.setBrush(Qt::green);
+  painter.setBrush(fill_color_);
   painter.drawRect(0, lower_pos, width(), upper_pos - lower_pos);
 
   // 最小値と最大値の位置に黒色の線を描画
-  painter.setPen(QPen(Qt::black, getLineWidth()));
+  painter.setPen(QPen(limit_line_color_, getLineWidth()));
   painter.drawLine(0, lower_pos, width(), lower_pos);
   painter.drawLine(0, upper_pos, width(), upper_pos);
 }
@@ -215,7 +234,7 @@ void VPositionBarWidget::drawValue(QPainter& painter, double value)
   const int value_pos = math::remap<double>(value, getMinimum(), getMaximum(), 0, height());
 
   // 現在値の位置に赤色の線を描画
-  painter.setPen(QPen(Qt::red, getLineWidth()));
+  painter.setPen(QPen(value_line_color_, getLineWidth()));
   painter.drawLine(0, value_pos, width(), value_pos);
 }
 

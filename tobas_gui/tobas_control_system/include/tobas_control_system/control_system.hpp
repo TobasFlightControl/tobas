@@ -3,6 +3,7 @@
 #include <tobas_drone_core/drone.hpp>
 
 #include "./pose_viewer.hpp"
+#include "./battery_cpu_viewer.hpp"
 #include "./mission_planner/mission_planner.hpp"
 
 namespace gui
@@ -23,6 +24,7 @@ private:
   const tobas::Drone& drone_;
 
   PoseViewerWidget* pose_viewer_;
+  BatteryCPUViewerWidget* battery_cpu_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
 }  // namespace control_system
