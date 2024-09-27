@@ -21,22 +21,20 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   frame_tree_ = new FrameTreeWidget(robot_, rviz_);
   jsp_ = new JointStatePublisherWidget(node, robot_);
 
-  frame_tree_->setFixedWidth(kFrameTreeWidth);
-  rviz_->setMinimumWidth(kRvizMinWidth);
-  jsp_->setMinimumWidth(kJointStatePublisherMinWidth);
-
   pkg_generator_ = std::make_unique<PackageGenerator>(node, robot_, settings_);
 
   // Layout
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-  rows->addWidget(start_);
   const auto cols = new QHBoxLayout();
-  rows->addLayout(cols);
-  cols->addWidget(frame_tree_);
-  cols->addWidget(rviz_);
-  cols->addWidget(jsp_);
-  rows->addWidget(settings_);
+  cols->addWidget(frame_tree_, 1);
+  cols->addWidget(rviz_, 2);
+  cols->addWidget(jsp_, 1);
+
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(start_, 0);
+  rows->addLayout(cols, 1);
+  rows->addWidget(settings_, 3);
+
+  setLayout(rows);
 
   // Connections
   connect(&robot_, &RobotInfo::loaded, this, &self::onRobotLoaded);

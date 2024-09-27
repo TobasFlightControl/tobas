@@ -30,11 +30,11 @@ StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Setting
 
   // Layout
   const auto rows = new QVBoxLayout();
-  setLayout(rows);
   rows->addWidget(new_ckb);
   rows->addWidget(edit_ckb);
   rows->addWidget(stack);
-  setMaximumHeight(kHeight);  // 縦幅を固定しないと余分なスペースが発生してしまう
+
+  setLayout(rows);
 
   // Connections
   connect(ckb_group, &QButtonGroup::idClicked, stack, &QStackedWidget::setCurrentIndex);

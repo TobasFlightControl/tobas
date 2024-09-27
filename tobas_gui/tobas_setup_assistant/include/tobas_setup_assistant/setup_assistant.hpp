@@ -24,10 +24,6 @@ class SetupAssistantWidget : public QWidget
   using self = SetupAssistantWidget;
   using super = QWidget;
 
-  static constexpr int kFrameTreeWidth = 200;
-  static constexpr int kRvizMinWidth = 200;
-  static constexpr int kJointStatePublisherMinWidth = 300;
-
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 
