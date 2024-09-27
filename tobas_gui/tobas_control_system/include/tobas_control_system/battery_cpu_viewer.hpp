@@ -17,6 +17,8 @@ class BatteryCPUViewerWidget : public QWidget
   using self = BatteryCPUViewerWidget;
   using super = QWidget;
 
+  static constexpr int kBarMinHeight = 30;
+
   static constexpr double kMinCPUTemp = 0.;    // [degC]
   static constexpr double kMaxCPUTemp = 85.;   // [degC]
   static constexpr double kMinCPULoad = 0.;    // [%]

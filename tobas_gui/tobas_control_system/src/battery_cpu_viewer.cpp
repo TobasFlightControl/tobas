@@ -14,12 +14,15 @@ BatteryCPUViewerWidget::BatteryCPUViewerWidget(rclcpp::Node::SharedPtr node, con
   : node_(node), drone_(drone)
 {
   batt_voltage_ = new qt::HPositionBarWidget();
+  batt_voltage_->setMinimumHeight(kBarMinHeight);
 
   cpu_temp_ = new qt::HPositionBarWidget();
+  cpu_temp_->setMinimumHeight(kBarMinHeight);
   cpu_temp_->setMinimum(kMinCPUTemp);
   cpu_temp_->setMaximum(kMaxCPUTemp);
 
   cpu_load_ = new qt::HPositionBarWidget();
+  cpu_load_->setMinimumHeight(kBarMinHeight);
   cpu_load_->setMinimum(kMinCPULoad);
   cpu_load_->setMaximum(kMaxCPULoad);
 
