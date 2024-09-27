@@ -4,6 +4,7 @@
 
 #include "./pose_viewer.hpp"
 #include "./battery_cpu_viewer.hpp"
+#include "./rcin_viewer/rcin_viewer.hpp"
 #include "./mission_planner/mission_planner.hpp"
 
 namespace gui
@@ -25,6 +26,7 @@ private:
 
   PoseViewerWidget* pose_viewer_;
   BatteryCPUViewerWidget* battery_cpu_viewer_;
+  RCInputViewerWidget* rcin_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
 }  // namespace control_system
