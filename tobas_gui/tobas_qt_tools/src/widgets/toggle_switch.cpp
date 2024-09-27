@@ -1,4 +1,5 @@
 #include <QPainter>
+#include <QResizeEvent>
 #include <QDebug>
 
 #include "tobas_qt_tools/widgets/toggle_switch.hpp"
@@ -60,6 +61,19 @@ void ToggleSwitch::mousePressEvent(QMouseEvent*)
 
   checked_ = !checked_;    // 状態をトグル
   emit toggled(checked_);  // トグル状態が変わったことを通知
+}
+
+void ToggleSwitch::resizeEvent(QResizeEvent* event)
+{
+  const auto w = event->size().width();
+  const auto h = event->size().height();
+
+  // アスペクト比を2:1よりも横長に保つ
+  // 足りない方の長さで調整するとウィジェットが消滅してしまうため，必ず足りない方の長さを据え置きでもう片方で合わせる．
+  if (w < 2 * h)
+    resize(w, w / 2);
+
+  super::resizeEvent(event);
 }
 
 void ToggleSwitch::drawBackground(QPainter& painter)

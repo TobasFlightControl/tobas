@@ -26,6 +26,7 @@ public:
 protected:
   void paintEvent(QPaintEvent* event) override;
   void mousePressEvent(QMouseEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
 
 private:
   bool checked_ = false;  // ON/OFFの状態

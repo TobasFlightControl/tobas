@@ -40,8 +40,8 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   toggle_cols->addWidget(gpsw_);
 
   const auto rows = new QVBoxLayout();
-  rows->addLayout(mode_cols, 3);
-  rows->addLayout(toggle_cols, 2);
+  rows->addLayout(mode_cols);
+  rows->addLayout(toggle_cols);
 
   setLayout(rows);
 
