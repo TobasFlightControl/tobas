@@ -73,7 +73,6 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   mission_cols->addWidget(commands_);
 
   setEditMode();
-  setEnabled(false);
 
   // Connections
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);
@@ -96,8 +95,6 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 
   gps_ = nullptr;
   gps_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kGpsTopic), &self::gpsCb, this);
-
-  setEnabled(true);
 }
 
 void MissionPlannerWidget::setExecuteMode()

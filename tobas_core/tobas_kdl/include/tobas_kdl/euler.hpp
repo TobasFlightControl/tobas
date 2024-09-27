@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include <tobas_std_tools/geometry.hpp>
 
 #include "./vector.hpp"
@@ -24,6 +22,10 @@ public:
   inline explicit Euler(const Vector& rpy);
   inline explicit Euler(const Rotation& rot);
 
+  inline static Euler Zero();
+
+  inline void setZero();
+
   inline Vector toVector() const;
   inline Rotation toRotation() const;
   inline Quaternion toQuaternion() const;
@@ -37,7 +39,9 @@ public:
   /* 3次元ベクトルを逆回転させる． */
   inline Vector inverse(const Vector& v) const;
 
-  inline friend std::ostream& operator<<(std::ostream& os, const Euler& arg);
+  bool isFinite() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const Euler& arg);
 };
 
 inline Euler::Euler() : roll(0), pitch(0), yaw(0)
@@ -56,6 +60,18 @@ inline Euler::Euler(const Vector& rpy) : roll(rpy.x()), pitch(rpy.y()), yaw(rpy.
 inline Euler::Euler(const Rotation& rot)
 {
   rot.getRPY(roll, pitch, yaw);
+}
+
+inline Euler Euler::Zero()
+{
+  return Euler(0., 0., 0.);
+}
+
+inline void Euler::setZero()
+{
+  roll = 0.;
+  pitch = 0.;
+  yaw = 0.;
 }
 
 inline Vector Euler::toVector() const
@@ -88,11 +104,5 @@ inline Vector Euler::operator*(const Vector& v) const
 inline Vector Euler::inverse(const Vector& v) const
 {
   return Rotation::RPY(roll, pitch, yaw).inverse(v);
-}
-
-inline std::ostream& operator<<(std::ostream& os, const Euler& arg)
-{
-  os << "roll: " << arg.roll << ", pitch: " << arg.pitch << ", yaw: " << arg.yaw;
-  return os;
 }
 }  // namespace kdl

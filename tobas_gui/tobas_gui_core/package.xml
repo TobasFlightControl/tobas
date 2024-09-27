@@ -13,7 +13,7 @@
   <depend>urdf_builder</depend>
   <depend>tobas_setup_assistant</depend>
   <depend>tobas_hardware_setup</depend>
-  <depend>tobas_mission_planner</depend>
+  <depend>tobas_control_system</depend>
   <depend>tobas_parameter_tuning_gui</depend>
 
   <export>

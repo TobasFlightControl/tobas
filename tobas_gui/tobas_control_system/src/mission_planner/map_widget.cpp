@@ -18,7 +18,7 @@ namespace control_system
 MapWidget::MapWidget()
 {
   // サイズポリシーとリサイズモードの指定 (しないとウィジェットが潰れてしまう)
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
   // モデルオブジェクトの設定

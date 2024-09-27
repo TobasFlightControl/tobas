@@ -28,6 +28,7 @@ find_package(tobas_linux REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
+find_package(tobas_drone_core REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
@@ -39,6 +40,7 @@ set(AMENT_DEPENDENCIES
   tobas_path_tools
   tobas_ros2_tools
   tobas_constants
+  tobas_drone_core
   tobas_msgs_adapter
   tobas_qt_tools
 )

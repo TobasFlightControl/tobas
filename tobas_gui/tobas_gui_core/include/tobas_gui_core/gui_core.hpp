@@ -11,7 +11,7 @@
 #include <tobas_homepage/homepage.hpp>
 #include <tobas_setup_assistant/setup_assistant.hpp>
 #include <tobas_hardware_setup/hardware_setup.hpp>
-#include <tobas_mission_planner/mission_planner.hpp>
+#include <tobas_control_system/control_system.hpp>
 #include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
 
 #include "./urdf_builder.hpp"
@@ -54,7 +54,7 @@ private:
   URDFBuilder* urdf_builder_;
   setup_assistant::SetupAssistantWidget* setup_assistant_;
   hardware_setup::HardwareSetupWidget* hardware_setup_;
-  mission_planner::MissionPlannerWidget* mission_planner_;
+  control_system::ControlSystemWidget* control_system_;
   param_tuning::ParameterTuningWidget* param_tuning_;
 
   void updateInternalDataStructures();
