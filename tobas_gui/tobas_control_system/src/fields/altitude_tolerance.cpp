@@ -1,0 +1,42 @@
+#include <QHBoxLayout>
+
+#include "tobas_control_system/fields/altitude_tolerance.hpp"
+
+namespace gui
+{
+namespace control_system
+{
+namespace field
+{
+AltitudeToleranceWidget::AltitudeToleranceWidget()
+{
+  spinbox_ = new qt::DoubleSpinBox();
+  spinbox_->setDecimals(3);
+  spinbox_->setMinimum(1e-3);
+  spinbox_->setValue(0.1);
+  spinbox_->setSuffix(" m");
+
+  const auto cols = new QHBoxLayout();
+  setLayout(cols);
+  cols->addWidget(spinbox_);
+
+  connect(spinbox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
+}
+
+const char* AltitudeToleranceWidget::label() const
+{
+  return "Altitude Tolerance";
+}
+
+double AltitudeToleranceWidget::value() const
+{
+  return spinbox_->value();
+}
+
+void AltitudeToleranceWidget::setValue(double value)
+{
+  spinbox_->setValue(value);
+}
+}  // namespace field
+}  // namespace control_system
+}  // namespace gui

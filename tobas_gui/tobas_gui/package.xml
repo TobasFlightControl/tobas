@@ -9,11 +9,11 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<exec_depend>tobas_control_system</exec_depend>
 	<exec_depend>tobas_gui_common</exec_depend>
 	<exec_depend>tobas_gui_core</exec_depend>
 	<exec_depend>tobas_hardware_setup</exec_depend>
 	<exec_depend>tobas_homepage</exec_depend>
-	<exec_depend>tobas_mission_planner</exec_depend>
 	<exec_depend>tobas_qt_tools</exec_depend>
 	<exec_depend>tobas_rviz_plugin</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>
