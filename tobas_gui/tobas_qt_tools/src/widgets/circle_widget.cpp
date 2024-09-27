@@ -44,7 +44,7 @@ void CircleWidget::paintEvent(QPaintEvent*)
   if (!text_.isEmpty())
   {
     painter.save();
-    drawText(painter);
+    drawMaximumText(painter, text_);
     painter.restore();
   }
 }
@@ -60,40 +60,5 @@ void CircleWidget::drawCircle(QPainter& painter)
 
   const auto r = getRadius();
   painter.drawEllipse(getCenter(), r, r);
-}
-
-void CircleWidget::drawText(QPainter& painter)
-{
-  // テキストを描画するためのフォントサイズを調整
-  adjustFontSize(painter);
-
-  // 黒いテキストを中央に描画
-  painter.setPen(Qt::black);
-  QFontMetrics fm = painter.fontMetrics();
-  const auto text_width = fm.horizontalAdvance(text_);
-  const auto text_height = fm.height();
-  const auto x = (width() - text_width) / 2;
-  const auto y = (height() + text_height) / 2 - fm.descent();  // ベースライン補正
-  painter.drawText(x, y, text_);
-}
-
-void CircleWidget::adjustFontSize(QPainter& painter)
-{
-  const auto diameter = getDiameter();
-  int font_size = 1;
-  QFont font = painter.font();
-
-  // テキストが円の中に収まる最大のフォントサイズを計算
-  QFontMetrics fm(font);
-  while (fm.horizontalAdvance(text_) < diameter * 0.8 && fm.height() < diameter * 0.8)
-  {
-    font.setPointSize(++font_size);
-    painter.setFont(font);
-    fm = painter.fontMetrics();  // 更新されたフォントで再計算
-  }
-
-  // 最大サイズを超えた場合はフォントサイズを1つ戻す
-  font.setPointSize(font_size - 1);
-  painter.setFont(font);
 }
 }  // namespace qt

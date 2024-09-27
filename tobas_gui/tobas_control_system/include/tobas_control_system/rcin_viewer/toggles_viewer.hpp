@@ -2,6 +2,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/circle_widget.hpp>
+#include <tobas_qt_tools/widgets/toggle_switch.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 
 namespace gui
@@ -29,8 +30,8 @@ private:
   qt::CircleWidget* stabilize_mode_;
   qt::CircleWidget* acrobat_mode_;
 
-  qt::CircleWidget* estop_;
-  qt::CircleWidget* gpsw_;
+  qt::ToggleSwitch* estop_;
+  qt::ToggleSwitch* gpsw_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
 

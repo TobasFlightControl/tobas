@@ -6,7 +6,6 @@ namespace qt
 {
 /**
  * ===== QWidgetとの違い =====
- * - closeで子ウィジェットのcloseを再帰的に呼び出す
  * - 追加メソッド
  */
 class Widget : public QWidget
@@ -20,7 +19,11 @@ public:
 
   QPoint getCenter() const;
 
-public Q_SLOTS:
-  bool close();
+protected:
+  /* 枠内に収まる最大サイズのテキストを書く． */
+  void drawMaximumText(QPainter& painter, const QString& text);
+
+  /* 枠内に収まる最大サイズのテキストを書く． */
+  void drawMaximumText(QPainter& painter, const QString& text, const QPoint& center);
 };
 }  // namespace qt

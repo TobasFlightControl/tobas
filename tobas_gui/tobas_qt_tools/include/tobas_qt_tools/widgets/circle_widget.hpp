@@ -29,9 +29,5 @@ private:
   QString text_ = "";
 
   void drawCircle(QPainter& painter);
-  void drawText(QPainter& painter);
-
-  /* 円のサイズに合わせてフォントサイズを調整する． */
-  void adjustFontSize(QPainter& painter);
 };
 }  // namespace qt

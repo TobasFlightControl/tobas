@@ -16,12 +16,18 @@ namespace rcin
 {
 TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 {
+  // テキストの長さを揃える
   program_mode_ = new qt::CircleWidget(" Program ");
   stabilize_mode_ = new qt::CircleWidget("Stabilize");
   acrobat_mode_ = new qt::CircleWidget(" Acrobat ");
 
-  estop_ = new qt::CircleWidget("E-Stop");
-  gpsw_ = new qt::CircleWidget(" GPSw ");
+  estop_ = new qt::ToggleSwitch();
+  estop_->setText("E-Stop");
+  estop_->ignoreMousePressEvent(true);
+
+  gpsw_ = new qt::ToggleSwitch();
+  gpsw_->setText(" GPSw ");
+  gpsw_->ignoreMousePressEvent(true);
 
   // Layout
   const auto mode_cols = new QHBoxLayout();
@@ -54,8 +60,8 @@ void TogglesViewer::reset()
   acrobat_mode_->setColor(Qt::gray);
   program_mode_->setColor(Qt::gray);
 
-  estop_->setColor(Qt::gray);
-  gpsw_->setColor(Qt::gray);
+  estop_->setChecked(false);
+  gpsw_->setChecked(false);
 }
 
 void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
@@ -77,14 +83,14 @@ void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rc
     acrobat_mode_->setColor(Qt::gray);
 
   if (rcin->e_stop)
-    estop_->setColor(Qt::green);
+    estop_->setChecked(true);
   else
-    estop_->setColor(Qt::gray);
+    estop_->setChecked(false);
 
   if (rcin->gpsw)
-    gpsw_->setColor(Qt::green);
+    gpsw_->setChecked(true);
   else
-    gpsw_->setColor(Qt::gray);
+    gpsw_->setChecked(false);
 }
 }  // namespace rcin
 }  // namespace control_system
