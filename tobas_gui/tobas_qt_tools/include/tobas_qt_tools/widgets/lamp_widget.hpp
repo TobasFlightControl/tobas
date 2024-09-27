@@ -27,10 +27,13 @@ class LampWidget : public QLabel
 
 public:
   explicit LampWidget(QWidget* parent = nullptr);
+  explicit LampWidget(const QString& text, QWidget* parent = nullptr);
 
   void setColor(const RGBColor& color);
 
 private:
-  RGBColor color_ = RGBColor::Black();
+  RGBColor c_ = RGBColor::Black();
+
+  void draw();
 };
 }  // namespace qt

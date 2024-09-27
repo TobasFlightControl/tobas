@@ -116,10 +116,13 @@ static constexpr char kObserverNode[] = "observer";
 static constexpr char kWorldFrame[] = "world";
 
 // Flight mode
-static constexpr uint8_t kFlightModeProgram = 0;
-static constexpr uint8_t kFlightModeStabilize = kFlightModeProgram + 1;
-static constexpr uint8_t kFlightModeAcrobat = kFlightModeStabilize + 1;
-static constexpr uint8_t kNumFlightModes = kFlightModeAcrobat + 1;
+enum flight_mode_t
+{
+  PROGRAM_MODE,
+  STABILIZE_MODE,
+  ACROBAT_MODE,
+};
+static constexpr size_t kNumFlightModes = 3;
 
 enum rc_command_t
 {

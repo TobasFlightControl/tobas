@@ -26,7 +26,7 @@ private:
 
   PoseViewerWidget* pose_viewer_;
   BatteryCPUViewerWidget* battery_cpu_viewer_;
-  RCInputViewerWidget* rcin_viewer_;
+  rcin::RCInputViewerWidget* rcin_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
 }  // namespace control_system

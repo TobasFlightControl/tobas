@@ -13,7 +13,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tob
   // Components
   pose_viewer_ = new PoseViewerWidget(node);
   battery_cpu_viewer_ = new BatteryCPUViewerWidget(node, drone);
-  rcin_viewer_ = new RCInputViewerWidget(node);
+  rcin_viewer_ = new rcin::RCInputViewerWidget(node);
   mission_planner_ = new MissionPlannerWidget(node);
   // TODO
 

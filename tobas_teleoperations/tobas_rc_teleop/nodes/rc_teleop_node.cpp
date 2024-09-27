@@ -44,9 +44,9 @@ private:
   } stage_ = CHECK_PREREQUISITES;
 
   const map<uint8_t, const char*> mode2str_{
-    { tobas::kFlightModeProgram, "Program" },
-    { tobas::kFlightModeStabilize, "Stabilize" },
-    { tobas::kFlightModeAcrobat, "Acrobat" },
+    { tobas::flight_mode_t::PROGRAM_MODE, "Program" },
+    { tobas::flight_mode_t::STABILIZE_MODE, "Stabilize" },
+    { tobas::flight_mode_t::ACROBAT_MODE, "Acrobat" },
   };
 
   // rosparams
@@ -91,16 +91,16 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
 
 void RCTeleopNode::getStaticRosParams()
 {
-  modes_[tobas::kFlightModeStabilize] =
+  modes_[tobas::flight_mode_t::STABILIZE_MODE] =
     static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode", tobas::rc_command_t::PROGRAM));
-  modes_[tobas::kFlightModeAcrobat] =
+  modes_[tobas::flight_mode_t::ACROBAT_MODE] =
     static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode", tobas::rc_command_t::PROGRAM));
 }
 
 void RCTeleopNode::initializeControllers()
 {
   // プログラムモードのダミーコントローラを設定
-  controllers_[tobas::kFlightModeProgram] = std::make_unique<ProgramModeController>();
+  controllers_[tobas::flight_mode_t::PROGRAM_MODE] = std::make_unique<ProgramModeController>();
 
   // その他の飛行モードのコントローラを設定
   for (size_t i = 1; i < tobas::kNumFlightModes; ++i)

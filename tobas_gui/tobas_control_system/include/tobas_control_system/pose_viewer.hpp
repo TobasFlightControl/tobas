@@ -1,21 +1,20 @@
 #pragma once
 
-#include <QWidget>
-
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
+#include <tobas_qt_tools/widgets/widget.hpp>
 
 namespace gui
 {
 namespace control_system
 {
-class PoseViewerWidget : public QWidget
+class PoseViewerWidget : public qt::Widget
 {
   Q_OBJECT
 
   using self = PoseViewerWidget;
-  using super = QWidget;
+  using super = qt::Widget;
 
   static constexpr int kLineWidth = 3;       // ゲージ線の幅
   static constexpr int kScaleInterval = 10;  // [deg]
@@ -53,6 +52,8 @@ private:
   void drawRoll(QPainter& painter);
   void drawPitch(QPainter& painter);
   void drawYaw(QPainter& painter);
+
+  void addGradation(QPainter& painter);
 
   /* カメラの枠内の点が空に含まれるかどうかを判定する． */
   bool isSky(const QPoint& p) const;

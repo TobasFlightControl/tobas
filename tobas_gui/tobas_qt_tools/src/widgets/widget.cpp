@@ -9,4 +9,9 @@ bool Widget::close()
 
   return super::close();
 }
+
+QPoint Widget::getCenter() const
+{
+  return QPoint(width() / 2, height() / 2);
+}
 }  // namespace qt

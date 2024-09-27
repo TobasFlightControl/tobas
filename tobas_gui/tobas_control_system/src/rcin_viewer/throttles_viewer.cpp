@@ -12,7 +12,9 @@ namespace gui
 {
 namespace control_system
 {
-RCInputThrottlesViewer::RCInputThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
+namespace rcin
+{
+ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 {
   roll_range_ = new qt::HPositionBarWidget(tobas::kRCInputMin, tobas::kRCInputMax);
   pitch_range_ = new qt::VPositionBarWidget(tobas::kRCInputMin, tobas::kRCInputMax);
@@ -44,21 +46,27 @@ RCInputThrottlesViewer::RCInputThrottlesViewer(rclcpp::Node::SharedPtr node) : n
   cols1->addWidget(throt_range_);
 
   setLayout(cols1);
+
+  reset();
 }
 
-void RCInputThrottlesViewer::updateNamespace(const std::string& ns)
+void ThrottlesViewer::reset()
 {
-  // Clear
   roll_range_->clear();
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
 
-  // Update subscriber
+  rcin_sub_ = nullptr;
+}
+
+void ThrottlesViewer::updateNamespace(const std::string& ns)
+{
+  reset();
   rcin_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
-void RCInputThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
+void ThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
 {
   roll_range_->setValue(rcin->roll);
   pitch_range_->setValue(rcin->pitch);
@@ -70,5 +78,6 @@ void RCInputThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstShar
   yaw_range_->update();
   throt_range_->update();
 }
+}  // namespace rcin
 }  // namespace control_system
 }  // namespace gui

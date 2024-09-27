@@ -113,19 +113,19 @@ void RCInputHandlerNode::readConfig()
     return;
   }
 
-  if (!pt_.get(kModeProgramKey, modes_.at(tobas::kFlightModeProgram)))
+  if (!pt_.get(kModeProgramKey, modes_.at(tobas::flight_mode_t::PROGRAM_MODE)))
   {
     TOBAS_WARN("Failed to get \"", kModeProgramKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::kFlightModeStabilize)))
+  if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::flight_mode_t::STABILIZE_MODE)))
   {
     TOBAS_WARN("Failed to get \"", kModeStabilizeKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
     return;
   }
-  if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::kFlightModeAcrobat)))
+  if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT_MODE)))
   {
     TOBAS_WARN("Failed to get \"", kModeAcrobatKey, "\". from configuration file. All params are set to defaults.");
     setToDefaults();
@@ -166,9 +166,9 @@ void RCInputHandlerNode::setToDefaults()
   yaw_range_.set(tobas::kPwmMax, tobas::kPwmMin);
   throt_range_.set(tobas::kPwmMax, tobas::kPwmMin);
 
-  modes_[tobas::kFlightModeProgram] = tobas::kPwmMin;
-  modes_[tobas::kFlightModeStabilize] = tobas::kPwmMid;
-  modes_[tobas::kFlightModeAcrobat] = tobas::kPwmMax;
+  modes_[tobas::flight_mode_t::PROGRAM_MODE] = tobas::kPwmMin;
+  modes_[tobas::flight_mode_t::STABILIZE_MODE] = tobas::kPwmMid;
+  modes_[tobas::flight_mode_t::ACROBAT_MODE] = tobas::kPwmMax;
 
   estop_on_ = tobas::kPwmMin;
   estop_off_ = tobas::kPwmMax;
@@ -198,9 +198,9 @@ bool RCInputHandlerNode::paramsCb(const vector<double>& params)
   yaw_range_.upper = params.at(kYawLeftChannel);
   throt_range_.lower = params.at(kThrotDownChannel);
   throt_range_.upper = params.at(kThrotUpChannel);
-  modes_.at(tobas::kFlightModeProgram) = params.at(kModeProgramChannel);
-  modes_.at(tobas::kFlightModeStabilize) = params.at(kModeStabilizeChannel);
-  modes_.at(tobas::kFlightModeAcrobat) = params.at(kModeAcrobatChannel);
+  modes_.at(tobas::flight_mode_t::PROGRAM_MODE) = params.at(kModeProgramChannel);
+  modes_.at(tobas::flight_mode_t::STABILIZE_MODE) = params.at(kModeStabilizeChannel);
+  modes_.at(tobas::flight_mode_t::ACROBAT_MODE) = params.at(kModeAcrobatChannel);
   estop_on_ = params.at(kEStopOnChannel);
   estop_off_ = params.at(kEStopOffChannel);
   gpsw_on_ = params.at(kGPSwOnChannel);

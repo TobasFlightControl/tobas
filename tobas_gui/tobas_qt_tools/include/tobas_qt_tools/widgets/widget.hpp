@@ -7,6 +7,7 @@ namespace qt
 /**
  * ===== QWidgetとの違い =====
  * - closeで子ウィジェットのcloseを再帰的に呼び出す
+ * - 追加メソッド
  */
 class Widget : public QWidget
 {
@@ -16,6 +17,8 @@ class Widget : public QWidget
 
 public:
   using super::QWidget;
+
+  QPoint getCenter() const;
 
 public Q_SLOTS:
   bool close();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_qt_tools/widgets/position_bar_widget.hpp>
+#include <tobas_qt_tools/widgets/circle_widget.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 
 namespace gui
@@ -10,27 +10,27 @@ namespace control_system
 {
 namespace rcin
 {
-class ThrottlesViewer : public QWidget
+class TogglesViewer : public QWidget
 {
   Q_OBJECT
 
-  using self = ThrottlesViewer;
+  using self = TogglesViewer;
   using super = QWidget;
 
-  static constexpr int kRangeSideShort = 30;
-
 public:
-  explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
+  explicit TogglesViewer(rclcpp::Node::SharedPtr node);
 
   void updateNamespace(const std::string& ns);
 
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  qt::HPositionBarWidget* roll_range_;
-  qt::VPositionBarWidget* pitch_range_;
-  qt::HPositionBarWidget* yaw_range_;
-  qt::VPositionBarWidget* throt_range_;
+  qt::CircleWidget* program_mode_;
+  qt::CircleWidget* stabilize_mode_;
+  qt::CircleWidget* acrobat_mode_;
+
+  qt::CircleWidget* estop_;
+  qt::CircleWidget* gpsw_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
 

@@ -13,6 +13,7 @@ public:
 
   constexpr static RGBColor Black();
   constexpr static RGBColor White();
+  constexpr static RGBColor Gray();
   constexpr static RGBColor Blue();
   constexpr static RGBColor Green();
   constexpr static RGBColor Orange();
@@ -31,41 +32,46 @@ constexpr RGBColor::RGBColor(uint8_t _r, uint8_t _g, uint8_t _b) : r(_r), g(_g),
 
 constexpr RGBColor RGBColor::Black()
 {
-  return RGBColor(0x00, 0x00, 0x00);
+  return RGBColor(0, 0, 0);
+}
+
+constexpr RGBColor RGBColor::Gray()
+{
+  return RGBColor(128, 128, 128);
 }
 
 constexpr RGBColor RGBColor::White()
 {
-  return RGBColor(0xFF, 0xFF, 0xFF);
+  return RGBColor(255, 255, 255);
 }
 
 constexpr RGBColor RGBColor::Blue()
 {
-  return RGBColor(0x73, 0xCE, 0xF4);
+  return RGBColor(115, 206, 244);
 }
 
 constexpr RGBColor RGBColor::Green()
 {
-  return RGBColor(0xAD, 0xFF, 0x2F);
+  return RGBColor(173, 255, 47);
 }
 
 constexpr RGBColor RGBColor::Orange()
 {
-  return RGBColor(0xFF, 0xA5, 0x00);
+  return RGBColor(255, 165, 0);
 }
 
 constexpr RGBColor RGBColor::Purple()
 {
-  return RGBColor(0xAF, 0x00, 0xFF);
+  return RGBColor(175, 0, 255);
 }
 
 constexpr RGBColor RGBColor::Red()
 {
-  return RGBColor(0xF4, 0x37, 0x53);
+  return RGBColor(244, 55, 83);
 }
 
 constexpr RGBColor RGBColor::Yellow()
 {
-  return RGBColor(0xFF, 0xFF, 0x00);
+  return RGBColor(255, 255, 0);
 }
 }  // namespace qt

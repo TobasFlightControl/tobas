@@ -31,6 +31,8 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
   drawRoll(painter);
   drawPitch(painter);
   drawYaw(painter);
+
+  addGradation(painter);
 }
 
 void PoseViewerWidget::reset()
@@ -45,7 +47,7 @@ void PoseViewerWidget::reset()
 
 void PoseViewerWidget::drawGround(QPainter& painter)
 {
-  painter.fillRect(rect(), Qt::green);
+  painter.fillRect(rect(), QColor(169, 110, 45));
 }
 
 void PoseViewerWidget::drawSky(QPainter& painter)
@@ -108,7 +110,7 @@ void PoseViewerWidget::drawSky(QPainter& painter)
   QPolygon polygon(points);
 
   painter.save();
-  painter.setBrush(Qt::blue);
+  painter.setBrush(QColor(36, 139, 255));
   painter.drawPolygon(polygon);
   painter.restore();
 }
@@ -238,6 +240,26 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
   painter.translate(yawToWidth(beta), kYawLineY);
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(0, 0, 0, -kYawTickLength * 2);
+  painter.restore();
+}
+
+void PoseViewerWidget::addGradation(QPainter& painter)
+{
+  painter.save();
+
+  // 中央を明るくするためのグラデーション設定
+  QRadialGradient grad(getCenter(), width() / 2);
+
+  grad.setColorAt(0, QColor(255, 255, 255, 100));  // 中心は半透明の白
+  grad.setColorAt(1, QColor(255, 255, 255, 0));    // 外側は透明
+
+  // ブラシにグラデーションを設定
+  painter.setBrush(grad);
+  painter.setPen(Qt::NoPen);  // ペンなしで塗りつぶす
+
+  // 明るさを重ねる
+  painter.drawRect(0, 0, width(), height());  // ウィジェット全体に円形グラデーションを適用
+
   painter.restore();
 }
 

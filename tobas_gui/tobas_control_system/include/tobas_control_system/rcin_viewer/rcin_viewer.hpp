@@ -1,10 +1,13 @@
 #pragma once
 
 #include "./throttles_viewer.hpp"
+#include "./toggles_viewer.hpp"
 
 namespace gui
 {
 namespace control_system
+{
+namespace rcin
 {
 class RCInputViewerWidget : public QWidget
 {
@@ -16,7 +19,9 @@ public:
   void updateNamespace(const std::string& ns);
 
 private:
-  RCInputThrottlesViewer* throttles_viewer_;
+  ThrottlesViewer* throttles_viewer_;
+  TogglesViewer* toggles_viewer_;
 };
+}  // namespace rcin
 }  // namespace control_system
 }  // namespace gui
