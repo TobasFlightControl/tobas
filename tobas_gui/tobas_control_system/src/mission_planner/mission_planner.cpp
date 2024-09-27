@@ -17,62 +17,61 @@ namespace control_system
 {
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_(node), mission_thread_(node)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
   map_ = new MapWidget();
-  rows->addWidget(map_);
-
-  const auto button_cols = new QHBoxLayout();
-  rows->addLayout(button_cols);
 
   load_button_ = new QPushButton("Load");
   load_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(load_button_);
 
   save_button_ = new QPushButton("Save");
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(save_button_);
 
   add_button_ = new QPushButton("Add");
   add_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(add_button_);
 
   clear_button_ = new QPushButton("Clear");
   clear_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(clear_button_);
 
   cache_button_ = new QPushButton("Cache Map");
   cache_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(cache_button_);
-
-  button_cols->addStretch();
 
   execute_button_ = new QPushButton("Execute");
   execute_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(execute_button_);
 
   cancel_button_ = new QPushButton("Cancel");
   cancel_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(cancel_button_);
 
   focus_button_ = new QPushButton("Focus");
   focus_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  button_cols->addWidget(focus_button_);
-
-  const auto mission_cols = new QHBoxLayout();
-  rows->addLayout(mission_cols);
 
   command_list_ = new qt::ListWidget();
   command_list_->setSelectionMode(QListWidget::SingleSelection);
   command_list_->setDragDropMode(QListWidget::InternalMove);
-  mission_cols->addWidget(command_list_);
 
   commands_ = new qt::StackedWidget();
   commands_->setStyleSheet("QStackedWidget { border: 1px solid black; background-color: white; }");
+
+  // Layout
+  const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(load_button_);
+  button_cols->addWidget(save_button_);
+  button_cols->addWidget(add_button_);
+  button_cols->addWidget(clear_button_);
+  button_cols->addWidget(cache_button_);
+  button_cols->addStretch();
+  button_cols->addWidget(execute_button_);
+  button_cols->addWidget(cancel_button_);
+  button_cols->addWidget(focus_button_);
+
+  const auto mission_cols = new QHBoxLayout();
+  mission_cols->addWidget(command_list_);
   mission_cols->addWidget(commands_);
 
-  setEditMode();
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(map_, 2);
+  rows->addLayout(button_cols);
+  rows->addLayout(mission_cols, 1);
+
+  setLayout(rows);
 
   // Connections
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);
@@ -87,6 +86,8 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&mission_thread_, &MissionExecutionThread::finished, this, &self::onMissionFinished);
+
+  setEditMode();
 }
 
 void MissionPlannerWidget::updateNamespace(const std::string& ns)
