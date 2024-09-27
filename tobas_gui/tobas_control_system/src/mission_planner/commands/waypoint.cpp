@@ -1,6 +1,4 @@
-
-
-#include "tobas_control_system/commands/waypoint.hpp"
+#include "tobas_control_system/mission_planner/commands/waypoint.hpp"
 
 namespace gui
 {

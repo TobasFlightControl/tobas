@@ -1,6 +1,6 @@
 #include <QStandardPaths>
 
-#include "tobas_control_system/system_info.hpp"
+#include "tobas_control_system/mission_planner/system_info.hpp"
 
 namespace gui
 {

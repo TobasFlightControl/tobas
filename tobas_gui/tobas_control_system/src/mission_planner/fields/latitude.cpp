@@ -1,6 +1,6 @@
 #include <QHBoxLayout>
 
-#include "tobas_control_system/fields/latitude.hpp"
+#include "tobas_control_system/mission_planner/fields/latitude.hpp"
 
 namespace gui
 {

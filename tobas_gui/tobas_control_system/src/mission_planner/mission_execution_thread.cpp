@@ -1,7 +1,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "tobas_control_system/mission_execution_thread.hpp"
+#include "tobas_control_system/mission_planner/mission_execution_thread.hpp"
 
 using namespace std;
 using namespace tobas_msgs::srv;
@@ -59,7 +59,7 @@ bool MissionExecutionThread::execute(BaseCommandData::SharedPtr command)
 
   switch (cmd_type)
   {
-        case command_t::WAYPOINT:
+    case command_t::WAYPOINT:
       return execute(dynamic_pointer_cast<WaypointData>(command));
     case command_t::TAKEOFF:
       return execute(dynamic_pointer_cast<TakeoffData>(command));

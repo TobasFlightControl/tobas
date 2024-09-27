@@ -1,6 +1,4 @@
-
-
-#include "tobas_control_system/commands/land.hpp"
+#include "tobas_control_system/mission_planner/commands/land.hpp"
 
 namespace gui
 {

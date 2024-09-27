@@ -1,6 +1,6 @@
 #include <QHBoxLayout>
 
-#include "tobas_control_system/fields/duration.hpp"
+#include "tobas_control_system/mission_planner/fields/duration.hpp"
 
 namespace gui
 {

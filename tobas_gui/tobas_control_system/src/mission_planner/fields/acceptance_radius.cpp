@@ -1,6 +1,6 @@
 #include <QHBoxLayout>
 
-#include "tobas_control_system/fields/altitude_tolerance.hpp"
+#include "tobas_control_system/mission_planner/fields/acceptance_radius.hpp"
 
 namespace gui
 {
@@ -8,12 +8,12 @@ namespace control_system
 {
 namespace field
 {
-AltitudeToleranceWidget::AltitudeToleranceWidget()
+AcceptanceRadiusWidget::AcceptanceRadiusWidget()
 {
   spinbox_ = new qt::DoubleSpinBox();
   spinbox_->setDecimals(3);
   spinbox_->setMinimum(1e-3);
-  spinbox_->setValue(0.1);
+  spinbox_->setValue(1.0);
   spinbox_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();
@@ -23,17 +23,17 @@ AltitudeToleranceWidget::AltitudeToleranceWidget()
   connect(spinbox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &BaseField::updated);
 }
 
-const char* AltitudeToleranceWidget::label() const
+const char* AcceptanceRadiusWidget::label() const
 {
-  return "Altitude Tolerance";
+  return "Acceptance Radius";
 }
 
-double AltitudeToleranceWidget::value() const
+double AcceptanceRadiusWidget::value() const
 {
   return spinbox_->value();
 }
 
-void AltitudeToleranceWidget::setValue(double value)
+void AcceptanceRadiusWidget::setValue(double value)
 {
   spinbox_->setValue(value);
 }

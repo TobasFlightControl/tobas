@@ -1,4 +1,4 @@
-#include "tobas_control_system/map_items/waypoint.hpp"
+#include "tobas_control_system/mission_planner/map_items/waypoint.hpp"
 
 namespace gui
 {

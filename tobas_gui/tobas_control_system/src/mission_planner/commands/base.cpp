@@ -3,7 +3,7 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-#include "tobas_control_system/commands/base.hpp"
+#include "tobas_control_system/mission_planner/commands/base.hpp"
 
 namespace gui
 {

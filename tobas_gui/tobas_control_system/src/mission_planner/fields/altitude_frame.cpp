@@ -2,7 +2,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "tobas_control_system/fields/altitude_frame.hpp"
+#include "tobas_control_system/mission_planner/fields/altitude_frame.hpp"
 
 namespace gui
 {

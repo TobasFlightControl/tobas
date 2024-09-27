@@ -2,7 +2,7 @@
 #include <format>
 #include <string.h>
 
-#include "tobas_control_system/altitude_frame.hpp"
+#include "tobas_control_system/mission_planner/altitude_frame.hpp"
 
 #define MEAN_SEA_LEVEL_LABEL "Mean Sea Level"
 #define RELATIVE_TO_HOME_LABEL "Relative to Home"

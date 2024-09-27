@@ -1,6 +1,4 @@
-
-
-#include "tobas_control_system/commands/takeoff.hpp"
+#include "tobas_control_system/mission_planner/commands/takeoff.hpp"
 
 namespace gui
 {

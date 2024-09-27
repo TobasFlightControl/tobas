@@ -3,7 +3,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "tobas_control_system/add_command_dialog.hpp"
+#include "tobas_control_system/mission_planner/add_command_dialog.hpp"
 
 namespace gui
 {

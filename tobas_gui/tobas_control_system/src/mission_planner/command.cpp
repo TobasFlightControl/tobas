@@ -2,7 +2,7 @@
 #include <format>
 #include <string.h>
 
-#include "tobas_control_system/command.hpp"
+#include "tobas_control_system/mission_planner/command.hpp"
 
 #define WAYPOINT_LABEL "Waypoint"
 #define TAKEOFF_LABEL "Takeoff"
