@@ -14,6 +14,7 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tob
   pose_viewer_ = new PoseViewerWidget(node);
   battery_cpu_viewer_ = new BatteryCPUViewerWidget(node, drone);
   rcin_viewer_ = new rcin::RCInputViewerWidget(node);
+  status_viewer_ = new StatusViewerWidget(node);
   mission_planner_ = new MissionPlannerWidget(node);
   // TODO
 
@@ -24,8 +25,8 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tob
   // TODO: Rotors Viewer
 
   const auto cols2 = new QHBoxLayout();
-  cols2->addLayout(rows2);
-  // TODO: Status Viewer
+  cols2->addLayout(rows2, 3);
+  cols2->addWidget(status_viewer_, 1);
 
   const auto rows1 = new QVBoxLayout();
   rows1->addWidget(pose_viewer_, 1);
@@ -43,6 +44,7 @@ void ControlSystemWidget::updateInternalDataStructures()
   pose_viewer_->updateNamespace(drone_.name);
   battery_cpu_viewer_->updateInternalDataStructures();
   rcin_viewer_->updateNamespace(drone_.name);
+  status_viewer_->updateNamespace(drone_.name);
   mission_planner_->updateNamespace(drone_.name);
 }
 }  // namespace control_system

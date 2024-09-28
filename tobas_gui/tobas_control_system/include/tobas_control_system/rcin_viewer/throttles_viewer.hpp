@@ -17,7 +17,7 @@ class ThrottlesViewer : public QWidget
   using self = ThrottlesViewer;
   using super = QWidget;
 
-  static constexpr int kRangeSideShort = 30;
+  static constexpr int kRangeSideShort = 50;
 
 public:
   explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
