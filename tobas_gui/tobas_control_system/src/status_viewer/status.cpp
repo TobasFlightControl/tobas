@@ -1,7 +1,6 @@
-#include <QLabel>
 #include <QHBoxLayout>
 
-#include <tobas_qt_tools/font.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 #include "tobas_control_system/status_viewer/status.hpp"
 
@@ -14,12 +13,9 @@ StatusWidget::StatusWidget(const QString& text)
   led_ = new qt::CircleWidget();
   led_->setFixedSize(kLEDSize, kLEDSize);
 
-  const auto text_label = new QLabel(text);
-  text_label->setFont(qt::DefaultFont(kTextPSize));
-
   const auto cols = new QHBoxLayout();
   cols->addWidget(led_);
-  cols->addWidget(text_label);
+  cols->addWidget(new qt::Label(text, kTextPSize));
 
   setLayout(cols);
 

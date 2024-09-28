@@ -1,6 +1,5 @@
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_qt_tools/font.hpp>
-#include <tobas_qt_tools/util.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 #include "tobas_hardware_setup/base.hpp"
 #include "tobas_hardware_setup/constants.hpp"
@@ -16,14 +15,10 @@ BaseHardwareSetupWidget::BaseHardwareSetupWidget()
 void BaseHardwareSetupWidget::initialize()
 {
   rows_ = new QVBoxLayout();
-  setLayout(rows_);
-
-  const auto title_label = new QLabel(title());
-  title_label->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
-  title_label->setAlignment(Qt::AlignTop);
-  rows_->addWidget(title_label);
-
+  rows_->addWidget(new qt::Label(title(), kTitlePSize, QFont::Bold), 0, Qt::AlignTop);
   rows_->addSpacing(50);
+
+  setLayout(rows_);
 
   onInit();
 }

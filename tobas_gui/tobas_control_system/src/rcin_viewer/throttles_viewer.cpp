@@ -1,9 +1,9 @@
-#include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_control_system/rcin_viewer/throttles_viewer.hpp"
@@ -28,16 +28,16 @@ ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 
   // Layout
   const auto cols2 = new QHBoxLayout();
-  cols2->addWidget(new QLabel("Pitch"), 0, Qt::AlignLeft);
-  cols2->addWidget(new QLabel("Throttle"), 0, Qt::AlignRight);
+  cols2->addWidget(new qt::Label("Pitch", kLabelPSize), 0, Qt::AlignLeft);
+  cols2->addWidget(new qt::Label("Throttle", kLabelPSize), 0, Qt::AlignRight);
 
   const auto rows1 = new QVBoxLayout();
   rows1->addWidget(roll_range_);
-  qt::addWidgetCenter(new QLabel("Roll"), rows1);
+  qt::addWidgetCenter(new qt::Label("Roll", kLabelPSize), rows1);
   rows1->addStretch();
   rows1->addLayout(cols2);
   rows1->addStretch();
-  qt::addWidgetCenter(new QLabel("Yaw"), rows1);
+  qt::addWidgetCenter(new qt::Label("Yaw", kLabelPSize), rows1);
   rows1->addWidget(yaw_range_);
 
   const auto cols1 = new QHBoxLayout();

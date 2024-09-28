@@ -17,6 +17,7 @@ class ThrottlesViewer : public QWidget
   using self = ThrottlesViewer;
   using super = QWidget;
 
+  static constexpr int kLabelPSize = 12;
   static constexpr int kRangeSideShort = 50;
 
 public:

@@ -37,7 +37,7 @@ BaseCommandWidget::BaseCommandWidget()
 void BaseCommandWidget::addField(field::BaseField* field)
 {
   connect(field, &field::BaseField::updated, this, &self::onFieldUpdated);
-  form_->addRow(field->label(), field);
+  form_->addVAlignedRow(field->label(), field);
 }
 
 void BaseCommandWidget::initialize()

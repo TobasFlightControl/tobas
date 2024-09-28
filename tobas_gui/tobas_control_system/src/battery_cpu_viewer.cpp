@@ -2,6 +2,7 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "tobas_control_system/battery_cpu_viewer.hpp"
@@ -14,23 +15,23 @@ BatteryCPUViewerWidget::BatteryCPUViewerWidget(rclcpp::Node::SharedPtr node, con
   : node_(node), drone_(drone)
 {
   batt_voltage_ = new qt::HPositionBarWidget();
-  batt_voltage_->setMinimumHeight(kBarMinHeight);
+  batt_voltage_->setFixedHeight(kBarHeight);
 
   cpu_temp_ = new qt::HPositionBarWidget();
-  cpu_temp_->setMinimumHeight(kBarMinHeight);
+  cpu_temp_->setFixedHeight(kBarHeight);
   cpu_temp_->setMinimum(kMinCPUTemp);
   cpu_temp_->setMaximum(kMaxCPUTemp);
 
   cpu_load_ = new qt::HPositionBarWidget();
-  cpu_load_->setMinimumHeight(kBarMinHeight);
+  cpu_load_->setFixedHeight(kBarHeight);
   cpu_load_->setMinimum(kMinCPULoad);
   cpu_load_->setMaximum(kMaxCPULoad);
 
   // Layout
   const auto form = new qt::FormLayout();
-  form->addRow("Battery Voltage", batt_voltage_);
-  form->addRow("CPU Temperature", cpu_temp_);
-  form->addRow("CPU Load", cpu_load_);
+  form->addVAlignedRow(new qt::Label("Battery Voltage", kLabelPSize), batt_voltage_);
+  form->addVAlignedRow(new qt::Label("CPU Temperature", kLabelPSize), cpu_temp_);
+  form->addVAlignedRow(new qt::Label("CPU Load", kLabelPSize), cpu_load_);
 
   setLayout(form);
 }

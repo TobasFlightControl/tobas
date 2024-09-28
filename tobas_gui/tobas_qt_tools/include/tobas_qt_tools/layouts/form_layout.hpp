@@ -12,7 +12,18 @@ class FormLayout : public QFormLayout
 {
   Q_OBJECT
 
+  using self = FormLayout;
+  using super = QFormLayout;
+
 public:
+  using QFormLayout::QFormLayout;
+
+  /* ラベルを左中央に配置した行を追加する． */
+  void addVAlignedRow(QWidget* label, QWidget* field);
+
+  /* ラベルを左中央に配置した行を追加する． */
+  void addVAlignedRow(const QString& label_text, QWidget* field);
+
   /* 全てのフォームを削除する． */
   void clear();
 

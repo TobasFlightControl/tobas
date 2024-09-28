@@ -61,7 +61,7 @@ bool ParamBlockWidget::load(const string& node_name)
       bind(&self::onIntParamChanged, this, placeholders::_1, param.name));
 
     int_configs_[param.name] = config;
-    form_->addRow(new QLabel(QString::fromStdString(param.name)), config.slider);
+    form_->addRow(param.name.c_str(), config.slider);
   }
 
   for (const auto& param : params.doubles)
@@ -76,7 +76,7 @@ bool ParamBlockWidget::load(const string& node_name)
       bind(&self::onDoubleParamChanged, this, placeholders::_1, param.name));
 
     double_configs_[param.name] = config;
-    form_->addRow(new QLabel(QString::fromStdString(param.name)), config.slider);
+    form_->addRow(param.name.c_str(), config.slider);
   }
 
   return true;
