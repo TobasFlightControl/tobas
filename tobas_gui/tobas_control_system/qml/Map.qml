@@ -1,6 +1,6 @@
-import QtQuick 2.12
-import QtLocation 5.12
-import QtPositioning 5.12
+import QtQuick 2.15
+import QtLocation 5.15
+import QtPositioning 5.15
 
 Rectangle {
   id: rectangle

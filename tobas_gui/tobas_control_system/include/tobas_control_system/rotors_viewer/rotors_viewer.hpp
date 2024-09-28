@@ -1,10 +1,12 @@
 #pragma once
 
+#include <QHBoxLayout>
+
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 
-#include "./rotor.hpp"
+#include "./speedmeter.hpp"
 
 namespace gui
 {
@@ -25,6 +27,9 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
+
+  QVector<SpeedmeterWidget*> meters_;
+  QHBoxLayout* cols_;
 };
 }  // namespace control_system
 }  // namespace gui
