@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Extras 1.4
+import QtQuick.Controls.Styles 1.4
 
 Rectangle {
   id: rectangle
@@ -7,12 +8,17 @@ Rectangle {
   /* CircularGauge: https://doc.qt.io/qt-5/qml-qtquick-extras-circulargauge.html#stepSize-prop */
   CircularGauge {
     id: gauge
+    objectName: "gauge"
+    anchors.centerIn: parent
     maximumValue: 100
     minimumValue: 0
     stepSize: 1
     tickmarksVisible: true
     value: 0
-    anchors.centerIn: parent
+
+    /* CircularGaugeStyle: https://doc.qt.io/qt-5/qml-qtquick-controls-styles-circulargaugestyle.html */
+    style: CircularGaugeStyle {
+    }
   }
 
   // 関数呼び出し用シグナル

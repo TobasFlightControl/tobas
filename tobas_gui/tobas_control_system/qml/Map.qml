@@ -34,7 +34,7 @@ Rectangle {
 
   Map {
     id: map
-    objectName: "map"  // Python側からアクセスするためのオブジェクト名
+    objectName: "map"  // Qtからアクセスするためのオブジェクト名
     anchors.fill: parent
     plugin: osmPlugin
     center: QtPositioning.coordinate(35., 150.)  // 日本で一般的に販売されている世界地図の中心座標
