@@ -14,8 +14,8 @@ RCInputViewerWidget::RCInputViewerWidget(rclcpp::Node::SharedPtr node)
   toggles_viewer_ = new TogglesViewer(node);
 
   const auto cols = new QHBoxLayout();
-  cols->addWidget(throttles_viewer_, 1);
-  cols->addWidget(toggles_viewer_, 1);
+  cols->addWidget(throttles_viewer_, 3);
+  cols->addWidget(toggles_viewer_, 2);
 
   setLayout(cols);
 }
