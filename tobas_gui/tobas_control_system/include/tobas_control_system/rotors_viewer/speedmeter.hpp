@@ -20,14 +20,20 @@ public:
   double getMinimumValue() const;
   double getStepSize() const;
   double getValue() const;
+  QString getTopText() const;
+  QString getBottomText() const;
 
-  void setMaximumValue(double max_value);
-  void setMinimumValue(double min_value);
-  void setStepSize(double step_size);
+  void setMaximumValue(double value);
+  void setMinimumValue(double value);
+  void setStepSize(double value);
   void setValue(double value);
+  void setTopText(const QString& text);
+  void setBottomText(const QString& text);
 
 private:
-  QObject* getGauge() const;
+  QObject* getGaugeObject() const;
+  QObject* getTopTextObject() const;
+  QObject* getBottomTextObject() const;
 };
 }  // namespace control_system
 }  // namespace gui

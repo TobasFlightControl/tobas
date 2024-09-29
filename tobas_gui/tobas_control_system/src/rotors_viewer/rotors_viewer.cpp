@@ -1,3 +1,4 @@
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_control_system/rotors_viewer/rotors_viewer.hpp"
@@ -21,7 +22,8 @@ void RotorsViewerWiddget::updateInternalDataStructures()
   for (const auto& rotor : drone_.rotors)
   {
     const auto meter = new SpeedmeterWidget();
-    (void)rotor;  // TODO: 各ロータの設定を反映
+    meter->setMaximumValue(tobas_std::rps2rpm(rotor.max_rot_speed));
+    meter->setTopText(rotor.link_name.c_str());
 
     meters_.push_back(meter);
     cols_->addWidget(meter);

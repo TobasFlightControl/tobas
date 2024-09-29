@@ -26,37 +26,47 @@ SpeedmeterWidget::SpeedmeterWidget()
 
 double SpeedmeterWidget::getMaximumValue() const
 {
-  return getGauge()->property("maximumValue").value<double>();
+  return getGaugeObject()->property("maximumValue").value<double>();
 }
 
 double SpeedmeterWidget::getMinimumValue() const
 {
-  return getGauge()->property("minimumValue").value<double>();
+  return getGaugeObject()->property("minimumValue").value<double>();
 }
 
 double SpeedmeterWidget::getStepSize() const
 {
-  return getGauge()->property("stepSize").value<double>();
+  return getGaugeObject()->property("stepSize").value<double>();
 }
 
 double SpeedmeterWidget::getValue() const
 {
-  return getGauge()->property("value").value<double>();
+  return getGaugeObject()->property("value").value<double>();
 }
 
-void SpeedmeterWidget::setMaximumValue(double max_value)
+QString SpeedmeterWidget::getTopText() const
 {
-  QMetaObject::invokeMethod(rootObject(), "setMaximumValue", Q_ARG(double, max_value));
+  return getTopTextObject()->property("text").value<QString>();
 }
 
-void SpeedmeterWidget::setMinimumValue(double min_value)
+QString SpeedmeterWidget::getBottomText() const
 {
-  QMetaObject::invokeMethod(rootObject(), "setMinimumValue", Q_ARG(double, min_value));
+  return getBottomTextObject()->property("text").value<QString>();
 }
 
-void SpeedmeterWidget::setStepSize(double step_size)
+void SpeedmeterWidget::setMaximumValue(double value)
 {
-  QMetaObject::invokeMethod(rootObject(), "setStepSize", Q_ARG(double, step_size));
+  QMetaObject::invokeMethod(rootObject(), "setMaximumValue", Q_ARG(double, value));
+}
+
+void SpeedmeterWidget::setMinimumValue(double value)
+{
+  QMetaObject::invokeMethod(rootObject(), "setMinimumValue", Q_ARG(double, value));
+}
+
+void SpeedmeterWidget::setStepSize(double value)
+{
+  QMetaObject::invokeMethod(rootObject(), "setStepSize", Q_ARG(double, value));
 }
 
 void SpeedmeterWidget::setValue(double value)
@@ -64,9 +74,29 @@ void SpeedmeterWidget::setValue(double value)
   QMetaObject::invokeMethod(rootObject(), "setValue", Q_ARG(double, value));
 }
 
-QObject* SpeedmeterWidget::getGauge() const
+void SpeedmeterWidget::setTopText(const QString& text)
+{
+  QMetaObject::invokeMethod(rootObject(), "setTopText", Q_ARG(QString, text));
+}
+
+void SpeedmeterWidget::setBottomText(const QString& text)
+{
+  QMetaObject::invokeMethod(rootObject(), "setBottomText", Q_ARG(QString, text));
+}
+
+QObject* SpeedmeterWidget::getGaugeObject() const
 {
   return rootObject()->findChild<QObject*>("gauge");
+}
+
+QObject* SpeedmeterWidget::getTopTextObject() const
+{
+  return rootObject()->findChild<QObject*>("top_text");
+}
+
+QObject* SpeedmeterWidget::getBottomTextObject() const
+{
+  return rootObject()->findChild<QObject*>("bottom_text");
 }
 }  // namespace control_system
 }  // namespace gui
