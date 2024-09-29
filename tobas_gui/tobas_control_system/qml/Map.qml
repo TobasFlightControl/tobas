@@ -46,7 +46,7 @@ Rectangle {
 
       // Rectangleはdelegateに設定できないため，MapQuickItemを使う
       delegate: MapQuickItem {
-        id: wayPoint
+        id: waypoint
         coordinate: model.coordinate
         anchorPoint.x: circle.width / 2
         anchorPoint.y: circle.height / 2
@@ -82,12 +82,12 @@ Rectangle {
               let offset_y = circle.y;
 
               // 子オブジェクトの移動分を親オブジェクトに反映させる
-              let old_coord = wayPoint.coordinate;
+              let old_coord = waypoint.coordinate;
               let old_point = map.fromCoordinate(old_coord);
               let new_x = old_point.x + circle.x;
               let new_y = old_point.y + circle.y;
               let new_coord = map.toCoordinate(Qt.point(new_x, new_y));
-              wayPoint.coordinate = new_coord;
+              waypoint.coordinate = new_coord;
 
               // 子オブジェクトのオフセットをリセット
               circle.x = 0;
