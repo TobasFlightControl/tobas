@@ -24,7 +24,7 @@ struct IntConfig
 
 struct DoubleConfig
 {
-  int dflt;
+  double dflt;
   qt::DoubleSliderTextWidget* slider;
 };
 
