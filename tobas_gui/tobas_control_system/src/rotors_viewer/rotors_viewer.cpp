@@ -1,4 +1,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_std_tools/zip.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_control_system/rotors_viewer/rotors_viewer.hpp"
@@ -16,6 +19,8 @@ RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tob
 
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
+  speeds_sub_ = nullptr;
+
   meters_.clear();
   qt::clearLayout(cols_);
 
@@ -24,10 +29,35 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     const auto meter = new SpeedmeterWidget();
     meter->setMaximumValue(tobas_std::rps2rpm(rotor.max_rot_speed));
     meter->setTopText(rotor.link_name.c_str());
+    meter->setBottomText(bottomText(0));
 
     meters_.push_back(meter);
     cols_->addWidget(meter);
   }
+
+  speeds_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kRotorSpeedsTopic), &self::speedsCb, this);
+}
+
+void RotorsViewerWiddget::speedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& speeds)
+{
+  if (speeds->speeds.size() != meters_.size())
+  {
+    RCLCPP_WARN_STREAM(
+      node_->get_logger(), "Rotor speeds size mismathch: " << speeds->speeds.size() << " != " << meters_.size());
+    return;
+  }
+
+  for (const auto& [meter, speed] : tobas_std::zip(meters_, speeds->speeds))
+  {
+    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(speed));
+    meter->setValue(speed_rpm);
+    meter->setBottomText(bottomText(speed_rpm));
+  }
+}
+
+QString RotorsViewerWiddget::bottomText(int rpm)
+{
+  return QString::number(rpm) + " RPM";
 }
 }  // namespace control_system
 }  // namespace gui
