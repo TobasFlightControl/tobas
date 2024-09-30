@@ -43,6 +43,23 @@ void PoseViewerWidget::reset()
   y_intercept_ = height() / 2;
 
   euler_sub_ = nullptr;
+
+  update();
+}
+
+void PoseViewerWidget::scale(QPainter& painter, bool keep_aspect)
+{
+  if (keep_aspect)
+  {
+    const auto scale = static_cast<double>(std::min(width(), height())) / kOriginalSize;
+    painter.scale(scale, scale);
+  }
+  else
+  {
+    const auto x_scale = static_cast<double>(width()) / kOriginalSize;
+    const auto y_scale = static_cast<double>(height()) / kOriginalSize;
+    painter.scale(x_scale, y_scale);
+  }
 }
 
 void PoseViewerWidget::drawGround(QPainter& painter)
@@ -123,6 +140,9 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
   painter.translate(width() / 2, height() / 2);
   painter.rotate(-tobas_std::rad2deg(euler_.roll));
 
+  // ウィジェットの大きさに合わせてスケーリング
+  scale(painter, true);
+
   // 円を描画
   painter.setPen(QPen(Qt::white, kLineWidth));
   painter.drawEllipse(QPoint(0, 0), kRollRadius, kRollRadius);
@@ -147,6 +167,7 @@ void PoseViewerWidget::drawRoll(QPainter& painter)
   // 現在の位置に目印を描く
   painter.save();
   painter.translate(width() / 2, height() / 2);
+  scale(painter, true);
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(0, -kRollRadius - kRollTickLength * 2, 0, -kRollRadius);
   painter.restore();
@@ -159,6 +180,9 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
   // 機体から見た中心位置に移動
   painter.translate(width() / 2, height() / 2);
   painter.rotate(-tobas_std::rad2deg(euler_.roll));
+
+  // ウィジェットの大きさに合わせてスケーリング
+  scale(painter, true);
 
   // 描画する値の範囲を決める
   const auto pitch_deg = tobas_std::rad2deg(euler_.pitch);
@@ -192,6 +216,7 @@ void PoseViewerWidget::drawPitch(QPainter& painter)
   painter.save();
   painter.translate(width() / 2, height() / 2);
   painter.rotate(-tobas_std::rad2deg(euler_.roll));
+  scale(painter, true);
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(-line_half, 0, line_half, 0);
   painter.restore();
@@ -201,13 +226,16 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
 {
   painter.save();
 
+  // ウィジェットの大きさに合わせてスケーリング
+  scale(painter, false);
+
   // 中心位置に移動
   const auto beta = kYawWidthRange / 2;  // [rad]
   painter.translate(yawToWidth(beta), kYawLineY);
 
   // 数直線を描画
   painter.setPen(QPen(Qt::white, kLineWidth));
-  painter.drawLine(-width() / 2, 0, width() / 2, 0);
+  painter.drawLine(-kOriginalSize / 2, 0, kOriginalSize / 2, 0);
 
   // 描画する値の範囲を決める
   const auto yaw_deg = tobas_std::rad2deg(euler_.yaw);
@@ -237,6 +265,7 @@ void PoseViewerWidget::drawYaw(QPainter& painter)
 
   // 現在の位置に目印を描く
   painter.save();
+  scale(painter, false);
   painter.translate(yawToWidth(beta), kYawLineY);
   painter.setPen(QPen(Qt::red, kLineWidth));
   painter.drawLine(0, 0, 0, -kYawTickLength * 2);
@@ -277,12 +306,12 @@ bool PoseViewerWidget::isSky(const QPoint& p) const
 
 double PoseViewerWidget::pitchToHeight(double pitch) const
 {
-  return height() * pitch / kPitchHeightRange;
+  return kOriginalSize * pitch / kPitchHeightRange;
 }
 
 double PoseViewerWidget::yawToWidth(double yaw) const
 {
-  return width() * yaw / kYawWidthRange;
+  return kOriginalSize * yaw / kYawWidthRange;
 }
 
 void PoseViewerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)

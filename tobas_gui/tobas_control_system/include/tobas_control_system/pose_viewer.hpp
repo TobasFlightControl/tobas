@@ -16,10 +16,11 @@ class PoseViewerWidget : public qt::Widget
   using self = PoseViewerWidget;
   using super = qt::Widget;
 
+  static constexpr int kOriginalSize = 640;
   static constexpr int kLineWidth = 3;       // ゲージ線の幅
   static constexpr int kScaleInterval = 10;  // [deg]
   static constexpr int kRollRadius = 200;    // ロール円の半径
-  static constexpr int kRollTickLength = 100;
+  static constexpr int kRollTickLength = 10;
   static constexpr double kPitchHeightRange = tobas_std::deg2rad(120);  // [rad]
   static constexpr int kPitchVisualRange = 25;                          // [deg] 描画するピッチ角の範囲
   static constexpr int kPitchLineLength = 100;
@@ -46,6 +47,8 @@ private:
   void paintEvent(QPaintEvent* event) override;
 
   void reset();
+
+  void scale(QPainter& painter, bool keep_aspect);
 
   void drawGround(QPainter& painter);
   void drawSky(QPainter& painter);
