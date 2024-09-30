@@ -46,7 +46,8 @@ void BatteryCPUViewerWidget::updateInternalDataStructures()
   cpu_temp_->clear();
   cpu_load_->clear();
 
-  batt_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kBatteryLpfTopic), &self::battCb, this);
+  batt_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
   cpu_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kCpuTopic), &self::cpuCb, this);
 }
 

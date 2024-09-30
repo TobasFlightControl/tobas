@@ -3,8 +3,6 @@
 #include <QtQuick/QQuickItem>
 #include <QtQml/QQmlContext>
 
-#include <tobas_std_tools/check.hpp>
-
 #include "tobas_control_system/constants.hpp"
 #include "tobas_control_system/mission_planner/map_widget.hpp"
 #include "tobas_control_system/mission_planner/system_info.hpp"
@@ -70,10 +68,17 @@ std::pair<double, double> MapWidget::getCenter()
 
 void MapWidget::setCenter(double latitude, double longitude)
 {
-  TOBAS_CHECK(-90 <= latitude && latitude <= 90);
-  TOBAS_CHECK(-180 <= longitude && longitude <= 180);
-
   QMetaObject::invokeMethod(rootObject(), "setCenter", Q_ARG(double, latitude), Q_ARG(double, longitude));
+}
+
+void MapWidget::setGPSArrowPosition(double latitude, double longitude)
+{
+  QMetaObject::invokeMethod(rootObject(), "setGPSArrowPosition", Q_ARG(double, latitude), Q_ARG(double, longitude));
+}
+
+void MapWidget::setGPSArrowRotation(double angle_deg)
+{
+  QMetaObject::invokeMethod(rootObject(), "setGPSArrowRotation", Q_ARG(double, angle_deg));
 }
 
 void MapWidget::onWaypointMoved(int index, double latitude, double longitude)

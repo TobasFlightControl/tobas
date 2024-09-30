@@ -1,6 +1,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_linux/core.hpp>
@@ -95,7 +96,10 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
   ns_ = ns;
 
   gps_ = nullptr;
+
   gps_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kGpsTopic), &self::gpsCb, this);
+  euler_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kThrottledTopicPrefix, tobas::kEulerTopic), &self::eulerCb, this);
 }
 
 void MissionPlannerWidget::setExecuteMode()
@@ -236,6 +240,13 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
 void MissionPlannerWidget::gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps)
 {
   gps_ = gps;
+
+  map_->setGPSArrowPosition(gps->latitude, gps->longitude);
+}
+
+void MissionPlannerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
+{
+  map_->setGPSArrowRotation(-tobas_std::rad2deg(euler->euler.yaw));
 }
 
 void MissionPlannerWidget::onLoadButtonClicked()

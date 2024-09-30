@@ -2,6 +2,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
+#include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
@@ -57,6 +58,7 @@ private:
   tobas_msgs::Gps::ConstSharedPtr gps_;
 
   ros2::SubscriberPtr<tobas_msgs::Gps> gps_sub_;
+  ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   /* 各ウィジェットを実行モードに切り替える． */
   void setExecuteMode();
@@ -77,6 +79,7 @@ private:
   QVector<BaseCommandData::SharedPtr> createMissionCommandList();
 
   void gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps);
+  void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 
 private Q_SLOTS:
   void onLoadButtonClicked();

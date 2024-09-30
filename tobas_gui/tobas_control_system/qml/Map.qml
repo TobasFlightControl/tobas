@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtLocation 5.15
 import QtPositioning 5.15
+import "./map_constants.js" as Constants
 
 Rectangle {
   id: rectangle
@@ -32,13 +33,34 @@ Rectangle {
     }
   }
 
+  // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html#supportedMapTypes-prop
   Map {
     id: map
     objectName: "map"  // Qtからアクセスするためのオブジェクト名
     anchors.fill: parent
+    center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
+    copyrightsVisible: false
     plugin: osmPlugin
-    center: QtPositioning.coordinate(35., 150.)  // 日本で一般的に販売されている世界地図の中心座標
     zoomLevel: 0  // 最小
+
+    // GPS Arrow
+    MapQuickItem {
+      id: gpsArrow
+      coordinate: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
+      sourceItem: Image {
+        id: gpsArrowImage
+        source: "./gps_arrow.png" // アイコン画像の相対パス
+        width: 30
+        height: 30
+        transform: Rotation {
+          id: gpsArrowRotation
+          origin.x: gpsArrowImage.width / 2
+          origin.y: gpsArrowImage.height / 2
+          axis { x: 0; y: 0; z: 1 }
+          angle: 0 // Clock-wise [degree]
+        }
+      }
+    }
 
     // WaypointModel
     MapItemView {
@@ -131,13 +153,27 @@ Rectangle {
 
   // 関数呼び出し用シグナル
   signal setCenter(double latitude, double longitude)
+  signal setGPSArrowPosition(double latitude, double longitude)
+  signal setGPSArrowRotation(double angle)
 
   Component.onCompleted: {
     setCenter.connect(onSetCenter);
+    setGPSArrowPosition.connect(onSetGPSArrowPosition);
+    setGPSArrowRotation.connect(onSetGPSArrowRotation);
   }
 
   function onSetCenter(latitude, longitude)
   {
     map.center = QtPositioning.coordinate(latitude, longitude);
+  }
+
+  function onSetGPSArrowPosition(latitude, longitude)
+  {
+    gpsArrow.coordinate = QtPositioning.coordinate(latitude, longitude);
+  }
+
+  function onSetGPSArrowRotation(angle)
+  {
+    gpsArrowRotation.angle = angle;  // ユニークなIDを直接参照する
   }
 }
