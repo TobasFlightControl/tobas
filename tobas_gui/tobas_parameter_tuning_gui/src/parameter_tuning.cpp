@@ -29,12 +29,12 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 
   save_button_ = new QPushButton("Save");
   save_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(save_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
   cols->addWidget(save_button_);
 
-  reset_button_ = new QPushButton("Load");
+  reset_button_ = new QPushButton("Reset");
   reset_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(reset_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);
   cols->addWidget(reset_button_);
 
   cols->addStretch();
