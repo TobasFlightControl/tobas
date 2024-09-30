@@ -72,11 +72,6 @@ void ThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& 
   pitch_range_->setValue(rcin->pitch);
   yaw_range_->setValue(rcin->yaw);
   throt_range_->setValue(rcin->throttle);
-
-  roll_range_->update();
-  pitch_range_->update();
-  yaw_range_->update();
-  throt_range_->update();
 }
 }  // namespace rcin
 }  // namespace control_system

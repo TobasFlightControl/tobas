@@ -56,7 +56,6 @@ void BatteryCPUViewerWidget::battCb(const tobas_msgs::msg::Battery::ConstSharedP
   const auto rate = math::remap(batt->voltage, drone_.battery.sag_voltage, drone_.battery.max_voltage, 0., 100.);
   batt_voltage_->setUpper(batt->voltage);
   batt_voltage_->setText(std::format("{:.2f} V ({:.0f} %)", batt->voltage, rate).c_str());
-  batt_voltage_->update();
 }
 
 void BatteryCPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)

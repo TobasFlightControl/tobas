@@ -18,11 +18,13 @@ bool ToggleSwitch::isChecked() const
 void ToggleSwitch::setChecked(bool checked)
 {
   checked_ = checked;
+  update();
 }
 
 void ToggleSwitch::setText(const QString& text)
 {
   text_ = text;
+  update();
 }
 
 void ToggleSwitch::ignoreMousePressEvent(bool ignore)

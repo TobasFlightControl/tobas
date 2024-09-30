@@ -52,6 +52,7 @@ private:
   ros2::ServiceClientPtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_sc_;
 
   // Timer
+  ros2::TimerPtr publish_init_arming_timer_;
   ros2::TimerPtr auto_stop_timer_;
 
   bool armRotors();
@@ -69,6 +70,7 @@ private:
     const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
     const tobas_msgs::srv::SetArm::Response::SharedPtr& res);
 
+  void publishInitArmingTimerCb();
   void autoStopTimerCb();
 };
 
@@ -85,9 +87,8 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
   set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
   enable_rcout_sc_ = create_client<tobas_msgs::srv::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
+  publish_init_arming_timer_ = createTimer(0ns, &self::publishInitArmingTimerCb, this);
   auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
-
-  publishArming();
 }
 
 bool RotorControllerNode::armRotors()
@@ -327,6 +328,12 @@ void RotorControllerNode::setArmCb(
 
   publishArming();
   res->success = true;
+}
+
+void RotorControllerNode::publishInitArmingTimerCb()
+{
+  publishArming();
+  publish_init_arming_timer_->cancel();
 }
 
 void RotorControllerNode::autoStopTimerCb()

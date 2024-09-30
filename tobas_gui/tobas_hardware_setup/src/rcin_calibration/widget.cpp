@@ -173,14 +173,6 @@ void RCInputCalibrationWidget::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstShar
   mode_range_->setValue(sbus->data[real::kRcChannelMode]);
   estop_range_->setValue(sbus->data[real::kRcChannelEStop]);
   gpsw_range_->setValue(sbus->data[real::kRcChannelGPSw]);
-
-  roll_range_->update();
-  pitch_range_->update();
-  yaw_range_->update();
-  throt_range_->update();
-  mode_range_->update();
-  estop_range_->update();
-  gpsw_range_->update();
 }
 
 void RCInputCalibrationWidget::onStartButtonClicked()

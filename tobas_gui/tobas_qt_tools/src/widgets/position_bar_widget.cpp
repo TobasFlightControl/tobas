@@ -70,46 +70,55 @@ double PositionBarWidget::getRange() const
 void PositionBarWidget::setMinimum(double minimum)
 {
   minimum_ = minimum;
+  update();
 }
 
 void PositionBarWidget::setMaximum(double maximum)
 {
   maximum_ = maximum;
+  update();
 }
 
 void PositionBarWidget::setFillRange(bool fill_range)
 {
   fill_range_ = fill_range;
+  update();
 }
 
 void PositionBarWidget::setLineWidth(int line_width)
 {
   line_width_ = line_width;
+  update();
 }
 
 void PositionBarWidget::setTextPSize(int text_psize)
 {
   text_psize_ = text_psize;
+  update();
 }
 
 void PositionBarWidget::setFillColor(Qt::GlobalColor color)
 {
   fill_color_ = color;
+  update();
 }
 
 void PositionBarWidget::setLimitLineColor(Qt::GlobalColor color)
 {
   limit_line_color_ = color;
+  update();
 }
 
 void PositionBarWidget::setValueLineColor(Qt::GlobalColor color)
 {
   value_line_color_ = color;
+  update();
 }
 
 void PositionBarWidget::setText(const QString& text)
 {
   text_ = text;
+  update();
 }
 
 void PositionBarWidget::setValue(double value)
@@ -119,16 +128,20 @@ void PositionBarWidget::setValue(double value)
     lower_ = value;
   if (!upper_.has_value() || value > upper_.value())
     upper_ = value;
+
+  update();
 }
 
 void PositionBarWidget::setLower(double lower)
 {
   lower_ = lower;
+  update();
 }
 
 void PositionBarWidget::setUpper(double upper)
 {
   upper_ = upper;
+  update();
 }
 
 void PositionBarWidget::clear()

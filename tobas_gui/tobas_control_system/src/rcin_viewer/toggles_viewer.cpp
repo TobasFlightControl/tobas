@@ -69,7 +69,6 @@ void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rc
   if (rcin->mode == tobas::flight_mode_t::PROGRAM_MODE)
     program_mode_->setColor(Qt::green);
   else
-
     program_mode_->setColor(Qt::gray);
 
   if (rcin->mode == tobas::flight_mode_t::STABILIZE_MODE)

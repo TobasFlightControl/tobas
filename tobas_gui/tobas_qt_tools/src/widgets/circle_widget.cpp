@@ -15,11 +15,13 @@ CircleWidget::CircleWidget(const QString& text, QWidget* parent) : super(parent)
 void CircleWidget::setColor(Qt::GlobalColor color)
 {
   color_ = color;
+  update();
 }
 
 void CircleWidget::setText(const QString& text)
 {
   text_ = text;
+  update();
 }
 
 int CircleWidget::getDiameter() const
