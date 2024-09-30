@@ -9,7 +9,7 @@ Rectangle {
   CircularGauge {
     id: gauge
     objectName: "gauge"
-    anchors.centerIn: parent
+    anchors.fill: parent // 親ウィジェットの大きさに自動で合わせる
     maximumValue: 100
     minimumValue: 0
     stepSize: 1
