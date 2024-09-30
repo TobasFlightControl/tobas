@@ -72,7 +72,7 @@ bool DShot::setData(size_t ch, uint16_t data)
   }
 
   spi_.tx[ch * kChannelBytes] = data & 0xFF;    // Little byte
-  spi_.tx[ch * kChannelBytes + 1] = data >> 4;  // Big byte
+  spi_.tx[ch * kChannelBytes + 1] = data >> 8;  // Big byte
 
   return true;
 }
