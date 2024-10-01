@@ -20,12 +20,12 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
   const auto meta_pkg_name = common::getTBSMetaName(remote_tbs_path);
 
   // NOTE: Paramikoは非対話型セッションを開始するため，コマンドごとに必要な環境変数を設定する必要がある．
-  const auto ros2_setup_bash = (fs::path(kROS2JazzyPath) / "setup.bash").c_str();
-  const auto tobas_setup_bash = (fs::path(kTobasPath) / "setup.bash").c_str();
+  const auto ros2_setup_bash = (fs::path(kROS2JazzyPath) / "setup.bash").string();
+  const auto tobas_setup_bash = (fs::path(kTobasPath) / "setup.bash").string();
   const auto pre_cmd = format(
     "source {} && "
     "source {} && "
-    "cd {} ",
+    "cd {}",
     ros2_setup_bash, tobas_setup_bash, kColconWSPathFC);
 
   // TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
@@ -33,16 +33,16 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
     "colcon build "
     "--symlink-install "
     "--parallel-workers $(nproc) "
-    "--packages-up-to {} ",
+    "--packages-up-to {}",
     meta_pkg_name);
 
-  if (!ssh_client_.execute(build_cmd, output_, true))
+  if (ssh_client_.execute(pre_cmd + " && " + build_cmd, output_, true) != ssh::SSHClient::E_NO_ERROR)
   {
     // ビルドできなければcleanして再試行
     RCLCPP_WARN(node_->get_logger(), "Failed to build. Retrying...");
 
-    const auto clean_build_cmd = build_cmd + "--cmake-clean-first ";
-    if (!ssh_client_.execute(clean_build_cmd, output_, true))
+    const auto command = pre_cmd + " && " + build_cmd + " --cmake-clean-first";
+    if (ssh_client_.execute(command, output_, true) != ssh::SSHClient::E_NO_ERROR)
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "Clean build also failed: " << getErrorMessage());
       return false;

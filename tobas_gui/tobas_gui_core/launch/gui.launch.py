@@ -20,7 +20,16 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
-    ros_args = ["--log-level", log_level]
+    ros_args = [
+        "--log-level",
+        log_level,
+        "--log-level",
+        "rcl:=INFO",
+        "--log-level",
+        "rclcpp:=INFO",
+        "--log-level",
+        "rmw_fastrtps_cpp:=INFO",
+    ]
 
     # Launch robot state publisher with minimul URDF
     minimul_urdf = '<robot name="empty"><link name="root"/></robot>'

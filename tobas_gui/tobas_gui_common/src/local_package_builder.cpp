@@ -29,7 +29,7 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   }
 
   // Get paths needed for building
-  const fs::path ws_path = linux::expandUser(kColconWSPathPC);
+  const auto ws_path = linux::expandUser(kColconWSPathPC);
   const auto build_path = ws_path / "build";
   const auto install_path = ws_path / "install";
   const auto log_path = ws_path / "log";
@@ -50,7 +50,7 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
     "--cmake-args -DCMAKE_BUILD_TYPE=Release "
     "--build-base {} "
     "--install-base {} "
-    "--packages-up-to {}",
+    "--packages-up-to {} ",
     build_path.string(), install_path.string(), meta_name);
 
   // Build Tobas package

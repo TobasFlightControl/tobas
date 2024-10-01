@@ -111,7 +111,7 @@ bool ParamBlockWidget::setToDefaults()
 
     if (!param_client_->setParam(name, config.dflt))
     {
-      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + QString::fromStdString(name) + "\".");
+      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
@@ -127,7 +127,7 @@ bool ParamBlockWidget::setToDefaults()
 
     if (!param_client_->setParam(name, config.dflt))
     {
-      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + QString::fromStdString(name) + "\".");
+      qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
     }
 
@@ -201,13 +201,13 @@ bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
 void ParamBlockWidget::onIntParamChanged(int value, const std::string& name)
 {
   if (!param_client_->setParam(name, value))
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + QString::fromStdString(name) + "\".");
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
 }
 
 void ParamBlockWidget::onDoubleParamChanged(double value, const std::string& name)
 {
   if (!param_client_->setParam(name, value))
-    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + QString::fromStdString(name) + "\".");
+    qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
 }
 }  // namespace param_tuning
 }  // namespace gui

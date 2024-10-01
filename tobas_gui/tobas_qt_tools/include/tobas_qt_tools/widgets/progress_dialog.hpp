@@ -16,9 +16,8 @@ class ProgressDialog : public QProgressDialog
 {
   Q_OBJECT
 
+  using self = ProgressDialog;
   using super = QProgressDialog;
-
-  static constexpr size_t kRefleshSleep = 50;  // [ms]
 
 public:
   explicit ProgressDialog(const QString& title = "", int num_steps = 1, QWidget* parent = nullptr);

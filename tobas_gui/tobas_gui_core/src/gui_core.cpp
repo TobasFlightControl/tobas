@@ -187,10 +187,10 @@ void GUICoreWidget::onSendButtonClicked()
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
   const auto remote_dir = fs::path(common::kColconWSPathFC) / "src/";
-  if (!ssh_cli_.scpPut(tbs_path, remote_dir, { mesh_path }, true))
+  if (ssh_cli_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to send tobas configuration package.");
+    qt::qErrorBox(this, "Failed to send tobas configuration package\n\n" + QString(ssh_cli_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -211,7 +211,7 @@ void GUICoreWidget::onSendButtonClicked()
   progress.setLabelText("Setting environment variables.");
   const auto config_pkg_name = common::getTBSConfigName(tbs_path);
   const auto env_content = std::format("TOBAS_CONFIG_PKG={}\nDRONE_NAME={}\n", config_pkg_name, drone_.name);
-  if (!ssh_cli_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true))
+  if (ssh_cli_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
     qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_cli_.errorMessage()));
@@ -221,7 +221,7 @@ void GUICoreWidget::onSendButtonClicked()
 
   // サービスを再起動
   progress.setLabelText("Restarting Tobas flight controller.");
-  if (!ssh_cli_.execute("systemctl restart tobas_real.service", true))
+  if (ssh_cli_.execute("systemctl restart tobas_real.service", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
     qt::qErrorBox(this, "Failed to restart Tobas:\n\n" + QString(ssh_cli_.errorMessage()));

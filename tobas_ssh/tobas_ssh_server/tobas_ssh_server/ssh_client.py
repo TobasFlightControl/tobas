@@ -102,8 +102,13 @@ class SSHClientWrapper:
 
         with SCPClient(self._ssh_client.get_transport()) as scp:
             for root, _, files in os.walk(_local_dir):
-                # 指定されたディレクトリを除外
+                # 除外ディレクトリだった場合は，ディレクトリのみ作成して中身は送信しない
                 if self._is_excluded_dir(root, _exclude_dirs):
+                    relative_path = osp.relpath(root, _local_dir)
+                    remote_dir = osp.join(_remote_dir, local_dir_base, relative_path)
+                    success, _, error_output = self.exec_command(f"mkdir -p {remote_dir}")
+                    if not success:
+                        raise RuntimeError(f"Failed to create remote directory {root}: {error_output}")
                     continue
 
                 # ファイルを1つずつ送信
@@ -189,7 +194,7 @@ class SSHClientWrapper:
     def _sudo_command(self, command: str) -> str:
         return f"echo {self._passwd} | sudo -S bash -c '{command}'"
 
-    def _is_excluded_dir(root: str, exclude_dirs: List[str]) -> bool:
+    def _is_excluded_dir(self, root: str, exclude_dirs: List[str]) -> bool:
         for exclude_dir in exclude_dirs:
             if root.startswith(exclude_dir):
                 return True

@@ -22,10 +22,8 @@ void AccelCalibrationThread::run()
 
   // Top
   if (!getAccelMean(acc_top_))
-  {
-    Q_EMIT finished(false, "Timeout before accel data collection is completed.");
     return;
-  }
+
   // TODO: 明らかにおかしな値だった場合は失敗を返す
 
   // オフセットを計算
@@ -65,7 +63,13 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kTimeout))
+  {
+    if (cnt_ == 0)
+      Q_EMIT finished(false, "IMU data is not received.");
+    else
+      Q_EMIT finished(false, "Timeout before IMU data collection is completed.");
     return false;
+  }
 
   // IMUの購読を終了
   imu_sub.reset();

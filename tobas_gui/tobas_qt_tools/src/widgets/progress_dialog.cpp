@@ -1,4 +1,4 @@
-#include <QThread>
+#include <QCoreApplication>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -52,8 +52,7 @@ void ProgressDialog::progressStep()
 
 void ProgressDialog::reflesh()
 {
-  // 画面更新のためにメインループを進める必要がある
-  // https://stackoverflow.com/questions/47879413/pyqt-qprogressdialog-displays-as-an-empty-white-window
-  QThread::msleep(kRefleshSleep);
+  // FIXME: processEvents()を複数回実行してもProgressが更新されない．
+  QCoreApplication::processEvents();
 }
 }  // namespace qt

@@ -48,6 +48,8 @@ bool SSHClient::dirExists(const std::filesystem::path& dir_path)
 
 SSHClient::error_t SSHClient::execute(const string& command, string& output, bool superuser, bool background)
 {
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "SSHClient::execute(" << command << ")");
+
   if (!isConnected())
     return error_code_ = E_NO_CONNECTION;
 

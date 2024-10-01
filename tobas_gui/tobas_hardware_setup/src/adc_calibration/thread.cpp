@@ -33,7 +33,10 @@ void ADCCalibrationThread::run()
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kTimeout))
   {
-    Q_EMIT finished(false, "Timeout before ADC data collection is completed.");
+    if (cnt_ == 0)
+      Q_EMIT finished(false, "ADC data is not received.");
+    else
+      Q_EMIT finished(false, "Timeout before ADC data collection is completed.");
     return;
   }
 
