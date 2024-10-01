@@ -67,14 +67,14 @@ class SSHServerNode(Node):
                 res.success = True
             except Exception as e:
                 res.success = False
-                res.message = e
+                res.message = f"SCP-Put with superuser privilege failed: {e}"
         else:
             try:
                 self._ssh_client.scp_put_dir(req.local_dir, req.remote_dir, req.exclude_dirs)
                 res.success = True
             except Exception as e:
                 res.success = False
-                res.message = e
+                res.message = f"SCP-Put failed: {e}"
 
         return res
 
@@ -84,12 +84,20 @@ class SSHServerNode(Node):
             res.message = self.NO_CONNECTION_ERROR
             return res
 
-        try:
-            res.text = self._ssh_client.sftp_read(req.remote_path)
-            res.success = True
-        except Exception as e:
-            res.success = False
-            res.message = e
+        if req.superuser:
+            try:
+                res.text = self._ssh_client.sftp_read_super(req.remote_path)
+                res.success = True
+            except Exception as e:
+                res.success = False
+                res.message = f"SFTP-Read with superuser privilege failed: {e}"
+        else:
+            try:
+                res.text = self._ssh_client.sftp_read(req.remote_path)
+                res.success = True
+            except Exception as e:
+                res.success = False
+                res.message = f"SFTP-Read failed: {e}"
 
         return res
 
@@ -105,14 +113,14 @@ class SSHServerNode(Node):
                 res.success = True
             except Exception as e:
                 res.success = False
-                res.message = e
+                res.message = f"SFTP-Write with superuser privilege failed: {e}"
         else:
             try:
                 self._ssh_client.sftp_write(req.remote_path, req.text)
                 res.success = True
             except Exception as e:
                 res.success = False
-                res.message = e
+                res.message = f"SFTP-Write failed: {e}"
 
         return res
 

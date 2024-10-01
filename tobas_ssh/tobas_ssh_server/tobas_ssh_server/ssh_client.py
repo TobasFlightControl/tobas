@@ -56,7 +56,7 @@ class SSHClientWrapper:
         try:
             _, stdout, stderr = self._ssh_client.exec_command(command)
         except AttributeError:
-            return False, "", "No network connection"
+            return False, "", "No network connection."
 
         stdout.channel.recv_exit_status()  # コマンドの実行結果を待つ
 
@@ -68,7 +68,9 @@ class SSHClientWrapper:
 
     def exec_command_super(self, command: str) -> Tuple[bool, str, str]:
         """sudoコマンドを実行．"""
-        assert command.count("'") == 0
+        if command.count("'") > 0:
+            raise RuntimeError('Command with superuser privilege cannot contain "\'".')
+
         return self.exec_command(self._sudo_command(command))
 
     def exec_command_bg(self, command: str) -> None:
@@ -145,6 +147,15 @@ class SSHClientWrapper:
             with sftp.file(remote_path, "r") as f:
                 text = f.read().decode(self.UTF_8)
         return text
+
+    def sftp_read_super(self, remote_path: str) -> str:
+        assert not remote_path.endswith("/")
+
+        success, output, error_output = self.exec_command_super(f"cat {remote_path}")
+        if not success:
+            raise RuntimeError(f"Failed to cat {remote_path}: {error_output}")
+
+        return output
 
     def sftp_write(self, remote_path: str, text: str) -> None:
         assert not remote_path.endswith("/")

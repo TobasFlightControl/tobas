@@ -47,6 +47,7 @@ def generate_launch_description():
     property_server = Node(
         package="tobas_ssh_server",
         executable="ssh_server_node",
+        parameters=[{"host": "tobas.local", "port": 22, "user": "pi", "passwd": "raspberry"}],
         name="ssh_server",
         ros_arguments=ros_args,
         output=output,

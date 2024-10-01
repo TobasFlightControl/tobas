@@ -87,7 +87,7 @@ void NetworkSettingWidget::onReadButtonClicked()
 
   // リモートファイルを開いて内容を読む
   std::string config_text;
-  if (ssh_client_.sftpRead(kFilePath, config_text) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.sftpRead(kFilePath, config_text, true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, ssh_client_.errorMessage());
     return;

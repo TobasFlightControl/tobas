@@ -101,13 +101,14 @@ SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vecto
   return error_code_ = E_NO_ERROR;
 }
 
-SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text)
+SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, bool superuser)
 {
   if (!isConnected())
     return error_code_ = E_NO_CONNECTION;
 
   const auto req = make_shared<SFTPRead::Request>();
   req->remote_path = remote_path;
+  req->superuser = superuser;
 
   if (!sftp_read_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;

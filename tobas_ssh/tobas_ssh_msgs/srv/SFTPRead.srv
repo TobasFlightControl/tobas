@@ -1,4 +1,5 @@
 string remote_path
+bool superuser
 ---
 bool success
 string message

@@ -48,7 +48,7 @@ public:
     const std::vector<std::string>& exclude_dirs,
     bool superuser = false);
 
-  error_t sftpRead(const std::string& remote_path, std::string& text);
+  error_t sftpRead(const std::string& remote_path, std::string& text, bool superuser = false);
   error_t sftpWrite(const std::string& remote_path, const std::string& text, bool superuser = false);
 
   bool isConnected() const;
