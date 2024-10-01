@@ -1,7 +1,5 @@
 [Unit]
 Description=Low Priority Component Container
-Requires=tobas_roscore.service
-After=tobas_roscore.service
 PartOf=tobas_component_managers.target
 
 [Service]
