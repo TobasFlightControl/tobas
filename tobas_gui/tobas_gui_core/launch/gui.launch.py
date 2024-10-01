@@ -37,7 +37,6 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[{"robot_description": minimul_urdf}],
-        ros_arguments=ros_args,
         output=output,
     )
     ld.add_action(rsp)
