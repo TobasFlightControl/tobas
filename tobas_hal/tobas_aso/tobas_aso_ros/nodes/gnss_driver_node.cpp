@@ -167,9 +167,10 @@ void GNSSDriverNode::setTimeOffsetTimerCb()
   }
 
   // Compute the time offset
-  const rclcpp::Time ros_time = get_clock()->now();
-  const rclcpp::Time gps_time(timegps.iTOW / 1000, (timegps.iTOW % 1000) * 1'000'000 + timegps.fTOW);
-  time_offset_ = ros_time - gps_time;
+  // 異なるタイムソースのデータを引き算できないため，両方ともナノ秒に変換して計算する．
+  const auto ros_time_ns = get_clock()->now().nanoseconds();
+  const auto gps_time_ns = timegps.iTOW * 1'000'000 + timegps.fTOW;
+  time_offset_ = rclcpp::Duration::from_nanoseconds(ros_time_ns - gps_time_ns);
 
   // Disable GPS time message
   if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_TIMEGPS, false))
