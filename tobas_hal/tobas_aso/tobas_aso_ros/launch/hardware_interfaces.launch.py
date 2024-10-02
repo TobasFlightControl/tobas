@@ -16,9 +16,10 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(NAMESPACE))
     ns = LaunchConfiguration(NAMESPACE)
 
+    # Launch 1st priority nodes (Twist Control)
     ld.add_action(
         LoadComposableNodes(
-            target_container=PathJoinSubstitution([ns, "component_manager_high"]),  # target_containerはフルパスのみ
+            target_container=PathJoinSubstitution([ns, "component_manager_1"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package=pkg_name,
@@ -28,7 +29,7 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package=pkg_name,
-                    plugin="SBUSDriverNode",
+                    plugin="ADCDriverNode",
                     namespace=ns,
                     extra_arguments=extra_arguments,
                 ),
@@ -48,9 +49,10 @@ def generate_launch_description():
         )
     )
 
+    # Launch 2nd priority nodes (Pose Control & Manipulation)
     ld.add_action(
         LoadComposableNodes(
-            target_container=PathJoinSubstitution([ns, "component_manager_medium"]),
+            target_container=PathJoinSubstitution([ns, "component_manager_2"]),
             composable_node_descriptions=[
                 ComposableNode(
                     package=pkg_name,
@@ -72,11 +74,27 @@ def generate_launch_description():
                 ),
                 ComposableNode(
                     package=pkg_name,
-                    plugin="ADCDriverNode",
+                    plugin="SBUSDriverNode",
                     namespace=ns,
                     extra_arguments=extra_arguments,
                 ),
             ],
+        )
+    )
+
+    # Launch 3rd priority nodes (Navigation)
+    ld.add_action(
+        LoadComposableNodes(
+            target_container=PathJoinSubstitution([ns, "component_manager_3"]),
+            composable_node_descriptions=[],
+        )
+    )
+
+    # Launch 4th priority nodes (Others)
+    ld.add_action(
+        LoadComposableNodes(
+            target_container=PathJoinSubstitution([ns, "component_manager_4"]),
+            composable_node_descriptions=[],
         )
     )
 
