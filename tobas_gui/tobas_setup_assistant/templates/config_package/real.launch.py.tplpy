@@ -1,9 +1,9 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from launch_ros.actions import LoadComposableNodes, PushROSNamespace
+from launch_ros.actions import LoadComposableNodes
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
@@ -34,79 +34,6 @@ def generate_launch_description():
     hw_pkg_share = FindPackageShare(HARDWARE_PKG)
     extra_arguments = [{"use_intra_process_comms": True}]
 
-    # ========== namespace {{ drone_name }} ==========
-    drone_ns = []
-    drone_ns.append(PushROSNamespace(DRONE_NAME))
-
-    # Launch hardware interfaces
-    drone_ns.append(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                [PathJoinSubstitution([hw_pkg_share, "launch", "hardware_interfaces.launch.py"])]
-            )
-        )
-    )
-
-    # Launch high priority nodes
-    drone_ns.append(
-        LoadComposableNodes(
-            target_container="component_manager_high",
-            composable_node_descriptions=[
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="ImuHandlerNode",
-                    extra_arguments=extra_arguments,
-                ),
-            ],
-        )
-    )
-
-    # Launch medium priority nodes
-    drone_ns.append(
-        LoadComposableNodes(
-            target_container="component_manager_medium",
-            composable_node_descriptions=[
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="MagnetometerHandlerNode",
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="BarometerHandlerNode",
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="BatteryHandlerNode",
-                    extra_arguments=extra_arguments,
-                ),
-            ],
-        )
-    )
-
-    # Launch low priority nodes
-    drone_ns.append(
-        LoadComposableNodes(
-            target_container="component_manager_low",
-            composable_node_descriptions=[
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="CpuHandlerNode",
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="TimeReferenceServerNode",
-                    extra_arguments=extra_arguments,
-                ),
-            ],
-        )
-    )
-
-    ld.add_action(GroupAction(actions=drone_ns))
-    # ========== namespace {{ drone_name }} ==========
-
     # Load robot description
     ld.add_action(
         IncludeLaunchDescription(
@@ -119,6 +46,79 @@ def generate_launch_description():
                 "use_sim_time": "false",
                 "user_debug": "false",
             }.items(),
+        )
+    )
+
+    # Launch hardware interfaces
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [PathJoinSubstitution([hw_pkg_share, "launch", "hardware_interfaces.launch.py"])]
+            ),
+            launch_arguments={"namespace": DRONE_NAME}.items(),
+        )
+    )
+
+    # Launch high priority nodes
+    ld.add_action(
+        LoadComposableNodes(
+            target_container=f"{DRONE_NAME}/component_manager_high",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="tobas_real_ros",
+                    plugin="ImuHandlerNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+            ],
+        )
+    )
+
+    # Launch medium priority nodes
+    ld.add_action(
+        LoadComposableNodes(
+            target_container=f"{DRONE_NAME}/component_manager_medium",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="tobas_real_ros",
+                    plugin="MagnetometerHandlerNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_real_ros",
+                    plugin="BarometerHandlerNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_real_ros",
+                    plugin="BatteryHandlerNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+            ],
+        )
+    )
+
+    # Launch low priority nodes
+    ld.add_action(
+        LoadComposableNodes(
+            target_container=f"{DRONE_NAME}/component_manager_low",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="tobas_real_ros",
+                    plugin="CpuHandlerNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+                ComposableNode(
+                    package="tobas_real_ros",
+                    plugin="TimeReferenceServerNode",
+                    namespace=DRONE_NAME,
+                    extra_arguments=extra_arguments,
+                ),
+            ],
         )
     )
 
