@@ -15,7 +15,7 @@ def generate_launch_description():
             composable_node_descriptions=[
                 ComposableNode(
                     package="{{ user_pkg_name }}",
-                    plugin="TobasBridge",
+                    plugin="TobasBridgeNode",
                     namespace="{{ drone_name }}",
                     extra_arguments=[{"use_intra_process_comms": True}],
                 ),
