@@ -1,6 +1,0 @@
-[Unit]
-Description=Tobas Component Managers
-Requires=tobas_component_manager_high.service tobas_component_manager_medium.service tobas_component_manager_low.service
-
-[Install]
-WantedBy=multi-user.target

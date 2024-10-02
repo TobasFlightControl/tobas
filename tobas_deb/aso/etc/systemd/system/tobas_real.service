@@ -1,6 +1,5 @@
 [Unit]
 Description=Tobas Flight Controller
-Requires=tobas_component_managers.target
 Conflicts=tobas_hil.service
 
 [Service]
