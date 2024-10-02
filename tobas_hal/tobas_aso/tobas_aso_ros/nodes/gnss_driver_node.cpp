@@ -117,35 +117,20 @@ bool GNSSDriverNode::configure()
   // 同軸ケーブルの長さを設定
   // TODO: GUIから設定できるようにする
   if (!gnss_.setAntennaLength(5))
-  {
-    TOBAS_FATAL("Failed to set the antenna length.");
-    return false;
-  }
+    TOBAS_WARN("Failed to set the antenna length.");
 
   // 不要なプロトコルを無効化
   if (!gnss_.enableProtocol(aso::ZEDF9P::NMEA, false))
-  {
-    TOBAS_FATAL("Failed to disable NMEA protocol.");
-    return false;
-  }
+    TOBAS_WARN("Failed to disable NMEA protocol.");
   if (!gnss_.enableProtocol(aso::ZEDF9P::RTCM3X, false))
-  {
-    TOBAS_FATAL("Failed to disable RTCM3X protocol.");
-    return false;
-  }
+    TOBAS_WARN("Failed to disable RTCM3X protocol.");
   if (!gnss_.enableProtocol(aso::ZEDF9P::SPARTN, false))
-  {
-    TOBAS_FATAL("Failed to disable SPARTN protocol.");
-    return false;
-  }
+    TOBAS_WARN("Failed to disable SPARTN protocol.");
 
   // 不要なインターフェースを無効化
   // D_SELをオフにしているため，I2CとUARTは始めから無効化されているはず．
   if (!gnss_.enableUSB(false))
-  {
-    TOBAS_FATAL("Failed to disable USB interface.");
-    return false;
-  }
+    TOBAS_WARN("Failed to disable USB interface.");
 
   return true;
 }
