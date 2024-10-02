@@ -12,7 +12,7 @@ using namespace chrono;
 
 namespace aso
 {
-ZEDF9P::ZEDF9P() : rate_(microseconds(kReqInterval))
+ZEDF9P::ZEDF9P() : rate_(kReqInterval)
 {
 }
 

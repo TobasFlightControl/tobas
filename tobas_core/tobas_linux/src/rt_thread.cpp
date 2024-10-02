@@ -10,7 +10,7 @@ using namespace std;
 
 namespace linux
 {
-bool setThreadPriority(pid_t pid, size_t priority, int policy)
+bool setProcessPriority(pid_t pid, size_t priority, int policy)
 {
   struct sched_param param;
   memset(&param, 0, sizeof(param));
@@ -25,12 +25,12 @@ bool setThreadPriority(pid_t pid, size_t priority, int policy)
   return true;
 }
 
-bool setThisThreadPriority(size_t priority, int policy)
+bool setThisProcessPriority(size_t priority, int policy)
 {
-  return setThreadPriority(getpid(), priority, policy);
+  return setProcessPriority(getpid(), priority, policy);
 }
 
-bool setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
+bool setProcessCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
 {
   cpu_set_t set;
   uint32_t cpu_cnt = 0;
@@ -39,8 +39,8 @@ bool setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
   {
     if ((cpu_bit_mask & 1) > 0)
       CPU_SET(cpu_cnt, &set);
-    cpu_bit_mask = (cpu_bit_mask >> 1);
-    cpu_cnt++;
+    cpu_bit_mask >>= 1;
+    ++cpu_cnt;
   }
 
   if (sched_setaffinity(pid, sizeof(set), &set) != 0)
@@ -52,8 +52,9 @@ bool setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
   return true;
 }
 
-bool setThisThreadCPUAffinity(uint32_t cpu_bit_mask)
+bool setThisProcessCPUAffinity(uint32_t cpu_bit_mask)
 {
-  return setThreadCPUAffinity(getpid(), cpu_bit_mask);
+  return setProcessCPUAffinity(getpid(), cpu_bit_mask);
 }
 }  // namespace linux
+

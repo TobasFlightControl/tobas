@@ -48,11 +48,11 @@ bool ProcessSettings::configureProcess()
   // Set the priority of this thread to the maximum safe value,
   // and set its scheduling policy to a deterministic (real-time safe) algorithm.
   if (process_priority_ > 0 && process_priority_ < 99)
-    if (!setThisThreadPriority(process_priority_, SCHED_RR))
+    if (!setThisProcessPriority(process_priority_, SCHED_RR))
       return false;
 
   if (cpu_affinity_ > 0)
-    if (!setThisThreadCPUAffinity(cpu_affinity_))
+    if (!setThisProcessCPUAffinity(cpu_affinity_))
       return false;
 
   if (lock_memory_)

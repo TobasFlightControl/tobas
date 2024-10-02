@@ -29,7 +29,7 @@ private:
 
   // SPIで1バイト受け取る間隔 [us]
   // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．
-  static constexpr size_t kReqInterval = 50;  // TODO: M8Nと同じく70usは必要？
+  static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
   enum ubx_class_t : uint8_t
