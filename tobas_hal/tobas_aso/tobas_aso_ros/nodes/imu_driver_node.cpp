@@ -8,7 +8,7 @@ using namespace std;
 
 class IMUDriverNode : public hal::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 1250us;  // 800Hz
+  static constexpr auto kSamplingPeriod = 2500us;  // 400Hz
 
   using self = IMUDriverNode;
   using super = hal::BaseSensorNode;
