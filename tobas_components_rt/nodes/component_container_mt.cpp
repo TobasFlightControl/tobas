@@ -1,9 +1,18 @@
-#include "../include/tobas_components_rt/common.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_components/component_manager.hpp>
+
+#include <tobas_linux/process_settings.hpp>
 
 int main(int argc, char* argv[])
 {
-  if (!init(argc, argv))
+  linux::ProcessSettings settings;
+  if (!settings.init(argc, argv))
     return EXIT_FAILURE;
+
+  rclcpp::init(argc, argv);
+
+  if (!settings.configureProcess())
+    RCLCPP_WARN(rclcpp::get_logger("component_container_mt"), "Failed to configure process.");
 
   auto exec = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
   auto node = std::make_shared<rclcpp_components::ComponentManager>();

@@ -43,28 +43,33 @@ bool ProcessSettings::init(int argc, char* argv[])
   return true;
 }
 
-void ProcessSettings::configureProcess()
+bool ProcessSettings::configureProcess()
 {
   // Set the priority of this thread to the maximum safe value,
   // and set its scheduling policy to a deterministic (real-time safe) algorithm.
   if (process_priority_ > 0 && process_priority_ < 99)
-    if (setThisThreadPriority(process_priority_, SCHED_RR))
-      throw runtime_error("Failed to set scheduling priority and policy.");
+    if (!setThisThreadPriority(process_priority_, SCHED_RR))
+      return false;
+
   if (cpu_affinity_ > 0)
-    if (setThisThreadCPUAffinity(cpu_affinity_))
-      throw runtime_error("Failed to set cpu affinity.");
+    if (!setThisThreadCPUAffinity(cpu_affinity_))
+      return false;
 
   if (lock_memory_)
   {
-    int res = 0;
     if (lock_memory_size_mb_ > 0)
-      res = lockAndPrefaultDynamic(lock_memory_size_mb_ * (1 << 20));
+    {
+      if (!lockAndPrefaultDynamic(lock_memory_size_mb_ * (1 << 20)))
+        return false;
+    }
     else
-      res = lockAndPrefaultDynamic();
-
-    if (res != 0)
-      throw runtime_error("Failed to lock virtual memory.");
+    {
+      if (!lockAndPrefaultDynamic())
+        return false;
+    }
   }
+
+  return true;
 }
 
 void ProcessSettings::printUsage()

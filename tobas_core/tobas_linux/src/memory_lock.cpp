@@ -7,43 +7,44 @@
 #include <sys/resource.h>
 
 #include "../include/tobas_linux/memory_lock.hpp"
+#include "../include/tobas_linux/errer.hpp"
 
 using namespace std;
 
 namespace linux
 {
-int lockMemory()
+bool lockMemory()
 {
   if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0)
   {
-    cerr << "mlockall failed." << endl;
-    return -1;
+    cerr << "mlockall failed: " << strError() << endl;
+    return false;
   }
 
   // Turn off malloc trimming
   if (mallopt(M_TRIM_THRESHOLD, -1) == 0)
   {
-    cerr << "mallopt for trim threshold failed." << endl;
+    cerr << "mallopt for trim threshold failed: " << strError() << endl;
     munlockall();
-    return -1;
+    return false;
   }
 
   // Turn off mmap usage
   if (mallopt(M_MMAP_MAX, 0) == 0)
   {
-    cerr << "mallopt for mmap failed." << endl;
+    cerr << "mallopt for mmap failed: " << strError() << endl;
     mallopt(M_TRIM_THRESHOLD, 1 << 17);
     munlockall();
-    return -1;
+    return false;
   }
 
-  return 0;
+  return true;
 }
 
-int lockAndPrefaultDynamic()
+bool lockAndPrefaultDynamic()
 {
-  if (lockMemory() != 0)
-    return -1;
+  if (!lockMemory())
+    return false;
 
   struct rusage usage;
   size_t page_size = sysconf(_SC_PAGESIZE);
@@ -73,7 +74,7 @@ int lockAndPrefaultDynamic()
       mallopt(M_TRIM_THRESHOLD, 1 << 17);
       mallopt(M_MMAP_MAX, 1 << 16);
       munlockall();
-      return -1;
+      return false;
     }
     prefaulters.push_back(ptr);
     getrusage(RUSAGE_SELF, &usage);
@@ -88,25 +89,26 @@ int lockAndPrefaultDynamic()
   for (auto& prefaulter : prefaulters)
     delete[] prefaulter;
 
-  return 0;
+  return true;
 }
 
-int lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
+bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
 {
-  if (lockMemory() != 0)
-    return -1;
+  if (!lockMemory())
+    return false;
 
   void* buf = nullptr;
   const auto pg_sz = sysconf(_SC_PAGESIZE);
   const auto res = posix_memalign(&buf, pg_sz, process_max_dynamic_memory);
   if (res != 0)
   {
-    cerr << "proc rt init mem aligning failed: " << strerror(errno) << endl;
-    return -1;
+    cerr << "proc rt init mem aligning failed: " << strError() << endl;
+    return false;
   }
+
   memset(buf, 0, process_max_dynamic_memory);
   free(buf);
 
-  return 0;
+  return true;
 }
 }  // namespace linux

@@ -3,7 +3,7 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from launch_ros.actions import LoadComposableNodes, SetParameter
+from launch_ros.actions import Node, LoadComposableNodes, SetParameter
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
@@ -16,6 +16,8 @@ CONTROLLER_PKG = "{{ controller_pkg }}"
 ACTIONS_PKG = "{{ actions_pkg }}"
 
 # Arguments
+LOG_LEVEL = "log_level"
+OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 GROUND_TRUTH = "ground_truth"
 
@@ -24,10 +26,14 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="true"))
     ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
 
     # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
@@ -38,7 +44,43 @@ def generate_launch_description():
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     user_pkg_share = FindPackageShare(USER_PKG_NAME)
     remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+    ros_args = ["--log-level", log_level]
     extra_arguments = [{"use_intra_process_comms": True}]
+
+    # Launch component managers
+    ld.add_action(
+        Node(
+            package="tobas_components_rt",
+            executable="component_container_mt",
+            name="component_manager_high",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            arguments=["--priority", "90"],
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_components_rt",
+            executable="component_container_mt",
+            name="component_manager_medium",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            arguments=["--priority", "50"],
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_components_rt",
+            executable="component_container_mt",
+            name="component_manager_low",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            arguments=["--priority", "10"],
+            output=output,
+        )
+    )
 
     # Launch high priority nodes
     ld.add_action(

@@ -6,9 +6,9 @@
 
 namespace linux
 {
-int setThreadPriority(pid_t pid, size_t priority, int policy);
-int setThisThreadPriority(size_t priority, int policy);
+bool setThreadPriority(pid_t pid, size_t priority, int policy);
+bool setThisThreadPriority(size_t priority, int policy);
 
-int setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask);
-int setThisThreadCPUAffinity(uint32_t cpu_bit_mask);
+bool setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask);
+bool setThisThreadCPUAffinity(uint32_t cpu_bit_mask);
 }  // namespace linux

@@ -15,7 +15,7 @@ class ProcessSettings
 public:
   bool init(int argc, char* argv[]);
 
-  void configureProcess();
+  bool configureProcess();
 
   void printUsage();
 

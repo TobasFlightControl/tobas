@@ -1,25 +1,36 @@
+#include <iostream>
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
 
 #include "../include/tobas_linux/rt_thread.hpp"
+#include "../include/tobas_linux/errer.hpp"
+
+using namespace std;
 
 namespace linux
 {
-int setThreadPriority(pid_t pid, size_t priority, int policy)
+bool setThreadPriority(pid_t pid, size_t priority, int policy)
 {
   struct sched_param param;
   memset(&param, 0, sizeof(param));
   param.sched_priority = priority;
-  return sched_setscheduler(pid, policy, &param);
+
+  if (sched_setscheduler(pid, policy, &param) != 0)
+  {
+    cerr << "Failed to set scheduling policy: " << strError() << endl;
+    return false;
+  }
+
+  return true;
 }
 
-int setThisThreadPriority(size_t priority, int policy)
+bool setThisThreadPriority(size_t priority, int policy)
 {
   return setThreadPriority(getpid(), priority, policy);
 }
 
-int setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
+bool setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
 {
   cpu_set_t set;
   uint32_t cpu_cnt = 0;
@@ -31,10 +42,17 @@ int setThreadCPUAffinity(pid_t pid, uint32_t cpu_bit_mask)
     cpu_bit_mask = (cpu_bit_mask >> 1);
     cpu_cnt++;
   }
-  return sched_setaffinity(pid, sizeof(set), &set);
+
+  if (sched_setaffinity(pid, sizeof(set), &set) != 0)
+  {
+    cerr << "Failed to set CPU affinity: " << strError() << endl;
+    return false;
+  }
+
+  return true;
 }
 
-int setThisThreadCPUAffinity(uint32_t cpu_bit_mask)
+bool setThisThreadCPUAffinity(uint32_t cpu_bit_mask)
 {
   return setThreadCPUAffinity(getpid(), cpu_bit_mask);
 }

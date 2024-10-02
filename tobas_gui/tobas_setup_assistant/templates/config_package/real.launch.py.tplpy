@@ -129,6 +129,8 @@ def generate_launch_description():
                 [PathJoinSubstitution([config_pkg_share, "launch", "core_component.launch.py"])]
             ),
             launch_arguments={
+                "log_level": log_level,
+                "output": output,
                 "use_sim_time": "false",
                 "user_debug": "false",
             }.items(),
