@@ -1,0 +1,78 @@
+#include <cstring>
+#include <string>
+#include <stdexcept>
+#include <iostream>
+
+#include <tobas_std_tools/cmdline_parser.hpp>
+
+#include "../include/tobas_linux/process_settings.hpp"
+#include "../include/tobas_linux/rt_thread.hpp"
+#include "../include/tobas_linux/memory_lock.hpp"
+
+using namespace std;
+
+namespace linux
+{
+bool ProcessSettings::init(int argc, char* argv[])
+{
+  if (tobas_std::commandLineOptionExists(argv, argv + argc, "-h"))
+  {
+    printUsage();
+    return false;
+  }
+
+  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionLockMemory))
+  {
+    const auto option = tobas_std::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize);
+    lock_memory_ = strcmp(option, "true") == 0 ? true : false;
+  }
+
+  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionLockMemorySize))
+  {
+    lock_memory_size_mb_ = stoi(tobas_std::getCommandLineOption(argv, argv + argc, kOptionLockMemorySize));
+    if (lock_memory_size_mb_ > 0)
+      lock_memory_ = true;
+  }
+
+  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionPriority))
+    process_priority_ = stoi(tobas_std::getCommandLineOption(argv, argv + argc, kOptionPriority));
+
+  if (tobas_std::commandLineOptionExists(argv, argv + argc, kOptionCPUAffinity))
+    cpu_affinity_ = stoi(tobas_std::getCommandLineOption(argv, argv + argc, kOptionCPUAffinity));
+
+  return true;
+}
+
+void ProcessSettings::configureProcess()
+{
+  // Set the priority of this thread to the maximum safe value,
+  // and set its scheduling policy to a deterministic (real-time safe) algorithm.
+  if (process_priority_ > 0 && process_priority_ < 99)
+    if (setThisThreadPriority(process_priority_, SCHED_RR))
+      throw runtime_error("Failed to set scheduling priority and policy.");
+  if (cpu_affinity_ > 0)
+    if (setThisThreadCPUAffinity(cpu_affinity_))
+      throw runtime_error("Failed to set cpu affinity.");
+
+  if (lock_memory_)
+  {
+    int res = 0;
+    if (lock_memory_size_mb_ > 0)
+      res = lockAndPrefaultDynamic(lock_memory_size_mb_ * (1 << 20));
+    else
+      res = lockAndPrefaultDynamic();
+
+    if (res != 0)
+      throw runtime_error("Failed to lock virtual memory.");
+  }
+}
+
+void ProcessSettings::printUsage()
+{
+  cout << "\t[" << kOptionLockMemory << " lock memory]" << endl
+       << "\t[" << kOptionLockMemorySize << " lock a fixed memory size in MB]" << endl
+       << "\t[" << kOptionPriority << " set process real-time priority]" << endl
+       << "\t[" << kOptionCPUAffinity << " set process cpu affinity]" << endl
+       << "\t[-h]" << endl;
+}
+}  // namespace linux
