@@ -29,7 +29,8 @@ private:
 
   // SPIで1バイト受け取る間隔 [us]
   // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．
-  static constexpr auto kReqInterval = std::chrono::microseconds(50);
+  // 少なくとも50usまでは下げられるが，CPU負荷を抑えるため大きめにしておく．
+  static constexpr auto kReqInterval = std::chrono::microseconds(100);
 
 public:
   enum ubx_class_t : uint8_t
