@@ -52,7 +52,7 @@ GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
   }
 
   is_received_[aso::ZEDF9P::NAV_STATUS] = false;
-  is_received_[aso::ZEDF9P::NAV_POSLLH] = false;
+  is_received_[aso::ZEDF9P::NAV_HPPOSLLH] = false;
   is_received_[aso::ZEDF9P::NAV_VELNED] = false;
   is_received_[aso::ZEDF9P::NAV_COV] = false;
 
