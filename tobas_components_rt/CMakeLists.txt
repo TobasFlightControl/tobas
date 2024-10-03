@@ -24,16 +24,30 @@ set(AMENT_DEPENDENCIES
 
 include_directories(include)
 
+file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
+add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+
 file(GLOB_RECURSE NODE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 set(targets_to_install "")
 
 foreach(FILE IN LISTS NODE_FILES)
 	get_filename_component(NAME ${FILE} NAME_WE)
 	add_executable(${NAME} ${FILE})
-	ament_target_dependencies(${NAME} ${AMENT_DEPENDENCIES})
+	target_link_libraries(${NAME} ${PROJECT_NAME})
 	list(APPEND targets_to_install ${NAME})
 endforeach()
 
+install(
+	TARGETS ${PROJECT_NAME}
+	EXPORT ${PROJECT_NAME}
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
+)
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
+
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()
