@@ -2,6 +2,7 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_drone_core/drone.hpp>
@@ -39,7 +40,7 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   // Service
@@ -51,7 +52,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 };
 
@@ -62,8 +63,8 @@ StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options) : super("
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true, true);
   cpu_sub_ = createSubscriber(tobas::kCpuTopic, &self::cpuCb, this);
-  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
-  euler_sub_ = createSubscriber(tobas::kEulerTopic, &self::eulerCb, this);
+  batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
+  euler_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kEulerTopic), &self::eulerCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
 }
@@ -110,7 +111,7 @@ void StateCheckerNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
   }
 }
 
-void StateCheckerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void StateCheckerNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   if (arming_ == nullptr || !arming_->data)
     return;

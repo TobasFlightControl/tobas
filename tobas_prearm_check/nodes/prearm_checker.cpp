@@ -2,6 +2,7 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_node/node.hpp>
@@ -43,13 +44,13 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::PreArmCheck> prearm_check_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   ros2::TimerPtr main_timer_;
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   void mainTimerCb();
@@ -64,7 +65,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   prearm_check_pub_ = createPublisher<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, true, true);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
   main_timer_ = createTimer(kPreArmCheckTimerPeriod, &self::mainTimerCb, this);
@@ -75,7 +76,7 @@ void PreArmCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   drone_ = drone;
 }
 
-void PreArmCheckerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void PreArmCheckerNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
