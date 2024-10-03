@@ -20,7 +20,7 @@ using namespace std;
 
 class RotorControllerNode : public tobas::BaseNode
 {
-  static constexpr double kWarnRate = 1.;  // [s]
+  static constexpr double kCmdWarnPeriod = 1.;  // [s]
   static constexpr double kDisarmThrottle = -0.1;
   static constexpr double kDisarmDuration = 3.;  // [s]
   static constexpr auto kDisarmInterval = 100ms;
@@ -179,13 +179,13 @@ void RotorControllerNode::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::Con
 
   if (drone_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(kWarnRate, "Rotors cannot be rotated because drone configuration has not been received yet.");
+    TOBAS_WARN_THROTTLE(kCmdWarnPeriod, "Command is ignored because drone configuration has not been received yet.");
     return;
   }
 
   if (battery_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(kWarnRate, "Rotors cannot be rotated because battery state has not been received yet.");
+    TOBAS_WARN_THROTTLE(kCmdWarnPeriod, "Command is ignored because battery state has not been received yet.");
     return;
   }
 
@@ -210,12 +210,15 @@ void RotorControllerNode::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::Con
     auto tar_speed = tar_speeds->speeds[rotor_idx];
     if (tar_speed < 0.)  // モータテストでも使用するため，ここではARM_THROTTLEの制約を課さない
     {
-      TOBAS_WARN("Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
+      TOBAS_WARN_THROTTLE(
+        kCmdWarnPeriod, "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
       tar_speed = 0.;
     }
     else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
     {
-      TOBAS_WARN("Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed, " [rad/s]");
+      TOBAS_WARN_THROTTLE(
+        kCmdWarnPeriod, "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
+        " [rad/s]");
       tar_speed = max_speed;
     }
 
