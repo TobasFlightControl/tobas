@@ -25,5 +25,6 @@ private:
   std::vector<ComponentManager> managers_;
 
   static size_t threadPriority(size_t tier);
+  static std::string nodeName(size_t tier);
 };
 }  // namespace ros2
