@@ -28,16 +28,9 @@ void MultiComponentManagers::spin()
     managers[i].exec->add_node(managers[i].node);
 
     // ComponentManagerを別スレッドで起動
-    // TODO: スレッドの起動を後でまとめて行おうとするとスピン中にスピンを呼ぶことになってしまうらしいが，それはなぜ？
+    // このスレッドにリアルタイムスケジューリングを適用すると，DDS接続作成時のコールバックスレッドの遅延が大きくなる．
     managers[i].thread = thread([&]() { managers[i].exec->spin(); });
-
-    // スレッドのリアルタイム優先度を設定
-    if (!linux::setThreadPriority(managers[i].thread.native_handle(), priority(i), policy_))
-      RCLCPP_WARN(managers[i].node->get_logger(), "Failed to set realtime thread priority.");
-
-    // TODO: Set CPU affinity?
-
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(100ms);  // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
   }
 
   for (auto& manager : managers)
