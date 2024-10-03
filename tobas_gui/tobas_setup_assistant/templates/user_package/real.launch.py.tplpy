@@ -11,7 +11,7 @@ def generate_launch_description():
     # Launch Tobas bridge
     ld.add_action(
         LoadComposableNodes(
-            target_container="{{ drone_name }}/component_manager_medium",
+            target_container="{{ drone_name }}/component_manager_4",
             composable_node_descriptions=[
                 ComposableNode(
                     package="{{ user_pkg_name }}",

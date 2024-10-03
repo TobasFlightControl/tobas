@@ -15,17 +15,12 @@ BatteryCPUViewerWidget::BatteryCPUViewerWidget(rclcpp::Node::SharedPtr node, con
   : node_(node), drone_(drone)
 {
   batt_voltage_ = new qt::HPositionBarWidget();
-  batt_voltage_->setFixedHeight(kBarHeight);
-
   cpu_temp_ = new qt::HPositionBarWidget();
-  cpu_temp_->setFixedHeight(kBarHeight);
-  cpu_temp_->setMinimum(kMinCPUTemp);
-  cpu_temp_->setMaximum(kMaxCPUTemp);
-
   cpu_load_ = new qt::HPositionBarWidget();
+
+  batt_voltage_->setFixedHeight(kBarHeight);
+  cpu_temp_->setFixedHeight(kBarHeight);
   cpu_load_->setFixedHeight(kBarHeight);
-  cpu_load_->setMinimum(kMinCPULoad);
-  cpu_load_->setMaximum(kMaxCPULoad);
 
   // Layout
   const auto form = new qt::FormLayout();
@@ -44,7 +39,14 @@ void BatteryCPUViewerWidget::updateInternalDataStructures()
   batt_voltage_->setMaximum(drone_.battery.max_voltage);
 
   cpu_temp_->clear();
+  cpu_temp_->setLower(kMinCPUTemp);
+  cpu_temp_->setMinimum(kMinCPUTemp);
+  cpu_temp_->setMaximum(kMaxCPUTemp);
+
   cpu_load_->clear();
+  cpu_load_->setLower(kMinCPULoad);
+  cpu_load_->setMinimum(kMinCPULoad);
+  cpu_load_->setMaximum(kMaxCPULoad);
 
   batt_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
@@ -63,8 +65,8 @@ void BatteryCPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& c
   cpu_temp_->setUpper(cpu->temperature);
   cpu_temp_->setText(std::format("{:.0f} ℃", cpu->temperature).c_str());
 
-  cpu_load_->setUpper(cpu->load);
-  cpu_load_->setText(std::format("{:.0f} %", cpu->load).c_str());
+  cpu_load_->setUpper(cpu->load * 100);
+  cpu_load_->setText(std::format("{:.0f} %", cpu->load * 100).c_str());
 }
 }  // namespace control_system
 }  // namespace gui
