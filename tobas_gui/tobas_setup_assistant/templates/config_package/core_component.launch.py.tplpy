@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction, Shutdown
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
@@ -55,6 +55,7 @@ def generate_launch_description():
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,
+            on_exit=Shutdown(),
         )
     )
 
