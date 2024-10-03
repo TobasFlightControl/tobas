@@ -16,7 +16,7 @@ MultiComponentManagers::MultiComponentManagers(int policy, size_t num_managers, 
 
   for (size_t i = 0; i < num_managers; ++i)
   {
-    managers_[i].exec = make_shared<ros2::MultiThreadedExecutorRT>(threadPriority(i), policy, num_threads);
+    managers_[i].exec = make_shared<MultiThreadedExecutorRT>(threadPriority(i), policy, num_threads);
     managers_[i].node = make_shared<rclcpp_components::ComponentManager>(managers_[i].exec, nodeName(i), options);
     managers_[i].exec->add_node(managers_[i].node);
     managers_[i].thread = thread([&]() { managers_[i].exec->spin(); });

@@ -9,7 +9,7 @@ namespace ros2
 {
 struct ComponentManager
 {
-  std::shared_ptr<ros2::MultiThreadedExecutorRT> exec;
+  std::shared_ptr<MultiThreadedExecutorRT> exec;
   std::shared_ptr<rclcpp_components::ComponentManager> node;
   std::thread thread;
 };
