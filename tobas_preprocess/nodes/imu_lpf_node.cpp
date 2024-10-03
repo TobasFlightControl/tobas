@@ -48,9 +48,9 @@ void IMULPFNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)
   last_msg_ = imu_raw;
 
   if (gyro_lpf_.update(imu_raw->gyro, dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update gyro LPF: ", gyro_lpf_.errorMessage());
+    TOBAS_ERROR("Failed to update gyro LPF: ", gyro_lpf_.errorMessage(), " dt = ", dt);
   if (accel_lpf_.update(imu_raw->accel, dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update accel LPF: ", accel_lpf_.errorMessage());
+    TOBAS_ERROR("Failed to update accel LPF: ", accel_lpf_.errorMessage(), " dt = ", dt);
 
   auto imu_filtered = std::make_unique<tobas_msgs::Imu>(*imu_raw);
   imu_filtered->gyro = gyro_lpf_.getOutput();
