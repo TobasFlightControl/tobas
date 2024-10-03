@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
@@ -83,71 +83,91 @@ def generate_launch_description():
 
     # Launch 1st priority nodes (Twist Control)
     ld.add_action(
-        LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_1",
-            composable_node_descriptions=[
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="ImuHandlerNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="BatteryHandlerNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
+        TimerAction(
+            period=0.0,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_1",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="ImuHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="BatteryHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
             ],
         )
     )
 
     # Launch 2nd priority nodes (Pose Control & Manipulation)
     ld.add_action(
-        LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_2",
-            composable_node_descriptions=[
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="MagnetometerHandlerNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="BarometerHandlerNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
+        TimerAction(
+            period=0.1,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_2",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="MagnetometerHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="BarometerHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
             ],
         )
     )
 
     # Launch 3rd priority nodes (Navigation)
     ld.add_action(
-        LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_3",
-            composable_node_descriptions=[],
+        TimerAction(
+            period=0.2,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_3",
+                    composable_node_descriptions=[],
+                )
+            ],
         )
     )
 
     # Launch 4th priority nodes (Others)
     ld.add_action(
-        LoadComposableNodes(
-            target_container=f"{DRONE_NAME}/component_manager_4",
-            composable_node_descriptions=[
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="CpuHandlerNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
-                ComposableNode(
-                    package="tobas_real_ros",
-                    plugin="TimeReferenceServerNode",
-                    namespace=DRONE_NAME,
-                    extra_arguments=extra_arguments,
-                ),
+        TimerAction(
+            period=0.3,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_4",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="CpuHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="TimeReferenceServerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
             ],
         )
     )
