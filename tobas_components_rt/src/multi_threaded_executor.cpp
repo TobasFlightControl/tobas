@@ -21,20 +21,27 @@ void MultiThreadedExecutorRT::spin()
   RCPPUTILS_SCOPE_EXIT(wait_result_.reset(); spinning.store(false););
 
   vector<thread> threads;
-  for (size_t thread_id = 0; thread_id < get_number_of_threads() - 1; ++thread_id)
+  for (size_t thread_id = 0; thread_id < get_number_of_threads(); ++thread_id)
   {
     auto func = bind(&MultiThreadedExecutorRT::run, this, thread_id);
     threads.emplace_back(func);
-  }
 
-  // スレッドプールのリアルタイム優先度を設定
-  for (auto& thread : threads)
-    if (!linux::setThreadPriority(thread.native_handle(), priority_, policy_))
+    // スレッドのリアルタイム優先度を設定
+    if (!linux::setThreadPriority(threads.back().native_handle(), priority_, policy_))
       RCLCPP_WARN(rclcpp::get_logger("multi_threaded_executor_rt"), "Failed to set realtime thread priority.");
-
-  run(SIZE_MAX);
+  }
 
   for (auto& thread : threads)
     thread.join();
+}
+
+size_t MultiThreadedExecutorRT::priority() const
+{
+  return priority_;
+}
+
+int MultiThreadedExecutorRT::policy() const
+{
+  return policy_;
 }
 }  // namespace ros2

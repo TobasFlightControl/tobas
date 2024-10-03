@@ -9,8 +9,8 @@ namespace ros2
 {
 struct ComponentManager
 {
-  std::shared_ptr<MultiThreadedExecutorRT> exec;
-  std::shared_ptr<rclcpp_components::ComponentManager> node;
+  rclcpp_components::ComponentManager::SharedPtr node;
+  MultiThreadedExecutorRT::SharedPtr exec;
   std::thread thread;
 };
 
@@ -22,9 +22,11 @@ public:
   void spin();
 
 private:
-  std::vector<ComponentManager> managers_;
+  const int policy_;
+  const size_t num_managers_;
+  const size_t num_threads_;
 
-  static size_t threadPriority(size_t tier);
+  static size_t priority(size_t tier);
   static std::string nodeName(size_t tier);
 };
 }  // namespace ros2
