@@ -1,6 +1,0 @@
-<launch>
-
-  <node pkg="tobas_fake_publishers" exec="fake_battery_publisher_node" name="fake_battery_publisher" output="screen"/>
-  <node pkg="tobas_fake_publishers" exec="fake_gnss_publisher_node" name="fake_gnss_publisher" output="screen"/>
-
-</launch>

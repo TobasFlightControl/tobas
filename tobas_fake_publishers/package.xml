@@ -7,11 +7,13 @@
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
-	<exec_depend>rclpy</exec_depend>
-	<exec_depend>tobas_msgs</exec_depend>
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_node</depend>
+	<depend>tobas_msgs_adapter</depend>
 
 	<export>
-		<build_type>ament_python</build_type>
+		<build_type>ament_cmake</build_type>
 	</export>
 
 </package>
