@@ -25,7 +25,7 @@ private:
 };
 
 FakePosVelAccYawPublisherNode::FakePosVelAccYawPublisherNode(const rclcpp::NodeOptions& options)
-  : super("fake_battery_publisher", options)
+  : super("fake_pos_vel_acc_yaw_publisher", options)
 {
   pvay_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
