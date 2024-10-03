@@ -53,7 +53,7 @@ MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_m
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
 
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   gps_origin_sub_ = createSubscriber(tobas::kGpsOriginTopic, &self::gpsOriginCb, this, true, true);
 
   as_ = createAction(tobas::kMoveAction, &self::handleGoal, &self::handleCancel, &self::execute, this);

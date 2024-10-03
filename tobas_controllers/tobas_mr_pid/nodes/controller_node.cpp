@@ -157,7 +157,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
   if (do_thrust_correction_)
     thrust_factor_sub_ = createSubscriber(tobas::kThrustCorrectionFactorTopic, &self::thrustFactorCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCb, this);
   rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
 }

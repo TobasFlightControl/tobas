@@ -83,7 +83,7 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
   initializeControllers();
 
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this, true, true);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);

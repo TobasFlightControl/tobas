@@ -75,7 +75,7 @@ void RotorTestWidget::onInit()
   connect(&disarm_thread_, &SetArmThread::finished, this, &self::onDisarmFinished);
 
   // Register subscribers
-  arming_sub_ = ros2::createSubscriber(node_, tobas::kArmingTopic, &self::armingCb, this, true, true);
+  arming_sub_ = ros2::createSubscriber(node_, tobas::kArmingTopic, &self::armingCb, this);
 }
 
 void RotorTestWidget::updateInternalDataStructures()
