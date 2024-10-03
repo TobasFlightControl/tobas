@@ -1,3 +1,5 @@
+#include <thread>
+
 #include <tobas_linux/realtime.hpp>
 
 #include "../include/tobas_components_rt/multi_component_managers.hpp"
@@ -34,6 +36,8 @@ void MultiComponentManagers::spin()
       RCLCPP_WARN(managers[i].node->get_logger(), "Failed to set realtime thread priority.");
 
     // TODO: Set CPU affinity?
+
+    std::this_thread::sleep_for(100ms);
   }
 
   for (auto& manager : managers)
