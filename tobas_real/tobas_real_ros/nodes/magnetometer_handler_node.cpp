@@ -173,7 +173,7 @@ bool MagnetometerHandlerNode::paramsCb(const std::vector<double>& params)
   pt_.set(kByKey, params.at(kByChannel));
   pt_.set(kBzKey, params.at(kBzChannel));
   pt_.set(kCKey, params.at(kCChannel));
-  if (pt_.save())
+  if (!pt_.save())
   {
     TOBAS_ERROR("Failed to save parameters.");
     return false;

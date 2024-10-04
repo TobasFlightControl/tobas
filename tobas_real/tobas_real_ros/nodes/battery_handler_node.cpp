@@ -101,7 +101,7 @@ bool BatteryHandlerNode::paramsCb(const std::vector<double>& params)
   // Save parameters
   pt_.set(kVoltageKey, params.at(kVoltageChannel));
   pt_.set(kCurrentKey, params.at(kCurrentChannel));
-  if (pt_.save())
+  if (!pt_.save())
   {
     TOBAS_ERROR("Failed to save parameters.");
     return false;

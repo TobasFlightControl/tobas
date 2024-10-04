@@ -117,7 +117,7 @@ bool ImuHandlerNode::paramsCb(const std::vector<double>& params)
   pt_.set(kOffsetXKey, params.at(kOffsetXChannel));
   pt_.set(kOffsetYKey, params.at(kOffsetYChannel));
   pt_.set(kOffsetZKey, params.at(kOffsetZChannel));
-  if (pt_.save())
+  if (!pt_.save())
   {
     TOBAS_ERROR("Failed to save parameters.");
     return false;

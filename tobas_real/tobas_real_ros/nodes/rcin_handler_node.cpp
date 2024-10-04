@@ -222,7 +222,7 @@ bool RCInputHandlerNode::paramsCb(const vector<double>& params)
   pt_.set(kEStopOffKey, params.at(kEStopOffChannel));
   pt_.set(kGPSwOnKey, params.at(kGPSwOnChannel));
   pt_.set(kGPSwOffKey, params.at(kGPSwOffChannel));
-  if (pt_.save())
+  if (!pt_.save())
   {
     TOBAS_ERROR("Failed to save parameters.");
     return false;
