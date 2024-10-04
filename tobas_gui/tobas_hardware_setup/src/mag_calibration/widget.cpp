@@ -284,8 +284,8 @@ void MagCalibrationWidget::onFinishButtonClicked()
   params.at(real::handler::mag::kCChannel) = mag_trans_.c;
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, ns_ + "/adc_handler");
-  if (!param_client.setParam(real::handler::kParamName, params))
+  ros2::SyncParamClient param_client(node_, ns_ + "/magnetometer_handler");
+  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");
     reset();

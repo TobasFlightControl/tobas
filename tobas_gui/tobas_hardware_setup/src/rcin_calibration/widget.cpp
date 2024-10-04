@@ -259,7 +259,7 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 
   // パラメータを更新
   ros2::SyncParamClient param_client(node_, ns_ + "/rcin_handler");
-  if (!param_client.setParam(real::handler::kParamName, params))
+  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");
     reset();

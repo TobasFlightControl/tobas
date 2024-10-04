@@ -5,6 +5,7 @@
 #include <tobas_real_common/constants.hpp>
 
 #include "tobas_hardware_setup/accel_calibration/thread.hpp"
+#include "tobas_hardware_setup/constants.hpp"
 #include "tobas_hardware_setup/util.hpp"
 
 namespace gui
@@ -37,7 +38,7 @@ void AccelCalibrationThread::run()
 
   // パラメータを更新
   ros2::SyncParamClient param_client(node_, ns_ + "/imu_handler");
-  if (!param_client.setParam(real::handler::kParamName, params))
+  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
   {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;
@@ -62,7 +63,7 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   auto imu_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kImuTopic, &self::imuCb, this);
 
   // データが溜まるまで待機
-  if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kTimeout))
+  if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))
   {
     if (cnt_ == 0)
       Q_EMIT finished(false, "IMU data is not received.");

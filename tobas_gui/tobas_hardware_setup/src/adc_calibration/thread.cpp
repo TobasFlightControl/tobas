@@ -5,6 +5,7 @@
 #include <tobas_real_common/constants.hpp>
 
 #include "tobas_hardware_setup/adc_calibration/thread.hpp"
+#include "tobas_hardware_setup/constants.hpp"
 #include "tobas_hardware_setup/util.hpp"
 
 namespace gui
@@ -31,7 +32,7 @@ void ADCCalibrationThread::run()
   auto adc_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kAdcTopic, &ADCCalibrationThread::adcCb, this);
 
   // データが溜まるまで待機
-  if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kTimeout))
+  if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))
   {
     if (cnt_ == 0)
       Q_EMIT finished(false, "ADC data is not received.");
@@ -53,8 +54,8 @@ void ADCCalibrationThread::run()
   params.at(real::handler::adc::kCurrentChannel) = 1.;  // TODO
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, ns_ + "/adc_handler");
-  if (!param_client.setParam(real::handler::kParamName, params))
+  ros2::SyncParamClient param_client(node_, ns_ + "/battery_handler");
+  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
   {
     Q_EMIT finished(false, "Failed to send calibration results.");
     return;

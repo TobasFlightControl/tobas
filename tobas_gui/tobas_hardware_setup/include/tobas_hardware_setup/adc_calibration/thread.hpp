@@ -17,8 +17,8 @@ class ADCCalibrationThread : public QThread
   using self = ADCCalibrationThread;
   using super = QThread;
 
-  static constexpr size_t kDataCount = 1000;
-  static constexpr double kTimeout = 5.;  // [s]
+  static constexpr size_t kDataCount = 100;
+  static constexpr double kCollectDataTimeout = 5.;  // [s]
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);
