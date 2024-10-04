@@ -99,8 +99,7 @@ bool lockAndPrefaultDynamic(size_t process_max_dynamic_memory)
 
   void* buf = nullptr;
   const auto pg_sz = sysconf(_SC_PAGESIZE);
-  const auto res = posix_memalign(&buf, pg_sz, process_max_dynamic_memory);
-  if (res != 0)
+  if (posix_memalign(&buf, pg_sz, process_max_dynamic_memory) != 0)
   {
     cerr << "proc rt init mem aligning failed: " << strError() << endl;
     return false;
