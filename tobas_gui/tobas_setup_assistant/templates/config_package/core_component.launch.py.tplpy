@@ -258,12 +258,6 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_topic_throttle",
-                            plugin="LatencyThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
                             plugin="RCInputThrottleNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
