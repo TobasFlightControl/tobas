@@ -82,6 +82,8 @@ void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
   speeds_publisher_->updateInternalDataStructures();
+  arming_sub_ = ros2::createSubscriber(node_, drone_.name + "/" + tobas::kArmingTopic, &self::armingCb, this);
+  setEnabled(true);
 }
 
 void RotorTestWidget::reset()
@@ -101,6 +103,17 @@ void RotorTestWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming
 
 void RotorTestWidget::onStartButtonClicked()
 {
+  if (arming_ == nullptr)
+  {
+    qt::qWarnBox(this, "This operation is not allowed because the arming status in not received yet.");
+    return;
+  }
+  if (arming_->data)
+  {
+    qt::qWarnBox(this, "This operation is not allowed because the rotors are already armed.");
+    return;
+  }
+
   spinner_.show();
   spinner_.start();
 
@@ -113,6 +126,12 @@ void RotorTestWidget::onArmFinished(bool success, const QString& message)
   spinner_.hide();
   spinner_.stop();
 
+  if (!success)
+  {
+    qt::qErrorBox(this, message);
+    return;
+  }
+
   speeds_publisher_->start();
 
   start_button_->setEnabled(false);
@@ -120,10 +139,7 @@ void RotorTestWidget::onArmFinished(bool success, const QString& message)
 
   is_running_ = true;
 
-  if (success)
-    qt::qInfoBox(this, "Rotor test is started.");
-  else
-    qt::qErrorBox(this, message);
+  qt::qInfoBox(this, "Rotor test is started.");
 }
 
 void RotorTestWidget::onStopButtonClicked()

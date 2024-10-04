@@ -22,7 +22,7 @@ class RotorSpeedsPublisherWidget : public QWidget
   static constexpr int kChannelSize = 14;  // TODO: ハードウェアの最大チャンネル数に合わせる
   static constexpr int kMaxRows = kChannelSize / 2;
   static constexpr int kButtonHeight = 50;
-  static constexpr auto kPublishPeriod = std::chrono::milliseconds(100);
+  static constexpr auto kPublishPeriod = std::chrono::milliseconds(10);
   static constexpr size_t kNumButtons = 6;
   static constexpr std::array<int, kNumButtons> kRPMs = { 0, 100, 500, 1000, 5000, 10000 };
 

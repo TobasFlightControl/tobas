@@ -14,10 +14,11 @@ SetArmThread::SetArmThread(rclcpp::Node::SharedPtr node, bool arming) : node_(no
 
 void SetArmThread::run()
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(node_, tobas::kSetArmSrv);
+  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(node_, ns_ + "/" + tobas::kSetArmSrv);
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming_;
+  req->ignore_prearm_check = true;
   if (!sc.call(req))
   {
     Q_EMIT finished(false, "Arming service is not available.");
