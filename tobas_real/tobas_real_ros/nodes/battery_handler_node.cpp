@@ -1,7 +1,6 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_property_tree/property_tree.hpp>
-#include <tobas_linux/core.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
@@ -12,6 +11,7 @@
 
 using namespace std;
 using namespace real::handler::adc;
+namespace fs = filesystem;
 
 class BatteryHandlerNode : public tobas::BaseNode
 {
@@ -43,8 +43,8 @@ private:
 
 BatteryHandlerNode::BatteryHandlerNode(const rclcpp::NodeOptions& options) : super("battery_handler", options)
 {
-  if (!pt_.initialize(linux::expandUser(kIniPath)))
-    TOBAS_EXIT("Failed to initialize property tree.");
+  if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
+    TOBAS_WARN("Failed to initialize property tree.");
 
   readConfig();
 

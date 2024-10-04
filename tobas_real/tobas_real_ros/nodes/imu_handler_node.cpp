@@ -1,7 +1,6 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_algorithm/kahan.hpp>
-#include <tobas_linux/core.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -15,6 +14,7 @@
 
 using namespace std;
 using namespace real::handler::imu;
+namespace fs = filesystem;
 
 class ImuHandlerNode : public tobas::BaseNode
 {
@@ -60,8 +60,8 @@ private:
 
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_handler", options)
 {
-  if (!pt_.initialize(linux::expandUser(kIniPath)))
-    TOBAS_EXIT("Failed to initialize property tree.");
+  if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
+    TOBAS_WARN("Failed to initialize property tree.");
 
   readConfig();
 

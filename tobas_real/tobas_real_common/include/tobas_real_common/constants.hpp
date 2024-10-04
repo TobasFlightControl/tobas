@@ -4,6 +4,9 @@
 
 namespace real
 {
+// Path
+static constexpr char kTobasResourceDir[] = "/etc/tobas";
+
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
 // チャンネルは8までを想定．9以上は受信機が対応していないことがある
@@ -21,8 +24,6 @@ static constexpr char kParamName[] = "parameters";
 
 namespace adc
 {
-static constexpr char kIniPath[] = "~/.config/tobas/adc.ini";
-
 static constexpr size_t kVoltageChannel = 0;
 static constexpr size_t kCurrentChannel = 1;
 static constexpr size_t kParamSize = 2;
@@ -33,8 +34,6 @@ static constexpr char kCurrentKey[] = "current_coef";
 
 namespace imu
 {
-static constexpr char kIniPath[] = "~/.config/tobas/accelerometer.ini";
-
 static constexpr size_t kOffsetXChannel = 0;
 static constexpr size_t kOffsetYChannel = 1;
 static constexpr size_t kOffsetZChannel = 2;
@@ -47,8 +46,6 @@ static constexpr char kOffsetZKey[] = "offset_z";
 
 namespace mag
 {
-static constexpr char kIniPath[] = "~/.config/tobas/magnetometer.ini";
-
 static constexpr size_t kAxxChannel = 0;
 static constexpr size_t kAyyChannel = 1;
 static constexpr size_t kAzzChannel = 2;
@@ -75,8 +72,6 @@ static constexpr char kCKey[] = "c";
 
 namespace rcin
 {
-static constexpr char kIniPath[] = "~/.config/tobas/rc_input.ini";
-
 static constexpr size_t kRollLeftChannel = 0;
 static constexpr size_t kRollRightChannel = 1;
 static constexpr size_t kPitchUpChannel = 2;
