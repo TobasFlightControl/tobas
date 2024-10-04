@@ -62,7 +62,7 @@ void BatteryHandlerNode::readConfig()
     voltage_coef_ = kDefaultAdcVoltageCoef;
   }
 
-  if (!pt_.get(kCurrentKey, voltage_coef_))
+  if (!pt_.get(kCurrentKey, current_coef_))
   {
     TOBAS_WARN("Failed to get \"", kCurrentKey, "\". from configuration file. The default value is used.");
     current_coef_ = kDefaultAdcCurrentCoef;
