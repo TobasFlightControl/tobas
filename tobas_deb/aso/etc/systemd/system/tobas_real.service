@@ -1,5 +1,7 @@
 [Unit]
 Description=Tobas Flight Controller
+After=network-online.target
+Wants=network-online.target
 Conflicts=tobas_hil.service
 
 [Service]
