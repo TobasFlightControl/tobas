@@ -87,6 +87,7 @@ void MagCalibrationWidget::onInit()
 
   // Rvizのトピックを指定
   display->subProp("Topic")->setValue(kRvizPointTopic);
+  point_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointTopic);
 
   // データバッファ関連
   history_length_ = display->subProp("History Length");
@@ -103,7 +104,6 @@ void MagCalibrationWidget::setNamespace(const string& ns)
 
 void MagCalibrationWidget::reset()
 {
-  point_pub_ = nullptr;
   mag_raw_sub_ = nullptr;
 
   history_length_->setValue(0);
@@ -132,7 +132,6 @@ void MagCalibrationWidget::onStartButtonClicked()
   cnt_ = 0;
 
   // 一時的にトピック通信を開始
-  point_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, ns_ + "/" + kRvizPointTopic);
   mag_raw_sub_ = ros2::createSubscriber(node_, ns_ + "/" + hal::kMagTopic, &self::magCb, this);
 
   history_length_->setValue(kMaxDataSize);
