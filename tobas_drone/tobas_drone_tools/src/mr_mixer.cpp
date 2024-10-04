@@ -174,9 +174,9 @@ void Mixer::updateThrustLimits(const double& cur_voltage, const double& thrusts_
     min_thrusts_.fill(0.);
     max_thrusts_.fill(numeric_limits<double>::max());
     if (thrusts_sum < min_thrusts_sum)
-      PRINT_ERROR("Target thrust sum [N] is too small: " << thrusts_sum << " < " << min_thrusts_sum);
+      PRINT_DEBUG("Target thrust sum [N] is too small: " << thrusts_sum << " < " << min_thrusts_sum);
     else
-      PRINT_ERROR("Target thrust sum [N] is too large: " << thrusts_sum << " > " << max_thrusts_sum);
+      PRINT_DEBUG("Target thrust sum [N] is too large: " << thrusts_sum << " > " << max_thrusts_sum);
   }
 }
 }  // namespace tobas

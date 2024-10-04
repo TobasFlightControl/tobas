@@ -52,7 +52,7 @@ bool setThreadCPUAffinity(pthread_t thread, uint32_t cpu_bit_mask)
   CPU_ZERO(&set);
   while (cpu_bit_mask > 0)
   {
-    if ((cpu_bit_mask & 1) > 0)
+    if (cpu_bit_mask & 1)
       CPU_SET(cpu_cnt, &set);
     cpu_bit_mask >>= 1;
     ++cpu_cnt;
