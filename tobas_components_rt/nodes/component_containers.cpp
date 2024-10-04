@@ -1,9 +1,5 @@
 #include "tobas_components_rt/multi_component_managers.hpp"
 
-#define SCHED_POLICY SCHED_FIFO
-#define NUM_MANAGERS 4
-#define NUM_THREADS 0
-
 static void sigIntHandler(int)
 {
   rclcpp::shutdown();
@@ -16,7 +12,7 @@ int main(int argc, char* argv[])
   // Ctrl+Cで即終了
   signal(SIGINT, sigIntHandler);
 
-  ros2::MultiComponentManagers managers(NUM_MANAGERS);
+  ros2::MultiComponentManagers managers(4);
 
   // FIXME: CPU Affinityを設定するとsystemdから起動したときに不具合が出る
 
