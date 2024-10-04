@@ -21,32 +21,26 @@ private:
 
   ros2::PublisherPtr<tobas_hal_msgs::msg::Sbus> sbus_pub_;
 
-  void mainTimerCb();
+  void onPacket(const aso::SBUS::Packet& packet);
 };
 
-SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options) : super("aso_sbus_driver", options)
+SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
+  : super("aso_sbus_driver", options), sbus_(bind(&self::onPacket, this, placeholders::_1))
 {
-  // Initialize S.BUS driver
-  if (!sbus_.initialize())
-    TOBAS_EXIT("Failed to initialize S.BUS driver.");
-
   // Advertise publisher
   sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSbusTopic);
 
-  // Start main timer with maximum rate
-  main_timer_ = createTimer(0ns, &self::mainTimerCb, this);
+  // Initialize S.BUS driver
+  if (!sbus_.initialize())
+    TOBAS_EXIT("Failed to initialize S.BUS driver.");
 }
 
-void SBUSDriverNode::mainTimerCb()
+void SBUSDriverNode::onPacket(const aso::SBUS::Packet& packet)
 {
-  // Read S.BUS
-  if (sbus_.update() != aso::SBUS::THROTTLE)
-    return;
-
   // Create message
   auto sbus_msg = std::make_unique<tobas_hal_msgs::msg::Sbus>();
   sbus_msg->header.stamp = get_clock()->now();
-  sbus_msg->data = sbus_.getPeriods();
+  sbus_msg->data = packet.periods;
 
   // Publish message
   sbus_pub_->publish(move(sbus_msg));

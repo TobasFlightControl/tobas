@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <boost/multiprecision/cpp_int.hpp>
 
 #include "../include/tobas_aso_core/sbus.hpp"
@@ -9,7 +10,7 @@ using namespace boost::multiprecision;
 
 namespace aso
 {
-SBUS::SBUS()
+SBUS::SBUS(std::function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 {
 }
 
@@ -27,89 +28,82 @@ bool SBUS::initialize()
   if (!uart_dev_.setDoubleStopBit())
     return false;
 
-  // TODO: SBUSは偶数パリティのはずだが，パリティチェックを有効にすると1バイトも取得できない．
-  if (!uart_dev_.disableParity())
+  if (!uart_dev_.enableParity(linux::UARTdev::PARITY_EVEN))
     return false;
 
-  if (!uart_dev_.setTimeout(1))  // S.BUSは50 ~ 100Hzだから，インターバルの最大値は20ms
-    return false;
+  // 信号読み取りを開始
+  read_thread_ = thread(bind(&SBUS::readThreadFunc, this));
 
   return true;
 }
 
-SBUS::message_t SBUS::update()
+void SBUS::spin()
 {
-  // SBUSのパケットを取得
-  // 一定時間のLOWでブレークポイントとみなされるため，25バイトを取得したときそれが複数のパケットにまたがっていることはない．
-  const auto read_size = ::read(uart_dev_.fd(), packet_.data(), kPacketSize);
+  read_thread_.join();
+}
 
-  // 読み取ったデータサイズに応じて場合分け
-  switch (read_size)
+void SBUS::readThreadFunc()
+{
+  const std::set<uint8_t> end_bytes{ 0x00, 0x04, 0x14, 0x24, 0x34 };
+
+  while (true)
   {
-    case kPacketSize:
+    // インバータが悪いのかLinuxのUARTデバイスにデータが勝手に分割されるため，一括ではなく1バイトずつ取得する．
+    // FIXME: SBUSドライバの起動時に偶然スタートバイトでない0x0Fが先頭にきているとバグるはず
+
+    // Start byte
+    if (readByte() != 0x0F)
+      continue;
+
+    // Data
+    for (size_t i = 0; i < kDataSize; ++i)
+      data_[i] = readByte();
+
+    // Flags
+    const auto flags = readByte();
+
+    // End byte
+    const auto end_byte = readByte();
+    if (!end_bytes.contains(end_byte))
     {
-      // Check start byte
-      const auto& start_byte = packet_.at(kStartIdx);
-      if (start_byte != 0x0F)
-      {
-        cerr << "Invalid start byte: " << hex << uppercase << (int)start_byte << endl;
-        return ERROR;
-      }
-
-      // Check end byte
-      const auto& end_byte = packet_.at(kEndIdx);
-      switch (end_byte)
-      {
-        case 0x00:  // SBUS1
-          break;
-        case 0x04:  // SBUS2 telemetry slots 0-7
-          break;
-        case 0x14:  // SBUS2 telemetry slots 8-15
-          break;
-        case 0x24:  // SBUS2 telemetry slots 16-23
-          break;
-        case 0x34:  // SBUS2 telemetry slots 24-31
-          break;
-        default:
-          cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
-          return ERROR;
-      }
-
-      decodeData();
-      decodeFlags();
-
-      return THROTTLE;
+      cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
+      continue;
     }
 
-    case kTelemSize:
-      return TELEMETRY;
-      break;
+    // Decode packet
+    decodeData(data_);
+    decodeFlags(flags);
 
-    default:
-      cerr << "Invalid packet size: " << read_size << endl;
-      return ERROR;
+    // Call user callback
+    packet_cb_(packet_);
   }
 }
 
-void SBUS::decodeData()
+uint8_t SBUS::readByte()
+{
+  if (::read(uart_dev_.fd(), &byte_, 1) != 1)
+    throw runtime_error("Failed to read 1 byte.");
+  return byte_;
+}
+
+void SBUS::decodeData(const std::array<uint8_t, kDataSize>& data)
 {
   // 繰り上がりが面倒なので，一旦データを1つのビット列に変換する．
-  uint256_t data = 0;
+  uint256_t bits = 0;
   for (size_t idx = 0; idx < kDataSize; ++idx)
-    data |= (static_cast<uint256_t>(packet_.at(kDataIdx + idx)) << (kDataBits * idx));
+    bits |= (static_cast<uint256_t>(data.at(idx)) << (kDataBits * idx));
 
   // 11ビットずつ取り出す
   constexpr uint16_t kMask = (1 << kChannelBits) - 1;
   for (size_t ch = 0; ch < kChannelSize; ++ch)
-    out_.periods.at(ch) = ((data >> (kChannelBits * ch)) & kMask).convert_to<uint16_t>();
+    packet_.periods.at(ch) = ((bits >> (kChannelBits * ch)) & kMask).convert_to<uint16_t>();
 }
 
-void SBUS::decodeFlags()
+void SBUS::decodeFlags(uint8_t flags)
 {
-  const auto& flags_byte = packet_.at(kFlagsIdx);
-  out_.ch17 = (flags_byte >> 0) & 1;
-  out_.ch18 = (flags_byte >> 1) & 1;
-  out_.frame_lost = (flags_byte >> 2) & 1;
-  out_.failsave_activated = (flags_byte >> 3) & 1;
+  packet_.ch17 = (flags >> 0) & 1;
+  packet_.ch18 = (flags >> 1) & 1;
+  packet_.frame_lost = (flags >> 2) & 1;
+  packet_.failsave_activated = (flags >> 3) & 1;
 }
 }  // namespace aso

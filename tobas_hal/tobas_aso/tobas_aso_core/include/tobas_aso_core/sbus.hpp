@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <thread>
+#include <functional>
 
 #include <tobas_linux/uart_dev.hpp>
 
@@ -14,6 +16,15 @@ class SBUS
 {
 public:
   static constexpr size_t kChannelSize = 16;
+
+  struct Packet
+  {
+    std::array<uint16_t, kChannelSize> periods;
+    bool ch17;
+    bool ch18;
+    bool frame_lost;
+    bool failsave_activated;
+  };
 
 private:
   static constexpr uint32_t kBaudRate = 100'000;  // [bps]
@@ -29,71 +40,25 @@ private:
   static constexpr size_t kPacketSize = kEndIdx + 1;
 
 public:
-  enum message_t : int
-  {
-    ERROR = -1,
-    THROTTLE = 0,
-    TELEMETRY = 1,
-  };
-
-  explicit SBUS();
+  explicit SBUS(std::function<void(const Packet&)> packet_cb);
 
   bool initialize();
-
-  /* Read a S.BUS message from the receiver and update the periods of all the 16 channels. */
-  message_t update();
-
-  inline const std::array<uint16_t, kChannelSize> getPeriods() const;
-  inline const uint16_t& getPeriod(uint8_t channel) const;
-  inline const bool& channel17() const;
-  inline const bool& channel18() const;
-  inline const bool& frameLost() const;
-  inline const bool& failsaveActivated() const;
+  void spin();
 
 private:
+  const std::function<void(const Packet&)> packet_cb_;
+
   linux::UARTdev uart_dev_;
-  std::array<uint8_t, kPacketSize> packet_;
+  std::array<uint8_t, kDataSize> data_;
+  Packet packet_;
 
-  struct Output
-  {
-    std::array<uint16_t, kChannelSize> periods;
-    bool ch17;
-    bool ch18;
-    bool frame_lost;
-    bool failsave_activated;
-  } out_;
+  std::thread read_thread_;
+  void readThreadFunc();
 
-  void decodeData();
-  void decodeFlags();
+  uint8_t byte_;
+  uint8_t readByte();
+
+  void decodeData(const std::array<uint8_t, kDataSize>& data);
+  void decodeFlags(uint8_t flags);
 };
-
-inline const std::array<uint16_t, SBUS::kChannelSize> SBUS::getPeriods() const
-{
-  return out_.periods;
-}
-
-inline const uint16_t& SBUS::getPeriod(uint8_t channel) const
-{
-  return out_.periods.at(channel);
-}
-
-inline const bool& SBUS::channel17() const
-{
-  return out_.ch17;
-}
-
-inline const bool& SBUS::channel18() const
-{
-  return out_.ch18;
-}
-
-inline const bool& SBUS::frameLost() const
-{
-  return out_.frame_lost;
-}
-
-inline const bool& SBUS::failsaveActivated() const
-{
-  return out_.failsave_activated;
-}
 }  // namespace aso
