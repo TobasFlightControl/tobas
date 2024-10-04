@@ -16,7 +16,28 @@ int main(int argc, char* argv[])
   // Ctrl+Cで即終了
   signal(SIGINT, sigIntHandler);
 
-  ros2::MultiComponentManagers managers(SCHED_FIFO, NUM_MANAGERS, NUM_THREADS);
+  ros2::MultiComponentManagers managers(NUM_MANAGERS);
+
+  managers.setPolicy(0, SCHED_FIFO);
+  managers.setPriority(0, 90);
+  managers.setCPUAffinity(0, (1 << 0) | (1 << 1));
+  managers.setNumThreads(0, 0);
+
+  managers.setPolicy(1, SCHED_FIFO);
+  managers.setPriority(1, 50);
+  managers.setCPUAffinity(1, (1 << 2));
+  managers.setNumThreads(1, 0);
+
+  managers.setPolicy(2, SCHED_FIFO);
+  managers.setPriority(2, 10);
+  managers.setCPUAffinity(2, (1 << 3));
+  managers.setNumThreads(2, 0);
+
+  managers.setPolicy(3, SCHED_FIFO);
+  managers.setPriority(3, 0);
+  managers.setCPUAffinity(3, (1 << 3));
+  managers.setNumThreads(3, 0);
+
   managers.spin();
 
   rclcpp::shutdown();

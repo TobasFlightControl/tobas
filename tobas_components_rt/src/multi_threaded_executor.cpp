@@ -6,10 +6,11 @@ using namespace std;
 
 namespace ros2
 {
-MultiThreadedExecutorRT::MultiThreadedExecutorRT(size_t priority, int policy, size_t num_threads)
+MultiThreadedExecutorRT::MultiThreadedExecutorRT(int policy, size_t priority, uint32_t cpu_affinity, size_t num_threads)
   : rclcpp::executors::MultiThreadedExecutor(rclcpp::ExecutorOptions(), num_threads),
+    policy_(policy),
     priority_(priority),
-    policy_(policy)
+    cpu_affinity_(cpu_affinity)
 {
 }
 
@@ -27,8 +28,14 @@ void MultiThreadedExecutorRT::spin()
     threads.emplace_back(func);
 
     // スレッドのリアルタイム優先度を設定
-    if (!linux::setThreadPriority(threads.back().native_handle(), priority_, policy_))
-      RCLCPP_WARN(rclcpp::get_logger("multi_threaded_executor_rt"), "Failed to set realtime thread priority.");
+    if (priority_ > 0)
+      if (!linux::setThreadPriority(threads.back().native_handle(), priority_, policy_))
+        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread realtime priority.");
+
+    // スレッドのCPU割当を設定
+    if (cpu_affinity_ > 0)
+      if (!linux::setThreadCPUAffinity(threads.back().native_handle(), cpu_affinity_))
+        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread CPU affinity.");
   }
 
   for (auto& thread : threads)

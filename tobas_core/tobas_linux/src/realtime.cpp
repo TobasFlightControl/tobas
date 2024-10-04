@@ -45,7 +45,7 @@ bool setThisProcessPriority(size_t priority, int policy)
   return setProcessPriority(getpid(), priority, policy);
 }
 
-bool setThreadPUAffinity(pthread_t thread, uint32_t cpu_bit_mask)
+bool setThreadCPUAffinity(pthread_t thread, uint32_t cpu_bit_mask)
 {
   cpu_set_t set;
   uint32_t cpu_cnt = 0;
