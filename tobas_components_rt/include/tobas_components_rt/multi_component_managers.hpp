@@ -3,19 +3,19 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/component_manager.hpp>
 
-#include "./multi_threaded_executor.hpp"
-
 namespace ros2
 {
 struct ComponentManager
 {
   rclcpp_components::ComponentManager::SharedPtr node;
-  MultiThreadedExecutorRT::SharedPtr exec;
+  rclcpp::Executor::SharedPtr exec;
   std::thread thread;
 };
 
 class MultiComponentManagers
 {
+  static constexpr char kName[] = "multi_component_managers";
+
 public:
   explicit MultiComponentManagers(size_t num_managers);
 

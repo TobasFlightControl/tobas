@@ -3,6 +3,7 @@
 #include <tobas_linux/realtime.hpp>
 
 #include "../include/tobas_components_rt/multi_component_managers.hpp"
+#include "../include/tobas_components_rt/multi_threaded_executor.hpp"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ MultiComponentManagers::MultiComponentManagers(size_t num_managers)
     policy_(num_managers, SCHED_FIFO),
     priority_(num_managers, 0),
     affinity_(num_managers, 0),
-    num_threads_(num_managers, 0)
+    num_threads_(num_managers, 1)
 {
 }
 
@@ -45,13 +46,27 @@ void MultiComponentManagers::spin()
 
   for (size_t i = 0; i < num_managers_; ++i)
   {
-    managers[i].exec = make_shared<MultiThreadedExecutorRT>(policy_[i], priority_[i], affinity_[i], num_threads_[i]);
+    if (num_threads_[i] == 1)
+      managers[i].exec = make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    else
+      managers[i].exec = make_shared<MultiThreadedExecutorRT>(policy_[i], priority_[i], affinity_[i], num_threads_[i]);
+
     managers[i].node = make_shared<rclcpp_components::ComponentManager>(managers[i].exec, nodeName(i), node_options);
     managers[i].exec->add_node(managers[i].node);
 
     // ComponentManagerを別スレッドで起動
-    // このスレッドにリアルタイムスケジューリングを適用すると，DDS接続作成時のコールバックスレッドの遅延が大きくなる．
     managers[i].thread = thread([&]() { managers[i].exec->spin(); });
+
+    // スレッドのリアルタイム優先度を設定
+    if (priority_[i] > 0)
+      if (!linux::setThreadPriority(managers[i].thread.native_handle(), priority_[i], policy_[i]))
+        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread realtime priority.");
+
+    // スレッドのCPU割当を設定
+    if (affinity_[i] > 0)
+      if (!linux::setThreadCPUAffinity(managers[i].thread.native_handle(), affinity_[i]))
+        RCLCPP_WARN(rclcpp::get_logger(kName), "Failed to set thread CPU affinity.");
+
     this_thread::sleep_for(100ms);  // 一定時間待機．さもないとスピン中にスピンを呼ぶことになってしまう．
   }
 
