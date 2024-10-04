@@ -35,6 +35,7 @@ bool PropertyTree::initialize(const fs::path& file_path)
     if (!path::createFilePath(file_path, false))
     {
       cerr << "Failed to create " << file_path << "." << endl;
+      return false;
     }
   }
 
