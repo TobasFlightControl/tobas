@@ -99,7 +99,7 @@ int main()
 
   while (true)
   {
-    if (!gnss.update())
+    if (!gnss.update(false))
     {
       cerr << "Failed to update GNSS driver." << endl;
       return EXIT_FAILURE;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <tobas_std_tools/rate.hpp>
-#include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
 #include "./ubx_scanner.hpp"
@@ -29,8 +28,7 @@ private:
 
   // SPIで1バイト受け取る間隔 [us]
   // 小さいほど通信遅延を小さくできるが，小さすぎるとレシーバへのリクエスト過多で精度が落ちる．
-  // 少なくとも50usまでは下げられるが，CPU負荷を抑えるため大きめにしておく．
-  static constexpr auto kReqInterval = std::chrono::microseconds(100);
+  static constexpr auto kReqInterval = std::chrono::microseconds(50);
 
 public:
   enum ubx_class_t : uint8_t
@@ -123,7 +121,7 @@ public:
   explicit ZEDF9P();
 
   bool initialize();
-  bool update();
+  bool update(bool nonblock = true);
 
   /* ===== Configurations =====*/
 
@@ -251,7 +249,6 @@ private:
   UBXScanner scanner_;
 
   tobas_std::Rate rate_;
-  tobas_std::Stopwatch stopwatch_;
 
   bool sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size);
   bool waitForAcknowledge(ubx_class_t cls, uint8_t id);

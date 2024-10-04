@@ -11,6 +11,8 @@ class GNSSDriverNode : public hal::BaseSensorNode
   // GNSSレシーバの更新周期 [ms]
   // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
   static constexpr size_t kMeasPeriod = 1000 / 20;
+
+  static constexpr auto kMainTimerPeriod = 1ms;
   static constexpr double kWarnPeriod = 3.;  // [s]
 
   using self = GNSSDriverNode;
@@ -58,8 +60,7 @@ GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
 
   gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
 
-  // Start main timer with maximum rate
-  main_timer_ = createTimer(0ns, &self::mainTimerCb, this);
+  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
 bool GNSSDriverNode::configure()
@@ -150,10 +151,7 @@ void GNSSDriverNode::warnUnnecessaryUBXMessage()
 void GNSSDriverNode::mainTimerCb()
 {
   if (!gnss_.update())
-  {
-    TOBAS_FATAL("Failed to update GNSS driver.");
     return;
-  }
 
   if (gnss_.latestClass() != aso::ZEDF9P::CLASS_NAV)
   {

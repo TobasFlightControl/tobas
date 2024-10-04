@@ -25,24 +25,29 @@ bool ZEDF9P::initialize()
   return true;
 }
 
-bool ZEDF9P::update()
+bool ZEDF9P::update(bool nonblock)
 {
-  spi_dev_.tx[0] = 0;
   scanner_.reset();
-  rate_.start();
 
-  // メッセージを1つスキャン
-  while (scanner_.state() != UBXScanner::Done)
+  if (nonblock)
   {
-    // From now on, we will send zeroes to the receiver, which it will ignore
-    // However, we are simultaneously getting useful information from it
-    // stopwatch_.start();
+    // スタートバイトを確認
     if (!spi_dev_.transfer(1))
       return false;
-    // stopwatch_.stop();
+    if (!scanner_.update(spi_dev_.rx[0]))
+      return false;
 
-    // Scanner checks the message structure with every byte received
-    // ほとんど無意味な情報だが，スタックされていくためスリープせず全て読み出す必要がある
+    // データが来てなければ終了
+    if (scanner_.state() == UBXScanner::Sync1)
+      return false;
+  }
+
+  // メッセージを1つスキャン
+  rate_.start();
+  while (scanner_.state() != UBXScanner::Done)
+  {
+    if (!spi_dev_.transfer(1))
+      return false;
     if (!scanner_.update(spi_dev_.rx[0]))
       return false;
 
@@ -385,7 +390,7 @@ bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
 
   while (duration<double>(system_clock::now() - start_time).count() < kWaitForGnssAck)
   {
-    if (!update())
+    if (!update(false))
       return false;
 
     if (latestClass() != CLASS_ACK)
