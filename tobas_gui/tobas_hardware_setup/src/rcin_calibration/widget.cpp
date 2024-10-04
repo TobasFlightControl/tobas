@@ -68,14 +68,14 @@ void RCInputCalibrationWidget::onInit()
   // Roll, Pitch, Yaw, Throttle
   const auto cols3 = qt::createFixedHeightQHBoxLayout(kRangeSideLong + 20, cols2);
 
-  pitch_range_ = new qt::VPositionBarWidget(kPwmMin, kPwmMax);
+  pitch_range_ = new qt::VPositionBarWidget(kMinThrot, kMaxThrot);
   pitch_range_->setFixedSize(kRangeSideShort, kRangeSideLong);
   cols3->addWidget(pitch_range_);
 
   const auto rows1 = new QVBoxLayout();
   cols3->addLayout(rows1);
 
-  roll_range_ = new qt::HPositionBarWidget(kPwmMin, kPwmMax);
+  roll_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
   roll_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
   qt::addWidgetCenter(roll_range_, rows1);
   qt::addWidgetCenter(new QLabel(QString::fromStdString(format("Roll (CH{})", real::kRcChannelRoll + 1))), rows1);
@@ -96,11 +96,11 @@ void RCInputCalibrationWidget::onInit()
   rows1->addStretch();
 
   qt::addWidgetCenter(new QLabel(QString::fromStdString(format("Yaw (CH{})", real::kRcChannelYaw + 1))), rows1);
-  yaw_range_ = new qt::HPositionBarWidget(kPwmMin, kPwmMax);
+  yaw_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
   yaw_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
   qt::addWidgetCenter(yaw_range_, rows1);
 
-  throt_range_ = new qt::VPositionBarWidget(kPwmMin, kPwmMax);
+  throt_range_ = new qt::VPositionBarWidget(kMinThrot, kMaxThrot);
   throt_range_->setFixedSize(kRangeSideShort, kRangeSideLong);
   cols3->addWidget(throt_range_);
 
@@ -111,19 +111,19 @@ void RCInputCalibrationWidget::onInit()
 
   // Mode
   bar_grid->addWidget(new QLabel(QString::fromStdString(format("Mode (CH{})", real::kRcChannelMode + 1))), 0, 0);
-  mode_range_ = new qt::HPositionBarWidget(kPwmMin, kPwmMax);
+  mode_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
   mode_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
   bar_grid->addWidget(mode_range_, 0, 1);
 
   // E-Stop
   bar_grid->addWidget(new QLabel(QString::fromStdString(format("E-Stop (CH{})", real::kRcChannelEStop + 1))), 1, 0);
-  estop_range_ = new qt::HPositionBarWidget(kPwmMin, kPwmMax);
+  estop_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
   estop_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
   bar_grid->addWidget(estop_range_, 1, 1);
 
   // GPSw
   bar_grid->addWidget(new QLabel(QString::fromStdString(format("GPSw (CH{})", real::kRcChannelGPSw + 1))), 2, 0);
-  gpsw_range_ = new qt::HPositionBarWidget(kPwmMin, kPwmMax);
+  gpsw_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
   gpsw_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
   bar_grid->addWidget(gpsw_range_, 2, 1);
 

@@ -19,8 +19,10 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   using self = RCInputCalibrationWidget;
   using super = BaseHardwareSetupWidget;
 
-  static constexpr int kPwmMin = 900;
-  static constexpr int kPwmMax = 2100;
+  // SBUSのスロットル範囲は172-1811が基本
+  static constexpr int kMinThrot = 0;
+  static constexpr int kMaxThrot = 2000;
+
   static constexpr int kMinSignalRange = 300;
   static constexpr int kRangeSideShort = 30;
   static constexpr int kRangeSideLong = 300;
