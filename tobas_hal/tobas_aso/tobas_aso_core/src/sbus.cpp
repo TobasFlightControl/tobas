@@ -56,7 +56,7 @@ void SBUS::readThreadFunc()
 
     // Start byte
     const auto start_byte = readByte();
-    PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte);
+    PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte << dec << nouppercase);
     if (start_byte != 0x0F)
       continue;
 
@@ -64,19 +64,19 @@ void SBUS::readThreadFunc()
     for (size_t i = 0; i < kDataSize; ++i)
     {
       data_[i] = readByte();
-      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data_[i]);
+      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data_[i] << dec << nouppercase);
     }
 
     // Flags
     const auto flags = readByte();
-    PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags);
+    PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags << dec << nouppercase);
 
     // End byte
     const auto end_byte = readByte();
-    PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte);
+    PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte << dec << nouppercase);
     if (!end_bytes.contains(end_byte))
     {
-      cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
+      cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << dec << nouppercase << endl;
       continue;
     }
 
