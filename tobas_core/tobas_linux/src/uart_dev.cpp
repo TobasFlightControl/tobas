@@ -82,6 +82,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   if (ioctl(uart_fd_, TIOCMBIS, TIOCM_RTS) != 0)
   {
     cerr << "Failed to set RTS (Request To Send) state." << endl;
+    return false;
   }
 
   // Reset input buffer
