@@ -3,6 +3,8 @@
 #include <set>
 #include <boost/multiprecision/cpp_int.hpp>
 
+#include <tobas_std_tools/console.hpp>
+
 #include "../include/tobas_aso_core/sbus.hpp"
 #include "../include/tobas_aso_core/constants.hpp"
 
@@ -53,18 +55,25 @@ void SBUS::readThreadFunc()
     // FIXME: SBUSドライバの起動時に偶然スタートバイトでない0x0Fが先頭にきているとバグるはず
 
     // Start byte
-    if (readByte() != 0x0F)
+    const auto start_byte = readByte();
+    PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte);
+    if (start_byte != 0x0F)
       continue;
 
     // Data
     for (size_t i = 0; i < kDataSize; ++i)
+    {
       data_[i] = readByte();
+      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data_[i]);
+    }
 
     // Flags
     const auto flags = readByte();
+    PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags);
 
     // End byte
     const auto end_byte = readByte();
+    PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte);
     if (!end_bytes.contains(end_byte))
     {
       cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
