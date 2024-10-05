@@ -71,6 +71,19 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   if (!setConfig())
     return false;
 
+  // Set data terminal ready
+  if (ioctl(uart_fd_, TIOCMBIS, TIOCM_DTR) != 0)
+  {
+    cerr << "Failed to set DTR (Date Terminal Ready) state." << endl;
+    return false;
+  }
+
+  // Set request to send
+  if (ioctl(uart_fd_, TIOCMBIS, TIOCM_RTS) != 0)
+  {
+    cerr << "Failed to set RTS (Request To Send) state." << endl;
+  }
+
   // Reset input buffer
   if (tcflush(uart_fd_, TCIFLUSH) != 0)
   {
