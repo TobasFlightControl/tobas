@@ -88,7 +88,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   // Reset input buffer
   if (tcflush(uart_fd_, TCIFLUSH) != 0)
   {
-    cerr << "Failed to reset input buffer";
+    cerr << "Failed to reset input buffer" << endl;
     return false;
   }
 
