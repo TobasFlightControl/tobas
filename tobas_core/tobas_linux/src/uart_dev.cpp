@@ -6,6 +6,7 @@
 
 #include "../include/tobas_linux/uart_dev.hpp"
 #include "../include/tobas_linux/errer.hpp"
+#include "../include/tobas_linux/termios2.hpp"
 
 using namespace std;
 
@@ -97,26 +98,23 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 
 bool UARTdev::setStandardBaudRate(uint32_t baud_rate_flag)
 {
-  options_.c_cflag &= ~CBAUD;          // Remove current baud rate
-  options_.c_cflag |= baud_rate_flag;  // Set baud rate flag
-
-  // Clear non-standard baud rates
-  options_.c_ispeed = 0;
-  options_.c_ospeed = 0;
+  options_.c_ispeed = baud_rate_flag;
+  options_.c_ospeed = baud_rate_flag;
 
   return setConfig();
 }
 
 bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
 {
-  options_.c_cflag &= ~CBAUD;   // Remove current baud rate
-  options_.c_cflag |= CBAUDEX;  // Allow non-standard baud rate using int input
+  options_.c_ispeed = CBAUDEX;
+  options_.c_ospeed = CBAUDEX;
+  if (!setConfig())
+    return false;
 
-  // Set baud rate
-  options_.c_ispeed = baud_rate;
-  options_.c_ospeed = baud_rate;
+  if (!linux::setNonStandardBaudRate(uart_fd_, baud_rate))
+    return false;
 
-  return setConfig();
+  return true;
 }
 
 bool UARTdev::setDataBits(uint8_t data_bits)
