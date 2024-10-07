@@ -1,4 +1,5 @@
 #include <QCoreApplication>
+#include <QThread>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
@@ -20,6 +21,7 @@ ProgressDialog::ProgressDialog(const QString& title, int num_steps, QWidget* par
 void ProgressDialog::show()
 {
   super::show();
+  reflesh();
   reflesh();
 }
 
@@ -52,7 +54,8 @@ void ProgressDialog::progressStep()
 
 void ProgressDialog::reflesh()
 {
-  // FIXME: processEvents()を複数回実行してもProgressが更新されない．
+  // イベントスタックの更新後にスリープすることで画面を更新できる
   QCoreApplication::processEvents();
+  QThread::msleep(100);
 }
 }  // namespace qt
