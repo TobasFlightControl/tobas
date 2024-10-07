@@ -200,6 +200,14 @@ void RCInputCalibrationWidget::onCancelButtonClicked()
 
 void RCInputCalibrationWidget::onFinishButtonClicked()
 {
+  // メッセージの受信を確認
+  if (!roll_range_->hasValue())
+  {
+    qt::qErrorBox(this, "No S.BUS message is received.");
+    reset();
+    return;
+  }
+
   // 各チャンネルの値の範囲をチェック
   if (roll_range_->getRange() < kMinSignalRange)
   {

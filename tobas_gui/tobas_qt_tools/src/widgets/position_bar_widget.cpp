@@ -17,6 +17,26 @@ PositionBarWidget::PositionBarWidget(double minimum, double maximum, QWidget* pa
 {
 }
 
+bool PositionBarWidget::hasText() const
+{
+  return text_.has_value();
+}
+
+bool PositionBarWidget::hasValue() const
+{
+  return value_.has_value();
+}
+
+bool PositionBarWidget::hasLower() const
+{
+  return lower_.has_value();
+}
+
+bool PositionBarWidget::hasUpper() const
+{
+  return upper_.has_value();
+}
+
 double PositionBarWidget::getMinimum() const
 {
   return minimum_;

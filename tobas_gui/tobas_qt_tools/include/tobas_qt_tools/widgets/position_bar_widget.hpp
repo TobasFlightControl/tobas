@@ -14,6 +14,11 @@ public:
   explicit PositionBarWidget(QWidget* parent = nullptr);
   explicit PositionBarWidget(double minimum, double maximum, QWidget* parent = nullptr);
 
+  bool hasText() const;
+  bool hasValue() const;
+  bool hasLower() const;
+  bool hasUpper() const;
+
   double getMinimum() const;
   double getMaximum() const;
   int getLineWidth() const;
