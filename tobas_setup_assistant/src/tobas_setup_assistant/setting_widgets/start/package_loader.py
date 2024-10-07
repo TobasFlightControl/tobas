@@ -71,7 +71,6 @@ class PackageLoaderWidget(Widget):
         options |= QFileDialog.ShowDirsOnly
         options |= QFileDialog.DontResolveSymlinks
         tbs_path = QFileDialog.getExistingDirectory(self, TITLE, last_opened_dir, options=options)
-        assert not tbs_path.endswith("/")  # NOTE: スラッシュで終わる場合はosp.dirname, osp.basename等の挙動が変わる
 
         # キャンセルの場合は何もせずに終了 (そうしないと空文字が設定されてしまう)
         if tbs_path == "":

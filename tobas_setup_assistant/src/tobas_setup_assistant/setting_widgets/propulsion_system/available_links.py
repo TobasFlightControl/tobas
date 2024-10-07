@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from ...setup_assistant import SetupAssistant
 
 from PyQt5.QtCore import Qt, QSize, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QLabel, QPushButton, QListWidget, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QHBoxLayout
 from PyQt5.QtGui import QFont
 
 from tobas_kdl_sympy.joint import JointType
@@ -31,7 +31,6 @@ class AvailableLinksWidget(QListWidget):
         以下の条件を満たすリンクを推進系候補としてリストに追加する．
         - 回転関節 (continuous) をもつ．
         - Transmissionをもたない．
-        - 回転軸が常にZ軸と一致している．
         """
         # リストの要素を削除
         self.clear()
@@ -96,7 +95,7 @@ class AvailableLinksWidget(QListWidget):
         return len(items) > 0
 
 
-class AvailableLinkItemWidget(QListWidget):
+class AvailableLinkItemWidget(QWidget):
     BUTTON_WIDTH = 60
     BUTTON_HEIGHT = 20
 

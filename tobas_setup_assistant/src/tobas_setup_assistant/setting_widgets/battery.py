@@ -119,31 +119,32 @@ class BatteryWidget_Base(Widget):
 
     @abstractmethod
     def nominal_voltage(self) -> float:
+        """公称電圧 [V]"""
         raise NotImplementedError()
 
     @abstractmethod
     def max_voltage(self) -> float:
-        """[V]"""
+        """最大電圧 [V]"""
         raise NotImplementedError()
 
     @abstractmethod
     def sag_voltage(self) -> float:
-        """[V]"""
+        """電圧-電気容量特性が急激に変化する電圧 [V]"""
         raise NotImplementedError()
 
     @abstractmethod
     def max_current(self) -> float:
-        """[A]"""
+        """最大連続電流 [A]"""
         raise NotImplementedError()
 
     @abstractmethod
     def capacity(self) -> float:
-        """[As]"""
+        """電気容量 [As]"""
         raise NotImplementedError()
 
     @abstractmethod
     def internal_registance(self) -> float:
-        """[Ω] 内部抵抗値．"""
+        """内部抵抗値 [Ω]"""
         raise NotImplementedError()
 
 

@@ -20,12 +20,10 @@ StringInputDialog::StringInputDialog(
   const auto cols = new QHBoxLayout();
   rows->addLayout(cols);
 
-  const auto label = new QLabel();
-  label->setText(name);
+  const auto label = new QLabel(name);
   cols->addWidget(label);
 
-  line_edit_ = new QLineEdit();
-  line_edit_->setText(default_text);
+  line_edit_ = new QLineEdit(default_text);
   connect(line_edit_, SIGNAL(textChanged(const QString&)), this, SLOT(LineEditTextChanged(const QString&)));
   cols->addWidget(line_edit_);
 

@@ -43,7 +43,7 @@ class NonPlanarPid(BaseController):
 
     @override
     def is_applicable(self) -> bool:
-        # 固定翼は持たない
+        # 固定翼を持たない
         fixed_wing = self._main.fixed_wing
         if fixed_wing.has_fixed_wing.isChecked():
             return False

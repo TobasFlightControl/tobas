@@ -101,6 +101,10 @@ class Tree:
         if link_name == self._robot.get_root():
             return True
 
+        joint = self.get_joint(link_name)
+        if joint.type != JointType.FIXED:
+            return False
+
         _, parent_name = self._robot.parent_map[link_name]
         return self.is_fixed_link(parent_name)
 

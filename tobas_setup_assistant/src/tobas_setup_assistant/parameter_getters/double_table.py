@@ -217,6 +217,7 @@ class ParamGetterWidget_DoubleTable(ParamGetterWidget[List[List[float]]]):
     def _is_valid_data(self, src: List[List[float]]) -> bool:
         for row in src:
             if len(row) != self._num_entry:
+                q_error(self, "Column size mismatch.")
                 return False
 
             for col in range(self._num_entry):

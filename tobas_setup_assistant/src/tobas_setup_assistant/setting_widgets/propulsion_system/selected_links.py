@@ -33,7 +33,7 @@ from .aerodynamics import AerodynamicsWidget
 class SelectedLinksTabWidget(TabWidget):
     TAB_WIDTH = 150
     TAB_HEIGHT = 50
-    ARROW_LENGTH = 0.2  # 想定される推力の最大値を矢印の長さに反映
+    ARROW_LENGTH = 0.2  # TODO: 想定される推力の最大値を矢印の長さに反映
     PUBLISH_MARKERS_TIMER_PERIOD = 100  # [ms]
 
     link_removed = pyqtSignal(str)
@@ -104,7 +104,7 @@ class SelectedLinksTabWidget(TabWidget):
 
         # 最低1つは登録されていなければならない
         if num_rotors == 0:
-            q_error_named(self._main, PROPULSION_SYSTEM, "Please register at least 1 propulsion systems.")
+            q_error_named(self._main, PROPULSION_SYSTEM, "Please register at least one link as a propulsion system.")
             return False
 
         return True
@@ -303,7 +303,7 @@ class SelectedLinkWidget(QWidget):
         left: SelectedLinkWidget = selected.widget(self_idx - 1)
         self.copy_from(left)
 
-        q_info(self._main, f"The settings from {left.link_name()} have been copied to {self.link_name()}.")
+        q_info(self._main, f"The settings of {left.link_name()} have been copied to {self.link_name()}.")
 
     @pyqtSlot()
     def _on_copy_to_all_button_clicked(self) -> None:
@@ -316,4 +316,4 @@ class SelectedLinkWidget(QWidget):
             des: SelectedLinkWidget = selected.widget(i)
             des.copy_from(self)
 
-        q_info(self._main, f"The settings from {self.link_name()} have been copied to all the selected links.")
+        q_info(self._main, f"The settings of {self.link_name()} have been copied to all the other selected links.")

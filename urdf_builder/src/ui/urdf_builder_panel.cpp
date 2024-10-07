@@ -362,12 +362,12 @@ void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
 
   if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    ROS_WARN_STREAM(property_client_.errorMessage());
     return;
   }
   if (property_client_.save() < 0)
   {
-    QMessageBox::warning(this, kError, QString::fromStdString(property_client_.errorMessage()));
+    ROS_WARN_STREAM(property_client_.errorMessage());
     return;
   }
 }

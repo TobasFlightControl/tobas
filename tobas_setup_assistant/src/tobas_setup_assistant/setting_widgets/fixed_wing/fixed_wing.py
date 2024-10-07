@@ -55,6 +55,8 @@ class FixedWingWidget(BaseSettingWidget):
 
     @override
     def update_internal_data_structures(self) -> None:
+        self.vehicle.update_internal_data_structures()
+        self.aero_coefs.update_internal_data_structures()
         self.control_surfaces.update_internal_data_structures()
 
     @override

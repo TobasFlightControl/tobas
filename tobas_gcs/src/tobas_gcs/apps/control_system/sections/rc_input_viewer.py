@@ -45,24 +45,24 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         self._roll_range = HPositionBarWidget(fill_range=False, minimum=RCRange.MIN, maximum=RCRange.MAX)
         self._roll_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._roll_range, rows1)
-        place_center(QLabel(f"Roll"), rows1)
+        place_center(QLabel("Roll"), rows1)
 
         rows1.addStretch()
 
         cols3 = QHBoxLayout()
         rows1.addLayout(cols3)
 
-        pitch_label = QLabel(f"Pitch")
+        pitch_label = QLabel("Pitch")
         pitch_label.setAlignment(Qt.AlignLeft)
         cols3.addWidget(pitch_label)
 
-        throttle_label = QLabel(f"Throttle")
+        throttle_label = QLabel("Throttle")
         throttle_label.setAlignment(Qt.AlignRight)
         cols3.addWidget(throttle_label)
 
         rows1.addStretch()
 
-        place_center(QLabel(f"Yaw"), rows1)
+        place_center(QLabel("Yaw"), rows1)
         self._yaw_range = HPositionBarWidget(fill_range=False, minimum=RCRange.MAX, maximum=RCRange.MIN)
         self._yaw_range.setFixedSize(self.RANGE_SIDE_LONG, self.RANGE_SIDE_SHORT)
         place_center(self._yaw_range, rows1)
@@ -77,19 +77,19 @@ class RCInputViewerWidget(BaseControlSystemSectionWidget):
         cols1.addLayout(bar_grid)
 
         # Mode
-        bar_grid.addWidget(QLabel(f"Mode  :"), 0, 0)
+        bar_grid.addWidget(QLabel("Mode  :"), 0, 0)
         self._mode = FramedLabel()  # QLineEditだと処理が重すぎるのか落ちてしまう
         self._mode.setFixedSize(self.LABEL_WIDTH, self.LABEL_HEIGHT)
         bar_grid.addWidget(self._mode, 0, 1)
 
         # E-Stop
-        bar_grid.addWidget(QLabel(f"E-Stop:"), 1, 0)
+        bar_grid.addWidget(QLabel("E-Stop:"), 1, 0)
         self._estop = FramedLabel()
         self._estop.setFixedSize(self.LABEL_WIDTH, self.LABEL_HEIGHT)
         bar_grid.addWidget(self._estop, 1, 1)
 
         # GPSw
-        bar_grid.addWidget(QLabel(f"GPSw  :"), 2, 0)
+        bar_grid.addWidget(QLabel("GPSw  :"), 2, 0)
         self._gpsw = FramedLabel()
         self._gpsw.setFixedSize(self.LABEL_WIDTH, self.LABEL_HEIGHT)
         bar_grid.addWidget(self._gpsw, 2, 1)

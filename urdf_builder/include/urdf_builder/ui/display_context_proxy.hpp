@@ -6,6 +6,10 @@ namespace urdf_builder
 {
 namespace ui
 {
+/**
+ * @brief rviz::Robotに渡すディスプレイインターフェース．
+ * rviz::VisualizationManagerをそのまま渡しても動作するが，不要な処理を省いている．
+ */
 class DisplayContextProxy : public rviz::DisplayContext
 {
   Q_OBJECT
