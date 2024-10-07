@@ -26,7 +26,7 @@ Visualization Manager:
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
-        Reliability Policy: Reliable
+        Reliability Policy: Best Effort
         Value: undefined
       Value: true
     - Class: rviz_default_plugins/Axes
@@ -58,7 +58,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: sensor
+    Fixed Frame: undefined
     Frame Rate: 30
   Name: root
   Tools:

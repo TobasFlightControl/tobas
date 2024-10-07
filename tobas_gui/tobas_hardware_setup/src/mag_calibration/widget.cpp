@@ -8,6 +8,7 @@
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -80,8 +81,13 @@ void MagCalibrationWidget::onInit()
 
   rows_->addStretch();
 
-  // Point表示用ディスプレイを取得
   const auto manager = rviz_manager_.frame()->getManager();
+
+  // 固定フレームを設定
+  // TFが出ているフレームでなければならない
+  manager->setFixedFrame(tobas::kWorldFrame);
+
+  // Point表示用ディスプレイを取得
   const auto display = manager->getRootDisplayGroup()->getDisplayAt(0);
   TOBAS_CHECK(display->getName() == "PointStamped");
 
@@ -115,14 +121,25 @@ void MagCalibrationWidget::reset()
 
 void MagCalibrationWidget::magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw)
 {
+  // 最初のデータからスケールを決定
+  if (cnt_ == 0)
+  {
+    mag_norm_ = mag_raw->magnetic_field.norm();
+    if (mag_norm_ == 0.)
+    {
+      RCLCPP_WARN(node_->get_logger(), "The first magnetic field is zero.");
+      return;
+    }
+  }
+
   // データを追加
   mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->magnetic_field.data;
 
   // 表示用メッセージを発行
   auto point_msg = make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = mag_raw->header;
-  point_msg->header.frame_id = "sensor";  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
-  kdl::pointKDLToMsg(mag_raw->magnetic_field, point_msg->point);
+  point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
+  kdl::pointKDLToMsg(mag_raw->magnetic_field / mag_norm_ * kRvizPointScale, point_msg->point);
   point_pub_->publish(std::move(point_msg));
 }
 
@@ -164,19 +181,19 @@ void MagCalibrationWidget::onFinishButtonClicked()
   // TODO: データがきれいな楕円体を描いているかどうかをチェック
 
   // データを整理
-  VectorXf x(size), y(size), z(size);
+  VectorXd x(size), y(size), z(size);
   for (int i = 0; i < size; ++i)
   {
     x(i) = mag_data_[i].x();
     y(i) = mag_data_[i].y();
     z(i) = mag_data_[i].z();
   }
-  const VectorXf xx = x.cwiseProduct(x);
-  const VectorXf yy = y.cwiseProduct(y);
-  const VectorXf zz = z.cwiseProduct(z);
-  const VectorXf xy = x.cwiseProduct(y);
-  const VectorXf yz = y.cwiseProduct(z);
-  const VectorXf zx = z.cwiseProduct(x);
+  const VectorXd xx = x.cwiseProduct(x);
+  const VectorXd yy = y.cwiseProduct(y);
+  const VectorXd zz = z.cwiseProduct(z);
+  const VectorXd xy = x.cwiseProduct(y);
+  const VectorXd yz = y.cwiseProduct(z);
+  const VectorXd zx = z.cwiseProduct(x);
 
   constexpr auto kCalibMethod = BOUNDING;  // TODO: 手法を選べるようにする
 
@@ -217,16 +234,16 @@ void MagCalibrationWidget::onFinishButtonClicked()
     // 最小二乗法で方程式を推定: https://rikei-tawamure.com/entry/2021/10/07/211725
     // SVDは遅いが最も精度が高い: https://eigen.tuxfamily.org/dox/group__TutorialLinearAlgebra.html
     mag_trans_.c = -(xx + yy + zz).mean();
-    VectorXf ce0(size);
+    VectorXd ce0(size);
     ce0.fill(-mag_trans_.c);
 
     if (kCalibMethod == SPHERE_FITTING)
     {
       // 球体でフィッティング．
       // axx x^2 + axx y^2 + axx z^2 + bx x + by y + bz z + c = 0
-      MatrixXf CE(size, 4);
+      MatrixXd CE(size, 4);
       CE << xx + yy + zz, x, y, z;
-      const Vector4f coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
+      const Vector4d coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
 
       mag_trans_.a_xx = coefs(0);
       mag_trans_.a_yy = coefs(0);
@@ -242,9 +259,9 @@ void MagCalibrationWidget::onFinishButtonClicked()
     {
       // 楕円体でフィッティング．球より精密だが過学習のリスクがある．
       // axx x^2 + ayy y^2 + azz z^2 + 2 axy xy + 2 ayz yz + 2 azx zx + bx x + by y + bz z + c = 0
-      MatrixXf CE(size, 9);
+      MatrixXd CE(size, 9);
       CE << xx, yy, zz, 2 * xy, 2 * yz, 2 * zx, x, y, z;
-      const Matrix<float, 9, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
+      const Matrix<double, 9, 1> coefs = CE.bdcSvd(ComputeThinU | ComputeThinV).solve(ce0);
 
       mag_trans_.a_xx = coefs(0);
       mag_trans_.a_yy = coefs(1);

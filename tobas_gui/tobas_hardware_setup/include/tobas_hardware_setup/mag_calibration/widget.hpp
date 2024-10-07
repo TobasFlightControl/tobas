@@ -27,6 +27,7 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr int kMaxDataSize = 100000;  // 8[B] * 3 * 100000 = 2400000[B] = 2.4[MB]
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
+  static constexpr double kRvizPointScale = 10.;
 
 public:
   explicit MagCalibrationWidget(rclcpp::Node::SharedPtr node);
@@ -49,6 +50,7 @@ private:
   QPushButton* cancel_button_;
 
   int cnt_;
+  double mag_norm_;
   std::array<Eigen::Vector3d, kMaxDataSize> mag_data_;
   math::EllipseTransformer mag_trans_;
 
