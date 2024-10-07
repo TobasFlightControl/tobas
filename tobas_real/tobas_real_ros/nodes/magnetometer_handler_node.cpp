@@ -33,14 +33,14 @@ private:
 
   tobas_hal_msgs::MagneticField::ConstSharedPtr mag_raw_;
   ptree::PropertyTree pt_;
-  std::array<dsp::NoiseVarianceFilter, 3> mag_noise_;
+  array<dsp::NoiseVarianceFilter, 3> mag_noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_sub_;
 
   void readConfig();
 
-  bool paramsCb(const std::vector<double>& params);
+  bool paramsCb(const vector<double>& params);
   void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
 };
 
@@ -62,61 +62,61 @@ void MagnetometerHandlerNode::readConfig()
 {
   if (!pt_.get(kAxxKey, mag_trans_.a_xx))
   {
-    TOBAS_WARN("Failed to get \"", kAxxKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kAxxKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kAyyKey, mag_trans_.a_yy))
   {
-    TOBAS_WARN("Failed to get \"", kAyyKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kAyyKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kAzzKey, mag_trans_.a_zz))
   {
-    TOBAS_WARN("Failed to get \"", kAzzKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kAzzKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kAxyKey, mag_trans_.a_xy))
   {
-    TOBAS_WARN("Failed to get \"", kAxyKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kAxyKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kAyzKey, mag_trans_.a_yz))
   {
-    TOBAS_WARN("Failed to get \"", kAyzKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kAyzKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kAzxKey, mag_trans_.a_zx))
   {
-    TOBAS_WARN("Failed to get \"", kAzxKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kAzxKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kBxKey, mag_trans_.b_x))
   {
-    TOBAS_WARN("Failed to get \"", kBxKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kBxKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kByKey, mag_trans_.b_y))
   {
-    TOBAS_WARN("Failed to get \"", kByKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kByKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kBzKey, mag_trans_.b_z))
   {
-    TOBAS_WARN("Failed to get \"", kBzKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kBzKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
   if (!pt_.get(kCKey, mag_trans_.c))
   {
-    TOBAS_WARN("Failed to get \"", kCKey, "\". from configuration file. All params are set to defaults.");
+    TOBAS_WARN("Failed to get \"", kCKey, "\" from configuration file. All params are set to defaults.");
     mag_trans_.setIdentity();
     return;
   }
@@ -129,7 +129,7 @@ void MagnetometerHandlerNode::readConfig()
   }
 }
 
-bool MagnetometerHandlerNode::paramsCb(const std::vector<double>& params)
+bool MagnetometerHandlerNode::paramsCb(const vector<double>& params)
 {
   // Skip first call
   if (params.size() == 0)
