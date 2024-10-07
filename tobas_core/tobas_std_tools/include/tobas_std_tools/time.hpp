@@ -16,12 +16,12 @@ constexpr inline int milliSecondsFromSeconds(const double& sec)
 
 constexpr inline double secondsFromMicroSeconds(const int& usec)
 {
-  return usec / 1000000;
+  return usec / 1'000'000;
 }
 
 constexpr inline int microSecondsFromSeconds(const double& sec)
 {
-  return sec * 1000000;
+  return sec * 1'000'000;
 }
 
 inline void sleep(double sec)
