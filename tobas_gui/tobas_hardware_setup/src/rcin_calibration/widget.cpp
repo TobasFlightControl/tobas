@@ -14,7 +14,7 @@ namespace gui
 {
 namespace hardware_setup
 {
-RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node) : node_(node)
+RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node) : node_(node), rate_(kTopicRate)
 {
 }
 
@@ -147,6 +147,8 @@ void RCInputCalibrationWidget::reset()
   if (sbus_sub_ != nullptr)
     sbus_sub_ = nullptr;
 
+  rate_.reset();
+
   roll_range_->clear();
   pitch_range_->clear();
   yaw_range_->clear();
@@ -166,6 +168,9 @@ void RCInputCalibrationWidget::reset()
 
 void RCInputCalibrationWidget::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
+  if (!rate_.update(sbus->header.stamp))
+    return;
+
   roll_range_->setValue(sbus->data[real::kRcChannelRoll]);
   pitch_range_->setValue(sbus->data[real::kRcChannelPitch]);
   yaw_range_->setValue(sbus->data[real::kRcChannelYaw]);

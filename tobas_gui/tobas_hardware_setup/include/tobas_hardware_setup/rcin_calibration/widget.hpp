@@ -3,6 +3,7 @@
 #include <QPushButton>
 
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/rate_manager.hpp>
 #include <tobas_hal_msgs/msg/sbus.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 
@@ -33,6 +34,8 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
+  static constexpr double kTopicRate = 30.;  // [Hz]
+
 public:
   explicit RCInputCalibrationWidget(rclcpp::Node::SharedPtr node);
 
@@ -45,8 +48,8 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-
   std::string ns_;
+  ros2::RateManager rate_;
 
   QPushButton* start_button_;
   QPushButton* finish_button_;
