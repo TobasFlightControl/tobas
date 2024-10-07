@@ -166,19 +166,27 @@ void GUICoreWidget::onLoadButtonClicked()
 
 void GUICoreWidget::onSendButtonClicked()
 {
+  // SSH接続を確認
+  if (!ssh_cli_.isConnected())
+  {
+    qt::qWarnBox(this, "No SSH connection.");
+    return;
+  }
+
   const auto tbs_path = tbsPath();
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path);
 
+  // 進捗バーを作成
   qt::ProgressDialog progress(kTitle, 6, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
-  // SSH接続を確認
-  progress.setLabelText("Connecting to the flight controller.");
-  if (!ssh_cli_.isConnected())
+  // サービスを停止
+  progress.setLabelText("Stopping Tobas flight controller.");
+  if (ssh_cli_.execute("systemctl stop tobas_real.service", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qWarnBox(this, "No SSH connection.");
+    qt::qErrorBox(this, "Failed to stop Tobas:\n\n" + QString(ssh_cli_.errorMessage()));
     return;
   }
   progress.progressStep();
