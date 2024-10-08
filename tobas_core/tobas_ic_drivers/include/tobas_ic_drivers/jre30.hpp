@@ -45,7 +45,7 @@ private:
   linux::UARTdev uart_;
   uint8_t buf_[kDataSize];
   Packet packet_;
-  algo::CRC32Left crc_;
+  algo::CRC16Left crc_;
 
   std::thread read_thread_;
   void readThreadFunc();

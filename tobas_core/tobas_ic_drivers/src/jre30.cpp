@@ -7,7 +7,7 @@ using namespace std;
 namespace driver
 {
 JRE30::JRE30(std::function<void(const Packet&)> packet_cb)
-  : packet_cb_(packet_cb), crc_((1 << 16) | (1 << 12) | (1 << 5) | (1 << 0), 0xFFFF, 0xFFFF)
+  : packet_cb_(packet_cb), crc_((1 << 12) | (1 << 5) | (1 << 0), 0xFFFF, 0xFFFF)
 {
 }
 
@@ -95,8 +95,8 @@ bool JRE30::read()
 
 bool JRE30::checkCRC()
 {
-  const uint32_t cs = crc_.compute(buf_, kCRCIdx);
-  const uint32_t cr = (buf_[kCRCIdx + 1] << 8) | buf_[kCRCIdx];
+  const uint16_t cs = crc_.compute(buf_, kCRCIdx);
+  const uint16_t cr = (buf_[kCRCIdx + 1] << 8) | buf_[kCRCIdx];
 
   if (cs != cr)
   {
