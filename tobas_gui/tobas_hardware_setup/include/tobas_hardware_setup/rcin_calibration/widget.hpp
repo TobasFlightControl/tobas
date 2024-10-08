@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QPushButton>
+#include <std_msgs/msg/bool.hpp>
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/rate_manager.hpp>
@@ -50,6 +51,7 @@ private:
   const rclcpp::Node::SharedPtr node_;
   std::string ns_;
   ros2::RateManager rate_;
+  std_msgs::msg::Bool::ConstSharedPtr arming_;
 
   QPushButton* start_button_;
   QPushButton* finish_button_;
@@ -64,10 +66,12 @@ private:
   qt::HPositionBarWidget* gpsw_range_;
 
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
 
   void reset();
 
   void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
 
 private Q_SLOTS:
   void onStartButtonClicked();

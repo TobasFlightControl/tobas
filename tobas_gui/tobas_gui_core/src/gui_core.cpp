@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include <tobas_path_tools/join.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -94,9 +95,17 @@ void GUICoreWidget::updateInternalDataStructures()
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
   param_tuning_->updateTBSPath(tbsPath());
+
+  arming_ = nullptr;
+  arming_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kArmingTopic), &self::armingCb, this);
 }
 
-fs::path GUICoreWidget::tbsPath()
+void GUICoreWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
+}
+
+fs::path GUICoreWidget::tbsPath() const
 {
   return tbs_path_->text().toStdString();
 }
@@ -171,6 +180,26 @@ void GUICoreWidget::onSendButtonClicked()
   {
     qt::qWarnBox(this, "No SSH connection.");
     return;
+  }
+
+  // アームされていないことを確認
+  if (arming_ == nullptr)
+  {
+    if (!qt::yesOrNo(
+          this,
+          "This operation will restart the flight control software, "
+          "so it can only be performed when the aircraft is completely stationary. "
+          "Do you want to proceed?",
+          qt::QMessageLevel::WARN))
+      return;
+  }
+  else
+  {
+    if (arming_->data)
+    {
+      qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+      return;
+    }
   }
 
   const auto tbs_path = tbsPath();
@@ -252,6 +281,13 @@ void GUICoreWidget::onShutdownButtonClicked()
   if (!ssh_cli_.isConnected())
   {
     qt::qErrorBox(this, "No SSH connection.");
+    return;
+  }
+
+  // アームされていないことを確認
+  if (arming_ != nullptr && arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     return;
   }
 

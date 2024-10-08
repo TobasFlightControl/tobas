@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QPushButton>
-#include <geometry_msgs/msg/point_stamped.hpp>
 #include <rviz_common/properties/int_property.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <geometry_msgs/msg/point_stamped.hpp>
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -53,15 +54,18 @@ private:
   double mag_norm_;
   std::array<Eigen::Vector3d, kMaxDataSize> mag_data_;
   math::EllipseTransformer mag_trans_;
+  std_msgs::msg::Bool::ConstSharedPtr arming_;
 
   rviz_common::properties::Property* history_length_;
 
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> point_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_raw_sub_;
+  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
 
   void reset();
 
   void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
+  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
 
 private Q_SLOTS:
   void onStartButtonClicked();

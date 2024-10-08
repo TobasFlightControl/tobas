@@ -1,5 +1,7 @@
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_hal_core/constants.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -138,7 +140,12 @@ void RCInputCalibrationWidget::onInit()
 void RCInputCalibrationWidget::setNamespace(const string& ns)
 {
   ns_ = ns;
+
   reset();
+
+  arming_ = nullptr;
+  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+
   setEnabled(true);
 }
 
@@ -180,8 +187,25 @@ void RCInputCalibrationWidget::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstShar
   gpsw_range_->setValue(sbus->data[real::kRcChannelGPSw]);
 }
 
+void RCInputCalibrationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
+}
+
 void RCInputCalibrationWidget::onStartButtonClicked()
 {
+  // アームされていないことを確認
+  if (arming_ == nullptr)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    return;
+  }
+  if (arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
   // 一時的にSBUSトピックを購読開始
   sbus_sub_ = ros2::createSubscriber(node_, ns_ + "/" + hal::kSbusTopic, &self::sbusCb, this);
 

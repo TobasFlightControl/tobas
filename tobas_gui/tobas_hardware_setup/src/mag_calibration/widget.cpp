@@ -4,6 +4,7 @@
 #include <rviz_common/display_group.hpp>
 
 #include <tobas_math/core.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -104,7 +105,12 @@ void MagCalibrationWidget::onInit()
 void MagCalibrationWidget::setNamespace(const string& ns)
 {
   ns_ = ns;
+
   reset();
+
+  arming_ = nullptr;
+  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+
   setEnabled(true);
 }
 
@@ -143,8 +149,25 @@ void MagCalibrationWidget::magCb(const tobas_hal_msgs::MagneticField::ConstShare
   point_pub_->publish(std::move(point_msg));
 }
 
+void MagCalibrationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
+}
+
 void MagCalibrationWidget::onStartButtonClicked()
 {
+  // アームされていないことを確認
+  if (arming_ == nullptr)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    return;
+  }
+  if (arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
   // カウンターをリセット
   cnt_ = 0;
 

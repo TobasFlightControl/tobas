@@ -103,14 +103,15 @@ void RotorTestWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming
 
 void RotorTestWidget::onStartButtonClicked()
 {
+  // アームされていないことを確認
   if (arming_ == nullptr)
   {
-    qt::qWarnBox(this, "This operation is not allowed because the arming status in not received yet.");
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
     return;
   }
   if (arming_->data)
   {
-    qt::qWarnBox(this, "This operation is not allowed because the rotors are already armed.");
+    qt::qWarnBox(this, "This operation cannot be performed because the rotors are already armed.");
     return;
   }
 

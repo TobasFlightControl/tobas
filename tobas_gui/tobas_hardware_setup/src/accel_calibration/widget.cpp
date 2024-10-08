@@ -1,3 +1,5 @@
+#include <tobas_path_tools/join.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -9,7 +11,7 @@ namespace gui
 namespace hardware_setup
 {
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
-  : spinner_(Qt::WindowModal, this), thread_(node)
+  : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
 {
 }
 
@@ -48,11 +50,32 @@ void AccelCalibrationWidget::onInit()
 void AccelCalibrationWidget::setNamespace(const std::string& ns)
 {
   thread_.setNamespace(ns);
+
+  arming_ = nullptr;
+  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+
   setEnabled(true);
+}
+
+void AccelCalibrationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 
 void AccelCalibrationWidget::onStartButtonClicked()
 {
+  // アームされていないことを確認
+  if (arming_ == nullptr)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    return;
+  }
+  if (arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
   spinner_.show();
   spinner_.start();
 
