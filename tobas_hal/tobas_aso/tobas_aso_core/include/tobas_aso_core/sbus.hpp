@@ -48,15 +48,12 @@ public:
 private:
   const std::function<void(const Packet&)> packet_cb_;
 
-  linux::UARTdev uart_dev_;
+  linux::UARTdev uart_;
   std::array<uint8_t, kDataSize> data_;
   Packet packet_;
 
   std::thread read_thread_;
   void readThreadFunc();
-
-  uint8_t byte_;
-  uint8_t readByte();
 
   void decodeData(const std::array<uint8_t, kDataSize>& data);
   void decodeFlags(uint8_t flags);

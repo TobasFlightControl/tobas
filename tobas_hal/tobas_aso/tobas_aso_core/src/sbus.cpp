@@ -19,19 +19,19 @@ SBUS::SBUS(std::function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 
 bool SBUS::initialize()
 {
-  if (!uart_dev_.initialize(uart_device::kSbusDev, true))
+  if (!uart_.initialize(uart_device::kSbusDev, true))
     return false;
 
-  if (!uart_dev_.setNonStandardBaudRate(kBaudRate))
+  if (!uart_.setNonStandardBaudRate(kBaudRate))
     return false;
 
-  if (!uart_dev_.setDataBits(kDataBits))
+  if (!uart_.setDataBits(kDataBits))
     return false;
 
-  if (!uart_dev_.setDoubleStopBit())
+  if (!uart_.setDoubleStopBit())
     return false;
 
-  if (!uart_dev_.enableParity(linux::UARTdev::PARITY_EVEN))
+  if (!uart_.enableParity(linux::UARTdev::PARITY_EVEN))
     return false;
 
   // 信号読み取りを開始
@@ -55,7 +55,7 @@ void SBUS::readThreadFunc()
     // FIXME: SBUSドライバの起動時に偶然スタートバイトでない0x0Fが先頭にきているとバグるはず
 
     // Start byte
-    const auto start_byte = readByte();
+    const auto start_byte = uart_.receiveByte();
     PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte << dec << nouppercase);
     if (start_byte != 0x0F)
       continue;
@@ -63,16 +63,16 @@ void SBUS::readThreadFunc()
     // Data
     for (size_t i = 0; i < kDataSize; ++i)
     {
-      data_[i] = readByte();
+      data_[i] = uart_.receiveByte();
       PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data_[i] << dec << nouppercase);
     }
 
     // Flags
-    const auto flags = readByte();
+    const auto flags = uart_.receiveByte();
     PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags << dec << nouppercase);
 
     // End byte
-    const auto end_byte = readByte();
+    const auto end_byte = uart_.receiveByte();
     PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte << dec << nouppercase);
     if (!end_bytes.contains(end_byte))
     {
@@ -87,13 +87,6 @@ void SBUS::readThreadFunc()
     // Call user callback
     packet_cb_(packet_);
   }
-}
-
-uint8_t SBUS::readByte()
-{
-  if (::read(uart_dev_.fd(), &byte_, 1) != 1)
-    throw runtime_error("Failed to read 1 byte.");
-  return byte_;
 }
 
 void SBUS::decodeData(const std::array<uint8_t, kDataSize>& data)

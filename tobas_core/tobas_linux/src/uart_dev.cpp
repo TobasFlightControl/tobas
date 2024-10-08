@@ -236,6 +236,18 @@ bool UARTdev::receive(uint8_t* data, size_t length)
   return true;
 }
 
+uint8_t UARTdev::receiveByte()
+{
+  if (!block_mode_)
+    throw runtime_error("This method cannot be called in non-blocking mode.");
+
+  uint8_t byte;
+  if (!receive(&byte, 1))
+    throw runtime_error("Failed to receive 1 byte.");
+
+  return byte;
+}
+
 bool UARTdev::getConfig()
 {
   if (tcgetattr(uart_fd_, &options_) != 0)
