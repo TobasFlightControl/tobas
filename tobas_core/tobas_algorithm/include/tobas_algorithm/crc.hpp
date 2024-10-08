@@ -11,6 +11,13 @@ class CRC16Left
   static constexpr size_t kTableSize = 1 << 8;
 
 public:
+  /**
+   * @brief Construct a new CRC16Left object
+   *
+   * @param poly 生成多項式 (最高次数は省略)
+   * @param init_value 初期値
+   * @param out_xor 除算後のXOR
+   */
   explicit CRC16Left(uint16_t poly, uint16_t init_value = 0, uint16_t out_xor = 0);
 
   uint16_t compute(const uint8_t* buf, size_t len);
@@ -30,6 +37,13 @@ class CRC32Left
   static constexpr size_t kTableSize = 1 << 8;
 
 public:
+  /**
+   * @brief Construct a new CRC32Left object
+   *
+   * @param poly 生成多項式 (最高次数は省略)
+   * @param init_value 初期値
+   * @param out_xor 除算後のXOR
+   */
   explicit CRC32Left(uint32_t poly, uint32_t init_value = 0, uint32_t out_xor = 0);
 
   uint32_t compute(const uint8_t* buf, size_t len);
