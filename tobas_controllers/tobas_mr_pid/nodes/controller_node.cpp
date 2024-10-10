@@ -434,15 +434,15 @@ void ControllerNode::thrustFactorCb(const std_msgs::msg::Float64::ConstSharedPtr
 
 void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
-  arming_ = arming;
-
   // Disarm時にコマンドをリセットする．でないと再度アームした時に前回のコマンドでモータが回り始めてしまう．
-  if (!arming->data)
+  if (arming_ != nullptr && arming_->data && !arming->data)
   {
     tar_pvay_W_ = nullptr;
     tar_rpyt_ = nullptr;
     TOBAS_INFO("Command is reset.");
   }
+
+  arming_ = arming;
 }
 
 void ControllerNode::posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& pvay)

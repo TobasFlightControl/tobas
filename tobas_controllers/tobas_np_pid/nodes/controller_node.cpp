@@ -381,14 +381,14 @@ void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstShare
 
 void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
-  arming_ = arming;
-
   // Disarm時にコマンドをリセットする．でないと再度アームした時に前回のコマンドでモータが回り始めてしまう．
-  if (!arming->data)
+  if (arming_ != nullptr && arming_->data && !arming->data)
   {
     cmd_ = nullptr;
     TOBAS_INFO("Command is reset.");
   }
+
+  arming_ = arming;
 }
 
 void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd)
