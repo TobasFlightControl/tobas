@@ -63,7 +63,7 @@ def generate_launch_description():
     ld.add_action(
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                [PathJoinSubstitution([config_pkg_share, "launch", "core_component.launch.py"])]
+                [PathJoinSubstitution([config_pkg_share, "launch", "core.launch.py"])]
             ),
             launch_arguments={
                 "log_level": log_level,

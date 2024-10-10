@@ -224,6 +224,12 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
+                            package="tobas_rosbag_recorder",
+                            plugin="ROSBagRecorderNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
                             package="tobas_preprocess",
                             plugin="MatrixEulerConverterNode",
                             namespace=DRONE_NAME,

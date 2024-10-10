@@ -82,6 +82,9 @@ static constexpr char kEnableRcOutputSrv[] = "enable_rc_output";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
+static constexpr char kROSBagRecordStartSrv[] = "rosbag_record_start";
+static constexpr char kROSBagRecordStopSrv[] = "rosbag_record_stop";
+static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
 static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
 static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
 static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
@@ -114,6 +117,9 @@ static constexpr char kObserverNode[] = "observer";
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
+
+// Path
+static constexpr char kROSBagDir[] = "~/.tobas/rosbag";
 
 // Flight mode
 enum flight_mode_t

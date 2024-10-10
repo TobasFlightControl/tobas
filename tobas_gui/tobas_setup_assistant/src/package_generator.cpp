@@ -238,10 +238,9 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   // テンプレートから生成
   cfg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", config_pkg_path);
   cfg_env_->generate(tpl_data, "package.xml.tplxml", config_pkg_path);
+  cfg_env_->generate(tpl_data, "core.launch.py.tplpy", launch_dir);
   cfg_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
   cfg_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "core_component.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "core_standalone.launch.py.tplpy", launch_dir);
   cfg_env_->generate(tpl_data, "hil.launch.xml.tplxml", launch_dir);
   cfg_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
