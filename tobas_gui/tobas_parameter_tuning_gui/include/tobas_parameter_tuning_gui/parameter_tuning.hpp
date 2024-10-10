@@ -4,7 +4,6 @@
 #include <QPushButton>
 
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 
 #include "./param_block.hpp"
 

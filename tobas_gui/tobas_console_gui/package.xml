@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
 
-  <name>tobas_gui_core</name>
+  <name>tobas_console_gui</name>
   <version>0.0.0</version>
   <description>TODO</description>
   <maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -9,13 +9,10 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>tobas_homepage</depend>
-  <depend>urdf_builder</depend>
-  <depend>tobas_setup_assistant</depend>
-  <depend>tobas_hardware_setup</depend>
-  <depend>tobas_control_system</depend>
-  <depend>tobas_console_gui</depend>
-  <depend>tobas_parameter_tuning_gui</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_qt_tools</depend>
+  <depend>tobas_gui_common</depend>
+  <depend>tobas_std_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
