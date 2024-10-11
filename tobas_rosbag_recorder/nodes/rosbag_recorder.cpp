@@ -12,7 +12,7 @@
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_std_msgs/msg/message.hpp>
-#include <tobas_kdl_msgs/msg/euler.hpp>
+#include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -109,7 +109,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addSubscription<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsTopic);
   addSubscription<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);
   addSubscription<tobas_msgs::msg::Odometry>(tobas::kOdometryTopic);
-  addSubscription<tobas_kdl_msgs::msg::Euler>(tobas::kEulerTopic);
+  addSubscription<tobas_kdl_msgs::msg::EulerStamped>(tobas::kEulerTopic);
   addSubscription<tobas_msgs::msg::Wind>(tobas::kWindTopic);
   addSubscription<tobas_msgs::msg::Event>(tobas::kEventTopic);
   addSubscription<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);
