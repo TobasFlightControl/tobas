@@ -8,6 +8,7 @@
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 #include "tobas_flight_log_gui/flight_log_recorder.hpp"
 
@@ -27,20 +28,33 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
   stop_button_->setEnabled(false);
 
   // Layout
-  const auto cols = new QHBoxLayout();
-  cols->addWidget(start_button_);
-  cols->addWidget(stop_button_);
+  const auto name_cols = new QHBoxLayout();
+  name_cols->addWidget(new qt::Label("Log Name: ", kLogNameLabelPSize));
+  name_cols->addWidget(rosbag_name_);
+
+  const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(start_button_);
+  button_cols->addWidget(stop_button_);
+  button_cols->addStretch();
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(rosbag_name_);
-  rows->addLayout(cols);
+  rows->addLayout(name_cols);
+  rows->addLayout(button_cols);
+  rows->addStretch();
 
   setLayout(rows);
+
+  // Connections
+  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
+  connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
+
+  setEnabled(false);
 }
 
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 {
   ns_ = ns;
+  setEnabled(true);
 }
 
 void FlightLogRecorderWidget::onStartButtonClicked()

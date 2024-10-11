@@ -15,8 +15,9 @@ class FlightLogRecorderWidget : public QWidget
   using self = FlightLogRecorderWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
+  static constexpr int kLogNameLabelPSize = 12;
+  static constexpr int kButtonWidth = 150;
+  static constexpr int kButtonHeight = 60;
 
 public:
   explicit FlightLogRecorderWidget(rclcpp::Node::SharedPtr node);
