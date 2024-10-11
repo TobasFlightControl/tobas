@@ -80,6 +80,12 @@ bool createFilePath(const fs::path& file_path, bool exist_ok)
 
 size_t computeDirectorySize(const fs::path& dir_path)
 {
+  if (!fs::is_directory(dir_path))
+  {
+    cerr << dir_path << " does not exist." << endl;
+    return 0;
+  }
+
   size_t total_size = 0;
 
   // ディレクトリの内容を再帰的に走査
