@@ -44,6 +44,9 @@ bool contains(const std::string& str, const std::string& sub);
 /* 部分文字列が含まれるかどうかを調べる． */
 bool contains(const std::string& str, const char& sub);
 
+/* ファイル名に不正な文字列が含まれていないかどうかを調べる． */
+bool isValidFileName(const std::string& file_name);
+
 /**
  * @brief Emailアドレスが有効かどうかを判定する．
  * cf. https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/

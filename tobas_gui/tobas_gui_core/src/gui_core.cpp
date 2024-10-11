@@ -104,6 +104,7 @@ void GUICoreWidget::updateInternalDataStructures()
   control_system_->updateInternalDataStructures();
   console_->updateNamespace(drone_.name);
   param_tuning_->updateTBSPath(tbsPath());
+  flight_log_->updateNamespace(drone_.name);
 
   arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kArmingTopic), &self::armingCb, this);

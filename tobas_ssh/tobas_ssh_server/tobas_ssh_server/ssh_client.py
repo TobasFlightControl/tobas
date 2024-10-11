@@ -81,6 +81,20 @@ class SSHClientWrapper:
         """バックグラウンドでsudoコマンドを実行．"""
         self.exec_command_bg(self._sudo_command(command))
 
+    def scp_get(self, remote_path: str, local_path: str) -> None:
+        """
+        SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
+
+        Parameters
+        ----------
+        remote_path : str
+            リモートディレクトリの絶対パス．
+        local_path : str
+            ローカルディレクトリの絶対パス．
+        """
+        with SCPClient(self._ssh_client.get_transport()) as scp:
+            scp.get(remote_path=remote_path, local_path=local_path, recursive=True)
+
     def scp_put_dir(self, _local_dir: str, _remote_dir: str, _exclude_dirs: List[str] = []) -> None:
         """
         SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
@@ -94,7 +108,6 @@ class SSHClientWrapper:
         _exclude_dirs : str
             ローカルの除外するディレクトリの絶対パス．
         """
-
         if not osp.isdir(_local_dir):
             raise RuntimeError(f"Local directory {_local_dir} does not exist.")
 
@@ -181,6 +194,11 @@ class SSHClientWrapper:
         success, _, error_output = self.exec_command_super(f"mv {tmp_path} {remote_path}")
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_path}: {error_output}")
+
+    def list(self, remote_pardir: str) -> List[str]:
+        """lsコマンド．"""
+        with self._ssh_client.open_sftp() as sftp:
+            return sftp.listdir(remote_pardir)
 
     def file_exists(self, file_path: str) -> bool:
         return self.exec_command(f"[ -f {file_path} ]")[0]

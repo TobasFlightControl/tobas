@@ -142,6 +142,15 @@ bool contains(const string& str, const char& sub)
   return str.find(sub) != string::npos;
 }
 
+bool isValidFileName(const string& file_name)
+{
+  if (file_name.empty())
+    return false;
+
+  regex invalid_chars(R"([<>:\"/\\|?*])");
+  return !regex_search(file_name, invalid_chars);
+}
+
 bool isValidEmail(const string& email)
 {
   const regex pattern(R"(\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b)");

@@ -4,15 +4,18 @@
 
 using namespace std;
 using namespace tobas_ssh_msgs::srv;
+namespace fs = filesystem;
 
 namespace ssh
 {
 SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
   : node_(node),
     execute_sc_(node, kExecuteSrv),
+    scp_get_sc_(node, kSCPGetSrv),
     scp_put_sc_(node, kSCPPutSrv),
     sftp_read_sc_(node, kSFTPReadSrv),
-    sftp_write_sc_(node, kSFTPWriteSrv)
+    sftp_write_sc_(node, kSFTPWriteSrv),
+    list_sc_(node, kListSrv)
 {
   connection_sub_ = ros2::createSubscriber(node, kConnectionTopic, &SSHClient::connectionCb, this);
 }
@@ -28,21 +31,21 @@ bool SSHClient::isConnected() const
   return connection_->data;
 }
 
-bool SSHClient::fileExists(const std::filesystem::path& file_path)
+bool SSHClient::fileExists(const fs::path& file_path)
 {
   if (!isConnected())
     return false;
 
-  std::string output;
+  string output;
   return execute("[ -f {" + file_path.string() + " ]", output) == E_NO_ERROR;
 }
 
-bool SSHClient::dirExists(const std::filesystem::path& dir_path)
+bool SSHClient::dirExists(const fs::path& dir_path)
 {
   if (!isConnected())
     return false;
 
-  std::string output;
+  string output;
   return execute("[ -d {" + dir_path.string() + " ]", output) == E_NO_ERROR;
 }
 
@@ -72,10 +75,32 @@ SSHClient::error_t SSHClient::execute(const string& command, string& output, boo
   return error_code_ = E_NO_ERROR;
 }
 
-SSHClient::error_t SSHClient::execute(const std::string& command, bool superuser, bool background)
+SSHClient::error_t SSHClient::execute(const string& command, bool superuser, bool background)
 {
-  std::string output;
+  string output;
   return execute(command, output, superuser, background);
+}
+
+SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& local_path)
+{
+  if (!isConnected())
+    return error_code_ = E_NO_CONNECTION;
+
+  const auto req = make_shared<SCPGet::Request>();
+  req->remote_path = remote_path;
+  req->local_path = local_path;
+
+  if (!scp_get_sc_.call(req))
+    return error_code_ = E_SERVICE_NOT_READY;
+
+  const auto& res = scp_get_sc_.getResponse();
+  if (!res->success)
+  {
+    server_error_msg_ = res->message;
+    return error_code_ = E_SERVER_ERROR;
+  }
+
+  return error_code_ = E_NO_ERROR;
 }
 
 SSHClient::error_t
@@ -146,6 +171,28 @@ SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string&
     return error_code_ = E_SERVER_ERROR;
   }
 
+  return error_code_ = E_NO_ERROR;
+}
+
+SSHClient::error_t SSHClient::list(const string& pardir, vector<string>& dst)
+{
+  if (!isConnected())
+    return error_code_ = E_NO_CONNECTION;
+
+  const auto req = make_shared<List::Request>();
+  req->pardir = pardir;
+
+  if (list_sc_.call(req))
+    return error_code_ = E_SERVICE_NOT_READY;
+
+  const auto& res = list_sc_.getResponse();
+  if (!res->success)
+  {
+    server_error_msg_ = res->message;
+    return error_code_ = E_SERVER_ERROR;
+  }
+
+  dst = res->entries;
   return error_code_ = E_NO_ERROR;
 }
 
