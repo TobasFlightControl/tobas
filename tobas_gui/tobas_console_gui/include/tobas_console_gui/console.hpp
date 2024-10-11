@@ -1,7 +1,6 @@
 #pragma once
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
 
@@ -9,12 +8,12 @@ namespace gui
 {
 namespace console
 {
-class ConsoleWidget : public qt::ScrollArea
+class ConsoleWidget : public QWidget
 {
   Q_OBJECT
 
   using self = ConsoleWidget;
-  using super = qt::ScrollArea;
+  using super = QWidget;
 
   static constexpr int kMaxRows = 10000;  // 表示するメッセージの最大数
 

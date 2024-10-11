@@ -57,6 +57,10 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   app_cb->addItem("Parameter Tuning");
   app_sw->addWidget(param_tuning_);
 
+  flight_log_ = new log::FlightLogWidget(node);
+  app_cb->addItem("Flight Log");
+  app_sw->addWidget(flight_log_);
+
   // Package manager
   tbs_path_ = new QLineEdit();
   tbs_path_->setFixedWidth(kPathWidth);
