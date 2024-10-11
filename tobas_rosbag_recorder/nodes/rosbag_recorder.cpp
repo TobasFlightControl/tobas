@@ -41,6 +41,8 @@
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 
+#define BILLION 1'000'000'000
+
 using namespace std;
 namespace fs = filesystem;
 
@@ -49,8 +51,8 @@ class ROSBagRecorderNode : public tobas::BaseNode
   using self = ROSBagRecorderNode;
   using super = tobas::BaseNode;
 
-  static constexpr size_t kMaxROSBagSize = 5'000'000'000;   // [byte]
-  static constexpr size_t kMaxParDirSize = 10'000'000'000;  // [byte]
+  static constexpr size_t kMaxROSBagSize = 5UL * BILLION;   // [byte]
+  static constexpr size_t kMaxParDirSize = 10UL * BILLION;  // [byte]
   static constexpr auto kCheckSizeTimerPeriod = 10s;
 
 public:
@@ -182,7 +184,7 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     res->success = false;
     res->message = format(
       "The size of rosbag directory ({}) is over {} GB. Please clean it first.", par_dir_.string(),
-      kMaxParDirSize / 1'000'000'000);
+      kMaxParDirSize / BILLION);
     return;
   }
 
@@ -282,8 +284,8 @@ void ROSBagRecorderNode::checkSizeTimerCb()
     is_recording_ = false;
 
     TOBAS_WARN(
-      "The recording is terminated because the size of rosbag ", rosbag_path_, " exceeded ",
-      kMaxROSBagSize / 1'000'000'000, "GB.");
+      "The recording is terminated because the size of rosbag ", rosbag_path_, " exceeded ", kMaxROSBagSize / BILLION,
+      "GB.");
   }
 }
 
