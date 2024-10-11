@@ -58,7 +58,7 @@ GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
   is_received_[aso::ZEDF9P::NAV_VELNED] = false;
   is_received_[aso::ZEDF9P::NAV_COV] = false;
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
+  gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGNSSTopic);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }

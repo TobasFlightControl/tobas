@@ -16,12 +16,14 @@ find_package(rosbag2_cpp REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs REQUIRED)
+find_package(tobas_drone_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	rosbag2_cpp
 	std_srvs
 	tobas_node
 	tobas_msgs
+	tobas_drone_msgs
 )
 
 include_directories(include)

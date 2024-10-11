@@ -33,7 +33,7 @@ FakeGNSSPublisherNode::FakeGNSSPublisherNode(const rclcpp::NodeOptions& options)
   pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
   vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
+  gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGNSSTopic);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 

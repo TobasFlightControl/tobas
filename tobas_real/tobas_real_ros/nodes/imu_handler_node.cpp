@@ -67,8 +67,8 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_
 
   addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
 
-  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuTopic);
-  imu_sub_ = createSubscriber(hal::kImuTopic, &self::imuCb, this);
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
+  imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
 }
 
 void ImuHandlerNode::readConfig()

@@ -135,7 +135,7 @@ void GazeboImuPlugin::Configure(
   gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, Vector3d::Zero);
 
   // Advertise
-  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuTopic);
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
 }
 

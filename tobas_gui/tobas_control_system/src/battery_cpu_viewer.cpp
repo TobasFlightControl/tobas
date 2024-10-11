@@ -50,7 +50,7 @@ void BatteryCPUViewerWidget::updateInternalDataStructures()
 
   batt_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
-  cpu_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kCpuTopic), &self::cpuCb, this);
+  cpu_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kCPUTopic), &self::cpuCb, this);
 }
 
 void BatteryCPUViewerWidget::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& batt)

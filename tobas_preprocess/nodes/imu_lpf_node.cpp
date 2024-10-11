@@ -30,7 +30,7 @@ private:
 IMULPFNode::IMULPFNode(const rclcpp::NodeOptions& options) : super("imu_lpf", options)
 {
   imu_lpf_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuLpfTopic);
-  imu_raw_sub_ = createSubscriber(tobas::kImuTopic, &self::imuRawCb, this);
+  imu_raw_sub_ = createSubscriber(tobas::kIMUTopic, &self::imuRawCb, this);
 }
 
 void IMULPFNode::imuRawCb(const tobas_msgs::Imu::ConstSharedPtr& imu_raw)

@@ -162,13 +162,13 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
   feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObserverFeedbackTopic);
 
   // Register subscribers
-  imu_sub_ = createSubscriber(tobas::kImuTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(tobas::kIMUTopic, &self::imuCb, this);
   imu_filtered_sub_ = createSubscriber(tobas::kImuLpfTopic, &self::imuFilteredCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
   if (use_bar_)
     bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::barCb, this);
   if (use_gps_)
-    gps_sub_ = createSubscriber(tobas::kGpsTopic, &self::gpsCb, this);
+    gps_sub_ = createSubscriber(tobas::kGNSSTopic, &self::gpsCb, this);
 
   // Register service servers
   get_gnss_origin_ss_ = createService<GetGnssOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);

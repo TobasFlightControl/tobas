@@ -13,6 +13,7 @@
 	<depend>std_srvs</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs</depend>
+	<depend>tobas_drone_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

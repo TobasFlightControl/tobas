@@ -112,7 +112,7 @@ void GazeboGpsPlugin::Configure(
   vel_W_ = getComponent<cmp::WorldLinearVelocity>(link, ecm);
   gyro_B_ = getComponent<cmp::AngularVelocity>(link, ecm);
 
-  gps_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGpsTopic);
+  gps_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGNSSTopic);
 }
 
 void GazeboGpsPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)

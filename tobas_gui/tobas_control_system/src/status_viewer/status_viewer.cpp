@@ -51,7 +51,7 @@ void StatusViewerWidget::updateNamespace(const std::string& ns)
   ready_status_->reset();
   arming_status_->reset();
 
-  gps_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kGpsTopic), &self::gpsCb, this);
+  gps_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kGNSSTopic), &self::gpsCb, this);
   rcin_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kRcInputTopic), &self::rcInputCb, this);
   prearm_check_sub_ =
     ros2::createSubscriber(node_, path::join(ns, tobas::kPreArmCheckTopic), &self::preArmCheckCb, this);

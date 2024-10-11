@@ -28,7 +28,7 @@ IMUDriverNode::IMUDriverNode(const rclcpp::NodeOptions& options) : super("aso_im
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
 
-  imu_pub_ = createPublisher<tobas_hal_msgs::Imu>(hal::kImuTopic);
+  imu_pub_ = createPublisher<tobas_hal_msgs::Imu>(hal::kIMUTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

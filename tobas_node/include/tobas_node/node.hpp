@@ -262,7 +262,8 @@ template <typename MsgType>
 ros2::PublisherPtr<MsgType>
 BaseNode::createPublisher(const std::string& topic_name, bool latch, bool reliable, size_t queue_size)
 {
-  return create_publisher<MsgType>(topic_name, ros2::makeQoS(latch, reliable, queue_size));
+  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  return create_publisher<MsgType>(topic_name, qos);
 }
 
 template <typename MsgType, typename Obj>
@@ -274,8 +275,9 @@ ros2::SubscriberPtr<MsgType> BaseNode::createSubscriber(
   bool reliable,
   size_t queue_size)
 {
-  return create_subscription<MsgType>(
-    topic_name, ros2::makeQoS(latch, reliable, queue_size), std::bind(fp, obj, std::placeholders::_1));
+  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  auto cb = std::bind(fp, obj, std::placeholders::_1);
+  return create_subscription<MsgType>(topic_name, qos, cb);
 }
 
 template <typename SrvType, typename Obj>
@@ -286,7 +288,8 @@ ros2::ServiceServerPtr<SrvType> BaseNode::createService(
     const std::shared_ptr<typename SrvType::Response>&),
   Obj* obj)
 {
-  return create_service<SrvType>(srv_name, std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2));
+  auto cb = std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2);
+  return create_service<SrvType>(srv_name, cb);
 }
 
 template <typename ActionType, typename Obj>
