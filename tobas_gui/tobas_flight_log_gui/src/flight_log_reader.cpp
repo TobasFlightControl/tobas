@@ -1,6 +1,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include <tobas_ros2_tools/filesystem.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 
@@ -13,7 +14,7 @@ namespace gui
 namespace log
 {
 FlightLogReaderWidget::FlightLogReaderWidget(rclcpp::Node::SharedPtr node)
-  : read_thread_(node), download_thread_(node), clean_thread_(node)
+  : read_thread_(node), download_thread_(node), clean_thread_(node), spinner_(Qt::WindowModal, this)
 {
   read_button_ = new QPushButton("Read");
   download_button_ = new QPushButton("Download");
@@ -71,7 +72,7 @@ void FlightLogReaderWidget::onDownloadButtonClicked()
   }
 
   const auto rosbag_name = item->text();
-  const auto rosbag_path = fs::path(tobas::kROSBagDir) / rosbag_name.toStdString();
+  const auto rosbag_path = ros2::expandUser(tobas::kROSBagDir) / rosbag_name.toStdString();
 
   if (fs::exists(rosbag_path))
   {
@@ -95,7 +96,7 @@ void FlightLogReaderWidget::onCleanButtonClicked()
   if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", qt::QMessageLevel::WARN))
     return;
 
-  read_thread_.start();
+  clean_thread_.start();
 
   spinner_.show();
   spinner_.start();
@@ -138,10 +139,15 @@ void FlightLogReaderWidget::onCleanFinished(bool success, const QString& message
   spinner_.hide();
   spinner_.stop();
 
-  if (success)
-    qt::qInfoBox(this, message);
-  else
+  if (!success)
+  {
     qt::qErrorBox(this, message);
+    return;
+  }
+
+  rosbag_list_->clear();
+
+  qt::qInfoBox(this, message);
 }
 }  // namespace log
 }  // namespace gui

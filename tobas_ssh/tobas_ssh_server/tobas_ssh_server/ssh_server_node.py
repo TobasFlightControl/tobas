@@ -148,7 +148,7 @@ class SSHServerNode(Node):
             return res
 
         try:
-            self._ssh_client.list(req.pardir)
+            res.entries = self._ssh_client.list(req.pardir)
             res.success = True
         except Exception as e:
             res.success = False

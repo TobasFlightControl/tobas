@@ -182,7 +182,7 @@ SSHClient::error_t SSHClient::list(const string& pardir, vector<string>& dst)
   const auto req = make_shared<List::Request>();
   req->pardir = pardir;
 
-  if (list_sc_.call(req))
+  if (!list_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
   const auto& res = list_sc_.getResponse();
