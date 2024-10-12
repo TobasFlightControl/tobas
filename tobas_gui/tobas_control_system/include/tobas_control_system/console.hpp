@@ -15,7 +15,7 @@ class ConsoleWidget : public QWidget
   using self = ConsoleWidget;
   using super = QWidget;
 
-  static constexpr int kMaxRows = 10000;  // 表示するメッセージの最大数
+  static constexpr int kMaxRows = 1000;  // 表示するメッセージの最大数
 
   static constexpr int kStampCol = 0;
   static constexpr int kNameCol = 1;
