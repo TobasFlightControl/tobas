@@ -9,7 +9,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_console_gui</exec_depend>
 	<exec_depend>tobas_control_system</exec_depend>
 	<exec_depend>tobas_flight_log_gui</exec_depend>
 	<exec_depend>tobas_gui_common</exec_depend>

@@ -14,7 +14,6 @@
   <depend>tobas_setup_assistant</depend>
   <depend>tobas_hardware_setup</depend>
   <depend>tobas_control_system</depend>
-  <depend>tobas_console_gui</depend>
   <depend>tobas_parameter_tuning_gui</depend>
   <depend>tobas_flight_log_gui</depend>
 

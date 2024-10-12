@@ -26,7 +26,6 @@ find_package(urdf_builder REQUIRED)
 find_package(tobas_setup_assistant REQUIRED)
 find_package(tobas_hardware_setup REQUIRED)
 find_package(tobas_control_system REQUIRED)
-find_package(tobas_console_gui REQUIRED)
 find_package(tobas_parameter_tuning_gui REQUIRED)
 find_package(tobas_flight_log_gui REQUIRED)
 
@@ -36,7 +35,6 @@ set(AMENT_DEPENDENCIES
   tobas_setup_assistant
   tobas_hardware_setup
   tobas_control_system
-  tobas_console_gui
   tobas_parameter_tuning_gui
   tobas_flight_log_gui
 )

@@ -14,7 +14,6 @@
 #include <tobas_setup_assistant/setup_assistant.hpp>
 #include <tobas_hardware_setup/hardware_setup.hpp>
 #include <tobas_control_system/control_system.hpp>
-#include <tobas_console_gui/console.hpp>
 #include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
 
@@ -61,7 +60,6 @@ private:
   setup_assistant::SetupAssistantWidget* setup_assistant_;
   hardware_setup::HardwareSetupWidget* hardware_setup_;
   control_system::ControlSystemWidget* control_system_;
-  console::ConsoleWidget* console_;
   param_tuning::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
 

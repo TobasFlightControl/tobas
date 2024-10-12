@@ -49,10 +49,6 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   app_cb->addItem("Control System");
   app_sw->addWidget(control_system_);
 
-  console_ = new console::ConsoleWidget(node);
-  app_cb->addItem("Console Message");
-  app_sw->addWidget(console_);
-
   param_tuning_ = new param_tuning::ParameterTuningWidget(node);
   app_cb->addItem("Parameter Tuning");
   app_sw->addWidget(param_tuning_);
@@ -102,7 +98,6 @@ void GUICoreWidget::updateInternalDataStructures()
 {
   hardware_setup_->updateInternalDataStructures();
   control_system_->updateInternalDataStructures();
-  console_->updateNamespace(drone_.name);
   param_tuning_->updateTBSPath(tbsPath());
   flight_log_->updateNamespace(drone_.name);
 

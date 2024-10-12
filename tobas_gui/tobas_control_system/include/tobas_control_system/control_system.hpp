@@ -6,6 +6,7 @@
 #include "./battery_cpu_viewer.hpp"
 #include "./rcin_viewer/rcin_viewer.hpp"
 #include "./rotors_viewer/rotors_viewer.hpp"
+#include "./console.hpp"
 #include "./status_viewer/status_viewer.hpp"
 #include "./mission_planner/mission_planner.hpp"
 
@@ -30,6 +31,7 @@ private:
   BatteryCPUViewerWidget* battery_cpu_viewer_;
   rcin::RCInputViewerWidget* rcin_viewer_;
   RotorsViewerWiddget* rotors_viewer_;
+  ConsoleWidget* console_;
   StatusViewerWidget* status_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
