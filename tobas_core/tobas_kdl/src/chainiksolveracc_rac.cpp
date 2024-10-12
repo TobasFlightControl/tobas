@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Eigen/SVD>
+#include <eigen3/Eigen/SVD>
 
 #include "../include/tobas_kdl/chainiksolveracc_rac.hpp"
 

@@ -1,6 +1,11 @@
+#include <cmath>
+#include <iostream>
+
+#include <tobas_std_tools/console.hpp>
+
 #include "../include/tobas_geomag/core.hpp"
 
-#include <cmath>
+using namespace std;
 
 namespace geomag
 {
@@ -9,8 +14,8 @@ Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double l
   const double x = mag_field_itrs.x * 1e+9;
   const double y = mag_field_itrs.y * 1e+9;
   const double z = mag_field_itrs.z * 1e+9;
-  const double phi = lat * (M_PI / 180.0);
-  const double lam = lon * (M_PI / 180.0);
+  const double phi = lat * (M_PI / 180.);
+  const double lam = lon * (M_PI / 180.);
   const double sphi = sin(phi);
   const double cphi = cos(phi);
   const double slam = sin(lam);
@@ -21,20 +26,20 @@ Elements elementsFromMagField(const Vector& mag_field_itrs, double lat, double l
   const double down = -cphi * x1 + -sphi * z;
   const double horizontal = sqrt(north * north + east * east);
   const double total = sqrt(horizontal * horizontal + down * down);
-  const double inclination = atan2(down, horizontal) * (180.0 / M_PI);
-  const double declination = atan2(east, north) * (180.0 / M_PI);
+  const double inclination = atan2(down, horizontal) * (180. / M_PI);
+  const double declination = atan2(east, north) * (180. / M_PI);
   return { north, east, down, horizontal, total, inclination, declination };
 }
 
 Vector ecefFromGeodetic(double lat, double lon, double h)
 {
   // Convert to radians
-  const double phi = lat * (M_PI / 180.0);
-  const double lam = lon * (M_PI / 180.0);
+  const double phi = lat * (M_PI / 180.);
+  const double lam = lon * (M_PI / 180.);
 
   // WGS 84 constants
-  constexpr double a = 6378137.0;
-  constexpr double f = 1.0 / 298.257223563;
+  constexpr double a = 6378137.;
+  constexpr double f = 1. / 298.257223563;
   constexpr double e2 = f * (2 - f);
   constexpr double e2m = (1 - f) * (1 - f);
 
@@ -42,7 +47,7 @@ Vector ecefFromGeodetic(double lat, double lon, double h)
   const double cphi = cosf(phi);
   const double slam = sinf(lam);
   const double clam = cosf(lam);
-  const double n = a / sqrt(1.0 - e2 * (sphi * sphi));
+  const double n = a / sqrt(1. - e2 * (sphi * sphi));
   const double z = (e2m * n + h) * sphi;
   const double r = (n + h) * cphi;
   return { r * clam, r * slam, z };
@@ -51,16 +56,16 @@ Vector ecefFromGeodetic(double lat, double lon, double h)
 Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstModel& WMM)
 {
   // Mean radius of  ellipsoid in meters from section 1.2 of the WMM2015 Technical report
-  constexpr double EARTH_R = 6371200.0;
+  constexpr double EARTH_R = 6371200.;
 
   const double x = position_itrs.x;
   const double y = position_itrs.y;
   const double z = position_itrs.z;
   const double rsqrd = x * x + y * y + z * z;
 
-  double px = 0.0;
-  double py = 0.0;
-  double pz = 0.0;
+  double px = 0.;
+  double py = 0.;
+  double pz = 0.;
 
   double temp = EARTH_R / rsqrd;
   const double a = x * temp;
@@ -70,9 +75,9 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
 
   // First m==0 row, just solve for the Vs
   double Vtop = EARTH_R / sqrt(rsqrd);  // V0,0
-  double Wtop = 0.0;                    // W0,0
-  double Vprev = 0.0;
-  double Wprev = 0.0;
+  double Wtop = 0.;                     // W0,0
+  double Vprev = 0.;
+  double Wprev = 0.;
   double Vnm = Vtop;
   double Wnm = Wtop;
 
@@ -98,7 +103,7 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
       else
       {
         temp = Vnm;
-        const double invs_temp = 1.0 / ((n - m));
+        const double invs_temp = 1. / ((n - m));
         Vnm = ((2 * n - 1) * f * Vnm - (n + m - 1) * g * Vprev) * invs_temp;
         Vprev = temp;
         temp = Wnm;
@@ -127,5 +132,20 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
     }
   }
   return { -px * 1e-9, -py * 1e-9, -pz * 1e-9 };
+}
+
+Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, const ConstModel& WMM)
+{
+  if (dyear <= WMM.epoch)
+    PRINT_ERROR("The year should be greater than the epoch of the magnetic field model.");
+
+  // 5年ごとに新しいデータが出るので，それを過ぎたら警告する
+  // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
+  if (dyear - WMM.epoch > 5)
+    PRINT_WARN("It is time to replace the WMM data with the latest version.");
+
+  const auto ecef = geomag::ecefFromGeodetic(lat, lon, h);
+  const auto mag_field = geomag::magFieldFromECEF(dyear, ecef, WMM);
+  return geomag::elementsFromMagField(mag_field, lat, lon);
 }
 }  // namespace geomag

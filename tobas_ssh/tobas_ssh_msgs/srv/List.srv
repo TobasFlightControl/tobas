@@ -1,0 +1,5 @@
+string pardir
+---
+bool success
+string message
+string[] entries

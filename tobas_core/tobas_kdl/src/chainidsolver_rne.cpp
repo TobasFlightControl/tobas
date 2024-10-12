@@ -39,7 +39,7 @@ int ChainIdSolver_RNE::CartToJnt(
   j_ = 0;
   for (size_t i = 0; i < ns_; ++i)
   {
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::Fixed)
     {
       qj_ = q(j_);
       qdj_ = qd(j_);
@@ -66,7 +66,7 @@ int ChainIdSolver_RNE::CartToJnt(
       v_[i] = X_[i].inverse(v_[i - 1]) + vj;
       a_[i] = X_[i].inverse(a_[i - 1]) + S_[i].accel(qddj_) + v_[i] * vj;
     }
-    const auto Ii = chain_.getSegment(i).getInertia();
+    const auto Ii = chain_.getSegment(i).inertia();
     f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]) - forces[i];
   }
 
@@ -74,7 +74,7 @@ int ChainIdSolver_RNE::CartToJnt(
   j_ = nj_ - 1;
   for (int i = ns_ - 1; i >= 0; --i)
   {
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::Fixed)
       effort_out_(j_--) = S_[i].dot(f_[i]);
     if (i != 0)
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];
@@ -101,7 +101,7 @@ int ChainIdSolver_RNE::CartToJnt(
   // Sweep from root to leaf
   for (size_t i = 0; i < ns_; ++i)
   {
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::Fixed)
     {
       qj_ = q(j_);
       qdj_ = qd(j_);
@@ -130,7 +130,7 @@ int ChainIdSolver_RNE::CartToJnt(
       a_[i] = X_[i].inverse(a_[i - 1]) + S_[i].accel(qddj_) + v_[i] * vj;
       f_ee_ = X_[i].M.inverse(f_ee_);  // CHANGED
     }
-    const auto& Ii = chain_.getSegment(i).getInertia();
+    const auto& Ii = chain_.getSegment(i).inertia();
     /* -----CHANGED----- */
     // f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]) - forces[i];
     f_[i] = Ii * a_[i] + v_[i] * (Ii * v_[i]);
@@ -143,7 +143,7 @@ int ChainIdSolver_RNE::CartToJnt(
   j_ = nj_ - 1;
   for (int i = ns_ - 1; i >= 0; --i)
   {
-    if (chain_.getSegment(i).getJoint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::Fixed)
       effort_out_(j_--) = S_[i].dot(f_[i]);
     if (i != 0)
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];

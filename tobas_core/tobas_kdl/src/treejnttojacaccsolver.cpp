@@ -13,10 +13,10 @@ void TreeJntToJacAccSolver::updateInternalDataStructures()
 
   for (const auto& [seg_name, _] : tree_.getSegments())
   {
-    R_[seg_name] = Rotation();
-    v_[seg_name] = Twist();
-    a_[seg_name] = Accel();
-    Jdqd_out_[seg_name] = Accel();
+    R_[seg_name] = Rotation::Identity();
+    v_[seg_name] = Twist::Zero();
+    a_[seg_name] = Accel::Zero();
+    Jdqd_out_[seg_name] = Accel::Zero();
   }
 }
 
@@ -44,7 +44,7 @@ void TreeJntToJacAccSolver::JntToCartRec(
   // Do forward calculations
   const auto& j = segment->second.q_nr;
   double qj, qdj;
-  if (seg.getJoint().type != Joint::Fixed)
+  if (seg.joint().type != Joint::Fixed)
   {
     qj = q(j);
     qdj = qd(j);

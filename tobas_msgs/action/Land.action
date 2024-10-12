@@ -4,6 +4,7 @@ tobas_msgs/CommandLevel level
 ---
 
 # Result
+string message
 
 ---
 

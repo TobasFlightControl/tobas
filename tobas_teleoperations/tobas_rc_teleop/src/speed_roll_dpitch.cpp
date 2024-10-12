@@ -1,6 +1,5 @@
-#include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_tools/constants.hpp>
-#include <tobas_msgs/SpeedRollDeltaPitch.h>
+#include <tobas_std_tools/check.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -9,40 +8,56 @@ using namespace std;
 
 namespace tobas_rc_teleop
 {
-SpeedRollDeltaPitchController::SpeedRollDeltaPitchController(const tobas::Drone& drone) : super(drone)
+SpeedRollDeltaPitchController::SpeedRollDeltaPitchController()
 {
 }
 
-void SpeedRollDeltaPitchController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node)
 {
-  getRosParams(pnh);
+  getStaticRosParams(node);
 
-  cmd_pub_ = nh.advertise<tobas_msgs::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic, 1);
+  cmd_pub_ = node->createPublisher<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
 }
 
 void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 {
 }
 
-void SpeedRollDeltaPitchController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&, const double&)
+void SpeedRollDeltaPitchController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::SpeedRollDeltaPitch>();
+  auto cmd = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>();
   cmd->speed = remap(rcin.throttle, min_speed_, max_speed_);  // TODO: 機体の制限速度を考慮
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);
   cmd->delta_pitch = remapDead(rcin.pitch, -max_dpitch_, max_dpitch_);
 
   // コマンドを発行
-  cmd_pub_.publish(cmd);
+  cmd_pub_->publish(move(cmd));
 }
 
-void SpeedRollDeltaPitchController::getRosParams(ros::NodeHandle& pnh)
+void SpeedRollDeltaPitchController::getStaticRosParams(tobas::BaseNode* node)
 {
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/min_speed", min_speed_, kDefaultMinSpeed, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_speed", max_speed_, kDefaultMaxSpeed, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_roll", max_roll_, kDefaultMaxRoll, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "speed_roll_dpitch/max_dpitch", max_dpitch_, kDefaultMaxDeltaPitch, tobas_ros::POSITIVE);
+  min_speed_ = node->getDoubleParam("min_speed", kDefaultMinSpeed);
+  max_speed_ = node->getDoubleParam("max_speed", kDefaultMaxSpeed);
+  if (min_speed_ <= 0 || max_speed_ < min_speed_)
+  {
+    node->error("Invalid speed limit.");
+    min_speed_ = kDefaultMinSpeed;
+    max_speed_ = kDefaultMaxSpeed;
+  }
 
-  ROS_CHECK(pnh, min_speed_ < max_speed_, "Maximum speed must be greater than minimum speed.");
+  max_roll_ = node->getDoubleParam("max_roll", kDefaultMaxRoll);
+  if (max_roll_ < 0)
+  {
+    node->error("Maximum roll angle must be positive.");
+    max_roll_ = kDefaultMaxRoll;
+  }
+
+  max_dpitch_ = node->getDoubleParam("max_dpitch", kDefaultMaxDeltaPitch);
+  if (max_dpitch_ < 0)
+  {
+    node->error("Maximum delta pitch angle must be positive.");
+    max_dpitch_ = kDefaultMaxDeltaPitch;
+  }
 }
 }  // namespace tobas_rc_teleop

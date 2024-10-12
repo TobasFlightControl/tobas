@@ -1,0 +1,7 @@
+string local_dir
+string remote_dir
+string[] exclude_dirs
+bool superuser
+---
+bool success
+string message

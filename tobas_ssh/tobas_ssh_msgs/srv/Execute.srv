@@ -1,0 +1,7 @@
+string command
+bool superuser
+bool background
+---
+bool success
+string output
+string error_output

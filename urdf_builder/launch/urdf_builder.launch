@@ -1,7 +1,0 @@
-<launch>
-
-    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find urdf_builder)/config/logging.config"/>
-
-    <node pkg="rviz" type="rviz" name="urdf_builder" args="-d $(find urdf_builder)/config/urdf_builder.rviz" output="screen" required="true"/>
-
-</launch>

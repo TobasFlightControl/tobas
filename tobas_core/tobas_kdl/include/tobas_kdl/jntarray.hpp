@@ -11,7 +11,7 @@ public:
 
   inline explicit JntArray();
   inline explicit JntArray(size_t nj);
-  inline explicit JntArray(const Eigen::VectorXd& data);
+  inline explicit JntArray(const Eigen::VectorXd& _data);
 
   inline static JntArray Zero(size_t nj);
   inline static JntArray Constant(size_t nj, double value);
@@ -57,7 +57,7 @@ inline JntArray::JntArray(size_t nj) : data(nj)
 {
 }
 
-inline JntArray::JntArray(const Eigen::VectorXd& data) : data(data)
+inline JntArray::JntArray(const Eigen::VectorXd& _data) : data(_data)
 {
 }
 

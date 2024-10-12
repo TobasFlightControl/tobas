@@ -1,0 +1,4 @@
+#!/bin/bash
+
+PARDIR=$(realpath $(dirname "$0"))
+bash ${PARDIR}/tobas_build_release --packages-above $1

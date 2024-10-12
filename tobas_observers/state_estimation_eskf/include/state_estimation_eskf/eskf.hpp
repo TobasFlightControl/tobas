@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <vector>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
@@ -11,7 +11,7 @@
 
 #include "./constants.hpp"
 
-namespace state_estimation_eskf
+namespace eskf
 {
 /**
  * @brief 誤差状態カルマンフィルタ．
@@ -326,4 +326,4 @@ double ErrorStateKalmanFilter::correct(
   const double anormaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
   return anormaly_score;
 }
-}  // namespace state_estimation_eskf
+}  // namespace eskf

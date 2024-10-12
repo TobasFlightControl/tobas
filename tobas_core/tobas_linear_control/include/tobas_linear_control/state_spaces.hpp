@@ -72,7 +72,7 @@ inline LinearDynamics::LinearDynamics(const Eigen::Index& x_size, const Eigen::I
 {
 }
 
-inline LinearDynamics::LinearDynamics(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B) : A(A), B(B)
+inline LinearDynamics::LinearDynamics(const Eigen::MatrixXd& _A, const Eigen::MatrixXd& _B) : A(_A), B(_B)
 {
   assert(A.cols() == stateSize());
   assert(B.rows() == stateSize());
@@ -135,16 +135,19 @@ inline LinearStateSpace::LinearStateSpace(
 {
 }
 
-inline LinearStateSpace::LinearStateSpace(const Eigen::MatrixXd& A, const Eigen::MatrixXd& B, const Eigen::MatrixXd& C)
-  : A(A), B(B), C(C)
+inline LinearStateSpace::LinearStateSpace(
+  const Eigen::MatrixXd& _A,
+  const Eigen::MatrixXd& _B,
+  const Eigen::MatrixXd& _C)
+  : A(_A), B(_B), C(_C)
 {
   assert(A.cols() == stateSize());
   assert(B.rows() == stateSize());
   assert(C.cols() == stateSize());
 }
 
-inline LinearStateSpace::LinearStateSpace(const LinearDynamics& dyn, const Eigen::MatrixXd& C)
-  : LinearStateSpace(dyn.A, dyn.B, C)
+inline LinearStateSpace::LinearStateSpace(const LinearDynamics& _dyn, const Eigen::MatrixXd& _C)
+  : LinearStateSpace(_dyn.A, _dyn.B, _C)
 {
 }
 

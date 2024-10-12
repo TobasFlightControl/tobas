@@ -8,8 +8,8 @@ SphericalCoordinate::SphericalCoordinate()
 {
 }
 
-SphericalCoordinate::SphericalCoordinate(const double& rho, const double& phi, const double& theta)
-  : rho(rho), phi(phi), theta(theta)
+SphericalCoordinate::SphericalCoordinate(const double& _rho, const double& _phi, const double& _theta)
+  : rho(_rho), phi(_phi), theta(_theta)
 {
 }
 

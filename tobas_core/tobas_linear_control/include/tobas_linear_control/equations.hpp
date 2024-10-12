@@ -36,7 +36,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const LinearEquation& arg);
 };
 
-inline LinearEquation::LinearEquation(const Eigen::MatrixXd& A, const Eigen::MatrixXd& b) : A(A), b(b)
+inline LinearEquation::LinearEquation(const Eigen::MatrixXd& _A, const Eigen::MatrixXd& _b) : A(_A), b(_b)
 {
   assert(A.rows() == b.rows());
 }

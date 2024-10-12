@@ -47,14 +47,14 @@ int ChainJntToJacSolver::JntToJac(const JntArray& q_in, int _seg_nr)
     const auto& seg = chain_.getSegment(i);
 
     // Calculate new Frame_base_ee
-    const auto qj = seg.getJoint().type != Joint::Fixed ? q_in(j_) : 0.;
+    const auto qj = seg.joint().type != Joint::Fixed ? q_in(j_) : 0.;
     const auto T_total = T_tmp_ * seg.pose(qj);  // pose of the new end-point expressed in the base
 
     // Changing Refpoint of all columns to new ee
     J_out_.changeRefPoint(T_total.p - T_tmp_.p);
 
     // Only increase jointnr if the segment has a joint
-    if (seg.getJoint().type != Joint::Fixed)
+    if (seg.joint().type != Joint::Fixed)
     {
       // Only put the twist inside if it is not locked
       if (!locked_joints_[j_])

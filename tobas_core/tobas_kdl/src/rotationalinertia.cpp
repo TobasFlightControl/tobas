@@ -14,7 +14,7 @@ RotationalInertia::RotationalInertia(double Ixx, double Iyy, double Izz, double 
   data(2, 2) = Izz;
 }
 
-RotationalInertia::RotationalInertia(const Matrix3d& data) : data(data)
+RotationalInertia::RotationalInertia(const Matrix3d& _data) : data(_data)
 {
 }
 }  // namespace kdl

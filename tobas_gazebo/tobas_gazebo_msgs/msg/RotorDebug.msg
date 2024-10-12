@@ -1,5 +1,5 @@
 std_msgs/Header header
 float64 rotation_speed                  # Rotation speed [rad/s]
-tobas_kdl_msgs/Vector thrust_force      # Thrust force in world frame [N]
-tobas_kdl_msgs/Vector horizontal_force  # Horizontal force in world frame [N]
-tobas_kdl_msgs/Vector drag_torque       # Rotor drag torque in body frame [Nm]
+geometry_msgs/Vector3 thrust_force      # Thrust force in world frame [N]
+geometry_msgs/Vector3 horizontal_force  # Horizontal force in world frame [N]
+geometry_msgs/Vector3 drag_torque       # Rotor drag torque in body frame [Nm]

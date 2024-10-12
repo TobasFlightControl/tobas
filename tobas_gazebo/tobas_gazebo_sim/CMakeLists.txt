@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.10)
+project(tobas_gazebo_sim)
+
+file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
+  message("This package is skipped on Raspberry Pi.")
+  find_package(ament_cmake REQUIRED)
+  ament_package()
+  return()
+endif()
+
+find_package(ament_cmake REQUIRED)
+install(DIRECTORY launch models worlds DESTINATION share/${PROJECT_NAME})
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env_hooks/${PROJECT_NAME}.dsv.in")
+ament_package()

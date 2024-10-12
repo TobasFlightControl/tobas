@@ -1,38 +1,17 @@
 #pragma once
 
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
+#include <gz/sim/System.hh>
+#include <gz/sim/components.hh>
 
 namespace gazebo
 {
-template <typename T>
-bool allGreaterEqual(const ignition::math::Vector3<T>& v, T x)
+/* エンティティ直下のコンポーネントを取得する．存在しない場合は新規作成する． */
+template <typename CompType>
+CompType* getComponent(const gz::sim::Entity& entity, gz::sim::EntityComponentManager& ecm)
 {
-  return v.X() >= x && v.Y() >= x && v.Z() >= x;
+  if (ecm.EntityHasComponentType(entity, CompType().TypeId()))
+    return ecm.Component<CompType>(entity);
+  else
+    return ecm.CreateComponent(entity, CompType());
 }
-
-/* NWU座標系(Gazebo)からNED座標系(航空力学)に変換． */
-template <typename T>
-void NWU2NED(ignition::math::Vector3<T>& v)
-{
-  v.Y() = -v.Y();
-  v.Z() = -v.Z();
-}
-
-/* NED座標系(航空力学)からNWU座標系(Gazebo)に変換． */
-template <typename T>
-void NED2NWU(ignition::math::Vector3<T>& v)
-{
-  v.Y() = -v.Y();
-  v.Z() = -v.Z();
-}
-
-/* 等価角軸ベクトルからクオータニオンを作成． */
-ignition::math::Quaterniond angleAxisToQuaternion(const ignition::math::Vector3d& w);
-
-/* 3次元ベクトルの外積を表す歪対称行列を計算する． */
-ignition::math::Matrix3d skewMatrix(const ignition::math::Vector3d& v);
-
-/* ロボット全体の質量を計算する． */
-double computeTotalMass(const physics::ModelPtr& model);
 }  // namespace gazebo

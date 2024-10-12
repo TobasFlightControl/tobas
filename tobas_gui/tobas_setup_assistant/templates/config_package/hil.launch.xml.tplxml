@@ -1,0 +1,25 @@
+<launch>
+
+  <arg name="output" default="screen"/>
+  <arg name="use_sim_time" default="false"/>
+  <arg name="ground_truth" default="false"/>
+
+  <!-- Set common parameters -->
+  <set_parameter name="use_sim_time" value="$(var use_sim_time)"/>
+
+  <!-- Launch Tobas core software -->
+  <!-- TODO: Improve communication latency and launch core.launch on the flight controller side. -->
+  <!-- <include file="$(find {{ config_pkg_name }})/launch/core.launch.py">
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="ground_truth" value="$(var ground_truth)"/>
+  </include> -->
+
+  <group>
+    <push_ros_namespace namespace="{{ drone_name }}"/>
+
+    <!-- Launch minimal hardware interfaces -->
+    <include file="$(find-pkg-share {{ hardware_pkg }})/launch/rcin_driver.launch.py"/>
+    <node pkg="tobas_real_ros" exec="rcin_handler" output="$(var output)"/>
+  </group>
+
+</launch>

@@ -1,7 +1,0 @@
-<library path="lib/libtobas_mr_thrust_estimation_nodelet">
-
-  <class name="tobas_mr_thrust_estimation/ThrustEstimatorNodelet" type="tobas_mr_thrust_estimation::ThrustEstimatorNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

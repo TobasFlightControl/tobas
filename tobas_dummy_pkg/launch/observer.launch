@@ -1,6 +1,0 @@
-<launch>
-
-  <arg name="nodelet" default="false"/>
-  <arg name="node_name" default="state_estimator_eskf"/>
-
-</launch>

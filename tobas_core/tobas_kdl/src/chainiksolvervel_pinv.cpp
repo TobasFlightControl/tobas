@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Eigen/SVD>
+#include <eigen3/Eigen/SVD>
 
 #include "../include/tobas_kdl/chainiksolvervel_pinv.hpp"
 

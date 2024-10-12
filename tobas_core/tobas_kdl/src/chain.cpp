@@ -34,7 +34,7 @@ void Chain::addSegment(const Segment& segment)
 {
   segments.push_back(segment);
   ++ns_;
-  if (segment.getJoint().type != Joint::Fixed)
+  if (segment.joint().type != Joint::Fixed)
     ++nj_;
 }
 

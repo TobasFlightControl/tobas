@@ -18,6 +18,18 @@ constexpr inline double rad2deg(const double& rad)
   return rad * (180. / M_PI);
 }
 
+/* inch -> m */
+constexpr inline double inch2meter(const double& inch)
+{
+  return inch * 0.0254;
+}
+
+/* m -> inch */
+constexpr inline double meter2inch(const double& meter)
+{
+  return meter / 0.0254;
+}
+
 /* rpm -> rad/s */
 constexpr inline double rpm2rps(const double& rpm)
 {

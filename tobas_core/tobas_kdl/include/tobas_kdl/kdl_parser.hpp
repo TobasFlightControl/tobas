@@ -14,13 +14,6 @@ namespace kdl
  */
 bool treeFromFile(const std::string& file, Tree& tree);
 
-/** Constructs a tobas_kdl tree from the parameter server, given the parameter name
- * \param param the name of the parameter on the parameter server
- * \param tree The resulting tobas_kdl Tree
- * returns true on success, false on failure or if built without ROS
- */
-bool treeFromParam(const std::string& param, Tree& tree);
-
 /** Constructs a tobas_kdl tree from a string containing xml
  * \param xml A string containing the xml description of the robot
  * \param tree The resulting tobas_kdl Tree

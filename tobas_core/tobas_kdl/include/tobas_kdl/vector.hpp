@@ -1,8 +1,8 @@
 #pragma once
 
 #include <map>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 #include "./utilities/constants.hpp"
 
@@ -19,9 +19,9 @@ class Vector
 public:
   Eigen::Vector3d data;
 
-  inline explicit Vector();
-  inline explicit Vector(double x, double y, double z);
-  inline explicit Vector(const Eigen::Vector3d& data);
+  inline Vector();
+  inline Vector(double x, double y, double z);
+  inline explicit Vector(const Eigen::Vector3d& _data);
 
   inline static Vector Zero();
   inline static Vector Constant(const double& value);
@@ -45,8 +45,17 @@ public:
   inline void z(double z);
 
   inline void fill(double value);
+
+  /* 2つのベクトルの内積を計算する． */
   inline double dot(const Vector& rhs) const;
+
+  /* 2つのベクトルの要素積を計算する． */
   inline Vector hadamard(const Vector& rhs) const;
+
+  /* 2つのベクトル間の偏角 [rad] を計算する． */
+  inline double argument(const Vector& rhs) const;
+
+  /* ベクトルが要素を含む場合にtrueを返す． */
   inline bool contains(double value) const;
 
   /* Clamp each value. */
@@ -54,6 +63,7 @@ public:
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
+  inline Vector sqr() const;
   inline Vector inverse() const;
   inline Vector normalized() const;
 
@@ -98,7 +108,7 @@ inline Vector::Vector(double x, double y, double z) : data(x, y, z)
 {
 }
 
-inline Vector::Vector(const Eigen::Vector3d& data) : data(data)
+inline Vector::Vector(const Eigen::Vector3d& _data) : data(_data)
 {
 }
 
@@ -197,9 +207,9 @@ inline Vector Vector::hadamard(const Vector& rhs) const
   return Vector(data.cwiseProduct(rhs.data));
 }
 
-inline bool Vector::contains(double value) const
+inline double Vector::argument(const Vector& rhs) const
 {
-  return x() == value || y() == value || z() == value;
+  return acos(normalized().dot(rhs.normalized()));
 }
 
 inline Vector Vector::clamp(const double& lb, const double& ub) const
@@ -215,6 +225,11 @@ inline Vector Vector::clamp(const Vector& lb, const Vector& ub) const
 inline void Vector::setZero()
 {
   data.setZero();
+}
+
+inline Vector Vector::sqr() const
+{
+  return Vector(data.cwiseAbs2());
 }
 
 inline Vector Vector::inverse() const

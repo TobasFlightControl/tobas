@@ -25,6 +25,6 @@ public:
 private:
   Frame p_out_;
 
-  Frame recursiveFk(const JntArray& q, const SegmentMap::const_iterator& it);
+  Frame recursiveFk(const JntArray& q, const SegmentMap::const_iterator& seg_it);
 };
 }  // namespace kdl

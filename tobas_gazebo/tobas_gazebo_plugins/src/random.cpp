@@ -1,7 +1,7 @@
 #include "../include/tobas_gazebo_plugins/random.hpp"
 
 using namespace std;
-using namespace ignition::math;
+using namespace gz::math;
 
 namespace gazebo
 {

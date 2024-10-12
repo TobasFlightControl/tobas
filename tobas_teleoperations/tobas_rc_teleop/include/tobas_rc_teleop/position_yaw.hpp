@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/PositionYaw.h>
+#include <tobas_msgs_adapter/PositionYaw.hpp>
 
 #include "./base_controller.hpp"
 
@@ -11,18 +11,17 @@ class PositionYawController : public BaseController
   using super = BaseController;
 
 public:
-  explicit PositionYawController(const tobas::Drone& drone);
+  explicit PositionYawController();
 
-  void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
+  void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void
-  update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
+  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   bool is_up_commanded_ = false;
   tobas_msgs::PositionYaw pos_yaw_;
   kdl::Vector vel_;
-  ros::Time t_last_rcin_;
+  builtin_interfaces::msg::Time t_last_rcin_;
 
   // rosparams
   double max_hor_vel_;  // [m/s]
@@ -30,8 +29,8 @@ private:
   double max_yawrate_;  // [rad/s]
 
   // Publisher
-  ros::Publisher pos_yaw_pub_;
+  ros2::PublisherPtr<tobas_msgs::PositionYaw> pos_yaw_pub_;
 
-  void getRosParams(ros::NodeHandle& pnh);
+  void getStaticRosParams(tobas::BaseNode* node);
 };
 }  // namespace tobas_rc_teleop

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
+
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
@@ -9,12 +11,11 @@ class PoseTwistAccelController : public BaseController
   using super = BaseController;
 
 public:
-  explicit PoseTwistAccelController(const tobas::Drone& drone);
+  explicit PoseTwistAccelController();
 
-  void initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh) override;
+  void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void
-  update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double& battery_voltage) override;
+  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   // rosparams
@@ -25,14 +26,14 @@ private:
 
   // Mutable
   bool is_up_commanded_;
-  ros::Time t_last_rcin_;
+  rclcpp::Time t_last_rcin_;
   kdl::Vector tar_vel_F_;  // フットプリント座標系から見た目標速度
   kdl::Vector tar_pos_W_;  // 世界座標系から見た目標位置
   kdl::Euler tar_rpy_;
 
   // Publisher
-  ros::Publisher cmd_pub_;
+  ros2::PublisherPtr<tobas_msgs::PoseTwistAccelCommand> cmd_pub_;
 
-  void getRosParams(ros::NodeHandle& pnh);
+  void getStaticRosParams(tobas::BaseNode* node);
 };
 }  // namespace tobas_rc_teleop

@@ -22,7 +22,7 @@ void TreeJointStateConverter::updateInternalDataStructures()
   f_out_.resize(nj_);
 }
 
-int TreeJointStateConverter::jointStateToJntArrayPos(const sensor_msgs::JointState& js)
+int TreeJointStateConverter::jointStateToJntArrayPos(const sensor_msgs::msg::JointState& js)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -46,7 +46,7 @@ int TreeJointStateConverter::jointStateToJntArrayPos(const sensor_msgs::JointSta
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jointStateToJntArrayVel(const sensor_msgs::JointState& js)
+int TreeJointStateConverter::jointStateToJntArrayVel(const sensor_msgs::msg::JointState& js)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -70,7 +70,7 @@ int TreeJointStateConverter::jointStateToJntArrayVel(const sensor_msgs::JointSta
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jointStateToJntArrayEff(const sensor_msgs::JointState& js)
+int TreeJointStateConverter::jointStateToJntArrayEff(const sensor_msgs::msg::JointState& js)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -94,7 +94,7 @@ int TreeJointStateConverter::jointStateToJntArrayEff(const sensor_msgs::JointSta
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jointStateToJntArrayPosVel(const sensor_msgs::JointState& js)
+int TreeJointStateConverter::jointStateToJntArrayPosVel(const sensor_msgs::msg::JointState& js)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -122,7 +122,7 @@ int TreeJointStateConverter::jointStateToJntArrayPosVel(const sensor_msgs::Joint
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jointStateToJntArray(const sensor_msgs::JointState& js)
+int TreeJointStateConverter::jointStateToJntArray(const sensor_msgs::msg::JointState& js)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);

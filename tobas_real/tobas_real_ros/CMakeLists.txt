@@ -8,63 +8,48 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(catkin REQUIRED COMPONENTS
-	tobas_hal_core
-	tobas_hal_msgs
-	tobas_tools
-	tobas_linux
-	tobas_property_tools
+find_package(ament_cmake REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(tobas_dsp REQUIRED)
+find_package(tobas_linux REQUIRED)
+find_package(tobas_property_tree REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_hal_core REQUIRED)
+find_package(tobas_hal_msgs_adapter REQUIRED)
+find_package(tobas_real_common REQUIRED)
+
+include_directories(include)
+
+file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME}_node
+	sensor_msgs
 	tobas_dsp
-	nodelet
-	pluginlib
+	tobas_linux
+	tobas_property_tree
+	tobas_msgs_adapter
+	tobas_hal_core
+	tobas_hal_msgs_adapter
+	tobas_real_common
+)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BarometerHandlerNode" EXECUTABLE barometer_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryHandlerNode" EXECUTABLE battery_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuHandlerNode" EXECUTABLE imu_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagnetometerHandlerNode" EXECUTABLE magnetometer_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputHandlerNode" EXECUTABLE rcin_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TimeReferenceServerNode" EXECUTABLE time_reference_server)
+
+install(
+	TARGETS ${PROJECT_NAME}_node
+	EXPORT ${PROJECT_NAME}
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
 
-catkin_package(
-	INCLUDE_DIRS include
-	LIBRARIES ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-	CATKIN_DEPENDS
-		tobas_hal_core
-		tobas_hal_msgs
-		tobas_tools
-		tobas_linux
-		tobas_property_tools
-		tobas_dsp
-		nodelet
-		pluginlib
-)
-
-include_directories(${catkin_INCLUDE_DIRS} include)
-
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} stdc++fs)
-
-file(GLOB_RECURSE NODELET_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodelets/[^.]*.cpp)
-add_library(${PROJECT_NAME}_nodelet SHARED ${NODELET_FILES})
-target_link_libraries(${PROJECT_NAME}_nodelet ${catkin_LIBRARIES} ${PROJECT_NAME} stdc++fs)
-
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp examples/[^.]*.cpp)
-set(targets_to_install "")
-foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NAME ${FILE} NAME_WE)
-	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${catkin_LIBRARIES} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NAME})
-endforeach()
-
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_nodelet
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
-install(TARGETS ${targets_to_install}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
-install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(FILES nodelet_description.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+ament_package()

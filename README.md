@@ -152,12 +152,11 @@ $ roslaunch tobas_fkie_master fkie_master.launch
 4. ラズパイで`rcin_handler`を立ち上げる
 
 ```bash
-$ roslaunch tobas_navio_ros rcin_handler.launch __ns:=drone_name
+$ roslaunch tobas_navio_ros rcin_handler.launch __ns:=/${drone_name}
 ```
 
 5. 外部 PC で Tobas ソフトウェアを立ち上げる
 
 ```bash
 $ roslaunch tobas_iris_config gazebo.launch
-$ roslaunch tobas_iris_config bringup.launch
 ```

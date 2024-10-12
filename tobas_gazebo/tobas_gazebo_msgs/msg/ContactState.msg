@@ -1,2 +1,0 @@
-tobas_gazebo_msgs/Collision collision1
-tobas_gazebo_msgs/Collision collision2

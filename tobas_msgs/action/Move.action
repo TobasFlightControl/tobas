@@ -10,10 +10,11 @@ float64 timeout            # [s] Timeout after command duration. By default, tim
 ---
 
 # Result
+string message
 
 ---
 
 # Feedback
-tobas_kdl_msgs/Vector target_position   # [m]
-tobas_kdl_msgs/Vector current_position  # [m]
-tobas_kdl_msgs/Vector position_error    # [m]
+geometry_msgs/Vector3 target_position   # [m]
+geometry_msgs/Vector3 current_position  # [m]
+geometry_msgs/Vector3 position_error    # [m]

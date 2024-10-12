@@ -14,12 +14,21 @@ namespace std
 {
 /* std::vectorのコンソール出力 */
 template <typename T>
-ostream& operator<<(ostream& os, const vector<T>& vec)
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec)
 {
+  const auto size = vec.size();
+
+  if (size == 0)
+  {
+    os << "[]";
+    return os;
+  }
+
   os << "[";
-  for (const auto& x : vec)
-    os << x << " ";
-  os << "]";
+  for (size_t i = 0; i < size - 1; ++i)
+    os << vec[i] << " ";
+  os << vec[size - 1] << "]";
+
   return os;
 }
 }  // namespace std
@@ -282,5 +291,16 @@ std::vector<T> merge(const std::vector<T>& vec1, const std::vector<T>& vec2)
   std::vector<T> res = vec1;
   res.insert(res.end(), vec2.begin(), vec2.end());
   return res;
+}
+
+/* 要素のインデックスを返す． */
+template <typename T>
+ssize_t index(const std::vector<T>& vec, const T& value)
+{
+  const auto it = std::find(vec.begin(), vec.end(), value);
+  if (it != vec.end())
+    return std::distance(vec.begin(), it);
+  else
+    return -1;
 }
 }  // namespace tobas_std

@@ -4,8 +4,8 @@ project(tobas_gazebo_msgs)
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 if("${OS_RELEASE_CONTENT}" MATCHES "ID=raspbian" OR "${OS_RELEASE_CONTENT}" MATCHES "ID=debian")
   message("This package is skipped on Raspberry Pi.")
-  find_package(catkin REQUIRED)
-  catkin_package()
+  find_package(ament_cmake REQUIRED)
+  ament_package()
   return()
 endif()
 
@@ -16,42 +16,16 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(catkin REQUIRED COMPONENTS
-	tobas_kdl_msgs
-	message_generation
-)
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR}/msg msg/[^.]*.msg)
-add_message_files(FILES ${MSG_FILES})
-file(GLOB_RECURSE SRV_FILES RELATIVE ${PROJECT_SOURCE_DIR}/srv srv/[^.]*.srv)
-add_service_files(FILES ${SRV_FILES})
-# file(GLOB_RECURSE ACTION_FILES RELATIVE ${PROJECT_SOURCE_DIR}/action action/[^.]*.action)
-# add_action_files(FILES ${ACTION_FILES})
+file(GLOB_RECURSE MSG_FILES RELATIVE ${PROJECT_SOURCE_DIR} msg/[^.]*.msg srv/[^.]*.srv action/[^.]*.action)
+rosidl_generate_interfaces(${PROJECT_NAME} ${MSG_FILES} DEPENDENCIES geometry_msgs)
 
-generate_messages(DEPENDENCIES
-	tobas_kdl_msgs
-	std_msgs
-)
+ament_export_dependencies(rosidl_default_runtime geometry_msgs)
 
-catkin_package(
-	# INCLUDE_DIRS include
-	# LIBRARIES ${PROJECT_NAME}
-	CATKIN_DEPENDS tobas_kdl_msgs message_generation
-)
-
-# include_directories(${catkin_INCLUDE_DIRS} include)
-
-# file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-# add_library(${PROJECT_NAME} SHARED ${LIB_CPP_FILES})
-# add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
-# install(TARGETS ${PROJECT_NAME}
-# 	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-# 	RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
-# install(DIRECTORY include/ DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION})
+ament_package()

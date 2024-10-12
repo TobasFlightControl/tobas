@@ -7,25 +7,18 @@
 #include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
-#include <tobas_tools/drone.hpp>
-#include <tobas_tools/rotor_axis_extractor.hpp>
+#include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_tools/rotor_axis_extractor.hpp>
 
-namespace tobas_np_pid
+namespace tobas
 {
-struct MixerConfig
-{
-  double linear_weight;
-  double angular_weight;
-  double thrust_weight_log10;
-};
-
 /**
  * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 2-43)
  */
-class Mixer
+class NonPlanarMixer
 {
 public:
-  explicit Mixer(const tobas::Drone& drone);
+  explicit NonPlanarMixer(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
@@ -37,10 +30,18 @@ public:
     const kdl::Vector& tar_acc_W,
     const kdl::Vector& tar_dgyro_B);
 
-  void configure(const MixerConfig& cfg);
+  bool setLinearWeight(double p);
+  bool setAngularWeight(double p);
+  bool setThrustWeight(double p);
 
 private:
-  const tobas::Drone& drone_;
+  // Config
+  double linear_weight_ = 1.;
+  double angular_weight_ = 1.;
+  double thrust_weight_ = 1e-6;
+
+  const Drone& drone_;
+  const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPos fk_solver_;
   kdl::TreeJntAxisSolver jnt_axis_solver_;
@@ -51,5 +52,7 @@ private:
   Eigen::DiagonalXd R_;               // 推力の重み
   Eigen::Matrix6Xd G_;                // EoM行列等式の左辺
   Eigen::Vector6d h_;                 // EoM行列等式の右辺
+
+  void updateWeight();
 };
-}  // namespace tobas_np_pid
+}  // namespace tobas

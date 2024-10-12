@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
 
 	<name>tobas</name>
 	<version>0.0.0</version>
@@ -7,49 +7,50 @@
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
 	<license>TODO</license>
 
-	<buildtool_depend>catkin</buildtool_depend>
+	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<!-- Meta Packages -->
+	<exec_depend>tobas_actions</exec_depend>
+	<exec_depend>tobas_components_rt</exec_depend>
+	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
-	<exec_depend>tobas_gazebo</exec_depend>
-	<exec_depend>tobas_hal</exec_depend>
-	<exec_depend>tobas_legged_robot</exec_depend>
-	<exec_depend>tobas_mission_commands</exec_depend>
-	<exec_depend>tobas_observers</exec_depend>
-	<exec_depend>tobas_property</exec_depend>
-	<exec_depend>tobas_real</exec_depend>
-	<exec_depend>tobas_teleoperations</exec_depend>
-
-	<!-- Others -->
-	<exec_depend>ardupilot_dynamic_configuration</exec_depend>
+	<exec_depend>tobas_debug_msgs</exec_depend>
+	<exec_depend>tobas_debug_msgs_adapter</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
+	<exec_depend>tobas_dparam_msgs</exec_depend>
+	<exec_depend>tobas_drone</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_examples</exec_depend>
 	<exec_depend>tobas_fake_publishers</exec_depend>
-	<exec_depend>tobas_fkie_master</exec_depend>
-	<exec_depend>tobas_gcs</exec_depend>
+	<exec_depend>tobas_gazebo</exec_depend>
+	<exec_depend>tobas_gui</exec_depend>
+	<exec_depend>tobas_hal</exec_depend>
 	<exec_depend>tobas_latency_publisher</exec_depend>
+	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
-	<exec_depend>tobas_mavros_bridge</exec_depend>
-	<exec_depend>tobas_motor_test</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
-	<exec_depend>tobas_multirotor_trajectory</exec_depend>
-	<exec_depend>tobas_pre_arm_check</exec_depend>
+	<exec_depend>tobas_msgs_adapter</exec_depend>
+	<exec_depend>tobas_node</exec_depend>
+	<exec_depend>tobas_observers</exec_depend>
+	<exec_depend>tobas_pose_pid</exec_depend>
+	<exec_depend>tobas_prearm_check</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
+	<exec_depend>tobas_property</exec_depend>
+	<exec_depend>tobas_real</exec_depend>
+	<exec_depend>tobas_robot_state_publisher</exec_depend>
+	<exec_depend>tobas_rosbag_recorder</exec_depend>
 	<exec_depend>tobas_rotor_controller</exec_depend>
-	<exec_depend>tobas_rviz_plugin</exec_depend>
-	<exec_depend>tobas_setup_assistant</exec_depend>
+	<exec_depend>tobas_ssh</exec_depend>
 	<exec_depend>tobas_state_checker</exec_depend>
-	<exec_depend>tobas_tile_server</exec_depend>
+	<exec_depend>tobas_teleoperations</exec_depend>
+	<exec_depend>tobas_third_party</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>
-	<exec_depend>tobas_tools_py</exec_depend>
 	<exec_depend>tobas_topic_throttle</exec_depend>
-	<exec_depend>tobas_trajectory_commander</exec_depend>
-	<exec_depend>urdf_builder</exec_depend>
+	<exec_depend>tobas_tree_server</exec_depend>
+	<exec_depend>tobas_wind_model</exec_depend>
 
 	<export>
-		<metapackage/>
+		<build_type>ament_cmake</build_type>
 	</export>
 
 </package>

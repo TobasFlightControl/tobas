@@ -1,0 +1,50 @@
+#include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
+#include <tobas_drone_msgs_adapter/Drone.hpp>
+
+using namespace std;
+
+class DroneServerNode : public tobas::BaseNode
+{
+  using self = DroneServerNode;
+  using super = tobas::BaseNode;
+
+public:
+  explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  ros2::PublisherPtr<tobas::Drone> drone_pub_;
+
+  bool fileParamCb(const string& p);
+};
+
+DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
+{
+  addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
+
+  drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
+}
+
+bool DroneServerNode::fileParamCb(const string& p)
+{
+  auto drone = std::make_unique<tobas::Drone>();
+
+  if (!drone->load(p))
+  {
+    TOBAS_ERROR("Failed to load drone configurations from \"", p, "\".");
+    return false;
+  }
+
+  if (!drone->isValid())
+  {
+    TOBAS_ERROR("Drone configurations are invalid.");
+    return false;
+  }
+
+  drone_pub_->publish(move(drone));
+
+  TOBAS_INFO("New drone configuration message is published.");
+  return true;
+}
+
+RCLCPP_COMPONENTS_REGISTER_NODE(DroneServerNode)

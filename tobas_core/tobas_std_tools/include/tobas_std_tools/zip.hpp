@@ -45,7 +45,7 @@ public:
 };
 
 template <typename... Iterators>
-class zip_iterator : std::iterator<std::forward_iterator_tag, std::tuple<typename get_value_type<Iterators>::type...>>
+class zip_iterator
 {
   // Index sequence for accessing elements in tuples.
   using indices = std::make_index_sequence<sizeof...(Iterators)>;
@@ -56,7 +56,12 @@ class zip_iterator : std::iterator<std::forward_iterator_tag, std::tuple<typenam
   using this_type = zip_iterator<Iterators...>;      // Self type.
 
 public:
-  zip_iterator(Iterators... iters) : p_({ iters... })
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type = std::ptrdiff_t;
+  using pointer = std::tuple<typename std::iterator_traits<Iterators>::pointer...>;
+  using reference = std::tuple<typename std::iterator_traits<Iterators>::reference...>;
+
+  zip_iterator(Iterators... iters) : p_(iters...)
   {
   }
 
@@ -71,7 +76,7 @@ public:
   {
     auto ret = *this;
     apply([](auto& it) { ++it; });
-    return *ret;
+    return ret;
   }
 
   zip_iterator& operator--()
@@ -89,7 +94,7 @@ public:
   // For range base for.
   bool operator!=(const this_type& rhs) const
   {
-    return all_cmp([](auto&& l, auto&& r) { return l != r; }, rhs);
+    return any_cmp([](auto&& l, auto&& r) { return l != r; }, rhs);
   }
 
   bool operator==(const this_type& rhs) const
@@ -110,7 +115,7 @@ private:
   {
     using swallow = std::initializer_list<int>;  // Swallow idiom...
     (void)swallow{ (fnc(std::get<I>(p_)), 0)... };
-  };
+  }
 
   // The all_cmp returns true when all of the comparison functions return true. Using for "=="
   template <typename Fnc>
@@ -122,18 +127,18 @@ private:
   template <
     std::size_t n = 0,
     typename Fnc,
-    std::enable_if_t<n<(sizeof...(Iterators)), std::nullptr_t> = nullptr> static bool
+    std::enable_if_t<n<sizeof...(Iterators), std::nullptr_t> = nullptr> static bool
       all_cmp_impl(Fnc fnc, const this_type& lhs, const this_type& rhs)
   {
     return fnc(std::get<n>(lhs.dereference()), std::get<n>(rhs.dereference()))
            && this_type::all_cmp_impl<n + 1>(fnc, lhs, rhs);
-  };
+  }
 
-  template <std::size_t n, typename Fnc, std::enable_if_t<n == (sizeof...(Iterators)), std::nullptr_t> = nullptr>
+  template <std::size_t n, typename Fnc, std::enable_if_t<n == sizeof...(Iterators), std::nullptr_t> = nullptr>
   static bool all_cmp_impl(Fnc, const this_type&, const this_type&)
   {
     return true;
-  };
+  }
 
   // The all_cmp returns true when one of the comparison functions return true.
   template <typename Fnc>
@@ -145,18 +150,18 @@ private:
   template <
     std::size_t n = 0,
     typename Fnc,
-    std::enable_if_t<n<(sizeof...(Iterators)), std::nullptr_t> = nullptr> static bool
+    std::enable_if_t<n<sizeof...(Iterators), std::nullptr_t> = nullptr> static bool
       any_cmp_impl(Fnc fnc, const this_type& lhs, const this_type& rhs)
   {
     return fnc(std::get<n>(lhs.dereference()), std::get<n>(rhs.dereference()))
-           || this_type::all_cmp_impl<n + 1>(fnc, lhs, rhs);
-  };
+           || this_type::any_cmp_impl<n + 1>(fnc, lhs, rhs);
+  }
 
-  template <std::size_t n, typename Fnc, std::enable_if_t<n == (sizeof...(Iterators)), std::nullptr_t> = nullptr>
+  template <std::size_t n, typename Fnc, std::enable_if_t<n == sizeof...(Iterators), std::nullptr_t> = nullptr>
   static bool any_cmp_impl(Fnc, const this_type&, const this_type&)
   {
     return false;
-  };
+  }
 
   // Dereference tuple.
   constexpr auto dereference() const
@@ -164,7 +169,7 @@ private:
     return dereference_impl(indices());
   }
 
-  template <typename std::size_t... I>
+  template <std::size_t... I>
   constexpr auto dereference_impl(std::index_sequence<I...>) const
   {
     return std::tie(std::get<I>(p_)...);
@@ -176,7 +181,7 @@ private:
     return dereference_elements_impl(indices());
   }
 
-  template <typename std::size_t... I>
+  template <std::size_t... I>
   constexpr auto dereference_elements_impl(std::index_sequence<I...>) const
   {
     return std::tie(*std::get<I>(p_)...);
@@ -190,18 +195,23 @@ class zip
 {
 public:
   using iterator = zip_iterator<typename get_iterator_or_pointer<Args>::type...>;
-  zip(Args&... args) : begin_({ std::begin(args)... }), end_({ std::end(args)... }){};
-  zip_iterator<typename get_iterator_or_pointer<Args>::type...> begin_;
-  zip_iterator<typename get_iterator_or_pointer<Args>::type...> end_;
 
-  auto& begin()
+  zip(Args&... args) : begin_(std::begin(args)...), end_(std::end(args)...)
+  {
+  }
+
+  iterator begin()
   {
     return begin_;
   }
 
-  auto& end()
+  iterator end()
   {
     return end_;
   }
+
+private:
+  iterator begin_;
+  iterator end_;
 };
 }  // namespace tobas_std

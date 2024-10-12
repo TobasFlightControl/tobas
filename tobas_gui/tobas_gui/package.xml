@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="3">
+
+	<name>tobas_gui</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<exec_depend>tobas_console_gui</exec_depend>
+	<exec_depend>tobas_control_system</exec_depend>
+	<exec_depend>tobas_flight_log_gui</exec_depend>
+	<exec_depend>tobas_gui_common</exec_depend>
+	<exec_depend>tobas_gui_core</exec_depend>
+	<exec_depend>tobas_hardware_setup</exec_depend>
+	<exec_depend>tobas_homepage</exec_depend>
+	<exec_depend>tobas_parameter_tuning_gui</exec_depend>
+	<exec_depend>tobas_qt_tools</exec_depend>
+	<exec_depend>tobas_rviz_plugin</exec_depend>
+	<exec_depend>tobas_setup_assistant</exec_depend>
+	<exec_depend>urdf_builder</exec_depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

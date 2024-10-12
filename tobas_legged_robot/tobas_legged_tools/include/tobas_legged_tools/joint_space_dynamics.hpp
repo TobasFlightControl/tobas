@@ -39,6 +39,7 @@ class JointSpaceDynamics
   static constexpr size_t kWrenchSize = kForceSize + kTorqueSize;
 
   static constexpr double kYawAngle = 0.;  // フットプリント座標系で考えるため，ヨー角は常にゼロ．
+  static constexpr double kStandLegNormalForceThresh = 1.;  // [N] 目標垂直抗力がこれ以下なら遊脚と判定
 
 public:
   explicit JointSpaceDynamics(
@@ -61,8 +62,7 @@ public:
     const kdl::Euler& tar_rpydd,
     const kdl::JntArray& tar_qdd,
     const std::vector<kdl::Vector>& tar_force,
-    const std::vector<double>& tar_torque,
-    const std::vector<bool>& is_stand);
+    const std::vector<double>& tar_torque);
 
   inline kdl::Vector getFootForce(size_t leg) const;
   inline double getFootTorque(size_t leg) const;

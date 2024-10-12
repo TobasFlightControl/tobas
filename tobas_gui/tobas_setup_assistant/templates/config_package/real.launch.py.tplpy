@@ -1,0 +1,181 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+from launch_ros.actions import LoadComposableNodes
+from launch_ros.descriptions import ComposableNode
+from launch_ros.substitutions import FindPackageShare
+
+# Template parameters
+DRONE_NAME = "{{ drone_name }}"
+CONFIG_PKG_NAME = "{{ config_pkg_name }}"
+USER_PKG_NAME = "{{ user_pkg_name }}"
+HARDWARE_PKG = "{{ hardware_pkg }}"
+
+# Arguments
+LOG_LEVEL = "log_level"
+OUTPUT = "output"
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+
+    # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
+
+    config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_pkg_share = FindPackageShare(USER_PKG_NAME)
+    hw_pkg_share = FindPackageShare(HARDWARE_PKG)
+    extra_arguments = [{"use_intra_process_comms": True}]
+
+    # Load robot description
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [PathJoinSubstitution([config_pkg_share, "launch", "robot_state_publisher.launch.py"])]
+            ),
+            launch_arguments={
+                "log_level": log_level,
+                "output": output,
+                "use_sim_time": "false",
+                "user_debug": "false",
+            }.items(),
+        )
+    )
+
+    # Launch hardware interfaces
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [PathJoinSubstitution([hw_pkg_share, "launch", "hardware_interfaces.launch.py"])]
+            ),
+            launch_arguments={"namespace": DRONE_NAME}.items(),
+        )
+    )
+
+    # Launch Tobas core software
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [PathJoinSubstitution([config_pkg_share, "launch", "core.launch.py"])]
+            ),
+            launch_arguments={
+                "log_level": log_level,
+                "output": output,
+                "use_sim_time": "false",
+                "user_debug": "false",
+            }.items(),
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([PathJoinSubstitution([user_pkg_share, "launch", "real.launch.py"])])
+        )
+    )
+
+    # Launch 1st priority nodes (Twist Control)
+    ld.add_action(
+        TimerAction(
+            period=0.0,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_1",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="ImuHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="BatteryHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+
+    # Launch 2nd priority nodes (Pose Control & Manipulation)
+    ld.add_action(
+        TimerAction(
+            period=0.1,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_2",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="MagnetometerHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="BarometerHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="RCInputHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+
+    # Launch 3rd priority nodes (Navigation)
+    ld.add_action(
+        TimerAction(
+            period=0.2,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_3",
+                    composable_node_descriptions=[],
+                )
+            ],
+        )
+    )
+
+    # Launch 4th priority nodes (Others)
+    ld.add_action(
+        TimerAction(
+            period=0.3,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_4",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="CpuHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="TimeReferenceServerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+
+    return ld

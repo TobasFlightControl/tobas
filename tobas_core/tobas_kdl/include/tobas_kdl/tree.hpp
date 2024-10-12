@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "./chain.hpp"
 
 namespace kdl
@@ -30,6 +32,9 @@ private:
 class Tree
 {
 public:
+  using SharedPtr = std::shared_ptr<Tree>;
+  using ConstSharedPtr = std::shared_ptr<const Tree>;
+
   /**
    * The constructor of a tree, a new tree is always empty
    */
@@ -46,26 +51,23 @@ public:
   static Tree FloatingBase(const std::string& world_name, const std::string& base_name);
 
   /**
-   * Adds a new segment to the end of the segment with
-   * hook_name as seg_name
+   * Adds a new segment to the end of the segment with hook_name as seg_name.
    *
    * @param segment new segment to add
-   * @param hook_name name of the segment to connect this
-   * segment with.
+   * @param hook_name name of the segment to connect this segment with
    */
   bool addSegment(const Segment& segment, const std::string& hook_name);
 
   /**
-   * Adds a complete chain to the end of the segment with
-   * hook_name as seg_name.
+   * Adds a complete chain to the end of the segment with hook_name as seg_name.
    *
-   * @param hook_name name of the segment to connect the chain with.
+   * @param chain Chain to add
+   * @param hook_name name of the segment to connect the chain with
    */
   bool addChain(const Chain& chain, const std::string& hook_name);
 
   /**
-   * Adds a complete tree to the end of the segment with
-   * hookname as seg_name.
+   * Adds a complete tree to the end of the segment with hookname as seg_name.
    *
    * @param tree Tree to add
    * @param hook_name name of the segment to connect the tree with
@@ -73,9 +75,9 @@ public:
   bool addTree(const Tree& tree, const std::string& hook_name);
 
   /**
-   * Request the chain of the tree between chain_root and chain_tip.  The chain_root
-   * and chain_tip can be in different branches of the tree, the chain_root can be
-   * an ancestor of chain_tip, and chain_tip can be an ancestor of chain_root.
+   * Request the chain of the tree between chain_root and chain_tip.
+   * The chain_root and chain_tip can be in different branches of the tree,
+   * the chain_root can be an ancestor of chain_tip, and chain_tip can be an ancestor of chain_root.
    *
    * @param chain_root the name of the root segment of the chain
    * @param chain_tip the name of the tip segment of the chain
@@ -84,8 +86,7 @@ public:
   bool getChain(const std::string& chain_root, const std::string& chain_tip, Chain& chain) const;
 
   /**
-   * Extract a tree having seg_name as root. Only child segments of
-   * seg_name are added to the new tree.
+   * Extract a tree having seg_name as root. Only child segments of seg_name are added to the new tree.
    *
    * @param seg_name The name of the segment to be used as root of the new tree
    * @param tree The resulting sub-tree
@@ -101,6 +102,9 @@ public:
   inline const SegmentMap& getSegments() const;
 
   inline bool hasSegment(const std::string& seg_name) const;
+
+  bool isEndSegment(const std::string& seg_name) const;
+  bool isFixedToRoot(const std::string& seg_name) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Tree& arg);
 
