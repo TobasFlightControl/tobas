@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# Install Tobas
-PARDIR=$(realpath $(dirname "$0"))
-bash ${PARDIR}/tobas_build_release_upto tobas
-if [ $? -ne 0 ]; then
-  echo "Failed to build."
-  exit 1
-fi
-
 # Remove unnecessary files
 sudo rm -rf /tmp/*
 sudo rm -rf /var/tmp/*
@@ -33,4 +25,4 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo -e "\033[32mFinished successfully.\033[0m"
+echo -e "\033[32mCleaning finished successfully.\033[0m"

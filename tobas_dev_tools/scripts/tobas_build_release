@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # Set paths
-export COLCON_WS=~/colcon_ws
-export RELEASE_DIR=${COLCON_WS}/release
-export COLCON_LOG_PATH=${RELEASE_DIR}/log # Reserved
-export INSTALL_BASE=${RELEASE_DIR}/install
-export BUILD_BASE=${RELEASE_DIR}/build
+COLCON_WS=~/colcon_ws
+RELEASE_DIR=${COLCON_WS}/release
+INSTALL_BASE=${RELEASE_DIR}/install
+BUILD_BASE=${RELEASE_DIR}/build
+export COLCON_LOG_PATH=${RELEASE_DIR}/log
 
 # Navigate to the colcon workspace
 cd ${COLCON_WS}
 
 # Limit the number of threads used to build a single package
-export MAKEFLAGS="-j2" # Reserved
+export MAKEFLAGS="-j2"
 
 # Build
 colcon build --parallel-workers 4 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Release $1 $2
@@ -20,4 +20,4 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo -e "\033[32mFinished successfully.\033[0m"
+echo -e "\033[32mRelease build finished successfully.\033[0m"
