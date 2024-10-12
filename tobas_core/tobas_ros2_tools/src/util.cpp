@@ -1,33 +1,14 @@
-#include <tobas_math/linalg.hpp>
+#include <rcutils/filesystem.h>
 
 #include "../include/tobas_ros2_tools/util.hpp"
 
+using namespace std;
+namespace fs = filesystem;
+
 namespace ros2
 {
-double norm(const geometry_msgs::msg::Vector3& v)
+fs::path expandUser(const char* path)
 {
-  return math::norm(v.x, v.y, v.z);
-}
-
-bool isFieldSizeMatch(const sensor_msgs::msg::JointState& js)
-{
-  const auto size = js.name.size();
-  return js.position.size() == size && js.velocity.size() == size && js.effort.size() == size;
-}
-
-void clear(sensor_msgs::msg::JointState& js)
-{
-  js.name.clear();
-  js.position.clear();
-  js.velocity.clear();
-  js.effort.clear();
-}
-
-void resize(sensor_msgs::msg::JointState& js, const size_t& size)
-{
-  js.name.resize(size);
-  js.position.resize(size);
-  js.velocity.resize(size);
-  js.effort.resize(size);
+  return rcutils_expand_user(path, rcutils_get_default_allocator());
 }
 }  // namespace ros2

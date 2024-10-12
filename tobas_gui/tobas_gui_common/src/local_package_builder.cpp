@@ -1,7 +1,8 @@
 #include <iostream>
+#include <format>
 #include <unistd.h>
 
-#include <tobas_linux/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_gui_common/local_package_builder.hpp"
@@ -29,7 +30,7 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   }
 
   // Get paths needed for building
-  const auto ws_path = linux::expandUser(kColconWSPathPC);
+  const auto ws_path = ros2::expandUser(kColconWSPathLocal);
   const auto build_path = ws_path / "build";
   const auto install_path = ws_path / "install";
   const auto log_path = ws_path / "log";

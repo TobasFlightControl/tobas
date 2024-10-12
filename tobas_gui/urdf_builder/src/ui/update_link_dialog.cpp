@@ -1,8 +1,8 @@
 #include <filesystem>
 #include <rclcpp/rclcpp.hpp>
+#include <rcutils/env.h>
 
 #include <tobas_std_tools/console.hpp>
-#include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
@@ -426,7 +426,7 @@ void UpdateLinkDialog::VisualGeometryMeshBrowseButtonClicked()
   if (property_client_.get(kConfigKey_VisualGeometryMeshBrowseDir, last_dir) < 0)
   {
     PRINT_WARN(property_client_.errorMessage());
-    last_dir = linux::homeDir();
+    last_dir = rcutils_get_home_dir();
   }
 
   // メッシュファイルのパスを取得
@@ -461,7 +461,7 @@ void UpdateLinkDialog::CollisionGeometryMeshBrowseButtonClicked()
   if (property_client_.get(kConfigKey_CollisionGeometryMeshBrowseDir, last_dir) < 0)
   {
     PRINT_WARN(property_client_.errorMessage());
-    last_dir = linux::homeDir();
+    last_dir = rcutils_get_home_dir();
   }
 
   // メッシュファイルのパスを取得

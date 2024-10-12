@@ -1,7 +1,6 @@
 #include <std_srvs/srv/trigger.hpp>
 
-#include <tobas_linux/core.hpp>
-#include <tobas_path_tools/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_property_tree/property_tree.hpp>
@@ -55,7 +54,7 @@ private:
 PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("property_server", options)
 {
   const auto file_path = getStringParam("file_path", "~/.config/tobas/config.ini");
-  if (!pt_.initialize(linux::expandUser(file_path)))
+  if (!pt_.initialize(ros2::expandUser(file_path.c_str())))
     TOBAS_EXIT("Failed to initialize property tree.");
 
   // Advertise service servers

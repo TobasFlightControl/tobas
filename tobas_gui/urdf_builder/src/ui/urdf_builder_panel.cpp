@@ -1,11 +1,11 @@
 #include <filesystem>
 #include <rclcpp/rclcpp.hpp>
+#include <rcutils/env.h>
 #include <pluginlib/class_list_macros.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
 #include <rviz_default_plugins/robot/robot_link.hpp>
 
 #include <tobas_std_tools/console.hpp>
-#include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../../include/urdf_builder/ui/urdf_builder_panel.hpp"
@@ -362,7 +362,7 @@ string URDFBuilderPanel::getLastOpenedDir()
   if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
   {
     PRINT_WARN(property_client_.errorMessage());
-    res = linux::homeDir();
+    res = rcutils_get_home_dir();
   }
   return res;
 }

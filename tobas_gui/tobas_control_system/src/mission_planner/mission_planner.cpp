@@ -4,7 +4,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_linux/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 
@@ -342,8 +342,8 @@ void MissionPlannerWidget::onCacheButtonClicked()
   if (!qt::yesOrNo(this, "Do you want to cache map tiles to offline storage?", qt::QMessageLevel::WARN))
     return;
 
-  const auto dir_from = linux::expandUser(kCacheDirOnline);
-  const auto dir_to = linux::expandUser(kCacheDirOffline);
+  const auto dir_from = ros2::expandUser(kCacheDirOnline);
+  const auto dir_to = ros2::expandUser(kCacheDirOffline);
 
   if (!fs::is_directory(dir_to))
     fs::create_directories(dir_to);

@@ -12,7 +12,6 @@
   <depend>rviz_common</depend>
   <depend>rviz_default_plugins</depend>
   <depend>rviz_rendering</depend>
-  <depend>tobas_linux</depend>
   <depend>tobas_std_tools</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_property_client</depend>

@@ -11,7 +11,6 @@
 
 	<depend>std_srvs</depend>
 	<depend>tobas_path_tools</depend>
-	<depend>tobas_linux</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_property_tree</depend>
 	<depend>tobas_property_common</depend>

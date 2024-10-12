@@ -1,7 +1,7 @@
 #include <filesystem>
 
-#include <tobas_linux/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -74,13 +74,13 @@ void ROSPackageWidget::onOpened()
 void ROSPackageWidget::updateInternalDataStructures()
 {
   // デフォルトの親ディレクトリを設定
-  const auto default_pardir = path::join(linux::expandUser(common::kColconWSPathPC), "src");
+  const auto default_pardir = ros2::expandUser(common::kColconWSPathLocal) / "src";
   pardir_->setValue(QString::fromStdString(default_pardir));
 
   // デフォルトの親ディレクトリが存在しなければ作成
   if (!fs::exists(default_pardir))
     if (!fs::create_directories(default_pardir))
-      qt::qErrorBox(this, QString::fromStdString("Failed to create \"" + default_pardir + "\"."));
+      qt::qErrorBox(this, QString::fromStdString("Failed to create \"" + default_pardir.string() + "\"."));
 
   // デフォルトのTBSパッケージ名を設定
   const auto tbs_name = "tobas_" + robot_.robotName();

@@ -31,7 +31,6 @@ find_package(Qt5Widgets REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 find_package(rviz_rendering REQUIRED)
-find_package(tobas_linux REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
@@ -43,7 +42,6 @@ set(AMENT_DEPENDENCIES
   rviz_common
   rviz_default_plugins
   rviz_rendering
-  tobas_linux
   tobas_std_tools
   tobas_ros2_tools
   tobas_property_client

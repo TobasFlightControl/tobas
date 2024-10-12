@@ -24,7 +24,6 @@ find_package(ament_cmake REQUIRED)
 find_package(Qt5QuickWidgets REQUIRED)
 find_package(Qt5Positioning REQUIRED)
 find_package(magic_enum_ament REQUIRED)
-find_package(tobas_linux REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
@@ -36,7 +35,6 @@ set(AMENT_DEPENDENCIES
   Qt5QuickWidgets
   Qt5Positioning
   magic_enum_ament
-  tobas_linux
   tobas_path_tools
   tobas_ros2_tools
   tobas_constants

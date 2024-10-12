@@ -26,7 +26,7 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
     "source {} && "
     "source {} && "
     "cd {}",
-    ros2_setup_bash, tobas_setup_bash, kColconWSPathFC);
+    ros2_setup_bash, tobas_setup_bash, kColconWSPathRemote);
 
   // TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
   const auto build_cmd = format(

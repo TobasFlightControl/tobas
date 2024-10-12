@@ -12,8 +12,6 @@
 	<depend>rclcpp</depend>
 	<depend>ament_index_cpp</depend>
 	<depend>tf2_ros</depend>
-	<depend>geometry_msgs</depend>
-	<depend>sensor_msgs</depend>
 	<depend>tobas_std_tools</depend>
 	<depend>tobas_path_tools</depend>
 

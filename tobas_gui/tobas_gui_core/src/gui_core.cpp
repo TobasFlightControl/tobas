@@ -233,7 +233,7 @@ void GUICoreWidget::onSendButtonClicked()
   // Tobasパッケージを送信
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
-  const auto remote_dir = fs::path(common::kColconWSPathFC) / "src/";
+  const auto remote_dir = fs::path(common::kColconWSPathRemote) / "src/";
   if (ssh_cli_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();

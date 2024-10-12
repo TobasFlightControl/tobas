@@ -16,8 +16,6 @@ find_package(Eigen3 REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
 find_package(tobas_std_tools REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 
@@ -26,8 +24,6 @@ set(AMENT_DEPENDENCIES
 	rclcpp
 	ament_index_cpp
 	tf2_ros
-	geometry_msgs
-	sensor_msgs
 	tobas_std_tools
 	tobas_path_tools
 )
