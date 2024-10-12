@@ -118,7 +118,8 @@ static constexpr char kObserverNode[] = "observer";
 static constexpr char kWorldFrame[] = "world";
 
 // Path
-static constexpr char kROSBagDir[] = "~/.tobas/rosbag";
+static constexpr char kROSBagDirLocal[] = "~/.tobas/rosbag";
+static constexpr char kROSBagDirRemote[] = "/etc/tobas/rosbag";
 
 // Flight mode
 enum flight_mode_t

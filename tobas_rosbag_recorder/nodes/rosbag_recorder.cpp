@@ -7,7 +7,6 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_path_tools/core.hpp>
-#include <tobas_ros2_tools/filesystem.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -64,7 +63,6 @@ public:
 
 private:
   const string ns_;
-  const fs::path par_dir_;
 
   rosbag2_cpp::Writer writer_;
   bool is_recording_ = false;
@@ -92,7 +90,7 @@ private:
 };
 
 ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
-  : super("rosbag_recorder", options), ns_(string(get_namespace()) + "/"), par_dir_(ros2::expandUser(tobas::kROSBagDir))
+  : super("rosbag_recorder", options), ns_(string(get_namespace()) + "/")
 {
   // Register subscriptions
   addSubscription<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
@@ -178,16 +176,16 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
   }
 
   // rosbagディレクトリ全体のサイズが大きすぎないか確認
-  const auto par_dir_size = path::computeDirectorySize(par_dir_);
+  const auto par_dir_size = path::computeDirectorySize(tobas::kROSBagDirRemote);
   if (par_dir_size > kMaxParDirSize)
   {
     res->success = false;
-    res->message = "The size of rosbag directory (" + par_dir_.string() + ") is over "
+    res->message = "The size of rosbag directory (" + string(tobas::kROSBagDirRemote) + ") is over "
                    + to_string(kMaxParDirSize / BILLION) + " GB. Please clean it first.";
     return;
   }
 
-  rosbag_path_ = par_dir_ / req->name;
+  rosbag_path_ = fs::path(tobas::kROSBagDirRemote) / req->name;
   if (fs::exists(rosbag_path_))
   {
     if (req->overwrite)
@@ -258,7 +256,7 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
 
 void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
 {
-  path::clearDirectory(par_dir_);
+  path::clearDirectory(tobas::kROSBagDirRemote);
 
   res->success = true;
   res->message.clear();

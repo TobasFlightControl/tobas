@@ -98,6 +98,12 @@ size_t computeDirectorySize(const fs::path& dir_path)
 
 void clearDirectory(const fs::path& dir_path)
 {
+  if (!fs::is_directory(dir_path))
+  {
+    cerr << dir_path << " does not exist." << endl;
+    return;
+  }
+
   for (const auto& entry : fs::directory_iterator(dir_path))
     fs::remove_all(entry);
 }
