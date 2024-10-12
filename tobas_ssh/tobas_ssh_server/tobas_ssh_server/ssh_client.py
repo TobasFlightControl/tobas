@@ -93,9 +93,9 @@ class SSHClientWrapper:
             ローカルディレクトリの絶対パス．
         """
         with SCPClient(self._ssh_client.get_transport()) as scp:
-            scp.get(remote_path=self._get_path_relative_to_home(remote_path), local_path=local_path, recursive=True)
+            scp.get(remote_path=remote_path, local_path=local_path, recursive=True)
 
-    def scp_put_dir(self, _local_dir: str, _remote_pardir: str, _exclude_dirs: List[str] = []) -> None:
+    def scp_put_dir(self, _local_dir: str, _remote_dir: str, _exclude_dirs: List[str] = []) -> None:
         """
         SCPでリモートディレクトリ以下にローカルディレクトリをコピーする．
 
@@ -103,24 +103,22 @@ class SSHClientWrapper:
         ----------
         _local_dir : str
             ローカルディレクトリの絶対パス．
-        _remote_pardir : str
+        _remote_dir : str
             リモートディレクトリの絶対パス．
         _exclude_dirs : str
             ローカルの除外するディレクトリの絶対パス．
         """
-        local_dir = osp.expanduser(_local_dir)
-        remote_pardir = self._expand_remote_user(_remote_pardir)
-        local_dir_base = osp.basename(_local_dir.rstrip("/"))
-
         if not osp.isdir(_local_dir):
             raise RuntimeError(f"Local directory {_local_dir} does not exist.")
 
+        local_dir_base = osp.basename(_local_dir.rstrip("/"))
+
         with SCPClient(self._ssh_client.get_transport()) as scp:
-            for root, _, files in os.walk(local_dir):
+            for root, _, files in os.walk(_local_dir):
                 # 除外ディレクトリだった場合は，ディレクトリのみ作成して中身は送信しない
                 if self._is_excluded_dir(root, _exclude_dirs):
-                    relative_path = osp.relpath(root, local_dir)
-                    remote_dir = osp.join(remote_pardir, local_dir_base, relative_path)
+                    relative_path = osp.relpath(root, _local_dir)
+                    remote_dir = osp.join(_remote_dir, local_dir_base, relative_path)
                     success, _, error_output = self.exec_command(f"mkdir -p {remote_dir}")
                     if not success:
                         raise RuntimeError(f"Failed to create remote directory {root}: {error_output}")
@@ -132,8 +130,8 @@ class SSHClientWrapper:
                     if not osp.isfile(local_file):
                         raise RuntimeError(f"Local file {local_file} does not exist.")
 
-                    relative_path = osp.relpath(local_file, local_dir)
-                    remote_file = osp.join(remote_pardir, local_dir_base, relative_path)
+                    relative_path = osp.relpath(local_file, _local_dir)
+                    remote_file = osp.join(_remote_dir, local_dir_base, relative_path)
                     remote_pardir = osp.dirname(remote_file)
                     if not self.dir_exists(remote_pardir):
                         success, _, error_output = self.exec_command(f"mkdir -p {remote_pardir}")
@@ -142,15 +140,12 @@ class SSHClientWrapper:
 
                     scp.put(local_file, remote_pardir)
 
-    def scp_put_dir_super(self, _local_dir: str, _remote_pardir: str, exclude_dirs: List[str] = []) -> None:
+    def scp_put_dir_super(self, local_dir: str, remote_dir: str, exclude_dirs: List[str] = []) -> None:
         """SCPでroot権限が必要なリモートディレクトリ以下にローカルディレクトリをコピーする．"""
-        local_dir = osp.expanduser(_local_dir)
-        remote_pardir = self._expand_remote_user(_remote_pardir)
-
         # リモートディレクトリが存在することを確かめる
         # 存在しなければローカルオブジェクトがそのままリモートディレクトリのパスとして配置されてしまう
-        if not self.dir_exists(remote_pardir):
-            raise RuntimeError(f"Remote directory {remote_pardir} does not exist.")
+        if not self.dir_exists(remote_dir):
+            raise RuntimeError(f"Remote directory {remote_dir} does not exist.")
 
         # 一時オブジェクトに書き込む
         self.scp_put_dir(local_dir, "/tmp/", exclude_dirs)
@@ -159,12 +154,11 @@ class SSHClientWrapper:
         tmp_path = osp.join("/tmp", osp.basename(local_dir.rstrip("/")))
 
         # 一時オブジェクトをリモートディレクトリ以下にコピーする
-        success, _, error_output = self.exec_command_super(f"cp -r {tmp_path} {remote_pardir}")
+        success, _, error_output = self.exec_command_super(f"cp -r {tmp_path} {remote_dir}")
         if not success:
-            raise RuntimeError(f"Failed to move {tmp_path} to {remote_pardir}: {error_output}")
+            raise RuntimeError(f"Failed to move {tmp_path} to {remote_dir}: {error_output}")
 
-    def sftp_read(self, _remote_path: str) -> str:
-        remote_path = self._expand_remote_user(_remote_path)
+    def sftp_read(self, remote_path: str) -> str:
         assert not remote_path.endswith("/")
 
         with self._ssh_client.open_sftp() as sftp:
@@ -172,8 +166,7 @@ class SSHClientWrapper:
                 text = f.read().decode(self.UTF_8)
         return text
 
-    def sftp_read_super(self, _remote_path: str) -> str:
-        remote_path = self._expand_remote_user(_remote_path)
+    def sftp_read_super(self, remote_path: str) -> str:
         assert not remote_path.endswith("/")
 
         success, output, error_output = self.exec_command_super(f"cat {remote_path}")
@@ -182,19 +175,15 @@ class SSHClientWrapper:
 
         return output
 
-    def sftp_write(self, _remote_path: str, text: str) -> None:
-        remote_path = self._expand_remote_user(_remote_path)
+    def sftp_write(self, remote_path: str, text: str) -> None:
         assert not remote_path.endswith("/")
 
         with self._ssh_client.open_sftp() as sftp:
             with sftp.file(remote_path, "w") as f:
                 f.write(text)
 
-    def sftp_write_super(self, _remote_path: str, text: str) -> None:
+    def sftp_write_super(self, remote_path: str, text: str) -> None:
         """root権限が必要なファイルに書き込む．"""
-        remote_path = self._expand_remote_user(_remote_path)
-        assert not remote_path.endswith("/")
-
         # 一時ファイルのパス
         tmp_path = osp.join("/tmp", osp.basename(remote_path))
 
@@ -206,10 +195,10 @@ class SSHClientWrapper:
         if not success:
             raise RuntimeError(f"Failed to move {tmp_path} to {remote_path}: {error_output}")
 
-    def list(self, remote_path: str) -> List[str]:
+    def list(self, remote_pardir: str) -> List[str]:
         """lsコマンド．"""
         with self._ssh_client.open_sftp() as sftp:
-            return sftp.listdir(self._get_path_relative_to_home(remote_path))
+            return sftp.listdir(remote_pardir)
 
     def file_exists(self, file_path: str) -> bool:
         return self.exec_command(f"[ -f {file_path} ]")[0]
@@ -229,21 +218,3 @@ class SSHClientWrapper:
                 return True
 
         return False
-
-    def _get_remote_home_dir(self) -> str:
-        success, home, _ = self.exec_command("echo $HOME")
-        if not success:
-            raise RuntimeError("Failed to get remote home directory.")
-        return home
-
-    def _expand_remote_user(self, remote_path: str) -> str:
-        if "~" in remote_path:
-            remote_home = self._get_remote_home_dir()
-            return remote_path.replace("~", remote_home)
-        else:
-            return remote_path
-
-    def _get_path_relative_to_home(self, remote_path: str) -> str:
-        home_dir = self._get_remote_home_dir()
-        remote_abs_path = self._expand_remote_user(remote_path)
-        return osp.relpath(remote_abs_path, home_dir)
