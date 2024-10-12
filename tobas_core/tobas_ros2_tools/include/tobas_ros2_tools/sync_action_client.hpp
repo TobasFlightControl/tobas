@@ -11,9 +11,15 @@
 
 namespace ros2
 {
+/**
+ * @brief 同期アクションクライアント．
+ * @note ブロッキングを行うため，リアルタイム性が重要なノードでは使用しないこと．
+ */
 template <typename ActionType>
 class SyncActionClient
 {
+  static constexpr auto kWaitForServer = std::chrono::seconds(1);
+
 public:
   using SharedPtr = std::shared_ptr<SyncActionClient>;
 
@@ -38,7 +44,7 @@ public:
     std::shared_future<typename rclcpp_action::ClientGoalHandle<ActionType>::WrappedResult>>
   sendGoal(const typename ActionType::Goal& goal)
   {
-    if (!client_->action_server_is_ready())
+    if (!client_->wait_for_action_server(kWaitForServer))
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << action_name_ << "\" action server is not ready.");
       return {};

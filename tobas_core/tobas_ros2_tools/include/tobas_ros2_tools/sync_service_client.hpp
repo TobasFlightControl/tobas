@@ -2,16 +2,23 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+/* 開発用 */
 // #include <std_srvs/srv/empty.hpp>
+// using SrvType = std_srvs::srv::Empty;
 
 #include "./future.hpp"
 
 namespace ros2
 {
-// using SrvType = std_srvs::srv::Empty;
+/**
+ * @brief 同期サービスクライアント．
+ * @note ブロッキングを行うため，リアルタイム性が重要なノードでは使用しないこと．
+ */
 template <typename SrvType>
 class SyncServiceClient
 {
+  static constexpr auto kWaitForServer = std::chrono::seconds(1);
+
 public:
   using SharedPtr = std::shared_ptr<SyncServiceClient>;
 
@@ -36,7 +43,7 @@ public:
     const typename SrvType::Request::SharedPtr& req,
     std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
-    if (!client_->service_is_ready())
+    if (!client_->wait_for_service(kWaitForServer))  // service_is_readyは最初のコールでfalseを返すことが多い
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << client_->get_service_name() << "\" service is not ready.");
       return false;

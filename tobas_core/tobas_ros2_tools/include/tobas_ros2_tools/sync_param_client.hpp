@@ -6,8 +6,14 @@
 
 namespace ros2
 {
+/**
+ * @brief 同期パラメータクライアント．
+ * @note ブロッキングを行うため，リアルタイム性が重要なノードでは使用しないこと．
+ */
 class SyncParamClient
 {
+  static constexpr auto kWaitForServer = std::chrono::seconds(1);
+
 public:
   using SharedPtr = std::shared_ptr<SyncParamClient>;
 
@@ -22,7 +28,7 @@ public:
     const T& value,
     std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
   {
-    if (!client_.service_is_ready())
+    if (!client_.wait_for_service(kWaitForServer))
     {
       RCLCPP_ERROR_STREAM(node_->get_logger(), "\"" << remote_node_name_ << "\" parameter server is not ready.");
       return false;
