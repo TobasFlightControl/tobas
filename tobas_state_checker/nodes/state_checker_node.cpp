@@ -12,6 +12,7 @@
 #include <tobas_msgs/msg/event.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/action/land.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
@@ -19,9 +20,9 @@ using namespace std;
 
 class StateCheckerNode : public tobas::BaseNode
 {
-  static constexpr double kWarnPeriod = 3.;                                // [s]
-  static constexpr double kCpuTempertureThreshold = 80.;                   // [celsius]
-  static constexpr double kAttitudeThreshold = 85. * tobas_std::kDeg2Rad;  // [rad]
+  static constexpr double kCPUTempWarnThresh = 80.;                          // [celsius]
+  static constexpr double kAttitudeFatalThresh = 85. * tobas_std::kDeg2Rad;  // [rad]
+  static constexpr uint32_t kLatencyWarnThresh = 2000;                       // [us]
 
   using self = StateCheckerNode;
   using super = tobas::BaseNode;
@@ -42,6 +43,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Latency> latency_sub_;
 
   // Service
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
@@ -54,6 +56,7 @@ private:
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
   void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
+  void latencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency);
 };
 
 StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options) : super("state_checker", options)
@@ -65,6 +68,7 @@ StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options) : super("
   cpu_sub_ = createSubscriber(tobas::kCPUTopic, &self::cpuCb, this);
   batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
   euler_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kEulerTopic), &self::eulerCb, this);
+  latency_sub_ = createSubscriber(tobas::kLatencyTopic, &self::latencyCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
 }
@@ -104,10 +108,10 @@ void StateCheckerNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
   if (arming_ == nullptr || !arming_->data)
     return;
 
-  if (cpu->temperature > kCpuTempertureThreshold)
+  if (cpu->temperature > kCPUTempWarnThresh)
   {
     TOBAS_WARN_THROTTLE(
-      kWarnPeriod, "CPU temperature is too high: ", cpu->temperature, " [C]. It is time to stop flying.");
+      tobas::kTypicalWarnPeriod, "CPU temperature is too high: ", cpu->temperature, " [C]. It is time to stop flying.");
   }
 }
 
@@ -122,7 +126,7 @@ void StateCheckerNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& ba
   if (battery->voltage < drone_->battery.sag_voltage)
   {
     TOBAS_WARN_THROTTLE(
-      kWarnPeriod, "Battery voltage is too low: ", battery->voltage, " [V]. It is time to stop flying.");
+      tobas::kTypicalWarnPeriod, "Battery voltage is too low: ", battery->voltage, " [V]. It is time to stop flying.");
   }
 }
 
@@ -133,11 +137,21 @@ void StateCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPt
 
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
-  if (max(abs(euler->euler.roll), abs(euler->euler.pitch)) > kAttitudeThreshold)
+  if (max(abs(euler->euler.roll), abs(euler->euler.pitch)) > kAttitudeFatalThresh)
   {
     TOBAS_FATAL("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();
     requestDisarmingRotors();
+  }
+}
+
+void StateCheckerNode::latencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency)
+{
+  const auto latency_us = latency->data.sec * 1'000'000 + latency->data.nanosec / 1'000;
+  if (latency_us > kLatencyWarnThresh)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kTypicalWarnPeriod, "Control latency is too large: ", latency_us, " > ", kLatencyWarnThresh, " [us]");
   }
 }
 
