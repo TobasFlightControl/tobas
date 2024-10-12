@@ -76,6 +76,9 @@ private:
 
   ros2::TimerPtr check_size_timer_;
 
+  void registerSubscriptions();
+  void unregisterSubscriptions();
+
   template <typename MsgType>
   void addSubscription(const char* topic, bool latch = false, bool reliable = false, size_t queue_size = 1);
 
@@ -92,7 +95,16 @@ private:
 ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", options), ns_(string(get_namespace()) + "/")
 {
-  // Register subscriptions
+  // Register services
+  start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);
+  stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
+  clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
+
+  check_size_timer_ = createTimer(kCheckSizeTimerPeriod, &self::checkSizeTimerCb, this, false);
+}
+
+void ROSBagRecorderNode::registerSubscriptions()
+{
   addSubscription<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
   addSubscription<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, true, true);
   addSubscription<tobas_kdl_msgs::msg::Tree>(tobas::kKDLTreeTopic, true, true);
@@ -125,13 +137,11 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addSubscription<tobas_msgs::msg::JointCommandArray>(tobas::kJointPositionsCmdTopic);
   addSubscription<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
   addSubscription<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffortsCmdTopic);
+}
 
-  // Register services
-  start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);
-  stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
-  clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
-
-  check_size_timer_ = createTimer(kCheckSizeTimerPeriod, &self::checkSizeTimerCb, this, false);
+void ROSBagRecorderNode::unregisterSubscriptions()
+{
+  subs_.clear();
 }
 
 template <typename MsgType>
@@ -146,9 +156,6 @@ void ROSBagRecorderNode::addSubscription(const char* topic, bool latch, bool rel
 template <typename MsgType>
 void ROSBagRecorderNode::callback(const typename MsgType::ConstSharedPtr& msg, const char* topic)
 {
-  if (!is_recording_)
-    return;
-
   try
   {
     writer_.write(*msg, ns_ + topic, get_clock()->now());
@@ -216,6 +223,7 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
+  registerSubscriptions();
   check_size_timer_->reset();
 
   is_recording_ = true;
@@ -245,6 +253,7 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
     return;
   }
 
+  unregisterSubscriptions();
   check_size_timer_->cancel();
 
   is_recording_ = false;
