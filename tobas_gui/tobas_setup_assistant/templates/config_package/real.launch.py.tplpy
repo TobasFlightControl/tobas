@@ -62,9 +62,7 @@ def generate_launch_description():
     # Launch Tobas core software
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                [PathJoinSubstitution([config_pkg_share, "launch", "core.launch.py"])]
-            ),
+            PythonLaunchDescriptionSource([PathJoinSubstitution([config_pkg_share, "launch", "core.launch.py"])]),
             launch_arguments={
                 "log_level": log_level,
                 "output": output,
@@ -107,7 +105,7 @@ def generate_launch_description():
         )
     )
 
-    # Launch 2nd priority nodes (Pose Control & Manipulation)
+    # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
     ld.add_action(
         TimerAction(
             period=0.1,
@@ -139,26 +137,13 @@ def generate_launch_description():
         )
     )
 
-    # Launch 3rd priority nodes (Navigation)
+    # Launch 3th priority nodes (Others)
     ld.add_action(
         TimerAction(
             period=0.2,
             actions=[
                 LoadComposableNodes(
                     target_container=f"{DRONE_NAME}/component_manager_3",
-                    composable_node_descriptions=[],
-                )
-            ],
-        )
-    )
-
-    # Launch 4th priority nodes (Others)
-    ld.add_action(
-        TimerAction(
-            period=0.3,
-            actions=[
-                LoadComposableNodes(
-                    target_container=f"{DRONE_NAME}/component_manager_4",
                     composable_node_descriptions=[
                         ComposableNode(
                             package="tobas_real_ros",

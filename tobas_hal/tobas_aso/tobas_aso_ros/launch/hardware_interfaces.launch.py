@@ -54,7 +54,7 @@ def generate_launch_description():
         )
     )
 
-    # Launch 2nd priority nodes (Pose Control & Manipulation)
+    # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
     ld.add_action(
         TimerAction(
             period=0.1,
