@@ -20,22 +20,22 @@ int main(int argc, char* argv[])
   // cf. https://github.com/ros2/rclpy/issues/1223
   managers.setPolicy(0, SCHED_FIFO);
   managers.setPriority(0, 90);
-  // managers.setCPUAffinity(0, (1 << 0));
+  managers.setCPUAffinity(0, 0b0001);
   managers.setNumThreads(0, 1);
 
   managers.setPolicy(1, SCHED_FIFO);
   managers.setPriority(1, 50);
-  // managers.setCPUAffinity(1, (1 << 1));
+  managers.setCPUAffinity(1, 0b0010);
   managers.setNumThreads(1, 1);
 
   managers.setPolicy(2, SCHED_FIFO);
   managers.setPriority(2, 10);
-  // managers.setCPUAffinity(2, (1 << 2));
+  managers.setCPUAffinity(2, 0b0100);
   managers.setNumThreads(2, 1);
 
   managers.setPolicy(3, SCHED_FIFO);
   managers.setPriority(3, 0);
-  // managers.setCPUAffinity(3, (1 << 3));
+  managers.setCPUAffinity(3, 0b1000);
   managers.setNumThreads(3, 1);
 
   managers.spin();
