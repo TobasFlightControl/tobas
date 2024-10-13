@@ -10,6 +10,9 @@ sudo udevadm trigger
 # Add the user to the dialout group
 sudo usermod -a -G dialout ${USER}
 
+# Enable SSH server
+sudo systemctl enable ssh.service
+
 # Enable services for using RPi as an access point
 # https://www.mikan-tech.net/entry/raspi-wifi-ap-sta
 sudo systemctl unmask hostapd.service
@@ -24,7 +27,8 @@ sudo netfilter-persistent save
 sudo systemctl disable hciuart.service
 
 # Disable swap because the access speed to SD card is too slow
-sudo systemctl disable dphys-swapfile
+sudo systemctl disable dphys-swapfile.service
 
 # Enable Tobas services
+sudo systemctl enable tobas_fastdds_discovery.service
 sudo systemctl enable tobas_real.service
