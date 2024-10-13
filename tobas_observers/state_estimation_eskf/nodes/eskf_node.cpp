@@ -463,7 +463,7 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > eskf::kAnormalyScoreThreshold)
-    TOBAS_WARN_THROTTLE(eskf::kWarnPeriod, "The position estimation using GNSS is unstable.");
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
 }
 
 void ObserverNode::getGnssOriginCb(
