@@ -40,6 +40,7 @@
     <include file="$(find-pkg-share tobas_f450_config)/launch/controller_manager.launch.xml"/>
 
     <!-- Launch Gazebo command handlers -->
+    <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)">
       <param from="$(find-pkg-share {{ config_pkg_name }})/config/gazebo_joint_command_handler.yaml"/>
