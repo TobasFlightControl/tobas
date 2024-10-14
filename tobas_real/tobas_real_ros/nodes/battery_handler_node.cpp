@@ -15,6 +15,8 @@ namespace fs = filesystem;
 
 class BatteryHandlerNode : public tobas::BaseNode
 {
+  static constexpr double kMinVoltageThresh = 3.;  // [V]
+
   // Defaults (cf. ADC example: https://docs.emlid.com/navio2/dev/adc)
   static constexpr double kDefaultAdcVoltageCoef = 11.3;
   static constexpr double kDefaultAdcCurrentCoef = 17.0;
@@ -119,6 +121,15 @@ void BatteryHandlerNode::adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& a
   // Fill values
   battery_msg->voltage = adc->voltage * voltage_coef_;
   battery_msg->current = adc->current * current_coef_;
+
+  // Check voltage
+  if (battery_msg->voltage < kMinVoltageThresh)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kTypicalWarnPeriod, "Battery voltage is too low (", battery_msg->voltage,
+      " V). Battery message is not published.");
+    return;
+  }
 
   // Publish battery message
   battery_pub_->publish(move(battery_msg));
