@@ -29,6 +29,9 @@ sudo systemctl disable hciuart.service
 # Disable swap because the access speed to SD card is too slow
 sudo systemctl disable dphys-swapfile.service
 
+# Disable NetworkManager to use wpa_supplicant
+sudo systemctl disable NetworkManager.service
+
 # Enable Tobas services
 sudo systemctl enable tobas_fastdds_discovery.service
 sudo systemctl enable tobas_real.service
