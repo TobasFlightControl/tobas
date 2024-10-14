@@ -34,6 +34,7 @@ private:
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Adc> adc_sub_;
 
   bool getConfig();
+  void registerPubSub();
 
   bool paramsCb(const vector<double>& params);
   void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
@@ -55,8 +56,7 @@ BatteryHandlerNode::BatteryHandlerNode(const rclcpp::NodeOptions& options) : sup
     return;
   }
 
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  adc_sub_ = createSubscriber(hal::kAdcTopic, &self::adcCb, this);
+  registerPubSub();
 }
 
 bool BatteryHandlerNode::getConfig()
@@ -74,6 +74,12 @@ bool BatteryHandlerNode::getConfig()
   }
 
   return true;
+}
+
+void BatteryHandlerNode::registerPubSub()
+{
+  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
+  adc_sub_ = createSubscriber(hal::kAdcTopic, &self::adcCb, this);
 }
 
 bool BatteryHandlerNode::paramsCb(const vector<double>& params)
@@ -113,6 +119,9 @@ bool BatteryHandlerNode::paramsCb(const vector<double>& params)
     TOBAS_ERROR("Failed to save parameters.");
     return false;
   }
+
+  if (battery_pub_ == nullptr)
+    registerPubSub();
 
   return true;
 }

@@ -53,6 +53,7 @@ private:
   ros2::SubscriberPtr<tobas_hal_msgs::Imu> imu_sub_;
 
   bool getConfig();
+  void registerPubSub();
 
   bool paramsCb(const std::vector<double>& params);
   void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
@@ -101,6 +102,12 @@ bool ImuHandlerNode::getConfig()
   return true;
 }
 
+void ImuHandlerNode::registerPubSub()
+{
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
+  imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
+}
+
 bool ImuHandlerNode::paramsCb(const std::vector<double>& params)
 {
   // Skip first call
@@ -128,6 +135,9 @@ bool ImuHandlerNode::paramsCb(const std::vector<double>& params)
     TOBAS_ERROR("Failed to save parameters.");
     return false;
   }
+
+  if (imu_pub_ == nullptr)
+    registerPubSub();
 
   return true;
 }

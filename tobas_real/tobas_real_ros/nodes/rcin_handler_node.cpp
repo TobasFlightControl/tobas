@@ -40,6 +40,7 @@ private:
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
 
   bool getConfig();
+  void registerPubSub();
 
   bool paramsCb(const vector<double>& params);
   void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
@@ -61,8 +62,7 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
     return;
   }
 
-  rcin_pub_ = createPublisher<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
-  sbus_sub_ = createSubscriber(hal::kSbusTopic, &self::sbusCb, this);
+  registerPubSub();
 }
 
 bool RCInputHandlerNode::getConfig()
@@ -152,6 +152,12 @@ bool RCInputHandlerNode::getConfig()
   return true;
 }
 
+void RCInputHandlerNode::registerPubSub()
+{
+  rcin_pub_ = createPublisher<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
+  sbus_sub_ = createSubscriber(hal::kSbusTopic, &self::sbusCb, this);
+}
+
 bool RCInputHandlerNode::paramsCb(const vector<double>& params)
 {
   // Skip first call
@@ -203,6 +209,9 @@ bool RCInputHandlerNode::paramsCb(const vector<double>& params)
     TOBAS_ERROR("Failed to save parameters.");
     return false;
   }
+
+  if (rcin_pub_ == nullptr)
+    registerPubSub();
 
   return true;
 }

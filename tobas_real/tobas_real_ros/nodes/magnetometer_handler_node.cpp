@@ -39,6 +39,7 @@ private:
   ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_sub_;
 
   bool getConfig();
+  void registerPubSub();
 
   bool paramsCb(const vector<double>& params);
   void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
@@ -61,8 +62,7 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
     return;
   }
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
-  mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
+  registerPubSub();
 }
 
 bool MagnetometerHandlerNode::getConfig()
@@ -121,6 +121,12 @@ bool MagnetometerHandlerNode::getConfig()
   return true;
 }
 
+void MagnetometerHandlerNode::registerPubSub()
+{
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
+  mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
+}
+
 bool MagnetometerHandlerNode::paramsCb(const vector<double>& params)
 {
   // Skip first call
@@ -173,6 +179,9 @@ bool MagnetometerHandlerNode::paramsCb(const vector<double>& params)
     TOBAS_ERROR("Failed to save parameters.");
     return false;
   }
+
+  if (mag_pub_ == nullptr)
+    registerPubSub();
 
   return true;
 }
