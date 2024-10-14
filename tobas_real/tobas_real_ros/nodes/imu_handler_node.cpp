@@ -52,7 +52,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::Imu> imu_sub_;
 
-  void readConfig();
+  bool getConfig();
 
   bool paramsCb(const std::vector<double>& params);
   void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
@@ -61,38 +61,44 @@ private:
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_handler", options)
 {
   if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
-    TOBAS_WARN("Failed to initialize property tree.");
-
-  readConfig();
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
 
   addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+
+  if (!getConfig())
+  {
+    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    return;
+  }
 
   imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
   imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
 }
 
-void ImuHandlerNode::readConfig()
+bool ImuHandlerNode::getConfig()
 {
   if (!pt_.get(kOffsetXKey, acc_bias_.x()))
   {
-    TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
-    acc_bias_.setZero();
-    return;
+    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kOffsetYKey, acc_bias_.y()))
   {
-    TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
-    acc_bias_.setZero();
-    return;
+    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kOffsetZKey, acc_bias_.z()))
   {
-    TOBAS_WARN("Failed to get \"", kOffsetXKey, "\". from configuration file. Accel bias is set to zero.");
-    acc_bias_.setZero();
-    return;
+    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+    return false;
   }
+
+  return true;
 }
 
 bool ImuHandlerNode::paramsCb(const std::vector<double>& params)

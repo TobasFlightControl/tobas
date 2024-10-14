@@ -38,7 +38,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_sub_;
 
-  void readConfig();
+  bool getConfig();
 
   bool paramsCb(const vector<double>& params);
   void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
@@ -48,85 +48,77 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
   : super("magnetometer_handler", options)
 {
   if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
-    TOBAS_WARN("Failed to initialize property tree.");
-
-  readConfig();
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
 
   addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+
+  if (!getConfig())
+  {
+    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    return;
+  }
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
   mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
 }
 
-void MagnetometerHandlerNode::readConfig()
+bool MagnetometerHandlerNode::getConfig()
 {
   if (!pt_.get(kAxxKey, mag_trans_.a_xx))
   {
-    TOBAS_WARN("Failed to get \"", kAxxKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kAxxKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kAyyKey, mag_trans_.a_yy))
   {
-    TOBAS_WARN("Failed to get \"", kAyyKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kAyyKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kAzzKey, mag_trans_.a_zz))
   {
-    TOBAS_WARN("Failed to get \"", kAzzKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kAzzKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kAxyKey, mag_trans_.a_xy))
   {
-    TOBAS_WARN("Failed to get \"", kAxyKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kAxyKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kAyzKey, mag_trans_.a_yz))
   {
-    TOBAS_WARN("Failed to get \"", kAyzKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kAyzKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kAzxKey, mag_trans_.a_zx))
   {
-    TOBAS_WARN("Failed to get \"", kAzxKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kAzxKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kBxKey, mag_trans_.b_x))
   {
-    TOBAS_WARN("Failed to get \"", kBxKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kBxKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kByKey, mag_trans_.b_y))
   {
-    TOBAS_WARN("Failed to get \"", kByKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kByKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kBzKey, mag_trans_.b_z))
   {
-    TOBAS_WARN("Failed to get \"", kBzKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kBzKey, "\" from configuration file.");
+    return false;
   }
   if (!pt_.get(kCKey, mag_trans_.c))
   {
-    TOBAS_WARN("Failed to get \"", kCKey, "\" from configuration file. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
+    TOBAS_ERROR("Failed to get \"", kCKey, "\" from configuration file.");
+    return false;
   }
 
-  if (!mag_trans_.initialize())
-  {
-    TOBAS_ERROR("Failed to initialize ellipse transformer. All params are set to defaults.");
-    mag_trans_.setIdentity();
-    return;
-  }
+  return true;
 }
 
 bool MagnetometerHandlerNode::paramsCb(const vector<double>& params)
@@ -141,6 +133,9 @@ bool MagnetometerHandlerNode::paramsCb(const vector<double>& params)
     TOBAS_ERROR("Parameter size mismatch.");
     return false;
   }
+
+  // Copy transformer
+  const auto mag_trans_old = mag_trans_;
 
   // Update parameters
   mag_trans_.a_xx = params.at(kAxxChannel);
@@ -157,8 +152,8 @@ bool MagnetometerHandlerNode::paramsCb(const vector<double>& params)
   // Verify parameters
   if (!mag_trans_.initialize())
   {
-    TOBAS_ERROR("Failed to initialize ellipse transformer. Reloading...");
-    readConfig();
+    TOBAS_ERROR("Failed to initialize ellipse transformer.");
+    mag_trans_ = mag_trans_old;
     return false;
   }
 

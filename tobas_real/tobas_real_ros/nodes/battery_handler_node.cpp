@@ -17,10 +17,6 @@ class BatteryHandlerNode : public tobas::BaseNode
 {
   static constexpr double kMinVoltageThresh = 3.;  // [V]
 
-  // Defaults (cf. ADC example: https://docs.emlid.com/navio2/dev/adc)
-  static constexpr double kDefaultAdcVoltageCoef = 11.3;
-  static constexpr double kDefaultAdcCurrentCoef = 17.0;
-
   using self = BatteryHandlerNode;
   using super = tobas::BaseNode;
 
@@ -29,49 +25,58 @@ public:
 
 private:
   // Config
-  double voltage_coef_ = kDefaultAdcVoltageCoef;
-  double current_coef_ = kDefaultAdcCurrentCoef;
+  double voltage_coef_;
+  double current_coef_;
 
   ptree::PropertyTree pt_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Adc> adc_sub_;
 
-  void readConfig();
+  bool getConfig();
 
-  bool paramsCb(const std::vector<double>& params);
+  bool paramsCb(const vector<double>& params);
   void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
 };
 
 BatteryHandlerNode::BatteryHandlerNode(const rclcpp::NodeOptions& options) : super("battery_handler", options)
 {
   if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
-    TOBAS_WARN("Failed to initialize property tree.");
-
-  readConfig();
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
 
   addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+
+  if (!getConfig())
+  {
+    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    return;
+  }
 
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   adc_sub_ = createSubscriber(hal::kAdcTopic, &self::adcCb, this);
 }
 
-void BatteryHandlerNode::readConfig()
+bool BatteryHandlerNode::getConfig()
 {
   if (!pt_.get(kVoltageKey, voltage_coef_))
   {
-    TOBAS_WARN("Failed to get \"", kVoltageKey, "\". from configuration file. The default value is used.");
-    voltage_coef_ = kDefaultAdcVoltageCoef;
+    TOBAS_ERROR("Failed to get \"", kVoltageKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kCurrentKey, current_coef_))
   {
-    TOBAS_WARN("Failed to get \"", kCurrentKey, "\". from configuration file. The default value is used.");
-    current_coef_ = kDefaultAdcCurrentCoef;
+    TOBAS_ERROR("Failed to get \"", kCurrentKey, "\".");
+    return false;
   }
+
+  return true;
 }
 
-bool BatteryHandlerNode::paramsCb(const std::vector<double>& params)
+bool BatteryHandlerNode::paramsCb(const vector<double>& params)
 {
   // Skip first call
   if (params.size() == 0)

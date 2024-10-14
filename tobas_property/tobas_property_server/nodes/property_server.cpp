@@ -55,7 +55,10 @@ PropertyServer::PropertyServer(const rclcpp::NodeOptions& options) : super("prop
 {
   const auto file_path = getStringParam("file_path", "~/.config/tobas/config.ini");
   if (!pt_.initialize(ros2::expandUser(file_path.c_str())))
-    TOBAS_EXIT("Failed to initialize property tree.");
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
 
   // Advertise service servers
   const auto prefix = string(get_name()) + "/";

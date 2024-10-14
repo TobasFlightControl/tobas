@@ -39,8 +39,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::RCInput> rcin_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
 
-  void readConfig();
-  void setToDefaults();
+  bool getConfig();
 
   bool paramsCb(const vector<double>& params);
   void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
@@ -49,131 +48,108 @@ private:
 RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("rcin_handler", options)
 {
   if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
-    TOBAS_WARN("Failed to initialize property tree.");
-
-  readConfig();
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
 
   addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+
+  if (!getConfig())
+  {
+    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    return;
+  }
 
   rcin_pub_ = createPublisher<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
   sbus_sub_ = createSubscriber(hal::kSbusTopic, &self::sbusCb, this);
 }
 
-void RCInputHandlerNode::readConfig()
+bool RCInputHandlerNode::getConfig()
 {
   if (!pt_.get(kRollLeftKey, roll_range_.lower))
   {
-    TOBAS_WARN("Failed to get \"", kRollLeftKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kRollLeftKey, "\".");
+    return false;
   }
   if (!pt_.get(kRollRightKey, roll_range_.upper))
   {
-    TOBAS_WARN("Failed to get \"", kRollRightKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kRollRightKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kPitchDownKey, pitch_range_.lower))
   {
-    TOBAS_WARN("Failed to get \"", kPitchDownKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kPitchDownKey, "\".");
+    return false;
   }
   if (!pt_.get(kPitchUpKey, pitch_range_.upper))
   {
-    TOBAS_WARN("Failed to get \"", kPitchUpKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kPitchUpKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kYawRightKey, yaw_range_.lower))
   {
-    TOBAS_WARN("Failed to get \"", kYawRightKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kYawRightKey, "\".");
+    return false;
   }
   if (!pt_.get(kYawLeftKey, yaw_range_.upper))
   {
-    TOBAS_WARN("Failed to get \"", kYawLeftKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kYawLeftKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kThrotDownKey, throt_range_.lower))
   {
-    TOBAS_WARN("Failed to get \"", kThrotDownKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kThrotDownKey, "\".");
+    return false;
   }
   if (!pt_.get(kThrotUpKey, throt_range_.upper))
   {
-    TOBAS_WARN("Failed to get \"", kThrotUpKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kThrotUpKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kModeProgramKey, modes_.at(tobas::flight_mode_t::PROGRAM_MODE)))
   {
-    TOBAS_WARN("Failed to get \"", kModeProgramKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kModeProgramKey, "\".");
+    return false;
   }
   if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::flight_mode_t::STABILIZE_MODE)))
   {
-    TOBAS_WARN("Failed to get \"", kModeStabilizeKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kModeStabilizeKey, "\".");
+    return false;
   }
   if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT_MODE)))
   {
-    TOBAS_WARN("Failed to get \"", kModeAcrobatKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kModeAcrobatKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kEStopOnKey, estop_on_))
   {
-    TOBAS_WARN("Failed to get \"", kEStopOnKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kEStopOnKey, "\".");
+    return false;
   }
   if (!pt_.get(kEStopOffKey, estop_off_))
   {
-    TOBAS_WARN("Failed to get \"", kEStopOffKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kEStopOffKey, "\".");
+    return false;
   }
 
   if (!pt_.get(kGPSwOnKey, gpsw_on_))
   {
-    TOBAS_WARN("Failed to get \"", kGPSwOnKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kGPSwOnKey, "\".");
+    return false;
   }
   if (!pt_.get(kGPSwOffKey, gpsw_off_))
   {
-    TOBAS_WARN("Failed to get \"", kGPSwOffKey, "\". from configuration file. All params are set to defaults.");
-    setToDefaults();
-    return;
+    TOBAS_ERROR("Failed to get \"", kGPSwOffKey, "\".");
+    return false;
   }
-}
 
-void RCInputHandlerNode::setToDefaults()
-{
-  roll_range_.set(tobas::kPwmMin, tobas::kPwmMax);
-  pitch_range_.set(tobas::kPwmMax, tobas::kPwmMin);
-  yaw_range_.set(tobas::kPwmMax, tobas::kPwmMin);
-  throt_range_.set(tobas::kPwmMax, tobas::kPwmMin);
-
-  modes_[tobas::flight_mode_t::PROGRAM_MODE] = tobas::kPwmMin;
-  modes_[tobas::flight_mode_t::STABILIZE_MODE] = tobas::kPwmMid;
-  modes_[tobas::flight_mode_t::ACROBAT_MODE] = tobas::kPwmMax;
-
-  estop_on_ = tobas::kPwmMin;
-  estop_off_ = tobas::kPwmMax;
-  gpsw_on_ = tobas::kPwmMin;
-  gpsw_off_ = tobas::kPwmMax;
+  return true;
 }
 
 bool RCInputHandlerNode::paramsCb(const vector<double>& params)

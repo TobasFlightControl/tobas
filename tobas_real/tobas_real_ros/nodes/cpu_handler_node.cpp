@@ -23,7 +23,7 @@ public:
 
 private:
   int temp_millidegrees_;
-  std::string cpu_line_, token_;
+  string cpu_line_, token_;
   uint64_t prev_user_time_ = 0, prev_nice_time_ = 0, prev_system_time_ = 0, prev_idle_time_ = 0;
   linux::CommandExecutor command_executor_;
 
