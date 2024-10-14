@@ -56,17 +56,39 @@ void BatteryCPUViewerWidget::updateInternalDataStructures()
 void BatteryCPUViewerWidget::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& batt)
 {
   const auto rate = math::remap(batt->voltage, drone_.battery.sag_voltage, drone_.battery.max_voltage, 0., 100.);
+
   batt_voltage_->setUpper(batt->voltage);
   batt_voltage_->setText(std::format("{:.2f} V ({:.0f} %)", batt->voltage, rate).c_str());
+
+  if (rate < 10.)
+    batt_voltage_->setFillColor(Qt::red);
+  else if (rate < 20.)
+    batt_voltage_->setFillColor(Qt::yellow);
+  else
+    batt_voltage_->setFillColor(Qt::green);
 }
 
 void BatteryCPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
   cpu_temp_->setUpper(cpu->temperature);
   cpu_temp_->setText(std::format("{:.0f} ℃", cpu->temperature).c_str());
+  if (cpu->temperature > 85.)
+    cpu_temp_->setFillColor(Qt::magenta);
+  else if (cpu->temperature > 70.)
+    cpu_temp_->setFillColor(Qt::red);
+  else if (cpu->temperature > 50.)
+    cpu_temp_->setFillColor(Qt::yellow);
+  else
+    cpu_temp_->setFillColor(Qt::green);
 
   cpu_load_->setUpper(cpu->load * 100);
   cpu_load_->setText(std::format("{:.0f} %", cpu->load * 100).c_str());
+  if (cpu->load > 80.)
+    cpu_load_->setFillColor(Qt::red);
+  else if (cpu->load > 60.)
+    cpu_load_->setFillColor(Qt::yellow);
+  else
+    cpu_load_->setFillColor(Qt::green);
 }
 }  // namespace control_system
 }  // namespace gui
