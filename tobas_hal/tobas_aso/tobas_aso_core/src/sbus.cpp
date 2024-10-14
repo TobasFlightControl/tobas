@@ -13,7 +13,7 @@ using namespace boost::multiprecision;
 
 namespace aso
 {
-SBUS::SBUS(std::function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
+SBUS::SBUS(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 {
 }
 
@@ -47,7 +47,7 @@ void SBUS::spin()
 
 void SBUS::readThreadFunc()
 {
-  const std::set<uint8_t> end_bytes{ 0x00, 0x04, 0x14, 0x24, 0x34 };
+  const set<uint8_t> end_bytes{ 0x00, 0x04, 0x14, 0x24, 0x34 };
 
   while (true)
   {
@@ -89,7 +89,7 @@ void SBUS::readThreadFunc()
   }
 }
 
-void SBUS::decodeData(const std::array<uint8_t, kDataSize>& data)
+void SBUS::decodeData(const array<uint8_t, kDataSize>& data)
 {
   // 繰り上がりが面倒なので，一旦データを1つのビット列に変換する．
   uint256_t bits = 0;
