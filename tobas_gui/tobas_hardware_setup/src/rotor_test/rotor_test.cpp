@@ -16,20 +16,6 @@ namespace hardware_setup
 RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
   : node_(node), drone_(drone), spinner_(Qt::WindowModal, this), arm_thread_(node, true), disarm_thread_(node, false)
 {
-}
-
-const char* RotorTestWidget::name() const
-{
-  return "Rotor Test";
-}
-
-const char* RotorTestWidget::title() const
-{
-  return "Test Rotors";
-}
-
-void RotorTestWidget::onInit()
-{
   const auto warning =
     new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", kBodyPSize);
   warning->setStyleSheet("color: red; font-weight: bold;");
@@ -76,6 +62,16 @@ void RotorTestWidget::onInit()
 
   // Register subscribers
   arming_sub_ = ros2::createSubscriber(node_, tobas::kArmingTopic, &self::armingCb, this);
+}
+
+const char* RotorTestWidget::name() const
+{
+  return "Rotor Test";
+}
+
+const char* RotorTestWidget::title() const
+{
+  return "Test Rotors";
 }
 
 void RotorTestWidget::updateInternalDataStructures()

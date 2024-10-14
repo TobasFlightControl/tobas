@@ -35,8 +35,6 @@ public:
   const char* name() const override;
   const char* title() const override;
 
-  void onInit() override;
-
 private:
   wpa::WPASupplicantParser wpa_parser_;
   ssh::SSHClient ssh_client_;

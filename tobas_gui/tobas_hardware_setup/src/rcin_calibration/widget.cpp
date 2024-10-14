@@ -18,20 +18,6 @@ namespace hardware_setup
 {
 RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node) : node_(node), rate_(kTopicRate)
 {
-}
-
-const char* RCInputCalibrationWidget::name() const
-{
-  return "Radio Calibration";
-}
-
-const char* RCInputCalibrationWidget::title() const
-{
-  return "Calibrate RC Input";
-}
-
-void RCInputCalibrationWidget::onInit()
-{
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Start\" button.\n\n"
     "2. For each channel, operate the stick or switch to ensure it covers the entire range. "
@@ -135,6 +121,16 @@ void RCInputCalibrationWidget::onInit()
   reset();
 
   setEnabled(false);
+}
+
+const char* RCInputCalibrationWidget::name() const
+{
+  return "Radio Calibration";
+}
+
+const char* RCInputCalibrationWidget::title() const
+{
+  return "Calibrate RC Input";
 }
 
 void RCInputCalibrationWidget::setNamespace(const string& ns)

@@ -10,20 +10,6 @@ namespace hardware_setup
 {
 NetworkSettingWidget::NetworkSettingWidget(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
-}
-
-const char* NetworkSettingWidget::name() const
-{
-  return "Network Setting";
-}
-
-const char* NetworkSettingWidget::title() const
-{
-  return "Setup Network";
-}
-
-void NetworkSettingWidget::onInit()
-{
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Read\" button to read current network settings.\n\n"
     "2. Add the settings for your network to the list.\n\n"
@@ -66,6 +52,16 @@ void NetworkSettingWidget::onInit()
   rows_->addWidget(table_);
 
   rows_->addStretch();
+}
+
+const char* NetworkSettingWidget::name() const
+{
+  return "Network Setting";
+}
+
+const char* NetworkSettingWidget::title() const
+{
+  return "Setup Network";
 }
 
 void NetworkSettingWidget::addRow(const std::string& ssid, const std::string& psk)

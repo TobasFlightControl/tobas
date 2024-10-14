@@ -32,8 +32,6 @@ public:
   const char* name() const override;
   const char* title() const override;
 
-  void onInit() override;
-
   void setNamespace(const std::string& ns);
 
 private:

@@ -30,20 +30,6 @@ namespace hardware_setup
 MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), rviz_manager_("rviz_mag_calibration")
 {
-}
-
-const char* MagCalibrationWidget::name() const
-{
-  return "Magnetometer\nCalibration";
-}
-
-const char* MagCalibrationWidget::title() const
-{
-  return "Calibrate Magnetometer";
-}
-
-void MagCalibrationWidget::onInit()
-{
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Start\" button.\n\n"
     "2. For each of the 6 faces of the FC, "
@@ -100,6 +86,16 @@ void MagCalibrationWidget::onInit()
   history_length_ = display->subProp("History Length");
 
   setEnabled(false);
+}
+
+const char* MagCalibrationWidget::name() const
+{
+  return "Magnetometer\nCalibration";
+}
+
+const char* MagCalibrationWidget::title() const
+{
+  return "Calibrate Magnetometer";
 }
 
 void MagCalibrationWidget::setNamespace(const string& ns)

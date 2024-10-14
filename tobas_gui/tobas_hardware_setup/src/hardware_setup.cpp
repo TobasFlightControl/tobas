@@ -22,13 +22,6 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tob
   rcin_calib_ = new RCInputCalibrationWidget(node);
   rotor_test_ = new RotorTestWidget(node, drone);
 
-  network_setting_->initialize();
-  accel_calib_->initialize();
-  mag_calib_->initialize();
-  adc_calib_->initialize();
-  rcin_calib_->initialize();
-  rotor_test_->initialize();
-
   tabs_->addTab(network_setting_, network_setting_->name());
   tabs_->addTab(accel_calib_, accel_calib_->name());
   tabs_->addTab(mag_calib_, mag_calib_->name());

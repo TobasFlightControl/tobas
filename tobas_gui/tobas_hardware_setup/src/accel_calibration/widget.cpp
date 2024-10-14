@@ -13,20 +13,6 @@ namespace hardware_setup
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
 {
-}
-
-const char* AccelCalibrationWidget::name() const
-{
-  return "Accel Calibration";
-}
-
-const char* AccelCalibrationWidget::title() const
-{
-  return "Calibrate Accelerometer";
-}
-
-void AccelCalibrationWidget::onInit()
-{
   const auto instruction = new qt::DescriptionWidget(
     "Press \"Start\" button with the flight controller\'s TOP surface facing up.\n\n", kBodyPSize);
 
@@ -45,6 +31,16 @@ void AccelCalibrationWidget::onInit()
   connect(&thread_, &AccelCalibrationThread::finished, this, &self::onCalibrationFinished);
 
   setEnabled(false);
+}
+
+const char* AccelCalibrationWidget::name() const
+{
+  return "Accel Calibration";
+}
+
+const char* AccelCalibrationWidget::title() const
+{
+  return "Calibrate Accelerometer";
 }
 
 void AccelCalibrationWidget::setNamespace(const std::string& ns)

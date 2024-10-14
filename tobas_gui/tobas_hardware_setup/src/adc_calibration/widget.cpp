@@ -13,20 +13,6 @@ namespace hardware_setup
 ADCCalibrationWidget::ADCCalibrationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
 {
-}
-
-const char* ADCCalibrationWidget::name() const
-{
-  return "ADC Calibration";
-}
-
-const char* ADCCalibrationWidget::title() const
-{
-  return "Calibrate Battery A/D Converter";
-}
-
-void ADCCalibrationWidget::onInit()
-{
   const auto instruction = new qt::DescriptionWidget(
     "1. Ensure the battery and the ADC port is correctly connected.\n\n"
     "2. Input the current battery voltage.\n\n"
@@ -69,6 +55,16 @@ void ADCCalibrationWidget::onInit()
   connect(&thread_, &ADCCalibrationThread::finished, this, &self::onCalibrationFinished);
 
   setEnabled(false);
+}
+
+const char* ADCCalibrationWidget::name() const
+{
+  return "ADC Calibration";
+}
+
+const char* ADCCalibrationWidget::title() const
+{
+  return "Calibrate Battery A/D Converter";
 }
 
 void ADCCalibrationWidget::setNamespace(const std::string& ns)
