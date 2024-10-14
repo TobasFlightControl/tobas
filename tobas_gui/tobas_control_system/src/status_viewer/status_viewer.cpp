@@ -14,6 +14,7 @@ StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(nod
   gps_status_ = new StatusWidget("GPS 3D Fix");
   rcin_status_ = new StatusWidget("Radio Input");
   voltage_status_ = new StatusWidget("Battery Voltage");
+  cpu_status_ = new StatusWidget("CPU Temperature");
   attitude_status_ = new StatusWidget("Attitude Horizontal");
   pos_stability_status_ = new StatusWidget("Position Stable");
   pos_accuracy_status_ = new StatusWidget("Position Estimation Accurate");
@@ -70,12 +71,13 @@ void StatusViewerWidget::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPt
 
 void StatusViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
-  voltage_status_->setStatus(prearm_check->battery_voltage_sufficient);
-  attitude_status_->setStatus(prearm_check->attitude_horizontal);
-  pos_stability_status_->setStatus(prearm_check->position_stable);
-  pos_accuracy_status_->setStatus(prearm_check->position_accurate);
-  rot_accuracy_status_->setStatus(prearm_check->orientation_accurate);
-  vel_accuracy_status_->setStatus(prearm_check->velocity_accurate);
+  voltage_status_->setStatus(!prearm_check->battery_voltage_too_low);
+  cpu_status_->setStatus(!prearm_check->cpu_temperature_too_high);
+  attitude_status_->setStatus(!prearm_check->attitude_too_steep);
+  pos_stability_status_->setStatus(!prearm_check->position_unstable);
+  pos_accuracy_status_->setStatus(!prearm_check->position_inaccurate);
+  rot_accuracy_status_->setStatus(!prearm_check->orientation_inaccurate);
+  vel_accuracy_status_->setStatus(!prearm_check->velocity_inaccurate);
   ready_status_->setStatus(prearm_check->ok);
 }
 
