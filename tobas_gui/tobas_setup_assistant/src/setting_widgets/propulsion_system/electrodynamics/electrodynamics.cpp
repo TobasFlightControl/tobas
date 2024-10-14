@@ -33,7 +33,6 @@ ElectrodynamicsWidget::ElectrodynamicsWidget(
   {
     const auto method = qobject_cast<ElectrodynamicsWidget_Base*>(methods_->widget(i));
     method_name_->addItem(method->name());
-    method->initialize();
   }
 
   connect(

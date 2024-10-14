@@ -20,8 +20,6 @@ public:
   const char* name() const override;
   const char* description() const override;
 
-  void onInit() override;
-
   bool isValid() override;
   void copyFrom(const ElectrodynamicsWidget_Base* src) override;
 

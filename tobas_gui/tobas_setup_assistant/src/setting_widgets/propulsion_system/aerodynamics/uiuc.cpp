@@ -14,6 +14,15 @@ namespace propulsion_system
 AerodynamicsWidget_UIUC::AerodynamicsWidget_UIUC(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
   : node_(node), propeller_(propeller)
 {
+  data_ = new ParamGetterWidget_DoubleTable(
+    node_, "Measurements in static condition", { "RPM", "CT", "CP" },
+    "Please input experimental data from the Thrust Stand.");
+  data_->setDecimals({ 3, 6, 6 });
+  data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
+  data_->setSuffix({ " rpm", " N", " Nm" });
+  data_->table()->setFixedHeight(kTableHeight);
+  data_->table()->setColumnsWidth(kTableColWidth);
+  addWidget(data_);
 }
 
 const char* AerodynamicsWidget_UIUC::name() const
@@ -26,19 +35,6 @@ const char* AerodynamicsWidget_UIUC::description() const
   return "If the propeller is listed in the "
          "<a href='https://m-selig.ae.illinois.edu/props/propDB.html'>UIUC Propeller Data Site</a>, "
          "aerodynamic constants measured by research institutions can be utilized.";
-}
-
-void AerodynamicsWidget_UIUC::onInit()
-{
-  data_ = new ParamGetterWidget_DoubleTable(
-    node_, "Measurements in static condition", { "RPM", "CT", "CP" },
-    "Please input experimental data from the Thrust Stand.");
-  data_->setDecimals({ 3, 6, 6 });
-  data_->setMinimum({ 1e-3, 1e-6, 1e-6 });
-  data_->setSuffix({ " rpm", " N", " Nm" });
-  data_->table()->setFixedHeight(kTableHeight);
-  data_->table()->setColumnsWidth(kTableColWidth);
-  addWidget(data_);
 }
 
 bool AerodynamicsWidget_UIUC::isValid()

@@ -1,6 +1,6 @@
 #include <QVBoxLayout>
+#include <QTimer>
 
-#include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/font.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/electrodynamics/base.hpp"
@@ -12,7 +12,7 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-void ElectrodynamicsWidget_Base::initialize()
+ElectrodynamicsWidget_Base::ElectrodynamicsWidget_Base()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -20,15 +20,15 @@ void ElectrodynamicsWidget_Base::initialize()
   header_rows_ = new QVBoxLayout();
   rows->addLayout(header_rows_);
 
-  const auto description_label = new qt::DescriptionWidget(description(), kBodyPSize);
-  header_rows_->addWidget(description_label);
+  description_ = new qt::DescriptionWidget("", kBodyPSize);
+  header_rows_->addWidget(description_);
 
   content_rows_ = new QVBoxLayout();
   rows->addLayout(content_rows_);
 
   rows->addStretch();
 
-  onInit();
+  QTimer::singleShot(0, this, &ElectrodynamicsWidget_Base::initialize);
 }
 
 void ElectrodynamicsWidget_Base::addWidget(QWidget* widget)
@@ -39,6 +39,11 @@ void ElectrodynamicsWidget_Base::addWidget(QWidget* widget)
 void ElectrodynamicsWidget_Base::addLayout(QLayout* layout)
 {
   content_rows_->addLayout(layout);
+}
+
+void ElectrodynamicsWidget_Base::initialize()
+{
+  description_->setText(description());
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

@@ -34,7 +34,6 @@ AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWi
   {
     const auto method = qobject_cast<AerodynamicsWidget_Base*>(methods_->widget(i));
     method_name_->addItem(method->name());
-    method->initialize();
   }
 
   connect(

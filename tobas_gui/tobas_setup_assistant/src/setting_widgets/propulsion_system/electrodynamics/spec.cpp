@@ -21,10 +21,6 @@ const char* ElectrodynamicsWidget_Spec::description() const
   return "Estimate the motor dynamics from the motor's Kv value and internal registance.";
 }
 
-void ElectrodynamicsWidget_Spec::onInit()
-{
-}
-
 bool ElectrodynamicsWidget_Spec::isValid()
 {
   return true;

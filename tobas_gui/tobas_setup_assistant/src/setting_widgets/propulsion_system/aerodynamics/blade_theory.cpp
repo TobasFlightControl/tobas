@@ -24,10 +24,6 @@ const char* AerodynamicsWidget_BladeTheory::description() const
          "for more information.";
 }
 
-void AerodynamicsWidget_BladeTheory::onInit()
-{
-}
-
 bool AerodynamicsWidget_BladeTheory::isValid()
 {
   return true;

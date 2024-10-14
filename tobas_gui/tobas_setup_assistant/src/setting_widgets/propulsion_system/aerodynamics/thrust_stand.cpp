@@ -13,6 +13,15 @@ namespace propulsion_system
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
   : node_(node), propeller_(propeller)
 {
+  data_ = new ParamGetterWidget_DoubleTable(
+    node_, "Data from thrust stand", { "RPM", "Thrust", "Torque" },
+    "Please input experimental data from the Thrust Stand.");
+  data_->setDecimals({ 0, 6, 6 });
+  data_->setMinimum({ 1e-1, 1e-6, 1e-6 });
+  data_->setSuffix({ " rpm", " N", " Nm" });
+  data_->table()->setFixedHeight(kTableHeight);
+  data_->table()->setColumnsWidth(kTableColWidth);
+  addWidget(data_);
 }
 
 const char* AerodynamicsWidget_ThrustStand::name() const
@@ -26,19 +35,6 @@ const char* AerodynamicsWidget_ThrustStand::description() const
   return "We estimate the aerodynamic constants from data obtained through Thrust Stand experiments. "
          "For example, see the "
          "<a href='https://www.tytorobotics.com/pages/series-1580-1585'>Tyto Rootics Series 1585 Thrust Stand</a>";
-}
-
-void AerodynamicsWidget_ThrustStand::onInit()
-{
-  data_ = new ParamGetterWidget_DoubleTable(
-    node_, "Data from thrust stand", { "RPM", "Thrust", "Torque" },
-    "Please input experimental data from the Thrust Stand.");
-  data_->setDecimals({ 0, 6, 6 });
-  data_->setMinimum({ 1e-1, 1e-6, 1e-6 });
-  data_->setSuffix({ " rpm", " N", " Nm" });
-  data_->table()->setFixedHeight(kTableHeight);
-  data_->table()->setColumnsWidth(kTableColWidth);
-  addWidget(data_);
 }
 
 bool AerodynamicsWidget_ThrustStand::isValid()

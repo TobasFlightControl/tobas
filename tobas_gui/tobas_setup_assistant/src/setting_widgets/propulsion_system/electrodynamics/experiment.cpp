@@ -15,6 +15,14 @@ namespace propulsion_system
 {
 ElectroDynamicsWidget_Experiment::ElectroDynamicsWidget_Experiment(rclcpp::Node::SharedPtr node) : node_(node)
 {
+  data_ = new ParamGetterWidget_DoubleTable(node_, "Experimental data", { "Throttle", "Voltage", "RPM" }, "");
+  data_->setDecimals({ 0, 6, 0 });
+  data_->setMinimum({ 1.0, 1.0, 1.0 });
+  data_->setMaximum({ 100., 1e+9, 1e+9 });
+  data_->setSuffix({ " %", " V", " rpm" });
+  data_->table()->setFixedHeight(kTableHeight);
+  data_->table()->setColumnsWidth(kTableColWidth);
+  addWidget(data_);
 }
 
 const char* ElectroDynamicsWidget_Experiment::name() const
@@ -28,18 +36,6 @@ const char* ElectroDynamicsWidget_Experiment::description() const
          "Please input the data directly or load it from a CSV file. "
          "Ensure that the experiments are conducted using the battery intended for the aircraft "
          "and with the actual propeller attached.";
-}
-
-void ElectroDynamicsWidget_Experiment::onInit()
-{
-  data_ = new ParamGetterWidget_DoubleTable(node_, "Experimental data", { "Throttle", "Voltage", "RPM" }, "");
-  data_->setDecimals({ 0, 6, 0 });
-  data_->setMinimum({ 1.0, 1.0, 1.0 });
-  data_->setMaximum({ 100., 1e+9, 1e+9 });
-  data_->setSuffix({ " %", " V", " rpm" });
-  data_->table()->setFixedHeight(kTableHeight);
-  data_->table()->setColumnsWidth(kTableColWidth);
-  addWidget(data_);
 }
 
 bool ElectroDynamicsWidget_Experiment::isValid()

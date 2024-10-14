@@ -18,10 +18,6 @@ const char* AerodynamicsWidget_NoSelect::description() const
   return "";
 }
 
-void AerodynamicsWidget_NoSelect::onInit()
-{
-}
-
 bool AerodynamicsWidget_NoSelect::isValid()
 {
   qt::qErrorBox(this, "Please select aerodynamics setting method.");

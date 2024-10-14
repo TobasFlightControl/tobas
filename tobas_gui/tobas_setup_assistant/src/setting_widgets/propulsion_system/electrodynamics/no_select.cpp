@@ -18,10 +18,6 @@ const char* ElectrodynamicsWidget_NoSelect::description() const
   return "";
 }
 
-void ElectrodynamicsWidget_NoSelect::onInit()
-{
-}
-
 bool ElectrodynamicsWidget_NoSelect::isValid()
 {
   qt::qErrorBox(this, "Please select electrodynamics setting method.");

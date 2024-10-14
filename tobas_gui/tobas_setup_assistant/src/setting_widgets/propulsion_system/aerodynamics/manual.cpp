@@ -8,20 +8,6 @@ namespace propulsion_system
 {
 AerodynamicsWidget_Manual::AerodynamicsWidget_Manual()
 {
-}
-
-const char* AerodynamicsWidget_Manual::name() const
-{
-  return "Set Manually";
-}
-
-const char* AerodynamicsWidget_Manual::description() const
-{
-  return "Directly set the propeller aerodynamic constants.";
-}
-
-void AerodynamicsWidget_Manual::onInit()
-{
   motor_const_ = new ParamGetterWidget_DoubleSpinBox(
     "Motor Constant", "Propeller thrust constant. "
                       "If the thrust constant is denoted as c [kg*m/rad^2] and the rotational speed as w [rad/s], "
@@ -56,6 +42,16 @@ void AerodynamicsWidget_Manual::onInit()
   rotor_drag_coef_->setValue(8.06428e-5);
   rotor_drag_coef_->setSuffix(" kg/rad");
   addWidget(rotor_drag_coef_);
+}
+
+const char* AerodynamicsWidget_Manual::name() const
+{
+  return "Set Manually";
+}
+
+const char* AerodynamicsWidget_Manual::description() const
+{
+  return "Directly set the propeller aerodynamic constants.";
 }
 
 bool AerodynamicsWidget_Manual::isValid()

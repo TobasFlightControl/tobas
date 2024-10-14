@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QVBoxLayout>
 
+#include <tobas_qt_tools/widgets/description_widget.hpp>
+
 namespace gui
 {
 namespace setup_assistant
@@ -15,12 +17,10 @@ class ElectrodynamicsWidget_Base : public QWidget
   Q_OBJECT
 
 public:
-  void initialize();
+  explicit ElectrodynamicsWidget_Base();
 
   virtual const char* name() const = 0;
   virtual const char* description() const = 0;
-
-  virtual void onInit() = 0;
 
   virtual bool isValid() = 0;
   virtual void copyFrom(const ElectrodynamicsWidget_Base* src) = 0;
@@ -36,8 +36,13 @@ protected:
   void addLayout(QLayout* layout);
 
 private:
+  qt::DescriptionWidget* description_;
+
   QVBoxLayout* header_rows_;
   QVBoxLayout* content_rows_;
+
+private Q_SLOTS:
+  void initialize();
 };
 }  // namespace propulsion_system
 }  // namespace setup_assistant
