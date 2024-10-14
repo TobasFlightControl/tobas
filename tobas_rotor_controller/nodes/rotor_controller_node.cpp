@@ -310,7 +310,7 @@ void RotorControllerNode::setArmCb(
       }
     }
 
-    if (!armRotors())
+    if (!armRotors())  // FIXME: アーム時のブロッキングを回避すべき
     {
       res->success = false;
       res->message = "Failed to enable rotors.";
