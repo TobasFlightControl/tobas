@@ -17,26 +17,6 @@ namespace setup_assistant
 {
 ROSPackageWidget::ROSPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
 {
-}
-
-const char* ROSPackageWidget::name() const
-{
-  return "ROS Package";
-}
-
-const char* ROSPackageWidget::title() const
-{
-  return "Generate ROS Package";
-}
-
-const char* ROSPackageWidget::description() const
-{
-  return "Based on the previous settings, we will generate the necessary ROS packages for using Tobas. "
-         "Please specify the path for the package and click the \"Generate\" button.";
-}
-
-void ROSPackageWidget::onInit()
-{
   pardir_ = new ParamGetterWidget_DirDialog(node_, "Parent Directory", "");
   connect(pardir_, &ParamGetterWidget_DirDialog::pathChanged, this, &self::onPathChanged);
   addWidget(pardir_);
@@ -64,6 +44,22 @@ void ROSPackageWidget::onInit()
   addWidgetCenter(generate_button_);
 
   addStretch();
+}
+
+const char* ROSPackageWidget::name() const
+{
+  return "ROS Package";
+}
+
+const char* ROSPackageWidget::title() const
+{
+  return "Generate ROS Package";
+}
+
+const char* ROSPackageWidget::description() const
+{
+  return "Based on the previous settings, we will generate the necessary ROS packages for using Tobas. "
+         "Please specify the path for the package and click the \"Generate\" button.";
 }
 
 void ROSPackageWidget::onOpened()

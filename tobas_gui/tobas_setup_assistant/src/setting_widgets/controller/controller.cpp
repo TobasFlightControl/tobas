@@ -17,27 +17,6 @@ ControllerWidget::ControllerWidget(
   const fixed_wing::FixedWingWidget* fixed_wing)
   : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
 {
-}
-
-const char* ControllerWidget::name() const
-{
-  return "Controller";
-}
-
-const char* ControllerWidget::title() const
-{
-  return "Setup Controller";
-}
-
-const char* ControllerWidget::description() const
-{
-  return "Configure the flight controller by selecting one method and setting its parameters. "
-         "You can fine-tune the parameters later, "
-         "so it's acceptable to leave them at their default settings initially.";
-}
-
-void ControllerWidget::onInit()
-{
   type_ = new qt::ComboBox();
   controllers_ = new qt::StackedWidget();
   description_ = new qt::DescriptionWidget("", kBodyPSize);
@@ -59,6 +38,23 @@ void ControllerWidget::onInit()
 
   connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentController);
   setCurrentController(0);
+}
+
+const char* ControllerWidget::name() const
+{
+  return "Controller";
+}
+
+const char* ControllerWidget::title() const
+{
+  return "Setup Controller";
+}
+
+const char* ControllerWidget::description() const
+{
+  return "Configure the flight controller by selecting one method and setting its parameters. "
+         "You can fine-tune the parameters later, "
+         "so it's acceptable to leave them at their default settings initially.";
 }
 
 void ControllerWidget::onOpened()

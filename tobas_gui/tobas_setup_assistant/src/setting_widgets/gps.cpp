@@ -6,22 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* GPSWidget::name() const
-{
-  return "GPS";
-}
-
-const char* GPSWidget::title() const
-{
-  return "Define Global Positioning System";
-}
-
-const char* GPSWidget::description() const
-{
-  return "";  // TODO
-}
-
-void GPSWidget::onInit()
+GPSWidget::GPSWidget()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
   offset_->setSuffix(" m");
@@ -77,6 +62,21 @@ void GPSWidget::onInit()
   addParamWidget(vertical_vel_stddev_);
 
   addStretch();
+}
+
+const char* GPSWidget::name() const
+{
+  return "GPS";
+}
+
+const char* GPSWidget::title() const
+{
+  return "Define Global Positioning System";
+}
+
+const char* GPSWidget::description() const
+{
+  return "";  // TODO
 }
 
 void GPSWidget::onOpened()

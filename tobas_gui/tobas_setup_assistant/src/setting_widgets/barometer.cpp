@@ -6,22 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* BarometerWidget::name() const
-{
-  return "Barometer";
-}
-
-const char* BarometerWidget::title() const
-{
-  return "Define Air Pressure Sensor";
-}
-
-const char* BarometerWidget::description() const
-{
-  return "";  // TODO
-}
-
-void BarometerWidget::onInit()
+BarometerWidget::BarometerWidget()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
   offset_->setSuffix(" m");
@@ -41,6 +26,21 @@ void BarometerWidget::onInit()
   addWidget(pressure_var_);
 
   addStretch();
+}
+
+const char* BarometerWidget::name() const
+{
+  return "Barometer";
+}
+
+const char* BarometerWidget::title() const
+{
+  return "Define Air Pressure Sensor";
+}
+
+const char* BarometerWidget::description() const
+{
+  return "";  // TODO
 }
 
 void BarometerWidget::onOpened()

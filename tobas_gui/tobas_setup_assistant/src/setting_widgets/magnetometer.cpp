@@ -6,22 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* MagnetometerWidget::name() const
-{
-  return "Compass";
-}
-
-const char* MagnetometerWidget::title() const
-{
-  return "Define Compass";
-}
-
-const char* MagnetometerWidget::description() const
-{
-  return "";  // TODO
-}
-
-void MagnetometerWidget::onInit()
+MagnetometerWidget::MagnetometerWidget()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
   offset_->setSuffix(" m");
@@ -46,6 +31,21 @@ void MagnetometerWidget::onInit()
   addWidget(uniform_noise_);
 
   addStretch();
+}
+
+const char* MagnetometerWidget::name() const
+{
+  return "Compass";
+}
+
+const char* MagnetometerWidget::title() const
+{
+  return "Define Compass";
+}
+
+const char* MagnetometerWidget::description() const
+{
+  return "";  // TODO
 }
 
 void MagnetometerWidget::onOpened()

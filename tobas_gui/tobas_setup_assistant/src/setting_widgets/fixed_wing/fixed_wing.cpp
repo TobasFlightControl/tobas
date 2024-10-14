@@ -10,26 +10,6 @@ namespace fixed_wing
 {
 FixedWingWidget::FixedWingWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
 {
-}
-
-const char* FixedWingWidget::name() const
-{
-  return "Fixed Wing";
-}
-
-const char* FixedWingWidget::title() const
-{
-  return "Define Fixed Wing";
-}
-
-const char* FixedWingWidget::description() const
-{
-  return "Set up the fixed-wing configuration. "
-         "Please choose a setup method and enter the required information.";
-}
-
-void FixedWingWidget::onInit()
-{
   has_fixed_wing_ = new QCheckBox("Fixed-Wing Configuration");
   has_fixed_wing_->setFont(qt::DefaultFont(kBodyPSize));
   has_fixed_wing_->setChecked(kDefaultHasFixedWing);
@@ -55,6 +35,22 @@ void FixedWingWidget::onInit()
   setting_rows_->addWidget(control_surfaces_);
 
   setSettingWidgetsEnabled(kDefaultHasFixedWing);
+}
+
+const char* FixedWingWidget::name() const
+{
+  return "Fixed Wing";
+}
+
+const char* FixedWingWidget::title() const
+{
+  return "Define Fixed Wing";
+}
+
+const char* FixedWingWidget::description() const
+{
+  return "Set up the fixed-wing configuration. "
+         "Please choose a setup method and enter the required information.";
 }
 
 void FixedWingWidget::onOpened()

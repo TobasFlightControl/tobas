@@ -19,9 +19,7 @@ protected:
   static constexpr char kEquippedKey[] = "equipped";
 
 public:
-  using super::BaseSettingWidget;
-
-  void initialize() override;
+  explicit OptionalDeviceWidget();
 
   bool equipped() const;
 
@@ -34,12 +32,13 @@ protected:
   template <typename T>
   void addParamWidget(ParamGetterWidget<T>* widget);
 
-private Q_SLOTS:
-  void onEquippedToggled(bool checked);
-
 private:
   QWidget* config_;
   QVBoxLayout* param_rows_;
+
+private Q_SLOTS:
+  void initialize();
+  void onEquippedToggled(bool checked);
 };
 
 template <typename T>

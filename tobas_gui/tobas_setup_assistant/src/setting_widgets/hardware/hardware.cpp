@@ -10,25 +10,6 @@ namespace setup_assistant
 {
 HardwareWidget::HardwareWidget()
 {
-}
-
-const char* HardwareWidget::name() const
-{
-  return "Hardware";
-}
-
-const char* HardwareWidget::title() const
-{
-  return "Select Flight Controller Hardware";
-}
-
-const char* HardwareWidget::description() const
-{
-  return "";  // TODO
-}
-
-void HardwareWidget::onInit()
-{
   type_ = new qt::ComboBox();
   hardwares_ = new qt::StackedWidget();
   description_ = new qt::DescriptionWidget("", kBodyPSize);
@@ -47,6 +28,21 @@ void HardwareWidget::onInit()
 
   connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentHardware);
   setCurrentHardware(0);
+}
+
+const char* HardwareWidget::name() const
+{
+  return "Hardware";
+}
+
+const char* HardwareWidget::title() const
+{
+  return "Select Flight Controller Hardware";
+}
+
+const char* HardwareWidget::description() const
+{
+  return "";  // TODO
 }
 
 void HardwareWidget::onOpened()

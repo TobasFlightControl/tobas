@@ -4,23 +4,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* SimulationWidget::name() const
-{
-  return "Simulation";
-}
-
-const char* SimulationWidget::title() const
-{
-  return "Define Simulation Environment";
-}
-
-const char* SimulationWidget::description() const
-{
-  return "Configure the settings for the Gazebo simulation environment. "
-         "To enhance the accuracy of the simulation, please input information about the actual operating environment.";
-}
-
-void SimulationWidget::onInit()
+SimulationWidget::SimulationWidget()
 {
   latitude_zero_ = new ParamGetterWidget_DoubleSpinBox("Latitude of Origin", "");
   latitude_zero_->setDecimals(6);
@@ -52,6 +36,22 @@ void SimulationWidget::onInit()
   addWidget(max_model_error_rate_);
 
   addStretch();
+}
+
+const char* SimulationWidget::name() const
+{
+  return "Simulation";
+}
+
+const char* SimulationWidget::title() const
+{
+  return "Define Simulation Environment";
+}
+
+const char* SimulationWidget::description() const
+{
+  return "Configure the settings for the Gazebo simulation environment. "
+         "To enhance the accuracy of the simulation, please input information about the actual operating environment.";
 }
 
 void SimulationWidget::onOpened()

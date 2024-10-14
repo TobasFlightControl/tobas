@@ -10,6 +10,19 @@ namespace gui
 {
 namespace setup_assistant
 {
+AuthorInformationWidget::AuthorInformationWidget()
+{
+  name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
+  name_->setValue(QString::fromStdString(linux::userName()));
+  addWidget(name_);
+
+  email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
+  email_->setValue(QString::fromStdString(linux::GitHandler().getUserEmail()));
+  addWidget(email_);
+
+  addStretch();
+}
+
 const char* AuthorInformationWidget::name() const
 {
   return "Author Info";
@@ -25,19 +38,6 @@ const char* AuthorInformationWidget::description() const
   return "Enter the name and email address of the person administering the Tobas package "
          "that you're creating with the Setup Assistant. "
          "This step is important for keeping track of package ownership and for any necessary future communications.";
-}
-
-void AuthorInformationWidget::onInit()
-{
-  name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
-  name_->setValue(QString::fromStdString(linux::userName()));
-  addWidget(name_);
-
-  email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
-  email_->setValue(QString::fromStdString(linux::GitHandler().getUserEmail()));
-  addWidget(email_);
-
-  addStretch();
 }
 
 void AuthorInformationWidget::onOpened()

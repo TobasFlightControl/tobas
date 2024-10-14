@@ -12,6 +12,18 @@ namespace propulsion_system
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
 {
+  const auto links_label = new QLabel("Available Links");
+  links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
+  links_label->setAlignment(Qt::AlignLeft);
+  addWidget(links_label);
+
+  available_ = new AvailableLinksWidget(robot_);
+  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
+  addWidget(available_);
+
+  selected_ = new SelectedLinksWidget(node_, robot_);
+  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
+  addWidget(selected_);
 }
 
 const char* PropulsionSystemWidget::name() const
@@ -29,22 +41,6 @@ const char* PropulsionSystemWidget::description() const
   return "Configure the propulsion system. "
          "Please add the link you intend to use for the propulsion system from the Available Links, "
          "and input the necessary information for each.";
-}
-
-void PropulsionSystemWidget::onInit()
-{
-  const auto links_label = new QLabel("Available Links");
-  links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
-  links_label->setAlignment(Qt::AlignLeft);
-  addWidget(links_label);
-
-  available_ = new AvailableLinksWidget(robot_);
-  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
-  addWidget(available_);
-
-  selected_ = new SelectedLinksWidget(node_, robot_);
-  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
-  addWidget(selected_);
 }
 
 void PropulsionSystemWidget::onOpened()

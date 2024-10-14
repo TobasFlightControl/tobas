@@ -16,6 +16,18 @@ namespace servo_joint
 {
 ServoJointsWidget::ServoJointsWidget(const RobotInfo& robot) : robot_(robot)
 {
+  const auto available_links_label = new QLabel("Available Links");
+  available_links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
+  available_links_label->setAlignment(Qt::AlignLeft);
+  addWidget(available_links_label);
+
+  available_ = new AvailableLinksWidget(robot_);
+  selected_ = new SelectedLinksWidget(robot_);
+  add_remove_ = new AddRemoveButtonsWidget(available_, selected_);
+
+  addWidget(available_);
+  addWidget(add_remove_);
+  addWidget(selected_);
 }
 
 const char* ServoJointsWidget::name() const
@@ -31,22 +43,6 @@ const char* ServoJointsWidget::title() const
 const char* ServoJointsWidget::description() const
 {
   return "";  // TODO
-}
-
-void ServoJointsWidget::onInit()
-{
-  const auto available_links_label = new QLabel("Available Links");
-  available_links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
-  available_links_label->setAlignment(Qt::AlignLeft);
-  addWidget(available_links_label);
-
-  available_ = new AvailableLinksWidget(robot_);
-  selected_ = new SelectedLinksWidget(robot_);
-  add_remove_ = new AddRemoveButtonsWidget(available_, selected_);
-
-  addWidget(available_);
-  addWidget(add_remove_);
-  addWidget(selected_);
 }
 
 void ServoJointsWidget::onOpened()

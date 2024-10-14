@@ -6,22 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* IMUWidget::name() const
-{
-  return "IMU";
-}
-
-const char* IMUWidget::title() const
-{
-  return "Define Inertial Measurement Unit";
-}
-
-const char* IMUWidget::description() const
-{
-  return "";  // TODO
-}
-
-void IMUWidget::onInit()
+IMUWidget::IMUWidget()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
   offset_->setSuffix(" m");
@@ -104,6 +89,21 @@ void IMUWidget::onInit()
   addWidget(gyro_lpf_cutoff_freq_);
 
   addStretch();
+}
+
+const char* IMUWidget::name() const
+{
+  return "IMU";
+}
+
+const char* IMUWidget::title() const
+{
+  return "Define Inertial Measurement Unit";
+}
+
+const char* IMUWidget::description() const
+{
+  return "";  // TODO
 }
 
 void IMUWidget::onOpened()

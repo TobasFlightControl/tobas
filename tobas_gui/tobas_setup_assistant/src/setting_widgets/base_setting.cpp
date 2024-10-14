@@ -1,4 +1,5 @@
-#include <tobas_qt_tools/widgets/description_widget.hpp>
+#include <QTimer>
+
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/util.hpp>
 
@@ -10,31 +11,27 @@ namespace setup_assistant
 {
 BaseSettingWidget::BaseSettingWidget()
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
+  title_ = new QLabel();
+  title_->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
+  title_->setAlignment(Qt::AlignTop);
 
+  description_ = new qt::DescriptionWidget("", kBodyPSize);
+  description_->setFixedHeight(kDescriptionHeight);
+
+  // Layout
   header_rows_ = new QVBoxLayout();
+  header_rows_->addWidget(title_);
+  header_rows_->addWidget(description_);
+
   content_rows_ = new QVBoxLayout();
+
+  const auto rows = new QVBoxLayout();
   rows->addLayout(header_rows_);
   rows->addLayout(content_rows_);
-}
 
-void BaseSettingWidget::initialize()
-{
-  addTitleAndDescription();
-  onInit();
-}
+  setLayout(rows);
 
-void BaseSettingWidget::addTitleAndDescription()
-{
-  const auto title_label = new QLabel(title());
-  title_label->setFont(qt::DefaultFont(kTitlePSize, QFont::Bold));
-  title_label->setAlignment(Qt::AlignTop);
-  header_rows_->addWidget(title_label);
-
-  const auto description_label = new qt::DescriptionWidget(description(), kBodyPSize);
-  description_label->setFixedHeight(kDescriptionHeight);
-  header_rows_->addWidget(description_label);
+  QTimer::singleShot(0, this, &self::initialize);
 }
 
 void BaseSettingWidget::addWidget(QWidget* widget)
@@ -55,6 +52,12 @@ void BaseSettingWidget::addLayout(QLayout* layout)
 void BaseSettingWidget::addStretch()
 {
   content_rows_->addStretch();
+}
+
+void BaseSettingWidget::initialize()
+{
+  title_->setText(title());
+  description_->setText(description());
 }
 }  // namespace setup_assistant
 }  // namespace gui

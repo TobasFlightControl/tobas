@@ -17,13 +17,12 @@ class BarometerWidget : public BaseSettingWidget
   using super = BaseSettingWidget;
 
 public:
-  using super::BaseSettingWidget;
+  explicit BarometerWidget();
 
   const char* name() const override;
   const char* title() const override;
   const char* description() const override;
 
-  void onInit() override;
   void onOpened() override;
   void updateInternalDataStructures() override;
   bool isValid() override;

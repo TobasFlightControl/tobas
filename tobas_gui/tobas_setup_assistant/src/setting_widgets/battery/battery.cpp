@@ -8,24 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-const char* BatteryWidget::name() const
-{
-  return "Battery";
-}
-
-const char* BatteryWidget::title() const
-{
-  return "Define Battery";
-}
-
-const char* BatteryWidget::description() const
-{
-  return "Configure the LiPo (Lithium Polymer) battery settings. "
-         "It is assumed that a single battery will power all motors. "
-         "Therefore, the settings here will affect the control of all motors.";
-}
-
-void BatteryWidget::onInit()
+BatteryWidget::BatteryWidget()
 {
   type_ = new qt::ComboBox();
   batteries_ = new qt::StackedWidget();
@@ -44,6 +27,23 @@ void BatteryWidget::onInit()
 
   connect(
     type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), batteries_, &qt::StackedWidget::setCurrentIndex);
+}
+
+const char* BatteryWidget::name() const
+{
+  return "Battery";
+}
+
+const char* BatteryWidget::title() const
+{
+  return "Define Battery";
+}
+
+const char* BatteryWidget::description() const
+{
+  return "Configure the LiPo (Lithium Polymer) battery settings. "
+         "It is assumed that a single battery will power all motors. "
+         "Therefore, the settings here will affect the control of all motors.";
 }
 
 void BatteryWidget::onOpened()

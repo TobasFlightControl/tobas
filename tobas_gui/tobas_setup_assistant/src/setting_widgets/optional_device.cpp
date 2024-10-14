@@ -1,3 +1,5 @@
+#include <QTimer>
+
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_qt_tools/font.hpp>
 
@@ -7,30 +9,33 @@ namespace gui
 {
 namespace setup_assistant
 {
-void OptionalDeviceWidget::initialize()
+OptionalDeviceWidget::OptionalDeviceWidget()
 {
-  addTitleAndDescription();
-
-  equipped_ = new QCheckBox(QString(name()) + " Equipped");
+  equipped_ = new QCheckBox();
   equipped_->setFont(qt::DefaultFont(kBodyPSize));
-  equipped_->setChecked(defaultEquipped());
   connect(equipped_, &QCheckBox::toggled, this, &self::onEquippedToggled);
   addWidget(equipped_);
 
   // Enable, Disableを一括で管理するために，設定ウィジェットを全て1つのウィジェットの子にする．
   config_ = new QWidget();
-  config_->setEnabled(defaultEquipped());
   addWidget(config_);
 
   param_rows_ = new QVBoxLayout();
   config_->setLayout(param_rows_);
 
-  onInit();
+  QTimer::singleShot(0, this, &self::initialize);
 }
 
 bool OptionalDeviceWidget::equipped() const
 {
   return equipped_->isChecked();
+}
+
+void OptionalDeviceWidget::initialize()
+{
+  equipped_->setText(QString(name()) + " Equipped");
+  equipped_->setChecked(defaultEquipped());
+  config_->setEnabled(defaultEquipped());
 }
 
 void OptionalDeviceWidget::onEquippedToggled(bool checked)

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+#include <QLabel>
 #include <QVBoxLayout>
 
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
+#include <tobas_qt_tools/widgets/description_widget.hpp>
 
 #include "../param_getters/base.hpp"
 
@@ -24,15 +26,9 @@ protected:
 public:
   explicit BaseSettingWidget();
 
-  /* コンストラクタで派生クラスのメソッドにアクセスすることはできないため，別で初期化関数を定義． */
-  virtual void initialize();
-
   virtual const char* name() const = 0;
   virtual const char* title() const = 0;
   virtual const char* description() const = 0;
-
-  /* 初期化時の処理． */
-  virtual void onInit() = 0;
 
   /* タブが開かれた時に呼ばれるコールバック．表示内容が他のタブの状態に依存する場合に使う． */
   virtual void onOpened() = 0;
@@ -50,15 +46,20 @@ public:
   virtual void load(const YAML::Node& node) = 0;
 
 protected:
-  void addTitleAndDescription();
   void addWidget(QWidget* widget);
   void addWidgetCenter(QWidget* widget);
   void addLayout(QLayout* layout);
   void addStretch();
 
 private:
+  QLabel* title_;
+  qt::DescriptionWidget* description_;
+
   QVBoxLayout* header_rows_;
   QVBoxLayout* content_rows_;
+
+private Q_SLOTS:
+  void initialize();
 };
 };  // namespace setup_assistant
 }  // namespace gui

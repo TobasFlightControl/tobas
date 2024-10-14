@@ -16,26 +16,6 @@ ObserverWidget::ObserverWidget(
   const GPSWidget* gps)
   : robot_(robot), imu_(imu), baro_(baro), gps_(gps)
 {
-}
-
-const char* ObserverWidget::name() const
-{
-  return "Observer";
-}
-
-const char* ObserverWidget::title() const
-{
-  return "Setup Observer";
-}
-
-const char* ObserverWidget::description() const
-{
-  return "Configure the state estimator by selecting one method and setting its parameters. "
-         "You can tune the parameters later, so it's fine to leave them at their default values if preferred.";
-}
-
-void ObserverWidget::onInit()
-{
   type_ = new qt::ComboBox();
   observers_ = new qt::StackedWidget();
   description_ = new qt::DescriptionWidget("", kBodyPSize);
@@ -55,6 +35,22 @@ void ObserverWidget::onInit()
 
   connect(type_, QOverload<int>::of(&qt::ComboBox::currentIndexChanged), this, &self::setCurrentObserver);
   setCurrentObserver(0);
+}
+
+const char* ObserverWidget::name() const
+{
+  return "Observer";
+}
+
+const char* ObserverWidget::title() const
+{
+  return "Setup Observer";
+}
+
+const char* ObserverWidget::description() const
+{
+  return "Configure the state estimator by selecting one method and setting its parameters. "
+         "You can tune the parameters later, so it's fine to leave them at their default values if preferred.";
 }
 
 void ObserverWidget::onOpened()
