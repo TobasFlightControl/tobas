@@ -27,6 +27,7 @@ StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(nod
   rows->addWidget(gps_status_);
   rows->addWidget(rcin_status_);
   rows->addWidget(voltage_status_);
+  rows->addWidget(cpu_status_);
   rows->addWidget(attitude_status_);
   rows->addWidget(pos_stability_status_);
   rows->addWidget(pos_accuracy_status_);
