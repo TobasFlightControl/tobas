@@ -84,6 +84,8 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 
 bool UARTdev::setStandardBaudRate(uint32_t baud_rate_flag)
 {
+  options_.c_cflag &= ~CBAUD;
+  options_.c_cflag |= baud_rate_flag;
   options_.c_ispeed = baud_rate_flag;
   options_.c_ospeed = baud_rate_flag;
 
@@ -92,8 +94,11 @@ bool UARTdev::setStandardBaudRate(uint32_t baud_rate_flag)
 
 bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
 {
+  options_.c_cflag &= ~CBAUD;
+  options_.c_cflag |= CBAUDEX;
   options_.c_ispeed = CBAUDEX;
   options_.c_ospeed = CBAUDEX;
+
   if (!setConfig())
     return false;
 
