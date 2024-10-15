@@ -62,6 +62,12 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
     return;
   }
 
+  if (!mag_trans_.initialize())
+  {
+    TOBAS_ERROR("Failed to initialize ellipse transformer. This node will not work.");
+    return;
+  }
+
   registerPubSub();
 }
 
