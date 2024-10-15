@@ -1,3 +1,4 @@
+#include <tobas_std_tools/gps.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/base_sensor_node.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
@@ -122,7 +123,7 @@ bool GNSSDriverNode::configure()
 
   // 同軸ケーブルの長さを設定
   // TODO: GUIから設定できるようにする
-  if (!gnss_.setAntennaLength(5))
+  if (!gnss_.setAntennaLength(1))
     TOBAS_WARN("Failed to set the antenna length.");
 
   // 不要なプロトコルを無効化
@@ -190,6 +191,13 @@ void GNSSDriverNode::mainTimerCb()
   // Reset UBX message checker flags
   for (auto& [_, received] : is_received_)
     received = false;
+
+  // GPSメッセージの遅延を表示 (デバッグモードのみ)
+  if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug)
+  {
+    const auto delay_ms = tobas_std::computeGPSDelayFromToW(hpposllh_.iTOW);
+    TOBAS_DEBUG("GPS delay: ", delay_ms, "[ms]");
+  }
 
   // Create GNSS message
   auto gnss_msg = std::make_unique<tobas_msgs::Gps>();
