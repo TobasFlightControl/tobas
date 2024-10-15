@@ -15,17 +15,19 @@ find_package(ament_cmake REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(tobas_linux REQUIRED)
 find_package(tobas_node REQUIRED)
-find_package(tobas_msgs REQUIRED)
-find_package(tobas_drone_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	rosbag2_cpp
 	sensor_msgs
 	std_srvs
+	tobas_linux
 	tobas_node
-	tobas_msgs
-	tobas_drone_msgs
+	tobas_msgs_adapter
+	tobas_drone_msgs_adapter
 )
 
 include_directories(include)

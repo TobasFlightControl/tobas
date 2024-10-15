@@ -16,8 +16,8 @@ DownloadThread::DownloadThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 
 void DownloadThread::run()
 {
-  const auto remote_rosbag_path = fs::path(tobas::kROSBagDirRemote) / rosbag_name_.toStdString();
-  const auto local_pardir = ros2::expandUser(tobas::kROSBagDirLocal);
+  const auto remote_rosbag_path = fs::path(tobas::kROSBagDirRoot) / rosbag_name_.toStdString();
+  const auto local_pardir = ros2::expandUser(tobas::kROSBagDirHome);
   if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::E_NO_ERROR)
   {
     Q_EMIT finished(false, ssh_client_.errorMessage());

@@ -72,7 +72,7 @@ void FlightLogReaderWidget::onDownloadButtonClicked()
   }
 
   const auto rosbag_name = item->text();
-  const auto rosbag_path = ros2::expandUser(tobas::kROSBagDirLocal) / rosbag_name.toStdString();
+  const auto rosbag_path = ros2::expandUser(tobas::kROSBagDirHome) / rosbag_name.toStdString();
 
   if (fs::exists(rosbag_path))
   {
