@@ -118,21 +118,6 @@ void PreArmCheckerNode::mainTimerCb()
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
     return;
   }
-  if (battery_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery information is not received yet.");
-    return;
-  }
-  if (cpu_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "CPU information is not received yet.");
-    return;
-  }
-  if (odom_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Odometry is not received yet.");
-    return;
-  }
 
   auto prearm_check = std::make_unique<tobas_msgs::msg::PreArmCheck>();
 
@@ -140,53 +125,76 @@ void PreArmCheckerNode::mainTimerCb()
   prearm_check->ok = true;
 
   // バッテリー電圧
-  prearm_check->battery_voltage_too_low = (battery_->voltage < drone_->battery.sag_voltage);
-  if (prearm_check->battery_voltage_too_low)
-    prearm_check->ok = false;
-
-  // CPU温度
-  prearm_check->cpu_temperature_too_high = (cpu_->temperature > kCPUTempThresh);
-  if (prearm_check->cpu_temperature_too_high)
-    prearm_check->ok = false;
-
-  // 姿勢角
-  odom_->frame.M.getRPY(roll_, pitch_, yaw_);
-  prearm_check->attitude_too_steep = (max(abs(roll_), abs(pitch_)) > kAttitudeThresh);
-  if (prearm_check->attitude_too_steep)
-    prearm_check->ok = false;
-
-  // 位置のドリフト
-  prearm_check->position_unstable = false;
-  for (size_t i = 0; i < pos_buf_.size(); ++i)
+  if (battery_ != nullptr)
   {
-    if (!pos_buf_[i].isFilled() || pos_buf_[i].range() > kPosDriftThresh)
-    {
-      prearm_check->position_unstable = true;
+    prearm_check->battery_voltage_too_low = (battery_->voltage < drone_->battery.sag_voltage);
+    if (prearm_check->battery_voltage_too_low)
       prearm_check->ok = false;
-      break;
-    }
+  }
+  else
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery information is not received yet.");
+    prearm_check->ok = false;
   }
 
-  // 位置推定の共分散
-  const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
-  const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
-  const auto ver_pos_var = pos_cov_diag.z();
-  prearm_check->position_inaccurate =
-    (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh));
-  if (prearm_check->position_inaccurate)
+  // CPU温度
+  if (cpu_ != nullptr)
+  {
+    prearm_check->cpu_temperature_too_high = (cpu_->temperature > kCPUTempThresh);
+    if (prearm_check->cpu_temperature_too_high)
+      prearm_check->ok = false;
+  }
+  else
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "CPU information is not received yet.");
     prearm_check->ok = false;
+  }
 
-  // 姿勢推定の共分散
-  const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
-  prearm_check->orientation_inaccurate = (rot_var > math::sqr(kRotStddevThresh));
-  if (prearm_check->orientation_inaccurate)
-    prearm_check->ok = false;
+  if (odom_ != nullptr)
+  {
+    // 姿勢角
+    odom_->frame.M.getRPY(roll_, pitch_, yaw_);
+    prearm_check->attitude_too_steep = (max(abs(roll_), abs(pitch_)) > kAttitudeThresh);
+    if (prearm_check->attitude_too_steep)
+      prearm_check->ok = false;
 
-  // 速度推定の共分散
-  const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
-  prearm_check->velocity_inaccurate = (vel_var > math::sqr(kVelStddevThresh));
-  if (prearm_check->velocity_inaccurate)
+    // 位置のドリフト
+    prearm_check->position_unstable = false;
+    for (size_t i = 0; i < pos_buf_.size(); ++i)
+    {
+      if (!pos_buf_[i].isFilled() || pos_buf_[i].range() > kPosDriftThresh)
+      {
+        prearm_check->ok = false;
+        break;
+      }
+    }
+
+    // 位置推定の共分散
+    const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
+    const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
+    const auto ver_pos_var = pos_cov_diag.z();
+    prearm_check->position_inaccurate =
+      (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh));
+    if (prearm_check->position_inaccurate)
+      prearm_check->ok = false;
+
+    // 姿勢推定の共分散
+    const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
+    prearm_check->orientation_inaccurate = (rot_var > math::sqr(kRotStddevThresh));
+    if (prearm_check->orientation_inaccurate)
+      prearm_check->ok = false;
+
+    // 速度推定の共分散
+    const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
+    prearm_check->velocity_inaccurate = (vel_var > math::sqr(kVelStddevThresh));
+    if (prearm_check->velocity_inaccurate)
+      prearm_check->ok = false;
+  }
+  else
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Odometry is not received yet.");
     prearm_check->ok = false;
+  }
 
   prearm_check_pub_->publish(move(prearm_check));
 }
