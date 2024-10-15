@@ -8,7 +8,7 @@ from .ssh_client import SSHClientWrapper
 
 class SSHServerNode(Node):
     NO_CONNECTION_ERROR = "No connection with SSH server."
-    CONNECT_TIMER_PERIOD = 1.0  # [s]
+    CONNECT_TIMER_PERIOD = 5.0  # [s]
 
     def __init__(self) -> None:
         super().__init__("ssh_server")
