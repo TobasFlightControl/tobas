@@ -134,6 +134,7 @@ void PreArmCheckerNode::mainTimerCb()
   else
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery information is not received yet.");
+    prearm_check->battery_voltage_too_low = true;
     prearm_check->ok = false;
   }
 
@@ -147,6 +148,7 @@ void PreArmCheckerNode::mainTimerCb()
   else
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "CPU information is not received yet.");
+    prearm_check->cpu_temperature_too_high = true;
     prearm_check->ok = false;
   }
 
@@ -193,6 +195,11 @@ void PreArmCheckerNode::mainTimerCb()
   else
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Odometry is not received yet.");
+    prearm_check->attitude_too_steep = true;
+    prearm_check->position_unstable = true;
+    prearm_check->position_inaccurate = true;
+    prearm_check->orientation_inaccurate = true;
+    prearm_check->velocity_inaccurate = true;
     prearm_check->ok = false;
   }
 
