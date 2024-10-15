@@ -1,6 +1,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QCoreApplication>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_linux/core.hpp>
@@ -305,6 +306,9 @@ void GUICoreWidget::onShutdownButtonClicked()
   ssh_cli_.execute("poweroff", true, true);
 
   // GCSを強制終了
+  rclcpp::shutdown();
+  close();
+  QCoreApplication::quit();
   kill(getpid(), SIGINT);
 }
 }  // namespace core
