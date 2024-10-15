@@ -166,6 +166,7 @@ void PreArmCheckerNode::mainTimerCb()
     {
       if (!pos_buf_[i].isFilled() || pos_buf_[i].range() > kPosDriftThresh)
       {
+        prearm_check->position_unstable = true;
         prearm_check->ok = false;
         break;
       }
