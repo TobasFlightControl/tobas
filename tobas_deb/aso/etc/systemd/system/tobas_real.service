@@ -1,7 +1,9 @@
 [Unit]
 Description=Tobas Flight Controller
 After=network-online.target
-Wants=network-online.target
+Requires=network-online.target
+After=dev-ttyAMA0.device
+Requires=dev-ttyAMA0.device
 Conflicts=tobas_hil.service
 
 [Service]
