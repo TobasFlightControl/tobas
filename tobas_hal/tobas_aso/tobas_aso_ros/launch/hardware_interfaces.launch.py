@@ -57,7 +57,7 @@ def generate_launch_description():
     # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
     ld.add_action(
         TimerAction(
-            period=0.1,
+            period=1.0,
             actions=[
                 LoadComposableNodes(
                     target_container=PathJoinSubstitution([ns, "component_manager_2"]),
