@@ -54,11 +54,32 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 {
   ns_ = ns;
+
+  arming_ = nullptr;
+  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+
   setEnabled(true);
+}
+
+void FlightLogRecorderWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+{
+  arming_ = arming;
 }
 
 void FlightLogRecorderWidget::onStartButtonClicked()
 {
+    // アームされていないことを確認
+  if (arming_ == nullptr)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    return;
+  }
+  if (arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
   const auto rosbag_name = rosbag_name_->text().toStdString();
 
   if (rosbag_name.empty())
@@ -100,6 +121,18 @@ void FlightLogRecorderWidget::onStartButtonClicked()
 
 void FlightLogRecorderWidget::onStopButtonClicked()
 {
+  // アームされていないことを確認
+  if (arming_ == nullptr)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");
+    return;
+  }
+  if (arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
   ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop> sc(node_, path::join(ns_, tobas::kROSBagRecordStopSrv));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
