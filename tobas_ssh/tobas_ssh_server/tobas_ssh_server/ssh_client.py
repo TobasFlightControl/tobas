@@ -27,12 +27,12 @@ class SSHClientWrapper:
         # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:
             self._ssh_client.connect(self._host, self._port, self._user, self._passwd)
-        except paramiko.AuthenticationException:
-            raise RuntimeError("Authentication failed. Please check your username or password.")
-        except paramiko.SSHException:
-            raise RuntimeError("Failed to establish an SSH connection.")
-        except socket.error:
-            raise RuntimeError("Could not connect to the server. Please check your network connection.")
+        except paramiko.AuthenticationException as e:
+            raise RuntimeError(f"Authentication failed: {e}")
+        except paramiko.SSHException as e:
+            raise RuntimeError(f"Failed to establish an SSH connection: {e}")
+        except socket.error as e:
+            raise RuntimeError(f"Failed to connect to the server: {e}")
         except Exception as e:
             raise RuntimeError(f"Unexpected error occurred: {e}")
 
