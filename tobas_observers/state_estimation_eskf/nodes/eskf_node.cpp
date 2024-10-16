@@ -65,7 +65,6 @@ private:
 
   Vector3d pos_meas_;
   Matrix3d grav_cov_ = Matrix3d::Zero();
-  double yaw_var_;
   double acc_bias_noise_var_;   // 加速度バイアスののプロセスノイズの分散
   double gyro_bias_noise_var_;  // ジャイロバイアスののプロセスノイズの分散
   double grav_noise_var_;       // 重力加速度のプロセスノイズの分散
@@ -108,7 +107,6 @@ private:
   void publishGPSOrigin();
 
   bool gravityVarianceCb(const long& p);
-  bool yawVarianceCb(const long& p);
   bool accBiasNoiseVarianceLog10Cb(const long& p);
   bool gyroBiasNoiseVarianceLog10Cb(const long& p);
   bool gravityNoiseVarianceLog10Cb(const long& p);
@@ -151,7 +149,6 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
 
   // Register dynamic parameters
   addDynamicIntParam("gravity_variance", &self::gravityVarianceCb, this, 500, 1, 1000);
-  addDynamicIntParam("yaw_variance", &self::yawVarianceCb, this, 1, 1, 100);
   addDynamicIntParam("acc_bias_noise_var_log10", &self::accBiasNoiseVarianceLog10Cb, this, -5, -12, 0);
   addDynamicIntParam("gyro_bias_noise_var_log10", &self::gyroBiasNoiseVarianceLog10Cb, this, -9, -12, 0);
   addDynamicIntParam("gravity_noise_var_log10", &self::gravityNoiseVarianceLog10Cb, this, -7, -12, 0);
@@ -256,12 +253,6 @@ void ObserverNode::publishGPSOrigin()
 bool ObserverNode::gravityVarianceCb(const long& p)
 {
   grav_cov_.diagonal().fill(p);
-  return true;
-}
-
-bool ObserverNode::yawVarianceCb(const long& p)
-{
-  yaw_var_ = p;
   return true;
 }
 
@@ -392,8 +383,23 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
   mag_ = mag;
 
-  const auto yaw_meas = algo::wrapPi(yaw_0_ - atan2(mag->magnetic_field.y(), mag->magnetic_field.x()));
-  eskf_.measureYaw(yaw_meas, yaw_var_);
+  // ヨー角の観測値を計算
+  const auto mx = mag->magnetic_field.x();
+  const auto my = mag->magnetic_field.y();
+  const auto yaw_meas = algo::wrapPi(yaw_0_ - atan2(my, mx));
+
+  // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
+  const auto mx_std = sqrt(mag->covariance(0, 0));
+  const auto my_std = sqrt(mag->covariance(1, 1));
+  double yaw_std;
+  if (mx > my)
+    yaw_std = (mx / (math::sqr(mx) + math::sqr(my))) * my_std;
+  else
+    yaw_std = (my / (math::sqr(mx) + math::sqr(my))) * mx_std;
+  yaw_std = max(yaw_std, 0.1);  // FIXME: ヨー角の分散が小さすぎると姿勢推定が不安定になる
+  const auto yaw_var = math::sqr(yaw_std);
+
+  eskf_.measureYaw(yaw_meas, yaw_var);
 }
 
 void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)

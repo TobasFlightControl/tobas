@@ -329,7 +329,8 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   }
   else
   {
-    throw runtime_error("Unable to compute output matrix.");
+    cerr << "Unable to compute the output matrix of yaw angle observation." << endl;
+    return numeric_limits<double>::max();
   }
 
   const auto Q_dtheta = getQ_dtheta();
