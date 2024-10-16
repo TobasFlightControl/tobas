@@ -13,6 +13,8 @@ EnvironmentFile=/etc/tobas/config_pkg.env
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/colcon_ws/install/setup.bash && /opt/ros/jazzy/ros2cli/bin/ros2 launch ${TOBAS_CONFIG_PKG} real.launch.py'
 Restart=always
 RestartSec=5
+CPUSchedulingPolicy=fifo
+CPUSchedulingPriority=90
 
 [Install]
 WantedBy=multi-user.target

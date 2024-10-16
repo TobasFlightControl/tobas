@@ -9,7 +9,6 @@ Environment="LD_LIBRARY_PATH=/opt/ros/jazzy/fastcdr/lib:/opt/ros/jazzy/fastrtps/
 ExecStart=/opt/ros/jazzy/fastrtps/bin/fastdds discovery -i 0 -l 192.168.249.1 -p 11811
 Restart=always
 RestartSec=5
-CPUAffinity=3
 
 [Install]
 WantedBy=multi-user.target

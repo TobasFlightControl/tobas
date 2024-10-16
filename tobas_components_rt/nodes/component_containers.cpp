@@ -22,17 +22,17 @@ int main(int argc, char* argv[])
 
   managers.setPolicy(0, SCHED_FIFO);
   managers.setPriority(0, 98);
-  managers.setCPUAffinity(0, 0b0001);
+  managers.setCPUAffinity(0, 0b0010);
   managers.setNumThreads(0, 1);
 
   managers.setPolicy(1, SCHED_FIFO);
   managers.setPriority(1, 97);
-  managers.setCPUAffinity(1, 0b0010);
+  managers.setCPUAffinity(1, 0b0100);
   managers.setNumThreads(1, 1);
 
   managers.setPolicy(2, SCHED_FIFO);
   managers.setPriority(2, 96);
-  managers.setCPUAffinity(2, 0b0100);
+  managers.setCPUAffinity(2, 0b1000);
   managers.setNumThreads(2, 1);
 
   managers.spin();
