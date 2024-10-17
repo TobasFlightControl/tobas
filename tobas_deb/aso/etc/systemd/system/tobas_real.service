@@ -4,6 +4,8 @@ After=network-online.target
 Requires=network-online.target
 After=dev-ttyAMA0.device
 Requires=dev-ttyAMA0.device
+After=tobas_fastdds_discovery.service
+Requires=tobas_fastdds_discovery.service
 Conflicts=tobas_hil.service
 
 [Service]
