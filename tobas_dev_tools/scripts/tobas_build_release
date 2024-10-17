@@ -14,7 +14,7 @@ cd ${COLCON_WS}
 export MAKEFLAGS="-j1"
 
 # Build
-colcon build --parallel-workers 1 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Release $1 $2
+colcon build --parallel-workers 2 --install-base ${INSTALL_BASE} --build-base ${BUILD_BASE} --cmake-args -DCMAKE_BUILD_TYPE=Release $1 $2
 if [ $? -ne 0 ]; then
   echo "Failed to build."
   exit 1
