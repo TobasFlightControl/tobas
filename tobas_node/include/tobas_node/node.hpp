@@ -12,7 +12,8 @@
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
     TOBAS_FATAL(__VA_ARGS__);                                                                                          \
-    throw;                                                                                                             \
+    rclcpp::shutdown();                                                                                                 \
+    abort();                                                                                                           \
   }
 
 /* リリースモードでも機能するアサーション．ほとんど失敗し得ない操作の成否を一応確認するために使う． */
@@ -21,7 +22,8 @@
     if (!static_cast<bool>(expr))                                                                                      \
     {                                                                                                                  \
       TOBAS_FATAL("Assertion failed: ", __FILE__, ": ", __LINE__);                                                     \
-      throw;                                                                                                           \
+      rclcpp::shutdown();                                                                                               \
+      abort();                                                                                                         \
     }                                                                                                                  \
   }
 
