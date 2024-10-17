@@ -96,7 +96,7 @@ bool ISM330DLC::configureAcc()
 {
   constexpr uint8_t scale = FS_XL_4G;
 
-  if (!writeReg(REG_CTRL1_XL, ODR_XL_1660HZ | scale))
+  if (!writeReg(REG_CTRL1_XL, ODR_XL_833HZ | scale))
     return false;
 
   // Anti-aliasing (fc = 1660 / 9 = 184Hz)
@@ -112,14 +112,15 @@ bool ISM330DLC::configureGyro()
 {
   constexpr uint8_t scale = FS_G_500DPS;
 
-  if (!writeReg(REG_CTRL2_G, ODR_G_1660HZ | scale))
+  // ODRが大きすぎるとZ成分の精度が落ちる
+  if (!writeReg(REG_CTRL2_G, ODR_G_833HZ | scale))
     return false;
 
   // Enable LPF1
   if (!writeReg(REG_CTRL4_C, I2C_DISABLE | LPF1_SEL_G))
     return false;
 
-  // Anti-aliasing (fc = 168Hz)
+  // Anti-aliasing (fc = 155Hz)
   if (!writeReg(REG_CTRL6_C, FTYPE_0))
     return false;
 
