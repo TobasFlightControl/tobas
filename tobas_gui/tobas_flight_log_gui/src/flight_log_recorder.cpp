@@ -68,7 +68,7 @@ void FlightLogRecorderWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr
 
 void FlightLogRecorderWidget::onStartButtonClicked()
 {
-    // アームされていないことを確認
+  // アームされていないことを確認
   if (arming_ == nullptr)
   {
     qt::qWarnBox(this, "This operation cannot be performed because the arming status is not received yet.");

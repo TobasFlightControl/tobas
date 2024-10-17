@@ -19,6 +19,7 @@ find_package(tobas_linux REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
+find_package(tobas_debug_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	rosbag2_cpp
@@ -28,6 +29,7 @@ set(AMENT_DEPENDENCIES
 	tobas_node
 	tobas_msgs_adapter
 	tobas_drone_msgs_adapter
+	tobas_debug_msgs
 )
 
 include_directories(include)

@@ -35,6 +35,10 @@
 #include <tobas_msgs_adapter/PosVelAccYaw.hpp>
 #include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
 #include <tobas_msgs_adapter/Wind.hpp>
+#include <tobas_debug_msgs/msg/observer_feedback.hpp>
+#include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
+#include <tobas_debug_msgs/msg/non_planar_controller_feedback.hpp>
+#include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
 
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
@@ -157,6 +161,10 @@ void ROSBagRecorderNode::registerStandardMsgSub()
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPositionsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffortsCmdTopic);
+  addStandardMsgSub<tobas_debug_msgs::msg::ObserverFeedback>(tobas::kObsvFeedbackTopic);
+  addStandardMsgSub<tobas_debug_msgs::msg::MultiRotorControllerFeedback>(tobas::kMRCtrlFeedbackTopic);
+  addStandardMsgSub<tobas_debug_msgs::msg::NonPlanarControllerFeedback>(tobas::kNPCtrlFeedbackTopic);
+  addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
 }
 
 void ROSBagRecorderNode::registerNonStandardMsgSub()

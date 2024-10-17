@@ -71,8 +71,10 @@ static constexpr char kVelCtrlLSTopic[] = "joint_velocity_controller/target_link
 static constexpr char kEffCtrlJSTopic[] = "joint_effort_controller/target_joint_states";
 static constexpr char kEffCtrlLSTopic[] = "joint_effort_controller/target_link_states";
 // Feedback
-static constexpr char kControllerFeedbackTopic[] = "feedback/controller";
-static constexpr char kObserverFeedbackTopic[] = "feedback/observer";
+static constexpr char kObsvFeedbackTopic[] = "feedback/observer";
+static constexpr char kMRCtrlFeedbackTopic[] = "feedback/multirotor_controller";
+static constexpr char kNPCtrlFeedbackTopic[] = "feedback/non_planer_controller";
+static constexpr char kFWCtrlFeedbackTopic[] = "feedback/fixed_wing_controller";
 
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
