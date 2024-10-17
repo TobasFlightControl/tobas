@@ -112,7 +112,8 @@ bool ISM330DLC::configureGyro()
 {
   constexpr uint8_t scale = FS_G_500DPS;
 
-  // ODRが大きすぎるとZ成分の精度が落ちる
+  // ODRが高すぎると精度が落ちる
+  // サンプリングの2倍程度が良さそう
   if (!writeReg(REG_CTRL2_G, ODR_G_833HZ | scale))
     return false;
 
@@ -121,6 +122,7 @@ bool ISM330DLC::configureGyro()
     return false;
 
   // Anti-aliasing (fc = 155Hz)
+  // IC内のLPFは微調整できないため，アンチエンジング以外の目的でのフィルタリングはサンプリング後に専用のノードで行う．
   if (!writeReg(REG_CTRL6_C, FTYPE_0))
     return false;
 
