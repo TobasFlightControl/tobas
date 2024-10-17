@@ -108,10 +108,51 @@ private:
     FS_G_1000DPS = 0b100 << 1,
     FS_G_2000DPS = 0b110 << 1,
 
-    // CTRL4_C
-    I2C_DISABLE = 1 << 1,
+    // CTRL3_C
+    // TODO
 
-    // TODO: デフォルトのままとしたControl Registerの内容をまとめる
+    // CTRL4_C
+    DEN_XL_EN = 1 << 7,
+    SLEEP = 1 << 6,
+    INT2_ON_INT1 = 1 << 5,
+    DEN_DRDY_INT1 = 1 << 4,
+    DRDY_MASK = 1 << 3,
+    I2C_DISABLE = 1 << 2,
+    LPF1_SEL_G = 1 << 1,
+
+    // CTRL5_C
+    // TODO
+
+    // CTRL6_C
+    TRIG_EN = 1 << 7,
+    LVL1_EN = 1 << 6,
+    LVL2_EN = 1 << 5,
+    XL_HM_MODE_DISABLE = 1 << 4,
+    USR_OFF_W = 1 << 3,
+    FTYPE_0 = 0b10,
+    FTYPE_1 = 0b01,
+    FTYPE_2 = 0b00,
+    FTYPE_3 = 0b11,
+
+    // CTRL7_G
+    G_HM_MODE_DISABLE = 1 << 7,
+    HP_EN_G = 1 << 6,
+    HPM_G_16MHZ = 00 << 4,
+    HPM_G_65MHZ = 01 << 4,
+    HPM_G_260MHZ = 10 << 4,
+    HPM_G_1040MHZ = 11 << 4,
+    ROUNDING_STATUS = 1 << 2,
+
+    // CTRL8_XL
+    LPF2_XL_EN = 1 << 7,
+    HPCF_XL_50 = 0b00 << 5,   // fc = ODR/50
+    HPCF_XL_100 = 0b01 << 5,  // fc = ODR/100
+    HPCF_XL_9 = 0b10 << 5,    // fc = ODR/9
+    HPCF_XL_400 = 0b11 << 5,  // fc = ODR/400
+    HP_REF_MODE = 1 << 4,
+    INPUT_COMPOSITE = 1 << 3,
+    HP_SLOPE_XL_EN = 1 << 2,
+    LOW_PASS_ON_6D = 1 << 0,
   };
 
   linux::SPIdev spi_;

@@ -99,6 +99,9 @@ bool ISM330DLC::configureAcc()
   if (!writeReg(REG_CTRL1_XL, ODR_XL_6660HZ | scale))
     return false;
 
+  if (!writeReg(REG_CTRL8_XL, LPF2_XL_EN | HPCF_XL_100 | INPUT_COMPOSITE))  // fc = 66.6Hz
+    return false;
+
   setAccScale(scale);
 
   return true;
@@ -109,6 +112,14 @@ bool ISM330DLC::configureGyro()
   constexpr uint8_t scale = FS_G_500DPS;
 
   if (!writeReg(REG_CTRL2_G, ODR_G_6660HZ | scale))
+    return false;
+
+  // Enable LPF1
+  if (!writeReg(REG_CTRL4_C, LPF1_SEL_G))
+    return false;
+
+  // Set cutoff frequency to minimum 173Hz
+  if (!writeReg(REG_CTRL6_C, FTYPE_0))
     return false;
 
   setGyroScale(scale);
