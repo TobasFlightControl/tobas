@@ -8,8 +8,13 @@ using namespace std;
 
 class IMULPFNode : public tobas::BaseNode
 {
-  static constexpr double kGyroLpfCutoff = 40.;   // [Hz] Same as the default IMU_GYRO_CUTOFF (PX4)
-  static constexpr double kAccelLpfCutoff = 30.;  // [Hz] Same as the default IMU_ACCEL_CUTOFF (PX4)
+  // マルチコプターのプロペラの回転数は 3000~12000 [RPM]．
+  // ブレード数が n = 2 だとすると，ノイズの基本周波数は RPM / 60 * n = 100~600 [Hz] になる．
+  // そこで，カットオフ周波数を，3Hzの主成分を遅延4msで99%残しつつ200Hzのノイズを20%に減衰させる40Hzに設定する．
+  // PX4, ArduPilotはカットオフを極力大きくすべきだと言うが，誤った値がEKFに入るのを防ぐほうが重要ではないか．．．？
+  // TODO: モータの回転数を取得し，ノッチフィルタで局所的に除去する (Dynamic Notch Filter)
+  static constexpr double kGyroLpfCutoff = 40.;
+  static constexpr double kAccelLpfCutoff = 40.;
 
   using self = IMULPFNode;
   using super = tobas::BaseNode;

@@ -56,7 +56,7 @@ private:
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
   double yaw_0_;      // ヨー角のゼロ点 (Base Frame)
 
-  ImuMsg::ConstSharedPtr imu_, imu_filtered_;
+  ImuMsg::ConstSharedPtr imu_;
   MagMsg::ConstSharedPtr mag_;
   BarMsg::ConstSharedPtr bar_;
   GpsMsg::ConstSharedPtr gps_;
@@ -89,7 +89,6 @@ private:
 
   // Subscribers
   ros2::SubscriberPtr<ImuMsg> imu_sub_;
-  ros2::SubscriberPtr<ImuMsg> imu_filtered_sub_;
   ros2::SubscriberPtr<MagMsg> mag_sub_;
   ros2::SubscriberPtr<BarMsg> bar_sub_;
   ros2::SubscriberPtr<GpsMsg> gps_sub_;
@@ -112,7 +111,6 @@ private:
   bool gravityNoiseVarianceLog10Cb(const long& p);
 
   void imuCb(const ImuMsg::ConstSharedPtr& imu);
-  void imuFilteredCb(const ImuMsg::ConstSharedPtr& imu_filtered);
   void magCb(const MagMsg::ConstSharedPtr& mag);
   void barCb(const BarMsg::ConstSharedPtr& bar);
   void gpsCb(const GpsMsg::ConstSharedPtr& gps);
@@ -159,8 +157,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
   feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObsvFeedbackTopic);
 
   // Register subscribers
-  imu_sub_ = createSubscriber(tobas::kIMUTopic, &self::imuCb, this);
-  imu_filtered_sub_ = createSubscriber(tobas::kImuLpfTopic, &self::imuFilteredCb, this);
+  imu_sub_ = createSubscriber(tobas::kImuLpfTopic, &self::imuCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
   if (use_bar_)
     bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::barCb, this);
@@ -200,8 +197,8 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas_std::kGravity);
-  const Vector3d B_Acc = imu_filtered_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
-  const Vector3d B_Gyro = imu_filtered_->gyro.data - eskf_.getGyroBias();
+  const Vector3d B_Acc = imu_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
+  const Vector3d B_Gyro = imu_->gyro.data - eskf_.getGyroBias();
 
   // Header
   odom.header.stamp = imu_->header.stamp;
@@ -335,13 +332,6 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   // 重力方向の観測
   eskf_.measureGravity(imu->accel.data, grav_cov_);
 
-  // フィルタリング済みIMUを受け取るまでは発行しない
-  if (imu_filtered_ == nullptr)
-  {
-    TOBAS_INFO_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kImuLpfTopic, "\".");
-    return;
-  }
-
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
   fillOdometryMsg(*odom);
@@ -365,11 +355,6 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   feedback->gravity_variance = eskf_.getGravityVariance();
   feedback->gps_anormaly_score = gps_anormaly_score_;
   feedback_pub_->publish(move(feedback));
-}
-
-void ObserverNode::imuFilteredCb(const ImuMsg::ConstSharedPtr& imu_filtered)
-{
-  imu_filtered_ = imu_filtered;
 }
 
 void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
