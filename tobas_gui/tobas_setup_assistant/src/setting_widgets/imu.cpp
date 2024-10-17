@@ -46,13 +46,6 @@ IMUWidget::IMUWidget()
   gyro_turn_on_bias_sigma_->setSuffix(" rad/s");
   addWidget(gyro_turn_on_bias_sigma_);
 
-  gyro_lpf_cutoff_freq_ = new ParamGetterWidget_SpinBox("Gyroscope Internal LPF Cutoff Frequency", "");  // TODO
-  gyro_lpf_cutoff_freq_->setMinimum(1);
-  gyro_lpf_cutoff_freq_->setMaximum(400);
-  gyro_lpf_cutoff_freq_->setValue(100);  // Same as LSM9DS1
-  gyro_lpf_cutoff_freq_->setSuffix(" Hz");
-  addWidget(gyro_lpf_cutoff_freq_);
-
   acc_noise_density_ = new ParamGetterWidget_DoubleSpinBox("Accelerometer Noise Density", "");  // TODO
   acc_noise_density_->setDecimals(9);
   acc_noise_density_->setMinimum(0.);
@@ -80,13 +73,6 @@ IMUWidget::IMUWidget()
   acc_turn_on_bias_sigma_->setValue(0.2);
   acc_turn_on_bias_sigma_->setSuffix(" m/s^2");
   addWidget(acc_turn_on_bias_sigma_);
-
-  acc_lpf_cutoff_freq_ = new ParamGetterWidget_SpinBox("Accelerometer Internal LPF Cutoff Frequency", "");  // TODO
-  acc_lpf_cutoff_freq_->setMinimum(1);
-  acc_lpf_cutoff_freq_->setMaximum(400);
-  acc_lpf_cutoff_freq_->setValue(50);  // Same as LSM9DS1
-  acc_lpf_cutoff_freq_->setSuffix(" Hz");
-  addWidget(gyro_lpf_cutoff_freq_);
 
   addStretch();
 }
@@ -131,12 +117,10 @@ YAML::Node IMUWidget::dump()
   node[gyro_random_walk_->name()] = gyro_random_walk_->getValue();
   node[gyro_bias_corr_time_->name()] = gyro_bias_corr_time_->getValue();
   node[gyro_turn_on_bias_sigma_->name()] = gyro_turn_on_bias_sigma_->getValue();
-  node[gyro_lpf_cutoff_freq_->name()] = gyro_lpf_cutoff_freq_->getValue();
   node[acc_noise_density_->name()] = acc_noise_density_->getValue();
   node[acc_random_walk_->name()] = acc_random_walk_->getValue();
   node[acc_bias_corr_time_->name()] = acc_bias_corr_time_->getValue();
   node[acc_turn_on_bias_sigma_->name()] = acc_turn_on_bias_sigma_->getValue();
-  node[acc_lpf_cutoff_freq_->name()] = acc_lpf_cutoff_freq_->getValue();
 
   return node;
 }
@@ -149,12 +133,10 @@ void IMUWidget::load(const YAML::Node& node)
   gyro_random_walk_->setValue(node[gyro_random_walk_->name()].as<double>());
   gyro_bias_corr_time_->setValue(node[gyro_bias_corr_time_->name()].as<int>());
   gyro_turn_on_bias_sigma_->setValue(node[gyro_turn_on_bias_sigma_->name()].as<double>());
-  gyro_lpf_cutoff_freq_->setValue(node[gyro_lpf_cutoff_freq_->name()].as<int>());
   acc_noise_density_->setValue(node[acc_noise_density_->name()].as<double>());
   acc_random_walk_->setValue(node[acc_random_walk_->name()].as<double>());
   acc_bias_corr_time_->setValue(node[acc_bias_corr_time_->name()].as<int>());
   acc_turn_on_bias_sigma_->setValue(node[acc_turn_on_bias_sigma_->name()].as<double>());
-  acc_lpf_cutoff_freq_->setValue(node[acc_lpf_cutoff_freq_->name()].as<int>());
 }
 
 Eigen::Vector3d IMUWidget::offset() const
@@ -187,11 +169,6 @@ double IMUWidget::gyroTurnOnBiasSigma() const
   return gyro_turn_on_bias_sigma_->getValue();
 }
 
-int IMUWidget::gyroLPFCutoffFreq() const
-{
-  return gyro_lpf_cutoff_freq_->getValue();
-}
-
 double IMUWidget::accNoiseDensity() const
 {
   return acc_noise_density_->getValue();
@@ -210,11 +187,6 @@ int IMUWidget::accBiasCorrTime() const
 double IMUWidget::accTurnOnBiasSigma() const
 {
   return acc_turn_on_bias_sigma_->getValue();
-}
-
-int IMUWidget::accLPFCutoffFreq() const
-{
-  return acc_lpf_cutoff_freq_->getValue();
 }
 }  // namespace setup_assistant
 }  // namespace gui

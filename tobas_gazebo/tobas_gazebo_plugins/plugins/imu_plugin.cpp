@@ -1,7 +1,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Imu.hpp>
 #include <tobas_gazebo_msgs/msg/imu_debug.hpp>
@@ -30,12 +29,10 @@ class GazeboImuPlugin : public BaseNode, public sim::System, public sim::ISystem
   static constexpr double kDefaultAccRandomWalk = 2. * 3e-3;
   static constexpr double kDefaultAccBiasCorrTime = 300.;
   static constexpr double kDefaultAccTurnOnBiasSigma = 2e-2 * tobas_std::kGravity;
-  static constexpr double kDefaultAccLpfCutoffFreq = 20.;
   static constexpr double kDefaultGyroNoiseDensity = 2. * 35. / 3600. * tobas_std::kDeg2Rad;
   static constexpr double kDefaultGyroRandomWalk = 2. * 4. / 3600. * tobas_std::kDeg2Rad;
   static constexpr double kDefaultGyroBiasCorrTime = 1000.;
   static constexpr double kDefaultGyroTurnOnBiasSigma = 0.5 * tobas_std::kDeg2Rad;
-  static constexpr double kDefaultGyroLpfCutoffFreq = 20.;
 
   using self = GazeboImuPlugin;
 
@@ -60,13 +57,11 @@ private:
   double acc_random_walk_;          // Accel bias random walk [m/s^2/s/sqrt(Hz)]
   double acc_bias_corr_time_;       // Accel bias correlation time constant [s]
   double acc_turn_on_bias_sigma_;   // Accel turn on bias standard deviation [m/s^2]
-  double acc_lpf_cutoff_freq_;      // LPF cutoff frequency for accelerometer [Hz]
   double gyro_noise_density_sig_;   // Gyro noise density actually added to signal [rad/s/sqrt(Hz)]
   double gyro_noise_density_obs_;   // Gyro noise density that is observed [rad/s/sqrt(Hz)]
   double gyro_random_walk_;         // Gyro bias random walk [rad/s/s/sqrt(Hz)]
   double gyro_bias_corr_time_;      // Gyro bias correlation time constant [s]
   double gyro_turn_on_bias_sigma_;  // Gyro turn on bias standard deviation [rad/s]
-  double gyro_lpf_cutoff_freq_;     // LPF cutoff frequency for gyroscope [Hz]
 
   RateManager::SharedPtr rate_manager_;
 
@@ -78,7 +73,6 @@ private:
 
   Vector3d acc_bias_ = Vector3d::Zero, gyro_bias_ = Vector3d::Zero;
   Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;
-  dsp::LowPassFilter<Vector3d> acc_lpf_, gyro_lpf_;  // Internal LPF
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -88,10 +82,7 @@ private:
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-
   void addNoise(Vector3d& acc, Vector3d& gyro, const double& dt);
-  void publishImuMsg(const chrono::steady_clock::duration& time, const double& dt) const;
-  void publishDebugMsg(const chrono::steady_clock::duration& time) const;
 };
 
 GazeboImuPlugin::GazeboImuPlugin() : rnd_gen_(rnd_dev_())
@@ -130,10 +121,6 @@ void GazeboImuPlugin::Configure(
     gyro_turn_on_bias_[i] = gyro_turn_on_bias_sigma_ * noise_(rnd_gen_);
   }
 
-  // Initialize LPFs
-  acc_lpf_.initialize(acc_lpf_cutoff_freq_, Vector3d::Zero);
-  gyro_lpf_.initialize(gyro_lpf_cutoff_freq_, Vector3d::Zero);
-
   // Advertise
   imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
@@ -150,14 +137,12 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "accelRandomWalk", acc_random_walk_, kDefaultAccRandomWalk, POSITIVE);
   getSdfParam(sdf, "accelBiasCorrelationTime", acc_bias_corr_time_, kDefaultAccBiasCorrTime, POSITIVE);
   getSdfParam(sdf, "accelTurnOnBiasSigma", acc_turn_on_bias_sigma_, kDefaultAccTurnOnBiasSigma, POSITIVE);
-  getSdfParam(sdf, "accelLpfCutoffFreq", acc_lpf_cutoff_freq_, kDefaultAccLpfCutoffFreq, POSITIVE);
 
   getSdfParam(sdf, "gyroNoiseDensityOnSignal", gyro_noise_density_sig_, kDefaultGyroNoiseDensity, POSITIVE);
   getSdfParam(sdf, "gyroNoiseDensityObserved", gyro_noise_density_obs_, kDefaultGyroNoiseDensity, POSITIVE);
   getSdfParam(sdf, "gyroRandomWalk", gyro_random_walk_, kDefaultGyroRandomWalk, POSITIVE);
   getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
   getSdfParam(sdf, "gyroTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma, POSITIVE);
-  getSdfParam(sdf, "gyroLpfCutoffFreq", gyro_lpf_cutoff_freq_, kDefaultGyroLpfCutoffFreq, POSITIVE);
 }
 
 void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
@@ -175,26 +160,36 @@ void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityC
   // オフセットによる補正を考慮して加速度センサの読みを計算 (memo: 2-26)
   const auto grav_B = R_W_B.RotateVectorReverse(grav_W_->Data());
   const auto acc_corr = gyro_B.Cross(gyro_B.Cross(offset_)) + dgyro_B.Cross(offset_);
-  auto acc_raw = acc_B - grav_B + acc_corr;
+  auto acc_meas = acc_B - grav_B + acc_corr;
 
   // オフセットが並進のみならばジャイロセンサの読みはベースフレームの角速度に一致する
-  auto gyro_raw = gyro_B;
+  auto gyro_meas = gyro_B;
 
   // Get delta time
   const auto dt = chrono::duration<double>(info.dt).count();
 
   // Add noise to the true values
-  addNoise(acc_raw, gyro_raw, dt);
+  addNoise(acc_meas, gyro_meas, dt);
 
-  // Update LPFs
-  if (acc_lpf_.update(acc_raw, dt) < 0)
-    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to update accel LPF: ", acc_lpf_.errorMessage());
-  if (gyro_lpf_.update(gyro_raw, dt) < 0)
-    TOBAS_ERROR_THROTTLE(kErrorPeriod, "Failed to update gyro LPF: ", gyro_lpf_.errorMessage());
+  // Publish IMU message
+  auto imu_msg = std::make_unique<tobas_msgs::Imu>();
+  ros2::timeChronoToMsg(info.simTime, imu_msg->header.stamp);
+  imu_msg->header.frame_id = link_name_;
+  vectorGazeboToKDL(acc_meas, imu_msg->accel);
+  vectorGazeboToKDL(gyro_meas, imu_msg->gyro);
+  const auto acc_var = ::math::sqr(acc_noise_density_obs_) / dt;
+  const auto gyro_var = ::math::sqr(gyro_noise_density_obs_) / dt;
+  imu_msg->accel_covariance = Eigen::Vector3d::Constant(acc_var).asDiagonal();
+  imu_msg->gyro_covariance = Eigen::Vector3d::Constant(gyro_var).asDiagonal();
+  imu_pub_->publish(move(imu_msg));
 
-  // Publish messages
-  publishImuMsg(info.simTime, dt);
-  publishDebugMsg(info.simTime);
+  // Publish debug message
+  auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
+  ros2::timeChronoToMsg(info.simTime, debug_msg->header.stamp);
+  debug_msg->header.frame_id = link_name_;
+  vectorGazeboToMsg(acc_bias_, debug_msg->acc_bias);
+  vectorGazeboToMsg(gyro_bias_, debug_msg->gyro_bias);
+  debug_pub_->publish(move(debug_msg));
 }
 
 void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
@@ -230,37 +225,6 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
     acc_bias_[i] = phi_a_d * acc_bias_[i] + sigma_b_a_d * noise_(rnd_gen_);
     acc[i] += acc_bias_[i] + sigma_a_d * noise_(rnd_gen_) + acc_turn_on_bias_[i];
   }
-}
-
-void GazeboImuPlugin::publishImuMsg(const chrono::steady_clock::duration& time, const double& dt) const
-{
-  auto imu_msg = std::make_unique<tobas_msgs::Imu>();
-
-  ros2::timeChronoToMsg(time, imu_msg->header.stamp);
-  imu_msg->header.frame_id = link_name_;
-
-  vectorGazeboToKDL(acc_lpf_.getOutput(), imu_msg->accel);
-  const auto acc_var = ::math::sqr(acc_noise_density_obs_) / dt;
-  imu_msg->accel_covariance = Eigen::Vector3d::Constant(acc_var).asDiagonal();
-
-  vectorGazeboToKDL(gyro_lpf_.getOutput(), imu_msg->gyro);
-  const auto gyro_var = ::math::sqr(gyro_noise_density_obs_) / dt;
-  imu_msg->gyro_covariance = Eigen::Vector3d::Constant(gyro_var).asDiagonal();
-
-  imu_pub_->publish(move(imu_msg));
-}
-
-void GazeboImuPlugin::publishDebugMsg(const chrono::steady_clock::duration& time) const
-{
-  auto debug_msg = std::make_unique<tobas_gazebo_msgs::msg::ImuDebug>();
-
-  ros2::timeChronoToMsg(time, debug_msg->header.stamp);
-  debug_msg->header.frame_id = link_name_;
-
-  vectorGazeboToMsg(acc_bias_, debug_msg->acc_bias);
-  vectorGazeboToMsg(gyro_bias_, debug_msg->gyro_bias);
-
-  debug_pub_->publish(move(debug_msg));
 }
 }  // namespace gazebo
 

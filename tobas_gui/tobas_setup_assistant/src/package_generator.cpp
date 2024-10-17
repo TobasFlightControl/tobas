@@ -615,8 +615,8 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // IMU plugin
   addIMUPlugin(
     robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroRandomWalk(),
-    imu->gyroBiasCorrTime(), imu->gyroTurnOnBiasSigma(), imu->gyroLPFCutoffFreq(), imu->accNoiseDensity(),
-    imu->accRandomWalk(), imu->accBiasCorrTime(), imu->accTurnOnBiasSigma(), imu->accLPFCutoffFreq());
+    imu->gyroBiasCorrTime(), imu->gyroTurnOnBiasSigma(), imu->accNoiseDensity(), imu->accRandomWalk(),
+    imu->accBiasCorrTime(), imu->accTurnOnBiasSigma());
 
   // Magnetometer plugin
   addMagnetometerPlugin(

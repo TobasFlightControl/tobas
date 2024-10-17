@@ -110,24 +110,20 @@ void addIMUPlugin(
   double gyro_random_walk,
   double gyro_bias_corr_time,
   double gyro_turn_on_bias_sigma,
-  double gyro_lpf_cutoff_freq,
   double acc_noise_density,
   double acc_random_walk,
   double acc_bias_corr_time,
-  double acc_turn_on_bias_sigma,
-  double acc_lpf_cutoff_freq)
+  double acc_turn_on_bias_sigma)
 {
   TOBAS_CHECK(update_rate > 0.);
   TOBAS_CHECK(gyro_noise_density > 0.);
   TOBAS_CHECK(gyro_random_walk > 0.);
   TOBAS_CHECK(gyro_bias_corr_time > 0.);
   TOBAS_CHECK(gyro_turn_on_bias_sigma > 0.);
-  TOBAS_CHECK(gyro_lpf_cutoff_freq > 0.);
   TOBAS_CHECK(acc_noise_density > 0.);
   TOBAS_CHECK(acc_random_walk > 0.);
   TOBAS_CHECK(acc_bias_corr_time > 0.);
   TOBAS_CHECK(acc_turn_on_bias_sigma > 0.);
-  TOBAS_CHECK(acc_lpf_cutoff_freq > 0.);
 
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "gazebo::GazeboImuPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -139,13 +135,11 @@ void addIMUPlugin(
   plugin->InsertNewChildElement("gyroRandomWalk")->SetText(gyro_random_walk);
   plugin->InsertNewChildElement("gyroBiasCorrelationTime")->SetText(gyro_bias_corr_time);
   plugin->InsertNewChildElement("gyroTurnOnBiasSigma")->SetText(gyro_turn_on_bias_sigma);
-  plugin->InsertNewChildElement("gyroLpfCutoffFreq")->SetText(gyro_lpf_cutoff_freq);
   plugin->InsertNewChildElement("accelNoiseDensityOnSignal")->SetText(acc_noise_density);
   plugin->InsertNewChildElement("accelNoiseDensityObserved")->SetText(acc_noise_density);
   plugin->InsertNewChildElement("accelRandomWalk")->SetText(acc_random_walk);
   plugin->InsertNewChildElement("accelBiasCorrelationTime")->SetText(acc_bias_corr_time);
   plugin->InsertNewChildElement("accelTurnOnBiasSigma")->SetText(acc_turn_on_bias_sigma);
-  plugin->InsertNewChildElement("accelLpfCutoffFreq")->SetText(acc_lpf_cutoff_freq);
 }
 
 void addMagnetometerPlugin(

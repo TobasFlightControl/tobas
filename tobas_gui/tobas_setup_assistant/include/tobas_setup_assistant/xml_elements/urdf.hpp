@@ -30,12 +30,10 @@ void addIMUPlugin(
   double gyro_random_walk,
   double gyro_bias_corr_time,
   double gyro_turn_on_bias_sigma,
-  double gyro_lpf_cutoff_freq,
   double acc_noise_density,
   double acc_random_walk,
   double acc_bias_corr_time,
-  double acc_turn_on_bias_sigma,
-  double acc_lpf_cutoff_freq);
+  double acc_turn_on_bias_sigma);
 
 void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,

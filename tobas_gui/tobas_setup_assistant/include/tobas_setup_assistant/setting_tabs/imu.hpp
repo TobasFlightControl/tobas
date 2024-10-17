@@ -36,12 +36,10 @@ public:
   double gyroRandomWalk() const;
   int gyroBiasCorrTime() const;
   double gyroTurnOnBiasSigma() const;
-  int gyroLPFCutoffFreq() const;
   double accNoiseDensity() const;
   double accRandomWalk() const;
   int accBiasCorrTime() const;
   double accTurnOnBiasSigma() const;
-  int accLPFCutoffFreq() const;
 
 private:
   ParamGetterWidget_Vector3d* offset_;
@@ -50,12 +48,10 @@ private:
   ParamGetterWidget_DoubleSpinBox* gyro_random_walk_;
   ParamGetterWidget_SpinBox* gyro_bias_corr_time_;
   ParamGetterWidget_DoubleSpinBox* gyro_turn_on_bias_sigma_;
-  ParamGetterWidget_SpinBox* gyro_lpf_cutoff_freq_;
   ParamGetterWidget_DoubleSpinBox* acc_noise_density_;
   ParamGetterWidget_DoubleSpinBox* acc_random_walk_;
   ParamGetterWidget_SpinBox* acc_bias_corr_time_;
   ParamGetterWidget_DoubleSpinBox* acc_turn_on_bias_sigma_;
-  ParamGetterWidget_SpinBox* acc_lpf_cutoff_freq_;
 };
 };  // namespace setup_assistant
 }  // namespace gui
