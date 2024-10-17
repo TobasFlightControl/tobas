@@ -12,7 +12,7 @@
 #define TOBAS_EXIT(...)                                                                                                \
   {                                                                                                                    \
     TOBAS_FATAL(__VA_ARGS__);                                                                                          \
-    rclcpp::shutdown();                                                                                                 \
+    rclcpp::shutdown();                                                                                                \
     abort();                                                                                                           \
   }
 
@@ -22,7 +22,7 @@
     if (!static_cast<bool>(expr))                                                                                      \
     {                                                                                                                  \
       TOBAS_FATAL("Assertion failed: ", __FILE__, ": ", __LINE__);                                                     \
-      rclcpp::shutdown();                                                                                               \
+      rclcpp::shutdown();                                                                                              \
       abort();                                                                                                         \
     }                                                                                                                  \
   }
