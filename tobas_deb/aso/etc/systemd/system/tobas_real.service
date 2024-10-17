@@ -16,7 +16,7 @@ ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/se
 ExecStopPost=/bin/bash -c 'ps aux | grep ros | grep -v grep | awk "{ print \"kill -9", \$2 }\" | sh'
 Restart=always
 RestartSec=10
-CPUSchedulingPolicy=fifo
+CPUSchedulingPolicy=rr
 CPUSchedulingPriority=90
 
 [Install]
