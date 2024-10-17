@@ -115,7 +115,7 @@ bool ISM330DLC::configureGyro()
     return false;
 
   // Enable LPF1
-  if (!writeReg(REG_CTRL4_C, LPF1_SEL_G))
+  if (!writeReg(REG_CTRL4_C, I2C_DISABLE | LPF1_SEL_G))
     return false;
 
   // Set cutoff frequency to minimum 173Hz
