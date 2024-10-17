@@ -1,6 +1,15 @@
+import re
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction, Shutdown
+from launch.actions import (
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    TimerAction,
+    RegisterEventHandler,
+    EmitEvent,
+    Shutdown,
+)
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.event_handlers import OnProcessIO
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import Node, LoadComposableNodes, SetParameter
@@ -20,6 +29,13 @@ LOG_LEVEL = "log_level"
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 GROUND_TRUTH = "ground_truth"
+
+
+def handle_output(event):
+    # コンポーネントのロードに失敗したらシャットダウン
+    output = event.text.decode().strip()
+    if re.search(r"Failed to find class with the requested plugin name", output):
+        return EmitEvent(event=Shutdown())
 
 
 def generate_launch_description():
@@ -48,14 +64,23 @@ def generate_launch_description():
     extra_arguments = [{"use_intra_process_comms": True}]
 
     # Launch component managers
+    component_managers = Node(
+        package="tobas_components_rt",
+        executable="component_containers",
+        namespace=DRONE_NAME,
+        ros_arguments=ros_args,
+        output=output,
+    )
+    ld.add_action(component_managers)
+
+    # If failed to load a component, shutdown the entire system
     ld.add_action(
-        Node(
-            package="tobas_components_rt",
-            executable="component_containers",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-            on_exit=Shutdown(),
+        RegisterEventHandler(
+            OnProcessIO(
+                target_action=component_managers,
+                on_stdout=lambda event: handle_output(event),
+                on_stderr=lambda event: handle_output(event),
+            )
         )
     )
 
