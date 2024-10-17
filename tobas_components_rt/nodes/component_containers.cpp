@@ -1,4 +1,8 @@
+#include <tobas_linux/memory_lock.hpp>
+
 #include "tobas_components_rt/multi_component_managers.hpp"
+
+#define LOCK_MEMORY_SIZE 300'000'000  // [byte]
 
 static void sigIntHandler(int)
 {
@@ -8,6 +12,10 @@ static void sigIntHandler(int)
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
+
+  // メモリロック
+  if (!linux::lockAndPrefaultDynamic(LOCK_MEMORY_SIZE))
+    RCLCPP_WARN(rclcpp::get_logger("component_managers"), "Failed to lock memory.");
 
   // Ctrl+Cで即終了
   signal(SIGINT, sigIntHandler);
