@@ -8,7 +8,7 @@
 template <typename MsgType, const char* TopicName>
 class TopicThrottleNode : public tobas::BaseNode
 {
-  static constexpr double kPublishRate = 30.;  // [Hz]
+  static constexpr double kPublishRate = 25.;  // [Hz]
 
   using self = TopicThrottleNode;
   using super = tobas::BaseNode;
