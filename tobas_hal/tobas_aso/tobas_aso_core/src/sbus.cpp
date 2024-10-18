@@ -40,7 +40,7 @@ bool SBUS::initialize()
   if (!uart_.setTimeout(TIMEOUT_MS / 100))
     return false;
 
-  if (!uart_.setMinimumChars(1))
+  if (!uart_.setMinimumChars(0))
     return false;
 
   // 信号読み取りを開始
