@@ -114,6 +114,13 @@ void FlightLogReaderWidget::onReadFinished(bool success, const QString& message,
   }
 
   rosbag_list_->clear();
+
+  if (rosbag_names.size() == 0)
+  {
+    qt::qWarnBox(this, "There are no flight logs saved on the flight controller.");
+    return;
+  }
+
   for (const auto& name : rosbag_names)
     rosbag_list_->addItem(name);
 
