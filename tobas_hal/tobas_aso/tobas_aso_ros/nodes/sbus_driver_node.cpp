@@ -34,7 +34,16 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
 
   // ブート直後はtermiosの設定が反映されないため，初期化を遅延させる．
   // TODO: /dev/ttyAMA0が初期化可能かどうかを確実に判定する方法はある？
-  initialize_timer_ = createTimer(30s, &self::initialize, this);
+  // initialize_timer_ = createTimer(30s, &self::initialize, this);
+
+  for (int i = 0; i < 10; ++i)
+  {
+    if (!sbus_.initialize())
+      TOBAS_EXIT("Failed to initialize S.BUS driver.");
+    get_clock()->sleep_for(10ms);
+  }
+
+  sbus_.start();
 }
 
 void SBUSDriverNode::initialize()

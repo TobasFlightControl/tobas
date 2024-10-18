@@ -40,15 +40,17 @@ bool SBUS::initialize()
   if (!uart_.setTimeout(TIMEOUT_MS / 100))
     return false;
 
-  // 信号読み取りを開始
-  read_thread_ = thread(bind(&SBUS::readThreadFunc, this));
-
   return true;
 }
 
 void SBUS::spin()
 {
   read_thread_.join();
+}
+
+void SBUS::start()
+{
+  read_thread_ = thread(bind(&SBUS::readThreadFunc, this));
 }
 
 void SBUS::readThreadFunc()

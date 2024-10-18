@@ -42,6 +42,7 @@ public:
   explicit SBUS(std::function<void(const Packet&)> packet_cb);
 
   bool initialize();
+  void start();
   void spin();
 
   inline const Packet& packet() const;

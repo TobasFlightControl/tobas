@@ -23,6 +23,7 @@ int main()
   }
   cout << "S.BUS driver is initialized." << endl;
 
+  sbus.start();
   sbus.spin();
 
   return EXIT_SUCCESS;
