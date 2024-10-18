@@ -10,6 +10,7 @@ namespace ssh
 {
 SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
   : node_(node),
+    connect_sc_(node, kConnectSrv),
     execute_sc_(node, kExecuteSrv),
     scp_get_sc_(node, kSCPGetSrv),
     scp_put_sc_(node, kSCPPutSrv),
@@ -17,44 +18,40 @@ SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
     sftp_write_sc_(node, kSFTPWriteSrv),
     list_sc_(node, kListSrv)
 {
-  connection_sub_ = ros2::createSubscriber(node, kConnectionTopic, &SSHClient::connectionCb, this);
-}
-
-bool SSHClient::isConnected() const
-{
-  if (connection_ == nullptr)
-  {
-    RCLCPP_WARN(node_->get_logger(), "SSH connection status is not received yet.");
-    return false;
-  }
-
-  return connection_->data;
 }
 
 bool SSHClient::fileExists(const fs::path& file_path)
 {
-  if (!isConnected())
-    return false;
-
   string output;
   return execute("[ -f {" + file_path.string() + " ]", output) == E_NO_ERROR;
 }
 
 bool SSHClient::dirExists(const fs::path& dir_path)
 {
-  if (!isConnected())
-    return false;
-
   string output;
   return execute("[ -d {" + dir_path.string() + " ]", output) == E_NO_ERROR;
+}
+
+SSHClient::error_t SSHClient::connect()
+{
+  const auto req = make_shared<Connect::Request>();
+
+  if (!connect_sc_.call(req))
+    return error_code_ = E_SERVICE_NOT_READY;
+
+  const auto& res = connect_sc_.getResponse();
+  if (!res->success)
+  {
+    server_error_msg_ = res->message;
+    return error_code_ = E_SERVER_ERROR;
+  }
+
+  return error_code_ = E_NO_ERROR;
 }
 
 SSHClient::error_t SSHClient::execute(const string& command, string& output, bool superuser, bool background)
 {
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "SSHClient::execute(" << command << ")");
-
-  if (!isConnected())
-    return error_code_ = E_NO_CONNECTION;
 
   const auto req = make_shared<Execute::Request>();
   req->command = command;
@@ -83,9 +80,6 @@ SSHClient::error_t SSHClient::execute(const string& command, bool superuser, boo
 
 SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& local_path)
 {
-  if (!isConnected())
-    return error_code_ = E_NO_CONNECTION;
-
   const auto req = make_shared<SCPGet::Request>();
   req->remote_path = remote_path;
   req->local_path = local_path;
@@ -106,9 +100,6 @@ SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& lo
 SSHClient::error_t
 SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vector<string>& exclude_dirs, bool superuser)
 {
-  if (!isConnected())
-    return error_code_ = E_NO_CONNECTION;
-
   const auto req = make_shared<SCPPut::Request>();
   req->local_dir = local_dir;
   req->remote_dir = remote_dir;
@@ -130,9 +121,6 @@ SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vecto
 
 SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, bool superuser)
 {
-  if (!isConnected())
-    return error_code_ = E_NO_CONNECTION;
-
   const auto req = make_shared<SFTPRead::Request>();
   req->remote_path = remote_path;
   req->superuser = superuser;
@@ -153,9 +141,6 @@ SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, 
 
 SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string& text, bool superuser)
 {
-  if (!isConnected())
-    return error_code_ = E_NO_CONNECTION;
-
   const auto req = make_shared<SFTPWrite::Request>();
   req->remote_path = remote_path;
   req->text = text;
@@ -176,9 +161,6 @@ SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string&
 
 SSHClient::error_t SSHClient::list(const string& pardir, vector<string>& dst)
 {
-  if (!isConnected())
-    return error_code_ = E_NO_CONNECTION;
-
   const auto req = make_shared<List::Request>();
   req->pardir = pardir;
 
@@ -207,8 +189,6 @@ const char* SSHClient::errorMessage() const
   {
     case E_NO_ERROR:
       return "";
-    case E_NO_CONNECTION:
-      return "No connection.";
     case E_SERVICE_NOT_READY:
       return "Service server is not ready.";
     case E_SERVER_ERROR:
@@ -216,10 +196,5 @@ const char* SSHClient::errorMessage() const
     default:
       return "Unknown error";
   }
-}
-
-void SSHClient::connectionCb(const std_msgs::msg::Bool::ConstSharedPtr& connection)
-{
-  connection_ = connection;
 }
 }  // namespace ssh

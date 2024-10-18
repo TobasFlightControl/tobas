@@ -75,7 +75,7 @@ void NetworkSettingWidget::addRow(const std::string& ssid, const std::string& ps
 void NetworkSettingWidget::onReadButtonClicked()
 {
   // SSH接続を確認
-  if (!ssh_client_.isConnected())
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "No SSH connection.");
     return;
@@ -112,7 +112,7 @@ void NetworkSettingWidget::onReadButtonClicked()
 void NetworkSettingWidget::onWriteButtonClicked()
 {
   // SSH接続を確認
-  if (!ssh_client_.isConnected())
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "No SSH connection.");
     return;

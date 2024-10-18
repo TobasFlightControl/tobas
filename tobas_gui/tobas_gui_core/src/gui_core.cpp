@@ -23,7 +23,7 @@ namespace gui
 namespace core
 {
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), property_cli_(node, tobas::kPropertyServerName, kPkgName), ssh_cli_(node), package_builder_(node)
+  : node_(node), property_client_(node, tobas::kPropertyServerName, kPkgName), ssh_client_(node), package_builder_(node)
 {
   // Applications
   const auto app_cb = new qt::ComboBox();
@@ -120,9 +120,9 @@ void GUICoreWidget::onLoadButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
-  if (property_cli_.get(kLastOpenedDirKey, last_opened_dir) < 0)
+  if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
   {
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_cli_.errorMessage());
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
     last_opened_dir = linux::homeDir();
   }
 
@@ -164,10 +164,10 @@ void GUICoreWidget::onLoadButtonClicked()
 
   // ユーザが開いたディレクトリを保存
   const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
-  if (property_cli_.set(kLastOpenedDirKey, par_dir) < 0)
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_cli_.errorMessage());
-  if (property_cli_.save() < 0)
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_cli_.errorMessage());
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  if (property_client_.save() < 0)
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
 
   // Writeボタンを有効化
   send_button_->setEnabled(true);
@@ -181,13 +181,6 @@ void GUICoreWidget::onLoadButtonClicked()
 
 void GUICoreWidget::onSendButtonClicked()
 {
-  // SSH接続を確認
-  if (!ssh_cli_.isConnected())
-  {
-    qt::qWarnBox(this, "No SSH connection.");
-    return;
-  }
-
   // アームされていないことを確認
   if (arming_ == nullptr)
   {
@@ -208,6 +201,13 @@ void GUICoreWidget::onSendButtonClicked()
     }
   }
 
+  // SSH接続を確認
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
+  {
+    qt::qWarnBox(this, "No SSH connection.");
+    return;
+  }
+
   const auto tbs_path = tbsPath();
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path);
 
@@ -218,10 +218,10 @@ void GUICoreWidget::onSendButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping Tobas flight controller.");
-  if (ssh_cli_.execute("systemctl stop tobas_real.service", true) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl stop tobas_real.service", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to stop Tobas:\n\n" + QString(ssh_cli_.errorMessage()));
+    qt::qErrorBox(this, "Failed to stop Tobas:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -230,10 +230,10 @@ void GUICoreWidget::onSendButtonClicked()
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
   const auto remote_dir = fs::path(common::kColconWSPathRemote) / "src/";
-  if (ssh_cli_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to send tobas configuration package\n\n" + QString(ssh_cli_.errorMessage()));
+    qt::qErrorBox(this, "Failed to send tobas configuration package\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -254,20 +254,20 @@ void GUICoreWidget::onSendButtonClicked()
   progress.setLabelText("Setting environment variables.");
   const auto config_pkg_name = common::getTBSConfigName(tbs_path);
   const auto env_content = std::format("TOBAS_CONFIG_PKG={}\nDRONE_NAME={}\n", config_pkg_name, drone_.name);
-  if (ssh_cli_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_cli_.errorMessage()));
+    qt::qErrorBox(this, "Failed to set environment variables:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
 
   // サービスを再起動
   progress.setLabelText("Restarting Tobas flight controller.");
-  if (ssh_cli_.execute("systemctl restart tobas_real.service", true) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl restart tobas_real.service", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to restart Tobas:\n\n" + QString(ssh_cli_.errorMessage()));
+    qt::qErrorBox(this, "Failed to restart Tobas:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -283,17 +283,17 @@ void GUICoreWidget::onSendButtonClicked()
 
 void GUICoreWidget::onShutdownButtonClicked()
 {
-  // SSH接続を確認
-  if (!ssh_cli_.isConnected())
-  {
-    qt::qErrorBox(this, "No SSH connection.");
-    return;
-  }
-
   // アームされていないことを確認
   if (arming_ != nullptr && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
+  // SSH接続を確認
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
+  {
+    qt::qErrorBox(this, "No SSH connection.");
     return;
   }
 
@@ -303,7 +303,7 @@ void GUICoreWidget::onShutdownButtonClicked()
 
   // ラズパイをシャットダウン
   RCLCPP_INFO(node_->get_logger(), "Shutting down the flight controller.");
-  ssh_cli_.execute("poweroff", true, true);
+  ssh_client_.execute("poweroff", true, true);
 
   // GCSを強制終了
   rclcpp::shutdown();

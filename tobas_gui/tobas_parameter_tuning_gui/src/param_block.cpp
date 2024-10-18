@@ -174,7 +174,7 @@ bool ParamBlockWidget::saveLocal(const fs::path& path, const YAML::Node& node)
 bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
 {
   // SSH接続を確認
-  if (!ssh_client_.isConnected())
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "No SSH connection.");
     return false;

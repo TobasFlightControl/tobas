@@ -1,14 +1,12 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Bool
 
-from tobas_ssh_msgs.srv import Execute, SCPGet, SCPPut, SFTPRead, SFTPWrite, List
+from tobas_ssh_msgs.srv import Connect, Execute, SCPGet, SCPPut, SFTPRead, SFTPWrite, List
 from .ssh_client import SSHClientWrapper
 
 
 class SSHServerNode(Node):
     NO_CONNECTION_ERROR = "No connection with SSH server."
-    CONNECT_TIMER_PERIOD = 5.0  # [s]
 
     def __init__(self) -> None:
         super().__init__("ssh_server")
@@ -19,10 +17,8 @@ class SSHServerNode(Node):
         passwd = self.declare_parameter("passwd", "").get_parameter_value().string_value
 
         self._ssh_client = SSHClientWrapper(host, port, user, passwd)
-        self._is_connected = False
 
-        self._connection_pub = self.create_publisher(Bool, "ssh/connection", 1)
-
+        self._connect_ss = self.create_service(Connect, "ssh/connect", self._connect_cb)
         self._execute_ss = self.create_service(Execute, "ssh/execute", self._execute_cb)
         self._scp_get_ss = self.create_service(SCPGet, "ssh/scp_get", self._scp_get_cb)
         self._scp_put_ss = self.create_service(SCPPut, "ssh/scp_put", self._scp_put_cb)
@@ -30,10 +26,28 @@ class SSHServerNode(Node):
         self._sftp_write_ss = self.create_service(SFTPWrite, "ssh/sftp_write", self._sftp_write_cb)
         self._list_ss = self.create_service(List, "ssh/list", self._list_cb)
 
-        self._connect_timer = self.create_timer(self.CONNECT_TIMER_PERIOD, self._connect_timer_cb)
+    def _connect(self) -> bool:
+        try:
+            self._ssh_client.connect()
+        except Exception as e:
+            self.get_logger().warning(f"{e}")
+            return False
+
+        return True
+
+    def _connect_cb(self, req: Connect.Request, res: Connect.Response) -> Execute.Response:
+        try:
+            self._ssh_client.connect()
+        except Exception as e:
+            res.success = False
+            res.message = str(e)
+            return res
+
+        res.success = True
+        return res
 
     def _execute_cb(self, req: Execute.Request, res: Execute.Response) -> Execute.Response:
-        if not self._is_connected:
+        if not self._connect():
             res.success = False
             res.error_output = self.NO_CONNECTION_ERROR
             return res
@@ -58,7 +72,7 @@ class SSHServerNode(Node):
         return res
 
     def _scp_get_cb(self, req: SCPGet.Request, res: SCPGet.Response) -> SCPGet.Response:
-        if not self._is_connected:
+        if not self._connect():
             res.success = False
             res.message = self.NO_CONNECTION_ERROR
             return res
@@ -73,7 +87,7 @@ class SSHServerNode(Node):
         return res
 
     def _scp_put_cb(self, req: SCPPut.Request, res: SCPPut.Response) -> SCPPut.Response:
-        if not self._is_connected:
+        if not self._connect():
             res.success = False
             res.message = self.NO_CONNECTION_ERROR
             return res
@@ -96,7 +110,7 @@ class SSHServerNode(Node):
         return res
 
     def _sftp_read_cb(self, req: SFTPRead.Request, res: SFTPRead.Response) -> SFTPRead.Response:
-        if not self._is_connected:
+        if not self._connect():
             res.success = False
             res.message = self.NO_CONNECTION_ERROR
             return res
@@ -119,7 +133,7 @@ class SSHServerNode(Node):
         return res
 
     def _sftp_write_cb(self, req: SFTPWrite.Request, res: SFTPWrite.Response) -> SFTPWrite.Response:
-        if not self._is_connected:
+        if not self._connect():
             res.success = False
             res.message = self.NO_CONNECTION_ERROR
             return res
@@ -142,7 +156,7 @@ class SSHServerNode(Node):
         return res
 
     def _list_cb(self, req: List.Request, res: List.Response) -> List.Response:
-        if not self._is_connected:
+        if not self._connect():
             res.success = False
             res.message = self.NO_CONNECTION_ERROR
             return res
@@ -155,19 +169,6 @@ class SSHServerNode(Node):
             res.message = f"Failed to list the entries in {req.pardir}: {e}"
 
         return res
-
-    def _connect_timer_cb(self) -> None:
-        try:
-            self._ssh_client.connect()
-            self._is_connected = True
-        except Exception as e:
-            self.get_logger().warning(f"{e}")
-            self._is_connected = False
-
-        # Publish connection status
-        connection_msg = Bool()
-        connection_msg.data = self._is_connected
-        self._connection_pub.publish(connection_msg)
 
 
 def main(args=None) -> None:

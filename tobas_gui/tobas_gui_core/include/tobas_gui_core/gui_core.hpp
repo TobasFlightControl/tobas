@@ -45,8 +45,8 @@ private:
 
   tobas::Drone drone_;
 
-  ptree::PropertyClient property_cli_;
-  ssh::SSHClient ssh_cli_;
+  ptree::PropertyClient property_client_;
+  ssh::SSHClient ssh_client_;
   common::RemotePackageBuilder package_builder_;
 
   QLineEdit* tbs_path_;
