@@ -1,12 +1,16 @@
 [Unit]
 Description=Tobas Flight Controller
+Conflicts=tobas_hil.service
+
 After=network-online.target
 Requires=network-online.target
 After=dev-ttyAMA0.device
 Requires=dev-ttyAMA0.device
-After=tobas_fastdds_discovery.service
-Requires=tobas_fastdds_discovery.service
-Conflicts=tobas_hil.service
+# After=tobas_fastdds_discovery.service
+# Requires=tobas_fastdds_discovery.service
+
+# Due to high load at startup, this will be started last.
+# After=multi-user.target
 
 [Service]
 Type=simple
