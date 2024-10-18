@@ -26,6 +26,10 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
 {
   block_mode_ = block_mode;
 
+  // Close UART device if already opened
+  if (uart_fd_ >= 0)
+    close(uart_fd_);
+
   // Open UART device
   int oflag = O_RDWR | O_NOCTTY;
   if (!block_mode)

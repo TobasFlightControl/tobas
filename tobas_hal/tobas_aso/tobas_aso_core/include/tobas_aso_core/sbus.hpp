@@ -18,7 +18,7 @@ public:
 
   struct Packet
   {
-    std::array<uint16_t, kChannelSize> periods;
+    std::array<uint16_t, kChannelSize> periods = {};  // ゼロ初期化
     bool ch17;
     bool ch18;
     bool frame_lost;
@@ -44,6 +44,8 @@ public:
   bool initialize();
   void spin();
 
+  inline const Packet& packet() const;
+
 private:
   const std::function<void(const Packet&)> packet_cb_;
 
@@ -56,4 +58,9 @@ private:
   void decodeData(const std::array<uint8_t, kDataSize>& data);
   void decodeFlags(uint8_t flags);
 };
+
+inline const SBUS::Packet& SBUS::packet() const
+{
+  return packet_;
+}
 }  // namespace aso
