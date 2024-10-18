@@ -90,6 +90,9 @@ bool IIS2MDC::configure()
     return false;
   }
 
+  if (!writeReg(CFG_REG_B, OFF_CANC | LPF))
+    return false;
+
   return true;
 }
 }  // namespace aso
