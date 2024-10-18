@@ -22,7 +22,7 @@ SBUS::SBUS(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 
 bool SBUS::initialize()
 {
-  if (!uart_.initialize(uart_device::kSbusDev, true))
+  if (!uart_.initialize(uart_device::kSbusDev, false))
     return false;
 
   if (!uart_.setNonStandardBaudRate(kBaudRate))
