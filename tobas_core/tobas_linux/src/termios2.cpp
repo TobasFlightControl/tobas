@@ -11,7 +11,8 @@ namespace linux
 {
 bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
 {
-  struct termios2 buf1, buf2;
+  struct termios2 buf1 = {};
+  struct termios2 buf2 = {};
 
   if (ioctl(fd, TCGETS2, buf1) != 0)
   {
