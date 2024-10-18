@@ -20,9 +20,7 @@ private:
   aso::SBUS sbus_;
 
   ros2::PublisherPtr<tobas_hal_msgs::msg::Sbus> sbus_pub_;
-  ros2::TimerPtr initialize_timer_;
 
-  void initialize();
   void onPacket(const aso::SBUS::Packet& packet);
 };
 
@@ -32,10 +30,8 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
   // Advertise publisher
   sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSbusTopic);
 
-  // ブート直後はtermiosの設定が反映されないため，初期化を遅延させる．
-  // TODO: /dev/ttyAMA0が初期化可能かどうかを確実に判定する方法はある？
-  // initialize_timer_ = createTimer(30s, &self::initialize, this);
-
+  // 1回だと設定が反映されないことがあるため，複数回初期化リクエストを送る．
+  // FIXME: 1発で確実に初期化する，もしくは初期化が成功したかどうかを確認したい．
   for (int i = 0; i < 10; ++i)
   {
     if (!sbus_.initialize())
@@ -44,17 +40,6 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
   }
 
   sbus_.start();
-}
-
-void SBUSDriverNode::initialize()
-{
-  if (!sbus_.initialize())
-  {
-    TOBAS_ERROR("Failed to initialize S.BUS driver.");
-    return;
-  }
-
-  initialize_timer_->cancel();
 }
 
 void SBUSDriverNode::onPacket(const aso::SBUS::Packet& packet)
