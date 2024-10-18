@@ -130,6 +130,8 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   if (!armRotors())
     return;
 
+  // TODO: 正常にアームされたかどうかを確認
+
   // Get goal
   const auto goal = goal_handle->get_goal();
 
