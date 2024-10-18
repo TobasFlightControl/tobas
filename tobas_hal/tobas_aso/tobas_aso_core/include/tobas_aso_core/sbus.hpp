@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <thread>
 #include <functional>
 
@@ -49,7 +48,6 @@ private:
   const std::function<void(const Packet&)> packet_cb_;
 
   linux::UARTdev uart_;
-  std::array<uint8_t, kDataSize> data_;
   Packet packet_;
 
   std::thread read_thread_;

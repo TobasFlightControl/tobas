@@ -8,6 +8,9 @@
 #include "../include/tobas_aso_core/sbus.hpp"
 #include "../include/tobas_aso_core/constants.hpp"
 
+#define TIMEOUT_MS 1000
+#define TIMEOUT_ERROR_MSG "Failed to receive SBUS byte in 1 second."
+
 using namespace std;
 using namespace boost::multiprecision;
 
@@ -34,6 +37,9 @@ bool SBUS::initialize()
   if (!uart_.enableParity(linux::UARTdev::PARITY_EVEN))
     return false;
 
+  if (!uart_.setTimeout(TIMEOUT_MS / 100))
+    return false;
+
   // 信号読み取りを開始
   read_thread_ = thread(bind(&SBUS::readThreadFunc, this));
 
@@ -49,13 +55,20 @@ void SBUS::readThreadFunc()
 {
   const set<uint8_t> end_bytes{ 0x00, 0x04, 0x14, 0x24, 0x34 };
 
+  uint8_t start_byte, end_byte, flags;
+  array<uint8_t, kDataSize> data;
+
   while (true)
   {
     // インバータが悪いのかLinuxのUARTデバイスにデータが勝手に分割されるため，一括ではなく1バイトずつ取得する．
     // FIXME: SBUSドライバの起動時に偶然スタートバイトでない0x0Fが先頭にきているとバグるはず
 
     // Start byte
-    const auto start_byte = uart_.receiveByte();
+    if (!uart_.receive(&start_byte, 1))
+    {
+      cerr << TIMEOUT_ERROR_MSG << endl;
+      continue;
+    }
     PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte << dec << nouppercase);
     if (start_byte != 0x0F)
       continue;
@@ -63,16 +76,28 @@ void SBUS::readThreadFunc()
     // Data
     for (size_t i = 0; i < kDataSize; ++i)
     {
-      data_[i] = uart_.receiveByte();
-      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data_[i] << dec << nouppercase);
+      if (!uart_.receive(&data[i], 1))
+      {
+        cerr << TIMEOUT_ERROR_MSG << endl;
+        continue;
+      }
+      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data[i] << dec << nouppercase);
     }
 
     // Flags
-    const auto flags = uart_.receiveByte();
+    if (!uart_.receive(&flags, 1))
+    {
+      cerr << TIMEOUT_ERROR_MSG << endl;
+      continue;
+    }
     PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags << dec << nouppercase);
 
     // End byte
-    const auto end_byte = uart_.receiveByte();
+    if (!uart_.receive(&end_byte, 1))
+    {
+      cerr << TIMEOUT_ERROR_MSG << endl;
+      continue;
+    }
     PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte << dec << nouppercase);
     if (!end_bytes.contains(end_byte))
     {
@@ -81,7 +106,7 @@ void SBUS::readThreadFunc()
     }
 
     // Decode packet
-    decodeData(data_);
+    decodeData(data);
     decodeFlags(flags);
 
     // Call user callback
