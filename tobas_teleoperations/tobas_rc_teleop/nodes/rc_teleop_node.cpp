@@ -25,7 +25,7 @@ namespace tobas_rc_teleop
 class RCTeleopNode : public tobas::BaseNode
 {
   static constexpr double kInitThrottleMargin = 0.05;
-  static constexpr auto kRequestArmingInterval = 3s;
+  static constexpr double kRequestArmingInterval = 3.;  // [s]
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -39,6 +39,7 @@ private:
     CHECK_PREREQUISITES,
     WAIT_FOR_ESTOP,
     ESTOP_ON,
+    WAIT_FOR_ARMING,
     FIRST_COMMAND,
     RUNNING,
   } stage_ = CHECK_PREREQUISITES;
@@ -54,6 +55,7 @@ private:
 
   // Mutables
   uint8_t last_mode_;
+  rclcpp::Time t_last_arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
 
@@ -221,10 +223,14 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
         break;
       }
 
-      // スロットルレバーが下がっているならアームをリクエストして終了
-      TOBAS_INFO("Starting rotors.");
-      requestArmingRotors(true);
-      rclcpp::sleep_for(kRequestArmingInterval);
+      // スロットルレバーが下がっているなら一定時間間隔でアームをリクエストして終了
+      if (t_last_arming_.nanoseconds() == 0 || (get_clock()->now() - t_last_arming_).seconds() > kRequestArmingInterval)
+      {
+        TOBAS_INFO("Starting rotors.");
+        requestArmingRotors(true);
+        t_last_arming_ = get_clock()->now();
+      }
+
       break;
     }
 

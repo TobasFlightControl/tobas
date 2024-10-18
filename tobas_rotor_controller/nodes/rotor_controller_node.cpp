@@ -36,6 +36,7 @@ public:
 private:
   bool is_armed_ = false;
   bool is_activated_ = false;
+  rclcpp::Time t_arm_start_;
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
@@ -53,13 +54,12 @@ private:
   ros2::ServiceClientPtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_sc_;
 
   // Timer
-  ros2::TimerPtr publish_arming_timer_;
+  ros2::TimerPtr publish_arm_status_timer_;
   ros2::TimerPtr auto_stop_timer_;
+  ros2::TimerPtr arming_timer_;
 
-  bool armRotors();
-  bool disarmRotors();
   bool enableRCOutputs(const bool& enable);
-  void setThrottleOnAllChannels(const double& throttle);
+  void setThrotOnAllChannels(const double& throttle);
   void publishArming();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -72,6 +72,7 @@ private:
     const tobas_msgs::srv::SetArm::Response::SharedPtr& res);
 
   void autoStopTimerCb();
+  void publishArmThrotTimerCb();
 };
 
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
@@ -87,44 +88,9 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
   set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
   enable_rcout_sc_ = create_client<tobas_msgs::srv::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
-  publish_arming_timer_ = createTimer(kPublishArmingPeriod, &self::publishArming, this);
+  publish_arm_status_timer_ = createTimer(kPublishArmingPeriod, &self::publishArming, this);
   auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
-}
-
-bool RotorControllerNode::armRotors()
-{
-  if (!enableRCOutputs(true))
-  {
-    TOBAS_ERROR("Failed to enable rotors.");
-    return false;
-  }
-
-  const auto t_start = get_clock()->now();
-  while ((get_clock()->now() - t_start).seconds() < kDisarmDuration)
-  {
-    setThrottleOnAllChannels(kDisarmThrottle);
-    rclcpp::sleep_for(kDisarmInterval);
-  }
-
-  is_armed_ = true;
-  auto_stop_timer_->reset();
-
-  TOBAS_INFO("Rotors are ready to rotate.");
-  return true;
-}
-
-bool RotorControllerNode::disarmRotors()
-{
-  if (!enableRCOutputs(false))
-  {
-    TOBAS_ERROR("Failed to disable rotors.");
-    return false;
-  }
-
-  is_armed_ = false;
-  auto_stop_timer_->cancel();
-
-  return true;
+  arming_timer_ = createTimer(kDisarmInterval, &self::publishArmThrotTimerCb, this, false);
 }
 
 bool RotorControllerNode::enableRCOutputs(const bool& enable)
@@ -147,7 +113,7 @@ bool RotorControllerNode::enableRCOutputs(const bool& enable)
   return true;
 }
 
-void RotorControllerNode::setThrottleOnAllChannels(const double& throttle)
+void RotorControllerNode::setThrotOnAllChannels(const double& throttle)
 {
   auto throttles = std::make_unique<tobas_msgs::msg::ThrottleArray>();
   throttles->header.stamp = get_clock()->now();
@@ -310,38 +276,68 @@ void RotorControllerNode::setArmCb(
       }
     }
 
-    if (!armRotors())  // FIXME: アーム時のブロッキングを回避すべき
+    if (!arming_timer_->is_canceled())
+    {
+      TOBAS_INFO("Rotors are being armed now.");
+      res->success = true;
+      return;
+    }
+
+    if (!enableRCOutputs(true))
     {
       res->success = false;
       res->message = "Failed to enable rotors.";
       TOBAS_ERROR(res->message);
       return;
     }
+
+    t_arm_start_ = get_clock()->now();
+    arming_timer_->reset();
   }
   else if (is_armed_ && !req->arming)
   {
-    if (!disarmRotors())
+    if (!enableRCOutputs(false))
     {
       res->success = false;
       res->message = "Failed to disable rotors.";
       TOBAS_ERROR(res->message);
       return;
     }
+
+    is_armed_ = false;
+    publishArming();
+
+    auto_stop_timer_->cancel();
   }
 
-  publishArming();
   res->success = true;
 }
 
 void RotorControllerNode::autoStopTimerCb()
 {
-  setThrottleOnAllChannels(tobas::kMinThrot);
+  setThrotOnAllChannels(tobas::kMinThrot);
   if (is_activated_)
   {
     is_activated_ = false;
     TOBAS_WARN(
       "All rotors are automatically stopped because ", kAutoStopTimeThresh.count(),
       " ms have elapsed since the last command.");
+  }
+}
+
+void RotorControllerNode::publishArmThrotTimerCb()
+{
+  setThrotOnAllChannels(kDisarmThrottle);
+
+  if ((get_clock()->now() - t_arm_start_).seconds() > kDisarmDuration)
+  {
+    is_armed_ = true;
+    publishArming();
+
+    arming_timer_->cancel();
+    auto_stop_timer_->reset();
+
+    TOBAS_INFO("Rotors are ready to rotate.");
   }
 }
 
