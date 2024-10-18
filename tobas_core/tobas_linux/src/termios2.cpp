@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <sys/ioctl.h>
 #include <asm/termbits.h>
 
@@ -28,6 +29,8 @@ bool setNonStandardBaudRate(int fd, uint32_t baud_rate)
     cerr << "Failed to set termios2 struct (TCSETS2): " << strError() << endl;
     return false;
   }
+
+  this_thread::sleep_for(1ms);
 
   return true;
 }

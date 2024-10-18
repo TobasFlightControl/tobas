@@ -30,14 +30,9 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
   // Advertise publisher
   sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSbusTopic);
 
-  // 1回だと設定が反映されないことがあるため，複数回初期化リクエストを送る．
-  // FIXME: 1発で確実に初期化する，もしくは初期化が成功したかどうかを確認したい．
-  for (int i = 0; i < 10; ++i)
-  {
-    if (!sbus_.initialize())
-      TOBAS_EXIT("Failed to initialize S.BUS driver.");
-    get_clock()->sleep_for(10ms);
-  }
+  // Initialize SBUS driver
+  if (!sbus_.initialize())
+    TOBAS_EXIT("Failed to initialize S.BUS driver.");
 
   sbus_.start();
 }

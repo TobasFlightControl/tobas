@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include <cstring>
 #include <unistd.h>
 #include <fcntl.h>
@@ -274,6 +275,9 @@ bool UARTdev::setConfig()
     cerr << "Failed to set serial port settings." << endl;
     return false;
   }
+
+  this_thread::sleep_for(1ms);
+
   return true;
 }
 }  // namespace linux
