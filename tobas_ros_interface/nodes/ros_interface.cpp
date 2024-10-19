@@ -46,7 +46,7 @@ private:
   void addTopic(const string& sub_topic, const string& pub_topic, bool latch, bool reliable, size_t queue_size);
 
   template <typename MsgType>
-  void addTopicLocalToRemote(
+  void addTopicLogicToIface(
     const string& sub_topic,
     const string& pub_topic,
     bool latch = ros2::qos::kDefaultLatch,
@@ -54,7 +54,7 @@ private:
     size_t queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename MsgType>
-  void addTopicRemoteToLocal(
+  void addTopicIfaceToLogic(
     const string& sub_topic,
     const string& pub_topic,
     bool latch = ros2::qos::kDefaultLatch,
@@ -83,22 +83,22 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
   callback_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
-  addTopicLocalToRemote<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
-  addTopicLocalToRemote<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
-  addTopicLocalToRemote<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
-  addTopicLocalToRemote<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
-  addTopicLocalToRemote<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
-  addTopicLocalToRemote<tobas_msgs::msg::RotorSpeeds>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
-  addTopicLocalToRemote<tobas_kdl_msgs::msg::Euler>(tobas::kEulerTopic, tobas::kEulerTopic);
-  addTopicLocalToRemote<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
-  addTopicLocalToRemote<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLocalToRemote<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
-  addTopicLocalToRemote<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
-  addTopicLocalToRemote<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
-  addTopicLocalToRemote<tobas_hal_msgs::msg::MagneticField>(hal::kMagTopic, hal::kMagTopic);
-  addTopicLocalToRemote<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic, hal::kAirPressureTopic);
+  addTopicLogicToIface<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RotorSpeeds>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
+  addTopicLogicToIface<tobas_kdl_msgs::msg::Euler>(tobas::kEulerTopic, tobas::kEulerTopic);
+  addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
+  addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::MagneticField>(hal::kMagTopic, hal::kMagTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic, hal::kAirPressureTopic);
 
-  addTopicRemoteToLocal<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
+  addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
 
   addService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
   addService<tobas_msgs::srv::GetGnssOrigin>(tobas::kGetGnssOriginSrv);
@@ -127,7 +127,7 @@ void ROSInterfaceNode::addTopic(
 }
 
 template <typename MsgType>
-void ROSInterfaceNode::addTopicLocalToRemote(
+void ROSInterfaceNode::addTopicLogicToIface(
   const string& sub_topic,
   const string& pub_topic,
   bool latch,
@@ -138,7 +138,7 @@ void ROSInterfaceNode::addTopicLocalToRemote(
 }
 
 template <typename MsgType>
-void ROSInterfaceNode::addTopicRemoteToLocal(
+void ROSInterfaceNode::addTopicIfaceToLogic(
   const string& sub_topic,
   const string& pub_topic,
   bool latch,
