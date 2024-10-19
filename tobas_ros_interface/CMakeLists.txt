@@ -12,8 +12,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(std_srvs REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_drone_msgs REQUIRED)
@@ -21,8 +19,6 @@ find_package(tobas_hal_core REQUIRED)
 find_package(tobas_hal_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	sensor_msgs
-	std_srvs
 	tobas_node
 	tobas_msgs
 	tobas_drone_msgs
@@ -32,18 +28,9 @@ set(AMENT_DEPENDENCIES
 
 include_directories(include)
 
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ROSInterfaceNode" EXECUTABLE ros_interface)
+add_executable(ros_interface nodes/ros_interface.cpp)
+ament_target_dependencies(ros_interface ${AMENT_DEPENDENCIES})
 
-install(
-	TARGETS ${PROJECT_NAME}_node
-	EXPORT ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
+install(TARGETS ros_interface DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

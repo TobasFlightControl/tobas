@@ -36,6 +36,7 @@ public:
   explicit ROSInterfaceNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  rclcpp::CallbackGroup::SharedPtr callback_group_;
   map<string, rclcpp::PublisherBase::SharedPtr> publishers_;
   map<string, rclcpp::SubscriptionBase::SharedPtr> subscriptions_;
   map<string, rclcpp::ServiceBase::SharedPtr> services_;
@@ -78,6 +79,10 @@ private:
 
 ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
 {
+  // サービスコールバックを再帰的に呼んだ際のデッドロックを回避
+  // cf. https://answers.ros.org/question/343279/ros2-how-to-implement-a-sync-service-client-in-a-node/
+  callback_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+
   addTopicLocalToRemote<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
   addTopicLocalToRemote<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
   addTopicLocalToRemote<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
@@ -148,7 +153,7 @@ void ROSInterfaceNode::addService(const string& srv_name)
   auto cb =
     [this, srv_name](const typename SrvType::Request::SharedPtr& req, const typename SrvType::Response::SharedPtr& res)
   { serviceCallback<SrvType>(req, res, srv_name); };
-  services_[srv_name] = create_service<SrvType>(interface(srv_name), cb);
+  services_[srv_name] = create_service<SrvType>(interface(srv_name), cb, rclcpp::ServicesQoS(), callback_group_);
 
   clients_[srv_name] = create_client<SrvType>(srv_name);
 }
@@ -191,4 +196,26 @@ string ROSInterfaceNode::interface(const string& name)
   return path::join(tobas::kRemoteIfaceTopicNS, name);
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ROSInterfaceNode)
+int main(int argc, char* argv[])
+{
+  rclcpp::init(argc, argv);
+
+  const auto node = std::make_shared<ROSInterfaceNode>();
+
+  long num_threads = 4;
+  if (node->has_parameter("num_threads"))
+    num_threads = node->get_parameter("num_threads").as_int();
+
+  if (num_threads == 1)
+  {
+    RCLCPP_WARN(node->get_logger(), "To avoid deadlock with recursive service calls, at least 2 threads are required.");
+    num_threads = 2;
+  }
+
+  RCLCPP_INFO_STREAM(node->get_logger(), "The number of threads is set to " << num_threads << ".");
+
+  rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), num_threads);
+  exec.add_node(node);
+
+  exec.spin();
+}
