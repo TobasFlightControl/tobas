@@ -66,8 +66,8 @@ StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options) : super("
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   cpu_sub_ = createSubscriber(tobas::kCPUTopic, &self::cpuCb, this);
-  batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
-  euler_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kEulerTopic), &self::eulerCb, this);
+  batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kBatteryLpfTopic), &self::battCb, this);
+  euler_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kEulerTopic), &self::eulerCb, this);
   latency_sub_ = createSubscriber(tobas::kLatencyTopic, &self::latencyCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);

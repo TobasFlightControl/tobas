@@ -70,7 +70,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   prearm_check_pub_ = createPublisher<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, true, true);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicPrefix, tobas::kBatteryLpfTopic), &self::battCb, this);
+  batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kBatteryLpfTopic), &self::battCb, this);
   cpu_sub_ = createSubscriber(tobas::kCPUTopic, &self::cpuCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 

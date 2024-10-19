@@ -37,6 +37,17 @@ private:
   map<string, rclcpp::SubscriptionBase::SharedPtr> subs_;
 
   template <typename MsgType>
+  void addTopic(const string& sub_topic, const string& pub_topic, bool latch, bool reliable, size_t queue_size);
+
+  template <typename MsgType>
+  void addTopicLocalToRemote(
+    const string& sub_topic,
+    const string& pub_topic,
+    bool latch = ros2::qos::kDefaultLatch,
+    bool reliable = ros2::qos::kDefaultReliable,
+    size_t queue_size = ros2::qos::kDefaultQueueSize);
+
+  template <typename MsgType>
   void addTopicRemoteToLocal(
     const string& sub_topic,
     const string& pub_topic,
@@ -47,25 +58,55 @@ private:
   template <typename MsgType>
   void topicCallback(const typename MsgType::ConstSharedPtr& msg_in, const string& pub_topic);
 
-  static string throttled(const std::string& topic);
+  static string throttled(const string& topic);
 };
 
 ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
 {
-  addTopicRemoteToLocal<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
-  addTopicRemoteToLocal<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
-  addTopicRemoteToLocal<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
-  addTopicRemoteToLocal<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
-  addTopicRemoteToLocal<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
-  addTopicRemoteToLocal<tobas_msgs::msg::RotorSpeeds>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
-  addTopicRemoteToLocal<tobas_kdl_msgs::msg::Euler>(tobas::kEulerTopic, tobas::kEulerTopic);
-  addTopicRemoteToLocal<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
-  addTopicRemoteToLocal<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicRemoteToLocal<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
-  addTopicRemoteToLocal<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
-  addTopicRemoteToLocal<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
-  addTopicRemoteToLocal<tobas_hal_msgs::msg::MagneticField>(hal::kMagTopic, hal::kMagTopic);
-  addTopicRemoteToLocal<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic, hal::kAirPressureTopic);
+  addTopicLocalToRemote<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
+  addTopicLocalToRemote<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
+  addTopicLocalToRemote<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
+  addTopicLocalToRemote<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
+  addTopicLocalToRemote<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
+  addTopicLocalToRemote<tobas_msgs::msg::RotorSpeeds>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
+  addTopicLocalToRemote<tobas_kdl_msgs::msg::Euler>(tobas::kEulerTopic, tobas::kEulerTopic);
+  addTopicLocalToRemote<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
+  addTopicLocalToRemote<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
+  addTopicLocalToRemote<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
+  addTopicLocalToRemote<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
+  addTopicLocalToRemote<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
+  addTopicLocalToRemote<tobas_hal_msgs::msg::MagneticField>(hal::kMagTopic, hal::kMagTopic);
+  addTopicLocalToRemote<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic, hal::kAirPressureTopic);
+
+  addTopicRemoteToLocal<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
+}
+
+template <typename MsgType>
+void ROSInterfaceNode::addTopic(
+  const string& sub_topic,
+  const string& pub_topic,
+  bool latch,
+  bool reliable,
+  size_t queue_size)
+{
+  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+
+  const auto cb = [this, pub_topic](const typename MsgType::ConstSharedPtr& msg)
+  { topicCallback<MsgType>(msg, pub_topic); };
+  subs_[sub_topic] = create_subscription<MsgType>(sub_topic, qos, cb);
+
+  pubs_[pub_topic] = create_publisher<MsgType>(pub_topic, qos);
+}
+
+template <typename MsgType>
+void ROSInterfaceNode::addTopicLocalToRemote(
+  const string& sub_topic,
+  const string& pub_topic,
+  bool latch,
+  bool reliable,
+  size_t queue_size)
+{
+  addTopic<MsgType>(sub_topic, path::join(tobas::kRemoteIfaceTopicNS, pub_topic), latch, reliable, queue_size);
 }
 
 template <typename MsgType>
@@ -76,14 +117,7 @@ void ROSInterfaceNode::addTopicRemoteToLocal(
   bool reliable,
   size_t queue_size)
 {
-  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
-  const auto pub_topic_if = path::join(tobas::kInterfaceTopicPrefix, pub_topic);
-
-  const auto cb = [this, pub_topic_if](const typename MsgType::ConstSharedPtr& msg)
-  { topicCallback<MsgType>(msg, pub_topic_if); };
-  subs_[sub_topic] = create_subscription<MsgType>(sub_topic, qos, cb);
-
-  pubs_[pub_topic_if] = create_publisher<MsgType>(pub_topic_if, qos);
+  addTopic<MsgType>(path::join(tobas::kRemoteIfaceTopicNS, sub_topic), pub_topic, latch, reliable, queue_size);
 }
 
 template <typename MsgType>
@@ -94,9 +128,9 @@ void ROSInterfaceNode::topicCallback(const typename MsgType::ConstSharedPtr& msg
   pub->publish(move(msg_out));
 }
 
-string ROSInterfaceNode::throttled(const std::string& topic)
+string ROSInterfaceNode::throttled(const string& topic)
 {
-  return path::join(tobas::kThrottledTopicPrefix, topic);
+  return path::join(tobas::kThrottledTopicNS, topic);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ROSInterfaceNode)
