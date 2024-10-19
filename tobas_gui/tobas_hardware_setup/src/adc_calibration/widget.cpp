@@ -73,7 +73,7 @@ void ADCCalibrationWidget::setNamespace(const std::string& ns)
 
   arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kReloadConfigSrvSuffix, tobas::kArmingTopic), &self::armingCb, this);
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
 }

@@ -1,5 +1,3 @@
-#include <std_srvs/srv/trigger.hpp>
-
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
@@ -9,6 +7,7 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs_adapter/MagneticField.hpp>
 #include <tobas_msgs_adapter/MagneticField.hpp>
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
 #include <tobas_real_common/constants.hpp>
 
@@ -23,6 +22,7 @@ class MagnetometerHandlerNode : public tobas::BaseNode
 
   using self = MagnetometerHandlerNode;
   using super = tobas::BaseNode;
+  using SetParams = tobas_real_msgs::srv::SetMagnetometerParams;
 
 public:
   explicit MagnetometerHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -37,12 +37,13 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_sub_;
+  ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  bool paramsCb(const vector<double>& params);
   void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
@@ -54,7 +55,7 @@ MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& opti
     return;
   }
 
-  addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig())
   {
@@ -133,65 +134,6 @@ void MagnetometerHandlerNode::registerPubSub()
   mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
 }
 
-bool MagnetometerHandlerNode::paramsCb(const vector<double>& params)
-{
-  // Skip first call
-  if (params.size() == 0)
-    return false;
-
-  // Check size
-  if (params.size() != kParamSize)
-  {
-    TOBAS_ERROR("Parameter size mismatch.");
-    return false;
-  }
-
-  // Copy transformer
-  const auto mag_trans_old = mag_trans_;
-
-  // Update parameters
-  mag_trans_.a_xx = params.at(kAxxChannel);
-  mag_trans_.a_yy = params.at(kAyyChannel);
-  mag_trans_.a_zz = params.at(kAzzChannel);
-  mag_trans_.a_xy = params.at(kAxyChannel);
-  mag_trans_.a_yz = params.at(kAyzChannel);
-  mag_trans_.a_zx = params.at(kAzxChannel);
-  mag_trans_.b_x = params.at(kBxChannel);
-  mag_trans_.b_y = params.at(kByChannel);
-  mag_trans_.b_z = params.at(kBzChannel);
-  mag_trans_.c = params.at(kCChannel);
-
-  // Verify parameters
-  if (!mag_trans_.initialize())
-  {
-    TOBAS_ERROR("Failed to initialize ellipse transformer.");
-    mag_trans_ = mag_trans_old;
-    return false;
-  }
-
-  // Save parameters
-  pt_.set(kAxxKey, params.at(kAxxChannel));
-  pt_.set(kAyyKey, params.at(kAyyChannel));
-  pt_.set(kAzzKey, params.at(kAzzChannel));
-  pt_.set(kAxyKey, params.at(kAxyChannel));
-  pt_.set(kAyzKey, params.at(kAyzChannel));
-  pt_.set(kAzxKey, params.at(kAzxChannel));
-  pt_.set(kBxKey, params.at(kBxChannel));
-  pt_.set(kByKey, params.at(kByChannel));
-  pt_.set(kBzKey, params.at(kBzChannel));
-  pt_.set(kCKey, params.at(kCChannel));
-  if (!pt_.save())
-  {
-    TOBAS_ERROR("Failed to save parameters.");
-    return false;
-  }
-
-  if (mag_pub_ == nullptr)
-    registerPubSub();
-
-  return true;
-}
-
 void MagnetometerHandlerNode::magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw)
 {
   // Project data to unit sphere
@@ -231,6 +173,59 @@ void MagnetometerHandlerNode::magCb(const tobas_hal_msgs::MagneticField::ConstSh
 
   // Publish message
   mag_pub_->publish(move(mag_msg));
+}
+
+void MagnetometerHandlerNode::setParamsCb(
+  const SetParams::Request::ConstSharedPtr& req,
+  const SetParams::Response::SharedPtr& res)
+{
+  // Copy transformer
+  const auto mag_trans_old = mag_trans_;
+
+  // Update parameters
+  mag_trans_.a_xx = req->a_xx;
+  mag_trans_.a_yy = req->a_yy;
+  mag_trans_.a_zz = req->a_zz;
+  mag_trans_.a_xy = req->a_xy;
+  mag_trans_.a_yz = req->a_yz;
+  mag_trans_.a_zx = req->a_zx;
+  mag_trans_.b_x = req->b_x;
+  mag_trans_.b_y = req->b_y;
+  mag_trans_.b_z = req->b_z;
+  mag_trans_.c = req->c;
+
+  // Verify parameters
+  if (!mag_trans_.initialize())
+  {
+    res->success = false;
+    res->message = "Failed to initialize ellipse transformer.";
+    mag_trans_ = mag_trans_old;
+    return;
+  }
+
+  // Save parameters
+  pt_.set(kAxxKey, req->a_xx);
+  pt_.set(kAyyKey, req->a_yy);
+  pt_.set(kAzzKey, req->a_zz);
+  pt_.set(kAxyKey, req->a_xy);
+  pt_.set(kAyzKey, req->a_yz);
+  pt_.set(kAzxKey, req->a_zx);
+  pt_.set(kBxKey, req->b_x);
+  pt_.set(kByKey, req->b_y);
+  pt_.set(kBzKey, req->b_z);
+  pt_.set(kCKey, req->c);
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save parameters.";
+    return;
+  }
+
+  if (mag_pub_ == nullptr)
+    registerPubSub();
+
+  res->success = true;
+  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(MagnetometerHandlerNode)

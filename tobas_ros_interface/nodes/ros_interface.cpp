@@ -4,6 +4,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
+#include <tobas_real_common/constants.hpp>
 
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
@@ -19,11 +20,15 @@
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_dparam_msgs/srv/get_params.hpp>
-#include <tobas_hal_msgs/msg/adc.hpp>
-#include <tobas_hal_msgs/msg/sbus.hpp>
 #include <tobas_hal_msgs/msg/imu.hpp>
 #include <tobas_hal_msgs/msg/magnetic_field.hpp>
 #include <tobas_hal_msgs/msg/fluid_pressure.hpp>
+#include <tobas_hal_msgs/msg/adc.hpp>
+#include <tobas_hal_msgs/msg/sbus.hpp>
+#include <tobas_real_msgs/srv/set_imu_params.hpp>
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
+#include <tobas_real_msgs/srv/set_battery_params.hpp>
+#include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
 using namespace std;
 
@@ -92,11 +97,11 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_kdl_msgs::msg::Euler>(tobas::kEulerTopic, tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
   addTopicLogicToIface<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
   addTopicLogicToIface<tobas_hal_msgs::msg::MagneticField>(hal::kMagTopic, hal::kMagTopic);
   addTopicLogicToIface<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic, hal::kAirPressureTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
 
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
 
@@ -107,6 +112,10 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_msgs::srv::BagRecordStop>(tobas::kROSBagRecordStopSrv);
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kControllerNode, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kObserverNode, tobas::kGetDynamicParamsSrv));
+  addService<tobas_real_msgs::srv::SetIMUParams>(real::handler::imu::kSetParamSrv);
+  addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
+  addService<tobas_real_msgs::srv::SetBatteryParams>(real::handler::adc::kSetParamSrv);
+  addService<tobas_real_msgs::srv::SetRCInputParams>(real::handler::rcin::kSetParamSrv);
 }
 
 template <typename MsgType>

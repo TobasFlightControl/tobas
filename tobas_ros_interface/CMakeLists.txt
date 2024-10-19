@@ -17,6 +17,8 @@ find_package(tobas_msgs REQUIRED)
 find_package(tobas_drone_msgs REQUIRED)
 find_package(tobas_hal_core REQUIRED)
 find_package(tobas_hal_msgs REQUIRED)
+find_package(tobas_real_common REQUIRED)
+find_package(tobas_real_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	tobas_node
@@ -24,6 +26,8 @@ set(AMENT_DEPENDENCIES
 	tobas_drone_msgs
 	tobas_hal_core
 	tobas_hal_msgs
+	tobas_real_common
+	tobas_real_msgs
 )
 
 include_directories(include)

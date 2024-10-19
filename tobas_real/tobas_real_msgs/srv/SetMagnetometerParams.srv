@@ -1,0 +1,13 @@
+float64 a_xx
+float64 a_yy
+float64 a_zz
+float64 a_xy
+float64 a_yz
+float64 a_zx
+float64 b_x
+float64 b_y
+float64 b_z
+float64 c
+---
+bool success
+string message

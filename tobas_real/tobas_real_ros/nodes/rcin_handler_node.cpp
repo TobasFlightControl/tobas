@@ -1,5 +1,3 @@
-#include <std_srvs/srv/trigger.hpp>
-
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/range.hpp>
@@ -9,6 +7,7 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
 #include <tobas_real_common/constants.hpp>
 
@@ -20,6 +19,7 @@ class RCInputHandlerNode : public tobas::BaseNode
 {
   using self = RCInputHandlerNode;
   using super = tobas::BaseNode;
+  using SetParams = tobas_real_msgs::srv::SetRCInputParams;
 
 public:
   explicit RCInputHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -38,12 +38,13 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::RCInput> rcin_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
+  ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  bool paramsCb(const vector<double>& params);
   void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
 RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("rcin_handler", options)
@@ -54,7 +55,7 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
     return;
   }
 
-  addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig())
   {
@@ -158,64 +159,6 @@ void RCInputHandlerNode::registerPubSub()
   sbus_sub_ = createSubscriber(hal::kSBUSTopic, &self::sbusCb, this);
 }
 
-bool RCInputHandlerNode::paramsCb(const vector<double>& params)
-{
-  // Skip first call
-  if (params.size() == 0)
-    return false;
-
-  // Check size
-  if (params.size() != kParamSize)
-  {
-    TOBAS_ERROR("Parameter size mismatch.");
-    return false;
-  }
-
-  // Update parameters
-  roll_range_.lower = params.at(kRollLeftChannel);
-  roll_range_.upper = params.at(kRollRightChannel);
-  pitch_range_.lower = params.at(kPitchDownChannel);
-  pitch_range_.upper = params.at(kPitchUpChannel);
-  yaw_range_.lower = params.at(kYawRightChannel);
-  yaw_range_.upper = params.at(kYawLeftChannel);
-  throt_range_.lower = params.at(kThrotDownChannel);
-  throt_range_.upper = params.at(kThrotUpChannel);
-  modes_.at(tobas::flight_mode_t::PROGRAM_MODE) = params.at(kModeProgramChannel);
-  modes_.at(tobas::flight_mode_t::STABILIZE_MODE) = params.at(kModeStabilizeChannel);
-  modes_.at(tobas::flight_mode_t::ACROBAT_MODE) = params.at(kModeAcrobatChannel);
-  estop_on_ = params.at(kEStopOnChannel);
-  estop_off_ = params.at(kEStopOffChannel);
-  gpsw_on_ = params.at(kGPSwOnChannel);
-  gpsw_off_ = params.at(kGPSwOffChannel);
-
-  // Save parameters
-  pt_.set(kRollLeftKey, params.at(kRollLeftChannel));
-  pt_.set(kRollRightKey, params.at(kRollRightChannel));
-  pt_.set(kPitchDownKey, params.at(kPitchDownChannel));
-  pt_.set(kPitchUpKey, params.at(kPitchUpChannel));
-  pt_.set(kYawRightKey, params.at(kYawRightChannel));
-  pt_.set(kYawLeftKey, params.at(kYawLeftChannel));
-  pt_.set(kThrotDownKey, params.at(kThrotDownChannel));
-  pt_.set(kThrotUpKey, params.at(kThrotUpChannel));
-  pt_.set(kModeProgramKey, params.at(kModeProgramChannel));
-  pt_.set(kModeStabilizeKey, params.at(kModeStabilizeChannel));
-  pt_.set(kModeAcrobatKey, params.at(kModeAcrobatChannel));
-  pt_.set(kEStopOnKey, params.at(kEStopOnChannel));
-  pt_.set(kEStopOffKey, params.at(kEStopOffChannel));
-  pt_.set(kGPSwOnKey, params.at(kGPSwOnChannel));
-  pt_.set(kGPSwOffKey, params.at(kGPSwOffChannel));
-  if (!pt_.save())
-  {
-    TOBAS_ERROR("Failed to save parameters.");
-    return false;
-  }
-
-  if (rcin_pub_ == nullptr)
-    registerPubSub();
-
-  return true;
-}
-
 void RCInputHandlerNode::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
   // Create message
@@ -240,6 +183,57 @@ void RCInputHandlerNode::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr&
 
   // Publish message
   rcin_pub_->publish(move(rcin_msg));
+}
+
+void RCInputHandlerNode::setParamsCb(
+  const SetParams::Request::ConstSharedPtr& req,
+  const SetParams::Response::SharedPtr& res)
+{
+  // Update parameters
+  roll_range_.lower = req->roll_left;
+  roll_range_.upper = req->roll_right;
+  pitch_range_.lower = req->pitch_down;
+  pitch_range_.upper = req->pitch_up;
+  yaw_range_.lower = req->yaw_right;
+  yaw_range_.upper = req->yaw_left;
+  throt_range_.lower = req->throttle_down;
+  throt_range_.upper = req->throttle_up;
+  modes_.at(tobas::flight_mode_t::PROGRAM_MODE) = req->mode_program;
+  modes_.at(tobas::flight_mode_t::STABILIZE_MODE) = req->mode_stabilize;
+  modes_.at(tobas::flight_mode_t::ACROBAT_MODE) = req->mode_acrobat;
+  estop_on_ = req->estop_on;
+  estop_off_ = req->estop_off;
+  gpsw_on_ = req->gpsw_on;
+  gpsw_off_ = req->gpsw_off;
+
+  // Save parameters
+  pt_.set(kRollLeftKey, req->roll_left);
+  pt_.set(kRollRightKey, req->roll_right);
+  pt_.set(kPitchDownKey, req->pitch_down);
+  pt_.set(kPitchUpKey, req->pitch_up);
+  pt_.set(kYawRightKey, req->yaw_right);
+  pt_.set(kYawLeftKey, req->yaw_left);
+  pt_.set(kThrotDownKey, req->throttle_down);
+  pt_.set(kThrotUpKey, req->throttle_up);
+  pt_.set(kModeProgramKey, req->mode_program);
+  pt_.set(kModeStabilizeKey, req->mode_stabilize);
+  pt_.set(kModeAcrobatKey, req->mode_acrobat);
+  pt_.set(kEStopOnKey, req->estop_on);
+  pt_.set(kEStopOffKey, req->estop_off);
+  pt_.set(kGPSwOnKey, req->gpsw_on);
+  pt_.set(kGPSwOffKey, req->gpsw_off);
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save parameters.";
+    return;
+  }
+
+  if (rcin_pub_ == nullptr)
+    registerPubSub();
+
+  res->success = true;
+  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(RCInputHandlerNode)

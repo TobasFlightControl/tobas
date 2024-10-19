@@ -17,6 +17,7 @@
   <depend>tobas_hal_core</depend>
   <depend>tobas_hal_msgs_adapter</depend>
   <depend>tobas_real_common</depend>
+  <depend>tobas_real_msgs</depend>
   <depend>tobas_qt_tools</depend>
   <depend>tobas_gui_common</depend>
 

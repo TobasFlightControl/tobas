@@ -1,8 +1,9 @@
 #include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/sync_param_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
@@ -275,29 +276,37 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   }
 
   // パラメータを作成
-  vector<double> params(real::handler::rcin::kParamSize);
-  params.at(real::handler::rcin::kRollLeftChannel) = roll_range_->getLower();
-  params.at(real::handler::rcin::kRollRightChannel) = roll_range_->getUpper();
-  params.at(real::handler::rcin::kPitchUpChannel) = pitch_range_->getLower();
-  params.at(real::handler::rcin::kPitchDownChannel) = pitch_range_->getUpper();
-  params.at(real::handler::rcin::kYawLeftChannel) = yaw_range_->getLower();
-  params.at(real::handler::rcin::kYawRightChannel) = yaw_range_->getUpper();
-  params.at(real::handler::rcin::kThrotUpChannel) = throt_range_->getLower();
-  params.at(real::handler::rcin::kThrotDownChannel) = throt_range_->getUpper();
-  params.at(real::handler::rcin::kModeProgramChannel) = mode_range_->getLower();
-  params.at(real::handler::rcin::kModeStabilizeChannel) = mode_range_->getMiddle();
-  params.at(real::handler::rcin::kModeAcrobatChannel) = mode_range_->getUpper();
-  params.at(real::handler::rcin::kEStopOnChannel) = estop_range_->getLower();
-  params.at(real::handler::rcin::kEStopOffChannel) = estop_range_->getUpper();
-  params.at(real::handler::rcin::kGPSwOnChannel) = gpsw_range_->getLower();
-  params.at(real::handler::rcin::kGPSwOffChannel) = gpsw_range_->getUpper();
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetRCInputParams::Request>();
+  req->roll_left = roll_range_->getLower();
+  req->roll_right = roll_range_->getUpper();
+  req->pitch_up = pitch_range_->getLower();
+  req->pitch_down = pitch_range_->getUpper();
+  req->yaw_left = yaw_range_->getLower();
+  req->yaw_right = yaw_range_->getUpper();
+  req->throttle_up = throt_range_->getLower();
+  req->throttle_down = throt_range_->getUpper();
+  req->mode_program = mode_range_->getLower();
+  req->mode_stabilize = mode_range_->getMiddle();
+  req->mode_acrobat = mode_range_->getUpper();
+  req->estop_on = estop_range_->getLower();
+  req->estop_off = estop_range_->getUpper();
+  req->gpsw_on = gpsw_range_->getLower();
+  req->gpsw_off = gpsw_range_->getUpper();
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, ns_ + "/rcin_handler");
-  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRCInputParams> sc(
+    node_, path::join(tobas::kRemoteIfaceTopicNS, real::handler::rcin::kSetParamSrv));
+  if (!sc.call(req, kSetParamTimeout))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");
-    reset();
+    return;
+  }
+
+  // 結果を確認
+  const auto& res = sc.getResponse();
+  if (!res->success)
+  {
+    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
   }
 
