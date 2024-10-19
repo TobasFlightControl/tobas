@@ -63,7 +63,7 @@ def generate_launch_description():
     ros_args = ["--log-level", log_level]
     extra_arguments = [{"use_intra_process_comms": True}]
 
-    # Launch component managers
+    # Launch component managers (realtime, isolated)
     component_managers = Node(
         package="tobas_components_rt",
         executable="component_containers",
@@ -308,7 +308,18 @@ def generate_launch_description():
         )
     )
 
-    # Launch interface node
+    # Launch dynamic parameter server
+    ld.add_action(
+        Node(
+            package="tobas_dparam_server",
+            executable="dparam_server",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch interface bridge
     ld.add_action(
         Node(
             package="tobas_ros_interface",

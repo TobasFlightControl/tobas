@@ -34,7 +34,7 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& 
 bool ParamBlockWidget::load(const string& node_name)
 {
   node_name_ = node_name;
-  param_client_ = make_shared<ros2::SyncParamClient>(node_, node_name_);
+  dparam_client_ = make_shared<dparam::DynamicParamClient>(node_, node_name);
 
   clear();
 
@@ -111,7 +111,7 @@ bool ParamBlockWidget::setToDefaults()
     if (config.slider->get() == config.dflt)
       continue;
 
-    if (!param_client_->setParam(name, config.dflt))
+    if (!dparam_client_->set(name, config.dflt))
     {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
@@ -127,7 +127,7 @@ bool ParamBlockWidget::setToDefaults()
     if (config.slider->get() == config.dflt)
       continue;
 
-    if (!param_client_->setParam(name, config.dflt))
+    if (!dparam_client_->set(name, config.dflt))
     {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
@@ -202,13 +202,13 @@ bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
 
 void ParamBlockWidget::onIntParamChanged(int value, const std::string& name)
 {
-  if (!param_client_->setParam(name, value))
+  if (!dparam_client_->set(name, value))
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
 }
 
 void ParamBlockWidget::onDoubleParamChanged(double value, const std::string& name)
 {
-  if (!param_client_->setParam(name, value))
+  if (!dparam_client_->set(name, value))
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
 }
 }  // namespace param_tuning

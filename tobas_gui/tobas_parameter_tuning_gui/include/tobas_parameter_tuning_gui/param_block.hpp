@@ -7,8 +7,8 @@
 #include <QLabel>
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
+#include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/widgets/slider_text.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
@@ -49,8 +49,8 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  ros2::SyncParamClient::SharedPtr param_client_;
   ssh::SSHClient ssh_client_;
+  dparam::DynamicParamClient::SharedPtr dparam_client_;
 
   std::string node_name_;
   std::map<std::string, IntConfig> int_configs_;

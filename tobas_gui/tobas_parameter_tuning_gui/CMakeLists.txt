@@ -24,7 +24,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_drone_core REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
-find_package(tobas_dparam_msgs REQUIRED)
+find_package(tobas_dparam_client REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
@@ -32,7 +32,7 @@ set(AMENT_DEPENDENCIES
   tobas_ros2_tools
   tobas_drone_core
   tobas_ssh_client
-  tobas_dparam_msgs
+  tobas_dparam_client
   tobas_qt_tools
   tobas_gui_common
 )

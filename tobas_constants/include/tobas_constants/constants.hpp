@@ -87,8 +87,6 @@ static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kROSBagRecordStartSrv[] = "rosbag_record_start";
 static constexpr char kROSBagRecordStopSrv[] = "rosbag_record_stop";
 static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
-static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
-static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
