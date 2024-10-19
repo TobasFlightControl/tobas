@@ -30,7 +30,8 @@ ConsoleWidget::ConsoleWidget(rclcpp::Node::SharedPtr node) : node_(node)
 void ConsoleWidget::updateNamespace(const std::string& ns)
 {
   table_->removeAll();
-  message_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kMessageTopic), &self::messageCb, this);
+  message_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kMessageTopic), &self::messageCb, this);
 
   setEnabled(true);
 }

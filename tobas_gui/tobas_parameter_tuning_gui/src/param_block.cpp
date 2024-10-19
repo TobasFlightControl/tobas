@@ -1,5 +1,6 @@
 #include <QVBoxLayout>
 
+#include <tobas_path_tools/join.hpp>
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
@@ -38,7 +39,8 @@ bool ParamBlockWidget::load(const string& node_name)
   clear();
 
   // Get dynamic parameters
-  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(node_, node_name + "/" + tobas::kGetDynamicParamsSrv);
+  ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(
+    node_, path::join(tobas::kRemoteIfaceTopicNS, node_name, tobas::kGetDynamicParamsSrv));
   const auto req = make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req))
   {

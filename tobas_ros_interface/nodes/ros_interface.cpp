@@ -105,7 +105,8 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_msgs::srv::SetGnssOrigin>(tobas::kSetGnssOriginSrv);
   addService<tobas_msgs::srv::BagRecordStart>(tobas::kROSBagRecordStartSrv);
   addService<tobas_msgs::srv::BagRecordStop>(tobas::kROSBagRecordStopSrv);
-  addService<tobas_dparam_msgs::srv::GetParams>(tobas::kGetDynamicParamsSrv);
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kControllerNode, tobas::kGetDynamicParamsSrv));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kObserverNode, tobas::kGetDynamicParamsSrv));
 }
 
 template <typename MsgType>

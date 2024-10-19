@@ -140,7 +140,8 @@ void RCInputCalibrationWidget::setNamespace(const string& ns)
   reset();
 
   arming_ = nullptr;
-  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
 }
@@ -203,7 +204,8 @@ void RCInputCalibrationWidget::onStartButtonClicked()
   }
 
   // 一時的にSBUSトピックを購読開始
-  sbus_sub_ = ros2::createSubscriber(node_, ns_ + "/" + hal::kSBUSTopic, &self::sbusCb, this);
+  sbus_sub_ =
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kSBUSTopic), &self::sbusCb, this);
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);

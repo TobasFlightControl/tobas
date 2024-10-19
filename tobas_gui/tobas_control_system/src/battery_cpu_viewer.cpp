@@ -49,8 +49,9 @@ void BatteryCPUViewerWidget::updateInternalDataStructures()
   cpu_load_->setMaximum(kMaxCPULoad);
 
   batt_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kThrottledTopicNS, tobas::kBatteryLpfTopic), &self::battCb, this);
-  cpu_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kCPUTopic), &self::cpuCb, this);
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::battCb, this);
+  cpu_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kCPUTopic), &self::cpuCb, this);
 }
 
 void BatteryCPUViewerWidget::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& batt)

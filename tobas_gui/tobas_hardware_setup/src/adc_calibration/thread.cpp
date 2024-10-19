@@ -1,6 +1,8 @@
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_param_client.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 
@@ -29,7 +31,8 @@ void ADCCalibrationThread::run()
   voltage_sum_.reset();
 
   // 一時的にADCの購読を開始
-  auto adc_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kADCTopic, &ADCCalibrationThread::adcCb, this);
+  auto adc_sub = ros2::createSubscriber(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kADCTopic), &ADCCalibrationThread::adcCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))

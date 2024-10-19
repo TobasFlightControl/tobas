@@ -51,7 +51,8 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 void TogglesViewer::updateNamespace(const std::string& ns)
 {
   reset();
-  rcin_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kRcInputTopic), &self::rcInputCb, this);
+  rcin_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
 void TogglesViewer::reset()

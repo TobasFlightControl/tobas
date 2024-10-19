@@ -103,7 +103,8 @@ void GUICoreWidget::updateInternalDataStructures()
   flight_log_->updateNamespace(drone_.name);
 
   arming_ = nullptr;
-  arming_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kArmingTopic), &self::armingCb, this);
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 }
 
 void GUICoreWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)

@@ -1,3 +1,4 @@
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
@@ -14,7 +15,8 @@ SetArmThread::SetArmThread(rclcpp::Node::SharedPtr node, bool arming) : node_(no
 
 void SetArmThread::run()
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(node_, ns_ + "/" + tobas::kSetArmSrv);
+  ros2::SyncServiceClient<tobas_msgs::srv::SetArm> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kSetArmSrv));
 
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming_;

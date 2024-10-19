@@ -105,7 +105,8 @@ void MagCalibrationWidget::setNamespace(const string& ns)
   reset();
 
   arming_ = nullptr;
-  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kReloadConfigSrvSuffix, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
 }
@@ -168,7 +169,8 @@ void MagCalibrationWidget::onStartButtonClicked()
   cnt_ = 0;
 
   // 一時的にトピック通信を開始
-  mag_raw_sub_ = ros2::createSubscriber(node_, ns_ + "/" + hal::kMagTopic, &self::magCb, this);
+  mag_raw_sub_ =
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kMagTopic), &self::magCb, this);
 
   history_length_->setValue(kMaxDataSize);
 
