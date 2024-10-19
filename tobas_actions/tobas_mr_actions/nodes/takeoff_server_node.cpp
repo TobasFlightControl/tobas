@@ -42,7 +42,7 @@ private:
   void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("mr_takeoff_action_server", options)
+TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("takeoff_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);

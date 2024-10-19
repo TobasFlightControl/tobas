@@ -48,7 +48,7 @@ private:
   void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_move_action_server", options)
+MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("move_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
 
