@@ -59,7 +59,7 @@ void ADCCalibrationThread::run()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetBatteryParams> sc(
-    node_, path::join(tobas::kRemoteIfaceTopicNS, real::handler::adc::kSetParamSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::adc::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout))
   {
     Q_EMIT finished(false, "Failed to send calibration results.");

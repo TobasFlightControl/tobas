@@ -11,8 +11,8 @@ using namespace tobas_dparam_msgs::srv;
 
 namespace dparam
 {
-DynamicParamClient::DynamicParamClient(rclcpp::Node::SharedPtr node, const string& node_name)
-  : node_(node), node_name_(node_name)
+DynamicParamClient::DynamicParamClient(rclcpp::Node::SharedPtr node, const string& node_name, const std::string& ns)
+  : node_(node), node_name_(node_name), ns_(ns)
 {
 }
 

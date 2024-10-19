@@ -324,7 +324,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
-    node_, path::join(tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");

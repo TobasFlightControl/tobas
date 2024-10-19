@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 
 namespace dparam
@@ -16,7 +17,7 @@ public:
     E_SERVER_ERROR = -2,
   };
 
-  explicit DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name);
+  explicit DynamicParamClient(rclcpp::Node::SharedPtr node, const std::string& node_name, const std::string& ns = "");
 
   error_t set(const std::string& param_name, const bool& value);
   error_t set(const std::string& param_name, const int& value);
@@ -29,6 +30,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const std::string node_name_;
+  const std::string ns_;
 
   error_t error_code_ = E_NO_ERROR;
 
@@ -39,7 +41,7 @@ private:
 template <typename SrvType, const char* SrvName, typename T>
 DynamicParamClient::error_t DynamicParamClient::setParam(const std::string& param_name, T& value)
 {
-  ros2::SyncServiceClient<SrvType> sc(node_, SrvName);
+  ros2::SyncServiceClient<SrvType> sc(node_, path::join(ns_, SrvName));
 
   const auto req = std::make_shared<typename SrvType::Request>();
   req->node_name = node_name_;

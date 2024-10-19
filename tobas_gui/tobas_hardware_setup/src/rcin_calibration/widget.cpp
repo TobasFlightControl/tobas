@@ -295,7 +295,7 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
 
   // パラメータを更新
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRCInputParams> sc(
-    node_, path::join(tobas::kRemoteIfaceTopicNS, real::handler::rcin::kSetParamSrv));
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::rcin::kSetParamSrv));
   if (!sc.call(req, kSetParamTimeout))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");

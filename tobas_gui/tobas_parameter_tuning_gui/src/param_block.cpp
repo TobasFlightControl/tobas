@@ -31,16 +31,16 @@ ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& 
   rows->addLayout(form_);
 }
 
-bool ParamBlockWidget::load(const string& node_name)
+bool ParamBlockWidget::load(const string& ns, const string& node_name)
 {
   node_name_ = node_name;
-  dparam_client_ = make_shared<dparam::DynamicParamClient>(node_, node_name);
+  dparam_client_ = make_shared<dparam::DynamicParamClient>(node_, node_name, ns);
 
   clear();
 
   // Get dynamic parameters
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(
-    node_, path::join(tobas::kRemoteIfaceTopicNS, node_name, tobas::kGetDynamicParamsSrv));
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, node_name, tobas::kGetDynamicParamsSrv));
   const auto req = make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
   if (!sc.call(req))
   {
@@ -111,7 +111,7 @@ bool ParamBlockWidget::setToDefaults()
     if (config.slider->get() == config.dflt)
       continue;
 
-    if (!dparam_client_->set(name, config.dflt))
+    if (dparam_client_->set(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR)
     {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
@@ -127,7 +127,7 @@ bool ParamBlockWidget::setToDefaults()
     if (config.slider->get() == config.dflt)
       continue;
 
-    if (!dparam_client_->set(name, config.dflt))
+    if (dparam_client_->set(name, config.dflt) != dparam::DynamicParamClient::E_NO_ERROR)
     {
       qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
       return false;
@@ -200,15 +200,15 @@ bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
   return true;
 }
 
-void ParamBlockWidget::onIntParamChanged(int value, const std::string& name)
+void ParamBlockWidget::onIntParamChanged(int value, const string& name)
 {
-  if (!dparam_client_->set(name, value))
+  if (dparam_client_->set(name, value) != dparam::DynamicParamClient::E_NO_ERROR)
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
 }
 
-void ParamBlockWidget::onDoubleParamChanged(double value, const std::string& name)
+void ParamBlockWidget::onDoubleParamChanged(double value, const string& name)
 {
-  if (!dparam_client_->set(name, value))
+  if (dparam_client_->set(name, value) != dparam::DynamicParamClient::E_NO_ERROR)
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
 }
 }  // namespace param_tuning

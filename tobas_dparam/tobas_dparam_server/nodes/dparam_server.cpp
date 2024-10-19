@@ -21,6 +21,7 @@ public:
   explicit DynamicParamServer(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  rclcpp::CallbackGroup::SharedPtr cb_group_;
   vector<rclcpp::ServiceBase::SharedPtr> services_;
 
   template <typename SrvType, typename ValueType>
@@ -29,10 +30,12 @@ private:
 
 DynamicParamServer::DynamicParamServer(const rclcpp::NodeOptions& options) : super("dynamic_parameter_server", options)
 {
-  services_.push_back(createService<SetBool>(kSetBoolSrv, &self::callback<SetBool, bool>, this));
-  services_.push_back(createService<SetInt>(kSetIntSrv, &self::callback<SetInt, long>, this));
-  services_.push_back(createService<SetDouble>(kSetDoubleSrv, &self::callback<SetDouble, double>, this));
-  services_.push_back(createService<SetString>(kSetStringSrv, &self::callback<SetString, string>, this));
+  cb_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+
+  services_.push_back(createService<SetBool>(kSetBoolSrv, &self::callback<SetBool, bool>, this, cb_group_));
+  services_.push_back(createService<SetInt>(kSetIntSrv, &self::callback<SetInt, long>, this, cb_group_));
+  services_.push_back(createService<SetDouble>(kSetDoubleSrv, &self::callback<SetDouble, double>, this, cb_group_));
+  services_.push_back(createService<SetString>(kSetStringSrv, &self::callback<SetString, string>, this, cb_group_));
 }
 
 template <typename SrvType, typename ValueType>

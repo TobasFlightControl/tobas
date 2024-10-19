@@ -80,7 +80,8 @@ public:
     void (Obj::*fp)(
       const std::shared_ptr<const typename SrvType::Request>&,
       const std::shared_ptr<typename SrvType::Response>&),
-    Obj* obj);
+    Obj* obj,
+    rclcpp::CallbackGroup::SharedPtr callback_group = nullptr);
 
   /**
    * @brief アクションサーバを作成する．
@@ -288,10 +289,11 @@ ros2::ServiceServerPtr<SrvType> BaseNode::createService(
   void (Obj::*fp)(
     const std::shared_ptr<const typename SrvType::Request>&,
     const std::shared_ptr<typename SrvType::Response>&),
-  Obj* obj)
+  Obj* obj,
+  rclcpp::CallbackGroup::SharedPtr callback_group)
 {
   auto cb = std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2);
-  return create_service<SrvType>(srv_name, cb);
+  return create_service<SrvType>(srv_name, cb, rclcpp::ServicesQoS(), callback_group);
 }
 
 template <typename ActionType, typename Obj>

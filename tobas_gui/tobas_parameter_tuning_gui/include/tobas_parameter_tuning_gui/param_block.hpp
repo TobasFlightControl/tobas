@@ -40,7 +40,7 @@ class ParamBlockWidget : public QWidget
 public:
   explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label);
 
-  bool load(const std::string& node_name);
+  bool load(const std::string& ns, const std::string& node_name);
   bool save(const std::filesystem::path& local_path, const std::filesystem::path& remote_path);
 
   void clear();
