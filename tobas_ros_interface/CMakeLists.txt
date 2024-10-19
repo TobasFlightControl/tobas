@@ -17,6 +17,8 @@ find_package(std_srvs REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_drone_msgs REQUIRED)
+find_package(tobas_hal_core REQUIRED)
+find_package(tobas_hal_msgs REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	sensor_msgs
@@ -24,6 +26,8 @@ set(AMENT_DEPENDENCIES
 	tobas_node
 	tobas_msgs
 	tobas_drone_msgs
+	tobas_hal_core
+	tobas_hal_msgs
 )
 
 include_directories(include)

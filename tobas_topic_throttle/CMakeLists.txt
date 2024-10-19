@@ -28,6 +28,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryLPFThrottleNode" EXECUTABLE battery_throttle)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "EulerThrottleNode" EXECUTABLE euler_throttle)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputThrottleNode" EXECUTABLE rc_input_throttle)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorSpeedsThrottleNode" EXECUTABLE rotor_speeds_throttle)
 
 install(
 	TARGETS ${PROJECT_NAME}_node

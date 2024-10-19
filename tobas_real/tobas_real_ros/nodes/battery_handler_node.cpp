@@ -79,7 +79,7 @@ bool BatteryHandlerNode::getConfig()
 void BatteryHandlerNode::registerPubSub()
 {
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  adc_sub_ = createSubscriber(hal::kAdcTopic, &self::adcCb, this);
+  adc_sub_ = createSubscriber(hal::kADCTopic, &self::adcCb, this);
 }
 
 bool BatteryHandlerNode::paramsCb(const vector<double>& params)

@@ -28,7 +28,7 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
   : super("aso_sbus_driver", options), sbus_(bind(&self::onPacket, this, placeholders::_1))
 {
   // Advertise publisher
-  sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSbusTopic);
+  sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic);
 
   // Initialize SBUS driver
   if (!sbus_.initialize())

@@ -29,7 +29,7 @@ void ADCCalibrationThread::run()
   voltage_sum_.reset();
 
   // 一時的にADCの購読を開始
-  auto adc_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kAdcTopic, &ADCCalibrationThread::adcCb, this);
+  auto adc_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kADCTopic, &ADCCalibrationThread::adcCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))

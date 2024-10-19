@@ -155,7 +155,7 @@ bool RCInputHandlerNode::getConfig()
 void RCInputHandlerNode::registerPubSub()
 {
   rcin_pub_ = createPublisher<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
-  sbus_sub_ = createSubscriber(hal::kSbusTopic, &self::sbusCb, this);
+  sbus_sub_ = createSubscriber(hal::kSBUSTopic, &self::sbusCb, this);
 }
 
 bool RCInputHandlerNode::paramsCb(const vector<double>& params)
