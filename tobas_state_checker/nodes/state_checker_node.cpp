@@ -22,7 +22,7 @@ class StateCheckerNode : public tobas::BaseNode
 {
   static constexpr double kCPUTempWarnThresh = 80.;                          // [celsius]
   static constexpr double kAttitudeFatalThresh = 85. * tobas_std::kDeg2Rad;  // [rad]
-  static constexpr uint32_t kLatencyWarnThresh = 2000;                       // [us]
+  static constexpr long kLatencyWarnThresh = 2000;                           // [us]
 
   using self = StateCheckerNode;
   using super = tobas::BaseNode;
@@ -147,7 +147,14 @@ void StateCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPt
 
 void StateCheckerNode::latencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency)
 {
-  const auto latency_us = latency->data.sec * 1'000'000 + latency->data.nanosec / 1'000;
+  // オーバーフロー回避のためlongにキャスト
+  const auto sec = static_cast<long>(latency->data.sec);
+  const auto nsec = static_cast<long>(latency->data.nanosec);
+
+  // 遅延をマイクロ秒に変換
+  const auto latency_us = sec * 1'000'000 + nsec / 1'000;
+
+  // 遅延が閾値を超えていたら警告
   if (latency_us > kLatencyWarnThresh)
   {
     TOBAS_WARN_THROTTLE(
