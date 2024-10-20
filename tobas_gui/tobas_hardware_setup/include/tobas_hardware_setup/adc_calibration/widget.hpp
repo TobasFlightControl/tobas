@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QLineEdit>
 #include <QPushButton>
 #include <std_msgs/msg/bool.hpp>
 
@@ -39,7 +38,6 @@ private:
 
   qt::DoubleSpinBox* voltage_;
   QPushButton* start_button_;
-  QLineEdit* adc_coef_;
 
   qt::WaitSpinnerWidget spinner_;
   ADCCalibrationThread thread_;

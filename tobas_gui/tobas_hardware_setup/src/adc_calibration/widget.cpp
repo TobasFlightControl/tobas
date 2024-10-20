@@ -27,27 +27,15 @@ ADCCalibrationWidget::ADCCalibrationWidget(rclcpp::Node::SharedPtr node)
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  adc_coef_ = new QLineEdit();
-  adc_coef_->setFixedWidth(kBoxWidth);
-  adc_coef_->setReadOnly(true);
-  adc_coef_->setFocusPolicy(Qt::NoFocus);
-
   // Layout
-  const auto cols1 = new QHBoxLayout();
-  cols1->addWidget(new QLabel("Voltage:"));
-  cols1->addWidget(voltage_);
-  cols1->addStretch();
-
-  const auto cols2 = new QHBoxLayout();
-  cols2->addWidget(new QLabel("ADC Coefficient:"));
-  cols2->addWidget(adc_coef_);
-  cols2->addStretch();
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(new QLabel("Voltage:"));
+  cols->addWidget(voltage_);
+  cols->addStretch();
 
   rows_->addWidget(instruction);
-  rows_->addLayout(cols1);
+  rows_->addLayout(cols);
   rows_->addWidget(start_button_);
-  rows_->addSpacing(50);
-  rows_->addLayout(cols2);
   rows_->addStretch();
 
   // Connection
