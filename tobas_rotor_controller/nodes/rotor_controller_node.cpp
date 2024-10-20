@@ -24,7 +24,7 @@ class RotorControllerNode : public tobas::BaseNode
   static constexpr double kDisarmThrottle = -0.1;
   static constexpr double kDisarmDuration = 3.;  // [s]
   static constexpr auto kDisarmInterval = 100ms;
-  static constexpr auto kAutoStopTimeThresh = 100ms;  // アーム時は最低でも10Hzでスロットルを送る
+  static constexpr auto kAutoStopTimeThresh = 200ms;  // アーム時は最低でも5Hzでスロットルを送る
   static constexpr auto kPublishArmingPeriod = 1s;
 
   using self = RotorControllerNode;
