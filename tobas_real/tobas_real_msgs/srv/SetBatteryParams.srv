@@ -1,0 +1,5 @@
+float64 voltage_coef
+float64 current_coef
+---
+bool success
+string message

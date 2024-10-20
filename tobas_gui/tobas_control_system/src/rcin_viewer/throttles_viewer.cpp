@@ -68,7 +68,8 @@ void ThrottlesViewer::reset()
 void ThrottlesViewer::updateNamespace(const std::string& ns)
 {
   reset();
-  rcin_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kRcInputTopic), &self::rcInputCb, this);
+  rcin_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
 void ThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)

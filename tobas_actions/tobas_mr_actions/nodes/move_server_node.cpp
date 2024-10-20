@@ -3,6 +3,7 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_std_tools/geometry.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
@@ -48,11 +49,11 @@ private:
   void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("mr_move_action_server", options)
+MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("move_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
 
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  odom_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   gps_origin_sub_ = createSubscriber(tobas::kGpsOriginTopic, &self::gpsOriginCb, this, true, true);
 

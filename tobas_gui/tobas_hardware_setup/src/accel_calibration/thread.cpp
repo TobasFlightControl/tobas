@@ -1,8 +1,11 @@
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_param_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 #include "tobas_hardware_setup/accel_calibration/thread.hpp"
 #include "tobas_hardware_setup/constants.hpp"
@@ -31,16 +34,25 @@ void AccelCalibrationThread::run()
   const Eigen::Vector3d acc_offset = acc_top_ - Eigen::Vector3d(0, 0, tobas_std::kGravity);
 
   // パラメータを作成
-  std::vector<double> params(real::handler::imu::kParamSize);
-  params.at(real::handler::imu::kOffsetXChannel) = acc_offset.x();
-  params.at(real::handler::imu::kOffsetYChannel) = acc_offset.y();
-  params.at(real::handler::imu::kOffsetZChannel) = acc_offset.z();
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetIMUParams::Request>();
+  req->offset_x = acc_offset.x();
+  req->offset_y = acc_offset.y();
+  req->offset_z = acc_offset.z();
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, ns_ + "/imu_handler");
-  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetIMUParams> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::imu::kSetParamSrv));
+  if (!sc.call(req, kSetParamTimeout))
   {
     Q_EMIT finished(false, "Failed to send calibration results.");
+    return;
+  }
+
+  // 結果を確認
+  const auto& res = sc.getResponse();
+  if (!res->success)
+  {
+    Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
   }
 
@@ -60,7 +72,8 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
     sum.reset();
 
   // 一時的にIMUの購読を開始
-  auto imu_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kIMUTopic, &self::imuCb, this);
+  auto imu_sub =
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kIMUTopic), &self::imuCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))

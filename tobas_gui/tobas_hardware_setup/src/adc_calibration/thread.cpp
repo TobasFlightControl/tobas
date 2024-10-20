@@ -1,8 +1,11 @@
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_param_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_real_msgs/srv/set_battery_params.hpp>
 
 #include "tobas_hardware_setup/adc_calibration/thread.hpp"
 #include "tobas_hardware_setup/constants.hpp"
@@ -29,7 +32,8 @@ void ADCCalibrationThread::run()
   voltage_sum_.reset();
 
   // 一時的にADCの購読を開始
-  auto adc_sub = ros2::createSubscriber(node_, ns_ + "/" + hal::kAdcTopic, &ADCCalibrationThread::adcCb, this);
+  auto adc_sub = ros2::createSubscriber(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kADCTopic), &ADCCalibrationThread::adcCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))
@@ -49,15 +53,24 @@ void ADCCalibrationThread::run()
   const auto voltage_coef = voltage_ / voltage_mean;
 
   // パラメータを作成
-  std::vector<double> params(real::handler::adc::kParamSize);
-  params.at(real::handler::adc::kVoltageChannel) = voltage_coef;
-  params.at(real::handler::adc::kCurrentChannel) = 1.;  // TODO
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetBatteryParams::Request>();
+  req->voltage_coef = voltage_coef;
+  req->current_coef = 1.;  // TODO
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, ns_ + "/battery_handler");
-  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetBatteryParams> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::adc::kSetParamSrv));
+  if (!sc.call(req, kSetParamTimeout))
   {
     Q_EMIT finished(false, "Failed to send calibration results.");
+    return;
+  }
+
+  // 結果を確認
+  const auto& res = sc.getResponse();
+  if (!res->success)
+  {
+    Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
   }
 

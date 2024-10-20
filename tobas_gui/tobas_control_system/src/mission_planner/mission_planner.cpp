@@ -97,9 +97,10 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 
   gps_ = nullptr;
 
-  gps_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kGNSSTopic), &self::gpsCb, this);
-  euler_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kThrottledTopicPrefix, tobas::kEulerTopic), &self::eulerCb, this);
+  gps_sub_ =
+    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGNSSTopic), &self::gpsCb, this);
+  euler_sub_ =
+    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kEulerTopic), &self::eulerCb, this);
 }
 
 void MissionPlannerWidget::setExecuteMode()

@@ -17,7 +17,7 @@
 	<exec_depend>tobas_debug_msgs</exec_depend>
 	<exec_depend>tobas_debug_msgs_adapter</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
-	<exec_depend>tobas_dparam_msgs</exec_depend>
+	<exec_depend>tobas_dparam</exec_depend>
 	<exec_depend>tobas_drone</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
 	<exec_depend>tobas_examples</exec_depend>
@@ -38,6 +38,7 @@
 	<exec_depend>tobas_property</exec_depend>
 	<exec_depend>tobas_real</exec_depend>
 	<exec_depend>tobas_robot_state_publisher</exec_depend>
+	<exec_depend>tobas_ros_interface</exec_depend>
 	<exec_depend>tobas_rosbag_recorder</exec_depend>
 	<exec_depend>tobas_rotor_controller</exec_depend>
 	<exec_depend>tobas_ssh</exec_depend>

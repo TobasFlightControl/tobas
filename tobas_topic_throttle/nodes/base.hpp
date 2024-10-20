@@ -30,7 +30,7 @@ TopicThrottleNode<MsgType, TopicName>::TopicThrottleNode(const rclcpp::NodeOptio
   : super(std::string(TopicName) + "_throttle", options), rate_manager_(kPublishRate)
 {
   static_assert(TopicName[0] != '/');
-  pub_ = createPublisher<MsgType>(path::join(tobas::kThrottledTopicPrefix, TopicName));
+  pub_ = createPublisher<MsgType>(path::join(tobas::kThrottledTopicNS, TopicName));
   sub_ = createSubscriber(TopicName, &self::callback, this);
 }
 

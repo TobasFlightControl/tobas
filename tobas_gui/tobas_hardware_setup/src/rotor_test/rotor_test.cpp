@@ -1,3 +1,4 @@
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -59,9 +60,6 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
   connect(&arm_thread_, &SetArmThread::finished, this, &self::onArmFinished);
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
   connect(&disarm_thread_, &SetArmThread::finished, this, &self::onDisarmFinished);
-
-  // Register subscribers
-  arming_sub_ = ros2::createSubscriber(node_, tobas::kArmingTopic, &self::armingCb, this);
 }
 
 const char* RotorTestWidget::name() const
@@ -78,7 +76,8 @@ void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
   speeds_publisher_->updateInternalDataStructures();
-  arming_sub_ = ros2::createSubscriber(node_, drone_.name + "/" + tobas::kArmingTopic, &self::armingCb, this);
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
   setEnabled(true);
 }
 

@@ -1,6 +1,5 @@
-#include <tobas_constants/constants.hpp>
-
 #include "../include/tobas_hal_core/base_sensor_node.hpp"
+#include "../include/tobas_hal_core/constants.hpp"
 
 using namespace std;
 
@@ -8,8 +7,8 @@ namespace hal
 {
 BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options) : super(name, options)
 {
-  start_ss_ = createService<Empty>(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
-  stop_ss_ = createService<Empty>(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
+  start_ss_ = createService<Empty>(name + kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
+  stop_ss_ = createService<Empty>(name + kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
 }
 
 void BaseSensorNode::startMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, const Empty::Response::SharedPtr&)

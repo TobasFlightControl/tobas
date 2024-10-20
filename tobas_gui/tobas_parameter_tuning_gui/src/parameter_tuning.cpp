@@ -89,10 +89,10 @@ bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
 
 void ParameterTuningWidget::onLoadButtonClicked()
 {
-  if (!controller_params_->load(drone_.name + "/" + tobas::kControllerNode))
+  if (!controller_params_->load(drone_.name, tobas::kControllerNode))
     return;
 
-  if (!observer_params_->load(drone_.name + "/" + tobas::kObserverNode))
+  if (!observer_params_->load(drone_.name, tobas::kObserverNode))
     return;
 
   // 読み込みと同時に可視化

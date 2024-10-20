@@ -65,7 +65,7 @@ void RotorSpeedsPublisherWidget::updateInternalDataStructures()
   }
 
   // 回転数トピックを更新
-  const auto speeds_topic = path::join(drone_.name, tobas::kRotorSpeedsCmdTopic);
+  const auto speeds_topic = path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic);
   speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeeds>(node_, speeds_topic);
 }
 

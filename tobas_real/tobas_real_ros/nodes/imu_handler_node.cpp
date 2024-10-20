@@ -1,5 +1,3 @@
-#include <std_srvs/srv/trigger.hpp>
-
 #include <tobas_algorithm/kahan.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
@@ -9,6 +7,7 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs_adapter/Imu.hpp>
 #include <tobas_msgs_adapter/Imu.hpp>
+#include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 #include <tobas_real_common/constants.hpp>
 
@@ -25,6 +24,7 @@ class ImuHandlerNode : public tobas::BaseNode
 
   using self = ImuHandlerNode;
   using super = tobas::BaseNode;
+  using SetParams = tobas_real_msgs::srv::SetIMUParams;
 
 public:
   explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -43,20 +43,21 @@ private:
   // ジャイロバイアス関連
   kdl::Vector gyro_bias_;
   size_t gyro_bias_cnt_ = 0;
-  std::array<algo::Kahan<double>, 3> gyro_sum_;
+  array<algo::Kahan<double>, 3> gyro_sum_;
 
   tobas_hal_msgs::Imu::ConstSharedPtr imu_raw_;
   ptree::PropertyTree pt_;
-  std::array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
+  array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::Imu> imu_sub_;
+  ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  bool paramsCb(const std::vector<double>& params);
   void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_handler", options)
@@ -67,7 +68,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_
     return;
   }
 
-  addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig())
   {
@@ -106,40 +107,6 @@ void ImuHandlerNode::registerPubSub()
 {
   imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
   imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
-}
-
-bool ImuHandlerNode::paramsCb(const std::vector<double>& params)
-{
-  // Skip first call
-  if (params.size() == 0)
-    return false;
-
-  // Check size
-  if (params.size() != kParamSize)
-  {
-    TOBAS_ERROR("Parameter size mismatch.");
-    return false;
-  }
-
-  // Update parameters
-  acc_bias_.x(params.at(kOffsetXChannel));
-  acc_bias_.y(params.at(kOffsetYChannel));
-  acc_bias_.z(params.at(kOffsetZChannel));
-
-  // Save parameters
-  pt_.set(kOffsetXKey, params.at(kOffsetXChannel));
-  pt_.set(kOffsetYKey, params.at(kOffsetYChannel));
-  pt_.set(kOffsetZKey, params.at(kOffsetZChannel));
-  if (!pt_.save())
-  {
-    TOBAS_ERROR("Failed to save parameters.");
-    return false;
-  }
-
-  if (imu_pub_ == nullptr)
-    registerPubSub();
-
-  return true;
 }
 
 void ImuHandlerNode::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
@@ -224,6 +191,33 @@ void ImuHandlerNode::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
       break;
     }
   }
+}
+
+void ImuHandlerNode::setParamsCb(
+  const SetParams::Request::ConstSharedPtr& req,
+  const SetParams::Response::SharedPtr& res)
+{
+  // Update parameters
+  acc_bias_.x(req->offset_x);
+  acc_bias_.y(req->offset_y);
+  acc_bias_.z(req->offset_z);
+
+  // Save parameters
+  pt_.set(kOffsetXKey, req->offset_x);
+  pt_.set(kOffsetYKey, req->offset_y);
+  pt_.set(kOffsetZKey, req->offset_z);
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save parameters.";
+    return;
+  }
+
+  if (imu_pub_ == nullptr)
+    registerPubSub();
+
+  res->success = true;
+  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ImuHandlerNode)

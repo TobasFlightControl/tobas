@@ -21,8 +21,8 @@ void MissionExecutionThread::run()
   stop_requested_ = false;
 
   // Create service clients
-  get_gnss_origin_sc_ =
-    make_shared<ros2::SyncServiceClient<GetGnssOrigin>>(node_, path::join(ns_, tobas::kGetGnssOriginSrv));
+  get_gnss_origin_sc_ = make_shared<ros2::SyncServiceClient<GetGnssOrigin>>(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kGetGnssOriginSrv));
 
   // Create action clients
   takeoff_ac_ = make_shared<ros2::SyncActionClient<Takeoff>>(node_, path::join(ns_, tobas::kTakeoffAction));

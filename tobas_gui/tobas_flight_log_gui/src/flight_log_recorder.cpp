@@ -56,7 +56,8 @@ void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
   ns_ = ns;
 
   arming_ = nullptr;
-  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
 }
@@ -94,7 +95,8 @@ void FlightLogRecorderWidget::onStartButtonClicked()
     return;
   }
 
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart> sc(node_, path::join(ns_, tobas::kROSBagRecordStartSrv));
+  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStartSrv));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = rosbag_name;
@@ -133,7 +135,8 @@ void FlightLogRecorderWidget::onStopButtonClicked()
     return;
   }
 
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop> sc(node_, path::join(ns_, tobas::kROSBagRecordStopSrv));
+  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStopSrv));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 

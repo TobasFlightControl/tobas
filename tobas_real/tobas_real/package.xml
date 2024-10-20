@@ -11,6 +11,7 @@
 
 	<exec_depend>tobas_dynamixel</exec_depend>
 	<exec_depend>tobas_real_common</exec_depend>
+	<exec_depend>tobas_real_msgs</exec_depend>
 	<exec_depend>tobas_real_ros</exec_depend>
 
 	<export>

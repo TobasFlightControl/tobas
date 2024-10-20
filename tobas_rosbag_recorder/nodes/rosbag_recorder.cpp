@@ -101,7 +101,11 @@ private:
   void unregisterSubscriptions();
 
   template <typename MsgType>
-  void addStandardMsgSub(const char* topic, bool latch = false, bool reliable = false, size_t queue_size = 1);
+  void addStandardMsgSub(
+    const char* topic,
+    bool latch = ros2::qos::kDefaultLatch,
+    bool reliable = ros2::qos::kDefaultReliable,
+    size_t queue_size = ros2::qos::kDefaultQueueSize);
 
   template <typename MsgType>
   void callback(const typename MsgType::ConstSharedPtr& msg, const char* topic);

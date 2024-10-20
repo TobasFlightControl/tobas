@@ -35,7 +35,8 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     cols_->addWidget(meter);
   }
 
-  speeds_sub_ = ros2::createSubscriber(node_, path::join(drone_.name, tobas::kRotorSpeedsTopic), &self::speedsCb, this);
+  speeds_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsTopic), &self::speedsCb, this);
 }
 
 void RotorsViewerWiddget::speedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& speeds)

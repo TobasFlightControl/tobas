@@ -28,7 +28,7 @@ ADCDriverNode::ADCDriverNode(const rclcpp::NodeOptions& options) : super("aso_ad
   if (!adc_.initialize())
     TOBAS_EXIT("Failed to initialize ADC.");
 
-  adc_pub_ = createPublisher<tobas_hal_msgs::msg::Adc>(hal::kAdcTopic);
+  adc_pub_ = createPublisher<tobas_hal_msgs::msg::Adc>(hal::kADCTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 

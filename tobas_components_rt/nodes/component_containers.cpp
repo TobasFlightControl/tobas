@@ -11,22 +11,23 @@ static void sigIntHandler(int)
 
 int main(int argc, char* argv[])
 {
+  // DDS探索のオーバーヘッドを回避するため，ローカルホストでのみ接続可能にする．
+  if (setenv("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST", 1) != 0)
+    throw std::runtime_error("Failed to set the DDS discovery range to localhost only.");
+
+  // ROSノードを起動
   rclcpp::init(argc, argv);
 
   // メモリロック
   if (!linux::lockAndPrefaultDynamic(LOCK_MEMORY_SIZE))
-    RCLCPP_WARN(rclcpp::get_logger("component_managers"), "Failed to lock memory.");
+    throw std::runtime_error("Failed to lock memory.");
 
   // Ctrl+Cで即終了
   signal(SIGINT, sigIntHandler);
 
+  // 複数のComponentManagerをシングルプロセスで動作させる．
+  // MultiThreadedExecutorはCPU不可が高く，パフォーマンス向上のため1つのCPUに1つのスレッドのみを割り当てるのが重要．
   ros2::MultiComponentManagers managers(3);
-
-  // MultiThreadedExecutorはCPU不可が高く，SingleThreadedExecutorよりもレイテンシが大きくなる．
-  // しかし，シングルスレッドだとサービスコールやDDS再接続でブロッキングが発生する．
-  // そのため，リアルタイム性が重視されるグループには最低でも2コア2スレッド与える必要がある．
-  // SCHED_FIFOよりもSCHED_RRの方がROSと相性が良いらしい．
-  // なぜだか分からないが，最悪時間はSCHED_RRの方が小さいように思える．
 
   managers.setPolicy(0, SCHED_FIFO);
   managers.setPriority(0, 98);

@@ -63,7 +63,7 @@ def generate_launch_description():
     ros_args = ["--log-level", log_level]
     extra_arguments = [{"use_intra_process_comms": True}]
 
-    # Launch component managers
+    # Launch component managers (realtime, isolated)
     component_managers = Node(
         package="tobas_components_rt",
         executable="component_containers",
@@ -162,27 +162,6 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package=ACTIONS_PKG,
-                            plugin="TakeoffServerNode",
-                            namespace=DRONE_NAME,
-                            remappings=remappings,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=ACTIONS_PKG,
-                            plugin="LandServerNode",
-                            namespace=DRONE_NAME,
-                            remappings=remappings,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=ACTIONS_PKG,
-                            plugin="MoveServerNode",
-                            namespace=DRONE_NAME,
-                            remappings=remappings,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
                             package="tobas_manipulation",
                             plugin="PositionControllerNode",
                             namespace=DRONE_NAME,
@@ -269,6 +248,12 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_topic_throttle",
+                            plugin="OdometryThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
                             plugin="EulerThrottleNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
@@ -279,9 +264,69 @@ def generate_launch_description():
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="RotorSpeedsThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
                     ],
                 )
             ],
+        )
+    )
+
+    # Launch navigation actions
+    ld.add_action(
+        Node(
+            package=ACTIONS_PKG,
+            executable="takeoff_server",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package=ACTIONS_PKG,
+            executable="land_server",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package=ACTIONS_PKG,
+            executable="move_server",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch dynamic parameter server
+    ld.add_action(
+        Node(
+            package="tobas_dparam_server",
+            executable="dparam_server",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+
+    # Launch interface bridge
+    ld.add_action(
+        Node(
+            package="tobas_ros_interface",
+            executable="ros_interface",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
         )
     )
 

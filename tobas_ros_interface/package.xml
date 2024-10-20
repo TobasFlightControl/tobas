@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+
+	<name>tobas_ros_interface</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_node</depend>
+	<depend>tobas_msgs</depend>
+	<depend>tobas_drone_msgs</depend>
+	<depend>tobas_hal_core</depend>
+	<depend>tobas_hal_msgs</depend>
+	<depend>tobas_real_common</depend>
+	<depend>tobas_real_msgs</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

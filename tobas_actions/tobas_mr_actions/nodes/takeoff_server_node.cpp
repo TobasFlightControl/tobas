@@ -1,4 +1,5 @@
 #include <tobas_std_tools/trajectory.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
@@ -42,10 +43,10 @@ private:
   void execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
 };
 
-TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("mr_takeoff_action_server", options)
+TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("takeoff_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  odom_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
   as_ = createAction(tobas::kTakeoffAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 

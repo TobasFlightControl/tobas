@@ -20,24 +20,9 @@ static constexpr size_t kRcChannelGPSw = 7;   // CH8
 
 namespace handler
 {
-static constexpr char kParamName[] = "parameters";
-
-namespace adc
-{
-static constexpr size_t kVoltageChannel = 0;
-static constexpr size_t kCurrentChannel = 1;
-static constexpr size_t kParamSize = 2;
-
-static constexpr char kVoltageKey[] = "voltage_coef";
-static constexpr char kCurrentKey[] = "current_coef";
-}  // namespace adc
-
 namespace imu
 {
-static constexpr size_t kOffsetXChannel = 0;
-static constexpr size_t kOffsetYChannel = 1;
-static constexpr size_t kOffsetZChannel = 2;
-static constexpr size_t kParamSize = 3;
+static constexpr char kSetParamSrv[] = "real/set_imu_parameters";
 
 static constexpr char kOffsetXKey[] = "offset_x";
 static constexpr char kOffsetYKey[] = "offset_y";
@@ -46,17 +31,7 @@ static constexpr char kOffsetZKey[] = "offset_z";
 
 namespace mag
 {
-static constexpr size_t kAxxChannel = 0;
-static constexpr size_t kAyyChannel = 1;
-static constexpr size_t kAzzChannel = 2;
-static constexpr size_t kAxyChannel = 3;
-static constexpr size_t kAyzChannel = 4;
-static constexpr size_t kAzxChannel = 5;
-static constexpr size_t kBxChannel = 6;
-static constexpr size_t kByChannel = 7;
-static constexpr size_t kBzChannel = 8;
-static constexpr size_t kCChannel = 9;
-static constexpr size_t kParamSize = 10;
+static constexpr char kSetParamSrv[] = "real/set_magnetometer_parameters";
 
 static constexpr char kAxxKey[] = "a_xx";
 static constexpr char kAyyKey[] = "a_yy";
@@ -70,24 +45,17 @@ static constexpr char kBzKey[] = "b_z";
 static constexpr char kCKey[] = "c";
 }  // namespace mag
 
+namespace adc
+{
+static constexpr char kSetParamSrv[] = "real/set_battery_parameters";
+
+static constexpr char kVoltageKey[] = "voltage_coef";
+static constexpr char kCurrentKey[] = "current_coef";
+}  // namespace adc
+
 namespace rcin
 {
-static constexpr size_t kRollLeftChannel = 0;
-static constexpr size_t kRollRightChannel = 1;
-static constexpr size_t kPitchUpChannel = 2;
-static constexpr size_t kPitchDownChannel = 3;
-static constexpr size_t kYawLeftChannel = 4;
-static constexpr size_t kYawRightChannel = 5;
-static constexpr size_t kThrotUpChannel = 6;
-static constexpr size_t kThrotDownChannel = 7;
-static constexpr size_t kModeProgramChannel = 8;
-static constexpr size_t kModeStabilizeChannel = 9;
-static constexpr size_t kModeAcrobatChannel = 10;
-static constexpr size_t kEStopOnChannel = 11;
-static constexpr size_t kEStopOffChannel = 12;
-static constexpr size_t kGPSwOnChannel = 13;
-static constexpr size_t kGPSwOffChannel = 14;
-static constexpr size_t kParamSize = 15;
+static constexpr char kSetParamSrv[] = "real/set_rc_input_parameters";
 
 static constexpr char kRollLeftKey[] = "roll/left";
 static constexpr char kRollRightKey[] = "roll/right";

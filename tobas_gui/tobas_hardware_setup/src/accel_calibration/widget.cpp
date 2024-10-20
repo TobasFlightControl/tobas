@@ -48,7 +48,8 @@ void AccelCalibrationWidget::setNamespace(const std::string& ns)
   thread_.setNamespace(ns);
 
   arming_ = nullptr;
-  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
 }

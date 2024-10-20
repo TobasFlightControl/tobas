@@ -1,0 +1,18 @@
+uint16 roll_left
+uint16 roll_right
+uint16 pitch_up
+uint16 pitch_down
+uint16 yaw_left
+uint16 yaw_right
+uint16 throttle_up
+uint16 throttle_down
+uint16 mode_program
+uint16 mode_stabilize
+uint16 mode_acrobat
+uint16 estop_on
+uint16 estop_off
+uint16 gpsw_on
+uint16 gpsw_off
+---
+bool success
+string message

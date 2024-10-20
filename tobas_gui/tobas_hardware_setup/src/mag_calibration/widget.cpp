@@ -8,10 +8,11 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_param_client.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
@@ -105,7 +106,8 @@ void MagCalibrationWidget::setNamespace(const string& ns)
   reset();
 
   arming_ = nullptr;
-  arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
 }
@@ -168,7 +170,8 @@ void MagCalibrationWidget::onStartButtonClicked()
   cnt_ = 0;
 
   // 一時的にトピック通信を開始
-  mag_raw_sub_ = ros2::createSubscriber(node_, ns_ + "/" + hal::kMagTopic, &self::magCb, this);
+  mag_raw_sub_ =
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kMagTopic), &self::magCb, this);
 
   history_length_->setValue(kMaxDataSize);
 
@@ -307,24 +310,32 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
 
   // パラメータを作成
-  vector<double> params(real::handler::mag::kParamSize);
-  params.at(real::handler::mag::kAxxChannel) = mag_trans_.a_xx;
-  params.at(real::handler::mag::kAyyChannel) = mag_trans_.a_yy;
-  params.at(real::handler::mag::kAzzChannel) = mag_trans_.a_zz;
-  params.at(real::handler::mag::kAxyChannel) = mag_trans_.a_xy;
-  params.at(real::handler::mag::kAyzChannel) = mag_trans_.a_yz;
-  params.at(real::handler::mag::kAzxChannel) = mag_trans_.a_zx;
-  params.at(real::handler::mag::kBxChannel) = mag_trans_.b_x;
-  params.at(real::handler::mag::kByChannel) = mag_trans_.b_y;
-  params.at(real::handler::mag::kBzChannel) = mag_trans_.b_z;
-  params.at(real::handler::mag::kCChannel) = mag_trans_.c;
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetMagnetometerParams::Request>();
+  req->a_xx = mag_trans_.a_xx;
+  req->a_yy = mag_trans_.a_yy;
+  req->a_zz = mag_trans_.a_zz;
+  req->a_xy = mag_trans_.a_xy;
+  req->a_yz = mag_trans_.a_yz;
+  req->a_zx = mag_trans_.a_zx;
+  req->b_x = mag_trans_.b_x;
+  req->b_y = mag_trans_.b_y;
+  req->b_z = mag_trans_.b_z;
+  req->c = mag_trans_.c;
 
   // パラメータを更新
-  ros2::SyncParamClient param_client(node_, ns_ + "/magnetometer_handler");
-  if (!param_client.setParam(real::handler::kParamName, params, kSetParamTimeout))
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetMagnetometerParams> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::mag::kSetParamSrv));
+  if (!sc.call(req, kSetParamTimeout))
   {
     qt::qErrorBox(this, "Failed to send calibration results.");
-    reset();
+    return;
+  }
+
+  // 結果を確認
+  const auto& res = sc.getResponse();
+  if (!res->success)
+  {
+    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
   }
 

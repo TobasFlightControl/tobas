@@ -49,7 +49,8 @@ static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "prearm_check";
 static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
-static constexpr char kThrottledTopicPrefix[] = "throttled";
+static constexpr char kThrottledTopicNS[] = "throttled";
+static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Command
 static constexpr char kThrottlesCmdTopic[] = "command/throttles";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
@@ -86,9 +87,6 @@ static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kROSBagRecordStartSrv[] = "rosbag_record_start";
 static constexpr char kROSBagRecordStopSrv[] = "rosbag_record_stop";
 static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
-static constexpr char kReloadConfigSrvSuffix[] = "/reload_config";
-static constexpr char kStartMainTimerSrvSuffix[] = "/start_main_timer";
-static constexpr char kStopMainTimerSrvSuffix[] = "/stop_main_timer";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";

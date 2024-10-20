@@ -1,11 +1,10 @@
-#include <std_srvs/srv/trigger.hpp>
-
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/adc.hpp>
 #include <tobas_msgs/msg/battery.hpp>
+#include <tobas_real_msgs/srv/set_battery_params.hpp>
 
 #include <tobas_real_common/constants.hpp>
 
@@ -19,6 +18,7 @@ class BatteryHandlerNode : public tobas::BaseNode
 
   using self = BatteryHandlerNode;
   using super = tobas::BaseNode;
+  using SetParams = tobas_real_msgs::srv::SetBatteryParams;
 
 public:
   explicit BatteryHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -32,12 +32,13 @@ private:
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
   ros2::SubscriberPtr<tobas_hal_msgs::msg::Adc> adc_sub_;
+  ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  bool paramsCb(const vector<double>& params);
   void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
 BatteryHandlerNode::BatteryHandlerNode(const rclcpp::NodeOptions& options) : super("battery_handler", options)
@@ -48,7 +49,7 @@ BatteryHandlerNode::BatteryHandlerNode(const rclcpp::NodeOptions& options) : sup
     return;
   }
 
-  addDynamicDoubleArrayParam(real::handler::kParamName, &self::paramsCb, this);
+  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
   if (!getConfig())
   {
@@ -79,51 +80,7 @@ bool BatteryHandlerNode::getConfig()
 void BatteryHandlerNode::registerPubSub()
 {
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  adc_sub_ = createSubscriber(hal::kAdcTopic, &self::adcCb, this);
-}
-
-bool BatteryHandlerNode::paramsCb(const vector<double>& params)
-{
-  // Skip first call
-  if (params.size() == 0)
-    return false;
-
-  // Check size
-  if (params.size() != kParamSize)
-  {
-    TOBAS_ERROR("Parameter size mismatch.");
-    return false;
-  }
-
-  // Verify parameters
-  if (params.at(kVoltageChannel) <= 0.)
-  {
-    TOBAS_ERROR("Voltage coefficient must be positive.");
-    return false;
-  }
-  if (params.at(kCurrentChannel) <= 0.)
-  {
-    TOBAS_ERROR("Current coefficient must be positive.");
-    return false;
-  }
-
-  // Update parameters
-  voltage_coef_ = params.at(kVoltageChannel);
-  current_coef_ = params.at(kCurrentChannel);
-
-  // Save parameters
-  pt_.set(kVoltageKey, params.at(kVoltageChannel));
-  pt_.set(kCurrentKey, params.at(kCurrentChannel));
-  if (!pt_.save())
-  {
-    TOBAS_ERROR("Failed to save parameters.");
-    return false;
-  }
-
-  if (battery_pub_ == nullptr)
-    registerPubSub();
-
-  return true;
+  adc_sub_ = createSubscriber(hal::kADCTopic, &self::adcCb, this);
 }
 
 void BatteryHandlerNode::adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc)
@@ -147,6 +104,45 @@ void BatteryHandlerNode::adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& a
 
   // Publish battery message
   battery_pub_->publish(move(battery_msg));
+}
+
+void BatteryHandlerNode::setParamsCb(
+  const SetParams::Request::ConstSharedPtr& req,
+  const SetParams::Response::SharedPtr& res)
+{
+  // Verify parameters
+  if (req->voltage_coef <= 0.)
+  {
+    res->success = false;
+    res->message = "Voltage coefficient must be positive.";
+    return;
+  }
+  if (req->current_coef <= 0.)
+  {
+    res->success = false;
+    res->message = "Current coefficient must be positive.";
+    return;
+  }
+
+  // Update parameters
+  voltage_coef_ = req->voltage_coef;
+  current_coef_ = req->current_coef;
+
+  // Save parameters
+  pt_.set(kVoltageKey, req->voltage_coef);
+  pt_.set(kCurrentKey, req->current_coef);
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save parameters.";
+    return;
+  }
+
+  if (battery_pub_ == nullptr)
+    registerPubSub();
+
+  res->success = true;
+  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(BatteryHandlerNode)

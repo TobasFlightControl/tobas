@@ -7,8 +7,8 @@
 #include <QLabel>
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_param_client.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
+#include <tobas_dparam_client/dparam_client.hpp>
 #include <tobas_qt_tools/widgets/slider_text.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
@@ -40,7 +40,7 @@ class ParamBlockWidget : public QWidget
 public:
   explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label);
 
-  bool load(const std::string& node_name);
+  bool load(const std::string& ns, const std::string& node_name);
   bool save(const std::filesystem::path& local_path, const std::filesystem::path& remote_path);
 
   void clear();
@@ -49,8 +49,8 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  ros2::SyncParamClient::SharedPtr param_client_;
   ssh::SSHClient ssh_client_;
+  dparam::DynamicParamClient::SharedPtr dparam_client_;
 
   std::string node_name_;
   std::map<std::string, IntConfig> int_configs_;

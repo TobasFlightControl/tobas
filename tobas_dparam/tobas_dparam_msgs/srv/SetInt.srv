@@ -1,0 +1,5 @@
+string node_name
+string param_name
+int64 value
+---
+bool success
