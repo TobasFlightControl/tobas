@@ -1,0 +1,14 @@
+<CycloneDDS>
+  <Domain id="any">
+    <General>
+      <AllowMulticast>false</AllowMulticast>
+    </General>
+    <Discovery>
+      <ParticipantIndex>auto</ParticipantIndex>
+      <Peers>
+        <Peer Address="127.0.0.1"/>
+        <Peer Address="192.168.249.1"/>
+      </Peers>
+    </Discovery>
+  </Domain>
+</CycloneDDS>
