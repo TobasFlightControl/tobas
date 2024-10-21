@@ -1,10 +1,8 @@
 [Unit]
 Description=Tobas Realtime Process
-
-After=network-online.target
-Requires=network-online.target
-After=dev-ttyAMA0.device
-Requires=dev-ttyAMA0.device
+After=network-online.target dev-ttyAMA0.device
+Requires=network-online.target dev-ttyAMA0.device
+PartOf=tobas.target
 
 [Service]
 Type=simple

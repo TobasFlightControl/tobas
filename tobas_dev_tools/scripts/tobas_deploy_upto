@@ -8,9 +8,9 @@ PARDIR=$(realpath $(dirname "$0"))
 
 # Stop main service
 echo "Stopping Tobas main service."
-sudo systemctl stop tobas_real.service
+sudo systemctl stop tobas.target
 if [ $? -ne 0 ]; then
-  echo "Failed to stop tobas_real.service."
+  echo "Failed to stop tobas.target."
   exit 1
 fi
 
@@ -41,9 +41,9 @@ fi
 
 # Restart main service
 echo "Restarting Tobas main service."
-sudo systemctl restart tobas_real.service
+sudo systemctl restart tobas.target
 if [ $? -ne 0 ]; then
-  echo "Failed to restart tobas_real.service."
+  echo "Failed to restart tobas.target."
   exit 1
 fi
 

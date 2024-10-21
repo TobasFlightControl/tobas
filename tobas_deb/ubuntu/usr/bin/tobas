@@ -1,7 +1,9 @@
 #!/bin/bash
 
 export ROS_DOMAIN_ID=0
-export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+# export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 source /opt/ros/jazzy/setup.bash
 source /opt/tobas/setup.bash
