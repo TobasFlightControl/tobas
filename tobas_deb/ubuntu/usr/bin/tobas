@@ -3,9 +3,7 @@
 export ROS_DOMAIN_ID=0
 
 # export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-export CYCLONEDDS_URI=file:///etc/tobas/cyclonedds.xml
 
 source /opt/ros/jazzy/setup.bash
 source /opt/tobas/setup.bash
