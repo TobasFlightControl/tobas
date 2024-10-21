@@ -17,6 +17,9 @@
   <depend>tobas_parameter_tuning_gui</depend>
   <depend>tobas_flight_log_gui</depend>
 
+  <exec_depend>cyclonedds</exec_depend>
+  <exec_depend>tobas_ssh_server</exec_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
