@@ -57,7 +57,7 @@ void DynamicParamServer::callback(
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
-  const auto node = std::make_shared<dparam::DynamicParamServer>();
+  const auto node = make_shared<dparam::DynamicParamServer>();
   rclcpp::executors::MultiThreadedExecutor exec(rclcpp::ExecutorOptions(), 2);
   exec.add_node(node);
   exec.spin();

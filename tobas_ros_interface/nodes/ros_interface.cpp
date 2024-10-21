@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
 
-  const auto node = std::make_shared<ROSInterfaceNode>();
+  const auto node = make_shared<ROSInterfaceNode>();
 
   long num_threads = 4;
   if (node->has_parameter("num_threads"))
