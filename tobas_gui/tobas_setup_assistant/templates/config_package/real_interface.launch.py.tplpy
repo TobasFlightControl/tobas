@@ -2,10 +2,12 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+
 from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
+USER_PKG_NAME = "{{ user_pkg_name }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -24,22 +26,27 @@ def generate_launch_description():
     output = LaunchConfiguration(OUTPUT)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_pkg_share = FindPackageShare(USER_PKG_NAME)
 
+    # Launch Tobas core software
     ld.add_action(
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                PathJoinSubstitution([config_pkg_share, "launch", "real_realtime.launch.py"]),
+                PathJoinSubstitution([config_pkg_share, "launch", "common_interface.launch.py"])
             ),
-            launch_arguments={"log_level": log_level, "output": output}.items(),
+            launch_arguments={
+                "log_level": log_level,
+                "output": output,
+                "use_sim_time": "false",
+                "ground_truth": "false",
+            }.items(),
         )
     )
 
+    # Launch user nodes
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                PathJoinSubstitution([config_pkg_share, "launch", "real_interface.launch.py"]),
-            ),
-            launch_arguments={"log_level": log_level, "output": output}.items(),
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_pkg_share, "launch", "real.launch.py"]))
         )
     )
 

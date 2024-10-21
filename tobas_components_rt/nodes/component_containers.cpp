@@ -11,10 +11,6 @@ static void sigIntHandler(int)
 
 int main(int argc, char* argv[])
 {
-  // DDS探索のオーバーヘッドを回避するため，ローカルホストでのみ接続可能にする．
-  if (setenv("ROS_AUTOMATIC_DISCOVERY_RANGE", "LOCALHOST", 1) != 0)
-    throw std::runtime_error("Failed to set the DDS discovery range to localhost only.");
-
   // ROSノードを起動
   rclcpp::init(argc, argv);
 

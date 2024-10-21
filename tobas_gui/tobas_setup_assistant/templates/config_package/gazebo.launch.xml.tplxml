@@ -49,7 +49,7 @@
 
   <!-- Launch Tobas core software -->
   <group if="$(var launch_core)">
-    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/core.launch.py">
+    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/common.launch.py">
       <arg name="log_level" value="$(var log_level)"/>
       <arg name="output" value="$(var output)"/>
       <arg name="use_sim_time" value="$(var use_sim_time)"/>

@@ -1,16 +1,8 @@
 import re
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    TimerAction,
-    RegisterEventHandler,
-    EmitEvent,
-    Shutdown,
-)
+from launch.actions import DeclareLaunchArgument, TimerAction, RegisterEventHandler, EmitEvent, Shutdown
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.event_handlers import OnProcessIO
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import Node, LoadComposableNodes, SetParameter
 from launch_ros.descriptions import ComposableNode
@@ -19,10 +11,8 @@ from launch_ros.substitutions import FindPackageShare
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
-USER_PKG_NAME = "{{ user_pkg_name }}"
 OBSERVER_PKG = "{{ observer_pkg }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
-ACTIONS_PKG = "{{ actions_pkg }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -58,7 +48,6 @@ def generate_launch_description():
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
-    user_pkg_share = FindPackageShare(USER_PKG_NAME)
     remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
     ros_args = ["--log-level", log_level]
     extra_arguments = [{"use_intra_process_comms": True}]
@@ -273,67 +262,6 @@ def generate_launch_description():
                     ],
                 )
             ],
-        )
-    )
-
-    # Launch navigation actions
-    ld.add_action(
-        Node(
-            package=ACTIONS_PKG,
-            executable="takeoff_server",
-            namespace=DRONE_NAME,
-            remappings=remappings,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package=ACTIONS_PKG,
-            executable="land_server",
-            namespace=DRONE_NAME,
-            remappings=remappings,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package=ACTIONS_PKG,
-            executable="move_server",
-            namespace=DRONE_NAME,
-            remappings=remappings,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-
-    # Launch dynamic parameter server
-    ld.add_action(
-        Node(
-            package="tobas_dparam_server",
-            executable="dparam_server",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-
-    # Launch interface bridge
-    ld.add_action(
-        Node(
-            package="tobas_ros_interface",
-            executable="ros_interface",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-
-    # Launch user nodes
-    ld.add_action(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([PathJoinSubstitution([user_pkg_share, "launch", "common.launch.py"])])
         )
     )
 

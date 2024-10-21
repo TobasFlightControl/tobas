@@ -1,0 +1,21 @@
+[Unit]
+Description=Tobas Realtime Process
+
+After=network-online.target
+Requires=network-online.target
+After=dev-ttyAMA0.device
+Requires=dev-ttyAMA0.device
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/tobas/common.env
+EnvironmentFile=/etc/tobas/config_pkg.env
+Environment="ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST"
+ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/colcon_ws/install/setup.bash && /opt/ros/jazzy/ros2cli/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_realtime.launch.py'
+Restart=always
+RestartSec=10
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=90
+
+[Install]
+WantedBy=multi-user.target

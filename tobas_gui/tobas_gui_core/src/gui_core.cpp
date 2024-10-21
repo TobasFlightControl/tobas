@@ -254,7 +254,7 @@ void GUICoreWidget::onSendButtonClicked()
   // 環境変数TOBAS_CONFIG_PKGを設定
   progress.setLabelText("Setting environment variables.");
   const auto config_pkg_name = common::getTBSConfigName(tbs_path);
-  const auto env_content = std::format("TOBAS_CONFIG_PKG={}\nDRONE_NAME={}\n", config_pkg_name, drone_.name);
+  const auto env_content = std::format("TOBAS_CONFIG_PKG={}\n", config_pkg_name);
   if (ssh_client_.sftpWrite("/etc/tobas/config_pkg.env", env_content, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
