@@ -1,11 +1,9 @@
 [Unit]
 Description=Tobas Interface Process
-
-After=network-online.target
-Requires=network-online.target
+After=network-online.target hostapd.service
+Requires=network-online.target hostapd.service
 # After=tobas_fastdds_discovery.service
 # Requires=tobas_fastdds_discovery.service
-
 PartOf=tobas.target
 
 [Service]
