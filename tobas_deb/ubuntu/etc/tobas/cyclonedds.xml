@@ -1,5 +1,5 @@
 <CycloneDDS>
-  <Domain id="any">
+  <Domain>
     <General>
       <AllowMulticast>false</AllowMulticast>
     </General>
