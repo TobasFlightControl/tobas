@@ -94,7 +94,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorSpeeds>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
-  addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(tobas::kEulerTopic, tobas::kEulerTopic);
+  addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(throttled(tobas::kEulerTopic), tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
   addTopicLogicToIface<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
