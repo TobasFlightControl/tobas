@@ -45,7 +45,7 @@ protected:
 private:
   ParamGetterWidget_Vector3d* offset_;
   ParamGetterWidget_SpinBox* update_rate_;
-  ParamGetterWidget_DoubleSpinBox* delay_;
+  ParamGetterWidget_SpinBox* delay_;
   ParamGetterWidget_SpinBox* pos_corr_time_;
   ParamGetterWidget_DoubleSpinBox* horizontal_pos_accuracy_;
   ParamGetterWidget_DoubleSpinBox* vertical_pos_accuracy_;

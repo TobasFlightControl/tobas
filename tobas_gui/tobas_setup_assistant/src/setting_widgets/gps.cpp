@@ -18,11 +18,10 @@ GPSWidget::GPSWidget()
   update_rate_->setSuffix(" Hz");
   addParamWidget(update_rate_);
 
-  delay_ = new ParamGetterWidget_DoubleSpinBox("Communication Delay", "");  // TODO
-  delay_->setDecimals(2);
-  delay_->setMinimum(0.);
-  delay_->setValue(0.2);
-  delay_->setSuffix(" s");
+  delay_ = new ParamGetterWidget_SpinBox("Communication Delay", "");  // TODO
+  delay_->setMinimum(0);
+  delay_->setValue(100);
+  delay_->setSuffix(" ms");
   addParamWidget(delay_);
 
   pos_corr_time_ = new ParamGetterWidget_SpinBox("Position Correction Time Constant", "");  // TODO
@@ -121,7 +120,7 @@ void GPSWidget::load(const YAML::Node& node)
 
   offset_->setValue(node[offset_->name()].as<Eigen::Vector3d>());
   update_rate_->setValue(node[update_rate_->name()].as<int>());
-  delay_->setValue(node[delay_->name()].as<double>());
+  delay_->setValue(node[delay_->name()].as<int>());
   pos_corr_time_->setValue(node[pos_corr_time_->name()].as<int>());
   horizontal_pos_accuracy_->setValue(node[horizontal_pos_accuracy_->name()].as<double>());
   vertical_pos_accuracy_->setValue(node[vertical_pos_accuracy_->name()].as<double>());
@@ -141,7 +140,7 @@ int GPSWidget::updateRate() const
 
 double GPSWidget::delay() const
 {
-  return delay_->getValue();
+  return static_cast<double>(delay_->getValue()) * 1e-3;
 }
 
 int GPSWidget::positionCorrectionTime() const
