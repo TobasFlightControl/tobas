@@ -21,7 +21,7 @@ void CRC16Left::createTable()
   for (size_t i = 0; i < kTableSize; ++i)
   {
     uint16_t c = i << 8;
-    for (int j = 0; j < 8; j++)
+    for (int j = 0; j < 8; ++j)
       c = (c << 1) ^ ((c & 0x8000) ? poly_ : 0);
     table_[i] = c;
   }
@@ -46,7 +46,7 @@ void CRC32Left::createTable()
   for (size_t i = 0; i < kTableSize; ++i)
   {
     uint32_t c = i << 24;
-    for (int j = 0; j < 8; j++)
+    for (int j = 0; j < 8; ++j)
       c = (c << 1) ^ ((c & 0x80000000) ? poly_ : 0);
     table_[i] = c;
   }
