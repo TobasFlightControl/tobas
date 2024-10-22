@@ -387,15 +387,21 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   if (imu_ == nullptr)
     return;
 
+  // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
+  const kdl::Rotation R_W_B(eskf_.getDCM());
+  const auto R_W_G = kdl::Rotation::RotZ(eskf_.getYaw());
+  const auto R_G_B = R_W_G.inverse() * R_W_B;
+  const auto mag_G = R_G_B * mag->magnetic_field;
+  const auto mx = mag_G.x();
+  const auto my = mag_G.y();
+
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
   if (mag_ == nullptr && gps_ == nullptr)
-    yaw_0_ = atan2(mag->magnetic_field.y(), mag->magnetic_field.x());
+    yaw_0_ = atan2(my, mx);
 
   mag_ = mag;
 
   // ヨー角の観測値を計算
-  const auto mx = mag->magnetic_field.x();
-  const auto my = mag->magnetic_field.y();
   const auto yaw_meas = algo::wrapPi(yaw_0_ - atan2(my, mx));
 
   // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
