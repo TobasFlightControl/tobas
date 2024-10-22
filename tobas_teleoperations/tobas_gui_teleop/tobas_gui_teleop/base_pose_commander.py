@@ -9,13 +9,7 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_std_tools_py.geometry import euler_from_matrix
 from tobas_rqt_py.widgets import Widget, FloatSliderDisplay
-from tobas_msgs.msg import (
-    PositionYaw,
-    PosVelAccYaw,
-    PoseTwistAccelCommand,
-    CommandLevel,
-    Odometry,
-)
+from tobas_msgs.msg import PosVelAccYaw, PoseTwistAccelCommand, CommandLevel, Odometry
 from tobas_msgs.srv import SetArm
 
 from .common import BUTTON_HEIGHT
@@ -138,7 +132,6 @@ class BasePoseCommanderWidget(Widget):
             history=HistoryPolicy.KEEP_LAST,
             depth=1,
         )
-        self._pos_yaw_pub = self._node.create_publisher(PositionYaw, "command/position_yaw", qos)
         self._pvay_pub = self._node.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", qos)
         self._pta_pub = self._node.create_publisher(PoseTwistAccelCommand, "command/pose_twist_accel", qos)
         self._odom_sub = self._node.create_subscription(Odometry, "odom", self._odom_cb, qos)
@@ -254,14 +247,6 @@ class BasePoseCommanderWidget(Widget):
 
     @pyqtSlot()
     def _publish_current_command(self) -> None:
-        pos_yaw = PositionYaw()
-        pos_yaw.level.data = CommandLevel.NORMAL
-        pos_yaw.pos.x = self._cmd_x.get_value()
-        pos_yaw.pos.y = self._cmd_y.get_value()
-        pos_yaw.pos.z = self._cmd_z.get_value()
-        pos_yaw.yaw = self._cmd_yaw.get_value()
-        self._pos_yaw_pub.publish(pos_yaw)
-
         pvay = PosVelAccYaw()
         pvay.level.data = CommandLevel.NORMAL
         pvay.pos.x = self._cmd_x.get_value()

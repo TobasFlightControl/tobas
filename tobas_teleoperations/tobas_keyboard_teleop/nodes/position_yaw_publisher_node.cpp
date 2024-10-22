@@ -9,7 +9,6 @@
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs_adapter/PositionYaw.hpp>
 #include <tobas_msgs_adapter/PosVelAccYaw.hpp>
 #include <tobas_msgs/action/takeoff.hpp>
 
@@ -72,7 +71,6 @@ private:
   tobas_std::Range<double> yaw_limit_;
 
   // Publishers
-  ros2::PublisherPtr<tobas_msgs::PositionYaw> pos_yaw_pub_;
   ros2::PublisherPtr<tobas_msgs::PosVelAccYaw> pvay_pub_;
 
   // Timers
@@ -95,9 +93,7 @@ PositionYawPublisherNode::PositionYawPublisherNode(const rclcpp::NodeOptions& op
   delta_pos_ = max_linvel_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  pos_yaw_pub_ = createPublisher<tobas_msgs::PositionYaw>(tobas::kPositionYawCmdTopic);
   pvay_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
-
   process_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
 }
 
@@ -233,12 +229,6 @@ void PositionYawPublisherNode::mainTimerCb()
   }
 
   // コマンドを発行
-  auto pos_yaw_msg = std::make_unique<tobas_msgs::PositionYaw>();
-  pos_yaw_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
-  pos_yaw_msg->pos = cmd_pos_;
-  pos_yaw_msg->yaw = cmd_yaw_;
-  pos_yaw_pub_->publish(move(pos_yaw_msg));
-
   auto pvay_msg = std::make_unique<tobas_msgs::PosVelAccYaw>();
   pvay_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
   pvay_msg->pos = cmd_pos_;

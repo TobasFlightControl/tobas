@@ -249,9 +249,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 
   // Keyboard Teleop (コントローラの対応コマンドによって場合分け)
   // TODO: コントローラごとに1つずつ
-  if (
-    settings_->controller->isCommandCompatible(tobas::rc_command_t::POSITION_YAW)
-    || settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW))
+  if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW))
   {
     cfg_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.py.tplpy", launch_dir);
   }
@@ -263,8 +261,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   // GUI Teleop (コントローラの対応コマンドによって場合分け)
   // TODO: コントローラごとに1つずつ
   if (
-    settings_->controller->isCommandCompatible(tobas::rc_command_t::POSITION_YAW)
-    || settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
+    settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POSE_TWIST_ACCEL))
   {
     cfg_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.py.tplpy", launch_dir);

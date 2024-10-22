@@ -57,7 +57,6 @@ static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
-static constexpr char kPositionYawCmdTopic[] = "command/position_yaw";
 static constexpr char kRPYThrotCmdTopic[] = "command/rpy_throttle";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
@@ -134,7 +133,6 @@ enum rc_command_t
 {
   PROGRAM,
   POS_VEL_ACC_YAW,
-  POSITION_YAW,
   ROLL_PITCH_YAW_THROTTLE,
   POSE_TWIST_ACCEL,
   SPEED_ROLL_DPITCH,
