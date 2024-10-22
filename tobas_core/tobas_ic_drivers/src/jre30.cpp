@@ -7,7 +7,7 @@ using namespace std;
 namespace driver
 {
 JRE30::JRE30(function<void(const Packet&)> packet_cb)
-  : packet_cb_(packet_cb), crc_((1 << 12) | (1 << 5) | (1 << 0), 0xFFFF, 0xFFFF)
+  : packet_cb_(packet_cb), crc_(0x8408, 0xFFFF, 0xFFFF)
 {
   crc_.initialize();
 }
@@ -116,10 +116,10 @@ void JRE30::decode()
   packet_.protocol_version = buf_[kProtocolVersionIdx];
   packet_.frame_count = buf_[kFrameCountIdx];
 
-  const uint16_t dist_lsb = (buf_[kDistanceIdx + 1] << 8) | buf_[kDistanceIdx];
+  const uint16_t dist_lsb = (buf_[kDistanceIdx] << 8) | buf_[kDistanceIdx + 1];
   packet_.distance = dist_lsb * 0.01;
 
-  const uint16_t strength_lsb = (buf_[kStrengthIdx + 1] << 8) | buf_[kStrengthIdx];
+  const uint16_t strength_lsb = (buf_[kStrengthIdx] << 8) | buf_[kStrengthIdx + 1];
   packet_.strength = strength_lsb * 1.;
 
   packet_.gain = (buf_[kStatusIdx] >> 0) & 1;

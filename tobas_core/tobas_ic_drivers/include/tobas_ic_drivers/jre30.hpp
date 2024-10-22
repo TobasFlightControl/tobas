@@ -8,6 +8,11 @@
 
 namespace driver
 {
+/**
+ * @brief A Linux driver of JRE-30 range sensor.
+ *
+ * https://github.com/jfbblue0922/JFB_ardupilot/blob/Copter-4.1.5_JFB100_JRE/libraries/AP_RangeFinder/AP_RangeFinder_JRE_Serial.cpp
+ */
 class JRE30
 {
   static constexpr size_t kHeaderIdx = 0;
@@ -46,7 +51,7 @@ private:
   linux::UARTdev uart_;
   uint8_t buf_[kDataSize];
   Packet packet_;
-  algo::CRC16Left crc_;
+  algo::CRC16Right crc_;
 
   std::thread read_thread_;
   void readThreadFunc();

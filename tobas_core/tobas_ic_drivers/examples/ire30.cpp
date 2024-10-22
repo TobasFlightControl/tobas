@@ -7,8 +7,8 @@ using namespace std;
 
 void onPacket(const driver::JRE30::Packet& packet)
 {
-  cout << "Protocol Version: " << packet.protocol_version << endl;
-  cout << "Frame Count: " << packet.frame_count << endl;
+  cout << "Protocol Version: " << (int)packet.protocol_version << endl;
+  cout << "Frame Count: " << (int)packet.frame_count << endl;
   cout << "Distance [m]: " << packet.distance << endl;
   cout << "Strength: " << packet.strength << endl;
 
@@ -18,6 +18,8 @@ void onPacket(const driver::JRE30::Packet& packet)
   cout << "NTRK: " << packet.ntrk << endl;
   cout << "Fail: " << packet.fail << endl;
   cout << noboolalpha;
+
+  cout << "----------" << endl;
 }
 
 int main(int argc, char** argv)
