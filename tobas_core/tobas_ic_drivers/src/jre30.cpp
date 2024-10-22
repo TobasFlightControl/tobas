@@ -9,6 +9,7 @@ namespace driver
 JRE30::JRE30(function<void(const Packet&)> packet_cb)
   : packet_cb_(packet_cb), crc_((1 << 12) | (1 << 5) | (1 << 0), 0xFFFF, 0xFFFF)
 {
+  crc_.initialize();
 }
 
 bool JRE30::initialize(const char* device)
