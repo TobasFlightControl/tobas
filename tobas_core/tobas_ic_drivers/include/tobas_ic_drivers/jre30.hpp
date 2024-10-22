@@ -37,6 +37,7 @@ public:
   explicit JRE30(std::function<void(const Packet&)> packet_cb);
 
   bool initialize(const char* device);
+  void start();
   void spin();
 
 private:
