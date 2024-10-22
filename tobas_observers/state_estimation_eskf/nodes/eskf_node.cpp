@@ -42,8 +42,8 @@ class ObserverNode : public tobas::BaseNode
   using GpsOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
   using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
 
-  using GetGnssOrigin = tobas_msgs::srv::GetGnssOrigin;
-  using SetGnssOrigin = tobas_msgs::srv::SetGnssOrigin;
+  using GetOrigin = tobas_msgs::srv::GetGnssOrigin;
+  using SetOrigin = tobas_msgs::srv::SetGnssOrigin;
 
 public:
   explicit ObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -64,7 +64,7 @@ private:
   double gps_anormaly_score_ = 0.;
 
   Vector3d pos_meas_;
-  Matrix3d grav_cov_ = Matrix3d::Zero();
+  long dynamic_acc_stddev_scale_;  // 動的加速度を重力方向の加速度の観測の不確かさに転嫁する際のスケール
   double acc_bias_noise_var_;   // 加速度バイアスののプロセスノイズの分散
   double gyro_bias_noise_var_;  // ジャイロバイアスののプロセスノイズの分散
   double grav_noise_var_;       // 重力加速度のプロセスノイズの分散
@@ -94,8 +94,8 @@ private:
   ros2::SubscriberPtr<GpsMsg> gps_sub_;
 
   // Services
-  ros2::ServiceServerPtr<GetGnssOrigin> get_gnss_origin_ss_;
-  ros2::ServiceServerPtr<SetGnssOrigin> set_gnss_origin_ss_;
+  ros2::ServiceServerPtr<GetOrigin> get_gnss_origin_ss_;
+  ros2::ServiceServerPtr<SetOrigin> set_gnss_origin_ss_;
 
   // TF
   geometry_msgs::msg::TransformStamped tf_;
@@ -104,8 +104,9 @@ private:
   void getStaticRosParams();
   void fillOdometryMsg(OdomMsg& odom) const;
   void publishGPSOrigin();
+  Matrix3d computeGravMeasCov(const Vector3d& acc, const Matrix3d& acc_cov) const;
 
-  bool gravityVarianceCb(const long& p);
+  bool dynamicAccelStdDevScaleCb(const long& p);
   bool accBiasNoiseVarianceLog10Cb(const long& p);
   bool gyroBiasNoiseVarianceLog10Cb(const long& p);
   bool gravityNoiseVarianceLog10Cb(const long& p);
@@ -115,10 +116,8 @@ private:
   void barCb(const BarMsg::ConstSharedPtr& bar);
   void gpsCb(const GpsMsg::ConstSharedPtr& gps);
 
-  void
-  getGnssOriginCb(const GetGnssOrigin::Request::ConstSharedPtr& req, const GetGnssOrigin::Response::SharedPtr& res);
-  void
-  setGnssOriginCb(const SetGnssOrigin::Request::ConstSharedPtr& req, const SetGnssOrigin::Response::SharedPtr& res);
+  void getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr& req, const GetOrigin::Response::SharedPtr& res);
+  void setGnssOriginCb(const SetOrigin::Request::ConstSharedPtr& req, const SetOrigin::Response::SharedPtr& res);
 };
 
 ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kObserverNode, options), tf_br_(this)
@@ -146,7 +145,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
-  addDynamicIntParam("gravity_variance", &self::gravityVarianceCb, this, 500, 1, 1000);
+  addDynamicIntParam("dynamic_accel_stddev_scale", &self::dynamicAccelStdDevScaleCb, this, 10, 1, 100);
   addDynamicIntParam("acc_bias_noise_var_log10", &self::accBiasNoiseVarianceLog10Cb, this, -5, -12, 0);
   addDynamicIntParam("gyro_bias_noise_var_log10", &self::gyroBiasNoiseVarianceLog10Cb, this, -9, -12, 0);
   addDynamicIntParam("gravity_noise_var_log10", &self::gravityNoiseVarianceLog10Cb, this, -7, -12, 0);
@@ -165,8 +164,8 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
     gps_sub_ = createSubscriber(tobas::kGNSSTopic, &self::gpsCb, this);
 
   // Register service servers
-  get_gnss_origin_ss_ = createService<GetGnssOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
-  set_gnss_origin_ss_ = createService<SetGnssOrigin>(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
+  get_gnss_origin_ss_ = createService<GetOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
+  set_gnss_origin_ss_ = createService<SetOrigin>(tobas::kSetGnssOriginSrv, &self::setGnssOriginCb, this);
 }
 
 void ObserverNode::getStaticRosParams()
@@ -247,9 +246,33 @@ void ObserverNode::publishGPSOrigin()
   gps_origin_pub_->publish(move(gps_origin));
 }
 
-bool ObserverNode::gravityVarianceCb(const long& p)
+Matrix3d ObserverNode::computeGravMeasCov(const Vector3d& acc, const Matrix3d& acc_cov) const
 {
-  grav_cov_.diagonal().fill(p);
+  // センサノイズによる不確かさ
+  const auto& cov_noise = acc_cov;
+
+  // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
+  // 加速度の大きさと重力加速度との誤差が大きいほど重力以外の加速度が生じているため加速度による姿勢の観測が不確かだと考えるのは直感的だが，
+  // その誤差は正規分布に従うわけではなく一様に確かでもないため，誤差をそのまま標準偏差とすることには何の根拠もない．
+  // 実際，重力方向の分散を下げると，並進移動時に進行方向への加速度により実際よりも大きく傾いていると判断され，
+  // 制御器が姿勢を戻そうとし，並進方向の加速度の追従が遅れ，位置制御が振動するという因果関係がある．
+  // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
+  // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
+  const auto acc_norm_diff = abs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
+  const auto dynamic_acc_var = math::sqr(acc_norm_diff * dynamic_acc_stddev_scale_);
+  const auto cov_dynamic = Vector3d::Constant(dynamic_acc_var).asDiagonal().toDenseMatrix();
+
+  // 重力自体の不確かさ
+  const auto grav_var = eskf_.getGravityVariance();
+  const auto cov_gravity = Vector3d::Constant(grav_var).asDiagonal().toDenseMatrix();
+
+  // 独立した不確かさの要因が複数ある場合は，それらの和が最終的な不確かさとなる．
+  return cov_noise + cov_dynamic + cov_gravity;
+}
+
+bool ObserverNode::dynamicAccelStdDevScaleCb(const long& p)
+{
+  dynamic_acc_stddev_scale_ = p;
   return true;
 }
 
@@ -330,7 +353,9 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
     grav_noise_var_, dt);
 
   // 重力方向の観測
-  eskf_.measureGravity(imu->accel.data, grav_cov_);
+  // TODO: モデルから推定した動的加速度をセンサ加速度から引いたものを観測値とする
+  const auto grav_cov = computeGravMeasCov(imu->accel.data, imu->accel_covariance);
+  eskf_.measureGravity(imu->accel.data, grav_cov);
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
@@ -457,9 +482,7 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
 }
 
-void ObserverNode::getGnssOriginCb(
-  const GetGnssOrigin::Request::ConstSharedPtr&,
-  const GetGnssOrigin::Response::SharedPtr& res)
+void ObserverNode::getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr&, const GetOrigin::Response::SharedPtr& res)
 {
   if (!gps_fix_)
   {
@@ -477,8 +500,8 @@ void ObserverNode::getGnssOriginCb(
 }
 
 void ObserverNode::setGnssOriginCb(
-  const SetGnssOrigin::Request::ConstSharedPtr& req,
-  const SetGnssOrigin::Response::SharedPtr& res)
+  const SetOrigin::Request::ConstSharedPtr& req,
+  const SetOrigin::Response::SharedPtr& res)
 {
   if (!gps_fix_)
   {
