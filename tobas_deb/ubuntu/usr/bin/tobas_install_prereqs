@@ -35,7 +35,7 @@ rosdep update &&
 # ===== Install ROS dependencies of Tobas =====
 # pipを使うと依存管理が面倒なので，Pythonパッケージも極力package.xmlに書いてaptで管理する
 source /opt/ros/jazzy/setup.bash &&
-rosdep install --from-paths /opt/tobas/ -yi &&
+rosdep install --from-paths /opt/tobas/share/ -yi &&
 
 echo -e "\033[32mInstallation finished successfully.\033[0m"
 sleep infinity
