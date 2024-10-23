@@ -12,7 +12,6 @@ $ sudo apt install -y curl build-essential locales software-properties-common py
 2. Set locale
 
 ```bash
-$ sudo apt update
 $ sudo locale-gen en_US en_US.UTF-8
 $ sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 $ export LANG=en_US.UTF-8
