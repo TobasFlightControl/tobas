@@ -149,7 +149,7 @@ YAML::Node ParamBlockWidget::createCurrentConfig() const
     res[name] = config.slider->get();
 
   for (const auto& [name, config] : double_configs_)
-    res[name] = config.slider->get();
+    res[name] = format("{:e}", config.slider->get());  // 整数に丸められるとrosparamが取得できないため指数表記を強制
 
   return res;
 }
