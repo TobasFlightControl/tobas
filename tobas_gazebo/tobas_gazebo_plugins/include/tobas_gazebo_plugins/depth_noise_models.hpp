@@ -9,7 +9,6 @@ public:
 
   virtual void applyNoise(const size_t& width, const size_t& height, float* data) = 0;
 
-protected:
   const float bad_point_;
 
   std::normal_distribution<float> noise_;

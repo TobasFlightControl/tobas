@@ -1,0 +1,5 @@
+# Add access point
+SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
+  RUN+="/sbin/iw phy phy0 interface add ap0 type __ap", \
+  RUN+="/bin/ip link set ap0 address $(cat /sys/class/net/wlan0/address)"
+  RUN+="/sbin/iw dev ap0 set power_save off"

@@ -9,7 +9,7 @@ class Quaternion
 public:
   double x, y, z, w;
 
-  explicit Quaternion(const double& x, const double& y, const double& z, const double& w);
+  explicit Quaternion(const double& _x, const double& _y, const double& _z, const double& _w);
   explicit Quaternion(const Rotation& rot);
   explicit Quaternion();
 
@@ -17,7 +17,7 @@ public:
   static Quaternion Identity();
 
   /* 等価角軸ベクトルからクオータニオンを作成． */
-  static Quaternion AngleAxis(const Vector& w);
+  static Quaternion AngleAxis(const Vector& a);
 
   /* オイラー角からクオータニオンを作成． */
   static Quaternion RPY(const double& roll, const double& pitch, const double& yaw);

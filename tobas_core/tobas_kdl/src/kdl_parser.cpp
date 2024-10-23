@@ -1,9 +1,7 @@
-#include <ros/ros.h>
+#include <iostream>
 #include <urdf/model.h>
 #include <urdf/urdfdom_compatibility.h>
 #include <urdf_parser/urdf_parser.h>
-
-#include <tobas_std_tools/console.hpp>
 
 #include "../include/tobas_kdl/kdl_parser.hpp"
 
@@ -32,7 +30,7 @@ Frame toKdl(const urdf::Pose& p)
 // construct joint
 Joint toKdl(const urdf::Joint& jnt)
 {
-  const Frame F_parent_jnt = toKdl(jnt.parent_to_joint_origin_transform);
+  const auto F_parent_jnt = toKdl(jnt.parent_to_joint_origin_transform);
 
   Joint res;
   res.name = jnt.name;
@@ -74,13 +72,13 @@ Joint toKdl(const urdf::Joint& jnt)
 // construct inertia
 RigidBodyInertia toKdl(const urdf::Inertial& i)
 {
-  const Frame origin = toKdl(i.origin);
+  const auto origin = toKdl(i.origin);
 
   // the mass is frame independent
-  const double& kdl_mass = i.mass;
+  const auto& kdl_mass = i.mass;
 
   // kdl and urdf both specify the com position in the reference frame of the link
-  const Vector& kdl_com = origin.p;
+  const auto& kdl_com = origin.p;
 
   // kdl specifies the inertia matrix in the reference frame of the link,
   // while the urdf specifies the inertia matrix in the inertia reference frame
@@ -101,15 +99,13 @@ RigidBodyInertia toKdl(const urdf::Inertial& i)
 // recursive function to walk through tree
 void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
-  PRINT_DEBUG_ONCE("kdl::addChildrenToTree");
-
   // constructs the optional inertia
   RigidBodyInertia inertia(0);
-  if (root->inertial)
+  if (root->inertial != nullptr)
     inertia = toKdl(*root->inertial);
 
   // constructs the kdl joint
-  const Joint jnt = toKdl(*root->parent_joint);
+  const auto jnt = toKdl(*root->parent_joint);
 
   // construct the kdl segment
   const Segment sgm(root->name, jnt, toKdl(root->parent_joint->parent_to_joint_origin_transform), inertia);
@@ -124,33 +120,16 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 
 bool treeFromFile(const string& file, Tree& tree)
 {
-  PRINT_DEBUG("kdl::treeFromFile");
-
-  const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDFFile(file);
+  const auto robot_model = urdf::parseURDFFile(file);
   return treeFromUrdfModel(*robot_model, tree);
-}
-
-bool treeFromParam(const string& param, Tree& tree)
-{
-  PRINT_DEBUG("kdl::treeFromParam");
-
-  urdf::Model robot_model;
-  if (!robot_model.initParam(param))
-  {
-    ROS_ERROR("Failed to generate robot model.");
-    return false;
-  }
-  return treeFromUrdfModel(robot_model, tree);
 }
 
 bool treeFromString(const string& xml, Tree& tree)
 {
-  PRINT_DEBUG("kdl::treeFromString");
-
-  const urdf::ModelInterfaceSharedPtr robot_model = urdf::parseURDF(xml);
-  if (!robot_model)
+  const auto robot_model = urdf::parseURDF(xml);
+  if (robot_model == nullptr)
   {
-    ROS_ERROR("Failed to generate robot model.");
+    cerr << "Failed to generate robot model." << endl;
     return false;
   }
   return treeFromUrdfModel(*robot_model, tree);
@@ -158,27 +137,25 @@ bool treeFromString(const string& xml, Tree& tree)
 
 bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
 {
-  PRINT_DEBUG("kdl::treeFromUrdfModel");
-
-  if (!robot_model.getRoot())
+  const auto root_link = robot_model.getRoot();
+  if (root_link == nullptr)
   {
-    ROS_ERROR("Failed to get root link.");
+    cerr << "Failed to get root link." << endl;
     return false;
   }
 
-  tree = Tree(robot_model.getRoot()->name);
+  tree = Tree(root_link->name);
 
   // Warn if root link has inertia. tobas_kdl does not support this
-  if (robot_model.getRoot()->inertial)
+  if (root_link->inertial != nullptr)
   {
-    ROS_WARN_STREAM(
-      "The root link " << robot_model.getRoot()->name << " has an inertia specified in the URDF, "
-                       << "but tobas_kdl does not support a root link with an inertia. "
-                       << "As a workaround, you can add an extra dummy link to your URDF.");
+    cerr << "The root link " << root_link->name << " has an inertia specified in the URDF, "
+         << "but tobas_kdl does not support a root link with an inertia. "
+         << "As a workaround, you can add an extra dummy link to your URDF." << endl;
   }
 
   // Add all children
-  for (const auto& child : robot_model.getRoot()->child_links)
+  for (const auto& child : root_link->child_links)
     addChildrenToTree(child, tree);
 
   return true;

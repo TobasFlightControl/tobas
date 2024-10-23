@@ -1,5 +1,3 @@
-#include <tobas_std_tools/map.hpp>
-
 #include "../include/tobas_kdl/treetaskspacevelctrl.hpp"
 
 using namespace std;

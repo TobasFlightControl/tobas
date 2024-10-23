@@ -8,7 +8,8 @@ using namespace std;
 
 namespace kdl
 {
-Quaternion::Quaternion(const double& x, const double& y, const double& z, const double& w) : x(x), y(y), z(z), w(w)
+Quaternion::Quaternion(const double& _x, const double& _y, const double& _z, const double& _w)
+  : x(_x), y(_y), z(_z), w(_w)
 {
 }
 
@@ -26,14 +27,14 @@ Quaternion Quaternion::Identity()
   return Quaternion(0, 0, 0, 1);
 }
 
-Quaternion Quaternion::AngleAxis(const Vector& w)
+Quaternion Quaternion::AngleAxis(const Vector& a)
 {
-  const auto angle = w.norm();
+  const auto angle = a.norm();
 
   if (angle < numeric_limits<double>::epsilon())
     return Quaternion::Identity();
 
-  const auto axis = w / angle;
+  const auto axis = a / angle;
   const auto mag = sin(angle / 2.);
   return Quaternion(mag * axis.x(), mag * axis.y(), mag * axis.z(), cos(angle / 2));
 }
@@ -80,8 +81,8 @@ bool Quaternion::isNormalized() const
 
 Quaternion Quaternion::differential(const Vector& angvel) const
 {
-  const auto w = angvel / 2;
-  return *this * Quaternion(w.x(), w.y(), w.z(), 0);
+  const auto a = angvel / 2;
+  return *this * Quaternion(a.x(), a.y(), a.z(), 0);
 }
 
 Quaternion Quaternion::operator/(const double& rhs) const

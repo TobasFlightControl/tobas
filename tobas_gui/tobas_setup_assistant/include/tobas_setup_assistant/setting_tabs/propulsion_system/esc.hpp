@@ -1,0 +1,45 @@
+#pragma once
+
+#include <tobas_drone_core/esc.hpp>
+
+#include "tobas_setup_assistant/param_getters/spin_box.hpp"
+#include "tobas_setup_assistant/param_getters/combo_box.hpp"
+#include "./base.hpp"
+
+namespace gui
+{
+namespace setup_assistant
+{
+namespace propulsion_system
+{
+class ESCWidget : public BaseSelectedLinkSettingWidget
+{
+  Q_OBJECT
+
+  static constexpr char kBLHeliOpenLoopLabel[] = "BLHeli Open Loop";
+  static constexpr char kBLHeliClosedLoopLowLabel[] = "BHLeli Closed Loop (Low Range)";
+  static constexpr char kBLHeliClosedLoopMiddleLabel[] = "BHLeli Closed Loop (Middle Range)";
+  static constexpr char kBLHeliClosedLoopHighLabel[] = "BHLeli Closed Loop (High Range)";
+
+public:
+  explicit ESCWidget();
+
+  const char* name() const override;
+  bool isValid() override;
+  void copyFrom(const BaseSelectedLinkSettingWidget* src) override;
+
+  YAML::Node dump() const override;
+  void load(const YAML::Node& node) override;
+
+  double maxCurrent() const;
+  tobas::esc_mode_t signalMode() const;
+
+private:
+  const std::map<QString, tobas::esc_mode_t> signal_mode_map_;
+
+  ParamGetterWidget_SpinBox* max_current_;
+  ParamGetterWidget_ComboBox* signal_mode_;
+};
+}  // namespace propulsion_system
+}  // namespace setup_assistant
+}  // namespace gui

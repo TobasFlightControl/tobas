@@ -81,9 +81,6 @@
         </geometry>
       </collision>
     </link>
-    <gazebo reference="${robot_namespace}/rotor_${motor_number}">
-      <material>Gazebo/Black</material>
-    </gazebo>
   </xacro:macro>
 
 </robot>

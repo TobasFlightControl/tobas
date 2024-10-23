@@ -2,7 +2,7 @@
 
 using namespace std;
 
-namespace tobas_manipulation
+namespace manipulation
 {
 vector<string> linkNames(const tobas_msgs::LinkStateArray& msg)
 {
@@ -11,4 +11,4 @@ vector<string> linkNames(const tobas_msgs::LinkStateArray& msg)
     res.push_back(state.name);
   return res;
 }
-}  // namespace tobas_manipulation
+}  // namespace manipulation

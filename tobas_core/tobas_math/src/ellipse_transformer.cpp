@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Eigen/Eigen>
+#include <eigen3/Eigen/Eigen>
 
 #include "../include/tobas_math/ellipse_transformer.hpp"
 

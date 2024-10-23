@@ -1,0 +1,28 @@
+#pragma once
+
+#include <tobas_qt_tools/widgets/spin_box.hpp>
+
+#include "./base.hpp"
+
+namespace gui
+{
+namespace control_system
+{
+namespace field
+{
+class DurationWidget : public BaseField
+{
+public:
+  explicit DurationWidget();
+
+  const char* label() const override;
+
+  int value() const;
+  void setValue(int value);
+
+private:
+  qt::SpinBox* spinbox_;
+};
+}  // namespace field
+}  // namespace control_system
+}  // namespace gui

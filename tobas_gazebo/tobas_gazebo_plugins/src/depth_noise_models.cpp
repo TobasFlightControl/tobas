@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <iostream>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include "../include/tobas_gazebo_plugins/depth_noise_models.hpp"
 

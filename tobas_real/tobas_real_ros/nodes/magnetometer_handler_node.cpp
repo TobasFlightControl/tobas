@@ -1,10 +1,231 @@
-#include "../include/tobas_real_ros/magnetometer_handler.hpp"
+#include <tobas_math/ellipse_transformer.hpp>
+#include <tobas_property_tree/property_tree.hpp>
+#include <tobas_dsp/noise_variance_filter.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
+#include <tobas_hal_core/constants.hpp>
+#include <tobas_hal_msgs_adapter/MagneticField.hpp>
+#include <tobas_msgs_adapter/MagneticField.hpp>
+#include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
-int main(int argc, char** argv)
+#include <tobas_real_common/constants.hpp>
+
+using namespace std;
+using namespace real::handler::mag;
+namespace fs = filesystem;
+
+class MagnetometerHandlerNode : public tobas::BaseNode
 {
-  ros::init(argc, argv, "magnetometer_handler");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_real_ros::MagnetometerHandler node(nh, pnh);
-  ros::spin();
+  static constexpr double kHpfCutoff = 10.;  // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
+  static constexpr size_t kWindowSize = 100;
+
+  using self = MagnetometerHandlerNode;
+  using super = tobas::BaseNode;
+  using SetParams = tobas_real_msgs::srv::SetMagnetometerParams;
+
+public:
+  explicit MagnetometerHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  // Config
+  math::EllipseTransformer mag_trans_;
+
+  tobas_hal_msgs::MagneticField::ConstSharedPtr mag_raw_;
+  ptree::PropertyTree pt_;
+  array<dsp::NoiseVarianceFilter, 3> mag_noise_;
+
+  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
+  ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_sub_;
+  ros2::ServiceServerPtr<SetParams> set_params_ss_;
+
+  bool getConfig();
+  void registerPubSub();
+
+  void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
+};
+
+MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
+  : super("magnetometer_handler", options)
+{
+  if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
+
+  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
+
+  if (!getConfig())
+  {
+    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    return;
+  }
+
+  if (!mag_trans_.initialize())
+  {
+    TOBAS_ERROR("Failed to initialize ellipse transformer. This node will not work.");
+    return;
+  }
+
+  registerPubSub();
 }
+
+bool MagnetometerHandlerNode::getConfig()
+{
+  if (!pt_.get(kAxxKey, mag_trans_.a_xx))
+  {
+    TOBAS_ERROR("Failed to get \"", kAxxKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kAyyKey, mag_trans_.a_yy))
+  {
+    TOBAS_ERROR("Failed to get \"", kAyyKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kAzzKey, mag_trans_.a_zz))
+  {
+    TOBAS_ERROR("Failed to get \"", kAzzKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kAxyKey, mag_trans_.a_xy))
+  {
+    TOBAS_ERROR("Failed to get \"", kAxyKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kAyzKey, mag_trans_.a_yz))
+  {
+    TOBAS_ERROR("Failed to get \"", kAyzKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kAzxKey, mag_trans_.a_zx))
+  {
+    TOBAS_ERROR("Failed to get \"", kAzxKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kBxKey, mag_trans_.b_x))
+  {
+    TOBAS_ERROR("Failed to get \"", kBxKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kByKey, mag_trans_.b_y))
+  {
+    TOBAS_ERROR("Failed to get \"", kByKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kBzKey, mag_trans_.b_z))
+  {
+    TOBAS_ERROR("Failed to get \"", kBzKey, "\" from configuration file.");
+    return false;
+  }
+  if (!pt_.get(kCKey, mag_trans_.c))
+  {
+    TOBAS_ERROR("Failed to get \"", kCKey, "\" from configuration file.");
+    return false;
+  }
+
+  return true;
+}
+
+void MagnetometerHandlerNode::registerPubSub()
+{
+  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
+  mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
+}
+
+void MagnetometerHandlerNode::magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw)
+{
+  // Project data to unit sphere
+  const auto mag_unit = mag_trans_.transform(mag_raw->magnetic_field.data);
+
+  // Initialize
+  if (mag_raw_ == nullptr)
+  {
+    for (size_t i = 0; i < 3; ++i)
+      mag_noise_[i].initialize(kWindowSize, kHpfCutoff, mag_unit(i));
+    mag_raw_ = mag_raw;
+    return;
+  }
+
+  // Compute time difference
+  const auto dt = (mag_raw->header.stamp - mag_raw_->header.stamp).seconds();
+  mag_raw_ = mag_raw;
+
+  // Update noise filter
+  for (size_t i = 0; i < 3; ++i)
+    if (mag_noise_[i].update(mag_unit(i), dt) < 0)
+      TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", mag_noise_[i].errorMessage());
+
+  // Create message
+  auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();
+
+  // Fill header
+  mag_msg->header = mag_raw->header;
+
+  // Fill data
+  mag_msg->magnetic_field.data = mag_unit;
+
+  // Fill covariance matrices
+  mag_msg->covariance.setZero();
+  for (size_t i = 0; i < 3; ++i)
+    mag_msg->covariance(i, i) = mag_noise_[i].noiseVariance();
+
+  // Publish message
+  mag_pub_->publish(move(mag_msg));
+}
+
+void MagnetometerHandlerNode::setParamsCb(
+  const SetParams::Request::ConstSharedPtr& req,
+  const SetParams::Response::SharedPtr& res)
+{
+  // Copy transformer
+  const auto mag_trans_old = mag_trans_;
+
+  // Update parameters
+  mag_trans_.a_xx = req->a_xx;
+  mag_trans_.a_yy = req->a_yy;
+  mag_trans_.a_zz = req->a_zz;
+  mag_trans_.a_xy = req->a_xy;
+  mag_trans_.a_yz = req->a_yz;
+  mag_trans_.a_zx = req->a_zx;
+  mag_trans_.b_x = req->b_x;
+  mag_trans_.b_y = req->b_y;
+  mag_trans_.b_z = req->b_z;
+  mag_trans_.c = req->c;
+
+  // Verify parameters
+  if (!mag_trans_.initialize())
+  {
+    res->success = false;
+    res->message = "Failed to initialize ellipse transformer.";
+    mag_trans_ = mag_trans_old;
+    return;
+  }
+
+  // Save parameters
+  pt_.set(kAxxKey, req->a_xx);
+  pt_.set(kAyyKey, req->a_yy);
+  pt_.set(kAzzKey, req->a_zz);
+  pt_.set(kAxyKey, req->a_xy);
+  pt_.set(kAyzKey, req->a_yz);
+  pt_.set(kAzxKey, req->a_zx);
+  pt_.set(kBxKey, req->b_x);
+  pt_.set(kByKey, req->b_y);
+  pt_.set(kBzKey, req->b_z);
+  pt_.set(kCKey, req->c);
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save parameters.";
+    return;
+  }
+
+  if (mag_pub_ == nullptr)
+    registerPubSub();
+
+  res->success = true;
+  res->message.clear();
+}
+
+RCLCPP_COMPONENTS_REGISTER_NODE(MagnetometerHandlerNode)

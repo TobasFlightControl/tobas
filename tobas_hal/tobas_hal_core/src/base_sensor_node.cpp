@@ -1,26 +1,23 @@
-#include <tobas_tools/constants.hpp>
-
 #include "../include/tobas_hal_core/base_sensor_node.hpp"
+#include "../include/tobas_hal_core/constants.hpp"
 
 using namespace std;
 
 namespace hal
 {
-BaseSensorNode::BaseSensorNode(ros::NodeHandle& nh, ros::NodeHandle& pnh, const string& name) : super(nh, pnh, name)
+BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options) : super(name, options)
 {
-  start_ss_ = nh_.advertiseService(name + tobas::kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
-  stop_ss_ = nh_.advertiseService(name + tobas::kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
+  start_ss_ = createService<Empty>(name + kStartMainTimerSrvSuffix, &self::startMainTimerSrvCb, this);
+  stop_ss_ = createService<Empty>(name + kStopMainTimerSrvSuffix, &self::stopMainTimerSrvCb, this);
 }
 
-bool BaseSensorNode::startMainTimerSrvCb(std_srvs::EmptyRequest&, std_srvs::EmptyResponse&)
+void BaseSensorNode::startMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, const Empty::Response::SharedPtr&)
 {
-  main_timer_.start();
-  return true;
+  main_timer_->reset();
 }
 
-bool BaseSensorNode::stopMainTimerSrvCb(std_srvs::EmptyRequest&, std_srvs::EmptyResponse&)
+void BaseSensorNode::stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, const Empty::Response::SharedPtr&)
 {
-  main_timer_.stop();
-  return true;
+  main_timer_->cancel();
 }
 }  // namespace hal

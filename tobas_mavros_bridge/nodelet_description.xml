@@ -1,7 +1,0 @@
-<library path="lib/libtobas_mavros_bridge_nodelet">
-
-  <class name="tobas_mavros_bridge/TobasMavrosBridgeNodelet" type="tobas_mavros_bridge::TobasMavrosBridgeNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

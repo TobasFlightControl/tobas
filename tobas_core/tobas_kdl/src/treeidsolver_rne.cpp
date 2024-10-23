@@ -17,9 +17,9 @@ void TreeIdSolver_RNE::updateInternalDataStructures()
 
   for (const auto& [cur_name, _] : tree_.getSegments())
   {
-    v_[cur_name] = Twist();
-    a_[cur_name] = Accel();
-    f_[cur_name] = Wrench();
+    v_[cur_name] = Twist::Zero();
+    a_[cur_name] = Accel::Zero();
+    f_[cur_name] = Wrench::Zero();
   }
 
   effort_out_ = JntArray::Zero(nj_);
@@ -53,7 +53,7 @@ void TreeIdSolver_RNE::rneStep(
 
   // Do forward calculations involving velocity & acceleration of this segment
   const auto& j = cur_ele.q_nr;
-  if (cur_seg.getJoint().type != Joint::Fixed)
+  if (cur_seg.joint().type != Joint::Fixed)
   {
     qj_ = q(j);
     qdj_ = qd(j);
@@ -84,7 +84,7 @@ void TreeIdSolver_RNE::rneStep(
 
   // Calculate the force for the joint
   // Collect RigidBodyInertia and external forces
-  const auto& I = cur_seg.getInertia();
+  const auto& I = cur_seg.inertia();
   f_.at(cur_name) = I * a_.at(cur_name) + v_.at(cur_name) * (I * v_.at(cur_name));
   if (f_ext.find(cur_name) != f_ext.end())
     f_.at(cur_name) = f_.at(cur_name) - f_ext.at(cur_name);
@@ -95,7 +95,7 @@ void TreeIdSolver_RNE::rneStep(
 
   // Do backward calculations involving wrenches and joint efforts
   // If there is a moving joint, evaluate its effort
-  if (cur_seg.getJoint().type != Joint::Fixed)
+  if (cur_seg.joint().type != Joint::Fixed)
   {
     effort_out_(j) = Sj.dot(f_.at(cur_name));
     // TODO: inertia, damping, frictionの補償をすべき？

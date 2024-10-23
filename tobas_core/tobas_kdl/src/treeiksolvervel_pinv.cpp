@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include <tobas_std_tools/unordered_set.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_quadprog/utils.hpp>
 

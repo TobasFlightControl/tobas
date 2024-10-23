@@ -2,8 +2,8 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/assert.hpp>
 #include <tobas_std_tools/console.hpp>
-
-#include <tobas_tools/constants.hpp>
+#include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/state_estimation_eskf/eskf.hpp"
 
@@ -14,7 +14,7 @@ using namespace Eigen;
 
 namespace et = eigen_tools;
 
-namespace state_estimation_eskf
+namespace eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter()
 {
@@ -65,7 +65,7 @@ void ErrorStateKalmanFilter::initialize(
   x_.segment<3>(kPosIdx) = init_pos;
   x_.segment<3>(kVelIdx) = init_vel;
   x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(init_quat).normalized();
-  x_(kGravIdx) = tobas::kGravity;
+  x_(kGravIdx) = tobas_std::kGravity;
 
   // 共分散行列を初期化
   P_.setZero();
@@ -329,7 +329,8 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
   }
   else
   {
-    throw runtime_error("Unable to compute output matrix.");
+    cerr << "Unable to compute the output matrix of yaw angle observation." << endl;
+    return numeric_limits<double>::max();
   }
 
   const auto Q_dtheta = getQ_dtheta();
@@ -385,4 +386,4 @@ void ErrorStateKalmanFilter::injectErrorState(const DeltaStateVector& error_stat
   //   G_theta * P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) * G_theta.transpose();
   // et::symmetrise(P_);
 }
-}  // namespace state_estimation_eskf
+}  // namespace eskf

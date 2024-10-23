@@ -1,163 +1,89 @@
 # Tobas
 
-## ラズパイの設定
+## Setup from source (Ubuntu 24.04 LTS)
 
-### CPU クロックの設定 (CPU 冷却必須)
-
-cf. [RaspberryPi4 の高速化（オーバークロック）](https://qiita.com/ousagi_sama/items/67ea6c7332df8d23b842)
-cf. [「Raspberry Pi」をオーバークロックしてみた](https://japan.zdnet.com/article/35201090/)
-
-`/boot/config.txt`に以下を追記:
-
-```txt
-over_voltage=6    # CPU,GPUへの印加電圧, default: 0, minimum: -16, maximum: 8
-arm_freq=2000     # 最大周波数MHz, default: 1200, maximum: 2147
-arm_freq_min=2000 # 最小周波数MHz, default: 600, maximum: 2147
-gpu_freq=750      # GPU周波数MHz, default: 500, maximum: 750
-force_turbo=1     # arm_freq=1200, 1にするとover_voltage=6が強制される
-```
-
-NOTE: オーバークロックは発熱や電力供給の面でデメリットが大きいため，必要なければ定格周波数 (1.5GHz) までにしておくべき．
-定格までならば`over_voltage`と`force_turbo`は必要ない．
-
-#### FIXME: クロック数を上げると低電圧状態になる
-
-ラズパイの電圧が 4.65V を下回ると低電圧状態となり，強制的にクロック数を下げられる．
-CPU でに流れる電流が増加することで電圧降下が大きくなることが原因．
-現在は`/boot/config.txt`に`avoid_warnings=2`を記述することで低電圧時のターボを許可しているが，
-危険なので近いうちに電力供給を改善する必要がある．
-
-### root 権限なしで PWM にアクセスできるようにする
-
-1. ルールの追加
-
-`/etc/udev/rules.d/10-local.rules`に以下を追記 \
-cf. [Need to configure non-root PWM access](https://community.emlid.com/t/need-to-configure-non-root-pwm-access/16501/10)
-
-```txt
-SUBSYSTEM=="pwm*", PROGRAM="/bin/sh -c '\
-        chown -R root:gpio /sys/class/pwm && chmod -R 770 /sys/class/pwm;\
-        chown -R root:gpio /sys/devices/platform/soc/*.spi/spi_master/spi1/spi1.0/pwm/pwmchip0 && chmod -R 770 /sys/devices/platform/soc/*.spi/spi_master/spi1/spi1.0/pwm/pwmchip0\
-'"
-```
-
-2. udev ルールの適用
+1. Install prerequisites
 
 ```bash
-$ sudo udevadm control --reload-rules
-$ sudo udevadm trigger
-```
-
-### root 権限なしで Dynamixel の USB 通信レイテンシを変更できるようにする
-
-1. ルールの追加
-
-`/etc/udev/rules.d/10-local.rules`に以下を追記
-
-```txt
-KERNEL=="ttyUSB0", ACTION=="add", PROGRAM="/bin/sh -c 'chown root:dialout /sys/bus/usb-serial/devices/%k/latency_timer; chmod 770 /sys/bus/usb-serial/devices/%k/latency_timer'"
-```
-
-`ttyUSB0`デバイスがシステムに追加された（`ACTION=="add"`）時に，
-`latency_timer`ファイルの所有者を`root`ユーザーと`dialout`グループに変更し，
-所有者とグループのみに完全なアクセス権を与えている（`chmod 770`）．
-
-2. udev ルールの適用
-
-```bash
-$ sudo udevadm control --reload-rules
-$ sudo udevadm trigger
-```
-
-3. ユーザを dialout グループに追加
-
-```bash
-$ sudo usermod -a -G dialout pi
-```
-
-4. グループを確認
-
-```bash
-$ getent group dialout  # dialoutグループのメンバーを確認
-$ id pi                 # piが所属するグループを確認
-```
-
-### ラズパイをアクセスポイント&ルーター化
-
-#### 手順
-
-1. [Raspberry Pi WiFi アクセスポイント+クライアント同時使用](https://www.mikan-tech.net/entry/raspi-wifi-ap-sta)
-2. [Raspberry Pi WiFi アクセスポイント&ルーター化](https://www.mikan-tech.net/entry/raspi-ap-sta-router)
-
-#### メモ
-
-- [hostapd.conf 覚書](https://qiita.com/JhonnyBravo/items/5df2d9b2fcb142b6a67c)に設定が網羅されている．
-- `$ sudo iw phy phy0 interface add ap0 type __ap`はアクセスポイントモードでの仮想 WiFi インターフェースを作成するコマンドだが，
-  既にアクセスポイントのインターフェースが作成されていたら`command failed: Device or resource busy (-16)`というエラーが出る．
-  その場合は hostapd と DHCP を無効化し，固定 IP の設定を削除してからやり直す必要がある．
-- `/etc/udev/rules.d/99-ap0.rules`の MAC アドレスをハードコードせず，wlan0 からコピーするよう変更．
-- `hostapd.conf`は設定値とコメントを同じ行に書けない．
-
-```txt
-SUBSYSTEM=="ieee80211", ACTION=="add|change", KERNEL=="phy0", \
-  RUN+="/sbin/iw phy phy0 interface add ap0 type __ap", \
-  RUN+="/bin/ip link set ap0 address $(cat /sys/class/net/wlan0/address)"
-```
-
-### Tobas のオート起動のための設定
-
-- `/etc/systemd/system/tobas_xxx.service`にコマンドを書く
-  - ExecStart 内でシェルスクリプトを実行して環境変数を設定しても元のシェルには影響しないことに注意
-- 環境変数や共通のシェルスクリプトを`/etc/tobas/`以下にまとめる
-
-### Debian 10 (buster) から Debian 11 (bullseye) にアップグレード
-
-cf. https://qiita.com/mt08/items/56a1ef23b2c768e46dcd
-
-NOTE:
-
-- クラッシュの恐れがあるため，bullseye のイメージをクリーンインストールしていじるほうが安全．
-- bullseye から bookworm のアップグレードは同様にはできない: https://yagiful.com/blog/raspberry-bookworm-upgrade/
-
-```bash
-$ sudo sed -i 's/buster/bullseye/g' /etc/apt/sources.list
-$ sudo sed -i 's/buster/bullseye/g' /etc/apt/sources.list.d/raspi.list
 $ sudo apt update
-$ sudo apt upgrade -y
-$ sudo apt dist-upgrade -y
-$ sudo apt autoremove --purge -y
-$ sudo reboot
-$ cat /etc/os-release  # bullseyeになっていればOK
-$ gcc --version  # 11になっていればOK
+$ sudo apt install -y curl build-essential locales software-properties-common python3-dev python3-pip
 ```
 
-## CUI で HIL
-
-1. 外部 PC から`raspberry_wifi`に接続
-
-ラズパイの ROS_MASTER_URI を AP のもので固定しているため，それに合わせる必要がある．
-
-2. ラズパイのオート起動のサービスを落とす
+2. Set locale
 
 ```bash
-$ sudo systemctl stop tobas_roscore.service
+$ sudo locale-gen en_US en_US.UTF-8
+$ sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+$ export LANG=en_US.UTF-8
 ```
 
-3. 外部 PC とラズパイの両方で`fkie_multimaster`を立ち上げる
+3. Install ROS 2 Jazzy
 
 ```bash
-$ roslaunch tobas_fkie_master fkie_master.launch
+yes "" | sudo add-apt-repository universe
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y ros-dev-tools
+sudo apt install -y ros-jazzy-desktop-full
+sudo rosdep init
+rosdep update
 ```
 
-4. ラズパイで`rcin_handler`を立ち上げる
+4. Create colcon workspace
 
 ```bash
-$ roslaunch tobas_navio_ros rcin_handler.launch __ns:=drone_name
+$ mkdir -p ~/colcon_ws/src
+$ cd ~/colcon_ws
 ```
 
-5. 外部 PC で Tobas ソフトウェアを立ち上げる
+5. Set up your system to source your colcon workspace automatically each time a new shell is opened (optional)
 
 ```bash
-$ roslaunch tobas_iris_config gazebo.launch
-$ roslaunch tobas_iris_config bringup.launch
+$ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+$ echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc
+$ exec bash
+```
+
+6. Clone Tobas
+
+```bash
+$ cd ~/colcon_ws/src
+$ git clone git@github.com:TobasFlightControl/tobas.git -b main
+```
+
+7. Install ROS dependencies
+
+```bash
+$ rosdep install --from-paths ~/colcon_ws/src/tobas -yi
+```
+
+8. Build
+
+```bash
+$ cd ~/colcon_ws
+$ colcon build --packages-up-to tobas
+```
+
+## CLI Interfaces
+
+### Launch Tobas GCS
+
+```bash
+$ ros2 launch tobas_gui_core gui.launch.py
+```
+
+### SITL (Simulation in the Loop)
+
+1. Launch Gazebo simulator
+
+```bash
+$ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
+```
+
+2. Launch GUI teleoperation (Optional)
+
+```bash
+$ ros2 launch ${TOBAS_PACKAGE}_config gui_teleop.launch
 ```

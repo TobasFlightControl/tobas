@@ -1,4 +1,4 @@
-#include <Eigen/LU>
+#include <eigen3/Eigen/LU>
 
 #include <tobas_eigen_tools/linalg.hpp>
 

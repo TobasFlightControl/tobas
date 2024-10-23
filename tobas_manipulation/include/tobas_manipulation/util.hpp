@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tobas_msgs/LinkStateArray.h>
+#include <tobas_msgs_adapter/LinkStateArray.hpp>
 
-namespace tobas_manipulation
+namespace manipulation
 {
 std::vector<std::string> linkNames(const tobas_msgs::LinkStateArray& msg);
-}  // namespace tobas_manipulation
+}  // namespace manipulation

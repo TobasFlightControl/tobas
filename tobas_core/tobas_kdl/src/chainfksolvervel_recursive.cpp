@@ -30,7 +30,7 @@ int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& 
   for (size_t i = 0; i < seg_nr; ++i)
   {
     const auto& seg = chain_.getSegment(i);
-    if (seg.getJoint().type != Joint::Fixed)
+    if (seg.joint().type != Joint::Fixed)
     {
       qj_ = q_in(j_);
       qdj_ = qd_in(j_);

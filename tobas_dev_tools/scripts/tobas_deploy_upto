@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Use all CPUs
+taskset -cpa 0-3 $$
+
+export COLCON_WS=~/colcon_ws
+PARDIR=$(realpath $(dirname "$0"))
+
+# Stop main service
+echo "Stopping Tobas main service."
+sudo systemctl stop tobas.target
+if [ $? -ne 0 ]; then
+  echo "Failed to stop tobas.target."
+  exit 1
+fi
+
+# Update repositories
+echo "Updating repositories."
+cd ${COLCON_WS}
+vcs pull
+if [ $? -ne 0 ]; then
+  echo "Failed to update repositories."
+  exit 1
+fi
+
+# Build Tobas
+echo "Building Tobas."
+bash ${PARDIR}/tobas_build_release_upto $1
+if [ $? -ne 0 ]; then
+  echo "Failed to build."
+  exit 1
+fi
+
+# Install Tobas
+echo "Installing Tobas."
+bash ${PARDIR}/tobas_install
+if [ $? -ne 0 ]; then
+  echo "Failed to install."
+  exit 1
+fi
+
+# Restart main service
+echo "Restarting Tobas main service."
+sudo systemctl restart tobas.target
+if [ $? -ne 0 ]; then
+  echo "Failed to restart tobas.target."
+  exit 1
+fi
+
+echo -e "\033[32mDeployment finished successfully.\033[0m"

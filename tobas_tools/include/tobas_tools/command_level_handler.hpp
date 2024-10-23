@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 namespace tobas
 {
@@ -23,10 +23,10 @@ public:
    * @return true コマンドを採用する場合．
    * @return false コマンドを採用しない場合．
    */
-  bool update(const uint8_t& new_level, const ros::Time& cur_time);
+  bool update(const uint8_t& new_level, const rclcpp::Time& cur_time);
 
 private:
   uint8_t cur_level_ = 0;
-  ros::Time t_last_highest_level_;  // 最高レベルのコマンドが来た最後の時刻
+  rclcpp::Time t_last_highest_level_;  // 最高レベルのコマンドが来た最後の時刻
 };
 }  // namespace tobas

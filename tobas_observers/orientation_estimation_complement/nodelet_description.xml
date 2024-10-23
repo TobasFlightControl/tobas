@@ -1,7 +1,0 @@
-<library path="lib/liborientation_estimation_complement_nodelet">
-
-  <class name="orientation_estimation_complement/OrientationEstimatorNodelet" type="orientation_estimation_complement::OrientationEstimatorNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

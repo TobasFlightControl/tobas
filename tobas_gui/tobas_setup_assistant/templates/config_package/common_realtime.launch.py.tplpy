@@ -1,0 +1,268 @@
+import re
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, TimerAction, RegisterEventHandler, EmitEvent, Shutdown
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.event_handlers import OnProcessIO
+
+from launch_ros.actions import Node, LoadComposableNodes, SetParameter
+from launch_ros.descriptions import ComposableNode
+from launch_ros.substitutions import FindPackageShare
+
+# Template parameters
+DRONE_NAME = "{{ drone_name }}"
+CONFIG_PKG_NAME = "{{ config_pkg_name }}"
+OBSERVER_PKG = "{{ observer_pkg }}"
+CONTROLLER_PKG = "{{ controller_pkg }}"
+
+# Arguments
+LOG_LEVEL = "log_level"
+OUTPUT = "output"
+USE_SIM_TIME = "use_sim_time"
+GROUND_TRUTH = "ground_truth"
+
+
+def handle_output(event):
+    # コンポーネントのロードに失敗したらシャットダウン
+    output = event.text.decode().strip()
+    if re.search(r"Failed to find class with the requested plugin name", output):
+        return EmitEvent(event=Shutdown())
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="true"))
+    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
+
+    # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
+    use_sim_time = LaunchConfiguration(USE_SIM_TIME)
+    ground_truth = LaunchConfiguration(GROUND_TRUTH)
+
+    # Set common parameters
+    # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
+    ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
+
+    config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
+    ros_args = ["--log-level", log_level]
+    extra_arguments = [{"use_intra_process_comms": True}]
+
+    # Launch component managers (realtime, isolated)
+    component_managers = Node(
+        package="tobas_components_rt",
+        executable="component_containers",
+        namespace=DRONE_NAME,
+        ros_arguments=ros_args,
+        output=output,
+    )
+    ld.add_action(component_managers)
+
+    # If failed to load a component, shutdown the entire system
+    ld.add_action(
+        RegisterEventHandler(
+            OnProcessIO(
+                target_action=component_managers,
+                on_stdout=lambda event: handle_output(event),
+                on_stderr=lambda event: handle_output(event),
+            )
+        )
+    )
+
+    # Launch 1st priority nodes (Twist Control)
+    ld.add_action(
+        TimerAction(
+            period=0.0,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_1",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package=OBSERVER_PKG,
+                            plugin="ObserverNode",
+                            name="observer",
+                            namespace=DRONE_NAME,
+                            parameters=[
+                                PathJoinSubstitution([config_pkg_share, "config", "observer_static.yaml"]),
+                                PathJoinSubstitution([config_pkg_share, "config", "observer_dynamic.yaml"]),
+                            ],
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package=CONTROLLER_PKG,
+                            plugin="ControllerNode",
+                            name="controller",
+                            namespace=DRONE_NAME,
+                            parameters=[
+                                PathJoinSubstitution([config_pkg_share, "config", "controller_static.yaml"]),
+                                PathJoinSubstitution([config_pkg_share, "config", "controller_dynamic.yaml"]),
+                            ],
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_preprocess",
+                            plugin="IMULPFNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_preprocess",
+                            plugin="BatteryLPFNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_rotor_controller",
+                            plugin="RotorControllerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_latency_publisher",
+                            plugin="LatencyPublisherNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+
+    # Launch 2nd priority nodes (Pose Control & Navigation & Manipulation)
+    ld.add_action(
+        TimerAction(
+            period=1.0,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_2",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_rc_teleop",
+                            plugin="tobas_rc_teleop::RCTeleopNode",
+                            namespace=DRONE_NAME,
+                            parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop.yaml"])],
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_manipulation",
+                            plugin="PositionControllerNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_manipulation",
+                            plugin="VelocityControllerNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_manipulation",
+                            plugin="EffortControllerNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+
+    # Launch 3th priority nodes (Others)
+    ld.add_action(
+        TimerAction(
+            period=2.0,
+            actions=[
+                LoadComposableNodes(
+                    target_container=f"{DRONE_NAME}/component_manager_3",
+                    composable_node_descriptions=[
+                        ComposableNode(
+                            package="tobas_tree_server",
+                            plugin="TreeServerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_drone_server",
+                            plugin="DroneServerNode",
+                            namespace=DRONE_NAME,
+                            parameters=[
+                                {
+                                    "tbsdrn_path": PathJoinSubstitution([config_pkg_share, "config", "drone.tbsdrn"]),
+                                }
+                            ],
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_rosbag_recorder",
+                            plugin="ROSBagRecorderNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_preprocess",
+                            plugin="MatrixEulerConverterNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_prearm_check",
+                            plugin="PreArmCheckerNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_state_checker",
+                            plugin="StateCheckerNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="BatteryLPFThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="OdometryThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="EulerThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="RCInputThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="RotorSpeedsThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+
+    return ld

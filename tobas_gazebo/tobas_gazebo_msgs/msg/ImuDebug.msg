@@ -1,3 +1,3 @@
 std_msgs/Header header
-tobas_kdl_msgs/Vector acc_bias
-tobas_kdl_msgs/Vector gyro_bias
+geometry_msgs/Vector3 acc_bias
+geometry_msgs/Vector3 gyro_bias

@@ -31,11 +31,11 @@ void TreeJointParser::parseJntNames()
 void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segment)
 {
   const auto& seg = segment->second.segment;
-  const auto& jnt = seg.getJoint();
+  const auto& jnt = seg.joint();
   const auto& q_nr = segment->second.q_nr;
-  if (seg.getJoint().type != Joint::Fixed)
+  if (seg.joint().type != Joint::Fixed)
   {
-    const auto& name = seg.getJoint().name;
+    const auto& name = seg.joint().name;
     jnt_names_[q_nr] = name;
     jnt_idx_[name] = q_nr;
     lower_limits_(q_nr) = jnt.lower_limit;
@@ -44,7 +44,6 @@ void TreeJointParser::parseJntNamesStep(const SegmentMap::const_iterator& segmen
     max_efforts_(q_nr) = jnt.max_effort;
   }
 
-  SegmentMap::const_iterator child;
   for (const auto& child : segment->second.children)
     parseJntNamesStep(child);
 }

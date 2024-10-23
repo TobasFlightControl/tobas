@@ -1,7 +1,0 @@
-<library path="lib/libtobas_trajectory_commander_nodelet">
-
-  <class name="tobas_trajectory_commander/FollowPositionYawTrajectoryServerNodelet" type="tobas_trajectory_commander::FollowPositionYawTrajectoryServerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

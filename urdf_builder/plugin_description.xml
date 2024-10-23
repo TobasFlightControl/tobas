@@ -1,7 +1,0 @@
-<library path="lib/liburdf_builder">
-
-  <class name="URDF Builder Panel" type="urdf_builder::ui::URDFBuilderPanel" base_class_type="rviz::Panel">
-    <description>URDF Builder Panel</description>
-  </class>
-
-</library>

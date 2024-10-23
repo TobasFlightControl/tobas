@@ -29,7 +29,7 @@ public:
     double Yz,
     double Zz);
   inline explicit Rotation(const Vector& x, const Vector& y, const Vector& z);
-  inline explicit Rotation(const Eigen::Matrix3d& data);
+  inline explicit Rotation(const Eigen::Matrix3d& _data);
 
   // Gives back an identity rotaton matrix
   inline static Rotation Identity();
@@ -97,7 +97,7 @@ public:
   double getRotAngle(Vector& axis) const;
 
   // Gives back a rotation matrix specified with Quaternion convention
-  // the norm of (x,y,z,w) should be equal to 1
+  // The norm of (x,y,z,w) should be equal to 1
   static Rotation Quaternion(double x, double y, double z, double w);
 
   // Get the quaternion of this matrix
@@ -200,7 +200,7 @@ inline Rotation::Rotation(const Vector& x, const Vector& y, const Vector& z)
   data.col(2) = z.data;
 }
 
-inline Rotation::Rotation(const Eigen::Matrix3d& data) : data(data)
+inline Rotation::Rotation(const Eigen::Matrix3d& _data) : data(_data)
 {
 }
 

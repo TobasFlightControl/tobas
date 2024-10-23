@@ -2,9 +2,10 @@ std_msgs/Header header
 
 bool ok
 
-bool battery_voltage_sufficient
-bool attitude_horizontal
-bool position_stable
-bool position_accurate
-bool orientation_accurate
-bool velocity_accurate
+bool battery_voltage_too_low
+bool cpu_temperature_too_high
+bool attitude_too_steep
+bool position_unstable
+bool position_inaccurate
+bool orientation_inaccurate
+bool velocity_inaccurate

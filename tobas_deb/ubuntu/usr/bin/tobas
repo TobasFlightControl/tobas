@@ -1,10 +1,11 @@
 #!/bin/bash
 
-export ROS_IP=`hostname -I | cut -d' ' -f1`
-export ROS_HOSTNAME=`hostname -I | cut -d' ' -f1`
-export ROS_MASTER_URI=http://localhost:11311
+export ROS_DOMAIN_ID=0
 
-source /opt/ros/noetic/setup.bash
+# export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
+source /opt/ros/jazzy/setup.bash
 source /opt/tobas/setup.bash
 
-roslaunch tobas_gcs gcs.launch
+ros2 launch tobas_gui_core gui.launch.py

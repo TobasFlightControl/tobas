@@ -46,11 +46,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="0"
-    color="Red"
     use_own_mesh="false"
     mesh="">
     <origin xyz="${cos30*arm_length} ${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -60,11 +60,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="1"
-    color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="0 ${arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -74,11 +74,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="2"
-    color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="-${cos30*arm_length} ${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -88,11 +88,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="3"
-    color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="-${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -102,11 +102,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="4"
-    color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="0 -${arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="red"/>
   </xacro:vertical_rotor>
 
   <xacro:vertical_rotor
@@ -116,11 +116,11 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="5"
-    color="Red"
     use_own_mesh="false"
     mesh="">
     <origin xyz="${cos30*arm_length} -${sin30*arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
     <xacro:insert_block name="rotor_inertia"/>
+    <xacro:insert_block name="blue"/>
   </xacro:vertical_rotor>
 
 </robot>

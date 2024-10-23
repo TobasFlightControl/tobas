@@ -1,9 +1,7 @@
-#include "../include/tobas_topic_throttle/rcin_throttle.hpp"
+#include <tobas_msgs/msg/rc_input.hpp>
 
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "rcin_throttle");
-  ros::NodeHandle nh;
-  tobas_topic_throttle::RCInputThrottle node(nh);
-  ros::spin();
-}
+#include "./base.hpp"
+
+using RCInputThrottleNode = TopicThrottleNode<tobas_msgs::msg::RCInput, tobas::kRcInputTopic>;
+
+RCLCPP_COMPONENTS_REGISTER_NODE(RCInputThrottleNode)

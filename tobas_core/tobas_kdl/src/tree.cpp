@@ -1,5 +1,4 @@
-#include <tobas_std_tools/map.hpp>
-#include <tobas_std_tools/console.hpp>
+#include <iostream>
 
 #include "../include/tobas_kdl/tree.hpp"
 
@@ -9,15 +8,11 @@ namespace kdl
 {
 Tree::Tree(const string& root_name) : root_name_(root_name)
 {
-  PRINT_DEBUG("Tree::Tree(\"" << root_name_ << "\")");
-
   segments_.insert(make_pair(root_name_, TreeElement::Root(root_name_)));
 }
 
 Tree::Tree(const Tree& in)
 {
-  PRINT_DEBUG("Tree::Tree(const Tree&)");
-
   segments_.clear();
   root_name_ = in.root_name_;
   nj_ = 0;
@@ -30,8 +25,6 @@ Tree::Tree(const Tree& in)
 
 Tree& Tree::operator=(const Tree& in)
 {
-  PRINT_DEBUG("Tree::operator=(const Tree&)");
-
   segments_.clear();
   root_name_ = in.root_name_;
   nj_ = 0;
@@ -124,7 +117,7 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
 
 bool Tree::addSegment(const Segment& segment, const string& hook_name)
 {
-  if (tobas_std::contains(segments_, segment.name()))
+  if (segments_.contains(segment.name()))
   {
     cerr << "\"" + segment.name() + "\" already exists in the tree." << endl;
     return false;
@@ -138,7 +131,7 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
   }
 
   // Insert new element
-  const auto q_nr = segment.getJoint().type != Joint::Fixed ? nj_ : 0;
+  const auto q_nr = segment.joint().type != Joint::Fixed ? nj_ : 0;
   const auto retval = segments_.insert(make_pair(segment.name(), TreeElement(segment, parent, q_nr)));
 
   // check if insertion succeeded
@@ -155,7 +148,7 @@ bool Tree::addSegment(const Segment& segment, const string& hook_name)
   ++ns_;
 
   // increase number of joints
-  if (segment.getJoint().type != Joint::Fixed)
+  if (segment.joint().type != Joint::Fixed)
     ++nj_;
 
   return true;
@@ -239,7 +232,7 @@ bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
   {
     const auto& seg = getSegment(parents_chain_root[s])->second.segment;
     const auto f_tip = seg.pose(0).inverse();
-    auto jnt = seg.getJoint();
+    auto jnt = seg.joint();
     if (jnt.type == Joint::RotAxis)
     {
       jnt.type = Joint::RotAxis;
@@ -254,7 +247,7 @@ bool Tree::getChain(const string& chain_root, const string& chain_tip, Chain& ch
     }
     chain.addSegment(Segment(
       getSegment(parents_chain_root[s + 1])->second.segment.name(), jnt, f_tip,
-      getSegment(parents_chain_root[s + 1])->second.segment.getInertia()));
+      getSegment(parents_chain_root[s + 1])->second.segment.inertia()));
   }
 
   // add the segments from the common frame to the tip frame
@@ -278,7 +271,7 @@ bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) con
   if (!root_mass_ok)
   {
     const auto& segment = seg_it->second.segment;
-    if (segment.getInertia().getMass() > 0)
+    if (segment.inertia().getMass() > 0)
     {
       cerr << "KDL does not support a root segment with an inertia." << endl;
       return false;
@@ -291,6 +284,30 @@ bool Tree::getSubTree(const string& seg_name, Tree& tree, bool root_mass_ok) con
     return false;
 
   return true;
+}
+
+bool Tree::isEndSegment(const string& seg_name) const
+{
+  const auto seg_it = segments_.find(seg_name);
+  if (seg_it == segments_.end())
+    return false;
+  return seg_it->second.children.size() == 0;
+}
+
+bool Tree::isFixedToRoot(const std::string& seg_name) const
+{
+  if (seg_name == root_name_)
+    return true;
+
+  const auto seg_it = getSegment(seg_name);
+  const auto& elem = seg_it->second;
+
+  const auto& joint = elem.segment.joint();
+  if (joint.type != Joint::Fixed)
+    return false;
+
+  const auto& parent_name = elem.parent->first;
+  return isFixedToRoot(parent_name);
 }
 
 ostream& operator<<(ostream& os, const Tree& arg)

@@ -14,8 +14,8 @@ public:
   T lower;
   T upper;
 
-  inline explicit Range(const T& lower, const T& upper);
-  inline explicit Range();
+  inline Range(const T& lower, const T& upper);
+  inline Range();
 
   inline void set(const T& lower, const T& upper);
 

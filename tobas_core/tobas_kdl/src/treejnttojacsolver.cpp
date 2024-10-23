@@ -46,7 +46,7 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, const string& seg_name)
     T_total_ = T_local * T_total_;
 
     // get the twist of the segment:
-    if (seg.getJoint().type != Joint::Fixed)
+    if (seg.joint().type != Joint::Fixed)
     {
       auto t_local = seg.jacobian(q_in(q_nr));
       // transform the endpoint of the local twist to the global endpoint:

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+
+	<name>tobas_aso_ros</name>
+	<version>0.0.0</version>
+	<description>TODO</description>
+	<maintainer email="masa0u0masaso215@gmail.com">Masayoshi Dohi</maintainer>
+	<license>TODO</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>tobas_msgs_adapter</depend>
+	<depend>tobas_hal_core</depend>
+	<depend>tobas_hal_msgs_adapter</depend>
+	<depend>tobas_aso_core</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

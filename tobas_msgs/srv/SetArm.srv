@@ -1,5 +1,5 @@
 bool arming
-bool ignore_pre_arm_check
+bool ignore_prearm_check
 ---
 bool success
 string message

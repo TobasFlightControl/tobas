@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 namespace eigen_tools
 {

@@ -1,7 +1,0 @@
-<library path="lib/libstate_estimation_eskf_nodelet">
-
-  <class name="state_estimation_eskf/ErrorStateKalmanFilterNodelet" type="state_estimation_eskf::ErrorStateKalmanFilterNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>

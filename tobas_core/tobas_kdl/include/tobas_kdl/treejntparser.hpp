@@ -2,8 +2,6 @@
 
 #include <unordered_map>
 
-#include <tobas_std_tools/unordered_map.hpp>
-
 #include "./treesolveri.hpp"
 #include "./jntarray.hpp"
 
@@ -141,6 +139,6 @@ inline double TreeJointParser::maxEffort(const std::string& jnt_name) const
 
 inline bool TreeJointParser::exist(const std::string& jnt_name) const
 {
-  return tobas_std::contains(jnt_idx_, jnt_name);
+  return jnt_idx_.contains(jnt_name);
 }
 }  // namespace kdl

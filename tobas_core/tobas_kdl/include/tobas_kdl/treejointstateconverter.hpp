@@ -1,13 +1,13 @@
 #pragma once
 
-#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/msg/joint_state.hpp>
 
 #include "./treesolveri.hpp"
 #include "./treejntparser.hpp"
 
 namespace kdl
 {
-/* sensor_msgs::JointStateとKDL::JntArrayの変換． */
+/* sensor_msgs::msg::JointStateとKDL::JntArrayの変換． */
 class TreeJointStateConverter : public TreeSolverI
 {
   using super = TreeSolverI;
@@ -19,11 +19,11 @@ public:
 
   void updateInternalDataStructures() override;
 
-  int jointStateToJntArrayPos(const sensor_msgs::JointState& js);
-  int jointStateToJntArrayVel(const sensor_msgs::JointState& js);
-  int jointStateToJntArrayEff(const sensor_msgs::JointState& js);
-  int jointStateToJntArrayPosVel(const sensor_msgs::JointState& js);
-  int jointStateToJntArray(const sensor_msgs::JointState& js);
+  int jointStateToJntArrayPos(const sensor_msgs::msg::JointState& js);
+  int jointStateToJntArrayVel(const sensor_msgs::msg::JointState& js);
+  int jointStateToJntArrayEff(const sensor_msgs::msg::JointState& js);
+  int jointStateToJntArrayPosVel(const sensor_msgs::msg::JointState& js);
+  int jointStateToJntArray(const sensor_msgs::msg::JointState& js);
 
   int jntArrayToJointStatePos(const JntArray& q, const std::vector<std::string>& jnt_names);
   int jntArrayToJointStateVel(const JntArray& qd, const std::vector<std::string>& jnt_names);
@@ -38,7 +38,7 @@ public:
   inline const JntArray& getVelocitiesKDL() const;
   inline const JntArray& getEffortsKDL() const;
 
-  inline const sensor_msgs::JointState& getJointState() const;
+  inline const sensor_msgs::msg::JointState& getJointState() const;
   inline const std::vector<std::string>& getNamesMsg() const;
   inline const std::vector<double>& getPositionsMsg() const;
   inline const std::vector<double>& getVelocitiesMsg() const;
@@ -50,7 +50,7 @@ private:
   JntArray q_out_;
   JntArray qd_out_;
   JntArray f_out_;
-  sensor_msgs::JointState js_out_;
+  sensor_msgs::msg::JointState js_out_;
 
   void clearJointState();
 };
@@ -70,7 +70,7 @@ inline const JntArray& TreeJointStateConverter::getEffortsKDL() const
   return f_out_;
 }
 
-inline const sensor_msgs::JointState& TreeJointStateConverter::getJointState() const
+inline const sensor_msgs::msg::JointState& TreeJointStateConverter::getJointState() const
 {
   return js_out_;
 }

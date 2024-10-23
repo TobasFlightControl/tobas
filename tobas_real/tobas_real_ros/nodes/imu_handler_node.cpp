@@ -1,10 +1,223 @@
-#include "../include/tobas_real_ros/imu_handler.hpp"
+#include <tobas_algorithm/kahan.hpp>
+#include <tobas_property_tree/property_tree.hpp>
+#include <tobas_dsp/noise_variance_filter.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
+#include <tobas_hal_core/constants.hpp>
+#include <tobas_hal_msgs_adapter/Imu.hpp>
+#include <tobas_msgs_adapter/Imu.hpp>
+#include <tobas_real_msgs/srv/set_imu_params.hpp>
 
-int main(int argc, char** argv)
+#include <tobas_real_common/constants.hpp>
+
+using namespace std;
+using namespace real::handler::imu;
+namespace fs = filesystem;
+
+class ImuHandlerNode : public tobas::BaseNode
 {
-  ros::init(argc, argv, "imu_handler");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  tobas_real_ros::ImuHandler node(nh, pnh);
-  ros::spin();
+  static constexpr double kHpfCutoff = 30.;            // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
+  static constexpr size_t kWindowSize = 200;           // 400Hzで0.5s
+  static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
+  static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
+
+  using self = ImuHandlerNode;
+  using super = tobas::BaseNode;
+  using SetParams = tobas_real_msgs::srv::SetIMUParams;
+
+public:
+  explicit ImuHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+
+private:
+  enum stage_t
+  {
+    MEASURE_GYRO_BIAS,
+    INITIALIZE,
+    PUBLISH,
+  } stage_ = MEASURE_GYRO_BIAS;
+
+  // Config
+  kdl::Vector acc_bias_;  // [m/s^2]
+
+  // ジャイロバイアス関連
+  kdl::Vector gyro_bias_;
+  size_t gyro_bias_cnt_ = 0;
+  array<algo::Kahan<double>, 3> gyro_sum_;
+
+  tobas_hal_msgs::Imu::ConstSharedPtr imu_raw_;
+  ptree::PropertyTree pt_;
+  array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
+
+  ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
+  ros2::SubscriberPtr<tobas_hal_msgs::Imu> imu_sub_;
+  ros2::ServiceServerPtr<SetParams> set_params_ss_;
+
+  bool getConfig();
+  void registerPubSub();
+
+  void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
+  void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
+};
+
+ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_handler", options)
+{
+  if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
+
+  set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
+
+  if (!getConfig())
+  {
+    TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
+    return;
+  }
+
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
+  imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
 }
+
+bool ImuHandlerNode::getConfig()
+{
+  if (!pt_.get(kOffsetXKey, acc_bias_.x()))
+  {
+    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+    return false;
+  }
+
+  if (!pt_.get(kOffsetYKey, acc_bias_.y()))
+  {
+    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+    return false;
+  }
+
+  if (!pt_.get(kOffsetZKey, acc_bias_.z()))
+  {
+    TOBAS_ERROR("Failed to get \"", kOffsetXKey, "\".");
+    return false;
+  }
+
+  return true;
+}
+
+void ImuHandlerNode::registerPubSub()
+{
+  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
+  imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
+}
+
+void ImuHandlerNode::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
+{
+  switch (stage_)
+  {
+    case MEASURE_GYRO_BIAS:
+    {
+      // 角速度が大きすぎる場合はやり直し
+      if (imu_raw->gyro.norm() > kStaticGyroThreshold)
+      {
+        TOBAS_WARN("Perturbation is detected while measuring gyro bias: ", imu_raw->gyro, " [rad/s]. Retrying...");
+        gyro_bias_cnt_ = 0;
+        for (size_t i = 0; i < 3; ++i)
+          gyro_sum_[i].reset();
+        break;
+      }
+
+      // 角速度を加算
+      for (size_t i = 0; i < 3; ++i)
+        gyro_sum_[i].add(imu_raw->gyro(i));
+
+      // データが溜まったら角速度の平均をバイアスの推定値として次のステージに進む
+      if (++gyro_bias_cnt_ == kMeasureGyroBiasCount)
+      {
+        for (size_t i = 0; i < 3; ++i)
+          gyro_bias_(i) = gyro_sum_[i].get() / kMeasureGyroBiasCount;
+        TOBAS_INFO("Finished measuring gyro bias. It is estimated to be: ", gyro_bias_);
+        stage_ = INITIALIZE;
+      }
+
+      break;
+    }
+    case INITIALIZE:
+    {
+      for (size_t i = 0; i < 3; ++i)
+      {
+        acc_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->accel(i));
+        gyro_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->gyro(i));
+      }
+      imu_raw_ = imu_raw;
+      stage_ = PUBLISH;
+      break;
+    }
+    case PUBLISH:
+    {
+      // Compute time difference
+      const auto dt = (imu_raw->header.stamp - imu_raw_->header.stamp).seconds();
+      imu_raw_ = imu_raw;
+
+      // Update noise filters
+      for (size_t i = 0; i < 3; ++i)
+      {
+        if (acc_noise_[i].update(imu_raw->accel(i), dt) < 0)
+          TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Accel noise filter failed: ", acc_noise_[i].errorMessage());
+        if (gyro_noise_[i].update(imu_raw->gyro(i), dt) < 0)
+          TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Gyro noise filter failed: ", gyro_noise_[i].errorMessage());
+      }
+
+      // Create message
+      auto imu_msg = std::make_unique<tobas_msgs::Imu>();
+
+      // Fill header
+      imu_msg->header = imu_raw->header;
+
+      // Fill data
+      imu_msg->accel = imu_raw->accel - acc_bias_;
+      imu_msg->gyro = imu_raw->gyro - gyro_bias_;
+
+      // Fill covariance matrices
+      imu_msg->accel_covariance.setZero();
+      imu_msg->gyro_covariance.setZero();
+      for (size_t i = 0; i < 3; ++i)
+      {
+        imu_msg->accel_covariance(i, i) = acc_noise_[i].noiseVariance();
+        imu_msg->gyro_covariance(i, i) = gyro_noise_[i].noiseVariance();
+      }
+
+      // Publish message
+      imu_pub_->publish(move(imu_msg));
+
+      break;
+    }
+  }
+}
+
+void ImuHandlerNode::setParamsCb(
+  const SetParams::Request::ConstSharedPtr& req,
+  const SetParams::Response::SharedPtr& res)
+{
+  // Update parameters
+  acc_bias_.x(req->offset_x);
+  acc_bias_.y(req->offset_y);
+  acc_bias_.z(req->offset_z);
+
+  // Save parameters
+  pt_.set(kOffsetXKey, req->offset_x);
+  pt_.set(kOffsetYKey, req->offset_y);
+  pt_.set(kOffsetZKey, req->offset_z);
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save parameters.";
+    return;
+  }
+
+  if (imu_pub_ == nullptr)
+    registerPubSub();
+
+  res->success = true;
+  res->message.clear();
+}
+
+RCLCPP_COMPONENTS_REGISTER_NODE(ImuHandlerNode)

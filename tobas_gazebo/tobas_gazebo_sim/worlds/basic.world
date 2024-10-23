@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<sdf version="1.10">
+  <world name="default">
+
+    <physics name="2ms" type="ignored">
+      <max_step_size>0.002</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+
+    <gui fullscreen="0">
+      <!-- TODO: プラグインを追加: https://gazebosim.org/docs/latest/sdf_worlds/ -->
+    </gui>
+
+    <include>
+      <uri>models/sun</uri>
+    </include>
+
+    <include>
+      <uri>models/ground_plane</uri>
+
+      <!-- パスを正しく追加していればパッケージからのURI指定も可能． -->
+      <!-- <uri>package://tobas_gazebo_sim/models/ground_plane</uri> -->
+    </include>
+
+  </world>
+</sdf>

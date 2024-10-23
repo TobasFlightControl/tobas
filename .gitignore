@@ -1,4 +1,6 @@
 *.pyc
 *.deb
 *.ui.autosave
+build/
+log/
 tobas_deb/ubuntu/opt/

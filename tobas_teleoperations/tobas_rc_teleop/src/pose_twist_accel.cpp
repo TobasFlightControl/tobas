@@ -1,7 +1,6 @@
 #include <tobas_kdl/euler.hpp>
-#include <tobas_ros_tools/rosparam.hpp>
-#include <tobas_tools/constants.hpp>
-#include <tobas_msgs/PoseTwistAccelCommand.h>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -10,15 +9,15 @@ using namespace std;
 
 namespace tobas_rc_teleop
 {
-PoseTwistAccelController::PoseTwistAccelController(const tobas::Drone& drone) : super(drone)
+PoseTwistAccelController::PoseTwistAccelController()
 {
 }
 
-void PoseTwistAccelController::initialize(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+void PoseTwistAccelController::initialize(tobas::BaseNode* node)
 {
-  getRosParams(pnh);
+  getStaticRosParams(node);
 
-  cmd_pub_ = nh.advertise<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic, 1);
+  cmd_pub_ = node->createPublisher<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic);
 }
 
 void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
@@ -30,10 +29,10 @@ void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
   odom.frame.M.getRPY(tar_rpy_.roll, tar_rpy_.pitch, tar_rpy_.yaw);
 }
 
-void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom, const double&)
+void PoseTwistAccelController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
-  const auto dt = (rcin.header.stamp - t_last_rcin_).toSec();
+  const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
   // GPSwの状態によって水平速度制御モードと姿勢制御モードを切り替える
@@ -85,9 +84,9 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   }
 
   // コマンドを作成
-  const auto cmd = boost::make_shared<tobas_msgs::PoseTwistAccelCommand>();
-  cmd->level.data = tobas_msgs::CommandLevel::MANUAL;
-  cmd->frame_id.data = tobas_msgs::FrameId::WORLD;
+  auto cmd = std::make_unique<tobas_msgs::PoseTwistAccelCommand>();
+  cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
+  cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
   cmd->acc.setZero();
@@ -96,16 +95,37 @@ void PoseTwistAccelController::update(const tobas_msgs::RCInput& rcin, const tob
   cmd->dgyro.setZero();
 
   // コマンドを発行
-  cmd_pub_.publish(cmd);
+  cmd_pub_->publish(move(cmd));
 }
 
-void PoseTwistAccelController::getRosParams(ros::NodeHandle& pnh)
+void PoseTwistAccelController::getStaticRosParams(tobas::BaseNode* node)
 {
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_horizontal_velocity", max_hor_vel_, kDefaultMaxHorVel, tobas_ros::POSITIVE);
-  tobas_ros::getParam(
-    pnh, "pose_twist_accel/max_vertical_velocity", max_ver_vel_, kDefaultMaxVerVel, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "pose_twist_accel/max_attitude", max_attitude_, kDefaultMaxAttitude, tobas_ros::POSITIVE);
-  tobas_ros::getParam(pnh, "pose_twist_accel/max_yawrate", max_yawrate_, kDefaultMaxYawrate, tobas_ros::POSITIVE);
+  max_hor_vel_ = node->getDoubleParam("max_horizontal_velocity", kDefaultMaxHorVel);
+  if (max_hor_vel_ < 0)
+  {
+    node->error("Maximum horizontal velocity must be positive.");
+    max_hor_vel_ = kDefaultMaxHorVel;
+  }
+
+  max_ver_vel_ = node->getDoubleParam("max_vertical_velocity", kDefaultMaxVerVel);
+  if (max_ver_vel_ < 0)
+  {
+    node->error("Maximum vertical velocity must be positive.");
+    max_ver_vel_ = kDefaultMaxVerVel;
+  }
+
+  max_attitude_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitude);
+  if (max_attitude_ < 0)
+  {
+    node->error("Maximum attitude angle must be positive.");
+    max_attitude_ = kDefaultMaxAttitude;
+  }
+
+  max_yawrate_ = node->getDoubleParam("max_yawrate", kDefaultMaxYawrate);
+  if (max_yawrate_ < 0)
+  {
+    node->error("Maximum yawrate must be positive.");
+    max_yawrate_ = kDefaultMaxYawrate;
+  }
 }
 }  // namespace tobas_rc_teleop

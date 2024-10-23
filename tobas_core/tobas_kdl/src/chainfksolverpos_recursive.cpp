@@ -32,7 +32,7 @@ int ChainFkSolverPos_recursive::JntToCart(const JntArray& q_in, int _seg_nr)
   for (size_t i = 0; i < seg_nr; ++i)
   {
     const auto& seg = chain_.getSegment(i);
-    const auto qj = seg.getJoint().type != Joint::Fixed ? q_in(j_++) : 0.;
+    const auto qj = seg.joint().type != Joint::Fixed ? q_in(j_++) : 0.;
     p_out_ = p_out_ * seg.pose(qj);
   }
 

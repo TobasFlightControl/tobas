@@ -2,11 +2,11 @@
 
 namespace tobas_rc_teleop
 {
-ProgramModeController::ProgramModeController(const tobas::Drone& drone) : BaseController(drone)
+ProgramModeController::ProgramModeController()
 {
 }
 
-void ProgramModeController::initialize(ros::NodeHandle&, ros::NodeHandle&)
+void ProgramModeController::initialize(tobas::BaseNode*)
 {
 }
 
@@ -14,7 +14,7 @@ void ProgramModeController::reset(const tobas_msgs::Odometry&)
 {
 }
 
-void ProgramModeController::update(const tobas_msgs::RCInput&, const tobas_msgs::Odometry&, const double&)
+void ProgramModeController::update(const tobas_msgs::msg::RCInput&, const tobas_msgs::Odometry&)
 {
 }
 }  // namespace tobas_rc_teleop

@@ -1,7 +1,0 @@
-<library path="lib/libtobas_multirotor_takeoff_nodelet">
-
-  <class name="tobas_multirotor_takeoff/TakeoffActionServerNodelet" type="tobas_multirotor_takeoff::TakeoffActionServerNodelet" base_class_type="nodelet::Nodelet">
-    <description>TODO</description>
-  </class>
-
-</library>
