@@ -36,6 +36,7 @@ class ParamBlockWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kLabelPSize = 12;
+  static constexpr auto kLoadParamTimeout = std::chrono::seconds(3);
 
 public:
   explicit ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label);

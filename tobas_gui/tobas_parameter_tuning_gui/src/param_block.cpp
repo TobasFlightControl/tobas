@@ -42,7 +42,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
   ros2::SyncServiceClient<tobas_dparam_msgs::srv::GetParams> sc(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, node_name, tobas::kGetDynamicParamsSrv));
   const auto req = make_shared<tobas_dparam_msgs::srv::GetParams::Request>();
-  if (!sc.call(req))
+  if (!sc.call(req, kLoadParamTimeout))
   {
     qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
     return false;
