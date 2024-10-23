@@ -31,6 +31,7 @@ bool RemotePackageBuilder::build(const fs::path& remote_tbs_path)
   // TODO: ビルド時間が長いため，PCでコンパイルしてから実行に必要なファイルのみを送る．
   const auto build_cmd = format(
     "colcon build "
+    "--merge-install "
     "--symlink-install "
     "--parallel-workers $(nproc) "
     "--packages-up-to {}",

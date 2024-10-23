@@ -46,6 +46,7 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   const auto meta_name = getTBSMetaName(tbs_path);
   const auto command = format(
     "colcon build "
+    "--merge-install "
     "--symlink-install "
     "--parallel-workers $(nproc) "
     "--cmake-args -DCMAKE_BUILD_TYPE=Release "
