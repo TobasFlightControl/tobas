@@ -23,13 +23,13 @@ SSHClient::SSHClient(rclcpp::Node::SharedPtr node)
 bool SSHClient::fileExists(const fs::path& file_path)
 {
   string output;
-  return execute("[ -f {" + file_path.string() + " ]", output) == E_NO_ERROR;
+  return execute("[ -f " + file_path.string() + " ]", output) == E_NO_ERROR;
 }
 
 bool SSHClient::dirExists(const fs::path& dir_path)
 {
   string output;
-  return execute("[ -d {" + dir_path.string() + " ]", output) == E_NO_ERROR;
+  return execute("[ -d " + dir_path.string() + " ]", output) == E_NO_ERROR;
 }
 
 SSHClient::error_t SSHClient::connect()

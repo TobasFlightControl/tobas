@@ -114,8 +114,8 @@ void ParameterTuningWidget::onSaveButtonClicked()
   if (!controller_params_->save(ctrl_path_local, ctrl_path_remote))
     return;
 
-  const auto obsv_path_local = common::getControllerDynamicParamsPath(tbs_path_);
-  const auto obsv_path_remote = common::getControllerDynamicParamsPath(remote_tbs_path);
+  const auto obsv_path_local = common::getObserverDynamicParamsPath(tbs_path_);
+  const auto obsv_path_remote = common::getObserverDynamicParamsPath(remote_tbs_path);
   if (!observer_params_->save(obsv_path_local, obsv_path_remote))
     return;
 

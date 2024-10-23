@@ -74,7 +74,7 @@ fs::path getControllerDynamicParamsPath(const fs::path& tbs_path)
 
 fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
 {
-  return getTBSConfigPath(tbs_path) / "config" / "controller_dynamic.yaml";
+  return getTBSConfigPath(tbs_path) / "config" / "observer_dynamic.yaml";
 }
 
 fs::path getSettingsPath(const fs::path& tbs_path)
