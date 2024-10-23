@@ -29,7 +29,7 @@ public:
    */
   explicit CRC16(uint16_t poly, uint16_t init_value = 0, uint16_t out_xor = 0);
 
-  virtual uint16_t compute(const uint8_t* buf, size_t len) = 0;
+  virtual uint16_t compute(const uint8_t* buf, size_t len) const = 0;
 
 protected:
   const uint16_t poly_;
@@ -51,7 +51,7 @@ public:
    */
   explicit CRC32(uint32_t poly, uint32_t init_value = 0, uint32_t out_xor = 0);
 
-  virtual uint32_t compute(const uint8_t* buf, size_t len) = 0;
+  virtual uint32_t compute(const uint8_t* buf, size_t len) const = 0;
 
 protected:
   const uint32_t poly_;
@@ -68,7 +68,7 @@ class CRC16Right : public CRC16
 public:
   using CRC16::CRC16;
 
-  uint16_t compute(const uint8_t* buf, size_t len) override;
+  uint16_t compute(const uint8_t* buf, size_t len) const override;
 
 protected:
   void createTable() override;
@@ -79,7 +79,7 @@ class CRC16Left : public CRC16
 public:
   using CRC16::CRC16;
 
-  uint16_t compute(const uint8_t* buf, size_t len) override;
+  uint16_t compute(const uint8_t* buf, size_t len) const override;
 
 protected:
   void createTable() override;
@@ -90,7 +90,7 @@ class CRC32Right : public CRC32
 public:
   using CRC32::CRC32;
 
-  uint32_t compute(const uint8_t* buf, size_t len) override;
+  uint32_t compute(const uint8_t* buf, size_t len) const override;
 
 protected:
   void createTable() override;
@@ -101,7 +101,7 @@ class CRC32Left : public CRC32
 public:
   using CRC32::CRC32;
 
-  uint32_t compute(const uint8_t* buf, size_t len) override;
+  uint32_t compute(const uint8_t* buf, size_t len) const override;
 
 protected:
   void createTable() override;

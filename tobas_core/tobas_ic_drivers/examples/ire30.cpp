@@ -5,18 +5,25 @@
 
 using namespace std;
 
-void onPacket(const driver::JRE30::Packet& packet)
+void onPacket(shared_ptr<const driver::JRE30Packet> _packet)
 {
-  cout << "Protocol Version: " << (int)packet.protocol_version << endl;
-  cout << "Frame Count: " << (int)packet.frame_count << endl;
-  cout << "Distance [m]: " << packet.distance << endl;
-  cout << "Strength: " << packet.strength << endl;
+  const auto packet = dynamic_pointer_cast<const driver::JRE30Packet_A>(_packet);
+  if (packet == nullptr)
+  {
+    cerr << "Failed to cast JRE30 packet to type A." << endl;
+    return;
+  }
+
+  cout << "Protocol Version: " << (int)packet->protocol_version << endl;
+  cout << "Frame Count: " << (int)packet->frame_count << endl;
+  cout << "Distance [m]: " << packet->distance << endl;
+  cout << "Strength: " << packet->strength << endl;
 
   // Status
   cout << boolalpha;
-  cout << "Gain: " << packet.gain << endl;
-  cout << "NTRK: " << packet.ntrk << endl;
-  cout << "Fail: " << packet.fail << endl;
+  cout << "Gain: " << packet->gain << endl;
+  cout << "NTRK: " << packet->ntrk << endl;
+  cout << "Fail: " << packet->fail << endl;
   cout << noboolalpha;
 
   cout << "----------" << endl;

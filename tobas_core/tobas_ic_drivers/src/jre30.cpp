@@ -2,14 +2,64 @@
 
 #include "../include/tobas_ic_drivers/jre30.hpp"
 
+#define TIMEOUT_MS 1000
+
 using namespace std;
 
 namespace driver
 {
-JRE30::JRE30(function<void(const Packet&)> packet_cb)
+size_t JRE30Packet_A::packetSize() const
+{
+  return 16;
+}
+
+void JRE30Packet_A::decode(uint8_t* buf)
+{
+  protocol_version = buf[2];
+  frame_count = buf[3];
+
+  const uint16_t dist_lsb = (buf[4] << 8) | buf[5];
+  distance = dist_lsb * 0.01;
+
+  const uint16_t strength_lsb = (buf[10] << 8) | buf[11];
+  strength = strength_lsb * 1.;
+
+  const uint16_t status = (buf[12] << 8) | buf[13];
+  gain = (status >> 0) & 1;
+  ntrk = (status >> 1) & 1;
+  fail = (status >> 3) & 1;
+}
+
+size_t JRE30Packet_B::packetSize() const
+{
+  return 32;
+}
+
+void JRE30Packet_B::decode(uint8_t* buf)
+{
+  (void)buf;
+  // TODO
+}
+
+size_t JRE30Packet_C::packetSize() const
+{
+  return 48;
+}
+
+void JRE30Packet_C::decode(uint8_t* buf)
+{
+  (void)buf;
+  // TODO
+}
+
+JRE30::JRE30(function<void(shared_ptr<const JRE30Packet>)> packet_cb)
   : packet_cb_(packet_cb), crc_(0x8408, 0xFFFF, 0xFFFF)
 {
   crc_.initialize();
+
+  packet_a_ = make_shared<JRE30Packet_A>();
+  packet_b_ = make_shared<JRE30Packet_B>();
+  packet_c_ = make_shared<JRE30Packet_C>();
 }
 
 bool JRE30::initialize(const char* device)
@@ -29,6 +79,9 @@ bool JRE30::initialize(const char* device)
   if (!uart_.disableParity())
     return false;
 
+  if (!uart_.setTimeout(TIMEOUT_MS / 100))
+    return false;
+
   return true;
 }
 
@@ -46,61 +99,48 @@ void JRE30::readThreadFunc()
 {
   while (true)
   {
-    if (!read())
+    // Header
+    if (!uart_.receive(buf_ + 0, 1))
       continue;
+    if (buf_[0] != 'R')
+      continue;
+
+    if (!uart_.receive(buf_ + 1, 1))
+      continue;
+
+    switch (buf_[1])
+    {
+      case 'A':
+        packet_ = static_pointer_cast<JRE30Packet>(packet_a_);
+        break;
+      case 'B':
+        packet_ = static_pointer_cast<JRE30Packet>(packet_b_);
+        break;
+      case 'C':
+        packet_ = static_pointer_cast<JRE30Packet>(packet_c_);
+        break;
+      default:
+        continue;
+    }
+
+    for (size_t i = 2; i < packet_->packetSize(); ++i)
+      if (!uart_.receive(buf_ + i, 1))
+        continue;
 
     if (!checkCRC())
       continue;
 
-    decode();
-
+    packet_->decode(buf_);
     packet_cb_(packet_);
   }
 }
 
-bool JRE30::read()
+bool JRE30::checkCRC() const
 {
-  // Header
-  buf_[kHeaderIdx] = uart_.receiveByte();
-  if (buf_[kHeaderIdx] != 'R')
-    return false;
-  buf_[kHeaderIdx + 1] = uart_.receiveByte();
-  if (buf_[kHeaderIdx + 1] != 'A')
-    return false;
+  const auto packet_size = packet_->packetSize();
 
-  // Protocol version
-  buf_[kProtocolVersionIdx] = uart_.receiveByte();
-
-  // Frame count
-  buf_[kFrameCountIdx] = uart_.receiveByte();
-
-  // Distance
-  buf_[kDistanceIdx] = uart_.receiveByte();
-  buf_[kDistanceIdx + 1] = uart_.receiveByte();
-
-  // Reserved
-  for (size_t i = 0; i < 4; ++i)
-    buf_[kReservedIdx + i] = uart_.receiveByte();
-
-  // Strength
-  buf_[kStrengthIdx] = uart_.receiveByte();
-  buf_[kStrengthIdx + 1] = uart_.receiveByte();
-
-  // Status
-  buf_[kStatusIdx] = uart_.receiveByte();
-  buf_[kStatusIdx + 1] = uart_.receiveByte();
-
-  // CRC
-  buf_[kCRCIdx] = uart_.receiveByte();
-  buf_[kCRCIdx + 1] = uart_.receiveByte();
-
-  return true;
-}
-
-bool JRE30::checkCRC()
-{
-  const uint16_t cs = crc_.compute(buf_, kCRCIdx);
-  const uint16_t cr = (buf_[kCRCIdx + 1] << 8) | buf_[kCRCIdx];
+  const uint16_t cs = crc_.compute(buf_, packet_size - 2);
+  const uint16_t cr = (buf_[packet_size - 1] << 8) | buf_[packet_size - 2];
 
   if (cs != cr)
   {
@@ -109,21 +149,5 @@ bool JRE30::checkCRC()
   }
 
   return true;
-}
-
-void JRE30::decode()
-{
-  packet_.protocol_version = buf_[kProtocolVersionIdx];
-  packet_.frame_count = buf_[kFrameCountIdx];
-
-  const uint16_t dist_lsb = (buf_[kDistanceIdx] << 8) | buf_[kDistanceIdx + 1];
-  packet_.distance = dist_lsb * 0.01;
-
-  const uint16_t strength_lsb = (buf_[kStrengthIdx] << 8) | buf_[kStrengthIdx + 1];
-  packet_.strength = strength_lsb * 1.;
-
-  packet_.gain = (buf_[kStatusIdx] >> 0) & 1;
-  packet_.ntrk = (buf_[kStatusIdx] >> 1) & 1;
-  packet_.fail = (buf_[kStatusIdx] >> 3) & 1;
 }
 }  // namespace driver

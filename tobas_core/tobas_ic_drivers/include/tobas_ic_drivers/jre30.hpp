@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <thread>
 #include <functional>
 
@@ -8,6 +9,44 @@
 
 namespace driver
 {
+struct JRE30Packet
+{
+  virtual size_t packetSize() const = 0;
+  virtual void decode(uint8_t* buf) = 0;
+};
+
+struct JRE30Packet_A : public JRE30Packet
+{
+  uint8_t protocol_version;
+  uint8_t frame_count;
+  double distance;  // [m]
+  double strength;  // [-]
+
+  // Status
+  bool gain;  // false: Low, true: High
+  bool ntrk;  // If true, the measured data is invalid.
+  bool fail;
+
+  size_t packetSize() const override;
+  void decode(uint8_t* buf) override;
+};
+
+struct JRE30Packet_B : public JRE30Packet
+{
+  // TODO
+
+  size_t packetSize() const override;
+  void decode(uint8_t* buf) override;
+};
+
+struct JRE30Packet_C : public JRE30Packet
+{
+  // TODO
+
+  size_t packetSize() const override;
+  void decode(uint8_t* buf) override;
+};
+
 /**
  * @brief A Linux driver of JRE-30 range sensor.
  *
@@ -15,49 +54,28 @@ namespace driver
  */
 class JRE30
 {
-  static constexpr size_t kHeaderIdx = 0;
-  static constexpr size_t kProtocolVersionIdx = kHeaderIdx + 2;
-  static constexpr size_t kFrameCountIdx = kProtocolVersionIdx + 1;
-  static constexpr size_t kDistanceIdx = kFrameCountIdx + 1;
-  static constexpr size_t kReservedIdx = kDistanceIdx + 2;
-  static constexpr size_t kStrengthIdx = kReservedIdx + 4;
-  static constexpr size_t kStatusIdx = kStrengthIdx + 2;
-  static constexpr size_t kCRCIdx = kStatusIdx + 2;
-  static constexpr size_t kDataSize = kCRCIdx + 2;
-
 public:
-  struct Packet
-  {
-    uint8_t protocol_version;
-    uint8_t frame_count;
-    double distance;  // [m]
-    double strength;  // [-]
-
-    // Status
-    bool gain;  // false: Low, true: High
-    bool ntrk;  // If true, the measured data is invalid.
-    bool fail;
-  };
-
-  explicit JRE30(std::function<void(const Packet&)> packet_cb);
+  explicit JRE30(std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb);
 
   bool initialize(const char* device);
   void start();
   void spin();
 
 private:
-  const std::function<void(const Packet&)> packet_cb_;
+  const std::function<void(std::shared_ptr<const JRE30Packet>)> packet_cb_;
 
   linux::UARTdev uart_;
-  uint8_t buf_[kDataSize];
-  Packet packet_;
   algo::CRC16Right crc_;
+  uint8_t buf_[256];
+
+  std::shared_ptr<JRE30Packet> packet_;
+  std::shared_ptr<JRE30Packet_A> packet_a_;
+  std::shared_ptr<JRE30Packet_B> packet_b_;
+  std::shared_ptr<JRE30Packet_C> packet_c_;
 
   std::thread read_thread_;
   void readThreadFunc();
 
-  bool read();
-  bool checkCRC();
-  void decode();
+  bool checkCRC() const;
 };
 }  // namespace driver

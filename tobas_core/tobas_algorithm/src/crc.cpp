@@ -17,7 +17,7 @@ CRC32::CRC32(uint32_t poly, uint32_t init_value, uint32_t out_xor)
 {
 }
 
-uint16_t CRC16Right::compute(const uint8_t* buf, size_t len)
+uint16_t CRC16Right::compute(const uint8_t* buf, size_t len) const
 {
   uint16_t c = init_value_;
   for (size_t i = 0; i < len; ++i)
@@ -36,7 +36,7 @@ void CRC16Right::createTable()
   }
 }
 
-uint32_t CRC32Right::compute(const uint8_t* buf, size_t len)
+uint32_t CRC32Right::compute(const uint8_t* buf, size_t len) const
 {
   uint32_t c = init_value_;
   for (size_t i = 0; i < len; ++i)
@@ -55,7 +55,7 @@ void CRC32Right::createTable()
   }
 }
 
-uint16_t CRC16Left::compute(const uint8_t* buf, size_t len)
+uint16_t CRC16Left::compute(const uint8_t* buf, size_t len) const
 {
   uint16_t c = init_value_ ^ 0xFFFF;
   for (size_t i = 0; i < len; ++i)
@@ -74,7 +74,7 @@ void CRC16Left::createTable()
   }
 }
 
-uint32_t CRC32Left::compute(const uint8_t* buf, size_t len)
+uint32_t CRC32Left::compute(const uint8_t* buf, size_t len) const
 {
   uint32_t c = init_value_ ^ 0xFFFFFFFF;
   for (size_t i = 0; i < len; ++i)
