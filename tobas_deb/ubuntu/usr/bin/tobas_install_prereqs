@@ -32,11 +32,6 @@ sudo apt install -y ros-jazzy-desktop-full &&
 sudo rosdep init || true  # 既に初期化済みの場合も正常終了
 rosdep update &&
 
-# ===== Install balenaEtcher =====
-curl -sLf 'https://dl.cloudsmith.io/public/balena/etcher/setup.deb.sh' | sudo -E bash &&
-sudo apt update &&
-sudo apt install -y balena-etcher-electron &&
-
 # ===== Install ROS dependencies of Tobas =====
 # pipを使うと依存管理が面倒なので，Pythonパッケージも極力package.xmlに書いてaptで管理する
 source /opt/ros/jazzy/setup.bash &&

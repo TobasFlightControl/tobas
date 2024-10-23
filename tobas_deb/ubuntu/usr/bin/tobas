@@ -8,4 +8,4 @@ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 source /opt/ros/jazzy/setup.bash
 source /opt/tobas/setup.bash
 
-roslaunch tobas_gcs gcs.launch
+ros2 launch tobas_gui_core gui.launch.py

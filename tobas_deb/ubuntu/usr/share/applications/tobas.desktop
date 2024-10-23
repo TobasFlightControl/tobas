@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Tobas
-Icon=/opt/tobas/share/tobas_gcs/resources/icon.png
+Icon=/opt/tobas/tobas_gui_common/share/tobas_gui_common/resources/icon.png
 Exec=/usr/bin/tobas
 Terminal=false
 StartupNotify=true
