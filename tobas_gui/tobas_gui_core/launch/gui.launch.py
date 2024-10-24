@@ -65,7 +65,7 @@ def generate_launch_description():
     # Launch main application
     core = Node(
         package="tobas_gui_core",
-        executable="main",
+        executable="Tobas",
         ros_arguments=ros_args,
         output=output,
         on_exit=Shutdown(),

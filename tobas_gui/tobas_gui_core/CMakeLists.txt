@@ -51,8 +51,9 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-add_executable(main nodes/main.cpp)
-target_link_libraries(main ${PROJECT_NAME})
+# 実行ファイル名とアプリ名をTobasに一致させることでデスクトップアプリでアイコンが正しく表示される
+add_executable(Tobas nodes/main.cpp)
+target_link_libraries(Tobas ${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -62,7 +63,7 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
-install(TARGETS main DESTINATION lib/${PROJECT_NAME})
+install(TARGETS Tobas DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
