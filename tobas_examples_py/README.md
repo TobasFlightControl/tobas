@@ -1,3 +1,3 @@
-# tobas_examples
+# tobas_examples_py
 
 ユーザスクリプトの例をまとめたパッケージ．
