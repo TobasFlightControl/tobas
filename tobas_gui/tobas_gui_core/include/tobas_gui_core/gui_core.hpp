@@ -51,10 +51,10 @@ private:
   common::RemotePackageBuilder package_builder_;
 
   QLineEdit* tbs_path_;
-  QPushButton* load_button_;
-  QPushButton* send_button_;
+  QPushButton* load_btn_;
+  QPushButton* send_btn_;
 
-  QPushButton* shutdown_button_;
+  QPushButton* shutdown_btn_;
 
   homepage::HomepageWidget* homepage_;
   URDFBuilder* urdf_builder_;

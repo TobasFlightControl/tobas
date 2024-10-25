@@ -1,4 +1,5 @@
 #include <QLabel>
+#include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QCoreApplication>
@@ -7,7 +8,6 @@
 #include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_gui_common/constants.hpp>
@@ -15,6 +15,7 @@
 
 #include "tobas_gui_core/gui_core.hpp"
 #include "tobas_gui_core/constants.hpp"
+#include "tobas_gui_core/app_button.hpp"
 
 namespace fs = std::filesystem;
 
@@ -25,42 +26,50 @@ namespace core
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   : node_(node), property_client_(node, tobas::kPropertyServerName, kPkgName), ssh_client_(node), package_builder_(node)
 {
+  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPkgName));
+  const auto rsrc_path = pkg_path / "resources";
+
   // Applications
-  const auto app_cb = new qt::ComboBox();
-  const auto app_sw = new qt::StackedWidget();
-  connect(app_cb, QOverload<int>::of(&QComboBox::currentIndexChanged), app_sw, &QStackedWidget::setCurrentIndex);
-
   homepage_ = new homepage::HomepageWidget();
-  app_cb->addItem("Homepage");
-  app_sw->addWidget(homepage_);
-
   urdf_builder_ = new URDFBuilder();
-  app_cb->addItem("URDF Builder");
-  app_sw->addWidget(urdf_builder_);
-
   setup_assistant_ = new setup_assistant::SetupAssistantWidget(node);
-  app_cb->addItem("Setup Assistant");
-  app_sw->addWidget(setup_assistant_);
-
   hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, drone_);
-  app_cb->addItem("Hardware Setup");
-  app_sw->addWidget(hardware_setup_);
-
   control_system_ = new control_system::ControlSystemWidget(node, drone_);
-  app_cb->addItem("Control System");
-  app_sw->addWidget(control_system_);
-
   param_tuning_ = new param_tuning::ParameterTuningWidget(node);
-  app_cb->addItem("Parameter Tuning");
-  app_sw->addWidget(param_tuning_);
-
   flight_log_ = new log::FlightLogWidget(node);
-  app_cb->addItem("Flight Log");
-  app_sw->addWidget(flight_log_);
-
   simulation_ = new sim::SimulationWidget(node);
-  app_cb->addItem("Simulation");
+
+  // TODO: 別々のアイコンを設定
+  const auto homepage_btn = new AppButton("Homepage", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto urdf_builder_btn = new AppButton("URDF Builder", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto setup_assistant_btn = new AppButton("Setup Assistant", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto hardware_setup_btn = new AppButton("Hardware Setup", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "icon.png"));
+
+  const auto app_sw = new qt::StackedWidget();
+  app_sw->addWidget(homepage_);
+  app_sw->addWidget(urdf_builder_);
+  app_sw->addWidget(setup_assistant_);
+  app_sw->addWidget(hardware_setup_);
+  app_sw->addWidget(control_system_);
+  app_sw->addWidget(param_tuning_);
+  app_sw->addWidget(flight_log_);
   app_sw->addWidget(simulation_);
+
+  const auto btn_group = new QButtonGroup(this);
+  int btn_id = 0;
+  btn_group->addButton(homepage_btn, btn_id++);
+  btn_group->addButton(urdf_builder_btn, btn_id++);
+  btn_group->addButton(setup_assistant_btn, btn_id++);
+  btn_group->addButton(hardware_setup_btn, btn_id++);
+  btn_group->addButton(control_system_btn, btn_id++);
+  btn_group->addButton(param_tuning_btn, btn_id++);
+  btn_group->addButton(flight_log_btn, btn_id++);
+  btn_group->addButton(simulation_btn, btn_id++);
+  btn_group->buttons().first()->setChecked(true);
 
   // Package manager
   tbs_path_ = new QLineEdit();
@@ -68,35 +77,45 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   tbs_path_->setReadOnly(true);
   tbs_path_->setFocusPolicy(Qt::NoFocus);
 
-  load_button_ = new QPushButton("Load");
-  load_button_->setFixedWidth(kButtonWidth);
-  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  load_btn_ = new QPushButton("Load");
+  load_btn_->setFixedWidth(kButtonWidth);
 
-  send_button_ = new QPushButton("Send");
-  send_button_->setFixedWidth(kButtonWidth);
-  send_button_->setEnabled(false);
-  connect(send_button_, &QPushButton::clicked, this, &self::onSendButtonClicked);
+  send_btn_ = new QPushButton("Send");
+  send_btn_->setFixedWidth(kButtonWidth);
+  send_btn_->setEnabled(false);
 
   // Shutdown button
-  shutdown_button_ = new QPushButton("Shutdown");
-  shutdown_button_->setStyleSheet("background-color: red");
-  connect(shutdown_button_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  shutdown_btn_ = new QPushButton("Shutdown");
+  shutdown_btn_->setStyleSheet("background-color: red");
 
   // Header layout
   const auto header_cols = new QHBoxLayout();
-  header_cols->addWidget(app_cb);
+  header_cols->addWidget(homepage_btn);
+  header_cols->addWidget(urdf_builder_btn);
+  header_cols->addWidget(setup_assistant_btn);
+  header_cols->addWidget(hardware_setup_btn);
+  header_cols->addWidget(control_system_btn);
+  header_cols->addWidget(param_tuning_btn);
+  header_cols->addWidget(flight_log_btn);
+  header_cols->addWidget(simulation_btn);
   header_cols->addStretch();
   header_cols->addWidget(tbs_path_);
-  header_cols->addWidget(load_button_);
-  header_cols->addWidget(send_button_);
-  header_cols->addStretch();
-  header_cols->addWidget(shutdown_button_);
+  header_cols->addWidget(load_btn_);
+  header_cols->addWidget(send_btn_);
+  header_cols->addSpacing(30);
+  header_cols->addWidget(shutdown_btn_);
 
   // Overall layout
   const auto rows = new QVBoxLayout();
   setLayout(rows);
   rows->addLayout(header_cols);
   rows->addWidget(app_sw);
+
+  // Connection
+  connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
+  connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(send_btn_, &QPushButton::clicked, this, &self::onSendButtonClicked);
+  connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -176,7 +195,7 @@ void GUICoreWidget::onLoadButtonClicked()
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
 
   // Writeボタンを有効化
-  send_button_->setEnabled(true);
+  send_btn_->setEnabled(true);
 
   // 内部状態を更新
   updateInternalDataStructures();
