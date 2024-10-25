@@ -6,6 +6,8 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_state.hpp>
 
+#include <tobas_gazebo_common/constants.hpp>
+
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_msg.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"

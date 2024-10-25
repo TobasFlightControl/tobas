@@ -67,7 +67,7 @@ void ADCCalibrationThread::run()
   }
 
   // 結果を確認
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));

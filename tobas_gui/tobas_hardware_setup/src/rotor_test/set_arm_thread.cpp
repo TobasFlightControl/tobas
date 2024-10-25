@@ -27,7 +27,7 @@ void SetArmThread::run()
     return;
   }
 
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     Q_EMIT finished(false, "Arming service failed: " + QString::fromStdString(res->message));

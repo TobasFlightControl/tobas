@@ -1,6 +1,8 @@
 #include <tobas_wind_model/dryden.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/Wind.hpp>
+
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 

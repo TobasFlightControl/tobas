@@ -16,6 +16,7 @@
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
+#include <tobas_simulation_gui/simulation.hpp>
 
 #include "./urdf_builder.hpp"
 
@@ -62,6 +63,7 @@ private:
   control_system::ControlSystemWidget* control_system_;
   param_tuning::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
+  sim::SimulationWidget* simulation_;
 
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;

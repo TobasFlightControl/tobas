@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(tobas_gui_core)
+project(tobas_simulation_gui)
 
 file(READ "/etc/os-release" OS_RELEASE_CONTENT)
 
@@ -21,27 +21,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_homepage REQUIRED)
-find_package(urdf_builder REQUIRED)
-find_package(tobas_setup_assistant REQUIRED)
-find_package(tobas_hardware_setup REQUIRED)
-find_package(tobas_control_system REQUIRED)
-find_package(tobas_parameter_tuning_gui REQUIRED)
-find_package(tobas_flight_log_gui REQUIRED)
-find_package(tobas_simulation_gui REQUIRED)
+find_package(tobas_ros2_tools REQUIRED)
+find_package(tobas_gazebo_msgs REQUIRED)
+find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
-  tobas_homepage
-  urdf_builder
-  tobas_setup_assistant
-  tobas_hardware_setup
-  tobas_control_system
-  tobas_parameter_tuning_gui
-  tobas_flight_log_gui
-  tobas_simulation_gui
+  tobas_ros2_tools
+  tobas_gazebo_msgs
+  tobas_qt_tools
+  tobas_gui_common
 )
 
-# add_definitions(-DQT_NO_KEYWORDS)
+add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
@@ -53,10 +45,6 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-# 実行ファイル名とアプリ名をTobasに一致させることでデスクトップアプリでアイコンが正しく表示される
-add_executable(Tobas nodes/main.cpp)
-target_link_libraries(Tobas ${PROJECT_NAME})
-
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}
@@ -65,9 +53,7 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
-install(TARGETS Tobas DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

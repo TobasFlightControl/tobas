@@ -58,6 +58,10 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   app_cb->addItem("Flight Log");
   app_sw->addWidget(flight_log_);
 
+  simulation_ = new sim::SimulationWidget(node);
+  app_cb->addItem("Simulation");
+  app_sw->addWidget(simulation_);
+
   // Package manager
   tbs_path_ = new QLineEdit();
   tbs_path_->setFixedWidth(kPathWidth);
@@ -101,6 +105,7 @@ void GUICoreWidget::updateInternalDataStructures()
   control_system_->updateInternalDataStructures();
   param_tuning_->updateTBSPath(tbsPath());
   flight_log_->updateNamespace(drone_.name);
+  simulation_->updateTBSPath(tbsPath());
 
   arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(

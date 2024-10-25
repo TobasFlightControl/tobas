@@ -13,6 +13,7 @@
 #include <tobas_msgs_adapter/Wind.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/math.hpp>
 #include <tobas_gazebo_msgs/msg/fixed_wing_debug.hpp>
 

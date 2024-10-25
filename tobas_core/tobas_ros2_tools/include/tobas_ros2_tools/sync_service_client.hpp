@@ -39,9 +39,10 @@ public:
    *
    * @note ROSノードと同じスレッドで動作するコールバックの中で呼ぶとデッドロックする．
    */
+  template <typename RepT = int64_t, typename RatioT = std::milli>
   bool call(
     const typename SrvType::Request::SharedPtr& req,
-    std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
+    std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
     if (!client_->wait_for_service(kWaitForServer))  // service_is_readyは最初のコールでfalseを返すことが多い
     {
@@ -61,7 +62,13 @@ public:
     return true;
   }
 
-  inline const typename SrvType::Response::SharedPtr& getResponse() const
+  template <typename RepT = int64_t, typename RatioT = std::milli>
+  bool waitForService(std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
+  {
+    return client_->wait_for_service(timeout);
+  }
+
+  inline typename SrvType::Response::SharedPtr getResponse() const
   {
     return res_;
   }

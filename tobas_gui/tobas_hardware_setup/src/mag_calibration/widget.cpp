@@ -332,7 +332,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
 
   // 結果を確認
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));

@@ -62,7 +62,7 @@ bool TakeoffServerNode::armRotors()
     return false;
   }
 
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     TOBAS_ERROR("Failed to arm rotors: ", res->message);

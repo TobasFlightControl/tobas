@@ -62,7 +62,7 @@ bool LandServerNode::disarmRotors()
     return false;
   }
 
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     TOBAS_ERROR("Failed to disarm rotors: ", res->message);
