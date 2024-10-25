@@ -62,10 +62,10 @@ void SimulationWidget::reset()
 
 void SimulationWidget::killGazebo()
 {
-  if (gazebo_pid_ < 0)
+  if (launch_pid_ < 0)
     return;
 
-  if (kill(gazebo_pid_, SIGINT) != 0)
+  if (kill(launch_pid_, SIGINT) != 0)
   {
     RCLCPP_ERROR_STREAM(node_->get_logger(), "Failed to kill child process: " << linux::strError());
     return;
@@ -77,7 +77,7 @@ void SimulationWidget::killGazebo()
     return;
   }
 
-  gazebo_pid_ = -1;
+  launch_pid_ = -1;
 }
 
 bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
@@ -116,15 +116,15 @@ void SimulationWidget::onStartButtonClicked()
   // Launch Gazebo
   progress.setLabelText("Launching Gazebo simulation.");
   const auto config_pkg_name = common::getTBSConfigName(tbs_path_);
-  gazebo_pid_ = common::roslaunch(config_pkg_name, "gazebo.launch.xml");
-  if (gazebo_pid_ < 0)
+  launch_pid_ = common::roslaunch(config_pkg_name, "gazebo.launch.xml");
+  if (launch_pid_ < 0)
   {
     progress.close();
     qt::qErrorBox(this, "Failed to launch Gazebo simulation.");
     reset();
     return;
   }
-  RCLCPP_INFO_STREAM(node_->get_logger(), "Gazebo is launched with pid " << gazebo_pid_ << ".");
+  RCLCPP_INFO_STREAM(node_->get_logger(), "Gazebo is launched with pid " << launch_pid_ << ".");
   progress.progressStep();
 
   // Initialize wind parameter manager
