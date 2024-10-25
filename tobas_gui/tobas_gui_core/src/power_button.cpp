@@ -14,7 +14,7 @@ PowerButton::PowerButton(int radius) : super("⏻")
   // ボタンの外観をスタイルシートで設定
   QString qss = R"(
     QPushButton {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF4D4D, stop:1 #990000);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF6666, stop:1 #990000);
       border: none;
       border-radius: %1px;
       color: white;
