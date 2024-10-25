@@ -37,7 +37,7 @@ private:
   common::LocalPackageBuilder pkg_builder_;
   std::filesystem::path tbs_path_;
   tobas::Drone drone_;
-  pid_t gazebo_pid_;
+  pid_t gazebo_pid_ = -1;
 
   QPushButton* start_button_;
   QPushButton* terminate_button_;
