@@ -19,6 +19,7 @@
 #include <tobas_simulation_gui/simulation.hpp>
 
 #include "./urdf_builder.hpp"
+#include "./power_button.hpp"
 
 namespace gui
 {
@@ -33,8 +34,8 @@ class GUICoreWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir/tobas_configuration_package";
 
-  static constexpr int kPathWidth = 300;
-  static constexpr int kButtonWidth = 50;
+  static constexpr int kPathWidth = 400;
+  static constexpr int kPowerButtonRadius = 40;
 
 public:
   explicit GUICoreWidget(rclcpp::Node::SharedPtr node);
@@ -51,10 +52,11 @@ private:
   common::RemotePackageBuilder package_builder_;
 
   QLineEdit* tbs_path_;
+  QPushButton* browse_btn_;
   QPushButton* load_btn_;
-  QPushButton* send_btn_;
+  QPushButton* write_btn_;
 
-  QPushButton* shutdown_btn_;
+  PowerButton* power_btn_;
 
   homepage::HomepageWidget* homepage_;
   URDFBuilder* urdf_builder_;
@@ -72,8 +74,9 @@ private:
   std::filesystem::path tbsPath() const;
 
 private Q_SLOTS:
+  void onBrowseButtonClicked();
   void onLoadButtonClicked();
-  void onSendButtonClicked();
+  void onWriteButtonClicked();
   void onShutdownButtonClicked();
 };
 }  // namespace core

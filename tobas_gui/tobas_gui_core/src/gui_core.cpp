@@ -77,18 +77,27 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   tbs_path_->setReadOnly(true);
   tbs_path_->setFocusPolicy(Qt::NoFocus);
 
+  browse_btn_ = new QPushButton("Browse");
   load_btn_ = new QPushButton("Load");
-  load_btn_->setFixedWidth(kButtonWidth);
+  write_btn_ = new QPushButton("Write");
 
-  send_btn_ = new QPushButton("Send");
-  send_btn_->setFixedWidth(kButtonWidth);
-  send_btn_->setEnabled(false);
+  browse_btn_->setEnabled(true);
+  load_btn_->setEnabled(false);
+  write_btn_->setEnabled(false);
 
   // Shutdown button
-  shutdown_btn_ = new QPushButton("Shutdown");
-  shutdown_btn_->setStyleSheet("background-color: red");
+  power_btn_ = new PowerButton(kPowerButtonRadius);
 
-  // Header layout
+  // Layout
+  const auto pkg_btn_cols = new QHBoxLayout();
+  pkg_btn_cols->addWidget(browse_btn_);
+  pkg_btn_cols->addWidget(load_btn_);
+  pkg_btn_cols->addWidget(write_btn_);
+
+  const auto pkg_rows = new QVBoxLayout();
+  pkg_rows->addWidget(tbs_path_);
+  pkg_rows->addLayout(pkg_btn_cols);
+
   const auto header_cols = new QHBoxLayout();
   header_cols->addWidget(homepage_btn);
   header_cols->addWidget(urdf_builder_btn);
@@ -99,23 +108,22 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   header_cols->addWidget(flight_log_btn);
   header_cols->addWidget(simulation_btn);
   header_cols->addStretch();
-  header_cols->addWidget(tbs_path_);
-  header_cols->addWidget(load_btn_);
-  header_cols->addWidget(send_btn_);
+  header_cols->addLayout(pkg_rows);
   header_cols->addSpacing(30);
-  header_cols->addWidget(shutdown_btn_);
+  header_cols->addWidget(power_btn_);
 
-  // Overall layout
   const auto rows = new QVBoxLayout();
-  setLayout(rows);
   rows->addLayout(header_cols);
   rows->addWidget(app_sw);
 
+  setLayout(rows);
+
   // Connection
   connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
+  connect(browse_btn_, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
-  connect(send_btn_, &QPushButton::clicked, this, &self::onSendButtonClicked);
-  connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
+  connect(power_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -141,7 +149,7 @@ fs::path GUICoreWidget::tbsPath() const
   return tbs_path_->text().toStdString();
 }
 
-void GUICoreWidget::onLoadButtonClicked()
+void GUICoreWidget::onBrowseButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
@@ -167,8 +175,25 @@ void GUICoreWidget::onLoadButtonClicked()
     return;
   }
 
+  // パスをテキストに設定
+  tbs_path_->setText(tbs_path);
+
+  // ユーザが開いたディレクトリを保存
+  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  if (property_client_.save() < 0)
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+
+  // Load,Writeボタンを有効化
+  load_btn_->setEnabled(true);
+  write_btn_->setEnabled(true);
+}
+
+void GUICoreWidget::onLoadButtonClicked()
+{
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path.toStdString());
+  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path_->text().toStdString());
   if (!fs::is_regular_file(tbsdrn_path))
   {
     qt::qErrorBox(
@@ -184,19 +209,6 @@ void GUICoreWidget::onLoadButtonClicked()
     return;
   }
 
-  // パスをテキストに設定
-  tbs_path_->setText(tbs_path);
-
-  // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  if (property_client_.save() < 0)
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-
-  // Writeボタンを有効化
-  send_btn_->setEnabled(true);
-
   // 内部状態を更新
   updateInternalDataStructures();
 
@@ -204,7 +216,7 @@ void GUICoreWidget::onLoadButtonClicked()
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }
 
-void GUICoreWidget::onSendButtonClicked()
+void GUICoreWidget::onWriteButtonClicked()
 {
   // アームされていないことを確認
   if (arming_ == nullptr)
