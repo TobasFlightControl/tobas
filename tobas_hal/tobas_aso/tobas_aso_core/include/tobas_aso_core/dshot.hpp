@@ -21,8 +21,8 @@ public:
 private:
   static constexpr size_t kChannelBytes = 2;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 50'000'000;                // [Hz] F722のSPI1の最大値
-  static constexpr uint16_t kDShotDisableCommand = 41;                 // Not yet assigned
+  static constexpr uint32_t kSpiClockFreq = 10'000'000;  // [Hz] 最大は50MHzだが，高すぎると文字化けする
+  static constexpr uint16_t kDShotDisableCommand = 41;   // Not yet assigned
 
 public:
   explicit DShot();
