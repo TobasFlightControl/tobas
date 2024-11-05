@@ -1,6 +1,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_msg.hpp"
@@ -36,7 +36,7 @@ private:
   vector<cmp::JointVelocity*> rotor_jntvels_;
 
   // PubSub
-  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
@@ -65,7 +65,7 @@ void GazeboRotorSpeedsPublisherPlugin::Configure(
   }
 
   // Register publishers
-  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsTopic);
+  rotor_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
 }
 
 void GazeboRotorSpeedsPublisherPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -76,14 +76,19 @@ void GazeboRotorSpeedsPublisherPlugin::getSdfParams(const sdf::ElementConstPtr& 
 void GazeboRotorSpeedsPublisherPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
 {
   // Publish rotor speeds
-  auto rotor_speeds = make_unique<tobas_msgs::msg::RotorSpeeds>();
+  auto rotor_speeds = make_unique<tobas_msgs::msg::RotorSpeedArray>();
   ros2::timeChronoToMsg(info.simTime, rotor_speeds->header.stamp);
-  for (const auto& jntvel : rotor_jntvels_)
+
+  for (size_t i = 0; i < rotor_jntvels_.size(); ++i)
   {
-    const auto rot_speed_sim = jntvel->Data().at(0);
+    const auto rot_speed_sim = rotor_jntvels_.at(i)->Data().at(0);
     const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
-    rotor_speeds->speeds.push_back(abs(rot_speed_real));
+
+    rotor_speeds->speeds.emplace_back();
+    rotor_speeds->speeds.back().channel = i;  // TODO: SDFでチャンネルを取得
+    rotor_speeds->speeds.back().speed = rot_speed_real;
   }
+
   rotor_speeds_pub_->publish(move(rotor_speeds));
 }
 }  // namespace gazebo

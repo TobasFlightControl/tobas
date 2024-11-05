@@ -16,12 +16,12 @@ namespace util
 {
 string toString(double data)
 {
-  return std::format("{}", data);  // 最適な表記方法を自動判定
+  return format("{}", data);  // 最適な表記方法を自動判定
 }
 
 string toString(const pair<double, double>& data)
 {
-  // std::format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
+  // format("{} {}", double, double) だと文字化けする可能性があるため，1文字ずつ文字列に変換する．
   return toString(data.first) + " " + toString(data.second);
 }
 
@@ -271,7 +271,6 @@ void addRotorPlugin(
   plugin->InsertNewChildElement("maxRotationSpeed")->SetText(rotor.max_rot_speed);
   plugin->InsertNewChildElement("numPoles")->SetText(rotor.num_poles);
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
-  plugin->InsertNewChildElement("escMode")->SetText(rotor.esc_mode);
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }
 

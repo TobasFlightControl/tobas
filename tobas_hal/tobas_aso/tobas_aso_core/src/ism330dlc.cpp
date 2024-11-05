@@ -16,7 +16,7 @@ ISM330DLC::ISM330DLC()
 
 bool ISM330DLC::initialize()
 {
-  if (!spi_.initialize(spi_device::kImuDev, kSpiClockFreq, kSpiBufSize))
+  if (!spi_.initialize(spi_device::kImuDev, kSpiClockFreq))
     return false;
 
   if (!checkWhoAmI())

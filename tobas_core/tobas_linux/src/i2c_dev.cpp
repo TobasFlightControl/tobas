@@ -18,18 +18,11 @@ I2Cdev::I2Cdev()
 
 I2Cdev::~I2Cdev()
 {
-  if (tx != nullptr)
-    free(tx);
-  if (rx != nullptr)
-    free(rx);
-  if (tx_ != nullptr)
-    free(tx_);
-
   if (i2c_fd_ >= 0)
     close(i2c_fd_);
 }
 
-bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr, size_t buf_size)
+bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr)
 {
   if (dev_addr >= 0x80)
   {
@@ -45,11 +38,6 @@ bool I2Cdev::initialize(const char* i2c_dev, uint8_t dev_addr, size_t buf_size)
   }
 
   dev_addr_ = dev_addr;
-  buf_size_ = buf_size;
-
-  tx = (uint8_t*)malloc(buf_size * sizeof(uint8_t));
-  rx = (uint8_t*)malloc(buf_size * sizeof(uint8_t));
-  tx_ = (uint8_t*)malloc((buf_size + 1) * sizeof(uint8_t));
 
   return true;
 }
@@ -119,7 +107,7 @@ bool I2Cdev::writeBytes(uint8_t reg_addr, size_t length)
 
 bool I2Cdev::checkDataLength(size_t length) const
 {
-  if (length > buf_size_)
+  if (length > kBufSize)
   {
     cerr << "Data length cannot be greater than buffer size." << endl;
     return false;

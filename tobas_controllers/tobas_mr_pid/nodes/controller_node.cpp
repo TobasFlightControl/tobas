@@ -1,5 +1,4 @@
 #include <sensor_msgs/msg/joint_state.hpp>
-#include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_kdl/treejointstateconverter.hpp>
@@ -15,7 +14,7 @@
 
 #include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/PosVelAccYaw.hpp>
 #include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
 #include <tobas_kdl_msgs_adapter/Tree.hpp>
@@ -47,9 +46,6 @@ private:
   kdl::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
-  // Static parameters
-  bool do_thrust_correction_;
-
   // Controllers
   tobas::PositionPid pos_pid_;
   tobas::AccelAttitudeConverter acc_atti_conv_;
@@ -62,14 +58,13 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   sensor_msgs::msg::JointState::ConstSharedPtr js_;
-  std_msgs::msg::Float64::ConstSharedPtr thrust_corr_factor_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;  // PosVelYawの目標値 (世界座標系)
   shared_ptr<RollPitchYawThrust> tar_rpyt_;         // RollPitchYawThrustの目標値
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
-  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::MultiRotorControllerFeedback> feedback_pub_;
 
   // Subscribers
@@ -78,7 +73,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
-  ros2::SubscriberPtr<std_msgs::msg::Float64> thrust_factor_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PosVelAccYaw> pvay_sub_;
   ros2::SubscriberPtr<tobas_msgs::RollPitchYawThrottle> rpyt_sub_;
@@ -107,7 +101,6 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js);
-  void thrustFactorCb(const std_msgs::msg::Float64::ConstSharedPtr& msg);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle);
@@ -123,9 +116,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   // TODO: 動的パラメータで調節できるように
   // TODO: そもそも風の補償方法を見直すべき
   acc_atti_conv_.setHForceCompRate(0.);
-
-  // Get static parameters
-  do_thrust_correction_ = getBoolParam("do_thrust_correction", false);
 
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);
@@ -145,7 +135,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("max_attitude", &self::maxAttitudeCb, this, M_PI / 3, 0., M_PI_2 - 1e-3);
 
   // Register publishers
-  rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);
+  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
   feedback_pub_ = createPublisher<tobas_debug_msgs::MultiRotorControllerFeedback>(tobas::kMRCtrlFeedbackTopic);
 
   // Register subscribers
@@ -155,8 +145,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
   if (drone_.isTransformable())
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
-  if (do_thrust_correction_)
-    thrust_factor_sub_ = createSubscriber(tobas::kThrustCorrectionFactorTopic, &self::thrustFactorCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCb, this);
   rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
@@ -205,12 +193,6 @@ bool ControllerNode::isReadyToControl()
   if (drone_.isTransformable() && js_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
-    return false;
-  }
-
-  if (do_thrust_correction_ && thrust_corr_factor_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kThrustCorrectionFactorTopic, "\".");
     return false;
   }
 
@@ -341,8 +323,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     return;
 
   // Create a feedback message
-  auto feedback = std::make_unique<tobas_debug_msgs::MultiRotorControllerFeedback>();
-  feedback->header.stamp = odom->header.stamp;
+  auto feedback_msg = std::make_unique<tobas_debug_msgs::MultiRotorControllerFeedback>();
+  feedback_msg->header.stamp = odom->header.stamp;
 
   // Translation Controller
   if (tar_pvay_W_ != nullptr)
@@ -366,12 +348,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_rpyt_->rpy.yaw = tar_pvay_W_->yaw;
 
     // Fill feedback
-    feedback->target_position = tar_pvay_W_->pos;
-    feedback->target_velocity_global = tar_pvay_W_->vel;
-    feedback->target_velocity_local = odom->frame.M.inverse(tar_pvay_W_->vel);
-    feedback->target_accel_global = tar_acc;
-    feedback->target_accel_local = odom->frame.M.inverse(tar_acc);
-    feedback->position_integral_error.data = pos_pid_.integralError();
+    feedback_msg->target_position = tar_pvay_W_->pos;
+    feedback_msg->target_velocity_global = tar_pvay_W_->vel;
+    feedback_msg->target_velocity_local = odom->frame.M.inverse(tar_pvay_W_->vel);
+    feedback_msg->target_accel_global = tar_acc;
+    feedback_msg->target_accel_local = odom->frame.M.inverse(tar_acc);
+    feedback_msg->position_integral_error.data = pos_pid_.integralError();
   }
 
   // Rotation Controller
@@ -387,27 +369,25 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
-    const VectorXd thrusts = mixer_.solve(
+    const auto thrusts = mixer_.solve(
       battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
       tar_rpyt_->thrust);
 
     // 目標回転数を発行
-    auto tar_rot_speeds = std::make_unique<tobas_msgs::msg::RotorSpeeds>();
-    tar_rot_speeds->header.stamp = odom->header.stamp;
-    tar_rot_speeds->speeds.resize(drone_.numRotors(), 0.);
-    for (size_t i = 0; i < static_cast<size_t>(thrusts.rows()); ++i)
+    auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
+    thrusts_msg->header.stamp = odom->header.stamp;
+    for (int i = 0; i < thrusts.rows(); ++i)
     {
-      auto thrust = max(0., thrusts(i));
-      if (do_thrust_correction_ && thrust_corr_factor_ != nullptr)  // 推力補正
-        thrust *= thrust_corr_factor_->data;
-      tar_rot_speeds->speeds[z_rotors_.rotorIdx(i)] = z_rotors_.rotSpeedFromThrust(i, thrust);
+      thrusts_msg->thrusts.emplace_back();
+      thrusts_msg->thrusts.back().channel = z_rotors_.rotorIdx(i);
+      thrusts_msg->thrusts.back().thrust = thrusts(i);
     }
-    rot_speeds_pub_->publish(move(tar_rot_speeds));
+    tar_thrusts_pub_->publish(move(thrusts_msg));
 
     // フィードバックを発行
-    feedback->target_orientation = tar_rpyt_->rpy;
-    feedback->target_thrust = tar_rpyt_->thrust;
-    feedback_pub_->publish(move(feedback));
+    feedback_msg->target_orientation = tar_rpyt_->rpy;
+    feedback_msg->target_thrust = tar_rpyt_->thrust;
+    feedback_pub_->publish(move(feedback_msg));
   }
 }
 
@@ -425,11 +405,6 @@ void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstShare
   }
 
   js_ = js;
-}
-
-void ControllerNode::thrustFactorCb(const std_msgs::msg::Float64::ConstSharedPtr& msg)
-{
-  thrust_corr_factor_ = msg;
 }
 
 void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)

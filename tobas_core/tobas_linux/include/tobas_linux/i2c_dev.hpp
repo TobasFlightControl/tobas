@@ -7,14 +7,16 @@ namespace linux
 {
 class I2Cdev
 {
+  static constexpr size_t kBufSize = 256;
+
 public:
-  uint8_t* tx = nullptr;
-  uint8_t* rx = nullptr;
+  alignas(kBufSize) uint8_t tx[kBufSize] = { 0 };
+  alignas(kBufSize) uint8_t rx[kBufSize] = { 0 };
 
   explicit I2Cdev();
   ~I2Cdev();
 
-  bool initialize(const char* i2c_dev, uint8_t dev_addr, size_t buf_size);
+  bool initialize(const char* i2c_dev, uint8_t dev_addr);
 
   /**
    * @brief Read a single bit from an 8-bit device register.
@@ -76,8 +78,7 @@ public:
 private:
   uint8_t dev_addr_;
   int i2c_fd_ = -1;
-  size_t buf_size_ = 0;
-  uint8_t* tx_ = nullptr;  // Register Address + TX data
+  uint8_t tx_[kBufSize + 1] = { 0 };  // Register Address + TX data
 
   bool checkDataLength(size_t length) const;
   bool selectDevice() const;

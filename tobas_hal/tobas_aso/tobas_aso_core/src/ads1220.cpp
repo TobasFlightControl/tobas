@@ -16,7 +16,7 @@ ADS1220::ADS1220()
 
 bool ADS1220::initialize()
 {
-  if (!spi_.initialize(spi_device::kAdcDev, kSpiClockFreq, 3))
+  if (!spi_.initialize(spi_device::kAdcDev, kSpiClockFreq))
     return false;
 
   if (!reset())

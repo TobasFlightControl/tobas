@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include <cassert>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -16,16 +17,11 @@ SPIdev::SPIdev()
 
 SPIdev::~SPIdev()
 {
-  if (tx != nullptr)
-    free(tx);
-  if (rx != nullptr)
-    free(rx);
-
   if (spi_fd_ >= 0)
     close(spi_fd_);
 }
 
-bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, size_t buf_size)
+bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz)
 {
   spi_fd_ = open(spi_dev, O_RDWR);
   if (spi_fd_ < 0)
@@ -33,10 +29,6 @@ bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, size_t buf_size)
     cerr << "Failed to open SPI device: " << spi_dev << endl;
     return false;
   }
-
-  buf_size_ = buf_size;
-  tx = (uint8_t*)malloc(buf_size * sizeof(uint8_t));
-  rx = (uint8_t*)malloc(buf_size * sizeof(uint8_t));
 
   memset(&spi_transfer_, 0, sizeof(spi_ioc_transfer));
   spi_transfer_.tx_buf = (uint64_t)tx;
@@ -50,7 +42,7 @@ bool SPIdev::initialize(const char* spi_dev, uint32_t speed_hz, size_t buf_size)
 
 bool SPIdev::transfer(uint32_t length)
 {
-  if (length > buf_size_)
+  if (length > kBufSize)
   {
     cerr << "Data length cannot be greater than buffer size." << endl;
     return false;

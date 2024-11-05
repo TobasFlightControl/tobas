@@ -1,5 +1,4 @@
 #include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_std_tools/zip.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -39,20 +38,19 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsTopic), &self::speedsCb, this);
 }
 
-void RotorsViewerWiddget::speedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& speeds)
+void RotorsViewerWiddget::speedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& speeds)
 {
-  if (speeds->speeds.size() != meters_.size())
+  for (const auto& speed : speeds->speeds)
   {
-    RCLCPP_WARN_STREAM(
-      node_->get_logger(), "Rotor speeds size mismathch: " << speeds->speeds.size() << " != " << meters_.size());
-    return;
-  }
+    if (speed.channel >= meters_.size())
+    {
+      RCLCPP_WARN_STREAM(node_->get_logger(), "Channel " << (int)speed.channel << " is out of range.");
+      return;
+    }
 
-  for (const auto& [meter, speed] : tobas_std::zip(meters_, speeds->speeds))
-  {
-    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(speed));
-    meter->setValue(speed_rpm);
-    meter->setBottomText(bottomText(speed_rpm));
+    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(speed.speed));
+    meters_.at(speed.channel)->setValue(speed_rpm);
+    meters_.at(speed.channel)->setBottomText(bottomText(speed_rpm));
   }
 }
 

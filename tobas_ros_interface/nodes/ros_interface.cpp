@@ -13,7 +13,7 @@
 #include <tobas_msgs/msg/gps.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
@@ -93,7 +93,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RotorSpeeds>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RotorSpeedArray>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
   addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(throttled(tobas::kEulerTopic), tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
@@ -103,7 +103,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
   addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
 
-  addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
+  addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
 
   addService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
   addService<tobas_msgs::srv::GetGnssOrigin>(tobas::kGetGnssOriginSrv);

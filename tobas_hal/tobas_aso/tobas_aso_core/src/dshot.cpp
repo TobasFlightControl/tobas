@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <tobas_std_tools/unit_conversions.hpp>
+
 #include "../include/tobas_aso_core/dshot.hpp"
 #include "../include/tobas_aso_core/constants.hpp"
 
@@ -13,44 +15,231 @@ DShot::DShot()
 
 bool DShot::initialize()
 {
-  if (!spi_.initialize(spi_device::kDshotDev, kSpiClockFreq, kSpiBufSize))
+  if (!spi_.initialize(spi_device::kDshotDev, kSpiClockFreq))
     return false;
 
   for (size_t ch = 0; ch < kChannelSize; ++ch)
-    setDisabled(ch);
+    setThrottle(ch, DSHOT_CMD_MOTOR_STOP);
 
   return true;
-}
-
-bool DShot::setThrottle(size_t ch, uint16_t throttle)
-{
-  if (ch >= kChannelSize)
-  {
-    cerr << "DSHOT channel out of range." << endl;
-    return false;
-  }
-
-  if (throttle > kMaxThrot)
-  {
-    cerr << "DSHOT thrrotle out of range." << endl;
-    return false;
-  }
-
-  spi_.tx[ch * kChannelBytes] = throttle & 0xFF;    // Little byte
-  spi_.tx[ch * kChannelBytes + 1] = throttle >> 8;  // Big byte
-
-  return true;
-}
-
-bool DShot::setDisabled(size_t ch)
-{
-  return setThrottle(ch, kDShotDisableCommand);
 }
 
 bool DShot::transfer()
 {
   if (!spi_.transfer(kSpiBufSize))
     return false;
+
+  return true;
+}
+
+bool DShot::setThrottle(size_t ch, uint16_t throttle)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (throttle >= (1 << 11))
+  {
+    cerr << "DSHOT thrrotle out of range." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetThrottleCmd << 20) | throttle;
+  return true;
+}
+
+bool DShot::setTargetSpeed(size_t ch, double rps)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (rps < 0.)
+  {
+    cerr << "Target speed must be non-negative." << endl;
+    return false;
+  }
+
+  const auto rpm = static_cast<uint32_t>(tobas_std::rps2rpm(rps));
+  if (rpm >= (1 << 20))
+  {
+    cerr << "Target rotation speed is too large." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetTargetRPMCmd << 20) | rpm;
+  return true;
+}
+
+bool DShot::setKv(size_t ch, double kv_si)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (kv_si <= 0.)
+  {
+    cerr << "Kv value must be positive." << endl;
+    return false;
+  }
+
+  const auto kv = static_cast<uint32_t>(tobas_std::rps2rpm(kv_si));  // [rpm/V]
+  if (kv == 0)
+  {
+    cerr << "Kv value is too small." << endl;
+    return false;
+  }
+  if (kv >= (1 << 20))
+  {
+    cerr << "Kv value is too large." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetKvCmd << 20) | kv;
+  return true;
+}
+
+bool DShot::setInternalResistance(size_t ch, double resistance)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (resistance <= 0.)
+  {
+    cerr << "Internal resistance must be positive." << endl;
+    return false;
+  }
+
+  const auto resistance_mohm = static_cast<uint32_t>(resistance * 1e+3);
+  if (resistance_mohm == 0)
+  {
+    cerr << "Internal resistance is too small." << endl;
+    return false;
+  }
+  if (resistance_mohm >= (1 << 20))
+  {
+    cerr << "Internal resistance is too large." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetResistanceCmd << 20) | resistance_mohm;
+  return true;
+}
+
+bool DShot::setPropellerDiameter(size_t ch, double diameter)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (diameter <= 0.)
+  {
+    cerr << "Propeller diameter must be positive." << endl;
+    return false;
+  }
+
+  const auto diameter_mm = static_cast<uint32_t>(diameter * 1e+3);
+  if (diameter_mm == 0)
+  {
+    cerr << "Propeller diameter is too small." << endl;
+    return false;
+  }
+  if (diameter_mm >= (1 << 20))
+  {
+    cerr << "Propeller diameter is too large." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetDiameterCmd << 20) | diameter_mm;
+  return true;
+}
+
+bool DShot::setMomentConstant(size_t ch, double moment_const)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (moment_const <= 0.)
+  {
+    cerr << "Moment constant must be positive." << endl;
+    return false;
+  }
+
+  const auto moment_const_scaled = static_cast<uint32_t>(moment_const * 1e+9);
+  if (moment_const_scaled == 0)
+  {
+    cerr << "Moment constant is too small." << endl;
+    return false;
+  }
+  if (moment_const_scaled >= (1 << 20))
+  {
+    cerr << "Moment constant is too large." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetMomentConstCmd << 20) | moment_const_scaled;
+  return true;
+}
+
+bool DShot::setNumPoles(size_t ch, uint32_t num_poles)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (num_poles == 0)
+  {
+    cerr << "Number of poles must be positive." << endl;
+    return false;
+  }
+
+  if (num_poles % 2 != 0)
+  {
+    cerr << "Number of poles must be even." << endl;
+    return false;
+  }
+
+  const auto half_num_poles = num_poles / 2;
+  if (half_num_poles >= (1 << 20))
+  {
+    cerr << "Number of poles is too large." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetHalfNumPolesCmd << 20) | half_num_poles;
+  return true;
+}
+
+bool DShot::setSpeedControlGain(size_t ch, uint32_t gain)
+{
+  if (!checkChannelSize(ch))
+    return false;
+
+  if (gain >= (1 << 20))
+  {
+    cerr << "Speed control gain is too large." << endl;
+    return false;
+  }
+
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetGainCmd << 20) | gain;
+  return true;
+}
+
+bool DShot::isValid(size_t ch)
+{
+  const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
+  return (rx >> 23) & 1;
+}
+
+double DShot::getCurrentSpeed(size_t ch)
+{
+  const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
+  const auto rpm = rx & 0xFFFFF;
+  return tobas_std::rpm2rps(rpm);
+}
+
+bool DShot::checkChannelSize(size_t ch)
+{
+  if (ch >= kChannelSize)
+  {
+    cerr << "DSHOT channel out of range." << endl;
+    return false;
+  }
 
   return true;
 }

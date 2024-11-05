@@ -1,6 +1,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/throttle_array.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 
 using namespace std;
@@ -15,18 +15,18 @@ public:
 
 private:
   ros2::PublisherPtr<tobas_msgs::msg::Latency> latency_pub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::ThrottleArray> throttles_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
 
-  void throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& msg);
+  void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& msg);
 };
 
 LatencyPublisherNode::LatencyPublisherNode(const rclcpp::NodeOptions& options) : super("latency_publisher", options)
 {
   latency_pub_ = createPublisher<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);
-  throttles_sub_ = createSubscriber(tobas::kThrottlesCmdTopic, &self::throttlesCb, this);
+  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
 }
 
-void LatencyPublisherNode::throttlesCb(const tobas_msgs::msg::ThrottleArray::ConstSharedPtr& msg)
+void LatencyPublisherNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& msg)
 {
   auto latency = std::make_unique<tobas_msgs::msg::Latency>();
   const auto cur_time = get_clock()->now();

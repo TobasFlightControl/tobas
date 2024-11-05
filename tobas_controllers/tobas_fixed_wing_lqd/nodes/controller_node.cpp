@@ -15,7 +15,7 @@
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
@@ -74,7 +74,7 @@ private:
   ctrl::LQD lqd_;  // 最適レギュレータ
 
   // Publishers
-  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::ControlSurfaceDeflections> deflections_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::msg::FixedWingControllerFeedback> feedback_pub_;
 
@@ -91,7 +91,7 @@ private:
   bool isReadyToControl();
   void updateCurrentStateVector();
   void updateSetStateVector();
-  void publishRotSpeeds(const Eigen::VectorXd& thrust);
+  void publishThrusts(const Eigen::VectorXd& thrusts);
   void publishDeflections(const Eigen::VectorXd& deflections);
   void publishFeedback(const Eigen::VectorXd& du);
 
@@ -143,7 +143,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicIntParam("deflection_rate_weight_log10", &self::forwardSpeedWeightCb, this, -1, -3, 3);
 
   // Register publishers
-  rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);
+  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
   deflections_pub_ = createPublisher<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
   feedback_pub_ = createPublisher<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
 
@@ -281,16 +281,19 @@ void ControllerNode::updateSetStateVector()
   lqd_.target_state(eom_.kStateIdx_r) = 0.;
 }
 
-void ControllerNode::publishRotSpeeds(const VectorXd& thrust)
+void ControllerNode::publishThrusts(const VectorXd& thrusts)
 {
-  auto rot_speeds = std::make_unique<tobas_msgs::msg::RotorSpeeds>();
-  rot_speeds->header.stamp = odom_ned_.header.stamp;
+  auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
+  thrusts_msg->header.stamp = odom_ned_.header.stamp;
 
-  rot_speeds->speeds.resize(drone_.numRotors(), 0.);
-  for (size_t i = 0; i < static_cast<size_t>(thrust.rows()); ++i)
-    rot_speeds->speeds[x_rotors_.rotorIdx(i)] = x_rotors_.rotSpeedFromThrust(i, max(0., thrust(i)));
+  for (int i = 0; i < thrusts.rows(); ++i)
+  {
+    thrusts_msg->thrusts.emplace_back();
+    thrusts_msg->thrusts.back().channel = x_rotors_.rotorIdx(i);
+    thrusts_msg->thrusts.back().thrust = thrusts(i);
+  }
 
-  rot_speeds_pub_->publish(move(rot_speeds));
+  tar_thrusts_pub_->publish(move(thrusts_msg));
 }
 
 void ControllerNode::publishDeflections(const VectorXd& deflections)
@@ -563,11 +566,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   const VectorXd du = lqd_.solve(dt);
   const VectorXd u = eom_.trimInput() + du;
 
-  const VectorXd thrust = u.block(0, 0, x_rotors_.count(), 1);
+  const VectorXd thrusts = u.block(0, 0, x_rotors_.count(), 1);
   const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
 
   // Publish
-  publishRotSpeeds(thrust);
+  publishThrusts(thrusts);
   publishDeflections(deflections);
   publishFeedback(du);
 }

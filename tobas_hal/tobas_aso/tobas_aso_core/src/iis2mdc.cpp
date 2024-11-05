@@ -14,7 +14,7 @@ IIS2MDC::IIS2MDC()
 
 bool IIS2MDC::initialize()
 {
-  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kMagAddress, 6))
+  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kMagAddress))
   {
     cerr << "Failed to initialize I2C device." << endl;
     return false;

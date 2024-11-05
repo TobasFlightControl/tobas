@@ -18,8 +18,10 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
     dst.link_name = src.link_name;
     dst.direction = static_cast<uint8_t>(src.direction);
     dst.axis = static_cast<uint8_t>(src.axis);
-    dst.esc_mode = static_cast<uint8_t>(src.esc_mode);
     dst.num_poles = src.num_poles;
+    dst.kv = src.kv;
+    dst.internal_resistance = src.internal_resistance;
+    dst.propeller_diameter = src.propeller_diameter;
     dst.max_rot_speed = src.max_rot_speed;
     dst.motor_constant = src.motor_constant;
     dst.moment_constant = src.moment_constant;
@@ -34,8 +36,10 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
     dst.link_name = src.link_name;
     dst.direction = static_cast<tobas::turning_direction_t>(src.direction);
     dst.axis = static_cast<tobas::rotor_axis_t>(src.axis);
-    dst.esc_mode = static_cast<tobas::esc_mode_t>(src.esc_mode);
     dst.num_poles = src.num_poles;
+    dst.kv = src.kv;
+    dst.internal_resistance = src.internal_resistance;
+    dst.propeller_diameter = src.propeller_diameter;
     dst.max_rot_speed = src.max_rot_speed;
     dst.motor_constant = src.motor_constant;
     dst.moment_constant = src.moment_constant;

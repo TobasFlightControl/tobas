@@ -12,7 +12,7 @@
 
 #include <tobas_msgs_adapter/Wind.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_kdl_msgs_adapter/Tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
@@ -45,7 +45,7 @@ private:
   rclcpp::Time t_last_;
   ctrl::IdentityKalmanFilter kf_;
   tobas::DrydenComponents dryden_;
-  tobas_msgs::msg::RotorSpeeds::ConstSharedPtr rotor_speeds_;
+  tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr rotor_speeds_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::Wind> wind_pub_;
@@ -54,15 +54,17 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeeds> rotor_speeds_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_sub_;
 
   void updateInternalDataStructures();
+
+  vector<double> rotSpeedsVector();
   Matrix3d velCoef(const kdl::Rotation& R_W_B);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds);
+  void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& rotor_speeds);
 };
 
 WindEstimatorNode::WindEstimatorNode(const rclcpp::NodeOptions& options)
@@ -86,9 +88,27 @@ void WindEstimatorNode::updateInternalDataStructures()
   dynamics_.updateInternalDataStructures();
 }
 
+vector<double> WindEstimatorNode::rotSpeedsVector()
+{
+  vector<double> res(drone_.numRotors());
+
+  for (const auto& speed : rotor_speeds_->speeds)
+  {
+    if (speed.channel >= drone_.numRotors())
+    {
+      TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Rotor channel ", (int)speed.channel, " is out of range.");
+      continue;
+    }
+    res.at(speed.channel) = speed.speed;
+  }
+
+  return res;
+}
+
 Matrix3d WindEstimatorNode::velCoef(const kdl::Rotation& R_W_B)
 {
-  const auto drag_rotor_sum = dynamics_.dragRotorSum(rotor_speeds_->speeds);
+  const auto rot_speeds = rotSpeedsVector();
+  const auto drag_rotor_sum = dynamics_.dragRotorSum(rot_speeds);
   const auto& mass = dynamics_.mass();
   const auto& R_B_W = R_W_B.inverse().data;
   return (drag_rotor_sum / mass) * E_XY * R_B_W;
@@ -183,7 +203,7 @@ void WindEstimatorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
     updateInternalDataStructures();
 }
 
-void WindEstimatorNode::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& rotor_speeds)
+void WindEstimatorNode::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& rotor_speeds)
 {
   rotor_speeds_ = rotor_speeds;
 }

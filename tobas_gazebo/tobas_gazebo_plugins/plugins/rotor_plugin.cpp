@@ -8,7 +8,6 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/turning_direction.hpp>
-#include <tobas_drone_core/esc.hpp>
 #include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs_adapter/Wind.hpp>
@@ -42,7 +41,6 @@ class GazeboRotorPlugin : public BaseNode,
   static constexpr double kAutoStopTimeThresh = 0.5;      // [s]
   static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
   static constexpr double kMinBatteryVoltage = 3.;        // [V]
-  static constexpr double kDisarmDuration = 1.5;          // [s] 通常1~2秒らしい
 
   // Default parameters
   static constexpr double kDefaultMaxModelErrorRate = 0.;
@@ -74,17 +72,14 @@ private:
   double max_rot_speed_;  // [rad/s] 最大連続電流によって定まるモータ特性が成り立つ最大回転数
   size_t num_poles_;      // モータの極数
   double max_current_;    // [A] ESCの最大電流
-  tobas::esc_mode_t esc_mode_;  // ESCへの信号の解釈方式
   double max_model_error_rate_;
 
-  double cmd_rot_speed_ = 0.;  // [rad/s]
+  double tar_speed_ = 0.;  // [rad/s]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   Vector3d wind_vel_W_ = Vector3d::Zero;  // [m/s]
   steady_clock::duration prev_sim_time_;
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
-  steady_clock::duration disarm_start_time_ = steady_clock::duration::max();  // Disarmコマンドの開始時刻
   bool is_intact_ = true;
-  bool is_armed_ = false;
   bool wind_received_ = false;
   AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
 
@@ -214,10 +209,6 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
-  int esc_mode;
-  getSdfParam(sdf, "escMode", esc_mode);
-  esc_mode_ = static_cast<tobas::esc_mode_t>(esc_mode);
-
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
@@ -238,14 +229,10 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
     return;
   }
 
-  // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にDisarmする
+  // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeThresh)
-  {
-    cmd_rot_speed_ = 0.;
-    disarm_start_time_ = info.simTime;
-    is_armed_ = false;
-  }
+    tar_speed_ = 0.;
 
   // Get rotation speed
   const auto rot_speed_sim = joint_->Velocity(ecm).value().at(0);
@@ -361,31 +348,24 @@ void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, co
 {
   assert(dt >= 0);
 
-  // アクティベートされていなければ無回転
-  if (!is_armed_)
-  {
-    joint_->SetVelocity(ecm, { 0. });
-    return;
-  }
-
   // Check rotor speed limit and get set value
-  auto set_rot_speed = cmd_rot_speed_;
+  auto tar_speed = tar_speed_;
   const auto max_rot_speed = min(max_rot_speed_, rotSpeedFromVoltage(battery_->voltage));
-  if (cmd_rot_speed_ < 0)
+  if (tar_speed_ < 0)
   {
-    TOBAS_ERROR("Negative rotor speed is commanded on index ", channel_, ": ", cmd_rot_speed_, " < 0 [rad/s]");
-    set_rot_speed = 0.;
+    TOBAS_ERROR("Negative rotor speed is commanded on index ", channel_, ": ", tar_speed_, " < 0 [rad/s]");
+    tar_speed = 0.;
   }
-  else if (cmd_rot_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
+  else if (tar_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
   {
     TOBAS_ERROR_THROTTLE(
-      kErrorPeriod, "Target rotor speed on index ", channel_, " is too high: ", cmd_rot_speed_, " > ", max_rot_speed,
+      kErrorPeriod, "Target rotor speed on index ", channel_, " is too high: ", tar_speed_, " > ", max_rot_speed,
       " [rad/s]");
-    set_rot_speed = max_rot_speed;
+    tar_speed = max_rot_speed;
   }
 
   // Apply the filter on the rotation speed
-  const auto ref_rot_speed = rotor_speed_filter_.update(set_rot_speed, dt);
+  const auto ref_rot_speed = rotor_speed_filter_.update(tar_speed, dt);
   joint_->SetVelocity(ecm, { direction_ * ref_rot_speed / kRotorSpeedSlowdownSim });
 }
 
@@ -410,58 +390,13 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   // 最後にコマンドを受け取った時刻を更新
   last_cmd_time_ = prev_sim_time_;
 
-  if (is_armed_)
-  {
-    // スロットルの範囲を制限
-    const auto throt = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
+  // スロットルの範囲を制限
+  const auto throt = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
 
-    // スロットルを目標回転数に変換
-    switch (esc_mode_)
-    {
-      case tobas::BLHELI_OPEN_LOOP:
-      {
-        const auto input_voltage = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., battery_->voltage);
-        cmd_rot_speed_ = rotSpeedFromVoltage(input_voltage);
-        break;
-      }
-      case tobas::BLHELI_CLOSED_LOOP_LOW_RANGE:
-      {
-        const auto erpm = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., tobas::esc::kBLHeliCLLowMaxERPM);
-        cmd_rot_speed_ = rotSpeedFromERPM(erpm);
-        break;
-      }
-      case tobas::BLHELI_CLOSED_LOOP_MID_RANGE:
-      {
-        const auto erpm = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., tobas::esc::kBLHeliCLMidMaxERPM);
-        cmd_rot_speed_ = rotSpeedFromERPM(erpm);
-        break;
-      }
-      case tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE:
-      {
-        const auto erpm =
-          ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., tobas::esc::kBLHeliCLHighMaxERPM);
-        cmd_rot_speed_ = rotSpeedFromERPM(erpm);
-        break;
-      }
-      default:
-      {
-        throw;
-      }
-    }
-  }
-  else
-  {
-    // 最小スロットルでなければDisarm開始時刻をリセット
-    if (msg->data > tobas::kMinThrot)
-      disarm_start_time_ = prev_sim_time_;
-
-    // Disarmの時間が一定時間を超えたらArmする
-    if (chrono::duration<double>(prev_sim_time_ - disarm_start_time_).count() > kDisarmDuration)
-    {
-      is_armed_ = true;
-      TOBAS_INFO("Rotor ", channel_, " is armed.");
-    }
-  }
+  // スロットルを目標回転数に変換
+  // TODO: 印加電圧から回転数の変化率を計算してシミュレーション
+  const auto input_voltage = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., battery_->voltage);
+  tar_speed_ = rotSpeedFromVoltage(input_voltage);
 }
 
 void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)

@@ -13,7 +13,7 @@ ILPS22QS::ILPS22QS()
 
 bool ILPS22QS::initialize()
 {
-  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kBaroAddress, 3))
+  if (!i2c_.initialize(kRasPiI2CDev, i2c_address::kBaroAddress))
     return false;
 
   if (!checkWhoAmI())

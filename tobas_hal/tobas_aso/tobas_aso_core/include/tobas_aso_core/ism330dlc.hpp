@@ -12,7 +12,6 @@ namespace aso
 class ISM330DLC
 {
   static constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz
-  static constexpr size_t kSpiBufSize = 8;
   static constexpr uint8_t kReadFlag = 0x80;
 
 public:
@@ -160,7 +159,7 @@ private:
   double acc_scale_;   // LSB -> m/s^2
   double gyro_scale_;  // LSB -> rad/s
 
-  uint8_t res_[kSpiBufSize - 1];  // The results of readRegs are stored.
+  uint8_t res_[6];  // The results of readRegs are stored.
 
   /* 6.5.1: SPI read (p.27) */
   bool readRegs(const uint8_t& addr, const size_t& bytes);

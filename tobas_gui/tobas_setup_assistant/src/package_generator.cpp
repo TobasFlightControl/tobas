@@ -135,8 +135,10 @@ tobas::Drone PackageGenerator::createDrone()
     drone.rotors.at(i).link_name = link_name;
     drone.rotors.at(i).direction = prop_config->motor()->direction();
     drone.rotors.at(i).axis = robot_.rotorAxisType(link_name);
-    drone.rotors.at(i).esc_mode = prop_config->esc()->signalMode();
     drone.rotors.at(i).num_poles = prop_config->motor()->numPoles();
+    drone.rotors.at(i).kv = prop_config->motor()->kv();
+    drone.rotors.at(i).internal_resistance = prop_config->motor()->internalResistance();
+    drone.rotors.at(i).propeller_diameter = prop_config->propeller()->diameter();
     drone.rotors.at(i).max_rot_speed = prop_config->speedLimit()->maxRotSpeed();
     drone.rotors.at(i).motor_constant = prop_config->aerodynamics()->motorConst();
     drone.rotors.at(i).moment_constant = prop_config->aerodynamics()->momentConst();

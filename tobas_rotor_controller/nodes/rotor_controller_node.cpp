@@ -1,5 +1,4 @@
 #include <std_msgs/msg/bool.hpp>
-#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
@@ -8,9 +7,8 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_msgs/msg/throttle_array.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
-#include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/srv/enable_rc_output.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
@@ -20,10 +18,7 @@ using namespace std;
 
 class RotorControllerNode : public tobas::BaseNode
 {
-  static constexpr double kCmdWarnPeriod = 1.;  // [s]
-  static constexpr double kDisarmThrottle = -0.1;
-  static constexpr double kDisarmDuration = 3.;  // [s]
-  static constexpr auto kDisarmInterval = 100ms;
+  static constexpr double kCmdWarnPeriod = 1.;        // [s]
   static constexpr auto kAutoStopTimeThresh = 200ms;  // アーム時は最低でも5Hzでスロットルを送る
   static constexpr auto kPublishArmingPeriod = 1s;
 
@@ -36,17 +31,14 @@ public:
 private:
   bool is_armed_ = false;
   bool is_activated_ = false;
-  rclcpp::Time t_arm_start_;
   tobas::Drone::ConstSharedPtr drone_;
-  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   // PubSub
-  ros2::PublisherPtr<tobas_msgs::msg::ThrottleArray> throttles_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
   ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeeds> tar_speeds_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
 
   // Service
@@ -56,15 +48,13 @@ private:
   // Timer
   ros2::TimerPtr publish_arm_status_timer_;
   ros2::TimerPtr auto_stop_timer_;
-  ros2::TimerPtr arming_timer_;
 
   bool enableRCOutputs(const bool& enable);
-  void setThrotOnAllChannels(const double& throttle);
+  void setSpeedOnAllChannels(const double& speed);
   void publishArming();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
-  void rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& tar_speeds);
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 
   void setArmCb(
@@ -77,12 +67,11 @@ private:
 
 RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : super("rotor_controller", options)
 {
-  throttles_pub_ = createPublisher<tobas_msgs::msg::ThrottleArray>(tobas::kThrottlesCmdTopic);
+  tar_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
   arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::rotSpeedsCmdCb, this);
-  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  tar_thrusts_sub_ = createSubscriber(tobas::kRotorThrustsCmdTopic, &self::thrustsCmdCb, this);
   prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
 
   set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
@@ -90,7 +79,6 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
 
   publish_arm_status_timer_ = createTimer(kPublishArmingPeriod, &self::publishArming, this);
   auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
-  arming_timer_ = createTimer(kDisarmInterval, &self::publishArmThrotTimerCb, this, false);
 }
 
 bool RotorControllerNode::enableRCOutputs(const bool& enable)
@@ -113,17 +101,17 @@ bool RotorControllerNode::enableRCOutputs(const bool& enable)
   return true;
 }
 
-void RotorControllerNode::setThrotOnAllChannels(const double& throttle)
+void RotorControllerNode::setSpeedOnAllChannels(const double& speed)
 {
-  auto throttles = std::make_unique<tobas_msgs::msg::ThrottleArray>();
-  throttles->header.stamp = get_clock()->now();
+  auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
+  tar_speeds->header.stamp = get_clock()->now();
   for (const auto& rotor : drone_->rotors)
   {
-    throttles->throttles.emplace_back();
-    throttles->throttles.back().channel = rotor.channel;
-    throttles->throttles.back().throttle = throttle;
+    tar_speeds->speeds.emplace_back();
+    tar_speeds->speeds.back().channel = rotor.channel;
+    tar_speeds->speeds.back().speed = speed;
   }
-  throttles_pub_->publish(move(throttles));
+  tar_speeds_pub_->publish(move(tar_speeds));
 }
 
 void RotorControllerNode::publishArming()
@@ -138,7 +126,7 @@ void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   drone_ = drone;
 }
 
-void RotorControllerNode::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& tar_speeds)
+void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg)
 {
   if (!is_armed_)
     return;
@@ -149,99 +137,38 @@ void RotorControllerNode::rotSpeedsCmdCb(const tobas_msgs::msg::RotorSpeeds::Con
     return;
   }
 
-  if (battery_ == nullptr)
+  // Create target speeds message
+  auto tar_speeds_msg = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
+  tar_speeds_msg->header = tar_thrusts_msg->header;
+
+  // Convert target thrusts to target speeds
+  for (const auto& tar_thrust_msg : tar_thrusts_msg->thrusts)
   {
-    TOBAS_WARN_THROTTLE(kCmdWarnPeriod, "Command is ignored because battery state has not been received yet.");
-    return;
-  }
+    const auto& channel = tar_thrust_msg.channel;
+    const auto& tar_thrust = tar_thrust_msg.thrust;
 
-  const auto data_size = tar_speeds->speeds.size();
-  if (data_size != drone_->numRotors())
-  {
-    TOBAS_ERROR("Size mismatch: ", data_size, " != ", drone_->numRotors());
-    return;
-  }
+    tar_speeds_msg->speeds.emplace_back();
+    tar_speeds_msg->speeds.back().channel = channel;
 
-  // Create throttle message
-  auto throttles = std::make_unique<tobas_msgs::msg::ThrottleArray>();
-  throttles->header = tar_speeds->header;
-
-  // Update throttles
-  for (size_t rotor_idx = 0; rotor_idx < data_size; ++rotor_idx)
-  {
-    const auto& rotor = drone_->rotors.at(rotor_idx);
-
-    // 目標回転数を決定
-    const auto max_speed = drone_->maxRotSpeed(rotor_idx, battery_->voltage);
-    auto tar_speed = tar_speeds->speeds[rotor_idx];
-    if (tar_speed < 0.)  // モータテストでも使用するため，ここではARM_THROTTLEの制約を課さない
+    if (tar_thrust >= 0.)
     {
-      TOBAS_WARN_THROTTLE(
-        kCmdWarnPeriod, "Negative rotation speed is commanded on CH", rotor_idx, ": ", tar_speed, " < 0 [rad/s]");
-      tar_speed = 0.;
+      tar_speeds_msg->speeds.back().speed = drone_->rotSpeedFromThrust(channel, tar_thrust_msg.thrust);
     }
-    else if (tar_speed > max_speed + tobas::kRotSpeedMargin)
+    else
     {
-      TOBAS_WARN_THROTTLE(
-        kCmdWarnPeriod, "Target rotation speed of CH", rotor_idx, " is too high: ", tar_speed, " > ", max_speed,
-        " [rad/s]");
-      tar_speed = max_speed;
+      TOBAS_WARN_THROTTLE(kCmdWarnPeriod, "Negative thrust is commanded on CH", channel, ": ", tar_thrust, " < 0 [N]");
+      tar_speeds_msg->speeds.back().speed = 0.;
     }
-
-    // 目標スロットルを決定
-    double throt;
-    switch (rotor.esc_mode)
-    {
-      case tobas::BLHELI_OPEN_LOOP:
-      {
-        throt = drone_->throttleFromRotSpeed(rotor_idx, tar_speed, battery_->voltage);
-        break;
-      }
-      case tobas::BLHELI_CLOSED_LOOP_LOW_RANGE:
-      {
-        const auto erpm = drone_->erpmFromRotSpeed(rotor_idx, tar_speed);
-        throt = math::remap(erpm, 0., tobas::esc::kBLHeliCLLowMaxERPM, tobas::kMinThrot, tobas::kMaxThrot);
-        break;
-      }
-      case tobas::BLHELI_CLOSED_LOOP_MID_RANGE:
-      {
-        const auto erpm = drone_->erpmFromRotSpeed(rotor_idx, tar_speed);
-        throt = math::remap(erpm, 0., tobas::esc::kBLHeliCLMidMaxERPM, tobas::kMinThrot, tobas::kMaxThrot);
-        break;
-      }
-      case tobas::BLHELI_CLOSED_LOOP_HIGH_RANGE:
-      {
-        const auto erpm = drone_->erpmFromRotSpeed(rotor_idx, tar_speed);
-        throt = math::remap(erpm, 0., tobas::esc::kBLHeliCLHighMaxERPM, tobas::kMinThrot, tobas::kMaxThrot);
-        break;
-      }
-      default:
-      {
-        TOBAS_ERROR("Unknown ESC signal mode of CH", rotor.channel);
-        throt = tobas::kMinThrot;
-        break;
-      }
-    }
-
-    // Add throttle command
-    throttles->throttles.emplace_back();
-    throttles->throttles.back().channel = rotor.channel;
-    throttles->throttles.back().throttle = throt;
   }
 
   // Publish throttle commands
-  throttles_pub_->publish(move(throttles));
+  tar_speeds_pub_->publish(move(tar_speeds_msg));
 
-  // Set a timer to reset the throttles if no command is received within a certain period of time
+  // Set a timer to reset the rotor speeds if no command is received within a certain period of time
   auto_stop_timer_->reset();
 
   // Now the rotors are activated
   is_activated_ = true;
-}
-
-void RotorControllerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
-{
-  battery_ = battery;
 }
 
 void RotorControllerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
@@ -276,13 +203,6 @@ void RotorControllerNode::setArmCb(
       }
     }
 
-    if (!arming_timer_->is_canceled())
-    {
-      TOBAS_INFO("Rotors are being armed now.");
-      res->success = true;
-      return;
-    }
-
     if (!enableRCOutputs(true))
     {
       res->success = false;
@@ -291,8 +211,10 @@ void RotorControllerNode::setArmCb(
       return;
     }
 
-    t_arm_start_ = get_clock()->now();
-    arming_timer_->reset();
+    is_armed_ = true;
+    publishArming();
+
+    auto_stop_timer_->reset();
   }
   else if (is_armed_ && !req->arming)
   {
@@ -315,29 +237,13 @@ void RotorControllerNode::setArmCb(
 
 void RotorControllerNode::autoStopTimerCb()
 {
-  setThrotOnAllChannels(tobas::kMinThrot);
+  setSpeedOnAllChannels(tobas::kMinThrot);
   if (is_activated_)
   {
     is_activated_ = false;
     TOBAS_WARN(
       "All rotors are automatically stopped because ", kAutoStopTimeThresh.count(),
       " ms have elapsed since the last command.");
-  }
-}
-
-void RotorControllerNode::publishArmThrotTimerCb()
-{
-  setThrotOnAllChannels(kDisarmThrottle);
-
-  if ((get_clock()->now() - t_arm_start_).seconds() > kDisarmDuration)
-  {
-    is_armed_ = true;
-    publishArming();
-
-    arming_timer_->cancel();
-    auto_stop_timer_->reset();
-
-    TOBAS_INFO("Rotors are ready to rotate.");
   }
 }
 

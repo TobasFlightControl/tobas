@@ -6,7 +6,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
 
 namespace gui
 {
@@ -41,7 +41,7 @@ private:
   std::array<qt::IntSliderDisplay*, kChannelSize> commanders_;
   std::array<QPushButton*, kNumButtons> rpm_buttons_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> speeds_pub_;
   ros2::TimerPtr publish_timer_;
 
   void setAllValues(int value);

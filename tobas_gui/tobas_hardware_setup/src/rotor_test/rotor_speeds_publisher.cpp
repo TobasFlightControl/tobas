@@ -66,7 +66,7 @@ void RotorSpeedsPublisherWidget::updateInternalDataStructures()
 
   // 回転数トピックを更新
   const auto speeds_topic = path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic);
-  speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeeds>(node_, speeds_topic);
+  speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(node_, speeds_topic);
 }
 
 void RotorSpeedsPublisherWidget::start()
@@ -118,12 +118,16 @@ void RotorSpeedsPublisherWidget::publishCurrentValues()
     return;
   }
 
-  auto rot_speeds = std::make_unique<tobas_msgs::msg::RotorSpeeds>();
+  auto rot_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
   rot_speeds->header.stamp = node_->get_clock()->now();
   rot_speeds->speeds.resize(drone_.numRotors());
 
   for (const auto& rotor : drone_.rotors)
-    rot_speeds->speeds.at(rotor.channel) = tobas_std::rpm2rps(commanders_.at(rotor.channel)->getValue());
+  {
+    rot_speeds->speeds.emplace_back();
+    rot_speeds->speeds.back().channel = rotor.channel;
+    rot_speeds->speeds.back().speed = tobas_std::rpm2rps(commanders_.at(rotor.channel)->getValue());
+  }
 
   speeds_pub_->publish(std::move(rot_speeds));
 }

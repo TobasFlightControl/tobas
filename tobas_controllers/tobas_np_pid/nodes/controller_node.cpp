@@ -15,7 +15,7 @@
 
 #include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
 #include <tobas_kdl_msgs_adapter/Tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
@@ -59,7 +59,7 @@ private:
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
-  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeeds> rot_speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
   ros2::PublisherPtr<tobas_debug_msgs::NonPlanarControllerFeedback> feedback_pub_;
 
   // Subscribers
@@ -124,7 +124,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicIntParam("mixer_thrust_weight_log10", &self::mixerThrustWeightLog10Cb, this, -6, -9, 0);
 
   // Register publishers
-  rot_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic);
+  tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
   feedback_pub_ = createPublisher<tobas_debug_msgs::NonPlanarControllerFeedback>(tobas::kNPCtrlFeedbackTopic);
 
   // Register subscribers
@@ -154,7 +154,7 @@ bool ControllerNode::isReadyToControl()
 
   if (!tree_received_)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kKDLTreeTopic, "\".");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", 12, tobas::kKDLTreeTopic, "\".");
     return false;
   }
 
@@ -333,16 +333,16 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto thrusts = mixer_.solve(
     battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B);
 
-  // 目標回転数を発行
-  auto tar_rot_speeds = std::make_unique<tobas_msgs::msg::RotorSpeeds>();
-  tar_rot_speeds->header.stamp = odom->header.stamp;
-  tar_rot_speeds->speeds.resize(drone_.numRotors(), 0.);
-  for (size_t rotor_idx = 0; rotor_idx < static_cast<size_t>(thrusts.rows()); ++rotor_idx)
+  // 目標推力を発行
+  auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
+  tar_thrusts->header.stamp = odom->header.stamp;
+  for (int ch = 0; ch < thrusts.rows(); ++ch)
   {
-    const auto thrust = max(0., thrusts(rotor_idx));
-    tar_rot_speeds->speeds[rotor_idx] = drone_.rotSpeedFromThrust(rotor_idx, thrust);
+    tar_thrusts->thrusts.emplace_back();
+    tar_thrusts->thrusts.back().channel = ch;
+    tar_thrusts->thrusts.back().thrust = thrusts(ch);
   }
-  rot_speeds_pub_->publish(move(tar_rot_speeds));
+  tar_thrusts_pub_->publish(move(tar_thrusts));
 
   // フィードバックを発行
   // 目標位置速度はコマンドそのままだが，発行されていない間も安定して描画するためにメッセージに含めている
