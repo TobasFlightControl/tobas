@@ -43,7 +43,7 @@ bool DShot::setThrottle(size_t ch, uint16_t throttle)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetThrottleCmd << 20) | throttle;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetThrottleCmd << 28) | throttle;
   return true;
 }
 
@@ -59,13 +59,13 @@ bool DShot::setTargetSpeed(size_t ch, double rps)
   }
 
   const auto rpm = static_cast<uint32_t>(tobas_std::rps2rpm(rps));
-  if (rpm >= (1 << 20))
+  if (rpm >= (1 << 16))
   {
     cerr << "Target rotation speed is too large." << endl;
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetTargetRPMCmd << 20) | rpm;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetTargetRPMCmd << 28) | rpm;
   return true;
 }
 
@@ -86,13 +86,13 @@ bool DShot::setKv(size_t ch, double kv_si)
     cerr << "Kv value is too small." << endl;
     return false;
   }
-  if (kv >= (1 << 20))
+  if (kv >= (1 << 16))
   {
     cerr << "Kv value is too large." << endl;
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetKvCmd << 20) | kv;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetKvCmd << 28) | kv;
   return true;
 }
 
@@ -113,13 +113,13 @@ bool DShot::setInternalResistance(size_t ch, double resistance)
     cerr << "Internal resistance is too small." << endl;
     return false;
   }
-  if (resistance_mohm >= (1 << 20))
+  if (resistance_mohm >= (1 << 16))
   {
     cerr << "Internal resistance is too large." << endl;
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetResistanceCmd << 20) | resistance_mohm;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetResistanceCmd << 28) | resistance_mohm;
   return true;
 }
 
@@ -140,13 +140,13 @@ bool DShot::setPropellerDiameter(size_t ch, double diameter)
     cerr << "Propeller diameter is too small." << endl;
     return false;
   }
-  if (diameter_mm >= (1 << 20))
+  if (diameter_mm >= (1 << 16))
   {
     cerr << "Propeller diameter is too large." << endl;
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetDiameterCmd << 20) | diameter_mm;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetDiameterCmd << 28) | diameter_mm;
   return true;
 }
 
@@ -167,13 +167,13 @@ bool DShot::setMomentConstant(size_t ch, double moment_const)
     cerr << "Moment constant is too small." << endl;
     return false;
   }
-  if (moment_const_scaled >= (1 << 20))
+  if (moment_const_scaled >= (1 << 16))
   {
     cerr << "Moment constant is too large." << endl;
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetMomentConstCmd << 20) | moment_const_scaled;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetMomentConstCmd << 28) | moment_const_scaled;
   return true;
 }
 
@@ -195,13 +195,13 @@ bool DShot::setNumPoles(size_t ch, uint32_t num_poles)
   }
 
   const auto half_num_poles = num_poles / 2;
-  if (half_num_poles >= (1 << 20))
+  if (half_num_poles >= (1 << 16))
   {
     cerr << "Number of poles is too large." << endl;
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetHalfNumPolesCmd << 20) | half_num_poles;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetHalfNumPolesCmd << 28) | half_num_poles;
   return true;
 }
 
@@ -210,26 +210,26 @@ bool DShot::setSpeedControlGain(size_t ch, uint32_t gain)
   if (!checkChannelSize(ch))
     return false;
 
-  if (gain >= (1 << 20))
+  if (gain >= (1 << 16))
   {
     cerr << "Speed control gain is too large." << endl;
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetGainCmd << 20) | gain;
+  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetGainCmd << 28) | gain;
   return true;
 }
 
 bool DShot::isValid(size_t ch)
 {
   const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
-  return (rx >> 23) & 1;
+  return (rx >> 31) & 1;
 }
 
 double DShot::getCurrentSpeed(size_t ch)
 {
   const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
-  const auto rpm = rx & 0xFFFFF;
+  const auto rpm = rx & 0xFFFF;
   return tobas_std::rpm2rps(rpm);
 }
 

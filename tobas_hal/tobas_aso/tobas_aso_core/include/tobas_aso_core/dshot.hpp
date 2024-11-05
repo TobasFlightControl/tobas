@@ -60,7 +60,7 @@ private:
   static constexpr uint8_t kSetHalfNumPolesCmd = 6;
   static constexpr uint8_t kSetGainCmd = 7;
 
-  static constexpr size_t kChannelBytes = 3;                           // 1チャネルあたりのバイト数
+  static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
   static constexpr uint32_t kSpiClockFreq = 10'000'000;  // [Hz] 最大は50MHzだが，高すぎると文字化けする
 

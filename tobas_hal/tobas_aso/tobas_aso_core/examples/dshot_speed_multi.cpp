@@ -13,7 +13,7 @@ int main(int argc, char** argv)
     cerr << "Usage: " << argv[0] << " <Gain> <Target RPM>" << endl;
     return EXIT_FAILURE;
   }
-  const uint32_t gain = stoul(argv[1]);
+  const uint32_t gain = stoi(argv[1]);
   const uint32_t tar_rpm = stoi(argv[2]);
 
   aso::DShot dshot;
