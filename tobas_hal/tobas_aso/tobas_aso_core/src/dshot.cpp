@@ -210,7 +210,7 @@ bool DShot::setSpeedControlGain(size_t ch, uint32_t gain)
   if (!checkChannelSize(ch))
     return false;
 
-  if (gain >= (1 << 16))
+  if (gain >= (1 << 8))
   {
     cerr << "Speed control gain is too large." << endl;
     return false;

@@ -75,8 +75,8 @@ int main(int argc, char** argv)
     for (size_t ch = 0; ch < aso::DShot::kChannelSize; ++ch)
     {
       cout << "Channel " << ch << ":" << endl;
-      cout << "\tValid: " << boolalpha << dshot.isValid(ch) << noboolalpha << endl;
-      cout << "\tSpeed: " << dshot.getCurrentSpeed(ch) << endl;
+      cout << "\tValid      : " << boolalpha << dshot.isValid(ch) << noboolalpha << endl;
+      cout << "\tSpeed [rpm]: " << dshot.getCurrentSpeed(ch) * (30 / M_PI) << endl;
     }
     cout << "----------" << endl;
 

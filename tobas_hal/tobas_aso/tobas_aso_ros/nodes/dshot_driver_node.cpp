@@ -7,7 +7,7 @@
 
 #include <tobas_aso_core/dshot.hpp>
 
-#define SPEED_CONTROL_GAIN 100  // TODO: ユーザが調整できるように
+#define SPEED_CONTROL_GAIN 16  // TODO: ユーザが調整できるように
 
 class DShotDriverNode : public tobas::BaseNode
 {
