@@ -86,7 +86,7 @@ void GazeboRotorSpeedsPublisherPlugin::PostUpdate(const sim::UpdateInfo& info, c
 
     rotor_speeds->speeds.emplace_back();
     rotor_speeds->speeds.back().channel = i;  // TODO: SDFでチャンネルを取得
-    rotor_speeds->speeds.back().speed = rot_speed_real;
+    rotor_speeds->speeds.back().speed = abs(rot_speed_real);
   }
 
   rotor_speeds_pub_->publish(move(rotor_speeds));
