@@ -62,7 +62,7 @@ private:
 
   static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 10'000'000;  // [Hz] 最大は50MHzだが，高すぎると文字化けする
+  static constexpr uint32_t kSpiClockFreq = 45'000'000;  // [Hz] 最大は50MHzだが，高すぎるとMISOが失敗する．
 
 public:
   explicit DShot();
