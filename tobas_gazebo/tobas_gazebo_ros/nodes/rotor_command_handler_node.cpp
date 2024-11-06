@@ -1,10 +1,13 @@
+#include <std_msgs/msg/bool.hpp>
+
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
-#include <tobas_msgs/srv/enable_rc_output.hpp>
+#include <tobas_msgs/msg/pre_arm_check.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
@@ -20,32 +23,55 @@ public:
   explicit RotorCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  bool is_armed_ = false;
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
+  tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   map<uint8_t, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
+  ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
+
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> speeds_sub_;
-  ros2::ServiceServerPtr<tobas_msgs::srv::EnableRCOutput> enable_rcout_srv_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
+
+  ros2::ServiceServerPtr<tobas_msgs::srv::SetArm> set_arm_ss_;
+
+  ros2::TimerPtr publish_arm_status_timer_;
+
+  void publishArming();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
-  void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& speeds);
-  void enableRCOutputCb(
-    const tobas_msgs::srv::EnableRCOutput::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::EnableRCOutput::Response::SharedPtr& res);
+  void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
+  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
+
+  void setArmCb(
+    const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
+    const tobas_msgs::srv::SetArm::Response::SharedPtr& res);
 };
 
 RotorCommandHandlerNode::RotorCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_rotor_command_handler", options)
 {
+  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
+
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
-  speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::rotorSpeedsCb, this);
+  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
+  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
 
-  enable_rcout_srv_ =
-    createService<tobas_msgs::srv::EnableRCOutput>(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
+  set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
+
+  publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this);
+}
+
+void RotorCommandHandlerNode::publishArming()
+{
+  auto arming_msg = std::make_unique<std_msgs::msg::Bool>();
+  arming_msg->data = is_armed_;
+  arming_pub_->publish(move(arming_msg));
 }
 
 void RotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -67,7 +93,7 @@ void RotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSha
   battery_ = battery;
 }
 
-void RotorCommandHandlerNode::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& speeds)
+void RotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
   if (drone_ == nullptr)
   {
@@ -80,7 +106,7 @@ void RotorCommandHandlerNode::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArr
     return;
   }
 
-  for (const auto& speed : speeds->speeds)
+  for (const auto& speed : tar_speeds->speeds)
   {
     // Check channel
     if (!throttle_pubs_.contains(speed.channel))
@@ -91,7 +117,7 @@ void RotorCommandHandlerNode::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArr
 
     // Create throttle message
     auto throttle = std::make_unique<tobas_gazebo_msgs::msg::Throttle>();
-    throttle->header = speeds->header;
+    throttle->header = tar_speeds->header;
     throttle->data = drone_->throttleFromRotSpeed(speed.channel, speed.speed, battery_->voltage);  // FF項のみ
 
     // Publish throttle message
@@ -99,22 +125,48 @@ void RotorCommandHandlerNode::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArr
   }
 }
 
-void RotorCommandHandlerNode::enableRCOutputCb(
-  const tobas_msgs::srv::EnableRCOutput::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::EnableRCOutput::Response::SharedPtr& res)
+void RotorCommandHandlerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
-  if (!throttle_pubs_.contains(req->channel))
+  prearm_check_ = prearm_check;
+}
+
+void RotorCommandHandlerNode::setArmCb(
+  const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
+  const tobas_msgs::srv::SetArm::Response::SharedPtr& res)
+{
+  TOBAS_INFO("Set arm requested.");
+
+  if (!is_armed_ && req->arming)
   {
-    res->success = false;
-    res->message = "The drone does not have rotor channel " + to_string(req->channel) + ".";
-    return;
+    if (!req->ignore_prearm_check)
+    {
+      if (prearm_check_ == nullptr)
+      {
+        res->success = false;
+        res->message = "Pre-arm check status is not received yet.";
+        TOBAS_ERROR(res->message);
+        return;
+      }
+
+      if (!prearm_check_->ok)
+      {
+        res->success = false;
+        res->message = "Pre-arm check failed.";
+        TOBAS_ERROR(res->message);
+        return;
+      }
+    }
+
+    is_armed_ = true;
+    publishArming();
+  }
+  else if (is_armed_ && !req->arming)
+  {
+    is_armed_ = false;
+    publishArming();
   }
 
-  // TODO: ちゃんとサービスを実装する
-
   res->success = true;
-  res->message.clear();
-  return;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(RotorCommandHandlerNode)

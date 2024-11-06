@@ -151,4 +151,5 @@ static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算�
 static constexpr double kTypicalInfoPeriod = 5.;         // [s]
 static constexpr double kTypicalWarnPeriod = 3.;         // [s]
 static constexpr double kTypicalErrorPeriod = 1.;        // [s]
+static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
 }  // namespace tobas
