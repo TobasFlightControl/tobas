@@ -45,7 +45,13 @@ void RotorsViewerWiddget::speedsCb(const tobas_msgs::msg::RotorSpeedArray::Const
     if (speed.channel >= meters_.size())
     {
       RCLCPP_WARN_STREAM(node_->get_logger(), "Channel " << (int)speed.channel << " is out of range.");
-      return;
+      continue;
+    }
+
+    if (isnan(speed.speed))
+    {
+      RCLCPP_WARN_STREAM(node_->get_logger(), "Rotor speed of channel " << (int)speed.channel << " is invalid.");
+      continue;
     }
 
     const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(speed.speed));
