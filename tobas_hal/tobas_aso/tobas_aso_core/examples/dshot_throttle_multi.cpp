@@ -1,5 +1,5 @@
 #include <iostream>
-#include <unistd.h>
+#include <thread>
 
 #include <tobas_aso_core/dshot.hpp>
 
@@ -33,7 +33,10 @@ int main()
       return EXIT_FAILURE;
     }
 
-    usleep(10000);
+    dshot.printCurrentStates();
+    cout << "----------" << endl;
+
+    this_thread::sleep_for(100ms);
   }
 
   return EXIT_SUCCESS;

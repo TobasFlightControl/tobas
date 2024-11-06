@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <tobas_linux/spi_dev.hpp>
 
 namespace aso
@@ -75,20 +77,41 @@ public:
   bool initialize();
   bool transfer();
 
+  /* Set the DShot throttle directory. */
   bool setThrottle(size_t ch, uint16_t throttle);
+  /* Set the target motor rotating speed [rad/s] */
   bool setTargetSpeed(size_t ch, double rps);
+  /* Set the KV value [rad/s/V] */
   bool setKv(size_t ch, double kv_si);
+  /* Set the internal resistance [Ω] */
   bool setInternalResistance(size_t ch, double resistance);
+  /* Set the propeller diameter [m] */
   bool setPropellerDiameter(size_t ch, double diameter);
+  /* Set the moment constant scaled by the propeller diameter [Nm/(rad/s)^2/m^4] */
   bool setMomentConstant(size_t ch, double moment_const);
-  bool setNumPoles(size_t ch, uint32_t num_poles);
-  bool setSpeedControlGain(size_t ch, uint32_t gain);
+  /* Set the number of motor poles */
+  bool setNumPoles(size_t ch, uint16_t num_poles);
+  /* Set the motor speed control gain (2 to the x-1 power). No feedback when 0 is specified. */
+  bool setSpeedControlGain(size_t ch, uint8_t gain);
 
-  bool isValid(size_t ch);
-  double getCurrentSpeed(size_t ch);
+  /* Get the validity of the telemetry */
+  bool getValidity(size_t ch);
+  /* Get the current motor rotating speed [rad/s] */
+  double getSpeed(size_t ch);
+  /* Get the current ESC temperature [degC] */
+  double getTemperature(size_t ch);
+  /* Get the current ESC input voltage [V] */
+  double getVoltage(size_t ch);
+  /* Get the current ESC current [A] */
+  double getCurrent(size_t ch);
+
+  void printCurrentState(size_t ch);
+  void printCurrentStates();
 
 private:
   linux::SPIdev spi_;
+
+  std::array<uint16_t, kChannelSize> half_num_poles_;
 
   bool checkChannelSize(size_t ch);
 };

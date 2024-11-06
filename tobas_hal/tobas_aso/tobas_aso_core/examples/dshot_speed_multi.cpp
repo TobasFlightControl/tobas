@@ -72,12 +72,7 @@ int main(int argc, char** argv)
     if (!dshot.transfer())
       throw runtime_error("Failed to send target speed.");
 
-    for (size_t ch = 0; ch < aso::DShot::kChannelSize; ++ch)
-    {
-      cout << "Channel " << ch << ":" << endl;
-      cout << "\tValid      : " << boolalpha << dshot.isValid(ch) << noboolalpha << endl;
-      cout << "\tSpeed [rpm]: " << dshot.getCurrentSpeed(ch) * (30 / M_PI) << endl;
-    }
+    dshot.printCurrentStates();
     cout << "----------" << endl;
 
     this_thread::sleep_for(100ms);

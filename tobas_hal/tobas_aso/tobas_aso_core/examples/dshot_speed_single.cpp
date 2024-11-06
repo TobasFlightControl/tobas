@@ -66,9 +66,7 @@ int main(int argc, char** argv)
     if (!dshot.transfer())
       throw runtime_error("Failed to send target speed.");
 
-    cout << "Valid      : " << boolalpha << dshot.isValid(channel) << noboolalpha << endl;
-    cout << "Speed [rpm]: " << dshot.getCurrentSpeed(channel) * (30 / M_PI) << endl;
-    cout << "----------" << endl;
+    dshot.printCurrentState(channel);
 
     this_thread::sleep_for(100ms);
   }
