@@ -41,7 +41,7 @@ bool DShot::setThrottle(size_t ch, uint16_t throttle)
 
   if (throttle >= (1 << 11))
   {
-    cerr << "DSHOT thrrotle out of range." << endl;
+    cerr << "DShot thrrotle out of range." << endl;
     return false;
   }
 
@@ -296,7 +296,7 @@ bool DShot::checkChannelSize(size_t ch)
 {
   if (ch >= kChannelSize)
   {
-    cerr << "DSHOT channel out of range." << endl;
+    cerr << "DShot channel out of range." << endl;
     return false;
   }
 
