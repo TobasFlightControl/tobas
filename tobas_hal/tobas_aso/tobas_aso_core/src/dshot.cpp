@@ -242,6 +242,11 @@ double DShot::getSpeed(size_t ch)
   const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
   const auto erpm = (rx >> 0) & 0x0FFF;
 
+  if (erpm == 0)
+    return nan("Invalid telemetry");
+  else if (erpm == 0x0FFF)
+    return 0.;
+
   const auto exp = erpm >> 9;
   const auto base = erpm & 0x01FF;
   const auto eperiod_us = (base << exp);
@@ -274,7 +279,7 @@ double DShot::getCurrent(size_t ch)
 void DShot::printCurrentState(size_t ch)
 {
   cout << "Channel " << ch << ":" << endl;
-  cout << "\tValid             : " << getValidity(ch) << endl;
+  cout << "\tValid             : " << boolalpha << getValidity(ch) << noboolalpha << endl;
   cout << "\tSpeed [rpm]       : " << tobas_std::rps2rpm(getSpeed(ch)) << endl;
   cout << "\tTemperature [degC]: " << getTemperature(ch) << endl;
   cout << "\tVoltage [V]       : " << getVoltage(ch) << endl;
