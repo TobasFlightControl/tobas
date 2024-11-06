@@ -62,7 +62,12 @@ private:
 
   static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 45'000'000;  // [Hz] 最大は50MHzだが，高すぎるとMISOが失敗する．
+
+  // https://www.st.com/resource/en/datasheet/stm32f722ic.pdf: p.162
+  // Maximum frequency of the slave transmitter is determined by sum of Tv(SO) and Tsu(MI) intervals
+  // which has to fit into SCK level phase preceding the SCK sampling edge.
+  // This value can be achieved when it communicates with a Master having Tsu(MI) = 0 while signal Duty(SCK) = 50%.
+  static constexpr uint32_t kSpiClockFreq = 45'000'000;
 
 public:
   explicit DShot();
