@@ -196,6 +196,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     cur_speeds->speeds.back().channel = rotor.channel;
     cur_speeds->speeds.back().speed = dshot_.getSpeed(rotor.channel);
   }
+  cur_speeds_pub_->publish(move(cur_speeds));
 }
 
 void DShotDriverNode::enableRCOutputCb(
