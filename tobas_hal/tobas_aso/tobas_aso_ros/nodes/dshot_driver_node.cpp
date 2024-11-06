@@ -16,34 +16,47 @@ class DShotDriverNode : public tobas::BaseNode
   using EnableSrv = tobas_msgs::srv::EnableRCOutput;
 
   static constexpr auto kSPIInterval = 1ms;
+  static constexpr auto kAutoStopTimeThresh = 200ms;  // 最低でも5Hzでスロットルを送る
 
 public:
   explicit DShotDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   aso::DShot dshot_;
+  bool is_activated_ = false;
   array<bool, aso::DShot::kChannelSize> is_enabled_;
 
   tobas::Drone::ConstSharedPtr drone_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> cur_speeds_pub_;
+
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
+
   ros2::ServiceServerPtr<EnableSrv> enable_rcout_srv_;
 
+  ros2::TimerPtr auto_stop_timer_;
+
   bool transferAndSleep();
+  void publishCurrentSpeeds();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
   void enableRCOutputCb(const EnableSrv::Request::ConstSharedPtr& req, const EnableSrv::Response::SharedPtr& res);
+
+  void autoStopTimerCb();
 };
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("aso_dshot_driver", options)
 {
   cur_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
+
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
+
   enable_rcout_srv_ = createService<EnableSrv>(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
+
+  auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
 }
 
 bool DShotDriverNode::transferAndSleep()
@@ -56,6 +69,21 @@ bool DShotDriverNode::transferAndSleep()
 
   rclcpp::sleep_for(kSPIInterval);
   return true;
+}
+
+void DShotDriverNode::publishCurrentSpeeds()
+{
+  auto cur_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
+  cur_speeds->header.stamp = get_clock()->now();
+
+  for (const auto& rotor : drone_->rotors)
+  {
+    cur_speeds->speeds.emplace_back();
+    cur_speeds->speeds.back().channel = rotor.channel;
+    cur_speeds->speeds.back().speed = dshot_.getSpeed(rotor.channel);
+  }
+
+  cur_speeds_pub_->publish(move(cur_speeds));
 }
 
 void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -188,15 +216,13 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   }
 
   // Publish current speeds
-  auto cur_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
-  cur_speeds->header.stamp = get_clock()->now();
-  for (const auto& rotor : drone_->rotors)
-  {
-    cur_speeds->speeds.emplace_back();
-    cur_speeds->speeds.back().channel = rotor.channel;
-    cur_speeds->speeds.back().speed = dshot_.getSpeed(rotor.channel);
-  }
-  cur_speeds_pub_->publish(move(cur_speeds));
+  publishCurrentSpeeds();
+
+  // Set a timer to reset the rotor speeds if no command is received within a certain period of time
+  auto_stop_timer_->reset();
+
+  // Now the rotors are activated
+  is_activated_ = true;
 }
 
 void DShotDriverNode::enableRCOutputCb(
@@ -216,12 +242,7 @@ void DShotDriverNode::enableRCOutputCb(
   }
   else
   {
-    if (!dshot_.setThrottle(req->channel, aso::DShot::DSHOT_CMD_MOTOR_STOP))
-    {
-      res->success = false;
-      res->message = "Failed to set DShot throttle.";
-      return;
-    }
+    dshot_.setThrottle(req->channel, aso::DShot::DSHOT_CMD_MOTOR_STOP);
     if (!dshot_.transfer())
     {
       res->success = false;
@@ -232,6 +253,26 @@ void DShotDriverNode::enableRCOutputCb(
 
   res->success = true;
   res->message.clear();
+}
+
+void DShotDriverNode::autoStopTimerCb()
+{
+  for (size_t ch = 0; ch < aso::DShot::kChannelSize; ++ch)
+    dshot_.setThrottle(ch, aso::DShot::DSHOT_CMD_MOTOR_STOP);
+
+  if (!dshot_.transfer())
+  {
+    TOBAS_ERROR("Failed to stop motors.");
+    return;
+  }
+
+  if (is_activated_)
+  {
+    is_activated_ = false;
+    TOBAS_WARN(
+      "All rotors are automatically stopped because ", kAutoStopTimeThresh.count(),
+      " ms have elapsed since the last command.");
+  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(DShotDriverNode)

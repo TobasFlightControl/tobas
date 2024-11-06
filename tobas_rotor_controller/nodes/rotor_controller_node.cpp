@@ -18,8 +18,7 @@ using namespace std;
 
 class RotorControllerNode : public tobas::BaseNode
 {
-  static constexpr double kCmdWarnPeriod = 1.;        // [s]
-  static constexpr auto kAutoStopTimeThresh = 200ms;  // アーム時は最低でも5Hzでスロットルを送る
+  static constexpr double kCmdWarnPeriod = 1.;  // [s]
   static constexpr auto kPublishArmingPeriod = 1s;
 
   using self = RotorControllerNode;
@@ -30,7 +29,6 @@ public:
 
 private:
   bool is_armed_ = false;
-  bool is_activated_ = false;
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
@@ -47,10 +45,8 @@ private:
 
   // Timer
   ros2::TimerPtr publish_arm_status_timer_;
-  ros2::TimerPtr auto_stop_timer_;
 
   bool enableRCOutputs(const bool& enable);
-  void setSpeedOnAllChannels(const double& speed);
   void publishArming();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -61,7 +57,6 @@ private:
     const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
     const tobas_msgs::srv::SetArm::Response::SharedPtr& res);
 
-  void autoStopTimerCb();
   void publishArmThrotTimerCb();
 };
 
@@ -78,7 +73,6 @@ RotorControllerNode::RotorControllerNode(const rclcpp::NodeOptions& options) : s
   enable_rcout_sc_ = create_client<tobas_msgs::srv::EnableRCOutput>(tobas::kEnableRcOutputSrv);
 
   publish_arm_status_timer_ = createTimer(kPublishArmingPeriod, &self::publishArming, this);
-  auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
 }
 
 bool RotorControllerNode::enableRCOutputs(const bool& enable)
@@ -99,19 +93,6 @@ bool RotorControllerNode::enableRCOutputs(const bool& enable)
   }
 
   return true;
-}
-
-void RotorControllerNode::setSpeedOnAllChannels(const double& speed)
-{
-  auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
-  tar_speeds->header.stamp = get_clock()->now();
-  for (const auto& rotor : drone_->rotors)
-  {
-    tar_speeds->speeds.emplace_back();
-    tar_speeds->speeds.back().channel = rotor.channel;
-    tar_speeds->speeds.back().speed = speed;
-  }
-  tar_speeds_pub_->publish(move(tar_speeds));
 }
 
 void RotorControllerNode::publishArming()
@@ -163,12 +144,6 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
   // Publish throttle commands
   tar_speeds_pub_->publish(move(tar_speeds_msg));
-
-  // Set a timer to reset the rotor speeds if no command is received within a certain period of time
-  auto_stop_timer_->reset();
-
-  // Now the rotors are activated
-  is_activated_ = true;
 }
 
 void RotorControllerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
@@ -213,8 +188,6 @@ void RotorControllerNode::setArmCb(
 
     is_armed_ = true;
     publishArming();
-
-    auto_stop_timer_->reset();
   }
   else if (is_armed_ && !req->arming)
   {
@@ -228,23 +201,9 @@ void RotorControllerNode::setArmCb(
 
     is_armed_ = false;
     publishArming();
-
-    auto_stop_timer_->cancel();
   }
 
   res->success = true;
-}
-
-void RotorControllerNode::autoStopTimerCb()
-{
-  setSpeedOnAllChannels(tobas::kMinThrot);
-  if (is_activated_)
-  {
-    is_activated_ = false;
-    TOBAS_WARN(
-      "All rotors are automatically stopped because ", kAutoStopTimeThresh.count(),
-      " ms have elapsed since the last command.");
-  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(RotorControllerNode)
