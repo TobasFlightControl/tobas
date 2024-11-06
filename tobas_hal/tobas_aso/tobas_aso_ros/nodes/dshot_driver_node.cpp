@@ -26,6 +26,7 @@ private:
 
   tobas::Drone::ConstSharedPtr drone_;
 
+  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> cur_speeds_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
   ros2::ServiceServerPtr<EnableSrv> enable_rcout_srv_;
@@ -39,6 +40,7 @@ private:
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("aso_dshot_driver", options)
 {
+  cur_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
   enable_rcout_srv_ = createService<EnableSrv>(tobas::kEnableRcOutputSrv, &self::enableRCOutputCb, this);
@@ -144,14 +146,18 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (!transferAndSleep())
     return;
 
-  // Update drone configuration
   drone_ = drone;
-
   TOBAS_INFO("Rotor speed controller is initialized.");
 }
 
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
+  if (drone_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
+    return;
+  }
+
   // Set target speeds of each channel
   for (const auto& tar_speed : tar_speeds->speeds)
   {
@@ -174,11 +180,21 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     }
   }
 
-  // Send DSHOT throttles
+  // Send command and get current states
   if (!dshot_.transfer())
   {
     TOBAS_ERROR("SPI communication failed.");
     return;
+  }
+
+  // Publish current speeds
+  auto cur_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
+  cur_speeds->header.stamp = get_clock()->now();
+  for (const auto& rotor : drone_->rotors)
+  {
+    cur_speeds->speeds.emplace_back();
+    cur_speeds->speeds.back().channel = rotor.channel;
+    cur_speeds->speeds.back().speed = dshot_.getSpeed(rotor.channel);
   }
 }
 
