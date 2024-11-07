@@ -8,7 +8,6 @@
 #include "./motor.hpp"
 #include "./propeller.hpp"
 #include "./aerodynamics/aerodynamics.hpp"
-#include "./electrodynamics/electrodynamics.hpp"
 #include "./speed_limit/speed_limit.hpp"
 
 namespace gui
@@ -43,7 +42,6 @@ public:
   const MotorWidget* motor() const;
   const PropellerWidget* propeller() const;
   const AerodynamicsWidget* aerodynamics() const;
-  const ElectrodynamicsWidget* electrodynamics() const;
   const SpeedLimitWidget* speedLimit() const;
 
 private:
@@ -56,7 +54,6 @@ private:
   MotorWidget* motor_;
   PropellerWidget* propeller_;
   AerodynamicsWidget* aerodynamics_;
-  ElectrodynamicsWidget* electrodynamics_;
   SpeedLimitWidget* speed_limit_;
 };
 }  // namespace propulsion_system

@@ -26,8 +26,6 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
     dst.motor_constant = src.motor_constant;
     dst.moment_constant = src.moment_constant;
     dst.drag_constant = src.drag_constant;
-    dst.rot_speed_coefs.first = src.rot_speed_coefs.first;
-    dst.rot_speed_coefs.second = src.rot_speed_coefs.second;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -44,8 +42,6 @@ struct rclcpp::TypeAdapter<tobas::RotorConfig, tobas_drone_msgs::msg::RotorConfi
     dst.motor_constant = src.motor_constant;
     dst.moment_constant = src.moment_constant;
     dst.drag_constant = src.drag_constant;
-    dst.rot_speed_coefs.first = src.rot_speed_coefs.first;
-    dst.rot_speed_coefs.second = src.rot_speed_coefs.second;
   }
 };
 

@@ -10,4 +10,3 @@ float64 max_rot_speed
 float64 motor_constant
 float64 moment_constant
 float64 drag_constant
-tobas_std_msgs/PairFloat64 rot_speed_coefs

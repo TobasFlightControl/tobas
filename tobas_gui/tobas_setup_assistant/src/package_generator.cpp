@@ -143,7 +143,6 @@ tobas::Drone PackageGenerator::createDrone()
     drone.rotors.at(i).motor_constant = prop_config->aerodynamics()->motorConst();
     drone.rotors.at(i).moment_constant = prop_config->aerodynamics()->momentConst();
     drone.rotors.at(i).drag_constant = prop_config->aerodynamics()->rotorDragCoef();
-    drone.rotors.at(i).rot_speed_coefs = prop_config->electrodynamics()->rotSpeedCoefs();
   }
 
   // Fixed Wing

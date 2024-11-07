@@ -8,10 +8,8 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-SpeedLimitWidget_Current::SpeedLimitWidget_Current(
-  ElectrodynamicsWidget* electrodynamics,
-  AerodynamicsWidget* aerodynamics)
-  : electrodynamics_(electrodynamics), aerodynamics_(aerodynamics)
+SpeedLimitWidget_Current::SpeedLimitWidget_Current(MotorWidget* motor, AerodynamicsWidget* aerodynamics)
+  : motor_(motor), aerodynamics_(aerodynamics)
 {
 }
 
@@ -35,7 +33,7 @@ bool SpeedLimitWidget_Current::isValid()
 
 double SpeedLimitWidget_Current::maxRotSpeed() const
 {
-  const auto [kt, _] = electrodynamics_->rotSpeedCoefs();
+  const auto kt = 1. / motor_->kv();
   const auto motor_const = aerodynamics_->motorConst();
   const auto moment_const = aerodynamics_->momentConst();
 

@@ -2,8 +2,8 @@
 
 #include "./base.hpp"
 #include "../base.hpp"
+#include "../motor.hpp"
 #include "../aerodynamics/aerodynamics.hpp"
-#include "../electrodynamics/electrodynamics.hpp"
 
 namespace gui
 {
@@ -18,7 +18,7 @@ class SpeedLimitWidget : public BaseSelectedLinkSettingWidget
   static constexpr char kMethodNameKey[] = "method_name";
 
 public:
-  explicit SpeedLimitWidget(AerodynamicsWidget* aerodynamics, ElectrodynamicsWidget* electrodynamics);
+  explicit SpeedLimitWidget(MotorWidget* motor, AerodynamicsWidget* aerodynamics);
 
   const char* name() const override;
   bool isValid() override;

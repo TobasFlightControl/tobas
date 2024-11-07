@@ -14,7 +14,7 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-SpeedLimitWidget::SpeedLimitWidget(AerodynamicsWidget* aerodynamics, ElectrodynamicsWidget* electrodynamics)
+SpeedLimitWidget::SpeedLimitWidget(MotorWidget* motor, AerodynamicsWidget* aerodynamics)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -22,8 +22,8 @@ SpeedLimitWidget::SpeedLimitWidget(AerodynamicsWidget* aerodynamics, Electrodyna
   rows->addWidget(new qt::DescriptionWidget("", kBodyPSize));  // TODO
 
   methods_.push_back(new SpeedLimitWidget_Manual());
-  methods_.push_back(new SpeedLimitWidget_Voltage(electrodynamics));
-  methods_.push_back(new SpeedLimitWidget_Current(electrodynamics, aerodynamics));
+  methods_.push_back(new SpeedLimitWidget_Voltage(motor, aerodynamics));
+  methods_.push_back(new SpeedLimitWidget_Current(motor, aerodynamics));
 
   const auto ckb_group = new QButtonGroup(this);
   ckb_group->setExclusive(true);

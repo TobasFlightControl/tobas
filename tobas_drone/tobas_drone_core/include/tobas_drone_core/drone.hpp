@@ -149,7 +149,7 @@ inline double Drone::minThrust(size_t rotor_idx, double battery_voltage) const
 
 inline double Drone::thrustFromRotSpeed(size_t rotor_idx, double tar_speed) const
 {
-  return rotors[rotor_idx].motor_constant * math::sqr(tar_speed);
+  return rotors.at(rotor_idx).motor_constant * math::sqr(tar_speed);
 }
 
 inline double Drone::thrustFromVoltage(size_t rotor_idx, double voltage) const
@@ -164,25 +164,26 @@ inline double Drone::voltageFromRotSpeed(size_t rotor_idx, double tar_speed) con
 {
   assert(tar_speed >= 0);
 
-  const auto& a = rotors[rotor_idx].rot_speed_coefs.first;
-  const auto& b = rotors[rotor_idx].rot_speed_coefs.second;
-  return a * tar_speed + b * math::sqr(tar_speed);
+  const auto& rotor = rotors.at(rotor_idx);
+  const auto b = rotor.internal_resistance * rotor.kv * rotor.moment_constant * rotor.motor_constant;
+  const auto c = 1. / rotor.kv;
+  return tar_speed * (b * tar_speed + c);
 }
 
 inline double Drone::rotSpeedFromVoltage(size_t rotor_idx, double voltage) const
 {
-  assert(isValid());
   assert(voltage >= 0);
 
-  const auto& a = rotors[rotor_idx].rot_speed_coefs.first;
-  const auto& b = rotors[rotor_idx].rot_speed_coefs.second;
-  return b > 0 ? (sqrt(math::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
+  const auto& rotor = rotors.at(rotor_idx);
+  const auto b = rotor.internal_resistance * rotor.kv * rotor.moment_constant * rotor.motor_constant;
+  const auto c = 1. / rotor.kv;
+  return b > 0 ? (sqrt(math::sqr(c) + 4 * b * voltage) - c) / (2 * b) : voltage * rotor.kv;
 }
 
 inline double Drone::rotSpeedFromThrust(size_t rotor_idx, double thrust) const
 {
   assert(thrust >= 0);
-  return sqrt(thrust / rotors[rotor_idx].motor_constant);
+  return sqrt(thrust / rotors.at(rotor_idx).motor_constant);
 }
 
 inline double Drone::throttleFromRotSpeed(size_t rotor_idx, double tar_speed, double battery_voltage) const

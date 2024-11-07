@@ -39,7 +39,6 @@ public:
   double motor_constant = 0;                                 // 推力係数 [kg*m/rad^2]
   double moment_constant = 0;                                // 反トルク係数 [m]
   double drag_constant = 0;                                  // 空気効力定数 [kg/rad]
-  std::pair<double, double> rot_speed_coefs = { 0, 0 };      // V = c1 w + c2 w^2 (V[V], w[rad/s])
 
   bool isValid() const;
   bool load(const YAML::Node& node);

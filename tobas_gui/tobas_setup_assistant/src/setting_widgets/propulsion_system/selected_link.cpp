@@ -35,14 +35,12 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
   motor_ = new MotorWidget();
   propeller_ = new PropellerWidget();
   aerodynamics_ = new AerodynamicsWidget(node, propeller_);
-  electrodynamics_ = new ElectrodynamicsWidget(node, motor_, aerodynamics_);
-  speed_limit_ = new SpeedLimitWidget(aerodynamics_, electrodynamics_);
+  speed_limit_ = new SpeedLimitWidget(motor_, aerodynamics_);
 
   tabs_->addTab(esc_, esc_->name());
   tabs_->addTab(motor_, motor_->name());
   tabs_->addTab(propeller_, propeller_->name());
   tabs_->addTab(aerodynamics_, aerodynamics_->name());
-  tabs_->addTab(electrodynamics_, electrodynamics_->name());
   tabs_->addTab(speed_limit_, speed_limit_->name());
 
   rows->addStretch();
@@ -110,11 +108,6 @@ const PropellerWidget* SelectedLinkWidget::propeller() const
 const AerodynamicsWidget* SelectedLinkWidget::aerodynamics() const
 {
   return aerodynamics_;
-}
-
-const ElectrodynamicsWidget* SelectedLinkWidget::electrodynamics() const
-{
-  return electrodynamics_;
 }
 
 const SpeedLimitWidget* SelectedLinkWidget::speedLimit() const

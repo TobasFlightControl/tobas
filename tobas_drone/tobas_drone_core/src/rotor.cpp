@@ -62,18 +62,6 @@ bool RotorConfig::isValid() const
     return false;
   }
 
-  if (rot_speed_coefs.first <= 0)
-  {
-    cerr << "The first term of the rotating speed coefficients must be positive." << endl;
-    return false;
-  }
-
-  if (rot_speed_coefs.second < 0)
-  {
-    cerr << "The second term of the rotating speed coefficients must be non-negative." << endl;
-    return false;
-  }
-
   return true;
 }
 
@@ -115,9 +103,6 @@ bool RotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kDragConstKey, node, drag_constant))
     return false;
 
-  if (!yaml::load(kRotSpeedCoefKey, node, rot_speed_coefs))
-    return false;
-
   return true;
 }
 
@@ -137,7 +122,6 @@ YAML::Node RotorConfig::dump() const
   node[kMotorConstKey] = motor_constant;
   node[kMomentConstKey] = moment_constant;
   node[kDragConstKey] = drag_constant;
-  node[kRotSpeedCoefKey] = rot_speed_coefs;
 
   return node;
 }

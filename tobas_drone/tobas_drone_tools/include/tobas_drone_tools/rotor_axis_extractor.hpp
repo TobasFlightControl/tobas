@@ -127,11 +127,6 @@ inline const double& RotorAxisExtractor::dragConstant(const size_t& inner_idx) c
   return drone_.rotors.at(rotorIdx(inner_idx)).drag_constant;
 }
 
-inline const std::pair<double, double>& RotorAxisExtractor::rotSpeedCoefs(const size_t& inner_idx) const
-{
-  return drone_.rotors.at(rotorIdx(inner_idx)).rot_speed_coefs;
-}
-
 inline double RotorAxisExtractor::maxMechanicalThrust(const size_t& inner_idx) const
 {
   return drone_.maxMechanicalThrust(rotorIdx(inner_idx));
