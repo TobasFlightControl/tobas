@@ -77,8 +77,6 @@ void addRotorPlugin(
   const std::string& ns,
   const std::string& joint_name,
   const tobas::RotorConfig& rotor,
-  double time_const_up,
-  double time_const_down,
   double max_current,
   double max_model_error_rate);
 

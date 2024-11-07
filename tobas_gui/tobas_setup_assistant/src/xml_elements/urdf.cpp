@@ -1,6 +1,5 @@
 #include <format>
 
-#include <tobas_std_tools/check.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -82,13 +81,6 @@ void addBatteryPlugin(
   double internal_registance,
   int num_rotors)
 {
-  TOBAS_CHECK(max_voltage > 0.);
-  TOBAS_CHECK(sag_voltage > 0.);
-  TOBAS_CHECK(max_current > 0.);
-  TOBAS_CHECK(current_capacity > 0.);
-  TOBAS_CHECK(internal_registance > 0.);
-  TOBAS_CHECK(num_rotors >= 0);
-
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_battery_plugin", "gazebo::GazeboBatteryPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
@@ -115,16 +107,6 @@ void addIMUPlugin(
   double acc_bias_corr_time,
   double acc_turn_on_bias_sigma)
 {
-  TOBAS_CHECK(update_rate > 0.);
-  TOBAS_CHECK(gyro_noise_density > 0.);
-  TOBAS_CHECK(gyro_random_walk > 0.);
-  TOBAS_CHECK(gyro_bias_corr_time > 0.);
-  TOBAS_CHECK(gyro_turn_on_bias_sigma > 0.);
-  TOBAS_CHECK(acc_noise_density > 0.);
-  TOBAS_CHECK(acc_random_walk > 0.);
-  TOBAS_CHECK(acc_bias_corr_time > 0.);
-  TOBAS_CHECK(acc_turn_on_bias_sigma > 0.);
-
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "gazebo::GazeboImuPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
@@ -154,10 +136,6 @@ void addMagnetometerPlugin(
   double gauss_noise,
   double uniform_noise)
 {
-  TOBAS_CHECK(update_rate > 0.);
-  TOBAS_CHECK(gauss_noise > 0.);
-  TOBAS_CHECK(uniform_noise > 0.);
-
   const auto plugin =
     util::addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "gazebo::GazeboMagnetometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -180,10 +158,6 @@ void addBarometerPlugin(
   double altitude_zero,
   double pressure_variance)
 {
-  TOBAS_CHECK(update_rate > 0.);
-  TOBAS_CHECK(altitude_zero > 0.);
-  TOBAS_CHECK(pressure_variance > 0.);
-
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_barometer_plugin", "gazebo::GazeboBarometerPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
@@ -209,17 +183,6 @@ void addGPSPlugin(
   double longitude_zero,
   double altitude_zero)
 {
-  TOBAS_CHECK(update_rate > 0.);
-  TOBAS_CHECK(delay >= 0.);
-  TOBAS_CHECK(position_corr_time > 0.);
-  TOBAS_CHECK(hor_pos_accuracy > 0.);
-  TOBAS_CHECK(ver_pos_accuracy > 0.);
-  TOBAS_CHECK(hor_vel_stddev > 0.);
-  TOBAS_CHECK(ver_vel_stddev > 0.);
-  TOBAS_CHECK(abs(latitude_zero) <= 90.);
-  TOBAS_CHECK(abs(longitude_zero) <= 180.);
-  TOBAS_CHECK(altitude_zero >= 0.);
-
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_gps_plugin", "gazebo::GazeboGpsPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
@@ -241,35 +204,19 @@ void addRotorPlugin(
   const string& ns,
   const string& joint_name,
   const tobas::RotorConfig& rotor,
-  double time_const_up,
-  double time_const_down,
   double max_current,
   double max_model_error_rate)
 {
-  TOBAS_CHECK(rotor.rot_speed_coefs.first >= 0. && rotor.rot_speed_coefs.second >= 0.);
-  TOBAS_CHECK(rotor.motor_constant >= 0.);
-  TOBAS_CHECK(rotor.moment_constant >= 0.);
-  TOBAS_CHECK(rotor.drag_constant >= 0.);
-  TOBAS_CHECK(time_const_up > 0.);
-  TOBAS_CHECK(time_const_down > 0.);
-  TOBAS_CHECK(rotor.max_rot_speed > 0.);
-  TOBAS_CHECK(rotor.num_poles > 0 && rotor.num_poles % 2 == 0);
-  TOBAS_CHECK(max_current > 0.);
-  TOBAS_CHECK(max_model_error_rate >= 0.);
-
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_rotor_plugin", "gazebo::GazeboRotorPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("channel")->SetText(rotor.channel);
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
-  plugin->InsertNewChildElement("rotSpeedCoefficients")->SetText(util::toString(rotor.rot_speed_coefs).c_str());
+  plugin->InsertNewChildElement("kv")->SetText(rotor.kv);
+  plugin->InsertNewChildElement("internalResistance")->SetText(rotor.internal_resistance);
   plugin->InsertNewChildElement("motorConstant")->SetText(rotor.motor_constant);
   plugin->InsertNewChildElement("momentConstant")->SetText(rotor.moment_constant);
   plugin->InsertNewChildElement("rotorDragCoefficient")->SetText(rotor.drag_constant);
   plugin->InsertNewChildElement("turningDirection")->SetText(rotor.direction);
-  plugin->InsertNewChildElement("timeConstantUp")->SetText(time_const_up);
-  plugin->InsertNewChildElement("timeConstantDown")->SetText(time_const_down);
-  plugin->InsertNewChildElement("maxRotationSpeed")->SetText(rotor.max_rot_speed);
-  plugin->InsertNewChildElement("numPoles")->SetText(rotor.num_poles);
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }
@@ -284,10 +231,6 @@ void addFixedWingPlugin(
   const auto& vehicle = fixed_wing.vehicle;
   const auto& aerodynamics = fixed_wing.aerodynamics;
   const auto& control_surfaces = fixed_wing.control_surfaces;
-
-  TOBAS_CHECK(vehicle.wing_surface > 0.);
-  TOBAS_CHECK(vehicle.wing_span > 0.);
-  TOBAS_CHECK(vehicle.alpha_limit.inRange(0.));
 
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_fixed_wing_plugin", "gazebo::GazeboFixedWingPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -411,8 +354,6 @@ void addGazeboSimROS2ControlPlugin(
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const string& root_link_name)
 {
-  TOBAS_CHECK(root_link_name != tobas::kWorldFrame);
-
   // robot/xacro:if
   const auto xacro_if = robot->InsertNewChildElement("xacro:if");
   xacro_if->SetAttribute("value", "$(arg DEBUG)");

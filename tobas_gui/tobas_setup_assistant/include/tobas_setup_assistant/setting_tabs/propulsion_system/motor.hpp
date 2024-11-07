@@ -41,19 +41,11 @@ public:
   /* Number of poles [-] */
   int numPoles() const;
 
-  /* Time constant of the motor's response when increasing its rotational speed [s] */
-  double timeConstUp() const;
-
-  /* Time constant of the motor's response when decreasing its rotational speed [s] */
-  double timeConstDown() const;
-
 private:
   ParamGetterWidget_ComboBox* direction_;
   ParamGetterWidget_SpinBox* kv_;
   ParamGetterWidget_SpinBox* resistance_;
   ParamGetterWidget_SpinBox* num_poles_;
-  ParamGetterWidget_SpinBox* time_const_up_;
-  ParamGetterWidget_SpinBox* time_const_down_;
 };
 }  // namespace propulsion_system
 }  // namespace setup_assistant

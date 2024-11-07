@@ -642,12 +642,9 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
 
     const auto prop = props->widget(i);
-    const auto motor = prop->motor();
     const auto esc = prop->esc();
 
-    addRotorPlugin(
-      robot, ns, jnt_name, drone.rotors.at(i), motor->timeConstUp(), motor->timeConstDown(), esc->maxCurrent(),
-      sim->maxModelErrorRate());
+    addRotorPlugin(robot, ns, jnt_name, drone.rotors.at(i), esc->maxCurrent(), sim->maxModelErrorRate());
   }
 
   // Fixed wing plugin

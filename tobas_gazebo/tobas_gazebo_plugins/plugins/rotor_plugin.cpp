@@ -19,7 +19,10 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
-#include "../include/tobas_gazebo_plugins/first_order_filter.hpp"
+
+// モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
+// 実機の時定数がシミュレーションよりも大きくならないように想定しうる最大値に設定する．
+#define L_KV 0.02
 
 using namespace std;
 using namespace std::chrono;
@@ -62,26 +65,22 @@ private:
   // SDF parameters
   size_t channel_;
   string joint_name_;
-  Vector2d rot_speed_coefs_;  // [Vs/rad, (Vs/rad)^2]
-  double motor_const_;
-  double moment_const_;
-  double rotor_drag_coef_;
-  int direction_;  // Turning direction: 1(CCW) or -1(CW).
-  double time_const_up_;
-  double time_const_down_;
-  double max_rot_speed_;  // [rad/s] 最大連続電流によって定まるモータ特性が成り立つ最大回転数
-  size_t num_poles_;      // モータの極数
-  double max_current_;    // [A] ESCの最大電流
+  double kv_;               // [rad/s/V]
+  double resistance_;       // [Ω]
+  double motor_const_;      // [N/(rad/s)^2]
+  double moment_const_;     // [m]
+  double rotor_drag_coef_;  // [N*s^2/rad/m]
+  int direction_;           // Turning direction: 1(CCW) or -1(CW).
+  double max_current_;      // [A] ESCの最大電流
   double max_model_error_rate_;
 
-  double tar_speed_ = 0.;  // [rad/s]
+  double throttle_ = 0.;  // [0, 1]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   Vector3d wind_vel_W_ = Vector3d::Zero;  // [m/s]
   steady_clock::duration prev_sim_time_;
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   bool is_intact_ = true;
   bool wind_received_ = false;
-  AsymmetricFirstOrderFilter<double> rotor_speed_filter_;
 
   // Gazebo objects
   shared_ptr<sim::Joint> joint_;
@@ -99,10 +98,8 @@ private:
 
   void registerPubSub();
   void addModelError();
-  void applyWrench(sim::EntityComponentManager& ecm, const double& rot_speed, const steady_clock::duration& cur_time);
-  void updateRotationSpeed(sim::EntityComponentManager& ecm, const double& dt);
-  double rotSpeedFromVoltage(const double& voltage);
-  double rotSpeedFromERPM(const double& erpm);
+  void applyWrench(sim::EntityComponentManager& ecm, double rot_speed, const steady_clock::duration& cur_time);
+  void updateRotationSpeed(sim::EntityComponentManager& ecm, double rot_speed, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
   void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
@@ -122,8 +119,6 @@ void GazeboRotorPlugin::Configure(
   getSdfParams(sdf);
   initialize("gazebo_rotor_plugin_" + to_string(channel_), sdf);
   addModelError();
-
-  rotor_speed_filter_.initialize(time_const_up_, time_const_down_, 0.);
 
   // Get robot model
   sim::Model model(model_entity);
@@ -174,41 +169,18 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "channel", channel_);
   getSdfParam(sdf, "jointName", joint_name_);
 
-  getSdfParam(sdf, "rotSpeedCoefficients", rot_speed_coefs_);
-  if (rot_speed_coefs_.X() <= 0)
-    TOBAS_EXIT("The first term of 'rotationSpeedCoefficients' must be positive.");
-  if (rot_speed_coefs_.Y() < 0)
-    TOBAS_EXIT("The second term of 'rotationSpeedCoefficients' must be non-negative.");
+  getSdfParam(sdf, "kv", kv_, POSITIVE);
+  getSdfParam(sdf, "internalResistance", resistance_, POSITIVE);
 
-  getSdfParam(sdf, "motorConstant", motor_const_, NON_NEGATIVE);
-  getSdfParam(sdf, "momentConstant", moment_const_, NON_NEGATIVE);
+  getSdfParam(sdf, "motorConstant", motor_const_, POSITIVE);
+  getSdfParam(sdf, "momentConstant", moment_const_, POSITIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
 
   int turning_direction;
   getSdfParam(sdf, "turningDirection", turning_direction);
   direction_ = tobas::sign(static_cast<tobas::turning_direction_t>(turning_direction));
 
-  getSdfParam(sdf, "timeConstantUp", time_const_up_, POSITIVE);
-  getSdfParam(sdf, "timeConstantDown", time_const_down_, POSITIVE);
-  if (time_const_up_ > kTimeConstWarnThreshold)
-    TOBAS_WARN(
-      "The value provided for 'timeConstantUp' appears to be too large: ", time_const_up_,
-      "[s]. Please check settings and datasheet.");
-  if (time_const_down_ > kTimeConstWarnThreshold)
-    TOBAS_WARN(
-      "The value provided for 'timeConstantDown' appears to be too large: ", time_const_down_,
-      "[s]. Please check settings and datasheet.");
-
-  getSdfParam(sdf, "maxRotationSpeed", max_rot_speed_, POSITIVE);
-
-  getSdfParam(sdf, "numPoles", num_poles_);
-  if (num_poles_ <= 0)
-    TOBAS_EXIT("The number of poles must be positive.");
-  if (num_poles_ % 2 != 0)
-    TOBAS_EXIT("The number of poles must be even.");
-
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
-
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
@@ -232,17 +204,17 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeThresh)
-    tar_speed_ = 0.;
+    throttle_ = 0.;
 
   // Get rotation speed
-  const auto rot_speed_sim = joint_->Velocity(ecm).value().at(0);
+  const auto rot_speed_sim = abs(joint_->Velocity(ecm).value().at(0));
   const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
 
   // Compute time after previous simulation time
   const auto dt = chrono::duration<double>(info.dt).count();
 
   // Check aliasing
-  if (abs(rot_speed_sim) * dt > M_PI)
+  if (rot_speed_sim * dt > M_PI)
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor [", channel_, "] might occur. Lower simulation time step.");
 
   // Update simulation state
@@ -250,7 +222,7 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
 
   // ESCが壊れていなければ回転数を更新
   if (is_intact_)
-    updateRotationSpeed(ecm, dt);
+    updateRotationSpeed(ecm, rot_speed_real, dt);
 }
 
 void GazeboRotorPlugin::registerPubSub()
@@ -272,11 +244,11 @@ void GazeboRotorPlugin::addModelError()
   mt19937 rnd_gen(rnd_dev());
   UniformDistribution uniform(-1, 1);
 
-  // 回転数-電圧の関係式
-  // 1次の係数はKv値から概ね正確な値が分かるため，2次の係数にのみ誤差を加える．
-  rot_speed_coefs_.Y() *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  // モータ
+  kv_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  resistance_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
 
-  // 空力定数
+  // プロペラ
   motor_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
   moment_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
   rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
@@ -284,7 +256,7 @@ void GazeboRotorPlugin::addModelError()
 
 void GazeboRotorPlugin::applyWrench(
   sim::EntityComponentManager& ecm,
-  const double& rot_speed,
+  double rot_speed,
   const steady_clock::duration& cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
@@ -297,15 +269,14 @@ void GazeboRotorPlugin::applyWrench(
   const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
 
   // (1) first term: Thrust Force
-  const auto rot_speed_sgn = ::math::sign(rot_speed);
-  const auto thrust = direction_ * rot_speed_sgn * motor_const_ * ::math::sqr(rot_speed);
+  const auto thrust = motor_const_ * ::math::sqr(rot_speed);
   const auto thrust_W = thrust * global_axis;
   link_->AddWorldWrench(ecm, thrust_W, Vector3d::Zero);
 
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-abs(rot_speed) * rotor_drag_coef_) * linvel_perp_W;
+  const auto h_force_W = (rot_speed * rotor_drag_coef_) * linvel_perp_W;
   link_->AddWorldWrench(ecm, h_force_W, Vector3d::Zero);
 
   // (2) first term: Rotor drag torque
@@ -314,7 +285,7 @@ void GazeboRotorPlugin::applyWrench(
   parent_link_->AddWorldWrench(ecm, Vector3d::Zero, drag_torque_W);
 
   // Compute electric current
-  const auto& kt = rot_speed_coefs_.X();  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
+  const auto kt = 1. / kv_;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
   const auto current = torque / kt;
 
   // 安全のため，一瞬でも過電流が流れたらESCが焼き切れたとみなす
@@ -344,41 +315,32 @@ void GazeboRotorPlugin::applyWrench(
   debug_pub_->publish(move(debug_msg));
 }
 
-void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, const double& dt)
+void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, double cur_speed, double dt)
 {
   assert(dt >= 0);
 
-  // Check rotor speed limit and get set value
-  auto tar_speed = tar_speed_;
-  const auto max_rot_speed = min(max_rot_speed_, rotSpeedFromVoltage(battery_->voltage));
-  if (tar_speed_ < 0)
-  {
-    TOBAS_ERROR("Negative rotor speed is commanded on index ", channel_, ": ", tar_speed_, " < 0 [rad/s]");
-    tar_speed = 0.;
-  }
-  else if (tar_speed_ > max_rot_speed + kRotorSpeedCheckMargin)
-  {
-    TOBAS_ERROR_THROTTLE(
-      kErrorPeriod, "Target rotor speed on index ", channel_, " is too high: ", tar_speed_, " > ", max_rot_speed,
-      " [rad/s]");
-    tar_speed = max_rot_speed;
-  }
+  // モータダイナミクスの係数 (memo: 2-78)
+  const auto a = 2. * L_KV * moment_const_ * motor_const_;
+  const auto b = resistance_ * kv_ * moment_const_ * motor_const_;
+  const auto c = 1. / kv_;
 
-  // Apply the filter on the rotation speed
-  const auto ref_rot_speed = rotor_speed_filter_.update(tar_speed, dt);
-  joint_->SetVelocity(ecm, { direction_ * ref_rot_speed / kRotorSpeedSlowdownSim });
-}
+  const auto Ea = battery_->voltage * throttle_;                            // 印加電圧
+  const auto eq_speed = (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
-double GazeboRotorPlugin::rotSpeedFromVoltage(const double& voltage)
-{
-  const auto& a = rot_speed_coefs_.X();
-  const auto& b = rot_speed_coefs_.Y();
-  return b > 0 ? (sqrt(::math::sqr(a) + 4 * b * voltage) - a) / (2 * b) : voltage / a;
-}
+  // モータの慣性モーメントを無視していることにより，現在の回転数が0のときは未定義のため，その場合は微小速度を与える．
+  if (cur_speed == 0.)
+    cur_speed = 1.;
 
-double GazeboRotorPlugin::rotSpeedFromERPM(const double& erpm)
-{
-  return tobas_std::rpm2rps(erpm * 2 / num_poles_);
+  // 次のステップの回転数を計算
+  const auto speed_rate = (Ea / cur_speed - b * cur_speed - c) / a;
+  auto next_speed = cur_speed + speed_rate * dt;
+
+  // 速度変化が大きすぎるなどして平衡点を飛び越えている場合は，平衡点に拘束する．
+  if ((cur_speed - eq_speed) * (next_speed - eq_speed) < 0)
+    next_speed = eq_speed;
+
+  // 次のステップの回転数をGazeboに反映
+  joint_->SetVelocity(ecm, { direction_ * next_speed / kRotorSpeedSlowdownSim });
 }
 
 void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
@@ -390,13 +352,10 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   // 最後にコマンドを受け取った時刻を更新
   last_cmd_time_ = prev_sim_time_;
 
-  // スロットルの範囲を制限
-  const auto throt = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
-
-  // スロットルを目標回転数に変換
-  // TODO: 印加電圧から回転数の変化率を計算してシミュレーション
-  const auto input_voltage = ::math::remap(throt, tobas::kMinThrot, tobas::kMaxThrot, 0., battery_->voltage);
-  tar_speed_ = rotSpeedFromVoltage(input_voltage);
+  // 範囲を制限してスロットルを更新
+  if (msg->data < 0. || 1. < msg->data)
+    TOBAS_ERROR("The commanded throttle ", msg->data, " is out of range.");
+  throttle_ = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
 void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
