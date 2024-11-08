@@ -203,7 +203,8 @@ void GNSSDriverNode::mainTimerCb()
   auto gnss_msg = std::make_unique<tobas_msgs::Gps>();
 
   // Fill time stamp
-  gnss_msg->header.stamp = get_clock()->now();
+  // TODO: GNSS信号の遅延を測定
+  gnss_msg->header.stamp = get_clock()->now() - rclcpp::Duration::from_nanoseconds(80'000'000);
 
   // Fill fix type
   gnss_msg->fix_type = status_.gpsFix;
