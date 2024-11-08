@@ -5,6 +5,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
+#include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
@@ -40,19 +41,16 @@ public:
     const Eigen::Matrix3d& init_dtheta_cov,
     const Eigen::Matrix3d& init_acc_bias_cov,
     const Eigen::Matrix3d& init_gyro_bias_cov,
-    const double& init_grav_var);
+    const double& init_grav_var,
+    const std::chrono::steady_clock::time_point& time);
 
   inline Eigen::Vector3d getPosition() const;
-  inline Eigen::Vector3d getPosition(const Eigen::Vector3d& offset) const;
-  inline Eigen::Vector2d getXY() const;
-  inline double getAltitude() const;
   inline Eigen::Vector3d getVelocity() const;
-  inline Eigen::Vector3d getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
   inline Eigen::Quaterniond getQuaternion() const;
   inline Eigen::Vector3d getAccelBias() const;
   inline Eigen::Vector3d getGyroBias() const;
   inline double getGravity() const;
-  inline Eigen::Vector3d getGravVector() const;
+
   inline Eigen::Matrix3d getDCM() const;
   inline double getYaw() const;
 
@@ -75,7 +73,7 @@ public:
    * @param gyro_noise_var [rad^2/s^2] ジャイロの観測ノイズの分散
    * @param acc_bias_noise_var [m^2/s^4] 加速度バイアスの観測ノイズの分散
    * @param gyro_bias_noise_var [rad^2/s^2] ジャイロバイアスの観測ノイズの分散
-   * @param dt [s] 前回の予測からの経過時間
+   * @param time [s] 現在時刻
    */
   void predictIMU(
     const Eigen::Vector3d& acc_meas,
@@ -85,7 +83,7 @@ public:
     const double& acc_bias_noise_var,
     const double& gyro_bias_noise_var,
     const double& grav_var,
-    const double& dt);
+    const std::chrono::steady_clock::time_point& time);
 
   /**
    * @brief 位置の観測をノミナル状態に反映させる．
@@ -99,10 +97,13 @@ public:
   double measurePosition(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
-    const Eigen::Vector3d& offset = Eigen::Vector3d::Zero());
-  double measureXY(const Eigen::Vector2d& xy_meas, const Eigen::Matrix2d& xy_cov);
-  double measureAltitude(const double& z_meas, const double& z_var);
-  double measureVelocity(const Eigen::Vector3d& vel_meas, const Eigen::Matrix3d& vel_cov);
+    const Eigen::Vector3d& offset,
+    const std::chrono::steady_clock::time_point& time);
+  double measureXY(
+    const Eigen::Vector2d& xy_meas,
+    const Eigen::Matrix2d& xy_cov,
+    const std::chrono::steady_clock::time_point& time);
+  double measureAltitude(const double& z_meas, const double& z_var, const std::chrono::steady_clock::time_point& time);
   /**
    * @brief 速度の観測をノミナル状態に反映させる．
    *
@@ -117,16 +118,21 @@ public:
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
     const Eigen::Vector3d& offset,
-    const Eigen::Vector3d& gyro_meas);
+    const Eigen::Vector3d& gyro_meas,
+    const std::chrono::steady_clock::time_point& time);
   double measurePosVel(
     const Eigen::Vector3d& pos_meas,
     const Eigen::Matrix3d& pos_cov,
     const Eigen::Vector3d& vel_meas,
     const Eigen::Matrix3d& vel_cov,
     const Eigen::Vector3d& offset,
-    const Eigen::Vector3d& gyro_meas);
-  double measureQuaternion(const Eigen::Quaterniond& q_meas, const Eigen::Matrix3d& theta_cov);
-  double measureYaw(const double& yaw_meas, const double& yaw_var);
+    const Eigen::Vector3d& gyro_meas,
+    const std::chrono::steady_clock::time_point& time);
+  double measureQuaternion(
+    const Eigen::Quaterniond& q_meas,
+    const Eigen::Matrix3d& theta_cov,
+    const std::chrono::steady_clock::time_point& time);
+  double measureYaw(const double& yaw_meas, const double& yaw_var, const std::chrono::steady_clock::time_point& time);
 
   /**
    * @brief 重力方向の観測．姿勢の修正に用いる．
@@ -138,7 +144,10 @@ public:
    *
    * @return Anormaly score
    */
-  double measureGravity(const Eigen::Vector3d& acc_meas, const Eigen::Matrix3d& grav_cov);
+  double measureGravity(
+    const Eigen::Vector3d& acc_meas,
+    const Eigen::Matrix3d& grav_cov,
+    const std::chrono::steady_clock::time_point& time);
 
 private:
   StateVector x_;         // State vector of the filter
@@ -154,19 +163,39 @@ private:
   Eigen::Matrix<double, 3, kDeltaStateSize> H_acc_;
   Eigen::Matrix<double, 1, kDeltaStateSize> H_mag_;
 
+  std::chrono::steady_clock::time_point t_last_imu_;
+  tobas_std::TimestampedBuffer<StateVector> x_history_;
+
+  inline Eigen::Vector3d getPosition(const StateVector& x) const;
+  inline Eigen::Vector3d getVelocity(const StateVector& x) const;
+  inline Eigen::Quaterniond getQuaternion(const StateVector& x) const;
+  inline Eigen::Vector3d getAccelBias(const StateVector& x) const;
+  inline Eigen::Vector3d getGyroBias(const StateVector& x) const;
+
+  inline double getGravity(const StateVector& x) const;
+  inline Eigen::Matrix3d getDCM(const StateVector& x) const;
+  inline double getYaw(const StateVector& x) const;
+
+  inline Eigen::Vector2d getXY(const StateVector& x) const;
+  inline double getAltitude(const StateVector& x) const;
+  inline Eigen::Vector3d getPosition(const StateVector& x, const Eigen::Vector3d& offset) const;
+  inline Eigen::Vector3d
+  getVelocity(const StateVector& x, const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const;
+  inline Eigen::Vector3d getGravVector(const StateVector& x) const;
+
   /**
    * @brief クオータニオンをベクトルの形で得る．
    * (w,x,y,z)の順(ハミルトン)だから，w()などでアクセスするとずれることに注意！
    *
    * @return ハミルトン形式のクオータニオン
    */
-  inline Eigen::Vector4d getHamilton() const;
+  inline Eigen::Vector4d getHamilton(const StateVector& x) const;
 
   /* (281) */
-  Eigen::Matrix<double, 4, 3> getQ_dtheta() const;
+  Eigen::Matrix<double, 4, 3> getQ_dtheta(const StateVector& x) const;
 
   /* ベクトルvのqによる回転をqで偏微分したもの．d(q * v * q') / d(q)． */
-  Eigen::Matrix<double, 3, 4> quatRotationDerivative(const Eigen::Vector3d& a) const;
+  Eigen::Matrix<double, 3, 4> quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const;
 
   /**
    * @brief 観測から状態と共分散の事後推定を求める
@@ -189,58 +218,32 @@ private:
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition() const
 {
-  return x_.segment<3>(kPosIdx);
-}
-
-inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const Eigen::Vector3d& offset) const
-{
-  return getPosition() + getQuaternion() * offset;
-}
-
-inline Eigen::Vector2d ErrorStateKalmanFilter::getXY() const
-{
-  return x_.block<2, 1>(kPosIdx, 0);
-}
-
-inline double ErrorStateKalmanFilter::getAltitude() const
-{
-  return x_(kAltIdx);
+  return getPosition(x_);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity() const
 {
-  return x_.segment<3>(kVelIdx);
-}
-
-inline Eigen::Vector3d
-ErrorStateKalmanFilter::getVelocity(const Eigen::Vector3d& offset, const Eigen::Vector3d& gyro_meas) const
-{
-  return getVelocity() + getQuaternion() * (gyro_meas - getGyroBias()).cross(offset);
+  return getVelocity(x_);
 }
 
 inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion() const
 {
-  return eigen_tools::hamiltonToQuaternion(getHamilton());
+  return getQuaternion(x_);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias() const
 {
-  return x_.segment<3>(kAccBiasIdx);
+  return getAccelBias(x_);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias() const
 {
-  return x_.segment<3>(kGyroBiasIdx);
+  return getGyroBias(x_);
 }
 
 inline double ErrorStateKalmanFilter::getGravity() const
 {
-  return x_(kGravIdx);
-}
-
-inline Eigen::Vector3d ErrorStateKalmanFilter::getGravVector() const
-{
-  return Eigen::Vector3d(0, 0, -getGravity());
+  return getGravity(x_);
 }
 
 inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM() const
@@ -294,9 +297,78 @@ inline void ErrorStateKalmanFilter::setQuaternion(const Eigen::Quaterniond& quat
   x_.segment<4>(kQuatIdx) = eigen_tools::quaternionToHamilton(quat).normalized();
 }
 
-inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const
+inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const StateVector& x) const
 {
-  return x_.segment<4>(kQuatIdx);
+  return x.segment<3>(kPosIdx);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(const StateVector& x) const
+{
+  return x.segment<3>(kVelIdx);
+}
+
+inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion(const StateVector& x) const
+{
+  return eigen_tools::hamiltonToQuaternion(getHamilton(x));
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias(const StateVector& x) const
+{
+  return x.segment<3>(kAccBiasIdx);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getGyroBias(const StateVector& x) const
+{
+  return x.segment<3>(kGyroBiasIdx);
+}
+
+inline double ErrorStateKalmanFilter::getGravity(const StateVector& x) const
+{
+  return x(kGravIdx);
+}
+
+inline Eigen::Matrix3d ErrorStateKalmanFilter::getDCM(const StateVector& x) const
+{
+  return getQuaternion(x).toRotationMatrix();
+}
+
+inline double ErrorStateKalmanFilter::getYaw(const StateVector& x) const
+{
+  const auto R_W_B = getDCM(x);
+  return atan2(R_W_B(1, 0), R_W_B(0, 0));
+}
+
+inline Eigen::Vector2d ErrorStateKalmanFilter::getXY(const StateVector& x) const
+{
+  return x.block<2, 1>(kPosIdx, 0);
+}
+
+inline double ErrorStateKalmanFilter::getAltitude(const StateVector& x) const
+{
+  return x(kAltIdx);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition(const StateVector& x, const Eigen::Vector3d& offset) const
+{
+  return getPosition(x) + getQuaternion(x) * offset;
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(
+  const StateVector& x,
+  const Eigen::Vector3d& offset,
+  const Eigen::Vector3d& gyro_meas) const
+{
+  return getVelocity(x) + getQuaternion(x) * (gyro_meas - getGyroBias(x)).cross(offset);
+}
+
+inline Eigen::Vector3d ErrorStateKalmanFilter::getGravVector(const StateVector& x) const
+{
+  return Eigen::Vector3d(0, 0, -getGravity(x));
+}
+
+inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton(const StateVector& x) const
+{
+  return x.segment<4>(kQuatIdx);
 }
 
 template <int M>

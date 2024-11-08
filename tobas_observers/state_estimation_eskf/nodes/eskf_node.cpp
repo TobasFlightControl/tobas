@@ -124,22 +124,6 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
 {
   getStaticRosParams();
 
-  // Initialize ESKF
-  const double init_acc_bias_stddev = do_acc_bias_estimation_ ? eskf::kInitAccBiasStddev : 0;
-  const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? eskf::kInitGyroBiasStddev : 0;
-  const double init_grav_stddev = do_grav_estimation_ ? eskf::kInitGravStddev : 0;
-  eskf_.initialize(
-    Vector3d::Zero(),                                                   // Init position
-    Vector3d::Zero(),                                                   // Init velocity
-    Quaterniond::Identity(),                                            // Init quaternion
-    Vector3d::Constant(math::sqr(eskf::kInitPosStddev)).asDiagonal(),   // Init position cov
-    Vector3d::Constant(math::sqr(eskf::kInitVelStddev)).asDiagonal(),   // Init velocity cov
-    Vector3d::Constant(math::sqr(eskf::kInitRotStddev)).asDiagonal(),   // Init rotation cov
-    Vector3d::Constant(math::sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
-    Vector3d::Constant(math::sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
-    math::sqr(init_grav_stddev)                                         // Init gravity var
-  );
-
   // Fill the static part of the transform message
   tf_.header.frame_id = tobas::kWorldFrame;
   tf_.child_frame_id = frame_id_;
@@ -319,29 +303,30 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
 {
   if (imu_ == nullptr)
   {
+    TOBAS_INFO("First IMU is received.");
+
+    // Initialize ESKF
+    const double init_acc_bias_stddev = do_acc_bias_estimation_ ? eskf::kInitAccBiasStddev : 0;
+    const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? eskf::kInitGyroBiasStddev : 0;
+    const double init_grav_stddev = do_grav_estimation_ ? eskf::kInitGravStddev : 0;
+    eskf_.initialize(
+      Vector3d::Zero(),                                                   // Init position
+      Vector3d::Zero(),                                                   // Init velocity
+      Quaterniond::Identity(),                                            // Init quaternion
+      Vector3d::Constant(math::sqr(eskf::kInitPosStddev)).asDiagonal(),   // Init position cov
+      Vector3d::Constant(math::sqr(eskf::kInitVelStddev)).asDiagonal(),   // Init velocity cov
+      Vector3d::Constant(math::sqr(eskf::kInitRotStddev)).asDiagonal(),   // Init rotation cov
+      Vector3d::Constant(math::sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
+      Vector3d::Constant(math::sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
+      math::sqr(init_grav_stddev),                                        // Init gravity var
+      ros2::chronoFromRosTime(imu->header.stamp));
+
     imu_ = imu;
     return;
   }
 
-  // Compute delta time
-  const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
+  // IMUメッセージを更新
   imu_ = imu;
-
-  // Check IMU time gap
-  if (dt == 0)
-  {
-    TOBAS_ERROR("The time gap between 2 IMU messages is 0.");
-    return;
-  }
-  if (dt < 0)
-  {
-    TOBAS_ERROR("The time gap between 2 IMU messages is negative: ", dt, " [s]");
-    return;
-  }
-  if (dt > eskf::kImuTimeGapThreshold)
-  {
-    TOBAS_WARN("The time gap between 2 IMU messages is too large: ", dt, " [s]");
-  }
 
   // 観測ノイズの分散を計算
   const auto acc_noise_var = imu->accel_covariance.diagonal().mean();
@@ -350,12 +335,12 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   // 事前予測
   eskf_.predictIMU(
     imu->accel.data, imu->gyro.data, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_,
-    grav_noise_var_, dt);
+    grav_noise_var_, ros2::chronoFromRosTime(imu->header.stamp));
 
   // 重力方向の観測
   // TODO: モデルから推定した動的加速度をセンサ加速度から引いたものを観測値とする
   const auto grav_cov = computeGravMeasCov(imu->accel.data, imu->accel_covariance);
-  eskf_.measureGravity(imu->accel.data, grav_cov);
+  eskf_.measureGravity(imu->accel.data, grav_cov, ros2::chronoFromRosTime(imu->header.stamp));
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
@@ -415,7 +400,7 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   yaw_std = max(yaw_std, 0.1);  // FIXME: ヨー角の分散が小さすぎると姿勢推定が不安定になる
   const auto yaw_var = math::sqr(yaw_std);
 
-  eskf_.measureYaw(yaw_meas, yaw_var);
+  eskf_.measureYaw(yaw_meas, yaw_var, ros2::chronoFromRosTime(mag->header.stamp));
 }
 
 void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
@@ -435,7 +420,7 @@ void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
 
   // TODO: bar_offsetを考慮
   const auto z_m = z_abs - alt_0_bar_;
-  eskf_.measureAltitude(z_m, z_var);
+  eskf_.measureAltitude(z_m, z_var, ros2::chronoFromRosTime(bar->header.stamp));
 }
 
 void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
@@ -481,7 +466,8 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
   // ESKFを更新
   const Vector3d imu2gps = gps_offset_ - imu_offset_;
   gps_anormaly_score_ = eskf_.measurePosVel(
-    pos_meas_, gps->position_covariance, gps->ground_speed.data, gps->velocity_covariance, imu2gps, imu_->gyro.data);
+    pos_meas_, gps->position_covariance, gps->ground_speed.data, gps->velocity_covariance, imu2gps, imu_->gyro.data,
+    ros2::chronoFromRosTime(gps->header.stamp));
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > eskf::kAnormalyScoreThreshold)

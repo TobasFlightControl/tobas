@@ -19,15 +19,15 @@ using namespace std_srvs::srv;
 
 class PreArmCheckerNode : public tobas::BaseNode
 {
-  static constexpr double kOdomCallbackInterval = 0.1;    // [s]
-  static constexpr double kPosDriftCheckTimeWindow = 5.;  // [s]
-  static constexpr double kPosDriftThresh = 1.;           // [m]
-  static constexpr double kCPUTempThresh = 80.;           // [degC] // TODO: もう少し下げる
-  static constexpr double kAttitudeThresh = M_PI / 6;     // [rad/s]
-  static constexpr double kHorPosStddevThresh = 1.;       // [m]
-  static constexpr double kVerPosStddevThresh = 2.;       // [m]
-  static constexpr double kRotStddevThresh = M_PI / 24;   // [rad]
-  static constexpr double kVelStddevThresh = 0.3;         // [m/s]
+  static constexpr double kOdomCallbackInterval = 0.1;   // [s]
+  static constexpr double kPosDriftThresh = 1.;          // [m]
+  static constexpr double kCPUTempThresh = 80.;          // [degC] // TODO: もう少し下げる
+  static constexpr double kAttitudeThresh = M_PI / 6;    // [rad/s]
+  static constexpr double kHorPosStddevThresh = 1.;      // [m]
+  static constexpr double kVerPosStddevThresh = 2.;      // [m]
+  static constexpr double kRotStddevThresh = M_PI / 24;  // [rad]
+  static constexpr double kVelStddevThresh = 0.3;        // [m/s]
+  static constexpr auto kPosDriftCheckTimeWindow = 5s;
   static constexpr auto kPreArmCheckTimerPeriod = 1s;
 
   using self = PreArmCheckerNode;

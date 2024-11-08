@@ -16,8 +16,8 @@ using namespace std;
 class LandServerNode : public tobas::BaseNode
 {
   static constexpr double kVerticalSpeed = 0.3;         // [m/s]
-  static constexpr double kTimeWindow = 5.;             // [s] 高度の変化を見る時間窓の長さ
   static constexpr double kStableAltitudeRange = 0.03;  // [m]
+  static constexpr auto kTimeWindow = 5s;               // 高度の変化を見る時間窓の長さ
 
   using self = LandServerNode;
   using super = tobas::BaseNode;

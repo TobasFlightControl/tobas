@@ -14,13 +14,13 @@ template <typename T>
 class TimestampedBuffer
 {
   using TimeType = std::chrono::steady_clock::time_point;
-  using DurationType = std::chrono::duration<double>;
+  using DurationType = std::chrono::milliseconds;
   using MapType = std::map<TimeType, T>;
 
 public:
-  explicit TimestampedBuffer(const double& expiry_duration) : expiry_duration_(expiry_duration)
+  explicit TimestampedBuffer(const DurationType& expiry_duration) : expiry_duration_(expiry_duration)
   {
-    assert(expiry_duration >= 0);
+    assert(expiry_duration >= DurationType(0));
   }
 
   void add(const TimeType& cur_time, const T& x)
@@ -77,15 +77,31 @@ public:
     return last()->second;
   }
 
+  /* 与えられた時刻以後の最初の値を取得する． */
+  const T& closestAfterValue(const TimeType& time) const
+  {
+    assert(map_.size() > 0);
+
+    // 与えられた時刻以後の最初の要素を取得
+    // XXX: lower_bound, upper_boundはキーを挟んでいるわけではなく，前者はキー以上，後者はキーより大きい要素を返す．
+    auto it = map_.lower_bound(time);
+
+    // 要素が古すぎる場合は最新の値を返す
+    if (it == map_.end())
+      --it;
+
+    return it->second;
+  }
+
 protected:
-  const double expiry_duration_;
+  const DurationType expiry_duration_;
   MapType map_;
   bool is_filled_ = false;
 
   void removeExpiredData(const TimeType& cur_time)
   {
     auto it = map_.begin();
-    while (it != map_.end() && DurationType(cur_time - it->first).count() > expiry_duration_)
+    while (it != map_.end() && cur_time - it->first > expiry_duration_)
     {
       it = map_.erase(it);  // Erase returns the iterator following the removed element
       is_filled_ = true;

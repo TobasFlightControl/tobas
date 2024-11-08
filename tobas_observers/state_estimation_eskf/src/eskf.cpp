@@ -10,13 +10,14 @@
 #define I3 Matrix3d::Identity()
 
 using namespace std;
+using namespace chrono;
 using namespace Eigen;
 
 namespace et = eigen_tools;
 
 namespace eskf
 {
-ErrorStateKalmanFilter::ErrorStateKalmanFilter()
+ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
 {
   PRINT_DEBUG("ErrorStateKalmanFilter::ErrorStateKalmanFilter");
 
@@ -49,7 +50,8 @@ void ErrorStateKalmanFilter::initialize(
   const Matrix3d& init_dtheta_cov,
   const Matrix3d& init_acc_bias_cov,
   const Matrix3d& init_gyro_bias_cov,
-  const double& init_grav_var)
+  const double& init_grav_var,
+  const steady_clock::time_point& time)
 {
   PRINT_DEBUG("ErrorStateKalmanFilter::initialize");
 
@@ -78,6 +80,9 @@ void ErrorStateKalmanFilter::initialize(
 
   // (270) ヤコビアンの不変部分を埋める
   F_x_.setIdentity();
+
+  t_last_imu_ = time;
+  x_history_.add(time, x_);
 }
 
 void ErrorStateKalmanFilter::predictIMU(
@@ -88,7 +93,7 @@ void ErrorStateKalmanFilter::predictIMU(
   const double& acc_bias_noise_var,
   const double& gyro_bias_noise_var,
   const double& grav_var,
-  const double& dt)
+  const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
 
@@ -97,20 +102,30 @@ void ErrorStateKalmanFilter::predictIMU(
   assert(acc_bias_noise_var >= 0);
   assert(gyro_bias_noise_var >= 0);
   assert(grav_var >= 0);
-  assert(dt > 0);  // クオータニオンの正規化のためにdt = 0を許容できない
 
-  const Matrix3d Rot = getDCM();
-  const Vector3d acc_B = acc_meas - getAccelBias();
+  // サンプリングタイムを計算して時刻を更新
+  const auto dt = duration<double>(time - t_last_imu_).count();
+  t_last_imu_ = time;
+
+  // クオータニオンの正規化のためにdt = 0を許容できない
+  if (dt <= 0)
+  {
+    cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << endl;
+    return;
+  }
+
+  const Matrix3d Rot = getDCM(x_);
+  const Vector3d acc_B = acc_meas - getAccelBias(x_);
   const Vector3d acc_W = Rot * acc_B;
-  const Vector3d delta_theta = (gyro_meas - getGyroBias()) * dt;
+  const Vector3d delta_theta = (gyro_meas - getGyroBias(x_)) * dt;
   const Quaterniond q_delta_theta = et::angleAxisToQuaternion(delta_theta);
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
   // x_.segment<3>(kPosIdx) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * math::sqr(dt);
   x_.segment<3>(kPosIdx) += getVelocity() * dt;  // 積分誤差が大きくなるため二階積分は考えない
-  x_.segment<3>(kVelIdx) += (acc_W + getGravVector()) * dt;
-  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(getQuaternion() * q_delta_theta).normalized();
+  x_.segment<3>(kVelIdx) += (acc_W + getGravVector(x_)) * dt;
+  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(getQuaternion(x_) * q_delta_theta).normalized();
 
   // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
@@ -132,66 +147,76 @@ void ErrorStateKalmanFilter::predictIMU(
   P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_noise_var;
   P_(kDeltaGravIdx, kDeltaGravIdx) += grav_var;
 
+  // 状態の履歴を保存
+  x_history_.add(time, x_);
+
   // NaN検出
   assertWithMsg(et::isFinite(x_), "Nominal state:" << x_.transpose());
   assertWithMsg(et::isFinite(F_x_), "F_x:\n" << F_x_);
   assertWithMsg(et::isFinite(P_), "Covariance matrix:\n" << P_);
 }
 
-double
-ErrorStateKalmanFilter::measurePosition(const Vector3d& pos_meas, const Matrix3d& pos_cov, const Vector3d& offset)
+double ErrorStateKalmanFilter::measurePosition(
+  const Vector3d& pos_meas,
+  const Matrix3d& pos_cov,
+  const Vector3d& offset,
+  const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosition");
 
-  const Vector3d delta_pos = pos_meas - getPosition(offset);
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const Vector3d delta_pos = pos_meas - getPosition(x, offset);
 
   // 姿勢による偏微分
-  const auto dqvq_dq = quatRotationDerivative(offset);
-  const auto Q_dtheta = getQ_dtheta();
+  const auto dqvq_dq = quatRotationDerivative(x, offset);
+  const auto Q_dtheta = getQ_dtheta(x);
   H_pos_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
   return correct(delta_pos, pos_cov, H_pos_);
 }
 
-double ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov)
+double
+ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov, const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureXY");
 
-  const Vector2d delta_xy = xy_meas - getXY();
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const Vector2d delta_xy = xy_meas - getXY(x);
   return correct(delta_xy, xy_cov, H_xy_);
 }
 
-double ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var)
+double
+ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var, const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureAltitude");
 
-  const double delta_z = z_meas - getAltitude();
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const double delta_z = z_meas - getAltitude(x);
   return correct(Scalard(delta_z), Scalard(z_var), H_z_);
-}
-
-double ErrorStateKalmanFilter::measureVelocity(const Vector3d& vel_meas, const Matrix3d& vel_cov)
-{
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
-
-  return measureVelocity(vel_meas, vel_cov, Vector3d::Zero(), Vector3d::Zero());
 }
 
 double ErrorStateKalmanFilter::measureVelocity(
   const Vector3d& vel_meas,
   const Matrix3d& vel_cov,
   const Vector3d& offset,
-  const Vector3d& gyro_meas)
+  const Vector3d& gyro_meas,
+  const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
 
-  const Vector3d gyro_nominal = gyro_meas - getGyroBias();
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
   const Vector3d gyro_offset = gyro_nominal.cross(offset);
-  const Vector3d vel_nominal = getVelocity() + getQuaternion() * gyro_offset;
+  const Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
   const Vector3d delta_vel = vel_meas - vel_nominal;
 
   // 姿勢による偏微分
-  const auto dqvq_dq = quatRotationDerivative(gyro_offset);
-  const auto Q_dtheta = getQ_dtheta();
+  const auto dqvq_dq = quatRotationDerivative(x, gyro_offset);
+  const auto Q_dtheta = getQ_dtheta(x);
   H_vel_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
   // ジャイロバイアスによる偏微分
@@ -206,22 +231,25 @@ double ErrorStateKalmanFilter::measurePosVel(
   const Vector3d& vel_meas,
   const Matrix3d& vel_cov,
   const Vector3d& offset,
-  const Vector3d& gyro_meas)
+  const Vector3d& gyro_meas,
+  const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosVel");
 
+  const auto x = x_history_.closestAfterValue(time);
+
   // 観測誤差
   Vector6d delta;
-  const Vector3d gyro_nominal = gyro_meas - getGyroBias();
+  const Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
   const Vector3d gyro_offset = gyro_nominal.cross(offset);
-  const Vector3d vel_nominal = getVelocity() + getQuaternion() * gyro_offset;
-  delta.head<3>() = pos_meas - getPosition(offset);  // 位置の誤差
-  delta.tail<3>() = vel_meas - vel_nominal;          // 速度の誤差
+  const Vector3d vel_nominal = getVelocity(x) + getQuaternion(x) * gyro_offset;
+  delta.head<3>() = pos_meas - getPosition(x, offset);  // 位置の誤差
+  delta.tail<3>() = vel_meas - vel_nominal;             // 速度の誤差
 
   // 観測方程式
-  const auto Q_dtheta = getQ_dtheta();
-  const auto pos_q_deriv = quatRotationDerivative(offset);
-  const auto vel_q_deriv = quatRotationDerivative(gyro_offset);
+  const auto Q_dtheta = getQ_dtheta(x);
+  const auto pos_q_deriv = quatRotationDerivative(x, offset);
+  const auto vel_q_deriv = quatRotationDerivative(x, gyro_offset);
   H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // 位置の姿勢による偏微分
   H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // 速度の姿勢による偏微分
   H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM() * et::crossMat(offset);
@@ -237,41 +265,35 @@ double ErrorStateKalmanFilter::measurePosVel(
   return correct(delta, cov, H_pv_);
 }
 
-double ErrorStateKalmanFilter::measureQuaternion(const Quaterniond& q_meas, const Matrix3d& theta_cov)
+double ErrorStateKalmanFilter::measureQuaternion(
+  const Quaterniond& q_meas,
+  const Matrix3d& theta_cov,
+  const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureQuaternion");
 
-  const Quaterniond q_nominal = getQuaternion();
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const Quaterniond q_nominal = getQuaternion(x);
   const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
   const Vector3d delta_theta = et::quaternionToAngleAxis(q_error);
 
   return correct(delta_theta, theta_cov, H_theta_);
 }
 
-double ErrorStateKalmanFilter::measureGravity(const Vector3d& acc_meas, const Matrix3d& grav_cov)
+double
+ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& yaw_var, const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureGravity");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureYaw");
 
-  const Matrix3d R_B_W = getDCM().transpose();
-  const Vector3d grav_B = R_B_W * getGravVector();
-  const Vector3d acc_ref = getAccelBias() - grav_B;  // 動的な加速度なしで観測されるべき加速度
-  const Vector3d delta_acc = acc_meas - acc_ref;
-
-  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::crossMat(grav_B);
-  H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
-  return correct(delta_acc, grav_cov, H_acc_);
-}
-
-double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& yaw_var)
-{
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
+  const auto& x = x_history_.closestAfterValue(time);
 
   // Compute innovation
-  const double delta_yaw = algo::wrapPi(yaw_meas - getYaw());
+  const double delta_yaw = algo::wrapPi(yaw_meas - getYaw(x));
 
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
   constexpr double kEpsilon = 1e-6;
-  const Quaterniond q = getQuaternion();
+  const Quaterniond q = getQuaternion(x);
 
   bool can_use_A = false;
   const double SA0 = 2 * q.z();
@@ -333,30 +355,49 @@ double ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& 
     return numeric_limits<double>::max();
   }
 
-  const auto Q_dtheta = getQ_dtheta();
+  const auto Q_dtheta = getQ_dtheta(x);
   H_mag_.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
 
   // Update the quaternion states and covariance matrix
   return correct(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
 }
 
-Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta() const
+double ErrorStateKalmanFilter::measureGravity(
+  const Vector3d& acc_meas,
+  const Matrix3d& grav_cov,
+  const steady_clock::time_point& time)
 {
-  const Vector4d qby2 = 0.5 * getHamilton();
-  const double& w = qby2(0);
-  const double& x = qby2(1);
-  const double& y = qby2(2);
-  const double& z = qby2(3);
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureGravity");
+
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const Matrix3d R_B_W = getDCM().transpose();
+  const Vector3d grav_B = R_B_W * getGravVector(x);
+  const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
+  const Vector3d delta_acc = acc_meas - acc_ref;
+
+  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::crossMat(grav_B);
+  H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
+  return correct(delta_acc, grav_cov, H_acc_);
+}
+
+Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
+{
+  const Vector4d qby2 = 0.5 * getHamilton(x);
+  const double& qw = qby2(0);
+  const double& qx = qby2(1);
+  const double& qy = qby2(2);
+  const double& qz = qby2(3);
 
   Matrix<double, 4, 3> Q_dtheta;
-  Q_dtheta << -x, -y, -z, w, -z, y, z, w, -x, -y, x, w;
+  Q_dtheta << -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw;
 
   return Q_dtheta;
 }
 
-Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const Vector3d& a) const
+Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Vector3d& a) const
 {
-  const Vector4d ham = getHamilton();
+  const Vector4d ham = getHamilton(x);
   const double& w = ham(0);
   const Vector3d v = ham.tail<3>();
 
