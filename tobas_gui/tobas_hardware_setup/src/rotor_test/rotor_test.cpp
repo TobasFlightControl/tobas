@@ -22,7 +22,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
   warning->setStyleSheet("color: red; font-weight: bold;");
 
   const auto instruction = new qt::DescriptionWidget(
-    "1. Connect the ESCs to the Navio2 in the correct order.\n\n"
+    "1. Connect the ESCs to the FC in the correct order.\n\n"
     "2. Press \"Start\" button.\n\n"
     "3. For all motors, confirm the followings:\n"
     "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
@@ -64,12 +64,12 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
 
 const char* RotorTestWidget::name() const
 {
-  return "Rotor Test";
+  return "Motor Test";
 }
 
 const char* RotorTestWidget::title() const
 {
-  return "Test Rotors";
+  return "Test Motors";
 }
 
 void RotorTestWidget::updateInternalDataStructures()
