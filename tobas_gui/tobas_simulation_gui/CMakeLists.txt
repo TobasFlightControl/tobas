@@ -22,12 +22,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
+find_package(tobas_drone_core REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
   tobas_ros2_tools
+  tobas_drone_core
   tobas_gazebo_msgs
   tobas_qt_tools
   tobas_gui_common
