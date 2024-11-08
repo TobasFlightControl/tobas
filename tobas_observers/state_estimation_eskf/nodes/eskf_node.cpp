@@ -54,7 +54,6 @@ private:
   double lon_0_;      // 経度のゼロ点 (Base Frame)
   double alt_0_gps_;  // GPS高度のゼロ点 (Base Frame)
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
-  double yaw_0_;      // ヨー角のゼロ点 (Base Frame)
 
   ImuMsg::ConstSharedPtr imu_;
   MagMsg::ConstSharedPtr mag_;
@@ -372,35 +371,14 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   if (imu_ == nullptr)
     return;
 
-  // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
-  const kdl::Rotation R_W_B(eskf_.getDCM());
-  const auto R_W_G = kdl::Rotation::RotZ(eskf_.getYaw());
-  const auto R_G_B = R_W_G.inverse() * R_W_B;
-  const auto mag_G = R_G_B * mag->magnetic_field;
-  const auto mx = mag_G.x();
-  const auto my = mag_G.y();
-
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
+  // これをしないと，ヨーの初期誤差によってロール，ピッチの推定が不安定になることがある．
   if (mag_ == nullptr && gps_ == nullptr)
-    yaw_0_ = atan2(my, mx);
+    eskf_.setReferenceMagneticField(mag->magnetic_field.data);
 
   mag_ = mag;
 
-  // ヨー角の観測値を計算
-  const auto yaw_meas = algo::wrapPi(yaw_0_ - atan2(my, mx));
-
-  // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
-  const auto mx_std = sqrt(mag->covariance(0, 0));
-  const auto my_std = sqrt(mag->covariance(1, 1));
-  double yaw_std;
-  if (mx > my)
-    yaw_std = (mx / (math::sqr(mx) + math::sqr(my))) * my_std;
-  else
-    yaw_std = (my / (math::sqr(mx) + math::sqr(my))) * mx_std;
-  yaw_std = max(yaw_std, 0.1);  // FIXME: ヨー角の分散が小さすぎると姿勢推定が不安定になる
-  const auto yaw_var = math::sqr(yaw_std);
-
-  eskf_.measureYaw(yaw_meas, yaw_var, ros2::chronoFromRosTime(mag->header.stamp));
+  eskf_.measureMagneticField(mag->magnetic_field.data, mag->covariance, ros2::chronoFromRosTime(mag->header.stamp));
 }
 
 void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
@@ -446,7 +424,8 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     // GPSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
     const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gps_, tobas_std::yearFraction());
-    yaw_0_ = atan2(-mag.east, mag.north);
+    Vector3d mag_ref(mag.north, -mag.east, -mag.down);  // NWU coordinates
+    eskf_.setReferenceMagneticField(mag_ref);
 
     // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない

@@ -220,7 +220,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   H_vel_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
   // ジャイロバイアスによる偏微分
-  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM() * et::crossMat(offset);
+  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::crossMat(offset);
 
   return correct(delta_vel, vel_cov, H_vel_);
 }
@@ -252,7 +252,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   const auto vel_q_deriv = quatRotationDerivative(x, gyro_offset);
   H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // 位置の姿勢による偏微分
   H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // 速度の姿勢による偏微分
-  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM() * et::crossMat(offset);
+  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::crossMat(offset);
 
   // 共分散
   Matrix6d cov;
@@ -281,15 +281,39 @@ double ErrorStateKalmanFilter::measureQuaternion(
   return correct(delta_theta, theta_cov, H_theta_);
 }
 
-double
-ErrorStateKalmanFilter::measureYaw(const double& yaw_meas, const double& yaw_var, const steady_clock::time_point& time)
+double ErrorStateKalmanFilter::measureMagneticField(
+  const Vector3d& mag_meas,
+  const Matrix3d& mag_cov,
+  const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureYaw");
+  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
 
   const auto& x = x_history_.closestAfterValue(time);
 
+  // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
+  const auto R_W_B = getDCM(x);
+  const auto yaw_pred = atan2(R_W_B(1, 0), R_W_B(0, 0));
+  const AngleAxisd R_W_G(yaw_pred, Vector3d::UnitZ());
+  const auto R_G_B = R_W_G.inverse() * R_W_B;
+  const auto mag_G = R_G_B * mag_meas;
+  const auto mx = mag_G.x();
+  const auto my = mag_G.y();
+
   // Compute innovation
-  const double delta_yaw = algo::wrapPi(yaw_meas - getYaw(x));
+  const auto yaw_ref = atan2(mag_ref_.y(), mag_ref_.x());
+  const auto yaw_meas = yaw_ref - atan2(my, mx);
+  const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
+
+  // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
+  const auto mx_std = sqrt(mag_cov(0, 0));
+  const auto my_std = sqrt(mag_cov(1, 1));
+  double yaw_std;
+  if (mx > my)
+    yaw_std = (mx / (math::sqr(mx) + math::sqr(my))) * my_std;
+  else
+    yaw_std = (my / (math::sqr(mx) + math::sqr(my))) * mx_std;
+  yaw_std = max(yaw_std, 0.1);  // FIXME: ヨー角の分散が小さすぎると姿勢推定が不安定になる
+  const auto yaw_var = math::sqr(yaw_std);
 
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
   constexpr double kEpsilon = 1e-6;
@@ -371,7 +395,7 @@ double ErrorStateKalmanFilter::measureGravity(
 
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Matrix3d R_B_W = getDCM().transpose();
+  const Matrix3d R_B_W = getDCM(x).transpose();
   const Vector3d grav_B = R_B_W * getGravVector(x);
   const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
   const Vector3d delta_acc = acc_meas - acc_ref;
