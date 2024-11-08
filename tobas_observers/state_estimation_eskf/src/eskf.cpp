@@ -294,8 +294,7 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const auto R_W_B = getDCM(x);
   const auto yaw_pred = atan2(R_W_B(1, 0), R_W_B(0, 0));
   const AngleAxisd R_W_G(yaw_pred, Vector3d::UnitZ());
-  const auto R_G_B = R_W_G.inverse() * R_W_B;
-  const auto mag_G = R_G_B * mag_meas;
+  const auto mag_G = R_W_G.inverse() * (R_W_B * mag_meas);  // 後ろから計算することで計算量を削減
   const auto mx = mag_G.x();
   const auto my = mag_G.y();
 
