@@ -21,6 +21,13 @@ static constexpr double kMaxThrot = 1.;  // The maximum throttle
 static constexpr double kRCInputMin = -1.;
 static constexpr double kRCInputMax = 1.;
 
+// Rotor speed control
+static constexpr int kMinRotorCtrlGain = 0;
+static constexpr int kMaxRotorCtrlGain = 30;
+
+// ROS parameters
+static constexpr char kRotorControlGainParamPrefix[] = "rotor_control_gain_";
+
 // ROS topics
 static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
 static constexpr char kMessageTopic[] = "message";

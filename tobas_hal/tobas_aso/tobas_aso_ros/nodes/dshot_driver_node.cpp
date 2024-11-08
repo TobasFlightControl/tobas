@@ -10,8 +10,6 @@
 
 #include <tobas_aso_core/dshot.hpp>
 
-#define SPEED_CONTROL_GAIN 18  // TODO: ユーザが調整できるように
-
 class DShotDriverNode : public tobas::BaseNode
 {
   using self = DShotDriverNode;
@@ -48,6 +46,12 @@ private:
   void publishArming();
   bool stopRotors();
 
+  template <size_t N>
+  void addGainParams();
+
+  template <size_t Channel>
+  bool controlGainCb(const long& p);
+
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
@@ -61,17 +65,7 @@ private:
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("aso_dshot_driver", options)
 {
-  cur_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
-  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
-
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
-  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
-
-  set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
-
-  publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this);
-  auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
 }
 
 bool DShotDriverNode::transferAndSleep()
@@ -122,6 +116,36 @@ bool DShotDriverNode::stopRotors()
   if (!dshot_.transfer())
   {
     TOBAS_ERROR("Failed to stop rotors.");
+    return false;
+  }
+
+  return true;
+}
+
+template <size_t N>
+void DShotDriverNode::addGainParams()
+{
+  if constexpr (N > 0)
+  {
+    const auto name = tobas::kRotorControlGainParamPrefix + to_string(N - 1);
+    addDynamicIntParam(name, &self::controlGainCb<N - 1>, this, 0, tobas::kMinRotorCtrlGain, tobas::kMaxRotorCtrlGain);
+
+    addGainParams<N - 1>();
+  }
+}
+
+template <size_t Channel>
+bool DShotDriverNode::controlGainCb(const long& p)
+{
+  if (!dshot_.setSpeedControlGain(Channel, p))
+  {
+    TOBAS_ERROR("Failed to set control gain on channel ", Channel, ".");
+    return false;
+  }
+
+  if (!dshot_.transfer())
+  {
+    TOBAS_ERROR("SPI communication failed.");
     return false;
   }
 
@@ -204,20 +228,23 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (!transferAndSleep())
     return;
 
-  // Set speed control gains
-  for (const auto& rotor : drone->rotors)
-  {
-    if (!dshot_.setSpeedControlGain(rotor.channel, SPEED_CONTROL_GAIN))
-    {
-      TOBAS_ERROR("Failed to set the speed control gain of channel ", rotor.channel, ".");
-      return;
-    }
-  }
-  if (!transferAndSleep())
-    return;
+  // Register dynamic parameters
+  addGainParams<aso::DShot::kChannelSize>();  // コンパイル時に全チャンネルの登録操作を展開
 
-  // Start auto-stop timer
-  auto_stop_timer_->reset();
+  // Resister publishers
+  cur_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
+  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
+
+  // Resister subscribers
+  tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
+  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
+
+  // Resister service servers
+  set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
+
+  // Start timers
+  publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this);
+  auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this);
 
   drone_ = drone;
   TOBAS_INFO("Rotor speed controller is initialized.");
@@ -225,12 +252,6 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
-  if (drone_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
-    return;
-  }
-
   if (!is_armed_)
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the rotors are disarmed.");
