@@ -129,7 +129,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
-  addDynamicIntParam("dynamic_accel_stddev_scale", &self::dynamicAccelStdDevScaleCb, this, 10, 1, 100);
+  addDynamicIntParam("dynamic_accel_stddev_scale", &self::dynamicAccelStdDevScaleCb, this, 100, 1, 500);
   addDynamicIntParam("acc_bias_noise_var_log10", &self::accBiasNoiseVarianceLog10Cb, this, -5, -12, 0);
   addDynamicIntParam("gyro_bias_noise_var_log10", &self::gyroBiasNoiseVarianceLog10Cb, this, -9, -12, 0);
   addDynamicIntParam("gravity_noise_var_log10", &self::gravityNoiseVarianceLog10Cb, this, -7, -12, 0);
