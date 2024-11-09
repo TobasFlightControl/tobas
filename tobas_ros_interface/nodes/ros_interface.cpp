@@ -1,4 +1,5 @@
 #include <std_msgs/msg/bool.hpp>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
@@ -114,6 +115,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_msgs::srv::BagRecordStop>(tobas::kROSBagRecordStopSrv);
   addService<tobas_msgs::srv::GetRotorControlGains>(tobas::kGetRotorControlGainsSrv);
   addService<tobas_msgs::srv::SetRotorControlGains>(tobas::kSetRotorControlGainsSrv);
+  addService<std_srvs::srv::Trigger>(tobas::kSaveRotorControlGainsSrv);
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kControllerNode, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kObserverNode, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetIMUParams>(real::handler::imu::kSetParamSrv);
