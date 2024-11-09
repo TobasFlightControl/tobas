@@ -69,7 +69,7 @@ private:
   // Maximum frequency of the slave transmitter is determined by sum of Tv(SO) and Tsu(MI) intervals
   // which has to fit into SCK level phase preceding the SCK sampling edge.
   // This value can be achieved when it communicates with a Master having Tsu(MI) = 0 while signal Duty(SCK) = 50%.
-  static constexpr uint32_t kSpiClockFreq = 45'000'000;
+  static constexpr uint32_t kSpiClockFreq = 37'000'000;
 
 public:
   explicit DShot();
