@@ -25,9 +25,6 @@ static constexpr double kRCInputMax = 1.;
 static constexpr int kMinRotorCtrlGain = 0;
 static constexpr int kMaxRotorCtrlGain = 30;
 
-// ROS parameters
-static constexpr char kRotorControlGainParamPrefix[] = "rotor_control_gain_";
-
 // ROS topics
 static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
 static constexpr char kMessageTopic[] = "message";
@@ -92,6 +89,9 @@ static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kROSBagRecordStartSrv[] = "rosbag_record_start";
 static constexpr char kROSBagRecordStopSrv[] = "rosbag_record_stop";
 static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
+static constexpr char kGetRotorControlGainsSrv[] = "get_rotor_control_gains";
+static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
+static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";

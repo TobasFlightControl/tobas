@@ -8,18 +8,16 @@
 #include "tobas_hardware_setup/rotor_test/rotor_test.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
-using namespace std;
-
 namespace gui
 {
 namespace hardware_setup
 {
-RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone), spinner_(Qt::WindowModal, this), arm_thread_(node, true), disarm_thread_(node, false)
+RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone) : node_(node), drone_(drone)
 {
   const auto warning =
     new qt::DescriptionWidget("Warning: Ensure that propellers are removed from motors.\n\n", kBodyPSize);
   warning->setStyleSheet("color: red; font-weight: bold;");
+  rows_->addWidget(warning);
 
   const auto instruction = new qt::DescriptionWidget(
     "1. Connect the ESCs to the FC in the correct order.\n\n"
@@ -31,35 +29,44 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
     "   - Two motors of the same model produce roughly the same sound level at the same command RPM.\n\n"
     "4. Press \"Stop\" button.\n\n",
     kBodyPSize);
+  rows_->addWidget(instruction);
+
+  const auto button_cols = new QHBoxLayout();
+  rows_->addLayout(button_cols);
 
   start_button_ = new QPushButton("Start");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
   start_button_->setEnabled(true);
+  button_cols->addWidget(start_button_);
+  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
 
   stop_button_ = new QPushButton("Stop");
   stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
   stop_button_->setEnabled(false);
+  button_cols->addWidget(stop_button_);
+  connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
 
-  speeds_publisher_ = new RotorSpeedsPublisherWidget(node_, drone_);
+  save_button_ = new QPushButton("Save");
+  save_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  save_button_->setEnabled(false);
+  button_cols->addWidget(save_button_);
+  connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
+
+  button_cols->addStretch();
+
+  const auto rotor_cols = new QHBoxLayout();
+  rows_->addLayout(rotor_cols);
+
+  for (size_t ch = 0; ch < kChannelSize; ++ch)
+  {
+    rotors_.at(ch) = new RotorWidget();
+    rotor_cols->addWidget(rotors_.at(ch));
+    connect(
+      rotors_.at(ch), &RotorWidget::targetRPMChanged, bind(&self::onTargetRPMChanged, this, placeholders::_1, ch));
+    connect(rotors_.at(ch), &RotorWidget::gainChanged, bind(&self::onGainChanged, this, placeholders::_1, ch));
+  }
 
   setEnabled(false);
-
-  // Layout
-  rows_->addWidget(warning);
-  rows_->addWidget(instruction);
-  const auto cols = new QHBoxLayout();
-  rows_->addLayout(cols);
-  cols->addWidget(start_button_);
-  cols->addWidget(stop_button_);
-  cols->addStretch();
-  rows_->addWidget(speeds_publisher_);
-  rows_->addStretch();
-
-  // Connections
-  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(&arm_thread_, &SetArmThread::finished, this, &self::onArmFinished);
-  connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
-  connect(&disarm_thread_, &SetArmThread::finished, this, &self::onDisarmFinished);
 }
 
 const char* RotorTestWidget::name() const
@@ -75,20 +82,150 @@ const char* RotorTestWidget::title() const
 void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
-  speeds_publisher_->updateInternalDataStructures();
+
+  // モータとして登録されているチャンネルの設定
+  std::unordered_set<size_t> rotor_channels;
+  for (const auto& rotor : drone_.rotors)
+  {
+    const auto& ch = rotor.channel;
+    rotor_channels.insert(ch);
+    rotors_.at(ch)->setText("CH" + QString::number(ch) + ": " + QString::fromStdString(rotor.link_name));
+    rotors_.at(ch)->setMaximumRPM(tobas_std::rps2rpm(rotor.max_rot_speed));
+    rotors_.at(ch)->setEnabled(true);
+  }
+
+  // モータとして登録されていないチャンネルを無効化
+  for (size_t ch = 0; ch < kChannelSize; ++ch)
+  {
+    if (rotor_channels.contains(ch))
+      continue;
+    rotors_.at(ch)->setText("CH" + QString::number(ch) + ": unregistered");
+    rotors_.at(ch)->setEnabled(false);
+  }
+
+  tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
+  cur_speeds_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsTopic), &self::currentSpeedsCb, this);
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
+
+  set_arm_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetArmSrv));
+  get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kGetRotorControlGainsSrv));
+  set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetRotorControlGainsSrv));
+  save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSaveRotorControlGainsSrv));
+
   setEnabled(true);
 }
 
 void RotorTestWidget::reset()
 {
-  speeds_publisher_->stop();
+  // モータウィジェットを無効化
+  for (const auto& rotor : drone_.rotors)
+  {
+    rotors_.at(rotor.channel)->setCurrentRPM(0);
+    rotors_.at(rotor.channel)->setTargetRPM(0);
+    rotors_.at(rotor.channel)->setGain(0);
+    rotors_.at(rotor.channel)->setEnabled(false);
+  }
+
+  // タイマーを停止
+  if (publish_timer_ != nullptr)
+    publish_timer_->cancel();
 
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
+  save_button_->setEnabled(false);
 
   is_running_ = false;
+}
+
+void RotorTestWidget::publishTargetSppeds()
+{
+  if (tar_speeds_pub_ == nullptr)
+  {
+    RCLCPP_ERROR(node_->get_logger(), "Publisher is not registered.");
+    return;
+  }
+
+  auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
+  tar_speeds->header.stamp = node_->get_clock()->now();
+  tar_speeds->speeds.resize(drone_.numRotors());
+
+  for (const auto& rotor : drone_.rotors)
+  {
+    tar_speeds->speeds.emplace_back();
+    tar_speeds->speeds.back().channel = rotor.channel;
+    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotors_.at(rotor.channel)->getCurrentRPM());
+  }
+
+  tar_speeds_pub_->publish(std::move(tar_speeds));
+}
+
+bool RotorTestWidget::loadCurrentGains()
+{
+  const auto req = std::make_shared<tobas_msgs::srv::GetRotorControlGains::Request>();
+  if (!get_gains_sc_->call(req, kWaitForService))
+  {
+    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    return false;
+  }
+
+  const auto res = get_gains_sc_->getResponse();
+  const auto& gains = res->gains;
+  for (const auto& rotor : drone_.rotors)
+  {
+    if (rotor.channel >= gains.size())
+    {
+      qt::qErrorBox(this, "Rotor channel " + QString::number(rotor.channel) + " is out of range.");
+      return false;
+    }
+    rotors_.at(rotor.channel)->setGain(gains.at(rotor.channel));
+  }
+
+  return true;
+}
+
+bool RotorTestWidget::armRotors(bool arming)
+{
+  const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
+  req->arming = arming;
+  req->ignore_prearm_check = true;
+  if (!set_arm_sc_->call(req, kWaitForService))
+  {
+    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    return false;
+  }
+
+  const auto res = set_arm_sc_->getResponse();
+  if (!res->success)
+  {
+    qt::qErrorBox(this, "Arming service failed: " + QString::fromStdString(res->message));
+    return false;
+  }
+
+  return true;
+}
+
+void RotorTestWidget::currentSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& cur_speeds)
+{
+  if (!is_running_)
+    return;
+
+  for (const auto& speed : cur_speeds->speeds)
+  {
+    if (speed.channel >= rotors_.size())
+    {
+      RCLCPP_WARN_STREAM(node_->get_logger(), "Rotor channel " << (int)speed.channel << " is out of range.");
+      continue;
+    }
+
+    rotors_.at(speed.channel)->setCurrentRPM(tobas_std::rps2rpm(speed.speed));
+  }
 }
 
 void RotorTestWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
@@ -110,28 +247,24 @@ void RotorTestWidget::onStartButtonClicked()
     return;
   }
 
-  spinner_.show();
-  spinner_.start();
-
-  arm_thread_.setNamespace(drone_.name);
-  arm_thread_.start();
-}
-
-void RotorTestWidget::onArmFinished(bool success, const QString& message)
-{
-  spinner_.hide();
-  spinner_.stop();
-
-  if (!success)
-  {
-    qt::qErrorBox(this, message);
+  // 現在のゲインを反映
+  if (!loadCurrentGains())
     return;
-  }
 
-  speeds_publisher_->start();
+  // モータを起動
+  if (!armRotors(true))
+    return;
+
+  // モータウィジェットを有効化
+  for (const auto& rotor : drone_.rotors)
+    rotors_.at(rotor.channel)->setEnabled(true);
+
+  // モータが停止しないよう一定周期でコマンドを発行し続ける
+  publish_timer_ = ros2::createTimer(node_, kPublishPeriod, &self::publishTargetSppeds, this);
 
   start_button_->setEnabled(false);
   stop_button_->setEnabled(true);
+  save_button_->setEnabled(true);
 
   is_running_ = true;
 
@@ -140,24 +273,60 @@ void RotorTestWidget::onArmFinished(bool success, const QString& message)
 
 void RotorTestWidget::onStopButtonClicked()
 {
-  spinner_.show();
-  spinner_.start();
+  // モータを停止
+  if (!armRotors(false))
+    return;
 
-  disarm_thread_.setNamespace(drone_.name);
-  disarm_thread_.start();
-}
-
-void RotorTestWidget::onDisarmFinished(bool success, const QString& message)
-{
-  spinner_.hide();
-  spinner_.stop();
-
+  // ウィジェットを初期化
   reset();
 
-  if (success)
-    qt::qInfoBox(this, "Rotor test is finished.");
-  else
-    qt::qErrorBox(this, message);
+  qt::qInfoBox(this, "Rotor test is finished.");
+}
+
+void RotorTestWidget::onSaveButtonClicked()
+{
+  const auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
+
+  if (!save_gains_sc_->call(req, kWaitForService))
+  {
+    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    return;
+  }
+
+  const auto res = set_gains_sc_->getResponse();
+  if (!res->success)
+  {
+    qt::qErrorBox(this, "Failed to save control gains: " + QString::fromStdString(res->message));
+    return;
+  }
+
+  qt::qInfoBox(this, "Control gains are saved successfully.");
+}
+
+void RotorTestWidget::onTargetRPMChanged(int, size_t)
+{
+  publishTargetSppeds();
+}
+
+void RotorTestWidget::onGainChanged(int gain, size_t ch)
+{
+  const auto req = std::make_shared<tobas_msgs::srv::SetRotorControlGains::Request>();
+  req->gains.emplace_back();
+  req->gains.back().channel = ch;
+  req->gains.back().gain = gain;
+
+  if (!set_gains_sc_->call(req, kWaitForService))
+  {
+    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
+    return;
+  }
+
+  const auto res = set_gains_sc_->getResponse();
+  if (!res->success)
+  {
+    qt::qErrorBox(this, "Failed to set control gains: " + QString::fromStdString(res->message));
+    return;
+  }
 }
 }  // namespace hardware_setup
 }  // namespace gui

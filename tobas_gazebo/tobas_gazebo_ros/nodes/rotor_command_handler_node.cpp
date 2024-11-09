@@ -144,7 +144,6 @@ void RotorCommandHandlerNode::setArmCb(
       {
         res->success = false;
         res->message = "Pre-arm check status is not received yet.";
-        TOBAS_ERROR(res->message);
         return;
       }
 
@@ -152,7 +151,6 @@ void RotorCommandHandlerNode::setArmCb(
       {
         res->success = false;
         res->message = "Pre-arm check failed.";
-        TOBAS_ERROR(res->message);
         return;
       }
     }

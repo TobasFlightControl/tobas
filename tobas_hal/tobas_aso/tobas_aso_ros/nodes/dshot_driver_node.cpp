@@ -1,11 +1,16 @@
 #include <std_msgs/msg/bool.hpp>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
+#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs/srv/get_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 #include <tobas_aso_core/dshot.hpp>
@@ -14,9 +19,14 @@ class DShotDriverNode : public tobas::BaseNode
 {
   using self = DShotDriverNode;
   using super = tobas::BaseNode;
+  using SetArm = tobas_msgs::srv::SetArm;
+  using GetGains = tobas_msgs::srv::GetRotorControlGains;
+  using SetGains = tobas_msgs::srv::SetRotorControlGains;
+  using SaveGains = std_srvs::srv::Trigger;
 
   static constexpr auto kSPIInterval = 1ms;
   static constexpr auto kAutoStopTimeThresh = 200ms;  // 最低でも5Hzでスロットルを送る
+  static constexpr char kGainKeyPrefix[] = "speed_control_gain_";
 
 public:
   explicit DShotDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -24,6 +34,8 @@ public:
 private:
   aso::DShot dshot_;
 
+  ptree::PropertyTree pt_;
+  std::array<uint8_t, aso::DShot::kChannelSize> gains_ = { 0 };
   bool is_armed_ = false;
   bool is_commanded_ = false;
   tobas::Drone::ConstSharedPtr drone_;
@@ -36,7 +48,10 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
 
-  ros2::ServiceServerPtr<tobas_msgs::srv::SetArm> set_arm_ss_;
+  ros2::ServiceServerPtr<SetArm> set_arm_ss_;
+  ros2::ServiceServerPtr<GetGains> get_gains_ss_;
+  ros2::ServiceServerPtr<SetGains> set_gains_ss_;
+  ros2::ServiceServerPtr<SaveGains> save_gains_ss_;
 
   ros2::TimerPtr publish_arm_status_timer_;
   ros2::TimerPtr auto_stop_timer_;
@@ -46,25 +61,26 @@ private:
   void publishArming();
   bool stopRotors();
 
-  template <size_t N>
-  void addGainParams();
-
-  template <size_t Channel>
-  bool controlGainCb(const long& p);
-
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 
-  void setArmCb(
-    const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
-    const tobas_msgs::srv::SetArm::Response::SharedPtr& res);
+  void setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res);
+  void getGainsCb(const GetGains::Request::ConstSharedPtr& req, const GetGains::Response::SharedPtr& res);
+  void setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res);
+  void saveGainsCb(const SaveGains::Request::ConstSharedPtr& req, const SaveGains::Response::SharedPtr& res);
 
   void autoStopTimerCb();
 };
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("aso_dshot_driver", options)
 {
+  if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
+  {
+    TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
+    return;
+  }
+
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
 }
 
@@ -116,36 +132,6 @@ bool DShotDriverNode::stopRotors()
   if (!dshot_.transfer())
   {
     TOBAS_ERROR("Failed to stop rotors.");
-    return false;
-  }
-
-  return true;
-}
-
-template <size_t N>
-void DShotDriverNode::addGainParams()
-{
-  if constexpr (N > 0)
-  {
-    const auto name = tobas::kRotorControlGainParamPrefix + to_string(N - 1);
-    addDynamicIntParam(name, &self::controlGainCb<N - 1>, this, 0, tobas::kMinRotorCtrlGain, tobas::kMaxRotorCtrlGain);
-
-    addGainParams<N - 1>();
-  }
-}
-
-template <size_t Channel>
-bool DShotDriverNode::controlGainCb(const long& p)
-{
-  if (!dshot_.setSpeedControlGain(Channel, p))
-  {
-    TOBAS_ERROR("Failed to set control gain on channel ", Channel, ".");
-    return false;
-  }
-
-  if (!dshot_.transfer())
-  {
-    TOBAS_ERROR("SPI communication failed.");
     return false;
   }
 
@@ -228,8 +214,27 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (!transferAndSleep())
     return;
 
-  // Register dynamic parameters
-  addGainParams<aso::DShot::kChannelSize>();  // コンパイル時に全チャンネルの登録操作を展開
+  // Load and set the speed control gains
+  for (const auto& rotor : drone->rotors)
+  {
+    if (rotor.channel >= aso::DShot::kChannelSize)
+    {
+      TOBAS_ERROR("Rotor channel ", rotor.channel, " is out of range.");
+      continue;
+    }
+    if (!pt_.get(kGainKeyPrefix + std::to_string(rotor.channel), gains_.at(rotor.channel)))
+    {
+      TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", rotor.channel, ".");
+      continue;
+    }
+    if (!dshot_.setSpeedControlGain(rotor.channel, gains_.at(rotor.channel)))
+    {
+      TOBAS_ERROR("Failed to set the rotor speed control gain of channel ", rotor.channel, ".");
+      continue;
+    }
+  }
+  if (!transferAndSleep())
+    return;
 
   // Resister publishers
   cur_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
@@ -240,7 +245,10 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
 
   // Resister service servers
-  set_arm_ss_ = createService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
+  set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
+  get_gains_ss_ = createService<GetGains>(tobas::kGetRotorControlGainsSrv, &self::getGainsCb, this);
+  set_gains_ss_ = createService<SetGains>(tobas::kSetRotorControlGainsSrv, &self::setGainsCb, this);
+  save_gains_ss_ = createService<SaveGains>(tobas::kSaveRotorControlGainsSrv, &self::saveGainsCb, this);
 
   // Start timers
   publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this);
@@ -296,12 +304,8 @@ void DShotDriverNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSha
   prearm_check_ = prearm_check;
 }
 
-void DShotDriverNode::setArmCb(
-  const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
-  const tobas_msgs::srv::SetArm::Response::SharedPtr& res)
+void DShotDriverNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res)
 {
-  TOBAS_INFO("Set arm requested.");
-
   if (!is_armed_ && req->arming)
   {
     if (!req->ignore_prearm_check)
@@ -310,7 +314,6 @@ void DShotDriverNode::setArmCb(
       {
         res->success = false;
         res->message = "Pre-arm check status is not received yet.";
-        TOBAS_ERROR(res->message);
         return;
       }
 
@@ -318,7 +321,6 @@ void DShotDriverNode::setArmCb(
       {
         res->success = false;
         res->message = "Pre-arm check failed.";
-        TOBAS_ERROR(res->message);
         return;
       }
     }
@@ -334,6 +336,54 @@ void DShotDriverNode::setArmCb(
   }
 
   res->success = true;
+}
+
+void DShotDriverNode::getGainsCb(const GetGains::Request::ConstSharedPtr&, const GetGains::Response::SharedPtr& res)
+{
+  res->gains.assign(gains_.begin(), gains_.end());
+}
+
+void DShotDriverNode::setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res)
+{
+  for (const auto& gain : req->gains)
+  {
+    if (dshot_.setSpeedControlGain(gain.channel, gain.gain))
+    {
+      res->success = false;
+      res->message = "Rotor control gain of channel " + to_string((int)gain.channel) + " is rejected.";
+      return;
+    }
+    gains_.at(gain.channel) = gain.gain;
+  }
+
+  if (!dshot_.transfer())
+  {
+    res->success = false;
+    res->message = "SPI communication with DShot driver is failed.";
+    return;
+  }
+
+  res->success = true;
+  res->message.clear();
+}
+
+void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, const SaveGains::Response::SharedPtr& res)
+{
+  for (size_t ch = 0; ch < aso::DShot::kChannelSize; ++ch)
+  {
+    const auto key = kGainKeyPrefix + std::to_string(ch);
+    pt_.set(key, gains_.at(ch));
+  }
+
+  if (!pt_.save())
+  {
+    res->success = false;
+    res->message = "Failed to save gains.";
+    return;
+  }
+
+  res->success = true;
+  res->message.clear();
 }
 
 void DShotDriverNode::autoStopTimerCb()

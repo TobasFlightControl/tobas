@@ -19,6 +19,8 @@
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_msgs/srv/get_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_hal_msgs/msg/imu.hpp>
 #include <tobas_hal_msgs/msg/magnetic_field.hpp>
@@ -110,6 +112,8 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_msgs::srv::SetGnssOrigin>(tobas::kSetGnssOriginSrv);
   addService<tobas_msgs::srv::BagRecordStart>(tobas::kROSBagRecordStartSrv);
   addService<tobas_msgs::srv::BagRecordStop>(tobas::kROSBagRecordStopSrv);
+  addService<tobas_msgs::srv::GetRotorControlGains>(tobas::kGetRotorControlGainsSrv);
+  addService<tobas_msgs::srv::SetRotorControlGains>(tobas::kSetRotorControlGainsSrv);
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kControllerNode, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kObserverNode, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetIMUParams>(real::handler::imu::kSetParamSrv);

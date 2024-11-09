@@ -5,7 +5,7 @@ import QtQuick.Controls.Styles 1.4
 Rectangle {
   id: rectangle
 
-  // CircularGauge: https://doc.qt.io/qt-5/qml-qtquick-extras-circulargauge.html#stepSize-prop
+  // CircularGauge: https://doc.qt.io/qt-5/qml-qtquick-extras-circulargauge.html
   CircularGauge {
     id: gauge
     objectName: "gauge"
