@@ -127,9 +127,7 @@ void RotorTestWidget::reset()
   // モータウィジェットを無効化
   for (const auto& rotor : drone_.rotors)
   {
-    rotors_.at(rotor.channel)->setCurrentRPM(0);
-    rotors_.at(rotor.channel)->setTargetRPM(0);
-    rotors_.at(rotor.channel)->setGain(0);
+    rotors_.at(rotor.channel)->reset();
     rotors_.at(rotor.channel)->setEnabled(false);
   }
 
@@ -154,13 +152,12 @@ void RotorTestWidget::publishTargetSppeds()
 
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
   tar_speeds->header.stamp = node_->get_clock()->now();
-  tar_speeds->speeds.resize(drone_.numRotors());
 
   for (const auto& rotor : drone_.rotors)
   {
     tar_speeds->speeds.emplace_back();
     tar_speeds->speeds.back().channel = rotor.channel;
-    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotors_.at(rotor.channel)->getCurrentRPM());
+    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotors_.at(rotor.channel)->getTargetRPM());
   }
 
   tar_speeds_pub_->publish(std::move(tar_speeds));

@@ -25,6 +25,8 @@ Q_SIGNALS:
 public:
   explicit RotorWidget();
 
+  void reset();
+
   QString getText() const;
   int getCurrentRPM() const;
   int getTargetRPM() const;
@@ -44,6 +46,8 @@ private:
   QLineEdit* cur_rpm_box_;
   QLineEdit* tar_rpm_box_;
   QLineEdit* gain_box_;
+
+  QString rpmToText(int rpm);
 
 private Q_SLOTS:
   void onTargetRPMChanged(int rpm);

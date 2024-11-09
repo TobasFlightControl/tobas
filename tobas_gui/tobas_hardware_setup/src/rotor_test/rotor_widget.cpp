@@ -69,6 +69,21 @@ RotorWidget::RotorWidget()
   connect(gain_slider_, &qt::Slider::valueChanged, this, &self::onGainChanged);
 }
 
+void RotorWidget::reset()
+{
+  blockSignals(true);
+
+  text_->clear();
+  cur_rpm_bar_->setValue(0);
+  tar_rpm_slider_->setValue(0);
+  gain_slider_->setValue(0);
+  cur_rpm_box_->clear();
+  tar_rpm_box_->clear();
+  gain_box_->clear();
+
+  blockSignals(false);
+}
+
 QString RotorWidget::getText() const
 {
   return text_->text();
@@ -103,13 +118,13 @@ void RotorWidget::setMaximumRPM(int rpm)
 void RotorWidget::setCurrentRPM(int rpm)
 {
   cur_rpm_bar_->setValue(rpm);
-  cur_rpm_box_->setText(QString::number(rpm) + " RPM");
+  cur_rpm_box_->setText(rpmToText(rpm));
 }
 
 void RotorWidget::setTargetRPM(int rpm)
 {
   tar_rpm_slider_->setValue(rpm);
-  tar_rpm_box_->setText(QString::number(rpm) + " RPM");
+  tar_rpm_box_->setText(rpmToText(rpm));
 }
 
 void RotorWidget::setGain(int gain)
@@ -118,13 +133,20 @@ void RotorWidget::setGain(int gain)
   gain_box_->setText(QString::number(gain));
 }
 
+QString RotorWidget::rpmToText(int rpm)
+{
+  return QString::number(rpm) + " RPM";
+}
+
 void RotorWidget::onTargetRPMChanged(int rpm)
 {
+  tar_rpm_box_->setText(rpmToText(rpm));
   Q_EMIT targetRPMChanged(rpm);
 }
 
 void RotorWidget::onGainChanged(int gain)
 {
+  gain_box_->setText(QString::number(gain));
   Q_EMIT gainChanged(gain);
 }
 }  // namespace hardware_setup
