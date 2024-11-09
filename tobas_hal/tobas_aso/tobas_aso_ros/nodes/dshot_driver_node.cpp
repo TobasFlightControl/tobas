@@ -391,6 +391,8 @@ void DShotDriverNode::autoStopTimerCb()
   if (!stopRotors())
     return;
 
+  publishCurrentSpeeds();
+
   if (is_commanded_)
   {
     is_commanded_ = false;
