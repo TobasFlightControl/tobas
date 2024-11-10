@@ -254,10 +254,8 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
     }
 
     for (size_t i = 0; i < indexes.size(); ++i)
-    {
       if (!indexes.contains(static_cast<int>(i)))
         TOBAS_EXIT("controlSurface channel mismatch.");
-    }
   }
 
   // index順に並べ替える
