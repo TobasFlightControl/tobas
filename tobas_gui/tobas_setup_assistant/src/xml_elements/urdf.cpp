@@ -267,7 +267,7 @@ void addFixedWingPlugin(
   for (const auto& cs : control_surfaces)
   {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
-    cs_elem->InsertNewChildElement("index")->SetText(cs.channel);
+    cs_elem->InsertNewChildElement("channel")->SetText(cs.channel);
     cs_elem->InsertNewChildElement("jointName")->SetText(cs.joint_name.c_str());
     cs_elem->InsertNewChildElement("minAngle")->SetText(cs.angle_limit.lower);
     cs_elem->InsertNewChildElement("maxAngle")->SetText(cs.angle_limit.upper);
