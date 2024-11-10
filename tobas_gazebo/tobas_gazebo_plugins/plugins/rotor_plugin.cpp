@@ -276,7 +276,7 @@ void GazeboRotorPlugin::applyWrench(
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (rot_speed * rotor_drag_coef_) * linvel_perp_W;
+  const auto h_force_W = (-rot_speed * rotor_drag_coef_) * linvel_perp_W;
   link_->AddWorldWrench(ecm, h_force_W, Vector3d::Zero);
 
   // (2) first term: Rotor drag torque
