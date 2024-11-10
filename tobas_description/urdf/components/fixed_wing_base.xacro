@@ -130,7 +130,7 @@
       mesh_file
       *origin
       *inertia">
-    <joint name="${robot_namespace}/propeller_{suffix}_joint" type="continuous">
+    <joint name="${robot_namespace}/propeller_${suffix}_joint" type="continuous">
       <xacro:insert_block name="origin"/>
       <axis xyz="0 0 1"/>
       <parent link="${parent}"/>
