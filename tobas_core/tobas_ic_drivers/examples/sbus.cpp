@@ -19,10 +19,11 @@ int main(int argc, char** argv)
     cerr << "Usage: " << argv[0] << " <Device>" << endl;
     return EXIT_FAILURE;
   }
+  const auto device = argv[1];
 
   driver::SBUS sbus(&onPacket);
 
-  if (!sbus.initialize(argv[1]))
+  if (!sbus.initialize(device))
   {
     cerr << "Failed to initialize S.BUS driver." << endl;
     return EXIT_FAILURE;

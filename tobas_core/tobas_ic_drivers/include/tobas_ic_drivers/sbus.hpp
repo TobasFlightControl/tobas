@@ -64,4 +64,4 @@ inline const SBUS::Packet& SBUS::packet() const
 {
   return packet_;
 }
-}  // namespace aso
+}  // namespace driver

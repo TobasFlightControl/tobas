@@ -36,10 +36,11 @@ int main(int argc, char** argv)
     cerr << "Usage: " << argv[0] << " <Device>" << endl;
     return EXIT_FAILURE;
   }
+  const auto device = argv[1];
 
   driver::JRE30 jre30(&onPacket);
 
-  if (!jre30.initialize(argv[1]))
+  if (!jre30.initialize(device))
   {
     cerr << "Failed to initialize JRE30 driver." << endl;
     return EXIT_FAILURE;

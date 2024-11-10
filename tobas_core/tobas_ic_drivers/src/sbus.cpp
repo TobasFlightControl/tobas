@@ -24,7 +24,7 @@ bool SBUS::initialize(const char* device)
   if (!uart_.initialize(device, true))
     return false;
 
-  if (!uart_.setNonStandardBaudRate(kBaudRate))
+  if (!uart_.setBaudRate(kBaudRate))
     return false;
 
   if (!uart_.setDataBits(kDataBits))

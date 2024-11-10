@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <map>
 #include <termios.h>  // <asm/termios.h>ではダメ
 
 namespace linux
@@ -24,8 +25,7 @@ public:
 
   bool initialize(const char* uart_dev, bool block_mode = false);
 
-  bool setStandardBaudRate(uint32_t baud_rate_flag);
-  bool setNonStandardBaudRate(uint32_t baud_rate);
+  bool setBaudRate(uint32_t baud_rate);
   bool setDataBits(uint8_t data_bits);
   bool setSingleStopBit();
   bool setDoubleStopBit();
@@ -45,11 +45,17 @@ public:
   uint8_t receiveByte();
 
 private:
+  const std::map<uint32_t, uint32_t> baudrate_constants_;
+
   bool block_mode_ = false;
   int uart_fd_ = -1;
   struct termios options_;
 
   bool getConfig();
   bool setConfig();
+
+  bool isStandardBaudRate(uint32_t baud_rate);
+  bool setStandardBaudRate(uint32_t baud_rate);
+  bool setNonStandardBaudRate(uint32_t baud_rate);
 };
 }  // namespace linux
