@@ -3,7 +3,7 @@
 #include <tobas_hal_core/constants.hpp>
 #include <tobas_hal_msgs/msg/sbus.hpp>
 
-#include <tobas_aso_core/sbus.hpp>
+#include <tobas_ic_drivers/sbus.hpp>
 #include <tobas_aso_core/constants.hpp>
 
 using namespace std;
@@ -17,11 +17,11 @@ public:
   explicit SBUSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  aso::SBUS sbus_;
+  driver::SBUS sbus_;
 
   ros2::PublisherPtr<tobas_hal_msgs::msg::Sbus> sbus_pub_;
 
-  void onPacket(const aso::SBUS::Packet& packet);
+  void onPacket(const driver::SBUS::Packet& packet);
 };
 
 SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
@@ -31,13 +31,13 @@ SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
   sbus_pub_ = createPublisher<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic);
 
   // Initialize SBUS driver
-  if (!sbus_.initialize())
+  if (!sbus_.initialize(aso::uart_device::kSbusDev))
     TOBAS_EXIT("Failed to initialize S.BUS driver.");
 
   sbus_.start();
 }
 
-void SBUSDriverNode::onPacket(const aso::SBUS::Packet& packet)
+void SBUSDriverNode::onPacket(const driver::SBUS::Packet& packet)
 {
   // Create message
   auto sbus_msg = std::make_unique<tobas_hal_msgs::msg::Sbus>();

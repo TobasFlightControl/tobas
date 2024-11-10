@@ -1,22 +1,28 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <tobas_aso_core/sbus.hpp>
+#include <tobas_ic_drivers/sbus.hpp>
 
 using namespace std;
 
-void onPacket(const aso::SBUS::Packet& packet)
+void onPacket(const driver::SBUS::Packet& packet)
 {
-  for (size_t ch = 0; ch < aso::SBUS::kChannelSize; ++ch)
+  for (size_t ch = 0; ch < driver::SBUS::kChannelSize; ++ch)
     cout << "Channel " << ch << ": " << packet.periods.at(ch) << endl;
   cout << endl;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-  aso::SBUS sbus(&onPacket);
+  if (argc != 2)
+  {
+    cerr << "Usage: " << argv[0] << " <Device>" << endl;
+    return EXIT_FAILURE;
+  }
 
-  if (!sbus.initialize())
+  driver::SBUS sbus(&onPacket);
+
+  if (!sbus.initialize(argv[1]))
   {
     cerr << "Failed to initialize S.BUS driver." << endl;
     return EXIT_FAILURE;

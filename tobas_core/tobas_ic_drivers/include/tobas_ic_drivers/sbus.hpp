@@ -5,7 +5,7 @@
 
 #include <tobas_linux/uart_dev.hpp>
 
-namespace aso
+namespace driver
 {
 /**
  * @brief インバータで信号を反転したS.BUSをUARTで読む．
@@ -41,7 +41,7 @@ private:
 public:
   explicit SBUS(std::function<void(const Packet&)> packet_cb);
 
-  bool initialize();
+  bool initialize(const char* device);
   void start();
   void spin();
 
