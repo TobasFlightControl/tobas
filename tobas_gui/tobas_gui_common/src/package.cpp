@@ -32,9 +32,14 @@ string getTBSConfigName(const fs::path& tbs_path)
   return getTBSName(tbs_path) + "_config";
 }
 
-string getTBSUserName(const fs::path& tbs_path)
+string getTBSUserCppName(const fs::path& tbs_path)
 {
-  return getTBSName(tbs_path) + "_user";
+  return getTBSName(tbs_path) + "_user_cpp";
+}
+
+string getTBSUserPyName(const fs::path& tbs_path)
+{
+  return getTBSName(tbs_path) + "_user_py";
 }
 
 fs::path getTBSMetaPath(const fs::path& tbs_path)
@@ -47,9 +52,14 @@ fs::path getTBSConfigPath(const fs::path& tbs_path)
   return tbs_path / getTBSConfigName(tbs_path);
 }
 
-fs::path getTBSUserPath(const fs::path& tbs_path)
+fs::path getTBSUserCppPath(const fs::path& tbs_path)
 {
-  return tbs_path / getTBSUserName(tbs_path);
+  return tbs_path / getTBSUserCppName(tbs_path);
+}
+
+fs::path getTBSUserPyPath(const fs::path& tbs_path)
+{
+  return tbs_path / getTBSUserPyName(tbs_path);
 }
 
 fs::path getTBSDRNPath(const fs::path& tbs_path)

@@ -32,8 +32,9 @@ PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robo
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto templates_path = pkg_path / "templates";
   meta_env_ = make_shared<TemplateGenerator>(templates_path / "meta_package");
-  cfg_env_ = make_shared<TemplateGenerator>(templates_path / "config_package");
-  user_env_ = make_shared<TemplateGenerator>(templates_path / "user_package");
+  config_env_ = make_shared<TemplateGenerator>(templates_path / "config_package");
+  user_cpp_env_ = make_shared<TemplateGenerator>(templates_path / "user_cpp_package");
+  user_py_env_ = make_shared<TemplateGenerator>(templates_path / "user_py_package");
 }
 
 bool PackageGenerator::generatePackage()
@@ -56,8 +57,12 @@ bool PackageGenerator::generatePackage()
   if (!generateConfigPackage(tpl_data))
     return false;
 
-  // ユーザパッケージを作成
-  if (!generateUserPackage(tpl_data))
+  // ユーザ用C++パッケージを作成
+  if (!generateUserCppPackage(tpl_data))
+    return false;
+
+  // ユーザ用Pythonパッケージを作成
+  if (!generateUserPyPackage(tpl_data))
     return false;
 
   return true;
@@ -91,7 +96,8 @@ inja::json PackageGenerator::createTemplateData()
   // Ros Package
   tpl_data["meta_pkg_name"] = common::getTBSMetaName(tbsPath());
   tpl_data["config_pkg_name"] = common::getTBSConfigName(tbsPath());
-  tpl_data["user_pkg_name"] = common::getTBSUserName(tbsPath());
+  tpl_data["user_cpp_pkg_name"] = common::getTBSUserCppName(tbsPath());
+  tpl_data["user_py_pkg_name"] = common::getTBSUserPyName(tbsPath());
 
   return tpl_data;
 }
@@ -216,15 +222,15 @@ bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
 {
-  const auto config_pkg_path = common::getTBSConfigPath(tbsPath());
-  fs::create_directory(config_pkg_path);
+  const auto pkg_path = common::getTBSConfigPath(tbsPath());
+  fs::create_directory(pkg_path);
 
   // ディレクトリを作成
-  const auto backup_dir = config_pkg_path / "backup";
-  const auto config_dir = config_pkg_path / "config";
-  const auto launch_dir = config_pkg_path / "launch";
-  const auto urdf_dir = config_pkg_path / "urdf";
-  const auto mesh_dir = config_pkg_path / "meshes";
+  const auto backup_dir = pkg_path / "backup";
+  const auto config_dir = pkg_path / "config";
+  const auto launch_dir = pkg_path / "launch";
+  const auto urdf_dir = pkg_path / "urdf";
+  const auto mesh_dir = pkg_path / "meshes";
   fs::create_directory(backup_dir);
   fs::create_directory(config_dir);
   fs::create_directory(launch_dir);
@@ -237,26 +243,26 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
 
   // テンプレートから生成
-  cfg_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", config_pkg_path);
-  cfg_env_->generate(tpl_data, "package.xml.tplxml", config_pkg_path);
-  cfg_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir);
-  cfg_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
-  cfg_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
+  config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
+  config_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
+  config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
   // Keyboard Teleop (コントローラの対応コマンドによって場合分け)
   // TODO: コントローラごとに1つずつ
   if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW))
   {
-    cfg_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.py.tplpy", launch_dir);
+    config_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.py.tplpy", launch_dir);
   }
   else if (settings_->controller->isCommandCompatible(tobas::rc_command_t::SPEED_ROLL_DPITCH))
   {
-    cfg_env_->generate(tpl_data, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.py.tplpy", launch_dir);
+    config_env_->generate(tpl_data, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.py.tplpy", launch_dir);
   }
 
   // GUI Teleop (コントローラの対応コマンドによって場合分け)
@@ -265,7 +271,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POSE_TWIST_ACCEL))
   {
-    cfg_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.py.tplpy", launch_dir);
+    config_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.py.tplpy", launch_dir);
   }
 
   // Dynamic parameters
@@ -275,7 +281,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
 
   // その他
-  if (!createEmptyFile(config_pkg_path / kDoNotEditThisPackage))
+  if (!createEmptyFile(pkg_path / kDoNotEditThisPackage))
     return false;
   if (!generateControllerManagerLaunch(launch_dir))
     return false;
@@ -297,27 +303,63 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   return true;
 }
 
-bool PackageGenerator::generateUserPackage(const inja::json& tpl_data)
+bool PackageGenerator::generateUserCppPackage(const inja::json& tpl_data)
 {
-  const auto user_pkg_path = common::getTBSUserPath(tbsPath());
-  fs::create_directory(user_pkg_path);
+  const auto pkg_path = common::getTBSUserCppPath(tbsPath());
+  fs::create_directory(pkg_path);
 
   // ディレクトリを作成
-  const auto launch_dir = user_pkg_path / "launch";
-  const auto nodes_dir = user_pkg_path / "nodes";
+  const auto launch_dir = pkg_path / "launch";
+  const auto nodes_dir = pkg_path / "nodes";
   fs::create_directory(launch_dir);
   fs::create_directory(nodes_dir);
 
   // テンプレートから作成 (存在する場合は上書きしない)
-  user_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", user_pkg_path, false);
-  user_env_->generate(tpl_data, "package.xml.tplxml", user_pkg_path, false);
-  user_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
-  user_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
-  user_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
-  user_env_->generate(tpl_data, "tobas_bridge_node.cpp.tplcpp", nodes_dir, false);
+  user_cpp_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path, false);
+  user_cpp_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
+  user_cpp_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
+  user_cpp_env_->generate(tpl_data, "user_node.cpp.tplcpp", nodes_dir, false);
 
   // その他
-  if (!createEmptyFile(user_pkg_path / kYouCanEditThisPackage))
+  if (!createEmptyFile(pkg_path / kYouCanEditThisPackage))
+    return false;
+
+  return true;
+}
+
+bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
+{
+  const auto pkg_path = common::getTBSUserPyPath(tbsPath());
+  const auto pkg_name = common::getTBSUserPyName(tbsPath());
+
+  // パッケージを作成
+  fs::create_directory(pkg_path);
+
+  // 空のresourceファイルを作成
+  const auto resource_file = pkg_path / "resource" / pkg_name;
+  path::createFilePath(resource_file);
+
+  // ディレクトリを作成
+  const auto launch_dir = pkg_path / "launch";
+  const auto lib_dir = pkg_path / pkg_name;
+  fs::create_directory(launch_dir);
+  fs::create_directory(lib_dir);
+
+  // テンプレートから作成 (存在する場合は上書きしない)
+  user_py_env_->generate(tpl_data, "package.xml.tplxml", pkg_path, false);
+  user_py_env_->generate(tpl_data, "setup.cfg.tplini", pkg_path, false);
+  user_py_env_->generate(tpl_data, "setup.py.tplpy", pkg_path, false);
+  user_py_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "gazebo.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir, false);
+  user_py_env_->generate(tpl_data, "user_node.py.tplpy", lib_dir, false);
+
+  // その他
+  if (!createEmptyFile(pkg_path / kYouCanEditThisPackage))
+    return false;
+  if (!createEmptyFile(lib_dir / "__init__.py"))
     return false;
 
   return true;

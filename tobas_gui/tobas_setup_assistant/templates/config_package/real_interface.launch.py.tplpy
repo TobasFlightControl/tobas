@@ -7,7 +7,7 @@ from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
-USER_PKG_NAME = "{{ user_pkg_name }}"
+
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -26,7 +26,6 @@ def generate_launch_description():
     output = LaunchConfiguration(OUTPUT)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
-    user_pkg_share = FindPackageShare(USER_PKG_NAME)
 
     # Launch Tobas core software
     ld.add_action(
@@ -40,13 +39,6 @@ def generate_launch_description():
                 "use_sim_time": "false",
                 "ground_truth": "false",
             }.items(),
-        )
-    )
-
-    # Launch user nodes
-    ld.add_action(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution([user_pkg_share, "launch", "real.launch.py"]))
         )
     )
 

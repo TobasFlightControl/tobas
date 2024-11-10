@@ -1,11 +1,21 @@
 # Do not delete or rename this file because it is executed in {{ config_pkg_name }}/common.launch.py.
 
 from launch import LaunchDescription
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
     ld = LaunchDescription()
 
     # Please add the nodes that run on both the actual machine and the Gazebo simulation.
+
+    ld.add_action(
+        Node(
+            package="{{ user_cpp_pkg_name }}",
+            executable="user_node",
+            name="user_cpp_node",
+            namespace="{{ drone_name }}",
+        )
+    )
 
     return ld

@@ -58,6 +58,7 @@
   </group>
 
   <!-- Launch user nodes -->
-  <include file="$(find-pkg-share {{ user_pkg_name }})/launch/gazebo.launch.py"/>
+  <include file="$(find-pkg-share {{ user_cpp_pkg_name }})/launch/gazebo.launch.py"/>
+  <include file="$(find-pkg-share {{ user_py_pkg_name }})/launch/gazebo.launch.py"/>
 
 </launch>

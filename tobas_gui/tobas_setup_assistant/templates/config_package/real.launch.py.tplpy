@@ -6,6 +6,8 @@ from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
+USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
+USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -24,6 +26,8 @@ def generate_launch_description():
     output = LaunchConfiguration(OUTPUT)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+    user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
 
     ld.add_action(
         IncludeLaunchDescription(
@@ -40,6 +44,18 @@ def generate_launch_description():
                 PathJoinSubstitution([config_pkg_share, "launch", "real_interface.launch.py"]),
             ),
             launch_arguments={"log_level": log_level, "output": output}.items(),
+        )
+    )
+
+    # Launch user nodes
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_cpp_pkg_share, "launch", "real.launch.py"]))
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "common.launch.py"]))
         )
     )
 

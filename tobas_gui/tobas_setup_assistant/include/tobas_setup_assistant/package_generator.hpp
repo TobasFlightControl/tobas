@@ -30,8 +30,9 @@ private:
   SettingsWidget* settings_;
 
   std::shared_ptr<TemplateGenerator> meta_env_;
-  std::shared_ptr<TemplateGenerator> cfg_env_;
-  std::shared_ptr<TemplateGenerator> user_env_;
+  std::shared_ptr<TemplateGenerator> config_env_;
+  std::shared_ptr<TemplateGenerator> user_cpp_env_;
+  std::shared_ptr<TemplateGenerator> user_py_env_;
 
   /* ROS Packageのタブで指定されたTobasパッケージのパスへのエイリアス． */
   std::string tbsPath() const;
@@ -41,7 +42,8 @@ private:
 
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);
-  bool generateUserPackage(const inja::json& data);
+  bool generateUserCppPackage(const inja::json& data);
+  bool generateUserPyPackage(const inja::json& data);
 
   bool generateControllerManagerLaunch(const std::filesystem::path& launch_dir);
   bool generateGazeboJointCommandHandlerConfig(const std::filesystem::path& config_dir);
