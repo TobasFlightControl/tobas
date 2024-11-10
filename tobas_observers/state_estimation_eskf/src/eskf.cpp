@@ -236,7 +236,7 @@ double ErrorStateKalmanFilter::measurePosVel(
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosVel");
 
-  const auto x = x_history_.closestAfterValue(time);
+  const auto& x = x_history_.closestAfterValue(time);
 
   // 観測誤差
   Vector6d delta;
@@ -307,10 +307,10 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const auto mx_std = sqrt(mag_cov(0, 0));
   const auto my_std = sqrt(mag_cov(1, 1));
   double yaw_std;
-  if (mx > my)
-    yaw_std = (mx / (math::sqr(mx) + math::sqr(my))) * my_std;
+  if (abs(mx) > abs(my))
+    yaw_std = (abs(mx) / (math::sqr(mx) + math::sqr(my))) * my_std;
   else
-    yaw_std = (my / (math::sqr(mx) + math::sqr(my))) * mx_std;
+    yaw_std = (abs(my) / (math::sqr(mx) + math::sqr(my))) * mx_std;
   yaw_std = max(yaw_std, 0.1);  // FIXME: ヨー角の分散が小さすぎると姿勢推定が不安定になる
   const auto yaw_var = math::sqr(yaw_std);
 
