@@ -33,7 +33,7 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package="tobas_keyboard_teleop",
-            executable="position_yaw_publisher_node",
+            executable="position_yaw_publisher",
             namespace=DRONE_NAME,
             parameters=[{"use_sim_time", use_sim_time}],
             remappings=[("odom", "ground_truth/odom")] if ground_truth == "true" else [],
