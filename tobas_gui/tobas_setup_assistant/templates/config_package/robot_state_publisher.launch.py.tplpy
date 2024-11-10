@@ -20,10 +20,10 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # Declare arguments
-    ld.add_action(DeclareLaunchArgument(LOG_LEVEL))
-    ld.add_action(DeclareLaunchArgument(OUTPUT))
-    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME))
-    ld.add_action(DeclareLaunchArgument(USER_DEBUG))
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(USER_DEBUG, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)

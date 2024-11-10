@@ -502,7 +502,6 @@ void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
   {
     cmd_nwu_ = nullptr;
     lqd_.last_input.setZero();
-    TOBAS_INFO("ControllerNode is reset.");
   }
 }
 
