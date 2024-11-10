@@ -13,7 +13,6 @@ def generate_launch_description():
         Node(
             package="{{ user_py_pkg_name }}",
             executable="user_node",
-            name="user_python_node",
             namespace="{{ drone_name }}",
         )
     )
