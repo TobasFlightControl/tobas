@@ -1,15 +1,21 @@
 import rclpy
-from rclpy.node import Node
+import rclpy.node
+import rclpy.qos
+
 from tobas_std_msgs.msg import Message
 from tobas_msgs.msg import Gps
 
 
-class GnssStateCheckerNode(Node):
+class GnssStateCheckerNode(rclpy.node.Node):
     def __init__(self) -> None:
         super().__init__("gnss_state_checker")
 
-        self._message_pub = self.create_publisher(Message, "message", 1)
-        self._gps_sub = self.create_subscription(Gps, "gps", self._gps_callback, 1)
+        qos = rclpy.qos.QoSProfile(depth=1)
+        qos.reliability = rclpy.qos.ReliabilityPolicy.BEST_EFFORT
+        qos.durability = rclpy.qos.DurabilityPolicy.VOLATILE
+
+        self._message_pub = self.create_publisher(Message, "message", qos)
+        self._gps_sub = self.create_subscription(Gps, "gps", self._gps_callback, qos)
 
     def _gps_callback(self, gps: Gps) -> None:
         message = Message()
