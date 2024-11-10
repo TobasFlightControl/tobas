@@ -19,16 +19,24 @@ public:
 private:
   ros2::PublisherPtr<kdl::Tree> tree_pub_;
   ros2::SubscriberPtr<std_msgs::msg::String> description_sub_;
+  ros2::TimerPtr initialize_timer_;
 
+  void initializeTimerCb();
   void descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg);
 };
 
 TreeServerNode::TreeServerNode(const rclcpp::NodeOptions& options) : super("tree_server", options)
 {
-  tree_pub_ = createPublisher<kdl::Tree>(tobas::kKDLTreeTopic, true, true);
+  // 起動時に既に発行済のURDFを確実に取得するために，Pubscriberの登録を遅延させる．
+  initialize_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
+}
 
-  // 後から確実にrobot descriptionを受け取るためには，TRANSIENT LOCAL且つRELIABLEが必須．
+void TreeServerNode::initializeTimerCb()
+{
+  tree_pub_ = createPublisher<kdl::Tree>(tobas::kKDLTreeTopic, true, true);
   description_sub_ = createSubscriber(tobas::kRobotDescriptionTopic, &self::descriptionCb, this, true, true);
+
+  initialize_timer_->cancel();
 }
 
 void TreeServerNode::descriptionCb(const std_msgs::msg::String::ConstSharedPtr& msg)
