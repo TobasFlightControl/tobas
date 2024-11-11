@@ -74,7 +74,7 @@ void LQD::updateGain()
 
   MatrixXd B_tilde(x_tilde_size, u_size);
   B_tilde.topRows(x_size).setZero();
-  B_tilde.bottomRows(u_size).diagonal().setOnes();
+  B_tilde.bottomRows(u_size).setIdentity();
 
   // 重み行列を作成
   const MatrixXd Q_tilde = eigen_tools::concat(state_weight, input_weight, 0).asDiagonal();

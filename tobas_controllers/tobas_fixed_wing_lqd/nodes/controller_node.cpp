@@ -133,14 +133,14 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
 {
   // Register dynamic parameters
   addDynamicIntParam("forward_speed_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("alpha_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("beta_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("attitude_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("angular_velocity_weight", &self::forwardSpeedWeightCb, this, 1, 1, 100);
-  addDynamicIntParam("thrust_weight_log10", &self::forwardSpeedWeightCb, this, -3, -3, 3);
-  addDynamicIntParam("thrust_rate_weight_log10", &self::forwardSpeedWeightCb, this, -1, -3, 3);
-  addDynamicIntParam("deflection_weight_log10", &self::forwardSpeedWeightCb, this, -3, -3, 3);
-  addDynamicIntParam("deflection_rate_weight_log10", &self::forwardSpeedWeightCb, this, -1, -3, 3);
+  addDynamicIntParam("alpha_weight", &self::alphaWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("beta_weight", &self::betaWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("attitude_weight", &self::attitudeWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("angular_velocity_weight", &self::angularVelicityWeightCb, this, 1, 1, 100);
+  addDynamicIntParam("thrust_weight_log10", &self::thrustWeightLog10Cb, this, -3, -3, 3);
+  addDynamicIntParam("thrust_rate_weight_log10", &self::thrustRateWeightLog10Cb, this, -1, -3, 3);
+  addDynamicIntParam("deflection_weight_log10", &self::deflectionWeightLog10Cb, this, -3, -3, 3);
+  addDynamicIntParam("deflection_rate_weight_log10", &self::deflectionRateWeightLog10Cb, this, -1, -3, 3);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -239,9 +239,6 @@ bool ControllerNode::isReadyToControl()
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kArmingTopic, "\".");
     return false;
   }
-
-  if (!arming_->data)
-    return false;
 
   return true;
 }
@@ -530,6 +527,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   if (!isReadyToControl())
     return;
 
+  // アームされていなければスキップ
+  if (!arming_->data)
+    return;
+
   // コマンドが来ていなければスキップ
   if (cmd_nwu_ == nullptr)
     return;
@@ -579,6 +580,12 @@ void ControllerNode::commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::Const
   if (!isReadyToControl())
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
+    return;
+  }
+
+  if (!arming_->data)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the rotors are disarmed.");
     return;
   }
 
