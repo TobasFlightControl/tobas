@@ -254,17 +254,6 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
   config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
-  // Keyboard Teleop (コントローラの対応コマンドによって場合分け)
-  // TODO: コントローラごとに1つずつ
-  if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW))
-  {
-    config_env_->generate(tpl_data, "keyboard_teleop/position_yaw/keyboard_teleop.launch.py.tplpy", launch_dir);
-  }
-  else if (settings_->controller->isCommandCompatible(tobas::rc_command_t::SPEED_ROLL_DPITCH))
-  {
-    config_env_->generate(tpl_data, "keyboard_teleop/speed_roll_dpitch/keyboard_teleop.launch.py.tplpy", launch_dir);
-  }
-
   // GUI Teleop (コントローラの対応コマンドによって場合分け)
   // TODO: コントローラごとに1つずつ
   if (
