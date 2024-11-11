@@ -1,6 +1,5 @@
 #include <std_srvs/srv/empty.hpp>
 
-#include <tobas_std_tools/vector.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -54,10 +53,10 @@ private:
   double registance_;   // [Ω] 内部抵抗値
   double voltage_noise_stddev_;  // [V] 電圧の観測ノイズの標準偏差
   double current_noise_stddev_;  // [A] 電流の観測ノイズの標準偏差
-  size_t num_rotors_;
+  vector<size_t> rotor_channels_;
 
-  vector<double> currents_;  // [A] 各モータに流れる電流
-  double q_;                 // [As] 現在の電気量
+  map<size_t, double> currents_;  // [A] 各モータに流れる電流
+  double q_;                      // [As] 現在の電気量
   RateManager::SharedPtr rate_manager_;
 
   // Noise generator
@@ -98,7 +97,6 @@ void GazeboBatteryPlugin::Configure(
   initialize("gazebo_battery_plugin", sdf);
   getSdfParams(sdf);
 
-  currents_.resize(num_rotors_, 0.);
   q_ = capacity_;
   rate_manager_ = make_shared<RateManager>(update_rate_);
 
@@ -119,7 +117,7 @@ void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "internalRegistance", registance_, NON_NEGATIVE);
   getSdfParam(sdf, "voltageNoiseStddev", voltage_noise_stddev_, kDefaultVoltageNoiseStddev, NON_NEGATIVE);
   getSdfParam(sdf, "currentNoiseStddev", current_noise_stddev_, kDefaultCurrentNoiseStddev, NON_NEGATIVE);
-  getSdfParam(sdf, "numRotors", num_rotors_, NON_NEGATIVE);
+  getSdfParam(sdf, "rotorChannels", rotor_channels_);
 }
 
 void GazeboBatteryPlugin::registerPubSub()
@@ -128,12 +126,13 @@ void GazeboBatteryPlugin::registerPubSub()
   battery_gt_pub_ = createPublisher<tobas_msgs::msg::Battery>(kBatteryGtTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
-  for (size_t i = 0; i < num_rotors_; ++i)
+  for (const auto& ch : rotor_channels_)
   {
-    const string suffix = "_" + to_string(i);
-    const string topic = kRotorStateGtTopicPrefix + suffix;
-    const auto cb = [this, i](const tobas_msgs::msg::RotorState::ConstSharedPtr& msg) { currents_[i] = msg->current; };
-    const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, ros2::makeQoS(false, false, 1), cb);
+    const auto topic = kRotorStateGtTopicPrefix + to_string(ch);
+    const auto qos = ros2::makeQoS(false, false, 1);
+    const auto cb = [this, ch](const tobas_msgs::msg::RotorState::ConstSharedPtr& msg)
+    { currents_[ch] = msg->current; };
+    const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
 }
@@ -144,19 +143,21 @@ void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Ent
     return;
 
   // 電流を計算
-  const auto current = tobas_std::fsum(currents_);
-  if (current > max_current_)
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current, " > ", max_current_, " [A]");
-  const auto current_obs = current + current_noise_(rnd_gen_);  // 観測ノイズを受けた観測電流
+  double current_true = 0.;
+  for (const auto& [_, current] : currents_)
+    current_true += current;
+  if (current_true > max_current_)
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current_true, " > ", max_current_, " [A]");
+  const auto current_obs = current_true + current_noise_(rnd_gen_);  // 観測ノイズを受けた観測電流
 
   // 電気容量の減少
   const auto dt = chrono::duration<double>(info.dt).count();
-  q_ = max(q_ - current * dt, 0.);
+  q_ = max(q_ - current_true * dt, 0.);
 
   // 電圧を計算
-  const auto voltage_in = currentVoltage();                              // 内部電圧
-  const auto voltage_out = max(voltage_in - registance_ * current, 0.);  // 内部抵抗による電圧降下
-  const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);       // 観測ノイズを受けた観測電圧
+  const auto voltage_in = currentVoltage();                                   // 内部電圧
+  const auto voltage_out = max(voltage_in - registance_ * current_true, 0.);  // 内部抵抗による電圧降下
+  const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);            // 観測ノイズを受けた観測電圧
 
   // 観測したバッテリーの状態を発行
   auto battery = make_unique<tobas_msgs::msg::Battery>();
@@ -169,7 +170,7 @@ void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Ent
   auto battery_gt = make_unique<tobas_msgs::msg::Battery>();
   ros2::timeChronoToMsg(info.simTime, battery_gt->header.stamp);
   battery_gt->voltage = voltage_out;
-  battery_gt->current = current;
+  battery_gt->current = current_true;
   battery_gt_pub_->publish(move(battery_gt));
 }
 

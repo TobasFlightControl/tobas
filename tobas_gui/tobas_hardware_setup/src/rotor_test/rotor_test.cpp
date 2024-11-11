@@ -105,8 +105,8 @@ void RotorTestWidget::updateInternalDataStructures()
 
   tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
-  cur_speeds_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsTopic), &self::currentSpeedsCb, this);
+  cur_states_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::currentStatesCb, this);
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
@@ -208,20 +208,19 @@ bool RotorTestWidget::armRotors(bool arming)
   return true;
 }
 
-void RotorTestWidget::currentSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& cur_speeds)
+void RotorTestWidget::currentStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states)
 {
   if (!is_running_)
     return;
 
-  for (const auto& speed : cur_speeds->speeds)
+  for (const auto& state : cur_states->states)
   {
-    if (speed.channel >= rotors_.size())
-    {
-      RCLCPP_WARN_STREAM(node_->get_logger(), "Rotor channel " << (int)speed.channel << " is out of range.");
+    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
       continue;
-    }
+    if (state.channel >= rotors_.size())
+      continue;
 
-    rotors_.at(speed.channel)->setCurrentRPM(tobas_std::rps2rpm(speed.speed));
+    rotors_.at(state.channel)->setCurrentRPM(tobas_std::rps2rpm(state.speed));
   }
 }
 

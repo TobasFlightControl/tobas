@@ -640,9 +640,12 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // Battery plugin
   constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
+  vector<size_t> rotor_channels;
+  for (const auto& rotor : drone.rotors)
+    rotor_channels.push_back(rotor.channel);
   addBatteryPlugin(
     robot, ns, kBatterySamplingRate, batt->maxVoltage(), batt->sagVoltage(), batt->maxCurrent(), batt->capacity(),
-    batt->internalRegistance(), props->count());
+    batt->internalRegistance(), rotor_channels);
 
   // IMU plugin
   addIMUPlugin(
@@ -686,16 +689,6 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // Ground truth state plugin
   addGazeboGroundTruthStatePlugin(robot, ns, root_name);
-
-  // Rotor speeds publisher plugin
-  vector<string> rotor_jnt_names;
-  for (int i = 0; i < props->count(); ++i)
-  {
-    const auto link_name = props->linkName(i).toStdString();
-    const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
-    rotor_jnt_names.push_back(jnt_name);
-  }
-  addRotorSpeedsPublisherPlugin(robot, ns, rotor_jnt_names);
 
   // Gazebo ROS2 control plugin
   // FIXME: ジョイントが1つも設定されてないとフリーズする？

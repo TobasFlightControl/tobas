@@ -29,11 +29,12 @@ string toString(const Eigen::Vector3d& data)
   return toString(data.x()) + " " + toString(data.y()) + " " + toString(data.z());
 }
 
-void addList(tinyxml2::XMLElement* parent, const string& list_name, const vector<string>& items)
+template <typename T>
+void addList(tinyxml2::XMLElement* parent, const string& list_name, const vector<T>& items)
 {
   const auto elem = parent->InsertNewChildElement(list_name.c_str());
   for (const auto& item : items)
-    elem->InsertNewChildElement("item")->SetText(item.c_str());
+    elem->InsertNewChildElement("item")->SetText(to_string(item).c_str());
 }
 
 tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const string& filename, const string& name)
@@ -79,7 +80,7 @@ void addBatteryPlugin(
   double max_current,
   double current_capacity,
   double internal_registance,
-  int num_rotors)
+  const vector<size_t>& rotor_channels)
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_battery_plugin", "gazebo::GazeboBatteryPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -89,7 +90,7 @@ void addBatteryPlugin(
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
   plugin->InsertNewChildElement("currentCapacity")->SetText(current_capacity);
   plugin->InsertNewChildElement("internalRegistance")->SetText(internal_registance);
-  plugin->InsertNewChildElement("numRotors")->SetText(num_rotors);
+  util::addList(plugin, "rotorChannels", rotor_channels);
 }
 
 void addIMUPlugin(
@@ -294,17 +295,6 @@ void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const string& 
     util::addGazeboPlugin(robot, "tobas_gazebo_ground_truth_state_plugin", "gazebo::GazeboGroundTruthStatePlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
-}
-
-void addRotorSpeedsPublisherPlugin(
-  tinyxml2::XMLElement* robot,
-  const string& ns,
-  const vector<string>& rotor_joint_names)
-{
-  const auto plugin = util::addGazeboPlugin(
-    robot, "tobas_gazebo_rotor_speeds_publisher_plugin", "gazebo::GazeboRotorSpeedsPublisherPlugin");
-  plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
-  util::addList(plugin, "rotorJointNames", rotor_joint_names);
 }
 
 void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints)

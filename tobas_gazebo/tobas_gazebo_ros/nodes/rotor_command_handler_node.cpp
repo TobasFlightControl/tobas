@@ -2,7 +2,6 @@
 
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
@@ -79,7 +78,7 @@ void RotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   throttle_pubs_.clear();
   for (const auto& rotor : drone->rotors)
   {
-    const auto topic = string(gazebo::kThrottleTopicPrefix) + "_" + to_string(rotor.channel);
+    const auto topic = string(gazebo::kThrottleTopicPrefix) + to_string(rotor.channel);
     throttle_pubs_[rotor.channel] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
 

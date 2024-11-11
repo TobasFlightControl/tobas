@@ -12,7 +12,7 @@
 
 #include <tobas_msgs_adapter/Wind.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_kdl_msgs_adapter/Tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
@@ -45,7 +45,7 @@ private:
   rclcpp::Time t_last_;
   ctrl::IdentityKalmanFilter kf_;
   tobas::DrydenComponents dryden_;
-  tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr rotor_speeds_;
+  tobas_msgs::msg::RotorStateArray::ConstSharedPtr rotor_states_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::Wind> wind_pub_;
@@ -54,7 +54,7 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> rotor_speeds_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
 
   void updateInternalDataStructures();
 
@@ -64,7 +64,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& rotor_speeds);
+  void rotorSpeedsCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_speeds);
 };
 
 WindEstimatorNode::WindEstimatorNode(const rclcpp::NodeOptions& options)
@@ -80,7 +80,7 @@ WindEstimatorNode::WindEstimatorNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  rotor_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsTopic, &self::rotorSpeedsCb, this);
+  rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorSpeedsCb, this);
 }
 
 void WindEstimatorNode::updateInternalDataStructures()
@@ -92,14 +92,14 @@ vector<double> WindEstimatorNode::rotSpeedsVector()
 {
   vector<double> res(drone_.numRotors());
 
-  for (const auto& speed : rotor_speeds_->speeds)
+  for (const auto& state : rotor_states_->states)
   {
-    if (speed.channel >= drone_.numRotors())
-    {
-      TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Rotor channel ", (int)speed.channel, " is out of range.");
+    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
       continue;
-    }
-    res.at(speed.channel) = speed.speed;
+    if (state.channel >= drone_.numRotors())
+      continue;
+
+    res.at(state.channel) = state.speed;
   }
 
   return res;
@@ -122,7 +122,7 @@ void WindEstimatorNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   if (!is_initialized_)
   {
     if (
-      drone_received_ && tree_received_ && rotor_speeds_ != nullptr
+      drone_received_ && tree_received_ && rotor_states_ != nullptr
       && odom->frame.p.z() > tobas::kTakeoffAltitudeThreshold)
     {
       t_last_ = odom->header.stamp;
@@ -203,9 +203,9 @@ void WindEstimatorNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
     updateInternalDataStructures();
 }
 
-void WindEstimatorNode::rotorSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& rotor_speeds)
+void WindEstimatorNode::rotorSpeedsCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_speeds)
 {
-  rotor_speeds_ = rotor_speeds;
+  rotor_states_ = rotor_speeds;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(WindEstimatorNode)

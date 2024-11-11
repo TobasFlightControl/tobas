@@ -10,6 +10,7 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
@@ -56,7 +57,7 @@ private:
   bool is_running_ = false;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> cur_speeds_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> cur_states_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
 
   ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
@@ -71,7 +72,7 @@ private:
   bool loadCurrentGains();
   bool armRotors(bool arming);
 
-  void currentSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& cur_speeds);
+  void currentStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
 
 private Q_SLOTS:

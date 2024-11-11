@@ -22,6 +22,7 @@
 #include <tobas_msgs/msg/pwm_array.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
@@ -151,7 +152,7 @@ void ROSBagRecorderNode::registerStandardMsgSub()
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
   addStandardMsgSub<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
   addStandardMsgSub<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
-  addStandardMsgSub<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
+  addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Event>(tobas::kEventTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);

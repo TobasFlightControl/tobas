@@ -18,7 +18,7 @@ RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tob
 
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
-  speeds_sub_ = nullptr;
+  rotor_states_sub_ = nullptr;
 
   meters_.clear();
   qt::clearLayout(cols_);
@@ -34,29 +34,22 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     cols_->addWidget(meter);
   }
 
-  speeds_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsTopic), &self::speedsCb, this);
+  rotor_states_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
 }
 
-void RotorsViewerWiddget::speedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& speeds)
+void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
-  for (const auto& speed : speeds->speeds)
+  for (const auto& state : states->states)
   {
-    if (speed.channel >= meters_.size())
-    {
-      RCLCPP_WARN_STREAM(node_->get_logger(), "Channel " << (int)speed.channel << " is out of range.");
+    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
       continue;
-    }
-
-    if (isnan(speed.speed))
-    {
-      RCLCPP_WARN_STREAM(node_->get_logger(), "Rotor speed of channel " << (int)speed.channel << " is invalid.");
+    if (state.channel >= meters_.size())
       continue;
-    }
 
-    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(speed.speed));
-    meters_.at(speed.channel)->setValue(speed_rpm);
-    meters_.at(speed.channel)->setBottomText(bottomText(speed_rpm));
+    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(state.speed));
+    meters_.at(state.channel)->setValue(speed_rpm);
+    meters_.at(state.channel)->setBottomText(bottomText(speed_rpm));
   }
 }
 

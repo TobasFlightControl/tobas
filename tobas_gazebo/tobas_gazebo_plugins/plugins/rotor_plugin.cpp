@@ -39,7 +39,7 @@ class GazeboRotorPlugin : public BaseNode,
                           public sim::ISystemPreUpdate
 {
   // Constants
-  static constexpr char kDebugTopicPrefix[] = "gazebo/rotor_debug";
+  static constexpr char kDebugTopicPrefix[] = "gazebo/rotor_debug_";
   static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
   static constexpr double kAutoStopTimeThresh = 0.5;      // [s]
   static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
@@ -88,7 +88,8 @@ private:
   shared_ptr<sim::Link> parent_link_;
 
   // PubSub
-  ros2::PublisherPtr<tobas_msgs::msg::RotorState> rotor_state_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_gt_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorDebug> debug_pub_;
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::Throttle> throttle_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_gt_sub_;
@@ -227,9 +228,10 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
 
 void GazeboRotorPlugin::registerPubSub()
 {
-  const string suffix = "_" + to_string(channel_);
+  const string suffix = to_string(channel_);
 
-  rotor_state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateGtTopicPrefix + suffix);
+  state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateTopicPrefix + suffix);
+  state_gt_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateGtTopicPrefix + suffix);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(kDebugTopicPrefix + suffix);
 
   throttle_sub_ = createSubscriber(kThrottleTopicPrefix + suffix, &self::throttleCmdCb, this);
@@ -298,12 +300,32 @@ void GazeboRotorPlugin::applyWrench(
     is_intact_ = false;
   }
 
-  // Publish rotor state
-  auto rotor_state = make_unique<tobas_msgs::msg::RotorState>();
-  ros2::timeChronoToMsg(cur_time, rotor_state->header.stamp);
-  rotor_state->speed = rot_speed;
-  rotor_state->current = current;
-  rotor_state_pub_->publish(move(rotor_state));
+  // Create rotor state message
+  tobas_msgs::msg::RotorState state_msg;
+  ros2::timeChronoToMsg(cur_time, state_msg.header.stamp);
+  state_msg.channel = channel_;
+  if (is_intact_)
+  {
+    state_msg.speed = rot_speed;
+    state_msg.current = current;
+    state_msg.status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
+  }
+  else
+  {
+    state_msg.speed = nan("");
+    state_msg.current = nan("");
+    state_msg.status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+  }
+
+  // Publish observed state
+  // TODO: 観測ノイズを付加
+  // TODO: 周波数を調整
+  auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>(state_msg);
+  state_pub_->publish(move(state_msg));
+
+  // Publish ground-truth state
+  auto state_msg_gt = make_unique<tobas_msgs::msg::RotorState>(state_msg);
+  state_gt_pub_->publish(move(state_msg_gt));
 
   // Publish debug message
   auto debug_msg = make_unique<tobas_gazebo_msgs::msg::RotorDebug>();

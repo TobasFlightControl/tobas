@@ -255,7 +255,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_topic_throttle",
-                            plugin="RotorSpeedsThrottleNode",
+                            plugin="RotorStatesThrottleNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),

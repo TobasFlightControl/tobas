@@ -7,6 +7,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
@@ -42,7 +43,7 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> cur_speeds_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> cur_states_pub_;
   ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
@@ -59,7 +60,7 @@ private:
   ros2::TimerPtr auto_disarm_timer_;
 
   bool transferAndSleep();
-  void publishCurrentSpeeds();
+  void publishCurrentStates();
   void publishArming();
   bool stopRotors();
   void arm();
@@ -105,19 +106,20 @@ bool DShotDriverNode::transferAndSleep()
   return true;
 }
 
-void DShotDriverNode::publishCurrentSpeeds()
+void DShotDriverNode::publishCurrentStates()
 {
-  auto cur_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
-  cur_speeds->header.stamp = get_clock()->now();
+  auto cur_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
+  cur_states->header.stamp = get_clock()->now();
 
   for (const auto& rotor : drone_->rotors)
   {
-    cur_speeds->speeds.emplace_back();
-    cur_speeds->speeds.back().channel = rotor.channel;
-    cur_speeds->speeds.back().speed = dshot_.getSpeed(rotor.channel);
+    cur_states->states.emplace_back();
+    cur_states->states.back().channel = rotor.channel;
+    cur_states->states.back().speed = dshot_.getSpeed(rotor.channel);
+    cur_states->states.back().status = tobas_msgs::msg::RotorState::SPEED_ONLY;
   }
 
-  cur_speeds_pub_->publish(move(cur_speeds));
+  cur_states_pub_->publish(move(cur_states));
 }
 
 void DShotDriverNode::publishArming()
@@ -260,7 +262,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Resister publishers
-  cur_speeds_pub_ = createPublisher<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsTopic);
+  cur_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
 
   // Resister subscribers
@@ -313,7 +315,7 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   }
 
   // Publish current speeds
-  publishCurrentSpeeds();
+  publishCurrentStates();
 
   // Reset timeout timers
   auto_stop_timer_->reset();
@@ -414,7 +416,7 @@ void DShotDriverNode::autoStopTimerCb()
   if (!stopRotors())
     return;
 
-  publishCurrentSpeeds();
+  publishCurrentStates();
 
   if (is_commanded_)
   {

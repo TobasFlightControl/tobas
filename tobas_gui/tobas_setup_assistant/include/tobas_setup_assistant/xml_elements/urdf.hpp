@@ -18,7 +18,7 @@ void addBatteryPlugin(
   double max_current,
   double current_capacity,
   double internal_registance,
-  int num_rotors);
+  const std::vector<size_t>& rotor_channels);
 
 void addIMUPlugin(
   tinyxml2::XMLElement* robot,
@@ -90,11 +90,6 @@ void addFixedWingPlugin(
 void addGazeboWindPlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
 
 void addGazeboGroundTruthStatePlugin(tinyxml2::XMLElement* robot, const std::string& ns, const std::string& link_name);
-
-void addRotorSpeedsPublisherPlugin(
-  tinyxml2::XMLElement* robot,
-  const std::string& ns,
-  const std::vector<std::string>& rotor_joint_names);
 
 /* https://github.com/ros-controls/gz_ros2_control/tree/jazzy */
 void addGazeboSimROS2ControlPlugin(

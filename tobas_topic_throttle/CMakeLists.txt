@@ -29,7 +29,7 @@ rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryLPFThrottleN
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "OdometryThrottleNode" EXECUTABLE odom_throttle)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "EulerThrottleNode" EXECUTABLE euler_throttle)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputThrottleNode" EXECUTABLE rc_input_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorSpeedsThrottleNode" EXECUTABLE rotor_speeds_throttle)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorStatesThrottleNode" EXECUTABLE rotor_states_throttle)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
