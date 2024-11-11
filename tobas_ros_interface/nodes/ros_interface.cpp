@@ -8,6 +8,7 @@
 #include <tobas_real_common/constants.hpp>
 
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
+#include <tobas_kdl_msgs/msg/tree.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
@@ -22,6 +23,7 @@
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
+#include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_hal_msgs/msg/imu.hpp>
 #include <tobas_hal_msgs/msg/magnetic_field.hpp>
@@ -92,6 +94,8 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   callback_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
   addTopicLogicToIface<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
+  addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
+  addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKDLTreeTopic, tobas::kKDLTreeTopic, true, true);
   addTopicLogicToIface<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
