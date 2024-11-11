@@ -70,7 +70,7 @@ void SBUS::readThreadFunc()
       cerr << TIMEOUT_ERROR_MSG << endl;
       continue;
     }
-    PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte << dec << nouppercase);
+    PRINT_DEBUG("Start byte: " << hex << uppercase << (int)start_byte);
     if (start_byte != 0x0F)
       continue;
 
@@ -82,7 +82,7 @@ void SBUS::readThreadFunc()
         cerr << TIMEOUT_ERROR_MSG << endl;
         continue;
       }
-      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data[i] << dec << nouppercase);
+      PRINT_DEBUG("Data byte " << i + 1 << ": " << hex << uppercase << (int)data[i]);
     }
 
     // Flags
@@ -91,7 +91,7 @@ void SBUS::readThreadFunc()
       cerr << TIMEOUT_ERROR_MSG << endl;
       continue;
     }
-    PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags << dec << nouppercase);
+    PRINT_DEBUG("Flags byte: " << hex << uppercase << (int)flags);
 
     // End byte
     if (!uart_.receive(&end_byte, 1))
@@ -99,10 +99,10 @@ void SBUS::readThreadFunc()
       cerr << TIMEOUT_ERROR_MSG << endl;
       continue;
     }
-    PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte << dec << nouppercase);
+    PRINT_DEBUG("End byte: " << hex << uppercase << (int)end_byte);
     if (!end_bytes.contains(end_byte))
     {
-      cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << dec << nouppercase << endl;
+      cerr << "Invalid end byte: " << hex << uppercase << (int)end_byte << endl;
       continue;
     }
 
