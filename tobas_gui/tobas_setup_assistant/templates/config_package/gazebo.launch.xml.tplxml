@@ -34,7 +34,7 @@
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
     <!-- Spawn robot in Gazebo -->
-    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name f450 -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
+    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
 
     <!-- Launch joint controllers -->
     <include file="$(find-pkg-share tobas_f450_config)/launch/controller_manager.launch.xml"/>
