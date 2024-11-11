@@ -24,6 +24,9 @@ std::string getTBSUserCppName(const std::filesystem::path& tbs_path);
 /* 拡張子を除くTobasユーザPythonパッケージ名を返す． */
 std::string getTBSUserPyName(const std::filesystem::path& tbs_path);
 
+/* PC上のバックアップディレクトリの絶対パスを返す． */
+std::filesystem::path getBackupPath(const std::filesystem::path& tbs_path);
+
 /* PC上のTobasメタパッケージの絶対パスを返す． */
 std::filesystem::path getTBSMetaPath(const std::filesystem::path& tbs_path);
 

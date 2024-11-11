@@ -46,6 +46,10 @@ bool PackageGenerator::generatePackage()
     return false;
   }
 
+  // バックアップファイルを作成
+  if (!generateBackupFiles())
+    return false;
+
   // テンプレート用アイテムを作成
   const auto tpl_data = createTemplateData();
 
@@ -206,6 +210,31 @@ tobas::Drone PackageGenerator::createDrone()
   return drone;
 }
 
+bool PackageGenerator::generateBackupFiles()
+{
+  const auto tbs_path = tbsPath();
+
+  // ディレクトリを作成
+  const auto backup_dir = common::getBackupPath(tbs_path);
+  fs::create_directory(backup_dir);
+
+  // 設定ファイル
+  const auto backup_data = settings_->dump();
+  if (!saveYamlNode(common::getSettingsPath(tbs_path), backup_data))
+    return false;
+
+  // オリジナルURDF
+  const auto doc = urdf::exportURDF(*robot_.urdf());
+  const auto robot = doc->RootElement();
+  if (doc->SaveFile(common::getOriginalURDFPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS)
+  {
+    qt::qErrorBox(settings_, "Failed to save the original URDF.");
+    return false;
+  }
+
+  return true;
+}
+
 bool PackageGenerator::generateMetaPackage(const inja::json& tpl_data)
 {
   const auto meta_pkg_path = common::getTBSMetaPath(tbsPath());
@@ -226,21 +255,14 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   fs::create_directory(pkg_path);
 
   // ディレクトリを作成
-  const auto backup_dir = pkg_path / "backup";
   const auto config_dir = pkg_path / "config";
   const auto launch_dir = pkg_path / "launch";
   const auto urdf_dir = pkg_path / "urdf";
   const auto mesh_dir = pkg_path / "meshes";
-  fs::create_directory(backup_dir);
   fs::create_directory(config_dir);
   fs::create_directory(launch_dir);
   fs::create_directory(urdf_dir);
   fs::create_directory(mesh_dir);
-
-  // バックアップ用ファイル
-  const auto backup_data = settings_->dump();
-  if (!saveYamlNode(common::getSettingsPath(tbsPath()), backup_data))
-    return false;
 
   // テンプレートから生成
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
@@ -286,7 +308,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateObserverStaticConfig(config_dir))
     return false;
-  if (!generateURDFs(mesh_dir))
+  if (!generateURDF(mesh_dir))
     return false;
 
   return true;
@@ -497,7 +519,7 @@ bool PackageGenerator::generateObserverStaticConfig(const fs::path& config_dir)
   return true;
 }
 
-bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
+bool PackageGenerator::generateURDF(const fs::path& mesh_dir)
 {
   // Export the original URDF
   // コメントやGazeboプラグインなどの不確定要素を排するため，テキストそのままではなく一度URDFオブジェクトを介してエクスポートする．
@@ -511,13 +533,6 @@ bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
     return false;
   }
 
-  // Save original URDF
-  if (doc->SaveFile(common::getOriginalURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
-  {
-    qt::qErrorBox(settings_, "Failed to save the original URDF.");
-    return false;
-  }
-
   // Modify robot
   if (!resolveMeshFiles(robot, mesh_dir))
     return false;
@@ -527,7 +542,7 @@ bool PackageGenerator::generateURDFs(const fs::path& mesh_dir)
   // Save modified URDF
   if (doc->SaveFile(common::getModifiedURDFPath(tbsPath()).c_str()) != tinyxml2::XML_SUCCESS)
   {
-    qt::qErrorBox(settings_, "Failed to save the original URDF.");
+    qt::qErrorBox(settings_, "Failed to save the modified URDF.");
     return false;
   }
 

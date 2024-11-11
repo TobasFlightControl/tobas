@@ -40,6 +40,7 @@ private:
   inja::json createTemplateData();
   tobas::Drone createDrone();
 
+  bool generateBackupFiles();
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);
   bool generateUserCppPackage(const inja::json& data);
@@ -52,7 +53,7 @@ private:
   bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
   bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
   bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
-  bool generateURDFs(const std::filesystem::path& mesh_dir);
+  bool generateURDF(const std::filesystem::path& mesh_dir);
 
   /* 空のファイルを作成する． */
   bool createEmptyFile(const std::filesystem::path& file_path);

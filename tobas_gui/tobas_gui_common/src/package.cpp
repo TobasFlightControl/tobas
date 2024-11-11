@@ -42,6 +42,11 @@ string getTBSUserPyName(const fs::path& tbs_path)
   return getTBSName(tbs_path) + "_user_py";
 }
 
+fs::path getBackupPath(const fs::path& tbs_path)
+{
+  return tbs_path / "backup";
+}
+
 fs::path getTBSMetaPath(const fs::path& tbs_path)
 {
   return tbs_path / getTBSMetaName(tbs_path);
@@ -89,12 +94,12 @@ fs::path getObserverDynamicParamsPath(const fs::path& tbs_path)
 
 fs::path getSettingsPath(const fs::path& tbs_path)
 {
-  return getTBSConfigPath(tbs_path) / "backup" / "settings.yaml";
+  return getBackupPath(tbs_path) / "settings.yaml";
 }
 
 fs::path getOriginalURDFPath(const fs::path& tbs_path)
 {
-  return getTBSConfigPath(tbs_path) / "backup" / "original.urdf";
+  return getBackupPath(tbs_path) / "original.urdf";
 }
 }  // namespace common
 }  // namespace gui
