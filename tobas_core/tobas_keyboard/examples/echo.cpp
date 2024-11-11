@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <thread>
 
 #include <tobas_keyboard/keyboard_reader.hpp>
 
@@ -17,10 +18,12 @@ int main()
     if (c < 0)
       cout << "Failed to read keyboard." << endl;
     else if (c == 0)
-      continue;
+      ;
     else if (c < 0x21)
       cout << "Special Command : " << HEX_STREAM(c) << endl;
     else
       cout << "Normal Character: " << c << endl;
+
+    this_thread::sleep_for(10ms);
   }
 }
