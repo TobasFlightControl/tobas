@@ -274,6 +274,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
+  config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
   // GUI Teleop (コントローラの対応コマンドによって場合分け)

@@ -222,7 +222,7 @@ bool SimulationWidget::startHITL()
 
   // Realサービスを停止
   progress.setLabelText("Stopping Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target") != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
@@ -266,7 +266,7 @@ bool SimulationWidget::startHITL()
 
   // HITLサービスを起動
   progress.setLabelText("Starting Tobas HITL service.");
-  if (ssh_client_.execute("systemctl restart tobas_hitl.service") != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl restart tobas_hitl.service", true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "Failed to restart Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
@@ -305,7 +305,7 @@ bool SimulationWidget::terminateHITL()
 
   // HITLサービスを停止
   progress.setLabelText("Stopping Tobas HITL service.");
-  if (ssh_client_.execute("systemctl stop tobas_hitl.service") != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl stop tobas_hitl.service", true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "Failed to stop Tobas HITL service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();
@@ -315,7 +315,7 @@ bool SimulationWidget::terminateHITL()
 
   // Realサービスを起動
   progress.setLabelText("Starting Tobas real service.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target") != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "Failed to start Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     progress.close();

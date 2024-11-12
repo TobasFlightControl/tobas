@@ -258,7 +258,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping Tobas real service.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target") != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
@@ -304,7 +304,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // サービスを再起動
   progress.setLabelText("Restarting the flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target") != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
     qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
