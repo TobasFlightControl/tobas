@@ -1,7 +1,9 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include <tobas_path_tools/join.hpp>
 #include <tobas_linux/errer.hpp>
+#include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_gui_common/constants.hpp>
@@ -67,6 +69,9 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
     qt::qErrorBox(this, "Failed to load drone configurations.");
     return false;
   }
+
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   tbs_path_ = tbs_path;
   setEnabled(true);
