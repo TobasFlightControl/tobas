@@ -33,7 +33,6 @@ def generate_launch_description():
     ground_truth = LaunchConfiguration(GROUND_TRUTH)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
-    hw_pkg_share = FindPackageShare(HARDWARE_PKG)
 
     # Launch Tobas core software
     ld.add_action(
@@ -51,7 +50,7 @@ def generate_launch_description():
     )
 
     # Launch nodes for handling RC input
-    ld.add_action(Node(package=hw_pkg_share, executable="sbus_driver", namespace=DRONE_NAME))
+    ld.add_action(Node(package=HARDWARE_PKG, executable="sbus_driver", namespace=DRONE_NAME))
     ld.add_action(Node(package="tobas_real_ros", executable="rcin_handler", namespace=DRONE_NAME))
 
     return ld
