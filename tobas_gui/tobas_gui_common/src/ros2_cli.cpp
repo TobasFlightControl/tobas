@@ -35,10 +35,11 @@ pid_t roslaunch(const string& pkg, const string& name, const map<string, string>
   command.push_back(const_cast<char*>(pkg.c_str()));
   command.push_back(const_cast<char*>(name.c_str()));
 
+  vector<string> arg_buf;  // const_castは文字列をコピーしないため，明示的に文字列のメモリを確保しておく必要がある．
   for (const auto& arg : args)
   {
-    const auto arg_str = arg.first + ":=" + arg.second;
-    command.push_back(const_cast<char*>(arg_str.c_str()));
+    arg_buf.push_back(arg.first + ":=" + arg.second);
+    command.push_back(const_cast<char*>(arg_buf.back().c_str()));
   }
 
   return linux::createSubprocess(command);

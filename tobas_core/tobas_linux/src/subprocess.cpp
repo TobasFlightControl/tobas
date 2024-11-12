@@ -32,6 +32,11 @@ pid_t createSubprocess(const vector<char*>& command)
   else
   {
     // PIDが0だった場合は子プロセスなので，その内容を与えられたコマンドに置換する．
+    cout << "Executing: ";
+    for (const auto& cmd_elem : command)
+      cout << cmd_elem << " ";
+    cout << endl;
+
     auto argv = command;
     argv.push_back(nullptr);                 // 引数リストの終端
     return execvp(argv.at(0), argv.data());  // ここでブロッキング

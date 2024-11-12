@@ -7,6 +7,12 @@ namespace gui
 {
 namespace sim
 {
+enum sim_type_t
+{
+  SITL,
+  HITL,
+};
+
 class SimulationTypeWidget : public QWidget
 {
   Q_OBJECT
@@ -15,15 +21,9 @@ class SimulationTypeWidget : public QWidget
   using super = QWidget;
 
 public:
-  enum type_t
-  {
-    SITL,
-    HITL,
-  };
-
   explicit SimulationTypeWidget();
 
-  type_t simulationType() const;
+  sim_type_t simulationType() const;
 
 private:
   QButtonGroup* ckb_group_;

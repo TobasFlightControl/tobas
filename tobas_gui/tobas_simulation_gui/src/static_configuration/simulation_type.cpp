@@ -32,7 +32,7 @@ SimulationTypeWidget::SimulationTypeWidget()
   setLayout(rows);
 }
 
-SimulationTypeWidget::type_t SimulationTypeWidget::simulationType() const
+sim_type_t SimulationTypeWidget::simulationType() const
 {
   const auto checked_button = ckb_group_->checkedButton();
 

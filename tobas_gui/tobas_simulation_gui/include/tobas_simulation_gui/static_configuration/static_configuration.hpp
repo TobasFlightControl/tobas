@@ -17,6 +17,9 @@ class StaticConfigWidget : public QWidget
 public:
   explicit StaticConfigWidget(rclcpp::Node::SharedPtr node);
 
+  sim_type_t simulationType() const;
+  std::filesystem::path worldPath() const;
+
 private:
   SimulationTypeWidget* type_;
   WorldWidget* world_;

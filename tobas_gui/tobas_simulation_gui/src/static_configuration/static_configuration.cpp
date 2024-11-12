@@ -6,6 +6,8 @@
 #include "tobas_simulation_gui/static_configuration/static_configuration.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
+namespace fs = std::filesystem;
+
 namespace gui
 {
 namespace sim
@@ -25,6 +27,16 @@ StaticConfigWidget::StaticConfigWidget(rclcpp::Node::SharedPtr node)
   rows->addWidget(world_);
 
   rows->addStretch();
+}
+
+sim_type_t StaticConfigWidget::simulationType() const
+{
+  return type_->simulationType();
+}
+
+fs::path StaticConfigWidget::worldPath() const
+{
+  return world_->worldPath();
 }
 }  // namespace sim
 }  // namespace gui

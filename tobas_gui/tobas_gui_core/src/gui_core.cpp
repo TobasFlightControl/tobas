@@ -238,27 +238,30 @@ void GUICoreWidget::onWriteButtonClicked()
     }
   }
 
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qWarnBox(this, "No SSH connection.");
-    return;
-  }
-
   const auto tbs_path = tbsPath();
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path);
 
   // 進捗バーを作成
-  qt::ProgressDialog progress(kTitle, 6, this);
+  qt::ProgressDialog progress(kTitle, 7, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
-  // サービスを停止
-  progress.setLabelText("Stopping Tobas flight controller.");
-  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
+  // SSH接続
+  progress.setLabelText("Connecting to the flight controller.");
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to stop Tobas:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "No SSH connection.");
+    return;
+  }
+  progress.progressStep();
+
+  // サービスを停止
+  progress.setLabelText("Stopping Tobas real service.");
+  if (ssh_client_.execute("systemctl stop tobas_real.target") != ssh::SSHClient::E_NO_ERROR)
+  {
+    progress.close();
+    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -270,7 +273,7 @@ void GUICoreWidget::onWriteButtonClicked()
   if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to send tobas configuration package\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -300,17 +303,17 @@ void GUICoreWidget::onWriteButtonClicked()
   progress.progressStep();
 
   // サービスを再起動
-  progress.setLabelText("Restarting Tobas flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
+  progress.setLabelText("Restarting the flight controller.");
+  if (ssh_client_.execute("systemctl restart tobas_real.target") != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to restart Tobas:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
 
-  // GCSをリロード
-  progress.setLabelText("Reloading GCS");
+  // リロード
+  progress.setLabelText("Reloading.");
   updateInternalDataStructures();
   progress.progressStep();
 
