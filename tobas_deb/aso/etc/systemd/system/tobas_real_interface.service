@@ -4,7 +4,7 @@ After=network-online.target hostapd.service
 Requires=network-online.target hostapd.service
 # After=tobas_fastdds_discovery.service
 # Requires=tobas_fastdds_discovery.service
-PartOf=tobas.target
+PartOf=tobas_real.target
 
 [Service]
 Type=simple

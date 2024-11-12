@@ -2,7 +2,7 @@
 Description=Tobas Realtime Process
 After=network-online.target dev-ttyAMA0.device
 Requires=network-online.target dev-ttyAMA0.device
-PartOf=tobas.target
+PartOf=tobas_real.target
 
 [Service]
 Type=simple

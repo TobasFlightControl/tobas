@@ -33,4 +33,4 @@ sudo systemctl disable dphys-swapfile.service
 sudo systemctl disable NetworkManager.service
 
 # Enable Tobas services
-sudo systemctl enable tobas.target
+sudo systemctl enable tobas_real.target
