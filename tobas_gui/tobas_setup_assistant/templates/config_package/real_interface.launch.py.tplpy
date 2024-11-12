@@ -8,7 +8,6 @@ from launch_ros.substitutions import FindPackageShare
 # Template parameters
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 
-
 # Arguments
 LOG_LEVEL = "log_level"
 OUTPUT = "output"
