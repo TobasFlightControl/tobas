@@ -18,7 +18,6 @@ class WindParamsWidget : public QWidget
   using GetSrv = tobas_gazebo_msgs::srv::GetWindParams;
   using SetSrv = tobas_gazebo_msgs::srv::SetWindParams;
 
-  static constexpr int kTitlePSize = 18;
   static constexpr auto kWaitForService = std::chrono::seconds(10);
   static constexpr auto kServiceCallTimeout = std::chrono::seconds(1);
 

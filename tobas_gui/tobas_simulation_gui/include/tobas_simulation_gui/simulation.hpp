@@ -7,7 +7,8 @@
 #include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_gui_common/local_package_builder.hpp>
 
-#include "./wind_parameters.hpp"
+#include "./static_configuration/static_configuration.hpp"
+#include "./dynamic_configuration/dynamic_configuration.hpp"
 
 namespace gui
 {
@@ -42,7 +43,8 @@ private:
   QPushButton* start_button_;
   QPushButton* terminate_button_;
 
-  WindParamsWidget* wind_params_;
+  StaticConfigWidget* static_config_;
+  DynamicConfigWidget* dynamic_config_;
 
 private Q_SLOTS:
   void onStartButtonClicked();

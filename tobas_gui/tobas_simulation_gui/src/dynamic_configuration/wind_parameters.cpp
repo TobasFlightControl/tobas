@@ -7,7 +7,8 @@
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gui_common/constants.hpp>
 
-#include "tobas_simulation_gui/wind_parameters.hpp"
+#include "tobas_simulation_gui/dynamic_configuration/wind_parameters.hpp"
+#include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
 {
@@ -15,7 +16,7 @@ namespace sim
 {
 WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  const auto title = new qt::Label("Wind Parameters", kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Wind Parameters", kLabelPSize, QFont::Bold);
 
   mean_speed_ = new qt::DoubleSliderTextWidget(0., 20.);
   direction_ = new qt::DoubleSliderTextWidget(-M_PI, M_PI);

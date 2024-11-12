@@ -1,3 +1,4 @@
+#include <rcutils/env.h>
 #include <QLabel>
 #include <QButtonGroup>
 #include <QVBoxLayout>
@@ -5,7 +6,6 @@
 #include <QCoreApplication>
 
 #include <tobas_path_tools/join.hpp>
-#include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -156,7 +156,7 @@ void GUICoreWidget::onBrowseButtonClicked()
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
   {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = linux::homeDir();
+    last_opened_dir = rcutils_get_home_dir();
   }
 
   // Tobasパッケージのパスを取得
@@ -255,7 +255,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // サービスを停止
   progress.setLabelText("Stopping Tobas flight controller.");
-  if (ssh_client_.execute("systemctl stop tobas.target", true) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
     qt::qErrorBox(this, "Failed to stop Tobas:\n\n" + QString(ssh_client_.errorMessage()));
@@ -301,7 +301,7 @@ void GUICoreWidget::onWriteButtonClicked()
 
   // サービスを再起動
   progress.setLabelText("Restarting Tobas flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas.target", true) != ssh::SSHClient::E_NO_ERROR)
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
     qt::qErrorBox(this, "Failed to restart Tobas:\n\n" + QString(ssh_client_.errorMessage()));

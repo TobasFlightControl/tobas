@@ -57,11 +57,6 @@ void SpeedLimitWidget_Base::setChecked(bool checked)
 {
   checkbox_->setChecked(checked);
 }
-
-void SpeedLimitWidget_Base::onCheckBoxToggled(bool toggled)
-{
-  spinbox_->setEnabled(toggled);
-}
 }  // namespace propulsion_system
 }  // namespace setup_assistant
 }  // namespace gui

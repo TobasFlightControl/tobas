@@ -1,9 +1,9 @@
 #include <filesystem>
+#include <rcutils/env.h>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QFileDialog>
 
-#include <tobas_linux/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
@@ -56,7 +56,7 @@ void PackageLoaderWidget::onLoadButtonClicked()
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
   {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = linux::homeDir();
+    last_opened_dir = rcutils_get_home_dir();
   }
 
   // Tobasパッケージのパスを取得

@@ -220,6 +220,7 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& req, c
   dryden_.setMeanWindSpeed(req->params.mean_speed);
 
   res->success = true;
+  TOBAS_INFO("Wind parameters are updated.");
 }
 }  // namespace gazebo
 

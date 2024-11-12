@@ -23,7 +23,8 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node) : node_(node)
   terminate_button_ = new QPushButton("Terminate");
   terminate_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  wind_params_ = new WindParamsWidget(node);
+  static_config_ = new StaticConfigWidget(node);
+  dynamic_config_ = new DynamicConfigWidget(node);
 
   // Layout
   const auto button_cols = new QHBoxLayout();
@@ -31,10 +32,13 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node) : node_(node)
   button_cols->addWidget(terminate_button_);
   button_cols->addStretch();
 
+  const auto config_cols = new QHBoxLayout();
+  config_cols->addWidget(static_config_, 1);
+  config_cols->addWidget(dynamic_config_, 1);
+
   const auto rows = new QVBoxLayout();
   rows->addLayout(button_cols);
-  rows->addWidget(wind_params_);
-  rows->addStretch();
+  rows->addLayout(config_cols);
 
   setLayout(rows);
 
@@ -57,7 +61,8 @@ void SimulationWidget::reset()
 
   start_button_->setEnabled(true);
   terminate_button_->setEnabled(false);
-  wind_params_->setEnabled(false);
+  static_config_->setEnabled(true);
+  dynamic_config_->setEnabled(false);
 }
 
 void SimulationWidget::killGazebo()
@@ -129,7 +134,7 @@ void SimulationWidget::onStartButtonClicked()
 
   // Initialize wind parameter manager
   progress.setLabelText("Initializing wind parameter manager.");
-  if (!wind_params_->initialize(drone_.name))
+  if (!dynamic_config_->initialize(drone_.name))
   {
     progress.close();
     reset();
@@ -138,7 +143,8 @@ void SimulationWidget::onStartButtonClicked()
 
   start_button_->setEnabled(false);
   terminate_button_->setEnabled(true);
-  wind_params_->setEnabled(true);
+  static_config_->setEnabled(false);
+  dynamic_config_->setEnabled(true);
 
   progress.close();
   qt::qInfoBox(this, "Gazebo simulation has started.");
