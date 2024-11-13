@@ -60,7 +60,9 @@ def generate_launch_description():
     # Launch Tobas core software
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution([config_pkg_share, "launch", "common_realtime.launch.py"])),
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([config_pkg_share, "launch", "common_realtime.launch.py"])
+            ),
             launch_arguments={
                 "log_level": log_level,
                 "output": output,
@@ -145,6 +147,30 @@ def generate_launch_description():
                         ComposableNode(
                             package="tobas_real_ros",
                             plugin="TimeReferenceServerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="HalAdcThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="HalSbusThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="HalImuThrottleNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_topic_throttle",
+                            plugin="HalMagThrottleNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),

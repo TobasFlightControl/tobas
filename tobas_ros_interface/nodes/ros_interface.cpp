@@ -105,11 +105,10 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(throttled(tobas::kEulerTopic), tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::MagneticField>(hal::kMagTopic, hal::kMagTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic, hal::kAirPressureTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Imu>(throttled(hal::kIMUTopic), hal::kIMUTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::MagneticField>(throttled(hal::kMagTopic), hal::kMagTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(throttled(hal::kADCTopic), hal::kADCTopic);
+  addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(throttled(hal::kSBUSTopic), hal::kSBUSTopic);
 
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
 

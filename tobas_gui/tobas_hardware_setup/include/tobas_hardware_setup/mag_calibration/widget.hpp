@@ -24,8 +24,8 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   using super = BaseHardwareSetupWidget;
 
   static constexpr char kRvizPointTopic[] = "rviz/magnetic_field";
-  static constexpr int kMinDataSize = 1000;
-  static constexpr int kMaxDataSize = 100000;  // 8[B] * 3 * 100000 = 2400000[B] = 2.4[MB]
+  static constexpr int kMinDataSize = 500;
+  static constexpr int kMaxDataSize = 50000;  // 8[B] * 3 * 50000 = 1200000[B] = 1.2[MB]
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
   static constexpr double kRvizPointScale = 10.;
