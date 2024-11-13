@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Use all CPUs
-taskset -cpa 0-3 $$
-
 export COLCON_WS=~/colcon_ws
 PARDIR=$(realpath $(dirname "$0"))
 
