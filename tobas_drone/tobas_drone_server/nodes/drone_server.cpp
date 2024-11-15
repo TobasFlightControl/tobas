@@ -2,8 +2,6 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
-using namespace std;
-
 class DroneServerNode : public tobas::BaseNode
 {
   using self = DroneServerNode;
@@ -15,7 +13,7 @@ public:
 private:
   ros2::PublisherPtr<tobas::Drone> drone_pub_;
 
-  bool fileParamCb(const string& p);
+  bool fileParamCb(const std::string& p);
 };
 
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
@@ -25,7 +23,7 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
   drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
 }
 
-bool DroneServerNode::fileParamCb(const string& p)
+bool DroneServerNode::fileParamCb(const std::string& p)
 {
   auto drone = std::make_unique<tobas::Drone>();
 

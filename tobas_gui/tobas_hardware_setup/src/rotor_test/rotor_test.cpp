@@ -62,8 +62,10 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
     rotors_.at(ch) = new RotorWidget();
     rotor_cols->addWidget(rotors_.at(ch));
     connect(
-      rotors_.at(ch), &RotorWidget::targetRPMChanged, bind(&self::onTargetRPMChanged, this, placeholders::_1, ch));
-    connect(rotors_.at(ch), &RotorWidget::gainChanged, bind(&self::onGainChanged, this, placeholders::_1, ch));
+      rotors_.at(ch), &RotorWidget::targetRPMChanged,
+      std::bind(&self::onTargetRPMChanged, this, std::placeholders::_1, ch));
+    connect(
+      rotors_.at(ch), &RotorWidget::gainChanged, std::bind(&self::onGainChanged, this, std::placeholders::_1, ch));
   }
 
   setEnabled(false);

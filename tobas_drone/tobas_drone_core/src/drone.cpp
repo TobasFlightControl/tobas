@@ -3,6 +3,7 @@
 #include "../include/tobas_drone_core/drone.hpp"
 
 using namespace std;
+namespace fs = filesystem;
 
 namespace tobas
 {
@@ -139,7 +140,7 @@ YAML::Node Drone::dump() const
   return node;
 }
 
-bool Drone::load(const filesystem::path& path)
+bool Drone::load(const fs::path& path)
 {
   if (path.extension() != kDroneExt)
   {
@@ -160,7 +161,7 @@ bool Drone::load(const filesystem::path& path)
   return true;
 }
 
-bool Drone::save(const filesystem::path& path) const
+bool Drone::save(const fs::path& path) const
 {
   if (path.extension() != kDroneExt)
   {

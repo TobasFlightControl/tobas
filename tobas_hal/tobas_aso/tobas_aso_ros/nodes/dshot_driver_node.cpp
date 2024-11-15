@@ -16,6 +16,9 @@
 
 #include <tobas_aso_core/dshot.hpp>
 
+using namespace std;
+namespace fs = filesystem;
+
 class DShotDriverNode : public tobas::BaseNode
 {
   using self = DShotDriverNode;
@@ -37,7 +40,7 @@ private:
   aso::DShot dshot_;
 
   ptree::PropertyTree pt_;
-  std::array<uint8_t, aso::DShot::kChannelSize> gains_ = { 0 };
+  array<uint8_t, aso::DShot::kChannelSize> gains_ = { 0 };
   bool is_armed_ = false;
   bool is_commanded_ = false;
   tobas::Drone::ConstSharedPtr drone_;
@@ -247,7 +250,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       TOBAS_ERROR("Rotor channel ", rotor.channel, " is out of range.");
       continue;
     }
-    if (!pt_.get(kGainKeyPrefix + std::to_string(rotor.channel), gains_.at(rotor.channel)))
+    if (!pt_.get(kGainKeyPrefix + to_string(rotor.channel), gains_.at(rotor.channel)))
     {
       TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", rotor.channel, ".");
       continue;
@@ -396,7 +399,7 @@ void DShotDriverNode::saveGainsCb(const SaveGains::Request::ConstSharedPtr&, con
 {
   for (size_t ch = 0; ch < aso::DShot::kChannelSize; ++ch)
   {
-    const auto key = kGainKeyPrefix + std::to_string(ch);
+    const auto key = kGainKeyPrefix + to_string(ch);
     pt_.set(key, gains_.at(ch));
   }
 
