@@ -54,16 +54,16 @@ class ROSBagRecorderNode : public tobas::BaseNode
   using self = ROSBagRecorderNode;
   using super = tobas::BaseNode;
 
+  using StartSrv = tobas_msgs::srv::BagRecordStart;
+  using StopSrv = tobas_msgs::srv::BagRecordStop;
+  using CleanSrv = std_srvs::srv::Trigger;
+
   static constexpr size_t kMaxROSBagSize = 5UL * BILLION;   // [byte]
   static constexpr size_t kMaxParDirSize = 10UL * BILLION;  // [byte]
   static constexpr auto kCheckSizeTimerPeriod = 10s;
 
 public:
   explicit ROSBagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-
-  using StartSrv = tobas_msgs::srv::BagRecordStart;
-  using StopSrv = tobas_msgs::srv::BagRecordStop;
-  using CleanSrv = std_srvs::srv::Trigger;
 
 private:
   const string ns_;
