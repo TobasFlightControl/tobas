@@ -111,12 +111,6 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package="tobas_preprocess",
-                            plugin="BatteryLPFNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
                             package="tobas_rotor_controller",
                             plugin="RotorControllerNode",
                             namespace=DRONE_NAME,
@@ -231,7 +225,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_topic_throttle",
-                            plugin="BatteryLPFThrottleNode",
+                            plugin="BatteryThrottleNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),

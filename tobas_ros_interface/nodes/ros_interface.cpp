@@ -97,7 +97,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
   addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKDLTreeTopic, tobas::kKDLTreeTopic, true, true);
-  addTopicLogicToIface<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryTopic), tobas::kBatteryTopic);
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);

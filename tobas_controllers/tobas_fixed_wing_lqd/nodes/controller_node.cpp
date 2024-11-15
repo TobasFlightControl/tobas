@@ -152,7 +152,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   air_pressure_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::airPressureCb, this);
-  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   cmd_sub_ = createSubscriber(tobas::kSpeedRollDpitchCmdTopic, &self::commandCb, this);
 }
@@ -218,7 +218,7 @@ bool ControllerNode::isReadyToControl()
 
   if (battery_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryLpfTopic, "\".");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryTopic, "\".");
     return false;
   }
 

@@ -32,7 +32,6 @@ static constexpr char kDroneTopic[] = "drone";
 static constexpr char kKDLTreeTopic[] = "kdl_tree";
 static constexpr char kRobotDescriptionTopic[] = "robot_description";
 static constexpr char kBatteryTopic[] = "battery";
-static constexpr char kBatteryLpfTopic[] = "battery_filtered";
 static constexpr char kCPUTopic[] = "cpu";
 static constexpr char kRcInputTopic[] = "rc_input";
 static constexpr char kIMUTopic[] = "imu";

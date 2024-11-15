@@ -142,7 +142,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  battery_sub_ = createSubscriber(tobas::kBatteryLpfTopic, &self::batteryCb, this);
+  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
   if (drone_.isTransformable())
     js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
@@ -186,7 +186,7 @@ bool ControllerNode::isReadyToControl()
 
   if (battery_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryLpfTopic, "\".");
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryTopic, "\".");
     return false;
   }
 
