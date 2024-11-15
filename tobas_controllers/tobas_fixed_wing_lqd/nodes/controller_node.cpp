@@ -286,7 +286,7 @@ void ControllerNode::publishThrusts(const VectorXd& thrusts)
   for (int i = 0; i < thrusts.rows(); ++i)
   {
     thrusts_msg->thrusts.emplace_back();
-    thrusts_msg->thrusts.back().channel = x_rotors_.rotorIdx(i);
+    thrusts_msg->thrusts.back().channel = x_rotors_.channel(i);
     thrusts_msg->thrusts.back().thrust = thrusts(i);
   }
 

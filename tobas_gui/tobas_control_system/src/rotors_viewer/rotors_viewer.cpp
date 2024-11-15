@@ -30,7 +30,7 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     meter->setTopText(rotor.link_name.c_str());
     meter->setBottomText(bottomText(0));
 
-    meters_.push_back(meter);
+    meters_[rotor.channel] = meter;
     cols_->addWidget(meter);
   }
 
@@ -44,7 +44,7 @@ void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::
   {
     if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
       continue;
-    if (state.channel >= meters_.size())
+    if (!meters_.contains(state.channel))
       continue;
 
     const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(state.speed));

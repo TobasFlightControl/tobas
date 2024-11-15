@@ -31,5 +31,5 @@ public:
   YAML::Node dump() const;
 };
 
-using JointConfigMap = std::map<std::string, JointConfig>;
+using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> JointConfig
 }  // namespace tobas

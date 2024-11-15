@@ -141,7 +141,7 @@ tobas::Drone PackageGenerator::createDrone()
   {
     const auto link_name = props->linkName(i).toStdString();
     const auto prop_config = props->widget(i);
-    drone.rotors.at(i).channel = i;
+    drone.rotors.at(i).channel = i;  // TODO: チャンネルを指定できるようにする
     drone.rotors.at(i).link_name = link_name;
     drone.rotors.at(i).direction = prop_config->motor()->direction();
     drone.rotors.at(i).axis = robot_.rotorAxisType(link_name);

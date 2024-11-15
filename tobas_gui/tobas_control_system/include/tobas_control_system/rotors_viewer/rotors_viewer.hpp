@@ -29,7 +29,7 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
 
-  std::vector<SpeedmeterWidget*> meters_;
+  std::map<size_t, SpeedmeterWidget*> meters_;
   QHBoxLayout* cols_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;

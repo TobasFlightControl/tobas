@@ -373,7 +373,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     for (int i = 0; i < thrusts.rows(); ++i)
     {
       thrusts_msg->thrusts.emplace_back();
-      thrusts_msg->thrusts.back().channel = z_rotors_.rotorIdx(i);
+      thrusts_msg->thrusts.back().channel = z_rotors_.channel(i);
       thrusts_msg->thrusts.back().thrust = thrusts(i);
     }
     tar_thrusts_pub_->publish(move(thrusts_msg));

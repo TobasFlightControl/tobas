@@ -22,6 +22,9 @@ public:
   /* 抽出したロータ配列の添字から元のロータ配列の添字を取得． */
   inline const size_t& rotorIdx(const size_t& inner_idx) const;
 
+  /* モータが接続されているチャンネル． */
+  inline const uint32_t& channel(const size_t& inner_idx) const;
+
   /* プロペラのリンク名． */
   inline const std::string& linkName(const size_t& inner_idx) const;
 
@@ -39,9 +42,6 @@ public:
 
   /* 空気効力定数 [kg/rad]． */
   inline const double& dragConstant(const size_t& inner_idx) const;
-
-  /* 回転数と電圧の関係式の係数: V = c1 w + c2 w^2 (V[V], w[rad/s]) */
-  inline const std::pair<double, double>& rotSpeedCoefs(const size_t& inner_idx) const;
 
   /* 機械的に許容できる最大回転数から計算される推力． */
   inline double maxMechanicalThrust(const size_t& inner_idx) const;
@@ -94,7 +94,12 @@ inline const size_t& RotorAxisExtractor::count() const
 
 inline const size_t& RotorAxisExtractor::rotorIdx(const size_t& inner_idx) const
 {
-  return rotor_idxs_[inner_idx];
+  return rotor_idxs_.at(inner_idx);
+}
+
+inline const uint32_t& RotorAxisExtractor::channel(const size_t& inner_idx) const
+{
+  return drone_.rotors.at(rotorIdx(inner_idx)).channel;
 }
 
 inline const std::string& RotorAxisExtractor::linkName(const size_t& inner_idx) const
