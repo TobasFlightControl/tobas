@@ -77,7 +77,7 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
   {
     // Publish rotor states
     auto rotor_states_msg = std::make_unique<tobas_msgs::msg::RotorStateArray>();
-    rotor_states_msg->header.stamp = rotor_state->header.stamp;
+    rotor_states_msg->header.stamp = get_clock()->now();
     rotor_states_msg->states = rotor_states_;
     rotor_states_pub_->publish(move(rotor_states_msg));
 

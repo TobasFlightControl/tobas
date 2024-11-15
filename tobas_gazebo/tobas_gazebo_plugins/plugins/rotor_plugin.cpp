@@ -302,7 +302,6 @@ void GazeboRotorPlugin::applyWrench(
 
   // Create rotor state message
   tobas_msgs::msg::RotorState state_msg;
-  ros2::timeChronoToMsg(cur_time, state_msg.header.stamp);
   state_msg.channel = channel_;
   if (is_intact_)
   {
