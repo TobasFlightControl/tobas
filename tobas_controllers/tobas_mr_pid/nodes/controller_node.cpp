@@ -285,12 +285,6 @@ bool ControllerNode::maxAttitudeCb(const double& p)
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (!drone->isValid())
-  {
-    TOBAS_ERROR("Invalid drone configurations are received.");
-    return;
-  }
-
   drone_ = *drone;
   drone_received_ = true;
 

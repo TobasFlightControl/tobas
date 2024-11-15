@@ -469,12 +469,6 @@ bool ControllerNode::deflectionRateWeightLog10Cb(const long& p)
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (!drone->fixed_wing.equipped)
-  {
-    TOBAS_ERROR("Drone is not equipped with a fixed wing.");
-    return;
-  }
-
   drone_ = *drone;
   drone_received_ = true;
 

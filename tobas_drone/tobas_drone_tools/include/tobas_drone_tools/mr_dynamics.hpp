@@ -11,7 +11,7 @@ namespace tobas
 class MultirotorDynamicsComponents
 {
 public:
-  explicit MultirotorDynamicsComponents(const Drone& tobas, const kdl::Tree& tree);
+  explicit MultirotorDynamicsComponents(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
