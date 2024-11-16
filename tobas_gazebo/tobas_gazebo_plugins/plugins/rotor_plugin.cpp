@@ -19,6 +19,7 @@
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
+#include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
@@ -47,6 +48,7 @@ class GazeboRotorPlugin : public BaseNode,
   static constexpr double kMinBatteryVoltage = 3.;        // [V]
 
   // Default parameters
+  static constexpr size_t kDefaultPublishStateRate = 400;  // [Hz]
   static constexpr double kDefaultMaxModelErrorRate = 0.;
 
   using self = GazeboRotorPlugin;
@@ -74,6 +76,7 @@ private:
   double rotor_drag_coef_;  // [N*s^2/rad/m]
   int direction_;           // Turning direction: 1(CCW) or -1(CW).
   double max_current_;      // [A] ESCの最大電流
+  size_t publish_state_rate_;
   double max_model_error_rate_;
 
   double throttle_ = 0.;  // [0, 1]
@@ -83,6 +86,7 @@ private:
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   bool is_intact_ = true;
   bool wind_received_ = false;
+  RateManager::SharedPtr publish_state_rate_manager_;
 
   // Gazebo objects
   shared_ptr<sim::Joint> joint_;
@@ -126,8 +130,10 @@ void GazeboRotorPlugin::Configure(
   sim::EntityComponentManager& ecm,
   sim::EventManager&)
 {
-  getSdfParams(sdf);
   initialize("gazebo_rotor_plugin_" + to_string(channel_), sdf);
+  getSdfParams(sdf);
+
+  publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
   addModelError();
 
   // Get robot model
@@ -191,6 +197,8 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   direction_ = tobas::sign(static_cast<tobas::turning_direction_t>(turning_direction));
 
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
+
+  getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, NON_NEGATIVE);
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
@@ -201,15 +209,9 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
 
   // Check topics
   if (battery_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, kBatteryGtTopic, " is not received yet.");
     return;
-  }
   if (!wind_received_)
-  {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, kWindGtTopic, " is not received yet.");
     return;
-  }
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
@@ -312,22 +314,24 @@ void GazeboRotorPlugin::applyWrench(
 
   // Publish observed state
   // TODO: 観測ノイズを付加
-  // TODO: 周波数を調整
-  auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
-  state_msg_obs->channel = channel_;
-  if (is_intact_)
+  if (publish_state_rate_manager_->update(cur_time))
   {
-    state_msg_obs->speed = rot_speed;
-    state_msg_obs->current = current;
-    state_msg_obs->status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
+    auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
+    state_msg_obs->channel = channel_;
+    if (is_intact_)
+    {
+      state_msg_obs->speed = rot_speed;
+      state_msg_obs->current = current;
+      state_msg_obs->status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
+    }
+    else
+    {
+      state_msg_obs->speed = nan("ESC is broken.");
+      state_msg_obs->current = nan("ESC is broken.");
+      state_msg_obs->status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+    }
+    state_pub_->publish(move(state_msg_obs));
   }
-  else
-  {
-    state_msg_obs->speed = nan("ESC is broken.");
-    state_msg_obs->current = nan("ESC is broken.");
-    state_msg_obs->status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
-  }
-  state_pub_->publish(move(state_msg_obs));
 
   // Publish ground-truth state
   auto state_msg_gt = make_unique<tobas_msgs::msg::RotorState>();
