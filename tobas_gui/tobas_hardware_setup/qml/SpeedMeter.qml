@@ -8,12 +8,8 @@ Rectangle {
   // Gauge: https://doc.qt.io/qt-5/qml-qtquick-extras-gauge.html
   Gauge {
     id: gauge
-    objectName: "gauge"
     anchors.fill: parent // 親ウィジェットの大きさに自動で合わせる
-    maximumValue: 100
-    minimumValue: 0
     tickmarkStepSize: computeTickmarkStepSize() // 他のメンバ変数に応じて自動調整
-    value: 0
 
     function computeTickmarkStepSize()
     {

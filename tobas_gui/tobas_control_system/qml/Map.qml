@@ -36,7 +36,6 @@ Rectangle {
   // Map QML Type: https://doc.qt.io/qt-5/qml-qtlocation-map.html#supportedMapTypes-prop
   Map {
     id: map
-    objectName: "map"  // Qtからアクセスするためのオブジェクト名
     anchors.fill: parent
     center: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
     copyrightsVisible: false
