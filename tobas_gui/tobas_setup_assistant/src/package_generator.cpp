@@ -268,7 +268,8 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
   config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
   config_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "common_realtime.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "common_realtime_standalone.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir);

@@ -61,7 +61,7 @@ def generate_launch_description():
     ld.add_action(
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                PathJoinSubstitution([config_pkg_share, "launch", "common_realtime.launch.py"])
+                PathJoinSubstitution([config_pkg_share, "launch", "common_realtime_component.launch.py"])
             ),
             launch_arguments={
                 "log_level": log_level,

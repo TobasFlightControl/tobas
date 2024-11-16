@@ -7,6 +7,7 @@
   <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/basic.world"/>
   <arg name="verbose" default="3"/>
   <arg name="ground_truth" default="false"/>
+  <arg name="standalone" default="false"/>
   <arg name="launch_core" default="true"/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
@@ -55,6 +56,7 @@
       <arg name="output" value="$(var output)"/>
       <arg name="use_sim_time" value="$(var use_sim_time)"/>
       <arg name="ground_truth" value="$(var ground_truth)"/>
+      <arg name="standalone" value="$(var standalone)"/>
     </include>
   </group>
 
