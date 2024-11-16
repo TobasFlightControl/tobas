@@ -153,7 +153,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
 
 void ObserverNode::getStaticRosParams()
 {
-  frame_id_ = getStringParam("frame_id", "");
+  frame_id_ = getStringParam("frame_id", "unknown");  // 空文字だとTFが警告文を出す
   use_bar_ = getBoolParam("use_barometer", eskf::kDefaultUseBarometer);
   use_gps_ = getBoolParam("use_gps", eskf::kDefaultUseGps);
   do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", eskf::kDefaultDoAccBiasEstimation);
