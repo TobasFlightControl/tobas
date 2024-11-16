@@ -33,6 +33,7 @@ private:
   StatusWidget* rcin_status_;
   StatusWidget* voltage_status_;
   StatusWidget* cpu_status_;
+  StatusWidget* rotors_status_;
   StatusWidget* attitude_status_;
   StatusWidget* pos_stability_status_;
   StatusWidget* pos_accuracy_status_;

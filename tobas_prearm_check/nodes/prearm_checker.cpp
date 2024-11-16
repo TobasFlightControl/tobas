@@ -7,10 +7,11 @@
 #include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 using namespace std;
@@ -40,6 +41,7 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
+  tobas_msgs::msg::RotorStateArray::ConstSharedPtr rotor_states_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
 
   array<tobas_std::TimestampedBufferDouble, 3> pos_buf_;
@@ -49,6 +51,7 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   ros2::TimerPtr main_timer_;
@@ -56,6 +59,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
+  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
   void mainTimerCb();
@@ -72,6 +76,8 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   batt_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kBatteryTopic), &self::battCb, this);
   cpu_sub_ = createSubscriber(tobas::kCPUTopic, &self::cpuCb, this);
+  rotor_states_sub_ =
+    createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
 
   main_timer_ = createTimer(kPreArmCheckTimerPeriod, &self::mainTimerCb, this);
@@ -90,6 +96,11 @@ void PreArmCheckerNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& b
 void PreArmCheckerNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
   cpu_ = cpu;
+}
+
+void PreArmCheckerNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
+{
+  rotor_states_ = rotor_states;
 }
 
 void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
@@ -149,6 +160,27 @@ void PreArmCheckerNode::mainTimerCb()
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "CPU information is not received yet.");
     prearm_check->cpu_temperature_too_high = true;
+    prearm_check->ok = false;
+  }
+
+  // モータ状態
+  if (rotor_states_ != nullptr)
+  {
+    prearm_check->rotor_communication_error = false;
+    for (const auto& state : rotor_states_->states)
+    {
+      if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+      {
+        prearm_check->rotor_communication_error = true;
+        prearm_check->ok = false;
+        break;
+      }
+    }
+  }
+  else
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Rotor states are not received yet.");
+    prearm_check->rotor_communication_error = true;
     prearm_check->ok = false;
   }
 
