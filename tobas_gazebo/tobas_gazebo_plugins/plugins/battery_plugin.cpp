@@ -131,7 +131,10 @@ void GazeboBatteryPlugin::registerPubSub()
     const auto topic = kRotorStateGtTopicPrefix + to_string(ch);
     const auto qos = ros2::makeQoS(false, false, 1);
     const auto cb = [this, ch](const tobas_msgs::msg::RotorState::ConstSharedPtr& msg)
-    { currents_[ch] = msg->current; };
+    {
+      assert(msg->current >= 0.);
+      currents_[ch] = msg->current;
+    };
     const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
@@ -148,7 +151,7 @@ void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Ent
     current_true += current;
   if (current_true > max_current_)
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current_true, " > ", max_current_, " [A]");
-  const auto current_obs = current_true + current_noise_(rnd_gen_);  // 観測ノイズを受けた観測電流
+  const auto current_obs = max(current_true + current_noise_(rnd_gen_), 0.);  // 観測ノイズを受けた観測電流
 
   // 電気容量の減少
   const auto dt = chrono::duration<double>(info.dt).count();
@@ -157,7 +160,7 @@ void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Ent
   // 電圧を計算
   const auto voltage_in = currentVoltage();                                   // 内部電圧
   const auto voltage_out = max(voltage_in - registance_ * current_true, 0.);  // 内部抵抗による電圧降下
-  const auto voltage_obs = voltage_out + voltage_noise_(rnd_gen_);            // 観測ノイズを受けた観測電圧
+  const auto voltage_obs = max(voltage_out + voltage_noise_(rnd_gen_), 0.);   // 観測ノイズを受けた観測電圧
 
   // 観測したバッテリーの状態を発行
   auto battery = make_unique<tobas_msgs::msg::Battery>();
@@ -178,9 +181,7 @@ double GazeboBatteryPlugin::currentVoltage()
 {
   // memo: 2-50
   const auto rate = q_ / capacity_;
-  if (rate < 0.)
-    return 0.;
-  else if (rate < kSagCapRate)
+  if (rate < kSagCapRate)
     return sag_voltage_ * rate / kSagCapRate;
   else
     return (max_voltage_ - sag_voltage_) * (rate - kSagCapRate) / (1 - kSagCapRate) + sag_voltage_;

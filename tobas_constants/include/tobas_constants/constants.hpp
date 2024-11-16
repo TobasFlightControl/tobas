@@ -91,6 +91,7 @@ static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
 static constexpr char kGetRotorControlGainsSrv[] = "get_rotor_control_gains";
 static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
 static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
+static constexpr char kRemoveRotorSrv[] = "remove_rotor";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";

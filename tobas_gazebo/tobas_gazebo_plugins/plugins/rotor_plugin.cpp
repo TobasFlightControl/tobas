@@ -2,6 +2,7 @@
 #include <gz/sim/Model.hh>
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
@@ -25,7 +26,7 @@
 #define L_KV 0.02
 
 using namespace std;
-using namespace std::chrono;
+using namespace chrono;
 using namespace gz;
 using namespace gz::math;
 namespace cmp = sim::components;
@@ -49,6 +50,7 @@ class GazeboRotorPlugin : public BaseNode,
   static constexpr double kDefaultMaxModelErrorRate = 0.;
 
   using self = GazeboRotorPlugin;
+  using BreakSrv = std_srvs::srv::Trigger;
 
 public:
   explicit GazeboRotorPlugin();
@@ -87,17 +89,22 @@ private:
   shared_ptr<sim::Link> link_;
   shared_ptr<sim::Link> parent_link_;
 
-  // PubSub
+  // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_gt_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorDebug> debug_pub_;
+
+  // Subscribers
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::Throttle> throttle_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_gt_sub_;
   ros2::SubscriberPtr<tobas_msgs::Wind> wind_gt_sub_;
 
+  // Services
+  ros2::ServiceServerPtr<BreakSrv> break_ss_;
+
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 
-  void registerPubSub();
+  void registerROSInterfaces();
   void addModelError();
   void applyWrench(sim::EntityComponentManager& ecm, double rot_speed, const steady_clock::duration& cur_time);
   void updateRotationSpeed(sim::EntityComponentManager& ecm, double rot_speed, double dt);
@@ -105,6 +112,8 @@ private:
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
   void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind);
+
+  void breakCb(const BreakSrv::Request::ConstSharedPtr& req, const BreakSrv::Response::SharedPtr& res);
 };
 
 GazeboRotorPlugin::GazeboRotorPlugin()
@@ -161,8 +170,8 @@ void GazeboRotorPlugin::Configure(
   if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))
     TOBAS_EXIT("Failed to get component WorldLinearVelocity to link \"", link_name, "\".");
 
-  // Register publishers and subscribers
-  registerPubSub();
+  // Register ROS interfaces
+  registerROSInterfaces();
 }
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -203,16 +212,16 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
   }
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
-  const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
+  const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeThresh)
     throttle_ = 0.;
 
   // Get rotation speed
-  const auto rot_speed_sim = abs(joint_->Velocity(ecm).value().at(0));
+  const auto rot_speed_sim = max(joint_->Velocity(ecm).value().at(0) * direction_, 0.);
   const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
 
   // Compute time after previous simulation time
-  const auto dt = chrono::duration<double>(info.dt).count();
+  const auto dt = duration<double>(info.dt).count();
 
   // Check aliasing
   if (rot_speed_sim * dt > M_PI)
@@ -220,15 +229,12 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
 
   // Update simulation state
   applyWrench(ecm, rot_speed_real, info.simTime);
-
-  // ESCが壊れていなければ回転数を更新
-  if (is_intact_)
-    updateRotationSpeed(ecm, rot_speed_real, dt);
+  updateRotationSpeed(ecm, rot_speed_real, dt);
 }
 
-void GazeboRotorPlugin::registerPubSub()
+void GazeboRotorPlugin::registerROSInterfaces()
 {
-  const string suffix = to_string(channel_);
+  const auto suffix = to_string(channel_);
 
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateTopicPrefix + suffix);
   state_gt_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateGtTopicPrefix + suffix);
@@ -237,6 +243,8 @@ void GazeboRotorPlugin::registerPubSub()
   throttle_sub_ = createSubscriber(kThrottleTopicPrefix + suffix, &self::throttleCmdCb, this);
   battery_gt_sub_ = createSubscriber(kBatteryGtTopic, &self::batteryGtCb, this);
   wind_gt_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedGtCb, this);
+
+  break_ss_ = createService<BreakSrv>(kBreakRotorSrvPrefix + suffix, &self::breakCb, this);
 }
 
 void GazeboRotorPlugin::addModelError()
@@ -261,6 +269,8 @@ void GazeboRotorPlugin::applyWrench(
   double rot_speed,
   const steady_clock::duration& cur_time)
 {
+  assert(rot_speed >= 0.);
+
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
   // TODO: Implement other terms
@@ -296,34 +306,34 @@ void GazeboRotorPlugin::applyWrench(
     TOBAS_ERROR(
       "The ESC of rotor ", channel_, " is critically damaged due to an overcurrent of ", current,
       " A, which exceeded its maximum current capacity of ", max_current_, " A.");
-    joint_->SetVelocity(ecm, { 0. });
     is_intact_ = false;
-  }
-
-  // Create rotor state message
-  tobas_msgs::msg::RotorState state_msg;
-  state_msg.channel = channel_;
-  if (is_intact_)
-  {
-    state_msg.speed = rot_speed;
-    state_msg.current = current;
-    state_msg.status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
-  }
-  else
-  {
-    state_msg.speed = nan("");
-    state_msg.current = nan("");
-    state_msg.status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+    throttle_ = 0.;
   }
 
   // Publish observed state
   // TODO: 観測ノイズを付加
   // TODO: 周波数を調整
-  auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>(state_msg);
-  state_pub_->publish(move(state_msg));
+  auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
+  state_msg_obs->channel = channel_;
+  if (is_intact_)
+  {
+    state_msg_obs->speed = rot_speed;
+    state_msg_obs->current = current;
+    state_msg_obs->status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
+  }
+  else
+  {
+    state_msg_obs->speed = nan("ESC is broken.");
+    state_msg_obs->current = nan("ESC is broken.");
+    state_msg_obs->status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+  }
+  state_pub_->publish(move(state_msg_obs));
 
   // Publish ground-truth state
-  auto state_msg_gt = make_unique<tobas_msgs::msg::RotorState>(state_msg);
+  auto state_msg_gt = make_unique<tobas_msgs::msg::RotorState>();
+  state_msg_gt->speed = rot_speed;
+  state_msg_gt->current = current;
+  state_msg_gt->status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
   state_gt_pub_->publish(move(state_msg_gt));
 
   // Publish debug message
@@ -338,6 +348,7 @@ void GazeboRotorPlugin::applyWrench(
 
 void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, double cur_speed, double dt)
 {
+  assert(cur_speed >= 0);
   assert(dt >= 0);
 
   // モータダイナミクスの係数 (memo: 2-78)
@@ -345,20 +356,26 @@ void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, do
   const auto b = resistance_ * kv_ * moment_const_ * motor_const_;
   const auto c = 1. / kv_;
 
-  const auto Ea = battery_->voltage * throttle_;                            // 印加電圧
-  const auto eq_speed = (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
+  const auto Ea = battery_->voltage * throttle_;                                            // 印加電圧
+  const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
-  // モータの慣性モーメントを無視していることにより，現在の回転数が0のときは未定義のため，その場合は微小速度を与える．
-  if (cur_speed == 0.)
-    cur_speed = 1.;
-
-  // 次のステップの回転数を計算
-  const auto speed_rate = (Ea / cur_speed - b * cur_speed - c) / a;
-  auto next_speed = cur_speed + speed_rate * dt;
-
-  // 速度変化が大きすぎるなどして平衡点を飛び越えている場合は，平衡点に拘束する．
-  if ((cur_speed - eq_speed) * (next_speed - eq_speed) < 0)
+  // 次の時刻の回転数を求める
+  double next_speed;
+  if (cur_speed < 1e-3)
+  {
+    // モータの慣性モーメントを無視していることにより，現在の回転数が0のときは理論上ゼロ時間で平衡点に収束する．
     next_speed = eq_speed;
+  }
+  else
+  {
+    // 次のステップの回転数を計算
+    const auto speed_rate = (Ea / cur_speed - b * cur_speed - c) / a;
+    next_speed = cur_speed + speed_rate * dt;
+
+    // 速度変化が大きすぎるなどして平衡点を飛び越えている場合は平衡点に拘束する
+    if ((cur_speed - eq_speed) * (next_speed - eq_speed) < 0)
+      next_speed = eq_speed;
+  }
 
   // 次のステップの回転数をGazeboに反映
   joint_->SetVelocity(ecm, { direction_ * next_speed / kRotorSpeedSlowdownSim });
@@ -368,6 +385,10 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
   if (battery_ == nullptr || battery_->voltage < kMinBatteryVoltage)
+    return;
+
+  // 壊れていたら応答なし
+  if (!is_intact_)
     return;
 
   // 最後にコマンドを受け取った時刻を更新
@@ -390,6 +411,22 @@ void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wi
 
   if (!wind_received_)
     wind_received_ = true;
+}
+
+void GazeboRotorPlugin::breakCb(const BreakSrv::Request::ConstSharedPtr&, const BreakSrv::Response::SharedPtr& res)
+{
+  if (is_intact_)
+  {
+    is_intact_ = false;
+    throttle_ = 0.;
+    res->message = "Rotor " + to_string(channel_) + " has been broken.";
+  }
+  else
+  {
+    res->message = "Rotor " + to_string(channel_) + " is already broken.";
+  }
+
+  res->success = true;
 }
 }  // namespace gazebo
 

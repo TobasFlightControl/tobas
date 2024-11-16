@@ -16,4 +16,5 @@ static constexpr char kGetWindParamsSrv[] = "gazebo/get_wind_parameters";
 static constexpr char kSetWindParamsSrv[] = "gazebo/set_wind_parameters";
 static constexpr char kGetTetherParamsSrv[] = "gazebo/get_tether_parameters";
 static constexpr char kSetTetherParamsSrv[] = "gazebo/set_tether_parameters";
+static constexpr char kBreakRotorSrvPrefix[] = "gazebo/break_rotor_";
 }  // namespace gazebo

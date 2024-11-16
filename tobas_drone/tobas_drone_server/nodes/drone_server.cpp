@@ -1,9 +1,7 @@
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/srv/remove_rotor.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 class DroneServerNode : public tobas::BaseNode
@@ -11,21 +9,21 @@ class DroneServerNode : public tobas::BaseNode
   using self = DroneServerNode;
   using super = tobas::BaseNode;
 
+  using RemoveRotor = tobas_msgs::srv::RemoveRotor;
+
 public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   tobas::Drone drone_;
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
 
   ros2::PublisherPtr<tobas::Drone> drone_pub_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
+  ros2::ServiceServerPtr<RemoveRotor> remove_rotor_ss_;
+
+  void publishDrone();
 
   bool fileParamCb(const std::string& p);
-
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
-  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
+  void removeRotorCb(const RemoveRotor::Request::ConstSharedPtr& req, const RemoveRotor::Response::SharedPtr& res);
 };
 
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
@@ -33,10 +31,13 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 
   drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
+  remove_rotor_ss_ = createService<RemoveRotor>(tobas::kRemoveRotorSrv, &self::removeRotorCb, this);
+}
 
-  arming_sub_ = createSubscriber<std_msgs::msg::Bool>(tobas::kArmingTopic, &self::armingCb, this);
-  rotor_states_sub_ = createSubscriber<tobas_msgs::msg::RotorStateArray>(
-    path::join(tobas::kThrottledTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
+void DroneServerNode::publishDrone()
+{
+  auto drone_msg = std::make_unique<tobas::Drone>(drone_);
+  drone_pub_->publish(move(drone_msg));
 }
 
 bool DroneServerNode::fileParamCb(const std::string& p)
@@ -56,24 +57,31 @@ bool DroneServerNode::fileParamCb(const std::string& p)
   }
 
   // Publish drone configuration
-  auto drone_msg = std::make_unique<tobas::Drone>(drone_);
-  drone_pub_->publish(move(drone_msg));
+  publishDrone();
 
   TOBAS_INFO("New drone configuration message is published.");
   return true;
 }
 
-void DroneServerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void DroneServerNode::removeRotorCb(
+  const RemoveRotor::Request::ConstSharedPtr& req,
+  const RemoveRotor::Response::SharedPtr& res)
 {
-  arming_ = arming;
-}
+  for (size_t i = 0; i < drone_.numRotors(); ++i)
+  {
+    const auto& rotor = drone_.rotors.at(i);
+    if (rotor.channel == req->channel)
+    {
+      drone_.rotors.erase(drone_.rotors.begin() + i);
+      publishDrone();
+      res->success = true;
+      res->message.clear();
+      return;
+    }
+  }
 
-void DroneServerNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
-{
-  if (arming_ == nullptr || !arming_->data)
-    return;
-
-  (void)rotor_states;  // TODO
+  res->success = false;
+  res->message = "Rotor channel " + std::to_string(req->channel) + " does not exist.";
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(DroneServerNode)
