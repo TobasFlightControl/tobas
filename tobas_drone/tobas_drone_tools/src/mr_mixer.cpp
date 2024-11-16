@@ -75,18 +75,19 @@ VectorXd Mixer::solve(
 
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
+    const auto& rotor = z_rotors_.rotor(i);
+
     // FKと回転軸を更新
-    const auto& link_name = z_rotors_.linkName(i);
-    if (fk_solver_.JntToCart(cur_q, link_name) < 0)
+    if (fk_solver_.JntToCart(cur_q, rotor.link_name) < 0)
       throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
-    if (jnt_axis_solver_.JntToCart(cur_q, link_name) < 0)
+    if (jnt_axis_solver_.JntToCart(cur_q, rotor.link_name) < 0)
       throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
 
     const auto& B_Pos_B2P = fk_solver_.getFrame().p;
     const auto& axis_B = jnt_axis_solver_.getAxis();
 
-    const auto d = z_rotors_.sign(i);
-    const auto& cm = z_rotors_.momentConstant(i);
+    const auto d = rotor.sign();
+    const auto& cm = rotor.moment_constant;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     U_.col(i) = ((d * cm) * axis_B - B_Pos_G2P * axis_B).data;
   }
@@ -162,8 +163,9 @@ void Mixer::updateThrustLimits(const double& cur_voltage, const double& thrusts_
 {
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
-    min_thrusts_(i) = z_rotors_.minThrust(i, cur_voltage);
-    max_thrusts_(i) = z_rotors_.maxThrust(i, cur_voltage);
+    const auto& rotor = z_rotors_.rotor(i);
+    min_thrusts_(i) = rotor.minThrust(cur_voltage);
+    max_thrusts_(i) = rotor.maxThrust(cur_voltage);
   }
 
   // 合計推力の等式制約を満たせない場合は，不等式制約を取り除く

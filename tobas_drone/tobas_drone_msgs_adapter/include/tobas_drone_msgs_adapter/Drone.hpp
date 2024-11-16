@@ -31,7 +31,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     }
 
     dst.rotors.clear();
-    for (const auto& rotor : src.rotors)
+    for (const auto& [_, rotor] : src.rotors)
     {
       dst.rotors.emplace_back();
       tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(rotor, dst.rotors.back());
@@ -56,8 +56,8 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     dst.rotors.clear();
     for (const auto& rotor : src.rotors)
     {
-      dst.rotors.emplace_back();
-      tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(rotor, dst.rotors.back());
+      dst.rotors[rotor.channel] = tobas::RotorConfig();
+      tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(rotor, dst.rotors.at(rotor.channel));
     }
 
     tobas_drone_msgs::FixedWingConfigAdapter::convert_to_custom(src.fixed_wing, dst.fixed_wing);

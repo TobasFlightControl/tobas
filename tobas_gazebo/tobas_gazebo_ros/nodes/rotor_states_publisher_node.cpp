@@ -41,12 +41,12 @@ void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
   rotor_states_.clear();
   rotor_state_subs_.clear();
 
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [channel, _] : drone->rotors)
   {
-    is_updated_[rotor.channel] = false;
+    is_updated_[channel] = false;
 
-    const auto topic = gazebo::kRotorStateTopicPrefix + to_string(rotor.channel);
-    rotor_state_subs_[rotor.channel] = createSubscriber(topic, &self::rotorStateCb, this);
+    const auto topic = gazebo::kRotorStateTopicPrefix + to_string(channel);
+    rotor_state_subs_[channel] = createSubscriber(topic, &self::rotorStateCb, this);
   }
 
   drone_ = drone;
@@ -64,14 +64,14 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
     return;
   }
 
-  if (is_updated_[channel])
+  if (is_updated_.at(channel))
   {
     TOBAS_WARN("Rotor channel ", (int)channel, " is already updated.");
     return;
   }
 
   rotor_states_.push_back(*rotor_state);
-  is_updated_[channel] = true;
+  is_updated_.at(channel) = true;
 
   if (rotor_states_.size() == drone_->numRotors())
   {

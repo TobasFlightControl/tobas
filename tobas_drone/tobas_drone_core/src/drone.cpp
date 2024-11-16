@@ -27,7 +27,7 @@ bool Drone::isValid() const
     }
   }
 
-  for (const auto& rotor : rotors)
+  for (const auto& [_, rotor] : rotors)
   {
     if (!rotor.isValid())
     {
@@ -96,7 +96,7 @@ bool Drone::load(const YAML::Node& node)
       cerr << "Failed to load the configurations of rotors." << endl;
       return false;
     }
-    rotors.push_back(rotor);
+    rotors[rotor.channel] = rotor;
   }
 
   // Fixed wing
@@ -131,7 +131,7 @@ YAML::Node Drone::dump() const
 
   // Rotors
   node[kRotorsKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (auto& rotor : rotors)
+  for (auto& [_, rotor] : rotors)
     node[kRotorsKey].push_back(rotor.dump());
 
   // Fixed wing

@@ -76,10 +76,10 @@ void RotorCommandHandlerNode::publishArming()
 void RotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   throttle_pubs_.clear();
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [channel, _] : drone->rotors)
   {
-    const auto topic = string(gazebo::kThrottleTopicPrefix) + to_string(rotor.channel);
-    throttle_pubs_[rotor.channel] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
+    const auto topic = gazebo::kThrottleTopicPrefix + to_string(channel);
+    throttle_pubs_[channel] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
   }
 
   drone_ = drone;
@@ -117,7 +117,7 @@ void RotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedAr
     // Create throttle message
     auto throttle = std::make_unique<tobas_gazebo_msgs::msg::Throttle>();
     throttle->header = tar_speeds->header;
-    throttle->data = drone_->throttleFromRotSpeed(speed.channel, speed.speed, battery_->voltage);  // FF項のみ
+    throttle->data = drone_->rotors.at(speed.channel).throttleFromRotSpeed(speed.speed, battery_->voltage);  // FF項のみ
 
     // Publish throttle message
     throttle_pubs_.at(speed.channel)->publish(move(throttle));

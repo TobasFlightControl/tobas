@@ -67,22 +67,19 @@ void DroneServerNode::disableRotorCb(
   const DisableRotor::Request::ConstSharedPtr& req,
   const DisableRotor::Response::SharedPtr& res)
 {
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
+  if (!drone_.rotors.contains(req->channel))
   {
-    auto& rotor = drone_.rotors.at(i);
-    if (rotor.channel == req->channel)
-    {
-      // 最大速度を0にすることでモータをアクチュエータとして使用できないようにする
-      rotor.max_rot_speed = 0.;
-      publishDrone();
-
-      res->success = true;
-      res->message.clear();
-    }
+    res->success = false;
+    res->message = "Rotor channel " + std::to_string(req->channel) + " does not exist.";
+    return;
   }
 
-  res->success = false;
-  res->message = "Rotor channel " + std::to_string(req->channel) + " does not exist.";
+  // 最大速度を0にすることでモータをアクチュエータとして使用できないようにする
+  drone_.rotors.at(req->channel).max_rot_speed = 0.;
+  publishDrone();
+
+  res->success = true;
+  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(DroneServerNode)

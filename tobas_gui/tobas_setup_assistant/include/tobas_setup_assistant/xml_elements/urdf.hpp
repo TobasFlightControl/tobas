@@ -76,7 +76,13 @@ void addRotorPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& joint_name,
-  const tobas::RotorConfig& rotor,
+  uint32_t channel,
+  double kv,
+  double internal_resistance,
+  double motor_constant,
+  double moment_constant,
+  double drag_constant,
+  tobas::turning_direction_t direction,
   double max_current,
   double max_model_error_rate);
 

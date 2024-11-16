@@ -114,11 +114,11 @@ void DShotDriverNode::publishCurrentStates()
   auto cur_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   cur_states->header.stamp = get_clock()->now();
 
-  for (const auto& rotor : drone_->rotors)
+  for (const auto& [channel, _] : drone_->rotors)
   {
     cur_states->states.emplace_back();
-    cur_states->states.back().channel = rotor.channel;
-    cur_states->states.back().speed = dshot_.getSpeed(rotor.channel);
+    cur_states->states.back().channel = channel;
+    cur_states->states.back().speed = dshot_.getSpeed(channel);
     cur_states->states.back().status = tobas_msgs::msg::RotorState::SPEED_ONLY;
   }
 
@@ -182,7 +182,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   // Set Kv values
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [_, rotor] : drone->rotors)
   {
     if (!dshot_.setKv(rotor.channel, rotor.kv))
     {
@@ -194,7 +194,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set internal resistances
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [_, rotor] : drone->rotors)
   {
     if (!dshot_.setInternalResistance(rotor.channel, rotor.internal_resistance))
     {
@@ -206,7 +206,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set propeller diameters
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [_, rotor] : drone->rotors)
   {
     if (!dshot_.setPropellerDiameter(rotor.channel, rotor.propeller_diameter))
     {
@@ -218,7 +218,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set moment constants
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [_, rotor] : drone->rotors)
   {
     const auto moment_const = rotor.motor_constant * rotor.moment_constant / math::quat(rotor.propeller_diameter);
     if (!dshot_.setMomentConstant(rotor.channel, moment_const))
@@ -231,7 +231,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set the number of poles
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [_, rotor] : drone->rotors)
   {
     if (!dshot_.setNumPoles(rotor.channel, rotor.num_poles))
     {
@@ -243,7 +243,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Load and set the speed control gains
-  for (const auto& rotor : drone->rotors)
+  for (const auto& [_, rotor] : drone->rotors)
   {
     if (rotor.channel >= aso::DShot::kChannelSize)
     {

@@ -2,14 +2,22 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
+#include <map>
+#include <cassert>
 #include <yaml-cpp/yaml.h>
+
+#include <tobas_math/core.hpp>
+#include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_constants/constants.hpp>
 
 #include "./turning_direction.hpp"
 #include "./rotor_axis.hpp"
 
 namespace tobas
 {
+class RotorConfig;
+using RotorConfigMap = std::map<uint32_t, RotorConfig>;  // Channel -> RotorConfig
+
 class RotorConfig
 {
   static constexpr char kChannelKey[] = "channel";
@@ -45,11 +53,111 @@ public:
   YAML::Node dump() const;
 
   /* CCW = 1, CW = -1 */
-  inline int sign() const
-  {
-    return tobas::sign(direction);
-  }
+  inline int sign() const;
+
+  /* 回転数 [rad/s] から印加電圧 [V] を求める． */
+  inline double voltageFromRotSpeed(double tar_speed) const;
+
+  /* 印加電圧 [V] から回転数 [rad/s] を求める． */
+  inline double rotSpeedFromVoltage(double voltage) const;
+
+  /* 回転数 [rad/s] から推力 [N] を求める． */
+  inline double thrustFromRotSpeed(double tar_speed) const;
+
+  /* 推力 [N] から回転数 [rad/s] を求める． */
+  inline double rotSpeedFromThrust(double thrust) const;
+
+  /* 印加電圧から推力 [N] を求める． */
+  inline double thrustFromVoltage(double voltage) const;
+
+  /* 回転数 [rad/s] からスロットル [0,1] を求める． */
+  inline double throttleFromRotSpeed(double tar_speed, double battery_voltage) const;
+
+  /* 推力 [N] からスロットル [0,1] を求める． */
+  inline double throttleFromThrust(double thrust, double battery_voltage) const;
+
+  /* 機械的に許容できる最大回転数から計算される推力． */
+  inline double maxMechanicalThrust() const;
+
+  /* 与えられたバッテリー電圧で出力できる最大推力．*/
+  inline double maxThrust(double battery_voltage) const;
+
+  /* 与えられたバッテリー電圧で出力できる最小推力． */
+  inline double minThrust(double battery_voltage) const;
 };
 
-using RotorConfigs = std::vector<RotorConfig>;
+inline int RotorConfig::sign() const
+{
+  return tobas::sign(direction);
+}
+
+inline double RotorConfig::voltageFromRotSpeed(double tar_speed) const
+{
+  assert(tar_speed >= 0);
+
+  const auto b = internal_resistance * kv * moment_constant * motor_constant;
+  const auto c = 1. / kv;
+  return tar_speed * (b * tar_speed + c);
+}
+
+inline double RotorConfig::rotSpeedFromVoltage(double voltage) const
+{
+  assert(voltage >= 0);
+
+  const auto b = internal_resistance * kv * moment_constant * motor_constant;
+  const auto c = 1. / kv;
+  return b > 0 ? (sqrt(math::sqr(c) + 4 * b * voltage) - c) / (2 * b) : voltage * kv;
+}
+
+inline double RotorConfig::thrustFromRotSpeed(double tar_speed) const
+{
+  return motor_constant * math::sqr(tar_speed);
+}
+
+inline double RotorConfig::rotSpeedFromThrust(double thrust) const
+{
+  assert(thrust >= 0);
+  return sqrt(thrust / motor_constant);
+}
+
+inline double RotorConfig::thrustFromVoltage(double voltage) const
+{
+  assert(voltage > 0);
+
+  const auto tar_speed = rotSpeedFromVoltage(voltage);
+  return thrustFromRotSpeed(tar_speed);
+}
+
+inline double RotorConfig::throttleFromRotSpeed(double tar_speed, double battery_voltage) const
+{
+  assert(tar_speed >= 0);
+
+  const auto voltage = voltageFromRotSpeed(tar_speed);
+  return voltage / battery_voltage;
+}
+
+inline double RotorConfig::throttleFromThrust(double thrust, double battery_voltage) const
+{
+  assert(thrust >= 0);
+
+  const auto tar_speed = rotSpeedFromThrust(thrust);
+  return throttleFromRotSpeed(tar_speed, battery_voltage);
+}
+
+inline double RotorConfig::maxMechanicalThrust() const
+{
+  return motor_constant * math::sqr(max_rot_speed);
+}
+
+inline double RotorConfig::maxThrust(double battery_voltage) const
+{
+  // 機械的な限界とエネルギー的な限界の最小値を計算
+  return std::min(maxMechanicalThrust(), thrustFromVoltage(battery_voltage));
+}
+
+inline double RotorConfig::minThrust(double battery_voltage) const
+{
+  const auto min_voltage = battery_voltage * kArmThrot;
+  return std::min(maxMechanicalThrust(), thrustFromVoltage(min_voltage));
+}
 }  // namespace tobas

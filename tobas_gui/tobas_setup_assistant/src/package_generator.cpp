@@ -136,23 +136,26 @@ tobas::Drone PackageGenerator::createDrone()
   // Rotors
   const auto props = settings_->propulsion_system->selected();
   const auto num_rotors = props->count();
-  drone.rotors.resize(num_rotors);
-  for (int i = 0; i < num_rotors; ++i)
+  for (int i = 0; i < props->count(); ++i)
   {
     const auto link_name = props->linkName(i).toStdString();
     const auto prop_config = props->widget(i);
-    drone.rotors.at(i).channel = i;  // TODO: チャンネルを指定できるようにする
-    drone.rotors.at(i).link_name = link_name;
-    drone.rotors.at(i).direction = prop_config->motor()->direction();
-    drone.rotors.at(i).axis = robot_.rotorAxisType(link_name);
-    drone.rotors.at(i).num_poles = prop_config->motor()->numPoles();
-    drone.rotors.at(i).kv = prop_config->motor()->kv();
-    drone.rotors.at(i).internal_resistance = prop_config->motor()->internalResistance();
-    drone.rotors.at(i).propeller_diameter = prop_config->propeller()->diameter();
-    drone.rotors.at(i).max_rot_speed = prop_config->speedLimit()->maxRotSpeed();
-    drone.rotors.at(i).motor_constant = prop_config->aerodynamics()->motorConst();
-    drone.rotors.at(i).moment_constant = prop_config->aerodynamics()->momentConst();
-    drone.rotors.at(i).drag_constant = prop_config->aerodynamics()->rotorDragCoef();
+
+    tobas::RotorConfig rotor;
+    rotor.channel = i;  // TODO: チャンネルを指定できるようにする
+    rotor.link_name = link_name;
+    rotor.direction = prop_config->motor()->direction();
+    rotor.axis = robot_.rotorAxisType(link_name);
+    rotor.num_poles = prop_config->motor()->numPoles();
+    rotor.kv = prop_config->motor()->kv();
+    rotor.internal_resistance = prop_config->motor()->internalResistance();
+    rotor.propeller_diameter = prop_config->propeller()->diameter();
+    rotor.max_rot_speed = prop_config->speedLimit()->maxRotSpeed();
+    rotor.motor_constant = prop_config->aerodynamics()->motorConst();
+    rotor.moment_constant = prop_config->aerodynamics()->momentConst();
+    rotor.drag_constant = prop_config->aerodynamics()->rotorDragCoef();
+
+    drone.rotors[rotor.channel] = rotor;
   }
 
   // Fixed Wing
@@ -658,8 +661,8 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Battery plugin
   constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
   vector<size_t> rotor_channels;
-  for (const auto& rotor : drone.rotors)
-    rotor_channels.push_back(rotor.channel);
+  for (const auto& [channel, _] : drone.rotors)
+    rotor_channels.push_back(channel);
   addBatteryPlugin(
     robot, ns, kBatterySamplingRate, batt->maxVoltage(), batt->sagVoltage(), batt->maxCurrent(), batt->capacity(),
     batt->internalRegistance(), rotor_channels);
@@ -693,8 +696,13 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
     const auto prop = props->widget(i);
     const auto esc = prop->esc();
+    const auto motor = prop->motor();
+    const auto aero = prop->aerodynamics();
 
-    addRotorPlugin(robot, ns, jnt_name, drone.rotors.at(i), esc->maxCurrent(), sim->maxModelErrorRate());
+    // TODO: チャンネルを指定できるようにする
+    addRotorPlugin(
+      robot, ns, jnt_name, i, motor->kv(), motor->internalResistance(), aero->motorConst(), aero->momentConst(),
+      aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
   }
 
   // Fixed wing plugin

@@ -286,7 +286,7 @@ void ControllerNode::publishThrusts(const VectorXd& thrusts)
   for (int i = 0; i < thrusts.rows(); ++i)
   {
     thrusts_msg->thrusts.emplace_back();
-    thrusts_msg->thrusts.back().channel = x_rotors_.channel(i);
+    thrusts_msg->thrusts.back().channel = x_rotors_.rotor(i).channel;
     thrusts_msg->thrusts.back().thrust = thrusts(i);
   }
 
@@ -316,15 +316,16 @@ void ControllerNode::publishFeedback(const VectorXd& du)
 
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    feedback->trim_thrusts[x_rotors_.rotorIdx(i)] = eom_.trimInput()(i);
-    feedback->delta_thrusts[x_rotors_.rotorIdx(i)] = du(i);
+    const auto& rotor = x_rotors_.rotor(i);
+    feedback->trim_thrusts.at(rotor.channel) = eom_.trimInput()(i);
+    feedback->delta_thrusts.at(rotor.channel) = du(i);
   }
 
   for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
   {
     const auto u_idx = x_rotors_.count() + i;
-    feedback->trim_deflections[i] = eom_.trimInput()[u_idx];
-    feedback->delta_deflections[i] = du(u_idx);
+    feedback->trim_deflections.at(i) = eom_.trimInput()(u_idx);
+    feedback->delta_deflections.at(i) = du(u_idx);
   }
 
   feedback_pub_->publish(move(feedback));

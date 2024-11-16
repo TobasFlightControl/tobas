@@ -70,9 +70,9 @@ bool RotorCheckerNode::requestDisableRotor(uint8_t channel)
 
 void RotorCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  for (const auto& rotor : drone->rotors)
-    if (!data_.contains(rotor.channel))
-      data_[rotor.channel] = RotorData();
+  for (const auto& [channel, _] : drone->rotors)
+    if (!data_.contains(channel))
+      data_[channel] = RotorData();
 
   drone_ = drone;
 }

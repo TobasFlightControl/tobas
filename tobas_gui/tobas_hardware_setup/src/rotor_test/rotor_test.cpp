@@ -87,13 +87,12 @@ void RotorTestWidget::updateInternalDataStructures()
 
   // モータとして登録されているチャンネルの設定
   std::unordered_set<size_t> rotor_channels;
-  for (const auto& rotor : drone_.rotors)
+  for (const auto& [channel, rotor] : drone_.rotors)
   {
-    const auto& ch = rotor.channel;
-    rotor_channels.insert(ch);
-    rotors_.at(ch)->setText("CH" + QString::number(ch) + ": " + QString::fromStdString(rotor.link_name));
-    rotors_.at(ch)->setMaximumRPM(tobas_std::rps2rpm(rotor.max_rot_speed));
-    rotors_.at(ch)->setEnabled(true);
+    rotor_channels.insert(channel);
+    rotors_.at(channel)->setText("CH" + QString::number(channel) + ": " + QString::fromStdString(rotor.link_name));
+    rotors_.at(channel)->setMaximumRPM(tobas_std::rps2rpm(rotor.max_rot_speed));
+    rotors_.at(channel)->setEnabled(true);
   }
 
   // モータとして登録されていないチャンネルを無効化
@@ -127,10 +126,10 @@ void RotorTestWidget::updateInternalDataStructures()
 void RotorTestWidget::reset()
 {
   // モータウィジェットを無効化
-  for (const auto& rotor : drone_.rotors)
+  for (const auto& [channel, _] : drone_.rotors)
   {
-    rotors_.at(rotor.channel)->reset();
-    rotors_.at(rotor.channel)->setEnabled(false);
+    rotors_.at(channel)->reset();
+    rotors_.at(channel)->setEnabled(false);
   }
 
   // タイマーを停止
@@ -155,11 +154,11 @@ void RotorTestWidget::publishTargetSppeds()
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
   tar_speeds->header.stamp = node_->get_clock()->now();
 
-  for (const auto& rotor : drone_.rotors)
+  for (const auto& [channel, _] : drone_.rotors)
   {
     tar_speeds->speeds.emplace_back();
-    tar_speeds->speeds.back().channel = rotor.channel;
-    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotors_.at(rotor.channel)->getTargetRPM());
+    tar_speeds->speeds.back().channel = channel;
+    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotors_.at(channel)->getTargetRPM());
   }
 
   tar_speeds_pub_->publish(std::move(tar_speeds));
@@ -176,14 +175,14 @@ bool RotorTestWidget::loadCurrentGains()
 
   const auto res = get_gains_sc_->getResponse();
   const auto& gains = res->gains;
-  for (const auto& rotor : drone_.rotors)
+  for (const auto& [channel, _] : drone_.rotors)
   {
-    if (rotor.channel >= gains.size())
+    if (channel >= gains.size())
     {
-      qt::qErrorBox(this, "Rotor channel " + QString::number(rotor.channel) + " is out of range.");
+      qt::qErrorBox(this, "Rotor channel " + QString::number(channel) + " is out of range.");
       return false;
     }
-    rotors_.at(rotor.channel)->setGain(gains.at(rotor.channel));
+    rotors_.at(channel)->setGain(gains.at(channel));
   }
 
   return true;
@@ -254,8 +253,8 @@ void RotorTestWidget::onStartButtonClicked()
     return;
 
   // モータウィジェットを有効化
-  for (const auto& rotor : drone_.rotors)
-    rotors_.at(rotor.channel)->setEnabled(true);
+  for (const auto& [channel, _] : drone_.rotors)
+    rotors_.at(channel)->setEnabled(true);
 
   // モータが停止しないよう一定周期でコマンドを発行し続ける
   publish_timer_ = ros2::createTimer(node_, kPublishPeriod, &self::publishTargetSppeds, this);

@@ -23,11 +23,11 @@ void RotorsViewerWiddget::updateInternalDataStructures()
   meters_.clear();
   qt::clearLayout(cols_);
 
-  for (const auto& rotor : drone_.rotors)
+  for (const auto& [_, rotor] : drone_.rotors)
   {
     const auto meter = new SpeedmeterWidget();
     meter->setMaximumValue(tobas_std::rps2rpm(rotor.max_rot_speed));
-    meter->setTopText(rotor.link_name.c_str());
+    meter->setTopText(QString::fromStdString(rotor.link_name));
     meter->setBottomText(bottomText(0));
 
     meters_[rotor.channel] = meter;

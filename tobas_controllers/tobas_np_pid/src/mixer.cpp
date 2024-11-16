@@ -48,6 +48,8 @@ VectorXd NonPlanarMixer::solve(
 {
   assert(cur_voltage > 0);
 
+  Index rotor_idx;
+
   // 質量特性を計算
   if (inertia_solver_.JntToCart(cur_q) < 0)
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
@@ -57,26 +59,28 @@ VectorXd NonPlanarMixer::solve(
   const auto& mass = inertia.getMass();
 
   // EoM行列等式の左辺
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
+  rotor_idx = 0;
+  for (const auto& [_, rotor] : drone_.rotors)
   {
     // FKと回転軸を更新
-    const auto& link_name = drone_.rotors.at(i).link_name;
-    if (fk_solver_.JntToCart(cur_q, link_name) < 0)
+    if (fk_solver_.JntToCart(cur_q, rotor.link_name) < 0)
       throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
-    if (jnt_axis_solver_.JntToCart(cur_q, link_name) < 0)
+    if (jnt_axis_solver_.JntToCart(cur_q, rotor.link_name) < 0)
       throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
 
     const auto& B_Pos_B2P = fk_solver_.getFrame().p;
     const auto& axis_B = jnt_axis_solver_.getAxis();
 
     // 並進
-    G_.block<3, 1>(0, i) = axis_B.data;
+    G_.block<3, 1>(0, rotor_idx) = axis_B.data;
 
     // 回転
-    const auto& d = drone_.rotors.at(i).sign();
-    const auto& cm = drone_.rotors.at(i).moment_constant;
+    const auto& d = rotor.sign();
+    const auto& cm = rotor.moment_constant;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
-    G_.block<3, 1>(3, i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
+    G_.block<3, 1>(3, rotor_idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
+
+    ++rotor_idx;
   }
 
   // EoM行列等式の右辺
@@ -93,10 +97,13 @@ VectorXd NonPlanarMixer::solve(
   qp_.problem.q = -h_.transpose() * Q_ * G_;
 
   // 不等式制約
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
+  rotor_idx = 0;
+  for (const auto& [_, rotor] : drone_.rotors)
   {
-    qp_.problem.b(i) = drone_.maxThrust(i, cur_voltage);
-    qp_.problem.b(drone_.numRotors() + i) = -drone_.minThrust(i, cur_voltage);
+    qp_.problem.b(rotor_idx) = rotor.maxThrust(cur_voltage);
+    qp_.problem.b(drone_.numRotors() + rotor_idx) = -rotor.minThrust(cur_voltage);
+
+    ++rotor_idx;
   }
 
   // QPPを解く

@@ -171,14 +171,15 @@ int MicroDisturbanceEoM::update(
   const auto I_cog_inv = I_cog.data.inverse();
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    if (fk_solver_.JntToCart(q, x_rotors_.linkName(i)) < 0)
+    const auto& rotor = x_rotors_.rotor(i);
+    if (fk_solver_.JntToCart(q, rotor.link_name) < 0)
     {
       error_msg_ = fk_solver_.errorMessage();
       return error_code_ = E_ERROR;
     }
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
-    const auto d = x_rotors_.sign(i);
-    const auto& c = x_rotors_.momentConstant(i);
+    const auto d = rotor.sign();
+    const auto& c = rotor.moment_constant;
     Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
     eigen_tools::vectorNwuToNed(v);                                                // NWU -> NED
     B_.block(kStateIdx_p, i, 3, 1) = v;
@@ -230,7 +231,7 @@ int MicroDisturbanceEoM::update(
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     auto thrust = thrust_sum / x_rotors_.count();  // TODO: 横の釣り合いも考慮して分配
-    const auto max_thrust = x_rotors_.thrustFromVoltage(i, battery_voltage);
+    const auto max_thrust = x_rotors_.rotor(i).thrustFromVoltage(battery_voltage);
     if (thrust > max_thrust)
     {
       if (error_code_ > E_WARN)
@@ -255,8 +256,9 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
 
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    min_u_(i) = x_rotors_.minThrust(i, battery_voltage);
-    max_u_(i) = x_rotors_.maxThrust(i, battery_voltage);
+    const auto& rotor = x_rotors_.rotor(i);
+    min_u_(i) = rotor.minThrust(battery_voltage);
+    max_u_(i) = rotor.maxThrust(battery_voltage);
   }
 
   for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)

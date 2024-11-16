@@ -204,20 +204,26 @@ void addRotorPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
   const string& joint_name,
-  const tobas::RotorConfig& rotor,
+  uint32_t channel,
+  double kv,
+  double internal_resistance,
+  double motor_constant,
+  double moment_constant,
+  double drag_constant,
+  tobas::turning_direction_t direction,
   double max_current,
   double max_model_error_rate)
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_rotor_plugin", "gazebo::GazeboRotorPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
-  plugin->InsertNewChildElement("channel")->SetText(rotor.channel);
   plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
-  plugin->InsertNewChildElement("kv")->SetText(rotor.kv);
-  plugin->InsertNewChildElement("internalResistance")->SetText(rotor.internal_resistance);
-  plugin->InsertNewChildElement("motorConstant")->SetText(rotor.motor_constant);
-  plugin->InsertNewChildElement("momentConstant")->SetText(rotor.moment_constant);
-  plugin->InsertNewChildElement("rotorDragCoefficient")->SetText(rotor.drag_constant);
-  plugin->InsertNewChildElement("turningDirection")->SetText(rotor.direction);
+  plugin->InsertNewChildElement("channel")->SetText(channel);
+  plugin->InsertNewChildElement("kv")->SetText(kv);
+  plugin->InsertNewChildElement("internalResistance")->SetText(internal_resistance);
+  plugin->InsertNewChildElement("motorConstant")->SetText(motor_constant);
+  plugin->InsertNewChildElement("momentConstant")->SetText(moment_constant);
+  plugin->InsertNewChildElement("rotorDragCoefficient")->SetText(drag_constant);
+  plugin->InsertNewChildElement("turningDirection")->SetText(direction);
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
 }

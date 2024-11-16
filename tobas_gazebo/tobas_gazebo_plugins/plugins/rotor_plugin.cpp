@@ -65,8 +65,8 @@ public:
 
 private:
   // SDF parameters
-  size_t channel_;
   string joint_name_;
+  size_t channel_;
   double kv_;               // [rad/s/V]
   double resistance_;       // [Ω]
   double motor_const_;      // [N/(rad/s)^2]
@@ -176,8 +176,8 @@ void GazeboRotorPlugin::Configure(
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "channel", channel_);
   getSdfParam(sdf, "jointName", joint_name_);
+  getSdfParam(sdf, "channel", channel_);
 
   getSdfParam(sdf, "kv", kv_, POSITIVE);
   getSdfParam(sdf, "internalResistance", resistance_, POSITIVE);
