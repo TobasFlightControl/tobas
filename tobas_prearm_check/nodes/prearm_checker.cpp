@@ -20,7 +20,6 @@ using namespace std_srvs::srv;
 
 class PreArmCheckerNode : public tobas::BaseNode
 {
-  static constexpr double kOdomCallbackInterval = 0.1;   // [s]
   static constexpr double kPosDriftThresh = 1.;          // [m]
   static constexpr double kCPUTempThresh = 80.;          // [degC] // TODO: もう少し下げる
   static constexpr double kAttitudeThresh = M_PI / 6;    // [rad/s]
@@ -78,7 +77,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   cpu_sub_ = createSubscriber(tobas::kCPUTopic, &self::cpuCb, this);
   rotor_states_sub_ =
     createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
-  odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  odom_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
 
   main_timer_ = createTimer(kPreArmCheckTimerPeriod, &self::mainTimerCb, this);
 }
@@ -105,16 +104,6 @@ void PreArmCheckerNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::Co
 
 void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  if (odom_ == nullptr)
-  {
-    odom_ = odom;
-    return;
-  }
-
-  // 評価時の計算量を抑えるために処理頻度を制限
-  if ((odom->header.stamp - odom_->header.stamp).seconds() < kOdomCallbackInterval)
-    return;
-
   odom_ = odom;
 
   const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
