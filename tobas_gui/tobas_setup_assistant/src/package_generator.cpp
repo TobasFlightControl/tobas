@@ -141,7 +141,7 @@ tobas::Drone PackageGenerator::createDrone()
     const auto prop_config = props->widget(i);
 
     tobas::RotorConfig rotor;
-    rotor.channel = i;  // TODO: チャンネルを指定できるようにする
+    rotor.channel = i;  // TODO: 物理チャンネルを指定できるようにする
     rotor.link_name = link_name;
     rotor.direction = prop_config->motor()->direction();
     rotor.axis = robot_.rotorAxisType(link_name);
@@ -194,7 +194,7 @@ tobas::Drone PackageGenerator::createDrone()
     for (int i = 0; i < css->count(); ++i)
     {
       tobas::ControlSurface cs;
-      cs.channel = i;  // TODO: チャンネルを指定できるようにする
+      cs.channel = i;  // TODO: 物理チャンネルを指定できるようにする
       cs.joint_name = css->jointName(i).toStdString();
       cs.angle_limit.lower = css->minAngle(i);
       cs.angle_limit.upper = css->maxAngle(i);
@@ -403,7 +403,7 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
     for (int i = 0; i < servos->count(); ++i)
     {
       const auto controller_name = servos->jointName(i).toStdString() + "_controller";
-      const auto args = controller_name + "  --param-file " + param_file;
+      const auto args = controller_name + " --param-file " + param_file;
       const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", "", args);
       addNodeParam(ctrl_node, "use_sim_time", "true");
     }
@@ -698,9 +698,9 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     const auto motor = prop->motor();
     const auto aero = prop->aerodynamics();
 
-    // TODO: チャンネルを指定できるようにする
+    const auto channel = i;  // TODO: 物理チャンネルを指定できるようにする
     addRotorPlugin(
-      robot, ns, jnt_name, i, motor->kv(), motor->internalResistance(), aero->motorConst(), aero->momentConst(),
+      robot, ns, jnt_name, channel, motor->kv(), motor->internalResistance(), aero->motorConst(), aero->momentConst(),
       aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
   }
 
