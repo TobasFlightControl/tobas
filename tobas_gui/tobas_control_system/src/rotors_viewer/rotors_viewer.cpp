@@ -42,14 +42,22 @@ void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::
 {
   for (const auto& state : states->states)
   {
-    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
-      continue;
     if (!meters_.contains(state.channel))
       continue;
 
+    const auto& meter = meters_.at(state.channel);
+
+    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+    {
+      meter->setBackgroundColor("red");
+      continue;
+    }
+
+    meter->setBackgroundColor("transparent");
+
     const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(state.speed));
-    meters_.at(state.channel)->setValue(speed_rpm);
-    meters_.at(state.channel)->setBottomText(bottomText(speed_rpm));
+    meter->setValue(speed_rpm);
+    meter->setBottomText(bottomText(speed_rpm));
   }
 }
 

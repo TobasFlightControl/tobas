@@ -24,6 +24,11 @@ SpeedmeterWidget::SpeedmeterWidget()
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 }
 
+QString SpeedmeterWidget::getBackgroundColor() const
+{
+  return getRectangleObject()->property("color").value<QString>();
+}
+
 double SpeedmeterWidget::getMaximumValue() const
 {
   return getGaugeObject()->property("maximumValue").value<double>();
@@ -54,6 +59,11 @@ QString SpeedmeterWidget::getBottomText() const
   return getBottomTextObject()->property("text").value<QString>();
 }
 
+void SpeedmeterWidget::setBackgroundColor(const QString& text)
+{
+  QMetaObject::invokeMethod(rootObject(), "setBackgroundColor", Q_ARG(QString, text));
+}
+
 void SpeedmeterWidget::setMaximumValue(double value)
 {
   QMetaObject::invokeMethod(rootObject(), "setMaximumValue", Q_ARG(double, value));
@@ -82,6 +92,11 @@ void SpeedmeterWidget::setTopText(const QString& text)
 void SpeedmeterWidget::setBottomText(const QString& text)
 {
   QMetaObject::invokeMethod(rootObject(), "setBottomText", Q_ARG(QString, text));
+}
+
+QObject* SpeedmeterWidget::getRectangleObject() const
+{
+  return rootObject()->findChild<QObject*>("rectangle");
 }
 
 QObject* SpeedmeterWidget::getGaugeObject() const
