@@ -19,7 +19,7 @@ public:
   bool equipped = false;
   VehicleParameters vehicle;
   AerodynamicCoefficients aerodynamics;
-  ControlSurfaces control_surfaces;
+  ControlSurfaceMap control_surfaces;
 
   bool isValid() const;
   bool load(const YAML::Node& node);

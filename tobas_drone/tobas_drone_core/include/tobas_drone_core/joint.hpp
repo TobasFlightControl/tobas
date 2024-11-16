@@ -8,6 +8,9 @@
 
 namespace tobas
 {
+class JointConfig;
+using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> JointConfig
+
 /* プロペラ，舵面以外の可動関節． */
 class JointConfig
 {
@@ -30,6 +33,4 @@ public:
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
 };
-
-using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> JointConfig
 }  // namespace tobas

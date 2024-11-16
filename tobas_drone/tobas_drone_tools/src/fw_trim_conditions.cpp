@@ -28,7 +28,7 @@ void TrimConditions::updateInternalDataStructures()
   setElevatorIndex();
 
   const auto& aero = drone_.fixed_wing.aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_idx_);
+  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_channel_);
 
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
@@ -73,14 +73,14 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 
   // エイリアス
   const auto& aero = drone_.fixed_wing.aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_idx_);
+  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_channel_);
 
   // CoGまわりの安定微係数
   asd_cog_.update(q);
   if (updateError(asd_cog_) <= E_ERROR)
     return error_code_;
   const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
-  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_idx_);
+  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_channel_);
   if (c_pitch_elev_cg == 0)
   {
     error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
@@ -110,14 +110,14 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
     }
     alpha_ = drone_.fixed_wing.vehicle.alpha_limit.clamp(alpha_);
   }
-  if (!drone_.fixed_wing.control_surfaces.at(elev_idx_).angle_limit.inRange(elevator_))
+  if (!drone_.fixed_wing.control_surfaces.at(elev_channel_).angle_limit.inRange(elevator_))
   {
     if (error_code_ > E_WARN)
     {
       error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
       error_code_ = E_WARN;
     }
-    elevator_ = drone_.fixed_wing.control_surfaces.at(elev_idx_).angle_limit.clamp(elevator_);
+    elevator_ = drone_.fixed_wing.control_surfaces.at(elev_channel_).angle_limit.clamp(elevator_);
   }
 
   return error_code_;
@@ -155,14 +155,13 @@ void TrimConditions::setElevatorIndex()
 {
   assert(drone_.numControlSurfaces() > 0);
 
-  double max_c_pitch_delta = numeric_limits<double>::lowest();
-  for (size_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
+  auto max_c_pitch_delta = numeric_limits<double>::lowest();
+  for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
   {
-    const auto& cs = drone_.fixed_wing.control_surfaces.at(cs_idx);
     if (abs(cs.c_pitch_delta) > max_c_pitch_delta)
     {
       max_c_pitch_delta = abs(cs.c_pitch_delta);
-      elev_idx_ = cs_idx;
+      elev_channel_ = channel;
     }
   }
 }

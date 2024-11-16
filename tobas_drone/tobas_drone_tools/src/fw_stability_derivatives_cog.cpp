@@ -15,8 +15,8 @@ void StabilityDerivativesCG::updateInternalDataStructures()
 {
   inertia_solver_.updateInternalDataStructures();
 
-  c_pitch_delta_cg_.resize(drone_.numControlSurfaces());
-  c_yaw_delta_cg_.resize(drone_.numControlSurfaces());
+  c_pitch_delta_cg_.clear();
+  c_yaw_delta_cg_.clear();
 }
 
 int StabilityDerivativesCG::update(const kdl::JntArray& q)
@@ -42,11 +42,10 @@ int StabilityDerivativesCG::update(const kdl::JntArray& q)
   c_pitch_alpha_cg_ = aero.c_pitch_alpha + dx_c * aero.c_lift_alpha;
   c_yaw_beta_cg_ = aero.c_yaw_beta + dx_b * aero.c_side_beta;
 
-  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
+  for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
   {
-    const auto& cs = drone_.fixed_wing.control_surfaces.at(i);
-    c_pitch_delta_cg_[i] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;
-    c_yaw_delta_cg_[i] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
+    c_pitch_delta_cg_[channel] = cs.c_pitch_delta + dx_c * cs.c_lift_delta;
+    c_yaw_delta_cg_[channel] = cs.c_yaw_delta + dx_b * cs.c_side_delta;
   }
 
   return error_code_;

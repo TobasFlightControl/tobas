@@ -135,7 +135,6 @@ tobas::Drone PackageGenerator::createDrone()
 
   // Rotors
   const auto props = settings_->propulsion_system->selected();
-  const auto num_rotors = props->count();
   for (int i = 0; i < props->count(); ++i)
   {
     const auto link_name = props->linkName(i).toStdString();
@@ -192,21 +191,22 @@ tobas::Drone PackageGenerator::createDrone()
 
     // Control Surfaces
     const auto css = settings_->fixed_wing->controlSurfaces()->selected();
-    const auto num_cs = css->count();
-    drone.fixed_wing.control_surfaces.resize(num_cs);
-    for (int i = 0; i < num_cs; ++i)
+    for (int i = 0; i < css->count(); ++i)
     {
-      drone.fixed_wing.control_surfaces.at(i).channel = i;
-      drone.fixed_wing.control_surfaces.at(i).joint_name = css->jointName(i).toStdString();
-      drone.fixed_wing.control_surfaces.at(i).angle_limit.lower = css->minAngle(i);
-      drone.fixed_wing.control_surfaces.at(i).angle_limit.upper = css->maxAngle(i);
-      drone.fixed_wing.control_surfaces.at(i).max_angle_rate = css->maxAngleRate(i);
-      drone.fixed_wing.control_surfaces.at(i).c_lift_delta = css->liftCoef(i);
-      drone.fixed_wing.control_surfaces.at(i).c_drag_abs_delta = css->dragCoef(i);  // FIXME: 正負の確認が必要？
-      drone.fixed_wing.control_surfaces.at(i).c_side_delta = css->sideCoef(i);
-      drone.fixed_wing.control_surfaces.at(i).c_roll_delta = css->rollCoef(i);
-      drone.fixed_wing.control_surfaces.at(i).c_pitch_delta = css->pitchCoef(i);
-      drone.fixed_wing.control_surfaces.at(i).c_yaw_delta = css->yawCoef(i);
+      tobas::ControlSurface cs;
+      cs.channel = i;  // TODO: チャンネルを指定できるようにする
+      cs.joint_name = css->jointName(i).toStdString();
+      cs.angle_limit.lower = css->minAngle(i);
+      cs.angle_limit.upper = css->maxAngle(i);
+      cs.max_angle_rate = css->maxAngleRate(i);
+      cs.c_lift_delta = css->liftCoef(i);
+      cs.c_drag_abs_delta = css->dragCoef(i);  // FIXME: 正負の確認が必要？
+      cs.c_side_delta = css->sideCoef(i);
+      cs.c_roll_delta = css->rollCoef(i);
+      cs.c_pitch_delta = css->pitchCoef(i);
+      cs.c_yaw_delta = css->yawCoef(i);
+
+      drone.fixed_wing.control_surfaces[cs.channel] = cs;
     }
   }
 
@@ -228,7 +228,6 @@ bool PackageGenerator::generateBackupFiles()
 
   // オリジナルURDF
   const auto doc = urdf::exportURDF(*robot_.urdf());
-  const auto robot = doc->RootElement();
   if (doc->SaveFile(common::getOriginalURDFPath(tbs_path).c_str()) != tinyxml2::XML_SUCCESS)
   {
     qt::qErrorBox(settings_, "Failed to save the original URDF.");

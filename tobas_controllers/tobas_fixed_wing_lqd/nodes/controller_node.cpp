@@ -181,8 +181,13 @@ void ControllerNode::initialize()
   lqd_.input_scale.resize(eom_.inputSize());
   const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / x_rotors_.count();
   lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
-  for (size_t i = 0; i < drone_.numControlSurfaces(); ++i)
-    lqd_.input_scale(x_rotors_.count() + i) = drone_.fixed_wing.control_surfaces.at(i).angle_limit.range();
+
+  size_t cs_idx = 0;
+  for (const auto& [_, cs] : drone_.fixed_wing.control_surfaces)
+  {
+    lqd_.input_scale(x_rotors_.count() + cs_idx) = cs.angle_limit.range();
+    ++cs_idx;
+  }
 
   lqd_.state_weight.resize(eom_.kStateSize);
   lqd_.input_weight.resize(eom_.inputSize());

@@ -218,7 +218,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "cYawP", aero_coefs_.c_yaw_p);
   getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, NEGATIVE);
 
-  // ControlSurfaces
+  // ControlSurface
   if (sdf->HasElement("controlSurface"))
   {
     unordered_set<int> indexes;

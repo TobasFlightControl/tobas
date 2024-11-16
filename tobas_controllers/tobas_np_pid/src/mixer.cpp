@@ -48,7 +48,7 @@ VectorXd NonPlanarMixer::solve(
 {
   assert(cur_voltage > 0);
 
-  Index rotor_idx;
+  size_t rotor_idx;
 
   // 質量特性を計算
   if (inertia_solver_.JntToCart(cur_q) < 0)

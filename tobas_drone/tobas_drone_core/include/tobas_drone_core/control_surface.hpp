@@ -1,13 +1,16 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
+#include <map>
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_std_tools/range.hpp>
 
 namespace tobas
 {
+class ControlSurface;
+using ControlSurfaceMap = std::map<uint32_t, ControlSurface>;  // Channel -> ControlSurface
+
 /**
  * @brief Control sufrace.
  * The moment reference point for the wing is at the wing quarter-chord.
@@ -43,6 +46,4 @@ public:
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
 };
-
-using ControlSurfaces = std::vector<ControlSurface>;
 }  // namespace tobas

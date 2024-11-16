@@ -271,7 +271,7 @@ void addFixedWingPlugin(
   plugin->InsertNewChildElement("cYawR")->SetText(aerodynamics.c_yaw_r);
 
   // Control Surfaces
-  for (const auto& cs : control_surfaces)
+  for (const auto& [_, cs] : control_surfaces)
   {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
     cs_elem->InsertNewChildElement("channel")->SetText(cs.channel);

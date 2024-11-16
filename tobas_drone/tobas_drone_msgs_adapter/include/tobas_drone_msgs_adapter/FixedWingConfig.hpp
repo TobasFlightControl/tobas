@@ -24,7 +24,7 @@ struct rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedW
     tobas_drone_msgs::AerodynamicCoefficientsAdapter::convert_to_ros_message(src.aerodynamics, dst.aerodynamics);
 
     dst.control_surfaces.clear();
-    for (const auto& cs : src.control_surfaces)
+    for (const auto& [_, cs] : src.control_surfaces)
     {
       dst.control_surfaces.emplace_back();
       tobas_drone_msgs::ControlSurfaceAdapter::convert_to_ros_message(cs, dst.control_surfaces.back());
@@ -39,8 +39,8 @@ struct rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedW
     dst.control_surfaces.clear();
     for (const auto& cs : src.control_surfaces)
     {
-      dst.control_surfaces.emplace_back();
-      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_custom(cs, dst.control_surfaces.back());
+      dst.control_surfaces[cs.channel] = tobas::ControlSurface();
+      tobas_drone_msgs::ControlSurfaceAdapter::convert_to_custom(cs, dst.control_surfaces.at(cs.channel));
     }
   }
 };
