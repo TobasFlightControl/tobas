@@ -5,7 +5,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/remove_rotor.hpp>
+#include <tobas_msgs/srv/disable_rotor.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 using namespace std;
@@ -15,7 +15,7 @@ class RotorCheckerNode : public tobas::BaseNode
   using self = RotorCheckerNode;
   using super = tobas::BaseNode;
 
-  static constexpr rcl_duration_value_t kNoCommunicationTimeout = 100'000'000;  // [ns]
+  static constexpr rcl_duration_value_t kNoCommunicationTimeout = 20'000'000;  // [ns]
 
 public:
   explicit RotorCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -35,9 +35,9 @@ private:
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> states_sub_;
 
-  ros2::ServiceClientPtr<tobas_msgs::srv::RemoveRotor> remove_rotor_sc_;
+  ros2::ServiceClientPtr<tobas_msgs::srv::DisableRotor> remove_rotor_sc_;
 
-  bool requestRemoveRotor(uint8_t channel);
+  bool requestDisableRotor(uint8_t channel);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
@@ -50,10 +50,10 @@ RotorCheckerNode::RotorCheckerNode(const rclcpp::NodeOptions& options) : super("
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   states_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kRotorStatesTopic), &self::statesCb, this);
 
-  remove_rotor_sc_ = create_client<tobas_msgs::srv::RemoveRotor>(tobas::kRemoveRotorSrv);
+  remove_rotor_sc_ = create_client<tobas_msgs::srv::DisableRotor>(tobas::kRemoveRotorSrv);
 }
 
-bool RotorCheckerNode::requestRemoveRotor(uint8_t channel)
+bool RotorCheckerNode::requestDisableRotor(uint8_t channel)
 {
   if (!remove_rotor_sc_->service_is_ready())
   {
@@ -61,7 +61,7 @@ bool RotorCheckerNode::requestRemoveRotor(uint8_t channel)
     return false;
   }
 
-  const auto req = std::make_shared<tobas_msgs::srv::RemoveRotor::Request>();
+  const auto req = std::make_shared<tobas_msgs::srv::DisableRotor::Request>();
   req->channel = channel;
   remove_rotor_sc_->async_send_request(req);
 
@@ -123,7 +123,7 @@ void RotorCheckerNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSha
           "No communication with rotor channel ", (int)state.channel, ". Please land the drone as soon as possible.");
 
         // 通信できないモータをモデルから削除
-        if (!requestRemoveRotor(state.channel))
+        if (!requestDisableRotor(state.channel))
         {
           // TODO: Disarmしてパラシュートを開くなど
         }

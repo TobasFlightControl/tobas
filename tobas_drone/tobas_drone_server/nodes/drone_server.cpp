@@ -1,7 +1,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/srv/remove_rotor.hpp>
+#include <tobas_msgs/srv/disable_rotor.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 class DroneServerNode : public tobas::BaseNode
@@ -9,7 +9,7 @@ class DroneServerNode : public tobas::BaseNode
   using self = DroneServerNode;
   using super = tobas::BaseNode;
 
-  using RemoveRotor = tobas_msgs::srv::RemoveRotor;
+  using DisableRotor = tobas_msgs::srv::DisableRotor;
 
 public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -18,12 +18,12 @@ private:
   tobas::Drone drone_;
 
   ros2::PublisherPtr<tobas::Drone> drone_pub_;
-  ros2::ServiceServerPtr<RemoveRotor> remove_rotor_ss_;
+  ros2::ServiceServerPtr<DisableRotor> remove_rotor_ss_;
 
   void publishDrone();
 
   bool fileParamCb(const std::string& p);
-  void removeRotorCb(const RemoveRotor::Request::ConstSharedPtr& req, const RemoveRotor::Response::SharedPtr& res);
+  void disableRotorCb(const DisableRotor::Request::ConstSharedPtr& req, const DisableRotor::Response::SharedPtr& res);
 };
 
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
@@ -31,7 +31,7 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 
   drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
-  remove_rotor_ss_ = createService<RemoveRotor>(tobas::kRemoveRotorSrv, &self::removeRotorCb, this);
+  remove_rotor_ss_ = createService<DisableRotor>(tobas::kRemoveRotorSrv, &self::disableRotorCb, this);
 }
 
 void DroneServerNode::publishDrone()
@@ -63,20 +63,21 @@ bool DroneServerNode::fileParamCb(const std::string& p)
   return true;
 }
 
-void DroneServerNode::removeRotorCb(
-  const RemoveRotor::Request::ConstSharedPtr& req,
-  const RemoveRotor::Response::SharedPtr& res)
+void DroneServerNode::disableRotorCb(
+  const DisableRotor::Request::ConstSharedPtr& req,
+  const DisableRotor::Response::SharedPtr& res)
 {
   for (size_t i = 0; i < drone_.numRotors(); ++i)
   {
-    const auto& rotor = drone_.rotors.at(i);
+    auto& rotor = drone_.rotors.at(i);
     if (rotor.channel == req->channel)
     {
-      drone_.rotors.erase(drone_.rotors.begin() + i);
+      // 最大速度を0にすることでモータをアクチュエータとして使用できないようにする
+      rotor.max_rot_speed = 0.;
       publishDrone();
+
       res->success = true;
       res->message.clear();
-      return;
     }
   }
 

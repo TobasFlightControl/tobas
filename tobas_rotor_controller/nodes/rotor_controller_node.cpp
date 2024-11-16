@@ -68,11 +68,11 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
     if (tar_thrust >= 0.)
     {
-      tar_speeds_msg->speeds.back().speed = drone_->rotSpeedFromThrust(channel, tar_thrust_msg.thrust);
+      tar_speeds_msg->speeds.back().speed = drone_->rotSpeedFromThrust(channel, tar_thrust);
     }
     else
     {
-      TOBAS_WARN_THROTTLE(kCmdWarnPeriod, "Negative thrust is commanded on CH", channel, ": ", tar_thrust, " < 0 [N]");
+      TOBAS_WARN_THROTTLE(kCmdWarnPeriod, "Negative thrust is commanded on CH", (int)channel, ": ", tar_thrust, " < 0 [N]");
       tar_speeds_msg->speeds.back().speed = 0.;
     }
   }
