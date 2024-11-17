@@ -64,6 +64,9 @@ private:
   /* YAML::Nodeを保存する． */
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
 
+  /* プロペラジョイントのlimitタグを削除する． */
+  bool removePropellerJointLimits(tinyxml2::XMLElement* robot);
+
   /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
   bool resolveMeshFiles(tinyxml2::XMLElement* elem, const std::filesystem::path& mesh_dir);
 

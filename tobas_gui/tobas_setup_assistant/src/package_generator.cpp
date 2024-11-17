@@ -538,6 +538,8 @@ bool PackageGenerator::generateURDF(const fs::path& mesh_dir)
   }
 
   // Modify robot
+  if (!removePropellerJointLimits(robot))
+    return false;
   if (!resolveMeshFiles(robot, mesh_dir))
     return false;
   if (!addXMLElements(robot))
@@ -581,6 +583,44 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
   {
     qt::qErrorBox(settings_, "Failed to save \"" + QString::fromStdString(path) + "\".");
     return false;
+  }
+
+  return true;
+}
+
+bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
+{
+  std::set<std::string> prop_jnt_names;
+  const auto props = settings_->propulsion_system->selected();
+  for (int i = 0; i < props->count(); ++i)
+  {
+    const auto link_name = props->linkName(i).toStdString();
+    const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
+    prop_jnt_names.insert(jnt_name);
+  }
+
+  for (auto child = robot->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+  {
+    if (strcmp(child->Name(), "joint") == 0)
+    {
+      const auto jnt_name = child->Attribute("name");
+      if (jnt_name == nullptr)
+      {
+        qt::qErrorBox(settings_, "Joint element does not have attribute: \"name\"");
+        return false;
+      }
+      if (prop_jnt_names.contains(jnt_name))
+      {
+        for (auto gchild = child->FirstChildElement(); gchild != nullptr; gchild = gchild->NextSiblingElement())
+        {
+          if (strcmp(gchild->Name(), "limit") == 0)
+          {
+            child->DeleteChild(gchild);
+            break;
+          }
+        }
+      }
+    }
   }
 
   return true;
