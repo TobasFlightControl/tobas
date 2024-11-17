@@ -1,5 +1,3 @@
-#include <sensor_msgs/msg/joint_state.hpp>
-
 #include <tobas_std_tools/zip.hpp>
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_kdl/treeactivejointsextractor.hpp>
@@ -29,7 +27,6 @@ public:
   explicit EffortControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone drone_;
   kdl::Tree tree_;
 
   kdl::TreeJointStateConverter cur_js_conv_;
@@ -38,9 +35,6 @@ private:
   kdl::TreeJntSpacePID pid_js_;
   kdl::TreeTaskSpacePID pid_ts_;
 
-  bool is_initialized_ = false;
-  bool drone_received_ = false;
-  bool tree_received_ = false;
   ros2::TransformListener::SharedPtr tf_listener_;
   sensor_msgs::msg::JointState home_js_;
 
@@ -58,6 +52,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
 
   // Timer
+  ros2::TimerPtr initialize_timer_;
   ros2::TimerPtr auto_reset_timer_;
 
   void initialize();
@@ -95,6 +90,14 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
     pid_js_(tree_),
     pid_ts_(tree_)
 {
+  initialize_timer_ = createTimer(0ns, &self::initialize, this);
+}
+
+void EffortControllerNode::initialize()
+{
+  // shared_from_thisはコンストラクタでは呼べない
+  tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
+
   addDynamicDoubleParam("joint_stiffness", &self::jointStiffnessCb, this, 25., 0.1, 100.);
   addDynamicDoubleParam("joint_damping", &self::jointDamping, this, 10., 0.1, 20.);
   addDynamicDoubleParam("linear_stiffness", &self::linearStiffnessCb, this, 25., 0.1, 100.);
@@ -111,34 +114,8 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
   tar_ls_sub_ = createSubscriber(tobas::kEffCtrlLSTopic, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
-}
 
-void EffortControllerNode::initialize()
-{
-  tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
-
-  cur_js_conv_.updateInternalDataStructures();
-  tar_js_conv_.updateInternalDataStructures();
-  active_jnts_extractor_.updateInternalDataStructures();
-  pid_js_.updateInternalDataStructures();
-  pid_ts_.updateInternalDataStructures();
-
-  // 力指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone_.joints)
-  {
-    if (jnt_cfg.interface != tobas::joint_interface_t::EFFORT)
-      continue;
-    home_js_.name.push_back(jnt_name);
-    home_js_.position.push_back(jnt_cfg.home_pos);
-    home_js_.velocity.push_back(0.);
-    home_js_.effort.push_back(0.);
-  }
-
-  // ホームポジションを初期目標状態に設定
-  if (home_js_.name.size() > 0)
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
-
-  is_initialized_ = true;
+  initialize_timer_->cancel();
 }
 
 bool EffortControllerNode::jointSpaceControl(
@@ -321,27 +298,44 @@ bool EffortControllerNode::angularDampingCb(const double& p)
 
 void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  drone_ = *drone;
-  drone_received_ = true;
+  home_js_.name.clear();
+  home_js_.position.clear();
+  home_js_.velocity.clear();
+  home_js_.effort.clear();
 
-  if (tree_received_)
-    initialize();
+  // 力指令タイプの関節のホームポジションを取得
+  for (const auto& [jnt_name, jnt_cfg] : drone->joints)
+  {
+    if (jnt_cfg.interface != tobas::joint_interface_t::EFFORT)
+      continue;
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
+    home_js_.velocity.push_back(0.);
+    home_js_.effort.push_back(0.);
+  }
+
+  // ホームポジションを初期目標状態に設定
+  if (home_js_.name.size() > 0)
+    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
 }
 
 void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
-  tree_received_ = true;
 
-  if (drone_received_)
-    initialize();
+  cur_js_conv_.updateInternalDataStructures();
+  tar_js_conv_.updateInternalDataStructures();
+  active_jnts_extractor_.updateInternalDataStructures();
+  pid_js_.updateInternalDataStructures();
+  pid_ts_.updateInternalDataStructures();
 }
 
 void EffortControllerNode::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js)
 {
-  if (!is_initialized_)
+  if (tree_.getNrOfJoints() == 0)
     return;
-
+  if (home_js_.name.size() == 0)
+    return;
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 

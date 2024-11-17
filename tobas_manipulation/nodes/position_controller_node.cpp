@@ -1,5 +1,3 @@
-#include <sensor_msgs/msg/joint_state.hpp>
-
 #include <tobas_std_tools/zip.hpp>
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_kdl/treeactivejointsextractor.hpp>
@@ -24,9 +22,6 @@ public:
   explicit PositionControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone drone_;
-
-  bool is_initialized_ = false;
   sensor_msgs::msg::JointState home_js_;
 
   sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
@@ -43,8 +38,6 @@ private:
 
   // Timer
   ros2::TimerPtr auto_reset_timer_;
-
-  void initialize();
 
   bool jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
   bool taskSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
@@ -70,26 +63,6 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
 }
 
-void PositionControllerNode::initialize()
-{
-  // 位置指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone_.joints)
-  {
-    if (jnt_cfg.interface != tobas::joint_interface_t::POSITION)
-      continue;
-    home_js_.name.push_back(jnt_name);
-    home_js_.position.push_back(jnt_cfg.home_pos);
-    home_js_.velocity.push_back(0.);
-    home_js_.effort.push_back(0.);
-  }
-
-  // ホームポジションを初期目標状態に設定
-  if (home_js_.name.size() > 0)
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
-
-  is_initialized_ = true;
-}
-
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
 {
   // 位置コマンドをそのまま流すだけ
@@ -112,15 +85,31 @@ bool PositionControllerNode::taskSpaceControl(tobas_msgs::msg::JointCommandArray
 
 void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  drone_ = *drone;
-  initialize();
+  home_js_.name.clear();
+  home_js_.position.clear();
+  home_js_.velocity.clear();
+  home_js_.effort.clear();
+
+  // 位置指令タイプの関節のホームポジションを取得
+  for (const auto& [jnt_name, jnt_cfg] : drone->joints)
+  {
+    if (jnt_cfg.interface != tobas::joint_interface_t::POSITION)
+      continue;
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
+    home_js_.velocity.push_back(0.);
+    home_js_.effort.push_back(0.);
+  }
+
+  // ホームポジションを初期目標状態に設定
+  if (home_js_.name.size() > 0)
+    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
 }
 
 void PositionControllerNode::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr&)
 {
-  if (!is_initialized_)
+  if (home_js_.name.size() == 0)
     return;
-
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 
