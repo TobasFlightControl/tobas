@@ -27,7 +27,7 @@ SelectedLinksWidget::SelectedLinksWidget(const RobotInfo& robot) : super(0, kNum
     kHomePosLabel,
     kMinPosLabel,
     kMaxPosLabel,
-    kCmdTypeLabel,
+    kInterfaceLabel,
   });
 }
 
@@ -47,7 +47,7 @@ YAML::Node SelectedLinksWidget::dump(const QString& link_name) const
   node[kHomePosLabel] = homePosition(row);
   node[kMinPosLabel] = minPosition(row);
   node[kMaxPosLabel] = maxPosition(row);
-  node[kCmdTypeLabel] = interface(row);
+  node[kInterfaceLabel] = interface(row);
 
   return node;
 }
@@ -61,7 +61,7 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
   homePosition(row, node[kHomePosLabel].as<double>());
   minPosition(row, node[kMinPosLabel].as<double>());
   maxPosition(row, node[kMaxPosLabel].as<double>());
-  interface(row, node[kCmdTypeLabel].as<tobas::joint_interface_t>());
+  interface(row, node[kInterfaceLabel].as<tobas::joint_interface_t>());
 }
 
 int SelectedLinksWidget::count() const
@@ -129,8 +129,8 @@ void SelectedLinksWidget::add(const QString& link_name)
       throw;
   }
 
-  const auto cmd_type = new qt::ComboBox();
-  cmd_type->addItems({ kPositionLabel, kVelocityLabel, kEffortLabel });
+  const auto interface = new qt::ComboBox();
+  interface->addItems({ kPositionLabel, kVelocityLabel, kEffortLabel });
 
   const auto row = rowCount();
   insertRow(row);
@@ -139,7 +139,7 @@ void SelectedLinksWidget::add(const QString& link_name)
   setCellWidget(row, kHomePosCol, home_pos);
   setCellWidget(row, kMinPosCol, min_pos);
   setCellWidget(row, kMaxPosCol, max_pos);
-  setCellWidget(row, kCmdTypeCol, cmd_type);
+  setCellWidget(row, kInterfaceCol, interface);
 }
 
 void SelectedLinksWidget::remove(const QString& link_name)
@@ -168,19 +168,19 @@ double SelectedLinksWidget::homePosition(int row) const
 
 double SelectedLinksWidget::minPosition(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMinPosCol));
   return cell->value();
 }
 
 double SelectedLinksWidget::maxPosition(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kHomePosCol));
+  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMaxPosCol));
   return cell->value();
 }
 
 tobas::joint_interface_t SelectedLinksWidget::interface(int row) const
 {
-  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kHomePosCol));
+  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kInterfaceCol));
   const auto text = cell->currentText();
 
   if (text == kPositionLabel)
@@ -241,7 +241,7 @@ void SelectedLinksWidget::interface(int row, tobas::joint_interface_t value)
       throw;
   }
 
-  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kCmdTypeCol));
+  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kInterfaceCol));
   cell->setCurrentText(text);
 }
 
