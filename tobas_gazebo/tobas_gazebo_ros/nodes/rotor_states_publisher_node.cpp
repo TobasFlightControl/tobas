@@ -50,8 +50,6 @@ void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
   }
 
   drone_ = drone;
-
-  TOBAS_INFO("Gazego rotor states publisher is initialized.");
 }
 
 void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::ConstSharedPtr& rotor_state)

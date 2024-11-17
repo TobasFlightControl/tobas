@@ -83,8 +83,6 @@ void RotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   drone_ = drone;
-
-  TOBAS_INFO("Gazego rotor command handler is initialized.");
 }
 
 void RotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
