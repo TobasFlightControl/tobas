@@ -451,7 +451,6 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
   YAML::Node manager_params_node(YAML::NodeType::Map);
   manager_params_node["update_rate"] = 1000;  // TODO: GUIで設定できるように
   manager_params_node["joint_state_broadcaster"]["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
-  root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
 
   // Each joint controllers
   const auto servos = settings_->servo_joints->selected();
@@ -460,13 +459,15 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
     const auto jnt_name = servos->jointName(i);
     const auto ctrl_name = jnt_name + "_controller";
 
+    manager_params_node[ctrl_name]["type"] = tobas::controller_manager::type::kForwardCommandController;
+
     YAML::Node controller_node(YAML::NodeType::Map);
-    controller_node["type"] = tobas::controller_manager::type::kForwardCommandController;
     controller_node["joints"].push_back(jnt_name);
     controller_node["interface_name"] = tobas::jointIFEnumToText(servos->interface(i));
-
     root_node[robot_.robotName()][ctrl_name][kROSParamsKey] = controller_node;
   }
+
+  root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
 
   // Save data
   if (!saveYamlNode(config_dir / "joint_control.yaml", root_node))
@@ -714,13 +715,13 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Ground truth state plugin
   addGazeboGroundTruthStatePlugin(robot, ns, root_name);
 
-  // Gazebo ROS2 control plugin
-  // FIXME: ジョイントが1つも設定されてないとフリーズする？
-  if (joints->count() > 0)
-    addGazeboSimROS2ControlPlugin(robot, ns, common::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
-
   // Gazebo ROS2 control system
   addGazeboROS2SimSystem(robot, drone.joints);
+
+  // Gazebo ROS2 control plugin
+  // XXX: This must be defined after GazeboSimSystem
+  if (joints->count() > 0)
+    addGazeboSimROS2ControlPlugin(robot, ns, common::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
 
   // Base static joint for debug
   addBaseStaticJoint(robot, robot_.tree().getRootName());
