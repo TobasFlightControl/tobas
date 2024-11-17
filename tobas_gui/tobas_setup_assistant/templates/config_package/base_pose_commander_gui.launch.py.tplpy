@@ -35,7 +35,7 @@ def generate_launch_description():
             package="tobas_gui_teleop",
             executable="base_pose_commander_node",
             namespace=DRONE_NAME,
-            parameters=[{"use_sim_time", use_sim_time}],
+            parameters=[{"use_sim_time": use_sim_time}],
             remappings=[("odom", "ground_truth/odom")] if ground_truth == "true" else [],
             ros_arguments=["--log-level", log_level],
             output=output,

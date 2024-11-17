@@ -280,14 +280,13 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
 
-  // GUI Teleop (コントローラの対応コマンドによって場合分け)
-  // TODO: コントローラごとに1つずつ
+  // Optional
   if (
     settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POSE_TWIST_ACCEL))
-  {
-    config_env_->generate(tpl_data, "gui_teleop/position_yaw/gui_teleop.launch.py.tplpy", launch_dir);
-  }
+    config_env_->generate(tpl_data, "base_pose_commander_gui.launch.py.tplpy", launch_dir);
+  if (settings_->servo_joints->selected()->count() > 0)
+    config_env_->generate(tpl_data, "jointpos_commander_gui.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
   if (!createEmptyYaml(config_dir / "controller_dynamic.yaml", false))
