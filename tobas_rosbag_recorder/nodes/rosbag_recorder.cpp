@@ -16,6 +16,7 @@
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/event.hpp>
 #include <tobas_msgs/msg/fluid_pressure.hpp>
+#include <tobas_msgs/msg/fluid_pressure_raw.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -30,7 +31,9 @@
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
 #include <tobas_msgs_adapter/Imu.hpp>
+#include <tobas_msgs_adapter/ImuRaw.hpp>
 #include <tobas_msgs_adapter/MagneticField.hpp>
+#include <tobas_msgs_adapter/MagneticFieldRaw.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
 #include <tobas_msgs_adapter/PosVelAccYaw.hpp>
@@ -77,7 +80,9 @@ private:
   tobas_drone_msgs::msg::Drone drone_;
   tobas_kdl_msgs::msg::Tree tree_;
   tobas_msgs::msg::Imu imu_;
+  tobas_msgs::msg::ImuRaw imu_raw_;
   tobas_msgs::msg::MagneticField mag_;
+  tobas_msgs::msg::MagneticFieldRaw mag_raw_;
   tobas_msgs::msg::Gps gps_;
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
@@ -115,7 +120,9 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& msg);
   void treeCb(const kdl::Tree::ConstSharedPtr& msg);
   void imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
+  void imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& msg);
   void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
+  void magRawCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& msg);
   void gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& msg);
@@ -152,6 +159,7 @@ void ROSBagRecorderNode::registerStandardMsgSub()
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
   addStandardMsgSub<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
+  addStandardMsgSub<tobas_msgs::msg::FluidPressureRaw>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Event>(tobas::kEventTopic);
@@ -177,7 +185,9 @@ void ROSBagRecorderNode::registerNonStandardMsgSub()
   subs_.push_back(createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true));
   subs_.push_back(createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true));
   subs_.push_back(createSubscriber(tobas::kImuTopic, &self::imuCb, this));
+  subs_.push_back(createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this));
   subs_.push_back(createSubscriber(tobas::kMagTopic, &self::magCb, this));
+  subs_.push_back(createSubscriber(tobas::kMagRawTopic, &self::magRawCb, this));
   subs_.push_back(createSubscriber(tobas::kGNSSTopic, &self::gnssCb, this));
   subs_.push_back(createSubscriber(tobas::kOdometryTopic, &self::odomCb, this));
   subs_.push_back(createSubscriber(tobas::kEulerTopic, &self::eulerCb, this));
@@ -256,6 +266,20 @@ void ROSBagRecorderNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
   }
 }
 
+void ROSBagRecorderNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& msg)
+{
+  tobas_msgs::ImuRawAdapter::convert_to_ros_message(*msg, imu_raw_);
+
+  try
+  {
+    writer_.write(imu_raw_, ns_ + tobas::kImuRawTopic, get_clock()->now());
+  }
+  catch (const exception& e)
+  {
+    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kImuRawTopic << "\": " << e.what());
+  }
+}
+
 void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
 {
   tobas_msgs::MagneticFieldAdapter::convert_to_ros_message(*msg, mag_);
@@ -267,6 +291,20 @@ void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& 
   catch (const exception& e)
   {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kMagTopic << "\": " << e.what());
+  }
+}
+
+void ROSBagRecorderNode::magRawCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& msg)
+{
+  tobas_msgs::MagneticFieldRawAdapter::convert_to_ros_message(*msg, mag_raw_);
+
+  try
+  {
+    writer_.write(mag_raw_, ns_ + tobas::kMagRawTopic, get_clock()->now());
+  }
+  catch (const exception& e)
+  {
+    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kMagRawTopic << "\": " << e.what());
   }
 }
 
