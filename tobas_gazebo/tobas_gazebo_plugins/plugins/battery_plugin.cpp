@@ -26,9 +26,9 @@ class GazeboBatteryPlugin : public BaseNode,
   static constexpr double kSagCapRate = 0.2;  // [-] 放電特性が急激に変化する点における電気残率
 
   // Default parameters
-  static constexpr size_t kDefaultUpdateRate = 100;          // [Hz]
-  static constexpr double kDefaultVoltageNoiseStddev = 0.1;  // [V]
-  static constexpr double kDefaultCurrentNoiseStddev = 0.;   // [A]
+  static constexpr size_t kDefaultUpdateRate = 100;           // [Hz]
+  static constexpr double kDefaultVoltageNoiseStddev = 0.01;  // [V]
+  static constexpr double kDefaultCurrentNoiseStddev = 0.01;  // [A]
 
   using self = GazeboBatteryPlugin;
 
