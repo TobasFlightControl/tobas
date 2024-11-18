@@ -118,8 +118,18 @@ void DShotDriverNode::publishCurrentStates()
   {
     cur_states->states.emplace_back();
     cur_states->states.back().channel = channel;
-    cur_states->states.back().speed = dshot_.getSpeed(channel);
-    cur_states->states.back().status = tobas_msgs::msg::RotorState::SPEED_ONLY;
+    if (dshot_.getValidity(channel))
+    {
+      cur_states->states.back().speed = dshot_.getSpeed(channel);
+      cur_states->states.back().current = NAN;
+      cur_states->states.back().status = tobas_msgs::msg::RotorState::SPEED_ONLY;
+    }
+    else
+    {
+      cur_states->states.back().speed = NAN;
+      cur_states->states.back().current = NAN;
+      cur_states->states.back().status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+    }
   }
 
   cur_states_pub_->publish(move(cur_states));
