@@ -448,7 +448,7 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
 
   // Controller manager
   YAML::Node manager_params_node(YAML::NodeType::Map);
-  manager_params_node["update_rate"] = 1000;  // TODO: GUIで設定できるように
+  manager_params_node["update_rate"] = 100;  // TODO: GUIで設定できるように
   manager_params_node["joint_state_broadcaster"]["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
 
   // Each joint controllers
