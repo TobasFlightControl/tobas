@@ -215,7 +215,7 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package="tobas_preprocess",
+                            package="tobas_matrix_euler_conversion",
                             plugin="MatrixEulerConverterNode",
                             namespace=DRONE_NAME,
                             remappings=remappings,
