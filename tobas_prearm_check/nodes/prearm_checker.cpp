@@ -12,7 +12,7 @@
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 using namespace std;
 using namespace Eigen;

@@ -7,9 +7,9 @@
 #include <tobas_drone_core/fixed_wing.hpp>
 #include <tobas_drone_msgs/msg/fixed_wing_config.hpp>
 
-#include "./VehicleParameters.hpp"
-#include "./AerodynamicCoefficients.hpp"
-#include "./ControlSurface.hpp"
+#include "./vehicle_parameters.hpp"
+#include "./aerodynamic_coefficients.hpp"
+#include "./control_surface.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<tobas::FixedWingConfig, tobas_drone_msgs::msg::FixedWingConfig>

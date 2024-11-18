@@ -8,7 +8,7 @@
 #include <tobas_drone_tools/fw_trim_conditions.hpp>
 
 #include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 

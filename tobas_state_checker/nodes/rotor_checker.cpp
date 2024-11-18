@@ -6,7 +6,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/disable_rotor.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 using namespace std;
 

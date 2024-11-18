@@ -5,10 +5,10 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
 
-#include "./BatteryConfig.hpp"
-#include "./JointConfig.hpp"
-#include "./RotorConfig.hpp"
-#include "./FixedWingConfig.hpp"
+#include "./battery_config.hpp"
+#include "./joint_config.hpp"
+#include "./rotor_config.hpp"
+#include "./fixed_wing_config.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>

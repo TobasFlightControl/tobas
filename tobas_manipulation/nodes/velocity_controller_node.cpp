@@ -10,7 +10,7 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 #include "../include/tobas_manipulation/constants.hpp"
 #include "../include/tobas_manipulation/util.hpp"

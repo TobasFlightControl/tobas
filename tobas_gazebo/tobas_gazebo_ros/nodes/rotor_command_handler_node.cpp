@@ -2,7 +2,7 @@
 
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>

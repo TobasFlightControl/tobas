@@ -14,7 +14,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 #define E_XY DiagonalMatrix<double, 3>(1, 1, 0)
 #define GRAV_W Vector3d(0, 0, tobas_std::kGravity)

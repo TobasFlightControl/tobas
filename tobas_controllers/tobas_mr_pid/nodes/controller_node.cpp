@@ -18,7 +18,7 @@
 #include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs_adapter/roll_pitch_yaw_throttle.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/MultiRotorControllerFeedback.hpp>
 
 using namespace std;

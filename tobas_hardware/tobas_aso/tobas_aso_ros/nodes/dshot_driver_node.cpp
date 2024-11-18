@@ -12,7 +12,7 @@
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 #include <tobas_aso_core/dshot.hpp>
 

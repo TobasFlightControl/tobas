@@ -7,7 +7,7 @@
 
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 using namespace std;
 
