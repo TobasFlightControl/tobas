@@ -5,7 +5,7 @@
 #include <tobas_kdl/twist.hpp>
 #include <tobas_kdl_msgs/msg/twist.hpp>
 
-#include "./Vector.hpp"
+#include "./vector.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::Twist, tobas_kdl_msgs::msg::Twist>

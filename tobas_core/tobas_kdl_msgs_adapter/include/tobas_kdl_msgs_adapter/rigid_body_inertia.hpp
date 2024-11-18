@@ -5,8 +5,8 @@
 #include <tobas_kdl/rigidbodyinertia.hpp>
 #include <tobas_kdl_msgs/msg/rigid_body_inertia.hpp>
 
-#include "./Vector.hpp"
-#include "./RotationalInertia.hpp"
+#include "./vector.hpp"
+#include "./rotational_inertia.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::RigidBodyInertia, tobas_kdl_msgs::msg::RigidBodyInertia>

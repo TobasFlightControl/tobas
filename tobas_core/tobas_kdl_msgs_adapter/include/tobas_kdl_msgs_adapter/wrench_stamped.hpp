@@ -5,7 +5,7 @@
 #include <tobas_kdl/wrench.hpp>
 #include <tobas_kdl_msgs/msg/wrench_stamped.hpp>
 
-#include "./Wrench.hpp"
+#include "./wrench.hpp"
 
 namespace tobas_kdl_msgs
 {

@@ -17,7 +17,7 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/PosVelAccYaw.hpp>
 #include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
-#include <tobas_kdl_msgs_adapter/Tree.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_debug_msgs_adapter/MultiRotorControllerFeedback.hpp>
 

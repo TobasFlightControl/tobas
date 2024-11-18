@@ -13,7 +13,7 @@
 #include <tobas_msgs_adapter/Wind.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_kdl_msgs_adapter/Tree.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 #define E_XY DiagonalMatrix<double, 3>(1, 1, 0)

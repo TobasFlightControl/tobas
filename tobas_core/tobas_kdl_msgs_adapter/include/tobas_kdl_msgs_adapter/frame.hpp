@@ -5,8 +5,8 @@
 #include <tobas_kdl/frame.hpp>
 #include <tobas_kdl_msgs/msg/frame.hpp>
 
-#include "./Vector.hpp"
-#include "./Rotation.hpp"
+#include "./vector.hpp"
+#include "./rotation.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::Frame, tobas_kdl_msgs::msg::Frame>

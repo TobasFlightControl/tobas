@@ -2,8 +2,8 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl_msgs_adapter/Vector.hpp>
-#include <tobas_kdl_msgs_adapter/Euler.hpp>
+#include <tobas_kdl_msgs_adapter/vector.hpp>
+#include <tobas_kdl_msgs_adapter/euler.hpp>
 
 #include <tobas_msgs/msg/pose_twist_accel_command.hpp>
 

@@ -2,10 +2,10 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl_msgs_adapter/Vector.hpp>
-#include <tobas_kdl_msgs_adapter/Euler.hpp>
-#include <tobas_kdl_msgs_adapter/Twist.hpp>
-#include <tobas_kdl_msgs_adapter/Accel.hpp>
+#include <tobas_kdl_msgs_adapter/vector.hpp>
+#include <tobas_kdl_msgs_adapter/euler.hpp>
+#include <tobas_kdl_msgs_adapter/twist.hpp>
+#include <tobas_kdl_msgs_adapter/accel.hpp>
 
 #include <tobas_debug_msgs/msg/non_planar_controller_feedback.hpp>
 

@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl_msgs_adapter/Euler.hpp>
+#include <tobas_kdl_msgs_adapter/euler.hpp>
 
 #include <tobas_msgs/msg/roll_pitch_yaw_throttle.hpp>
 

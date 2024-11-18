@@ -5,7 +5,7 @@
 #include <tobas_kdl/vectorvel.hpp>
 #include <tobas_kdl_msgs/msg/vector_vel.hpp>
 
-#include "./Vector.hpp"
+#include "./vector.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::VectorVel, tobas_kdl_msgs::msg::VectorVel>

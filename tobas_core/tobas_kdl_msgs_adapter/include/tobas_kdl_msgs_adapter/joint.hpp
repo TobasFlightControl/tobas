@@ -5,7 +5,7 @@
 #include <tobas_kdl/joint.hpp>
 #include <tobas_kdl_msgs/msg/joint.hpp>
 
-#include "./Vector.hpp"
+#include "./vector.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::Joint, tobas_kdl_msgs::msg::Joint>

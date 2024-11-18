@@ -2,7 +2,7 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
+#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_qt_tools/widgets/widget.hpp>
 
 namespace gui

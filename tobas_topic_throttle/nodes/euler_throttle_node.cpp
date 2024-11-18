@@ -1,4 +1,4 @@
-#include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
+#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 
 #include "./base.hpp"
 

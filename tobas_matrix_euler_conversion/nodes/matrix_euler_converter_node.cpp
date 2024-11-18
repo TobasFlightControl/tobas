@@ -1,6 +1,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_kdl_msgs_adapter/EulerStamped.hpp>
+#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
 
 using namespace std;

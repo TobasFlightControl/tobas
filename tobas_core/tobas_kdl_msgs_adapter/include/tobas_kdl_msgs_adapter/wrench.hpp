@@ -5,7 +5,7 @@
 #include <tobas_kdl/wrench.hpp>
 #include <tobas_kdl_msgs/msg/wrench.hpp>
 
-#include "./Vector.hpp"
+#include "./vector.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::Wrench, tobas_kdl_msgs::msg::Wrench>

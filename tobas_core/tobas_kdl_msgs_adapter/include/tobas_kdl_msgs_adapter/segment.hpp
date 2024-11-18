@@ -5,9 +5,9 @@
 #include <tobas_kdl/segment.hpp>
 #include <tobas_kdl_msgs/msg/segment.hpp>
 
-#include "./Joint.hpp"
-#include "./Frame.hpp"
-#include "./RigidBodyInertia.hpp"
+#include "./joint.hpp"
+#include "./frame.hpp"
+#include "./rigid_body_inertia.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::Segment, tobas_kdl_msgs::msg::Segment>

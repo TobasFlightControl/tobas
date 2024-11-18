@@ -5,7 +5,7 @@
 #include <tobas_kdl/quaternion.hpp>
 #include <tobas_kdl_msgs/msg/quaternion_stamped.hpp>
 
-#include "./Quaternion.hpp"
+#include "./quaternion.hpp"
 
 namespace tobas_kdl_msgs
 {

@@ -5,7 +5,7 @@
 #include <tobas_kdl/accel.hpp>
 #include <tobas_kdl_msgs/msg/accel.hpp>
 
-#include "./Vector.hpp"
+#include "./vector.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::Accel, tobas_kdl_msgs::msg::Accel>

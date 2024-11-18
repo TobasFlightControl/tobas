@@ -5,7 +5,7 @@
 #include <tobas_kdl/twist.hpp>
 #include <tobas_kdl_msgs/msg/twist_stamped.hpp>
 
-#include "./Twist.hpp"
+#include "./twist.hpp"
 
 namespace tobas_kdl_msgs
 {

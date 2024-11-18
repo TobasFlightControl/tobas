@@ -5,7 +5,7 @@
 #include <tobas_kdl/framevel.hpp>
 #include <tobas_kdl_msgs/msg/frame_vel_stamped.hpp>
 
-#include "./FrameVel.hpp"
+#include "./frame_vel.hpp"
 
 namespace tobas_kdl_msgs
 {

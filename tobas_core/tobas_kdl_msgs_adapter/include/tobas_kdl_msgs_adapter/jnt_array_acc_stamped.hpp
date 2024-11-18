@@ -5,7 +5,7 @@
 #include <tobas_kdl/jntarray.hpp>
 #include <tobas_kdl_msgs/msg/jnt_array_acc_stamped.hpp>
 
-#include "./JntArrayAcc.hpp"
+#include "./jnt_array_acc.hpp"
 
 namespace tobas_kdl_msgs
 {

@@ -5,7 +5,7 @@
 #include <tobas_kdl/rotationalinertia.hpp>
 #include <tobas_kdl_msgs/msg/rotational_inertia_stamped.hpp>
 
-#include "./RotationalInertia.hpp"
+#include "./rotational_inertia.hpp"
 
 namespace tobas_kdl_msgs
 {

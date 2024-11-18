@@ -5,7 +5,7 @@
 #include <tobas_kdl/accel.hpp>
 #include <tobas_kdl_msgs/msg/accel_stamped.hpp>
 
-#include "./Accel.hpp"
+#include "./accel.hpp"
 
 namespace tobas_kdl_msgs
 {

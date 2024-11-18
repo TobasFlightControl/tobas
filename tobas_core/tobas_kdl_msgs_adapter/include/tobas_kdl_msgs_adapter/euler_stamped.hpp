@@ -5,7 +5,7 @@
 #include <tobas_kdl/euler.hpp>
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 
-#include "./Euler.hpp"
+#include "./euler.hpp"
 
 namespace tobas_kdl_msgs
 {

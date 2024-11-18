@@ -5,7 +5,7 @@
 #include <tobas_kdl/frame.hpp>
 #include <tobas_kdl_msgs/msg/frame_stamped.hpp>
 
-#include "./Frame.hpp"
+#include "./frame.hpp"
 
 namespace tobas_kdl_msgs
 {

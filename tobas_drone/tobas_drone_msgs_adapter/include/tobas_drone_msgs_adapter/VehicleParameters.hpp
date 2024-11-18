@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl_msgs_adapter/Vector.hpp>
+#include <tobas_kdl_msgs_adapter/vector.hpp>
 
 #include <tobas_drone_core/vehicle_params.hpp>
 #include <tobas_drone_msgs/msg/vehicle_parameters.hpp>

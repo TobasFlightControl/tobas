@@ -5,7 +5,7 @@
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_kdl_msgs/msg/rotation_stamped.hpp>
 
-#include "./Rotation.hpp"
+#include "./rotation.hpp"
 
 namespace tobas_kdl_msgs
 {

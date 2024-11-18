@@ -7,7 +7,7 @@
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
 
-#include "./Segment.hpp"
+#include "./segment.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<kdl::Tree, tobas_kdl_msgs::msg::Tree>
