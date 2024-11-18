@@ -4,7 +4,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/MagneticFieldStamped.hpp>
+#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 
 #include <tobas_gazebo_tools/math.hpp>
 

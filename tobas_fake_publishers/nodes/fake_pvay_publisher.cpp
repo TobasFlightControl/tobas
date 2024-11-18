@@ -1,6 +1,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
 
 using namespace std;
 

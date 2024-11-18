@@ -15,10 +15,10 @@
 
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
-#include <tobas_msgs_adapter/ImuWithCovarianceStamped.hpp>
-#include <tobas_msgs_adapter/MagneticFieldWithCovarianceStamped.hpp>
-#include <tobas_msgs_adapter/Gps.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/gps.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_debug_msgs_adapter/ObserverFeedback.hpp>

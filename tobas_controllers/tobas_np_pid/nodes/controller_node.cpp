@@ -13,10 +13,10 @@
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/orientation_pid.hpp>
 
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
+#include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_debug_msgs_adapter/NonPlanarControllerFeedback.hpp>

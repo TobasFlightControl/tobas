@@ -4,7 +4,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
-#include <tobas_msgs_adapter/Gps.hpp>
+#include <tobas_msgs_adapter/gps.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 

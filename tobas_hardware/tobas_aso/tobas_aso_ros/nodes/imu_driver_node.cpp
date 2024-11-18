@@ -1,6 +1,6 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_msgs_adapter/ImuStamped.hpp>
+#include <tobas_msgs_adapter/imu_stamped.hpp>
 
 #include <tobas_aso_core/ism330dlc.hpp>
 

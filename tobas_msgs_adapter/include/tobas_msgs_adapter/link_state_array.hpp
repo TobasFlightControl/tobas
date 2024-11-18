@@ -4,7 +4,7 @@
 
 #include <tobas_msgs/msg/link_state_array.hpp>
 
-#include "./LinkState.hpp"
+#include "./link_state.hpp"
 
 namespace tobas_msgs
 {

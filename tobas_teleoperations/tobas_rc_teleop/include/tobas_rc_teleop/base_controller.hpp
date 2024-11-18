@@ -4,7 +4,7 @@
 #include <tobas_std_tools/range.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 
 namespace tobas_rc_teleop

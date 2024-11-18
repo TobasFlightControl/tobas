@@ -4,8 +4,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/ImuWithCovarianceStamped.hpp>
-#include <tobas_msgs_adapter/ImuStamped.hpp>
+#include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
+#include <tobas_msgs_adapter/imu_stamped.hpp>
 
 using namespace std;
 

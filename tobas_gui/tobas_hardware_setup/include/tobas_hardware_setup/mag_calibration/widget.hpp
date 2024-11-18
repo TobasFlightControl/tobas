@@ -7,7 +7,7 @@
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_msgs_adapter/MagneticFieldStamped.hpp>
+#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 #include <tobas_qt_tools/rviz.hpp>
 
 #include "../base.hpp"

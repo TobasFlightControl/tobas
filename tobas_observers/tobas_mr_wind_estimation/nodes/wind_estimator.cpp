@@ -10,8 +10,8 @@
 #include <tobas_drone_tools/mr_dynamics.hpp>
 #include <tobas_wind_model/dryden.hpp>
 
-#include <tobas_msgs_adapter/Wind.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/wind.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>

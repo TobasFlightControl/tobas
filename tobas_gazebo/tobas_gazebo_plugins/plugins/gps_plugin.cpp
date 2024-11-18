@@ -2,7 +2,7 @@
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Gps.hpp>
+#include <tobas_msgs_adapter/gps.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"

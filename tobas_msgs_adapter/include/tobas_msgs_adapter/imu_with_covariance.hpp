@@ -7,7 +7,7 @@
 
 #include <tobas_msgs/msg/imu_with_covariance.hpp>
 
-#include "./Imu.hpp"
+#include "./imu.hpp"
 
 namespace tobas_msgs
 {

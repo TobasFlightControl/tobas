@@ -4,7 +4,7 @@
 
 #include <tobas_msgs/msg/imu_with_covariance_stamped.hpp>
 
-#include "./ImuWithCovariance.hpp"
+#include "./imu_with_covariance.hpp"
 
 namespace tobas_msgs
 {

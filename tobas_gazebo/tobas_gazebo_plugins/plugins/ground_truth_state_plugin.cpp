@@ -1,7 +1,7 @@
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
 

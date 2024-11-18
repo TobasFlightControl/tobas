@@ -6,7 +6,7 @@
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
-#include <tobas_msgs_adapter/LinkStateArray.hpp>
+#include <tobas_msgs_adapter/link_state_array.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 
 #include "../include/tobas_manipulation/constants.hpp"

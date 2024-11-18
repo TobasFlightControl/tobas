@@ -5,7 +5,7 @@
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
-#include <tobas_msgs_adapter/ImuStamped.hpp>
+#include <tobas_msgs_adapter/imu_stamped.hpp>
 
 namespace gui
 {

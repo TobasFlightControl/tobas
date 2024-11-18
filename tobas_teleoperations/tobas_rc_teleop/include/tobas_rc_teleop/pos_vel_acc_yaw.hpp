@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
 
 #include "./base_controller.hpp"
 

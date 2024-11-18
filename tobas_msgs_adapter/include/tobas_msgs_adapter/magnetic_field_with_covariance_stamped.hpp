@@ -4,7 +4,7 @@
 
 #include <tobas_msgs/msg/magnetic_field_with_covariance_stamped.hpp>
 
-#include "./MagneticFieldWithCovariance.hpp"
+#include "./magnetic_field_with_covariance.hpp"
 
 namespace tobas_msgs
 {

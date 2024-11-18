@@ -6,7 +6,7 @@
 
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 #include "../include/tobas_rc_teleop/common.hpp"
 #include "../include/tobas_rc_teleop/program_mode.hpp"

@@ -12,11 +12,11 @@
 #include <tobas_drone_tools/mr_mixer.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
-#include <tobas_msgs_adapter/RollPitchYawThrottle.hpp>
+#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
+#include <tobas_msgs_adapter/roll_pitch_yaw_throttle.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_debug_msgs_adapter/MultiRotorControllerFeedback.hpp>
