@@ -19,7 +19,7 @@
 #include <tobas_msgs_adapter/roll_pitch_yaw_throttle.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_debug_msgs_adapter/MultiRotorControllerFeedback.hpp>
+#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
 
 using namespace std;
 using namespace Eigen;

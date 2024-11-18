@@ -19,7 +19,7 @@
 #include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_debug_msgs_adapter/NonPlanarControllerFeedback.hpp>
+#include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
 
 #include "../include/tobas_np_pid/mixer.hpp"
 
