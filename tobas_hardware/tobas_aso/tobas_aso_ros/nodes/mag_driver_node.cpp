@@ -1,6 +1,6 @@
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_msgs_adapter/MagneticFieldRaw.hpp>
+#include <tobas_msgs_adapter/MagneticFieldStamped.hpp>
 
 #include <tobas_aso_core/iis2mdc.hpp>
 
@@ -18,7 +18,7 @@ public:
 
 private:
   aso::IIS2MDC mag_;
-  ros2::PublisherPtr<tobas_msgs::MagneticFieldRaw> mag_pub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
 
   void mainTimerCb();
 };
@@ -28,20 +28,20 @@ MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("aso_ma
   if (!mag_.initialize())
     TOBAS_EXIT("Failed to initialize Magnetometer.");
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldRaw>(real::kMagTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void MagDriverNode::mainTimerCb()
 {
   // Create messages
-  auto msg = std::make_unique<tobas_msgs::MagneticFieldRaw>();
+  auto msg = std::make_unique<tobas_msgs::MagneticFieldStamped>();
 
   // Fill headers
   msg->header.stamp = get_clock()->now();
 
   // Read sensor
-  if (!mag_.readMag(msg->magnetic_field.x(), msg->magnetic_field.y(), msg->magnetic_field.z()))
+  if (!mag_.readMag(msg->mag.x(), msg->mag.y(), msg->mag.z()))
   {
     TOBAS_FATAL("Failed to read magnetometer.");
     return;

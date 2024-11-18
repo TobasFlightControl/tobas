@@ -1,7 +1,7 @@
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/fluid_pressure_raw.hpp>
+#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
@@ -49,7 +49,7 @@ private:
   mt19937 rnd_gen_;
   NormalDistribution pressure_noise_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::FluidPressureRaw> pressure_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::FluidPressureStamped> pressure_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
@@ -75,7 +75,7 @@ void GazeboBarometerPlugin::Configure(
   rate_manager_ = make_shared<RateManager>(update_rate_);
   pressure_noise_ = NormalDistribution(0., sqrt(pressure_var_));
 
-  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressureRaw>(tobas::kAirPressureRawTopic);
+  pressure_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
 }
 
 void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -106,10 +106,10 @@ void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::E
   pressure += pressure_noise_(rnd_gen_);
 
   // Create a pressure message
-  auto pressure_msg = make_unique<tobas_msgs::msg::FluidPressureRaw>();
+  auto pressure_msg = make_unique<tobas_msgs::msg::FluidPressureStamped>();
   ros2::timeChronoToMsg(info.simTime, pressure_msg->header.stamp);
   pressure_msg->header.frame_id = link_name_;
-  pressure_msg->fluid_pressure = pressure;
+  pressure_msg->pressure = pressure;
 
   // Publish the pressure message
   pressure_pub_->publish(move(pressure_msg));

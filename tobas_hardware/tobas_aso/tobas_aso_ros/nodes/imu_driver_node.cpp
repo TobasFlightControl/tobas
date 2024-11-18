@@ -1,6 +1,6 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_msgs_adapter/ImuRaw.hpp>
+#include <tobas_msgs_adapter/ImuStamped.hpp>
 
 #include <tobas_aso_core/ism330dlc.hpp>
 
@@ -18,7 +18,7 @@ public:
 
 private:
   aso::ISM330DLC imu_;
-  ros2::PublisherPtr<tobas_msgs::ImuRaw> imu_pub_;
+  ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
 
   void mainTimerCb();
 };
@@ -28,25 +28,25 @@ IMUDriverNode::IMUDriverNode(const rclcpp::NodeOptions& options) : super("aso_im
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
 
-  imu_pub_ = createPublisher<tobas_msgs::ImuRaw>(real::kIMUTopic);
+  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(real::kIMUTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void IMUDriverNode::mainTimerCb()
 {
   // Create messages
-  auto msg = std::make_unique<tobas_msgs::ImuRaw>();
+  auto msg = std::make_unique<tobas_msgs::ImuStamped>();
 
   // Fill headers
   msg->header.stamp = get_clock()->now();
 
   // Read IMU
-  if (!imu_.readAcc(msg->accel.x(), msg->accel.y(), msg->accel.z()))
+  if (!imu_.readAcc(msg->imu.accel.x(), msg->imu.accel.y(), msg->imu.accel.z()))
   {
     TOBAS_FATAL("Failed to read accelerometer.");
     return;
   }
-  if (!imu_.readGyro(msg->gyro.x(), msg->gyro.y(), msg->gyro.z()))
+  if (!imu_.readGyro(msg->imu.gyro.x(), msg->imu.gyro.y(), msg->imu.gyro.z()))
   {
     TOBAS_FATAL("Failed to read gyroscope.");
     return;

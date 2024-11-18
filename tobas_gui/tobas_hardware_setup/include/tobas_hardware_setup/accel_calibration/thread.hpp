@@ -5,7 +5,7 @@
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
-#include <tobas_msgs_adapter/ImuRaw.hpp>
+#include <tobas_msgs_adapter/ImuStamped.hpp>
 
 namespace gui
 {
@@ -41,7 +41,7 @@ private:
   Eigen::Vector3d acc_top_;
 
   bool getAccelMean(Eigen::Vector3d& des);
-  void imuCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_raw);
+  void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
 };
 }  // namespace hardware_setup
 }  // namespace gui

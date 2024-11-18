@@ -16,7 +16,7 @@
 
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
-#include <tobas_msgs/msg/fluid_pressure.hpp>
+#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
@@ -63,9 +63,9 @@ private:
   bool drone_received_ = false;
   bool tree_received_ = false;
   double cur_roll_, cur_pitch_, cur_yaw_;
-  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;   // 大気圧
-  tobas_msgs::msg::Battery::ConstSharedPtr battery_;              // 現在のバッテリーの状態
-  tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                 // 現在の状態 (NWU座標系)
+  tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr air_pressure_;  // 大気圧
+  tobas_msgs::msg::Battery::ConstSharedPtr battery_;                                // 現在のバッテリーの状態
+  tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                                   // 現在の状態 (NWU座標系)
   tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
   tobas_msgs::Odometry odom_ned_;                                 // 現在の状態 (NED座標系)
   std_msgs::msg::Bool::ConstSharedPtr arming_;                    // ロータのアーム状態
@@ -81,7 +81,7 @@ private:
   // Subscribers
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> air_pressure_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
@@ -119,7 +119,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
-  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
+  void airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& pressure);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
   void commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
@@ -269,7 +269,7 @@ void ControllerNode::updateSetStateVector()
   const auto& trim = eom_.trimCondition();
 
   // 失速しないように速度制限をした上で目標推力を計算
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->fluid_pressure);
+  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure.pressure);
   const auto tar_speed = trim.speedLimit(rho).clamp(cmd_ned_.speed);
   const auto tar_u = tar_speed * cos(eom_.trimCondition().alpha());
 
@@ -502,7 +502,7 @@ void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
   }
 }
 
-void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure)
+void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& pressure)
 {
   air_pressure_ = pressure;
 }
@@ -540,7 +540,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   tobas::speedRollDeltaPitchNwuToNed(*cmd_nwu_, cmd_ned_);
 
   // 現在の速度を使って状態方程式を更新
-  const auto rho = tobas_std::pressureToDensity(air_pressure_->fluid_pressure);
+  const auto rho = tobas_std::pressureToDensity(air_pressure_->pressure.pressure);
   switch (eom_.update(odom_ned_.twist.vel.norm(), rho, battery_->voltage, q_0_))
   {
     case tobas::SolverI::E_NO_ERROR:

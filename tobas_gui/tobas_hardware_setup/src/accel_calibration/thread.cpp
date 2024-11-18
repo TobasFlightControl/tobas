@@ -94,11 +94,11 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   return true;
 }
 
-void AccelCalibrationThread::imuCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_raw)
+void AccelCalibrationThread::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
 {
   ++cnt_;
   for (size_t i = 0; i < 3; ++i)
-    acc_sum_.at(i).add(imu_raw->accel(i));
+    acc_sum_.at(i).add(imu_raw->imu.accel(i));
 }
 }  // namespace hardware_setup
 }  // namespace gui

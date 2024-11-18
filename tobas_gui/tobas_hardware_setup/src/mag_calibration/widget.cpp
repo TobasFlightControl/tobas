@@ -122,12 +122,12 @@ void MagCalibrationWidget::reset()
   cancel_button_->setEnabled(false);
 }
 
-void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_raw)
+void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
 {
   // 最初のデータからスケールを決定
   if (cnt_ == 0)
   {
-    mag_norm_ = mag_raw->magnetic_field.norm();
+    mag_norm_ = mag_raw->mag.norm();
     if (mag_norm_ == 0.)
     {
       RCLCPP_WARN(node_->get_logger(), "The first magnetic field is zero.");
@@ -136,13 +136,13 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldRaw::ConstShared
   }
 
   // データを追加
-  mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->magnetic_field.data;
+  mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->mag.data;
 
   // 表示用メッセージを発行
   auto point_msg = make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = mag_raw->header;
   point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
-  kdl::pointKDLToMsg(mag_raw->magnetic_field / mag_norm_ * kRvizPointScale, point_msg->point);
+  kdl::pointKDLToMsg(mag_raw->mag / mag_norm_ * kRvizPointScale, point_msg->point);
   point_pub_->publish(std::move(point_msg));
 }
 

@@ -14,9 +14,9 @@
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
-#include <tobas_msgs/msg/fluid_pressure.hpp>
-#include <tobas_msgs_adapter/Imu.hpp>
-#include <tobas_msgs_adapter/MagneticField.hpp>
+#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
+#include <tobas_msgs_adapter/ImuWithCovarianceStamped.hpp>
+#include <tobas_msgs_adapter/MagneticFieldWithCovarianceStamped.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
@@ -33,9 +33,9 @@ class ObserverNode : public tobas::BaseNode
   using self = ObserverNode;
   using super = tobas::BaseNode;
 
-  using ImuMsg = tobas_msgs::Imu;
-  using MagMsg = tobas_msgs::MagneticField;
-  using BarMsg = tobas_msgs::msg::FluidPressure;
+  using ImuMsg = tobas_msgs::ImuWithCovarianceStamped;
+  using MagMsg = tobas_msgs::MagneticFieldWithCovarianceStamped;
+  using BarMsg = tobas_msgs::msg::FluidPressureWithVarianceStamped;
   using GpsMsg = tobas_msgs::Gps;
   using OdomMsg = tobas_msgs::Odometry;
   using GpsOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
@@ -178,8 +178,8 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
   const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas_std::kGravity);
-  const Vector3d B_Acc = imu_->accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
-  const Vector3d B_Gyro = imu_->gyro.data - eskf_.getGyroBias();
+  const Vector3d B_Acc = imu_->imu.imu.accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
+  const Vector3d B_Gyro = imu_->imu.imu.gyro.data - eskf_.getGyroBias();
 
   // Header
   odom.header.stamp = imu_->header.stamp;
@@ -205,11 +205,11 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
 
   // Angular velocity (Local)
   odom.twist.rot.data = B_Gyro;
-  odom.gyro_covariance = imu_->gyro_covariance;
+  odom.gyro_covariance = imu_->imu.gyro_covariance;
 
   // Linear acceleration (Local)
   odom.accel.linear.data = B_Acc;
-  odom.accel_covariance = imu_->accel_covariance;
+  odom.accel_covariance = imu_->imu.accel_covariance;
 
   // Angular acceleration (Local)
   odom.accel.angular.fill(NAN);
@@ -327,18 +327,18 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   imu_ = imu;
 
   // 観測ノイズの分散を計算
-  const auto acc_noise_var = imu->accel_covariance.diagonal().mean();
-  const auto gyro_noise_var = imu->gyro_covariance.diagonal().mean();
+  const auto acc_noise_var = imu->imu.accel_covariance.diagonal().mean();
+  const auto gyro_noise_var = imu->imu.gyro_covariance.diagonal().mean();
 
   // 事前予測
   eskf_.predictIMU(
-    imu->accel.data, imu->gyro.data, acc_noise_var, gyro_noise_var, acc_bias_noise_var_, gyro_bias_noise_var_,
-    grav_noise_var_, ros2::chronoFromRosTime(imu->header.stamp));
+    imu->imu.imu.accel.data, imu->imu.imu.gyro.data, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
+    gyro_bias_noise_var_, grav_noise_var_, ros2::chronoFromRosTime(imu->header.stamp));
 
   // 重力方向の観測
   // TODO: モデルから推定した動的加速度をセンサ加速度から引いたものを観測値とする
-  const auto grav_cov = computeGravMeasCov(imu->accel.data, imu->accel_covariance);
-  eskf_.measureGravity(imu->accel.data, grav_cov, ros2::chronoFromRosTime(imu->header.stamp));
+  const auto grav_cov = computeGravMeasCov(imu->imu.imu.accel.data, imu->imu.accel_covariance);
+  eskf_.measureGravity(imu->imu.imu.accel.data, grav_cov, ros2::chronoFromRosTime(imu->header.stamp));
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
@@ -373,11 +373,11 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
   // これをしないと，ヨーの初期誤差によってロール，ピッチの推定が不安定になることがある．
   if (mag_ == nullptr && gps_ == nullptr)
-    eskf_.setReferenceMagneticField(mag->magnetic_field.data);
+    eskf_.setReferenceMagneticField(mag->mag.mag.data);
 
   mag_ = mag;
 
-  eskf_.measureMagneticField(mag->magnetic_field.data, mag->covariance, ros2::chronoFromRosTime(mag->header.stamp));
+  eskf_.measureMagneticField(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
 }
 
 void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
@@ -388,12 +388,12 @@ void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
   // 気圧高度の初期値
   // TODO: IMUフレームに変換
   if (bar_ == nullptr)
-    alt_0_bar_ = tobas_std::pressureToAltitude(bar->fluid_pressure);
+    alt_0_bar_ = tobas_std::pressureToAltitude(bar->pressure.pressure);
 
   bar_ = bar;
 
   double z_abs, z_var;
-  tobas_std::pressureToAltitude(bar->fluid_pressure, bar->variance, z_abs, z_var);
+  tobas_std::pressureToAltitude(bar->pressure.pressure, bar->pressure.variance, z_abs, z_var);
 
   // TODO: bar_offsetを考慮
   const auto z_m = z_abs - alt_0_bar_;
@@ -444,8 +444,8 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
   // ESKFを更新
   const Vector3d imu2gps = gps_offset_ - imu_offset_;
   gps_anormaly_score_ = eskf_.measurePosVel(
-    pos_meas_, gps->position_covariance, gps->ground_speed.data, gps->velocity_covariance, imu2gps, imu_->gyro.data,
-    ros2::chronoFromRosTime(gps->header.stamp));
+    pos_meas_, gps->position_covariance, gps->ground_speed.data, gps->velocity_covariance, imu2gps,
+    imu_->imu.imu.gyro.data, ros2::chronoFromRosTime(gps->header.stamp));
 
   // 異常度が高すぎる場合は警告
   if (gps_anormaly_score_ > eskf::kAnormalyScoreThreshold)

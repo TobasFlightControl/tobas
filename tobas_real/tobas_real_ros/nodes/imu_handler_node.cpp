@@ -2,7 +2,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_msgs_adapter/ImuRaw.hpp>
+#include <tobas_msgs_adapter/ImuStamped.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 using namespace std;
@@ -24,14 +24,14 @@ private:
 
   ptree::PropertyTree pt_;
 
-  ros2::PublisherPtr<tobas_msgs::ImuRaw> imu_pub_;
-  ros2::SubscriberPtr<tobas_msgs::ImuRaw> imu_sub_;
+  ros2::PublisherPtr<tobas_msgs::ImuStamped> imu_pub_;
+  ros2::SubscriberPtr<tobas_msgs::ImuStamped> imu_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void imuCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_in);
+  void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -51,7 +51,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_
     return;
   }
 
-  imu_pub_ = createPublisher<tobas_msgs::ImuRaw>(tobas::kImuRawTopic);
+  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
   imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
 }
 
@@ -80,14 +80,14 @@ bool ImuHandlerNode::getConfig()
 
 void ImuHandlerNode::registerPubSub()
 {
-  imu_pub_ = createPublisher<tobas_msgs::ImuRaw>(tobas::kImuRawTopic);
+  imu_pub_ = createPublisher<tobas_msgs::ImuStamped>(tobas::kImuRawTopic);
   imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
 }
 
-void ImuHandlerNode::imuCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_in)
+void ImuHandlerNode::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_in)
 {
-  auto imu_out = std::make_unique<tobas_msgs::ImuRaw>(*imu_in);
-  imu_out->accel -= acc_bias_;  // Remove accel bias
+  auto imu_out = std::make_unique<tobas_msgs::ImuStamped>(*imu_in);
+  imu_out->imu.accel -= acc_bias_;  // Remove accel bias
   imu_pub_->publish(move(imu_out));
 }
 

@@ -25,9 +25,9 @@
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_dparam_msgs/srv/get_params.hpp>
-#include <tobas_msgs/msg/imu_raw.hpp>
-#include <tobas_msgs/msg/magnetic_field_raw.hpp>
-#include <tobas_msgs/msg/fluid_pressure_raw.hpp>
+#include <tobas_msgs/msg/imu_stamped.hpp>
+#include <tobas_msgs/msg/magnetic_field_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/adc.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
@@ -104,8 +104,8 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(throttled(tobas::kEulerTopic), tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLogicToIface<tobas_msgs::msg::ImuRaw>(throttled(real::kIMUTopic), real::kIMUTopic);
-  addTopicLogicToIface<tobas_msgs::msg::MagneticFieldRaw>(throttled(real::kMagTopic), real::kMagTopic);
+  addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(throttled(real::kIMUTopic), real::kIMUTopic);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(throttled(real::kMagTopic), real::kMagTopic);
   addTopicLogicToIface<tobas_msgs::msg::Adc>(throttled(real::kADCTopic), real::kADCTopic);
   addTopicLogicToIface<tobas_msgs::msg::Sbus>(throttled(real::kSBUSTopic), real::kSBUSTopic);
 

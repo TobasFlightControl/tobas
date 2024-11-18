@@ -4,7 +4,7 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/MagneticFieldRaw.hpp>
+#include <tobas_msgs_adapter/MagneticFieldStamped.hpp>
 
 #include <tobas_gazebo_tools/math.hpp>
 
@@ -60,7 +60,7 @@ private:
   std::mt19937 rnd_gen_;
   NormalDistribution noise_;
 
-  ros2::PublisherPtr<tobas_msgs::MagneticFieldRaw> mag_pub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
@@ -93,7 +93,7 @@ void GazeboMagnetometerPlugin::Configure(
   init_bias_.Y(init_bias_dist(rnd_gen_));
   init_bias_.Z(init_bias_dist(rnd_gen_));
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldRaw>(tobas::kMagRawTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
 }
 
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -138,10 +138,10 @@ void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim
   field_B.Z() += noise_(rnd_gen_);
 
   // Create message
-  auto mag_msg = make_unique<tobas_msgs::MagneticFieldRaw>();
+  auto mag_msg = make_unique<tobas_msgs::MagneticFieldStamped>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
-  vectorGazeboToKDL(field_B, mag_msg->magnetic_field);
+  vectorGazeboToKDL(field_B, mag_msg->mag);
 
   // Publish message
   mag_pub_->publish(move(mag_msg));

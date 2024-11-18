@@ -15,8 +15,8 @@
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/event.hpp>
-#include <tobas_msgs/msg/fluid_pressure.hpp>
-#include <tobas_msgs/msg/fluid_pressure_raw.hpp>
+#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -30,10 +30,10 @@
 #include <tobas_kdl_msgs_adapter/Tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
-#include <tobas_msgs_adapter/Imu.hpp>
-#include <tobas_msgs_adapter/ImuRaw.hpp>
-#include <tobas_msgs_adapter/MagneticField.hpp>
-#include <tobas_msgs_adapter/MagneticFieldRaw.hpp>
+#include <tobas_msgs_adapter/ImuStamped.hpp>
+#include <tobas_msgs_adapter/ImuWithCovarianceStamped.hpp>
+#include <tobas_msgs_adapter/MagneticFieldStamped.hpp>
+#include <tobas_msgs_adapter/MagneticFieldWithCovarianceStamped.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
 #include <tobas_msgs_adapter/PoseTwistAccelCommand.hpp>
 #include <tobas_msgs_adapter/PosVelAccYaw.hpp>
@@ -79,10 +79,10 @@ private:
   // ROS message buffers
   tobas_drone_msgs::msg::Drone drone_;
   tobas_kdl_msgs::msg::Tree tree_;
-  tobas_msgs::msg::Imu imu_;
-  tobas_msgs::msg::ImuRaw imu_raw_;
-  tobas_msgs::msg::MagneticField mag_;
-  tobas_msgs::msg::MagneticFieldRaw mag_raw_;
+  tobas_msgs::msg::ImuWithCovarianceStamped imu_;
+  tobas_msgs::msg::ImuStamped imu_raw_;
+  tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
+  tobas_msgs::msg::MagneticFieldStamped mag_raw_;
   tobas_msgs::msg::Gps gps_;
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
@@ -115,10 +115,10 @@ private:
   // Publisher側にシリアライズさせるのを防ぐため，TypeAdapterのまま購読し，こちら側でROSメッセージへの変換を行う．
   void droneCb(const tobas::Drone::ConstSharedPtr& msg);
   void treeCb(const kdl::Tree::ConstSharedPtr& msg);
-  void imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg);
-  void imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& msg);
-  void magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg);
-  void magRawCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& msg);
+  void imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& msg);
+  void imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& msg);
+  void magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& msg);
+  void magRawCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& msg);
   void gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& msg);
@@ -147,8 +147,8 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
   addStandardMsgSub<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
-  addStandardMsgSub<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
-  addStandardMsgSub<tobas_msgs::msg::FluidPressureRaw>(tobas::kAirPressureRawTopic);
+  addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
+  addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Event>(tobas::kEventTopic);
@@ -250,12 +250,12 @@ void ROSBagRecorderNode::treeCb(const kdl::Tree::ConstSharedPtr& msg)
   }
 }
 
-void ROSBagRecorderNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
+void ROSBagRecorderNode::imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& msg)
 {
   if (!is_recording_)
     return;
 
-  tobas_msgs::ImuAdapter::convert_to_ros_message(*msg, imu_);
+  tobas_msgs::ImuWithCovarianceStampedAdapter::convert_to_ros_message(*msg, imu_);
 
   try
   {
@@ -267,12 +267,12 @@ void ROSBagRecorderNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
   }
 }
 
-void ROSBagRecorderNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& msg)
+void ROSBagRecorderNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& msg)
 {
   if (!is_recording_)
     return;
 
-  tobas_msgs::ImuRawAdapter::convert_to_ros_message(*msg, imu_raw_);
+  tobas_msgs::ImuStampedAdapter::convert_to_ros_message(*msg, imu_raw_);
 
   try
   {
@@ -284,12 +284,12 @@ void ROSBagRecorderNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& msg)
   }
 }
 
-void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
+void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& msg)
 {
   if (!is_recording_)
     return;
 
-  tobas_msgs::MagneticFieldAdapter::convert_to_ros_message(*msg, mag_);
+  tobas_msgs::MagneticFieldWithCovarianceStampedAdapter::convert_to_ros_message(*msg, mag_);
 
   try
   {
@@ -301,12 +301,12 @@ void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& 
   }
 }
 
-void ROSBagRecorderNode::magRawCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& msg)
+void ROSBagRecorderNode::magRawCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& msg)
 {
   if (!is_recording_)
     return;
 
-  tobas_msgs::MagneticFieldRawAdapter::convert_to_ros_message(*msg, mag_raw_);
+  tobas_msgs::MagneticFieldStampedAdapter::convert_to_ros_message(*msg, mag_raw_);
 
   try
   {

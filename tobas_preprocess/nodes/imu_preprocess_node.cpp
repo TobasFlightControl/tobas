@@ -4,8 +4,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Imu.hpp>
-#include <tobas_msgs_adapter/ImuRaw.hpp>
+#include <tobas_msgs_adapter/ImuWithCovarianceStamped.hpp>
+#include <tobas_msgs_adapter/ImuStamped.hpp>
 
 using namespace std;
 
@@ -43,32 +43,32 @@ private:
   size_t gyro_bias_cnt_ = 0;
   array<algo::Kahan<double>, 3> gyro_sum_;
 
-  tobas_msgs::ImuRaw::ConstSharedPtr imu_raw_;
+  tobas_msgs::ImuStamped::ConstSharedPtr imu_raw_;
   dsp::LowPassFilter<kdl::Vector> acc_lpf_, gyro_lpf_;
   array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 
-  ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
-  ros2::SubscriberPtr<tobas_msgs::ImuRaw> imu_raw_sub_;
+  ros2::PublisherPtr<tobas_msgs::ImuWithCovarianceStamped> imu_pub_;
+  ros2::SubscriberPtr<tobas_msgs::ImuStamped> imu_raw_sub_;
 
-  void imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_raw);
+  void imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
 };
 
 ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super("imu_preprocess", options)
 {
-  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kImuTopic);
+  imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
 }
 
-void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_raw)
+void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
 {
   switch (stage_)
   {
     case MEASURE_GYRO_BIAS:
     {
       // 角速度が大きすぎる場合はやり直し
-      if (imu_raw->gyro.norm() > kStaticGyroThreshold)
+      if (imu_raw->imu.gyro.norm() > kStaticGyroThreshold)
       {
-        TOBAS_WARN("Perturbation is detected while measuring gyro bias: ", imu_raw->gyro, " [rad/s]. Retrying...");
+        TOBAS_WARN("Perturbation is detected while measuring gyro bias: ", imu_raw->imu.gyro, " [rad/s]. Retrying...");
         gyro_bias_cnt_ = 0;
         for (size_t i = 0; i < 3; ++i)
           gyro_sum_[i].reset();
@@ -77,7 +77,7 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_r
 
       // 角速度を加算
       for (size_t i = 0; i < 3; ++i)
-        gyro_sum_[i].add(imu_raw->gyro(i));
+        gyro_sum_[i].add(imu_raw->imu.gyro(i));
 
       // データが溜まったら角速度の平均をバイアスの推定値として次のステージに進む
       if (++gyro_bias_cnt_ == kMeasureGyroBiasCount)
@@ -92,12 +92,12 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_r
     }
     case INITIALIZE:
     {
-      acc_lpf_.initialize(kAccelLpfCutoff, imu_raw->accel);
-      gyro_lpf_.initialize(kGyroLpfCutoff, imu_raw->gyro);
+      acc_lpf_.initialize(kAccelLpfCutoff, imu_raw->imu.accel);
+      gyro_lpf_.initialize(kGyroLpfCutoff, imu_raw->imu.gyro);
       for (size_t i = 0; i < 3; ++i)
       {
-        acc_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->accel(i));
-        gyro_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->gyro(i));
+        acc_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->imu.accel(i));
+        gyro_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->imu.gyro(i));
       }
       imu_raw_ = imu_raw;
       stage_ = PUBLISH;
@@ -110,9 +110,9 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_r
       imu_raw_ = imu_raw;
 
       // Filter out high frequency noise
-      if (acc_lpf_.update(imu_raw->accel, dt) < 0)
+      if (acc_lpf_.update(imu_raw->imu.accel, dt) < 0)
         TOBAS_ERROR("Failed to update accel LPF: ", acc_lpf_.errorMessage(), " dt = ", dt);
-      if (gyro_lpf_.update(imu_raw->gyro - gyro_bias_, dt) < 0)
+      if (gyro_lpf_.update(imu_raw->imu.gyro - gyro_bias_, dt) < 0)
         TOBAS_ERROR("Failed to update gyro LPF: ", gyro_lpf_.errorMessage(), " dt = ", dt);
 
       // Get filtered data
@@ -129,22 +129,22 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_r
       }
 
       // Create IMU message
-      auto imu_out = std::make_unique<tobas_msgs::Imu>();
+      auto imu_out = std::make_unique<tobas_msgs::ImuWithCovarianceStamped>();
 
       // Fill header
       imu_out->header = imu_raw->header;
 
       // Fill data
-      imu_out->accel = acc;
-      imu_out->gyro = gyro;
+      imu_out->imu.imu.accel = acc;
+      imu_out->imu.imu.gyro = gyro;
 
       // Fill covariance matrices
-      imu_out->accel_covariance.setZero();
-      imu_out->gyro_covariance.setZero();
+      imu_out->imu.accel_covariance.setZero();
+      imu_out->imu.gyro_covariance.setZero();
       for (size_t i = 0; i < 3; ++i)
       {
-        imu_out->accel_covariance(i, i) = acc_noise_[i].noiseVariance();
-        imu_out->gyro_covariance(i, i) = gyro_noise_[i].noiseVariance();
+        imu_out->imu.accel_covariance(i, i) = acc_noise_[i].noiseVariance();
+        imu_out->imu.gyro_covariance(i, i) = gyro_noise_[i].noiseVariance();
       }
 
       // Publish message
