@@ -106,7 +106,8 @@ void addIMUPlugin(
   double acc_noise_density,
   double acc_random_walk,
   double acc_bias_corr_time,
-  double acc_turn_on_bias_sigma)
+  double acc_turn_on_bias_sigma,
+  const vector<size_t>& rotor_channels)
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "gazebo::GazeboImuPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
@@ -123,6 +124,7 @@ void addIMUPlugin(
   plugin->InsertNewChildElement("accelRandomWalk")->SetText(acc_random_walk);
   plugin->InsertNewChildElement("accelBiasCorrelationTime")->SetText(acc_bias_corr_time);
   plugin->InsertNewChildElement("accelTurnOnBiasSigma")->SetText(acc_turn_on_bias_sigma);
+  util::addList(plugin, "rotorChannels", rotor_channels);
 }
 
 void addMagnetometerPlugin(
@@ -207,6 +209,7 @@ void addRotorPlugin(
   uint32_t channel,
   double kv,
   double internal_resistance,
+  size_t num_blades,
   double motor_constant,
   double moment_constant,
   double drag_constant,
@@ -220,6 +223,7 @@ void addRotorPlugin(
   plugin->InsertNewChildElement("channel")->SetText(channel);
   plugin->InsertNewChildElement("kv")->SetText(kv);
   plugin->InsertNewChildElement("internalResistance")->SetText(internal_resistance);
+  plugin->InsertNewChildElement("numberOfBlades")->SetText(num_blades);
   plugin->InsertNewChildElement("motorConstant")->SetText(motor_constant);
   plugin->InsertNewChildElement("momentConstant")->SetText(moment_constant);
   plugin->InsertNewChildElement("rotorDragCoefficient")->SetText(drag_constant);

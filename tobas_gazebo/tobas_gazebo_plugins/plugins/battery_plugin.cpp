@@ -3,9 +3,9 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
-#include <tobas_msgs/msg/rotor_state.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/gazebo_msg.hpp"
@@ -55,8 +55,8 @@ private:
   double current_noise_stddev_;  // [A] 電流の観測ノイズの標準偏差
   vector<size_t> rotor_channels_;
 
-  map<size_t, double> currents_;  // [A] 各モータに流れる電流
-  double q_;                      // [As] 現在の電気量
+  map<size_t, double> rotor_currents_;  // [A] 各モータに流れる電流
+  double q_;                            // [As] 現在の電気量
   RateManager::SharedPtr rate_manager_;
 
   // Noise generator
@@ -70,7 +70,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_gt_pub_;
 
   // Subscribers
-  vector<ros2::SubscriberPtr<tobas_msgs::msg::RotorState>> rotor_state_subs_;
+  vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
   // Service servers
   ros2::ServiceServerPtr<std_srvs::srv::Empty> charge_srv_;
@@ -130,12 +130,12 @@ void GazeboBatteryPlugin::registerPubSub()
   {
     const auto topic = kRotorStateGtTopicPrefix + to_string(ch);
     const auto qos = ros2::makeQoS(false, false, 1);
-    const auto cb = [this, ch](const tobas_msgs::msg::RotorState::ConstSharedPtr& msg)
+    const auto cb = [this, ch](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
     {
       assert(msg->current >= 0.);
-      currents_[ch] = msg->current;
+      rotor_currents_[ch] = msg->current;
     };
-    const auto sub = node_->create_subscription<tobas_msgs::msg::RotorState>(topic, qos, cb);
+    const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
 }
@@ -147,7 +147,7 @@ void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Ent
 
   // 電流を計算
   double current_true = 0.;
-  for (const auto& [_, current] : currents_)
+  for (const auto& [_, current] : rotor_currents_)
     current_true += current;
   if (current_true > max_current_)
     TOBAS_WARN_THROTTLE(kWarnPeriod, "The battery current is over limit: ", current_true, " > ", max_current_, " [A]");

@@ -5,6 +5,7 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
+#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
@@ -15,7 +16,7 @@
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
-#include <tobas_gazebo_msgs/msg/rotor_debug.hpp>
+#include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
@@ -49,6 +50,7 @@ class GazeboRotorPlugin : public BaseNode,
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 400;  // [Hz]
+  static constexpr double kDefaultRotorNoiseCoef = 0.2;    // [-]
   static constexpr double kDefaultMaxModelErrorRate = 0.;
 
   using self = GazeboRotorPlugin;
@@ -69,15 +71,17 @@ private:
   // SDF parameters
   string joint_name_;
   size_t channel_;
-  double kv_;               // [rad/s/V]
-  double resistance_;       // [Ω]
-  double motor_const_;      // [N/(rad/s)^2]
-  double moment_const_;     // [m]
-  double rotor_drag_coef_;  // [N*s^2/rad/m]
-  int direction_;           // Turning direction: 1(CCW) or -1(CW).
-  double max_current_;      // [A] ESCの最大電流
-  size_t publish_state_rate_;
-  double max_model_error_rate_;
+  double kv_;                    // [rad/s/V]
+  double resistance_;            // [Ω]
+  size_t num_blades_;            // [-]
+  double motor_const_;           // [N/(rad/s)^2]
+  double moment_const_;          // [m]
+  double rotor_drag_coef_;       // [N*s^2/rad/m]
+  int direction_;                // Turning direction: 1(CCW) or -1(CW)
+  double max_current_;           // [A] ESCの最大電流
+  size_t publish_state_rate_;    // [Hz]
+  double noise_coef_;            // [-]
+  double max_model_error_rate_;  // [-]
 
   double throttle_ = 0.;  // [0, 1]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
@@ -95,8 +99,7 @@ private:
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_gt_pub_;
-  ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorDebug> debug_pub_;
+  ros2::PublisherPtr<tobas_gazebo_msgs::msg::RotorState> state_gt_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<tobas_gazebo_msgs::msg::Throttle> throttle_sub_;
@@ -110,7 +113,11 @@ private:
 
   void registerROSInterfaces();
   void addModelError();
-  void applyWrench(sim::EntityComponentManager& ecm, double rot_speed, const steady_clock::duration& cur_time);
+  void applyWrench(
+    sim::EntityComponentManager& ecm,
+    double jnt_pos,
+    double rot_speed,
+    const steady_clock::duration& cur_time);
   void updateRotationSpeed(sim::EntityComponentManager& ecm, double rot_speed, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
@@ -168,13 +175,15 @@ void GazeboRotorPlugin::Configure(
 
   // Create necessary components
   if (!getComponent<cmp::JointAxis>(joint_entity, ecm))
-    TOBAS_EXIT("Failed to get component JointAxis to joint \"", joint_name_, "\".");
+    TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name_, "\".");
+  if (!getComponent<cmp::JointPosition>(joint_entity, ecm))
+    TOBAS_EXIT("Failed to get component JointPosition of joint \"", joint_name_, "\".");
   if (!getComponent<cmp::JointVelocity>(joint_entity, ecm))
-    TOBAS_EXIT("Failed to get component JointVelocity to joint \"", joint_name_, "\".");
+    TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name_, "\".");
   if (!getComponent<cmp::WorldPose>(link_entity, ecm))
-    TOBAS_EXIT("Failed to get component WorldPose to link \"", link_name, "\".");
+    TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name, "\".");
   if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))
-    TOBAS_EXIT("Failed to get component WorldLinearVelocity to link \"", link_name, "\".");
+    TOBAS_EXIT("Failed to get component WorldLinearVelocity of link \"", link_name, "\".");
 
   // Register ROS interfaces
   registerROSInterfaces();
@@ -187,6 +196,7 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   getSdfParam(sdf, "kv", kv_, POSITIVE);
   getSdfParam(sdf, "internalResistance", resistance_, POSITIVE);
+  getSdfParam(sdf, "numberOfBlades", num_blades_, POSITIVE);
 
   getSdfParam(sdf, "motorConstant", motor_const_, POSITIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, POSITIVE);
@@ -199,6 +209,7 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
   getSdfParam(sdf, "publishStateRate", publish_state_rate_, kDefaultPublishStateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "rotorNoiseCoefficient", noise_coef_, kDefaultRotorNoiseCoef, NON_NEGATIVE);
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
@@ -218,7 +229,9 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
   if (secs_from_last_cmd > kAutoStopTimeThresh)
     throttle_ = 0.;
 
-  // Get rotation speed
+  // Get joint state
+  const auto jnt_pos_sim = joint_->Position(ecm).value().at(0);
+  const auto jnt_pos_real = algo::wrapPi(jnt_pos_sim * kRotorSpeedSlowdownSim);
   const auto rot_speed_sim = max(joint_->Velocity(ecm).value().at(0) * direction_, 0.);
   const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
 
@@ -230,7 +243,7 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor [", channel_, "] might occur. Lower simulation time step.");
 
   // Update simulation state
-  applyWrench(ecm, rot_speed_real, info.simTime);
+  applyWrench(ecm, jnt_pos_real, rot_speed_real, info.simTime);
   updateRotationSpeed(ecm, rot_speed_real, dt);
 }
 
@@ -239,8 +252,7 @@ void GazeboRotorPlugin::registerROSInterfaces()
   const auto suffix = to_string(channel_);
 
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateTopicPrefix + suffix);
-  state_gt_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateGtTopicPrefix + suffix);
-  debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorDebug>(kDebugTopicPrefix + suffix);
+  state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(kRotorStateGtTopicPrefix + suffix);
 
   throttle_sub_ = createSubscriber(kThrottleTopicPrefix + suffix, &self::throttleCmdCb, this);
   battery_gt_sub_ = createSubscriber(kBatteryGtTopic, &self::batteryGtCb, this);
@@ -268,6 +280,7 @@ void GazeboRotorPlugin::addModelError()
 
 void GazeboRotorPlugin::applyWrench(
   sim::EntityComponentManager& ecm,
+  double jnt_pos,
   double rot_speed,
   const steady_clock::duration& cur_time)
 {
@@ -334,20 +347,15 @@ void GazeboRotorPlugin::applyWrench(
   }
 
   // Publish ground-truth state
-  auto state_msg_gt = make_unique<tobas_msgs::msg::RotorState>();
-  state_msg_gt->speed = rot_speed;
+  auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
+  ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
+  state_msg_gt->rotation_speed = rot_speed;
   state_msg_gt->current = current;
-  state_msg_gt->status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
+  state_msg_gt->rotor_noise = noise_coef_ * thrust * sin(num_blades_ * jnt_pos);
+  vectorGazeboToMsg(thrust_W, state_msg_gt->thrust_force);
+  vectorGazeboToMsg(h_force_W, state_msg_gt->horizontal_force);
+  vectorGazeboToMsg(drag_torque_W, state_msg_gt->drag_torque);
   state_gt_pub_->publish(move(state_msg_gt));
-
-  // Publish debug message
-  auto debug_msg = make_unique<tobas_gazebo_msgs::msg::RotorDebug>();
-  ros2::timeChronoToMsg(cur_time, debug_msg->header.stamp);
-  debug_msg->rotation_speed = joint_->Velocity(ecm).value().at(0) * kRotorSpeedSlowdownSim;
-  vectorGazeboToMsg(thrust_W, debug_msg->thrust_force);
-  vectorGazeboToMsg(h_force_W, debug_msg->horizontal_force);
-  vectorGazeboToMsg(drag_torque_W, debug_msg->drag_torque);
-  debug_pub_->publish(move(debug_msg));
 }
 
 void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, double cur_speed, double dt)

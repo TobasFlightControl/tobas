@@ -1,3 +1,4 @@
+#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/imu.hpp"
@@ -18,18 +19,17 @@ IMUWidget::IMUWidget()
   update_rate_->setSuffix(" Hz");
   addWidget(update_rate_);
 
-  gyro_noise_density_ = new ParamGetterWidget_DoubleSpinBox("Gyroscope Noise Density", "");  // TODO
-  gyro_noise_density_->setDecimals(9);
-  gyro_noise_density_->setMinimum(0.);
-  gyro_noise_density_->setValue(0.005);
-  gyro_noise_density_->setSuffix(" rad/s/sqrt(Hz)");
+  gyro_noise_density_ = new ParamGetterWidget_SpinBox("Gyroscope Noise Density", "");  // TODO
+  gyro_noise_density_->setMinimum(0);
+  gyro_noise_density_->setValue(20);
+  gyro_noise_density_->setSuffix(" mdps/√Hz");
   addWidget(gyro_noise_density_);
 
   gyro_random_walk_ = new ParamGetterWidget_DoubleSpinBox("Gyroscope Bias Random Walk", "");  // TODO
   gyro_random_walk_->setDecimals(9);
   gyro_random_walk_->setMinimum(0.);
   gyro_random_walk_->setValue(1e-4);
-  gyro_random_walk_->setSuffix(" rad/s^2/sqrt(Hz)");
+  gyro_random_walk_->setSuffix(" rad/s^2/√Hz");
   addWidget(gyro_random_walk_);
 
   gyro_bias_corr_time_ = new ParamGetterWidget_SpinBox("Gyroscope Bias Correlation Time Constant", "");  // TODO
@@ -46,18 +46,17 @@ IMUWidget::IMUWidget()
   gyro_turn_on_bias_sigma_->setSuffix(" rad/s");
   addWidget(gyro_turn_on_bias_sigma_);
 
-  acc_noise_density_ = new ParamGetterWidget_DoubleSpinBox("Accelerometer Noise Density", "");  // TODO
-  acc_noise_density_->setDecimals(9);
-  acc_noise_density_->setMinimum(0.);
-  acc_noise_density_->setValue(0.05);
-  acc_noise_density_->setSuffix(" m/s^2/sqrt(Hz)");
+  acc_noise_density_ = new ParamGetterWidget_SpinBox("Accelerometer Noise Density", "");  // TODO
+  acc_noise_density_->setMinimum(0);
+  acc_noise_density_->setValue(200);
+  acc_noise_density_->setSuffix(" ug/√Hz");
   addWidget(acc_noise_density_);
 
   acc_random_walk_ = new ParamGetterWidget_DoubleSpinBox("Accelerometer Bias Random Walk", "");  // TODO
   acc_random_walk_->setDecimals(9);
   acc_random_walk_->setMinimum(0.);
   acc_random_walk_->setValue(0.01);
-  acc_random_walk_->setSuffix(" m/s^3/sqrt(Hz)");
+  acc_random_walk_->setSuffix(" m/s^3/√Hz");
   addWidget(acc_random_walk_);
 
   acc_bias_corr_time_ = new ParamGetterWidget_SpinBox("Accelerometer Bias Correlation Time Constant", "");  // TODO
@@ -151,7 +150,7 @@ int IMUWidget::updateRate() const
 
 double IMUWidget::gyroNoiseDensity() const
 {
-  return gyro_noise_density_->getValue();
+  return (tobas_std::kDeg2Rad * 1e-3) * gyro_noise_density_->getValue();
 }
 
 double IMUWidget::gyroRandomWalk() const
@@ -171,7 +170,7 @@ double IMUWidget::gyroTurnOnBiasSigma() const
 
 double IMUWidget::accNoiseDensity() const
 {
-  return acc_noise_density_->getValue();
+  return (tobas_std::kGravity * 1e-6) * acc_noise_density_->getValue();
 }
 
 double IMUWidget::accRandomWalk() const

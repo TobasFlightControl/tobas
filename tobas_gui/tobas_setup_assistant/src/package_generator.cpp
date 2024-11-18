@@ -134,11 +134,11 @@ tobas::Drone PackageGenerator::createDrone()
   }
 
   // Rotors
-  const auto props = settings_->propulsion_system->selected();
-  for (int i = 0; i < props->count(); ++i)
+  const auto propulsions = settings_->propulsion_system->selected();
+  for (int i = 0; i < propulsions->count(); ++i)
   {
-    const auto link_name = props->linkName(i).toStdString();
-    const auto prop_config = props->widget(i);
+    const auto link_name = propulsions->linkName(i).toStdString();
+    const auto prop_config = propulsions->widget(i);
 
     tobas::RotorConfig rotor;
     rotor.channel = i;  // TODO: 物理チャンネルを指定できるようにする
@@ -591,10 +591,10 @@ bool PackageGenerator::saveYamlNode(const fs::path& path, const YAML::Node& node
 bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
 {
   std::set<std::string> prop_jnt_names;
-  const auto props = settings_->propulsion_system->selected();
-  for (int i = 0; i < props->count(); ++i)
+  const auto propulsions = settings_->propulsion_system->selected();
+  for (int i = 0; i < propulsions->count(); ++i)
   {
-    const auto link_name = props->linkName(i).toStdString();
+    const auto link_name = propulsions->linkName(i).toStdString();
     const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
     prop_jnt_names.insert(jnt_name);
   }
@@ -683,7 +683,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   const auto& root_name = robot_.tree().getRootName();
 
   const auto& batt = settings_->battery;
-  const auto& props = settings_->propulsion_system->selected();
+  const auto& propulsions = settings_->propulsion_system->selected();
   const auto& fixed_wing = settings_->fixed_wing;
   const auto& joints = settings_->servo_joints->selected();
   const auto& imu = settings_->imu;
@@ -694,14 +694,16 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   const auto drone = createDrone();
 
+  // Get rotor channels
+  vector<size_t> rotor_channels;
+  for (const auto& [channel, _] : drone.rotors)
+    rotor_channels.push_back(channel);
+
   // XML namespace
   robot->SetAttribute("xmlns:xacro", "http://ros.org/wiki/xacro");
 
   // Battery plugin
   constexpr double kBatterySamplingRate = 100.;  // TODO: サンプリングレートをGUIで設定
-  vector<size_t> rotor_channels;
-  for (const auto& [channel, _] : drone.rotors)
-    rotor_channels.push_back(channel);
   addBatteryPlugin(
     robot, ns, kBatterySamplingRate, batt->maxVoltage(), batt->sagVoltage(), batt->maxCurrent(), batt->capacity(),
     batt->internalRegistance(), rotor_channels);
@@ -710,7 +712,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   addIMUPlugin(
     robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroRandomWalk(),
     imu->gyroBiasCorrTime(), imu->gyroTurnOnBiasSigma(), imu->accNoiseDensity(), imu->accRandomWalk(),
-    imu->accBiasCorrTime(), imu->accTurnOnBiasSigma());
+    imu->accBiasCorrTime(), imu->accTurnOnBiasSigma(), rotor_channels);
 
   // Magnetometer plugin
   addMagnetometerPlugin(
@@ -728,20 +730,21 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     gps->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
 
   // Rotor plugins
-  for (int i = 0; i < props->count(); ++i)
+  for (int i = 0; i < propulsions->count(); ++i)
   {
-    const auto link_name = props->linkName(i).toStdString();
+    const auto link_name = propulsions->linkName(i).toStdString();
     const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
 
-    const auto prop = props->widget(i);
-    const auto esc = prop->esc();
-    const auto motor = prop->motor();
-    const auto aero = prop->aerodynamics();
+    const auto propulsion = propulsions->widget(i);
+    const auto esc = propulsion->esc();
+    const auto motor = propulsion->motor();
+    const auto propeller = propulsion->propeller();
+    const auto aero = propulsion->aerodynamics();
 
     const auto channel = i;  // TODO: 物理チャンネルを指定できるようにする
     addRotorPlugin(
-      robot, ns, jnt_name, channel, motor->kv(), motor->internalResistance(), aero->motorConst(), aero->momentConst(),
-      aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
+      robot, ns, jnt_name, channel, motor->kv(), motor->internalResistance(), propeller->numBlade(), aero->motorConst(),
+      aero->momentConst(), aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
   }
 
   // Fixed wing plugin

@@ -13,7 +13,7 @@ tinyxml2::XMLElement* addNode(
   const string& pkg,
   const string& exec,
   const string& name,
-  const string output,
+  const string& output,
   const string& args)
 {
   const auto node = parent->InsertNewChildElement("node");

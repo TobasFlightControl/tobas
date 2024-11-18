@@ -33,7 +33,8 @@ void addIMUPlugin(
   double acc_noise_density,
   double acc_random_walk,
   double acc_bias_corr_time,
-  double acc_turn_on_bias_sigma);
+  double acc_turn_on_bias_sigma,
+  const std::vector<size_t>& rotor_channels);
 
 void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,
@@ -79,6 +80,7 @@ void addRotorPlugin(
   uint32_t channel,
   double kv,
   double internal_resistance,
+  size_t num_blades,
   double motor_constant,
   double moment_constant,
   double drag_constant,
