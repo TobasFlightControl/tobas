@@ -221,12 +221,14 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
   // Check topics
   if (battery_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
+    if (info.simTime > kWarnStartTime)
+      TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
     return;
   }
   if (!wind_received_)
   {
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "Wind message is not received yet.");
+    if (info.simTime > kWarnStartTime)
+      TOBAS_WARN_THROTTLE(kWarnPeriod, "Wind message is not received yet.");
     return;
   }
 

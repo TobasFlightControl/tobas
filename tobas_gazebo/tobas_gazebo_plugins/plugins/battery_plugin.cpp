@@ -147,8 +147,11 @@ void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Ent
 
   if (rotor_currents_.size() < rotor_channels_.size())
   {
-    const auto num_not_received = rotor_channels_.size() - rotor_currents_.size();
-    TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
+    if (info.simTime > kWarnStartTime)
+    {
+      const auto num_not_received = rotor_channels_.size() - rotor_currents_.size();
+      TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
+    }
   }
 
   // 電流を計算
