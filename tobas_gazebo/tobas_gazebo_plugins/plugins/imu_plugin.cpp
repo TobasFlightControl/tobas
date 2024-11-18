@@ -174,7 +174,10 @@ void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityC
     return;
 
   if (rotor_noises_.size() < rotor_channels_.size())
-    return;
+  {
+    const auto num_not_received = rotor_channels_.size() - rotor_noises_.size();
+    TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
+  }
 
   // ベースフレームの状態を取得
   const auto& T_W_B = pose_W_->Data();

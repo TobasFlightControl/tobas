@@ -220,9 +220,15 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
 
   // Check topics
   if (battery_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
     return;
+  }
   if (!wind_received_)
+  {
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "Wind message is not received yet.");
     return;
+  }
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
