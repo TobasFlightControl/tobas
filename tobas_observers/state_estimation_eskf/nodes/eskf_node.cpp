@@ -212,8 +212,8 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   odom.accel_covariance = imu_->accel_covariance;
 
   // Angular acceleration (Local)
-  odom.accel.angular.fill(nan(tobas::kUnknown));
-  odom.dgyro_covariance.fill(nan(tobas::kUnknown));
+  odom.accel.angular.fill(NAN);
+  odom.dgyro_covariance.fill(NAN);
 }
 
 void ObserverNode::publishGPSOrigin()

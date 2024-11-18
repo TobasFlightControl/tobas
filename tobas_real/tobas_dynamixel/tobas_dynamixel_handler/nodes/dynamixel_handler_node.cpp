@@ -332,7 +332,7 @@ void DynamixelHandlerNode::getMotorConfigs()
     }
     else
     {
-      cfg.current_limit = nan(kUnavailable);
+      cfg.current_limit = NAN;
     }
 
     if (pah_->read4ByteTxRx(poh_, cfg.id, kAddrAccelerationLimit, &acc_limit) == 0)
@@ -478,7 +478,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     }
     else
     {
-      motor_state_.position = nan(kInactive);
+      motor_state_.position = NAN;
     }
 
     if (read_velocity_)
@@ -488,7 +488,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     }
     else
     {
-      motor_state_.velocity = nan(kInactive);
+      motor_state_.velocity = NAN;
     }
 
     if (read_current_)
@@ -497,18 +497,18 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
       if (cfg.current_available)
       {
         motor_state_.current = static_cast<double>(current_raw) * cfg.current_scaling_factor;
-        motor_state_.load = nan(kUnavailable);
+        motor_state_.load = NAN;
       }
       else
       {
-        motor_state_.current = nan(kUnavailable);
+        motor_state_.current = NAN;
         motor_state_.load = static_cast<double>(current_raw) * 0.1;
       }
     }
     else
     {
-      motor_state_.current = nan(kInactive);
-      motor_state_.load = nan(kInactive);
+      motor_state_.current = NAN;
+      motor_state_.load = NAN;
     }
 
     if (read_pwm_)
@@ -518,7 +518,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     }
     else
     {
-      motor_state_.pwm = nan(kInactive);
+      motor_state_.pwm = NAN;
     }
 
     if (read_voltage_)
@@ -528,7 +528,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     }
     else
     {
-      motor_state_.input_voltage = nan(kInactive);
+      motor_state_.input_voltage = NAN;
     }
 
     if (read_temperature_)
@@ -538,7 +538,7 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
     }
     else
     {
-      motor_state_.temperature = nan(kInactive);
+      motor_state_.temperature = NAN;
     }
 
     motor_states->states.push_back(motor_state_);

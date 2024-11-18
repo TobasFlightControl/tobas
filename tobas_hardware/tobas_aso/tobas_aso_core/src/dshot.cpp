@@ -243,7 +243,7 @@ double DShot::getSpeed(size_t ch)
   const auto erpm = (rx >> 0) & 0x0FFF;
 
   if (erpm == 0)
-    return nan("Invalid telemetry");
+    return NAN;
   else if (erpm == 0x0FFF)
     return 0.;
 

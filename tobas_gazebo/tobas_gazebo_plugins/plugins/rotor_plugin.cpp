@@ -347,8 +347,8 @@ void GazeboRotorPlugin::applyWrench(
     }
     else
     {
-      state_msg_obs->speed = nan("ESC is broken.");
-      state_msg_obs->current = nan("ESC is broken.");
+      state_msg_obs->speed = NAN;
+      state_msg_obs->current = NAN;
       state_msg_obs->status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
     }
     state_pub_->publish(move(state_msg_obs));
