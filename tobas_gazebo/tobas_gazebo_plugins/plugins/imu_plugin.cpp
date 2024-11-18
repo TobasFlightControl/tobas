@@ -173,6 +173,9 @@ void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityC
   if (!rate_manager_->update(info.simTime))
     return;
 
+  if (rotor_noises_.size() < rotor_channels_.size())
+    return;
+
   // ベースフレームの状態を取得
   const auto& T_W_B = pose_W_->Data();
   const auto& R_W_B = T_W_B.Rot();

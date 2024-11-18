@@ -145,6 +145,9 @@ void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Ent
   if (!rate_manager_->update(info.simTime))
     return;
 
+  if (rotor_currents_.size() < rotor_channels_.size())
+    return;
+
   // 電流を計算
   double current_true = 0.;
   for (const auto& [_, current] : rotor_currents_)
