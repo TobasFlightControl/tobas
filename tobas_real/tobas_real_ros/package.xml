@@ -10,7 +10,6 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>sensor_msgs</depend>
-	<depend>tobas_dsp</depend>
 	<depend>tobas_linux</depend>
 	<depend>tobas_property_tree</depend>
 	<depend>tobas_node</depend>

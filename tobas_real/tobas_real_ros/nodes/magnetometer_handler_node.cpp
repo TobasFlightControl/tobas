@@ -1,15 +1,10 @@
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_property_tree/property_tree.hpp>
-#include <tobas_dsp/noise_variance_filter.hpp>
-#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs_adapter/MagneticFieldRaw.hpp>
-#include <tobas_msgs_adapter/MagneticField.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
-
-#include <tobas_real_common/constants.hpp>
 
 using namespace std;
 using namespace real::handler::mag;
@@ -17,9 +12,6 @@ namespace fs = filesystem;
 
 class MagnetometerHandlerNode : public tobas::BaseNode
 {
-  static constexpr double kHpfCutoff = 10.;  // [Hz] (G(1Hz) ~ 0.1, G(20Hz) ~ 0.9)
-  static constexpr size_t kWindowSize = 100;
-
   using self = MagnetometerHandlerNode;
   using super = tobas::BaseNode;
   using SetParams = tobas_real_msgs::srv::SetMagnetometerParams;
@@ -33,16 +25,15 @@ private:
 
   tobas_msgs::MagneticFieldRaw::ConstSharedPtr mag_raw_;
   ptree::PropertyTree pt_;
-  array<dsp::NoiseVarianceFilter, 3> mag_noise_;
 
-  ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
+  ros2::PublisherPtr<tobas_msgs::MagneticFieldRaw> mag_pub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldRaw> mag_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_raw);
+  void magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_in);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -130,49 +121,15 @@ bool MagnetometerHandlerNode::getConfig()
 
 void MagnetometerHandlerNode::registerPubSub()
 {
-  mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
+  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldRaw>(tobas::kMagRawTopic);
   mag_sub_ = createSubscriber(real::kMagTopic, &self::magCb, this);
 }
 
-void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_raw)
+void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_in)
 {
-  // Project data to unit sphere
-  const auto mag_unit = mag_trans_.transform(mag_raw->magnetic_field.data);
-
-  // Initialize
-  if (mag_raw_ == nullptr)
-  {
-    for (size_t i = 0; i < 3; ++i)
-      mag_noise_[i].initialize(kWindowSize, kHpfCutoff, mag_unit(i));
-    mag_raw_ = mag_raw;
-    return;
-  }
-
-  // Compute time difference
-  const auto dt = (mag_raw->header.stamp - mag_raw_->header.stamp).seconds();
-  mag_raw_ = mag_raw;
-
-  // Update noise filter
-  for (size_t i = 0; i < 3; ++i)
-    if (mag_noise_[i].update(mag_unit(i), dt) < 0)
-      TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", mag_noise_[i].errorMessage());
-
-  // Create message
-  auto mag_msg = std::make_unique<tobas_msgs::MagneticField>();
-
-  // Fill header
-  mag_msg->header = mag_raw->header;
-
-  // Fill data
-  mag_msg->magnetic_field.data = mag_unit;
-
-  // Fill covariance matrices
-  mag_msg->covariance.setZero();
-  for (size_t i = 0; i < 3; ++i)
-    mag_msg->covariance(i, i) = mag_noise_[i].noiseVariance();
-
-  // Publish message
-  mag_pub_->publish(move(mag_msg));
+  auto mag_out = std::make_unique<tobas_msgs::MagneticFieldRaw>(*mag_in);
+  mag_out->magnetic_field.data = mag_trans_.transform(mag_in->magnetic_field.data);  // Project data to unit sphere
+  mag_pub_->publish(move(mag_out));
 }
 
 void MagnetometerHandlerNode::setParamsCb(

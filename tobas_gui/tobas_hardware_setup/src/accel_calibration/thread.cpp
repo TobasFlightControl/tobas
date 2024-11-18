@@ -4,7 +4,6 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
 #include "tobas_hardware_setup/accel_calibration/thread.hpp"

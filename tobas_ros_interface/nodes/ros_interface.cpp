@@ -5,7 +5,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_real_common/constants.hpp>
 
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>

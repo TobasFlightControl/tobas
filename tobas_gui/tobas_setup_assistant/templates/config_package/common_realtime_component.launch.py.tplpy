@@ -106,7 +106,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_preprocess",
-                            plugin="IMULPFNode",
+                            plugin="ImuPreprocessNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
@@ -142,6 +142,18 @@ def generate_launch_description():
                             namespace=DRONE_NAME,
                             parameters=[PathJoinSubstitution([config_pkg_share, "config", "rc_teleop.yaml"])],
                             remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_preprocess",
+                            plugin="MagPreprocessNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_preprocess",
+                            plugin="AirPressurePreprocessNode",
+                            namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(

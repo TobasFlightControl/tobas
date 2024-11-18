@@ -25,7 +25,9 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_node
 	tobas_msgs_adapter
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "IMULPFNode" EXECUTABLE imu_lpf)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuPreprocessNode" EXECUTABLE imu_preprocess)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagPreprocessNode" EXECUTABLE mag_preprocess)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "AirPressurePreprocessNode" EXECUTABLE air_pressure_preprocess)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MatrixEulerConverterNode" EXECUTABLE matrix_euler_converter)
 
 install(

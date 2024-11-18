@@ -9,8 +9,6 @@
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
-#include <tobas_real_common/constants.hpp>
-
 using namespace std;
 using namespace real::handler::rcin;
 namespace fs = filesystem;

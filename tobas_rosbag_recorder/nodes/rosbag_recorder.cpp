@@ -176,7 +176,7 @@ void ROSBagRecorderNode::registerNonStandardMsgSub()
 {
   subs_.push_back(createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true));
   subs_.push_back(createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true));
-  subs_.push_back(createSubscriber(tobas::kIMUTopic, &self::imuCb, this));
+  subs_.push_back(createSubscriber(tobas::kImuTopic, &self::imuCb, this));
   subs_.push_back(createSubscriber(tobas::kMagTopic, &self::magCb, this));
   subs_.push_back(createSubscriber(tobas::kGNSSTopic, &self::gnssCb, this));
   subs_.push_back(createSubscriber(tobas::kOdometryTopic, &self::odomCb, this));
@@ -248,11 +248,11 @@ void ROSBagRecorderNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
 
   try
   {
-    writer_.write(imu_, ns_ + tobas::kIMUTopic, get_clock()->now());
+    writer_.write(imu_, ns_ + tobas::kImuTopic, get_clock()->now());
   }
   catch (const exception& e)
   {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kIMUTopic << "\": " << e.what());
+    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kImuTopic << "\": " << e.what());
   }
 }
 

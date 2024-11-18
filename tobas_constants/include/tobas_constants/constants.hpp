@@ -34,10 +34,12 @@ static constexpr char kRobotDescriptionTopic[] = "robot_description";
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kCPUTopic[] = "cpu";
 static constexpr char kRcInputTopic[] = "rc_input";
-static constexpr char kIMUTopic[] = "imu";
-static constexpr char kImuLpfTopic[] = "imu_filtered";
+static constexpr char kImuTopic[] = "imu";
+static constexpr char kImuRawTopic[] = "imu_raw";
 static constexpr char kMagTopic[] = "magnetic_field";
+static constexpr char kMagRawTopic[] = "magnetic_field_raw";
 static constexpr char kAirPressureTopic[] = "air_pressure";
+static constexpr char kAirPressureRawTopic[] = "air_pressure_raw";
 static constexpr char kGNSSTopic[] = "gps";
 static constexpr char kGpsOriginTopic[] = "gps_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
@@ -97,13 +99,6 @@ static constexpr char kRemoveRotorSrv[] = "remove_rotor";
 static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
-
-// Calibration
-static constexpr char kAccelCalibAction[] = "accel_calibration";
-static constexpr char kMagCalibSrv[] = "mag_calibration";
-static constexpr char kADCCalibAction[] = "adc_calibration";
-static constexpr char kRCInputCalibSrv[] = "rcin_calibration";
-static constexpr char kESCCalibAction[] = "esc_calibration";
 
 // Controller Manager
 namespace controller_manager

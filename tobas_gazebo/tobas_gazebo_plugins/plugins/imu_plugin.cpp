@@ -2,7 +2,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Imu.hpp>
+#include <tobas_msgs_adapter/ImuRaw.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/model_mass_holder.hpp>
@@ -85,7 +85,7 @@ private:
   std::mt19937 rnd_gen_;
   NormalDistribution noise_;
 
-  ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
+  ros2::PublisherPtr<tobas_msgs::ImuRaw> imu_pub_;
   ros2::PublisherPtr<tobas_gazebo_msgs::msg::ImuDebug> debug_pub_;
   vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
@@ -132,7 +132,7 @@ void GazeboImuPlugin::Configure(
     gyro_turn_on_bias_[i] = gyro_turn_on_bias_sigma_ * noise_(rnd_gen_);
   }
 
-  imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
+  imu_pub_ = createPublisher<tobas_msgs::ImuRaw>(tobas::kImuRawTopic);
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
@@ -195,15 +195,11 @@ void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityC
   addNoise(acc_meas, gyro_meas, dt);
 
   // Publish IMU message
-  auto imu_msg = std::make_unique<tobas_msgs::Imu>();
+  auto imu_msg = std::make_unique<tobas_msgs::ImuRaw>();
   ros2::timeChronoToMsg(info.simTime, imu_msg->header.stamp);
   imu_msg->header.frame_id = link_name_;
   vectorGazeboToKDL(acc_meas, imu_msg->accel);
   vectorGazeboToKDL(gyro_meas, imu_msg->gyro);
-  const auto acc_var = ::math::sqr(acc_noise_density_obs_) / dt;
-  const auto gyro_var = ::math::sqr(gyro_noise_density_obs_) / dt;
-  imu_msg->accel_covariance = Eigen::Vector3d::Constant(acc_var).asDiagonal();
-  imu_msg->gyro_covariance = Eigen::Vector3d::Constant(gyro_var).asDiagonal();
   imu_pub_->publish(move(imu_msg));
 
   // Publish debug message

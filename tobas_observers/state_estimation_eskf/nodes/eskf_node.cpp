@@ -139,7 +139,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
   feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObsvFeedbackTopic);
 
   // Register subscribers
-  imu_sub_ = createSubscriber(tobas::kImuLpfTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(tobas::kImuTopic, &self::imuCb, this);
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
   if (use_bar_)
     bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::barCb, this);

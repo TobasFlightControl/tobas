@@ -6,8 +6,6 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_real_msgs/srv/set_battery_params.hpp>
 
-#include <tobas_real_common/constants.hpp>
-
 using namespace std;
 using namespace real::handler::adc;
 namespace fs = filesystem;

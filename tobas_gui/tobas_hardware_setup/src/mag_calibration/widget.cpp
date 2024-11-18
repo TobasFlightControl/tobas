@@ -11,7 +11,6 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
