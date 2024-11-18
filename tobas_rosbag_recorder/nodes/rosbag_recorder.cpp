@@ -2,7 +2,6 @@
 
 #include <std_msgs/msg/bool.hpp>
 #include <std_msgs/msg/string.hpp>
-#include <sensor_msgs/msg/fluid_pressure.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
@@ -16,6 +15,7 @@
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/event.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -151,7 +151,7 @@ void ROSBagRecorderNode::registerStandardMsgSub()
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
   addStandardMsgSub<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
-  addStandardMsgSub<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
+  addStandardMsgSub<tobas_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Event>(tobas::kEventTopic);

@@ -1,5 +1,3 @@
-#include <sensor_msgs/msg/fluid_pressure.hpp>
-
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -12,6 +10,7 @@
 #include <tobas_kdl_msgs_adapter/Tree.hpp>
 #include <tobas_drone_msgs_adapter/Drone.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
@@ -72,7 +71,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
 
   // Timer
   ros2::TimerPtr process_timer_;
@@ -84,7 +83,7 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg);
+  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg);
 
   void mainTimerCb();
   void checkTopicsTimerCb();
@@ -151,7 +150,7 @@ void SpeedRollDeltaPitchPublisherNode::treeCb(const kdl::Tree::ConstSharedPtr& t
   tree_received_ = true;
 }
 
-void SpeedRollDeltaPitchPublisherNode::airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg)
+void SpeedRollDeltaPitchPublisherNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& msg)
 {
   air_density_ = tobas_std::pressureToDensity(msg->fluid_pressure);
   pressure_received_ = true;

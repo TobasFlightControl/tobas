@@ -1,4 +1,3 @@
-#include <sensor_msgs/msg/fluid_pressure.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -17,6 +16,7 @@
 
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs_adapter/Odometry.hpp>
@@ -63,7 +63,7 @@ private:
   bool drone_received_ = false;
   bool tree_received_ = false;
   double cur_roll_, cur_pitch_, cur_yaw_;
-  sensor_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;  // 大気圧
+  tobas_msgs::msg::FluidPressure::ConstSharedPtr air_pressure_;   // 大気圧
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;              // 現在のバッテリーの状態
   tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                 // 現在の状態 (NWU座標系)
   tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
@@ -81,7 +81,7 @@ private:
   // Subscribers
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressure> air_pressure_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
@@ -119,7 +119,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
-  void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
+  void airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
   void commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
@@ -502,7 +502,7 @@ void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
   }
 }
 
-void ControllerNode::airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& pressure)
+void ControllerNode::airPressureCb(const tobas_msgs::msg::FluidPressure::ConstSharedPtr& pressure)
 {
   air_pressure_ = pressure;
 }

@@ -1,6 +1,4 @@
 #include <tf2_ros/transform_broadcaster.h>
-
-#include <sensor_msgs/msg/fluid_pressure.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include <tobas_math/core.hpp>
@@ -16,6 +14,7 @@
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
+#include <tobas_msgs/msg/fluid_pressure.hpp>
 #include <tobas_msgs_adapter/Imu.hpp>
 #include <tobas_msgs_adapter/MagneticField.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
@@ -36,7 +35,7 @@ class ObserverNode : public tobas::BaseNode
 
   using ImuMsg = tobas_msgs::Imu;
   using MagMsg = tobas_msgs::MagneticField;
-  using BarMsg = sensor_msgs::msg::FluidPressure;
+  using BarMsg = tobas_msgs::msg::FluidPressure;
   using GpsMsg = tobas_msgs::Gps;
   using OdomMsg = tobas_msgs::Odometry;
   using GpsOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
