@@ -351,7 +351,7 @@ void GazeboRotorPlugin::applyWrench(
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
   state_msg_gt->rotation_speed = rot_speed;
   state_msg_gt->current = current;
-  state_msg_gt->rotor_noise = noise_coef_ * thrust * sin(num_blades_ * jnt_pos);
+  state_msg_gt->rotor_noise = noise_coef_ * thrust * sin(num_blades_ * jnt_pos);  // TODO: 倍周波も考慮
   vectorGazeboToMsg(thrust_W, state_msg_gt->thrust_force);
   vectorGazeboToMsg(h_force_W, state_msg_gt->horizontal_force);
   vectorGazeboToMsg(drag_torque_W, state_msg_gt->drag_torque);
