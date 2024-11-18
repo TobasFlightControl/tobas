@@ -102,10 +102,6 @@ private:
   // Timers
   ros2::TimerPtr check_size_timer_;
 
-  void registerStandardMsgSub();
-  void registerNonStandardMsgSub();
-  void unregisterSubscriptions();
-
   template <typename MsgType>
   void addStandardMsgSub(
     const char* topic,
@@ -143,16 +139,9 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
     ns_(string(get_namespace()) + "/"),
     rosbag_dir_(linux::isSuperUser() ? tobas::kROSBagDirRoot : linux::expandUser(tobas::kROSBagDirHome))
 {
-  // Register services
-  start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);
-  stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
-  clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
+  // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
 
-  check_size_timer_ = createTimer(kCheckSizeTimerPeriod, &self::checkSizeTimerCb, this, false);
-}
-
-void ROSBagRecorderNode::registerStandardMsgSub()
-{
+  // Resister subscribers for standard messages
   addStandardMsgSub<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
   addStandardMsgSub<std_msgs::msg::String>(tobas::kRobotDescriptionTopic, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
@@ -178,10 +167,8 @@ void ROSBagRecorderNode::registerStandardMsgSub()
   addStandardMsgSub<tobas_debug_msgs::msg::MultiRotorControllerFeedback>(tobas::kMRCtrlFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::NonPlanarControllerFeedback>(tobas::kNPCtrlFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
-}
 
-void ROSBagRecorderNode::registerNonStandardMsgSub()
-{
+  // Resister subscribers for non-standard messages
   subs_.push_back(createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true));
   subs_.push_back(createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true));
   subs_.push_back(createSubscriber(tobas::kImuTopic, &self::imuCb, this));
@@ -195,11 +182,13 @@ void ROSBagRecorderNode::registerNonStandardMsgSub()
   subs_.push_back(createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCmdCb, this));
   subs_.push_back(createSubscriber(tobas::kRPYThrotCmdTopic, &self::rollPitchYawThrotCmdCb, this));
   subs_.push_back(createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::poseTwistAccelCmdCb, this));
-}
 
-void ROSBagRecorderNode::unregisterSubscriptions()
-{
-  subs_.clear();
+  // Register services
+  start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);
+  stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
+  clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
+
+  check_size_timer_ = createTimer(kCheckSizeTimerPeriod, &self::checkSizeTimerCb, this, false);
 }
 
 template <typename MsgType>
@@ -214,6 +203,9 @@ void ROSBagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool r
 template <typename MsgType>
 void ROSBagRecorderNode::callback(const typename MsgType::ConstSharedPtr& msg, const char* topic)
 {
+  if (!is_recording_)
+    return;
+
   try
   {
     writer_.write(*msg, ns_ + topic, get_clock()->now());
@@ -226,6 +218,9 @@ void ROSBagRecorderNode::callback(const typename MsgType::ConstSharedPtr& msg, c
 
 void ROSBagRecorderNode::droneCb(const tobas::Drone::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_drone_msgs::DroneAdapter::convert_to_ros_message(*msg, drone_);
 
   try
@@ -240,6 +235,9 @@ void ROSBagRecorderNode::droneCb(const tobas::Drone::ConstSharedPtr& msg)
 
 void ROSBagRecorderNode::treeCb(const kdl::Tree::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_kdl_msgs::TreeAdapter::convert_to_ros_message(*msg, tree_);
 
   try
@@ -254,6 +252,9 @@ void ROSBagRecorderNode::treeCb(const kdl::Tree::ConstSharedPtr& msg)
 
 void ROSBagRecorderNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::ImuAdapter::convert_to_ros_message(*msg, imu_);
 
   try
@@ -268,6 +269,9 @@ void ROSBagRecorderNode::imuCb(const tobas_msgs::Imu::ConstSharedPtr& msg)
 
 void ROSBagRecorderNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::ImuRawAdapter::convert_to_ros_message(*msg, imu_raw_);
 
   try
@@ -282,6 +286,9 @@ void ROSBagRecorderNode::imuRawCb(const tobas_msgs::ImuRaw::ConstSharedPtr& msg)
 
 void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::MagneticFieldAdapter::convert_to_ros_message(*msg, mag_);
 
   try
@@ -296,6 +303,9 @@ void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticField::ConstSharedPtr& 
 
 void ROSBagRecorderNode::magRawCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::MagneticFieldRawAdapter::convert_to_ros_message(*msg, mag_raw_);
 
   try
@@ -310,6 +320,9 @@ void ROSBagRecorderNode::magRawCb(const tobas_msgs::MagneticFieldRaw::ConstShare
 
 void ROSBagRecorderNode::gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::GpsAdapter::convert_to_ros_message(*msg, gps_);
 
   try
@@ -324,6 +337,9 @@ void ROSBagRecorderNode::gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg)
 
 void ROSBagRecorderNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::OdometryAdapter::convert_to_ros_message(*msg, odom_);
 
   try
@@ -338,6 +354,9 @@ void ROSBagRecorderNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg)
 
 void ROSBagRecorderNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_kdl_msgs::EulerStampedAdapter::convert_to_ros_message(*msg, euler_);
 
   try
@@ -352,6 +371,9 @@ void ROSBagRecorderNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstShared
 
 void ROSBagRecorderNode::windCb(const tobas_msgs::Wind::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::WindAdapter::convert_to_ros_message(*msg, wind_);
 
   try
@@ -366,6 +388,9 @@ void ROSBagRecorderNode::windCb(const tobas_msgs::Wind::ConstSharedPtr& msg)
 
 void ROSBagRecorderNode::posVelAccYawCmdCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::PosVelAccYawAdapter::convert_to_ros_message(*msg, pvay_);
 
   try
@@ -380,6 +405,9 @@ void ROSBagRecorderNode::posVelAccYawCmdCb(const tobas_msgs::PosVelAccYaw::Const
 
 void ROSBagRecorderNode::rollPitchYawThrotCmdCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::RollPitchYawThrottleAdapter::convert_to_ros_message(*msg, rpyt_);
 
   try
@@ -394,6 +422,9 @@ void ROSBagRecorderNode::rollPitchYawThrotCmdCb(const tobas_msgs::RollPitchYawTh
 
 void ROSBagRecorderNode::poseTwistAccelCmdCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& msg)
 {
+  if (!is_recording_)
+    return;
+
   tobas_msgs::PoseTwistAccelCommandAdapter::convert_to_ros_message(*msg, pta_);
 
   try
@@ -463,8 +494,6 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
-  registerStandardMsgSub();
-  registerNonStandardMsgSub();
   check_size_timer_->reset();
 
   is_recording_ = true;
@@ -494,7 +523,6 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
     return;
   }
 
-  unregisterSubscriptions();
   check_size_timer_->cancel();
 
   is_recording_ = false;
