@@ -15,8 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_hal_core REQUIRED)
-find_package(tobas_hal_msgs_adapter REQUIRED)
+find_package(tobas_real_common REQUIRED)
 
 include_directories(include)
 
@@ -26,8 +25,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_path_tools
 	tobas_node
 	tobas_msgs_adapter
-	tobas_hal_core
-	tobas_hal_msgs_adapter
+	tobas_real_common
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryThrottleNode" EXECUTABLE battery_throttle)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "OdometryThrottleNode" EXECUTABLE odom_throttle)

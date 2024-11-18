@@ -1,24 +1,24 @@
-#include <tobas_hal_core/base_sensor_node.hpp>
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/msg/fluid_pressure.hpp>
+#include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_msgs/msg/fluid_pressure_raw.hpp>
 
 #include <tobas_aso_core/ilps22qs.hpp>
 
 using namespace std;
 
-class BaroDriverNode : public hal::BaseSensorNode
+class BaroDriverNode : public hardware::BaseSensorNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
   using self = BaroDriverNode;
-  using super = hal::BaseSensorNode;
+  using super = hardware::BaseSensorNode;
 
 public:
   explicit BaroDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   aso::ILPS22QS baro_;
-  ros2::PublisherPtr<tobas_hal_msgs::msg::FluidPressure> baro_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::FluidPressureRaw> baro_pub_;
 
   void mainTimerCb();
 };
@@ -28,14 +28,14 @@ BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("aso_
   if (!baro_.initialize())
     TOBAS_EXIT("Failed to initialize Barometer.");
 
-  baro_pub_ = createPublisher<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic);
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressureRaw>(real::kAirPressureTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void BaroDriverNode::mainTimerCb()
 {
   // Create messages
-  auto msg = std::make_unique<tobas_hal_msgs::msg::FluidPressure>();
+  auto msg = std::make_unique<tobas_msgs::msg::FluidPressureRaw>();
 
   // Fill headers
   msg->header.stamp = get_clock()->now();

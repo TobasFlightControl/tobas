@@ -4,8 +4,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs_adapter/MagneticField.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_msgs_adapter/MagneticFieldRaw.hpp>
 #include <tobas_msgs_adapter/MagneticField.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 
@@ -31,18 +31,18 @@ private:
   // Config
   math::EllipseTransformer mag_trans_;
 
-  tobas_hal_msgs::MagneticField::ConstSharedPtr mag_raw_;
+  tobas_msgs::MagneticFieldRaw::ConstSharedPtr mag_raw_;
   ptree::PropertyTree pt_;
   array<dsp::NoiseVarianceFilter, 3> mag_noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticField> mag_pub_;
-  ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_sub_;
+  ros2::SubscriberPtr<tobas_msgs::MagneticFieldRaw> mag_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
+  void magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_raw);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -131,10 +131,10 @@ bool MagnetometerHandlerNode::getConfig()
 void MagnetometerHandlerNode::registerPubSub()
 {
   mag_pub_ = createPublisher<tobas_msgs::MagneticField>(tobas::kMagTopic);
-  mag_sub_ = createSubscriber(hal::kMagTopic, &self::magCb, this);
+  mag_sub_ = createSubscriber(real::kMagTopic, &self::magCb, this);
 }
 
-void MagnetometerHandlerNode::magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw)
+void MagnetometerHandlerNode::magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_raw)
 {
   // Project data to unit sphere
   const auto mag_unit = mag_trans_.transform(mag_raw->magnetic_field.data);

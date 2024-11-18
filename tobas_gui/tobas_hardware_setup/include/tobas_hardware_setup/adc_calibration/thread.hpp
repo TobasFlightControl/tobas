@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
-#include <tobas_hal_msgs/msg/adc.hpp>
+#include <tobas_msgs/msg/adc.hpp>
 
 namespace gui
 {
@@ -40,7 +40,7 @@ private:
   size_t cnt_;
   algo::Kahan<double> voltage_sum_;
 
-  void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
+  void adcCb(const tobas_msgs::msg::Adc::ConstSharedPtr& adc);
 };
 }  // namespace hardware_setup
 }  // namespace gui

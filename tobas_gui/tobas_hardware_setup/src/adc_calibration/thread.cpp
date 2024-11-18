@@ -3,7 +3,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
+#include <tobas_real_common/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_battery_params.hpp>
 
@@ -33,7 +33,7 @@ void ADCCalibrationThread::run()
 
   // 一時的にADCの購読を開始
   auto adc_sub = ros2::createSubscriber(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kADCTopic), &ADCCalibrationThread::adcCb, this);
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kADCTopic), &ADCCalibrationThread::adcCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))
@@ -87,7 +87,7 @@ void ADCCalibrationThread::setCurrentVoltage(double voltage)
   voltage_ = voltage;
 }
 
-void ADCCalibrationThread::adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc)
+void ADCCalibrationThread::adcCb(const tobas_msgs::msg::Adc::ConstSharedPtr& adc)
 {
   ++cnt_;
   voltage_sum_.add(adc->voltage);

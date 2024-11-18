@@ -1,24 +1,24 @@
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_core/base_sensor_node.hpp>
-#include <tobas_hal_msgs_adapter/Imu.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_msgs_adapter/ImuRaw.hpp>
 
 #include <tobas_aso_core/ism330dlc.hpp>
 
 using namespace std;
 
-class IMUDriverNode : public hal::BaseSensorNode
+class IMUDriverNode : public hardware::BaseSensorNode
 {
   static constexpr auto kSamplingPeriod = 2500us;  // 400Hz
 
   using self = IMUDriverNode;
-  using super = hal::BaseSensorNode;
+  using super = hardware::BaseSensorNode;
 
 public:
   explicit IMUDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   aso::ISM330DLC imu_;
-  ros2::PublisherPtr<tobas_hal_msgs::Imu> imu_pub_;
+  ros2::PublisherPtr<tobas_msgs::ImuRaw> imu_pub_;
 
   void mainTimerCb();
 };
@@ -28,14 +28,14 @@ IMUDriverNode::IMUDriverNode(const rclcpp::NodeOptions& options) : super("aso_im
   if (!imu_.initialize())
     TOBAS_EXIT("Failed to initialize IMU.");
 
-  imu_pub_ = createPublisher<tobas_hal_msgs::Imu>(hal::kIMUTopic);
+  imu_pub_ = createPublisher<tobas_msgs::ImuRaw>(real::kIMUTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void IMUDriverNode::mainTimerCb()
 {
   // Create messages
-  auto msg = std::make_unique<tobas_hal_msgs::Imu>();
+  auto msg = std::make_unique<tobas_msgs::ImuRaw>();
 
   // Fill headers
   msg->header.stamp = get_clock()->now();

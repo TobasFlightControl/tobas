@@ -4,8 +4,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/msg/fluid_pressure.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_msgs/msg/fluid_pressure_raw.hpp>
 
 #include <tobas_real_common/constants.hpp>
 
@@ -26,22 +26,22 @@ public:
   explicit BarometerHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas_hal_msgs::msg::FluidPressure::ConstSharedPtr bar_raw_;
+  tobas_msgs::msg::FluidPressureRaw::ConstSharedPtr bar_raw_;
   dsp::NoiseVarianceFilter pressure_noise_;
 
   ros2::PublisherPtr<sensor_msgs::msg::FluidPressure> bar_pub_;
-  ros2::SubscriberPtr<tobas_hal_msgs::msg::FluidPressure> bar_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureRaw> bar_sub_;
 
-  void airPressureCb(const tobas_hal_msgs::msg::FluidPressure::ConstSharedPtr& bar_raw);
+  void airPressureCb(const tobas_msgs::msg::FluidPressureRaw::ConstSharedPtr& bar_raw);
 };
 
 BarometerHandlerNode::BarometerHandlerNode(const rclcpp::NodeOptions& options) : super("barometer_handler", options)
 {
   bar_pub_ = createPublisher<sensor_msgs::msg::FluidPressure>(tobas::kAirPressureTopic);
-  bar_sub_ = createSubscriber(hal::kAirPressureTopic, &self::airPressureCb, this);
+  bar_sub_ = createSubscriber(real::kAirPressureTopic, &self::airPressureCb, this);
 }
 
-void BarometerHandlerNode::airPressureCb(const tobas_hal_msgs::msg::FluidPressure::ConstSharedPtr& bar_raw)
+void BarometerHandlerNode::airPressureCb(const tobas_msgs::msg::FluidPressureRaw::ConstSharedPtr& bar_raw)
 {
   // Initialize
   if (bar_raw_ == nullptr)

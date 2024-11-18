@@ -1,13 +1,13 @@
 #include <tobas_std_tools/gps.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/base_sensor_node.hpp>
+#include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_msgs_adapter/Gps.hpp>
 
 #include <tobas_aso_core/zed_f9p.hpp>
 
 using namespace std;
 
-class GNSSDriverNode : public hal::BaseSensorNode
+class GNSSDriverNode : public hardware::BaseSensorNode
 {
   // GNSSレシーバの更新周期 [ms]
   // 周波数が高すぎるとFIFOにデータが溜まってタイムシフトが生じるため，そんなに大きくできない
@@ -17,7 +17,7 @@ class GNSSDriverNode : public hal::BaseSensorNode
   static constexpr double kWarnPeriod = 3.;  // [s]
 
   using self = GNSSDriverNode;
-  using super = hal::BaseSensorNode;
+  using super = hardware::BaseSensorNode;
 
 public:
   explicit GNSSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());

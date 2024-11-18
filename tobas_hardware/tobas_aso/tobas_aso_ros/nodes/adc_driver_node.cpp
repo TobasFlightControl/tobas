@@ -1,24 +1,24 @@
-#include <tobas_hal_core/base_sensor_node.hpp>
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/msg/adc.hpp>
+#include <tobas_hardware_common/base_sensor_node.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_msgs/msg/adc.hpp>
 
 #include <tobas_aso_core/ads1220.hpp>
 
 using namespace std;
 
-class ADCDriverNode : public hal::BaseSensorNode
+class ADCDriverNode : public hardware::BaseSensorNode
 {
   static constexpr auto kSamplingPeriod = 10ms;
 
   using self = ADCDriverNode;
-  using super = hal::BaseSensorNode;
+  using super = hardware::BaseSensorNode;
 
 public:
   explicit ADCDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   aso::ADS1220 adc_;
-  ros2::PublisherPtr<tobas_hal_msgs::msg::Adc> adc_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Adc> adc_pub_;
 
   void mainTimerCb();
 };
@@ -28,14 +28,14 @@ ADCDriverNode::ADCDriverNode(const rclcpp::NodeOptions& options) : super("aso_ad
   if (!adc_.initialize())
     TOBAS_EXIT("Failed to initialize ADC.");
 
-  adc_pub_ = createPublisher<tobas_hal_msgs::msg::Adc>(hal::kADCTopic);
+  adc_pub_ = createPublisher<tobas_msgs::msg::Adc>(real::kADCTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void ADCDriverNode::mainTimerCb()
 {
   // Create messages
-  auto msg = std::make_unique<tobas_hal_msgs::msg::Adc>();
+  auto msg = std::make_unique<tobas_msgs::msg::Adc>();
 
   // Fill headers
   msg->header.stamp = get_clock()->now();

@@ -1,6 +1,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
-#include <tobas_hal_core/constants.hpp>
+#include <tobas_real_common/constants.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
@@ -171,7 +171,7 @@ void RCInputCalibrationWidget::reset()
   cancel_button_->setEnabled(false);
 }
 
-void RCInputCalibrationWidget::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus)
+void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
   if (!rate_.update(sbus->header.stamp))
     return;
@@ -206,7 +206,7 @@ void RCInputCalibrationWidget::onStartButtonClicked()
 
   // 一時的にSBUSトピックを購読開始
   sbus_sub_ =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kSBUSTopic), &self::sbusCb, this);
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kSBUSTopic), &self::sbusCb, this);
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);

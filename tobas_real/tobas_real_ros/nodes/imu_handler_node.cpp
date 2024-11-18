@@ -4,8 +4,8 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs_adapter/Imu.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_msgs_adapter/ImuRaw.hpp>
 #include <tobas_msgs_adapter/Imu.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
@@ -45,18 +45,18 @@ private:
   size_t gyro_bias_cnt_ = 0;
   array<algo::Kahan<double>, 3> gyro_sum_;
 
-  tobas_hal_msgs::Imu::ConstSharedPtr imu_raw_;
+  tobas_msgs::ImuRaw::ConstSharedPtr imu_raw_;
   ptree::PropertyTree pt_;
   array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::Imu> imu_pub_;
-  ros2::SubscriberPtr<tobas_hal_msgs::Imu> imu_sub_;
+  ros2::SubscriberPtr<tobas_msgs::ImuRaw> imu_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
+  void imuCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_raw);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -77,7 +77,7 @@ ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("imu_
   }
 
   imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
-  imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
 }
 
 bool ImuHandlerNode::getConfig()
@@ -106,10 +106,10 @@ bool ImuHandlerNode::getConfig()
 void ImuHandlerNode::registerPubSub()
 {
   imu_pub_ = createPublisher<tobas_msgs::Imu>(tobas::kIMUTopic);
-  imu_sub_ = createSubscriber(hal::kIMUTopic, &self::imuCb, this);
+  imu_sub_ = createSubscriber(real::kIMUTopic, &self::imuCb, this);
 }
 
-void ImuHandlerNode::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
+void ImuHandlerNode::imuCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_raw)
 {
   switch (stage_)
   {

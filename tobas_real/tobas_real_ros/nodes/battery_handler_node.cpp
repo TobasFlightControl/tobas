@@ -1,8 +1,8 @@
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/msg/adc.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_msgs/msg/adc.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_real_msgs/srv/set_battery_params.hpp>
 
@@ -31,13 +31,13 @@ private:
   ptree::PropertyTree pt_;
 
   ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
-  ros2::SubscriberPtr<tobas_hal_msgs::msg::Adc> adc_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Adc> adc_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc);
+  void adcCb(const tobas_msgs::msg::Adc::ConstSharedPtr& adc);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -80,10 +80,10 @@ bool BatteryHandlerNode::getConfig()
 void BatteryHandlerNode::registerPubSub()
 {
   battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  adc_sub_ = createSubscriber(hal::kADCTopic, &self::adcCb, this);
+  adc_sub_ = createSubscriber(real::kADCTopic, &self::adcCb, this);
 }
 
-void BatteryHandlerNode::adcCb(const tobas_hal_msgs::msg::Adc::ConstSharedPtr& adc)
+void BatteryHandlerNode::adcCb(const tobas_msgs::msg::Adc::ConstSharedPtr& adc)
 {
   // Create battery message
   auto battery_msg = std::make_unique<tobas_msgs::msg::Battery>();

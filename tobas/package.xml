@@ -24,7 +24,6 @@
 	<exec_depend>tobas_fake_publishers</exec_depend>
 	<exec_depend>tobas_gazebo</exec_depend>
 	<exec_depend>tobas_gui</exec_depend>
-	<exec_depend>tobas_hal</exec_depend>
 	<exec_depend>tobas_hardware</exec_depend>
 	<exec_depend>tobas_latency_publisher</exec_depend>
 	<exec_depend>tobas_legged_robot</exec_depend>

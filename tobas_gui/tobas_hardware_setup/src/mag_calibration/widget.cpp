@@ -10,7 +10,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
+#include <tobas_real_common/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -123,7 +123,7 @@ void MagCalibrationWidget::reset()
   cancel_button_->setEnabled(false);
 }
 
-void MagCalibrationWidget::magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw)
+void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_raw)
 {
   // 最初のデータからスケールを決定
   if (cnt_ == 0)
@@ -171,7 +171,7 @@ void MagCalibrationWidget::onStartButtonClicked()
 
   // 一時的にトピック通信を開始
   mag_raw_sub_ =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kMagTopic), &self::magCb, this);
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kMagTopic), &self::magCb, this);
 
   history_length_->setValue(kMaxDataSize);
 

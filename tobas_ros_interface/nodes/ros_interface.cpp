@@ -4,7 +4,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
+#include <tobas_real_common/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
@@ -26,11 +26,11 @@
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_dparam_msgs/srv/get_params.hpp>
-#include <tobas_hal_msgs/msg/imu.hpp>
-#include <tobas_hal_msgs/msg/magnetic_field.hpp>
-#include <tobas_hal_msgs/msg/fluid_pressure.hpp>
-#include <tobas_hal_msgs/msg/adc.hpp>
-#include <tobas_hal_msgs/msg/sbus.hpp>
+#include <tobas_msgs/msg/imu_raw.hpp>
+#include <tobas_msgs/msg/magnetic_field_raw.hpp>
+#include <tobas_msgs/msg/fluid_pressure_raw.hpp>
+#include <tobas_msgs/msg/adc.hpp>
+#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_battery_params.hpp>
@@ -105,10 +105,10 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(throttled(tobas::kEulerTopic), tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Imu>(throttled(hal::kIMUTopic), hal::kIMUTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::MagneticField>(throttled(hal::kMagTopic), hal::kMagTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(throttled(hal::kADCTopic), hal::kADCTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(throttled(hal::kSBUSTopic), hal::kSBUSTopic);
+  addTopicLogicToIface<tobas_msgs::msg::ImuRaw>(throttled(real::kIMUTopic), real::kIMUTopic);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticFieldRaw>(throttled(real::kMagTopic), real::kMagTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Adc>(throttled(real::kADCTopic), real::kADCTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Sbus>(throttled(real::kSBUSTopic), real::kSBUSTopic);
 
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
 

@@ -26,8 +26,6 @@ find_package(wpa_supplicant_parser REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_core REQUIRED)
-find_package(tobas_hal_core REQUIRED)
-find_package(tobas_hal_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
 find_package(tobas_real_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
@@ -39,8 +37,6 @@ set(AMENT_DEPENDENCIES
   tobas_ssh_client
   tobas_msgs_adapter
   tobas_drone_core
-  tobas_hal_core
-  tobas_hal_msgs_adapter
   tobas_real_common
   tobas_real_msgs
   tobas_qt_tools

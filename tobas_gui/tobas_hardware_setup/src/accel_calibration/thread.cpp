@@ -3,7 +3,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
+#include <tobas_real_common/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
@@ -73,7 +73,7 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
 
   // 一時的にIMUの購読を開始
   auto imu_sub =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kIMUTopic), &self::imuCb, this);
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kIMUTopic), &self::imuCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))
@@ -95,7 +95,7 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   return true;
 }
 
-void AccelCalibrationThread::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
+void AccelCalibrationThread::imuCb(const tobas_msgs::ImuRaw::ConstSharedPtr& imu_raw)
 {
   ++cnt_;
   for (size_t i = 0; i < 3; ++i)

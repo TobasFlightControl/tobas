@@ -7,7 +7,7 @@
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_hal_msgs_adapter/MagneticField.hpp>
+#include <tobas_msgs_adapter/MagneticFieldRaw.hpp>
 #include <tobas_qt_tools/rviz.hpp>
 
 #include "../base.hpp"
@@ -57,12 +57,12 @@ private:
   rviz_common::properties::Property* history_length_;
 
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> point_pub_;
-  ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_raw_sub_;
+  ros2::SubscriberPtr<tobas_msgs::MagneticFieldRaw> mag_raw_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
 
   void reset();
 
-  void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
+  void magCb(const tobas_msgs::MagneticFieldRaw::ConstSharedPtr& mag_raw);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
 
 private Q_SLOTS:

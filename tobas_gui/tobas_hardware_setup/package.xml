@@ -14,8 +14,6 @@
   <depend>tobas_ssh_client</depend>
   <depend>tobas_msgs_adapter</depend>
   <depend>tobas_drone_core</depend>
-  <depend>tobas_hal_core</depend>
-  <depend>tobas_hal_msgs_adapter</depend>
   <depend>tobas_real_common</depend>
   <depend>tobas_real_msgs</depend>
   <depend>tobas_qt_tools</depend>

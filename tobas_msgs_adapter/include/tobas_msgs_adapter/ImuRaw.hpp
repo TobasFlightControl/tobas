@@ -4,27 +4,27 @@
 
 #include <tobas_kdl_msgs_adapter/Vector.hpp>
 
-#include <tobas_hal_msgs/msg/imu.hpp>
+#include <tobas_msgs/msg/imu_raw.hpp>
 
-namespace tobas_hal_msgs
+namespace tobas_msgs
 {
-struct Imu
+struct ImuRaw
 {
   std_msgs::msg::Header header;
   kdl::Vector gyro;
   kdl::Vector accel;
 
-  using SharedPtr = std::shared_ptr<Imu>;
-  using ConstSharedPtr = std::shared_ptr<const Imu>;
+  using SharedPtr = std::shared_ptr<ImuRaw>;
+  using ConstSharedPtr = std::shared_ptr<const ImuRaw>;
 };
-}  // namespace tobas_hal_msgs
+}  // namespace tobas_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_hal_msgs::Imu, tobas_hal_msgs::msg::Imu>
+struct rclcpp::TypeAdapter<tobas_msgs::ImuRaw, tobas_msgs::msg::ImuRaw>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_hal_msgs::Imu;
-  using ros_message_type = tobas_hal_msgs::msg::Imu;
+  using custom_type = tobas_msgs::ImuRaw;
+  using ros_message_type = tobas_msgs::msg::ImuRaw;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -41,9 +41,9 @@ struct rclcpp::TypeAdapter<tobas_hal_msgs::Imu, tobas_hal_msgs::msg::Imu>
   }
 };
 
-namespace tobas_hal_msgs
+namespace tobas_msgs
 {
-using ImuAdapter = rclcpp::TypeAdapter<tobas_hal_msgs::Imu, tobas_hal_msgs::msg::Imu>;
+using ImuRawAdapter = rclcpp::TypeAdapter<tobas_msgs::ImuRaw, tobas_msgs::msg::ImuRaw>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_hal_msgs::Imu, tobas_hal_msgs::msg::Imu);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::ImuRaw, tobas_msgs::msg::ImuRaw);

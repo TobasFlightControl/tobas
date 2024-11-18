@@ -1,9 +1,8 @@
-#include "../include/tobas_hal_core/base_sensor_node.hpp"
-#include "../include/tobas_hal_core/constants.hpp"
+#include "../include/tobas_hardware_common/base_sensor_node.hpp"
 
 using namespace std;
 
-namespace hal
+namespace hardware
 {
 BaseSensorNode::BaseSensorNode(const std::string& name, const rclcpp::NodeOptions& options) : super(name, options)
 {
@@ -20,4 +19,4 @@ void BaseSensorNode::stopMainTimerSrvCb(const Empty::Request::ConstSharedPtr&, c
 {
   main_timer_->cancel();
 }
-}  // namespace hal
+}  // namespace hardware
