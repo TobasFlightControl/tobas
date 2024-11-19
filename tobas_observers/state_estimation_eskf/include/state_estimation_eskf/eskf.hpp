@@ -67,10 +67,11 @@ public:
    *
    * @param acc_meas [m/s^2] 加速度の観測値
    * @param gyro_meas [rad/s] ジャイロの観測値
-   * @param acc_noise_var [m^2/s^4] 加速度の観測ノイズの分散
-   * @param gyro_noise_var [rad^2/s^2] ジャイロの観測ノイズの分散
-   * @param acc_bias_noise_var [m^2/s^4] 加速度バイアスの観測ノイズの分散
-   * @param gyro_bias_noise_var [rad^2/s^2] ジャイロバイアスの観測ノイズの分散
+   * @param acc_cov [m^2/s^4] 加速度の観測ノイズの共分散
+   * @param gyro_cov [rad^2/s^2] ジャイロの観測ノイズの共分散
+   * @param acc_bias_var [m^2/s^4] 加速度バイアスの観測ノイズの分散
+   * @param gyro_bias_var [rad^2/s^2] ジャイロバイアスの観測ノイズの分散
+   * @param grav_var [m^2/s^4] 重力加速度の観測ノイズの分散
    * @param time [s] 現在時刻
    */
   void predictIMU(
