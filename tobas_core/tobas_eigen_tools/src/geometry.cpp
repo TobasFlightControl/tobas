@@ -35,8 +35,8 @@ void vectorNwuToNed(Vector3d& arg)
 
 AngleAxisd vectorToAngleAxis(const Vector3d& w)
 {
-  const double angle = w.norm();
-  const Vector3d axis = (angle == 0) ? Vector3d::UnitX() : w.normalized();
+  const auto angle = w.norm();
+  const auto axis = (angle == 0) ? Vector3d::UnitX() : w.normalized();
   return AngleAxisd(angle, axis);
 }
 
@@ -86,9 +86,7 @@ Vector4d quaternionToHamilton(const Quaterniond& q)
 
 Matrix3d crossMat(const double& x, const double& y, const double& z)
 {
-  Matrix3d res;
-  res << 0, -z, y, z, 0, -x, -y, x, 0;
-  return res;
+  return (Matrix3d() << 0, -z, y, z, 0, -x, -y, x, 0).finished();
 }
 
 Matrix3d crossMat(const Vector3d& v)
@@ -98,17 +96,14 @@ Matrix3d crossMat(const Vector3d& v)
 
 Matrix3d crossMat2(const double& x, const double& y, const double& z)
 {
-  const double xx = x * x;
-  const double yy = y * y;
-  const double zz = z * z;
-  const double xy = x * y;
-  const double yz = y * z;
-  const double zx = z * x;
+  const auto xx = x * x;
+  const auto yy = y * y;
+  const auto zz = z * z;
+  const auto xy = x * y;
+  const auto yz = y * z;
+  const auto zx = z * x;
 
-  Matrix3d res;
-  res << -yy - zz, xy, zx, xy, -zz - xx, yz, zx, yz, -xx - yy;
-
-  return res;
+  return (Matrix3d() << -yy - zz, xy, zx, xy, -zz - xx, yz, zx, yz, -xx - yy).finished();
 }
 
 Matrix3d crossMat2(const Vector3d& v)
@@ -124,13 +119,12 @@ void imuToQuaternion(const Vector3d& a, const Vector3d& m, const Vector3d& m0, Q
 
 Matrix3d angvelFromEulerrateGlobal(const double& pitch, const double& yaw)
 {
+  const auto cos_pitch = cos(pitch);
+  const auto sin_pitch = sin(pitch);
+  const auto cos_yaw = cos(yaw);
+  const auto sin_yaw = sin(yaw);
+
   Matrix3d res;
-
-  const double cos_pitch = cos(pitch);
-  const double sin_pitch = sin(pitch);
-  const double cos_yaw = cos(yaw);
-  const double sin_yaw = sin(yaw);
-
   res(0, 0) = cos_pitch * cos_yaw;
   res(0, 1) = -sin_yaw;
   res(0, 2) = 0;
@@ -151,13 +145,12 @@ Vector3d angvelFromEulerrateGlobal(const Vector3d& rpyd, const double& pitch, co
 
 Matrix3d angvelFromEulerrateLocal(const double& roll, const double& pitch)
 {
+  const auto cos_roll = cos(roll);
+  const auto sin_roll = sin(roll);
+  const auto cos_pitch = cos(pitch);
+  const auto sin_pitch = sin(pitch);
+
   Matrix3d res;
-
-  const double cos_roll = cos(roll);
-  const double sin_roll = sin(roll);
-  const double cos_pitch = cos(pitch);
-  const double sin_pitch = sin(pitch);
-
   res(0, 0) = 1;
   res(0, 1) = 0;
   res(0, 2) = -sin_pitch;
@@ -178,14 +171,13 @@ Vector3d angvelFromEulerrateLocal(const Vector3d& rpyd, const double& roll, cons
 
 Matrix3d eulerrateFromAngvelGlobal(const double& pitch, const double& yaw)
 {
-  Matrix3d res;
-
-  const double cos_pitch = cos(pitch);
-  const double tan_pitch = tan(pitch);
-  const double cos_yaw = cos(yaw);
-  const double sin_yaw = sin(yaw);
+  const auto cos_pitch = cos(pitch);
+  const auto tan_pitch = tan(pitch);
+  const auto cos_yaw = cos(yaw);
+  const auto sin_yaw = sin(yaw);
   assert(cos_pitch > EPS);
 
+  Matrix3d res;
   res(0, 0) = cos_yaw / cos_pitch;
   res(0, 1) = sin_yaw / cos_pitch;
   res(0, 2) = 0;
@@ -206,14 +198,13 @@ Vector3d eulerrateFromAngvelGlobal(const Vector3d& angvel, const double& pitch, 
 
 Matrix3d eulerrateFromAngvelLocal(const double& roll, const double& pitch)
 {
-  Matrix3d res;
-
-  const double cos_roll = cos(roll);
-  const double sin_roll = sin(roll);
-  const double cos_pitch = cos(pitch);
-  const double tan_pitch = tan(pitch);
+  const auto cos_roll = cos(roll);
+  const auto sin_roll = sin(roll);
+  const auto cos_pitch = cos(pitch);
+  const auto tan_pitch = tan(pitch);
   assertWithMsg(cos_pitch > EPS, "roll: " << roll << ", pitch: " << pitch);
 
+  Matrix3d res;
   res(0, 0) = 1;
   res(0, 1) = sin_roll * tan_pitch;
   res(0, 2) = cos_roll * tan_pitch;
@@ -258,12 +249,12 @@ Vector3d AngleAxisFromMatrix(const Matrix3d& r)
 Vector3d
 euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, const double& pitch, const double& yaw)
 {
-  const double cos_pitch = cos(pitch);
-  const double tan_pitch = tan(pitch);
-  const double cos_yaw = cos(yaw);
-  const double sin_yaw = sin(yaw);
+  const auto cos_pitch = cos(pitch);
+  const auto tan_pitch = tan(pitch);
+  const auto cos_yaw = cos(yaw);
+  const auto sin_yaw = sin(yaw);
 
-  const Vector3d rpyd = eulerrateFromAngvelGlobal(angvel, pitch, yaw);
+  const auto rpyd = eulerrateFromAngvelGlobal(angvel, pitch, yaw);
 
   Vector3d rpydd;
   rpydd.x() = rpyd.x() * rpyd.y() * tan_pitch + (angacc.x() + angvel.y() * rpyd.z()) * cos_yaw / cos_pitch
@@ -286,10 +277,10 @@ Vector3d angaccFromEuleraccLocal(
   const double& ddpitch,
   const double& ddyaw)
 {
-  const double cos_roll = cos(roll);
-  const double sin_roll = sin(roll);
-  const double cos_pitch = cos(pitch);
-  const double sin_pitch = sin(pitch);
+  const auto cos_roll = cos(roll);
+  const auto sin_roll = sin(roll);
+  const auto cos_pitch = cos(pitch);
+  const auto sin_pitch = sin(pitch);
 
   Vector3d dgyro;
   dgyro.x() = ddroll - ddyaw * sin_pitch - dpitch * dyaw * cos_pitch;
