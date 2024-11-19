@@ -206,8 +206,6 @@ private:
     const Eigen::Matrix<double, M, 1>& delta_meas,
     const Eigen::Matrix<double, M, M>& meas_cov,
     const Eigen::Matrix<double, M, kDeltaStateSize>& H);
-
-  void injectErrorState(const DeltaStateVector& error_state);
 };
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getPosition() const
@@ -361,22 +359,33 @@ double ErrorStateKalmanFilter::correct(
 {
   assert(eigen_tools::isSymmetricPositiveDefinite(meas_cov));
 
-  // Kalman gain
+  // (274) Compute kalman gain
   const Eigen::Matrix<double, kDeltaStateSize, M> PHt = P_ * H.transpose();
   const Eigen::Matrix<double, M, M> Sigma_inv = (H * PHt + meas_cov).inverse();
   const Eigen::Matrix<double, kDeltaStateSize, M> K = PHt * Sigma_inv;
 
-  // Correct nominal state
-  const DeltaStateVector error_state = K * delta_meas;
-  injectErrorState(error_state);
+  // (275) Compute error state
+  const DeltaStateVector delta_x = K * delta_meas;
 
-  // Update covariance matrix
-  const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
-  // P_ = I_KH * P_;  // Simple form
-  P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // Joseph form
-  eigen_tools::symmetrise(P_);                                       // 対称化
+  // (276) Update covariance matrix
+  P_ = (DeltaStateMatrix::Identity() - K * H) * P_;
 
-  // Anormaly score
+  // (283) Update state
+  const Eigen::Vector3d dtheta = delta_x.segment<3>(kDeltaThetaIdx);
+  const Eigen::Quaterniond q_dtheta = eigen_tools::angleAxisToQuaternion(dtheta);
+  x_.segment<3>(kPosIdx) += delta_x.segment<3>(kDeltaPosIdx);
+  x_.segment<3>(kVelIdx) += delta_x.segment<3>(kDeltaVelIdx);
+  x_.segment<4>(kQuatIdx) = eigen_tools::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
+  x_.segment<3>(kAccBiasIdx) += delta_x.segment<3>(kDeltaAccBiasIdx);
+  x_.segment<3>(kGyroBiasIdx) += delta_x.segment<3>(kDeltaGyroBiasIdx);
+  x_(kGravIdx) += delta_x(kDeltaGravIdx);
+
+  // (286) Initialize ESKF
+  const Eigen::Matrix3d P_theta = P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx);
+  const Eigen::Matrix3d G_theta = Eigen::Matrix3d::Identity() - eigen_tools::crossMat(0.5 * dtheta);
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = G_theta * P_theta * G_theta.transpose();
+
+  // Compute anormaly score
   const double anormaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
   return anormaly_score;
 }

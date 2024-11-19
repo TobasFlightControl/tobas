@@ -430,24 +430,4 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateV
 
   return res;
 }
-
-void ErrorStateKalmanFilter::injectErrorState(const DeltaStateVector& error_state)
-{
-  // (283) 観測した誤差をノミナル状態に反映
-  const Vector3d dtheta = error_state.segment<3>(kDeltaThetaIdx);
-  const Quaterniond q_dtheta = et::angleAxisToQuaternion(dtheta);
-  x_.segment<3>(kPosIdx) += error_state.segment<3>(kDeltaPosIdx);
-  x_.segment<3>(kVelIdx) += error_state.segment<3>(kDeltaVelIdx);
-  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
-  x_.segment<3>(kAccBiasIdx) += error_state.segment<3>(kDeltaAccBiasIdx);
-  x_.segment<3>(kGyroBiasIdx) += error_state.segment<3>(kDeltaGyroBiasIdx);
-  x_(kGravIdx) += error_state(kDeltaGravIdx);
-
-  // (286) ESKFを初期化 (不要)
-  // FIXME: これをやるとバグる問題．symmetriseを挟むと若干マシになるがそれでもやらないほうがマシ．
-  // const Matrix3d G_theta = I3 - et::crossMat(0.5 * dtheta);
-  // P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) =
-  //   G_theta * P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) * G_theta.transpose();
-  // et::symmetrise(P_);
-}
 }  // namespace eskf
