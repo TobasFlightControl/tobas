@@ -14,7 +14,7 @@ GPSWidget::GPSWidget()
 
   update_rate_ = new ParamGetterWidget_SpinBox("Update Rate", "");  // TODO
   update_rate_->setMinimum(1);
-  update_rate_->setValue(5);
+  update_rate_->setValue(20);
   update_rate_->setSuffix(" Hz");
   addParamWidget(update_rate_);
 
