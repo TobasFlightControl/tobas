@@ -102,7 +102,7 @@ private:
   void getStaticRosParams();
   void fillOdometryMsg(OdomMsg& odom) const;
   void publishGPSOrigin();
-  Matrix3d computeGravMeasCov(const Vector3d& acc, const Matrix3d& acc_cov) const;
+  double computeGravMeasVariance(const Vector3d& acc, const Matrix3d& acc_cov) const;
 
   bool dynamicAccelStdDevScaleCb(const long& p);
   bool accBiasNoiseVarianceLog10Cb(const long& p);
@@ -228,10 +228,10 @@ void ObserverNode::publishGPSOrigin()
   gps_origin_pub_->publish(move(gps_origin));
 }
 
-Matrix3d ObserverNode::computeGravMeasCov(const Vector3d& acc, const Matrix3d& acc_cov) const
+double ObserverNode::computeGravMeasVariance(const Vector3d& acc, const Matrix3d& acc_cov) const
 {
   // センサノイズによる不確かさ
-  const auto& cov_noise = acc_cov;
+  const auto var_noise = acc_cov.diagonal().squaredNorm();
 
   // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
   // 加速度の大きさと重力加速度との誤差が大きいほど重力以外の加速度が生じているため加速度による姿勢の観測が不確かだと考えるのは直感的だが，
@@ -241,15 +241,13 @@ Matrix3d ObserverNode::computeGravMeasCov(const Vector3d& acc, const Matrix3d& a
   // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
   // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
   const auto acc_norm_diff = abs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
-  const auto dynamic_acc_var = math::sqr(acc_norm_diff * dynamic_acc_stddev_scale_);
-  const auto cov_dynamic = Vector3d::Constant(dynamic_acc_var).asDiagonal().toDenseMatrix();
+  const auto var_dynamic = math::sqr(acc_norm_diff * dynamic_acc_stddev_scale_);
 
   // 重力自体の不確かさ
-  const auto grav_var = eskf_.getGravityVariance();
-  const auto cov_gravity = Vector3d::Constant(grav_var).asDiagonal().toDenseMatrix();
+  const auto var_gravity = eskf_.getGravityVariance();
 
   // 独立した不確かさの要因が複数ある場合は，それらの和が最終的な不確かさとなる．
-  return cov_noise + cov_dynamic + cov_gravity;
+  return var_noise + var_dynamic + var_gravity;
 }
 
 bool ObserverNode::dynamicAccelStdDevScaleCb(const long& p)
@@ -299,11 +297,14 @@ bool ObserverNode::gravityNoiseVarianceLog10Cb(const long& p)
 
 void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
 {
+  // 現在時刻
+  const auto cur_time = ros2::chronoFromRosTime(imu->header.stamp);
+
+  // 初期化
   if (imu_ == nullptr)
   {
     TOBAS_INFO("First IMU is received.");
 
-    // Initialize ESKF
     const double init_acc_bias_stddev = do_acc_bias_estimation_ ? eskf::kInitAccBiasStddev : 0;
     const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? eskf::kInitGyroBiasStddev : 0;
     const double init_grav_stddev = do_grav_estimation_ ? eskf::kInitGravStddev : 0;
@@ -317,7 +318,7 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
       Vector3d::Constant(math::sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
       Vector3d::Constant(math::sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
       math::sqr(init_grav_stddev),                                        // Init gravity var
-      ros2::chronoFromRosTime(imu->header.stamp));
+      cur_time);
 
     imu_ = imu;
     return;
@@ -333,12 +334,12 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   // 事前予測
   eskf_.predictIMU(
     imu->imu.imu.accel.data, imu->imu.imu.gyro.data, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
-    gyro_bias_noise_var_, grav_noise_var_, ros2::chronoFromRosTime(imu->header.stamp));
+    gyro_bias_noise_var_, grav_noise_var_, cur_time);
 
   // 重力方向の観測
   // TODO: モデルから推定した動的加速度をセンサ加速度から引いたものを観測値とする
-  const auto grav_cov = computeGravMeasCov(imu->imu.imu.accel.data, imu->imu.accel_covariance);
-  eskf_.measureGravity(imu->imu.imu.accel.data, grav_cov, ros2::chronoFromRosTime(imu->header.stamp));
+  const auto grav_var = computeGravMeasVariance(imu->imu.imu.accel.data, imu->imu.accel_covariance);
+  eskf_.measureGravity(imu->imu.imu.accel.data, Vector3d::Constant(grav_var).asDiagonal(), cur_time);
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
