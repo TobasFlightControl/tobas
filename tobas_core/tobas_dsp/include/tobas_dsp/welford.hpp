@@ -1,18 +1,20 @@
 #pragma once
 
-#include <cstddef>
-#include <cmath>
+#include <tobas_eigen_tools/core.hpp>
 
 namespace dsp
 {
 /**
- * @brief Welfordのアルゴリズムで逐次的に平均と分散を計算する．
- * cf. https://blog.data-hacker.net/2020/11/welford.html
+ * @brief Welfordのアルゴリズムで逐次的に平均と分散を計算する (memo: 2-65)
  *
  * @note 数値誤差は小さいが，分散とデータ数の積を保持するためデータ数が大きすぎると発散する．
  */
+template <typename Scalar, int Size>
 class Welford
 {
+  using DataType = Eigen::Vector<Scalar, Size>;
+  using CovType = Eigen::Matrix<Scalar, Size, Size>;
+
 public:
   explicit Welford();
 
@@ -20,42 +22,68 @@ public:
   void reset();
 
   /* 新しいデータを追加する． */
-  void add(double x);
+  inline void add(const DataType& x);
 
   /* 平均を取得する． */
-  inline double mean() const;
+  inline const DataType& mean() const;
 
   /* 分散を取得する． */
-  inline double variance() const;
-
-  /* 標準偏差を取得する． */
-  inline double stddev() const;
+  inline CovType variance() const;
 
   /* データの数を取得する． */
   inline size_t count() const;
 
 private:
-  size_t n_;      // データ数
-  double mean_;   // 平均
-  double var_n_;  // 分散とデータ数の積
+  size_t n_;       // データ数
+  DataType mean_;  // 平均
+  CovType var_n_;  // 分散とデータ数の積
 };
 
-inline double Welford::mean() const
+template <typename Scalar, int Size>
+Welford<Scalar, Size>::Welford()
+{
+  static_assert(Size > 0);
+  reset();
+}
+
+template <typename Scalar, int Size>
+void Welford<Scalar, Size>::reset()
+{
+  n_ = 0;
+  mean_.setZero();
+  var_n_.setZero();
+}
+
+template <typename Scalar, int Size>
+inline void Welford<Scalar, Size>::add(const DataType& x)
+{
+  ++n_;
+
+  const DataType d = x - mean_;
+  mean_ += d / n_;
+
+  const DataType d2 = x - mean_;
+  var_n_ += d * d2.transpose();
+  eigen_tools::symmetrise(var_n_);
+}
+
+template <typename Scalar, int Size>
+inline const Welford<Scalar, Size>::DataType& Welford<Scalar, Size>::mean() const
 {
   return mean_;
 }
 
-inline double Welford::variance() const
+template <typename Scalar, int Size>
+inline Welford<Scalar, Size>::CovType Welford<Scalar, Size>::variance() const
 {
-  return n_ > 0 ? var_n_ / n_ : 0.;
+  if (n_ > 0)
+    return var_n_ / n_;
+  else
+    return CovType::Zero();
 }
 
-inline double Welford::stddev() const
-{
-  return sqrt(variance());
-}
-
-inline size_t Welford::count() const
+template <typename Scalar, int Size>
+inline size_t Welford<Scalar, Size>::count() const
 {
   return n_;
 }

@@ -1,21 +1,21 @@
 #include <random>
 
 #include <tobas_std_tools/vector.hpp>
-#include <tobas_std_tools/float.hpp>
 
 #include <tobas_dsp/welford.hpp>
 
 using namespace std;
+using namespace Eigen;
 
 int main(int argc, char** argv)
 {
   if (argc != 2)
   {
-    cerr << "Usage: " << argv[0] << " <Data Size>" << endl;
+    cerr << "Usage: " << argv[0] << " <Data Length>" << endl;
     return EXIT_FAILURE;
   }
 
-  const auto data_size = atoi(argv[1]);
+  const auto length = stoul(argv[1]);
 
   // Define random generator
   random_device rnd_dev;
@@ -23,30 +23,39 @@ int main(int argc, char** argv)
   uniform_real_distribution<double> uniform(0., 1.);
 
   // Create data
-  vector<double> data;
-  for (int _ = 0; _ < data_size; ++_)
-    data.push_back(uniform(rnd_gen));
-  cout << "Data: " << data << endl;
+  vector<Vector3d> data;
+  for (size_t _ = 0; _ < length; ++_)
+    data.emplace_back(uniform(rnd_gen), uniform(rnd_gen), uniform(rnd_gen));
 
   // Compute variance with normal method
-  const auto mean_1 = tobas_std::fmean(data);
-  const auto var_1 = tobas_std::variance(data);
+  Vector3d data_sum = Vector3d::Zero();
+  for (const auto& x : data)
+    data_sum += x;
+  const Vector3d mean_1 = data_sum / length;
+
+  Matrix3d cov_sum = Matrix3d::Zero();
+  for (const auto& x : data)
+  {
+    const Vector3d d = x - mean_1;
+    cov_sum += d * d.transpose();
+  }
+  const Matrix3d cov_1 = cov_sum / length;
 
   // Compute variance with Welford method
-  dsp::Welford welford;
+  dsp::Welford<double, 3> welford;
   for (const auto& x : data)
     welford.add(x);
-  const auto mean_2 = welford.mean();
-  const auto var_2 = welford.variance();
+  const Vector3d& mean_2 = welford.mean();
+  const Matrix3d& cov_2 = welford.variance();
 
   // Show results
-  cout << "Mean (Normal Method)     : " << mean_1 << endl;
-  cout << "Mean (Welford Method)    : " << mean_2 << endl;
-  cout << "Variance (Normal Method) : " << var_1 << endl;
-  cout << "Variance (Welford Method): " << var_2 << endl;
+  cout << "Mean (Normal Method) : " << mean_1.transpose() << endl;
+  cout << "Mean (Welford Method): " << mean_2.transpose() << endl;
+  cout << "Coariance (Normal Method):" << endl << cov_1 << endl;
+  cout << "Coariance (Welford Method):" << endl << cov_2 << endl;
 
   // Validate
-  if (!tobas_std::isClose(mean_1, mean_2) || !tobas_std::isClose(var_1, var_2))
+  if (!eigen_tools::isClose(mean_1, mean_2) || !eigen_tools::isClose(cov_1, cov_2))
   {
     cerr << "Welford method is inaccurate." << endl;
     return EXIT_FAILURE;

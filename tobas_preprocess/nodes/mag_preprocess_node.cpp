@@ -21,7 +21,7 @@ public:
 
 private:
   tobas_msgs::MagneticFieldStamped::ConstSharedPtr mag_raw_;
-  array<dsp::NoiseVarianceFilter, 3> mag_noise_;
+  dsp::NoiseVarianceFilter<double, 3, kWindowSize> mag_noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticFieldWithCovarianceStamped> mag_pub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
@@ -40,8 +40,7 @@ void MagPreprocessNode::magRawCb(const tobas_msgs::MagneticFieldStamped::ConstSh
   // Initialize
   if (mag_raw_ == nullptr)
   {
-    for (size_t i = 0; i < 3; ++i)
-      mag_noise_[i].initialize(kWindowSize, kHpfCutoff, mag_raw->mag(i));
+    mag_noise_.initialize(kHpfCutoff, mag_raw->mag.data);
     mag_raw_ = mag_raw;
     return;
   }
@@ -51,23 +50,14 @@ void MagPreprocessNode::magRawCb(const tobas_msgs::MagneticFieldStamped::ConstSh
   mag_raw_ = mag_raw;
 
   // Update noise filter
-  for (size_t i = 0; i < 3; ++i)
-    if (mag_noise_[i].update(mag_raw->mag(i), dt) < 0)
-      TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", mag_noise_[i].errorMessage());
+  if (mag_noise_.update(mag_raw->mag.data, dt) < 0)
+    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", mag_noise_.errorMessage());
 
   // Create message
   auto mag_out = std::make_unique<tobas_msgs::MagneticFieldWithCovarianceStamped>();
-
-  // Fill header
   mag_out->header = mag_raw->header;
-
-  // Fill data
   mag_out->mag.mag = mag_raw->mag;
-
-  // Fill covariance matrices
-  mag_out->mag.covariance.setZero();
-  for (size_t i = 0; i < 3; ++i)
-    mag_out->mag.covariance(i, i) = mag_noise_[i].noiseVariance();
+  mag_out->mag.covariance = mag_noise_.noiseVariance();
 
   // Publish message
   mag_pub_->publish(move(mag_out));

@@ -45,7 +45,7 @@ private:
 
   tobas_msgs::ImuStamped::ConstSharedPtr imu_raw_;
   dsp::LowPassFilter<kdl::Vector> acc_lpf_, gyro_lpf_;
-  array<dsp::NoiseVarianceFilter, 3> acc_noise_, gyro_noise_;
+  dsp::NoiseVarianceFilter<double, 3, kWindowSize> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::ImuWithCovarianceStamped> imu_pub_;
   ros2::SubscriberPtr<tobas_msgs::ImuStamped> imu_raw_sub_;
@@ -94,11 +94,8 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
     {
       acc_lpf_.initialize(kAccelLpfCutoff, imu_raw->imu.accel);
       gyro_lpf_.initialize(kGyroLpfCutoff, imu_raw->imu.gyro);
-      for (size_t i = 0; i < 3; ++i)
-      {
-        acc_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->imu.accel(i));
-        gyro_noise_[i].initialize(kWindowSize, kHpfCutoff, imu_raw->imu.gyro(i));
-      }
+      acc_noise_.initialize(kHpfCutoff, imu_raw->imu.accel.data);
+      gyro_noise_.initialize(kHpfCutoff, imu_raw->imu.gyro.data);
       imu_raw_ = imu_raw;
       stage_ = PUBLISH;
       break;
@@ -116,36 +113,22 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
         TOBAS_ERROR("Failed to update gyro LPF: ", gyro_lpf_.errorMessage(), " dt = ", dt);
 
       // Get filtered data
-      const auto& acc = acc_lpf_.getOutput();
-      const auto& gyro = gyro_lpf_.getOutput();
+      const auto& acc_filtered = acc_lpf_.getOutput();
+      const auto& gyro_filtered = gyro_lpf_.getOutput();
 
       // Update noise filters
-      for (size_t i = 0; i < 3; ++i)
-      {
-        if (acc_noise_[i].update(acc(i), dt) < 0)
-          TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Accel noise filter failed: ", acc_noise_[i].errorMessage());
-        if (gyro_noise_[i].update(gyro(i), dt) < 0)
-          TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Gyro noise filter failed: ", gyro_noise_[i].errorMessage());
-      }
+      if (acc_noise_.update(acc_filtered.data, dt) < 0)
+        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Accel noise filter failed: ", acc_noise_.errorMessage());
+      if (gyro_noise_.update(gyro_filtered.data, dt) < 0)
+        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Gyro noise filter failed: ", gyro_noise_.errorMessage());
 
       // Create IMU message
       auto imu_out = std::make_unique<tobas_msgs::ImuWithCovarianceStamped>();
-
-      // Fill header
       imu_out->header = imu_raw->header;
-
-      // Fill data
-      imu_out->imu.imu.accel = acc;
-      imu_out->imu.imu.gyro = gyro;
-
-      // Fill covariance matrices
-      imu_out->imu.accel_covariance.setZero();
-      imu_out->imu.gyro_covariance.setZero();
-      for (size_t i = 0; i < 3; ++i)
-      {
-        imu_out->imu.accel_covariance(i, i) = acc_noise_[i].noiseVariance();
-        imu_out->imu.gyro_covariance(i, i) = gyro_noise_[i].noiseVariance();
-      }
+      imu_out->imu.imu.accel = acc_filtered;
+      imu_out->imu.imu.gyro = gyro_filtered;
+      imu_out->imu.accel_covariance = acc_noise_.noiseVariance();
+      imu_out->imu.gyro_covariance = gyro_noise_.noiseVariance();
 
       // Publish message
       imu_pub_->publish(move(imu_out));

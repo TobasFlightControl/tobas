@@ -1,3 +1,4 @@
+#include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -21,7 +22,7 @@ public:
 
 private:
   tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr pres_raw_;
-  dsp::NoiseVarianceFilter pres_noise_;
+  dsp::NoiseVarianceFilter<double, 1, kWindowSize> pres_noise_;
 
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> pres_pub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureStamped> pres_raw_sub_;
@@ -41,7 +42,7 @@ void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureSt
   // Initialize
   if (pres_raw_ == nullptr)
   {
-    pres_noise_.initialize(kWindowSize, kHpfCutoff, pres_raw->pressure);
+    pres_noise_.initialize(kHpfCutoff, Eigen::Scalard(pres_raw->pressure));
     pres_raw_ = pres_raw;
     return;
   }
@@ -51,14 +52,14 @@ void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureSt
   pres_raw_ = pres_raw;
 
   // Update noise filter
-  if (pres_noise_.update(pres_raw->pressure, dt) < 0)
+  if (pres_noise_.update(Eigen::Scalard(pres_raw->pressure), dt) < 0)
     TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", pres_noise_.errorMessage());
 
   // Create message
   auto pres_out = std::make_unique<tobas_msgs::msg::FluidPressureWithVarianceStamped>();
   pres_out->header = pres_raw->header;
   pres_out->pressure.pressure = pres_raw->pressure;
-  pres_out->pressure.variance = pres_noise_.noiseVariance();
+  pres_out->pressure.variance = pres_noise_.noiseVariance()(0);
 
   // Publish message
   pres_pub_->publish(move(pres_out));
