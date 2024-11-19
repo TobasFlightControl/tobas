@@ -327,14 +327,10 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   // IMUメッセージを更新
   imu_ = imu;
 
-  // 観測ノイズの分散を計算
-  const auto acc_noise_var = imu->imu.accel_covariance.diagonal().norm();
-  const auto gyro_noise_var = imu->imu.gyro_covariance.diagonal().norm();
-
   // 事前予測
   eskf_.predictIMU(
-    imu->imu.imu.accel.data, imu->imu.imu.gyro.data, acc_noise_var, gyro_noise_var, acc_bias_noise_var_,
-    gyro_bias_noise_var_, grav_noise_var_, cur_time);
+    imu->imu.imu.accel.data, imu->imu.imu.gyro.data, imu->imu.accel_covariance, imu->imu.gyro_covariance,
+    acc_bias_noise_var_, gyro_bias_noise_var_, grav_noise_var_, cur_time);
 
   // 重力方向の観測
   // TODO: モデルから推定した動的加速度をセンサ加速度から引いたものを観測値とする

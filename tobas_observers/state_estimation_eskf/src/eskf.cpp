@@ -88,19 +88,19 @@ void ErrorStateKalmanFilter::initialize(
 void ErrorStateKalmanFilter::predictIMU(
   const Vector3d& acc_meas,
   const Vector3d& gyro_meas,
-  const double& acc_noise_var,
-  const double& gyro_noise_var,
-  const double& acc_bias_noise_var,
-  const double& gyro_bias_noise_var,
+  const Matrix3d& acc_cov,
+  const Matrix3d& gyro_cov,
+  const double& acc_bias_var,
+  const double& gyro_bias_var,
   const double& grav_var,
   const steady_clock::time_point& time)
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
 
-  assert(acc_noise_var >= 0);
-  assert(gyro_noise_var >= 0);
-  assert(acc_bias_noise_var >= 0);
-  assert(gyro_bias_noise_var >= 0);
+  assert(et::isSymmetricSemiPositiveDefinite(acc_cov));
+  assert(et::isSymmetricSemiPositiveDefinite(gyro_cov));
+  assert(acc_bias_var >= 0);
+  assert(gyro_bias_var >= 0);
   assert(grav_var >= 0);
 
   // サンプリングタイムを計算して時刻を更新
@@ -114,9 +114,9 @@ void ErrorStateKalmanFilter::predictIMU(
     return;
   }
 
-  const Matrix3d Rot = getDCM(x_);
+  const Matrix3d W_Rot_B = getDCM(x_);
   const Vector3d acc_B = acc_meas - getAccelBias(x_);
-  const Vector3d acc_W = Rot * acc_B;
+  const Vector3d acc_W = W_Rot_B * acc_B;
   const Vector3d delta_theta = (gyro_meas - getGyroBias(x_)) * dt;
   const Quaterniond q_delta_theta = et::angleAxisToQuaternion(delta_theta);
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
@@ -129,8 +129,8 @@ void ErrorStateKalmanFilter::predictIMU(
 
   // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -Rot * et::crossMat(acc_B) * dt;
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -Rot * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * et::crossMat(acc_B) * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -W_Rot_B * dt;
   F_x_(kDeltaVelIdx + 2, kDeltaGravIdx) = -dt;
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
@@ -141,10 +141,10 @@ void ErrorStateKalmanFilter::predictIMU(
   et::symmetrise(P_);  // 対称化 (これが必須)
 
   // (269)第二項: プロセスノイズを印加
-  P_.diagonal().segment<3>(kDeltaVelIdx).array() += acc_noise_var * math::sqr(dt);
-  P_.diagonal().segment<3>(kDeltaThetaIdx).array() += gyro_noise_var * math::sqr(dt);
-  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_noise_var;
-  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_noise_var;
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * math::sqr(dt);
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * math::sqr(dt);
+  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_var;
+  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_var;
   P_(kDeltaGravIdx, kDeltaGravIdx) += grav_var;
 
   // 状態の履歴を保存

@@ -23,11 +23,11 @@ namespace eskf
 class ErrorStateKalmanFilter
 {
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
-  using StateVector = Eigen::Matrix<double, kStateSize, 1>;
-  using RowStateVector = Eigen::Matrix<double, 1, kStateSize>;
+  using StateVector = Eigen::Vector<double, kStateSize>;
+  using RowStateVector = Eigen::RowVector<double, kStateSize>;
   using DeltaStateMatrix = Eigen::Matrix<double, kDeltaStateSize, kDeltaStateSize>;
-  using DeltaStateVector = Eigen::Matrix<double, kDeltaStateSize, 1>;
-  using RowDeltaStateVector = Eigen::Matrix<double, 1, kDeltaStateSize>;
+  using DeltaStateVector = Eigen::Vector<double, kDeltaStateSize>;
+  using RowDeltaStateVector = Eigen::RowVector<double, kDeltaStateSize>;
 
 public:
   explicit ErrorStateKalmanFilter();
@@ -76,10 +76,10 @@ public:
   void predictIMU(
     const Eigen::Vector3d& acc_meas,
     const Eigen::Vector3d& gyro_meas,
-    const double& acc_noise_var,
-    const double& gyro_noise_var,
-    const double& acc_bias_noise_var,
-    const double& gyro_bias_noise_var,
+    const Eigen::Matrix3d& acc_cov,
+    const Eigen::Matrix3d& gyro_cov,
+    const double& acc_bias_var,
+    const double& gyro_bias_var,
     const double& grav_var,
     const std::chrono::steady_clock::time_point& time);
 
