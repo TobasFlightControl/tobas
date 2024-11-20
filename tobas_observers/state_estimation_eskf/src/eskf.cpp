@@ -17,7 +17,8 @@ namespace et = eigen_tools;
 
 namespace eskf
 {
-ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
+ErrorStateKalmanFilter::ErrorStateKalmanFilter(bool enable_cov_initialization)
+  : enable_cov_initialization_(enable_cov_initialization), x_history_(kStateHistoryTimeWindow)
 {
   PRINT_DEBUG("ErrorStateKalmanFilter::ErrorStateKalmanFilter");
 
@@ -62,14 +63,14 @@ void ErrorStateKalmanFilter::initialize(
   assert(et::isSymmetricSemiPositiveDefinite(init_gyro_bias_cov));
   assert(init_grav_var >= 0);
 
-  // ノミナル状態を初期化
+  // Initialize nominal state
   x_.setZero();
   x_.segment<3>(kPosIdx) = init_pos;
   x_.segment<3>(kVelIdx) = init_vel;
   x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(init_quat).normalized();
   x_(kGravIdx) = tobas_std::kGravity;
 
-  // 共分散行列を初期化
+  // Initialize covariance
   P_.setZero();
   P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = init_pos_cov;
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = init_vel_cov;
@@ -78,8 +79,9 @@ void ErrorStateKalmanFilter::initialize(
   P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = init_gyro_bias_cov;
   P_(kDeltaGravIdx, kDeltaGravIdx) = init_grav_var;
 
-  // (270) ヤコビアンの不変部分を埋める
+  // Fill the constant part of jacobians
   F_x_.setIdentity();
+  G_.setIdentity();
 
   t_last_imu_ = time;
   x_history_.add(time, x_);
@@ -136,9 +138,8 @@ void ErrorStateKalmanFilter::predictIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269)第一項: 共分散行列の予測値を更新
-  // TODO: sympyを用いて行列積を効率化
-  P_ = F_x_ * P_ * F_x_.transpose();
-  et::symmetrise(P_);  // 対称化 (これが必須)
+  P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  et::symmetrise(P_);                 // 対称化 (これが必須)
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * math::sqr(dt);

@@ -30,7 +30,7 @@ class ErrorStateKalmanFilter
   using RowDeltaStateVector = Eigen::RowVector<double, kDeltaStateSize>;
 
 public:
-  explicit ErrorStateKalmanFilter();
+  explicit ErrorStateKalmanFilter(bool enable_cov_initialization = false);
 
   void initialize(
     const Eigen::Vector3d& init_pos,
@@ -152,9 +152,12 @@ public:
     const std::chrono::steady_clock::time_point& time);
 
 private:
+  const bool enable_cov_initialization_;
+
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
   DeltaStateMatrix F_x_;  // Jacobian of the state transition
+  DeltaStateMatrix G_;    // Jacobian of the error initialization
 
   Eigen::Matrix<double, 3, kDeltaStateSize> H_pos_;
   Eigen::Matrix<double, 2, kDeltaStateSize> H_xy_;
@@ -369,6 +372,7 @@ double ErrorStateKalmanFilter::correct(
 
   // (276) Update covariance matrix
   P_ = (DeltaStateMatrix::Identity() - K * H) * P_;
+  eigen_tools::symmetrise(P_);
 
   // (283) Update state
   const Eigen::Vector3d dtheta = delta_x.segment<3>(kDeltaThetaIdx);
@@ -380,10 +384,13 @@ double ErrorStateKalmanFilter::correct(
   x_.segment<3>(kGyroBiasIdx) += delta_x.segment<3>(kDeltaGyroBiasIdx);
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
 
-  // (286) Initialize ESKF
-  const Eigen::Matrix3d P_theta = P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx);
-  const Eigen::Matrix3d G_theta = Eigen::Matrix3d::Identity() - eigen_tools::crossMat(0.5 * dtheta);
-  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = G_theta * P_theta * G_theta.transpose();
+  // (286) Initialize ESKF (Optional)
+  if (enable_cov_initialization_)
+  {
+    G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Matrix3d::Identity() - eigen_tools::crossMat(0.5 * dtheta);
+    P_ = G_ * P_ * G_.transpose();  // TODO: 必要な部分のみ計算
+    eigen_tools::symmetrise(P_);
+  }
 
   // Compute anormaly score
   const double anormaly_score = (delta_meas.transpose() * Sigma_inv * delta_meas)(0) / M;
