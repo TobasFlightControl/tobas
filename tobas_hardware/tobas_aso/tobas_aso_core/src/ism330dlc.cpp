@@ -99,10 +99,6 @@ bool ISM330DLC::configureAcc()
   if (!writeReg(REG_CTRL1_XL, ODR_XL_833HZ | scale))
     return false;
 
-  // Anti-aliasing (fc = 1660 / 9 = 184Hz)
-  if (!writeReg(REG_CTRL8_XL, LPF2_XL_EN | HPCF_XL_9))
-    return false;
-
   setAccScale(scale);
 
   return true;
@@ -117,13 +113,8 @@ bool ISM330DLC::configureGyro()
   if (!writeReg(REG_CTRL2_G, ODR_G_833HZ | scale))
     return false;
 
-  // Enable LPF1
-  if (!writeReg(REG_CTRL4_C, I2C_DISABLE | LPF1_SEL_G))
-    return false;
-
-  // Anti-aliasing (fc = 155Hz)
-  // IC内のLPFは微調整できないため，アンチエンジング以外の目的でのフィルタリングはサンプリング後に専用のノードで行う．
-  if (!writeReg(REG_CTRL6_C, FTYPE_0))
+  // Disable I2C
+  if (!writeReg(REG_CTRL4_C, I2C_DISABLE))
     return false;
 
   setGyroScale(scale);
