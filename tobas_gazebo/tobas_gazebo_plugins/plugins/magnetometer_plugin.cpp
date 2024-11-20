@@ -141,7 +141,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim
   auto mag_msg = make_unique<tobas_msgs::MagneticFieldStamped>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
-  vectorGazeboToKDL(field_B, mag_msg->mag);
+  vectorGazeboToKDL(field_B.Normalized(), mag_msg->mag);
 
   // Publish message
   mag_pub_->publish(move(mag_msg));

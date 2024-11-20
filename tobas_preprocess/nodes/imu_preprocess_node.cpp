@@ -16,8 +16,8 @@ class ImuPreprocessNode : public tobas::BaseNode
   // そこで，カットオフ周波数を，3Hzの主成分を遅延4msで99%残しつつ200Hzのノイズを20%に減衰させる40Hzに設定する．
   // PX4, ArduPilotはカットオフを極力大きくすべきだと言うが，誤った値がEKFに入るのを防ぐほうが重要ではないか．．．？
   // TODO: モータの回転数を取得し，ノッチフィルタで局所的に除去する (Dynamic Notch Filter)
-  static constexpr double kGyroLpfCutoff = 40.;
   static constexpr double kAccelLpfCutoff = 40.;
+  static constexpr double kGyroLpfCutoff = 40.;
 
   static constexpr double kHpfCutoff = 30.;            // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
   static constexpr size_t kWindowSize = 200;           // 400Hzで0.5s
@@ -55,6 +55,11 @@ private:
 
 ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super("imu_preprocess", options)
 {
+  if (!acc_lpf_.setCutoffFrequency(kAccelLpfCutoff))
+    TOBAS_EXIT("Failed to set cutoff frequency of accel LPF.");
+  if (!gyro_lpf_.setCutoffFrequency(kGyroLpfCutoff))
+    TOBAS_EXIT("Failed to set cutoff frequency of gyro LPF.");
+
   imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
 }
@@ -92,10 +97,20 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
     }
     case INITIALIZE:
     {
-      acc_lpf_.initialize(kAccelLpfCutoff, imu_raw->imu.accel);
-      gyro_lpf_.initialize(kGyroLpfCutoff, imu_raw->imu.gyro);
-      acc_noise_.initialize(kHpfCutoff, imu_raw->imu.accel.data);
-      gyro_noise_.initialize(kHpfCutoff, imu_raw->imu.gyro.data);
+      acc_lpf_.setValue(imu_raw->imu.accel);
+      gyro_lpf_.setValue(imu_raw->imu.gyro);
+
+      if (!acc_noise_.initialize(kHpfCutoff, imu_raw->imu.accel.data))
+      {
+        TOBAS_ERROR("Failed to initialize accel noise variance filter.");
+        return;
+      }
+      if (!gyro_noise_.initialize(kHpfCutoff, imu_raw->imu.gyro.data))
+      {
+        TOBAS_ERROR("Failed to initialize gyro noise variance filter.");
+        return;
+      }
+
       imu_raw_ = imu_raw;
       stage_ = PUBLISH;
       break;
@@ -113,8 +128,8 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
         TOBAS_ERROR("Failed to update gyro LPF: ", gyro_lpf_.errorMessage(), " dt = ", dt);
 
       // Get filtered data
-      const auto& acc_filtered = acc_lpf_.getOutput();
-      const auto& gyro_filtered = gyro_lpf_.getOutput();
+      const auto& acc_filtered = acc_lpf_.getValue();
+      const auto& gyro_filtered = gyro_lpf_.getValue();
 
       // Update noise filters
       if (acc_noise_.update(acc_filtered.data, dt) < 0)

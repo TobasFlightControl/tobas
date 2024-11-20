@@ -24,7 +24,7 @@ public:
 
   explicit NoiseVarianceFilter();
 
-  void initialize(double hpf_cutoff_freq, const DataType& init_data);
+  bool initialize(double hpf_cutoff_freq, const DataType& init_data);
   error_t update(const DataType& data, double dt);
 
   inline CovType noiseVariance() const;
@@ -48,15 +48,20 @@ NoiseVarianceFilter<Scalar, Size, Length>::NoiseVarianceFilter()
 }
 
 template <typename Scalar, int Size, size_t Length>
-void NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_freq, const DataType& init_data)
+bool NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_freq, const DataType& init_data)
 {
+  if (!hpf_.setCutoffFrequency(hpf_cutoff_freq))
+    return false;
+
+  hpf_.setValue(init_data);
+
   num_data_ = 1;
   data_buf_.at(0) = init_data;
 
-  hpf_.initialize(hpf_cutoff_freq, init_data);
-
   welford_.reset();
   welford_.add(init_data);
+
+  return true;
 }
 
 template <typename Scalar, int Size, size_t Length>
@@ -71,7 +76,7 @@ NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, double d
 
   if (num_data_ < Length)  // データが溜まるまではバッファに保存しつつWelfordのアルゴリズムを使う
   {
-    welford_.add(hpf_.getOutput());
+    welford_.add(hpf_.getValue());
     data_buf_.at(num_data_) = data;
   }
   else  // データ数が時間窓を超えてからは移動分散アルゴリズムを使う
@@ -83,7 +88,7 @@ NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, double d
       moving_stat_.initialize(data_buf_);
     }
 
-    moving_stat_.add(hpf_.getOutput());
+    moving_stat_.add(hpf_.getValue());
   }
 
   ++num_data_;

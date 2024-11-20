@@ -42,7 +42,11 @@ void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureSt
   // Initialize
   if (pres_raw_ == nullptr)
   {
-    pres_noise_.initialize(kHpfCutoff, Eigen::Scalard(pres_raw->pressure));
+    if (!pres_noise_.initialize(kHpfCutoff, Eigen::Scalard(pres_raw->pressure)))
+    {
+      TOBAS_ERROR("Failed to initialize noise variance filter.");
+      return;
+    }
     pres_raw_ = pres_raw;
     return;
   }

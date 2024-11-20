@@ -40,7 +40,11 @@ void MagPreprocessNode::magRawCb(const tobas_msgs::MagneticFieldStamped::ConstSh
   // Initialize
   if (mag_raw_ == nullptr)
   {
-    mag_noise_.initialize(kHpfCutoff, mag_raw->mag.data);
+    if (!mag_noise_.initialize(kHpfCutoff, mag_raw->mag.data))
+    {
+      TOBAS_ERROR("Failed to initialize accel noise variance filter.");
+      return;
+    }
     mag_raw_ = mag_raw;
     return;
   }
