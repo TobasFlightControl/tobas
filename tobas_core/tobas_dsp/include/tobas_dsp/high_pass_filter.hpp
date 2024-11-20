@@ -23,7 +23,7 @@ public:
   bool setCutoffFrequency(const double& curoff_freq);
 
 private:
-  double T_;
+  double T_ = 0.;
   T y_, prev_u_;
 };
 
@@ -72,7 +72,7 @@ bool HighPassFilter<T>::setCutoffFrequency(const double& cutoff_freq)
 {
   if (cutoff_freq <= 0)
   {
-    std::cerr << "Cutoff frequency must be positive." << std::endl;
+    std::cerr << "The cutoff frequency of high-pass filter must be positive." << std::endl;
     return false;
   }
 
