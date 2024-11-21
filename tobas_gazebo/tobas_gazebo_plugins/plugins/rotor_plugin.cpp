@@ -49,7 +49,7 @@ class GazeboRotorPlugin : public BaseNode,
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 400;  // [Hz]
-  static constexpr double kDefaultRotorNoiseCoef = 0.2;    // [-]
+  static constexpr double kDefaultRotorNoiseCoef = 0.5;    // [-]
   static constexpr double kDefaultMaxModelErrorRate = 0.;
 
   using self = GazeboRotorPlugin;
