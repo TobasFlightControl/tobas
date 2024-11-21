@@ -5,7 +5,6 @@
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
-#include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
@@ -84,6 +83,8 @@ private:
   double max_model_error_rate_;  // [-]
 
   double throttle_ = 0.;  // [0, 1]
+  double velocity_ = 0.;  // [rad/s]
+  double position_ = 0.;  // [rad]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   Vector3d wind_vel_W_ = Vector3d::Zero;  // [m/s]
   steady_clock::duration prev_sim_time_;
@@ -113,12 +114,8 @@ private:
 
   void registerROSInterfaces();
   void addModelError();
-  void applyWrench(
-    sim::EntityComponentManager& ecm,
-    double jnt_pos,
-    double rot_speed,
-    const steady_clock::duration& cur_time);
-  void updateRotationSpeed(sim::EntityComponentManager& ecm, double rot_speed, double dt);
+  void applyWrench(sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
+  void updateJointState(sim::EntityComponentManager& ecm, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
   void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
@@ -176,8 +173,6 @@ void GazeboRotorPlugin::Configure(
   // Create necessary components
   if (!getComponent<cmp::JointAxis>(joint_entity, ecm))
     TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name_, "\".");
-  if (!getComponent<cmp::JointPosition>(joint_entity, ecm))
-    TOBAS_EXIT("Failed to get component JointPosition of joint \"", joint_name_, "\".");
   if (!getComponent<cmp::JointVelocity>(joint_entity, ecm))
     TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name_, "\".");
   if (!getComponent<cmp::WorldPose>(link_entity, ecm))
@@ -237,22 +232,16 @@ void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityCompon
   if (secs_from_last_cmd > kAutoStopTimeThresh)
     throttle_ = 0.;
 
-  // Get joint state
-  const auto jnt_pos_sim = joint_->Position(ecm).value().at(0);
-  const auto jnt_pos_real = algo::wrapPi(jnt_pos_sim * kRotorSpeedSlowdownSim);
-  const auto rot_speed_sim = max(joint_->Velocity(ecm).value().at(0) * direction_, 0.);
-  const auto rot_speed_real = rot_speed_sim * kRotorSpeedSlowdownSim;
-
   // Compute time after previous simulation time
   const auto dt = duration<double>(info.dt).count();
 
   // Check aliasing
-  if (rot_speed_sim * dt > M_PI)
+  if (abs(velocity_ * dt) > M_PI)
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor [", channel_, "] might occur. Lower simulation time step.");
 
   // Update simulation state
-  applyWrench(ecm, jnt_pos_real, rot_speed_real, info.simTime);
-  updateRotationSpeed(ecm, rot_speed_real, dt);
+  applyWrench(ecm, info.simTime);
+  updateJointState(ecm, dt);
 }
 
 void GazeboRotorPlugin::registerROSInterfaces()
@@ -286,14 +275,8 @@ void GazeboRotorPlugin::addModelError()
   rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
 }
 
-void GazeboRotorPlugin::applyWrench(
-  sim::EntityComponentManager& ecm,
-  double jnt_pos,
-  double rot_speed,
-  const steady_clock::duration& cur_time)
+void GazeboRotorPlugin::applyWrench(sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time)
 {
-  assert(rot_speed >= 0.);
-
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
   // TODO: Implement other terms
@@ -304,14 +287,14 @@ void GazeboRotorPlugin::applyWrench(
   const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
 
   // (1) first term: Thrust Force
-  const auto thrust = motor_const_ * ::math::sqr(rot_speed);
+  const auto thrust = motor_const_ * ::math::sqr(velocity_);
   const auto thrust_W = thrust * global_axis;
   link_->AddWorldWrench(ecm, thrust_W, Vector3d::Zero);
 
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-rot_speed * rotor_drag_coef_) * linvel_perp_W;
+  const auto h_force_W = (-abs(velocity_) * rotor_drag_coef_) * linvel_perp_W;
   link_->AddWorldWrench(ecm, h_force_W, Vector3d::Zero);
 
   // (2) first term: Rotor drag torque
@@ -341,7 +324,7 @@ void GazeboRotorPlugin::applyWrench(
     state_msg_obs->channel = channel_;
     if (is_intact_)
     {
-      state_msg_obs->speed = rot_speed;
+      state_msg_obs->speed = direction_ * velocity_;
       state_msg_obs->current = current;
       state_msg_obs->status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
     }
@@ -357,20 +340,17 @@ void GazeboRotorPlugin::applyWrench(
   // Publish ground-truth state
   auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
   ros2::timeChronoToMsg(cur_time, state_msg_gt->header.stamp);
-  state_msg_gt->rotation_speed = rot_speed;
+  state_msg_gt->rotation_speed = direction_ * velocity_;
   state_msg_gt->current = current;
-  state_msg_gt->rotor_noise = noise_coef_ * thrust * sin(num_blades_ * jnt_pos);  // TODO: 倍周波も考慮
+  state_msg_gt->rotor_noise = noise_coef_ * thrust * sin(num_blades_ * position_);  // TODO: 倍周波も考慮
   vectorGazeboToMsg(thrust_W, state_msg_gt->thrust_force);
   vectorGazeboToMsg(h_force_W, state_msg_gt->horizontal_force);
   vectorGazeboToMsg(drag_torque_W, state_msg_gt->drag_torque);
   state_gt_pub_->publish(move(state_msg_gt));
 }
 
-void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, double cur_speed, double dt)
+void GazeboRotorPlugin::updateJointState(sim::EntityComponentManager& ecm, double dt)
 {
-  assert(cur_speed >= 0);
-  assert(dt >= 0);
-
   // モータダイナミクスの係数 (memo: 2-78)
   const auto a = 2. * L_KV * moment_const_ * motor_const_;
   const auto b = resistance_ * kv_ * moment_const_ * motor_const_;
@@ -378,6 +358,8 @@ void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, do
 
   const auto Ea = battery_->voltage * throttle_;                                            // 印加電圧
   const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
+
+  const auto cur_speed = max(direction_ * velocity_, 0.);
 
   // 次の時刻の回転数を求める
   double next_speed;
@@ -397,8 +379,12 @@ void GazeboRotorPlugin::updateRotationSpeed(sim::EntityComponentManager& ecm, do
       next_speed = eq_speed;
   }
 
-  // 次のステップの回転数をGazeboに反映
-  joint_->SetVelocity(ecm, { direction_ * next_speed / kRotorSpeedSlowdownSim });
+  // ジョイントの状態を更新
+  position_ += velocity_ * dt;
+  velocity_ = direction_ * next_speed;
+
+  // 視認用にGazeboに反映
+  joint_->SetVelocity(ecm, { velocity_ / kRotorSpeedSlowdownSim });
 }
 
 void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
