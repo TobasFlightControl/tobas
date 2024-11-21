@@ -20,17 +20,18 @@ public:
   explicit NotchFilter();
 
   super::error_t update(const T& u, const double& dt) override;
+  void bypass(const T& u);
 
   inline const T& getValue() const override;
   inline void setValue(const T& x) override;
 
   bool setCenterFrequency(const double& fn_hz);
-  bool setBandwidth(const double& bw_hz);
+  bool setQValue(const double& q);
   bool setDepth(const double& depth);
 
 private:
   double wn_ = std::numeric_limits<double>::max();  // [rad/s]
-  double bw_ = 0.;                                  // [rad/s]
+  double q_ = 0.;                                   // [-]
   double d_ = 0.;                                   // [-]
 
   std::array<T, 3> y_;
@@ -47,24 +48,21 @@ NotchFilter<T>::NotchFilter()
 template <typename T>
 BaseFilter<T>::error_t NotchFilter<T>::update(const T& u, const double& dt)
 {
-  if (dt < 0.)
+  if (dt <= 0)
     return super::error_code_ = super::E_TIME_STEP_NEGATIVE;
+  else if (dt >= 2 / wn_)
+    return super::error_code_ = super::E_TIME_STEP_TOO_LARGE;
 
   shiftHistory();
 
-  if (bw_ == 0.)
-  {
-    u_[0] = y_[0] = u;
-    return error_code_ = super::E_NO_ERROR;
-  }
-
-  const auto q = wn_ / bw_;
-  const auto c = dt * wn_ / 2;
+  const auto dt_2 = dt / 2;
+  const auto wn = tan(wn_ * dt_2) / dt_2;  // Prewarping
+  const auto c = wn * dt_2;
   const auto c2 = math::sqr(c);
   const auto c2_plus_1 = c2 + 1;
   const auto c2_minus_1 = c2 - 1;
-  const auto cd_qinv = c * d / q;
-  const auto c1_qinv = c / q;
+  const auto c1_qinv = c / q_;
+  const auto cd_qinv = c1_qinv * d_;
 
   const auto n0 = c2_plus_1 + cd_qinv;
   const auto n1 = 2 * c2_minus_1;
@@ -74,9 +72,16 @@ BaseFilter<T>::error_t NotchFilter<T>::update(const T& u, const double& dt)
   const auto d2 = c2_plus_1 - c1_qinv;
 
   u_[0] = u;
-  y_[0] = (n0 * u_[0] + n1 * u_[1] + n2 * u_[2] - d1 * y[1] - d2 * y[2]) / d0;
+  y_[0] = (n0 * u_[0] + n1 * u_[1] + n2 * u_[2] - d1 * y_[1] - d2 * y_[2]) / d0;
 
-  return error_code_ = super::E_NO_ERROR;
+  return super::error_code_ = super::E_NO_ERROR;
+}
+
+template <typename T>
+void NotchFilter<T>::bypass(const T& u)
+{
+  shiftHistory();
+  u_[0] = y_[0] = u;
 }
 
 template <typename T>
@@ -106,15 +111,15 @@ bool NotchFilter<T>::setCenterFrequency(const double& fn_hz)
 }
 
 template <typename T>
-bool NotchFilter<T>::setBandwidth(const double& bw_hz)
+bool NotchFilter<T>::setQValue(const double& q)
 {
-  if (bw_hz < 0.)
+  if (q <= 0.)
   {
-    std::cerr << "The bandwidth of notch filter must be non-negative." << std::endl;
+    std::cerr << "The Q value of notch filter must be positive." << std::endl;
     return false;
   }
 
-  bw_ = (2 * M_PI) * bw_hz;
+  q_ = q;
   return true;
 }
 
