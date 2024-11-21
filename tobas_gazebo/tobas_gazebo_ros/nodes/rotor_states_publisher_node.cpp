@@ -17,8 +17,7 @@ public:
 
 private:
   tobas::Drone::ConstSharedPtr drone_;
-  map<size_t, bool> is_updated_;
-  std::vector<tobas_msgs::msg::RotorState> rotor_states_;
+  std::map<size_t, tobas_msgs::msg::RotorState> rotor_states_;  // チャンネル順に並ぶようmapを使う
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
@@ -37,14 +36,11 @@ RotorStatesPublisherNode::RotorStatesPublisherNode(const rclcpp::NodeOptions& op
 
 void RotorStatesPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  is_updated_.clear();
   rotor_states_.clear();
   rotor_state_subs_.clear();
 
   for (const auto& [channel, _] : drone->rotors)
   {
-    is_updated_[channel] = false;
-
     const auto topic = gazebo::kRotorStateTopicPrefix + to_string(channel);
     rotor_state_subs_[channel] = createSubscriber(topic, &self::rotorStateCb, this);
   }
@@ -56,32 +52,25 @@ void RotorStatesPublisherNode::rotorStateCb(const tobas_msgs::msg::RotorState::C
 {
   const auto& channel = rotor_state->channel;
 
-  if (!is_updated_.contains(channel))
-  {
-    TOBAS_ERROR("Invalid rotor channel: ", channel);
-    return;
-  }
-
-  if (is_updated_.at(channel))
+  if (rotor_states_.contains(channel))
   {
     TOBAS_WARN("Rotor channel ", (int)channel, " is already updated.");
     return;
   }
 
-  rotor_states_.push_back(*rotor_state);
-  is_updated_.at(channel) = true;
+  // Store rotor state
+  rotor_states_[channel] = *rotor_state;
 
   if (rotor_states_.size() == drone_->numRotors())
   {
     // Publish rotor states
     auto rotor_states_msg = std::make_unique<tobas_msgs::msg::RotorStateArray>();
     rotor_states_msg->header.stamp = get_clock()->now();
-    rotor_states_msg->states = rotor_states_;
+    for (const auto& [_, state] : rotor_states_)
+      rotor_states_msg->states.push_back(state);
     rotor_states_pub_->publish(move(rotor_states_msg));
 
     // Reset
-    for (auto& [_, is_updated] : is_updated_)
-      is_updated = false;
     rotor_states_.clear();
   }
 }
