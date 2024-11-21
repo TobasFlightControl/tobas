@@ -68,7 +68,7 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package="tobas_preprocess",
-            executable="imu_lpf",
+            executable="imu_preprocess",
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,
@@ -101,6 +101,24 @@ def generate_launch_description():
             namespace=DRONE_NAME,
             parameters=[],  # TODO
             remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_preprocess",
+            executable="mag_preprocess",
+            namespace=DRONE_NAME,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_preprocess",
+            executable="air_pressure_preprocess",
+            namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,
         )
