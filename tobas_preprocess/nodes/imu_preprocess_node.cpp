@@ -98,6 +98,9 @@ ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super
   addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, kDefaultAccelLowPassCutoff, 30, 400);
   addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, kDefaultGyroLowPassCutoff, 30, 400);
 
+  imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
+  imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
+
   if (use_notch_)
   {
     addDynamicIntParam("accel_notch_min_freq", &self::accelNotchMinFreqCb, this, kDefaultAccelNotchMinFreq, 10, 100);
@@ -106,12 +109,10 @@ ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super
     addDynamicIntParam("accel_notch_min_freq", &self::gyroNotchMinFreqCb, this, kDefaultGyroNotchMinFreq, 10, 100);
     addDynamicIntParam("gyro_notch_q", &self::gyroNotchQValueCb, this, kDefaultGyroNotchQValue, 10, 500);
     addDynamicDoubleParam("gyro_notch_depth", &self::gyroNotchDepthCb, this, kDefaultGyroNotchDepth, 0., 0.1);
-  }
 
-  imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
-  imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
-  rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorStatesCb, this);
-  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+    rotor_states_sub_ = createSubscriber(tobas::kRotorStatesTopic, &self::rotorStatesCb, this);
+    drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+  }
 }
 
 bool ImuPreprocessNode::updateNotchParams()
