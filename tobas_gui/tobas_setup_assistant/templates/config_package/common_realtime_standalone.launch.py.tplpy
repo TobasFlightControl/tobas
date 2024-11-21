@@ -185,7 +185,7 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_preprocess",
+            package="tobas_matrix_euler_conversion",
             executable="matrix_euler_converter",
             namespace=DRONE_NAME,
             remappings=remappings,
