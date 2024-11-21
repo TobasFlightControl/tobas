@@ -20,11 +20,15 @@ class ImuPreprocessNode : public tobas::BaseNode
   static constexpr double kStaticGyroThreshold = 0.5;   // [rad/s]
   static constexpr size_t kNumNotchFilterPerRotor = 2;  // 倍周波の個数
 
-  static constexpr long kDefaultAccelLowPassCutoff = 100;
+  // Default static parameters
+  static constexpr bool kDefaultUseNotch = false;
+
+  // Default dynamic parameters
+  static constexpr long kDefaultAccelLowPassCutoff = 40;  // ノッチフィルタを使うなら上げる
+  static constexpr long kDefaultGyroLowPassCutoff = 40;   // ノッチフィルタを使うなら上げる
   static constexpr long kDefaultAccelNotchMinFreq = 25;
   static constexpr long kDefaultAccelNotchQValue = 30;
   static constexpr double kDefaultAccelNotchDepth = 0.;
-  static constexpr long kDefaultGyroLowPassCutoff = 100;
   static constexpr long kDefaultGyroNotchMinFreq = 25;
   static constexpr long kDefaultGyroNotchQValue = 30;
   static constexpr double kDefaultGyroNotchDepth = 0.;
@@ -43,11 +47,14 @@ private:
     PUBLISH,
   } stage_ = MEASURE_GYRO_BIAS;
 
-  // rosparam
+  // Static parameters
+  bool use_notch_;
+
+  // Dynamic parameters
   double acc_notch_min_freq_ = kDefaultAccelNotchMinFreq;
+  double gyro_notch_min_freq_ = kDefaultGyroNotchMinFreq;
   double acc_notch_q_ = kDefaultAccelNotchQValue;
   double acc_notch_depth_ = kDefaultAccelNotchDepth;
-  double gyro_notch_min_freq_ = kDefaultGyroNotchMinFreq;
   double gyro_notch_q_ = kDefaultGyroNotchQValue;
   double gyro_notch_depth_ = kDefaultGyroNotchDepth;
 
@@ -71,10 +78,10 @@ private:
   bool updateNotchParams();
 
   bool accelLowPassCutoffCb(const long& p);
+  bool gyroLowPassCutoffCb(const long& p);
   bool accelNotchMinFreqCb(const long& p);
   bool accelNotchQValueCb(const long& p);
   bool accelNotchDepthCb(const double& p);
-  bool gyroLowPassCutoffCb(const long& p);
   bool gyroNotchMinFreqCb(const long& p);
   bool gyroNotchQValueCb(const long& p);
   bool gyroNotchDepthCb(const double& p);
@@ -86,14 +93,20 @@ private:
 
 ImuPreprocessNode::ImuPreprocessNode(const rclcpp::NodeOptions& options) : super("imu_preprocess", options)
 {
+  use_notch_ = getBoolParam("use_rpm_notch", kDefaultUseNotch);
+
   addDynamicIntParam("accel_lowpass_cutoff", &self::accelLowPassCutoffCb, this, kDefaultAccelLowPassCutoff, 30, 400);
-  addDynamicIntParam("accel_notch_min_freq", &self::accelNotchMinFreqCb, this, kDefaultAccelNotchMinFreq, 10, 100);
-  addDynamicIntParam("accel_notch_q", &self::accelNotchQValueCb, this, kDefaultAccelNotchQValue, 10, 500);
-  addDynamicDoubleParam("accel_notch_depth", &self::accelNotchDepthCb, this, kDefaultAccelNotchDepth, 0., 0.1);
   addDynamicIntParam("gyro_lowpass_cutoff", &self::gyroLowPassCutoffCb, this, kDefaultGyroLowPassCutoff, 30, 400);
-  addDynamicIntParam("accel_notch_min_freq", &self::gyroNotchMinFreqCb, this, kDefaultGyroNotchMinFreq, 10, 100);
-  addDynamicIntParam("gyro_notch_q", &self::gyroNotchQValueCb, this, kDefaultGyroNotchQValue, 10, 500);
-  addDynamicDoubleParam("gyro_notch_depth", &self::gyroNotchDepthCb, this, kDefaultGyroNotchDepth, 0., 0.1);
+
+  if (use_notch_)
+  {
+    addDynamicIntParam("accel_notch_min_freq", &self::accelNotchMinFreqCb, this, kDefaultAccelNotchMinFreq, 10, 100);
+    addDynamicIntParam("accel_notch_q", &self::accelNotchQValueCb, this, kDefaultAccelNotchQValue, 10, 500);
+    addDynamicDoubleParam("accel_notch_depth", &self::accelNotchDepthCb, this, kDefaultAccelNotchDepth, 0., 0.1);
+    addDynamicIntParam("accel_notch_min_freq", &self::gyroNotchMinFreqCb, this, kDefaultGyroNotchMinFreq, 10, 100);
+    addDynamicIntParam("gyro_notch_q", &self::gyroNotchQValueCb, this, kDefaultGyroNotchQValue, 10, 500);
+    addDynamicDoubleParam("gyro_notch_depth", &self::gyroNotchDepthCb, this, kDefaultGyroNotchDepth, 0., 0.1);
+  }
 
   imu_pub_ = createPublisher<tobas_msgs::ImuWithCovarianceStamped>(tobas::kImuTopic);
   imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
@@ -145,6 +158,17 @@ bool ImuPreprocessNode::accelLowPassCutoffCb(const long& p)
   return true;
 }
 
+bool ImuPreprocessNode::gyroLowPassCutoffCb(const long& p)
+{
+  if (!gyro_lpf_.setCutoffFrequency(p))
+  {
+    TOBAS_ERROR("Failed to set cutoff frequency of gyro low-pass filter.");
+    return false;
+  }
+
+  return true;
+}
+
 bool ImuPreprocessNode::accelNotchMinFreqCb(const long& p)
 {
   acc_notch_min_freq_ = p;
@@ -161,17 +185,6 @@ bool ImuPreprocessNode::accelNotchDepthCb(const double& p)
 {
   acc_notch_depth_ = p;
   return updateNotchParams();
-}
-
-bool ImuPreprocessNode::gyroLowPassCutoffCb(const long& p)
-{
-  if (!gyro_lpf_.setCutoffFrequency(p))
-  {
-    TOBAS_ERROR("Failed to set cutoff frequency of gyro low-pass filter.");
-    return false;
-  }
-
-  return true;
 }
 
 bool ImuPreprocessNode::gyroNotchMinFreqCb(const long& p)
@@ -258,50 +271,54 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
       auto acc_out = acc_lpf_.getValue();
       auto gyro_out = gyro_lpf_.getValue();
 
-      cout << "After Low-pass filter: " << acc_out << endl;
+      // cout << "After Low-pass filter: " << acc_out << endl;
 
       // Notch filter
-      const auto num_rotors = rot_speeds_.size();
-      for (size_t harm_idx = 0; harm_idx < kNumNotchFilterPerRotor; ++harm_idx)
+      if (use_notch_)
       {
-        for (size_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
+        const auto num_rotors = rot_speeds_.size();
+        for (size_t harm_idx = 0; harm_idx < kNumNotchFilterPerRotor; ++harm_idx)
         {
-          const auto notch_idx = harm_idx * num_rotors + rotor_idx;
-          auto& acc_notch = acc_notch_.at(notch_idx);
-          auto& gyro_notch = gyro_notch_.at(notch_idx);
-
-          const auto rot_speed = rot_speeds_.at(rotor_idx);    // [rad/s]
-          const auto harm_speed = rot_speed * (harm_idx + 1);  // [rad/s]
-          const auto harm_freq = harm_speed / (2 * M_PI);      // [Hz]
-
-          if (harm_freq >= acc_notch_min_freq_)
+          for (size_t rotor_idx = 0; rotor_idx < num_rotors; ++rotor_idx)
           {
-            if (!acc_notch.setCenterFrequency(harm_freq))
-              TOBAS_ERROR("Failed to set center frequency of accel notch filter to ", harm_freq, "[Hz].");
-            if (acc_notch.update(acc_out, dt) < 0)
-              TOBAS_ERROR("Failed to update accel notch filter: ", acc_notch.errorMessage());
-          }
-          else
-          {
-            acc_notch.bypass(acc_out);
-          }
+            const auto notch_idx = harm_idx * num_rotors + rotor_idx;
+            auto& acc_notch = acc_notch_.at(notch_idx);
+            auto& gyro_notch = gyro_notch_.at(notch_idx);
 
-          if (harm_freq >= gyro_notch_min_freq_)
-          {
-            if (!gyro_notch.setCenterFrequency(harm_freq))
-              TOBAS_ERROR("Failed to set center frequency of gyro notch filter to ", harm_freq, "[Hz].");
-            if (gyro_notch.update(gyro_out, dt) < 0)
-              TOBAS_ERROR("Failed to update gyro notch filter: ", gyro_notch.errorMessage());
-          }
-          else
-          {
-            gyro_notch.bypass(gyro_out);
-          }
+            const auto rot_speed = rot_speeds_.at(rotor_idx);    // [rad/s]
+            const auto harm_speed = rot_speed * (harm_idx + 1);  // [rad/s]
+            const auto harm_freq = harm_speed / (2 * M_PI);      // [Hz]
+            const auto dt_thresh = 2 / harm_speed;
 
-          acc_out = acc_notch.getValue();
-          gyro_out = gyro_notch.getValue();
+            if (dt < dt_thresh && harm_freq >= acc_notch_min_freq_)
+            {
+              if (!acc_notch.setCenterFrequency(harm_freq))
+                TOBAS_ERROR("Failed to set center frequency of accel notch filter to ", harm_freq, "[Hz].");
+              if (acc_notch.update(acc_out, dt) < 0)
+                TOBAS_ERROR("Failed to update accel notch filter: ", acc_notch.errorMessage());
+            }
+            else
+            {
+              acc_notch.bypass(acc_out);
+            }
 
-          cout << "After notch filter " << notch_idx << ": " << acc_out << endl;
+            if (dt < dt_thresh && harm_freq >= gyro_notch_min_freq_)
+            {
+              if (!gyro_notch.setCenterFrequency(harm_freq))
+                TOBAS_ERROR("Failed to set center frequency of gyro notch filter to ", harm_freq, "[Hz].");
+              if (gyro_notch.update(gyro_out, dt) < 0)
+                TOBAS_ERROR("Failed to update gyro notch filter: ", gyro_notch.errorMessage());
+            }
+            else
+            {
+              gyro_notch.bypass(gyro_out);
+            }
+
+            acc_out = acc_notch.getValue();
+            gyro_out = gyro_notch.getValue();
+
+            // cout << "After notch filter " << notch_idx << ": " << acc_out << endl;
+          }
         }
       }
 
