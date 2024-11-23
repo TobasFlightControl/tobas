@@ -219,7 +219,7 @@ bool SimulationWidget::startHITL()
   progress.setLabelText("Connecting to the flight controller.");
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
-    qt::qErrorBox(this, "No SSH connection.");
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     progress.close();
     return false;
   }

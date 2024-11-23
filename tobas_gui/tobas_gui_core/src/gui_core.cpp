@@ -251,7 +251,7 @@ void GUICoreWidget::onWriteButtonClicked()
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "No SSH connection.");
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -333,7 +333,7 @@ void GUICoreWidget::onShutdownButtonClicked()
   // SSH接続を確認
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
-    qt::qErrorBox(this, "No SSH connection.");
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
   }
 
