@@ -1,16 +1,15 @@
 [Unit]
 Description=Tobas Interface Process
-After=network-online.target hostapd.service
-Requires=network-online.target hostapd.service
-# After=tobas_fastdds_discovery.service
-# Requires=tobas_fastdds_discovery.service
+After=hostapd.service
+Requires=hostapd.service
 PartOf=tobas_real.target
 
 [Service]
 Type=simple
 EnvironmentFile=/etc/tobas/common.env
 EnvironmentFile=/etc/tobas/config_pkg.env
-# Environment="ROS_DISCOVERY_SERVER=192.168.249.1:11811"
+ExecStartPre=/lib/systemd/systemd-networkd-wait-online --interface ap0
+ExecStartPre=/bin/sleep 3
 ExecStart=/bin/bash -c 'source /opt/ros/jazzy/setup.bash && source /opt/tobas/setup.bash && source /etc/tobas/colcon_ws/install/setup.bash && /opt/ros/jazzy/ros2cli/bin/ros2 launch ${TOBAS_CONFIG_PKG} real_interface.launch.py'
 Restart=always
 RestartSec=5
