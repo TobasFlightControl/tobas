@@ -23,7 +23,8 @@ SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const Rob
   setMovable(true);
   setTabsClosable(true);
 
-  markers_pub_ = ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array");
+  markers_pub_ =
+    ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array", false, true);
 
   connect(this, &qt::TabWidget::tabCloseRequested, this, &self::onTabCloseRequested);
 }
