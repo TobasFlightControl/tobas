@@ -377,9 +377,9 @@ double ErrorStateKalmanFilter::correct(
   // (276) Update covariance matrix
   const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
   if (use_joseph_form_)
-    P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();
+    P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // 対称正定が保持されやすい
   else
-    P_ = I_KH * P_;
+    P_ = I_KH * P_;  // 理論通りだが数値的に不安定
   eigen_tools::symmetrise(P_);
 
   // (283) Update state
