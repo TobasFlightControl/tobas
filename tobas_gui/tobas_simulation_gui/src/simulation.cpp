@@ -262,7 +262,7 @@ bool SimulationWidget::startHITL()
 
   // Gazeboを起動
   progress.setLabelText("Launching Gazebo simulation.");
-  if (!launchGazebo(true))  // FIXME: 通信不可を改善してcoreをRPi側で立ち上げる
+  if (!launchGazebo(true))  // FIXME: 通信負荷を改善してcoreをRPi側で立ち上げる
   {
     progress.close();
     return false;
