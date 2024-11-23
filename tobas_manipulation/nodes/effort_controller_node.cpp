@@ -90,7 +90,7 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
     pid_js_(tree_),
     pid_ts_(tree_)
 {
-  initialize_timer_ = createTimer(0ns, &self::initialize, this);
+  initialize_timer_ = createTimer(0s, &self::initialize, this);
 }
 
 void EffortControllerNode::initialize()

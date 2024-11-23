@@ -85,7 +85,7 @@ VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& option
     active_jnts_extractor_(tree_),
     vel_ctrl_(tree_)
 {
-  initialize_timer_ = createTimer(0ns, &self::initialize, this);
+  initialize_timer_ = createTimer(0s, &self::initialize, this);
 }
 
 void VelocityControllerNode::initialize()

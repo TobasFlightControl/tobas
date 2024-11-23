@@ -94,7 +94,7 @@ PositionYawPublisherNode::PositionYawPublisherNode(const rclcpp::NodeOptions& op
   delta_rot_ = max_angvel_ * repeat_interval;
 
   pvay_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
-  process_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
+  process_timer_ = createTimer(0s, &self::initializeTimerCb, this);
 }
 
 void PositionYawPublisherNode::getStaticRosParams()
