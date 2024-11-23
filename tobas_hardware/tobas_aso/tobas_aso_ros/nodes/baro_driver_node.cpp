@@ -19,17 +19,29 @@ public:
 private:
   aso::ILPS22QS baro_;
   ros2::PublisherPtr<tobas_msgs::msg::FluidPressureStamped> baro_pub_;
+  ros2::TimerPtr initialize_timer_;
 
+  void initialize();
   void mainTimerCb();
 };
 
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("aso_baro_driver", options)
 {
+  initialize_timer_ = createTimer(1s, &self::initialize, this);
+}
+
+void BaroDriverNode::initialize()
+{
   if (!baro_.initialize())
-    TOBAS_EXIT("Failed to initialize Barometer.");
+  {
+    TOBAS_ERROR("Failed to initialize Barometer. Retrying...");
+    return;
+  }
 
   baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(real::kAirPressureTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+
+  initialize_timer_->cancel();
 }
 
 void BaroDriverNode::mainTimerCb()

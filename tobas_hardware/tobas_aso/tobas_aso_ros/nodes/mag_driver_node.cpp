@@ -19,17 +19,29 @@ public:
 private:
   aso::IIS2MDC mag_;
   ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
+  ros2::TimerPtr initialize_timer_;
 
+  void initialize();
   void mainTimerCb();
 };
 
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("aso_mag_driver", options)
 {
+  initialize_timer_ = createTimer(1s, &self::initialize, this);
+}
+
+void MagDriverNode::initialize()
+{
   if (!mag_.initialize())
-    TOBAS_EXIT("Failed to initialize Magnetometer.");
+  {
+    TOBAS_ERROR("Failed to initialize Magnetometer. Retrying...");
+    return;
+  }
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
   main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
+
+  initialize_timer_->cancel();
 }
 
 void MagDriverNode::mainTimerCb()
