@@ -27,15 +27,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_msgs_adapter
 	tobas_real_common
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryThrottleNode" EXECUTABLE battery_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "OdometryThrottleNode" EXECUTABLE odom_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "EulerThrottleNode" EXECUTABLE euler_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputThrottleNode" EXECUTABLE rc_input_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorStatesThrottleNode" EXECUTABLE rotor_states_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "HalAdcThrottleNode" EXECUTABLE hal_adc_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "HalSbusThrottleNode" EXECUTABLE hal_sbus_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "HalImuThrottleNode" EXECUTABLE hal_imu_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "HalMagThrottleNode" EXECUTABLE hal_mag_throttle)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TopicThrottleNode" EXECUTABLE topic_throttle)
 
 install(
 	TARGETS ${PROJECT_NAME}_node

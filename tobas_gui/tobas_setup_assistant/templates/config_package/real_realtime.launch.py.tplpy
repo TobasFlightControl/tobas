@@ -150,30 +150,6 @@ def generate_launch_description():
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="HalAdcThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="HalSbusThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="HalImuThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="HalMagThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
                     ],
                 )
             ],

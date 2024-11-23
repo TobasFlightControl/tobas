@@ -249,31 +249,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package="tobas_topic_throttle",
-                            plugin="BatteryThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="OdometryThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="EulerThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="RCInputThrottleNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_topic_throttle",
-                            plugin="RotorStatesThrottleNode",
+                            plugin="TopicThrottleNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
