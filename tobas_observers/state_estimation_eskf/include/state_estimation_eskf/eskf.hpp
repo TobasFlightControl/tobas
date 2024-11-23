@@ -30,7 +30,7 @@ class ErrorStateKalmanFilter
   using RowDeltaStateVector = Eigen::RowVector<double, kDeltaStateSize>;
 
 public:
-  explicit ErrorStateKalmanFilter(bool enable_cov_initialization = false);
+  explicit ErrorStateKalmanFilter();
 
   void initialize(
     const Eigen::Vector3d& init_pos,
@@ -43,6 +43,9 @@ public:
     const Eigen::Matrix3d& init_gyro_bias_cov,
     const double& init_grav_var,
     const std::chrono::steady_clock::time_point& time);
+
+  void enableJosephForm(bool enable);
+  void enableCovInitialization(bool enable);
 
   inline Eigen::Vector3d getPosition() const;
   inline Eigen::Vector3d getVelocity() const;
@@ -152,7 +155,8 @@ public:
     const std::chrono::steady_clock::time_point& time);
 
 private:
-  const bool enable_cov_initialization_;
+  bool use_joseph_form_ = true;
+  bool do_cov_initialization_ = false;
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
@@ -371,7 +375,11 @@ double ErrorStateKalmanFilter::correct(
   const DeltaStateVector delta_x = K * delta_meas;
 
   // (276) Update covariance matrix
-  P_ = (DeltaStateMatrix::Identity() - K * H) * P_;
+  const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
+  if (use_joseph_form_)
+    P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();
+  else
+    P_ = I_KH * P_;
   eigen_tools::symmetrise(P_);
 
   // (283) Update state
@@ -385,7 +393,7 @@ double ErrorStateKalmanFilter::correct(
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
 
   // (286) Initialize ESKF (Optional)
-  if (enable_cov_initialization_)
+  if (do_cov_initialization_)
   {
     G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Matrix3d::Identity() - eigen_tools::crossMat(0.5 * dtheta);
     P_ = G_ * P_ * G_.transpose();  // TODO: 必要な部分のみ計算

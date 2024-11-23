@@ -17,8 +17,7 @@ namespace et = eigen_tools;
 
 namespace eskf
 {
-ErrorStateKalmanFilter::ErrorStateKalmanFilter(bool enable_cov_initialization)
-  : enable_cov_initialization_(enable_cov_initialization), x_history_(kStateHistoryTimeWindow)
+ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
 {
   PRINT_DEBUG("ErrorStateKalmanFilter::ErrorStateKalmanFilter");
 
@@ -85,6 +84,16 @@ void ErrorStateKalmanFilter::initialize(
 
   t_last_imu_ = time;
   x_history_.add(time, x_);
+}
+
+void ErrorStateKalmanFilter::enableJosephForm(bool enable)
+{
+  use_joseph_form_ = enable;
+}
+
+void ErrorStateKalmanFilter::enableCovInitialization(bool enable)
+{
+  do_cov_initialization_ = enable;
 }
 
 void ErrorStateKalmanFilter::predictIMU(
