@@ -234,43 +234,7 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package="tobas_topic_throttle",
-            executable="battery_throttle",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_topic_throttle",
-            executable="odom_throttle",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_topic_throttle",
-            executable="euler_throttle",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_topic_throttle",
-            executable="rc_input_throttle",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_topic_throttle",
-            executable="rotor_states_throttle",
+            executable="topic_throttle",
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,
