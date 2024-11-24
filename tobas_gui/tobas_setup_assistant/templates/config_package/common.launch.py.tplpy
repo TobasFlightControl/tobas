@@ -14,6 +14,7 @@ OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 GROUND_TRUTH = "ground_truth"
 STANDALONE = "standalone"
+MULTIPROCESS = "multiprocess"
 
 
 def generate_launch_description():
@@ -32,6 +33,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     ground_truth = LaunchConfiguration(GROUND_TRUTH)
     standalone = LaunchConfiguration(STANDALONE)
+    multiprocess = LaunchConfiguration(MULTIPROCESS)
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
 
@@ -60,6 +62,7 @@ def generate_launch_description():
                 "output": output,
                 "use_sim_time": use_sim_time,
                 "ground_truth": ground_truth,
+                "multiprocess": multiprocess,
             }.items(),
             condition=UnlessCondition(standalone),
         )

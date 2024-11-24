@@ -1,10 +1,10 @@
-import re
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, TimerAction, RegisterEventHandler, EmitEvent, Shutdown
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch.event_handlers import OnProcessIO
+from launch.conditions import IfCondition, UnlessCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from launch_ros.actions import Node, LoadComposableNodes, SetParameter
+from launch_ros.actions import LoadComposableNodes, SetParameter
 from launch_ros.descriptions import ComposableNode
 from launch_ros.substitutions import FindPackageShare
 
@@ -16,16 +16,11 @@ CONTROLLER_PKG = "{{ controller_pkg }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
+
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 GROUND_TRUTH = "ground_truth"
-
-
-def handle_output(event):
-    # コンポーネントのロードに失敗したらシャットダウン
-    output = event.text.decode().strip()
-    if re.search(r"Failed to find class with the requested plugin name", output):
-        return EmitEvent(event=Shutdown())
+MULTIPROCESS = "multiprocess"
 
 
 def generate_launch_description():
@@ -36,12 +31,14 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
     ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="true"))
     ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
+    ld.add_action(DeclareLaunchArgument(MULTIPROCESS, default_value="false"))
 
     # Get arguments
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
     use_sim_time = LaunchConfiguration(USE_SIM_TIME)
     ground_truth = LaunchConfiguration(GROUND_TRUTH)
+    multiprocess = LaunchConfiguration(MULTIPROCESS)
 
     # Set common parameters
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
@@ -49,27 +46,25 @@ def generate_launch_description():
 
     config_pkg_share = FindPackageShare(CONFIG_PKG_NAME)
     remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
-    ros_args = ["--log-level", log_level]
     extra_arguments = [{"use_intra_process_comms": True}]
 
-    # Launch component managers (realtime, isolated)
-    component_managers = Node(
-        package="tobas_components_rt",
-        executable="component_containers",
-        namespace=DRONE_NAME,
-        ros_arguments=ros_args,
-        output=output,
-    )
-    ld.add_action(component_managers)
-
-    # If failed to load a component, shutdown the entire system
+    # Launch component containers
     ld.add_action(
-        RegisterEventHandler(
-            OnProcessIO(
-                target_action=component_managers,
-                on_stdout=lambda event: handle_output(event),
-                on_stderr=lambda event: handle_output(event),
-            )
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([config_pkg_share, "launch", "component_containers_mp.launch.py"])
+            ),
+            launch_arguments={"log_level": log_level, "output": output}.items(),
+            condition=IfCondition(multiprocess),
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([config_pkg_share, "launch", "component_containers_sp.launch.py"])
+            ),
+            launch_arguments={"log_level": log_level, "output": output}.items(),
+            condition=UnlessCondition(multiprocess),
         )
     )
 

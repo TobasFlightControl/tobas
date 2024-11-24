@@ -76,6 +76,7 @@ def generate_launch_description():
                         "output": output,
                         "use_sim_time": "false",
                         "ground_truth": "false",
+                        "multiprocess": "false",
                     }.items(),
                 )
             ],

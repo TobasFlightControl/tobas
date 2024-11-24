@@ -269,13 +269,15 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   // テンプレートから生成
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
   config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
-  config_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "component_containers_sp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_realtime_standalone.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_interface.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "common.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "real_realtime.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "real_interface.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "real.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
