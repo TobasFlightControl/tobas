@@ -29,11 +29,6 @@ const char* CustomControllerWidget::controllerPackage() const
   return "tobas_dummy_pkg";
 }
 
-const char* CustomControllerWidget::actionsPackage() const
-{
-  return "tobas_dummy_pkg";
-}
-
 tobas::rc_command_t CustomControllerWidget::stabilizeModeCommand() const
 {
   return tobas::rc_command_t::PROGRAM;

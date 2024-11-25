@@ -121,11 +121,6 @@ const char* ControllerWidget::controllerPackage() const
   return selected()->controllerPackage();
 }
 
-const char* ControllerWidget::actionsPackage() const
-{
-  return selected()->actionsPackage();
-}
-
 tobas::rc_command_t ControllerWidget::stabilizeModeCommand() const
 {
   return selected()->stabilizeModeCommand();

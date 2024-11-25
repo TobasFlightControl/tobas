@@ -35,11 +35,6 @@ const char* MultirotorPIDWidget::controllerPackage() const
   return "tobas_mr_pid";
 }
 
-const char* MultirotorPIDWidget::actionsPackage() const
-{
-  return "tobas_mr_actions";
-}
-
 tobas::rc_command_t MultirotorPIDWidget::stabilizeModeCommand() const
 {
   return tobas::rc_command_t::POS_VEL_ACC_YAW;

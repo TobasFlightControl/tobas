@@ -35,11 +35,6 @@ const char* FixedWingLQRWidget::controllerPackage() const
   return "tobas_fixed_wing_lqd";
 }
 
-const char* FixedWingLQRWidget::actionsPackage() const
-{
-  return "tobas_dummy_pkg";  // TODO
-}
-
 tobas::rc_command_t FixedWingLQRWidget::stabilizeModeCommand() const
 {
   return tobas::rc_command_t::SPEED_ROLL_DPITCH;

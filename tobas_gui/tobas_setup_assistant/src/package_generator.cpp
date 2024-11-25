@@ -77,6 +77,21 @@ string PackageGenerator::tbsPath() const
   return settings_->ros_package->tbsPath().toStdString();
 }
 
+const char* PackageGenerator::flightActionsPackage() const
+{
+  if (settings_->controller->isCommandCompatible(tobas::POS_VEL_ACC_YAW))
+  {
+    return "tobas_mr_actions";
+  }
+  else
+  {
+    qt::qWarnBox(
+      settings_, "The functions for takeoff, landing, and autonomous movement "
+                 "corresponding to the selected controller have not been implemented yet.");
+    return "tobas_dummy_pkg";
+  }
+}
+
 inja::json PackageGenerator::createTemplateData()
 {
   inja::json tpl_data;
@@ -85,7 +100,7 @@ inja::json PackageGenerator::createTemplateData()
 
   // Controller
   tpl_data["controller_pkg"] = settings_->controller->controllerPackage();
-  tpl_data["actions_pkg"] = settings_->controller->actionsPackage();
+  tpl_data["actions_pkg"] = flightActionsPackage();
 
   // Observer
   tpl_data["observer_pkg"] = settings_->observer->observerPackage();

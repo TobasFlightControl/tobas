@@ -35,11 +35,6 @@ const char* NonPlanarPIDWidget::controllerPackage() const
   return "tobas_np_pid";
 }
 
-const char* NonPlanarPIDWidget::actionsPackage() const
-{
-  return "tobas_dummy_pkg";  // TODO
-}
-
 tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const
 {
   return tobas::rc_command_t::POSE_TWIST_ACCEL;

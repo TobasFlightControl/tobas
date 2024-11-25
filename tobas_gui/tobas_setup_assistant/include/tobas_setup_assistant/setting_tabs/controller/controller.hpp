@@ -41,11 +41,8 @@ public:
   void load(const YAML::Node& node) override;
 
   const char* controllerPackage() const;
-  const char* actionsPackage() const;
-
   tobas::rc_command_t stabilizeModeCommand() const;
   tobas::rc_command_t acrobatModeCommand() const;
-
   YAML::Node staticParams() const;
 
   bool isCommandCompatible(tobas::rc_command_t command) const;

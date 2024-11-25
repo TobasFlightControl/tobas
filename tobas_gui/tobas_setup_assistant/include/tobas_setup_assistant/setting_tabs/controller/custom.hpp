@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QLineEdit>
+#include <QComboBox>
+
 #include "./base.hpp"
 
 namespace gui
@@ -16,7 +19,6 @@ public:
   const char* name() const override;
   const char* description() const override;
   const char* controllerPackage() const override;
-  const char* actionsPackage() const override;
 
   tobas::rc_command_t stabilizeModeCommand() const override;
   tobas::rc_command_t acrobatModeCommand() const override;
@@ -28,6 +30,12 @@ public:
 
   bool isApplicable() override;
   bool isValid() override;
+
+private:
+  QLineEdit* package_;
+  QLineEdit* plugin_;
+  QComboBox* stabilize_mode_;
+  QComboBox* acrobat_mode_;
 };
 }  // namespace setup_assistant
 }  // namespace gui
