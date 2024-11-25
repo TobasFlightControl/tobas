@@ -1,9 +1,8 @@
 #pragma once
 
-#include <QLineEdit>
-#include <QComboBox>
-
 #include "./base.hpp"
+#include "../../param_getters/line_edit.hpp"
+#include "../../param_getters/combo_box.hpp"
 
 namespace gui
 {
@@ -18,7 +17,8 @@ public:
 
   const char* name() const override;
   const char* description() const override;
-  const char* controllerPackage() const override;
+  QString controllerPackage() const override;
+  QString pluginName() const override;
 
   tobas::rc_command_t stabilizeModeCommand() const override;
   tobas::rc_command_t acrobatModeCommand() const override;
@@ -32,10 +32,12 @@ public:
   bool isValid() override;
 
 private:
-  QLineEdit* package_;
-  QLineEdit* plugin_;
-  QComboBox* stabilize_mode_;
-  QComboBox* acrobat_mode_;
+  const std::map<QString, tobas::rc_command_t> command_map_;
+
+  ParamGetterWidget_LineEdit* package_;
+  ParamGetterWidget_LineEdit* plugin_;
+  ParamGetterWidget_ComboBox* stabilize_mode_;
+  ParamGetterWidget_ComboBox* acrobat_mode_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

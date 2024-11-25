@@ -116,9 +116,14 @@ void ControllerWidget::load(const YAML::Node& node)
   }
 }
 
-const char* ControllerWidget::controllerPackage() const
+QString ControllerWidget::controllerPackage() const
 {
   return selected()->controllerPackage();
+}
+
+QString ControllerWidget::pluginName() const
+{
+  return selected()->pluginName();
 }
 
 tobas::rc_command_t ControllerWidget::stabilizeModeCommand() const

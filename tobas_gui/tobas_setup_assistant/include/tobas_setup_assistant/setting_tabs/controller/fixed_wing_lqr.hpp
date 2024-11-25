@@ -24,7 +24,8 @@ public:
 
   const char* name() const override;
   const char* description() const override;
-  const char* controllerPackage() const override;
+  QString controllerPackage() const override;
+  QString pluginName() const override;
 
   tobas::rc_command_t stabilizeModeCommand() const override;
   tobas::rc_command_t acrobatModeCommand() const override;

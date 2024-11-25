@@ -53,9 +53,14 @@ const char* ErrorStateKalmanFilterWidget::description() const
          "makes it a valuable tool in complex engineering tasks.";
 }
 
-const char* ErrorStateKalmanFilterWidget::observerPackage() const
+QString ErrorStateKalmanFilterWidget::observerPackage() const
 {
   return "state_estimation_eskf";
+}
+
+QString ErrorStateKalmanFilterWidget::pluginName() const
+{
+  return "ObserverNode";
 }
 
 YAML::Node ErrorStateKalmanFilterWidget::staticParams() const

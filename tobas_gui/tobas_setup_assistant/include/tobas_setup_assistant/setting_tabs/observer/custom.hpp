@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./base.hpp"
+#include "../../param_getters/line_edit.hpp"
 
 namespace gui
 {
@@ -15,7 +16,8 @@ public:
 
   const char* name() const override;
   const char* description() const override;
-  const char* observerPackage() const override;
+  QString observerPackage() const override;
+  QString pluginName() const override;
 
   YAML::Node staticParams() const override;
 
@@ -23,6 +25,10 @@ public:
   void load(const YAML::Node& node) override;
 
   bool isValid() override;
+
+private:
+  ParamGetterWidget_LineEdit* package_;
+  ParamGetterWidget_LineEdit* plugin_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

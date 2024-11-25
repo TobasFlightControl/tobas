@@ -12,7 +12,9 @@ from launch_ros.substitutions import FindPackageShare
 DRONE_NAME = "{{ drone_name }}"
 CONFIG_PKG_NAME = "{{ config_pkg_name }}"
 OBSERVER_PKG = "{{ observer_pkg }}"
+OBSERVER_PLUGIN = "{{ observer_plugin }}"
 CONTROLLER_PKG = "{{ controller_pkg }}"
+CONTROLLER_PLUGIN = "{{ controller_plugin }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -77,7 +79,7 @@ def generate_launch_description():
                     composable_node_descriptions=[
                         ComposableNode(
                             package=OBSERVER_PKG,
-                            plugin="ObserverNode",
+                            plugin=OBSERVER_PLUGIN,
                             name="observer",
                             namespace=DRONE_NAME,
                             parameters=[
@@ -88,7 +90,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package=CONTROLLER_PKG,
-                            plugin="ControllerNode",
+                            plugin=CONTROLLER_PLUGIN,
                             name="controller",
                             namespace=DRONE_NAME,
                             parameters=[

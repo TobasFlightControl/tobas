@@ -40,7 +40,8 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
-  const char* controllerPackage() const;
+  QString controllerPackage() const;
+  QString pluginName() const;
   tobas::rc_command_t stabilizeModeCommand() const;
   tobas::rc_command_t acrobatModeCommand() const;
   YAML::Node staticParams() const;

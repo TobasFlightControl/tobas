@@ -42,7 +42,8 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
-  const char* observerPackage() const;
+  QString observerPackage() const;
+  QString pluginName() const;
 
   YAML::Node staticParams() const;
 

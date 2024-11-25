@@ -77,7 +77,7 @@ string PackageGenerator::tbsPath() const
   return settings_->ros_package->tbsPath().toStdString();
 }
 
-const char* PackageGenerator::flightActionsPackage() const
+string PackageGenerator::flightActionsPackage() const
 {
   if (settings_->controller->isCommandCompatible(tobas::POS_VEL_ACC_YAW))
   {
@@ -99,11 +99,13 @@ inja::json PackageGenerator::createTemplateData()
   tpl_data["drone_name"] = robot_.robotName();
 
   // Controller
-  tpl_data["controller_pkg"] = settings_->controller->controllerPackage();
+  tpl_data["controller_pkg"] = settings_->controller->controllerPackage().toStdString();
+  tpl_data["controller_plugin"] = settings_->controller->pluginName().toStdString();
   tpl_data["actions_pkg"] = flightActionsPackage();
 
   // Observer
-  tpl_data["observer_pkg"] = settings_->observer->observerPackage();
+  tpl_data["observer_pkg"] = settings_->observer->observerPackage().toStdString();
+  tpl_data["observer_plugin"] = settings_->observer->pluginName().toStdString();
 
   // Hardware
   tpl_data["hardware_pkg"] = settings_->hardware->hardwarePackage();

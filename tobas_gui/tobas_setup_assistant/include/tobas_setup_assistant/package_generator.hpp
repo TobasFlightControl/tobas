@@ -36,7 +36,7 @@ private:
 
   /* ROS Packageのタブで指定されたTobasパッケージのパスへのエイリアス． */
   std::string tbsPath() const;
-  const char* flightActionsPackage() const;
+  std::string flightActionsPackage() const;
 
   inja::json createTemplateData();
   tobas::Drone createDrone();

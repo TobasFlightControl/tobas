@@ -30,9 +30,14 @@ const char* MultirotorPIDWidget::description() const
   return "This controller for planar multirotors employs PID for both position and attitude control.";
 }
 
-const char* MultirotorPIDWidget::controllerPackage() const
+QString MultirotorPIDWidget::controllerPackage() const
 {
   return "tobas_mr_pid";
+}
+
+QString MultirotorPIDWidget::pluginName() const
+{
+  return "ControllerNode";
 }
 
 tobas::rc_command_t MultirotorPIDWidget::stabilizeModeCommand() const

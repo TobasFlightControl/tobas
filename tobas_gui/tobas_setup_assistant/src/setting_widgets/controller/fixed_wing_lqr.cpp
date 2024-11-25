@@ -30,9 +30,14 @@ const char* FixedWingLQRWidget::description() const
          "which may lead to the issuance of commands outside the permissible range.";
 }
 
-const char* FixedWingLQRWidget::controllerPackage() const
+QString FixedWingLQRWidget::controllerPackage() const
 {
   return "tobas_fixed_wing_lqd";
+}
+
+QString FixedWingLQRWidget::pluginName() const
+{
+  return "ControllerNode";
 }
 
 tobas::rc_command_t FixedWingLQRWidget::stabilizeModeCommand() const
