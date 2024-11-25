@@ -16,7 +16,6 @@ CONTROLLER_PKG = "{{ controller_pkg }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
-
 OUTPUT = "output"
 USE_SIM_TIME = "use_sim_time"
 GROUND_TRUTH = "ground_truth"
