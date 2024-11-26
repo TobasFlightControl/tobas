@@ -61,17 +61,43 @@ MatrixXd dhdx(const VectorXd& x)
   return res;
 }
 
+MatrixXd dFdx(const VectorXd&)
+{
+  MatrixXd res(2, 2);
+  res(0, 0) = 2;
+  res(0, 1) = 1;
+  res(1, 0) = 1;
+  res(1, 1) = 0;
+  return res;
+}
+
+Tensor3Xd dGdx(const VectorXd&)
+{
+  Tensor3Xd res(5, 2, 2);
+  res.setZero();
+  res(0, 0, 0) = -2;
+  return res;
+}
+
+Tensor3Xd dHdx(const VectorXd& x)
+{
+  Tensor3Xd res(1, 2, 2);
+  res(0, 0, 0) = 6 * x(0);
+  res(0, 0, 1) = 1;
+  res(0, 1, 0) = 1;
+  res(0, 1, 1) = 0;
+  return res;
+}
+
 int main()
 {
   nlp::SQP sqp;
 
   VectorXd x0(2);
   x0 << 5, 5;
-  MatrixXd H0 = MatrixXd::Identity(2, 2);
   VectorXd x_scale = VectorXd::Ones(2);
 
-  if (!sqp.initialize(x0, H0, x_scale, f, g, h, dfdx, dgdx, dhdx))
-    return EXIT_FAILURE;
+  sqp.initialize(x0, x_scale, f, g, h, dfdx, dgdx, dhdx, dFdx, dGdx, dHdx);
 
   if (sqp.solve() < 0)
   {

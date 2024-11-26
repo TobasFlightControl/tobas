@@ -55,6 +55,28 @@ inline bool isSymmetricSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
   return isSymmetric(A) && isSemiPositiveDefinite(A);
 }
 
+/* 最近接正定行列を求める． */
+template <typename Derived>
+Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_eigenvalue)
+{
+  assert(epsilon >= 0);
+
+  // 対称化
+  const Derived A_sym = (A + A.transpose()) / 2;
+
+  // 固有値分解
+  Eigen::SelfAdjointEigenSolver<Derived> es(A_sym);
+  auto eigenvalues = es.eigenvalues();
+
+  // 固有値を修正
+  for (Eigen::Index i = 0; i < eigenvalues.size(); ++i)
+    if (eigenvalues(i) < min_eigenvalue)
+      eigenvalues(i) = min_eigenvalue;
+
+  // 修正後の行列を再構築
+  return es.eigenvectors() * eigenvalues.asDiagonal() * es.eigenvectors().transpose();
+}
+
 /**
  * @brief 重み付き二乗ノルム最小化．
  * minimize 0.5 ||Ax - b||^2_W1 + 0.5 ||x||^2_W2
