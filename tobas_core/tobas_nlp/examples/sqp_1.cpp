@@ -1,8 +1,8 @@
 /**
- * min  x1^2 + x1 * x2
- * s.t. x1^3 + x1 * x2 = 100
- *      x1^2 + 4 * x2 >= 50
- *      -100 <= x1, x2 <= 100
+ * min  x0^2 + x0 * x1
+ * s.t. x0^3 + x0 * x1 = 100
+ *      x0^2 + 4 * x1 >= 50
+ *      -100 <= x0, x1 <= 100
  */
 
 #include <iostream>
@@ -111,8 +111,14 @@ int main()
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << sqp.optimal().transpose() << endl;  // 4.04092525, 8.41773078
+  const auto& x_opt = sqp.optimal();
+
+  cout << "Optimal solution: " << x_opt.transpose() << endl;  // 4.04092525, 8.41773078
   cout << "Number of iterations: " << sqp.iterations() << endl;
+  cout << "----------" << endl;
+  cout << "f(x*) = " << f(x_opt) << endl;
+  cout << "g(x*) = " << g(x_opt).transpose() << endl;
+  cout << "h(x*) = " << h(x_opt).transpose() << endl;
 
   return EXIT_SUCCESS;
 }
