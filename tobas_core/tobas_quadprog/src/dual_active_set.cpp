@@ -400,7 +400,7 @@ void DualActiveSetSolver::update_r()
   // Set r = R^-1 d
   for (Index i = iq_ - 1; i >= 0; --i)
   {
-    const auto sum = (R_.block(i, i + 1, 1, iq_ - i - 1) * r_.block(i + 1, 0, iq_ - i - 1, 1))(0, 0);
+    const auto sum = (R_.block(i, i + 1, 1, iq_ - i - 1) * r_.block(i + 1, 0, iq_ - i - 1, 1)).value();
     r_(i) = (d_(i) - sum) / R_(i, i);
   }
 }
