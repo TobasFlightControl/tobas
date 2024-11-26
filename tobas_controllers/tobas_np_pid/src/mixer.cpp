@@ -84,7 +84,6 @@ VectorXd NonPlanarMixer::solve(
   }
 
   // EoM行列等式の右辺
-  // TODO: H-forceを考慮
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
   const auto trans_right = mass * cur_rot.inverse(tar_acc_W - grav_W);
   const auto rot_right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B);
@@ -162,11 +161,13 @@ void NonPlanarMixer::updateWeight()
     throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
-  const auto& I = inertia.getRotationalInertia();  // トレースがほしいだけ
+  const auto& I = inertia.getRotationalInertia();
 
-  const auto linear_scale = mass * tobas_std::kGravity;
-  const auto angular_scale = I.trace() / 3 * M_PI;
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();
+  constexpr auto kAccelScale = tobas_std::kGravity;                           // [m/s^2]
+  constexpr auto kDGyroScale = 100.;                                          // [rad/s^2]
+  const auto linear_scale = mass * kAccelScale;                               // [N]
+  const auto angular_scale = (I.trace() / 3) * kDGyroScale;                   // [Nm]
+  const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();  // [N]
 
   Q_.diagonal().head<3>().fill(linear_weight_ / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(angular_weight_ / math::sqr(angular_scale));

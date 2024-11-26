@@ -2,7 +2,6 @@
 
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
-#include <tobas_kdl/euler.hpp>
 #include <tobas_kdl/treefksolverpos.hpp>
 #include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
@@ -13,7 +12,7 @@
 namespace tobas
 {
 /**
- * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 2-43)
+ * @brief 制約を考慮した非平面配置マルチコプターの推力ミキシング (memo: 2-49)
  */
 class NonPlanarMixer
 {

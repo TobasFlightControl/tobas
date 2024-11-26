@@ -113,10 +113,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
     acc_atti_conv_(drone_, tree_),
     mixer_(drone_, tree_)
 {
-  // TODO: 動的パラメータで調節できるように
-  // TODO: そもそも風の補償方法を見直すべき
-  acc_atti_conv_.setHForceCompRate(0.);
-
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
@@ -362,9 +358,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
-    const auto thrusts = mixer_.solve(
-      battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot.data, Vector3d::Zero(), tar_dgyro.data,
-      tar_rpyt_->thrust);
+    const auto thrusts =
+      mixer_.solve(battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot, tar_dgyro, tar_rpyt_->thrust);
 
     // 目標回転数を発行
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
