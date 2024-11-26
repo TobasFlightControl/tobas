@@ -41,21 +41,22 @@ bool DualActiveSetSolver::solve()
   n_ = scaled.P.cols();
   p_ = scaled.G.rows();
   m_ = scaled.A.rows();
+  const auto num_constraints = p_ + m_;
   R_.conservativeResize(n_, n_);
   J_.conservativeResize(n_, n_);
-  s_.conservativeResize(m_ + p_);
+  s_.conservativeResize(m_);
   z_.conservativeResize(n_);
-  r_.conservativeResize(m_ + p_);
+  r_.conservativeResize(num_constraints);
   d_.conservativeResize(n_);
   np_.conservativeResize(n_);
   x_.conservativeResize(n_);
-  u_.conservativeResize(m_ + p_);
-  A_.conservativeResize(m_ + p_);
+  u_.conservativeResize(num_constraints);
+  A_.conservativeResize(num_constraints);
   x_old_.conservativeResize(n_);
-  u_old_.conservativeResize(m_ + p_);
-  A_old_.conservativeResize(m_ + p_);
-  iai_.conservativeResize(m_ + p_);
-  iaexcl_.resize(m_ + p_);
+  u_old_.conservativeResize(num_constraints);
+  A_old_.conservativeResize(num_constraints);
+  iai_.conservativeResize(num_constraints);
+  iaexcl_.resize(num_constraints);
 
   /* Preprocessing phase */
 
@@ -92,7 +93,7 @@ bool DualActiveSetSolver::solve()
   cout << "Unconstrained solution:\n" << x_.transpose() << endl;
 #endif
 
-  // Add equality constraints to the working set A
+  // Add equality constraints to the active set A
   for (Index i = 0; i < p_; ++i)
   {
     np_ = -scaled.G.row(i);
@@ -109,7 +110,7 @@ bool DualActiveSetSolver::solve()
 
     // Compute full step length t2: i.e., the minimum step in primal space
     // s.t. the contraint becomes feasible
-    const double t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.;
+    const auto t2 = z_.dot(z_) > EPS ? (-np_.dot(x_) - scaled.h(i)) / z_.dot(np_) : 0.;
 
     // Set x = x + t2 * z
     x_ += t2 * z_;
@@ -118,6 +119,8 @@ bool DualActiveSetSolver::solve()
     u_(iq_) = t2;
     u_.head(iq_) -= t2 * r_.head(iq_);
 
+    // To distinguish between equality constraints and inequality constraints,
+    // the indexes of equality constraints are stored as negative values.
     A_(i) = -i - 1;
 
     if (!addConstraint())
@@ -160,7 +163,7 @@ bool DualActiveSetSolver::solve()
         const auto psi = s_.head(m_).cwiseMin(0.).sum();  // Sum of all infeasibilities
         if (fabs(psi) <= m_ * EPS * c_ * TOL_FACTOR)
         {
-          // Numerically there are not infeasibilities anymore
+          // Numerically there are no infeasibilities anymore
           x_opt_ = x_.cwiseProduct(x_scale);
           return true;
         }
@@ -222,7 +225,7 @@ bool DualActiveSetSolver::solve()
 #endif
 
         // Step 2b: Compute step length
-        l_ = 0;
+        Index l = 0;
 
         // Compute t1: partial step length
         // = maximum step in dual space without violating dual feasibility
@@ -235,7 +238,7 @@ bool DualActiveSetSolver::solve()
             if (u_(k) / r_(k) < t1)
             {
               t1 = u_(k) / r_(k);
-              l_ = A_(k);
+              l = A_(k);
             }
           }
         }
@@ -272,8 +275,8 @@ bool DualActiveSetSolver::solve()
           // Set u = u + t * [-r 1] and drop constraint l from the active set A
           u_.head(iq_) -= t * r_.head(iq_);
           u_(iq_) += t;
-          iai_(l_) = l_;
-          deleteConstraint(l_);
+          iai_(l) = l;
+          deleteConstraint(l);
 
 #ifdef TRACE_SOLVER
           cout << " in dual space:" << endl;
@@ -357,8 +360,8 @@ bool DualActiveSetSolver::solve()
 #endif
 
         // Drop constraint l
-        iai_(l_) = l_;
-        deleteConstraint(l_);
+        iai_(l) = l;
+        deleteConstraint(l);
 
 #ifdef TRACE_SOLVER
         cout << "R:\n" << R_ << endl;
@@ -379,10 +382,23 @@ bool DualActiveSetSolver::solve()
   }
 }
 
+VectorXd DualActiveSetSolver::getLagrangeMultipliersEq() const
+{
+  return u_.head(p_);
+}
+
+VectorXd DualActiveSetSolver::getLagrangeMultipliersIneq() const
+{
+  VectorXd lambda = VectorXd::Zero(m_);
+  for (Index i = p_; i < iq_; ++i)
+    lambda(A_(i)) = u_(i);
+  return lambda;
+}
+
 void DualActiveSetSolver::update_r()
 {
   // Set r = R^-1 d
-  for (int i = iq_ - 1; i >= 0; --i)
+  for (Index i = iq_ - 1; i >= 0; --i)
   {
     const auto sum = (R_.block(i, i + 1, 1, iq_ - i - 1) * r_.block(i + 1, 0, iq_ - i - 1, 1))(0, 0);
     r_(i) = (d_(i) - sum) / R_(i, i);
@@ -449,7 +465,7 @@ bool DualActiveSetSolver::addConstraint()
   if (fabs(d_(iq_ - 1)) <= EPS * R_norm_)
     return false;  // Problem degenerate
 
-  R_norm_ = max<double>(R_norm_, fabs(d_(iq_ - 1)));
+  R_norm_ = max(R_norm_, fabs(d_(iq_ - 1)));
   return true;
 }
 
@@ -536,16 +552,16 @@ double DualActiveSetSolver::distance(const double& a, const double& b)
   if (a1 > b1)
   {
     const auto t = b1 / a1;
-    return a1 * sqrt(1 + math::sqr(t));
+    return a1 * sqrt(1. + math::sqr(t));
   }
   else if (b1 > a1)
   {
     const auto t = a1 / b1;
-    return b1 * sqrt(1 + math::sqr(t));
+    return b1 * sqrt(1. + math::sqr(t));
   }
   else
   {
-    return a1 * sqrt(2);
+    return a1 * M_SQRT2;
   }
 }
 }  // namespace quadprog
