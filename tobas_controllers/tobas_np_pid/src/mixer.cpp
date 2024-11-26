@@ -93,7 +93,7 @@ VectorXd NonPlanarMixer::solve(
   // コスト関数
   qp_.problem.P = G_.transpose() * Q_ * G_;
   qp_.problem.P.diagonal() += R_.diagonal();
-  qp_.problem.q = -h_.transpose() * Q_ * G_;
+  qp_.problem.q = -G_.transpose() * Q_ * h_;
 
   // 不等式制約
   rotor_idx = 0;

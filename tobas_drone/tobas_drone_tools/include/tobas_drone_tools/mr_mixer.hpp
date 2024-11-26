@@ -11,7 +11,7 @@
 namespace tobas
 {
 /**
- * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 2-43)
+ * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)
  */
 class Mixer
 {
