@@ -97,7 +97,8 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
 {
   QuadProgProblem scaled;
 
-  // xが[-1, 1]の範囲に収まるように全体をスケーリング (GPT4)
+  // xの各要素が同程度の絶対値になるようにスケーリング (memo: 2-21)
+  // 最適化変数は変化するが随伴変数は変化しない
   const DiagonalMatrix<double, Dynamic> x_scale_diag = x_scale.asDiagonal();
   scaled.P = x_scale_diag * problem.P * x_scale_diag;
   scaled.q = x_scale_diag * problem.q;
@@ -106,12 +107,19 @@ QuadProgProblem QuadProgSolver::scaleProblem() const
   scaled.A = problem.A * x_scale_diag;
   scaled.b = problem.b;
 
-  // 目的関数をPの要素和でスケーリング (GPT4)
-  // 理論上結果には影響しない
-  const double P_norm = scaled.P.sum();
-  assert(P_norm > 0);  // Pは正定行列
-  scaled.P /= P_norm;
-  scaled.q /= P_norm;
+  // Pの対角成分の最大値が1になるようにスケーリング
+  // ラグランジュ関数を定数倍しているだけなので最適化変数及び随伴変数は変化しない
+  const auto P_diag_max = scaled.P.diagonal().maxCoeff();
+  assert(P_diag_max > 0);
+  scaled.P /= P_diag_max;
+  scaled.q /= P_diag_max;
+  scaled.G /= P_diag_max;
+  scaled.h /= P_diag_max;
+  scaled.A /= P_diag_max;
+  scaled.b /= P_diag_max;
+
+  // TODO: 各制約条件について，係数の絶対値の最大値が1になるようにスケーリング
+  // XXX: これを行う場合は随伴変数が変化することに注意
 
   return scaled;
 }
