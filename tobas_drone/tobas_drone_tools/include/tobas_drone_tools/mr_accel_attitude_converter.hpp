@@ -11,18 +11,6 @@ public:
 
   void updateInternalDataStructures();
 
-  /* 空気効力を考慮する場合． */
-  void update(
-    const kdl::Rotation& cur_rot,
-    const kdl::Vector& cur_vel_B,
-    const kdl::Vector& cur_wind_W,
-    const std::vector<double>& cur_rotor_speeds,
-    const kdl::Vector& tar_acc_W,
-    double& thrust_out,
-    double& roll_out,
-    double& pitch_out);
-
-  /* 空気効力を考慮しない場合． */
   void update(
     const kdl::Rotation& cur_rot,
     const kdl::Vector& tar_acc_W,
@@ -31,12 +19,10 @@ public:
     double& pitch_out);
 
   bool setMaxAttitude(double p);
-  bool setHForceCompRate(double p);
 
 private:
   // Config
-  double max_attitude_ = M_PI_4;   // [rad]
-  double h_force_comp_rate_ = 0.;  // [0, 1]
+  double max_attitude_ = M_PI_4;  // [rad]
 
   const Drone& drone_;
   const kdl::Tree& tree_;
