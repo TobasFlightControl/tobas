@@ -98,7 +98,6 @@ VectorXd Mixer::solve(
   const auto m_inertia = I_B.data * tar_dgyro_B;                    // 慣性力によるモーメント
   const auto m_coriolis = cur_gyro_B.cross(I_B.data * cur_gyro_B);  // コリオリ力によるモーメント
   qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - m_coriolis - U_ * tar_thrusts;
-  // qp_.problem.h.head(3) = cur_h_moment_B - m_inertia - U_ * tar_thrusts;  // コリオリ力無視の場合
 
   updateThrustLimits(cur_voltage, tar_thrusts.sum());
   const auto max_dthrusts = max_thrusts_ - tar_thrusts;
