@@ -19,7 +19,6 @@ public:
 
   void initialize(
     const Eigen::VectorXd& x0,
-    const Eigen::VectorXd& x_scale,
     std::function<double(const Eigen::VectorXd&)> f,
     std::function<Eigen::VectorXd(const Eigen::VectorXd&)> g,
     std::function<Eigen::VectorXd(const Eigen::VectorXd&)> h,
@@ -40,6 +39,7 @@ public:
 
   bool setMaximumIterations(size_t max_iter);
   bool setRelativeTolerance(double rel_tol);
+  bool setVariableScales(const Eigen::VectorXd& x_scale);
 
 private:
   error_t error_code_;

@@ -1,3 +1,10 @@
+/**
+ * min  x1^2 + x1 * x2
+ * s.t. x1^3 + x1 * x2 = 100
+ *      x1^2 + 4 * x2 >= 50
+ *      -100 <= x1, x2 <= 100
+ */
+
 #include <iostream>
 
 #include <tobas_math/core.hpp>
@@ -95,9 +102,8 @@ int main()
 
   VectorXd x0(2);
   x0 << 5, 5;
-  VectorXd x_scale = VectorXd::Ones(2);
 
-  sqp.initialize(x0, x_scale, f, g, h, dfdx, dgdx, dhdx, dFdx, dGdx, dHdx);
+  sqp.initialize(x0, f, g, h, dfdx, dgdx, dhdx, dFdx, dGdx, dHdx);
 
   if (sqp.solve() < 0)
   {
@@ -105,7 +111,7 @@ int main()
     return EXIT_FAILURE;
   }
 
-  cout << "Optimal solution: " << sqp.optimal().transpose() << endl;
+  cout << "Optimal solution: " << sqp.optimal().transpose() << endl;  // 4.04092525, 8.41773078
   cout << "Number of iterations: " << sqp.iterations() << endl;
 
   return EXIT_SUCCESS;

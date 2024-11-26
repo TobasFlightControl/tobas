@@ -17,7 +17,6 @@ SQP::SQP()
 
 void SQP::initialize(
   const VectorXd& x0,
-  const VectorXd& x_scale,
   function<double(const VectorXd&)> f,
   function<VectorXd(const VectorXd&)> g,
   function<VectorXd(const VectorXd&)> h,
@@ -46,7 +45,8 @@ void SQP::initialize(
   dGdx_ = dGdx;
   dHdx_ = dHdx;
 
-  qp_.x_scale = x_scale;
+  if (qp_.x_scale.size() != n_)
+    qp_.x_scale = VectorXd::Ones(n_);
 }
 
 SQP::error_t SQP::solve()
@@ -133,6 +133,24 @@ bool SQP::setRelativeTolerance(double rel_tol)
   }
 
   rel_tol_ = rel_tol;
+  return true;
+}
+
+bool SQP::setVariableScales(const Eigen::VectorXd& x_scale)
+{
+  if (x_scale.size() != n_)
+  {
+    cerr << "The size of scale vector does not match that of variables." << endl;
+    return false;
+  }
+
+  if ((x_scale.array() <= 0).any())
+  {
+    cerr << "The scale of variables must be positive." << endl;
+    return false;
+  }
+
+  qp_.x_scale = x_scale;
   return true;
 }
 }  // namespace nlp
