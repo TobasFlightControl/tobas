@@ -68,13 +68,13 @@ bool GNSSDriverNode::configure()
 {
   if (!gnss_.configureDynamicsModel(aso::ZEDF9P::AIRBORNE_2G))
   {
-    TOBAS_FATAL("Failed to configure dynamics model.");
+    TOBAS_ERROR("Failed to configure dynamics model.");
     return false;
   }
 
   if (!gnss_.configureMeasurementRate(kMeasPeriod))
   {
-    TOBAS_FATAL("Failed to configure measurement rate.");
+    TOBAS_ERROR("Failed to configure measurement rate.");
     return false;
   }
 
@@ -82,44 +82,56 @@ bool GNSSDriverNode::configure()
   // データシートを見るに，複数のメインGNSSを組み合わせると精度はあまり変化しない割に出力周波数が落ちる
   if (!gnss_.enableGPS(true))
   {
-    TOBAS_FATAL("Failed to enable GPS.");
+    TOBAS_ERROR("Failed to enable GPS.");
     return false;
   }
   if (!gnss_.enableSBAS(true))
   {
-    TOBAS_FATAL("Failed to enable SBAS.");
+    TOBAS_ERROR("Failed to enable SBAS.");
     return false;
   }
   if (!gnss_.enableGalileo(false))
   {
-    TOBAS_FATAL("Failed to disable Galileo.");
+    TOBAS_ERROR("Failed to disable Galileo.");
     return false;
   }
   if (!gnss_.enableBeiDou(false))
   {
-    TOBAS_FATAL("Failed to disable BeiDou.");
+    TOBAS_ERROR("Failed to disable BeiDou.");
     return false;
   }
   if (!gnss_.enableQZSS(true))
   {
-    TOBAS_FATAL("Failed to enable QZSS.");
+    TOBAS_ERROR("Failed to enable QZSS.");
     return false;
   }
   if (!gnss_.enableGLONASS(false))
   {
-    TOBAS_FATAL("Failed to disable GLONASS.");
+    TOBAS_ERROR("Failed to disable GLONASS.");
     return false;
   }
 
   // Enable messages
   if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_STATUS, true))
-    TOBAS_EXIT("Failed to enable NAV_STATUS message.");
+  {
+    TOBAS_ERROR("Failed to enable NAV_STATUS message.");
+    return false;
+  }
   if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_HPPOSLLH, true))
-    TOBAS_EXIT("Failed to enable NAV_HPPOSLLH message.");
+  {
+    TOBAS_ERROR("Failed to enable NAV_HPPOSLLH message.");
+    return false;
+  }
   if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_VELNED, true))
-    TOBAS_EXIT("Failed to enable NAV_VELNED message.");
+  {
+    TOBAS_ERROR("Failed to enable NAV_VELNED message.");
+    return false;
+  }
   if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_COV, true))
-    TOBAS_EXIT("Failed to enable NAV_COV message.");
+  {
+    TOBAS_ERROR("Failed to enable NAV_COV message.");
+    return false;
+  }
 
   // 同軸ケーブルの長さを設定
   // TODO: GUIから設定できるようにする
