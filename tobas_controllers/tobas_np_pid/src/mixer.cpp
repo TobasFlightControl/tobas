@@ -38,7 +38,7 @@ void NonPlanarMixer::updateInternalDataStructures()
   updateWeight();
 }
 
-VectorXd NonPlanarMixer::solve(
+bool NonPlanarMixer::solve(
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
@@ -52,7 +52,10 @@ VectorXd NonPlanarMixer::solve(
 
   // 質量特性を計算
   if (inertia_solver_.JntToCart(cur_q) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  {
+    cerr << "Inertia solver failed: " + inertia_solver_.errorMessage() << endl;
+    return false;
+  }
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -64,9 +67,15 @@ VectorXd NonPlanarMixer::solve(
   {
     // FKと回転軸を更新
     if (fk_solver_.JntToCart(cur_q, rotor.link_name) < 0)
-      throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
+    {
+      cerr << "Forward kinematics failed: " + fk_solver_.errorMessage() << endl;
+      return false;
+    }
     if (jnt_axis_solver_.JntToCart(cur_q, rotor.link_name) < 0)
-      throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
+    {
+      cerr << "Joint axis solver failed: " + jnt_axis_solver_.errorMessage() << endl;
+      return false;
+    }
 
     const auto& B_Pos_B2P = fk_solver_.getFrame().p;
     const auto& axis_B = jnt_axis_solver_.getAxis();
@@ -108,8 +117,16 @@ VectorXd NonPlanarMixer::solve(
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
   if (!qp_.solve())
-    throw runtime_error("QP failed: " + qp_.errorMessage());
+  {
+    cerr << "QP failed: " + qp_.errorMessage() << endl;
+    return false;
+  }
 
+  return true;
+}
+
+const VectorXd& NonPlanarMixer::getThrusts() const
+{
   return qp_.solution();
 }
 

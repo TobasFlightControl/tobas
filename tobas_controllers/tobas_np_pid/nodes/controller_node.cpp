@@ -329,17 +329,23 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // ミキサーで6軸加速度をプロペラの推力に変換
-  const auto thrusts = mixer_.solve(
-    battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B);
+  if (!mixer_.solve(
+        battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B))
+  {
+    TOBAS_FATAL("Failed to solve mixing equation.");
+    return;
+  }
+  const auto& thrusts = mixer_.getThrusts();
 
   // 目標推力を発行
+  size_t rotor_idx = 0;
   auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
   tar_thrusts->header.stamp = odom->header.stamp;
-  for (int ch = 0; ch < thrusts.rows(); ++ch)
+  for (const auto& [channel, _] : drone_.rotors)
   {
     tar_thrusts->thrusts.emplace_back();
-    tar_thrusts->thrusts.back().channel = ch;
-    tar_thrusts->thrusts.back().thrust = thrusts(ch);
+    tar_thrusts->thrusts.back().channel = channel;
+    tar_thrusts->thrusts.back().thrust = thrusts(rotor_idx++);
   }
   tar_thrusts_pub_->publish(move(tar_thrusts));
 

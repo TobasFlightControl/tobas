@@ -21,13 +21,15 @@ public:
 
   void updateInternalDataStructures();
 
-  Eigen::VectorXd solve(
+  bool solve(
     const double& cur_voltage,
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_acc_W,
     const kdl::Vector& tar_dgyro_B);
+
+  const Eigen::VectorXd& getThrusts() const;
 
   bool setLinearWeight(double p);
   bool setAngularWeight(double p);
