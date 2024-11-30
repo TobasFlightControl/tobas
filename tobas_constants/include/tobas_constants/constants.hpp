@@ -139,6 +139,10 @@ enum rc_command_t
   SPEED_ROLL_DPITCH,
 };
 
+// Scale
+constexpr auto kAccelScale = 10.;   // [m/s^2]
+constexpr auto kDGyroScale = 100.;  // [rad/s^2]
+
 // Console message period
 static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]

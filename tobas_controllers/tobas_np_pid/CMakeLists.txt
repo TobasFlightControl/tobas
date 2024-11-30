@@ -15,6 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_pose_pid REQUIRED)
 find_package(tobas_tools REQUIRED)
+find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_debug_msgs_adapter REQUIRED)
 
@@ -22,23 +23,20 @@ set(AMENT_DEPENDENCIES
 	tobas_node
 	tobas_pose_pid
 	tobas_tools
+	tobas_drone_tools
 	tobas_drone_msgs_adapter
 	tobas_debug_msgs_adapter
 )
 
 include_directories(include)
 
-file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ControllerNode" EXECUTABLE controller)
 
 install(
-	TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+	TARGETS ${PROJECT_NAME}_node
 	EXPORT ${PROJECT_NAME}
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib

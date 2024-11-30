@@ -140,7 +140,7 @@ void ErrorStateKalmanFilter::predictIMU(
 
   // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * et::crossMat(acc_B) * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * et::skew(acc_B) * dt;
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -W_Rot_B * dt;
   F_x_(kDeltaVelIdx + 2, kDeltaGravIdx) = -dt;
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
@@ -230,7 +230,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   H_vel_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
   // ジャイロバイアスによる偏微分
-  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::crossMat(offset);
+  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::skew(offset);
 
   return correct(delta_vel, vel_cov, H_vel_);
 }
@@ -262,7 +262,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   const auto vel_q_deriv = quatRotationDerivative(x, gyro_offset);
   H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // 位置の姿勢による偏微分
   H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // 速度の姿勢による偏微分
-  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::crossMat(offset);
+  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::skew(offset);
 
   // 共分散
   Matrix6d cov;
@@ -409,7 +409,7 @@ double ErrorStateKalmanFilter::measureGravity(
   const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
   const Vector3d delta_acc = acc_meas - acc_ref;
 
-  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::crossMat(grav_B);
+  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::skew(grav_B);
   H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
   return correct(delta_acc, grav_cov, H_acc_);
 }
@@ -436,7 +436,7 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateV
 
   Matrix<double, 3, 4> res;
   res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
-  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::crossMat(a));
+  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::skew(a));
 
   return res;
 }

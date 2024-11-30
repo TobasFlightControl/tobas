@@ -2,7 +2,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_np_pid/mixer.hpp"
+#include "../include/tobas_drone_tools/np_mixer.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -53,7 +53,7 @@ bool NonPlanarMixer::solve(
   // 質量特性を計算
   if (inertia_solver_.JntToCart(cur_q) < 0)
   {
-    cerr << "Inertia solver failed: " + inertia_solver_.errorMessage() << endl;
+    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
@@ -68,12 +68,12 @@ bool NonPlanarMixer::solve(
     // FKと回転軸を更新
     if (fk_solver_.JntToCart(cur_q, rotor.link_name) < 0)
     {
-      cerr << "Forward kinematics failed: " + fk_solver_.errorMessage() << endl;
+      cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
       return false;
     }
     if (jnt_axis_solver_.JntToCart(cur_q, rotor.link_name) < 0)
     {
-      cerr << "Joint axis solver failed: " + jnt_axis_solver_.errorMessage() << endl;
+      cerr << "Joint axis solver failed: " << jnt_axis_solver_.errorMessage() << endl;
       return false;
     }
 
@@ -118,7 +118,7 @@ bool NonPlanarMixer::solve(
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
   if (!qp_.solve())
   {
-    cerr << "QP failed: " + qp_.errorMessage() << endl;
+    cerr << "QP failed: " << qp_.errorMessage() << endl;
     return false;
   }
 
@@ -180,8 +180,6 @@ void NonPlanarMixer::updateWeight()
   const auto& mass = inertia.getMass();
   const auto& I = inertia.getRotationalInertia();
 
-  constexpr auto kAccelScale = tobas_std::kGravity;                           // [m/s^2]
-  constexpr auto kDGyroScale = 100.;                                          // [rad/s^2]
   const auto linear_scale = mass * kAccelScale;                               // [N]
   const auto angular_scale = (I.trace() / 3) * kDGyroScale;                   // [Nm]
   const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();  // [N]

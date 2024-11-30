@@ -13,19 +13,21 @@ namespace tobas
 /**
  * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)
  */
-class Mixer
+class MultiRotorMixer
 {
 public:
-  explicit Mixer(const Drone& drone, const kdl::Tree& tree);
+  explicit MultiRotorMixer(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 
-  Eigen::VectorXd solve(
+  bool solve(
     const double& cur_voltage,
     const kdl::JntArray& cur_q,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_dgyro_B,
     const double& tar_thrusts_sum);
+
+  const Eigen::VectorXd& getThrusts() const;
 
   bool setBaseWeight(double p);
   bool setThrustWeight(double p);

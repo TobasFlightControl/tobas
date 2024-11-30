@@ -50,7 +50,7 @@ private:
   tobas::PositionPid pos_pid_;
   tobas::AccelAttitudeConverter acc_atti_conv_;
   tobas::OrientationPid ori_pid_;
-  tobas::Mixer mixer_;
+  tobas::MultiRotorMixer mixer_;
 
   // Mutable variables
   bool drone_received_ = false;
@@ -358,17 +358,23 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
-    const auto thrusts =
-      mixer_.solve(battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot, tar_dgyro, tar_rpyt_->thrust);
+    if (!mixer_.solve(
+          battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot, tar_dgyro, tar_rpyt_->thrust))
+    {
+      TOBAS_FATAL("Failed to solve mixing equation.");
+      return;
+    }
+    const auto& thrusts = mixer_.getThrusts();
 
     // 目標回転数を発行
+    size_t rotor_idx = 0;
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     thrusts_msg->header.stamp = odom->header.stamp;
-    for (int i = 0; i < thrusts.rows(); ++i)
+    for (const auto& [channel, _] : drone_.rotors)
     {
       thrusts_msg->thrusts.emplace_back();
-      thrusts_msg->thrusts.back().channel = z_rotors_.rotor(i).channel;
-      thrusts_msg->thrusts.back().thrust = thrusts(i);
+      thrusts_msg->thrusts.back().channel = channel;
+      thrusts_msg->thrusts.back().thrust = thrusts(rotor_idx++);
     }
     tar_thrusts_pub_->publish(move(thrusts_msg));
 

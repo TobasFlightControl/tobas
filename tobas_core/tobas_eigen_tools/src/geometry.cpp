@@ -84,17 +84,17 @@ Vector4d quaternionToHamilton(const Quaterniond& q)
   return (Vector4d() << q.coeffs().tail<1>(), q.coeffs().head<3>()).finished();
 }
 
-Matrix3d crossMat(const double& x, const double& y, const double& z)
+Matrix3d skew(const double& x, const double& y, const double& z)
 {
   return (Matrix3d() << 0, -z, y, z, 0, -x, -y, x, 0).finished();
 }
 
-Matrix3d crossMat(const Vector3d& v)
+Matrix3d skew(const Vector3d& v)
 {
-  return crossMat(v(0), v(1), v(2));
+  return skew(v(0), v(1), v(2));
 }
 
-Matrix3d crossMat2(const double& x, const double& y, const double& z)
+Matrix3d skew2(const double& x, const double& y, const double& z)
 {
   const auto xx = x * x;
   const auto yy = y * y;
@@ -106,9 +106,9 @@ Matrix3d crossMat2(const double& x, const double& y, const double& z)
   return (Matrix3d() << -yy - zz, xy, zx, xy, -zz - xx, yz, zx, yz, -xx - yy).finished();
 }
 
-Matrix3d crossMat2(const Vector3d& v)
+Matrix3d skew2(const Vector3d& v)
 {
-  return crossMat2(v(0), v(1), v(2));
+  return skew2(v(0), v(1), v(2));
 }
 
 void imuToQuaternion(const Vector3d& a, const Vector3d& m, const Vector3d& m0, Quaterniond& q)
@@ -228,8 +228,8 @@ Matrix3d matrixFromAngleAxis(const Vector3d& a)
   const double angle = a.norm();
   const Vector3d axis = a.normalized();
 
-  const Matrix3d axis_cross = eigen_tools::crossMat(axis);
-  const Matrix3d axis_cross2 = eigen_tools::crossMat2(axis);
+  const Matrix3d axis_cross = eigen_tools::skew(axis);
+  const Matrix3d axis_cross2 = eigen_tools::skew2(axis);
   const Matrix3d I = Matrix3d::Identity();
   const auto data = I + axis_cross * sin(angle) + axis_cross2 * (1 - cos(angle));
 

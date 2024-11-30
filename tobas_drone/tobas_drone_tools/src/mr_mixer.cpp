@@ -9,7 +9,7 @@ using namespace Eigen;
 
 namespace tobas
 {
-Mixer::Mixer(const Drone& drone, const kdl::Tree& tree)
+MultiRotorMixer::MultiRotorMixer(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone),
     tree_(tree),
     fk_solver_(tree),
@@ -20,7 +20,7 @@ Mixer::Mixer(const Drone& drone, const kdl::Tree& tree)
   updateInternalDataStructures();
 }
 
-void Mixer::updateInternalDataStructures()
+void MultiRotorMixer::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
   jnt_axis_solver_.updateInternalDataStructures();
@@ -45,7 +45,7 @@ void Mixer::updateInternalDataStructures()
   updateWeight();
 }
 
-VectorXd Mixer::solve(
+bool MultiRotorMixer::solve(
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
@@ -57,7 +57,10 @@ VectorXd Mixer::solve(
 
   // 質量特性を計算
   if (inertia_solver_.JntToCart(cur_q) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  {
+    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    return false;
+  }
   const auto& inertia = inertia_solver_.getInertia();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
@@ -69,9 +72,15 @@ VectorXd Mixer::solve(
 
     // FKと回転軸を更新
     if (fk_solver_.JntToCart(cur_q, rotor.link_name) < 0)
-      throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
+    {
+      cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
+      return false;
+    }
     if (jnt_axis_solver_.JntToCart(cur_q, rotor.link_name) < 0)
-      throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
+    {
+      cerr << "Joint axis solver failed: " << jnt_axis_solver_.errorMessage() << endl;
+      return false;
+    }
 
     const auto& B_Pos_B2P = fk_solver_.getFrame().p;
     const auto& axis_B = jnt_axis_solver_.getAxis();
@@ -105,12 +114,20 @@ VectorXd Mixer::solve(
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
   if (!qp_.solve())
-    throw runtime_error("QP failed: " + qp_.errorMessage());
+  {
+    cerr << "QP failed: " << qp_.errorMessage() << endl;
+    return false;
+  }
 
+  return true;
+}
+
+const VectorXd& MultiRotorMixer::getThrusts() const
+{
   return qp_.solution();
 }
 
-bool Mixer::setBaseWeight(double p)
+bool MultiRotorMixer::setBaseWeight(double p)
 {
   if (p <= 0.)
   {
@@ -123,7 +140,7 @@ bool Mixer::setBaseWeight(double p)
   return true;
 }
 
-bool Mixer::setThrustWeight(double p)
+bool MultiRotorMixer::setThrustWeight(double p)
 {
   if (p <= 0.)
   {
@@ -136,7 +153,7 @@ bool Mixer::setThrustWeight(double p)
   return true;
 }
 
-void Mixer::updateWeight()
+void MultiRotorMixer::updateWeight()
 {
   if (z_rotors_.count() == 0)
     return;
@@ -147,7 +164,6 @@ void Mixer::updateWeight()
   const auto& mass = inertia.getMass();
   const auto& I = inertia.getRotationalInertia();
 
-  constexpr auto kDGyroScale = 100.;                                         // [rad/s^2]
   const auto angular_scale = (I.trace() / 3) * kDGyroScale;                  // [Nm]
   const auto thrust_scale = mass * tobas_std::kGravity / z_rotors_.count();  // [N]
 

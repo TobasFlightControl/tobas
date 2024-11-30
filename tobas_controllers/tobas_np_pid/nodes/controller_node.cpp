@@ -6,10 +6,11 @@
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
-#include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_tools/np_mixer.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/orientation_pid.hpp>
 
@@ -20,8 +21,6 @@
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
-
-#include "../include/tobas_np_pid/mixer.hpp"
 
 using namespace std;
 using namespace Eigen;

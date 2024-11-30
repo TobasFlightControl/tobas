@@ -30,13 +30,13 @@ Eigen::Quaterniond hamiltonToQuaternion(const Eigen::Vector4d& ham);
 Eigen::Vector4d quaternionToHamilton(const Eigen::Quaterniond& q);
 
 /* ベクトルの外積に相当する行列を作成する． */
-Eigen::Matrix3d crossMat(const double& x, const double& y, const double& z);
+Eigen::Matrix3d skew(const double& x, const double& y, const double& z);
 /* ベクトルの外積に相当する行列を作成する． */
-Eigen::Matrix3d crossMat(const Eigen::Vector3d& v);
+Eigen::Matrix3d skew(const Eigen::Vector3d& v);
 /* ベクトルの外積に相当する行列の2乗を作成する． */
-Eigen::Matrix3d crossMat2(const double& x, const double& y, const double& z);
+Eigen::Matrix3d skew2(const double& x, const double& y, const double& z);
 /* ベクトルの外積に相当する行列の2乗を作成する． */
-Eigen::Matrix3d crossMat2(const Eigen::Vector3d& v);
+Eigen::Matrix3d skew2(const Eigen::Vector3d& v);
 
 void imuToQuaternion(
   const Eigen::Vector3d& a,

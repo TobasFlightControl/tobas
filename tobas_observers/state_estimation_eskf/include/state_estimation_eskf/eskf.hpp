@@ -395,7 +395,7 @@ double ErrorStateKalmanFilter::correct(
   // (286) Initialize ESKF (Optional)
   if (do_cov_initialization_)
   {
-    G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Matrix3d::Identity() - eigen_tools::crossMat(0.5 * dtheta);
+    G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Matrix3d::Identity() - eigen_tools::skew(0.5 * dtheta);
     P_ = G_ * P_ * G_.transpose();  // TODO: 必要な部分のみ計算
     eigen_tools::symmetrise(P_);
   }

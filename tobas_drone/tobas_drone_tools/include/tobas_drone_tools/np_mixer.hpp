@@ -7,7 +7,6 @@
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_drone_tools/rotor_axis_extractor.hpp>
 
 namespace tobas
 {
