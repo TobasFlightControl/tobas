@@ -33,6 +33,7 @@ class RotorConfig
   static constexpr char kMomentConstKey[] = "moment_constant";
   static constexpr char kDragConstKey[] = "drag_constant";
   static constexpr char kRotSpeedCoefKey[] = "rot_speed_coef";
+  static constexpr char kIsActiveTiltKey[] = "is_active_tilt";
 
 public:
   uint32_t channel = 0;                                      // モータが接続されているチャンネル
@@ -47,6 +48,7 @@ public:
   double motor_constant = 0;                                 // 推力係数 [kg*m/rad^2]
   double moment_constant = 0;                                // 反トルク係数 [m]
   double drag_constant = 0;                                  // 空気効力定数 [kg/rad]
+  bool is_active_tilt = false;                               // アクティブティルトロータかどうか
 
   bool isValid() const;
   bool load(const YAML::Node& node);
