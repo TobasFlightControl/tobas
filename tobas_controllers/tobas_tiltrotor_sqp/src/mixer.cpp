@@ -68,7 +68,7 @@ bool TiltRotorMixer::solve(
     const auto& cm = rotor.moment_constant;
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
-    B_.block<3, 1>(3, 3 * rotor_idx) = et::skew(r.data) - (d * cm) * E3;
+    B_.block<3, 3>(3, 3 * rotor_idx) = et::skew(r.data) - (d * cm) * E3;
 
     // Update ci0
     const auto nr = drone_.numRotors();
@@ -384,7 +384,7 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
       const auto& q = par_seg.joint().axis().data;
       const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
       const Vector3d dn_dtheta = R * (et::skew2(p) * sin(theta(i)) + et::skew(p) * cos(theta(i))) * q;
-      et::setBlock(dN_dtheta_, dn_dtheta, { 3 * i, i, i }, { 3, 1, 1 });
+      et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * i, i, i });
     }
   }
 
@@ -406,7 +406,7 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
       const auto& q = par_seg.joint().axis().data;
       const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
       const Vector3d dn_dtheta_2 = R * (et::skew2(p) * cos(theta(i)) - et::skew(p) * sin(theta(i))) * q;
-      et::setBlock(dN_dtheta_2_, dn_dtheta_2, { 3 * i, i, i, i }, { 3, 1, 1, 1 });
+      et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * i, i, i, i });
     }
   }
 
