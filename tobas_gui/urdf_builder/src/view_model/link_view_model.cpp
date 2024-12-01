@@ -69,6 +69,11 @@ QString LinkViewModel::name() const
 void LinkViewModel::name(const QString& name)
 {
   model_->name = name.toStdString();
+
+  // 整合性をとるために上下の関節に含まれるリンク名も変更する
+  joint_->childLinkName(name);
+  for (const auto& child_link : model_->child_links)
+    child_link->parent_joint->parent_link_name = name.toStdString();
 }
 
 const InertialViewModelPtr& LinkViewModel::inertial()

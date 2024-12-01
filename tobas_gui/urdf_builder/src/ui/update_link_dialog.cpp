@@ -136,7 +136,6 @@ void UpdateLinkDialog::LinkNameLineEditTextChanged(const QString& text)
   PRINT_DEBUG("UpdateLinkDialog::LinkNameLineEditTextChanged(" << text.toStdString() << ")");
 
   link_vm_->name(text);
-  link_vm_->joint()->childLinkName(text);
   link_vm_->sync();
 
   emitChanged();

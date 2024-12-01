@@ -44,7 +44,6 @@ public:
 
   bool limitsEnabled() const;
   bool isFixed() const;
-  void generateName();
 
 private:
   JointLimitsViewModelPtr limits_;
