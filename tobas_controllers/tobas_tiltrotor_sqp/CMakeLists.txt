@@ -19,6 +19,7 @@ find_package(tobas_nlp REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_pose_pid REQUIRED)
 find_package(tobas_tools REQUIRED)
+find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_debug_msgs_adapter REQUIRED)
 
@@ -27,6 +28,7 @@ set(AMENT_DEPENDENCIES
 	tobas_node
 	tobas_pose_pid
 	tobas_tools
+	tobas_drone_tools
 	tobas_drone_msgs_adapter
 	tobas_debug_msgs_adapter
 )

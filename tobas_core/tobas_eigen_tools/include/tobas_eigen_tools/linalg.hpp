@@ -59,7 +59,7 @@ inline bool isSymmetricSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 template <typename Derived>
 Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_eigenvalue)
 {
-  assert(epsilon >= 0);
+  assert(min_eigenvalue >= 0);
 
   // 対称化
   const Derived A_sym = (A + A.transpose()) / 2;

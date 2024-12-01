@@ -317,7 +317,7 @@ size_t TiltRotorMixer::stateSize() const
 
 pair<VectorXd, VectorXd> TiltRotorMixer::splitState(const VectorXd& x) const
 {
-  assert(x.size() == stateSize());
+  assert(static_cast<size_t>(x.size()) == stateSize());
 
   const VectorXd angles = x.head(drone_.numRotors());
   const VectorXd thrusts = x.tail(drone_.numRotors());
