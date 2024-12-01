@@ -28,11 +28,11 @@ void AvailableLinksWidget::updateInternalDataStructures()
       continue;
 
     // リミットが正しく設定されていることを確認
-    if (joint.upper_limit <= joint.lower_limit)
+    if (joint.upper_limit < joint.lower_limit)
       continue;
-    if (joint.max_velocity <= 0.)
+    if (joint.max_velocity < 0.)
       continue;
-    if (joint.max_effort <= 0.)
+    if (joint.max_effort < 0.)
       continue;
 
     // リンク名をリストに追加
