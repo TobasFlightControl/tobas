@@ -50,12 +50,15 @@ public:
   void removeLink(const LinkViewModelPtr& link_vm);
   void updateLink(const LinkViewModelPtr& old_link_vm, const LinkViewModelPtr& new_link_vm);
 
-  static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element);
-
 private:
   urdf::ModelSharedPtr urdf_;
   LinkViewModelPtr root_link_;
   size_t clone_count_ = 0;
+
+  /* 自身以下の全てのリンクとジョイントに接尾語を与える． */
+  void addNameSuffixRec(const LinkViewModelPtr& link_vm, const QString& suffix);
+
+  static void removeTextureTagsWithoutFilename(tinyxml2::XMLElement* element);
 };
 }  // namespace view_model
 }  // namespace urdf_builder

@@ -58,7 +58,7 @@ void LinkViewModel::sync()
   // parent_joint
   model_->parent_joint = joint_->model();
 
-  // child_joints, child_linksは可視化に影響しないため省略？
+  // child_joints, child_linksは変化が起きたらその都度更新
 }
 
 QString LinkViewModel::name() const
