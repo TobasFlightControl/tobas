@@ -12,6 +12,7 @@ tinyxml2::XMLElement* addNode(
   const std::string& pkg,
   const std::string& exec,
   const std::string& name = "",
+  const std::string& ns = "",
   const std::string& output = "screen",
   const std::string& args = "");
 

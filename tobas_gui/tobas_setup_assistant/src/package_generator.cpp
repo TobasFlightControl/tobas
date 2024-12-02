@@ -320,7 +320,9 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateGazeboJointCommandHandlerConfig(config_dir))
     return false;
-  if (!generateJointControlConfig(config_dir))
+  if (!generateJointControllerManagerConfig(config_dir))
+    return false;
+  if (!generateJointControllerConfigs(config_dir))
     return false;
   if (!generateDroneConfig(config_dir))
     return false;
@@ -400,6 +402,7 @@ bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
 
 bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_dir)
 {
+  const auto& ns = robot_.robotName();
   const auto servos = settings_->servo_joints->selected();
 
   // XMLを作成
@@ -411,24 +414,24 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   if (servos->count() > 0)
   {
     const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-    const auto param_file = "$(find-pkg-share " + config_pkg_name + ")/config/joint_control.yaml";
 
     // Joint state broadcaster
-    const auto jsb_node = addNode(launch, "controller_manager", "spawner", "", "", "joint_state_broadcaster");
+    const auto jsb_node = addNode(launch, "controller_manager", "spawner", "", ns, "", "joint_state_broadcaster");
     addNodeParam(jsb_node, "use_sim_time", "true");
 
     // コントローラごとにノードを立ち上げる
     for (int i = 0; i < servos->count(); ++i)
     {
       const auto controller_name = servos->jointName(i).toStdString() + "_controller";
+      const auto param_file = "$(find-pkg-share " + config_pkg_name + ")/config/" + controller_name + ".yaml";
       const auto args = controller_name + " --param-file " + param_file;
-      const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", "", args);
+      const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", ns, "", args);
       addNodeParam(ctrl_node, "use_sim_time", "true");
     }
   }
 
   // XMLを保存
-  if (doc->SaveFile((launch_dir / "controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS)
+  if (doc->SaveFile((launch_dir / "joint_controller_manager.launch.xml").c_str()) != tinyxml2::XML_SUCCESS)
   {
     qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
     return false;
@@ -458,13 +461,8 @@ bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesy
   return true;
 }
 
-bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
+bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& config_dir)
 {
-  // cf. https://github.com/ros-controls/gz_ros2_control/tree/rolling/gz_ros2_control_demos/config
-
-  // Create data
-  YAML::Node root_node(YAML::NodeType::Map);
-
   // Controller manager
   YAML::Node manager_params_node(YAML::NodeType::Map);
   manager_params_node["update_rate"] = 100;  // TODO: GUIで設定できるように
@@ -474,22 +472,43 @@ bool PackageGenerator::generateJointControlConfig(const fs::path& config_dir)
   const auto servos = settings_->servo_joints->selected();
   for (int i = 0; i < servos->count(); ++i)
   {
-    const auto jnt_name = servos->jointName(i);
+    const auto jnt_name = servos->jointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
-
     manager_params_node[ctrl_name]["type"] = tobas::controller_manager::type::kForwardCommandController;
-
-    YAML::Node controller_node(YAML::NodeType::Map);
-    controller_node["joints"].push_back(jnt_name);
-    controller_node["interface_name"] = tobas::jointIFEnumToText(servos->interface(i));
-    root_node[robot_.robotName()][ctrl_name][kROSParamsKey] = controller_node;
   }
 
+  // Create data
+  YAML::Node root_node(YAML::NodeType::Map);
   root_node[robot_.robotName()]["controller_manager"][kROSParamsKey] = manager_params_node;
 
   // Save data
-  if (!saveYamlNode(config_dir / "joint_control.yaml", root_node))
+  if (!saveYamlNode(config_dir / "joint_controller_manager.yaml", root_node))
     return false;
+
+  return true;
+}
+
+bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir)
+{
+  const auto servos = settings_->servo_joints->selected();
+
+  for (int i = 0; i < servos->count(); ++i)
+  {
+    const auto jnt_name = servos->jointName(i).toStdString();
+    const auto ctrl_name = jnt_name + "_controller";
+
+    YAML::Node ctrl_params_node(YAML::NodeType::Map);
+    ctrl_params_node["joints"].push_back(jnt_name);
+    ctrl_params_node["interface_name"] = tobas::jointIFEnumToText(servos->interface(i));
+
+    // Create data
+    YAML::Node root_node(YAML::NodeType::Map);
+    root_node["/**"][ctrl_name][kROSParamsKey] = ctrl_params_node;  // XXX: 名前空間を指定すると読み込みに失敗する
+
+    // Save data
+    if (!saveYamlNode(config_dir / (ctrl_name + ".yaml"), root_node))
+      return false;
+  }
 
   return true;
 }
@@ -782,7 +801,10 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Gazebo ROS2 control plugin
   // XXX: This must be defined after GazeboSimSystem
   if (joints->count() > 0)
-    addGazeboSimROS2ControlPlugin(robot, ns, common::getTBSConfigName(tbsPath()), "config/joint_control.yaml");
+  {
+    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+    addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
+  }
 
   // Base static joint for debug
   addBaseStaticJoint(robot, robot_.tree().getRootName());

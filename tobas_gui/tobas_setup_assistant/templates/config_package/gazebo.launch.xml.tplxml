@@ -38,9 +38,6 @@
     <!-- Spawn robot in Gazebo -->
     <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
 
-    <!-- Launch joint controllers -->
-    <include file="$(find-pkg-share {{ config_pkg_name }})/launch/controller_manager.launch.xml"/>
-
     <!-- Launch Gazebo nodes -->
     <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="rotor_states_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
@@ -49,6 +46,9 @@
       <param from="$(find-pkg-share {{ config_pkg_name }})/config/gazebo_joint_command_handler.yaml"/>
     </node>
   </group>
+
+  <!-- Launch joint controllers -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/joint_controller_manager.launch.xml"/>
 
   <!-- Launch Tobas core software -->
   <group if="$(var launch_core)">
