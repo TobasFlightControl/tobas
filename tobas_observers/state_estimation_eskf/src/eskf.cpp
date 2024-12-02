@@ -108,11 +108,11 @@ void ErrorStateKalmanFilter::predictIMU(
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
 
-  assert(et::isSymmetricSemiPositiveDefinite(acc_cov));
-  assert(et::isSymmetricSemiPositiveDefinite(gyro_cov));
-  assert(acc_bias_var >= 0);
-  assert(gyro_bias_var >= 0);
-  assert(grav_var >= 0);
+  assertWithMsg(et::isSymmetricSemiPositiveDefinite(acc_cov), "Invalid accel covariance:\n" << acc_cov);
+  assertWithMsg(et::isSymmetricSemiPositiveDefinite(gyro_cov), "Invalid gyro covariance:\n" << gyro_cov);
+  assertWithMsg(acc_bias_var >= 0, "Invalid accel bias variance: " << acc_bias_var);
+  assertWithMsg(gyro_bias_var >= 0, "Invalid gyro bias variance: " << gyro_bias_var);
+  assertWithMsg(grav_var >= 0, "Invalid gravity variance: " << grav_var);
 
   // サンプリングタイムを計算して時刻を更新
   const auto dt = duration<double>(time - t_last_imu_).count();
