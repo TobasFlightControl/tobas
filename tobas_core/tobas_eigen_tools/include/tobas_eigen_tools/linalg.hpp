@@ -34,11 +34,8 @@ inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 template <typename Derived>
 bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
-  assert(isSymmetric(A));  // 対称行列でないと判定できない
-
-  const Eigen::SelfAdjointEigenSolver<Derived> es(A);
-  const auto min_eigenvalue = es.eigenvalues()(0);
-  return min_eigenvalue >= 0;
+  assert(isSquare(A));
+  return A.ldlt().isPositive();  // これで固有値に0が含まれていてもtrueを返す
 }
 
 /* 行列が正定値対象行列かどうかを判定する． */
