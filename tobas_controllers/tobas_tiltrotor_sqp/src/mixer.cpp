@@ -17,7 +17,8 @@ namespace tobas
 TiltRotorMixer::TiltRotorMixer(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), jnt_axis_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
 {
-  updateInternalDataStructures();
+  if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
+    updateInternalDataStructures();
 }
 
 void TiltRotorMixer::updateInternalDataStructures()
