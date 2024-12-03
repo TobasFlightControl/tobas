@@ -392,10 +392,11 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
 
 const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
 {
-  int i = 0;
-
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [i, rotor_it] : views::enumerate(drone_.rotors))
   {
+    const auto& rotor = rotor_it.second;
+    const auto& elem = tree_.getSegment(rotor.link_name)->second;
+
     if (rotor.is_active_tilt)
     {
       const auto& elem = tree_.getSegment(rotor.link_name)->second;
@@ -405,10 +406,8 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
       const auto& q = par_seg.joint().axis().data;
       const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
       const Vector3d dn_dtheta_2 = R * (et::skew2(p) * cos(theta(i)) - et::skew(p) * sin(theta(i))) * q;
-      et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * i, i, i, i });
+      et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
     }
-
-    ++i;
   }
 
   return dN_dtheta_2_;
