@@ -237,7 +237,7 @@ double TiltRotorMixer::f(const VectorXd& x)
 {
   const auto [theta, tau] = splitState(x);
   const auto e = calc_e(theta, tau);
-  return 0.5 * (e.transpose() * Q_ * e).value() + 0.5 * (tau * R_ * tau).value();
+  return 0.5 * (e.transpose() * Q_ * e).value() + 0.5 * (tau.transpose() * R_ * tau).value();
 }
 
 VectorXd TiltRotorMixer::g(const VectorXd& x)
@@ -387,6 +387,8 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
       const Vector3d dn_dtheta = R * (et::skew2(p) * sin(theta(i)) + et::skew(p) * cos(theta(i))) * q;
       et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * i, i, i });
     }
+
+    ++i;
   }
 
   return dN_dtheta_;
@@ -409,6 +411,8 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
       const Vector3d dn_dtheta_2 = R * (et::skew2(p) * cos(theta(i)) - et::skew(p) * sin(theta(i))) * q;
       et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * i, i, i, i });
     }
+
+    ++i;
   }
 
   return dN_dtheta_2_;

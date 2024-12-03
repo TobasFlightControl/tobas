@@ -52,7 +52,8 @@ operator*(const Eigen::Tensor<Scalar, 3>& lhs, const Eigen::Vector<Scalar, N>& r
   assert(nz == rhs.size());
 
   const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(2, 0) };
-  const Eigen::Tensor2Xd prod = lhs.contract(Eigen::TensorMap<const Eigen::Tensor1Xd>(rhs.data(), rhs.size()), dims);
+  const Eigen::TensorMap<const Eigen::Tensor1Xd> rhs_tensor(rhs.data(), rhs.size());
+  const Eigen::Tensor2Xd prod = lhs.contract(rhs_tensor, dims);
   return Eigen::Map<const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>>(prod.data(), nx, ny);
 }
 
@@ -67,14 +68,41 @@ operator*(const Eigen::RowVector<Scalar, N>& lhs, const Eigen::Tensor<Scalar, 3>
   assert(lhs.size() == nx);
 
   const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(0, 0) };
-  const Eigen::Tensor2Xd prod = Eigen::TensorMap<const Eigen::Tensor1Xd>(lhs.data(), lhs.size()).contract(rhs, dims);
+  const Eigen::TensorMap<const Eigen::Tensor1Xd> lhs_tensor(lhs.data(), lhs.size());
+  const Eigen::Tensor2Xd prod = lhs_tensor.contract(rhs, dims);
   return Eigen::Map<const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>>(prod.data(), ny, nz);
+}
+
+template <typename Scalar, int Dims, int N>
+inline Eigen::Tensor<Scalar, Dims - 1>
+operator*(const Eigen::Tensor<Scalar, Dims>& lhs, const Eigen::Vector<Scalar, N>& rhs)
+{
+  static_assert(Dims >= 4);
+  assert(lhs.dimension(Dims - 1) == rhs.size());
+
+  const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(Dims - 1, 0) };
+  const Eigen::TensorMap<const Eigen::Tensor1Xd> rhs_tensor(rhs.data(), rhs.size());
+  return lhs.contract(rhs_tensor, dims);
+}
+
+template <typename Scalar, int Dims, int N>
+inline Eigen::Tensor<Scalar, Dims - 1>
+operator*(const Eigen::RowVector<Scalar, N>& lhs, const Eigen::Tensor<Scalar, Dims>& rhs)
+{
+  static_assert(Dims >= 4);
+  assert(lhs.size() == rhs.dimension(Dims - 1));
+
+  const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(0, 0) };
+  const Eigen::TensorMap<const Eigen::Tensor1Xd> lhs_tensor(lhs.data(), lhs.size());
+  return lhs_tensor.contract(rhs, dims);
 }
 
 template <typename Scalar, int Dims, int N, int M>
 inline Eigen::Tensor<Scalar, Dims>
 operator*(const Eigen::Tensor<Scalar, Dims>& lhs, const Eigen::Matrix<Scalar, N, M>& rhs)
 {
+  static_assert(Dims >= 3);
+  static_assert(M != 1);
   assert(lhs.dimension(Dims - 1) == rhs.rows());
 
   const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(Dims - 1, 0) };
@@ -86,6 +114,8 @@ template <typename Scalar, int Dims, int N, int M>
 inline Eigen::Tensor<Scalar, Dims>
 operator*(const Eigen::Matrix<Scalar, N, M>& lhs, const Eigen::Tensor<Scalar, Dims>& rhs)
 {
+  static_assert(Dims >= 3);
+  static_assert(N != 1);
   assert(lhs.cols() == rhs.dimension(0));
 
   const Eigen::array<Eigen::IndexPair<int>, 1> dims = { Eigen::IndexPair<int>(1, 0) };

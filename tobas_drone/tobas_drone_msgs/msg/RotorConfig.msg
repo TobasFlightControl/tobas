@@ -10,3 +10,4 @@ float64 max_rot_speed
 float64 motor_constant
 float64 moment_constant
 float64 drag_constant
+bool is_active_tilt
