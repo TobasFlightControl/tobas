@@ -28,8 +28,8 @@ void SQP::initialize(
   function<Tensor3Xd(const VectorXd&)> dHdx)
 {
   n_ = x0.size();
-  m_ = dgdx(x0).size();
-  p_ = dhdx(x0).size();
+  m_ = g(x0).size();
+  p_ = h(x0).size();
 
   x_ = x0;
   lam_ = VectorXd::Zero(m_);
@@ -61,8 +61,11 @@ SQP::error_t SQP::solve()
       return error_code_ = E_MAX_ITERATION_EXCEEDED;
 
     // ラグランジュ関数のヘッセ行列を計算
-    const auto dFdx = dFdx_(x_);
-    const MatrixXd H = dFdx_(x_) + lam_.transpose().eval() * dGdx_(x_) + mu_.transpose().eval() * dHdx_(x_);
+    auto H = dFdx_(x_);
+    if (m_ > 0)
+      H += lam_.transpose().eval() * dGdx_(x_);
+    if (p_ > 0)
+      H += mu_.transpose().eval() * dHdx_(x_);
 
     // 局所的なQPを解く
     qp_.problem.P = eigen_tools::nearestPositiveDefinite(H, EPS);
