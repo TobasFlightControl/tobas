@@ -343,13 +343,13 @@ Matrix6Xd TiltRotorMixer::calc_C(const VectorXd& theta)
 
 const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
 {
-  int i = 0;
-
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [i, rotor_it] : views::enumerate(drone_.rotors))
   {
+    const auto& rotor = rotor_it.second;
+    const auto& elem = tree_.getSegment(rotor.link_name)->second;
+
     if (rotor.is_active_tilt)
     {
-      const auto& elem = tree_.getSegment(rotor.link_name)->second;
       const auto& cur_seg = elem.segment;
       const auto& par_seg = elem.parent->second.segment;
       const auto& p = cur_seg.joint().axis().data;
@@ -359,13 +359,10 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
     }
     else
     {
-      const auto elem = tree_.getSegment(rotor.link_name)->second;
       const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
       const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
       N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
-
-    ++i;
   }
 
   return N_;
@@ -373,23 +370,21 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
 
 const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
 {
-  int i = 0;
-
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [i, rotor_it] : views::enumerate(drone_.rotors))
   {
+    const auto& rotor = rotor_it.second;
+    const auto& elem = tree_.getSegment(rotor.link_name)->second;
+
     if (rotor.is_active_tilt)
     {
-      const auto& elem = tree_.getSegment(rotor.link_name)->second;
       const auto& cur_seg = elem.segment;
       const auto& par_seg = elem.parent->second.segment;
       const auto& p = cur_seg.joint().axis().data;
       const auto& q = par_seg.joint().axis().data;
       const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
       const Vector3d dn_dtheta = R * (et::skew2(p) * sin(theta(i)) + et::skew(p) * cos(theta(i))) * q;
-      et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * i, i, i });
+      et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
     }
-
-    ++i;
   }
 
   return dN_dtheta_;
