@@ -399,7 +399,6 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
 
     if (rotor.is_active_tilt)
     {
-      const auto& elem = tree_.getSegment(rotor.link_name)->second;
       const auto& cur_seg = elem.segment;
       const auto& par_seg = elem.parent->second.segment;
       const auto& p = cur_seg.joint().axis().data;
