@@ -35,7 +35,10 @@ template <typename Derived>
 bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
   assert(isSquare(A));
-  return A.ldlt().isPositive();  // これで固有値に0が含まれていてもtrueを返す
+  const auto ldlt = A.ldlt();
+  const auto D = ldlt.vectorD();
+  const auto tol = std::numeric_limits<typename Derived::Scalar>::epsilon() * A.cwiseAbs().maxCoeff() * 100;
+  return D.minCoeff() >= -tol;  // XXX: ldlt.isPositive()は数値誤差で極小の負の固有値が含まれる際にfalseを返してしまう
 }
 
 /* 行列が正定値対象行列かどうかを判定する． */
