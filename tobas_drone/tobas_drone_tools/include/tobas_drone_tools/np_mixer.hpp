@@ -2,8 +2,7 @@
 
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
-#include <tobas_kdl/treefksolverpos.hpp>
-#include <tobas_kdl/treejntaxissolver.hpp>
+#include <tobas_kdl/treefksolverpos_all.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_drone_core/drone.hpp>
@@ -43,8 +42,7 @@ private:
   const Drone& drone_;
   const kdl::Tree& tree_;
 
-  kdl::TreeFkSolverPos fk_solver_;
-  kdl::TreeJntAxisSolver jnt_axis_solver_;
+  kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeJntToInertiaSolver inertia_solver_;
 
   quadprog::DualActiveSetSolver qp_;  // QPソルバー

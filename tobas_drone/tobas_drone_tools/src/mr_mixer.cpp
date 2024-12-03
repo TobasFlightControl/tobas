@@ -10,12 +10,7 @@ using namespace Eigen;
 namespace tobas
 {
 MultiRotorMixer::MultiRotorMixer(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone),
-    tree_(tree),
-    fk_solver_(tree),
-    jnt_axis_solver_(tree),
-    inertia_solver_(tree),
-    z_rotors_(drone, Z_POSITIVE)
+  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
   updateInternalDataStructures();
 }
@@ -23,7 +18,6 @@ MultiRotorMixer::MultiRotorMixer(const Drone& drone, const kdl::Tree& tree)
 void MultiRotorMixer::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
-  jnt_axis_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
   z_rotors_.updateInternalDataStructures();
 
@@ -55,6 +49,13 @@ bool MultiRotorMixer::solve(
   assert(cur_voltage > 0);
   assert(tar_thrusts_sum > 0);
 
+  // 順運動学を計算
+  if (fk_solver_.JntToCart(cur_q) < 0)
+  {
+    cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
+    return false;
+  }
+
   // 質量特性を計算
   if (inertia_solver_.JntToCart(cur_q) < 0)
   {
@@ -70,20 +71,11 @@ bool MultiRotorMixer::solve(
   {
     const auto& rotor = z_rotors_.rotor(i);
 
-    // FKと回転軸を更新
-    if (fk_solver_.JntToCart(cur_q, rotor.link_name) < 0)
-    {
-      cerr << "Forward kinematics failed: " << fk_solver_.errorMessage() << endl;
-      return false;
-    }
-    if (jnt_axis_solver_.JntToCart(cur_q, rotor.link_name) < 0)
-    {
-      cerr << "Joint axis solver failed: " << jnt_axis_solver_.errorMessage() << endl;
-      return false;
-    }
+    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
 
-    const auto& B_Pos_B2P = fk_solver_.getFrame().p;
-    const auto& axis_B = jnt_axis_solver_.getAxis();
+    const auto elem = tree_.getSegment(rotor.link_name)->second;
+    const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
+    const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     const auto d = rotor.sign();
     const auto& cm = rotor.moment_constant;
