@@ -15,7 +15,7 @@ namespace et = eigen_tools;
 namespace tobas
 {
 TiltRotorMixer::TiltRotorMixer(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), fk_solver_(tree), jnt_axis_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
+  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
 {
   if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
     updateInternalDataStructures();
@@ -24,7 +24,6 @@ TiltRotorMixer::TiltRotorMixer(const Drone& drone, const kdl::Tree& tree)
 void TiltRotorMixer::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
-  jnt_axis_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
   np_mixer_.updateInternalDataStructures();
 
@@ -359,9 +358,10 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
     }
     else
     {
-      if (jnt_axis_solver_.JntToCart(cur_q_, rotor.link_name) < 0)
-        throw runtime_error("Joint axis solver failed: " + jnt_axis_solver_.errorMessage());
-      N_.block<3, 1>(3 * i, i) = jnt_axis_solver_.getAxis().data;
+      const auto elem = tree_.getSegment(rotor.link_name)->second;
+      const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
+      const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
+      N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
 
     ++i;

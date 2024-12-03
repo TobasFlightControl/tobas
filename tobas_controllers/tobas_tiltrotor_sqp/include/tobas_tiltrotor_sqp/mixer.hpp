@@ -4,7 +4,6 @@
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_nlp/sqp.hpp>
 #include <tobas_kdl/treefksolverpos_all.hpp>
-#include <tobas_kdl/treejntaxissolver.hpp>
 #include <tobas_kdl/treejnttoinertiasolver.hpp>
 
 #include <tobas_drone_core/drone.hpp>
@@ -49,7 +48,6 @@ private:
   const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
-  kdl::TreeJntAxisSolver jnt_axis_solver_;
   kdl::TreeJntToInertiaSolver inertia_solver_;
   NonPlanarMixer np_mixer_;
 
@@ -67,8 +65,6 @@ private:
   Eigen::Tensor3Xd dCi_dx_;
   Eigen::RowVectorXd df_dx_;
   Eigen::MatrixXd df_dx_2_;
-
-  kdl::JntArray cur_q_;
 
   void resetTensors();
   void initializeSQP();
