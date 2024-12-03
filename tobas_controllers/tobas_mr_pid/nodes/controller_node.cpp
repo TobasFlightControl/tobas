@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 
@@ -367,14 +369,13 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto& thrusts = mixer_.getThrusts();
 
     // 目標回転数を発行
-    size_t rotor_idx = 0;
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     thrusts_msg->header.stamp = odom->header.stamp;
-    for (const auto& [channel, _] : drone_.rotors)
+    for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
     {
       thrusts_msg->thrusts.emplace_back();
-      thrusts_msg->thrusts.back().channel = channel;
-      thrusts_msg->thrusts.back().thrust = thrusts(rotor_idx++);
+      thrusts_msg->thrusts.back().channel = rotor_it.first;
+      thrusts_msg->thrusts.back().thrust = thrusts(idx);
     }
     tar_thrusts_pub_->publish(move(thrusts_msg));
 

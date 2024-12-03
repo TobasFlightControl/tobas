@@ -1,4 +1,5 @@
-#include <tobas_std_tools/zip.hpp>
+#include <ranges>
+
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_kdl/treeactivejointsextractor.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
@@ -66,7 +67,7 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
 {
   // 位置コマンドをそのまま流すだけ
-  for (const auto& [name, pos] : tobas_std::zip(tar_js_->name, tar_js_->position))
+  for (const auto& [name, pos] : views::zip(tar_js_->name, tar_js_->position))
   {
     positions_msg.commands.emplace_back();
     positions_msg.commands.back().name = name;

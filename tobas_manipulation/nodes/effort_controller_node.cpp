@@ -1,4 +1,5 @@
-#include <tobas_std_tools/zip.hpp>
+#include <ranges>
+
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_kdl/treeactivejointsextractor.hpp>
 #include <tobas_kdl/treejntspacepid.hpp>
@@ -156,7 +157,7 @@ bool EffortControllerNode::jointSpaceControl(
   }
 
   // Fill output message
-  for (const auto& [name, eff] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
+  for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
   {
     efforts_msg.commands.emplace_back();
     efforts_msg.commands.back().name = name;
@@ -220,7 +221,7 @@ bool EffortControllerNode::taskSpaceControl(
   }
 
   // Fill output message
-  for (const auto& [name, eff] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
+  for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
   {
     efforts_msg.commands.emplace_back();
     efforts_msg.commands.back().name = name;

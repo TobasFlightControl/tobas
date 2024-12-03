@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
@@ -47,8 +49,6 @@ bool NonPlanarMixer::solve(
 {
   assert(cur_voltage > 0);
 
-  size_t rotor_idx;
-
   // 順運動学を計算
   if (fk_solver_.JntToCart(cur_q) < 0)
   {
@@ -68,25 +68,24 @@ bool NonPlanarMixer::solve(
   const auto& mass = inertia.getMass();
 
   // EoM行列等式の左辺
-  rotor_idx = 0;
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
   {
-    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
+    const auto& rotor = rotor_it.second;
 
+    // 回転軸を求める
     const auto elem = tree_.getSegment(rotor.link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
     // 並進
-    G_.block<3, 1>(0, rotor_idx) = axis_B.data;
+    G_.block<3, 1>(0, idx) = axis_B.data;
 
     // 回転
-    const auto& d = rotor.sign();
+    const auto d = rotor.sign();
     const auto& cm = rotor.moment_constant;
+    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
-    G_.block<3, 1>(3, rotor_idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
-
-    ++rotor_idx;
+    G_.block<3, 1>(3, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
   // EoM行列等式の右辺
@@ -102,13 +101,11 @@ bool NonPlanarMixer::solve(
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
   // 不等式制約
-  rotor_idx = 0;
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
   {
-    qp_.problem.b(rotor_idx) = rotor.maxThrust(cur_voltage);
-    qp_.problem.b(drone_.numRotors() + rotor_idx) = -rotor.minThrust(cur_voltage);
-
-    ++rotor_idx;
+    const auto& rotor = rotor_it.second;
+    qp_.problem.b(idx) = rotor.maxThrust(cur_voltage);
+    qp_.problem.b(drone_.numRotors() + idx) = -rotor.minThrust(cur_voltage);
   }
 
   // QPPを解く

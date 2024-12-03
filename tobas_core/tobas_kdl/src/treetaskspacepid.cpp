@@ -1,4 +1,4 @@
-#include <tobas_std_tools/zip.hpp>
+#include <ranges>
 
 #include "../include/tobas_kdl/treetaskspacepid.hpp"
 
@@ -42,7 +42,7 @@ int TreeTaskSpacePID::CartToJnt(
 
   // Create target acceleration map
   AccelMap tar_a;
-  for (const auto& [tar_pi, tar_vi, ai_ff] : tobas_std::zip(tar_p, tar_v, a_ff))
+  for (const auto& [tar_pi, tar_vi, ai_ff] : views::zip(tar_p, tar_v, a_ff))
   {
     // Check if all keys match
     const auto& seg_name = tar_pi.first;

@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_eigen_tools/core.hpp>
@@ -60,15 +62,16 @@ bool TiltRotorMixer::solve(
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto& mass = inertia.getMass();
 
-  size_t rotor_idx = 0;
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
   {
+    const auto& rotor = rotor_it.second;
+
     // Update B
-    const auto& d = rotor.sign();
+    const auto d = rotor.sign();
     const auto& cm = rotor.moment_constant;
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
-    B_.block<3, 3>(3, 3 * rotor_idx) = et::skew(r.data) - (d * cm) * E3;
+    B_.block<3, 3>(3, 3 * idx) = et::skew(r.data) - (d * cm) * E3;
 
     // Update ci0
     const auto nr = drone_.numRotors();
@@ -78,13 +81,11 @@ bool TiltRotorMixer::solve(
       const auto& seg = elem.segment;
       const auto& joint = seg.joint();
 
-      ci0_(rotor_idx) = joint.lower_limit;
-      ci0_(nr + rotor_idx) = -joint.upper_limit;
+      ci0_(idx) = joint.lower_limit;
+      ci0_(nr + idx) = -joint.upper_limit;
     }
-    ci0_(2 * nr + rotor_idx) = rotor.minThrust(cur_voltage);
-    ci0_(3 * nr + rotor_idx) = -rotor.maxThrust(cur_voltage);
-
-    ++rotor_idx;
+    ci0_(2 * nr + idx) = rotor.minThrust(cur_voltage);
+    ci0_(3 * nr + idx) = -rotor.maxThrust(cur_voltage);
   }
 
   // Update d

@@ -61,6 +61,7 @@ SQP::error_t SQP::solve()
       return error_code_ = E_MAX_ITERATION_EXCEEDED;
 
     // ラグランジュ関数のヘッセ行列を計算
+    const auto dFdx = dFdx_(x_);
     const MatrixXd H = dFdx_(x_) + lam_.transpose().eval() * dGdx_(x_) + mu_.transpose().eval() * dHdx_(x_);
 
     // 局所的なQPを解く

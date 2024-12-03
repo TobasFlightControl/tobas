@@ -1,7 +1,8 @@
+#include <ranges>
+
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <controller_manager_msgs/srv/list_controllers.hpp>
 
-#include <tobas_std_tools/zip.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/joint_interface.hpp>
@@ -42,7 +43,7 @@ JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& opti
   const auto interfaces = getIntArrayParam("interfaces", {});
   if (joint_names.size() != interfaces.size())
     TOBAS_EXIT("The sizes of joint name array and interface array are different.");
-  for (const auto& [jnt_name, iface] : tobas_std::zip(joint_names, interfaces))
+  for (const auto& [jnt_name, iface] : views::zip(joint_names, interfaces))
   {
     const auto controller_name = jnt_name + "_controller";
     const auto topic = controller_name + "/commands";

@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 
@@ -341,30 +343,31 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto thrusts = mixer_.getThrusts();
   const auto angles = mixer_.getTiltAngles();
 
-  // 推力とティルト角を発行
-  size_t rotor_idx = 0;
+  // 推力を発行
   auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
-  auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   tar_thrusts->header.stamp = odom->header.stamp;
-  tar_angles->header.stamp = odom->header.stamp;
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
   {
     tar_thrusts->thrusts.emplace_back();
-    tar_thrusts->thrusts.back().channel = rotor.channel;
-    tar_thrusts->thrusts.back().thrust = thrusts(rotor_idx);
-
-    if (rotor.is_active_tilt)
-    {
-      const auto& elem = tree_.getSegment(rotor.link_name)->second;
-      const auto& par_seg = elem.parent->second.segment;
-      tar_angles->commands.emplace_back();
-      tar_angles->commands.back().name = par_seg.joint().name;
-      tar_angles->commands.back().data = angles(rotor_idx);
-    }
-
-    ++rotor_idx;
+    tar_thrusts->thrusts.back().channel = rotor_it.first;
+    tar_thrusts->thrusts.back().thrust = thrusts(idx);
   }
   tar_thrusts_pub_->publish(move(tar_thrusts));
+
+  // ティルト角を発行
+  auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
+  tar_angles->header.stamp = odom->header.stamp;
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  {
+    const auto& rotor = rotor_it.second;
+    if (!rotor.is_active_tilt)
+      continue;
+    const auto& elem = tree_.getSegment(rotor.link_name)->second;
+    const auto& par_seg = elem.parent->second.segment;
+    tar_angles->commands.emplace_back();
+    tar_angles->commands.back().name = par_seg.joint().name;
+    tar_angles->commands.back().data = angles(idx);
+  }
   tar_angles_pub_->publish(move(tar_angles));
 
   // フィードバックを発行

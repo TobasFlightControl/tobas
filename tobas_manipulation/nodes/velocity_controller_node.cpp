@@ -1,4 +1,5 @@
-#include <tobas_std_tools/zip.hpp>
+#include <ranges>
+
 #include <tobas_kdl/treejointstateconverter.hpp>
 #include <tobas_kdl/treeactivejointsextractor.hpp>
 #include <tobas_kdl/treetaskspacevelctrl.hpp>
@@ -143,7 +144,7 @@ bool VelocityControllerNode::jointSpaceControl(
   }
 
   // Fill output message
-  for (const auto& [name, vel] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+  for (const auto& [name, vel] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
   {
     velocities_msg.commands.emplace_back();
     velocities_msg.commands.back().name = name;
@@ -198,7 +199,7 @@ bool VelocityControllerNode::taskSpaceControl(
   }
 
   // Fill output message
-  for (const auto& [name, vel] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+  for (const auto& [name, vel] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
   {
     velocities_msg.commands.emplace_back();
     velocities_msg.commands.back().name = name;
