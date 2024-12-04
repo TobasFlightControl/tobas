@@ -67,6 +67,6 @@ private:
 
   // Configurations
   size_t max_iter_ = 0;
-  double rel_tol_ = 1e-6;
+  double rel_tol_ = 1e-3;
 };
 }  // namespace nlp
