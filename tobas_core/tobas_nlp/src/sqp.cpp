@@ -5,6 +5,7 @@
 #include "../include/tobas_nlp/sqp.hpp"
 
 #define EPS 1e-6
+// #define TRACE_SOLVER
 
 using namespace std;
 using namespace Eigen;
@@ -84,6 +85,14 @@ SQP::error_t SQP::solve()
     x_ += dx;
     lam_ = qp_.getLagrangeMultipliersIneq();
     mu_ = qp_.getLagrangeMultipliersEq();
+
+#ifdef TRACE_SOLVER
+    cout << "Iteration: " << iter_ << endl;
+    cout << "x = " << x_.transpose() << endl;
+    cout << "lambda = " << lam_.transpose() << endl;
+    cout << "mu = " << mu_.transpose() << endl;
+    cout << "----------" << endl;
+#endif
 
     // 終了判定
     // cf. https://kotakku.github.io/cpp_robotics/tech_note/optimize/tolerances_and_stopping/
