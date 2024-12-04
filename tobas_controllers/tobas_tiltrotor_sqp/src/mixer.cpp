@@ -299,7 +299,7 @@ MatrixXd TiltRotorMixer::dFdx(const VectorXd& x)
   df_dx_2_.topLeftCorner(nr, nr) = Qe.transpose().eval() * du_dtheta_2 + du_dtheta.transpose() * Q_ * du_dtheta;
   df_dx_2_.bottomRightCorner(nr, nr) = C.transpose() * QC + R_.toDenseMatrix();
 
-  const MatrixXd d2f_dtheta_dtau = et::shuffle(dC_dtheta, { 2, 1, 0 }) * Qe + du_dtheta * QC;
+  const MatrixXd d2f_dtheta_dtau = et::shuffle(dC_dtheta, { 2, 1, 0 }) * Qe + du_dtheta.transpose() * QC;
   df_dx_2_.topRightCorner(nr, nr) = d2f_dtheta_dtau;
   df_dx_2_.bottomLeftCorner(nr, nr) = d2f_dtheta_dtau.transpose();
 
