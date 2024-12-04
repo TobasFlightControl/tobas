@@ -64,6 +64,10 @@ class JointPositionsCommanderWidget(Widget):
         self._tar_js_eff = JointState()
 
         for joint in drone.joints:
+            # MANIPULATION用の関節のみ制御
+            if joint.role != 0:
+                continue
+
             self._home_positions[joint.name] = joint.home_pos
             self._interfaces[joint.name] = joint.interface
 

@@ -360,12 +360,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
   {
     const auto& rotor = rotor_it.second;
-    if (!rotor.is_active_tilt)
+    if (rotor.tilt_joint_name.empty())
       continue;
-    const auto& elem = tree_.getSegment(rotor.link_name)->second;
-    const auto& par_seg = elem.parent->second.segment;
     tar_angles->commands.emplace_back();
-    tar_angles->commands.back().name = par_seg.joint().name;
+    tar_angles->commands.back().name = rotor.tilt_joint_name;
     tar_angles->commands.back().data = angles(idx);
   }
   tar_angles_pub_->publish(move(tar_angles));

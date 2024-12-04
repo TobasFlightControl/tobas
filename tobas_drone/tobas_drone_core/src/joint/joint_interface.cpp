@@ -1,4 +1,4 @@
-#include "../include/tobas_drone_core/joint_interface.hpp"
+#include "../../include/tobas_drone_core/joint/joint_interface.hpp"
 
 namespace tobas
 {

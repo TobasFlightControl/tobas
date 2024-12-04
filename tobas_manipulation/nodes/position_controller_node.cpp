@@ -23,6 +23,8 @@ public:
   explicit PositionControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  tobas::Drone::ConstSharedPtr drone_;
+
   sensor_msgs::msg::JointState home_js_;
 
   sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
@@ -69,6 +71,18 @@ bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArra
   // 位置コマンドをそのまま流すだけ
   for (const auto& [name, pos] : views::zip(tar_js_->name, tar_js_->position))
   {
+    const auto& joint = drone_->joints.at(name);
+    if (joint.interface != tobas::joint_interface_t::POSITION)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"POSITION\".");
+      continue;
+    }
+    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    {
+      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+
     positions_msg.commands.emplace_back();
     positions_msg.commands.back().name = name;
     positions_msg.commands.back().data = pos;
@@ -86,6 +100,8 @@ bool PositionControllerNode::taskSpaceControl(tobas_msgs::msg::JointCommandArray
 
 void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
+  drone_ = drone;
+
   home_js_.name.clear();
   home_js_.position.clear();
   home_js_.velocity.clear();
@@ -95,6 +111,8 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   for (const auto& [jnt_name, jnt_cfg] : drone->joints)
   {
     if (jnt_cfg.interface != tobas::joint_interface_t::POSITION)
+      continue;
+    if (jnt_cfg.role != tobas::joint_role_t::MANIPULATION)
       continue;
     home_js_.name.push_back(jnt_name);
     home_js_.position.push_back(jnt_cfg.home_pos);

@@ -27,6 +27,7 @@ public:
   explicit VelocityControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  tobas::Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
 
   kdl::TreeJointStateConverter cur_js_conv_;
@@ -146,6 +147,18 @@ bool VelocityControllerNode::jointSpaceControl(
   // Fill output message
   for (const auto& [name, vel] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
   {
+    const auto& joint = drone_->joints.at(name);
+    if (joint.interface != tobas::joint_interface_t::VELOCITY)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"VELOCITY\".");
+      continue;
+    }
+    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    {
+      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+
     velocities_msg.commands.emplace_back();
     velocities_msg.commands.back().name = name;
     velocities_msg.commands.back().data = vel;
@@ -201,6 +214,18 @@ bool VelocityControllerNode::taskSpaceControl(
   // Fill output message
   for (const auto& [name, vel] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
   {
+    const auto& joint = drone_->joints.at(name);
+    if (joint.interface != tobas::joint_interface_t::VELOCITY)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"VELOCITY\".");
+      continue;
+    }
+    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    {
+      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+
     velocities_msg.commands.emplace_back();
     velocities_msg.commands.back().name = name;
     velocities_msg.commands.back().data = vel;
@@ -239,6 +264,8 @@ bool VelocityControllerNode::angularTimeConstCb(const double& p)
 
 void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
+  drone_ = drone;
+
   home_js_.name.clear();
   home_js_.position.clear();
   home_js_.velocity.clear();
@@ -248,6 +275,8 @@ void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   for (const auto& [jnt_name, jnt_cfg] : drone->joints)
   {
     if (jnt_cfg.interface != tobas::joint_interface_t::VELOCITY)
+      continue;
+    if (jnt_cfg.role != tobas::joint_role_t::MANIPULATION)
       continue;
     home_js_.name.push_back(jnt_name);
     home_js_.position.push_back(jnt_cfg.home_pos);

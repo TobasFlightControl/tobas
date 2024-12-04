@@ -3,7 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_drone_core/joint_interface.hpp>
+#include <tobas_drone_core/joint/joint_interface.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
 

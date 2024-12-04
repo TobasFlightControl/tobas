@@ -1,6 +1,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../include/tobas_drone_core/joint.hpp"
+#include "../../include/tobas_drone_core/joint/joint.hpp"
 
 using namespace std;
 
@@ -34,6 +34,9 @@ bool JointConfig::load(const YAML::Node& node)
   if (!yaml::load(kInterfaceKey, node, interface))
     return false;
 
+  if (!yaml::load(kRoleKey, node, role))
+    return false;
+
   return true;
 }
 
@@ -46,6 +49,7 @@ YAML::Node JointConfig::dump() const
   node[kMinPosKey] = min_pos;
   node[kMaxPosKey] = max_pos;
   node[kInterfaceKey] = interface;
+  node[kRoleKey] = role;
 
   return node;
 }

@@ -5,7 +5,7 @@
 
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/joint_interface.hpp>
+#include <tobas_drone_core/joint/joint_interface.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
 using namespace std;

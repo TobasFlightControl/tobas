@@ -5,13 +5,13 @@
 #include <yaml-cpp/yaml.h>
 
 #include "./joint_interface.hpp"
+#include "./joint_role.hpp"
 
 namespace tobas
 {
 class JointConfig;
 using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> JointConfig
 
-/* プロペラ，舵面以外の可動関節． */
 class JointConfig
 {
   static constexpr char kNameKey[] = "joint_name";
@@ -19,6 +19,7 @@ class JointConfig
   static constexpr char kMinPosKey[] = "min_position";
   static constexpr char kMaxPosKey[] = "max_position";
   static constexpr char kInterfaceKey[] = "interface";
+  static constexpr char kRoleKey[] = "role";
 
 public:
   std::string name = "";
@@ -28,6 +29,8 @@ public:
   double max_pos = 0;   // [rad | m]
 
   joint_interface_t interface = joint_interface_t::POSITION;
+
+  joint_role_t role = joint_role_t::MANIPULATION;
 
   bool isValid() const;
   bool load(const YAML::Node& node);

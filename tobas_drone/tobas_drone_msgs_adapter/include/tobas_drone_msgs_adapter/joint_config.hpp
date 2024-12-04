@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_drone_core/joint.hpp>
+#include <tobas_drone_core/joint/joint.hpp>
 #include <tobas_drone_msgs/msg/joint_config.hpp>
 
 template <>
@@ -19,6 +19,7 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
     dst.min_pos = src.min_pos;
     dst.max_pos = src.max_pos;
     dst.interface = static_cast<uint8_t>(src.interface);
+    dst.role = static_cast<uint8_t>(src.role);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -28,6 +29,7 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
     dst.min_pos = src.min_pos;
     dst.max_pos = src.max_pos;
     dst.interface = static_cast<tobas::joint_interface_t>(src.interface);
+    dst.role = static_cast<tobas::joint_role_t>(src.role);
   }
 };
 

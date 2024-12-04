@@ -103,7 +103,7 @@ bool RotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kDragConstKey, node, drag_constant))
     return false;
 
-  if (!yaml::load(kIsActiveTiltKey, node, is_active_tilt))
+  if (!yaml::load(kTiltJointName, node, tilt_joint_name))
     return false;
 
   return true;
@@ -125,7 +125,7 @@ YAML::Node RotorConfig::dump() const
   node[kMotorConstKey] = motor_constant;
   node[kMomentConstKey] = moment_constant;
   node[kDragConstKey] = drag_constant;
-  node[kIsActiveTiltKey] = is_active_tilt;
+  node[kTiltJointName] = tilt_joint_name;
 
   return node;
 }

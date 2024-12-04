@@ -4,7 +4,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "./battery.hpp"
-#include "./joint.hpp"
+#include "./joint/joint.hpp"
 #include "./rotor.hpp"
 #include "./fixed_wing.hpp"
 
