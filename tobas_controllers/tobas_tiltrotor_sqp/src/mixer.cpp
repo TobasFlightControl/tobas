@@ -296,13 +296,12 @@ MatrixXd TiltRotorMixer::dFdx(const VectorXd& x)
 
   const auto nr = drone_.numRotors();
 
-  df_dx_2_.topLeftCorner(nr, nr) = et::shuffle(du_dtheta_2, { 1, 2, 0 }) * Qe + du_dtheta.transpose() + Q_ * du_dtheta;
+  df_dx_2_.topLeftCorner(nr, nr) = Qe.transpose().eval() * du_dtheta_2 + du_dtheta.transpose() * Q_ * du_dtheta;
   df_dx_2_.bottomRightCorner(nr, nr) = C.transpose() * QC + R_.toDenseMatrix();
 
-  const MatrixXd d2f_dtau_dtheta =
-    et::shuffle(dC_dtheta, { 1, 2, 0 }) * Qe + QC.transpose() * (et::shuffle(dC_dtheta, { 0, 2, 1 }) * tau);
-  df_dx_2_.bottomLeftCorner(nr, nr) = d2f_dtau_dtheta;
-  df_dx_2_.topRightCorner(nr, nr) = d2f_dtau_dtheta.transpose();
+  const MatrixXd d2f_dtheta_dtau = et::shuffle(dC_dtheta, { 2, 1, 0 }) * Qe + du_dtheta * QC;
+  df_dx_2_.topRightCorner(nr, nr) = d2f_dtheta_dtau;
+  df_dx_2_.bottomLeftCorner(nr, nr) = d2f_dtheta_dtau.transpose();
 
   return df_dx_2_;
 }
