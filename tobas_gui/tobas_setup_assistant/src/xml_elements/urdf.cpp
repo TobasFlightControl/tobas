@@ -366,8 +366,8 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const string& root_link_nam
   const auto joint = xacro_if->InsertNewChildElement("joint");
   joint->SetAttribute("name", "base_static_joint");
   joint->SetAttribute("type", "fixed");
-  joint->InsertNewChildElement("parent")->SetText(tobas::kWorldFrame);
-  joint->InsertNewChildElement("child")->SetText(root_link_name.c_str());
+  joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::kWorldFrame);
+  joint->InsertNewChildElement("child")->SetAttribute("link", root_link_name.c_str());
 }
 }  // namespace setup_assistant
 }  // namespace gui
