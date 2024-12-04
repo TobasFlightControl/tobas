@@ -101,7 +101,7 @@ bool TiltRotorMixer::solve(
   d_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B)).data;
 
   // SQPを解く
-  if (!sqp_.solve())
+  if (sqp_.solve() < 0)
   {
     cerr << "SQP failed: " << sqp_.errorMessage() << endl;
     return false;
@@ -358,8 +358,8 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
     {
       const auto& cur_seg = elem.segment;
       const auto& par_seg = elem.parent->second.segment;
-      const auto& p = cur_seg.joint().axis().data;
-      const auto& q = par_seg.joint().axis().data;
+      const auto& p = par_seg.joint().axis().data;
+      const auto& q = cur_seg.joint().axis().data;
       const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
       N_.block<3, 1>(3 * i, i) = R * (E3 + et::skew(p) * sin(theta(i)) + et::skew2(p) * (1 - cos(theta(i)))) * q;
     }
@@ -385,8 +385,8 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
     {
       const auto& cur_seg = elem.segment;
       const auto& par_seg = elem.parent->second.segment;
-      const auto& p = cur_seg.joint().axis().data;
-      const auto& q = par_seg.joint().axis().data;
+      const auto& p = par_seg.joint().axis().data;
+      const auto& q = cur_seg.joint().axis().data;
       const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
       const Vector3d dn_dtheta = R * (et::skew2(p) * sin(theta(i)) + et::skew(p) * cos(theta(i))) * q;
       et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
@@ -407,8 +407,8 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
     {
       const auto& cur_seg = elem.segment;
       const auto& par_seg = elem.parent->second.segment;
-      const auto& p = cur_seg.joint().axis().data;
-      const auto& q = par_seg.joint().axis().data;
+      const auto& p = par_seg.joint().axis().data;
+      const auto& q = cur_seg.joint().axis().data;
       const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
       const Vector3d dn_dtheta_2 = R * (et::skew2(p) * cos(theta(i)) - et::skew(p) * sin(theta(i))) * q;
       et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
