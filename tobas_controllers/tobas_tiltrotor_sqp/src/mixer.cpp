@@ -112,12 +112,12 @@ bool TiltRotorMixer::solve(
 
 VectorXd TiltRotorMixer::getThrusts() const
 {
-  return sqp_.optimal().head(drone_.numRotors());
+  return sqp_.optimal().tail(drone_.numRotors());
 }
 
 VectorXd TiltRotorMixer::getTiltAngles() const
 {
-  return sqp_.optimal().tail(drone_.numRotors());
+  return sqp_.optimal().head(drone_.numRotors());
 }
 
 bool TiltRotorMixer::setLinearWeight(double p)
