@@ -347,12 +347,15 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
     // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
     if (!rotor.tilt_joint_name.empty())
     {
+      const auto& par_elem = elem.parent->second;
+      const auto& gpar_elem = par_elem.parent->second;
       const auto& cur_seg = elem.segment;
-      const auto& par_seg = elem.parent->second.segment;
+      const auto& par_seg = par_elem.segment;
+      const auto& gpar_seg = gpar_elem.segment;
       const auto& p = par_seg.joint().axis().data;
       const auto& q = cur_seg.joint().axis().data;
-      const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
-      N_.block<3, 1>(3 * i, i) = R * (E3 + et::skew(p) * sin(theta(i)) + et::skew2(p) * (1 - cos(theta(i)))) * q;
+      const auto& R = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      N_.block<3, 1>(3 * i, i) = R * (E3 + et::skew2(p) * (1 - cos(theta(i))) - et::skew(p) * sin(theta(i))) * q;
     }
     else
     {
@@ -374,12 +377,15 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
 
     if (!rotor.tilt_joint_name.empty())
     {
+      const auto& par_elem = elem.parent->second;
+      const auto& gpar_elem = par_elem.parent->second;
       const auto& cur_seg = elem.segment;
-      const auto& par_seg = elem.parent->second.segment;
+      const auto& par_seg = par_elem.segment;
+      const auto& gpar_seg = gpar_elem.segment;
       const auto& p = par_seg.joint().axis().data;
       const auto& q = cur_seg.joint().axis().data;
-      const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
-      const Vector3d dn_dtheta = R * (et::skew2(p) * sin(theta(i)) + et::skew(p) * cos(theta(i))) * q;
+      const auto& R = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      const Vector3d dn_dtheta = R * (et::skew2(p) * sin(theta(i)) - et::skew(p) * cos(theta(i))) * q;
       et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
     }
   }
@@ -396,12 +402,15 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
 
     if (!rotor.tilt_joint_name.empty())
     {
+      const auto& par_elem = elem.parent->second;
+      const auto& gpar_elem = par_elem.parent->second;
       const auto& cur_seg = elem.segment;
-      const auto& par_seg = elem.parent->second.segment;
+      const auto& par_seg = par_elem.segment;
+      const auto& gpar_seg = gpar_elem.segment;
       const auto& p = par_seg.joint().axis().data;
       const auto& q = cur_seg.joint().axis().data;
-      const auto& R = fk_solver_.getFrame(par_seg.name()).M.data;
-      const Vector3d dn_dtheta_2 = R * (et::skew2(p) * cos(theta(i)) - et::skew(p) * sin(theta(i))) * q;
+      const auto& R = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      const Vector3d dn_dtheta_2 = R * (et::skew2(p) * cos(theta(i)) + et::skew(p) * sin(theta(i))) * q;
       et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
     }
   }
