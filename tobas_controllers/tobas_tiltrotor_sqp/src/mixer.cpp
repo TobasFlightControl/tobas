@@ -77,19 +77,9 @@ bool TiltRotorMixer::solve(
     const auto nr = drone_.numRotors();
     if (!rotor.tilt_joint_name.empty())
     {
-      const auto& elem = tree_.getSegment(rotor.link_name)->second;
-      const auto& par_joint = elem.parent->second.segment.joint();
-
-      // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
-      // XXX: その場合Nの計算方法が変わることに注意
-      if (par_joint.name != rotor.tilt_joint_name)
-      {
-        cerr << "The tilt joint must be the joint of the direct parent." << endl;
-        return false;
-      }
-
-      ci0_(idx) = par_joint.lower_limit;
-      ci0_(nr + idx) = -par_joint.upper_limit;
+      const auto& tilt_joint = drone_.joints.at(rotor.tilt_joint_name);
+      ci0_(idx) = tilt_joint.min_pos;
+      ci0_(nr + idx) = -tilt_joint.max_pos;
     }
     ci0_(2 * nr + idx) = rotor.minThrust(cur_voltage);
     ci0_(3 * nr + idx) = -rotor.maxThrust(cur_voltage);
@@ -354,6 +344,7 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
     const auto& rotor = rotor_it.second;
     const auto& elem = tree_.getSegment(rotor.link_name)->second;
 
+    // TODO: ティルトジョイントがロータジョイントの直接の親じゃない場合にも対応
     if (!rotor.tilt_joint_name.empty())
     {
       const auto& cur_seg = elem.segment;
