@@ -103,7 +103,7 @@ Matrix3d skew2(const double& x, const double& y, const double& z)
   const auto yz = y * z;
   const auto zx = z * x;
 
-  return (Matrix3d() << -yy - zz, xy, zx, xy, -zz - xx, yz, zx, yz, -xx - yy).finished();
+  return (Matrix3d() << -(yy + zz), xy, zx, xy, -(zz + xx), yz, zx, yz, -(xx + yy)).finished();
 }
 
 Matrix3d skew2(const Vector3d& v)
