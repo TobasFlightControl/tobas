@@ -242,6 +242,7 @@ inline Rall2d<T, V, S> operator-(const Rall2d<T, V, S>& v, S s)
 template <class T, class V, class S>
 inline Rall2d<T, V, S> operator/(S s, const Rall2d<T, V, S>& rhs)
 {
+  assert(rhs.t != 0);
   Rall2d<T, V, S> tmp;
   tmp.t = s / rhs.t;
   tmp.d = (-tmp.t * rhs.d) / rhs.t;
@@ -252,6 +253,7 @@ inline Rall2d<T, V, S> operator/(S s, const Rall2d<T, V, S>& rhs)
 template <class T, class V, class S>
 inline Rall2d<T, V, S> operator/(const Rall2d<T, V, S>& v, S s)
 {
+  assert(s != 0);
   return Rall2d<T, V, S>(v.t / s, v.d / s, v.dd / s);
 }
 

@@ -22,6 +22,8 @@ public:
 
   inline void setZero();
 
+  inline Eigen::Vector6d ravel() const;
+
   inline SegmentJacobian refPoint(const Vector& p) const;
 
   /* 関節空間の加速度からタスク空間の加速度を求める． */
@@ -31,8 +33,6 @@ public:
   inline double dot(const Wrench& rhs) const;
   /* 関節空間における慣性[kg m^2 or kg]を計算する． */
   inline double dot(const SegmentInertia& rhs) const;
-
-  Eigen::Vector6d ravel() const;
 };
 
 inline SegmentJacobian::SegmentJacobian()
@@ -53,6 +53,11 @@ inline void SegmentJacobian::setZero()
 {
   linear.setZero();
   angular.setZero();
+}
+
+inline Eigen::Vector6d SegmentJacobian::ravel() const
+{
+  return (Eigen::Vector6d() << linear.data, angular.data).finished();
 }
 
 inline SegmentJacobian SegmentJacobian::refPoint(const Vector& p) const

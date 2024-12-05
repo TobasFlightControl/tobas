@@ -1,7 +1,6 @@
 #pragma once
 
 #include "./treeidsolver_rne.hpp"
-#include "./utilities/constants.hpp"
 
 namespace kdl
 {
@@ -13,7 +12,7 @@ class TreeDynParam : public TreeSolverI
   using super = TreeSolverI;
 
 public:
-  explicit TreeDynParam(const Tree& tree, const Vector& grav = Vector(0., 0., -kDefaultGravity));
+  explicit TreeDynParam(const Tree& tree, const Vector& grav = Vector(0., 0., -tobas_std::kGravity));
 
   void updateInternalDataStructures() override;
 

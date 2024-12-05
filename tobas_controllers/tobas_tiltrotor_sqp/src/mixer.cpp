@@ -354,8 +354,21 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
       const auto& gpar_seg = gpar_elem.segment;
       const auto& p = par_seg.joint().axis().data;
       const auto& q = cur_seg.joint().axis().data;
-      const auto& R = fk_solver_.getFrame(gpar_seg.name()).M.data;
-      N_.block<3, 1>(3 * i, i) = R * (E3 + et::skew2(p) * (1 - cos(theta(i))) - et::skew(p) * sin(theta(i))) * q;
+      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      const Matrix3d R_gpar2par = E3 + et::skew2(p) * (1 - cos(theta(i))) - et::skew(p) * sin(theta(i));
+      const Vector3d axis_B = R_base2gpar * R_gpar2par * q;
+      N_.block<3, 1>(3 * i, i) = axis_B;
+
+      if (i == 1)
+      {
+        cout << "theta: " << theta(i) << endl;
+        cout << "p: " << p.transpose() << endl;
+        cout << "q: " << q.transpose() << endl;
+        cout << "R_base2gpar:\n" << R_base2gpar << endl;
+        cout << "R_gpar2par:\n" << R_gpar2par << endl;
+        cout << "axis_B: " << axis_B.transpose() << endl;
+        cout << "----------" << endl;
+      }
     }
     else
     {
@@ -364,6 +377,10 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
       N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
   }
+
+  // cout << "theta: " << theta.transpose() << endl;
+  // cout << N_ << endl;
+  // cout << endl;
 
   return N_;
 }

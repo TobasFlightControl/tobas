@@ -3,7 +3,6 @@
 #include "./treesolveri.hpp"
 #include "./jntspaceinertiamatrix.hpp"
 #include "./treeidsolver_rne.hpp"
-#include "./utilities/constants.hpp"
 
 namespace kdl
 {

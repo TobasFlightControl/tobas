@@ -20,7 +20,7 @@ public:
    * the arguments are the mass, the vector from the reference point to cog and the rotational
    * inertia in the cog.
    */
-  explicit RigidBodyInertia(
+  inline explicit RigidBodyInertia(
     double m = 0,
     const Vector& oc = Vector::Zero(),
     const RotationalInertia& Ic = RotationalInertia::Zero());
@@ -47,7 +47,7 @@ public:
    * Reference point change with v the vector from the old to
    * the new point expressed in the current reference frame
    */
-  RigidBodyInertia refPoint(const Vector& p) const;
+  inline RigidBodyInertia refPoint(const Vector& p) const;
 
   inline RigidBodyInertia operator+(const RigidBodyInertia& rhs) const;
   inline RigidBodyInertia& operator+=(const RigidBodyInertia& rhs);
@@ -57,9 +57,8 @@ public:
   inline SegmentInertia operator*(const SegmentJacobian& rhs) const;
 
   inline friend RigidBodyInertia operator*(double a, const RigidBodyInertia& I);
-
-  friend RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I);
-  friend RigidBodyInertia operator*(const Rotation& R, const RigidBodyInertia& I);
+  inline friend RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I);
+  inline friend RigidBodyInertia operator*(const Rotation& R, const RigidBodyInertia& I);
 
 private:
   double m_;             // [kg]
@@ -68,6 +67,14 @@ private:
 
   inline explicit RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool mhi);
 };
+
+inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& oc, const RotationalInertia& Ic) : m_(m), h_(m * oc)
+{
+  const auto& c_eig = oc.data;
+  Eigen::Matrix3d tmp = c_eig * c_eig.transpose();
+  tmp.diagonal().array() -= c_eig.dot(c_eig);
+  I_.data = Ic.data - m * tmp;
+}
 
 inline RigidBodyInertia RigidBodyInertia::Zero()
 {
@@ -97,6 +104,23 @@ inline Vector RigidBodyInertia::getCOG() const
 inline RotationalInertia RigidBodyInertia::getRotationalInertiaCoG() const
 {
   return refPoint(getCOG()).getRotationalInertia();
+}
+
+inline RigidBodyInertia RigidBodyInertia::refPoint(const Vector& p) const
+{
+  const auto hmr = h_ - m_ * p;
+  const auto& r_eig = p.data;
+  const auto& h_eig = h_.data;
+  const auto& hmr_eig = hmr.data;
+
+  Eigen::Matrix3d rcrosshcross = h_eig * r_eig.transpose();
+  rcrosshcross.diagonal().array() -= r_eig.dot(h_eig);
+
+  Eigen::Matrix3d hmrcrossrcross = r_eig * hmr_eig.transpose();
+  hmrcrossrcross.diagonal().array() -= hmr_eig.dot(r_eig);
+
+  const RotationalInertia Ib(I_.data + rcrosshcross + hmrcrossrcross);
+  return RigidBodyInertia(m_, hmr, Ib, true);
 }
 
 inline RigidBodyInertia RigidBodyInertia::operator+(const RigidBodyInertia& rhs) const
@@ -130,6 +154,32 @@ inline SegmentInertia RigidBodyInertia::operator*(const SegmentJacobian& rhs) co
 inline RigidBodyInertia operator*(double a, const RigidBodyInertia& I)
 {
   return RigidBodyInertia(a * I.m_, a * I.h_, a * I.I_, true);
+}
+
+inline RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I)
+{
+  const auto X = T.inverse();
+  const auto hmr = I.h_ - I.m_ * X.p;
+  const auto& R = T.M.data;
+  const auto& r_eig = X.p.data;
+  const auto& h_eig = I.h_.data;
+  const auto& hmr_eig = hmr.data;
+
+  Eigen::Matrix3d rcrosshcross = h_eig * r_eig.transpose();
+  rcrosshcross.diagonal().array() -= r_eig.dot(h_eig);
+
+  Eigen::Matrix3d hmrcrossrcross = r_eig * hmr_eig.transpose();
+  hmrcrossrcross.diagonal().array() -= hmr_eig.dot(r_eig);
+
+  const RotationalInertia Ib(R * (I.I_.data + rcrosshcross + hmrcrossrcross) * R.transpose());
+  return RigidBodyInertia(I.m_, T.M * hmr, Ib, true);
+}
+
+inline RigidBodyInertia operator*(const Rotation& M, const RigidBodyInertia& I)
+{
+  const auto& R = M.data;
+  const RotationalInertia Ib(R * I.I_.data * R.transpose());
+  return RigidBodyInertia(I.m_, M * I.h_, Ib, true);
 }
 
 inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool)

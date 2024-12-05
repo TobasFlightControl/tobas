@@ -4,7 +4,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
-#include "./utilities/constants.hpp"
+#include <tobas_eigen_tools/core.hpp>
 
 namespace kdl
 {
@@ -55,17 +55,18 @@ public:
   /* 2つのベクトル間の偏角 [rad] を計算する． */
   inline double argument(const Vector& rhs) const;
 
-  /* ベクトルが要素を含む場合にtrueを返す． */
-  inline bool contains(double value) const;
-
   /* Clamp each value. */
   inline Vector clamp(const double& lb, const double& ub) const;
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
+  inline double norm() const;
+  inline void normalize();
+  inline Vector normalized() const;
   inline Vector sqr() const;
   inline Vector inverse() const;
-  inline Vector normalized() const;
+
+  inline bool isFinite() const;
 
   /* Adds a vector from the Vector object itself. */
   inline Vector& operator+=(const Vector& arg);
@@ -85,19 +86,7 @@ public:
   inline friend Vector operator-(const Vector& lhs, const Vector& rhs);
   inline friend Vector operator*(const Vector& lhs, const Vector& rhs);
 
-  /* The norm of the vector */
-  double norm(double eps = kDefaultEpsilon) const;
-
-  /**
-   * @brief Normalizes this vector and returns it norm makes v a unitvector and returns the norm of v.
-   * If v is smaller than eps, Vector(1,0,0) is returned with norm 0.
-   * If this is not good, check the return value of this method.
-   */
-  double normalize(double eps = kDefaultEpsilon);
-
-  bool isFinite() const;
-
-  friend std::ostream& operator<<(std::ostream& os, const Vector& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const Vector& arg);
 };
 
 inline Vector::Vector()
@@ -227,6 +216,23 @@ inline void Vector::setZero()
   data.setZero();
 }
 
+inline double Vector::norm() const
+{
+  return data.norm();
+}
+
+inline void Vector::normalize()
+{
+  assert(norm() > 0.);
+  data.normalize();
+}
+
+inline Vector Vector::normalized() const
+{
+  assert(norm() > 0.);
+  return Vector(data.normalized());
+}
+
 inline Vector Vector::sqr() const
 {
   return Vector(data.cwiseAbs2());
@@ -238,9 +244,9 @@ inline Vector Vector::inverse() const
   return Vector(data.cwiseInverse());
 }
 
-inline Vector Vector::normalized() const
+bool Vector::isFinite() const
 {
-  return Vector(data.normalized());
+  return eigen_tools::isFinite(data);
 }
 
 inline Vector& Vector::operator+=(const Vector& arg)
@@ -314,5 +320,11 @@ inline Vector operator-(const Vector& lhs, const Vector& rhs)
 inline Vector operator*(const Vector& lhs, const Vector& rhs)
 {
   return Vector(lhs.data.cross(rhs.data));
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Vector& arg)
+{
+  os << "[" << arg.x() << "," << arg.y() << "," << arg.z() << "]";
+  return os;
 }
 }  // namespace kdl

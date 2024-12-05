@@ -9,14 +9,9 @@ class RotationalInertia
 public:
   Eigen::Matrix3d data;
 
-  explicit RotationalInertia(
-    double Ixx = 0,
-    double Iyy = 0,
-    double Izz = 0,
-    double Ixy = 0,
-    double Ixz = 0,
-    double Iyz = 0);
-  explicit RotationalInertia(const Eigen::Matrix3d& _data);
+  inline explicit RotationalInertia();
+  inline explicit RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz);
+  inline explicit RotationalInertia(const Eigen::Matrix3d& _data);
 
   inline static RotationalInertia Zero();
 
@@ -39,6 +34,19 @@ public:
   /* Compute Ia = Rab Ib Rab^T. */
   inline friend RotationalInertia operator*(const Rotation& R_a_b, const RotationalInertia& I_b);
 };
+
+inline RotationalInertia::RotationalInertia() : RotationalInertia(0, 0, 0, 0, 0, 0)
+{
+}
+
+inline RotationalInertia::RotationalInertia(double Ixx, double Iyy, double Izz, double Ixy, double Ixz, double Iyz)
+{
+  data << Ixx, Ixy, Ixz, Ixy, Iyy, Iyz, Ixz, Iyz, Izz;
+}
+
+inline RotationalInertia::RotationalInertia(const Eigen::Matrix3d& _data) : data(_data)
+{
+}
 
 inline RotationalInertia RotationalInertia::Zero()
 {

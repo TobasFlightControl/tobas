@@ -4,6 +4,8 @@
 #include "../include/tobas_kdl/rotation.hpp"
 #include "../include/tobas_kdl/utilities/utility.hpp"
 
+#define EPS 1e-12
+
 namespace kdl
 {
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
@@ -31,7 +33,7 @@ Rotation Rotation::Quaternion(double x, double y, double z, double w)
 void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
 {
   const auto trace = data.trace();
-  if (trace > kEpsilon)
+  if (trace > EPS)
   {
     const auto s = 0.5 / sqrt(trace + 1.0);
     w = 0.25 / s;
@@ -93,7 +95,7 @@ Rotation Rotation::RPY(double roll, double pitch, double yaw)
 void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
 {
   pitch = atan2(-data(2, 0), math::norm(data(0, 0), data(1, 0)));
-  if (fabs(pitch) > (M_PI_2 - kEpsilon))
+  if (fabs(pitch) > (M_PI_2 - EPS))
   {
     yaw = atan2(-data(0, 1), data(1, 1));
     roll = 0;
@@ -171,12 +173,7 @@ Rotation Rotation::RotZ(double angle)
   return Rotation(cs, -sn, 0, sn, cs, 0, 0, 0, 1);
 }
 
-Rotation Rotation::Rot(const Vector& rotaxis, double angle)
-{
-  return Rotation::Rot2(rotaxis.normalized(), angle);
-}
-
-Rotation Rotation::Rot2(const Vector& rotvec, double angle)
+Rotation Rotation::Rot(const Vector& rotvec, double angle)
 {
   // rotvec must be normalized
   assert(tobas_std::isClose(rotvec.norm(), 1));
@@ -204,22 +201,20 @@ Rotation Rotation::Rot2(const Vector& rotvec, double angle)
 
 Vector Rotation::getRot() const
 {
-  Vector axis;
-  const auto angle = Rotation::getRotAngle(axis);
-  return axis * angle;
+  const auto [angle, axis] = Rotation::getAngleAxis();
+  return angle * axis;
 }
 
-double Rotation::getRotAngle(Vector& axis) const
+std::pair<double, Vector> Rotation::getAngleAxis() const
 {
-  double angle, x, y, z;                    // variables for result
-  constexpr auto epsilon2 = kEpsilon * 10;  // margin to distinguish between 0 and 180 degrees
+  constexpr auto epsilon2 = EPS * 10;  // margin to distinguish between 0 and 180 degrees
 
   // optional check that input is pure rotation, 'isRotationMatrix' is defined at:
   // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
   if (
-    (abs(data(0, 1) - data(1, 0)) < kEpsilon) && (abs(data(0, 2) - data(2, 0)) < kEpsilon)
-    && (abs(data(1, 2) - data(2, 1)) < kEpsilon))
+    (abs(data(0, 1) - data(1, 0)) < EPS) && (abs(data(0, 2) - data(2, 0)) < EPS)
+    && (abs(data(1, 2) - data(2, 1)) < EPS))
   {
     // singularity found
     // first check for identity matrix which must have +1
@@ -230,13 +225,10 @@ double Rotation::getRotAngle(Vector& axis) const
     {
       // this singularity is identity matrix so angle = 0, axis is arbitrary
       // Choose 0, 0, 1 to pass orocos tests
-      axis = Vector(0, 0, 1);
-      angle = 0;
-      return angle;
+      return { 0, Vector::UnitZ() };
     }
 
     // otherwise this singularity is angle = 180
-    angle = M_PI;
     const auto xx = (data(0, 0) + 1) / 2;
     const auto yy = (data(1, 1) + 1) / 2;
     const auto zz = (data(2, 2) + 1) / 2;
@@ -244,6 +236,7 @@ double Rotation::getRotAngle(Vector& axis) const
     const auto xz = (data(0, 2) + data(2, 0)) / 4;
     const auto yz = (data(1, 2) + data(2, 1)) / 4;
 
+    double x, y, z;
     if ((xx > yy) && (xx > zz))
     {
       // data(0, 0) is the largest diagonal term
@@ -266,18 +259,16 @@ double Rotation::getRotAngle(Vector& axis) const
       y = yz / z;
     }
 
-    axis = Vector(x, y, z);
-    return angle;  // return 180 deg rotation
+    return { M_PI, Vector(x, y, z) };  // return 180 deg rotation
   }
 
   const auto f = (data.trace() - 1) / 2;
 
-  x = (data(2, 1) - data(1, 2));
-  y = (data(0, 2) - data(2, 0));
-  z = (data(1, 0) - data(0, 1));
-  axis = Vector(x, y, z);
-  angle = atan2(axis.norm() / 2, f);
-  axis.normalize();
-  return angle;
+  const auto x = (data(2, 1) - data(1, 2));
+  const auto y = (data(0, 2) - data(2, 0));
+  const auto z = (data(1, 0) - data(0, 1));
+  const auto axis = Vector(x, y, z);
+  const auto angle = atan2(axis.norm() / 2, f);
+  return { angle, axis };
 }
 }  // namespace kdl

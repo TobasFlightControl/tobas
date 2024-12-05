@@ -22,10 +22,10 @@ public:
 
   inline void setZero();
 
-  inline doubleAcc norm(double eps = kDefaultEpsilon);
+  inline doubleAcc norm() const;
 
-  inline doubleAcc dot(const Vector& rhs);
-  inline doubleAcc dot(const VectorAcc& rhs);
+  inline doubleAcc dot(const Vector& rhs) const;
+  inline doubleAcc dot(const VectorAcc& rhs) const;
 
   inline VectorAcc& operator+=(const VectorAcc& arg);
   inline VectorAcc& operator-=(const VectorAcc& arg);
@@ -80,21 +80,21 @@ inline void VectorAcc::setZero()
   dv.setZero();
 }
 
-inline doubleAcc VectorAcc::norm(double eps)
+inline doubleAcc VectorAcc::norm() const
 {
   doubleAcc res;
-  res.t = p.norm(eps);
+  res.t = p.norm();
   res.d = p.dot(v) / res.t;
   res.dd = (p.dot(dv) + v.dot(v) - res.d * res.d) / res.t;
   return res;
 }
 
-inline doubleAcc VectorAcc::dot(const Vector& rhs)
+inline doubleAcc VectorAcc::dot(const Vector& rhs) const
 {
   return doubleAcc(p.dot(rhs), v.dot(rhs), dv.dot(rhs));
 }
 
-inline doubleAcc VectorAcc::dot(const VectorAcc& rhs)
+inline doubleAcc VectorAcc::dot(const VectorAcc& rhs) const
 {
   return doubleAcc(p.dot(rhs.p), p.dot(rhs.v) + v.dot(rhs.p), p.dot(rhs.dv) + 2 * v.dot(rhs.v) + dv.dot(rhs.p));
 }
@@ -190,11 +190,12 @@ inline VectorAcc operator*(const Rotation& R, const VectorAcc& x)
 
 inline VectorAcc operator/(const VectorAcc& r1, double r2)
 {
-  return r1 * (1.0 / r2);
+  assert(r2 != 0.);
+  return VectorAcc(r1.p / r2, r1.v / r2, r1.dv / r2);
 }
 
 inline VectorAcc operator/(const VectorAcc& r2, const doubleAcc& r1)
 {
-  return r2 * (1.0 / r1);
+  return r2 * (1. / r1);
 }
 }  // namespace kdl

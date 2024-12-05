@@ -12,7 +12,7 @@ public:
   static constexpr double kDefaultStiffness = 25.;
   static constexpr double kDefaultDamping = 10.;
 
-  explicit TreeJntSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -kDefaultGravity));
+  explicit TreeJntSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -tobas_std::kGravity));
 
   void updateInternalDataStructures() override;
 

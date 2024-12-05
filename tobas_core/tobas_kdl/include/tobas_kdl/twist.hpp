@@ -25,8 +25,11 @@ public:
   inline explicit Twist();
   inline explicit Twist(const Vector& vel, const Vector& rot);
 
-  // @return a zero Twist : Twist(Vector::Zero(), Vector::Zero())
   inline static Twist Zero();
+
+  inline void setZero();
+
+  inline Eigen::Vector6d ravel() const;
 
   // Changes the reference point of the twist.
   // The vector p is expressed in the same base as the twist.
@@ -53,9 +56,7 @@ public:
   // beware all of them have to be expressed in the same reference frame
   inline friend Accel operator*(const Twist& lhs, const Twist& rhs);
 
-  Eigen::Vector6d ravel() const;
-
-  friend std::ostream& operator<<(std::ostream& os, const Twist& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const Twist& arg);
 };
 
 inline Twist::Twist()
@@ -69,6 +70,17 @@ inline Twist::Twist(const Vector& _vel, const Vector& _rot) : vel(_vel), rot(_ro
 inline Twist Twist::Zero()
 {
   return Twist(Vector::Zero(), Vector::Zero());
+}
+
+inline void Twist::setZero()
+{
+  vel.setZero();
+  rot.setZero();
+}
+
+inline Eigen::Vector6d Twist::ravel() const
+{
+  return (Eigen::Vector6d() << vel.data, rot.data).finished();
 }
 
 inline Twist Twist::refPoint(const Vector& p) const
@@ -133,5 +145,11 @@ inline Twist operator-(const Twist& lhs, const Twist& rhs)
 inline Accel operator*(const Twist& lhs, const Twist& rhs)
 {
   return Accel(lhs.rot * rhs.vel + lhs.vel * rhs.rot, lhs.rot * rhs.rot);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Twist& arg)
+{
+  os << "Linear: " << arg.vel << ", Angular: " << arg.rot;
+  return os;
 }
 }  // namespace kdl
