@@ -313,7 +313,17 @@ bool Tree::isFixedToRoot(const std::string& seg_name) const
 ostream& operator<<(ostream& os, const Tree& arg)
 {
   for (const auto& [seg_name, elem] : arg.segments_)
-    os << elem << endl;
+  {
+    os << "Segment:\n" << elem.segment << std::endl;
+    os << "Number: " << elem.q_nr << std::endl;
+
+    os << "Parent: ";
+    if (seg_name != arg.root_name_)
+      os << elem.parent->first << std::endl;
+    else
+      os << "-" << std::endl;
+  }
+
   return os;
 }
 }  // namespace kdl
