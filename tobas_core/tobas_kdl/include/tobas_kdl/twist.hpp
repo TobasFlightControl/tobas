@@ -11,7 +11,7 @@ class Twist;
 using TwistMap = std::map<std::string, Twist>;
 
 /**
- * \brief represents both translational and rotational velocities.
+ * @brief represents both translational and rotational velocities.
  *
  * This class represents a twist. A twist is the combination of translational
  * velocity and rotational velocity applied at one point.

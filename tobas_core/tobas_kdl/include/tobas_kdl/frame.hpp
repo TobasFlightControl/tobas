@@ -13,7 +13,7 @@ class Frame;
 using FrameMap = std::map<std::string, Frame>;
 
 /**
-  \brief represents a frame transformation in 3D space (rotation + translation)
+  @brief represents a frame transformation in 3D space (rotation + translation)
 
     if V2 = Frame*V1 (V2 expressed in frame A, V1 expressed in frame B)
     then V2 = Frame.M*V1+Frame.p
@@ -160,19 +160,19 @@ inline Frame Frame::Identity()
 
 inline Frame Frame::DH_Craig1989(double a, double alpha, double d, double theta)
 {
-  const auto ct = cos(theta);
-  const auto st = sin(theta);
-  const auto sa = sin(alpha);
-  const auto ca = cos(alpha);
+  const auto ct = ::cos(theta);
+  const auto st = ::sin(theta);
+  const auto sa = ::sin(alpha);
+  const auto ca = ::cos(alpha);
   return Frame(Rotation(ct, -st, 0, st * ca, ct * ca, -sa, st * sa, ct * sa, ca), Vector(a, -sa * d, ca * d));
 }
 
 inline Frame Frame::DH(double a, double alpha, double d, double theta)
 {
-  const auto ct = cos(theta);
-  const auto st = sin(theta);
-  const auto sa = sin(alpha);
-  const auto ca = cos(alpha);
+  const auto ct = ::cos(theta);
+  const auto st = ::sin(theta);
+  const auto sa = ::sin(alpha);
+  const auto ca = ::cos(alpha);
   return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(a * ct, a * st, d));
 }
 
@@ -198,9 +198,9 @@ inline double Frame::operator()(int i, int j)
   if (i == 3)
   {
     if (j == 3)
-      return 1.0;
+      return 1.;
     else
-      return 0.0;
+      return 0.;
   }
   else
   {
@@ -217,9 +217,9 @@ inline double Frame::operator()(int i, int j) const
   if (i == 3)
   {
     if (j == 3)
-      return 1;
+      return 1.;
     else
-      return 0;
+      return 0.;
   }
   else
   {

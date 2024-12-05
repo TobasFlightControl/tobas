@@ -12,7 +12,7 @@ class Vector;
 using VectorMap = std::map<std::string, Vector>;
 
 /**
- * \brief A concrete implementation of a 3 dimensional vector class.
+ * @brief A concrete implementation of a 3 dimensional vector class.
  */
 class Vector
 {

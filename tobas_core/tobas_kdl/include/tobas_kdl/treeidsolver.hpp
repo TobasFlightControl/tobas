@@ -7,7 +7,7 @@
 namespace kdl
 {
 /**
- * \brief This <strong>abstract</strong> class encapsulates the inverse
+ * @brief This <strong>abstract</strong> class encapsulates the inverse
  * dynamics solver for a kdl::Tree.
  *
  */

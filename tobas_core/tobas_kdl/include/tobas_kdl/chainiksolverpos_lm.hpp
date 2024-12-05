@@ -10,7 +10,7 @@
 namespace kdl
 {
 /**
- * \brief Solver for the inverse position kinematics that uses Levenberg-Marquardt.
+ * @brief Solver for the inverse position kinematics that uses Levenberg-Marquardt.
  *
  * The robustness and speed of this solver is improved in several ways:
  *   - by using a Levenberg-Marquardt method that automatically adapts the damping when
@@ -51,7 +51,7 @@ public:
   static constexpr double kDefaultWeightRot = 0.01;
 
   /**
-   * \brief constructs an ChainIkSolverPos_LMA solver.
+   * @brief constructs an ChainIkSolverPos_LMA solver.
    *
    * The default parameters are chosen to be applicable to industrial-size robots
    * (e.g. 0.5 to 3 meters range in task space), with an accuracy that is more then
@@ -61,11 +61,11 @@ public:
    * \f$ E = \Delta \mathbf{x}^T \mathbf{L} \mathbf{L}^T \Delta \mathbf{x} \f$, with
    * \f$\mathbf{L}\f$ a diagonal matrix.
    *
-   * \param chain specifies the kinematic chain.
-   * \param L specifies the "square root" of the weight (diagonal) matrix in task space. This
-   * diagonal matrix is specified as a vector. \param eps_cart specifies the desired accuracy in
-   * task space; <B>after</B> weighing with the weight matrix, it is applied on \f$E\f$. \param
-   * max_iter specifies the maximum number of iterations. \param eps_jnt specifies that the
+   * @param chain specifies the kinematic chain.
+   * @param L specifies the "square root" of the weight (diagonal) matrix in task space. This
+   * diagonal matrix is specified as a vector. @param eps_cart specifies the desired accuracy in
+   * task space; <B>after</B> weighing with the weight matrix, it is applied on \f$E\f$. @param
+   * max_iter specifies the maximum number of iterations. @param eps_jnt specifies that the
    * algorithm has to stop when the computed joint angle increments are smaller then _eps_joints.
    * This is to avoid unnecessary computations up to _maxiter when the joint angle increments are so
    * small that they effectively (in floating point) do not change the joint angles any more.  The
@@ -76,12 +76,12 @@ public:
   virtual void updateInternalDataStructures() override;
 
   /**
-   * \brief computes the inverse position kinematics.
+   * @brief computes the inverse position kinematics.
    *
-   * \param q_init initial joint position.
-   * \param T_base_goal goal position expressed with respect to the robot base.
-   * \param q_out  joint position that achieves the specified goal position (if successful).
-   * \return E_NOERROR if successful,
+   * @param q_init initial joint position.
+   * @param T_base_goal goal position expressed with respect to the robot base.
+   * @param q_out  joint position that achieves the specified goal position (if successful).
+   * @return E_NOERROR if successful,
    *         E_GRADIENT_JOINTS_TOO_SMALL the gradient of \f$ E \f$ towards the joints is to small,
    *         E_INCREMENT_JOINTS_TOO_SMALL if joint position increments are to small,
    *         E_MAX_ITER_EXCEEDED if number of iterations is exceeded.
@@ -94,7 +94,7 @@ public:
   bool setWeight(const Eigen::Vector6d& L);
 
   /**
-   * \brief for internal use only.
+   * @brief for internal use only.
    * Only exposed for test and diagnostic purposes.
    */
   void displayJacobian(const JntArray& jval);
@@ -121,14 +121,14 @@ private:
   Frame T_base_head_;
 
   /**
-   * \brief for internal use only.
+   * @brief for internal use only.
    *
    * Only exposed for test and diagnostic purposes.
    */
   void computeFwdPos(const Eigen::VectorXd& q);
 
   /**
-   * \brief for internal use only.
+   * @brief for internal use only.
    * Only exposed for test and diagnostic purposes.
    * compute_fwdpos(q) should always have been called before.
    */

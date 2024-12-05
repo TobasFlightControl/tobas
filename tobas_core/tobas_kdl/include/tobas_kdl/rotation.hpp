@@ -72,23 +72,20 @@ public:
   static Rotation RotZ(double angle);
 
   // Along an arbitrary axes. Axis must be normalized.
-  // returns identity rotation matrix in the case that the norm of rotvec is to small to be used.
-  // @see Rot2 if you want to handle this error in another way.
+  // returns identity rotation matrix in the case that the norm of axis is to small to be used.
   static Rotation Rot(const Vector& axis, double angle);
 
-  // Returns a vector with the direction of the equiv. axis
-  // and its norm is angle
+  // Returns a vector with the direction of the equiv. axis and its norm is angle.
   Vector getRot() const;
 
-  // Returns the rotation angle around the equiv. axis
+  // Returns the rotation angle around the equiv. axis.
   std::pair<double, Vector> getAngleAxis() const;
 
-  // Gives back a rotation matrix specified with Quaternion convention
-  // The norm of (x,y,z,w) should be equal to 1
+  // Gives back a rotation matrix specified with Quaternion convention.
+  // The norm of (x,y,z,w) should be equal to 1.
   static Rotation Quaternion(double x, double y, double z, double w);
 
-  // Get the quaternion of this matrix
-  // \post the norm of (x,y,z,w) is 1
+  // Get the quaternion of this matrix.
   void getQuaternion(double& x, double& y, double& z, double& w) const;
 
   /**

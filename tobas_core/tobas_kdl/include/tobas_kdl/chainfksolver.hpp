@@ -7,7 +7,7 @@
 namespace kdl
 {
 /**
- * \brief This <strong>abstract</strong> class encapsulates a
+ * @brief This <strong>abstract</strong> class encapsulates a
  * solver for the forward position kinematics for a kdl::Chain.
  */
 class ChainFkSolverPos : public ChainSolverI
@@ -35,7 +35,7 @@ protected:
 };
 
 /**
- * \brief This <strong>abstract</strong> class encapsulates a solver
+ * @brief This <strong>abstract</strong> class encapsulates a solver
  * for the forward velocity kinematics for a kdl::Chain.
  */
 class ChainFkSolverVel : public ChainSolverI

@@ -5,7 +5,7 @@
 namespace kdl
 {
 /**
- * \brief This class encapsulates a <strong>serial</strong> kinematic
+ * @brief This class encapsulates a <strong>serial</strong> kinematic
  * interconnection structure. It is built out of segments.
  *
  * @ingroup KinematicFamily

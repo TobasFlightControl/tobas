@@ -26,7 +26,7 @@ private:
 };
 
 /**
- * \brief  This class encapsulates a tree kinematic interconnection structure.
+ * @brief  This class encapsulates a tree kinematic interconnection structure.
  * It is built out of segments.
  */
 class Tree

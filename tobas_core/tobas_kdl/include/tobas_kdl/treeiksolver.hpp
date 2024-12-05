@@ -11,7 +11,7 @@ static constexpr double kDefaultWeightTS = 1.;
 static constexpr double kDefaultWeightJS = 1e-3;  // TODO: 関節ごとに支持重量でスケーリング
 
 /**
- * \brief This abstract class encapsulates the inverse position solver for a kdl::Tree.
+ * @brief This abstract class encapsulates the inverse position solver for a kdl::Tree.
  */
 class TreeIkSolverPos : public TreeSolverI
 {
@@ -44,7 +44,7 @@ protected:
 };
 
 /**
- * \brief This abstract class encapsulates the inverse velocity solver for a kdl::Tree.
+ * @brief This abstract class encapsulates the inverse velocity solver for a kdl::Tree.
  */
 class TreeIkSolverVel : public TreeSolverI
 {
@@ -77,7 +77,7 @@ protected:
 };
 
 /**
- * \brief This abstract class encapsulates the inverse acceleration solver for a kdl::Tree.
+ * @brief This abstract class encapsulates the inverse acceleration solver for a kdl::Tree.
  */
 class TreeIkSolverAcc : public TreeSolverI
 {

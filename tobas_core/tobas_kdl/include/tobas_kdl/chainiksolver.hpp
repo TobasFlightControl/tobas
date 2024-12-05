@@ -9,7 +9,7 @@
 namespace kdl
 {
 /**
- * \brief This <strong>abstract</strong> class encapsulates the inverse
+ * @brief This <strong>abstract</strong> class encapsulates the inverse
  * position solver for a kdl::Chain.
  */
 class ChainIkSolverPos : public ChainSolverI
@@ -43,7 +43,7 @@ protected:
 };
 
 /**
- * \brief This <strong>abstract</strong> class encapsulates the inverse
+ * @brief This <strong>abstract</strong> class encapsulates the inverse
  * velocity solver for a kdl::Chain.
  */
 class ChainIkSolverVel : public ChainSolverI
@@ -89,7 +89,7 @@ protected:
 };
 
 /**
- * \brief This abstract class encapsulates the inverse acceleration solver for a kdl::Tree.
+ * @brief This abstract class encapsulates the inverse acceleration solver for a kdl::Tree.
  */
 class ChainIkSolverAcc : public ChainSolverI
 {

@@ -173,30 +173,29 @@ Rotation Rotation::RotZ(double angle)
   return Rotation(cs, -sn, 0, sn, cs, 0, 0, 0, 1);
 }
 
-Rotation Rotation::Rot(const Vector& rotvec, double angle)
+Rotation Rotation::Rot(const Vector& axis, double angle)
 {
-  // rotvec must be normalized
-  assert(tobas_std::isClose(rotvec.norm(), 1));
+  // Axis must be normalized
+  assert(tobas_std::isClose(axis.norm(), 1));
 
   // The formula
   // V.(V.tr) + st*[V x] + ct*(I-V.(V.tr))
-  // can be found by multiplying it with an arbitrary vector p
-  // and noting that this vector is rotated.
+  // can be found by multiplying it with an arbitrary vector p and noting that this vector is rotated.
   const auto ct = cos(angle);
   const auto st = sin(angle);
   const auto vt = 1 - ct;
-  const auto m_vt_0 = vt * rotvec.x();
-  const auto m_vt_1 = vt * rotvec.y();
-  const auto m_vt_2 = vt * rotvec.z();
-  const auto m_st_0 = rotvec.x() * st;
-  const auto m_st_1 = rotvec.y() * st;
-  const auto m_st_2 = rotvec.z() * st;
-  const auto m_vt_0_1 = m_vt_0 * rotvec.y();
-  const auto m_vt_0_2 = m_vt_0 * rotvec.z();
-  const auto m_vt_1_2 = m_vt_1 * rotvec.z();
+  const auto m_vt_0 = vt * axis.x();
+  const auto m_vt_1 = vt * axis.y();
+  const auto m_vt_2 = vt * axis.z();
+  const auto m_st_0 = axis.x() * st;
+  const auto m_st_1 = axis.y() * st;
+  const auto m_st_2 = axis.z() * st;
+  const auto m_vt_0_1 = m_vt_0 * axis.y();
+  const auto m_vt_0_2 = m_vt_0 * axis.z();
+  const auto m_vt_1_2 = m_vt_1 * axis.z();
   return Rotation(
-    ct + m_vt_0 * rotvec.x(), -m_st_2 + m_vt_0_1, m_st_1 + m_vt_0_2, m_st_2 + m_vt_0_1, ct + m_vt_1 * rotvec.y(),
-    -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2, ct + m_vt_2 * rotvec.z());
+    ct + m_vt_0 * axis.x(), -m_st_2 + m_vt_0_1, m_st_1 + m_vt_0_2, m_st_2 + m_vt_0_1, ct + m_vt_1 * axis.y(),
+    -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2, ct + m_vt_2 * axis.z());
 }
 
 Vector Rotation::getRot() const

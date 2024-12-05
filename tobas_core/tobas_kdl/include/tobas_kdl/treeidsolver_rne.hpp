@@ -7,7 +7,7 @@
 namespace kdl
 {
 /**
- * \brief Recursive newton euler inverse dynamics solver for kinematic trees.
+ * @brief Recursive newton euler inverse dynamics solver for kinematic trees.
  *
  * It calculates the torques for the joints, given the motion of
  * the joints (q,qdot,qdotdot), external forces on the segments
@@ -26,8 +26,8 @@ class TreeIdSolver_RNE : public TreeIdSolver
 public:
   /**
    * Constructor for the solver, it will allocate all the necessary memory
-   * \param tree The kinematic tree to calculate the inverse dynamics for, an internal reference
-   * will be stored. \param grav The gravity vector to use during the calculation.
+   * @param tree The kinematic tree to calculate the inverse dynamics for, an internal reference
+   * will be stored. @param grav The gravity vector to use during the calculation.
    */
   explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -tobas_std::kGravity));
 
@@ -36,10 +36,10 @@ public:
   /**
    * Function to calculate from Cartesian forces to joint torques.
    * Input parameters;
-   * \param q The current joint positions
-   * \param qd The current joint velocities
-   * \param qdd The current joint accelerations
-   * \param f_ext The external forces (no gravity) on the segments
+   * @param q The current joint positions
+   * @param qd The current joint velocities
+   * @param qdd The current joint accelerations
+   * @param f_ext The external forces (no gravity) on the segments
    */
   int CartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext = WrenchMap())
     override;

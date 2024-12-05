@@ -10,7 +10,7 @@ class Accel;
 using AccelMap = std::map<std::string, Accel>;
 
 /**
- * \brief represents both linear and angular acceleration.
+ * @brief represents both linear and angular acceleration.
  */
 class Accel
 {

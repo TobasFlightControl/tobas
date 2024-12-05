@@ -6,7 +6,7 @@
 namespace kdl
 {
 /**
- * \brief represents both linear and angular stiffness.
+ * @brief represents both linear and angular stiffness.
  */
 class TaskSpaceStiffness
 {

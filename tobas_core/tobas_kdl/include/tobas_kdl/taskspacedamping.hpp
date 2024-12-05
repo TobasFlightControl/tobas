@@ -7,7 +7,7 @@
 namespace kdl
 {
 /**
- * \brief represents both linear and angular damping.
+ * @brief represents both linear and angular damping.
  */
 class TaskSpaceDamping
 {
