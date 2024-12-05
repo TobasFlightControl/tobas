@@ -352,35 +352,19 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
       const auto& cur_seg = elem.segment;
       const auto& par_seg = par_elem.segment;
       const auto& gpar_seg = gpar_elem.segment;
-      const auto& p = par_seg.joint().axis().data;
-      const auto& q = cur_seg.joint().axis().data;
-      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
-      const Matrix3d R_gpar2par = E3 + et::skew2(p) * (1 - cos(theta(i))) - et::skew(p) * sin(theta(i));
-      const Vector3d axis_B = R_base2gpar * R_gpar2par * q;
-      N_.block<3, 1>(3 * i, i) = axis_B;
-
-      if (i == 1)
-      {
-        cout << "theta: " << theta(i) << endl;
-        cout << "p: " << p.transpose() << endl;
-        cout << "q: " << q.transpose() << endl;
-        cout << "R_base2gpar:\n" << R_base2gpar << endl;
-        cout << "R_gpar2par:\n" << R_gpar2par << endl;
-        cout << "axis_B: " << axis_B.transpose() << endl;
-        cout << "----------" << endl;
-      }
+      const auto& axis_par = cur_seg.joint().axis();
+      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M;
+      const auto R_gpar2par = par_seg.pose(theta(i)).M;
+      const auto axis_B = R_base2gpar * (R_gpar2par * axis_par);
+      N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
     else
     {
-      const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
-      const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
+      const auto& R_base2par = fk_solver_.getFrame(elem.parent->first).M;
+      const auto axis_B = R_base2par * elem.segment.joint().axis();
       N_.block<3, 1>(3 * i, i) = axis_B.data;
     }
   }
-
-  // cout << "theta: " << theta.transpose() << endl;
-  // cout << N_ << endl;
-  // cout << endl;
 
   return N_;
 }
@@ -399,10 +383,9 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
       const auto& cur_seg = elem.segment;
       const auto& par_seg = par_elem.segment;
       const auto& gpar_seg = gpar_elem.segment;
-      const auto& p = par_seg.joint().axis().data;
-      const auto& q = cur_seg.joint().axis().data;
-      const auto& R = fk_solver_.getFrame(gpar_seg.name()).M.data;
-      const Vector3d dn_dtheta = R * (et::skew2(p) * sin(theta(i)) - et::skew(p) * cos(theta(i))) * q;
+      const auto& axis_par = cur_seg.joint().axis().data;
+      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      const Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(theta(i)) * axis_par;
       et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
     }
   }
@@ -424,10 +407,9 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
       const auto& cur_seg = elem.segment;
       const auto& par_seg = par_elem.segment;
       const auto& gpar_seg = gpar_elem.segment;
-      const auto& p = par_seg.joint().axis().data;
-      const auto& q = cur_seg.joint().axis().data;
-      const auto& R = fk_solver_.getFrame(gpar_seg.name()).M.data;
-      const Vector3d dn_dtheta_2 = R * (et::skew2(p) * cos(theta(i)) + et::skew(p) * sin(theta(i))) * q;
+      const auto& axis_par = cur_seg.joint().axis().data;
+      const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
+      const Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(theta(i)) * axis_par;
       et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
     }
   }
