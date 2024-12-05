@@ -6,7 +6,6 @@
 
 using namespace std;
 using namespace Eigen;
-namespace et = eigen_tools;
 
 namespace lr_tools
 {
@@ -88,9 +87,9 @@ bool JointSpaceDynamics::configure(const JointSpaceDynamicsConfig& cfg)
 
   A1_.block<4, 1>(2, 2).fill(-cfg.friction_coef);
   A1_.block<2, 1>(6, 2).fill(-cfg.friction_coef * cfg.foot_diameter);
-  const MatrixXd CI_left = et::blockDiag(A1_, nc_);
+  const MatrixXd CI_left = eigen::blockDiag(A1_, nc_);
   const MatrixXd CI_right = MatrixXd::Zero(kIneqSize * nc_, kBaseDoF);
-  qp_.problem.A = et::concat(CI_left, CI_right, 1);
+  qp_.problem.A = eigen::concat(CI_left, CI_right, 1);
 
   b1_st_(0) = -cfg.min_normal_force;
   b1_st_(1) = cfg.max_normal_force;
@@ -126,7 +125,7 @@ bool JointSpaceDynamics::solve(
   cur_q_(kPitchIdx) = pitch;
   cur_q_(kYawIdx) = kYawAngle;
   cur_qd_.data.segment<3>(kPosIdx) = cur_vel.data;
-  cur_qd_.data.segment<3>(kYawIdx) = et::eulerrateFromAngvelGlobal(cur_gyro.data, pitch, kYawAngle).reverse();
+  cur_qd_.data.segment<3>(kYawIdx) = eigen::eulerrateFromAngvelGlobal(cur_gyro.data, pitch, kYawAngle).reverse();
   cur_q_.data.tail(nj_raw_) = cur_q.data;
   cur_qd_.data.tail(nj_raw_) = cur_qd.data;
 
@@ -204,8 +203,8 @@ bool JointSpaceDynamics::solve(
   // 修正された地面反力と関節トルクを計算
   w_out_ = w_ref_ + w_res;
   eff_out_ = rne_.getEfforts().data - J_.transpose() * w_out_;
-  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                                       // ベースの修正分
-  assert(et::isClose(eff_out_.head<kBaseDoF>().eval(), Vector6d::Zero().eval()));  // ベースのレンチは0になるはず
+  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                                          // ベースの修正分
+  assert(eigen::isClose(eff_out_.head<kBaseDoF>().eval(), Vector6d::Zero().eval()));  // ベースのレンチは0になるはず
 
   return true;
 }

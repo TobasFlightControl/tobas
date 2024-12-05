@@ -64,7 +64,7 @@ inline void Welford<Scalar, Size>::add(const DataType& x)
 
   const DataType d2 = x - mean_;
   var_n_ += d * d2.transpose();
-  eigen_tools::symmetrise(var_n_);
+  eigen::symmetrise(var_n_);
 }
 
 template <typename Scalar, int Size>

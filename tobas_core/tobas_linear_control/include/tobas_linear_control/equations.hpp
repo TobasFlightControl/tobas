@@ -71,7 +71,7 @@ inline void LinearEquation::setZero()
 
 inline bool LinearEquation::isFinite() const
 {
-  return eigen_tools::isFinite(A) && eigen_tools::isFinite(b);
+  return eigen::isFinite(A) && eigen::isFinite(b);
 }
 
 inline Eigen::Index LinearEquation::variableSize() const

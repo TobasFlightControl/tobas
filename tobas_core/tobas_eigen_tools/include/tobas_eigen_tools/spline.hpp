@@ -3,7 +3,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/unsupported/Eigen/Splines>
 
-namespace eigen_tools
+namespace eigen
 {
 /**
  * @brief 任意の横軸値を引数にとれる多項式補完クラス．
@@ -27,4 +27,4 @@ private:
   double scaledValue(const double& x) const;
   Eigen::RowVectorXd scaledValues(const Eigen::VectorXd& x_vec) const;
 };
-}  // namespace eigen_tools
+}  // namespace eigen

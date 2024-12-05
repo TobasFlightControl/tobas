@@ -3,7 +3,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace eigen_tools
+namespace eigen
 {
 SplineFunction::SplineFunction(const VectorXd& x_vec, const VectorXd& y_vec, const size_t& degree)
   : x_min_(x_vec.minCoeff()),
@@ -34,4 +34,4 @@ RowVectorXd SplineFunction::scaledValues(const VectorXd& x_vec) const
 {
   return x_vec.unaryExpr([this](const double& x) { return scaledValue(x); }).transpose();
 }
-}  // namespace eigen_tools
+}  // namespace eigen

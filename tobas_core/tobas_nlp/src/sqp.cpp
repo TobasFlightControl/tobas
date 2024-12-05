@@ -69,7 +69,7 @@ SQP::error_t SQP::solve()
       H += mu_.transpose().eval() * dHdx_(x_);
 
     // 局所的なQPを解く
-    qp_.problem.P = eigen_tools::nearestPositiveDefinite(H, EPS);
+    qp_.problem.P = eigen::nearestPositiveDefinite(H, EPS);
     qp_.problem.q = dfdx_(x_).transpose();
     qp_.problem.A = dgdx_(x_);
     qp_.problem.b = -g_(x_);

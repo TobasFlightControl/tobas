@@ -62,13 +62,13 @@ VectorXd LQID::solve(const double& dt, const bool& update_gain)
   assert(dt >= 0);
 
   assert(current_state.rows() == x_size_);
-  assert(eigen_tools::isFinite(current_state));
+  assert(eigen::isFinite(current_state));
 
   assert(target_state.rows() == x_size_);
-  assert(eigen_tools::isFinite(target_state));
+  assert(eigen::isFinite(target_state));
 
   assert(max_integrated_error.rows() == r_size_);
-  assert(eigen_tools::isFinite(max_integrated_error));
+  assert(eigen::isFinite(max_integrated_error));
   assert((max_integrated_error.array() >= 0).all());
 
   if (update_gain)
@@ -100,22 +100,22 @@ void LQID::updateGain()
   assert(dynamics.isFinite());
 
   assert(C.rows() == r_size_ && C.cols() == x_size_);
-  assert(eigen_tools::isFinite(C));
+  assert(eigen::isFinite(C));
 
   assert(state_weight.rows() == x_size_);
-  assert(eigen_tools::isFinite(state_weight));
+  assert(eigen::isFinite(state_weight));
   assert((state_weight.array() >= 0).all());
 
   assert(integrated_error_weight.rows() == r_size_);
-  assert(eigen_tools::isFinite(integrated_error_weight));
+  assert(eigen::isFinite(integrated_error_weight));
   assert((integrated_error_weight.array() >= 0).all());
 
   assert(input_weight.rows() == u_size_);
-  assert(eigen_tools::isFinite(input_weight));
+  assert(eigen::isFinite(input_weight));
   assert((input_weight.array() >= 0).all());
 
   assert(input_rate_weight.rows() == u_size_);
-  assert(eigen_tools::isFinite(input_rate_weight));
+  assert(eigen::isFinite(input_rate_weight));
   assert((input_rate_weight.array() > 0).all());
 
   // 拡大状態のダイナミクスを更新

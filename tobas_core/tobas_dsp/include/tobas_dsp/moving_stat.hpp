@@ -56,7 +56,7 @@ void MovingStatistics<Scalar, Size, Length>::initialize(const std::array<DataTyp
     cov_sum += d * d.transpose();
   }
   v_ = cov_sum / Length;
-  eigen_tools::symmetrise(v_);
+  eigen::symmetrise(v_);
 }
 
 template <typename Scalar, int Size, size_t Length>
@@ -71,7 +71,7 @@ inline void MovingStatistics<Scalar, Size, Length>::add(const DataType& x_new)
   const DataType diff_old = x_old - m_;
   const DataType diff_new = x_new - m_;
   v_ += d * d.transpose() + (diff_new * diff_new.transpose() - diff_old * diff_old.transpose()) / Length;
-  eigen_tools::symmetrise(v_);
+  eigen::symmetrise(v_);
 
   // キューを更新
   que_.pop_front();

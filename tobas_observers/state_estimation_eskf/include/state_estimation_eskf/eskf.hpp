@@ -282,7 +282,7 @@ inline void ErrorStateKalmanFilter::setPosition(const Eigen::Vector3d& pos)
 
 inline void ErrorStateKalmanFilter::setQuaternion(const Eigen::Quaterniond& quat)
 {
-  x_.segment<4>(kQuatIdx) = eigen_tools::quaternionToHamilton(quat).normalized();
+  x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(quat).normalized();
 }
 
 inline void ErrorStateKalmanFilter::setReferenceMagneticField(const Eigen::Vector3d& mag_ref)
@@ -302,7 +302,7 @@ inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(const StateVector& x)
 
 inline Eigen::Quaterniond ErrorStateKalmanFilter::getQuaternion(const StateVector& x) const
 {
-  return eigen_tools::hamiltonToQuaternion(getHamilton(x));
+  return eigen::hamiltonToQuaternion(getHamilton(x));
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias(const StateVector& x) const
@@ -364,7 +364,7 @@ double ErrorStateKalmanFilter::correct(
   const Eigen::Matrix<double, M, M>& meas_cov,
   const Eigen::Matrix<double, M, kDeltaStateSize>& H)
 {
-  assert(eigen_tools::isSymmetricPositiveDefinite(meas_cov));
+  assert(eigen::isSymmetricPositiveDefinite(meas_cov));
 
   // (274) Compute kalman gain
   const Eigen::Matrix<double, kDeltaStateSize, M> PHt = P_ * H.transpose();
@@ -380,14 +380,14 @@ double ErrorStateKalmanFilter::correct(
     P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // 対称正定が保持されやすい
   else
     P_ = I_KH * P_;  // 理論通りだが数値的に不安定
-  eigen_tools::symmetrise(P_);
+  eigen::symmetrise(P_);
 
   // (283) Update state
   const Eigen::Vector3d dtheta = delta_x.segment<3>(kDeltaThetaIdx);
-  const Eigen::Quaterniond q_dtheta = eigen_tools::angleAxisToQuaternion(dtheta);
+  const Eigen::Quaterniond q_dtheta = eigen::angleAxisToQuaternion(dtheta);
   x_.segment<3>(kPosIdx) += delta_x.segment<3>(kDeltaPosIdx);
   x_.segment<3>(kVelIdx) += delta_x.segment<3>(kDeltaVelIdx);
-  x_.segment<4>(kQuatIdx) = eigen_tools::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
+  x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(getQuaternion() * q_dtheta).normalized();
   x_.segment<3>(kAccBiasIdx) += delta_x.segment<3>(kDeltaAccBiasIdx);
   x_.segment<3>(kGyroBiasIdx) += delta_x.segment<3>(kDeltaGyroBiasIdx);
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
@@ -395,9 +395,9 @@ double ErrorStateKalmanFilter::correct(
   // (286) Initialize ESKF (Optional)
   if (do_cov_initialization_)
   {
-    G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Matrix3d::Identity() - eigen_tools::skew(0.5 * dtheta);
+    G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Matrix3d::Identity() - eigen::skew(0.5 * dtheta);
     P_ = G_ * P_ * G_.transpose();  // TODO: 必要な部分のみ計算
-    eigen_tools::symmetrise(P_);
+    eigen::symmetrise(P_);
   }
 
   // Compute anormaly score

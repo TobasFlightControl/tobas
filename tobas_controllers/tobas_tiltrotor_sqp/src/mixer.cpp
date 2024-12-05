@@ -12,7 +12,6 @@
 
 using namespace std;
 using namespace Eigen;
-namespace et = eigen_tools;
 
 namespace tobas
 {
@@ -71,7 +70,7 @@ bool TiltRotorMixer::solve(
     const auto& cm = rotor.moment_constant;
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
-    B_.block<3, 3>(3, 3 * idx) = et::skew(r.data) - (d * cm) * E3;
+    B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * E3;
 
     // Update ci0
     const auto nr = drone_.numRotors();
@@ -289,7 +288,7 @@ MatrixXd TiltRotorMixer::dFdx(const VectorXd& x)
   df_dx_2_.topLeftCorner(nr, nr) = Qe.transpose().eval() * du_dtheta_2 + du_dtheta.transpose() * Q_ * du_dtheta;
   df_dx_2_.bottomRightCorner(nr, nr) = C.transpose() * QC + R_.toDenseMatrix();
 
-  const MatrixXd d2f_dtheta_dtau = et::shuffle(dC_dtheta, { 2, 1, 0 }) * Qe + du_dtheta.transpose() * QC;
+  const MatrixXd d2f_dtheta_dtau = eigen::shuffle(dC_dtheta, { 2, 1, 0 }) * Qe + du_dtheta.transpose() * QC;
   df_dx_2_.topRightCorner(nr, nr) = d2f_dtheta_dtau;
   df_dx_2_.bottomLeftCorner(nr, nr) = d2f_dtheta_dtau.transpose();
 
@@ -386,7 +385,7 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
       const Vector3d dn_dtheta = R_base2gpar * par_seg.rotGrad(theta(i)) * axis_par;
-      et::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
+      eigen::setVectorX(dN_dtheta_, dn_dtheta, { 3 * (int)i, (int)i, (int)i });
     }
   }
 
@@ -410,7 +409,7 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
       const auto& axis_par = cur_seg.joint().axis().data;
       const auto& R_base2gpar = fk_solver_.getFrame(gpar_seg.name()).M.data;
       const Vector3d dn_dtheta_2 = R_base2gpar * par_seg.rotGrad2(theta(i)) * axis_par;
-      et::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
+      eigen::setVectorX(dN_dtheta_2_, dn_dtheta_2, { 3 * (int)i, (int)i, (int)i, (int)i });
     }
   }
 
@@ -419,12 +418,12 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
 
 Matrix6Xd TiltRotorMixer::calc_du_dtheta(const VectorXd& theta, const VectorXd& tau)
 {
-  return et::shuffle(calc_dC_dtheta(theta), { 0, 2, 1 }) * tau;
+  return eigen::shuffle(calc_dC_dtheta(theta), { 0, 2, 1 }) * tau;
 }
 
 Tensor3Xd TiltRotorMixer::calc_du_dtheta_2(const VectorXd& theta, const VectorXd& tau)
 {
-  return et::shuffle(calc_dC_dtheta_2(theta), { 0, 3, 2, 1 }) * tau;
+  return eigen::shuffle(calc_dC_dtheta_2(theta), { 0, 3, 2, 1 }) * tau;
 }
 
 Tensor3Xd TiltRotorMixer::calc_dC_dtheta(const VectorXd& theta)

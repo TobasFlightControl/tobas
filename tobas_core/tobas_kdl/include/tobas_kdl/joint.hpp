@@ -145,7 +145,7 @@ inline SegmentJacobian Joint::jacobian() const
 inline Eigen::Matrix3d Joint::rotGrad(double q) const
 {
   if (type == ROTATION)
-    return eigen_tools::skew(axis_.data) * Rotation::Rot(axis_, q).data;
+    return eigen::skew(axis_.data) * Rotation::Rot(axis_, q).data;
   else
     return Eigen::Matrix3d::Zero();
 }
@@ -153,7 +153,7 @@ inline Eigen::Matrix3d Joint::rotGrad(double q) const
 inline Eigen::Matrix3d Joint::rotGrad2(double q) const
 {
   if (type == ROTATION)
-    return eigen_tools::skew2(axis_.data) * Rotation::Rot(axis_, q).data;
+    return eigen::skew2(axis_.data) * Rotation::Rot(axis_, q).data;
   else
     return Eigen::Matrix3d::Zero();
 }

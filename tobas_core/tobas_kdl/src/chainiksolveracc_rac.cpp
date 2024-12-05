@@ -38,7 +38,7 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
   const auto& jac = jnt2jac_.getJacobian();
 
   // 最小二乗解を計算
-  // TODO: eigen_tools::minimizeWeightedNorm
+  // TODO: eigen::minimizeWeightedNorm
   qdd_out_.data = jac.data.topRows(3).jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff.data);
 
   return setDefaultError(E_NOERROR);
@@ -63,7 +63,7 @@ int ChainIkSolverAcc_RAC::CartToJnt(const JntArray& q, const JntArray& qd, const
   const auto& jac = jnt2jac_.getJacobian();
 
   // 最小二乗解を計算
-  // TODO: eigen_tools::minimizeWeightedNorm
+  // TODO: eigen::minimizeWeightedNorm
   qdd_out_.data = jac.data.jacobiSvd(ComputeThinU | ComputeThinV).solve(acc_diff_ravel);
 
   return setDefaultError(E_NOERROR);

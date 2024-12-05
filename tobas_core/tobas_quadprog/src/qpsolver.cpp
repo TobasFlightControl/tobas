@@ -55,8 +55,8 @@ bool QuadProgProblem::isSizeMatch() const
 
 bool QuadProgProblem::isFinite() const
 {
-  return eigen_tools::isFinite(P) && eigen_tools::isFinite(q) && eigen_tools::isFinite(G) && eigen_tools::isFinite(h)
-         && eigen_tools::isFinite(A) && eigen_tools::isFinite(b);
+  return eigen::isFinite(P) && eigen::isFinite(q) && eigen::isFinite(G) && eigen::isFinite(h) && eigen::isFinite(A)
+         && eigen::isFinite(b);
 }
 
 ostream& operator<<(ostream& os, const QuadProgProblem& arg)

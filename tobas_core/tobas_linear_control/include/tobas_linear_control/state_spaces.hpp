@@ -119,7 +119,7 @@ inline Eigen::VectorXd LinearDynamics::dynamics(const Eigen::VectorXd& x, const 
 
 inline bool LinearDynamics::isFinite() const
 {
-  return eigen_tools::isFinite(A) && eigen_tools::isFinite(B);
+  return eigen::isFinite(A) && eigen::isFinite(B);
 }
 
 inline bool LinearDynamics::isControllable() const
@@ -206,7 +206,7 @@ inline bool LinearStateSpace::isSizeMatch() const
 
 inline bool LinearStateSpace::isFinite() const
 {
-  return eigen_tools::isFinite(A) && eigen_tools::isFinite(B) && eigen_tools::isFinite(C);
+  return eigen::isFinite(A) && eigen::isFinite(B) && eigen::isFinite(C);
 }
 
 inline bool LinearStateSpace::isControllable() const

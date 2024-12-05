@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace eigen_tools
+namespace eigen
 {
 void vectorNedToNwu(const Vector3d& src, Vector3d& des)
 {
@@ -228,8 +228,8 @@ Matrix3d matrixFromAngleAxis(const Vector3d& a)
   const double angle = a.norm();
   const Vector3d axis = a.normalized();
 
-  const Matrix3d axis_cross = eigen_tools::skew(axis);
-  const Matrix3d axis_cross2 = eigen_tools::skew2(axis);
+  const Matrix3d axis_cross = eigen::skew(axis);
+  const Matrix3d axis_cross2 = eigen::skew2(axis);
   const Matrix3d I = Matrix3d::Identity();
   const auto data = I + axis_cross * sin(angle) + axis_cross2 * (1 - cos(angle));
 
@@ -296,4 +296,4 @@ Vector3d angaccFromEuleraccLocal(const double& roll, const double& pitch, const 
 {
   return angaccFromEuleraccLocal(roll, pitch, drpy.x(), drpy.y(), drpy.z(), ddrpy.x(), ddrpy.y(), ddrpy.z());
 }
-}  // namespace eigen_tools
+}  // namespace eigen

@@ -27,8 +27,8 @@ MatrixXd dare(
   assert(Q.rows() == n && Q.cols() == n);
   assert(R.rows() == l && R.rows() == l);
   assert(isControllable(A, B));
-  assert(eigen_tools::isSymmetricSemiPositiveDefinite(Q));
-  assert(eigen_tools::isSymmetricPositiveDefinite(R));
+  assert(eigen::isSymmetricSemiPositiveDefinite(Q));
+  assert(eigen::isSymmetricPositiveDefinite(R));
   assert(tol > 0.);
 
   const MatrixXd I = MatrixXd::Identity(n, n);
@@ -42,7 +42,7 @@ MatrixXd dare(
 
     // 事前推定
     MatrixXd X_mid = A.transpose() * X_prev * A + Q;
-    eigen_tools::symmetrise(X_mid);  // 対称性を保存
+    eigen::symmetrise(X_mid);  // 対称性を保存
 
     // 事後推定
     const MatrixXd XB = X_mid * B;
@@ -67,14 +67,14 @@ MatrixXd dare(
       }
     }
 
-    eigen_tools::symmetrise(X_next);  // 対称性を保存
+    eigen::symmetrise(X_next);  // 対称性を保存
 
     if (iter++ > max_iter)
       throw runtime_error("Failed to converge");
   }
 
-  // cout << eigen_tools::matrixRank(X_next) << endl;
-  assert(eigen_tools::isPositiveDefinite(X_next));
+  // cout << eigen::matrixRank(X_next) << endl;
+  assert(eigen::isPositiveDefinite(X_next));
 
   cout << "DARE has successfully converged in " << iter << " iterations." << endl;
   return X_next;

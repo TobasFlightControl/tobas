@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     cout << "----------" << endl;
 
     // Validate
-    if (!eigen_tools::isClose(mean_1, mean_2) || !eigen_tools::isClose(cov_1, cov_2))
+    if (!eigen::isClose(mean_1, mean_2) || !eigen::isClose(cov_1, cov_2))
     {
       cerr << "Moving statistics is inaccurate." << endl;
       return EXIT_FAILURE;

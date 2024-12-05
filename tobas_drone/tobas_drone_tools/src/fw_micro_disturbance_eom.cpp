@@ -181,7 +181,7 @@ int MicroDisturbanceEoM::update(
     const auto d = rotor.sign();
     const auto& c = rotor.moment_constant;
     Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
-    eigen_tools::vectorNwuToNed(v);                                                // NWU -> NED
+    eigen::vectorNwuToNed(v);                                                      // NWU -> NED
     B_.block(kStateIdx_p, i, 3, 1) = v;
   }
 

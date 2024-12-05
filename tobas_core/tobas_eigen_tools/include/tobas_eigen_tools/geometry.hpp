@@ -3,7 +3,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
-namespace eigen_tools
+namespace eigen
 {
 /* 3次元ベクトルをNED座標系からNWU座標系に変換する．Rx(π)をかけるのと同じ． */
 void vectorNedToNwu(const Eigen::Vector3d& src, Eigen::Vector3d& des);
@@ -101,4 +101,4 @@ Eigen::Vector3d angaccFromEuleraccLocal(
   const double& pitch,
   const Eigen::Vector3d& drpy,
   const Eigen::Vector3d& ddrpy);
-}  // namespace eigen_tools
+}  // namespace eigen

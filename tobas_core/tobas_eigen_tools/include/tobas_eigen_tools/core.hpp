@@ -3,7 +3,7 @@
 #include <vector>
 #include <eigen3/Eigen/Core>
 
-namespace eigen_tools
+namespace eigen
 {
 /**
  * @brief ブロック対角行列を作る．
@@ -225,4 +225,4 @@ inline Scalar variance(const Eigen::Matrix<Scalar, Rows, 1>& A)
 {
   return varianceCol(A)(0);
 }
-}  // namespace eigen_tools
+}  // namespace eigen

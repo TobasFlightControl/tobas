@@ -29,8 +29,8 @@ VectorXd LQD::solve(const double& dt, const bool& update_gain)
   const VectorXd last_u_scaled = last_input.array() / input_scale.array();
 
   // 拡大状態を作成
-  const VectorXd x_tilde = eigen_tools::concat(x_scaled, last_u_scaled, 0);
-  const VectorXd s_tilde = eigen_tools::concat(s_scaled, VectorXd::Zero(input_weight.rows()), 0);
+  const VectorXd x_tilde = eigen::concat(x_scaled, last_u_scaled, 0);
+  const VectorXd s_tilde = eigen::concat(s_scaled, VectorXd::Zero(input_weight.rows()), 0);
 
   const auto ud_scaled = K_ * (s_tilde - x_tilde);
 
@@ -77,7 +77,7 @@ void LQD::updateGain()
   B_tilde.bottomRows(u_size).setIdentity();
 
   // 重み行列を作成
-  const MatrixXd Q_tilde = eigen_tools::concat(state_weight, input_weight, 0).asDiagonal();
+  const MatrixXd Q_tilde = eigen::concat(state_weight, input_weight, 0).asDiagonal();
   const MatrixXd R_tilde = input_rate_weight.asDiagonal();
 
   // CAREを解く
@@ -104,11 +104,11 @@ void LQD::checkProblemValidity()
   assert(input_weight.rows() == u_size);
   assert(input_rate_weight.rows() == u_size);
 
-  assert(eigen_tools::isFinite(state_scale));
-  assert(eigen_tools::isFinite(input_scale));
-  assert(eigen_tools::isFinite(state_weight));
-  assert(eigen_tools::isFinite(input_weight));
-  assert(eigen_tools::isFinite(input_rate_weight));
+  assert(eigen::isFinite(state_scale));
+  assert(eigen::isFinite(input_scale));
+  assert(eigen::isFinite(state_weight));
+  assert(eigen::isFinite(input_weight));
+  assert(eigen::isFinite(input_rate_weight));
 
   assert((state_scale.array() > 0.).all());
   assert((input_scale.array() > 0.).all());

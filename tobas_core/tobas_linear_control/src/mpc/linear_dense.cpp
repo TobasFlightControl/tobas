@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace Eigen;
-namespace et = eigen_tools;
 
 namespace ctrl
 {
@@ -62,8 +61,8 @@ bool LinearDenseMPC::solve()
   const VectorXd last_u_scaled = last_input_.array() / input_scale.array();
 
   // 重み行列
-  const DiagonalMatrix<double, Dynamic> Q = et::tile(control_weight, prediction_steps, 0).asDiagonal();
-  const MatrixXd R = et::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
+  const DiagonalMatrix<double, Dynamic> Q = eigen::tile(control_weight, prediction_steps, 0).asDiagonal();
+  const MatrixXd R = eigen::tile(input_rate_weight, input_steps, 0).asDiagonal().toDenseMatrix();
   const MatrixXd Sa = makeSa();
   const MatrixXd Sb = makeSb(last_u_scaled);
 
@@ -133,23 +132,23 @@ void LinearDenseMPC::checkProblemValidity()
     // TODO: 制御変数 (状態変数ではない) の可安定性のチェック
   }
   assert(Cz.rows() == z_size_ && Cz.cols() == x_size_);
-  assert(et::isFinite(Cz));
+  assert(eigen::isFinite(Cz));
 
   assert(1 <= input_steps && input_steps <= prediction_steps);
   assert(time_step > 0);
 
   // Tracking error decay time constants
   assert(decay_time_consts.size() == z_size_);
-  assert(et::isFinite(decay_time_consts));
+  assert(eigen::isFinite(decay_time_consts));
   assert((decay_time_consts.array() >= 0).all());
 
   // Scales
   assert(state_scale.rows() == x_size_);
   assert(input_scale.rows() == u_size_);
   assert(control_scale.rows() == z_size_);
-  assert(et::isFinite(state_scale));
-  assert(et::isFinite(input_scale));
-  assert(et::isFinite(control_scale));
+  assert(eigen::isFinite(state_scale));
+  assert(eigen::isFinite(input_scale));
+  assert(eigen::isFinite(control_scale));
   assert((state_scale.array() > 0).all());
   assert((input_scale.array() > 0).all());
   assert((control_scale.array() > 0).all());
@@ -158,9 +157,9 @@ void LinearDenseMPC::checkProblemValidity()
   assert(input_rate_weight.rows() == u_size_);
   assert(input_weight.rows() == u_size_);
   assert(control_weight.rows() == z_size_);
-  assert(et::isFinite(input_rate_weight));
-  assert(et::isFinite(input_weight));
-  assert(et::isFinite(control_weight));
+  assert(eigen::isFinite(input_rate_weight));
+  assert(eigen::isFinite(input_weight));
+  assert(eigen::isFinite(control_weight));
   assert((input_rate_weight.array() >= 0).all());
   assert((input_weight.array() >= 0).all());
   assert((control_weight.array() >= 0).all());
@@ -193,8 +192,8 @@ void LinearDenseMPC::checkProblemValidity()
   // States
   assert(current_state.rows() == x_size_);
   assert(set_state.rows() == z_size_);
-  assert(et::isFinite(current_state));
-  assert(et::isFinite(set_state));
+  assert(eigen::isFinite(current_state));
+  assert(eigen::isFinite(set_state));
 }
 
 void LinearDenseMPC::updateQpConstraint(
@@ -227,8 +226,8 @@ void LinearDenseMPC::updateQpConstraint(
   const VectorXd g = G.col(G.cols() - 1);
 
   // (3.41)
-  A = et::concat(F_gothic, Gamma * Theta, W, 0);
-  b = et::concat(-F_1 * last_u - f, -Gamma * Psi_x - Gamma * Upsilon_u - g, w, 0);
+  A = eigen::concat(F_gothic, Gamma * Theta, W, 0);
+  b = eigen::concat(-F_1 * last_u - f, -Gamma * Psi_x - Gamma * Upsilon_u - g, w, 0);
 }
 
 MatrixXd LinearDenseMPC::makeSa()

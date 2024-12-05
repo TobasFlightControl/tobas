@@ -302,7 +302,7 @@ void ControllerNode::publishDeflections(const VectorXd& deflections)
 {
   auto deflections_msg = std::make_unique<tobas_msgs::msg::ControlSurfaceDeflections>();
   deflections_msg->header.stamp = odom_ned_.header.stamp;
-  deflections_msg->deflections = eigen_tools::toStdVector(deflections);
+  deflections_msg->deflections = eigen::toStdVector(deflections);
   deflections_pub_->publish(move(deflections_msg));
 }
 

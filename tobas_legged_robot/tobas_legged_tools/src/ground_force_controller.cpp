@@ -177,8 +177,8 @@ ctrl::LinearEquation GroundForceController::makeInputConstraint()
   f1 << -f_min, f_max, 0, 0, 0, 0, 0, 0;
 
   // 全ての足について
-  const auto F = eigen_tools::blockDiag(F1, nc_);
-  const auto f = eigen_tools::tile(f1, nc_, 0);
+  const auto F = eigen::blockDiag(F1, nc_);
+  const auto f = eigen::tile(f1, nc_, 0);
 
   return ctrl::LinearEquation(F, f);
 }

@@ -246,7 +246,7 @@ inline Vector Vector::inverse() const
 
 bool Vector::isFinite() const
 {
-  return eigen_tools::isFinite(data);
+  return eigen::isFinite(data);
 }
 
 inline Vector& Vector::operator+=(const Vector& arg)

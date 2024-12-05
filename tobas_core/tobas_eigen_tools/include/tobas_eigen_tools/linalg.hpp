@@ -7,7 +7,7 @@
 
 #include "./core.hpp"
 
-namespace eigen_tools
+namespace eigen
 {
 /* 行列のランクを計算する． */
 template <typename Derived>
@@ -106,4 +106,4 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   // NOTE: QR分解は決定不全問題の最小二乗解を与えない
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
-}  // namespace eigen_tools
+}  // namespace eigen

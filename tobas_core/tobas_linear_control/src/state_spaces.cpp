@@ -9,8 +9,8 @@ LinearDynamics LinearDynamics::scale(const VectorXd& x_scale, const VectorXd& u_
 {
   assert(x_scale.rows() == stateSize());
   assert(u_scale.rows() == inputSize());
-  assert(eigen_tools::isFinite(x_scale));
-  assert(eigen_tools::isFinite(u_scale));
+  assert(eigen::isFinite(x_scale));
+  assert(eigen::isFinite(u_scale));
   assert((x_scale.array() > 0).all());
   assert((u_scale.array() > 0).all());
 

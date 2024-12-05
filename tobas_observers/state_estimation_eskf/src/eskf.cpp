@@ -13,8 +13,6 @@ using namespace std;
 using namespace chrono;
 using namespace Eigen;
 
-namespace et = eigen_tools;
-
 namespace eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
@@ -55,18 +53,18 @@ void ErrorStateKalmanFilter::initialize(
 {
   PRINT_DEBUG("ErrorStateKalmanFilter::initialize");
 
-  assert(et::isSymmetricSemiPositiveDefinite(init_pos_cov));
-  assert(et::isSymmetricSemiPositiveDefinite(init_vel_cov));
-  assert(et::isSymmetricSemiPositiveDefinite(init_dtheta_cov));
-  assert(et::isSymmetricSemiPositiveDefinite(init_acc_bias_cov));
-  assert(et::isSymmetricSemiPositiveDefinite(init_gyro_bias_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(init_pos_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(init_vel_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(init_dtheta_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(init_acc_bias_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(init_gyro_bias_cov));
   assert(init_grav_var >= 0);
 
   // Initialize nominal state
   x_.setZero();
   x_.segment<3>(kPosIdx) = init_pos;
   x_.segment<3>(kVelIdx) = init_vel;
-  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(init_quat).normalized();
+  x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(init_quat).normalized();
   x_(kGravIdx) = tobas_std::kGravity;
 
   // Initialize covariance
@@ -108,8 +106,8 @@ void ErrorStateKalmanFilter::predictIMU(
 {
   PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
 
-  assertWithMsg(et::isSymmetricSemiPositiveDefinite(acc_cov), "Invalid accel covariance:\n" << acc_cov);
-  assertWithMsg(et::isSymmetricSemiPositiveDefinite(gyro_cov), "Invalid gyro covariance:\n" << gyro_cov);
+  assertWithMsg(eigen::isSymmetricSemiPositiveDefinite(acc_cov), "Invalid accel covariance:\n" << acc_cov);
+  assertWithMsg(eigen::isSymmetricSemiPositiveDefinite(gyro_cov), "Invalid gyro covariance:\n" << gyro_cov);
   assertWithMsg(acc_bias_var >= 0, "Invalid accel bias variance: " << acc_bias_var);
   assertWithMsg(gyro_bias_var >= 0, "Invalid gyro bias variance: " << gyro_bias_var);
   assertWithMsg(grav_var >= 0, "Invalid gravity variance: " << grav_var);
@@ -129,18 +127,18 @@ void ErrorStateKalmanFilter::predictIMU(
   const Vector3d acc_B = acc_meas - getAccelBias(x_);
   const Vector3d acc_W = W_Rot_B * acc_B;
   const Vector3d delta_theta = (gyro_meas - getGyroBias(x_)) * dt;
-  const Quaterniond q_delta_theta = et::angleAxisToQuaternion(delta_theta);
+  const Quaterniond q_delta_theta = eigen::angleAxisToQuaternion(delta_theta);
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
   // x_.segment<3>(kPosIdx) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * math::sqr(dt);
   x_.segment<3>(kPosIdx) += getVelocity() * dt;  // 積分誤差が大きくなるため二階積分は考えない
   x_.segment<3>(kVelIdx) += (acc_W + getGravVector(x_)) * dt;
-  x_.segment<4>(kQuatIdx) = et::quaternionToHamilton(getQuaternion(x_) * q_delta_theta).normalized();
+  x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(getQuaternion(x_) * q_delta_theta).normalized();
 
   // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * et::skew(acc_B) * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * eigen::skew(acc_B) * dt;
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -W_Rot_B * dt;
   F_x_(kDeltaVelIdx + 2, kDeltaGravIdx) = -dt;
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
@@ -148,7 +146,7 @@ void ErrorStateKalmanFilter::predictIMU(
 
   // (269)第一項: 共分散行列の予測値を更新
   P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
-  et::symmetrise(P_);                 // 対称化 (これが必須)
+  eigen::symmetrise(P_);              // 対称化 (これが必須)
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * math::sqr(dt);
@@ -161,9 +159,9 @@ void ErrorStateKalmanFilter::predictIMU(
   x_history_.add(time, x_);
 
   // NaN検出
-  assertWithMsg(et::isFinite(x_), "Nominal state:" << x_.transpose());
-  assertWithMsg(et::isFinite(F_x_), "F_x:\n" << F_x_);
-  assertWithMsg(et::isFinite(P_), "Covariance matrix:\n" << P_);
+  assertWithMsg(eigen::isFinite(x_), "Nominal state:" << x_.transpose());
+  assertWithMsg(eigen::isFinite(F_x_), "F_x:\n" << F_x_);
+  assertWithMsg(eigen::isFinite(P_), "Covariance matrix:\n" << P_);
 }
 
 double ErrorStateKalmanFilter::measurePosition(
@@ -230,7 +228,7 @@ double ErrorStateKalmanFilter::measureVelocity(
   H_vel_.block<3, 3>(0, kDeltaThetaIdx) = dqvq_dq * Q_dtheta;
 
   // ジャイロバイアスによる偏微分
-  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::skew(offset);
+  H_vel_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
 
   return correct(delta_vel, vel_cov, H_vel_);
 }
@@ -262,7 +260,7 @@ double ErrorStateKalmanFilter::measurePosVel(
   const auto vel_q_deriv = quatRotationDerivative(x, gyro_offset);
   H_pv_.block<3, 3>(0, kDeltaThetaIdx) = pos_q_deriv * Q_dtheta;  // 位置の姿勢による偏微分
   H_pv_.block<3, 3>(3, kDeltaThetaIdx) = vel_q_deriv * Q_dtheta;  // 速度の姿勢による偏微分
-  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * et::skew(offset);
+  H_pv_.block<3, 3>(0, kDeltaGyroBiasIdx) = getDCM(x) * eigen::skew(offset);
 
   // 共分散
   Matrix6d cov;
@@ -286,7 +284,7 @@ double ErrorStateKalmanFilter::measureQuaternion(
 
   const Quaterniond q_nominal = getQuaternion(x);
   const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
-  const Vector3d delta_theta = et::quaternionToAngleAxis(q_error);
+  const Vector3d delta_theta = eigen::quaternionToAngleAxis(q_error);
 
   return correct(delta_theta, theta_cov, H_theta_);
 }
@@ -409,7 +407,7 @@ double ErrorStateKalmanFilter::measureGravity(
   const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
   const Vector3d delta_acc = acc_meas - acc_ref;
 
-  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * et::skew(grav_B);
+  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * eigen::skew(grav_B);
   H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
   return correct(delta_acc, grav_cov, H_acc_);
 }
@@ -436,7 +434,7 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateV
 
   Matrix<double, 3, 4> res;
   res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
-  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * et::skew(a));
+  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * eigen::skew(a));
 
   return res;
 }

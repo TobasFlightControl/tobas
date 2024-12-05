@@ -64,7 +64,7 @@ int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   }
 
   // 評価関数
-  const VectorXd Wt = eigen_tools::tile(Wt_, num_points, 0);
+  const VectorXd Wt = eigen::tile(Wt_, num_points, 0);
   const VectorXd Wj = VectorXd::Constant(nj_, Wj_);
   const MatrixXd JT_Wt = J_.transpose() * Wt.asDiagonal();
   qp_solver_.problem.P = JT_Wt * J_;
