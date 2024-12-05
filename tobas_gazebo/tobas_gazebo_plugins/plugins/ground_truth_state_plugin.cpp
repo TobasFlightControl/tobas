@@ -11,15 +11,14 @@
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
-using namespace gz;
-namespace cmp = sim::components;
+namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
 class GazeboGroundTruthStatePlugin : public BaseNode,
-                                     public sim::System,
-                                     public sim::ISystemConfigure,
-                                     public sim::ISystemPostUpdate
+                                     public gz::sim::System,
+                                     public gz::sim::ISystemConfigure,
+                                     public gz::sim::ISystemPostUpdate
 {
   static constexpr size_t kDefaultUpdateRate = 0;  // [Hz]
 
@@ -29,12 +28,12 @@ public:
   explicit GazeboGroundTruthStatePlugin();
 
   void Configure(
-    const sim::Entity& model,
+    const gz::sim::Entity& model,
     const sdf::ElementConstPtr& sdf,
-    sim::EntityComponentManager& ecm,
-    sim::EventManager&) override;
+    gz::sim::EntityComponentManager& ecm,
+    gz::sim::EventManager&) override;
 
-  void PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
   // SDF parameters
@@ -59,16 +58,16 @@ GazeboGroundTruthStatePlugin::GazeboGroundTruthStatePlugin()
 }
 
 void GazeboGroundTruthStatePlugin::Configure(
-  const sim::Entity& model,
+  const gz::sim::Entity& model,
   const sdf::ElementConstPtr& sdf,
-  sim::EntityComponentManager& ecm,
-  sim::EventManager&)
+  gz::sim::EntityComponentManager& ecm,
+  gz::sim::EventManager&)
 {
   initialize("gazebo_ground_truth_state_plugin", sdf);
   getSdfParams(sdf);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == sim::kNullEntity)
+  if (link == gz::sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -88,7 +87,7 @@ void GazeboGroundTruthStatePlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
 }
 
-void GazeboGroundTruthStatePlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
+void GazeboGroundTruthStatePlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime))
     return;
@@ -125,6 +124,6 @@ void GazeboGroundTruthStatePlugin::PostUpdate(const sim::UpdateInfo& info, const
 
 GZ_ADD_PLUGIN(
   gazebo::GazeboGroundTruthStatePlugin,
-  sim::System,
+  gz::sim::System,
   gazebo::GazeboGroundTruthStatePlugin::ISystemConfigure,
   gazebo::GazeboGroundTruthStatePlugin::ISystemPostUpdate)

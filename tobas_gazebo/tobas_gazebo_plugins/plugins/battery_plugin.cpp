@@ -12,15 +12,14 @@
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 
 using namespace std;
-using namespace gz;
-namespace cmp = sim::components;
+namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
 class GazeboBatteryPlugin : public BaseNode,
-                            public sim::System,
-                            public sim::ISystemConfigure,
-                            public sim::ISystemPostUpdate
+                            public gz::sim::System,
+                            public gz::sim::ISystemConfigure,
+                            public gz::sim::ISystemPostUpdate
 {
   // Constants
   static constexpr double kSagCapRate = 0.2;  // [-] 放電特性が急激に変化する点における電気残率
@@ -36,12 +35,12 @@ public:
   explicit GazeboBatteryPlugin();
 
   void Configure(
-    const sim::Entity& model,
+    const gz::sim::Entity& model,
     const sdf::ElementConstPtr& sdf,
-    sim::EntityComponentManager& ecm,
-    sim::EventManager&) override;
+    gz::sim::EntityComponentManager& ecm,
+    gz::sim::EventManager&) override;
 
-  void PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
   // SDF parameters
@@ -89,10 +88,10 @@ GazeboBatteryPlugin::GazeboBatteryPlugin() : rnd_gen_(rnd_dev_())
 }
 
 void GazeboBatteryPlugin::Configure(
-  const sim::Entity&,
+  const gz::sim::Entity&,
   const sdf::ElementConstPtr& sdf,
-  sim::EntityComponentManager&,
-  sim::EventManager&)
+  gz::sim::EntityComponentManager&,
+  gz::sim::EventManager&)
 {
   initialize("gazebo_battery_plugin", sdf);
   getSdfParams(sdf);
@@ -140,7 +139,7 @@ void GazeboBatteryPlugin::registerPubSub()
   }
 }
 
-void GazeboBatteryPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
+void GazeboBatteryPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime))
     return;
@@ -207,6 +206,6 @@ void GazeboBatteryPlugin::chargeCb(
 
 GZ_ADD_PLUGIN(
   gazebo::GazeboBatteryPlugin,
-  sim::System,
+  gz::sim::System,
   gazebo::GazeboBatteryPlugin::ISystemConfigure,
   gazebo::GazeboBatteryPlugin::ISystemPostUpdate)

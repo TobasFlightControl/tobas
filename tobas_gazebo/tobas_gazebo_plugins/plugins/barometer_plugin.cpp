@@ -9,15 +9,14 @@
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
-using namespace gz;
-namespace cmp = sim::components;
+namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
 class GazeboBarometerPlugin : public BaseNode,
-                              public sim::System,
-                              public sim::ISystemConfigure,
-                              public sim::ISystemPostUpdate
+                              public gz::sim::System,
+                              public gz::sim::ISystemConfigure,
+                              public gz::sim::ISystemPostUpdate
 {
   // Default values
   static constexpr size_t kDefaultUpdateRate = 50;   // [Hz]
@@ -27,18 +26,18 @@ public:
   explicit GazeboBarometerPlugin();
 
   void Configure(
-    const sim::Entity& model,
+    const gz::sim::Entity& model,
     const sdf::ElementConstPtr& sdf,
-    sim::EntityComponentManager& ecm,
-    sim::EventManager&) override;
+    gz::sim::EntityComponentManager& ecm,
+    gz::sim::EventManager&) override;
 
-  void PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
   // SDF parameters
   string link_name_;
   size_t update_rate_;
-  math::Vector3d offset_;  // B_Pos_BS
+  gz::math::Vector3d offset_;  // B_Pos_BS
   double alt_0_;
   double pressure_var_;
 
@@ -59,16 +58,16 @@ GazeboBarometerPlugin::GazeboBarometerPlugin() : rnd_gen_(rnd_dev_())
 }
 
 void GazeboBarometerPlugin::Configure(
-  const sim::Entity& model,
+  const gz::sim::Entity& model,
   const sdf::ElementConstPtr& sdf,
-  sim::EntityComponentManager& ecm,
-  sim::EventManager&)
+  gz::sim::EntityComponentManager& ecm,
+  gz::sim::EventManager&)
 {
   initialize("gazebo_barometer_plugin", sdf);
   getSdfParams(sdf);
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == sim::kNullEntity)
+  if (link == gz::sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -81,13 +80,13 @@ void GazeboBarometerPlugin::Configure(
 void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "offset", offset_, math::Vector3d::Zero);
+  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
   getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);
 }
 
-void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
+void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime))
     return;
@@ -118,6 +117,6 @@ void GazeboBarometerPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::E
 
 GZ_ADD_PLUGIN(
   gazebo::GazeboBarometerPlugin,
-  sim::System,
+  gz::sim::System,
   gazebo::GazeboBarometerPlugin::ISystemConfigure,
   gazebo::GazeboBarometerPlugin::ISystemPostUpdate)

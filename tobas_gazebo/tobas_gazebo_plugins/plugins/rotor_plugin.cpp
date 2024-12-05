@@ -28,17 +28,15 @@
 
 using namespace std;
 using namespace chrono;
-using namespace gz;
-using namespace gz::math;
-namespace cmp = sim::components;
+namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
 /* Simulates ESC, rotor and ropeller. */
 class GazeboRotorPlugin : public BaseNode,
-                          public sim::System,
-                          public sim::ISystemConfigure,
-                          public sim::ISystemPreUpdate
+                          public gz::sim::System,
+                          public gz::sim::ISystemConfigure,
+                          public gz::sim::ISystemPreUpdate
 {
   // Constants
   static constexpr char kDebugTopicPrefix[] = "gazebo/rotor_debug_";
@@ -59,12 +57,12 @@ public:
   explicit GazeboRotorPlugin();
 
   void Configure(
-    const sim::Entity& model_entity,
+    const gz::sim::Entity& model_entity,
     const sdf::ElementConstPtr& sdf,
-    sim::EntityComponentManager& ecm,
-    sim::EventManager&) override;
+    gz::sim::EntityComponentManager& ecm,
+    gz::sim::EventManager&) override;
 
-  void PreUpdate(const sim::UpdateInfo& info, sim::EntityComponentManager& ecm) override;
+  void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
 
 private:
   // SDF parameters
@@ -86,7 +84,7 @@ private:
   double velocity_ = 0.;  // [rad/s]
   double position_ = 0.;  // [rad]
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
-  Vector3d wind_vel_W_ = Vector3d::Zero;  // [m/s]
+  gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   steady_clock::duration prev_sim_time_;
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   bool is_intact_ = true;
@@ -94,9 +92,9 @@ private:
   RateManager::SharedPtr publish_state_rate_manager_;
 
   // Gazebo objects
-  shared_ptr<sim::Joint> joint_;
-  shared_ptr<sim::Link> link_;
-  shared_ptr<sim::Link> parent_link_;
+  shared_ptr<gz::sim::Joint> joint_;
+  shared_ptr<gz::sim::Link> link_;
+  shared_ptr<gz::sim::Link> parent_link_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorState> state_pub_;
@@ -114,8 +112,8 @@ private:
 
   void registerROSInterfaces();
   void addModelError();
-  void applyWrench(sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
-  void updateJointState(sim::EntityComponentManager& ecm, double dt);
+  void applyWrench(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
+  void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
   void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
@@ -129,10 +127,10 @@ GazeboRotorPlugin::GazeboRotorPlugin()
 }
 
 void GazeboRotorPlugin::Configure(
-  const sim::Entity& model_entity,
+  const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
-  sim::EntityComponentManager& ecm,
-  sim::EventManager&)
+  gz::sim::EntityComponentManager& ecm,
+  gz::sim::EventManager&)
 {
   initialize("gazebo_rotor_plugin_" + to_string(channel_), sdf);
   getSdfParams(sdf);
@@ -141,13 +139,13 @@ void GazeboRotorPlugin::Configure(
   addModelError();
 
   // Get robot model
-  sim::Model model(model_entity);
+  gz::sim::Model model(model_entity);
   if (!model.Valid(ecm))
     TOBAS_EXIT("Failed to find model.");
 
   // Get joint
   const auto joint_entity = model.JointByName(ecm, joint_name_);
-  joint_ = make_shared<sim::Joint>(joint_entity);
+  joint_ = make_shared<gz::sim::Joint>(joint_entity);
   if (!joint_->Valid(ecm))
     TOBAS_EXIT("Failed to find specified joint \"", joint_name_, "\".");
 
@@ -159,14 +157,14 @@ void GazeboRotorPlugin::Configure(
   // Get child link
   const auto link_name = joint_->ChildLinkName(ecm).value();
   const auto link_entity = model.LinkByName(ecm, link_name);
-  link_ = make_shared<sim::Link>(link_entity);
+  link_ = make_shared<gz::sim::Link>(link_entity);
   if (!link_->Valid(ecm))
     TOBAS_EXIT("Failed to find the child link \"", link_name, "\".");
 
   // Get parent link
   const auto parent_link_name = joint_->ChildLinkName(ecm).value();
   const auto parent_link_entity = model.LinkByName(ecm, parent_link_name);
-  parent_link_ = make_shared<sim::Link>(parent_link_entity);
+  parent_link_ = make_shared<gz::sim::Link>(parent_link_entity);
   if (!parent_link_->Valid(ecm))
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
 
@@ -208,7 +206,7 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
-void GazeboRotorPlugin::PreUpdate(const sim::UpdateInfo& info, sim::EntityComponentManager& ecm)
+void GazeboRotorPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
   // Update the previous simulation step time
   prev_sim_time_ = info.simTime;
@@ -275,7 +273,7 @@ void GazeboRotorPlugin::addModelError()
   rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
 }
 
-void GazeboRotorPlugin::applyWrench(sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time)
+void GazeboRotorPlugin::applyWrench(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
@@ -287,20 +285,20 @@ void GazeboRotorPlugin::applyWrench(sim::EntityComponentManager& ecm, const stea
   const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
 
   // (1) first term: Thrust Force
-  const auto thrust = motor_const_ * ::math::sqr(velocity_);
+  const auto thrust = motor_const_ * math::sqr(velocity_);
   const auto thrust_W = thrust * global_axis;
-  link_->AddWorldWrench(ecm, thrust_W, Vector3d::Zero);
+  link_->AddWorldWrench(ecm, thrust_W, gz::math::Vector3d::Zero);
 
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
   const auto h_force_W = (-abs(velocity_) * rotor_drag_coef_) * linvel_perp_W;
-  link_->AddWorldWrench(ecm, h_force_W, Vector3d::Zero);
+  link_->AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
 
   // (2) first term: Rotor drag torque
   const auto torque = moment_const_ * thrust;
   const auto drag_torque_W = (-direction_ * torque) * global_axis;
-  parent_link_->AddWorldWrench(ecm, Vector3d::Zero, drag_torque_W);
+  parent_link_->AddWorldWrench(ecm, gz::math::Vector3d::Zero, drag_torque_W);
 
   // Compute electric current
   const auto kt = 1. / kv_;  // トルク定数 = 発電係数 = Kvの逆数 (内部抵抗値に依らない)
@@ -349,7 +347,7 @@ void GazeboRotorPlugin::applyWrench(sim::EntityComponentManager& ecm, const stea
   state_gt_pub_->publish(move(state_msg_gt));
 }
 
-void GazeboRotorPlugin::updateJointState(sim::EntityComponentManager& ecm, double dt)
+void GazeboRotorPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
 {
   // モータダイナミクスの係数 (memo: 2-78)
   const auto a = 2. * L_KV * moment_const_ * motor_const_;
@@ -438,6 +436,6 @@ void GazeboRotorPlugin::breakCb(const BreakSrv::Request::ConstSharedPtr&, const 
 
 GZ_ADD_PLUGIN(
   gazebo::GazeboRotorPlugin,
-  sim::System,
+  gz::sim::System,
   gazebo::GazeboRotorPlugin::ISystemConfigure,
   gazebo::GazeboRotorPlugin::ISystemPreUpdate)

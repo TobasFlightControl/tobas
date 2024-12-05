@@ -16,13 +16,14 @@
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
-using namespace gz;
-using namespace gz::math;
-namespace cmp = sim::components;
+namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
-class GazeboImuPlugin : public BaseNode, public sim::System, public sim::ISystemConfigure, public sim::ISystemPostUpdate
+class GazeboImuPlugin : public BaseNode,
+                        public gz::sim::System,
+                        public gz::sim::ISystemConfigure,
+                        public gz::sim::ISystemPostUpdate
 {
   // Constants
   static constexpr char kDebugPubTopic[] = "gazebo/imu_debug";
@@ -45,18 +46,18 @@ public:
   explicit GazeboImuPlugin();
 
   void Configure(
-    const sim::Entity& model,
+    const gz::sim::Entity& model,
     const sdf::ElementConstPtr& sdf,
-    sim::EntityComponentManager& ecm,
-    sim::EventManager&) override;
+    gz::sim::EntityComponentManager& ecm,
+    gz::sim::EventManager&) override;
 
-  void PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
   // SDF parameters
   std::string link_name_;
   size_t update_rate_;              // Update rate [Hz]
-  Vector3d offset_;                 // B_Pos_BS
+  gz::math::Vector3d offset_;       // B_Pos_BS
   double acc_noise_density_sig_;    // Accel noise density actually added to signal [m/s^2/√Hz]
   double acc_noise_density_obs_;    // Accel noise density that is observerd [m/s^2/√Hz]
   double acc_random_walk_;          // Accel bias random walk [m/s^2/s/√Hz]
@@ -77,8 +78,10 @@ private:
 
   RateManager::SharedPtr rate_manager_;
   ModelMassHolder mass_holder_;
-  Vector3d acc_bias_ = Vector3d::Zero, gyro_bias_ = Vector3d::Zero;
-  Vector3d acc_turn_on_bias_, gyro_turn_on_bias_;
+  gz::math::Vector3d acc_bias_ = gz::math::Vector3d::Zero;
+  gz::math::Vector3d gyro_bias_ = gz::math::Vector3d::Zero;
+  gz::math::Vector3d acc_turn_on_bias_;
+  gz::math::Vector3d gyro_turn_on_bias_;
   map<size_t, double> rotor_noises_;  // [N] 各モータで発生する周波数ノイズ
 
   std::random_device rnd_dev_;
@@ -90,7 +93,7 @@ private:
   vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void addNoise(Vector3d& acc, Vector3d& gyro, const double& dt);
+  void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
 };
 
 GazeboImuPlugin::GazeboImuPlugin() : rnd_gen_(rnd_dev_())
@@ -98,10 +101,10 @@ GazeboImuPlugin::GazeboImuPlugin() : rnd_gen_(rnd_dev_())
 }
 
 void GazeboImuPlugin::Configure(
-  const sim::Entity& model,
+  const gz::sim::Entity& model,
   const sdf::ElementConstPtr& sdf,
-  sim::EntityComponentManager& ecm,
-  sim::EventManager&)
+  gz::sim::EntityComponentManager& ecm,
+  gz::sim::EventManager&)
 {
   initialize("gazebo_imu_plugin", sdf);
   getSdfParams(sdf);
@@ -112,11 +115,11 @@ void GazeboImuPlugin::Configure(
     TOBAS_EXIT("Failed to initialize model mass holder.");
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == sim::kNullEntity)
+  if (link == gz::sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
   const auto world = ecm.EntityByComponents(cmp::World());
-  if (world == sim::kNullEntity)
+  if (world == gz::sim::kNullEntity)
     TOBAS_EXIT("Failed to get the world component.");
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -151,7 +154,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
-  getSdfParam(sdf, "offset", offset_, Vector3d::Zero);
+  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
 
   getSdfParam(sdf, "accelNoiseDensityOnSignal", acc_noise_density_sig_, kDefaultAccNoiseDensity, POSITIVE);
   getSdfParam(sdf, "accelNoiseDensityObserved", acc_noise_density_obs_, kDefaultAccNoiseDensity, POSITIVE);
@@ -168,7 +171,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "rotorChannels", rotor_channels_);
 }
 
-void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
+void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   if (!rate_manager_->update(info.simTime))
     return;
@@ -220,7 +223,7 @@ void GazeboImuPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityC
   debug_pub_->publish(move(debug_msg));
 }
 
-void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
+void GazeboImuPlugin::addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt)
 {
   // Compute rotor noise
   double rotor_noise_sum = 0;
@@ -265,6 +268,6 @@ void GazeboImuPlugin::addNoise(Vector3d& acc, Vector3d& gyro, const double& dt)
 
 GZ_ADD_PLUGIN(
   gazebo::GazeboImuPlugin,
-  sim::System,
+  gz::sim::System,
   gazebo::GazeboImuPlugin::ISystemConfigure,
   gazebo::GazeboImuPlugin::ISystemPostUpdate)
