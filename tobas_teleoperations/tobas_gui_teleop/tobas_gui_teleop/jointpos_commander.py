@@ -3,6 +3,7 @@ from functools import partial
 
 import rclpy
 from rclpy.node import Node
+from rclpy.duration import Duration
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from rclpy.wait_for_message import wait_for_message
 from sensor_msgs.msg import JointState
@@ -43,13 +44,16 @@ class JointPositionsCommanderWidget(Widget):
 
         # Droneを取得
         self._node.get_logger().info("Waiting for drone configuration.")
-        res = wait_for_message(Drone, self._node, "remote_interface/drone", qos_profile=latch_qos, time_to_wait=5)
-        success: bool = res[0]
-        drone: Drone = res[1]
-        if not success:
-            self._node.get_logger().error("Failed to get drone configuration from topic.")
-            rclpy.shutdown()
-            return
+        while True:
+            res = wait_for_message(Drone, self._node, "remote_interface/drone", qos_profile=latch_qos, time_to_wait=3)
+            success: bool = res[0]
+            if success:
+                drone: Drone = res[1]
+                break
+            else:
+                self._node.get_logger().warn("Failed to get drone configuration from topic. Retrying...")
+                self._node.get_clock().sleep_for(Duration(seconds=1.0))
+                continue
 
         # メインレイアウト
         rows = QVBoxLayout()
