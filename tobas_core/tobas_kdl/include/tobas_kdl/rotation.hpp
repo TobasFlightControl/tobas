@@ -169,15 +169,7 @@ inline Rotation::Rotation(
   double Yz,
   double Zz)
 {
-  data(0, 0) = Xx;
-  data(0, 1) = Yx;
-  data(0, 2) = Zx;
-  data(1, 0) = Xy;
-  data(1, 1) = Yy;
-  data(1, 2) = Zy;
-  data(2, 0) = Xz;
-  data(2, 1) = Yz;
-  data(2, 2) = Zz;
+  data << Xx, Yx, Zx, Xy, Yy, Zy, Xz, Yz, Zz;
 }
 
 inline Rotation::Rotation(const Vector& x, const Vector& y, const Vector& z)
