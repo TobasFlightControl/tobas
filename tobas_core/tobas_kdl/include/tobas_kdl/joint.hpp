@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <exception>
+
+#include <tobas_eigen_tools/geometry.hpp>
 
 #include "./frames.hpp"
 #include "./segmentjacobian.hpp"
@@ -9,7 +10,7 @@
 namespace kdl
 {
 /**
- * \brief This class encapsulates a simple joint, that is with one
+ * @brief This class encapsulates a simple joint, that is with one
  * parameterized degree of freedom and with scalar dynamic properties.
  */
 class Joint
@@ -34,29 +35,36 @@ public:
 
   inline explicit Joint();
 
-  /* Get the normalized joint axis. */
+  /* Get the normalized joint axis wrt. the parent frame. */
   inline const Vector& axis() const;
+
   /* Set joint axis. */
   inline void axis(const Vector& axis);
 
-  /* Request the 6D-pose between the beginning and the end of the joint at joint position q. */
-  inline Frame pose(const double& q) const;
+  /* Request the 6D-pose of the end of the joint wrt. the parent frame. */
+  inline Frame pose(double q) const;
 
-  /* Request the resulting 6D-velocity with a joint velocity qd. */
-  inline Twist twist(const double& qd) const;
+  /* Request the resulting 6D-velocity of the end of the joint wrt. the parent frame. */
+  inline Twist twist(double qd) const;
 
-  /* Request the resulting 6D-acceleration with a joint acceleration qdd. */
-  inline Accel accel(const double& qdd) const;
+  /* Request the resulting 6D-acceleration of the end of the joint wrt. the parent frame. */
+  inline Accel accel(double qdd) const;
 
-  /* Request the jacobian for this joint. */
+  /* Request the jacobian for this joint wrt. the parent frame. */
   inline SegmentJacobian jacobian() const;
+
+  /* Compute the first derivative of the rotation matrix with respect to the joint position. */
+  inline Eigen::Matrix3d rotGrad(double q) const;
+
+  /* Compute the second derivative of the rotation matrix with respect to the joint position. */
+  inline Eigen::Matrix3d rotGrad2(double q) const;
 
   inline static const char* typeToText(joint_type_t type);
 
   inline friend std::ostream& operator<<(std::ostream& os, const Joint& arg);
 
 private:
-  Vector axis_ = Vector::UnitZ();  // The axis of a movable joint must be normalized.
+  Vector axis_ = Vector::UnitZ();  // The normalized joint axis wrt. the parent frame.
 };
 
 inline Joint::Joint()
@@ -74,14 +82,14 @@ inline void Joint::axis(const Vector& axis)
   axis_ = axis.normalized();
 }
 
-inline Frame Joint::pose(const double& q) const
+inline Frame Joint::pose(double q) const
 {
   switch (type)
   {
     case ROTATION:
       return Frame(Rotation::Rot(axis_, q), origin);
     case TRANSLATION:
-      return Frame(origin + (axis_ * (q)));
+      return Frame(origin + (axis_ * q));
     case FIXED:
       return Frame::Identity();
     default:
@@ -89,7 +97,7 @@ inline Frame Joint::pose(const double& q) const
   }
 }
 
-inline Twist Joint::twist(const double& qd) const
+inline Twist Joint::twist(double qd) const
 {
   switch (type)
   {
@@ -104,7 +112,7 @@ inline Twist Joint::twist(const double& qd) const
   }
 }
 
-inline Accel Joint::accel(const double& qdd) const
+inline Accel Joint::accel(double qdd) const
 {
   switch (type)
   {
@@ -132,6 +140,22 @@ inline SegmentJacobian Joint::jacobian() const
     default:
       throw;
   }
+}
+
+inline Eigen::Matrix3d Joint::rotGrad(double q) const
+{
+  if (type == ROTATION)
+    return eigen_tools::skew(axis_.data) * Rotation::Rot(axis_, q).data;
+  else
+    return Eigen::Matrix3d::Zero();
+}
+
+inline Eigen::Matrix3d Joint::rotGrad2(double q) const
+{
+  if (type == ROTATION)
+    return eigen_tools::skew2(axis_.data) * Rotation::Rot(axis_, q).data;
+  else
+    return Eigen::Matrix3d::Zero();
 }
 
 inline const char* Joint::typeToText(joint_type_t type)
