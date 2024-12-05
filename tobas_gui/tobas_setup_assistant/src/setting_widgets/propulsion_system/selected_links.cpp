@@ -39,7 +39,7 @@ void SelectedLinksWidget::updateInternalDataStructures()
   {
     // ジョイントを取得
     const auto& joint = elem.segment.joint();
-    if (joint.type != kdl::Joint::RotAxis)
+    if (joint.type != kdl::Joint::ROTATION)
       continue;
 
     // 推力の作用線

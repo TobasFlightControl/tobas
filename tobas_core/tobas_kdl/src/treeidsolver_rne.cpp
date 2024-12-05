@@ -53,7 +53,7 @@ void TreeIdSolver_RNE::rneStep(
 
   // Do forward calculations involving velocity & acceleration of this segment
   const auto& j = cur_ele.q_nr;
-  if (cur_seg.joint().type != Joint::Fixed)
+  if (cur_seg.joint().type != Joint::FIXED)
   {
     qj_ = q(j);
     qdj_ = qd(j);
@@ -95,7 +95,7 @@ void TreeIdSolver_RNE::rneStep(
 
   // Do backward calculations involving wrenches and joint efforts
   // If there is a moving joint, evaluate its effort
-  if (cur_seg.joint().type != Joint::Fixed)
+  if (cur_seg.joint().type != Joint::FIXED)
   {
     effort_out_(j) = Sj.dot(f_.at(cur_name));
     // TODO: inertia, damping, frictionの補償をすべき？

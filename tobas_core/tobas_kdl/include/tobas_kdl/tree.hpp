@@ -21,6 +21,8 @@ public:
 
   inline static TreeElement Root(const std::string& root_name);
 
+  inline friend std::ostream& operator<<(std::ostream& os, const TreeElement& arg);
+
 private:
   inline explicit TreeElement(const std::string& name);
 };
@@ -125,6 +127,14 @@ inline TreeElement::TreeElement(const Segment& _segment, const SegmentMap::const
 inline TreeElement TreeElement::Root(const std::string& root_name)
 {
   return TreeElement(root_name);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const TreeElement& arg)
+{
+  os << "Segment:\n" << arg.segment << std::endl;
+  os << "Number: " << arg.q_nr << std::endl;
+  os << "Parent: " << arg.parent->first;
+  return os;
 }
 
 inline TreeElement::TreeElement(const std::string& name) : segment(name), q_nr(0)

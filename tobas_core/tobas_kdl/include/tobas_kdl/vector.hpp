@@ -324,7 +324,7 @@ inline Vector operator*(const Vector& lhs, const Vector& rhs)
 
 inline std::ostream& operator<<(std::ostream& os, const Vector& arg)
 {
-  os << "[" << arg.x() << "," << arg.y() << "," << arg.z() << "]";
+  os << arg.data.transpose();
   return os;
 }
 }  // namespace kdl

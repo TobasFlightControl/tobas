@@ -31,7 +31,7 @@ int ChainJntSpaceInertiaSolver::JntToMass(const JntArray& q)
   for (size_t i = 0; i < ns_; ++i)
   {
     I_[i] = chain_.getSegment(i).inertia();
-    if (chain_.getSegment(i).joint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::FIXED)
     {
       qk_ = q(k_);
       ++k_;
@@ -53,7 +53,7 @@ int ChainJntSpaceInertiaSolver::JntToMass(const JntArray& q)
       I_[i - 1] = I_[i - 1] + X_[i] * I_[i];
     }
     auto F = I_[i] * S_[i];
-    if (chain_.getSegment(i).joint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::FIXED)
     {
       H_out_(k_, k_) = S_[i].dot(F);
       int j = k_;
@@ -62,7 +62,7 @@ int ChainJntSpaceInertiaSolver::JntToMass(const JntArray& q)
       {
         F = X_[l] * F;
         --l;
-        if (chain_.getSegment(l).joint().type != Joint::Fixed)
+        if (chain_.getSegment(l).joint().type != Joint::FIXED)
         {
           --j;
           H_out_(k_, j) = S_[l].dot(F);

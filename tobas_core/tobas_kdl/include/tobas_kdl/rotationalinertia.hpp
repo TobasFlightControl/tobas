@@ -33,6 +33,8 @@ public:
   inline friend RotationalInertia operator*(double a, const RotationalInertia& I);
   /* Compute Ia = Rab Ib Rab^T. */
   inline friend RotationalInertia operator*(const Rotation& R_a_b, const RotationalInertia& I_b);
+
+  inline friend std::ostream& operator<<(std::ostream& os, const RotationalInertia& arg);
 };
 
 inline RotationalInertia::RotationalInertia() : RotationalInertia(0, 0, 0, 0, 0, 0)
@@ -112,5 +114,12 @@ inline RotationalInertia operator*(double a, const RotationalInertia& I)
 inline RotationalInertia operator*(const Rotation& R_a_b, const RotationalInertia& I_b)
 {
   return RotationalInertia(R_a_b.data * I_b.data * R_a_b.data.transpose());
+}
+
+inline std::ostream& operator<<(std::ostream& os, const RotationalInertia& arg)
+{
+  os << "Ixx: " << arg.ixx() << ", Iyy: " << arg.iyy() << ", Izz: " << arg.izz() << ", Ixy: " << arg.ixy()
+     << ", Iyz: " << arg.iyz() << ", Izx: " << arg.ixz();
+  return os;
 }
 }  // namespace kdl

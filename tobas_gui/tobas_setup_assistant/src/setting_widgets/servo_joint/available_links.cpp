@@ -24,7 +24,7 @@ void AvailableLinksWidget::updateInternalDataStructures()
     const auto& joint = elem.segment.joint();
 
     // 可動関節をもつことを確認
-    if (joint.type == kdl::Joint::Fixed)
+    if (joint.type == kdl::Joint::FIXED)
       continue;
 
     // リミットが正しく設定されていることを確認

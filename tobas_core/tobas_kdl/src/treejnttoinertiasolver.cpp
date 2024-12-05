@@ -46,7 +46,7 @@ void TreeJntToInertiaSolver::step(const SegmentMap::const_iterator& cur_it, cons
   const auto& par_name = par_it->first;
 
   // Forward calculation
-  const auto& qj = cur_seg.joint().type == Joint::Fixed ? 0. : q(cur_ele.q_nr);
+  const auto& qj = cur_seg.joint().type == Joint::FIXED ? 0. : q(cur_ele.q_nr);
   X_.at(cur_name) = cur_seg.pose(qj);
   I_.at(cur_name) = cur_seg.inertia();
 

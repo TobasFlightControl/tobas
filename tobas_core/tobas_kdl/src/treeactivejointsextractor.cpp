@@ -33,7 +33,7 @@ int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
     {
       const auto& ele = it->second;
       const auto& joint = ele.segment.joint();
-      if (joint.type != Joint::Fixed && !active_joints_set_.contains(joint.name))
+      if (joint.type != Joint::FIXED && !active_joints_set_.contains(joint.name))
       {
         active_joints_vec_.push_back(joint.name);
         active_joints_set_.insert(joint.name);

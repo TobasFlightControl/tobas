@@ -160,7 +160,7 @@ void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)
   for (size_t i = 0; i < ns_; ++i)
   {
     const auto& seg = chain_.getSegment(i);
-    if (seg.joint().type != Joint::Fixed)
+    if (seg.joint().type != Joint::FIXED)
     {
       T_base_jointroot_[j] = T_base_head_;
       T_base_head_ = T_base_head_ * seg.pose(q(j));
@@ -180,7 +180,7 @@ void ChainIkSolverPos_LM::computeJacobian(const VectorXd& q)
   for (size_t i = 0; i < ns_; ++i)
   {
     const auto& seg = chain_.getSegment(i);
-    if (seg.joint().type != Joint::Fixed)
+    if (seg.joint().type != Joint::FIXED)
     {
       // compute twist of the end effector motion caused by joint[j];
       // expressed in base frame, with vel. ref. point equal to the end effector
@@ -197,7 +197,7 @@ void ChainIkSolverPos_LM::enforceJointLimits(Eigen::VectorXd& q)
   for (size_t i = 0; i < ns_; ++i)
   {
     const auto& joint = chain_.getSegment(i).joint();
-    if (joint.type != Joint::Fixed)
+    if (joint.type != Joint::FIXED)
     {
       q(j) = clamp(q(j), joint.lower_limit, joint.upper_limit);
       ++j;

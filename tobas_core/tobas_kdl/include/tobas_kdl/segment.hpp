@@ -24,7 +24,7 @@ public:
    * Constructor of the segment.
    *
    * @param name name of the segment, default: ""
-   * @param joint joint of the segment, default: Joint(Joint::Fixed)
+   * @param joint joint of the segment, default: Joint(Joint::FIXED)
    * @param f_tip frame from the end of the joint to the tip of the segment, default: Frame::Identity()
    * @param I rigid body inertia of the segment, default: Inertia::Zero()
    */
@@ -64,33 +64,19 @@ public:
    */
   inline SegmentJacobian jacobian(const double& q) const;
 
-  /**
-   * Request the name of the segment.
-   *
-   * @return const reference to the name of the segment
-   */
+  /* Request the name of the segment. */
   inline const std::string& name() const;
 
-  /**
-   * Request the joint of the segment.
-   *
-   * @return const reference to the joint of the segment
-   */
+  /** Request the joint of the segment. */
   inline const Joint& joint() const;
 
-  /**
-   * Request the tip frame of the segment.
-   *
-   * @return const reference to the frame of the segment
-   */
+  /* Request the tip frame of the segment. */
   inline Frame frame() const;
 
-  /**
-   * Request the inertia of the segment.
-   *
-   * @return const reference to the inertia of the segment
-   */
+  /* Request the inertia of the segment. */
   inline const RigidBodyInertia& inertia() const;
+
+  inline friend std::ostream& operator<<(std::ostream& os, const Segment& arg);
 
 private:
   std::string name_;
@@ -137,5 +123,14 @@ inline Frame Segment::frame() const
 inline const RigidBodyInertia& Segment::inertia() const
 {
   return I_;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Segment& arg)
+{
+  os << "Name: " << arg.name_ << std::endl;
+  os << "Joint:\n" << arg.joint_ << std::endl;
+  os << "Frame:\n" << arg.f_tip_ << std::endl;
+  os << "Inertia:\n" << arg.I_;
+  return os;
 }
 }  // end of namespace kdl

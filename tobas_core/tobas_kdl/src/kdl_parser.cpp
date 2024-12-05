@@ -37,14 +37,14 @@ Joint toKdl(const urdf::Joint& jnt)
 
   if (jnt.type == urdf::Joint::FIXED)
   {
-    res.type = Joint::Fixed;
+    res.type = Joint::FIXED;
   }
   else
   {
     if (jnt.type == urdf::Joint::REVOLUTE || jnt.type == urdf::Joint::CONTINUOUS)
-      res.type = Joint::RotAxis;
+      res.type = Joint::ROTATION;
     else if (jnt.type == urdf::Joint::PRISMATIC)
-      res.type = Joint::TransAxis;
+      res.type = Joint::TRANSLATION;
     else
       throw runtime_error("Unknown joint type of joint: " + jnt.name);
 

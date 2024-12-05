@@ -60,6 +60,8 @@ public:
   inline friend RigidBodyInertia operator*(const Frame& T, const RigidBodyInertia& I);
   inline friend RigidBodyInertia operator*(const Rotation& R, const RigidBodyInertia& I);
 
+  inline friend std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg);
+
 private:
   double m_;             // [kg]
   Vector h_;             // [kg m]
@@ -180,6 +182,14 @@ inline RigidBodyInertia operator*(const Rotation& M, const RigidBodyInertia& I)
   const auto& R = M.data;
   const RotationalInertia Ib(R * I.I_.data * R.transpose());
   return RigidBodyInertia(I.m_, M * I.h_, Ib, true);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const RigidBodyInertia& arg)
+{
+  os << "Mass: " << arg.m_ << std::endl;
+  os << "Spatial Momentum: " << arg.h_ << std::endl;
+  os << "Rotational Inertia: " << arg.I_;
+  return os;
 }
 
 inline RigidBodyInertia::RigidBodyInertia(double m, const Vector& h, const RotationalInertia& I, bool)

@@ -115,12 +115,12 @@ void SelectedLinksWidget::add(const QString& link_name)
 
   switch (joint.type)
   {
-    case kdl::Joint::RotAxis:
+    case kdl::Joint::ROTATION:
       home_pos->setSuffix(" rad");
       min_pos->setSuffix(" rad");
       max_pos->setSuffix(" rad");
       break;
-    case kdl::Joint::TransAxis:
+    case kdl::Joint::TRANSLATION:
       home_pos->setSuffix(" m");
       min_pos->setSuffix(" m");
       max_pos->setSuffix(" m");

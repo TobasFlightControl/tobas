@@ -31,7 +31,7 @@ struct rclcpp::TypeAdapter<kdl::Joint, tobas_kdl_msgs::msg::Joint>
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.name = src.name;
-    dst.type = static_cast<kdl::Joint::JointType>(src.type);
+    dst.type = static_cast<kdl::Joint::joint_type_t>(src.type);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.origin, dst.origin);
 
     kdl::Vector axis;

@@ -39,7 +39,7 @@ int ChainIdSolver_RNE::CartToJnt(
   j_ = 0;
   for (size_t i = 0; i < ns_; ++i)
   {
-    if (chain_.getSegment(i).joint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::FIXED)
     {
       qj_ = q(j_);
       qdj_ = qd(j_);
@@ -74,7 +74,7 @@ int ChainIdSolver_RNE::CartToJnt(
   j_ = nj_ - 1;
   for (int i = ns_ - 1; i >= 0; --i)
   {
-    if (chain_.getSegment(i).joint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::FIXED)
       effort_out_(j_--) = S_[i].dot(f_[i]);
     if (i != 0)
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];
@@ -101,7 +101,7 @@ int ChainIdSolver_RNE::CartToJnt(
   // Sweep from root to leaf
   for (size_t i = 0; i < ns_; ++i)
   {
-    if (chain_.getSegment(i).joint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::FIXED)
     {
       qj_ = q(j_);
       qdj_ = qd(j_);
@@ -143,7 +143,7 @@ int ChainIdSolver_RNE::CartToJnt(
   j_ = nj_ - 1;
   for (int i = ns_ - 1; i >= 0; --i)
   {
-    if (chain_.getSegment(i).joint().type != Joint::Fixed)
+    if (chain_.getSegment(i).joint().type != Joint::FIXED)
       effort_out_(j_--) = S_[i].dot(f_[i]);
     if (i != 0)
       f_[i - 1] = f_[i - 1] + X_[i] * f_[i];

@@ -337,7 +337,7 @@ inline Frame Frame::operator-(const Frame& rhs) const
 
 inline std::ostream& operator<<(std::ostream& os, const Frame& arg)
 {
-  os << "Translation: " << arg.p << "Rotation: " << arg.M;
+  os << "Translation: " << arg.p << ", Rotation: " << arg.M;
   return os;
 }
 }  // namespace kdl

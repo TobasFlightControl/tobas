@@ -73,7 +73,7 @@ void JointStatePublisherWidget::onRobotLoaded()
   for (const auto& [_, elem] : robot_.tree().getSegments())
   {
     const auto& joint = elem.segment.joint();
-    if (joint.type == kdl::Joint::Fixed)
+    if (joint.type == kdl::Joint::FIXED)
       continue;
 
     js_.name.push_back(joint.name);
@@ -84,7 +84,7 @@ void JointStatePublisherWidget::onRobotLoaded()
 
     auto lower_limit = joint.lower_limit;
     auto upper_limit = joint.upper_limit;
-    if (joint.type == kdl::Joint::RotAxis && upper_limit - lower_limit > 2 * M_PI)
+    if (joint.type == kdl::Joint::ROTATION && upper_limit - lower_limit > 2 * M_PI)
     {
       lower_limit = -M_PI;
       upper_limit = +M_PI;

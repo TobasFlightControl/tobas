@@ -27,7 +27,7 @@ int ChainJntToJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
   for (size_t i = 0; i < ns_; ++i)
   {
     const auto& seg = chain_.getSegment(i);
-    if (seg.joint().type != Joint::Fixed)
+    if (seg.joint().type != Joint::FIXED)
     {
       qj_ = q(j_);
       qdj_ = qd(j_);
