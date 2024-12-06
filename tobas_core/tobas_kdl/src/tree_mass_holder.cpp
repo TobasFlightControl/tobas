@@ -1,0 +1,14 @@
+#include "../include/tobas_kdl/tree_mass_holder.hpp"
+
+namespace kdl
+{
+TreeMassHolder::TreeMassHolder(const Tree& tree) : super(tree), inertia_solver_(tree)
+{
+}
+
+void TreeMassHolder::updateInternalDataStructures()
+{
+  inertia_solver_.updateInternalDataStructures();
+  inertia_solver_.JntToCart(JntArray::Zero(tree_.getNrOfJoints()));
+}
+}  // namespace kdl

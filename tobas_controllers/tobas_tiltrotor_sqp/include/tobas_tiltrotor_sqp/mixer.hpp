@@ -3,8 +3,8 @@
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_eigen_tools/tensor.hpp>
 #include <tobas_nlp/sqp.hpp>
-#include <tobas_kdl/treefksolverpos_all.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_fk_solver_pos_all.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/np_mixer.hpp>
@@ -48,7 +48,7 @@ private:
   const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   NonPlanarMixer np_mixer_;
 
   nlp::SQP sqp_;

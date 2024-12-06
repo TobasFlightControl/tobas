@@ -4,7 +4,7 @@
 
 #include "./frames.hpp"
 #include "./jntarray.hpp"
-#include "./segmentjacobian.hpp"
+#include "./segment_jacobian.hpp"
 
 namespace kdl
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_drone_core/drone.hpp>
 
-#include "./solveri.hpp"
+#include "./solver_i.hpp"
 
 namespace tobas
 {
@@ -28,7 +28,7 @@ private:
   const Drone& drone_;
   const kdl::Tree& tree_;
 
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
 
   double c_pitch_alpha_cg_;
   double c_yaw_beta_cg_;

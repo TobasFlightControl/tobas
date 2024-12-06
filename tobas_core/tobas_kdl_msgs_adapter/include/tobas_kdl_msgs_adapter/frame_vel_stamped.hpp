@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl/framevel.hpp>
+#include <tobas_kdl/frame_vel.hpp>
 #include <tobas_kdl_msgs/msg/frame_vel_stamped.hpp>
 
 #include "./frame_vel.hpp"
@@ -12,7 +12,7 @@ namespace tobas_kdl_msgs
 struct FrameVelStamped
 {
   std_msgs::msg::Header header;
-  kdl::FrameVel framevel;
+  kdl::FrameVel frame_vel;
 
   using SharedPtr = std::shared_ptr<FrameVelStamped>;
   using ConstSharedPtr = std::shared_ptr<const FrameVelStamped>;
@@ -29,13 +29,13 @@ struct rclcpp::TypeAdapter<tobas_kdl_msgs::FrameVelStamped, tobas_kdl_msgs::msg:
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.header = src.header;
-    tobas_kdl_msgs::FrameVelAdapter::convert_to_ros_message(src.framevel, dst.framevel);
+    tobas_kdl_msgs::FrameVelAdapter::convert_to_ros_message(src.frame_vel, dst.frame_vel);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.header = src.header;
-    tobas_kdl_msgs::FrameVelAdapter::convert_to_custom(src.framevel, dst.framevel);
+    tobas_kdl_msgs::FrameVelAdapter::convert_to_custom(src.frame_vel, dst.frame_vel);
   }
 };
 

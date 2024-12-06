@@ -3,7 +3,7 @@
 #include "./twist.hpp"
 #include "./accel.hpp"
 #include "./wrench.hpp"
-#include "./segmentjacobian.hpp"
+#include "./segment_jacobian.hpp"
 
 namespace kdl
 {

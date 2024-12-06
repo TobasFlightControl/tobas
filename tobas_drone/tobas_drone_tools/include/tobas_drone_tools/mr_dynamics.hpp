@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_kdl/treefksolverpos.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_fk_solver_pos.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 
 #include "./rotor_axis_extractor.hpp"
 
@@ -53,7 +53,7 @@ private:
   const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPos fk_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   RotorAxisExtractor z_rotors_;
 };
 

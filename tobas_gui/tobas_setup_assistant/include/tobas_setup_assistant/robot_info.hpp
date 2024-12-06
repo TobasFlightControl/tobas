@@ -5,7 +5,7 @@
 
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_kdl/tree.hpp>
-#include <tobas_kdl/treejntaxissolver.hpp>
+#include <tobas_kdl/tree_joint_axis_solver.hpp>
 #include <tobas_drone_core/rotor_axis.hpp>
 
 namespace gui
@@ -43,7 +43,7 @@ private:
   urdf::ModelInterfaceSharedPtr urdf_;
   kdl::Tree tree_;
 
-  kdl::TreeJntAxisSolver axis_solver_;
+  kdl::TreeJointAxisSolver axis_solver_;
   kdl::JntArray q_zeros_;
 };
 }  // namespace setup_assistant

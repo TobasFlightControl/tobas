@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../frames.hpp"
-#include "../rotationalinertia.hpp"
+#include "../rotational_inertia.hpp"
 #include "../euler.hpp"
 
 namespace kdl

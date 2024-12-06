@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl/rigidbodyinertia.hpp>
+#include <tobas_kdl/rigid_body_inertia.hpp>
 #include <tobas_kdl_msgs/msg/rigid_body_inertia_stamped.hpp>
 
 #include "./rigid_body_inertia.hpp"

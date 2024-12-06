@@ -2,9 +2,9 @@
 
 #include <tobas_std_tools/range.hpp>
 #include <tobas_kdl/tree.hpp>
-#include <tobas_kdl/treefksolverpos.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
-#include <tobas_kdl/treeboundingboxsolver.hpp>
+#include <tobas_kdl/tree_fk_solver_pos.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
+#include <tobas_kdl/tree_bounding_box_solver.hpp>
 #include <tobas_linear_control/mpc/linear_dense.hpp>
 #include <tobas_linear_control/c2d/rk4.hpp>
 
@@ -86,7 +86,7 @@ private:
   double foot_diameter_;
   tobas_std::Range<double> normal_force_range_;
 
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   kdl::TreeBoundingBoxSolver bb_solver_;
   LinearDynamics cont_;
   ctrl::LinearDenseMPC mpc_;

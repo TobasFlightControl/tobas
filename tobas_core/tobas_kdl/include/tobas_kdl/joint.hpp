@@ -5,7 +5,7 @@
 #include <tobas_eigen_tools/geometry.hpp>
 
 #include "./frames.hpp"
-#include "./segmentjacobian.hpp"
+#include "./segment_jacobian.hpp"
 
 namespace kdl
 {

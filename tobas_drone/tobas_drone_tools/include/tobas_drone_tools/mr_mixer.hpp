@@ -2,8 +2,8 @@
 
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
-#include <tobas_kdl/treefksolverpos_all.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_fk_solver_pos_all.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 
 #include "./rotor_axis_extractor.hpp"
 
@@ -39,7 +39,7 @@ private:
   double thrust_weight_ = 1e-6;
 
   kdl::TreeFkSolverPosAll fk_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   RotorAxisExtractor z_rotors_;
 
   quadprog::DualActiveSetSolver qp_;  // QPソルバー

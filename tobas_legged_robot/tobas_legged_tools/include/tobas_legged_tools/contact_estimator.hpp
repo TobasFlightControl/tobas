@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tobas_kdl/treefksolverpos.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_fk_solver_pos.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_linear_control/kalman_filter.hpp>
 
 namespace lr_tools
@@ -60,7 +60,7 @@ private:
   const size_t nc_;  // The number of contact points
 
   kdl::TreeFkSolverPos fk_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
 
   std::vector<state_t> states_;  // FSMの状態
   ctrl::KalmanFilter kf_;

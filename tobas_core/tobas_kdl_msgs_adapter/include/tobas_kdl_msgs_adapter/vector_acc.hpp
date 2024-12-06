@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl/vectoracc.hpp>
+#include <tobas_kdl/vector_acc.hpp>
 #include <tobas_kdl_msgs/msg/vector_acc.hpp>
 
 #include "./vector.hpp"

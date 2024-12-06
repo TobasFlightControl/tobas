@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl/jntarrayvel.hpp>
+#include <tobas_kdl/jntarray_vel.hpp>
 #include <tobas_kdl_msgs/msg/jnt_array_vel.hpp>
 
 #include "./util/util.hpp"

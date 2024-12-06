@@ -2,7 +2,7 @@
 
 #include <tobas_drone_core/drone.hpp>
 
-#include "./solveri.hpp"
+#include "./solver_i.hpp"
 
 namespace tobas
 {

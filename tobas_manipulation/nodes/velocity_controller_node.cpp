@@ -1,8 +1,8 @@
 #include <ranges>
 
-#include <tobas_kdl/treejointstateconverter.hpp>
-#include <tobas_kdl/treeactivejointsextractor.hpp>
-#include <tobas_kdl/treetaskspacevelctrl.hpp>
+#include <tobas_kdl/tree_joint_state_converter.hpp>
+#include <tobas_kdl/tree_active_joints_extractor.hpp>
+#include <tobas_kdl/tree_taskspace_vel_ctrl.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/tf_listener.hpp>
 #include <tobas_node/node.hpp>

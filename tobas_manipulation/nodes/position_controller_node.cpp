@@ -1,7 +1,7 @@
 #include <ranges>
 
-#include <tobas_kdl/treejointstateconverter.hpp>
-#include <tobas_kdl/treeactivejointsextractor.hpp>
+#include <tobas_kdl/tree_joint_state_converter.hpp>
+#include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>

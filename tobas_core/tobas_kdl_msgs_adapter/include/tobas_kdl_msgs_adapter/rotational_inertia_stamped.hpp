@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_kdl/rotationalinertia.hpp>
+#include <tobas_kdl/rotational_inertia.hpp>
 #include <tobas_kdl_msgs/msg/rotational_inertia_stamped.hpp>
 
 #include "./rotational_inertia.hpp"

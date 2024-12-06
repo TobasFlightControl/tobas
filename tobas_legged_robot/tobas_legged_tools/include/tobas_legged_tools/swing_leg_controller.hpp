@@ -2,9 +2,9 @@
 
 #include <chrono>
 
-#include <tobas_kdl/frameacc.hpp>
+#include <tobas_kdl/frame_acc.hpp>
 #include <tobas_kdl/trajectory.hpp>
-#include <tobas_kdl/treefksolverpos.hpp>
+#include <tobas_kdl/tree_fk_solver_pos.hpp>
 
 namespace lr_tools
 {
