@@ -10,7 +10,7 @@ namespace kdl
  * @brief This class represents an fixed nj matrix containing
  * the Joint-Space Inertia Matrix of a kdl::Chain.
  *
- * \warning An object constructed with the default constructor provides
+ * @warning An object constructed with the default constructor provides
  * a valid, but inert, object. Many of the member functions will do
  * the correct thing and have no affect on this object, but some
  * member functions can _NOT_ deal with an inert/empty object. These
