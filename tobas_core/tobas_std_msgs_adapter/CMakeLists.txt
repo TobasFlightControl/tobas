@@ -5,8 +5,13 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tobas_std_msgs REQUIRED)
 
+set(AMENT_DEPENDENCIES
+  rclcpp
+  tobas_std_msgs
+)
+
 add_library(${PROJECT_NAME} INTERFACE)
-ament_target_dependencies(${PROJECT_NAME} INTERFACE rclcpp tobas_std_msgs)
+ament_target_dependencies(${PROJECT_NAME} INTERFACE ${AMENT_DEPENDENCIES})
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -19,6 +24,6 @@ install(
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(rclcpp tobas_std_msgs)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

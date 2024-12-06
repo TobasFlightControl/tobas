@@ -14,11 +14,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
+set(AMENT_DEPENDENCIES
+	yaml-cpp
+)
+
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME} yaml-cpp)
+ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 target_link_libraries(${PROJECT_NAME} ${YAML_CPP_LIBRARIES}) # ament-cmakeパッケージでなければ個別のリンクが必要
 
 file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
@@ -43,6 +47,6 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(yaml-cpp)
+ament_export_dependencies(${AMENT_DEPENDENCIES})
 
 ament_package()

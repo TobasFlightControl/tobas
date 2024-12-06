@@ -18,17 +18,19 @@ find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_dynamixel_msgs REQUIRED)
 
-include_directories(include)
-
-file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
-add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
-ament_target_dependencies(${PROJECT_NAME}_node
+set(AMENT_DEPENDENCIES
 	std_srvs
 	dynamixel_sdk
 	tobas_node
 	tobas_msgs_adapter
 	tobas_dynamixel_msgs
 )
+
+include_directories(include)
+
+file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
+add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
+ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "DynamixelHandlerNode" EXECUTABLE dynamixel_handler)
 
 install(
