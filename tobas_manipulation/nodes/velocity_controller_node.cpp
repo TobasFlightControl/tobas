@@ -1,12 +1,12 @@
 #include <ranges>
 
-#include <tobas_kdl/tree_joint_state_converter.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl/tree_taskspace_vel_ctrl.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/tf_listener.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/link_state_array.hpp>
@@ -30,8 +30,8 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
 
-  kdl::TreeJointStateConverter cur_js_conv_;
-  kdl::TreeJointStateConverter tar_js_conv_;
+  tobas::TreeJointStateConverter cur_js_conv_;
+  tobas::TreeJointStateConverter tar_js_conv_;
   kdl::TreeActiveJointsExtractor active_jnts_extractor_;
   kdl::TreeTaskSpaceVelCtrl vel_ctrl_;
 

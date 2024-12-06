@@ -13,9 +13,6 @@
 	<depend>tobas_eigen_tools</depend>
 	<depend>tobas_std_tools</depend>
 	<depend>urdf</depend>
-	<depend>rclcpp</depend>
-	<depend>geometry_msgs</depend>
-	<depend>sensor_msgs</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

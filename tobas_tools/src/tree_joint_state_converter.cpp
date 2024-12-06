@@ -1,12 +1,10 @@
 #include <tobas_std_tools/vector.hpp>
 
-#include "../include/tobas_kdl/tree_joint_state_converter.hpp"
+#include "../include/tobas_tools/tree_joint_state_converter.hpp"
 
-using namespace std;
-
-namespace kdl
+namespace tobas
 {
-TreeJointStateConverter::TreeJointStateConverter(const Tree& tree) : super(tree), jnt_parser_(tree_)
+TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& tree) : super(tree), jnt_parser_(tree_)
 {
   updateInternalDataStructures();
 }
@@ -36,7 +34,7 @@ int TreeJointStateConverter::jointStateToJntArrayPos(const sensor_msgs::msg::Joi
       const auto& kdl_idx = jnt_parser_.jointIndex(js.name[msg_idx]);
       q_out_(kdl_idx) = js.position.at(msg_idx);
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -60,7 +58,7 @@ int TreeJointStateConverter::jointStateToJntArrayVel(const sensor_msgs::msg::Joi
       const auto& kdl_idx = jnt_parser_.jointIndex(js.name[msg_idx]);
       qd_out_(kdl_idx) = js.velocity.at(msg_idx);
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -84,7 +82,7 @@ int TreeJointStateConverter::jointStateToJntArrayEff(const sensor_msgs::msg::Joi
       const auto& kdl_idx = jnt_parser_.jointIndex(js.name[msg_idx]);
       f_out_(kdl_idx) = js.effort.at(msg_idx);
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -112,7 +110,7 @@ int TreeJointStateConverter::jointStateToJntArrayPosVel(const sensor_msgs::msg::
       q_out_(kdl_idx) = js.position.at(msg_idx);
       qd_out_(kdl_idx) = js.velocity.at(msg_idx);
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -141,7 +139,7 @@ int TreeJointStateConverter::jointStateToJntArray(const sensor_msgs::msg::JointS
       qd_out_(kdl_idx) = js.velocity.at(msg_idx);
       f_out_(kdl_idx) = js.effort.at(msg_idx);
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -151,7 +149,7 @@ int TreeJointStateConverter::jointStateToJntArray(const sensor_msgs::msg::JointS
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jntArrayToJointStatePos(const JntArray& q, const std::vector<std::string>& jnt_names)
+int TreeJointStateConverter::jntArrayToJointStatePos(const kdl::JntArray& q, const std::vector<std::string>& jnt_names)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -168,7 +166,7 @@ int TreeJointStateConverter::jntArrayToJointStatePos(const JntArray& q, const st
       js_out_.name.push_back(jnt_name);
       js_out_.position.push_back(q(kdl_idx));
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -178,7 +176,7 @@ int TreeJointStateConverter::jntArrayToJointStatePos(const JntArray& q, const st
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jntArrayToJointStateVel(const JntArray& qd, const std::vector<std::string>& jnt_names)
+int TreeJointStateConverter::jntArrayToJointStateVel(const kdl::JntArray& qd, const std::vector<std::string>& jnt_names)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -195,7 +193,7 @@ int TreeJointStateConverter::jntArrayToJointStateVel(const JntArray& qd, const s
       js_out_.name.push_back(jnt_name);
       js_out_.velocity.push_back(qd(kdl_idx));
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -205,7 +203,7 @@ int TreeJointStateConverter::jntArrayToJointStateVel(const JntArray& qd, const s
   return setDefaultError(E_NOERROR);
 }
 
-int TreeJointStateConverter::jntArrayToJointStateEff(const JntArray& f, const std::vector<std::string>& jnt_names)
+int TreeJointStateConverter::jntArrayToJointStateEff(const kdl::JntArray& f, const std::vector<std::string>& jnt_names)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -222,7 +220,7 @@ int TreeJointStateConverter::jntArrayToJointStateEff(const JntArray& f, const st
       js_out_.name.push_back(jnt_name);
       js_out_.effort.push_back(f(kdl_idx));
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -233,10 +231,10 @@ int TreeJointStateConverter::jntArrayToJointStateEff(const JntArray& f, const st
 }
 
 int TreeJointStateConverter::jntArrayToJointState(
-  const JntArray& q,
-  const JntArray& qd,
-  const JntArray& f,
-  const vector<string>& jnt_names)
+  const kdl::JntArray& q,
+  const kdl::JntArray& qd,
+  const kdl::JntArray& f,
+  const std::vector<std::string>& jnt_names)
 {
   if (!isUpToDate())
     return setDefaultError(E_NOT_UP_TO_DATE);
@@ -255,7 +253,7 @@ int TreeJointStateConverter::jntArrayToJointState(
       js_out_.velocity.push_back(qd(kdl_idx));
       js_out_.effort.push_back(f(kdl_idx));
     }
-    catch (const exception& e)
+    catch (const std::exception& e)
     {
       error_msg_ = e.what();
       return (error_code_ = E_UNKNOWN);
@@ -272,4 +270,4 @@ void TreeJointStateConverter::clearJointState()
   js_out_.velocity.clear();
   js_out_.effort.clear();
 }
-}  // namespace kdl
+}  // namespace tobas

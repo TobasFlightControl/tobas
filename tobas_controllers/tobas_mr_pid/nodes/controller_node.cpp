@@ -3,9 +3,9 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 
-#include <tobas_kdl/tree_joint_state_converter.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_tools/tree_joint_state_converter.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
@@ -45,7 +45,7 @@ private:
   tobas::Drone drone_;
   kdl::Tree tree_;
 
-  kdl::TreeJointStateConverter js_converter_;
+  tobas::TreeJointStateConverter js_converter_;
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers

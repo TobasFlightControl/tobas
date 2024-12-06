@@ -5,9 +5,9 @@
 
 #include <tobas_kdl/jntarray.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
-#include <tobas_kdl/tree_joint_state_converter.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_tools/tree_joint_state_converter.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_constants/constants.hpp>
@@ -43,7 +43,7 @@ private:
   tobas::Drone drone_;
   kdl::Tree tree_;
 
-  kdl::TreeJointStateConverter js_converter_;
+  tobas::TreeJointStateConverter js_converter_;
 
   // Controllers
   tobas::PositionPid pos_pid_;

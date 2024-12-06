@@ -2,20 +2,20 @@
 
 #include <sensor_msgs/msg/joint_state.hpp>
 
-#include "./tree_solver_i.hpp"
-#include "./tree_joint_parser.hpp"
+#include <tobas_kdl/tree_solver_i.hpp>
+#include <tobas_kdl/tree_joint_parser.hpp>
 
-namespace kdl
+namespace tobas
 {
 /* sensor_msgs::msg::JointStateとKDL::JntArrayの変換． */
-class TreeJointStateConverter : public TreeSolverI
+class TreeJointStateConverter : public kdl::TreeSolverI
 {
-  using super = TreeSolverI;
+  using super = kdl::TreeSolverI;
 
 public:
   static constexpr int E_JOINT_NAMES_NOT_SET = -100;
 
-  explicit TreeJointStateConverter(const Tree& tree);
+  explicit TreeJointStateConverter(const kdl::Tree& tree);
 
   void updateInternalDataStructures() override;
 
@@ -25,18 +25,18 @@ public:
   int jointStateToJntArrayPosVel(const sensor_msgs::msg::JointState& js);
   int jointStateToJntArray(const sensor_msgs::msg::JointState& js);
 
-  int jntArrayToJointStatePos(const JntArray& q, const std::vector<std::string>& jnt_names);
-  int jntArrayToJointStateVel(const JntArray& qd, const std::vector<std::string>& jnt_names);
-  int jntArrayToJointStateEff(const JntArray& f, const std::vector<std::string>& jnt_names);
+  int jntArrayToJointStatePos(const kdl::JntArray& q, const std::vector<std::string>& jnt_names);
+  int jntArrayToJointStateVel(const kdl::JntArray& qd, const std::vector<std::string>& jnt_names);
+  int jntArrayToJointStateEff(const kdl::JntArray& f, const std::vector<std::string>& jnt_names);
   int jntArrayToJointState(
-    const JntArray& q,
-    const JntArray& qd,
-    const JntArray& f,
+    const kdl::JntArray& q,
+    const kdl::JntArray& qd,
+    const kdl::JntArray& f,
     const std::vector<std::string>& jnt_names);
 
-  inline const JntArray& getPositionsKDL() const;
-  inline const JntArray& getVelocitiesKDL() const;
-  inline const JntArray& getEffortsKDL() const;
+  inline const kdl::JntArray& getPositionsKDL() const;
+  inline const kdl::JntArray& getVelocitiesKDL() const;
+  inline const kdl::JntArray& getEffortsKDL() const;
 
   inline const sensor_msgs::msg::JointState& getJointState() const;
   inline const std::vector<std::string>& getNamesMsg() const;
@@ -45,27 +45,27 @@ public:
   inline const std::vector<double>& getEffortsMsg() const;
 
 private:
-  TreeJointParser jnt_parser_;
+  kdl::TreeJointParser jnt_parser_;
 
-  JntArray q_out_;
-  JntArray qd_out_;
-  JntArray f_out_;
+  kdl::JntArray q_out_;
+  kdl::JntArray qd_out_;
+  kdl::JntArray f_out_;
   sensor_msgs::msg::JointState js_out_;
 
   void clearJointState();
 };
 
-inline const JntArray& TreeJointStateConverter::getPositionsKDL() const
+inline const kdl::JntArray& TreeJointStateConverter::getPositionsKDL() const
 {
   return q_out_;
 }
 
-inline const JntArray& TreeJointStateConverter::getVelocitiesKDL() const
+inline const kdl::JntArray& TreeJointStateConverter::getVelocitiesKDL() const
 {
   return qd_out_;
 }
 
-inline const JntArray& TreeJointStateConverter::getEffortsKDL() const
+inline const kdl::JntArray& TreeJointStateConverter::getEffortsKDL() const
 {
   return f_out_;
 }
@@ -94,4 +94,4 @@ inline const std::vector<double>& TreeJointStateConverter::getEffortsMsg() const
 {
   return js_out_.effort;
 }
-}  // namespace kdl
+}  // namespace tobas
