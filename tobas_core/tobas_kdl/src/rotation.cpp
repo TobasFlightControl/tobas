@@ -37,34 +37,34 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
   {
     const auto s = 0.5 / sqrt(trace + 1.0);
     w = 0.25 / s;
-    x = ((*this)(2, 1) - (*this)(1, 2)) * s;
-    y = ((*this)(0, 2) - (*this)(2, 0)) * s;
-    z = ((*this)(1, 0) - (*this)(0, 1)) * s;
+    x = (data(2, 1) - data(1, 2)) * s;
+    y = (data(0, 2) - data(2, 0)) * s;
+    z = (data(1, 0) - data(0, 1)) * s;
   }
   else
   {
-    if ((*this)(0, 0) > (*this)(1, 1) && (*this)(0, 0) > (*this)(2, 2))
+    if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2))
     {
-      const auto s = 2.0 * sqrt(1.0 + (*this)(0, 0) - (*this)(1, 1) - (*this)(2, 2));
-      w = ((*this)(2, 1) - (*this)(1, 2)) / s;
+      const auto s = 2.0 * sqrt(1.0 + data(0, 0) - data(1, 1) - data(2, 2));
+      w = (data(2, 1) - data(1, 2)) / s;
       x = 0.25 * s;
-      y = ((*this)(0, 1) + (*this)(1, 0)) / s;
-      z = ((*this)(0, 2) + (*this)(2, 0)) / s;
+      y = (data(0, 1) + data(1, 0)) / s;
+      z = (data(0, 2) + data(2, 0)) / s;
     }
-    else if ((*this)(1, 1) > (*this)(2, 2))
+    else if (data(1, 1) > data(2, 2))
     {
-      const auto s = 2.0 * sqrt(1.0 + (*this)(1, 1) - (*this)(0, 0) - (*this)(2, 2));
-      w = ((*this)(0, 2) - (*this)(2, 0)) / s;
-      x = ((*this)(0, 1) + (*this)(1, 0)) / s;
+      const auto s = 2.0 * sqrt(1.0 + data(1, 1) - data(0, 0) - data(2, 2));
+      w = (data(0, 2) - data(2, 0)) / s;
+      x = (data(0, 1) + data(1, 0)) / s;
       y = 0.25 * s;
-      z = ((*this)(1, 2) + (*this)(2, 1)) / s;
+      z = (data(1, 2) + data(2, 1)) / s;
     }
     else
     {
-      const auto s = 2.0 * sqrt(1.0 + (*this)(2, 2) - (*this)(0, 0) - (*this)(1, 1));
-      w = ((*this)(1, 0) - (*this)(0, 1)) / s;
-      x = ((*this)(0, 2) + (*this)(2, 0)) / s;
-      y = ((*this)(1, 2) + (*this)(2, 1)) / s;
+      const auto s = 2.0 * sqrt(1.0 + data(2, 2) - data(0, 0) - data(1, 1));
+      w = (data(1, 0) - data(0, 1)) / s;
+      x = (data(0, 2) + data(2, 0)) / s;
+      y = (data(1, 2) + data(2, 1)) / s;
       z = 0.25 * s;
     }
   }
@@ -111,45 +111,45 @@ void Rotation::doRotX(double angle)
 {
   const auto cs = cos(angle);
   const auto sn = sin(angle);
-  const auto x1 = cs * (*this)(0, 1) + sn * (*this)(0, 2);
-  const auto x2 = cs * (*this)(1, 1) + sn * (*this)(1, 2);
-  const auto x3 = cs * (*this)(2, 1) + sn * (*this)(2, 2);
-  (*this)(0, 2) = -sn * (*this)(0, 1) + cs * (*this)(0, 2);
-  (*this)(1, 2) = -sn * (*this)(1, 1) + cs * (*this)(1, 2);
-  (*this)(2, 2) = -sn * (*this)(2, 1) + cs * (*this)(2, 2);
-  (*this)(0, 1) = x1;
-  (*this)(1, 1) = x2;
-  (*this)(2, 1) = x3;
+  const auto x1 = cs * data(0, 1) + sn * data(0, 2);
+  const auto x2 = cs * data(1, 1) + sn * data(1, 2);
+  const auto x3 = cs * data(2, 1) + sn * data(2, 2);
+  data(0, 2) = -sn * data(0, 1) + cs * data(0, 2);
+  data(1, 2) = -sn * data(1, 1) + cs * data(1, 2);
+  data(2, 2) = -sn * data(2, 1) + cs * data(2, 2);
+  data(0, 1) = x1;
+  data(1, 1) = x2;
+  data(2, 1) = x3;
 }
 
 void Rotation::doRotY(double angle)
 {
   const auto cs = cos(angle);
   const auto sn = sin(angle);
-  const auto x1 = cs * (*this)(0, 0) - sn * (*this)(0, 2);
-  const auto x2 = cs * (*this)(1, 0) - sn * (*this)(1, 2);
-  const auto x3 = cs * (*this)(2, 0) - sn * (*this)(2, 2);
-  (*this)(0, 2) = sn * (*this)(0, 0) + cs * (*this)(0, 2);
-  (*this)(1, 2) = sn * (*this)(1, 0) + cs * (*this)(1, 2);
-  (*this)(2, 2) = sn * (*this)(2, 0) + cs * (*this)(2, 2);
-  (*this)(0, 0) = x1;
-  (*this)(1, 0) = x2;
-  (*this)(2, 0) = x3;
+  const auto x1 = cs * data(0, 0) - sn * data(0, 2);
+  const auto x2 = cs * data(1, 0) - sn * data(1, 2);
+  const auto x3 = cs * data(2, 0) - sn * data(2, 2);
+  data(0, 2) = sn * data(0, 0) + cs * data(0, 2);
+  data(1, 2) = sn * data(1, 0) + cs * data(1, 2);
+  data(2, 2) = sn * data(2, 0) + cs * data(2, 2);
+  data(0, 0) = x1;
+  data(1, 0) = x2;
+  data(2, 0) = x3;
 }
 
 void Rotation::doRotZ(double angle)
 {
   const auto cs = cos(angle);
   const auto sn = sin(angle);
-  const auto x1 = cs * (*this)(0, 0) + sn * (*this)(0, 1);
-  const auto x2 = cs * (*this)(1, 0) + sn * (*this)(1, 1);
-  const auto x3 = cs * (*this)(2, 0) + sn * (*this)(2, 1);
-  (*this)(0, 1) = -sn * (*this)(0, 0) + cs * (*this)(0, 1);
-  (*this)(1, 1) = -sn * (*this)(1, 0) + cs * (*this)(1, 1);
-  (*this)(2, 1) = -sn * (*this)(2, 0) + cs * (*this)(2, 1);
-  (*this)(0, 0) = x1;
-  (*this)(1, 0) = x2;
-  (*this)(2, 0) = x3;
+  const auto x1 = cs * data(0, 0) + sn * data(0, 1);
+  const auto x2 = cs * data(1, 0) + sn * data(1, 1);
+  const auto x3 = cs * data(2, 0) + sn * data(2, 1);
+  data(0, 1) = -sn * data(0, 0) + cs * data(0, 1);
+  data(1, 1) = -sn * data(1, 0) + cs * data(1, 1);
+  data(2, 1) = -sn * data(2, 0) + cs * data(2, 1);
+  data(0, 0) = x1;
+  data(1, 0) = x2;
+  data(2, 0) = x3;
 }
 
 Rotation Rotation::RotX(double angle)
@@ -193,6 +193,7 @@ Rotation Rotation::Rot(const Vector& axis, double angle)
   const auto m_vt_0_1 = m_vt_0 * axis.y();
   const auto m_vt_0_2 = m_vt_0 * axis.z();
   const auto m_vt_1_2 = m_vt_1 * axis.z();
+
   return Rotation(
     ct + m_vt_0 * axis.x(), -m_st_2 + m_vt_0_1, m_st_1 + m_vt_0_2, m_st_2 + m_vt_0_1, ct + m_vt_1 * axis.y(),
     -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2, ct + m_vt_2 * axis.z());
@@ -263,10 +264,10 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
 
   const auto f = (data.trace() - 1) / 2;
 
-  const auto x = (data(2, 1) - data(1, 2));
-  const auto y = (data(0, 2) - data(2, 0));
-  const auto z = (data(1, 0) - data(0, 1));
-  const auto axis = Vector(x, y, z);
+  const auto x = data(2, 1) - data(1, 2);
+  const auto y = data(0, 2) - data(2, 0);
+  const auto z = data(1, 0) - data(0, 1);
+  const Vector axis(x, y, z);
   const auto angle = atan2(axis.norm() / 2, f);
   return { angle, axis };
 }
