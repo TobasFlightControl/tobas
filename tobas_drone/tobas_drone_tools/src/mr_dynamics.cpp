@@ -32,7 +32,7 @@ double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_spee
   {
     const auto& cd = z_rotors_.rotor(i).drag_constant;
     const auto& rot_speed = rot_speeds.at(i);
-    res += cd * abs(rot_speed);
+    res += cd * fabs(rot_speed);
   }
   return res;
 }
@@ -86,7 +86,7 @@ kdl::Vector MultirotorDynamicsComponents::horizontalMoment(
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
 
     const auto& rot_speed = rot_speeds.at(i);
-    h_momemt_arm += rotor.drag_constant * abs(rot_speed) * P_cog_rotor;
+    h_momemt_arm += rotor.drag_constant * fabs(rot_speed) * P_cog_rotor;
   }
 
   const auto vel_perp = relativePerpVel(rot, vel_B, wind_W);

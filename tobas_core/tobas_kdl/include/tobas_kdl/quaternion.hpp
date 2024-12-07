@@ -130,7 +130,7 @@ inline Quaternion Quaternion::normalize() const
 
 inline bool Quaternion::isNormalized() const
 {
-  return tobas_std::isClose(this->squaredNorm(), 1);
+  return tobas_std::isClose(this->squaredNorm(), 1.);
 }
 
 inline Quaternion Quaternion::differential(const Vector& angvel) const

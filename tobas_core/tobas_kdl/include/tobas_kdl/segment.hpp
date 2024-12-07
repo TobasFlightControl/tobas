@@ -62,7 +62,7 @@ public:
    */
   inline Eigen::Matrix3d rotGrad2(double q) const;
 
-  /* Request the tip frame of the segment. */
+  /* Request the frame from the end of the joint to the tip of the segment. */
   inline Frame frame() const;
 
   /* Request the inertia of the segment. */
@@ -78,7 +78,7 @@ private:
 };
 
 inline Segment::Segment(const std::string& name, const Joint& joint, const Frame& f_tip, const RigidBodyInertia& I)
-  : name_(name), joint_(joint), f_tip_(joint.pose(0).inverse() * f_tip), I_(I)
+  : name_(name), joint_(joint), f_tip_(joint.pose(0.).inverse() * f_tip), I_(I)
 {
 }
 

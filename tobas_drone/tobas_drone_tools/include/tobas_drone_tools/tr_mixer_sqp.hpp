@@ -12,7 +12,7 @@
 namespace tobas
 {
 /**
- * @brief ティルトロータマルチコプターの6軸加速度を実現するための最適な推力とティルト角を求める． (memo: 3-12)
+ * @brief ティルトロータマルチコプターのミキシングをSQPで解く． (memo: 3-12)
  */
 class TiltRotorMixer_SQP
 {
@@ -31,8 +31,8 @@ public:
     const kdl::Vector& tar_acc_W,
     const kdl::Vector& tar_dgyro_B);
 
-  Eigen::VectorXd getThrusts() const;
-  Eigen::VectorXd getTiltAngles() const;
+  double getThrust(size_t idx) const;
+  double getTiltAngle(size_t idx) const;
 
   bool setLinearWeight(double p);
   bool setAngularWeight(double p);

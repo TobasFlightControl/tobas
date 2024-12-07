@@ -177,7 +177,7 @@ void PreArmCheckerNode::mainTimerCb()
   {
     // 姿勢角
     odom_->frame.M.getRPY(roll_, pitch_, yaw_);
-    prearm_check->attitude_too_steep = (max(abs(roll_), abs(pitch_)) > kAttitudeThresh);
+    prearm_check->attitude_too_steep = (max(fabs(roll_), fabs(pitch_)) > kAttitudeThresh);
     if (prearm_check->attitude_too_steep)
       prearm_check->ok = false;
 

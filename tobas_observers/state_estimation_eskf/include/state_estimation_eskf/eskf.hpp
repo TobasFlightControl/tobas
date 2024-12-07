@@ -7,6 +7,7 @@
 
 #include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
+#include <tobas_eigen_tools/operators.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
@@ -395,7 +396,7 @@ double ErrorStateKalmanFilter::correct(
   // (286) Initialize ESKF (Optional)
   if (do_cov_initialization_)
   {
-    G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Matrix3d::Identity() - eigen::skew(0.5 * dtheta);
+    G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Diagonal3d(1, 1, 1) - eigen::skew(0.5 * dtheta);
     P_ = G_ * P_ * G_.transpose();  // TODO: 必要な部分のみ計算
     eigen::symmetrise(P_);
   }

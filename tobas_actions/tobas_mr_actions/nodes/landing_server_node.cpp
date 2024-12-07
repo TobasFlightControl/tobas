@@ -136,7 +136,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     {
       // 一定時間幅の高度が一定の範囲内ならモータを停止して終了
       // FIXME: 着陸判定が甘い．IMU等も利用してより正確に判定しないと危険．
-      const auto alt_range = abs(alt_buf.firstValue() - alt_buf.lastValue());
+      const auto alt_range = fabs(alt_buf.firstValue() - alt_buf.lastValue());
       if (alt_range < kStableAltitudeRange)
       {
         TOBAS_INFO("Landing detected. Stopping motors.");

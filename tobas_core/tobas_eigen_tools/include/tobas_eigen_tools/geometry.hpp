@@ -71,12 +71,6 @@ Eigen::Matrix3d eulerrateFromAngvelLocal(const double& roll, const double& pitch
 /* ローカル座標系で表現された角速度をZYXオイラー角の変化率に変換する． */
 Eigen::Vector3d eulerrateFromAngvelLocal(const Eigen::Vector3d& angvel, const double& roll, const double& pitch);
 
-/* 角軸ベクトルを回転行列に変換する． */
-Eigen::Matrix3d matrixFromAngleAxis(const Eigen::Vector3d& a);
-
-/* 回転行列を角軸ベクトルに変換する． */
-Eigen::Vector3d AngleAxisFromMatrix(const Eigen::Matrix3d& r);
-
 /* グローバル座標系で表現された角加速度をオイラー角加速度に変換する． */
 Eigen::Vector3d euleraccFromAngaccGlobal(
   const Eigen::Vector3d& angvel,

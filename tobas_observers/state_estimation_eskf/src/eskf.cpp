@@ -7,7 +7,7 @@
 
 #include "../include/state_estimation_eskf/eskf.hpp"
 
-#define I3 Matrix3d::Identity()
+#define E3 Diagonal3d(1, 1, 1)
 
 using namespace std;
 using namespace chrono;
@@ -315,10 +315,10 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const auto mx_std = sqrt(mag_cov(0, 0));
   const auto my_std = sqrt(mag_cov(1, 1));
   double yaw_std;
-  if (abs(mx) > abs(my))
-    yaw_std = (abs(mx) / (math::sqr(mx) + math::sqr(my))) * my_std;
+  if (fabs(mx) > fabs(my))
+    yaw_std = (fabs(mx) / (math::sqr(mx) + math::sqr(my))) * my_std;
   else
-    yaw_std = (abs(my) / (math::sqr(mx) + math::sqr(my))) * mx_std;
+    yaw_std = (fabs(my) / (math::sqr(mx) + math::sqr(my))) * mx_std;
   yaw_std = max(yaw_std, 0.1);  // FIXME: ヨー角の分散が小さすぎると姿勢推定が不安定になる
   const auto yaw_var = math::sqr(yaw_std);
 
@@ -336,7 +336,7 @@ double ErrorStateKalmanFilter::measureMagneticField(
   {
     SA4 = 1 / math::sqr(SA3);
     SA5_inv = math::sqr(SA2) * SA4 + 1;
-    can_use_A = abs(SA5_inv) > kEpsilon;
+    can_use_A = fabs(SA5_inv) > kEpsilon;
   }
 
   bool can_use_B = false;
@@ -349,12 +349,12 @@ double ErrorStateKalmanFilter::measureMagneticField(
   {
     SB3 = 1 / math::sqr(SB2);
     SB5_inv = SB3 * math::sqr(SB4) + 1;
-    can_use_B = abs(SB5_inv) > kEpsilon;
+    can_use_B = fabs(SB5_inv) > kEpsilon;
   }
 
   // Compute output matrix
   RowVector4d H_yaw;
-  if (can_use_A && (!can_use_B || abs(SA5_inv) >= abs(SB5_inv)))
+  if (can_use_A && (!can_use_B || fabs(SA5_inv) >= fabs(SB5_inv)))
   {
     const double SA5 = 1 / SA5_inv;
     const double SA6 = 1 / SA3;
@@ -367,7 +367,7 @@ double ErrorStateKalmanFilter::measureMagneticField(
     H_yaw(2) = SA5 * (SA1 * SA7 + SA9 * q.x());
     H_yaw(3) = SA5 * (SA0 * SA7 + SA9 * q.w());
   }
-  else if (can_use_B && (!can_use_A || abs(SB5_inv) > abs(SA5_inv)))
+  else if (can_use_B && (!can_use_A || fabs(SB5_inv) > fabs(SA5_inv)))
   {
     const double SB5 = 1 / SB5_inv;
     const double SB6 = 1 / SB2;
@@ -434,7 +434,7 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateV
 
   Matrix<double, 3, 4> res;
   res.block<3, 1>(0, 0) = 2 * (w * a - a.cross(v));
-  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * I3 + v * a.transpose() - a * v.transpose() - w * eigen::skew(a));
+  res.block<3, 3>(0, 1) = 2 * (a.dot(v) * E3 + v * a.transpose() - a * v.transpose() - w * eigen::skew(a));
 
   return res;
 }

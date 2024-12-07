@@ -447,7 +447,7 @@ double GazeboFixedWingPlugin::dragCoefficient(const double& alpha) const
 
   // 舵面
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
-    C_D += control_surfaces_[i].c_drag_abs_delta * abs(cs_angle_models_[i].currentPosition());
+    C_D += control_surfaces_[i].c_drag_abs_delta * fabs(cs_angle_models_[i].currentPosition());
 
   return C_D;
 }
@@ -490,7 +490,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(
 {
   // 迎角，横滑り角
   auto C_m = aero_coefs_.c_pitch_0 + aero_coefs_.c_pitch_alpha * alpha;
-  C_m += aero_coefs_.c_pitch_abs_beta * abs(beta);
+  C_m += aero_coefs_.c_pitch_abs_beta * fabs(beta);
 
   // 角速度
   const auto& c = vehicle_params_.mac;

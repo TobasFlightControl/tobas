@@ -4,11 +4,10 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
+#include <tobas_eigen_tools/operators.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_drone_tools/tr_mixer_sqp.hpp"
-
-#define E3 Matrix3d::Identity()
 
 using namespace std;
 using namespace Eigen;
@@ -70,7 +69,7 @@ bool TiltRotorMixer_SQP::solve(
     const auto& cm = rotor.moment_constant;
     const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
     const auto r = B_Pos_B2P - B_Pos_B2G;
-    B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * E3;
+    B_.block<3, 3>(3, 3 * idx) = eigen::skew(r.data) - (d * cm) * Diagonal3d(1, 1, 1);
 
     // Update ci0
     const auto nr = drone_.numRotors();
@@ -99,14 +98,14 @@ bool TiltRotorMixer_SQP::solve(
   return true;
 }
 
-VectorXd TiltRotorMixer_SQP::getThrusts() const
+double TiltRotorMixer_SQP::getThrust(size_t idx) const
 {
-  return sqp_.optimal().tail(drone_.numRotors());
+  return sqp_.optimal()(drone_.numRotors() + idx);
 }
 
-VectorXd TiltRotorMixer_SQP::getTiltAngles() const
+double TiltRotorMixer_SQP::getTiltAngle(size_t idx) const
 {
-  return sqp_.optimal().head(drone_.numRotors());
+  return sqp_.optimal()(idx);
 }
 
 bool TiltRotorMixer_SQP::setLinearWeight(double p)

@@ -213,15 +213,15 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
   // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
   if (
-    (abs(data(0, 1) - data(1, 0)) < EPS) && (abs(data(0, 2) - data(2, 0)) < EPS)
-    && (abs(data(1, 2) - data(2, 1)) < EPS))
+    (fabs(data(0, 1) - data(1, 0)) < EPS) && (fabs(data(0, 2) - data(2, 0)) < EPS)
+    && (fabs(data(1, 2) - data(2, 1)) < EPS))
   {
     // singularity found
     // first check for identity matrix which must have +1
     // for all terms in leading diagonal and zero in other terms
     if (
-      (abs(data(0, 1) + data(1, 0)) < epsilon2) && (abs(data(0, 2) + data(2, 0)) < epsilon2)
-      && (abs(data(1, 2) + data(2, 1)) < epsilon2) && (abs(data(0, 0) + data(1, 1) + data(2, 2) - 3) < epsilon2))
+      (fabs(data(0, 1) + data(1, 0)) < epsilon2) && (fabs(data(0, 2) + data(2, 0)) < epsilon2)
+      && (fabs(data(1, 2) + data(2, 1)) < epsilon2) && (fabs(data(0, 0) + data(1, 1) + data(2, 2) - 3) < epsilon2))
     {
       // this singularity is identity matrix so angle = 0, axis is arbitrary
       // Choose 0, 0, 1 to pass orocos tests

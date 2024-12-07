@@ -162,7 +162,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     }
 
     // コマンドを発行し終え，且つ許容範囲内に入っていたらアクション成功
-    const auto alt_error = abs(goal->target_altitude - odom_->frame.p.z());
+    const auto alt_error = fabs(goal->target_altitude - odom_->frame.p.z());
     if (t > duration && alt_error < goal->altitude_tolerance)
     {
       result->message.clear();

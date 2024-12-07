@@ -223,29 +223,6 @@ Vector3d eulerrateFromAngvelLocal(const Vector3d& angvel, const double& roll, co
   return eulerrateFromAngvelLocal(roll, pitch) * angvel;
 }
 
-Matrix3d matrixFromAngleAxis(const Vector3d& a)
-{
-  const double angle = a.norm();
-  const Vector3d axis = a.normalized();
-
-  const Matrix3d axis_cross = eigen::skew(axis);
-  const Matrix3d axis_cross2 = eigen::skew2(axis);
-  const Matrix3d I = Matrix3d::Identity();
-  const auto data = I + axis_cross * sin(angle) + axis_cross2 * (1 - cos(angle));
-
-  return Matrix3d(data);
-}
-
-Vector3d AngleAxisFromMatrix(const Matrix3d& r)
-{
-  const Vector3d l(r(2, 1) - r(1, 2), r(0, 2) - r(2, 0), r(1, 0) - r(0, 1));
-  const double l_norm = l.norm();
-  if (l_norm > EPS)
-    return (atan2(l_norm, r.trace() - 1) / l_norm) * l;
-  else
-    return Vector3d::Zero();
-}
-
 Vector3d
 euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, const double& pitch, const double& yaw)
 {

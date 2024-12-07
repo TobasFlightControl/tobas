@@ -84,7 +84,7 @@ void AttitudeCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstShare
 
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
-  if (max(abs(euler->euler.roll), abs(euler->euler.pitch)) > kAttitudeFatalThresh)
+  if (max(fabs(euler->euler.roll), fabs(euler->euler.pitch)) > kAttitudeFatalThresh)
   {
     TOBAS_FATAL("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();

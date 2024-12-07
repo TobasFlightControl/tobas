@@ -4,6 +4,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
+#include <tobas_std_tools/float.hpp>
 #include <tobas_eigen_tools/core.hpp>
 
 namespace kdl
@@ -54,6 +55,9 @@ public:
 
   /* 2つのベクトル間の偏角 [rad] を計算する． */
   inline double argument(const Vector& rhs) const;
+
+  /* 2つのベクトルが直行するかどうかを判定する． */
+  inline bool isOrthogonal(const Vector& rhs) const;
 
   /* Clamp each value. */
   inline Vector clamp(const double& lb, const double& ub) const;
@@ -198,7 +202,12 @@ inline Vector Vector::hadamard(const Vector& rhs) const
 
 inline double Vector::argument(const Vector& rhs) const
 {
-  return acos(normalized().dot(rhs.normalized()));
+  return ::acos(normalized().dot(rhs.normalized()));
+}
+
+inline bool Vector::isOrthogonal(const Vector& rhs) const
+{
+  return tobas_std::isClose(this->dot(rhs), 0.);
 }
 
 inline Vector Vector::clamp(const double& lb, const double& ub) const
@@ -223,13 +232,13 @@ inline double Vector::norm() const
 
 inline void Vector::normalize()
 {
-  assert(norm() > 0.);
+  assert(this->norm() > 0.);
   data.normalize();
 }
 
 inline Vector Vector::normalized() const
 {
-  assert(norm() > 0.);
+  assert(this->norm() > 0.);
   return Vector(data.normalized());
 }
 

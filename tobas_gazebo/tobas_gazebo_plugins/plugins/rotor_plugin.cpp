@@ -234,7 +234,7 @@ void GazeboRotorPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::Enti
   const auto dt = duration<double>(info.dt).count();
 
   // Check aliasing
-  if (abs(velocity_ * dt) > M_PI)
+  if (fabs(velocity_ * dt) > M_PI)
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor [", channel_, "] might occur. Lower simulation time step.");
 
   // Update simulation state
@@ -292,7 +292,7 @@ void GazeboRotorPlugin::applyWrench(gz::sim::EntityComponentManager& ecm, const 
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-abs(velocity_) * rotor_drag_coef_) * linvel_perp_W;
+  const auto h_force_W = (-fabs(velocity_) * rotor_drag_coef_) * linvel_perp_W;
   link_->AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
 
   // (2) first term: Rotor drag torque

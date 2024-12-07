@@ -240,7 +240,7 @@ double ObserverNode::computeGravMeasVariance(const Vector3d& acc, const Matrix3d
   // 制御器が姿勢を戻そうとし，並進方向の加速度の追従が遅れ，位置制御が振動するという因果関係がある．
   // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
   // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
-  const auto acc_norm_diff = abs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
+  const auto acc_norm_diff = fabs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
   const auto var_dynamic = math::sqr(acc_norm_diff * dynamic_acc_stddev_scale_);
 
   // 重力自体の不確かさ
