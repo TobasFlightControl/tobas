@@ -12,6 +12,7 @@
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_tools/tr_mixer_sqp.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/orientation_pid.hpp>
 
@@ -24,7 +25,6 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
 
-#include "../include/tobas_tiltrotor_sqp/mixer.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -48,7 +48,7 @@ private:
   // Controllers
   tobas::PositionPid pos_pid_;
   tobas::OrientationPid ori_pid_;
-  tobas::TiltRotorMixer mixer_;
+  tobas::TiltRotorMixer_SQP mixer_;
 
   // Mutable variables
   bool is_initialized_ = false;

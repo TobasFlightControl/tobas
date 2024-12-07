@@ -32,7 +32,7 @@ const char* MultirotorPIDWidget::description() const
 
 QString MultirotorPIDWidget::controllerPackage() const
 {
-  return "tobas_mr_pid";
+  return "tobas_multirotor_pid";
 }
 
 QString MultirotorPIDWidget::pluginName() const

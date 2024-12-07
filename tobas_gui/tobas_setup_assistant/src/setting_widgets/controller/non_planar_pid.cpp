@@ -32,7 +32,7 @@ const char* NonPlanarPIDWidget::description() const
 
 QString NonPlanarPIDWidget::controllerPackage() const
 {
-  return "tobas_np_pid";
+  return "tobas_nonplanar_pid";
 }
 
 QString NonPlanarPIDWidget::pluginName() const

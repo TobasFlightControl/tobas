@@ -6,7 +6,7 @@
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_tiltrotor_sqp/mixer.hpp"
+#include "../include/tobas_drone_tools/tr_mixer_sqp.hpp"
 
 #define E3 Matrix3d::Identity()
 
@@ -15,14 +15,14 @@ using namespace Eigen;
 
 namespace tobas
 {
-TiltRotorMixer::TiltRotorMixer(const Drone& drone, const kdl::Tree& tree)
+TiltRotorMixer_SQP::TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
 {
   if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
     updateInternalDataStructures();
 }
 
-void TiltRotorMixer::updateInternalDataStructures()
+void TiltRotorMixer_SQP::updateInternalDataStructures()
 {
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
@@ -33,7 +33,7 @@ void TiltRotorMixer::updateInternalDataStructures()
   updateWeight();
 }
 
-bool TiltRotorMixer::solve(
+bool TiltRotorMixer_SQP::solve(
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
@@ -99,17 +99,17 @@ bool TiltRotorMixer::solve(
   return true;
 }
 
-VectorXd TiltRotorMixer::getThrusts() const
+VectorXd TiltRotorMixer_SQP::getThrusts() const
 {
   return sqp_.optimal().tail(drone_.numRotors());
 }
 
-VectorXd TiltRotorMixer::getTiltAngles() const
+VectorXd TiltRotorMixer_SQP::getTiltAngles() const
 {
   return sqp_.optimal().head(drone_.numRotors());
 }
 
-bool TiltRotorMixer::setLinearWeight(double p)
+bool TiltRotorMixer_SQP::setLinearWeight(double p)
 {
   if (p <= 0.)
   {
@@ -122,7 +122,7 @@ bool TiltRotorMixer::setLinearWeight(double p)
   return true;
 }
 
-bool TiltRotorMixer::setAngularWeight(double p)
+bool TiltRotorMixer_SQP::setAngularWeight(double p)
 {
   if (p <= 0.)
   {
@@ -135,7 +135,7 @@ bool TiltRotorMixer::setAngularWeight(double p)
   return true;
 }
 
-bool TiltRotorMixer::setThrustWeight(double p)
+bool TiltRotorMixer_SQP::setThrustWeight(double p)
 {
   if (p <= 0.)
   {
@@ -148,7 +148,7 @@ bool TiltRotorMixer::setThrustWeight(double p)
   return true;
 }
 
-void TiltRotorMixer::resetTensors()
+void TiltRotorMixer_SQP::resetTensors()
 {
   const auto nr = drone_.numRotors();
 
@@ -185,7 +185,7 @@ void TiltRotorMixer::resetTensors()
   df_dx_2_.conservativeResize(2 * nr, 2 * nr);
 }
 
-void TiltRotorMixer::initializeSQP()
+void TiltRotorMixer_SQP::initializeSQP()
 {
   const auto q0 = kdl::JntArray::Zero(tree_.getNrOfJoints());
   const auto R0 = kdl::Rotation::Identity();
@@ -210,7 +210,7 @@ void TiltRotorMixer::initializeSQP()
   sqp_.initialize(x0, _f, _g, _h, _dfdx, _dgdx, _dhdx, _dFdx, _dGdx, _dHdx);
 }
 
-void TiltRotorMixer::updateWeight()
+void TiltRotorMixer_SQP::updateWeight()
 {
   if (drone_.numRotors() == 0)
     return;
@@ -230,24 +230,24 @@ void TiltRotorMixer::updateWeight()
   R_.diagonal().fill(thrust_weight_ / math::sqr(thrust_scale));
 }
 
-double TiltRotorMixer::f(const VectorXd& x)
+double TiltRotorMixer_SQP::f(const VectorXd& x)
 {
   const auto [theta, tau] = splitState(x);
   const auto e = calc_e(theta, tau);
   return 0.5 * (e.transpose() * Q_ * e).value() + 0.5 * (tau.transpose() * R_ * tau).value();
 }
 
-VectorXd TiltRotorMixer::g(const VectorXd& x)
+VectorXd TiltRotorMixer_SQP::g(const VectorXd& x)
 {
   return Ci_ * x + ci0_;
 }
 
-VectorXd TiltRotorMixer::h(const VectorXd&)
+VectorXd TiltRotorMixer_SQP::h(const VectorXd&)
 {
   return VectorXd(0);
 }
 
-RowVectorXd TiltRotorMixer::dfdx(const VectorXd& x)
+RowVectorXd TiltRotorMixer_SQP::dfdx(const VectorXd& x)
 {
   const auto [theta, tau] = splitState(x);
 
@@ -261,17 +261,17 @@ RowVectorXd TiltRotorMixer::dfdx(const VectorXd& x)
   return df_dx_;
 }
 
-MatrixXd TiltRotorMixer::dgdx(const VectorXd&)
+MatrixXd TiltRotorMixer_SQP::dgdx(const VectorXd&)
 {
   return Ci_;
 }
 
-MatrixXd TiltRotorMixer::dhdx(const VectorXd&)
+MatrixXd TiltRotorMixer_SQP::dhdx(const VectorXd&)
 {
   return MatrixXd(0, stateSize());
 }
 
-MatrixXd TiltRotorMixer::dFdx(const VectorXd& x)
+MatrixXd TiltRotorMixer_SQP::dFdx(const VectorXd& x)
 {
   const auto [theta, tau] = splitState(x);
 
@@ -295,23 +295,23 @@ MatrixXd TiltRotorMixer::dFdx(const VectorXd& x)
   return df_dx_2_;
 }
 
-Tensor3Xd TiltRotorMixer::dGdx(const VectorXd&)
+Tensor3Xd TiltRotorMixer_SQP::dGdx(const VectorXd&)
 {
   return dCi_dx_;
 }
 
-Tensor3Xd TiltRotorMixer::dHdx(const VectorXd&)
+Tensor3Xd TiltRotorMixer_SQP::dHdx(const VectorXd&)
 {
   const auto state_size = stateSize();
   return Tensor3Xd(0, state_size, state_size);
 }
 
-size_t TiltRotorMixer::stateSize() const
+size_t TiltRotorMixer_SQP::stateSize() const
 {
   return drone_.numRotors() * 2;
 }
 
-pair<VectorXd, VectorXd> TiltRotorMixer::splitState(const VectorXd& x) const
+pair<VectorXd, VectorXd> TiltRotorMixer_SQP::splitState(const VectorXd& x) const
 {
   assert(static_cast<size_t>(x.size()) == stateSize());
 
@@ -321,22 +321,22 @@ pair<VectorXd, VectorXd> TiltRotorMixer::splitState(const VectorXd& x) const
   return { angles, thrusts };
 }
 
-Vector6d TiltRotorMixer::calc_e(const VectorXd& theta, const VectorXd& tau)
+Vector6d TiltRotorMixer_SQP::calc_e(const VectorXd& theta, const VectorXd& tau)
 {
   return calc_u(theta, tau) - d_;
 }
 
-Vector6d TiltRotorMixer::calc_u(const VectorXd& theta, const VectorXd& tau)
+Vector6d TiltRotorMixer_SQP::calc_u(const VectorXd& theta, const VectorXd& tau)
 {
   return calc_C(theta) * tau;
 }
 
-Matrix6Xd TiltRotorMixer::calc_C(const VectorXd& theta)
+Matrix6Xd TiltRotorMixer_SQP::calc_C(const VectorXd& theta)
 {
   return B_ * calc_N(theta);
 }
 
-const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
+const MatrixXd& TiltRotorMixer_SQP::calc_N(const VectorXd& theta)
 {
   for (const auto& [i, rotor_it] : views::enumerate(drone_.rotors))
   {
@@ -368,7 +368,7 @@ const MatrixXd& TiltRotorMixer::calc_N(const VectorXd& theta)
   return N_;
 }
 
-const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
+const Tensor3Xd& TiltRotorMixer_SQP::calc_dN_dtheta(const VectorXd& theta)
 {
   for (const auto& [i, rotor_it] : views::enumerate(drone_.rotors))
   {
@@ -392,7 +392,7 @@ const Tensor3Xd& TiltRotorMixer::calc_dN_dtheta(const VectorXd& theta)
   return dN_dtheta_;
 }
 
-const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
+const Tensor4Xd& TiltRotorMixer_SQP::calc_dN_dtheta_2(const VectorXd& theta)
 {
   for (const auto& [i, rotor_it] : views::enumerate(drone_.rotors))
   {
@@ -416,22 +416,22 @@ const Tensor4Xd& TiltRotorMixer::calc_dN_dtheta_2(const VectorXd& theta)
   return dN_dtheta_2_;
 }
 
-Matrix6Xd TiltRotorMixer::calc_du_dtheta(const VectorXd& theta, const VectorXd& tau)
+Matrix6Xd TiltRotorMixer_SQP::calc_du_dtheta(const VectorXd& theta, const VectorXd& tau)
 {
   return eigen::shuffle(calc_dC_dtheta(theta), { 0, 2, 1 }) * tau;
 }
 
-Tensor3Xd TiltRotorMixer::calc_du_dtheta_2(const VectorXd& theta, const VectorXd& tau)
+Tensor3Xd TiltRotorMixer_SQP::calc_du_dtheta_2(const VectorXd& theta, const VectorXd& tau)
 {
   return eigen::shuffle(calc_dC_dtheta_2(theta), { 0, 3, 2, 1 }) * tau;
 }
 
-Tensor3Xd TiltRotorMixer::calc_dC_dtheta(const VectorXd& theta)
+Tensor3Xd TiltRotorMixer_SQP::calc_dC_dtheta(const VectorXd& theta)
 {
   return B_ * calc_dN_dtheta(theta);
 }
 
-Tensor4Xd TiltRotorMixer::calc_dC_dtheta_2(const VectorXd& theta)
+Tensor4Xd TiltRotorMixer_SQP::calc_dC_dtheta_2(const VectorXd& theta)
 {
   return B_ * calc_dN_dtheta_2(theta);
 }

@@ -14,12 +14,12 @@ namespace tobas
 /**
  * @brief ティルトロータマルチコプターの6軸加速度を実現するための最適な推力とティルト角を求める． (memo: 3-12)
  */
-class TiltRotorMixer
+class TiltRotorMixer_SQP
 {
-  using self = TiltRotorMixer;
+  using self = TiltRotorMixer_SQP;
 
 public:
-  explicit TiltRotorMixer(const Drone& drone, const kdl::Tree& tree);
+  explicit TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree);
 
   void updateInternalDataStructures();
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
 
-	<name>tobas_tiltrotor_sqp</name>
+	<name>tobas_nonplanar_pid</name>
 	<version>0.0.0</version>
 	<description>TODO</description>
 	<maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
@@ -9,7 +9,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_nlp</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_pose_pid</depend>
 	<depend>tobas_tools</depend>
