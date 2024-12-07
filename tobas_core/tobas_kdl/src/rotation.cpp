@@ -10,7 +10,7 @@ namespace kdl
 {
 Rotation Rotation::Quaternion(double x, double y, double z, double w)
 {
-  assert(tobas_std::isClose(math::norm(x, y, z, w), 1));
+  assert(tobas_std::isClose(math::norm(x, y, z, w), 1.));
 
   const auto tx = 2 * x;
   const auto ty = 2 * y;
@@ -176,7 +176,7 @@ Rotation Rotation::RotZ(double angle)
 Rotation Rotation::Rot(const Vector& axis, double angle)
 {
   // Axis must be normalized
-  assert(tobas_std::isClose(axis.norm(), 1));
+  assert(tobas_std::isClose(axis.norm(), 1.));
 
   // The formula
   // R(n, θ) = n n^T + (E - n n^T)) cos(θ) + skew(n) sin(θ) = E + skew(n) sin(θ) + skew(n)^2 (1 - cos(θ))
