@@ -1,19 +1,15 @@
-#include <cassert>
-
-#include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
-#include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
 #include "../include/tobas_pose_pid/euler_pid.hpp"
 
 using namespace std;
-using namespace Eigen;
 
 namespace tobas
 {
 EulerPID::EulerPID()
 {
+  updateGain();
 }
 
 kdl::Vector EulerPID::update(
@@ -24,7 +20,7 @@ kdl::Vector EulerPID::update(
   const double& dt)
 {
   // 誤差を計算
-  // 角軸ベクトルを使うのが正しいが，姿勢角と方位角のゲインを分けるためにオイラー角で計算する
+  // XXX: 2つのオイラー角を結ぶ直線は回転における最短距離ではないことに注意
   const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
   const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
   const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
@@ -36,87 +32,78 @@ kdl::Vector EulerPID::update(
   // 制御入力の飽和により姿勢が実現できない状況は無いとして，アンチワインドアップは行わない
   ei_ += ep * dt;
 
-  // ゲインを計算
-  const kdl::Vector kp = natural_freq_.sqr();
-  const kdl::Vector kd = 2 * damp_ratio_.hadamard(natural_freq_);
-
   // 目標オイラー角加速度を計算
-  const auto tar_euler_acc = kp.hadamard(ep) + kd.hadamard(ed) + ki_.hadamard(ei_);
+  const auto tar_euler_acc = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
 
   // オイラー角加速度をDジャイロに変換
   const auto cur_rpyd = eigen::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
   return kdl::Vector(eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
 }
 
-bool EulerPID::setAttitudeNaturalFrequency(double p)
+bool EulerPID::setNaturalFreq(int idx, double value)
 {
-  if (p <= 0.)
+  if (!checkIndex(idx))
+    return false;
+
+  if (value <= 0.)
   {
-    cerr << "Attitude natural frequency must be positive." << endl;
+    cerr << "Natural frequency must be positive." << endl;
     return false;
   }
 
-  natural_freq_.x() = natural_freq_.y() = p;
+  natural_freq_(idx) = value;
+  updateGain();
+
   return true;
 }
 
-bool EulerPID::setAttitudeDampingRatio(double p)
+bool EulerPID::setDampingRatio(int idx, double value)
 {
-  if (p <= 0.)
+  if (!checkIndex(idx))
+    return false;
+
+  if (value <= 0.)
   {
-    cerr << "Attitude damping ratio must be positive." << endl;
+    cerr << "Damping ratio must be positive." << endl;
     return false;
   }
 
-  damp_ratio_.x() = damp_ratio_.y() = p;
+  damp_ratio_(idx) = value;
+  updateGain();
+
   return true;
 }
 
-bool EulerPID::setAttitudeIntegralGain(double p)
+bool EulerPID::setIntegralGain(int idx, double value)
 {
-  if (p <= 0.)
+  if (!checkIndex(idx))
+    return false;
+
+  if (value <= 0.)
   {
-    cerr << "Attitude integral gain must be positive." << endl;
+    cerr << "Integral gain must be positive." << endl;
     return false;
   }
 
-  ki_.x() = ki_.y() = p;
+  ki_(idx) = value;
+
   return true;
 }
 
-bool EulerPID::setHeadingNaturalFrequency(double p)
+void EulerPID::updateGain()
 {
-  if (p <= 0.)
-  {
-    cerr << "Heading natural frequency must be positive." << endl;
-    return false;
-  }
-
-  natural_freq_.z() = p;
-  return true;
+  kp_ = natural_freq_.sqr();
+  kd_ = 2 * damp_ratio_.hadamard(natural_freq_);
 }
 
-bool EulerPID::setHeadingDampingRatio(double p)
+bool EulerPID::checkIndex(int idx)
 {
-  if (p <= 0.)
+  if (idx < 0 || 3 <= idx)
   {
-    cerr << "Heading damping ratio must be positive." << endl;
+    cerr << "Index " << idx << " is out of range.";
     return false;
   }
 
-  damp_ratio_.z() = p;
-  return true;
-}
-
-bool EulerPID::setHeadingIntegralGain(double p)
-{
-  if (p <= 0.)
-  {
-    cerr << "Heading integral gain must be positive." << endl;
-    return false;
-  }
-
-  ki_.z() = p;
   return true;
 }
 }  // namespace tobas

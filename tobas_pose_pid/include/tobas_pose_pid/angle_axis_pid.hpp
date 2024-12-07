@@ -1,18 +1,18 @@
 #pragma once
 
-#include <tobas_kdl/euler.hpp>
+#include <tobas_kdl/rotation.hpp>
 
 namespace tobas
 {
-class EulerPID
+class AngleAxisPID
 {
 public:
-  explicit EulerPID();
+  explicit AngleAxisPID();
 
   kdl::Vector update(
-    const kdl::Euler& cur_rpy,
+    const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro,
-    const kdl::Euler& tar_rpy,
+    const kdl::Rotation& tar_rot,
     const kdl::Vector& tar_gyro,
     const double& dt);
 
@@ -39,7 +39,7 @@ private:
   bool checkIndex(int idx);
 };
 
-inline kdl::Vector EulerPID::integralError() const
+inline kdl::Vector AngleAxisPID::integralError() const
 {
   return ei_;
 }

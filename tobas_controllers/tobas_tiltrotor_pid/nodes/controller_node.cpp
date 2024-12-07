@@ -14,7 +14,7 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/tr_mixer_pinv.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
-#include <tobas_pose_pid/euler_pid.hpp>
+#include <tobas_pose_pid/angle_axis_pid.hpp>
 
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
@@ -43,7 +43,7 @@ private:
 
   // Controllers
   tobas::PositionPID pos_pid_;
-  tobas::EulerPID ori_pid_;
+  tobas::AngleAxisPID rot_pid_;
   tobas::TiltRotorMixer_pinv mixer_;
 
   // Mutable variables
@@ -184,72 +184,72 @@ bool ControllerNode::isReadyToControl()
 
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
 {
-  return pos_pid_.setHorizontalNaturalFrequency(p);
+  return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
 }
 
 bool ControllerNode::horizontalDampingRatioCb(const double& p)
 {
-  return pos_pid_.setHorizontalDampingRatio(p);
+  return pos_pid_.setDampingRatio(0, p) && pos_pid_.setDampingRatio(1, p);
 }
 
 bool ControllerNode::horizontalIGainCb(const double& p)
 {
-  return pos_pid_.setHorizontalIntegralGain(p);
+  return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
 }
 
 bool ControllerNode::verticalNaturalFrequencyCb(const double& p)
 {
-  return pos_pid_.setVerticalNaturalFrequency(p);
+  return pos_pid_.setNaturalFreq(2, p);
 }
 
 bool ControllerNode::verticalDampingRatioCb(const double& p)
 {
-  return pos_pid_.setVerticalDampingRatio(p);
+  return pos_pid_.setDampingRatio(2, p);
 }
 
 bool ControllerNode::verticalIGainCb(const double& p)
 {
-  return pos_pid_.setVerticalIntegralGain(p);
+  return pos_pid_.setIntegralGain(2, p);
 }
 
 bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
 {
-  return ori_pid_.setAttitudeNaturalFrequency(p);
+  return rot_pid_.setNaturalFreq(0, p) && rot_pid_.setNaturalFreq(1, p);
 }
 
 bool ControllerNode::attitudeDampingRatioCb(const double& p)
 {
-  return ori_pid_.setAttitudeDampingRatio(p);
+  return rot_pid_.setDampingRatio(0, p) && rot_pid_.setDampingRatio(1, p);
 }
 
 bool ControllerNode::attitudeIGainCb(const double& p)
 {
-  return ori_pid_.setAttitudeIntegralGain(p);
+  return rot_pid_.setIntegralGain(0, p) && rot_pid_.setIntegralGain(1, p);
 }
 
 bool ControllerNode::headingNaturalFrequencyCb(const double& p)
 {
-  return ori_pid_.setHeadingNaturalFrequency(p);
+  return rot_pid_.setNaturalFreq(2, p);
 }
 
 bool ControllerNode::headingDampingRatioCb(const double& p)
 {
-  return ori_pid_.setHeadingDampingRatio(p);
+  return rot_pid_.setDampingRatio(2, p);
 }
 
 bool ControllerNode::headingIGainCb(const double& p)
 {
-  return ori_pid_.setHeadingIntegralGain(p);
+  return rot_pid_.setIntegralGain(2, p);
 }
 
 bool ControllerNode::maxHorizontalAccelCb(const double& p)
 {
-  return pos_pid_.setMaximumHorizontalAccel(p);
+  return pos_pid_.setMaximumAccel(0, p) && pos_pid_.setMaximumAccel(1, p);
 }
 
 bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
-  return pos_pid_.setMaximumVerticalAccel(p);
+  return pos_pid_.setMaximumAccel(2, p);
 }
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -309,11 +309,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
   // 位置制御器
   const auto cur_vel_W = odom->frame.M * odom->twist.vel;  // 世界座標系から見た現在の速度
-  const kdl::Vector tar_acc_fb(pos_pid_.update(odom->frame.p.data, cur_vel_W.data, cmd_->pos.data, cmd_->vel.data, dt));
+  const kdl::Vector tar_acc_fb(pos_pid_.update(odom->frame.p, cur_vel_W, cmd_->pos, cmd_->vel, dt));
   const auto tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
-  const auto tar_dgyro_fb = ori_pid_.update(kdl::Euler(odom->frame.M), odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
+  const auto tar_dgyro_fb = rot_pid_.update(odom->frame.M, odom->twist.rot, cmd_->rpy.toRotation(), cmd_->gyro, dt);
   const auto tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // ミキシング方程式を解く
@@ -362,8 +362,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->target_accel_local.angular = tar_dgyro_B;
   feedback->target_accel_global.linear = tar_acc_W;
   feedback->target_accel_global.angular = odom->frame.M * tar_dgyro_B;
-  feedback->position_integral_error.data = pos_pid_.integralError();
-  feedback->orientation_integral_error = kdl::Euler(ori_pid_.integralError());
+  feedback->position_integral_error = pos_pid_.integralError();
+  feedback->orientation_integral_error = kdl::Euler(rot_pid_.integralError());
   feedback_pub_->publish(move(feedback));
 }
 

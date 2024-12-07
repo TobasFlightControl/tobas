@@ -1,6 +1,6 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
+#include <tobas_kdl/vector.hpp>
 
 namespace tobas
 {
@@ -9,35 +9,39 @@ class PositionPID
 public:
   explicit PositionPID();
 
-  Eigen::Vector3d update(
-    const Eigen::Vector3d& cur_pos,
-    const Eigen::Vector3d& cur_vel,
-    const Eigen::Vector3d& tar_pos,
-    const Eigen::Vector3d& tar_vel,
+  kdl::Vector update(
+    const kdl::Vector& cur_pos,
+    const kdl::Vector& cur_vel,
+    const kdl::Vector& tar_pos,
+    const kdl::Vector& tar_vel,
     const double& dt);
 
-  bool setHorizontalNaturalFrequency(double p);
-  bool setHorizontalDampingRatio(double p);
-  bool setHorizontalIntegralGain(double p);
-  bool setVerticalNaturalFrequency(double p);
-  bool setVerticalDampingRatio(double p);
-  bool setVerticalIntegralGain(double p);
-  bool setMaximumHorizontalAccel(double p);
-  bool setMaximumVerticalAccel(double p);
+  bool setNaturalFreq(int idx, double value);
+  bool setDampingRatio(int idx, double value);
+  bool setIntegralGain(int idx, double value);
+  bool setMaximumAccel(int idx, double p);
 
-  inline const Eigen::Vector3d& integralError() const;
+  inline const kdl::Vector& integralError() const;
 
 private:
   // Config
-  Eigen::Vector3d natural_freq_ = { 1., 1., 1. };  // [rad/s]
-  Eigen::Vector3d damp_ratio_ = { 1., 1., 1. };    // [-]
-  Eigen::Vector3d ki_ = { 0.1, 0.1, 0.1 };         // [/s^3]
-  Eigen::Vector3d max_acc_ = { 10., 10., 10. };    // [m/s^2]
+  kdl::Vector natural_freq_ = { 1., 1., 1. };  // [rad/s]
+  kdl::Vector damp_ratio_ = { 1., 1., 1. };    // [-]
+  kdl::Vector max_acc_ = { 10., 10., 10. };    // [m/s^2]
 
-  Eigen::Vector3d ei_ = Eigen::Vector3d::Zero();
+  // Gain
+  kdl::Vector kp_;
+  kdl::Vector kd_;
+  kdl::Vector ki_ = { 0.1, 0.1, 0.1 };  // [/s^3]
+
+  // Error
+  kdl::Vector ei_ = kdl::Vector::Zero();
+
+  void updateGain();
+  bool checkIndex(int idx);
 };
 
-inline const Eigen::Vector3d& PositionPID::integralError() const
+inline const kdl::Vector& PositionPID::integralError() const
 {
   return ei_;
 }

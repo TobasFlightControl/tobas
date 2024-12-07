@@ -51,7 +51,7 @@ private:
   // Controllers
   tobas::PositionPID pos_pid_;
   tobas::AccelAttitudeConverter acc_atti_conv_;
-  tobas::EulerPID ori_pid_;
+  tobas::EulerPID rot_pid_;  // 平面配置MRだとなぜか角軸ベクトルよりオイラー角で姿勢誤差を計算した方が制御が安定する
   tobas::MultiRotorMixer mixer_;
 
   // Mutable variables
@@ -213,72 +213,72 @@ bool ControllerNode::isReadyToControl()
 
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
 {
-  return pos_pid_.setHorizontalNaturalFrequency(p);
+  return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
 }
 
 bool ControllerNode::horizontalDampingRatioCb(const double& p)
 {
-  return pos_pid_.setHorizontalDampingRatio(p);
+  return pos_pid_.setDampingRatio(0, p) && pos_pid_.setDampingRatio(1, p);
 }
 
 bool ControllerNode::horizontalIGainCb(const double& p)
 {
-  return pos_pid_.setHorizontalIntegralGain(p);
+  return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
 }
 
 bool ControllerNode::verticalNaturalFrequencyCb(const double& p)
 {
-  return pos_pid_.setVerticalNaturalFrequency(p);
+  return pos_pid_.setNaturalFreq(2, p);
 }
 
 bool ControllerNode::verticalDampingRatioCb(const double& p)
 {
-  return pos_pid_.setVerticalDampingRatio(p);
+  return pos_pid_.setDampingRatio(2, p);
 }
 
 bool ControllerNode::verticalIGainCb(const double& p)
 {
-  return pos_pid_.setVerticalIntegralGain(p);
+  return pos_pid_.setIntegralGain(2, p);
 }
 
 bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
 {
-  return ori_pid_.setAttitudeNaturalFrequency(p);
+  return rot_pid_.setNaturalFreq(0, p) && rot_pid_.setNaturalFreq(1, p);
 }
 
 bool ControllerNode::attitudeDampingRatioCb(const double& p)
 {
-  return ori_pid_.setAttitudeDampingRatio(p);
+  return rot_pid_.setDampingRatio(0, p) && rot_pid_.setDampingRatio(1, p);
 }
 
 bool ControllerNode::attitudeIGainCb(const double& p)
 {
-  return ori_pid_.setAttitudeIntegralGain(p);
+  return rot_pid_.setIntegralGain(0, p) && rot_pid_.setIntegralGain(1, p);
 }
 
 bool ControllerNode::headingNaturalFrequencyCb(const double& p)
 {
-  return ori_pid_.setHeadingNaturalFrequency(p);
+  return rot_pid_.setNaturalFreq(2, p);
 }
 
 bool ControllerNode::headingDampingRatioCb(const double& p)
 {
-  return ori_pid_.setHeadingDampingRatio(p);
+  return rot_pid_.setDampingRatio(2, p);
 }
 
 bool ControllerNode::headingIGainCb(const double& p)
 {
-  return ori_pid_.setHeadingIntegralGain(p);
+  return rot_pid_.setIntegralGain(2, p);
 }
 
 bool ControllerNode::maxHorizontalAccelCb(const double& p)
 {
-  return pos_pid_.setMaximumHorizontalAccel(p);
+  return pos_pid_.setMaximumAccel(0, p) && pos_pid_.setMaximumAccel(1, p);
 }
 
 bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
-  return pos_pid_.setMaximumVerticalAccel(p);
+  return pos_pid_.setMaximumAccel(2, p);
 }
 
 bool ControllerNode::maxAttitudeCb(const double& p)
@@ -347,8 +347,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto cur_vel_W = odom->frame.M * odom->twist.vel;
 
     // 目標加速度を計算
-    const kdl::Vector tar_acc_fb(
-      pos_pid_.update(odom->frame.p.data, cur_vel_W.data, tar_pvay_W_->pos.data, tar_pvay_W_->vel.data, dt));
+    const kdl::Vector tar_acc_fb(pos_pid_.update(odom->frame.p, cur_vel_W, tar_pvay_W_->pos, tar_pvay_W_->vel, dt));
     const auto tar_acc = tar_pvay_W_->acc + tar_acc_fb;
 
     // 推力和と目標姿勢を計算
@@ -364,7 +363,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     feedback_msg->target_velocity_local = odom->frame.M.inverse(tar_pvay_W_->vel);
     feedback_msg->target_accel_global = tar_acc;
     feedback_msg->target_accel_local = odom->frame.M.inverse(tar_acc);
-    feedback_msg->position_integral_error.data = pos_pid_.integralError();
+    feedback_msg->position_integral_error = pos_pid_.integralError();
   }
 
   // Rotation Controller
@@ -376,7 +375,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // 目標角加速度を計算
     const auto tar_dgyro =
-      ori_pid_.update(kdl::Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, kdl::Vector::Zero(), dt);
+      rot_pid_.update(kdl::Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, kdl::Vector::Zero(), dt);
 
     // プロペラの推力を計算
     // TODO: H-momentを考慮
