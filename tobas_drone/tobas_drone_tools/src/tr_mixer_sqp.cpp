@@ -97,6 +97,10 @@ bool TiltRotorMixer_SQP::solve(
   d_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W)).data;
   d_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B)).data;
 
+  // FIXME: ティルトヘキサでティルト角の制限が30degを超えるとSQPが収束しないことがある
+  // TODO: 目的関数や制約に三角関数が含まれていると局所解のリスクが上がるため，x,yと等式制約に置換してみる
+  // TODO: プロペラ位置とイナーシャの，ティルト角による変化を考慮
+
   // SQPを解く
   if (sqp_.solve() < 0)
   {
