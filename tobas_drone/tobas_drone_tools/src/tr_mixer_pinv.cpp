@@ -134,6 +134,8 @@ bool TiltRotorMixer_pinv::solve(
   f_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W)).data;
   f_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B)).data;
 
+  // TODO: 推力の絶対値の制約を考慮．凸最適化問題にすれば良さそう．
+
   // Ex = f の最小二乗解を求める
   // 冗長自由度がある場合はxのL2ノルムを最小化する
   x_ = E_.jacobiSvd(ComputeThinU | ComputeThinV).solve(f_);
