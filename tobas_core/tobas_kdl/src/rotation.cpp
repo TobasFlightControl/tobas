@@ -179,7 +179,7 @@ Rotation Rotation::Rot(const Vector& axis, double angle)
   assert(tobas_std::isClose(axis.norm(), 1));
 
   // The formula
-  // V.(V.tr) + st*[V x] + ct*(I-V.(V.tr))
+  // R(n, θ) = n n^T + (E - n n^T)) cos(θ) + skew(n) sin(θ) = E + skew(n) sin(θ) + skew(n)^2 (1 - cos(θ))
   // can be found by multiplying it with an arbitrary vector p and noting that this vector is rotated.
   const auto ct = cos(angle);
   const auto st = sin(angle);
