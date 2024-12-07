@@ -17,7 +17,7 @@ class MultiRotorMixer
 public:
   explicit MultiRotorMixer(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   bool solve(
     const double& cur_voltage,
@@ -48,6 +48,7 @@ private:
   Eigen::Matrix3Xd G_;                // EoM行列等式の左辺
   Eigen::Vector3d h_;                 // EoM行列等式の右辺
 
+  void resizeAndFill();
   void updateWeight();
 };
 }  // namespace tobas

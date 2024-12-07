@@ -13,7 +13,7 @@ class ChainJntSpaceInertiaSolver : public ChainSolverI
 public:
   explicit ChainJntSpaceInertiaSolver(const Chain& chain);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int JntToMass(const JntArray& q);
 
@@ -26,6 +26,8 @@ private:
   JntSpaceInertiaMatrix H_out_;
   int k_;
   double qk_;
+
+  void resize();
 };
 
 inline const JntSpaceInertiaMatrix& ChainJntSpaceInertiaSolver::getMass() const

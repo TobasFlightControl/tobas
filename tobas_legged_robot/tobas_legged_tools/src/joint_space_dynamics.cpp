@@ -1,4 +1,5 @@
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
@@ -42,10 +43,11 @@ JointSpaceDynamics::JointSpaceDynamics(
   qp_.setZero();
 
   if (tree.getNrOfJoints() > 0)
-    updateInternalDataStructures();
+    if (!updateInternalDataStructures())
+      PRINT_ERROR("Failed to update internal data structures of lr_tools::JointSpaceDynamics.");
 }
 
-void JointSpaceDynamics::updateInternalDataStructures()
+bool JointSpaceDynamics::updateInternalDataStructures()
 {
   // 浮遊リンクの名前を取得
   auto floating_base_name = floating_base_name_;
@@ -55,22 +57,33 @@ void JointSpaceDynamics::updateInternalDataStructures()
   // ベースリンク以下を抽出
   kdl::Tree base_sub_tree;
   if (!tree_raw_.getSubTree(floating_base_name, base_sub_tree))
-    throw runtime_error("Failed to get sub tree.");
+  {
+    cerr << "Failed to get sub tree." << endl;
+    return false;
+  }
 
   // ツリーに浮遊リンクを接続
   tree_ = kdl::Tree::FloatingBase("world", floating_base_name);
   if (!tree_.addTree(base_sub_tree, floating_base_name))
-    throw runtime_error("Failed to add a floating base link to the tree.");
+  {
+    cerr << "Failed to add a floating base link to the tree." << endl;
+    return false;
+  }
 
   nj_raw_ = base_sub_tree.getNrOfJoints();
   nj_ = tree_.getNrOfJoints();
   J_.resize(wrench_size_, nj_);
 
-  jac_solver_.updateInternalDataStructures();
-  rne_.updateInternalDataStructures();
-  mass_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  bb_solver_.updateInternalDataStructures();
+  if (!jac_solver_.updateInternalDataStructures())
+    return false;
+  if (!rne_.updateInternalDataStructures())
+    return false;
+  if (!mass_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!bb_solver_.updateInternalDataStructures())
+    return false;
 
   cur_q_.resize(nj_);
   cur_qd_.resize(nj_);
@@ -79,6 +92,8 @@ void JointSpaceDynamics::updateInternalDataStructures()
   qp_.x_scale.head(wrench_size_).fill(calcMass() * tobas_std::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
   qp_.x_scale.segment<3>(wrench_size_).fill(sqrt(tobas_std::kGravity * calcSizeScale()));  // フルード数に基づく
   qp_.x_scale.segment<3>(wrench_size_ + 3).fill(M_PI);
+
+  return true;
 }
 
 bool JointSpaceDynamics::configure(const JointSpaceDynamicsConfig& cfg)

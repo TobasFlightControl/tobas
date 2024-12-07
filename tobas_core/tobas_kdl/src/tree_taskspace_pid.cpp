@@ -16,13 +16,19 @@ TreeTaskSpacePID::TreeTaskSpacePID(const Tree& tree, const Vector& grav)
 {
 }
 
-void TreeTaskSpacePID::updateInternalDataStructures()
+bool TreeTaskSpacePID::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  fk_.updateInternalDataStructures();
-  rac_.updateInternalDataStructures();
-  rne_.updateInternalDataStructures();
+  if (!fk_.updateInternalDataStructures())
+    return false;
+  if (!rac_.updateInternalDataStructures())
+    return false;
+  if (!rne_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 int TreeTaskSpacePID::CartToJnt(

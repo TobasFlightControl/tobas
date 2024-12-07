@@ -6,17 +6,17 @@ namespace kdl
 {
 ChainJntSpaceInertiaSolver::ChainJntSpaceInertiaSolver(const Chain& chain) : super(chain)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void ChainJntSpaceInertiaSolver::updateInternalDataStructures()
+bool ChainJntSpaceInertiaSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  I_.resize(ns_);
-  X_.resize(ns_);
-  S_.resize(ns_);
-  H_out_.resize(nj_);
+  resize();
+
+  return true;
 }
 
 int ChainJntSpaceInertiaSolver::JntToMass(const JntArray& q)
@@ -74,5 +74,13 @@ int ChainJntSpaceInertiaSolver::JntToMass(const JntArray& q)
   }
 
   return setDefaultError(E_NOERROR);
+}
+
+void ChainJntSpaceInertiaSolver::resize()
+{
+  I_.resize(ns_);
+  X_.resize(ns_);
+  S_.resize(ns_);
+  H_out_.resize(nj_);
 }
 }  // namespace kdl

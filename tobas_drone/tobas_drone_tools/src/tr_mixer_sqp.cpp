@@ -1,7 +1,7 @@
 #include <ranges>
 
-#include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -18,18 +18,27 @@ TiltRotorMixer_SQP::TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
 {
   if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
-    updateInternalDataStructures();
+    if (!updateInternalDataStructures())
+      PRINT_ERROR("Failed to update internal data structures of TiltRotorMixer_SQP.");
 }
 
-void TiltRotorMixer_SQP::updateInternalDataStructures()
+bool TiltRotorMixer_SQP::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  np_mixer_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!np_mixer_.updateInternalDataStructures())
+    return false;
 
   resetTensors();
-  initializeSQP();
-  updateWeight();
+
+  if (!initializeSQP())
+    return false;
+  if (!updateWeight())
+    return false;
+
+  return true;
 }
 
 bool TiltRotorMixer_SQP::solve(
@@ -184,13 +193,16 @@ void TiltRotorMixer_SQP::resetTensors()
   df_dx_2_.conservativeResize(2 * nr, 2 * nr);
 }
 
-void TiltRotorMixer_SQP::initializeSQP()
+bool TiltRotorMixer_SQP::initializeSQP()
 {
   const auto q0 = kdl::JntArray::Zero(tree_.getNrOfJoints());
   const auto R0 = kdl::Rotation::Identity();
   const auto v0 = kdl::Vector::Zero();
   if (!np_mixer_.solve(drone_.battery.nominal_voltage, q0, R0, v0, v0, v0))
-    throw runtime_error("Failed to solve Non-planar mixer.");
+  {
+    cerr << "Failed to solve Non-planar mixer." << endl;
+    return false;
+  }
 
   const auto nr = drone_.numRotors();
   VectorXd x0(2 * nr);
@@ -207,15 +219,20 @@ void TiltRotorMixer_SQP::initializeSQP()
   const auto _dGdx = bind(&self::dGdx, this, std::placeholders::_1);
   const auto _dHdx = bind(&self::dHdx, this, std::placeholders::_1);
   sqp_.initialize(x0, _f, _g, _h, _dfdx, _dgdx, _dhdx, _dFdx, _dGdx, _dHdx);
+
+  return true;
 }
 
-void TiltRotorMixer_SQP::updateWeight()
+bool TiltRotorMixer_SQP::updateWeight()
 {
   if (drone_.numRotors() == 0)
-    return;
+    return true;
 
   if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  {
+    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    return false;
+  }
   const auto& inertia = inertia_solver_.getInertia();
   const auto& mass = inertia.getMass();
   const auto& I = inertia.getRotationalInertia();
@@ -227,6 +244,8 @@ void TiltRotorMixer_SQP::updateWeight()
   Q_.diagonal().head<3>().fill(linear_weight_ / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(angular_weight_ / math::sqr(angular_scale));
   R_.diagonal().fill(thrust_weight_ / math::sqr(thrust_scale));
+
+  return true;
 }
 
 double TiltRotorMixer_SQP::f(const VectorXd& x)

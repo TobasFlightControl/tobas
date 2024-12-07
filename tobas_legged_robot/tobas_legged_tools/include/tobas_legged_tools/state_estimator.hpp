@@ -33,7 +33,7 @@ class StateEstimator
 public:
   explicit StateEstimator(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   bool configure(const StateEstimatorConfig& cfg);
 

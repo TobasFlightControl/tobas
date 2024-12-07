@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tobas_kdl/tree_mass_holder.hpp>
+
 #include "./mr_dynamics.hpp"
 
 namespace tobas
@@ -7,9 +9,9 @@ namespace tobas
 class AccelAttitudeConverter
 {
 public:
-  explicit AccelAttitudeConverter(const Drone& drone, const kdl::Tree& tree);
+  explicit AccelAttitudeConverter(const kdl::Tree& tree);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   void update(
     const kdl::Rotation& cur_rot,
@@ -24,14 +26,9 @@ private:
   // Config
   double max_attitude_ = M_PI_4;  // [rad]
 
-  const Drone& drone_;
-  const kdl::Tree& tree_;
-
-  tobas::MultirotorDynamicsComponents dynamics_;
+  kdl::TreeMassHolder mass_holder_;
 
   const kdl::Vector grav_W_;
-  const kdl::Vector zero_;
-
   double roll_, pitch_, yaw_;
 };
 }  // namespace tobas

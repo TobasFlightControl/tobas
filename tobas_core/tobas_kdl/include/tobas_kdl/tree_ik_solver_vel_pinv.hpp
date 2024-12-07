@@ -15,7 +15,7 @@ class TreeIkSolverVel_pinv : public TreeIkSolverVel
 public:
   explicit TreeIkSolverVel_pinv(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int CartToJnt(const JntArray& q_in, const TwistMap& v_in) override;
 
@@ -35,5 +35,7 @@ private:
   Eigen::VectorXd t_;  // Big velocity in TS
 
   quadprog::DualActiveSetSolver qp_solver_;
+
+  void resize();
 };
 }  // namespace kdl

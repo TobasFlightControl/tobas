@@ -31,7 +31,7 @@ public:
 
   explicit LinearDynamics(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
   void update(const double& roll, const double& pitch, const kdl::JntArray& q, const std::vector<bool>& is_stand);
 
   inline size_t forceIndex(const size_t& leg) const;

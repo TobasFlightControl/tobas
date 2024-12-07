@@ -4,16 +4,17 @@ namespace kdl
 {
 ChainJacAccSolver::ChainJacAccSolver(const Chain& chain) : super(chain)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void ChainJacAccSolver::updateInternalDataStructures()
+bool ChainJacAccSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  X_.resize(ns_);
-  v_.resize(ns_);
-  a_.resize(ns_);
+  resize();
+
+  return true;
 }
 
 int ChainJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
@@ -61,5 +62,12 @@ int ChainJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
     Jdqd_out_ = X_[i].M * Jdqd_out_;
 
   return setDefaultError(E_NOERROR);
+}
+
+void ChainJacAccSolver::resize()
+{
+  X_.resize(ns_);
+  v_.resize(ns_);
+  a_.resize(ns_);
 }
 }  // namespace kdl

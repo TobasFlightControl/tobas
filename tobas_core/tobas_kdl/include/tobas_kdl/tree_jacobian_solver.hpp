@@ -13,7 +13,7 @@ class TreeJacobianSolver : public TreeSolverI
 public:
   explicit TreeJacobianSolver(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int JntToJac(const JntArray& q, const std::string& seg_name);
 
@@ -25,5 +25,7 @@ public:
 private:
   Jacobian J_out_;
   Frame T_total_;
+
+  void resize();
 };
 }  // namespace kdl

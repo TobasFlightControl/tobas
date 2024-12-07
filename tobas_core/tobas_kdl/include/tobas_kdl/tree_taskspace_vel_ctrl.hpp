@@ -15,7 +15,7 @@ public:
 
   explicit TreeTaskSpaceVelCtrl(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int CartToJnt(const JntArray& cur_q, const FrameMap& tar_p);
 

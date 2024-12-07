@@ -6,21 +6,29 @@ namespace kdl
 {
 TreeJointParser::TreeJointParser(const Tree& tree) : super(tree)
 {
-  updateInternalDataStructures();
+  resize();
+  parseJntNames();
 }
 
-void TreeJointParser::updateInternalDataStructures()
+bool TreeJointParser::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
+  resize();
+  parseJntNames();
+
+  return true;
+}
+
+void TreeJointParser::resize()
+{
   jnt_names_.resize(nj_);
   jnt_idx_.clear();
   lower_limits_.resize(nj_);
   upper_limits_.resize(nj_);
   max_velocities_.resize(nj_);
   max_efforts_.resize(nj_);
-
-  parseJntNames();
 }
 
 void TreeJointParser::parseJntNames()

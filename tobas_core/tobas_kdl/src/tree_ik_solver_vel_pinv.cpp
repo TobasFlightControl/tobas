@@ -12,18 +12,21 @@ namespace kdl
 {
 TreeIkSolverVel_pinv::TreeIkSolverVel_pinv(const Tree& tree) : super(tree), jnt2jac_(tree_), jntparser_(tree_)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void TreeIkSolverVel_pinv::updateInternalDataStructures()
+bool TreeIkSolverVel_pinv::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-  jnt2jac_.updateInternalDataStructures();
-  jntparser_.updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
+  if (!jnt2jac_.updateInternalDataStructures())
+    return false;
+  if (!jntparser_.updateInternalDataStructures())
+    return false;
 
-  qp_solver_.x_scale = VectorXd::Ones(nj_);
-  qp_solver_.problem.G.conservativeResize(0, nj_);
-  qp_solver_.problem.h.conservativeResize(0);
+  resize();
+
+  return true;
 }
 
 int TreeIkSolverVel_pinv::CartToJnt(const JntArray& q_in, const TwistMap& v_in)
@@ -110,5 +113,12 @@ bool TreeIkSolverVel_pinv::setWeightJS(const double& Wj)
 const double& TreeIkSolverVel_pinv::getWeightJS() const
 {
   return Wj_;
+}
+
+void TreeIkSolverVel_pinv::resize()
+{
+  qp_solver_.x_scale = VectorXd::Ones(nj_);
+  qp_solver_.problem.G.conservativeResize(0, nj_);
+  qp_solver_.problem.h.conservativeResize(0);
 }
 }  // namespace kdl

@@ -8,11 +8,6 @@ ChainFkSolverVel_recursive::ChainFkSolverVel_recursive(const Chain& chain) : sup
 {
 }
 
-void ChainFkSolverVel_recursive::updateInternalDataStructures()
-{
-  super::updateInternalDataStructures();
-}
-
 int ChainFkSolverVel_recursive::JntToCart(const JntArray& q_in, const JntArray& qd_in, int _seg_nr)
 {
   if (!isUpToDate())

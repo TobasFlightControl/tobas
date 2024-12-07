@@ -18,8 +18,6 @@ class ChainFkSolverPos : public ChainSolverI
 public:
   explicit ChainFkSolverPos(const Chain& chain);
 
-  void updateInternalDataStructures() override;
-
   /* Calculate forward position kinematics for a kdl::Chain, from joint coordinates to cartesian pose. */
   int JntToCart(const JntArray& q_in, int seg_nr = -1);
 

@@ -47,7 +47,7 @@ public:
     const std::vector<std::string>& foot_names,
     const std::string& floating_base_name = "");
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   bool configure(const JointSpaceDynamicsConfig& cfg);
 

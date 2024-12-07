@@ -8,11 +8,6 @@ TreeActiveJointsExtractor::TreeActiveJointsExtractor(const Tree& tree) : super(t
 {
 }
 
-void TreeActiveJointsExtractor::updateInternalDataStructures()
-{
-  super::updateInternalDataStructures();
-}
-
 int TreeActiveJointsExtractor::solve(const std::vector<std::string>& endpoints)
 {
   if (!isUpToDate())

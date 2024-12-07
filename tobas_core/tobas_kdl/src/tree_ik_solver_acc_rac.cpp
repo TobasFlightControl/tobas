@@ -11,23 +11,24 @@ namespace kdl
 TreeIkSolverAcc_RAC::TreeIkSolverAcc_RAC(const Tree& tree)
   : super(tree), jnt2jac_(tree_), jnt2jdqd_(tree_), jntparser_(tree_)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void TreeIkSolverAcc_RAC::updateInternalDataStructures()
+bool TreeIkSolverAcc_RAC::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  jnt2jac_.updateInternalDataStructures();
-  jnt2jdqd_.updateInternalDataStructures();
-  jntparser_.updateInternalDataStructures();
+  if (!jnt2jac_.updateInternalDataStructures())
+    return false;
+  if (!jnt2jdqd_.updateInternalDataStructures())
+    return false;
+  if (!jntparser_.updateInternalDataStructures())
+    return false;
 
-  qdd_min_.conservativeResize(nj_);
-  qdd_max_.conservativeResize(nj_);
+  resize();
 
-  qp_solver_.x_scale = VectorXd::Ones(nj_);
-  qp_solver_.problem.G.conservativeResize(0, nj_);
-  qp_solver_.problem.h.conservativeResize(0);
+  return true;
 }
 
 int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in)
@@ -119,5 +120,15 @@ bool TreeIkSolverAcc_RAC::setWeightJS(const double& Wj)
 const double& TreeIkSolverAcc_RAC::getWeightJS() const
 {
   return Wj_;
+}
+
+void TreeIkSolverAcc_RAC::resize()
+{
+  qdd_min_.conservativeResize(nj_);
+  qdd_max_.conservativeResize(nj_);
+
+  qp_solver_.x_scale = VectorXd::Ones(nj_);
+  qp_solver_.problem.G.conservativeResize(0, nj_);
+  qp_solver_.problem.h.conservativeResize(0);
 }
 }  // namespace kdl

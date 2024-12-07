@@ -7,16 +7,17 @@ namespace tobas
 StabilityDerivativesCG::StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), inertia_solver_(tree)
 {
-  if (drone.fixed_wing.equipped)
-    updateInternalDataStructures();
 }
 
-void StabilityDerivativesCG::updateInternalDataStructures()
+bool StabilityDerivativesCG::updateInternalDataStructures()
 {
-  inertia_solver_.updateInternalDataStructures();
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
 
   c_pitch_delta_cg_.clear();
   c_yaw_delta_cg_.clear();
+
+  return true;
 }
 
 int StabilityDerivativesCG::update(const kdl::JntArray& q)

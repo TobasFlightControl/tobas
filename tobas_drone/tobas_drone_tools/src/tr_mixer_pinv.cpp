@@ -1,6 +1,7 @@
 #include <ranges>
 
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 #include <tobas_eigen_tools/operators.hpp>
@@ -16,7 +17,9 @@ namespace tobas
 TiltRotorMixer_pinv::TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree)
 {
-  updateInternalDataStructures();
+  if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
+    if (!updateInternalDataStructures())
+      PRINT_ERROR("Failed to update internal data structures of TiltRotorMixer_pinv.");
 }
 
 bool TiltRotorMixer_pinv::updateInternalDataStructures()

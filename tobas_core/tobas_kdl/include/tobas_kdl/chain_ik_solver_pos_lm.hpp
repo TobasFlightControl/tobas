@@ -73,7 +73,7 @@ public:
    */
   explicit ChainIkSolverPos_LM(const Chain& chain);
 
-  virtual void updateInternalDataStructures() override;
+  virtual bool updateInternalDataStructures() override;
 
   /**
    * @brief computes the inverse position kinematics.
@@ -119,6 +119,8 @@ private:
   // the last value for the position of the tip of the robot (head) with respect to the base, after an execution of
   // compute_jacobian.
   Frame T_base_head_;
+
+  void initialize();
 
   /**
    * @brief for internal use only.

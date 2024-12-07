@@ -4,20 +4,17 @@ namespace kdl
 {
 TreeJacAccSolver::TreeJacAccSolver(const Tree& tree) : super(tree)
 {
-  updateInternalDataStructures();
+  initialize();
 }
 
-void TreeJacAccSolver::updateInternalDataStructures()
+bool TreeJacAccSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  for (const auto& [seg_name, _] : tree_.getSegments())
-  {
-    R_[seg_name] = Rotation::Identity();
-    v_[seg_name] = Twist::Zero();
-    a_[seg_name] = Accel::Zero();
-    Jdqd_out_[seg_name] = Accel::Zero();
-  }
+  initialize();
+
+  return true;
 }
 
 int TreeJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
@@ -30,6 +27,17 @@ int TreeJacAccSolver::JntToCart(const JntArray& q, const JntArray& qd)
   JntToCartRec(tree_.getRootSegment(), q, qd);
 
   return setDefaultError(E_NOERROR);
+}
+
+void TreeJacAccSolver::initialize()
+{
+  for (const auto& [seg_name, _] : tree_.getSegments())
+  {
+    R_[seg_name] = Rotation::Identity();
+    v_[seg_name] = Twist::Zero();
+    a_[seg_name] = Accel::Zero();
+    Jdqd_out_[seg_name] = Accel::Zero();
+  }
 }
 
 void TreeJacAccSolver::JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd)

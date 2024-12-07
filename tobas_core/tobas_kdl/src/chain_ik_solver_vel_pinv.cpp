@@ -10,14 +10,17 @@ namespace kdl
 {
 ChainIkSolverVel_pinv::ChainIkSolverVel_pinv(const Chain& chain) : super(chain), jnt2jac_(chain_)
 {
-  updateInternalDataStructures();
 }
 
-void ChainIkSolverVel_pinv::updateInternalDataStructures()
+bool ChainIkSolverVel_pinv::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  jnt2jac_.updateInternalDataStructures();
+  if (!jnt2jac_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 int ChainIkSolverVel_pinv::CartToJnt(const JntArray& q, const Vector& v)

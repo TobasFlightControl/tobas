@@ -43,8 +43,8 @@ private:
   urdf::ModelInterfaceSharedPtr urdf_;
   kdl::Tree tree_;
 
-  kdl::TreeJointAxisSolver axis_solver_;
   kdl::JntArray q_zeros_;
+  kdl::TreeJointAxisSolver axis_solver_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

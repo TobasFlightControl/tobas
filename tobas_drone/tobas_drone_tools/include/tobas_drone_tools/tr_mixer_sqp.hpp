@@ -21,7 +21,7 @@ class TiltRotorMixer_SQP
 public:
   explicit TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   bool solve(
     const double& cur_voltage,
@@ -67,8 +67,8 @@ private:
   Eigen::MatrixXd df_dx_2_;
 
   void resetTensors();
-  void initializeSQP();
-  void updateWeight();
+  bool initializeSQP();
+  bool updateWeight();
 
   // SQPに渡す関数
   double f(const Eigen::VectorXd& x);

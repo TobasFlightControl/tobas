@@ -6,15 +6,17 @@ namespace kdl
 {
 ChainInertiaSolver::ChainInertiaSolver(const Chain& chain) : super(chain)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void ChainInertiaSolver::updateInternalDataStructures()
+bool ChainInertiaSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  I_.resize(ns_);
-  X_.resize(ns_);
+  resize();
+
+  return true;
 }
 
 int ChainInertiaSolver::JntToCart(const JntArray& q)
@@ -42,5 +44,11 @@ int ChainInertiaSolver::JntToCart(const JntArray& q)
   I_out_ = X_[0] * I_[0];
 
   return setDefaultError(E_NOERROR);
+}
+
+void ChainInertiaSolver::resize()
+{
+  I_.resize(ns_);
+  X_.resize(ns_);
 }
 }  // namespace kdl

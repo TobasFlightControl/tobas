@@ -17,7 +17,7 @@ class TreeJacAccSolver : public TreeSolverI
 public:
   explicit TreeJacAccSolver(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int JntToCart(const JntArray& q, const JntArray& qd);
 
@@ -32,6 +32,7 @@ private:
   AccelMap a_;
   AccelMap Jdqd_out_;
 
+  void initialize();
   void JntToCartRec(const SegmentMap::const_iterator& segment, const JntArray& q, const JntArray& qd);
 };
 }  // namespace kdl

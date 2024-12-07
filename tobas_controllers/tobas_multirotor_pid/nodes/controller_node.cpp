@@ -79,7 +79,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::PosVelAccYaw> pvay_sub_;
   ros2::SubscriberPtr<tobas_msgs::RollPitchYawThrottle> rpyt_sub_;
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
   bool isReadyToControl();
 
   bool horizontalNaturalFrequencyCb(const double& p);
@@ -112,7 +112,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::kControllerNode, options),
     js_converter_(tree_),
     z_rotors_(drone_, tobas::Z_POSITIVE),
-    acc_atti_conv_(drone_, tree_),
+    acc_atti_conv_(tree_),
     mixer_(drone_, tree_)
 {
   // Register dynamic parameters
@@ -147,12 +147,18 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
 }
 
-void ControllerNode::updateInternalDataStructures()
+bool ControllerNode::updateInternalDataStructures()
 {
-  z_rotors_.updateInternalDataStructures();
-  js_converter_.updateInternalDataStructures();
-  acc_atti_conv_.updateInternalDataStructures();
-  mixer_.updateInternalDataStructures();
+  if (!z_rotors_.updateInternalDataStructures())
+    return false;
+  if (!js_converter_.updateInternalDataStructures())
+    return false;
+  if (!acc_atti_conv_.updateInternalDataStructures())
+    return false;
+  if (!mixer_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 bool ControllerNode::isReadyToControl()
@@ -283,19 +289,33 @@ bool ControllerNode::maxAttitudeCb(const double& p)
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
-  drone_received_ = true;
 
   if (tree_received_)
-    updateInternalDataStructures();
+  {
+    if (!updateInternalDataStructures())
+    {
+      TOBAS_FATAL("Error occured while updating internal data structures.");
+      return;
+    }
+  }
+
+  drone_received_ = true;
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
-  tree_received_ = true;
 
   if (drone_received_)
-    updateInternalDataStructures();
+  {
+    if (!updateInternalDataStructures())
+    {
+      TOBAS_FATAL("Error occured while updating internal data structures.");
+      return;
+    }
+  }
+
+  tree_received_ = true;
 }
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)

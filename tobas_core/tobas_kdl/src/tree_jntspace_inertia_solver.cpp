@@ -6,21 +6,20 @@ namespace kdl
 {
 TreeJntSpaceInertiaSolver::TreeJntSpaceInertiaSolver(const Tree& tree) : super(tree), rne_(tree_, kdl::Vector::Zero())
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void TreeJntSpaceInertiaSolver::updateInternalDataStructures()
+bool TreeJntSpaceInertiaSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  rne_.updateInternalDataStructures();
+  if (!rne_.updateInternalDataStructures())
+    return false;
 
-  elements_.resize(nj_, JntArray::Zero(nj_));
-  for (size_t i = 0; i < nj_; ++i)
-    elements_[i](i) = 1;
+  resize();
 
-  H_out_.resize(nj_);
-  jntarray_null_ = JntArray::Zero(nj_);
+  return true;
 }
 
 int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
@@ -43,5 +42,15 @@ int TreeJntSpaceInertiaSolver::JntToMass(const JntArray& q)
   }
 
   return setDefaultError(E_NOERROR);
+}
+
+void TreeJntSpaceInertiaSolver::resize()
+{
+  elements_.resize(nj_, JntArray::Zero(nj_));
+  for (size_t i = 0; i < nj_; ++i)
+    elements_[i](i) = 1;
+
+  H_out_.resize(nj_);
+  jntarray_null_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl

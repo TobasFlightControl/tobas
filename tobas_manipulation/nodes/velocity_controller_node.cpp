@@ -293,10 +293,30 @@ void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  cur_js_conv_.updateInternalDataStructures();
-  tar_js_conv_.updateInternalDataStructures();
-  active_jnts_extractor_.updateInternalDataStructures();
-  vel_ctrl_.updateInternalDataStructures();
+  if (!cur_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
+    tree_.clear();
+    return;
+  }
+  if (!tar_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
+    tree_.clear();
+    return;
+  }
+  if (!active_jnts_extractor_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of active joints extractor.");
+    tree_.clear();
+    return;
+  }
+  if (!vel_ctrl_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of joint space velocity controller.");
+    tree_.clear();
+    return;
+  }
 }
 
 void VelocityControllerNode::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js)

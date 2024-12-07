@@ -14,7 +14,7 @@ class ChainInertiaSolver : public ChainSolverI
 public:
   explicit ChainInertiaSolver(const Chain& chain);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int JntToCart(const JntArray& q);
 
@@ -28,5 +28,7 @@ private:
   std::vector<Frame> X_;
   RigidBodyInertia I_out_;
   size_t j_;
+
+  void resize();
 };
 }  // namespace kdl

@@ -13,7 +13,7 @@ class TreeInertiaSolver : public TreeSolverI
 public:
   explicit TreeInertiaSolver(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /* ルートリンク周りの質量特性を計算する． */
   int JntToCart(const JntArray& q);
@@ -27,6 +27,7 @@ private:
   std::map<std::string, Frame> X_;
   std::map<std::string, RigidBodyInertia> I_;
 
+  void initialize();
   void step(const SegmentMap::const_iterator& cur_it, const JntArray& q);
 };
 }  // namespace kdl

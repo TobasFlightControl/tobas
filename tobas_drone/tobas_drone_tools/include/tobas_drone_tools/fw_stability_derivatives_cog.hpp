@@ -15,7 +15,7 @@ class StabilityDerivativesCG : public SolverI
 public:
   explicit StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int update(const kdl::JntArray& q);
 
@@ -34,6 +34,8 @@ private:
   double c_yaw_beta_cg_;
   std::map<size_t, double> c_pitch_delta_cg_;
   std::map<size_t, double> c_yaw_delta_cg_;
+
+  void clear();
 };
 
 inline const double& StabilityDerivativesCG::cPitchAlpha() const

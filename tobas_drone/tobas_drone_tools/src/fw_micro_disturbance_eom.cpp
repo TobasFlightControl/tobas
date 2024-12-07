@@ -21,23 +21,23 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tr
     x_rotors_(drone, X_POSITIVE),
     trim_(drone, tree)
 {
-  if (drone.fixed_wing.equipped)
-    updateInternalDataStructures();
+  resize();
 }
 
-void MicroDisturbanceEoM::updateInternalDataStructures()
+bool MicroDisturbanceEoM::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  x_rotors_.updateInternalDataStructures();
-  trim_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!x_rotors_.updateInternalDataStructures())
+    return false;
+  if (!trim_.updateInternalDataStructures())
+    return false;
 
-  u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
+  resize();
 
-  x_0_ = Matrix<double, kStateSize, 1>::Zero();
-  u_0_ = VectorXd::Zero(u_size_);
-  A_ = Matrix<double, kStateSize, kStateSize>::Zero();
-  B_ = MatrixXd::Zero(kStateSize, u_size_);
+  return true;
 }
 
 int MicroDisturbanceEoM::update(
@@ -239,6 +239,16 @@ int MicroDisturbanceEoM::update(
   u_0_(x_rotors_.count() + trim_.elevatorChannel()) = trim_.elevator();
 
   return error_code_;
+}
+
+void MicroDisturbanceEoM::resize()
+{
+  u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
+
+  x_0_ = Matrix<double, kStateSize, 1>::Zero();
+  u_0_ = VectorXd::Zero(u_size_);
+  A_ = Matrix<double, kStateSize, kStateSize>::Zero();
+  B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
 void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)

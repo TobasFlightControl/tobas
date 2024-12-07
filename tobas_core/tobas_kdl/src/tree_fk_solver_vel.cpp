@@ -8,11 +8,6 @@ TreeFkSolverVel::TreeFkSolverVel(const Tree& tree) : super(tree)
 {
 }
 
-void TreeFkSolverVel::updateInternalDataStructures()
-{
-  super::updateInternalDataStructures();
-}
-
 int TreeFkSolverVel::JntToCart(const JntArray& q, const JntArray& qd, const string& seg_name)
 {
   if (!isUpToDate())

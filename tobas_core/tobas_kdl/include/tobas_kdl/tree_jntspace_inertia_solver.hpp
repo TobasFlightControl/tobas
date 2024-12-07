@@ -16,7 +16,7 @@ class TreeJntSpaceInertiaSolver : public TreeSolverI
 public:
   explicit TreeJntSpaceInertiaSolver(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * @brief 単位ベクトル法により関節空間の慣性行列を計算する
@@ -33,6 +33,8 @@ private:
   std::vector<JntArray> elements_;
   JntSpaceInertiaMatrix H_out_;
   JntArray jntarray_null_;
+
+  void resize();
 };
 
 inline const JntSpaceInertiaMatrix& TreeJntSpaceInertiaSolver::getMass() const

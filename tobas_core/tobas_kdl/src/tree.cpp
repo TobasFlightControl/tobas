@@ -115,6 +115,14 @@ Tree Tree::FloatingBase(const string& world_name, const string& base_name)
   return tree;
 }
 
+void Tree::clear()
+{
+  segments_.clear();
+  root_name_.clear();
+  nj_ = 0;
+  ns_ = 0;
+}
+
 bool Tree::addSegment(const Segment& segment, const string& hook_name)
 {
   if (segments_.contains(segment.name()))

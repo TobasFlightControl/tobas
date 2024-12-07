@@ -14,7 +14,7 @@ class ChainIkSolverAcc_RAC : public ChainIkSolverAcc
 public:
   explicit ChainIkSolverAcc_RAC(const Chain& chain);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int CartToJnt(const JntArray& q, const JntArray& qd, const Vector& a) override;
   int CartToJnt(const JntArray& q, const JntArray& qd, const Accel& a) override;

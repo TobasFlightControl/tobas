@@ -6,7 +6,7 @@
 
 namespace kdl
 {
-/* ベースは公式のChainIdSolver_RNEで，重力加速度を呼び出し時に与えるようにしたもの */
+/* ベースは公式のChainIdSolver_RNEで，重力加速度を呼び出し時に与えるようにしたもの． */
 class ChainIdSolver_RNE : public ChainSolverI
 {
   using super = ChainSolverI;
@@ -14,7 +14,7 @@ class ChainIdSolver_RNE : public ChainSolverI
 public:
   explicit ChainIdSolver_RNE(const Chain& chain);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int CartToJnt(
     const JntArray& q,
@@ -45,6 +45,8 @@ private:
   Accel ag_;
 
   JntArray effort_out_;
+
+  void resize();
 };
 
 inline const JntArray& ChainIdSolver_RNE::getEfforts() const

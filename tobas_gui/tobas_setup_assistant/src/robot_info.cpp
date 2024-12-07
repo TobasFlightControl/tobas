@@ -39,8 +39,9 @@ bool RobotInfo::loadFromPath(const string& path)
   }
 
   // Update KDL objects
-  axis_solver_.updateInternalDataStructures();
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
+  if (!axis_solver_.updateInternalDataStructures())
+    return false;
 
   Q_EMIT loaded();
   return true;

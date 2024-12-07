@@ -6,20 +6,17 @@ namespace kdl
 {
 TreeInertiaSolver::TreeInertiaSolver(const Tree& tree) : super(tree)
 {
-  updateInternalDataStructures();
+  initialize();
 }
 
-void TreeInertiaSolver::updateInternalDataStructures()
+bool TreeInertiaSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  X_.clear();
-  I_.clear();
-  for (const auto& [seg_name, _] : tree_.getSegments())
-  {
-    X_[seg_name] = Frame::Identity();
-    I_[seg_name] = RigidBodyInertia::Zero();
-  }
+  initialize();
+
+  return true;
 }
 
 int TreeInertiaSolver::JntToCart(const JntArray& q)
@@ -33,6 +30,17 @@ int TreeInertiaSolver::JntToCart(const JntArray& q)
   step(root_it, q);
 
   return setDefaultError(E_NOERROR);
+}
+
+void TreeInertiaSolver::initialize()
+{
+  X_.clear();
+  I_.clear();
+  for (const auto& [seg_name, _] : tree_.getSegments())
+  {
+    X_[seg_name] = Frame::Identity();
+    I_[seg_name] = RigidBodyInertia::Zero();
+  }
 }
 
 void TreeInertiaSolver::step(const SegmentMap::const_iterator& cur_it, const JntArray& q)

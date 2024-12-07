@@ -6,14 +6,17 @@ namespace kdl
 {
 TreeJacobianSolver::TreeJacobianSolver(const Tree& tree) : super(tree)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void TreeJacobianSolver::updateInternalDataStructures()
+bool TreeJacobianSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  J_out_.resize(nj_);
+  resize();
+
+  return true;
 }
 
 int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
@@ -63,5 +66,10 @@ int TreeJacobianSolver::JntToJac(const JntArray& q_in, const string& seg_name)
   J_out_.changeBase(T_total_.M);
 
   return setDefaultError(E_NOERROR);
+}
+
+void TreeJacobianSolver::resize()
+{
+  J_out_.resize(nj_);
 }
 }  // namespace kdl

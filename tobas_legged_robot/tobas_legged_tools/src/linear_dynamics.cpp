@@ -19,10 +19,14 @@ LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot
   A(kVelZIdx, kGravIdx) = -1;
 }
 
-void LinearDynamics::updateInternalDataStructures()
+bool LinearDynamics::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 void LinearDynamics::update(

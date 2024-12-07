@@ -6,18 +6,22 @@ namespace kdl
 {
 ChainDynParam::ChainDynParam(const Chain& chain) : super(chain), rne_coriolis_(chain_), rne_gravity_(chain_)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void ChainDynParam::updateInternalDataStructures()
+bool ChainDynParam::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  rne_coriolis_.updateInternalDataStructures();
-  rne_gravity_.updateInternalDataStructures();
+  if (!rne_coriolis_.updateInternalDataStructures())
+    return false;
+  if (!rne_gravity_.updateInternalDataStructures())
+    return false;
 
-  zero_jntarray_ = JntArray::Zero(nj_);
-  zero_wrenches_.resize(ns_, Wrench::Zero());
+  resize();
+
+  return true;
 }
 
 int ChainDynParam::JntToCoriolis(const JntArray& q, const JntArray& qd)
@@ -30,5 +34,11 @@ int ChainDynParam::JntToGravity(const JntArray& q, const Vector& grav)
 {
   rne_gravity_.CartToJnt(q, zero_jntarray_, zero_jntarray_, zero_wrenches_, grav);
   return copyError(rne_gravity_);
+}
+
+void ChainDynParam::resize()
+{
+  zero_jntarray_ = JntArray::Zero(nj_);
+  zero_wrenches_.resize(ns_, Wrench::Zero());
 }
 }  // namespace kdl

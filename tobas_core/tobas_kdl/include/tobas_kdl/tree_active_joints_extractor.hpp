@@ -14,8 +14,6 @@ class TreeActiveJointsExtractor : public TreeSolverI
 public:
   explicit TreeActiveJointsExtractor(const Tree& tree);
 
-  void updateInternalDataStructures() override;
-
   int solve(const std::vector<std::string>& endpoints);
 
   inline const std::vector<std::string>& activeJointNames() const;

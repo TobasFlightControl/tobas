@@ -1,6 +1,6 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/assert.hpp>
+#include <tobas_std_tools/console.hpp>
 
 #include "../include/tobas_drone_tools/fw_trim_conditions.hpp"
 #include "../include/tobas_drone_tools/utils/fixed_wing_tools.hpp"
@@ -13,28 +13,68 @@ TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), inertia_solver_(tree), asd_cog_(drone, tree)
 {
   if (drone.fixed_wing.equipped)
-    updateInternalDataStructures();
+    if (!updateInternalDataStructures())
+      PRINT_ERROR("Failed to update internal data structures.");
 }
 
-void TrimConditions::updateInternalDataStructures()
+bool TrimConditions::updateInternalDataStructures()
 {
-  inertia_solver_.updateInternalDataStructures();
-  asd_cog_.updateInternalDataStructures();
+  // Check drone configuration
+  if (!drone_.fixed_wing.equipped)
+  {
+    cerr << "The drone is not equipped with fixed wing." << endl;
+    return false;
+  }
+  if (drone_.numControlSurfaces() == 0)
+  {
+    cerr << "The drone must have at least 1 control surfaces." << endl;
+    return false;
+  }
 
+  // Update solvers
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!asd_cog_.updateInternalDataStructures())
+    return false;
+
+  // Set mass
   if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  {
+    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    return false;
+  }
   W_ = inertia_solver_.getInertia().getMass() * tobas_std::kGravity;
 
-  setElevatorIndex();
+  // Set elevator index
+  auto max_c_pitch_delta = numeric_limits<double>::lowest();
+  for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
+  {
+    if (fabs(cs.c_pitch_delta) > max_c_pitch_delta)
+    {
+      max_c_pitch_delta = fabs(cs.c_pitch_delta);
+      elev_channel_ = channel;
+    }
+  }
 
+  // Set coefficients
   const auto& aero = drone_.fixed_wing.aerodynamics;
   const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_channel_);
-
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
-  assert(a_ > 0);
-  assert(b_ > 0);
+
+  if (a_ <= 0.)
+  {
+    cerr << "The aerodynamic coefficient \"a\" must be positive." << endl;
+    return false;
+  }
+  if (b_ <= 0.)
+  {
+    cerr << "The aerodynamic coefficient \"b\" must be positive." << endl;
+    return false;
+  }
+
+  return true;
 }
 
 int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
@@ -149,20 +189,5 @@ double TrimConditions::takeOffSpeed(const double& rho) const
   const auto c = 2 * W_ / rho / drone_.fixed_wing.vehicle.wing_surface;
   constexpr double alpha_zero = 0.;
   return sqrt(c / (a_ * alpha_zero + b_));
-}
-
-void TrimConditions::setElevatorIndex()
-{
-  assert(drone_.numControlSurfaces() > 0);
-
-  auto max_c_pitch_delta = numeric_limits<double>::lowest();
-  for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
-  {
-    if (fabs(cs.c_pitch_delta) > max_c_pitch_delta)
-    {
-      max_c_pitch_delta = fabs(cs.c_pitch_delta);
-      elev_channel_ = channel;
-    }
-  }
 }
 }  // namespace tobas

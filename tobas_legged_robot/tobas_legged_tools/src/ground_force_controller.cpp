@@ -19,17 +19,22 @@ GroundForceController::GroundForceController(const kdl::Tree& tree, const vector
     cont_(tree, foot_names),
     c2d_(cont_.stateSize(), cont_.inputSize())
 {
-  updateInternalDataStructures();
+  initializeMPC();
 }
 
-void GroundForceController::updateInternalDataStructures()
+bool GroundForceController::updateInternalDataStructures()
 {
-  inertia_solver_.updateInternalDataStructures();
-  bb_solver_.updateInternalDataStructures();
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!bb_solver_.updateInternalDataStructures())
+    return false;
 
-  cont_.updateInternalDataStructures();
+  if (!cont_.updateInternalDataStructures())
+    return false;
 
   initializeMPC();
+
+  return true;
 }
 
 bool GroundForceController::configure(const GroundForceControllerConfig& cfg)

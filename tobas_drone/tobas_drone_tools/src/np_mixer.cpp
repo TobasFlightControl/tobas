@@ -14,29 +14,21 @@ namespace tobas
 NonPlanarMixer::NonPlanarMixer(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree)
 {
-  updateInternalDataStructures();
+  resizeAndFill();
+  updateWeight();
 }
 
-void NonPlanarMixer::updateInternalDataStructures()
+bool NonPlanarMixer::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
 
-  qp_.resize(drone_.numRotors(), 0, drone_.numRotors() * 2);
-  qp_.setZero();
-
-  // QPの決定変数のスケール．推力のみなので統一してよい．
-  qp_.x_scale.setOnes();
-
-  // QPPの定数部分
-  qp_.problem.A.topRows(drone_.numRotors()).diagonal().fill(1);
-  qp_.problem.A.bottomRows(drone_.numRotors()).diagonal().fill(-1);
-
-  R_.resize(drone_.numRotors());
-  G_.resize(NoChange, drone_.numRotors());
-
-  // 重みを更新
+  resizeAndFill();
   updateWeight();
+
+  return true;
 }
 
 bool NonPlanarMixer::solve(
@@ -161,6 +153,24 @@ bool NonPlanarMixer::setThrustWeight(double p)
   thrust_weight_ = p;
   updateWeight();
   return true;
+}
+
+void NonPlanarMixer::resizeAndFill()
+{
+  const auto nr = drone_.numRotors();
+
+  qp_.resize(nr, 0, nr * 2);
+  qp_.setZero();
+
+  // QPの決定変数のスケール．推力のみなので統一してよい．
+  qp_.x_scale.setOnes();
+
+  // QPPの定数部分
+  qp_.problem.A.topRows(nr).diagonal().fill(1);
+  qp_.problem.A.bottomRows(nr).diagonal().fill(-1);
+
+  R_.resize(nr);
+  G_.resize(NoChange, nr);
 }
 
 void NonPlanarMixer::updateWeight()

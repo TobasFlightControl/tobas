@@ -9,13 +9,19 @@ TreeIkSolverPos_Online::TreeIkSolverPos_Online(const Tree& tree)
 {
 }
 
-void TreeIkSolverPos_Online::updateInternalDataStructures()
+bool TreeIkSolverPos_Online::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  fksolver_.updateInternalDataStructures();
-  iksolver_.updateInternalDataStructures();
-  jntparser_.updateInternalDataStructures();
+  if (!fksolver_.updateInternalDataStructures())
+    return false;
+  if (!iksolver_.updateInternalDataStructures())
+    return false;
+  if (!jntparser_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 int TreeIkSolverPos_Online::CartToJnt(const JntArray& q_in, const FrameMap& p_in, const double& dt)

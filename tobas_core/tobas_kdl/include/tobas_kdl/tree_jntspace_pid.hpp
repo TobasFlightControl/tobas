@@ -14,7 +14,7 @@ public:
 
   explicit TreeJntSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -tobas_std::kGravity));
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int CartToJnt(
     const JntArray& cur_q,
@@ -35,6 +35,8 @@ private:
 
   double kp_ = kDefaultStiffness;
   double kd_ = kDefaultDamping;
+
+  void resize();
 };
 
 inline const JntArray& TreeJntSpacePID::getEfforts() const

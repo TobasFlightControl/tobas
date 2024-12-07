@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./tree_inertia_solver.hpp"
+#include "./tree_solver_i.hpp"
 
 namespace kdl
 {
@@ -12,14 +12,19 @@ class TreeMassHolder : public TreeSolverI
 public:
   explicit TreeMassHolder(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   inline const double& getMass() const
   {
-    return inertia_solver_.getInertia().getMass();
+    return mass_;
   }
 
 private:
-  TreeInertiaSolver inertia_solver_;
+  double mass_;
+
+  void updateTotalMass();
+
+  /* 指定したセグメント以下の質量を返す． */
+  double computeMass(const SegmentMap::const_iterator& cur_it);
 };
 }  // namespace kdl

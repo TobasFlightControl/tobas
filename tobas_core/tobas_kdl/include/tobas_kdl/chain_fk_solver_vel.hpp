@@ -19,8 +19,6 @@ class ChainFkSolverVel_recursive : public ChainSolverI
 public:
   explicit ChainFkSolverVel_recursive(const Chain& chain);
 
-  void updateInternalDataStructures() override;
-
   /* Calculate forward position and velocity kinematics, from joint coordinates to cartesian coordinates. */
   int JntToCart(const JntArray& q_in, const JntArray& qd_in, int seg_nr = -1);
 

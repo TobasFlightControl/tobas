@@ -50,6 +50,8 @@ public:
   /* 6DoFの浮遊リンク系． */
   static Tree FloatingBase(const std::string& world_name, const std::string& base_name);
 
+  void clear();
+
   /**
    * Adds a new segment to the end of the segment with hook_name as seg_name.
    *

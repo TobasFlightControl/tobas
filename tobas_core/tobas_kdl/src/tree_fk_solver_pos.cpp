@@ -8,11 +8,6 @@ TreeFkSolverPos::TreeFkSolverPos(const Tree& tree) : super(tree)
 {
 }
 
-void TreeFkSolverPos::updateInternalDataStructures()
-{
-  super::updateInternalDataStructures();
-}
-
 int TreeFkSolverPos::JntToCart(const JntArray& q, const string& seg_name)
 {
   if (!isUpToDate())

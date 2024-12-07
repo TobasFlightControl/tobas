@@ -17,7 +17,7 @@ class ChainJacobianSolver : public ChainSolverI
 public:
   explicit ChainJacobianSolver(const Chain& chain);
 
-  virtual void updateInternalDataStructures() override;
+  virtual bool updateInternalDataStructures() override;
 
   /**
    * Calculate the jacobian expressed in the base frame of the
@@ -48,5 +48,7 @@ private:
   Jacobian J_out_;
   Frame T_tmp_;
   size_t j_, k_;
+
+  void resize();
 };
 }  // namespace kdl

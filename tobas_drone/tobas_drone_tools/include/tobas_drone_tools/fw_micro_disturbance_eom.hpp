@@ -29,7 +29,7 @@ public:
 
   explicit MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * @brief 内部状態を更新する．
@@ -144,6 +144,7 @@ private:
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
 
+  void resize();
   void setInputLimits(const double& battery_voltage);
 };
 

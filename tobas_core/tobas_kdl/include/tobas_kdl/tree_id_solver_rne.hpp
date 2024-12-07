@@ -15,7 +15,7 @@ namespace kdl
  * parameters of the segments.
  *
  * This is an extension of the inverse dynamic solver for kinematic chains,
- * \see ChainIdSolver_RNE. The main difference is the use of STL maps
+ * @see ChainIdSolver_RNE. The main difference is the use of STL maps
  * instead of vectors to represent external wrenches (as well as internal
  * variables exploited during the recursion).
  */
@@ -31,7 +31,7 @@ public:
    */
   explicit TreeIdSolver_RNE(const Tree& tree, const Vector& grav = Vector(0, 0, -tobas_std::kGravity));
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * Function to calculate from Cartesian forces to joint torques.
@@ -50,6 +50,8 @@ private:
   AccelMap a_;
   WrenchMap f_;
   double qj_, qdj_, qddj_;
+
+  void initialize();
 
   /* One recursion step */
   void rneStep(

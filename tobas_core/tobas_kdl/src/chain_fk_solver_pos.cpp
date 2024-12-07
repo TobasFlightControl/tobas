@@ -10,11 +10,6 @@ ChainFkSolverPos::ChainFkSolverPos(const Chain& chain) : super(chain)
 {
 }
 
-void ChainFkSolverPos::updateInternalDataStructures()
-{
-  super::updateInternalDataStructures();
-}
-
 int ChainFkSolverPos::JntToCart(const JntArray& q_in, int _seg_nr)
 {
   if (!isUpToDate())

@@ -10,17 +10,18 @@ namespace tobas
 MultirotorDynamicsComponents::MultirotorDynamicsComponents(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
-  updateInternalDataStructures();
 }
 
-void MultirotorDynamicsComponents::updateInternalDataStructures()
+bool MultirotorDynamicsComponents::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  z_rotors_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!z_rotors_.updateInternalDataStructures())
+    return false;
 
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  return true;
 }
 
 double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_speeds) const

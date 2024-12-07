@@ -6,18 +6,20 @@ namespace tobas
 {
 TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& tree) : super(tree), jnt_parser_(tree_)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void TreeJointStateConverter::updateInternalDataStructures()
+bool TreeJointStateConverter::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  jnt_parser_.updateInternalDataStructures();
+  if (!jnt_parser_.updateInternalDataStructures())
+    return false;
 
-  q_out_.resize(nj_);
-  qd_out_.resize(nj_);
-  f_out_.resize(nj_);
+  resize();
+
+  return true;
 }
 
 int TreeJointStateConverter::jointStateToJntArrayPos(const sensor_msgs::msg::JointState& js)
@@ -261,6 +263,13 @@ int TreeJointStateConverter::jntArrayToJointState(
   }
 
   return setDefaultError(E_NOERROR);
+}
+
+void TreeJointStateConverter::resize()
+{
+  q_out_.resize(nj_);
+  qd_out_.resize(nj_);
+  f_out_.resize(nj_);
 }
 
 void TreeJointStateConverter::clearJointState()

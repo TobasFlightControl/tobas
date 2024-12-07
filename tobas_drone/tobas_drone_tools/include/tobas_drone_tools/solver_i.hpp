@@ -21,7 +21,7 @@ public:
     E_ERROR = -2,    // 処理を停止すべき重大なエラー
   };
 
-  virtual void updateInternalDataStructures() = 0;
+  virtual bool updateInternalDataStructures() = 0;
 
   inline const int& errorCode() const;
   inline const std::string& errorMessage() const;

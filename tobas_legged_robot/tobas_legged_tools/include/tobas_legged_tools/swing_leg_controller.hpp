@@ -25,7 +25,7 @@ public:
     const std::vector<std::string>& thigh_names,
     const std::vector<std::string>& foot_names);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   void reset();
 

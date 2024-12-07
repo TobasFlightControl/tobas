@@ -12,31 +12,23 @@ namespace tobas
 MultiRotorMixer::MultiRotorMixer(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
-  updateInternalDataStructures();
+  resizeAndFill();
+  updateWeight();
 }
 
-void MultiRotorMixer::updateInternalDataStructures()
+bool MultiRotorMixer::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  z_rotors_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!z_rotors_.updateInternalDataStructures())
+    return false;
 
-  qp_.resize(z_rotors_.count(), 1, z_rotors_.count() * 2);
-  qp_.setZero();
-
-  // QPの決定変数のスケール．推力のみなので統一してよい．
-  qp_.x_scale.setOnes();
-
-  // QPPの定数部分
-  qp_.problem.G.fill(1);
-  qp_.problem.A.topRows(z_rotors_.count()).diagonal().fill(1);
-  qp_.problem.A.bottomRows(z_rotors_.count()).diagonal().fill(-1);
-
-  R_.resize(z_rotors_.count());
-  G_.resize(NoChange, z_rotors_.count());
-
-  // 重みを更新
+  resizeAndFill();
   updateWeight();
+
+  return true;
 }
 
 bool MultiRotorMixer::solve(
@@ -143,6 +135,23 @@ bool MultiRotorMixer::setThrustWeight(double p)
   thrust_weight_ = p;
   updateWeight();
   return true;
+}
+
+void MultiRotorMixer::resizeAndFill()
+{
+  qp_.resize(z_rotors_.count(), 1, z_rotors_.count() * 2);
+  qp_.setZero();
+
+  // QPの決定変数のスケール．推力のみなので統一してよい．
+  qp_.x_scale.setOnes();
+
+  // QPPの定数部分
+  qp_.problem.G.fill(1);
+  qp_.problem.A.topRows(z_rotors_.count()).diagonal().fill(1);
+  qp_.problem.A.bottomRows(z_rotors_.count()).diagonal().fill(-1);
+
+  R_.resize(z_rotors_.count());
+  G_.resize(NoChange, z_rotors_.count());
 }
 
 void MultiRotorMixer::updateWeight()

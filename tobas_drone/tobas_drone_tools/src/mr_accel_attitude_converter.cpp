@@ -11,15 +11,14 @@ using namespace std;
 
 namespace tobas
 {
-AccelAttitudeConverter::AccelAttitudeConverter(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), dynamics_(drone, tree), grav_W_(0, 0, tobas_std::kGravity), zero_(kdl::Vector::Zero())
+AccelAttitudeConverter::AccelAttitudeConverter(const kdl::Tree& tree)
+  : mass_holder_(tree), grav_W_(0, 0, -tobas_std::kGravity)
 {
-  updateInternalDataStructures();
 }
 
-void AccelAttitudeConverter::updateInternalDataStructures()
+bool AccelAttitudeConverter::updateInternalDataStructures()
 {
-  dynamics_.updateInternalDataStructures();
+  return mass_holder_.updateInternalDataStructures();
 }
 
 void AccelAttitudeConverter::update(
@@ -30,8 +29,7 @@ void AccelAttitudeConverter::update(
   double& pitch_out)
 {
   // 並進EoMの左辺
-  const auto& mass = dynamics_.mass();
-  const auto xyz = mass * (tar_acc_W + grav_W_);
+  const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_);
   auto x = xyz.x();
   auto y = xyz.y();
   const auto& z = xyz.z();

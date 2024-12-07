@@ -6,14 +6,20 @@ namespace kdl
 {
 TreeJntSpacePID::TreeJntSpacePID(const Tree& tree, const Vector& grav) : super(tree), rne_(tree, grav)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void TreeJntSpacePID::updateInternalDataStructures()
+bool TreeJntSpacePID::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
-  rne_.updateInternalDataStructures();
-  zeros_ = JntArray::Zero(nj_);
+  if (!super::updateInternalDataStructures())
+    return false;
+
+  if (!rne_.updateInternalDataStructures())
+    return false;
+
+  resize();
+
+  return true;
 }
 
 int TreeJntSpacePID::CartToJnt(
@@ -64,5 +70,10 @@ bool TreeJntSpacePID::setDamping(const double& kd)
 
   kd_ = kd;
   return true;
+}
+
+void TreeJntSpacePID::resize()
+{
+  zeros_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl

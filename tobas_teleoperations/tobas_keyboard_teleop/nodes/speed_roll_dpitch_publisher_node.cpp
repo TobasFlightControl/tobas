@@ -79,7 +79,7 @@ private:
   ros2::TimerPtr instruction_timer_;
 
   void getStaticRosParams();
-  void initialize();
+  bool initialize();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -124,9 +124,14 @@ void SpeedRollDeltaPitchPublisherNode::getStaticRosParams()
   TOBAS_ASSERT(max_delta_pitch_ > 0);
 }
 
-void SpeedRollDeltaPitchPublisherNode::initialize()
+bool SpeedRollDeltaPitchPublisherNode::initialize()
 {
-  trim_.updateInternalDataStructures();
+  if (!trim_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of trim condition.");
+    return false;
+  }
+
   q_0_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
   cmd_.speed = trim_.takeOffSpeed(air_density_);
@@ -136,6 +141,8 @@ void SpeedRollDeltaPitchPublisherNode::initialize()
   // インストラクションの表示を開始
   cout << kInstruction << endl;
   instruction_timer_ = createTimer(kInstructionTimerPeriod, &self::instructionTimerCb, this);
+
+  return true;
 }
 
 void SpeedRollDeltaPitchPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -163,8 +170,9 @@ void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
   {
     if (drone_received_ && tree_received_ && pressure_received_)
     {
+      if (!initialize())
+        return;
       check_topics_timer_->cancel();
-      initialize();
       is_initialized_ = true;
     }
     return;

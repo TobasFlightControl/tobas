@@ -12,7 +12,7 @@ class ChainDynParam : public ChainSolverI
 public:
   explicit ChainDynParam(const Chain& chain);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int JntToCoriolis(const JntArray& q, const JntArray& qd);
   int JntToGravity(const JntArray& q, const Vector& grav);
@@ -27,6 +27,8 @@ private:
   JntArray zero_jntarray_;
   Wrenches zero_wrenches_;
   const Vector zero_vector_ = Vector::Zero();
+
+  void resize();
 };
 
 inline const JntArray& ChainDynParam::getCoriolisEffort() const

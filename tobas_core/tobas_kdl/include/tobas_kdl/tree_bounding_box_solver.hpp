@@ -16,7 +16,7 @@ class TreeBoundingBoxSolver : public TreeSolverI
 public:
   explicit TreeBoundingBoxSolver(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int solve(const JntArray& q);
 

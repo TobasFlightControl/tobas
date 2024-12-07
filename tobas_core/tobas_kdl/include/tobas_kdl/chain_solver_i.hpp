@@ -10,7 +10,7 @@ class ChainSolverI : public SolverI
 public:
   inline explicit ChainSolverI(const Chain& chain);
 
-  inline virtual void updateInternalDataStructures() override;
+  inline virtual bool updateInternalDataStructures() override;
 
 protected:
   const Chain& chain_;
@@ -25,10 +25,12 @@ inline ChainSolverI::ChainSolverI(const Chain& chain)
 {
 }
 
-inline void ChainSolverI::updateInternalDataStructures()
+inline bool ChainSolverI::updateInternalDataStructures()
 {
   nj_ = chain_.getNrOfJoints();
   ns_ = chain_.getNrOfSegments();
+
+  return true;
 }
 
 inline bool ChainSolverI::isUpToDate() const

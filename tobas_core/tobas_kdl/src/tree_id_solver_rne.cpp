@@ -6,21 +6,17 @@ namespace kdl
 {
 TreeIdSolver_RNE::TreeIdSolver_RNE(const Tree& tree, const Vector& grav) : super(tree), ag_(-grav, Vector::Zero())
 {
-  updateInternalDataStructures();
+  initialize();
 }
 
-void TreeIdSolver_RNE::updateInternalDataStructures()
+bool TreeIdSolver_RNE::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  for (const auto& [cur_name, _] : tree_.getSegments())
-  {
-    v_[cur_name] = Twist::Zero();
-    a_[cur_name] = Accel::Zero();
-    f_[cur_name] = Wrench::Zero();
-  }
+  initialize();
 
-  effort_out_ = JntArray::Zero(nj_);
+  return true;
 }
 
 int TreeIdSolver_RNE::CartToJnt(const JntArray& q, const JntArray& qd, const JntArray& qdd, const WrenchMap& f_ext)
@@ -34,6 +30,18 @@ int TreeIdSolver_RNE::CartToJnt(const JntArray& q, const JntArray& qd, const Jnt
   rneStep(tree_.getRootSegment(), q, qd, qdd, f_ext);
 
   return setDefaultError(E_NOERROR);
+}
+
+void TreeIdSolver_RNE::initialize()
+{
+  for (const auto& [cur_name, _] : tree_.getSegments())
+  {
+    v_[cur_name] = Twist::Zero();
+    a_[cur_name] = Accel::Zero();
+    f_[cur_name] = Wrench::Zero();
+  }
+
+  effort_out_ = JntArray::Zero(nj_);
 }
 
 void TreeIdSolver_RNE::rneStep(

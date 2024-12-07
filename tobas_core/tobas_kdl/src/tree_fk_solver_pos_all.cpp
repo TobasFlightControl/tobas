@@ -8,11 +8,14 @@ TreeFkSolverPosAll::TreeFkSolverPosAll(const Tree& tree) : super(tree)
 {
 }
 
-void TreeFkSolverPosAll::updateInternalDataStructures()
+bool TreeFkSolverPosAll::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
   frames_.clear();
+
+  return true;
 }
 
 int TreeFkSolverPosAll::JntToCart(const JntArray& q)

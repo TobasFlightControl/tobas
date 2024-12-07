@@ -13,10 +13,7 @@ class MultirotorDynamicsComponents
 public:
   explicit MultirotorDynamicsComponents(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures();
-
-  /* 機体の全質量． */
-  inline const double& mass() const;
+  bool updateInternalDataStructures();
 
   /* 回転数から合計推力を求める． */
   inline double thrustSum(const std::vector<double>& rot_speeds);
@@ -56,11 +53,6 @@ private:
   kdl::TreeInertiaSolver inertia_solver_;
   RotorAxisExtractor z_rotors_;
 };
-
-inline const double& MultirotorDynamicsComponents::mass() const
-{
-  return inertia_solver_.getInertia().getMass();
-}
 
 inline double MultirotorDynamicsComponents::thrustSum(const std::vector<double>& rot_speeds)
 {

@@ -4,20 +4,17 @@ namespace kdl
 {
 ChainIdSolver_RNE::ChainIdSolver_RNE(const Chain& chain) : super(chain), ag_(Accel::Zero())
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void ChainIdSolver_RNE::updateInternalDataStructures()
+bool ChainIdSolver_RNE::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  X_.resize(ns_);
-  S_.resize(ns_);
-  v_.resize(ns_);
-  a_.resize(ns_);
-  f_.resize(ns_);
+  resize();
 
-  effort_out_ = JntArray::Zero(nj_);
+  return true;
 }
 
 int ChainIdSolver_RNE::CartToJnt(
@@ -150,5 +147,16 @@ int ChainIdSolver_RNE::CartToJnt(
   }
 
   return setDefaultError(E_NOERROR);
+}
+
+void ChainIdSolver_RNE::resize()
+{
+  X_.resize(ns_);
+  S_.resize(ns_);
+  v_.resize(ns_);
+  a_.resize(ns_);
+  f_.resize(ns_);
+
+  effort_out_ = JntArray::Zero(nj_);
 }
 }  // namespace kdl

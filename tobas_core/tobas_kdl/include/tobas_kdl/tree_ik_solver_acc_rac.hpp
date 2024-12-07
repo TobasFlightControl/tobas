@@ -16,7 +16,7 @@ class TreeIkSolverAcc_RAC : public TreeIkSolverAcc
 public:
   explicit TreeIkSolverAcc_RAC(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int CartToJnt(const JntArray& q_in, const JntArray& qd_in, const AccelMap& acc_in) override;
 
@@ -38,5 +38,7 @@ private:
   Eigen::VectorXd a_;                                                 // Big acceleration in TS
 
   quadprog::DualActiveSetSolver qp_solver_;
+
+  void resize();
 };
 }  // namespace kdl

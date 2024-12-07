@@ -18,7 +18,7 @@ public:
 
   explicit TreeTaskSpacePID(const Tree& tree, const Vector& grav = Vector(0, 0, -tobas_std::kGravity));
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int CartToJnt(
     const JntArray& cur_q,

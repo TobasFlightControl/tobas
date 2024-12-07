@@ -10,12 +10,17 @@ TreeTaskSpaceVelCtrl::TreeTaskSpaceVelCtrl(const Tree& tree) : super(tree), fk_(
   setAngularTimeConst(Vector::Constant(kDefaultTimeConst));
 }
 
-void TreeTaskSpaceVelCtrl::updateInternalDataStructures()
+bool TreeTaskSpaceVelCtrl::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  fk_.updateInternalDataStructures();
-  ik_.updateInternalDataStructures();
+  if (!fk_.updateInternalDataStructures())
+    return false;
+  if (!ik_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 int TreeTaskSpaceVelCtrl::CartToJnt(const JntArray& cur_q, const FrameMap& tar_p)

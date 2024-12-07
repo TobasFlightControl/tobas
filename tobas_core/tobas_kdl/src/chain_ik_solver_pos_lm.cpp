@@ -15,18 +15,17 @@ ChainIkSolverPos_LM::ChainIkSolverPos_LM(const Chain& chain) : super(chain)
   L_.head<3>().fill(kDefaultWeightPos);
   L_.tail<3>().fill(kDefaultWeightRot);
 
-  updateInternalDataStructures();
+  initialize();
 }
 
-void ChainIkSolverPos_LM::updateInternalDataStructures()
+bool ChainIkSolverPos_LM::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  jac_.conservativeResize(NoChange, nj_);
-  grad_.conservativeResize(nj_);
-  T_base_jointroot_.resize(nj_);
-  T_base_jointtip_.resize(nj_);
-  svd_ = JacobiSVD<Matrix6Xd>(NoChange, nj_, ComputeThinU | ComputeThinV);
+  initialize();
+
+  return true;
 }
 
 void ChainIkSolverPos_LM::displayJacobian(const JntArray& jval)
@@ -151,6 +150,15 @@ bool ChainIkSolverPos_LM::setWeight(const Eigen::Vector6d& L)
 
   L_ = L;
   return true;
+}
+
+void ChainIkSolverPos_LM::initialize()
+{
+  jac_.conservativeResize(NoChange, nj_);
+  grad_.conservativeResize(nj_);
+  T_base_jointroot_.resize(nj_);
+  T_base_jointtip_.resize(nj_);
+  svd_ = JacobiSVD<Matrix6Xd>(NoChange, nj_, ComputeThinU | ComputeThinV);
 }
 
 void ChainIkSolverPos_LM::computeFwdPos(const VectorXd& q)

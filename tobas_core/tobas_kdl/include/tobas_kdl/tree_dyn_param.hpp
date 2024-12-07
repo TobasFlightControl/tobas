@@ -14,7 +14,7 @@ class TreeDynParam : public TreeSolverI
 public:
   explicit TreeDynParam(const Tree& tree, const Vector& grav = Vector(0., 0., -tobas_std::kGravity));
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * @brief コリオリ力により発生するトルクを計算する
@@ -39,6 +39,8 @@ private:
   TreeIdSolver_RNE rne_gravity_;
 
   JntArray jntarray_null_;
+
+  void resize();
 };
 
 inline const JntArray& TreeDynParam::getCoriolisEffort() const

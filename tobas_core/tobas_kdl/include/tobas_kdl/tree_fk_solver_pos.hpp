@@ -13,8 +13,6 @@ class TreeFkSolverPos : public TreeSolverI
 public:
   explicit TreeFkSolverPos(const Tree& tree);
 
-  void updateInternalDataStructures() override;
-
   int JntToCart(const JntArray& q, const std::string& seg_name);
 
   const Frame& getFrame() const

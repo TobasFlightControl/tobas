@@ -14,7 +14,7 @@ class RotorAxisExtractor : public SolverI
 public:
   explicit RotorAxisExtractor(const Drone& drone, const rotor_axis_t& axis);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   inline size_t count() const;
   inline const RotorConfig& rotor(size_t idx) const;
@@ -36,6 +36,8 @@ private:
   const rotor_axis_t axis_;
 
   std::vector<size_t> channels_;
+
+  void initialize();
 };
 
 inline size_t RotorAxisExtractor::count() const

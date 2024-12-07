@@ -17,7 +17,7 @@ class TrimConditions : public SolverI
 public:
   explicit TrimConditions(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * @brief 内部状態を更新する．
@@ -83,8 +83,6 @@ private:
   double c_D_;       // トリム時の抗力係数 [-]
   double c_T_;       // トリム時の推力係数 [-]
   double u_;         // トリム時のX軸方向の速さ [m/s]
-
-  void setElevatorIndex();
 };
 
 inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const

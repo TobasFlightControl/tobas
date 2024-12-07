@@ -17,7 +17,7 @@ public:
 
   explicit TreeJointStateConverter(const kdl::Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int jointStateToJntArrayPos(const sensor_msgs::msg::JointState& js);
   int jointStateToJntArrayVel(const sensor_msgs::msg::JointState& js);
@@ -52,6 +52,7 @@ private:
   kdl::JntArray f_out_;
   sensor_msgs::msg::JointState js_out_;
 
+  void resize();
   void clearJointState();
 };
 

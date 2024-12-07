@@ -6,11 +6,15 @@ TreeBoundingBoxSolver::TreeBoundingBoxSolver(const Tree& tree) : super(tree), fk
 {
 }
 
-void TreeBoundingBoxSolver::updateInternalDataStructures()
+bool TreeBoundingBoxSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  fk_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 int TreeBoundingBoxSolver::solve(const JntArray& q)

@@ -17,7 +17,7 @@ class NonPlanarMixer
 public:
   explicit NonPlanarMixer(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   bool solve(
     const double& cur_voltage,
@@ -51,6 +51,7 @@ private:
   Eigen::Matrix6Xd G_;                // EoM行列等式の左辺
   Eigen::Vector6d h_;                 // EoM行列等式の右辺
 
+  void resizeAndFill();
   void updateWeight();
 };
 }  // namespace tobas

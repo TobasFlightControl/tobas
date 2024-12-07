@@ -8,11 +8,15 @@ TreeJointAxisSolver::TreeJointAxisSolver(const Tree& tree) : super(tree), fk_sol
 {
 }
 
-void TreeJointAxisSolver::updateInternalDataStructures()
+bool TreeJointAxisSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  fk_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 int TreeJointAxisSolver::JntToCart(const JntArray& q_in, const string& seg_name)

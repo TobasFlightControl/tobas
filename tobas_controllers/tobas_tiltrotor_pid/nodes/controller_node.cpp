@@ -69,7 +69,7 @@ private:
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
   bool isReadyToControl();
 
   bool horizontalNaturalFrequencyCb(const double& p);
@@ -128,10 +128,14 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
 }
 
-void ControllerNode::updateInternalDataStructures()
+bool ControllerNode::updateInternalDataStructures()
 {
-  js_converter_.updateInternalDataStructures();
-  mixer_.updateInternalDataStructures();
+  if (!js_converter_.updateInternalDataStructures())
+    return false;
+  if (!mixer_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 bool ControllerNode::isReadyToControl()
@@ -251,19 +255,33 @@ bool ControllerNode::maxVerticalAccelCb(const double& p)
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
-  drone_received_ = true;
 
   if (tree_received_)
-    updateInternalDataStructures();
+  {
+    if (!updateInternalDataStructures())
+    {
+      TOBAS_FATAL("Error occured while updating internal data structures.");
+      return;
+    }
+  }
+
+  drone_received_ = true;
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
-  tree_received_ = true;
 
   if (drone_received_)
-    updateInternalDataStructures();
+  {
+    if (!updateInternalDataStructures())
+    {
+      TOBAS_FATAL("Error occured while updating internal data structures.");
+      return;
+    }
+  }
+
+  tree_received_ = true;
 }
 
 void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)

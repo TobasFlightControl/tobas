@@ -6,15 +6,17 @@ namespace kdl
 {
 ChainJacobianSolver::ChainJacobianSolver(const Chain& chain) : super(chain)
 {
-  updateInternalDataStructures();
+  resize();
 }
 
-void ChainJacobianSolver::updateInternalDataStructures()
+bool ChainJacobianSolver::updateInternalDataStructures()
 {
-  super::updateInternalDataStructures();
+  if (!super::updateInternalDataStructures())
+    return false;
 
-  locked_joints_.resize(nj_, false);
-  J_out_.resize(nj_);
+  resize();
+
+  return true;
 }
 
 bool ChainJacobianSolver::setLockedJoints(const vector<bool> locked_joints)
@@ -65,5 +67,11 @@ int ChainJacobianSolver::JntToJac(const JntArray& q_in, int _seg_nr)
     T_tmp_ = T_total;
   }
   return setDefaultError(E_NOERROR);
+}
+
+void ChainJacobianSolver::resize()
+{
+  locked_joints_.resize(nj_, false);
+  J_out_.resize(nj_);
 }
 }  // namespace kdl

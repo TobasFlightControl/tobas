@@ -87,7 +87,7 @@ private:
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
 
-  void initialize();
+  bool initialize();
   bool isReadyToControl();
   void updateCurrentStateVector();
   void updateSetStateVector();
@@ -157,11 +157,14 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   cmd_sub_ = createSubscriber(tobas::kSpeedRollDpitchCmdTopic, &self::commandCb, this);
 }
 
-void ControllerNode::initialize()
+bool ControllerNode::initialize()
 {
-  mass_holder_.updateInternalDataStructures();
-  x_rotors_.updateInternalDataStructures();
-  eom_.updateInternalDataStructures();
+  if (!mass_holder_.updateInternalDataStructures())
+    return false;
+  if (!x_rotors_.updateInternalDataStructures())
+    return false;
+  if (!eom_.updateInternalDataStructures())
+    return false;
 
   q_0_.resize(tree_.getNrOfJoints());
   q_0_.setZero();
@@ -199,6 +202,7 @@ void ControllerNode::initialize()
   updateParameters();
 
   is_initialized_ = true;
+  return true;
 }
 
 bool ControllerNode::isReadyToControl()
@@ -476,19 +480,33 @@ bool ControllerNode::deflectionRateWeightLog10Cb(const long& p)
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
-  drone_received_ = true;
 
   if (tree_received_)
-    initialize();
+  {
+    if (!initialize())
+    {
+      TOBAS_FATAL("Error occured while initializing controller.");
+      return;
+    }
+  }
+
+  drone_received_ = true;
 }
 
 void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
-  tree_received_ = true;
 
   if (drone_received_)
-    initialize();
+  {
+    if (!initialize())
+    {
+      TOBAS_FATAL("Error occured while initializing controller.");
+      return;
+    }
+  }
+
+  tree_received_ = true;
 }
 
 void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)

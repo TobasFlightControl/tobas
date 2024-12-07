@@ -14,7 +14,7 @@ class TreeJointParser : public TreeSolverI
 public:
   explicit TreeJointParser(const Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   inline const std::vector<std::string>& jointNames() const;
   inline const std::string& jointName(const size_t& q_nr) const;
@@ -48,6 +48,8 @@ private:
   JntArray upper_limits_;
   JntArray max_velocities_;
   JntArray max_efforts_;
+
+  void resize();
 
   /* 全ての駆動関節名を取得し，RNEと同じ順番に並べる． */
   void parseJntNames();

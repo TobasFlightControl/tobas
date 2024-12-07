@@ -40,7 +40,7 @@ public:
    * of segments or number of joints of a chain/tree have changed.
    * This provides a single point of contact for solver memory allocations.
    */
-  virtual void updateInternalDataStructures() = 0;
+  virtual bool updateInternalDataStructures() = 0;
 
   inline const int& errorCode() const;
   inline const std::string& errorMessage() const;

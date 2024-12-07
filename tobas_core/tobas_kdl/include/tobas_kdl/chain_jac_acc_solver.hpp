@@ -17,7 +17,7 @@ class ChainJacAccSolver : public ChainSolverI
 public:
   explicit ChainJacAccSolver(const Chain& chain);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int JntToCart(const JntArray& q, const JntArray& qd);
 
@@ -33,5 +33,7 @@ private:
   Accel Jdqd_out_;
   size_t j_;
   double qj_, qdj_;
+
+  void resize();
 };
 }  // namespace kdl
