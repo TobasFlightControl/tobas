@@ -12,19 +12,17 @@
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_drone_tools/tr_mixer_sqp.hpp>
+#include <tobas_drone_tools/tr_mixer_pinv.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/orientation_pid.hpp>
 
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
-
 
 using namespace std;
 using namespace Eigen;
@@ -33,8 +31,6 @@ class ControllerNode : public tobas::BaseNode
 {
   using self = ControllerNode;
   using super = tobas::BaseNode;
-
-  static constexpr long kMaxWeight = 100;
 
 public:
   explicit ControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -48,14 +44,13 @@ private:
   // Controllers
   tobas::PositionPid pos_pid_;
   tobas::OrientationPid ori_pid_;
-  tobas::TiltRotorMixer_SQP mixer_;
+  tobas::TiltRotorMixer_pinv mixer_;
 
   // Mutable variables
   bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   sensor_msgs::msg::JointState::ConstSharedPtr js_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
@@ -70,7 +65,6 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
@@ -92,14 +86,10 @@ private:
   bool headingIGainCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool mixerLinearWeightCb(const long& p);
-  bool mixerAngularWeightCb(const long& p);
-  bool mixerThrustWeightLog10Cb(const long& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
@@ -123,9 +113,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.1, 0.1, 20.);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 10., 1., 20.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 8., 1., 10.);
-  addDynamicIntParam("mixer_linear_weight", &self::mixerLinearWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
-  addDynamicIntParam("mixer_angular_weight", &self::mixerAngularWeightCb, this, kMaxWeight / 2, 1, kMaxWeight);
-  addDynamicIntParam("mixer_thrust_weight_log10", &self::mixerThrustWeightLog10Cb, this, -6, -9, 0);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -136,7 +123,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
   js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
@@ -171,12 +157,6 @@ bool ControllerNode::isReadyToControl()
   if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
-    return false;
-  }
-
-  if (battery_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryTopic, "\".");
     return false;
   }
 
@@ -268,21 +248,6 @@ bool ControllerNode::maxVerticalAccelCb(const double& p)
   return pos_pid_.setMaximumVerticalAccel(p);
 }
 
-bool ControllerNode::mixerLinearWeightCb(const long& p)
-{
-  return mixer_.setLinearWeight(static_cast<double>(p) / static_cast<double>(kMaxWeight));
-}
-
-bool ControllerNode::mixerAngularWeightCb(const long& p)
-{
-  return mixer_.setAngularWeight(static_cast<double>(p) / static_cast<double>(kMaxWeight));
-}
-
-bool ControllerNode::mixerThrustWeightLog10Cb(const long& p)
-{
-  return mixer_.setThrustWeight(exp10(p));
-}
-
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
@@ -333,15 +298,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto tar_dgyro_fb = ori_pid_.update(kdl::Euler(odom->frame.M), odom->twist.rot, cmd_->rpy, cmd_->gyro, dt);
   const auto tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
-  // ミキサーで6軸加速度をプロペラの推力に変換
-  if (!mixer_.solve(
-        battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B))
+  // ミキシング方程式を解く
+  if (!mixer_.solve(js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B))
   {
     TOBAS_FATAL("Failed to solve mixing equation.");
     return;
   }
-  const auto thrusts = mixer_.getThrusts();
-  const auto angles = mixer_.getTiltAngles();
 
   // 推力を発行
   auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
@@ -350,7 +312,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   {
     tar_thrusts->thrusts.emplace_back();
     tar_thrusts->thrusts.back().channel = rotor_it.first;
-    tar_thrusts->thrusts.back().thrust = thrusts(idx);
+    tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
   }
   tar_thrusts_pub_->publish(move(tar_thrusts));
 
@@ -364,7 +326,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       continue;
     tar_angles->commands.emplace_back();
     tar_angles->commands.back().name = rotor.tilt_joint_name;
-    tar_angles->commands.back().data = angles(idx);
+    tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
   }
   tar_angles_pub_->publish(move(tar_angles));
 
@@ -385,11 +347,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->position_integral_error.data = pos_pid_.integralError();
   feedback->orientation_integral_error = kdl::Euler(ori_pid_.integralError());
   feedback_pub_->publish(move(feedback));
-}
-
-void ControllerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
-{
-  battery_ = battery;
 }
 
 void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
