@@ -24,8 +24,8 @@ class ImuPreprocessNode : public tobas::BaseNode
   static constexpr bool kDefaultUseNotch = false;
 
   // Default dynamic parameters
-  static constexpr long kDefaultAccelLowPassCutoff = 40;  // ノッチフィルタを使うなら上げる
-  static constexpr long kDefaultGyroLowPassCutoff = 40;   // ノッチフィルタを使うなら上げる
+  static constexpr long kDefaultAccelLowPassCutoff = 70;  // ノッチフィルタを使うなら上げる
+  static constexpr long kDefaultGyroLowPassCutoff = 70;   // ノッチフィルタを使うなら上げる
   static constexpr long kDefaultAccelNotchMinFreq = 25;
   static constexpr long kDefaultAccelNotchQValue = 30;
   static constexpr double kDefaultAccelNotchDepth = 0.;
