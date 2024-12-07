@@ -11,11 +11,11 @@ using namespace Eigen;
 
 namespace tobas
 {
-PositionPid::PositionPid()
+PositionPID::PositionPID()
 {
 }
 
-Vector3d PositionPid::update(
+Vector3d PositionPID::update(
   const Vector3d& cur_pos,
   const Vector3d& cur_vel,
   const Vector3d& tar_pos,
@@ -47,7 +47,7 @@ Vector3d PositionPid::update(
   return tar_acc.cwiseMax(-max_acc_).cwiseMin(max_acc_);
 }
 
-bool PositionPid::setHorizontalNaturalFrequency(double p)
+bool PositionPID::setHorizontalNaturalFrequency(double p)
 {
   if (p <= 0.)
   {
@@ -59,7 +59,7 @@ bool PositionPid::setHorizontalNaturalFrequency(double p)
   return true;
 }
 
-bool PositionPid::setHorizontalDampingRatio(double p)
+bool PositionPID::setHorizontalDampingRatio(double p)
 {
   if (p <= 0.)
   {
@@ -71,7 +71,7 @@ bool PositionPid::setHorizontalDampingRatio(double p)
   return true;
 }
 
-bool PositionPid::setHorizontalIntegralGain(double p)
+bool PositionPID::setHorizontalIntegralGain(double p)
 {
   if (p <= 0.)
   {
@@ -83,7 +83,7 @@ bool PositionPid::setHorizontalIntegralGain(double p)
   return true;
 }
 
-bool PositionPid::setVerticalNaturalFrequency(double p)
+bool PositionPID::setVerticalNaturalFrequency(double p)
 {
   if (p <= 0.)
   {
@@ -95,7 +95,7 @@ bool PositionPid::setVerticalNaturalFrequency(double p)
   return true;
 }
 
-bool PositionPid::setVerticalDampingRatio(double p)
+bool PositionPID::setVerticalDampingRatio(double p)
 {
   if (p <= 0.)
   {
@@ -107,7 +107,7 @@ bool PositionPid::setVerticalDampingRatio(double p)
   return true;
 }
 
-bool PositionPid::setVerticalIntegralGain(double p)
+bool PositionPID::setVerticalIntegralGain(double p)
 {
   if (p <= 0.)
   {
@@ -119,7 +119,7 @@ bool PositionPid::setVerticalIntegralGain(double p)
   return true;
 }
 
-bool PositionPid::setMaximumHorizontalAccel(double p)
+bool PositionPID::setMaximumHorizontalAccel(double p)
 {
   if (p <= 0.)
   {
@@ -131,7 +131,7 @@ bool PositionPid::setMaximumHorizontalAccel(double p)
   return true;
 }
 
-bool PositionPid::setMaximumVerticalAccel(double p)
+bool PositionPID::setMaximumVerticalAccel(double p)
 {
   if (p <= 0.)
   {

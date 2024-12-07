@@ -14,7 +14,7 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/np_mixer.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
-#include <tobas_pose_pid/orientation_pid.hpp>
+#include <tobas_pose_pid/euler_pid.hpp>
 
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -44,8 +44,8 @@ private:
   tobas::TreeJointStateConverter js_converter_;
 
   // Controllers
-  tobas::PositionPid pos_pid_;
-  tobas::OrientationPid ori_pid_;
+  tobas::PositionPID pos_pid_;
+  tobas::EulerPID ori_pid_;
   tobas::NonPlanarMixer mixer_;
 
   // Mutable variables

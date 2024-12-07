@@ -4,10 +4,10 @@
 
 namespace tobas
 {
-class PositionPid
+class PositionPID
 {
 public:
-  explicit PositionPid();
+  explicit PositionPID();
 
   Eigen::Vector3d update(
     const Eigen::Vector3d& cur_pos,
@@ -37,7 +37,7 @@ private:
   Eigen::Vector3d ei_ = Eigen::Vector3d::Zero();
 };
 
-inline const Eigen::Vector3d& PositionPid::integralError() const
+inline const Eigen::Vector3d& PositionPID::integralError() const
 {
   return ei_;
 }

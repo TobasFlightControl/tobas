@@ -9,7 +9,7 @@
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
-#include <tobas_pose_pid/orientation_pid.hpp>
+#include <tobas_pose_pid/euler_pid.hpp>
 #include <tobas_drone_tools/mr_accel_attitude_converter.hpp>
 #include <tobas_drone_tools/mr_mixer.hpp>
 #include <tobas_constants/constants.hpp>
@@ -49,9 +49,9 @@ private:
   tobas::RotorAxisExtractor z_rotors_;
 
   // Controllers
-  tobas::PositionPid pos_pid_;
+  tobas::PositionPID pos_pid_;
   tobas::AccelAttitudeConverter acc_atti_conv_;
-  tobas::OrientationPid ori_pid_;
+  tobas::EulerPID ori_pid_;
   tobas::MultiRotorMixer mixer_;
 
   // Mutable variables

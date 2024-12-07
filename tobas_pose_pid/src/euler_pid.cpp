@@ -5,18 +5,18 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
-#include "../include/tobas_pose_pid/orientation_pid.hpp"
+#include "../include/tobas_pose_pid/euler_pid.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace tobas
 {
-OrientationPid::OrientationPid()
+EulerPID::EulerPID()
 {
 }
 
-kdl::Vector OrientationPid::update(
+kdl::Vector EulerPID::update(
   const kdl::Euler& cur_rpy,
   const kdl::Vector& cur_gyro,
   const kdl::Euler& tar_rpy,
@@ -48,7 +48,7 @@ kdl::Vector OrientationPid::update(
   return kdl::Vector(eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
 }
 
-bool OrientationPid::setAttitudeNaturalFrequency(double p)
+bool EulerPID::setAttitudeNaturalFrequency(double p)
 {
   if (p <= 0.)
   {
@@ -60,7 +60,7 @@ bool OrientationPid::setAttitudeNaturalFrequency(double p)
   return true;
 }
 
-bool OrientationPid::setAttitudeDampingRatio(double p)
+bool EulerPID::setAttitudeDampingRatio(double p)
 {
   if (p <= 0.)
   {
@@ -72,7 +72,7 @@ bool OrientationPid::setAttitudeDampingRatio(double p)
   return true;
 }
 
-bool OrientationPid::setAttitudeIntegralGain(double p)
+bool EulerPID::setAttitudeIntegralGain(double p)
 {
   if (p <= 0.)
   {
@@ -84,7 +84,7 @@ bool OrientationPid::setAttitudeIntegralGain(double p)
   return true;
 }
 
-bool OrientationPid::setHeadingNaturalFrequency(double p)
+bool EulerPID::setHeadingNaturalFrequency(double p)
 {
   if (p <= 0.)
   {
@@ -96,7 +96,7 @@ bool OrientationPid::setHeadingNaturalFrequency(double p)
   return true;
 }
 
-bool OrientationPid::setHeadingDampingRatio(double p)
+bool EulerPID::setHeadingDampingRatio(double p)
 {
   if (p <= 0.)
   {
@@ -108,7 +108,7 @@ bool OrientationPid::setHeadingDampingRatio(double p)
   return true;
 }
 
-bool OrientationPid::setHeadingIntegralGain(double p)
+bool EulerPID::setHeadingIntegralGain(double p)
 {
   if (p <= 0.)
   {

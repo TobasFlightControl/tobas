@@ -4,10 +4,10 @@
 
 namespace tobas
 {
-class OrientationPid
+class EulerPID
 {
 public:
-  explicit OrientationPid();
+  explicit EulerPID();
 
   kdl::Vector update(
     const kdl::Euler& cur_rpy,
@@ -34,7 +34,7 @@ private:
   kdl::Vector ei_ = kdl::Vector::Zero();
 };
 
-inline kdl::Vector OrientationPid::integralError() const
+inline kdl::Vector EulerPID::integralError() const
 {
   return ei_;
 }
