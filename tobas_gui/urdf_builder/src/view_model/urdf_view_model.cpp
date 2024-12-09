@@ -124,9 +124,6 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
   if (link_name.empty())
     throw runtime_error("Link name cannot be empty.");
 
-  if (joint_name.empty())
-    throw runtime_error("Joint name cannot be empty.");
-
   if (urdf_->links_.find(link_name) != urdf_->links_.end())
     throw runtime_error("Link \"" + link_name + "\" already exists.");
 
@@ -147,6 +144,9 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
   }
   else
   {
+    if (joint_name.empty())
+      throw runtime_error("Joint name cannot be empty.");
+
     if (urdf_->links_.find(parent_link_name) == urdf_->links_.end())
       throw runtime_error("Parent link \"" + parent_link_name + "\" does not exist.");
 
