@@ -8,10 +8,14 @@ rm -rf ~/.cache/*
 rm -rf ~/.emacs.d/*
 rm -rf ~/.vscode-server/*
 rm -rf ~/.ros/*
+rm .bash_history*
 
 # Remove personal information
 rm -rf ~/.gnupg/*
 rm -rf ~/.ssh/*
+
+# Remove developer workspace
+sudo rm ~/colcon_ws
 
 # Clean user workspace
 cd /etc/tobas/colcon_ws/
