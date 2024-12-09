@@ -3,7 +3,7 @@
 #include <vector>
 #include <eigen3/Eigen/Core>
 
-namespace eigen_tools
+namespace eigen
 {
 /**
  * @brief ブロック対角行列を作る．
@@ -170,26 +170,11 @@ bool isClose(
  *
  * @tparam Derived
  * @param A 対称化する行列
- * @param method 0: 元の行列とその転置の和を2で割る, 1: 下三角部分を上三角部分にコピー
  */
 template <typename Derived>
-void symmetrise(Eigen::MatrixBase<Derived>& A, const uint8_t& method = 0)
+inline void symmetrise(Eigen::MatrixBase<Derived>& A)
 {
-  assert(isSquare(A));
-
-  switch (method)
-  {
-    case 0:
-      A = (A + A.transpose()) / 2;
-      break;
-    case 1:
-      for (Eigen::Index i = 0; i < A.rows(); ++i)
-        for (Eigen::Index j = i + 1; j < A.cols(); ++j)
-          A(i, j) = A(j, i);
-      break;
-    default:
-      throw std::runtime_error("Invalid method: " + std::to_string(method));
-  }
+  A = (A + A.transpose()) / 2;
 }
 
 /* 行方向に平均を計算する． */
@@ -240,4 +225,4 @@ inline Scalar variance(const Eigen::Matrix<Scalar, Rows, 1>& A)
 {
   return varianceCol(A)(0);
 }
-}  // namespace eigen_tools
+}  // namespace eigen

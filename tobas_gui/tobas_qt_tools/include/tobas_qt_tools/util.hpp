@@ -11,7 +11,10 @@ namespace qt
 void blockSignalsRec(QObject* obj, bool block);
 
 /* ウィジェットをレイアウトの中央に追加する． */
-void addWidgetCenter(QWidget* widget, QVBoxLayout* rows);
+void addWidgetCenter(QWidget* widget, QVBoxLayout* rows, int stretch = 0);
+
+/* ウィジェットをレイアウトの中央に追加する． */
+void addWidgetCenter(QWidget* widget, QHBoxLayout* cols, int stretch = 0);
 
 /* 幅固定のQVBoxLayoutを作成する． */
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent);

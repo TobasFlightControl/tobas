@@ -2,10 +2,12 @@ uint32 channel
 string link_name
 uint8 direction
 uint8 axis
-uint8 esc_mode
 uint32 num_poles
+float64 propeller_diameter
+float64 kv
+float64 internal_resistance
 float64 max_rot_speed
 float64 motor_constant
 float64 moment_constant
 float64 drag_constant
-tobas_std_msgs/PairFloat64 rot_speed_coefs
+string tilt_joint_name

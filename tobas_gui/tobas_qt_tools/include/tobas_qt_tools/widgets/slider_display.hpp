@@ -21,13 +21,16 @@ public:
   explicit IntSliderDisplay(QWidget* parent = nullptr);
 
   int getValue() const;
-  void setValue(int value, bool block_signal = false);
+  int getMinimum() const;
+  int getMaximum() const;
+  QString getText() const;
+  QString getSuffix() const;
 
-  void setText(const QString& text);
+  void setValue(int value, bool block_signal = false);
   void setMinimum(int minimum);
   void setMaximum(int maximum);
+  void setText(const QString& text);
   void setSuffix(const QString& suffix);
-  void setCenterValue(bool block_signal = false);
 
 private Q_SLOTS:
   void onSliderValueChanged(int value);
@@ -54,13 +57,16 @@ public:
   explicit DoubleSliderDisplay(int decimals = 6, QWidget* parent = nullptr);
 
   double getValue() const;
-  void setValue(double value, bool block_signal = false);
+  double getMinimum() const;
+  double getMaximum() const;
+  QString getText() const;
+  QString getSuffix() const;
 
-  void setText(const QString& text);
+  void setValue(double value, bool block_signal = false);
   void setMinimum(double minimum);
   void setMaximum(double maximum);
+  void setText(const QString& text);
   void setSuffix(const QString& suffix);
-  void setCenterValue(bool block_signal = false);
 
 private Q_SLOTS:
   void onSliderValueChanged(double value);

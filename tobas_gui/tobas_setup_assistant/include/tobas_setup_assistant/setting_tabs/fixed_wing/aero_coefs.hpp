@@ -19,8 +19,8 @@ class AerodynamicsCoefficientsWidget : public BaseSelectedLinkSettingWidget
   using self = AerodynamicsCoefficientsWidget;
   using super = BaseSelectedLinkSettingWidget;
 
-  static constexpr int kButtonWidth = 150;
-  static constexpr int kButtonHeight = 30;
+  static constexpr int kButtonWidth = 180;
+  static constexpr int kButtonHeight = 60;
   static constexpr char kLastOpenedDirKey[] = "aerodynamics/last_opened_dir";
 
 public:

@@ -1,19 +1,18 @@
-#include <sensor_msgs/msg/joint_state.hpp>
+#include <ranges>
 
-#include <tobas_std_tools/zip.hpp>
-#include <tobas_kdl/treejointstateconverter.hpp>
-#include <tobas_kdl/treeactivejointsextractor.hpp>
-#include <tobas_kdl/treejntspacepid.hpp>
-#include <tobas_kdl/treetaskspacepid.hpp>
+#include <tobas_kdl/tree_active_joints_extractor.hpp>
+#include <tobas_kdl/tree_jntspace_pid.hpp>
+#include <tobas_kdl/tree_taskspace_pid.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/tf_listener.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_tools/tree_joint_state_converter.hpp>
 
 #include <tobas_msgs/msg/joint_command_array.hpp>
-#include <tobas_msgs_adapter/LinkStateArray.hpp>
-#include <tobas_kdl_msgs_adapter/Tree.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_msgs_adapter/link_state_array.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 #include "../include/tobas_manipulation/constants.hpp"
 #include "../include/tobas_manipulation/util.hpp"
@@ -29,18 +28,15 @@ public:
   explicit EffortControllerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  tobas::Drone drone_;
+  tobas::Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
 
-  kdl::TreeJointStateConverter cur_js_conv_;
-  kdl::TreeJointStateConverter tar_js_conv_;
+  tobas::TreeJointStateConverter cur_js_conv_;
+  tobas::TreeJointStateConverter tar_js_conv_;
   kdl::TreeActiveJointsExtractor active_jnts_extractor_;
   kdl::TreeJntSpacePID pid_js_;
   kdl::TreeTaskSpacePID pid_ts_;
 
-  bool is_initialized_ = false;
-  bool drone_received_ = false;
-  bool tree_received_ = false;
   ros2::TransformListener::SharedPtr tf_listener_;
   sensor_msgs::msg::JointState home_js_;
 
@@ -58,6 +54,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
 
   // Timer
+  ros2::TimerPtr initialize_timer_;
   ros2::TimerPtr auto_reset_timer_;
 
   void initialize();
@@ -95,6 +92,14 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
     pid_js_(tree_),
     pid_ts_(tree_)
 {
+  initialize_timer_ = createTimer(0s, &self::initialize, this);
+}
+
+void EffortControllerNode::initialize()
+{
+  // shared_from_thisはコンストラクタでは呼べない
+  tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
+
   addDynamicDoubleParam("joint_stiffness", &self::jointStiffnessCb, this, 25., 0.1, 100.);
   addDynamicDoubleParam("joint_damping", &self::jointDamping, this, 10., 0.1, 20.);
   addDynamicDoubleParam("linear_stiffness", &self::linearStiffnessCb, this, 25., 0.1, 100.);
@@ -111,34 +116,8 @@ EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
   tar_ls_sub_ = createSubscriber(tobas::kEffCtrlLSTopic, &self::targetLinkStateCb, this);
 
   auto_reset_timer_ = createTimer(manipulation::kAutoResetTimeThresh, &self::autoResetTimerCb, this, false);
-}
 
-void EffortControllerNode::initialize()
-{
-  tf_listener_ = std::make_shared<ros2::TransformListener>(shared_from_this());
-
-  cur_js_conv_.updateInternalDataStructures();
-  tar_js_conv_.updateInternalDataStructures();
-  active_jnts_extractor_.updateInternalDataStructures();
-  pid_js_.updateInternalDataStructures();
-  pid_ts_.updateInternalDataStructures();
-
-  // 力指令タイプの関節のホームポジションを取得
-  for (const auto& [jnt_name, jnt_cfg] : drone_.joints)
-  {
-    if (jnt_cfg.interface != tobas::joint_interface_t::EFFORT)
-      continue;
-    home_js_.name.push_back(jnt_name);
-    home_js_.position.push_back(jnt_cfg.home_pos);
-    home_js_.velocity.push_back(0.);
-    home_js_.effort.push_back(0.);
-  }
-
-  // ホームポジションを初期目標状態に設定
-  if (home_js_.name.size() > 0)
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
-
-  is_initialized_ = true;
+  initialize_timer_->cancel();
 }
 
 bool EffortControllerNode::jointSpaceControl(
@@ -179,8 +158,20 @@ bool EffortControllerNode::jointSpaceControl(
   }
 
   // Fill output message
-  for (const auto& [name, eff] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
+  for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
   {
+    const auto& joint = drone_->joints.at(name);
+    if (joint.interface != tobas::joint_interface_t::EFFORT)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
+      continue;
+    }
+    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    {
+      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+
     efforts_msg.commands.emplace_back();
     efforts_msg.commands.back().name = name;
     efforts_msg.commands.back().data = eff;
@@ -243,8 +234,20 @@ bool EffortControllerNode::taskSpaceControl(
   }
 
   // Fill output message
-  for (const auto& [name, eff] : tobas_std::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
+  for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
   {
+    const auto& joint = drone_->joints.at(name);
+    if (joint.interface != tobas::joint_interface_t::EFFORT)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
+      continue;
+    }
+    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    {
+      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+
     efforts_msg.commands.emplace_back();
     efforts_msg.commands.back().name = name;
     efforts_msg.commands.back().data = eff;
@@ -321,27 +324,73 @@ bool EffortControllerNode::angularDampingCb(const double& p)
 
 void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  drone_ = *drone;
-  drone_received_ = true;
+  drone_ = drone;
 
-  if (tree_received_)
-    initialize();
+  home_js_.name.clear();
+  home_js_.position.clear();
+  home_js_.velocity.clear();
+  home_js_.effort.clear();
+
+  // 力指令タイプの関節のホームポジションを取得
+  for (const auto& [jnt_name, jnt_cfg] : drone->joints)
+  {
+    if (jnt_cfg.interface != tobas::joint_interface_t::EFFORT)
+      continue;
+    if (jnt_cfg.role != tobas::joint_role_t::MANIPULATION)
+      continue;
+    home_js_.name.push_back(jnt_name);
+    home_js_.position.push_back(jnt_cfg.home_pos);
+    home_js_.velocity.push_back(0.);
+    home_js_.effort.push_back(0.);
+  }
+
+  // ホームポジションを初期目標状態に設定
+  if (home_js_.name.size() > 0)
+    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
 }
 
 void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
-  tree_received_ = true;
 
-  if (drone_received_)
-    initialize();
+  if (!cur_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
+    tree_.clear();
+    return;
+  }
+  if (!tar_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
+    tree_.clear();
+    return;
+  }
+  if (!active_jnts_extractor_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of active joints extractor.");
+    tree_.clear();
+    return;
+  }
+  if (!pid_js_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of joint space PID.");
+    tree_.clear();
+    return;
+  }
+  if (!pid_ts_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of task space PID.");
+    tree_.clear();
+    return;
+  }
 }
 
 void EffortControllerNode::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js)
 {
-  if (!is_initialized_)
+  if (tree_.getNrOfJoints() == 0)
     return;
-
+  if (home_js_.name.size() == 0)
+    return;
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
 

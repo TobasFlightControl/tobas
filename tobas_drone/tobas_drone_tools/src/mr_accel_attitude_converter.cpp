@@ -11,34 +11,25 @@ using namespace std;
 
 namespace tobas
 {
-AccelAttitudeConverter::AccelAttitudeConverter(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), dynamics_(drone, tree), grav_W_(0, 0, tobas_std::kGravity), zero_(kdl::Vector::Zero())
+AccelAttitudeConverter::AccelAttitudeConverter(const kdl::Tree& tree)
+  : mass_holder_(tree), grav_W_(0, 0, -tobas_std::kGravity)
 {
-  updateInternalDataStructures();
 }
 
-void AccelAttitudeConverter::updateInternalDataStructures()
+bool AccelAttitudeConverter::updateInternalDataStructures()
 {
-  dynamics_.updateInternalDataStructures();
+  return mass_holder_.updateInternalDataStructures();
 }
 
 void AccelAttitudeConverter::update(
   const kdl::Rotation& cur_rot,
-  const kdl::Vector& cur_vel_B,
-  const kdl::Vector& cur_wind_W,
-  const vector<double>& cur_rotor_speeds,
   const kdl::Vector& tar_acc_W,
   double& thrust_out,
   double& roll_out,
   double& pitch_out)
 {
-  // 現在の空気効力
-  // TODO: 本来は空気効力に含まれる姿勢も未知数として扱う必要がある
-  const auto air_drag_W = cur_rot * dynamics_.horizontalForce(cur_rot, cur_vel_B, cur_wind_W, cur_rotor_speeds);
-
   // 並進EoMの左辺
-  const auto& mass = dynamics_.mass();
-  const auto xyz = mass * (tar_acc_W + grav_W_) - h_force_comp_rate_ * air_drag_W;
+  const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_);
   auto x = xyz.x();
   auto y = xyz.y();
   const auto& z = xyz.z();
@@ -58,16 +49,6 @@ void AccelAttitudeConverter::update(
   thrust_out = z / (cos(roll_) * cos(pitch_));  // 現在の姿勢でZ軸加速度を満たす解
 }
 
-void AccelAttitudeConverter::update(
-  const kdl::Rotation& cur_rot,
-  const kdl::Vector& tar_acc_W,
-  double& thrust_out,
-  double& roll_out,
-  double& pitch_out)
-{
-  update(cur_rot, zero_, zero_, vector<double>(drone_.numRotors(), 0), tar_acc_W, thrust_out, roll_out, pitch_out);
-}
-
 bool AccelAttitudeConverter::setMaxAttitude(double p)
 {
   if (p <= 0.)
@@ -77,18 +58,6 @@ bool AccelAttitudeConverter::setMaxAttitude(double p)
   }
 
   max_attitude_ = p;
-  return true;
-}
-
-bool AccelAttitudeConverter::setHForceCompRate(double p)
-{
-  if (p < 0. || 1. < p)
-  {
-    cerr << "H-Force compensate rate must be in range of [0, 1]." << endl;
-    return false;
-  }
-
-  h_force_comp_rate_ = p;
   return true;
 }
 }  // namespace tobas

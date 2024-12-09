@@ -17,15 +17,18 @@ StateEstimator::StateEstimator(const kdl::Tree& tree, const vector<string>& foot
     kf_(cont_.stateSize(), cont_.inputSize(), 6 + 4 * nc_, cont_.stateSize()),
     c2d_(cont_.stateSize(), cont_.inputSize())
 {
-  updateInternalDataStructures();
+  initializeKalmanFilter();
 }
 
-void StateEstimator::updateInternalDataStructures()
+bool StateEstimator::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  cont_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!cont_.updateInternalDataStructures())
+    return false;
 
   initializeKalmanFilter();
+  return true;
 }
 
 bool StateEstimator::configure(const StateEstimatorConfig& cfg)

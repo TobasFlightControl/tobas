@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_kdl/quaternion.hpp>
-#include <tobas_kdl/treefksolvervel.hpp>
+#include <tobas_kdl/tree_fk_solver_vel.hpp>
 #include <tobas_linear_control/kalman_filter.hpp>
 #include <tobas_linear_control/c2d/rk4.hpp>
 
@@ -33,7 +33,7 @@ class StateEstimator
 public:
   explicit StateEstimator(const kdl::Tree& tree, const std::vector<std::string>& foot_names);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   bool configure(const StateEstimatorConfig& cfg);
 

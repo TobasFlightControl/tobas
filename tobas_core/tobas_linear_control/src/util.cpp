@@ -55,7 +55,7 @@ bool isControllable(const MatrixXd& A, const MatrixXd& B)
 {
   const auto x_size = A.rows();
   const auto Mc = ctrb(A, B);
-  const auto rank = eigen_tools::matrixRank(Mc);
+  const auto rank = eigen::matrixRank(Mc);
   return rank == x_size;
 }
 
@@ -63,7 +63,7 @@ bool isObservable(const MatrixXd& A, const MatrixXd& C)
 {
   const auto x_size = A.rows();
   const auto Mo = obsv(A, C);
-  const auto rank = eigen_tools::matrixRank(Mo);
+  const auto rank = eigen::matrixRank(Mo);
   return rank == x_size;
 }
 

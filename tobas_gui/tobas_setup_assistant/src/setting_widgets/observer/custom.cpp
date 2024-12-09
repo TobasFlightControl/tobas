@@ -1,5 +1,8 @@
 #include <QVBoxLayout>
 
+#include <tobas_yaml_tools/convert/qstring.hpp>
+#include <tobas_qt_tools/message.hpp>
+
 #include "tobas_setup_assistant/setting_tabs/observer/custom.hpp"
 
 namespace gui
@@ -10,6 +13,12 @@ CustomObserverWidget::CustomObserverWidget()
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
+
+  package_ = new ParamGetterWidget_LineEdit("Observer Package Name", "");
+  rows->addWidget(package_);
+
+  plugin_ = new ParamGetterWidget_LineEdit("Observer Plugin Name", "");
+  rows->addWidget(plugin_);
 
   rows->addStretch();
 }
@@ -24,9 +33,14 @@ const char* CustomObserverWidget::description() const
   return "";  // TODO: APIの案内など
 }
 
-const char* CustomObserverWidget::observerPackage() const
+QString CustomObserverWidget::observerPackage() const
 {
-  return "tobas_dummy_pkg";
+  return package_->getValue();
+}
+
+QString CustomObserverWidget::pluginName() const
+{
+  return plugin_->getValue();
 }
 
 YAML::Node CustomObserverWidget::staticParams() const
@@ -36,15 +50,34 @@ YAML::Node CustomObserverWidget::staticParams() const
 
 YAML::Node CustomObserverWidget::dump() const
 {
-  return YAML::Node(YAML::NodeType::Map);
+  YAML::Node node(YAML::NodeType::Map);
+
+  node[package_->name()] = package_->getValue();
+  node[plugin_->name()] = plugin_->getValue();
+
+  return node;
 }
 
-void CustomObserverWidget::load(const YAML::Node&)
+void CustomObserverWidget::load(const YAML::Node& node)
 {
+  package_->setValue(node[package_->name()].as<QString>());
+  plugin_->setValue(node[plugin_->name()].as<QString>());
 }
 
 bool CustomObserverWidget::isValid()
 {
+  if (package_->getValue().isEmpty())
+  {
+    qt::qErrorBox(this, "Please specify custom observer package name.");
+    return false;
+  }
+
+  if (plugin_->getValue().isEmpty())
+  {
+    qt::qErrorBox(this, "Please specify custom observer plugin name.");
+    return false;
+  }
+
   return true;
 }
 }  // namespace setup_assistant

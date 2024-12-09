@@ -19,10 +19,14 @@ LinearDynamics::LinearDynamics(const kdl::Tree& tree, const vector<string>& foot
   A(kVelZIdx, kGravIdx) = -1;
 }
 
-void LinearDynamics::updateInternalDataStructures()
+bool LinearDynamics::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 void LinearDynamics::update(
@@ -74,7 +78,7 @@ void LinearDynamics::updateB(
 
       const auto& B_Pos_BC = fk_solver_.getFrame().p;
       const auto B_Pos_GC = B_Pos_BC - B_Pos_BG;
-      B.block<3, 3>(kGyroXIdx, forceIndex(l)) = R_I_inv * eigen_tools::crossMat(B_Pos_GC.data) * B_Rot_F.data;
+      B.block<3, 3>(kGyroXIdx, forceIndex(l)) = R_I_inv * eigen::skew(B_Pos_GC.data) * B_Rot_F.data;
       B.block<3, 1>(kGyroXIdx, torqueIndex(l)) = F_Ins_inv_z;
       B.block<3, 3>(kVelXIdx, forceIndex(l)).diagonal().fill(1 / mass);
     }

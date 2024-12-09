@@ -39,7 +39,7 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   // 使用するプロパティを取得
   enable_visual_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Visual Enabled"));
   enable_collision_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Collision Enabled"));
-  enable_inertia_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Inertia Enabled"));
+  enable_inertia_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Inertial Enabled"));
   highlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Highlight Link"));
   unhighlight_link_ = qobject_cast<rviz_common::properties::StringProperty*>(display_->subProp("Unhighlight Link"));
   reload_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Reload"));
@@ -53,7 +53,7 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   visual_box->setChecked(kDefaultVisualEnabled);
   const auto collision_box = new QCheckBox("Show Collision");
   collision_box->setChecked(kDefaultCollisionEnabled);
-  const auto inertia_box = new QCheckBox("Show Inertia");
+  const auto inertia_box = new QCheckBox("Show Inertial");
   inertia_box->setChecked(kDefaultInertiaEnabled);
 
   // レイアウト

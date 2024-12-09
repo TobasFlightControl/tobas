@@ -54,9 +54,6 @@ ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 
 void ParameterTuningWidget::reset()
 {
-  tbs_path_.clear();
-  drone_ = tobas::Drone();
-
   load_button_->setEnabled(false);
   save_button_->setEnabled(false);
   reset_button_->setEnabled(false);

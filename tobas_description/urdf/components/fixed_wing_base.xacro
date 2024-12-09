@@ -103,12 +103,7 @@
       <collision>
         <xacro:insert_block name="link_origin"/>
         <geometry>
-          <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="1 1 1"/>
-          </xacro:if>
-          <xacro:unless value="${use_mesh_file}">
-            <box size="${surface_length} ${surface_width} ${surface_height}"/>
-          </xacro:unless>
+          <box size="${surface_length} ${surface_width} ${surface_height}"/>
         </geometry>
       </collision>
     </link>
@@ -130,7 +125,7 @@
       mesh_file
       *origin
       *inertia">
-    <joint name="${robot_namespace}/propeller_{suffix}_joint" type="continuous">
+    <joint name="${robot_namespace}/propeller_${suffix}_joint" type="continuous">
       <xacro:insert_block name="origin"/>
       <axis xyz="0 0 1"/>
       <parent link="${parent}"/>
@@ -154,12 +149,7 @@
       </visual>
       <collision>
         <geometry>
-          <xacro:if value="${use_mesh_file}">
-            <mesh filename="${mesh_file}" scale="${propeller_radius} ${propeller_radius} ${propeller_radius}"/>
-          </xacro:if>
-          <xacro:unless value="${use_mesh_file}">
-            <cylinder length="0.005" radius="${propeller_radius}"/>
-          </xacro:unless>
+          <cylinder length="0.005" radius="${propeller_radius}"/>
         </geometry>
       </collision>
     </link>

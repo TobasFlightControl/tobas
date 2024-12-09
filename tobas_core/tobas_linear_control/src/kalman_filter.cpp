@@ -44,7 +44,7 @@ void KalmanFilter::setZero()
 void KalmanFilter::initialize(const VectorXd& init_x, const MatrixXd& init_P)
 {
   assert(init_x.size() == init_P.rows());
-  assert(eigen_tools::isSymmetricSemiPositiveDefinite(init_P));
+  assert(eigen::isSymmetricSemiPositiveDefinite(init_P));
 
   x_ = init_x;
   P_ = init_P;
@@ -66,7 +66,7 @@ void KalmanFilter::update()
   P_ = I_GC * P_prev * I_GC.transpose() + G * R * G.transpose();  // Joseph form
 
   // 強制対称化
-  eigen_tools::symmetrise(P_);
+  eigen::symmetrise(P_);
 }
 
 void KalmanFilter::verify() const
@@ -78,15 +78,15 @@ void KalmanFilter::verify() const
   assert(y.size() == outputSize());
   assert(u.size() == inputSize());
   assert(ss.isFinite());
-  assert(eigen_tools::isFinite(Bv));
-  assert(eigen_tools::isFinite(Q));
-  assert(eigen_tools::isFinite(R));
-  assert(eigen_tools::isFinite(y));
-  assert(eigen_tools::isFinite(u));
+  assert(eigen::isFinite(Bv));
+  assert(eigen::isFinite(Q));
+  assert(eigen::isFinite(R));
+  assert(eigen::isFinite(y));
+  assert(eigen::isFinite(u));
   assert(ctrl::isControllable(ss.A, Bv));  // FIXME: 本当は可安定で十分
   assert(ctrl::isObservable(ss.A, ss.C));  // FIXME: 本当は可検出で十分
-  assert(eigen_tools::isSymmetricSemiPositiveDefinite(Q));
-  assert(eigen_tools::isSymmetricPositiveDefinite(R));
+  assert(eigen::isSymmetricSemiPositiveDefinite(Q));
+  assert(eigen::isSymmetricPositiveDefinite(R));
 }
 
 IdentityKalmanFilter::IdentityKalmanFilter(const Index& size)

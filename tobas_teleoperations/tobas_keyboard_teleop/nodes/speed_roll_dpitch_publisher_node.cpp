@@ -1,5 +1,3 @@
-#include <sensor_msgs/msg/fluid_pressure.hpp>
-
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
@@ -9,9 +7,10 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_tools/fw_trim_conditions.hpp>
 
-#include <tobas_kdl_msgs_adapter/Tree.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
+#include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
@@ -72,7 +71,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::FluidPressure> air_pressure_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> air_pressure_sub_;
 
   // Timer
   ros2::TimerPtr process_timer_;
@@ -80,11 +79,11 @@ private:
   ros2::TimerPtr instruction_timer_;
 
   void getStaticRosParams();
-  void initialize();
+  bool initialize();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg);
+  void airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& msg);
 
   void mainTimerCb();
   void checkTopicsTimerCb();
@@ -125,9 +124,14 @@ void SpeedRollDeltaPitchPublisherNode::getStaticRosParams()
   TOBAS_ASSERT(max_delta_pitch_ > 0);
 }
 
-void SpeedRollDeltaPitchPublisherNode::initialize()
+bool SpeedRollDeltaPitchPublisherNode::initialize()
 {
-  trim_.updateInternalDataStructures();
+  if (!trim_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of trim condition.");
+    return false;
+  }
+
   q_0_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
 
   cmd_.speed = trim_.takeOffSpeed(air_density_);
@@ -137,6 +141,8 @@ void SpeedRollDeltaPitchPublisherNode::initialize()
   // インストラクションの表示を開始
   cout << kInstruction << endl;
   instruction_timer_ = createTimer(kInstructionTimerPeriod, &self::instructionTimerCb, this);
+
+  return true;
 }
 
 void SpeedRollDeltaPitchPublisherNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -151,9 +157,10 @@ void SpeedRollDeltaPitchPublisherNode::treeCb(const kdl::Tree::ConstSharedPtr& t
   tree_received_ = true;
 }
 
-void SpeedRollDeltaPitchPublisherNode::airPressureCb(const sensor_msgs::msg::FluidPressure::ConstSharedPtr& msg)
+void SpeedRollDeltaPitchPublisherNode::airPressureCb(
+  const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& msg)
 {
-  air_density_ = tobas_std::pressureToDensity(msg->fluid_pressure);
+  air_density_ = tobas_std::pressureToDensity(msg->pressure.pressure);
   pressure_received_ = true;
 }
 
@@ -163,8 +170,9 @@ void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
   {
     if (drone_received_ && tree_received_ && pressure_received_)
     {
+      if (!initialize())
+        return;
       check_topics_timer_->cancel();
-      initialize();
       is_initialized_ = true;
     }
     return;

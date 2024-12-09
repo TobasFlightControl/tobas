@@ -1,5 +1,4 @@
 #include <tobas_std_tools/unit_conversions.hpp>
-#include <tobas_std_tools/zip.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -19,38 +18,44 @@ RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tob
 
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
-  speeds_sub_ = nullptr;
+  rotor_states_sub_ = nullptr;
 
   meters_.clear();
   qt::clearLayout(cols_);
 
-  for (const auto& rotor : drone_.rotors)
+  for (const auto& [_, rotor] : drone_.rotors)
   {
     const auto meter = new SpeedmeterWidget();
     meter->setMaximumValue(tobas_std::rps2rpm(rotor.max_rot_speed));
-    meter->setTopText(rotor.link_name.c_str());
+    meter->setTopText(QString::fromStdString(rotor.link_name));
     meter->setBottomText(bottomText(0));
 
-    meters_.push_back(meter);
+    meters_[rotor.channel] = meter;
     cols_->addWidget(meter);
   }
 
-  speeds_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsTopic), &self::speedsCb, this);
+  rotor_states_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
 }
 
-void RotorsViewerWiddget::speedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& speeds)
+void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
-  if (speeds->speeds.size() != meters_.size())
+  for (const auto& state : states->states)
   {
-    RCLCPP_WARN_STREAM(
-      node_->get_logger(), "Rotor speeds size mismathch: " << speeds->speeds.size() << " != " << meters_.size());
-    return;
-  }
+    if (!meters_.contains(state.channel))
+      continue;
 
-  for (const auto& [meter, speed] : tobas_std::zip(meters_, speeds->speeds))
-  {
-    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(speed));
+    const auto& meter = meters_.at(state.channel);
+
+    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+    {
+      meter->setBackgroundColor("red");
+      continue;
+    }
+
+    meter->setBackgroundColor("transparent");
+
+    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(state.speed));
     meter->setValue(speed_rpm);
     meter->setBottomText(bottomText(speed_rpm));
   }

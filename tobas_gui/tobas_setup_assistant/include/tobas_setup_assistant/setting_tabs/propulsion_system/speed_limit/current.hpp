@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./base.hpp"
-#include "../electrodynamics/electrodynamics.hpp"
+#include "../motor.hpp"
 #include "../aerodynamics/aerodynamics.hpp"
 
 namespace gui
@@ -21,7 +21,7 @@ class SpeedLimitWidget_Current : public SpeedLimitWidget_Base
   Q_OBJECT
 
 public:
-  explicit SpeedLimitWidget_Current(ElectrodynamicsWidget* electrodynamics, AerodynamicsWidget* aerodynamics);
+  explicit SpeedLimitWidget_Current(MotorWidget* motor, AerodynamicsWidget* aerodynamics);
 
   const char* name() const override;
 
@@ -32,7 +32,7 @@ public:
   double maxRotSpeed() const override;
 
 private:
-  ElectrodynamicsWidget* electrodynamics_;
+  MotorWidget* motor_;
   AerodynamicsWidget* aerodynamics_;
 };
 }  // namespace propulsion_system

@@ -1,6 +1,6 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/standard_atmosphere.hpp>
-#include <tobas_std_tools/assert.hpp>
+#include <tobas_std_tools/console.hpp>
 
 #include "../include/tobas_drone_tools/fw_trim_conditions.hpp"
 #include "../include/tobas_drone_tools/utils/fixed_wing_tools.hpp"
@@ -13,28 +13,68 @@ TrimConditions::TrimConditions(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), inertia_solver_(tree), asd_cog_(drone, tree)
 {
   if (drone.fixed_wing.equipped)
-    updateInternalDataStructures();
+    if (!updateInternalDataStructures())
+      PRINT_ERROR("Failed to update internal data structures.");
 }
 
-void TrimConditions::updateInternalDataStructures()
+bool TrimConditions::updateInternalDataStructures()
 {
-  inertia_solver_.updateInternalDataStructures();
-  asd_cog_.updateInternalDataStructures();
+  // Check drone configuration
+  if (!drone_.fixed_wing.equipped)
+  {
+    cerr << "The drone is not equipped with fixed wing." << endl;
+    return false;
+  }
+  if (drone_.numControlSurfaces() == 0)
+  {
+    cerr << "The drone must have at least 1 control surfaces." << endl;
+    return false;
+  }
 
+  // Update solvers
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!asd_cog_.updateInternalDataStructures())
+    return false;
+
+  // Set mass
   if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  {
+    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
+    return false;
+  }
   W_ = inertia_solver_.getInertia().getMass() * tobas_std::kGravity;
 
-  setElevatorIndex();
+  // Set elevator index
+  auto max_c_pitch_delta = numeric_limits<double>::lowest();
+  for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
+  {
+    if (fabs(cs.c_pitch_delta) > max_c_pitch_delta)
+    {
+      max_c_pitch_delta = fabs(cs.c_pitch_delta);
+      elev_channel_ = channel;
+    }
+  }
 
+  // Set coefficients
   const auto& aero = drone_.fixed_wing.aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_idx_);
-
+  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_channel_);
   const auto ml_raito = elev_cs.c_lift_delta / elev_cs.c_pitch_delta;
   a_ = aero.c_lift_alpha - aero.c_pitch_alpha * ml_raito;
   b_ = aero.c_lift_0 - aero.c_pitch_0 * ml_raito;
-  assert(a_ > 0);
-  assert(b_ > 0);
+
+  if (a_ <= 0.)
+  {
+    cerr << "The aerodynamic coefficient \"a\" must be positive." << endl;
+    return false;
+  }
+  if (b_ <= 0.)
+  {
+    cerr << "The aerodynamic coefficient \"b\" must be positive." << endl;
+    return false;
+  }
+
+  return true;
 }
 
 int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
@@ -73,14 +113,14 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
 
   // エイリアス
   const auto& aero = drone_.fixed_wing.aerodynamics;
-  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_idx_);
+  const auto& elev_cs = drone_.fixed_wing.control_surfaces.at(elev_channel_);
 
   // CoGまわりの安定微係数
   asd_cog_.update(q);
   if (updateError(asd_cog_) <= E_ERROR)
     return error_code_;
   const auto& c_pitch_alpha_cg = asd_cog_.cPitchAlpha();
-  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_idx_);
+  const auto& c_pitch_elev_cg = asd_cog_.cPitchDelta(elev_channel_);
   if (c_pitch_elev_cg == 0)
   {
     error_msg_ = "The stability derivative of the elevator w.r.t. the pitch angle is zero.";
@@ -95,7 +135,7 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
   alpha_ = (c_L_ - b_) / a_;                                                    // (2.9-49)
   elevator_ = -(aero.c_pitch_0 + c_pitch_alpha_cg * alpha_) / c_pitch_elev_cg;  // (2.9-46)
   const auto c_D_alpha = aero.c_drag_0 + aero.c_drag_alpha * alpha_;            // TODO: 2次以上も考慮
-  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * abs(elevator_);                 // (1.8-3)
+  c_D_ = c_D_alpha + elev_cs.c_drag_abs_delta * fabs(elevator_);                // (1.8-3)
   c_T_ = c_D_ / cos(alpha_);                                                    // (2.2-10b)
 
   // その他依存変数
@@ -110,14 +150,14 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
     }
     alpha_ = drone_.fixed_wing.vehicle.alpha_limit.clamp(alpha_);
   }
-  if (!drone_.fixed_wing.control_surfaces.at(elev_idx_).angle_limit.inRange(elevator_))
+  if (!drone_.fixed_wing.control_surfaces.at(elev_channel_).angle_limit.inRange(elevator_))
   {
     if (error_code_ > E_WARN)
     {
       error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
       error_code_ = E_WARN;
     }
-    elevator_ = drone_.fixed_wing.control_surfaces.at(elev_idx_).angle_limit.clamp(elevator_);
+    elevator_ = drone_.fixed_wing.control_surfaces.at(elev_channel_).angle_limit.clamp(elevator_);
   }
 
   return error_code_;
@@ -149,21 +189,5 @@ double TrimConditions::takeOffSpeed(const double& rho) const
   const auto c = 2 * W_ / rho / drone_.fixed_wing.vehicle.wing_surface;
   constexpr double alpha_zero = 0.;
   return sqrt(c / (a_ * alpha_zero + b_));
-}
-
-void TrimConditions::setElevatorIndex()
-{
-  assert(drone_.numControlSurfaces() > 0);
-
-  double max_c_pitch_delta = numeric_limits<double>::lowest();
-  for (size_t cs_idx = 0; cs_idx < drone_.numControlSurfaces(); ++cs_idx)
-  {
-    const auto& cs = drone_.fixed_wing.control_surfaces.at(cs_idx);
-    if (abs(cs.c_pitch_delta) > max_c_pitch_delta)
-    {
-      max_c_pitch_delta = abs(cs.c_pitch_delta);
-      elev_idx_ = cs_idx;
-    }
-  }
 }
 }  // namespace tobas

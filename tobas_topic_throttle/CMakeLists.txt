@@ -5,7 +5,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
@@ -15,6 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_real_common REQUIRED)
 
 include_directories(include)
 
@@ -24,12 +25,9 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_path_tools
 	tobas_node
 	tobas_msgs_adapter
+	tobas_real_common
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryLPFThrottleNode" EXECUTABLE battery_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "OdometryThrottleNode" EXECUTABLE odom_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "EulerThrottleNode" EXECUTABLE euler_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputThrottleNode" EXECUTABLE rc_input_throttle)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorSpeedsThrottleNode" EXECUTABLE rotor_speeds_throttle)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TopicThrottleNode" EXECUTABLE topic_throttle)
 
 install(
 	TARGETS ${PROJECT_NAME}_node

@@ -1,7 +1,5 @@
 #include <tobas_std_tools/string.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_linux/core.hpp>
-#include <tobas_linux/git.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/author_information.hpp"
@@ -13,11 +11,9 @@ namespace setup_assistant
 AuthorInformationWidget::AuthorInformationWidget()
 {
   name_ = new ParamGetterWidget_LineEdit("Name of the Maintainer", "");
-  name_->setValue(QString::fromStdString(linux::userName()));
   addWidget(name_);
 
   email_ = new ParamGetterWidget_LineEdit("Email of the Maintainer", "");
-  email_->setValue(QString::fromStdString(linux::GitHandler().getUserEmail()));
   addWidget(email_);
 
   addStretch();
@@ -55,11 +51,16 @@ bool AuthorInformationWidget::isValid()
   const auto author_name = name_->getValue();
   if (author_name.isEmpty())
   {
-    qt::qErrorBox(this, "Author name is blank.");
+    qt::qErrorBox(this, "Please specify author name.");
     return false;
   }
 
   const auto author_email = email_->getValue();
+  if (author_email.isEmpty())
+  {
+    qt::qErrorBox(this, "Please specify author email address.");
+    return false;
+  }
   if (!tobas_std::isValidEmail(author_email.toStdString()))
   {
     qt::qErrorBox(this, "Invalid email address.");

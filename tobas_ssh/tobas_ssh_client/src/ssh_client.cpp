@@ -39,7 +39,7 @@ SSHClient::error_t SSHClient::connect()
   if (!connect_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto& res = connect_sc_.getResponse();
+  const auto res = connect_sc_.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->message;
@@ -61,7 +61,7 @@ SSHClient::error_t SSHClient::execute(const string& command, string& output, boo
   if (!execute_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto& res = execute_sc_.getResponse();
+  const auto res = execute_sc_.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->error_output;
@@ -87,7 +87,7 @@ SSHClient::error_t SSHClient::scpGet(const string& remote_path, const string& lo
   if (!scp_get_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto& res = scp_get_sc_.getResponse();
+  const auto res = scp_get_sc_.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->message;
@@ -109,7 +109,7 @@ SSHClient::scpPut(const string& local_dir, const string& remote_dir, const vecto
   if (!scp_put_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto& res = scp_put_sc_.getResponse();
+  const auto res = scp_put_sc_.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->message;
@@ -128,7 +128,7 @@ SSHClient::error_t SSHClient::sftpRead(const string& remote_path, string& text, 
   if (!sftp_read_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto& res = sftp_read_sc_.getResponse();
+  const auto res = sftp_read_sc_.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->message;
@@ -149,7 +149,7 @@ SSHClient::error_t SSHClient::sftpWrite(const string& remote_path, const string&
   if (!sftp_write_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto& res = sftp_write_sc_.getResponse();
+  const auto res = sftp_write_sc_.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->message;
@@ -167,7 +167,7 @@ SSHClient::error_t SSHClient::list(const string& pardir, vector<string>& dst)
   if (!list_sc_.call(req))
     return error_code_ = E_SERVICE_NOT_READY;
 
-  const auto& res = list_sc_.getResponse();
+  const auto res = list_sc_.getResponse();
   if (!res->success)
   {
     server_error_msg_ = res->message;

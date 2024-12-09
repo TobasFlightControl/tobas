@@ -1,4 +1,5 @@
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_std_tools/console.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
@@ -6,7 +7,6 @@
 
 using namespace std;
 using namespace Eigen;
-namespace et = eigen_tools;
 
 namespace lr_tools
 {
@@ -43,10 +43,11 @@ JointSpaceDynamics::JointSpaceDynamics(
   qp_.setZero();
 
   if (tree.getNrOfJoints() > 0)
-    updateInternalDataStructures();
+    if (!updateInternalDataStructures())
+      PRINT_ERROR("Failed to update internal data structures of lr_tools::JointSpaceDynamics.");
 }
 
-void JointSpaceDynamics::updateInternalDataStructures()
+bool JointSpaceDynamics::updateInternalDataStructures()
 {
   // 浮遊リンクの名前を取得
   auto floating_base_name = floating_base_name_;
@@ -56,22 +57,33 @@ void JointSpaceDynamics::updateInternalDataStructures()
   // ベースリンク以下を抽出
   kdl::Tree base_sub_tree;
   if (!tree_raw_.getSubTree(floating_base_name, base_sub_tree))
-    throw runtime_error("Failed to get sub tree.");
+  {
+    cerr << "Failed to get sub tree." << endl;
+    return false;
+  }
 
   // ツリーに浮遊リンクを接続
   tree_ = kdl::Tree::FloatingBase("world", floating_base_name);
   if (!tree_.addTree(base_sub_tree, floating_base_name))
-    throw runtime_error("Failed to add a floating base link to the tree.");
+  {
+    cerr << "Failed to add a floating base link to the tree." << endl;
+    return false;
+  }
 
   nj_raw_ = base_sub_tree.getNrOfJoints();
   nj_ = tree_.getNrOfJoints();
   J_.resize(wrench_size_, nj_);
 
-  jac_solver_.updateInternalDataStructures();
-  rne_.updateInternalDataStructures();
-  mass_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  bb_solver_.updateInternalDataStructures();
+  if (!jac_solver_.updateInternalDataStructures())
+    return false;
+  if (!rne_.updateInternalDataStructures())
+    return false;
+  if (!mass_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!bb_solver_.updateInternalDataStructures())
+    return false;
 
   cur_q_.resize(nj_);
   cur_qd_.resize(nj_);
@@ -80,6 +92,8 @@ void JointSpaceDynamics::updateInternalDataStructures()
   qp_.x_scale.head(wrench_size_).fill(calcMass() * tobas_std::kGravity / nc_);  // TODO: 力とトルクでスケールを分ける
   qp_.x_scale.segment<3>(wrench_size_).fill(sqrt(tobas_std::kGravity * calcSizeScale()));  // フルード数に基づく
   qp_.x_scale.segment<3>(wrench_size_ + 3).fill(M_PI);
+
+  return true;
 }
 
 bool JointSpaceDynamics::configure(const JointSpaceDynamicsConfig& cfg)
@@ -88,9 +102,9 @@ bool JointSpaceDynamics::configure(const JointSpaceDynamicsConfig& cfg)
 
   A1_.block<4, 1>(2, 2).fill(-cfg.friction_coef);
   A1_.block<2, 1>(6, 2).fill(-cfg.friction_coef * cfg.foot_diameter);
-  const MatrixXd CI_left = et::blockDiag(A1_, nc_);
+  const MatrixXd CI_left = eigen::blockDiag(A1_, nc_);
   const MatrixXd CI_right = MatrixXd::Zero(kIneqSize * nc_, kBaseDoF);
-  qp_.problem.A = et::concat(CI_left, CI_right, 1);
+  qp_.problem.A = eigen::concat(CI_left, CI_right, 1);
 
   b1_st_(0) = -cfg.min_normal_force;
   b1_st_(1) = cfg.max_normal_force;
@@ -126,7 +140,7 @@ bool JointSpaceDynamics::solve(
   cur_q_(kPitchIdx) = pitch;
   cur_q_(kYawIdx) = kYawAngle;
   cur_qd_.data.segment<3>(kPosIdx) = cur_vel.data;
-  cur_qd_.data.segment<3>(kYawIdx) = et::eulerrateFromAngvelGlobal(cur_gyro.data, pitch, kYawAngle).reverse();
+  cur_qd_.data.segment<3>(kYawIdx) = eigen::eulerrateFromAngvelGlobal(cur_gyro.data, pitch, kYawAngle).reverse();
   cur_q_.data.tail(nj_raw_) = cur_q.data;
   cur_qd_.data.tail(nj_raw_) = cur_qd.data;
 
@@ -204,8 +218,8 @@ bool JointSpaceDynamics::solve(
   // 修正された地面反力と関節トルクを計算
   w_out_ = w_ref_ + w_res;
   eff_out_ = rne_.getEfforts().data - J_.transpose() * w_out_;
-  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                                       // ベースの修正分
-  assert(et::isClose(eff_out_.head<kBaseDoF>().eval(), Vector6d::Zero().eval()));  // ベースのレンチは0になるはず
+  eff_out_.head<kBaseDoF>() += Mb * qdd_res;                                          // ベースの修正分
+  assert(eigen::isClose(eff_out_.head<kBaseDoF>().eval(), Vector6d::Zero().eval()));  // ベースのレンチは0になるはず
 
   return true;
 }

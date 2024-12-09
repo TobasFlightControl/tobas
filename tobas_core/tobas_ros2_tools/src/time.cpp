@@ -13,12 +13,6 @@ void timeChronoToMsg(const chrono::steady_clock::duration& c, builtin_interfaces
   m.sec = nsec / BILLION;
   m.nanosec = nsec % BILLION;
 }
-
-void timeMsgToChrono(const builtin_interfaces::msg::Time& m, chrono::steady_clock::duration& c)
-{
-  const auto nsec = chrono::seconds(m.sec) + chrono::nanoseconds(m.nanosec);
-  c = chrono::steady_clock::duration(nsec);
-}
 }  // namespace ros2
 
 rclcpp::Duration operator-(const builtin_interfaces::msg::Time& lhs, const builtin_interfaces::msg::Time& rhs)

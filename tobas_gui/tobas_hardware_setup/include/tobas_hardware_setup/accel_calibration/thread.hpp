@@ -5,7 +5,7 @@
 #include <QThread>
 
 #include <tobas_algorithm/kahan.hpp>
-#include <tobas_hal_msgs_adapter/Imu.hpp>
+#include <tobas_msgs_adapter/imu_stamped.hpp>
 
 namespace gui
 {
@@ -18,8 +18,8 @@ class AccelCalibrationThread : public QThread
   using self = AccelCalibrationThread;
   using super = QThread;
 
-  static constexpr size_t kDataCount = 1000;
-  static constexpr double kCollectDataTimeout = 5.;  // [s]
+  static constexpr size_t kDataCount = 200;
+  static constexpr double kCollectDataTimeout = 10.;  // [s]
 
 Q_SIGNALS:
   void finished(bool success, const QString& message);
@@ -41,7 +41,7 @@ private:
   Eigen::Vector3d acc_top_;
 
   bool getAccelMean(Eigen::Vector3d& des);
-  void imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw);
+  void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
 };
 }  // namespace hardware_setup
 }  // namespace gui

@@ -97,9 +97,14 @@ void ObserverWidget::load(const YAML::Node& node)
   }
 }
 
-const char* ObserverWidget::observerPackage() const
+QString ObserverWidget::observerPackage() const
 {
   return selected()->observerPackage();
+}
+
+QString ObserverWidget::pluginName() const
+{
+  return selected()->pluginName();
 }
 
 YAML::Node ObserverWidget::staticParams() const

@@ -44,11 +44,11 @@ public:
 private:
   ParamGetterWidget_Vector3d* offset_;
   ParamGetterWidget_SpinBox* update_rate_;
-  ParamGetterWidget_DoubleSpinBox* gyro_noise_density_;
+  ParamGetterWidget_SpinBox* gyro_noise_density_;
   ParamGetterWidget_DoubleSpinBox* gyro_random_walk_;
   ParamGetterWidget_SpinBox* gyro_bias_corr_time_;
   ParamGetterWidget_DoubleSpinBox* gyro_turn_on_bias_sigma_;
-  ParamGetterWidget_DoubleSpinBox* acc_noise_density_;
+  ParamGetterWidget_SpinBox* acc_noise_density_;
   ParamGetterWidget_DoubleSpinBox* acc_random_walk_;
   ParamGetterWidget_SpinBox* acc_bias_corr_time_;
   ParamGetterWidget_DoubleSpinBox* acc_turn_on_bias_sigma_;

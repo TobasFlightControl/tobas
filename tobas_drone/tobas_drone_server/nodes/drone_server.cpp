@@ -1,21 +1,29 @@
+#include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_msgs_adapter/Drone.hpp>
-
-using namespace std;
+#include <tobas_msgs/srv/disable_rotor.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 class DroneServerNode : public tobas::BaseNode
 {
   using self = DroneServerNode;
   using super = tobas::BaseNode;
 
+  using DisableRotor = tobas_msgs::srv::DisableRotor;
+
 public:
   explicit DroneServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  ros2::PublisherPtr<tobas::Drone> drone_pub_;
+  tobas::Drone drone_;
 
-  bool fileParamCb(const string& p);
+  ros2::PublisherPtr<tobas::Drone> drone_pub_;
+  ros2::ServiceServerPtr<DisableRotor> remove_rotor_ss_;
+
+  void publishDrone();
+
+  bool fileParamCb(const std::string& p);
+  void disableRotorCb(const DisableRotor::Request::ConstSharedPtr& req, const DisableRotor::Response::SharedPtr& res);
 };
 
 DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("drone_server", options)
@@ -23,28 +31,55 @@ DroneServerNode::DroneServerNode(const rclcpp::NodeOptions& options) : super("dr
   addDynamicStringParam("tbsdrn_path", &self::fileParamCb, this);
 
   drone_pub_ = createPublisher<tobas::Drone>(tobas::kDroneTopic, true, true);
+  remove_rotor_ss_ = createService<DisableRotor>(tobas::kRemoveRotorSrv, &self::disableRotorCb, this);
 }
 
-bool DroneServerNode::fileParamCb(const string& p)
+void DroneServerNode::publishDrone()
 {
-  auto drone = std::make_unique<tobas::Drone>();
+  auto drone_msg = std::make_unique<tobas::Drone>(drone_);
+  drone_pub_->publish(move(drone_msg));
+}
 
-  if (!drone->load(p))
+bool DroneServerNode::fileParamCb(const std::string& p)
+{
+  // Load drone configuration
+  if (!drone_.load(p))
   {
     TOBAS_ERROR("Failed to load drone configurations from \"", p, "\".");
     return false;
   }
 
-  if (!drone->isValid())
+  // Check drone configuration validity
+  if (!drone_.isValid())
   {
     TOBAS_ERROR("Drone configurations are invalid.");
     return false;
   }
 
-  drone_pub_->publish(move(drone));
+  // Publish drone configuration
+  publishDrone();
 
   TOBAS_INFO("New drone configuration message is published.");
   return true;
+}
+
+void DroneServerNode::disableRotorCb(
+  const DisableRotor::Request::ConstSharedPtr& req,
+  const DisableRotor::Response::SharedPtr& res)
+{
+  if (!drone_.rotors.contains(req->channel))
+  {
+    res->success = false;
+    res->message = "Rotor channel " + std::to_string(req->channel) + " does not exist.";
+    return;
+  }
+
+  // 最大速度を0にすることでモータをアクチュエータとして使用できないようにする
+  drone_.rotors.at(req->channel).max_rot_speed = 0.;
+  publishDrone();
+
+  res->success = true;
+  res->message.clear();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(DroneServerNode)

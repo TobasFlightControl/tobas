@@ -30,27 +30,32 @@ private:
   SettingsWidget* settings_;
 
   std::shared_ptr<TemplateGenerator> meta_env_;
-  std::shared_ptr<TemplateGenerator> cfg_env_;
-  std::shared_ptr<TemplateGenerator> user_env_;
+  std::shared_ptr<TemplateGenerator> config_env_;
+  std::shared_ptr<TemplateGenerator> user_cpp_env_;
+  std::shared_ptr<TemplateGenerator> user_py_env_;
 
   /* ROS Packageのタブで指定されたTobasパッケージのパスへのエイリアス． */
   std::string tbsPath() const;
+  std::string flightActionsPackage() const;
 
   inja::json createTemplateData();
   tobas::Drone createDrone();
 
+  bool generateBackupFiles();
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);
-  bool generateUserPackage(const inja::json& data);
+  bool generateUserCppPackage(const inja::json& data);
+  bool generateUserPyPackage(const inja::json& data);
 
   bool generateControllerManagerLaunch(const std::filesystem::path& launch_dir);
   bool generateGazeboJointCommandHandlerConfig(const std::filesystem::path& config_dir);
-  bool generateJointControlConfig(const std::filesystem::path& config_dir);
+  bool generateJointControllerManagerConfig(const std::filesystem::path& config_dir);
+  bool generateJointControllerConfigs(const std::filesystem::path& config_dir);
   bool generateDroneConfig(const std::filesystem::path& config_dir);
   bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
   bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
   bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
-  bool generateURDFs(const std::filesystem::path& mesh_dir);
+  bool generateURDF(const std::filesystem::path& mesh_dir);
 
   /* 空のファイルを作成する． */
   bool createEmptyFile(const std::filesystem::path& file_path);
@@ -60,6 +65,9 @@ private:
 
   /* YAML::Nodeを保存する． */
   bool saveYamlNode(const std::filesystem::path& path, const YAML::Node& node);
+
+  /* プロペラジョイントのlimitタグを削除する． */
+  bool removePropellerJointLimits(tinyxml2::XMLElement* robot);
 
   /* 全てのメッシュファイルのパスをパッケージ以下に変更する． */
   bool resolveMeshFiles(tinyxml2::XMLElement* elem, const std::filesystem::path& mesh_dir);

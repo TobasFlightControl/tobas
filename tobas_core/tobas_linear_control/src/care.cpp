@@ -16,18 +16,18 @@ MatrixXd care_ArimotoPotter(const MatrixXd& A, const MatrixXd& B, const MatrixXd
   [[maybe_unused]] const auto l = B.cols();
 
   assert(A.rows() == n && A.cols() == n);
-  assert(eigen_tools::isFinite(A));
+  assert(eigen::isFinite(A));
 
   assert(B.rows() == n && B.cols() == l);
-  assert(eigen_tools::isFinite(B));
+  assert(eigen::isFinite(B));
 
   assert(Q.rows() == n && Q.cols() == n);
-  assert(eigen_tools::isFinite(Q));
-  assert(eigen_tools::isSemiPositiveDefinite(Q));
+  assert(eigen::isFinite(Q));
+  assert(eigen::isSemiPositiveDefinite(Q));
 
   assert(R.rows() == l && R.cols() == l);
-  assert(eigen_tools::isFinite(R));
-  assert(eigen_tools::isPositiveDefinite(R));
+  assert(eigen::isFinite(R));
+  assert(eigen::isPositiveDefinite(R));
 
   // TODO: 可安定性を確認
 
@@ -80,14 +80,14 @@ MatrixXd care_Schur(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, con
   assert(Q.rows() == n && Q.cols() == n);
   assert(R.rows() == l && R.cols() == l);
 
-  assert(eigen_tools::isFinite(A));
-  assert(eigen_tools::isFinite(B));
-  assert(eigen_tools::isFinite(Q));
-  assert(eigen_tools::isFinite(R));
+  assert(eigen::isFinite(A));
+  assert(eigen::isFinite(B));
+  assert(eigen::isFinite(Q));
+  assert(eigen::isFinite(R));
 
   assert(isControllable(A, B));
-  assert(eigen_tools::isSemiPositiveDefinite(Q));
-  assert(eigen_tools::isPositiveDefinite(R));
+  assert(eigen::isSemiPositiveDefinite(Q));
+  assert(eigen::isPositiveDefinite(R));
 
   MatrixXd H(n * 2, n * 2);
   H.topLeftCorner(n, n) = A;

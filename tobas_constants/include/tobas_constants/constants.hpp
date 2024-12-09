@@ -21,6 +21,10 @@ static constexpr double kMaxThrot = 1.;  // The maximum throttle
 static constexpr double kRCInputMin = -1.;
 static constexpr double kRCInputMax = 1.;
 
+// Rotor speed control
+static constexpr int kMinRotorCtrlGain = 0;
+static constexpr int kMaxRotorCtrlGain = 30;
+
 // ROS topics
 static constexpr char kTimeReferenceTopic[] = "/shm_driver/time_ref";
 static constexpr char kMessageTopic[] = "message";
@@ -28,18 +32,19 @@ static constexpr char kDroneTopic[] = "drone";
 static constexpr char kKDLTreeTopic[] = "kdl_tree";
 static constexpr char kRobotDescriptionTopic[] = "robot_description";
 static constexpr char kBatteryTopic[] = "battery";
-static constexpr char kBatteryLpfTopic[] = "battery_filtered";
 static constexpr char kCPUTopic[] = "cpu";
 static constexpr char kRcInputTopic[] = "rc_input";
-static constexpr char kIMUTopic[] = "imu";
-static constexpr char kImuLpfTopic[] = "imu_filtered";
+static constexpr char kImuTopic[] = "imu";
+static constexpr char kImuRawTopic[] = "imu_raw";
 static constexpr char kMagTopic[] = "magnetic_field";
+static constexpr char kMagRawTopic[] = "magnetic_field_raw";
 static constexpr char kAirPressureTopic[] = "air_pressure";
+static constexpr char kAirPressureRawTopic[] = "air_pressure_raw";
 static constexpr char kGNSSTopic[] = "gps";
 static constexpr char kGpsOriginTopic[] = "gps_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
-static constexpr char kRotorSpeedsTopic[] = "rotor_speeds";
+static constexpr char kRotorStatesTopic[] = "rotor_states";
 static constexpr char kJointStatesTopic[] = "joint_states";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEulerTopic[] = "euler";
@@ -48,11 +53,10 @@ static constexpr char kEventTopic[] = "event";
 static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "prearm_check";
-static constexpr char kThrustCorrectionFactorTopic[] = "thrust_correction_factor";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Command
-static constexpr char kThrottlesCmdTopic[] = "command/throttles";
+static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
@@ -86,18 +90,15 @@ static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
 static constexpr char kROSBagRecordStartSrv[] = "rosbag_record_start";
 static constexpr char kROSBagRecordStopSrv[] = "rosbag_record_stop";
 static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
+static constexpr char kGetRotorControlGainsSrv[] = "get_rotor_control_gains";
+static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
+static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
+static constexpr char kRemoveRotorSrv[] = "remove_rotor";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
 static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
-
-// Calibration
-static constexpr char kAccelCalibAction[] = "accel_calibration";
-static constexpr char kMagCalibSrv[] = "mag_calibration";
-static constexpr char kADCCalibAction[] = "adc_calibration";
-static constexpr char kRCInputCalibSrv[] = "rcin_calibration";
-static constexpr char kESCCalibAction[] = "esc_calibration";
 
 // Controller Manager
 namespace controller_manager
@@ -138,6 +139,10 @@ enum rc_command_t
   SPEED_ROLL_DPITCH,
 };
 
+// Scale
+constexpr auto kAccelScale = 10.;   // [m/s^2]
+constexpr auto kDGyroScale = 100.;  // [rad/s^2]
+
 // Console message period
 static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
@@ -152,4 +157,5 @@ static constexpr double kMinAirSpeedThresh = 0.1;        // [m/s] 空力計算�
 static constexpr double kTypicalInfoPeriod = 5.;         // [s]
 static constexpr double kTypicalWarnPeriod = 3.;         // [s]
 static constexpr double kTypicalErrorPeriod = 1.;        // [s]
+static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
 }  // namespace tobas

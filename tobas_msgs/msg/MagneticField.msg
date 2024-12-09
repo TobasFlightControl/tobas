@@ -1,3 +1,0 @@
-std_msgs/Header header
-tobas_kdl_msgs/Vector magnetic_field  # [-]
-tobas_eigen_msgs/Matrix3d covariance  # [-]

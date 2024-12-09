@@ -40,6 +40,26 @@ int IntSliderDisplay::getValue() const
   return slider_->value();
 }
 
+int IntSliderDisplay::getMinimum() const
+{
+  return slider_->minimum();
+}
+
+int IntSliderDisplay::getMaximum() const
+{
+  return slider_->maximum();
+}
+
+QString IntSliderDisplay::getText() const
+{
+  return text_->text();
+}
+
+QString IntSliderDisplay::getSuffix() const
+{
+  return suffix_;
+}
+
 void IntSliderDisplay::setValue(int value, bool block_signal)
 {
   slider_->blockSignals(true);
@@ -52,11 +72,6 @@ void IntSliderDisplay::setValue(int value, bool block_signal)
     Q_EMIT valueChanged(value);
 }
 
-void IntSliderDisplay::setText(const QString& text)
-{
-  text_->setText(text);
-}
-
 void IntSliderDisplay::setMinimum(int minimum)
 {
   slider_->setMinimum(minimum);
@@ -67,16 +82,15 @@ void IntSliderDisplay::setMaximum(int maximum)
   slider_->setMaximum(maximum);
 }
 
+void IntSliderDisplay::setText(const QString& text)
+{
+  text_->setText(text);
+}
+
 void IntSliderDisplay::setSuffix(const QString& suffix)
 {
   suffix_ = suffix;
   value_->setText(QString::number(getValue()) + suffix_);
-}
-
-void IntSliderDisplay::setCenterValue(bool block_signal)
-{
-  const auto value = (slider_->minimum() + slider_->maximum()) / 2;
-  setValue(value, block_signal);
 }
 
 void IntSliderDisplay::onSliderValueChanged(int value)
@@ -117,6 +131,26 @@ double DoubleSliderDisplay::getValue() const
   return slider_->value();
 }
 
+double DoubleSliderDisplay::getMinimum() const
+{
+  return slider_->minimum();
+}
+
+double DoubleSliderDisplay::getMaximum() const
+{
+  return slider_->maximum();
+}
+
+QString DoubleSliderDisplay::getText() const
+{
+  return text_->text();
+}
+
+QString DoubleSliderDisplay::getSuffix() const
+{
+  return suffix_;
+}
+
 void DoubleSliderDisplay::setValue(double value, bool block_signal)
 {
   slider_->blockSignals(true);
@@ -129,11 +163,6 @@ void DoubleSliderDisplay::setValue(double value, bool block_signal)
     Q_EMIT valueChanged(value);
 }
 
-void DoubleSliderDisplay::setText(const QString& text)
-{
-  text_->setText(text);
-}
-
 void DoubleSliderDisplay::setMinimum(double minimum)
 {
   slider_->setMinimum(minimum);
@@ -144,16 +173,15 @@ void DoubleSliderDisplay::setMaximum(double maximum)
   slider_->setMaximum(maximum);
 }
 
+void DoubleSliderDisplay::setText(const QString& text)
+{
+  text_->setText(text);
+}
+
 void DoubleSliderDisplay::setSuffix(const QString& suffix)
 {
   suffix_ = suffix;
   value_->setText(QString::number(getValue(), 'f', decimals_) + suffix_);
-}
-
-void DoubleSliderDisplay::setCenterValue(bool block_signal)
-{
-  const auto value = (slider_->minimum() + slider_->maximum()) / 2;
-  setValue(value, block_signal);
 }
 
 void DoubleSliderDisplay::onSliderValueChanged(double value)

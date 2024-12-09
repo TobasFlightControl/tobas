@@ -3,7 +3,7 @@
 #include "./twist.hpp"
 #include "./accel.hpp"
 #include "./wrench.hpp"
-#include "./segmentjacobian.hpp"
+#include "./segment_jacobian.hpp"
 
 namespace kdl
 {
@@ -12,8 +12,6 @@ using RotationMap = std::map<std::string, Rotation>;
 
 class Rotation
 {
-  static constexpr double kEpsilon = 1e-12;
-
 public:
   Eigen::Matrix3d data;
 
@@ -73,35 +71,21 @@ public:
   // The Rot... static functions give the value of the appropriate rotation matrix back.
   static Rotation RotZ(double angle);
 
-  // Along an arbitrary axes.  It is not necessary to normalize rotvec.
-  // returns identity rotation matrix in the case that the norm of rotvec
-  // is to small to be used.
-  // @see Rot2 if you want to handle this error in another way.
-  static Rotation Rot(const Vector& rotvec, double angle);
+  // Along an arbitrary axes. Axis must be normalized.
+  // returns identity rotation matrix in the case that the norm of axis is to small to be used.
+  static Rotation Rot(const Vector& axis, double angle);
 
-  // Along an arbitrary axes. rotvec must be normalized.
-  static Rotation Rot2(const Vector& rotvec, double angle);
-
-  // Returns a vector with the direction of the equiv. axis
-  // and its norm is angle
+  // Returns a vector with the direction of the equiv. axis and its norm is angle.
   Vector getRot() const;
 
-  /** Returns the rotation angle around the equiv. axis
-   * @param axis the rotation axis is returned in this variable
-   * @param eps :  in the case of angle == 0 : rot axis is undefined and chosen
-   *                                         to be +/- Z-axis
-   *               in the case of angle == PI : 2 solutions, positive Z-component
-   *                                            of the axis is chosen.
-   * @result returns the rotation angle (between [0..PI] )
-   */
-  double getRotAngle(Vector& axis) const;
+  // Returns the rotation angle around the equiv. axis.
+  std::pair<double, Vector> getAngleAxis() const;
 
-  // Gives back a rotation matrix specified with Quaternion convention
-  // The norm of (x,y,z,w) should be equal to 1
+  // Gives back a rotation matrix specified with Quaternion convention.
+  // The norm of (x,y,z,w) should be equal to 1.
   static Rotation Quaternion(double x, double y, double z, double w);
 
-  // Get the quaternion of this matrix
-  // \post the norm of (x,y,z,w) is 1
+  // Get the quaternion of this matrix.
   void getQuaternion(double& x, double& y, double& z, double& w) const;
 
   /**
@@ -163,7 +147,7 @@ public:
   // Access to the underlying unitvectors of the rotation matrix
   inline void UnitZ(const Vector& X);
 
-  friend std::ostream& operator<<(std::ostream& os, const Rotation& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const Rotation& arg);
 };
 
 inline Rotation::Rotation()
@@ -182,15 +166,7 @@ inline Rotation::Rotation(
   double Yz,
   double Zz)
 {
-  data(0, 0) = Xx;
-  data(0, 1) = Yx;
-  data(0, 2) = Zx;
-  data(1, 0) = Xy;
-  data(1, 1) = Yy;
-  data(1, 2) = Zy;
-  data(2, 0) = Xz;
-  data(2, 1) = Yz;
-  data(2, 2) = Zz;
+  data << Xx, Yx, Zx, Xy, Yy, Zy, Xz, Yz, Zz;
 }
 
 inline Rotation::Rotation(const Vector& x, const Vector& y, const Vector& z)
@@ -334,5 +310,11 @@ inline Vector Rotation::UnitZ() const
 inline void Rotation::UnitZ(const Vector& X)
 {
   data.col(2) = X.data;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Rotation& arg)
+{
+  os << arg.data.reshaped(1, 9);
+  return os;
 }
 }  // namespace kdl

@@ -46,7 +46,7 @@ public:
   inline friend JntArray operator-(const JntArray& arg);
   inline friend JntArray operator*(const double& lhs, const JntArray& rhs);
 
-  friend std::ostream& operator<<(std::ostream& os, const JntArray& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const JntArray& arg);
 };
 
 inline JntArray::JntArray()
@@ -88,7 +88,7 @@ inline size_t JntArray::size() const
 
 inline size_t JntArray::rows() const
 {
-  return size();
+  return this->size();
 }
 
 inline double JntArray::max() const
@@ -113,7 +113,7 @@ inline JntArray JntArray::min(double x)
 
 inline JntArray JntArray::hadamard(const JntArray& arg)
 {
-  assert(rows() == arg.rows());
+  assert(this->rows() == arg.rows());
   return JntArray(data.cwiseProduct(arg.data));
 }
 
@@ -129,13 +129,13 @@ inline double& JntArray::operator()(size_t i)
 
 inline JntArray JntArray::operator+(const JntArray& rhs) const
 {
-  assert(rows() == rhs.rows());
+  assert(this->rows() == rhs.rows());
   return JntArray(data + rhs.data);
 }
 
 inline JntArray JntArray::operator-(const JntArray& rhs) const
 {
-  assert(rows() == rhs.rows());
+  assert(this->rows() == rhs.rows());
   return JntArray(data - rhs.data);
 }
 
@@ -152,14 +152,14 @@ inline JntArray JntArray::operator/(const double& rhs) const
 
 inline JntArray& JntArray::operator+=(const JntArray& rhs)
 {
-  assert(rows() == rhs.rows());
+  assert(this->rows() == rhs.rows());
   data += rhs.data;
   return *this;
 }
 
 inline JntArray& JntArray::operator-=(const JntArray& rhs)
 {
-  assert(rows() == rhs.rows());
+  assert(this->rows() == rhs.rows());
   data -= rhs.data;
   return *this;
 }
@@ -190,5 +190,11 @@ inline JntArray operator-(const JntArray& arg)
 inline JntArray operator*(const double& lhs, const JntArray& rhs)
 {
   return JntArray(lhs * rhs.data);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const JntArray& arg)
+{
+  os << arg.data.transpose();
+  return os;
 }
 }  // namespace kdl

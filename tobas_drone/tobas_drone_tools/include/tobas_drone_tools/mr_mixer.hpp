@@ -1,66 +1,54 @@
 #pragma once
 
+#include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
-#include <tobas_kdl/treefksolverpos.hpp>
-#include <tobas_kdl/treejntaxissolver.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_fk_solver_pos_all.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 
 #include "./rotor_axis_extractor.hpp"
 
 namespace tobas
 {
 /**
- * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 2-43)
+ * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)
  */
-class Mixer
+class MultiRotorMixer
 {
-  static constexpr size_t kEqualityConstSize = 4;
-
 public:
-  explicit Mixer(const Drone& drone, const kdl::Tree& tree);
+  explicit MultiRotorMixer(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
-  Eigen::VectorXd solve(
+  bool solve(
     const double& cur_voltage,
     const kdl::JntArray& cur_q,
-    const Eigen::Vector3d& cur_gyro_B,
-    const Eigen::Vector3d& cur_h_moment_B,
-    const Eigen::Vector3d& tar_dgyro_B,
-    const Eigen::VectorXd& tar_thrusts);
-
-  Eigen::VectorXd solve(
-    const double& cur_voltage,
-    const kdl::JntArray& cur_q,
-    const Eigen::Vector3d& cur_gyro_B,
-    const Eigen::Vector3d& cur_h_moment_B,
-    const Eigen::Vector3d& tar_dgyro_B,
+    const kdl::Vector& cur_gyro_B,
+    const kdl::Vector& tar_dgyro_B,
     const double& tar_thrusts_sum);
 
-  bool setDGyroWeight(double p);
+  const Eigen::VectorXd& getThrusts() const;
+
+  bool setBaseWeight(double p);
   bool setThrustWeight(double p);
 
 private:
   const Drone& drone_;
   const kdl::Tree& tree_;
 
-  // QPPの重み
-  // 参照推力の実現よりも角加速度の実現を優先すべきか
-  double dgyro_weight_ = 1e+3;
-  double thrust_weight_ = 1.;
+  double base_weight_ = 1.;
+  double thrust_weight_ = 1e-6;
 
-  kdl::TreeFkSolverPos fk_solver_;
-  kdl::TreeJntAxisSolver jnt_axis_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeFkSolverPosAll fk_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   RotorAxisExtractor z_rotors_;
 
-  quadprog::DualActiveSetSolver qp_;
-  Eigen::Matrix3Xd U_;
-  Eigen::VectorXd max_thrusts_;
-  Eigen::VectorXd min_thrusts_;
-  Eigen::VectorXd last_thrusts_;
+  quadprog::DualActiveSetSolver qp_;  // QPソルバー
+  Eigen::Diagonal3d Q_;               // EoMの重み
+  Eigen::DiagonalXd R_;               // 推力の重み
+  Eigen::Matrix3Xd G_;                // EoM行列等式の左辺
+  Eigen::Vector3d h_;                 // EoM行列等式の右辺
 
-  void updateQpWeight();
-  void updateThrustLimits(const double& cur_voltage, const double& thrusts_sum);
+  void resizeAndFill();
+  void updateWeight();
 };
 }  // namespace tobas

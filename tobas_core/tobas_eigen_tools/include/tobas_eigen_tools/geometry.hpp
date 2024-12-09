@@ -3,7 +3,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
-namespace eigen_tools
+namespace eigen
 {
 /* 3次元ベクトルをNED座標系からNWU座標系に変換する．Rx(π)をかけるのと同じ． */
 void vectorNedToNwu(const Eigen::Vector3d& src, Eigen::Vector3d& des);
@@ -30,13 +30,13 @@ Eigen::Quaterniond hamiltonToQuaternion(const Eigen::Vector4d& ham);
 Eigen::Vector4d quaternionToHamilton(const Eigen::Quaterniond& q);
 
 /* ベクトルの外積に相当する行列を作成する． */
-Eigen::Matrix3d crossMat(const double& x, const double& y, const double& z);
+Eigen::Matrix3d skew(const double& x, const double& y, const double& z);
 /* ベクトルの外積に相当する行列を作成する． */
-Eigen::Matrix3d crossMat(const Eigen::Vector3d& v);
+Eigen::Matrix3d skew(const Eigen::Vector3d& v);
 /* ベクトルの外積に相当する行列の2乗を作成する． */
-Eigen::Matrix3d crossMat2(const double& x, const double& y, const double& z);
+Eigen::Matrix3d skew2(const double& x, const double& y, const double& z);
 /* ベクトルの外積に相当する行列の2乗を作成する． */
-Eigen::Matrix3d crossMat2(const Eigen::Vector3d& v);
+Eigen::Matrix3d skew2(const Eigen::Vector3d& v);
 
 void imuToQuaternion(
   const Eigen::Vector3d& a,
@@ -71,12 +71,6 @@ Eigen::Matrix3d eulerrateFromAngvelLocal(const double& roll, const double& pitch
 /* ローカル座標系で表現された角速度をZYXオイラー角の変化率に変換する． */
 Eigen::Vector3d eulerrateFromAngvelLocal(const Eigen::Vector3d& angvel, const double& roll, const double& pitch);
 
-/* 角軸ベクトルを回転行列に変換する． */
-Eigen::Matrix3d matrixFromAngleAxis(const Eigen::Vector3d& a);
-
-/* 回転行列を角軸ベクトルに変換する． */
-Eigen::Vector3d AngleAxisFromMatrix(const Eigen::Matrix3d& r);
-
 /* グローバル座標系で表現された角加速度をオイラー角加速度に変換する． */
 Eigen::Vector3d euleraccFromAngaccGlobal(
   const Eigen::Vector3d& angvel,
@@ -101,4 +95,4 @@ Eigen::Vector3d angaccFromEuleraccLocal(
   const double& pitch,
   const Eigen::Vector3d& drpy,
   const Eigen::Vector3d& ddrpy);
-}  // namespace eigen_tools
+}  // namespace eigen

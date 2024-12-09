@@ -6,7 +6,7 @@
 
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 
 #include "../include/tobas_rc_teleop/common.hpp"
 #include "../include/tobas_rc_teleop/program_mode.hpp"
@@ -24,7 +24,7 @@ namespace tobas_rc_teleop
 class RCTeleopNode : public tobas::BaseNode
 {
   static constexpr double kInitThrottleMargin = 0.05;
-  static constexpr double kRequestArmingInterval = 3.;  // [s]
+  static constexpr double kRequestArmingInterval = 1.;  // [s]
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;

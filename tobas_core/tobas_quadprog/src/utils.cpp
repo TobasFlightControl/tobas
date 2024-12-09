@@ -15,8 +15,8 @@ void matIneqFromRange(const VectorXd& lb, const VectorXd& ub, MatrixXd& A, Vecto
   const auto size = lb.rows();
 
   const MatrixXd E = MatrixXd::Identity(size, size);
-  const auto left = eigen_tools::concat(-E, E, 0);
-  const auto right = eigen_tools::concat(-lb, ub, 0);
+  const auto left = eigen::concat(-E, E, 0);
+  const auto right = eigen::concat(-lb, ub, 0);
   const auto is_valid = (right.array().abs() < inf).eval();
   const auto num_valid = is_valid.count();
 

@@ -15,12 +15,20 @@ void blockSignalsRec(QObject* obj, bool block)
     blockSignalsRec(child, block);
 }
 
-void addWidgetCenter(QWidget* widget, QVBoxLayout* rows)
+void addWidgetCenter(QWidget* widget, QVBoxLayout* rows, int stretch)
 {
   const auto cols = new QHBoxLayout();
   cols->addWidget(widget);
-  cols->setAlignment(widget, Qt::AlignCenter);
-  rows->addLayout(cols);
+  cols->setAlignment(widget, Qt::AlignHCenter);
+  rows->addLayout(cols, stretch);
+}
+
+void addWidgetCenter(QWidget* widget, QHBoxLayout* cols, int stretch)
+{
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(widget);
+  rows->setAlignment(widget, Qt::AlignVCenter);
+  cols->addLayout(rows, stretch);
 }
 
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent)

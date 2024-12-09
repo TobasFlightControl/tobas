@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 
 namespace tobas

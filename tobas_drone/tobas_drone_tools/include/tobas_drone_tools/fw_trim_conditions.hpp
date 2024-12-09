@@ -1,10 +1,10 @@
 #pragma once
 
 #include <tobas_std_tools/range.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_drone_core/drone.hpp>
 
-#include "./solveri.hpp"
+#include "./solver_i.hpp"
 #include "./fw_stability_derivatives_cog.hpp"
 
 namespace tobas
@@ -17,7 +17,7 @@ class TrimConditions : public SolverI
 public:
   explicit TrimConditions(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * @brief 内部状態を更新する．
@@ -33,7 +33,7 @@ public:
   inline const StabilityDerivativesCG& stabilityDerivativesCG() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
-  inline const size_t& elevatorIndex() const;
+  inline const size_t& elevatorChannel() const;
 
   /* 迎角 [rad] */
   inline const double& alpha() const;
@@ -69,13 +69,13 @@ private:
   const Drone& drone_;
   const kdl::Tree& tree_;
 
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   StabilityDerivativesCG asd_cog_;
 
   // 固定値
-  double W_;         // 機体の重量 [N]
-  size_t elev_idx_;  // ピッチ回転の釣り合いに使う舵面の添字
-  double a_, b_;     // (2.9-49)の定数部分
+  double W_;             // 機体の重量 [N]
+  size_t elev_channel_;  // ピッチ回転の釣り合いに使う舵面のチャンネル
+  double a_, b_;         // (2.9-49)の定数部分
 
   double alpha_;     // トリム時の迎角 [rad]
   double elevator_;  // トリム時の昇降舵の偏角 [rad]
@@ -83,8 +83,6 @@ private:
   double c_D_;       // トリム時の抗力係数 [-]
   double c_T_;       // トリム時の推力係数 [-]
   double u_;         // トリム時のX軸方向の速さ [m/s]
-
-  void setElevatorIndex();
 };
 
 inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() const
@@ -92,9 +90,9 @@ inline const StabilityDerivativesCG& TrimConditions::stabilityDerivativesCG() co
   return asd_cog_;
 }
 
-inline const size_t& TrimConditions::elevatorIndex() const
+inline const size_t& TrimConditions::elevatorChannel() const
 {
-  return elev_idx_;
+  return elev_channel_;
 }
 
 inline const double& TrimConditions::alpha() const

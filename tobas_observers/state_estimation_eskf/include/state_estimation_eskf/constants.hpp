@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <chrono>
 
 namespace eskf
 {
@@ -41,6 +42,7 @@ static constexpr double kInitGyroBiasStddev = 0.1;  // [rad/s]
 static constexpr double kInitGravStddev = 0.1;      // [m/s^2]
 
 // その他定数
+static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
 static constexpr double kImuTimeGapThreshold = 5e-3;    // [s]
 static constexpr double kAnormalyScoreThreshold = 10.;  // [-]
 }  // namespace eskf

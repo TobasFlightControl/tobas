@@ -115,10 +115,5 @@ bool JointViewModel::isFixed() const
 {
   return model_->type == urdf::Joint::FIXED;
 }
-
-void JointViewModel::generateName()
-{
-  name(childLinkName() + "_joint");
-}
 }  // namespace view_model
 }  // namespace urdf_builder

@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
@@ -26,8 +26,6 @@ find_package(wpa_supplicant_parser REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_core REQUIRED)
-find_package(tobas_hal_core REQUIRED)
-find_package(tobas_hal_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
 find_package(tobas_real_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
@@ -39,8 +37,6 @@ set(AMENT_DEPENDENCIES
   tobas_ssh_client
   tobas_msgs_adapter
   tobas_drone_core
-  tobas_hal_core
-  tobas_hal_msgs_adapter
   tobas_real_common
   tobas_real_msgs
   tobas_qt_tools
@@ -68,7 +64,7 @@ install(
   INCLUDES DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY config qml DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

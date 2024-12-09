@@ -10,30 +10,30 @@ namespace tobas
 MultirotorDynamicsComponents::MultirotorDynamicsComponents(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
-  updateInternalDataStructures();
 }
 
-void MultirotorDynamicsComponents::updateInternalDataStructures()
+bool MultirotorDynamicsComponents::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
-  z_rotors_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!inertia_solver_.updateInternalDataStructures())
+    return false;
+  if (!z_rotors_.updateInternalDataStructures())
+    return false;
 
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
+  return true;
 }
 
 double MultirotorDynamicsComponents::dragRotorSum(const vector<double>& rot_speeds) const
 {
-  assert(rot_speeds.size() == drone_.numRotors());
+  assert(rot_speeds.size() == z_rotors_.count());
 
   double res = 0.;
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
-    const auto& rotor_idx = z_rotors_.rotorIdx(i);
-    const auto& cd = z_rotors_.dragConstant(i);
-    const auto& rot_speed = rot_speeds[rotor_idx];
-    res += cd * abs(rot_speed);
+    const auto& cd = z_rotors_.rotor(i).drag_constant;
+    const auto& rot_speed = rot_speeds.at(i);
+    res += cd * fabs(rot_speed);
   }
   return res;
 }
@@ -79,15 +79,15 @@ kdl::Vector MultirotorDynamicsComponents::horizontalMoment(
   kdl::Vector h_momemt_arm = kdl::Vector::Zero();
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
+    const auto& rotor = z_rotors_.rotor(i);
+
     // CoG -> Rotor の位置を求める
-    if (fk_solver_.JntToCart(q, z_rotors_.linkName(i)) < 0)
+    if (fk_solver_.JntToCart(q, rotor.link_name) < 0)
       throw runtime_error("Forward kinematics failed: " + fk_solver_.errorMessage());
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
 
-    const auto& rotor_idx = z_rotors_.rotorIdx(i);
-    const auto& cd = z_rotors_.dragConstant(i);
-    const auto& rot_speed = rot_speeds[rotor_idx];
-    h_momemt_arm += cd * abs(rot_speed) * P_cog_rotor;
+    const auto& rot_speed = rot_speeds.at(i);
+    h_momemt_arm += rotor.drag_constant * fabs(rot_speed) * P_cog_rotor;
   }
 
   const auto vel_perp = relativePerpVel(rot, vel_B, wind_W);

@@ -1,16 +1,13 @@
 #!/bin/bash
 
-# Use all CPUs
-taskset -cpa 0-3 $$
-
 export COLCON_WS=~/colcon_ws
 PARDIR=$(realpath $(dirname "$0"))
 
 # Stop main service
 echo "Stopping Tobas main service."
-sudo systemctl stop tobas.target
+sudo systemctl stop tobas_real.target
 if [ $? -ne 0 ]; then
-  echo "Failed to stop tobas.target."
+  echo "Failed to stop tobas_real.target."
   exit 1
 fi
 
@@ -41,9 +38,9 @@ fi
 
 # Restart main service
 echo "Restarting Tobas main service."
-sudo systemctl restart tobas.target
+sudo systemctl restart tobas_real.target
 if [ $? -ne 0 ]; then
-  echo "Failed to restart tobas.target."
+  echo "Failed to restart tobas_real.target."
   exit 1
 fi
 

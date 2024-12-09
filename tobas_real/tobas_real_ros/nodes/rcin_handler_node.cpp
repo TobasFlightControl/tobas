@@ -4,12 +4,10 @@
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
-#include <tobas_hal_msgs/msg/sbus.hpp>
+#include <tobas_real_common/constants.hpp>
+#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
-
-#include <tobas_real_common/constants.hpp>
 
 using namespace std;
 using namespace real::handler::rcin;
@@ -37,13 +35,13 @@ private:
   ptree::PropertyTree pt_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RCInput> rcin_pub_;
-  ros2::SubscriberPtr<tobas_hal_msgs::msg::Sbus> sbus_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
   bool getConfig();
   void registerPubSub();
 
-  void sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus);
+  void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
@@ -156,10 +154,10 @@ bool RCInputHandlerNode::getConfig()
 void RCInputHandlerNode::registerPubSub()
 {
   rcin_pub_ = createPublisher<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
-  sbus_sub_ = createSubscriber(hal::kSBUSTopic, &self::sbusCb, this);
+  sbus_sub_ = createSubscriber(real::kSBUSTopic, &self::sbusCb, this);
 }
 
-void RCInputHandlerNode::sbusCb(const tobas_hal_msgs::msg::Sbus::ConstSharedPtr& sbus)
+void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
   // Create message
   auto rcin_msg = std::make_unique<tobas_msgs::msg::RCInput>();

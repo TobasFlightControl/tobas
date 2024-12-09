@@ -4,6 +4,7 @@ bool ok
 
 bool battery_voltage_too_low
 bool cpu_temperature_too_high
+bool rotor_communication_error
 bool attitude_too_steep
 bool position_unstable
 bool position_inaccurate

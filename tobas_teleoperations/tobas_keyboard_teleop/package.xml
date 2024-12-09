@@ -9,7 +9,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>sensor_msgs</depend>
 	<depend>tobas_keyboard</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>

@@ -7,6 +7,13 @@ namespace real
 // Path
 static constexpr char kTobasResourceDir[] = "/etc/tobas";
 
+// Topics
+static constexpr char kADCTopic[] = "real/adc";
+static constexpr char kSBUSTopic[] = "real/sbus";
+static constexpr char kIMUTopic[] = "real/imu";
+static constexpr char kMagTopic[] = "real/magnetic_field";
+static constexpr char kAirPressureTopic[] = "real/air_pressure";
+
 // RCチャンネル
 // フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
 // チャンネルは8までを想定．9以上は受信機が対応していないことがある

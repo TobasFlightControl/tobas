@@ -67,7 +67,7 @@ bool JRE30::initialize(const char* device)
   if (!uart_.initialize(device, true))
     return false;
 
-  if (!uart_.setStandardBaudRate(B460800))
+  if (!uart_.setBaudRate(460'800))
     return false;
 
   if (!uart_.setDataBits(8))

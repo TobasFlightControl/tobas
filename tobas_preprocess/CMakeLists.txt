@@ -5,7 +5,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
@@ -15,6 +15,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_dsp REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -24,10 +25,11 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_dsp
 	tobas_node
 	tobas_msgs_adapter
+	tobas_drone_msgs_adapter
 )
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryLPFNode" EXECUTABLE battery_lpf)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "IMULPFNode" EXECUTABLE imu_lpf)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MatrixEulerConverterNode" EXECUTABLE matrix_euler_converter)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuPreprocessNode" EXECUTABLE imu_preprocess)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagPreprocessNode" EXECUTABLE mag_preprocess)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "AirPressurePreprocessNode" EXECUTABLE air_pressure_preprocess)
 
 install(
 	TARGETS ${PROJECT_NAME}_node

@@ -10,6 +10,10 @@ sudo udevadm trigger
 # Add the user to the dialout group
 sudo usermod -a -G dialout ${USER}
 
+# Enable "wait" service to make sure that services start after the network is up
+# https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
+sudo systemctl enable systemd-networkd-wait-online.service
+
 # Enable SSH server
 sudo systemctl enable ssh.service
 
@@ -33,4 +37,4 @@ sudo systemctl disable dphys-swapfile.service
 sudo systemctl disable NetworkManager.service
 
 # Enable Tobas services
-sudo systemctl enable tobas.target
+sudo systemctl enable tobas_real.target

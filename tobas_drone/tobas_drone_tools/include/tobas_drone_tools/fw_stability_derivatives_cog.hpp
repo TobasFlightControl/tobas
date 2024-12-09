@@ -1,9 +1,9 @@
 #pragma once
 
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_drone_core/drone.hpp>
 
-#include "./solveri.hpp"
+#include "./solver_i.hpp"
 
 namespace tobas
 {
@@ -15,25 +15,27 @@ class StabilityDerivativesCG : public SolverI
 public:
   explicit StabilityDerivativesCG(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   int update(const kdl::JntArray& q);
 
   inline const double& cPitchAlpha() const;
   inline const double& cYawBeta() const;
-  inline const double& cPitchDelta(const size_t& cs_idx) const;
-  inline const double& cYawDelta(const size_t& cs_idx) const;
+  inline const double& cPitchDelta(size_t channel) const;
+  inline const double& cYawDelta(size_t channel) const;
 
 private:
   const Drone& drone_;
   const kdl::Tree& tree_;
 
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
 
   double c_pitch_alpha_cg_;
   double c_yaw_beta_cg_;
-  std::vector<double> c_pitch_delta_cg_;
-  std::vector<double> c_yaw_delta_cg_;
+  std::map<size_t, double> c_pitch_delta_cg_;
+  std::map<size_t, double> c_yaw_delta_cg_;
+
+  void clear();
 };
 
 inline const double& StabilityDerivativesCG::cPitchAlpha() const
@@ -46,13 +48,13 @@ inline const double& StabilityDerivativesCG::cYawBeta() const
   return c_yaw_beta_cg_;
 }
 
-inline const double& StabilityDerivativesCG::cPitchDelta(const size_t& cs_idx) const
+inline const double& StabilityDerivativesCG::cPitchDelta(size_t channel) const
 {
-  return c_pitch_delta_cg_[cs_idx];
+  return c_pitch_delta_cg_.at(channel);
 }
 
-inline const double& StabilityDerivativesCG::cYawDelta(const size_t& cs_idx) const
+inline const double& StabilityDerivativesCG::cYawDelta(size_t channel) const
 {
-  return c_yaw_delta_cg_[cs_idx];
+  return c_yaw_delta_cg_.at(channel);
 }
 }  // namespace tobas

@@ -146,7 +146,7 @@
                   <item>
                     <widget class="QCheckBox" name="EnableInertiaCheckBox">
                       <property name="text">
-                        <string>Show Inertia</string>
+                        <string>Show Inertial</string>
                       </property>
                     </widget>
                   </item>

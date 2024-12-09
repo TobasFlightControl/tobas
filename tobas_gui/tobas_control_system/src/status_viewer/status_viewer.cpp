@@ -15,6 +15,7 @@ StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(nod
   rcin_status_ = new StatusWidget("Radio Input");
   voltage_status_ = new StatusWidget("Battery Voltage");
   cpu_status_ = new StatusWidget("CPU Temperature");
+  rotors_status_ = new StatusWidget("Rotors Communication");
   attitude_status_ = new StatusWidget("Attitude Horizontal");
   pos_stability_status_ = new StatusWidget("Position Stable");
   pos_accuracy_status_ = new StatusWidget("Position Estimation Accurate");
@@ -28,6 +29,7 @@ StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(nod
   rows->addWidget(rcin_status_);
   rows->addWidget(voltage_status_);
   rows->addWidget(cpu_status_);
+  rows->addWidget(rotors_status_);
   rows->addWidget(attitude_status_);
   rows->addWidget(pos_stability_status_);
   rows->addWidget(pos_accuracy_status_);
@@ -77,6 +79,7 @@ void StatusViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::Const
 {
   voltage_status_->setStatus(!prearm_check->battery_voltage_too_low);
   cpu_status_->setStatus(!prearm_check->cpu_temperature_too_high);
+  rotors_status_->setStatus(!prearm_check->rotor_communication_error);
   attitude_status_->setStatus(!prearm_check->attitude_too_steep);
   pos_stability_status_->setStatus(!prearm_check->position_unstable);
   pos_accuracy_status_->setStatus(!prearm_check->position_inaccurate);

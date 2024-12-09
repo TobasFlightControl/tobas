@@ -3,12 +3,12 @@
 #include <tobas_std_tools/range.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_kdl/euler.hpp>
-#include <tobas_kdl/jntspaceinertiamatrix.hpp>
-#include <tobas_kdl/treejnttojacsolver.hpp>
-#include <tobas_kdl/treeidsolver_rne.hpp>
-#include <tobas_kdl/treejntspaceinertiasolver.hpp>
-#include <tobas_kdl/treejnttoinertiasolver.hpp>
-#include <tobas_kdl/treeboundingboxsolver.hpp>
+#include <tobas_kdl/jntspace_inertia_matrix.hpp>
+#include <tobas_kdl/tree_jacobian_solver.hpp>
+#include <tobas_kdl/tree_id_solver_rne.hpp>
+#include <tobas_kdl/tree_jntspace_inertia_solver.hpp>
+#include <tobas_kdl/tree_inertia_solver.hpp>
+#include <tobas_kdl/tree_bounding_box_solver.hpp>
 
 namespace lr_tools
 {
@@ -47,7 +47,7 @@ public:
     const std::vector<std::string>& foot_names,
     const std::string& floating_base_name = "");
 
-  void updateInternalDataStructures();
+  bool updateInternalDataStructures();
 
   bool configure(const JointSpaceDynamicsConfig& cfg);
 
@@ -93,10 +93,10 @@ private:
   Eigen::Matrix<double, kIneqSize, 1> b1_st_, b1_sw_;  // 各足の不等式行列方程式の右辺
   quadprog::DualActiveSetSolver qp_;
 
-  kdl::TreeJntToJacSolver jac_solver_;
+  kdl::TreeJacobianSolver jac_solver_;
   kdl::TreeIdSolver_RNE rne_;
   kdl::TreeJntSpaceInertiaSolver mass_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   kdl::TreeBoundingBoxSolver bb_solver_;
 
   double calcMass();

@@ -14,6 +14,39 @@ using namespace std;
 namespace linux
 {
 UARTdev::UARTdev()
+  : baudrate_constants_{
+      { 0, B0 },
+      { 50, B50 },
+      { 75, B75 },
+      { 110, B110 },
+      { 134, B134 },
+      { 150, B150 },
+      { 200, B200 },
+      { 300, B300 },
+      { 600, B600 },
+      { 1200, B1200 },
+      { 1800, B1800 },
+      { 2400, B2400 },
+      { 4800, B4800 },
+      { 9600, B9600 },
+      { 19200, B19200 },
+      { 38400, B38400 },
+      { 57600, B57600 },
+      { 115200, B115200 },
+      { 230400, B230400 },
+      { 460800, B460800 },
+      { 500000, B500000 },
+      { 576000, B576000 },
+      { 921600, B921600 },
+      { 1000000, B1000000 },
+      { 1152000, B1152000 },
+      { 1500000, B1500000 },
+      { 2000000, B2000000 },
+      { 2500000, B2500000 },
+      { 3000000, B3000000 },
+      { 3500000, B3500000 },
+      { 4000000, B4000000 },
+    }
 {
 }
 
@@ -87,30 +120,12 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   return true;
 }
 
-bool UARTdev::setStandardBaudRate(uint32_t baud_rate_flag)
+bool UARTdev::setBaudRate(uint32_t baud_rate)
 {
-  options_.c_cflag &= ~CBAUD;
-  options_.c_cflag |= baud_rate_flag;
-  options_.c_ispeed = baud_rate_flag;
-  options_.c_ospeed = baud_rate_flag;
-
-  return setConfig();
-}
-
-bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
-{
-  options_.c_cflag &= ~CBAUD;
-  options_.c_cflag |= CBAUDEX;
-  options_.c_ispeed = CBAUDEX;
-  options_.c_ospeed = CBAUDEX;
-
-  if (!setConfig())
-    return false;
-
-  if (!linux::setNonStandardBaudRate(uart_fd_, baud_rate))
-    return false;
-
-  return true;
+  if (isStandardBaudRate(baud_rate))
+    return setStandardBaudRate(baud_rate);
+  else
+    return setNonStandardBaudRate(baud_rate);
 }
 
 bool UARTdev::setDataBits(uint8_t data_bits)
@@ -277,6 +292,39 @@ bool UARTdev::setConfig()
   }
 
   this_thread::sleep_for(1ms);
+
+  return true;
+}
+
+bool UARTdev::isStandardBaudRate(uint32_t baud_rate)
+{
+  return baudrate_constants_.contains(baud_rate);
+}
+
+bool UARTdev::setStandardBaudRate(uint32_t baud_rate)
+{
+  const auto& flag = baudrate_constants_.at(baud_rate);
+
+  options_.c_cflag &= ~CBAUD;
+  options_.c_cflag |= flag;
+  options_.c_ispeed = flag;
+  options_.c_ospeed = flag;
+
+  return setConfig();
+}
+
+bool UARTdev::setNonStandardBaudRate(uint32_t baud_rate)
+{
+  options_.c_cflag &= ~CBAUD;
+  options_.c_cflag |= CBAUDEX;
+  options_.c_ispeed = CBAUDEX;
+  options_.c_ospeed = CBAUDEX;
+
+  if (!setConfig())
+    return false;
+
+  if (!linux::setNonStandardBaudRate(uart_fd_, baud_rate))
+    return false;
 
   return true;
 }

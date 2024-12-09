@@ -1,30 +1,35 @@
 #include <std_msgs/msg/bool.hpp>
+#include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
+#include <tobas_kdl_msgs/msg/tree.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/gps.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_speed_array.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
 #include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
+#include <tobas_msgs/srv/get_rotor_control_gains.hpp>
+#include <tobas_msgs/srv/set_rotor_control_gains.hpp>
+#include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_dparam_msgs/srv/get_params.hpp>
-#include <tobas_hal_msgs/msg/imu.hpp>
-#include <tobas_hal_msgs/msg/magnetic_field.hpp>
-#include <tobas_hal_msgs/msg/fluid_pressure.hpp>
-#include <tobas_hal_msgs/msg/adc.hpp>
-#include <tobas_hal_msgs/msg/sbus.hpp>
+#include <tobas_msgs/msg/imu_stamped.hpp>
+#include <tobas_msgs/msg/magnetic_field_stamped.hpp>
+#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
+#include <tobas_msgs/msg/adc.hpp>
+#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_battery_params.hpp>
@@ -89,27 +94,31 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   callback_group_ = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
   addTopicLogicToIface<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryLpfTopic), tobas::kBatteryTopic);
+  addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
+  addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKDLTreeTopic, tobas::kKDLTreeTopic, true, true);
+  addTopicLogicToIface<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryTopic), tobas::kBatteryTopic);
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RotorSpeeds>(throttled(tobas::kRotorSpeedsTopic), tobas::kRotorSpeedsTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(throttled(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
   addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(throttled(tobas::kEulerTopic), tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Imu>(hal::kIMUTopic, hal::kIMUTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::MagneticField>(hal::kMagTopic, hal::kMagTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::FluidPressure>(hal::kAirPressureTopic, hal::kAirPressureTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Adc>(hal::kADCTopic, hal::kADCTopic);
-  addTopicLogicToIface<tobas_hal_msgs::msg::Sbus>(hal::kSBUSTopic, hal::kSBUSTopic);
+  addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(throttled(real::kIMUTopic), real::kIMUTopic);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(throttled(real::kMagTopic), real::kMagTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Adc>(throttled(real::kADCTopic), real::kADCTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Sbus>(throttled(real::kSBUSTopic), real::kSBUSTopic);
 
-  addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeeds>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
+  addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
 
   addService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
   addService<tobas_msgs::srv::GetGnssOrigin>(tobas::kGetGnssOriginSrv);
   addService<tobas_msgs::srv::SetGnssOrigin>(tobas::kSetGnssOriginSrv);
   addService<tobas_msgs::srv::BagRecordStart>(tobas::kROSBagRecordStartSrv);
   addService<tobas_msgs::srv::BagRecordStop>(tobas::kROSBagRecordStopSrv);
+  addService<tobas_msgs::srv::GetRotorControlGains>(tobas::kGetRotorControlGainsSrv);
+  addService<tobas_msgs::srv::SetRotorControlGains>(tobas::kSetRotorControlGainsSrv);
+  addService<std_srvs::srv::Trigger>(tobas::kSaveRotorControlGainsSrv);
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kControllerNode, tobas::kGetDynamicParamsSrv));
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kObserverNode, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetIMUParams>(real::handler::imu::kSetParamSrv);

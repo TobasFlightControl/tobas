@@ -10,7 +10,6 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -123,12 +122,12 @@ void MagCalibrationWidget::reset()
   cancel_button_->setEnabled(false);
 }
 
-void MagCalibrationWidget::magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw)
+void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
 {
   // 最初のデータからスケールを決定
   if (cnt_ == 0)
   {
-    mag_norm_ = mag_raw->magnetic_field.norm();
+    mag_norm_ = mag_raw->mag.norm();
     if (mag_norm_ == 0.)
     {
       RCLCPP_WARN(node_->get_logger(), "The first magnetic field is zero.");
@@ -137,13 +136,13 @@ void MagCalibrationWidget::magCb(const tobas_hal_msgs::MagneticField::ConstShare
   }
 
   // データを追加
-  mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->magnetic_field.data;
+  mag_data_.at(cnt_++ % kMaxDataSize) = mag_raw->mag.data;
 
   // 表示用メッセージを発行
   auto point_msg = make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = mag_raw->header;
   point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
-  kdl::pointKDLToMsg(mag_raw->magnetic_field / mag_norm_ * kRvizPointScale, point_msg->point);
+  kdl::pointKDLToMsg(mag_raw->mag / mag_norm_ * kRvizPointScale, point_msg->point);
   point_pub_->publish(std::move(point_msg));
 }
 
@@ -171,7 +170,7 @@ void MagCalibrationWidget::onStartButtonClicked()
 
   // 一時的にトピック通信を開始
   mag_raw_sub_ =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kMagTopic), &self::magCb, this);
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kMagTopic), &self::magCb, this);
 
   history_length_->setValue(kMaxDataSize);
 
@@ -332,7 +331,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
 
   // 結果を確認
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));

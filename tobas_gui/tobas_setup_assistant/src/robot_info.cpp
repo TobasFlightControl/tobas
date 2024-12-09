@@ -39,8 +39,9 @@ bool RobotInfo::loadFromPath(const string& path)
   }
 
   // Update KDL objects
-  axis_solver_.updateInternalDataStructures();
   q_zeros_ = kdl::JntArray::Zero(tree_.getNrOfJoints());
+  if (!axis_solver_.updateInternalDataStructures())
+    return false;
 
   Q_EMIT loaded();
   return true;
@@ -77,7 +78,7 @@ bool RobotInfo::isJntAxisAlwaysCollinear(const string& seg_name, const kdl::Vect
   // ある関節角に対し，チェーンを構成する全てのジョイント軸が目標と平行であることが必要十分条件．
   // つまり，可動関節で且つジョイント軸が目標と平行でないリンクが存在する場合はfalse．
   const auto& joint = seg_it->second.segment.joint();
-  if (joint.type != kdl::Joint::Fixed)
+  if (joint.type != kdl::Joint::FIXED)
   {
     if (axis_solver_.JntToCart(q_zeros_, seg_name) < 0)
     {

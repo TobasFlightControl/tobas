@@ -23,7 +23,8 @@ public:
 
   const char* name() const override;
   const char* description() const override;
-  const char* observerPackage() const override;
+  QString observerPackage() const override;
+  QString pluginName() const override;
 
   YAML::Node staticParams() const override;
 

@@ -15,6 +15,7 @@ AddLinkDialog::AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_nam
   if (!link_names.empty())
     link_vm_.joint()->parentLinkName(link_names.first());
 
+  setWindowTitle("Add Link");  // setupUiの後に呼ぶ必要がある
   enableOkButton(false);
 
   connect(ui_->LinkNameLineEdit, &QLineEdit::textChanged, this, &self::LinkNameLineEditTextChanged);
@@ -27,11 +28,7 @@ AddLinkDialog::AddLinkDialog(URDFBuilderPanel* main, const QStringList& link_nam
 void AddLinkDialog::LinkNameLineEditTextChanged(const QString& text)
 {
   link_vm_.name(text);
-  link_vm_.joint()->childLinkName(text);
-  link_vm_.joint()->generateName();
   link_vm_.sync();
-
-  ui_->JointNameLineEdit->setText(link_vm_.joint()->name());
 
   checkValidity();
 }
@@ -47,10 +44,7 @@ void AddLinkDialog::JointNameLineEditTextChanged(const QString& text)
 void AddLinkDialog::JointParentComboBoxIndexChanged(int)
 {
   link_vm_.joint()->parentLinkName(ui_->JointParentLinkComboBox->currentText());
-  link_vm_.joint()->generateName();
   link_vm_.sync();
-
-  ui_->JointNameLineEdit->setText(link_vm_.joint()->name());
 }
 
 void AddLinkDialog::checkValidity()

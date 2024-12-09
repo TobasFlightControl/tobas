@@ -1,5 +1,6 @@
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -13,25 +14,29 @@ AddCommandDialog::AddCommandDialog(QWidget* parent) : super(parent)
 {
   setWindowTitle("Add Command");
 
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
   command_list_ = new qt::ListWidget();
   command_list_->setSelectionMode(QListWidget::SingleSelection);
   for (const auto& cmd : magic_enum::enum_values<command_t>())
     command_list_->addItem(commandToText(cmd));
-  rows->addWidget(command_list_);
-
-  const auto cols = new QHBoxLayout();
-  rows->addLayout(cols);
 
   const auto cancel_button = new QPushButton("Cancel");
-  connect(cancel_button, &QPushButton::clicked, this, &self::reject);
-  cols->addWidget(cancel_button);
-
   const auto ok_button = new QPushButton("OK");
-  connect(ok_button, &QPushButton::clicked, this, &self::onOkClicked);
+  ok_button->setDefault(true);
+
+  // Layout
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(cancel_button);
   cols->addWidget(ok_button);
+
+  const auto rows = new QVBoxLayout();
+  rows->addWidget(command_list_);
+  rows->addLayout(cols);
+
+  setLayout(rows);
+
+  // Connection
+  connect(cancel_button, &QPushButton::clicked, this, &self::reject);
+  connect(ok_button, &QPushButton::clicked, this, &self::onOkClicked);
 }
 
 command_t AddCommandDialog::selectedCommand() const

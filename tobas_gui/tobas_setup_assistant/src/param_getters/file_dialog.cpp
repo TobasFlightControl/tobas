@@ -1,9 +1,9 @@
 #include <filesystem>
+#include <rcutils/env.h>
 #include <QPushButton>
 #include <QHBoxLayout>
 
 #include <tobas_std_tools/string.hpp>
-#include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "tobas_setup_assistant/param_getters/file_dialog.hpp"
@@ -60,7 +60,7 @@ void ParamGetterWidget_FileDialog::onBrowseButtonClicked()
   if (property_client_.get(last_opend_dir_key_, last_opened_dir) < 0)
   {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = linux::homeDir();
+    last_opened_dir = rcutils_get_home_dir();
   }
 
   const auto options = QFileDialog::DontUseNativeDialog;

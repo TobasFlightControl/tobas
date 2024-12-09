@@ -20,6 +20,24 @@ bool RotorConfig::isValid() const
     return false;
   }
 
+  if (kv <= 0)
+  {
+    cerr << "Kv value must be positive." << endl;
+    return false;
+  }
+
+  if (internal_resistance <= 0)
+  {
+    cerr << "Internal resistance must be positive." << endl;
+    return false;
+  }
+
+  if (propeller_diameter <= 0)
+  {
+    cerr << "Propeller diameter must be positive." << endl;
+    return false;
+  }
+
   if (max_rot_speed <= 0)
   {
     cerr << "Maximum rotating speed must be positive." << endl;
@@ -44,18 +62,6 @@ bool RotorConfig::isValid() const
     return false;
   }
 
-  if (rot_speed_coefs.first <= 0)
-  {
-    cerr << "The first term of the rotating speed coefficients must be positive." << endl;
-    return false;
-  }
-
-  if (rot_speed_coefs.second < 0)
-  {
-    cerr << "The second term of the rotating speed coefficients must be non-negative." << endl;
-    return false;
-  }
-
   return true;
 }
 
@@ -73,10 +79,16 @@ bool RotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kAxisKey, node, axis))
     return false;
 
-  if (!yaml::load(kEscModeKey, node, esc_mode))
+  if (!yaml::load(kNumPolesKey, node, num_poles))
     return false;
 
-  if (!yaml::load(kNumPolesKey, node, num_poles))
+  if (!yaml::load(kKvKey, node, kv))
+    return false;
+
+  if (!yaml::load(kInternalResistanceKey, node, internal_resistance))
+    return false;
+
+  if (!yaml::load(kPropellerDiameterKey, node, propeller_diameter))
     return false;
 
   if (!yaml::load(kMaxRotSpeedKey, node, max_rot_speed))
@@ -91,7 +103,7 @@ bool RotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kDragConstKey, node, drag_constant))
     return false;
 
-  if (!yaml::load(kRotSpeedCoefKey, node, rot_speed_coefs))
+  if (!yaml::load(kTiltJointName, node, tilt_joint_name))
     return false;
 
   return true;
@@ -105,13 +117,15 @@ YAML::Node RotorConfig::dump() const
   node[kLinkNameKey] = link_name;
   node[kDirectionKey] = direction;
   node[kAxisKey] = axis;
-  node[kEscModeKey] = esc_mode;
   node[kNumPolesKey] = num_poles;
+  node[kKvKey] = kv;
+  node[kInternalResistanceKey] = internal_resistance;
+  node[kPropellerDiameterKey] = propeller_diameter;
   node[kMaxRotSpeedKey] = max_rot_speed;
   node[kMotorConstKey] = motor_constant;
   node[kMomentConstKey] = moment_constant;
   node[kDragConstKey] = drag_constant;
-  node[kRotSpeedCoefKey] = rot_speed_coefs;
+  node[kTiltJointName] = tilt_joint_name;
 
   return node;
 }

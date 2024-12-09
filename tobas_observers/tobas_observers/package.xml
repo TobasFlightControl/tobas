@@ -10,8 +10,6 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>state_estimation_eskf</exec_depend>
-	<exec_depend>tobas_mr_thrust_estimation</exec_depend>
-	<exec_depend>tobas_mr_wind_estimation</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

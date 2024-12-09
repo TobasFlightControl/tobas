@@ -53,7 +53,7 @@ void AvailableLinksWidget::updateInternalDataStructures()
     const auto& joint = elem.segment.joint();
 
     // 回転関節をもつことを確認
-    if (joint.type != kdl::Joint::RotAxis)
+    if (joint.type != kdl::Joint::ROTATION)
       continue;
 
     // エンドリンクであることを確認

@@ -217,7 +217,7 @@ class BasePoseCommanderWidget(Widget):
         # Arming
         if not self._arming.data:
             self._request_arming()
-            time.sleep(3)
+            time.sleep(1.0)
             return
 
         # 初期コマンドを設定

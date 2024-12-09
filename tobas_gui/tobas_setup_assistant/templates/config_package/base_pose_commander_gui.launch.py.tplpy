@@ -1,0 +1,45 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
+
+# Template parameters
+DRONE_NAME = "{{ drone_name }}"
+
+# Arguments
+LOG_LEVEL = "log_level"
+OUTPUT = "output"
+USE_SIM_TIME = "use_sim_time"
+GROUND_TRUTH = "ground_truth"
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Declare arguments
+    ld.add_action(DeclareLaunchArgument(LOG_LEVEL, default_value="info"))
+    ld.add_action(DeclareLaunchArgument(OUTPUT, default_value="screen"))
+    ld.add_action(DeclareLaunchArgument(USE_SIM_TIME, default_value="true"))
+    ld.add_action(DeclareLaunchArgument(GROUND_TRUTH, default_value="false"))
+
+    # Get arguments
+    log_level = LaunchConfiguration(LOG_LEVEL)
+    output = LaunchConfiguration(OUTPUT)
+    use_sim_time = LaunchConfiguration(USE_SIM_TIME)
+    ground_truth = LaunchConfiguration(GROUND_TRUTH)
+
+    # Launch high priority nodes
+    ld.add_action(
+        Node(
+            package="tobas_gui_teleop",
+            executable="base_pose_commander_node",
+            namespace=DRONE_NAME,
+            parameters=[{"use_sim_time": use_sim_time}],
+            remappings=[("odom", "ground_truth/odom")] if ground_truth == "true" else [],
+            ros_arguments=["--log-level", log_level],
+            output=output,
+        )
+    )
+
+    return ld

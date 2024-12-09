@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
@@ -28,6 +28,7 @@ find_package(tobas_hardware_setup REQUIRED)
 find_package(tobas_control_system REQUIRED)
 find_package(tobas_parameter_tuning_gui REQUIRED)
 find_package(tobas_flight_log_gui REQUIRED)
+find_package(tobas_simulation_gui REQUIRED)
 
 set(AMENT_DEPENDENCIES
   tobas_homepage
@@ -37,6 +38,7 @@ set(AMENT_DEPENDENCIES
   tobas_control_system
   tobas_parameter_tuning_gui
   tobas_flight_log_gui
+  tobas_simulation_gui
 )
 
 # add_definitions(-DQT_NO_KEYWORDS)
@@ -51,8 +53,9 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-add_executable(main nodes/main.cpp)
-target_link_libraries(main ${PROJECT_NAME})
+# 実行ファイル名とアプリ名をTobasに一致させることでデスクトップアプリでアイコンが正しく表示される
+add_executable(Tobas nodes/main.cpp)
+target_link_libraries(Tobas ${PROJECT_NAME})
 
 install(
   TARGETS ${PROJECT_NAME}
@@ -62,9 +65,10 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
-install(TARGETS main DESTINATION lib/${PROJECT_NAME})
+install(TARGETS Tobas DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY resources DESTINATION share/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

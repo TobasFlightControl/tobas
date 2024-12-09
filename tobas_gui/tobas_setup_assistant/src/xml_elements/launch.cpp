@@ -13,7 +13,8 @@ tinyxml2::XMLElement* addNode(
   const string& pkg,
   const string& exec,
   const string& name,
-  const string output,
+  const string& ns,
+  const string& output,
   const string& args)
 {
   const auto node = parent->InsertNewChildElement("node");
@@ -21,6 +22,8 @@ tinyxml2::XMLElement* addNode(
   node->SetAttribute("exec", exec.c_str());
   if (!name.empty())
     node->SetAttribute("name", name.c_str());
+  if (!ns.empty())
+    node->SetAttribute("namespace", ns.c_str());
   if (!output.empty())
     node->SetAttribute("output", output.c_str());
   if (!args.empty())

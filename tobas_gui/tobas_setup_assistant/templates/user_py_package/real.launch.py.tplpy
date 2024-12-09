@@ -1,0 +1,11 @@
+# Do not delete or rename this file because it is executed in {{ config_pkg_name }}/real.launch.py.
+
+from launch import LaunchDescription
+
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Please add the nodes that run only on the actual machine.
+
+    return ld

@@ -1,6 +1,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Gps.hpp>
+#include <tobas_msgs_adapter/gps.hpp>
 
 using namespace std;
 

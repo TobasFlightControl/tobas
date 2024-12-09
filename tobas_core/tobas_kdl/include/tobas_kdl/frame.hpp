@@ -13,7 +13,7 @@ class Frame;
 using FrameMap = std::map<std::string, Frame>;
 
 /**
-  \brief represents a frame transformation in 3D space (rotation + translation)
+  @brief represents a frame transformation in 3D space (rotation + translation)
 
     if V2 = Frame*V1 (V2 expressed in frame A, V1 expressed in frame B)
     then V2 = Frame.M*V1+Frame.p
@@ -83,18 +83,16 @@ public:
   //     theta(i)   = angle between X(i-1) to X(i) along X(i)
   // \endverbatim
   */
-  static Frame DH_Craig1989(double a, double alpha, double d, double theta);
+  inline static Frame DH_Craig1989(double a, double alpha, double d, double theta);
 
   // DH : constructs a transformationmatrix T_link(i-1)_link(i) with
   // the Denavit-Hartenberg convention as described in the original
   // publictation: Denavit, J. and Hartenberg, R. S., A kinematic
   // notation for lower-pair mechanisms based on matrices, ASME
   // Journal of Applied Mechanics, 23:215-221, 1955.
-  static Frame DH(double a, double alpha, double d, double theta);
+  inline static Frame DH(double a, double alpha, double d, double theta);
 
-  // Reads data from an double array
-  //\TODO should be formulated as a constructor
-  void Make4x4(double* d);
+  inline Eigen::Matrix4d matrix() const;
 
   inline void setIdentity();
 
@@ -105,17 +103,25 @@ public:
   // Access to elements 0..3,0..3, bounds are checked when NDEBUG is not set
   inline double operator()(int i, int j) const;
 
+  // The twist <t_this> is expressed wrt the current
+  // frame.  This frame is integrated into an updated frame with
+  // <samplefrequency>.  Very simple first order integration rule.
+  inline void integrate(const Twist& t_this, double frequency);
+
+  /* フレームを6次元ベクトルに変換． */
+  inline Twist toTwist() const;
+
   // = inverse
   // Gives back inverse transformation of a Frame
   inline Frame inverse() const;
   // The same as p2=R.inverse()*p but more efficient.
   inline Vector inverse(const Vector& arg) const;
   // The same as p2=R.inverse()*p but more efficient.
-  inline Wrench inverse(const Wrench& arg) const;
-  // The same as p2=R.inverse()*p but more efficient.
   inline Twist inverse(const Twist& arg) const;
   // The same as p2=R.inverse()*p but more efficient.
   inline Accel inverse(const Accel& arg) const;
+  // The same as p2=R.inverse()*p but more efficient.
+  inline Wrench inverse(const Wrench& arg) const;
 
   inline Vector operator*(const Vector& arg) const;
   inline Wrench operator*(const Wrench& arg) const;
@@ -128,15 +134,7 @@ public:
   /* Compute the difference of two frames wrt. the same frame. */
   inline Frame operator-(const Frame& rhs) const;
 
-  // The twist <t_this> is expressed wrt the current
-  // frame.  This frame is integrated into an updated frame with
-  // <samplefrequency>.  Very simple first order integration rule.
-  void integrate(const Twist& t_this, double frequency);
-
-  /* フレームを6次元ベクトルに変換． */
-  Twist toTwist() const;
-
-  friend std::ostream& operator<<(std::ostream& os, const Frame& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const Frame& arg);
 };
 
 inline Frame::Frame(const Rotation& R) : p(Vector::Zero()), M(R)
@@ -160,6 +158,34 @@ inline Frame Frame::Identity()
   return Frame(Rotation::Identity(), Vector::Zero());
 }
 
+inline Frame Frame::DH_Craig1989(double a, double alpha, double d, double theta)
+{
+  const auto ct = ::cos(theta);
+  const auto st = ::sin(theta);
+  const auto sa = ::sin(alpha);
+  const auto ca = ::cos(alpha);
+  return Frame(Rotation(ct, -st, 0, st * ca, ct * ca, -sa, st * sa, ct * sa, ca), Vector(a, -sa * d, ca * d));
+}
+
+inline Frame Frame::DH(double a, double alpha, double d, double theta)
+{
+  const auto ct = ::cos(theta);
+  const auto st = ::sin(theta);
+  const auto sa = ::sin(alpha);
+  const auto ca = ::cos(alpha);
+  return Frame(Rotation(ct, -st * ca, st * sa, st, ct * ca, -ct * sa, 0, sa, ca), Vector(a * ct, a * st, d));
+}
+
+inline Eigen::Matrix4d Frame::matrix() const
+{
+  Eigen::Matrix4d res;
+  res.topLeftCorner<3, 3>() = M.data;
+  res.topRightCorner<3, 1>() = p.data;
+  res.bottomLeftCorner<1, 3>().setZero();
+  res(3, 3) = 1;
+  return res;
+}
+
 inline void Frame::setIdentity()
 {
   p.setZero();
@@ -172,9 +198,9 @@ inline double Frame::operator()(int i, int j)
   if (i == 3)
   {
     if (j == 3)
-      return 1.0;
+      return 1.;
     else
-      return 0.0;
+      return 0.;
   }
   else
   {
@@ -191,9 +217,9 @@ inline double Frame::operator()(int i, int j) const
   if (i == 3)
   {
     if (j == 3)
-      return 1;
+      return 1.;
     else
-      return 0;
+      return 0.;
   }
   else
   {
@@ -204,27 +230,53 @@ inline double Frame::operator()(int i, int j) const
   }
 }
 
-inline Wrench Frame::inverse(const Wrench& arg) const
+inline void Frame::integrate(const Twist& t_this, double sampling_freq)
 {
-  Wrench tmp;
-  tmp.force = M.inverse(arg.force);
-  tmp.torque = M.inverse(arg.torque - p * arg.force);
-  return tmp;
+  assert(sampling_freq > 0);
+
+  const auto n = t_this.rot.norm() / sampling_freq;
+  if (n < std::numeric_limits<double>::epsilon())
+    p += M * (t_this.vel / sampling_freq);
+  else
+    (*this) = (*this) * Frame(Rotation::Rot(t_this.rot, n), t_this.vel / sampling_freq);
+}
+
+inline Twist Frame::toTwist() const
+{
+  return Twist(p, M.getRot());
+}
+
+inline Frame Frame::inverse() const
+{
+  return Frame(M.inverse(), -M.inverse(p));
+}
+
+inline Vector Frame::inverse(const Vector& arg) const
+{
+  return M.inverse(arg - p);
 }
 
 inline Twist Frame::inverse(const Twist& arg) const
 {
   Twist tmp;
-  tmp.rot = M.inverse(arg.rot);
   tmp.vel = M.inverse(arg.vel - p * arg.rot);
+  tmp.rot = M.inverse(arg.rot);
   return tmp;
 }
 
 inline Accel Frame::inverse(const Accel& arg) const
 {
   Accel tmp;
-  tmp.angular = M.inverse(arg.angular);
   tmp.linear = M.inverse(arg.linear - p * arg.angular);
+  tmp.angular = M.inverse(arg.angular);
+  return tmp;
+}
+
+inline Wrench Frame::inverse(const Wrench& arg) const
+{
+  Wrench tmp;
+  tmp.force = M.inverse(arg.force);
+  tmp.torque = M.inverse(arg.torque - p * arg.force);
   return tmp;
 }
 
@@ -283,13 +335,9 @@ inline Frame Frame::operator-(const Frame& rhs) const
   return Frame(M - rhs.M, p - rhs.p);
 }
 
-inline Vector Frame::inverse(const Vector& arg) const
+inline std::ostream& operator<<(std::ostream& os, const Frame& arg)
 {
-  return M.inverse(arg - p);
-}
-
-inline Frame Frame::inverse() const
-{
-  return Frame(M.inverse(), -M.inverse(p));
+  os << "Translation: " << arg.p << ", Rotation: " << arg.M;
+  return os;
 }
 }  // namespace kdl

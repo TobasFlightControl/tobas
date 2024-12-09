@@ -40,7 +40,7 @@ public:
   inline friend Wrench operator+(const Wrench& lhs, const Wrench& rhs);
   inline friend Wrench operator-(const Wrench& lhs, const Wrench& rhs);
 
-  friend std::ostream& operator<<(std::ostream& os, const Wrench& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const Wrench& arg);
 };
 
 inline Wrench::Wrench()
@@ -81,15 +81,15 @@ inline double& Wrench::operator()(size_t index)
 
 inline Wrench& Wrench::operator+=(const Wrench& arg)
 {
-  torque += arg.torque;
   force += arg.force;
+  torque += arg.torque;
   return *this;
 }
 
 inline Wrench& Wrench::operator-=(const Wrench& arg)
 {
-  torque -= arg.torque;
   force -= arg.force;
+  torque -= arg.torque;
   return *this;
 }
 
@@ -121,5 +121,11 @@ inline Wrench operator+(const Wrench& lhs, const Wrench& rhs)
 inline Wrench operator-(const Wrench& lhs, const Wrench& rhs)
 {
   return Wrench(lhs.force - rhs.force, lhs.torque - rhs.torque);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Wrench& arg)
+{
+  os << "Force: " << arg.force << ", Torque: " << arg.torque;
+  return os;
 }
 }  // namespace kdl

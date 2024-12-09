@@ -10,7 +10,7 @@ namespace tobas_rviz_plugin
 RobotStateDisplay::RobotStateDisplay()
 {
   enable_inertia_visible_ = new rviz_common::properties::BoolProperty(
-    "Inertia Enabled", false, "Whether to display the inertia representation of the robot.", this,
+    "Inertial Enabled", false, "Whether to display the inertia representation of the robot.", this,
     SLOT(changedEnableInertiaVisible()), this);
 
   highlight_link_ = new rviz_common::properties::StringProperty(

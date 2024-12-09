@@ -22,11 +22,11 @@ public:
   {
   }
 
-  template <typename T>
+  template <typename ValueT, typename RepT = int64_t, typename RatioT = std::milli>
   bool setParam(
     const std::string& param_name,
-    const T& value,
-    std::chrono::milliseconds timeout = std::chrono::milliseconds(-1))
+    const ValueT& value,
+    std::chrono::duration<RepT, RatioT> timeout = std::chrono::duration<RepT, RatioT>(-1))
   {
     if (!client_.wait_for_service(kWaitForServer))
     {

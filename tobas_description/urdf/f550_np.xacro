@@ -58,7 +58,7 @@
       <geometry>
         <box size="${battery_x} ${battery_y} ${battery_z}"/>
       </geometry>
-      <xacro:insert_block name="black"/>
+      <xacro:insert_block name="blue"/>
     </visual>
     <inertial>
       <mass value="${battery_mass}"/>

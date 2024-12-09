@@ -6,31 +6,22 @@ namespace tobas
 {
 RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, const rotor_axis_t& axis) : drone_(drone), axis_(axis)
 {
-  updateInternalDataStructures();
+  initialize();
 }
 
-void RotorAxisExtractor::updateInternalDataStructures()
+bool RotorAxisExtractor::updateInternalDataStructures()
 {
-  count_ = 0;
-  rotor_idxs_.clear();
-
-  for (size_t i = 0; i < drone_.numRotors(); ++i)
-  {
-    if (drone_.rotors.at(i).axis == axis_)
-    {
-      ++count_;
-      rotor_idxs_.emplace_back(i);
-    }
-  }
+  initialize();
+  return true;
 }
 
 double RotorAxisExtractor::thrustSum(const vector<double>& rot_speeds) const
 {
-  assert(rot_speeds.size() == drone_.numRotors());
+  assert(rot_speeds.size() == count());
 
   double res = 0.;
-  for (const auto& rotor_idx : rotor_idxs_)
-    res += drone_.thrustFromRotSpeed(rotor_idx, rot_speeds[rotor_idx]);
+  for (size_t i = 0; i < count(); ++i)
+    res += rotor(channels_.at(i)).thrustFromRotSpeed(rot_speeds.at(i));
   return res;
 }
 
@@ -41,24 +32,33 @@ double RotorAxisExtractor::thrustSum(const double& battery_voltage, const double
 
   const auto input_voltage = battery_voltage * throttle;  // 印加電圧
   double res = 0.;
-  for (const auto& rotor_idx : rotor_idxs_)
-    res += drone_.thrustFromVoltage(rotor_idx, input_voltage);
+  for (const auto& channel : channels_)
+    res += rotor(channel).thrustFromVoltage(input_voltage);
   return res;
 }
 
 double RotorAxisExtractor::maxThrustSum(const double& battery_voltage) const
 {
   double res = 0.;
-  for (const auto& rotor_idx : rotor_idxs_)
-    res += drone_.maxThrust(rotor_idx, battery_voltage);
+  for (const auto& channel : channels_)
+    res += rotor(channel).maxThrust(battery_voltage);
   return res;
 }
 
 double RotorAxisExtractor::minThrustSum(const double& battery_voltage) const
 {
   double res = 0.;
-  for (const auto& rotor_idx : rotor_idxs_)
-    res += drone_.minThrust(rotor_idx, battery_voltage);
+  for (const auto& channel : channels_)
+    res += rotor(channel).minThrust(battery_voltage);
   return res;
+}
+
+void RotorAxisExtractor::initialize()
+{
+  channels_.clear();
+
+  for (const auto& [channel, rotor] : drone_.rotors)
+    if (rotor.axis == axis_)
+      channels_.push_back(channel);
 }
 }  // namespace tobas

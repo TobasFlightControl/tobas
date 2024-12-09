@@ -8,8 +8,8 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-SpeedLimitWidget_Voltage::SpeedLimitWidget_Voltage(ElectrodynamicsWidget* electrodynamics)
-  : electrodynamics_(electrodynamics)
+SpeedLimitWidget_Voltage::SpeedLimitWidget_Voltage(MotorWidget* motor, AerodynamicsWidget* aerodynamics)
+  : motor_(motor), aerodynamics_(aerodynamics)
 {
 }
 
@@ -33,9 +33,16 @@ bool SpeedLimitWidget_Voltage::isValid()
 
 double SpeedLimitWidget_Voltage::maxRotSpeed() const
 {
+  const auto kv = motor_->kv();
+  const auto R = motor_->internalResistance();
+  const auto ct = aerodynamics_->motorConst();
+  const auto cm = aerodynamics_->momentConst();
+
+  const auto b = kv * R * ct * cm;
+  const auto c = 1. / kv;
+
   const auto V = spinbox_->value();
-  const auto [a, b] = electrodynamics_->rotSpeedCoefs();
-  return (sqrt(math::sqr(a) + 4 * b * V) - a) / (2 * b);
+  return (sqrt(math::sqr(c) + 4 * b * V) - c) / (2 * b);
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

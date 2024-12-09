@@ -16,8 +16,8 @@ class BaseControllerWidget : public QWidget
 public:
   virtual const char* name() const = 0;
   virtual const char* description() const = 0;
-  virtual const char* controllerPackage() const = 0;
-  virtual const char* actionsPackage() const = 0;
+  virtual QString controllerPackage() const = 0;
+  virtual QString pluginName() const = 0;
 
   virtual tobas::rc_command_t stabilizeModeCommand() const = 0;
   virtual tobas::rc_command_t acrobatModeCommand() const = 0;

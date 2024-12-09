@@ -23,7 +23,7 @@ bool FixedWingConfig::isValid() const
     return false;
   }
 
-  for (const auto& cs : control_surfaces)
+  for (const auto& [_, cs] : control_surfaces)
   {
     if (!cs.isValid())
     {
@@ -80,7 +80,7 @@ bool FixedWingConfig::load(const YAML::Node& node)
       cerr << "Failed to load the configurations of control surfaces." << endl;
       return false;
     }
-    control_surfaces.push_back(cs);
+    control_surfaces[cs.channel] = cs;
   }
 
   return true;
@@ -101,7 +101,7 @@ YAML::Node FixedWingConfig::dump() const
 
   // Control surfaces
   node[kControlSurfacesKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (auto& cs : control_surfaces)
+  for (auto& [_, cs] : control_surfaces)
     node[kControlSurfacesKey].push_back(cs.dump());
 
   return node;

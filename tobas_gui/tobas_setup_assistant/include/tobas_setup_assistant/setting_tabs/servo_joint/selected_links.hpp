@@ -3,7 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_drone_core/joint_interface.hpp>
+#include <tobas_drone_core/joint/joint_interface.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
 
@@ -28,7 +28,7 @@ class SelectedLinksWidget : public qt::TableWidget
   static constexpr int kHomePosCol = 2;
   static constexpr int kMinPosCol = 3;
   static constexpr int kMaxPosCol = 4;
-  static constexpr int kCmdTypeCol = 5;
+  static constexpr int kInterfaceCol = 5;
   static constexpr int kNumCols = 6;
 
   // Labels
@@ -37,7 +37,7 @@ class SelectedLinksWidget : public qt::TableWidget
   static constexpr char kHomePosLabel[] = "Home Position";
   static constexpr char kMinPosLabel[] = "Min Position";
   static constexpr char kMaxPosLabel[] = "Max Position";
-  static constexpr char kCmdTypeLabel[] = "Command Type";
+  static constexpr char kInterfaceLabel[] = "Interface";
 
   static constexpr char kPositionLabel[] = "position";
   static constexpr char kVelocityLabel[] = "velocity";

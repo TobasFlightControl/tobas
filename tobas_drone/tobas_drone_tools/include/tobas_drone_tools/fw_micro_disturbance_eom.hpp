@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tobas_kdl/treefksolverpos.hpp>
+#include <tobas_kdl/tree_fk_solver_pos.hpp>
 
-#include "./solveri.hpp"
+#include "./solver_i.hpp"
 #include "./rotor_axis_extractor.hpp"
 #include "./fw_trim_conditions.hpp"
 
@@ -29,7 +29,7 @@ public:
 
   explicit MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tree);
 
-  void updateInternalDataStructures() override;
+  bool updateInternalDataStructures() override;
 
   /**
    * @brief 内部状態を更新する．
@@ -51,7 +51,7 @@ public:
   inline Eigen::VectorXd maxDeltaInput() const;
 
   /* ピッチ回転のトリムに用いる舵面の添字 */
-  inline const size_t& elevatorIndex() const;
+  inline const size_t& elevatorChannel() const;
   inline const size_t& inputSize() const;
 
   inline const Eigen::Matrix<double, kStateSize, kStateSize>& A() const;
@@ -130,7 +130,7 @@ private:
   const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPos fk_solver_;
-  kdl::TreeJntToInertiaSolver inertia_solver_;
+  kdl::TreeInertiaSolver inertia_solver_;
   RotorAxisExtractor x_rotors_;
   TrimConditions trim_;
 
@@ -144,6 +144,7 @@ private:
   Eigen::Matrix<double, kStateSize, kStateSize> A_;
   Eigen::Matrix<double, kStateSize, Eigen::Dynamic> B_;  // 列数は舵面数と一致
 
+  void resize();
   void setInputLimits(const double& battery_voltage);
 };
 
@@ -187,9 +188,9 @@ inline Eigen::VectorXd MicroDisturbanceEoM::maxDeltaInput() const
   return max_u_ - u_0_;
 }
 
-inline const size_t& MicroDisturbanceEoM::elevatorIndex() const
+inline const size_t& MicroDisturbanceEoM::elevatorChannel() const
 {
-  return trim_.elevatorIndex();
+  return trim_.elevatorChannel();
 }
 
 inline const size_t& MicroDisturbanceEoM::inputSize() const

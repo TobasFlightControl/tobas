@@ -1,0 +1,4 @@
+RotorControlGain[] gains
+---
+bool success
+string message

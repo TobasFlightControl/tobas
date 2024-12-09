@@ -16,8 +16,10 @@
 #include <tobas_control_system/control_system.hpp>
 #include <tobas_parameter_tuning_gui/parameter_tuning.hpp>
 #include <tobas_flight_log_gui/flight_log.hpp>
+#include <tobas_simulation_gui/simulation.hpp>
 
 #include "./urdf_builder.hpp"
+#include "./power_button.hpp"
 
 namespace gui
 {
@@ -32,8 +34,8 @@ class GUICoreWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir/tobas_configuration_package";
 
-  static constexpr int kPathWidth = 300;
-  static constexpr int kButtonWidth = 50;
+  static constexpr int kPathWidth = 400;
+  static constexpr int kPowerButtonRadius = 40;
 
 public:
   explicit GUICoreWidget(rclcpp::Node::SharedPtr node);
@@ -50,10 +52,11 @@ private:
   common::RemotePackageBuilder package_builder_;
 
   QLineEdit* tbs_path_;
-  QPushButton* load_button_;
-  QPushButton* send_button_;
+  QPushButton* browse_btn_;
+  QPushButton* load_btn_;
+  QPushButton* write_btn_;
 
-  QPushButton* shutdown_button_;
+  PowerButton* power_btn_;
 
   homepage::HomepageWidget* homepage_;
   URDFBuilder* urdf_builder_;
@@ -62,6 +65,7 @@ private:
   control_system::ControlSystemWidget* control_system_;
   param_tuning::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
+  sim::SimulationWidget* simulation_;
 
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
@@ -70,8 +74,9 @@ private:
   std::filesystem::path tbsPath() const;
 
 private Q_SLOTS:
+  void onBrowseButtonClicked();
   void onLoadButtonClicked();
-  void onSendButtonClicked();
+  void onWriteButtonClicked();
   void onShutdownButtonClicked();
 };
 }  // namespace core

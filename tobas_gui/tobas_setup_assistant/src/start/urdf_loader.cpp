@@ -1,9 +1,9 @@
 #include <filesystem>
+#include <rcutils/env.h>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QFileDialog>
 
-#include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -11,6 +11,8 @@
 
 #include "tobas_setup_assistant/start/urdf_loader.hpp"
 #include "tobas_setup_assistant/common.hpp"
+
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -53,7 +55,7 @@ void URDFLoaderWidget::onLoadButtonClicked()
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
   {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = linux::homeDir();
+    last_opened_dir = rcutils_get_home_dir();
   }
 
   // URDFのパスを取得
@@ -69,7 +71,7 @@ void URDFLoaderWidget::onLoadButtonClicked()
   file_text_->setText(urdf_path);
 
   // ユーザが開いたディレクトリを保存
-  const auto par_dir = std::filesystem::path(urdf_path.toStdString()).parent_path();
+  const auto par_dir = fs::path(urdf_path.toStdString()).parent_path();
   if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
   if (property_client_.save() < 0)

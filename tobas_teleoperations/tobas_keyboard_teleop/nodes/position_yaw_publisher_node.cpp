@@ -8,8 +8,8 @@
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
-#include <tobas_msgs_adapter/PosVelAccYaw.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs/action/takeoff.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"
@@ -94,7 +94,7 @@ PositionYawPublisherNode::PositionYawPublisherNode(const rclcpp::NodeOptions& op
   delta_rot_ = max_angvel_ * repeat_interval;
 
   pvay_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
-  process_timer_ = createTimer(0ns, &self::initializeTimerCb, this);
+  process_timer_ = createTimer(0s, &self::initializeTimerCb, this);
 }
 
 void PositionYawPublisherNode::getStaticRosParams()

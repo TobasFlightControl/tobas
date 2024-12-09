@@ -5,7 +5,7 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Odometry.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/action/land.hpp>
 
@@ -16,8 +16,8 @@ using namespace std;
 class LandServerNode : public tobas::BaseNode
 {
   static constexpr double kVerticalSpeed = 0.3;         // [m/s]
-  static constexpr double kTimeWindow = 5.;             // [s] 高度の変化を見る時間窓の長さ
   static constexpr double kStableAltitudeRange = 0.03;  // [m]
+  static constexpr auto kTimeWindow = 5s;               // 高度の変化を見る時間窓の長さ
 
   using self = LandServerNode;
   using super = tobas::BaseNode;
@@ -62,7 +62,7 @@ bool LandServerNode::disarmRotors()
     return false;
   }
 
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     TOBAS_ERROR("Failed to disarm rotors: ", res->message);
@@ -136,7 +136,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     {
       // 一定時間幅の高度が一定の範囲内ならモータを停止して終了
       // FIXME: 着陸判定が甘い．IMU等も利用してより正確に判定しないと危険．
-      const auto alt_range = abs(alt_buf.firstValue() - alt_buf.lastValue());
+      const auto alt_range = fabs(alt_buf.firstValue() - alt_buf.lastValue());
       if (alt_range < kStableAltitudeRange)
       {
         TOBAS_INFO("Landing detected. Stopping motors.");

@@ -58,7 +58,7 @@ void LinkViewModel::sync()
   // parent_joint
   model_->parent_joint = joint_->model();
 
-  // child_joints, child_linksは可視化に影響しないため省略？
+  // child_joints, child_linksは変化が起きたらその都度更新
 }
 
 QString LinkViewModel::name() const
@@ -69,6 +69,11 @@ QString LinkViewModel::name() const
 void LinkViewModel::name(const QString& name)
 {
   model_->name = name.toStdString();
+
+  // 整合性をとるために上下の関節に含まれるリンク名も変更する
+  joint_->childLinkName(name);
+  for (const auto& child_link : model_->child_links)
+    child_link->parent_joint->parent_link_name = name.toStdString();
 }
 
 const InertialViewModelPtr& LinkViewModel::inertial()

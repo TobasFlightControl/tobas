@@ -47,7 +47,7 @@ bool ParamBlockWidget::load(const string& ns, const string& node_name)
     qt::qErrorBox(this, "Failed to get dynamic parameters configuration of \"" + label_->text() + "\".");
     return false;
   }
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   const auto& params = res->params;
 
   // Add sliders
@@ -178,7 +178,7 @@ bool ParamBlockWidget::saveRemote(const fs::path& path, const YAML::Node& node)
   // SSH接続を確認
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
-    qt::qErrorBox(this, "No SSH connection.");
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return false;
   }
 

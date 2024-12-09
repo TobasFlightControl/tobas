@@ -8,6 +8,7 @@
 #include "../include/tobas_gui_common/local_package_builder.hpp"
 #include "../include/tobas_gui_common/constants.hpp"
 #include "../include/tobas_gui_common/package.hpp"
+#include "../include/tobas_gui_common/util.hpp"
 
 using namespace std;
 namespace fs = filesystem;
@@ -60,6 +61,13 @@ bool LocalPackageBuilder::build(const fs::path& tbs_path)
   if (!command_executor_.execute(command))
   {
     cerr << "Failed to build \"" << meta_name << "\"." << endl;
+    return false;
+  }
+
+  // Source workspace
+  if (!addAmentPrefixPath(install_path))
+  {
+    cout << "Failed to source " << install_path << "." << endl;
     return false;
   }
 

@@ -5,7 +5,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
-#include <tobas_msgs/msg/rotor_speeds.hpp>
+#include <tobas_msgs/msg/rotor_state_array.hpp>
 
 #include "./speedmeter.hpp"
 
@@ -29,12 +29,12 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
 
-  std::vector<SpeedmeterWidget*> meters_;
+  std::map<size_t, SpeedmeterWidget*> meters_;
   QHBoxLayout* cols_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeeds> speeds_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
 
-  void speedsCb(const tobas_msgs::msg::RotorSpeeds::ConstSharedPtr& speeds);
+  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
 
   static QString bottomText(int rpm);
 };

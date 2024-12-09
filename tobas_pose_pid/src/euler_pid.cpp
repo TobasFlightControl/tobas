@@ -1,0 +1,109 @@
+#include <tobas_algorithm/core.hpp>
+#include <tobas_eigen_tools/geometry.hpp>
+
+#include "../include/tobas_pose_pid/euler_pid.hpp"
+
+using namespace std;
+
+namespace tobas
+{
+EulerPID::EulerPID()
+{
+  updateGain();
+}
+
+kdl::Vector EulerPID::update(
+  const kdl::Euler& cur_rpy,
+  const kdl::Vector& cur_gyro,
+  const kdl::Euler& tar_rpy,
+  const kdl::Vector& tar_gyro,
+  const double& dt)
+{
+  // 誤差を計算
+  // XXX: 2つのオイラー角を結ぶ直線は回転における最短距離ではないことに注意
+  const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
+  const auto pitch_err = algo::wrapPi(tar_rpy.pitch - cur_rpy.pitch);
+  const auto yaw_err = algo::wrapPi(tar_rpy.yaw - cur_rpy.yaw);
+  const kdl::Vector ep(roll_err, pitch_err, yaw_err);
+  const kdl::Vector gyro_error = tar_gyro - cur_gyro;
+  const kdl::Vector ed(eigen::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
+
+  // 積分誤差を蓄積
+  // 制御入力の飽和により姿勢が実現できない状況は無いとして，アンチワインドアップは行わない
+  ei_ += ep * dt;
+
+  // 目標オイラー角加速度を計算
+  const auto tar_euler_acc = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
+
+  // オイラー角加速度をDジャイロに変換
+  const auto cur_rpyd = eigen::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
+  return kdl::Vector(eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
+}
+
+bool EulerPID::setNaturalFreq(int idx, double value)
+{
+  if (!checkIndex(idx))
+    return false;
+
+  if (value <= 0.)
+  {
+    cerr << "Natural frequency must be positive." << endl;
+    return false;
+  }
+
+  natural_freq_(idx) = value;
+  updateGain();
+
+  return true;
+}
+
+bool EulerPID::setDampingRatio(int idx, double value)
+{
+  if (!checkIndex(idx))
+    return false;
+
+  if (value <= 0.)
+  {
+    cerr << "Damping ratio must be positive." << endl;
+    return false;
+  }
+
+  damp_ratio_(idx) = value;
+  updateGain();
+
+  return true;
+}
+
+bool EulerPID::setIntegralGain(int idx, double value)
+{
+  if (!checkIndex(idx))
+    return false;
+
+  if (value <= 0.)
+  {
+    cerr << "Integral gain must be positive." << endl;
+    return false;
+  }
+
+  ki_(idx) = value;
+
+  return true;
+}
+
+void EulerPID::updateGain()
+{
+  kp_ = natural_freq_.sqr();
+  kd_ = 2 * damp_ratio_.hadamard(natural_freq_);
+}
+
+bool EulerPID::checkIndex(int idx)
+{
+  if (idx < 0 || 3 <= idx)
+  {
+    cerr << "Index " << idx << " is out of range.";
+    return false;
+  }
+
+  return true;
+}
+}  // namespace tobas

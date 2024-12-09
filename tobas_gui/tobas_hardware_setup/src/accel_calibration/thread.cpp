@@ -3,7 +3,6 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_hal_core/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 
@@ -49,7 +48,7 @@ void AccelCalibrationThread::run()
   }
 
   // 結果を確認
-  const auto& res = sc.getResponse();
+  const auto res = sc.getResponse();
   if (!res->success)
   {
     Q_EMIT finished(false, "Calibration results are rejected: " + QString::fromStdString(res->message));
@@ -73,7 +72,7 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
 
   // 一時的にIMUの購読を開始
   auto imu_sub =
-    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, hal::kIMUTopic), &self::imuCb, this);
+    ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kIMUTopic), &self::imuCb, this);
 
   // データが溜まるまで待機
   if (!sleepUntil(node_, [this]() { return cnt_ >= kDataCount; }, kCollectDataTimeout))
@@ -95,11 +94,11 @@ bool AccelCalibrationThread::getAccelMean(Eigen::Vector3d& des)
   return true;
 }
 
-void AccelCalibrationThread::imuCb(const tobas_hal_msgs::Imu::ConstSharedPtr& imu_raw)
+void AccelCalibrationThread::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
 {
   ++cnt_;
   for (size_t i = 0; i < 3; ++i)
-    acc_sum_.at(i).add(imu_raw->accel(i));
+    acc_sum_.at(i).add(imu_raw->imu.accel(i));
 }
 }  // namespace hardware_setup
 }  // namespace gui

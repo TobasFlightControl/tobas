@@ -1,6 +1,8 @@
 #include <tobas_wind_model/dryden.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/Wind.hpp>
+#include <tobas_msgs_adapter/wind.hpp>
+
+#include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_msgs/srv/get_wind_params.hpp>
 #include <tobas_gazebo_msgs/srv/set_wind_params.hpp>
 
@@ -9,8 +11,7 @@
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
-using namespace gz;
-namespace cmp = sim::components;
+namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
@@ -24,9 +25,9 @@ namespace gazebo
  * - Wind shear: // TODO: An overview of various kinds of wind effects on unmanned aerial vehicle \n
  */
 class GazeboWindPlugin : public BaseNode,
-                         public sim::System,
-                         public sim::ISystemConfigure,
-                         public sim::ISystemPostUpdate
+                         public gz::sim::System,
+                         public gz::sim::ISystemConfigure,
+                         public gz::sim::ISystemPostUpdate
 {
   // Default parameters
   static constexpr double kDefaultMeanWindSpeed = 0.;          // [m/s]
@@ -43,12 +44,12 @@ public:
   explicit GazeboWindPlugin();
 
   void Configure(
-    const sim::Entity& model,
+    const gz::sim::Entity& model,
     const sdf::ElementConstPtr& sdf,
-    sim::EntityComponentManager& ecm,
-    sim::EventManager&) override;
+    gz::sim::EntityComponentManager& ecm,
+    gz::sim::EventManager&) override;
 
-  void PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
   enum gust_state_t : uint8_t
@@ -85,10 +86,10 @@ GazeboWindPlugin::GazeboWindPlugin()
 }
 
 void GazeboWindPlugin::Configure(
-  const sim::Entity& model,
+  const gz::sim::Entity& model,
   const sdf::ElementConstPtr& sdf,
-  sim::EntityComponentManager& ecm,
-  sim::EventManager&)
+  gz::sim::EntityComponentManager& ecm,
+  gz::sim::EventManager&)
 {
   initialize("gazebo_wind_plugin", sdf);
   getSdfParams(sdf);
@@ -101,7 +102,7 @@ void GazeboWindPlugin::Configure(
   params_.gust_interval = kDefaultGustInterval;
 
   const auto link = ecm.EntityByComponents(cmp::Link(), cmp::ParentEntity(model), cmp::Name(link_name_));
-  if (link == sim::kNullEntity)
+  if (link == gz::sim::kNullEntity)
     TOBAS_EXIT("Failed to find specified link \"", link_name_, "\".");
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
@@ -117,7 +118,7 @@ void GazeboWindPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "linkName", link_name_);
 }
 
-void GazeboWindPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::EntityComponentManager&)
+void GazeboWindPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
 {
   // 突風
   const auto t_gust = chrono::duration<double>(info.simTime - gust_state_change_time_).count();  // [s]
@@ -156,13 +157,13 @@ void GazeboWindPlugin::PostUpdate(const sim::UpdateInfo& info, const sim::Entity
 
   // 定常風 (平均風速 + 突風)
   const auto v_steady_wind = params_.mean_speed + gust_speed_;
-  const math::Vector3d steady_W(v_steady_wind * cos(params_.direction), v_steady_wind * sin(params_.direction), 0.);
+  const gz::math::Vector3d steady_W(v_steady_wind * cos(params_.direction), v_steady_wind * sin(params_.direction), 0.);
 
   // 乱流成分を更新
   const auto rel_wind_speed = (steady_W - vel_W_->Data()).Length();  // 定常風の相対速度
   const auto dt = chrono::duration<double>(info.dt).count();
   dryden_.update(rel_wind_speed, pose_W_->Data().Pos().Z(), dt);
-  const math::Vector3d turb_B(dryden_.u(), dryden_.v(), dryden_.w());
+  const gz::math::Vector3d turb_B(dryden_.u(), dryden_.v(), dryden_.w());
 
   // 全体の風速を計算
   const auto wind_W = steady_W + pose_W_->Data().Rot().RotateVector(turb_B);
@@ -218,11 +219,12 @@ void GazeboWindPlugin::setParamsCb(const SetSrv::Request::ConstSharedPtr& req, c
   dryden_.setMeanWindSpeed(req->params.mean_speed);
 
   res->success = true;
+  TOBAS_INFO("Wind parameters are updated.");
 }
 }  // namespace gazebo
 
 GZ_ADD_PLUGIN(
   gazebo::GazeboWindPlugin,
-  sim::System,
+  gz::sim::System,
   gazebo::GazeboWindPlugin::ISystemConfigure,
   gazebo::GazeboWindPlugin::ISystemPostUpdate)

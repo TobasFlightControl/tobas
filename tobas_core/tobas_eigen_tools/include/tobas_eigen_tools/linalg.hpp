@@ -7,7 +7,7 @@
 
 #include "./core.hpp"
 
-namespace eigen_tools
+namespace eigen
 {
 /* 行列のランクを計算する． */
 template <typename Derived>
@@ -34,11 +34,11 @@ inline bool isPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 template <typename Derived>
 bool isSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
-  assert(isSymmetric(A));  // 対称行列でないと判定できない
-
-  const Eigen::SelfAdjointEigenSolver<Derived> es(A);
-  const auto min_eigenvalue = es.eigenvalues()(0);
-  return min_eigenvalue >= 0;
+  assert(isSquare(A));
+  const auto ldlt = A.ldlt();
+  const auto D = ldlt.vectorD();
+  const auto tol = std::numeric_limits<typename Derived::Scalar>::epsilon() * A.cwiseAbs().maxCoeff() * 100;
+  return D.minCoeff() >= -tol;  // XXX: ldlt.isPositive()は数値誤差で極小の負の固有値が含まれる際にfalseを返してしまう
 }
 
 /* 行列が正定値対象行列かどうかを判定する． */
@@ -53,6 +53,28 @@ template <typename Derived>
 inline bool isSymmetricSemiPositiveDefinite(const Eigen::MatrixBase<Derived>& A)
 {
   return isSymmetric(A) && isSemiPositiveDefinite(A);
+}
+
+/* 最近接正定行列を求める． */
+template <typename Derived>
+Derived nearestPositiveDefinite(const Eigen::MatrixBase<Derived>& A, double min_eigenvalue)
+{
+  assert(min_eigenvalue >= 0);
+
+  // 対称化
+  const Derived A_sym = (A + A.transpose()) / 2;
+
+  // 固有値分解
+  Eigen::SelfAdjointEigenSolver<Derived> es(A_sym);
+  auto eigenvalues = es.eigenvalues();
+
+  // 固有値を修正
+  for (Eigen::Index i = 0; i < eigenvalues.size(); ++i)
+    if (eigenvalues(i) < min_eigenvalue)
+      eigenvalues(i) = min_eigenvalue;
+
+  // 修正後の行列を再構築
+  return es.eigenvectors() * eigenvalues.asDiagonal() * es.eigenvectors().transpose();
 }
 
 /**
@@ -84,4 +106,4 @@ Eigen::Matrix<Scalar, M, 1> minimizeWeightedNorm(
   // NOTE: QR分解は決定不全問題の最小二乗解を与えない
   return left.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(right);
 }
-}  // namespace eigen_tools
+}  // namespace eigen

@@ -42,9 +42,6 @@ public:
 protected:
   qt::DoubleSpinBox* spinbox_;
 
-private Q_SLOTS:
-  void onCheckBoxToggled(bool toggled);
-
 private:
   QCheckBox* checkbox_;
 };

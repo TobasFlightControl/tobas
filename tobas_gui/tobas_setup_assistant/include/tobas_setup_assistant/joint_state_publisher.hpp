@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <QVBoxLayout>
 
 #include <sensor_msgs/msg/joint_state.hpp>
@@ -21,17 +22,17 @@ class JointStatePublisherWidget : public QWidget
   using self = JointStatePublisherWidget;
   using super = QWidget;
 
+  static constexpr int kButtonHeight = 50;
+
 public:
   explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
-
-private Q_SLOTS:
-  void onRobotLoaded();
-  void onValueChanged(double value, const std::string& jnt_name);
-  void onCenterButtonClicked();
 
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
+
+  std::random_device rnd_dev_;
+  std::mt19937 rnd_gen_;
 
   QVBoxLayout* slider_rows_;
 
@@ -44,6 +45,12 @@ private:
   ros2::TimerPtr publish_timer_;
 
   void publish();
+
+private Q_SLOTS:
+  void onRobotLoaded();
+  void onValueChanged(double value, const std::string& jnt_name);
+  void onCenterButtonClicked();
+  void onRandomButtonClicked();
 };
 }  // namespace setup_assistant
 }  // namespace gui

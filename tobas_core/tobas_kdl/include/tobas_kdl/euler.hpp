@@ -39,9 +39,9 @@ public:
   /* 3次元ベクトルを逆回転させる． */
   inline Vector inverse(const Vector& v) const;
 
-  bool isFinite() const;
+  inline bool isFinite() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const Euler& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const Euler& arg);
 };
 
 inline Euler::Euler() : roll(0), pitch(0), yaw(0)
@@ -104,5 +104,16 @@ inline Vector Euler::operator*(const Vector& v) const
 inline Vector Euler::inverse(const Vector& v) const
 {
   return Rotation::RPY(roll, pitch, yaw).inverse(v);
+}
+
+inline bool Euler::isFinite() const
+{
+  return std::isfinite(roll) && std::isfinite(pitch) && std::isfinite(yaw);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Euler& arg)
+{
+  os << "roll: " << arg.roll << ", pitch: " << arg.pitch << ", yaw: " << arg.yaw;
+  return os;
 }
 }  // namespace kdl

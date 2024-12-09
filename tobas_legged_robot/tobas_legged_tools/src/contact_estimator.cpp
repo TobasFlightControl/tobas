@@ -9,25 +9,24 @@ using namespace Eigen;
 namespace lr_tools
 {
 ContactEstimator::ContactEstimator(const kdl::Tree& tree, const vector<string>& foot_names)
-  : tree_(tree), foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), inertia_solver_(tree), states_(nc_)
+  : tree_(tree), foot_names_(foot_names), nc_(foot_names.size()), fk_solver_(tree), mass_holder_(tree), states_(nc_)
 {
   setPredictionVariance(kDefaultPredictionErfVariance);
   setFootHeightVariance(kDefaultFootHeightErfVariance);
   setContactForceVariance(kDefaultContactForceErfVariance);
 
   setupKalmanFilter();
-  updateInternalDataStructures();
   reset();
 }
 
-void ContactEstimator::updateInternalDataStructures()
+bool ContactEstimator::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
-  inertia_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+  if (!mass_holder_.updateInternalDataStructures())
+    return false;
 
-  inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints()));
-  const auto& mass = inertia_solver_.getInertia().getMass();
-  mean_force_ = mass * tobas_std::kGravity / nc_;
+  return true;
 }
 
 void ContactEstimator::update(
@@ -164,9 +163,12 @@ VectorXd ContactEstimator::calcProbs_height(const kdl::Frame& T, const kdl::JntA
 
 VectorXd ContactEstimator::calcProbs_force(const vector<double>& contact_forces)
 {
+  const auto mean_force = mass_holder_.getMass() * tobas_std::kGravity / nc_;
+
   VectorXd res(nc_);
   for (size_t l = 0; l < nc_; ++l)
-    res(l) = 0.5 * (1 + erf((contact_forces[l] - mean_force_) / erfden_force_));
+    res(l) = 0.5 * (1 + erf((contact_forces[l] - mean_force) / erfden_force_));
+
   return res;
 }
 

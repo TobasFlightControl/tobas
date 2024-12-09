@@ -1,6 +1,7 @@
 #include <queue>
 #include <urdf_parser/urdf_parser.h>
 
+#include <tobas_std_tools/vector.hpp>
 #include <tobas_std_tools/console.hpp>
 
 #include "../../include/urdf_builder/view_model/urdf_view_model.hpp"
@@ -114,39 +115,68 @@ bool URDFViewModel::saveRobot(const QString& file_path)
 
 void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
 {
-  const auto& new_joint = link_vm->joint();
-  const auto& new_parent_link_it = urdf_->links_.find(new_joint->parentLinkName().toStdString());
-  if (new_parent_link_it != urdf_->links_.end())
+  const auto& joint_vm = link_vm->joint();
+
+  const auto link_name = link_vm->name().toStdString();
+  const auto joint_name = joint_vm->name().toStdString();
+  const auto parent_link_name = joint_vm->parentLinkName().toStdString();
+
+  if (link_name.empty())
+    throw runtime_error("Link name cannot be empty.");
+
+  if (joint_name.empty())
+    throw runtime_error("Joint name cannot be empty.");
+
+  if (urdf_->links_.find(link_name) != urdf_->links_.end())
+    throw runtime_error("Link \"" + link_name + "\" already exists.");
+
+  if (urdf_->joints_.find(joint_name) != urdf_->joints_.end())
+    throw runtime_error("Joint \"" + joint_name + "\" already exists.");
+
+  if (parent_link_name.empty())
   {
-    const auto& new_parent_link = new_parent_link_it->second;
-    new_parent_link->child_links.push_back(link_vm->model());
-    new_parent_link->child_joints.push_back(link_vm->joint()->model());
-  }
+    if (urdf_->root_link_ != nullptr)
+      throw runtime_error(
+        "The root link already exists, but the parent link of \"" + link_name + "\" is not specified.");
 
-  urdf_->joints_[new_joint->name().toStdString()] = new_joint->model();
-  urdf_->links_[link_vm->name().toStdString()] = link_vm->model();
-
-  for (const auto& visual : link_vm->visuals())
-    urdf_->materials_[visual->material()->name().toStdString()] = visual->material()->model();
-
-  if (urdf_->root_link_ == nullptr)
-  {
     urdf_->root_link_ = link_vm->model();
     urdf_->joints_.erase(urdf_->root_link_->parent_joint->name);
     urdf_->root_link_->parent_joint = nullptr;
     urdf_->root_link_->inertial = nullptr;  // ルートリンクはイナーシャを持てない
     root_link_.reset(new LinkViewModel(urdf_->root_link_));
   }
+  else
+  {
+    if (urdf_->links_.find(parent_link_name) == urdf_->links_.end())
+      throw runtime_error("Parent link \"" + parent_link_name + "\" does not exist.");
+
+    const auto& parent_link = urdf_->links_.at(parent_link_name);
+    auto& child_links = parent_link->child_links;
+    auto& child_joints = parent_link->child_joints;
+    if (!tobas_std::contains(child_links, link_vm->model()))
+      child_links.push_back(link_vm->model());
+    if (!tobas_std::contains(child_joints, joint_vm->model()))
+      child_joints.push_back(joint_vm->model());
+  }
+
+  urdf_->links_[link_name] = link_vm->model();
+  urdf_->joints_[joint_name] = joint_vm->model();
+
+  for (const auto& visual : link_vm->visuals())
+  {
+    const auto& material_vm = visual->material();
+    urdf_->materials_[material_vm->name().toStdString()] = material_vm->model();
+  }
+
+  for (const auto& child_link_vm : link_vm->children())
+    addLink(child_link_vm);
 }
 
 void URDFViewModel::cloneLink(const LinkViewModelPtr& link_vm)
 {
   const auto clone = link_vm->clone();
   const auto suffix = "_" + QString::number(++clone_count_);
-
-  clone->name(clone->name() + suffix);
-  clone->joint()->name(clone->joint()->name() + suffix);
-
+  addNameSuffixRec(clone, suffix);
   addLink(clone);
 }
 
@@ -228,6 +258,24 @@ void URDFViewModel::updateLink(const LinkViewModelPtr& old_link_vm, const LinkVi
   {
     urdf_->root_link_ = new_link_vm->model();
     root_link_.reset(new LinkViewModel(urdf_->root_link_));
+  }
+}
+
+void URDFViewModel::addNameSuffixRec(const LinkViewModelPtr& link_vm, const QString& suffix)
+{
+  const auto& joint_vm = link_vm->joint();
+
+  const auto new_link_name = link_vm->name() + suffix;
+  const auto new_joint_name = joint_vm->name() + suffix;
+
+  link_vm->name(new_link_name);
+  joint_vm->name(new_joint_name);
+  joint_vm->childLinkName(new_link_name);
+
+  for (const auto& child_link_vm : link_vm->children())
+  {
+    child_link_vm->joint()->parentLinkName(new_link_name);
+    addNameSuffixRec(child_link_vm, suffix);
   }
 }
 

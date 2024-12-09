@@ -14,7 +14,8 @@ class BaseObserverWidget : public QWidget
 public:
   virtual const char* name() const = 0;
   virtual const char* description() const = 0;
-  virtual const char* observerPackage() const = 0;
+  virtual QString observerPackage() const = 0;
+  virtual QString pluginName() const = 0;
 
   /* 静的プライベートROSパラメータ． */
   virtual YAML::Node staticParams() const = 0;

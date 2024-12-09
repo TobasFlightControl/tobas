@@ -16,6 +16,7 @@ class SpeedmeterWidget : public QQuickWidget
 public:
   explicit SpeedmeterWidget();
 
+  QString getBackgroundColor() const;
   double getMaximumValue() const;
   double getMinimumValue() const;
   double getStepSize() const;
@@ -23,6 +24,7 @@ public:
   QString getTopText() const;
   QString getBottomText() const;
 
+  void setBackgroundColor(const QString& text);
   void setMaximumValue(double value);
   void setMinimumValue(double value);
   void setStepSize(double value);
@@ -31,6 +33,7 @@ public:
   void setBottomText(const QString& text);
 
 private:
+  QObject* getRectangleObject() const;
   QObject* getGaugeObject() const;
   QObject* getTopTextObject() const;
   QObject* getBottomTextObject() const;

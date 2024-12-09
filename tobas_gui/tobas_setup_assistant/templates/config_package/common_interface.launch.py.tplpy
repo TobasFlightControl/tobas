@@ -8,8 +8,9 @@ from launch_ros.substitutions import FindPackageShare
 
 # Template parameters
 DRONE_NAME = "{{ drone_name }}"
-USER_PKG_NAME = "{{ user_pkg_name }}"
 ACTIONS_PKG = "{{ actions_pkg }}"
+USER_CPP_PKG_NAME = "{{ user_cpp_pkg_name }}"
+USER_PY_PKG_NAME = "{{ user_py_pkg_name }}"
 
 # Arguments
 LOG_LEVEL = "log_level"
@@ -37,7 +38,9 @@ def generate_launch_description():
     # cf. https://zenn.dev/ntrlmt/articles/d41c7e220ff0fe
     ld.add_action(SetParameter(USE_SIM_TIME, value=use_sim_time))
 
-    user_pkg_share = FindPackageShare(USER_PKG_NAME)
+    user_cpp_pkg_share = FindPackageShare(USER_CPP_PKG_NAME)
+    user_py_pkg_share = FindPackageShare(USER_PY_PKG_NAME)
+
     remappings = [("odom", "ground_truth/odom")] if ground_truth == "true" else []
     ros_args = ["--log-level", log_level]
 
@@ -98,7 +101,12 @@ def generate_launch_description():
     # Launch user nodes
     ld.add_action(
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution([user_pkg_share, "launch", "common.launch.py"]))
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_cpp_pkg_share, "launch", "common.launch.py"]))
+        )
+    )
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution([user_py_pkg_share, "launch", "common.launch.py"]))
         )
     )
 

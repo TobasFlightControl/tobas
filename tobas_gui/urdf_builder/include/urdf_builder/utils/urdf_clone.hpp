@@ -9,7 +9,7 @@ namespace utils
 {
 /**
  * @brief デフォルトのクローン関数．
- * インスタンス変数にポインタが含まれる場合，make_sharedではその実態はコピーされないため特殊化が必要．
+ * インスタンス変数にポインタが含まれる場合，make_sharedではその実態はコピーされないため特殊化 or オーバーロードが必要．
  */
 template <typename T>
 std::shared_ptr<T> clone(const std::shared_ptr<T>& ptr)
@@ -20,15 +20,7 @@ std::shared_ptr<T> clone(const std::shared_ptr<T>& ptr)
   return std::make_shared<T>(*ptr);
 }
 
-template <typename T>
-std::vector<std::shared_ptr<T>> clone(const std::vector<std::shared_ptr<T>>& ptr_array)
-{
-  std::vector<std::shared_ptr<T>> res;
-  for (const auto& ptr : ptr_array)
-    res.push_back(clone(ptr));
-  return res;
-}
-
+urdf::GeometrySharedPtr clone(const urdf::GeometrySharedPtr& geometry);
 urdf::VisualSharedPtr clone(const urdf::VisualSharedPtr& visual);
 urdf::CollisionSharedPtr clone(const urdf::CollisionSharedPtr& collision);
 urdf::JointCalibrationSharedPtr clone(const urdf::JointCalibrationSharedPtr& calibration);

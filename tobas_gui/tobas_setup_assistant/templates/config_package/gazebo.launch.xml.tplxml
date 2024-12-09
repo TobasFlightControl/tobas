@@ -4,9 +4,11 @@
   <arg name="output" default="screen"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="user_debug" default="false"/>
-  <arg name="world_name" default="basic"/>
+  <arg name="world_path" default="$(find-pkg-share tobas_gazebo_sim)/worlds/basic.world"/>
   <arg name="verbose" default="3"/>
   <arg name="ground_truth" default="false"/>
+  <arg name="standalone" default="false"/>
+  <arg name="multiprocess" default="true"/>
   <arg name="launch_core" default="true"/>
   <arg name="x" default="0.0" description="Initial X position in meters."/>
   <arg name="y" default="0.0" description="Initial Y position in meters."/>
@@ -26,7 +28,7 @@
 
   <!-- Launch a Gazebo world -->
   <include file="$(find-pkg-share tobas_gazebo_sim)/launch/gazebo.launch.xml">
-    <arg name="world_name" value="$(var world_name)"/>
+    <arg name="world_path" value="$(var world_path)"/>
     <arg name="verbose" value="$(var verbose)"/>
   </include>
 
@@ -34,18 +36,19 @@
     <push_ros_namespace namespace="{{ drone_name }}"/>
 
     <!-- Spawn robot in Gazebo -->
-    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name f450 -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
+    <node pkg="ros_gz_sim" exec="create" ros_args="--log-level $(var log_level)" args="-topic robot_description -name {{ drone_name }} -x $(var x) -y $(var y) -z $(var z) -Y $(var yaw)" output="$(var output)"/>
 
-    <!-- Launch joint controllers -->
-    <include file="$(find-pkg-share tobas_f450_config)/launch/controller_manager.launch.xml"/>
-
-    <!-- Launch Gazebo command handlers -->
+    <!-- Launch Gazebo nodes -->
     <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="rotor_states_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)">
       <param from="$(find-pkg-share {{ config_pkg_name }})/config/gazebo_joint_command_handler.yaml"/>
     </node>
   </group>
+
+  <!-- Launch joint controllers -->
+  <include file="$(find-pkg-share {{ config_pkg_name }})/launch/joint_controller_manager.launch.xml"/>
 
   <!-- Launch Tobas core software -->
   <group if="$(var launch_core)">
@@ -54,10 +57,13 @@
       <arg name="output" value="$(var output)"/>
       <arg name="use_sim_time" value="$(var use_sim_time)"/>
       <arg name="ground_truth" value="$(var ground_truth)"/>
+      <arg name="standalone" value="$(var standalone)"/>
+      <arg name="multiprocess" value="$(var multiprocess)"/>
     </include>
   </group>
 
   <!-- Launch user nodes -->
-  <include file="$(find-pkg-share {{ user_pkg_name }})/launch/gazebo.launch.py"/>
+  <include file="$(find-pkg-share {{ user_cpp_pkg_name }})/launch/gazebo.launch.py"/>
+  <include file="$(find-pkg-share {{ user_py_pkg_name }})/launch/gazebo.launch.py"/>
 
 </launch>

@@ -30,9 +30,12 @@ SwingLegController::SwingLegController(
   reset();
 }
 
-void SwingLegController::updateInternalDataStructures()
+bool SwingLegController::updateInternalDataStructures()
 {
-  fk_solver_.updateInternalDataStructures();
+  if (!fk_solver_.updateInternalDataStructures())
+    return false;
+
+  return true;
 }
 
 void SwingLegController::reset()

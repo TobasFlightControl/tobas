@@ -30,14 +30,14 @@ const char* NonPlanarPIDWidget::description() const
   return "This is a PID controller for non-planar multirotors.";
 }
 
-const char* NonPlanarPIDWidget::controllerPackage() const
+QString NonPlanarPIDWidget::controllerPackage() const
 {
-  return "tobas_np_pid";
+  return "tobas_nonplanar_pid";
 }
 
-const char* NonPlanarPIDWidget::actionsPackage() const
+QString NonPlanarPIDWidget::pluginName() const
 {
-  return "tobas_dummy_pkg";  // TODO
+  return "ControllerNode";
 }
 
 tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const

@@ -12,6 +12,7 @@
 	<depend>tobas_path_tools</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
+	<depend>tobas_real_common</depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

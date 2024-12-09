@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+
+	<name>{{ user_cpp_pkg_name }}</name>
+	<version>0.0.0</version>
+	<description>Tobas user C++ package for {{ drone_name }}</description>
+	<maintainer email="{{ author_email }}">{{ author_name }}</maintainer>
+	<license>BSD</license>
+
+	<buildtool_depend>ament_cmake</buildtool_depend>
+
+	<depend>rclcpp</depend>
+	<depend>rclcpp_components</depend>
+
+	<export>
+		<build_type>ament_cmake</build_type>
+	</export>
+
+</package>

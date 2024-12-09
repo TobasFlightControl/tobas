@@ -10,7 +10,7 @@ class Accel;
 using AccelMap = std::map<std::string, Accel>;
 
 /**
- * \brief represents both linear and angular acceleration.
+ * @brief represents both linear and angular acceleration.
  */
 class Accel
 {
@@ -25,12 +25,7 @@ public:
 
   inline void setZero();
 
-  /**
-   * @brief Changes the reference point of the accel.
-   * The vector p is expressed in the same base as the accel.
-   * The vector p is a vector from the old point to the new point.
-   */
-  inline Accel refPoint(const Vector& p) const;
+  inline Eigen::Vector6d ravel() const;
 
   inline Accel& operator+=(const Accel& arg);
   inline Accel& operator-=(const Accel& arg);
@@ -42,9 +37,7 @@ public:
   inline friend Accel operator+(const Accel& lhs, const Accel& rhs);
   inline friend Accel operator-(const Accel& lhs, const Accel& rhs);
 
-  Eigen::Vector6d ravel() const;
-
-  friend std::ostream& operator<<(std::ostream& os, const Accel& arg);
+  inline friend std::ostream& operator<<(std::ostream& os, const Accel& arg);
 };
 
 inline Accel::Accel()
@@ -64,6 +57,11 @@ inline void Accel::setZero()
 {
   linear.setZero();
   angular.setZero();
+}
+
+inline Eigen::Vector6d Accel::ravel() const
+{
+  return (Eigen::Vector6d() << linear.data, angular.data).finished();
 }
 
 inline Accel& Accel::operator+=(const Accel& arg)
@@ -108,5 +106,11 @@ inline Accel operator+(const Accel& lhs, const Accel& rhs)
 inline Accel operator-(const Accel& lhs, const Accel& rhs)
 {
   return Accel(lhs.linear - rhs.linear, lhs.angular - rhs.angular);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Accel& arg)
+{
+  os << "Linear: " << arg.linear << ", Angular: " << arg.angular;
+  return os;
 }
 }  // namespace kdl

@@ -1,13 +1,13 @@
+#include <rcutils/env.h>
 #include <QLabel>
+#include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QCoreApplication>
 
 #include <tobas_path_tools/join.hpp>
-#include <tobas_linux/core.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_qt_tools/widgets/combo_box.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_gui_common/constants.hpp>
@@ -15,6 +15,7 @@
 
 #include "tobas_gui_core/gui_core.hpp"
 #include "tobas_gui_core/constants.hpp"
+#include "tobas_gui_core/app_button.hpp"
 
 namespace fs = std::filesystem;
 
@@ -25,38 +26,50 @@ namespace core
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   : node_(node), property_client_(node, tobas::kPropertyServerName, kPkgName), ssh_client_(node), package_builder_(node)
 {
+  const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPkgName));
+  const auto rsrc_path = pkg_path / "resources";
+
   // Applications
-  const auto app_cb = new qt::ComboBox();
-  const auto app_sw = new qt::StackedWidget();
-  connect(app_cb, QOverload<int>::of(&QComboBox::currentIndexChanged), app_sw, &QStackedWidget::setCurrentIndex);
-
   homepage_ = new homepage::HomepageWidget();
-  app_cb->addItem("Homepage");
-  app_sw->addWidget(homepage_);
-
   urdf_builder_ = new URDFBuilder();
-  app_cb->addItem("URDF Builder");
-  app_sw->addWidget(urdf_builder_);
-
   setup_assistant_ = new setup_assistant::SetupAssistantWidget(node);
-  app_cb->addItem("Setup Assistant");
-  app_sw->addWidget(setup_assistant_);
-
   hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, drone_);
-  app_cb->addItem("Hardware Setup");
-  app_sw->addWidget(hardware_setup_);
-
   control_system_ = new control_system::ControlSystemWidget(node, drone_);
-  app_cb->addItem("Control System");
-  app_sw->addWidget(control_system_);
-
   param_tuning_ = new param_tuning::ParameterTuningWidget(node);
-  app_cb->addItem("Parameter Tuning");
-  app_sw->addWidget(param_tuning_);
-
   flight_log_ = new log::FlightLogWidget(node);
-  app_cb->addItem("Flight Log");
+  simulation_ = new sim::SimulationWidget(node);
+
+  // TODO: 別々のアイコンを設定
+  const auto homepage_btn = new AppButton("Homepage", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto urdf_builder_btn = new AppButton("URDF Builder", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto setup_assistant_btn = new AppButton("Setup Assistant", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto hardware_setup_btn = new AppButton("Hardware Setup", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto control_system_btn = new AppButton("Control System", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto param_tuning_btn = new AppButton("Param Tuning", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto flight_log_btn = new AppButton("Flight Log", QString::fromStdString(rsrc_path / "icon.png"));
+  const auto simulation_btn = new AppButton("Simulation", QString::fromStdString(rsrc_path / "icon.png"));
+
+  const auto app_sw = new qt::StackedWidget();
+  app_sw->addWidget(homepage_);
+  app_sw->addWidget(urdf_builder_);
+  app_sw->addWidget(setup_assistant_);
+  app_sw->addWidget(hardware_setup_);
+  app_sw->addWidget(control_system_);
+  app_sw->addWidget(param_tuning_);
   app_sw->addWidget(flight_log_);
+  app_sw->addWidget(simulation_);
+
+  const auto btn_group = new QButtonGroup(this);
+  int btn_id = 0;
+  btn_group->addButton(homepage_btn, btn_id++);
+  btn_group->addButton(urdf_builder_btn, btn_id++);
+  btn_group->addButton(setup_assistant_btn, btn_id++);
+  btn_group->addButton(hardware_setup_btn, btn_id++);
+  btn_group->addButton(control_system_btn, btn_id++);
+  btn_group->addButton(param_tuning_btn, btn_id++);
+  btn_group->addButton(flight_log_btn, btn_id++);
+  btn_group->addButton(simulation_btn, btn_id++);
+  btn_group->buttons().first()->setChecked(true);
 
   // Package manager
   tbs_path_ = new QLineEdit();
@@ -64,35 +77,53 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   tbs_path_->setReadOnly(true);
   tbs_path_->setFocusPolicy(Qt::NoFocus);
 
-  load_button_ = new QPushButton("Load");
-  load_button_->setFixedWidth(kButtonWidth);
-  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  browse_btn_ = new QPushButton("Browse");
+  load_btn_ = new QPushButton("Load");
+  write_btn_ = new QPushButton("Write");
 
-  send_button_ = new QPushButton("Send");
-  send_button_->setFixedWidth(kButtonWidth);
-  send_button_->setEnabled(false);
-  connect(send_button_, &QPushButton::clicked, this, &self::onSendButtonClicked);
+  browse_btn_->setEnabled(true);
+  load_btn_->setEnabled(false);
+  write_btn_->setEnabled(false);
 
   // Shutdown button
-  shutdown_button_ = new QPushButton("Shutdown");
-  shutdown_button_->setStyleSheet("background-color: red");
-  connect(shutdown_button_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  power_btn_ = new PowerButton(kPowerButtonRadius);
 
-  // Header layout
+  // Layout
+  const auto pkg_btn_cols = new QHBoxLayout();
+  pkg_btn_cols->addWidget(browse_btn_);
+  pkg_btn_cols->addWidget(load_btn_);
+  pkg_btn_cols->addWidget(write_btn_);
+
+  const auto pkg_rows = new QVBoxLayout();
+  pkg_rows->addWidget(tbs_path_);
+  pkg_rows->addLayout(pkg_btn_cols);
+
   const auto header_cols = new QHBoxLayout();
-  header_cols->addWidget(app_cb);
+  header_cols->addWidget(homepage_btn);
+  header_cols->addWidget(urdf_builder_btn);
+  header_cols->addWidget(setup_assistant_btn);
+  header_cols->addWidget(hardware_setup_btn);
+  header_cols->addWidget(control_system_btn);
+  header_cols->addWidget(param_tuning_btn);
+  header_cols->addWidget(flight_log_btn);
+  header_cols->addWidget(simulation_btn);
   header_cols->addStretch();
-  header_cols->addWidget(tbs_path_);
-  header_cols->addWidget(load_button_);
-  header_cols->addWidget(send_button_);
-  header_cols->addStretch();
-  header_cols->addWidget(shutdown_button_);
+  header_cols->addLayout(pkg_rows);
+  header_cols->addSpacing(30);
+  header_cols->addWidget(power_btn_);
 
-  // Overall layout
   const auto rows = new QVBoxLayout();
-  setLayout(rows);
   rows->addLayout(header_cols);
   rows->addWidget(app_sw);
+
+  setLayout(rows);
+
+  // Connection
+  connect(btn_group, &QButtonGroup::idClicked, app_sw, &QStackedWidget::setCurrentIndex);
+  connect(browse_btn_, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
+  connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
+  connect(power_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -101,6 +132,7 @@ void GUICoreWidget::updateInternalDataStructures()
   control_system_->updateInternalDataStructures();
   param_tuning_->updateTBSPath(tbsPath());
   flight_log_->updateNamespace(drone_.name);
+  simulation_->updateTBSPath(tbsPath());
 
   arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(
@@ -117,14 +149,14 @@ fs::path GUICoreWidget::tbsPath() const
   return tbs_path_->text().toStdString();
 }
 
-void GUICoreWidget::onLoadButtonClicked()
+void GUICoreWidget::onBrowseButtonClicked()
 {
   // 前回開いたパスを取得
   std::string last_opened_dir;
   if (property_client_.get(kLastOpenedDirKey, last_opened_dir) < 0)
   {
     RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-    last_opened_dir = linux::homeDir();
+    last_opened_dir = rcutils_get_home_dir();
   }
 
   // Tobasパッケージのパスを取得
@@ -143,8 +175,25 @@ void GUICoreWidget::onLoadButtonClicked()
     return;
   }
 
+  // パスをテキストに設定
+  tbs_path_->setText(tbs_path);
+
+  // ユーザが開いたディレクトリを保存
+  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
+  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+  if (property_client_.save() < 0)
+    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
+
+  // Load,Writeボタンを有効化
+  load_btn_->setEnabled(true);
+  write_btn_->setEnabled(true);
+}
+
+void GUICoreWidget::onLoadButtonClicked()
+{
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path.toStdString());
+  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path_->text().toStdString());
   if (!fs::is_regular_file(tbsdrn_path))
   {
     qt::qErrorBox(
@@ -160,19 +209,6 @@ void GUICoreWidget::onLoadButtonClicked()
     return;
   }
 
-  // パスをテキストに設定
-  tbs_path_->setText(tbs_path);
-
-  // ユーザが開いたディレクトリを保存
-  const auto par_dir = fs::path(tbs_path.toStdString()).parent_path();
-  if (property_client_.set(kLastOpenedDirKey, par_dir) < 0)
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-  if (property_client_.save() < 0)
-    RCLCPP_WARN_STREAM(node_->get_logger(), property_client_.errorMessage());
-
-  // Writeボタンを有効化
-  send_button_->setEnabled(true);
-
   // 内部状態を更新
   updateInternalDataStructures();
 
@@ -180,7 +216,7 @@ void GUICoreWidget::onLoadButtonClicked()
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }
 
-void GUICoreWidget::onSendButtonClicked()
+void GUICoreWidget::onWriteButtonClicked()
 {
   // アームされていないことを確認
   if (arming_ == nullptr)
@@ -202,27 +238,30 @@ void GUICoreWidget::onSendButtonClicked()
     }
   }
 
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qWarnBox(this, "No SSH connection.");
-    return;
-  }
-
   const auto tbs_path = tbsPath();
   const auto remote_tbs_path = common::getRemoteTBSPath(tbs_path);
 
   // 進捗バーを作成
-  qt::ProgressDialog progress(kTitle, 6, this);
+  qt::ProgressDialog progress(kTitle, 7, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
-  // サービスを停止
-  progress.setLabelText("Stopping Tobas flight controller.");
-  if (ssh_client_.execute("systemctl stop tobas.target", true) != ssh::SSHClient::E_NO_ERROR)
+  // SSH接続
+  progress.setLabelText("Connecting to the flight controller.");
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to stop Tobas:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    return;
+  }
+  progress.progressStep();
+
+  // サービスを停止
+  progress.setLabelText("Stopping Tobas real service.");
+  if (ssh_client_.execute("systemctl stop tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
+  {
+    progress.close();
+    qt::qErrorBox(this, "Failed to stop Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -234,7 +273,7 @@ void GUICoreWidget::onSendButtonClicked()
   if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to send tobas configuration package\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
@@ -264,17 +303,17 @@ void GUICoreWidget::onSendButtonClicked()
   progress.progressStep();
 
   // サービスを再起動
-  progress.setLabelText("Restarting Tobas flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas.target", true) != ssh::SSHClient::E_NO_ERROR)
+  progress.setLabelText("Restarting the flight controller.");
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();
-    qt::qErrorBox(this, "Failed to restart Tobas:\n\n" + QString(ssh_client_.errorMessage()));
+    qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
     return;
   }
   progress.progressStep();
 
-  // GCSをリロード
-  progress.setLabelText("Reloading GCS");
+  // リロード
+  progress.setLabelText("Reloading.");
   updateInternalDataStructures();
   progress.progressStep();
 
@@ -294,7 +333,7 @@ void GUICoreWidget::onShutdownButtonClicked()
   // SSH接続を確認
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
-    qt::qErrorBox(this, "No SSH connection.");
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
     return;
   }
 

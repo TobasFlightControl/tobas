@@ -37,7 +37,7 @@ bool QpOasesSolver::solve()
   memcpy(g, scaled.q.data(), sizeof(g));
 
   // 列優先の場合を考慮し，要素を1つずつコピー
-  const MatrixXd A_eigen = eigen_tools::concat(scaled.G, scaled.A, 0);
+  const MatrixXd A_eigen = eigen::concat(scaled.G, scaled.A, 0);
   for (Index r = 0; r < con_size; ++r)
     for (Index c = 0; c < var_size; ++c)
       A[r * var_size + c] = A_eigen(r, c);
@@ -49,10 +49,10 @@ bool QpOasesSolver::solve()
   }
 
   const VectorXd inf = VectorXd::Constant(scaled.ineqSize(), -qpOASES::INFTY);
-  const VectorXd lbA_eigen = eigen_tools::concat(scaled.h, inf, 0);
+  const VectorXd lbA_eigen = eigen::concat(scaled.h, inf, 0);
   memcpy(lbA, lbA_eigen.data(), sizeof(lbA));
 
-  const VectorXd ubA_eigen = eigen_tools::concat(scaled.h, scaled.b, 0);
+  const VectorXd ubA_eigen = eigen::concat(scaled.h, scaled.b, 0);
   memcpy(ubA, ubA_eigen.data(), sizeof(ubA));
 
   // QPソルバを作成

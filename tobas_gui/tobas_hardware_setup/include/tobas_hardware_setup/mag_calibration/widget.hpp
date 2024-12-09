@@ -7,7 +7,7 @@
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_hal_msgs_adapter/MagneticField.hpp>
+#include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 #include <tobas_qt_tools/rviz.hpp>
 
 #include "../base.hpp"
@@ -24,8 +24,8 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   using super = BaseHardwareSetupWidget;
 
   static constexpr char kRvizPointTopic[] = "rviz/magnetic_field";
-  static constexpr int kMinDataSize = 1000;
-  static constexpr int kMaxDataSize = 100000;  // 8[B] * 3 * 100000 = 2400000[B] = 2.4[MB]
+  static constexpr int kMinDataSize = 500;
+  static constexpr int kMaxDataSize = 50000;  // 8[B] * 3 * 50000 = 1200000[B] = 1.2[MB]
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
   static constexpr double kRvizPointScale = 10.;
@@ -57,12 +57,12 @@ private:
   rviz_common::properties::Property* history_length_;
 
   ros2::PublisherPtr<geometry_msgs::msg::PointStamped> point_pub_;
-  ros2::SubscriberPtr<tobas_hal_msgs::MagneticField> mag_raw_sub_;
+  ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
 
   void reset();
 
-  void magCb(const tobas_hal_msgs::MagneticField::ConstSharedPtr& mag_raw);
+  void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
 
 private Q_SLOTS:
