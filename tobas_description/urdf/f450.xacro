@@ -6,7 +6,7 @@
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
 
-  <!-- Properties0 -->
+  <!-- Properties -->
   <xacro:property name="frame_width" value="0.35"/>
   <xacro:property name="frame_height" value="0.06"/>
   <xacro:property name="frame_mass" value="0.780"/>
