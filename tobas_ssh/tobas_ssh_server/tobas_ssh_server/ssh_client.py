@@ -21,8 +21,7 @@ class SSHClientWrapper:
         self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def connect(self) -> None:
-        if self.is_connected():
-            return
+        # XXX: 未接続時にコマンドを実行すると"SSH session not active"というエラーが出る可能性があるため，is_connected()による確認は行わない．
 
         # TODO: SSH鍵認証，環境変数，秘密管理ツール等を使用して認証情報を安全に管理する
         try:
@@ -205,9 +204,6 @@ class SSHClientWrapper:
 
     def dir_exists(self, dir_path: str) -> bool:
         return self.exec_command(f"[ -d {dir_path} ]")[0]
-
-    def is_connected(self) -> bool:
-        return self.exec_command("ls")[0]
 
     def _sudo_command(self, command: str) -> str:
         return f"echo {self._passwd} | sudo -S bash -c '{command}'"
