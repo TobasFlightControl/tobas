@@ -82,7 +82,6 @@ static constexpr char kFWCtrlFeedbackTopic[] = "feedback/fixed_wing_controller";
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kGetDynamicParamsSrv[] = "get_dynamic_parameters";
-static constexpr char kEnableRcOutputSrv[] = "enable_rc_output";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
