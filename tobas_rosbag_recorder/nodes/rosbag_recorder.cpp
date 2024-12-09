@@ -38,7 +38,6 @@
 #include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs_adapter/roll_pitch_yaw_throttle.hpp>
-#include <tobas_msgs_adapter/wind.hpp>
 #include <tobas_debug_msgs/msg/observer_feedback.hpp>
 #include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
 #include <tobas_debug_msgs/msg/non_planar_controller_feedback.hpp>
@@ -86,7 +85,6 @@ private:
   tobas_msgs::msg::Gps gps_;
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
-  tobas_msgs::msg::Wind wind_;
   tobas_msgs::msg::PosVelAccYaw pvay_;
   tobas_msgs::msg::RollPitchYawThrottle rpyt_;
   tobas_msgs::msg::PoseTwistAccelCommand pta_;
@@ -122,7 +120,6 @@ private:
   void gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& msg);
-  void windCb(const tobas_msgs::Wind::ConstSharedPtr& msg);
   void posVelAccYawCmdCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& msg);
   void rollPitchYawThrotCmdCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& msg);
   void poseTwistAccelCmdCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& msg);
@@ -178,7 +175,6 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   subs_.push_back(createSubscriber(tobas::kGNSSTopic, &self::gnssCb, this));
   subs_.push_back(createSubscriber(tobas::kOdometryTopic, &self::odomCb, this));
   subs_.push_back(createSubscriber(tobas::kEulerTopic, &self::eulerCb, this));
-  subs_.push_back(createSubscriber(tobas::kWindTopic, &self::windCb, this));
   subs_.push_back(createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCmdCb, this));
   subs_.push_back(createSubscriber(tobas::kRPYThrotCmdTopic, &self::rollPitchYawThrotCmdCb, this));
   subs_.push_back(createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::poseTwistAccelCmdCb, this));
@@ -366,23 +362,6 @@ void ROSBagRecorderNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstShared
   catch (const exception& e)
   {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kEulerTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::windCb(const tobas_msgs::Wind::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::WindAdapter::convert_to_ros_message(*msg, wind_);
-
-  try
-  {
-    writer_.write(wind_, ns_ + tobas::kWindTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kWindTopic << "\": " << e.what());
   }
 }
 
