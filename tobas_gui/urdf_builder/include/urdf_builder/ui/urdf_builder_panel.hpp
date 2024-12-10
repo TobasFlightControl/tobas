@@ -74,10 +74,11 @@ private:
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;
   ogre_helpers::OgreController::SharedPtr ogre_ctrl_;
-  QTimer* update_timer_;
 
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
+
+  QTimer update_timer_;
 
   std::string getLastOpenedDir();
   void setLastOpenedDir(const std::string& file_path);
@@ -89,6 +90,9 @@ private:
   void reloadRobot();
 
   void addRootLink();
+  void selectRootLink();
+  void selectLink(QTreeWidgetItem* item);
+  void reflectSelectedItem(QTreeWidgetItem* item);
   bool saveURDF(const QString& file_path);
 
   bool isValid();
