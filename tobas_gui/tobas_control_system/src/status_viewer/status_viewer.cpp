@@ -47,6 +47,8 @@ void StatusViewerWidget::updateNamespace(const std::string& ns)
   gps_status_->reset();
   rcin_status_->reset();
   voltage_status_->reset();
+  cpu_status_->reset();
+  rotors_status_->reset();
   attitude_status_->reset();
   pos_stability_status_->reset();
   pos_accuracy_status_->reset();
