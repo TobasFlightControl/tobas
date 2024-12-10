@@ -24,7 +24,8 @@
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
 // 実機の時定数がシミュレーションよりも大きくならないように想定しうる最大値に設定する．
-#define L_KV 0.02
+// cf. [AK60-6 V3.0 | T-MOTOR](https://store.tmotor.com/product/dynamical-modular-ak60-6-v3.html)
+#define L_KV 0.05
 
 using namespace std;
 using namespace chrono;
@@ -39,11 +40,9 @@ class GazeboRotorPlugin : public BaseNode,
                           public gz::sim::ISystemPreUpdate
 {
   // Constants
-  static constexpr char kDebugTopicPrefix[] = "gazebo/rotor_debug_";
-  static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
-  static constexpr double kAutoStopTimeThresh = 0.5;      // [s]
-  static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
-  static constexpr double kMinBatteryVoltage = 3.;        // [V]
+  static constexpr double kAutoStopTimeThresh = 0.5;  // [s]
+  static constexpr double kMinBatteryVoltage = 3.;    // [V]
+  static constexpr double kThrotLimitMargin = 1e-3;   // [-]
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 400;  // [Hz]
@@ -399,7 +398,7 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   last_cmd_time_ = prev_sim_time_;
 
   // 範囲を制限してスロットルを更新
-  if (msg->data < 0. || 1. < msg->data)
+  if (msg->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < msg->data)
     TOBAS_ERROR("The commanded throttle ", msg->data, " is out of range.");
   throttle_ = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
