@@ -1,5 +1,5 @@
 #include <iostream>
-#include <unistd.h>
+#include <thread>
 
 #include <tobas_aso_core/pwm.hpp>
 
@@ -33,7 +33,7 @@ int main()
       return EXIT_FAILURE;
     }
 
-    usleep(10000);
+    this_thread::sleep_for(100ms);
   }
 
   return EXIT_SUCCESS;
