@@ -4,7 +4,7 @@
 
 #include <tobas_math/core.hpp>
 
-#include "../include/tobas_control/online_trajectory_filter.hpp"
+#include "../include/tobas_control/online_trajectory_generator.hpp"
 
 using namespace std;
 
@@ -36,63 +36,71 @@ inline static double u_v(double v, double U, double edd_min, double edd_max, dou
   return fmax(u_a(edd_min, U, eddk), min);
 }
 
-OnlineTrajectoryFilter::OnlineTrajectoryFilter()
+OnlineTrajectoryGenerator::OnlineTrajectoryGenerator()
 {
 }
 
-void OnlineTrajectoryFilter::setTargetPosition(double tar_pos)
+double OnlineTrajectoryGenerator::getCommandPosition() const
+{
+  return cmd_pos_;
+}
+
+double OnlineTrajectoryGenerator::getCommandVelocity() const
+{
+  return cmd_vel_;
+}
+
+double OnlineTrajectoryGenerator::getCommandAcceleration() const
+{
+  return cmd_acc_;
+}
+
+void OnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
 {
   tar_pos_ = tar_pos;
 }
 
-void OnlineTrajectoryFilter::setTargetVelocity(double tar_vel)
+void OnlineTrajectoryGenerator::setTargetVelocity(double tar_vel)
 {
   tar_vel_ = tar_vel;
 }
 
-void OnlineTrajectoryFilter::setTargetAcceleration(double tar_acc)
+void OnlineTrajectoryGenerator::setTargetAcceleration(double tar_acc)
 {
   tar_acc_ = tar_acc;
 }
 
-void OnlineTrajectoryFilter::setMinVelocity(double min_vel)
+void OnlineTrajectoryGenerator::setMinVelocity(double min_vel)
 {
   min_vel_ = min_vel;
 }
 
-void OnlineTrajectoryFilter::setMaxVelocity(double max_vel)
+void OnlineTrajectoryGenerator::setMaxVelocity(double max_vel)
 {
   max_vel_ = max_vel;
 }
 
-void OnlineTrajectoryFilter::setMinAcceleration(double min_acc)
+void OnlineTrajectoryGenerator::setMinAcceleration(double min_acc)
 {
   min_acc_ = min_acc;
 }
 
-void OnlineTrajectoryFilter::setMaxAcceleration(double max_acc)
+void OnlineTrajectoryGenerator::setMaxAcceleration(double max_acc)
 {
   max_acc_ = max_acc;
 }
 
-void OnlineTrajectoryFilter::setMaxJerk(double max_jerk)
+void OnlineTrajectoryGenerator::setMaxJerk(double max_jerk)
 {
   max_jerk_ = max_jerk;
 }
 
-void OnlineTrajectoryFilter::setSpeedOverride(double speed_override)
+void OnlineTrajectoryGenerator::setSpeedOverride(double speed_override)
 {
   speed_override_ = clamp(speed_override, 1e-3, 1.);
 }
 
-void OnlineTrajectoryFilter::update(
-  double dt,
-  double cur_pos,
-  double cur_vel,
-  double cur_acc,
-  double& cmd_pos,
-  double& cmd_vel,
-  double& cmd_acc) const
+void OnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel, double cur_acc)
 {
   assert(dt >= 0.);
 
@@ -137,12 +145,12 @@ void OnlineTrajectoryFilter::update(
   const auto uk = fmax(u_v(ed_min, U, edd_min, edd_max, edk, eddk), min);
 
   // Compute filter output
-  cmd_acc = cur_acc + dt * uk;
-  cmd_vel = cur_vel + dt / 2 * (cmd_acc + cur_acc);
-  cmd_pos = cur_pos + dt / 2 * (cmd_vel + cur_vel);
+  cmd_acc_ = cur_acc + dt * uk;
+  cmd_vel_ = cur_vel + dt / 2 * (cmd_acc_ + cur_acc);
+  cmd_pos_ = cur_pos + dt / 2 * (cmd_vel_ + cur_vel);
 
   // Clamp output
-  cmd_vel = clamp(cmd_vel, min_vel_, max_vel_);
-  cmd_acc = clamp(cmd_acc, min_acc_, max_acc_);
+  cmd_vel_ = clamp(cmd_vel_, min_vel_, max_vel_);
+  cmd_acc_ = clamp(cmd_acc_, min_acc_, max_acc_);
 }
 }  // namespace ctrl

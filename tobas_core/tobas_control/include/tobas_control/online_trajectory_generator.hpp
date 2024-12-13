@@ -3,10 +3,14 @@
 namespace ctrl
 {
 /* 制約を満たしつつ最短時間で目標状態に到達する起動をオンラインで更新する． */
-class OnlineTrajectoryFilter
+class OnlineTrajectoryGenerator
 {
 public:
-  explicit OnlineTrajectoryFilter();
+  explicit OnlineTrajectoryGenerator();
+
+  double getCommandPosition() const;
+  double getCommandVelocity() const;
+  double getCommandAcceleration() const;
 
   void setTargetPosition(double tar_pos);
   void setTargetVelocity(double tar_vel);
@@ -20,11 +24,14 @@ public:
 
   void setSpeedOverride(double speed_override);
 
-  void
-  update(double dt, double cur_pos, double cur_vel, double cur_acc, double& cmd_pos, double& cmd_vel, double& cmd_acc)
-    const;
+  void update(double dt, double cur_pos, double cur_vel, double cur_acc);
 
 private:
+  // Command
+  double cmd_pos_;
+  double cmd_vel_;
+  double cmd_acc_;
+
   // Target
   double tar_pos_ = 0.;
   double tar_vel_ = 0.;
