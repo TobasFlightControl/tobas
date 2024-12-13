@@ -30,6 +30,11 @@ class ErrorStateKalmanFilter
   using DeltaStateVector = Eigen::Vector<double, kDeltaStateSize>;
   using RowDeltaStateVector = Eigen::RowVector<double, kDeltaStateSize>;
 
+  static constexpr double kMaxAccBias = 1.;    // [m/s^2]
+  static constexpr double kMaxGyroBias = 0.1;  // [rad/s]
+  static constexpr double kMinGravity = 9.75;  // [m/s^2]
+  static constexpr double kMaxGravity = 9.85;  // [m/s^2]
+
 public:
   explicit ErrorStateKalmanFilter();
 
@@ -392,6 +397,12 @@ double ErrorStateKalmanFilter::correct(
   x_.segment<3>(kAccBiasIdx) += delta_x.segment<3>(kDeltaAccBiasIdx);
   x_.segment<3>(kGyroBiasIdx) += delta_x.segment<3>(kDeltaGyroBiasIdx);
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
+
+  // Clamp state
+  // 事前知識を用いて最低限ありえない値にはならないようにする
+  x_.segment<3>(kAccBiasIdx) = x_.segment<3>(kAccBiasIdx).cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
+  x_.segment<3>(kGyroBiasIdx) = x_.segment<3>(kGyroBiasIdx).cwiseMax(-kMaxGyroBias).cwiseMin(kMaxGyroBias);
+  x_(kGravIdx) = std::clamp(x_(kGravIdx), kMinGravity, kMaxGravity);
 
   // (286) Initialize ESKF (Optional)
   if (do_cov_initialization_)
