@@ -54,18 +54,13 @@ private:
   double alt_0_gps_;  // GPS高度のゼロ点 (Base Frame)
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
 
+  Vector3d pos_meas_;
   ImuMsg::ConstSharedPtr imu_;
   MagMsg::ConstSharedPtr mag_;
   BarMsg::ConstSharedPtr bar_;
   GpsMsg::ConstSharedPtr gps_;
   bool gps_fix_ = false;
   double gps_anormaly_score_ = 0.;
-
-  Vector3d pos_meas_;
-  Matrix3d grav_meas_cov_ = Matrix3d::Zero();  // 重力方向の加速度の観測の不確かさ
-  double acc_bias_noise_var_;                  // 加速度バイアスののプロセスノイズの分散
-  double gyro_bias_noise_var_;                 // ジャイロバイアスののプロセスノイズの分散
-  double grav_noise_var_;                      // 重力加速度のプロセスノイズの分散
 
   eskf::ErrorStateKalmanFilter eskf_;
 
@@ -79,6 +74,13 @@ private:
   Vector3d imu_offset_;  // [m] ルートリンクに対するIMUの位置 (Local)
   Vector3d bar_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
   Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
+
+  // Dynamic parameters
+  double grav_meas_var_intercept_;  // [m^2/s^4] 重力方向の加速度の観測の不確かさの最小値
+  double grav_meas_var_slope_;  // [m/s^2] 重力方向の観測の，加速度ノルム誤差に対する比例定数
+  double acc_bias_noise_var_;   // 加速度バイアスののプロセスノイズの分散
+  double gyro_bias_noise_var_;  // ジャイロバイアスののプロセスノイズの分散
+  double grav_noise_var_;       // 重力加速度のプロセスノイズの分散
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
@@ -102,11 +104,13 @@ private:
   void getStaticRosParams();
   void fillOdometryMsg(OdomMsg& odom) const;
   void publishGPSOrigin();
+  double computeGravMeasVariance(const Vector3d& acc) const;
 
-  bool gravityMeasVarianceCb(const long& p);
+  bool gravMeasVarInterceptCb(const long& p);
+  bool gravMeasVarSlopeCb(const long& p);
   bool accBiasNoiseVarianceLog10Cb(const long& p);
   bool gyroBiasNoiseVarianceLog10Cb(const long& p);
-  bool gravityNoiseVarianceLog10Cb(const long& p);
+  bool gravNoiseVarianceLog10Cb(const long& p);
 
   void imuCb(const ImuMsg::ConstSharedPtr& imu);
   void magCb(const MagMsg::ConstSharedPtr& mag);
@@ -126,10 +130,11 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
-  addDynamicIntParam("gravity_meas_variance", &self::gravityMeasVarianceCb, this, 500, 1, 10000);
+  addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 100, 1, 1000);
+  addDynamicIntParam("grav_meas_var_slope", &self::gravMeasVarSlopeCb, this, 100, 0, 1000);
   addDynamicIntParam("acc_bias_noise_var_log10", &self::accBiasNoiseVarianceLog10Cb, this, -5, -12, 0);
   addDynamicIntParam("gyro_bias_noise_var_log10", &self::gyroBiasNoiseVarianceLog10Cb, this, -9, -12, 0);
-  addDynamicIntParam("gravity_noise_var_log10", &self::gravityNoiseVarianceLog10Cb, this, -7, -12, 0);
+  addDynamicIntParam("grav_noise_var_log10", &self::gravNoiseVarianceLog10Cb, this, -7, -12, 0);
 
   // Register publishers
   odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
@@ -227,9 +232,28 @@ void ObserverNode::publishGPSOrigin()
   gps_origin_pub_->publish(move(gps_origin));
 }
 
-bool ObserverNode::gravityMeasVarianceCb(const long& p)
+double ObserverNode::computeGravMeasVariance(const Vector3d& acc) const
 {
-  grav_meas_cov_.diagonal().fill(p);
+  // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
+  // 加速度の大きさと重力加速度との誤差が大きいほど重力以外の加速度が生じているため加速度による姿勢の観測が不確かだと考えるのは直感的だが，
+  // その誤差は正規分布に従うわけではなく一様に確かでもないため，誤差をそのまま標準偏差とすることには何の根拠もない．
+  // 実際，重力方向の分散を下げると，並進移動時に進行方向への加速度により実際よりも大きく傾いていると判断され，
+  // 制御器が姿勢を戻そうとし，並進方向の加速度の追従が遅れ，位置制御が振動するという因果関係がある．
+  // 動的加速度が陽にモデルに含まれていない以上，その不確かさの決定はヒューリスティックにならざるを得ない．
+  // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
+  const auto acc_norm_diff = fabs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
+  return grav_meas_var_intercept_ + grav_meas_var_slope_ * acc_norm_diff;  // TODO: 1次関数以外のプロファイルを検討
+}
+
+bool ObserverNode::gravMeasVarInterceptCb(const long& p)
+{
+  grav_meas_var_intercept_ = p;
+  return true;
+}
+
+bool ObserverNode::gravMeasVarSlopeCb(const long& p)
+{
+  grav_meas_var_slope_ = p;
   return true;
 }
 
@@ -259,7 +283,7 @@ bool ObserverNode::gyroBiasNoiseVarianceLog10Cb(const long& p)
   return true;
 }
 
-bool ObserverNode::gravityNoiseVarianceLog10Cb(const long& p)
+bool ObserverNode::gravNoiseVarianceLog10Cb(const long& p)
 {
   if (!do_grav_estimation_)
   {
@@ -311,7 +335,8 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
 
   // 重力方向の観測
   // TODO: モデルから推定した動的加速度をセンサ加速度から引いたものを観測値とする
-  eskf_.measureGravity(imu->imu.imu.accel.data, grav_meas_cov_, cur_time);
+  const auto grav_var = computeGravMeasVariance(imu->imu.imu.accel.data);
+  eskf_.measureGravity(imu->imu.imu.accel.data, Vector3d::Constant(grav_var).asDiagonal(), cur_time);
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
