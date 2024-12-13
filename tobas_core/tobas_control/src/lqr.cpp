@@ -3,8 +3,8 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-#include "../include/tobas_linear_control/lqr.hpp"
-#include "../include/tobas_linear_control/care.hpp"
+#include "../include/tobas_control/lqr.hpp"
+#include "../include/tobas_control/care.hpp"
 
 using namespace std;
 using namespace Eigen;

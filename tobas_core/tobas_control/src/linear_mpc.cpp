@@ -2,7 +2,7 @@
 
 #include <tobas_eigen_tools/core.hpp>
 
-#include "../../include/tobas_linear_control/mpc/linear_dense.hpp"
+#include "../include/tobas_control/linear_mpc.hpp"
 
 #define STOPWATCH_SAMPLES 100
 
@@ -11,11 +11,11 @@ using namespace Eigen;
 
 namespace ctrl
 {
-LinearDenseMPC::LinearDenseMPC() : stopwatch_(STOPWATCH_SAMPLES)
+LinearMPC::LinearMPC() : stopwatch_(STOPWATCH_SAMPLES)
 {
 }
 
-bool LinearDenseMPC::solve()
+bool LinearMPC::solve()
 {
   // 初期化
   if (is_first_solve_)
@@ -113,7 +113,7 @@ bool LinearDenseMPC::solve()
   return true;
 }
 
-ostream& operator<<(ostream& os, const LinearDenseMPC& arg)
+ostream& operator<<(ostream& os, const LinearMPC& arg)
 {
   os << "QuadProgSolver:" << endl;
   os << arg.qpsolver_ << endl;
@@ -121,7 +121,7 @@ ostream& operator<<(ostream& os, const LinearDenseMPC& arg)
   return os;
 }
 
-void LinearDenseMPC::checkProblemValidity()
+void LinearMPC::checkProblemValidity()
 {
   // Dynamics
   assert(static_cast<Index>(discrete_dynamics.size()) == prediction_steps);
@@ -196,7 +196,7 @@ void LinearDenseMPC::checkProblemValidity()
   assert(eigen::isFinite(set_state));
 }
 
-void LinearDenseMPC::updateQpConstraint(
+void LinearMPC::updateQpConstraint(
   const VectorXd& last_u,
   const VectorXd& Psi_x,
   const VectorXd& Upsilon_u,
@@ -230,7 +230,7 @@ void LinearDenseMPC::updateQpConstraint(
   b = eigen::concat(-F_1 * last_u - f, -Gamma * Psi_x - Gamma * Upsilon_u - g, w, 0);
 }
 
-MatrixXd LinearDenseMPC::makeSa()
+MatrixXd LinearMPC::makeSa()
 {
   const MatrixXd S_diag = input_weight.asDiagonal();
 
@@ -249,7 +249,7 @@ MatrixXd LinearDenseMPC::makeSa()
   return Sa;
 }
 
-VectorXd LinearDenseMPC::makeSb(const VectorXd& last_u_scaled)
+VectorXd LinearMPC::makeSb(const VectorXd& last_u_scaled)
 {
   // 演習問題3-5
   const VectorXd Sb_elem = input_weight.cwiseProduct(last_u_scaled);
@@ -262,7 +262,7 @@ VectorXd LinearDenseMPC::makeSb(const VectorXd& last_u_scaled)
   return Sb;
 }
 
-MatrixXd LinearDenseMPC::makeFGothic(const MatrixXd& F)
+MatrixXd LinearMPC::makeFGothic(const MatrixXd& F)
 {
   const auto n_cond_u = F.rows();  // (3.35)の条件数
 
@@ -280,7 +280,7 @@ MatrixXd LinearDenseMPC::makeFGothic(const MatrixXd& F)
   return F_gothic;
 }
 
-MatrixXd LinearDenseMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Psi(z_size_ * prediction_steps, x_size_);
   MatrixXd tmp = MatrixXd::Identity(x_size_, x_size_);
@@ -293,7 +293,7 @@ MatrixXd LinearDenseMPC::makePsi(const vector<LinearDynamics>& dyns_scaled, cons
   return Psi;
 }
 
-MatrixXd LinearDenseMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Upsilon(z_size_ * prediction_steps, u_size_);
   MatrixXd tmp = MatrixXd::Zero(x_size_, u_size_);
@@ -306,7 +306,7 @@ MatrixXd LinearDenseMPC::makeUpsilon(const vector<LinearDynamics>& dyns_scaled, 
   return Upsilon;
 }
 
-MatrixXd LinearDenseMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
+MatrixXd LinearMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, const MatrixXd& Cz_scaled)
 {
   MatrixXd Theta(z_size_ * prediction_steps, u_size_ * input_steps);
   vector<MatrixXd> tmp;
@@ -328,7 +328,7 @@ MatrixXd LinearDenseMPC::makeTheta(const vector<LinearDynamics>& dyns_scaled, co
   return Theta;
 }
 
-VectorXd LinearDenseMPC::makeTau(const VectorXd& x_scaled, const VectorXd& s_scaled, const MatrixXd& Cz_scaled)
+VectorXd LinearMPC::makeTau(const VectorXd& x_scaled, const VectorXd& s_scaled, const MatrixXd& Cz_scaled)
 {
   const VectorXd error = s_scaled - Cz_scaled * x_scaled;
   const auto decays = makeDecays();
@@ -340,7 +340,7 @@ VectorXd LinearDenseMPC::makeTau(const VectorXd& x_scaled, const VectorXd& s_sca
   return Tau;
 }
 
-vector<VectorXd> LinearDenseMPC::makeDecays()
+vector<VectorXd> LinearMPC::makeDecays()
 {
   vector<VectorXd> decays(prediction_steps, VectorXd(z_size_));
 
@@ -357,7 +357,7 @@ vector<VectorXd> LinearDenseMPC::makeDecays()
   return decays;
 }
 
-MatrixXd LinearDenseMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, const Index& H)
+MatrixXd LinearMPC::makeConstraintMatrix(const vector<LinearEquation>& consts, const Index& H)
 {
   const auto const_size = consts[0].equationSize();
   const auto var_size = consts[0].variableSize();

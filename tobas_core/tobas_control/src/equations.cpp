@@ -1,4 +1,4 @@
-#include "../include/tobas_linear_control/equations.hpp"
+#include "../include/tobas_control/equations.hpp"
 
 using namespace std;
 using namespace Eigen;

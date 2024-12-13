@@ -9,7 +9,7 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<depend>tobas_linear_control</depend>
+	<depend>tobas_control</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_tools</depend>
 	<depend>tobas_drone_tools</depend>

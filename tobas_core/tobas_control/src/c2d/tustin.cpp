@@ -1,6 +1,6 @@
 #include <eigen3/Eigen/LU>  // inverse()に必要
 
-#include "../../include/tobas_linear_control/c2d/tustin.hpp"
+#include "../../include/tobas_control/c2d/tustin.hpp"
 
 using namespace std;
 using namespace Eigen;

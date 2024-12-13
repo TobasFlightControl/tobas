@@ -3,9 +3,9 @@
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
 
-#include "../include/tobas_linear_control/util.hpp"
-#include "../include/tobas_linear_control/dare.hpp"
-#include "../include/tobas_linear_control/kalman_filter.hpp"
+#include "../include/tobas_control/util.hpp"
+#include "../include/tobas_control/dare.hpp"
+#include "../include/tobas_control/kalman_filter.hpp"
 
 using namespace std;
 using namespace Eigen;

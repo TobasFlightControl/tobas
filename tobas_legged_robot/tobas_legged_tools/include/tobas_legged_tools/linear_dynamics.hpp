@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_linear_control/state_spaces.hpp>
+#include <tobas_control/state_spaces.hpp>
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 

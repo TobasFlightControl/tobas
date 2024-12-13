@@ -7,8 +7,8 @@
 #include <tobas_quadprog/dual_active_set.hpp>
 // #include <tobas_quadprog/primal_dual_interior_point.hpp>
 
-#include "../state_spaces.hpp"
-#include "../equations.hpp"
+#include "./state_spaces.hpp"
+#include "./equations.hpp"
 
 namespace ctrl
 {
@@ -16,7 +16,7 @@ namespace ctrl
  * @brief 線形モデル予測制御．
  * cf. https://www.tdupress.jp/book/b349347.html
  */
-class LinearDenseMPC
+class LinearMPC
 {
 public:
   // Dynamics
@@ -57,14 +57,14 @@ public:
   Eigen::VectorXd current_state;  // x: 現在の状態
   Eigen::VectorXd set_state;      // s: 設定値
 
-  explicit LinearDenseMPC();
+  explicit LinearMPC();
 
   bool solve();
 
   inline const Eigen::VectorXd& optimalControlInput() const;
   inline const std::string& errorMessage() const;
 
-  friend std::ostream& operator<<(std::ostream& os, const LinearDenseMPC& arg);
+  friend std::ostream& operator<<(std::ostream& os, const LinearMPC& arg);
 
 private:
   // quadprog::QuadProgppSolver qpsolver_;
@@ -106,12 +106,12 @@ private:
   static Eigen::MatrixXd makeConstraintMatrix(const std::vector<LinearEquation>& ineqs, const Eigen::Index& H);
 };
 
-inline const Eigen::VectorXd& LinearDenseMPC::optimalControlInput() const
+inline const Eigen::VectorXd& LinearMPC::optimalControlInput() const
 {
   return last_input_;
 }
 
-inline const std::string& LinearDenseMPC::errorMessage() const
+inline const std::string& LinearMPC::errorMessage() const
 {
   return qpsolver_.errorMessage();
 }
