@@ -20,6 +20,7 @@
 	<exec_depend>tobas_dparam</exec_depend>
 	<exec_depend>tobas_drone</exec_depend>
 	<exec_depend>tobas_dummy_pkg</exec_depend>
+	<exec_depend>tobas_eskf</exec_depend>
 	<exec_depend>tobas_examples_py</exec_depend>
 	<exec_depend>tobas_fake_publishers</exec_depend>
 	<exec_depend>tobas_gazebo</exec_depend>
@@ -32,7 +33,6 @@
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_msgs_adapter</exec_depend>
 	<exec_depend>tobas_node</exec_depend>
-	<exec_depend>tobas_observers</exec_depend>
 	<exec_depend>tobas_pose_pid</exec_depend>
 	<exec_depend>tobas_prearm_check</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>

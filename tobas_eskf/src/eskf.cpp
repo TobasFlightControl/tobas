@@ -5,7 +5,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/state_estimation_eskf/eskf.hpp"
+#include "../include/tobas_eskf/eskf.hpp"
 
 #define E3 Diagonal3d(1, 1, 1)
 

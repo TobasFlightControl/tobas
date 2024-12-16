@@ -55,7 +55,7 @@ const char* ErrorStateKalmanFilterWidget::description() const
 
 QString ErrorStateKalmanFilterWidget::observerPackage() const
 {
-  return "state_estimation_eskf";
+  return "tobas_eskf";
 }
 
 QString ErrorStateKalmanFilterWidget::pluginName() const
