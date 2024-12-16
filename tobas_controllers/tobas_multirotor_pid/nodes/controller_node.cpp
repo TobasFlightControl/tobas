@@ -343,11 +343,12 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     if (tar_rpyt_ == nullptr)
       tar_rpyt_ = std::make_shared<RollPitchYawThrust>();
 
-    // 世界座標系から見た現在の速度を計算
+    // 世界座標系から見た現在の位置速度
+    const auto& cur_pos_W = odom->frame.p;
     const auto cur_vel_W = odom->frame.M * odom->twist.vel;
 
     // 目標加速度を計算
-    const kdl::Vector tar_acc_fb(pos_pid_.update(odom->frame.p, cur_vel_W, tar_pvay_W_->pos, tar_pvay_W_->vel, dt));
+    const auto tar_acc_fb = pos_pid_.update(cur_pos_W, cur_vel_W, tar_pvay_W_->pos, tar_pvay_W_->vel, dt);
     const auto tar_acc = tar_pvay_W_->acc + tar_acc_fb;
 
     // 推力和と目標姿勢を計算

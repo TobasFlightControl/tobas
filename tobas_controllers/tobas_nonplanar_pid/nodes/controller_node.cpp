@@ -340,7 +340,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
   // 位置制御器
   const auto cur_vel_W = odom->frame.M * odom->twist.vel;  // 世界座標系から見た現在の速度
-  const kdl::Vector tar_acc_fb(pos_pid_.update(odom->frame.p, cur_vel_W, cmd_->pos, cmd_->vel, dt));
+  const auto tar_acc_fb = pos_pid_.update(odom->frame.p, cur_vel_W, cmd_->pos, cmd_->vel, dt);
   const auto tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
