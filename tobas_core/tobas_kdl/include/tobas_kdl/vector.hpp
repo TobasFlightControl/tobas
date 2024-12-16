@@ -68,6 +68,7 @@ public:
   inline void normalize();
   inline Vector normalized() const;
   inline Vector sqr() const;
+  inline Vector cube() const;
   inline Vector inverse() const;
 
   inline bool isFinite() const;
@@ -245,6 +246,11 @@ inline Vector Vector::normalized() const
 inline Vector Vector::sqr() const
 {
   return Vector(data.cwiseAbs2());
+}
+
+inline Vector Vector::cube() const
+{
+  return Vector(data.cwiseProduct(data).cwiseProduct(data));
 }
 
 inline Vector Vector::inverse() const
