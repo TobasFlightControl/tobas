@@ -19,7 +19,7 @@ public:
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);
   bool setIntegralGain(int idx, double value);
-  bool setMaximumAccel(int idx, double p);
+  bool setMaximumAccel(int idx, double value);
 
   inline const kdl::Vector& integralError() const;
 

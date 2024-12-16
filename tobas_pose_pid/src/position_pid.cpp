@@ -27,16 +27,16 @@ kdl::Vector PositionPID::update(
 
   // 最大加速度からP加速度を除いた値でI加速度を制限する (動的なアンチワインドアップ)
   // PI加速度が最大加速度を超える場合，I成分の効果は不安定化とオーバーシュートのみとなってしまう
-  const kdl::Vector tar_acc_p = kp_.hadamard(ep).clamp(-max_acc_, max_acc_);
-  const kdl::Vector min_ei = (-max_acc_ - tar_acc_p).hadamard(ki_.inverse());
-  const kdl::Vector max_ei = (max_acc_ - tar_acc_p).hadamard(ki_.inverse());
+  const auto tar_acc_p = kp_.hadamard(ep).clamp(-max_acc_, max_acc_);
+  const auto min_ei = (-max_acc_ - tar_acc_p).hadamard(ki_.inverse());
+  const auto max_ei = (max_acc_ - tar_acc_p).hadamard(ki_.inverse());
   ei_ = ei_.clamp(min_ei, max_ei);
 
   // PID
-  const kdl::Vector tar_acc = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
+  const auto cmd_acc = kp_.hadamard(ep) + ki_.hadamard(ei_) + kd_.hadamard(ed);
 
   // 目標加速度を制限して出力
-  return tar_acc.clamp(-max_acc_, max_acc_);
+  return cmd_acc.clamp(-max_acc_, max_acc_);
 }
 
 bool PositionPID::setNaturalFreq(int idx, double value)
@@ -96,7 +96,7 @@ bool PositionPID::setMaximumAccel(int idx, double value)
 
   if (value <= 0.)
   {
-    cerr << "Maximum horizontal accel must be positive." << endl;
+    cerr << "Maximum acceleration must be positive." << endl;
     return false;
   }
 
