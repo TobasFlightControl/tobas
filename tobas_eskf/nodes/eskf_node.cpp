@@ -181,7 +181,7 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   const Vector3d W_Vel_WI = eskf_.getVelocity();
   const Quaterniond W_Rot_B = eskf_.getQuaternion();
   const Quaterniond B_Rot_W = W_Rot_B.conjugate();
-  const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -tobas_std::kGravity);
+  const Vector3d B_grav = B_Rot_W * Vector3d(0, 0, -eskf_.getGravity());
   const Vector3d B_Acc = imu_->imu.imu.accel.data - eskf_.getAccelBias() + B_grav;  // 重力を除いた加速度
   const Vector3d B_Gyro = imu_->imu.imu.gyro.data - eskf_.getGyroBias();
 
