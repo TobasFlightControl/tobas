@@ -13,6 +13,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_eigen_tools REQUIRED)
+find_package(tobas_dsp REQUIRED)
 find_package(tobas_geomag REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_node REQUIRED)
@@ -21,6 +22,7 @@ find_package(tobas_debug_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	tobas_eigen_tools
+	tobas_dsp
 	tobas_geomag
 	tobas_kdl_conversions
 	tobas_node
