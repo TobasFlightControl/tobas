@@ -27,9 +27,9 @@ public:
   inline void setZero();
   inline void fill(double value);
 
-  inline Vector toVector() const;
   inline Rotation toRotation() const;
   inline Quaternion toQuaternion() const;
+  inline Vector toAngleAxis() const;
 
   /* 2つの回転の差を等価角軸ベクトルとして返す．O_AngleAxis_AB = O_Rot_B - O_Rot_A． */
   inline AngleAxis operator-(const Euler& rhs) const;
@@ -79,14 +79,14 @@ inline void Euler::fill(double value)
   yaw = value;
 }
 
-inline Vector Euler::toVector() const
-{
-  return Vector(roll, pitch, yaw);
-}
-
 inline Rotation Euler::toRotation() const
 {
   return Rotation::RPY(roll, pitch, yaw);
+}
+
+inline Vector Euler::toAngleAxis() const
+{
+  return this->toRotation().getRot();
 }
 
 inline Quaternion Euler::toQuaternion() const

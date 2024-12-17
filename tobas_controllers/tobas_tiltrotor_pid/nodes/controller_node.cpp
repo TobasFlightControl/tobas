@@ -547,7 +547,7 @@ void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSha
   pos_otg_.setTargetPosition(cmd_->pos.data);
   pos_otg_.setTargetVelocity(cmd_->vel.data);
   pos_otg_.setTargetAcceleration(cmd_->acc.data);
-  rot_otg_.setTargetPosition(cmd_->rpy.toRotation().getRot().data);
+  rot_otg_.setTargetPosition(cmd_->rpy.toAngleAxis().data);
   rot_otg_.setTargetVelocity(cmd_->gyro.data);
   rot_otg_.setTargetAcceleration(cmd_->dgyro.data);
 }
