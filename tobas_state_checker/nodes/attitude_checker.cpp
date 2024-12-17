@@ -14,7 +14,7 @@ using namespace std;
 
 class AttitudeCheckerNode : public tobas::BaseNode
 {
-  static constexpr double kAttitudeFatalThresh = tobas_std::deg2rad(85.);  // [rad]
+  static constexpr double kDefaultAttitudeThresh = M_PI;  // [rad]
 
   using self = AttitudeCheckerNode;
   using super = tobas::BaseNode;
@@ -23,6 +23,9 @@ public:
   explicit AttitudeCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  // Static parameters
+  double attitude_thresh_;
+
   std_msgs::msg::Bool::ConstSharedPtr arming_;
 
   // Publishers
@@ -44,6 +47,13 @@ private:
 
 AttitudeCheckerNode::AttitudeCheckerNode(const rclcpp::NodeOptions& options) : super("attitude_checker", options)
 {
+  attitude_thresh_ = getDoubleParam("attitude_threshold", kDefaultAttitudeThresh);
+  if (attitude_thresh_ <= 0.)
+  {
+    TOBAS_ERROR("Attitude threshold must be positive.");
+    attitude_thresh_ = kDefaultAttitudeThresh;
+  }
+
   event_pub_ = createPublisher<tobas_msgs::msg::Event>(tobas::kEventTopic);
 
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
@@ -84,7 +94,7 @@ void AttitudeCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstShare
 
   // 姿勢角が閾値を超えていたら全モータを非常停止
   // TODO: ここでパラシュートを開く
-  if (max(fabs(euler->euler.roll), fabs(euler->euler.pitch)) > kAttitudeFatalThresh)
+  if (max(fabs(euler->euler.roll), fabs(euler->euler.pitch)) > attitude_thresh_)
   {
     TOBAS_FATAL("The attitude angle exceeds the threshold. Stopping motors.");
     publishSystemCriticalEvent();
