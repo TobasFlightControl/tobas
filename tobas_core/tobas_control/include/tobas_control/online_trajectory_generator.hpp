@@ -3,8 +3,8 @@
 namespace ctrl
 {
 /**
- * @brief 制約を満たしつつ最短時間で目標状態に到達する起動をオンラインで更新する．
- * @note バンバン制御は安定余裕が無いので，遅延，モデル化誤差，ノイズを含む実環境では使いづらい．
+ * @brief 制約を満たしつつ最短時間で目標状態に到達する軌道をオンラインで更新する．
+ * @note バンバン制御は安定余裕が無いので，遅延，モデル化誤差を含む実環境でフィードバックループとして使うのは難しい．
  */
 class OnlineTrajectoryGenerator
 {
@@ -14,6 +14,10 @@ public:
   double getCommandPosition() const;
   double getCommandVelocity() const;
   double getCommandAcceleration() const;
+
+  double getTargetPosition() const;
+  double getTargetVelocity() const;
+  double getTargetAcceleration() const;
 
   void setTargetPosition(double tar_pos);
   void setTargetVelocity(double tar_vel);
@@ -27,13 +31,17 @@ public:
 
   void setSpeedOverride(double speed_override);
 
+  /* 状態フィードバックを含む更新． */
   void update(double dt, double cur_pos, double cur_vel, double cur_acc);
+
+  /* 状態フィードバックを含まない更新． */
+  void update(double dt);
 
 private:
   // Command
-  double cmd_pos_;
-  double cmd_vel_;
-  double cmd_acc_;
+  double cmd_pos_ = 0.;
+  double cmd_vel_ = 0.;
+  double cmd_acc_ = 0.;
 
   // Target
   double tar_pos_ = 0.;

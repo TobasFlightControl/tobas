@@ -55,6 +55,21 @@ double OnlineTrajectoryGenerator::getCommandAcceleration() const
   return cmd_acc_;
 }
 
+double OnlineTrajectoryGenerator::getTargetPosition() const
+{
+  return tar_pos_;
+}
+
+double OnlineTrajectoryGenerator::getTargetVelocity() const
+{
+  return tar_vel_;
+}
+
+double OnlineTrajectoryGenerator::getTargetAcceleration() const
+{
+  return tar_acc_;
+}
+
 void OnlineTrajectoryGenerator::setTargetPosition(double tar_pos)
 {
   tar_pos_ = tar_pos;
@@ -152,5 +167,10 @@ void OnlineTrajectoryGenerator::update(double dt, double cur_pos, double cur_vel
   // Clamp output
   cmd_vel_ = clamp(cmd_vel_, min_vel_, max_vel_);
   cmd_acc_ = clamp(cmd_acc_, min_acc_, max_acc_);
+}
+
+void OnlineTrajectoryGenerator::update(double dt)
+{
+  this->update(dt, cmd_pos_, cmd_vel_, cmd_acc_);
 }
 }  // namespace ctrl
