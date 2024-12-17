@@ -135,7 +135,10 @@ class FloatSliderDisplay(QWidget):
         return self._slider.value()
 
     def set_value(self, value: float) -> None:
+        self._slider.blockSignals(True)
         self._slider.setValue(value)
+        self.update()
+        self._slider.blockSignals(False)
 
     def set_suffix(self, suffix: str) -> None:
         self._suffix = suffix
