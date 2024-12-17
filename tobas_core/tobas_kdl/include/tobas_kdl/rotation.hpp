@@ -74,6 +74,7 @@ public:
   // Along an arbitrary axes. Axis must be normalized.
   // returns identity rotation matrix in the case that the norm of axis is to small to be used.
   static Rotation Rot(const Vector& axis, double angle);
+  static Rotation Rot(const Vector& vec);
 
   // Returns a vector with the direction of the equiv. axis and its norm is angle.
   Vector getRot() const;

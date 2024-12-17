@@ -199,6 +199,11 @@ Rotation Rotation::Rot(const Vector& axis, double angle)
     -m_st_0 + m_vt_1_2, -m_st_1 + m_vt_0_2, m_st_0 + m_vt_1_2, ct + m_vt_2 * axis.z());
 }
 
+Rotation Rotation::Rot(const Vector& vec)
+{
+  return Rotation::Rot(vec.normalized(), vec.norm());
+}
+
 Vector Rotation::getRot() const
 {
   const auto [angle, axis] = Rotation::getAngleAxis();
