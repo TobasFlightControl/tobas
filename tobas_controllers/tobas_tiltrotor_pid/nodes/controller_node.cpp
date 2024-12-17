@@ -133,12 +133,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("max_vertical_velocity", &self::maxVerticalVelocityCb, this, 5., 0., 20.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 0., 10.);
   addDynamicDoubleParam("max_vertical_jerk", &self::maxVerticalJerkCb, this, 2., 0., 100.);
-  addDynamicDoubleParam("max_attitude_gyro", &self::maxAttitudeGyroCb, this, M_PI_2, 0., 10.);
-  addDynamicDoubleParam("max_attitude_dgyro", &self::maxAttitudeDGyroCb, this, M_PI, 0., 20.);
-  addDynamicDoubleParam("max_attitude_ddgyro", &self::maxAttitudeDDGyroCb, this, 2 * M_PI, 0., 40.);
-  addDynamicDoubleParam("max_heading_gyro", &self::maxHeadingGyroCb, this, M_PI_2, 0., 10);
-  addDynamicDoubleParam("max_heading_dgyro", &self::maxHeadingDGyroCb, this, M_PI, 0., 20.);
-  addDynamicDoubleParam("max_heading_ddgyro", &self::maxHeadingDDGyroCb, this, 2 * M_PI, 0., 40.);
+  addDynamicDoubleParam("max_attitude_gyro", &self::maxAttitudeGyroCb, this, M_PI_4, 0., 10.);
+  addDynamicDoubleParam("max_attitude_dgyro", &self::maxAttitudeDGyroCb, this, M_PI_2, 0., 20.);
+  addDynamicDoubleParam("max_attitude_ddgyro", &self::maxAttitudeDDGyroCb, this, M_PI, 0., 40.);
+  addDynamicDoubleParam("max_heading_gyro", &self::maxHeadingGyroCb, this, M_PI_4, 0., 10);
+  addDynamicDoubleParam("max_heading_dgyro", &self::maxHeadingDGyroCb, this, M_PI_2, 0., 20.);
+  addDynamicDoubleParam("max_heading_ddgyro", &self::maxHeadingDDGyroCb, this, M_PI, 0., 40.);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
