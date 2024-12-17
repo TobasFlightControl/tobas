@@ -35,7 +35,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
   const auto trace = data.trace();
   if (trace > EPS)
   {
-    const auto s = 0.5 / sqrt(trace + 1.0);
+    const auto s = 0.5 / sqrt(trace + 1.);
     w = 0.25 / s;
     x = (data(2, 1) - data(1, 2)) * s;
     y = (data(0, 2) - data(2, 0)) * s;
@@ -45,7 +45,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
   {
     if (data(0, 0) > data(1, 1) && data(0, 0) > data(2, 2))
     {
-      const auto s = 2.0 * sqrt(1.0 + data(0, 0) - data(1, 1) - data(2, 2));
+      const auto s = 2. * sqrt(1. + data(0, 0) - data(1, 1) - data(2, 2));
       w = (data(2, 1) - data(1, 2)) / s;
       x = 0.25 * s;
       y = (data(0, 1) + data(1, 0)) / s;
@@ -53,7 +53,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
     }
     else if (data(1, 1) > data(2, 2))
     {
-      const auto s = 2.0 * sqrt(1.0 + data(1, 1) - data(0, 0) - data(2, 2));
+      const auto s = 2. * sqrt(1. + data(1, 1) - data(0, 0) - data(2, 2));
       w = (data(0, 2) - data(2, 0)) / s;
       x = (data(0, 1) + data(1, 0)) / s;
       y = 0.25 * s;
@@ -61,7 +61,7 @@ void Rotation::getQuaternion(double& x, double& y, double& z, double& w) const
     }
     else
     {
-      const auto s = 2.0 * sqrt(1.0 + data(2, 2) - data(0, 0) - data(1, 1));
+      const auto s = 2. * sqrt(1. + data(2, 2) - data(0, 0) - data(1, 1));
       w = (data(1, 0) - data(0, 1)) / s;
       x = (data(0, 2) + data(2, 0)) / s;
       y = (data(1, 2) + data(2, 1)) / s;
@@ -98,7 +98,7 @@ void Rotation::getRPY(double& roll, double& pitch, double& yaw) const
   if (fabs(pitch) > (M_PI_2 - EPS))
   {
     yaw = atan2(-data(0, 1), data(1, 1));
-    roll = 0;
+    roll = 0.;
   }
   else
   {
@@ -212,25 +212,22 @@ Vector Rotation::getRot() const
 
 std::pair<double, Vector> Rotation::getAngleAxis() const
 {
-  constexpr auto epsilon2 = EPS * 10;  // margin to distinguish between 0 and 180 degrees
+  constexpr auto eps2 = EPS * 10;  // margin to distinguish between 0 and 180 degrees
 
-  // optional check that input is pure rotation, 'isRotationMatrix' is defined at:
+  // Optional check that input is pure rotation, 'isRotationMatrix' is defined at:
   // http://www.euclideanspace.com/maths/algebra/matrix/orthogonal/rotation/
 
-  if (
-    (fabs(data(0, 1) - data(1, 0)) < EPS) && (fabs(data(0, 2) - data(2, 0)) < EPS)
-    && (fabs(data(1, 2) - data(2, 1)) < EPS))
+  if (fabs(data(0, 1) - data(1, 0) < EPS) && fabs(data(0, 2) - data(2, 0)) < EPS && fabs(data(1, 2) - data(2, 1)) < EPS)
   {
-    // singularity found
-    // first check for identity matrix which must have +1
+    // Singularity found
+    // First check for identity matrix which must have +1
     // for all terms in leading diagonal and zero in other terms
     if (
-      (fabs(data(0, 1) + data(1, 0)) < epsilon2) && (fabs(data(0, 2) + data(2, 0)) < epsilon2)
-      && (fabs(data(1, 2) + data(2, 1)) < epsilon2) && (fabs(data(0, 0) + data(1, 1) + data(2, 2) - 3) < epsilon2))
+      fabs(data(0, 1) + data(1, 0)) < eps2 && fabs(data(0, 2) + data(2, 0)) < eps2
+      && fabs(data(1, 2) + data(2, 1)) < eps2 && fabs(this->trace() - 3) < eps2)
     {
-      // this singularity is identity matrix so angle = 0, axis is arbitrary
-      // Choose 0, 0, 1 to pass orocos tests
-      return { 0, Vector::UnitZ() };
+      // This singularity is identity matrix so angle = 0, axis is arbitrary chose.
+      return { 0., Vector::UnitZ() };
     }
 
     // otherwise this singularity is angle = 180
@@ -242,7 +239,7 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
     const auto yz = (data(1, 2) + data(2, 1)) / 4;
 
     double x, y, z;
-    if ((xx > yy) && (xx > zz))
+    if (xx > yy && xx > zz)
     {
       // data(0, 0) is the largest diagonal term
       x = sqrt(xx);
@@ -274,6 +271,6 @@ std::pair<double, Vector> Rotation::getAngleAxis() const
   const auto z = data(1, 0) - data(0, 1);
   const Vector axis(x, y, z);
   const auto angle = atan2(axis.norm() / 2, f);
-  return { angle, axis };
+  return { angle, axis.normalized() };
 }
 }  // namespace kdl
