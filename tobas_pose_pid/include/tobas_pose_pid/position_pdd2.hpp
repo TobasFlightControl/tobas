@@ -25,10 +25,10 @@ public:
 
 private:
   // Config
-  kdl::Vector wn_ = { 1., 1., 1. };              // [rad/s]
-  kdl::Vector zeta_ = { 1., 1., 1. };            // [-]
-  kdl::Vector xi_ = { 1., 1., 1. };              // [-]
-  kdl::Vector max_jerk_ = { 100., 100., 100. };  // [m/s^3]
+  kdl::Vector wn_ = { 1., 1., 1. };                          // [rad/s]
+  kdl::Vector zeta_ = { 1., 1., 1. };                        // [-]
+  kdl::Vector xi_ = { 1., 1., 1. };                          // [-]
+  kdl::Vector max_jerk_ = { INFINITY, INFINITY, INFINITY };  // [m/s^3]
 
   // Gain
   kdl::Vector kp_;

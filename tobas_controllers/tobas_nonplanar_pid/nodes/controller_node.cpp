@@ -49,7 +49,6 @@ private:
   tobas::NonPlanarMixer mixer_;
 
   // Mutable variables
-  bool is_initialized_ = false;
   bool drone_received_ = false;
   bool tree_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;

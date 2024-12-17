@@ -25,9 +25,9 @@ public:
 
 private:
   // Config
-  kdl::Vector natural_freq_ = { 1., 1., 1. };  // [rad/s]
-  kdl::Vector damp_ratio_ = { 1., 1., 1. };    // [-]
-  kdl::Vector max_acc_ = { 10., 10., 10. };    // [m/s^2]
+  kdl::Vector natural_freq_ = { 1., 1., 1. };               // [rad/s]
+  kdl::Vector damp_ratio_ = { 1., 1., 1. };                 // [-]
+  kdl::Vector max_acc_ = { INFINITY, INFINITY, INFINITY };  // [m/s^2]
 
   // Gain
   kdl::Vector kp_;
