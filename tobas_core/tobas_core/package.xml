@@ -19,7 +19,6 @@
 	<exec_depend>tobas_ic_drivers</exec_depend>
 	<exec_depend>tobas_kdl</exec_depend>
 	<exec_depend>tobas_kdl_conversions</exec_depend>
-	<exec_depend>tobas_kdl_conversions_py</exec_depend>
 	<exec_depend>tobas_kdl_msgs</exec_depend>
 	<exec_depend>tobas_kdl_msgs_adapter</exec_depend>
 	<exec_depend>tobas_kdl_sympy</exec_depend>
