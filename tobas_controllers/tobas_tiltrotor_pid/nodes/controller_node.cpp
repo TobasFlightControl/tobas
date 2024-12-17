@@ -13,7 +13,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/tr_mixer_pinv.hpp>
-#include <tobas_pose_pid/position_pdd2.hpp>
+#include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/angle_axis_pid.hpp>
 
 #include <tobas_msgs_adapter/odometry.hpp>
@@ -42,7 +42,7 @@ private:
   tobas::TreeJointStateConverter js_converter_;
 
   // Controllers
-  tobas::PositionPDD2 pos_pdd2_;
+  tobas::PositionPID pos_pid_;
   tobas::AngleAxisPID rot_pid_;
   tobas::TiltRotorMixer_pinv mixer_;
 
@@ -73,19 +73,19 @@ private:
   bool isReadyToControl();
 
   bool horizontalNaturalFrequencyCb(const double& p);
-  bool horizontalInertiaRatioCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
+  bool horizontalIGainCb(const double& p);
   bool verticalNaturalFrequencyCb(const double& p);
-  bool verticalInertiaRatioCb(const double& p);
   bool verticalDampingRatioCb(const double& p);
+  bool verticalIGainCb(const double& p);
   bool attitudeNaturalFrequencyCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
   bool attitudeIGainCb(const double& p);
   bool headingNaturalFrequencyCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
-  bool maxHorizontalJerkCb(const double& p);
-  bool maxVerticalJerkCb(const double& p);
+  bool maxHorizontalAccelCb(const double& p);
+  bool maxVerticalAccelCb(const double& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -101,18 +101,18 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 20., 1., 50.);
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 2., 0.1, 25.);
-  addDynamicDoubleParam("horizontal_inertia_ratio", &self::horizontalInertiaRatioCb, this, 1., 0.7, 2.);
-  addDynamicDoubleParam("vertical_inertia_ratio", &self::verticalInertiaRatioCb, this, 1., 0.7, 2.);
-  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.7, 2.);
-  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.7, 2.);
-  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.7, 2.);
-  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.7, 2.);
-  addDynamicDoubleParam("attitude_integral_gain", &self::attitudeIGainCb, this, 0.1, 0.1, 40.);
-  addDynamicDoubleParam("heading_integral_gain", &self::headingIGainCb, this, 0.1, 0.1, 20.);
-  addDynamicDoubleParam("max_horizontal_jerk", &self::maxHorizontalJerkCb, this, 50., 1., 100.);
-  addDynamicDoubleParam("max_vertical_jerk", &self::maxVerticalJerkCb, this, 50., 1., 100.);
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 10., 1., 50.);
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 5., 0.1, 25.);
+  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.7, 1.);
+  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.7, 1.);
+  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.7, 1.);
+  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.7, 1.);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.1, 0.1, 10.);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.1, 0.1, 10.);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 0.1, 40.);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.1, 0.1, 20.);
+  addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 10., 1., 20.);
+  addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 8., 1., 10.);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -184,32 +184,32 @@ bool ControllerNode::isReadyToControl()
 
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
 {
-  return pos_pdd2_.setNaturalFreq(0, p) && pos_pdd2_.setNaturalFreq(1, p);
-}
-
-bool ControllerNode::horizontalInertiaRatioCb(const double& p)
-{
-  return pos_pdd2_.setInertiaRatio(0, p) && pos_pdd2_.setInertiaRatio(1, p);
+  return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
 }
 
 bool ControllerNode::horizontalDampingRatioCb(const double& p)
 {
-  return pos_pdd2_.setDampingRatio(0, p) && pos_pdd2_.setDampingRatio(1, p);
+  return pos_pid_.setDampingRatio(0, p) && pos_pid_.setDampingRatio(1, p);
+}
+
+bool ControllerNode::horizontalIGainCb(const double& p)
+{
+  return pos_pid_.setIntegralGain(0, p) && pos_pid_.setIntegralGain(1, p);
 }
 
 bool ControllerNode::verticalNaturalFrequencyCb(const double& p)
 {
-  return pos_pdd2_.setNaturalFreq(2, p);
-}
-
-bool ControllerNode::verticalInertiaRatioCb(const double& p)
-{
-  return pos_pdd2_.setInertiaRatio(2, p);
+  return pos_pid_.setNaturalFreq(2, p);
 }
 
 bool ControllerNode::verticalDampingRatioCb(const double& p)
 {
-  return pos_pdd2_.setDampingRatio(2, p);
+  return pos_pid_.setDampingRatio(2, p);
+}
+
+bool ControllerNode::verticalIGainCb(const double& p)
+{
+  return pos_pid_.setIntegralGain(2, p);
 }
 
 bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
@@ -242,14 +242,14 @@ bool ControllerNode::headingIGainCb(const double& p)
   return rot_pid_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::maxHorizontalJerkCb(const double& p)
+bool ControllerNode::maxHorizontalAccelCb(const double& p)
 {
-  return pos_pdd2_.setMaximumJerk(0, p) && pos_pdd2_.setMaximumJerk(1, p);
+  return pos_pid_.setMaximumAccel(0, p) && pos_pid_.setMaximumAccel(1, p);
 }
 
-bool ControllerNode::maxVerticalJerkCb(const double& p)
+bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
-  return pos_pdd2_.setMaximumJerk(2, p);
+  return pos_pid_.setMaximumAccel(2, p);
 }
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -308,10 +308,9 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
   // 位置制御器
-  const auto& cur_pos_W = odom->frame.p;
   const auto cur_vel_W = odom->frame.M * odom->twist.vel;
-  const auto cur_acc_W = odom->frame.M * odom->accel.linear;
-  const auto tar_acc_W = pos_pdd2_.update(cur_pos_W, cur_vel_W, cur_acc_W, cmd_->pos, cmd_->vel, cmd_->acc, dt);
+  const auto tar_acc_fb = pos_pid_.update(odom->frame.p, cur_vel_W, cmd_->pos, cmd_->vel, dt);
+  const auto tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
   const auto tar_dgyro_fb = rot_pid_.update(odom->frame.M, odom->twist.rot, cmd_->rpy.toRotation(), cmd_->gyro, dt);
@@ -363,7 +362,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->target_accel_local.angular = tar_dgyro_B;
   feedback->target_accel_global.linear = tar_acc_W;
   feedback->target_accel_global.angular = odom->frame.M * tar_dgyro_B;
-  feedback->position_integral_error.fill(NAN);
+  feedback->position_integral_error = pos_pid_.integralError();
   feedback->orientation_integral_error = kdl::Euler(rot_pid_.integralError());
   feedback_pub_->publish(move(feedback));
 }
