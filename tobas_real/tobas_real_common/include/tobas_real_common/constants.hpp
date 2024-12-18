@@ -8,7 +8,6 @@ namespace real
 static constexpr char kTobasResourceDir[] = "/etc/tobas";
 
 // Topics
-static constexpr char kADCTopic[] = "real/adc";
 static constexpr char kSBUSTopic[] = "real/sbus";
 static constexpr char kIMUTopic[] = "real/imu";
 static constexpr char kMagTopic[] = "real/magnetic_field";

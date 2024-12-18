@@ -32,7 +32,7 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package=pkg_name,
-                            plugin="ADCDriverNode",
+                            plugin="BatteryDriverNode",
                             namespace=ns,
                             extra_arguments=extra_arguments,
                         ),

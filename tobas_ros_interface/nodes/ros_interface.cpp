@@ -28,7 +28,6 @@
 #include <tobas_msgs/msg/imu_stamped.hpp>
 #include <tobas_msgs/msg/magnetic_field_stamped.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
-#include <tobas_msgs/msg/adc.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
@@ -106,7 +105,6 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
   addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(throttled(real::kIMUTopic), real::kIMUTopic);
   addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(throttled(real::kMagTopic), real::kMagTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Adc>(throttled(real::kADCTopic), real::kADCTopic);
   addTopicLogicToIface<tobas_msgs::msg::Sbus>(throttled(real::kSBUSTopic), real::kSBUSTopic);
 
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);

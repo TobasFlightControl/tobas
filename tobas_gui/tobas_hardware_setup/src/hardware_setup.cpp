@@ -18,14 +18,12 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tob
   network_setting_ = new NetworkSettingWidget(node);
   accel_calib_ = new AccelCalibrationWidget(node);
   mag_calib_ = new MagCalibrationWidget(node);
-  adc_calib_ = new ADCCalibrationWidget(node);
   rcin_calib_ = new RCInputCalibrationWidget(node);
   rotor_test_ = new RotorTestWidget(node, drone);
 
   tabs_->addTab(network_setting_, network_setting_->name());
   tabs_->addTab(accel_calib_, accel_calib_->name());
   tabs_->addTab(mag_calib_, mag_calib_->name());
-  tabs_->addTab(adc_calib_, adc_calib_->name());
   tabs_->addTab(rcin_calib_, rcin_calib_->name());
   tabs_->addTab(rotor_test_, rotor_test_->name());
 
@@ -38,7 +36,6 @@ void HardwareSetupWidget::updateInternalDataStructures()
 {
   accel_calib_->setNamespace(drone_.name);
   mag_calib_->setNamespace(drone_.name);
-  adc_calib_->setNamespace(drone_.name);
   rcin_calib_->setNamespace(drone_.name);
   rotor_test_->updateInternalDataStructures();
 }
