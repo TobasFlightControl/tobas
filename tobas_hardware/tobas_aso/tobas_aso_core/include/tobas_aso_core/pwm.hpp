@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <iostream>
 
 #include <tobas_linux/spi_dev.hpp>
 
@@ -15,7 +14,7 @@ public:
 private:
   static constexpr size_t kChannelBytes = 2;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 27'000'000;                // [Hz] F722のSPI2の最大値
+  static constexpr uint32_t kSpiClockFreq = 100'000'000;               // [Hz] STM32H7A3RITxのReceive Onlyの最大値
   static constexpr uint16_t kThrottleMask = (1 << 11) - 1;
 
 public:
