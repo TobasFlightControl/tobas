@@ -11,15 +11,14 @@
 namespace aso
 {
 /**
- * @brief A Linux driver of u-blox ZED-F9P-04B using SPI interface and UBX protocol.
+ * @brief A Linux driver of u-blox ZED-F9P-1xB using SPI interface and UBX protocol.
  *
  * Product Page: https://www.u-blox.com/en/product/zed-f9p-module
- * Datasheet: https://content.u-blox.com/sites/default/files/ZED-F9P-04B_DataSheet_UBX-21044850.pdf
+ * Datasheet: https://content.u-blox.com/sites/default/files/documents/ZED-F9P-15B_DataSheet_UBX-23009090.pdf
  * Interface Description:
- * https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-1.32_InterfaceDescription_UBX-22008968.pdf
- * ANN-MB series antenna: https://www.u-blox.com/en/product/ann-mb-series
+ * https://content.u-blox.com/sites/default/files/documents/u-blox-F9-HPG-L1L5-1.40_InterfaceDescription_UBX-23006991.pdf
  */
-class ZEDF9P
+class ZEDF9P1xB
 {
 private:
   static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
@@ -40,6 +39,8 @@ public:
     CLASS_MGA = 0x13,
     CLASS_MON = 0x0A,
     CLASS_NAV = 0x01,
+    CLASS_NAV2 = 0x29,
+    CLASS_RXM = 0x02,
     CLASS_SEC = 0x27,
     CLASS_TIM = 0x0D,
     CLASS_UPD = 0x09,
@@ -118,7 +119,7 @@ public:
     SPARTN = 0x05,
   };
 
-  explicit ZEDF9P();
+  explicit ZEDF9P1xB();
 
   bool initialize();
   bool update(bool nonblock = true);
@@ -135,6 +136,7 @@ public:
   bool enableBeiDou(bool enable);
   bool enableQZSS(bool enable);
   bool enableGLONASS(bool enable);
+  bool enableNavIC(bool enable);
 
   bool enableProtocol(cfg_protocol_t prot, bool enable);
 
@@ -170,7 +172,6 @@ private:
     CFG_I2CINPROT = 0x71,     // Input Protocol Configuration of the I2C Interface
     CFG_I2COUTPROT = 0x72,    // Output Protocol Configuration of the I2C Interface
     CFG_INFMSG = 0x92,        // Inf Message Configuration
-    CFG_ITFM = 0x41,          // Jamming/Interference Monitor configuration
     CFG_LOGFILTER = 0xDE,     // Data Logger Configuration
     CFG_MOT = 0x25,           // Motion Detector Configuration
     CFG_MSGOUT = 0x91,        // Message Output Configuration
@@ -264,17 +265,17 @@ private:
   static uint32_t configKeyID(cfg_size_t size, cfg_group_t group, uint8_t id);
 };
 
-inline ZEDF9P::ubx_class_t ZEDF9P::latestClass() const
+inline ZEDF9P1xB::ubx_class_t ZEDF9P1xB::latestClass() const
 {
   return static_cast<ubx_class_t>(*scanner_.getClass());
 }
 
-inline uint8_t ZEDF9P::latestId() const
+inline uint8_t ZEDF9P1xB::latestId() const
 {
   return *scanner_.getId();
 }
 
-inline const uint8_t* ZEDF9P::payload() const
+inline const uint8_t* ZEDF9P1xB::payload() const
 {
   return scanner_.getPayload();
 }

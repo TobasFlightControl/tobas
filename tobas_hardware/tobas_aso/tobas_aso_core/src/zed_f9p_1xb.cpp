@@ -1,7 +1,7 @@
 #include <cstring>
 #include <cassert>
 
-#include "../include/tobas_aso_core/zed_f9p.hpp"
+#include "../include/tobas_aso_core/zed_f9p_1xb.hpp"
 #include "../include/tobas_aso_core/constants.hpp"
 
 #define NOT_IMPLEMENTED "Not implemented."
@@ -12,11 +12,11 @@ using namespace chrono;
 
 namespace aso
 {
-ZEDF9P::ZEDF9P() : rate_(kReqInterval)
+ZEDF9P1xB::ZEDF9P1xB() : rate_(kReqInterval)
 {
 }
 
-bool ZEDF9P::initialize()
+bool ZEDF9P1xB::initialize()
 {
   // Initialize SPI device
   if (!spi_dev_.initialize(spi_device::kGnssDev, kSpiClockFreq))
@@ -25,7 +25,7 @@ bool ZEDF9P::initialize()
   return true;
 }
 
-bool ZEDF9P::update(bool nonblock)
+bool ZEDF9P1xB::update(bool nonblock)
 {
   scanner_.reset();
 
@@ -61,7 +61,7 @@ bool ZEDF9P::update(bool nonblock)
   return true;
 }
 
-bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
+bool ZEDF9P1xB::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
 {
   CfgValSet<uint8_t, 1> cfg;
 
@@ -184,7 +184,7 @@ bool ZEDF9P::enableMsg(ubx_class_t cls, uint8_t id, bool enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::configureDynamicsModel(dynamics_model_t model)
+bool ZEDF9P1xB::configureDynamicsModel(dynamics_model_t model)
 {
   CfgValSet<uint8_t, 1> cfg;
 
@@ -195,7 +195,7 @@ bool ZEDF9P::configureDynamicsModel(dynamics_model_t model)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
+bool ZEDF9P1xB::configureMeasurementRate(uint16_t period_ms)
 {
   CfgValSet<uint16_t, 1> cfg;
 
@@ -206,11 +206,11 @@ bool ZEDF9P::configureMeasurementRate(uint16_t period_ms)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableGPS(bool enable)
+bool ZEDF9P1xB::enableGPS(bool enable)
 {
   CfgValSet<uint8_t, 3> cfg;
 
-  // CFG-SIGNAL-GPS-ENA
+  // CFG-SIGNAL-GPS_ENA
   cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1F);
   cfg.data[0].value = enable;
 
@@ -218,18 +218,18 @@ bool ZEDF9P::enableGPS(bool enable)
   cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x01);
   cfg.data[1].value = enable;
 
-  // CFG-SIGNAL-GPS_L2C_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x03);
+  // CFG-SIGNAL-GPS_L5_ENA
+  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x04);
   cfg.data[2].value = enable;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableSBAS(bool enable)
+bool ZEDF9P1xB::enableSBAS(bool enable)
 {
   CfgValSet<uint8_t, 2> cfg;
 
-  // CFG-SIGNAL-SBAS-ENA
+  // CFG-SIGNAL-SBAS_ENA
   cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x20);
   cfg.data[0].value = enable;
 
@@ -240,11 +240,11 @@ bool ZEDF9P::enableSBAS(bool enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableGalileo(bool enable)
+bool ZEDF9P1xB::enableGalileo(bool enable)
 {
   CfgValSet<uint8_t, 3> cfg;
 
-  // CFG-SIGNAL-GAL-ENA
+  // CFG-SIGNAL-GAL_ENA
   cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x21);
   cfg.data[0].value = enable;
 
@@ -252,18 +252,18 @@ bool ZEDF9P::enableGalileo(bool enable)
   cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x07);
   cfg.data[1].value = enable;
 
-  // CFG-SIGNAL-GAL_E5B_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0A);
+  // CFG-SIGNAL-GAL_EA5_ENA
+  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x09);
   cfg.data[2].value = enable;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableBeiDou(bool enable)
+bool ZEDF9P1xB::enableBeiDou(bool enable)
 {
   CfgValSet<uint8_t, 3> cfg;
 
-  // CFG-SIGNAL-BDS-ENA
+  // CFG-SIGNAL-BDS_ENA
   cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x22);
   cfg.data[0].value = enable;
 
@@ -271,18 +271,18 @@ bool ZEDF9P::enableBeiDou(bool enable)
   cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0D);
   cfg.data[1].value = enable;
 
-  // CFG-SIGNAL-BDS_B2_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x0E);
+  // CFG-SIGNAL-BDS_B2A_ENA
+  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x28);
   cfg.data[2].value = enable;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableQZSS(bool enable)
+bool ZEDF9P1xB::enableQZSS(bool enable)
 {
   CfgValSet<uint8_t, 4> cfg;
 
-  // CFG-SIGNAL-QZSS-ENA
+  // CFG-SIGNAL-QZSS_ENA
   cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x24);
   cfg.data[0].value = enable;
 
@@ -294,18 +294,18 @@ bool ZEDF9P::enableQZSS(bool enable)
   cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x14);
   cfg.data[2].value = enable;
 
-  // CFG-SIGNAL-QZSS_L2C_ENA
-  cfg.data[3].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x15);
+  // CFG-SIGNAL-QZSS_L5_ENA
+  cfg.data[3].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x17);
   cfg.data[3].value = enable;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableGLONASS(bool enable)
+bool ZEDF9P1xB::enableGLONASS(bool enable)
 {
-  CfgValSet<uint8_t, 3> cfg;
+  CfgValSet<uint8_t, 2> cfg;
 
-  // CFG-SIGNAL-GLO-ENA
+  // CFG-SIGNAL-GLO_ENA
   cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x25);
   cfg.data[0].value = enable;
 
@@ -313,14 +313,25 @@ bool ZEDF9P::enableGLONASS(bool enable)
   cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x18);
   cfg.data[1].value = enable;
 
-  // CFG-SIGNAL-GLO_L2_ENA
-  cfg.data[2].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1A);
-  cfg.data[2].value = enable;
+  return configure(CFG_VALSET, &cfg, sizeof(cfg));
+}
+
+bool ZEDF9P1xB::enableNavIC(bool enable)
+{
+  CfgValSet<uint8_t, 2> cfg;
+
+  // CFG-SIGNAL-NAVIC_ENA
+  cfg.data[0].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x26);
+  cfg.data[0].value = enable;
+
+  // CFG-SIGNAL-NAVIC_L5_ENA
+  cfg.data[1].key = configKeyID(ONE_BIT, CFG_SIGNAL, 0x1D);
+  cfg.data[1].value = enable;
 
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableProtocol(cfg_protocol_t prot, bool enable)
+bool ZEDF9P1xB::enableProtocol(cfg_protocol_t prot, bool enable)
 {
   CfgValSet<uint8_t, 2> cfg;
 
@@ -335,7 +346,7 @@ bool ZEDF9P::enableProtocol(cfg_protocol_t prot, bool enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::setAntennaLength(uint8_t length_m)
+bool ZEDF9P1xB::setAntennaLength(uint8_t length_m)
 {
   CfgValSet<uint16_t, 1> cfg;
 
@@ -346,7 +357,7 @@ bool ZEDF9P::setAntennaLength(uint8_t length_m)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::enableUSB(bool enable)
+bool ZEDF9P1xB::enableUSB(bool enable)
 {
   CfgValSet<uint8_t, 1> cfg;
 
@@ -357,7 +368,7 @@ bool ZEDF9P::enableUSB(bool enable)
   return configure(CFG_VALSET, &cfg, sizeof(cfg));
 }
 
-bool ZEDF9P::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size)
+bool ZEDF9P1xB::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t size)
 {
   UbxHeader header;
   header.sync1 = kUbxSync1;
@@ -378,7 +389,7 @@ bool ZEDF9P::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16_t 
   return true;
 }
 
-bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
+bool ZEDF9P1xB::waitForAcknowledge(ubx_class_t cls, uint8_t id)
 {
   payload::ACK_ACK ack;
   payload::ACK_NAK nak;
@@ -439,7 +450,7 @@ bool ZEDF9P::waitForAcknowledge(ubx_class_t cls, uint8_t id)
   return false;
 }
 
-bool ZEDF9P::configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size)
+bool ZEDF9P1xB::configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size)
 {
   if (!sendMessage(CLASS_CFG, cfg_id, msg, size))
     return false;
@@ -447,7 +458,7 @@ bool ZEDF9P::configure(ubx_cfg_id_t cfg_id, const void* msg, uint16_t size)
   return waitForAcknowledge(CLASS_CFG, cfg_id);
 }
 
-bool ZEDF9P::verifyMessage() const
+bool ZEDF9P1xB::verifyMessage() const
 {
   // Sync chars
   if (*scanner_.getSync1() != kUbxSync1 || *scanner_.getSync2() != kUbxSync2)
@@ -472,7 +483,7 @@ bool ZEDF9P::verifyMessage() const
   return true;
 }
 
-ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* message, size_t checksum_pos)
+ZEDF9P1xB::CheckSum ZEDF9P1xB::computeChecksum(const uint8_t* message, size_t checksum_pos)
 {
   CheckSum ck;
   ck.CK_A = ck.CK_B = 0;
@@ -486,13 +497,13 @@ ZEDF9P::CheckSum ZEDF9P::computeChecksum(const uint8_t* message, size_t checksum
   return ck;
 }
 
-size_t ZEDF9P::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset)
+size_t ZEDF9P1xB::spliceMemory(uint8_t* dest, const void* src, size_t size, size_t dest_offset)
 {
   memmove(dest + dest_offset, src, size);
   return dest_offset + size;
 }
 
-uint32_t ZEDF9P::configKeyID(cfg_size_t size, cfg_group_t group, uint8_t id)
+uint32_t ZEDF9P1xB::configKeyID(cfg_size_t size, cfg_group_t group, uint8_t id)
 {
   return (size << 28) | (group << 16) | id;
 }
