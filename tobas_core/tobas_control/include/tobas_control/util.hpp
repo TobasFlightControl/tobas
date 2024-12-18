@@ -67,8 +67,7 @@ LinearEquation matIneqFromRange(const Eigen::VectorXd& lb, const Eigen::VectorXd
 double firstOrderPos(const double& x0, const double& xd, const double& tau, const double& t);
 
 /**
- * @brief 速度の追従誤差が指数関数的に減衰する場合の，時刻tにおける位置を計算する．
- * cf. memo: 1-47
+ * @brief 速度の追従誤差が指数関数的に減衰する場合の，時刻tにおける位置を計算する． (memo: 1-47)
  *
  * @param x0 初期位置
  * @param v0 初期速度
