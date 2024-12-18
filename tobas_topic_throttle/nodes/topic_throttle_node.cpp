@@ -7,7 +7,6 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/msg/adc.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
@@ -66,7 +65,6 @@ private:
   TopicThrottle<tobas_kdl_msgs::EulerStamped> euler_throttle_;
   TopicThrottle<tobas_msgs::ImuStamped> real_imu_throttle_;
   TopicThrottle<tobas_msgs::MagneticFieldStamped> real_mag_throttle_;
-  TopicThrottle<tobas_msgs::msg::Adc> real_adc_throttle_;
   TopicThrottle<tobas_msgs::msg::Sbus> real_sbus_throttle_;
 
   ros2::TimerPtr initialize_timer_;
@@ -88,7 +86,6 @@ void TopicThrottleNode::initialize()
   euler_throttle_.initialize(node, tobas::kEulerTopic);
   real_imu_throttle_.initialize(node, real::kIMUTopic);
   real_mag_throttle_.initialize(node, real::kMagTopic);
-  real_adc_throttle_.initialize(node, real::kADCTopic);
   real_sbus_throttle_.initialize(node, real::kSBUSTopic);
 
   initialize_timer_->cancel();
