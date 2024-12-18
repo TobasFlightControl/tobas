@@ -3,8 +3,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/time.hpp>
 
-#include "../include/tobas_aso_core/ads1220.hpp"
-#include "../include/tobas_aso_core/constants.hpp"
+#include "../include/tobas_ic_drivers/ads1220.hpp"
 
 using namespace std;
 
@@ -14,9 +13,9 @@ ADS1220::ADS1220()
 {
 }
 
-bool ADS1220::initialize()
+bool ADS1220::initialize(const char* device)
 {
-  if (!spi_.initialize(spi_device::kAdcDev, kSpiClockFreq))
+  if (!spi_.initialize(device, kSpiClockFreq))
     return false;
 
   if (!reset())

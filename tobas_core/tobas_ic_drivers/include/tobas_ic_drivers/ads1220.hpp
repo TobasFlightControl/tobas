@@ -18,7 +18,7 @@ class ADS1220
 public:
   explicit ADS1220();
 
-  bool initialize();
+  bool initialize(const char* device);
 
   /* Read the current value of the voltage channel [-1, 1] */
   bool readVoltage(double& dst);
