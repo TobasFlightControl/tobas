@@ -32,12 +32,6 @@ def generate_launch_description():
                         ),
                         ComposableNode(
                             package=pkg_name,
-                            plugin="BatteryDriverNode",
-                            namespace=ns,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package=pkg_name,
                             plugin="DShotDriverNode",
                             namespace=ns,
                             extra_arguments=extra_arguments,

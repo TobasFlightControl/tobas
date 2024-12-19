@@ -100,6 +100,9 @@ public:
   /* Get the current ESC current [A] */
   double getCurrent(size_t ch);
 
+  double getBatteryVoltage() const;
+  double getBatteryCurrent() const;
+
   void printCurrentState(size_t ch);
   void printCurrentStates();
 

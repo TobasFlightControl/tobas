@@ -45,7 +45,7 @@ bool DShot::setThrottle(size_t ch, uint16_t throttle)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetThrottleCmd << 28) | throttle;
+  *((uint32_t*)spi_.tx + ch) = (kSetThrottleCmd << 28) | throttle;
 
   return true;
 }
@@ -68,7 +68,7 @@ bool DShot::setTargetSpeed(size_t ch, double rps)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetTargetRPMCmd << 28) | rpm;
+  *((uint32_t*)spi_.tx + ch) = (kSetTargetRPMCmd << 28) | rpm;
 
   return true;
 }
@@ -96,7 +96,7 @@ bool DShot::setKv(size_t ch, double kv_si)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetKvCmd << 28) | kv;
+  *((uint32_t*)spi_.tx + ch) = (kSetKvCmd << 28) | kv;
 
   return true;
 }
@@ -124,7 +124,7 @@ bool DShot::setInternalResistance(size_t ch, double resistance)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetResistanceCmd << 28) | resistance_mohm;
+  *((uint32_t*)spi_.tx + ch) = (kSetResistanceCmd << 28) | resistance_mohm;
 
   return true;
 }
@@ -152,7 +152,7 @@ bool DShot::setPropellerDiameter(size_t ch, double diameter)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetDiameterCmd << 28) | diameter_mm;
+  *((uint32_t*)spi_.tx + ch) = (kSetDiameterCmd << 28) | diameter_mm;
 
   return true;
 }
@@ -180,7 +180,7 @@ bool DShot::setMomentConstant(size_t ch, double moment_const)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetMomentConstCmd << 28) | moment_const_scaled;
+  *((uint32_t*)spi_.tx + ch) = (kSetMomentConstCmd << 28) | moment_const_scaled;
 
   return true;
 }
@@ -209,7 +209,7 @@ bool DShot::setNumPoles(size_t ch, uint16_t num_poles)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetHalfNumPolesCmd << 28) | half_num_poles;
+  *((uint32_t*)spi_.tx + ch) = (kSetHalfNumPolesCmd << 28) | half_num_poles;
   half_num_poles_.at(ch) = half_num_poles;
 
   return true;
@@ -226,20 +226,20 @@ bool DShot::setSpeedControlGain(size_t ch, uint8_t gain)
     return false;
   }
 
-  *(uint32_t*)(spi_.tx + ch * kChannelBytes) = (kSetGainCmd << 28) | gain;
+  *((uint32_t*)spi_.tx + ch) = (kSetGainCmd << 28) | gain;
 
   return true;
 }
 
 bool DShot::getValidity(size_t ch)
 {
-  const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
+  const auto rx = *((uint32_t*)spi_.rx + ch);
   return rx > 0;
 }
 
 double DShot::getSpeed(size_t ch)
 {
-  const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
+  const auto rx = *((uint32_t*)spi_.rx + ch);
   const auto erpm = (rx >> 0) & 0x0FFF;
 
   if (erpm == 0)
@@ -257,23 +257,35 @@ double DShot::getSpeed(size_t ch)
 
 double DShot::getTemperature(size_t ch)
 {
-  const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
+  const auto rx = *((uint32_t*)spi_.rx + ch);
   const auto temperature = (rx >> 12) & 0x0F;
   return static_cast<double>(temperature << 4);
 }
 
 double DShot::getVoltage(size_t ch)
 {
-  const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
+  const auto rx = *((uint32_t*)spi_.rx + ch);
   const auto voltage = (rx >> 16) & 0xFF;
   return static_cast<double>(voltage) / 4;
 }
 
 double DShot::getCurrent(size_t ch)
 {
-  const auto rx = *(uint32_t*)(spi_.rx + ch * kChannelBytes);
+  const auto rx = *((uint32_t*)spi_.rx + ch);
   const auto current = (rx >> 24) & 0xFF;
   return static_cast<double>(current);
+}
+
+double DShot::getBatteryVoltage() const
+{
+  const auto rx = *((uint32_t*)spi_.rx + kChannelSize);
+  return static_cast<double>(rx) * 1e-6;
+}
+
+double DShot::getBatteryCurrent() const
+{
+  const auto rx = *((uint32_t*)spi_.rx + kChannelSize + 1);
+  return static_cast<double>(rx);
 }
 
 void DShot::printCurrentState(size_t ch)
