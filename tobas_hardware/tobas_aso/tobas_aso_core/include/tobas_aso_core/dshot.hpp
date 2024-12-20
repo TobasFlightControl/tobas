@@ -64,7 +64,7 @@ private:
 
   static constexpr size_t kChannelBytes = 4;                                 // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = (kChannelSize + 2) * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 45'000'000;  // [Hz] STM32H7A3RITxのFull-Duplexの最大値
+  static constexpr uint32_t kSpiClockFreq = 30'000'000;                      // [Hz]
 
 public:
   explicit DShot();
