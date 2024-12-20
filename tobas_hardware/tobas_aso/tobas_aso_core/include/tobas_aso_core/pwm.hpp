@@ -14,7 +14,7 @@ public:
 private:
   static constexpr size_t kChannelBytes = 2;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 100'000'000;               // [Hz] STM32H7A3RITxのReceive Onlyの最大値
+  static constexpr uint32_t kSpiClockFreq = 50'000'000;                // [Hz]
   static constexpr uint16_t kThrottleMask = (1 << 11) - 1;
 
 public:
@@ -27,7 +27,5 @@ public:
 
 private:
   linux::SPIdev spi_;
-
-  bool setData(size_t ch, uint16_t data);
 };
 }  // namespace aso

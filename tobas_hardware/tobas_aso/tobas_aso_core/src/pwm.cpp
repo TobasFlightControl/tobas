@@ -21,28 +21,26 @@ bool PWM::initialize()
 
 bool PWM::setPeriod(size_t ch, uint16_t period_us)
 {
-  const uint16_t data = period_us & kThrottleMask;
-  return setData(ch, data);
-}
-
-bool PWM::transfer()
-{
-  if (!spi_.transfer(kSpiBufSize))
-    return false;
-
-  return true;
-}
-
-bool PWM::setData(size_t ch, uint16_t data)
-{
   if (ch >= kChannelSize)
   {
     cerr << "PWM channel out of range." << endl;
     return false;
   }
 
-  spi_.tx[ch * kChannelBytes] = data & 0xFF;    // Little byte
-  spi_.tx[ch * kChannelBytes + 1] = data >> 8;  // Big byte
+  if (period_us >= (1 << 11))
+  {
+    cerr << "PWM period must be lower than " << (1 << 11) << ".";
+    return false;
+  }
+
+  *((uint16_t*)spi_.tx + ch) = period_us;
+  return true;
+}
+
+bool PWM::transfer()
+{
+  if (!spi_.transfer(kSpiBufSize))
+    return false;
 
   return true;
 }
