@@ -6,7 +6,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -47,8 +46,7 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::Battery> battery_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> cur_states_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
   ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
@@ -65,9 +63,7 @@ private:
   ros2::TimerPtr auto_disarm_timer_;
 
   bool transferAndSleep();
-  void publishCurrentStates();
-  void publishCurrentBatteryState();
-  void publishCurrentRotorStates();
+  void publishRotorStates();
   void publishArming();
   bool stopRotors();
   void arm();
@@ -113,22 +109,7 @@ bool DShotDriverNode::transferAndSleep()
   return true;
 }
 
-void DShotDriverNode::publishCurrentStates()
-{
-  publishCurrentBatteryState();
-  publishCurrentRotorStates();
-}
-
-void DShotDriverNode::publishCurrentBatteryState()
-{
-  auto battery = std::make_unique<tobas_msgs::msg::Battery>();
-  battery->header.stamp = get_clock()->now();
-  battery->voltage = dshot_.getBatteryVoltage();
-  battery->current = dshot_.getBatteryCurrent();
-  battery_pub_->publish(move(battery));
-}
-
-void DShotDriverNode::publishCurrentRotorStates()
+void DShotDriverNode::publishRotorStates()
 {
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   rotor_states->header.stamp = get_clock()->now();
@@ -151,7 +132,7 @@ void DShotDriverNode::publishCurrentRotorStates()
     }
   }
 
-  cur_states_pub_->publish(move(rotor_states));
+  rotor_states_pub_->publish(move(rotor_states));
 }
 
 void DShotDriverNode::publishArming()
@@ -294,8 +275,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Resister publishers
-  battery_pub_ = createPublisher<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
-  cur_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
 
   // Resister subscribers
@@ -340,15 +320,15 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     }
   }
 
-  // Send command and get current states
+  // Send command and get rotor states
   if (!dshot_.transfer())
   {
     TOBAS_ERROR("SPI communication failed.");
     return;
   }
 
-  // Publish current states
-  publishCurrentStates();
+  // Publish rotor states
+  publishRotorStates();
 
   // Reset timeout timers
   auto_stop_timer_->reset();
@@ -449,7 +429,7 @@ void DShotDriverNode::autoStopTimerCb()
   if (!stopRotors())
     return;
 
-  publishCurrentStates();
+  publishRotorStates();
 
   if (is_commanded_)
   {

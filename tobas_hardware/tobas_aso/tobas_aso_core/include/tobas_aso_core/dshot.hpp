@@ -62,9 +62,9 @@ private:
   static constexpr uint8_t kSetHalfNumPolesCmd = 6;
   static constexpr uint8_t kSetGainCmd = 7;
 
-  static constexpr size_t kChannelBytes = 4;                                 // 1チャネルあたりのバイト数
-  static constexpr size_t kSpiBufSize = (kChannelSize + 2) * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 30'000'000;                      // [Hz]
+  static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
+  static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
+  static constexpr uint32_t kSpiClockFreq = 30'000'000;                // [Hz]
 
 public:
   explicit DShot();
@@ -99,9 +99,6 @@ public:
   double getVoltage(size_t ch);
   /* Get the current ESC current [A] */
   double getCurrent(size_t ch);
-
-  double getBatteryVoltage() const;
-  double getBatteryCurrent() const;
 
   void printCurrentState(size_t ch);
   void printCurrentStates();

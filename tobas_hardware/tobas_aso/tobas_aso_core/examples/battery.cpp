@@ -1,24 +1,31 @@
 #include <iostream>
 #include <unistd.h>
 
-#include <tobas_aso_core/dshot.hpp>
+#include <tobas_aso_core/battery.hpp>
 
 using namespace std;
 
 int main()
 {
-  aso::DShot dshot;
+  aso::Battery battery;
+  double voltage, current;
 
-  if (!dshot.initialize())
+  if (!battery.initialize())
+  {
+    cerr << "Failed to initialize ADC." << endl;
     return EXIT_FAILURE;
+  }
 
   while (true)
   {
-    if (!dshot.transfer())
+    if (!battery.read(voltage, current))
+    {
+      cerr << "Failed to read battery status." << endl;
       return EXIT_FAILURE;
+    }
 
-    cout << "Voltage [V]: " << dshot.getBatteryVoltage() << endl;
-    cout << "Current [A]: " << dshot.getBatteryCurrent() << endl;
+    cout << "Voltage [V]: " << voltage << endl;
+    cout << "Current [A]: " << current << endl;
 
     sleep(1);
   }

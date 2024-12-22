@@ -276,18 +276,6 @@ double DShot::getCurrent(size_t ch)
   return static_cast<double>(current);
 }
 
-double DShot::getBatteryVoltage() const
-{
-  const auto rx = *((uint32_t*)spi_.rx + kChannelSize);
-  return static_cast<double>(rx) * 1e-6;
-}
-
-double DShot::getBatteryCurrent() const
-{
-  const auto rx = *((uint32_t*)spi_.rx + kChannelSize + 1);
-  return static_cast<double>(rx) * 1e-6;
-}
-
 void DShot::printCurrentState(size_t ch)
 {
   cout << "Channel " << ch << ":" << endl;
