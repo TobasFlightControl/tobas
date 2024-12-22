@@ -32,7 +32,7 @@ class RotorTestWidget : public BaseHardwareSetupWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
   static constexpr int kChannelSize = 8;  // TODO: ハードウェアの最大チャンネル数に合わせる
-  static constexpr auto kPublishPeriod = std::chrono::milliseconds(10);
+  static constexpr auto kPublishPeriod = std::chrono::milliseconds(100);
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
 public:
