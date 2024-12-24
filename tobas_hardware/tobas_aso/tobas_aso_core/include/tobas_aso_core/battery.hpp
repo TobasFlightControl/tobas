@@ -1,6 +1,5 @@
 #pragma once
 
-#include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
 namespace aso
@@ -9,7 +8,7 @@ class Battery
 {
 private:
   static constexpr size_t kChannelSize = 2;
-  static constexpr size_t kSPIBufSize = kChannelSize + 1;  // Data + CRC32
+  static constexpr size_t kSPIBufSize = kChannelSize;
   static constexpr uint32_t kSPIClockFreq = 30'000'000;  // [Hz]
 
 public:
@@ -25,7 +24,5 @@ private:
   linux::SPIdev spi_;
   uint32_t tx_buf_[kSPIBufSize];
   uint32_t rx_buf_[kSPIBufSize];
-
-  algo::CRC32Left crc_;
 };
 }  // namespace aso

@@ -7,9 +7,8 @@ using namespace std;
 
 namespace aso
 {
-Battery::Battery() : crc_(algo::CRC32Left::CRC_32)
+Battery::Battery()
 {
-  crc_.initialize();
 }
 
 bool Battery::initialize()
@@ -22,18 +21,8 @@ bool Battery::initialize()
 
 bool Battery::read(double& voltage, double& current)
 {
-  // Transfer
   if (!spi_.transfer(sizeof(tx_buf_)))
     return false;
-
-  // Check CRC
-  // const auto cs = rx_buf_[kChannelSize];
-  // const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
-  // if (cs != cr)
-  // {
-  //   cerr << "CRC failed: " << cs << " != " << cr << endl;
-  //   return false;
-  // }
 
   voltage = static_cast<double>(rx_buf_[0]) * 1e-6;
   current = static_cast<double>(static_cast<int32_t>(rx_buf_[1])) * 1e-6;
