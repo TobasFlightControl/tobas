@@ -13,7 +13,7 @@ Battery::Battery()
 
 bool Battery::initialize()
 {
-  if (!spi_.initialize(spi_device::kBatteryDev, tx_buf_, rx_buf_, kSPIClockFreq, 32))
+  if (!spi_.initialize(spi_device::kBatteryDev, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   return true;
@@ -21,7 +21,7 @@ bool Battery::initialize()
 
 bool Battery::read(double& voltage, double& current)
 {
-  if (!spi_.transfer(kSPIBufSize))
+  if (!spi_.transfer(sizeof(rx_buf_)))
     return false;
 
   voltage = static_cast<double>(rx_buf_[0]) * 1e-6;

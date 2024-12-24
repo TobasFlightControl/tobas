@@ -15,7 +15,7 @@ DShot::DShot()
 
 bool DShot::initialize()
 {
-  if (!spi_.initialize(spi_device::kDshotDev, tx_buf_, rx_buf_, kSPIClockFreq, 32))
+  if (!spi_.initialize(spi_device::kDshotDev, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   half_num_poles_.fill(1);
@@ -28,7 +28,7 @@ bool DShot::initialize()
 
 bool DShot::transfer()
 {
-  if (!spi_.transfer(kSpiBufSize))
+  if (!spi_.transfer(sizeof(tx_buf_)))
     return false;
 
   return true;
@@ -238,7 +238,7 @@ bool DShot::getValidity(size_t ch)
 
 double DShot::getSpeed(size_t ch)
 {
-  const auto erpm = (tx_buf_[ch] >> 0) & 0x0FFF;
+  const auto erpm = (rx_buf_[ch] >> 0) & 0x0FFF;
 
   if (erpm == 0)
     return NAN;
@@ -255,19 +255,19 @@ double DShot::getSpeed(size_t ch)
 
 double DShot::getTemperature(size_t ch)
 {
-  const auto temperature = (tx_buf_[ch] >> 12) & 0x0F;
+  const auto temperature = (rx_buf_[ch] >> 12) & 0x0F;
   return static_cast<double>(temperature << 4);
 }
 
 double DShot::getVoltage(size_t ch)
 {
-  const auto voltage = (tx_buf_[ch] >> 16) & 0xFF;
+  const auto voltage = (rx_buf_[ch] >> 16) & 0xFF;
   return static_cast<double>(voltage) / 4;
 }
 
 double DShot::getCurrent(size_t ch)
 {
-  const auto current = (tx_buf_[ch] >> 24) & 0xFF;
+  const auto current = (rx_buf_[ch] >> 24) & 0xFF;
   return static_cast<double>(current);
 }
 

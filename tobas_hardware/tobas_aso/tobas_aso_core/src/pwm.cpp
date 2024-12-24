@@ -13,7 +13,7 @@ PWM::PWM()
 
 bool PWM::initialize()
 {
-  if (!spi_.initialize(spi_device::kPwmDev, tx_buf_, rx_buf_, kSPIClockFreq, 32))
+  if (!spi_.initialize(spi_device::kPwmDev, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   return true;
@@ -39,7 +39,7 @@ bool PWM::setPeriod(size_t ch, uint16_t period_us)
 
 bool PWM::transfer()
 {
-  if (!spi_.transfer(kSpiBufSize))
+  if (!spi_.transfer(sizeof(tx_buf_)))
     return false;
 
   return true;
