@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstddef>
-
+#include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
 namespace aso
@@ -10,6 +9,7 @@ class PWM
 {
 public:
   static constexpr size_t kChannelSize = 8;
+  static constexpr size_t kSPIBufSize = kChannelSize + 1;  // Data + CRC16
 
 private:
   static constexpr size_t kChannelBytes = 2;                           // 1チャネルあたりのバイト数
@@ -27,7 +27,9 @@ public:
 
 private:
   linux::SPIdev spi_;
-  uint16_t tx_buf_[kChannelSize];
-  uint16_t rx_buf_[kChannelSize];
+  uint16_t tx_buf_[kSPIBufSize];
+  uint16_t rx_buf_[kSPIBufSize];
+
+  algo::CRC16Left crc_;
 };
 }  // namespace aso

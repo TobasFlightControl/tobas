@@ -9,7 +9,7 @@ using namespace std;
 
 namespace aso
 {
-DShot::DShot()
+DShot::DShot() : crc_(algo::CRC32Left::CRC_32)
 {
 }
 
@@ -28,8 +28,21 @@ bool DShot::initialize()
 
 bool DShot::transfer()
 {
+  // Compute CRC
+  tx_buf_[kChannelSize] = crc_.compute((uint8_t*)tx_buf_, kChannelSize);
+
+  // Transfer
   if (!spi_.transfer(sizeof(tx_buf_)))
     return false;
+
+  // Check CRC
+  const auto cs = rx_buf_[kChannelSize];
+  const auto cr = crc_.compute((uint8_t*)rx_buf_, kChannelSize);
+  if (cs != cr)
+  {
+    cerr << "CRC failed: " << cs << " != " << cr << endl;
+    return false;
+  }
 
   return true;
 }

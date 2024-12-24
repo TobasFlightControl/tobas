@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
 namespace aso
@@ -11,6 +12,7 @@ class DShot
 {
 public:
   static constexpr size_t kChannelSize = 8;
+  static constexpr size_t kSPIBufSize = kChannelSize + 1;  // Data + CRC32
 
   enum command_t : uint16_t
   {
@@ -105,10 +107,12 @@ public:
 
 private:
   linux::SPIdev spi_;
-  uint32_t tx_buf_[kChannelSize];
-  uint32_t rx_buf_[kChannelSize];
+  uint32_t tx_buf_[kSPIBufSize];
+  uint32_t rx_buf_[kSPIBufSize];
 
   std::array<uint16_t, kChannelSize> half_num_poles_;
+
+  algo::CRC32Left crc_;
 
   bool checkChannelSize(size_t ch);
 };
