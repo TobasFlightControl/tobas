@@ -36,7 +36,7 @@ bool DShot::transfer()
   if (!spi_.transfer(sizeof(tx_buf_)))
     return false;
 
-  // Check CRC
+  // TODO: Check CRC
   // const auto cs = rx_buf_[kChannelSize];
   // const auto cr = crc_.compute((uint8_t*)rx_buf_, sizeof(uint32_t) * kChannelSize);
   // if (cs != cr)
