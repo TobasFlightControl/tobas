@@ -13,7 +13,7 @@ PWM::PWM()
 
 bool PWM::initialize()
 {
-  if (!spi_.initialize(spi_device::kPwmDev, kSpiClockFreq))
+  if (!spi_.initialize(spi_device::kPwmDev, tx_buf_, rx_buf_, kSPIClockFreq, 32))
     return false;
 
   return true;
@@ -33,7 +33,7 @@ bool PWM::setPeriod(size_t ch, uint16_t period_us)
     return false;
   }
 
-  *((uint16_t*)spi_.tx + ch) = period_us;
+  tx_buf_[ch] = period_us;
   return true;
 }
 

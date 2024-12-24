@@ -64,7 +64,7 @@ private:
 
   static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-  static constexpr uint32_t kSpiClockFreq = 30'000'000;                // [Hz]
+  static constexpr uint32_t kSPIClockFreq = 30'000'000;                // [Hz]
 
 public:
   explicit DShot();
@@ -105,6 +105,8 @@ public:
 
 private:
   linux::SPIdev spi_;
+  uint32_t tx_buf_[kChannelSize];
+  uint32_t rx_buf_[kChannelSize];
 
   std::array<uint16_t, kChannelSize> half_num_poles_;
 

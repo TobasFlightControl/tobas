@@ -19,7 +19,7 @@ ZEDF9P1xB::ZEDF9P1xB() : rate_(kReqInterval)
 bool ZEDF9P1xB::initialize()
 {
   // Initialize SPI device
-  if (!spi_dev_.initialize(spi_device::kGnssDev, kSpiClockFreq))
+  if (!spi_.initialize(spi_device::kGnssDev, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   return true;
@@ -32,9 +32,9 @@ bool ZEDF9P1xB::update(bool nonblock)
   if (nonblock)
   {
     // スタートバイトを確認
-    if (!spi_dev_.transfer(1))
+    if (!spi_.transfer(1))
       return false;
-    if (!scanner_.update(spi_dev_.rx[0]))
+    if (!scanner_.update(rx_buf_[0]))
       return false;
 
     // データが来てなければ終了
@@ -46,9 +46,9 @@ bool ZEDF9P1xB::update(bool nonblock)
   rate_.start();
   while (scanner_.state() != UBXScanner::Done)
   {
-    if (!spi_dev_.transfer(1))
+    if (!spi_.transfer(1))
       return false;
-    if (!scanner_.update(spi_dev_.rx[0]))
+    if (!scanner_.update(rx_buf_[0]))
       return false;
 
     // SPIリクエストの間隔が短すぎると正しくデータが取得できないため，一定の間隔以上になるようスリープ．
@@ -377,13 +377,13 @@ bool ZEDF9P1xB::sendMessage(ubx_class_t cls, uint8_t id, const void* msg, uint16
   header.id = id;
   header.length = size;
 
-  const auto payload_pos = spliceMemory(spi_dev_.tx, &header, sizeof(UbxHeader), 0);
-  const auto checksum_pos = spliceMemory(spi_dev_.tx, msg, size, payload_pos);
+  const auto payload_pos = spliceMemory(tx_buf_, &header, sizeof(UbxHeader), 0);
+  const auto checksum_pos = spliceMemory(tx_buf_, msg, size, payload_pos);
 
-  const auto ck = computeChecksum(spi_dev_.tx, checksum_pos);
-  const auto message_length = spliceMemory(spi_dev_.tx, &ck, sizeof(CheckSum), checksum_pos);
+  const auto ck = computeChecksum(tx_buf_, checksum_pos);
+  const auto message_length = spliceMemory(tx_buf_, &ck, sizeof(CheckSum), checksum_pos);
 
-  if (!spi_dev_.transfer(message_length))
+  if (!spi_.transfer(message_length))
     return false;
 
   return true;

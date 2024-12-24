@@ -21,7 +21,8 @@ namespace aso
 class ZEDF9P1xB
 {
 private:
-  static constexpr uint32_t kSpiClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
+  static constexpr size_t kSPIBufSize = 256;
+  static constexpr uint32_t kSPIClockFreq = 5'500'000;  // Maximum frequency is 5.5MHz
   static constexpr uint8_t kRG174CableDelay = 5;        // [ns/m] 同軸ケーブルの遅延
   static constexpr double kWaitForGnssAck = 1.;         // [s]
 
@@ -246,7 +247,10 @@ private:
   };
   /* ==============================*/
 
-  linux::SPIdev spi_dev_;
+  linux::SPIdev spi_;
+  uint8_t tx_buf_[kSPIBufSize];
+  uint8_t rx_buf_[kSPIBufSize];
+
   UBXScanner scanner_;
 
   tobas_std::Rate rate_;

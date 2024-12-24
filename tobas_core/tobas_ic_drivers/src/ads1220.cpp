@@ -1,7 +1,8 @@
 #include <bitset>
+#include <iostream>
+#include <thread>
 
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/time.hpp>
 
 #include "../include/tobas_ic_drivers/ads1220.hpp"
 
@@ -15,7 +16,7 @@ ADS1220::ADS1220()
 
 bool ADS1220::initialize(const char* device)
 {
-  if (!spi_.initialize(device, kSpiClockFreq))
+  if (!spi_.initialize(device, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   if (!reset())
@@ -38,10 +39,10 @@ bool ADS1220::readVoltage(double& dst)
   // Read data
   // cf. 8.5.4 Reading Data (p.37)
   // cf. https://www.denshi.club/pc/python/circuitpython/circuitpython-10-step2-6-adc1220.html
-  spi_.tx[0] = RDATA;
+  tx_buf_[0] = RDATA;
   if (!spi_.transfer(3))
     return false;
-  int lsb = (spi_.rx[0] << 16) | (spi_.rx[1] << 8) | spi_.rx[2];
+  int lsb = (rx_buf_[0] << 16) | (rx_buf_[1] << 8) | rx_buf_[2];
 
   // 24ビット符号付き整数をデコード
   // cf. 8.5.2 Data Format (p.35)
@@ -70,7 +71,7 @@ bool ADS1220::reset()
     return true;
 
   // Wait at least (50us + 32 * t(CLK)) after the RESET command is sent before sending any other command.
-  tobas_std::usleep(1000);
+  this_thread::sleep_for(1ms);
 
   return true;
 }
@@ -87,7 +88,7 @@ bool ADS1220::powerDown()
 
 bool ADS1220::sendStandAloneCommand(const uint8_t& cmd)
 {
-  spi_.tx[0] = cmd;
+  tx_buf_[0] = cmd;
   if (!spi_.transfer(1))
     return false;
 
@@ -100,8 +101,8 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   const uint8_t rrnn = rr | nn;
 
   // Send write command
-  spi_.tx[0] = WREG | rrnn;
-  spi_.tx[1] = tar_cfg;
+  tx_buf_[0] = WREG | rrnn;
+  tx_buf_[1] = tar_cfg;
   if (!spi_.transfer(2))
   {
     cerr << "Failed to send write register command." << endl;
@@ -113,14 +114,14 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
   return true;
 
   // Verify that the configuration is reflected
-  spi_.tx[0] = RREG | rrnn;
+  tx_buf_[0] = RREG | rrnn;
   if (!spi_.transfer(2))
   {
     cerr << "Failed to send read register command." << endl;
     return false;
   }
 
-  const auto cur_cfg = spi_.rx[1];
+  const auto cur_cfg = rx_buf_[1];
   if (cur_cfg != tar_cfg)
   {
     cerr << "Configuration is not reflected." << endl;

@@ -9,7 +9,8 @@ namespace aso
 class Battery
 {
 private:
-  static constexpr uint32_t kSpiClockFreq = 30'000'000;  // [Hz]
+  static constexpr size_t kSPIBufSize = 2;
+  static constexpr uint32_t kSPIClockFreq = 30'000'000;  // [Hz]
 
 public:
   explicit Battery();
@@ -22,5 +23,7 @@ public:
 
 private:
   linux::SPIdev spi_;
+  uint32_t tx_buf_[kSPIBufSize];
+  uint32_t rx_buf_[kSPIBufSize];
 };
 }  // namespace aso
