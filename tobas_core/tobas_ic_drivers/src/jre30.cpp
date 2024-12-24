@@ -53,7 +53,7 @@ void JRE30Packet_C::decode(uint8_t* buf)
 }
 
 JRE30::JRE30(function<void(shared_ptr<const JRE30Packet>)> packet_cb)
-  : packet_cb_(packet_cb), crc_(0x8408, 0xFFFF, 0xFFFF)
+  : packet_cb_(packet_cb), crc_(algo::CRC16Right::CRC_16_CCITT, 0xFFFF, 0xFFFF)
 {
   crc_.initialize();
 
