@@ -9,7 +9,7 @@ class PWM
 {
 public:
   static constexpr size_t kChannelSize = 8;
-  static constexpr size_t kSPIBufSize = kChannelSize + 1;  // Data + CRC16
+  static constexpr size_t kSPIBufSize = kChannelSize + 2;  // Data + CRC32
 
 private:
   static constexpr size_t kChannelBytes = 2;                           // 1チャネルあたりのバイト数
@@ -30,6 +30,6 @@ private:
   uint16_t tx_buf_[kSPIBufSize];
   uint16_t rx_buf_[kSPIBufSize];
 
-  algo::CRC16Left crc_;
+  algo::CRC32Left crc_;
 };
 }  // namespace aso
