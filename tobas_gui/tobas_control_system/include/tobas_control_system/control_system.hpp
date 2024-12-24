@@ -3,7 +3,8 @@
 #include <tobas_drone_core/drone.hpp>
 
 #include "./pose_viewer.hpp"
-#include "./battery_cpu_viewer.hpp"
+#include "./battery_viewer.hpp"
+#include "./cpu_viewer.hpp"
 #include "./rcin_viewer/rcin_viewer.hpp"
 #include "./rotors_viewer/rotors_viewer.hpp"
 #include "./console.hpp"
@@ -28,7 +29,8 @@ private:
   const tobas::Drone& drone_;
 
   PoseViewerWidget* pose_viewer_;
-  BatteryCPUViewerWidget* battery_cpu_viewer_;
+  BatteryViewerWidget* battery_viewer_;
+  CPUViewerWidget* cpu_viewer_;
   rcin::RCInputViewerWidget* rcin_viewer_;
   RotorsViewerWiddget* rotors_viewer_;
   ConsoleWidget* console_;
