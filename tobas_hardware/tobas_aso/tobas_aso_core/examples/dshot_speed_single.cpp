@@ -68,6 +68,6 @@ int main(int argc, char** argv)
 
     dshot.printCurrentState(channel);
 
-    this_thread::sleep_for(100ms);
+    this_thread::sleep_for(10ms);
   }
 }

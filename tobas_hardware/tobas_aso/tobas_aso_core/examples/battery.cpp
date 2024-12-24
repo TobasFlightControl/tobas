@@ -1,5 +1,5 @@
 #include <iostream>
-#include <unistd.h>
+#include <thread>
 
 #include <tobas_aso_core/battery.hpp>
 
@@ -27,7 +27,7 @@ int main()
     cout << "Voltage [V]: " << voltage << endl;
     cout << "Current [A]: " << current << endl;
 
-    sleep(1);
+    this_thread::sleep_for(10ms);
   }
 
   return EXIT_SUCCESS;
