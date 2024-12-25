@@ -84,16 +84,24 @@ bool MultiRotorMixer::solve(
   qp_.problem.P.diagonal() += R_.diagonal();
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
-  // 等式制約
-  qp_.problem.h(0) = tar_thrusts_sum;
-
   // 不等式制約
+  // 同時に合計推力の範囲を計算
+  double max_thrust_sum = 0.;
+  double min_thrust_sum = 0.;
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     const auto& rotor = z_rotors_.rotor(i);
-    qp_.problem.b(i) = rotor.maxThrust(cur_voltage);
-    qp_.problem.b(z_rotors_.count() + i) = -rotor.minThrust(cur_voltage);
+    const auto max_thrust = rotor.maxThrust(cur_voltage);
+    const auto min_thrust = rotor.minThrust(cur_voltage);
+    qp_.problem.b(i) = max_thrust;
+    qp_.problem.b(z_rotors_.count() + i) = -min_thrust;
+    max_thrust_sum += max_thrust;
+    min_thrust_sum += min_thrust;
   }
+
+  // 等式制約
+  // 不等式制約と競合しないようにクランプ
+  qp_.problem.h(0) = clamp(tar_thrusts_sum, min_thrust_sum, max_thrust_sum);
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
