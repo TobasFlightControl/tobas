@@ -44,7 +44,7 @@ void RollPitchYawThrottleController::update(const tobas_msgs::msg::RCInput& rcin
   rpyt->rpy.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
   rpyt->rpy.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
   rpyt->rpy.yaw = yaw_;
-  rpyt->throttle = rcin.throttle;
+  rpyt->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
 
   // コマンドを発行
   rpyt_pub_->publish(move(rpyt));
