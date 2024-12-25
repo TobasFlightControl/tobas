@@ -15,5 +15,5 @@ static constexpr double kDefaultMaxVerVel = 3.;          // [m/s]
 static constexpr double kDefaultMaxHorAcc = 5.;          // [m/s^2]
 static constexpr double kDefaultMaxVerAcc = 4.;          // [m/s^2]
 static constexpr double kDefaultMaxAttitude = M_PI / 6;  // [rad]
-static constexpr double kDefaultMaxYawrate = M_PI;       // [rad/s]
+static constexpr double kDefaultMaxYawrate = M_PI_2;     // [rad/s]
 }  // namespace tobas_rc_teleop
