@@ -475,6 +475,23 @@ void ControllerNode::rpyThrustCb(const tobas_msgs::RollPitchYawThrottle::ConstSh
     return;
   }
 
+  // Check command range
+  if (rpy_throttle->rpy.roll <= -M_PI_2 || M_PI_2 <= rpy_throttle->rpy.roll)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target roll is invalid.");
+    return;
+  }
+  if (rpy_throttle->rpy.pitch <= -M_PI_2 || M_PI_2 <= rpy_throttle->rpy.pitch)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
+    return;
+  }
+  if (rpy_throttle->throttle < tobas::kMinThrot || tobas::kMaxThrot < rpy_throttle->throttle)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
+    return;
+  }
+
   // 外側の制御を止める
   tar_pvay_W_ = nullptr;
 
