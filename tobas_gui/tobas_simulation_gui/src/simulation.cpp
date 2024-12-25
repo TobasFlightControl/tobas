@@ -426,6 +426,9 @@ void SimulationWidget::onTerminateButtonClicked()
     return;
   }
 
+  // シミュレーションのアーム状態が入っているのでリセット
+  arming_ = nullptr;
+
   start_button_->setEnabled(true);
   terminate_button_->setEnabled(false);
   static_config_->setEnabled(true);
