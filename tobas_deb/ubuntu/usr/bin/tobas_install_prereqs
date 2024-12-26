@@ -5,13 +5,13 @@
 # ===== Install ROS2 Jazzy: https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html =====
 # Set locale
 sudo apt update &&
-sudo apt install locales &&
+sudo apt install -y locales &&
 sudo locale-gen en_US en_US.UTF-8 &&
 sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 &&
 export LANG=en_US.UTF-8 &&
 
 # Enable required repositories
-sudo apt install software-properties-common &&
+sudo apt install -y software-properties-common &&
 yes "" | sudo add-apt-repository universe &&
 sudo apt update &&
 sudo apt install -y curl &&
