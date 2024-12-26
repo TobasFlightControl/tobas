@@ -9,8 +9,6 @@ namespace driver
 {
 class NssnmfgPEFC
 {
-  static constexpr uint32_t kBaudRate = 38400;
-
   static constexpr size_t kHeaderIdx = 0;
   static constexpr size_t kErrorIdx = kHeaderIdx + 1;
   static constexpr size_t kStackVoltageIdx = kErrorIdx + 2;

@@ -17,7 +17,7 @@ bool NssnmfgPEFC::initialize(const char* device)
   if (!uart_.initialize(device, true))
     return false;
 
-  if (!uart_.setBaudRate(kBaudRate))
+  if (!uart_.setBaudRate(38400))
     return false;
 
   if (!uart_.setDataBits(8))
