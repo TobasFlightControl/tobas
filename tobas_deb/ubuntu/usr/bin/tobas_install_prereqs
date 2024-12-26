@@ -37,5 +37,5 @@ rosdep update &&
 source /opt/ros/jazzy/setup.bash &&
 rosdep install --from-paths /opt/tobas/share/ -yi &&
 
-echo -e "\033[32mInstallation finished successfully.\033[0m"
+echo -e "\033[32mInstallation finished successfully. Please close this terminal.\033[0m"
 sleep infinity
