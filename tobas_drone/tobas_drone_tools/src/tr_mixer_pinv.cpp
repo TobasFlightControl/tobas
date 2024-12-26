@@ -57,14 +57,6 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
       return false;
     }
 
-    constexpr auto joint_range_limit = M_PI - 1e-6;
-    if (-joint_range_limit < par_joint.lower_limit || par_joint.upper_limit < joint_range_limit)
-    {
-      cerr << "Tilt joint " << par_joint.name << " needs to be able to rotate at least 180 degrees in both directions."
-           << endl;
-      return false;
-    }
-
     if (!p.isOrthogonal(q))
     {
       cerr << "The axes of tilt joint " << par_joint.name << " and rotor joint " << cur_joint.name
