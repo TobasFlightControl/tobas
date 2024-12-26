@@ -116,7 +116,7 @@ static constexpr char kObserverNode[] = "observer";
 static constexpr char kWorldFrame[] = "world";
 
 // Path
-static constexpr char kROSBagDirHome[] = "~/.tobas/rosbag";
+static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
 
 // Flight mode
