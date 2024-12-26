@@ -1,5 +1,4 @@
 #include <iostream>
-#include <unistd.h>
 
 #include <tobas_ic_drivers/sbus_usb_converter.hpp>
 
