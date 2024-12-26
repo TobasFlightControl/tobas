@@ -432,6 +432,10 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
+  // rosbagディレクトリが存在しなければ作成
+  if (!fs::exists(rosbag_dir_))
+    fs::create_directories(rosbag_dir_);
+
   // rosbagディレクトリ全体のサイズが大きすぎないか確認
   const auto par_dir_size = path::computeDirectorySize(rosbag_dir_);
   if (par_dir_size > kMaxParDirSize)
