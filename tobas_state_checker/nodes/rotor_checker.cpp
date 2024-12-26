@@ -5,7 +5,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/disable_rotor.hpp>
+#include <tobas_msgs/srv/enable_rotor.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 
 using namespace std;
@@ -15,7 +15,8 @@ class RotorCheckerNode : public tobas::BaseNode
   using self = RotorCheckerNode;
   using super = tobas::BaseNode;
 
-  static constexpr rcl_duration_value_t kNoCommunicationTimeout = 20'000'000;  // [ns]
+  static constexpr rcl_duration_value_t kNoCommTimeout = 100'000'000;     // [ns]
+  static constexpr rcl_duration_value_t kCommRecoveryTime = 500'000'000;  // [ns]
 
 public:
   explicit RotorCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -24,7 +25,8 @@ private:
   struct RotorData
   {
     bool is_alive = true;
-    builtin_interfaces::msg::Time last_ok_time;
+    builtin_interfaces::msg::Time last_alive_time;
+    builtin_interfaces::msg::Time last_dead_time;
   };
 
   tobas::Drone::ConstSharedPtr drone_;
@@ -35,9 +37,9 @@ private:
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> states_sub_;
 
-  ros2::ServiceClientPtr<tobas_msgs::srv::DisableRotor> remove_rotor_sc_;
+  ros2::ServiceClientPtr<tobas_msgs::srv::EnableRotor> enable_rotor_sc_;
 
-  bool requestDisableRotor(uint8_t channel);
+  void requestEnableRotor(uint8_t channel, bool enable);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
@@ -50,22 +52,21 @@ RotorCheckerNode::RotorCheckerNode(const rclcpp::NodeOptions& options) : super("
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   states_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kRotorStatesTopic), &self::statesCb, this);
 
-  remove_rotor_sc_ = create_client<tobas_msgs::srv::DisableRotor>(tobas::kRemoveRotorSrv);
+  enable_rotor_sc_ = create_client<tobas_msgs::srv::EnableRotor>(tobas::kEnableRotorSrv);
 }
 
-bool RotorCheckerNode::requestDisableRotor(uint8_t channel)
+void RotorCheckerNode::requestEnableRotor(uint8_t channel, bool enable)
 {
-  if (!remove_rotor_sc_->service_is_ready())
+  if (!enable_rotor_sc_->service_is_ready())
   {
-    TOBAS_ERROR("\"", tobas::kRemoveRotorSrv, "\" service is not ready.");
-    return false;
+    TOBAS_ERROR("\"", tobas::kEnableRotorSrv, "\" service is not ready.");
+    return;
   }
 
-  const auto req = std::make_shared<tobas_msgs::srv::DisableRotor::Request>();
+  const auto req = std::make_shared<tobas_msgs::srv::EnableRotor::Request>();
   req->channel = channel;
-  remove_rotor_sc_->async_send_request(req);
-
-  return true;
+  req->enable = enable;
+  enable_rotor_sc_->async_send_request(req);
 }
 
 void RotorCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -109,30 +110,48 @@ void RotorCheckerNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSha
     auto& data = data_.at(state.channel);
     const auto& cur_time = states->header.stamp;
 
-    // 既に死んでいる場合はスキップ
-    if (!data.is_alive)
-      continue;
-
-    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+    if (data.is_alive)
     {
-      // 一定時間通信が途絶えている場合は死んでいるとみなす
-      if ((cur_time - data.last_ok_time).nanoseconds() > kNoCommunicationTimeout)
+      if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
       {
-        data.is_alive = false;
-        TOBAS_FATAL(
-          "No communication with rotor channel ", (int)state.channel, ". Please land the drone as soon as possible.");
-
-        // 通信できないモータをモデルから削除
-        if (!requestDisableRotor(state.channel))
+        // 一定時間通信が途絶えている場合は死んでいるとみなす
+        if ((cur_time - data.last_alive_time).nanoseconds() > kNoCommTimeout)
         {
-          // TODO: Disarmしてパラシュートを開くなど
+          data.is_alive = false;
+          data.last_dead_time = cur_time;
+          TOBAS_FATAL(
+            "No communication with rotor channel ", (int)state.channel, ". Please land the drone as soon as possible.");
+
+          // 通信できないモータをモデルから削除
+          requestEnableRotor(state.channel, false);
         }
+      }
+      else
+      {
+        // 通信が確認できた最新の時刻を更新
+        data.last_alive_time = cur_time;
       }
     }
     else
     {
-      // 通信が確認できた最新の時刻を更新
-      data.last_ok_time = cur_time;
+      if (state.status != tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+      {
+        // 一定時間通信があれば回復したとみなす
+        if ((cur_time - data.last_dead_time).nanoseconds() > kCommRecoveryTime)
+        {
+          data.is_alive = true;
+          data.last_alive_time = cur_time;
+          TOBAS_INFO("Communication with rotor channel ", (int)state.channel, " has been recovered.");
+
+          // 回復したモータをモデルに追加
+          requestEnableRotor(state.channel, true);
+        }
+      }
+      else
+      {
+        // 通信が確認できない最新の時刻を更新
+        data.last_dead_time = cur_time;
+      }
     }
   }
 }

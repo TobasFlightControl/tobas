@@ -1,4 +1,5 @@
 uint8 channel
+bool enable
 ---
 bool success
 string message
