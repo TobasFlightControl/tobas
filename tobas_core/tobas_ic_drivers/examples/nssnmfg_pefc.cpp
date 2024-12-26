@@ -57,10 +57,10 @@ int main(int argc, char** argv)
 
   if (!pefc.initialize(device))
   {
-    cerr << "Failed to initialize fuel cell driver." << endl;
+    cerr << "Failed to initialize PEFC driver." << endl;
     return EXIT_FAILURE;
   }
-  cout << "Fuel cell driver is initialized." << endl;
+  cout << "PEFC driver is initialized." << endl;
 
   pefc.start();
   pefc.spin();
