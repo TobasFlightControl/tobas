@@ -9,7 +9,11 @@
   <!-- Properties -->
   <xacro:property name="frame_width" value="0.35"/>
   <xacro:property name="frame_height" value="0.06"/>
-  <xacro:property name="frame_mass" value="0.780"/>
+  <xacro:property name="frame_mass" value="0.55346"/>
+  <xacro:property name="fc_x" value="0.09"/>
+  <xacro:property name="fc_y" value="0.055"/>
+  <xacro:property name="fc_z" value="0.05"/>
+  <xacro:property name="fc_mass" value="0.2"/>
   <xacro:property name="battery_x" value="0.106"/>
   <xacro:property name="battery_y" value="0.035"/>
   <xacro:property name="battery_z" value="0.026"/>
@@ -33,19 +37,45 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://tobas_description/meshes/f450/frame.stl" scale="1e-3 1e-3 1e-3"/>
+        <mesh filename="package://tobas_description/meshes/f450/frame.stl" scale="1 1 1"/>
       </geometry>
       <xacro:insert_block name="black"/>
     </visual>
     <inertial>
       <mass value="${frame_mass}"/>
-      <origin xyz="0.001573 -0.000596 -0.003436" rpy="0 0 0"/>
-      <inertia ixx="9.613e-3" ixy="-6.070442e-6" ixz="-4.7933683e-5" iyy="9.702e-3" iyz="-3.987551e-6" izz="1.867e-2"/>
+      <origin xyz="0 0 -4.136e-3" rpy="0 0 0"/>
+      <inertia ixx="8.128e-3" ixy="0" ixz="0" iyy="8.193e-3" iyz="0" izz="1.597e-2"/>
     </inertial>
     <collision>
       <origin xyz="0 0 ${-frame_height/2}" rpy="0 0 0"/>
       <geometry>
         <box size="${frame_width} ${frame_width} ${frame_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Flight Controller -->
+  <joint name="flight_controller_joint" type="fixed">
+    <origin xyz="0 0.015 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="flight_controller"/>
+  </joint>
+  <link name="flight_controller">
+    <visual>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/common/flight_controller/rpi_hat_avm.stl" scale="1 1 1"/>
+      </geometry>
+      <xacro:insert_block name="red"/>
+    </visual>
+    <inertial>
+      <mass value="${fc_mass}"/>
+      <origin xyz="0 0 ${fc_z/2}" rpy="0 0 0"/>
+      <xacro:box_inertia x="${fc_x}" y="${fc_y}" z="${fc_z}" mass="${fc_mass}"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 ${fc_z/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${fc_x} ${fc_y} ${fc_z}"/>
       </geometry>
     </collision>
   </link>
