@@ -129,6 +129,12 @@ def generate_launch_description():
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="JointCommandHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
                     ],
                 )
             ],
