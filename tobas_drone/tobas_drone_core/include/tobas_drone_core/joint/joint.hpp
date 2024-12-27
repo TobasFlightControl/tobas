@@ -15,6 +15,7 @@ using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> Joi
 
 class JointConfig
 {
+  static constexpr char kChannelKey[] = "channel";
   static constexpr char kNameKey[] = "joint_name";
   static constexpr char kHomePosKey[] = "home_position";
   static constexpr char kMinPosKey[] = "min_position";
@@ -24,6 +25,7 @@ class JointConfig
   static constexpr char kHwIfaceKey[] = "hw_iface";
 
 public:
+  uint32_t channel = 0;
   std::string name = "";
 
   double home_pos = 0;  // [rad | m]

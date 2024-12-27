@@ -1,3 +1,4 @@
+uint32 channel
 string name
 float64 home_pos
 float64 min_pos

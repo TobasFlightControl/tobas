@@ -19,6 +19,9 @@ bool JointConfig::isValid() const
 
 bool JointConfig::load(const YAML::Node& node)
 {
+  if (!yaml::load(kChannelKey, node, channel))
+    return false;
+
   if (!yaml::load(kNameKey, node, name))
     return false;
 
@@ -47,6 +50,7 @@ YAML::Node JointConfig::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[kChannelKey] = name;
   node[kNameKey] = name;
   node[kHomePosKey] = home_pos;
   node[kMinPosKey] = min_pos;
