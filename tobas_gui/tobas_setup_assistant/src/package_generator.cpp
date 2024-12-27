@@ -145,7 +145,7 @@ tobas::Drone PackageGenerator::createDrone()
     joint.home_pos = servos->homePosition(i);
     joint.min_pos = servos->minPosition(i);
     joint.max_pos = servos->maxPosition(i);
-    joint.interface = servos->interface(i);
+    joint.cmd_iface = servos->commandInterface(i);
 
     drone.joints[joint.name] = joint;
   }
@@ -449,7 +449,7 @@ bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesy
   for (int i = 0; i < servos->count(); ++i)
   {
     params_node["joint_names"].push_back(servos->jointName(i));
-    params_node["interfaces"].push_back(servos->interface(i));
+    params_node["interfaces"].push_back(servos->commandInterface(i));
   }
 
   YAML::Node root_node(YAML::NodeType::Map);
@@ -499,7 +499,7 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
 
     YAML::Node ctrl_params_node(YAML::NodeType::Map);
     ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::jointIFEnumToText(servos->interface(i));
+    ctrl_params_node["interface_name"] = tobas::jntCmdIfaceEnumToText(servos->commandInterface(i));
 
     // Create data
     YAML::Node root_node(YAML::NodeType::Map);

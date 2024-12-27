@@ -72,14 +72,14 @@ bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArra
   for (const auto& [name, pos] : views::zip(tar_js_->name, tar_js_->position))
   {
     const auto& joint = drone_->joints.at(name);
-    if (joint.interface != tobas::joint_interface_t::POSITION)
-    {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"POSITION\".");
-      continue;
-    }
-    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
       TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"POSITION\".");
       continue;
     }
 
@@ -110,9 +110,9 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // 位置指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints)
   {
-    if (jnt_cfg.interface != tobas::joint_interface_t::POSITION)
+    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION)
       continue;
-    if (jnt_cfg.role != tobas::joint_role_t::MANIPULATION)
+    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
       continue;
     home_js_.name.push_back(jnt_name);
     home_js_.position.push_back(jnt_cfg.home_pos);

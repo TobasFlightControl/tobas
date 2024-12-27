@@ -4,8 +4,8 @@
 #include <map>
 #include <yaml-cpp/yaml.h>
 
-#include "./joint_interface.hpp"
-#include "./joint_role.hpp"
+#include "./role.hpp"
+#include "./command_interface.hpp"
 
 namespace tobas
 {
@@ -18,8 +18,8 @@ class JointConfig
   static constexpr char kHomePosKey[] = "home_position";
   static constexpr char kMinPosKey[] = "min_position";
   static constexpr char kMaxPosKey[] = "max_position";
-  static constexpr char kInterfaceKey[] = "interface";
   static constexpr char kRoleKey[] = "role";
+  static constexpr char kCmdIfaceKey[] = "cmd_iface";
 
 public:
   std::string name = "";
@@ -28,9 +28,9 @@ public:
   double min_pos = 0;   // [rad | m]
   double max_pos = 0;   // [rad | m]
 
-  joint_interface_t interface = joint_interface_t::POSITION;
+  jnt_role_t role = jnt_role_t::MANIPULATION;
 
-  joint_role_t role = joint_role_t::MANIPULATION;
+  jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::POSITION;
 
   bool isValid() const;
   bool load(const YAML::Node& node);

@@ -161,14 +161,14 @@ bool EffortControllerNode::jointSpaceControl(
   for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
   {
     const auto& joint = drone_->joints.at(name);
-    if (joint.interface != tobas::joint_interface_t::EFFORT)
-    {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
-      continue;
-    }
-    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
       TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
       continue;
     }
 
@@ -237,14 +237,14 @@ bool EffortControllerNode::taskSpaceControl(
   for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
   {
     const auto& joint = drone_->joints.at(name);
-    if (joint.interface != tobas::joint_interface_t::EFFORT)
-    {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
-      continue;
-    }
-    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
       TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      continue;
+    }
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
+    {
+      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
       continue;
     }
 
@@ -334,9 +334,9 @@ void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   // 力指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints)
   {
-    if (jnt_cfg.interface != tobas::joint_interface_t::EFFORT)
+    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION)
       continue;
-    if (jnt_cfg.role != tobas::joint_role_t::MANIPULATION)
+    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
       continue;
     home_js_.name.push_back(jnt_name);
     home_js_.position.push_back(jnt_cfg.home_pos);

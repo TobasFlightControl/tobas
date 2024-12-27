@@ -5,7 +5,7 @@
 
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/joint/joint_interface.hpp>
+#include <tobas_drone_core/joint/command_interface.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 
 using namespace std;
@@ -22,7 +22,7 @@ public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  unordered_map<string, pair<tobas::joint_interface_t, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>> ctrl_map_;
+  unordered_map<string, pair<tobas::jnt_cmd_iface_t, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>> ctrl_map_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
@@ -47,7 +47,7 @@ JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& opti
   {
     const auto controller_name = jnt_name + "_controller";
     const auto topic = controller_name + "/commands";
-    ctrl_map_[jnt_name] = { static_cast<tobas::joint_interface_t>(iface),
+    ctrl_map_[jnt_name] = { static_cast<tobas::jnt_cmd_iface_t>(iface),
                             createPublisher<std_msgs::msg::Float64MultiArray>(topic, false, true) };
   }
 
@@ -69,7 +69,7 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::joint_interface_t::POSITION)
+    if (type == tobas::jnt_cmd_iface_t::POSITION)
     {
       auto cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
       cmd->data.push_back(positions->commands[i].data);
@@ -97,7 +97,7 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::joint_interface_t::VELOCITY)
+    if (type == tobas::jnt_cmd_iface_t::VELOCITY)
     {
       auto cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
       cmd->data.push_back(velocities->commands[i].data);
@@ -124,7 +124,7 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     }
 
     const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::joint_interface_t::EFFORT)
+    if (type == tobas::jnt_cmd_iface_t::EFFORT)
     {
       auto cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
       cmd->data.push_back(efforts->commands[i].data);

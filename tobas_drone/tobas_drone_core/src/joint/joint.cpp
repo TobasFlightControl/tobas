@@ -31,10 +31,10 @@ bool JointConfig::load(const YAML::Node& node)
   if (!yaml::load(kMaxPosKey, node, max_pos))
     return false;
 
-  if (!yaml::load(kInterfaceKey, node, interface))
+  if (!yaml::load(kRoleKey, node, role))
     return false;
 
-  if (!yaml::load(kRoleKey, node, role))
+  if (!yaml::load(kCmdIfaceKey, node, cmd_iface))
     return false;
 
   return true;
@@ -48,7 +48,7 @@ YAML::Node JointConfig::dump() const
   node[kHomePosKey] = home_pos;
   node[kMinPosKey] = min_pos;
   node[kMaxPosKey] = max_pos;
-  node[kInterfaceKey] = interface;
+  node[kCmdIfaceKey] = cmd_iface;
   node[kRoleKey] = role;
 
   return node;

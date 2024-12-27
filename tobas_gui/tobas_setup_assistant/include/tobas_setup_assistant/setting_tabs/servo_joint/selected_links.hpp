@@ -3,7 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
-#include <tobas_drone_core/joint/joint_interface.hpp>
+#include <tobas_drone_core/joint/command_interface.hpp>
 
 #include "tobas_setup_assistant/robot_info.hpp"
 
@@ -28,7 +28,7 @@ class SelectedLinksWidget : public qt::TableWidget
   static constexpr int kHomePosCol = 2;
   static constexpr int kMinPosCol = 3;
   static constexpr int kMaxPosCol = 4;
-  static constexpr int kInterfaceCol = 5;
+  static constexpr int kCmdIfaceCol = 5;
   static constexpr int kNumCols = 6;
 
   // Labels
@@ -69,7 +69,7 @@ public:
   double homePosition(int row) const;
   double minPosition(int row) const;
   double maxPosition(int row) const;
-  tobas::joint_interface_t interface(int row) const;
+  tobas::jnt_cmd_iface_t commandInterface(int row) const;
 
   // Setters
   void linkName(int row, const QString& text);
@@ -77,7 +77,7 @@ public:
   void homePosition(int row, double value);
   void minPosition(int row, double value);
   void maxPosition(int row, double value);
-  void interface(int row, tobas::joint_interface_t value);
+  void commandInterface(int row, tobas::jnt_cmd_iface_t value);
 
   QStringList linkNames() const;
   QStringList jointNames() const;

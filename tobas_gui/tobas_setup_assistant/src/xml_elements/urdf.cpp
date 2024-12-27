@@ -51,10 +51,10 @@ tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const string&
 }
 
 tinyxml2::XMLElement*
-addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t interface, double init_value = 0.)
+addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface, double init_value = 0.)
 {
   const auto state_if_elem = joint->InsertNewChildElement("state_interface");
-  state_if_elem->SetAttribute("name", tobas::jointIFEnumToText(interface).c_str());
+  state_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
 
   const auto init_value_elem = state_if_elem->InsertNewChildElement("param");
   init_value_elem->SetAttribute("name", "initial_value");
@@ -63,10 +63,10 @@ addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t inte
   return state_if_elem;
 }
 
-tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t interface)
+tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface)
 {
   const auto command_if_elem = joint->InsertNewChildElement("command_interface");
-  command_if_elem->SetAttribute("name", tobas::jointIFEnumToText(interface).c_str());
+  command_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
   return command_if_elem;
 }
 }  // namespace util
@@ -326,12 +326,12 @@ void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfi
     joint->SetAttribute("name", jnt_name.c_str());
 
     // robot/ros2_control/joint/state_interface
-    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::POSITION, jnt_cfg.home_pos);
-    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::VELOCITY);
-    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::EFFORT);
+    util::addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::POSITION, jnt_cfg.home_pos);
+    util::addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::VELOCITY);
+    util::addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::EFFORT);
 
     // robot/ros2_control/joint/command_interface
-    util::addROS2ControlCommandIF(joint, jnt_cfg.interface);
+    util::addROS2ControlCommandIF(joint, jnt_cfg.cmd_iface);
   }
 }
 

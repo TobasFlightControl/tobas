@@ -47,7 +47,7 @@ YAML::Node SelectedLinksWidget::dump(const QString& link_name) const
   node[kHomePosLabel] = homePosition(row);
   node[kMinPosLabel] = minPosition(row);
   node[kMaxPosLabel] = maxPosition(row);
-  node[kInterfaceLabel] = interface(row);
+  node[kInterfaceLabel] = commandInterface(row);
 
   return node;
 }
@@ -61,7 +61,7 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
   homePosition(row, node[kHomePosLabel].as<double>());
   minPosition(row, node[kMinPosLabel].as<double>());
   maxPosition(row, node[kMaxPosLabel].as<double>());
-  interface(row, node[kInterfaceLabel].as<tobas::joint_interface_t>());
+  commandInterface(row, node[kInterfaceLabel].as<tobas::jnt_cmd_iface_t>());
 }
 
 int SelectedLinksWidget::count() const
@@ -129,8 +129,8 @@ void SelectedLinksWidget::add(const QString& link_name)
       throw;
   }
 
-  const auto interface = new qt::ComboBox();
-  interface->addItems({ kPositionLabel, kVelocityLabel, kEffortLabel });
+  const auto cmd_iface = new qt::ComboBox();
+  cmd_iface->addItems({ kPositionLabel, kVelocityLabel, kEffortLabel });
 
   const auto row = rowCount();
   insertRow(row);
@@ -139,7 +139,7 @@ void SelectedLinksWidget::add(const QString& link_name)
   setCellWidget(row, kHomePosCol, home_pos);
   setCellWidget(row, kMinPosCol, min_pos);
   setCellWidget(row, kMaxPosCol, max_pos);
-  setCellWidget(row, kInterfaceCol, interface);
+  setCellWidget(row, kCmdIfaceCol, cmd_iface);
 }
 
 void SelectedLinksWidget::remove(const QString& link_name)
@@ -178,17 +178,17 @@ double SelectedLinksWidget::maxPosition(int row) const
   return cell->value();
 }
 
-tobas::joint_interface_t SelectedLinksWidget::interface(int row) const
+tobas::jnt_cmd_iface_t SelectedLinksWidget::commandInterface(int row) const
 {
-  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kInterfaceCol));
+  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kCmdIfaceCol));
   const auto text = cell->currentText();
 
   if (text == kPositionLabel)
-    return tobas::joint_interface_t::POSITION;
+    return tobas::jnt_cmd_iface_t::POSITION;
   else if (text == kVelocityLabel)
-    return tobas::joint_interface_t::VELOCITY;
+    return tobas::jnt_cmd_iface_t::VELOCITY;
   else if (text == kEffortLabel)
-    return tobas::joint_interface_t::EFFORT;
+    return tobas::jnt_cmd_iface_t::EFFORT;
   else
     throw;
 }
@@ -223,25 +223,25 @@ void SelectedLinksWidget::maxPosition(int row, double value)
   cell->setValue(value);
 }
 
-void SelectedLinksWidget::interface(int row, tobas::joint_interface_t value)
+void SelectedLinksWidget::commandInterface(int row, tobas::jnt_cmd_iface_t value)
 {
   QString text;
   switch (value)
   {
-    case tobas::joint_interface_t::POSITION:
+    case tobas::jnt_cmd_iface_t::POSITION:
       text = kPositionLabel;
       break;
-    case tobas::joint_interface_t::VELOCITY:
+    case tobas::jnt_cmd_iface_t::VELOCITY:
       text = kVelocityLabel;
       break;
-    case tobas::joint_interface_t::EFFORT:
+    case tobas::jnt_cmd_iface_t::EFFORT:
       text = kEffortLabel;
       break;
     default:
       throw;
   }
 
-  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kInterfaceCol));
+  const auto cell = qobject_cast<qt::ComboBox*>(cellWidget(row, kCmdIfaceCol));
   cell->setCurrentText(text);
 }
 
