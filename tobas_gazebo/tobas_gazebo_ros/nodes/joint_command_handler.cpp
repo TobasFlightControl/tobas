@@ -59,9 +59,9 @@ JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& opti
 
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
-  for (size_t i = 0; i < positions->commands.size(); ++i)
+  for (const auto& tbs_cmd : positions->commands)
   {
-    const auto& jnt_name = positions->commands[i].name;
+    const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name))
     {
       TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
@@ -71,9 +71,9 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == tobas::jnt_cmd_iface_t::POSITION)
     {
-      auto cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
-      cmd->data.push_back(positions->commands[i].data);
-      pub->publish(move(cmd));
+      auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
+      gz_cmd->data.push_back(tbs_cmd.data);
+      pub->publish(move(gz_cmd));
     }
     else
     {
@@ -86,9 +86,9 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
 
 void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
-  for (size_t i = 0; i < velocities->commands.size(); ++i)
+  for (const auto& tbs_cmd : velocities->commands)
   {
-    const auto& jnt_name = velocities->commands[i].name;
+    const auto& jnt_name = tbs_cmd.name;
 
     if (!ctrl_map_.contains(jnt_name))
     {
@@ -99,9 +99,9 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == tobas::jnt_cmd_iface_t::VELOCITY)
     {
-      auto cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
-      cmd->data.push_back(velocities->commands[i].data);
-      pub->publish(move(cmd));
+      auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
+      gz_cmd->data.push_back(tbs_cmd.data);
+      pub->publish(move(gz_cmd));
     }
     else
     {
@@ -114,9 +114,9 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
 
 void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
-  for (size_t i = 0; i < efforts->commands.size(); ++i)
+  for (const auto& tbs_cmd : efforts->commands)
   {
-    const auto& jnt_name = efforts->commands[i].name;
+    const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name))
     {
       TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
@@ -126,9 +126,9 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     const auto& [type, pub] = ctrl_map_[jnt_name];
     if (type == tobas::jnt_cmd_iface_t::EFFORT)
     {
-      auto cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
-      cmd->data.push_back(efforts->commands[i].data);
-      pub->publish(move(cmd));
+      auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
+      gz_cmd->data.push_back(tbs_cmd.data);
+      pub->publish(move(gz_cmd));
     }
     else
     {
