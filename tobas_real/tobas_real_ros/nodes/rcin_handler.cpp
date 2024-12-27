@@ -45,7 +45,7 @@ private:
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
 };
 
-RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("rcin_handler", options)
+RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("real_rcin_handler", options)
 {
   if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
   {

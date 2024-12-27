@@ -38,7 +38,7 @@ private:
 };
 
 MagnetometerHandlerNode::MagnetometerHandlerNode(const rclcpp::NodeOptions& options)
-  : super("magnetometer_handler", options)
+  : super("real_magnetometer_handler", options)
 {
   if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
   {

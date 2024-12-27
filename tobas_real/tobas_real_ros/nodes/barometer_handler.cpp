@@ -20,7 +20,8 @@ private:
   void airPressureCb(const tobas_msgs::msg::FluidPressureStamped::ConstSharedPtr& pres_in);
 };
 
-BarometerHandlerNode::BarometerHandlerNode(const rclcpp::NodeOptions& options) : super("barometer_handler", options)
+BarometerHandlerNode::BarometerHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_barometer_handler", options)
 {
   pres_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   pres_sub_ = createSubscriber(real::kAirPressureTopic, &self::airPressureCb, this);

@@ -23,7 +23,7 @@ private:
 };
 
 TimeReferenceServerNode::TimeReferenceServerNode(const rclcpp::NodeOptions& options)
-  : super("time_reference_server", options)
+  : super("real_time_reference_server", options)
 {
   time_ref_pub_ = createPublisher<sensor_msgs::msg::TimeReference>(tobas::kTimeReferenceTopic);
   main_timer_ = createTimer(kUpdatePeriod, &self::mainTimerCb, this);
