@@ -64,7 +64,7 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name))
     {
-      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       return;
     }
 
@@ -78,8 +78,8 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     else
     {
       TOBAS_WARN(
-        "Controller type for joint '", jnt_name, "' is not position. So received position command for joint '",
-        jnt_name, "' is ignored.");
+        "Controller type for joint \"", jnt_name, "\" is not position. So received position command for joint \"",
+        jnt_name, "\" is ignored.");
     }
   }
 }
@@ -92,7 +92,7 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
 
     if (!ctrl_map_.contains(jnt_name))
     {
-      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       return;
     }
 
@@ -106,8 +106,8 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     else
     {
       TOBAS_WARN(
-        "Controller type for joint '", jnt_name, "' is not velocity. So received velocity command for joint '",
-        jnt_name, "' is ignored.");
+        "Controller type for joint \"", jnt_name, "\" is not velocity. So received velocity command for joint \"",
+        jnt_name, "\" is ignored.");
     }
   }
 }
@@ -119,7 +119,7 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     const auto& jnt_name = tbs_cmd.name;
     if (!ctrl_map_.contains(jnt_name))
     {
-      TOBAS_ERROR("Controller for joint '", jnt_name, "' is not found.");
+      TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
       return;
     }
 
@@ -133,8 +133,8 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     else
     {
       TOBAS_WARN(
-        "Controller type for joint '", jnt_name, "' is not effort. So received effort command for joint '", jnt_name,
-        "' is ignored.");
+        "Controller type for joint \"", jnt_name, "\" is not effort. So received effort command for joint \"", jnt_name,
+        "\" is ignored.");
     }
   }
 }
