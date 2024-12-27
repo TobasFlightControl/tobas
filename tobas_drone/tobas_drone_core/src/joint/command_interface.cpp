@@ -26,6 +26,6 @@ jnt_cmd_iface_t jntCmdIfaceTextToEnum(const std::string& text)
   else if (text == "effort")
     return tobas::jnt_cmd_iface_t::EFFORT;
   else
-    throw std::runtime_error("Invalid joint interface: " + text);
+    throw std::runtime_error("Invalid joint command interface: " + text);
 }
 }  // namespace tobas

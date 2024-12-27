@@ -6,6 +6,7 @@
 
 #include "./role.hpp"
 #include "./command_interface.hpp"
+#include "./hardware_interface.hpp"
 
 namespace tobas
 {
@@ -20,6 +21,7 @@ class JointConfig
   static constexpr char kMaxPosKey[] = "max_position";
   static constexpr char kRoleKey[] = "role";
   static constexpr char kCmdIfaceKey[] = "cmd_iface";
+  static constexpr char kHwIfaceKey[] = "hw_iface";
 
 public:
   std::string name = "";
@@ -31,6 +33,7 @@ public:
   jnt_role_t role = jnt_role_t::MANIPULATION;
 
   jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::POSITION;
+  jnt_hw_iface_t hw_iface = jnt_hw_iface_t::OTHER;
 
   bool isValid() const;
   bool load(const YAML::Node& node);
