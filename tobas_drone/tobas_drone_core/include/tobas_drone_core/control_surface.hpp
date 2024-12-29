@@ -19,9 +19,7 @@ using ControlSurfaceMap = std::map<uint32_t, ControlSurface>;  // Channel -> Con
 class ControlSurface
 {
   static constexpr char kChannelKey[] = "channel";
-  static constexpr char kJointNameKey[] = "joint_name";
-  static constexpr char kAngleLimitKey[] = "angle_limit";
-  static constexpr char kMaxAngleRateMKey[] = "max_angle_rate";
+  static constexpr char kLinkNameKey[] = "link_name";
   static constexpr char kCLiftDeltaKey[] = "c_lift_delta";
   static constexpr char kCDragAbsDeltaKey[] = "c_drag_abs_delta";
   static constexpr char kCSideDeltaKey[] = "c_side_delta";
@@ -31,9 +29,7 @@ class ControlSurface
 
 public:
   uint32_t channel = 0;  // モータが接続されているチャンネル
-  std::string joint_name = "";
-  tobas_std::Range<double> angle_limit = { 0., 0. };  // [rad]
-  double max_angle_rate = 0.;                         // [rad/s]
+  std::string link_name = "";
 
   double c_lift_delta = 0.;      // [/rad]
   double c_drag_abs_delta = 0.;  // [/rad], 舵角の正負にかかわらず抗力が発生するモデル

@@ -18,8 +18,6 @@ class JointConfig
   static constexpr char kChannelKey[] = "channel";
   static constexpr char kNameKey[] = "joint_name";
   static constexpr char kHomePosKey[] = "home_position";
-  static constexpr char kMinPosKey[] = "min_position";
-  static constexpr char kMaxPosKey[] = "max_position";
   static constexpr char kRoleKey[] = "role";
   static constexpr char kCmdIfaceKey[] = "cmd_iface";
   static constexpr char kHwIfaceKey[] = "hw_iface";
@@ -27,13 +25,8 @@ class JointConfig
 public:
   uint32_t channel = 0;
   std::string name = "";
-
-  double home_pos = 0;  // [rad | m]
-  double min_pos = 0;   // [rad | m]
-  double max_pos = 0;   // [rad | m]
-
+  double home_pos = 0.;  // [rad | m]
   jnt_role_t role = jnt_role_t::MANIPULATION;
-
   jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::POSITION;
   jnt_hw_iface_t hw_iface = jnt_hw_iface_t::OTHER;
 

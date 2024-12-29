@@ -9,23 +9,8 @@ namespace tobas
 {
 bool ControlSurface::isValid() const
 {
-  if (!angle_limit.isValid())
-  {
-    cerr << "The angle limit is invalid." << endl;
-    return false;
-  }
-
-  if (!angle_limit.inRange(0))
-  {
-    cerr << "The angle limit must include 0." << endl;
-    return false;
-  }
-
-  if (max_angle_rate <= 0)
-  {
-    cerr << "The maximum angle rate must be positive." << endl;
-    return false;
-  }
+  // TODO: ジョイントの範囲をチェック
+  // TODO: 安定微係数の符号をチェック
 
   return true;
 }
@@ -35,13 +20,7 @@ bool ControlSurface::load(const YAML::Node& node)
   if (!yaml::load(kChannelKey, node, channel))
     return false;
 
-  if (!yaml::load(kJointNameKey, node, joint_name))
-    return false;
-
-  if (!yaml::load(kAngleLimitKey, node, angle_limit))
-    return false;
-
-  if (!yaml::load(kMaxAngleRateMKey, node, max_angle_rate))
+  if (!yaml::load(kLinkNameKey, node, link_name))
     return false;
 
   if (!yaml::load(kCLiftDeltaKey, node, c_lift_delta))
@@ -70,9 +49,7 @@ YAML::Node ControlSurface::dump() const
   YAML::Node node(YAML::NodeType::Map);
 
   node[kChannelKey] = channel;
-  node[kJointNameKey] = joint_name;
-  node[kAngleLimitKey] = angle_limit;
-  node[kMaxAngleRateMKey] = max_angle_rate;
+  node[kLinkNameKey] = link_name;
   node[kCLiftDeltaKey] = c_lift_delta;
   node[kCDragAbsDeltaKey] = c_drag_abs_delta;
   node[kCSideDeltaKey] = c_side_delta;

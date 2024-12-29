@@ -15,6 +15,7 @@
 
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_tools/math.hpp>
+#include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_gazebo_msgs/msg/fixed_wing_debug.hpp>
 
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
@@ -92,22 +93,16 @@ private:
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
 
-  void updateDeflections(gz::sim::EntityComponentManager& ecm, const double& dt);
+  void updateDeflections(gz::sim::EntityComponentManager& ecm, double dt);
 
-  gz::math::Vector3d nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta) const;
-  gz::math::Vector3d nonDimentionalAeroCoefs_Moment(
-    const double& alpha,
-    const double& beta,
-    const double& alpha_rate,
-    const double& V) const;
-  double liftCoefficient(const double& alpha) const;
-  double dragCoefficient(const double& alpha) const;
-  double sideCoefficient(const double& beta) const;
-  double rollCoefficient(const double& beta, const double& p, const double& r, const double& V) const;
-  double
-  pitchCoefficient(const double& alpha, const double& beta, const double& alpha_rate, const double& q, const double& V)
-    const;
-  double yawCoefficient(const double& beta, const double& p, const double& r, const double& V) const;
+  gz::math::Vector3d nonDimentionalAeroCoefs_Force(double alpha, double beta) const;
+  gz::math::Vector3d nonDimentionalAeroCoefs_Moment(double alpha, double beta, double alpha_rate, double V) const;
+  double liftCoefficient(double alpha) const;
+  double dragCoefficient(double alpha) const;
+  double sideCoefficient(double beta) const;
+  double rollCoefficient(double beta, double p, double r, double V) const;
+  double pitchCoefficient(double alpha, double beta, double alpha_rate, double q, double V) const;
+  double yawCoefficient(double beta, double p, double r, double V) const;
 
   void deflectionsCb(const tobas_msgs::msg::ControlSurfaceDeflections::ConstSharedPtr& deflections);
   void windSpeedCb(const tobas_msgs::Wind::ConstSharedPtr& wind);
@@ -149,28 +144,33 @@ void GazeboFixedWingPlugin::Configure(
   for (const auto& cs : control_surfaces_)
   {
     // Get control surface joint
-    const auto joint_entity = model.JointByName(ecm, cs.joint_name);
-    const auto joint = make_shared<gz::sim::Joint>(joint_entity);
+    const auto joint_entity = findJointWithChildLink(ecm, cs.link_name);
+    if (!joint_entity.has_value())
+      TOBAS_EXIT("Failed to find the parent joint of control surface link \"", cs.link_name, "\".");
+    const auto joint = make_shared<gz::sim::Joint>(joint_entity.value());
     if (!joint->Valid(ecm))
-      TOBAS_EXIT("Failed to find the control surface joint \"", cs.joint_name, "\".");
+      TOBAS_EXIT("Failed to find control surface \"", cs.link_name, "\".");
+
+    // Get joint name
+    const auto joint_name = joint->Name(ecm).value();
 
     // Check joint type
     const auto joint_type = joint->Type(ecm).value();
     if (joint_type != sdf::JointType::REVOLUTE)
-      TOBAS_EXIT("The type of control surface joint \"", cs.joint_name, "\" must be revolute.");
+      TOBAS_EXIT("The type of control surface joint \"", joint_name, "\" must be revolute.");
 
     // Check joint limits
     const auto joint_axis = joint->Axis(ecm).value().at(0);
     if (joint_axis.Lower() >= joint_axis.Upper())
-      TOBAS_EXIT("The position limit of ", cs.joint_name, " is invalid.");
+      TOBAS_EXIT("The position limit of ", joint_name, " is invalid.");
     if (joint_axis.MaxVelocity() <= 0.)
-      TOBAS_EXIT("The velocity limit of ", cs.joint_name, " must be positive.");
+      TOBAS_EXIT("The velocity limit of ", joint_name, " must be positive.");
     if (joint_axis.Effort() <= 0.)
-      TOBAS_EXIT("The effort limit of ", cs.joint_name, " must be positive.");
+      TOBAS_EXIT("The effort limit of ", joint_name, " must be positive.");
 
     // Add joint model
     cs_joints_.push_back(joint);
-    cs_angle_models_.emplace_back(cs.angle_limit, cs.max_angle_rate);
+    cs_angle_models_.emplace_back(joint_axis.Lower(), joint_axis.Upper(), joint_axis.MaxVelocity());
   }
 
   registerPubSub();
@@ -230,14 +230,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
       if (indexes.contains(cs.channel))
         TOBAS_EXIT("The channel of each control surface must be unique.");
 
-      getSdfParam(cs_elem, "jointName", cs.joint_name);
-
-      getSdfParam(cs_elem, "minAngle", cs.angle_limit.lower);
-      getSdfParam(cs_elem, "maxAngle", cs.angle_limit.upper);
-      if (!cs.angle_limit.isValid() || !cs.angle_limit.inRange(0.))
-        TOBAS_EXIT("Invalid range of control surface angle");
-
-      getSdfParam(cs_elem, "maxAngleRate", cs.max_angle_rate, POSITIVE);
+      getSdfParam(cs_elem, "linkName", cs.link_name);
 
       getSdfParam(cs_elem, "cLiftDelta", cs.c_lift_delta, 0.);
       getSdfParam(cs_elem, "cDragAbsDelta", cs.c_drag_abs_delta, 0.);
@@ -375,7 +368,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
   debug_pub_->publish(move(debug_msg));
 }
 
-void GazeboFixedWingPlugin::updateDeflections(gz::sim::EntityComponentManager& ecm, const double& dt)
+void GazeboFixedWingPlugin::updateDeflections(gz::sim::EntityComponentManager& ecm, double dt)
 {
   for (size_t i = 0; i < control_surfaces_.size(); ++i)
   {
@@ -391,7 +384,7 @@ void GazeboFixedWingPlugin::updateDeflections(gz::sim::EntityComponentManager& e
   }
 }
 
-gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(const double& alpha, const double& beta) const
+gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(double alpha, double beta) const
 {
   const auto C_L = liftCoefficient(alpha);  // 揚力係数 (1.8-3)
   const auto C_D = dragCoefficient(alpha);  // 抗力係数 (1.8-3)
@@ -407,11 +400,8 @@ gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Force(const do
   return gz::math::Vector3d(C_x, C_y, C_z);
 }
 
-gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
-  const double& alpha,
-  const double& beta,
-  const double& alpha_rate,
-  const double& V) const
+gz::math::Vector3d
+GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(double alpha, double beta, double alpha_rate, double V) const
 {
   // 角速度
   auto gyro_B = gyro_B_->Data();
@@ -428,7 +418,7 @@ gz::math::Vector3d GazeboFixedWingPlugin::nonDimentionalAeroCoefs_Moment(
   return gz::math::Vector3d(C_l, C_m, C_n);
 }
 
-double GazeboFixedWingPlugin::liftCoefficient(const double& alpha) const
+double GazeboFixedWingPlugin::liftCoefficient(double alpha) const
 {
   // 迎角
   auto C_L = aero_coefs_.c_lift_0 + aero_coefs_.c_lift_alpha * alpha;
@@ -440,7 +430,7 @@ double GazeboFixedWingPlugin::liftCoefficient(const double& alpha) const
   return C_L;
 }
 
-double GazeboFixedWingPlugin::dragCoefficient(const double& alpha) const
+double GazeboFixedWingPlugin::dragCoefficient(double alpha) const
 {
   // 迎角
   auto C_D = aero_coefs_.c_drag_0 + aero_coefs_.c_drag_alpha * alpha;
@@ -452,7 +442,7 @@ double GazeboFixedWingPlugin::dragCoefficient(const double& alpha) const
   return C_D;
 }
 
-double GazeboFixedWingPlugin::sideCoefficient(const double& beta) const
+double GazeboFixedWingPlugin::sideCoefficient(double beta) const
 {
   // 横滑り角
   auto C_S = aero_coefs_.c_side_beta * beta;
@@ -464,8 +454,7 @@ double GazeboFixedWingPlugin::sideCoefficient(const double& beta) const
   return C_S;
 }
 
-double
-GazeboFixedWingPlugin::rollCoefficient(const double& beta, const double& p, const double& r, const double& V) const
+double GazeboFixedWingPlugin::rollCoefficient(double beta, double p, double r, double V) const
 {
   // 横滑り角
   auto C_l = aero_coefs_.c_roll_beta * beta;
@@ -481,12 +470,7 @@ GazeboFixedWingPlugin::rollCoefficient(const double& beta, const double& p, cons
   return C_l;
 }
 
-double GazeboFixedWingPlugin::pitchCoefficient(
-  const double& alpha,
-  const double& beta,
-  const double& alpha_rate,
-  const double& q,
-  const double& V) const
+double GazeboFixedWingPlugin::pitchCoefficient(double alpha, double beta, double alpha_rate, double q, double V) const
 {
   // 迎角，横滑り角
   auto C_m = aero_coefs_.c_pitch_0 + aero_coefs_.c_pitch_alpha * alpha;
@@ -503,8 +487,7 @@ double GazeboFixedWingPlugin::pitchCoefficient(
   return C_m;
 }
 
-double
-GazeboFixedWingPlugin::yawCoefficient(const double& beta, const double& p, const double& r, const double& V) const
+double GazeboFixedWingPlugin::yawCoefficient(double beta, double p, double r, double V) const
 {
   // 横滑り角
   auto C_n = aero_coefs_.c_yaw_beta * beta;

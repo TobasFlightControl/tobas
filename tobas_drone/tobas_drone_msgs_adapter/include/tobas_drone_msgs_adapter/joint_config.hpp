@@ -17,8 +17,6 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
     dst.channel = src.channel;
     dst.name = src.name;
     dst.home_pos = src.home_pos;
-    dst.min_pos = src.min_pos;
-    dst.max_pos = src.max_pos;
     dst.role = static_cast<uint8_t>(src.role);
     dst.cmd_iface = static_cast<uint8_t>(src.cmd_iface);
     dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
@@ -29,8 +27,6 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
     dst.channel = src.channel;
     dst.name = src.name;
     dst.home_pos = src.home_pos;
-    dst.min_pos = src.min_pos;
-    dst.max_pos = src.max_pos;
     dst.role = static_cast<tobas::jnt_role_t>(src.role);
     dst.cmd_iface = static_cast<tobas::jnt_cmd_iface_t>(src.cmd_iface);
     dst.hw_iface = static_cast<tobas::jnt_hw_iface_t>(src.hw_iface);

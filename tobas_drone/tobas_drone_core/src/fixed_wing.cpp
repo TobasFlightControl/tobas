@@ -27,7 +27,7 @@ bool FixedWingConfig::isValid() const
   {
     if (!cs.isValid())
     {
-      cerr << "The configurations of control surface \"" << cs.joint_name << "\" are invalid." << endl;
+      cerr << "The configurations of control surface \"" << cs.link_name << "\" are invalid." << endl;
       return false;
     }
   }

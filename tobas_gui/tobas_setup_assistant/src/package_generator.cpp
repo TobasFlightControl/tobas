@@ -143,8 +143,6 @@ tobas::Drone PackageGenerator::createDrone()
     tobas::JointConfig joint;
     joint.name = servos->jointName(i).toStdString();
     joint.home_pos = servos->homePosition(i);
-    joint.min_pos = servos->minPosition(i);
-    joint.max_pos = servos->maxPosition(i);
     joint.cmd_iface = servos->commandInterface(i);
 
     drone.joints[joint.name] = joint;
@@ -212,10 +210,7 @@ tobas::Drone PackageGenerator::createDrone()
     {
       tobas::ControlSurface cs;
       cs.channel = i;  // TODO: 物理チャンネルを指定できるようにする
-      cs.joint_name = css->jointName(i).toStdString();
-      cs.angle_limit.lower = css->minAngle(i);
-      cs.angle_limit.upper = css->maxAngle(i);
-      cs.max_angle_rate = css->maxAngleRate(i);
+      cs.link_name = css->linkName(i).toStdString();
       cs.c_lift_delta = css->liftCoef(i);
       cs.c_drag_abs_delta = css->dragCoef(i);  // FIXME: 正負の確認が必要？
       cs.c_side_delta = css->sideCoef(i);
@@ -771,7 +766,6 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   for (int i = 0; i < propulsions->count(); ++i)
   {
     const auto link_name = propulsions->linkName(i).toStdString();
-    const auto jnt_name = robot_.tree().getSegment(link_name)->second.segment.joint().name;
 
     const auto propulsion = propulsions->widget(i);
     const auto esc = propulsion->esc();
@@ -781,8 +775,9 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
     const auto channel = i;  // TODO: 物理チャンネルを指定できるようにする
     addRotorPlugin(
-      robot, ns, jnt_name, channel, motor->kv(), motor->internalResistance(), propeller->numBlade(), aero->motorConst(),
-      aero->momentConst(), aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(), sim->maxModelErrorRate());
+      robot, ns, link_name, channel, motor->kv(), motor->internalResistance(), propeller->numBlade(),
+      aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(),
+      sim->maxModelErrorRate());
   }
 
   // Fixed wing plugin
