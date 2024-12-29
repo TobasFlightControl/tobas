@@ -2,8 +2,6 @@
 
 #include <tobas_kdl/tree_mass_holder.hpp>
 
-#include "./mr_dynamics.hpp"
-
 namespace tobas
 {
 class AccelAttitudeConverter
