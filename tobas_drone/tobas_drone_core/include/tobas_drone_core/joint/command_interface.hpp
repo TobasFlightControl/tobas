@@ -9,6 +9,7 @@ enum struct jnt_cmd_iface_t : uint8_t
   POSITION,
   VELOCITY,
   EFFORT,
+  NONE,
 };
 
 /* jnt_cmd_iface_t -> "position" or "velocity" or "effort" */

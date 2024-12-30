@@ -25,7 +25,7 @@ class JointConfig
 public:
   std::string name = "";
   jnt_role_t role = jnt_role_t::OTHER;
-  jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::POSITION;
+  jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::NONE;
   jnt_hw_iface_t hw_iface = jnt_hw_iface_t::OTHER;
   uint32_t channel = 0;
   double home_pos = 0.;  // [rad | m]
