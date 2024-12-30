@@ -40,6 +40,7 @@ public:
 
   QString linkName(int index) const;
   QStringList linkNames() const;
+  QStringList tiltJointNames() const;
 
   /* タブのインデックスを返す．存在しなければ-1を返す． */
   int index(const QString& link_name) const;
