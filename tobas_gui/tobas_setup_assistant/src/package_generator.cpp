@@ -158,9 +158,6 @@ tobas::Drone PackageGenerator::createDrone()
     const auto link_name = propulsions->linkName(i);
     const auto prop_config = propulsions->widget(i);
 
-    const auto jnt_row = joint_config->findLink(link_name);
-    assert(jnt_row >= 0);
-
     tobas::RotorConfig rotor;
     rotor.channel = prop_config->general()->channel();
     rotor.link_name = link_name.toStdString();
