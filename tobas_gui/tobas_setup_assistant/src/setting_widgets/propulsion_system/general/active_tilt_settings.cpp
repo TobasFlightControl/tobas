@@ -4,6 +4,7 @@
 
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/common.hpp"
 #include "tobas_setup_assistant/setting_tabs/propulsion_system/general/active_tilt_settings.hpp"
@@ -14,7 +15,8 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-ActiveTiltSettingsWidget::ActiveTiltSettingsWidget()
+ActiveTiltSettingsWidget::ActiveTiltSettingsWidget(const RobotInfo& robot, const QString& link_name)
+  : robot_(robot), link_name_(link_name)
 {
   const auto label = new qt::Label("Active Tilt Settings", kLabelPSize, QFont::Bold);
 
@@ -22,6 +24,7 @@ ActiveTiltSettingsWidget::ActiveTiltSettingsWidget()
   is_tilt_->setChecked(false);
 
   tilt_joint_name_ = new QComboBox();
+  tilt_joint_name_->setEnabled(false);
 
   // Layout
   const auto form = new QFormLayout();
@@ -33,6 +36,9 @@ ActiveTiltSettingsWidget::ActiveTiltSettingsWidget()
   rows->addLayout(form);
 
   setLayout(rows);
+
+  // Connection
+  connect(is_tilt_, &QCheckBox::toggled, this, &self::onIsTiltCheckBoxToggled);
 }
 
 bool ActiveTiltSettingsWidget::isValid()
@@ -70,6 +76,40 @@ bool ActiveTiltSettingsWidget::isTiltRotor() const
 QString ActiveTiltSettingsWidget::tiltJointName() const
 {
   return tilt_joint_name_->currentText();
+}
+
+void ActiveTiltSettingsWidget::onIsTiltCheckBoxToggled(bool checked)
+{
+  if (checked)
+  {
+    auto seg_it = robot_.tree().getSegment(link_name_.toStdString());
+    seg_it = seg_it->second.parent;
+
+    // ルートリンクまでの全ての回転関節を選択肢に追加
+    while (seg_it != robot_.tree().getRootSegment())
+    {
+      const auto& elem = seg_it->second;
+      const auto& joint = elem.segment.joint();
+      if (joint.type == kdl::Joint::ROTATION)
+        tilt_joint_name_->addItem(QString::fromStdString(joint.name));
+      seg_it = elem.parent;
+    }
+
+    // ティルトジョイントの候補が存在しなければリセット
+    if (tilt_joint_name_->count() == 0)
+    {
+      qt::qWarnBox(this, link_name_ + " cannot be used as a tilt rotor.");
+      is_tilt_->setChecked(false);
+      return;
+    }
+
+    tilt_joint_name_->setEnabled(true);
+  }
+  else
+  {
+    tilt_joint_name_->clear();
+    tilt_joint_name_->setEnabled(false);
+  }
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

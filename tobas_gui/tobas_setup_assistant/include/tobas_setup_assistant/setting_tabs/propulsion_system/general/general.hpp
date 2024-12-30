@@ -17,7 +17,7 @@ class GeneralWidget : public BaseSelectedLinkSettingWidget
   static constexpr char kActiveTiltSettingsKey[] = "active_tilt_settings";
 
 public:
-  explicit GeneralWidget();
+  explicit GeneralWidget(const RobotInfo& robot, const QString& link_name);
 
   const char* name() const override;
   bool isValid() override;

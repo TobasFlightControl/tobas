@@ -31,7 +31,7 @@ Q_SIGNALS:
   void copyToAllButtonClicked();
 
 public:
-  explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node);
+  explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name);
 
   bool isValid();
   void copyFrom(const SelectedLinkWidget* src);

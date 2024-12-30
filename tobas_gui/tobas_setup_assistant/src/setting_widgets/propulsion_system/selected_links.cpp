@@ -119,7 +119,7 @@ bool SelectedLinksWidget::isValid()
 void SelectedLinksWidget::add(const QString& link_name)
 {
   // タブを追加
-  const auto link_widget = new SelectedLinkWidget(node_);
+  const auto link_widget = new SelectedLinkWidget(node_, robot_, link_name);
   addTab(link_widget, link_name);
 
   // 指定リンクのマーカを表示

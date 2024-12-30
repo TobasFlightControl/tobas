@@ -6,7 +6,7 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
+SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -31,7 +31,7 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
   tabs_->setSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
-  general_ = new GeneralWidget();
+  general_ = new GeneralWidget(robot, link_name);
   esc_ = new ESCWidget();
   motor_ = new MotorWidget();
   propeller_ = new PropellerWidget();

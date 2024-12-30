@@ -8,7 +8,7 @@ namespace setup_assistant
 {
 namespace propulsion_system
 {
-GeneralWidget::GeneralWidget()
+GeneralWidget::GeneralWidget(const RobotInfo& robot, const QString& link_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -17,7 +17,7 @@ GeneralWidget::GeneralWidget()
   channel_->setMinimum(0);
   rows->addWidget(channel_);
 
-  active_tilt_settings_ = new ActiveTiltSettingsWidget();
+  active_tilt_settings_ = new ActiveTiltSettingsWidget(robot, link_name);
   rows->addWidget(active_tilt_settings_);
 
   rows->addStretch();
