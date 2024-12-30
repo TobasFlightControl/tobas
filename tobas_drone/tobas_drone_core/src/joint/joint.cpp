@@ -13,13 +13,7 @@ bool JointConfig::isValid() const
 
 bool JointConfig::load(const YAML::Node& node)
 {
-  if (!yaml::load(kChannelKey, node, channel))
-    return false;
-
   if (!yaml::load(kNameKey, node, name))
-    return false;
-
-  if (!yaml::load(kHomePosKey, node, home_pos))
     return false;
 
   if (!yaml::load(kRoleKey, node, role))
@@ -31,6 +25,12 @@ bool JointConfig::load(const YAML::Node& node)
   if (!yaml::load(kHwIfaceKey, node, hw_iface))
     return false;
 
+  if (!yaml::load(kChannelKey, node, channel))
+    return false;
+
+  if (!yaml::load(kHomePosKey, node, home_pos))
+    return false;
+
   return true;
 }
 
@@ -38,12 +38,12 @@ YAML::Node JointConfig::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[kChannelKey] = channel;
   node[kNameKey] = name;
-  node[kHomePosKey] = home_pos;
   node[kRoleKey] = role;
   node[kCmdIfaceKey] = cmd_iface;
   node[kHwIfaceKey] = hw_iface;
+  node[kChannelKey] = channel;
+  node[kHomePosKey] = home_pos;
 
   return node;
 }

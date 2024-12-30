@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-enum jnt_hw_iface_t : uint8_t
+enum struct jnt_hw_iface_t : uint8_t
 {
   PWM,
   OTHER,

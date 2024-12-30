@@ -176,4 +176,12 @@ bool Drone::save(const fs::path& path) const
 
   return true;
 }
+
+bool Drone::hasServoJoint() const
+{
+  for (const auto& [_, joint] : joints)
+    if (joint.isServoJoint())
+      return true;
+  return false;
+}
 }  // namespace tobas

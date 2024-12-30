@@ -4,7 +4,7 @@
 
 namespace tobas
 {
-enum jnt_cmd_iface_t : uint8_t
+enum struct jnt_cmd_iface_t : uint8_t
 {
   POSITION,
   VELOCITY,

@@ -14,22 +14,22 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
-    dst.channel = src.channel;
     dst.name = src.name;
-    dst.home_pos = src.home_pos;
     dst.role = static_cast<uint8_t>(src.role);
     dst.cmd_iface = static_cast<uint8_t>(src.cmd_iface);
     dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
+    dst.channel = src.channel;
+    dst.home_pos = src.home_pos;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
-    dst.channel = src.channel;
     dst.name = src.name;
-    dst.home_pos = src.home_pos;
     dst.role = static_cast<tobas::jnt_role_t>(src.role);
     dst.cmd_iface = static_cast<tobas::jnt_cmd_iface_t>(src.cmd_iface);
     dst.hw_iface = static_cast<tobas::jnt_hw_iface_t>(src.hw_iface);
+    dst.channel = src.channel;
+    dst.home_pos = src.home_pos;
   }
 };
 

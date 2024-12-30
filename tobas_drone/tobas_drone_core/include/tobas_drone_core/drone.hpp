@@ -44,7 +44,7 @@ public:
   inline size_t numRotors() const;
   inline size_t numControlSurfaces() const;
 
-  inline bool isTransformable() const;
+  bool hasServoJoint() const;
 };
 
 inline size_t Drone::numJoints() const
@@ -60,10 +60,5 @@ inline size_t Drone::numRotors() const
 inline size_t Drone::numControlSurfaces() const
 {
   return fixed_wing.control_surfaces.size();
-}
-
-inline bool Drone::isTransformable() const
-{
-  return numJoints() > 0;
 }
 }  // namespace tobas

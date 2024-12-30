@@ -137,13 +137,16 @@ tobas::Drone PackageGenerator::createDrone()
   drone.battery.max_current = settings_->battery->maxCurrent();
 
   // Joints
-  const auto servos = settings_->servo_joints->selected();
-  for (int i = 0; i < servos->count(); ++i)
+  const auto& joint_config = settings_->joint_config;
+  for (int i = 0; i < joint_config->count(); ++i)
   {
     tobas::JointConfig joint;
-    joint.name = servos->jointName(i).toStdString();
-    joint.home_pos = servos->homePosition(i);
-    joint.cmd_iface = servos->commandInterface(i);
+    joint.name = joint_config->jointName(i).toStdString();
+    joint.role = joint_config->role(i);
+    joint.cmd_iface = joint_config->commandInterface(i);
+    joint.hw_iface = joint_config->hardwareInterface(i);
+    joint.channel = joint_config->channel(i);
+    joint.home_pos = joint_config->homePosition(i);
 
     drone.joints[joint.name] = joint;
   }
@@ -152,14 +155,17 @@ tobas::Drone PackageGenerator::createDrone()
   const auto propulsions = settings_->propulsion_system->selected();
   for (int i = 0; i < propulsions->count(); ++i)
   {
-    const auto link_name = propulsions->linkName(i).toStdString();
+    const auto link_name = propulsions->linkName(i);
     const auto prop_config = propulsions->widget(i);
 
+    const auto jnt_row = joint_config->findLink(link_name);
+    assert(jnt_row >= 0);
+
     tobas::RotorConfig rotor;
-    rotor.channel = i;  // TODO: 物理チャンネルを指定できるようにする
-    rotor.link_name = link_name;
+    rotor.channel = i;  // TODO: 物理チャンネルを指定
+    rotor.link_name = link_name.toStdString();
     rotor.direction = prop_config->motor()->direction();
-    rotor.axis = robot_.rotorAxisType(link_name);
+    rotor.axis = robot_.rotorAxisType(link_name.toStdString());
     rotor.num_poles = prop_config->motor()->numPoles();
     rotor.kv = prop_config->motor()->kv();
     rotor.internal_resistance = prop_config->motor()->internalResistance();
@@ -223,6 +229,15 @@ tobas::Drone PackageGenerator::createDrone()
   }
 
   return drone;
+}
+
+bool PackageGenerator::hasServoJoint() const
+{
+  const auto& joint_config = settings_->joint_config;
+  for (int i = 0; i < joint_config->count(); ++i)
+    if (tobas::isServoJoint(joint_config->role(i)))
+      return true;
+  return false;
 }
 
 bool PackageGenerator::generateBackupFiles()
@@ -293,14 +308,13 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
+  config_env_->generate(tpl_data, "jointpos_commander_gui.launch.py.tplpy", launch_dir);
 
   // Optional
   if (
     settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
     || settings_->controller->isCommandCompatible(tobas::rc_command_t::POSE_TWIST_ACCEL))
     config_env_->generate(tpl_data, "base_pose_commander_gui.launch.py.tplpy", launch_dir);
-  if (settings_->servo_joints->selected()->count() > 0)
-    config_env_->generate(tpl_data, "jointpos_commander_gui.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
   if (!createEmptyYaml(config_dir / "controller_dynamic.yaml", false))
@@ -398,7 +412,7 @@ bool PackageGenerator::generateUserPyPackage(const inja::json& tpl_data)
 bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_dir)
 {
   const auto& ns = robot_.robotName();
-  const auto servos = settings_->servo_joints->selected();
+  const auto& joint_config = settings_->joint_config;
 
   // XMLを作成
   const auto doc = new tinyxml2::XMLDocument();
@@ -406,7 +420,7 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   doc->InsertFirstChild(launch);
 
   // サーボジョイントが少なくとも1つ登録されている場合に限りcontroller_managerを立ち上げる
-  if (servos->count() > 0)
+  if (hasServoJoint())
   {
     const auto config_pkg_name = common::getTBSConfigName(tbsPath());
 
@@ -415,9 +429,12 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
     addNodeParam(jsb_node, "use_sim_time", "true");
 
     // コントローラごとにノードを立ち上げる
-    for (int i = 0; i < servos->count(); ++i)
+    for (int i = 0; i < joint_config->count(); ++i)
     {
-      const auto controller_name = servos->jointName(i).toStdString() + "_controller";
+      if (!tobas::isServoJoint(joint_config->role(i)))
+        continue;
+
+      const auto controller_name = joint_config->jointName(i).toStdString() + "_controller";
       const auto param_file = "$(find-pkg-share " + config_pkg_name + ")/config/" + controller_name + ".yaml";
       const auto args = controller_name + " --param-file " + param_file;
       const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", ns, "", args);
@@ -437,14 +454,17 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
 
 bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesystem::path& config_dir)
 {
-  const auto servos = settings_->servo_joints->selected();
+  const auto& joint_config = settings_->joint_config;
 
   // 空の配列はyamlを読み込んだ時点で"No parameter value set"エラーが出るため，長さが0ならパラメータ自体を設定しない．
   YAML::Node params_node(YAML::NodeType::Map);
-  for (int i = 0; i < servos->count(); ++i)
+  for (int i = 0; i < joint_config->count(); ++i)
   {
-    params_node["joint_names"].push_back(servos->jointName(i));
-    params_node["interfaces"].push_back(servos->commandInterface(i));
+    if (!tobas::isServoJoint(joint_config->role(i)))
+      continue;
+
+    params_node["joint_names"].push_back(joint_config->jointName(i));
+    params_node["interfaces"].push_back(joint_config->commandInterface(i));
   }
 
   YAML::Node root_node(YAML::NodeType::Map);
@@ -464,10 +484,13 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
   manager_params_node["joint_state_broadcaster"]["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
 
   // Each joint controllers
-  const auto servos = settings_->servo_joints->selected();
-  for (int i = 0; i < servos->count(); ++i)
+  const auto joint_config = settings_->joint_config;
+  for (int i = 0; i < joint_config->count(); ++i)
   {
-    const auto jnt_name = servos->jointName(i).toStdString();
+    if (!tobas::isServoJoint(joint_config->role(i)))
+      continue;
+
+    const auto jnt_name = joint_config->jointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
     manager_params_node[ctrl_name]["type"] = tobas::controller_manager::type::kForwardCommandController;
   }
@@ -485,16 +508,19 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
 
 bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir)
 {
-  const auto servos = settings_->servo_joints->selected();
+  const auto joint_config = settings_->joint_config;
 
-  for (int i = 0; i < servos->count(); ++i)
+  for (int i = 0; i < joint_config->count(); ++i)
   {
-    const auto jnt_name = servos->jointName(i).toStdString();
+    if (!tobas::isServoJoint(joint_config->role(i)))
+      continue;
+
+    const auto jnt_name = joint_config->jointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
 
     YAML::Node ctrl_params_node(YAML::NodeType::Map);
     ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::jntCmdIfaceEnumToText(servos->commandInterface(i));
+    ctrl_params_node["interface_name"] = tobas::jntCmdIfaceEnumToText(joint_config->commandInterface(i));
 
     // Create data
     YAML::Node root_node(YAML::NodeType::Map);
@@ -714,11 +740,11 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 {
   const auto& ns = robot_.robotName();
   const auto& root_name = robot_.tree().getRootName();
+  const auto config_pkg_name = common::getTBSConfigName(tbsPath());
 
   const auto& batt = settings_->battery;
   const auto& propulsions = settings_->propulsion_system->selected();
   const auto& fixed_wing = settings_->fixed_wing;
-  const auto& joints = settings_->servo_joints->selected();
   const auto& imu = settings_->imu;
   const auto& mag = settings_->magnetometer;
   const auto& baro = settings_->barometer;
@@ -795,9 +821,8 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // Gazebo ROS2 control plugin
   // XXX: This must be defined after GazeboSimSystem
-  if (joints->count() > 0)
+  if (hasServoJoint())
   {
-    const auto config_pkg_name = common::getTBSConfigName(tbsPath());
     addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
   }
 

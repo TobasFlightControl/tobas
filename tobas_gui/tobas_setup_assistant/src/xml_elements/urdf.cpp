@@ -318,8 +318,10 @@ void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfi
   // robot/ros2_control/joint
   for (const auto& [jnt_name, jnt_cfg] : joints)
   {
-    const auto joint = ros2_control->InsertNewChildElement("joint");
+    if (!jnt_cfg.isServoJoint())
+      continue;
 
+    const auto joint = ros2_control->InsertNewChildElement("joint");
     joint->SetAttribute("name", jnt_name.c_str());
 
     // robot/ros2_control/joint/state_interface
