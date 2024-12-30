@@ -98,7 +98,7 @@ void ActiveTiltSettingsWidget::onIsTiltCheckBoxToggled(bool checked)
     // ティルトジョイントの候補が存在しなければリセット
     if (tilt_joint_name_->count() == 0)
     {
-      qt::qWarnBox(this, link_name_ + " cannot be used as a tilt rotor.");
+      qt::qWarnBox(this, "\"" + link_name_ + "\" cannot be used as a tilt rotor.");
       is_tilt_->setChecked(false);
       return;
     }
