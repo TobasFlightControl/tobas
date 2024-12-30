@@ -5,6 +5,8 @@
 
 #include "tobas_setup_assistant/robot_info.hpp"
 #include "./base_setting.hpp"
+#include "./propulsion_system/propulsion_system.hpp"
+#include "./fixed_wing/fixed_wing.hpp"
 
 namespace gui
 {
@@ -60,13 +62,17 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr char kCmdIfaceLabel_pos[] = "position";
   static constexpr char kCmdIfaceLabel_vel[] = "velocity";
   static constexpr char kCmdIfaceLabel_eff[] = "effort";
+  static constexpr char kCmdIfaceLabel_none[] = "none";
 
   // Hardware Interface Labels
   static constexpr char kHwIfaceLabel_pwm[] = "PWM";
   static constexpr char kHwIfaceLabel_other[] = "Other";
 
 public:
-  explicit JointConfigurationWidget(const RobotInfo& robot);
+  explicit JointConfigurationWidget(
+    const RobotInfo& robot,
+    const propulsion_system::PropulsionSystemWidget* propulsion,
+    const fixed_wing::FixedWingWidget* fixed_wing);
 
   const char* name() const override;
   const char* title() const override;
@@ -106,10 +112,29 @@ public:
 
 private:
   const RobotInfo& robot_;
+  const propulsion_system::PropulsionSystemWidget* propulsion_;
+  const fixed_wing::FixedWingWidget* fixed_wing_;
 
   qt::TableWidget* table_;
 
+  QVector<QLabel*> link_name_;
+  QVector<QLabel*> joint_name_;
+  QVector<qt::ComboBox*> role_;
+  QVector<qt::ComboBox*> cmd_iface_;
+  QVector<qt::ComboBox*> hw_iface_;
+  QVector<qt::SpinBox*> channel_;
+  QVector<qt::DoubleSpinBox*> home_pos_;
+  QVector<QLineEdit*> min_pos_;
+  QVector<QLineEdit*> max_pos_;
+  QVector<QLineEdit*> max_vel_;
+  QVector<QLineEdit*> max_eff_;
+
+  void clear();
   void addLink(const std::string& link_name);
+  void resetRole(int row);
+
+private Q_SLOTS:
+  void onRoleChanged(int row);
 };
 }  // namespace setup_assistant
 }  // namespace gui

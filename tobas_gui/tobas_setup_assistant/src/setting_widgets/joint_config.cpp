@@ -16,7 +16,11 @@ namespace gui
 {
 namespace setup_assistant
 {
-JointConfigurationWidget::JointConfigurationWidget(const RobotInfo& robot) : robot_(robot)
+JointConfigurationWidget::JointConfigurationWidget(
+  const RobotInfo& robot,
+  const propulsion_system::PropulsionSystemWidget* propulsion,
+  const fixed_wing::FixedWingWidget* fixed_wing)
+  : robot_(robot), propulsion_(propulsion), fixed_wing_(fixed_wing)
 {
   table_ = new qt::TableWidget(0, kNumCols);
   table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);  // 内容に合わせて横幅を自動調整
@@ -54,11 +58,61 @@ const char* JointConfigurationWidget::description() const
 
 void JointConfigurationWidget::onOpened()
 {
+  // TODO: STM32CubeMXのようにPropulsionやFixed Wingが修正されたらシグナルスロットで即時反映
+
+  const auto prop_link_names = propulsion_->selected()->linkNames();
+  const auto tilt_joint_names = propulsion_->selected()->tiltJointNames();
+  const auto cs_link_names = fixed_wing_->controlSurfaces()->selected()->linkNames();
+
+  // 役割から開放されたジョイントをリセット
+  for (int row = 0; row < table_->rowCount(); ++row)
+  {
+    const auto link_name = linkName(row);
+    const auto joint_name = jointName(row);
+
+    switch (role(row))
+    {
+      case tobas::jnt_role_t::ROTOR:
+        if (!prop_link_names.contains(link_name))
+          resetRole(row);
+        break;
+      case tobas::jnt_role_t::TILT_JOINT:
+        if (!tilt_joint_names.contains(joint_name))
+          resetRole(row);
+        break;
+      case tobas::jnt_role_t::CONTROL_SURFACE:
+        if (!cs_link_names.contains(link_name))
+          resetRole(row);
+        break;
+      default:
+        break;
+    }
+  }
+
+  // 各役割を設定
+  for (const auto& prop_link_name : prop_link_names)
+  {
+    const auto row = findLink(prop_link_name);
+    role_[row]->setItemEnabled(kRoleLabel_rotor, true);
+    role(row, tobas::jnt_role_t::ROTOR);
+  }
+  for (const auto& tilt_joint_name : tilt_joint_names)
+  {
+    const auto row = findJoint(tilt_joint_name);
+    role_[row]->setItemEnabled(kRoleLabel_tilt, true);
+    role(row, tobas::jnt_role_t::TILT_JOINT);
+  }
+  for (const auto& cs_link_name : cs_link_names)
+  {
+    const auto row = findLink(cs_link_name);
+    role_[row]->setItemEnabled(kRoleLabel_cs, true);
+    role(row, tobas::jnt_role_t::CONTROL_SURFACE);
+  }
 }
 
 void JointConfigurationWidget::updateInternalDataStructures()
 {
-  table_->removeAll();
+  clear();
 
   for (const auto& [link_name, elem] : robot_.tree().getSegments())
   {
@@ -120,20 +174,17 @@ void JointConfigurationWidget::load(const YAML::Node& node)
 
 QString JointConfigurationWidget::linkName(int row) const
 {
-  const auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, kLinkNameCol));
-  return cell->text();
+  return link_name_[row]->text();
 }
 
 QString JointConfigurationWidget::jointName(int row) const
 {
-  const auto cell = qobject_cast<QLabel*>(table_->cellWidget(row, kJointNameCol));
-  return cell->text();
+  return joint_name_[row]->text();
 }
 
 tobas::jnt_role_t JointConfigurationWidget::role(int row) const
 {
-  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, kRoleCol));
-  const auto text = cell->currentText();
+  const auto text = role_[row]->currentText();
 
   if (text == kRoleLabel_rotor)
     return tobas::jnt_role_t::ROTOR;
@@ -153,8 +204,7 @@ tobas::jnt_role_t JointConfigurationWidget::role(int row) const
 
 tobas::jnt_cmd_iface_t JointConfigurationWidget::commandInterface(int row) const
 {
-  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, kCmdIfaceCol));
-  const auto text = cell->currentText();
+  const auto text = cmd_iface_[row]->currentText();
 
   if (text == kCmdIfaceLabel_pos)
     return tobas::jnt_cmd_iface_t::POSITION;
@@ -162,14 +212,15 @@ tobas::jnt_cmd_iface_t JointConfigurationWidget::commandInterface(int row) const
     return tobas::jnt_cmd_iface_t::VELOCITY;
   else if (text == kCmdIfaceLabel_eff)
     return tobas::jnt_cmd_iface_t::EFFORT;
+  else if (text == kCmdIfaceLabel_none)
+    return tobas::jnt_cmd_iface_t::NONE;
   else
     throw;
 }
 
 tobas::jnt_hw_iface_t JointConfigurationWidget::hardwareInterface(int row) const
 {
-  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, kHwIfaceCol));
-  const auto text = cell->currentText();
+  const auto text = hw_iface_[row]->currentText();
 
   if (text == kHwIfaceLabel_pwm)
     return tobas::jnt_hw_iface_t::PWM;
@@ -181,14 +232,12 @@ tobas::jnt_hw_iface_t JointConfigurationWidget::hardwareInterface(int row) const
 
 int JointConfigurationWidget::channel(int row) const
 {
-  const auto cell = qobject_cast<qt::SpinBox*>(table_->cellWidget(row, kChannelCol));
-  return cell->value();
+  return channel_[row]->value();
 }
 
 double JointConfigurationWidget::homePosition(int row) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, kHomePosCol));
-  return cell->value();
+  return home_pos_[row]->value();
 }
 
 void JointConfigurationWidget::role(int row, tobas::jnt_role_t value) const
@@ -218,8 +267,7 @@ void JointConfigurationWidget::role(int row, tobas::jnt_role_t value) const
       throw;
   }
 
-  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, kRoleCol));
-  cell->setCurrentText(text);
+  role_[row]->setCurrentText(text);
 }
 
 void JointConfigurationWidget::commandInterface(int row, tobas::jnt_cmd_iface_t value) const
@@ -236,12 +284,14 @@ void JointConfigurationWidget::commandInterface(int row, tobas::jnt_cmd_iface_t 
     case tobas::jnt_cmd_iface_t::EFFORT:
       text = kCmdIfaceLabel_eff;
       break;
+    case tobas::jnt_cmd_iface_t::NONE:
+      text = kCmdIfaceLabel_none;
+      break;
     default:
       throw;
   }
 
-  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, kCmdIfaceCol));
-  cell->setCurrentText(text);
+  cmd_iface_[row]->setCurrentText(text);
 }
 
 void JointConfigurationWidget::hardwareInterface(int row, tobas::jnt_hw_iface_t value) const
@@ -259,20 +309,17 @@ void JointConfigurationWidget::hardwareInterface(int row, tobas::jnt_hw_iface_t 
       throw;
   }
 
-  const auto cell = qobject_cast<qt::ComboBox*>(table_->cellWidget(row, kHwIfaceCol));
-  cell->setCurrentText(text);
+  hw_iface_[row]->setCurrentText(text);
 }
 
 void JointConfigurationWidget::channel(int row, int value) const
 {
-  const auto cell = qobject_cast<qt::SpinBox*>(table_->cellWidget(row, kChannelCol));
-  cell->setValue(value);
+  channel_[row]->setValue(value);
 }
 
 void JointConfigurationWidget::homePosition(int row, double value) const
 {
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(table_->cellWidget(row, kHomePosCol));
-  cell->setValue(value);
+  home_pos_[row]->setValue(value);
 }
 
 int JointConfigurationWidget::count() const
@@ -300,8 +347,27 @@ int JointConfigurationWidget::findJoint(const QString& joint_name) const
   return -1;
 }
 
+void JointConfigurationWidget::clear()
+{
+  table_->removeAll();
+
+  link_name_.clear();
+  joint_name_.clear();
+  role_.clear();
+  cmd_iface_.clear();
+  hw_iface_.clear();
+  channel_.clear();
+  home_pos_.clear();
+  min_pos_.clear();
+  max_pos_.clear();
+  max_vel_.clear();
+  max_eff_.clear();
+}
+
 void JointConfigurationWidget::addLink(const std::string& link_name)
 {
+  const auto row = table_->rowCount();
+
   const auto seg_it = robot_.tree().getSegment(link_name);
   const auto& joint = seg_it->second.segment.joint();
 
@@ -319,29 +385,32 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
     kRoleLabel_wheel,
     kRoleLabel_other,
   });
-  role->setCurrentText(kRoleLabel_other);
 
   // Command Interface
   const auto cmd_iface = new qt::ComboBox();
-  cmd_iface->addItems({ kCmdIfaceLabel_pos, kCmdIfaceLabel_vel, kCmdIfaceLabel_eff });
-  cmd_iface->setCurrentText(kCmdIfaceLabel_pos);
+  cmd_iface->addItems({
+    kCmdIfaceLabel_pos,
+    kCmdIfaceLabel_vel,
+    kCmdIfaceLabel_eff,
+    kCmdIfaceLabel_none,
+  });
 
   // Hardware Interface
   const auto hw_iface = new qt::ComboBox();
-  hw_iface->addItems({ kHwIfaceLabel_pwm, kHwIfaceLabel_other });
-  hw_iface->setCurrentText(kHwIfaceLabel_other);
+  hw_iface->addItems({
+    kHwIfaceLabel_pwm,
+    kHwIfaceLabel_other,
+  });
 
   // Channel
   const auto channel = new qt::SpinBox();
   channel->setMinimum(0);
-  channel->setValue(0);
 
   // Home Position
   const auto home_pos = new qt::DoubleSpinBox();
   home_pos->setDecimals(kPosDecimals);
   home_pos->setMinimum(joint.lower_limit);
   home_pos->setMaximum(joint.upper_limit);
-  home_pos->setValue(0.);
   switch (joint.type)
   {
     case kdl::Joint::ROTATION:
@@ -382,7 +451,6 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   }
 
   // Insert table row
-  const auto row = table_->rowCount();
   table_->insertRow(row);
   table_->setCellWidget(row, kLinkNameCol, link_name_label);
   table_->setCellWidget(row, kJointNameCol, joint_name_label);
@@ -395,6 +463,130 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   table_->setCellWidget(row, kMaxPosCol, max_pos);
   table_->setCellWidget(row, kMaxVelCol, max_vel);
   table_->setCellWidget(row, kMaxEffCol, max_eff);
+
+  // Save each field
+  link_name_.append(link_name_label);
+  joint_name_.append(joint_name_label);
+  role_.append(role);
+  cmd_iface_.append(cmd_iface);
+  hw_iface_.append(hw_iface);
+  channel_.append(channel);
+  home_pos_.append(home_pos);
+  min_pos_.append(min_pos);
+  max_pos_.append(max_pos);
+  max_vel_.append(max_vel);
+  max_eff_.append(max_eff);
+
+  // Reset
+  resetRole(row);
+
+  // Connection
+  connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
+}
+
+void JointConfigurationWidget::resetRole(int row)
+{
+  role_[row]->setCurrentText(kRoleLabel_other);
+  onRoleChanged(row);
+
+  // Rotor, Tilt Joint, Control Surfaceを選択不可にする
+  for (const auto& label : { kRoleLabel_rotor, kRoleLabel_tilt, kRoleLabel_cs })
+    role_[row]->setItemEnabled(label, false);
+}
+
+void JointConfigurationWidget::onRoleChanged(int row)
+{
+  switch (role(row))
+  {
+    case tobas::jnt_role_t::ROTOR:
+      role_[row]->setEnabled(false);
+
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_none);
+      cmd_iface_[row]->setEnabled(false);
+
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_other);
+      hw_iface_[row]->setEnabled(false);
+
+      channel_[row]->setValue(propulsion_->selected()->widget(linkName(row))->general()->channel());
+      channel_[row]->setEnabled(false);
+
+      home_pos_[row]->setValue(0.);
+      home_pos_[row]->setEnabled(false);
+
+      break;
+    case tobas::jnt_role_t::TILT_JOINT:
+      role_[row]->setEnabled(false);
+
+      cmd_iface_[row]->setEnabled(true);
+
+      hw_iface_[row]->setEnabled(true);
+
+      channel_[row]->setEnabled(true);
+
+      home_pos_[row]->setValue(0.);
+      home_pos_[row]->setEnabled(false);
+
+      break;
+    case tobas::jnt_role_t::CONTROL_SURFACE:
+      role_[row]->setEnabled(false);
+
+      cmd_iface_[row]->setEnabled(true);
+
+      hw_iface_[row]->setEnabled(true);
+
+      channel_[row]->setEnabled(true);
+
+      home_pos_[row]->setValue(0.);
+      home_pos_[row]->setEnabled(false);
+
+      break;
+    case tobas::jnt_role_t::MANIPULATION:
+      role_[row]->setEnabled(true);
+
+      cmd_iface_[row]->setEnabled(true);
+
+      hw_iface_[row]->setEnabled(true);
+
+      channel_[row]->setEnabled(true);
+
+      home_pos_[row]->setEnabled(true);
+
+      break;
+    case tobas::jnt_role_t::WHEEL:
+      role_[row]->setEnabled(true);
+
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_none);
+      cmd_iface_[row]->setEnabled(false);
+
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_other);
+      hw_iface_[row]->setEnabled(false);
+
+      channel_[row]->setValue(0);
+      channel_[row]->setEnabled(false);
+
+      home_pos_[row]->setValue(0.);
+      home_pos_[row]->setEnabled(false);
+
+      break;
+    case tobas::jnt_role_t::OTHER:
+      role_[row]->setEnabled(true);
+
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_none);
+      cmd_iface_[row]->setEnabled(false);
+
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_other);
+      hw_iface_[row]->setEnabled(false);
+
+      channel_[row]->setValue(0);
+      channel_[row]->setEnabled(false);
+
+      home_pos_[row]->setValue(0.);
+      home_pos_[row]->setEnabled(false);
+
+      break;
+    default:
+      throw;
+  }
 }
 }  // namespace setup_assistant
 }  // namespace gui

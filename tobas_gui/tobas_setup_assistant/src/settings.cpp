@@ -11,7 +11,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   battery = new BatteryWidget();
   propulsion_system = new propulsion_system::PropulsionSystemWidget(node, robot);
   fixed_wing = new fixed_wing::FixedWingWidget(node, robot);
-  joint_config = new JointConfigurationWidget(robot);
+  joint_config = new JointConfigurationWidget(robot, propulsion_system, fixed_wing);
   imu = new IMUWidget();
   magnetometer = new MagnetometerWidget();
   barometer = new BarometerWidget();
