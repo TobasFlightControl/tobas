@@ -162,7 +162,7 @@ tobas::Drone PackageGenerator::createDrone()
     assert(jnt_row >= 0);
 
     tobas::RotorConfig rotor;
-    rotor.channel = i;  // TODO: 物理チャンネルを指定
+    rotor.channel = prop_config->general()->channel();
     rotor.link_name = link_name.toStdString();
     rotor.direction = prop_config->motor()->direction();
     rotor.axis = robot_.rotorAxisType(link_name.toStdString());
@@ -794,14 +794,14 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     const auto link_name = propulsions->linkName(i).toStdString();
 
     const auto propulsion = propulsions->widget(i);
+    const auto general = propulsion->general();
     const auto esc = propulsion->esc();
     const auto motor = propulsion->motor();
     const auto propeller = propulsion->propeller();
     const auto aero = propulsion->aerodynamics();
 
-    const auto channel = i;  // TODO: 物理チャンネルを指定できるようにする
     addRotorPlugin(
-      robot, ns, link_name, channel, motor->kv(), motor->internalResistance(), propeller->numBlade(),
+      robot, ns, link_name, general->channel(), motor->kv(), motor->internalResistance(), propeller->numBlade(),
       aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(),
       sim->maxModelErrorRate());
   }
@@ -822,9 +822,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Gazebo ROS2 control plugin
   // XXX: This must be defined after GazeboSimSystem
   if (hasServoJoint())
-  {
     addGazeboSimROS2ControlPlugin(robot, ns, config_pkg_name, "config/joint_controller_manager.yaml");
-  }
 
   // Base static joint for debug
   addBaseStaticJoint(robot, robot_.tree().getRootName());

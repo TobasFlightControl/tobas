@@ -100,6 +100,19 @@ bool SelectedLinksWidget::isValid()
     if (!widget(i)->isValid())
       return false;
 
+  // チャンネルが重複していないことを確認
+  unordered_set<int> channels;
+  for (int i = 0; i < num_rotors; ++i)
+  {
+    const auto channel = widget(i)->general()->channel();
+    if (channels.contains(channel))
+    {
+      qt::qErrorBox(this, "Rotor channel " + QString::number(channel) + " is duplicated.");
+      return false;
+    }
+    channels.insert(channel);
+  }
+
   return true;
 }
 

@@ -31,12 +31,14 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
   tabs_->setSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
+  general_ = new GeneralWidget();
   esc_ = new ESCWidget();
   motor_ = new MotorWidget();
   propeller_ = new PropellerWidget();
   aerodynamics_ = new AerodynamicsWidget(node, propeller_);
   speed_limit_ = new SpeedLimitWidget(motor_, aerodynamics_);
 
+  tabs_->addTab(general_, general_->name());
   tabs_->addTab(esc_, esc_->name());
   tabs_->addTab(motor_, motor_->name());
   tabs_->addTab(propeller_, propeller_->name());
@@ -88,6 +90,11 @@ void SelectedLinkWidget::load(const YAML::Node& node)
     const auto widget = qobject_cast<BaseSelectedLinkSettingWidget*>(tabs_->widget(i));
     widget->load(node[widget->name()]);
   }
+}
+
+const GeneralWidget* SelectedLinkWidget::general() const
+{
+  return general_;
 }
 
 const ESCWidget* SelectedLinkWidget::esc() const
