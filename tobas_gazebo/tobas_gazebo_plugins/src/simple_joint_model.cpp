@@ -6,13 +6,11 @@ using namespace std;
 
 namespace gazebo
 {
-SimpleJointModel::SimpleJointModel(const tobas_std::Range<double>& pos_limit, const double& max_vel)
-  : pos_limit_(pos_limit), max_vel_(max_vel)
+SimpleJointModel::SimpleJointModel(double min_pos, double max_pos, double max_vel)
+  : pos_limit_(min_pos, max_pos), max_vel_(max_vel)
 {
-  assert(pos_limit.isValid());
-  assert(max_vel > 0.);
-
-  cur_pos_ = 0.;
+  assert(pos_limit_.isValid());
+  assert(max_vel_ > 0.);
 }
 
 void SimpleJointModel::update(double tar_pos, double dt)
@@ -31,7 +29,7 @@ void SimpleJointModel::update(double tar_pos, double dt)
   cur_pos_ = pos_limit_.clamp(cnd_angle);
 }
 
-const double& SimpleJointModel::currentPosition() const
+double SimpleJointModel::currentPosition() const
 {
   return cur_pos_;
 }

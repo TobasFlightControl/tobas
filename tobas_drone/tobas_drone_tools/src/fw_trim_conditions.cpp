@@ -150,14 +150,16 @@ int TrimConditions::update(double V, const double& rho, const kdl::JntArray& q)
     }
     alpha_ = drone_.fixed_wing.vehicle.alpha_limit.clamp(alpha_);
   }
-  if (!drone_.fixed_wing.control_surfaces.at(elev_channel_).angle_limit.inRange(elevator_))
+
+  const auto& joint = tree_.getSegment(elev_cs.link_name)->second.segment.joint();
+  if (elevator_ < joint.lower_limit || joint.upper_limit < elevator_)
   {
     if (error_code_ > E_WARN)
     {
       error_msg_ = "The trim angle of the elevator is outside the range of the angle limit.";
       error_code_ = E_WARN;
     }
-    elevator_ = drone_.fixed_wing.control_surfaces.at(elev_channel_).angle_limit.clamp(elevator_);
+    elevator_ = clamp(elevator_, joint.lower_limit, joint.upper_limit);
   }
 
   return error_code_;

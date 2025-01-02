@@ -12,6 +12,8 @@ std::string jntCmdIfaceEnumToText(jnt_cmd_iface_t cmd_iface)
       return "velocity";
     case jnt_cmd_iface_t::EFFORT:
       return "effort";
+    case jnt_cmd_iface_t::NONE:
+      return "none";
     default:
       throw;
   }
@@ -25,6 +27,8 @@ jnt_cmd_iface_t jntCmdIfaceTextToEnum(const std::string& text)
     return tobas::jnt_cmd_iface_t::VELOCITY;
   else if (text == "effort")
     return tobas::jnt_cmd_iface_t::EFFORT;
+  else if (text == "none")
+    return tobas::jnt_cmd_iface_t::NONE;
   else
     throw std::runtime_error("Invalid joint command interface: " + text);
 }

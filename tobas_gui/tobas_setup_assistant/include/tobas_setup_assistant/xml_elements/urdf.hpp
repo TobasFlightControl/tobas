@@ -76,7 +76,7 @@ void addGPSPlugin(
 void addRotorPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
-  const std::string& joint_name,
+  const std::string& link_name,
   uint32_t channel,
   double kv,
   double internal_resistance,

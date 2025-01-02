@@ -1,4 +1,5 @@
 #include <QWheelEvent>
+#include <QStandardItemModel>
 
 #include "tobas_qt_tools/widgets/combo_box.hpp"
 
@@ -35,5 +36,19 @@ void ComboBox::setCurrentText(const QString& text)
   if (index < 0)
     throw std::runtime_error("\"" + text.toStdString() + "\" does not exist in the combo box choices.");
   super::setCurrentIndex(index);
+}
+
+void ComboBox::setItemEnabled(int row, bool enabled)
+{
+  const auto model = qobject_cast<QStandardItemModel*>(this->model());
+  const auto item = model->item(row);
+  const auto cur_flags = item->flags();
+  const auto new_flags = enabled ? cur_flags | Qt::ItemIsEnabled : cur_flags & ~Qt::ItemIsEnabled;
+  item->setFlags(new_flags);
+}
+
+void ComboBox::setItemEnabled(const QString& text, bool enabled)
+{
+  setItemEnabled(findText(text), enabled);
 }
 }  // namespace qt

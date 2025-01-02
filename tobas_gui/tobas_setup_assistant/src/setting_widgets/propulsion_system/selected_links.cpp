@@ -100,13 +100,26 @@ bool SelectedLinksWidget::isValid()
     if (!widget(i)->isValid())
       return false;
 
+  // チャンネルが重複していないことを確認
+  QSet<int> channels;
+  for (int i = 0; i < num_rotors; ++i)
+  {
+    const auto channel = widget(i)->general()->channel();
+    if (channels.contains(channel))
+    {
+      qt::qErrorBox(this, "Rotor channel " + QString::number(channel) + " is duplicated.");
+      return false;
+    }
+    channels.insert(channel);
+  }
+
   return true;
 }
 
 void SelectedLinksWidget::add(const QString& link_name)
 {
   // タブを追加
-  const auto link_widget = new SelectedLinkWidget(node_);
+  const auto link_widget = new SelectedLinkWidget(node_, robot_, link_name);
   addTab(link_widget, link_name);
 
   // 指定リンクのマーカを表示
@@ -143,6 +156,18 @@ QStringList SelectedLinksWidget::linkNames() const
   return res;
 }
 
+QStringList SelectedLinksWidget::tiltJointNames() const
+{
+  QStringList res;
+  for (int i = 0; i < count(); ++i)
+  {
+    const auto general = widget(i)->general();
+    if (general->isTiltRotor())
+      res.append(general->tiltJointName());
+  }
+  return res;
+}
+
 int SelectedLinksWidget::index(const QString& link_name) const
 {
   for (int i = 0; i < count(); ++i)
@@ -175,7 +200,7 @@ const SelectedLinkWidget* SelectedLinksWidget::widget(const QString& link_name) 
 
 bool SelectedLinksWidget::hasBothRotationalDirections() const
 {
-  unordered_set<tobas::turning_direction_t> set;
+  QSet<tobas::turning_direction_t> set;
   for (int i = 0; i < count(); ++i)
     set.insert(widget(i)->motor()->direction());
 

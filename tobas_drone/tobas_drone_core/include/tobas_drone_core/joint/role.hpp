@@ -4,12 +4,17 @@
 
 namespace tobas
 {
-enum jnt_role_t : uint8_t
+enum struct jnt_role_t : uint8_t
 {
-  MANIPULATION,
-  TILT_ROTOR,
+  ROTOR,
+  TILT_JOINT,
   CONTROL_SURFACE,
+  MANIPULATION,
+  WHEEL,
+  OTHER,
 };
+
+bool isServoJoint(jnt_role_t role);
 }  // namespace tobas
 
 namespace YAML

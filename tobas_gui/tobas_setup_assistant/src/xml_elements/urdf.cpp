@@ -205,7 +205,7 @@ void addGPSPlugin(
 void addRotorPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
-  const string& joint_name,
+  const string& link_name,
   uint32_t channel,
   double kv,
   double internal_resistance,
@@ -219,7 +219,7 @@ void addRotorPlugin(
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_rotor_plugin", "gazebo::GazeboRotorPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
-  plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
+  plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("channel")->SetText(channel);
   plugin->InsertNewChildElement("kv")->SetText(kv);
   plugin->InsertNewChildElement("internalResistance")->SetText(internal_resistance);
@@ -279,10 +279,7 @@ void addFixedWingPlugin(
   {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
     cs_elem->InsertNewChildElement("channel")->SetText(cs.channel);
-    cs_elem->InsertNewChildElement("jointName")->SetText(cs.joint_name.c_str());
-    cs_elem->InsertNewChildElement("minAngle")->SetText(cs.angle_limit.lower);
-    cs_elem->InsertNewChildElement("maxAngle")->SetText(cs.angle_limit.upper);
-    cs_elem->InsertNewChildElement("maxAngleRate")->SetText(cs.max_angle_rate);
+    cs_elem->InsertNewChildElement("linkName")->SetText(cs.link_name.c_str());
     cs_elem->InsertNewChildElement("cLiftDelta")->SetText(cs.c_lift_delta);
     cs_elem->InsertNewChildElement("cDragAbsDelta")->SetText(cs.c_drag_abs_delta);
     cs_elem->InsertNewChildElement("cSideDelta")->SetText(cs.c_side_delta);
@@ -321,8 +318,10 @@ void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfi
   // robot/ros2_control/joint
   for (const auto& [jnt_name, jnt_cfg] : joints)
   {
-    const auto joint = ros2_control->InsertNewChildElement("joint");
+    if (!jnt_cfg.isServoJoint())
+      continue;
 
+    const auto joint = ros2_control->InsertNewChildElement("joint");
     joint->SetAttribute("name", jnt_name.c_str());
 
     // robot/ros2_control/joint/state_interface

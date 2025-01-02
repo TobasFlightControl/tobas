@@ -141,7 +141,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
-  js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCb, this);
   rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
@@ -193,7 +192,7 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (drone_.isTransformable() && js_ == nullptr)
+  if (js_sub_ != nullptr && js_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
     return false;
@@ -290,6 +289,11 @@ void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = *drone;
 
+  if (drone->hasServoJoint())
+    js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::jointStateCb, this);
+  else
+    js_sub_ = nullptr;
+
   if (tree_received_)
   {
     if (!updateInternalDataStructures())
@@ -371,7 +375,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   if (tar_rpyt_ != nullptr)
   {
     // 可動関節角を更新
-    if (drone_.isTransformable() && js_converter_.jointStateToJntArrayPos(*js_) < 0)
+    if (js_sub_ != nullptr && js_converter_.jointStateToJntArrayPos(*js_) < 0)
       TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
     // 目標角加速度を計算

@@ -14,6 +14,7 @@
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 
@@ -65,7 +66,7 @@ public:
 
 private:
   // SDF parameters
-  string joint_name_;
+  string link_name_;
   size_t channel_;
   double kv_;                    // [rad/s/V]
   double resistance_;            // [Ω]
@@ -143,15 +144,20 @@ void GazeboRotorPlugin::Configure(
     TOBAS_EXIT("Failed to find model.");
 
   // Get joint
-  const auto joint_entity = model.JointByName(ecm, joint_name_);
-  joint_ = make_shared<gz::sim::Joint>(joint_entity);
+  const auto joint_entity = findJointWithChildLink(ecm, link_name_);
+  if (!joint_entity.has_value())
+    TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
+  joint_ = make_shared<gz::sim::Joint>(joint_entity.value());
   if (!joint_->Valid(ecm))
-    TOBAS_EXIT("Failed to find specified joint \"", joint_name_, "\".");
+    TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
+
+  // Get joint name
+  const auto joint_name = joint_->Name(ecm).value();
 
   // Check joint type
   const auto joint_type = joint_->Type(ecm).value();
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE)
-    TOBAS_EXIT("Joint \"", joint_name_, "\" is not a rotating joint.");
+    TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
 
   // Get child link
   const auto link_name = joint_->ChildLinkName(ecm).value();
@@ -168,10 +174,10 @@ void GazeboRotorPlugin::Configure(
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
 
   // Create necessary components
-  if (!getComponent<cmp::JointAxis>(joint_entity, ecm))
-    TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name_, "\".");
-  if (!getComponent<cmp::JointVelocity>(joint_entity, ecm))
-    TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name_, "\".");
+  if (!getComponent<cmp::JointAxis>(joint_entity.value(), ecm))
+    TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name, "\".");
+  if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm))
+    TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name, "\".");
   if (!getComponent<cmp::WorldPose>(link_entity, ecm))
     TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name, "\".");
   if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))
@@ -183,7 +189,7 @@ void GazeboRotorPlugin::Configure(
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "jointName", joint_name_);
+  getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "channel", channel_);
 
   getSdfParam(sdf, "kv", kv_, POSITIVE);

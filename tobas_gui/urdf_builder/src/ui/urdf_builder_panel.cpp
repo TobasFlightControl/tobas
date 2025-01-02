@@ -110,13 +110,12 @@ void URDFBuilderPanel::LoadButtonClicked()
   // URDFまたはXACROのパスを取得
   const auto last_opened_dir = getLastOpenedDir();
   const auto file_path = QFileDialog::getOpenFileName(
-    this, tr("Load URDF"), QString::fromStdString(last_opened_dir),
-    tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
+    this, tr("Load URDF"), last_opened_dir, tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
 
   if (file_path.isEmpty())
     return;
 
-  setLastOpenedDir(file_path.toStdString());
+  setLastOpenedDir(file_path);
 
   if (file_path.endsWith(".urdf"))
   {
@@ -186,7 +185,7 @@ void URDFBuilderPanel::SaveAsButtonClicked()
     return;
 
   const auto last_opened_dir = getLastOpenedDir();
-  SaveUrdfDialog dialog(this, QString::fromStdString(last_opened_dir));
+  SaveUrdfDialog dialog(this, last_opened_dir);
 
   const auto result = dialog.exec();
   if (result != QDialog::Accepted)
@@ -194,7 +193,7 @@ void URDFBuilderPanel::SaveAsButtonClicked()
   const auto file_path = dialog.selectedFiles().first();
   assert(file_path.endsWith(".urdf"));
 
-  setLastOpenedDir(file_path.toStdString());
+  setLastOpenedDir(file_path);
 
   if (!saveURDF(file_path))
     return;
@@ -345,20 +344,20 @@ void URDFBuilderPanel::LinkDialogChanged()
   reload();
 }
 
-string URDFBuilderPanel::getLastOpenedDir()
+QString URDFBuilderPanel::getLastOpenedDir()
 {
-  string res;
-  if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
+  string last_opened_dir;
+  if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0)
   {
     PRINT_WARN(property_client_.errorMessage());
-    res = rcutils_get_home_dir();
+    last_opened_dir = rcutils_get_home_dir();
   }
-  return res;
+  return QString::fromStdString(last_opened_dir);
 }
 
-void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
+void URDFBuilderPanel::setLastOpenedDir(const QString& file_path)
 {
-  fs::path p(file_path);
+  fs::path p(file_path.toStdString());
   const auto dir = p.parent_path().string();
 
   if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
@@ -420,7 +419,7 @@ void URDFBuilderPanel::reloadLinkTree()
   }
 
   // チェック状態を取得
-  unordered_set<string> unchecked_links;
+  QSet<QString> unchecked_links;
   for (int i = 0; i < ui_->LinkTreeWidget->topLevelItemCount(); ++i)
     collectUncheckedLinks(ui_->LinkTreeWidget->topLevelItem(i), unchecked_links);
 
@@ -445,7 +444,7 @@ void URDFBuilderPanel::reloadLinkTree()
     item->setSelected(link_vm->name() == selected_link_name);
 
     // チェック状態を保持
-    if (unchecked_links.find(link_vm->name().toStdString()) != unchecked_links.end())
+    if (unchecked_links.contains(link_vm->name()))
       item->setCheckState(0, Qt::Unchecked);
     else
       item->setCheckState(0, Qt::Checked);
@@ -575,11 +574,11 @@ bool URDFBuilderPanel::isJointsValid()
   return true;
 }
 
-void URDFBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, unordered_set<string>& set)
+void URDFBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set)
 {
   if (item->checkState(0) == Qt::Unchecked)
   {
-    const auto link_name = item->text(0).toStdString();
+    const auto link_name = item->text(0);
     set.insert(link_name);
   }
 

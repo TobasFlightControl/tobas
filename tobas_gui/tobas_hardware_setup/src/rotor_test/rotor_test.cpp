@@ -86,7 +86,7 @@ void RotorTestWidget::updateInternalDataStructures()
   reset();
 
   // モータとして登録されているチャンネルの設定
-  std::unordered_set<size_t> rotor_channels;
+  QSet<size_t> rotor_channels;
   for (const auto& [channel, rotor] : drone_.rotors)
   {
     rotor_channels.insert(channel);

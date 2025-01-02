@@ -24,24 +24,18 @@ class SelectedLinksWidget : public qt::TableWidget
 
   // Columns
   static constexpr int kLinkNameCol = 0;
-  static constexpr int kJointNameCol = 1;
-  static constexpr int kMinAngleCol = 2;
-  static constexpr int kMaxAngleCol = 3;
-  static constexpr int kMaxAngleRateCol = 4;
-  static constexpr int kLiftCoefCol = 5;
-  static constexpr int kDragCoefCol = 6;
-  static constexpr int kSideCoefCol = 7;
-  static constexpr int kRollCoefCol = 8;
-  static constexpr int kPitchCoefCol = 9;
-  static constexpr int kYawCoefCol = 10;
-  static constexpr int kNumCols = 11;
+  static constexpr int kJointNameCol = kLinkNameCol + 1;
+  static constexpr int kLiftCoefCol = kJointNameCol + 1;
+  static constexpr int kDragCoefCol = kLiftCoefCol + 1;
+  static constexpr int kSideCoefCol = kDragCoefCol + 1;
+  static constexpr int kRollCoefCol = kSideCoefCol + 1;
+  static constexpr int kPitchCoefCol = kRollCoefCol + 1;
+  static constexpr int kYawCoefCol = kPitchCoefCol + 1;
+  static constexpr int kNumCols = kYawCoefCol + 1;
 
   // Labels
   static constexpr char kLinkNameLabel[] = "Link Name";
   static constexpr char kJointNameLabel[] = "Joint Name";
-  static constexpr char kMinAngleLabel[] = "Min Angle";
-  static constexpr char kMaxAngleLabel[] = "Max Angle";
-  static constexpr char kMaxAngleRateLabel[] = "Max Angle Rate";
   static constexpr char kLiftCoefLabel[] = "Lift Coef";
   static constexpr char kDragCoefLabel[] = "Drag Coef";
   static constexpr char kSideCoefLabel[] = "Side Coef";
@@ -72,9 +66,6 @@ public:
   // Getters
   QString linkName(int row) const;
   QString jointName(int row) const;
-  double minAngle(int row) const;
-  double maxAngle(int row) const;
-  double maxAngleRate(int row) const;
   double liftCoef(int row) const;
   double dragCoef(int row) const;
   double sideCoef(int row) const;
@@ -85,9 +76,6 @@ public:
   // Setters
   void linkName(int row, const QString& text);
   void jointName(int row, const QString& text);
-  void minAngle(int row, double value);
-  void maxAngle(int row, double value);
-  void maxAngleRate(int row, double value);
   void liftCoef(int row, double value);
   void dragCoef(int row, double value);
   void sideCoef(int row, double value);

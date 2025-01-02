@@ -4,6 +4,7 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
+#include "./general/general.hpp"
 #include "./esc.hpp"
 #include "./motor.hpp"
 #include "./propeller.hpp"
@@ -30,7 +31,7 @@ Q_SIGNALS:
   void copyToAllButtonClicked();
 
 public:
-  explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node);
+  explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name);
 
   bool isValid();
   void copyFrom(const SelectedLinkWidget* src);
@@ -38,6 +39,7 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
+  const GeneralWidget* general() const;
   const ESCWidget* esc() const;
   const MotorWidget* motor() const;
   const PropellerWidget* propeller() const;
@@ -50,6 +52,7 @@ private:
   QPushButton* copy_from_left_button_;
   QPushButton* copy_to_all_button_;
 
+  GeneralWidget* general_;
   ESCWidget* esc_;
   MotorWidget* motor_;
   PropellerWidget* propeller_;

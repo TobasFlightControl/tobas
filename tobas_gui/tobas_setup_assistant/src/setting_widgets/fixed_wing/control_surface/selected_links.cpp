@@ -20,9 +20,6 @@ SelectedLinksWidget::SelectedLinksWidget(const RobotInfo& robot) : super(0, kNum
   setHorizontalHeaderLabels({
     kLinkNameLabel,
     kJointNameLabel,
-    kMinAngleLabel,
-    kMaxAngleLabel,
-    kMaxAngleRateLabel,
     kLiftCoefLabel,
     kDragCoefLabel,
     kSideCoefLabel,
@@ -47,9 +44,6 @@ YAML::Node SelectedLinksWidget::dump(const QString& link_name) const
 
   node[kLinkNameLabel] = linkName(row);
   node[kJointNameLabel] = jointName(row);
-  node[kMinAngleLabel] = minAngle(row);
-  node[kMaxAngleLabel] = maxAngle(row);
-  node[kMaxAngleRateLabel] = maxAngleRate(row);
   node[kLiftCoefLabel] = liftCoef(row);
   node[kDragCoefLabel] = dragCoef(row);
   node[kSideCoefLabel] = sideCoef(row);
@@ -66,9 +60,6 @@ void SelectedLinksWidget::load(const QString& link_name, const YAML::Node& node)
 
   linkName(row, node[kLinkNameLabel].as<QString>());
   jointName(row, node[kJointNameLabel].as<QString>());
-  minAngle(row, node[kMinAngleLabel].as<double>());
-  maxAngle(row, node[kMaxAngleLabel].as<double>());
-  maxAngleRate(row, node[kMaxAngleRateLabel].as<double>());
   liftCoef(row, node[kLiftCoefLabel].as<double>());
   dragCoef(row, node[kDragCoefLabel].as<double>());
   sideCoef(row, node[kSideCoefLabel].as<double>());
@@ -115,29 +106,6 @@ void SelectedLinksWidget::add(const QString& link_name)
   joint_name_label->setFont(qt::DefaultFont(kBodyPSize));
   joint_name_label->setAlignment(Qt::AlignCenter);
   setCellWidget(row, kJointNameCol, joint_name_label);
-
-  const auto min_angle = new qt::DoubleSpinBox();
-  min_angle->setMinimum(-kAngleLimit);
-  min_angle->setMaximum(0.);
-  min_angle->setDecimals(3);
-  min_angle->setSuffix(" rad");
-  min_angle->setValue(joint.lower_limit);
-  setCellWidget(row, kMinAngleCol, min_angle);
-
-  const auto max_angle = new qt::DoubleSpinBox();
-  max_angle->setMinimum(0.);
-  max_angle->setMaximum(kAngleLimit);
-  max_angle->setDecimals(3);
-  max_angle->setSuffix(" rad");
-  max_angle->setValue(joint.upper_limit);
-  setCellWidget(row, kMaxAngleCol, max_angle);
-
-  const auto max_angle_rate = new qt::DoubleSpinBox();
-  max_angle_rate->setDecimals(3);
-  max_angle_rate->setMinimum(1e-3);
-  max_angle_rate->setValue(joint.max_velocity);
-  max_angle_rate->setSuffix(" rad/s");
-  setCellWidget(row, kMaxAngleRateCol, max_angle_rate);
 
   const auto c_lift_delta = new qt::DoubleSpinBox();
   c_lift_delta->setDecimals(kStabilityCoefDecimals);
@@ -194,24 +162,6 @@ QString SelectedLinksWidget::jointName(int row) const
   return cell->text();
 }
 
-double SelectedLinksWidget::minAngle(int row) const
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMinAngleCol));
-  return cell->value();
-}
-
-double SelectedLinksWidget::maxAngle(int row) const
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleCol));
-  return cell->value();
-}
-
-double SelectedLinksWidget::maxAngleRate(int row) const
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleRateCol));
-  return cell->value();
-}
-
 double SelectedLinksWidget::liftCoef(int row) const
 {
   const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kLiftCoefCol));
@@ -258,24 +208,6 @@ void SelectedLinksWidget::jointName(int row, const QString& text)
 {
   const auto cell = qobject_cast<QLabel*>(cellWidget(row, kJointNameCol));
   return cell->setText(text);
-}
-
-void SelectedLinksWidget::minAngle(int row, double value)
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMinAngleCol));
-  return cell->setValue(value);
-}
-
-void SelectedLinksWidget::maxAngle(int row, double value)
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleCol));
-  return cell->setValue(value);
-}
-
-void SelectedLinksWidget::maxAngleRate(int row, double value)
-{
-  const auto cell = qobject_cast<qt::DoubleSpinBox*>(cellWidget(row, kMaxAngleRateCol));
-  return cell->setValue(value);
 }
 
 void SelectedLinksWidget::liftCoef(int row, double value)

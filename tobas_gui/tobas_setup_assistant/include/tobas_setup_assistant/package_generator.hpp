@@ -41,6 +41,8 @@ private:
   inja::json createTemplateData();
   tobas::Drone createDrone();
 
+  bool hasServoJoint() const;
+
   bool generateBackupFiles();
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);

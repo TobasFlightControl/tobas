@@ -1,7 +1,5 @@
 uint32 channel
-string joint_name
-tobas_std_msgs/RangeFloat64 angle_limit
-float64 max_angle_rate
+string link_name
 
 float64 c_lift_delta
 float64 c_drag_abs_delta

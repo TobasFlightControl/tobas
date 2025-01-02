@@ -183,14 +183,8 @@ bool ControllerNode::initialize()
   // 制御入力のスケール
   lqd_.input_scale.resize(eom_.inputSize());
   const auto thrust_scale = mass_holder_.getMass() * tobas_std::kGravity / x_rotors_.count();
-  lqd_.input_scale.block(0, 0, x_rotors_.count(), 1).fill(thrust_scale);
-
-  size_t cs_idx = 0;
-  for (const auto& [_, cs] : drone_.fixed_wing.control_surfaces)
-  {
-    lqd_.input_scale(x_rotors_.count() + cs_idx) = cs.angle_limit.range();
-    ++cs_idx;
-  }
+  lqd_.input_scale.head(x_rotors_.count()).fill(thrust_scale);
+  lqd_.input_scale.tail(drone_.numControlSurfaces()).fill(M_PI);
 
   lqd_.state_weight.resize(eom_.kStateSize);
   lqd_.input_weight.resize(eom_.inputSize());
@@ -584,8 +578,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   const VectorXd du = lqd_.solve(dt);
   const VectorXd u = eom_.trimInput() + du;
 
-  const VectorXd thrusts = u.block(0, 0, x_rotors_.count(), 1);
-  const VectorXd deflections = u.block(x_rotors_.count(), 0, drone_.numControlSurfaces(), 1);
+  const VectorXd thrusts = u.head(x_rotors_.count());
+  const VectorXd deflections = u.tail(drone_.numControlSurfaces());
 
   // Publish
   publishThrusts(thrusts);

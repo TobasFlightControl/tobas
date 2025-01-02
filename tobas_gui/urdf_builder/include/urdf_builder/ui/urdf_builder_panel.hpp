@@ -80,8 +80,8 @@ private:
 
   QTimer update_timer_;
 
-  std::string getLastOpenedDir();
-  void setLastOpenedDir(const std::string& file_path);
+  QString getLastOpenedDir();
+  void setLastOpenedDir(const QString& file_path);
 
   void defineConnections();
 
@@ -99,7 +99,7 @@ private:
   bool isRobotNameValid();
   bool isJointsValid();
 
-  static void collectUncheckedLinks(QTreeWidgetItem* item, std::unordered_set<std::string>& set);
+  static void collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set);
 };
 }  // namespace ui
 }  // namespace urdf_builder
