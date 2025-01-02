@@ -101,7 +101,7 @@ bool SelectedLinksWidget::isValid()
       return false;
 
   // チャンネルが重複していないことを確認
-  unordered_set<int> channels;
+  QSet<int> channels;
   for (int i = 0; i < num_rotors; ++i)
   {
     const auto channel = widget(i)->general()->channel();
@@ -200,7 +200,7 @@ const SelectedLinkWidget* SelectedLinksWidget::widget(const QString& link_name) 
 
 bool SelectedLinksWidget::hasBothRotationalDirections() const
 {
-  unordered_set<tobas::turning_direction_t> set;
+  QSet<tobas::turning_direction_t> set;
   for (int i = 0; i < count(); ++i)
     set.insert(widget(i)->motor()->direction());
 
