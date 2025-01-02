@@ -86,20 +86,20 @@ public:
   void load(const YAML::Node& node) override;
 
   // Getters
-  QString linkName(int row) const;
-  QString jointName(int row) const;
-  tobas::jnt_role_t role(int row) const;
-  tobas::jnt_cmd_iface_t commandInterface(int row) const;
-  tobas::jnt_hw_iface_t hardwareInterface(int row) const;
-  int channel(int row) const;
-  double homePosition(int row) const;
+  QString getLinkName(int row) const;
+  QString getJointName(int row) const;
+  tobas::jnt_role_t getRole(int row) const;
+  tobas::jnt_cmd_iface_t getCommandInterface(int row) const;
+  tobas::jnt_hw_iface_t getHardwareInterface(int row) const;
+  int getChannel(int row) const;
+  double getHomePosition(int row) const;
 
   // Setters
-  void role(int row, tobas::jnt_role_t value) const;
-  void commandInterface(int row, tobas::jnt_cmd_iface_t value) const;
-  void hardwareInterface(int row, tobas::jnt_hw_iface_t value) const;
-  void channel(int row, int value) const;
-  void homePosition(int row, double value) const;
+  void setRole(int row, tobas::jnt_role_t value);
+  void setCommandInterface(int row, tobas::jnt_cmd_iface_t value);
+  void setHardwareInterface(int row, tobas::jnt_hw_iface_t value);
+  void setChannel(int row, int value);
+  void setHomePosition(int row, double value);
 
   /* 登録されているジョイント数． */
   int count() const;

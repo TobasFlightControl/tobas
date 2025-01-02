@@ -141,12 +141,12 @@ tobas::Drone PackageGenerator::createDrone()
   for (int i = 0; i < joint_config->count(); ++i)
   {
     tobas::JointConfig joint;
-    joint.name = joint_config->jointName(i).toStdString();
-    joint.role = joint_config->role(i);
-    joint.cmd_iface = joint_config->commandInterface(i);
-    joint.hw_iface = joint_config->hardwareInterface(i);
-    joint.channel = joint_config->channel(i);
-    joint.home_pos = joint_config->homePosition(i);
+    joint.name = joint_config->getJointName(i).toStdString();
+    joint.role = joint_config->getRole(i);
+    joint.cmd_iface = joint_config->getCommandInterface(i);
+    joint.hw_iface = joint_config->getHardwareInterface(i);
+    joint.channel = joint_config->getChannel(i);
+    joint.home_pos = joint_config->getHomePosition(i);
 
     drone.joints[joint.name] = joint;
   }
@@ -171,6 +171,7 @@ tobas::Drone PackageGenerator::createDrone()
     rotor.motor_constant = prop_config->aerodynamics()->motorConst();
     rotor.moment_constant = prop_config->aerodynamics()->momentConst();
     rotor.drag_constant = prop_config->aerodynamics()->rotorDragCoef();
+    rotor.tilt_joint_name = prop_config->general()->tiltJointName().toStdString();
 
     drone.rotors[rotor.channel] = rotor;
   }
@@ -211,11 +212,14 @@ tobas::Drone PackageGenerator::createDrone()
     const auto css = settings_->fixed_wing->controlSurfaces()->selected();
     for (int i = 0; i < css->count(); ++i)
     {
+      const auto link_name = css->linkName(i);
+      const auto joint_idx = joint_config->findLink(link_name);
+
       tobas::ControlSurface cs;
-      cs.channel = i;  // TODO: 物理チャンネルを指定できるようにする
-      cs.link_name = css->linkName(i).toStdString();
+      cs.channel = joint_config->getChannel(joint_idx);
+      cs.link_name = link_name.toStdString();
       cs.c_lift_delta = css->liftCoef(i);
-      cs.c_drag_abs_delta = css->dragCoef(i);  // FIXME: 正負の確認が必要？
+      cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: 正負の確認が必要？
       cs.c_side_delta = css->sideCoef(i);
       cs.c_roll_delta = css->rollCoef(i);
       cs.c_pitch_delta = css->pitchCoef(i);
@@ -232,7 +236,7 @@ bool PackageGenerator::hasServoJoint() const
 {
   const auto& joint_config = settings_->joint_config;
   for (int i = 0; i < joint_config->count(); ++i)
-    if (tobas::isServoJoint(joint_config->role(i)))
+    if (tobas::isServoJoint(joint_config->getRole(i)))
       return true;
   return false;
 }
@@ -428,10 +432,11 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
     // コントローラごとにノードを立ち上げる
     for (int i = 0; i < joint_config->count(); ++i)
     {
-      if (!tobas::isServoJoint(joint_config->role(i)))
+      if (!tobas::isServoJoint(joint_config->getRole(i)))
         continue;
 
-      const auto controller_name = joint_config->jointName(i).toStdString() + "_controller";
+      const auto joint_name = joint_config->getJointName(i).toStdString();
+      const auto controller_name = joint_name + "_controller";
       const auto param_file = "$(find-pkg-share " + config_pkg_name + ")/config/" + controller_name + ".yaml";
       const auto args = controller_name + " --param-file " + param_file;
       const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", ns, "", args);
@@ -457,11 +462,11 @@ bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesy
   YAML::Node params_node(YAML::NodeType::Map);
   for (int i = 0; i < joint_config->count(); ++i)
   {
-    if (!tobas::isServoJoint(joint_config->role(i)))
+    if (!tobas::isServoJoint(joint_config->getRole(i)))
       continue;
 
-    params_node["joint_names"].push_back(joint_config->jointName(i));
-    params_node["interfaces"].push_back(joint_config->commandInterface(i));
+    params_node["joint_names"].push_back(joint_config->getJointName(i));
+    params_node["interfaces"].push_back(joint_config->getCommandInterface(i));
   }
 
   YAML::Node root_node(YAML::NodeType::Map);
@@ -484,10 +489,10 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
   const auto joint_config = settings_->joint_config;
   for (int i = 0; i < joint_config->count(); ++i)
   {
-    if (!tobas::isServoJoint(joint_config->role(i)))
+    if (!tobas::isServoJoint(joint_config->getRole(i)))
       continue;
 
-    const auto jnt_name = joint_config->jointName(i).toStdString();
+    const auto jnt_name = joint_config->getJointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
     manager_params_node[ctrl_name]["type"] = tobas::controller_manager::type::kForwardCommandController;
   }
@@ -509,15 +514,15 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
 
   for (int i = 0; i < joint_config->count(); ++i)
   {
-    if (!tobas::isServoJoint(joint_config->role(i)))
+    if (!tobas::isServoJoint(joint_config->getRole(i)))
       continue;
 
-    const auto jnt_name = joint_config->jointName(i).toStdString();
+    const auto jnt_name = joint_config->getJointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
 
     YAML::Node ctrl_params_node(YAML::NodeType::Map);
     ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::jntCmdIfaceEnumToText(joint_config->commandInterface(i));
+    ctrl_params_node["interface_name"] = tobas::jntCmdIfaceEnumToText(joint_config->getCommandInterface(i));
 
     // Create data
     YAML::Node root_node(YAML::NodeType::Map);
