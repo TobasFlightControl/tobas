@@ -10,7 +10,6 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<depend>tobas_eigen_tools</depend>
-	<depend>tobas_dsp</depend>
 	<depend>tobas_geomag</depend>
 	<depend>tobas_kdl_conversions</depend>
 	<depend>tobas_node</depend>

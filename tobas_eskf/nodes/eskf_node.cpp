@@ -7,7 +7,6 @@
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/time.hpp>
-#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_geomag/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -56,6 +55,7 @@ private:
   double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
 
   Vector3d pos_meas_;
+  kdl::Vector dgyro_;
   ImuMsg::ConstSharedPtr imu_;
   MagMsg::ConstSharedPtr mag_;
   BarMsg::ConstSharedPtr bar_;
@@ -63,7 +63,6 @@ private:
   bool gps_fix_ = false;
   double gps_anormaly_score_ = 0.;
 
-  dsp::LowPassFilter<kdl::Vector> dgyro_lpf_;
   eskf::ErrorStateKalmanFilter eskf_;
 
   // Static parameters
@@ -108,7 +107,6 @@ private:
   void publishGPSOrigin();
   double computeGravMeasVariance(const Vector3d& acc) const;
 
-  bool dGyroLowPassCutoffCb(const long& p);
   bool gravMeasVarInterceptCb(const long& p);
   bool gravMeasVarSlopeCb(const long& p);
   bool accBiasNoiseVarianceLog10Cb(const long& p);
@@ -133,7 +131,6 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kO
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
-  addDynamicIntParam("dgyro_lowpass_cutoff", &self::dGyroLowPassCutoffCb, this, 40, 10, 100);
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
   addDynamicIntParam("grav_meas_var_slope", &self::gravMeasVarSlopeCb, this, 100, 0, 1000);
   addDynamicIntParam("acc_bias_noise_var_log10", &self::accBiasNoiseVarianceLog10Cb, this, -5, -12, 0);
@@ -220,7 +217,7 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   odom.accel_covariance = imu_->imu.accel_covariance;
 
   // Angular acceleration (Local)
-  odom.accel.angular = dgyro_lpf_.getValue();
+  odom.accel.angular = dgyro_;
   odom.dgyro_covariance.fill(NAN);
 }
 
@@ -247,17 +244,6 @@ double ObserverNode::computeGravMeasVariance(const Vector3d& acc) const
   // 実用的には動作時の追従遅れと静止時の収束速度のトレードオフを考慮して決定するしかないだろう．
   const auto acc_norm_diff = fabs(acc.norm() - eskf_.getGravity());  // TODO: モデルから推定した動的加速度を考慮
   return grav_meas_var_intercept_ + grav_meas_var_slope_ * acc_norm_diff;  // TODO: 1次関数以外のプロファイルを検討
-}
-
-bool ObserverNode::dGyroLowPassCutoffCb(const long& p)
-{
-  if (!dgyro_lpf_.setCutoffFrequency(p))
-  {
-    TOBAS_ERROR("Failed to set cutoff frequency of D-Gyro low-pass filter.");
-    return false;
-  }
-
-  return true;
 }
 
 bool ObserverNode::gravMeasVarInterceptCb(const long& p)
@@ -321,8 +307,6 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   {
     TOBAS_INFO("First IMU is received.");
 
-    dgyro_lpf_.setValue(kdl::Vector::Zero());
-
     const double init_acc_bias_stddev = do_acc_bias_estimation_ ? eskf::kInitAccBiasStddev : 0;
     const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? eskf::kInitGyroBiasStddev : 0;
     const double init_grav_stddev = do_grav_estimation_ ? eskf::kInitGravStddev : 0;
@@ -342,10 +326,9 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
     return;
   }
 
-  // D-Gyroを更新
+  // D-Gyroを更新 (フィルタリングは無し)
   const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
-  const auto dgyro = (imu->imu.imu.gyro - imu_->imu.imu.gyro) / dt;
-  dgyro_lpf_.update(dgyro, dt);
+  dgyro_ = (imu->imu.imu.gyro - imu_->imu.imu.gyro) / dt;
 
   // IMUメッセージを更新
   imu_ = imu;
