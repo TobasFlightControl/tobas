@@ -24,7 +24,8 @@ public:
 
 private:
   // Dynamic parameters
-  double cutoff_freq_;  // [Hz]
+  double cutoff_freq_;                // [Hz]
+  double contact_force_rate_thresh_;  // [-]
 
   kdl::Tree tree_;
   tobas::Drone drone_;
@@ -49,6 +50,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   bool cutoffFreqCb(const long& p);
+  bool contactForceRateThreshCb(const double& p);
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -61,6 +63,7 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
   : super("disturbance_observer", options), fk_solver_(tree_), inertia_solver_(tree_), js_converter_(tree_)
 {
   addDynamicIntParam("cutoff_frequency", &self::cutoffFreqCb, this, 10, 1, 100);
+  addDynamicDoubleParam("contact_force_rate_threshold", &self::contactForceRateThreshCb, this, 0.1, 0., 1.);
 
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::kDisturbanceForceTopic);
 
@@ -84,6 +87,12 @@ bool DisturbanceObserverNode::cutoffFreqCb(const long& p)
     return false;
   }
 
+  return true;
+}
+
+bool DisturbanceObserverNode::contactForceRateThreshCb(const double& p)
+{
+  contact_force_rate_thresh_ = p;
   return true;
 }
 
@@ -176,6 +185,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
   const auto& mass = inertia.getMass();
+  const auto weight = mass * tobas_std::kGravity;
 
   // 推力がかかる項を計算
   kdl::Vector trans_sum = kdl::Vector::Zero();
@@ -213,21 +223,24 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   const auto& gyro_B = odom->twist.rot;
   const auto& acc_B = odom->accel.linear;
   const auto& dgyro_B = odom->accel.angular;
-  const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  const auto force_W = mass * grav_W + W_Rot_B * (mass * acc_B - trans_sum);
-  const auto torque_W = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
+  const auto force_W = kdl::Vector(0, 0, weight) + W_Rot_B * (mass * acc_B - trans_sum);
+  const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 
   // 外力をLPFに通す
-  if (!force_lpf_.update(force_W, dt))
+  if (force_lpf_.update(force_W, dt) < 0)
     TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update force LPF.");
-  if (!torque_lpf_.update(torque_W, dt))
+  if (torque_lpf_.update(torque_B, dt) < 0)
     TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update torque LPF.");
 
-  // 推定外力を発行
+  // 外力メッセージを作成
   auto dist_force_msg = std::make_unique<tobas_kdl_msgs::WrenchStamped>();
   dist_force_msg->header.stamp = odom->header.stamp;
   dist_force_msg->wrench.force = force_lpf_.getValue();
   dist_force_msg->wrench.torque = torque_lpf_.getValue();
+
+  // TODO: 鉛直上方向の外力を制限
+
+  // 外力メッセージを発行
   dist_force_pub_->publish(std::move(dist_force_msg));
 }
 
