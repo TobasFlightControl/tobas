@@ -66,19 +66,21 @@ void NonPlanarPIDWidget::load(const YAML::Node&)
 
 bool NonPlanarPIDWidget::isApplicable()
 {
+  const auto props = propulsion_system_->selected();
+
   // 固定翼を持たない
   if (fixed_wing_->hasFixedWing())
     return false;
 
   // プロペラの個数条件
-  if (propulsion_system_->selected()->count() < kMinNumProp)
+  if (props->count() < kMinNumProp)
     return false;
 
   // 少なくとも1つのプロペラが鉛直上方向以外を向いている
   bool tilted_rotor_found = false;
-  for (int i = 0; i < propulsion_system_->selected()->count(); ++i)
+  for (int i = 0; i < props->count(); ++i)
   {
-    const auto link_name = propulsion_system_->selected()->linkName(i);
+    const auto link_name = props->linkName(i);
     if (!robot_.isJntAxisAlwaysCollinear(link_name.toStdString(), kdl::Vector::UnitZ()))
     {
       tilted_rotor_found = true;
