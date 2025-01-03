@@ -25,7 +25,9 @@ public:
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_acc_W,
-    const kdl::Vector& tar_dgyro_B);
+    const kdl::Vector& tar_dgyro_B,
+    const kdl::Vector& ext_force_W = kdl::Vector::Zero(),
+    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
   const Eigen::VectorXd& getThrusts() const;
 

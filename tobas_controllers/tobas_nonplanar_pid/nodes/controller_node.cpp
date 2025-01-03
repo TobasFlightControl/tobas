@@ -21,6 +21,7 @@
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
 
@@ -43,6 +44,10 @@ private:
 
   tobas::TreeJointStateConverter js_converter_;
 
+  // Static parameters
+  bool do_dist_comp_trans_;
+  bool do_dist_comp_rot_;
+
   // Controllers
   tobas::PositionPID pos_pid_;
   tobas::AngleAxisPID rot_pid_;  // ジンバルロック回避のため姿勢のPIDを角軸ベクトルで計算
@@ -53,6 +58,7 @@ private:
   bool tree_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
+  tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   sensor_msgs::msg::JointState::ConstSharedPtr js_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
@@ -67,6 +73,7 @@ private:
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
+  ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
@@ -96,6 +103,7 @@ private:
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
+  void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
@@ -104,6 +112,10 @@ private:
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::kControllerNode, options), js_converter_(tree_), mixer_(drone_, tree_)
 {
+  // Get static parameters
+  do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_trans", true);
+  do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rot", false);
+
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
@@ -132,6 +144,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
+  dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
 }
@@ -175,6 +188,12 @@ bool ControllerNode::isReadyToControl()
   if (battery_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryTopic, "\".");
+    return false;
+  }
+
+  if (dist_force_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return false;
   }
 
@@ -351,8 +370,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // ミキサーで6軸加速度をプロペラの推力に変換
+  const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
+  const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
   if (!mixer_.solve(
-        battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B))
+        battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B,
+        dist_force_W, dist_torque_B))
   {
     TOBAS_FATAL("Failed to solve mixing equation.");
     return;
@@ -392,6 +414,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 void ControllerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
+}
+
+void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
+{
+  dist_force_ = dist_force;
 }
 
 void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
