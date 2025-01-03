@@ -210,6 +210,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   }
 
   // 外力を計算
+  // TODO: 固定翼の力も考慮
   const auto& W_Rot_B = odom->frame.M;
   const auto& gyro_B = odom->twist.rot;
   const auto& acc_B = odom->accel.linear;
