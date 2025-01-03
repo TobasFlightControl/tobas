@@ -63,11 +63,11 @@ void ControllerWidget::onOpened()
   {
     const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
 
-    // 現在の機体設定で適用できない場合は選択肢にその旨を表示する
+    // 現在の機体設定で適用可能な選択肢のみ選択可能にする
     if (controller->isApplicable())
-      type_->setItemText(i, controller->name());
+      type_->setItemEnabled(i, true);
     else
-      type_->setItemText(i, QString(controller->name()) + " (Not Applicable)");
+      type_->setItemEnabled(i, false);
   }
 }
 
