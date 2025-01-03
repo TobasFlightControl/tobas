@@ -59,15 +59,11 @@ const char* ControllerWidget::description() const
 
 void ControllerWidget::onOpened()
 {
+  // 現在の機体設定で適用可能な選択肢のみ選択可能にする
   for (int i = 0; i < controllers_->count(); ++i)
   {
     const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
-
-    // 現在の機体設定で適用可能な選択肢のみ選択可能にする
-    if (controller->isApplicable())
-      type_->setItemEnabled(i, true);
-    else
-      type_->setItemEnabled(i, false);
+    type_->setItemEnabled(i, controller->isApplicable());
   }
 }
 
