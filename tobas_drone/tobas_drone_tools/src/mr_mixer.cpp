@@ -36,7 +36,8 @@ bool MultiRotorMixer::solve(
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
-  const double& tar_thrusts_sum)
+  const double& tar_thrusts_sum,
+  const kdl::Vector& ext_torque_B)
 {
   assert(cur_voltage > 0);
   assert(tar_thrusts_sum > 0);
@@ -76,7 +77,7 @@ bool MultiRotorMixer::solve(
   }
 
   // EoM行列等式の右辺
-  const auto right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B);
+  const auto right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;
   h_ = right.data;
 
   // コスト関数

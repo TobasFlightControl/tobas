@@ -24,8 +24,7 @@ public:
 
 private:
   // Dynamic parameters
-  double cutoff_freq_;                // [Hz]
-  double contact_force_rate_thresh_;  // [-]
+  double cutoff_freq_;  // [Hz]
 
   kdl::Tree tree_;
   tobas::Drone drone_;
@@ -50,7 +49,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   bool cutoffFreqCb(const long& p);
-  bool contactForceRateThreshCb(const double& p);
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -63,7 +61,6 @@ DisturbanceObserverNode::DisturbanceObserverNode(const rclcpp::NodeOptions& opti
   : super("disturbance_observer", options), fk_solver_(tree_), inertia_solver_(tree_), js_converter_(tree_)
 {
   addDynamicIntParam("cutoff_frequency", &self::cutoffFreqCb, this, 10, 1, 100);
-  addDynamicDoubleParam("contact_force_rate_threshold", &self::contactForceRateThreshCb, this, 0.1, 0., 1.);
 
   dist_force_pub_ = createPublisher<tobas_kdl_msgs::WrenchStamped>(tobas::kDisturbanceForceTopic);
 
@@ -87,12 +84,6 @@ bool DisturbanceObserverNode::cutoffFreqCb(const long& p)
     return false;
   }
 
-  return true;
-}
-
-bool DisturbanceObserverNode::contactForceRateThreshCb(const double& p)
-{
-  contact_force_rate_thresh_ = p;
   return true;
 }
 
@@ -222,7 +213,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   const auto& W_Rot_B = odom->frame.M;
   const auto& gyro_B = odom->twist.rot;
   const auto& acc_B = odom->accel.linear;
-  const auto& dgyro_B = odom->accel.angular;
+  const auto& dgyro_B = odom->accel.angular;  // FIXME: DGyroの数値誤差が大きく外力トルクの推定制度が低い
   const auto force_W = kdl::Vector(0, 0, weight) + W_Rot_B * (mass * acc_B - trans_sum);
   const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 

@@ -14,6 +14,7 @@ public:
   void update(
     const kdl::Rotation& cur_rot,
     const kdl::Vector& tar_acc_W,
+    const kdl::Vector& ext_force_W,
     double& thrust_out,
     double& roll_out,
     double& pitch_out);
