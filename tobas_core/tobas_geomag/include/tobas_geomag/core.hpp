@@ -50,5 +50,5 @@ Vector magFieldFromECEF(double dyear, const Vector& position_itrs, const ConstMo
  * @param WMM Magnetic field model to use.
  * @return Elements
  */
-Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, const ConstModel& WMM = WMM2020);
+Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, const ConstModel& WMM = WMM2025);
 }  // namespace geomag
