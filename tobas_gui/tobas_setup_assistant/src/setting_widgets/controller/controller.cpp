@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/fixed_wing_lqr.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 
@@ -27,6 +28,7 @@ ControllerWidget::ControllerWidget(
 
   controllers_->addWidget(new MultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new NonPlanarPIDWidget(robot_, propulsion_system_, fixed_wing_));
+  controllers_->addWidget(new ActiveTiltMultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new FixedWingLQRWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new CustomControllerWidget());
 
