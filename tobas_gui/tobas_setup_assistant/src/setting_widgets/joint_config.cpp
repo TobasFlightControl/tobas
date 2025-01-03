@@ -93,19 +93,19 @@ void JointConfigurationWidget::onOpened()
   for (const auto& prop_link_name : prop_link_names)
   {
     const auto row = findLink(prop_link_name);
-    role_[row]->setItemEnabled(kRoleLabel_rotor, true);
+    role_[row]->setItemEnabled(kRoleLabel_Rotor, true);
     setRole(row, tobas::jnt_role_t::ROTOR);
   }
   for (const auto& tilt_joint_name : tilt_joint_names)
   {
     const auto row = findJoint(tilt_joint_name);
-    role_[row]->setItemEnabled(kRoleLabel_tilt, true);
+    role_[row]->setItemEnabled(kRoleLabel_TiltJoint, true);
     setRole(row, tobas::jnt_role_t::TILT_JOINT);
   }
   for (const auto& cs_link_name : cs_link_names)
   {
     const auto row = findLink(cs_link_name);
-    role_[row]->setItemEnabled(kRoleLabel_cs, true);
+    role_[row]->setItemEnabled(kRoleLabel_ControlSurface, true);
     setRole(row, tobas::jnt_role_t::CONTROL_SURFACE);
   }
 }
@@ -211,17 +211,17 @@ tobas::jnt_role_t JointConfigurationWidget::getRole(int row) const
 {
   const auto text = role_[row]->currentText();
 
-  if (text == kRoleLabel_rotor)
+  if (text == kRoleLabel_Rotor)
     return tobas::jnt_role_t::ROTOR;
-  else if (text == kRoleLabel_tilt)
+  else if (text == kRoleLabel_TiltJoint)
     return tobas::jnt_role_t::TILT_JOINT;
-  else if (text == kRoleLabel_cs)
+  else if (text == kRoleLabel_ControlSurface)
     return tobas::jnt_role_t::CONTROL_SURFACE;
-  else if (text == kRoleLabel_manip)
+  else if (text == kRoleLabel_Manipulation)
     return tobas::jnt_role_t::MANIPULATION;
-  else if (text == kRoleLabel_wheel)
-    return tobas::jnt_role_t::WHEEL;
-  else if (text == kRoleLabel_other)
+  else if (text == kRoleLabel_PassiveWheel)
+    return tobas::jnt_role_t::PASSIVE_WHEEL;
+  else if (text == kRoleLabel_Other)
     return tobas::jnt_role_t::OTHER;
   else
     throw;
@@ -231,13 +231,13 @@ tobas::jnt_cmd_iface_t JointConfigurationWidget::getCommandInterface(int row) co
 {
   const auto text = cmd_iface_[row]->currentText();
 
-  if (text == kCmdIfaceLabel_pos)
+  if (text == kCmdIfaceLabel_Position)
     return tobas::jnt_cmd_iface_t::POSITION;
-  else if (text == kCmdIfaceLabel_vel)
+  else if (text == kCmdIfaceLabel_Velocity)
     return tobas::jnt_cmd_iface_t::VELOCITY;
-  else if (text == kCmdIfaceLabel_eff)
+  else if (text == kCmdIfaceLabel_Effort)
     return tobas::jnt_cmd_iface_t::EFFORT;
-  else if (text == kCmdIfaceLabel_none)
+  else if (text == kCmdIfaceLabel_None)
     return tobas::jnt_cmd_iface_t::NONE;
   else
     throw;
@@ -247,9 +247,9 @@ tobas::jnt_hw_iface_t JointConfigurationWidget::getHardwareInterface(int row) co
 {
   const auto text = hw_iface_[row]->currentText();
 
-  if (text == kHwIfaceLabel_pwm)
+  if (text == kHwIfaceLabel_PWM)
     return tobas::jnt_hw_iface_t::PWM;
-  else if (text == kHwIfaceLabel_other)
+  else if (text == kHwIfaceLabel_Other)
     return tobas::jnt_hw_iface_t::OTHER;
   else
     throw;
@@ -271,22 +271,22 @@ void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
   switch (value)
   {
     case tobas::jnt_role_t::ROTOR:
-      text = kRoleLabel_rotor;
+      text = kRoleLabel_Rotor;
       break;
     case tobas::jnt_role_t::TILT_JOINT:
-      text = kRoleLabel_tilt;
+      text = kRoleLabel_TiltJoint;
       break;
     case tobas::jnt_role_t::CONTROL_SURFACE:
-      text = kRoleLabel_cs;
+      text = kRoleLabel_ControlSurface;
       break;
     case tobas::jnt_role_t::MANIPULATION:
-      text = kRoleLabel_manip;
+      text = kRoleLabel_Manipulation;
       break;
-    case tobas::jnt_role_t::WHEEL:
-      text = kRoleLabel_wheel;
+    case tobas::jnt_role_t::PASSIVE_WHEEL:
+      text = kRoleLabel_PassiveWheel;
       break;
     case tobas::jnt_role_t::OTHER:
-      text = kRoleLabel_other;
+      text = kRoleLabel_Other;
       break;
     default:
       throw;
@@ -301,16 +301,16 @@ void JointConfigurationWidget::setCommandInterface(int row, tobas::jnt_cmd_iface
   switch (value)
   {
     case tobas::jnt_cmd_iface_t::POSITION:
-      text = kCmdIfaceLabel_pos;
+      text = kCmdIfaceLabel_Position;
       break;
     case tobas::jnt_cmd_iface_t::VELOCITY:
-      text = kCmdIfaceLabel_vel;
+      text = kCmdIfaceLabel_Velocity;
       break;
     case tobas::jnt_cmd_iface_t::EFFORT:
-      text = kCmdIfaceLabel_eff;
+      text = kCmdIfaceLabel_Effort;
       break;
     case tobas::jnt_cmd_iface_t::NONE:
-      text = kCmdIfaceLabel_none;
+      text = kCmdIfaceLabel_None;
       break;
     default:
       throw;
@@ -325,10 +325,10 @@ void JointConfigurationWidget::setHardwareInterface(int row, tobas::jnt_hw_iface
   switch (value)
   {
     case tobas::jnt_hw_iface_t::PWM:
-      text = kHwIfaceLabel_pwm;
+      text = kHwIfaceLabel_PWM;
       break;
     case tobas::jnt_hw_iface_t::OTHER:
-      text = kHwIfaceLabel_other;
+      text = kHwIfaceLabel_Other;
       break;
     default:
       throw;
@@ -401,30 +401,30 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   const auto joint_name_label = new QLabel(QString::fromStdString(joint.name));
 
   // Role
-  const auto getRole = new qt::ComboBox();
-  getRole->addItems({
-    kRoleLabel_rotor,
-    kRoleLabel_tilt,
-    kRoleLabel_cs,
-    kRoleLabel_manip,
-    kRoleLabel_wheel,
-    kRoleLabel_other,
+  const auto role = new qt::ComboBox();
+  role->addItems({
+    kRoleLabel_Rotor,
+    kRoleLabel_TiltJoint,
+    kRoleLabel_ControlSurface,
+    kRoleLabel_Manipulation,
+    kRoleLabel_PassiveWheel,
+    kRoleLabel_Other,
   });
 
   // Command Interface
   const auto cmd_iface = new qt::ComboBox();
   cmd_iface->addItems({
-    kCmdIfaceLabel_pos,
-    kCmdIfaceLabel_vel,
-    kCmdIfaceLabel_eff,
-    kCmdIfaceLabel_none,
+    kCmdIfaceLabel_Position,
+    kCmdIfaceLabel_Velocity,
+    kCmdIfaceLabel_Effort,
+    kCmdIfaceLabel_None,
   });
 
   // Hardware Interface
   const auto hw_iface = new qt::ComboBox();
   hw_iface->addItems({
-    kHwIfaceLabel_pwm,
-    kHwIfaceLabel_other,
+    kHwIfaceLabel_PWM,
+    kHwIfaceLabel_Other,
   });
 
   // Channel
@@ -479,7 +479,7 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   table_->insertRow(row);
   table_->setCellWidget(row, kLinkNameCol, link_name_label);
   table_->setCellWidget(row, kJointNameCol, joint_name_label);
-  table_->setCellWidget(row, kRoleCol, getRole);
+  table_->setCellWidget(row, kRoleCol, role);
   table_->setCellWidget(row, kCmdIfaceCol, cmd_iface);
   table_->setCellWidget(row, kHwIfaceCol, hw_iface);
   table_->setCellWidget(row, kChannelCol, channel);
@@ -492,7 +492,7 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   // Save each field
   link_name_.append(link_name_label);
   joint_name_.append(joint_name_label);
-  role_.append(getRole);
+  role_.append(role);
   cmd_iface_.append(cmd_iface);
   hw_iface_.append(hw_iface);
   channel_.append(channel);
@@ -506,16 +506,16 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   resetRole(row);
 
   // Connection
-  connect(getRole, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
+  connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
 }
 
 void JointConfigurationWidget::resetRole(int row)
 {
-  role_[row]->setCurrentText(kRoleLabel_other);
+  role_[row]->setCurrentText(kRoleLabel_Other);
   onRoleChanged(row);
 
   // Rotor, Tilt Joint, Control Surfaceを選択不可にする
-  for (const auto& label : { kRoleLabel_rotor, kRoleLabel_tilt, kRoleLabel_cs })
+  for (const auto& label : { kRoleLabel_Rotor, kRoleLabel_TiltJoint, kRoleLabel_ControlSurface })
     role_[row]->setItemEnabled(label, false);
 }
 
@@ -526,10 +526,10 @@ void JointConfigurationWidget::onRoleChanged(int row)
     case tobas::jnt_role_t::ROTOR:
       role_[row]->setEnabled(false);
 
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_none);
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       cmd_iface_[row]->setEnabled(false);
 
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_other);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       hw_iface_[row]->setEnabled(false);
 
       channel_[row]->setValue(propulsion_->selected()->widget(getLinkName(row))->general()->channel());
@@ -543,11 +543,11 @@ void JointConfigurationWidget::onRoleChanged(int row)
       role_[row]->setEnabled(false);
 
       // 位置コマンドで固定
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_pos);
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
       cmd_iface_[row]->setEnabled(false);
 
       // PWMがデフォルトだが変更も可能
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_pwm);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       hw_iface_[row]->setEnabled(true);
 
       channel_[row]->setEnabled(true);
@@ -560,11 +560,11 @@ void JointConfigurationWidget::onRoleChanged(int row)
       role_[row]->setEnabled(false);
 
       // 位置コマンドで固定
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_pos);
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
       cmd_iface_[row]->setEnabled(false);
 
       // PWMがデフォルトだが変更も可能
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_pwm);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       hw_iface_[row]->setEnabled(true);
 
       channel_[row]->setEnabled(true);
@@ -585,13 +585,13 @@ void JointConfigurationWidget::onRoleChanged(int row)
       home_pos_[row]->setEnabled(true);
 
       break;
-    case tobas::jnt_role_t::WHEEL:
+    case tobas::jnt_role_t::PASSIVE_WHEEL:
       role_[row]->setEnabled(true);
 
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_none);
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       cmd_iface_[row]->setEnabled(false);
 
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_other);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       hw_iface_[row]->setEnabled(false);
 
       channel_[row]->setValue(0);
@@ -604,10 +604,10 @@ void JointConfigurationWidget::onRoleChanged(int row)
     case tobas::jnt_role_t::OTHER:
       role_[row]->setEnabled(true);
 
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_none);
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       cmd_iface_[row]->setEnabled(false);
 
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_other);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       hw_iface_[row]->setEnabled(false);
 
       channel_[row]->setValue(0);

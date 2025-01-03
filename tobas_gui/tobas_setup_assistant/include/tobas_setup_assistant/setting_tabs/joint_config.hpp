@@ -51,22 +51,22 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr char kMaxEffLabel[] = "Max Effort";
 
   // Role Labels
-  static constexpr char kRoleLabel_rotor[] = "Rotor";
-  static constexpr char kRoleLabel_tilt[] = "Tilt Joint";
-  static constexpr char kRoleLabel_cs[] = "Control Surface";
-  static constexpr char kRoleLabel_manip[] = "Manipulation";
-  static constexpr char kRoleLabel_wheel[] = "Wheel";
-  static constexpr char kRoleLabel_other[] = "Other";
+  static constexpr char kRoleLabel_Rotor[] = "Rotor";
+  static constexpr char kRoleLabel_TiltJoint[] = "Tilt Joint";
+  static constexpr char kRoleLabel_ControlSurface[] = "Control Surface";
+  static constexpr char kRoleLabel_Manipulation[] = "Manipulation";
+  static constexpr char kRoleLabel_PassiveWheel[] = "Passive Wheel";
+  static constexpr char kRoleLabel_Other[] = "Other";
 
   // Command Interface Labels
-  static constexpr char kCmdIfaceLabel_pos[] = "position";
-  static constexpr char kCmdIfaceLabel_vel[] = "velocity";
-  static constexpr char kCmdIfaceLabel_eff[] = "effort";
-  static constexpr char kCmdIfaceLabel_none[] = "none";
+  static constexpr char kCmdIfaceLabel_Position[] = "Position";
+  static constexpr char kCmdIfaceLabel_Velocity[] = "Velocity";
+  static constexpr char kCmdIfaceLabel_Effort[] = "Effort";
+  static constexpr char kCmdIfaceLabel_None[] = "None";
 
   // Hardware Interface Labels
-  static constexpr char kHwIfaceLabel_pwm[] = "PWM";
-  static constexpr char kHwIfaceLabel_other[] = "Other";
+  static constexpr char kHwIfaceLabel_PWM[] = "PWM";
+  static constexpr char kHwIfaceLabel_Other[] = "Other";
 
 public:
   explicit JointConfigurationWidget(

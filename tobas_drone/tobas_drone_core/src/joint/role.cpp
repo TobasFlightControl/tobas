@@ -14,7 +14,7 @@ bool isServoJoint(jnt_role_t role)
       return true;
     case jnt_role_t::MANIPULATION:
       return true;
-    case jnt_role_t::WHEEL:
+    case jnt_role_t::PASSIVE_WHEEL:
       return false;
     case jnt_role_t::OTHER:
       return false;
