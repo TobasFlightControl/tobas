@@ -22,6 +22,10 @@ class ActiveTiltSettingsWidget : public QWidget
   static constexpr char kIsTiltKey[] = "is_tilt";
   static constexpr char kTiltJointNameKey[] = "tilt_joint_name";
 
+Q_SIGNALS:
+  void isTiltStateChanged(bool is_tilt);
+  void tiltJointNameChanged(const QString& joint_name);
+
 public:
   explicit ActiveTiltSettingsWidget(const RobotInfo& robot, const QString& link_name);
 
@@ -43,6 +47,7 @@ private:
 
 private Q_SLOTS:
   void onIsTiltCheckBoxToggled(bool checked);
+  void onTiltJointNameChanged(const QString& joint_name);
 };
 }  // namespace propulsion_system
 }  // namespace setup_assistant

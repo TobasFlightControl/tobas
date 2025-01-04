@@ -132,6 +132,15 @@ void SelectedLinksWidget::add(const QString& link_name)
   connect(
     link_widget, &SelectedLinkWidget::copyToAllButtonClicked, this,
     bind(&self::onCopyToAllButtonClicked, this, link_name));
+  connect(
+    link_widget, &SelectedLinkWidget::channelChanged, this,
+    bind(&self::onChannelChanged, this, link_name, placeholders::_1));
+  connect(
+    link_widget, &SelectedLinkWidget::isTiltStateChanged, this,
+    bind(&self::onIsTiltStateChanged, this, link_name, placeholders::_1));
+  connect(
+    link_widget, &SelectedLinkWidget::tiltJointNameChanged, this,
+    bind(&self::onTiltJointNameChanged, this, link_name, placeholders::_1));
 }
 
 void SelectedLinksWidget::remove(const QString& link_name)
@@ -214,6 +223,20 @@ bool SelectedLinksWidget::hasBothRotationalDirections() const
   return num == 2;
 }
 
+void SelectedLinksWidget::setAction(const QString& link_name, int action)
+{
+  for (auto& marker : markers_.markers)
+  {
+    if (marker.header.frame_id == link_name.toStdString())
+    {
+      marker.action = action;
+      return;
+    }
+  }
+
+  qWarning() << link_name << " not found.";
+}
+
 void SelectedLinksWidget::publishTimerCb()
 {
   // Fill timestamps
@@ -272,18 +295,19 @@ void SelectedLinksWidget::onCopyToAllButtonClicked(const QString& link_name)
   qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other selected links.");
 }
 
-void SelectedLinksWidget::setAction(const QString& link_name, int action)
+void SelectedLinksWidget::onChannelChanged(const QString& link_name, int channel)
 {
-  for (auto& marker : markers_.markers)
-  {
-    if (marker.header.frame_id == link_name.toStdString())
-    {
-      marker.action = action;
-      return;
-    }
-  }
+  Q_EMIT channelChanged(link_name, channel);
+}
 
-  qWarning() << link_name << " not found.";
+void SelectedLinksWidget::onIsTiltStateChanged(const QString& link_name, bool is_tilt)
+{
+  Q_EMIT isTiltStateChanged(link_name, is_tilt);
+}
+
+void SelectedLinksWidget::onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name)
+{
+  Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name);
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

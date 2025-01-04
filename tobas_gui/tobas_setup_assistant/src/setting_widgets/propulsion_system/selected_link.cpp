@@ -16,12 +16,10 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const Robot
 
   copy_from_left_button_ = new QPushButton("Copy From Left");
   copy_from_left_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(copy_from_left_button_, &QPushButton::clicked, [&]() { Q_EMIT copyFromLeftButtonClicked(); });
   button_cols->addWidget(copy_from_left_button_);
 
   copy_to_all_button_ = new QPushButton("Copy To All");
   copy_to_all_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(copy_to_all_button_, &QPushButton::clicked, [&]() { Q_EMIT copyToAllButtonClicked(); });
   button_cols->addWidget(copy_to_all_button_);
 
   button_cols->addStretch();
@@ -46,6 +44,15 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const Robot
   tabs_->addTab(speed_limit_, speed_limit_->name());
 
   rows->addStretch();
+
+  // Connection
+  connect(copy_to_all_button_, &QPushButton::clicked, [this]() { Q_EMIT copyToAllButtonClicked(); });
+  connect(copy_from_left_button_, &QPushButton::clicked, [this]() { Q_EMIT copyFromLeftButtonClicked(); });
+  connect(general_, &GeneralWidget::channelChanged, [this](int channel) { Q_EMIT channelChanged(channel); });
+  connect(general_, &GeneralWidget::isTiltStateChanged, [this](bool is_tilt) { Q_EMIT isTiltStateChanged(is_tilt); });
+  connect(
+    general_, &GeneralWidget::tiltJointNameChanged,
+    [this](const QString& joint_name) { Q_EMIT tiltJointNameChanged(joint_name); });
 }
 
 bool SelectedLinkWidget::isValid()

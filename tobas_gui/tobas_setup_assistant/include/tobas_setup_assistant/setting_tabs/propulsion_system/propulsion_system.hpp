@@ -17,6 +17,10 @@ class PropulsionSystemWidget : public BaseSettingWidget
   using self = PropulsionSystemWidget;
   using super = BaseSettingWidget;
 
+Q_SIGNALS:
+  void linkAdded(const QString& link_name);
+  void linkRemoved(const QString& link_name);
+
 public:
   explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
 

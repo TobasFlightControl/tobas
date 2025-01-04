@@ -129,12 +129,22 @@ private:
   QVector<QLineEdit*> max_vel_;
   QVector<QLineEdit*> max_eff_;
 
+  QMap<QString, QString> tilt_joint_map_;
+
   void clear();
+  void reset(int row);
   void addLink(const std::string& link_name);
-  void resetRole(int row);
+  void removeTiltJoint(const QString& rotor_link_name);
 
 private Q_SLOTS:
   void onRoleChanged(int row);
+  void onRotorLinkAdded(const QString& link_name);
+  void onRotorLinkRemoved(const QString& link_name);
+  void onRotorChannelChanged(const QString& link_name, int channel);
+  void onRotorIsTiltStateChanged(const QString& link_name, bool is_tilt);
+  void onRotorTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
+  void onControlSurfaceLinkAdded(const QString& link_name);
+  void onControlSurfaceLinkRemoved(const QString& link_name);
 };
 }  // namespace setup_assistant
 }  // namespace gui

@@ -30,6 +30,12 @@ ControlSurfacesWidget::ControlSurfacesWidget(const RobotInfo& robot)
   rows->addWidget(available_);
   rows->addWidget(add_remove_);
   rows->addWidget(selected_);
+
+  connect(
+    add_remove_, &AddRemoveButtonsWidget::linkAdded, [this](const QString& link_name) { Q_EMIT linkAdded(link_name); });
+  connect(
+    add_remove_, &AddRemoveButtonsWidget::linkRemoved,
+    [this](const QString& link_name) { Q_EMIT linkRemoved(link_name); });
 }
 
 void ControlSurfacesWidget::updateInternalDataStructures()

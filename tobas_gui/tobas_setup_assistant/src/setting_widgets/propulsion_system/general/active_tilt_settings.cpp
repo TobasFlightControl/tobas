@@ -39,6 +39,7 @@ ActiveTiltSettingsWidget::ActiveTiltSettingsWidget(const RobotInfo& robot, const
 
   // Connection
   connect(is_tilt_, &QCheckBox::toggled, this, &self::onIsTiltCheckBoxToggled);
+  connect(tilt_joint_name_, &QComboBox::currentTextChanged, this, &self::onTiltJointNameChanged);
 }
 
 bool ActiveTiltSettingsWidget::isValid()
@@ -110,6 +111,14 @@ void ActiveTiltSettingsWidget::onIsTiltCheckBoxToggled(bool checked)
     tilt_joint_name_->clear();
     tilt_joint_name_->setEnabled(false);
   }
+
+  Q_EMIT isTiltStateChanged(checked);
+}
+
+void ActiveTiltSettingsWidget::onTiltJointNameChanged(const QString& joint_name)
+{
+  if (!joint_name.isEmpty())
+    Q_EMIT tiltJointNameChanged(joint_name);
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

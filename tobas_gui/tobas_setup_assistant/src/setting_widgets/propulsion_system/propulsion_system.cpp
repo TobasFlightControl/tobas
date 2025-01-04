@@ -15,15 +15,18 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   const auto links_label = new QLabel("Available Links");
   links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
   links_label->setAlignment(Qt::AlignLeft);
-  addWidget(links_label);
 
   available_ = new AvailableLinksWidget(robot_);
-  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
-  addWidget(available_);
-
   selected_ = new SelectedLinksWidget(node_, robot_);
-  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
+
+  // Layout
+  addWidget(links_label);
+  addWidget(available_);
   addWidget(selected_);
+
+  // Connection
+  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
+  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
 }
 
 const char* PropulsionSystemWidget::name() const
@@ -105,11 +108,13 @@ const SelectedLinksWidget* PropulsionSystemWidget::selected() const
 void PropulsionSystemWidget::onAvailableLinkRemoved(const QString& link_name)
 {
   selected_->add(link_name);
+  Q_EMIT linkAdded(link_name);
 }
 
 void PropulsionSystemWidget::onSelectedLinkRemoved(const QString& link_name)
 {
   available_->add(link_name);
+  Q_EMIT linkRemoved(link_name);
 }
 }  // namespace propulsion_system
 }  // namespace setup_assistant

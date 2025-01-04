@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QHeaderView>
 
+#include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -37,8 +38,20 @@ JointConfigurationWidget::JointConfigurationWidget(
     kMaxVelLabel,
     kMaxEffLabel,
   });
-
   addWidget(table_);
+
+  connect(propulsion_, &propulsion_system::PropulsionSystemWidget::linkAdded, this, &self::onRotorLinkAdded);
+  connect(propulsion_, &propulsion_system::PropulsionSystemWidget::linkRemoved, this, &self::onRotorLinkRemoved);
+
+  const auto props = propulsion_->selected();
+  connect(props, &propulsion_system::SelectedLinksWidget::channelChanged, this, &self::onRotorChannelChanged);
+  connect(props, &propulsion_system::SelectedLinksWidget::isTiltStateChanged, this, &self::onRotorIsTiltStateChanged);
+  connect(
+    props, &propulsion_system::SelectedLinksWidget::tiltJointNameChanged, this, &self::onRotorTiltJointNameChanged);
+
+  const auto css = fixed_wing_->controlSurfaces();
+  connect(css, &fixed_wing::ControlSurfacesWidget::linkAdded, this, &self::onControlSurfaceLinkAdded);
+  connect(css, &fixed_wing::ControlSurfacesWidget::linkRemoved, this, &self::onControlSurfaceLinkRemoved);
 }
 
 const char* JointConfigurationWidget::name() const
@@ -58,56 +71,6 @@ const char* JointConfigurationWidget::description() const
 
 void JointConfigurationWidget::onOpened()
 {
-  // TODO: STM32CubeMXのようにPropulsionやFixed Wingが修正されたらシグナルスロットで即時反映
-
-  const auto prop_link_names = propulsion_->selected()->linkNames();
-  const auto tilt_joint_names = propulsion_->selected()->tiltJointNames();
-  const auto cs_link_names = fixed_wing_->controlSurfaces()->selected()->linkNames();
-
-  // 役割から開放されたジョイントをリセット
-  for (int row = 0; row < table_->rowCount(); ++row)
-  {
-    const auto link_name = getLinkName(row);
-    const auto joint_name = getJointName(row);
-
-    switch (getRole(row))
-    {
-      case tobas::jnt_role_t::ROTOR:
-        if (!prop_link_names.contains(link_name))
-          resetRole(row);
-        break;
-      case tobas::jnt_role_t::TILT_JOINT:
-        if (!tilt_joint_names.contains(joint_name))
-          resetRole(row);
-        break;
-      case tobas::jnt_role_t::CONTROL_SURFACE:
-        if (!cs_link_names.contains(link_name))
-          resetRole(row);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // 各役割を設定
-  for (const auto& prop_link_name : prop_link_names)
-  {
-    const auto row = findLink(prop_link_name);
-    role_[row]->setItemEnabled(kRoleLabel_Rotor, true);
-    setRole(row, tobas::jnt_role_t::ROTOR);
-  }
-  for (const auto& tilt_joint_name : tilt_joint_names)
-  {
-    const auto row = findJoint(tilt_joint_name);
-    role_[row]->setItemEnabled(kRoleLabel_TiltJoint, true);
-    setRole(row, tobas::jnt_role_t::TILT_JOINT);
-  }
-  for (const auto& cs_link_name : cs_link_names)
-  {
-    const auto row = findLink(cs_link_name);
-    role_[row]->setItemEnabled(kRoleLabel_ControlSurface, true);
-    setRole(row, tobas::jnt_role_t::CONTROL_SURFACE);
-  }
 }
 
 void JointConfigurationWidget::updateInternalDataStructures()
@@ -387,6 +350,18 @@ void JointConfigurationWidget::clear()
   max_pos_.clear();
   max_vel_.clear();
   max_eff_.clear();
+
+  tilt_joint_map_.clear();
+}
+
+void JointConfigurationWidget::reset(int row)
+{
+  role_[row]->setCurrentText(kRoleLabel_Other);
+  onRoleChanged(row);
+
+  // Rotor, Tilt Joint, Control Surfaceを選択不可にする
+  for (const auto& label : { kRoleLabel_Rotor, kRoleLabel_TiltJoint, kRoleLabel_ControlSurface })
+    role_[row]->setItemEnabled(label, false);
 }
 
 void JointConfigurationWidget::addLink(const std::string& link_name)
@@ -503,20 +478,25 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   max_eff_.append(max_eff);
 
   // Reset
-  resetRole(row);
+  reset(row);
 
   // Connection
   connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
 }
 
-void JointConfigurationWidget::resetRole(int row)
+void JointConfigurationWidget::removeTiltJoint(const QString& rotor_link_name)
 {
-  role_[row]->setCurrentText(kRoleLabel_Other);
-  onRoleChanged(row);
+  TOBAS_CHECK(tilt_joint_map_.contains(rotor_link_name));
+  const auto& tilt_joint_name = tilt_joint_map_[rotor_link_name];
 
-  // Rotor, Tilt Joint, Control Surfaceを選択不可にする
-  for (const auto& label : { kRoleLabel_Rotor, kRoleLabel_TiltJoint, kRoleLabel_ControlSurface })
-    role_[row]->setItemEnabled(label, false);
+  const auto tilt_row = findJoint(tilt_joint_name);
+  TOBAS_CHECK(tilt_row >= 0);
+
+  const auto tilt_role = getRole(tilt_row);
+  TOBAS_CHECK(tilt_role == tobas::jnt_role_t::TILT_JOINT);
+
+  tilt_joint_map_.remove(rotor_link_name);
+  reset(tilt_row);
 }
 
 void JointConfigurationWidget::onRoleChanged(int row)
@@ -524,54 +504,10 @@ void JointConfigurationWidget::onRoleChanged(int row)
   switch (getRole(row))
   {
     case tobas::jnt_role_t::ROTOR:
-      role_[row]->setEnabled(false);
-
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
-      cmd_iface_[row]->setEnabled(false);
-
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
-      hw_iface_[row]->setEnabled(false);
-
-      channel_[row]->setValue(propulsion_->selected()->widget(getLinkName(row))->general()->channel());
-      channel_[row]->setEnabled(false);
-
-      home_pos_[row]->setValue(0.);
-      home_pos_[row]->setEnabled(false);
-
       break;
     case tobas::jnt_role_t::TILT_JOINT:
-      role_[row]->setEnabled(false);
-
-      // 位置コマンドで固定
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
-      cmd_iface_[row]->setEnabled(false);
-
-      // PWMがデフォルトだが変更も可能
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
-      hw_iface_[row]->setEnabled(true);
-
-      channel_[row]->setEnabled(true);
-
-      home_pos_[row]->setValue(0.);
-      home_pos_[row]->setEnabled(false);
-
       break;
     case tobas::jnt_role_t::CONTROL_SURFACE:
-      role_[row]->setEnabled(false);
-
-      // 位置コマンドで固定
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
-      cmd_iface_[row]->setEnabled(false);
-
-      // PWMがデフォルトだが変更も可能
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
-      hw_iface_[row]->setEnabled(true);
-
-      channel_[row]->setEnabled(true);
-
-      home_pos_[row]->setValue(0.);
-      home_pos_[row]->setEnabled(false);
-
       break;
     case tobas::jnt_role_t::MANIPULATION:
       role_[row]->setEnabled(true);
@@ -620,6 +556,142 @@ void JointConfigurationWidget::onRoleChanged(int row)
     default:
       throw;
   }
+}
+
+void JointConfigurationWidget::onRotorLinkAdded(const QString& link_name)
+{
+  const auto row = findLink(link_name);
+  TOBAS_CHECK(row >= 0);
+
+  // TODO: そもそもPropulsionSystemやFixedWing側でリンクが被らないようにする
+  const auto cur_role = getRole(row);
+  TOBAS_CHECK(cur_role != tobas::jnt_role_t::TILT_JOINT);
+  TOBAS_CHECK(cur_role != tobas::jnt_role_t::CONTROL_SURFACE);
+
+  role_[row]->setItemEnabled(kRoleLabel_Rotor, true);
+  setRole(row, tobas::jnt_role_t::ROTOR);
+  role_[row]->setEnabled(false);
+
+  cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
+  cmd_iface_[row]->setEnabled(false);
+
+  hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
+  hw_iface_[row]->setEnabled(false);
+
+  channel_[row]->setValue(0);
+  channel_[row]->setEnabled(false);
+
+  home_pos_[row]->setValue(0.);
+  home_pos_[row]->setEnabled(false);
+}
+
+void JointConfigurationWidget::onRotorLinkRemoved(const QString& link_name)
+{
+  const auto row = findLink(link_name);
+  TOBAS_CHECK(row >= 0);
+
+  const auto cur_role = getRole(row);
+  TOBAS_CHECK(cur_role == tobas::jnt_role_t::ROTOR);
+
+  reset(row);
+}
+
+void JointConfigurationWidget::onRotorChannelChanged(const QString& link_name, int channel)
+{
+  const auto row = findLink(link_name);
+  TOBAS_CHECK(row >= 0);
+
+  const auto cur_role = getRole(row);
+  TOBAS_CHECK(cur_role == tobas::jnt_role_t::ROTOR);
+
+  channel_[row]->setValue(channel);
+}
+
+void JointConfigurationWidget::onRotorIsTiltStateChanged(const QString& link_name, bool is_tilt)
+{
+  const auto rotor_row = findLink(link_name);
+  TOBAS_CHECK(rotor_row >= 0);
+
+  const auto rotor_role = getRole(rotor_row);
+  TOBAS_CHECK(rotor_role == tobas::jnt_role_t::ROTOR);
+
+  if (!is_tilt)
+    removeTiltJoint(link_name);
+}
+
+void JointConfigurationWidget::onRotorTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name)
+{
+  const auto rotor_row = findLink(link_name);
+  TOBAS_CHECK(rotor_row >= 0);
+
+  const auto rotor_role = getRole(rotor_row);
+  TOBAS_CHECK(rotor_role == tobas::jnt_role_t::ROTOR);
+
+  if (tilt_joint_map_.contains(link_name))
+    removeTiltJoint(tilt_joint_name);
+  tilt_joint_map_[link_name] = tilt_joint_name;
+
+  const auto tilt_row = findJoint(tilt_joint_name);
+  TOBAS_CHECK(tilt_row >= 0);
+
+  const auto tilt_role = getRole(tilt_row);
+  TOBAS_CHECK(tilt_role != tobas::jnt_role_t::ROTOR);
+  TOBAS_CHECK(tilt_role != tobas::jnt_role_t::CONTROL_SURFACE);
+
+  role_[tilt_row]->setItemEnabled(kRoleLabel_TiltJoint, true);
+  setRole(tilt_row, tobas::jnt_role_t::TILT_JOINT);
+  role_[tilt_row]->setEnabled(false);
+
+  // 位置コマンドで固定
+  cmd_iface_[tilt_row]->setCurrentText(kCmdIfaceLabel_Position);
+  cmd_iface_[tilt_row]->setEnabled(false);
+
+  // PWMがデフォルトだが変更も可能
+  hw_iface_[tilt_row]->setCurrentText(kHwIfaceLabel_PWM);
+  hw_iface_[tilt_row]->setEnabled(true);
+
+  channel_[tilt_row]->setEnabled(true);
+
+  home_pos_[tilt_row]->setValue(0.);
+  home_pos_[tilt_row]->setEnabled(false);
+}
+
+void JointConfigurationWidget::onControlSurfaceLinkAdded(const QString& link_name)
+{
+  const auto row = findLink(link_name);
+  TOBAS_CHECK(row >= 0);
+
+  const auto cur_role = getRole(row);
+  TOBAS_CHECK(cur_role != tobas::jnt_role_t::ROTOR);
+  TOBAS_CHECK(cur_role != tobas::jnt_role_t::TILT_JOINT);
+
+  role_[row]->setItemEnabled(kRoleLabel_ControlSurface, true);
+  setRole(row, tobas::jnt_role_t::CONTROL_SURFACE);
+  role_[row]->setEnabled(false);
+
+  // 位置コマンドで固定
+  cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
+  cmd_iface_[row]->setEnabled(false);
+
+  // PWMがデフォルトだが変更も可能
+  hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
+  hw_iface_[row]->setEnabled(true);
+
+  channel_[row]->setEnabled(true);
+
+  home_pos_[row]->setValue(0.);
+  home_pos_[row]->setEnabled(false);
+}
+
+void JointConfigurationWidget::onControlSurfaceLinkRemoved(const QString& link_name)
+{
+  const auto row = findLink(link_name);
+  TOBAS_CHECK(row >= 0);
+
+  const auto cur_role = getRole(row);
+  TOBAS_CHECK(cur_role == tobas::jnt_role_t::CONTROL_SURFACE);
+
+  reset(row);
 }
 }  // namespace setup_assistant
 }  // namespace gui

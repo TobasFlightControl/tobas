@@ -41,6 +41,8 @@ void AddRemoveButtonsWidget::onAddButtonClicked()
 
   available_links_->remove(selected_link_name);
   selected_links_->add(selected_link_name);
+
+  Q_EMIT linkAdded(selected_link_name);
 }
 
 void AddRemoveButtonsWidget::onRemoveButtonClicked()
@@ -54,6 +56,8 @@ void AddRemoveButtonsWidget::onRemoveButtonClicked()
 
   selected_links_->remove(selected_link_name);
   available_links_->add(selected_link_name);
+
+  Q_EMIT linkRemoved(selected_link_name);
 }
 }  // namespace fixed_wing
 }  // namespace setup_assistant

@@ -26,6 +26,9 @@ class SelectedLinksWidget : public qt::TabWidget
 
 Q_SIGNALS:
   void linkRemoved(const QString& link_name);
+  void channelChanged(const QString& link_name, int channel);
+  void isTiltStateChanged(const QString& link_name, bool is_tilt);
+  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 
 public:
   explicit SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
@@ -53,11 +56,6 @@ public:
   /* 両方の回転方向のプロペラが設定されていることを確かめる． */
   bool hasBothRotationalDirections() const;
 
-private Q_SLOTS:
-  void onTabCloseRequested(int index);
-  void onCopyFromLeftButtonClicked(const QString& link_name);
-  void onCopyToAllButtonClicked(const QString& link_name);
-
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
@@ -71,6 +69,14 @@ private:
   void setAction(const QString& link_name, int action);
 
   void publishTimerCb();
+
+private Q_SLOTS:
+  void onTabCloseRequested(int index);
+  void onCopyFromLeftButtonClicked(const QString& link_name);
+  void onCopyToAllButtonClicked(const QString& link_name);
+  void onChannelChanged(const QString& link_name, int channel);
+  void onIsTiltStateChanged(const QString& link_name, bool is_tilt);
+  void onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 };
 }  // namespace propulsion_system
 }  // namespace setup_assistant

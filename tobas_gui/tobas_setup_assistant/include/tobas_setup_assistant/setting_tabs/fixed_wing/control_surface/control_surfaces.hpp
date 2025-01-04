@@ -18,6 +18,10 @@ class ControlSurfacesWidget : public BaseSelectedLinkSettingWidget
   using self = ControlSurfacesWidget;
   using super = BaseSelectedLinkSettingWidget;
 
+Q_SIGNALS:
+  void linkAdded(const QString& link_name);
+  void linkRemoved(const QString& link_name);
+
 public:
   explicit ControlSurfacesWidget(const RobotInfo& robot);
 

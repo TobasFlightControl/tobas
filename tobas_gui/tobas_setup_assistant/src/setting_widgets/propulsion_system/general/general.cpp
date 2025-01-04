@@ -21,6 +21,14 @@ GeneralWidget::GeneralWidget(const RobotInfo& robot, const QString& link_name)
   rows->addWidget(active_tilt_settings_);
 
   rows->addStretch();
+
+  connect(channel_, &ParamGetterWidget_SpinBox::valueChanged, [this](int channel) { Q_EMIT channelChanged(channel); });
+  connect(
+    active_tilt_settings_, &ActiveTiltSettingsWidget::isTiltStateChanged,
+    [this](bool is_tilt) { Q_EMIT isTiltStateChanged(is_tilt); });
+  connect(
+    active_tilt_settings_, &ActiveTiltSettingsWidget::tiltJointNameChanged,
+    [this](const QString& joint_name) { Q_EMIT tiltJointNameChanged(joint_name); });
 }
 
 const char* GeneralWidget::name() const

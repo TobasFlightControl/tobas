@@ -14,7 +14,15 @@ class GeneralWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
 
+  using self = GeneralWidget;
+  using super = BaseSelectedLinkSettingWidget;
+
   static constexpr char kActiveTiltSettingsKey[] = "active_tilt_settings";
+
+Q_SIGNALS:
+  void channelChanged(int channel);
+  void isTiltStateChanged(bool is_tilt);
+  void tiltJointNameChanged(const QString& joint_name);
 
 public:
   explicit GeneralWidget(const RobotInfo& robot, const QString& link_name);
