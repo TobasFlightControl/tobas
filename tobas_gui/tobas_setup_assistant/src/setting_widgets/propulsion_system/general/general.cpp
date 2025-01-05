@@ -64,8 +64,12 @@ YAML::Node GeneralWidget::dump() const
 
 void GeneralWidget::load(const YAML::Node& node)
 {
+  blockSignals(true);
+
   channel_->setValue(node[channel_->name()].as<int>());
   active_tilt_settings_->load(node[kActiveTiltSettingsKey]);
+
+  blockSignals(false);
 }
 
 int GeneralWidget::channel() const
