@@ -11,7 +11,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 AvailableLinkItemWidget::AvailableLinkItemWidget(const QString& link_name)
 {
@@ -109,6 +109,6 @@ void AvailableLinksWidget::onAddButtonClicked(const QString& link_name)
   remove(link_name);
   Q_EMIT linkRemoved(link_name);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

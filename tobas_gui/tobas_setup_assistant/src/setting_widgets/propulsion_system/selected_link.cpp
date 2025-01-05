@@ -4,7 +4,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name)
 {
@@ -132,6 +132,6 @@ const SpeedLimitWidget* SelectedLinkWidget::speedLimit() const
 {
   return speed_limit_;
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

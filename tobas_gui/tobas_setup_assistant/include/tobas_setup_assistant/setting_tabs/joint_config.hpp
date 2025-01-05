@@ -71,7 +71,7 @@ class JointConfigurationWidget : public BaseSettingWidget
 public:
   explicit JointConfigurationWidget(
     const RobotInfo& robot,
-    const propulsion_system::PropulsionSystemWidget* propulsion,
+    const propulsion::PropulsionSystemWidget* propulsion,
     const fixed_wing::FixedWingWidget* fixed_wing);
 
   const char* name() const override;
@@ -112,7 +112,7 @@ public:
 
 private:
   const RobotInfo& robot_;
-  const propulsion_system::PropulsionSystemWidget* propulsion_;
+  const propulsion::PropulsionSystemWidget* propulsion_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
 
   qt::TableWidget* table_;

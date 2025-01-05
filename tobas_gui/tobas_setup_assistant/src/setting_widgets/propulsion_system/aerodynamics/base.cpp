@@ -11,7 +11,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 AerodynamicsWidget_Base::AerodynamicsWidget_Base()
 {
@@ -46,6 +46,6 @@ void AerodynamicsWidget_Base::initialize()
 {
   description_->setText(description());
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

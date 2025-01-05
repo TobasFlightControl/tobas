@@ -13,7 +13,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 ActiveTiltSettingsWidget::ActiveTiltSettingsWidget(const RobotInfo& robot, const QString& link_name)
   : robot_(robot), link_name_(link_name)
@@ -124,6 +124,6 @@ void ActiveTiltSettingsWidget::onTiltJointNameChanged(const QString& joint_name)
   if (!joint_name.isEmpty())
     Q_EMIT tiltJointNameChanged(joint_name);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

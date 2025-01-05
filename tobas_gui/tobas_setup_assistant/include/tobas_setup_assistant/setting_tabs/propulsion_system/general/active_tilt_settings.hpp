@@ -10,7 +10,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class ActiveTiltSettingsWidget : public QWidget
 {
@@ -49,6 +49,6 @@ private Q_SLOTS:
   void onIsTiltCheckBoxToggled(bool checked);
   void onTiltJointNameChanged(const QString& joint_name);
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

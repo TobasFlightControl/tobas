@@ -7,7 +7,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 MotorWidget::MotorWidget()
 {
@@ -113,6 +113,6 @@ int MotorWidget::numPoles() const
 {
   return num_poles_->getValue();
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

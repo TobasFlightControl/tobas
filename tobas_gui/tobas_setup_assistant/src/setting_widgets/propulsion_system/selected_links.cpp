@@ -13,7 +13,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
@@ -309,6 +309,6 @@ void SelectedLinksWidget::onTiltJointNameChanged(const QString& link_name, const
 {
   Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

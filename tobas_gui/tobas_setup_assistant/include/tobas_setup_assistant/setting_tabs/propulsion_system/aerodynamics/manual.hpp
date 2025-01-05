@@ -7,7 +7,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class AerodynamicsWidget_Manual : public AerodynamicsWidget_Base
 {
@@ -34,6 +34,6 @@ private:
   ParamGetterWidget_DoubleSpinBox* moment_const_;
   ParamGetterWidget_DoubleSpinBox* rotor_drag_coef_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

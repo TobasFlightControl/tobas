@@ -19,7 +19,7 @@ namespace setup_assistant
 {
 JointConfigurationWidget::JointConfigurationWidget(
   const RobotInfo& robot,
-  const propulsion_system::PropulsionSystemWidget* propulsion,
+  const propulsion::PropulsionSystemWidget* propulsion,
   const fixed_wing::FixedWingWidget* fixed_wing)
   : robot_(robot), propulsion_(propulsion), fixed_wing_(fixed_wing)
 {
@@ -40,14 +40,13 @@ JointConfigurationWidget::JointConfigurationWidget(
   });
   addWidget(table_);
 
-  connect(propulsion_, &propulsion_system::PropulsionSystemWidget::linkAdded, this, &self::onRotorLinkAdded);
-  connect(propulsion_, &propulsion_system::PropulsionSystemWidget::linkRemoved, this, &self::onRotorLinkRemoved);
+  connect(propulsion_, &propulsion::PropulsionSystemWidget::linkAdded, this, &self::onRotorLinkAdded);
+  connect(propulsion_, &propulsion::PropulsionSystemWidget::linkRemoved, this, &self::onRotorLinkRemoved);
 
   const auto props = propulsion_->selected();
-  connect(props, &propulsion_system::SelectedLinksWidget::channelChanged, this, &self::onRotorChannelChanged);
-  connect(props, &propulsion_system::SelectedLinksWidget::isTiltStateChanged, this, &self::onRotorIsTiltStateChanged);
-  connect(
-    props, &propulsion_system::SelectedLinksWidget::tiltJointNameChanged, this, &self::onRotorTiltJointNameChanged);
+  connect(props, &propulsion::SelectedLinksWidget::channelChanged, this, &self::onRotorChannelChanged);
+  connect(props, &propulsion::SelectedLinksWidget::isTiltStateChanged, this, &self::onRotorIsTiltStateChanged);
+  connect(props, &propulsion::SelectedLinksWidget::tiltJointNameChanged, this, &self::onRotorTiltJointNameChanged);
 
   const auto css = fixed_wing_->controlSurfaces();
   connect(css, &fixed_wing::ControlSurfacesWidget::linkAdded, this, &self::onControlSurfaceLinkAdded);

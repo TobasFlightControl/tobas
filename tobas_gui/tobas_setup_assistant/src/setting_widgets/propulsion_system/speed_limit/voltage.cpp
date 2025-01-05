@@ -6,7 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 SpeedLimitWidget_Voltage::SpeedLimitWidget_Voltage(MotorWidget* motor, AerodynamicsWidget* aerodynamics)
   : motor_(motor), aerodynamics_(aerodynamics)
@@ -44,6 +44,6 @@ double SpeedLimitWidget_Voltage::maxRotSpeed() const
   const auto V = spinbox_->value();
   return (sqrt(math::sqr(c) + 4 * b * V) - c) / (2 * b);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

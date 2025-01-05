@@ -35,7 +35,7 @@ class SettingsWidget : public qt::VerticalTabWidget
 
 public:
   BatteryWidget* battery;
-  propulsion_system::PropulsionSystemWidget* propulsion_system;
+  propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
   JointConfigurationWidget* joint_config;
   IMUWidget* imu;

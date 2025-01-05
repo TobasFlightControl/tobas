@@ -11,7 +11,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class SelectedLinksWidget : public qt::TabWidget
 {
@@ -78,6 +78,6 @@ private Q_SLOTS:
   void onIsTiltStateChanged(const QString& link_name, bool is_tilt);
   void onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

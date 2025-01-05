@@ -8,7 +8,7 @@ namespace setup_assistant
 {
 FixedWingLQRWidget::FixedWingLQRWidget(
   RobotInfo& robot,
-  const propulsion_system::PropulsionSystemWidget* propulsion_system,
+  const propulsion::PropulsionSystemWidget* propulsion_system,
   const fixed_wing::FixedWingWidget* fixed_wing)
   : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
 {

@@ -6,7 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 const char* SpeedLimitWidget_Manual::name() const
 {
@@ -31,6 +31,6 @@ double SpeedLimitWidget_Manual::maxRotSpeed() const
   const auto rpm = spinbox_->value();
   return tobas_std::rpm2rps(rpm);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

@@ -6,7 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 GeneralWidget::GeneralWidget(const RobotInfo& robot, const QString& link_name)
 {
@@ -86,6 +86,6 @@ QString GeneralWidget::tiltJointName() const
 {
   return active_tilt_settings_->tiltJointName();
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

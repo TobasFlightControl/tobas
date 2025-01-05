@@ -11,7 +11,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class AvailableLinkItemWidget : public QWidget
 {
@@ -68,6 +68,6 @@ private Q_SLOTS:
 private:
   const RobotInfo& robot_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

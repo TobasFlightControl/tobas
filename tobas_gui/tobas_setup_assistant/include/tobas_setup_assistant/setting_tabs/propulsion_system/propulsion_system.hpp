@@ -8,7 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class PropulsionSystemWidget : public BaseSettingWidget
 {
@@ -49,6 +49,6 @@ private:
   AvailableLinksWidget* available_;
   SelectedLinksWidget* selected_;
 };
-};  // namespace propulsion_system
+};  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

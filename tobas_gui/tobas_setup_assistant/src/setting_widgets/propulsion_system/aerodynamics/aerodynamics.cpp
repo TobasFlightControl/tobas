@@ -11,7 +11,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 AerodynamicsWidget::AerodynamicsWidget(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
 {
@@ -118,6 +118,6 @@ const AerodynamicsWidget_Base* AerodynamicsWidget::selected() const
 {
   return qobject_cast<AerodynamicsWidget_Base*>(methods_->currentWidget());
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

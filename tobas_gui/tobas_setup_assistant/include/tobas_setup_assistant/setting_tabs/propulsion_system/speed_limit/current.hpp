@@ -8,7 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 /**
  * @brief 最大連続電流からロータの最大回転数を推定．
@@ -35,6 +35,6 @@ private:
   MotorWidget* motor_;
   AerodynamicsWidget* aerodynamics_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

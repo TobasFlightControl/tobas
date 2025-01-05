@@ -8,7 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class GeneralWidget : public BaseSelectedLinkSettingWidget
 {
@@ -42,6 +42,6 @@ private:
   ParamGetterWidget_SpinBox* channel_;
   ActiveTiltSettingsWidget* active_tilt_settings_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

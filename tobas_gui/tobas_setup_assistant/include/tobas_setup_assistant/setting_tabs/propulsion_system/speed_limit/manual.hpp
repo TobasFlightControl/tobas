@@ -6,7 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class SpeedLimitWidget_Manual : public SpeedLimitWidget_Base
 {
@@ -21,6 +21,6 @@ public:
 
   double maxRotSpeed() const override;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

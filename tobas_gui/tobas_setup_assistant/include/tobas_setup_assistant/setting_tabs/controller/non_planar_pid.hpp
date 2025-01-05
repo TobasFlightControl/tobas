@@ -18,7 +18,7 @@ class NonPlanarPIDWidget : public BaseControllerWidget
 public:
   explicit NonPlanarPIDWidget(
     RobotInfo& robot,
-    const propulsion_system::PropulsionSystemWidget* propulsion_system,
+    const propulsion::PropulsionSystemWidget* propulsion_system,
     const fixed_wing::FixedWingWidget* fixed_wing);
 
   const char* name() const override;
@@ -39,7 +39,7 @@ public:
 
 private:
   RobotInfo& robot_;
-  const propulsion_system::PropulsionSystemWidget* propulsion_system_;
+  const propulsion::PropulsionSystemWidget* propulsion_system_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
 };
 }  // namespace setup_assistant

@@ -10,7 +10,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class MotorWidget : public BaseSelectedLinkSettingWidget
 {
@@ -47,6 +47,6 @@ private:
   ParamGetterWidget_SpinBox* resistance_;
   ParamGetterWidget_SpinBox* num_poles_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui
