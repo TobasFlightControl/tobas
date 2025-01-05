@@ -1,4 +1,5 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
@@ -84,18 +85,18 @@ YAML::Node ErrorStateKalmanFilterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[do_acc_bias_estimation_->text().toStdString()] = do_acc_bias_estimation_->isChecked();
-  node[do_gyro_bias_estimation_->text().toStdString()] = do_gyro_bias_estimation_->isChecked();
-  node[do_grav_estimation_->text().toStdString()] = do_grav_estimation_->isChecked();
+  node[do_acc_bias_estimation_->text()] = do_acc_bias_estimation_->isChecked();
+  node[do_gyro_bias_estimation_->text()] = do_gyro_bias_estimation_->isChecked();
+  node[do_grav_estimation_->text()] = do_grav_estimation_->isChecked();
 
   return node;
 }
 
 void ErrorStateKalmanFilterWidget::load(const YAML::Node& node)
 {
-  do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text().toStdString()].as<bool>());
-  do_gyro_bias_estimation_->setChecked(node[do_gyro_bias_estimation_->text().toStdString()].as<bool>());
-  do_grav_estimation_->setChecked(node[do_grav_estimation_->text().toStdString()].as<bool>());
+  do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text()].as<bool>());
+  do_gyro_bias_estimation_->setChecked(node[do_gyro_bias_estimation_->text()].as<bool>());
+  do_grav_estimation_->setChecked(node[do_grav_estimation_->text()].as<bool>());
 }
 
 bool ErrorStateKalmanFilterWidget::isValid()

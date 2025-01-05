@@ -41,6 +41,9 @@ private:
   RobotInfo& robot_;
   const propulsion::PropulsionSystemWidget* propulsion_system_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
+
+  QCheckBox* do_dist_comp_trans_;
+  QCheckBox* do_dist_comp_rot_;
 };
 }  // namespace setup_assistant
 }  // namespace gui

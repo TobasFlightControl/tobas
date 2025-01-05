@@ -113,8 +113,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::kControllerNode, options), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // Get static parameters
-  do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_trans", true);
-  do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rot", false);
+  do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation", true);
+  do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation", false);
 
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
