@@ -133,6 +133,8 @@ private:
 
   void clear();
   void reset(int row);
+  void setDefaultValues(int row);
+  void updateEnability(int row);
   void addLink(const std::string& link_name);
   void removeTiltJoint(const QString& rotor_link_name);
 

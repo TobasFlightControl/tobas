@@ -145,19 +145,37 @@ YAML::Node JointConfigurationWidget::dump()
 
 void JointConfigurationWidget::load(const YAML::Node& node)
 {
+  blockSignals(true);
+
+  // 各フィールドの値と有効無効を設定
   for (const auto& pair : node)
   {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
 
     const auto row = findLink(link_name);
+    TOBAS_CHECK(row >= 0);
 
     setRole(row, sub_node[kRoleLabel].as<tobas::jnt_role_t>());
     setCommandInterface(row, sub_node[kCmdIfaceLabel].as<tobas::jnt_cmd_iface_t>());
     setHardwareInterface(row, sub_node[kHwIfaceLabel].as<tobas::jnt_hw_iface_t>());
     setChannel(row, sub_node[kChannelLabel].as<int>());
     setHomePosition(row, sub_node[kHomePosLabel].as<double>());
+
+    updateEnability(row);
   }
+
+  // ロータに対応するティルトジョイント名を更新
+  tilt_joint_map_.clear();
+  const auto props = propulsion_->selected();
+  for (int i = 0; i < props->count(); ++i)
+  {
+    const auto prop = props->widget(i);
+    if (prop->general()->isTiltRotor())
+      tilt_joint_map_[props->linkName(i)] = prop->general()->tiltJointName();
+  }
+
+  blockSignals(false);
 }
 
 QString JointConfigurationWidget::getLinkName(int row) const
@@ -362,6 +380,104 @@ void JointConfigurationWidget::reset(int row)
   // Rotor, Tilt Joint, Control Surfaceを選択不可にする
   for (const auto& label : { kRoleLabel_Rotor, kRoleLabel_TiltJoint, kRoleLabel_ControlSurface })
     role_[row]->setItemEnabled(label, false);
+
+  updateEnability(row);
+}
+
+void JointConfigurationWidget::setDefaultValues(int row)
+{
+  switch (getRole(row))
+  {
+    case tobas::jnt_role_t::ROTOR:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
+      channel_[row]->setValue(0);
+      home_pos_[row]->setValue(0.);
+      break;
+    case tobas::jnt_role_t::TILT_JOINT:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
+      channel_[row]->setValue(0);
+      home_pos_[row]->setValue(0.);
+      break;
+    case tobas::jnt_role_t::CONTROL_SURFACE:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
+      channel_[row]->setValue(0);
+      home_pos_[row]->setValue(0.);
+      break;
+    case tobas::jnt_role_t::MANIPULATION:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
+      channel_[row]->setValue(0);
+      home_pos_[row]->setValue(0.);
+      break;
+    case tobas::jnt_role_t::PASSIVE_WHEEL:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
+      channel_[row]->setValue(0);
+      home_pos_[row]->setValue(0.);
+      break;
+    case tobas::jnt_role_t::OTHER:
+      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
+      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
+      channel_[row]->setValue(0);
+      home_pos_[row]->setValue(0.);
+      break;
+    default:
+      throw;
+  }
+}
+
+void JointConfigurationWidget::updateEnability(int row)
+{
+  switch (getRole(row))
+  {
+    case tobas::jnt_role_t::ROTOR:
+      role_[row]->setEnabled(false);
+      cmd_iface_[row]->setEnabled(false);
+      hw_iface_[row]->setEnabled(false);
+      channel_[row]->setEnabled(false);
+      home_pos_[row]->setEnabled(false);
+      break;
+    case tobas::jnt_role_t::TILT_JOINT:
+      role_[row]->setEnabled(false);
+      cmd_iface_[row]->setEnabled(false);
+      hw_iface_[row]->setEnabled(true);
+      channel_[row]->setEnabled(true);
+      home_pos_[row]->setEnabled(false);
+      break;
+    case tobas::jnt_role_t::CONTROL_SURFACE:
+      role_[row]->setEnabled(false);
+      cmd_iface_[row]->setEnabled(false);
+      hw_iface_[row]->setEnabled(true);
+      channel_[row]->setEnabled(true);
+      home_pos_[row]->setEnabled(false);
+      break;
+    case tobas::jnt_role_t::MANIPULATION:
+      role_[row]->setEnabled(true);
+      cmd_iface_[row]->setEnabled(true);
+      hw_iface_[row]->setEnabled(true);
+      channel_[row]->setEnabled(true);
+      home_pos_[row]->setEnabled(true);
+      break;
+    case tobas::jnt_role_t::PASSIVE_WHEEL:
+      role_[row]->setEnabled(true);
+      cmd_iface_[row]->setEnabled(false);
+      hw_iface_[row]->setEnabled(false);
+      channel_[row]->setEnabled(false);
+      home_pos_[row]->setEnabled(false);
+      break;
+    case tobas::jnt_role_t::OTHER:
+      role_[row]->setEnabled(true);
+      cmd_iface_[row]->setEnabled(false);
+      hw_iface_[row]->setEnabled(false);
+      channel_[row]->setEnabled(false);
+      home_pos_[row]->setEnabled(false);
+      break;
+    default:
+      throw;
+  }
 }
 
 void JointConfigurationWidget::addLink(const std::string& link_name)
@@ -501,61 +617,11 @@ void JointConfigurationWidget::removeTiltJoint(const QString& rotor_link_name)
 
 void JointConfigurationWidget::onRoleChanged(int row)
 {
-  switch (getRole(row))
-  {
-    case tobas::jnt_role_t::ROTOR:
-      break;
-    case tobas::jnt_role_t::TILT_JOINT:
-      break;
-    case tobas::jnt_role_t::CONTROL_SURFACE:
-      break;
-    case tobas::jnt_role_t::MANIPULATION:
-      role_[row]->setEnabled(true);
+  // 役割に応じて各フィールドにデフォルト値を入れる
+  setDefaultValues(row);
 
-      cmd_iface_[row]->setEnabled(true);
-
-      hw_iface_[row]->setEnabled(true);
-
-      channel_[row]->setEnabled(true);
-
-      home_pos_[row]->setEnabled(true);
-
-      break;
-    case tobas::jnt_role_t::PASSIVE_WHEEL:
-      role_[row]->setEnabled(true);
-
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
-      cmd_iface_[row]->setEnabled(false);
-
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
-      hw_iface_[row]->setEnabled(false);
-
-      channel_[row]->setValue(0);
-      channel_[row]->setEnabled(false);
-
-      home_pos_[row]->setValue(0.);
-      home_pos_[row]->setEnabled(false);
-
-      break;
-    case tobas::jnt_role_t::OTHER:
-      role_[row]->setEnabled(true);
-
-      cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
-      cmd_iface_[row]->setEnabled(false);
-
-      hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
-      hw_iface_[row]->setEnabled(false);
-
-      channel_[row]->setValue(0);
-      channel_[row]->setEnabled(false);
-
-      home_pos_[row]->setValue(0.);
-      home_pos_[row]->setEnabled(false);
-
-      break;
-    default:
-      throw;
-  }
+  // 役割に応じて各フィールドの有効無効を決定
+  updateEnability(row);
 }
 
 void JointConfigurationWidget::onRotorLinkAdded(const QString& link_name)
@@ -570,19 +636,6 @@ void JointConfigurationWidget::onRotorLinkAdded(const QString& link_name)
 
   role_[row]->setItemEnabled(kRoleLabel_Rotor, true);
   setRole(row, tobas::jnt_role_t::ROTOR);
-  role_[row]->setEnabled(false);
-
-  cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
-  cmd_iface_[row]->setEnabled(false);
-
-  hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
-  hw_iface_[row]->setEnabled(false);
-
-  channel_[row]->setValue(0);
-  channel_[row]->setEnabled(false);
-
-  home_pos_[row]->setValue(0.);
-  home_pos_[row]->setEnabled(false);
 }
 
 void JointConfigurationWidget::onRotorLinkRemoved(const QString& link_name)
@@ -592,6 +645,9 @@ void JointConfigurationWidget::onRotorLinkRemoved(const QString& link_name)
 
   const auto cur_role = getRole(row);
   TOBAS_CHECK(cur_role == tobas::jnt_role_t::ROTOR);
+
+  if (tilt_joint_map_.contains(link_name))
+    removeTiltJoint(link_name);
 
   reset(row);
 }
@@ -640,20 +696,6 @@ void JointConfigurationWidget::onRotorTiltJointNameChanged(const QString& link_n
 
   role_[tilt_row]->setItemEnabled(kRoleLabel_TiltJoint, true);
   setRole(tilt_row, tobas::jnt_role_t::TILT_JOINT);
-  role_[tilt_row]->setEnabled(false);
-
-  // 位置コマンドで固定
-  cmd_iface_[tilt_row]->setCurrentText(kCmdIfaceLabel_Position);
-  cmd_iface_[tilt_row]->setEnabled(false);
-
-  // PWMがデフォルトだが変更も可能
-  hw_iface_[tilt_row]->setCurrentText(kHwIfaceLabel_PWM);
-  hw_iface_[tilt_row]->setEnabled(true);
-
-  channel_[tilt_row]->setEnabled(true);
-
-  home_pos_[tilt_row]->setValue(0.);
-  home_pos_[tilt_row]->setEnabled(false);
 }
 
 void JointConfigurationWidget::onControlSurfaceLinkAdded(const QString& link_name)
@@ -667,20 +709,6 @@ void JointConfigurationWidget::onControlSurfaceLinkAdded(const QString& link_nam
 
   role_[row]->setItemEnabled(kRoleLabel_ControlSurface, true);
   setRole(row, tobas::jnt_role_t::CONTROL_SURFACE);
-  role_[row]->setEnabled(false);
-
-  // 位置コマンドで固定
-  cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
-  cmd_iface_[row]->setEnabled(false);
-
-  // PWMがデフォルトだが変更も可能
-  hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
-  hw_iface_[row]->setEnabled(true);
-
-  channel_[row]->setEnabled(true);
-
-  home_pos_[row]->setValue(0.);
-  home_pos_[row]->setEnabled(false);
 }
 
 void JointConfigurationWidget::onControlSurfaceLinkRemoved(const QString& link_name)
