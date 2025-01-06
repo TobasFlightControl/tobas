@@ -1,6 +1,5 @@
 #include <ranges>
 
-#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_ros2_tools/time.hpp>
@@ -17,6 +16,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_msgs_adapter/roll_pitch_yaw_throttle.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
@@ -62,7 +62,7 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
-  sensor_msgs::msg::JointState::ConstSharedPtr js_;
+  tobas_msgs::msg::JointStateArray::ConstSharedPtr js_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;  // PosVelYawの目標値 (世界座標系)
   std::shared_ptr<RollPitchYawThrust> tar_rpyt_;    // RollPitchYawThrustの目標値
@@ -78,7 +78,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PosVelAccYaw> pvay_sub_;
   ros2::SubscriberPtr<tobas_msgs::RollPitchYawThrottle> rpyt_sub_;
@@ -107,7 +107,7 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
-  void jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js);
+  void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
   void rpyThrustCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle);
@@ -393,7 +393,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   if (tar_rpyt_ != nullptr)
   {
     // 可動関節角を更新
-    if (js_sub_ != nullptr && js_converter_.jointStateToJntArrayPos(*js_) < 0)
+    if (js_sub_ != nullptr && js_converter_.convert(*js_) < 0)
       TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
     // 目標角加速度を計算
@@ -403,8 +403,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // プロペラの推力を計算
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
     if (!mixer_.solve(
-          battery_->voltage, js_converter_.getPositionsKDL(), odom->twist.rot, tar_dgyro, tar_rpyt_->thrust,
-          dist_torque_B))
+          battery_->voltage, js_converter_.getPosition(), odom->twist.rot, tar_dgyro, tar_rpyt_->thrust, dist_torque_B))
     {
       TOBAS_FATAL("Failed to solve mixing equation.");
       return;
@@ -439,14 +438,8 @@ void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::Con
   dist_force_ = dist_force;
 }
 
-void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
+void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
-  if (js->name.size() != js->position.size())
-  {
-    TOBAS_ERROR("The size of joint name and position is different.");
-    return;
-  }
-
   js_ = js;
 }
 

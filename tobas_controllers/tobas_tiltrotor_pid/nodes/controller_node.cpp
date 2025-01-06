@@ -1,6 +1,5 @@
 #include <ranges>
 
-#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_kdl/jntarray.hpp>
@@ -19,6 +18,7 @@
 
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
@@ -55,7 +55,7 @@ private:
   bool drone_received_ = false;
   bool tree_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  sensor_msgs::msg::JointState::ConstSharedPtr js_;
+  tobas_msgs::msg::JointStateArray::ConstSharedPtr js_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
   tobas::CommandLevelHandler cmd_level_handler_;
@@ -69,7 +69,7 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
 
@@ -105,7 +105,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js);
+  void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
 };
@@ -427,7 +427,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   rot_otg_.update(dt);
 
   // 可動関節の角度を更新
-  if (js_sub_ != nullptr && js_converter_.jointStateToJntArrayPos(*js_) < 0)
+  if (js_sub_ != nullptr && js_converter_.convert(*js_) < 0)
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
   // 位置制御器
@@ -449,7 +449,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto tar_dgyro_B = cmd_dgyro_B + rot_pid_.update(cur_rot_WB, cur_gyro_B, cmd_rot_WB, cmd_gyro_B, dt);
 
   // ミキシング方程式を解く
-  if (!mixer_.solve(js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B))
+  if (!mixer_.solve(js_converter_.getPosition(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B))
   {
     TOBAS_FATAL("Failed to solve mixing equation.");
     return;
@@ -499,14 +499,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback_pub_->publish(move(feedback));
 }
 
-void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
+void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
-  if (js->name.size() != js->position.size())
-  {
-    TOBAS_ERROR("The size of joint name and position is different.");
-    return;
-  }
-
   js_ = js;
 }
 

@@ -13,12 +13,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	rclcpp
-	sensor_msgs
 	tobas_msgs_adapter
 )
 

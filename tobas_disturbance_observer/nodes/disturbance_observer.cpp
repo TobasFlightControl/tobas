@@ -1,5 +1,3 @@
-#include <sensor_msgs/msg/joint_state.hpp>
-
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
@@ -11,6 +9,7 @@
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 
@@ -45,7 +44,7 @@ private:
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> joint_states_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> joint_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
 
   bool cutoffFreqCb(const long& p);
@@ -53,7 +52,7 @@ private:
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
-  void jointStatesCb(const sensor_msgs::msg::JointState::ConstSharedPtr& joint_states);
+  void jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 };
 
@@ -115,15 +114,9 @@ void DisturbanceObserverNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArr
   rotor_states_ = rotor_states;
 }
 
-void DisturbanceObserverNode::jointStatesCb(const sensor_msgs::msg::JointState::ConstSharedPtr& joint_states)
+void DisturbanceObserverNode::jointStatesCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& joint_states)
 {
-  if (joint_states->name.size() != joint_states->position.size())
-  {
-    TOBAS_ERROR("The size of joint name and position is different.");
-    return;
-  }
-
-  if (js_converter_.jointStateToJntArrayPos(*joint_states) < 0)
+  if (js_converter_.convert(*joint_states) < 0)
   {
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
     return;
@@ -160,14 +153,14 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   odom_ = odom;
 
   // 順運動学を計算
-  if (fk_solver_.JntToCart(js_converter_.getPositionsKDL()) < 0)
+  if (fk_solver_.JntToCart(js_converter_.getPosition()) < 0)
   {
     TOBAS_ERROR("Forward kinematics failed: ", fk_solver_.errorMessage());
     return;
   }
 
   // 質量特性を計算
-  if (inertia_solver_.JntToCart(js_converter_.getPositionsKDL()) < 0)
+  if (inertia_solver_.JntToCart(js_converter_.getPosition()) < 0)
   {
     TOBAS_ERROR("Inertia solver failed: ", inertia_solver_.errorMessage());
     return;

@@ -1,6 +1,5 @@
 #include <ranges>
 
-#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include <tobas_kdl/jntarray.hpp>
@@ -19,6 +18,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
@@ -59,7 +59,7 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
-  sensor_msgs::msg::JointState::ConstSharedPtr js_;
+  tobas_msgs::msg::JointStateArray::ConstSharedPtr js_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
   tobas::CommandLevelHandler cmd_level_handler_;
@@ -74,7 +74,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
 
@@ -104,7 +104,7 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
-  void jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js);
+  void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
   void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
 };
@@ -357,7 +357,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     return;
 
   // 可動関節の角度を更新
-  if (js_sub_ != nullptr && js_converter_.jointStateToJntArrayPos(*js_) < 0)
+  if (js_sub_ != nullptr && js_converter_.convert(*js_) < 0)
     TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
 
   // 位置制御器
@@ -373,7 +373,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
   const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
   if (!mixer_.solve(
-        battery_->voltage, js_converter_.getPositionsKDL(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B,
+        battery_->voltage, js_converter_.getPosition(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B,
         dist_force_W, dist_torque_B))
   {
     TOBAS_FATAL("Failed to solve mixing equation.");
@@ -421,14 +421,8 @@ void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::Con
   dist_force_ = dist_force;
 }
 
-void ControllerNode::jointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js)
+void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
-  if (js->name.size() != js->position.size())
-  {
-    TOBAS_ERROR("The size of joint name and position is different.");
-    return;
-  }
-
   js_ = js;
 }
 

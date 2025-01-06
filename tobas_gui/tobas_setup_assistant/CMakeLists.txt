@@ -21,6 +21,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic") # TODO: -Wsha
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
 find_package(inja_ament REQUIRED)
@@ -33,6 +34,7 @@ find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
+  sensor_msgs
   visualization_msgs
   moveit_msgs
   inja_ament

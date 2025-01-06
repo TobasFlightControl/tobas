@@ -1,5 +1,4 @@
-#include <ranges>
-
+#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl/tree_jntspace_pid.hpp>
 #include <tobas_kdl/tree_taskspace_pid.hpp>
@@ -31,16 +30,17 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
 
-  tobas::TreeJointStateConverter cur_js_conv_;
-  tobas::TreeJointStateConverter tar_js_conv_;
+  kdl::TreeJointParser jnt_parser_;
   kdl::TreeActiveJointsExtractor active_jnts_extractor_;
   kdl::TreeJntSpacePID pid_js_;
   kdl::TreeTaskSpacePID pid_ts_;
+  tobas::TreeJointStateConverter cur_js_conv_;
+  tobas::TreeJointStateConverter tar_js_conv_;
 
   ros2::TransformListener::SharedPtr tf_listener_;
-  sensor_msgs::msg::JointState home_js_;
+  tobas_msgs::msg::JointStateArray home_js_;
 
-  sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
+  tobas_msgs::msg::JointStateArray::ConstSharedPtr tar_js_;
   tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
 
   // Publishers
@@ -49,8 +49,8 @@ private:
   // Subscribers
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> cur_js_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> tar_js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> cur_js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> tar_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
 
   // Timer
@@ -60,11 +60,11 @@ private:
   void initialize();
 
   bool jointSpaceControl(
-    const sensor_msgs::msg::JointState& cur_js,
-    const sensor_msgs::msg::JointState& tar_js,
+    const tobas_msgs::msg::JointStateArray& cur_js,
+    const tobas_msgs::msg::JointStateArray& tar_js,
     tobas_msgs::msg::JointCommandArray& efforts_msg);
   bool taskSpaceControl(
-    const sensor_msgs::msg::JointState& cur_js,
+    const tobas_msgs::msg::JointStateArray& cur_js,
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& efforts_msg);
 
@@ -77,8 +77,8 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js);
-  void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
+  void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
+  void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
 
   void autoResetTimerCb();
@@ -86,11 +86,12 @@ private:
 
 EffortControllerNode::EffortControllerNode(const rclcpp::NodeOptions& options)
   : super("effort_controller", options),
-    cur_js_conv_(tree_),
-    tar_js_conv_(tree_),
+    jnt_parser_(tree_),
     active_jnts_extractor_(tree_),
     pid_js_(tree_),
-    pid_ts_(tree_)
+    pid_ts_(tree_),
+    cur_js_conv_(tree_),
+    tar_js_conv_(tree_)
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }
@@ -121,26 +122,26 @@ void EffortControllerNode::initialize()
 }
 
 bool EffortControllerNode::jointSpaceControl(
-  const sensor_msgs::msg::JointState& cur_js,
-  const sensor_msgs::msg::JointState& tar_js,
+  const tobas_msgs::msg::JointStateArray& cur_js,
+  const tobas_msgs::msg::JointStateArray& tar_js,
   tobas_msgs::msg::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArrayPosVel(cur_js) < 0)
+  if (cur_js_conv_.convert(cur_js) < 0)
   {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
   }
-  if (tar_js_conv_.jointStateToJntArrayPosVel(tar_js) < 0)
+  if (tar_js_conv_.convert(tar_js) < 0)
   {
     TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
     return false;
   }
 
-  const auto& cur_q = cur_js_conv_.getPositionsKDL();
-  const auto& cur_qd = cur_js_conv_.getVelocitiesKDL();
-  const auto& tar_q = tar_js_conv_.getPositionsKDL();
-  const auto& tar_qd = tar_js_conv_.getVelocitiesKDL();
+  const auto& cur_q = cur_js_conv_.getPosition();
+  const auto& cur_qd = cur_js_conv_.getVelocity();
+  const auto& tar_q = tar_js_conv_.getPosition();
+  const auto& tar_qd = tar_js_conv_.getVelocity();
 
   // PIDで関節トルクを計算
   if (pid_js_.CartToJnt(cur_q, cur_qd, tar_q, tar_qd) < 0)
@@ -148,45 +149,38 @@ bool EffortControllerNode::jointSpaceControl(
     TOBAS_ERROR("Joint space PID failed: ", pid_js_.errorMessage());
     return false;
   }
-  const auto efforts = tar_js_conv_.getEffortsKDL() + pid_js_.getEfforts();  // FF + FB
-
-  // JntArray -> JointState
-  if (tar_js_conv_.jntArrayToJointStateEff(efforts, tar_js.name) < 0)
-  {
-    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
-    return false;
-  }
+  const auto efforts = tar_js_conv_.getEffort() + pid_js_.getEfforts();  // FF + FB
 
   // Fill output message
-  for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
+  for (const auto& tar_state : tar_js.states)
   {
-    const auto& joint = drone_->joints.at(name);
+    const auto& joint = drone_->joints.at(tar_state.name);
     if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
-      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      TOBAS_WARN("The role of joint \"", tar_state.name, "\" must be \"MANIPULATION\".");
       continue;
     }
     if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
     {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
+      TOBAS_WARN("The command interface of joint \"", tar_state.name, "\" must be \"EFFORT\".");
       continue;
     }
 
     efforts_msg.commands.emplace_back();
-    efforts_msg.commands.back().name = name;
-    efforts_msg.commands.back().data = eff;
+    efforts_msg.commands.back().name = tar_state.name;
+    efforts_msg.commands.back().data = efforts(jnt_parser_.jointIndex(tar_state.name));
   }
 
   return true;
 }
 
 bool EffortControllerNode::taskSpaceControl(
-  const sensor_msgs::msg::JointState& cur_js,
+  const tobas_msgs::msg::JointStateArray& cur_js,
   const tobas_msgs::LinkStateArray& tar_ls,
   tobas_msgs::msg::JointCommandArray& efforts_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArrayPosVel(cur_js) < 0)
+  if (cur_js_conv_.convert(cur_js) < 0)
   {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
@@ -215,8 +209,8 @@ bool EffortControllerNode::taskSpaceControl(
   }
 
   // PIDで関節トルクを計算
-  const auto& cur_q = cur_js_conv_.getPositionsKDL();
-  const auto& cur_qd = cur_js_conv_.getVelocitiesKDL();
+  const auto& cur_q = cur_js_conv_.getPosition();
+  const auto& cur_qd = cur_js_conv_.getVelocity();
   if (pid_ts_.CartToJnt(cur_q, cur_qd, tar_p, tar_v, a_ff, f_ext) < 0)
   {
     TOBAS_ERROR("Cartesian PID failed: ", pid_ts_.errorMessage());
@@ -226,31 +220,26 @@ bool EffortControllerNode::taskSpaceControl(
 
   // JntArray -> JointState
   active_jnts_extractor_.solve(manipulation::linkNames(tar_ls));
-  const auto& active_joints = active_jnts_extractor_.activeJointNames();
-  if (tar_js_conv_.jntArrayToJointStateEff(efforts, active_joints) < 0)
-  {
-    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
-    return false;
-  }
+  const auto& active_jnt_names = active_jnts_extractor_.activeJointNames();
 
   // Fill output message
-  for (const auto& [name, eff] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getEffortsMsg()))
+  for (const auto& jnt_name : active_jnt_names)
   {
-    const auto& joint = drone_->joints.at(name);
+    const auto& joint = drone_->joints.at(jnt_name);
     if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
-      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      TOBAS_WARN("The role of joint \"", jnt_name, "\" must be \"MANIPULATION\".");
       continue;
     }
     if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
     {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"EFFORT\".");
+      TOBAS_WARN("The command interface of joint \"", jnt_name, "\" must be \"EFFORT\".");
       continue;
     }
 
     efforts_msg.commands.emplace_back();
-    efforts_msg.commands.back().name = name;
-    efforts_msg.commands.back().data = eff;
+    efforts_msg.commands.back().name = jnt_name;
+    efforts_msg.commands.back().data = efforts((jnt_parser_.jointIndex(jnt_name)));
   }
 
   return true;
@@ -326,10 +315,7 @@ void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
-  home_js_.name.clear();
-  home_js_.position.clear();
-  home_js_.velocity.clear();
-  home_js_.effort.clear();
+  home_js_.states.clear();
 
   // 力指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints)
@@ -338,30 +324,23 @@ void EffortControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
       continue;
     if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
       continue;
-    home_js_.name.push_back(jnt_name);
-    home_js_.position.push_back(jnt_cfg.home_pos);
-    home_js_.velocity.push_back(0.);
-    home_js_.effort.push_back(0.);
+    home_js_.states.emplace_back();
+    home_js_.states.back().name = jnt_name;
+    home_js_.states.back().position = jnt_cfg.home_pos;
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.name.size() > 0)
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  if (home_js_.states.size() > 0)
+    tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
 }
 
 void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (!cur_js_conv_.updateInternalDataStructures())
+  if (!jnt_parser_.updateInternalDataStructures())
   {
-    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
-    tree_.clear();
-    return;
-  }
-  if (!tar_js_conv_.updateInternalDataStructures())
-  {
-    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
+    TOBAS_ERROR("Failed to update internal data structures of joint parser.");
     tree_.clear();
     return;
   }
@@ -383,13 +362,25 @@ void EffortControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
     tree_.clear();
     return;
   }
+  if (!cur_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
+    tree_.clear();
+    return;
+  }
+  if (!tar_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
+    tree_.clear();
+    return;
+  }
 }
 
-void EffortControllerNode::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js)
+void EffortControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
 {
   if (tree_.getNrOfJoints() == 0)
     return;
-  if (home_js_.name.size() == 0)
+  if (home_js_.states.size() == 0)
     return;
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
@@ -418,7 +409,7 @@ void EffortControllerNode::currentJointStateCb(const sensor_msgs::msg::JointStat
   efforts_pub_->publish(move(efforts_msg));
 }
 
-void EffortControllerNode::targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js)
+void EffortControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)
 {
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
@@ -436,7 +427,7 @@ void EffortControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray::C
 
 void EffortControllerNode::autoResetTimerCb()
 {
-  tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   tar_ls_ = nullptr;
 
   TOBAS_WARN(
