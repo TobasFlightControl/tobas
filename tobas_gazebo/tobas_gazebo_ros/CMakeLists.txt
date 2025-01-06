@@ -47,8 +47,8 @@ ament_target_dependencies(${PROJECT_NAME}_node
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorStatesPublisherNode" EXECUTABLE rotor_states_publisher)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorCommandHandlerNode" EXECUTABLE rotor_command_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointCommandHandlerNode" EXECUTABLE joint_command_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointStatesBridge" EXECUTABLE joint_states_bridge)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointCommandHandlerNode" EXECUTABLE joint_command_handler)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
