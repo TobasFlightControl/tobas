@@ -10,13 +10,13 @@
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，適切なハードウェアインターフェースに指令する．
  * また，そのジョイントの状態を発行する．
  */
-class JointCommandHandlerNode : public tobas::BaseNode
+class JointsHandlerNode : public tobas::BaseNode
 {
-  using self = JointCommandHandlerNode;
+  using self = JointsHandlerNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit JointsHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   kdl::Tree tree_;
@@ -39,8 +39,8 @@ private:
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
 };
 
-JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("real_joint_command_handler", options), joint_parser_(tree_)
+JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
+  : super("real_joints_handler", options), joint_parser_(tree_)
 {
   pwms_pub_ = createPublisher<tobas_msgs::msg::PwmArray>(tobas::kPwmCmdTopic);
 
@@ -51,18 +51,18 @@ JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& opti
   efforts_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
 }
 
-void JointCommandHandlerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
+void JointsHandlerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
   joint_parser_.updateInternalDataStructures();
 }
 
-void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void JointsHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 }
 
-void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
+void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
 {
   if (tree_.getNrOfJoints() == 0)
     return;
@@ -112,7 +112,7 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
   }
 }
 
-void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
+void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
 {
   if (drone_ == nullptr)
     return;
@@ -120,7 +120,7 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
   (void)velocities;  // TODO
 }
 
-void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
+void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
 {
   if (drone_ == nullptr)
     return;
@@ -128,4 +128,4 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
   (void)efforts;  // TODO
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(JointCommandHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(JointsHandlerNode)
