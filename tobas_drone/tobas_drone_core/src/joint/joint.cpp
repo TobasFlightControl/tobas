@@ -31,6 +31,9 @@ bool JointConfig::load(const YAML::Node& node)
   if (!yaml::load(kHomePosKey, node, home_pos))
     return false;
 
+  if (!yaml::load(kReverseKey, node, reverse))
+    return false;
+
   return true;
 }
 
@@ -44,6 +47,7 @@ YAML::Node JointConfig::dump() const
   node[kHwIfaceKey] = hw_iface;
   node[kChannelKey] = channel;
   node[kHomePosKey] = home_pos;
+  node[kReverseKey] = reverse;
 
   return node;
 }

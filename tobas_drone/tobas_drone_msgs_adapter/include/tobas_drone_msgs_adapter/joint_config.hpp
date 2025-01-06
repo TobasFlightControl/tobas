@@ -20,6 +20,7 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
     dst.hw_iface = static_cast<uint8_t>(src.hw_iface);
     dst.channel = src.channel;
     dst.home_pos = src.home_pos;
+    dst.reverse = src.reverse;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -30,6 +31,7 @@ struct rclcpp::TypeAdapter<tobas::JointConfig, tobas_drone_msgs::msg::JointConfi
     dst.hw_iface = static_cast<tobas::jnt_hw_iface_t>(src.hw_iface);
     dst.channel = src.channel;
     dst.home_pos = src.home_pos;
+    dst.reverse = src.reverse;
   }
 };
 

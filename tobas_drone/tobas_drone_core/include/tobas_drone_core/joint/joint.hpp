@@ -21,6 +21,7 @@ class JointConfig
   static constexpr char kHwIfaceKey[] = "hw_iface";
   static constexpr char kChannelKey[] = "channel";
   static constexpr char kHomePosKey[] = "home_position";
+  static constexpr char kReverseKey[] = "reverse";
 
 public:
   std::string name = "";
@@ -29,6 +30,7 @@ public:
   jnt_hw_iface_t hw_iface = jnt_hw_iface_t::OTHER;
   uint32_t channel = 0;
   double home_pos = 0.;  // [rad | m]
+  bool reverse = false;
 
   bool isValid() const;
   bool load(const YAML::Node& node);

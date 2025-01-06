@@ -18,6 +18,8 @@ class JointsHandlerNode : public tobas::BaseNode
   using self = JointsHandlerNode;
   using super = tobas::BaseNode;
 
+  static constexpr double kJointLimitMargin = 1e-3;
+
 public:
   explicit JointsHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -43,6 +45,8 @@ private:
   ros2::TimerPtr pos_reset_timer_;
   ros2::TimerPtr vel_reset_timer_;
   ros2::TimerPtr eff_reset_timer_;
+
+  double pwmPeriodFromJointPos(const tobas::JointConfig& joint, double cmd_pos);
 
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
@@ -70,6 +74,35 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
   pos_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
   vel_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);
   eff_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
+}
+
+double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::JointConfig& joint, double cmd_pos)
+{
+  // Get limit
+  const auto min_pos = joint_parser_.lowerLimit(joint.name);
+  const auto max_pos = joint_parser_.upperLimit(joint.name);
+
+  // Check limit
+  if (cmd_pos < min_pos - kJointLimitMargin)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", joint.name, "\" is too small: ", cmd_pos, " < ",
+      min_pos);
+    cmd_pos = min_pos;
+  }
+  else if (cmd_pos > max_pos + kJointLimitMargin)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kTypicalWarnPeriod, "Commanded position of joint \"", joint.name, "\" is too large: ", cmd_pos, " > ",
+      max_pos);
+    cmd_pos = max_pos;
+  }
+
+  // Compute PWM period
+  if (joint.reverse)
+    return math::remap<double>(cmd_pos, min_pos, max_pos, tobas::kPwmMax, tobas::kPwmMin);
+  else
+    return math::remap<double>(cmd_pos, min_pos, max_pos, tobas::kPwmMin, tobas::kPwmMax);
 }
 
 void JointsHandlerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -149,33 +182,13 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
     }
     const auto& joint = joint_it->second;
 
-    // Get limit
-    const auto min_pos = joint_parser_.lowerLimit(joint.name);
-    const auto max_pos = joint_parser_.upperLimit(joint.name);
-
-    // Check limit
-    if (cmd_pos < min_pos)
-    {
-      TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "Commanded position of joint \"", jnt_name, "\" is too small: ", cmd_pos, " < ",
-        min_pos);
-      cmd_pos = min_pos;
-    }
-    else if (cmd_pos > max_pos)
-    {
-      TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "Commanded position of joint \"", jnt_name, "\" is too large: ", cmd_pos, " > ",
-        max_pos);
-      cmd_pos = max_pos;
-    }
-
     // Fill commands
     switch (joint.hw_iface)
     {
       case tobas::jnt_hw_iface_t::PWM:
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = joint.channel;
-        pwms->pwms.back().period = math::remap<double>(cmd_pos, min_pos, max_pos, tobas::kPwmMin, tobas::kPwmMax);
+        pwms->pwms.back().period = pwmPeriodFromJointPos(joint, cmd_pos);
 
         joint_states->states.emplace_back();
         joint_states->states.back().name = joint.name;
@@ -247,18 +260,13 @@ void JointsHandlerNode::positionResetTimerCb()
     if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
       continue;
 
-    // Get limit
-    const auto min_pos = joint_parser_.lowerLimit(joint.name);
-    const auto max_pos = joint_parser_.upperLimit(joint.name);
-
     // Fill commands
     switch (joint.hw_iface)
     {
       case tobas::jnt_hw_iface_t::PWM:
         pwms->pwms.emplace_back();
         pwms->pwms.back().channel = joint.channel;
-        pwms->pwms.back().period =
-          math::remap<double>(joint.home_pos, min_pos, max_pos, tobas::kPwmMin, tobas::kPwmMax);
+        pwms->pwms.back().period = pwmPeriodFromJointPos(joint, joint.home_pos);
 
         joint_states->states.emplace_back();
         joint_states->states.back().name = joint.name;
