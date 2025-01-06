@@ -47,7 +47,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
   connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);
 
   // Register publishers
-  js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, tobas::kJointStatesTopic);
+  js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, "joint_states");
   drs_pub_ = ros2::createPublisher<moveit_msgs::msg::DisplayRobotState>(node_, "display_robot_state", false, true);
 }
 
