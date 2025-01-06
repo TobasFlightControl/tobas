@@ -31,8 +31,7 @@ JointStatesBridge::JointStatesBridge(const rclcpp::NodeOptions& options) : super
 void JointStatesBridge::jointStatesCb(const sensor_msgs::msg::JointState::ConstSharedPtr& js_in)
 {
   auto js_out = std::make_unique<tobas_msgs::msg::JointStateArray>();
-
-  js_out->stamp = js_in->header.stamp;
+  js_out->header = js_in->header;
 
   for (size_t i = 0; i < js_in->name.size(); ++i)
   {
