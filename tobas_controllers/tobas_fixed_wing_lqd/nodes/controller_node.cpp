@@ -126,7 +126,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::kControllerNode, options),
+  : super(tobas::node::kController, options),
     mass_holder_(tree_),
     x_rotors_(drone_, tobas::X_POSITIVE),
     eom_(drone_, tree_)

@@ -110,7 +110,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::kControllerNode, options), js_converter_(tree_), mixer_(drone_, tree_)
+  : super(tobas::node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // Get static parameters
   do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation", true);

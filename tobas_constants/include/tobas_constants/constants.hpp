@@ -45,7 +45,7 @@ static constexpr char kGpsOriginTopic[] = "gps_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
-static constexpr char kJointStatesTopic[] = "joint_states";
+static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEulerTopic[] = "euler";
 static constexpr char kEventTopic[] = "event";
@@ -100,18 +100,22 @@ static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
 
 // Controller Manager
-namespace controller_manager
+namespace ctrl_manager
 {
 namespace type
 {
 static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster/JointStateBroadcaster";
 static constexpr char kForwardCommandController[] = "forward_command_controller/ForwardCommandController";
 }  // namespace type
-}  // namespace controller_manager
+}  // namespace ctrl_manager
 
 // Node names
-static constexpr char kControllerNode[] = "controller";
-static constexpr char kObserverNode[] = "observer";
+namespace node
+{
+static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
+static constexpr char kController[] = "controller";
+static constexpr char kObserver[] = "observer";
+}  // namespace node
 
 // Frames
 static constexpr char kWorldFrame[] = "world";

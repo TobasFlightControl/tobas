@@ -122,7 +122,7 @@ private:
   void setGnssOriginCb(const SetOrigin::Request::ConstSharedPtr& req, const SetOrigin::Response::SharedPtr& res);
 };
 
-ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::kObserverNode, options), tf_br_(this)
+ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::node::kObserver, options), tf_br_(this)
 {
   getStaticRosParams();
 

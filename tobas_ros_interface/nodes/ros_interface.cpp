@@ -117,8 +117,8 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_msgs::srv::GetRotorControlGains>(tobas::kGetRotorControlGainsSrv);
   addService<tobas_msgs::srv::SetRotorControlGains>(tobas::kSetRotorControlGainsSrv);
   addService<std_srvs::srv::Trigger>(tobas::kSaveRotorControlGainsSrv);
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kControllerNode, tobas::kGetDynamicParamsSrv));
-  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::kObserverNode, tobas::kGetDynamicParamsSrv));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kController, tobas::kGetDynamicParamsSrv));
+  addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetIMUParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetBatteryParams>(real::handler::adc::kSetParamSrv);

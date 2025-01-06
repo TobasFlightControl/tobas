@@ -111,7 +111,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::kControllerNode, options), js_converter_(tree_), mixer_(drone_, tree_)
+  : super(tobas::node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);

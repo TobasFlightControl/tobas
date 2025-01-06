@@ -114,7 +114,7 @@ private:
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
-  : super(tobas::kControllerNode, options),
+  : super(tobas::node::kController, options),
     js_converter_(tree_),
     z_rotors_(drone_, tobas::Z_POSITIVE),
     acc_atti_conv_(tree_),
