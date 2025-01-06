@@ -7,6 +7,7 @@ namespace tobas
 TreeJointStateConverter::TreeJointStateConverter(const kdl::Tree& tree) : super(tree), jnt_parser_(tree_)
 {
   resize();
+  setZero();
 }
 
 bool TreeJointStateConverter::updateInternalDataStructures()
@@ -51,5 +52,12 @@ void TreeJointStateConverter::resize()
   q_out_.resize(nj_);
   qd_out_.resize(nj_);
   f_out_.resize(nj_);
+}
+
+void TreeJointStateConverter::setZero()
+{
+  q_out_.setZero();
+  qd_out_.setZero();
+  f_out_.setZero();
 }
 }  // namespace tobas

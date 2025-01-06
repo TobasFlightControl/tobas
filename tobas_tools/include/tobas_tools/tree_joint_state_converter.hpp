@@ -30,6 +30,7 @@ private:
   kdl::JntArray f_out_;
 
   void resize();
+  void setZero();
 };
 
 inline const kdl::JntArray& TreeJointStateConverter::getPosition() const
