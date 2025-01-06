@@ -2,7 +2,7 @@
 
 #include <tobas_linux/spi_dev.hpp>
 
-namespace aso
+namespace driver
 {
 /**
  * @brief A linux driver of 2-channel ADC.
@@ -99,4 +99,4 @@ private:
   bool sendStandAloneCommand(const uint8_t& cmd);
   bool configure(const uint8_t& rr, const uint8_t& tar_cfg);
 };
-}  // namespace aso
+}  // namespace driver

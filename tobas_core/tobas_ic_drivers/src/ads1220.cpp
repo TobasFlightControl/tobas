@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace aso
+namespace driver
 {
 ADS1220::ADS1220()
 {
@@ -133,4 +133,4 @@ bool ADS1220::configure(const uint8_t& rr, const uint8_t& tar_cfg)
 
   return true;
 }
-}  // namespace aso
+}  // namespace driver
