@@ -1,7 +1,6 @@
-#include <QLabel>
 #include <QLineEdit>
-#include <QDebug>
 #include <QHeaderView>
+#include <QDebug>
 
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>

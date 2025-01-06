@@ -2,7 +2,6 @@
 
 #include <QLabel>
 #include <QPushButton>
-#include <QLineEdit>
 
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_drone_core/joint/joint.hpp>
