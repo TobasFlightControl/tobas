@@ -18,8 +18,6 @@ class JointsHandlerNode : public tobas::BaseNode
   using self = JointsHandlerNode;
   using super = tobas::BaseNode;
 
-  static constexpr auto kCmdResetTimeout = 200ms;
-
 public:
   explicit JointsHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -69,9 +67,9 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
   velocities_sub_ = createSubscriber(tobas::kJointVelocitiesCmdTopic, &self::jointVelocitiesCmdCb, this);
   efforts_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
 
-  pos_reset_timer_ = createTimer(kCmdResetTimeout, &self::positionResetTimerCb, this, false);
-  vel_reset_timer_ = createTimer(kCmdResetTimeout, &self::velocityResetTimerCb, this, false);
-  eff_reset_timer_ = createTimer(kCmdResetTimeout, &self::effortResetTimerCb, this, false);
+  pos_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
+  vel_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);
+  eff_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this, false);
 }
 
 void JointsHandlerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
@@ -243,6 +241,9 @@ void JointsHandlerNode::positionResetTimerCb()
 
   for (const auto& [_, joint] : drone_->joints)
   {
+    if (!joint.isServoJoint())
+      continue;
+
     if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
       continue;
 
@@ -291,8 +292,8 @@ void JointsHandlerNode::positionResetTimerCb()
   {
     pos_commanded_ = false;
     TOBAS_WARN(
-      "All joints with position command interface are reset to home position because ", kCmdResetTimeout.count(),
-      " ms have elapsed since the last command.");
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout.count(), " ms have elapsed since the last command.");
   }
 }
 

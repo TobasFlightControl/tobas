@@ -28,9 +28,6 @@ class DShotDriverNode : public tobas::BaseNode
   using SetGains = tobas_msgs::srv::SetRotorControlGains;
   using SaveGains = std_srvs::srv::Trigger;
 
-  static constexpr auto kSPIInterval = 1ms;
-  static constexpr auto kAutoStopTimeThresh = 200ms;  // 最低でも5Hzでスロットルを送る
-  static constexpr auto kAutoDisarmTimeThresh = 10s;
   static constexpr char kGainKeyPrefix[] = "speed_control_gain_";
 
 public:
@@ -93,8 +90,8 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("as
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
 
   publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this, false);
-  auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
-  auto_disarm_timer_ = createTimer(kAutoDisarmTimeThresh, &self::autoDisarmTimerCb, this, false);
+  auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this, false);
+  auto_disarm_timer_ = createTimer(tobas::kAutoDisarmTimeout, &self::autoDisarmTimerCb, this, false);
 }
 
 bool DShotDriverNode::transferAndSleep()
@@ -105,7 +102,7 @@ bool DShotDriverNode::transferAndSleep()
     return false;
   }
 
-  rclcpp::sleep_for(kSPIInterval);
+  rclcpp::sleep_for(1ms);
   return true;
 }
 
@@ -435,7 +432,7 @@ void DShotDriverNode::autoStopTimerCb()
   {
     is_commanded_ = false;
     TOBAS_WARN(
-      "All rotors are automatically stopped because ", kAutoStopTimeThresh.count(),
+      "All rotors are automatically stopped because ", tobas::kCommandAutoResetTimeout.count(),
       " ms have elapsed since the last command.");
   }
 }
@@ -446,7 +443,7 @@ void DShotDriverNode::autoDisarmTimerCb()
   auto_disarm_timer_->cancel();
 
   TOBAS_WARN(
-    "All rotors are automatically disarmed because ", kAutoDisarmTimeThresh.count(),
+    "All rotors are automatically disarmed because ", tobas::kAutoDisarmTimeout.count(),
     " s have elapsed since the last command.");
 }
 
