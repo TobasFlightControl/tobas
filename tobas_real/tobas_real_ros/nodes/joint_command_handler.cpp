@@ -8,6 +8,7 @@
 
 /**
  * @brief ジョイントの位置，速度，力のコマンドを受け取り，適切なハードウェアインターフェースに指令する．
+ * また，そのジョイントの状態を発行する．
  */
 class JointCommandHandlerNode : public tobas::BaseNode
 {
