@@ -13,6 +13,9 @@
 #include "tobas_setup_assistant/setting_tabs/joint_config.hpp"
 #include "tobas_setup_assistant/common.hpp"
 
+#define DOUBLE_MIN std::numeric_limits<double>::lowest()
+#define DOUBLE_MAX std::numeric_limits<double>::max()
+
 namespace gui
 {
 namespace setup_assistant
@@ -377,10 +380,6 @@ void JointConfigurationWidget::clear()
   channel_.clear();
   home_pos_.clear();
   reverse_.clear();
-  min_pos_.clear();
-  max_pos_.clear();
-  max_vel_.clear();
-  max_eff_.clear();
 
   tilt_joint_map_.clear();
 }
@@ -549,7 +548,7 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
 
   // Home Position
   const auto home_pos = new qt::DoubleSpinBox();
-  home_pos->setDecimals(kPosDecimals);
+  home_pos->setDecimals(3);
   home_pos->setMinimum(joint.lower_limit);
   home_pos->setMaximum(joint.upper_limit);
   switch (joint.type)
@@ -587,19 +586,23 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   max_pos->setEnabled(false);
   max_vel->setEnabled(false);
   max_eff->setEnabled(false);
+  const auto min_pos_text = joint.lower_limit == DOUBLE_MIN ? "-INF" : QString::number(joint.lower_limit);
+  const auto max_pos_text = joint.upper_limit == DOUBLE_MAX ? "INF" : QString::number(joint.upper_limit);
+  const auto max_vel_text = joint.max_velocity == DOUBLE_MAX ? "INF" : QString::number(joint.max_velocity);
+  const auto max_eff_text = joint.max_effort == DOUBLE_MAX ? "INF" : QString::number(joint.max_effort);
   switch (joint.type)
   {
     case kdl::Joint::ROTATION:
-      min_pos->setText(QString::number(joint.lower_limit, 'f', kPosDecimals) + " rad");
-      max_pos->setText(QString::number(joint.upper_limit, 'f', kPosDecimals) + " rad");
-      max_vel->setText(QString::number(joint.max_velocity, 'f', kVelDecimals) + " rad/s");
-      max_eff->setText(QString::number(joint.max_effort, 'f', kEffDecimals) + " Nm");
+      min_pos->setText(min_pos_text + " rad");
+      max_pos->setText(max_pos_text + " rad");
+      max_vel->setText(max_vel_text + " rad/s");
+      max_eff->setText(max_eff_text + " Nm");
       break;
     case kdl::Joint::TRANSLATION:
-      min_pos->setText(QString::number(joint.lower_limit, 'f', kPosDecimals) + " m");
-      max_pos->setText(QString::number(joint.upper_limit, 'f', kPosDecimals) + " m");
-      max_vel->setText(QString::number(joint.max_velocity, 'f', kVelDecimals) + " m/s");
-      max_eff->setText(QString::number(joint.max_effort, 'f', kEffDecimals) + " N");
+      min_pos->setText(min_pos_text + " m");
+      max_pos->setText(max_pos_text + " m");
+      max_vel->setText(max_vel_text + " m/s");
+      max_eff->setText(max_eff_text + " N");
       break;
     default:
       throw;
@@ -629,10 +632,6 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   channel_.append(channel);
   home_pos_.append(home_pos);
   reverse_.append(reverse);
-  min_pos_.append(min_pos);
-  max_pos_.append(max_pos);
-  max_vel_.append(max_vel);
-  max_eff_.append(max_eff);
 
   // Reset
   reset(row);

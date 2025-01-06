@@ -23,10 +23,6 @@ class JointConfigurationWidget : public BaseSettingWidget
   using self = JointConfigurationWidget;
   using super = BaseSettingWidget;
 
-  static constexpr int kPosDecimals = 3;
-  static constexpr int kVelDecimals = 3;
-  static constexpr int kEffDecimals = 3;
-
   // Columns
   static constexpr int kLinkNameCol = 0;
   static constexpr int kJointNameCol = kLinkNameCol + 1;
@@ -137,10 +133,6 @@ private:
   QVector<qt::SpinBox*> channel_;
   QVector<qt::DoubleSpinBox*> home_pos_;
   QVector<QPushButton*> reverse_;
-  QVector<QLineEdit*> min_pos_;
-  QVector<QLineEdit*> max_pos_;
-  QVector<QLineEdit*> max_vel_;
-  QVector<QLineEdit*> max_eff_;
 
   QMap<QString, QString> tilt_joint_map_;
 
