@@ -1,12 +1,10 @@
-#include <ranges>
-
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <controller_manager_msgs/srv/list_controllers.hpp>
 
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/joint/command_interface.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_drone_msgs_adapter/drone.hpp>
 
 using namespace std;
 
@@ -22,39 +20,77 @@ public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  tobas::Drone::ConstSharedPtr drone_;
+
   unordered_map<string, pair<tobas::jnt_cmd_iface_t, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>> ctrl_map_;
 
+  ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
 
   ros2::ServiceClientPtr<controller_manager_msgs::srv::ListControllers> list_controllers_sc_;
 
+  ros2::TimerPtr pos_reset_timer_;
+  ros2::TimerPtr vel_reset_timer_;
+  ros2::TimerPtr eff_reset_timer_;
+
+  void publishJointCommand(const std::string& jnt_name, double command);
+  void publishJointCommand(const tobas_msgs::msg::JointCommand& cmd);
+
+  void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
+
+  void positionResetTimerCb();
+  void velocityResetTimerCb();
+  void effortResetTimerCb();
 };
 
 JointCommandHandlerNode::JointCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_joint_command_handler", options)
 {
-  // Register publishers
-  const auto joint_names = getStringArrayParam("joint_names", {});
-  const auto interfaces = getIntArrayParam("interfaces", {});
-  if (joint_names.size() != interfaces.size())
-    TOBAS_EXIT("The sizes of joint name array and interface array are different.");
-  for (const auto& [jnt_name, iface] : views::zip(joint_names, interfaces))
+  drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this);
+}
+
+void JointCommandHandlerNode::publishJointCommand(const std::string& jnt_name, double command)
+{
+  auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
+  gz_cmd->data.push_back(command);
+
+  const auto& publisher = ctrl_map_.at(jnt_name).second;
+  publisher->publish(move(gz_cmd));
+}
+
+void JointCommandHandlerNode::publishJointCommand(const tobas_msgs::msg::JointCommand& cmd)
+{
+  publishJointCommand(cmd.name, cmd.data);
+}
+
+void JointCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+{
+  drone_ = drone;
+
+  // Resister publishers
+  ctrl_map_.clear();
+  for (const auto& [_, joint] : drone->joints)
   {
-    const auto controller_name = jnt_name + "_controller";
+    const auto controller_name = joint.name + "_controller";
     const auto topic = controller_name + "/commands";
-    ctrl_map_[jnt_name] = { static_cast<tobas::jnt_cmd_iface_t>(iface),
-                            createPublisher<std_msgs::msg::Float64MultiArray>(topic, false, true) };
+    ctrl_map_[joint.name] = { static_cast<tobas::jnt_cmd_iface_t>(joint.cmd_iface),
+                              createPublisher<std_msgs::msg::Float64MultiArray>(topic, false, true) };
   }
 
-  // Register subscribers
+  // Resister subscribers
   positions_sub_ = createSubscriber(tobas::kJointPositionsCmdTopic, &self::jointPositionsCmdCb, this);
   velocities_sub_ = createSubscriber(tobas::kJointVelocitiesCmdTopic, &self::jointVelocitiesCmdCb, this);
   efforts_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
+
+  // Resister timers
+  pos_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this);
+  vel_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this);
+  eff_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::effortResetTimerCb, this);
 }
 
 void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)
@@ -65,23 +101,22 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     if (!ctrl_map_.contains(jnt_name))
     {
       TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
-      return;
+      continue;
     }
 
-    const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::jnt_cmd_iface_t::POSITION)
+    const auto& cmd_iface = ctrl_map_[jnt_name].first;
+    if (cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
     {
-      auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
-      gz_cmd->data.push_back(tbs_cmd.data);
-      pub->publish(move(gz_cmd));
-    }
-    else
-    {
-      TOBAS_WARN(
-        "Controller type for joint \"", jnt_name, "\" is not position. So received position command for joint \"",
+      TOBAS_ERROR(
+        "The command interface of joint \"", jnt_name, "\" is not position. So received position command for joint \"",
         jnt_name, "\" is ignored.");
+      continue;
     }
+
+    publishJointCommand(tbs_cmd);
   }
+
+  pos_reset_timer_->reset();
 }
 
 void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
@@ -93,23 +128,22 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     if (!ctrl_map_.contains(jnt_name))
     {
       TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
-      return;
+      continue;
     }
 
-    const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::jnt_cmd_iface_t::VELOCITY)
+    const auto& cmd_iface = ctrl_map_[jnt_name].first;
+    if (cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
     {
-      auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
-      gz_cmd->data.push_back(tbs_cmd.data);
-      pub->publish(move(gz_cmd));
-    }
-    else
-    {
-      TOBAS_WARN(
-        "Controller type for joint \"", jnt_name, "\" is not velocity. So received velocity command for joint \"",
+      TOBAS_ERROR(
+        "The command interface of joint \"", jnt_name, "\" is not velocity. So received velocity command for joint \"",
         jnt_name, "\" is ignored.");
+      continue;
     }
+
+    publishJointCommand(tbs_cmd);
   }
+
+  vel_reset_timer_->reset();
 }
 
 void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
@@ -120,22 +154,60 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     if (!ctrl_map_.contains(jnt_name))
     {
       TOBAS_ERROR("Controller for joint \"", jnt_name, "\" is not found.");
-      return;
+      continue;
     }
 
-    const auto& [type, pub] = ctrl_map_[jnt_name];
-    if (type == tobas::jnt_cmd_iface_t::EFFORT)
+    const auto& cmd_iface = ctrl_map_[jnt_name].first;
+    if (cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
     {
-      auto gz_cmd = std::make_unique<std_msgs::msg::Float64MultiArray>();
-      gz_cmd->data.push_back(tbs_cmd.data);
-      pub->publish(move(gz_cmd));
+      TOBAS_ERROR(
+        "The command interface of joint \"", jnt_name, "\" is not effort. So received effort command for joint \"",
+        jnt_name, "\" is ignored.");
+      continue;
     }
-    else
-    {
-      TOBAS_WARN(
-        "Controller type for joint \"", jnt_name, "\" is not effort. So received effort command for joint \"", jnt_name,
-        "\" is ignored.");
-    }
+
+    publishJointCommand(tbs_cmd);
+  }
+
+  eff_reset_timer_->reset();
+}
+
+void JointCommandHandlerNode::positionResetTimerCb()
+{
+  for (const auto& [_, joint] : drone_->joints)
+  {
+    if (!joint.isServoJoint())
+      continue;
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
+      continue;
+
+    publishJointCommand(joint.name, joint.home_pos);
+  }
+}
+
+void JointCommandHandlerNode::velocityResetTimerCb()
+{
+  for (const auto& [_, joint] : drone_->joints)
+  {
+    if (!joint.isServoJoint())
+      continue;
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
+      continue;
+
+    publishJointCommand(joint.name, joint.home_pos);
+  }
+}
+
+void JointCommandHandlerNode::effortResetTimerCb()
+{
+  for (const auto& [_, joint] : drone_->joints)
+  {
+    if (!joint.isServoJoint())
+      continue;
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::EFFORT)
+      continue;
+
+    publishJointCommand(joint.name, joint.home_pos);
   }
 }
 

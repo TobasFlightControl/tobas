@@ -329,8 +329,6 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateControllerManagerLaunch(launch_dir))
     return false;
-  if (!generateGazeboJointCommandHandlerConfig(config_dir))
-    return false;
   if (!generateJointControllerManagerConfig(config_dir))
     return false;
   if (!generateJointControllerConfigs(config_dir))
@@ -455,30 +453,6 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
     qt::qErrorBox(settings_, "Failed to save the controller manager configurations.");
     return false;
   }
-
-  return true;
-}
-
-bool PackageGenerator::generateGazeboJointCommandHandlerConfig(const std::filesystem::path& config_dir)
-{
-  const auto& joint_config = settings_->joint_config;
-
-  // 空の配列はyamlを読み込んだ時点で"No parameter value set"エラーが出るため，長さが0ならパラメータ自体を設定しない．
-  YAML::Node params_node(YAML::NodeType::Map);
-  for (int i = 0; i < joint_config->count(); ++i)
-  {
-    if (!tobas::isServoJoint(joint_config->getRole(i)))
-      continue;
-
-    params_node["joint_names"].push_back(joint_config->getJointName(i));
-    params_node["interfaces"].push_back(joint_config->getCommandInterface(i));
-  }
-
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node[robot_.robotName()]["gazebo_joint_command_handler"][kROSParamsKey] = params_node;
-
-  if (!saveYamlNode(config_dir / "gazebo_joint_command_handler.yaml", root_node))
-    return false;
 
   return true;
 }
