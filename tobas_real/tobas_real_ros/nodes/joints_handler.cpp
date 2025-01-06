@@ -205,8 +205,8 @@ void JointsHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandA
   }
 
   // Reset timeout timer
-  pos_reset_timer_->reset();
   pos_commanded_ = true;
+  pos_reset_timer_->reset();
 }
 
 void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities)
@@ -217,8 +217,8 @@ void JointsHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommand
   (void)velocities;  // TODO
 
   // Reset timeout timer
-  vel_reset_timer_->reset();
   vel_commanded_ = true;
+  vel_reset_timer_->reset();
 }
 
 void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts)
@@ -229,8 +229,8 @@ void JointsHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArr
   (void)efforts;  // TODO
 
   // Reset timeout timer
-  eff_reset_timer_->reset();
   eff_commanded_ = true;
+  eff_reset_timer_->reset();
 }
 
 void JointsHandlerNode::positionResetTimerCb()
