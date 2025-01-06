@@ -297,6 +297,7 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   // テンプレートから生成
   config_env_->generate(tpl_data, "CMakeLists.txt.tplcmake", pkg_path);
   config_env_->generate(tpl_data, "package.xml.tplxml", pkg_path);
+  config_env_->generate(tpl_data, string(tobas::node::kJointStateBroadcaster) + ".yaml.tplyaml", config_dir);
   config_env_->generate(tpl_data, "component_containers_mp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "component_containers_sp.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "common_realtime_component.launch.py.tplpy", launch_dir);
@@ -424,9 +425,13 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
   if (hasServoJoint())
   {
     const auto config_pkg_name = common::getTBSConfigName(tbsPath());
+    const auto config_dir = "$(find-pkg-share " + config_pkg_name + ")/config/";
 
     // Joint state broadcaster
-    const auto jsb_node = addNode(launch, "controller_manager", "spawner", "", ns, "", "joint_state_broadcaster");
+    const auto jsb_name = string(tobas::node::kJointStateBroadcaster);
+    const auto jsb_param = config_dir + jsb_name + ".yaml";
+    const auto jsb_args = jsb_name + " --param-file " + jsb_param;
+    const auto jsb_node = addNode(launch, "controller_manager", "spawner", "", ns, "", jsb_args);
     addNodeParam(jsb_node, "use_sim_time", "true");
 
     // コントローラごとにノードを立ち上げる
@@ -436,10 +441,10 @@ bool PackageGenerator::generateControllerManagerLaunch(const fs::path& launch_di
         continue;
 
       const auto joint_name = joint_config->getJointName(i).toStdString();
-      const auto controller_name = joint_name + "_controller";
-      const auto param_file = "$(find-pkg-share " + config_pkg_name + ")/config/" + controller_name + ".yaml";
-      const auto args = controller_name + " --param-file " + param_file;
-      const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", ns, "", args);
+      const auto ctrl_name = joint_name + "_controller";
+      const auto ctrl_param = config_dir + ctrl_name + ".yaml";
+      const auto ctrl_args = ctrl_name + " --param-file " + ctrl_param;
+      const auto ctrl_node = addNode(launch, "controller_manager", "spawner", "", ns, "", ctrl_args);
       addNodeParam(ctrl_node, "use_sim_time", "true");
     }
   }
@@ -483,7 +488,7 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
   // Controller manager
   YAML::Node manager_params_node(YAML::NodeType::Map);
   manager_params_node["update_rate"] = 100;  // TODO: GUIで設定できるように
-  manager_params_node["joint_state_broadcaster"]["type"] = tobas::controller_manager::type::kJointStateBroadcaster;
+  manager_params_node[tobas::node::kJointStateBroadcaster]["type"] = tobas::ctrl_manager::type::kJointStateBroadcaster;
 
   // Each joint controllers
   const auto joint_config = settings_->joint_config;
@@ -494,7 +499,7 @@ bool PackageGenerator::generateJointControllerManagerConfig(const fs::path& conf
 
     const auto jnt_name = joint_config->getJointName(i).toStdString();
     const auto ctrl_name = jnt_name + "_controller";
-    manager_params_node[ctrl_name]["type"] = tobas::controller_manager::type::kForwardCommandController;
+    manager_params_node[ctrl_name]["type"] = tobas::ctrl_manager::type::kForwardCommandController;
   }
 
   // Create data
