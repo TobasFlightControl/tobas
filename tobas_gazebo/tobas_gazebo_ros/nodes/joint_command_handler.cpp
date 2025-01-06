@@ -20,6 +20,9 @@ public:
   explicit JointCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  bool pos_commanded_ = false;
+  bool vel_commanded_ = false;
+  bool eff_commanded_ = false;
   tobas::Drone::ConstSharedPtr drone_;
 
   unordered_map<string, pair<tobas::jnt_cmd_iface_t, ros2::PublisherPtr<std_msgs::msg::Float64MultiArray>>> ctrl_map_;
@@ -116,6 +119,7 @@ void JointCommandHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCo
     publishJointCommand(tbs_cmd);
   }
 
+  pos_commanded_ = true;
   pos_reset_timer_->reset();
 }
 
@@ -143,6 +147,7 @@ void JointCommandHandlerNode::jointVelocitiesCmdCb(const tobas_msgs::msg::JointC
     publishJointCommand(tbs_cmd);
   }
 
+  vel_commanded_ = true;
   vel_reset_timer_->reset();
 }
 
@@ -169,6 +174,7 @@ void JointCommandHandlerNode::jointEffortsCmdCb(const tobas_msgs::msg::JointComm
     publishJointCommand(tbs_cmd);
   }
 
+  eff_commanded_ = true;
   eff_reset_timer_->reset();
 }
 
@@ -183,6 +189,14 @@ void JointCommandHandlerNode::positionResetTimerCb()
 
     publishJointCommand(joint.name, joint.home_pos);
   }
+
+  if (pos_commanded_)
+  {
+    pos_commanded_ = false;
+    TOBAS_WARN(
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout.count(), " ms have elapsed since the last command.");
+  }
 }
 
 void JointCommandHandlerNode::velocityResetTimerCb()
@@ -196,6 +210,14 @@ void JointCommandHandlerNode::velocityResetTimerCb()
 
     publishJointCommand(joint.name, joint.home_pos);
   }
+
+  if (vel_commanded_)
+  {
+    pos_commanded_ = false;
+    TOBAS_WARN(
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout.count(), " ms have elapsed since the last command.");
+  }
 }
 
 void JointCommandHandlerNode::effortResetTimerCb()
@@ -208,6 +230,14 @@ void JointCommandHandlerNode::effortResetTimerCb()
       continue;
 
     publishJointCommand(joint.name, joint.home_pos);
+  }
+
+  if (eff_commanded_)
+  {
+    pos_commanded_ = false;
+    TOBAS_WARN(
+      "All joints with position command interface are reset to home position because ",
+      tobas::kCommandAutoResetTimeout.count(), " ms have elapsed since the last command.");
   }
 }
 
