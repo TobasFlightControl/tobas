@@ -1,5 +1,9 @@
 #pragma once
 
+#include <QLabel>
+#include <QPushButton>
+#include <QLineEdit>
+
 #include <tobas_qt_tools/widgets/table_widget.hpp>
 #include <tobas_drone_core/joint/joint.hpp>
 
@@ -31,7 +35,8 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr int kHwIfaceCol = kCmdIfaceCol + 1;
   static constexpr int kChannelCol = kHwIfaceCol + 1;
   static constexpr int kHomePosCol = kChannelCol + 1;
-  static constexpr int kMinPosCol = kHomePosCol + 1;
+  static constexpr int kReverseCol = kHomePosCol + 1;
+  static constexpr int kMinPosCol = kReverseCol + 1;
   static constexpr int kMaxPosCol = kMinPosCol + 1;
   static constexpr int kMaxVelCol = kMaxPosCol + 1;
   static constexpr int kMaxEffCol = kMaxVelCol + 1;
@@ -45,6 +50,7 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr char kHwIfaceLabel[] = "Hardware Interface";
   static constexpr char kChannelLabel[] = "Channel";
   static constexpr char kHomePosLabel[] = "Home Position";
+  static constexpr char kReverseLabel[] = "Reverse";
   static constexpr char kMinPosLabel[] = "Min Position";
   static constexpr char kMaxPosLabel[] = "Max Position";
   static constexpr char kMaxVelLabel[] = "Max Velocity";
@@ -67,6 +73,10 @@ class JointConfigurationWidget : public BaseSettingWidget
   // Hardware Interface Labels
   static constexpr char kHwIfaceLabel_PWM[] = "PWM";
   static constexpr char kHwIfaceLabel_Other[] = "Other";
+
+  // Reverse Labels
+  static constexpr char kReverseLabel_Normal[] = "Normal";
+  static constexpr char kReverseLabel_Reverse[] = "Reverse";
 
 public:
   explicit JointConfigurationWidget(
@@ -93,6 +103,7 @@ public:
   tobas::jnt_hw_iface_t getHardwareInterface(int row) const;
   int getChannel(int row) const;
   double getHomePosition(int row) const;
+  bool getReverse(int row) const;
 
   // Setters
   void setRole(int row, tobas::jnt_role_t value);
@@ -100,6 +111,7 @@ public:
   void setHardwareInterface(int row, tobas::jnt_hw_iface_t value);
   void setChannel(int row, int value);
   void setHomePosition(int row, double value);
+  void setReverse(int row, bool value);
 
   /* 登録されているジョイント数． */
   int count() const;
@@ -124,6 +136,7 @@ private:
   QVector<qt::ComboBox*> hw_iface_;
   QVector<qt::SpinBox*> channel_;
   QVector<qt::DoubleSpinBox*> home_pos_;
+  QVector<QPushButton*> reverse_;
   QVector<QLineEdit*> min_pos_;
   QVector<QLineEdit*> max_pos_;
   QVector<QLineEdit*> max_vel_;

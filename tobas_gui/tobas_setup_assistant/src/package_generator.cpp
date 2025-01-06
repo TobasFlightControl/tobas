@@ -147,6 +147,7 @@ tobas::Drone PackageGenerator::createDrone()
     joint.hw_iface = joint_config->getHardwareInterface(i);
     joint.channel = joint_config->getChannel(i);
     joint.home_pos = joint_config->getHomePosition(i);
+    joint.reverse = joint_config->getReverse(i);
 
     drone.joints[joint.name] = joint;
   }

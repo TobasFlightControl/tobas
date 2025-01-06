@@ -33,6 +33,7 @@ JointConfigurationWidget::JointConfigurationWidget(
     kHwIfaceLabel,
     kChannelLabel,
     kHomePosLabel,
+    kReverseLabel,
     kMinPosLabel,
     kMaxPosLabel,
     kMaxVelLabel,
@@ -135,6 +136,7 @@ YAML::Node JointConfigurationWidget::dump()
     sub_node[kHwIfaceLabel] = getHardwareInterface(row);
     sub_node[kChannelLabel] = getChannel(row);
     sub_node[kHomePosLabel] = getHomePosition(row);
+    sub_node[kReverseLabel] = getReverse(row);
 
     node[getLinkName(row)] = sub_node;
   }
@@ -160,6 +162,7 @@ void JointConfigurationWidget::load(const YAML::Node& node)
     setHardwareInterface(row, sub_node[kHwIfaceLabel].as<tobas::jnt_hw_iface_t>());
     setChannel(row, sub_node[kChannelLabel].as<int>());
     setHomePosition(row, sub_node[kHomePosLabel].as<double>());
+    setReverse(row, sub_node[kReverseLabel].as<bool>());
 
     updateEnability(row);
   }
@@ -245,6 +248,11 @@ double JointConfigurationWidget::getHomePosition(int row) const
   return home_pos_[row]->value();
 }
 
+bool JointConfigurationWidget::getReverse(int row) const
+{
+  return reverse_[row]->isChecked();
+}
+
 void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
 {
   QString text;
@@ -327,6 +335,11 @@ void JointConfigurationWidget::setHomePosition(int row, double value)
   home_pos_[row]->setValue(value);
 }
 
+void JointConfigurationWidget::setReverse(int row, bool value)
+{
+  reverse_[row]->setChecked(value);
+}
+
 int JointConfigurationWidget::count() const
 {
   return table_->rowCount();
@@ -363,6 +376,7 @@ void JointConfigurationWidget::clear()
   hw_iface_.clear();
   channel_.clear();
   home_pos_.clear();
+  reverse_.clear();
   min_pos_.clear();
   max_pos_.clear();
   max_vel_.clear();
@@ -392,36 +406,42 @@ void JointConfigurationWidget::setDefaultValues(int row)
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       channel_[row]->setValue(0);
       home_pos_[row]->setValue(0.);
+      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::TILT_JOINT:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       channel_[row]->setValue(0);
       home_pos_[row]->setValue(0.);
+      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::CONTROL_SURFACE:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       channel_[row]->setValue(0);
       home_pos_[row]->setValue(0.);
+      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::MANIPULATION:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
       channel_[row]->setValue(0);
       home_pos_[row]->setValue(0.);
+      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       channel_[row]->setValue(0);
       home_pos_[row]->setValue(0.);
+      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::OTHER:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
       channel_[row]->setValue(0);
       home_pos_[row]->setValue(0.);
+      reverse_[row]->setChecked(false);
       break;
     default:
       throw;
@@ -438,6 +458,7 @@ void JointConfigurationWidget::updateEnability(int row)
       hw_iface_[row]->setEnabled(false);
       channel_[row]->setEnabled(false);
       home_pos_[row]->setEnabled(false);
+      reverse_[row]->setEnabled(false);
       break;
     case tobas::jnt_role_t::TILT_JOINT:
       role_[row]->setEnabled(false);
@@ -445,6 +466,7 @@ void JointConfigurationWidget::updateEnability(int row)
       hw_iface_[row]->setEnabled(true);
       channel_[row]->setEnabled(true);
       home_pos_[row]->setEnabled(false);
+      reverse_[row]->setEnabled(true);
       break;
     case tobas::jnt_role_t::CONTROL_SURFACE:
       role_[row]->setEnabled(false);
@@ -452,6 +474,7 @@ void JointConfigurationWidget::updateEnability(int row)
       hw_iface_[row]->setEnabled(true);
       channel_[row]->setEnabled(true);
       home_pos_[row]->setEnabled(false);
+      reverse_[row]->setEnabled(true);
       break;
     case tobas::jnt_role_t::MANIPULATION:
       role_[row]->setEnabled(true);
@@ -459,6 +482,7 @@ void JointConfigurationWidget::updateEnability(int row)
       hw_iface_[row]->setEnabled(true);
       channel_[row]->setEnabled(true);
       home_pos_[row]->setEnabled(true);
+      reverse_[row]->setEnabled(true);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
       role_[row]->setEnabled(true);
@@ -466,6 +490,7 @@ void JointConfigurationWidget::updateEnability(int row)
       hw_iface_[row]->setEnabled(false);
       channel_[row]->setEnabled(false);
       home_pos_[row]->setEnabled(false);
+      reverse_[row]->setEnabled(false);
       break;
     case tobas::jnt_role_t::OTHER:
       role_[row]->setEnabled(true);
@@ -473,6 +498,7 @@ void JointConfigurationWidget::updateEnability(int row)
       hw_iface_[row]->setEnabled(false);
       channel_[row]->setEnabled(false);
       home_pos_[row]->setEnabled(false);
+      reverse_[row]->setEnabled(false);
       break;
     default:
       throw;
@@ -538,6 +564,20 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
       throw;
   }
 
+  // Reverse
+  const auto reverse = new QPushButton();
+  reverse->setCheckable(true);
+  reverse->setText(kReverseLabel_Normal);
+  connect(
+    reverse, &QPushButton::toggled, this,
+    [reverse](bool checked)
+    {
+      if (checked)
+        reverse->setText(kReverseLabel_Reverse);
+      else
+        reverse->setText(kReverseLabel_Normal);
+    });
+
   // Joint Limit (Read-only)
   const auto min_pos = new QLineEdit();
   const auto max_pos = new QLineEdit();
@@ -574,6 +614,7 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   table_->setCellWidget(row, kHwIfaceCol, hw_iface);
   table_->setCellWidget(row, kChannelCol, channel);
   table_->setCellWidget(row, kHomePosCol, home_pos);
+  table_->setCellWidget(row, kReverseCol, reverse);
   table_->setCellWidget(row, kMinPosCol, min_pos);
   table_->setCellWidget(row, kMaxPosCol, max_pos);
   table_->setCellWidget(row, kMaxVelCol, max_vel);
@@ -587,6 +628,7 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   hw_iface_.append(hw_iface);
   channel_.append(channel);
   home_pos_.append(home_pos);
+  reverse_.append(reverse);
   min_pos_.append(min_pos);
   max_pos_.append(max_pos);
   max_vel_.append(max_vel);
