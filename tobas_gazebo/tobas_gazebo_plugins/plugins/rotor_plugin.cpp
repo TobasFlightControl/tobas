@@ -41,9 +41,9 @@ class GazeboRotorPlugin : public BaseNode,
                           public gz::sim::ISystemPreUpdate
 {
   // Constants
-  static constexpr double kAutoStopTimeThresh = 0.5;  // [s]
-  static constexpr double kMinBatteryVoltage = 3.;    // [V]
-  static constexpr double kThrotLimitMargin = 1e-3;   // [-]
+  static constexpr double kAutoStopTimeout = 0.5;    // [s]
+  static constexpr double kMinBatteryVoltage = 3.;   // [V]
+  static constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 400;  // [Hz]
@@ -232,7 +232,7 @@ void GazeboRotorPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::Enti
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
-  if (secs_from_last_cmd > kAutoStopTimeThresh)
+  if (secs_from_last_cmd > kAutoStopTimeout)
     throttle_ = 0.;
 
   // Compute time after previous simulation time

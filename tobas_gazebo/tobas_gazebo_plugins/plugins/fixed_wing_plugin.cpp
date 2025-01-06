@@ -43,7 +43,7 @@ class GazeboFixedWingPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
-  static constexpr double kAutoStopTimeThresh = 0.5;  // [s]
+  static constexpr double kAutoResetTimeout = 0.5;  // [s]
 
   // Default values
   static constexpr double kDefaultLowerStallAngle = -10 * tobas_std::kDeg2Rad;
@@ -265,11 +265,11 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 {
   // 最新のコマンドからの経過時間を確認
   const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
-  if (cs_deflections_ != nullptr && secs_from_last_cmd > kAutoStopTimeThresh)
+  if (cs_deflections_ != nullptr && secs_from_last_cmd > kAutoResetTimeout)
   {
     cs_deflections_ = nullptr;
     TOBAS_INFO(
-      "Deflection angles of control surfaces are automatically reset because ", kAutoStopTimeThresh,
+      "Deflection angles of control surfaces are automatically reset because ", kAutoResetTimeout,
       " seconds have elapsed since the last command.");
   }
 
