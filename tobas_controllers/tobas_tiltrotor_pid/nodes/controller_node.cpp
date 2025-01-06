@@ -54,8 +54,8 @@ private:
   // Mutable variables
   bool drone_received_ = false;
   bool tree_received_ = false;
+  bool js_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_msgs::msg::JointStateArray::ConstSharedPtr js_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
   tobas::CommandLevelHandler cmd_level_handler_;
@@ -189,7 +189,7 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (js_sub_ != nullptr && js_ == nullptr)
+  if (js_sub_ != nullptr && !js_received_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
     return false;
@@ -426,10 +426,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   pos_otg_.update(dt);
   rot_otg_.update(dt);
 
-  // 可動関節の角度を更新
-  if (js_sub_ != nullptr && js_converter_.convert(*js_) < 0)
-    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
-
   // 位置制御器
   const auto& cur_pos_W = odom->frame.p;
   const auto cur_vel_W = odom->frame.M * odom->twist.vel;
@@ -501,7 +497,14 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
 void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
-  js_ = js;
+  // 異なる関節の情報が別々のメッセージで送られてくる場合を想定し，メッセージそのものを保持せずにコールバックでKDLへの変換まで行う．
+  if (js_converter_.convert(*js) < 0)
+  {
+    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
+    return;
+  }
+
+  js_received_ = true;
 }
 
 void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)

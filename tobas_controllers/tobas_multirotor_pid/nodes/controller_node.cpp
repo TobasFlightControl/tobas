@@ -59,10 +59,10 @@ private:
   // Mutable variables
   bool drone_received_ = false;
   bool tree_received_ = false;
+  bool js_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
-  tobas_msgs::msg::JointStateArray::ConstSharedPtr js_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
   tobas_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;  // PosVelYawの目標値 (世界座標系)
   std::shared_ptr<RollPitchYawThrust> tar_rpyt_;    // RollPitchYawThrustの目標値
@@ -208,7 +208,7 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (js_sub_ != nullptr && js_ == nullptr)
+  if (js_sub_ != nullptr && !js_received_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
     return false;
@@ -392,10 +392,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // Rotation Controller
   if (tar_rpyt_ != nullptr)
   {
-    // 可動関節角を更新
-    if (js_sub_ != nullptr && js_converter_.convert(*js_) < 0)
-      TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
-
     // 目標角加速度を計算
     const auto tar_dgyro =
       rot_pid_.update(kdl::Euler(odom->frame.M), odom->twist.rot, tar_rpyt_->rpy, kdl::Vector::Zero(), dt);
@@ -440,7 +436,14 @@ void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::Con
 
 void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)
 {
-  js_ = js;
+  // 異なる関節の情報が別々のメッセージで送られてくる場合を想定し，メッセージそのものを保持せずにコールバックでKDLへの変換まで行う．
+  if (js_converter_.convert(*js) < 0)
+  {
+    TOBAS_ERROR("Joint state converter failed: ", js_converter_.errorMessage());
+    return;
+  }
+
+  js_received_ = true;
 }
 
 void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
