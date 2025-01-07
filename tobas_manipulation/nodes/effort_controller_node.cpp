@@ -108,7 +108,7 @@ void EffortControllerNode::initialize()
   addDynamicDoubleParam("linear_damping", &self::linearDampingCb, this, 10., 0.1, 20.);
   addDynamicDoubleParam("angular_damping", &self::angularDampingCb, this, 10., 0.1, 20.);
 
-  efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffortsCmdTopic);
+  efforts_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);

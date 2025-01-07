@@ -212,9 +212,9 @@ void DynamixelHandlerNode::registerPublishers()
 void DynamixelHandlerNode::registerSubscribers()
 {
   event_sub_ = createSubscriber(tobas::kEventTopic, &self::eventCb, this);
-  positions_sub_ = createSubscriber(kJointPositionsCmdTopic, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(kJointVelocitiesCmdTopic, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
+  positions_sub_ = createSubscriber(kJointPosCmdTopic, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
 }
 
 bool DynamixelHandlerNode::setMinimumLatency()

@@ -67,9 +67,9 @@ JointsHandlerNode::JointsHandlerNode(const rclcpp::NodeOptions& options)
 
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  positions_sub_ = createSubscriber(tobas::kJointPositionsCmdTopic, &self::jointPositionsCmdCb, this);
-  velocities_sub_ = createSubscriber(tobas::kJointVelocitiesCmdTopic, &self::jointVelocitiesCmdCb, this);
-  efforts_sub_ = createSubscriber(tobas::kJointEffortsCmdTopic, &self::jointEffortsCmdCb, this);
+  positions_sub_ = createSubscriber(tobas::kJointPosCmdTopic, &self::jointPositionsCmdCb, this);
+  velocities_sub_ = createSubscriber(tobas::kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
+  efforts_sub_ = createSubscriber(tobas::kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
 
   pos_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::positionResetTimerCb, this, false);
   vel_reset_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::velocityResetTimerCb, this, false);

@@ -64,9 +64,9 @@ static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
 static constexpr char kRPYThrotCmdTopic[] = "command/rpy_throttle";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
-static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
-static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
-static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
+static constexpr char kJointPosCmdTopic[] = "command/joint_positions";
+static constexpr char kJointVelCmdTopic[] = "command/joint_velocities";
+static constexpr char kJointEffCmdTopic[] = "command/joint_efforts";
 // Manipulation
 static constexpr char kPosCtrlJSTopic[] = "joint_position_controller/target_joint_states";
 static constexpr char kPosCtrlLSTopic[] = "joint_position_controller/target_link_states";

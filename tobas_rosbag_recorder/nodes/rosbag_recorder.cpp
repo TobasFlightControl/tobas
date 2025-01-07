@@ -157,9 +157,9 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::PwmArray>(tobas::kPwmCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPositionsCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffortsCmdTopic);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::ObserverFeedback>(tobas::kObsvFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::MultiRotorControllerFeedback>(tobas::kMRCtrlFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::NonPlanarControllerFeedback>(tobas::kNPCtrlFeedbackTopic);
