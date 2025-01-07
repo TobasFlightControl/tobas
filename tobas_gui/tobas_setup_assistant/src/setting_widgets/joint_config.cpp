@@ -12,9 +12,6 @@
 #include "tobas_setup_assistant/setting_tabs/joint_config.hpp"
 #include "tobas_setup_assistant/common.hpp"
 
-#define DOUBLE_MIN std::numeric_limits<double>::lowest()
-#define DOUBLE_MAX std::numeric_limits<double>::max()
-
 namespace gui
 {
 namespace setup_assistant
@@ -585,10 +582,10 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   max_pos->setEnabled(false);
   max_vel->setEnabled(false);
   max_eff->setEnabled(false);
-  const auto min_pos_text = joint.lower_limit == DOUBLE_MIN ? "-INF" : QString::number(joint.lower_limit);
-  const auto max_pos_text = joint.upper_limit == DOUBLE_MAX ? "INF" : QString::number(joint.upper_limit);
-  const auto max_vel_text = joint.max_velocity == DOUBLE_MAX ? "INF" : QString::number(joint.max_velocity);
-  const auto max_eff_text = joint.max_effort == DOUBLE_MAX ? "INF" : QString::number(joint.max_effort);
+  const auto min_pos_text = std::isinf(joint.lower_limit) ? "-INF" : QString::number(joint.lower_limit);
+  const auto max_pos_text = std::isinf(joint.upper_limit) ? "INF" : QString::number(joint.upper_limit);
+  const auto max_vel_text = std::isinf(joint.max_velocity) ? "INF" : QString::number(joint.max_velocity);
+  const auto max_eff_text = std::isinf(joint.max_effort) ? "INF" : QString::number(joint.max_effort);
   switch (joint.type)
   {
     case kdl::Joint::ROTATION:
