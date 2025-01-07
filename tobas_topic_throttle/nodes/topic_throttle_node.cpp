@@ -5,6 +5,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
@@ -61,6 +62,7 @@ private:
   TopicThrottle<tobas_msgs::msg::Battery> battery_throttle_;
   TopicThrottle<tobas_msgs::msg::RCInput> rcin_throttle_;
   TopicThrottle<tobas_msgs::msg::RotorStateArray> rotor_states_throttle_;
+  TopicThrottle<tobas_msgs::msg::JointStateArray> joint_states_throttle_;
   TopicThrottle<tobas_msgs::Odometry> odom_throttle_;
   TopicThrottle<tobas_kdl_msgs::EulerStamped> euler_throttle_;
   TopicThrottle<tobas_msgs::ImuStamped> real_imu_throttle_;
@@ -82,6 +84,7 @@ void TopicThrottleNode::initialize()
   battery_throttle_.initialize(node, tobas::kBatteryTopic);
   rcin_throttle_.initialize(node, tobas::kRcInputTopic);
   rotor_states_throttle_.initialize(node, tobas::kRotorStatesTopic);
+  joint_states_throttle_.initialize(node, tobas::kJointStatesTopic);
   odom_throttle_.initialize(node, tobas::kOdometryTopic);
   euler_throttle_.initialize(node, tobas::kEulerTopic);
   real_imu_throttle_.initialize(node, real::kIMUTopic);
