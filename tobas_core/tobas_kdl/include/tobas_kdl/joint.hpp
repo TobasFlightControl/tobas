@@ -28,10 +28,10 @@ public:
   Vector origin = Vector::Zero();
   double damping = 0.;
   double friction = 0.;
-  double lower_limit = std::numeric_limits<double>::lowest();
-  double upper_limit = std::numeric_limits<double>::max();
-  double max_effort = std::numeric_limits<double>::max();
-  double max_velocity = std::numeric_limits<double>::max();
+  double lower_limit = -INFINITY;
+  double upper_limit = INFINITY;
+  double max_effort = INFINITY;
+  double max_velocity = INFINITY;
 
   inline explicit Joint();
 

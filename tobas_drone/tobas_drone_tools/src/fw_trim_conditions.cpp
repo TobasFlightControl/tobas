@@ -46,7 +46,7 @@ bool TrimConditions::updateInternalDataStructures()
   W_ = inertia_solver_.getInertia().getMass() * tobas_std::kGravity;
 
   // Set elevator index
-  auto max_c_pitch_delta = numeric_limits<double>::lowest();
+  auto max_c_pitch_delta = -INFINITY;
   for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
   {
     if (fabs(cs.c_pitch_delta) > max_c_pitch_delta)
@@ -179,7 +179,7 @@ tobas_std::Range<double> TrimConditions::speedLimit(const double& rho) const
   // 迎角の最小値から最大速度を求める
   // 分母が+0になる場合は，理論上無限の速度で水平飛行できる
   const auto min_den = a_ * drone_.fixed_wing.vehicle.alpha_limit.lower + b_;
-  const auto V_max = min_den > 0. ? sqrt(c / min_den) : numeric_limits<double>::max();
+  const auto V_max = min_den > 0. ? sqrt(c / min_den) : INFINITY;
 
   return tobas_std::Range<double>(V_min, V_max);
 }

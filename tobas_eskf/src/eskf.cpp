@@ -383,7 +383,7 @@ double ErrorStateKalmanFilter::measureMagneticField(
   else
   {
     cerr << "Unable to compute the output matrix of yaw angle observation." << endl;
-    return numeric_limits<double>::max();
+    return INFINITY;
   }
 
   const auto Q_dtheta = getQ_dtheta(x);

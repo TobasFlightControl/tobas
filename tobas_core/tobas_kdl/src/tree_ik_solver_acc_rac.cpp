@@ -73,8 +73,8 @@ int TreeIkSolverAcc_RAC::CartToJnt(const JntArray& q_in, const JntArray& qd_in, 
   qp_solver_.problem.q = -JT_Wt * a_;
 
   // 不等式制約
-  qdd_min_.fill(numeric_limits<double>::lowest());
-  qdd_max_.fill(numeric_limits<double>::max());
+  qdd_min_.fill(-INFINITY);
+  qdd_max_.fill(INFINITY);
   for (size_t j = 0; j < nj_; ++j)
   {
     // 既に関節角制限をオーバーしている場合は，それ以上違反量を大きくしないように制限
