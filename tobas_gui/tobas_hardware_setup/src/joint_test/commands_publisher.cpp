@@ -65,6 +65,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         commanders_[ch]->setMinimum(min_pos);
         commanders_[ch]->setMaximum(max_pos);
+        commanders_[ch]->setValue(0., true);
         commanders_[ch]->setSuffix(" rad");
 
         break;
@@ -77,6 +78,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         commanders_[ch]->setMinimum(-max_vel);
         commanders_[ch]->setMaximum(max_vel);
+        commanders_[ch]->setValue(0., true);
         commanders_[ch]->setSuffix(" rad/s");
 
         break;
@@ -89,6 +91,7 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
 
         commanders_[ch]->setMinimum(-max_eff);
         commanders_[ch]->setMaximum(max_eff);
+        commanders_[ch]->setValue(0., true);
         commanders_[ch]->setSuffix(" Nm");
 
         break;

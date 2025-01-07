@@ -55,7 +55,7 @@ const char* JointTestWidget::name() const
 
 const char* JointTestWidget::title() const
 {
-  return "Test Joints";
+  return "Test Joints (PWM interface only)";
 }
 
 void JointTestWidget::updateInternalDataStructures()
