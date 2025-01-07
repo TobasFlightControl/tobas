@@ -6,8 +6,6 @@
 #include "tobas_hardware_setup/joint_test/joint_test.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
-using namespace std;
-
 namespace gui
 {
 namespace hardware_setup
