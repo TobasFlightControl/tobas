@@ -45,6 +45,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
+  kdl::Tree tree_;
   tobas::Drone drone_;
 
   ptree::PropertyClient property_client_;

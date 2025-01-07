@@ -7,6 +7,7 @@
 #include "./mag_calibration/widget.hpp"
 #include "./rcin_calibration/widget.hpp"
 #include "./rotor_test/rotor_test.hpp"
+#include "./joint_test/joint_test.hpp"
 
 namespace gui
 {
@@ -24,12 +25,11 @@ class HardwareSetupWidget : public QWidget
   static constexpr int kMinHeight = 300;
 
 public:
-  explicit HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
+  explicit HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
 
   void updateInternalDataStructures();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
 
   qt::VerticalTabWidget* tabs_;
@@ -39,6 +39,7 @@ private:
   MagCalibrationWidget* mag_calib_;
   RCInputCalibrationWidget* rcin_calib_;
   RotorTestWidget* rotor_test_;
+  JointTestWidget* joint_test_;
 };
 }  // namespace hardware_setup
 }  // namespace gui

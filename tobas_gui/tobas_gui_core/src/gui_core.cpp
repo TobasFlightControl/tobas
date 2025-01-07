@@ -6,6 +6,7 @@
 #include <QCoreApplication>
 
 #include <tobas_path_tools/join.hpp>
+#include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -33,7 +34,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   homepage_ = new homepage::HomepageWidget();
   urdf_builder_ = new URDFBuilder();
   setup_assistant_ = new setup_assistant::SetupAssistantWidget(node);
-  hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, drone_);
+  hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, tree_, drone_);
   control_system_ = new control_system::ControlSystemWidget(node, drone_);
   param_tuning_ = new param_tuning::ParameterTuningWidget(node);
   flight_log_ = new log::FlightLogWidget(node);
@@ -192,13 +193,23 @@ void GUICoreWidget::onBrowseButtonClicked()
 
 void GUICoreWidget::onLoadButtonClicked()
 {
+  const auto tbs_path = tbs_path_->text().toStdString();
+
   // 機体設定ファイルの存在を確認
-  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path_->text().toStdString());
+  const auto tbsdrn_path = common::getTBSDRNPath(tbs_path);
   if (!fs::is_regular_file(tbsdrn_path))
   {
     qt::qErrorBox(
       this, "\"" + QString::fromStdString(tbsdrn_path)
               + "\" does not exist. Please create a new Tobas configuration package.");
+    return;
+  }
+
+  // kdl::Treeをロード
+  const auto urdf_path = common::getOriginalURDFPath(tbs_path);
+  if (!kdl::treeFromFile(urdf_path, tree_))
+  {
+    qt::qErrorBox(this, "Failed to load robot tree.");
     return;
   }
 
