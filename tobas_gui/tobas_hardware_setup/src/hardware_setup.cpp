@@ -28,8 +28,7 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tob
   tabs_->addTab(rotor_test_, rotor_test_->name());
 
   tabs_->setMinimumHeight(kMinHeight);
-  tabs_->setStyleSheet(
-    QString::fromStdString(std::format("QTabBar::tab {{ height: {}px; width: {}px; }}", kTabHeight, kTabWidth)));
+  tabs_->setSize(kTabWidth, kTabHeight);
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()

@@ -48,8 +48,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
 
   // レイアウト
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  setStyleSheet(
-    QString::fromStdString(std::format("QTabBar::tab {{ height: {}px; width: {}px; }}", kTabHeight, kTabWidth)));
+  setSize(kTabWidth, kTabHeight);
 
   // Connections
   connect(this, &self::currentChanged, this, &self::onCurrentChanged);

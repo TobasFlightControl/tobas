@@ -4,6 +4,7 @@
 #include <QLineEdit>
 
 #include "./slider.hpp"
+#include "./double_slider.hpp"
 
 namespace qt
 {
