@@ -1,4 +1,3 @@
-#include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/srv/enable_rotor.hpp>
