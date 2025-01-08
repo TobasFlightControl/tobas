@@ -82,9 +82,29 @@ void DroneServerNode::enableRotorCb(
   // 動作中にモータの個数が変わるとGCS等に悪影響が出る恐れがあるため，モータの生死を最大回転速度で表現．
   auto& rotor = drone_.rotors.at(req->channel);
   if (req->enable)
-    rotor.max_rot_speed = max_rot_speeds_.at(req->channel);  // 保存しておいた最大速度を回復
+  {
+    if (rotor.max_rot_speed > 0.)
+    {
+      TOBAS_INFO("Rotor \"", rotor.link_name, "\" is already enabled.");
+    }
+    else
+    {
+      rotor.max_rot_speed = max_rot_speeds_.at(req->channel);  // 保存しておいた最大速度を回復
+      TOBAS_INFO("Rotor \"", rotor.link_name, "\" is enabled.");
+    }
+  }
   else
-    rotor.max_rot_speed = 0.;  // 最大速度を0にすることでモータをアクチュエータとして使用できないようにする
+  {
+    if (rotor.max_rot_speed > 0.)
+    {
+      rotor.max_rot_speed = 0.;  // 最大速度を0にすることでモータをアクチュエータとして使用できないようにする
+      TOBAS_INFO("Rotor \"", rotor.link_name, "\" is disabled.");
+    }
+    else
+    {
+      TOBAS_INFO("Rotor \"", rotor.link_name, "\" is already disabled.");
+    }
+  }
 
   publishDrone();
 
