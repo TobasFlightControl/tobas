@@ -18,6 +18,7 @@
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/srv/enable_rotor.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
@@ -116,10 +117,12 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic, tobas::kJointEffCmdTopic);
 
   addService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
+  addService<tobas_msgs::srv::EnableRotor>(tobas::kEnableRotorSrv);
   addService<tobas_msgs::srv::GetGnssOrigin>(tobas::kGetGnssOriginSrv);
   addService<tobas_msgs::srv::SetGnssOrigin>(tobas::kSetGnssOriginSrv);
   addService<tobas_msgs::srv::BagRecordStart>(tobas::kROSBagRecordStartSrv);
   addService<tobas_msgs::srv::BagRecordStop>(tobas::kROSBagRecordStopSrv);
+  addService<std_srvs::srv::Trigger>(tobas::kROSBagCleanSrv);
   addService<tobas_msgs::srv::GetRotorControlGains>(tobas::kGetRotorControlGainsSrv);
   addService<tobas_msgs::srv::SetRotorControlGains>(tobas::kSetRotorControlGainsSrv);
   addService<std_srvs::srv::Trigger>(tobas::kSaveRotorControlGainsSrv);

@@ -83,6 +83,7 @@ static constexpr char kFWCtrlFeedbackTopic[] = "feedback/fixed_wing_controller";
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kGetDynamicParamsSrv[] = "get_dynamic_parameters";
+static constexpr char kEnableRotorSrv[] = "enable_rotor";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
@@ -92,7 +93,6 @@ static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
 static constexpr char kGetRotorControlGainsSrv[] = "get_rotor_control_gains";
 static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
 static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
-static constexpr char kEnableRotorSrv[] = "enable_rotor";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
