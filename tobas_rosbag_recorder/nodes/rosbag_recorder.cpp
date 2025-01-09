@@ -26,8 +26,9 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
-#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
+#include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs_adapter/gps.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
@@ -85,6 +86,7 @@ private:
   tobas_msgs::msg::Gps gps_;
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
+  tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_msgs::msg::PosVelAccYaw pvay_;
   tobas_msgs::msg::RollPitchYawThrottle rpyt_;
   tobas_msgs::msg::PoseTwistAccelCommand pta_;
@@ -120,6 +122,7 @@ private:
   void gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& msg);
+  void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& msg);
   void posVelAccYawCmdCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& msg);
   void rollPitchYawThrotCmdCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& msg);
   void poseTwistAccelCmdCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& msg);
@@ -175,6 +178,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   subs_.push_back(createSubscriber(tobas::kGNSSTopic, &self::gnssCb, this));
   subs_.push_back(createSubscriber(tobas::kOdometryTopic, &self::odomCb, this));
   subs_.push_back(createSubscriber(tobas::kEulerTopic, &self::eulerCb, this));
+  subs_.push_back(createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this));
   subs_.push_back(createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCmdCb, this));
   subs_.push_back(createSubscriber(tobas::kRPYThrotCmdTopic, &self::rollPitchYawThrotCmdCb, this));
   subs_.push_back(createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::poseTwistAccelCmdCb, this));
@@ -362,6 +366,23 @@ void ROSBagRecorderNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstShared
   catch (const exception& e)
   {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kEulerTopic << "\": " << e.what());
+  }
+}
+
+void ROSBagRecorderNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& msg)
+{
+  if (!is_recording_)
+    return;
+
+  tobas_kdl_msgs::WrenchStampedAdapter::convert_to_ros_message(*msg, dist_force_);
+
+  try
+  {
+    writer_.write(dist_force_, ns_ + tobas::kDisturbanceForceTopic, get_clock()->now());
+  }
+  catch (const exception& e)
+  {
+    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kDisturbanceForceTopic << "\": " << e.what());
   }
 }
 
