@@ -84,6 +84,7 @@ bool IIS2MDC::checkWhoAmI()
 
 bool IIS2MDC::configure()
 {
+  // XXX: サンプリング周波数が高いほどモータなど外部磁場の影響を受けやすくなる．おそらく電流値を下げるのが大事．
   if (!writeReg(CFG_REG_A, COMP_TEMP_EN | ODR_20HZ | MD_CONTINUOUS))
   {
     cerr << "Failed to write to CFG_REG_A." << endl;
