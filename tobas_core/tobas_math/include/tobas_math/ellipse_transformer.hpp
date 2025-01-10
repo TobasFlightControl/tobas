@@ -27,7 +27,7 @@ public:
   void setIdentity();
   bool initialize();
 
-  Eigen::Vector3d transform(const Eigen::Vector3d& mag_raw) const;
+  Eigen::Vector3d transform(const Eigen::Vector3d& x) const;
 
   const Eigen::Vector3d& getCenter() const;
   const Eigen::Vector3d& getRadius() const;
