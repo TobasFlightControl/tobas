@@ -11,113 +11,13 @@ using namespace Eigen;
 
 namespace eigen
 {
-void vectorNedToNwu(const Vector3d& src, Vector3d& des)
-{
-  des.x() = src.x();
-  des.y() = -src.y();
-  des.z() = -src.z();
-}
-
-void vectorNwuToNed(const Vector3d& src, Vector3d& des)
-{
-  vectorNedToNwu(src, des);
-}
-
-void vectorNedToNwu(Vector3d& arg)
-{
-  vectorNedToNwu(arg, arg);
-}
-
-void vectorNwuToNed(Vector3d& arg)
-{
-  vectorNwuToNed(arg, arg);
-}
-
-AngleAxisd vectorToAngleAxis(const Vector3d& w)
-{
-  const auto angle = w.norm();
-  const auto axis = (angle == 0) ? Vector3d::UnitX() : w.normalized();
-  return AngleAxisd(angle, axis);
-}
-
-Vector3d angleAxisToVector(const AngleAxisd& angle_axis)
-{
-  return angle_axis.angle() * angle_axis.axis();
-}
-
-Matrix3d angleAxisToRotMat(const Vector3d& w)
-{
-  return vectorToAngleAxis(w).toRotationMatrix();
-}
-
-Quaterniond angleAxisToQuaternion(const Vector3d& w)
-{
-  return Quaterniond(vectorToAngleAxis(w));
-}
-
-Vector3d quaternionToAngleAxis(const Quaterniond& q)
-{
-  AngleAxisd angle_axis(q);
-  return angleAxisToVector(angle_axis);
-}
-
-Quaterniond quaternionFromRPY(const double& roll, const double& pitch, const double& yaw)
-{
-  const AngleAxisd rot_yaw(yaw, Vector3d::UnitZ());
-  const AngleAxisd rot_pitch(pitch, Vector3d::UnitY());
-  const AngleAxisd rot_roll(roll, Vector3d::UnitX());
-  return rot_yaw * rot_pitch * rot_roll;
-}
-
-Matrix3d dcmFromRPY(const double& roll, const double& pitch, const double& yaw)
-{
-  return quaternionFromRPY(roll, pitch, yaw).toRotationMatrix();
-}
-
-Quaterniond hamiltonToQuaternion(const Vector4d& ham)
-{
-  return Quaterniond((Vector4d() << ham.tail<3>(), ham.head<1>()).finished());
-}
-
-Vector4d quaternionToHamilton(const Quaterniond& q)
-{
-  return (Vector4d() << q.coeffs().tail<1>(), q.coeffs().head<3>()).finished();
-}
-
-Matrix3d skew(const double& x, const double& y, const double& z)
-{
-  return (Matrix3d() << 0, -z, y, z, 0, -x, -y, x, 0).finished();
-}
-
-Matrix3d skew(const Vector3d& v)
-{
-  return skew(v(0), v(1), v(2));
-}
-
-Matrix3d skew2(const double& x, const double& y, const double& z)
-{
-  const auto xx = x * x;
-  const auto yy = y * y;
-  const auto zz = z * z;
-  const auto xy = x * y;
-  const auto yz = y * z;
-  const auto zx = z * x;
-
-  return (Matrix3d() << -(yy + zz), xy, zx, xy, -(zz + xx), yz, zx, yz, -(xx + yy)).finished();
-}
-
-Matrix3d skew2(const Vector3d& v)
-{
-  return skew2(v(0), v(1), v(2));
-}
-
 void imuToQuaternion(const Vector3d& a, const Vector3d& m, const Vector3d& m0, Quaterniond& q)
 {
   tobas_std::imuToQuaternion(
     a.x(), a.y(), a.z(), m.x(), m.y(), m.z(), m0.x(), m0.y(), m0.z(), q.x(), q.y(), q.z(), q.w());
 }
 
-Matrix3d angvelFromEulerrateGlobal(const double& pitch, const double& yaw)
+Matrix3d angvelFromEulerrateGlobal(double pitch, double yaw)
 {
   const auto cos_pitch = cos(pitch);
   const auto sin_pitch = sin(pitch);
@@ -138,12 +38,12 @@ Matrix3d angvelFromEulerrateGlobal(const double& pitch, const double& yaw)
   return res;
 }
 
-Vector3d angvelFromEulerrateGlobal(const Vector3d& rpyd, const double& pitch, const double& yaw)
+Vector3d angvelFromEulerrateGlobal(const Vector3d& rpyd, double pitch, double yaw)
 {
   return angvelFromEulerrateGlobal(pitch, yaw) * rpyd;
 }
 
-Matrix3d angvelFromEulerrateLocal(const double& roll, const double& pitch)
+Matrix3d angvelFromEulerrateLocal(double roll, double pitch)
 {
   const auto cos_roll = cos(roll);
   const auto sin_roll = sin(roll);
@@ -164,12 +64,12 @@ Matrix3d angvelFromEulerrateLocal(const double& roll, const double& pitch)
   return res;
 }
 
-Vector3d angvelFromEulerrateLocal(const Vector3d& rpyd, const double& roll, const double& pitch)
+Vector3d angvelFromEulerrateLocal(const Vector3d& rpyd, double roll, double pitch)
 {
   return angvelFromEulerrateLocal(roll, pitch) * rpyd;
 }
 
-Matrix3d eulerrateFromAngvelGlobal(const double& pitch, const double& yaw)
+Matrix3d eulerrateFromAngvelGlobal(double pitch, double yaw)
 {
   const auto cos_pitch = cos(pitch);
   const auto tan_pitch = tan(pitch);
@@ -191,12 +91,12 @@ Matrix3d eulerrateFromAngvelGlobal(const double& pitch, const double& yaw)
   return res;
 }
 
-Vector3d eulerrateFromAngvelGlobal(const Vector3d& angvel, const double& pitch, const double& yaw)
+Vector3d eulerrateFromAngvelGlobal(const Vector3d& angvel, double pitch, double yaw)
 {
   return eulerrateFromAngvelGlobal(pitch, yaw) * angvel;
 }
 
-Matrix3d eulerrateFromAngvelLocal(const double& roll, const double& pitch)
+Matrix3d eulerrateFromAngvelLocal(double roll, double pitch)
 {
   const auto cos_roll = cos(roll);
   const auto sin_roll = sin(roll);
@@ -218,13 +118,12 @@ Matrix3d eulerrateFromAngvelLocal(const double& roll, const double& pitch)
   return res;
 }
 
-Vector3d eulerrateFromAngvelLocal(const Vector3d& angvel, const double& roll, const double& pitch)
+Vector3d eulerrateFromAngvelLocal(const Vector3d& angvel, double roll, double pitch)
 {
   return eulerrateFromAngvelLocal(roll, pitch) * angvel;
 }
 
-Vector3d
-euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, const double& pitch, const double& yaw)
+Vector3d euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, double pitch, double yaw)
 {
   const auto cos_pitch = cos(pitch);
   const auto tan_pitch = tan(pitch);
@@ -245,14 +144,14 @@ euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, const d
 }
 
 Vector3d angaccFromEuleraccLocal(
-  const double& roll,
-  const double& pitch,
-  const double& droll,
-  const double& dpitch,
-  const double& dyaw,
-  const double& ddroll,
-  const double& ddpitch,
-  const double& ddyaw)
+  double roll,
+  double pitch,
+  double droll,
+  double dpitch,
+  double dyaw,
+  double ddroll,
+  double ddpitch,
+  double ddyaw)
 {
   const auto cos_roll = cos(roll);
   const auto sin_roll = sin(roll);
@@ -269,7 +168,7 @@ Vector3d angaccFromEuleraccLocal(
   return dgyro;
 }
 
-Vector3d angaccFromEuleraccLocal(const double& roll, const double& pitch, const Vector3d& drpy, const Vector3d& ddrpy)
+Vector3d angaccFromEuleraccLocal(double roll, double pitch, const Vector3d& drpy, const Vector3d& ddrpy)
 {
   return angaccFromEuleraccLocal(roll, pitch, drpy.x(), drpy.y(), drpy.z(), ddrpy.x(), ddrpy.y(), ddrpy.z());
 }
