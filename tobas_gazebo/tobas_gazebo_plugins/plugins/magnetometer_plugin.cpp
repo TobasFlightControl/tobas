@@ -127,8 +127,8 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tobas_std::yearFraction());
 
   // 機体座標系から見た地磁気を計算
-  const gz::math::Vector3d mag_W(mag.north, -mag.east, -mag.down);  // [nT]
-  auto field_B = T_W_B.Rot().RotateVectorReverse(mag_W + init_bias_);
+  const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [nT]
+  auto field_B = T_W_B.Rot().RotateVectorReverse(field_W + init_bias_);
 
   // Add noise
   field_B.X() += noise_(rnd_gen_);
