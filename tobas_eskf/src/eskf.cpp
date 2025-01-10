@@ -312,14 +312,18 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
 
   // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
-  const auto mx_std = sqrt(mag_cov(0, 0));
-  const auto my_std = sqrt(mag_cov(1, 1));
   double yaw_std;
+  const auto mag_norm2 = math::sqr(mx) + math::sqr(my);
   if (fabs(mx) > fabs(my))
-    yaw_std = (fabs(mx) / (math::sqr(mx) + math::sqr(my))) * my_std;
+  {
+    const auto my_std = sqrt(mag_cov(1, 1));
+    yaw_std = 2 * fabs(mx) / mag_norm2 * my_std;
+  }
   else
-    yaw_std = (fabs(my) / (math::sqr(mx) + math::sqr(my))) * mx_std;
-  yaw_std = max(yaw_std, 0.1);  // FIXME: ヨー角の分散が小さすぎると姿勢推定が不安定になる
+  {
+    const auto mx_std = sqrt(mag_cov(0, 0));
+    yaw_std = 2 * fabs(my) / mag_norm2 * mx_std;
+  }
   const auto yaw_var = math::sqr(yaw_std);
 
   // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
