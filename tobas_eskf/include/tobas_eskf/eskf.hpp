@@ -72,25 +72,27 @@ public:
   inline void setReferenceMagneticField(const Eigen::Vector3d& mag_ref);
 
   /**
-   * @brief 加速度とジャイロから次の状態を予測する．
+   * @brief 加速度とジャイロから次の状態を予測し，姿勢を補正する．
    *
    * @param acc_meas [m/s^2] 加速度の観測値
    * @param gyro_meas [rad/s] ジャイロの観測値
    * @param acc_cov [m^2/s^4] 加速度の観測ノイズの共分散
    * @param gyro_cov [rad^2/s^2] ジャイロの観測ノイズの共分散
-   * @param acc_bias_var [m^2/s^4] 加速度バイアスの観測ノイズの分散
-   * @param gyro_bias_var [rad^2/s^2] ジャイロバイアスの観測ノイズの分散
-   * @param grav_var [m^2/s^4] 重力加速度の観測ノイズの分散
+   * @param acc_bias_proc_noise_var [m^2/s^4] 加速度バイアスのプロセスノイズの分散
+   * @param gyro_bias_proc_noise_var [rad^2/s^2] ジャイロバイアスのプロセスノイズの分散
+   * @param grav_proc_noise_var [m^2/s^4] 重力加速度のプロセスノイズの分散
+   * @param grav_meas_noise_var [m^2/s^4] 重力加速度の観測ノイズの分散
    * @param time [s] 現在時刻
    */
-  void predictIMU(
+  void measureIMU(
     const Eigen::Vector3d& acc_meas,
     const Eigen::Vector3d& gyro_meas,
     const Eigen::Matrix3d& acc_cov,
     const Eigen::Matrix3d& gyro_cov,
-    const double& acc_bias_var,
-    const double& gyro_bias_var,
-    const double& grav_var,
+    const double& acc_bias_proc_noise_var,
+    const double& gyro_bias_proc_noise_var,
+    const double& grav_proc_noise_var,
+    const double& grav_meas_noise_var,
     const std::chrono::steady_clock::time_point& time);
 
   /**
@@ -145,21 +147,6 @@ public:
     const Eigen::Matrix3d& mag_cov,
     const std::chrono::steady_clock::time_point& time);
 
-  /**
-   * @brief 重力方向の観測．姿勢の修正に用いる．
-   * https://www.dropbox.com/s/ijfnlkvcep1w0f2/%E5%A7%BF%E5%8B%A2%E6%8E%A8%E5%AE%9A%E3%81%AE%E5%9F%BA%E7%A4%8E.pdf
-   *
-   * @param acc_meas 加速度センサの読み．
-   * @param grav_cov 観測による修正量を決めるパラメータ．
-   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
-   *
-   * @return Anormaly score
-   */
-  double measureGravity(
-    const Eigen::Vector3d& acc_meas,
-    const Eigen::Matrix3d& grav_cov,
-    const std::chrono::steady_clock::time_point& time);
-
 private:
   bool use_joseph_form_ = true;
   bool do_cov_initialization_ = false;
@@ -203,6 +190,21 @@ private:
 
   /* ベクトルvのqによる回転をqで偏微分したもの．d(q * v * q') / d(q)． */
   Eigen::Matrix<double, 3, 4> quatRotationDerivative(const StateVector& x, const Eigen::Vector3d& a) const;
+
+  /**
+   * @brief 重力方向の観測．姿勢の修正に用いる．
+   * https://www.dropbox.com/s/ijfnlkvcep1w0f2/%E5%A7%BF%E5%8B%A2%E6%8E%A8%E5%AE%9A%E3%81%AE%E5%9F%BA%E7%A4%8E.pdf
+   *
+   * @param acc_meas 加速度センサの読み．
+   * @param grav_cov 観測による修正量を決めるパラメータ．
+   * 数式的には共分散として扱うが，センサノイズに加えて推定姿勢の分散も影響するため一般に正しい値は分からないから調整すべき．
+   *
+   * @return Anormaly score
+   */
+  double measureGravity(
+    const Eigen::Vector3d& acc_meas,
+    const Eigen::Matrix3d& grav_cov,
+    const std::chrono::steady_clock::time_point& time);
 
   /**
    * @brief 観測から状態と共分散の事後推定を求める
@@ -408,7 +410,7 @@ double ErrorStateKalmanFilter::correct(
   if (do_cov_initialization_)
   {
     G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Diagonal3d(1, 1, 1) - eigen::skew(0.5 * dtheta);
-    P_ = G_ * P_ * G_.transpose();  // TODO: 必要な部分のみ計算
+    P_ = G_ * P_ * G_.transpose();  // TODO: sympyを用いるなどして必要な部分のみ計算
     eigen::symmetrise(P_);
   }
 

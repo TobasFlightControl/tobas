@@ -79,9 +79,9 @@ private:
   // Dynamic parameters
   double grav_meas_var_intercept_;  // [m^2/s^4] 重力方向の加速度の観測の不確かさの最小値
   double grav_meas_var_slope_;  // [m/s^2] 重力方向の観測の，加速度ノルム誤差に対する比例定数
-  double acc_bias_noise_var_;   // 加速度バイアスののプロセスノイズの分散
-  double gyro_bias_noise_var_;  // ジャイロバイアスののプロセスノイズの分散
-  double grav_noise_var_;       // 重力加速度のプロセスノイズの分散
+  double acc_bias_proc_noise_var_;   // 加速度バイアスののプロセスノイズの分散
+  double gyro_bias_proc_noise_var_;  // ジャイロバイアスののプロセスノイズの分散
+  double grav_proc_noise_var_;       // 重力加速度のプロセスノイズの分散
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
@@ -109,9 +109,9 @@ private:
 
   bool gravMeasVarInterceptCb(const long& p);
   bool gravMeasVarSlopeCb(const long& p);
-  bool accBiasNoiseVarianceLog10Cb(const long& p);
-  bool gyroBiasNoiseVarianceLog10Cb(const long& p);
-  bool gravNoiseVarianceLog10Cb(const long& p);
+  bool accBiasProcNoiseVarLog10Cb(const long& p);
+  bool gyroBiasProcNoiseVarLog10Cb(const long& p);
+  bool gravProcNoiseVarLog10Cb(const long& p);
 
   void imuCb(const ImuMsg::ConstSharedPtr& imu);
   void magCb(const MagMsg::ConstSharedPtr& mag);
@@ -131,11 +131,11 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
+  addDynamicIntParam("acc_bias_proc_noise_var_log10", &self::accBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
+  addDynamicIntParam("gyro_bias_proc_noise_var_log10", &self::gyroBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
+  addDynamicIntParam("grav_noise_proc_var_log10", &self::gravProcNoiseVarLog10Cb, this, -7, -12, 0);
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
   addDynamicIntParam("grav_meas_var_slope", &self::gravMeasVarSlopeCb, this, 100, 0, 1000);
-  addDynamicIntParam("acc_bias_noise_var_log10", &self::accBiasNoiseVarianceLog10Cb, this, -5, -12, 0);
-  addDynamicIntParam("gyro_bias_noise_var_log10", &self::gyroBiasNoiseVarianceLog10Cb, this, -9, -12, 0);
-  addDynamicIntParam("grav_noise_var_log10", &self::gravNoiseVarianceLog10Cb, this, -7, -12, 0);
 
   // Register publishers
   odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
@@ -246,6 +246,45 @@ double ObserverNode::computeGravMeasVariance(const Vector3d& acc) const
   return grav_meas_var_intercept_ + grav_meas_var_slope_ * acc_norm_diff;  // TODO: 1次関数以外のプロファイルを検討
 }
 
+bool ObserverNode::accBiasProcNoiseVarLog10Cb(const long& p)
+{
+  if (!do_acc_bias_estimation_)
+  {
+    acc_bias_proc_noise_var_ = 0.;
+    TOBAS_INFO("Change of accel bias process noise variance is ignored because accel bias estimation is disabled.");
+    return false;
+  }
+
+  acc_bias_proc_noise_var_ = exp10(p);
+  return true;
+}
+
+bool ObserverNode::gyroBiasProcNoiseVarLog10Cb(const long& p)
+{
+  if (!do_gyro_bias_estimation_)
+  {
+    gyro_bias_proc_noise_var_ = 0.;
+    TOBAS_INFO("Change of gyro bias process noise variance is ignored because gyro bias estimation is disabled.");
+    return false;
+  }
+
+  gyro_bias_proc_noise_var_ = exp10(p);
+  return true;
+}
+
+bool ObserverNode::gravProcNoiseVarLog10Cb(const long& p)
+{
+  if (!do_grav_estimation_)
+  {
+    grav_proc_noise_var_ = 0.;
+    TOBAS_INFO("Change of gravity process noise variance is ignored because gravity estimation is disabled.");
+    return false;
+  }
+
+  grav_proc_noise_var_ = exp10(p);
+  return true;
+}
+
 bool ObserverNode::gravMeasVarInterceptCb(const long& p)
 {
   grav_meas_var_intercept_ = p;
@@ -258,58 +297,19 @@ bool ObserverNode::gravMeasVarSlopeCb(const long& p)
   return true;
 }
 
-bool ObserverNode::accBiasNoiseVarianceLog10Cb(const long& p)
-{
-  if (!do_acc_bias_estimation_)
-  {
-    acc_bias_noise_var_ = 0.;
-    TOBAS_INFO("Change of accel bias noise variance is ignored because accel bias estimation is disabled.");
-    return false;
-  }
-
-  acc_bias_noise_var_ = exp10(p);
-  return true;
-}
-
-bool ObserverNode::gyroBiasNoiseVarianceLog10Cb(const long& p)
-{
-  if (!do_gyro_bias_estimation_)
-  {
-    gyro_bias_noise_var_ = 0.;
-    TOBAS_INFO("Change of gyro bias noise variance is ignored because gyro bias estimation is disabled.");
-    return false;
-  }
-
-  gyro_bias_noise_var_ = exp10(p);
-  return true;
-}
-
-bool ObserverNode::gravNoiseVarianceLog10Cb(const long& p)
-{
-  if (!do_grav_estimation_)
-  {
-    grav_noise_var_ = 0.;
-    TOBAS_INFO("Change of gravity noise variance is ignored because gravity estimation is disabled.");
-    return false;
-  }
-
-  grav_noise_var_ = exp10(p);
-  return true;
-}
-
 void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
 {
-  // 現在時刻
+  // Compute IMU time
   const auto cur_time = ros2::chronoFromRosTime(imu->header.stamp);
 
-  // 初期化
+  // Initialization
   if (imu_ == nullptr)
   {
     TOBAS_INFO("First IMU is received.");
 
-    const double init_acc_bias_stddev = do_acc_bias_estimation_ ? eskf::kInitAccBiasStddev : 0;
-    const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? eskf::kInitGyroBiasStddev : 0;
-    const double init_grav_stddev = do_grav_estimation_ ? eskf::kInitGravStddev : 0;
+    const double init_acc_bias_stddev = do_acc_bias_estimation_ ? eskf::kInitAccBiasStddev : 0.;
+    const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? eskf::kInitGyroBiasStddev : 0.;
+    const double init_grav_stddev = do_grav_estimation_ ? eskf::kInitGravStddev : 0.;
     eskf_.initialize(
       Vector3d::Zero(),                                                   // Init position
       Vector3d::Zero(),                                                   // Init velocity
@@ -326,22 +326,18 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
     return;
   }
 
-  // D-Gyroを更新 (フィルタリングは無し)
+  // Update D-Gyro (No filtering)
   const auto dt = (imu->header.stamp - imu_->header.stamp).seconds();
   dgyro_ = (imu->imu.imu.gyro - imu_->imu.imu.gyro) / dt;
 
-  // IMUメッセージを更新
+  // Update IMU message
   imu_ = imu;
 
-  // 事前予測
-  eskf_.predictIMU(
+  // Measure IMU
+  const auto grav_meas_noise_var = computeGravMeasVariance(imu->imu.imu.accel.data);
+  eskf_.measureIMU(
     imu->imu.imu.accel.data, imu->imu.imu.gyro.data, imu->imu.accel_covariance, imu->imu.gyro_covariance,
-    acc_bias_noise_var_, gyro_bias_noise_var_, grav_noise_var_, cur_time);
-
-  // 重力方向の観測
-  // TODO: モデルから推定した動的加速度をセンサ加速度から引いたものを観測値とする
-  const auto grav_var = computeGravMeasVariance(imu->imu.imu.accel.data);
-  eskf_.measureGravity(imu->imu.imu.accel.data, Vector3d::Constant(grav_var).asDiagonal(), cur_time);
+    acc_bias_proc_noise_var_, gyro_bias_proc_noise_var_, grav_proc_noise_var_, grav_meas_noise_var, cur_time);
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();

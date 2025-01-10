@@ -1,7 +1,5 @@
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
-#include <tobas_std_tools/assert.hpp>
-#include <tobas_std_tools/console.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -17,8 +15,6 @@ namespace eskf
 {
 ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
 {
-  PRINT_DEBUG("ErrorStateKalmanFilter::ErrorStateKalmanFilter");
-
   // 観測方程式の固定部分を埋める
   H_pos_.setZero();
   H_xy_.setZero();
@@ -51,8 +47,6 @@ void ErrorStateKalmanFilter::initialize(
   const double& init_grav_var,
   const steady_clock::time_point& time)
 {
-  PRINT_DEBUG("ErrorStateKalmanFilter::initialize");
-
   assert(eigen::isSymmetricSemiPositiveDefinite(init_pos_cov));
   assert(eigen::isSymmetricSemiPositiveDefinite(init_vel_cov));
   assert(eigen::isSymmetricSemiPositiveDefinite(init_dtheta_cov));
@@ -94,23 +88,23 @@ void ErrorStateKalmanFilter::enableCovInitialization(bool enable)
   do_cov_initialization_ = enable;
 }
 
-void ErrorStateKalmanFilter::predictIMU(
+void ErrorStateKalmanFilter::measureIMU(
   const Vector3d& acc_meas,
   const Vector3d& gyro_meas,
   const Matrix3d& acc_cov,
   const Matrix3d& gyro_cov,
-  const double& acc_bias_var,
-  const double& gyro_bias_var,
-  const double& grav_var,
+  const double& acc_bias_proc_noise_var,
+  const double& gyro_bias_proc_noise_var,
+  const double& grav_proc_noise_var,
+  const double& grav_meas_noise_var,
   const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::predictIMU");
-
-  assertWithMsg(eigen::isSymmetricSemiPositiveDefinite(acc_cov), "Invalid accel covariance:\n" << acc_cov);
-  assertWithMsg(eigen::isSymmetricSemiPositiveDefinite(gyro_cov), "Invalid gyro covariance:\n" << gyro_cov);
-  assertWithMsg(acc_bias_var >= 0, "Invalid accel bias variance: " << acc_bias_var);
-  assertWithMsg(gyro_bias_var >= 0, "Invalid gyro bias variance: " << gyro_bias_var);
-  assertWithMsg(grav_var >= 0, "Invalid gravity variance: " << grav_var);
+  assert(eigen::isSymmetricSemiPositiveDefinite(acc_cov));
+  assert(eigen::isSymmetricSemiPositiveDefinite(gyro_cov));
+  assert(acc_bias_proc_noise_var >= 0);
+  assert(gyro_bias_proc_noise_var >= 0);
+  assert(grav_proc_noise_var >= 0);
+  assert(grav_meas_noise_var > 0);
 
   // サンプリングタイムを計算して時刻を更新
   const auto dt = duration<double>(time - t_last_imu_).count();
@@ -145,23 +139,22 @@ void ErrorStateKalmanFilter::predictIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269)第一項: 共分散行列の予測値を更新
-  P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  P_ = F_x_ * P_ * F_x_.transpose();  // TODO: sympyを用いるなどして必要な部分のみ計算
   eigen::symmetrise(P_);              // 対称化 (これが必須)
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * math::sqr(dt);
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * math::sqr(dt);
-  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_var;
-  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_var;
-  P_(kDeltaGravIdx, kDeltaGravIdx) += grav_var;
+  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_proc_noise_var;
+  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_proc_noise_var;
+  P_(kDeltaGravIdx, kDeltaGravIdx) += grav_proc_noise_var;
 
   // 状態の履歴を保存
   x_history_.add(time, x_);
 
-  // NaN検出
-  assertWithMsg(eigen::isFinite(x_), "Nominal state:" << x_.transpose());
-  assertWithMsg(eigen::isFinite(F_x_), "F_x:\n" << F_x_);
-  assertWithMsg(eigen::isFinite(P_), "Covariance matrix:\n" << P_);
+  // 重力方向の観測
+  // 加速度と姿勢には等式関係 (= 出力方程式) があるため，カルマンフィルタ理論に則って補正を行う．
+  measureGravity(acc_meas, Vector3d::Constant(grav_meas_noise_var).asDiagonal(), time);
 }
 
 double ErrorStateKalmanFilter::measurePosition(
@@ -170,8 +163,6 @@ double ErrorStateKalmanFilter::measurePosition(
   const Vector3d& offset,
   const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosition");
-
   const auto& x = x_history_.closestAfterValue(time);
 
   const Vector3d delta_pos = pos_meas - getPosition(x, offset);
@@ -187,8 +178,6 @@ double ErrorStateKalmanFilter::measurePosition(
 double
 ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_cov, const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureXY");
-
   const auto& x = x_history_.closestAfterValue(time);
 
   const Vector2d delta_xy = xy_meas - getXY(x);
@@ -198,8 +187,6 @@ ErrorStateKalmanFilter::measureXY(const Vector2d& xy_meas, const Matrix2d& xy_co
 double
 ErrorStateKalmanFilter::measureAltitude(const double& z_meas, const double& z_var, const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureAltitude");
-
   const auto& x = x_history_.closestAfterValue(time);
 
   const double delta_z = z_meas - getAltitude(x);
@@ -213,8 +200,6 @@ double ErrorStateKalmanFilter::measureVelocity(
   const Vector3d& gyro_meas,
   const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureVelocity");
-
   const auto& x = x_history_.closestAfterValue(time);
 
   const Vector3d gyro_nominal = gyro_meas - getGyroBias(x);
@@ -242,8 +227,6 @@ double ErrorStateKalmanFilter::measurePosVel(
   const Vector3d& gyro_meas,
   const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measurePosVel");
-
   const auto& x = x_history_.closestAfterValue(time);
 
   // 観測誤差
@@ -278,8 +261,6 @@ double ErrorStateKalmanFilter::measureQuaternion(
   const Matrix3d& theta_cov,
   const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureQuaternion");
-
   const auto& x = x_history_.closestAfterValue(time);
 
   const Quaterniond q_nominal = getQuaternion(x);
@@ -294,8 +275,6 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const Matrix3d& mag_cov,
   const steady_clock::time_point& time)
 {
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureMagneticField");
-
   const auto& x = x_history_.closestAfterValue(time);
 
   // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
@@ -388,25 +367,6 @@ double ErrorStateKalmanFilter::measureMagneticField(
   return correct(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
 }
 
-double ErrorStateKalmanFilter::measureGravity(
-  const Vector3d& acc_meas,
-  const Matrix3d& grav_cov,
-  const steady_clock::time_point& time)
-{
-  PRINT_DEBUG_ONCE("ErrorStateKalmanFilter::measureGravity");
-
-  const auto& x = x_history_.closestAfterValue(time);
-
-  const Matrix3d R_B_W = getDCM(x).transpose();
-  const Vector3d grav_B = R_B_W * getGravVector(x);
-  const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
-  const Vector3d delta_acc = acc_meas - acc_ref;
-
-  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * eigen::skew(grav_B);
-  H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
-  return correct(delta_acc, grav_cov, H_acc_);
-}
-
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
 {
   const Vector4d qby2 = 0.5 * getHamilton(x);
@@ -432,5 +392,22 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateV
   res.block<3, 3>(0, 1) = 2 * (a.dot(v) * E3 + v * a.transpose() - a * v.transpose() - w * eigen::skew(a));
 
   return res;
+}
+
+double ErrorStateKalmanFilter::measureGravity(
+  const Vector3d& acc_meas,
+  const Matrix3d& grav_cov,
+  const steady_clock::time_point& time)
+{
+  const auto& x = x_history_.closestAfterValue(time);
+
+  const Matrix3d R_B_W = getDCM(x).transpose();
+  const Vector3d grav_B = R_B_W * getGravVector(x);
+  const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
+  const Vector3d delta_acc = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
+
+  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * eigen::skew(grav_B);
+  H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
+  return correct(delta_acc, grav_cov, H_acc_);
 }
 }  // namespace eskf
