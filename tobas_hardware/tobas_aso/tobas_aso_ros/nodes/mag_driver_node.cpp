@@ -8,7 +8,7 @@ using namespace std;
 
 class MagDriverNode : public hardware::BaseSensorNode
 {
-  static constexpr auto kSamplingPeriod = 10ms;  // [Hz] The maximum update rate of IIS2MDC
+  static constexpr auto kSamplingPeriod = 50ms;
 
   using self = MagDriverNode;
   using super = hardware::BaseSensorNode;

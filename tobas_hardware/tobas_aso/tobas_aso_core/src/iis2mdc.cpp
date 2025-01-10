@@ -84,15 +84,21 @@ bool IIS2MDC::checkWhoAmI()
 
 bool IIS2MDC::configure()
 {
-  if (!writeReg(CFG_REG_A, COMP_TEMP_EN | ODR_100HZ | MD_CONTINUOUS))
+  if (!writeReg(CFG_REG_A, COMP_TEMP_EN | ODR_20HZ | MD_CONTINUOUS))
   {
     cerr << "Failed to write to CFG_REG_A." << endl;
     return false;
   }
 
-  if (!writeReg(CFG_REG_B, OFF_CANC | LPF))
+  if (!writeReg(CFG_REG_B, OFF_CANC))
   {
     cerr << "Failed to write to CFG_REG_B." << endl;
+    return false;
+  }
+
+  if (!writeReg(CFG_REG_C, 0))
+  {
+    cerr << "Failed to write to CFG_REG_C." << endl;
     return false;
   }
 
