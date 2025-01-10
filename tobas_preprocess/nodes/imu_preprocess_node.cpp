@@ -6,11 +6,9 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
+#include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-
-using namespace std;
 
 class ImuPreprocessNode : public tobas::BaseNode
 {
@@ -61,13 +59,13 @@ private:
   // ジャイロバイアス関連
   kdl::Vector gyro_bias_;
   size_t gyro_bias_cnt_ = 0;
-  array<algo::Kahan<double>, 3> gyro_sum_;
+  std::array<algo::Kahan<double>, 3> gyro_sum_;
 
   tobas_msgs::ImuStamped::ConstSharedPtr imu_raw_;
   dsp::LowPassFilter<kdl::Vector> acc_lpf_, gyro_lpf_;
-  map<size_t, size_t> channel2idx_;
-  vector<double> rot_speeds_;
-  vector<dsp::NotchFilter<kdl::Vector>> acc_notch_, gyro_notch_;
+  std::map<size_t, size_t> channel2idx_;
+  std::vector<double> rot_speeds_;
+  std::vector<dsp::NotchFilter<kdl::Vector>> acc_notch_, gyro_notch_;
   dsp::NoiseVarianceFilter<double, 3, kWindowSize> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::ImuWithCovarianceStamped> imu_pub_;
@@ -338,7 +336,7 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
       imu_out->imu.gyro_covariance = gyro_noise_.noiseVariance();
 
       // Publish message
-      imu_pub_->publish(move(imu_out));
+      imu_pub_->publish(std::move(imu_out));
 
       break;
     }
