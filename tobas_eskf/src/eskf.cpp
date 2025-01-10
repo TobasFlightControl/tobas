@@ -126,7 +126,7 @@ void ErrorStateKalmanFilter::measureIMU(
 
   // (260) ノミナル状態のキネマティクス
   // x_.segment<3>(kPosIdx) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * math::sqr(dt);
-  x_.segment<3>(kPosIdx) += getVelocity() * dt;  // 積分誤差が大きくなるため二階積分は考えない
+  x_.segment<3>(kPosIdx) += getVelocity(x_) * dt;  // 積分誤差が大きくなるため二階積分は考えない
   x_.segment<3>(kVelIdx) += (acc_W + getGravVector(x_)) * dt;
   x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(getQuaternion(x_) * q_delta_theta).normalized();
 
