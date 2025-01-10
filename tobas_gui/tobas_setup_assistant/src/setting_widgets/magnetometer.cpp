@@ -14,19 +14,19 @@ MagnetometerWidget::MagnetometerWidget()
 
   update_rate_ = new ParamGetterWidget_SpinBox("Update Rate", "");  // TODO
   update_rate_->setMinimum(1);
-  update_rate_->setValue(400);
+  update_rate_->setValue(20);
   update_rate_->setSuffix(" Hz");
   addWidget(update_rate_);
 
   gauss_noise_ = new ParamGetterWidget_SpinBox("Standard Deviation of Additive White Gaussian Noise", "");  // TODO
   gauss_noise_->setMinimum(0);
-  gauss_noise_->setValue(80);
+  gauss_noise_->setValue(500);
   gauss_noise_->setSuffix(" nT");
   addWidget(gauss_noise_);
 
   uniform_noise_ = new ParamGetterWidget_SpinBox("Symmetric Bounds of Uniform Noise for Initial Bias", "");  // TODO
   uniform_noise_->setMinimum(0);
-  uniform_noise_->setValue(400);
+  uniform_noise_->setValue(5000);
   uniform_noise_->setSuffix(" nT");
   addWidget(uniform_noise_);
 
