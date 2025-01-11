@@ -124,6 +124,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // 経緯度と高度から地磁気の参照値を計算
+  // TODO: WMMの誤差を考慮
   const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tobas_std::yearFraction());
 
   // 機体座標系から見た地磁気を計算
