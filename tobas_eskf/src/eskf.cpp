@@ -88,23 +88,53 @@ void ErrorStateKalmanFilter::enableCovInitialization(bool enable)
   do_cov_initialization_ = enable;
 }
 
+bool ErrorStateKalmanFilter::setAccBiasProcNoiseVar(double value)
+{
+  if (value < 0.)
+  {
+    cerr << "Accelerometer bias process noise variance must be non-negative." << endl;
+    return false;
+  }
+
+  acc_bias_proc_noise_var_ = value;
+  return true;
+}
+
+bool ErrorStateKalmanFilter::setGyroBiasProcNoiseVar(double value)
+{
+  if (value < 0.)
+  {
+    cerr << "Gyroscope bias process noise variance must be non-negative." << endl;
+    return false;
+  }
+
+  gyro_bias_proc_noise_var_ = value;
+  return true;
+}
+
+bool ErrorStateKalmanFilter::setGravProcNoiseVar(double value)
+{
+  if (value < 0.)
+  {
+    cerr << "Gravity process noise variance must be non-negative." << endl;
+    return false;
+  }
+
+  grav_proc_noise_var_ = value;
+  return true;
+}
+
 void ErrorStateKalmanFilter::measureIMU(
   const Vector3d& acc_meas,
   const Vector3d& gyro_meas,
   const Matrix3d& acc_cov,
   const Matrix3d& gyro_cov,
-  const double& acc_bias_proc_noise_var,
-  const double& gyro_bias_proc_noise_var,
-  const double& grav_proc_noise_var,
-  const double& grav_meas_noise_var,
+  const Matrix3d& grav_cov,
   const steady_clock::time_point& time)
 {
   assert(eigen::isSymmetricSemiPositiveDefinite(acc_cov));
   assert(eigen::isSymmetricSemiPositiveDefinite(gyro_cov));
-  assert(acc_bias_proc_noise_var >= 0);
-  assert(gyro_bias_proc_noise_var >= 0);
-  assert(grav_proc_noise_var >= 0);
-  assert(grav_meas_noise_var > 0);
+  assert(eigen::isSymmetricSemiPositiveDefinite(grav_cov));
 
   // サンプリングタイムを計算して時刻を更新
   const auto dt = duration<double>(time - t_last_imu_).count();
@@ -145,16 +175,16 @@ void ErrorStateKalmanFilter::measureIMU(
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * math::sqr(dt);
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * math::sqr(dt);
-  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_proc_noise_var;
-  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_proc_noise_var;
-  P_(kDeltaGravIdx, kDeltaGravIdx) += grav_proc_noise_var;
+  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_proc_noise_var_;
+  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_proc_noise_var_;
+  P_(kDeltaGravIdx, kDeltaGravIdx) += grav_proc_noise_var_;
 
   // 状態の履歴を保存
   x_history_.add(time, x_);
 
   // 重力方向の観測
   // 加速度と姿勢には等式関係 (= 出力方程式) があるため，カルマンフィルタ理論に則って補正を行う．
-  measureGravity(acc_meas, Vector3d::Constant(grav_meas_noise_var).asDiagonal(), time);
+  measureGravity(acc_meas, grav_cov, time);
 }
 
 double ErrorStateKalmanFilter::measurePosition(

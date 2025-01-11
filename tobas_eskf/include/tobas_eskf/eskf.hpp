@@ -52,6 +52,9 @@ public:
 
   void enableJosephForm(bool enable);
   void enableCovInitialization(bool enable);
+  bool setAccBiasProcNoiseVar(double value);
+  bool setGyroBiasProcNoiseVar(double value);
+  bool setGravProcNoiseVar(double value);
 
   inline Eigen::Vector3d getPosition() const;
   inline Eigen::Vector3d getVelocity() const;
@@ -78,10 +81,7 @@ public:
    * @param gyro_meas [rad/s] ジャイロの観測値
    * @param acc_cov [m^2/s^4] 加速度の観測ノイズの共分散
    * @param gyro_cov [rad^2/s^2] ジャイロの観測ノイズの共分散
-   * @param acc_bias_proc_noise_var [m^2/s^4] 加速度バイアスのプロセスノイズの分散
-   * @param gyro_bias_proc_noise_var [rad^2/s^2] ジャイロバイアスのプロセスノイズの分散
-   * @param grav_proc_noise_var [m^2/s^4] 重力加速度のプロセスノイズの分散
-   * @param grav_meas_noise_var [m^2/s^4] 重力加速度の観測ノイズの分散
+   * @param grav_cov [m^2/s^4] 重力加速度の観測ノイズの共分散
    * @param time [s] 現在時刻
    */
   void measureIMU(
@@ -89,10 +89,7 @@ public:
     const Eigen::Vector3d& gyro_meas,
     const Eigen::Matrix3d& acc_cov,
     const Eigen::Matrix3d& gyro_cov,
-    const double& acc_bias_proc_noise_var,
-    const double& gyro_bias_proc_noise_var,
-    const double& grav_proc_noise_var,
-    const double& grav_meas_noise_var,
+    const Eigen::Matrix3d& grav_cov,
     const std::chrono::steady_clock::time_point& time);
 
   /**
@@ -148,8 +145,12 @@ public:
     const std::chrono::steady_clock::time_point& time);
 
 private:
+  // Configuration
   bool use_joseph_form_ = true;
   bool do_cov_initialization_ = false;
+  double acc_bias_proc_noise_var_ = 0.;   // [m^2/s^4] 加速度バイアスのプロセスノイズの分散
+  double gyro_bias_proc_noise_var_ = 0.;  // [rad^2/s^2] ジャイロバイアスのプロセスノイズの分散
+  double grav_proc_noise_var_ = 0.;       // [m^2/s^4] 重力加速度のプロセスノイズの分散
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state

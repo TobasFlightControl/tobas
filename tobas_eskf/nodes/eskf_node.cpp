@@ -79,9 +79,6 @@ private:
   // Dynamic parameters
   double grav_meas_var_intercept_;  // [m^2/s^4] 重力方向の加速度の観測の不確かさの最小値
   double grav_meas_var_slope_;  // [m/s^2] 重力方向の観測の，加速度ノルム誤差に対する比例定数
-  double acc_bias_proc_noise_var_;   // 加速度バイアスののプロセスノイズの分散
-  double gyro_bias_proc_noise_var_;  // ジャイロバイアスののプロセスノイズの分散
-  double grav_proc_noise_var_;       // 重力加速度のプロセスノイズの分散
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
@@ -131,9 +128,12 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
-  addDynamicIntParam("acc_bias_proc_noise_var_log10", &self::accBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
-  addDynamicIntParam("gyro_bias_proc_noise_var_log10", &self::gyroBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
-  addDynamicIntParam("grav_noise_proc_var_log10", &self::gravProcNoiseVarLog10Cb, this, -7, -12, 0);
+  if (do_acc_bias_estimation_)
+    addDynamicIntParam("acc_bias_proc_noise_var_log10", &self::accBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
+  if (do_gyro_bias_estimation_)
+    addDynamicIntParam("gyro_bias_proc_noise_var_log10", &self::gyroBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
+  if (do_grav_estimation_)
+    addDynamicIntParam("grav_noise_proc_var_log10", &self::gravProcNoiseVarLog10Cb, this, -7, -12, 0);
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
   addDynamicIntParam("grav_meas_var_slope", &self::gravMeasVarSlopeCb, this, 100, 0, 1000);
 
@@ -248,41 +248,20 @@ double ObserverNode::computeGravMeasVariance(const Vector3d& acc) const
 
 bool ObserverNode::accBiasProcNoiseVarLog10Cb(const long& p)
 {
-  if (!do_acc_bias_estimation_)
-  {
-    acc_bias_proc_noise_var_ = 0.;
-    TOBAS_INFO("Change of accel bias process noise variance is ignored because accel bias estimation is disabled.");
-    return false;
-  }
-
-  acc_bias_proc_noise_var_ = exp10(p);
-  return true;
+  assert(do_acc_bias_estimation_);
+  return eskf_.setAccBiasProcNoiseVar(exp10(p));
 }
 
 bool ObserverNode::gyroBiasProcNoiseVarLog10Cb(const long& p)
 {
-  if (!do_gyro_bias_estimation_)
-  {
-    gyro_bias_proc_noise_var_ = 0.;
-    TOBAS_INFO("Change of gyro bias process noise variance is ignored because gyro bias estimation is disabled.");
-    return false;
-  }
-
-  gyro_bias_proc_noise_var_ = exp10(p);
-  return true;
+  assert(do_gyro_bias_estimation_);
+  return eskf_.setGyroBiasProcNoiseVar(exp10(p));
 }
 
 bool ObserverNode::gravProcNoiseVarLog10Cb(const long& p)
 {
-  if (!do_grav_estimation_)
-  {
-    grav_proc_noise_var_ = 0.;
-    TOBAS_INFO("Change of gravity process noise variance is ignored because gravity estimation is disabled.");
-    return false;
-  }
-
-  grav_proc_noise_var_ = exp10(p);
-  return true;
+  assert(do_grav_estimation_);
+  return eskf_.setGravProcNoiseVar(exp10(p));
 }
 
 bool ObserverNode::gravMeasVarInterceptCb(const long& p)
@@ -335,9 +314,10 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
 
   // Measure IMU
   const auto grav_meas_noise_var = computeGravMeasVariance(imu->imu.imu.accel.data);
+  const auto grav_cov = Vector3d::Constant(grav_meas_noise_var).asDiagonal();
   eskf_.measureIMU(
-    imu->imu.imu.accel.data, imu->imu.imu.gyro.data, imu->imu.accel_covariance, imu->imu.gyro_covariance,
-    acc_bias_proc_noise_var_, gyro_bias_proc_noise_var_, grav_proc_noise_var_, grav_meas_noise_var, cur_time);
+    imu->imu.imu.accel.data, imu->imu.imu.gyro.data, imu->imu.accel_covariance, imu->imu.gyro_covariance, grav_cov,
+    cur_time);
 
   // Create odometry message
   auto odom = std::make_unique<OdomMsg>();
