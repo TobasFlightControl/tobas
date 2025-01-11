@@ -31,14 +31,14 @@ public:
 
   Eigen::Vector3d offset() const;
   int updateRate() const;
-  int gaussNoise() const;
-  int uniformNoise() const;
+  int noiseStddev() const;
+  int hardBiasRange() const;
 
 private:
   ParamGetterWidget_Vector3d* offset_;
   ParamGetterWidget_SpinBox* update_rate_;
-  ParamGetterWidget_SpinBox* gauss_noise_;
-  ParamGetterWidget_SpinBox* uniform_noise_;
+  ParamGetterWidget_SpinBox* noise_stddev_;
+  ParamGetterWidget_SpinBox* hard_bias_range_;
 };
 };  // namespace setup_assistant
 }  // namespace gui

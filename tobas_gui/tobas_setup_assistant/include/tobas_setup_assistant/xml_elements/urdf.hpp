@@ -45,8 +45,8 @@ void addMagnetometerPlugin(
   double latitude_zero,
   double longitude_zero,
   double altitude_zero,
-  double gauss_noise,
-  double uniform_noise);
+  double noise_stddev,
+  double hard_bias_range);
 
 void addBarometerPlugin(
   tinyxml2::XMLElement* robot,

@@ -39,20 +39,20 @@ public:
 private:
   // SDF parameters
   string link_name_;
-  size_t update_rate_;              // [Hz] Update rate
-  gz::math::Vector3d offset_;       // [m] B_Pos_BS
-  double lat_0_;                    // [deg] 原点の北緯
-  double lon_0_;                    // [deg] 原点の東経
-  double alt_0_;                    // [m] 原点の高度
-  double noise_normal_;             // [nT]
-  double noise_uniform_init_bias_;  // [nT]
+  size_t update_rate_;         // [Hz] Update rate
+  gz::math::Vector3d offset_;  // [m] B_Pos_BS
+  double lat_0_;               // [deg] 原点の北緯
+  double lon_0_;               // [deg] 原点の東経
+  double alt_0_;               // [m] 原点の高度
+  double noise_stddev_;        // [nT]
+  double hard_bias_range_;     // [nT]
 
   RateManager::SharedPtr rate_manager_;
 
   const cmp::WorldPose* pose_W_;
 
-  gz::math::Vector3d init_bias_;  // [nT] 世界座標系の地磁気に加わるバイアス
-  double lat_, lon_;              // [deg] 現在位置の経緯度
+  gz::math::Vector3d hard_bias_;  // [nT]
+  double lat_, lon_;              // [deg] Current position
 
   random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -84,12 +84,12 @@ void GazeboMagnetometerPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
 
-  noise_ = NormalDistribution(0, noise_normal_);
+  noise_ = NormalDistribution(0, noise_stddev_);
 
-  UniformDistribution init_bias_dist(-noise_uniform_init_bias_, noise_uniform_init_bias_);
-  init_bias_.X(init_bias_dist(rnd_gen_));
-  init_bias_.Y(init_bias_dist(rnd_gen_));
-  init_bias_.Z(init_bias_dist(rnd_gen_));
+  UniformDistribution hard_bias_dist(-hard_bias_range_, hard_bias_range_);
+  hard_bias_.X(hard_bias_dist(rnd_gen_));
+  hard_bias_.Y(hard_bias_dist(rnd_gen_));
+  hard_bias_.Z(hard_bias_dist(rnd_gen_));
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
 }
@@ -104,8 +104,8 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
 
-  getSdfParam(sdf, "noiseNormal", noise_normal_, 0., NON_NEGATIVE);
-  getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_init_bias_, 0., NON_NEGATIVE);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, 0., NON_NEGATIVE);
+  getSdfParam(sdf, "hardBiasRange", hard_bias_range_, 0., NON_NEGATIVE);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -128,7 +128,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
   // 機体座標系から見た地磁気を計算
   const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [nT]
-  auto field_B = T_W_B.Rot().RotateVectorReverse(field_W + init_bias_);
+  auto field_B = T_W_B.Rot().RotateVectorReverse(field_W) + hard_bias_;
 
   // Add noise
   field_B.X() += noise_(rnd_gen_);

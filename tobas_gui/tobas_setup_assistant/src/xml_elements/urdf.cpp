@@ -136,8 +136,8 @@ void addMagnetometerPlugin(
   double latitude_zero,
   double longitude_zero,
   double altitude_zero,
-  double gauss_noise,
-  double uniform_noise)
+  double noise_stddev,
+  double hard_bias_range)
 {
   const auto plugin =
     util::addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "gazebo::GazeboMagnetometerPlugin");
@@ -148,8 +148,8 @@ void addMagnetometerPlugin(
   plugin->InsertNewChildElement("latitudeZero")->SetText(latitude_zero);
   plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
-  plugin->InsertNewChildElement("noiseNormal")->SetText(gauss_noise);
-  plugin->InsertNewChildElement("noiseUniformInitialBias")->SetText(uniform_noise);
+  plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
+  plugin->InsertNewChildElement("hardBiasRange")->SetText(hard_bias_range);
 }
 
 void addBarometerPlugin(

@@ -758,7 +758,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   // Magnetometer plugin
   addMagnetometerPlugin(
     robot, ns, root_name, mag->updateRate(), mag->offset(), sim->latitudeZero(), sim->longitudeZero(),
-    sim->altitudeZero(), mag->gaussNoise(), mag->uniformNoise());
+    sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasRange());
 
   // Barometer plugin
   addBarometerPlugin(
