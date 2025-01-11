@@ -149,15 +149,16 @@ void ErrorStateKalmanFilter::measureIMU(
 
   const Matrix3d W_Rot_B = getDCM(x_);
   const Vector3d acc_B = acc_meas - getAccelBias(x_);
-  const Vector3d acc_W = W_Rot_B * acc_B;
+  const Vector3d acc_grav_W = W_Rot_B * acc_B + getGravVector(x_);
   const Vector3d delta_theta = (gyro_meas - getGyroBias(x_)) * dt;
   const Quaterniond q_delta_theta = eigen::angleAxisToQuaternion(delta_theta);
   const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
-  // x_.segment<3>(kPosIdx) += getVelocity() * dt + 0.5 * (acc_W + getGravVector()) * math::sqr(dt);
-  x_.segment<3>(kPosIdx) += getVelocity(x_) * dt;  // 積分誤差が大きくなるため二階積分は考えない
-  x_.segment<3>(kVelIdx) += (acc_W + getGravVector(x_)) * dt;
+  x_.segment<3>(kPosIdx) += getVelocity(x_) * dt;
+  if (enable_second_integral_)
+    x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * math::sqr(dt);  // XXX: 積分誤差増大リスクあり
+  x_.segment<3>(kVelIdx) += acc_grav_W * dt;
   x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(getQuaternion(x_) * q_delta_theta).normalized();
 
   // (270) ヤコビアンの可変部を更新

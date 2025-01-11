@@ -146,6 +146,7 @@ public:
 
 private:
   // Configuration
+  bool enable_second_integral_ = false;
   bool use_joseph_form_ = true;
   bool do_cov_initialization_ = false;
   double acc_bias_proc_noise_var_ = 0.;   // [m^2/s^4] 加速度バイアスのプロセスノイズの分散
