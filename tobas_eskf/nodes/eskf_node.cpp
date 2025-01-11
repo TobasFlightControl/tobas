@@ -44,6 +44,25 @@ class ObserverNode : public tobas::BaseNode
   using GetOrigin = tobas_msgs::srv::GetGnssOrigin;
   using SetOrigin = tobas_msgs::srv::SetGnssOrigin;
 
+  // Default parameters
+  static constexpr bool kDefaultUseBarometer = false;
+  static constexpr bool kDefaultUseGps = true;
+  static constexpr bool kDefaultDoAccBiasEstimation = false;
+  static constexpr bool kDefaultDoGyroBiasEstimation = true;
+  static constexpr bool kDefaultDoGravEstimation = true;
+
+  // 標準偏差の初期値
+  // 共分散行列は成長は遅いが収束は割と速いから，大きすぎるくらいで適当に決めてよい
+  static constexpr double kInitPosStddev = 3.;        // [m]
+  static constexpr double kInitVelStddev = 1.;        // [m/s]
+  static constexpr double kInitRotStddev = M_PI_4;    // [rad]
+  static constexpr double kInitAccBiasStddev = 1.;    // [m/s^2]
+  static constexpr double kInitGyroBiasStddev = 0.1;  // [rad/s]
+  static constexpr double kInitGravStddev = 0.1;      // [m/s^2]
+
+  // その他
+  static constexpr double kAnormalyScoreThreshold = 10.;  // [-]
+
 public:
   explicit ObserverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
@@ -158,11 +177,11 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
 void ObserverNode::getStaticRosParams()
 {
   frame_id_ = getStringParam("frame_id", "unknown");  // 空文字だとTFが警告文を出す
-  use_bar_ = getBoolParam("use_barometer", eskf::kDefaultUseBarometer);
-  use_gps_ = getBoolParam("use_gps", eskf::kDefaultUseGps);
-  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", eskf::kDefaultDoAccBiasEstimation);
-  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", eskf::kDefaultDoGyroBiasEstimation);
-  do_grav_estimation_ = getBoolParam("do_gravity_estimation", eskf::kDefaultDoGravEstimation);
+  use_bar_ = getBoolParam("use_barometer", kDefaultUseBarometer);
+  use_gps_ = getBoolParam("use_gps", kDefaultUseGps);
+  do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", kDefaultDoAccBiasEstimation);
+  do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", kDefaultDoGyroBiasEstimation);
+  do_grav_estimation_ = getBoolParam("do_gravity_estimation", kDefaultDoGravEstimation);
 
   const auto imu_offset = getDoubleArrayParam("imu_offset", vector<double>(3, 0.));
   const auto bar_offset = getDoubleArrayParam("barometer_offset", vector<double>(3, 0.));
@@ -286,16 +305,16 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   {
     TOBAS_INFO("First IMU is received.");
 
-    const double init_acc_bias_stddev = do_acc_bias_estimation_ ? eskf::kInitAccBiasStddev : 0.;
-    const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? eskf::kInitGyroBiasStddev : 0.;
-    const double init_grav_stddev = do_grav_estimation_ ? eskf::kInitGravStddev : 0.;
+    const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0.;
+    const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0.;
+    const double init_grav_stddev = do_grav_estimation_ ? kInitGravStddev : 0.;
     eskf_.initialize(
       Vector3d::Zero(),                                                   // Init position
       Vector3d::Zero(),                                                   // Init velocity
       Quaterniond::Identity(),                                            // Init quaternion
-      Vector3d::Constant(math::sqr(eskf::kInitPosStddev)).asDiagonal(),   // Init position cov
-      Vector3d::Constant(math::sqr(eskf::kInitVelStddev)).asDiagonal(),   // Init velocity cov
-      Vector3d::Constant(math::sqr(eskf::kInitRotStddev)).asDiagonal(),   // Init rotation cov
+      Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
+      Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
+      Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
       Vector3d::Constant(math::sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
       Vector3d::Constant(math::sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
       math::sqr(init_grav_stddev),                                        // Init gravity var
@@ -412,10 +431,6 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
 
   gps_ = gps;
 
-  // TODO: 遅延を考慮
-  // const auto delay = imu_->header.stamp - gps->header.stamp;
-  // cout << "GNSS delay: " << delay << endl;
-
   // 位置の観測値
   tobas_std::gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
   pos_meas_.z() = gps->altitude - alt_0_gps_;  // FIXME: 気圧高度と競合しそう
@@ -427,7 +442,7 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     imu_->imu.imu.gyro.data, ros2::chronoFromRosTime(gps->header.stamp));
 
   // 異常度が高すぎる場合は警告
-  if (gps_anormaly_score_ > eskf::kAnormalyScoreThreshold)
+  if (gps_anormaly_score_ > kAnormalyScoreThreshold)
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
 }
 

@@ -11,8 +11,6 @@
 #include <tobas_eigen_tools/linalg.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
-#include "./constants.hpp"
-
 namespace eskf
 {
 /**
@@ -23,17 +21,41 @@ namespace eskf
  */
 class ErrorStateKalmanFilter
 {
+  // ノミナル状態の添字
+  static constexpr size_t kPosIdx = 0;
+  static constexpr size_t kAltIdx = kPosIdx + 2;
+  static constexpr size_t kVelIdx = kPosIdx + 3;
+  static constexpr size_t kQuatIdx = kVelIdx + 3;
+  static constexpr size_t kAccBiasIdx = kQuatIdx + 4;
+  static constexpr size_t kGyroBiasIdx = kAccBiasIdx + 3;
+  static constexpr size_t kGravIdx = kGyroBiasIdx + 3;
+  static constexpr size_t kStateSize = kGravIdx + 1;
+
+  // 誤差状態の添字
+  static constexpr size_t kDeltaPosIdx = 0;
+  static constexpr size_t kDeltaAltIdx = kDeltaPosIdx + 2;
+  static constexpr size_t kDeltaVelIdx = kDeltaPosIdx + 3;
+  static constexpr size_t kDeltaThetaIdx = kDeltaVelIdx + 3;
+  static constexpr size_t kDeltaAccBiasIdx = kDeltaThetaIdx + 3;
+  static constexpr size_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
+  static constexpr size_t kDeltaGravIdx = kDeltaGyroBiasIdx + 3;
+  static constexpr size_t kDeltaStateSize = kDeltaGravIdx + 1;
+
+  // 変数の範囲
+  static constexpr double kMaxAccBias = 1.;    // [m/s^2]
+  static constexpr double kMaxGyroBias = 0.1;  // [rad/s]
+  static constexpr double kMinGravity = 9.75;  // [m/s^2]
+  static constexpr double kMaxGravity = 9.85;  // [m/s^2]
+
+  // その他
+  static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
+
   using StateMatrix = Eigen::Matrix<double, kStateSize, kStateSize>;
   using StateVector = Eigen::Vector<double, kStateSize>;
   using RowStateVector = Eigen::RowVector<double, kStateSize>;
   using DeltaStateMatrix = Eigen::Matrix<double, kDeltaStateSize, kDeltaStateSize>;
   using DeltaStateVector = Eigen::Vector<double, kDeltaStateSize>;
   using RowDeltaStateVector = Eigen::RowVector<double, kDeltaStateSize>;
-
-  static constexpr double kMaxAccBias = 1.;    // [m/s^2]
-  static constexpr double kMaxGyroBias = 0.1;  // [rad/s]
-  static constexpr double kMinGravity = 9.75;  // [m/s^2]
-  static constexpr double kMaxGravity = 9.85;  // [m/s^2]
 
 public:
   explicit ErrorStateKalmanFilter();
