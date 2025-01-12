@@ -6,7 +6,7 @@ namespace tobas_std
  * @brief ZYXオイラー角からクォータニオンを計算．
  * cf. https://qiita.com/aa_debdeb/items/abe90a9bd0b4809813da
  */
-void eulerToQuaternion(
+void quaternionFromEuler(
   const double& roll,
   const double& pitch,
   const double& yaw,
@@ -19,7 +19,7 @@ void eulerToQuaternion(
  * @brief クォータニオンからZYXオイラー角を計算．
  * cf. https://qiita.com/aa_debdeb/items/abe90a9bd0b4809813da
  */
-void quaternionToEuler(
+void eulerFromQuaternion(
   const double& x,
   const double& y,
   const double& z,
@@ -39,7 +39,7 @@ void quaternionToEuler(
  *
  * @note World, Local共にNWU座標系を想定．
  */
-void imuToEuler(
+void eulerFromAccelMag(
   const double& ax,
   const double& ay,
   const double& az,
@@ -64,7 +64,7 @@ void imuToEuler(
  *
  * @note World, Local共にNWU座標系を想定．
  */
-void imuToQuaternion(
+void quaternionFromAccelMag(
   const double& ax,
   const double& ay,
   const double& az,

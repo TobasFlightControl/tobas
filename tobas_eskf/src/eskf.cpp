@@ -1,6 +1,7 @@
+#include <iostream>
+
 #include <tobas_math/core.hpp>
 #include <tobas_algorithm/core.hpp>
-#include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_eskf/eskf.hpp"
@@ -22,8 +23,8 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
   H_vel_.setZero();
   H_pv_.setZero();
   H_theta_.setZero();
-  H_acc_.setZero();
   H_mag_.setZero();
+  H_grav_.setZero();
 
   H_pos_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
   H_xy_.block<2, 2>(0, kDeltaPosIdx).diagonal().setOnes();
@@ -32,50 +33,201 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
   H_pv_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
   H_pv_.block<3, 3>(3, kDeltaVelIdx).diagonal().setOnes();
   H_theta_.block<3, 3>(0, kDeltaThetaIdx).diagonal().setOnes();  // 回転の誤差を3Dベクトルとして観測
-  H_acc_.block<3, 3>(0, kAccBiasIdx).diagonal().setOnes();
+  H_mag_.block<3, 3>(0, kDeltaMagHardBiasIdx).diagonal().setOnes();
+  H_grav_.block<3, 3>(0, kDeltaAccBiasIdx).diagonal().setOnes();
 }
 
-void ErrorStateKalmanFilter::initialize(
+bool ErrorStateKalmanFilter::initialize(
   const Vector3d& init_pos,
-  const Vector3d& init_vel,
-  const Quaterniond& init_quat,
   const Matrix3d& init_pos_cov,
+  const Vector3d& init_vel,
   const Matrix3d& init_vel_cov,
+  const Quaterniond& init_quat,
   const Matrix3d& init_dtheta_cov,
+  const Vector3d& init_mag,
+  const Matrix3d& init_mag_cov,
+  const Vector3d& init_acc_bias,
   const Matrix3d& init_acc_bias_cov,
+  const Vector3d& init_gyro_bias,
   const Matrix3d& init_gyro_bias_cov,
+  const Vector3d& init_mag_hard_bias,
+  const Matrix3d& init_mag_hard_bias_cov,
+  const Matrix3d& init_mag_soft_bias,
+  const Matrix6d& init_mag_soft_bias_cov,
+  const double& init_grav,
   const double& init_grav_var,
   const steady_clock::time_point& time)
 {
-  assert(eigen::isSymmetricSemiPositiveDefinite(init_pos_cov));
-  assert(eigen::isSymmetricSemiPositiveDefinite(init_vel_cov));
-  assert(eigen::isSymmetricSemiPositiveDefinite(init_dtheta_cov));
-  assert(eigen::isSymmetricSemiPositiveDefinite(init_acc_bias_cov));
-  assert(eigen::isSymmetricSemiPositiveDefinite(init_gyro_bias_cov));
-  assert(init_grav_var >= 0);
+  // Set initial IMU time
+  t_last_imu_ = time;
 
-  // Initialize nominal state
-  x_.setZero();
-  x_.segment<3>(kPosIdx) = init_pos;
-  x_.segment<3>(kVelIdx) = init_vel;
-  x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(init_quat).normalized();
-  x_(kGravIdx) = tobas_std::kGravity;
-
-  // Initialize covariance
+  // Fill the constant part of matrices
   P_.setZero();
-  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = init_pos_cov;
-  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = init_vel_cov;
-  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = init_dtheta_cov;
-  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = init_acc_bias_cov;
-  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = init_gyro_bias_cov;
-  P_(kDeltaGravIdx, kDeltaGravIdx) = init_grav_var;
-
-  // Fill the constant part of jacobians
   F_x_.setIdentity();
   G_.setIdentity();
 
-  t_last_imu_ = time;
-  x_history_.add(time, x_);
+  // Initialize states and covariances
+  if (!initializePosition(init_pos, init_pos_cov))
+    return false;
+  if (!initializeVelocity(init_vel, init_vel_cov))
+    return false;
+  if (!initializeQuaternion(init_quat, init_dtheta_cov))
+    return false;
+  if (!initializeMagneticField(init_mag, init_mag_cov))
+    return false;
+  if (!initializeAccelBias(init_acc_bias, init_acc_bias_cov))
+    return false;
+  if (!initializeGyroBias(init_gyro_bias, init_gyro_bias_cov))
+    return false;
+  if (!initializeMagHardBias(init_mag_hard_bias, init_mag_hard_bias_cov))
+    return false;
+  if (!initializeMagSoftBias(init_mag_soft_bias, init_mag_soft_bias_cov))
+    return false;
+  if (!initializeGravity(init_grav, init_grav_var))
+    return false;
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializePosition(const Vector3d& value, const Matrix3d& cov)
+{
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial position covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<3>(kPosIdx) = value;
+  P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeVelocity(const Vector3d& value, const Matrix3d& cov)
+{
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial velocity covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<3>(kVelIdx) = value;
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeQuaternion(const Quaterniond& value, const Matrix3d& cov)
+{
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial rotation covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(value).normalized();
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeMagneticField(const Vector3d& value, const Matrix3d& cov)
+{
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial magnetic field covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<3>(kMagIdx) = value;
+  P_.block<3, 3>(kDeltaMagIdx, kDeltaMagIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeAccelBias(const Vector3d& value, const Matrix3d& cov)
+{
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial accelerometer bias covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<3>(kAccBiasIdx) = value;
+  P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeGyroBias(const Vector3d& value, const Matrix3d& cov)
+{
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial gyroscope bias covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<3>(kGyroBiasIdx) = value;
+  P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeMagHardBias(const Vector3d& value, const Matrix3d& cov)
+{
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial magnetometer hard bias covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<3>(kMagHardBiasIdx) = value;
+  P_.block<3, 3>(kDeltaMagHardBiasIdx, kDeltaMagHardBiasIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeMagSoftBias(const Matrix3d& value, const Matrix6d& cov)
+{
+  if (!eigen::isSymmetricPositiveDefinite(value))
+  {
+    cerr << "Initial magnetometer soft bias matrix must be symmetric positive definite." << endl;
+    return false;
+  }
+
+  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
+  {
+    cerr << "Initial magnetometer soft bias covariance must be symmetric semi-positive definite." << endl;
+    return false;
+  }
+
+  x_.segment<6>(kMagSoftBiasIdx) << value(0, 0), value(0, 1), value(0, 2), value(1, 1), value(1, 2), value(2, 2);
+  P_.block<6, 6>(kDeltaMagSoftBiasIdx, kDeltaMagSoftBiasIdx) = cov;
+  resetStateHistory();
+
+  return true;
+}
+
+bool ErrorStateKalmanFilter::initializeGravity(const double& value, const double& var)
+{
+  if (var < 0.)
+  {
+    cerr << "Initial gravity variance must be non-negative." << endl;
+    return false;
+  }
+
+  x_(kGravIdx) = value;
+  P_(kDeltaGravIdx, kDeltaGravIdx) = var;
+  resetStateHistory();
+
+  return true;
 }
 
 void ErrorStateKalmanFilter::enableJosephForm(bool enable)
@@ -92,7 +244,7 @@ bool ErrorStateKalmanFilter::setAccBiasProcNoiseVar(double value)
 {
   if (value < 0.)
   {
-    cerr << "Accelerometer bias process noise variance must be non-negative." << endl;
+    cerr << "The variance of accelerometer bias process noise must be non-negative." << endl;
     return false;
   }
 
@@ -104,11 +256,35 @@ bool ErrorStateKalmanFilter::setGyroBiasProcNoiseVar(double value)
 {
   if (value < 0.)
   {
-    cerr << "Gyroscope bias process noise variance must be non-negative." << endl;
+    cerr << "The variance of gyroscope bias process noise must be non-negative." << endl;
     return false;
   }
 
   gyro_bias_proc_noise_var_ = value;
+  return true;
+}
+
+bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseVar(double value)
+{
+  if (value < 0.)
+  {
+    cerr << "The variance of magnetometer hard-iron bias process noise must be non-negative." << endl;
+    return false;
+  }
+
+  mag_hard_bias_proc_noise_var_ = value;
+  return true;
+}
+
+bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseVar(double value)
+{
+  if (value < 0.)
+  {
+    cerr << "The variance of magnetometer soft-iron bias process noise must be non-negative." << endl;
+    return false;
+  }
+
+  mag_soft_bias_proc_noise_var_ = value;
   return true;
 }
 
@@ -124,7 +300,12 @@ bool ErrorStateKalmanFilter::setGravProcNoiseVar(double value)
   return true;
 }
 
-void ErrorStateKalmanFilter::measureIMU(
+void ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_ref)
+{
+  mag_ref_ = mag_ref;
+}
+
+double ErrorStateKalmanFilter::measureIMU(
   const Vector3d& acc_meas,
   const Vector3d& gyro_meas,
   const Matrix3d& acc_cov,
@@ -134,58 +315,76 @@ void ErrorStateKalmanFilter::measureIMU(
 {
   assert(eigen::isSymmetricSemiPositiveDefinite(acc_cov));
   assert(eigen::isSymmetricSemiPositiveDefinite(gyro_cov));
-  assert(eigen::isSymmetricSemiPositiveDefinite(grav_cov));
+  assert(eigen::isSymmetricPositiveDefinite(grav_cov));
 
   // サンプリングタイムを計算して時刻を更新
-  const auto dt = duration<double>(time - t_last_imu_).count();
+  const auto dt = duration<double>(time - t_last_imu_).count();  // [s]
+  const auto dt2 = math::sqr(dt);
   t_last_imu_ = time;
 
   // クオータニオンの正規化のためにdt = 0を許容できない
   if (dt <= 0)
   {
     cerr << "IMU time gap must be positive: " << dt << " <= 0 [sec]" << endl;
-    return;
+    return INFINITY;
   }
 
-  const Matrix3d W_Rot_B = getDCM(x_);
   const Vector3d acc_B = acc_meas - getAccelBias(x_);
+  const Vector3d gyro_B = gyro_meas - getGyroBias(x_);
+  const Vector3d mag_B = getMagneticField(x_);
+
+  const Matrix3d acc_B_skew = eigen::skew(acc_B);
+  const Matrix3d gyro_B_skew = eigen::skew(gyro_B);
+  const Matrix3d mag_B_skew = eigen::skew(mag_B);
+
+  const Quaterniond delta_q = eigen::quaternionFromAngleAxis(gyro_B * dt);
+  const Matrix3d delta_R = delta_q.toRotationMatrix();
+
+  const Vector3d vel_W = getVelocity(x_);
+  const Quaterniond q = getQuaternion(x_);
+  const Matrix3d W_Rot_B = q.toRotationMatrix();
   const Vector3d acc_grav_W = W_Rot_B * acc_B + getGravVector(x_);
-  const Vector3d delta_theta = (gyro_meas - getGyroBias(x_)) * dt;
-  const Quaterniond q_delta_theta = eigen::angleAxisToQuaternion(delta_theta);
-  const Matrix3d R_delta_theta = q_delta_theta.toRotationMatrix();
 
   // (260) ノミナル状態のキネマティクス
-  x_.segment<3>(kPosIdx) += getVelocity(x_) * dt;
+  x_.segment<3>(kPosIdx) += vel_W * dt;
   if (enable_second_integral_)
-    x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * math::sqr(dt);  // XXX: 積分誤差増大リスクあり
+    x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * dt2;  // XXX: 積分誤差増大リスクあり
   x_.segment<3>(kVelIdx) += acc_grav_W * dt;
-  x_.segment<4>(kQuatIdx) = eigen::quaternionToHamilton(getQuaternion(x_) * q_delta_theta).normalized();
+  x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(q * delta_q);
+  x_.segment<3>(kMagIdx) += mag_B.cross(gyro_B) * dt;
 
   // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * eigen::skew(acc_B) * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * acc_B_skew * dt;
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -W_Rot_B * dt;
   F_x_(kDeltaVelIdx + 2, kDeltaGravIdx) = -dt;
-  F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = R_delta_theta.transpose();
+  F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = delta_R.transpose();
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
+  F_x_.block<3, 3>(kDeltaMagIdx, kDeltaMagIdx) = -gyro_B_skew * dt;
+  F_x_.block<3, 3>(kDeltaMagIdx, kDeltaGyroBiasIdx) = -mag_B_skew * dt;
 
   // (269)第一項: 共分散行列の予測値を更新
-  P_ = F_x_ * P_ * F_x_.transpose();  // TODO: sympyを用いるなどして必要な部分のみ計算
-  eigen::symmetrise(P_);              // 対称化 (これが必須)
+  P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
 
   // (269)第二項: プロセスノイズを印加
-  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * math::sqr(dt);
-  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * math::sqr(dt);
+  // TODO: 異なるdtに対応させるため，プロセスノイズの分散をノイズ密度で定義
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * dt2;
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * dt2;
+  P_.block<3, 3>(kDeltaMagIdx, kDeltaMagIdx) += mag_B_skew * gyro_cov * mag_B_skew.transpose() * dt2;
   P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_proc_noise_var_;
   P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_proc_noise_var_;
+  P_.diagonal().segment<3>(kDeltaMagHardBiasIdx).array() += mag_hard_bias_proc_noise_var_;
+  P_.diagonal().segment<6>(kDeltaMagSoftBiasIdx).array() += mag_soft_bias_proc_noise_var_;
   P_(kDeltaGravIdx, kDeltaGravIdx) += grav_proc_noise_var_;
+
+  // Apply constraints to avoid numerical errors
+  applyConstraints();
 
   // 状態の履歴を保存
   x_history_.add(time, x_);
 
-  // 重力方向の観測
-  // 加速度と姿勢には等式関係 (= 出力方程式) があるため，カルマンフィルタ理論に則って補正を行う．
-  measureGravity(acc_meas, grav_cov, time);
+  // 重力方向の観測: 加速度と姿勢には等式関係 (= 出力方程式) があるため，カルマンフィルタ理論に則って補正を行う．
+  return measureGravity(acc_meas, grav_cov, time);
 }
 
 double ErrorStateKalmanFilter::measurePosition(
@@ -296,7 +495,7 @@ double ErrorStateKalmanFilter::measureQuaternion(
 
   const Quaterniond q_nominal = getQuaternion(x);
   const Quaterniond q_error = q_nominal.conjugate() * q_meas;  // 回転の誤差
-  const Vector3d delta_theta = eigen::quaternionToAngleAxis(q_error);
+  const Vector3d delta_theta = eigen::angleAxisFromQuaternion(q_error);
 
   return correct(delta_theta, theta_cov, H_theta_);
 }
@@ -308,103 +507,33 @@ double ErrorStateKalmanFilter::measureMagneticField(
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
-  const auto R_W_B = getDCM(x);
-  const auto yaw_pred = atan2(R_W_B(1, 0), R_W_B(0, 0));
-  const AngleAxisd R_W_G(yaw_pred, Vector3d::UnitZ());
-  const auto mag_G = R_W_G.inverse() * (R_W_B * mag_meas);  // 後ろから計算することで計算量を削減
-  const auto mx = mag_G.x();
-  const auto my = mag_G.y();
+  const Vector3d m_t = getMagneticField(x);
+  const Vector3d m_b = getMagHardBias(x);
+  const Matrix3d T = getMagSoftBias(x);
 
-  // Compute innovation
-  const auto yaw_ref = atan2(mag_ref_.y(), mag_ref_.x());
-  const auto yaw_meas = yaw_ref - atan2(my, mx);
-  const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
+  const auto& mx = m_t.x();
+  const auto& my = m_t.y();
+  const auto& mz = m_t.z();
 
-  // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
-  const auto mx_std = sqrt(mag_cov(0, 0));
-  const auto my_std = sqrt(mag_cov(1, 1));
-  const auto yaw_std = (fabs(mx) * my_std + fabs(my) * mx_std) / (math::sqr(mx) + math::sqr(my));
-  const auto yaw_var = math::sqr(yaw_std);
+  // 観測誤差
+  const auto mag_pred = T * m_t + m_b;
+  const Vector3d delta_mag = mag_meas - mag_pred;
 
-  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
-  constexpr double kEpsilon = 1e-6;
-  const Quaterniond q = getQuaternion(x);
+  // 観測方程式
+  H_mag_.block<3, 3>(0, kDeltaMagIdx) = T;
+  H_mag_.block<3, 6>(0, kDeltaMagSoftBiasIdx) << mx, my, mz, 0, 0, 0, 0, mx, 0, my, mz, 0, 0, 0, mx, 0, my, mz;
 
-  bool can_use_A = false;
-  const double SA0 = 2 * q.z();
-  const double SA1 = 2 * q.y();
-  const double SA2 = SA0 * q.w() + SA1 * q.x();
-  const double SA3 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
-  double SA4, SA5_inv;
-  if (math::sqr(SA3) > kEpsilon)
-  {
-    SA4 = 1 / math::sqr(SA3);
-    SA5_inv = math::sqr(SA2) * SA4 + 1;
-    can_use_A = fabs(SA5_inv) > kEpsilon;
-  }
-
-  bool can_use_B = false;
-  const double SB0 = 2 * q.w();
-  const double SB1 = 2 * q.x();
-  const double SB2 = SB0 * q.z() + SB1 * q.y();
-  const double SB4 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
-  double SB3, SB5_inv;
-  if (math::sqr(SB2) > kEpsilon)
-  {
-    SB3 = 1 / math::sqr(SB2);
-    SB5_inv = SB3 * math::sqr(SB4) + 1;
-    can_use_B = fabs(SB5_inv) > kEpsilon;
-  }
-
-  // Compute output matrix
-  RowVector4d H_yaw;
-  if (can_use_A && (!can_use_B || fabs(SA5_inv) >= fabs(SB5_inv)))
-  {
-    const double SA5 = 1 / SA5_inv;
-    const double SA6 = 1 / SA3;
-    const double SA7 = SA2 * SA4;
-    const double SA8 = 2 * SA7;
-    const double SA9 = 2 * SA6;
-
-    H_yaw(0) = SA5 * (SA0 * SA6 - SA8 * q.w());
-    H_yaw(1) = SA5 * (SA1 * SA6 - SA8 * q.x());
-    H_yaw(2) = SA5 * (SA1 * SA7 + SA9 * q.x());
-    H_yaw(3) = SA5 * (SA0 * SA7 + SA9 * q.w());
-  }
-  else if (can_use_B && (!can_use_A || fabs(SB5_inv) > fabs(SA5_inv)))
-  {
-    const double SB5 = 1 / SB5_inv;
-    const double SB6 = 1 / SB2;
-    const double SB7 = SB3 * SB4;
-    const double SB8 = 2 * SB7;
-    const double SB9 = 2 * SB6;
-
-    H_yaw(0) = -SB5 * (SB0 * SB6 - SB8 * q.z());
-    H_yaw(1) = -SB5 * (SB1 * SB6 - SB8 * q.y());
-    H_yaw(2) = -SB5 * (-SB1 * SB7 - SB9 * q.y());
-    H_yaw(3) = -SB5 * (-SB0 * SB7 - SB9 * q.z());
-  }
-  else
-  {
-    cerr << "Unable to compute the output matrix of yaw angle observation." << endl;
-    return INFINITY;
-  }
-
-  const auto Q_dtheta = getQ_dtheta(x);
-  H_mag_.block<1, 3>(0, kDeltaThetaIdx) = H_yaw * Q_dtheta;
-
-  // Update the quaternion states and covariance matrix
-  return correct(Scalard(delta_yaw), Scalard(yaw_var), H_mag_);
+  // 事後推定を更新
+  return correct(delta_mag, mag_cov, H_mag_);
 }
 
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
 {
   const Vector4d qby2 = 0.5 * getHamilton(x);
-  const double& qw = qby2(0);
-  const double& qx = qby2(1);
-  const double& qy = qby2(2);
-  const double& qz = qby2(3);
+  const auto& qw = qby2(0);
+  const auto& qx = qby2(1);
+  const auto& qy = qby2(2);
+  const auto& qz = qby2(3);
 
   Matrix<double, 4, 3> Q_dtheta;
   Q_dtheta << -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw;
@@ -425,6 +554,132 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateV
   return res;
 }
 
+RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
+{
+  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
+  constexpr double kEpsilon = 1e-6;
+  const Quaterniond q = getQuaternion(x);
+
+  bool can_use_A = false;
+  const auto SA0 = 2 * q.z();
+  const auto SA1 = 2 * q.y();
+  const auto SA2 = SA0 * q.w() + SA1 * q.x();
+  const auto SA3 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
+  double SA4, SA5_inv;
+  if (math::sqr(SA3) > kEpsilon)
+  {
+    SA4 = 1 / math::sqr(SA3);
+    SA5_inv = math::sqr(SA2) * SA4 + 1;
+    can_use_A = fabs(SA5_inv) > kEpsilon;
+  }
+
+  bool can_use_B = false;
+  const auto SB0 = 2 * q.w();
+  const auto SB1 = 2 * q.x();
+  const auto SB2 = SB0 * q.z() + SB1 * q.y();
+  const auto SB4 = math::sqr(q.w()) + math::sqr(q.x()) - math::sqr(q.y()) - math::sqr(q.z());
+  double SB3, SB5_inv;
+  if (math::sqr(SB2) > kEpsilon)
+  {
+    SB3 = 1 / math::sqr(SB2);
+    SB5_inv = SB3 * math::sqr(SB4) + 1;
+    can_use_B = fabs(SB5_inv) > kEpsilon;
+  }
+
+  // Compute output matrix
+  RowVector4d H;
+  if (can_use_A && (!can_use_B || fabs(SA5_inv) >= fabs(SB5_inv)))
+  {
+    const auto SA5 = 1 / SA5_inv;
+    const auto SA6 = 1 / SA3;
+    const auto SA7 = SA2 * SA4;
+    const auto SA8 = 2 * SA7;
+    const auto SA9 = 2 * SA6;
+
+    H(0) = SA5 * (SA0 * SA6 - SA8 * q.w());
+    H(1) = SA5 * (SA1 * SA6 - SA8 * q.x());
+    H(2) = SA5 * (SA1 * SA7 + SA9 * q.x());
+    H(3) = SA5 * (SA0 * SA7 + SA9 * q.w());
+  }
+  else if (can_use_B && (!can_use_A || fabs(SB5_inv) > fabs(SA5_inv)))
+  {
+    const auto SB5 = 1 / SB5_inv;
+    const auto SB6 = 1 / SB2;
+    const auto SB7 = SB3 * SB4;
+    const auto SB8 = 2 * SB7;
+    const auto SB9 = 2 * SB6;
+
+    H(0) = -SB5 * (SB0 * SB6 - SB8 * q.z());
+    H(1) = -SB5 * (SB1 * SB6 - SB8 * q.y());
+    H(2) = -SB5 * (-SB1 * SB7 - SB9 * q.y());
+    H(3) = -SB5 * (-SB0 * SB7 - SB9 * q.z());
+  }
+  else
+  {
+    cerr << "Unable to compute the output matrix of yaw angle observation." << endl;
+    return RowVector4d::Zero();
+  }
+
+  return H;
+}
+
+double ErrorStateKalmanFilter::computeYawFromMag(const StateVector& x)
+{
+  // 地磁気をヨーのみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
+  const auto R_W_B = getDCM(x);
+  const auto yaw_rot = eigen::yawFromDCM(R_W_B);
+  const AngleAxisd R_W_G(yaw_rot, Vector3d::UnitZ());
+  const auto mag_G = R_W_G.inverse() * (R_W_B * getMagneticField());  // 後ろから計算することで計算量を削減
+
+  // 地磁気からヨーを計算
+  const auto yaw_ref = atan2(mag_ref_.y(), mag_ref_.x());
+  return algo::wrapPi(yaw_ref - atan2(mag_G.y(), mag_G.x()));
+}
+
+void ErrorStateKalmanFilter::applyConstraints()
+{
+  // 状態の等式制約
+  applyStateEqualityConstraints();
+
+  // 状態の不等式制約
+  applyStateInequalityConstraints();
+
+  // 共分散行列は対称行列でなければならない
+  eigen::symmetrise(P_);
+}
+
+void ErrorStateKalmanFilter::applyStateEqualityConstraints()
+{
+  // クオータニオンのノルムは1
+  x_.segment<4>(kQuatIdx) = x_.segment<4>(kQuatIdx).normalized();
+
+  // 地磁気のノルムは1
+  const auto mag_norm = x_.segment<3>(kMagIdx).norm();
+  x_.segment<3>(kMagIdx) /= mag_norm;
+  x_.segment<6>(kMagSoftBiasIdx) *= mag_norm;  // 地磁気の出力を変えないようソフトバイアスで辻褄を合わせる
+
+  // ヨーは地磁気の偏角に一致する
+  auto rpy = getEuler(x_);
+  rpy.z() = computeYawFromMag(x_);  // ヨーのみ地磁気から求めた値に修正
+  const Quaterniond new_q = eigen::quaternionFromRPY(rpy.x(), rpy.y(), rpy.z());
+  x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(new_q);
+}
+
+void ErrorStateKalmanFilter::applyStateInequalityConstraints()
+{
+  // 事前知識を用いて状態が最低限ありえない値にはならないようにする
+  x_.segment<3>(kAccBiasIdx) = x_.segment<3>(kAccBiasIdx).cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
+  x_.segment<3>(kGyroBiasIdx) = x_.segment<3>(kGyroBiasIdx).cwiseMax(-kMaxGyroBias).cwiseMin(kMaxGyroBias);
+  x_.segment<3>(kMagHardBiasIdx) = x_.segment<3>(kMagHardBiasIdx).cwiseMax(-kMaxMagHardBias).cwiseMin(kMaxMagHardBias);
+  x_(kGravIdx) = clamp(x_(kGravIdx), kMinGravity, kMaxGravity);
+}
+
+void ErrorStateKalmanFilter::resetStateHistory()
+{
+  x_history_.clear();
+  x_history_.add(t_last_imu_, x_);
+}
+
 double ErrorStateKalmanFilter::measureGravity(
   const Vector3d& acc_meas,
   const Matrix3d& grav_cov,
@@ -437,8 +692,8 @@ double ErrorStateKalmanFilter::measureGravity(
   const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
   const Vector3d delta_acc = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
 
-  H_acc_.block<3, 3>(0, kDeltaThetaIdx) = -2 * eigen::skew(grav_B);
-  H_acc_.col(kDeltaGravIdx) = R_B_W.col(2);
-  return correct(delta_acc, grav_cov, H_acc_);
+  H_grav_.block<3, 3>(0, kDeltaThetaIdx) = -2 * eigen::skew(grav_B);
+  H_grav_.col(kDeltaGravIdx) = R_B_W.col(2);
+  return correct(delta_acc, grav_cov, H_grav_);
 }
 }  // namespace eskf

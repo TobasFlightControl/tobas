@@ -21,7 +21,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
-#include <tobas_debug_msgs_adapter/ObserverFeedback.hpp>
+#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 
 #include "../include/tobas_eskf/eskf.hpp"
 
@@ -49,16 +49,16 @@ class ObserverNode : public tobas::BaseNode
   static constexpr bool kDefaultUseGps = true;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
+  static constexpr bool kDefaultDoMagHardBiasEstimation = true;
+  static constexpr bool kDefaultDoMagSoftBiasEstimation = true;
   static constexpr bool kDefaultDoGravEstimation = true;
 
   // 標準偏差の初期値
   // 共分散行列は成長は遅いが収束は割と速いから，大きすぎるくらいで適当に決めてよい
-  static constexpr double kInitPosStddev = 3.;        // [m]
-  static constexpr double kInitVelStddev = 1.;        // [m/s]
-  static constexpr double kInitRotStddev = M_PI_4;    // [rad]
-  static constexpr double kInitAccBiasStddev = 1.;    // [m/s^2]
-  static constexpr double kInitGyroBiasStddev = 0.1;  // [rad/s]
-  static constexpr double kInitGravStddev = 0.1;      // [m/s^2]
+  static constexpr double kInitPosStddev = 5.;      // [m]
+  static constexpr double kInitVelStddev = 1.;      // [m/s]
+  static constexpr double kInitRotStddev = M_PI_4;  // [rad]
+  static constexpr double kInitMagStddev = 0.5;     // [-]
 
   // その他
   static constexpr double kAnormalyScoreThreshold = 10.;  // [-]
@@ -90,6 +90,8 @@ private:
   bool use_gps_;
   bool do_acc_bias_estimation_;
   bool do_gyro_bias_estimation_;
+  bool do_mag_hard_bias_estimation_;
+  bool do_mag_soft_bias_estimation_;
   bool do_grav_estimation_;
   Vector3d imu_offset_;  // [m] ルートリンクに対するIMUの位置 (Local)
   Vector3d bar_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
@@ -119,14 +121,24 @@ private:
   tf2_ros::TransformBroadcaster tf_br_;
 
   void getStaticRosParams();
+  void setMagneticFieldRefAndInitializeBias(const Vector3d& mag_ref);
   void fillOdometryMsg(OdomMsg& odom) const;
   void publishGPSOrigin();
+  void publishFeedback(const std_msgs::msg::Header& header);
   double computeGravMeasVariance(const Vector3d& acc) const;
+
+  double initAccelBiasStddev() const;
+  double initGyroBiasStddev() const;
+  double initMagHardBiasStddev() const;
+  double initMagSoftBiasStddev() const;
+  double initGravBiasStddev() const;
 
   bool gravMeasVarInterceptCb(const long& p);
   bool gravMeasVarSlopeCb(const long& p);
   bool accBiasProcNoiseVarLog10Cb(const long& p);
   bool gyroBiasProcNoiseVarLog10Cb(const long& p);
+  bool magHardBiasProcNoiseVarLog10Cb(const long& p);
+  bool magSoftBiasProcNoiseVarLog10Cb(const long& p);
   bool gravProcNoiseVarLog10Cb(const long& p);
 
   void imuCb(const ImuMsg::ConstSharedPtr& imu);
@@ -151,6 +163,10 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
     addDynamicIntParam("acc_bias_proc_noise_var_log10", &self::accBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
   if (do_gyro_bias_estimation_)
     addDynamicIntParam("gyro_bias_proc_noise_var_log10", &self::gyroBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
+  if (do_mag_hard_bias_estimation_)
+    addDynamicIntParam("mag_hard_bias_proc_noise_var_log10", &self::magHardBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
+  if (do_mag_soft_bias_estimation_)
+    addDynamicIntParam("mag_soft_bias_proc_noise_var_log10", &self::magSoftBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
   if (do_grav_estimation_)
     addDynamicIntParam("grav_noise_proc_var_log10", &self::gravProcNoiseVarLog10Cb, this, -7, -12, 0);
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
@@ -181,6 +197,8 @@ void ObserverNode::getStaticRosParams()
   use_gps_ = getBoolParam("use_gps", kDefaultUseGps);
   do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", kDefaultDoAccBiasEstimation);
   do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", kDefaultDoGyroBiasEstimation);
+  do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation", kDefaultDoMagHardBiasEstimation);
+  do_mag_soft_bias_estimation_ = getBoolParam("do_mag_soft_bias_estimation", kDefaultDoMagSoftBiasEstimation);
   do_grav_estimation_ = getBoolParam("do_gravity_estimation", kDefaultDoGravEstimation);
 
   const auto imu_offset = getDoubleArrayParam("imu_offset", vector<double>(3, 0.));
@@ -193,6 +211,16 @@ void ObserverNode::getStaticRosParams()
   // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
   if (do_acc_bias_estimation_ && do_grav_estimation_)
     TOBAS_EXIT("You cannot enable both accelerometer bias estimation and gravity estimation.");
+}
+
+void ObserverNode::setMagneticFieldRefAndInitializeBias(const Vector3d& mag_ref)
+{
+  eskf_.setMagneticFieldRef(mag_ref);
+
+  // 地磁気の参照値が変わったらバイアスを初期化する
+  eskf_.initializeMagHardBias(Vector3d::Zero(), Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal());
+  eskf_.initializeMagSoftBias(
+    Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
 }
 
 void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
@@ -225,7 +253,7 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
 
   // Orientation (Global)
   odom.frame.M.data = W_Rot_B.toRotationMatrix();
-  odom.orientation_covariance = eskf_.getOrientationCovariance();
+  odom.orientation_covariance = eskf_.getRotationCovariance();
 
   // Angular velocity (Local)
   odom.twist.rot.data = B_Gyro;
@@ -252,6 +280,37 @@ void ObserverNode::publishGPSOrigin()
   gps_origin_pub_->publish(move(gps_origin));
 }
 
+void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
+{
+  auto feedback = std::make_unique<FeedbackMsg>();
+
+  feedback->header = header;
+
+  feedback->position = eskf_.getPosition();
+  feedback->velocity = eskf_.getVelocity();
+  feedback->hamilton = eskf_.getHamilton();
+  feedback->magnetic_field = eskf_.getMagneticField();
+  feedback->accel_bias = eskf_.getAccelBias();
+  feedback->gyro_bias = eskf_.getGyroBias();
+  feedback->mag_hard_bias = eskf_.getMagHardBias();
+  feedback->mag_soft_bias = eskf_.getMagSoftBias();
+  feedback->gravity = eskf_.getGravity();
+
+  feedback->position_cov = eskf_.getPositionCovariance();
+  feedback->velocity_cov = eskf_.getVelocityCovariance();
+  feedback->rotation_cov = eskf_.getRotationCovariance();
+  feedback->magnetic_field_cov = eskf_.getMagneticFieldCovariance();
+  feedback->accel_bias_cov = eskf_.getAccelBiasCovariance();
+  feedback->gyro_bias_cov = eskf_.getGyroBiasCovariance();
+  feedback->mag_hard_bias_cov = eskf_.getMagHardBiasCovariance();
+  feedback->mag_soft_bias_cov = eskf_.getMagSoftBiasCovariance();
+  feedback->gravity_var = eskf_.getGravityVariance();
+
+  feedback->gps_anormaly_score = gps_anormaly_score_;
+
+  feedback_pub_->publish(move(feedback));
+}
+
 double ObserverNode::computeGravMeasVariance(const Vector3d& acc) const
 {
   // 加速度のL2ノルムから重力方向の観測の不確かさを決める．
@@ -265,6 +324,31 @@ double ObserverNode::computeGravMeasVariance(const Vector3d& acc) const
   return grav_meas_var_intercept_ + grav_meas_var_slope_ * acc_norm_diff;  // TODO: 1次関数以外のプロファイルを検討
 }
 
+double ObserverNode::initAccelBiasStddev() const
+{
+  return do_acc_bias_estimation_ ? 1. : 0.;
+}
+
+double ObserverNode::initGyroBiasStddev() const
+{
+  return do_gyro_bias_estimation_ ? 0.1 : 0.;
+}
+
+double ObserverNode::initMagHardBiasStddev() const
+{
+  return do_mag_hard_bias_estimation_ ? 0.1 : 0.;
+}
+
+double ObserverNode::initMagSoftBiasStddev() const
+{
+  return do_mag_soft_bias_estimation_ ? 0.1 : 0.;
+}
+
+double ObserverNode::initGravBiasStddev() const
+{
+  return do_grav_estimation_ ? 0.1 : 0.;
+}
+
 bool ObserverNode::accBiasProcNoiseVarLog10Cb(const long& p)
 {
   assert(do_acc_bias_estimation_);
@@ -275,6 +359,18 @@ bool ObserverNode::gyroBiasProcNoiseVarLog10Cb(const long& p)
 {
   assert(do_gyro_bias_estimation_);
   return eskf_.setGyroBiasProcNoiseVar(exp10(p));
+}
+
+bool ObserverNode::magHardBiasProcNoiseVarLog10Cb(const long& p)
+{
+  assert(do_mag_hard_bias_estimation_);
+  return eskf_.setMagHardBiasProcNoiseVar(exp10(p));
+}
+
+bool ObserverNode::magSoftBiasProcNoiseVarLog10Cb(const long& p)
+{
+  assert(do_mag_soft_bias_estimation_);
+  return eskf_.setMagSoftBiasProcNoiseVar(exp10(p));
 }
 
 bool ObserverNode::gravProcNoiseVarLog10Cb(const long& p)
@@ -303,22 +399,30 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   // Initialization
   if (imu_ == nullptr)
   {
-    TOBAS_INFO("First IMU is received.");
-
-    const double init_acc_bias_stddev = do_acc_bias_estimation_ ? kInitAccBiasStddev : 0.;
-    const double init_gyro_bias_stddev = do_gyro_bias_estimation_ ? kInitGyroBiasStddev : 0.;
-    const double init_grav_stddev = do_grav_estimation_ ? kInitGravStddev : 0.;
-    eskf_.initialize(
-      Vector3d::Zero(),                                                   // Init position
-      Vector3d::Zero(),                                                   // Init velocity
-      Quaterniond::Identity(),                                            // Init quaternion
-      Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),         // Init position cov
-      Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),         // Init velocity cov
-      Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),         // Init rotation cov
-      Vector3d::Constant(math::sqr(init_acc_bias_stddev)).asDiagonal(),   // Init accel bias cov
-      Vector3d::Constant(math::sqr(init_gyro_bias_stddev)).asDiagonal(),  // Init gyro bias cov
-      math::sqr(init_grav_stddev),                                        // Init gravity var
-      cur_time);
+    if (!eskf_.initialize(
+          Vector3d::Zero(),                                                     // Init position
+          Vector3d::Constant(math::sqr(kInitPosStddev)).asDiagonal(),           // Init position cov
+          Vector3d::Zero(),                                                     // Init velocity
+          Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity cov
+          Quaterniond::Identity(),                                              // Init quaternion
+          Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation cov
+          Vector3d::UnitX(),                                                    // Init magnetic field
+          Vector3d::Constant(math::sqr(kInitMagStddev)).asDiagonal(),           // Init magnetic field cov
+          Vector3d::Zero(),                                                     // Init accel bias
+          Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias cov
+          Vector3d::Zero(),                                                     // Init gyro bias
+          Vector3d::Constant(math::sqr(initGyroBiasStddev())).asDiagonal(),     // Init gyro bias cov
+          Vector3d::Zero(),                                                     // Init mag hard bias
+          Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal(),  // Init mag hard bias cov
+          Matrix3d::Identity(),                                                 // Init mag soft bias
+          Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal(),  // Init mag soft bias cov
+          tobas_std::kGravity,                                                  // Init gravity
+          math::sqr(initGravBiasStddev()),                                      // Init gravity var
+          cur_time))
+    {
+      TOBAS_ERROR("Failed to initialize ESKF.");
+      return;
+    }
 
     imu_ = imu;
     return;
@@ -351,16 +455,7 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
   tf_br_.sendTransform(tf_);
 
   // Publish feedback
-  auto feedback = std::make_unique<FeedbackMsg>();
-  feedback->header = imu->header;
-  feedback->acc_bias.data = eskf_.getAccelBias();
-  feedback->gyro_bias.data = eskf_.getGyroBias();
-  feedback->gravity = eskf_.getGravity();
-  feedback->acc_bias_covariance = eskf_.getAccelBiasCovariance();
-  feedback->gyro_bias_covariance = eskf_.getGyroBiasCovariance();
-  feedback->gravity_variance = eskf_.getGravityVariance();
-  feedback->gps_anormaly_score = gps_anormaly_score_;
-  feedback_pub_->publish(move(feedback));
+  publishFeedback(imu->header);
 }
 
 void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
@@ -368,10 +463,20 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   if (imu_ == nullptr)
     return;
 
-  // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初のヨー角をゼロ点とする．
-  // これをしないと，ヨーの初期誤差によってロール，ピッチの推定が不安定になることがある．
-  if (mag_ == nullptr && gps_ == nullptr)
-    eskf_.setReferenceMagneticField(mag->mag.mag.data);
+  if (mag_ == nullptr)
+  {
+    // 最初の地磁気データで初期化
+    if (!eskf_.initializeMagneticField(mag->mag.mag.data, Vector3d::Constant(math::sqr(kInitMagStddev)).asDiagonal()))
+    {
+      TOBAS_ERROR("Failed to initialize magnetic field.");
+      return;
+    }
+
+    // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照値とする．
+    // これをしないと，ヨーの初期誤差によってロール，ピッチの推定が不安定になることがある．
+    if (gps_ == nullptr)
+      setMagneticFieldRefAndInitializeBias(mag->mag.mag.data);
+  }
 
   mag_ = mag;
 
@@ -422,11 +527,15 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
     const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gps_, tobas_std::yearFraction());
     Vector3d mag_ref(mag.north, -mag.east, -mag.down);  // NWU coordinates
-    eskf_.setReferenceMagneticField(mag_ref);
+    setMagneticFieldRefAndInitializeBias(mag_ref);
 
     // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
-    eskf_.setPosition(Vector3d::Zero());
+    if (!eskf_.initializePosition(Vector3d::Zero(), gps->position_covariance))
+    {
+      TOBAS_ERROR("Failed to initialize position.");
+      return;
+    }
   }
 
   gps_ = gps;

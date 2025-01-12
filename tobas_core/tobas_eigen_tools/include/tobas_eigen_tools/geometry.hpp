@@ -28,35 +28,35 @@ inline void vectorNwuToNed(Eigen::Vector3d& arg)
   vectorNwuToNed(arg, arg);
 }
 
-inline Eigen::AngleAxisd vectorToAngleAxis(const Eigen::Vector3d& w)
+inline Eigen::AngleAxisd angleAxisFromVector(const Eigen::Vector3d& w)
 {
   const auto angle = w.norm();
   const auto axis = (angle == 0) ? Eigen::Vector3d::UnitX() : w.normalized();
   return Eigen::AngleAxisd(angle, axis);
 }
 
-inline Eigen::Vector3d angleAxisToVector(const Eigen::AngleAxisd& angle_axis)
+inline Eigen::Vector3d vectorFromAngleAxis(const Eigen::AngleAxisd& angle_axis)
 {
   return angle_axis.angle() * angle_axis.axis();
 }
 
 /* 等価角軸ベクトルから回転行列を作成． */
-inline Eigen::Matrix3d angleAxisToRotMat(const Eigen::Vector3d& w)
+inline Eigen::Matrix3d dcmFromAngleAxis(const Eigen::Vector3d& w)
 {
-  return vectorToAngleAxis(w).toRotationMatrix();
+  return angleAxisFromVector(w).toRotationMatrix();
 }
 
 /* 等価角軸ベクトルからクオータニオンを作成． */
-inline Eigen::Quaterniond angleAxisToQuaternion(const Eigen::Vector3d& w)
+inline Eigen::Quaterniond quaternionFromAngleAxis(const Eigen::Vector3d& w)
 {
-  return Eigen::Quaterniond(vectorToAngleAxis(w));
+  return Eigen::Quaterniond(angleAxisFromVector(w));
 }
 
 /* クオータニオンから等価角軸ベクトルを作成． */
-inline Eigen::Vector3d quaternionToAngleAxis(const Eigen::Quaterniond& q)
+inline Eigen::Vector3d angleAxisFromQuaternion(const Eigen::Quaterniond& q)
 {
   Eigen::AngleAxisd angle_axis(q);
-  return angleAxisToVector(angle_axis);
+  return vectorFromAngleAxis(angle_axis);
 }
 
 inline Eigen::Quaterniond quaternionFromRPY(double roll, double pitch, double yaw)
@@ -72,16 +72,22 @@ inline Eigen::Matrix3d dcmFromRPY(double roll, double pitch, double yaw)
   return quaternionFromRPY(roll, pitch, yaw).toRotationMatrix();
 }
 
+inline double yawFromDCM(const Eigen::Matrix3d& R)
+{
+  return atan2(R(1, 0), R(0, 0));
+}
+
 /* ハミルトン(w,x,y,z)をQuaterniondに変換． */
-inline Eigen::Quaterniond hamiltonToQuaternion(const Eigen::Vector4d& ham)
+inline Eigen::Quaterniond quaternionFromHamilton(const Eigen::Vector4d& ham)
 {
   return Eigen::Quaterniond((Eigen::Vector4d() << ham.tail<3>(), ham.head<1>()).finished());
 }
 
 /* Quaterniondをハミルトン(w,x,y,z)に変換． */
-inline Eigen::Vector4d quaternionToHamilton(const Eigen::Quaterniond& q)
+inline Eigen::Vector4d hamiltonFromQuaternion(const Eigen::Quaterniond& q)
 {
-  return (Eigen::Vector4d() << q.coeffs().tail<1>(), q.coeffs().head<3>()).finished();
+  // XXX: Quaternionの要素はメモリ上で連続しているとは限らないため，coeffsを呼ぶとコンパイルエラーになる恐れがある．
+  return Eigen::Vector4d(q.w(), q.x(), q.y(), q.z());
 }
 
 /* ベクトルの外積に相当する行列を作成する． */
@@ -115,7 +121,7 @@ inline Eigen::Matrix3d skew2(const Eigen::Vector3d& v)
   return skew2(v(0), v(1), v(2));
 }
 
-void imuToQuaternion(
+void quaternionFromAccelMag(
   const Eigen::Vector3d& a,
   const Eigen::Vector3d& m,
   const Eigen::Vector3d& m0,

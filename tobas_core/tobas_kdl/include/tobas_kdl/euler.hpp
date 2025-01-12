@@ -92,7 +92,7 @@ inline Vector Euler::toAngleAxis() const
 inline Quaternion Euler::toQuaternion() const
 {
   Quaternion res;
-  tobas_std::eulerToQuaternion(roll, pitch, yaw, res.x, res.y, res.z, res.w);
+  tobas_std::quaternionFromEuler(roll, pitch, yaw, res.x, res.y, res.z, res.w);
   return res;
 }
 

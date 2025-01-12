@@ -11,9 +11,9 @@ using namespace Eigen;
 
 namespace eigen
 {
-void imuToQuaternion(const Vector3d& a, const Vector3d& m, const Vector3d& m0, Quaterniond& q)
+void quaternionFromAccelMag(const Vector3d& a, const Vector3d& m, const Vector3d& m0, Quaterniond& q)
 {
-  tobas_std::imuToQuaternion(
+  tobas_std::quaternionFromAccelMag(
     a.x(), a.y(), a.z(), m.x(), m.y(), m.z(), m0.x(), m0.y(), m0.z(), q.x(), q.y(), q.z(), q.w());
 }
 
