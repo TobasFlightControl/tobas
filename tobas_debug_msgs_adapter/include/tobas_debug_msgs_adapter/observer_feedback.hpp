@@ -15,7 +15,6 @@ struct ObserverFeedback
   Eigen::Vector3d position;
   Eigen::Vector3d velocity;
   Eigen::Vector4d hamilton;
-  Eigen::Vector3d magnetic_field;
   Eigen::Vector3d accel_bias;
   Eigen::Vector3d gyro_bias;
   Eigen::Vector3d mag_hard_bias;
@@ -25,7 +24,6 @@ struct ObserverFeedback
   Eigen::Matrix3d position_cov;
   Eigen::Matrix3d velocity_cov;
   Eigen::Matrix3d rotation_cov;
-  Eigen::Matrix3d magnetic_field_cov;
   Eigen::Matrix3d accel_bias_cov;
   Eigen::Matrix3d gyro_bias_cov;
   Eigen::Matrix3d mag_hard_bias_cov;
@@ -53,7 +51,6 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.position, dst.position);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.velocity, dst.velocity);
     tobas_eigen_msgs::Vector4dAdapter::convert_to_ros_message(src.hamilton, dst.hamilton);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.magnetic_field, dst.magnetic_field);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.accel_bias, dst.accel_bias);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.gyro_bias, dst.gyro_bias);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_ros_message(src.mag_hard_bias, dst.mag_hard_bias);
@@ -63,7 +60,6 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.position_cov, dst.position_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.velocity_cov, dst.velocity_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.rotation_cov, dst.rotation_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.magnetic_field_cov, dst.magnetic_field_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.accel_bias_cov, dst.accel_bias_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.gyro_bias_cov, dst.gyro_bias_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_ros_message(src.mag_hard_bias_cov, dst.mag_hard_bias_cov);
@@ -80,7 +76,6 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.position, dst.position);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.velocity, dst.velocity);
     tobas_eigen_msgs::Vector4dAdapter::convert_to_custom(src.hamilton, dst.hamilton);
-    tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.magnetic_field, dst.magnetic_field);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.accel_bias, dst.accel_bias);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.gyro_bias, dst.gyro_bias);
     tobas_eigen_msgs::Vector3dAdapter::convert_to_custom(src.mag_hard_bias, dst.mag_hard_bias);
@@ -90,7 +85,6 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.position_cov, dst.position_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.velocity_cov, dst.velocity_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.rotation_cov, dst.rotation_cov);
-    tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.magnetic_field_cov, dst.magnetic_field_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.accel_bias_cov, dst.accel_bias_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.gyro_bias_cov, dst.gyro_bias_cov);
     tobas_eigen_msgs::Matrix3dAdapter::convert_to_custom(src.mag_hard_bias_cov, dst.mag_hard_bias_cov);

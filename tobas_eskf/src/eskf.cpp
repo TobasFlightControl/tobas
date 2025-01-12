@@ -44,8 +44,6 @@ bool ErrorStateKalmanFilter::initialize(
   const Matrix3d& init_vel_cov,
   const Quaterniond& init_quat,
   const Matrix3d& init_dtheta_cov,
-  const Vector3d& init_mag,
-  const Matrix3d& init_mag_cov,
   const Vector3d& init_acc_bias,
   const Matrix3d& init_acc_bias_cov,
   const Vector3d& init_gyro_bias,
@@ -72,8 +70,6 @@ bool ErrorStateKalmanFilter::initialize(
   if (!initializeVelocity(init_vel, init_vel_cov))
     return false;
   if (!initializeQuaternion(init_quat, init_dtheta_cov))
-    return false;
-  if (!initializeMagneticField(init_mag, init_mag_cov))
     return false;
   if (!initializeAccelBias(init_acc_bias, init_acc_bias_cov))
     return false;
@@ -129,21 +125,6 @@ bool ErrorStateKalmanFilter::initializeQuaternion(const Quaterniond& value, cons
 
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(value).normalized();
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = cov;
-  resetStateHistory();
-
-  return true;
-}
-
-bool ErrorStateKalmanFilter::initializeMagneticField(const Vector3d& value, const Matrix3d& cov)
-{
-  if (!eigen::isSymmetricSemiPositiveDefinite(cov))
-  {
-    cerr << "Initial magnetic field covariance must be symmetric semi-positive definite." << endl;
-    return false;
-  }
-
-  x_.segment<3>(kMagIdx) = value;
-  P_.block<3, 3>(kDeltaMagIdx, kDeltaMagIdx) = cov;
   resetStateHistory();
 
   return true;
@@ -300,10 +281,10 @@ bool ErrorStateKalmanFilter::setGravProcNoiseVar(double value)
   return true;
 }
 
-void ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_ref)
+void ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_W)
 {
-  assert(mag_ref.norm() > 0.);
-  mag_ref_ = mag_ref.normalized();
+  assert(mag_W.norm() > 0.);
+  mag_W_ = mag_W.normalized();
 }
 
 double ErrorStateKalmanFilter::measureIMU(
@@ -332,11 +313,6 @@ double ErrorStateKalmanFilter::measureIMU(
 
   const Vector3d acc_B = acc_meas - getAccelBias(x_);
   const Vector3d gyro_B = gyro_meas - getGyroBias(x_);
-  const Vector3d mag_B = getMagneticField(x_);
-
-  const Matrix3d acc_B_skew = eigen::skew(acc_B);
-  const Matrix3d gyro_B_skew = eigen::skew(gyro_B);
-  const Matrix3d mag_B_skew = eigen::skew(mag_B);
 
   const Quaterniond delta_q = eigen::quaternionFromAngleAxis(gyro_B * dt);
   const Matrix3d delta_R = delta_q.toRotationMatrix();
@@ -352,17 +328,14 @@ double ErrorStateKalmanFilter::measureIMU(
     x_.segment<3>(kPosIdx) += 0.5 * acc_grav_W * dt2;  // XXX: 積分誤差増大リスクあり
   x_.segment<3>(kVelIdx) += acc_grav_W * dt;
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(q * delta_q);
-  x_.segment<3>(kMagIdx) += mag_B.cross(gyro_B) * dt;
 
   // (270) ヤコビアンの可変部を更新
   F_x_.block<3, 3>(kDeltaPosIdx, kDeltaVelIdx).diagonal().fill(dt);
-  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * acc_B_skew * dt;
+  F_x_.block<3, 3>(kDeltaVelIdx, kDeltaThetaIdx) = -W_Rot_B * eigen::skew(acc_B * dt);
   F_x_.block<3, 3>(kDeltaVelIdx, kDeltaAccBiasIdx) = -W_Rot_B * dt;
   F_x_(kDeltaVelIdx + 2, kDeltaGravIdx) = -dt;
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = delta_R.transpose();
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
-  F_x_.block<3, 3>(kDeltaMagIdx, kDeltaMagIdx) = -gyro_B_skew * dt;
-  F_x_.block<3, 3>(kDeltaMagIdx, kDeltaGyroBiasIdx) = -mag_B_skew * dt;
 
   // (269)第一項: 共分散行列の予測値を更新
   P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
@@ -371,7 +344,6 @@ double ErrorStateKalmanFilter::measureIMU(
   // TODO: 異なるdtに対応させるため，プロセスノイズの分散をノイズ密度で定義
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * dt2;
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * dt2;
-  P_.block<3, 3>(kDeltaMagIdx, kDeltaMagIdx) += mag_B_skew * gyro_cov * mag_B_skew.transpose() * dt2;
   P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_proc_noise_var_;
   P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_proc_noise_var_;
   P_.diagonal().segment<3>(kDeltaMagHardBiasIdx).array() += mag_hard_bias_proc_noise_var_;
@@ -508,20 +480,20 @@ double ErrorStateKalmanFilter::measureMagneticField(
 {
   const auto& x = x_history_.closestAfterValue(time);
 
-  const Vector3d m_t = getMagneticField(x);
+  const Vector3d mag_B = getQuaternion(x).inverse() * mag_W_;
   const Vector3d m_b = getMagHardBias(x);
   const Matrix3d T = getMagSoftBias(x);
 
-  const auto& mx = m_t.x();
-  const auto& my = m_t.y();
-  const auto& mz = m_t.z();
+  const auto& mx = mag_B.x();
+  const auto& my = mag_B.y();
+  const auto& mz = mag_B.z();
 
   // 観測誤差
-  const auto mag_pred = T * m_t + m_b;
+  const auto mag_pred = T * mag_B + m_b;
   const Vector3d delta_mag = mag_meas - mag_pred;
 
   // 観測方程式
-  H_mag_.block<3, 3>(0, kDeltaMagIdx) = T;
+  H_mag_.block<3, 3>(0, kDeltaThetaIdx) = T * eigen::skew(2 * mag_B);
   H_mag_.block<3, 6>(0, kDeltaMagSoftBiasIdx) << mx, my, mz, 0, 0, 0, 0, mx, 0, my, mz, 0, 0, 0, mx, 0, my, mz;
 
   // 事後推定を更新
@@ -624,19 +596,6 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   return H;
 }
 
-double ErrorStateKalmanFilter::computeYawFromMag(const StateVector& x)
-{
-  // 地磁気をヨーのみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
-  const auto R_W_B = getDCM(x);
-  const auto yaw_rot = eigen::yawFromDCM(R_W_B);
-  const AngleAxisd R_W_G(yaw_rot, Vector3d::UnitZ());
-  const auto mag_G = R_W_G.inverse() * (R_W_B * getMagneticField());  // 後ろから計算することで計算量を削減
-
-  // 地磁気からヨーを計算
-  const auto yaw_ref = atan2(mag_ref_.y(), mag_ref_.x());
-  return algo::wrapPi(yaw_ref - atan2(mag_G.y(), mag_G.x()));
-}
-
 void ErrorStateKalmanFilter::applyConstraints()
 {
   // 状態の等式制約
@@ -653,17 +612,6 @@ void ErrorStateKalmanFilter::applyStateEqualityConstraints()
 {
   // クオータニオンのノルムは1
   x_.segment<4>(kQuatIdx) = x_.segment<4>(kQuatIdx).normalized();
-
-  // 地磁気のノルムは1
-  const auto mag_norm = x_.segment<3>(kMagIdx).norm();
-  x_.segment<3>(kMagIdx) /= mag_norm;
-  x_.segment<6>(kMagSoftBiasIdx) *= mag_norm;  // 地磁気の出力を変えないようソフトバイアスで辻褄を合わせる
-
-  // ヨーは地磁気の偏角に一致する
-  auto rpy = getEuler(x_);
-  rpy.z() = computeYawFromMag(x_);  // ヨーのみ地磁気から求めた値に修正
-  const Quaterniond new_q = eigen::quaternionFromRPY(rpy.x(), rpy.y(), rpy.z());
-  x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(new_q);
 }
 
 void ErrorStateKalmanFilter::applyStateInequalityConstraints()
@@ -693,7 +641,7 @@ double ErrorStateKalmanFilter::measureGravity(
   const Vector3d acc_ref = getAccelBias(x) - grav_B;  // 動的な加速度なしで観測されるべき加速度
   const Vector3d delta_acc = acc_meas - acc_ref;  // TODO: モデルから推定した動的加速度を引いた値を観測値とする
 
-  H_grav_.block<3, 3>(0, kDeltaThetaIdx) = -2 * eigen::skew(grav_B);
+  H_grav_.block<3, 3>(0, kDeltaThetaIdx) = -eigen::skew(2 * grav_B);
   H_grav_.col(kDeltaGravIdx) = R_B_W.col(2);
   return correct(delta_acc, grav_cov, H_grav_);
 }

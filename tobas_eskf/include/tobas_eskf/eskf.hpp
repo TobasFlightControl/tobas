@@ -30,8 +30,7 @@ class ErrorStateKalmanFilter
   static constexpr size_t kAltIdx = kPosIdx + 2;
   static constexpr size_t kVelIdx = kPosIdx + 3;
   static constexpr size_t kQuatIdx = kVelIdx + 3;
-  static constexpr size_t kMagIdx = kQuatIdx + 4;
-  static constexpr size_t kAccBiasIdx = kMagIdx + 3;
+  static constexpr size_t kAccBiasIdx = kQuatIdx + 3;
   static constexpr size_t kGyroBiasIdx = kAccBiasIdx + 3;
   static constexpr size_t kMagHardBiasIdx = kGyroBiasIdx + 3;
   static constexpr size_t kMagSoftBiasIdx = kMagHardBiasIdx + 3;
@@ -43,8 +42,7 @@ class ErrorStateKalmanFilter
   static constexpr size_t kDeltaAltIdx = kDeltaPosIdx + 2;
   static constexpr size_t kDeltaVelIdx = kDeltaPosIdx + 3;
   static constexpr size_t kDeltaThetaIdx = kDeltaVelIdx + 3;
-  static constexpr size_t kDeltaMagIdx = kDeltaThetaIdx + 3;
-  static constexpr size_t kDeltaAccBiasIdx = kDeltaMagIdx + 3;
+  static constexpr size_t kDeltaAccBiasIdx = kDeltaThetaIdx + 3;
   static constexpr size_t kDeltaGyroBiasIdx = kDeltaAccBiasIdx + 3;
   static constexpr size_t kDeltaMagHardBiasIdx = kDeltaGyroBiasIdx + 3;
   static constexpr size_t kDeltaMagSoftBiasIdx = kDeltaMagHardBiasIdx + 3;
@@ -78,8 +76,6 @@ public:
     const Eigen::Matrix3d& init_vel_cov,
     const Eigen::Quaterniond& init_quat,
     const Eigen::Matrix3d& init_dtheta_cov,
-    const Eigen::Vector3d& init_mag,
-    const Eigen::Matrix3d& init_mag_cov,
     const Eigen::Vector3d& init_acc_bias,
     const Eigen::Matrix3d& init_acc_bias_cov,
     const Eigen::Vector3d& init_gyro_bias,
@@ -95,7 +91,6 @@ public:
   bool initializePosition(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   bool initializeVelocity(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   bool initializeQuaternion(const Eigen::Quaterniond& value, const Eigen::Matrix3d& cov);
-  bool initializeMagneticField(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   bool initializeAccelBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   bool initializeGyroBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
   bool initializeMagHardBias(const Eigen::Vector3d& value, const Eigen::Matrix3d& cov);
@@ -111,13 +106,12 @@ public:
   bool setMagSoftBiasProcNoiseVar(double value);
   bool setGravProcNoiseVar(double value);
 
-  void setMagneticFieldRef(const Eigen::Vector3d& mag_ref);
+  void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
 
   // Direct value getters
   inline Eigen::Vector3d getPosition() const;
   inline Eigen::Vector3d getVelocity() const;
   inline Eigen::Vector4d getHamilton() const;
-  inline Eigen::Vector3d getMagneticField() const;
   inline Eigen::Vector3d getAccelBias() const;
   inline Eigen::Vector3d getGyroBias() const;
   inline Eigen::Vector3d getMagHardBias() const;
@@ -130,7 +124,6 @@ public:
   inline Eigen::Matrix3d getPositionCovariance() const;
   inline Eigen::Matrix3d getVelocityCovariance() const;
   inline Eigen::Matrix3d getRotationCovariance() const;
-  inline Eigen::Matrix3d getMagneticFieldCovariance() const;
   inline Eigen::Matrix3d getAccelBiasCovariance() const;
   inline Eigen::Matrix3d getGyroBiasCovariance() const;
   inline Eigen::Matrix3d getMagHardBiasCovariance() const;
@@ -235,13 +228,12 @@ private:
 
   std::chrono::steady_clock::time_point t_last_imu_;
   tobas_std::TimestampedBuffer<StateVector> x_history_;
-  Eigen::Vector3d mag_ref_ = Eigen::Vector3d::UnitX();
+  Eigen::Vector3d mag_W_ = Eigen::Vector3d::UnitX();
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;
   inline Eigen::Vector3d getVelocity(const StateVector& x) const;
   inline Eigen::Vector4d getHamilton(const StateVector& x) const;
-  inline Eigen::Vector3d getMagneticField(const StateVector& x) const;
   inline Eigen::Vector3d getAccelBias(const StateVector& x) const;
   inline Eigen::Vector3d getGyroBias(const StateVector& x) const;
   inline Eigen::Vector3d getMagHardBias(const StateVector& x) const;
@@ -267,8 +259,6 @@ private:
 
   /* クオータニオンからヨーへの出力方程式． */
   Eigen::RowVector4d hamiltonToYawOutputMatrix(const StateVector& x) const;
-
-  double computeYawFromMag(const StateVector& x);
 
   void applyConstraints();
   void applyStateEqualityConstraints();
@@ -323,11 +313,6 @@ inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton() const
   return getHamilton(x_);
 }
 
-inline Eigen::Vector3d ErrorStateKalmanFilter::getMagneticField() const
-{
-  return getMagneticField(x_);
-}
-
 inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias() const
 {
   return getAccelBias(x_);
@@ -373,11 +358,6 @@ inline Eigen::Matrix3d ErrorStateKalmanFilter::getRotationCovariance() const
   return P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx);
 }
 
-inline Eigen::Matrix3d ErrorStateKalmanFilter::getMagneticFieldCovariance() const
-{
-  return P_.block<3, 3>(kDeltaMagIdx, kDeltaMagIdx);
-}
-
 inline Eigen::Matrix3d ErrorStateKalmanFilter::getAccelBiasCovariance() const
 {
   return P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx);
@@ -416,11 +396,6 @@ inline Eigen::Vector3d ErrorStateKalmanFilter::getVelocity(const StateVector& x)
 inline Eigen::Vector4d ErrorStateKalmanFilter::getHamilton(const StateVector& x) const
 {
   return x.segment<4>(kQuatIdx);
-}
-
-inline Eigen::Vector3d ErrorStateKalmanFilter::getMagneticField(const StateVector& x) const
-{
-  return x.segment<3>(kMagIdx);
 }
 
 inline Eigen::Vector3d ErrorStateKalmanFilter::getAccelBias(const StateVector& x) const
@@ -530,7 +505,6 @@ double ErrorStateKalmanFilter::correct(
   x_.segment<3>(kPosIdx) += delta_x.segment<3>(kDeltaPosIdx);
   x_.segment<3>(kVelIdx) += delta_x.segment<3>(kDeltaVelIdx);
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(getQuaternion() * q_dtheta);
-  x_.segment<3>(kMagIdx) += delta_x.segment<3>(kDeltaMagIdx);
   x_.segment<3>(kAccBiasIdx) += delta_x.segment<3>(kDeltaAccBiasIdx);
   x_.segment<3>(kGyroBiasIdx) += delta_x.segment<3>(kDeltaGyroBiasIdx);
   x_.segment<3>(kMagHardBiasIdx) += delta_x.segment<3>(kDeltaMagHardBiasIdx);

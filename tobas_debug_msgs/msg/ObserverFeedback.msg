@@ -3,7 +3,6 @@ std_msgs/Header header
 tobas_eigen_msgs/Vector3d position
 tobas_eigen_msgs/Vector3d velocity
 tobas_eigen_msgs/Vector4d hamilton
-tobas_eigen_msgs/Vector3d magnetic_field
 tobas_eigen_msgs/Vector3d accel_bias
 tobas_eigen_msgs/Vector3d gyro_bias
 tobas_eigen_msgs/Vector3d mag_hard_bias
@@ -13,7 +12,6 @@ float64 gravity
 tobas_eigen_msgs/Matrix3d position_cov
 tobas_eigen_msgs/Matrix3d velocity_cov
 tobas_eigen_msgs/Matrix3d rotation_cov
-tobas_eigen_msgs/Matrix3d magnetic_field_cov
 tobas_eigen_msgs/Matrix3d accel_bias_cov
 tobas_eigen_msgs/Matrix3d gyro_bias_cov
 tobas_eigen_msgs/Matrix3d mag_hard_bias_cov

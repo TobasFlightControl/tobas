@@ -164,9 +164,9 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   if (do_gyro_bias_estimation_)
     addDynamicIntParam("gyro_bias_proc_noise_var_log10", &self::gyroBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
   if (do_mag_hard_bias_estimation_)
-    addDynamicIntParam("mag_hard_bias_proc_noise_var_log10", &self::magHardBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
+    addDynamicIntParam("mag_hard_bias_proc_noise_var_log10", &self::magHardBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
   if (do_mag_soft_bias_estimation_)
-    addDynamicIntParam("mag_soft_bias_proc_noise_var_log10", &self::magSoftBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
+    addDynamicIntParam("mag_soft_bias_proc_noise_var_log10", &self::magSoftBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
   if (do_grav_estimation_)
     addDynamicIntParam("grav_noise_proc_var_log10", &self::gravProcNoiseVarLog10Cb, this, -7, -12, 0);
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
@@ -289,7 +289,6 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
   feedback->position = eskf_.getPosition();
   feedback->velocity = eskf_.getVelocity();
   feedback->hamilton = eskf_.getHamilton();
-  feedback->magnetic_field = eskf_.getMagneticField();
   feedback->accel_bias = eskf_.getAccelBias();
   feedback->gyro_bias = eskf_.getGyroBias();
   feedback->mag_hard_bias = eskf_.getMagHardBias();
@@ -299,7 +298,6 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
   feedback->position_cov = eskf_.getPositionCovariance();
   feedback->velocity_cov = eskf_.getVelocityCovariance();
   feedback->rotation_cov = eskf_.getRotationCovariance();
-  feedback->magnetic_field_cov = eskf_.getMagneticFieldCovariance();
   feedback->accel_bias_cov = eskf_.getAccelBiasCovariance();
   feedback->gyro_bias_cov = eskf_.getGyroBiasCovariance();
   feedback->mag_hard_bias_cov = eskf_.getMagHardBiasCovariance();
@@ -406,8 +404,6 @@ void ObserverNode::imuCb(const ImuMsg::ConstSharedPtr& imu)
           Vector3d::Constant(math::sqr(kInitVelStddev)).asDiagonal(),           // Init velocity cov
           Quaterniond::Identity(),                                              // Init quaternion
           Vector3d::Constant(math::sqr(kInitRotStddev)).asDiagonal(),           // Init rotation cov
-          Vector3d::UnitX(),                                                    // Init magnetic field
-          Vector3d::Constant(math::sqr(kInitMagStddev)).asDiagonal(),           // Init magnetic field cov
           Vector3d::Zero(),                                                     // Init accel bias
           Vector3d::Constant(math::sqr(initAccelBiasStddev())).asDiagonal(),    // Init accel bias cov
           Vector3d::Zero(),                                                     // Init gyro bias
@@ -463,20 +459,10 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   if (imu_ == nullptr)
     return;
 
-  if (mag_ == nullptr)
-  {
-    // 最初の地磁気データで初期化
-    if (!eskf_.initializeMagneticField(mag->mag.mag.data, Vector3d::Constant(math::sqr(kInitMagStddev)).asDiagonal()))
-    {
-      TOBAS_ERROR("Failed to initialize magnetic field.");
-      return;
-    }
-
-    // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照値とする．
-    // これをしないと，ヨーの初期誤差によってロール，ピッチの推定が不安定になることがある．
-    if (gps_ == nullptr)
-      setMagneticFieldRefAndInitializeBias(mag->mag.mag.data);
-  }
+  // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照値とする．
+  // これをしないと，ヨーの初期誤差によってロール，ピッチの推定が不安定になることがある．
+  if (mag_ == nullptr && gps_ == nullptr)
+    setMagneticFieldRefAndInitializeBias(mag->mag.mag.data);
 
   mag_ = mag;
 
