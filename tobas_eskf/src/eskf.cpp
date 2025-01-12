@@ -302,7 +302,7 @@ bool ErrorStateKalmanFilter::setGravProcNoiseVar(double value)
 
 void ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_ref)
 {
-  mag_ref_ = mag_ref;
+  mag_ref_ = mag_ref.normalized();
 }
 
 double ErrorStateKalmanFilter::measureIMU(
