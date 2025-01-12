@@ -50,7 +50,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
   static constexpr bool kDefaultDoMagHardBiasEstimation = true;
-  static constexpr bool kDefaultDoMagSoftBiasEstimation = true;
+  static constexpr bool kDefaultDoMagSoftBiasEstimation = false;
   static constexpr bool kDefaultDoGravEstimation = true;
 
   // 標準偏差の初期値
@@ -164,9 +164,9 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   if (do_gyro_bias_estimation_)
     addDynamicIntParam("gyro_bias_proc_noise_var_log10", &self::gyroBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
   if (do_mag_hard_bias_estimation_)
-    addDynamicIntParam("mag_hard_bias_proc_noise_var_log10", &self::magHardBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
+    addDynamicIntParam("mag_hard_bias_proc_noise_var_log10", &self::magHardBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
   if (do_mag_soft_bias_estimation_)
-    addDynamicIntParam("mag_soft_bias_proc_noise_var_log10", &self::magSoftBiasProcNoiseVarLog10Cb, this, -9, -12, 0);
+    addDynamicIntParam("mag_soft_bias_proc_noise_var_log10", &self::magSoftBiasProcNoiseVarLog10Cb, this, -5, -12, 0);
   if (do_grav_estimation_)
     addDynamicIntParam("grav_noise_proc_var_log10", &self::gravProcNoiseVarLog10Cb, this, -7, -12, 0);
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
