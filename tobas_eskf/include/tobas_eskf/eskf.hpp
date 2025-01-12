@@ -30,7 +30,7 @@ class ErrorStateKalmanFilter
   static constexpr size_t kAltIdx = kPosIdx + 2;
   static constexpr size_t kVelIdx = kPosIdx + 3;
   static constexpr size_t kQuatIdx = kVelIdx + 3;
-  static constexpr size_t kAccBiasIdx = kQuatIdx + 3;
+  static constexpr size_t kAccBiasIdx = kQuatIdx + 4;
   static constexpr size_t kGyroBiasIdx = kAccBiasIdx + 3;
   static constexpr size_t kMagHardBiasIdx = kGyroBiasIdx + 3;
   static constexpr size_t kMagSoftBiasIdx = kMagHardBiasIdx + 3;
