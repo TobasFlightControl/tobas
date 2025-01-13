@@ -47,6 +47,12 @@ public:
 
   inline void fill(double value);
 
+  /* 最小の要素を取得する． */
+  inline double min() const;
+
+  /* 最大の要素を取得する． */
+  inline double max() const;
+
   /* 2つのベクトルの内積を計算する． */
   inline double dot(const Vector& rhs) const;
 
@@ -64,9 +70,11 @@ public:
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
+
   inline double norm() const;
   inline void normalize();
   inline Vector normalized() const;
+
   inline Vector sqr() const;
   inline Vector cube() const;
   inline Vector inverse() const;
@@ -189,6 +197,16 @@ inline void Vector::z(double z)
 inline void Vector::fill(double value)
 {
   data.fill(value);
+}
+
+inline double Vector::min() const
+{
+  return data.minCoeff();
+}
+
+inline double Vector::max() const
+{
+  return data.maxCoeff();
 }
 
 inline double Vector::dot(const Vector& rhs) const

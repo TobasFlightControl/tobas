@@ -30,7 +30,7 @@ private:
   // Gain
   kdl::Vector kp_;
   kdl::Vector kd_;
-  kdl::Vector ki_ = { 0.1, 0.1, 0.1 };
+  kdl::Vector ki_ = { 0., 0., 0. };
 
   // Error
   kdl::Vector ei_ = kdl::Vector::Zero();
