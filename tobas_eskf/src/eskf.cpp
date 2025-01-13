@@ -189,7 +189,7 @@ bool ErrorStateKalmanFilter::initializeMagSoftBias(const Matrix3d& value, const 
     return false;
   }
 
-  x_.segment<6>(kMagSoftBiasIdx) << value(0, 0), value(0, 1), value(0, 2), value(1, 1), value(1, 2), value(2, 2);
+  setMagSoftBiasFromMatrix(value);
   P_.block<6, 6>(kDeltaMagSoftBiasIdx, kDeltaMagSoftBiasIdx) = cov;
   resetStateHistory();
 
@@ -608,31 +608,29 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   return H;
 }
 
-void ErrorStateKalmanFilter::applyConstraints()
+void ErrorStateKalmanFilter::setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T)
 {
-  // 状態の等式制約
-  applyStateEqualityConstraints();
-
-  // 状態の不等式制約
-  applyStateInequalityConstraints();
-
-  // 共分散行列は対称行列でなければならない
-  eigen::symmetrise(P_);
+  x_.segment<6>(kMagSoftBiasIdx) << T(0, 0), T(0, 1), T(0, 2), T(1, 1), T(1, 2), T(2, 2);
 }
 
-void ErrorStateKalmanFilter::applyStateEqualityConstraints()
+void ErrorStateKalmanFilter::applyConstraints()
 {
   // クオータニオンのノルムは1
   x_.segment<4>(kQuatIdx) = x_.segment<4>(kQuatIdx).normalized();
-}
 
-void ErrorStateKalmanFilter::applyStateInequalityConstraints()
-{
-  // 事前知識を用いて状態が最低限ありえない値にはならないようにする
+  // 事前知識を用いて状態の範囲を制限
   x_.segment<3>(kAccBiasIdx) = x_.segment<3>(kAccBiasIdx).cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
   x_.segment<3>(kGyroBiasIdx) = x_.segment<3>(kGyroBiasIdx).cwiseMax(-kMaxGyroBias).cwiseMin(kMaxGyroBias);
   x_.segment<3>(kMagHardBiasIdx) = x_.segment<3>(kMagHardBiasIdx).cwiseMax(-kMaxMagHardBias).cwiseMin(kMaxMagHardBias);
   x_(kGravIdx) = clamp(x_(kGravIdx), kMinGravity, kMaxGravity);
+
+  // 地磁気のソフトバイアスは正定値対称
+  const auto T = getMagSoftBias();
+  const auto T_positive = eigen::nearestPositiveDefinite(T, kMinMagSoftBiasEigenValue);
+  setMagSoftBiasFromMatrix(T_positive);
+
+  // 共分散行列は対称行列でなければならない
+  eigen::symmetrise(P_);
 }
 
 void ErrorStateKalmanFilter::resetStateHistory()
