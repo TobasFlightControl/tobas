@@ -536,14 +536,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   const auto dt = (odom_nwu->header.stamp - odom_nwu_->header.stamp).seconds();
   odom_nwu_ = odom_nwu;
 
-  if (!isReadyToControl())
-    return;
-
-  // アームされていなければスキップ
-  if (!arming_->data)
-    return;
-
-  // コマンドが来ていなければスキップ
+  // コマンドがなければスキップ
   if (cmd_nwu_ == nullptr)
     return;
 

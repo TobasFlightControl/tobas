@@ -349,10 +349,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
   odom_ = odom;
 
-  if (!isReadyToControl())
-    return;
-
-  // コマンドが来ていなければスキップ
+  // コマンドがなければスキップ
   if (cmd_ == nullptr)
     return;
 

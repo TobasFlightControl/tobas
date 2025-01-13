@@ -350,9 +350,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto dt = (odom->header.stamp - odom_->header.stamp).seconds();
   odom_ = odom;
 
-  if (!isReadyToControl())
-    return;
-
   // Create a feedback message
   auto feedback_msg = std::make_unique<tobas_debug_msgs::MultiRotorControllerFeedback>();
   feedback_msg->header.stamp = odom->header.stamp;
