@@ -24,6 +24,7 @@ ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeW
   H_pv_.setZero();
   H_theta_.setZero();
   H_mag_.setZero();
+  H_yaw_.setZero();
   H_grav_.setZero();
 
   H_pos_.block<3, 3>(0, kDeltaPosIdx).diagonal().setOnes();
@@ -479,7 +480,7 @@ double ErrorStateKalmanFilter::measureQuaternion(
   return correct(delta_theta, theta_cov, H_theta_);
 }
 
-double ErrorStateKalmanFilter::measureMagneticField(
+double ErrorStateKalmanFilter::measureMagneticField3d(
   const Vector3d& mag_meas,
   const Matrix3d& mag_cov,
   const steady_clock::time_point& time)
@@ -512,6 +513,48 @@ double ErrorStateKalmanFilter::measureMagneticField(
   return correct(delta_mag, mag_cov, H_mag_);
 }
 
+double ErrorStateKalmanFilter::measureMagneticFieldYaw(
+  const Vector3d& mag_meas,
+  const Matrix3d& mag_cov,
+  const steady_clock::time_point& time)
+{
+  if (mag_W_.norm() == 0.)
+  {
+    cerr << "Reference magnetic field is not set." << endl;
+    return INFINITY;
+  }
+
+  const auto& x = x_history_.closestAfterValue(time);
+
+  // オイラー角を取得
+  double roll_pred, pitch_pred, yaw_pred;
+  const auto R_W_B = getQuaternion(x);
+  tobas_std::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w(), roll_pred, pitch_pred, yaw_pred);
+
+  // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
+  const AngleAxisd R_W_G(yaw_pred, Vector3d::UnitZ());
+  const auto mag_G = R_W_G.inverse() * (R_W_B * mag_meas);  // 後ろから計算することで計算量を削減
+  const auto mx = mag_G.x();
+  const auto my = mag_G.y();
+
+  // ヨーの誤差を計算
+  const auto yaw_ref = atan2(mag_W_.y(), mag_W_.x());
+  const auto yaw_meas = yaw_ref - atan2(my, mx);
+  const auto delta_yaw = algo::wrapPi(yaw_meas - yaw_pred);
+
+  // 地磁気の分散からヨー角の分散を推定 (memo: 2-75)
+  const auto mx_std = sqrt(mag_cov(0, 0));
+  const auto my_std = sqrt(mag_cov(1, 1));
+  const auto yaw_std = (fabs(mx) * my_std + fabs(my) * mx_std) / (math::sqr(mx) + math::sqr(my));
+  const auto yaw_var = math::sqr(yaw_std);
+
+  // 出力方程式を更新
+  H_yaw_.block<1, 3>(0, kDeltaThetaIdx) = hamiltonToYawOutputMatrix(x) * getQ_dtheta(x);
+
+  // 事後推定を更新
+  return correct(Scalard(delta_yaw), Scalard(yaw_var), H_yaw_);
+}
+
 Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) const
 {
   const Vector4d qby2 = 0.5 * getHamilton(x);
@@ -537,7 +580,7 @@ Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateV
 
 RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector& x) const
 {
-  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw
+  // Choose A or B computational paths to avoid singularity in derivation at +-90 degrees yaw_pred
   constexpr double kEpsilon = 1e-6;
   const Quaterniond q = getQuaternion(x);
 
@@ -597,7 +640,7 @@ RowVector4d ErrorStateKalmanFilter::hamiltonToYawOutputMatrix(const StateVector&
   }
   else
   {
-    cerr << "Unable to compute the output matrix of yaw angle observation." << endl;
+    cerr << "Unable to compute the output matrix of yaw_pred angle observation." << endl;
     return RowVector4d::Zero();
   }
 

@@ -49,8 +49,8 @@ class ObserverNode : public tobas::BaseNode
   static constexpr bool kDefaultUseGps = true;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
-  static constexpr bool kDefaultDoMagHardBiasEstimation = true;
-  static constexpr bool kDefaultDoMagSoftBiasEstimation = true;
+  static constexpr bool kDefaultDoMagHardBiasEstimation = false;
+  static constexpr bool kDefaultDoMagSoftBiasEstimation = false;
   static constexpr bool kDefaultDoGravEstimation = true;
 
   // 標準偏差の初期値
@@ -485,7 +485,11 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
     return;
   }
 
-  eskf_.measureMagneticField(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
+  // バイアス推定を行う場合は3軸，行わない場合はヨーのみ更新
+  if (do_mag_hard_bias_estimation_ || do_mag_soft_bias_estimation_)
+    eskf_.measureMagneticField3d(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
+  else
+    eskf_.measureMagneticFieldYaw(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
 }
 
 void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)

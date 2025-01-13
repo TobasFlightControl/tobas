@@ -196,7 +196,13 @@ public:
     const Eigen::Quaterniond& q_meas,
     const Eigen::Matrix3d& theta_cov,
     const std::chrono::steady_clock::time_point& time);
-  double measureMagneticField(
+
+  double measureMagneticField3d(
+    const Eigen::Vector3d& mag_meas,
+    const Eigen::Matrix3d& mag_cov,
+    const std::chrono::steady_clock::time_point& time);
+
+  double measureMagneticFieldYaw(
     const Eigen::Vector3d& mag_meas,
     const Eigen::Matrix3d& mag_cov,
     const std::chrono::steady_clock::time_point& time);
@@ -225,6 +231,7 @@ private:
   Eigen::Matrix<double, 6, kDeltaStateSize> H_pv_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_theta_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_mag_;
+  Eigen::Matrix<double, 1, kDeltaStateSize> H_yaw_;
   Eigen::Matrix<double, 3, kDeltaStateSize> H_grav_;
 
   std::chrono::steady_clock::time_point t_last_imu_;
