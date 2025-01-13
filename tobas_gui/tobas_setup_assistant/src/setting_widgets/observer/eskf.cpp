@@ -27,11 +27,11 @@ ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   rows->addWidget(do_gyro_bias_estimation_);
 
   do_mag_hard_bias_estimation_ = new QCheckBox("Do Magnetometer Hard-Iron Bias Estimation");
-  do_mag_hard_bias_estimation_->setChecked(true);
+  do_mag_hard_bias_estimation_->setChecked(false);
   rows->addWidget(do_mag_hard_bias_estimation_);
 
   do_mag_soft_bias_estimation_ = new QCheckBox("Do Magnetometer Soft-Iron Bias Estimation");
-  do_mag_soft_bias_estimation_->setChecked(true);
+  do_mag_soft_bias_estimation_->setChecked(false);
   rows->addWidget(do_mag_soft_bias_estimation_);
 
   do_grav_estimation_ = new QCheckBox("Do Gravity Estimation");
