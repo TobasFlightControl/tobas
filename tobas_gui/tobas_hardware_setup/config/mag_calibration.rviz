@@ -18,7 +18,7 @@ Visualization Manager:
       Class: rviz_default_plugins/PointStamped
       Color: 204; 41; 204
       Enabled: true
-      History Length: 0
+      History Length: 1
       Name: PointStamped
       Radius: 0.1
       Topic:

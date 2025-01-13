@@ -170,9 +170,16 @@ void MagCalibrationWidget::onStartButtonClicked()
   mag_raw_sub_ =
     ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kMagTopic), &self::magCb, this);
 
-  // 一度クリアしてから描画する店の個数を設定
-  ps_history_length_->setValue(0);
+  // 一度クリアしてから描画する点の個数を設定
+  // FIXME: History Lengthの最小値は1であり，この方法でクリアしようとしても前のデータが1つ残ってしまう．
+  ps_history_length_->setValue(1);
   ps_history_length_->setValue(kMaxDataSize);
+
+  // 空の点群を発行することでキャリブレーション後の描画をリセット
+  auto pc_empty = make_unique<sensor_msgs::msg::PointCloud>();
+  pc_empty->header.stamp = node_->get_clock()->now();
+  pc_empty->header.frame_id = tobas::kWorldFrame;
+  pc_pub_->publish(std::move(pc_empty));
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);
