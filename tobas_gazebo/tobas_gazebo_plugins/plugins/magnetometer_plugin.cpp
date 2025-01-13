@@ -11,6 +11,7 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_plugins/random.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
@@ -55,15 +56,14 @@ private:
   double lat_, lon_;              // [deg] Current position
 
   random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
-  NormalDistribution noise_;
+  NormalDistribution3d::SharedPtr noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
-GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : rnd_gen_(rnd_dev_())
+GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
 {
 }
 
@@ -84,12 +84,10 @@ void GazeboMagnetometerPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
 
-  noise_ = NormalDistribution(0, noise_stddev_);
+  noise_ = make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
-  UniformDistribution hard_bias_dist(-hard_bias_range_, hard_bias_range_);
-  hard_bias_.X(hard_bias_dist(rnd_gen_));
-  hard_bias_.Y(hard_bias_dist(rnd_gen_));
-  hard_bias_.Z(hard_bias_dist(rnd_gen_));
+  UniformDistribution3d hard_bias_dist(rnd_dev_, -hard_bias_range_, hard_bias_range_);
+  hard_bias_ = hard_bias_dist.get();
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
 }
@@ -129,18 +127,16 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
 
   // 機体座標系から見た地磁気を計算
   const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [nT]
-  auto field_B = T_W_B.Rot().RotateVectorReverse(field_W) + hard_bias_;
+  const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);      // [nT]
 
-  // Add noise
-  field_B.X() += noise_(rnd_gen_);
-  field_B.Y() += noise_(rnd_gen_);
-  field_B.Z() += noise_(rnd_gen_);
+  // ノイズを加えて地磁気のスケールで正規化した値を観測する
+  const auto field_meas = (field_B + noise_->get() + hard_bias_) / mag.total;  // [-]
 
   // Create message
   auto mag_msg = make_unique<tobas_msgs::MagneticFieldStamped>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
-  vectorGazeboToKDL(field_B.Normalized(), mag_msg->mag);
+  vectorGazeboToKDL(field_meas, mag_msg->mag);
 
   // Publish message
   mag_pub_->publish(move(mag_msg));
