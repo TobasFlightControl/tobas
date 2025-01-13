@@ -221,63 +221,63 @@ void ErrorStateKalmanFilter::enableCovInitialization(bool enable)
   do_cov_initialization_ = enable;
 }
 
-bool ErrorStateKalmanFilter::setAccBiasProcNoiseVar(double value)
+bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
 {
   if (value < 0.)
   {
-    cerr << "The variance of accelerometer bias process noise must be non-negative." << endl;
+    cerr << "The noise density of accelerometer bias process must be non-negative." << endl;
     return false;
   }
 
-  acc_bias_proc_noise_var_ = value;
+  acc_bias_proc_noise_density_ = value;
   return true;
 }
 
-bool ErrorStateKalmanFilter::setGyroBiasProcNoiseVar(double value)
+bool ErrorStateKalmanFilter::setGyroBiasProcNoiseDensity(double value)
 {
   if (value < 0.)
   {
-    cerr << "The variance of gyroscope bias process noise must be non-negative." << endl;
+    cerr << "The noise density of gyroscope bias process must be non-negative." << endl;
     return false;
   }
 
-  gyro_bias_proc_noise_var_ = value;
+  gyro_bias_proc_noise_density_ = value;
   return true;
 }
 
-bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseVar(double value)
+bool ErrorStateKalmanFilter::setMagHardBiasProcNoiseDensity(double value)
 {
   if (value < 0.)
   {
-    cerr << "The variance of magnetometer hard-iron bias process noise must be non-negative." << endl;
+    cerr << "The noise density of magnetometer hard-iron bias process must be non-negative." << endl;
     return false;
   }
 
-  mag_hard_bias_proc_noise_var_ = value;
+  mag_hard_bias_proc_noise_density_ = value;
   return true;
 }
 
-bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseVar(double value)
+bool ErrorStateKalmanFilter::setMagSoftBiasProcNoiseDensity(double value)
 {
   if (value < 0.)
   {
-    cerr << "The variance of magnetometer soft-iron bias process noise must be non-negative." << endl;
+    cerr << "The noise density of magnetometer soft-iron bias process must be non-negative." << endl;
     return false;
   }
 
-  mag_soft_bias_proc_noise_var_ = value;
+  mag_soft_bias_proc_noise_density_ = value;
   return true;
 }
 
-bool ErrorStateKalmanFilter::setGravProcNoiseVar(double value)
+bool ErrorStateKalmanFilter::setGravProcNoiseDensity(double value)
 {
   if (value < 0.)
   {
-    cerr << "Gravity process noise variance must be non-negative." << endl;
+    cerr << "The noise density of gravity process must be non-negative." << endl;
     return false;
   }
 
-  grav_proc_noise_var_ = value;
+  grav_proc_noise_density_ = value;
   return true;
 }
 
@@ -350,11 +350,11 @@ double ErrorStateKalmanFilter::measureIMU(
   // TODO: 異なるdtに対応させるため，プロセスノイズの分散をノイズ密度で定義
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * dt2;
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * dt2;
-  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += acc_bias_proc_noise_var_;
-  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += gyro_bias_proc_noise_var_;
-  P_.diagonal().segment<3>(kDeltaMagHardBiasIdx).array() += mag_hard_bias_proc_noise_var_;
-  P_.diagonal().segment<6>(kDeltaMagSoftBiasIdx).array() += mag_soft_bias_proc_noise_var_;
-  P_(kDeltaGravIdx, kDeltaGravIdx) += grav_proc_noise_var_;
+  P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += math::sqr(acc_bias_proc_noise_density_) * dt;
+  P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += math::sqr(gyro_bias_proc_noise_density_) * dt;
+  P_.diagonal().segment<3>(kDeltaMagHardBiasIdx).array() += math::sqr(mag_hard_bias_proc_noise_density_) * dt;
+  P_.diagonal().segment<6>(kDeltaMagSoftBiasIdx).array() += math::sqr(mag_soft_bias_proc_noise_density_) * dt;
+  P_(kDeltaGravIdx, kDeltaGravIdx) += math::sqr(grav_proc_noise_density_) * dt;
 
   // Apply constraints to avoid numerical errors
   applyConstraints();

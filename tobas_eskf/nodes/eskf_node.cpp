@@ -133,13 +133,13 @@ private:
   double initMagSoftBiasStddev() const;
   double initGravBiasStddev() const;
 
+  bool accBiasProcNoiseDensityCb(const long& nd_ug);
+  bool gyroBiasProcNoiseDensityCb(const long& nd_udps);
+  bool magHardBiasProcNoiseDensityCb(const long& nd_u);
+  bool magSoftBiasProcNoiseDensityCb(const long& nd_u);
+  bool gravProcNoiseDensityCb(const long& ud_ug);
   bool gravMeasVarInterceptCb(const long& p);
   bool gravMeasVarSlopeCb(const long& p);
-  bool accBiasProcNoiseVarLog10Cb(const long& p);
-  bool gyroBiasProcNoiseVarLog10Cb(const long& p);
-  bool magHardBiasProcNoiseVarLog10Cb(const long& p);
-  bool magSoftBiasProcNoiseVarLog10Cb(const long& p);
-  bool gravProcNoiseVarLog10Cb(const long& p);
 
   void imuCb(const ImuMsg::ConstSharedPtr& imu);
   void magCb(const MagMsg::ConstSharedPtr& mag);
@@ -159,17 +159,20 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   tf_.child_frame_id = frame_id_;
 
   // Register dynamic parameters
-  // 地磁気のプロセスノイズの分散をジャイロの100倍にすると良さそう？
   if (do_acc_bias_estimation_)
-    addDynamicIntParam("acc_bias_proc_noise_var_log10", &self::accBiasProcNoiseVarLog10Cb, this, -10, -16, 0);
+    addDynamicIntParam("acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 20, 0, 1000);  // [ug/√Hz]
   if (do_gyro_bias_estimation_)
-    addDynamicIntParam("gyro_bias_proc_noise_var_log10", &self::gyroBiasProcNoiseVarLog10Cb, this, -12, -16, 0);
+    addDynamicIntParam(
+      "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1200, 0, 10000);  // [udps/√Hz]
   if (do_mag_hard_bias_estimation_)
-    addDynamicIntParam("mag_hard_bias_proc_noise_var_log10", &self::magHardBiasProcNoiseVarLog10Cb, this, -10, -16, 0);
+    addDynamicIntParam(
+      "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 200, 0, 10000);  // [u/√Hz]
   if (do_mag_soft_bias_estimation_)
-    addDynamicIntParam("mag_soft_bias_proc_noise_var_log10", &self::magSoftBiasProcNoiseVarLog10Cb, this, -10, -16, 0);
+    addDynamicIntParam(
+      "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 200, 0, 10000);  // [u/√Hz]
   if (do_grav_estimation_)
-    addDynamicIntParam("grav_noise_proc_var_log10", &self::gravProcNoiseVarLog10Cb, this, -10, -16, 0);
+    addDynamicIntParam("grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 20, 0, 1000);  // [ug/√Hz]
+
   addDynamicIntParam("grav_meas_var_intercept", &self::gravMeasVarInterceptCb, this, 1, 1, 100);
   addDynamicIntParam("grav_meas_var_slope", &self::gravMeasVarSlopeCb, this, 100, 0, 1000);
 
@@ -355,34 +358,44 @@ double ObserverNode::initGravBiasStddev() const
   return do_grav_estimation_ ? 0.1 : 0.;
 }
 
-bool ObserverNode::accBiasProcNoiseVarLog10Cb(const long& p)
+bool ObserverNode::accBiasProcNoiseDensityCb(const long& nd_ug)
 {
   assert(do_acc_bias_estimation_);
-  return eskf_.setAccBiasProcNoiseVar(exp10(p));
+
+  const auto nd = nd_ug * 1e-6 * tobas_std::kGravity;  // [m/s^2/√Hz]
+  return eskf_.setAccBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::gyroBiasProcNoiseVarLog10Cb(const long& p)
+bool ObserverNode::gyroBiasProcNoiseDensityCb(const long& nd_udps)
 {
   assert(do_gyro_bias_estimation_);
-  return eskf_.setGyroBiasProcNoiseVar(exp10(p));
+
+  const auto nd = nd_udps * 1e-6 * tobas_std::kDeg2Rad;  // [rad/s/√Hz]
+  return eskf_.setGyroBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::magHardBiasProcNoiseVarLog10Cb(const long& p)
+bool ObserverNode::magHardBiasProcNoiseDensityCb(const long& nd_u)
 {
   assert(do_mag_hard_bias_estimation_);
-  return eskf_.setMagHardBiasProcNoiseVar(exp10(p));
+
+  const auto nd = nd_u * 1e-6;  // [/√Hz]
+  return eskf_.setMagHardBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::magSoftBiasProcNoiseVarLog10Cb(const long& p)
+bool ObserverNode::magSoftBiasProcNoiseDensityCb(const long& nd_u)
 {
   assert(do_mag_soft_bias_estimation_);
-  return eskf_.setMagSoftBiasProcNoiseVar(exp10(p));
+
+  const auto nd = nd_u * 1e-6;  // [/√Hz]
+  return eskf_.setMagSoftBiasProcNoiseDensity(nd);
 }
 
-bool ObserverNode::gravProcNoiseVarLog10Cb(const long& p)
+bool ObserverNode::gravProcNoiseDensityCb(const long& nd_ug)
 {
   assert(do_grav_estimation_);
-  return eskf_.setGravProcNoiseVar(exp10(p));
+
+  const auto nd = nd_ug * 1e-6 * tobas_std::kGravity;  // [m/s^2/√Hz]
+  return eskf_.setGravProcNoiseDensity(nd);
 }
 
 bool ObserverNode::gravMeasVarInterceptCb(const long& p)

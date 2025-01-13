@@ -100,11 +100,11 @@ public:
   void enableJosephForm(bool enable);
   void enableCovInitialization(bool enable);
 
-  bool setAccBiasProcNoiseVar(double value);
-  bool setGyroBiasProcNoiseVar(double value);
-  bool setMagHardBiasProcNoiseVar(double value);
-  bool setMagSoftBiasProcNoiseVar(double value);
-  bool setGravProcNoiseVar(double value);
+  bool setAccBiasProcNoiseDensity(double value);
+  bool setGyroBiasProcNoiseDensity(double value);
+  bool setMagHardBiasProcNoiseDensity(double value);
+  bool setMagSoftBiasProcNoiseDensity(double value);
+  bool setGravProcNoiseDensity(double value);
 
   bool setMagneticFieldRef(const Eigen::Vector3d& mag_W);
 
@@ -205,11 +205,11 @@ private:
   bool enable_second_integral_ = false;
   bool use_joseph_form_ = true;
   bool do_cov_initialization_ = false;
-  double acc_bias_proc_noise_var_ = 0.;   // [m^2/s^4] 加速度バイアスのプロセスノイズの分散
-  double gyro_bias_proc_noise_var_ = 0.;  // [rad^2/s^2] ジャイロバイアスのプロセスノイズの分散
-  double mag_hard_bias_proc_noise_var_ = 0.;  // [-] 地磁気ハードアイアンバイアスのプロセスノイズの分散
-  double mag_soft_bias_proc_noise_var_ = 0.;  // [-] 地磁気ソフトアイアンバイアスのプロセスノイズの分散
-  double grav_proc_noise_var_ = 0.;           // [m^2/s^4] 重力加速度のプロセスノイズの分散
+  double acc_bias_proc_noise_density_ = 0.;   // [m/s^2/√Hz] 加速度バイアスのプロセスノイズ密度
+  double gyro_bias_proc_noise_density_ = 0.;  // [rad/s/√Hz] ジャイロバイアスのプロセスノイズ密度
+  double mag_hard_bias_proc_noise_density_ = 0.;  // [/√Hz] 地磁気ハードアイアンバイアスのプロセスノイズ密度
+  double mag_soft_bias_proc_noise_density_ = 0.;  // [/√Hz] 地磁気ソフトアイアンバイアスのプ密度ノイズ密度
+  double grav_proc_noise_density_ = 0.;  // [m/s^2/√Hz] 重力加速度のプロセスノイズ密度
 
   StateVector x_;         // State vector of the filter
   DeltaStateMatrix P_;    // Covariance of the error state
