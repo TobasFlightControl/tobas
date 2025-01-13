@@ -66,8 +66,6 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
   rows_->addWidget(rviz_manager_.frame());
 
-  rows_->addStretch();
-
   const auto manager = rviz_manager_.frame()->getManager();
 
   // 固定フレームを設定
