@@ -50,7 +50,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
   static constexpr bool kDefaultDoMagHardBiasEstimation = true;
-  static constexpr bool kDefaultDoMagSoftBiasEstimation = true;
+  static constexpr bool kDefaultDoMagSoftBiasEstimation = false;
   static constexpr bool kDefaultDoGravEstimation = true;
 
   // 標準偏差の初期値
@@ -163,7 +163,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
     addDynamicIntParam("acc_bias_proc_noise_density", &self::accBiasProcNoiseDensityCb, this, 20, 0, 1000);  // [ug/√Hz]
   if (do_gyro_bias_estimation_)
     addDynamicIntParam(
-      "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1200, 0, 10000);  // [udps/√Hz]
+      "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1000, 0, 10000);  // [udps/√Hz]
   if (do_mag_hard_bias_estimation_)
     addDynamicIntParam(
       "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 200, 0, 10000);  // [u/√Hz]
@@ -211,10 +211,6 @@ void ObserverNode::getStaticRosParams()
   imu_offset_ = Map<const Vector3d>(imu_offset.data());
   bar_offset_ = Map<const Vector3d>(bar_offset.data());
   gps_offset_ = Map<const Vector3d>(gps_offset.data());
-
-  // 加速度バイアスのZ成分と重力加速度の分離は困難だと思われるため，どちらか一方のみを許容
-  if (do_acc_bias_estimation_ && do_grav_estimation_)
-    TOBAS_EXIT("You cannot enable both accelerometer bias estimation and gravity estimation.");
 }
 
 bool ObserverNode::setMagneticFieldRefAndInitializeBias(const Vector3d& mag_W)

@@ -50,11 +50,11 @@ class ErrorStateKalmanFilter
   static constexpr size_t kDeltaStateSize = kDeltaGravIdx + 1;
 
   // 変数の範囲
-  static constexpr double kMaxAccBias = 1.;            // [m/s^2]
-  static constexpr double kMaxGyroBias = 0.1;          // [rad/s]
-  static constexpr double kMaxMagHardBias = INFINITY;  // [-]
-  static constexpr double kMinGravity = 9.75;          // [m/s^2]
-  static constexpr double kMaxGravity = 9.85;          // [m/s^2]
+  static constexpr double kMaxAccBias = 1.;      // [m/s^2]
+  static constexpr double kMaxGyroBias = 0.1;    // [rad/s]
+  static constexpr double kMaxMagHardBias = 1.;  // [-]
+  static constexpr double kMinGravity = 9.75;    // [m/s^2]
+  static constexpr double kMaxGravity = 9.85;    // [m/s^2]
 
   // その他
   static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
