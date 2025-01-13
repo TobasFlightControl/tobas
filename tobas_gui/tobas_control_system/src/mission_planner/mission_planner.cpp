@@ -95,6 +95,9 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   ns_ = ns;
 
+  map_->setGPSArrowPosition(0., 0.);
+  map_->setGPSArrowRotation(0.);
+
   gps_ = nullptr;
 
   gps_sub_ =
