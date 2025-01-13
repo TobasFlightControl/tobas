@@ -477,7 +477,11 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
     return;
 
   if (!mag_ref_set_)
+  {
+    TOBAS_WARN_THROTTLE(
+      tobas::kTypicalWarnPeriod, "Magnetic field is ignored because reference field (e.g. from WMM) is not set yet.");
     return;
+  }
 
   eskf_.measureMagneticField(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
 }
