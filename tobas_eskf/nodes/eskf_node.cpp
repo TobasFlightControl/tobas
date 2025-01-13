@@ -50,7 +50,7 @@ class ObserverNode : public tobas::BaseNode
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
   static constexpr bool kDefaultDoMagHardBiasEstimation = true;
-  static constexpr bool kDefaultDoMagSoftBiasEstimation = false;
+  static constexpr bool kDefaultDoMagSoftBiasEstimation = true;
   static constexpr bool kDefaultDoGravEstimation = true;
 
   // 標準偏差の初期値
