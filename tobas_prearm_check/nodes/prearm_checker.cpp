@@ -4,7 +4,6 @@
 #include <tobas_std_tools/timestamped_buffer.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_ros2_tools/eigen_conversion.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
