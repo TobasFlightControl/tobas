@@ -166,10 +166,10 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
       "gyro_bias_proc_noise_density", &self::gyroBiasProcNoiseDensityCb, this, 1000, 0, 10000);  // [udps/√Hz]
   if (do_mag_hard_bias_estimation_)
     addDynamicIntParam(
-      "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 200, 0, 10000);  // [u/√Hz]
+      "mag_hard_bias_proc_noise_density", &self::magHardBiasProcNoiseDensityCb, this, 1000, 0, 10000);  // [u/√Hz]
   if (do_mag_soft_bias_estimation_)
     addDynamicIntParam(
-      "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 200, 0, 10000);  // [u/√Hz]
+      "mag_soft_bias_proc_noise_density", &self::magSoftBiasProcNoiseDensityCb, this, 1000, 0, 10000);  // [u/√Hz]
   if (do_grav_estimation_)
     addDynamicIntParam("grav_noise_proc_noise_density", &self::gravProcNoiseDensityCb, this, 20, 0, 1000);  // [ug/√Hz]
 
