@@ -479,7 +479,7 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   if (!mag_ref_set_)
   {
     TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Magnetic field is ignored because reference field (e.g. from WMM) is not set yet.");
+      tobas::kTypicalWarnPeriod, "Magnetic field is ignored because reference (e.g. from WMM) is not set yet.");
     return;
   }
 
