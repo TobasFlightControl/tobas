@@ -41,6 +41,8 @@ private:
 
   QCheckBox* do_acc_bias_estimation_;
   QCheckBox* do_gyro_bias_estimation_;
+  QCheckBox* do_mag_hard_bias_estimation_;
+  QCheckBox* do_mag_soft_bias_estimation_;
   QCheckBox* do_grav_estimation_;
 };
 }  // namespace setup_assistant
