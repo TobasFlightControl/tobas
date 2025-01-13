@@ -226,7 +226,9 @@ bool ObserverNode::setMagneticFieldRefAndInitializeBias(const Vector3d& mag_W)
   eskf_.initializeMagSoftBias(
     Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
 
+  TOBAS_INFO("Reference magnetic field is set to be: ", mag_W.transpose());
   mag_ref_set_ = true;
+
   return true;
 }
 
