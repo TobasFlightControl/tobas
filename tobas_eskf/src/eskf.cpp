@@ -519,11 +519,7 @@ Matrix<double, 4, 3> ErrorStateKalmanFilter::getQ_dtheta(const StateVector& x) c
   const auto& qx = qby2(1);
   const auto& qy = qby2(2);
   const auto& qz = qby2(3);
-
-  Matrix<double, 4, 3> Q_dtheta;
-  Q_dtheta << -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw;
-
-  return Q_dtheta;
+  return (Matrix<double, 4, 3>() << -qx, -qy, -qz, qw, -qz, qy, qz, qw, -qx, -qy, qx, qw).finished();
 }
 
 Matrix<double, 3, 4> ErrorStateKalmanFilter::quatRotationDerivative(const StateVector& x, const Vector3d& a) const
