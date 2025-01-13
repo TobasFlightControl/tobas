@@ -240,6 +240,9 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
 
 void MissionPlannerWidget::gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps)
 {
+  if (gps->fix_type != tobas_msgs::msg::Gps::FIX_3D)
+    return;
+
   gps_ = gps;
 
   map_->setGPSArrowPosition(gps->latitude, gps->longitude);
