@@ -60,7 +60,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
 
-  void reset();
+  void resetToBeforeStart();
 
   void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
   void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);

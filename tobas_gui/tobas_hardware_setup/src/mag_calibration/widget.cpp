@@ -100,7 +100,7 @@ void MagCalibrationWidget::setNamespace(const string& ns)
 {
   ns_ = ns;
 
-  reset();
+  resetToBeforeStart();
 
   arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(
@@ -109,11 +109,9 @@ void MagCalibrationWidget::setNamespace(const string& ns)
   setEnabled(true);
 }
 
-void MagCalibrationWidget::reset()
+void MagCalibrationWidget::resetToBeforeStart()
 {
   mag_raw_sub_ = nullptr;
-
-  history_length_->setValue(0);
 
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
@@ -170,6 +168,8 @@ void MagCalibrationWidget::onStartButtonClicked()
   mag_raw_sub_ =
     ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kMagTopic), &self::magCb, this);
 
+  // 一度クリアしてから描画する店の個数を設定
+  history_length_->setValue(0);
   history_length_->setValue(kMaxDataSize);
 
   start_button_->setEnabled(false);
@@ -181,8 +181,8 @@ void MagCalibrationWidget::onStartButtonClicked()
 
 void MagCalibrationWidget::onCancelButtonClicked()
 {
+  resetToBeforeStart();
   qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
-  reset();
 }
 
 void MagCalibrationWidget::onFinishButtonClicked()
@@ -190,8 +190,8 @@ void MagCalibrationWidget::onFinishButtonClicked()
   const auto size = min(cnt_, kMaxDataSize);
   if (size < kMinDataSize)
   {
+    resetToBeforeStart();
     qt::qErrorBox(this, "The number of collected samples is too small.");
-    reset();
     return;
   }
 
@@ -301,8 +301,8 @@ void MagCalibrationWidget::onFinishButtonClicked()
   // 楕円体であることを確認
   if (!mag_trans_.initialize())
   {
+    resetToBeforeStart();
     qt::qErrorBox(this, "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.");
-    reset();
     return;
   }
 
@@ -336,8 +336,8 @@ void MagCalibrationWidget::onFinishButtonClicked()
     return;
   }
 
+  resetToBeforeStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
-  reset();
 }
 }  // namespace hardware_setup
 }  // namespace gui
