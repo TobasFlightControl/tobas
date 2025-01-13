@@ -616,18 +616,25 @@ void ErrorStateKalmanFilter::setMagSoftBiasFromMatrix(const Eigen::Matrix3d& T)
 void ErrorStateKalmanFilter::applyConstraints()
 {
   // クオータニオンのノルムは1
-  x_.segment<4>(kQuatIdx) = x_.segment<4>(kQuatIdx).normalized();
+  x_.segment<4>(kQuatIdx) = getHamilton().normalized();
 
   // 事前知識を用いて状態の範囲を制限
-  x_.segment<3>(kAccBiasIdx) = x_.segment<3>(kAccBiasIdx).cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
-  x_.segment<3>(kGyroBiasIdx) = x_.segment<3>(kGyroBiasIdx).cwiseMax(-kMaxGyroBias).cwiseMin(kMaxGyroBias);
-  x_.segment<3>(kMagHardBiasIdx) = x_.segment<3>(kMagHardBiasIdx).cwiseMax(-kMaxMagHardBias).cwiseMin(kMaxMagHardBias);
-  x_(kGravIdx) = clamp(x_(kGravIdx), kMinGravity, kMaxGravity);
+  if (acc_bias_proc_noise_density_ > 0.)
+    x_.segment<3>(kAccBiasIdx) = getAccelBias().cwiseMax(-kMaxAccBias).cwiseMin(kMaxAccBias);
+  if (gyro_bias_proc_noise_density_ > 0.)
+    x_.segment<3>(kGyroBiasIdx) = getGyroBias().cwiseMax(-kMaxGyroBias).cwiseMin(kMaxGyroBias);
+  if (mag_hard_bias_proc_noise_density_ > 0.)
+    x_.segment<3>(kMagHardBiasIdx) = getMagHardBias().cwiseMax(-kMaxMagHardBias).cwiseMin(kMaxMagHardBias);
+  if (grav_proc_noise_density_ > 0.)
+    x_(kGravIdx) = clamp(getGravity(), kMinGravity, kMaxGravity);
 
   // 地磁気のソフトバイアスは正定値対称
-  const auto T = getMagSoftBias();
-  const auto T_positive = eigen::nearestPositiveDefinite(T, kMinMagSoftBiasEigenValue);
-  setMagSoftBiasFromMatrix(T_positive);
+  if (mag_soft_bias_proc_noise_density_)
+  {
+    const auto T = getMagSoftBias();
+    const auto T_positive = eigen::nearestPositiveDefinite(T, kMinMagSoftBiasEigenValue);
+    setMagSoftBiasFromMatrix(T_positive);
+  }
 
   // 共分散行列は対称行列でなければならない
   eigen::symmetrise(P_);
