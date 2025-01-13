@@ -4,6 +4,7 @@
 #include <rviz_common/properties/int_property.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <geometry_msgs/msg/point_stamped.hpp>
+#include <sensor_msgs/msg/point_cloud.hpp>
 
 #include <tobas_math/ellipse_transformer.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -23,7 +24,8 @@ class MagCalibrationWidget : public BaseHardwareSetupWidget
   using self = MagCalibrationWidget;
   using super = BaseHardwareSetupWidget;
 
-  static constexpr char kRvizPointTopic[] = "rviz/magnetic_field";
+  static constexpr char kRvizPointStampedTopic[] = "rviz/magnetic_field_raw";
+  static constexpr char kRvizPointCloudTopic[] = "rviz/magnetic_field_calib";
   static constexpr int kMinDataSize = 500;
   static constexpr int kMaxDataSize = 50000;  // 8[B] * 3 * 50000 = 1200000[B] = 1.2[MB]
   static constexpr int kButtonWidth = 100;
@@ -54,9 +56,10 @@ private:
   math::EllipseTransformer mag_trans_;
   std_msgs::msg::Bool::ConstSharedPtr arming_;
 
-  rviz_common::properties::Property* history_length_;
+  rviz_common::properties::Property* ps_history_length_;
 
-  ros2::PublisherPtr<geometry_msgs::msg::PointStamped> point_pub_;
+  ros2::PublisherPtr<geometry_msgs::msg::PointStamped> ps_pub_;
+  ros2::PublisherPtr<sensor_msgs::msg::PointCloud> pc_pub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
   ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
 

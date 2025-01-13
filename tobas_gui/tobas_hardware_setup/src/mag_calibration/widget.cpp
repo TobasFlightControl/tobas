@@ -6,6 +6,7 @@
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_std_tools/check.hpp>
+#include <tobas_eigen_conversions/eigen_msg.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
@@ -72,16 +73,17 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   // TFが出ているフレームでなければならない
   manager->setFixedFrame(tobas::kWorldFrame);
 
-  // Point表示用ディスプレイを取得
-  const auto display = manager->getRootDisplayGroup()->getDisplayAt(0);
-  TOBAS_CHECK(display->getName() == "PointStamped");
+  const auto ps_display = manager->getRootDisplayGroup()->getDisplayAt(0);
+  TOBAS_CHECK(ps_display->getName() == "PointStamped");
+  ps_display->subProp("Topic")->setValue(kRvizPointStampedTopic);
+  ps_history_length_ = ps_display->subProp("History Length");
 
-  // Rvizのトピックを指定
-  display->subProp("Topic")->setValue(kRvizPointTopic);
-  point_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointTopic);
+  const auto pc_display = manager->getRootDisplayGroup()->getDisplayAt(1);
+  TOBAS_CHECK(pc_display->getName() == "PointCloud");
+  pc_display->subProp("Topic")->setValue(kRvizPointCloudTopic);
 
-  // データバッファ関連
-  history_length_ = display->subProp("History Length");
+  ps_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointStampedTopic);
+  pc_pub_ = ros2::createPublisher<sensor_msgs::msg::PointCloud>(node_, kRvizPointCloudTopic, false, true);
 
   setEnabled(false);
 }
@@ -138,8 +140,8 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSh
   auto point_msg = make_unique<geometry_msgs::msg::PointStamped>();
   point_msg->header = mag_raw->header;
   point_msg->header.frame_id = tobas::kWorldFrame;  // Rvizの設定の"Global Options/Fixed Frame"と一致させる
-  kdl::pointKDLToMsg(mag_raw->mag / mag_norm_ * kRvizPointScale, point_msg->point);
-  point_pub_->publish(std::move(point_msg));
+  kdl::pointKDLToMsg(mag_raw->mag * (kRvizPointScale / mag_norm_), point_msg->point);
+  ps_pub_->publish(std::move(point_msg));
 }
 
 void MagCalibrationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
@@ -169,8 +171,8 @@ void MagCalibrationWidget::onStartButtonClicked()
     ros2::createSubscriber(node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::kMagTopic), &self::magCb, this);
 
   // 一度クリアしてから描画する店の個数を設定
-  history_length_->setValue(0);
-  history_length_->setValue(kMaxDataSize);
+  ps_history_length_->setValue(0);
+  ps_history_length_->setValue(kMaxDataSize);
 
   start_button_->setEnabled(false);
   finish_button_->setEnabled(true);
@@ -190,7 +192,6 @@ void MagCalibrationWidget::onFinishButtonClicked()
   const auto size = min(cnt_, kMaxDataSize);
   if (size < kMinDataSize)
   {
-    resetToBeforeStart();
     qt::qErrorBox(this, "The number of collected samples is too small.");
     return;
   }
@@ -335,6 +336,19 @@ void MagCalibrationWidget::onFinishButtonClicked()
     qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
     return;
   }
+
+  // キャリブレーション後の点群を表示
+  auto pc_calib = make_unique<sensor_msgs::msg::PointCloud>();
+  pc_calib->header.stamp = node_->get_clock()->now();
+  pc_calib->header.frame_id = tobas::kWorldFrame;
+  pc_calib->points.resize(size);
+  for (int i = 0; i < size; ++i)
+  {
+    const Vector3d p_calib = mag_trans_.transform(mag_data_[i]);
+    const Vector3f p_disp = p_calib.cast<float>() * kRvizPointScale;
+    tf::point32EigenToMsg(p_disp, pc_calib->points[i]);
+  }
+  pc_pub_->publish(std::move(pc_calib));
 
   resetToBeforeStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
