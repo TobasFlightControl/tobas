@@ -91,7 +91,7 @@ bool IIS2MDC::configure()
     return false;
   }
 
-  if (!writeReg(CFG_REG_B, OFF_CANC))
+  if (!writeReg(CFG_REG_B, 0))
   {
     cerr << "Failed to write to CFG_REG_B." << endl;
     return false;
