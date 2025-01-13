@@ -192,7 +192,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   const auto size = min(cnt_, kMaxDataSize);
   if (size < kMinDataSize)
   {
-    qt::qErrorBox(this, "The number of collected samples is too small.");
+    qt::qWarnBox(this, "The number of collected samples is too small.");
     return;
   }
 
