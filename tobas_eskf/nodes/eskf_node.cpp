@@ -76,9 +76,9 @@ private:
   Vector3d pos_meas_;
   kdl::Vector dgyro_;
   ImuMsg::ConstSharedPtr imu_;
-  MagMsg::ConstSharedPtr mag_;
   BarMsg::ConstSharedPtr bar_;
   GpsMsg::ConstSharedPtr gps_;
+  bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
   bool gps_fix_ = false;
   double gps_anormaly_score_ = 0.;
 
@@ -121,7 +121,7 @@ private:
   tf2_ros::TransformBroadcaster tf_br_;
 
   void getStaticRosParams();
-  void setMagneticFieldRefAndInitializeBias(const Vector3d& mag_ref);
+  bool setMagneticFieldRefAndInitializeBias(const Vector3d& mag_W);
   void fillOdometryMsg(OdomMsg& odom) const;
   void publishGPSOrigin();
   void publishFeedback(const std_msgs::msg::Header& header);
@@ -214,14 +214,21 @@ void ObserverNode::getStaticRosParams()
     TOBAS_EXIT("You cannot enable both accelerometer bias estimation and gravity estimation.");
 }
 
-void ObserverNode::setMagneticFieldRefAndInitializeBias(const Vector3d& mag_ref)
+bool ObserverNode::setMagneticFieldRefAndInitializeBias(const Vector3d& mag_W)
 {
-  eskf_.setMagneticFieldRef(mag_ref);
+  if (!eskf_.setMagneticFieldRef(mag_W))
+  {
+    TOBAS_ERROR("Failed to set reference magnetic field.");
+    return false;
+  }
 
   // 地磁気の参照値が変わったらバイアスを初期化する
   eskf_.initializeMagHardBias(Vector3d::Zero(), Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal());
   eskf_.initializeMagSoftBias(
     Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
+
+  mag_ref_set_ = true;
+  return true;
 }
 
 void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
@@ -460,12 +467,8 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   if (imu_ == nullptr)
     return;
 
-  // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照値とする．
-  // これをしないと，ヨーの初期誤差によってロール，ピッチの推定が不安定になることがある．
-  if (mag_ == nullptr && gps_ == nullptr)
-    setMagneticFieldRefAndInitializeBias(mag->mag.mag.data);
-
-  mag_ = mag;
+  if (!mag_ref_set_)
+    return;
 
   eskf_.measureMagneticField(mag->mag.mag.data, mag->mag.covariance, ros2::chronoFromRosTime(mag->header.stamp));
 }
@@ -513,8 +516,9 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     // GPSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
     const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gps_, tobas_std::yearFraction());
-    Vector3d mag_ref(mag.north, -mag.east, -mag.down);  // NWU coordinates
-    setMagneticFieldRefAndInitializeBias(mag_ref);
+    Vector3d mag_W(mag.north, -mag.east, -mag.down);  // NWU coordinates
+    if (!setMagneticFieldRefAndInitializeBias(mag_W))
+      return;
 
     // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない

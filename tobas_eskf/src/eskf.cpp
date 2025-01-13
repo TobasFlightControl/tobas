@@ -281,10 +281,16 @@ bool ErrorStateKalmanFilter::setGravProcNoiseVar(double value)
   return true;
 }
 
-void ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_W)
+bool ErrorStateKalmanFilter::setMagneticFieldRef(const Vector3d& mag_W)
 {
-  assert(mag_W.norm() > 0.);
+  if (mag_W.norm() <= 0.)
+  {
+    cerr << "The norm of reference magnetic field must be positive." << endl;
+    return false;
+  }
+
   mag_W_ = mag_W.normalized();
+  return true;
 }
 
 double ErrorStateKalmanFilter::measureIMU(
@@ -478,6 +484,12 @@ double ErrorStateKalmanFilter::measureMagneticField(
   const Matrix3d& mag_cov,
   const steady_clock::time_point& time)
 {
+  if (mag_W_.norm() == 0.)
+  {
+    cerr << "Reference magnetic field is not set." << endl;
+    return INFINITY;
+  }
+
   const auto& x = x_history_.closestAfterValue(time);
 
   const Vector3d mag_B = getQuaternion(x).inverse() * mag_W_;

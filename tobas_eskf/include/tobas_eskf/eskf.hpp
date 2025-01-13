@@ -106,7 +106,7 @@ public:
   bool setMagSoftBiasProcNoiseVar(double value);
   bool setGravProcNoiseVar(double value);
 
-  void setMagneticFieldRef(const Eigen::Vector3d& mag_W);
+  bool setMagneticFieldRef(const Eigen::Vector3d& mag_W);
 
   // Direct value getters
   inline Eigen::Vector3d getPosition() const;
@@ -228,7 +228,7 @@ private:
 
   std::chrono::steady_clock::time_point t_last_imu_;
   tobas_std::TimestampedBuffer<StateVector> x_history_;
-  Eigen::Vector3d mag_W_ = Eigen::Vector3d::UnitX();
+  Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;
