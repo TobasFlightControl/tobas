@@ -1,28 +1,82 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
- <tabbed_widget name="Main Window" parent="main_window">
-  <Tab tab_name="tab1" containers="1">
+ <tabbed_widget parent="main_window" name="Main Window">
+  <Tab containers="1" tab_name="imu">
    <Container>
-    <DockSplitter orientation="-" sizes="0.333333;0.333333;0.333333" count="3">
+    <DockSplitter count="1" orientation="-" sizes="1">
+     <DockSplitter count="2" orientation="|" sizes="0.5;0.5">
+      <DockSplitter count="3" orientation="-" sizes="0.3337;0.332599;0.3337">
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+         <range left="682.370937" right="687.330996" bottom="0.036311" top="0.119222"/>
+         <limitY/>
+         <curve color="#1f77b4" name="/f550/remote_interface/real/imu/imu/accel/x"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+         <range left="682.370937" right="687.330996" bottom="-0.563779" top="-0.502224"/>
+         <limitY/>
+         <curve color="#d62728" name="/f550/remote_interface/real/imu/imu/accel/y"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+         <range left="682.370937" right="687.330996" bottom="9.918698" top="10.000353"/>
+         <limitY/>
+         <curve color="#1ac938" name="/f550/remote_interface/real/imu/imu/accel/z"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter count="3" orientation="-" sizes="0.3337;0.332599;0.3337">
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+         <range left="682.370937" right="687.330996" bottom="-0.051313" top="0.038485"/>
+         <limitY/>
+         <curve color="#ff7f0e" name="/f550/remote_interface/real/imu/imu/gyro/x"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+         <range left="682.370937" right="687.330996" bottom="-0.068951" top="0.004811"/>
+         <limitY/>
+         <curve color="#f14cc1" name="/f550/remote_interface/real/imu/imu/gyro/y"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+         <range left="682.370937" right="687.330996" bottom="-0.059475" top="0.065279"/>
+         <limitY/>
+         <curve color="#9467bd" name="/f550/remote_interface/real/imu/imu/gyro/z"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab containers="1" tab_name="mag">
+   <Container>
+    <DockSplitter count="3" orientation="-" sizes="0.3337;0.332599;0.3337">
      <DockArea name="...">
-      <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-       <range bottom="0.052725" top="0.106275" right="12.359999" left="7.360001"/>
+      <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+       <range left="682.340441" right="687.340440" bottom="0.460050" top="0.541950"/>
        <limitY/>
-       <curve name="/f550/remote_interface/real/magnetic_field/mag/x" color="#1f77b4"/>
+       <curve color="#1f77b4" name="/f550/remote_interface/real/magnetic_field/mag/x"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-       <range bottom="-0.616088" top="-0.507413" right="12.359999" left="7.360001"/>
+      <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+       <range left="682.340441" right="687.340440" bottom="-0.641887" top="-0.583612"/>
        <limitY/>
-       <curve name="/f550/remote_interface/real/magnetic_field/mag/y" color="#d62728"/>
+       <curve color="#d62728" name="/f550/remote_interface/real/magnetic_field/mag/y"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot style="Lines" flip_x="false" flip_y="false" mode="TimeSeries">
-       <range bottom="-0.378787" top="-0.282713" right="12.359999" left="7.360001"/>
+      <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
+       <range left="682.340441" right="687.340440" bottom="0.174937" top="0.261563"/>
        <limitY/>
-       <curve name="/f550/remote_interface/real/magnetic_field/mag/z" color="#1ac938"/>
+       <curve color="#1ac938" name="/f550/remote_interface/real/magnetic_field/mag/z"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -53,7 +107,7 @@
    <max_array_size value="100"/>
    <boolean_strings_to_number value="true"/>
    <remove_suffix_from_strings value="true"/>
-   <selected_topics value="/f550/remote_interface/real/magnetic_field"/>
+   <selected_topics value="/f550/remote_interface/real/magnetic_field;/f550/remote_interface/real/imu"/>
   </plugin>
   <plugin ID="UDP Server"/>
   <plugin ID="WebSocket Server"/>
