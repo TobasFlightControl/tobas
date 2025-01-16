@@ -35,6 +35,8 @@ class RotorConfig
   static constexpr char kRotSpeedCoefKey[] = "rot_speed_coef";
   static constexpr char kTiltJointName[] = "tilt_joint_name";
 
+  static constexpr double kMinRotSpeed = tobas_std::rpm2rps(180);  // [rad/s]
+
 public:
   uint32_t channel = 0;                                      // モータが接続されているチャンネル
   std::string link_name = "";                                // プロペラのリンク名
@@ -159,7 +161,6 @@ inline double RotorConfig::maxThrust(double battery_voltage) const
 
 inline double RotorConfig::minThrust(double battery_voltage) const
 {
-  const auto min_voltage = battery_voltage * kArmThrot;
-  return std::min(maxMechanicalThrust(), thrustFromVoltage(min_voltage));
+  return std::min(maxMechanicalThrust(), thrustFromRotSpeed(kMinRotSpeed));
 }
 }  // namespace tobas
