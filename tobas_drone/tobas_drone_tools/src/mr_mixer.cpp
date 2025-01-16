@@ -102,7 +102,7 @@ bool MultiRotorMixer::solve(
 
   // 等式制約
   // 不等式制約と競合しないようにクランプ
-  qp_.problem.h(0) = clamp(tar_thrusts_sum, min_thrust_sum, max_thrust_sum);
+  qp_.problem.h(0) = clamp(tar_thrusts_sum, min_thrust_sum + kThrustClampMargin, max_thrust_sum - kThrustClampMargin);
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
