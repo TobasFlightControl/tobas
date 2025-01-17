@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+
+<robot name="voliro_like"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/flight_controller/tobas_aso.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/sigp_3s_2250mah_30c.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
+
+  <!-- Properties -->
+  <xacro:property name="arm_offset" value="0.305"/>
+
+  <!-- Base Link -->
+  <link name="base_link"/>
+
+  <!-- Body -->
+  <joint name="frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="body"/>
+  </joint>
+  <link name="body">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/voliro_like/body.stl" scale="1 1 1"/>
+      </geometry>
+      <xacro:insert_block name="white"/>
+    </visual>
+    <xacro:hexagonal_prism_collision side="0.42" height="0.18" x0="0" y0="0" z0="-0.05"/>
+    <inertial>
+      <mass value="1.327"/>
+      <origin xyz="0 0 -0.017" rpy="0 0 0"/>
+      <inertia ixx="6.507e-3" ixy="3.922e-7" ixz="1.388e-5" iyy="5.028e-3" iyz="-1.761e-6" izz="9.336e-3"/>
+    </inertial>
+  </link>
+
+  <!-- Flight Controller -->
+  <xacro:tobas_aso parent="base_link">
+    <origin xyz="0 0 0.037" rpy="0 0 0"/>
+  </xacro:tobas_aso>
+
+  <!-- Tilt Rotor -->
+  <xacro:macro name="tilt_rotor" params="index direction yaw_deg">
+    <joint name="arm_${index}_joint" type="revolute">
+      <origin xyz="${arm_offset*cos(yaw_deg*deg2rad)} ${arm_offset*sin(yaw_deg*deg2rad)} 0.019" rpy="0 0 ${yaw_deg*deg2rad}"/>
+      <axis xyz="1 0 0"/>
+      <parent link="base_link"/>
+      <child link="arm_${index}"/>
+      <limit lower="${-135*deg2rad}" upper="${135*deg2rad}" velocity="3" effort="1"/>
+    </joint>
+
+    <link name="arm_${index}">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/voliro_like/arm.stl" scale="1 1 1"/>
+        </geometry>
+        <xacro:insert_block name="black"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/voliro_like/arm.stl" scale="1 1 1"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.191"/>
+        <origin xyz="0.007 0 0.024" rpy="0 0 0"/>
+        <inertia ixx="1.102e-4" ixy="0" ixz="1.526e-5" iyy="3.822e-4" iyz="0" izz="2.952e-4"/>
+      </inertial>
+    </link>
+
+    <xacro:phantom3_0945 parent="arm_${index}" index="${index}" direction="${direction}">
+      <origin xyz="0 0 0.065" rpy="0 0 0"/>
+    </xacro:phantom3_0945>
+  </xacro:macro>
+
+  <xacro:tilt_rotor index="0" direction="ccw" yaw_deg="30"/>
+  <xacro:tilt_rotor index="1" direction="cw" yaw_deg="90"/>
+  <xacro:tilt_rotor index="2" direction="ccw" yaw_deg="150"/>
+  <xacro:tilt_rotor index="3" direction="cw" yaw_deg="210"/>
+  <xacro:tilt_rotor index="4" direction="ccw" yaw_deg="270"/>
+  <xacro:tilt_rotor index="5" direction="cw" yaw_deg="330"/>
+
+</robot>
