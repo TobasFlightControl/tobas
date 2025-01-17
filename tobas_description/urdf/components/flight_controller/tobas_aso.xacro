@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+
+  <xacro:macro name="tobas_aso" params="parent *origin">
+    <xacro:property name="fc_x" value="0.09"/>
+    <xacro:property name="fc_y" value="0.055"/>
+    <xacro:property name="fc_z" value="0.05"/>
+    <xacro:property name="fc_mass" value="0.2"/>
+
+    <joint name="flight_controller_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="flight_controller"/>
+    </joint>
+
+    <link name="flight_controller">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/common/flight_controller/tobas_aso.stl" scale="1 1 1"/>
+        </geometry>
+        <xacro:insert_block name="red"/>
+      </visual>
+      <inertial>
+        <mass value="${fc_mass}"/>
+        <origin xyz="0 0 ${fc_z/2}" rpy="0 0 0"/>
+        <xacro:box_inertia x="${fc_x}" y="${fc_y}" z="${fc_z}" mass="${fc_mass}"/>
+      </inertial>
+      <collision>
+        <origin xyz="0 0 ${fc_z/2}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${fc_x} ${fc_y} ${fc_z}"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+</robot>
