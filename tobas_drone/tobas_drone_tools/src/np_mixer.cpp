@@ -99,7 +99,7 @@ bool NonPlanarMixer::solve(
   {
     const auto& rotor = rotor_it.second;
     qp_.problem.b(idx) = rotor.maxThrust(cur_voltage);
-    qp_.problem.b(drone_.numRotors() + idx) = -rotor.minThrust(cur_voltage);
+    qp_.problem.b(drone_.numRotors() + idx) = -rotor.minThrust();
   }
 
   // QPPを解く

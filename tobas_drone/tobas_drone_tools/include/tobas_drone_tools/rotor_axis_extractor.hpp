@@ -25,12 +25,6 @@ public:
   /* スロットル [0,1] から合計推力を求める． */
   double thrustSum(const double& battery_voltage, const double& throttle);
 
-  /* 最大推力の合計 [N]． */
-  double maxThrustSum(const double& battery_voltage) const;
-
-  /* 最小推力の合計 [N]． */
-  double minThrustSum(const double& battery_voltage) const;
-
 private:
   const Drone& drone_;
   const rotor_axis_t axis_;

@@ -259,7 +259,7 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     const auto& rotor = x_rotors_.rotor(i);
-    min_u_(i) = rotor.minThrust(battery_voltage);
+    min_u_(i) = rotor.minThrust();
     max_u_(i) = rotor.maxThrust(battery_voltage);
   }
 

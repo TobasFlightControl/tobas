@@ -93,7 +93,7 @@ bool MultiRotorMixer::solve(
   {
     const auto& rotor = z_rotors_.rotor(i);
     const auto max_thrust = rotor.maxThrust(cur_voltage);
-    const auto min_thrust = rotor.minThrust(cur_voltage);
+    const auto min_thrust = rotor.minThrust();
     qp_.problem.b(i) = max_thrust;
     qp_.problem.b(z_rotors_.count() + i) = -min_thrust;
     max_thrust_sum += max_thrust;

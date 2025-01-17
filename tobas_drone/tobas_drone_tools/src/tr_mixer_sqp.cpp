@@ -89,7 +89,7 @@ bool TiltRotorMixer_SQP::solve(
       ci0_(idx) = joint_parser_.lowerLimit(rotor.tilt_joint_name);
       ci0_(nr + idx) = -joint_parser_.upperLimit(rotor.tilt_joint_name);
     }
-    ci0_(2 * nr + idx) = rotor.minThrust(cur_voltage);
+    ci0_(2 * nr + idx) = rotor.minThrust();
     ci0_(3 * nr + idx) = -rotor.maxThrust(cur_voltage);
   }
 

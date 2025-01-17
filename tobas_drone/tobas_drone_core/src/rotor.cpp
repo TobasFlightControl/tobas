@@ -38,9 +38,9 @@ bool RotorConfig::isValid() const
     return false;
   }
 
-  if (max_rot_speed <= 0)
+  if (max_rot_speed < 0)
   {
-    cerr << "Maximum rotating speed must be positive." << endl;
+    cerr << "Maximum rotating speed must be non-negative." << endl;
     return false;
   }
 

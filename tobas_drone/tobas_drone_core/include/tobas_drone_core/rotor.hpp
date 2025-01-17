@@ -80,14 +80,11 @@ public:
   /* 推力 [N] からスロットル [0,1] を求める． */
   inline double throttleFromThrust(double thrust, double battery_voltage) const;
 
-  /* 機械的に許容できる最大回転数から計算される推力． */
-  inline double maxMechanicalThrust() const;
-
   /* 与えられたバッテリー電圧で出力できる最大推力．*/
   inline double maxThrust(double battery_voltage) const;
 
   /* 与えられたバッテリー電圧で出力できる最小推力． */
-  inline double minThrust(double battery_voltage) const;
+  inline double minThrust() const;
 };
 
 inline int RotorConfig::sign() const
@@ -148,19 +145,17 @@ inline double RotorConfig::throttleFromThrust(double thrust, double battery_volt
   return throttleFromRotSpeed(tar_speed, battery_voltage);
 }
 
-inline double RotorConfig::maxMechanicalThrust() const
-{
-  return motor_constant * math::sqr(max_rot_speed);
-}
-
 inline double RotorConfig::maxThrust(double battery_voltage) const
 {
   // 機械的な限界とエネルギー的な限界の最小値を計算
-  return std::min(maxMechanicalThrust(), thrustFromVoltage(battery_voltage));
+  const auto rot_speed = std::min(rotSpeedFromVoltage(battery_voltage), max_rot_speed);
+  return thrustFromRotSpeed(rot_speed);
 }
 
-inline double RotorConfig::minThrust(double battery_voltage) const
+inline double RotorConfig::minThrust() const
 {
-  return std::min(maxMechanicalThrust(), thrustFromRotSpeed(kMinRotSpeed));
+  // 特に指定がない場合は最小回転数から最大推力を計算
+  const auto rot_speed = std::min(max_rot_speed, kMinRotSpeed);
+  return thrustFromRotSpeed(rot_speed);
 }
 }  // namespace tobas
