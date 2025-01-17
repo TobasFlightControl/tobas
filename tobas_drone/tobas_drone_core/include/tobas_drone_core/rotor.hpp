@@ -35,7 +35,7 @@ class RotorConfig
   static constexpr char kRotSpeedCoefKey[] = "rot_speed_coef";
   static constexpr char kTiltJointName[] = "tilt_joint_name";
 
-  static constexpr double kMinRotSpeed = tobas_std::rpm2rps(180);  // [rad/s]
+  static constexpr double kMinRotSpeed = tobas_std::rpm2rps(300);  // [rad/s]
 
 public:
   uint32_t channel = 0;                                      // モータが接続されているチャンネル
