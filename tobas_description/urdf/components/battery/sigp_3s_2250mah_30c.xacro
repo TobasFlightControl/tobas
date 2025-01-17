@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/base.xacro"/>
+
+  <xacro:macro name="sigp_3s_2250mah_30c" params="parent *origin">
+    <xacro:base_lipo parent="${parent}" x="0.106" y="0.035" z="0.026" mass="0.186">
+      <xacro:insert_block name="origin"/>
+      <xacro:insert_block name="blue"/>
+    </xacro:base_lipo>
+  </xacro:macro>
+
+</robot>

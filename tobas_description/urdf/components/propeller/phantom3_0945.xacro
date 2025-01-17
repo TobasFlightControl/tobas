@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+
+  <xacro:macro name="phantom3_0945" params="parent index direction *origin">
+    <xacro:property name="propeller_diameter" value="${9*inch2meter}"/>
+    <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
+    <xacro:property name="propeller_height" value="0.01"/>
+    <xacro:property name="propeller_mass" value="0.011"/>
+
+    <joint name="propeller_${index}_joint" type="continuous">
+      <xacro:insert_block name="origin"/>
+      <axis xyz="0 0 1"/>
+      <parent link="${parent}"/>
+      <child link="propeller_${index}"/>
+    </joint>
+
+    <link name="propeller_${index}">
+      <visual>
+        <geometry>
+          <mesh filename="package://tobas_description/meshes/common/propeller/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
+        </geometry>
+        <xacro:insert_block name="white"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="${propeller_radius}" length="${propeller_height}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="${propeller_mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${propeller_mass}"/>
+      </inertial>
+    </link>
+
+  </xacro:macro>
+</robot>

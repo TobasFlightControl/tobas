@@ -22,17 +22,17 @@
         </geometry>
         <xacro:insert_block name="red"/>
       </visual>
-      <inertial>
-        <mass value="${fc_mass}"/>
-        <origin xyz="0 0 ${fc_z/2}" rpy="0 0 0"/>
-        <xacro:box_inertia x="${fc_x}" y="${fc_y}" z="${fc_z}" mass="${fc_mass}"/>
-      </inertial>
       <collision>
         <origin xyz="0 0 ${fc_z/2}" rpy="0 0 0"/>
         <geometry>
           <box size="${fc_x} ${fc_y} ${fc_z}"/>
         </geometry>
       </collision>
+      <inertial>
+        <mass value="${fc_mass}"/>
+        <origin xyz="0 0 ${fc_z/2}" rpy="0 0 0"/>
+        <xacro:box_inertia x="${fc_x}" y="${fc_y}" z="${fc_z}" mass="${fc_mass}"/>
+      </inertial>
     </link>
   </xacro:macro>
 
