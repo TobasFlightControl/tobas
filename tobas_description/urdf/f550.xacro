@@ -32,12 +32,12 @@
       </geometry>
       <xacro:insert_block name="black"/>
     </visual>
+    <xacro:hexagonal_prism_collision side="${frame_radius}" height="${frame_height}" x0="0" y0="0" z0="${-frame_height/2}"/>
     <inertial>
       <mass value="${frame_mass}"/>
       <origin xyz="0 0 -6.031e-3" rpy="0 0 0"/>
       <inertia ixx="1.953e-2" ixy="-2.894e-6" ixz="2.258e-6" iyy="1.953e-2" iyz="3.192e-6" izz="3.837e-2"/>
     </inertial>
-    <xacro:hexagonal_prism_collision side="${frame_radius}" height="${frame_height}" x0="0" y0="0" z0="${-frame_height/2}"/>
   </link>
 
   <!-- Flight Controller -->
