@@ -41,7 +41,11 @@ void PWMDriverNode::pwmsCb(const tobas_msgs::msg::PwmArray::ConstSharedPtr& pwms
       continue;
     }
 
-    TOBAS_ASSERT(pwm_.setPeriod(elem.channel, elem.period));
+    if (!pwm_.setPeriod(elem.channel, elem.period))
+    {
+      TOBAS_ERROR("PWM command of channel ", elem.channel, " is rejected.");
+      continue;
+    }
   }
 
   // Send PWM pwms

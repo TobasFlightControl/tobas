@@ -101,10 +101,12 @@ double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::JointConfig& joint,
 
   // Compute PWM period
   // TODO: PWMの幅を指定可能にする
+  double period;
   if (joint.reverse)
-    return math::remap<double>(cmd_pos, min_pos, max_pos, 2500, 500);
+    period = math::remap<double>(cmd_pos, min_pos, max_pos, 2500, 500);
   else
-    return math::remap<double>(cmd_pos, min_pos, max_pos, 500, 2500);
+    period = math::remap<double>(cmd_pos, min_pos, max_pos, 500, 2500);
+  return clamp<double>(period, 500, 2500);
 }
 
 void JointsHandlerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
