@@ -49,7 +49,7 @@
       <axis xyz="1 0 0"/>
       <parent link="base_link"/>
       <child link="arm_${index}"/>
-      <limit lower="${-135*deg2rad}" upper="${135*deg2rad}" velocity="7.0" effort="1.0"/>
+      <limit lower="${-135*deg2rad}" upper="${135*deg2rad}" velocity="7.0" effort="1.5"/>
     </joint>
 
     <link name="arm_${index}">
@@ -65,14 +65,14 @@
         </geometry>
       </collision>
       <inertial>
-        <mass value="0.191"/>
-        <origin xyz="0.007 0 0.024" rpy="0 0 0"/>
-        <inertia ixx="1.102e-4" ixy="0" ixz="1.526e-5" iyy="3.822e-4" iyz="0" izz="2.952e-4"/>
+        <mass value="0.230"/>
+        <origin xyz="0.005 0 0.029" rpy="0 0 0"/>
+        <inertia ixx="1.511e-4" ixy="0" ixz="2.507e-5" iyy="4.226e-4" iyz="0" izz="3.179e-4"/>
       </inertial>
     </link>
 
     <xacro:phantom3_0945 parent="arm_${index}" index="${index}" direction="${direction}">
-      <origin xyz="0 0 0.065" rpy="0 0 0"/>
+      <origin xyz="0 0 0.070" rpy="0 0 0"/>
     </xacro:phantom3_0945>
   </xacro:macro>
 
