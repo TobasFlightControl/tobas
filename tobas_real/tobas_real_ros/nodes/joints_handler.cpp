@@ -100,10 +100,11 @@ double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::JointConfig& joint,
   }
 
   // Compute PWM period
+  // TODO: PWMの幅を指定可能にする
   if (joint.reverse)
-    return math::remap<double>(cmd_pos, min_pos, max_pos, tobas::kPwmMax, tobas::kPwmMin);
+    return math::remap<double>(cmd_pos, min_pos, max_pos, 2500, 500);
   else
-    return math::remap<double>(cmd_pos, min_pos, max_pos, tobas::kPwmMin, tobas::kPwmMax);
+    return math::remap<double>(cmd_pos, min_pos, max_pos, 500, 2500);
 }
 
 void JointsHandlerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)

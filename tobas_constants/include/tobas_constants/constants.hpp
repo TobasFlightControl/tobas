@@ -5,11 +5,6 @@
 
 namespace tobas
 {
-// PWM duty period
-static constexpr uint16_t kPwmMin = 1000;                     // [us]
-static constexpr uint16_t kPwmMax = 2000;                     // [us]
-static constexpr uint16_t kPwmMid = (kPwmMin + kPwmMax) / 2;  // [us]
-
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
