@@ -4,7 +4,6 @@
 
 #include <tobas_kdl/jntarray.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
-#include <tobas_control/online_trajectory_generator_3d.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
@@ -47,10 +46,6 @@ private:
   tobas::AngleAxisPID rot_pid_;
   tobas::TiltRotorMixer_pinv mixer_;
 
-  // Trajectory generators
-  ctrl::OnlineTrajectoryGenerator3d pos_otg_;
-  ctrl::OnlineTrajectoryGenerator3d rot_otg_;
-
   // Mutable variables
   bool drone_received_ = false;
   bool tree_received_ = false;
@@ -88,19 +83,8 @@ private:
   bool headingNaturalFrequencyCb(const double& p);
   bool headingDampingRatioCb(const double& p);
   bool headingIGainCb(const double& p);
-
-  bool maxHorizontalVelocityCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
-  bool maxHorizontalJerkCb(const double& p);
-  bool maxVerticalVelocityCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
-  bool maxVerticalJerkCb(const double& p);
-  bool maxAttitudeGyroCb(const double& p);
-  bool maxAttitudeDGyroCb(const double& p);
-  bool maxAttitudeDDGyroCb(const double& p);
-  bool maxHeadingGyroCb(const double& p);
-  bool maxHeadingDGyroCb(const double& p);
-  bool maxHeadingDDGyroCb(const double& p);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -126,19 +110,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0., 0., 10.);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0., 0., 40.);
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0., 0., 20.);
-
-  addDynamicDoubleParam("max_horizontal_velocity", &self::maxHorizontalVelocityCb, this, 10., 0., 20.);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 8., 0., 20.);
-  addDynamicDoubleParam("max_horizontal_jerk", &self::maxHorizontalJerkCb, this, 2., 0., 100.);
-  addDynamicDoubleParam("max_vertical_velocity", &self::maxVerticalVelocityCb, this, 5., 0., 20.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 0., 10.);
-  addDynamicDoubleParam("max_vertical_jerk", &self::maxVerticalJerkCb, this, 2., 0., 100.);
-  addDynamicDoubleParam("max_attitude_gyro", &self::maxAttitudeGyroCb, this, M_PI_4, 0., 10.);
-  addDynamicDoubleParam("max_attitude_dgyro", &self::maxAttitudeDGyroCb, this, M_PI_2, 0., 20.);
-  addDynamicDoubleParam("max_attitude_ddgyro", &self::maxAttitudeDDGyroCb, this, M_PI, 0., 40.);
-  addDynamicDoubleParam("max_heading_gyro", &self::maxHeadingGyroCb, this, M_PI_4, 0., 10);
-  addDynamicDoubleParam("max_heading_dgyro", &self::maxHeadingDGyroCb, this, M_PI_2, 0., 20.);
-  addDynamicDoubleParam("max_heading_ddgyro", &self::maxHeadingDDGyroCb, this, M_PI, 0., 40.);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -267,102 +240,14 @@ bool ControllerNode::headingIGainCb(const double& p)
   return rot_pid_.setIntegralGain(2, p);
 }
 
-bool ControllerNode::maxHorizontalVelocityCb(const double& p)
-{
-  for (size_t i = 0; i < 2; ++i)
-  {
-    pos_otg_.setMinVelocity(i, -p);
-    pos_otg_.setMaxVelocity(i, p);
-  }
-  return true;
-}
-
 bool ControllerNode::maxHorizontalAccelCb(const double& p)
 {
-  for (size_t i = 0; i < 2; ++i)
-  {
-    pos_otg_.setMinAcceleration(i, -p);
-    pos_otg_.setMaxAcceleration(i, p);
-  }
-  return true;
-}
-
-bool ControllerNode::maxHorizontalJerkCb(const double& p)
-{
-  for (size_t i = 0; i < 2; ++i)
-  {
-    pos_otg_.setMaxJerk(i, p);
-  }
-  return true;
-}
-
-bool ControllerNode::maxVerticalVelocityCb(const double& p)
-{
-  pos_otg_.setMinVelocity(2, -p);
-  pos_otg_.setMaxVelocity(2, p);
-  return true;
+  return pos_pid_.setMaximumAccel(0, p) && pos_pid_.setMaximumAccel(1, p);
 }
 
 bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
-  pos_otg_.setMinAcceleration(2, -p);
-  pos_otg_.setMaxAcceleration(2, p);
-  return true;
-}
-
-bool ControllerNode::maxVerticalJerkCb(const double& p)
-{
-  pos_otg_.setMaxJerk(2, p);
-  return true;
-}
-
-bool ControllerNode::maxAttitudeGyroCb(const double& p)
-{
-  for (size_t i = 0; i < 2; ++i)
-  {
-    rot_otg_.setMinVelocity(i, -p);
-    rot_otg_.setMaxVelocity(i, p);
-  }
-  return true;
-}
-
-bool ControllerNode::maxAttitudeDGyroCb(const double& p)
-{
-  for (size_t i = 0; i < 2; ++i)
-  {
-    rot_otg_.setMinAcceleration(i, -p);
-    rot_otg_.setMaxAcceleration(i, p);
-  }
-  return true;
-}
-
-bool ControllerNode::maxAttitudeDDGyroCb(const double& p)
-{
-  for (size_t i = 0; i < 2; ++i)
-  {
-    rot_otg_.setMaxJerk(i, p);
-  }
-  return true;
-}
-
-bool ControllerNode::maxHeadingGyroCb(const double& p)
-{
-  rot_otg_.setMinVelocity(2, -p);
-  rot_otg_.setMaxVelocity(2, p);
-  return true;
-}
-
-bool ControllerNode::maxHeadingDGyroCb(const double& p)
-{
-  rot_otg_.setMinAcceleration(2, -p);
-  rot_otg_.setMaxAcceleration(2, p);
-  return true;
-}
-
-bool ControllerNode::maxHeadingDDGyroCb(const double& p)
-{
-  rot_otg_.setMaxJerk(2, p);
-  return true;
+  return pos_pid_.setMaximumAccel(2, p);
 }
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -418,28 +303,14 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   if (cmd_ == nullptr)
     return;
 
-  // 軌道を更新
-  // 状態フィードバックすると応答特性が変わってしまうため独立して更新
-  pos_otg_.update(dt);
-  rot_otg_.update(dt);
-
   // 位置制御器
-  const auto& cur_pos_W = odom->frame.p;
   const auto cur_vel_W = odom->frame.M * odom->twist.vel;
-  const kdl::Vector cmd_pos_W(pos_otg_.getCommandPosition());
-  const kdl::Vector cmd_vel_W(pos_otg_.getCommandVelocity());
-  const kdl::Vector cmd_acc_W(pos_otg_.getCommandAcceleration());
-  const auto tar_acc_W = cmd_acc_W + pos_pid_.update(cur_pos_W, cur_vel_W, cmd_pos_W, cmd_vel_W, dt);
+  const auto tar_acc_fb = pos_pid_.update(odom->frame.p, cur_vel_W, cmd_->pos, cmd_->vel, dt);
+  const auto tar_acc_W = cmd_->acc + tar_acc_fb;
 
   // 姿勢制御器
-  const auto& cur_rot_WB = odom->frame.M;
-  const auto& cur_gyro_B = odom->twist.rot;
-  const kdl::Rotation cmd_rot_WB = kdl::Rotation::Rot(kdl::Vector(rot_otg_.getCommandPosition()));
-  const kdl::Vector cmd_gyro_W(rot_otg_.getCommandVelocity());
-  const kdl::Vector cmd_dgyro_W(rot_otg_.getCommandAcceleration());
-  const auto cmd_gyro_B = cmd_rot_WB.inverse(cmd_gyro_W);
-  const auto cmd_dgyro_B = cmd_rot_WB.inverse(cmd_dgyro_W);
-  const auto tar_dgyro_B = cmd_dgyro_B + rot_pid_.update(cur_rot_WB, cur_gyro_B, cmd_rot_WB, cmd_gyro_B, dt);
+  const auto tar_dgyro_fb = rot_pid_.update(odom->frame.M, odom->twist.rot, cmd_->rpy.toRotation(), cmd_->gyro, dt);
+  const auto tar_dgyro_B = cmd_->dgyro + tar_dgyro_fb;
 
   // ミキシング方程式を解く
   if (!mixer_.solve(js_converter_.getPosition(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B))
@@ -540,14 +411,6 @@ void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSha
     cmd_ = nullptr;
     return;
   }
-
-  // 軌道の設定値を更新
-  pos_otg_.setTargetPosition(cmd_->pos.data);
-  pos_otg_.setTargetVelocity(cmd_->vel.data);
-  pos_otg_.setTargetAcceleration(cmd_->acc.data);
-  rot_otg_.setTargetPosition(cmd_->rpy.toAngleAxis().data);
-  rot_otg_.setTargetVelocity(cmd_->gyro.data);
-  rot_otg_.setTargetAcceleration(cmd_->dgyro.data);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)
