@@ -15,7 +15,7 @@ private:
   static constexpr size_t kChannelBytes = 2;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
   static constexpr uint32_t kSPIClockFreq = 50'000'000;                // [Hz]
-  static constexpr uint16_t kThrottleMask = (1 << 11) - 1;
+  static constexpr uint16_t kMaxPeriod = 2500;                         // [us]
 
 public:
   explicit PWM();

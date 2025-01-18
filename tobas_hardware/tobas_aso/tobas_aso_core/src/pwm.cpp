@@ -28,9 +28,9 @@ bool PWM::setPeriod(size_t ch, uint16_t period_us)
     return false;
   }
 
-  if (period_us >= (1 << 11))
+  if (period_us > kMaxPeriod)
   {
-    cerr << "PWM period must be lower than " << (1 << 11) << ".";
+    cerr << "PWM period cannot be greater than " << kMaxPeriod << " [us].";
     return false;
   }
 
