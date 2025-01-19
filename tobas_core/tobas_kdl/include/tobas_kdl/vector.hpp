@@ -59,7 +59,7 @@ public:
   /* 2つのベクトルの要素積を計算する． */
   inline Vector hadamard(const Vector& rhs) const;
 
-  /* 2つのベクトル間の偏角 [rad] を計算する． */
+  /* 2つのベクトル間の偏角 (0 ~ pi [rad]) を計算する． */
   inline double argument(const Vector& rhs) const;
 
   /* 2つのベクトルが直行するかどうかを判定する． */
@@ -221,7 +221,7 @@ inline Vector Vector::hadamard(const Vector& rhs) const
 
 inline double Vector::argument(const Vector& rhs) const
 {
-  return ::acos(normalized().dot(rhs.normalized()));
+  return ::acos(this->normalized().dot(rhs.normalized()));
 }
 
 inline bool Vector::isOrthogonal(const Vector& rhs) const
