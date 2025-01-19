@@ -83,7 +83,7 @@ public:
   /* 与えられたバッテリー電圧で出力できる最大推力．*/
   inline double maxThrust(double battery_voltage) const;
 
-  /* 与えられたバッテリー電圧で出力できる最小推力． */
+  /* モータ停止を防ぐための最小回転数を満たすときの推力． */
   inline double minThrust() const;
 };
 
