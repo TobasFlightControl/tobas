@@ -6,7 +6,6 @@
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/flight_controller/tobas_aso.xacro"/>
-  <xacro:include filename="$(find tobas_description)/urdf/components/battery/sigp_3s_2250mah_30c.xacro"/>
   <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
 
   <!-- Properties -->
