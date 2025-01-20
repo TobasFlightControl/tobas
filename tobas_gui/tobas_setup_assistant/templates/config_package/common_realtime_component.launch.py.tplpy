@@ -244,8 +244,8 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package="tobas_state_checker",
-                            plugin="RotorCheckerNode",
+                            package="tobas_rotor_anomaly_detection",
+                            plugin="RotorAnomalyDetectorNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),

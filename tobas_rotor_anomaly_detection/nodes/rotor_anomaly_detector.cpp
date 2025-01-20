@@ -8,18 +8,16 @@
 #include <tobas_msgs/srv/enable_rotor.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 
-using namespace std;
-
-class RotorCheckerNode : public tobas::BaseNode
+class RotorAnomalyDetectorNode : public tobas::BaseNode
 {
-  using self = RotorCheckerNode;
+  using self = RotorAnomalyDetectorNode;
   using super = tobas::BaseNode;
 
   static constexpr rcl_duration_value_t kNoCommTimeout = 100'000'000;     // [ns]
   static constexpr rcl_duration_value_t kCommRecoveryTime = 500'000'000;  // [ns]
 
 public:
-  explicit RotorCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   struct RotorData
@@ -46,7 +44,7 @@ private:
   void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
 };
 
-RotorCheckerNode::RotorCheckerNode(const rclcpp::NodeOptions& options) : super("rotor_checker", options)
+RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options) : super("rotor_anomaly_detector", options)
 {
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
@@ -55,7 +53,7 @@ RotorCheckerNode::RotorCheckerNode(const rclcpp::NodeOptions& options) : super("
   enable_rotor_sc_ = create_client<tobas_msgs::srv::EnableRotor>(tobas::kEnableRotorSrv);
 }
 
-void RotorCheckerNode::requestEnableRotor(uint8_t channel, bool enable)
+void RotorAnomalyDetectorNode::requestEnableRotor(uint8_t channel, bool enable)
 {
   if (!enable_rotor_sc_->service_is_ready())
   {
@@ -69,7 +67,7 @@ void RotorCheckerNode::requestEnableRotor(uint8_t channel, bool enable)
   enable_rotor_sc_->async_send_request(req);
 }
 
-void RotorCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   for (const auto& [channel, _] : drone->rotors)
     if (!data_.contains(channel))
@@ -78,12 +76,12 @@ void RotorCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   drone_ = drone;
 }
 
-void RotorCheckerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void RotorAnomalyDetectorNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }
 
-void RotorCheckerNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
+void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
 {
   if (drone_ == nullptr)
   {
@@ -156,4 +154,4 @@ void RotorCheckerNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSha
   }
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RotorCheckerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(RotorAnomalyDetectorNode)
