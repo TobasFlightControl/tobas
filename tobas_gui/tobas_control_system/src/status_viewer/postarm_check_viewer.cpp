@@ -58,6 +58,8 @@ void PostArmCheckViewerWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPt
 
 void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
 {
+  if (arming_ == nullptr)
+    return;
   if (!arming_->data)
     return;
 

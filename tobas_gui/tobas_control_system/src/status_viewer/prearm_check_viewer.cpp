@@ -76,6 +76,8 @@ void PreArmCheckViewerWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr
 
 void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
+  if (arming_ == nullptr)
+    return;
   if (arming_->data)
     return;
 
