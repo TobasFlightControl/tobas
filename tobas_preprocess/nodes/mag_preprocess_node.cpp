@@ -27,7 +27,7 @@ private:
 
 MagPreprocessNode::MagPreprocessNode(const rclcpp::NodeOptions& options) : super("mag_preprocess", options)
 {
-  addDynamicIntParam("mag_noise_stddev", &self::magNoiseStddevCb, this, 500, 1, 5000);  // [nT]
+  addDynamicIntParam("mag_noise_stddev", &self::magNoiseStddevCb, this, 1000, 1, 5000);  // [nT]
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldWithCovarianceStamped>(tobas::kMagTopic);
   mag_raw_sub_ = createSubscriber(tobas::kMagRawTopic, &self::magRawCb, this);
