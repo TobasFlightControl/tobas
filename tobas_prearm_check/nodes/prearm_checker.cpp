@@ -20,7 +20,7 @@ using namespace std_srvs::srv;
 class PreArmCheckerNode : public tobas::BaseNode
 {
   static constexpr double kPosDriftThresh = 1.;          // [m]
-  static constexpr double kCPUTempThresh = 80.;          // [degC] // TODO: もう少し下げる
+  static constexpr double kCPUTempThresh = 70.;          // [degC]
   static constexpr double kAttitudeThresh = M_PI / 6;    // [rad/s]
   static constexpr double kHorPosStddevThresh = 1.;      // [m]
   static constexpr double kVerPosStddevThresh = 2.;      // [m]
@@ -123,10 +123,10 @@ void PreArmCheckerNode::mainTimerCb()
   prearm_check->header.stamp = get_clock()->now();
   prearm_check->ok = true;
 
-  // バッテリー電圧
+  // バッテリー電圧が定格電圧以上
   if (battery_ != nullptr)
   {
-    prearm_check->battery_voltage_too_low = (battery_->voltage < drone_->battery.sag_voltage);
+    prearm_check->battery_voltage_too_low = (battery_->voltage < drone_->battery.nominal_voltage);
     if (prearm_check->battery_voltage_too_low)
       prearm_check->ok = false;
   }
