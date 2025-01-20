@@ -27,6 +27,10 @@ private:
 
 MagPreprocessNode::MagPreprocessNode(const rclcpp::NodeOptions& options) : super("mag_preprocess", options)
 {
+  // 地磁気はサンプリング周波数が小さくオンライン分散推定は困難なため，固定値を用いる．
+  // IIS2MDCのデータシートによると，LPF付きでノイズのRMS (= 標準偏差) の最大値が4.6mG (= 460nT)．
+  // ナイキスト周波数を考慮したLPFを通さない場合はその√2倍で650nTほどだと思われる．
+  // 電源やモータ等の環境ノイズも考えて，デフォルト値はそれよりさらに大きい値に設定．
   addDynamicIntParam("mag_noise_stddev", &self::magNoiseStddevCb, this, 1000, 1, 5000);  // [nT]
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldWithCovarianceStamped>(tobas::kMagTopic);
@@ -35,7 +39,6 @@ MagPreprocessNode::MagPreprocessNode(const rclcpp::NodeOptions& options) : super
 
 bool MagPreprocessNode::magNoiseStddevCb(const long& p)
 {
-  // 地磁気はサンプリング周波数が小さくオンライン分散推定は困難なため，固定値を用いる．
   const auto noise_stddev = static_cast<double>(p) / kMagScale;  // [-]
   const auto noise_var = math::sqr(noise_stddev);
   mag_noise_cov_ = Eigen::Vector3d::Constant(noise_var).asDiagonal();
