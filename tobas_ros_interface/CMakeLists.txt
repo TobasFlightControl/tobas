@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_drone_msgs REQUIRED)
 find_package(tobas_real_common REQUIRED)
@@ -22,6 +23,7 @@ find_package(tobas_real_msgs REQUIRED)
 set(AMENT_DEPENDENCIES
 	std_srvs
 	tobas_node
+	tobas_tools
 	tobas_msgs
 	tobas_drone_msgs
 	tobas_real_common

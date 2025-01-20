@@ -14,12 +14,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	std_srvs
 	tobas_node
+	tobas_tools
 	tobas_msgs_adapter
 	tobas_drone_msgs_adapter
 )

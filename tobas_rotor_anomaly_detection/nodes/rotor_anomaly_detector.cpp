@@ -1,9 +1,9 @@
 #include <std_msgs/msg/bool.hpp>
 
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_tools/util.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/enable_rotor.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -44,11 +44,12 @@ private:
   void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
 };
 
-RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options) : super("rotor_anomaly_detector", options)
+RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
+  : super("rotor_anomaly_detector", options)
 {
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  states_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kRotorStatesTopic), &self::statesCb, this);
+  states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::statesCb, this);
 
   enable_rotor_sc_ = create_client<tobas_msgs::srv::EnableRotor>(tobas::kEnableRotorSrv);
 }

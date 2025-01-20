@@ -1,8 +1,8 @@
-#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/rate_manager.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_tools/util.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
@@ -28,7 +28,7 @@ public:
 
   void initialize(rclcpp::Node::SharedPtr node, const string& topic)
   {
-    pub_ = ros2::createPublisher<MsgType>(node, path::join(tobas::kThrottledTopicNS, topic));
+    pub_ = ros2::createPublisher<MsgType>(node, tobas::addThrotNS(topic));
     sub_ = ros2::createSubscriber(node, topic, &TopicThrottle::callback, this);
   }
 
@@ -40,6 +40,7 @@ private:
 
   void callback(const typename MsgType::ConstSharedPtr& msg_in)
   {
+    // ネットワークトラフィックの改善のため，周波数の高いトピックを間引く．
     if (!rate_manager_.update(msg_in->header.stamp))
       return;
 

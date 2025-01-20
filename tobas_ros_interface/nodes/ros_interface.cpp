@@ -4,6 +4,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_tools/util.hpp>
 #include <tobas_real_common/constants.hpp>
 
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
@@ -15,6 +16,7 @@
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
+#include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
@@ -86,9 +88,6 @@ private:
     const typename SrvType::Request::SharedPtr& req,
     const typename SrvType::Response::SharedPtr& res,
     const std::string& srv_name);
-
-  static std::string throttled(const std::string& topic);
-  static std::string interface(const std::string& name);
 };
 
 ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("ros_interface", options)
@@ -100,18 +99,21 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_std_msgs::msg::Message>(tobas::kMessageTopic, tobas::kMessageTopic);
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
   addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKDLTreeTopic, tobas::kKDLTreeTopic, true, true);
-  addTopicLogicToIface<tobas_msgs::msg::Battery>(throttled(tobas::kBatteryTopic), tobas::kBatteryTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(tobas::kBatteryTopic), tobas::kBatteryTopic);
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RCInput>(throttled(tobas::kRcInputTopic), tobas::kRcInputTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(tobas::kRcInputTopic), tobas::kRcInputTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
-  addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(throttled(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
-  addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(throttled(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
-  addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(throttled(tobas::kEulerTopic), tobas::kEulerTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
+    tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
+  addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
+    tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
+  addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(tobas::addThrotNS(tobas::kEulerTopic), tobas::kEulerTopic);
   addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
-  addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(throttled(real::kIMUTopic), real::kIMUTopic);
-  addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(throttled(real::kMagTopic), real::kMagTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Sbus>(throttled(real::kSBUSTopic), real::kSBUSTopic);
+  addTopicLogicToIface<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic, tobas::kPostArmCheckTopic);
+  addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(tobas::addThrotNS(real::kIMUTopic), real::kIMUTopic);
+  addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(real::kSBUSTopic), real::kSBUSTopic);
 
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic, tobas::kJointPosCmdTopic);
@@ -161,7 +163,7 @@ void ROSInterfaceNode::addTopicLogicToIface(
   bool reliable,
   size_t queue_size)
 {
-  addTopic<MsgType>(sub_topic, interface(pub_topic), latch, reliable, queue_size);
+  addTopic<MsgType>(sub_topic, tobas::addIfaceNS(pub_topic), latch, reliable, queue_size);
 }
 
 template <typename MsgType>
@@ -172,7 +174,7 @@ void ROSInterfaceNode::addTopicIfaceToLogic(
   bool reliable,
   size_t queue_size)
 {
-  addTopic<MsgType>(interface(sub_topic), pub_topic, latch, reliable, queue_size);
+  addTopic<MsgType>(tobas::addIfaceNS(sub_topic), pub_topic, latch, reliable, queue_size);
 }
 
 template <typename SrvType>
@@ -181,7 +183,8 @@ void ROSInterfaceNode::addService(const std::string& srv_name)
   auto cb =
     [this, srv_name](const typename SrvType::Request::SharedPtr& req, const typename SrvType::Response::SharedPtr& res)
   { serviceCallback<SrvType>(req, res, srv_name); };
-  services_[srv_name] = create_service<SrvType>(interface(srv_name), cb, rclcpp::ServicesQoS(), callback_group_);
+  services_[srv_name] =
+    create_service<SrvType>(tobas::addIfaceNS(srv_name), cb, rclcpp::ServicesQoS(), callback_group_);
 
   clients_[srv_name] = create_client<SrvType>(srv_name);
 }
@@ -212,16 +215,6 @@ void ROSInterfaceNode::serviceCallback(
   future.wait();
 
   *res = *future.get();
-}
-
-std::string ROSInterfaceNode::throttled(const std::string& topic)
-{
-  return path::join(tobas::kThrottledTopicNS, topic);
-}
-
-std::string ROSInterfaceNode::interface(const std::string& name)
-{
-  return path::join(tobas::kRemoteIfaceTopicNS, name);
 }
 
 int main(int argc, char* argv[])

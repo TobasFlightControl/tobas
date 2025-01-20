@@ -224,23 +224,10 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package="tobas_prearm_check",
-                            plugin="PreArmCheckerNode",
+                            package="tobas_state_checker",
+                            plugin="StateCheckerNode",
                             namespace=DRONE_NAME,
                             remappings=remappings,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_state_checker",
-                            plugin="AttitudeCheckerNode",
-                            namespace=DRONE_NAME,
-                            remappings=remappings,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_state_checker",
-                            plugin="LatencyCheckerNode",
-                            namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(

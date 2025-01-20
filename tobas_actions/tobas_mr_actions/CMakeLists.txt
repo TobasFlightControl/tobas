@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_node REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 
 include_directories(include)
@@ -23,6 +24,7 @@ add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_kdl_conversions
 	tobas_node
+	tobas_tools
 	tobas_msgs_adapter
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TakeoffServerNode" EXECUTABLE takeoff_server)

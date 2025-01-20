@@ -1,10 +1,10 @@
 #include <tobas_std_tools/timestamped_buffer.hpp>
-#include <tobas_path_tools/join.hpp>
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_tools/util.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/action/land.hpp>
@@ -46,7 +46,7 @@ private:
 LandServerNode::LandServerNode(const rclcpp::NodeOptions& options) : super("land_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
-  odom_sub_ = createSubscriber(path::join(tobas::kThrottledTopicNS, tobas::kOdometryTopic), &self::odomCb, this);
+  odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
