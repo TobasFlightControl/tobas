@@ -367,7 +367,25 @@ double ErrorStateKalmanFilter::measureIMU(
   x_history_.add(time, x_);
 
   // 重力方向の観測: 加速度と姿勢には等式関係 (= 出力方程式) があるため，カルマンフィルタ理論に則って補正を行う．
-  return measureGravity(acc_meas, grav_cov, time);
+  // 自由落下中もしくは加速度が大きすぎる場合は全く姿勢を反映していない恐れがあるため，重力方向の観測を行うのはその間の加速度に限る．
+  const auto acc_norm = acc_meas.norm();
+  const auto gravity = getGravity(x_);
+  if (acc_norm < kDoMeasGravMinGValue * gravity)
+  {
+    cerr << "Attitude correction cannot be performed because accel norm is lower than " << kDoMeasGravMinGValue << "G. "
+         << endl;
+    return INFINITY;
+  }
+  else if (acc_norm > kDoMeasGravMaxGValue * gravity)
+  {
+    cerr << "Attitude correction cannot be performed because accel norm is greater than " << kDoMeasGravMaxGValue
+         << "G. " << endl;
+    return INFINITY;
+  }
+  else
+  {
+    return measureGravity(acc_meas, grav_cov, time);
+  }
 }
 
 double ErrorStateKalmanFilter::measurePosition(
