@@ -66,11 +66,13 @@ void eulerFromAccelMag(
   const double& mz,
   const double& mx_ref,
   const double& my_ref,
-  const double&,  // mz_ref
+  const double& mz_ref,
   double& roll,
   double& pitch,
   double& yaw)
 {
+  (void)mz_ref;  // Avoid compile error
+
   roll = atan2(ay, az);
   pitch = atan2(ax, sqrt(math::sqr(ay) + math::sqr(az)));
 

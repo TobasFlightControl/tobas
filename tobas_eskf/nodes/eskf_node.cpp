@@ -76,6 +76,7 @@ private:
   Vector3d pos_meas_;
   kdl::Vector dgyro_;
   ImuMsg::ConstSharedPtr imu_;
+  MagMsg::ConstSharedPtr mag_;
   BarMsg::ConstSharedPtr bar_;
   GpsMsg::ConstSharedPtr gps_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
@@ -121,7 +122,7 @@ private:
   tf2_ros::TransformBroadcaster tf_br_;
 
   void getStaticRosParams();
-  bool setMagneticFieldRefAndInitializeBias(const Vector3d& mag_W);
+  bool setMagneticFieldRef(const Vector3d& mag_W);
   void fillOdometryMsg(OdomMsg& odom) const;
   void publishGPSOrigin();
   void publishFeedback(const std_msgs::msg::Header& header);
@@ -213,18 +214,55 @@ void ObserverNode::getStaticRosParams()
   gps_offset_ = Map<const Vector3d>(gps_offset.data());
 }
 
-bool ObserverNode::setMagneticFieldRefAndInitializeBias(const Vector3d& mag_W)
+bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
 {
+  // 地磁気の参照値を設定
   if (!eskf_.setMagneticFieldRef(mag_W))
   {
     TOBAS_ERROR("Failed to set reference magnetic field.");
     return false;
   }
 
-  // 地磁気の参照値が変わったらバイアスを初期化する
+  // 地磁気のバイアスを初期化
   eskf_.initializeMagHardBias(Vector3d::Zero(), Vector3d::Constant(math::sqr(initMagHardBiasStddev())).asDiagonal());
   eskf_.initializeMagSoftBias(
     Matrix3d::Identity(), Vector6d::Constant(math::sqr(initMagSoftBiasStddev())).asDiagonal());
+
+  // 地磁気を受け取っていればヨーを初期化
+  // でないとヨーの誤差が大きすぎる場合にロールピッチまでフィードバックの影響を受けてしまう
+  if (mag_ != nullptr)
+  {
+    // 現在のRPYを取得
+    double old_roll, old_pitch, old_yaw;
+    const auto R_W_B = eskf_.getQuaternion();
+    tobas_std::eulerFromQuaternion(R_W_B.x(), R_W_B.y(), R_W_B.z(), R_W_B.w(), old_roll, old_pitch, old_yaw);
+
+    // 地磁気をヨー角のみ機体と一致し，XY軸が地面と平行な地上座標系Gに移す．
+    const AngleAxisd R_W_G(old_yaw, Vector3d::UnitZ());
+    const auto mag_G = R_W_G.inverse() * (R_W_B * mag_->mag.mag.data);  // 後ろから計算することで計算量を削減
+    const auto mx = mag_G.x();
+    const auto my = mag_G.y();
+
+    // 新しい参照に基づくヨーを計算
+    const auto yaw_ref = atan2(mag_W.y(), mag_W.x());
+    const auto new_yaw = algo::wrapPi(yaw_ref - atan2(my, mx));
+
+    // ヨーのみ修正したクオータニオンを計算
+    const auto new_q = eigen::quaternionFromRPY(old_roll, old_pitch, new_yaw);
+
+    // 姿勢の共分散のヨー成分を修正
+    auto rot_cov = eskf_.getRotationCovariance();
+    rot_cov.row(2).setZero();
+    rot_cov.col(2).setZero();
+    rot_cov(2, 2) = math::sqr(kInitRotStddev);
+
+    // 姿勢を初期化
+    if (!eskf_.initializeQuaternion(new_q, rot_cov))
+    {
+      TOBAS_ERROR("Failed to initialize orientation.");
+      return false;
+    }
+  }
 
   TOBAS_INFO("Reference magnetic field is set to be: ", mag_W.transpose());
   mag_ref_set_ = true;
@@ -478,6 +516,8 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
   if (imu_ == nullptr)
     return;
 
+  mag_ = mag;
+
   if (!mag_ref_set_)
   {
     TOBAS_WARN_THROTTLE(
@@ -536,7 +576,7 @@ void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
     const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gps_, tobas_std::yearFraction());
     Vector3d mag_W(mag.north, -mag.east, -mag.down);  // NWU coordinates
-    if (!setMagneticFieldRefAndInitializeBias(mag_W))
+    if (!setMagneticFieldRef(mag_W))
       return;
 
     // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
