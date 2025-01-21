@@ -26,6 +26,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
+  StatusWidget* gyro_noise_status_;
   StatusWidget* accel_noise_status_;
   StatusWidget* mag_alignment_status_;
   StatusWidget* latency_status_;

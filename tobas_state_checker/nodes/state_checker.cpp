@@ -37,6 +37,7 @@ class StateCheckerNode : public tobas::BaseNode
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
 
   // Post-Arm Check
+  static constexpr double kGyroNoiseStddevThresh = 0.03;      // [rad/s]
   static constexpr double kAccNoiseStddevThresh = 0.3;        // [m/s^2]
   static constexpr double kMagDeclinationThresh = M_PI / 12;  // [rad]
   static constexpr long kLatencyThresh = 1000;                // [us]
@@ -242,22 +243,34 @@ void StateCheckerNode::postArmCheck()
   postarm_check->header.stamp = get_clock()->now();
   postarm_check->ok = true;
 
-  // 加速度のノイズの標準偏差
   if (imu_ != nullptr)
   {
-    const auto noise_var = imu_->imu.accel_covariance.diagonal().maxCoeff();
-    postarm_check->accel_noise_too_large = (noise_var > math::sqr(kAccNoiseStddevThresh));
+    // ジャイロノイズの標準偏差
+    const auto gyro_noise_var = imu_->imu.gyro_covariance.diagonal().maxCoeff();
+    postarm_check->gyro_noise_too_large = (gyro_noise_var > math::sqr(kGyroNoiseStddevThresh));
+    if (postarm_check->gyro_noise_too_large)
+    {
+      TOBAS_WARN_THROTTLE(
+        tobas::kTypicalWarnPeriod, "Gyro noise stddev is too large: ", sqrt(gyro_noise_var), " > ",
+        kGyroNoiseStddevThresh, " [m/s^2]");
+      postarm_check->ok = false;
+    }
+
+    // 加速度ノイズの標準偏差
+    const auto acc_noise_var = imu_->imu.accel_covariance.diagonal().maxCoeff();
+    postarm_check->accel_noise_too_large = (acc_noise_var > math::sqr(kAccNoiseStddevThresh));
     if (postarm_check->accel_noise_too_large)
     {
       TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "Accel noise stddev is too large: ", sqrt(noise_var), " > ", kAccNoiseStddevThresh,
-        " [m/s^2]");
+        tobas::kTypicalWarnPeriod, "Accel noise stddev is too large: ", sqrt(acc_noise_var), " > ",
+        kAccNoiseStddevThresh, " [m/s^2]");
       postarm_check->ok = false;
     }
   }
   else
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "IMU state is not received yet.");
+    postarm_check->gyro_noise_too_large = true;
     postarm_check->accel_noise_too_large = true;
     postarm_check->ok = false;
   }
