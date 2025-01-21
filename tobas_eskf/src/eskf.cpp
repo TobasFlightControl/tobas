@@ -329,6 +329,10 @@ double ErrorStateKalmanFilter::measureIMU(
   const Matrix3d W_Rot_B = q.toRotationMatrix();
   const Vector3d acc_grav_W = W_Rot_B * acc_B + getGravVector(x_);
 
+  // IMUの共分散を補正
+  const auto acc_cov_fixed = eigen::nearestPositiveDefinite(acc_cov, math::sqr(kMinAccStddev));
+  const auto gyro_cov_fixed = eigen::nearestPositiveDefinite(gyro_cov, math::sqr(kMinGyroStddev));
+
   // (260) ノミナル状態のキネマティクス
   x_.segment<3>(kPosIdx) += vel_W * dt;
   if (enable_second_integral_)
@@ -348,9 +352,8 @@ double ErrorStateKalmanFilter::measureIMU(
   P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
 
   // (269)第二項: プロセスノイズを印加
-  // TODO: 異なるdtに対応させるため，プロセスノイズの分散をノイズ密度で定義
-  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov * W_Rot_B.transpose() * dt2;
-  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov * W_Rot_B.transpose() * dt2;
+  P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov_fixed * W_Rot_B.transpose() * dt2;
+  P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) += W_Rot_B * gyro_cov_fixed * W_Rot_B.transpose() * dt2;
   P_.diagonal().segment<3>(kDeltaAccBiasIdx).array() += math::sqr(acc_bias_proc_noise_density_) * dt;
   P_.diagonal().segment<3>(kDeltaGyroBiasIdx).array() += math::sqr(gyro_bias_proc_noise_density_) * dt;
   P_.diagonal().segment<3>(kDeltaMagHardBiasIdx).array() += math::sqr(mag_hard_bias_proc_noise_density_) * dt;

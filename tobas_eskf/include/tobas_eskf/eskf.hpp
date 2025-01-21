@@ -57,6 +57,12 @@ class ErrorStateKalmanFilter
   static constexpr double kMinGravity = 9.75;               // [m/s^2]
   static constexpr double kMaxGravity = 9.85;               // [m/s^2]
 
+  // センサの不確かさの制限
+  // 各センサの読みにはバイアスが乗っているため，静止時など極端に分散が小さくバイアス成分が優勢だと思われる場合は現実の不確かさを反映していない．
+  // バイアスが乗った値を確かな値として扱い共分散が成長しないと，観測の補正が入らず姿勢が発散する恐れがあるため，その固有値に下限を与える．
+  static constexpr double kMinGyroStddev = 0.01;  // [rad/s]
+  static constexpr double kMinAccStddev = 0.1;    // [m/s^2]
+
   // その他
   static constexpr auto kStateHistoryTimeWindow = std::chrono::milliseconds(500);
 
