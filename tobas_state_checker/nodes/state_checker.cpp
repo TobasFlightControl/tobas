@@ -39,6 +39,7 @@ class StateCheckerNode : public tobas::BaseNode
   // Post-Arm Check
   static constexpr double kGyroNoiseStddevThresh = 0.03;      // [rad/s]
   static constexpr double kAccNoiseStddevThresh = 0.3;        // [m/s^2]
+  static constexpr double kMagLengthErrorThresh = 0.1;        // [-]
   static constexpr double kMagDeclinationThresh = M_PI / 12;  // [rad]
   static constexpr long kLatencyThresh = 1000;                // [us]
 
@@ -275,8 +276,26 @@ void StateCheckerNode::postArmCheck()
     postarm_check->ok = false;
   }
 
-  // 世界座標系から見た磁気ベクトルが参照と一致するか
-  // TODO: ESKFから参照地磁気ベクトルを発行して評価
+  if (mag_ != nullptr)
+  {
+    // 地磁気が原点を中心とする単位球上に存在するか
+    postarm_check->mag_offset_too_large = (abs(mag_->mag.mag.norm() - 1.) > kMagLengthErrorThresh);
+    if (postarm_check->mag_offset_too_large)
+    {
+      TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The offset of the geomagnetic vector is too large.");
+      postarm_check->ok = false;
+    }
+
+    // 世界座標系から見た磁気ベクトルが参照と一致するか
+    // TODO: ESKFから参照地磁気ベクトルを発行して評価
+  }
+  else
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Magnetic field is not received yet.");
+    postarm_check->mag_offset_too_large = true;
+    postarm_check->mag_misalignment = true;
+    postarm_check->ok = false;
+  }
 
   // 制御レイテンシ
   if (latency_ != nullptr)
