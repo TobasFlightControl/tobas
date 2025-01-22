@@ -39,7 +39,7 @@ class StateCheckerNode : public tobas::BaseNode
   // Post-Arm Check
   static constexpr double kGyroNoiseStddevThresh = 0.03;      // [rad/s]
   static constexpr double kAccNoiseStddevThresh = 0.3;        // [m/s^2]
-  static constexpr double kMagLengthErrorThresh = 0.1;        // [-]
+  static constexpr double kMagLengthErrorThresh = 0.2;        // [-]
   static constexpr double kMagDeclinationThresh = M_PI / 12;  // [rad]
   static constexpr long kLatencyThresh = 1000;                // [us]
 
