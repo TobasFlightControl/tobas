@@ -94,6 +94,8 @@ void FlightLogRecorderWidget::onStartButtonClicked()
   }
 
   rosbag_name_->setEnabled(false);
+
+  rosbag_name_->setEnabled(false);
   start_button_->setEnabled(false);
   stop_button_->setEnabled(true);
 
@@ -121,6 +123,7 @@ void FlightLogRecorderWidget::onStopButtonClicked()
   }
 
   rosbag_name_->clear();
+  rosbag_name_->setEnabled(true);
 
   rosbag_name_->setEnabled(true);
   start_button_->setEnabled(true);
