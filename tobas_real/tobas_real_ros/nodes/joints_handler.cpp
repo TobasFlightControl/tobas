@@ -99,6 +99,10 @@ double JointsHandlerNode::pwmPeriodFromJointPos(const tobas::JointConfig& joint,
     cmd_pos = max_pos;
   }
 
+  // TODO: 機械的可動域と別にJointConfig.(min_pos, max_pos)を定義
+  constexpr double tmp_limit = M_PI * 2. / 3.;
+  cmd_pos = clamp(cmd_pos, -tmp_limit, tmp_limit);
+
   // Compute PWM period
   // TODO: PWMの幅を指定可能にする
   double period;
