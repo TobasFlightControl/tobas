@@ -98,10 +98,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
 {
   // Register dynamic parameters
-  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);
-  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 1., 0.1, 5.);
-  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 5., 1., 50.);
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 2., 0.1, 25.);
+  addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
+  addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
+  addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 10., 1., 50.);
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 2., 0.1, 25.);  // XXX
   addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.7, 1.);
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.7, 1.);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.7, 1.);
@@ -227,6 +227,7 @@ bool ControllerNode::attitudeIGainCb(const double& p)
 
 bool ControllerNode::headingNaturalFrequencyCb(const double& p)
 {
+  // XXX: ヨーはティルト角への影響が大きいケースが多く，ゲインを上げるとティルト角の追従遅延による振動につながる．
   return rot_pid_.setNaturalFreq(2, p);
 }
 
