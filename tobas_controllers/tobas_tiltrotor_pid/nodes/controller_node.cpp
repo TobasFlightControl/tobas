@@ -85,6 +85,8 @@ private:
   bool headingIGainCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
+  bool tiltAsixSingularDeclinationLBCb(const long& lb_deg);
+  bool tiltAsixSingularDeclinationUBCb(const long& ub_deg);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
@@ -112,6 +114,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0., 0., 20.);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 8., 0., 20.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 0., 10.);
+  addDynamicIntParam("tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 10, 0, 45);
+  addDynamicIntParam("tilt_axis_singular_declination_ub", &self::tiltAsixSingularDeclinationUBCb, this, 20, 0, 45);
 
   // Register publishers
   tar_thrusts_pub_ = createPublisher<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
@@ -249,6 +253,16 @@ bool ControllerNode::maxHorizontalAccelCb(const double& p)
 bool ControllerNode::maxVerticalAccelCb(const double& p)
 {
   return pos_pid_.setMaximumAccel(2, p);
+}
+
+bool ControllerNode::tiltAsixSingularDeclinationLBCb(const long& lb_deg)
+{
+  return mixer_.setTiltAxisSingularDeclinationLB(tobas_std::deg2rad(lb_deg));
+}
+
+bool ControllerNode::tiltAsixSingularDeclinationUBCb(const long& ub_deg)
+{
+  return mixer_.setTiltAxisSingularDeclinationUB(tobas_std::deg2rad(ub_deg));
 }
 
 void ControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)

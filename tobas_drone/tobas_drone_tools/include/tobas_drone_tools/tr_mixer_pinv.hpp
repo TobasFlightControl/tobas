@@ -13,9 +13,6 @@ namespace tobas
  */
 class TiltRotorMixer_pinv
 {
-  static constexpr double kSingularThreshLB = 5.;   // [deg]
-  static constexpr double kSingularThreshUB = 10.;  // [deg]
-
 public:
   explicit TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
 
@@ -31,7 +28,16 @@ public:
   double getThrust(size_t idx) const;
   double getTiltAngle(size_t idx) const;
 
+  bool setTiltAxisSingularDeclinationLB(double lb_rad);
+  bool setTiltAxisSingularDeclinationUB(double ub_rad);
+
 private:
+  struct Config
+  {
+    double singular_declination_lb = 0.;  // [rad]
+    double singular_declination_ub = 0.;  // [rad]
+  } cfg_;
+
   const Drone& drone_;
   const kdl::Tree& tree_;
 

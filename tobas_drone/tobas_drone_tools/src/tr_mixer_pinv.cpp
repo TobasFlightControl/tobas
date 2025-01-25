@@ -1,7 +1,6 @@
 #include <ranges>
 
 #include <tobas_std_tools/universal_constants.hpp>
-#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_std_tools/console.hpp>
 #include <tobas_eigen_tools/core.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
@@ -129,12 +128,12 @@ bool TiltRotorMixer_pinv::solve(
     // 特異状態を更新
     if (is_singular_[idx])
     {
-      if (declination > tobas_std::deg2rad(kSingularThreshUB))
+      if (declination > cfg_.singular_declination_ub)
         is_singular_[idx] = false;
     }
     else
     {
-      if (declination < tobas_std::deg2rad(kSingularThreshLB))
+      if (declination < cfg_.singular_declination_lb)
         is_singular_[idx] = true;
     }
 
@@ -196,5 +195,29 @@ double TiltRotorMixer_pinv::getTiltAngle(size_t idx) const
   const auto tx = x_(2 * idx);
   const auto ty = x_(2 * idx + 1);
   return atan2(ty, tx);
+}
+
+bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationLB(double lb_rad)
+{
+  if (lb_rad < 0.)
+  {
+    cerr << "The lower bind of singular tilt axis declination must be non-negative." << endl;
+    return false;
+  }
+
+  cfg_.singular_declination_lb = lb_rad;
+  return true;
+}
+
+bool TiltRotorMixer_pinv::setTiltAxisSingularDeclinationUB(double ub_rad)
+{
+  if (ub_rad < 0.)
+  {
+    cerr << "The upper bind of singular tilt axis declination must be non-negative." << endl;
+    return false;
+  }
+
+  cfg_.singular_declination_ub = ub_rad;
+  return true;
 }
 }  // namespace tobas
