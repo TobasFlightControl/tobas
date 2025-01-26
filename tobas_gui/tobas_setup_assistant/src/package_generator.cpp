@@ -239,7 +239,7 @@ tobas::Drone PackageGenerator::createDrone()
       const auto joint_idx = joint_config->findLink(link_name);
 
       tobas::ControlSurface cs;
-      cs.channel = joint_config->getPwmChannel(joint_idx);
+      cs.channel = -1;  // TODO: channelフィールドを削除
       cs.link_name = link_name.toStdString();
       cs.c_lift_delta = css->liftCoef(i);
       cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: 正負の確認が必要？
