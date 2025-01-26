@@ -2,7 +2,7 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
 
-#include "../include/tobas_drone_core/vehicle_params.hpp"
+#include "../../include/tobas_drone_core/fixed_wing/vehicle_params.hpp"
 
 using namespace std;
 

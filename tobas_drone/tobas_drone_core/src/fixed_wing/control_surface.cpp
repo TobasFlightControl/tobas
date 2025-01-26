@@ -1,7 +1,7 @@
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/range.hpp>
 
-#include "../include/tobas_drone_core/control_surface.hpp"
+#include "../../include/tobas_drone_core/fixed_wing/control_surface.hpp"
 
 using namespace std;
 

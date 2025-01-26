@@ -4,7 +4,7 @@
 
 #include <tobas_kdl_msgs_adapter/vector.hpp>
 
-#include <tobas_drone_core/vehicle_params.hpp>
+#include <tobas_drone_core/fixed_wing/vehicle_params.hpp>
 #include <tobas_drone_msgs/msg/vehicle_parameters.hpp>
 
 template <>

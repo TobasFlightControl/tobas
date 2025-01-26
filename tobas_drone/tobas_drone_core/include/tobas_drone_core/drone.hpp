@@ -6,7 +6,7 @@
 #include "./battery.hpp"
 #include "./joint/joint.hpp"
 #include "./rotor.hpp"
-#include "./fixed_wing.hpp"
+#include "./fixed_wing/fixed_wing.hpp"
 #include "./pwm.hpp"
 
 namespace tobas

@@ -8,7 +8,7 @@
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/fixed_wing.hpp>
+#include <tobas_drone_core/fixed_wing/fixed_wing.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
