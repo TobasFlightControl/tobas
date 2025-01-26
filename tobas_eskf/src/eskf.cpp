@@ -526,7 +526,7 @@ double ErrorStateKalmanFilter::measureMagneticField3d(
   const auto mag_pred = T * mag_B + m_b;
   const Vector3d delta_mag = mag_meas - mag_pred;
 
-  // 観測方程式
+  // 観測方程式 (memo: 3-20)
   H_mag_.block<3, 3>(0, kDeltaThetaIdx) = T * eigen::skew(2 * mag_B);
   H_mag_.block<3, 6>(0, kDeltaMagSoftBiasIdx) << mx, my, mz, 0, 0, 0, 0, mx, 0, my, mz, 0, 0, 0, mx, 0, my, mz;
 
