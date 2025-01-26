@@ -1,6 +1,6 @@
 #pragma once
 
-#include <moveit/robot_state_rviz_plugin/robot_state_display.h>
+#include <moveit/robot_state_rviz_plugin/robot_state_display.hpp>
 
 namespace tobas_rviz_plugin
 {
