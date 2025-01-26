@@ -27,6 +27,7 @@ SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const Rob
     ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array", false, true);
 
   connect(this, &qt::TabWidget::tabCloseRequested, this, &self::onTabCloseRequested);
+  connect(&publish_markers_timer_, &QTimer::timeout, this, &self::publishTimerCb);
 }
 
 void SelectedLinksWidget::updateInternalDataStructures()
@@ -74,14 +75,14 @@ void SelectedLinksWidget::updateInternalDataStructures()
   }
 
   // マーカを発行開始
-  publish_markers_timer_ = ros2::createTimer(node_, 100ms, &self::publishTimerCb, this);
+  publish_markers_timer_.start(100);
 }
 
 void SelectedLinksWidget::clear()
 {
   super::clear();
   markers_.markers.clear();
-  publish_markers_timer_ = nullptr;
+  publish_markers_timer_.stop();
 }
 
 bool SelectedLinksWidget::isValid()

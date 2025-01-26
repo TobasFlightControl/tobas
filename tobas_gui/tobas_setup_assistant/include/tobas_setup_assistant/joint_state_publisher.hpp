@@ -2,6 +2,7 @@
 
 #include <random>
 #include <QVBoxLayout>
+#include <QTimer>
 
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <moveit_msgs/msg/display_robot_state.hpp>
@@ -42,7 +43,7 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::JointState> js_pub_;
   ros2::PublisherPtr<moveit_msgs::msg::DisplayRobotState> drs_pub_;
 
-  ros2::TimerPtr publish_timer_;
+  QTimer publish_timer_;
 
   void publish();
 

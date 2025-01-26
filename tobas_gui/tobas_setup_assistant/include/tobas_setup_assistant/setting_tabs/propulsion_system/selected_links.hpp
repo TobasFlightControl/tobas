@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QTimer>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <tobas_ros2_tools/definitions.hpp>
@@ -63,7 +64,7 @@ private:
   visualization_msgs::msg::MarkerArray markers_;
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
 
-  ros2::TimerPtr publish_markers_timer_;
+  QTimer publish_markers_timer_;
 
   /* 指定されたリンクのマーカのアクションを設定する． */
   void setAction(const QString& link_name, int action);
