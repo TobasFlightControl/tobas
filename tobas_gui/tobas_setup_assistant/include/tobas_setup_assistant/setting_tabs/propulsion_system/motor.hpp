@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_drone_core/turning_direction.hpp>
+#include <tobas_drone_core/rotor/turning_direction.hpp>
 
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/combo_box.hpp"

@@ -1,6 +1,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../include/tobas_drone_core/rotor.hpp"
+#include "../include/tobas_drone_core/rotor/rotor.hpp"
 
 using namespace std;
 

@@ -8,7 +8,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/turning_direction.hpp>
+#include <tobas_drone_core/rotor/turning_direction.hpp>
 #include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
