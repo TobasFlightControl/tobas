@@ -45,7 +45,7 @@ Rectangle {
     // GPS Arrow
     MapQuickItem {
       id: gpsArrow
-      coordinate: QtPositioning.coordinate(Constants.defaultLatitude, Constants.defaultLongitude)
+      coordinate: QtPositioning.coordinate(0, 0)
       sourceItem: Image {
         id: gpsArrowImage
         source: "./gps_arrow.png" // アイコン画像の相対パス
