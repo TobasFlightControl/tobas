@@ -6,7 +6,6 @@
 #include <tobas_std_tools/range.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/event.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_dynamixel_msgs/msg/motor_state_array.hpp>
 
@@ -76,7 +75,6 @@ private:
 
   // PubSub
   ros2::PublisherPtr<tobas_dynamixel_msgs::msg::MotorStateArray> motor_states_pub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Event> event_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> positions_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> velocities_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointCommandArray> efforts_sub_;
@@ -97,7 +95,6 @@ private:
   bool disableTorques();
   void printHardwareErrorStatus();
 
-  void eventCb(const tobas_msgs::msg::Event::ConstSharedPtr& event);
   void jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions);
   void jointVelocitiesCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& velocities);
   void jointEffortsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& efforts);
@@ -211,7 +208,6 @@ void DynamixelHandlerNode::registerPublishers()
 
 void DynamixelHandlerNode::registerSubscribers()
 {
-  event_sub_ = createSubscriber(tobas::kEventTopic, &self::eventCb, this);
   positions_sub_ = createSubscriber(kJointPosCmdTopic, &self::jointPositionsCmdCb, this);
   velocities_sub_ = createSubscriber(kJointVelCmdTopic, &self::jointVelocitiesCmdCb, this);
   efforts_sub_ = createSubscriber(kJointEffCmdTopic, &self::jointEffortsCmdCb, this);
@@ -546,19 +542,6 @@ void DynamixelHandlerNode::publishCurrentStates(const rclcpp::Time& cur_time)
 
   // Publish motor states message
   motor_states_pub_->publish(move(motor_states));
-}
-
-void DynamixelHandlerNode::eventCb(const tobas_msgs::msg::Event::ConstSharedPtr& event)
-{
-  switch (event->data)
-  {
-    case tobas_msgs::msg::Event::SYSTEM_CRITICAL:
-      TOBAS_WARN("System critical event message is received. Disabling torques.");
-      disableTorques();
-      break;
-    default:
-      break;
-  }
 }
 
 void DynamixelHandlerNode::jointPositionsCmdCb(const tobas_msgs::msg::JointCommandArray::ConstSharedPtr& positions)

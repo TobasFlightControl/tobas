@@ -13,7 +13,6 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
-#include <tobas_msgs/msg/event.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
@@ -150,7 +149,6 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
-  addStandardMsgSub<tobas_msgs::msg::Event>(tobas::kEventTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);
   addStandardMsgSub<std_msgs::msg::Bool>(tobas::kArmingTopic);
   addStandardMsgSub<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic);
