@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QPushButton>
+#include <QTimer>
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_kdl/tree.hpp>
@@ -23,7 +24,7 @@ class JointCommandsPublisherWidget : public QWidget
 
   static constexpr int kChannelSize = 8;  // TODO: ハードウェアの最大チャンネル数に合わせる
   static constexpr int kMaxRows = kChannelSize / 2;
-  static constexpr auto kPublishPeriod = std::chrono::milliseconds(10);
+  static constexpr int kPublishPeriod = 10;           // [ms]
   static constexpr double kDefaultMaxVel = 2 * M_PI;  // [rad/s]
   static constexpr double kDefaultMaxEff = 10.;       // [Nm]
 
@@ -51,7 +52,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> vel_pub_;
   ros2::PublisherPtr<tobas_msgs::msg::JointCommandArray> eff_pub_;
 
-  ros2::TimerPtr publish_timer_;
+  QTimer publish_timer_;
 
   void publishCurrentValues();
 

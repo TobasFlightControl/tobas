@@ -69,6 +69,8 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
       rotors_.at(ch), &RotorWidget::gainChanged, std::bind(&self::onGainChanged, this, std::placeholders::_1, ch));
   }
 
+  connect(&publish_timer_, &QTimer::timeout, this, &self::publishTargetSppeds);
+
   setEnabled(false);
 }
 
@@ -139,8 +141,7 @@ void RotorTestWidget::reset()
   }
 
   // タイマーを停止
-  if (publish_timer_ != nullptr)
-    publish_timer_->cancel();
+  publish_timer_.stop();
 
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
@@ -264,7 +265,7 @@ void RotorTestWidget::onStartButtonClicked()
     rotors_.at(channel)->setEnabled(true);
 
   // モータが停止しないよう一定周期でコマンドを発行し続ける
-  publish_timer_ = ros2::createTimer(node_, kPublishPeriod, &self::publishTargetSppeds, this);
+  publish_timer_.start(kPublishPeriod);
 
   start_button_->setEnabled(false);
   stop_button_->setEnabled(true);

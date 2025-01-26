@@ -29,6 +29,8 @@ JointCommandsPublisherWidget::JointCommandsPublisherWidget(
     connect(commanders_[ch], &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
     grid->addWidget(commanders_[ch], ch % kMaxRows, ch / kMaxRows);
   }
+
+  connect(&publish_timer_, &QTimer::timeout, this, &self::publishCurrentValues);
 }
 
 void JointCommandsPublisherWidget::updateInternalDataStructures()
@@ -168,7 +170,7 @@ void JointCommandsPublisherWidget::start()
   }
 
   // ジョイントがリセットされないよう一定周期でコマンドを発行し続ける
-  publish_timer_ = ros2::createTimer(node_, kPublishPeriod, &self::publishTimerCb, this);
+  publish_timer_.start();
 }
 
 void JointCommandsPublisherWidget::stop()
@@ -181,8 +183,7 @@ void JointCommandsPublisherWidget::stop()
   }
 
   // タイマーを停止
-  if (publish_timer_ != nullptr)
-    publish_timer_->cancel();
+  publish_timer_.stop();
 }
 
 void JointCommandsPublisherWidget::publishCurrentValues()

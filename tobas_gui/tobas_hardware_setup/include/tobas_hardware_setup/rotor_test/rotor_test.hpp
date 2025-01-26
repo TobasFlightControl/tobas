@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QPushButton>
+#include <QTimer>
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/trigger.hpp>
@@ -31,8 +32,8 @@ class RotorTestWidget : public BaseHardwareSetupWidget
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
-  static constexpr int kChannelSize = 8;  // TODO: ハードウェアの最大チャンネル数に合わせる
-  static constexpr auto kPublishPeriod = std::chrono::milliseconds(10);
+  static constexpr int kChannelSize = 8;     // TODO: ハードウェアの最大チャンネル数に合わせる
+  static constexpr int kPublishPeriod = 10;  // [ms]
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
 public:
@@ -65,7 +66,7 @@ private:
   ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>::SharedPtr set_gains_sc_;
   ros2::SyncServiceClient<std_srvs::srv::Trigger>::SharedPtr save_gains_sc_;
 
-  ros2::TimerPtr publish_timer_;
+  QTimer publish_timer_;
 
   void reset();
   void publishTargetSppeds();
