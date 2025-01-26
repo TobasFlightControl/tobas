@@ -1,7 +1,7 @@
-#include <QLineEdit>
 #include <QHeaderView>
 #include <QDebug>
 
+#include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/font.hpp>
@@ -30,13 +30,13 @@ JointConfigurationWidget::JointConfigurationWidget(
     kRoleLabel,
     kCmdIfaceLabel,
     kHwIfaceLabel,
-    kChannelLabel,
     kHomePosLabel,
-    kReverseLabel,
-    kMinPosLabel,
-    kMaxPosLabel,
-    kMaxVelLabel,
-    kMaxEffLabel,
+    kPwmChannelLabel,
+    kPwmMinPeriodLabel,
+    kPwmMaxPeriodLabel,
+    kPwmMinAngleLabel,
+    kPwmMaxAngleLabel,
+    kPwmReverseLabel,
   });
   addWidget(table_);
 
@@ -44,7 +44,6 @@ JointConfigurationWidget::JointConfigurationWidget(
   connect(propulsion_, &propulsion::PropulsionSystemWidget::linkRemoved, this, &self::onRotorLinkRemoved);
 
   const auto props = propulsion_->selected();
-  connect(props, &propulsion::SelectedLinksWidget::channelChanged, this, &self::onRotorChannelChanged);
   connect(props, &propulsion::SelectedLinksWidget::isTiltStateChanged, this, &self::onRotorIsTiltStateChanged);
   connect(props, &propulsion::SelectedLinksWidget::tiltJointNameChanged, this, &self::onRotorTiltJointNameChanged);
 
@@ -87,6 +86,13 @@ void JointConfigurationWidget::updateInternalDataStructures()
     if (joint.type == kdl::Joint::FIXED)
       continue;
 
+    // TODO: 直動ジョイントにも対応
+    if (joint.type == kdl::Joint::TRANSLATION)
+    {
+      qt::qWarnBox(this, "Translational joint is not supported yet.");
+      continue;
+    }
+
     // テーブルに追加
     addLink(link_name);
   }
@@ -94,11 +100,12 @@ void JointConfigurationWidget::updateInternalDataStructures()
 
 bool JointConfigurationWidget::isValid()
 {
-  // ハードウェアインターフェースが同じもののチャンネルが異なることを保証
   QSet<int> pwm_channels;
+
   for (int row = 0; row < table_->rowCount(); ++row)
   {
-    const auto channel = getChannel(row);
+    // ハードウェアインターフェースが同じもののチャンネルが異なることを保証
+    const auto channel = getPwmChannel(row);
     switch (getHardwareInterface(row))
     {
       case tobas::jnt_hw_iface_t::PWM:
@@ -118,6 +125,20 @@ bool JointConfigurationWidget::isValid()
       default:
         throw;
     }
+
+    // PWM High時間の範囲
+    if (getPwmMinPeriod(row) >= getPwmMaxPeriod(row))
+    {
+      qt::qErrorBox(this, "PWM period range of channel " + QString::number(channel) + " is invalid.");
+      return false;
+    }
+
+    // PWM関節角の範囲
+    if (getPwmMinAngle(row) >= getPwmMaxAngle(row))
+    {
+      qt::qErrorBox(this, "PWM angle range of channel " + QString::number(channel) + " is invalid.");
+      return false;
+    }
   }
 
   return true;
@@ -130,12 +151,16 @@ YAML::Node JointConfigurationWidget::dump()
   for (int row = 0; row < table_->rowCount(); ++row)
   {
     YAML::Node sub_node(YAML::NodeType::Map);
-    sub_node[kRoleLabel] = getRole(row);
-    sub_node[kCmdIfaceLabel] = getCommandInterface(row);
-    sub_node[kHwIfaceLabel] = getHardwareInterface(row);
-    sub_node[kChannelLabel] = getChannel(row);
-    sub_node[kHomePosLabel] = getHomePosition(row);
-    sub_node[kReverseLabel] = getReverse(row);
+    sub_node[kRoleLabel] = role_[row]->currentText();
+    sub_node[kCmdIfaceLabel] = cmd_iface_[row]->currentText();
+    sub_node[kHwIfaceLabel] = hw_iface_[row]->currentText();
+    sub_node[kHomePosLabel] = home_pos_[row]->value();
+    sub_node[kPwmChannelLabel] = pwm_channel_[row]->value();
+    sub_node[kPwmMinPeriodLabel] = pwm_min_period_[row]->value();
+    sub_node[kPwmMaxPeriodLabel] = pwm_max_period_[row]->value();
+    sub_node[kPwmMinAngleLabel] = pwm_min_angle_[row]->value();
+    sub_node[kPwmMaxAngleLabel] = pwm_max_angle_[row]->value();
+    sub_node[kPwmReverseLabel] = pwm_reverse_[row]->isChecked();
 
     node[getLinkName(row)] = sub_node;
   }
@@ -156,12 +181,16 @@ void JointConfigurationWidget::load(const YAML::Node& node)
     const auto row = findLink(link_name);
     TOBAS_CHECK(row >= 0);
 
-    setRole(row, sub_node[kRoleLabel].as<tobas::jnt_role_t>());
-    setCommandInterface(row, sub_node[kCmdIfaceLabel].as<tobas::jnt_cmd_iface_t>());
-    setHardwareInterface(row, sub_node[kHwIfaceLabel].as<tobas::jnt_hw_iface_t>());
-    setChannel(row, sub_node[kChannelLabel].as<int>());
-    setHomePosition(row, sub_node[kHomePosLabel].as<double>());
-    setReverse(row, sub_node[kReverseLabel].as<bool>());
+    role_[row]->setCurrentText(sub_node[kRoleLabel].as<QString>());
+    cmd_iface_[row]->setCurrentText(sub_node[kCmdIfaceLabel].as<QString>());
+    hw_iface_[row]->setCurrentText(sub_node[kHwIfaceLabel].as<QString>());
+    home_pos_[row]->setValue(sub_node[kHomePosLabel].as<int>());
+    pwm_channel_[row]->setValue(sub_node[kPwmChannelLabel].as<int>());
+    pwm_min_period_[row]->setValue(sub_node[kPwmMinPeriodLabel].as<int>());
+    pwm_max_period_[row]->setValue(sub_node[kPwmMaxPeriodLabel].as<int>());
+    pwm_min_angle_[row]->setValue(sub_node[kPwmMinAngleLabel].as<int>());
+    pwm_max_angle_[row]->setValue(sub_node[kPwmMaxAngleLabel].as<int>());
+    pwm_reverse_[row]->setChecked(sub_node[kPwmReverseLabel].as<bool>());
 
     updateEnability(row);
   }
@@ -237,19 +266,39 @@ tobas::jnt_hw_iface_t JointConfigurationWidget::getHardwareInterface(int row) co
     throw;
 }
 
-int JointConfigurationWidget::getChannel(int row) const
-{
-  return channel_[row]->value();
-}
-
 double JointConfigurationWidget::getHomePosition(int row) const
 {
-  return home_pos_[row]->value();
+  return tobas_std::deg2rad(home_pos_[row]->value());
 }
 
-bool JointConfigurationWidget::getReverse(int row) const
+int JointConfigurationWidget::getPwmChannel(int row) const
 {
-  return reverse_[row]->isChecked();
+  return pwm_channel_[row]->value();
+}
+
+uint16_t JointConfigurationWidget::getPwmMinPeriod(int row) const
+{
+  return pwm_min_period_[row]->value();
+}
+
+uint16_t JointConfigurationWidget::getPwmMaxPeriod(int row) const
+{
+  return pwm_max_period_[row]->value();
+}
+
+double JointConfigurationWidget::getPwmMinAngle(int row) const
+{
+  return tobas_std::deg2rad(pwm_min_angle_[row]->value());
+}
+
+double JointConfigurationWidget::getPwmMaxAngle(int row) const
+{
+  return tobas_std::deg2rad(pwm_max_angle_[row]->value());
+}
+
+bool JointConfigurationWidget::getPwmReverse(int row) const
+{
+  return pwm_reverse_[row]->isChecked();
 }
 
 void JointConfigurationWidget::setRole(int row, tobas::jnt_role_t value)
@@ -324,19 +373,39 @@ void JointConfigurationWidget::setHardwareInterface(int row, tobas::jnt_hw_iface
   hw_iface_[row]->setCurrentText(text);
 }
 
-void JointConfigurationWidget::setChannel(int row, int value)
-{
-  channel_[row]->setValue(value);
-}
-
 void JointConfigurationWidget::setHomePosition(int row, double value)
 {
-  home_pos_[row]->setValue(value);
+  home_pos_[row]->setValue(std::round(tobas_std::rad2deg(value)));
 }
 
-void JointConfigurationWidget::setReverse(int row, bool value)
+void JointConfigurationWidget::setPwmChannel(int row, int value)
 {
-  reverse_[row]->setChecked(value);
+  pwm_channel_[row]->setValue(value);
+}
+
+void JointConfigurationWidget::setPwmMinPeriod(int row, uint16_t value)
+{
+  pwm_min_period_[row]->setValue(value);
+}
+
+void JointConfigurationWidget::setPwmMaxPeriod(int row, uint16_t value)
+{
+  pwm_max_period_[row]->setValue(value);
+}
+
+void JointConfigurationWidget::setPwmMinAngle(int row, double value)
+{
+  pwm_min_angle_[row]->setValue(std::round(tobas_std::rad2deg(value)));
+}
+
+void JointConfigurationWidget::setPwmMaxAngle(int row, double value)
+{
+  pwm_max_angle_[row]->setValue(std::round(tobas_std::rad2deg(value)));
+}
+
+void JointConfigurationWidget::setPwmReverse(int row, bool value)
+{
+  pwm_reverse_[row]->setChecked(value);
 }
 
 int JointConfigurationWidget::count() const
@@ -373,9 +442,13 @@ void JointConfigurationWidget::clear()
   role_.clear();
   cmd_iface_.clear();
   hw_iface_.clear();
-  channel_.clear();
   home_pos_.clear();
-  reverse_.clear();
+  pwm_channel_.clear();
+  pwm_min_period_.clear();
+  pwm_max_period_.clear();
+  pwm_min_angle_.clear();
+  pwm_max_angle_.clear();
+  pwm_reverse_.clear();
 
   tilt_joint_map_.clear();
 }
@@ -383,117 +456,120 @@ void JointConfigurationWidget::clear()
 void JointConfigurationWidget::reset(int row)
 {
   role_[row]->setCurrentText(kRoleLabel_Other);
-  onRoleChanged(row);
 
   // Rotor, Tilt Joint, Control Surfaceを選択不可にする
   for (const auto& label : { kRoleLabel_Rotor, kRoleLabel_TiltJoint, kRoleLabel_ControlSurface })
     role_[row]->setItemEnabled(label, false);
 
+  setDefaultValues(row);
   updateEnability(row);
 }
 
 void JointConfigurationWidget::setDefaultValues(int row)
 {
+  // 役割に応じてコマンドインターフェースとハードウェアインターフェースを設定
   switch (getRole(row))
   {
     case tobas::jnt_role_t::ROTOR:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
-      channel_[row]->setValue(0);
-      home_pos_[row]->setValue(0.);
-      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::TILT_JOINT:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
-      channel_[row]->setValue(0);
-      home_pos_[row]->setValue(0.);
-      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::CONTROL_SURFACE:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);  // 位置コマンドで固定
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
-      channel_[row]->setValue(0);
-      home_pos_[row]->setValue(0.);
-      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::MANIPULATION:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_Position);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_PWM);
-      channel_[row]->setValue(0);
-      home_pos_[row]->setValue(0.);
-      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
-      channel_[row]->setValue(0);
-      home_pos_[row]->setValue(0.);
-      reverse_[row]->setChecked(false);
       break;
     case tobas::jnt_role_t::OTHER:
       cmd_iface_[row]->setCurrentText(kCmdIfaceLabel_None);
       hw_iface_[row]->setCurrentText(kHwIfaceLabel_Other);
-      channel_[row]->setValue(0);
-      home_pos_[row]->setValue(0.);
-      reverse_[row]->setChecked(false);
       break;
     default:
       throw;
   }
+
+  // 共通のデフォルト値
+  home_pos_[row]->setValue(0);
+  pwm_channel_[row]->setValue(0);
+  pwm_min_period_[row]->setValue(1000);
+  pwm_max_period_[row]->setValue(2000);
+  pwm_min_angle_[row]->setValue(-90);
+  pwm_max_angle_[row]->setValue(90);
 }
 
 void JointConfigurationWidget::updateEnability(int row)
 {
+  // 役割によるフィールド
   switch (getRole(row))
   {
     case tobas::jnt_role_t::ROTOR:
       role_[row]->setEnabled(false);
       cmd_iface_[row]->setEnabled(false);
       hw_iface_[row]->setEnabled(false);
-      channel_[row]->setEnabled(false);
       home_pos_[row]->setEnabled(false);
-      reverse_[row]->setEnabled(false);
       break;
     case tobas::jnt_role_t::TILT_JOINT:
       role_[row]->setEnabled(false);
       cmd_iface_[row]->setEnabled(false);
       hw_iface_[row]->setEnabled(true);
-      channel_[row]->setEnabled(true);
       home_pos_[row]->setEnabled(false);
-      reverse_[row]->setEnabled(true);
       break;
     case tobas::jnt_role_t::CONTROL_SURFACE:
       role_[row]->setEnabled(false);
       cmd_iface_[row]->setEnabled(false);
       hw_iface_[row]->setEnabled(true);
-      channel_[row]->setEnabled(true);
       home_pos_[row]->setEnabled(false);
-      reverse_[row]->setEnabled(true);
       break;
     case tobas::jnt_role_t::MANIPULATION:
       role_[row]->setEnabled(true);
       cmd_iface_[row]->setEnabled(true);
       hw_iface_[row]->setEnabled(true);
-      channel_[row]->setEnabled(true);
       home_pos_[row]->setEnabled(true);
-      reverse_[row]->setEnabled(true);
       break;
     case tobas::jnt_role_t::PASSIVE_WHEEL:
       role_[row]->setEnabled(true);
       cmd_iface_[row]->setEnabled(false);
       hw_iface_[row]->setEnabled(false);
-      channel_[row]->setEnabled(false);
       home_pos_[row]->setEnabled(false);
-      reverse_[row]->setEnabled(false);
       break;
     case tobas::jnt_role_t::OTHER:
       role_[row]->setEnabled(true);
       cmd_iface_[row]->setEnabled(false);
       hw_iface_[row]->setEnabled(false);
-      channel_[row]->setEnabled(false);
       home_pos_[row]->setEnabled(false);
-      reverse_[row]->setEnabled(false);
+      break;
+    default:
+      throw;
+  }
+
+  // ハードウェアインターフェースによるフィールド
+  switch (getHardwareInterface(row))
+  {
+    case tobas::jnt_hw_iface_t::PWM:
+      pwm_channel_[row]->setEnabled(true);
+      pwm_min_period_[row]->setEnabled(true);
+      pwm_max_period_[row]->setEnabled(true);
+      pwm_min_angle_[row]->setEnabled(true);
+      pwm_max_angle_[row]->setEnabled(true);
+      pwm_reverse_[row]->setEnabled(true);
+      break;
+    case tobas::jnt_hw_iface_t::OTHER:
+      pwm_channel_[row]->setEnabled(false);
+      pwm_min_period_[row]->setEnabled(false);
+      pwm_max_period_[row]->setEnabled(false);
+      pwm_min_angle_[row]->setEnabled(false);
+      pwm_max_angle_[row]->setEnabled(false);
+      pwm_reverse_[row]->setEnabled(false);
       break;
     default:
       throw;
@@ -539,70 +615,48 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   });
 
   // Channel
-  const auto channel = new qt::SpinBox();
-  channel->setMinimum(0);
+  const auto pwm_channel = new qt::SpinBox();
+  pwm_channel->setMinimum(0);
 
   // Home Position
-  const auto home_pos = new qt::DoubleSpinBox();
-  home_pos->setDecimals(3);
-  home_pos->setMinimum(joint.lower_limit);
-  home_pos->setMaximum(joint.upper_limit);
-  switch (joint.type)
-  {
-    case kdl::Joint::ROTATION:
-      home_pos->setSuffix(" rad");
-      break;
-    case kdl::Joint::TRANSLATION:
-      home_pos->setSuffix(" m");
-      break;
-    default:
-      throw;
-  }
+  const auto home_pos = new qt::SpinBox();
+  home_pos->setMinimum(std::round(tobas_std::rad2deg(std::isinf(joint.lower_limit) ? -M_PI : joint.lower_limit)));
+  home_pos->setMaximum(std::round(tobas_std::rad2deg(std::isinf(joint.upper_limit) ? M_PI : joint.upper_limit)));
+  home_pos->setSuffix(" deg");
 
-  // Reverse
-  const auto reverse = new QPushButton();
-  reverse->setCheckable(true);
-  reverse->setText(kReverseLabel_Normal);
+  // PWM Period Range
+  const auto pwm_min_period = new qt::SpinBox();
+  const auto pwm_max_period = new qt::SpinBox();
+  pwm_min_period->setMinimum(0);
+  pwm_max_period->setMinimum(0);
+  pwm_min_period->setMaximum(2500);
+  pwm_max_period->setMaximum(2500);
+  pwm_min_period->setSuffix(" us");
+  pwm_max_period->setSuffix(" us");
+
+  // PWM Joint Angle Range
+  const auto pwm_min_angle = new qt::SpinBox();
+  const auto pwm_max_angle = new qt::SpinBox();
+  pwm_min_angle->setMinimum(-180);
+  pwm_min_angle->setMaximum(0);
+  pwm_max_angle->setMinimum(0);
+  pwm_max_angle->setMaximum(180);
+  pwm_min_angle->setSuffix(" deg");
+  pwm_max_angle->setSuffix(" deg");
+
+  // PWM Reverse
+  const auto pwm_reverse = new QPushButton();
+  pwm_reverse->setCheckable(true);
+  pwm_reverse->setText(kReverseLabel_Normal);
   connect(
-    reverse, &QPushButton::toggled, this,
-    [reverse](bool checked)
+    pwm_reverse, &QPushButton::toggled, this,
+    [pwm_reverse](bool checked)
     {
       if (checked)
-        reverse->setText(kReverseLabel_Reverse);
+        pwm_reverse->setText(kReverseLabel_Reverse);
       else
-        reverse->setText(kReverseLabel_Normal);
+        pwm_reverse->setText(kReverseLabel_Normal);
     });
-
-  // Joint Limit (Read-only)
-  const auto min_pos = new QLineEdit();
-  const auto max_pos = new QLineEdit();
-  const auto max_vel = new QLineEdit();
-  const auto max_eff = new QLineEdit();
-  min_pos->setEnabled(false);
-  max_pos->setEnabled(false);
-  max_vel->setEnabled(false);
-  max_eff->setEnabled(false);
-  const auto min_pos_text = std::isinf(joint.lower_limit) ? "-INF" : QString::number(joint.lower_limit);
-  const auto max_pos_text = std::isinf(joint.upper_limit) ? "INF" : QString::number(joint.upper_limit);
-  const auto max_vel_text = std::isinf(joint.max_velocity) ? "INF" : QString::number(joint.max_velocity);
-  const auto max_eff_text = std::isinf(joint.max_effort) ? "INF" : QString::number(joint.max_effort);
-  switch (joint.type)
-  {
-    case kdl::Joint::ROTATION:
-      min_pos->setText(min_pos_text + " rad");
-      max_pos->setText(max_pos_text + " rad");
-      max_vel->setText(max_vel_text + " rad/s");
-      max_eff->setText(max_eff_text + " Nm");
-      break;
-    case kdl::Joint::TRANSLATION:
-      min_pos->setText(min_pos_text + " m");
-      max_pos->setText(max_pos_text + " m");
-      max_vel->setText(max_vel_text + " m/s");
-      max_eff->setText(max_eff_text + " N");
-      break;
-    default:
-      throw;
-  }
 
   // Insert table row
   table_->insertRow(row);
@@ -611,13 +665,13 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   table_->setCellWidget(row, kRoleCol, role);
   table_->setCellWidget(row, kCmdIfaceCol, cmd_iface);
   table_->setCellWidget(row, kHwIfaceCol, hw_iface);
-  table_->setCellWidget(row, kChannelCol, channel);
+  table_->setCellWidget(row, kPwmChannelCol, pwm_channel);
   table_->setCellWidget(row, kHomePosCol, home_pos);
-  table_->setCellWidget(row, kReverseCol, reverse);
-  table_->setCellWidget(row, kMinPosCol, min_pos);
-  table_->setCellWidget(row, kMaxPosCol, max_pos);
-  table_->setCellWidget(row, kMaxVelCol, max_vel);
-  table_->setCellWidget(row, kMaxEffCol, max_eff);
+  table_->setCellWidget(row, kPwmMinPeriodCol, pwm_min_period);
+  table_->setCellWidget(row, kPwmMaxPeriodCol, pwm_max_period);
+  table_->setCellWidget(row, kPwmMinAngleCol, pwm_min_angle);
+  table_->setCellWidget(row, kPwmMaxAngleCol, pwm_max_angle);
+  table_->setCellWidget(row, kPwmReverseCol, pwm_reverse);
 
   // Save each field
   link_name_.append(link_name_label);
@@ -625,15 +679,20 @@ void JointConfigurationWidget::addLink(const std::string& link_name)
   role_.append(role);
   cmd_iface_.append(cmd_iface);
   hw_iface_.append(hw_iface);
-  channel_.append(channel);
   home_pos_.append(home_pos);
-  reverse_.append(reverse);
+  pwm_channel_.append(pwm_channel);
+  pwm_min_period_.append(pwm_min_period);
+  pwm_max_period_.append(pwm_max_period);
+  pwm_min_angle_.append(pwm_min_angle);
+  pwm_max_angle_.append(pwm_max_angle);
+  pwm_reverse_.append(pwm_reverse);
 
   // Reset
   reset(row);
 
   // Connection
   connect(role, &qt::ComboBox::currentTextChanged, std::bind(&self::onRoleChanged, this, row));
+  connect(hw_iface, &qt::ComboBox::currentTextChanged, std::bind(&self::onHardwareInterfaceChanged, this, row));
 }
 
 void JointConfigurationWidget::removeTiltJoint(const QString& rotor_link_name)
@@ -653,10 +712,12 @@ void JointConfigurationWidget::removeTiltJoint(const QString& rotor_link_name)
 
 void JointConfigurationWidget::onRoleChanged(int row)
 {
-  // 役割に応じて各フィールドにデフォルト値を入れる
   setDefaultValues(row);
+  updateEnability(row);
+}
 
-  // 役割に応じて各フィールドの有効無効を決定
+void JointConfigurationWidget::onHardwareInterfaceChanged(int row)
+{
   updateEnability(row);
 }
 
@@ -686,17 +747,6 @@ void JointConfigurationWidget::onRotorLinkRemoved(const QString& link_name)
     removeTiltJoint(link_name);
 
   reset(row);
-}
-
-void JointConfigurationWidget::onRotorChannelChanged(const QString& link_name, int channel)
-{
-  const auto row = findLink(link_name);
-  TOBAS_CHECK(row >= 0);
-
-  const auto cur_role = getRole(row);
-  TOBAS_CHECK(cur_role == tobas::jnt_role_t::ROTOR);
-
-  channel_[row]->setValue(channel);
 }
 
 void JointConfigurationWidget::onRotorIsTiltStateChanged(const QString& link_name, bool is_tilt)

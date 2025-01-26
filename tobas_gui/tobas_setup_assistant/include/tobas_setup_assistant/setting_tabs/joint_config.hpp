@@ -28,14 +28,14 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr int kRoleCol = kJointNameCol + 1;
   static constexpr int kCmdIfaceCol = kRoleCol + 1;
   static constexpr int kHwIfaceCol = kCmdIfaceCol + 1;
-  static constexpr int kChannelCol = kHwIfaceCol + 1;
-  static constexpr int kHomePosCol = kChannelCol + 1;
-  static constexpr int kReverseCol = kHomePosCol + 1;
-  static constexpr int kMinPosCol = kReverseCol + 1;
-  static constexpr int kMaxPosCol = kMinPosCol + 1;
-  static constexpr int kMaxVelCol = kMaxPosCol + 1;
-  static constexpr int kMaxEffCol = kMaxVelCol + 1;
-  static constexpr int kNumCols = kMaxEffCol + 1;
+  static constexpr int kHomePosCol = kHwIfaceCol + 1;
+  static constexpr int kPwmChannelCol = kHomePosCol + 1;
+  static constexpr int kPwmMinPeriodCol = kPwmChannelCol + 1;
+  static constexpr int kPwmMaxPeriodCol = kPwmMinPeriodCol + 1;
+  static constexpr int kPwmMinAngleCol = kPwmMaxPeriodCol + 1;
+  static constexpr int kPwmMaxAngleCol = kPwmMinAngleCol + 1;
+  static constexpr int kPwmReverseCol = kPwmMaxAngleCol + 1;
+  static constexpr int kNumCols = kPwmReverseCol + 1;
 
   // Field Labels
   static constexpr char kLinkNameLabel[] = "Link Name";
@@ -43,13 +43,13 @@ class JointConfigurationWidget : public BaseSettingWidget
   static constexpr char kRoleLabel[] = "Role";
   static constexpr char kCmdIfaceLabel[] = "Command Interface";
   static constexpr char kHwIfaceLabel[] = "Hardware Interface";
-  static constexpr char kChannelLabel[] = "Channel";
   static constexpr char kHomePosLabel[] = "Home Position";
-  static constexpr char kReverseLabel[] = "Reverse";
-  static constexpr char kMinPosLabel[] = "Min Position";
-  static constexpr char kMaxPosLabel[] = "Max Position";
-  static constexpr char kMaxVelLabel[] = "Max Velocity";
-  static constexpr char kMaxEffLabel[] = "Max Effort";
+  static constexpr char kPwmChannelLabel[] = "PWM Channel";
+  static constexpr char kPwmMinPeriodLabel[] = "PWM Min Period";
+  static constexpr char kPwmMaxPeriodLabel[] = "PWM Max Period";
+  static constexpr char kPwmMinAngleLabel[] = "PWM Min Angle";
+  static constexpr char kPwmMaxAngleLabel[] = "PWM Max Angle";
+  static constexpr char kPwmReverseLabel[] = "PWM Reverse";
 
   // Role Labels
   static constexpr char kRoleLabel_Rotor[] = "Rotor";
@@ -96,17 +96,25 @@ public:
   tobas::jnt_role_t getRole(int row) const;
   tobas::jnt_cmd_iface_t getCommandInterface(int row) const;
   tobas::jnt_hw_iface_t getHardwareInterface(int row) const;
-  int getChannel(int row) const;
-  double getHomePosition(int row) const;
-  bool getReverse(int row) const;
+  double getHomePosition(int row) const;  // [rad]
+  int getPwmChannel(int row) const;
+  uint16_t getPwmMinPeriod(int row) const;  // [us]
+  uint16_t getPwmMaxPeriod(int row) const;  // [us]
+  double getPwmMinAngle(int row) const;     // [rad]
+  double getPwmMaxAngle(int row) const;     // [rad]
+  bool getPwmReverse(int row) const;
 
   // Setters
   void setRole(int row, tobas::jnt_role_t value);
   void setCommandInterface(int row, tobas::jnt_cmd_iface_t value);
   void setHardwareInterface(int row, tobas::jnt_hw_iface_t value);
-  void setChannel(int row, int value);
-  void setHomePosition(int row, double value);
-  void setReverse(int row, bool value);
+  void setHomePosition(int row, double value);  // [rad]
+  void setPwmChannel(int row, int value);
+  void setPwmMinPeriod(int row, uint16_t value);  // [us]
+  void setPwmMaxPeriod(int row, uint16_t value);  // [us]
+  void setPwmMinAngle(int row, double value);     // [rad]
+  void setPwmMaxAngle(int row, double value);     // [rad]
+  void setPwmReverse(int row, bool value);
 
   /* 登録されているジョイント数． */
   int count() const;
@@ -129,9 +137,13 @@ private:
   QVector<qt::ComboBox*> role_;
   QVector<qt::ComboBox*> cmd_iface_;
   QVector<qt::ComboBox*> hw_iface_;
-  QVector<qt::SpinBox*> channel_;
-  QVector<qt::DoubleSpinBox*> home_pos_;
-  QVector<QPushButton*> reverse_;
+  QVector<qt::SpinBox*> home_pos_;  // [deg]
+  QVector<qt::SpinBox*> pwm_channel_;
+  QVector<qt::SpinBox*> pwm_min_period_;  // [us]
+  QVector<qt::SpinBox*> pwm_max_period_;  // [us]
+  QVector<qt::SpinBox*> pwm_min_angle_;   // [deg]
+  QVector<qt::SpinBox*> pwm_max_angle_;   // [deg]
+  QVector<QPushButton*> pwm_reverse_;
 
   QMap<QString, QString> tilt_joint_map_;
 
@@ -144,9 +156,9 @@ private:
 
 private Q_SLOTS:
   void onRoleChanged(int row);
+  void onHardwareInterfaceChanged(int row);
   void onRotorLinkAdded(const QString& link_name);
   void onRotorLinkRemoved(const QString& link_name);
-  void onRotorChannelChanged(const QString& link_name, int channel);
   void onRotorIsTiltStateChanged(const QString& link_name, bool is_tilt);
   void onRotorTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
   void onControlSurfaceLinkAdded(const QString& link_name);

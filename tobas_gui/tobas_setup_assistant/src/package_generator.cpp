@@ -153,13 +153,13 @@ tobas::Drone PackageGenerator::createDrone()
       case tobas::jnt_hw_iface_t::PWM:
       {
         tobas::PwmConfig pwm;
-        pwm.channel = joint_config->getChannel(i);
+        pwm.channel = joint_config->getPwmChannel(i);
         pwm.joint_name = joint.name;
-        pwm.min_period = 0;  // TODO
-        pwm.max_period = 0;  // TODO
-        pwm.min_angle = 0.;  // TODO
-        pwm.max_angle = 0.;  // TODO
-        pwm.reverse = joint_config->getReverse(i);
+        pwm.min_period = joint_config->getPwmMinPeriod(i);
+        pwm.max_period = joint_config->getPwmMaxPeriod(i);
+        pwm.min_angle = joint_config->getPwmMinAngle(i);
+        pwm.max_angle = joint_config->getPwmMaxAngle(i);
+        pwm.reverse = joint_config->getPwmReverse(i);
         drone.pwms[joint.name] = pwm;
         break;
       }
@@ -239,7 +239,7 @@ tobas::Drone PackageGenerator::createDrone()
       const auto joint_idx = joint_config->findLink(link_name);
 
       tobas::ControlSurface cs;
-      cs.channel = joint_config->getChannel(joint_idx);
+      cs.channel = joint_config->getPwmChannel(joint_idx);
       cs.link_name = link_name.toStdString();
       cs.c_lift_delta = css->liftCoef(i);
       cs.c_drag_abs_delta = css->dragCoef(i);  // TODO: 正負の確認が必要？
