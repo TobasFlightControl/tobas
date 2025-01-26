@@ -226,7 +226,7 @@ void RotorTestWidget::currentStatesCb(const tobas_msgs::msg::RotorStateArray::Co
   }
 }
 
-void RotorTestWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

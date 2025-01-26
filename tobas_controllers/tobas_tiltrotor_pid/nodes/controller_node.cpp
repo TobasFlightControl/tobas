@@ -1,7 +1,5 @@
 #include <ranges>
 
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_kdl/jntarray.hpp>
 #include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -15,10 +13,11 @@
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/angle_axis_pid.hpp>
 
-#include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -51,7 +50,7 @@ private:
   bool tree_received_ = false;
   bool js_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
   tobas::CommandLevelHandler cmd_level_handler_;
 
@@ -65,7 +64,7 @@ private:
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
 
   bool updateInternalDataStructures();
@@ -92,7 +91,7 @@ private:
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
 };
 
@@ -390,7 +389,7 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
   js_received_ = true;
 }
 
-void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   // Disarm時にコマンドをリセットする．でないと再度アームした時に前回のコマンドでモータが回り始めてしまう．
   if (arming_ != nullptr && arming_->data && !arming->data)

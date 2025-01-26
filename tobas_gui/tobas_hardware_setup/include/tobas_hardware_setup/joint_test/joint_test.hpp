@@ -1,9 +1,9 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/bool.hpp>
 
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 
 #include "../base.hpp"
 #include "./commands_publisher.hpp"
@@ -39,13 +39,13 @@ private:
   QPushButton* stop_button_;
   JointCommandsPublisherWidget* commands_publisher_;
 
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
   void reset();
 
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
 private Q_SLOTS:
   void onStartButtonClicked();

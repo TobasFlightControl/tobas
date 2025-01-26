@@ -1,9 +1,8 @@
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
 
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
@@ -56,14 +55,14 @@ private:
   uint8_t last_mode_;
   rclcpp::Time t_last_arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Controllers
   array<unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
 
   // PubSub
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<RCInput> rcin_sub_;
 
   // Service
@@ -74,7 +73,7 @@ private:
   void requestArmingRotors(bool arming);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rcInputCb(const RCInput::ConstSharedPtr& rcin);
 };
 
@@ -151,7 +150,7 @@ void RCTeleopNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   odom_ = odom;
 }
 
-void RCTeleopNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void RCTeleopNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

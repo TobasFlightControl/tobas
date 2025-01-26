@@ -80,7 +80,7 @@ void JointTestWidget::reset()
   arming_ = nullptr;
 }
 
-void JointTestWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

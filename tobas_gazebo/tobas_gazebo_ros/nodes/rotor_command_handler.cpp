@@ -1,8 +1,7 @@
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -28,7 +27,7 @@ private:
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   map<uint8_t, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
-  ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Arming> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
@@ -54,7 +53,7 @@ private:
 RotorCommandHandlerNode::RotorCommandHandlerNode(const rclcpp::NodeOptions& options)
   : super("gazebo_rotor_command_handler", options)
 {
-  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
+  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
@@ -68,7 +67,8 @@ RotorCommandHandlerNode::RotorCommandHandlerNode(const rclcpp::NodeOptions& opti
 
 void RotorCommandHandlerNode::publishArming()
 {
-  auto arming_msg = std::make_unique<std_msgs::msg::Bool>();
+  auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
+  arming_msg->header.stamp = get_clock()->now();
   arming_msg->data = is_armed_;
   arming_pub_->publish(move(arming_msg));
 }

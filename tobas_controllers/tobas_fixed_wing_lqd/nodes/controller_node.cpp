@@ -1,5 +1,3 @@
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_std_tools/standard_atmosphere.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/debug.hpp>
@@ -14,6 +12,7 @@
 #include <tobas_drone_tools/fw_micro_disturbance_eom.hpp>
 #include <tobas_drone_tools/utils/fixed_wing_tools.hpp>
 
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
@@ -68,7 +67,7 @@ private:
   tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                                   // 現在の状態 (NWU座標系)
   tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
   tobas_msgs::Odometry odom_ned_;                                 // 現在の状態 (NED座標系)
-  std_msgs::msg::Bool::ConstSharedPtr arming_;                    // ロータのアーム状態
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                // ロータのアーム状態
   tobas_msgs::msg::SpeedRollDeltaPitch cmd_ned_;                  // 現在のコマンド (NED座標系)
   ControllerParameters params_;
   ctrl::LQD lqd_;  // 最適レギュレータ
@@ -84,7 +83,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> air_pressure_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
 
   bool initialize();
@@ -118,7 +117,7 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& pressure);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
@@ -503,7 +502,7 @@ void ControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
   tree_received_ = true;
 }
 
-void ControllerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 

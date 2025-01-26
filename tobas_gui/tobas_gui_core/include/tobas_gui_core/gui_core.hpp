@@ -3,12 +3,12 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
-#include <std_msgs/msg/bool.hpp>
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_property_client/property_client.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_gui_common/remote_package_builder.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 
 #include <tobas_homepage/homepage.hpp>
 #include <tobas_setup_assistant/setup_assistant.hpp>
@@ -68,9 +68,9 @@ private:
   log::FlightLogWidget* flight_log_;
   sim::SimulationWidget* simulation_;
 
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
   std::filesystem::path tbsPath() const;
 

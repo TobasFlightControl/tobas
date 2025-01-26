@@ -1,8 +1,7 @@
 #pragma once
 
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs_adapter/gps.hpp>
 
 #include "./status.hpp"
@@ -29,10 +28,10 @@ private:
   StatusWidget* arming_status_;
   StatusWidget* gps_status_;
 
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::Gps> gps_sub_;
 
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps);
 };
 }  // namespace control_system

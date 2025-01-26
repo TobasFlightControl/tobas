@@ -54,7 +54,7 @@ void AccelCalibrationWidget::setNamespace(const std::string& ns)
   setEnabled(true);
 }
 
-void AccelCalibrationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void AccelCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

@@ -1,5 +1,3 @@
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_std_tools/geometry.hpp>
@@ -9,6 +7,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/action/move.hpp>
@@ -28,20 +27,20 @@ public:
 
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gps_origin_;
   CommandType cmd_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::GeodeticCoordinates> gps_origin_sub_;
   ros2::ActionServerPtr<ActionType> as_;
 
   bool computeGoalPosition(const ActionType::Goal::ConstSharedPtr& goal, kdl::Vector& goal_pos);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void gpsOriginCb(const tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr& gps_origin);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
@@ -80,7 +79,7 @@ void MoveServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   odom_ = odom;
 }
 
-void MoveServerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void MoveServerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

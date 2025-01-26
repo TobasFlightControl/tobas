@@ -1,4 +1,3 @@
-#include <std_msgs/msg/bool.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
@@ -7,6 +6,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/battery.hpp>
@@ -51,7 +51,7 @@ public:
 
 private:
   tobas::Drone::ConstSharedPtr drone_;
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
   tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr imu_;
@@ -67,7 +67,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::msg::PostArmCheck> postarm_check_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
   ros2::SubscriberPtr<tobas_msgs::ImuWithCovarianceStamped> imu_sub_;
@@ -83,7 +83,7 @@ private:
   void postArmCheck();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
   void imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& imu);
@@ -326,7 +326,7 @@ void StateCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   drone_ = drone;
 }
 
-void StateCheckerNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void StateCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

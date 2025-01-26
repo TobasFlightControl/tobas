@@ -144,7 +144,7 @@ void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSh
   ps_pub_->publish(std::move(point_msg));
 }
 
-void MagCalibrationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void MagCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

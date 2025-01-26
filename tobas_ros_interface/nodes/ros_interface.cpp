@@ -1,4 +1,3 @@
-#include <std_msgs/msg/bool.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_path_tools/join.hpp>
@@ -10,6 +9,7 @@
 #include <tobas_kdl_msgs/msg/euler_stamped.hpp>
 #include <tobas_kdl_msgs/msg/tree.hpp>
 #include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/gps.hpp>
@@ -108,7 +108,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
     tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
   addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(tobas::addThrotNS(tobas::kEulerTopic), tobas::kEulerTopic);
-  addTopicLogicToIface<std_msgs::msg::Bool>(tobas::kArmingTopic, tobas::kArmingTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Arming>(tobas::kArmingTopic, tobas::kArmingTopic);
   addTopicLogicToIface<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic, tobas::kPreArmCheckTopic);
   addTopicLogicToIface<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic, tobas::kPostArmCheckTopic);
   addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(tobas::addThrotNS(real::kIMUTopic), real::kIMUTopic);

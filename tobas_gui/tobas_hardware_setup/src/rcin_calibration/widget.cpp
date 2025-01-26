@@ -184,7 +184,7 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   gpsw_range_->setValue(sbus->data[real::kRcChannelGPSw]);
 }
 
-void RCInputCalibrationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

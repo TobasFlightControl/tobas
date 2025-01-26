@@ -47,7 +47,7 @@ void PostArmCheckViewerWidget::updateNamespace(const std::string& ns)
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPostArmCheckTopic), &self::postArmCheckCb, this);
 }
 
-void PostArmCheckViewerWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 

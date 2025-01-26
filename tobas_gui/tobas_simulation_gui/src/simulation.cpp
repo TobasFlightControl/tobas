@@ -79,7 +79,7 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
   return true;
 }
 
-void SimulationWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

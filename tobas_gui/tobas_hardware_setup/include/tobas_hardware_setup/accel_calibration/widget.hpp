@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QPushButton>
-#include <std_msgs/msg/bool.hpp>
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 
 #include "../base.hpp"
 #include "./thread.hpp"
@@ -39,9 +39,9 @@ private:
   qt::WaitSpinnerWidget spinner_;
   AccelCalibrationThread thread_;
 
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
 private Q_SLOTS:
   void onStartButtonClicked();

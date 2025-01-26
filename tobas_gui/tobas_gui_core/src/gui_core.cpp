@@ -140,7 +140,7 @@ void GUICoreWidget::updateInternalDataStructures()
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 }
 
-void GUICoreWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

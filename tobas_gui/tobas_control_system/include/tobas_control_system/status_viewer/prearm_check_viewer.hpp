@@ -1,8 +1,7 @@
 #pragma once
 
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 
 #include "./status.hpp"
@@ -36,14 +35,14 @@ private:
   StatusWidget* vel_accuracy_status_;
   StatusWidget* ready_status_;
 
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
 
   void reset();
 
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 };
 }  // namespace control_system

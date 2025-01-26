@@ -1,4 +1,3 @@
-#include <std_msgs/msg/bool.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
@@ -6,6 +5,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -44,7 +44,7 @@ private:
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
-  ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Arming> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
@@ -134,7 +134,8 @@ void DShotDriverNode::publishRotorStates()
 
 void DShotDriverNode::publishArming()
 {
-  auto arming_msg = std::make_unique<std_msgs::msg::Bool>();
+  auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
+  arming_msg->header.stamp = get_clock()->now();
   arming_msg->data = is_armed_;
   arming_pub_->publish(move(arming_msg));
 }
@@ -273,7 +274,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // Resister publishers
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
+  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
 
   // Resister subscribers
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);

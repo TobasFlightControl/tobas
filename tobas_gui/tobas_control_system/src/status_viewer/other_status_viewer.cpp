@@ -33,7 +33,7 @@ void OtherStatusViewerWidget::updateNamespace(const std::string& ns)
     ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGNSSTopic), &self::gpsCb, this);
 }
 
-void OtherStatusViewerWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void OtherStatusViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_status_->setStatus(arming->data);
 }

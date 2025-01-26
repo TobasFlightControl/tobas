@@ -1,9 +1,8 @@
-#include <std_msgs/msg/bool.hpp>
-
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/enable_rotor.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -28,11 +27,11 @@ private:
   };
 
   tobas::Drone::ConstSharedPtr drone_;
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   std::map<size_t, RotorData> data_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> states_sub_;
 
   ros2::ServiceClientPtr<tobas_msgs::srv::EnableRotor> enable_rotor_sc_;
@@ -40,7 +39,7 @@ private:
   void requestEnableRotor(uint8_t channel, bool enable);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
 };
 
@@ -77,7 +76,7 @@ void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
   drone_ = drone;
 }
 
-void RotorAnomalyDetectorNode::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void RotorAnomalyDetectorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }

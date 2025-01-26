@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <std_msgs/msg/bool.hpp>
 
 #include <tobas_ros2_tools/definitions.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
