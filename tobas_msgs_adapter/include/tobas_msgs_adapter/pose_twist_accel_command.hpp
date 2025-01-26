@@ -11,6 +11,7 @@ namespace tobas_msgs
 {
 struct PoseTwistAccelCommand
 {
+  std_msgs::msg::Header header;
   tobas_msgs::msg::CommandLevel level;
   tobas_msgs::msg::FrameId frame_id;
   kdl::Vector pos;
@@ -34,6 +35,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_msgs::msg::P
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
+    dst.header = src.header;
     dst.level = src.level;
     dst.frame_id = src.frame_id;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.pos, dst.pos);
@@ -46,6 +48,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_msgs::msg::P
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
+    dst.header = src.header;
     dst.level = src.level;
     dst.frame_id = src.frame_id;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.pos, dst.pos);

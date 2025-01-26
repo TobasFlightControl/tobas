@@ -84,6 +84,7 @@ void PoseTwistAccelController::update(const tobas_msgs::msg::RCInput& rcin, cons
 
   // コマンドを作成
   auto cmd = std::make_unique<tobas_msgs::PoseTwistAccelCommand>();
+  cmd->header = rcin.header;
   cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;

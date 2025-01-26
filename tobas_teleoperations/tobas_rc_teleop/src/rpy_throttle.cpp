@@ -37,17 +37,18 @@ void RollPitchYawThrottleController::update(const tobas_msgs::msg::RCInput& rcin
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto rpyt = std::make_unique<tobas_msgs::RollPitchYawThrottle>();
-  rpyt->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
+  auto cmd = std::make_unique<tobas_msgs::RollPitchYawThrottle>();
+  cmd->header = rcin.header;
+  cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
 
   // 姿勢とスロットルを埋める
-  rpyt->rpy.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
-  rpyt->rpy.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
-  rpyt->rpy.yaw = yaw_;
-  rpyt->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
+  cmd->rpy.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
+  cmd->rpy.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
+  cmd->rpy.yaw = yaw_;
+  cmd->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
 
   // コマンドを発行
-  rpyt_pub_->publish(move(rpyt));
+  rpyt_pub_->publish(move(cmd));
 }
 
 void RollPitchYawThrottleController::getStaticRosParams(tobas::BaseNode* node)

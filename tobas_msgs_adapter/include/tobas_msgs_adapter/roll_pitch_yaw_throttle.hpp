@@ -10,6 +10,7 @@ namespace tobas_msgs
 {
 struct RollPitchYawThrottle
 {
+  std_msgs::msg::Header header;
   tobas_msgs::msg::CommandLevel level;
   kdl::Euler rpy;
   double throttle;
@@ -28,6 +29,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::RollPitchYawThrottle, tobas_msgs::msg::Ro
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
+    dst.header = src.header;
     dst.level = src.level;
     tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.rpy, dst.rpy);
     dst.throttle = src.throttle;
@@ -35,6 +37,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::RollPitchYawThrottle, tobas_msgs::msg::Ro
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
+    dst.header = src.header;
     dst.level = src.level;
     tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.rpy, dst.rpy);
     dst.throttle = src.throttle;
