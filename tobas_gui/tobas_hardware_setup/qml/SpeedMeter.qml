@@ -9,21 +9,6 @@ Rectangle {
   Gauge {
     id: gauge
     anchors.fill: parent // 親ウィジェットの大きさに自動で合わせる
-    tickmarkStepSize: computeTickmarkStepSize() // 他のメンバ変数に応じて自動調整
-
-    function computeTickmarkStepSize()
-    {
-      var step = gauge.maximumValue / 10
-      var units = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1]
-
-      for (var i = 0; i < units.length; i++)
-      {
-        if (step >= units[i])
-        {
-          return Math.ceil(step / units[i]) * units[i];
-        }
-      }
-    }
 
     style: GaugeStyle {
       valueBar: Rectangle {
@@ -36,11 +21,13 @@ Rectangle {
   // 関数呼び出し用シグナル
   signal setMaximumValue(double value)
   signal setMinimumValue(double value)
+  signal setTickmarkStepSize(double value)
   signal setValue(double value)
 
   Component.onCompleted: {
     setMaximumValue.connect(onSetMaximumValue);
     setMinimumValue.connect(onSetMinimumValue);
+    setTickmarkStepSize.connect(onSetTickmarkStepSize);
     setValue.connect(onSetValue);
   }
 
@@ -52,6 +39,11 @@ Rectangle {
   function onSetMinimumValue(value)
   {
     gauge.minimumValue = value;
+  }
+
+  function onSetTickmarkStepSize(value)
+  {
+    gauge.tickmarkStepSize = value;
   }
 
   function onSetValue(value)

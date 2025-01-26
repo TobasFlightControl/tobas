@@ -1,3 +1,4 @@
+#include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
@@ -91,7 +92,12 @@ void RotorTestWidget::updateInternalDataStructures()
   {
     rotor_channels.insert(channel);
     rotors_.at(channel)->setText("CH" + QString::number(channel) + ": " + QString::fromStdString(rotor.link_name));
-    rotors_.at(channel)->setMaximumRPM(tobas_std::rps2rpm(rotor.max_rot_speed));
+
+    // XXX: 最大値がtickmarkStepSizeの整数倍じゃないとステップサイズが正しく反映されない
+    const auto max_rpm = tobas_std::rps2rpm(rotor.max_rot_speed);
+    const auto max_rpm_rounded = math::ceil(max_rpm, 1000);
+    rotors_.at(channel)->setMaximumRPM(max_rpm_rounded);
+
     rotors_.at(channel)->setEnabled(true);
   }
 
