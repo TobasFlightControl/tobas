@@ -2,8 +2,6 @@
 
 #include "../../include/tobas_drone_core/joint/joint.hpp"
 
-using namespace std;
-
 namespace tobas
 {
 bool JointConfig::isValid() const
@@ -25,13 +23,7 @@ bool JointConfig::load(const YAML::Node& node)
   if (!yaml::load(kHwIfaceKey, node, hw_iface))
     return false;
 
-  if (!yaml::load(kChannelKey, node, channel))
-    return false;
-
   if (!yaml::load(kHomePosKey, node, home_pos))
-    return false;
-
-  if (!yaml::load(kReverseKey, node, reverse))
     return false;
 
   return true;
@@ -45,9 +37,7 @@ YAML::Node JointConfig::dump() const
   node[kRoleKey] = role;
   node[kCmdIfaceKey] = cmd_iface;
   node[kHwIfaceKey] = hw_iface;
-  node[kChannelKey] = channel;
   node[kHomePosKey] = home_pos;
-  node[kReverseKey] = reverse;
 
   return node;
 }

@@ -42,7 +42,8 @@ void JointCommandsPublisherWidget::updateInternalDataStructures()
     if (joint.hw_iface != tobas::jnt_hw_iface_t::PWM)
       continue;
 
-    const auto& ch = joint.channel;
+    const auto& pwm = drone_.pwms.at(joint.name);
+    const auto& ch = pwm.channel;
     if (ch >= kChannelSize)
     {
       qt::qErrorBox(this, "Channel " + QString::number(ch) + " is out of range.");

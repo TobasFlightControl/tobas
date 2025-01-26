@@ -145,11 +145,33 @@ tobas::Drone PackageGenerator::createDrone()
     joint.role = joint_config->getRole(i);
     joint.cmd_iface = joint_config->getCommandInterface(i);
     joint.hw_iface = joint_config->getHardwareInterface(i);
-    joint.channel = joint_config->getChannel(i);
     joint.home_pos = joint_config->getHomePosition(i);
-    joint.reverse = joint_config->getReverse(i);
-
     drone.joints[joint.name] = joint;
+
+    switch (joint.hw_iface)
+    {
+      case tobas::jnt_hw_iface_t::PWM:
+      {
+        tobas::PwmConfig pwm;
+        pwm.channel = joint_config->getChannel(i);
+        pwm.joint_name = joint.name;
+        pwm.min_period = 0;  // TODO
+        pwm.max_period = 0;  // TODO
+        pwm.min_angle = 0.;  // TODO
+        pwm.max_angle = 0.;  // TODO
+        pwm.reverse = joint_config->getReverse(i);
+        drone.pwms[joint.name] = pwm;
+        break;
+      }
+      case tobas::jnt_hw_iface_t::OTHER:
+      {
+        break;
+      }
+      default:
+      {
+        throw;
+      }
+    }
   }
 
   // Rotors

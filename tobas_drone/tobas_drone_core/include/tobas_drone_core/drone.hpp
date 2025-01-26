@@ -7,6 +7,7 @@
 #include "./joint/joint.hpp"
 #include "./rotor.hpp"
 #include "./fixed_wing.hpp"
+#include "./pwm.hpp"
 
 namespace tobas
 {
@@ -20,6 +21,7 @@ class Drone
   static constexpr char kJointsKey[] = "joints";
   static constexpr char kRotorsKey[] = "rotors";
   static constexpr char kFixedWingKey[] = "fixed_wing";
+  static constexpr char kPwmsKey[] = "pwms";
 
 public:
   static constexpr char kDroneExt[] = ".tbsdrn";
@@ -32,6 +34,7 @@ public:
   JointConfigMap joints;       // The joint configurations (joint name -> config)
   RotorConfigMap rotors;       // The rotor configurations (channel -> config)
   FixedWingConfig fixed_wing;  // The fixed wing configurations
+  PwmConfigMap pwms;           // The PWM configurations (joint name -> config)
 
   bool isValid() const;
   bool load(const YAML::Node& node);

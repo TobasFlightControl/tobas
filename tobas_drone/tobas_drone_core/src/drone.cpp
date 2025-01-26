@@ -42,6 +42,15 @@ bool Drone::isValid() const
     return false;
   }
 
+  for (const auto& [_, pwm] : pwms)
+  {
+    if (!pwm.isValid())
+    {
+      cerr << "The configurations of PWM channel " << pwm.channel << " are invalid." << endl;
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -111,6 +120,24 @@ bool Drone::load(const YAML::Node& node)
     return false;
   }
 
+  // PWM
+  pwms.clear();
+  if (!node[kPwmsKey].IsSequence())
+  {
+    cerr << "PWM field is not defined." << endl;
+    return false;
+  }
+  for (const auto& pwm_node : node[kPwmsKey])
+  {
+    PwmConfig pwm;
+    if (!pwm.load(pwm_node))
+    {
+      cerr << "Failed to load the configurations of PWM." << endl;
+      return false;
+    }
+    pwms[pwm.joint_name] = pwm;
+  }
+
   return true;
 }
 
@@ -126,16 +153,21 @@ YAML::Node Drone::dump() const
 
   // Joints
   node[kJointsKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (auto& [_, joint] : joints)
+  for (const auto& [_, joint] : joints)
     node[kJointsKey].push_back(joint.dump());
 
   // Rotors
   node[kRotorsKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (auto& [_, rotor] : rotors)
+  for (const auto& [_, rotor] : rotors)
     node[kRotorsKey].push_back(rotor.dump());
 
   // Fixed wing
   node[kFixedWingKey] = fixed_wing.dump();
+
+  // PWM
+  node[kPwmsKey] = YAML::Node(YAML::NodeType::Sequence);
+  for (const auto& [_, pwm] : pwms)
+    node[kPwmsKey].push_back(pwm.dump());
 
   return node;
 }

@@ -9,6 +9,7 @@
 #include "./joint_config.hpp"
 #include "./rotor_config.hpp"
 #include "./fixed_wing_config.hpp"
+#include "./pwm_config.hpp"
 
 template <>
 struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
@@ -37,6 +38,13 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
       tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(rotor, dst.rotors.back());
     }
 
+    dst.pwms.clear();
+    for (const auto& [_, pwm] : src.pwms)
+    {
+      dst.pwms.emplace_back();
+      tobas_drone_msgs::PwmConfigAdapter::convert_to_ros_message(pwm, dst.pwms.back());
+    }
+
     tobas_drone_msgs::FixedWingConfigAdapter::convert_to_ros_message(src.fixed_wing, dst.fixed_wing);
   }
 
@@ -58,6 +66,13 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     {
       dst.rotors[rotor.channel] = tobas::RotorConfig();
       tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(rotor, dst.rotors.at(rotor.channel));
+    }
+
+    dst.pwms.clear();
+    for (const auto& pwm : src.pwms)
+    {
+      dst.pwms[pwm.joint_name] = tobas::PwmConfig();
+      tobas_drone_msgs::PwmConfigAdapter::convert_to_custom(pwm, dst.pwms.at(pwm.joint_name));
     }
 
     tobas_drone_msgs::FixedWingConfigAdapter::convert_to_custom(src.fixed_wing, dst.fixed_wing);
