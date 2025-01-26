@@ -48,7 +48,7 @@
       <axis xyz="1 0 0"/>
       <parent link="base_link"/>
       <child link="arm_${index}"/>
-      <limit lower="${-135*deg2rad}" upper="${135*deg2rad}" velocity="7.0" effort="1.5"/>
+      <limit lower="${-120*deg2rad}" upper="${120*deg2rad}" velocity="7.0" effort="1.5"/>
     </joint>
 
     <link name="arm_${index}">
