@@ -28,11 +28,14 @@ public:
 
   void initialize(rclcpp::Node::SharedPtr node, const string& topic)
   {
+    node_ = node;
+
     pub_ = ros2::createPublisher<MsgType>(node, tobas::addThrotNS(topic));
     sub_ = ros2::createSubscriber(node, topic, &TopicThrottle::callback, this);
   }
 
 private:
+  const rclcpp::Node::SharedPtr node_;
   ros2::RateManager rate_manager_;
 
   ros2::PublisherPtr<MsgType> pub_;
@@ -41,7 +44,8 @@ private:
   void callback(const typename MsgType::ConstSharedPtr& msg_in)
   {
     // ネットワークトラフィックの改善のため，周波数の高いトピックを間引く．
-    if (!rate_manager_.update(msg_in->header.stamp))
+    // ヘッダの時刻だとPCとFCの誤差が出力レートを壊す恐れがあるため，タイマーをノードのものに統一する．
+    if (!rate_manager_.update(node_->get_clock()->now()))
       return;
 
     auto msg_out = std::make_unique<MsgType>(*msg_in);
