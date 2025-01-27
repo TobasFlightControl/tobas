@@ -29,6 +29,7 @@ public:
   void initialize(rclcpp::Node::SharedPtr node, const string& topic)
   {
     node_ = node;
+    rate_manager_.reset();
 
     pub_ = ros2::createPublisher<MsgType>(node, tobas::addThrotNS(topic));
     sub_ = ros2::createSubscriber(node, topic, &TopicThrottle::callback, this);
