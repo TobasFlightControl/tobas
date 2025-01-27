@@ -44,7 +44,7 @@ private:
   void callback(const typename MsgType::ConstSharedPtr& msg_in)
   {
     // ネットワークトラフィックの改善のため，周波数の高いトピックを間引く．
-    // ヘッダの時刻だとPCとFCの誤差が出力レートを壊す恐れがあるため，タイマーをノードのものに統一する．
+    // ヘッダの時刻だとPCとFCのシステムクロックの誤差が出力レートを壊す恐れがあるため，タイマーをノードのものに統一する．
     if (!rate_manager_.update(node_->get_clock()->now()))
       return;
 
