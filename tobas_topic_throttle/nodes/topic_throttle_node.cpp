@@ -35,7 +35,7 @@ public:
   }
 
 private:
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr node_;
   ros2::RateManager rate_manager_;
 
   ros2::PublisherPtr<MsgType> pub_;
