@@ -17,10 +17,8 @@ public:
   bool update(const rclcpp::Time& time);
 
 private:
-  const double update_rate_;
+  const rclcpp::Duration interval_;
   rclcpp::Time t_next_;
   bool is_first_update_ = true;
-
-  rclcpp::Duration interval() const;
 };
 }  // namespace ros2
