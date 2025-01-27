@@ -9,6 +9,7 @@
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
@@ -60,9 +61,8 @@ class ROSBagRecorderNode : public tobas::BaseNode
   using StopSrv = tobas_msgs::srv::BagRecordStop;
   using CleanSrv = std_srvs::srv::Trigger;
 
-  static constexpr size_t kMaxROSBagSize = 5UL * BILLION;   // [byte]
   static constexpr size_t kMaxParDirSize = 10UL * BILLION;  // [byte]
-  static constexpr auto kCheckSizeTimerPeriod = 10s;
+  static constexpr auto kMainTimerPeriod = 1s;
 
 public:
   explicit ROSBagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -72,8 +72,10 @@ private:
   const fs::path rosbag_dir_;
 
   rosbag2_cpp::Writer writer_;
-  bool is_recording_ = false;
-  fs::path rosbag_path_;
+  fs::path file_path_;
+  bool recording_ = false;
+  rclcpp::Time start_time_;
+  size_t msg_cnt_;
 
   // ROS message buffers
   tobas_drone_msgs::msg::Drone drone_;
@@ -90,6 +92,9 @@ private:
   tobas_msgs::msg::RollPitchYawThrottle rpyt_;
   tobas_msgs::msg::PoseTwistAccelCommand pta_;
 
+  // Publishers
+  ros2::PublisherPtr<tobas_msgs::msg::RosbagState> rosbag_state_pub_;
+
   // Subscribers
   vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
 
@@ -99,7 +104,7 @@ private:
   ros2::ServiceServerPtr<CleanSrv> clean_srv_;
 
   // Timers
-  ros2::TimerPtr check_size_timer_;
+  ros2::TimerPtr main_timer_;
 
   template <typename MsgType>
   inline void write(const MsgType& msg, const char* topic) noexcept;
@@ -129,7 +134,7 @@ private:
   void stopCb(const StopSrv::Request::ConstSharedPtr& req, const StopSrv::Response::SharedPtr& res);
   void cleanCb(const CleanSrv::Request::ConstSharedPtr& req, const CleanSrv::Response::SharedPtr& res);
 
-  void checkSizeTimerCb();
+  void mainTimerCb();
 };
 
 ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
@@ -138,6 +143,8 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
     rosbag_dir_(linux::isSuperUser() ? tobas::kROSBagDirRoot : linux::expandUser(tobas::kROSBagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
+
+  rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic);
 
   // Resister subscribers for standard messages
   addStandardMsgSub<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
@@ -185,7 +192,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
   clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
 
-  check_size_timer_ = createTimer(kCheckSizeTimerPeriod, &self::checkSizeTimerCb, this, false);
+  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
 template <typename MsgType>
@@ -198,7 +205,10 @@ inline void ROSBagRecorderNode::write(const MsgType& msg, const char* topic) noe
   catch (const exception& e)
   {
     RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
+    return;
   }
+
+  ++msg_cnt_;
 }
 
 template <typename MsgType>
@@ -228,7 +238,7 @@ void ROSBagRecorderNode::addTypeAdaptedMsgSub(
 template <typename MsgType>
 void ROSBagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
 {
-  if (!is_recording_)
+  if (!recording_)
     return;
 
   this->write(*msg, topic);
@@ -240,7 +250,7 @@ void ROSBagRecorderNode::typeAdaptedMsgCb(
   RawMsgType& raw_msg,
   const char* topic)
 {
-  if (!is_recording_)
+  if (!recording_)
     return;
 
   // Publisher側にシリアライズさせるのを防ぐため，TypeAdapterのまま購読し，こちら側でROSメッセージへの変換を行う．
@@ -251,7 +261,7 @@ void ROSBagRecorderNode::typeAdaptedMsgCb(
 
 void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
 {
-  if (is_recording_)
+  if (recording_)
   {
     res->success = false;
     res->message = "Rosbag recording is in progress.";
@@ -279,23 +289,23 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
-  rosbag_path_ = rosbag_dir_ / req->name;
-  if (fs::exists(rosbag_path_))
+  file_path_ = rosbag_dir_ / req->name;
+  if (fs::exists(file_path_))
   {
     if (req->overwrite)
     {
-      fs::remove_all(rosbag_path_);
+      fs::remove_all(file_path_);
     }
     else
     {
       res->success = false;
-      res->message = rosbag_path_.string() + " already exists.";
+      res->message = file_path_.string() + " already exists.";
       return;
     }
   }
 
   rosbag2_storage::StorageOptions options;
-  options.uri = rosbag_path_;
+  options.uri = file_path_;
   options.max_bagfile_size = req->max_file_size;
   options.max_cache_size = req->max_cache_size;
 
@@ -310,9 +320,10 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
-  check_size_timer_->reset();
+  recording_ = true;
+  start_time_ = get_clock()->now();
+  msg_cnt_ = 0;
 
-  is_recording_ = true;
   TOBAS_INFO("Rosbag recording has started.");
 
   res->success = true;
@@ -321,7 +332,7 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
 
 void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
 {
-  if (!is_recording_)
+  if (!recording_)
   {
     res->success = false;
     res->message = "Rosbag recording is not in progress.";
@@ -339,9 +350,8 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
     return;
   }
 
-  check_size_timer_->cancel();
+  recording_ = false;
 
-  is_recording_ = false;
   TOBAS_INFO("Rosbag recording has stopped.");
 
   res->success = true;
@@ -356,28 +366,44 @@ void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const
   res->message.clear();
 }
 
-void ROSBagRecorderNode::checkSizeTimerCb()
+void ROSBagRecorderNode::mainTimerCb()
 {
-  const auto rosbag_size = path::computeDirectorySize(rosbag_path_);
-  if (rosbag_size > kMaxROSBagSize)
+  const auto now = get_clock()->now();
+
+  auto rosbag_state = std::make_unique<tobas_msgs::msg::RosbagState>();
+  rosbag_state->header.stamp = now;
+  rosbag_state->recording = recording_;
+
+  if (recording_)
   {
-    try
-    {
-      writer_.close();
-    }
-    catch (const exception& e)
-    {
-      TOBAS_ERROR("Failed to close rosbag file: ", e.what());
-      return;
-    }
+    const auto file_size = path::computeDirectorySize(file_path_);
 
-    check_size_timer_->cancel();
-    is_recording_ = false;
+    rosbag_state->file_path = file_path_;
+    rosbag_state->duration = now - start_time_;
+    rosbag_state->file_size = file_size;
+    rosbag_state->message_count = msg_cnt_;
 
-    TOBAS_WARN(
-      "The recording is terminated because the size of rosbag ", rosbag_path_, " exceeded ", kMaxROSBagSize / BILLION,
-      "GB.");
+    if (file_size > tobas::kMaxRosbagSize)
+    {
+      try
+      {
+        writer_.close();
+      }
+      catch (const exception& e)
+      {
+        TOBAS_ERROR("Failed to close rosbag file: ", e.what());
+        return;
+      }
+
+      recording_ = false;
+
+      TOBAS_WARN(
+        "The recording is terminated because the size of rosbag ", file_path_, " exceeded ",
+        tobas::kMaxRosbagSize / BILLION, "GB.");
+    }
   }
+
+  rosbag_state_pub_->publish(move(rosbag_state));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ROSBagRecorderNode)

@@ -48,6 +48,7 @@ static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "prearm_check";
 static constexpr char kPostArmCheckTopic[] = "postarm_check";
 static constexpr char kDisturbanceForceTopic[] = "disturbance_force";
+static constexpr char kRosbagStateTopic[] = "rosbag_state";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Command
@@ -158,4 +159,5 @@ static constexpr double kTypicalErrorPeriod = 1.;        // [s]
 static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
 static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(200);
 static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
+static constexpr size_t kMaxRosbagSize = 5'000'000'000UL;  // [byte]
 }  // namespace tobas
