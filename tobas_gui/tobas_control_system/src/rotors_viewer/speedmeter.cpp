@@ -106,12 +106,12 @@ QObject* SpeedmeterWidget::getGaugeObject() const
 
 QObject* SpeedmeterWidget::getTopTextObject() const
 {
-  return rootObject()->findChild<QObject*>("top_text");
+  return rootObject()->findChild<QObject*>("topText");
 }
 
 QObject* SpeedmeterWidget::getBottomTextObject() const
 {
-  return rootObject()->findChild<QObject*>("bottom_text");
+  return rootObject()->findChild<QObject*>("bottomText");
 }
 }  // namespace control_system
 }  // namespace gui
