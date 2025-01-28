@@ -56,8 +56,11 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 void FlightLogsWidgetGCS::load()
 {
   rosbag_list_->clear();
+
   for (const auto& entry : fs::directory_iterator(ros2::expandUser(tobas::kROSBagDirHome)))
     rosbag_list_->addItem(QString::fromStdString(entry.path().filename().string()));
+
+  rosbag_list_->sortItems();
 }
 
 void FlightLogsWidgetGCS::onLoadButtonClicked()
