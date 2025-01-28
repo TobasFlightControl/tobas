@@ -22,16 +22,16 @@ public:
   explicit FlightLogsWidgetGCS();
 
 private:
-  QPushButton* load_button_;
+  QPushButton* read_button_;
   QPushButton* delete_button_;
   QPushButton* clean_button_;
 
   qt::ListWidget* rosbag_list_;
 
-  void load();
+  void read();
 
 private Q_SLOTS:
-  void onLoadButtonClicked();
+  void onReadButtonClicked();
   void onDeleteButtonClicked();
   void onCleanButtonClicked();
 };

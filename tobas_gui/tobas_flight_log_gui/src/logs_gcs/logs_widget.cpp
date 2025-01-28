@@ -17,15 +17,15 @@ namespace log
 {
 FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 {
-  load_button_ = new QPushButton("Load");
+  read_button_ = new QPushButton("Read");
   delete_button_ = new QPushButton("Delete");
   clean_button_ = new QPushButton("Clean");
 
-  load_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   delete_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  load_button_->setEnabled(true);
+  read_button_->setEnabled(true);
   delete_button_->setEnabled(false);
   clean_button_->setEnabled(false);
 
@@ -34,7 +34,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(load_button_);
+  cols->addWidget(read_button_);
   cols->addWidget(delete_button_);
   cols->addWidget(clean_button_);
   cols->addStretch();
@@ -47,12 +47,12 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   setLayout(rows);
 
   // Connections
-  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
 }
 
-void FlightLogsWidgetGCS::load()
+void FlightLogsWidgetGCS::read()
 {
   rosbag_list_->clear();
 
@@ -62,9 +62,9 @@ void FlightLogsWidgetGCS::load()
   rosbag_list_->sortItems();
 }
 
-void FlightLogsWidgetGCS::onLoadButtonClicked()
+void FlightLogsWidgetGCS::onReadButtonClicked()
 {
-  load();
+  read();
 
   if (rosbag_list_->count() == 0)
   {
@@ -110,7 +110,7 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
     if (!fs::remove_all(entry.path()))
     {
       qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
-      load();
+      read();
       return;
     }
   }

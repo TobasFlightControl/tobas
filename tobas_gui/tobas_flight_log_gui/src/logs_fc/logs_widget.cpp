@@ -16,26 +16,26 @@ namespace gui
 namespace log
 {
 FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
-  : load_thread_(node), delete_thread_(node), clean_thread_(node), spinner_(Qt::WindowModal, this)
+  : read_thread_(node), delete_thread_(node), clean_thread_(node), spinner_(Qt::WindowModal, this)
 {
-  load_button_ = new QPushButton("Load");
+  read_button_ = new QPushButton("Read");
   delete_button_ = new QPushButton("Delete");
   clean_button_ = new QPushButton("Clean");
 
-  load_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   delete_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  load_button_->setEnabled(true);
+  read_button_->setEnabled(true);
   delete_button_->setEnabled(false);
   clean_button_->setEnabled(false);
 
   rosbag_list_ = new qt::ListWidget();
-  rosbag_list_->setSelectionMode(QListWidget::SingleSelection);
+  rosbag_list_->setSelectionMode(QListWidget::NoSelection);
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(load_button_);
+  cols->addWidget(read_button_);
   cols->addWidget(delete_button_);
   cols->addWidget(clean_button_);
   cols->addStretch();
@@ -48,17 +48,17 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   setLayout(rows);
 
   // Connections
-  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(&load_thread_, &LoadThreadFC::finished, this, &self::onLoadFinished);
+  connect(&read_thread_, &ReadThreadFC::finished, this, &self::onReadFinished);
   connect(&delete_thread_, &DeleteThreadFC::finished, this, &self::onDeleteFinished);
   connect(&clean_thread_, &CleanThreadFC::finished, this, &self::onCleanFinished);
 }
 
-void FlightLogsWidgetFC::onLoadButtonClicked()
+void FlightLogsWidgetFC::onReadButtonClicked()
 {
-  load_thread_.start();
+  read_thread_.start();
 
   spinner_.show();
   spinner_.start();
@@ -97,7 +97,7 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
   spinner_.start();
 }
 
-void FlightLogsWidgetFC::onLoadFinished(bool success, const QString& message, const QStringList& rosbag_names)
+void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, const QStringList& rosbag_names)
 {
   spinner_.hide();
   spinner_.stop();

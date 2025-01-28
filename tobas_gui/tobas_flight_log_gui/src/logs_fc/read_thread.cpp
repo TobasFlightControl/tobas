@@ -2,7 +2,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/string.hpp>
 
-#include "tobas_flight_log_gui/logs_fc/load_thread.hpp"
+#include "tobas_flight_log_gui/logs_fc/read_thread.hpp"
 
 using namespace std;
 
@@ -10,11 +10,11 @@ namespace gui
 {
 namespace log
 {
-LoadThreadFC::LoadThreadFC(rclcpp::Node::SharedPtr node) : ssh_client_(node)
+ReadThreadFC::ReadThreadFC(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
 }
 
-void LoadThreadFC::run()
+void ReadThreadFC::run()
 {
   vector<string> list;
   if (ssh_client_.list(tobas::kROSBagDirRoot, list) != ssh::SSHClient::E_NO_ERROR)
@@ -23,7 +23,7 @@ void LoadThreadFC::run()
     return;
   }
 
-  Q_EMIT finished(true, "Flight logs are loaded successfully.", qt::stringListFromStdToQt(list));
+  Q_EMIT finished(true, "Flight logs are read successfully.", qt::stringListFromStdToQt(list));
 }
 }  // namespace log
 }  // namespace gui

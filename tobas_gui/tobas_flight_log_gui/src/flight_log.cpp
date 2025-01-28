@@ -1,3 +1,4 @@
+#include <QVBoxLayout>
 #include <QHBoxLayout>
 
 #include "tobas_flight_log_gui/flight_log.hpp"
@@ -13,20 +14,18 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
   logs_gcs_ = new FlightLogsWidgetGCS();
 
   const auto log_cols = new QHBoxLayout();
-  log_cols->addWidget(logs_fc_, 3);
-  log_cols->addStretch(1);  // TODO: Download Button
-  log_cols->addWidget(logs_gcs_, 3);
-  log_cols->addStretch();
+  log_cols->addWidget(logs_fc_, 1);
+  log_cols->addWidget(logs_gcs_, 1);
 
-  const auto rows = new QVBoxLayout();
-  rows->addWidget(recorder_, 1);
-  rows->addLayout(log_cols, 1);
+  const auto left_rows = new QVBoxLayout();
+  left_rows->addWidget(recorder_, 1);
+  left_rows->addLayout(log_cols, 1);
 
-  const auto cols = new QHBoxLayout();
-  cols->addLayout(rows, 1);
-  cols->addStretch(1);  // TODO: Viewer
+  const auto root_cols = new QHBoxLayout();
+  root_cols->addLayout(left_rows, 1);
+  root_cols->addStretch(1);  // TODO: Viewer
 
-  setLayout(cols);
+  setLayout(root_cols);
 }
 
 void FlightLogWidget::updateNamespace(const std::string& ns)

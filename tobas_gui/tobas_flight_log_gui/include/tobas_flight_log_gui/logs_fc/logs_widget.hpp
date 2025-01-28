@@ -6,7 +6,7 @@
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
-#include "./load_thread.hpp"
+#include "./read_thread.hpp"
 #include "./delete_thread.hpp"
 #include "./clean_thread.hpp"
 
@@ -28,11 +28,11 @@ public:
   explicit FlightLogsWidgetFC(rclcpp::Node::SharedPtr node);
 
 private:
-  QPushButton* load_button_;
+  QPushButton* read_button_;
   QPushButton* delete_button_;
   QPushButton* clean_button_;
 
-  LoadThreadFC load_thread_;
+  ReadThreadFC read_thread_;
   DeleteThreadFC delete_thread_;
   CleanThreadFC clean_thread_;
 
@@ -41,11 +41,11 @@ private:
   qt::ListWidget* rosbag_list_;
 
 private Q_SLOTS:
-  void onLoadButtonClicked();
+  void onReadButtonClicked();
   void onDeleteButtonClicked();
   void onCleanButtonClicked();
 
-  void onLoadFinished(bool success, const QString& message, const QStringList& rosbag_names);
+  void onReadFinished(bool success, const QString& message, const QStringList& rosbag_names);
   void onDeleteFinished(bool success, const QString& message);
   void onCleanFinished(bool success, const QString& message);
 };
