@@ -3,7 +3,9 @@
 
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/util.hpp>
 
 #include "tobas_flight_log_gui/logs_fc/logs_widget.hpp"
 
@@ -39,6 +41,7 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   cols->addStretch();
 
   const auto rows = new QVBoxLayout();
+  qt::addWidgetCenter(new qt::Label("Flight Controller", 18, QFont::Bold), rows);
   rows->addLayout(cols);
   rows->addWidget(rosbag_list_);
   rows->addStretch();
