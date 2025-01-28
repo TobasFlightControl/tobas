@@ -5,7 +5,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 
-#include "tobas_flight_log_gui/flight_log_reader.hpp"
+#include "tobas_flight_log_gui/logs_fc/logs_widget.hpp"
 
 namespace fs = std::filesystem;
 
@@ -13,19 +13,19 @@ namespace gui
 {
 namespace log
 {
-FlightLogReaderWidget::FlightLogReaderWidget(rclcpp::Node::SharedPtr node)
-  : read_thread_(node), download_thread_(node), clean_thread_(node), spinner_(Qt::WindowModal, this)
+FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
+  : read_thread_(node), delete_thread_(node), clean_thread_(node), spinner_(Qt::WindowModal, this)
 {
-  read_button_ = new QPushButton("Read");
-  download_button_ = new QPushButton("Download");
+  load_button_ = new QPushButton("Load");
+  delete_button_ = new QPushButton("Delete");
   clean_button_ = new QPushButton("Clean");
 
-  read_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  download_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  load_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  delete_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  read_button_->setEnabled(true);
-  download_button_->setEnabled(false);
+  load_button_->setEnabled(true);
+  delete_button_->setEnabled(false);
   clean_button_->setEnabled(false);
 
   rosbag_list_ = new qt::ListWidget();
@@ -33,8 +33,8 @@ FlightLogReaderWidget::FlightLogReaderWidget(rclcpp::Node::SharedPtr node)
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(read_button_);
-  cols->addWidget(download_button_);
+  cols->addWidget(load_button_);
+  cols->addWidget(delete_button_);
   cols->addWidget(clean_button_);
   cols->addStretch();
 
@@ -46,15 +46,15 @@ FlightLogReaderWidget::FlightLogReaderWidget(rclcpp::Node::SharedPtr node)
   setLayout(rows);
 
   // Connections
-  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
-  connect(download_button_, &QPushButton::clicked, this, &self::onDownloadButtonClicked);
+  connect(load_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
+  connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(&read_thread_, &ReadThread::finished, this, &self::onReadFinished);
-  connect(&download_thread_, &DownloadThread::finished, this, &self::onDownloadFinished);
-  connect(&clean_thread_, &CleanThread::finished, this, &self::onCleanFinished);
+  connect(&read_thread_, &LoadThreadFC::finished, this, &self::onReadFinished);
+  connect(&delete_thread_, &DeleteThreadFC::finished, this, &self::onDeleteFinished);
+  connect(&clean_thread_, &CleanThreadFC::finished, this, &self::onCleanFinished);
 }
 
-void FlightLogReaderWidget::onReadButtonClicked()
+void FlightLogsWidgetFC::onReadButtonClicked()
 {
   read_thread_.start();
 
@@ -62,36 +62,29 @@ void FlightLogReaderWidget::onReadButtonClicked()
   spinner_.start();
 }
 
-void FlightLogReaderWidget::onDownloadButtonClicked()
+void FlightLogsWidgetFC::onDeleteButtonClicked()
 {
   const auto item = rosbag_list_->selectedItem();
   if (item == nullptr)
   {
-    qt::qWarnBox(this, "Please select the name of the log file that you want to download.");
+    qt::qWarnBox(this, "Please select the name of the log file that you want to delete.");
     return;
   }
 
   const auto rosbag_name = item->text();
   const auto rosbag_path = ros2::expandUser(tobas::kROSBagDirHome) / rosbag_name.toStdString();
 
-  if (fs::exists(rosbag_path))
-  {
-    if (qt::yesOrNo(
-          this, QString(rosbag_path.c_str()) + " already exists. Do you want to overwrite it?",
-          qt::QMessageLevel::WARN))
-      fs::remove_all(rosbag_path);
-    else
-      return;
-  }
+  if (!qt::yesOrNo(this, "Do you want to delete " + rosbag_name + "?", qt::QMessageLevel::WARN))
+    return;
 
-  download_thread_.setROSBagName(rosbag_name);
-  download_thread_.start();
+  delete_thread_.setROSBagName(rosbag_name);
+  delete_thread_.start();
 
   spinner_.show();
   spinner_.start();
 }
 
-void FlightLogReaderWidget::onCleanButtonClicked()
+void FlightLogsWidgetFC::onCleanButtonClicked()
 {
   if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the FC?", qt::QMessageLevel::WARN))
     return;
@@ -102,7 +95,7 @@ void FlightLogReaderWidget::onCleanButtonClicked()
   spinner_.start();
 }
 
-void FlightLogReaderWidget::onReadFinished(bool success, const QString& message, const QStringList& rosbag_names)
+void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, const QStringList& rosbag_names)
 {
   spinner_.hide();
   spinner_.stop();
@@ -124,13 +117,13 @@ void FlightLogReaderWidget::onReadFinished(bool success, const QString& message,
   for (const auto& name : rosbag_names)
     rosbag_list_->addItem(name);
 
-  download_button_->setEnabled(true);
+  delete_button_->setEnabled(true);
   clean_button_->setEnabled(true);
 
   qt::qInfoBox(this, message);
 }
 
-void FlightLogReaderWidget::onDownloadFinished(bool success, const QString& message)
+void FlightLogsWidgetFC::onDeleteFinished(bool success, const QString& message)
 {
   spinner_.hide();
   spinner_.stop();
@@ -141,7 +134,7 @@ void FlightLogReaderWidget::onDownloadFinished(bool success, const QString& mess
     qt::qErrorBox(this, message);
 }
 
-void FlightLogReaderWidget::onCleanFinished(bool success, const QString& message)
+void FlightLogsWidgetFC::onCleanFinished(bool success, const QString& message)
 {
   spinner_.hide();
   spinner_.stop();

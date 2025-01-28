@@ -2,7 +2,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/string.hpp>
 
-#include "tobas_flight_log_gui/read_thread.hpp"
+#include "tobas_flight_log_gui/logs_fc/load_thread.hpp"
 
 using namespace std;
 
@@ -10,11 +10,11 @@ namespace gui
 {
 namespace log
 {
-ReadThread::ReadThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
+LoadThreadFC::LoadThreadFC(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
 }
 
-void ReadThread::run()
+void LoadThreadFC::run()
 {
   vector<string> list;
   if (ssh_client_.list(tobas::kROSBagDirRoot, list) != ssh::SSHClient::E_NO_ERROR)

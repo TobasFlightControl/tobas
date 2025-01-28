@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-class CleanThread : public QThread
+class DeleteThreadFC : public QThread
 {
   Q_OBJECT
 
@@ -16,12 +16,15 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit CleanThread(rclcpp::Node::SharedPtr node);
+  explicit DeleteThreadFC(rclcpp::Node::SharedPtr node);
 
   void run() override;
 
+  void setROSBagName(const QString& rosbag_name);
+
 private:
   ssh::SSHClient ssh_client_;
+  QString rosbag_name_;
 };
 }  // namespace log
 }  // namespace gui

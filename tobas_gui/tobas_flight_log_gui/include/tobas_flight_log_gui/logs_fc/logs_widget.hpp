@@ -6,35 +6,35 @@
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/wait_spinner.hpp>
 
-#include "./read_thread.hpp"
-#include "./download_thread.hpp"
+#include "./load_thread.hpp"
+#include "./delete_thread.hpp"
 #include "./clean_thread.hpp"
 
 namespace gui
 {
 namespace log
 {
-class FlightLogReaderWidget : public QWidget
+class FlightLogsWidgetFC : public QWidget
 {
   Q_OBJECT
 
-  using self = FlightLogReaderWidget;
+  using self = FlightLogsWidgetFC;
   using super = QWidget;
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
 public:
-  explicit FlightLogReaderWidget(rclcpp::Node::SharedPtr node);
+  explicit FlightLogsWidgetFC(rclcpp::Node::SharedPtr node);
 
 private:
-  QPushButton* read_button_;
-  QPushButton* download_button_;
+  QPushButton* load_button_;
+  QPushButton* delete_button_;
   QPushButton* clean_button_;
 
-  ReadThread read_thread_;
-  DownloadThread download_thread_;
-  CleanThread clean_thread_;
+  LoadThreadFC read_thread_;
+  DeleteThreadFC delete_thread_;
+  CleanThreadFC clean_thread_;
 
   qt::WaitSpinnerWidget spinner_;
 
@@ -42,11 +42,11 @@ private:
 
 private Q_SLOTS:
   void onReadButtonClicked();
-  void onDownloadButtonClicked();
+  void onDeleteButtonClicked();
   void onCleanButtonClicked();
 
   void onReadFinished(bool success, const QString& message, const QStringList& rosbag_names);
-  void onDownloadFinished(bool success, const QString& message);
+  void onDeleteFinished(bool success, const QString& message);
   void onCleanFinished(bool success, const QString& message);
 };
 }  // namespace log

@@ -10,7 +10,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_flight_log_gui/flight_log_recorder.hpp"
+#include "tobas_flight_log_gui/recorder.hpp"
 
 namespace gui
 {

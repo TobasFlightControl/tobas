@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-class ReadThread : public QThread
+class LoadThreadFC : public QThread
 {
   Q_OBJECT
 
@@ -16,7 +16,7 @@ Q_SIGNALS:
   void finished(bool success, const QString& message, const QStringList& rosbag_names);
 
 public:
-  explicit ReadThread(rclcpp::Node::SharedPtr node);
+  explicit LoadThreadFC(rclcpp::Node::SharedPtr node);
 
   void run() override;
 

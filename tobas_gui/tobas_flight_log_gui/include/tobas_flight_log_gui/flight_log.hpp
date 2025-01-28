@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./flight_log_recorder.hpp"
-#include "./flight_log_reader.hpp"
+#include "./recorder.hpp"
+#include "./logs_fc/logs_widget.hpp"
 
 namespace gui
 {
@@ -21,7 +21,7 @@ public:
 
 private:
   FlightLogRecorderWidget* recorder_;
-  FlightLogReaderWidget* reader_;
+  FlightLogsWidgetFC* logs_fc_;
 };
 }  // namespace log
 }  // namespace gui
