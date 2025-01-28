@@ -44,7 +44,6 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   qt::addWidgetCenter(new qt::Label("Flight Controller", 18, QFont::Bold), rows);
   rows->addLayout(cols);
   rows->addWidget(rosbag_list_);
-  rows->addStretch();
 
   setLayout(rows);
 

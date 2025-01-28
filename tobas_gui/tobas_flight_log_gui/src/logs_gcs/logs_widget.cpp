@@ -43,7 +43,6 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   qt::addWidgetCenter(new qt::Label("Ground Control Station", 18, QFont::Bold), rows);
   rows->addLayout(cols);
   rows->addWidget(rosbag_list_);
-  rows->addStretch();
 
   setLayout(rows);
 
