@@ -32,7 +32,7 @@ private:
   QPushButton* delete_button_;
   QPushButton* clean_button_;
 
-  LoadThreadFC read_thread_;
+  LoadThreadFC load_thread_;
   DeleteThreadFC delete_thread_;
   CleanThreadFC clean_thread_;
 
@@ -41,11 +41,11 @@ private:
   qt::ListWidget* rosbag_list_;
 
 private Q_SLOTS:
-  void onReadButtonClicked();
+  void onLoadButtonClicked();
   void onDeleteButtonClicked();
   void onCleanButtonClicked();
 
-  void onReadFinished(bool success, const QString& message, const QStringList& rosbag_names);
+  void onLoadFinished(bool success, const QString& message, const QStringList& rosbag_names);
   void onDeleteFinished(bool success, const QString& message);
   void onCleanFinished(bool success, const QString& message);
 };

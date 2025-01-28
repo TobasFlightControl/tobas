@@ -23,7 +23,7 @@ NetworkSettingWidget::NetworkSettingWidget(rclcpp::Node::SharedPtr node) : ssh_c
   read_button_ = new QPushButton("Read");
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   read_button_->setEnabled(true);
-  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
+  connect(read_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   cols->addWidget(read_button_);
 
   write_button_ = new QPushButton("Write");
@@ -72,7 +72,7 @@ void NetworkSettingWidget::addRow(const std::string& ssid, const std::string& ps
   table_->setItem(row, kPSKCol, new QTableWidgetItem(QString::fromStdString(psk)));
 }
 
-void NetworkSettingWidget::onReadButtonClicked()
+void NetworkSettingWidget::onLoadButtonClicked()
 {
   // SSH接続を確認
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)

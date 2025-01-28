@@ -16,7 +16,7 @@ namespace gui
 namespace log
 {
 FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
-  : read_thread_(node), delete_thread_(node), clean_thread_(node), spinner_(Qt::WindowModal, this)
+  : load_thread_(node), delete_thread_(node), clean_thread_(node), spinner_(Qt::WindowModal, this)
 {
   load_button_ = new QPushButton("Load");
   delete_button_ = new QPushButton("Delete");
@@ -49,17 +49,17 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   setLayout(rows);
 
   // Connections
-  connect(load_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
+  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
-  connect(&read_thread_, &LoadThreadFC::finished, this, &self::onReadFinished);
+  connect(&load_thread_, &LoadThreadFC::finished, this, &self::onLoadFinished);
   connect(&delete_thread_, &DeleteThreadFC::finished, this, &self::onDeleteFinished);
   connect(&clean_thread_, &CleanThreadFC::finished, this, &self::onCleanFinished);
 }
 
-void FlightLogsWidgetFC::onReadButtonClicked()
+void FlightLogsWidgetFC::onLoadButtonClicked()
 {
-  read_thread_.start();
+  load_thread_.start();
 
   spinner_.show();
   spinner_.start();
@@ -98,7 +98,7 @@ void FlightLogsWidgetFC::onCleanButtonClicked()
   spinner_.start();
 }
 
-void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, const QStringList& rosbag_names)
+void FlightLogsWidgetFC::onLoadFinished(bool success, const QString& message, const QStringList& rosbag_names)
 {
   spinner_.hide();
   spinner_.stop();
@@ -122,8 +122,6 @@ void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, co
 
   delete_button_->setEnabled(true);
   clean_button_->setEnabled(true);
-
-  qt::qInfoBox(this, message);
 }
 
 void FlightLogsWidgetFC::onDeleteFinished(bool success, const QString& message)
@@ -131,10 +129,13 @@ void FlightLogsWidgetFC::onDeleteFinished(bool success, const QString& message)
   spinner_.hide();
   spinner_.stop();
 
-  if (success)
-    qt::qInfoBox(this, message);
-  else
+  if (!success)
+  {
     qt::qErrorBox(this, message);
+    return;
+  }
+
+  rosbag_list_->remove(rosbag_list_->selectedItem());
 }
 
 void FlightLogsWidgetFC::onCleanFinished(bool success, const QString& message)
@@ -149,8 +150,6 @@ void FlightLogsWidgetFC::onCleanFinished(bool success, const QString& message)
   }
 
   rosbag_list_->clear();
-
-  qt::qInfoBox(this, message);
 }
 }  // namespace log
 }  // namespace gui

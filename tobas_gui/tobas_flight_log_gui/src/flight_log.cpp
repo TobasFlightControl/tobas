@@ -10,11 +10,12 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
 {
   recorder_ = new FlightLogRecorderWidget(node);
   logs_fc_ = new FlightLogsWidgetFC(node);
+  logs_gcs_ = new FlightLogsWidgetGCS();
 
   const auto log_cols = new QHBoxLayout();
   log_cols->addWidget(logs_fc_, 3);
   log_cols->addStretch(1);  // TODO: Download Button
-  log_cols->addStretch(3);  // TODO: logs_gcs
+  log_cols->addWidget(logs_gcs_, 3);
   log_cols->addStretch();
 
   const auto rows = new QVBoxLayout();

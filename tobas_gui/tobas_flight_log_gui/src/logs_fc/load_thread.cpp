@@ -23,7 +23,7 @@ void LoadThreadFC::run()
     return;
   }
 
-  Q_EMIT finished(true, "The name of flight logs are read successfully.", qt::stringListFromStdToQt(list));
+  Q_EMIT finished(true, "Flight logs are loaded successfully.", qt::stringListFromStdToQt(list));
 }
 }  // namespace log
 }  // namespace gui

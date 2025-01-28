@@ -2,6 +2,7 @@
 
 #include "./recorder.hpp"
 #include "./logs_fc/logs_widget.hpp"
+#include "./logs_gcs/logs_widget.hpp"
 
 namespace gui
 {
@@ -22,6 +23,7 @@ public:
 private:
   FlightLogRecorderWidget* recorder_;
   FlightLogsWidgetFC* logs_fc_;
+  FlightLogsWidgetGCS* logs_gcs_;
 };
 }  // namespace log
 }  // namespace gui
