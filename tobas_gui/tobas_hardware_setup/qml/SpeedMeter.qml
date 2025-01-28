@@ -8,6 +8,7 @@ Rectangle {
   // Gauge: https://doc.qt.io/qt-5/qml-qtquick-extras-gauge.html
   Gauge {
     id: gauge
+    objectName: "gauge"
     anchors.fill: parent // 親ウィジェットの大きさに自動で合わせる
 
     style: GaugeStyle {

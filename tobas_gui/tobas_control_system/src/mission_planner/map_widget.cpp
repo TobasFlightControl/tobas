@@ -3,6 +3,8 @@
 #include <QtQuick/QQuickItem>
 #include <QtQml/QQmlContext>
 
+#include <tobas_std_tools/check.hpp>
+
 #include "tobas_control_system/constants.hpp"
 #include "tobas_control_system/mission_planner/map_widget.hpp"
 #include "tobas_control_system/mission_planner/system_info.hpp"
@@ -62,6 +64,8 @@ void MapWidget::addLine(double latitude_1, double longitude_1, double latitude_2
 std::pair<double, double> MapWidget::getCenter()
 {
   const auto map = rootObject()->findChild<QObject*>("map");
+  TOBAS_CHECK(map != nullptr);
+
   const auto center = map->property("center").value<QGeoCoordinate>();
   return { center.latitude(), center.longitude() };
 }

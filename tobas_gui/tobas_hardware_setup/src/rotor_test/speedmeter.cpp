@@ -3,6 +3,8 @@
 #include <QtQuick/QQuickItem>
 #include <QtQml/QQmlContext>
 
+#include <tobas_std_tools/check.hpp>
+
 #include "tobas_hardware_setup/rotor_test/speedmeter.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
@@ -66,7 +68,9 @@ void SpeedmeterWidget::setValue(double value)
 
 QObject* SpeedmeterWidget::getGaugeObject() const
 {
-  return rootObject()->findChild<QObject*>("gauge");
+  const auto gauge = rootObject()->findChild<QObject*>("gauge");
+  TOBAS_CHECK(gauge != nullptr);
+  return gauge;
 }
 }  // namespace hardware_setup
 }  // namespace gui

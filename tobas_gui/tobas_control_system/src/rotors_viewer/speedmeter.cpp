@@ -3,6 +3,8 @@
 #include <QtQuick/QQuickItem>
 #include <QtQml/QQmlContext>
 
+#include <tobas_std_tools/check.hpp>
+
 #include "tobas_control_system/rotors_viewer/speedmeter.hpp"
 #include "tobas_control_system/constants.hpp"
 
@@ -96,22 +98,30 @@ void SpeedmeterWidget::setBottomText(const QString& text)
 
 QObject* SpeedmeterWidget::getRectangleObject() const
 {
-  return rootObject()->findChild<QObject*>("rectangle");
+  const auto rectangle = rootObject()->findChild<QObject*>("rectangle");
+  TOBAS_CHECK(rectangle != nullptr);
+  return rectangle;
 }
 
 QObject* SpeedmeterWidget::getGaugeObject() const
 {
-  return rootObject()->findChild<QObject*>("gauge");
+  const auto gauge = rootObject()->findChild<QObject*>("gauge");
+  TOBAS_CHECK(gauge != nullptr);
+  return gauge;
 }
 
 QObject* SpeedmeterWidget::getTopTextObject() const
 {
-  return rootObject()->findChild<QObject*>("topText");
+  const auto top_text = rootObject()->findChild<QObject*>("topText");
+  TOBAS_CHECK(top_text != nullptr);
+  return top_text;
 }
 
 QObject* SpeedmeterWidget::getBottomTextObject() const
 {
-  return rootObject()->findChild<QObject*>("bottomText");
+  const auto bottom_text = rootObject()->findChild<QObject*>("bottomText");
+  TOBAS_CHECK(bottom_text != nullptr);
+  return bottom_text;
 }
 }  // namespace control_system
 }  // namespace gui
