@@ -170,7 +170,7 @@ void JointCommandsPublisherWidget::start()
   }
 
   // ジョイントがリセットされないよう一定周期でコマンドを発行し続ける
-  publish_timer_.start();
+  publish_timer_.start(kPublishPeriod);
 }
 
 void JointCommandsPublisherWidget::stop()
