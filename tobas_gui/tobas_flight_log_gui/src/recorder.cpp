@@ -27,11 +27,9 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
 
   start_button_ = new QPushButton("Start Recording");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  start_button_->setEnabled(false);
 
   stop_button_ = new QPushButton("Stop Recording");
   stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  stop_button_->setEnabled(false);
 
   duration_ = new QLCDNumber(8);
   duration_->setSegmentStyle(QLCDNumber::Flat);
@@ -82,7 +80,10 @@ void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
   rosbag_state_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRosbagStateTopic), &self::rosbagStateCb, this);
 
+  start_button_->setEnabled(false);
+  stop_button_->setEnabled(false);
   clearRosbagStateViewerWidgets();
+
   setEnabled(true);
 }
 
