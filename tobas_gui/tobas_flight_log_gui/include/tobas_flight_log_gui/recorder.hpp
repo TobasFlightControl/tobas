@@ -41,6 +41,8 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::RosbagState> rosbag_state_sub_;
 
+  void clearRosbagStateViewerWidgets();
+
   void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state);
 
 private Q_SLOTS:

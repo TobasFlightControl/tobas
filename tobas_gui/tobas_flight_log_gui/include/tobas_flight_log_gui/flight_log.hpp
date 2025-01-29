@@ -3,6 +3,7 @@
 #include "./recorder.hpp"
 #include "./logs_fc/logs_widget.hpp"
 #include "./logs_gcs/logs_widget.hpp"
+#include "./log_viewer/log_viewer.hpp"
 
 namespace gui
 {
@@ -24,6 +25,7 @@ private:
   FlightLogRecorderWidget* recorder_;
   FlightLogsWidgetFC* logs_fc_;
   FlightLogsWidgetGCS* logs_gcs_;
+  FlightLogViewerWidget* log_viewer_;
 
 private Q_SLOTS:
   void onLogDownloaded(const QString& log_name);

@@ -13,6 +13,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
   recorder_ = new FlightLogRecorderWidget(node);
   logs_fc_ = new FlightLogsWidgetFC(node);
   logs_gcs_ = new FlightLogsWidgetGCS();
+  log_viewer_ = new FlightLogViewerWidget();
 
   // Layout
   const auto log_cols = new QHBoxLayout();
@@ -25,7 +26,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
 
   const auto root_cols = new QHBoxLayout();
   root_cols->addLayout(left_rows, 1);
-  root_cols->addStretch(1);  // TODO: Viewer
+  root_cols->addWidget(log_viewer_, 1);
 
   setLayout(root_cols);
 

@@ -33,7 +33,8 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
   stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
   stop_button_->setEnabled(false);
 
-  duration_ = new QLCDNumber();
+  duration_ = new QLCDNumber(8);
+  duration_->setSegmentStyle(QLCDNumber::Flat);
 
   file_size_ = new qt::HPositionBarWidget();
   file_size_->setLower(0);
@@ -41,6 +42,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
   file_size_->setMaximum(tobas::kMaxRosbagSize);
 
   message_count_ = new qt::FramedLabel();
+  message_count_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
   // Layout
   const auto name_cols = new QHBoxLayout();
@@ -69,6 +71,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
 
+  clearRosbagStateViewerWidgets();
   setEnabled(false);
 }
 
@@ -79,7 +82,18 @@ void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
   rosbag_state_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRosbagStateTopic), &self::rosbagStateCb, this);
 
+  clearRosbagStateViewerWidgets();
   setEnabled(true);
+}
+
+void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()
+{
+  duration_->display("00:00:00");
+
+  file_size_->setUpper(0);
+  file_size_->setText("0 MB");
+
+  message_count_->setText("0");
 }
 
 void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state)
@@ -92,6 +106,16 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
     start_button_->setEnabled(false);
     stop_button_->setEnabled(true);
 
+    const auto& total_secs = rosbag_state->duration.sec;
+    const auto hours = total_secs / 3600;
+    const auto minutes = (total_secs % 3600) / 60;
+    const auto seconds = total_secs % 60;
+    const auto hhmmss = QString("%1:%2:%3")
+                          .arg(hours, 2, 10, QLatin1Char('0'))
+                          .arg(minutes, 2, 10, QLatin1Char('0'))
+                          .arg(seconds, 2, 10, QLatin1Char('0'));
+    duration_->display(hhmmss);
+
     file_size_->setUpper(rosbag_state->file_size);
     file_size_->setText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
 
@@ -102,8 +126,7 @@ void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::
     log_name_->setEnabled(true);
     start_button_->setEnabled(true);
     stop_button_->setEnabled(false);
-    file_size_->clear();
-    message_count_->clear();
+    clearRosbagStateViewerWidgets();
   }
 }
 
@@ -144,6 +167,7 @@ void FlightLogRecorderWidget::onStartButtonClicked()
 
   log_name_->setEnabled(false);
   start_button_->setEnabled(false);
+  clearRosbagStateViewerWidgets();
 
   qt::qInfoBox(this, "Flight log recording has started.");
 }
@@ -170,6 +194,7 @@ void FlightLogRecorderWidget::onStopButtonClicked()
 
   log_name_->clear();
   stop_button_->setEnabled(false);
+  clearRosbagStateViewerWidgets();
 
   qt::qInfoBox(this, "Flight log recording has stopped.");
 }
