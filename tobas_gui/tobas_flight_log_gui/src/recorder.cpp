@@ -11,6 +11,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 
 #include "tobas_flight_log_gui/recorder.hpp"
+#include "tobas_flight_log_gui/constants.hpp"
 
 namespace gui
 {
@@ -29,7 +30,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
 
   // Layout
   const auto name_cols = new QHBoxLayout();
-  name_cols->addWidget(new qt::Label("Log Name: ", kLogNameLabelPSize));
+  name_cols->addWidget(new qt::Label("Log Name: ", kPSize2));
   name_cols->addWidget(log_name_);
 
   const auto button_cols = new QHBoxLayout();

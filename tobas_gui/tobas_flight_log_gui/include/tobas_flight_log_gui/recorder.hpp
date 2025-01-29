@@ -16,7 +16,6 @@ class FlightLogRecorderWidget : public QWidget
   using self = FlightLogRecorderWidget;
   using super = QWidget;
 
-  static constexpr int kLogNameLabelPSize = 12;
   static constexpr int kButtonWidth = 150;
   static constexpr int kButtonHeight = 60;
 

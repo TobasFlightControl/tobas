@@ -39,7 +39,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   cols->addStretch();
 
   const auto rows = new QVBoxLayout();
-  qt::addWidgetCenter(new qt::Label("Ground Control Station", kTitlePSize, QFont::Bold), rows);
+  qt::addWidgetCenter(new qt::Label("Ground Control Station", kPSize1, QFont::Bold), rows);
   rows->addLayout(cols);
   rows->addWidget(log_list_);
 
