@@ -44,7 +44,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
 
   setLayout(rows);
 
-  // Connections
+  // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
 

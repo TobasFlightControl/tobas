@@ -36,7 +36,7 @@ StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Setting
 
   setLayout(rows);
 
-  // Connections
+  // Connection
   connect(ckb_group, &QButtonGroup::idClicked, stack, &QStackedWidget::setCurrentIndex);
 }
 }  // namespace setup_assistant

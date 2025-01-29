@@ -74,7 +74,7 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
 
   setLayout(rows);
 
-  // Connections
+  // Connection
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);
   connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);

@@ -236,7 +236,6 @@ tobas::Drone PackageGenerator::createDrone()
     for (int i = 0; i < css->count(); ++i)
     {
       const auto link_name = css->linkName(i);
-      const auto joint_idx = joint_config->findLink(link_name);
 
       tobas::ControlSurface cs;
       cs.channel = -1;  // TODO: channelフィールドを削除

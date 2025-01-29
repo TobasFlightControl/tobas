@@ -67,7 +67,7 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   cols->addWidget(collision_box);
   cols->addWidget(inertia_box);
 
-  // Connections
+  // Connection
   connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(visual_box, &QCheckBox::toggled, this, &self::onVisualBoxToggled);
   connect(collision_box, &QCheckBox::toggled, this, &self::onCollisionBoxToggled);

@@ -50,7 +50,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
   setSize(kTabWidth, kTabHeight);
 
-  // Connections
+  // Connection
   connect(this, &self::currentChanged, this, &self::onCurrentChanged);
 }
 

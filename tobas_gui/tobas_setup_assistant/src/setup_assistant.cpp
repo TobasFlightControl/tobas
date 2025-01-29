@@ -36,7 +36,7 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
 
   setLayout(rows);
 
-  // Connections
+  // Connection
   connect(&robot_, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(settings_->ros_package, &ROSPackageWidget::generateButtonClicked, this, &self::onGenerateButtonClicked);
   connect(&build_thread_, &BuildPackageThread::finished, this, &self::onBuildPackageFinished);

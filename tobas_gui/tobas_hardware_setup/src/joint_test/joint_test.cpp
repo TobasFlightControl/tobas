@@ -43,7 +43,7 @@ JointTestWidget::JointTestWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& 
   rows_->addWidget(commands_publisher_);
   rows_->addStretch();
 
-  // Connections
+  // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
   connect(stop_button_, &QPushButton::clicked, this, &self::onStopButtonClicked);
 }

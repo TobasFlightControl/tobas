@@ -67,7 +67,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   table_->setHorizontalHeaderLabels(labels);
   rows_->addWidget(table_);
 
-  // Connections
+  // Connection
   connect(add_row_btn, &QPushButton::clicked, this, &self::addRow);
   connect(delete_row_btn, &QPushButton::clicked, this, &self::deleteRow);
   connect(clear_btn, &QPushButton::clicked, table_, &qt::TableWidget::removeAll);

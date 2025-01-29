@@ -41,7 +41,7 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
 
   setLayout(rows);
 
-  // Connections
+  // Connection
   connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);

@@ -37,7 +37,7 @@ MapWidget::MapWidget()
   const auto qml_path = pkg_path / "qml/Map.qml";
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 
-  // Connections
+  // Connection
   connect(rootObject(), SIGNAL(waypointMoved(int, double, double)), this, SLOT(onWaypointMoved(int, double, double)));
 }
 
