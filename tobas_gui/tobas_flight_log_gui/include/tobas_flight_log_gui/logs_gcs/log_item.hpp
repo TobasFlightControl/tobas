@@ -14,7 +14,7 @@ class FlightLogItemWidgetGCS : public QWidget
   using self = FlightLogItemWidgetGCS;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 60;
+  static constexpr int kButtonWidth = 80;
 
 Q_SIGNALS:
   void deleteButtonClicked(const QString& log_name);
