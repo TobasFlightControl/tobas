@@ -106,6 +106,8 @@ private:
   // Timers
   ros2::TimerPtr main_timer_;
 
+  void publishRosbagState();
+
   template <typename MsgType>
   inline void write(const MsgType& msg, const char* topic) noexcept;
 
@@ -193,6 +195,46 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+}
+
+void ROSBagRecorderNode::publishRosbagState()
+{
+  const auto now = get_clock()->now();
+
+  auto rosbag_state = std::make_unique<tobas_msgs::msg::RosbagState>();
+  rosbag_state->header.stamp = now;
+  rosbag_state->recording = recording_;
+
+  if (recording_)
+  {
+    const auto file_size = path::computeDirectorySize(file_path_);
+
+    rosbag_state->file_path = file_path_;
+    rosbag_state->duration = now - start_time_;
+    rosbag_state->file_size = file_size;
+    rosbag_state->message_count = msg_cnt_;
+
+    if (file_size > tobas::kMaxRosbagSize)
+    {
+      try
+      {
+        writer_.close();
+      }
+      catch (const exception& e)
+      {
+        TOBAS_ERROR("Failed to close rosbag file: ", e.what());
+        return;
+      }
+
+      recording_ = false;
+
+      TOBAS_WARN(
+        "The recording is terminated because the size of rosbag ", file_path_, " exceeded ",
+        tobas::kMaxRosbagSize / BILLION, "GB.");
+    }
+  }
+
+  rosbag_state_pub_->publish(move(rosbag_state));
 }
 
 template <typename MsgType>
@@ -328,6 +370,8 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
 
   res->success = true;
   res->message.clear();
+
+  publishRosbagState();
 }
 
 void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
@@ -356,6 +400,8 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
 
   res->success = true;
   res->message.clear();
+
+  publishRosbagState();
 }
 
 void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
@@ -368,42 +414,7 @@ void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const
 
 void ROSBagRecorderNode::mainTimerCb()
 {
-  const auto now = get_clock()->now();
-
-  auto rosbag_state = std::make_unique<tobas_msgs::msg::RosbagState>();
-  rosbag_state->header.stamp = now;
-  rosbag_state->recording = recording_;
-
-  if (recording_)
-  {
-    const auto file_size = path::computeDirectorySize(file_path_);
-
-    rosbag_state->file_path = file_path_;
-    rosbag_state->duration = now - start_time_;
-    rosbag_state->file_size = file_size;
-    rosbag_state->message_count = msg_cnt_;
-
-    if (file_size > tobas::kMaxRosbagSize)
-    {
-      try
-      {
-        writer_.close();
-      }
-      catch (const exception& e)
-      {
-        TOBAS_ERROR("Failed to close rosbag file: ", e.what());
-        return;
-      }
-
-      recording_ = false;
-
-      TOBAS_WARN(
-        "The recording is terminated because the size of rosbag ", file_path_, " exceeded ",
-        tobas::kMaxRosbagSize / BILLION, "GB.");
-    }
-  }
-
-  rosbag_state_pub_->publish(move(rosbag_state));
+  publishRosbagState();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ROSBagRecorderNode)

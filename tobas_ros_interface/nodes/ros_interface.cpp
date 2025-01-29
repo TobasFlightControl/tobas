@@ -12,12 +12,17 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
+#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/gps.hpp>
+#include <tobas_msgs/msg/imu_stamped.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
+#include <tobas_msgs/msg/magnetic_field_stamped.hpp>
+#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/enable_rotor.hpp>
@@ -30,10 +35,6 @@
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 #include <tobas_drone_msgs/msg/drone.hpp>
 #include <tobas_dparam_msgs/srv/get_params.hpp>
-#include <tobas_msgs/msg/imu_stamped.hpp>
-#include <tobas_msgs/msg/magnetic_field_stamped.hpp>
-#include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
-#include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
 #include <tobas_real_msgs/srv/set_battery_params.hpp>
@@ -114,6 +115,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::ImuStamped>(tobas::addThrotNS(real::kIMUTopic), real::kIMUTopic);
   addTopicLogicToIface<tobas_msgs::msg::MagneticFieldStamped>(tobas::addThrotNS(real::kMagTopic), real::kMagTopic);
   addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(real::kSBUSTopic), real::kSBUSTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);
 
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic, tobas::kJointPosCmdTopic);

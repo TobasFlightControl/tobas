@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
@@ -9,9 +10,12 @@
 #include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
+#include <tobas_qt_tools/layouts/form_layout.hpp>
 
 #include "tobas_flight_log_gui/recorder.hpp"
 #include "tobas_flight_log_gui/constants.hpp"
+
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -23,27 +27,43 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
 
   start_button_ = new QPushButton("Start Recording");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  start_button_->setEnabled(false);
 
   stop_button_ = new QPushButton("Stop Recording");
   stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
   stop_button_->setEnabled(false);
 
+  duration_ = new QLCDNumber();
+
+  file_size_ = new qt::HPositionBarWidget();
+  file_size_->setLower(0);
+  file_size_->setMinimum(0);
+  file_size_->setMaximum(tobas::kMaxRosbagSize);
+
+  message_count_ = new qt::FramedLabel();
+
   // Layout
   const auto name_cols = new QHBoxLayout();
-  name_cols->addWidget(new qt::Label("Log Name: ", kPSize2));
+  name_cols->addWidget(new qt::Label("Log Name", kPSize2));
   name_cols->addWidget(log_name_);
 
   const auto button_cols = new QHBoxLayout();
   button_cols->addWidget(start_button_);
   button_cols->addWidget(stop_button_);
   button_cols->addStretch();
+  button_cols->addWidget(duration_);
 
-  const auto rows = new QVBoxLayout();
-  rows->addLayout(name_cols);
-  rows->addLayout(button_cols);
-  rows->addStretch();
+  const auto state_form = new qt::FormLayout();
+  state_form->addVAlignedRow(new qt::Label("File Size", kPSize2), file_size_);
+  state_form->addVAlignedRow(new qt::Label("Message Count", kPSize2), message_count_);
 
-  setLayout(rows);
+  const auto root_rows = new QVBoxLayout();
+  root_rows->addLayout(name_cols);
+  root_rows->addLayout(button_cols);
+  root_rows->addLayout(state_form);
+  root_rows->addStretch();
+
+  setLayout(root_rows);
 
   // Connection
   connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
@@ -56,7 +76,35 @@ void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 {
   ns_ = ns;
 
+  rosbag_state_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRosbagStateTopic), &self::rosbagStateCb, this);
+
   setEnabled(true);
+}
+
+void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state)
+{
+  if (rosbag_state->recording)
+  {
+    log_name_->setText(fs::path(rosbag_state->file_path).lexically_normal().filename().c_str());
+    log_name_->setEnabled(false);
+
+    start_button_->setEnabled(false);
+    stop_button_->setEnabled(true);
+
+    file_size_->setUpper(rosbag_state->file_size);
+    file_size_->setText(QString::number(rosbag_state->file_size / 1'000'000) + " MB");
+
+    message_count_->setText(QString::number(rosbag_state->message_count));
+  }
+  else
+  {
+    log_name_->setEnabled(true);
+    start_button_->setEnabled(true);
+    stop_button_->setEnabled(false);
+    file_size_->clear();
+    message_count_->clear();
+  }
 }
 
 void FlightLogRecorderWidget::onStartButtonClicked()
@@ -95,10 +143,7 @@ void FlightLogRecorderWidget::onStartButtonClicked()
   }
 
   log_name_->setEnabled(false);
-
-  log_name_->setEnabled(false);
   start_button_->setEnabled(false);
-  stop_button_->setEnabled(true);
 
   qt::qInfoBox(this, "Flight log recording has started.");
 }
@@ -124,10 +169,6 @@ void FlightLogRecorderWidget::onStopButtonClicked()
   }
 
   log_name_->clear();
-  log_name_->setEnabled(true);
-
-  log_name_->setEnabled(true);
-  start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
 
   qt::qInfoBox(this, "Flight log recording has stopped.");
