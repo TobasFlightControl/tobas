@@ -17,7 +17,6 @@ AvailableLinkItemWidget::AvailableLinkItemWidget(const QString& link_name)
 {
   link_name_ = new QLabel(link_name);
   link_name_->setFont(qt::DefaultFont(kBodyPSize));
-  link_name_->setAlignment(Qt::AlignLeft);
 
   add_button_ = new QPushButton("Add");
   add_button_->setFixedWidth(kButtonWidth);
@@ -45,6 +44,7 @@ void AvailableLinkItemWidget::onAddButtonClicked()
 AvailableLinksWidget::AvailableLinksWidget(const RobotInfo& robot) : robot_(robot)
 {
   setFixedHeight(kHeight);
+  setSelectionMode(QListWidget::NoSelection);
 }
 
 void AvailableLinksWidget::updateInternalDataStructures()
@@ -80,8 +80,8 @@ void AvailableLinksWidget::addLink(const QString& link_name)
   TOBAS_CHECK(robot_.tree().hasSegment(link_name.toStdString()));
 
   const auto list_item = new qt::ListWidgetItem();
-  list_item->setSizeHint(QSize(0, kItemHeight));  // 横幅が小さすぎる場合は自動で引き伸ばされる
-  list_item->setData(Qt::UserRole, link_name);    // リンク名をソート基準にする
+  list_item->setSizeHint(QSize(0, kListItemHeight));  // 横幅が小さすぎる場合は自動で引き伸ばされる
+  list_item->setData(Qt::UserRole, link_name);        // リンク名をソート基準にする
   addItem(list_item);
 
   const auto widget = new AvailableLinkItemWidget(link_name);

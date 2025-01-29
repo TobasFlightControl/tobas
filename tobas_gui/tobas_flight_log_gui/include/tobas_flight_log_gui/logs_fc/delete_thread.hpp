@@ -20,12 +20,12 @@ public:
 
   void run() override;
 
-  const QString& getROSBagName() const;
-  void setROSBagName(const QString& rosbag_name);
+  const QString& getLogName() const;
+  void setLogName(const QString& log_name);
 
 private:
   ssh::SSHClient ssh_client_;
-  QString rosbag_name_;
+  QString log_name_;
 };
 }  // namespace log
 }  // namespace gui

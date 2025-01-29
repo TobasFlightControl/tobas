@@ -1,5 +1,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QDebug>
 
 #include "tobas_flight_log_gui/flight_log.hpp"
 
@@ -13,6 +14,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
   logs_fc_ = new FlightLogsWidgetFC(node);
   logs_gcs_ = new FlightLogsWidgetGCS();
 
+  // Layout
   const auto log_cols = new QHBoxLayout();
   log_cols->addWidget(logs_fc_, 1);
   log_cols->addWidget(logs_gcs_, 1);
@@ -26,11 +28,26 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
   root_cols->addStretch(1);  // TODO: Viewer
 
   setLayout(root_cols);
+
+  // Connection
+  connect(logs_fc_, &FlightLogsWidgetFC::logDownloaded, this, &self::onLogDownloaded);
 }
 
 void FlightLogWidget::updateNamespace(const std::string& ns)
 {
   recorder_->updateNamespace(ns);
+}
+
+void FlightLogWidget::onLogDownloaded(const QString& log_name)
+{
+  if (logs_gcs_->findLog(log_name) != nullptr)
+  {
+    qInfo() << "\"" << log_name << "\" already exists in the GCS log list.";
+    return;
+  }
+
+  logs_gcs_->addLog(log_name);
+  logs_gcs_->sortLogs();
 }
 }  // namespace log
 }  // namespace gui

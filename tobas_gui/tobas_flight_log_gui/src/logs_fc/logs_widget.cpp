@@ -59,19 +59,49 @@ FlightLogsWidgetFC::FlightLogsWidgetFC(rclcpp::Node::SharedPtr node)
   connect(&delete_thread_, &DeleteThread::finished, this, &self::onDeleteFinished);
 }
 
+void FlightLogsWidgetFC::addLog(const QString& log_name)
+{
+  const auto list_item = new qt::ListWidgetItem();
+  list_item->setSizeHint(QSize(0, kListItemHeight));
+  list_item->setData(Qt::UserRole, log_name);
+  log_list_->addItem(list_item);
+
+  const auto widget = new FlightLogItemWidgetFC(log_name);
+  connect(widget, &FlightLogItemWidgetFC::downloadButtonClicked, this, &self::onDownloadButtonClicked);
+  connect(widget, &FlightLogItemWidgetFC::deleteButtonClicked, this, &self::onDeleteButtonClicked);
+  log_list_->setItemWidget(list_item, widget);
+}
+
+void FlightLogsWidgetFC::removeLog(const QString& log_name)
+{
+  const auto list_item = findLog(log_name);
+  TOBAS_CHECK(list_item != nullptr);
+  log_list_->remove(list_item);
+}
+
 QListWidgetItem* FlightLogsWidgetFC::findLog(const QString& log_name)
 {
   for (int row = 0; row < log_list_->count(); ++row)
   {
-    const auto log_item = log_list_->item(row);
-    const auto log_widget = qobject_cast<FlightLogItemWidgetFC*>(log_list_->itemWidget(log_item));
+    const auto list_item = log_list_->item(row);
+    const auto log_widget = qobject_cast<FlightLogItemWidgetFC*>(log_list_->itemWidget(list_item));
     TOBAS_CHECK(log_widget != nullptr);
 
     if (log_widget->logName() == log_name)
-      return log_item;
+      return list_item;
   }
 
-  throw std::runtime_error("Failed to find " + log_name.toStdString() + " in the flight log list.");
+  return nullptr;
+}
+
+void FlightLogsWidgetFC::clearLogs()
+{
+  log_list_->clear();
+}
+
+void FlightLogsWidgetFC::sortLogs()
+{
+  log_list_->sortItems();
 }
 
 void FlightLogsWidgetFC::onReadButtonClicked()
@@ -107,7 +137,7 @@ void FlightLogsWidgetFC::onDownloadButtonClicked(const QString& log_name)
       return;
   }
 
-  download_thread_.setROSBagName(log_name);
+  download_thread_.setLogName(log_name);
   download_thread_.start();
 
   spinner_.show();
@@ -121,7 +151,7 @@ void FlightLogsWidgetFC::onDeleteButtonClicked(const QString& log_name)
   if (!qt::yesOrNo(this, "Do you want to delete " + log_name + "?", qt::QMessageLevel::WARN))
     return;
 
-  delete_thread_.setROSBagName(log_name);
+  delete_thread_.setLogName(log_name);
   delete_thread_.start();
 
   spinner_.show();
@@ -139,7 +169,7 @@ void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, co
     return;
   }
 
-  log_list_->clear();
+  clearLogs();
 
   if (log_names.size() == 0)
   {
@@ -148,19 +178,9 @@ void FlightLogsWidgetFC::onReadFinished(bool success, const QString& message, co
   }
 
   for (const auto& log_name : log_names)
-  {
-    const auto list_item = new qt::ListWidgetItem();
-    list_item->setSizeHint(QSize(0, kListItemHeight));
-    list_item->setData(Qt::UserRole, log_name);
-    log_list_->addItem(log_name);
+    addLog(log_name);
 
-    const auto widget = new FlightLogItemWidgetFC(log_name);
-    connect(widget, &FlightLogItemWidgetFC::downloadButtonClicked, this, &self::onDownloadButtonClicked);
-    connect(widget, &FlightLogItemWidgetFC::deleteButtonClicked, this, &self::onDeleteButtonClicked);
-    log_list_->setItemWidget(list_item, widget);
-  }
-
-  log_list_->sortItems();
+  sortLogs();
 
   clean_button_->setEnabled(true);
 }
@@ -176,7 +196,7 @@ void FlightLogsWidgetFC::onCleanFinished(bool success, const QString& message)
     return;
   }
 
-  log_list_->clear();
+  clearLogs();
 }
 
 void FlightLogsWidgetFC::onDownloadFinished(bool success, const QString& message)
@@ -190,7 +210,7 @@ void FlightLogsWidgetFC::onDownloadFinished(bool success, const QString& message
     return;
   }
 
-  Q_EMIT logDownloaded(download_thread_.getROSBagName());
+  Q_EMIT logDownloaded(download_thread_.getLogName());
 }
 
 void FlightLogsWidgetFC::onDeleteFinished(bool success, const QString& message)
@@ -204,11 +224,7 @@ void FlightLogsWidgetFC::onDeleteFinished(bool success, const QString& message)
     return;
   }
 
-  // リストから要素を削除
-  const auto items = log_list_->findItems(delete_thread_.getROSBagName(), Qt::MatchExactly);
-  TOBAS_CHECK(items.size() == 1);
-  const auto item = items.at(0);
-  log_list_->remove(item);
+  removeLog(delete_thread_.getLogName());
 }
 }  // namespace log
 }  // namespace gui

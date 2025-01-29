@@ -46,7 +46,7 @@ class AvailableLinksWidget : public qt::ListWidget
   using super = qt::ListWidget;
 
   static constexpr int kHeight = 200;
-  static constexpr int kItemHeight = 40;
+  static constexpr int kListItemHeight = 40;
 
 Q_SIGNALS:
   void linkRemoved(const QString& link_name);

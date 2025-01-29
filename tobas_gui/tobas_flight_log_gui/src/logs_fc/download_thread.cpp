@@ -16,7 +16,7 @@ DownloadThread::DownloadThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 
 void DownloadThread::run()
 {
-  const auto remote_rosbag_path = fs::path(tobas::kROSBagDirRoot) / rosbag_name_.toStdString();
+  const auto remote_rosbag_path = fs::path(tobas::kROSBagDirRoot) / log_name_.toStdString();
   const auto local_pardir = ros2::expandUser(tobas::kROSBagDirHome);
   if (ssh_client_.scpGet(remote_rosbag_path, local_pardir) != ssh::SSHClient::E_NO_ERROR)
   {
@@ -27,14 +27,14 @@ void DownloadThread::run()
   Q_EMIT finished(true, "The flight log has been downloaded successfully.");
 }
 
-const QString& DownloadThread::getROSBagName() const
+const QString& DownloadThread::getLogName() const
 {
-  return rosbag_name_;
+  return log_name_;
 }
 
-void DownloadThread::setROSBagName(const QString& rosbag_name)
+void DownloadThread::setLogName(const QString& log_name)
 {
-  rosbag_name_ = rosbag_name;
+  log_name_ = log_name;
 }
 }  // namespace log
 }  // namespace gui

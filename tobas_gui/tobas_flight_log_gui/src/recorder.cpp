@@ -18,7 +18,7 @@ namespace log
 {
 FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  rosbag_name_ = new QLineEdit();
+  log_name_ = new QLineEdit();
 
   start_button_ = new QPushButton("Start Recording");
   start_button_->setFixedSize(kButtonWidth, kButtonHeight);
@@ -30,7 +30,7 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
   // Layout
   const auto name_cols = new QHBoxLayout();
   name_cols->addWidget(new qt::Label("Log Name: ", kLogNameLabelPSize));
-  name_cols->addWidget(rosbag_name_);
+  name_cols->addWidget(log_name_);
 
   const auto button_cols = new QHBoxLayout();
   button_cols->addWidget(start_button_);
@@ -60,15 +60,15 @@ void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 
 void FlightLogRecorderWidget::onStartButtonClicked()
 {
-  const auto rosbag_name = rosbag_name_->text().toStdString();
+  const auto log_name = log_name_->text().toStdString();
 
-  if (rosbag_name.empty())
+  if (log_name.empty())
   {
     qt::qWarnBox(this, "Please specify the name of log file.");
     return;
   }
 
-  if (!tobas_std::isValidFileName(rosbag_name))
+  if (!tobas_std::isValidFileName(log_name))
   {
     qt::qWarnBox(this, "The name of the log file is invalid.");
     return;
@@ -78,7 +78,7 @@ void FlightLogRecorderWidget::onStartButtonClicked()
     node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStartSrv));
 
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
-  req->name = rosbag_name;
+  req->name = log_name;
 
   if (!sc.call(req))
   {
@@ -93,9 +93,9 @@ void FlightLogRecorderWidget::onStartButtonClicked()
     return;
   }
 
-  rosbag_name_->setEnabled(false);
+  log_name_->setEnabled(false);
 
-  rosbag_name_->setEnabled(false);
+  log_name_->setEnabled(false);
   start_button_->setEnabled(false);
   stop_button_->setEnabled(true);
 
@@ -122,10 +122,10 @@ void FlightLogRecorderWidget::onStopButtonClicked()
     return;
   }
 
-  rosbag_name_->clear();
-  rosbag_name_->setEnabled(true);
+  log_name_->clear();
+  log_name_->setEnabled(true);
 
-  rosbag_name_->setEnabled(true);
+  log_name_->setEnabled(true);
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
 

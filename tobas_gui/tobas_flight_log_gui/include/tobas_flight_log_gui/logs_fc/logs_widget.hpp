@@ -24,12 +24,20 @@ class FlightLogsWidgetFC : public QWidget
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
+  static constexpr int kListItemHeight = 40;
 
 Q_SIGNALS:
   void logDownloaded(const QString& log_name);
 
 public:
   explicit FlightLogsWidgetFC(rclcpp::Node::SharedPtr node);
+
+  void addLog(const QString& log_name);
+  void removeLog(const QString& log_name);
+  QListWidgetItem* findLog(const QString& log_name);
+
+  void clearLogs();
+  void sortLogs();
 
 private:
   QPushButton* read_button_;
@@ -43,8 +51,6 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   qt::ListWidget* log_list_;
-
-  QListWidgetItem* findLog(const QString& log_name);
 
 private Q_SLOTS:
   void onReadButtonClicked();

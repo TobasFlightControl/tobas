@@ -29,7 +29,7 @@ private:
   const rclcpp::Node::SharedPtr node_;
   std::string ns_;
 
-  QLineEdit* rosbag_name_;
+  QLineEdit* log_name_;
   QPushButton* start_button_;
   QPushButton* stop_button_;
 

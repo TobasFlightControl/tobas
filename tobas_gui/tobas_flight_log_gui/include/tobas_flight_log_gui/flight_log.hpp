@@ -24,6 +24,9 @@ private:
   FlightLogRecorderWidget* recorder_;
   FlightLogsWidgetFC* logs_fc_;
   FlightLogsWidgetGCS* logs_gcs_;
+
+private Q_SLOTS:
+  void onLogDownloaded(const QString& log_name);
 };
 }  // namespace log
 }  // namespace gui

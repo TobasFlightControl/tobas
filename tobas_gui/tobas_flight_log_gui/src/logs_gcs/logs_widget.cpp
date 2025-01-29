@@ -1,6 +1,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include <tobas_std_tools/check.hpp>
 #include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
@@ -8,6 +9,7 @@
 #include <tobas_qt_tools/util.hpp>
 
 #include "tobas_flight_log_gui/logs_gcs/logs_widget.hpp"
+#include "tobas_flight_log_gui/logs_gcs/log_item.hpp"
 #include "tobas_flight_log_gui/constants.hpp"
 
 namespace fs = std::filesystem;
@@ -19,15 +21,12 @@ namespace log
 FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 {
   read_button_ = new QPushButton("Read");
-  delete_button_ = new QPushButton("Delete");
   clean_button_ = new QPushButton("Clean");
 
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  delete_button_->setFixedSize(kButtonWidth, kButtonHeight);
   clean_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   read_button_->setEnabled(true);
-  delete_button_->setEnabled(false);
   clean_button_->setEnabled(false);
 
   log_list_ = new qt::ListWidget();
@@ -36,7 +35,6 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(read_button_);
-  cols->addWidget(delete_button_);
   cols->addWidget(clean_button_);
   cols->addStretch();
 
@@ -49,23 +47,62 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
 
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
-  connect(delete_button_, &QPushButton::clicked, this, &self::onDeleteButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
 }
 
-void FlightLogsWidgetGCS::read()
+void FlightLogsWidgetGCS::addLog(const QString& log_name)
+{
+  const auto list_item = new qt::ListWidgetItem();
+  list_item->setSizeHint(QSize(0, kListItemHeight));
+  list_item->setData(Qt::UserRole, log_name);
+  log_list_->addItem(list_item);
+
+  const auto widget = new FlightLogItemWidgetGCS(log_name);
+  connect(widget, &FlightLogItemWidgetGCS::deleteButtonClicked, this, &self::onDeleteButtonClicked);
+  log_list_->setItemWidget(list_item, widget);
+}
+
+void FlightLogsWidgetGCS::removeLog(const QString& log_name)
+{
+  const auto list_item = findLog(log_name);
+  TOBAS_CHECK(list_item != nullptr);
+  log_list_->remove(list_item);
+}
+
+QListWidgetItem* FlightLogsWidgetGCS::findLog(const QString& log_name)
+{
+  for (int row = 0; row < log_list_->count(); ++row)
+  {
+    const auto list_item = log_list_->item(row);
+    const auto log_widget = qobject_cast<FlightLogItemWidgetGCS*>(log_list_->itemWidget(list_item));
+    TOBAS_CHECK(log_widget != nullptr);
+
+    if (log_widget->logName() == log_name)
+      return list_item;
+  }
+
+  return nullptr;
+}
+
+void FlightLogsWidgetGCS::clearLogs()
 {
   log_list_->clear();
+}
 
-  for (const auto& entry : fs::directory_iterator(ros2::expandUser(tobas::kROSBagDirHome)))
-    log_list_->addItem(QString::fromStdString(entry.path().filename().string()));
-
+void FlightLogsWidgetGCS::sortLogs()
+{
   log_list_->sortItems();
 }
 
 void FlightLogsWidgetGCS::onReadButtonClicked()
 {
-  read();
+  clearLogs();
+
+  for (const auto& entry : fs::directory_iterator(ros2::expandUser(tobas::kROSBagDirHome)))
+  {
+    const QString log_name(entry.path().filename().c_str());
+    addLog(log_name);
+  }
 
   if (log_list_->count() == 0)
   {
@@ -73,32 +110,9 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
     return;
   }
 
-  delete_button_->setEnabled(true);
+  sortLogs();
+
   clean_button_->setEnabled(true);
-}
-
-void FlightLogsWidgetGCS::onDeleteButtonClicked()
-{
-  const auto item = log_list_->selectedItem();
-  if (item == nullptr)
-  {
-    qt::qWarnBox(this, "Please select the name of the log file that you want to delete.");
-    return;
-  }
-
-  const auto rosbag_name = item->text();
-  const auto rosbag_path = ros2::expandUser(tobas::kROSBagDirHome) / rosbag_name.toStdString();
-
-  if (!qt::yesOrNo(this, "Do you want to delete " + rosbag_name + "?", qt::QMessageLevel::WARN))
-    return;
-
-  if (!fs::remove_all(rosbag_path))
-  {
-    qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(rosbag_path));
-    return;
-  }
-
-  log_list_->remove(item);
 }
 
 void FlightLogsWidgetGCS::onCleanButtonClicked()
@@ -111,12 +125,27 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
     if (!fs::remove_all(entry.path()))
     {
       qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
-      read();
       return;
     }
   }
 
-  log_list_->clear();
+  clearLogs();
+}
+
+void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
+{
+  const auto log_path = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
+
+  if (!qt::yesOrNo(this, "Do you want to delete " + log_name + "?", qt::QMessageLevel::WARN))
+    return;
+
+  if (!fs::remove_all(log_path))
+  {
+    qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(log_path));
+    return;
+  }
+
+  removeLog(log_name);
 }
 }  // namespace log
 }  // namespace gui

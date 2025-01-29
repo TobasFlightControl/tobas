@@ -17,7 +17,7 @@ DeleteThread::DeleteThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 
 void DeleteThread::run()
 {
-  const string rosbag_path = fs::path(tobas::kROSBagDirRoot) / rosbag_name_.toStdString();
+  const string rosbag_path = fs::path(tobas::kROSBagDirRoot) / log_name_.toStdString();
   if (ssh_client_.execute("rm -rf " + rosbag_path, true) != ssh::SSHClient::E_NO_ERROR)
   {
     Q_EMIT finished(false, ssh_client_.errorMessage());
@@ -27,14 +27,14 @@ void DeleteThread::run()
   Q_EMIT finished(true, QString::fromStdString(rosbag_path) + "is deleted successfully.");
 }
 
-const QString& DeleteThread::getROSBagName() const
+const QString& DeleteThread::getLogName() const
 {
-  return rosbag_name_;
+  return log_name_;
 }
 
-void DeleteThread::setROSBagName(const QString& rosbag_name)
+void DeleteThread::setLogName(const QString& log_name)
 {
-  rosbag_name_ = rosbag_name;
+  log_name_ = log_name;
 }
 }  // namespace log
 }  // namespace gui

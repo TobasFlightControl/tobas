@@ -17,23 +17,28 @@ class FlightLogsWidgetGCS : public QWidget
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
+  static constexpr int kListItemHeight = 40;
 
 public:
   explicit FlightLogsWidgetGCS();
 
+  void addLog(const QString& log_name);
+  void removeLog(const QString& log_name);
+  QListWidgetItem* findLog(const QString& log_name);
+
+  void clearLogs();
+  void sortLogs();
+
 private:
   QPushButton* read_button_;
-  QPushButton* delete_button_;
   QPushButton* clean_button_;
 
   qt::ListWidget* log_list_;
 
-  void read();
-
 private Q_SLOTS:
   void onReadButtonClicked();
-  void onDeleteButtonClicked();
   void onCleanButtonClicked();
+  void onDeleteButtonClicked(const QString& log_name);
 };
 }  // namespace log
 }  // namespace gui
