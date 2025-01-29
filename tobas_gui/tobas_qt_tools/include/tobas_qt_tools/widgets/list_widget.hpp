@@ -40,6 +40,6 @@ protected:
 class ListWidgetItem : public QListWidgetItem
 {
 public:
-  virtual bool operator<(QListWidgetItem* rhs) const;
+  virtual bool operator<(const QListWidgetItem& rhs) const override;
 };
 }  // namespace qt
