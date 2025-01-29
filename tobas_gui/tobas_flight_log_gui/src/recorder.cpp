@@ -4,10 +4,7 @@
 
 #include <tobas_std_tools/string.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/srv/bag_record_start.hpp>
-#include <tobas_msgs/srv/bag_record_stop.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
@@ -75,10 +72,13 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
 
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 {
-  ns_ = ns;
-
   rosbag_state_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRosbagStateTopic), &self::rosbagStateCb, this);
+
+  start_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>>(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStartSrv));
+  stop_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>>(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStopSrv));
 
   start_button_->setEnabled(false);
   stop_button_->setEnabled(false);
@@ -147,19 +147,16 @@ void FlightLogRecorderWidget::onStartButtonClicked()
     return;
   }
 
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStartSrv));
-
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
   req->name = log_name;
 
-  if (!sc.call(req))
+  if (!start_sc_->call(req))
   {
     qt::qErrorBox(this, "Flight log recording service is unavailable.");
     return;
   }
 
-  const auto res = sc.getResponse();
+  const auto res = start_sc_->getResponse();
   if (!res->success)
   {
     qt::qErrorBox(this, "Failed to start recording flight log: " + QString(res->message.c_str()));
@@ -175,18 +172,15 @@ void FlightLogRecorderWidget::onStartButtonClicked()
 
 void FlightLogRecorderWidget::onStopButtonClicked()
 {
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStopSrv));
-
   const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
 
-  if (!sc.call(req))
+  if (!stop_sc_->call(req))
   {
     qt::qErrorBox(this, "Flight log recording service is unavailable.");
     return;
   }
 
-  const auto res = sc.getResponse();
+  const auto res = stop_sc_->getResponse();
   if (!res->success)
   {
     qt::qErrorBox(this, "Failed to stop recording flight log: " + QString(res->message.c_str()));

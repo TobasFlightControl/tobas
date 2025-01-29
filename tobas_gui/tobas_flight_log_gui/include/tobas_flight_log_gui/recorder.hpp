@@ -5,9 +5,12 @@
 #include <QLCDNumber>
 
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
+#include <tobas_msgs/srv/bag_record_start.hpp>
+#include <tobas_msgs/srv/bag_record_stop.hpp>
 
 namespace gui
 {
@@ -30,7 +33,6 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  std::string ns_;
 
   QLineEdit* log_name_;
   QPushButton* start_button_;
@@ -40,6 +42,9 @@ private:
   qt::FramedLabel* message_count_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RosbagState> rosbag_state_sub_;
+
+  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>::SharedPtr start_sc_;
+  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>::SharedPtr stop_sc_;
 
   void clearRosbagStateViewerWidgets();
 
