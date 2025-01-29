@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-class DeleteThread : public QThread
+class DownloadThread : public QThread
 {
   Q_OBJECT
 
@@ -16,7 +16,7 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit DeleteThread(rclcpp::Node::SharedPtr node);
+  explicit DownloadThread(rclcpp::Node::SharedPtr node);
 
   void run() override;
 

@@ -10,11 +10,11 @@ namespace gui
 {
 namespace log
 {
-ReadThreadFC::ReadThreadFC(rclcpp::Node::SharedPtr node) : ssh_client_(node)
+ReadThread::ReadThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
 }
 
-void ReadThreadFC::run()
+void ReadThread::run()
 {
   vector<string> list;
   if (ssh_client_.list(tobas::kROSBagDirRoot, list) != ssh::SSHClient::E_NO_ERROR)

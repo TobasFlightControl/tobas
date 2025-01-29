@@ -8,7 +8,7 @@ namespace gui
 {
 namespace log
 {
-class CleanThreadFC : public QThread
+class CleanThread : public QThread
 {
   Q_OBJECT
 
@@ -16,7 +16,7 @@ Q_SIGNALS:
   void finished(bool success, const QString& message);
 
 public:
-  explicit CleanThreadFC(rclcpp::Node::SharedPtr node);
+  explicit CleanThread(rclcpp::Node::SharedPtr node);
 
   void run() override;
 

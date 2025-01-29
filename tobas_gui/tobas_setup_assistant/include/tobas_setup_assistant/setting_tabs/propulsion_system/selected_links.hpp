@@ -39,8 +39,8 @@ public:
   void clear();
   bool isValid();
 
-  void add(const QString& link_name);
-  void remove(const QString& link_name);
+  void addLink(const QString& link_name);
+  void removeLink(const QString& link_name);
 
   QString linkName(int index) const;
   QStringList linkNames() const;

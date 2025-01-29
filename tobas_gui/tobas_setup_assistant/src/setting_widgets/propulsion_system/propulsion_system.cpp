@@ -89,8 +89,8 @@ void PropulsionSystemWidget::load(const YAML::Node& node)
     const auto& sub_node = pair.second;
 
     // リンクをAvailableからSelectedに移動させる
-    available_->remove(link_name);
-    selected_->add(link_name);
+    available_->removeLink(link_name);
+    selected_->addLink(link_name);
 
     // 選択リンクの設定を更新
     selected_->widget(link_name)->load(sub_node);
@@ -111,13 +111,13 @@ const SelectedLinksWidget* PropulsionSystemWidget::selected() const
 
 void PropulsionSystemWidget::onAvailableLinkRemoved(const QString& link_name)
 {
-  selected_->add(link_name);
+  selected_->addLink(link_name);
   Q_EMIT linkAdded(link_name);
 }
 
 void PropulsionSystemWidget::onSelectedLinkRemoved(const QString& link_name)
 {
-  available_->add(link_name);
+  available_->addLink(link_name);
   Q_EMIT linkRemoved(link_name);
 }
 }  // namespace propulsion

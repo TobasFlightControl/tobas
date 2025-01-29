@@ -11,11 +11,11 @@ namespace gui
 {
 namespace log
 {
-DeleteThreadFC::DeleteThreadFC(rclcpp::Node::SharedPtr node) : ssh_client_(node)
+DeleteThread::DeleteThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
 }
 
-void DeleteThreadFC::run()
+void DeleteThread::run()
 {
   const string rosbag_path = fs::path(tobas::kROSBagDirRoot) / rosbag_name_.toStdString();
   if (ssh_client_.execute("rm -rf " + rosbag_path, true) != ssh::SSHClient::E_NO_ERROR)
@@ -27,7 +27,12 @@ void DeleteThreadFC::run()
   Q_EMIT finished(true, QString::fromStdString(rosbag_path) + "is deleted successfully.");
 }
 
-void DeleteThreadFC::setROSBagName(const QString& rosbag_name)
+const QString& DeleteThread::getROSBagName() const
+{
+  return rosbag_name_;
+}
+
+void DeleteThread::setROSBagName(const QString& rosbag_name)
 {
   rosbag_name_ = rosbag_name;
 }

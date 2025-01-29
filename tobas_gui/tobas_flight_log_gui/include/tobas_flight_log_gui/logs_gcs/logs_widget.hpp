@@ -26,7 +26,7 @@ private:
   QPushButton* delete_button_;
   QPushButton* clean_button_;
 
-  qt::ListWidget* rosbag_list_;
+  qt::ListWidget* log_list_;
 
   void read();
 

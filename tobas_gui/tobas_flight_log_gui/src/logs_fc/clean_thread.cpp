@@ -8,11 +8,11 @@ namespace gui
 {
 namespace log
 {
-CleanThreadFC::CleanThreadFC(rclcpp::Node::SharedPtr node) : ssh_client_(node)
+CleanThread::CleanThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
 }
 
-void CleanThreadFC::run()
+void CleanThread::run()
 {
   if (ssh_client_.execute("rm -rf " + string(tobas::kROSBagDirRoot) + "/*", true) != ssh::SSHClient::E_NO_ERROR)
   {

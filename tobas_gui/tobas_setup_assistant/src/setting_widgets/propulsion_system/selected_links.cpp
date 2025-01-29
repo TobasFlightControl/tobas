@@ -117,7 +117,7 @@ bool SelectedLinksWidget::isValid()
   return true;
 }
 
-void SelectedLinksWidget::add(const QString& link_name)
+void SelectedLinksWidget::addLink(const QString& link_name)
 {
   // タブを追加
   const auto link_widget = new SelectedLinkWidget(node_, robot_, link_name);
@@ -126,7 +126,7 @@ void SelectedLinksWidget::add(const QString& link_name)
   // 指定リンクのマーカを表示
   setAction(link_name, visualization_msgs::msg::Marker::ADD);
 
-  // Connections
+  // Connection
   connect(
     link_widget, &SelectedLinkWidget::copyFromLeftButtonClicked, this,
     bind(&self::onCopyFromLeftButtonClicked, this, link_name));
@@ -144,7 +144,7 @@ void SelectedLinksWidget::add(const QString& link_name)
     bind(&self::onTiltJointNameChanged, this, link_name, placeholders::_1));
 }
 
-void SelectedLinksWidget::remove(const QString& link_name)
+void SelectedLinksWidget::removeLink(const QString& link_name)
 {
   // タブを削除
   removeTab(index(link_name));
@@ -255,7 +255,7 @@ void SelectedLinksWidget::onTabCloseRequested(int index)
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "SelectedLinksWidget::onTabCloseRequested(" << index << ")");
 
   const auto link_name = linkName(index);
-  remove(link_name);
+  removeLink(link_name);
   Q_EMIT linkRemoved(link_name);
 }
 

@@ -35,11 +35,11 @@ protected:
 
 /**
  * ===== QListWidgetItemとの違い =====
- * - UserRoleを基準にソート
+ * - UserRoleを基準に比較
  */
 class ListWidgetItem : public QListWidgetItem
 {
 public:
-  bool operator<(QListWidgetItem* rhs) const;
+  virtual bool operator<(QListWidgetItem* rhs) const;
 };
 }  // namespace qt
