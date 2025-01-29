@@ -15,16 +15,16 @@ namespace propulsion
 {
 AvailableLinkItemWidget::AvailableLinkItemWidget(const QString& link_name)
 {
-  link_label_ = new QLabel(link_name);
-  link_label_->setFont(qt::DefaultFont(kBodyPSize));
-  link_label_->setAlignment(Qt::AlignLeft);
+  link_name_ = new QLabel(link_name);
+  link_name_->setFont(qt::DefaultFont(kBodyPSize));
+  link_name_->setAlignment(Qt::AlignLeft);
 
   add_button_ = new QPushButton("Add");
   add_button_->setFixedWidth(kButtonWidth);
 
   // Layout
   const auto cols = new QHBoxLayout();
-  cols->addWidget(link_label_);
+  cols->addWidget(link_name_);
   cols->addWidget(add_button_);
   setLayout(cols);
 
@@ -34,7 +34,7 @@ AvailableLinkItemWidget::AvailableLinkItemWidget(const QString& link_name)
 
 QString AvailableLinkItemWidget::linkName() const
 {
-  return link_label_->text();
+  return link_name_->text();
 }
 
 void AvailableLinkItemWidget::onAddButtonClicked()
@@ -78,7 +78,6 @@ bool AvailableLinksWidget::isValid()
 void AvailableLinksWidget::addLink(const QString& link_name)
 {
   TOBAS_CHECK(robot_.tree().hasSegment(link_name.toStdString()));
-  TOBAS_CHECK(!contains(link_name));
 
   const auto list_item = new qt::ListWidgetItem();
   list_item->setSizeHint(QSize(0, kItemHeight));  // 横幅が小さすぎる場合は自動で引き伸ばされる
@@ -88,8 +87,6 @@ void AvailableLinksWidget::addLink(const QString& link_name)
   const auto widget = new AvailableLinkItemWidget(link_name);
   connect(widget, &AvailableLinkItemWidget::addButtonClicked, this, &self::onAddButtonClicked);
   setItemWidget(list_item, widget);
-
-  sortItems();
 }
 
 void AvailableLinksWidget::removeLink(const QString& link_name)

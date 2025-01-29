@@ -31,7 +31,7 @@ public:
   QString linkName() const;
 
 private:
-  QLabel* link_label_;
+  QLabel* link_name_;
   QPushButton* add_button_;
 
 private Q_SLOTS:

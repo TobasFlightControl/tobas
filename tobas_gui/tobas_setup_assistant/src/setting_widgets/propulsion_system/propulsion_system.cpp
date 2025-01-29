@@ -118,6 +118,7 @@ void PropulsionSystemWidget::onAvailableLinkRemoved(const QString& link_name)
 void PropulsionSystemWidget::onSelectedLinkRemoved(const QString& link_name)
 {
   available_->addLink(link_name);
+  available_->sortItems();
   Q_EMIT linkRemoved(link_name);
 }
 }  // namespace propulsion
