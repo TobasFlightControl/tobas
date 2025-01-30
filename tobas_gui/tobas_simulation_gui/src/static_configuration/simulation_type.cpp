@@ -14,8 +14,9 @@ SimulationTypeWidget::SimulationTypeWidget()
   ckb_group_ = new QButtonGroup(this);
   ckb_group_->setExclusive(true);
 
-  sitl_ckb_ = new QCheckBox("SITL (Simulation in the Loop): The core software will run on the PC.");
-  hitl_ckb_ = new QCheckBox("HITL (Hardware in the Loop): The core software will run on the FC.");
+  // XXX: 選択肢の文が長すぎると500pxに収まらなくなる
+  sitl_ckb_ = new QCheckBox("SITL (Simulation in the Loop)");
+  hitl_ckb_ = new QCheckBox("HITL (Hardware in the Loop)");
 
   ckb_group_->addButton(sitl_ckb_);
   ckb_group_->addButton(hitl_ckb_);
