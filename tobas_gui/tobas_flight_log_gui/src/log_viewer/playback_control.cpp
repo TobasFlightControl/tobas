@@ -57,7 +57,7 @@ int PlaybackControlWidget::getCurrentTime() const
 void PlaybackControlWidget::setDuration(int msec)
 {
   slider_->setMaximum(msec);
-  updateTimeLabels(getCurrentTime());
+  updateRemainingTimeLabel(getCurrentTime());
 }
 
 void PlaybackControlWidget::setCurrentTime(int msec)
@@ -102,6 +102,7 @@ void PlaybackControlWidget::onPlayButtonToggled(bool checked)
 
 void PlaybackControlWidget::onSliderValueChanged(int value)
 {
+  updateTimeLabels(value);
   Q_EMIT timeChanged(value);
 }
 }  // namespace log
