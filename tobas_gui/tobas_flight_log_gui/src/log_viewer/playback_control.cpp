@@ -57,7 +57,7 @@ int PlaybackControlWidget::getCurrentTime() const
 void PlaybackControlWidget::setDuration(int msec)
 {
   slider_->setMaximum(msec);
-  updateRemainingTimeLabel(getCurrentTime());
+  updateTimeLabels(getCurrentTime());
 }
 
 void PlaybackControlWidget::setCurrentTime(int msec)
