@@ -7,6 +7,7 @@
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 
 #include "./map_widget.hpp"
+#include "./command_button.hpp"
 #include "./mission_execution_thread.hpp"
 #include "./add_command_dialog.hpp"
 
@@ -20,9 +21,6 @@ class MissionPlannerWidget : public QWidget
 
   using self = MissionPlannerWidget;
   using super = QWidget;
-
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
 
   static constexpr char kCacheDirOnline[] = "~/.cache/tobas/tiles/online/";
   static constexpr char kCacheDirOffline[] = "~/.cache/tobas/tiles/offline/";
@@ -40,14 +38,14 @@ private:
 
   MapWidget* map_;
 
-  QPushButton* load_button_;
-  QPushButton* save_button_;
-  QPushButton* add_button_;
-  QPushButton* clear_button_;
-  QPushButton* cache_button_;
-  QPushButton* execute_button_;
-  QPushButton* cancel_button_;
-  QPushButton* focus_button_;
+  CommandButton* load_button_;
+  CommandButton* save_button_;
+  CommandButton* add_button_;
+  CommandButton* clear_button_;
+  CommandButton* cache_button_;
+  CommandButton* execute_button_;
+  CommandButton* cancel_button_;
+  CommandButton* focus_button_;
 
   qt::ListWidget* command_list_;
   qt::StackedWidget* commands_;
