@@ -22,7 +22,6 @@ class HardwareSetupWidget : public QWidget
 
   static constexpr int kTabHeight = 35;  // これ以上無いと何故かTabBarの文字が横に見切れてしまう
   static constexpr int kTabWidth = 70;
-  static constexpr int kMinHeight = 300;
 
 public:
   explicit HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
