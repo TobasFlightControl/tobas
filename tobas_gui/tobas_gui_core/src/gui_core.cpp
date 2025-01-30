@@ -8,9 +8,10 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/util.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 
@@ -100,17 +101,17 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   pkg_rows->addLayout(pkg_btn_cols);
 
   const auto header_cols = new QHBoxLayout();
-  header_cols->addWidget(homepage_btn);
-  header_cols->addWidget(urdf_builder_btn);
-  header_cols->addWidget(setup_assistant_btn);
-  header_cols->addWidget(hardware_setup_btn);
-  header_cols->addWidget(control_system_btn);
-  header_cols->addWidget(param_tuning_btn);
-  header_cols->addWidget(flight_log_btn);
-  header_cols->addWidget(simulation_btn);
+  header_cols->addWidget(homepage_btn, 1);
+  header_cols->addWidget(urdf_builder_btn, 1);
+  header_cols->addWidget(setup_assistant_btn, 1);
+  header_cols->addWidget(hardware_setup_btn, 1);
+  header_cols->addWidget(control_system_btn, 1);
+  header_cols->addWidget(param_tuning_btn, 1);
+  header_cols->addWidget(flight_log_btn, 1);
+  header_cols->addWidget(simulation_btn, 1);
   header_cols->addStretch();
   header_cols->addLayout(pkg_rows);
-  header_cols->addSpacing(30);
+  qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // スペースが足りなければ潰れる
   header_cols->addWidget(power_btn_);
 
   const auto rows = new QVBoxLayout();
