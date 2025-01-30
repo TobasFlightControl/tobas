@@ -34,7 +34,7 @@ class GUICoreWidget : public QWidget
 
   static constexpr char kLastOpenedDirKey[] = "last_opened_dir/tobas_configuration_package";
 
-  static constexpr int kPathWidth = 400;
+  static constexpr int kPathMaxWidth = 400;
   static constexpr int kPowerButtonRadius = 40;
 
 public:

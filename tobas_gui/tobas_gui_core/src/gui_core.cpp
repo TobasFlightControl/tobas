@@ -74,7 +74,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
 
   // Package manager
   tbs_path_ = new QLineEdit();
-  tbs_path_->setFixedWidth(kPathWidth);
+  tbs_path_->setMaximumWidth(kPathMaxWidth);
   tbs_path_->setReadOnly(true);
   tbs_path_->setFocusPolicy(Qt::NoFocus);
 
