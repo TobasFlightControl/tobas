@@ -6,17 +6,17 @@
 namespace ros2
 {
 template <typename MsgType>
-using PublisherPtr = rclcpp::Publisher<MsgType>::SharedPtr;
+using PublisherPtr = typename rclcpp::Publisher<MsgType>::SharedPtr;
 template <typename MsgType>
-using SubscriberPtr = rclcpp::Subscription<MsgType>::SharedPtr;
+using SubscriberPtr = typename rclcpp::Subscription<MsgType>::SharedPtr;
 template <typename SrvType>
-using ServiceServerPtr = rclcpp::Service<SrvType>::SharedPtr;
+using ServiceServerPtr = typename rclcpp::Service<SrvType>::SharedPtr;
 template <typename SrvType>
-using ServiceClientPtr = rclcpp::Client<SrvType>::SharedPtr;
+using ServiceClientPtr = typename rclcpp::Client<SrvType>::SharedPtr;
 template <typename ActionType>
-using ActionServerPtr = rclcpp_action::Server<ActionType>::SharedPtr;
+using ActionServerPtr = typename rclcpp_action::Server<ActionType>::SharedPtr;
 template <typename ActionType>
-using ActionGoalHandlePtr = std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>>;
+using ActionGoalHandlePtr = typename std::shared_ptr<rclcpp_action::ServerGoalHandle<ActionType>>;
 
 using TimerPtr = rclcpp::TimerBase::SharedPtr;
 using ParamHandlePtr = std::shared_ptr<rclcpp::ParameterCallbackHandle>;
