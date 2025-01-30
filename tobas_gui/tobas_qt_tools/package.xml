@@ -9,7 +9,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>libqwt-qt5-dev</depend>
   <depend>rviz_common</depend>
+
   <depend>tobas_math</depend>
   <depend>tobas_std_tools</depend>
 

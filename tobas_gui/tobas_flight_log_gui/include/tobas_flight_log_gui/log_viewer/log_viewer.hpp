@@ -1,6 +1,7 @@
 #pragma once
 
-#include <QWidget>
+#include "./plot_tab.hpp"
+#include "./playback_control.hpp"
 
 namespace gui
 {
@@ -15,6 +16,10 @@ class FlightLogViewerWidget : public QWidget
 
 public:
   explicit FlightLogViewerWidget();
+
+private:
+  std::array<PlotTabWidget*, 2> plot_tabs_;
+  PlaybackControlWidget* playback_ctrl_;
 };
 }  // namespace log
 }  // namespace gui
