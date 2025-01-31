@@ -24,14 +24,12 @@ ImuPlotWidget::ImuPlotWidget()
 
   for (size_t i = 0; i < 3; ++i)
   {
-    acc_plots_[i] = new qt::QwtPlot2();
-    acc_plots_[i]->innerLegend();
+    acc_plots_[i] = new QwtPlot2();
     acc_curves_[i]->setPen(kColor, kLineWidth);
     acc_curves_[i]->attach(acc_plots_[i]);
     grid->addWidget(acc_plots_[i], i, 0);
 
-    gyro_plots_[i] = new qt::QwtPlot2();
-    gyro_plots_[i]->innerLegend();
+    gyro_plots_[i] = new QwtPlot2();
     gyro_curves_[i]->setPen(kColor, kLineWidth);
     gyro_curves_[i]->attach(gyro_plots_[i]);
     grid->addWidget(gyro_plots_[i], i, 1);

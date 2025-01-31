@@ -46,6 +46,7 @@ include_directories(include)
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
+target_link_libraries(${PROJECT_NAME} /usr/lib/libqwt-qt5.so) # TODO: Qwtをより移植性の高い方法でリンク
 
 install(
   TARGETS ${PROJECT_NAME}
