@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string>
-
-#include "./util.hpp"
+#include <tobas_string_tools/core.hpp>
 
 namespace path
 {
@@ -22,9 +20,10 @@ std::string join(const T& _x, const U& _y)
   const std::string x = _x;
   const std::string y = _y;
 
-  if (starts_with(y, sep))
+  // C++17以下でも動作するようstring::starts_with等は使用しない
+  if (str::startsWith(y, sep))
     return y;
-  else if (x.empty() || ends_with(x, sep))
+  else if (x.empty() || str::endsWith(x, sep))
     return x + y;
   else
     return x + sep + y;

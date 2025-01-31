@@ -6,7 +6,7 @@
 #include <QMessageBox>
 
 #include <tobas_std_tools/check.hpp>
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_path_tools/core.hpp>
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>

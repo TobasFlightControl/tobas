@@ -1,5 +1,5 @@
 #include <tobas_std_tools/check.hpp>
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 
 #include "tobas_setup_assistant/param_getters/double_spin_box.hpp"
 
@@ -55,7 +55,7 @@ void ParamGetterWidget_DoubleSpinBox::setSingleStep(double single_step)
 
 void ParamGetterWidget_DoubleSpinBox::setSuffix(const QString& suffix)
 {
-  spin_box_->setSuffix(QString::fromStdString(tobas_std::convertToSuperscript(suffix.toStdString())));
+  spin_box_->setSuffix(QString::fromStdString(str::convertToSuperscript(suffix.toStdString())));
 }
 
 void ParamGetterWidget_DoubleSpinBox::onValueChanged(double value)

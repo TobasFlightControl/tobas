@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(wpa_supplicant_parser)
+project(tobas_string_tools)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
@@ -12,10 +12,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(tobas_string_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	tobas_string_tools
 )
 
 include_directories(include)

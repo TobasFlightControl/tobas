@@ -6,7 +6,7 @@
 
 #include <rapidcsv.h>
 
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/widgets/spin_box.hpp>
@@ -28,7 +28,7 @@ ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   const QString& description_text)
   : super(param_name, description_text),
     node_(node),
-    last_opend_dir_key_("last_opened_dir/double_table/" + tobas_std::replace(param_name.toStdString(), " ", "_")),
+    last_opend_dir_key_("last_opened_dir/double_table/" + str::replace(param_name.toStdString(), " ", "_")),
     labels_(labels),
     num_entry_(labels.size()),
     property_client_(node, tobas::kPropertyServerName, kPackageName)

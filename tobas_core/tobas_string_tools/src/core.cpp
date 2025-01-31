@@ -4,11 +4,11 @@
 #include <regex>
 #include <iostream>
 
-#include "../include/tobas_std_tools/string.hpp"
+#include "../include/tobas_string_tools/core.hpp"
 
 using namespace std;
 
-namespace tobas_std
+namespace str
 {
 vector<string> split(const string& str, const char& del)
 {
@@ -252,4 +252,4 @@ string snakeFromTitle(const string& title_case)
 {
   return snakeFromPascal(pascalFromTitle(title_case));
 }
-}  // namespace tobas_std
+}  // namespace str

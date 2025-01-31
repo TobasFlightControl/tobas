@@ -1,6 +1,6 @@
 #include <QVBoxLayout>
 
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
@@ -91,7 +91,7 @@ void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
     if (cur_time > window_stop_time)
       break;
 
-    if (tobas_std::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
+    if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
     {
       rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
       imu_ser_.deserialize_message(&ser_msg, &imu_);

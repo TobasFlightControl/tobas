@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace tobas_std
+namespace str
 {
 /* 文字列をdelで区切ってvectorにして返す． */
 std::vector<std::string> split(const std::string& str, const char& del);
@@ -76,4 +76,4 @@ std::string snakeFromPascal(const std::string& pascal_case);
 
 /* Title Caseをsnake_caseに変換する． */
 std::string snakeFromTitle(const std::string& title_case);
-}  // namespace tobas_std
+}  // namespace str

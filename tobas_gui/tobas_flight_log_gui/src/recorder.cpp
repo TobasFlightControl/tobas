@@ -2,7 +2,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
@@ -141,7 +141,7 @@ void FlightLogRecorderWidget::onStartButtonClicked()
     return;
   }
 
-  if (!tobas_std::isValidFileName(log_name))
+  if (!str::isValidFileName(log_name))
   {
     qt::qWarnBox(this, "The name of the log file is invalid.");
     return;

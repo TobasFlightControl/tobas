@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
 
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
@@ -67,8 +67,8 @@ bool CpuHandlerNode::getFrequency(uint64_t& freq)
     return false;
   }
 
-  const auto freq_str = tobas_std::split(command_executor_.getOutput(), '=').back();  // 数値部分のみ抜き出す
-  freq = stoul(freq_str);                                                             // str -> uint64
+  const auto freq_str = str::split(command_executor_.getOutput(), '=').back();  // 数値部分のみ抜き出す
+  freq = stoul(freq_str);                                                       // str -> uint64
   return true;
 }
 
