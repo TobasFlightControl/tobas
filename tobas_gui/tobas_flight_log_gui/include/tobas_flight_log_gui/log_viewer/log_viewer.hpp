@@ -37,9 +37,10 @@ private:
   rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
 
   void reset();
+  void setPlotData(double time_from_start);
 
 private Q_SLOTS:
-  void onPlaybackTimeChanged(double c);
+  void onPlaybackTimeChanged(double time_from_start);
 };
 }  // namespace log
 }  // namespace gui

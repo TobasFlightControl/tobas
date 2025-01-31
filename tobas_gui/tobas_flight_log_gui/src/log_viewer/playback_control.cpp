@@ -57,7 +57,7 @@ double PlaybackControlWidget::getCurrentTime() const
 void PlaybackControlWidget::setDuration(double sec)
 {
   slider_->setMaximum(sec * 1e+3);
-  updateTimeLabels(getCurrentTime());
+  updateTimeLabels(slider_->value());
 }
 
 void PlaybackControlWidget::setCurrentTime(double sec)
@@ -72,7 +72,7 @@ void PlaybackControlWidget::updateCurrentTimeLabel(int cur_msec)
 
 void PlaybackControlWidget::updateRemainingTimeLabel(int cur_msec)
 {
-  remaining_time_->setText(formatTime(getDuration() - cur_msec));
+  remaining_time_->setText(formatTime(slider_->maximum() - cur_msec));
 }
 
 void PlaybackControlWidget::updateTimeLabels(int cur_msec)

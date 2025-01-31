@@ -2,7 +2,7 @@
 
 #include <tobas_string_tools/core.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/time.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 
@@ -35,7 +35,7 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
 {
   reset();
 
-  log_path_ = fs::path(tobas::kROSBagDirHome) / log_name.toStdString();
+  log_path_ = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
 
   try
   {
@@ -46,6 +46,12 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
     qt::qErrorBox(this, "Failed to open " + QString::fromStdString(log_path_) + ".");
     return;
   }
+
+  const auto& metadata = reader_.get_metadata();
+  const auto duration = metadata.duration.count() * 1e-9;  // [s]
+  playback_ctrl_->setDuration(duration);
+
+  setPlotData(0.);
 }
 
 void FlightLogViewerWidget::reset()
@@ -59,7 +65,7 @@ void FlightLogViewerWidget::reset()
   playback_ctrl_->reset();
 }
 
-void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
+void FlightLogViewerWidget::setPlotData(double time_from_start)
 {
   if (log_path_.empty())
   {
@@ -67,7 +73,7 @@ void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
     return;
   }
 
-  if (fs::exists(log_path_))
+  if (!fs::exists(log_path_))
   {
     qWarning() << "Log path " << QString::fromStdString(log_path_) << " does not exist.";
     return;
@@ -106,6 +112,11 @@ void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
 
     plot_tab->setImuData(imu_data);
   }
+}
+
+void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
+{
+  setPlotData(time_from_start);
 }
 }  // namespace log
 }  // namespace gui
