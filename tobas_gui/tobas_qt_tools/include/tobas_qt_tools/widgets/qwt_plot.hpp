@@ -8,6 +8,7 @@ namespace qt
  * ===== QwtPlotとの違い =====
  * - 最小化可能
  * - SizePolicyをPreferredに
+ * - 追加メソッド
  */
 class QwtPlot2 : public QwtPlot
 {
@@ -18,5 +19,8 @@ class QwtPlot2 : public QwtPlot
 
 public:
   explicit QwtPlot2(QWidget* parent = nullptr);
+
+  /* プロット内部に凡例を追加． */
+  void innerLegend();
 };
 }  // namespace qt

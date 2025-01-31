@@ -4,7 +4,6 @@
 #include <tobas_ros2_tools/time.hpp>
 
 #include "tobas_flight_log_gui/log_viewer/plots/mag_plot.hpp"
-#include "tobas_flight_log_gui/log_viewer/plots/util.hpp"
 #include "tobas_flight_log_gui/log_viewer/constants.hpp"
 
 namespace gui
@@ -23,9 +22,9 @@ MagPlotWidget::MagPlotWidget()
   for (size_t i = 0; i < 3; ++i)
   {
     mag_plots_[i] = new qt::QwtPlot2();
+    mag_plots_[i]->innerLegend();
     mag_curves_[i]->setPen(kColor, kLineWidth);
     mag_curves_[i]->attach(mag_plots_[i]);
-    enableLegend(mag_curves_[i]);
     grid->addWidget(mag_plots_[i], i, 0);
   }
 }
