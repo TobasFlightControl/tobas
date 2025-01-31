@@ -125,7 +125,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     }
     catch (const std::exception& e)
     {
-      qWarning() << "Failed to deserialize " << QString::fromStdString(msg->topic_name);
+      qWarning() << "Failed to deserialize " << QString::fromStdString(msg->topic_name) << ": " + QString(e.what());
     }
   }
 
