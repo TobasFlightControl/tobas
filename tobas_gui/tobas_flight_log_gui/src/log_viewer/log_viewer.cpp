@@ -103,17 +103,24 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
     rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
 
-    if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
+    try
     {
-      imu_ser_.deserialize_message(&ser_msg, &imu_);
-      imu_data.push_back(imu_);
+      if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
+      {
+        imu_ser_.deserialize_message(&ser_msg, &imu_);
+        imu_data.push_back(imu_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kMagTopic)))
+      {
+        mag_ser_.deserialize_message(&ser_msg, &mag_);
+        mag_data.push_back(mag_);
+      }
+      // TODO
     }
-    else if (str::endsWith(msg->topic_name, path::join("/", tobas::kMagTopic)))
+    catch (const std::exception& e)
     {
-      mag_ser_.deserialize_message(&ser_msg, &mag_);
-      mag_data.push_back(mag_);
+      qWarning() << "Failed to deserialize " << QString::fromStdString(msg->topic_name);
     }
-    // TODO
   }
 
   // データをプロット
