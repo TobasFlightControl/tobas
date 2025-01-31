@@ -19,7 +19,7 @@ public:
   explicit ImuPlotWidget();
 
   void setTimeScale(double t_start, double t_stop);
-  void setData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& imu_data);
+  void setData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& imu_msgs);
 
 private:
   std::array<qt::QwtPlot2*, 3> acc_plots_;

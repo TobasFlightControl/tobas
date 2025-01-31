@@ -91,6 +91,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
   // データを仕分ける
   QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
+  QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
+  // TODO
   while (reader_.has_next())
   {
     const auto msg = reader_.read_next();
@@ -99,12 +101,19 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     if (cur_time > window_stop_time)
       break;
 
+    rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+
     if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
     {
-      rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
       imu_ser_.deserialize_message(&ser_msg, &imu_);
       imu_data.push_back(imu_);
     }
+    else if (str::endsWith(msg->topic_name, path::join("/", tobas::kMagTopic)))
+    {
+      mag_ser_.deserialize_message(&ser_msg, &mag_);
+      mag_data.push_back(mag_);
+    }
+    // TODO
   }
 
   // データをプロット
@@ -113,6 +122,8 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
     plot_tab->setImuData(imu_data);
+    plot_tab->setMagData(mag_data);
+    // TODO
   }
 }
 

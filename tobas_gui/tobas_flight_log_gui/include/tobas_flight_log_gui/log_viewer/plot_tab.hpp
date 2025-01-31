@@ -2,7 +2,8 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
-#include "./imu_plot.hpp"
+#include "./plots/imu_plot.hpp"
+#include "./plots/mag_plot.hpp"
 
 namespace gui
 {
@@ -21,9 +22,11 @@ public:
   void setTimeScale(double t_start, double t_stop);
 
   void setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data);
+  void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
 
 private:
   ImuPlotWidget* imu_plot_;
+  MagPlotWidget* mag_plot_;
 };
 }  // namespace log
 }  // namespace gui

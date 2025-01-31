@@ -33,8 +33,10 @@ private:
   PlaybackControlWidget* playback_ctrl_;
 
   tobas_msgs::msg::ImuWithCovarianceStamped imu_;
+  tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
 
   rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
+  rclcpp::Serialization<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_ser_;
 
   void reset();
   void setPlotData(double time_from_start);

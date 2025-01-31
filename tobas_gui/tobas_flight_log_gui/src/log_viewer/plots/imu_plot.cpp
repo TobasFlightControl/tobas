@@ -3,7 +3,8 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-#include "tobas_flight_log_gui/log_viewer/imu_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/imu_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/util.hpp"
 #include "tobas_flight_log_gui/log_viewer/constants.hpp"
 
 namespace gui
@@ -27,11 +28,13 @@ ImuPlotWidget::ImuPlotWidget()
     acc_plots_[i] = new qt::QwtPlot2();
     acc_curves_[i]->setPen(kColor, kLineWidth);
     acc_curves_[i]->attach(acc_plots_[i]);
+    enableLegend(acc_curves_[i]);
     grid->addWidget(acc_plots_[i], i, 0);
 
     gyro_plots_[i] = new qt::QwtPlot2();
     gyro_curves_[i]->setPen(kColor, kLineWidth);
     gyro_curves_[i]->attach(gyro_plots_[i]);
+    enableLegend(gyro_curves_[i]);
     grid->addWidget(gyro_plots_[i], i, 1);
   }
 }
@@ -45,13 +48,13 @@ void ImuPlotWidget::setTimeScale(double t_start, double t_stop)
   }
 }
 
-void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& imu_data)
+void ImuPlotWidget::setData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& imu_msgs)
 {
   QVector<double> t_data;
   std::array<QVector<double>, 3> acc_data;
   std::array<QVector<double>, 3> gyro_data;
 
-  for (const auto& imu : imu_data)
+  for (const auto& imu : imu_msgs)
   {
     t_data.push_back(ros2::seconds(imu.header.stamp));
 
