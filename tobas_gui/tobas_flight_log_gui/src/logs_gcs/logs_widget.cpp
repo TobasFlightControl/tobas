@@ -99,10 +99,23 @@ void FlightLogsWidgetGCS::onReadButtonClicked()
 {
   clearLogs();
 
-  for (const auto& entry : fs::directory_iterator(ros2::expandUser(tobas::kROSBagDirHome)))
+  const auto rosbag_dir = ros2::expandUser(tobas::kROSBagDirHome);
+  if (!fs::is_directory(rosbag_dir))
+    fs::create_directories(rosbag_dir);
+
+  try
   {
-    const QString log_name(entry.path().filename().c_str());
-    addLog(log_name);
+    for (const auto& entry : fs::directory_iterator(rosbag_dir))
+    {
+      const QString log_name(entry.path().filename().c_str());
+      addLog(log_name);
+    }
+  }
+  catch (const std::exception& e)
+  {
+    qt::qErrorBox(
+      this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + QString(e.what()));
+    return;
   }
 
   if (log_list_->count() == 0)
@@ -121,13 +134,26 @@ void FlightLogsWidgetGCS::onCleanButtonClicked()
   if (!qt::yesOrNo(this, "Do you want to clean all the flight logs saved in the GCS?", qt::QMessageLevel::WARN))
     return;
 
-  for (const auto& entry : fs::directory_iterator(ros2::expandUser(tobas::kROSBagDirHome)))
+  const auto rosbag_dir = ros2::expandUser(tobas::kROSBagDirHome);
+  if (!fs::is_directory(rosbag_dir))
+    fs::create_directories(rosbag_dir);
+
+  try
   {
-    if (!fs::remove_all(entry.path()))
+    for (const auto& entry : fs::directory_iterator(rosbag_dir))
     {
-      qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
-      return;
+      if (!fs::remove_all(entry.path()))
+      {
+        qt::qErrorBox(this, "Failed to delete " + QString::fromStdString(entry.path()));
+        return;
+      }
     }
+  }
+  catch (const std::exception& e)
+  {
+    qt::qErrorBox(
+      this, "Exception occurred while iterating " + QString::fromStdString(rosbag_dir) + ": " + QString(e.what()));
+    return;
   }
 
   clearLogs();
