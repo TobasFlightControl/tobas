@@ -13,7 +13,7 @@ class ImuPlotWidget : public QWidget
 {
   Q_OBJECT
 
-  static constexpr auto kColor = Qt::red;
+  static constexpr auto kColor = Qt::black;
 
 public:
   explicit ImuPlotWidget();
