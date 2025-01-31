@@ -3,6 +3,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QLabel>
+#include <QTimer>
 
 namespace gui
 {
@@ -14,6 +15,8 @@ class PlaybackControlWidget : public QWidget
 
   using self = PlaybackControlWidget;
   using super = QWidget;
+
+  static constexpr int kTimerInterval = 40;  // [ms]
 
 Q_SIGNALS:
   void timeChanged(double sec);
@@ -35,6 +38,10 @@ private:
   QLabel* current_time_;
   QLabel* remaining_time_;
 
+  bool is_slider_held_;
+
+  QTimer timer_;
+
   QString formatTime(int msec);
 
   void updateCurrentTimeLabel(int cur_msec);
@@ -44,6 +51,9 @@ private:
 private Q_SLOTS:
   void onPlayButtonToggled(bool checked);
   void onSliderValueChanged(int value);
+  void onSliderPressed();
+  void onSliderReleased();
+  void onTimerTimeout();
 };
 }  // namespace log
 }  // namespace gui

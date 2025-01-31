@@ -31,6 +31,9 @@ PlaybackControlWidget::PlaybackControlWidget()
   // Connection
   connect(play_button_, &QPushButton::toggled, this, &self::onPlayButtonToggled);
   connect(slider_, &QSlider::valueChanged, this, &self::onSliderValueChanged);
+  connect(slider_, &QSlider::sliderPressed, this, &self::onSliderPressed);
+  connect(slider_, &QSlider::sliderReleased, this, &self::onSliderReleased);
+  connect(&timer_, &QTimer::timeout, this, &self::onTimerTimeout);
 }
 
 void PlaybackControlWidget::reset()
@@ -42,6 +45,10 @@ void PlaybackControlWidget::reset()
 
   current_time_->setText("00:00");
   remaining_time_->setText("00:00");
+
+  is_slider_held_ = false;
+
+  timer_.stop();
 }
 
 double PlaybackControlWidget::getDuration() const
@@ -97,9 +104,19 @@ QString PlaybackControlWidget::formatTime(int msec)
 void PlaybackControlWidget::onPlayButtonToggled(bool checked)
 {
   if (checked)
+  {
+    // 終了してたら先頭に戻してスタート
+    if (slider_->value() == slider_->maximum())
+      slider_->setValue(0);
+
     play_button_->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    timer_.start(kTimerInterval);
+  }
   else
+  {
     play_button_->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    timer_.stop();
+  }
 
   Q_EMIT timeChanged(getCurrentTime());
 }
@@ -108,6 +125,33 @@ void PlaybackControlWidget::onSliderValueChanged(int value)
 {
   updateTimeLabels(value);
   Q_EMIT timeChanged(value * 1e-3);
+}
+
+void PlaybackControlWidget::onSliderPressed()
+{
+  is_slider_held_ = true;
+}
+
+void PlaybackControlWidget::onSliderReleased()
+{
+  is_slider_held_ = false;
+}
+
+void PlaybackControlWidget::onTimerTimeout()
+{
+  if (is_slider_held_)
+    return;
+
+  auto next_time = slider_->value() + kTimerInterval;  // [ms]
+
+  // 終了時点で停止
+  if (next_time > slider_->maximum())
+  {
+    next_time = slider_->maximum();
+    play_button_->setChecked(false);
+  }
+
+  slider_->setValue(next_time);
 }
 }  // namespace log
 }  // namespace gui
