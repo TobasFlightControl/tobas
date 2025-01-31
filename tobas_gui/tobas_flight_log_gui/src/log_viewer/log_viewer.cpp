@@ -90,6 +90,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   reader_.seek(window_start_time);
 
   // データを仕分ける
+  QVector<tobas_msgs::msg::Odometry> odom_data;
   QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
   QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
   // TODO
@@ -105,7 +106,12 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
 
     try
     {
-      if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
+      if (str::endsWith(msg->topic_name, path::join("/", tobas::kOdometryTopic)))
+      {
+        odom_ser_.deserialize_message(&ser_msg, &odom_);
+        odom_data.push_back(odom_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
       {
         imu_ser_.deserialize_message(&ser_msg, &imu_);
         imu_data.push_back(imu_);
@@ -128,6 +134,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   {
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
+    plot_tab->setPoseData(odom_data);
     plot_tab->setImuData(imu_data);
     plot_tab->setMagData(mag_data);
     // TODO

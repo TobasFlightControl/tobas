@@ -32,9 +32,11 @@ private:
   std::array<PlotTabWidget*, 2> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
 
+  tobas_msgs::msg::Odometry odom_;
   tobas_msgs::msg::ImuWithCovarianceStamped imu_;
   tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
 
+  rclcpp::Serialization<tobas_msgs::msg::Odometry> odom_ser_;
   rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
   rclcpp::Serialization<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_ser_;
 

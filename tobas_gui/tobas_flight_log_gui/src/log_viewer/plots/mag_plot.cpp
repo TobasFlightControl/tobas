@@ -1,4 +1,4 @@
-#include <QGridLayout>
+#include <QVBoxLayout>
 #include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
@@ -12,8 +12,8 @@ namespace log
 {
 MagPlotWidget::MagPlotWidget()
 {
-  const auto grid = new QGridLayout();
-  setLayout(grid);
+  const auto rows = new QVBoxLayout();
+  setLayout(rows);
 
   mag_curves_[0] = new QwtPlotCurve("Mag X");
   mag_curves_[1] = new QwtPlotCurve("Mag Y");
@@ -24,7 +24,7 @@ MagPlotWidget::MagPlotWidget()
     mag_plots_[i] = new QwtPlot2();
     mag_curves_[i]->setPen(kColor, kLineWidth);
     mag_curves_[i]->attach(mag_plots_[i]);
-    grid->addWidget(mag_plots_[i], i, 0);
+    rows->addWidget(mag_plots_[i]);
   }
 }
 

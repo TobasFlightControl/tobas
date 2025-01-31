@@ -17,15 +17,16 @@ public:
 
   inline explicit Rotation();
   inline explicit Rotation(
-    double Xx,
-    double Yx,
-    double Zx,
-    double Xy,
-    double Yy,
-    double Zy,
-    double Xz,
-    double Yz,
-    double Zz);
+    double xx,
+    double yx,
+    double zx,
+    double xy,
+    double yy,
+    double zy,
+    double xz,
+    double yz,
+    double zz);
+  inline explicit Rotation(const std::array<double, 9>& _data);
   inline explicit Rotation(const Vector& x, const Vector& y, const Vector& z);
   inline explicit Rotation(const Eigen::Matrix3d& _data);
 
@@ -157,17 +158,22 @@ inline Rotation::Rotation()
 }
 
 inline Rotation::Rotation(
-  double Xx,
-  double Yx,
-  double Zx,
-  double Xy,
-  double Yy,
-  double Zy,
-  double Xz,
-  double Yz,
-  double Zz)
+  double xx,
+  double yx,
+  double zx,
+  double xy,
+  double yy,
+  double zy,
+  double xz,
+  double yz,
+  double zz)
 {
-  data << Xx, Yx, Zx, Xy, Yy, Zy, Xz, Yz, Zz;
+  data << xx, yx, zx, xy, yy, zy, xz, yz, zz;
+}
+
+inline Rotation::Rotation(const std::array<double, 9>& _data)
+  : Rotation(_data[0], _data[1], _data[2], _data[3], _data[4], _data[5], _data[6], _data[7], _data[8])
+{
 }
 
 inline Rotation::Rotation(const Vector& x, const Vector& y, const Vector& z)
