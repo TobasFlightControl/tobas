@@ -21,12 +21,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
+find_package(rosbag2_cpp REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
+  rosbag2_cpp
   tobas_ros2_tools
   tobas_msgs
   tobas_qt_tools

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tobas_qt_tools/widgets/qwt_plot.hpp>
+#include <tobas_msgs/msg/imu_with_covariance_stamped.hpp>
 
 #include "./forward_declaration.hpp"
 
@@ -16,6 +17,9 @@ class ImuPlotWidget : public QWidget
 
 public:
   explicit ImuPlotWidget();
+
+  void setTimeScale(double t_start, double t_stop);
+  void setData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& imu_data);
 
 private:
   std::array<qt::QwtPlot2*, 3> acc_plots_;

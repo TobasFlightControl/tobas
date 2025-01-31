@@ -16,18 +16,18 @@ class PlaybackControlWidget : public QWidget
   using super = QWidget;
 
 Q_SIGNALS:
-  void timeChanged(int msec);
+  void timeChanged(double sec);
 
 public:
   explicit PlaybackControlWidget();
 
   void reset();
 
-  int getDuration() const;
-  int getCurrentTime() const;
+  double getDuration() const;
+  double getCurrentTime() const;
 
-  void setDuration(int msec);
-  void setCurrentTime(int msec);
+  void setDuration(double sec);
+  void setCurrentTime(double sec);
 
 private:
   QPushButton* play_button_;
@@ -37,9 +37,9 @@ private:
 
   QString formatTime(int msec);
 
-  void updateCurrentTimeLabel(int cur_time);
-  void updateRemainingTimeLabel(int cur_time);
-  void updateTimeLabels(int cur_time);
+  void updateCurrentTimeLabel(int cur_msec);
+  void updateRemainingTimeLabel(int cur_msec);
+  void updateTimeLabels(int cur_msec);
 
 private Q_SLOTS:
   void onPlayButtonToggled(bool checked);

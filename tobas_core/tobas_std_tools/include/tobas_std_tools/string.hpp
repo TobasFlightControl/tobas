@@ -44,6 +44,12 @@ bool contains(const std::string& str, const std::string& sub);
 /* 部分文字列が含まれるかどうかを調べる． */
 bool contains(const std::string& str, const char& sub);
 
+/* C++20以降のstring::starts_withと同じ． */
+bool startsWith(const std::string& str, const std::string& prefix);
+
+/* C++20以降のstring::ends_withと同じ． */
+bool endsWith(const std::string& str, const std::string& suffix);
+
 /* ファイル名に不正な文字列が含まれていないかどうかを調べる． */
 bool isValidFileName(const std::string& file_name);
 

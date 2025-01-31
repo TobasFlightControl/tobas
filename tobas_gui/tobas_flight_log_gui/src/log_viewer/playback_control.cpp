@@ -44,41 +44,41 @@ void PlaybackControlWidget::reset()
   remaining_time_->setText("00:00");
 }
 
-int PlaybackControlWidget::getDuration() const
+double PlaybackControlWidget::getDuration() const
 {
-  return slider_->maximum();
+  return slider_->maximum() * 1e-3;
 }
 
-int PlaybackControlWidget::getCurrentTime() const
+double PlaybackControlWidget::getCurrentTime() const
 {
-  return slider_->value();
+  return slider_->value() * 1e-3;
 }
 
-void PlaybackControlWidget::setDuration(int msec)
+void PlaybackControlWidget::setDuration(double sec)
 {
-  slider_->setMaximum(msec);
+  slider_->setMaximum(sec * 1e+3);
   updateTimeLabels(getCurrentTime());
 }
 
-void PlaybackControlWidget::setCurrentTime(int msec)
+void PlaybackControlWidget::setCurrentTime(double sec)
 {
-  slider_->setValue(msec);
+  slider_->setValue(sec * 1e+3);
 }
 
-void PlaybackControlWidget::updateCurrentTimeLabel(int cur_time)
+void PlaybackControlWidget::updateCurrentTimeLabel(int cur_msec)
 {
-  current_time_->setText(formatTime(cur_time));
+  current_time_->setText(formatTime(cur_msec));
 }
 
-void PlaybackControlWidget::updateRemainingTimeLabel(int cur_time)
+void PlaybackControlWidget::updateRemainingTimeLabel(int cur_msec)
 {
-  remaining_time_->setText(formatTime(getDuration() - cur_time));
+  remaining_time_->setText(formatTime(getDuration() - cur_msec));
 }
 
-void PlaybackControlWidget::updateTimeLabels(int cur_time)
+void PlaybackControlWidget::updateTimeLabels(int cur_msec)
 {
-  updateCurrentTimeLabel(cur_time);
-  updateRemainingTimeLabel(cur_time);
+  updateCurrentTimeLabel(cur_msec);
+  updateRemainingTimeLabel(cur_msec);
 }
 
 QString PlaybackControlWidget::formatTime(int msec)

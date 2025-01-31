@@ -18,6 +18,10 @@ class PlotTabWidget : public qt::TabWidget
 public:
   explicit PlotTabWidget();
 
+  void setTimeScale(double t_start, double t_stop);
+
+  void setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data);
+
 private:
   ImuPlotWidget* imu_plot_;
 };

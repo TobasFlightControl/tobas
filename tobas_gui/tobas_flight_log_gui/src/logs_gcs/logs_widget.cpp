@@ -48,6 +48,7 @@ FlightLogsWidgetGCS::FlightLogsWidgetGCS()
   // Connection
   connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
   connect(clean_button_, &QPushButton::clicked, this, &self::onCleanButtonClicked);
+  connect(log_list_, &QListWidget::itemClicked, this, &self::onListItemClicked);
 }
 
 void FlightLogsWidgetGCS::addLog(const QString& log_name)
@@ -146,6 +147,12 @@ void FlightLogsWidgetGCS::onDeleteButtonClicked(const QString& log_name)
   }
 
   removeLog(log_name);
+}
+
+void FlightLogsWidgetGCS::onListItemClicked(QListWidgetItem* item)
+{
+  const auto log_widget = qobject_cast<FlightLogItemWidgetGCS*>(log_list_->itemWidget(item));
+  Q_EMIT logSelected(log_widget->logName());
 }
 }  // namespace log
 }  // namespace gui

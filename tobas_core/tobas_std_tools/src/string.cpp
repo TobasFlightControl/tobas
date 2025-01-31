@@ -142,6 +142,20 @@ bool contains(const string& str, const char& sub)
   return str.find(sub) != string::npos;
 }
 
+bool startsWith(const string& str, const string& prefix)
+{
+  if (prefix.size() > str.size())
+    return false;
+  return std::equal(prefix.begin(), prefix.end(), str.begin());
+}
+
+bool endsWith(const string& str, const string& suffix)
+{
+  if (suffix.size() > str.size())
+    return false;
+  return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+}
+
 bool isValidFileName(const string& file_name)
 {
   if (file_name.empty())

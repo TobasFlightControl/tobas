@@ -19,6 +19,9 @@ class FlightLogsWidgetGCS : public QWidget
   static constexpr int kButtonHeight = 40;
   static constexpr int kListItemHeight = 40;
 
+Q_SIGNALS:
+  void logSelected(const QString& log_name);
+
 public:
   explicit FlightLogsWidgetGCS();
 
@@ -39,6 +42,7 @@ private Q_SLOTS:
   void onReadButtonClicked();
   void onCleanButtonClicked();
   void onDeleteButtonClicked(const QString& log_name);
+  void onListItemClicked(QListWidgetItem* item);
 };
 }  // namespace log
 }  // namespace gui

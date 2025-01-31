@@ -29,6 +29,7 @@ private:
 
 private Q_SLOTS:
   void onLogDownloaded(const QString& log_name);
+  void onLogSelected(const QString& log_name);
 };
 }  // namespace log
 }  // namespace gui

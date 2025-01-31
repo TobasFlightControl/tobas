@@ -1,6 +1,14 @@
 #include <QVBoxLayout>
 
+#include <tobas_std_tools/string.hpp>
+#include <tobas_path_tools/join.hpp>
+#include <tobas_ros2_tools/time.hpp>
+#include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/message.hpp>
+
 #include "tobas_flight_log_gui/log_viewer/log_viewer.hpp"
+
+namespace fs = std::filesystem;
 
 namespace gui
 {
@@ -19,6 +27,85 @@ FlightLogViewerWidget::FlightLogViewerWidget()
 
   playback_ctrl_ = new PlaybackControlWidget();
   rows->addWidget(playback_ctrl_);
+
+  connect(playback_ctrl_, &PlaybackControlWidget::timeChanged, this, &self::onPlaybackTimeChanged);
+}
+
+void FlightLogViewerWidget::setLogName(const QString& log_name)
+{
+  reset();
+
+  log_path_ = fs::path(tobas::kROSBagDirHome) / log_name.toStdString();
+
+  try
+  {
+    reader_.open(log_path_);
+  }
+  catch (const std::exception& e)
+  {
+    qt::qErrorBox(this, "Failed to open " + QString::fromStdString(log_path_) + ".");
+    return;
+  }
+}
+
+void FlightLogViewerWidget::reset()
+{
+  log_path_.clear();
+  reader_.close();
+
+  for (auto& plot_tab : plot_tabs_)
+    plot_tab->setTimeScale(0., kWindowDuration);
+
+  playback_ctrl_->reset();
+}
+
+void FlightLogViewerWidget::onPlaybackTimeChanged(double time_from_start)
+{
+  if (log_path_.empty())
+  {
+    qWarning() << "Log path is not set.";
+    return;
+  }
+
+  if (fs::exists(log_path_))
+  {
+    qWarning() << "Log path " << QString::fromStdString(log_path_) << " does not exist.";
+    return;
+  }
+
+  const auto& metadata = reader_.get_metadata();
+  const auto record_start_time = metadata.starting_time.time_since_epoch().count();              // [ns]
+  const auto window_start_time = record_start_time + static_cast<long>(time_from_start * 1e+9);  // [ns]
+  const auto window_stop_time = window_start_time + static_cast<long>(kWindowDuration * 1e+9);   // [ns]
+
+  // 初期時刻に移動
+  reader_.seek(window_start_time);
+
+  // データを仕分ける
+  QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
+  while (reader_.has_next())
+  {
+    const auto msg = reader_.read_next();
+
+    const auto& cur_time = msg->recv_timestamp;  // [ns]
+    if (cur_time > window_stop_time)
+      break;
+
+    if (tobas_std::endsWith(msg->topic_name, path::join("/", tobas::kImuTopic)))
+    {
+      rclcpp::SerializedMessage ser_msg(*msg->serialized_data);
+      imu_ser_.deserialize_message(&ser_msg, &imu_);
+      imu_data.push_back(imu_);
+    }
+  }
+
+  // データをプロット
+  for (auto& plot_tab : plot_tabs_)
+  {
+    plot_tab->setTimeScale(time_from_start, time_from_start + kWindowDuration);
+
+    plot_tab->setImuData(imu_data);
+  }
 }
 }  // namespace log
 }  // namespace gui

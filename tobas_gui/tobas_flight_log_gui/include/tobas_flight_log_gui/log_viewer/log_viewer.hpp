@@ -1,5 +1,9 @@
 #pragma once
 
+#include <filesystem>
+#include <rclcpp/serialization.hpp>
+#include <rosbag2_cpp/reader.hpp>
+
 #include "./plot_tab.hpp"
 #include "./playback_control.hpp"
 
@@ -14,12 +18,28 @@ class FlightLogViewerWidget : public QWidget
   using self = FlightLogViewerWidget;
   using super = QWidget;
 
+  static constexpr double kWindowDuration = 5.;  // [s]
+
 public:
   explicit FlightLogViewerWidget();
 
+  void setLogName(const QString& log_name);
+
 private:
+  std::filesystem::path log_path_;
+  rosbag2_cpp::Reader reader_;
+
   std::array<PlotTabWidget*, 2> plot_tabs_;
   PlaybackControlWidget* playback_ctrl_;
+
+  tobas_msgs::msg::ImuWithCovarianceStamped imu_;
+
+  rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
+
+  void reset();
+
+private Q_SLOTS:
+  void onPlaybackTimeChanged(double c);
 };
 }  // namespace log
 }  // namespace gui

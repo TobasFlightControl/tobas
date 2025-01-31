@@ -32,6 +32,7 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
 
   // Connection
   connect(logs_fc_, &FlightLogsWidgetFC::logDownloaded, this, &self::onLogDownloaded);
+  connect(logs_gcs_, &FlightLogsWidgetGCS::logSelected, this, &self::onLogSelected);
 }
 
 void FlightLogWidget::updateNamespace(const std::string& ns)
@@ -49,6 +50,11 @@ void FlightLogWidget::onLogDownloaded(const QString& log_name)
 
   logs_gcs_->addLog(log_name);
   logs_gcs_->sortLogs();
+}
+
+void FlightLogWidget::onLogSelected(const QString& log_name)
+{
+  log_viewer_->setLogName(log_name);
 }
 }  // namespace log
 }  // namespace gui

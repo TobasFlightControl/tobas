@@ -17,9 +17,7 @@ std::string join(const T& x)
 template <typename T, typename U>
 std::string join(const T& _x, const U& _y)
 {
-  // TODO: C++20が使えるようになったら "/" -> '/'
-  // constexpr char sep = '/';
-  const std::string sep = "/";
+  constexpr char sep[] = "/";
 
   const std::string x = _x;
   const std::string y = _y;
