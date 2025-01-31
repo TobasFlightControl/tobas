@@ -1,6 +1,8 @@
 #include <QStyle>
 #include <QHBoxLayout>
 
+#include <tobas_std_tools/check.hpp>
+
 #include "tobas_flight_log_gui/log_viewer/playback_control.hpp"
 
 namespace gui
@@ -29,8 +31,6 @@ PlaybackControlWidget::PlaybackControlWidget()
   // Connection
   connect(play_button_, &QPushButton::toggled, this, &self::onPlayButtonToggled);
   connect(slider_, &QSlider::valueChanged, this, &self::onSliderValueChanged);
-
-  reset();
 }
 
 void PlaybackControlWidget::reset()
@@ -56,12 +56,16 @@ double PlaybackControlWidget::getCurrentTime() const
 
 void PlaybackControlWidget::setDuration(double sec)
 {
+  TOBAS_CHECK(sec >= 0.);
+
   slider_->setMaximum(sec * 1e+3);
   updateTimeLabels(slider_->value());
 }
 
 void PlaybackControlWidget::setCurrentTime(double sec)
 {
+  TOBAS_CHECK(sec >= 0.);
+
   slider_->setValue(sec * 1e+3);
 }
 
@@ -103,7 +107,7 @@ void PlaybackControlWidget::onPlayButtonToggled(bool checked)
 void PlaybackControlWidget::onSliderValueChanged(int value)
 {
   updateTimeLabels(value);
-  Q_EMIT timeChanged(value);
+  Q_EMIT timeChanged(value * 1e-3);
 }
 }  // namespace log
 }  // namespace gui

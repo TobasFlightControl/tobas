@@ -29,6 +29,19 @@ FlightLogViewerWidget::FlightLogViewerWidget()
   rows->addWidget(playback_ctrl_);
 
   connect(playback_ctrl_, &PlaybackControlWidget::timeChanged, this, &self::onPlaybackTimeChanged);
+
+  reset();
+}
+
+void FlightLogViewerWidget::reset()
+{
+  log_path_.clear();
+  reader_.close();
+
+  for (auto& plot_tab : plot_tabs_)
+    plot_tab->setTimeScale(0., kWindowDuration);
+
+  playback_ctrl_->reset();
 }
 
 void FlightLogViewerWidget::setLogName(const QString& log_name)
@@ -49,20 +62,9 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
 
   const auto& metadata = reader_.get_metadata();
   const auto duration = metadata.duration.count() * 1e-9;  // [s]
-  playback_ctrl_->setDuration(duration);
+  playback_ctrl_->setDuration(std::max(duration - kWindowDuration, 0.));
 
   setPlotData(0.);
-}
-
-void FlightLogViewerWidget::reset()
-{
-  log_path_.clear();
-  reader_.close();
-
-  for (auto& plot_tab : plot_tabs_)
-    plot_tab->setTimeScale(0., kWindowDuration);
-
-  playback_ctrl_->reset();
 }
 
 void FlightLogViewerWidget::setPlotData(double time_from_start)
@@ -108,7 +110,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   // データをプロット
   for (auto& plot_tab : plot_tabs_)
   {
-    plot_tab->setTimeScale(time_from_start, time_from_start + kWindowDuration);
+    plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
     plot_tab->setImuData(imu_data);
   }
