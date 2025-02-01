@@ -69,11 +69,10 @@ void PoseTwistAccelController::update(const tobas_msgs::msg::RCInput& rcin, cons
   tar_pos_W_ += tar_vel_W * dt;
   tar_rpy_.yaw += yawrate * dt;
 
-  // 目標位置とヨー角の偏差を制限
+  // 目標位置の偏差を制限
   const auto& cur_pos_W = odom.frame.p;
   const auto cur_yaw = kdl::Euler(odom.frame.M).yaw;
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
-  tar_rpy_.yaw = clamp(tar_rpy_.yaw, cur_yaw - kMaxYawError, cur_yaw + kMaxYawError);
 
   // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
   if (!is_up_commanded_)
@@ -85,6 +84,7 @@ void PoseTwistAccelController::update(const tobas_msgs::msg::RCInput& rcin, cons
 
   // コマンドを作成
   auto cmd = std::make_unique<tobas_msgs::PoseTwistAccelCommand>();
+  cmd->header = rcin.header;
   cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;

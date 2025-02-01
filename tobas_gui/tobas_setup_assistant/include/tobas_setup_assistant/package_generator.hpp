@@ -41,6 +41,8 @@ private:
   inja::json createTemplateData();
   tobas::Drone createDrone();
 
+  bool hasServoJoint() const;
+
   bool generateBackupFiles();
   bool generateMetaPackage(const inja::json& data);
   bool generateConfigPackage(const inja::json& data);
@@ -48,7 +50,6 @@ private:
   bool generateUserPyPackage(const inja::json& data);
 
   bool generateControllerManagerLaunch(const std::filesystem::path& launch_dir);
-  bool generateGazeboJointCommandHandlerConfig(const std::filesystem::path& config_dir);
   bool generateJointControllerManagerConfig(const std::filesystem::path& config_dir);
   bool generateJointControllerConfigs(const std::filesystem::path& config_dir);
   bool generateDroneConfig(const std::filesystem::path& config_dir);

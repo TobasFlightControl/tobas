@@ -4,6 +4,7 @@
 #include "tobas_setup_assistant/setting_tabs/controller/controller.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/multirotor_pid.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/non_planar_pid.hpp"
+#include "tobas_setup_assistant/setting_tabs/controller/active_tilt_mr_pid.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/fixed_wing_lqr.hpp"
 #include "tobas_setup_assistant/setting_tabs/controller/custom.hpp"
 
@@ -13,7 +14,7 @@ namespace setup_assistant
 {
 ControllerWidget::ControllerWidget(
   RobotInfo& robot,
-  const propulsion_system::PropulsionSystemWidget* propulsion_system,
+  const propulsion::PropulsionSystemWidget* propulsion_system,
   const fixed_wing::FixedWingWidget* fixed_wing)
   : robot_(robot), propulsion_system_(propulsion_system), fixed_wing_(fixed_wing)
 {
@@ -27,6 +28,7 @@ ControllerWidget::ControllerWidget(
 
   controllers_->addWidget(new MultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new NonPlanarPIDWidget(robot_, propulsion_system_, fixed_wing_));
+  controllers_->addWidget(new ActiveTiltMultirotorPIDWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new FixedWingLQRWidget(robot_, propulsion_system_, fixed_wing_));
   controllers_->addWidget(new CustomControllerWidget());
 
@@ -59,15 +61,11 @@ const char* ControllerWidget::description() const
 
 void ControllerWidget::onOpened()
 {
+  // 現在の機体設定で適用可能な選択肢のみ選択可能にする
   for (int i = 0; i < controllers_->count(); ++i)
   {
     const auto controller = qobject_cast<BaseControllerWidget*>(controllers_->widget(i));
-
-    // 現在の機体設定で適用できない場合は選択肢にその旨を表示する
-    if (controller->isApplicable())
-      type_->setItemText(i, controller->name());
-    else
-      type_->setItemText(i, QString(controller->name()) + " (Not Applicable)");
+    type_->setItemEnabled(i, controller->isApplicable());
   }
 }
 

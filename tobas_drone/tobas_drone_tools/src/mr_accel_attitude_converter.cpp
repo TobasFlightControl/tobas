@@ -1,7 +1,8 @@
+#include <iostream>
+
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_algorithm/core.hpp>
-#include <tobas_std_tools/check.hpp>
 
 #include <tobas_constants/constants.hpp>
 
@@ -24,12 +25,13 @@ bool AccelAttitudeConverter::updateInternalDataStructures()
 void AccelAttitudeConverter::update(
   const kdl::Rotation& cur_rot,
   const kdl::Vector& tar_acc_W,
+  const kdl::Vector& ext_force_W,
   double& thrust_out,
   double& roll_out,
   double& pitch_out)
 {
   // 並進EoMの左辺
-  const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_);
+  const auto xyz = mass_holder_.getMass() * (tar_acc_W - grav_W_) - ext_force_W;
   auto x = xyz.x();
   auto y = xyz.y();
   const auto& z = xyz.z();

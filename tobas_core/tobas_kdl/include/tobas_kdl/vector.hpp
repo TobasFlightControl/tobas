@@ -47,13 +47,19 @@ public:
 
   inline void fill(double value);
 
+  /* 最小の要素を取得する． */
+  inline double min() const;
+
+  /* 最大の要素を取得する． */
+  inline double max() const;
+
   /* 2つのベクトルの内積を計算する． */
   inline double dot(const Vector& rhs) const;
 
   /* 2つのベクトルの要素積を計算する． */
   inline Vector hadamard(const Vector& rhs) const;
 
-  /* 2つのベクトル間の偏角 [rad] を計算する． */
+  /* 2つのベクトル間の偏角 (0 ~ pi [rad]) を計算する． */
   inline double argument(const Vector& rhs) const;
 
   /* 2つのベクトルが直行するかどうかを判定する． */
@@ -64,10 +70,13 @@ public:
   inline Vector clamp(const Vector& lb, const Vector& ub) const;
 
   inline void setZero();
+
   inline double norm() const;
   inline void normalize();
   inline Vector normalized() const;
+
   inline Vector sqr() const;
+  inline Vector cube() const;
   inline Vector inverse() const;
 
   inline bool isFinite() const;
@@ -190,6 +199,16 @@ inline void Vector::fill(double value)
   data.fill(value);
 }
 
+inline double Vector::min() const
+{
+  return data.minCoeff();
+}
+
+inline double Vector::max() const
+{
+  return data.maxCoeff();
+}
+
 inline double Vector::dot(const Vector& rhs) const
 {
   return data.dot(rhs.data);
@@ -202,7 +221,7 @@ inline Vector Vector::hadamard(const Vector& rhs) const
 
 inline double Vector::argument(const Vector& rhs) const
 {
-  return ::acos(normalized().dot(rhs.normalized()));
+  return ::acos(this->normalized().dot(rhs.normalized()));
 }
 
 inline bool Vector::isOrthogonal(const Vector& rhs) const
@@ -245,6 +264,11 @@ inline Vector Vector::normalized() const
 inline Vector Vector::sqr() const
 {
   return Vector(data.cwiseAbs2());
+}
+
+inline Vector Vector::cube() const
+{
+  return Vector(data.cwiseProduct(data).cwiseProduct(data));
 }
 
 inline Vector Vector::inverse() const

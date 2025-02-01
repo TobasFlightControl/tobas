@@ -7,7 +7,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
@@ -15,15 +15,18 @@ PropulsionSystemWidget::PropulsionSystemWidget(rclcpp::Node::SharedPtr node, con
   const auto links_label = new QLabel("Available Links");
   links_label->setFont(qt::DefaultFont(kLabelPSize, QFont::Bold));
   links_label->setAlignment(Qt::AlignLeft);
-  addWidget(links_label);
 
   available_ = new AvailableLinksWidget(robot_);
-  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
-  addWidget(available_);
-
   selected_ = new SelectedLinksWidget(node_, robot_);
-  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
+
+  // Layout
+  addWidget(links_label);
+  addWidget(available_);
   addWidget(selected_);
+
+  // Connection
+  connect(selected_, &SelectedLinksWidget::linkRemoved, this, &self::onSelectedLinkRemoved);
+  connect(available_, &AvailableLinksWidget::linkRemoved, this, &self::onAvailableLinkRemoved);
 }
 
 const char* PropulsionSystemWidget::name() const
@@ -78,18 +81,22 @@ YAML::Node PropulsionSystemWidget::dump()
 
 void PropulsionSystemWidget::load(const YAML::Node& node)
 {
+  blockSignals(true);
+
   for (const auto& pair : node)
   {
     const auto link_name = pair.first.as<QString>();
     const auto& sub_node = pair.second;
 
     // リンクをAvailableからSelectedに移動させる
-    available_->remove(link_name);
-    selected_->add(link_name);
+    available_->removeLink(link_name);
+    selected_->addLink(link_name);
 
     // 選択リンクの設定を更新
     selected_->widget(link_name)->load(sub_node);
   }
+
+  blockSignals(false);
 }
 
 const AvailableLinksWidget* PropulsionSystemWidget::available() const
@@ -104,13 +111,16 @@ const SelectedLinksWidget* PropulsionSystemWidget::selected() const
 
 void PropulsionSystemWidget::onAvailableLinkRemoved(const QString& link_name)
 {
-  selected_->add(link_name);
+  selected_->addLink(link_name);
+  Q_EMIT linkAdded(link_name);
 }
 
 void PropulsionSystemWidget::onSelectedLinkRemoved(const QString& link_name)
 {
-  available_->add(link_name);
+  available_->addLink(link_name);
+  available_->sortItems();
+  Q_EMIT linkRemoved(link_name);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

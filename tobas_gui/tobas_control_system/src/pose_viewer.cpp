@@ -17,6 +17,8 @@ PoseViewerWidget::PoseViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 
 void PoseViewerWidget::updateNamespace(const std::string& ns)
 {
+  reset();
+
   euler_sub_ = ros2::createSubscriber<tobas_kdl_msgs::EulerStamped>(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kEulerTopic), &self::eulerCb, this);
 }

@@ -66,6 +66,12 @@ protected:
 class CRC16Right : public CRC16
 {
 public:
+  enum poly_t : uint16_t
+  {
+    CRC_16_CCITT = 0x8408,
+    CRC_16_IBM = 0xA001,
+  };
+
   using CRC16::CRC16;
 
   uint16_t compute(const uint8_t* buf, size_t len) const override;
@@ -77,6 +83,12 @@ protected:
 class CRC16Left : public CRC16
 {
 public:
+  enum poly_t : uint16_t
+  {
+    CRC_16_CCITT = 0x1021,
+    CRC_16_IBM = 0x8005,
+  };
+
   using CRC16::CRC16;
 
   uint16_t compute(const uint8_t* buf, size_t len) const override;
@@ -88,6 +100,13 @@ protected:
 class CRC32Right : public CRC32
 {
 public:
+  enum poly_t : uint32_t
+  {
+    CRC_32 = 0xEDB88320,
+    CRC_32C = 0x82F63B78,
+    CRC_32K = 0xEB31D82E,
+  };
+
   using CRC32::CRC32;
 
   uint32_t compute(const uint8_t* buf, size_t len) const override;
@@ -99,6 +118,13 @@ protected:
 class CRC32Left : public CRC32
 {
 public:
+  enum poly_t : uint32_t
+  {
+    CRC_32 = 0x04C11DB7,
+    CRC_32C = 0x1EDC6F41,
+    CRC_32K = 0x741B8CD7,
+  };
+
   using CRC32::CRC32;
 
   uint32_t compute(const uint8_t* buf, size_t len) const override;

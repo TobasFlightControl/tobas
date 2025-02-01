@@ -8,12 +8,13 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/turning_direction.hpp>
+#include <tobas_drone_core/rotor/turning_direction.hpp>
 #include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
 
 #include <tobas_gazebo_common/constants.hpp>
+#include <tobas_gazebo_tools/utils.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
 
@@ -24,7 +25,8 @@
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
 // 実機の時定数がシミュレーションよりも大きくならないように想定しうる最大値に設定する．
-#define L_KV 0.02
+// cf. [AK60-6 V3.0 | T-MOTOR](https://store.tmotor.com/product/dynamical-modular-ak60-6-v3.html)
+#define L_KV 0.05
 
 using namespace std;
 using namespace chrono;
@@ -39,11 +41,9 @@ class GazeboRotorPlugin : public BaseNode,
                           public gz::sim::ISystemPreUpdate
 {
   // Constants
-  static constexpr char kDebugTopicPrefix[] = "gazebo/rotor_debug_";
-  static constexpr double kRotorSpeedCheckMargin = 10.;   // [rad/s]
-  static constexpr double kAutoStopTimeThresh = 0.5;      // [s]
-  static constexpr double kTimeConstWarnThreshold = 0.1;  // [s]
-  static constexpr double kMinBatteryVoltage = 3.;        // [V]
+  static constexpr double kAutoStopTimeout = 0.5;    // [s]
+  static constexpr double kMinBatteryVoltage = 3.;   // [V]
+  static constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 400;  // [Hz]
@@ -66,7 +66,7 @@ public:
 
 private:
   // SDF parameters
-  string joint_name_;
+  string link_name_;
   size_t channel_;
   double kv_;                    // [rad/s/V]
   double resistance_;            // [Ω]
@@ -144,15 +144,20 @@ void GazeboRotorPlugin::Configure(
     TOBAS_EXIT("Failed to find model.");
 
   // Get joint
-  const auto joint_entity = model.JointByName(ecm, joint_name_);
-  joint_ = make_shared<gz::sim::Joint>(joint_entity);
+  const auto joint_entity = findJointWithChildLink(ecm, link_name_);
+  if (!joint_entity.has_value())
+    TOBAS_EXIT("Failed to find the parent joint of rotor link \"", link_name_, "\".");
+  joint_ = make_shared<gz::sim::Joint>(joint_entity.value());
   if (!joint_->Valid(ecm))
-    TOBAS_EXIT("Failed to find specified joint \"", joint_name_, "\".");
+    TOBAS_EXIT("Failed to find rotor link \"", link_name_, "\".");
+
+  // Get joint name
+  const auto joint_name = joint_->Name(ecm).value();
 
   // Check joint type
   const auto joint_type = joint_->Type(ecm).value();
   if (joint_type != sdf::JointType::CONTINUOUS && joint_type != sdf::JointType::REVOLUTE)
-    TOBAS_EXIT("Joint \"", joint_name_, "\" is not a rotating joint.");
+    TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
 
   // Get child link
   const auto link_name = joint_->ChildLinkName(ecm).value();
@@ -169,10 +174,10 @@ void GazeboRotorPlugin::Configure(
     TOBAS_EXIT("Failed to find the parent link \"", parent_link_name, "\".");
 
   // Create necessary components
-  if (!getComponent<cmp::JointAxis>(joint_entity, ecm))
-    TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name_, "\".");
-  if (!getComponent<cmp::JointVelocity>(joint_entity, ecm))
-    TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name_, "\".");
+  if (!getComponent<cmp::JointAxis>(joint_entity.value(), ecm))
+    TOBAS_EXIT("Failed to get component JointAxis of joint \"", joint_name, "\".");
+  if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm))
+    TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name, "\".");
   if (!getComponent<cmp::WorldPose>(link_entity, ecm))
     TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name, "\".");
   if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))
@@ -184,7 +189,7 @@ void GazeboRotorPlugin::Configure(
 
 void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "jointName", joint_name_);
+  getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "channel", channel_);
 
   getSdfParam(sdf, "kv", kv_, POSITIVE);
@@ -227,7 +232,7 @@ void GazeboRotorPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::Enti
 
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にモータを停止する
   const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
-  if (secs_from_last_cmd > kAutoStopTimeThresh)
+  if (secs_from_last_cmd > kAutoStopTimeout)
     throttle_ = 0.;
 
   // Compute time after previous simulation time
@@ -399,7 +404,7 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   last_cmd_time_ = prev_sim_time_;
 
   // 範囲を制限してスロットルを更新
-  if (msg->data < 0. || 1. < msg->data)
+  if (msg->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < msg->data)
     TOBAS_ERROR("The commanded throttle ", msg->data, " is out of range.");
   throttle_ = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
 }

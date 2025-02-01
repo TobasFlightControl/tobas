@@ -84,11 +84,8 @@ void OgreController::reloadRobot(const view_model::URDFViewModel& vm)
   pimpl_->rviz.robot->load(*model);
   pimpl_->link_updater.reset(new ogre_helpers::StaticLinkUpdater(model));
 
-  for (const auto& pair : pimpl_->rviz.robot->getLinks())
+  for (const auto& [name, link] : pimpl_->rviz.robot->getLinks())
   {
-    const auto& name = pair.first;
-    const auto& link = pair.second;
-
     if (highlighted_links_.find(name) != highlighted_links_.end())
       link->setColor(kHighlightR, kHighlightG, kHighlightB);
     else

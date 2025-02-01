@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QTimer>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <tobas_ros2_tools/definitions.hpp>
@@ -11,7 +12,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class SelectedLinksWidget : public qt::TabWidget
 {
@@ -26,6 +27,9 @@ class SelectedLinksWidget : public qt::TabWidget
 
 Q_SIGNALS:
   void linkRemoved(const QString& link_name);
+  void channelChanged(const QString& link_name, int channel);
+  void isTiltStateChanged(const QString& link_name, bool is_tilt);
+  void tiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 
 public:
   explicit SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
@@ -35,11 +39,12 @@ public:
   void clear();
   bool isValid();
 
-  void add(const QString& link_name);
-  void remove(const QString& link_name);
+  void addLink(const QString& link_name);
+  void removeLink(const QString& link_name);
 
   QString linkName(int index) const;
   QStringList linkNames() const;
+  QStringList tiltJointNames() const;
 
   /* タブのインデックスを返す．存在しなければ-1を返す． */
   int index(const QString& link_name) const;
@@ -52,11 +57,6 @@ public:
   /* 両方の回転方向のプロペラが設定されていることを確かめる． */
   bool hasBothRotationalDirections() const;
 
-private Q_SLOTS:
-  void onTabCloseRequested(int index);
-  void onCopyFromLeftButtonClicked(const QString& link_name);
-  void onCopyToAllButtonClicked(const QString& link_name);
-
 private:
   const rclcpp::Node::SharedPtr node_;
   const RobotInfo& robot_;
@@ -64,13 +64,21 @@ private:
   visualization_msgs::msg::MarkerArray markers_;
   ros2::PublisherPtr<visualization_msgs::msg::MarkerArray> markers_pub_;
 
-  ros2::TimerPtr publish_markers_timer_;
+  QTimer publish_markers_timer_;
 
   /* 指定されたリンクのマーカのアクションを設定する． */
   void setAction(const QString& link_name, int action);
 
   void publishTimerCb();
+
+private Q_SLOTS:
+  void onTabCloseRequested(int index);
+  void onCopyFromLeftButtonClicked(const QString& link_name);
+  void onCopyToAllButtonClicked(const QString& link_name);
+  void onChannelChanged(const QString& link_name, int channel);
+  void onIsTiltStateChanged(const QString& link_name, bool is_tilt);
+  void onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

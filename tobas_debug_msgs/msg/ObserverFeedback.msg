@@ -1,8 +1,21 @@
 std_msgs/Header header
-tobas_kdl_msgs/Vector acc_bias
-tobas_kdl_msgs/Vector gyro_bias
+
+tobas_eigen_msgs/Vector3d position
+tobas_eigen_msgs/Vector3d velocity
+tobas_eigen_msgs/Vector4d hamilton
+tobas_eigen_msgs/Vector3d accel_bias
+tobas_eigen_msgs/Vector3d gyro_bias
+tobas_eigen_msgs/Vector3d mag_hard_bias
+tobas_eigen_msgs/Matrix3d mag_soft_bias
 float64 gravity
-tobas_eigen_msgs/Matrix3d acc_bias_covariance
-tobas_eigen_msgs/Matrix3d gyro_bias_covariance
-float64 gravity_variance
+
+tobas_eigen_msgs/Matrix3d position_cov
+tobas_eigen_msgs/Matrix3d velocity_cov
+tobas_eigen_msgs/Matrix3d rotation_cov
+tobas_eigen_msgs/Matrix3d accel_bias_cov
+tobas_eigen_msgs/Matrix3d gyro_bias_cov
+tobas_eigen_msgs/Matrix3d mag_hard_bias_cov
+tobas_eigen_msgs/Matrix6d mag_soft_bias_cov
+float64 gravity_var
+
 float64 gps_anormaly_score

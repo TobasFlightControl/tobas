@@ -3,8 +3,6 @@
 
 #include "../include/tobas_kdl/tree_ik_solver_vel_pinv.hpp"
 
-#define INF numeric_limits<double>::max()
-
 using namespace std;
 using namespace Eigen;
 

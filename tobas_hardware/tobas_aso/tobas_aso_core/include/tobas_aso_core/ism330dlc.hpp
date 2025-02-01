@@ -11,7 +11,8 @@ namespace aso
  */
 class ISM330DLC
 {
-  static constexpr uint32_t kSpiClockFreq = 10'000'000;  // Maximum frequency is 10MHz
+  static constexpr size_t kSPIBufSize = 6 + 1;
+  static constexpr uint32_t kSPIClockFreq = 10'000'000;  // Maximum frequency is 10MHz
   static constexpr uint8_t kReadFlag = 0x80;
 
 public:
@@ -155,6 +156,8 @@ private:
   };
 
   linux::SPIdev spi_;
+  uint8_t tx_buf_[kSPIBufSize];
+  uint8_t rx_buf_[kSPIBufSize];
 
   double acc_scale_;   // LSB -> m/s^2
   double gyro_scale_;  // LSB -> rad/s

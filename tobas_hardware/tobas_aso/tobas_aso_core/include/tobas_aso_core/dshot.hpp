@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include <tobas_algorithm/crc.hpp>
 #include <tobas_linux/spi_dev.hpp>
 
 namespace aso
@@ -11,6 +12,7 @@ class DShot
 {
 public:
   static constexpr size_t kChannelSize = 8;
+  static constexpr size_t kSPIBufSize = kChannelSize + 1;  // Data + CRC32
 
   enum command_t : uint16_t
   {
@@ -64,12 +66,7 @@ private:
 
   static constexpr size_t kChannelBytes = 4;                           // 1チャネルあたりのバイト数
   static constexpr size_t kSpiBufSize = kChannelSize * kChannelBytes;  // SPIバッファのサイズ
-
-  // https://www.st.com/resource/en/datasheet/stm32f722ic.pdf: p.162
-  // Maximum frequency of the slave transmitter is determined by sum of Tv(SO) and Tsu(MI) intervals
-  // which has to fit into SCK level phase preceding the SCK sampling edge.
-  // This value can be achieved when it communicates with a Master having Tsu(MI) = 0 while signal Duty(SCK) = 50%.
-  static constexpr uint32_t kSpiClockFreq = 37'000'000;
+  static constexpr uint32_t kSPIClockFreq = 30'000'000;                // [Hz]
 
 public:
   explicit DShot();
@@ -110,8 +107,12 @@ public:
 
 private:
   linux::SPIdev spi_;
+  uint32_t tx_buf_[kSPIBufSize];
+  uint32_t rx_buf_[kSPIBufSize];
 
   std::array<uint16_t, kChannelSize> half_num_poles_;
+
+  algo::CRC32Left crc_;
 
   bool checkChannelSize(size_t ch);
 };

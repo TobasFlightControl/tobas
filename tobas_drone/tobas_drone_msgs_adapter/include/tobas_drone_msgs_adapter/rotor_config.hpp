@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_drone_core/rotor.hpp>
+#include <tobas_drone_core/rotor/rotor.hpp>
 #include <tobas_drone_msgs/msg/rotor_config.hpp>
 
 template <>

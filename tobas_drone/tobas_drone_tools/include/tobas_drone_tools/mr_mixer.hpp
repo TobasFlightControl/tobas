@@ -14,6 +14,8 @@ namespace tobas
  */
 class MultiRotorMixer
 {
+  static constexpr double kThrustClampMargin = 1e-3;  // [N]
+
 public:
   explicit MultiRotorMixer(const Drone& drone, const kdl::Tree& tree);
 
@@ -24,7 +26,8 @@ public:
     const kdl::JntArray& cur_q,
     const kdl::Vector& cur_gyro_B,
     const kdl::Vector& tar_dgyro_B,
-    const double& tar_thrusts_sum);
+    const double& tar_thrusts_sum,
+    const kdl::Vector& ext_torque_B = kdl::Vector::Zero());
 
   const Eigen::VectorXd& getThrusts() const;
 

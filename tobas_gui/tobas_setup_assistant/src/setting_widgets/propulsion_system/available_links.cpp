@@ -11,27 +11,29 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 AvailableLinkItemWidget::AvailableLinkItemWidget(const QString& link_name)
 {
-  const auto cols = new QHBoxLayout();
-  setLayout(cols);
-
-  link_label_ = new QLabel(link_name);
-  link_label_->setFont(qt::DefaultFont(kBodyPSize));
-  link_label_->setAlignment(Qt::AlignLeft);
-  cols->addWidget(link_label_);
+  link_name_ = new QLabel(link_name);
+  link_name_->setFont(qt::DefaultFont(kBodyPSize));
 
   add_button_ = new QPushButton("Add");
-  add_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
+  add_button_->setFixedWidth(kButtonWidth);
+
+  // Layout
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(link_name_);
   cols->addWidget(add_button_);
+  setLayout(cols);
+
+  // Connection
+  connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
 }
 
 QString AvailableLinkItemWidget::linkName() const
 {
-  return link_label_->text();
+  return link_name_->text();
 }
 
 void AvailableLinkItemWidget::onAddButtonClicked()
@@ -42,6 +44,7 @@ void AvailableLinkItemWidget::onAddButtonClicked()
 AvailableLinksWidget::AvailableLinksWidget(const RobotInfo& robot) : robot_(robot)
 {
   setFixedHeight(kHeight);
+  setSelectionMode(QListWidget::NoSelection);
 }
 
 void AvailableLinksWidget::updateInternalDataStructures()
@@ -61,7 +64,7 @@ void AvailableLinksWidget::updateInternalDataStructures()
       continue;
 
     // リンク名をリストに追加
-    add(QString::fromStdString(link_name));
+    addLink(QString::fromStdString(link_name));
   }
 
   sortItems();
@@ -72,43 +75,46 @@ bool AvailableLinksWidget::isValid()
   return true;
 }
 
-void AvailableLinksWidget::add(const QString& link_name)
+void AvailableLinksWidget::addLink(const QString& link_name)
 {
   TOBAS_CHECK(robot_.tree().hasSegment(link_name.toStdString()));
-  TOBAS_CHECK(!contains(link_name));
 
   const auto list_item = new qt::ListWidgetItem();
-  list_item->setSizeHint(QSize(0, kItemHeight));  // 横幅が小さすぎる場合は自動で引き伸ばされる
-  list_item->setData(Qt::UserRole, link_name);    // リンク名をソート基準にする
+  list_item->setSizeHint(QSize(0, kListItemHeight));  // 横幅が小さすぎる場合は自動で引き伸ばされる
+  list_item->setData(Qt::UserRole, link_name);        // リンク名をソート基準にする
   addItem(list_item);
 
   const auto widget = new AvailableLinkItemWidget(link_name);
   connect(widget, &AvailableLinkItemWidget::addButtonClicked, this, &self::onAddButtonClicked);
   setItemWidget(list_item, widget);
-
-  sortItems();
 }
 
-void AvailableLinksWidget::remove(const QString& link_name)
+void AvailableLinksWidget::removeLink(const QString& link_name)
+{
+  const auto link_item = findLink(link_name);
+  remove(link_item);
+}
+
+QListWidgetItem* AvailableLinksWidget::findLink(const QString& link_name)
 {
   for (int row = 0; row < count(); ++row)
   {
-    const auto link_widget = qobject_cast<AvailableLinkItemWidget*>(itemWidget(item(row)));
+    const auto link_item = item(row);
+    const auto link_widget = qobject_cast<AvailableLinkItemWidget*>(itemWidget(link_item));
+    TOBAS_CHECK(link_widget != nullptr);
+
     if (link_widget->linkName() == link_name)
-    {
-      takeItem(row);
-      return;
-    }
+      return link_item;
   }
 
-  qt::qErrorBox(this, "Failed to remove link \"" + link_name + "\" from the available link list.");
+  throw std::runtime_error("Failed to find " + link_name.toStdString() + " in the available link list.");
 }
 
 void AvailableLinksWidget::onAddButtonClicked(const QString& link_name)
 {
-  remove(link_name);
+  removeLink(link_name);
   Q_EMIT linkRemoved(link_name);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+
+  <xacro:macro name="base_lipo" params="parent x y z mass *origin *material">
+    <joint name="battery_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="battery"/>
+    </joint>
+
+    <link name="battery">
+      <visual>
+        <geometry>
+          <box size="${x} ${y} ${z}"/>
+        </geometry>
+        <xacro:insert_block name="material"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${x} ${y} ${z}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="${mass}"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
+      </inertial>
+    </link>
+
+  </xacro:macro>
+</robot>

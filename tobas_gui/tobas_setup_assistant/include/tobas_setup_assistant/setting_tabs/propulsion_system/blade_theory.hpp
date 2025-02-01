@@ -8,7 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 /* Unsteady Aerodynamic Parameter Estimation for Multirotor Helicopters [Nguyen+, 2019] */
 class BladeTheory
@@ -49,6 +49,6 @@ private:
   /* Horizontal force coefficient (devided by mu) */
   double C_H() const;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

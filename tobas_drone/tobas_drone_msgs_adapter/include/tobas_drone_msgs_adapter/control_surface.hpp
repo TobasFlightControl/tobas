@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_drone_core/control_surface.hpp>
+#include <tobas_drone_core/fixed_wing/control_surface.hpp>
 #include <tobas_drone_msgs/msg/control_surface.hpp>
 
 template <>
@@ -15,10 +15,7 @@ struct rclcpp::TypeAdapter<tobas::ControlSurface, tobas_drone_msgs::msg::Control
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
     dst.channel = src.channel;
-    dst.joint_name = src.joint_name;
-    dst.angle_limit.lower = src.angle_limit.lower;
-    dst.angle_limit.upper = src.angle_limit.upper;
-    dst.max_angle_rate = src.max_angle_rate;
+    dst.link_name = src.link_name;
 
     dst.c_lift_delta = src.c_lift_delta;
     dst.c_drag_abs_delta = src.c_drag_abs_delta;
@@ -31,10 +28,7 @@ struct rclcpp::TypeAdapter<tobas::ControlSurface, tobas_drone_msgs::msg::Control
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
     dst.channel = src.channel;
-    dst.joint_name = src.joint_name;
-    dst.angle_limit.lower = src.angle_limit.lower;
-    dst.angle_limit.upper = src.angle_limit.upper;
-    dst.max_angle_rate = src.max_angle_rate;
+    dst.link_name = src.link_name;
 
     dst.c_lift_delta = src.c_lift_delta;
     dst.c_drag_abs_delta = src.c_drag_abs_delta;

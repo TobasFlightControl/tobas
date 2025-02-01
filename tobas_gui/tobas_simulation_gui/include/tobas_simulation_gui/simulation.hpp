@@ -1,13 +1,13 @@
 #pragma once
 
 #include <QPushButton>
-#include <std_msgs/msg/bool.hpp>
 
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
 #include <tobas_gui_common/local_package_builder.hpp>
 #include <tobas_gui_common/remote_package_builder.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 
 #include "./static_configuration/static_configuration.hpp"
 #include "./dynamic_configuration/dynamic_configuration.hpp"
@@ -49,9 +49,9 @@ private:
   StaticConfigWidget* static_config_;
   DynamicConfigWidget* dynamic_config_;
 
-  std_msgs::msg::Bool::ConstSharedPtr arming_;
-  ros2::SubscriberPtr<std_msgs::msg::Bool> arming_sub_;
-  void armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming);
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
   bool reset();
   bool killGazeboLaunch();

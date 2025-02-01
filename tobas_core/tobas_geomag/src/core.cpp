@@ -139,9 +139,10 @@ Elements elementsFromGeodetic(double lat, double lon, double h, double dyear, co
   if (dyear <= WMM.epoch)
     PRINT_ERROR("The year should be greater than the epoch of the magnetic field model.");
 
-  // 5年ごとに新しいデータが出るので，それを過ぎたら警告する
+  // 5年ごとに新しいデータが出るので，それを2回分過ぎたら警告する．
   // World Magnetic Model: https://www.ncei.noaa.gov/products/world-magnetic-model
-  if (dyear - WMM.epoch > 5)
+  // FIXME: PRINT_WARN_THROTTLEを実装
+  if (dyear - WMM.epoch > 10)
     PRINT_WARN("It is time to replace the WMM data with the latest version.");
 
   const auto ecef = geomag::ecefFromGeodetic(lat, lon, h);

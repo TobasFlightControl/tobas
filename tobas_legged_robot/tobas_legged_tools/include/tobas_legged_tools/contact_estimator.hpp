@@ -2,7 +2,7 @@
 
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 #include <tobas_kdl/tree_mass_holder.hpp>
-#include <tobas_linear_control/kalman_filter.hpp>
+#include <tobas_control/kalman_filter.hpp>
 
 namespace lr_tools
 {

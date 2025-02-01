@@ -10,7 +10,6 @@
 	<exec_depend>python3-paramiko</exec_depend>
 	<exec_depend>python3-scp</exec_depend>
 	<exec_depend>rclpy</exec_depend>
-	<exec_depend>std_msgs</exec_depend>
 	<exec_depend>tobas_ssh_msgs</exec_depend>
 
 	<export>

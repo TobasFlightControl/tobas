@@ -26,7 +26,7 @@ class ControllerWidget : public BaseSettingWidget
 public:
   explicit ControllerWidget(
     RobotInfo& robot,
-    const propulsion_system::PropulsionSystemWidget* propulsion_system,
+    const propulsion::PropulsionSystemWidget* propulsion_system,
     const fixed_wing::FixedWingWidget* fixed_wing);
 
   const char* name() const override;
@@ -53,7 +53,7 @@ private Q_SLOTS:
 
 private:
   RobotInfo& robot_;
-  const propulsion_system::PropulsionSystemWidget* propulsion_system_;
+  const propulsion::PropulsionSystemWidget* propulsion_system_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
 
   qt::ComboBox* type_;

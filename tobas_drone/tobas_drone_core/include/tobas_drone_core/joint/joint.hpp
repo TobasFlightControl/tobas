@@ -4,8 +4,9 @@
 #include <map>
 #include <yaml-cpp/yaml.h>
 
-#include "./joint_interface.hpp"
-#include "./joint_role.hpp"
+#include "./role.hpp"
+#include "./command_interface.hpp"
+#include "./hardware_interface.hpp"
 
 namespace tobas
 {
@@ -15,25 +16,27 @@ using JointConfigMap = std::map<std::string, JointConfig>;  // Joint Name -> Joi
 class JointConfig
 {
   static constexpr char kNameKey[] = "joint_name";
-  static constexpr char kHomePosKey[] = "home_position";
-  static constexpr char kMinPosKey[] = "min_position";
-  static constexpr char kMaxPosKey[] = "max_position";
-  static constexpr char kInterfaceKey[] = "interface";
   static constexpr char kRoleKey[] = "role";
+  static constexpr char kCmdIfaceKey[] = "cmd_iface";
+  static constexpr char kHwIfaceKey[] = "hw_iface";
+  static constexpr char kHomePosKey[] = "home_position";
 
 public:
   std::string name = "";
-
-  double home_pos = 0;  // [rad | m]
-  double min_pos = 0;   // [rad | m]
-  double max_pos = 0;   // [rad | m]
-
-  joint_interface_t interface = joint_interface_t::POSITION;
-
-  joint_role_t role = joint_role_t::MANIPULATION;
+  jnt_role_t role = jnt_role_t::OTHER;
+  jnt_cmd_iface_t cmd_iface = jnt_cmd_iface_t::NONE;
+  jnt_hw_iface_t hw_iface = jnt_hw_iface_t::OTHER;
+  double home_pos = 0.;  // [rad | m]
 
   bool isValid() const;
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
+
+  inline bool isServoJoint() const;
 };
+
+inline bool JointConfig::isServoJoint() const
+{
+  return tobas::isServoJoint(role);
+}
 }  // namespace tobas

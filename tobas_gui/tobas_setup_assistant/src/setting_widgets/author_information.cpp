@@ -1,4 +1,4 @@
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
 
@@ -61,7 +61,7 @@ bool AuthorInformationWidget::isValid()
     qt::qErrorBox(this, "Please specify author email address.");
     return false;
   }
-  if (!tobas_std::isValidEmail(author_email.toStdString()))
+  if (!str::isValidEmail(author_email.toStdString()))
   {
     qt::qErrorBox(this, "Invalid email address.");
     return false;

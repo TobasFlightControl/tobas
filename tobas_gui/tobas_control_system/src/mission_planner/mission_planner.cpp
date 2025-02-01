@@ -20,29 +20,14 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
 {
   map_ = new MapWidget();
 
-  load_button_ = new QPushButton("Load");
-  load_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  save_button_ = new QPushButton("Save");
-  save_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  add_button_ = new QPushButton("Add");
-  add_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  clear_button_ = new QPushButton("Clear");
-  clear_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  cache_button_ = new QPushButton("Cache Map");
-  cache_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  execute_button_ = new QPushButton("Execute");
-  execute_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  cancel_button_ = new QPushButton("Cancel");
-  cancel_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  focus_button_ = new QPushButton("Focus");
-  focus_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  load_button_ = new CommandButton("Load");
+  save_button_ = new CommandButton("Save");
+  add_button_ = new CommandButton("Add");
+  clear_button_ = new CommandButton("Clear");
+  cache_button_ = new CommandButton("Cache Map");
+  execute_button_ = new CommandButton("Execute");
+  cancel_button_ = new CommandButton("Cancel");
+  focus_button_ = new CommandButton("Focus");
 
   command_list_ = new qt::ListWidget();
   command_list_->setSelectionMode(QListWidget::SingleSelection);
@@ -52,16 +37,17 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   commands_->setStyleSheet("QStackedWidget { border: 1px solid black; background-color: white; }");
 
   // Layout
+  // ボタンがなるべく最大横幅を確保するようstretch (優先度) を指定
   const auto button_cols = new QHBoxLayout();
-  button_cols->addWidget(load_button_);
-  button_cols->addWidget(save_button_);
-  button_cols->addWidget(add_button_);
-  button_cols->addWidget(clear_button_);
-  button_cols->addWidget(cache_button_);
-  button_cols->addStretch();
-  button_cols->addWidget(execute_button_);
-  button_cols->addWidget(cancel_button_);
-  button_cols->addWidget(focus_button_);
+  button_cols->addWidget(load_button_, 1);
+  button_cols->addWidget(save_button_, 1);
+  button_cols->addWidget(add_button_, 1);
+  button_cols->addWidget(clear_button_, 1);
+  button_cols->addWidget(cache_button_, 1);
+  button_cols->addStretch(0);
+  button_cols->addWidget(execute_button_, 1);
+  button_cols->addWidget(cancel_button_, 1);
+  button_cols->addWidget(focus_button_, 1);
 
   const auto mission_cols = new QHBoxLayout();
   mission_cols->addWidget(command_list_);
@@ -69,21 +55,21 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
 
   const auto rows = new QVBoxLayout();
   rows->addWidget(map_, 2);
-  rows->addLayout(button_cols);
+  rows->addLayout(button_cols, 0);
   rows->addLayout(mission_cols, 1);
 
   setLayout(rows);
 
-  // Connections
+  // Connection
   connect(map_, &MapWidget::waypointMoved, this, &self::onWaypointMoved);
-  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
-  connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
-  connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
-  connect(clear_button_, &QPushButton::clicked, this, &self::onClearButtonClicked);
-  connect(cache_button_, &QPushButton::clicked, this, &self::onCacheButtonClicked);
-  connect(execute_button_, &QPushButton::clicked, this, &self::onExecuteButtonClicked);
-  connect(cancel_button_, &QPushButton::clicked, this, &self::onCancelButtonClicked);
-  connect(focus_button_, &QPushButton::clicked, this, &self::onFocusButtonClicked);
+  connect(load_button_, &CommandButton::clicked, this, &self::onLoadButtonClicked);
+  connect(save_button_, &CommandButton::clicked, this, &self::onSaveButtonClicked);
+  connect(add_button_, &CommandButton::clicked, this, &self::onAddButtonClicked);
+  connect(clear_button_, &CommandButton::clicked, this, &self::onClearButtonClicked);
+  connect(cache_button_, &CommandButton::clicked, this, &self::onCacheButtonClicked);
+  connect(execute_button_, &CommandButton::clicked, this, &self::onExecuteButtonClicked);
+  connect(cancel_button_, &CommandButton::clicked, this, &self::onCancelButtonClicked);
+  connect(focus_button_, &CommandButton::clicked, this, &self::onFocusButtonClicked);
   connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&mission_thread_, &MissionExecutionThread::finished, this, &self::onMissionFinished);
@@ -94,6 +80,9 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
 void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   ns_ = ns;
+
+  map_->setGPSArrowPosition(0., 0.);
+  map_->setGPSArrowRotation(0.);
 
   gps_ = nullptr;
 
@@ -240,6 +229,9 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
 
 void MissionPlannerWidget::gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps)
 {
+  if (gps->fix_type != tobas_msgs::msg::Gps::FIX_3D)
+    return;
+
   gps_ = gps;
 
   map_->setGPSArrowPosition(gps->latitude, gps->longitude);

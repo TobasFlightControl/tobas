@@ -8,7 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 AerodynamicsWidget_ThrustStand::AerodynamicsWidget_ThrustStand(rclcpp::Node::SharedPtr node, PropellerWidget* propeller)
   : node_(node), propeller_(propeller)
@@ -95,6 +95,6 @@ double AerodynamicsWidget_ThrustStand::rotorDragCoef() const
   return BladeTheory(propeller_->numBlade(), propeller_->radius(), propeller_->bladeChord(), propeller_->pitchAngle())
     .rotorDragCoef();
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

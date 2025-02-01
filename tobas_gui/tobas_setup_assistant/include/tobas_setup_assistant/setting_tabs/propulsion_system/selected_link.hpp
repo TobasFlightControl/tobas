@@ -4,6 +4,7 @@
 
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
+#include "./general/general.hpp"
 #include "./esc.hpp"
 #include "./motor.hpp"
 #include "./propeller.hpp"
@@ -14,7 +15,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class SelectedLinkWidget : public QWidget
 {
@@ -28,9 +29,12 @@ class SelectedLinkWidget : public QWidget
 Q_SIGNALS:
   void copyFromLeftButtonClicked();
   void copyToAllButtonClicked();
+  void channelChanged(int channel);
+  void isTiltStateChanged(bool is_tilt);
+  void tiltJointNameChanged(const QString& joint_name);
 
 public:
-  explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node);
+  explicit SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name);
 
   bool isValid();
   void copyFrom(const SelectedLinkWidget* src);
@@ -38,6 +42,7 @@ public:
   YAML::Node dump() const;
   void load(const YAML::Node& node);
 
+  const GeneralWidget* general() const;
   const ESCWidget* esc() const;
   const MotorWidget* motor() const;
   const PropellerWidget* propeller() const;
@@ -50,12 +55,13 @@ private:
   QPushButton* copy_from_left_button_;
   QPushButton* copy_to_all_button_;
 
+  GeneralWidget* general_;
   ESCWidget* esc_;
   MotorWidget* motor_;
   PropellerWidget* propeller_;
   AerodynamicsWidget* aerodynamics_;
   SpeedLimitWidget* speed_limit_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

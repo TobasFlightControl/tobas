@@ -4,9 +4,9 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
-SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
+SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot, const QString& link_name)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -16,12 +16,10 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
 
   copy_from_left_button_ = new QPushButton("Copy From Left");
   copy_from_left_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(copy_from_left_button_, &QPushButton::clicked, [&]() { Q_EMIT copyFromLeftButtonClicked(); });
   button_cols->addWidget(copy_from_left_button_);
 
   copy_to_all_button_ = new QPushButton("Copy To All");
   copy_to_all_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(copy_to_all_button_, &QPushButton::clicked, [&]() { Q_EMIT copyToAllButtonClicked(); });
   button_cols->addWidget(copy_to_all_button_);
 
   button_cols->addStretch();
@@ -31,12 +29,14 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
   tabs_->setSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
+  general_ = new GeneralWidget(robot, link_name);
   esc_ = new ESCWidget();
   motor_ = new MotorWidget();
   propeller_ = new PropellerWidget();
   aerodynamics_ = new AerodynamicsWidget(node, propeller_);
   speed_limit_ = new SpeedLimitWidget(motor_, aerodynamics_);
 
+  tabs_->addTab(general_, general_->name());
   tabs_->addTab(esc_, esc_->name());
   tabs_->addTab(motor_, motor_->name());
   tabs_->addTab(propeller_, propeller_->name());
@@ -44,6 +44,15 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node)
   tabs_->addTab(speed_limit_, speed_limit_->name());
 
   rows->addStretch();
+
+  // Connection
+  connect(copy_to_all_button_, &QPushButton::clicked, [this]() { Q_EMIT copyToAllButtonClicked(); });
+  connect(copy_from_left_button_, &QPushButton::clicked, [this]() { Q_EMIT copyFromLeftButtonClicked(); });
+  connect(general_, &GeneralWidget::channelChanged, [this](int channel) { Q_EMIT channelChanged(channel); });
+  connect(general_, &GeneralWidget::isTiltStateChanged, [this](bool is_tilt) { Q_EMIT isTiltStateChanged(is_tilt); });
+  connect(
+    general_, &GeneralWidget::tiltJointNameChanged,
+    [this](const QString& joint_name) { Q_EMIT tiltJointNameChanged(joint_name); });
 }
 
 bool SelectedLinkWidget::isValid()
@@ -83,11 +92,20 @@ YAML::Node SelectedLinkWidget::dump() const
 
 void SelectedLinkWidget::load(const YAML::Node& node)
 {
+  blockSignals(true);
+
   for (int i = 0; i < tabs_->count(); ++i)
   {
     const auto widget = qobject_cast<BaseSelectedLinkSettingWidget*>(tabs_->widget(i));
     widget->load(node[widget->name()]);
   }
+
+  blockSignals(false);
+}
+
+const GeneralWidget* SelectedLinkWidget::general() const
+{
+  return general_;
 }
 
 const ESCWidget* SelectedLinkWidget::esc() const
@@ -114,6 +132,6 @@ const SpeedLimitWidget* SelectedLinkWidget::speedLimit() const
 {
   return speed_limit_;
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

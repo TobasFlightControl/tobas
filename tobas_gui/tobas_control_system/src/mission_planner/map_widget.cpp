@@ -3,6 +3,8 @@
 #include <QtQuick/QQuickItem>
 #include <QtQml/QQmlContext>
 
+#include <tobas_std_tools/check.hpp>
+
 #include "tobas_control_system/constants.hpp"
 #include "tobas_control_system/mission_planner/map_widget.hpp"
 #include "tobas_control_system/mission_planner/system_info.hpp"
@@ -16,7 +18,7 @@ namespace control_system
 MapWidget::MapWidget()
 {
   // サイズポリシーとリサイズモードの指定 (しないとウィジェットが潰れてしまう)
-  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   setResizeMode(QQuickWidget::SizeRootObjectToView);
 
   // モデルオブジェクトの設定
@@ -35,7 +37,7 @@ MapWidget::MapWidget()
   const auto qml_path = pkg_path / "qml/Map.qml";
   setSource(QUrl::fromLocalFile(QString::fromStdString(qml_path)));
 
-  // Connections
+  // Connection
   connect(rootObject(), SIGNAL(waypointMoved(int, double, double)), this, SLOT(onWaypointMoved(int, double, double)));
 }
 
@@ -62,6 +64,8 @@ void MapWidget::addLine(double latitude_1, double longitude_1, double latitude_2
 std::pair<double, double> MapWidget::getCenter()
 {
   const auto map = rootObject()->findChild<QObject*>("map");
+  TOBAS_CHECK(map != nullptr);
+
   const auto center = map->property("center").value<QGeoCoordinate>();
   return { center.latitude(), center.longitude() };
 }

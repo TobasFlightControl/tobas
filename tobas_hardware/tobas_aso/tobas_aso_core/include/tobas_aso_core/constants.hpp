@@ -14,7 +14,7 @@ static constexpr char kSbusDev[] = "/dev/ttyAMA0";
 namespace spi_device
 {
 static constexpr char kImuDev[] = "/dev/spidev0.0";
-static constexpr char kAdcDev[] = "/dev/spidev0.1";
+static constexpr char kBatteryDev[] = "/dev/spidev0.1";
 static constexpr char kDshotDev[] = "/dev/spidev1.0";
 static constexpr char kPwmDev[] = "/dev/spidev1.1";
 static constexpr char kGnssDev[] = "/dev/spidev1.2";

@@ -3,7 +3,7 @@
 #include <tobas_hardware_common/base_sensor_node.hpp>
 #include <tobas_msgs_adapter/gps.hpp>
 
-#include <tobas_aso_core/zed_f9p.hpp>
+#include <tobas_aso_core/zed_f9p_1xb.hpp>
 
 using namespace std;
 
@@ -23,14 +23,14 @@ public:
   explicit GNSSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
-  aso::ZEDF9P gnss_;
+  aso::ZEDF9P1xB gnss_;
 
   aso::payload::NAV_STATUS status_;
   aso::payload::NAV_HPPOSLLH hpposllh_;
   aso::payload::NAV_VELNED velned_;
   aso::payload::NAV_COV cov_;
 
-  std::map<aso::ZEDF9P::ubx_nav_id_t, bool> is_received_;
+  std::map<aso::ZEDF9P1xB::ubx_nav_id_t, bool> is_received_;
 
   ros2::PublisherPtr<tobas_msgs::Gps> gnss_pub_;
 
@@ -54,10 +54,10 @@ GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
     return;
   }
 
-  is_received_[aso::ZEDF9P::NAV_STATUS] = false;
-  is_received_[aso::ZEDF9P::NAV_HPPOSLLH] = false;
-  is_received_[aso::ZEDF9P::NAV_VELNED] = false;
-  is_received_[aso::ZEDF9P::NAV_COV] = false;
+  is_received_[aso::ZEDF9P1xB::NAV_STATUS] = false;
+  is_received_[aso::ZEDF9P1xB::NAV_HPPOSLLH] = false;
+  is_received_[aso::ZEDF9P1xB::NAV_VELNED] = false;
+  is_received_[aso::ZEDF9P1xB::NAV_COV] = false;
 
   gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGNSSTopic);
 
@@ -66,7 +66,7 @@ GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
 
 bool GNSSDriverNode::configure()
 {
-  if (!gnss_.configureDynamicsModel(aso::ZEDF9P::AIRBORNE_2G))
+  if (!gnss_.configureDynamicsModel(aso::ZEDF9P1xB::AIRBORNE_2G))
   {
     TOBAS_ERROR("Failed to configure dynamics model.");
     return false;
@@ -110,24 +110,29 @@ bool GNSSDriverNode::configure()
     TOBAS_ERROR("Failed to disable GLONASS.");
     return false;
   }
+  if (!gnss_.enableNavIC(false))
+  {
+    TOBAS_ERROR("Failed to disable NavIC.");
+    return EXIT_FAILURE;
+  }
 
   // Enable messages
-  if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_STATUS, true))
+  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_STATUS, true))
   {
     TOBAS_ERROR("Failed to enable NAV_STATUS message.");
     return false;
   }
-  if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_HPPOSLLH, true))
+  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_HPPOSLLH, true))
   {
     TOBAS_ERROR("Failed to enable NAV_HPPOSLLH message.");
     return false;
   }
-  if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_VELNED, true))
+  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_VELNED, true))
   {
     TOBAS_ERROR("Failed to enable NAV_VELNED message.");
     return false;
   }
-  if (!gnss_.enableMsg(aso::ZEDF9P::CLASS_NAV, aso::ZEDF9P::NAV_COV, true))
+  if (!gnss_.enableMsg(aso::ZEDF9P1xB::CLASS_NAV, aso::ZEDF9P1xB::NAV_COV, true))
   {
     TOBAS_ERROR("Failed to enable NAV_COV message.");
     return false;
@@ -139,11 +144,11 @@ bool GNSSDriverNode::configure()
     TOBAS_WARN("Failed to set the antenna length.");
 
   // 不要なプロトコルを無効化
-  if (!gnss_.enableProtocol(aso::ZEDF9P::NMEA, false))
+  if (!gnss_.enableProtocol(aso::ZEDF9P1xB::NMEA, false))
     TOBAS_WARN("Failed to disable NMEA protocol.");
-  if (!gnss_.enableProtocol(aso::ZEDF9P::RTCM3X, false))
+  if (!gnss_.enableProtocol(aso::ZEDF9P1xB::RTCM3X, false))
     TOBAS_WARN("Failed to disable RTCM3X protocol.");
-  if (!gnss_.enableProtocol(aso::ZEDF9P::SPARTN, false))
+  if (!gnss_.enableProtocol(aso::ZEDF9P1xB::SPARTN, false))
     TOBAS_WARN("Failed to disable SPARTN protocol.");
 
   // 不要なインターフェースを無効化
@@ -166,7 +171,7 @@ void GNSSDriverNode::mainTimerCb()
   if (!gnss_.update())
     return;
 
-  if (gnss_.latestClass() != aso::ZEDF9P::CLASS_NAV)
+  if (gnss_.latestClass() != aso::ZEDF9P1xB::CLASS_NAV)
   {
     warnUnnecessaryUBXMessage();
     return;
@@ -174,21 +179,21 @@ void GNSSDriverNode::mainTimerCb()
 
   switch (gnss_.latestId())
   {
-    case aso::ZEDF9P::NAV_STATUS:
+    case aso::ZEDF9P1xB::NAV_STATUS:
       status_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P::NAV_STATUS) = true;
+      is_received_.at(aso::ZEDF9P1xB::NAV_STATUS) = true;
       break;
-    case aso::ZEDF9P::NAV_HPPOSLLH:
+    case aso::ZEDF9P1xB::NAV_HPPOSLLH:
       hpposllh_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P::NAV_HPPOSLLH) = true;
+      is_received_.at(aso::ZEDF9P1xB::NAV_HPPOSLLH) = true;
       break;
-    case aso::ZEDF9P::NAV_VELNED:
+    case aso::ZEDF9P1xB::NAV_VELNED:
       velned_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P::NAV_VELNED) = true;
+      is_received_.at(aso::ZEDF9P1xB::NAV_VELNED) = true;
       break;
-    case aso::ZEDF9P::NAV_COV:
+    case aso::ZEDF9P1xB::NAV_COV:
       cov_.decode(gnss_.payload());
-      is_received_.at(aso::ZEDF9P::NAV_COV) = true;
+      is_received_.at(aso::ZEDF9P1xB::NAV_COV) = true;
       break;
     default:
       warnUnnecessaryUBXMessage();

@@ -11,7 +11,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class AvailableLinkItemWidget : public QWidget
 {
@@ -21,7 +21,6 @@ class AvailableLinkItemWidget : public QWidget
   using super = QWidget;
 
   static constexpr int kButtonWidth = 60;
-  static constexpr int kButtonHeight = 20;
 
 Q_SIGNALS:
   void addButtonClicked(const QString& link_name);
@@ -32,11 +31,11 @@ public:
   QString linkName() const;
 
 private:
-  void onAddButtonClicked();
-
-private:
-  QLabel* link_label_;
+  QLabel* link_name_;
   QPushButton* add_button_;
+
+private Q_SLOTS:
+  void onAddButtonClicked();
 };
 
 class AvailableLinksWidget : public qt::ListWidget
@@ -47,7 +46,7 @@ class AvailableLinksWidget : public qt::ListWidget
   using super = qt::ListWidget;
 
   static constexpr int kHeight = 200;
-  static constexpr int kItemHeight = 40;
+  static constexpr int kListItemHeight = 40;
 
 Q_SIGNALS:
   void linkRemoved(const QString& link_name);
@@ -59,15 +58,17 @@ public:
 
   bool isValid();
 
-  void add(const QString& link_name);
-  void remove(const QString& link_name);
-
-private Q_SLOTS:
-  void onAddButtonClicked(const QString& link_name);
+  void addLink(const QString& link_name);
+  void removeLink(const QString& link_name);
 
 private:
   const RobotInfo& robot_;
+
+  QListWidgetItem* findLink(const QString& link_name);
+
+private Q_SLOTS:
+  void onAddButtonClicked(const QString& link_name);
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

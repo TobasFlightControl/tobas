@@ -6,7 +6,7 @@
 #include <tobas_std_tools/unit_conversions.hpp>
 #include <tobas_kdl/tree.hpp>
 #include <tobas_kdl/tree_joint_axis_solver.hpp>
-#include <tobas_drone_core/rotor_axis.hpp>
+#include <tobas_drone_core/rotor/rotor_axis.hpp>
 
 namespace gui
 {

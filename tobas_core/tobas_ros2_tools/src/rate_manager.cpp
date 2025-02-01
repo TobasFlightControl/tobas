@@ -2,7 +2,8 @@
 
 namespace ros2
 {
-RateManager::RateManager(double update_rate) : update_rate_(update_rate)
+RateManager::RateManager(double update_rate)
+  : interval_(rclcpp::Duration::from_nanoseconds(1'000'000'000 / update_rate))
 {
   assert(update_rate > 0.);
 }
@@ -17,7 +18,7 @@ bool RateManager::update(const rclcpp::Time& time)
   if (is_first_update_)
   {
     is_first_update_ = false;
-    t_next_ = time + interval();
+    t_next_ = time + interval_;
     return true;
   }
 
@@ -27,13 +28,8 @@ bool RateManager::update(const rclcpp::Time& time)
   }
   else
   {
-    t_next_ += interval();
+    t_next_ += interval_;
     return true;
   }
-}
-
-rclcpp::Duration RateManager::interval() const
-{
-  return rclcpp::Duration::from_nanoseconds(1'000'000'000 / update_rate_);
 }
 }  // namespace ros2

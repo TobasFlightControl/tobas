@@ -6,7 +6,7 @@ namespace Eigen
 {
 using Scalard = Matrix<double, 1, 1>;
 
-using Vector6d = Matrix<double, 6, 1>;
+using Vector6d = Vector<double, 6>;
 using Matrix6d = Matrix<double, 6, 6>;
 using Matrix6Xd = Matrix<double, 6, Dynamic>;
 using MatrixX6d = Matrix<double, Dynamic, 6>;

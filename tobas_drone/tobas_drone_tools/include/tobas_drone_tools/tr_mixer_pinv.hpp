@@ -13,8 +13,6 @@ namespace tobas
  */
 class TiltRotorMixer_pinv
 {
-  using self = TiltRotorMixer_pinv;
-
 public:
   explicit TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
 
@@ -30,7 +28,16 @@ public:
   double getThrust(size_t idx) const;
   double getTiltAngle(size_t idx) const;
 
+  bool setTiltAxisSingularDeclinationLB(double lb_rad);
+  bool setTiltAxisSingularDeclinationUB(double ub_rad);
+
 private:
+  struct Config
+  {
+    double singular_declination_lb = 0.;  // [rad]
+    double singular_declination_ub = 0.;  // [rad]
+  } cfg_;
+
   const Drone& drone_;
   const kdl::Tree& tree_;
 
@@ -41,5 +48,7 @@ private:
   Eigen::Matrix6Xd E_;
   Eigen::Vector6d f_;
   Eigen::VectorXd x_;
+
+  std::vector<bool> is_singular_;  // 各ティルトロータが特異状態かどうか
 };
 }  // namespace tobas

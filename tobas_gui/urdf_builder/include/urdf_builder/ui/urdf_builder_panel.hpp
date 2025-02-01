@@ -74,13 +74,14 @@ private:
   Ui::URDFBuilderPanelUI* ui_;
   view_model::URDFViewModel vm_;
   ogre_helpers::OgreController::SharedPtr ogre_ctrl_;
-  QTimer* update_timer_;
 
   UpdateLinkDialog* link_dialog_;
   view_model::LinkViewModelPtr old_link_vm_;
 
-  std::string getLastOpenedDir();
-  void setLastOpenedDir(const std::string& file_path);
+  QTimer update_timer_;
+
+  QString getLastOpenedDir();
+  void setLastOpenedDir(const QString& file_path);
 
   void defineConnections();
 
@@ -89,13 +90,16 @@ private:
   void reloadRobot();
 
   void addRootLink();
+  void selectRootLink();
+  void selectLink(QTreeWidgetItem* item);
+  void reflectSelectedItem(QTreeWidgetItem* item);
   bool saveURDF(const QString& file_path);
 
   bool isValid();
   bool isRobotNameValid();
   bool isJointsValid();
 
-  static void collectUncheckedLinks(QTreeWidgetItem* item, std::unordered_set<std::string>& set);
+  static void collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set);
 };
 }  // namespace ui
 }  // namespace urdf_builder

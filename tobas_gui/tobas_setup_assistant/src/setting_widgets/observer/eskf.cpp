@@ -1,4 +1,5 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
+#include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
@@ -24,6 +25,14 @@ ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   do_gyro_bias_estimation_ = new QCheckBox("Do Gyroscope Bias Estimation");
   do_gyro_bias_estimation_->setChecked(true);
   rows->addWidget(do_gyro_bias_estimation_);
+
+  do_mag_hard_bias_estimation_ = new QCheckBox("Do Magnetometer Hard-Iron Bias Estimation");
+  do_mag_hard_bias_estimation_->setChecked(false);
+  rows->addWidget(do_mag_hard_bias_estimation_);
+
+  do_mag_soft_bias_estimation_ = new QCheckBox("Do Magnetometer Soft-Iron Bias Estimation");
+  do_mag_soft_bias_estimation_->setChecked(false);
+  rows->addWidget(do_mag_soft_bias_estimation_);
 
   do_grav_estimation_ = new QCheckBox("Do Gravity Estimation");
   do_grav_estimation_->setChecked(true);
@@ -55,7 +64,7 @@ const char* ErrorStateKalmanFilterWidget::description() const
 
 QString ErrorStateKalmanFilterWidget::observerPackage() const
 {
-  return "state_estimation_eskf";
+  return "tobas_eskf";
 }
 
 QString ErrorStateKalmanFilterWidget::pluginName() const
@@ -72,6 +81,8 @@ YAML::Node ErrorStateKalmanFilterWidget::staticParams() const
   node["use_gps"] = gps_->equipped();
   node["do_acc_bias_estimation"] = do_acc_bias_estimation_->isChecked();
   node["do_gyro_bias_estimation"] = do_gyro_bias_estimation_->isChecked();
+  node["do_mag_hard_bias_estimation"] = do_mag_hard_bias_estimation_->isChecked();
+  node["do_mag_soft_bias_estimation"] = do_mag_soft_bias_estimation_->isChecked();
   node["do_gravity_estimation"] = do_grav_estimation_->isChecked();
   node["imu_offset"] = imu_->offset();
   node["barometer_offset"] = baro_->offset();
@@ -84,18 +95,22 @@ YAML::Node ErrorStateKalmanFilterWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[do_acc_bias_estimation_->text().toStdString()] = do_acc_bias_estimation_->isChecked();
-  node[do_gyro_bias_estimation_->text().toStdString()] = do_gyro_bias_estimation_->isChecked();
-  node[do_grav_estimation_->text().toStdString()] = do_grav_estimation_->isChecked();
+  node[do_acc_bias_estimation_->text()] = do_acc_bias_estimation_->isChecked();
+  node[do_gyro_bias_estimation_->text()] = do_gyro_bias_estimation_->isChecked();
+  node[do_mag_hard_bias_estimation_->text()] = do_mag_hard_bias_estimation_->isChecked();
+  node[do_mag_soft_bias_estimation_->text()] = do_mag_soft_bias_estimation_->isChecked();
+  node[do_grav_estimation_->text()] = do_grav_estimation_->isChecked();
 
   return node;
 }
 
 void ErrorStateKalmanFilterWidget::load(const YAML::Node& node)
 {
-  do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text().toStdString()].as<bool>());
-  do_gyro_bias_estimation_->setChecked(node[do_gyro_bias_estimation_->text().toStdString()].as<bool>());
-  do_grav_estimation_->setChecked(node[do_grav_estimation_->text().toStdString()].as<bool>());
+  do_acc_bias_estimation_->setChecked(node[do_acc_bias_estimation_->text()].as<bool>());
+  do_gyro_bias_estimation_->setChecked(node[do_gyro_bias_estimation_->text()].as<bool>());
+  do_mag_hard_bias_estimation_->setChecked(node[do_mag_hard_bias_estimation_->text()].as<bool>());
+  do_mag_soft_bias_estimation_->setChecked(node[do_mag_soft_bias_estimation_->text()].as<bool>());
+  do_grav_estimation_->setChecked(node[do_grav_estimation_->text()].as<bool>());
 }
 
 bool ErrorStateKalmanFilterWidget::isValid()

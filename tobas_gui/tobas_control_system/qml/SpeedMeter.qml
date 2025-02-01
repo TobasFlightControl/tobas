@@ -4,10 +4,12 @@ import QtQuick.Controls.Styles 1.4
 
 Rectangle {
   id: rectangle
+  objectName: "rectangle"
 
   // CircularGauge: https://doc.qt.io/qt-5/qml-qtquick-extras-circulargauge.html
   CircularGauge {
     id: gauge
+    objectName: "gauge"
     anchors.fill: parent // 親ウィジェットの大きさに自動で合わせる
 
     // CircularGaugeStyle: https://doc.qt.io/qt-5/qml-qtquick-controls-styles-circulargaugestyle.html
@@ -33,6 +35,7 @@ Rectangle {
 
   Text {
     id: topText
+    objectName: "topText"
     anchors.top: gauge.top
     anchors.horizontalCenter: gauge.horizontalCenter
     anchors.topMargin: gauge.height / 4
@@ -43,6 +46,7 @@ Rectangle {
 
   Text {
     id: bottomText
+    objectName: "bottomText"
     anchors.bottom: gauge.bottom
     anchors.horizontalCenter: gauge.horizontalCenter
     anchors.bottomMargin: gauge.height / 4

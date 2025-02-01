@@ -6,8 +6,7 @@ using namespace std;
 
 int main()
 {
-  const uint32_t poly = 0x04C11DB7;
-  algo::CRC32Left crc(poly, 0xFFFFFFFF, 0x00000000);
+  algo::CRC32Left crc(algo::CRC32Left::CRC_32, 0x00000000, 0x00000000);
   crc.initialize();
 
   const uint8_t data[] = "Example data for CRC calculation";

@@ -36,7 +36,7 @@ int main()
     dshot.printCurrentStates();
     cout << "----------" << endl;
 
-    this_thread::sleep_for(100ms);
+    this_thread::sleep_for(10ms);
   }
 
   return EXIT_SUCCESS;

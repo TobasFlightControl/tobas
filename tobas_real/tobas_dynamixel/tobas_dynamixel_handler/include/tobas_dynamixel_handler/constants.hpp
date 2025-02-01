@@ -85,9 +85,9 @@ static constexpr uint8_t kErrorOverload = 1 << 5;
 
 // ROS Topics
 static constexpr char kMotorStatesTopic[] = "dynamixel/motor_states";
-static constexpr char kJointPositionsCmdTopic[] = "dynamixel/command/joint_positions";
-static constexpr char kJointVelocitiesCmdTopic[] = "dynamixel/command/joint_velocities";
-static constexpr char kJointEffortsCmdTopic[] = "dynamixel/command/joint_efforts";
+static constexpr char kJointPosCmdTopic[] = "dynamixel/command/joint_positions";
+static constexpr char kJointVelCmdTopic[] = "dynamixel/command/joint_velocities";
+static constexpr char kJointEffCmdTopic[] = "dynamixel/command/joint_efforts";
 
 // ROS Services
 static constexpr char kEnableTorquesSrv[] = "dynamixel/enable_torques";

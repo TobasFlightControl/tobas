@@ -1,4 +1,3 @@
-#include <std_msgs/msg/bool.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_math/core.hpp>
@@ -6,6 +5,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
@@ -28,9 +28,6 @@ class DShotDriverNode : public tobas::BaseNode
   using SetGains = tobas_msgs::srv::SetRotorControlGains;
   using SaveGains = std_srvs::srv::Trigger;
 
-  static constexpr auto kSPIInterval = 1ms;
-  static constexpr auto kAutoStopTimeThresh = 200ms;  // 最低でも5Hzでスロットルを送る
-  static constexpr auto kAutoDisarmTimeThresh = 10s;
   static constexpr char kGainKeyPrefix[] = "speed_control_gain_";
 
 public:
@@ -46,8 +43,8 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> cur_states_pub_;
-  ros2::PublisherPtr<std_msgs::msg::Bool> arming_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
+  ros2::PublisherPtr<tobas_msgs::msg::Arming> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
@@ -63,7 +60,7 @@ private:
   ros2::TimerPtr auto_disarm_timer_;
 
   bool transferAndSleep();
-  void publishCurrentStates();
+  void publishRotorStates();
   void publishArming();
   bool stopRotors();
   void arm();
@@ -93,8 +90,8 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("as
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
 
   publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this, false);
-  auto_stop_timer_ = createTimer(kAutoStopTimeThresh, &self::autoStopTimerCb, this, false);
-  auto_disarm_timer_ = createTimer(kAutoDisarmTimeThresh, &self::autoDisarmTimerCb, this, false);
+  auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this, false);
+  auto_disarm_timer_ = createTimer(tobas::kAutoDisarmTimeout, &self::autoDisarmTimerCb, this, false);
 }
 
 bool DShotDriverNode::transferAndSleep()
@@ -105,39 +102,40 @@ bool DShotDriverNode::transferAndSleep()
     return false;
   }
 
-  rclcpp::sleep_for(kSPIInterval);
+  rclcpp::sleep_for(1ms);
   return true;
 }
 
-void DShotDriverNode::publishCurrentStates()
+void DShotDriverNode::publishRotorStates()
 {
-  auto cur_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
-  cur_states->header.stamp = get_clock()->now();
+  auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
+  rotor_states->header.stamp = get_clock()->now();
 
   for (const auto& [channel, _] : drone_->rotors)
   {
-    cur_states->states.emplace_back();
-    cur_states->states.back().channel = channel;
+    rotor_states->states.emplace_back();
+    rotor_states->states.back().channel = channel;
     if (dshot_.getValidity(channel))
     {
-      cur_states->states.back().speed = dshot_.getSpeed(channel);
-      cur_states->states.back().current = NAN;
-      cur_states->states.back().status = tobas_msgs::msg::RotorState::SPEED_ONLY;
+      rotor_states->states.back().speed = dshot_.getSpeed(channel);
+      rotor_states->states.back().current = NAN;
+      rotor_states->states.back().status = tobas_msgs::msg::RotorState::SPEED_ONLY;
     }
     else
     {
-      cur_states->states.back().speed = NAN;
-      cur_states->states.back().current = NAN;
-      cur_states->states.back().status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+      rotor_states->states.back().speed = NAN;
+      rotor_states->states.back().current = NAN;
+      rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
     }
   }
 
-  cur_states_pub_->publish(move(cur_states));
+  rotor_states_pub_->publish(move(rotor_states));
 }
 
 void DShotDriverNode::publishArming()
 {
-  auto arming_msg = std::make_unique<std_msgs::msg::Bool>();
+  auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
+  arming_msg->header.stamp = get_clock()->now();
   arming_msg->data = is_armed_;
   arming_pub_->publish(move(arming_msg));
 }
@@ -275,8 +273,8 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Resister publishers
-  cur_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  arming_pub_ = createPublisher<std_msgs::msg::Bool>(tobas::kArmingTopic);
+  rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
+  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
 
   // Resister subscribers
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
@@ -320,15 +318,15 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
     }
   }
 
-  // Send command and get current states
+  // Send command and get rotor states
   if (!dshot_.transfer())
   {
     TOBAS_ERROR("SPI communication failed.");
     return;
   }
 
-  // Publish current speeds
-  publishCurrentStates();
+  // Publish rotor states
+  publishRotorStates();
 
   // Reset timeout timers
   auto_stop_timer_->reset();
@@ -429,13 +427,13 @@ void DShotDriverNode::autoStopTimerCb()
   if (!stopRotors())
     return;
 
-  publishCurrentStates();
+  publishRotorStates();
 
   if (is_commanded_)
   {
     is_commanded_ = false;
     TOBAS_WARN(
-      "All rotors are automatically stopped because ", kAutoStopTimeThresh.count(),
+      "All rotors are automatically stopped because ", tobas::kCommandAutoResetTimeout.count(),
       " ms have elapsed since the last command.");
   }
 }
@@ -446,7 +444,7 @@ void DShotDriverNode::autoDisarmTimerCb()
   auto_disarm_timer_->cancel();
 
   TOBAS_WARN(
-    "All rotors are automatically disarmed because ", kAutoDisarmTimeThresh.count(),
+    "All rotors are automatically disarmed because ", tobas::kAutoDisarmTimeout.count(),
     " s have elapsed since the last command.");
 }
 

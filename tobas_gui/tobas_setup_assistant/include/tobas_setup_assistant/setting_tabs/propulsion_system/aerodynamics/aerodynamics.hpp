@@ -13,7 +13,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class AerodynamicsWidget : public BaseSelectedLinkSettingWidget
 {
@@ -47,6 +47,6 @@ private:
   AerodynamicsWidget_Base* selected();
   const AerodynamicsWidget_Base* selected() const;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

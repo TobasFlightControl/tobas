@@ -30,9 +30,9 @@ public:
   bool setDepth(const double& depth);
 
 private:
-  double wn_ = std::numeric_limits<double>::max();  // [rad/s]
-  double q_ = 0.;                                   // [-]
-  double d_ = 0.;                                   // [-]
+  double wn_ = NAN;  // [rad/s]
+  double q_ = 0.;    // [-]
+  double d_ = 0.;    // [-]
 
   std::array<T, 3> y_;
   std::array<T, 3> u_;

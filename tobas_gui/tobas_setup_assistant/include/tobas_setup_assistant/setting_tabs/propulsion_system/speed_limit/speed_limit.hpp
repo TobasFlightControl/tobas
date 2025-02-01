@@ -9,7 +9,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class SpeedLimitWidget : public BaseSelectedLinkSettingWidget
 {
@@ -35,6 +35,6 @@ private:
 
   const SpeedLimitWidget_Base* selected() const;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

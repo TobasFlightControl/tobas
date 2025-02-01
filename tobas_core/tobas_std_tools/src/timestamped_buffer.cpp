@@ -12,7 +12,7 @@ namespace tobas_std
 {
 double TimestampedBufferDouble::max() const
 {
-  double res = numeric_limits<double>::lowest();
+  double res = -INFINITY;
   for (const auto& [_, x] : map_)
     res = ::max(res, x);
   return res;
@@ -20,7 +20,7 @@ double TimestampedBufferDouble::max() const
 
 double TimestampedBufferDouble::min() const
 {
-  double res = numeric_limits<double>::max();
+  double res = INFINITY;
   for (const auto& [_, x] : map_)
     res = ::min(res, x);
   return res;

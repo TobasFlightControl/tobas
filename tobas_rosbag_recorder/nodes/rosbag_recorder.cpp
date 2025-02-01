@@ -1,8 +1,6 @@
 #include <rosbag2_cpp/writer.hpp>
 
-#include <std_msgs/msg/bool.hpp>
 #include <std_msgs/msg/string.hpp>
-#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_path_tools/core.hpp>
@@ -11,13 +9,15 @@
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_std_msgs/msg/message.hpp>
+#include <tobas_msgs/msg/rosbag_state.hpp>
+#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
-#include <tobas_msgs/msg/event.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
+#include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
@@ -26,8 +26,9 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
-#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
+#include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_msgs_adapter/gps.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
@@ -60,9 +61,8 @@ class ROSBagRecorderNode : public tobas::BaseNode
   using StopSrv = tobas_msgs::srv::BagRecordStop;
   using CleanSrv = std_srvs::srv::Trigger;
 
-  static constexpr size_t kMaxROSBagSize = 5UL * BILLION;   // [byte]
   static constexpr size_t kMaxParDirSize = 10UL * BILLION;  // [byte]
-  static constexpr auto kCheckSizeTimerPeriod = 10s;
+  static constexpr auto kMainTimerPeriod = 1s;
 
 public:
   explicit ROSBagRecorderNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -72,8 +72,10 @@ private:
   const fs::path rosbag_dir_;
 
   rosbag2_cpp::Writer writer_;
-  bool is_recording_ = false;
-  fs::path rosbag_path_;
+  fs::path file_path_;
+  bool recording_ = false;
+  rclcpp::Time start_time_;
+  size_t msg_cnt_;
 
   // ROS message buffers
   tobas_drone_msgs::msg::Drone drone_;
@@ -85,9 +87,13 @@ private:
   tobas_msgs::msg::Gps gps_;
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
+  tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_msgs::msg::PosVelAccYaw pvay_;
   tobas_msgs::msg::RollPitchYawThrottle rpyt_;
   tobas_msgs::msg::PoseTwistAccelCommand pta_;
+
+  // Publishers
+  ros2::PublisherPtr<tobas_msgs::msg::RosbagState> rosbag_state_pub_;
 
   // Subscribers
   vector<rclcpp::SubscriptionBase::SharedPtr> subs_;
@@ -98,7 +104,12 @@ private:
   ros2::ServiceServerPtr<CleanSrv> clean_srv_;
 
   // Timers
-  ros2::TimerPtr check_size_timer_;
+  ros2::TimerPtr main_timer_;
+
+  void publishRosbagState();
+
+  template <typename MsgType>
+  inline void write(const MsgType& msg, const char* topic) noexcept;
 
   template <typename MsgType>
   void addStandardMsgSub(
@@ -107,28 +118,25 @@ private:
     bool reliable = ros2::qos::kDefaultReliable,
     size_t queue_size = ros2::qos::kDefaultQueueSize);
 
-  template <typename MsgType>
-  void callback(const typename MsgType::ConstSharedPtr& msg, const char* topic);
+  template <typename ExtMsgType, typename RawMsgType>
+  void addTypeAdaptedMsgSub(
+    RawMsgType& raw_msg,
+    const char* topic,
+    bool latch = ros2::qos::kDefaultLatch,
+    bool reliable = ros2::qos::kDefaultReliable,
+    size_t queue_size = ros2::qos::kDefaultQueueSize);
 
-  // Publisher側にシリアライズさせるのを防ぐため，TypeAdapterのまま購読し，こちら側でROSメッセージへの変換を行う．
-  void droneCb(const tobas::Drone::ConstSharedPtr& msg);
-  void treeCb(const kdl::Tree::ConstSharedPtr& msg);
-  void imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& msg);
-  void imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& msg);
-  void magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& msg);
-  void magRawCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& msg);
-  void gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg);
-  void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg);
-  void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& msg);
-  void posVelAccYawCmdCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& msg);
-  void rollPitchYawThrotCmdCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& msg);
-  void poseTwistAccelCmdCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& msg);
+  template <typename MsgType>
+  void standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic);
+
+  template <typename ExtMsgType, typename RawMsgType>
+  void typeAdaptedMsgCb(const typename ExtMsgType::ConstSharedPtr& ext_msg, RawMsgType& raw_msg, const char* topic);
 
   void startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res);
   void stopCb(const StopSrv::Request::ConstSharedPtr& req, const StopSrv::Response::SharedPtr& res);
   void cleanCb(const CleanSrv::Request::ConstSharedPtr& req, const CleanSrv::Response::SharedPtr& res);
 
-  void checkSizeTimerCb();
+  void mainTimerCb();
 };
 
 ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
@@ -137,6 +145,8 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
     rosbag_dir_(linux::isSuperUser() ? tobas::kROSBagDirRoot : linux::expandUser(tobas::kROSBagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
+
+  rosbag_state_pub_ = createPublisher<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic);
 
   // Resister subscribers for standard messages
   addStandardMsgSub<tobas_std_msgs::msg::Message>(tobas::kMessageTopic);
@@ -147,278 +157,153 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  addStandardMsgSub<sensor_msgs::msg::JointState>(tobas::kJointStatesTopic);
-  addStandardMsgSub<tobas_msgs::msg::Event>(tobas::kEventTopic);
+  addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);
-  addStandardMsgSub<std_msgs::msg::Bool>(tobas::kArmingTopic);
+  addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
   addStandardMsgSub<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorThrustArray>(tobas::kRotorThrustsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::PwmArray>(tobas::kPwmCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPositionsCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffortsCmdTopic);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
+  addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::ObserverFeedback>(tobas::kObsvFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::MultiRotorControllerFeedback>(tobas::kMRCtrlFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::NonPlanarControllerFeedback>(tobas::kNPCtrlFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
 
   // Resister subscribers for non-standard messages
-  subs_.push_back(createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true));
-  subs_.push_back(createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true));
-  subs_.push_back(createSubscriber(tobas::kImuTopic, &self::imuCb, this));
-  subs_.push_back(createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this));
-  subs_.push_back(createSubscriber(tobas::kMagTopic, &self::magCb, this));
-  subs_.push_back(createSubscriber(tobas::kMagRawTopic, &self::magRawCb, this));
-  subs_.push_back(createSubscriber(tobas::kGNSSTopic, &self::gnssCb, this));
-  subs_.push_back(createSubscriber(tobas::kOdometryTopic, &self::odomCb, this));
-  subs_.push_back(createSubscriber(tobas::kEulerTopic, &self::eulerCb, this));
-  subs_.push_back(createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCmdCb, this));
-  subs_.push_back(createSubscriber(tobas::kRPYThrotCmdTopic, &self::rollPitchYawThrotCmdCb, this));
-  subs_.push_back(createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::poseTwistAccelCmdCb, this));
+  addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::kDroneTopic, true, true);
+  addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKDLTreeTopic, true, true);
+  addTypeAdaptedMsgSub<tobas_msgs::ImuWithCovarianceStamped>(imu_, tobas::kImuTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::ImuStamped>(imu_raw_, tobas::kImuRawTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldWithCovarianceStamped>(mag_, tobas::kMagTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldStamped>(mag_raw_, tobas::kMagRawTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Gps>(gps_, tobas::kGNSSTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
+  addTypeAdaptedMsgSub<tobas_kdl_msgs::EulerStamped>(euler_, tobas::kEulerTopic);
+  addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::PosVelAccYaw>(pvay_, tobas::kPosVelAccYawCmdTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::RollPitchYawThrottle>(rpyt_, tobas::kRPYThrotCmdTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::PoseTwistAccelCommand>(pta_, tobas::kPoseTwistAccelCmdTopic);
 
   // Register services
   start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);
   stop_srv_ = createService<StopSrv>(tobas::kROSBagRecordStopSrv, &self::stopCb, this);
   clean_srv_ = createService<CleanSrv>(tobas::kROSBagCleanSrv, &self::cleanCb, this);
 
-  check_size_timer_ = createTimer(kCheckSizeTimerPeriod, &self::checkSizeTimerCb, this, false);
+  main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
+}
+
+void ROSBagRecorderNode::publishRosbagState()
+{
+  const auto now = get_clock()->now();
+
+  auto rosbag_state = std::make_unique<tobas_msgs::msg::RosbagState>();
+  rosbag_state->header.stamp = now;
+  rosbag_state->recording = recording_;
+
+  if (recording_)
+  {
+    const auto file_size = path::computeDirectorySize(file_path_);
+
+    rosbag_state->file_path = file_path_;
+    rosbag_state->duration = now - start_time_;
+    rosbag_state->file_size = file_size;
+    rosbag_state->message_count = msg_cnt_;
+
+    if (file_size > tobas::kMaxRosbagSize)
+    {
+      try
+      {
+        writer_.close();
+      }
+      catch (const exception& e)
+      {
+        TOBAS_ERROR("Failed to close rosbag file: ", e.what());
+        return;
+      }
+
+      recording_ = false;
+
+      TOBAS_WARN(
+        "The recording is terminated because the size of rosbag ", file_path_, " exceeded ",
+        tobas::kMaxRosbagSize / BILLION, "GB.");
+    }
+  }
+
+  rosbag_state_pub_->publish(move(rosbag_state));
+}
+
+template <typename MsgType>
+inline void ROSBagRecorderNode::write(const MsgType& msg, const char* topic) noexcept
+{
+  try
+  {
+    writer_.write(msg, ns_ + topic, get_clock()->now());
+  }
+  catch (const exception& e)
+  {
+    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
+    return;
+  }
+
+  ++msg_cnt_;
 }
 
 template <typename MsgType>
 void ROSBagRecorderNode::addStandardMsgSub(const char* topic, bool latch, bool reliable, size_t queue_size)
 {
   const auto qos = ros2::makeQoS(latch, reliable, queue_size);
-  const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& msg) { callback<MsgType>(msg, topic); };
+  const auto cb = [this, topic](const typename MsgType::ConstSharedPtr& msg) { standardMsgCb<MsgType>(msg, topic); };
   const auto sub = create_subscription<MsgType>(topic, qos, cb);
   subs_.push_back(sub);
 }
 
+template <typename ExtMsgType, typename RawMsgType>
+void ROSBagRecorderNode::addTypeAdaptedMsgSub(
+  RawMsgType& raw_msg,
+  const char* topic,
+  bool latch,
+  bool reliable,
+  size_t queue_size)
+{
+  const auto qos = ros2::makeQoS(latch, reliable, queue_size);
+  const auto cb = [this, &raw_msg, topic](const typename ExtMsgType::ConstSharedPtr& ext_msg)
+  { typeAdaptedMsgCb<ExtMsgType, RawMsgType>(ext_msg, raw_msg, topic); };
+  const auto sub = create_subscription<ExtMsgType>(topic, qos, cb);
+  subs_.push_back(sub);
+}
+
 template <typename MsgType>
-void ROSBagRecorderNode::callback(const typename MsgType::ConstSharedPtr& msg, const char* topic)
+void ROSBagRecorderNode::standardMsgCb(const typename MsgType::ConstSharedPtr& msg, const char* topic)
 {
-  if (!is_recording_)
+  if (!recording_)
     return;
 
-  try
-  {
-    writer_.write(*msg, ns_ + topic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << topic << "\": " << e.what());
-  }
+  this->write(*msg, topic);
 }
 
-void ROSBagRecorderNode::droneCb(const tobas::Drone::ConstSharedPtr& msg)
+template <typename ExtMsgType, typename RawMsgType>
+void ROSBagRecorderNode::typeAdaptedMsgCb(
+  const typename ExtMsgType::ConstSharedPtr& ext_msg,
+  RawMsgType& raw_msg,
+  const char* topic)
 {
-  if (!is_recording_)
+  if (!recording_)
     return;
 
-  tobas_drone_msgs::DroneAdapter::convert_to_ros_message(*msg, drone_);
+  // Publisher側にシリアライズさせるのを防ぐため，TypeAdapterのまま購読し，こちら側でROSメッセージへの変換を行う．
+  rclcpp::TypeAdapter<ExtMsgType, RawMsgType>::convert_to_ros_message(*ext_msg, raw_msg);
 
-  try
-  {
-    writer_.write(drone_, ns_ + tobas::kDroneTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kDroneTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::treeCb(const kdl::Tree::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_kdl_msgs::TreeAdapter::convert_to_ros_message(*msg, tree_);
-
-  try
-  {
-    writer_.write(tree_, ns_ + tobas::kKDLTreeTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kKDLTreeTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::ImuWithCovarianceStampedAdapter::convert_to_ros_message(*msg, imu_);
-
-  try
-  {
-    writer_.write(imu_, ns_ + tobas::kImuTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kImuTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::ImuStampedAdapter::convert_to_ros_message(*msg, imu_raw_);
-
-  try
-  {
-    writer_.write(imu_raw_, ns_ + tobas::kImuRawTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kImuRawTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::MagneticFieldWithCovarianceStampedAdapter::convert_to_ros_message(*msg, mag_);
-
-  try
-  {
-    writer_.write(mag_, ns_ + tobas::kMagTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kMagTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::magRawCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::MagneticFieldStampedAdapter::convert_to_ros_message(*msg, mag_raw_);
-
-  try
-  {
-    writer_.write(mag_raw_, ns_ + tobas::kMagRawTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kMagRawTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::gnssCb(const tobas_msgs::Gps::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::GpsAdapter::convert_to_ros_message(*msg, gps_);
-
-  try
-  {
-    writer_.write(gps_, ns_ + tobas::kGNSSTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kGNSSTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::OdometryAdapter::convert_to_ros_message(*msg, odom_);
-
-  try
-  {
-    writer_.write(odom_, ns_ + tobas::kOdometryTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kOdometryTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_kdl_msgs::EulerStampedAdapter::convert_to_ros_message(*msg, euler_);
-
-  try
-  {
-    writer_.write(euler_, ns_ + tobas::kEulerTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kEulerTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::posVelAccYawCmdCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::PosVelAccYawAdapter::convert_to_ros_message(*msg, pvay_);
-
-  try
-  {
-    writer_.write(pvay_, ns_ + tobas::kPosVelAccYawCmdTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kPosVelAccYawCmdTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::rollPitchYawThrotCmdCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::RollPitchYawThrottleAdapter::convert_to_ros_message(*msg, rpyt_);
-
-  try
-  {
-    writer_.write(rpyt_, ns_ + tobas::kRPYThrotCmdTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kRPYThrotCmdTopic << "\": " << e.what());
-  }
-}
-
-void ROSBagRecorderNode::poseTwistAccelCmdCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& msg)
-{
-  if (!is_recording_)
-    return;
-
-  tobas_msgs::PoseTwistAccelCommandAdapter::convert_to_ros_message(*msg, pta_);
-
-  try
-  {
-    writer_.write(pta_, ns_ + tobas::kPoseTwistAccelCmdTopic, get_clock()->now());
-  }
-  catch (const exception& e)
-  {
-    RCLCPP_ERROR_STREAM(get_logger(), "Failed to write \"" << tobas::kPoseTwistAccelCmdTopic << "\": " << e.what());
-  }
+  this->write(raw_msg, topic);
 }
 
 void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, const StartSrv::Response::SharedPtr& res)
 {
-  if (is_recording_)
+  if (recording_)
   {
     res->success = false;
     res->message = "Rosbag recording is in progress.";
@@ -432,6 +317,10 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
+  // rosbagディレクトリが存在しなければ作成
+  if (!fs::exists(rosbag_dir_))
+    fs::create_directories(rosbag_dir_);
+
   // rosbagディレクトリ全体のサイズが大きすぎないか確認
   const auto par_dir_size = path::computeDirectorySize(rosbag_dir_);
   if (par_dir_size > kMaxParDirSize)
@@ -442,23 +331,23 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
-  rosbag_path_ = rosbag_dir_ / req->name;
-  if (fs::exists(rosbag_path_))
+  file_path_ = rosbag_dir_ / req->name;
+  if (fs::exists(file_path_))
   {
     if (req->overwrite)
     {
-      fs::remove_all(rosbag_path_);
+      fs::remove_all(file_path_);
     }
     else
     {
       res->success = false;
-      res->message = rosbag_path_.string() + " already exists.";
+      res->message = file_path_.string() + " already exists.";
       return;
     }
   }
 
   rosbag2_storage::StorageOptions options;
-  options.uri = rosbag_path_;
+  options.uri = file_path_;
   options.max_bagfile_size = req->max_file_size;
   options.max_cache_size = req->max_cache_size;
 
@@ -473,18 +362,21 @@ void ROSBagRecorderNode::startCb(const StartSrv::Request::ConstSharedPtr& req, c
     return;
   }
 
-  check_size_timer_->reset();
+  recording_ = true;
+  start_time_ = get_clock()->now();
+  msg_cnt_ = 0;
 
-  is_recording_ = true;
   TOBAS_INFO("Rosbag recording has started.");
 
   res->success = true;
   res->message.clear();
+
+  publishRosbagState();
 }
 
 void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const StopSrv::Response::SharedPtr& res)
 {
-  if (!is_recording_)
+  if (!recording_)
   {
     res->success = false;
     res->message = "Rosbag recording is not in progress.";
@@ -502,13 +394,14 @@ void ROSBagRecorderNode::stopCb(const StopSrv::Request::ConstSharedPtr&, const S
     return;
   }
 
-  check_size_timer_->cancel();
+  recording_ = false;
 
-  is_recording_ = false;
   TOBAS_INFO("Rosbag recording has stopped.");
 
   res->success = true;
   res->message.clear();
+
+  publishRosbagState();
 }
 
 void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const CleanSrv::Response::SharedPtr& res)
@@ -519,28 +412,9 @@ void ROSBagRecorderNode::cleanCb(const CleanSrv::Request::ConstSharedPtr&, const
   res->message.clear();
 }
 
-void ROSBagRecorderNode::checkSizeTimerCb()
+void ROSBagRecorderNode::mainTimerCb()
 {
-  const auto rosbag_size = path::computeDirectorySize(rosbag_path_);
-  if (rosbag_size > kMaxROSBagSize)
-  {
-    try
-    {
-      writer_.close();
-    }
-    catch (const exception& e)
-    {
-      TOBAS_ERROR("Failed to close rosbag file: ", e.what());
-      return;
-    }
-
-    check_size_timer_->cancel();
-    is_recording_ = false;
-
-    TOBAS_WARN(
-      "The recording is terminated because the size of rosbag ", rosbag_path_, " exceeded ", kMaxROSBagSize / BILLION,
-      "GB.");
-  }
+  publishRosbagState();
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ROSBagRecorderNode)

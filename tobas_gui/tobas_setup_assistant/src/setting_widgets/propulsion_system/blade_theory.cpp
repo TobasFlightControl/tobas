@@ -7,7 +7,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 BladeTheory::BladeTheory(int num_blades, double radius, double blade_chord, double pitch_angle, double air_density)
   : N_(num_blades), R_(radius), c_(blade_chord), theta_(pitch_angle), rho_(air_density)
@@ -59,6 +59,6 @@ double BladeTheory::C_H() const
   return (sigma() / 4)
          * (C_d0 + (a / 6) * (2 * theta_ * (3 * lam - 2 * b1c) + 9 * lam * b1c + 2 * b0 * b1s + 3 * math::sqr(b0)));
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

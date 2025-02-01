@@ -6,8 +6,8 @@ namespace gui
 {
 namespace hardware_setup
 {
-HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
-  : node_(node), drone_(drone)
+HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
+  : drone_(drone)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -18,29 +18,27 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const tob
   network_setting_ = new NetworkSettingWidget(node);
   accel_calib_ = new AccelCalibrationWidget(node);
   mag_calib_ = new MagCalibrationWidget(node);
-  adc_calib_ = new ADCCalibrationWidget(node);
   rcin_calib_ = new RCInputCalibrationWidget(node);
   rotor_test_ = new RotorTestWidget(node, drone);
+  joint_test_ = new JointTestWidget(node, tree, drone);
 
   tabs_->addTab(network_setting_, network_setting_->name());
   tabs_->addTab(accel_calib_, accel_calib_->name());
   tabs_->addTab(mag_calib_, mag_calib_->name());
-  tabs_->addTab(adc_calib_, adc_calib_->name());
   tabs_->addTab(rcin_calib_, rcin_calib_->name());
   tabs_->addTab(rotor_test_, rotor_test_->name());
+  tabs_->addTab(joint_test_, joint_test_->name());
 
-  tabs_->setMinimumHeight(kMinHeight);
-  tabs_->setStyleSheet(
-    QString::fromStdString(std::format("QTabBar::tab {{ height: {}px; width: {}px; }}", kTabHeight, kTabWidth)));
+  tabs_->setSize(kTabWidth, kTabHeight);
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()
 {
   accel_calib_->setNamespace(drone_.name);
   mag_calib_->setNamespace(drone_.name);
-  adc_calib_->setNamespace(drone_.name);
   rcin_calib_->setNamespace(drone_.name);
   rotor_test_->updateInternalDataStructures();
+  joint_test_->updateInternalDataStructures();
 }
 }  // namespace hardware_setup
 }  // namespace gui

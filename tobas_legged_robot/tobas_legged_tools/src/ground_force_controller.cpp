@@ -1,7 +1,7 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_std_tools/vector.hpp>
 #include <tobas_eigen_tools/core.hpp>
-#include <tobas_linear_control/util.hpp>
+#include <tobas_control/util.hpp>
 
 #include "../include/tobas_legged_tools/ground_force_controller.hpp"
 

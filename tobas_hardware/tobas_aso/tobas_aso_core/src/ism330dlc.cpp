@@ -16,7 +16,7 @@ ISM330DLC::ISM330DLC()
 
 bool ISM330DLC::initialize()
 {
-  if (!spi_.initialize(spi_device::kImuDev, kSpiClockFreq))
+  if (!spi_.initialize(spi_device::kImuDev, tx_buf_, rx_buf_, kSPIClockFreq))
     return false;
 
   if (!checkWhoAmI())
@@ -61,20 +61,20 @@ bool ISM330DLC::readGyro(double& gx, double& gy, double& gz)
 
 bool ISM330DLC::readRegs(const uint8_t& addr, const size_t& bytes)
 {
-  spi_.tx[0] = addr | kReadFlag;
+  tx_buf_[0] = addr | kReadFlag;
 
   if (!spi_.transfer(bytes + 1))
     return false;
 
-  memcpy(res_, spi_.rx + 1, bytes);
+  memcpy(res_, rx_buf_ + 1, bytes);
 
   return true;
 }
 
 bool ISM330DLC::writeReg(const uint8_t& addr, const uint8_t& data)
 {
-  spi_.tx[0] = addr;
-  spi_.tx[1] = data;
+  tx_buf_[0] = addr;
+  tx_buf_[1] = data;
   return spi_.transfer(2);
 }
 

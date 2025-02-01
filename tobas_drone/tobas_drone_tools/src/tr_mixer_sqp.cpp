@@ -15,7 +15,7 @@ using namespace Eigen;
 namespace tobas
 {
 TiltRotorMixer_SQP::TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
+  : drone_(drone), tree_(tree), joint_parser_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
 {
   if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
     if (!updateInternalDataStructures())
@@ -24,6 +24,8 @@ TiltRotorMixer_SQP::TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree
 
 bool TiltRotorMixer_SQP::updateInternalDataStructures()
 {
+  if (!joint_parser_.updateInternalDataStructures())
+    return false;
   if (!fk_solver_.updateInternalDataStructures())
     return false;
   if (!inertia_solver_.updateInternalDataStructures())
@@ -84,11 +86,10 @@ bool TiltRotorMixer_SQP::solve(
     const auto nr = drone_.numRotors();
     if (!rotor.tilt_joint_name.empty())
     {
-      const auto& tilt_joint = drone_.joints.at(rotor.tilt_joint_name);
-      ci0_(idx) = tilt_joint.min_pos;
-      ci0_(nr + idx) = -tilt_joint.max_pos;
+      ci0_(idx) = joint_parser_.lowerLimit(rotor.tilt_joint_name);
+      ci0_(nr + idx) = -joint_parser_.upperLimit(rotor.tilt_joint_name);
     }
-    ci0_(2 * nr + idx) = rotor.minThrust(cur_voltage);
+    ci0_(2 * nr + idx) = rotor.minThrust();
     ci0_(3 * nr + idx) = -rotor.maxThrust(cur_voltage);
   }
 

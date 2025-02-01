@@ -45,8 +45,8 @@ void addMagnetometerPlugin(
   double latitude_zero,
   double longitude_zero,
   double altitude_zero,
-  double gauss_noise,
-  double uniform_noise);
+  double noise_stddev,
+  double hard_bias_range);
 
 void addBarometerPlugin(
   tinyxml2::XMLElement* robot,
@@ -76,7 +76,7 @@ void addGPSPlugin(
 void addRotorPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
-  const std::string& joint_name,
+  const std::string& link_name,
   uint32_t channel,
   double kv,
   double internal_resistance,

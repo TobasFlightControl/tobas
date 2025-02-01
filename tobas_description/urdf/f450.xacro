@@ -5,20 +5,15 @@
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/flight_controller/tobas_aso.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/sigp_3s_2250mah_60c.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
 
-  <!-- Properties0 -->
+  <!-- Properties -->
   <xacro:property name="frame_width" value="0.35"/>
   <xacro:property name="frame_height" value="0.06"/>
-  <xacro:property name="frame_mass" value="0.780"/>
-  <xacro:property name="battery_x" value="0.106"/>
-  <xacro:property name="battery_y" value="0.035"/>
-  <xacro:property name="battery_z" value="0.026"/>
-  <xacro:property name="battery_mass" value="0.186"/>
-  <xacro:property name="propeller_diameter" value="${9*inch2meter}"/>
-  <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
+  <xacro:property name="frame_mass" value="0.55346"/>
   <xacro:property name="propeller_offset" value="0.225"/>
-  <xacro:property name="propeller_height" value="0.01"/>
-  <xacro:property name="propeller_mass" value="0.011"/>
 
   <!-- Base Link -->
   <link name="base_link"/>
@@ -33,14 +28,14 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://tobas_description/meshes/f450/frame.stl" scale="1e-3 1e-3 1e-3"/>
+        <mesh filename="package://tobas_description/meshes/f450/frame.stl" scale="1 1 1"/>
       </geometry>
       <xacro:insert_block name="black"/>
     </visual>
     <inertial>
       <mass value="${frame_mass}"/>
-      <origin xyz="0.001573 -0.000596 -0.003436" rpy="0 0 0"/>
-      <inertia ixx="9.613e-3" ixy="-6.070442e-6" ixz="-4.7933683e-5" iyy="9.702e-3" iyz="-3.987551e-6" izz="1.867e-2"/>
+      <origin xyz="0 0 -4.136e-3" rpy="0 0 0"/>
+      <inertia ixx="8.128e-3" ixy="0" ixz="0" iyy="8.193e-3" iyz="0" izz="1.597e-2"/>
     </inertial>
     <collision>
       <origin xyz="0 0 ${-frame_height/2}" rpy="0 0 0"/>
@@ -50,59 +45,21 @@
     </collision>
   </link>
 
+  <!-- Flight Controller -->
+  <xacro:tobas_aso parent="base_link">
+    <origin xyz="0 0.015 0" rpy="0 0 0"/>
+  </xacro:tobas_aso>
+
   <!-- Battery -->
-  <joint name="battery_joint" type="fixed">
-    <origin xyz="-0.035 0 -0.024647" rpy="0 0 0"/>
-    <parent link="base_link"/>
-    <child link="battery"/>
-  </joint>
-  <link name="battery">
-    <visual>
-      <geometry>
-        <mesh filename="package://tobas_description/meshes/common/battery/sigp_3s_30c.stl" scale="1e-3 1e-3 1e-3"/>
-      </geometry>
-      <xacro:insert_block name="blue"/>
-    </visual>
-    <inertial>
-      <mass value="${battery_mass}"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <xacro:box_inertia x="${battery_x}" y="${battery_y}" z="${battery_z}" mass="${battery_mass}"/>
-    </inertial>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="${battery_x} ${battery_y} ${battery_z}"/>
-      </geometry>
-    </collision>
-  </link>
+  <xacro:sigp_3s_2250mah_60c parent="base_link">
+    <origin xyz="-0.037 0 -0.023" rpy="0 0 0"/>
+  </xacro:sigp_3s_2250mah_60c>
 
   <!-- Propellers -->
   <xacro:macro name="propeller" params="index direction yaw_deg">
-    <joint name="propeller_${index}_joint" type="continuous">
+    <xacro:phantom3_0945 parent="base_link" index="${index}" direction="${direction}">
       <origin xyz="${propeller_offset*cos(yaw_deg*deg2rad)} ${propeller_offset*sin(yaw_deg*deg2rad)} 0.0247" rpy="0 0 ${yaw_deg*deg2rad}"/>
-      <axis xyz="0 0 1"/>
-      <parent link="base_link"/>
-      <child link="propeller_${index}"/>
-    </joint>
-    <link name="propeller_${index}">
-      <visual>
-        <geometry>
-          <mesh filename="package://tobas_description/meshes/common/propeller/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
-        </geometry>
-        <xacro:insert_block name="white"/>
-      </visual>
-      <inertial>
-        <mass value="${propeller_mass}"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${propeller_mass}"/>
-      </inertial>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${propeller_radius}" length="${propeller_height}"/>
-        </geometry>
-      </collision>
-    </link>
+    </xacro:phantom3_0945>
   </xacro:macro>
 
   <xacro:propeller index="0" direction="ccw" yaw_deg="-45"/>

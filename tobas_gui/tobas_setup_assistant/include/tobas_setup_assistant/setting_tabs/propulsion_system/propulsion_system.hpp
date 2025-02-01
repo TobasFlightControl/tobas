@@ -8,7 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class PropulsionSystemWidget : public BaseSettingWidget
 {
@@ -16,6 +16,10 @@ class PropulsionSystemWidget : public BaseSettingWidget
 
   using self = PropulsionSystemWidget;
   using super = BaseSettingWidget;
+
+Q_SIGNALS:
+  void linkAdded(const QString& link_name);
+  void linkRemoved(const QString& link_name);
 
 public:
   explicit PropulsionSystemWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
@@ -45,6 +49,6 @@ private:
   AvailableLinksWidget* available_;
   SelectedLinksWidget* selected_;
 };
-};  // namespace propulsion_system
+};  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

@@ -5,19 +5,13 @@
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/hrb_4s_5000mah_50c.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/propeller/phantom3_0945.xacro"/>
 
   <!-- Properties -->
   <xacro:property name="frame_radius" value="0.294"/>
   <xacro:property name="frame_height" value="0.056"/>
   <xacro:property name="frame_mass" value="1.423"/>
-  <xacro:property name="battery_x" value="0.155"/>
-  <xacro:property name="battery_y" value="0.048"/>
-  <xacro:property name="battery_z" value="0.032"/>
-  <xacro:property name="battery_mass" value="0.496"/>
-  <xacro:property name="propeller_diameter" value="${9*inch2meter}"/>
-  <xacro:property name="propeller_radius" value="${propeller_diameter/2}"/>
-  <xacro:property name="propeller_height" value="0.01"/>
-  <xacro:property name="propeller_mass" value="0.011"/>
   <xacro:property name="propeller_origin_z" value="0.060597"/>
   <xacro:property name="rotor_tilt" value="${30*deg2rad}"/>
 
@@ -47,78 +41,28 @@
   </link>
 
   <!-- Battery -->
-  <joint name="battery_joint" type="fixed">
+  <xacro:hrb_4s_5000mah_50c parent="base_link">
     <origin xyz="0 0 -0.021" rpy="0 0 0"/>
-    <parent link="base_link"/>
-    <child link="battery"/>
-  </joint>
-  <link name="battery">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="${battery_x} ${battery_y} ${battery_z}"/>
-      </geometry>
-      <xacro:insert_block name="blue"/>
-    </visual>
-    <inertial>
-      <mass value="${battery_mass}"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <xacro:box_inertia x="${battery_x}" y="${battery_y}" z="${battery_z}" mass="${battery_mass}"/>
-    </inertial>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="${battery_x} ${battery_y} ${battery_z}"/>
-      </geometry>
-    </collision>
-  </link>
+  </xacro:hrb_4s_5000mah_50c>
 
   <!-- Propellers -->
-  <xacro:macro name="propeller" params="index direction *origin">
-    <joint name="propeller_${index}_joint" type="continuous">
-      <xacro:insert_block name="origin"/>
-      <axis xyz="0 0 1"/>
-      <parent link="base_link"/>
-      <child link="propeller_${index}"/>
-    </joint>
-    <link name="propeller_${index}">
-      <visual>
-        <geometry>
-          <mesh filename="package://tobas_description/meshes/common/propeller/phantom3_0945_${direction}.stl" scale="1e-3 1e-3 1e-3"/>
-        </geometry>
-        <xacro:insert_block name="white"/>
-      </visual>
-      <inertial>
-        <mass value="${propeller_mass}"/>
-        <origin xyz="0 0 ${propeller_height/2}" rpy="0 0 0"/>
-        <xacro:cylinder_inertia radius="${propeller_radius}" length="${propeller_height}" mass="${propeller_mass}"/>
-      </inertial>
-      <collision>
-        <origin xyz="0 0 ${propeller_height/2}" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${propeller_radius}" length="${propeller_height}"/>
-        </geometry>
-      </collision>
-    </link>
-  </xacro:macro>
-
-  <xacro:propeller index="0" direction="ccw">
+  <xacro:phantom3_0945 parent="base_link" index="0" direction="ccw">
     <origin xyz="0.242082 0.130702 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${30*deg2rad}"/>
-  </xacro:propeller>
-  <xacro:propeller index="1" direction="cw">
+  </xacro:phantom3_0945>
+  <xacro:phantom3_0945 parent="base_link" index="1" direction="cw">
     <origin xyz="-0.007851 0.27500 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${90*deg2rad}"/>
-  </xacro:propeller>
-  <xacro:propeller index="2" direction="ccw">
+  </xacro:phantom3_0945>
+  <xacro:phantom3_0945 parent="base_link" index="2" direction="ccw">
     <origin xyz="-0.234232 0.144298 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${150*deg2rad}"/>
-  </xacro:propeller>
-  <xacro:propeller index="3" direction="cw">
+  </xacro:phantom3_0945>
+  <xacro:phantom3_0945 parent="base_link" index="3" direction="cw">
     <origin xyz="-0.234232 -0.144645 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${210*deg2rad}"/>
-  </xacro:propeller>
-  <xacro:propeller index="4" direction="ccw">
+  </xacro:phantom3_0945>
+  <xacro:phantom3_0945 parent="base_link" index="4" direction="ccw">
     <origin xyz="-0.007851 -0.27500 ${propeller_origin_z}" rpy="${rotor_tilt} 0 ${270*deg2rad}"/>
-  </xacro:propeller>
-  <xacro:propeller index="5" direction="cw">
+  </xacro:phantom3_0945>
+  <xacro:phantom3_0945 parent="base_link" index="5" direction="cw">
     <origin xyz="0.242082 -0.130355 ${propeller_origin_z}" rpy="${-rotor_tilt} 0 ${330*deg2rad}"/>
-  </xacro:propeller>
+  </xacro:phantom3_0945>
 
 </robot>

@@ -195,8 +195,8 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_prearm_check",
-            executable="prearm_checker",
+            package="tobas_state_checker",
+            executable="state_checker",
             namespace=DRONE_NAME,
             remappings=remappings,
             ros_arguments=ros_args,
@@ -205,27 +205,8 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_state_checker",
-            executable="attitude_checker",
-            namespace=DRONE_NAME,
-            remappings=remappings,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_state_checker",
-            executable="latency_checker",
-            namespace=DRONE_NAME,
-            ros_arguments=ros_args,
-            output=output,
-        )
-    )
-    ld.add_action(
-        Node(
-            package="tobas_state_checker",
-            executable="rotor_checker",
+            package="tobas_rotor_anomaly_detection",
+            executable="rotor_anomaly_detector",
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,

@@ -18,6 +18,7 @@ RotorWidget::RotorWidget()
 
   cur_rpm_bar_ = new SpeedmeterWidget();
   cur_rpm_bar_->setMinimumValue(0);
+  cur_rpm_bar_->setTickmarkStepSize(1000);
 
   tar_rpm_slider_ = new qt::Slider(Qt::Vertical);
   tar_rpm_slider_->setMinimum(0);

@@ -1,3 +1,4 @@
+#include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
@@ -22,10 +23,10 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
   const auto instruction = new qt::DescriptionWidget(
     "1. Connect the ESCs to the FC in the correct order.\n\n"
     "2. Press \"Start\" button to enable motors.\n\n"
-    "3. For all motors, confirm the followings:\n"
+    "3. For each channel, confirm the followings:\n"
     "   - The motor rotates in the correct direction. If not, swap any two of the three ESC-motor connections.\n"
     "   - The motor does not rotate when the command RPM is 0.\n\n"
-    "4. Tune the control gain of each motor to the maximum value at which no vibrations or abnormal noise occur.\n\n"
+    "4. Tune the control gain of each channel to the maximum value at which no vibrations or abnormal noise occur.\n\n"
     "5. Press \"Save\" button to save the control gains.\n\n"
     "6. Press \"Stop\" button to disable motors.\n\n",
     kBodyPSize);
@@ -68,17 +69,19 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
       rotors_.at(ch), &RotorWidget::gainChanged, std::bind(&self::onGainChanged, this, std::placeholders::_1, ch));
   }
 
+  connect(&publish_timer_, &QTimer::timeout, this, &self::publishTargetSppeds);
+
   setEnabled(false);
 }
 
 const char* RotorTestWidget::name() const
 {
-  return "Motor Test";
+  return "Rotor Test";
 }
 
 const char* RotorTestWidget::title() const
 {
-  return "Test Motors";
+  return "Test Rotors";
 }
 
 void RotorTestWidget::updateInternalDataStructures()
@@ -86,12 +89,17 @@ void RotorTestWidget::updateInternalDataStructures()
   reset();
 
   // モータとして登録されているチャンネルの設定
-  std::unordered_set<size_t> rotor_channels;
+  QSet<size_t> rotor_channels;
   for (const auto& [channel, rotor] : drone_.rotors)
   {
     rotor_channels.insert(channel);
     rotors_.at(channel)->setText("CH" + QString::number(channel) + ": " + QString::fromStdString(rotor.link_name));
-    rotors_.at(channel)->setMaximumRPM(tobas_std::rps2rpm(rotor.max_rot_speed));
+
+    // XXX: 最大値がtickmarkStepSizeの整数倍じゃないとステップサイズが正しく反映されない
+    const auto max_rpm = tobas_std::rps2rpm(rotor.max_rot_speed);
+    const auto max_rpm_rounded = math::ceil(max_rpm, 1000);
+    rotors_.at(channel)->setMaximumRPM(max_rpm_rounded);
+
     rotors_.at(channel)->setEnabled(true);
   }
 
@@ -133,13 +141,13 @@ void RotorTestWidget::reset()
   }
 
   // タイマーを停止
-  if (publish_timer_ != nullptr)
-    publish_timer_->cancel();
+  publish_timer_.stop();
 
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
   save_button_->setEnabled(false);
 
+  arming_ = nullptr;
   is_running_ = false;
 }
 
@@ -225,7 +233,7 @@ void RotorTestWidget::currentStatesCb(const tobas_msgs::msg::RotorStateArray::Co
   }
 }
 
-void RotorTestWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
+void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
 }
@@ -257,7 +265,7 @@ void RotorTestWidget::onStartButtonClicked()
     rotors_.at(channel)->setEnabled(true);
 
   // モータが停止しないよう一定周期でコマンドを発行し続ける
-  publish_timer_ = ros2::createTimer(node_, kPublishPeriod, &self::publishTargetSppeds, this);
+  publish_timer_.start(kPublishPeriod);
 
   start_button_->setEnabled(false);
   stop_button_->setEnabled(true);

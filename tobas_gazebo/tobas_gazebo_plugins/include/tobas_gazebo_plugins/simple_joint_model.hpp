@@ -8,15 +8,15 @@ namespace gazebo
 class SimpleJointModel
 {
 public:
-  explicit SimpleJointModel(const tobas_std::Range<double>& pos_limit, const double& max_vel);
+  explicit SimpleJointModel(double min_pos, double max_pos, double max_vel);
 
   void update(double tar_pos, double dt);
-  const double& currentPosition() const;
+  double currentPosition() const;
 
 private:
   const tobas_std::Range<double> pos_limit_;
   const double max_vel_;
 
-  double cur_pos_;
+  double cur_pos_ = 0.;
 };
 }  // namespace gazebo

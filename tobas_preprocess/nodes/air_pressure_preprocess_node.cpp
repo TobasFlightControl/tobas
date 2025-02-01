@@ -1,13 +1,10 @@
 #include <tobas_eigen_tools/typedef.hpp>
-#include <tobas_dsp/low_pass_filter.hpp>
 #include <tobas_dsp/noise_variance_filter.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
-
-using namespace std;
+#include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 
 class AirPressurePreprocessNode : public tobas::BaseNode
 {
@@ -66,7 +63,7 @@ void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureSt
   pres_out->pressure.variance = pres_noise_.noiseVariance()(0);
 
   // Publish message
-  pres_pub_->publish(move(pres_out));
+  pres_pub_->publish(std::move(pres_out));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(AirPressurePreprocessNode)

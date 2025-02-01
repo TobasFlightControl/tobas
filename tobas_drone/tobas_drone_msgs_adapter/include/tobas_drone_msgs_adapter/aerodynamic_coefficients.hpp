@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_drone_core/aerodynamic_coefs.hpp>
+#include <tobas_drone_core/fixed_wing/aerodynamic_coefs.hpp>
 #include <tobas_drone_msgs/msg/aerodynamic_coefficients.hpp>
 
 template <>

@@ -9,6 +9,7 @@ static constexpr char kOdometryGtTopic[] = "gazebo/ground_truth/odom";
 static constexpr char kWindGtTopic[] = "gazebo/ground_truth/wind";
 static constexpr char kRotorStateTopicPrefix[] = "gazebo/rotor_state_";
 static constexpr char kRotorStateGtTopicPrefix[] = "gazebo/ground_truth/rotor_state_";
+static constexpr char kJointStatesTopic[] = "joint_states";
 
 // ROS Services
 static constexpr char kChargeBatterySrv[] = "gazebo/charge_battery";

@@ -23,7 +23,9 @@ kdl::Vector AngleAxisPID::update(
   const auto ed = tar_gyro - cur_gyro;
 
   // Integrate error
-  ei_ += ep * dt;
+  for (size_t i = 0; i < 3; ++i)
+    if (ki_(i) > 0.)
+      ei_(i) += ep(i) * dt;
 
   // Compute target dgyro
   return kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
@@ -34,9 +36,9 @@ bool AngleAxisPID::setNaturalFreq(int idx, double value)
   if (!checkIndex(idx))
     return false;
 
-  if (value <= 0.)
+  if (value < 0.)
   {
-    cerr << "Natural frequency must be positive." << endl;
+    cerr << "Natural frequency must be non-negative." << endl;
     return false;
   }
 
@@ -51,9 +53,9 @@ bool AngleAxisPID::setDampingRatio(int idx, double value)
   if (!checkIndex(idx))
     return false;
 
-  if (value <= 0.)
+  if (value < 0.)
   {
-    cerr << "Damping ratio must be positive." << endl;
+    cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
 
@@ -68,13 +70,14 @@ bool AngleAxisPID::setIntegralGain(int idx, double value)
   if (!checkIndex(idx))
     return false;
 
-  if (value <= 0.)
+  if (value < 0.)
   {
-    cerr << "Integral gain must be positive." << endl;
+    cerr << "Integral gain must be non-negative." << endl;
     return false;
   }
 
   ki_(idx) = value;
+  ei_(idx) = 0.;
 
   return true;
 }

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "./flight_log_recorder.hpp"
-#include "./flight_log_reader.hpp"
+#include "./recorder.hpp"
+#include "./logs_fc/logs_widget.hpp"
+#include "./logs_gcs/logs_widget.hpp"
+#include "./log_viewer/log_viewer.hpp"
 
 namespace gui
 {
@@ -21,7 +23,13 @@ public:
 
 private:
   FlightLogRecorderWidget* recorder_;
-  FlightLogReaderWidget* reader_;
+  FlightLogsWidgetFC* logs_fc_;
+  FlightLogsWidgetGCS* logs_gcs_;
+  FlightLogViewerWidget* log_viewer_;
+
+private Q_SLOTS:
+  void onLogDownloaded(const QString& log_name);
+  void onLogSelected(const QString& log_name);
 };
 }  // namespace log
 }  // namespace gui

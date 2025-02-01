@@ -31,6 +31,18 @@ void addWidgetCenter(QWidget* widget, QHBoxLayout* cols, int stretch)
   cols->addLayout(rows, stretch);
 }
 
+void addSpacing(QVBoxLayout* rows, int height, QSizePolicy::Policy v_policy)
+{
+  const auto spacer = new QSpacerItem(0, height, QSizePolicy::Minimum, v_policy);
+  rows->addSpacerItem(spacer);
+}
+
+void addSpacing(QHBoxLayout* cols, int width, QSizePolicy::Policy h_policy)
+{
+  const auto spacer = new QSpacerItem(width, 0, h_policy, QSizePolicy::Minimum);
+  cols->addSpacerItem(spacer);
+}
+
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent)
 {
   // parent > widget > layout

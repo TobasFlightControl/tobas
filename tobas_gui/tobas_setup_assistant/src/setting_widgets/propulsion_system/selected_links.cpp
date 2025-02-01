@@ -13,7 +13,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot)
@@ -27,6 +27,7 @@ SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const Rob
     ros2::createPublisher<visualization_msgs::msg::MarkerArray>(node, "visualization_marker_array", false, true);
 
   connect(this, &qt::TabWidget::tabCloseRequested, this, &self::onTabCloseRequested);
+  connect(&publish_markers_timer_, &QTimer::timeout, this, &self::publishTimerCb);
 }
 
 void SelectedLinksWidget::updateInternalDataStructures()
@@ -74,14 +75,14 @@ void SelectedLinksWidget::updateInternalDataStructures()
   }
 
   // マーカを発行開始
-  publish_markers_timer_ = ros2::createTimer(node_, 100ms, &self::publishTimerCb, this);
+  publish_markers_timer_.start(100);
 }
 
 void SelectedLinksWidget::clear()
 {
   super::clear();
   markers_.markers.clear();
-  publish_markers_timer_ = nullptr;
+  publish_markers_timer_.stop();
 }
 
 bool SelectedLinksWidget::isValid()
@@ -100,28 +101,50 @@ bool SelectedLinksWidget::isValid()
     if (!widget(i)->isValid())
       return false;
 
+  // チャンネルが重複していないことを確認
+  QSet<int> channels;
+  for (int i = 0; i < num_rotors; ++i)
+  {
+    const auto channel = widget(i)->general()->channel();
+    if (channels.contains(channel))
+    {
+      qt::qErrorBox(this, "Rotor channel " + QString::number(channel) + " is duplicated.");
+      return false;
+    }
+    channels.insert(channel);
+  }
+
   return true;
 }
 
-void SelectedLinksWidget::add(const QString& link_name)
+void SelectedLinksWidget::addLink(const QString& link_name)
 {
   // タブを追加
-  const auto link_widget = new SelectedLinkWidget(node_);
+  const auto link_widget = new SelectedLinkWidget(node_, robot_, link_name);
   addTab(link_widget, link_name);
 
   // 指定リンクのマーカを表示
   setAction(link_name, visualization_msgs::msg::Marker::ADD);
 
-  // Connections
+  // Connection
   connect(
     link_widget, &SelectedLinkWidget::copyFromLeftButtonClicked, this,
     bind(&self::onCopyFromLeftButtonClicked, this, link_name));
   connect(
     link_widget, &SelectedLinkWidget::copyToAllButtonClicked, this,
     bind(&self::onCopyToAllButtonClicked, this, link_name));
+  connect(
+    link_widget, &SelectedLinkWidget::channelChanged, this,
+    bind(&self::onChannelChanged, this, link_name, placeholders::_1));
+  connect(
+    link_widget, &SelectedLinkWidget::isTiltStateChanged, this,
+    bind(&self::onIsTiltStateChanged, this, link_name, placeholders::_1));
+  connect(
+    link_widget, &SelectedLinkWidget::tiltJointNameChanged, this,
+    bind(&self::onTiltJointNameChanged, this, link_name, placeholders::_1));
 }
 
-void SelectedLinksWidget::remove(const QString& link_name)
+void SelectedLinksWidget::removeLink(const QString& link_name)
 {
   // タブを削除
   removeTab(index(link_name));
@@ -140,6 +163,18 @@ QStringList SelectedLinksWidget::linkNames() const
   QStringList res;
   for (int i = 0; i < count(); ++i)
     res.append(linkName(i));
+  return res;
+}
+
+QStringList SelectedLinksWidget::tiltJointNames() const
+{
+  QStringList res;
+  for (int i = 0; i < count(); ++i)
+  {
+    const auto general = widget(i)->general();
+    if (general->isTiltRotor())
+      res.append(general->tiltJointName());
+  }
   return res;
 }
 
@@ -175,7 +210,7 @@ const SelectedLinkWidget* SelectedLinksWidget::widget(const QString& link_name) 
 
 bool SelectedLinksWidget::hasBothRotationalDirections() const
 {
-  unordered_set<tobas::turning_direction_t> set;
+  QSet<tobas::turning_direction_t> set;
   for (int i = 0; i < count(); ++i)
     set.insert(widget(i)->motor()->direction());
 
@@ -187,6 +222,20 @@ bool SelectedLinksWidget::hasBothRotationalDirections() const
   }
 
   return num == 2;
+}
+
+void SelectedLinksWidget::setAction(const QString& link_name, int action)
+{
+  for (auto& marker : markers_.markers)
+  {
+    if (marker.header.frame_id == link_name.toStdString())
+    {
+      marker.action = action;
+      return;
+    }
+  }
+
+  qWarning() << link_name << " not found.";
 }
 
 void SelectedLinksWidget::publishTimerCb()
@@ -206,7 +255,7 @@ void SelectedLinksWidget::onTabCloseRequested(int index)
   RCLCPP_DEBUG_STREAM(node_->get_logger(), "SelectedLinksWidget::onTabCloseRequested(" << index << ")");
 
   const auto link_name = linkName(index);
-  remove(link_name);
+  removeLink(link_name);
   Q_EMIT linkRemoved(link_name);
 }
 
@@ -247,19 +296,20 @@ void SelectedLinksWidget::onCopyToAllButtonClicked(const QString& link_name)
   qt::qInfoBox(this, "The settings of \"" + link_name + "\" have been copied to all the other selected links.");
 }
 
-void SelectedLinksWidget::setAction(const QString& link_name, int action)
+void SelectedLinksWidget::onChannelChanged(const QString& link_name, int channel)
 {
-  for (auto& marker : markers_.markers)
-  {
-    if (marker.header.frame_id == link_name.toStdString())
-    {
-      marker.action = action;
-      return;
-    }
-  }
-
-  qWarning() << link_name << " not found.";
+  Q_EMIT channelChanged(link_name, channel);
 }
-}  // namespace propulsion_system
+
+void SelectedLinksWidget::onIsTiltStateChanged(const QString& link_name, bool is_tilt)
+{
+  Q_EMIT isTiltStateChanged(link_name, is_tilt);
+}
+
+void SelectedLinksWidget::onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name)
+{
+  Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name);
+}
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

@@ -259,15 +259,16 @@ void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     const auto& rotor = x_rotors_.rotor(i);
-    min_u_(i) = rotor.minThrust(battery_voltage);
+    min_u_(i) = rotor.minThrust();
     max_u_(i) = rotor.maxThrust(battery_voltage);
   }
 
   size_t cs_idx = 0;
   for (const auto& [_, cs] : drone_.fixed_wing.control_surfaces)
   {
-    min_u_(x_rotors_.count() + cs_idx) = cs.angle_limit.lower;
-    max_u_(x_rotors_.count() + cs_idx) = cs.angle_limit.upper;
+    const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
+    min_u_(x_rotors_.count() + cs_idx) = joint.lower_limit;
+    max_u_(x_rotors_.count() + cs_idx) = joint.upper_limit;
     ++cs_idx;
   }
 }

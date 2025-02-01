@@ -1,7 +1,6 @@
 #include <QVBoxLayout>
 
-#include <tobas_path_tools/join.hpp>
-#include <tobas_constants/constants.hpp>
+#include <tobas_qt_tools/widgets/label.hpp>
 
 #include "tobas_control_system/status_viewer/status_viewer.hpp"
 
@@ -9,34 +8,19 @@ namespace gui
 {
 namespace control_system
 {
-StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
+StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node)
 {
-  gps_status_ = new StatusWidget("GPS 3D Fix");
-  rcin_status_ = new StatusWidget("Radio Input");
-  voltage_status_ = new StatusWidget("Battery Voltage");
-  cpu_status_ = new StatusWidget("CPU Temperature");
-  rotors_status_ = new StatusWidget("Rotors Communication");
-  attitude_status_ = new StatusWidget("Attitude Horizontal");
-  pos_stability_status_ = new StatusWidget("Position Stable");
-  pos_accuracy_status_ = new StatusWidget("Position Estimation Accurate");
-  rot_accuracy_status_ = new StatusWidget("Orientation Estimation Accurate");
-  vel_accuracy_status_ = new StatusWidget("Velocity Estimation Accurate");
-  ready_status_ = new StatusWidget("Ready to Arm");
-  arming_status_ = new StatusWidget("Rotors Armed");
+  prearm_check_viewer_ = new PreArmCheckViewerWidget(node);
+  postarm_check_viewer_ = new PostArmCheckViewerWidget(node);
+  other_status_viewer_ = new OtherStatusViewerWidget(node);
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(gps_status_);
-  rows->addWidget(rcin_status_);
-  rows->addWidget(voltage_status_);
-  rows->addWidget(cpu_status_);
-  rows->addWidget(rotors_status_);
-  rows->addWidget(attitude_status_);
-  rows->addWidget(pos_stability_status_);
-  rows->addWidget(pos_accuracy_status_);
-  rows->addWidget(rot_accuracy_status_);
-  rows->addWidget(vel_accuracy_status_);
-  rows->addWidget(ready_status_);
-  rows->addWidget(arming_status_);
+  rows->addWidget(new qt::Label("Pre-Arm Check", kLabelPSize, QFont::Bold));
+  rows->addWidget(prearm_check_viewer_);
+  rows->addWidget(new qt::Label("Post-Arm Check", kLabelPSize, QFont::Bold));
+  rows->addWidget(postarm_check_viewer_);
+  rows->addWidget(new qt::Label("Other Status", kLabelPSize, QFont::Bold));
+  rows->addWidget(other_status_viewer_);
   rows->addStretch();
 
   setLayout(rows);
@@ -44,53 +28,9 @@ StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(nod
 
 void StatusViewerWidget::updateNamespace(const std::string& ns)
 {
-  gps_status_->reset();
-  rcin_status_->reset();
-  voltage_status_->reset();
-  attitude_status_->reset();
-  pos_stability_status_->reset();
-  pos_accuracy_status_->reset();
-  rot_accuracy_status_->reset();
-  vel_accuracy_status_->reset();
-  ready_status_->reset();
-  arming_status_->reset();
-
-  gps_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGNSSTopic), &self::gpsCb, this);
-  rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
-  prearm_check_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPreArmCheckTopic), &self::preArmCheckCb, this);
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-}
-
-void StatusViewerWidget::gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps)
-{
-  gps_status_->setStatus(gps->fix_type == tobas_msgs::msg::Gps::FIX_3D);
-}
-
-void StatusViewerWidget::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr&)
-{
-  rcin_status_->setStatus(true);
-}
-
-void StatusViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
-{
-  voltage_status_->setStatus(!prearm_check->battery_voltage_too_low);
-  cpu_status_->setStatus(!prearm_check->cpu_temperature_too_high);
-  rotors_status_->setStatus(!prearm_check->rotor_communication_error);
-  attitude_status_->setStatus(!prearm_check->attitude_too_steep);
-  pos_stability_status_->setStatus(!prearm_check->position_unstable);
-  pos_accuracy_status_->setStatus(!prearm_check->position_inaccurate);
-  rot_accuracy_status_->setStatus(!prearm_check->orientation_inaccurate);
-  vel_accuracy_status_->setStatus(!prearm_check->velocity_inaccurate);
-  ready_status_->setStatus(prearm_check->ok);
-}
-
-void StatusViewerWidget::armingCb(const std_msgs::msg::Bool::ConstSharedPtr& arming)
-{
-  arming_status_->setStatus(arming->data);
+  prearm_check_viewer_->updateNamespace(ns);
+  postarm_check_viewer_->updateNamespace(ns);
+  other_status_viewer_->updateNamespace(ns);
 }
 }  // namespace control_system
 }  // namespace gui

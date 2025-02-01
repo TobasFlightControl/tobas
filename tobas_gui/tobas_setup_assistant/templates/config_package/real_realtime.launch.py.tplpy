@@ -97,12 +97,6 @@ def generate_launch_description():
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),
-                        ComposableNode(
-                            package="tobas_real_ros",
-                            plugin="BatteryHandlerNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
                     ],
                 )
             ],
@@ -132,6 +126,12 @@ def generate_launch_description():
                         ComposableNode(
                             package="tobas_real_ros",
                             plugin="RCInputHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="JointsHandlerNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),

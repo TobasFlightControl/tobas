@@ -463,7 +463,10 @@ bool DualActiveSetSolver::addConstraint()
 #endif
 
   if (fabs(d_(iq_ - 1)) <= EPS * R_norm_)
-    return false;  // Problem degenerate
+  {
+    error_msg_ = "Problem degenerate.";
+    return false;
+  }
 
   R_norm_ = max(R_norm_, fabs(d_(iq_ - 1)));
   return true;

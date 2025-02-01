@@ -1,5 +1,3 @@
-#include <ranges>
-
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_node/node.hpp>
@@ -25,9 +23,9 @@ public:
 private:
   tobas::Drone::ConstSharedPtr drone_;
 
-  sensor_msgs::msg::JointState home_js_;
+  tobas_msgs::msg::JointStateArray home_js_;
 
-  sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
+  tobas_msgs::msg::JointStateArray::ConstSharedPtr tar_js_;
   tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
 
   // Publishers
@@ -35,8 +33,8 @@ private:
 
   // Subscribers
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> cur_js_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> tar_js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> cur_js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> tar_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
 
   // Timer
@@ -46,8 +44,8 @@ private:
   bool taskSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg);
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
-  void currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js);
-  void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
+  void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
+  void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
 
   void autoResetTimerCb();
@@ -56,7 +54,7 @@ private:
 PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& options)
   : super("position_controller", options)
 {
-  positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPositionsCmdTopic);
+  positions_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   cur_js_sub_ = createSubscriber(tobas::kJointStatesTopic, &self::currentJointStateCb, this);
@@ -69,23 +67,23 @@ PositionControllerNode::PositionControllerNode(const rclcpp::NodeOptions& option
 bool PositionControllerNode::jointSpaceControl(tobas_msgs::msg::JointCommandArray& positions_msg)
 {
   // 位置コマンドをそのまま流すだけ
-  for (const auto& [name, pos] : views::zip(tar_js_->name, tar_js_->position))
+  for (const auto& cmd : tar_js_->states)
   {
-    const auto& joint = drone_->joints.at(name);
-    if (joint.interface != tobas::joint_interface_t::POSITION)
+    const auto& joint = drone_->joints.at(cmd.name);
+    if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"POSITION\".");
+      TOBAS_WARN("The role of joint \"", cmd.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
     {
-      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      TOBAS_WARN("The command interface of joint \"", cmd.name, "\" must be \"POSITION\".");
       continue;
     }
 
     positions_msg.commands.emplace_back();
-    positions_msg.commands.back().name = name;
-    positions_msg.commands.back().data = pos;
+    positions_msg.commands.back().name = cmd.name;
+    positions_msg.commands.back().data = cmd.position;
   }
 
   return true;
@@ -102,32 +100,28 @@ void PositionControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
-  home_js_.name.clear();
-  home_js_.position.clear();
-  home_js_.velocity.clear();
-  home_js_.effort.clear();
+  home_js_.states.clear();
 
   // 位置指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints)
   {
-    if (jnt_cfg.interface != tobas::joint_interface_t::POSITION)
+    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION)
       continue;
-    if (jnt_cfg.role != tobas::joint_role_t::MANIPULATION)
+    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::POSITION)
       continue;
-    home_js_.name.push_back(jnt_name);
-    home_js_.position.push_back(jnt_cfg.home_pos);
-    home_js_.velocity.push_back(0.);
-    home_js_.effort.push_back(0.);
+    home_js_.states.emplace_back();
+    home_js_.states.back().name = jnt_name;
+    home_js_.states.back().position = jnt_cfg.home_pos;
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.name.size() > 0)
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  if (home_js_.states.size() > 0)
+    tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
 }
 
-void PositionControllerNode::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr&)
+void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr&)
 {
-  if (home_js_.name.size() == 0)
+  if (home_js_.states.size() == 0)
     return;
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
@@ -156,7 +150,7 @@ void PositionControllerNode::currentJointStateCb(const sensor_msgs::msg::JointSt
   positions_pub_->publish(move(positions_msg));
 }
 
-void PositionControllerNode::targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js)
+void PositionControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)
 {
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
@@ -174,7 +168,7 @@ void PositionControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray:
 
 void PositionControllerNode::autoResetTimerCb()
 {
-  tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   tar_ls_ = nullptr;
 
   TOBAS_WARN(

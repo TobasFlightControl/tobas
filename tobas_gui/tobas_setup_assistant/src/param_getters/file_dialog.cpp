@@ -3,7 +3,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include "tobas_setup_assistant/param_getters/file_dialog.hpp"
@@ -20,7 +20,7 @@ ParamGetterWidget_FileDialog::ParamGetterWidget_FileDialog(
   const QString& description_text)
   : super(param_name, description_text),
     node_(node),
-    last_opend_dir_key_("last_opened_dir/file_dialog/" + tobas_std::replace(param_name.toStdString(), " ", "_")),
+    last_opend_dir_key_("last_opened_dir/file_dialog/" + str::replace(param_name.toStdString(), " ", "_")),
     property_client_(node, tobas::kPropertyServerName, kPackageName)
 {
   const auto cols = new QHBoxLayout();

@@ -28,7 +28,7 @@ void NED2NWU(gz::math::Vector3<T>& v)
 }
 
 /* 等価角軸ベクトルからクオータニオンを作成． */
-gz::math::Quaterniond angleAxisToQuaternion(const gz::math::Vector3d& w);
+gz::math::Quaterniond quaternionFromAngleAxis(const gz::math::Vector3d& w);
 
 /* 3次元ベクトルの外積を表す歪対称行列を計算する． */
 gz::math::Matrix3d skewMatrix(const gz::math::Vector3d& v);

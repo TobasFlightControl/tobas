@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_drone_core/turning_direction.hpp>
+#include <tobas_drone_core/rotor/turning_direction.hpp>
 
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
 #include "tobas_setup_assistant/param_getters/combo_box.hpp"
@@ -10,7 +10,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class MotorWidget : public BaseSelectedLinkSettingWidget
 {
@@ -47,6 +47,6 @@ private:
   ParamGetterWidget_SpinBox* resistance_;
   ParamGetterWidget_SpinBox* num_poles_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

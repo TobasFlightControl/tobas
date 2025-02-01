@@ -2,8 +2,6 @@
 
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 
-#define NANO_1SEC 1'000'000'000
-
 using namespace std;
 
 namespace gazebo
@@ -23,7 +21,7 @@ bool RateManager::update(const chrono::steady_clock::duration& time)
   }
   else
   {
-    t_next_ += chrono::nanoseconds(NANO_1SEC / update_rate_);
+    t_next_ += chrono::nanoseconds(1'000'000'000 / update_rate_);
     return true;
   }
 }

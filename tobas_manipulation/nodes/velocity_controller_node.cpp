@@ -1,5 +1,4 @@
-#include <ranges>
-
+#include <tobas_kdl/tree_joint_parser.hpp>
 #include <tobas_kdl/tree_active_joints_extractor.hpp>
 #include <tobas_kdl/tree_taskspace_vel_ctrl.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
@@ -30,16 +29,17 @@ private:
   tobas::Drone::ConstSharedPtr drone_;
   kdl::Tree tree_;
 
-  tobas::TreeJointStateConverter cur_js_conv_;
-  tobas::TreeJointStateConverter tar_js_conv_;
+  kdl::TreeJointParser jnt_parser_;
   kdl::TreeActiveJointsExtractor active_jnts_extractor_;
   kdl::TreeTaskSpaceVelCtrl vel_ctrl_;
+  tobas::TreeJointStateConverter cur_js_conv_;
+  tobas::TreeJointStateConverter tar_js_conv_;
 
   ros2::TransformListener::SharedPtr tf_listener_;
   double jnt_time_const_;
-  sensor_msgs::msg::JointState home_js_;
+  tobas_msgs::msg::JointStateArray home_js_;
 
-  sensor_msgs::msg::JointState::ConstSharedPtr tar_js_;
+  tobas_msgs::msg::JointStateArray::ConstSharedPtr tar_js_;
   tobas_msgs::LinkStateArray::ConstSharedPtr tar_ls_;
 
   // Publishers
@@ -48,8 +48,8 @@ private:
   // Subscribers
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> cur_js_sub_;
-  ros2::SubscriberPtr<sensor_msgs::msg::JointState> tar_js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> cur_js_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> tar_js_sub_;
   ros2::SubscriberPtr<tobas_msgs::LinkStateArray> tar_ls_sub_;
 
   // Timer
@@ -59,11 +59,11 @@ private:
   void initialize();
 
   bool jointSpaceControl(
-    const sensor_msgs::msg::JointState& cur_js,
-    const sensor_msgs::msg::JointState& tar_js,
+    const tobas_msgs::msg::JointStateArray& cur_js,
+    const tobas_msgs::msg::JointStateArray& tar_js,
     tobas_msgs::msg::JointCommandArray& velocities_msg);
   bool taskSpaceControl(
-    const sensor_msgs::msg::JointState& cur_js,
+    const tobas_msgs::msg::JointStateArray& cur_js,
     const tobas_msgs::LinkStateArray& tar_ls,
     tobas_msgs::msg::JointCommandArray& velocities_msg);
 
@@ -73,8 +73,8 @@ private:
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
-  void currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js);
-  void targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js);
+  void currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js);
+  void targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js);
   void targetLinkStateCb(const tobas_msgs::LinkStateArray::ConstSharedPtr& tar_ls);
 
   void autoResetTimerCb();
@@ -82,10 +82,11 @@ private:
 
 VelocityControllerNode::VelocityControllerNode(const rclcpp::NodeOptions& options)
   : super("velocity_controller", options),
-    cur_js_conv_(tree_),
-    tar_js_conv_(tree_),
+    jnt_parser_(tree_),
     active_jnts_extractor_(tree_),
-    vel_ctrl_(tree_)
+    vel_ctrl_(tree_),
+    cur_js_conv_(tree_),
+    tar_js_conv_(tree_)
 {
   initialize_timer_ = createTimer(0s, &self::initialize, this);
 }
@@ -99,7 +100,7 @@ void VelocityControllerNode::initialize()
   addDynamicDoubleParam("linear_time_constant", &self::linearTimeConstCb, this, 0.5, 0.01, 1.);
   addDynamicDoubleParam("angular_time_constant", &self::angularTimeConstCb, this, 0.5, 0.01, 1.);
 
-  velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelocitiesCmdTopic);
+  velocities_pub_ = createPublisher<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
@@ -113,67 +114,60 @@ void VelocityControllerNode::initialize()
 }
 
 bool VelocityControllerNode::jointSpaceControl(
-  const sensor_msgs::msg::JointState& cur_js,
-  const sensor_msgs::msg::JointState& tar_js,
+  const tobas_msgs::msg::JointStateArray& cur_js,
+  const tobas_msgs::msg::JointStateArray& tar_js,
   tobas_msgs::msg::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArrayPos(cur_js) < 0)
+  if (cur_js_conv_.convert(cur_js) < 0)
   {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
   }
-  if (tar_js_conv_.jointStateToJntArrayPos(tar_js) < 0)
+  if (tar_js_conv_.convert(tar_js) < 0)
   {
     TOBAS_ERROR("Failed to convert target JointState to Jntarray: ", tar_js_conv_.errorMessage());
     return false;
   }
 
   // 目標関節速度を計算
-  const auto& cur_q = cur_js_conv_.getPositionsKDL();
-  const auto& tar_q = tar_js_conv_.getPositionsKDL();
+  const auto& cur_q = cur_js_conv_.getPosition();
+  const auto& tar_q = tar_js_conv_.getPosition();
   const auto gain = 1 / jnt_time_const_;
   const auto velocities = gain * (tar_q - cur_q);
 
   // TODO: 関節角制限を考慮し，制限に違反する速度を出さない
 
-  // JntArray -> JointState
-  if (tar_js_conv_.jntArrayToJointStateVel(velocities, tar_js.name) < 0)
-  {
-    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
-    return false;
-  }
-
   // Fill output message
-  for (const auto& [name, vel] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+  for (const auto& tar_state : tar_js.states)
   {
-    const auto& joint = drone_->joints.at(name);
-    if (joint.interface != tobas::joint_interface_t::VELOCITY)
+    const auto& joint = drone_->joints.at(tar_state.name);
+    if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"VELOCITY\".");
+      TOBAS_WARN("The role of joint \"", tar_state.name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
     {
-      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      TOBAS_WARN("The command interface of joint \"", tar_state.name, "\" must be \"VELOCITY\".");
       continue;
     }
 
     velocities_msg.commands.emplace_back();
-    velocities_msg.commands.back().name = name;
-    velocities_msg.commands.back().data = vel;
+    velocities_msg.commands.back().name = tar_state.name;
+    velocities_msg.commands.back().data = velocities(jnt_parser_.jointIndex(tar_state.name));
   }
 
   return true;
 }
 
 bool VelocityControllerNode::taskSpaceControl(
-  const sensor_msgs::msg::JointState& cur_js,
+  const tobas_msgs::msg::JointStateArray& cur_js,
   const tobas_msgs::LinkStateArray& tar_ls,
   tobas_msgs::msg::JointCommandArray& velocities_msg)
 {
   // JointState -> JntArray
-  if (cur_js_conv_.jointStateToJntArrayPos(cur_js) < 0)
+  if (cur_js_conv_.convert(cur_js) < 0)
   {
     TOBAS_ERROR("Failed to convert current JointState to Jntarray: ", cur_js_conv_.errorMessage());
     return false;
@@ -194,7 +188,7 @@ bool VelocityControllerNode::taskSpaceControl(
   }
 
   // 目標関節速度を計算
-  const auto& cur_q = cur_js_conv_.getPositionsKDL();
+  const auto& cur_q = cur_js_conv_.getPosition();
   if (vel_ctrl_.CartToJnt(cur_q, tar_p) < 0)
   {
     TOBAS_ERROR("Cartesian controller failed: ", vel_ctrl_.errorMessage());
@@ -204,31 +198,26 @@ bool VelocityControllerNode::taskSpaceControl(
 
   // JntArray -> JointState
   active_jnts_extractor_.solve(manipulation::linkNames(tar_ls));
-  const auto& active_joints = active_jnts_extractor_.activeJointNames();
-  if (tar_js_conv_.jntArrayToJointStateVel(velocities, active_joints) < 0)
-  {
-    TOBAS_ERROR("Failed to convert Jntarray to JointState: ", tar_js_conv_.errorMessage());
-    return false;
-  }
+  const auto& active_jnt_names = active_jnts_extractor_.activeJointNames();
 
   // Fill output message
-  for (const auto& [name, vel] : views::zip(tar_js_conv_.getNamesMsg(), tar_js_conv_.getVelocitiesMsg()))
+  for (const auto& jnt_name : active_jnt_names)
   {
-    const auto& joint = drone_->joints.at(name);
-    if (joint.interface != tobas::joint_interface_t::VELOCITY)
+    const auto& joint = drone_->joints.at(jnt_name);
+    if (joint.role != tobas::jnt_role_t::MANIPULATION)
     {
-      TOBAS_WARN("The command interface of joint \"", name, "\" must be \"VELOCITY\".");
+      TOBAS_WARN("The role of joint \"", jnt_name, "\" must be \"MANIPULATION\".");
       continue;
     }
-    if (joint.role != tobas::joint_role_t::MANIPULATION)
+    if (joint.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
     {
-      TOBAS_WARN("The role of joint \"", name, "\" must be \"MANIPULATION\".");
+      TOBAS_WARN("The command interface of joint \"", jnt_name, "\" must be \"VELOCITY\".");
       continue;
     }
 
     velocities_msg.commands.emplace_back();
-    velocities_msg.commands.back().name = name;
-    velocities_msg.commands.back().data = vel;
+    velocities_msg.commands.back().name = jnt_name;
+    velocities_msg.commands.back().data = velocities(jnt_parser_.jointIndex(jnt_name));
   }
 
   return true;
@@ -266,42 +255,32 @@ void VelocityControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
   drone_ = drone;
 
-  home_js_.name.clear();
-  home_js_.position.clear();
-  home_js_.velocity.clear();
-  home_js_.effort.clear();
+  home_js_.states.clear();
 
   // 速度指令タイプの関節のホームポジションを取得
   for (const auto& [jnt_name, jnt_cfg] : drone->joints)
   {
-    if (jnt_cfg.interface != tobas::joint_interface_t::VELOCITY)
+    if (jnt_cfg.role != tobas::jnt_role_t::MANIPULATION)
       continue;
-    if (jnt_cfg.role != tobas::joint_role_t::MANIPULATION)
+    if (jnt_cfg.cmd_iface != tobas::jnt_cmd_iface_t::VELOCITY)
       continue;
-    home_js_.name.push_back(jnt_name);
-    home_js_.position.push_back(jnt_cfg.home_pos);
-    home_js_.velocity.push_back(0.);
-    home_js_.effort.push_back(0.);
+    home_js_.states.emplace_back();
+    home_js_.states.back().name = jnt_name;
+    home_js_.states.back().position = jnt_cfg.home_pos;
   }
 
   // ホームポジションを初期目標状態に設定
-  if (home_js_.name.size() > 0)
-    tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  if (home_js_.states.size() > 0)
+    tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
 }
 
 void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
 {
   tree_ = *tree;
 
-  if (!cur_js_conv_.updateInternalDataStructures())
+  if (!jnt_parser_.updateInternalDataStructures())
   {
-    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
-    tree_.clear();
-    return;
-  }
-  if (!tar_js_conv_.updateInternalDataStructures())
-  {
-    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
+    TOBAS_ERROR("Failed to update internal data structures of joint parser.");
     tree_.clear();
     return;
   }
@@ -317,13 +296,25 @@ void VelocityControllerNode::treeCb(const kdl::Tree::ConstSharedPtr& tree)
     tree_.clear();
     return;
   }
+  if (!cur_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for current joints.");
+    tree_.clear();
+    return;
+  }
+  if (!tar_js_conv_.updateInternalDataStructures())
+  {
+    TOBAS_ERROR("Failed to update internal data structures of the joint state converter for target joints.");
+    tree_.clear();
+    return;
+  }
 }
 
-void VelocityControllerNode::currentJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& cur_js)
+void VelocityControllerNode::currentJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& cur_js)
 {
   if (tree_.getNrOfJoints() == 0)
     return;
-  if (home_js_.name.size() == 0)
+  if (home_js_.states.size() == 0)
     return;
   if (tar_js_ == nullptr && tar_ls_ == nullptr)
     return;
@@ -352,7 +343,7 @@ void VelocityControllerNode::currentJointStateCb(const sensor_msgs::msg::JointSt
   velocities_pub_->publish(move(velocities_msg));
 }
 
-void VelocityControllerNode::targetJointStateCb(const sensor_msgs::msg::JointState::ConstSharedPtr& tar_js)
+void VelocityControllerNode::targetJointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& tar_js)
 {
   tar_js_ = tar_js;
   tar_ls_ = nullptr;
@@ -370,7 +361,7 @@ void VelocityControllerNode::targetLinkStateCb(const tobas_msgs::LinkStateArray:
 
 void VelocityControllerNode::autoResetTimerCb()
 {
-  tar_js_ = std::make_shared<sensor_msgs::msg::JointState>(home_js_);
+  tar_js_ = std::make_shared<tobas_msgs::msg::JointStateArray>(home_js_);
   tar_ls_ = nullptr;
 
   TOBAS_WARN(

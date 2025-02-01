@@ -4,14 +4,20 @@
 sudo rm -rf /tmp/*
 sudo rm -rf /var/tmp/*
 sudo rm -rf /var/log/*
+sudo rm -rf ~/.ros/*
 rm -rf ~/.cache/*
 rm -rf ~/.emacs.d/*
 rm -rf ~/.vscode-server/*
-rm -rf ~/.ros/*
+rm ~/.bash_history*
+rm ~/.python_history*
 
 # Remove personal information
 rm -rf ~/.gnupg/*
 rm -rf ~/.ssh/*
+
+# Clean tobas directory
+sudo rm /etc/tobas/*.ini
+sudo rm -rf /etc/tobas/rosbag/*
 
 # Clean user workspace
 cd /etc/tobas/colcon_ws/

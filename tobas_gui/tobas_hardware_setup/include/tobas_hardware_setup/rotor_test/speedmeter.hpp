@@ -18,10 +18,12 @@ public:
 
   double getMaximumValue() const;
   double getMinimumValue() const;
+  double getTickmarkStepSize() const;
   double getValue() const;
 
   void setMaximumValue(double value);
   void setMinimumValue(double value);
+  void setTickmarkStepSize(double value);
   void setValue(double value);
 
 private:

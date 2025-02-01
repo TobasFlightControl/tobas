@@ -41,13 +41,14 @@ JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr nod
 
   setLayout(rows);
 
-  // Connections
+  // Connection
   connect(&robot, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(center_button, &QPushButton::clicked, this, &self::onCenterButtonClicked);
   connect(random_button, &QPushButton::clicked, this, &self::onRandomButtonClicked);
+  connect(&publish_timer_, &QTimer::timeout, this, &self::publish);
 
   // Register publishers
-  js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, tobas::kJointStatesTopic);
+  js_pub_ = ros2::createPublisher<sensor_msgs::msg::JointState>(node_, "joint_states");
   drs_pub_ = ros2::createPublisher<moveit_msgs::msg::DisplayRobotState>(node_, "display_robot_state", false, true);
 }
 
@@ -107,7 +108,7 @@ void JointStatePublisherWidget::onRobotLoaded()
   slider_rows_->addStretch();
 
   // Start to publish joint states
-  publish_timer_ = ros2::createTimer(node_, 100ms, &self::publish, this);
+  publish_timer_.start(100);
 }
 
 void JointStatePublisherWidget::onValueChanged(double value, const string& jnt_name)

@@ -13,8 +13,6 @@ using namespace std;
 
 class RotorControllerNode : public tobas::BaseNode
 {
-  static constexpr double kCmdWarnPeriod = 1.;  // [s]
-
   using self = RotorControllerNode;
   using super = tobas::BaseNode;
 
@@ -49,7 +47,8 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 {
   if (drone_ == nullptr)
   {
-    TOBAS_WARN_THROTTLE(kCmdWarnPeriod, "Command is ignored because drone configuration has not been received yet.");
+    TOBAS_WARN_THROTTLE(
+      tobas::kTypicalWarnPeriod, "Command is ignored because drone configuration has not been received yet.");
     return;
   }
 
@@ -69,12 +68,20 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
 
     if (tar_thrust >= 0.)
     {
-      tar_speeds_msg->speeds.back().speed = rotor.rotSpeedFromThrust(tar_thrust);
+      auto tar_speed = rotor.rotSpeedFromThrust(tar_thrust);
+      if (tar_speed > rotor.max_rot_speed)
+      {
+        TOBAS_WARN_THROTTLE(
+          tobas::kTypicalWarnPeriod, "The target speed of CH", (int)channel, " is too large: ", tar_speed, " > ",
+          rotor.max_rot_speed, " [rad/s]");
+        tar_speed = rotor.max_rot_speed;
+      }
+      tar_speeds_msg->speeds.back().speed = tar_speed;
     }
     else
     {
-      TOBAS_WARN_THROTTLE(
-        kCmdWarnPeriod, "Negative thrust is commanded on CH", (int)channel, ": ", tar_thrust, " < 0 [N]");
+      TOBAS_ERROR_THROTTLE(
+        tobas::kTypicalErrorPeriod, "Negative thrust is commanded on CH", (int)channel, ": ", tar_thrust, " < 0 [N]");
       tar_speeds_msg->speeds.back().speed = 0.;
     }
   }

@@ -2,7 +2,7 @@
 #include <QHBoxLayout>
 
 #include <tobas_std_tools/check.hpp>
-#include <tobas_std_tools/string.hpp>
+#include <tobas_string_tools/core.hpp>
 #include <tobas_qt_tools/font.hpp>
 
 #include "tobas_setup_assistant/param_getters/scalar_getter.hpp"
@@ -60,7 +60,7 @@ void IntGetter::setSingleStep(int single_step)
 
 void IntGetter::setSuffix(const QString& suffix)
 {
-  data_->setSuffix(QString::fromStdString(tobas_std::convertToSuperscript(suffix.toStdString())));
+  data_->setSuffix(QString::fromStdString(str::convertToSuperscript(suffix.toStdString())));
 }
 
 void IntGetter::onValueChanged(int value)
@@ -121,7 +121,7 @@ void DoubleGetter::setSingleStep(double single_step)
 
 void DoubleGetter::setSuffix(const QString& suffix)
 {
-  data_->setSuffix(QString::fromStdString(tobas_std::convertToSuperscript(suffix.toStdString())));
+  data_->setSuffix(QString::fromStdString(str::convertToSuperscript(suffix.toStdString())));
 }
 
 void DoubleGetter::onValueChanged(double value)

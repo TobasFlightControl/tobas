@@ -34,8 +34,6 @@ bool EllipseTransformer::initialize()
   const SelfAdjointEigenSolver<Matrix3d> eigen_solver(A);
   const Vector3d Lam = eigen_solver.eigenvalues();
   const Matrix3d P = eigen_solver.eigenvectors();
-  // cout << "Eigenvalues: " << Lam.transpose() << endl;
-  // cout << "Eigenvectors:\n" << P << endl;
 
   // 変換行列を計算
   const Vector3d Lam_inv = Lam.cwiseInverse();

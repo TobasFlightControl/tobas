@@ -6,7 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class AerodynamicsWidget_NoSelect : public AerodynamicsWidget_Base
 {
@@ -26,6 +26,6 @@ public:
   double momentConst() const override;
   double rotorDragCoef() const override;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

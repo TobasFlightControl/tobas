@@ -7,7 +7,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class ESCWidget : public BaseSelectedLinkSettingWidget
 {
@@ -28,6 +28,6 @@ public:
 private:
   ParamGetterWidget_SpinBox* max_current_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

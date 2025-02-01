@@ -11,6 +11,7 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_plugins/random.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
@@ -39,31 +40,30 @@ public:
 private:
   // SDF parameters
   string link_name_;
-  size_t update_rate_;              // [Hz] Update rate
-  gz::math::Vector3d offset_;       // [m] B_Pos_BS
-  double lat_0_;                    // [deg] 原点の北緯
-  double lon_0_;                    // [deg] 原点の東経
-  double alt_0_;                    // [m] 原点の高度
-  double noise_normal_;             // [nT]
-  double noise_uniform_init_bias_;  // [nT]
+  size_t update_rate_;         // [Hz] Update rate
+  gz::math::Vector3d offset_;  // [m] B_Pos_BS
+  double lat_0_;               // [deg] 原点の北緯
+  double lon_0_;               // [deg] 原点の東経
+  double alt_0_;               // [m] 原点の高度
+  double noise_stddev_;        // [nT]
+  double hard_bias_range_;     // [nT]
 
   RateManager::SharedPtr rate_manager_;
 
   const cmp::WorldPose* pose_W_;
 
-  gz::math::Vector3d init_bias_;  // [nT] 世界座標系の地磁気に加わるバイアス
-  double lat_, lon_;              // [deg] 現在位置の経緯度
+  gz::math::Vector3d hard_bias_;  // [nT]
+  double lat_, lon_;              // [deg] Current position
 
   random_device rnd_dev_;
-  std::mt19937 rnd_gen_;
-  NormalDistribution noise_;
+  NormalDistribution3d::SharedPtr noise_;
 
   ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
 };
 
-GazeboMagnetometerPlugin::GazeboMagnetometerPlugin() : rnd_gen_(rnd_dev_())
+GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
 {
 }
 
@@ -84,12 +84,10 @@ void GazeboMagnetometerPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
 
-  noise_ = NormalDistribution(0, noise_normal_);
+  noise_ = make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
-  UniformDistribution init_bias_dist(-noise_uniform_init_bias_, noise_uniform_init_bias_);
-  init_bias_.X(init_bias_dist(rnd_gen_));
-  init_bias_.Y(init_bias_dist(rnd_gen_));
-  init_bias_.Z(init_bias_dist(rnd_gen_));
+  UniformDistribution3d hard_bias_dist(rnd_dev_, -hard_bias_range_, hard_bias_range_);
+  hard_bias_ = hard_bias_dist.get();
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
 }
@@ -104,8 +102,8 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
   getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
 
-  getSdfParam(sdf, "noiseNormal", noise_normal_, 0., NON_NEGATIVE);
-  getSdfParam(sdf, "noiseUniformInitialBias", noise_uniform_init_bias_, 0., NON_NEGATIVE);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, 0., NON_NEGATIVE);
+  getSdfParam(sdf, "hardBiasRange", hard_bias_range_, 0., NON_NEGATIVE);
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -124,22 +122,21 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // 経緯度と高度から地磁気の参照値を計算
+  // TODO: WMMの誤差を考慮
   const auto mag = geomag::elementsFromGeodetic(lat_, lon_, alt, tobas_std::yearFraction());
 
   // 機体座標系から見た地磁気を計算
-  gz::math::Vector3d mag_W(mag.north, -mag.east, -mag.down);  // [nT]
-  auto field_B = T_W_B.Rot().RotateVectorReverse(mag_W + init_bias_);
+  const gz::math::Vector3d field_W(mag.north, -mag.east, -mag.down);  // [nT]
+  const auto field_B = T_W_B.Rot().RotateVectorReverse(field_W);      // [nT]
 
-  // Add noise
-  field_B.X() += noise_(rnd_gen_);
-  field_B.Y() += noise_(rnd_gen_);
-  field_B.Z() += noise_(rnd_gen_);
+  // ノイズを加えて地磁気のスケールで正規化した値を観測する
+  const auto field_meas = (field_B + noise_->get() + hard_bias_) / mag.total;  // [-]
 
   // Create message
   auto mag_msg = make_unique<tobas_msgs::MagneticFieldStamped>();
   ros2::timeChronoToMsg(info.simTime, mag_msg->header.stamp);
   mag_msg->header.frame_id = link_name_;
-  vectorGazeboToKDL(field_B.Normalized(), mag_msg->mag);
+  vectorGazeboToKDL(field_meas, mag_msg->mag);
 
   // Publish message
   mag_pub_->publish(move(mag_msg));

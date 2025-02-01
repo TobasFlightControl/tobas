@@ -10,7 +10,7 @@ AppButton::AppButton(const QString& text, const QString& icon_path)
   setText(text);
   setIcon(QIcon(icon_path));
   setIconSize(QSize(kIconSize, kIconSize));
-  setFixedWidth(kButtonWidth);
+  setMaximumWidth(kButtonMaxWidth);
   setCheckable(true);
 }
 }  // namespace core

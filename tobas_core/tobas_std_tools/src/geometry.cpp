@@ -8,7 +8,7 @@
 
 namespace tobas_std
 {
-void eulerToQuaternion(
+void quaternionFromEuler(
   const double& roll,
   const double& pitch,
   const double& yaw,
@@ -30,7 +30,7 @@ void eulerToQuaternion(
   w = sx * sy * sz + cx * cy * cz;
 }
 
-void quaternionToEuler(
+void eulerFromQuaternion(
   const double& x,
   const double& y,
   const double& z,
@@ -57,7 +57,7 @@ void quaternionToEuler(
   }
 }
 
-void imuToEuler(
+void eulerFromAccelMag(
   const double& ax,
   const double& ay,
   const double& az,
@@ -66,11 +66,13 @@ void imuToEuler(
   const double& mz,
   const double& mx_ref,
   const double& my_ref,
-  const double&,  // mz_ref
+  const double& mz_ref,
   double& roll,
   double& pitch,
   double& yaw)
 {
+  (void)mz_ref;  // Avoid compile error
+
   roll = atan2(ay, az);
   pitch = atan2(ax, sqrt(math::sqr(ay) + math::sqr(az)));
 
@@ -79,7 +81,7 @@ void imuToEuler(
   yaw = atan2(my_ref * x - mx_ref * y, mx_ref * x + my_ref * y);
 }
 
-void imuToQuaternion(
+void quaternionFromAccelMag(
   const double& ax,
   const double& ay,
   const double& az,
@@ -95,8 +97,8 @@ void imuToQuaternion(
   double& qw)
 {
   double roll, pitch, yaw;
-  imuToEuler(ax, ay, az, mx, my, mz, mx_ref, my_ref, mz_ref, roll, pitch, yaw);
-  eulerToQuaternion(roll, pitch, yaw, qx, qy, qz, qw);
+  eulerFromAccelMag(ax, ay, az, mx, my, mz, mx_ref, my_ref, mz_ref, roll, pitch, yaw);
+  quaternionFromEuler(roll, pitch, yaw, qx, qy, qz, qw);
 }
 
 void gpsToCartAbsolute(

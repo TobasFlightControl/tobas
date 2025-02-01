@@ -10,7 +10,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 /**
  * @brief 推力係数とトルク係数はThrust Standの実験データから求める．
@@ -44,6 +44,6 @@ private:
   PropellerWidget* propeller_;
   ParamGetterWidget_DoubleTable* data_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

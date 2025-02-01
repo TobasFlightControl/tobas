@@ -7,7 +7,7 @@
 #include "./setting_tabs/battery/battery.hpp"
 #include "./setting_tabs/propulsion_system/propulsion_system.hpp"
 #include "./setting_tabs/fixed_wing/fixed_wing.hpp"
-#include "./setting_tabs/servo_joint/servo_joint.hpp"
+#include "./setting_tabs/joint_config.hpp"
 #include "./setting_tabs/imu.hpp"
 #include "./setting_tabs/magnetometer.hpp"
 #include "./setting_tabs/barometer.hpp"
@@ -35,9 +35,9 @@ class SettingsWidget : public qt::VerticalTabWidget
 
 public:
   BatteryWidget* battery;
-  propulsion_system::PropulsionSystemWidget* propulsion_system;
+  propulsion::PropulsionSystemWidget* propulsion_system;
   fixed_wing::FixedWingWidget* fixed_wing;
-  servo_joint::ServoJointsWidget* servo_joints;
+  JointConfigurationWidget* joint_config;
   IMUWidget* imu;
   MagnetometerWidget* magnetometer;
   BarometerWidget* barometer;

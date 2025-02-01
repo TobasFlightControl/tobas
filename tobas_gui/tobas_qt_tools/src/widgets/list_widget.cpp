@@ -31,10 +31,10 @@ void ListWidget::dropEvent(QDropEvent* event)
   Q_EMIT itemMoved(selectedItems().at(0));
 }
 
-bool ListWidgetItem::operator<(QListWidgetItem* rhs) const
+bool ListWidgetItem::operator<(const QListWidgetItem& rhs) const
 {
-  const auto ldata = data(Qt::UserRole);
-  const auto rdata = rhs->data(Qt::UserRole);
-  return ldata < rdata;
+  const auto ldata = this->data(Qt::UserRole);
+  const auto rdata = rhs.data(Qt::UserRole);
+  return ldata.toString() < rdata.toString();
 }
 }  // namespace qt

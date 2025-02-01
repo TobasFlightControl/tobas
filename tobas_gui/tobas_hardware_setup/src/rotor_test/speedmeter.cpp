@@ -3,6 +3,8 @@
 #include <QtQuick/QQuickItem>
 #include <QtQml/QQmlContext>
 
+#include <tobas_std_tools/check.hpp>
+
 #include "tobas_hardware_setup/rotor_test/speedmeter.hpp"
 #include "tobas_hardware_setup/constants.hpp"
 
@@ -34,6 +36,11 @@ double SpeedmeterWidget::getMinimumValue() const
   return getGaugeObject()->property("minimumValue").value<double>();
 }
 
+double SpeedmeterWidget::getTickmarkStepSize() const
+{
+  return getGaugeObject()->property("tickmarkStepSize").value<double>();
+}
+
 double SpeedmeterWidget::getValue() const
 {
   return getGaugeObject()->property("value").value<double>();
@@ -49,6 +56,11 @@ void SpeedmeterWidget::setMinimumValue(double value)
   QMetaObject::invokeMethod(rootObject(), "setMinimumValue", Q_ARG(double, value));
 }
 
+void SpeedmeterWidget::setTickmarkStepSize(double value)
+{
+  QMetaObject::invokeMethod(rootObject(), "setTickmarkStepSize", Q_ARG(double, value));
+}
+
 void SpeedmeterWidget::setValue(double value)
 {
   QMetaObject::invokeMethod(rootObject(), "setValue", Q_ARG(double, value));
@@ -56,7 +68,9 @@ void SpeedmeterWidget::setValue(double value)
 
 QObject* SpeedmeterWidget::getGaugeObject() const
 {
-  return rootObject()->findChild<QObject*>("gauge");
+  const auto gauge = rootObject()->findChild<QObject*>("gauge");
+  TOBAS_CHECK(gauge != nullptr);
+  return gauge;
 }
 }  // namespace hardware_setup
 }  // namespace gui

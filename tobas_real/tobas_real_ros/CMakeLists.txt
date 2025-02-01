@@ -17,6 +17,7 @@ find_package(tobas_linux REQUIRED)
 find_package(tobas_property_tree REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
 find_package(tobas_real_msgs REQUIRED)
 
@@ -26,6 +27,7 @@ set(AMENT_DEPENDENCIES
 	tobas_property_tree
 	tobas_node
 	tobas_msgs_adapter
+	tobas_drone_msgs_adapter
 	tobas_real_common
 	tobas_real_msgs
 )
@@ -38,9 +40,9 @@ ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuHandlerNode" EXECUTABLE imu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagnetometerHandlerNode" EXECUTABLE magnetometer_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BarometerHandlerNode" EXECUTABLE barometer_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "BatteryHandlerNode" EXECUTABLE battery_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RCInputHandlerNode" EXECUTABLE rcin_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointsHandlerNode" EXECUTABLE joints_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TimeReferenceServerNode" EXECUTABLE time_reference_server)
 
 install(

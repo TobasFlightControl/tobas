@@ -19,6 +19,8 @@ kdl::Vector EulerPID::update(
   const kdl::Vector& tar_gyro,
   const double& dt)
 {
+  assert(dt > 0.);
+
   // 誤差を計算
   // XXX: 2つのオイラー角を結ぶ直線は回転における最短距離ではないことに注意
   const auto roll_err = algo::wrapPi(tar_rpy.roll - cur_rpy.roll);
@@ -28,9 +30,10 @@ kdl::Vector EulerPID::update(
   const kdl::Vector gyro_error = tar_gyro - cur_gyro;
   const kdl::Vector ed(eigen::eulerrateFromAngvelLocal(gyro_error.data, cur_rpy.roll, cur_rpy.pitch));
 
-  // 積分誤差を蓄積
-  // 制御入力の飽和により姿勢が実現できない状況は無いとして，アンチワインドアップは行わない
-  ei_ += ep * dt;
+  // I制御を行う場合は積分誤差を蓄積
+  for (size_t i = 0; i < 3; ++i)
+    if (ki_(i) > 0.)
+      ei_(i) += ep(i) * dt;
 
   // 目標オイラー角加速度を計算
   const auto tar_euler_acc = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
@@ -45,9 +48,9 @@ bool EulerPID::setNaturalFreq(int idx, double value)
   if (!checkIndex(idx))
     return false;
 
-  if (value <= 0.)
+  if (value < 0.)
   {
-    cerr << "Natural frequency must be positive." << endl;
+    cerr << "Natural frequency must be non-negative." << endl;
     return false;
   }
 
@@ -62,9 +65,9 @@ bool EulerPID::setDampingRatio(int idx, double value)
   if (!checkIndex(idx))
     return false;
 
-  if (value <= 0.)
+  if (value < 0.)
   {
-    cerr << "Damping ratio must be positive." << endl;
+    cerr << "Damping ratio must be non-negative." << endl;
     return false;
   }
 
@@ -79,13 +82,14 @@ bool EulerPID::setIntegralGain(int idx, double value)
   if (!checkIndex(idx))
     return false;
 
-  if (value <= 0.)
+  if (value < 0.)
   {
-    cerr << "Integral gain must be positive." << endl;
+    cerr << "Integral gain must be non-negative." << endl;
     return false;
   }
 
   ki_(idx) = value;
+  ei_(idx) = 0.;
 
   return true;
 }

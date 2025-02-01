@@ -100,7 +100,7 @@ inline Quaternion Quaternion::RPY(double roll, double pitch, double yaw)
 
 inline void Quaternion::getRPY(double& roll, double& pitch, double& yaw) const
 {
-  tobas_std::quaternionToEuler(x, y, z, w, roll, pitch, yaw);
+  tobas_std::eulerFromQuaternion(x, y, z, w, roll, pitch, yaw);
 }
 
 inline Quaternion Quaternion::complexConjugate() const

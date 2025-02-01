@@ -1,20 +1,21 @@
 from typing import Dict
 from functools import partial
 
-import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from rclpy.wait_for_message import wait_for_message
-from sensor_msgs.msg import JointState
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_rqt_py.widgets import Widget, FloatSliderDisplay
+from tobas_msgs.msg import JointState, JointStateArray
 from tobas_drone_msgs.msg import Drone
 
 from .common import BUTTON_HEIGHT
+
+NAN = float("nan")
 
 
 class JointPositionsCommanderWidget(Widget):
@@ -63,9 +64,9 @@ class JointPositionsCommanderWidget(Widget):
         self._home_positions: Dict[str, float] = {}
         self._interfaces: Dict[str, int] = {}
         self._commanders: Dict[str, FloatSliderDisplay] = {}
-        self._tar_js_pos = JointState()
-        self._tar_js_vel = JointState()
-        self._tar_js_eff = JointState()
+        self._tar_js_pos = JointStateArray()
+        self._tar_js_vel = JointStateArray()
+        self._tar_js_eff = JointStateArray()
 
         for joint in drone.joints:
             # MANIPULATION用の関節のみ制御
@@ -84,17 +85,24 @@ class JointPositionsCommanderWidget(Widget):
             self._commanders[joint.name] = commander
             rows.addWidget(commander)
 
+            cmd = JointState()
+            cmd.name = joint.name
             match joint.interface:
                 case self.POSITION:
-                    self._tar_js_pos.name.append(joint.name)
-                    self._tar_js_pos.position.append(joint.home_pos)
+                    cmd.position = joint.home_pos
+                    cmd.velocity = NAN
+                    cmd.effort = NAN
+                    self._tar_js_pos.states.append(cmd)
                 case self.VELOCITY:
-                    self._tar_js_vel.name.append(joint.name)
-                    self._tar_js_vel.position.append(joint.home_pos)
+                    cmd.position = joint.home_pos
+                    cmd.velocity = NAN
+                    cmd.effort = NAN
+                    self._tar_js_vel.states.append(cmd)
                 case self.EFFORT:
-                    self._tar_js_eff.name.append(joint.name)
-                    self._tar_js_eff.position.append(joint.home_pos)
-                    self._tar_js_eff.velocity.append(0.0)
+                    cmd.position = joint.home_pos
+                    cmd.velocity = 0.0
+                    cmd.effort = NAN
+                    self._tar_js_eff.states.append(cmd)
                 case _:
                     raise RuntimeError(f"Unknown joint command type: {joint.interface}")
 
@@ -116,7 +124,7 @@ class JointPositionsCommanderWidget(Widget):
         rows.addStretch()
 
         # Publishers
-        self._tar_pos_pub = self._node.create_publisher(
+        self._tar_js_pos_pub = self._node.create_publisher(
             JointState, "joint_position_controller/target_joint_states", cmd_qos
         )
         self._tar_js_vel_pub = self._node.create_publisher(
@@ -130,7 +138,7 @@ class JointPositionsCommanderWidget(Widget):
         self._publish_cmds_timer = self._node.create_timer(self.PUBILSH_CMDS_PERIOD, self._publish_commands_timer_cb)
 
     def _publish_current_commands(self) -> None:
-        self._tar_pos_pub.publish(self._tar_js_pos)
+        self._tar_js_pos_pub.publish(self._tar_js_pos)
         self._tar_js_vel_pub.publish(self._tar_js_vel)
         self._tar_js_eff_pub.publish(self._tar_js_eff)
 
@@ -143,16 +151,28 @@ class JointPositionsCommanderWidget(Widget):
 
         match interface:
             case self.POSITION:
-                idx = self._tar_js_pos.name.index(jnt_name)
-                self._tar_js_pos.position[idx] = value
-                self._tar_pos_pub.publish(self._tar_js_pos)
+                for cmd in self._tar_js_pos.states:
+                    if cmd.name == jnt_name:
+                        cmd.position = value
+                        break
+                else:
+                    raise RuntimeError(f"Invalid joint name: {jnt_name}")
+                self._tar_js_pos_pub.publish(self._tar_js_pos)
             case self.VELOCITY:
-                idx = self._tar_js_vel.name.index(jnt_name)
-                self._tar_js_vel.position[idx] = value
+                for cmd in self._tar_js_vel.states:
+                    if cmd.name == jnt_name:
+                        cmd.position = value
+                        break
+                else:
+                    raise RuntimeError(f"Invalid joint name: {jnt_name}")
                 self._tar_js_vel_pub.publish(self._tar_js_vel)
             case self.EFFORT:
-                idx = self._tar_js_eff.name.index(jnt_name)
-                self._tar_js_eff.position[idx] = value
+                for cmd in self._tar_js_eff.states:
+                    if cmd.name == jnt_name:
+                        cmd.position = value
+                        break
+                else:
+                    raise RuntimeError(f"Invalid joint name: {jnt_name}")
                 self._tar_js_eff_pub.publish(self._tar_js_eff)
             case _:
                 raise RuntimeError(f"Unknown joint interface: {interface}")

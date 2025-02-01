@@ -42,9 +42,8 @@
     <node pkg="tobas_gazebo_ros" exec="cpu_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="rotor_states_publisher" ros_args="--log-level $(var log_level)" output="$(var output)"/>
     <node pkg="tobas_gazebo_ros" exec="rotor_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
-    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)">
-      <param from="$(find-pkg-share {{ config_pkg_name }})/config/gazebo_joint_command_handler.yaml"/>
-    </node>
+    <node pkg="tobas_gazebo_ros" exec="joint_states_bridge" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+    <node pkg="tobas_gazebo_ros" exec="joint_command_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
   </group>
 
   <!-- Launch joint controllers -->

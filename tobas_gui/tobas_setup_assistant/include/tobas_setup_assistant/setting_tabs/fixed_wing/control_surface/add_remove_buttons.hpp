@@ -19,6 +19,10 @@ class AddRemoveButtonsWidget : public QWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
+Q_SIGNALS:
+  void linkAdded(const QString& link_name);
+  void linkRemoved(const QString& link_name);
+
 public:
   explicit AddRemoveButtonsWidget(AvailableLinksWidget* available_links, SelectedLinksWidget* selected_links);
 

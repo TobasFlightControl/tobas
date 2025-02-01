@@ -5,8 +5,9 @@
 
 #include "./battery.hpp"
 #include "./joint/joint.hpp"
-#include "./rotor.hpp"
-#include "./fixed_wing.hpp"
+#include "./rotor/rotor.hpp"
+#include "./fixed_wing/fixed_wing.hpp"
+#include "./pwm.hpp"
 
 namespace tobas
 {
@@ -20,6 +21,7 @@ class Drone
   static constexpr char kJointsKey[] = "joints";
   static constexpr char kRotorsKey[] = "rotors";
   static constexpr char kFixedWingKey[] = "fixed_wing";
+  static constexpr char kPwmsKey[] = "pwms";
 
 public:
   static constexpr char kDroneExt[] = ".tbsdrn";
@@ -32,6 +34,7 @@ public:
   JointConfigMap joints;       // The joint configurations (joint name -> config)
   RotorConfigMap rotors;       // The rotor configurations (channel -> config)
   FixedWingConfig fixed_wing;  // The fixed wing configurations
+  PwmConfigMap pwms;           // The PWM configurations (joint name -> config)
 
   bool isValid() const;
   bool load(const YAML::Node& node);
@@ -44,7 +47,7 @@ public:
   inline size_t numRotors() const;
   inline size_t numControlSurfaces() const;
 
-  inline bool isTransformable() const;
+  bool hasServoJoint() const;
 };
 
 inline size_t Drone::numJoints() const
@@ -60,10 +63,5 @@ inline size_t Drone::numRotors() const
 inline size_t Drone::numControlSurfaces() const
 {
   return fixed_wing.control_surfaces.size();
-}
-
-inline bool Drone::isTransformable() const
-{
-  return numJoints() > 0;
 }
 }  // namespace tobas

@@ -5,15 +5,9 @@
 
 namespace tobas
 {
-// PWM duty period
-static constexpr uint16_t kPwmMin = 1000;                     // [us]
-static constexpr uint16_t kPwmMax = 2000;                     // [us]
-static constexpr uint16_t kPwmMid = (kPwmMin + kPwmMax) / 2;  // [us]
-
 // モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
 // ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
 // cf. https://ardupilot.org/copter/docs/set-motor-range.html
-static constexpr double kArmThrot = 0.1;
 static constexpr double kMinThrot = 0.;  // The minimum throttle
 static constexpr double kMaxThrot = 1.;  // The maximum throttle
 
@@ -45,13 +39,16 @@ static constexpr char kGpsOriginTopic[] = "gps_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
-static constexpr char kJointStatesTopic[] = "joint_states";
+static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEulerTopic[] = "euler";
 static constexpr char kEventTopic[] = "event";
 static constexpr char kLatencyTopic[] = "latency";
 static constexpr char kArmingTopic[] = "arming";
 static constexpr char kPreArmCheckTopic[] = "prearm_check";
+static constexpr char kPostArmCheckTopic[] = "postarm_check";
+static constexpr char kDisturbanceForceTopic[] = "disturbance_force";
+static constexpr char kRosbagStateTopic[] = "rosbag_state";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Command
@@ -63,9 +60,9 @@ static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
 static constexpr char kRPYThrotCmdTopic[] = "command/rpy_throttle";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
-static constexpr char kJointPositionsCmdTopic[] = "command/joint_positions";
-static constexpr char kJointVelocitiesCmdTopic[] = "command/joint_velocities";
-static constexpr char kJointEffortsCmdTopic[] = "command/joint_efforts";
+static constexpr char kJointPosCmdTopic[] = "command/joint_positions";
+static constexpr char kJointVelCmdTopic[] = "command/joint_velocities";
+static constexpr char kJointEffCmdTopic[] = "command/joint_efforts";
 // Manipulation
 static constexpr char kPosCtrlJSTopic[] = "joint_position_controller/target_joint_states";
 static constexpr char kPosCtrlLSTopic[] = "joint_position_controller/target_link_states";
@@ -82,6 +79,7 @@ static constexpr char kFWCtrlFeedbackTopic[] = "feedback/fixed_wing_controller";
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kGetDynamicParamsSrv[] = "get_dynamic_parameters";
+static constexpr char kEnableRotorSrv[] = "enable_rotor";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
@@ -91,7 +89,6 @@ static constexpr char kROSBagCleanSrv[] = "rosbag_clean";
 static constexpr char kGetRotorControlGainsSrv[] = "get_rotor_control_gains";
 static constexpr char kSetRotorControlGainsSrv[] = "set_rotor_control_gains";
 static constexpr char kSaveRotorControlGainsSrv[] = "save_rotor_control_gains";
-static constexpr char kRemoveRotorSrv[] = "remove_rotor";
 
 // ROS actions
 static constexpr char kTakeoffAction[] = "takeoff_action";
@@ -99,24 +96,28 @@ static constexpr char kLandAction[] = "land_action";
 static constexpr char kMoveAction[] = "move_action";
 
 // Controller Manager
-namespace controller_manager
+namespace ctrl_manager
 {
 namespace type
 {
 static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster/JointStateBroadcaster";
 static constexpr char kForwardCommandController[] = "forward_command_controller/ForwardCommandController";
 }  // namespace type
-}  // namespace controller_manager
+}  // namespace ctrl_manager
 
 // Node names
-static constexpr char kControllerNode[] = "controller";
-static constexpr char kObserverNode[] = "observer";
+namespace node
+{
+static constexpr char kJointStateBroadcaster[] = "joint_state_broadcaster";
+static constexpr char kController[] = "controller";
+static constexpr char kObserver[] = "observer";
+}  // namespace node
 
 // Frames
 static constexpr char kWorldFrame[] = "world";
 
 // Path
-static constexpr char kROSBagDirHome[] = "~/.tobas/rosbag";
+static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
 
 // Flight mode
@@ -156,4 +157,7 @@ static constexpr double kTypicalInfoPeriod = 5.;         // [s]
 static constexpr double kTypicalWarnPeriod = 3.;         // [s]
 static constexpr double kTypicalErrorPeriod = 1.;        // [s]
 static constexpr auto kPublishArmingPeriod = std::chrono::seconds(1);
+static constexpr auto kCommandAutoResetTimeout = std::chrono::milliseconds(200);
+static constexpr auto kAutoDisarmTimeout = std::chrono::seconds(10);
+static constexpr size_t kMaxRosbagSize = 5'000'000'000UL;  // [byte]
 }  // namespace tobas

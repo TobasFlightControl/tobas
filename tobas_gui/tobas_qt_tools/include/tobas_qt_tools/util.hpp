@@ -16,6 +16,12 @@ void addWidgetCenter(QWidget* widget, QVBoxLayout* rows, int stretch = 0);
 /* ウィジェットをレイアウトの中央に追加する． */
 void addWidgetCenter(QWidget* widget, QHBoxLayout* cols, int stretch = 0);
 
+/* サイズポリシー付きのスペーサを挿入する． */
+void addSpacing(QVBoxLayout* rows, int height, QSizePolicy::Policy v_policy);
+
+/* サイズポリシー付きのスペーサを挿入する． */
+void addSpacing(QHBoxLayout* cols, int width, QSizePolicy::Policy h_policy);
+
 /* 幅固定のQVBoxLayoutを作成する． */
 QVBoxLayout* createFixedWidthQVBoxLayout(int width, QBoxLayout* parent);
 

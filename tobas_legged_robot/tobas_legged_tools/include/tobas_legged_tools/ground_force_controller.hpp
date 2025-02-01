@@ -5,8 +5,8 @@
 #include <tobas_kdl/tree_fk_solver_pos.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 #include <tobas_kdl/tree_bounding_box_solver.hpp>
-#include <tobas_linear_control/mpc/linear_dense.hpp>
-#include <tobas_linear_control/c2d/rk4.hpp>
+#include <tobas_control/linear_mpc.hpp>
+#include <tobas_control/c2d/rk4.hpp>
 
 #include "./linear_dynamics.hpp"
 
@@ -89,7 +89,7 @@ private:
   kdl::TreeInertiaSolver inertia_solver_;
   kdl::TreeBoundingBoxSolver bb_solver_;
   LinearDynamics cont_;
-  ctrl::LinearDenseMPC mpc_;
+  ctrl::LinearMPC mpc_;
   ctrl::C2D_RK4 c2d_;
   Eigen::VectorXd x_rate_;
   Eigen::VectorXd x_next_;

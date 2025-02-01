@@ -18,17 +18,18 @@ public:
   double roll, pitch, yaw;
 
   inline explicit Euler();
-  inline explicit Euler(const double& _roll, const double& _pitch, const double& _yaw);
+  inline explicit Euler(double _roll, double _pitch, double _yaw);
   inline explicit Euler(const Vector& rpy);
   inline explicit Euler(const Rotation& rot);
 
   inline static Euler Zero();
 
   inline void setZero();
+  inline void fill(double value);
 
-  inline Vector toVector() const;
   inline Rotation toRotation() const;
   inline Quaternion toQuaternion() const;
+  inline Vector toAngleAxis() const;
 
   /* 2つの回転の差を等価角軸ベクトルとして返す．O_AngleAxis_AB = O_Rot_B - O_Rot_A． */
   inline AngleAxis operator-(const Euler& rhs) const;
@@ -48,8 +49,7 @@ inline Euler::Euler() : roll(0), pitch(0), yaw(0)
 {
 }
 
-inline Euler::Euler(const double& _roll, const double& _pitch, const double& _yaw)
-  : roll(_roll), pitch(_pitch), yaw(_yaw)
+inline Euler::Euler(double _roll, double _pitch, double _yaw) : roll(_roll), pitch(_pitch), yaw(_yaw)
 {
 }
 
@@ -69,14 +69,14 @@ inline Euler Euler::Zero()
 
 inline void Euler::setZero()
 {
-  roll = 0.;
-  pitch = 0.;
-  yaw = 0.;
+  this->fill(0.);
 }
 
-inline Vector Euler::toVector() const
+inline void Euler::fill(double value)
 {
-  return Vector(roll, pitch, yaw);
+  roll = value;
+  pitch = value;
+  yaw = value;
 }
 
 inline Rotation Euler::toRotation() const
@@ -84,10 +84,15 @@ inline Rotation Euler::toRotation() const
   return Rotation::RPY(roll, pitch, yaw);
 }
 
+inline Vector Euler::toAngleAxis() const
+{
+  return this->toRotation().getRot();
+}
+
 inline Quaternion Euler::toQuaternion() const
 {
   Quaternion res;
-  tobas_std::eulerToQuaternion(roll, pitch, yaw, res.x, res.y, res.z, res.w);
+  tobas_std::quaternionFromEuler(roll, pitch, yaw, res.x, res.y, res.z, res.w);
   return res;
 }
 

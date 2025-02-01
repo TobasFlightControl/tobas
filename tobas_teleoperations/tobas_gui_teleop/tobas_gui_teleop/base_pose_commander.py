@@ -2,14 +2,13 @@ import math
 import time
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
-from std_msgs.msg import Bool
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_std_tools_py.geometry import euler_from_matrix
 from tobas_rqt_py.widgets import Widget, FloatSliderDisplay
-from tobas_msgs.msg import PosVelAccYaw, PoseTwistAccelCommand, CommandLevel, Odometry
+from tobas_msgs.msg import Arming, Odometry, PosVelAccYaw, PoseTwistAccelCommand, CommandLevel
 from tobas_msgs.srv import SetArm
 
 from .common import BUTTON_HEIGHT
@@ -27,10 +26,10 @@ class BasePoseCommanderWidget(Widget):
     DEFAULT_MAX_Y = 10.0  # [m]
     DEFAULT_MIN_Z = -3.0  # [m]
     DEFAULT_MAX_Z = 10.0  # [m]
-    DEFAULT_MIN_ROLL = -math.pi / 3  # [rad]
-    DEFAULT_MAX_ROLL = math.pi / 3  # [rad]
-    DEFAULT_MIN_PITCH = -math.pi / 3  # [rad]
-    DEFAULT_MAX_PITCH = math.pi / 3  # [rad]
+    DEFAULT_MIN_ROLL = -math.pi  # [rad]
+    DEFAULT_MAX_ROLL = math.pi  # [rad]
+    DEFAULT_MIN_PITCH = -math.pi  # [rad]
+    DEFAULT_MAX_PITCH = math.pi  # [rad]
     DEFAULT_MIN_YAW = -math.pi  # [rad]
     DEFAULT_MAX_YAW = math.pi  # [rad]
 
@@ -54,7 +53,7 @@ class BasePoseCommanderWidget(Widget):
         self._init_elevation = 0.0
         self._get_params()
 
-        self._arming = Bool(data=False)
+        self._arming = Arming(data=False)
 
         # メインレイアウト
         rows = QVBoxLayout()
@@ -135,7 +134,7 @@ class BasePoseCommanderWidget(Widget):
         self._pvay_pub = self._node.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", qos)
         self._pta_pub = self._node.create_publisher(PoseTwistAccelCommand, "command/pose_twist_accel", qos)
         self._odom_sub = self._node.create_subscription(Odometry, "odom", self._odom_cb, qos)
-        self._arming_sub = self._node.create_subscription(Bool, "arming", self._arming_cb, qos)
+        self._arming_sub = self._node.create_subscription(Arming, "arming", self._arming_cb, qos)
 
         # Service
         self._set_arm_sc = self._node.create_client(SetArm, "set_arm")
@@ -242,7 +241,7 @@ class BasePoseCommanderWidget(Widget):
 
         self._node.get_logger().info("GUI teleoperation is ready.")
 
-    def _arming_cb(self, arming: Bool) -> None:
+    def _arming_cb(self, arming: Arming) -> None:
         self._arming = arming
 
     @pyqtSlot()

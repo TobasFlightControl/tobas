@@ -6,7 +6,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 void SpeedLimitWidget_Base::initialize(QButtonGroup* ckb_group)
 {
@@ -57,6 +57,6 @@ void SpeedLimitWidget_Base::setChecked(bool checked)
 {
   checkbox_->setChecked(checked);
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

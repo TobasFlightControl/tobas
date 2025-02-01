@@ -8,7 +8,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 class SpeedLimitWidget_Voltage : public SpeedLimitWidget_Base
 {
@@ -29,6 +29,6 @@ private:
   MotorWidget* motor_;
   AerodynamicsWidget* aerodynamics_;
 };
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

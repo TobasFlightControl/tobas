@@ -4,7 +4,7 @@ namespace gui
 {
 namespace setup_assistant
 {
-namespace propulsion_system
+namespace propulsion
 {
 ESCWidget::ESCWidget()
 {
@@ -57,6 +57,6 @@ double ESCWidget::maxCurrent() const
 {
   return max_current_->getValue();
 }
-}  // namespace propulsion_system
+}  // namespace propulsion
 }  // namespace setup_assistant
 }  // namespace gui

@@ -42,8 +42,6 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
   ui_->EnableCollisionCheckBox->setChecked(kDefaultCollisionVisible);
   ui_->EnableInertiaCheckBox->setChecked(kDefaultInertiaVisible);
 
-  update_timer_ = new QTimer();
-
   link_dialog_ = new UpdateLinkDialog(node_manager_.node(), this);
   link_dialog_->hide();
   ui_->scrollAreaWidgetContents->layout()->addWidget(link_dialog_);
@@ -53,8 +51,6 @@ URDFBuilderPanel::URDFBuilderPanel(QWidget* parent)
 
 URDFBuilderPanel::~URDFBuilderPanel()
 {
-  update_timer_->stop();
-  delete update_timer_;
   delete link_dialog_;
 }
 
@@ -63,7 +59,7 @@ void URDFBuilderPanel::onInitialize()
   Panel::onInitialize();
 
   ogre_ctrl_ = make_shared<ogre_helpers::OgreController>(getDisplayContext());
-  update_timer_->start(ROBOT_MODEL_UPDATE_INTERVAL);
+  update_timer_.start(ROBOT_MODEL_UPDATE_INTERVAL);
 }
 
 void URDFBuilderPanel::load(const rviz_common::Config& config)
@@ -98,11 +94,13 @@ void URDFBuilderPanel::NewButtonClicked()
   PRINT_DEBUG("URDFBuilderPanel::NewButtonClicked");
 
   vm_.newRobot();
+
   ui_->Path->setText("");
   ui_->RobotName->clear();
-  addRootLink();
 
+  addRootLink();
   reload();
+  selectRootLink();
 }
 
 void URDFBuilderPanel::LoadButtonClicked()
@@ -112,13 +110,12 @@ void URDFBuilderPanel::LoadButtonClicked()
   // URDFまたはXACROのパスを取得
   const auto last_opened_dir = getLastOpenedDir();
   const auto file_path = QFileDialog::getOpenFileName(
-    this, tr("Load URDF"), QString::fromStdString(last_opened_dir),
-    tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
+    this, tr("Load URDF"), last_opened_dir, tr("Robot Description (*.urdf *.xacro);;All Files (*)"));
 
   if (file_path.isEmpty())
     return;
 
-  setLastOpenedDir(file_path.toStdString());
+  setLastOpenedDir(file_path);
 
   if (file_path.endsWith(".urdf"))
   {
@@ -161,6 +158,7 @@ void URDFBuilderPanel::LoadButtonClicked()
   ui_->RobotName->setText(QString::fromStdString(vm_.name()));
 
   reload();
+  selectRootLink();
 }
 
 void URDFBuilderPanel::SaveButtonClicked()
@@ -187,7 +185,7 @@ void URDFBuilderPanel::SaveAsButtonClicked()
     return;
 
   const auto last_opened_dir = getLastOpenedDir();
-  SaveUrdfDialog dialog(this, QString::fromStdString(last_opened_dir));
+  SaveUrdfDialog dialog(this, last_opened_dir);
 
   const auto result = dialog.exec();
   if (result != QDialog::Accepted)
@@ -195,7 +193,7 @@ void URDFBuilderPanel::SaveAsButtonClicked()
   const auto file_path = dialog.selectedFiles().first();
   assert(file_path.endsWith(".urdf"));
 
-  setLastOpenedDir(file_path.toStdString());
+  setLastOpenedDir(file_path);
 
   if (!saveURDF(file_path))
     return;
@@ -228,24 +226,14 @@ void URDFBuilderPanel::LinkTreeWidgetItemClicked(QTreeWidgetItem* item, int)
 {
   PRINT_DEBUG("URDFBuilderPanel::LinkTreeWidgetItemClicked");
 
-  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
-  const auto& link_vm = link_item->viewModel();
-  const auto link_name = link_vm->name().toStdString();
-
-  ogre_ctrl_->unhighlightAll();
-  ogre_ctrl_->highlight(link_name);
-
-  link_dialog_->show();
-  link_dialog_->readFromVM(link_vm);  // リンクのビューモデルからダイアログの値を更新
-  old_link_vm_ = link_vm->clone();    // リンクが選択された時点での設定を保持
-
-  // ルートリンクだったら変更不可にする
-  link_dialog_->setTabsEnabled(link_name != vm_.rootLink()->name);
+  reflectSelectedItem(item);
 }
 
 void URDFBuilderPanel::LinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
 {
   PRINT_DEBUG("URDFBuilderPanel::LinkTreeWidgetItemChanged");
+
+  selectLink(item);
 
   const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
   const auto link_name = link_item->viewModel()->name().toStdString();
@@ -356,20 +344,20 @@ void URDFBuilderPanel::LinkDialogChanged()
   reload();
 }
 
-string URDFBuilderPanel::getLastOpenedDir()
+QString URDFBuilderPanel::getLastOpenedDir()
 {
-  string res;
-  if (property_client_.get(kConfigKey_LastOpenedDir, res) < 0)
+  string last_opened_dir;
+  if (property_client_.get(kConfigKey_LastOpenedDir, last_opened_dir) < 0)
   {
     PRINT_WARN(property_client_.errorMessage());
-    res = rcutils_get_home_dir();
+    last_opened_dir = rcutils_get_home_dir();
   }
-  return res;
+  return QString::fromStdString(last_opened_dir);
 }
 
-void URDFBuilderPanel::setLastOpenedDir(const string& file_path)
+void URDFBuilderPanel::setLastOpenedDir(const QString& file_path)
 {
-  fs::path p(file_path);
+  fs::path p(file_path.toStdString());
   const auto dir = p.parent_path().string();
 
   if (property_client_.set(kConfigKey_LastOpenedDir, dir) < 0)
@@ -405,7 +393,7 @@ void URDFBuilderPanel::defineConnections()
   connect(ui_->RemoveLinkAction, &QAction::triggered, this, &self::RemoveLinkActionToggled);
   connect(ui_->CloneLinkAction, &QAction::triggered, this, &self::CloneLinkActionToggled);
 
-  connect(update_timer_, &QTimer::timeout, this, &self::OnUpdate);
+  connect(&update_timer_, &QTimer::timeout, this, &self::OnUpdate);
   connect(link_dialog_, &UpdateLinkDialog::Changed, this, &self::LinkDialogChanged);
 }
 
@@ -431,7 +419,7 @@ void URDFBuilderPanel::reloadLinkTree()
   }
 
   // チェック状態を取得
-  unordered_set<string> unchecked_links;
+  QSet<QString> unchecked_links;
   for (int i = 0; i < ui_->LinkTreeWidget->topLevelItemCount(); ++i)
     collectUncheckedLinks(ui_->LinkTreeWidget->topLevelItem(i), unchecked_links);
 
@@ -456,7 +444,7 @@ void URDFBuilderPanel::reloadLinkTree()
     item->setSelected(link_vm->name() == selected_link_name);
 
     // チェック状態を保持
-    if (unchecked_links.find(link_vm->name().toStdString()) != unchecked_links.end())
+    if (unchecked_links.contains(link_vm->name()))
       item->setCheckState(0, Qt::Unchecked);
     else
       item->setCheckState(0, Qt::Checked);
@@ -477,6 +465,36 @@ void URDFBuilderPanel::reloadLinkTree()
 void URDFBuilderPanel::reloadRobot()
 {
   ogre_ctrl_->reload(vm_);
+}
+
+void URDFBuilderPanel::selectRootLink()
+{
+  const auto root_item = ui_->LinkTreeWidget->topLevelItem(0);
+  selectLink(root_item);
+}
+
+void URDFBuilderPanel::selectLink(QTreeWidgetItem* item)
+{
+  ui_->LinkTreeWidget->clearSelection();
+  item->setSelected(true);
+  reflectSelectedItem(item);
+}
+
+void URDFBuilderPanel::reflectSelectedItem(QTreeWidgetItem* item)
+{
+  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
+  const auto& link_vm = link_item->viewModel();
+  const auto link_name = link_vm->name().toStdString();
+
+  ogre_ctrl_->unhighlightAll();
+  ogre_ctrl_->highlight(link_name);
+
+  link_dialog_->show();
+  link_dialog_->readFromVM(link_vm);  // リンクのビューモデルからダイアログの値を更新
+  old_link_vm_ = link_vm->clone();    // リンクが選択された時点での設定を保持
+
+  // ルートリンクだったら変更不可にする
+  link_dialog_->setTabsEnabled(link_name != vm_.rootLink()->name);
 }
 
 void URDFBuilderPanel::addRootLink()
@@ -556,11 +574,11 @@ bool URDFBuilderPanel::isJointsValid()
   return true;
 }
 
-void URDFBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, unordered_set<string>& set)
+void URDFBuilderPanel::collectUncheckedLinks(QTreeWidgetItem* item, QSet<QString>& set)
 {
   if (item->checkState(0) == Qt::Unchecked)
   {
-    const auto link_name = item->text(0).toStdString();
+    const auto link_name = item->text(0);
     set.insert(link_name);
   }
 

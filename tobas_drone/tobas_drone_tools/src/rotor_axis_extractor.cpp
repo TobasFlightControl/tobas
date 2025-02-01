@@ -37,22 +37,6 @@ double RotorAxisExtractor::thrustSum(const double& battery_voltage, const double
   return res;
 }
 
-double RotorAxisExtractor::maxThrustSum(const double& battery_voltage) const
-{
-  double res = 0.;
-  for (const auto& channel : channels_)
-    res += rotor(channel).maxThrust(battery_voltage);
-  return res;
-}
-
-double RotorAxisExtractor::minThrustSum(const double& battery_voltage) const
-{
-  double res = 0.;
-  for (const auto& channel : channels_)
-    res += rotor(channel).minThrust(battery_voltage);
-  return res;
-}
-
 void RotorAxisExtractor::initialize()
 {
   channels_.clear();

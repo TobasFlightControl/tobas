@@ -49,7 +49,7 @@ private:
   void addRow(const std::string& ssid, const std::string& psk);
 
 private Q_SLOTS:
-  void onReadButtonClicked();
+  void onLoadButtonClicked();
   void onWriteButtonClicked();
   void onAddButtonClicked();
   void onRemoveButtonClicked();

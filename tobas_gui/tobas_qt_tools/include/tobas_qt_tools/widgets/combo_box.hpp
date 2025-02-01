@@ -26,6 +26,9 @@ public:
 
   void removeText(const QString& text);
 
+  void setItemEnabled(int row, bool enabled);
+  void setItemEnabled(const QString& text, bool enabled);
+
 public Q_SLOTS:
   void setCurrentIndex(int index);
   void setCurrentText(const QString& text);

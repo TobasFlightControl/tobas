@@ -51,10 +51,10 @@ tinyxml2::XMLElement* addGazeboPlugin(tinyxml2::XMLElement* robot, const string&
 }
 
 tinyxml2::XMLElement*
-addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t interface, double init_value = 0.)
+addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface, double init_value = 0.)
 {
   const auto state_if_elem = joint->InsertNewChildElement("state_interface");
-  state_if_elem->SetAttribute("name", tobas::jointIFEnumToText(interface).c_str());
+  state_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
 
   const auto init_value_elem = state_if_elem->InsertNewChildElement("param");
   init_value_elem->SetAttribute("name", "initial_value");
@@ -63,10 +63,10 @@ addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t inte
   return state_if_elem;
 }
 
-tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::joint_interface_t interface)
+tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface)
 {
   const auto command_if_elem = joint->InsertNewChildElement("command_interface");
-  command_if_elem->SetAttribute("name", tobas::jointIFEnumToText(interface).c_str());
+  command_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
   return command_if_elem;
 }
 }  // namespace util
@@ -136,8 +136,8 @@ void addMagnetometerPlugin(
   double latitude_zero,
   double longitude_zero,
   double altitude_zero,
-  double gauss_noise,
-  double uniform_noise)
+  double noise_stddev,
+  double hard_bias_range)
 {
   const auto plugin =
     util::addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "gazebo::GazeboMagnetometerPlugin");
@@ -148,8 +148,8 @@ void addMagnetometerPlugin(
   plugin->InsertNewChildElement("latitudeZero")->SetText(latitude_zero);
   plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
-  plugin->InsertNewChildElement("noiseNormal")->SetText(gauss_noise);
-  plugin->InsertNewChildElement("noiseUniformInitialBias")->SetText(uniform_noise);
+  plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
+  plugin->InsertNewChildElement("hardBiasRange")->SetText(hard_bias_range);
 }
 
 void addBarometerPlugin(
@@ -205,7 +205,7 @@ void addGPSPlugin(
 void addRotorPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
-  const string& joint_name,
+  const string& link_name,
   uint32_t channel,
   double kv,
   double internal_resistance,
@@ -219,7 +219,7 @@ void addRotorPlugin(
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_rotor_plugin", "gazebo::GazeboRotorPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
-  plugin->InsertNewChildElement("jointName")->SetText(joint_name.c_str());
+  plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("channel")->SetText(channel);
   plugin->InsertNewChildElement("kv")->SetText(kv);
   plugin->InsertNewChildElement("internalResistance")->SetText(internal_resistance);
@@ -279,10 +279,7 @@ void addFixedWingPlugin(
   {
     const auto cs_elem = plugin->InsertNewChildElement("controlSurface");
     cs_elem->InsertNewChildElement("channel")->SetText(cs.channel);
-    cs_elem->InsertNewChildElement("jointName")->SetText(cs.joint_name.c_str());
-    cs_elem->InsertNewChildElement("minAngle")->SetText(cs.angle_limit.lower);
-    cs_elem->InsertNewChildElement("maxAngle")->SetText(cs.angle_limit.upper);
-    cs_elem->InsertNewChildElement("maxAngleRate")->SetText(cs.max_angle_rate);
+    cs_elem->InsertNewChildElement("linkName")->SetText(cs.link_name.c_str());
     cs_elem->InsertNewChildElement("cLiftDelta")->SetText(cs.c_lift_delta);
     cs_elem->InsertNewChildElement("cDragAbsDelta")->SetText(cs.c_drag_abs_delta);
     cs_elem->InsertNewChildElement("cSideDelta")->SetText(cs.c_side_delta);
@@ -321,17 +318,19 @@ void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfi
   // robot/ros2_control/joint
   for (const auto& [jnt_name, jnt_cfg] : joints)
   {
-    const auto joint = ros2_control->InsertNewChildElement("joint");
+    if (!jnt_cfg.isServoJoint())
+      continue;
 
+    const auto joint = ros2_control->InsertNewChildElement("joint");
     joint->SetAttribute("name", jnt_name.c_str());
 
     // robot/ros2_control/joint/state_interface
-    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::POSITION, jnt_cfg.home_pos);
-    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::VELOCITY);
-    util::addROS2ControlStateIF(joint, tobas::joint_interface_t::EFFORT);
+    util::addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::POSITION, jnt_cfg.home_pos);
+    util::addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::VELOCITY);
+    util::addROS2ControlStateIF(joint, tobas::jnt_cmd_iface_t::EFFORT);
 
     // robot/ros2_control/joint/command_interface
-    util::addROS2ControlCommandIF(joint, jnt_cfg.interface);
+    util::addROS2ControlCommandIF(joint, jnt_cfg.cmd_iface);
   }
 }
 
