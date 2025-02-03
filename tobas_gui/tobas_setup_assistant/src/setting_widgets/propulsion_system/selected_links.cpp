@@ -19,7 +19,7 @@ SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const Rob
   : node_(node), robot_(robot)
 {
   ignoreWheelEvent();
-  setSize(kTabWidth, kTabHeight);
+  setTabSize(kTabWidth, kTabHeight);
   setMovable(true);
   setTabsClosable(true);
 

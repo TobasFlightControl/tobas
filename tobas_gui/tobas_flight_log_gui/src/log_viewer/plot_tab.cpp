@@ -19,12 +19,14 @@ PlotTabWidget::PlotTabWidget()
   addTab(pose_plot_, "Pose");
   addTab(twist_plot_, "Twist");
   addTab(imu_plot_, "IMU");
-  addTab(mag_plot_, "Mag");
-  addTab(gps_plot_, "GPS");
+  addTab(mag_plot_, "Magnetic\nField");
+  addTab(gps_plot_, "GNSS");
   addTab(batt_plot_, "Battery");
   addTab(latency_plot_, "Latency");
-  addTab(dist_force_plot_, "Dist Force");
+  addTab(dist_force_plot_, "Disturbance\nForce");
   // TODO
+
+  setTabSize(kTabWidth, kTabHeight);
 }
 
 void PlotTabWidget::setTimeScale(double t_start, double t_stop)

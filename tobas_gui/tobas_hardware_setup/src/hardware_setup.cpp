@@ -29,7 +29,7 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   tabs_->addTab(rotor_test_, rotor_test_->name());
   tabs_->addTab(joint_test_, joint_test_->name());
 
-  tabs_->setSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(kTabWidth, kTabHeight);
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()

@@ -39,6 +39,8 @@ public:
 
   void switchTab(QWidget* tab);
 
-  void setSize(int width, int height);
+  void setTabWidth(int width);
+  void setTabHeight(int height);
+  void setTabSize(int width, int height);
 };
 }  // namespace qt

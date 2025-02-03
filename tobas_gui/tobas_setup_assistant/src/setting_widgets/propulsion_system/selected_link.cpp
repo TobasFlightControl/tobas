@@ -26,7 +26,7 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const Robot
 
   tabs_ = new qt::TabWidget();
   tabs_->ignoreWheelEvent();
-  tabs_->setSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
   general_ = new GeneralWidget(robot, link_name);

@@ -22,6 +22,9 @@ class PlotTabWidget : public qt::TabWidget
   using self = PlotTabWidget;
   using super = qt::TabWidget;
 
+  static constexpr int kTabWidth = 110;
+  static constexpr int kTabHeight = 50;
+
 public:
   explicit PlotTabWidget();
 
