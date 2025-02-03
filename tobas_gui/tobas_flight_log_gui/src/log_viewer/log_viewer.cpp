@@ -96,6 +96,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Gps> gps_data;
   QVector<tobas_msgs::msg::Battery> batt_data;
   QVector<tobas_msgs::msg::Latency> latency_data;
+  QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
   // TODO
   while (reader_.has_next())
   {
@@ -139,6 +140,11 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         latency_ser_.deserialize_message(&ser_msg, &latency_);
         latency_data.push_back(latency_);
       }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kDisturbanceForceTopic)))
+      {
+        dist_force_ser_.deserialize_message(&ser_msg, &dist_force_);
+        dist_force_data.push_back(dist_force_);
+      }
       // TODO
     }
     catch (const std::exception& e)
@@ -159,6 +165,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setGpsData(gps_data);
     plot_tab->setBatteryData(batt_data);
     plot_tab->setLatencyData(latency_data);
+    plot_tab->setDisturbanceForceData(dist_force_data);
     // TODO
   }
 }

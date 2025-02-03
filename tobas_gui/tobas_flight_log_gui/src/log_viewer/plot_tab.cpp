@@ -13,6 +13,7 @@ PlotTabWidget::PlotTabWidget()
   gps_plot_ = new GpsPlotWidget();
   batt_plot_ = new BatteryPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
+  dist_force_plot_ = new DisturbanceForcePlotWidget();
   // TODO
 
   addTab(pose_plot_, "Pose");
@@ -22,6 +23,7 @@ PlotTabWidget::PlotTabWidget()
   addTab(gps_plot_, "GPS");
   addTab(batt_plot_, "Battery");
   addTab(latency_plot_, "Latency");
+  addTab(dist_force_plot_, "Dist Force");
   // TODO
 }
 
@@ -34,6 +36,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   gps_plot_->setTimeScale(t_start, t_stop);
   batt_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
+  dist_force_plot_->setTimeScale(t_start, t_stop);
   // TODO
 }
 
@@ -70,6 +73,11 @@ void PlotTabWidget::setBatteryData(const QVector<tobas_msgs::msg::Battery>& _dat
 void PlotTabWidget::setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data)
 {
   latency_plot_->setData(_data);
+}
+
+void PlotTabWidget::setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data)
+{
+  dist_force_plot_->setData(_data);
 }
 }  // namespace log
 }  // namespace gui

@@ -9,6 +9,7 @@
 #include "./plots/gps_plot.hpp"
 #include "./plots/battery_plot.hpp"
 #include "./plots/latency_plot.hpp"
+#include "./plots/dist_force_plot.hpp"
 
 namespace gui
 {
@@ -33,6 +34,7 @@ public:
   void setGpsData(const QVector<tobas_msgs::msg::Gps>& _data);
   void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
   void setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
+  void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
 
 private:
   PosePlotWidget* pose_plot_;
@@ -42,6 +44,7 @@ private:
   GpsPlotWidget* gps_plot_;
   BatteryPlotWidget* batt_plot_;
   LatencyPlotWidget* latency_plot_;
+  DisturbanceForcePlotWidget* dist_force_plot_;
 };
 }  // namespace log
 }  // namespace gui
