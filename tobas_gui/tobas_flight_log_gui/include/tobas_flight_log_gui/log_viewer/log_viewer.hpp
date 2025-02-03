@@ -35,10 +35,16 @@ private:
   tobas_msgs::msg::Odometry odom_;
   tobas_msgs::msg::ImuWithCovarianceStamped imu_;
   tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
+  tobas_msgs::msg::Gps gps_;
+  tobas_msgs::msg::Battery batt_;
+  tobas_msgs::msg::Latency latency_;
 
   rclcpp::Serialization<tobas_msgs::msg::Odometry> odom_ser_;
   rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
   rclcpp::Serialization<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_ser_;
+  rclcpp::Serialization<tobas_msgs::msg::Gps> gps_ser_;
+  rclcpp::Serialization<tobas_msgs::msg::Battery> batt_ser_;
+  rclcpp::Serialization<tobas_msgs::msg::Latency> latency_ser_;
 
   void reset();
   void setPlotData(double time_from_start);

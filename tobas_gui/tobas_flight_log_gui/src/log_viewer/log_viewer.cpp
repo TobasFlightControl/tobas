@@ -93,6 +93,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Odometry> odom_data;
   QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
   QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
+  QVector<tobas_msgs::msg::Gps> gps_data;
+  QVector<tobas_msgs::msg::Battery> batt_data;
+  QVector<tobas_msgs::msg::Latency> latency_data;
   // TODO
   while (reader_.has_next())
   {
@@ -121,6 +124,21 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         mag_ser_.deserialize_message(&ser_msg, &mag_);
         mag_data.push_back(mag_);
       }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kGNSSTopic)))
+      {
+        gps_ser_.deserialize_message(&ser_msg, &gps_);
+        gps_data.push_back(gps_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kBatteryTopic)))
+      {
+        batt_ser_.deserialize_message(&ser_msg, &batt_);
+        batt_data.push_back(batt_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kLatencyTopic)))
+      {
+        latency_ser_.deserialize_message(&ser_msg, &latency_);
+        latency_data.push_back(latency_);
+      }
       // TODO
     }
     catch (const std::exception& e)
@@ -135,8 +153,12 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
     plot_tab->setPoseData(odom_data);
+    plot_tab->setTwistData(odom_data);
     plot_tab->setImuData(imu_data);
     plot_tab->setMagData(mag_data);
+    plot_tab->setGpsData(gps_data);
+    plot_tab->setBatteryData(batt_data);
+    plot_tab->setLatencyData(latency_data);
     // TODO
   }
 }

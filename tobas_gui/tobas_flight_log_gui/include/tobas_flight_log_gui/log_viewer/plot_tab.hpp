@@ -3,8 +3,12 @@
 #include <tobas_qt_tools/widgets/tab_widget.hpp>
 
 #include "./plots/pose_plot.hpp"
+#include "./plots/twist_plot.hpp"
 #include "./plots/imu_plot.hpp"
 #include "./plots/mag_plot.hpp"
+#include "./plots/gps_plot.hpp"
+#include "./plots/battery_plot.hpp"
+#include "./plots/latency_plot.hpp"
 
 namespace gui
 {
@@ -23,13 +27,21 @@ public:
   void setTimeScale(double t_start, double t_stop);
 
   void setPoseData(const QVector<tobas_msgs::msg::Odometry>& _data);
+  void setTwistData(const QVector<tobas_msgs::msg::Odometry>& _data);
   void setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data);
   void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
+  void setGpsData(const QVector<tobas_msgs::msg::Gps>& _data);
+  void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
+  void setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
 
 private:
   PosePlotWidget* pose_plot_;
+  TwistPlotWidget* twist_plot_;
   ImuPlotWidget* imu_plot_;
   MagPlotWidget* mag_plot_;
+  GpsPlotWidget* gps_plot_;
+  BatteryPlotWidget* batt_plot_;
+  LatencyPlotWidget* latency_plot_;
 };
 }  // namespace log
 }  // namespace gui

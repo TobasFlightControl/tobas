@@ -2,8 +2,7 @@
 
 #include <tobas_msgs/msg/imu_with_covariance_stamped.hpp>
 
-#include "./forward_declaration.hpp"
-#include "./qwt_plot.hpp"
+#include "./common.hpp"
 
 namespace gui
 {
@@ -12,8 +11,6 @@ namespace log
 class ImuPlotWidget : public QWidget
 {
   Q_OBJECT
-
-  static constexpr auto kColor = Qt::black;
 
 public:
   explicit ImuPlotWidget();

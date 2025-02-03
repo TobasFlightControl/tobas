@@ -8,23 +8,21 @@ namespace gui
 {
 namespace log
 {
-class PosePlotWidget : public QWidget
+class TwistPlotWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit PosePlotWidget();
+  explicit TwistPlotWidget();
 
   void setTimeScale(double t_start, double t_stop);
   void setData(const QVector<tobas_msgs::msg::Odometry>& odom_msgs);
 
 private:
-  std::array<QwtPlot2*, 3> pos_plots_;
-  std::array<QwtPlot2*, 3> rpy_plots_;
-  std::array<QwtPlotCurve*, 3> pos_curves_;
-  std::array<QwtPlotCurve*, 3> rpy_curves_;
-
-  double roll_, pitch_, yaw_;
+  std::array<QwtPlot2*, 3> linear_plots_;
+  std::array<QwtPlot2*, 3> angular_plots_;
+  std::array<QwtPlotCurve*, 3> linear_curves_;
+  std::array<QwtPlotCurve*, 3> angular_curves_;
 };
 }  // namespace log
 }  // namespace gui
