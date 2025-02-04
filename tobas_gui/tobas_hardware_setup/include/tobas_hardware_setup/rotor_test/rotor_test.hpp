@@ -52,7 +52,7 @@ private:
   QPushButton* stop_button_;
   QPushButton* save_button_;
 
-  std::array<RotorWidget*, kChannelSize> rotors_;
+  std::array<RotorWidget*, kChannelSize> rotor_widgets_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   bool is_running_ = false;
