@@ -13,12 +13,12 @@ GpsPlotWidget::GpsPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  latitude_curve_ = new qwt::QwtPlotCurveWrapper("Latitude");
-  longitude_curve_ = new qwt::QwtPlotCurveWrapper("Longitude");
-  altitude_curve_ = new qwt::QwtPlotCurveWrapper("Altitude");
-  north_speed_curve_ = new qwt::QwtPlotCurveWrapper("North Speed");
-  west_speed_curve_ = new qwt::QwtPlotCurveWrapper("West Speed");
-  up_speed_curve_ = new qwt::QwtPlotCurveWrapper("Up Speed");
+  latitude_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Latitude");
+  longitude_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Longitude");
+  altitude_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Altitude");
+  north_speed_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("North Speed");
+  west_speed_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("West Speed");
+  up_speed_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Up Speed");
 
   latitude_plot_ = new QwtPlot2();
   longitude_plot_ = new QwtPlot2();

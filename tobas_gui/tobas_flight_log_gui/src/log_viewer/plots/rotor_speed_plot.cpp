@@ -41,17 +41,11 @@ void RotorSpeedPlotWidget::setData(
 
 void RotorSpeedPlotWidget::clear()
 {
-  qt::clearLayout(grid_);
-
-  for (auto cur_speed_curve : cur_speed_curves_)
-    delete cur_speed_curve;
-
-  for (auto tar_speed_curve : tar_speed_curves_)
-    delete tar_speed_curve;
-
+  // XXX: レイアウトとコンテナに同じウィジェットが含まれる場合は，コンテナ，レイアウトの順にクリアする必要がある．
   plots_.clear();
   cur_speed_curves_.clear();
   tar_speed_curves_.clear();
+  qt::clearLayout(grid_);
 
   num_rotors_ = 0;
   channel2idx_.clear();
@@ -76,11 +70,13 @@ void RotorSpeedPlotWidget::updateInternalDataStructures(const tobas_msgs::msg::R
     // N行2列の格子状に配置
     grid_->addWidget(plots_[idx], idx / 2, idx % 2);
 
-    cur_speed_curves_[idx] = new qwt::QwtPlotCurveWrapper("Current Speed (CH" + QString::number(state.channel) + ")");
+    cur_speed_curves_[idx] =
+      std::make_shared<qwt::QwtPlotCurveWrapper>("Current Speed (CH" + QString::number(state.channel) + ")");
     cur_speed_curves_[idx]->setPen(kCurrentValueColor, kLineWidth);
     cur_speed_curves_[idx]->attach(plots_[idx]);
 
-    tar_speed_curves_[idx] = new qwt::QwtPlotCurveWrapper("Target Speed (CH" + QString::number(state.channel) + ")");
+    tar_speed_curves_[idx] =
+      std::make_shared<qwt::QwtPlotCurveWrapper>("Target Speed (CH" + QString::number(state.channel) + ")");
     tar_speed_curves_[idx]->setPen(kTargetValueColor, kLineWidth);
     tar_speed_curves_[idx]->attach(plots_[idx]);
   }

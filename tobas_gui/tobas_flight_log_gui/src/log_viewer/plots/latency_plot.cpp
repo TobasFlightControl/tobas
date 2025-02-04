@@ -13,7 +13,7 @@ LatencyPlotWidget::LatencyPlotWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  curve_ = new qwt::QwtPlotCurveWrapper("Latency");
+  curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Latency");
   plot_ = new QwtPlot2();
   curve_->setPen(Qt::black, kLineWidth);
   curve_->attach(plot_);

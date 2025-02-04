@@ -13,12 +13,12 @@ ImuPlotWidget::ImuPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  acc_curves_[0] = new qwt::QwtPlotCurveWrapper("Accel X");
-  acc_curves_[1] = new qwt::QwtPlotCurveWrapper("Accel Y");
-  acc_curves_[2] = new qwt::QwtPlotCurveWrapper("Accel Z");
-  gyro_curves_[0] = new qwt::QwtPlotCurveWrapper("Gyro X");
-  gyro_curves_[1] = new qwt::QwtPlotCurveWrapper("Gyro Y");
-  gyro_curves_[2] = new qwt::QwtPlotCurveWrapper("Gyro Z");
+  acc_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Accel X");
+  acc_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Accel Y");
+  acc_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Accel Z");
+  gyro_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Gyro X");
+  gyro_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Gyro Y");
+  gyro_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Gyro Z");
 
   for (size_t i = 0; i < 3; ++i)
   {

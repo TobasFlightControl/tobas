@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <QColor>
 #include <qwt/qwt_plot.h>
 
@@ -10,8 +11,9 @@ namespace qwt
 class QwtPlotCurveWrapper
 {
 public:
+  using SharedPtr = std::shared_ptr<QwtPlotCurveWrapper>;
+
   explicit QwtPlotCurveWrapper(const QString& title = "");
-  ~QwtPlotCurveWrapper();
 
   void setPen(const QColor& color, qreal width, Qt::PenStyle style = Qt::SolidLine);
 
@@ -20,6 +22,6 @@ public:
   void attach(QwtPlot* plot);
 
 private:
-  QwtPlotCurve* impl_;
+  std::shared_ptr<QwtPlotCurve> impl_;
 };
 }  // namespace qwt

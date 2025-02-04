@@ -15,12 +15,12 @@ PosePlotWidget::PosePlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  pos_curves_[0] = new qwt::QwtPlotCurveWrapper("X");
-  pos_curves_[1] = new qwt::QwtPlotCurveWrapper("Y");
-  pos_curves_[2] = new qwt::QwtPlotCurveWrapper("Z");
-  rpy_curves_[0] = new qwt::QwtPlotCurveWrapper("Roll");
-  rpy_curves_[1] = new qwt::QwtPlotCurveWrapper("Pitch");
-  rpy_curves_[2] = new qwt::QwtPlotCurveWrapper("Yaw");
+  pos_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("X");
+  pos_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Y");
+  pos_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Z");
+  rpy_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Roll");
+  rpy_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Pitch");
+  rpy_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Yaw");
 
   for (size_t i = 0; i < 3; ++i)
   {

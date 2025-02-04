@@ -13,9 +13,9 @@ MagPlotWidget::MagPlotWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  mag_curves_[0] = new qwt::QwtPlotCurveWrapper("Mag X");
-  mag_curves_[1] = new qwt::QwtPlotCurveWrapper("Mag Y");
-  mag_curves_[2] = new qwt::QwtPlotCurveWrapper("Mag Z");
+  mag_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag X");
+  mag_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Y");
+  mag_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Z");
 
   for (size_t i = 0; i < 3; ++i)
   {

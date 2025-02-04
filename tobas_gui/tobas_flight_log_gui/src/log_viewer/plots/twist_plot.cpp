@@ -13,12 +13,12 @@ TwistPlotWidget::TwistPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  linear_curves_[0] = new qwt::QwtPlotCurveWrapper("Linear Velocity X");
-  linear_curves_[1] = new qwt::QwtPlotCurveWrapper("Linear Velocity Y");
-  linear_curves_[2] = new qwt::QwtPlotCurveWrapper("Linear Velocity Z");
-  angular_curves_[0] = new qwt::QwtPlotCurveWrapper("Angular Velocity X");
-  angular_curves_[1] = new qwt::QwtPlotCurveWrapper("Angular Velocity Y");
-  angular_curves_[2] = new qwt::QwtPlotCurveWrapper("Angular Velocity Z");
+  linear_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Linear Velocity X");
+  linear_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Linear Velocity Y");
+  linear_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Linear Velocity Z");
+  angular_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Angular Velocity X");
+  angular_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Angular Velocity Y");
+  angular_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Angular Velocity Z");
 
   for (size_t i = 0; i < 3; ++i)
   {

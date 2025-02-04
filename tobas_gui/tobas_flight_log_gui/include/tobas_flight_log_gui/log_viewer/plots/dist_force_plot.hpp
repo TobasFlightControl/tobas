@@ -21,8 +21,8 @@ public:
 private:
   std::array<QwtPlot2*, 3> force_plots_;
   std::array<QwtPlot2*, 3> torque_plots_;
-  std::array<qwt::QwtPlotCurveWrapper*, 3> force_curves_;
-  std::array<qwt::QwtPlotCurveWrapper*, 3> torque_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> force_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> torque_curves_;
 };
 }  // namespace log
 }  // namespace gui

@@ -6,12 +6,7 @@ namespace qwt
 {
 QwtPlotCurveWrapper::QwtPlotCurveWrapper(const QString& title)
 {
-  impl_ = new QwtPlotCurve(title);
-}
-
-QwtPlotCurveWrapper::~QwtPlotCurveWrapper()
-{
-  delete impl_;
+  impl_ = std::make_shared<QwtPlotCurve>(title);
 }
 
 void QwtPlotCurveWrapper::setPen(const QColor& color, qreal width, Qt::PenStyle style)

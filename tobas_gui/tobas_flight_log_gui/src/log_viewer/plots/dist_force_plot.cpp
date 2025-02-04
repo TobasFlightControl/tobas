@@ -13,12 +13,12 @@ DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  force_curves_[0] = new qwt::QwtPlotCurveWrapper("Force X");
-  force_curves_[1] = new qwt::QwtPlotCurveWrapper("Force Y");
-  force_curves_[2] = new qwt::QwtPlotCurveWrapper("Force Z");
-  torque_curves_[0] = new qwt::QwtPlotCurveWrapper("Torque X");
-  torque_curves_[1] = new qwt::QwtPlotCurveWrapper("Torque Y");
-  torque_curves_[2] = new qwt::QwtPlotCurveWrapper("Torque Z");
+  force_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Force X");
+  force_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Force Y");
+  force_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Force Z");
+  torque_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Torque X");
+  torque_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Torque Y");
+  torque_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Torque Z");
 
   for (size_t i = 0; i < 3; ++i)
   {

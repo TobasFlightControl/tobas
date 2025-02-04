@@ -13,8 +13,8 @@ BatteryPlotWidget::BatteryPlotWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  voltage_curve_ = new qwt::QwtPlotCurveWrapper("Voltage");
-  current_curve_ = new qwt::QwtPlotCurveWrapper("Current");
+  voltage_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Voltage");
+  current_curve_ = std::make_shared<qwt::QwtPlotCurveWrapper>("Current");
 
   voltage_plot_ = new QwtPlot2();
   current_plot_ = new QwtPlot2();

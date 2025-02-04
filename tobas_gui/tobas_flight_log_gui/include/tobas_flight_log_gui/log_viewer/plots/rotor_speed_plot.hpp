@@ -24,12 +24,12 @@ public:
     const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_msgs);
 
 private:
-  QGridLayout* grid_;
-
   QVector<QwtPlot2*> plots_;
 
-  QVector<qwt::QwtPlotCurveWrapper*> cur_speed_curves_;
-  QVector<qwt::QwtPlotCurveWrapper*> tar_speed_curves_;
+  QVector<qwt::QwtPlotCurveWrapper::SharedPtr> cur_speed_curves_;
+  QVector<qwt::QwtPlotCurveWrapper::SharedPtr> tar_speed_curves_;
+
+  QGridLayout* grid_;
 
   size_t num_rotors_;
   QMap<uint8_t, size_t> channel2idx_;
