@@ -1,4 +1,4 @@
-#include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_plot_curve.h>  // <= C++17
 
 #include "../include/tobas_qwt_wrapper/qwt_plot_curve.hpp"
 
