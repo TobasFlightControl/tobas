@@ -1,5 +1,4 @@
 #include <QGridLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -14,12 +13,12 @@ GpsPlotWidget::GpsPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  latitude_curve_ = new QwtPlotCurve("Latitude");
-  longitude_curve_ = new QwtPlotCurve("Longitude");
-  altitude_curve_ = new QwtPlotCurve("Altitude");
-  north_speed_curve_ = new QwtPlotCurve("North Speed");
-  west_speed_curve_ = new QwtPlotCurve("West Speed");
-  up_speed_curve_ = new QwtPlotCurve("Up Speed");
+  latitude_curve_ = new qwt::QwtPlotCurveWrapper("Latitude");
+  longitude_curve_ = new qwt::QwtPlotCurveWrapper("Longitude");
+  altitude_curve_ = new qwt::QwtPlotCurveWrapper("Altitude");
+  north_speed_curve_ = new qwt::QwtPlotCurveWrapper("North Speed");
+  west_speed_curve_ = new qwt::QwtPlotCurveWrapper("West Speed");
+  up_speed_curve_ = new qwt::QwtPlotCurveWrapper("Up Speed");
 
   latitude_plot_ = new QwtPlot2();
   longitude_plot_ = new QwtPlot2();

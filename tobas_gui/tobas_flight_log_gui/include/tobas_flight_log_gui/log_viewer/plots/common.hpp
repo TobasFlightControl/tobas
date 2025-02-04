@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_qwt_wrapper/qwt_plot_curve.hpp>
+
 #include "./constants.hpp"
-#include "./forward_declaration.hpp"
 #include "./qwt_plot.hpp"

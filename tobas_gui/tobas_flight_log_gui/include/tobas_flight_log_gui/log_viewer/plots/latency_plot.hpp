@@ -20,7 +20,7 @@ public:
 
 private:
   QwtPlot2* plot_;
-  QwtPlotCurve* curve_;
+  qwt::QwtPlotCurveWrapper* curve_;
 };
 }  // namespace log
 }  // namespace gui

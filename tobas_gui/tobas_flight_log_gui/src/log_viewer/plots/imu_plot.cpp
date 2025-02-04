@@ -1,5 +1,4 @@
 #include <QGridLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -14,12 +13,12 @@ ImuPlotWidget::ImuPlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  acc_curves_[0] = new QwtPlotCurve("Accel X");
-  acc_curves_[1] = new QwtPlotCurve("Accel Y");
-  acc_curves_[2] = new QwtPlotCurve("Accel Z");
-  gyro_curves_[0] = new QwtPlotCurve("Gyro X");
-  gyro_curves_[1] = new QwtPlotCurve("Gyro Y");
-  gyro_curves_[2] = new QwtPlotCurve("Gyro Z");
+  acc_curves_[0] = new qwt::QwtPlotCurveWrapper("Accel X");
+  acc_curves_[1] = new qwt::QwtPlotCurveWrapper("Accel Y");
+  acc_curves_[2] = new qwt::QwtPlotCurveWrapper("Accel Z");
+  gyro_curves_[0] = new qwt::QwtPlotCurveWrapper("Gyro X");
+  gyro_curves_[1] = new qwt::QwtPlotCurveWrapper("Gyro Y");
+  gyro_curves_[2] = new qwt::QwtPlotCurveWrapper("Gyro Z");
 
   for (size_t i = 0; i < 3; ++i)
   {

@@ -1,5 +1,4 @@
 #include <QVBoxLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -14,8 +13,8 @@ BatteryPlotWidget::BatteryPlotWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  voltage_curve_ = new QwtPlotCurve("Voltage");
-  current_curve_ = new QwtPlotCurve("Current");
+  voltage_curve_ = new qwt::QwtPlotCurveWrapper("Voltage");
+  current_curve_ = new qwt::QwtPlotCurveWrapper("Current");
 
   voltage_plot_ = new QwtPlot2();
   current_plot_ = new QwtPlot2();

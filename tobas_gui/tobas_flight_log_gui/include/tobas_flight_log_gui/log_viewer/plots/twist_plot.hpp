@@ -21,8 +21,8 @@ public:
 private:
   std::array<QwtPlot2*, 3> linear_plots_;
   std::array<QwtPlot2*, 3> angular_plots_;
-  std::array<QwtPlotCurve*, 3> linear_curves_;
-  std::array<QwtPlotCurve*, 3> angular_curves_;
+  std::array<qwt::QwtPlotCurveWrapper*, 3> linear_curves_;
+  std::array<qwt::QwtPlotCurveWrapper*, 3> angular_curves_;
 };
 }  // namespace log
 }  // namespace gui

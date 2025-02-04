@@ -23,8 +23,8 @@ public:
 private:
   QVector<QwtPlot2*> plots_;
 
-  QVector<QwtPlotCurve*> cur_speed_curves_;
-  QVector<QwtPlotCurve*> tar_speed_curves_;
+  QVector<qwt::QwtPlotCurveWrapper*> cur_speed_curves_;
+  QVector<qwt::QwtPlotCurveWrapper*> tar_speed_curves_;
 
   QGridLayout* grid_;
 

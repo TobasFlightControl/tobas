@@ -17,6 +17,7 @@
 	<exec_depend>tobas_homepage</exec_depend>
 	<exec_depend>tobas_parameter_tuning_gui</exec_depend>
 	<exec_depend>tobas_qt_tools</exec_depend>
+	<exec_depend>tobas_qwt_wrapper</exec_depend>
 	<exec_depend>tobas_rviz_plugin</exec_depend>
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_simulation_gui</exec_depend>

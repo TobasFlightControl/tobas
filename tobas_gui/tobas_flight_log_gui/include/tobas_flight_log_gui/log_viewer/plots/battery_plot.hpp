@@ -22,8 +22,8 @@ private:
   QwtPlot2* voltage_plot_;
   QwtPlot2* current_plot_;
 
-  QwtPlotCurve* voltage_curve_;
-  QwtPlotCurve* current_curve_;
+  qwt::QwtPlotCurveWrapper* voltage_curve_;
+  qwt::QwtPlotCurveWrapper* current_curve_;
 };
 }  // namespace log
 }  // namespace gui

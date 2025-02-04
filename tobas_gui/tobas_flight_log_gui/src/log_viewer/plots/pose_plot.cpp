@@ -1,5 +1,4 @@
 #include <QGridLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/time.hpp>
@@ -16,12 +15,12 @@ PosePlotWidget::PosePlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  pos_curves_[0] = new QwtPlotCurve("X");
-  pos_curves_[1] = new QwtPlotCurve("Y");
-  pos_curves_[2] = new QwtPlotCurve("Z");
-  rpy_curves_[0] = new QwtPlotCurve("Roll");
-  rpy_curves_[1] = new QwtPlotCurve("Pitch");
-  rpy_curves_[2] = new QwtPlotCurve("Yaw");
+  pos_curves_[0] = new qwt::QwtPlotCurveWrapper("X");
+  pos_curves_[1] = new qwt::QwtPlotCurveWrapper("Y");
+  pos_curves_[2] = new qwt::QwtPlotCurveWrapper("Z");
+  rpy_curves_[0] = new qwt::QwtPlotCurveWrapper("Roll");
+  rpy_curves_[1] = new qwt::QwtPlotCurveWrapper("Pitch");
+  rpy_curves_[2] = new qwt::QwtPlotCurveWrapper("Yaw");
 
   for (size_t i = 0; i < 3; ++i)
   {

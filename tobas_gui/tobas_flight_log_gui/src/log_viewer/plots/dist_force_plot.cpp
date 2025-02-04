@@ -1,5 +1,4 @@
 #include <QGridLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -14,12 +13,12 @@ DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  force_curves_[0] = new QwtPlotCurve("Force X");
-  force_curves_[1] = new QwtPlotCurve("Force Y");
-  force_curves_[2] = new QwtPlotCurve("Force Z");
-  torque_curves_[0] = new QwtPlotCurve("Torque X");
-  torque_curves_[1] = new QwtPlotCurve("Torque Y");
-  torque_curves_[2] = new QwtPlotCurve("Torque Z");
+  force_curves_[0] = new qwt::QwtPlotCurveWrapper("Force X");
+  force_curves_[1] = new qwt::QwtPlotCurveWrapper("Force Y");
+  force_curves_[2] = new qwt::QwtPlotCurveWrapper("Force Z");
+  torque_curves_[0] = new qwt::QwtPlotCurveWrapper("Torque X");
+  torque_curves_[1] = new qwt::QwtPlotCurveWrapper("Torque Y");
+  torque_curves_[2] = new qwt::QwtPlotCurveWrapper("Torque Z");
 
   for (size_t i = 0; i < 3; ++i)
   {

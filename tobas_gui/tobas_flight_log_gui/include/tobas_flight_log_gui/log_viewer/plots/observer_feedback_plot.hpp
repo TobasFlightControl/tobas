@@ -35,12 +35,12 @@ private:
   QwtPlot2* gravity_plot_;
   QwtPlot2* gnss_anormaly_score_plot_;
 
-  std::array<QwtPlotCurve*, kAccelBiasSize> acc_bias_curves_;
-  std::array<QwtPlotCurve*, kGyroBiasSize> gyro_bias_curves_;
-  std::array<QwtPlotCurve*, kMagHardBiasSize> mag_hard_bias_curves_;
-  std::array<QwtPlotCurve*, kMagSoftBiasSize> mag_soft_bias_curves_;
-  QwtPlotCurve* gravity_curve_;
-  QwtPlotCurve* gnss_anormaly_score_curve_;
+  std::array<qwt::QwtPlotCurveWrapper*, kAccelBiasSize> acc_bias_curves_;
+  std::array<qwt::QwtPlotCurveWrapper*, kGyroBiasSize> gyro_bias_curves_;
+  std::array<qwt::QwtPlotCurveWrapper*, kMagHardBiasSize> mag_hard_bias_curves_;
+  std::array<qwt::QwtPlotCurveWrapper*, kMagSoftBiasSize> mag_soft_bias_curves_;
+  qwt::QwtPlotCurveWrapper* gravity_curve_;
+  qwt::QwtPlotCurveWrapper* gnss_anormaly_score_curve_;
 };
 }  // namespace log
 }  // namespace gui

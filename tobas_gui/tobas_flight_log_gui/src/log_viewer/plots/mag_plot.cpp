@@ -1,5 +1,4 @@
 #include <QVBoxLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -14,9 +13,9 @@ MagPlotWidget::MagPlotWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  mag_curves_[0] = new QwtPlotCurve("Mag X");
-  mag_curves_[1] = new QwtPlotCurve("Mag Y");
-  mag_curves_[2] = new QwtPlotCurve("Mag Z");
+  mag_curves_[0] = new qwt::QwtPlotCurveWrapper("Mag X");
+  mag_curves_[1] = new qwt::QwtPlotCurveWrapper("Mag Y");
+  mag_curves_[2] = new qwt::QwtPlotCurveWrapper("Mag Z");
 
   for (size_t i = 0; i < 3; ++i)
   {

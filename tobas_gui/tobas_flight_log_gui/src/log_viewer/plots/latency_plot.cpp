@@ -1,5 +1,4 @@
 #include <QVBoxLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
 
@@ -14,7 +13,7 @@ LatencyPlotWidget::LatencyPlotWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  curve_ = new QwtPlotCurve("Latency");
+  curve_ = new qwt::QwtPlotCurveWrapper("Latency");
   plot_ = new QwtPlot2();
   curve_->setPen(Qt::black, kLineWidth);
   curve_->attach(plot_);

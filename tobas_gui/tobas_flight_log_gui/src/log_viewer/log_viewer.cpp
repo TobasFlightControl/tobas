@@ -170,6 +170,9 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   // データをプロット
   for (auto& plot_tab : plot_tabs_)
   {
+    // XXX: データの設定の前に範囲を指定しないと若干プロットが崩れる
+    plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
+
     plot_tab->setPoseData(odom_data);
     plot_tab->setTwistData(odom_data);
     plot_tab->setImuData(imu_data);
@@ -180,8 +183,6 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setLatencyData(latency_data);
     plot_tab->setDisturbanceForceData(dist_force_data);
     plot_tab->setObserverFeedbackData(obsv_fb_data);
-
-    plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
   }
 }
 
