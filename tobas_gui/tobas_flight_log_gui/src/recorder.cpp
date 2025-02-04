@@ -37,7 +37,6 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
   file_size_->setMaximum(tobas::kMaxRosbagSize);
 
   message_count_ = new qt::FramedLabel();
-  message_count_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
   // Layout
   const auto name_cols = new QHBoxLayout();
