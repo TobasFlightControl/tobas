@@ -70,7 +70,7 @@ RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Dron
       std::bind(&self::onGainChanged, this, std::placeholders::_1, ch));
   }
 
-  connect(&publish_timer_, &QTimer::timeout, this, &self::publishTargetSppeds);
+  connect(&update_timer_, &QTimer::timeout, this, &self::onUpdateTimerTimeout);
 
   setEnabled(false);
 }
@@ -142,14 +142,14 @@ void RotorTestWidget::reset()
   }
 
   // タイマーを停止
-  publish_timer_.stop();
+  update_timer_.stop();
 
   start_button_->setEnabled(true);
   stop_button_->setEnabled(false);
   save_button_->setEnabled(false);
 
+  cur_states_ = nullptr;
   arming_ = nullptr;
-  is_running_ = false;
 }
 
 void RotorTestWidget::publishTargetSppeds()
@@ -168,6 +168,22 @@ void RotorTestWidget::publishTargetSppeds()
   }
 
   tar_speeds_pub_->publish(std::move(tar_speeds));
+}
+
+void RotorTestWidget::updateCurrentSpeeds()
+{
+  if (cur_states_ == nullptr)
+    return;
+
+  for (const auto& state : cur_states_->states)
+  {
+    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+      continue;
+    if (state.channel >= rotor_widgets_.size())
+      continue;
+
+    rotor_widgets_.at(state.channel)->setCurrentRPM(tobas_std::rps2rpm(state.speed));
+  }
 }
 
 bool RotorTestWidget::loadCurrentGains()
@@ -217,18 +233,7 @@ bool RotorTestWidget::armRotors(bool arming)
 
 void RotorTestWidget::currentStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states)
 {
-  if (!is_running_)
-    return;
-
-  for (const auto& state : cur_states->states)
-  {
-    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
-      continue;
-    if (state.channel >= rotor_widgets_.size())
-      continue;
-
-    rotor_widgets_.at(state.channel)->setCurrentRPM(tobas_std::rps2rpm(state.speed));
-  }
+  cur_states_ = cur_states;
 }
 
 void RotorTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -262,14 +267,12 @@ void RotorTestWidget::onStartButtonClicked()
   for (const auto& [channel, _] : drone_.rotors)
     rotor_widgets_.at(channel)->setEnabled(true);
 
-  // モータが停止しないよう一定周期でコマンドを発行し続ける
-  publish_timer_.start(kPublishPeriod);
+  // 一定周期でコマンドの発行と状態の更新
+  update_timer_.start(kUpdatePeriod);
 
   start_button_->setEnabled(false);
   stop_button_->setEnabled(true);
   save_button_->setEnabled(true);
-
-  is_running_ = true;
 
   qt::qInfoBox(this, "Rotor test is started.");
 }
@@ -330,6 +333,15 @@ void RotorTestWidget::onGainChanged(int gain, size_t ch)
     qt::qErrorBox(this, "Failed to set control gains: " + QString::fromStdString(res->message));
     return;
   }
+}
+
+void RotorTestWidget::onUpdateTimerTimeout()
+{
+  // モータが停止しないよう，スライダーに変化がなくても一定周期でコマンドを発行する．
+  publishTargetSppeds();
+
+  // ROSとQtのスレッドの競合を防ぐため，GUI関連の処理は必ずQtスレッドで行う．
+  updateCurrentSpeeds();
 }
 }  // namespace hardware_setup
 }  // namespace gui
