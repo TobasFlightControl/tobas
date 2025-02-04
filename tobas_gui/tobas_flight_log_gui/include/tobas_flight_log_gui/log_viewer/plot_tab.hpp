@@ -38,7 +38,9 @@ public:
   void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
   void setGpsData(const QVector<tobas_msgs::msg::Gps>& _data);
   void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
-  void setRotorSpeedData(const QVector<tobas_msgs::msg::RotorStateArray>& _data);
+  void setRotorSpeedData(
+    const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
+    const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data);
   void setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
   void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
   void setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data);

@@ -75,9 +75,11 @@ void PlotTabWidget::setBatteryData(const QVector<tobas_msgs::msg::Battery>& _dat
   battery_plot_->setData(_data);
 }
 
-void PlotTabWidget::setRotorSpeedData(const QVector<tobas_msgs::msg::RotorStateArray>& _data)
+void PlotTabWidget::setRotorSpeedData(
+  const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
+  const QVector<tobas_msgs::msg::RotorSpeedArray>& tar_data)
 {
-  rotor_speed_plot_->setData(_data);
+  rotor_speed_plot_->setData(cur_data, tar_data);
 }
 
 void PlotTabWidget::setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data)
