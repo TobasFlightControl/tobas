@@ -17,6 +17,8 @@ class RotorWidget : public QWidget
   using self = RotorWidget;
   using super = QWidget;
 
+  static constexpr int kPipeWidth = 50;
+
 Q_SIGNALS:
   void targetRPMChanged(int rpm);
   void gainChanged(int gain);

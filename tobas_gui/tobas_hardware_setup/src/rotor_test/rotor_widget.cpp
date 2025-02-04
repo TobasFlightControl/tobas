@@ -18,6 +18,7 @@ RotorWidget::RotorWidget()
 
   cur_rpm_meter_ = new QwtThermo();
   cur_rpm_meter_->setLowerBound(0);
+  cur_rpm_meter_->setPipeWidth(kPipeWidth);
 
   tar_rpm_slider_ = new QwtSlider(Qt::Vertical);
   tar_rpm_slider_->setLowerBound(0);
@@ -38,10 +39,8 @@ RotorWidget::RotorWidget()
 
   // Layout
   const auto rpm_cols = new QHBoxLayout();
-  rpm_cols->addWidget(cur_rpm_meter_, 2);
-  rpm_cols->addStretch(1);
+  rpm_cols->addWidget(cur_rpm_meter_, 3);
   rpm_cols->addWidget(tar_rpm_slider_, 1);
-  rpm_cols->addStretch(1);
 
   const auto rpm_form = new QFormLayout();
   rpm_form->addRow("Current", cur_rpm_box_);
