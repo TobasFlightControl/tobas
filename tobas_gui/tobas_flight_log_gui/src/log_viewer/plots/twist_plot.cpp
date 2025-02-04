@@ -24,12 +24,12 @@ TwistPlotWidget::TwistPlotWidget()
   for (size_t i = 0; i < 3; ++i)
   {
     linear_plots_[i] = new QwtPlot2();
-    linear_curves_[i]->setPen(kDefaultColor, kLineWidth);
+    linear_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     linear_curves_[i]->attach(linear_plots_[i]);
     grid->addWidget(linear_plots_[i], i, 0);
 
     angular_plots_[i] = new QwtPlot2();
-    angular_curves_[i]->setPen(kDefaultColor, kLineWidth);
+    angular_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     angular_curves_[i]->attach(angular_plots_[i]);
     grid->addWidget(angular_plots_[i], i, 1);
   }

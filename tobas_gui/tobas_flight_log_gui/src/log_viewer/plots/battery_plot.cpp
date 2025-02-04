@@ -20,8 +20,8 @@ BatteryPlotWidget::BatteryPlotWidget()
   voltage_plot_ = new QwtPlot2();
   current_plot_ = new QwtPlot2();
 
-  voltage_curve_->setPen(kDefaultColor, kLineWidth);
-  current_curve_->setPen(kDefaultColor, kLineWidth);
+  voltage_curve_->setPen(Qt::black, kLineWidth);
+  current_curve_->setPen(Qt::black, kLineWidth);
 
   voltage_curve_->attach(voltage_plot_);
   current_curve_->attach(current_plot_);

@@ -10,6 +10,7 @@
 #include "./plots/battery_plot.hpp"
 #include "./plots/latency_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
+#include "./plots/observer_feedback_plot.hpp"
 
 namespace gui
 {
@@ -38,6 +39,7 @@ public:
   void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
   void setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
   void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
+  void setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data);
 
 private:
   PosePlotWidget* pose_plot_;
@@ -48,6 +50,7 @@ private:
   BatteryPlotWidget* batt_plot_;
   LatencyPlotWidget* latency_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
+  ObserverFeedbackPlotWidget* obsv_fb_plot_;
 };
 }  // namespace log
 }  // namespace gui

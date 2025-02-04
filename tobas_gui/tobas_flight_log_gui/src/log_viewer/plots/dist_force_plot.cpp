@@ -24,12 +24,12 @@ DisturbanceForcePlotWidget::DisturbanceForcePlotWidget()
   for (size_t i = 0; i < 3; ++i)
   {
     force_plots_[i] = new QwtPlot2();
-    force_curves_[i]->setPen(kDefaultColor, kLineWidth);
+    force_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     force_curves_[i]->attach(force_plots_[i]);
     grid->addWidget(force_plots_[i], i, 0);
 
     torque_plots_[i] = new QwtPlot2();
-    torque_curves_[i]->setPen(kDefaultColor, kLineWidth);
+    torque_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     torque_curves_[i]->attach(torque_plots_[i]);
     grid->addWidget(torque_plots_[i], i, 1);
   }

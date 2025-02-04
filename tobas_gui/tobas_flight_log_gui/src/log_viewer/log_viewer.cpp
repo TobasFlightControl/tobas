@@ -97,6 +97,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Battery> batt_data;
   QVector<tobas_msgs::msg::Latency> latency_data;
   QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
+  QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data;
   // TODO
   while (reader_.has_next())
   {
@@ -145,6 +146,11 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         dist_force_ser_.deserialize_message(&ser_msg, &dist_force_);
         dist_force_data.push_back(dist_force_);
       }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kObsvFeedbackTopic)))
+      {
+        obsv_fb_ser_.deserialize_message(&ser_msg, &obsv_fb_);
+        obsv_fb_data.push_back(obsv_fb_);
+      }
       // TODO
     }
     catch (const std::exception& e)
@@ -166,6 +172,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setBatteryData(batt_data);
     plot_tab->setLatencyData(latency_data);
     plot_tab->setDisturbanceForceData(dist_force_data);
+    plot_tab->setObserverFeedbackData(obsv_fb_data);
     // TODO
   }
 }

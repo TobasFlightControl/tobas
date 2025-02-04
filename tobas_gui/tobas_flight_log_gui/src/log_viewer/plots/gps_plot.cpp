@@ -28,12 +28,12 @@ GpsPlotWidget::GpsPlotWidget()
   west_speed_plot_ = new QwtPlot2();
   up_speed_plot_ = new QwtPlot2();
 
-  latitude_curve_->setPen(kDefaultColor, kLineWidth);
-  longitude_curve_->setPen(kDefaultColor, kLineWidth);
-  altitude_curve_->setPen(kDefaultColor, kLineWidth);
-  north_speed_curve_->setPen(kDefaultColor, kLineWidth);
-  west_speed_curve_->setPen(kDefaultColor, kLineWidth);
-  up_speed_curve_->setPen(kDefaultColor, kLineWidth);
+  latitude_curve_->setPen(Qt::black, kLineWidth);
+  longitude_curve_->setPen(Qt::black, kLineWidth);
+  altitude_curve_->setPen(Qt::black, kLineWidth);
+  north_speed_curve_->setPen(Qt::black, kLineWidth);
+  west_speed_curve_->setPen(Qt::black, kLineWidth);
+  up_speed_curve_->setPen(Qt::black, kLineWidth);
 
   latitude_curve_->attach(latitude_plot_);
   longitude_curve_->attach(longitude_plot_);

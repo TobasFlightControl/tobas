@@ -21,7 +21,7 @@ MagPlotWidget::MagPlotWidget()
   for (size_t i = 0; i < 3; ++i)
   {
     mag_plots_[i] = new QwtPlot2();
-    mag_curves_[i]->setPen(kDefaultColor, kLineWidth);
+    mag_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     mag_curves_[i]->attach(mag_plots_[i]);
     rows->addWidget(mag_plots_[i]);
   }

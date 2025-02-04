@@ -16,7 +16,7 @@ LatencyPlotWidget::LatencyPlotWidget()
 
   curve_ = new QwtPlotCurve("Latency");
   plot_ = new QwtPlot2();
-  curve_->setPen(kDefaultColor, kLineWidth);
+  curve_->setPen(Qt::black, kLineWidth);
   curve_->attach(plot_);
   rows->addWidget(plot_);
 }

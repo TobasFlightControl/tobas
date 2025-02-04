@@ -6,7 +6,8 @@ namespace gui
 {
 namespace log
 {
-static constexpr auto kDefaultColor = Qt::black;
 static constexpr double kLineWidth = 1.;
+
+static constexpr Qt::GlobalColor kColorXYZ[] = { Qt::red, Qt::green, Qt::blue };
 }  // namespace log
 }  // namespace gui

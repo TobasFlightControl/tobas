@@ -14,6 +14,7 @@ PlotTabWidget::PlotTabWidget()
   batt_plot_ = new BatteryPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
+  obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
   // TODO
 
   addTab(pose_plot_, "Pose");
@@ -24,6 +25,7 @@ PlotTabWidget::PlotTabWidget()
   addTab(batt_plot_, "Battery");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
+  addTab(obsv_fb_plot_, "Observer\nFeedback");
   // TODO
 
   setTabSize(kTabWidth, kTabHeight);
@@ -39,6 +41,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   batt_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
   dist_force_plot_->setTimeScale(t_start, t_stop);
+  obsv_fb_plot_->setTimeScale(t_start, t_stop);
   // TODO
 }
 
@@ -80,6 +83,11 @@ void PlotTabWidget::setLatencyData(const QVector<tobas_msgs::msg::Latency>& _dat
 void PlotTabWidget::setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data)
 {
   dist_force_plot_->setData(_data);
+}
+
+void PlotTabWidget::setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data)
+{
+  obsv_fb_plot_->setData(_data);
 }
 }  // namespace log
 }  // namespace gui

@@ -39,6 +39,7 @@ private:
   tobas_msgs::msg::Battery batt_;
   tobas_msgs::msg::Latency latency_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
+  tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
 
   rclcpp::Serialization<tobas_msgs::msg::Odometry> odom_ser_;
   rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
@@ -47,6 +48,7 @@ private:
   rclcpp::Serialization<tobas_msgs::msg::Battery> batt_ser_;
   rclcpp::Serialization<tobas_msgs::msg::Latency> latency_ser_;
   rclcpp::Serialization<tobas_kdl_msgs::msg::WrenchStamped> dist_force_ser_;
+  rclcpp::Serialization<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_ser_;
 
   void reset();
   void setPlotData(double time_from_start);
