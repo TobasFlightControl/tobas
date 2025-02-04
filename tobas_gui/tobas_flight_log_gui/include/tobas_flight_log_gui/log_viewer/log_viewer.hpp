@@ -36,7 +36,8 @@ private:
   tobas_msgs::msg::ImuWithCovarianceStamped imu_;
   tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
   tobas_msgs::msg::Gps gps_;
-  tobas_msgs::msg::Battery batt_;
+  tobas_msgs::msg::Battery battery_;
+  tobas_msgs::msg::RotorStateArray rotor_states_;
   tobas_msgs::msg::Latency latency_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
@@ -45,7 +46,8 @@ private:
   rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
   rclcpp::Serialization<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_ser_;
   rclcpp::Serialization<tobas_msgs::msg::Gps> gps_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::Battery> batt_ser_;
+  rclcpp::Serialization<tobas_msgs::msg::Battery> battery_ser_;
+  rclcpp::Serialization<tobas_msgs::msg::RotorStateArray> rotor_states_ser_;
   rclcpp::Serialization<tobas_msgs::msg::Latency> latency_ser_;
   rclcpp::Serialization<tobas_kdl_msgs::msg::WrenchStamped> dist_force_ser_;
   rclcpp::Serialization<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_ser_;

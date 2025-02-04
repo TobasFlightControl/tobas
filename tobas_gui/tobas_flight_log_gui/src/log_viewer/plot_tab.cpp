@@ -11,22 +11,22 @@ PlotTabWidget::PlotTabWidget()
   imu_plot_ = new ImuPlotWidget();
   mag_plot_ = new MagPlotWidget();
   gps_plot_ = new GpsPlotWidget();
-  batt_plot_ = new BatteryPlotWidget();
+  battery_plot_ = new BatteryPlotWidget();
+  rotor_speed_plot_ = new RotorSpeedPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
   dist_force_plot_ = new DisturbanceForcePlotWidget();
   obsv_fb_plot_ = new ObserverFeedbackPlotWidget();
-  // TODO
 
   addTab(pose_plot_, "Pose");
   addTab(twist_plot_, "Twist");
   addTab(imu_plot_, "IMU");
   addTab(mag_plot_, "Magnetic\nField");
   addTab(gps_plot_, "GNSS");
-  addTab(batt_plot_, "Battery");
+  addTab(battery_plot_, "Battery");
+  addTab(rotor_speed_plot_, "Rotor Speed");
   addTab(latency_plot_, "Latency");
   addTab(dist_force_plot_, "Disturbance\nForce");
   addTab(obsv_fb_plot_, "Observer\nFeedback");
-  // TODO
 
   setTabSize(kTabWidth, kTabHeight);
 }
@@ -38,11 +38,11 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   imu_plot_->setTimeScale(t_start, t_stop);
   mag_plot_->setTimeScale(t_start, t_stop);
   gps_plot_->setTimeScale(t_start, t_stop);
-  batt_plot_->setTimeScale(t_start, t_stop);
+  battery_plot_->setTimeScale(t_start, t_stop);
+  rotor_speed_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
   dist_force_plot_->setTimeScale(t_start, t_stop);
   obsv_fb_plot_->setTimeScale(t_start, t_stop);
-  // TODO
 }
 
 void PlotTabWidget::setPoseData(const QVector<tobas_msgs::msg::Odometry>& _data)
@@ -72,7 +72,12 @@ void PlotTabWidget::setGpsData(const QVector<tobas_msgs::msg::Gps>& _data)
 
 void PlotTabWidget::setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data)
 {
-  batt_plot_->setData(_data);
+  battery_plot_->setData(_data);
+}
+
+void PlotTabWidget::setRotorSpeedData(const QVector<tobas_msgs::msg::RotorStateArray>& _data)
+{
+  rotor_speed_plot_->setData(_data);
 }
 
 void PlotTabWidget::setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data)

@@ -8,6 +8,7 @@
 #include "./plots/mag_plot.hpp"
 #include "./plots/gps_plot.hpp"
 #include "./plots/battery_plot.hpp"
+#include "./plots/rotor_speed_plot.hpp"
 #include "./plots/latency_plot.hpp"
 #include "./plots/dist_force_plot.hpp"
 #include "./plots/observer_feedback_plot.hpp"
@@ -37,6 +38,7 @@ public:
   void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
   void setGpsData(const QVector<tobas_msgs::msg::Gps>& _data);
   void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
+  void setRotorSpeedData(const QVector<tobas_msgs::msg::RotorStateArray>& _data);
   void setLatencyData(const QVector<tobas_msgs::msg::Latency>& _data);
   void setDisturbanceForceData(const QVector<tobas_kdl_msgs::msg::WrenchStamped>& _data);
   void setObserverFeedbackData(const QVector<tobas_debug_msgs::msg::ObserverFeedback>& _data);
@@ -47,7 +49,8 @@ private:
   ImuPlotWidget* imu_plot_;
   MagPlotWidget* mag_plot_;
   GpsPlotWidget* gps_plot_;
-  BatteryPlotWidget* batt_plot_;
+  BatteryPlotWidget* battery_plot_;
+  RotorSpeedPlotWidget* rotor_speed_plot_;
   LatencyPlotWidget* latency_plot_;
   DisturbanceForcePlotWidget* dist_force_plot_;
   ObserverFeedbackPlotWidget* obsv_fb_plot_;
