@@ -15,7 +15,7 @@ ShutdownButton::ShutdownButton(int radius) : super("⏻")
   QString qss = R"(
     QPushButton {
       background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF6666, stop:1 #990000);
-      border: none;
+      border: 2px solid #440000;
       border-radius: %1px;
       color: white;
       font-size: %2px;
@@ -23,10 +23,10 @@ ShutdownButton::ShutdownButton(int radius) : super("⏻")
       height: %3px;
     }
     QPushButton:hover {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF3333, stop:1 #990000);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF9999, stop:1 #CC0000);
     }
     QPushButton:pressed {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #CC0000, stop:1 #660000);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #660000, stop:1 #330000);
       padding-top: 2px;
     }
   )";

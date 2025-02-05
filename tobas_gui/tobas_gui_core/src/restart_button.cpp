@@ -15,7 +15,7 @@ RestartButton::RestartButton(int radius) : super("↻")
   QString qss = R"(
     QPushButton {
       background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #66FF66, stop:1 #009900);
-      border: none;
+      border: 2px solid #004400;
       border-radius: %1px;
       color: white;
       font-size: %2px;
@@ -23,10 +23,10 @@ RestartButton::RestartButton(int radius) : super("↻")
       height: %3px;
     }
     QPushButton:hover {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #33FF33, stop:1 #009900);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #99FF99, stop:1 #00CC00);
     }
     QPushButton:pressed {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #00CC00, stop:1 #006600);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #006600, stop:1 #003300);
       padding-top: 2px;
     }
   )";
