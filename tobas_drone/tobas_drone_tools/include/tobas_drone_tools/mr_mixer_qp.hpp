@@ -5,6 +5,7 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
+#include "./mixer.hpp"
 #include "./rotor_axis_extractor.hpp"
 
 namespace tobas
@@ -12,14 +13,16 @@ namespace tobas
 /**
  * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)
  */
-class MultiRotorMixer_QP
+class MultiRotorMixer_QP : public Mixer
 {
+  using super = Mixer;
+
   static constexpr double kThrustClampMargin = 1e-3;  // [N]
 
 public:
   explicit MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures();
+  bool updateInternalDataStructures() override;
 
   bool solve(
     const double& cur_voltage,
@@ -40,9 +43,6 @@ private:
     double base_weight = 1.;
     double thrust_weight = 1e-6;
   } cfg_;
-
-  const Drone& drone_;
-  const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;

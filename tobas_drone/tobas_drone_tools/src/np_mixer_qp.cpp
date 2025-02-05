@@ -12,7 +12,7 @@ using namespace Eigen;
 namespace tobas
 {
 NonPlanarMixer_QP::NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
   resizeAndFill();
   updateWeight();
@@ -20,6 +20,9 @@ NonPlanarMixer_QP::NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree)
 
 bool NonPlanarMixer_QP::updateInternalDataStructures()
 {
+  if (!super::updateInternalDataStructures())
+    return false;
+
   if (!fk_solver_.updateInternalDataStructures())
     return false;
   if (!inertia_solver_.updateInternalDataStructures())
@@ -98,8 +101,16 @@ bool NonPlanarMixer_QP::solve(
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
   {
     const auto& rotor = rotor_it.second;
-    qp_.problem.b(idx) = rotor.maxThrust(cur_voltage);
-    qp_.problem.b(drone_.numRotors() + idx) = -rotor.minThrust();
+    if (rotor_alive_.at(rotor.channel))
+    {
+      qp_.problem.b(idx) = rotor.maxThrust(cur_voltage);
+      qp_.problem.b(drone_.numRotors() + idx) = -rotor.minThrust();
+    }
+    else
+    {
+      qp_.problem.b(idx) = 0.;
+      qp_.problem.b(drone_.numRotors() + idx) = 0.;
+    }
   }
 
   // QPPを解く

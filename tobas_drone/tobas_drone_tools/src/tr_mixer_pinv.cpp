@@ -15,7 +15,7 @@ using namespace Eigen;
 namespace tobas
 {
 TiltRotorMixer_pinv::TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
   if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
     if (!updateInternalDataStructures())
@@ -24,6 +24,9 @@ TiltRotorMixer_pinv::TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tr
 
 bool TiltRotorMixer_pinv::updateInternalDataStructures()
 {
+  if (!super::updateInternalDataStructures())
+    return false;
+
   fk_solver_.updateInternalDataStructures();
   inertia_solver_.updateInternalDataStructures();
 
@@ -73,7 +76,9 @@ bool TiltRotorMixer_pinv::updateInternalDataStructures()
   E_.conservativeResize(NoChange, 2 * nr);
   x_.conservativeResize(2 * nr);
 
-  is_singular_.resize(nr, false);
+  is_singular_.clear();
+  for (const auto& [_, rotor] : drone_.rotors)
+    is_singular_[rotor.channel] = false;
 
   return true;
 }
@@ -126,22 +131,22 @@ bool TiltRotorMixer_pinv::solve(
       declination = M_PI - declination;
 
     // 特異状態を更新
-    if (is_singular_[idx])
+    if (is_singular_.at(rotor.channel))
     {
       if (declination > cfg_.singular_declination_ub)
-        is_singular_[idx] = false;
+        is_singular_[rotor.channel] = false;
     }
     else
     {
       if (declination < cfg_.singular_declination_lb)
-        is_singular_[idx] = true;
+        is_singular_[rotor.channel] = true;
     }
 
     // 運動方程式の左辺を計算
     const auto col = 2 * idx;
-    if (is_singular_[idx])
+    if (is_singular_.at(rotor.channel) || !rotor_alive_.at(rotor.channel))
     {
-      // 特異状態の時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
+      // 特異状態もしくはロータが死んでいる時は推力から期待の運動への伝達をゼロにすることで最適推力がゼロになるよう仕向ける
       E_.block<3, 2>(0, col).setZero();
       E_.block<3, 2>(3, col).setZero();
     }
@@ -175,7 +180,7 @@ bool TiltRotorMixer_pinv::solve(
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
   {
     const auto& rotor = rotor_it.second;
-    if (is_singular_[idx])
+    if (is_singular_.at(rotor.channel))
     {
       x_(2 * idx) = rotor.minThrust();
       x_(2 * idx + 1) = 0.;

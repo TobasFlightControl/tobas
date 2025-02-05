@@ -4,19 +4,21 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
-#include <tobas_drone_core/drone.hpp>
+#include "./mixer.hpp"
 
 namespace tobas
 {
 /**
  * @brief ティルトロータマルチコプターのミキシングを変数変換で解く． (memo: 3-16)
  */
-class TiltRotorMixer_pinv
+class TiltRotorMixer_pinv : public Mixer
 {
+  using super = Mixer;
+
 public:
   explicit TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures();
+  bool updateInternalDataStructures() override;
 
   bool solve(
     const kdl::JntArray& cur_q,
@@ -38,9 +40,6 @@ private:
     double singular_declination_ub = 0.;  // [rad]
   } cfg_;
 
-  const Drone& drone_;
-  const kdl::Tree& tree_;
-
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
 
@@ -49,6 +48,6 @@ private:
   Eigen::Vector6d f_;
   Eigen::VectorXd x_;
 
-  std::vector<bool> is_singular_;  // 各ティルトロータが特異状態かどうか
+  std::map<size_t, bool> is_singular_;  // 各ティルトロータが特異状態かどうか
 };
 }  // namespace tobas

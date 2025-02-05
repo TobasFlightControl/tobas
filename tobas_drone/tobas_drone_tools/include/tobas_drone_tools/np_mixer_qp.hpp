@@ -5,19 +5,21 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
-#include <tobas_drone_core/drone.hpp>
+#include "./mixer.hpp"
 
 namespace tobas
 {
 /**
  * @brief 制約を考慮した非平面配置マルチコプターの推力ミキシング (memo: 2-49)
  */
-class NonPlanarMixer_QP
+class NonPlanarMixer_QP : public Mixer
 {
+  using super = Mixer;
+
 public:
   explicit NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree);
 
-  bool updateInternalDataStructures();
+  bool updateInternalDataStructures() override;
 
   bool solve(
     const double& cur_voltage,
@@ -42,9 +44,6 @@ private:
     double angular_weight = 1.;
     double thrust_weight = 1e-6;
   } cfg_;
-
-  const Drone& drone_;
-  const kdl::Tree& tree_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;

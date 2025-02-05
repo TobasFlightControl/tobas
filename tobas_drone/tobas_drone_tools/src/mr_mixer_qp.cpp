@@ -10,7 +10,7 @@ using namespace Eigen;
 namespace tobas
 {
 MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
   resizeAndFill();
   updateWeight();
@@ -18,6 +18,9 @@ MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree
 
 bool MultiRotorMixer_QP::updateInternalDataStructures()
 {
+  if (!super::updateInternalDataStructures())
+    return false;
+
   if (!fk_solver_.updateInternalDataStructures())
     return false;
   if (!inertia_solver_.updateInternalDataStructures())
@@ -92,8 +95,19 @@ bool MultiRotorMixer_QP::solve(
   for (size_t i = 0; i < z_rotors_.count(); ++i)
   {
     const auto& rotor = z_rotors_.rotor(i);
-    const auto max_thrust = rotor.maxThrust(cur_voltage);
-    const auto min_thrust = rotor.minThrust();
+
+    double max_thrust, min_thrust;
+    if (rotor_alive_.at(rotor.channel))
+    {
+      max_thrust = rotor.maxThrust(cur_voltage);
+      min_thrust = rotor.minThrust();
+    }
+    else
+    {
+      max_thrust = 0.;
+      min_thrust = 0.;
+    }
+
     qp_.problem.b(i) = max_thrust;
     qp_.problem.b(z_rotors_.count() + i) = -min_thrust;
     max_thrust_sum += max_thrust;
