@@ -8,7 +8,7 @@
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_drone_tools/np_mixer.hpp>
+#include <tobas_drone_tools/np_mixer_qp.hpp>
 
 namespace tobas
 {
@@ -51,7 +51,7 @@ private:
   kdl::TreeJointParser joint_parser_;
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  NonPlanarMixer np_mixer_;
+  NonPlanarMixer_QP np_mixer_;
 
   nlp::SQP sqp_;
 

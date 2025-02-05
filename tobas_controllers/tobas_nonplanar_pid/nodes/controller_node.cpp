@@ -9,7 +9,7 @@
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_drone_core/drone.hpp>
-#include <tobas_drone_tools/np_mixer.hpp>
+#include <tobas_drone_tools/np_mixer_qp.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/angle_axis_pid.hpp>
 
@@ -50,7 +50,7 @@ private:
   // Controllers
   tobas::PositionPID pos_pid_;
   tobas::AngleAxisPID rot_pid_;  // ジンバルロック回避のため姿勢のPIDを角軸ベクトルで計算
-  tobas::NonPlanarMixer mixer_;
+  tobas::NonPlanarMixer_QP mixer_;
 
   // Mutable variables
   bool drone_received_ = false;

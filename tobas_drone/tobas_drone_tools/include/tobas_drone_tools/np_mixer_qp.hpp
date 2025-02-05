@@ -12,10 +12,10 @@ namespace tobas
 /**
  * @brief 制約を考慮した非平面配置マルチコプターの推力ミキシング (memo: 2-49)
  */
-class NonPlanarMixer
+class NonPlanarMixer_QP
 {
 public:
-  explicit NonPlanarMixer(const Drone& drone, const kdl::Tree& tree);
+  explicit NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures();
 

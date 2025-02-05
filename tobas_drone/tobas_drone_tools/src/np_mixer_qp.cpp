@@ -4,21 +4,21 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_drone_tools/np_mixer.hpp"
+#include "../include/tobas_drone_tools/np_mixer_qp.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace tobas
 {
-NonPlanarMixer::NonPlanarMixer(const Drone& drone, const kdl::Tree& tree)
+NonPlanarMixer_QP::NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree)
 {
   resizeAndFill();
   updateWeight();
 }
 
-bool NonPlanarMixer::updateInternalDataStructures()
+bool NonPlanarMixer_QP::updateInternalDataStructures()
 {
   if (!fk_solver_.updateInternalDataStructures())
     return false;
@@ -31,7 +31,7 @@ bool NonPlanarMixer::updateInternalDataStructures()
   return true;
 }
 
-bool NonPlanarMixer::solve(
+bool NonPlanarMixer_QP::solve(
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
@@ -113,12 +113,12 @@ bool NonPlanarMixer::solve(
   return true;
 }
 
-const VectorXd& NonPlanarMixer::getThrusts() const
+const VectorXd& NonPlanarMixer_QP::getThrusts() const
 {
   return qp_.solution();
 }
 
-bool NonPlanarMixer::setLinearWeight(double p)
+bool NonPlanarMixer_QP::setLinearWeight(double p)
 {
   if (p <= 0.)
   {
@@ -131,7 +131,7 @@ bool NonPlanarMixer::setLinearWeight(double p)
   return true;
 }
 
-bool NonPlanarMixer::setAngularWeight(double p)
+bool NonPlanarMixer_QP::setAngularWeight(double p)
 {
   if (p <= 0.)
   {
@@ -144,7 +144,7 @@ bool NonPlanarMixer::setAngularWeight(double p)
   return true;
 }
 
-bool NonPlanarMixer::setThrustWeight(double p)
+bool NonPlanarMixer_QP::setThrustWeight(double p)
 {
   if (p <= 0.)
   {
@@ -157,7 +157,7 @@ bool NonPlanarMixer::setThrustWeight(double p)
   return true;
 }
 
-void NonPlanarMixer::resizeAndFill()
+void NonPlanarMixer_QP::resizeAndFill()
 {
   const auto nr = drone_.numRotors();
 
@@ -175,7 +175,7 @@ void NonPlanarMixer::resizeAndFill()
   G_.resize(NoChange, nr);
 }
 
-void NonPlanarMixer::updateWeight()
+void NonPlanarMixer_QP::updateWeight()
 {
   if (drone_.numRotors() == 0)
     return;
