@@ -21,6 +21,8 @@
 #include "./urdf_builder.hpp"
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
+#include "./restart_thread.hpp"
+#include "./shutdown_thread.hpp"
 
 namespace gui
 {
@@ -61,6 +63,11 @@ private:
   RestartButton* restart_btn_;
   ShutdownButton* shutdown_btn_;
 
+  RestartThread restart_thread_;
+  ShutdownThread shutdown_thread_;
+
+  qt::WaitSpinnerWidget spinner_;
+
   homepage::HomepageWidget* homepage_;
   URDFBuilder* urdf_builder_;
   setup_assistant::SetupAssistantWidget* setup_assistant_;
@@ -75,13 +82,18 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
   std::filesystem::path tbsPath() const;
+  void killGCS();
 
 private Q_SLOTS:
   void onBrowseButtonClicked();
   void onLoadButtonClicked();
   void onWriteButtonClicked();
+
   void onRestartButtonClicked(bool checked);
   void onShutdownButtonClicked(bool checked);
+
+  void onRestartThreadFinished(bool success, const QString& message);
+  void onShutdownThreadFinished(bool success, const QString& message);
 };
 }  // namespace core
 }  // namespace gui

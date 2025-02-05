@@ -26,7 +26,13 @@ namespace gui
 namespace core
 {
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), property_client_(node, tobas::kPropertyServerName, kPkgName), ssh_client_(node), package_builder_(node)
+  : node_(node),
+    property_client_(node, tobas::kPropertyServerName, kPkgName),
+    ssh_client_(node),
+    package_builder_(node),
+    restart_thread_(node),
+    shutdown_thread_(node),
+    spinner_(Qt::WindowModal, this)
 {
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPkgName));
   const auto rsrc_path = pkg_path / "resources";
@@ -129,6 +135,8 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
   connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  connect(&restart_thread_, &RestartThread::finished, this, &self::onRestartThreadFinished);
+  connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -152,6 +160,14 @@ void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& armi
 fs::path GUICoreWidget::tbsPath() const
 {
   return tbs_path_->text().toStdString();
+}
+
+void GUICoreWidget::killGCS()
+{
+  rclcpp::shutdown();
+  close();
+  QCoreApplication::quit();
+  kill(getpid(), SIGINT);
 }
 
 void GUICoreWidget::onBrowseButtonClicked()
@@ -349,31 +365,18 @@ void GUICoreWidget::onRestartButtonClicked(bool checked)
     return;
   }
 
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
-    restart_btn_->setChecked(false);
-    return;
-  }
-
   // 本当に再起動してよいか確認
-  if (!qt::yesOrNo(this, "Are you sure you want to restart the FC?", qt::QMessageLevel::WARN))
+  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::QMessageLevel::WARN))
   {
     restart_btn_->setChecked(false);
     return;
   }
 
   // Tobasサービスを再起動
-  RCLCPP_INFO(node_->get_logger(), "Restarting the flight controller.");
-  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
-    restart_btn_->setChecked(false);
-    return;
-  }
+  restart_thread_.start();
 
-  restart_btn_->setChecked(false);
+  spinner_.show();
+  spinner_.start();
 }
 
 void GUICoreWidget::onShutdownButtonClicked(bool checked)
@@ -389,14 +392,6 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
     return;
   }
 
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
-    shutdown_btn_->setChecked(false);
-    return;
-  }
-
   // 本当にシャットダウンしてよいか確認
   if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN))
   {
@@ -405,14 +400,42 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
   }
 
   // ラズパイをシャットダウン
-  RCLCPP_INFO(node_->get_logger(), "Shutting down the flight controller.");
-  ssh_client_.execute("poweroff", true, true);
+  shutdown_thread_.start();
+
+  spinner_.show();
+  spinner_.start();
+}
+
+void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message)
+{
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success)
+  {
+    qt::qErrorBox(this, message);
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  qt::qInfoBox(this, "Flight controller is restarted successfully.");
+  restart_btn_->setChecked(false);
+}
+
+void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& message)
+{
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success)
+  {
+    qt::qErrorBox(this, message);
+    restart_btn_->setChecked(false);
+    return;
+  }
 
   // GCSを強制終了
-  rclcpp::shutdown();
-  close();
-  QCoreApplication::quit();
-  kill(getpid(), SIGINT);
+  killGCS();
 }
 }  // namespace core
 }  // namespace gui
