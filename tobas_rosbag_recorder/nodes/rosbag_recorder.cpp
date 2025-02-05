@@ -24,6 +24,7 @@
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
@@ -157,6 +158,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
+  addStandardMsgSub<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessTopic);
   addStandardMsgSub<tobas_msgs::msg::JointStateArray>(tobas::kJointStatesTopic);
   addStandardMsgSub<tobas_msgs::msg::Latency>(tobas::kLatencyTopic);
   addStandardMsgSub<tobas_msgs::msg::Arming>(tobas::kArmingTopic);

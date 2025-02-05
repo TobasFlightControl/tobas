@@ -23,9 +23,9 @@
 #include <tobas_msgs/msg/post_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/enable_rotor.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
@@ -106,6 +106,8 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
     tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
+  addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(
+    tobas::kRotorLivelinessTopic, tobas::kRotorLivelinessTopic);
   addTopicLogicToIface<tobas_msgs::msg::JointStateArray>(
     tobas::addThrotNS(tobas::kJointStatesTopic), tobas::kJointStatesTopic);
   addTopicLogicToIface<tobas_kdl_msgs::msg::EulerStamped>(tobas::addThrotNS(tobas::kEulerTopic), tobas::kEulerTopic);
@@ -123,7 +125,6 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic, tobas::kJointEffCmdTopic);
 
   addService<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
-  addService<tobas_msgs::srv::EnableRotor>(tobas::kEnableRotorSrv);
   addService<tobas_msgs::srv::GetGnssOrigin>(tobas::kGetGnssOriginSrv);
   addService<tobas_msgs::srv::SetGnssOrigin>(tobas::kSetGnssOriginSrv);
   addService<tobas_msgs::srv::BagRecordStart>(tobas::kROSBagRecordStartSrv);

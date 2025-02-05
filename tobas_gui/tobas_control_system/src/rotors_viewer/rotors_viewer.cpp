@@ -36,28 +36,41 @@ void RotorsViewerWiddget::updateInternalDataStructures()
 
   rotor_states_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
+  rotor_liveliness_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorLivelinessTopic), &self::rotorLivelinessCb,
+    this);
 }
 
-void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
+void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg)
 {
-  for (const auto& state : states->states)
+  for (const auto& state : msg->states)
   {
     if (!meters_.contains(state.channel))
       continue;
 
-    const auto& meter = meters_.at(state.channel);
-
     if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
-    {
-      meter->setBackgroundColor("red");
       continue;
-    }
 
-    meter->setBackgroundColor("transparent");
-
+    const auto& meter = meters_.at(state.channel);
     const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(state.speed));
     meter->setValue(speed_rpm);
     meter->setBottomText(bottomText(speed_rpm));
+  }
+}
+
+void RotorsViewerWiddget::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg)
+{
+  for (const auto& liveliness : msg->data)
+  {
+    if (!meters_.contains(liveliness.channel))
+      continue;
+
+    const auto& meter = meters_.at(liveliness.channel);
+
+    if (liveliness.alive)
+      meter->setBackgroundColor("transparent");
+    else
+      meter->setBackgroundColor("red");
   }
 }
 

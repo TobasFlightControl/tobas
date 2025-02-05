@@ -6,6 +6,7 @@
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/scroll_area.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 
 #include "./speedmeter.hpp"
 
@@ -33,8 +34,10 @@ private:
   QHBoxLayout* cols_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
 
-  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
+  void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);
 
   static QString bottomText(int rpm);
 };

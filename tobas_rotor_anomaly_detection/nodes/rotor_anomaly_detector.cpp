@@ -4,8 +4,10 @@
 #include <tobas_tools/util.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/enable_rotor.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
+
+using namespace std;
 
 class RotorAnomalyDetectorNode : public tobas::BaseNode
 {
@@ -14,6 +16,7 @@ class RotorAnomalyDetectorNode : public tobas::BaseNode
 
   static constexpr rcl_duration_value_t kNoCommTimeout = 100'000'000;     // [ns]
   static constexpr rcl_duration_value_t kCommRecoveryTime = 500'000'000;  // [ns]
+  static constexpr auto kPublishRotorLivelinessPeriod = 1s;
 
 public:
   explicit RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -28,15 +31,17 @@ private:
 
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  std::map<size_t, RotorData> data_;
+  map<size_t, RotorData> data_;
+
+  ros2::PublisherPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> states_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
 
-  ros2::ServiceClientPtr<tobas_msgs::srv::EnableRotor> enable_rotor_sc_;
+  ros2::TimerPtr publish_rotor_liveliness_timer_;
 
-  void requestEnableRotor(uint8_t channel, bool enable);
+  void publishRotorLiveliness();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -46,25 +51,28 @@ private:
 RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& options)
   : super("rotor_anomaly_detector", options)
 {
+  rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessTopic);
+
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
-  states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::statesCb, this);
+  rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::statesCb, this);
 
-  enable_rotor_sc_ = create_client<tobas_msgs::srv::EnableRotor>(tobas::kEnableRotorSrv);
+  publish_rotor_liveliness_timer_ = createTimer(kPublishRotorLivelinessPeriod, &self::publishRotorLiveliness, this);
 }
 
-void RotorAnomalyDetectorNode::requestEnableRotor(uint8_t channel, bool enable)
+void RotorAnomalyDetectorNode::publishRotorLiveliness()
 {
-  if (!enable_rotor_sc_->service_is_ready())
+  auto rotor_liveliness = std::make_unique<tobas_msgs::msg::RotorLivelinessArray>();
+  rotor_liveliness->header.stamp = get_clock()->now();
+
+  for (const auto& [channel, data] : data_)
   {
-    TOBAS_ERROR("\"", tobas::kEnableRotorSrv, "\" service is not ready.");
-    return;
+    rotor_liveliness->data.emplace_back();
+    rotor_liveliness->data.back().channel = channel;
+    rotor_liveliness->data.back().alive = data.is_alive;
   }
 
-  const auto req = std::make_shared<tobas_msgs::srv::EnableRotor::Request>();
-  req->channel = channel;
-  req->enable = enable;
-  enable_rotor_sc_->async_send_request(req);
+  rotor_liveliness_pub_->publish(move(rotor_liveliness));
 }
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -120,8 +128,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
           TOBAS_FATAL(
             "No communication with rotor channel ", (int)state.channel, ". Please land the drone as soon as possible.");
 
-          // 通信できないモータをモデルから削除
-          requestEnableRotor(state.channel, false);
+          publishRotorLiveliness();
         }
       }
       else
@@ -141,8 +148,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
           data.last_alive_time = cur_time;
           TOBAS_INFO("Communication with rotor channel ", (int)state.channel, " has been recovered.");
 
-          // 回復したモータをモデルに追加
-          requestEnableRotor(state.channel, true);
+          publishRotorLiveliness();
         }
       }
       else
