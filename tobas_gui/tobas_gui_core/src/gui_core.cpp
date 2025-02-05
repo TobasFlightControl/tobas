@@ -430,7 +430,7 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
   if (!success)
   {
     qt::qErrorBox(this, message);
-    restart_btn_->setChecked(false);
+    shutdown_btn_->setChecked(false);
     return;
   }
 
