@@ -10,7 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>tobas_homepage</depend>
-  <depend>urdf_builder</depend>
+  <depend>tobas_urdf_builder</depend>
   <depend>tobas_setup_assistant</depend>
   <depend>tobas_hardware_setup</depend>
   <depend>tobas_control_system</depend>

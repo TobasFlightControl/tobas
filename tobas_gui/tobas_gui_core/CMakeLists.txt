@@ -22,7 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_homepage REQUIRED)
-find_package(urdf_builder REQUIRED)
+find_package(tobas_urdf_builder REQUIRED)
 find_package(tobas_setup_assistant REQUIRED)
 find_package(tobas_hardware_setup REQUIRED)
 find_package(tobas_control_system REQUIRED)
@@ -32,7 +32,7 @@ find_package(tobas_simulation_gui REQUIRED)
 
 set(AMENT_DEPENDENCIES
   tobas_homepage
-  urdf_builder
+  tobas_urdf_builder
   tobas_setup_assistant
   tobas_hardware_setup
   tobas_control_system

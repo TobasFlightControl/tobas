@@ -12,7 +12,7 @@ namespace core
 {
 URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
 {
-  const fs::path pkg_path(ament_index_cpp::get_package_share_directory("urdf_builder"));
+  const fs::path pkg_path(ament_index_cpp::get_package_share_directory("tobas_urdf_builder"));
   const auto config_path = pkg_path / "config/urdf_builder.rviz";
   rviz_manager_.initialize(QString::fromStdString(config_path));
 
