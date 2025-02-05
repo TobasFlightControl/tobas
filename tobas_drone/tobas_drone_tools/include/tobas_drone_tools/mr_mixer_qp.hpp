@@ -35,11 +35,14 @@ public:
   bool setThrustWeight(double p);
 
 private:
+  struct Config
+  {
+    double base_weight = 1.;
+    double thrust_weight = 1e-6;
+  } cfg_;
+
   const Drone& drone_;
   const kdl::Tree& tree_;
-
-  double base_weight_ = 1.;
-  double thrust_weight_ = 1e-6;
 
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;

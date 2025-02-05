@@ -130,7 +130,7 @@ bool TiltRotorMixer_SQP::setLinearWeight(double p)
     return false;
   }
 
-  linear_weight_ = p;
+  cfg_.linear_weight = p;
   updateWeight();
   return true;
 }
@@ -143,7 +143,7 @@ bool TiltRotorMixer_SQP::setAngularWeight(double p)
     return false;
   }
 
-  angular_weight_ = p;
+  cfg_.angular_weight = p;
   updateWeight();
   return true;
 }
@@ -156,7 +156,7 @@ bool TiltRotorMixer_SQP::setThrustWeight(double p)
     return false;
   }
 
-  thrust_weight_ = p;
+  cfg_.thrust_weight = p;
   updateWeight();
   return true;
 }
@@ -246,9 +246,9 @@ bool TiltRotorMixer_SQP::updateWeight()
   const auto angular_scale = (I.trace() / 3) * kDGyroScale;                   // [Nm]
   const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();  // [N]
 
-  Q_.diagonal().head<3>().fill(linear_weight_ / math::sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(angular_weight_ / math::sqr(angular_scale));
-  R_.diagonal().fill(thrust_weight_ / math::sqr(thrust_scale));
+  Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
+  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
   return true;
 }

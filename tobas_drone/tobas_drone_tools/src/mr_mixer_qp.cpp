@@ -128,7 +128,7 @@ bool MultiRotorMixer_QP::setBaseWeight(double p)
     return false;
   }
 
-  base_weight_ = p;
+  cfg_.base_weight = p;
   updateWeight();
   return true;
 }
@@ -141,7 +141,7 @@ bool MultiRotorMixer_QP::setThrustWeight(double p)
     return false;
   }
 
-  thrust_weight_ = p;
+  cfg_.thrust_weight = p;
   updateWeight();
   return true;
 }
@@ -177,7 +177,7 @@ void MultiRotorMixer_QP::updateWeight()
   const auto angular_scale = (I.trace() / 3) * kDGyroScale;                  // [Nm]
   const auto thrust_scale = mass * tobas_std::kGravity / z_rotors_.count();  // [N]
 
-  Q_.diagonal().fill(base_weight_ / math::sqr(angular_scale));
-  R_.diagonal().fill(thrust_weight_ / math::sqr(thrust_scale));
+  Q_.diagonal().fill(cfg_.base_weight / math::sqr(angular_scale));
+  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 }
 }  // namespace tobas

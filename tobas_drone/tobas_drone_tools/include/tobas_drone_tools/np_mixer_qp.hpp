@@ -36,10 +36,12 @@ public:
   bool setThrustWeight(double p);
 
 private:
-  // Config
-  double linear_weight_ = 1.;
-  double angular_weight_ = 1.;
-  double thrust_weight_ = 1e-6;
+  struct Config
+  {
+    double linear_weight = 1.;
+    double angular_weight = 1.;
+    double thrust_weight = 1e-6;
+  } cfg_;
 
   const Drone& drone_;
   const kdl::Tree& tree_;

@@ -37,7 +37,7 @@ void AccelAttitudeConverter::update(
   const auto& z = xyz.z();
 
   // 姿勢の制限を考慮してx, yをクランプ
-  const auto tan_max_atti = tan(max_attitude_);
+  const auto tan_max_atti = tan(cfg_.max_attitude);
   const auto max_xy_norm = z * tan_max_atti * sqrt(2 + tan_max_atti);  // sqrt(x^2 + y^2)の最大値
   algo::clamp2d(x, y, max_xy_norm);
 
@@ -59,7 +59,7 @@ bool AccelAttitudeConverter::setMaxAttitude(double p)
     return false;
   }
 
-  max_attitude_ = p;
+  cfg_.max_attitude = p;
   return true;
 }
 }  // namespace tobas
