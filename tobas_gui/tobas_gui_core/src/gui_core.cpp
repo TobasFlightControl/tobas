@@ -336,12 +336,16 @@ void GUICoreWidget::onWriteButtonClicked()
   qt::qInfoBox(this, "Tobas configuration package is installed successfully.");
 }
 
-void GUICoreWidget::onRestartButtonClicked()
+void GUICoreWidget::onRestartButtonClicked(bool checked)
 {
+  if (!checked)
+    return;
+
   // アームされていないことを確認
   if (arming_ != nullptr && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    restart_btn_->setChecked(false);
     return;
   }
 
@@ -349,28 +353,39 @@ void GUICoreWidget::onRestartButtonClicked()
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    restart_btn_->setChecked(false);
     return;
   }
 
   // 本当に再起動してよいか確認
   if (!qt::yesOrNo(this, "Are you sure you want to restart the FC?", qt::QMessageLevel::WARN))
+  {
+    restart_btn_->setChecked(false);
     return;
+  }
 
   // Tobasサービスを再起動
   RCLCPP_INFO(node_->get_logger(), "Restarting the flight controller.");
   if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    restart_btn_->setChecked(false);
     return;
   }
+
+  restart_btn_->setChecked(false);
 }
 
-void GUICoreWidget::onShutdownButtonClicked()
+void GUICoreWidget::onShutdownButtonClicked(bool checked)
 {
+  if (!checked)
+    return;
+
   // アームされていないことを確認
   if (arming_ != nullptr && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    shutdown_btn_->setChecked(false);
     return;
   }
 
@@ -378,12 +393,16 @@ void GUICoreWidget::onShutdownButtonClicked()
   if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    shutdown_btn_->setChecked(false);
     return;
   }
 
   // 本当にシャットダウンしてよいか確認
   if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN))
+  {
+    shutdown_btn_->setChecked(false);
     return;
+  }
 
   // ラズパイをシャットダウン
   RCLCPP_INFO(node_->get_logger(), "Shutting down the flight controller.");

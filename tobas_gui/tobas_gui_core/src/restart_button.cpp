@@ -8,6 +8,8 @@ namespace core
 {
 RestartButton::RestartButton(int radius) : super("↻")
 {
+  setCheckable(true);
+
   const auto font_size = radius * 3 / 2;
   const auto diameter = radius * 2;
 
@@ -25,7 +27,7 @@ RestartButton::RestartButton(int radius) : super("↻")
     QPushButton:hover {
       background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #99FF99, stop:1 #00CC00);
     }
-    QPushButton:pressed {
+    QPushButton:pressed, QPushButton:checked {
       background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #006600, stop:1 #003300);
       padding-top: 2px;
     }

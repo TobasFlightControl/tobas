@@ -80,8 +80,8 @@ private Q_SLOTS:
   void onBrowseButtonClicked();
   void onLoadButtonClicked();
   void onWriteButtonClicked();
-  void onRestartButtonClicked();
-  void onShutdownButtonClicked();
+  void onRestartButtonClicked(bool checked);
+  void onShutdownButtonClicked(bool checked);
 };
 }  // namespace core
 }  // namespace gui
