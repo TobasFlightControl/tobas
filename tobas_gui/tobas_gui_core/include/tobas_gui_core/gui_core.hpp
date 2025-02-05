@@ -19,7 +19,8 @@
 #include <tobas_simulation_gui/simulation.hpp>
 
 #include "./urdf_builder.hpp"
-#include "./power_button.hpp"
+#include "./restart_button.hpp"
+#include "./shutdown_button.hpp"
 
 namespace gui
 {
@@ -57,7 +58,8 @@ private:
   QPushButton* load_btn_;
   QPushButton* write_btn_;
 
-  PowerButton* power_btn_;
+  RestartButton* restart_btn_;
+  ShutdownButton* shutdown_btn_;
 
   homepage::HomepageWidget* homepage_;
   URDFBuilder* urdf_builder_;
@@ -78,6 +80,7 @@ private Q_SLOTS:
   void onBrowseButtonClicked();
   void onLoadButtonClicked();
   void onWriteButtonClicked();
+  void onRestartButtonClicked();
   void onShutdownButtonClicked();
 };
 }  // namespace core

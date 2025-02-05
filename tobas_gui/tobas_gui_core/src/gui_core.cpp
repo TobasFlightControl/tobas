@@ -87,8 +87,9 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   load_btn_->setEnabled(false);
   write_btn_->setEnabled(false);
 
-  // Shutdown button
-  power_btn_ = new PowerButton(kPowerButtonRadius);
+  // Power control buttons
+  restart_btn_ = new RestartButton(kPowerButtonRadius);
+  shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
 
   // Layout
   const auto pkg_btn_cols = new QHBoxLayout();
@@ -112,7 +113,8 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   header_cols->addStretch();
   header_cols->addLayout(pkg_rows);
   qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // スペースが足りなければ潰れる
-  header_cols->addWidget(power_btn_);
+  header_cols->addWidget(restart_btn_);
+  header_cols->addWidget(shutdown_btn_);
 
   const auto rows = new QVBoxLayout();
   rows->addLayout(header_cols);
@@ -125,7 +127,8 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(browse_btn_, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
-  connect(power_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
+  connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -331,6 +334,35 @@ void GUICoreWidget::onWriteButtonClicked()
 
   progress.close();
   qt::qInfoBox(this, "Tobas configuration package is installed successfully.");
+}
+
+void GUICoreWidget::onRestartButtonClicked()
+{
+  // アームされていないことを確認
+  if (arming_ != nullptr && arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    return;
+  }
+
+  // SSH接続を確認
+  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
+  {
+    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    return;
+  }
+
+  // 本当に再起動してよいか確認
+  if (!qt::yesOrNo(this, "Are you sure you want to restart the FC?", qt::QMessageLevel::WARN))
+    return;
+
+  // Tobasサービスを再起動
+  RCLCPP_INFO(node_->get_logger(), "Restarting the flight controller.");
+  if (ssh_client_.execute("systemctl restart tobas_real.target", true) != ssh::SSHClient::E_NO_ERROR)
+  {
+    qt::qErrorBox(this, "Failed to restart Tobas real service:\n\n" + QString(ssh_client_.errorMessage()));
+    return;
+  }
 }
 
 void GUICoreWidget::onShutdownButtonClicked()

@@ -6,15 +6,15 @@ namespace gui
 {
 namespace core
 {
-class PowerButton : public QPushButton
+class ShutdownButton : public QPushButton
 {
   Q_OBJECT
 
-  using self = PowerButton;
+  using self = ShutdownButton;
   using super = QPushButton;
 
 public:
-  explicit PowerButton(int radius);
+  explicit ShutdownButton(int radius);
 };
 }  // namespace core
 }  // namespace gui

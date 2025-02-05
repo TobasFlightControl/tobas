@@ -1,12 +1,12 @@
 #include <QGraphicsDropShadowEffect>
 
-#include "tobas_gui_core/power_button.hpp"
+#include "tobas_gui_core/restart_button.hpp"
 
 namespace gui
 {
 namespace core
 {
-PowerButton::PowerButton(int radius) : super("⏻")
+RestartButton::RestartButton(int radius) : super("↻")
 {
   const auto font_size = radius * 3 / 2;
   const auto diameter = radius * 2;
@@ -14,7 +14,7 @@ PowerButton::PowerButton(int radius) : super("⏻")
   // ボタンの外観をスタイルシートで設定
   QString qss = R"(
     QPushButton {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF6666, stop:1 #990000);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #66FF66, stop:1 #009900);
       border: none;
       border-radius: %1px;
       color: white;
@@ -23,10 +23,10 @@ PowerButton::PowerButton(int radius) : super("⏻")
       height: %3px;
     }
     QPushButton:hover {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #FF3333, stop:1 #990000);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #33FF33, stop:1 #009900);
     }
     QPushButton:pressed {
-      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #CC0000, stop:1 #660000);
+      background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 #00CC00, stop:1 #006600);
       padding-top: 2px;
     }
   )";
