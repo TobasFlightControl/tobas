@@ -108,7 +108,6 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="4"
-    color="Blue"
     use_own_mesh="true"
     mesh="package://tobas_description/meshes/neo9_propeller_ccw.dae">
     <origin xyz="${side_propeller_x} -${side_propeller_y} ${rotor_offset_top}" rpy="0 ${5*pi/180} ${pi}"/>
@@ -123,7 +122,6 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="5"
-    color="Red"
     use_own_mesh="true"
     mesh="package://tobas_description/meshes/neo9_propeller_cw.dae">
     <origin xyz="${front_propeller_x} -${front_propeller_y} ${rotor_offset_top}" rpy="${-5*pi/180} 0 ${-30*pi/180}"/>
