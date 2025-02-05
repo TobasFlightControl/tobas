@@ -2,21 +2,21 @@
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_drone_tools/mr_mixer.hpp"
+#include "../include/tobas_drone_tools/mr_mixer_qp.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace tobas
 {
-MultiRotorMixer::MultiRotorMixer(const Drone& drone, const kdl::Tree& tree)
+MultiRotorMixerQP::MultiRotorMixerQP(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
   resizeAndFill();
   updateWeight();
 }
 
-bool MultiRotorMixer::updateInternalDataStructures()
+bool MultiRotorMixerQP::updateInternalDataStructures()
 {
   if (!fk_solver_.updateInternalDataStructures())
     return false;
@@ -31,7 +31,7 @@ bool MultiRotorMixer::updateInternalDataStructures()
   return true;
 }
 
-bool MultiRotorMixer::solve(
+bool MultiRotorMixerQP::solve(
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
@@ -115,12 +115,12 @@ bool MultiRotorMixer::solve(
   return true;
 }
 
-const VectorXd& MultiRotorMixer::getThrusts() const
+const VectorXd& MultiRotorMixerQP::getThrusts() const
 {
   return qp_.solution();
 }
 
-bool MultiRotorMixer::setBaseWeight(double p)
+bool MultiRotorMixerQP::setBaseWeight(double p)
 {
   if (p <= 0.)
   {
@@ -133,7 +133,7 @@ bool MultiRotorMixer::setBaseWeight(double p)
   return true;
 }
 
-bool MultiRotorMixer::setThrustWeight(double p)
+bool MultiRotorMixerQP::setThrustWeight(double p)
 {
   if (p <= 0.)
   {
@@ -146,7 +146,7 @@ bool MultiRotorMixer::setThrustWeight(double p)
   return true;
 }
 
-void MultiRotorMixer::resizeAndFill()
+void MultiRotorMixerQP::resizeAndFill()
 {
   qp_.resize(z_rotors_.count(), 1, z_rotors_.count() * 2);
   qp_.setZero();
@@ -163,7 +163,7 @@ void MultiRotorMixer::resizeAndFill()
   G_.resize(NoChange, z_rotors_.count());
 }
 
-void MultiRotorMixer::updateWeight()
+void MultiRotorMixerQP::updateWeight()
 {
   if (z_rotors_.count() == 0)
     return;

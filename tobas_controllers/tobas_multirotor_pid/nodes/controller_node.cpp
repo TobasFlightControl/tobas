@@ -8,7 +8,7 @@
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/euler_pid.hpp>
 #include <tobas_drone_tools/mr_accel_attitude_converter.hpp>
-#include <tobas_drone_tools/mr_mixer.hpp>
+#include <tobas_drone_tools/mr_mixer_qp.hpp>
 #include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
@@ -53,7 +53,7 @@ private:
   tobas::PositionPID pos_pid_;
   tobas::AccelAttitudeConverter acc_atti_conv_;
   tobas::EulerPID rot_pid_;  // 平面配置MRだとなぜか角軸ベクトルよりオイラー角で姿勢誤差を計算した方が制御が安定する
-  tobas::MultiRotorMixer mixer_;
+  tobas::MultiRotorMixerQP mixer_;
 
   // Mutable variables
   bool drone_received_ = false;
