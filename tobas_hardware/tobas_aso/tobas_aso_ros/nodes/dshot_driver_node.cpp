@@ -55,7 +55,7 @@ private:
   ros2::ServiceServerPtr<SetGains> set_gains_ss_;
   ros2::ServiceServerPtr<SaveGains> save_gains_ss_;
 
-  ros2::TimerPtr publish_arm_status_timer_;
+  ros2::TimerPtr publish_arming_timer_;
   ros2::TimerPtr auto_stop_timer_;
   ros2::TimerPtr auto_disarm_timer_;
 
@@ -89,7 +89,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("as
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
 
-  publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this, false);
+  publish_arming_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this, false);
   auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this, false);
   auto_disarm_timer_ = createTimer(tobas::kAutoDisarmTimeout, &self::autoDisarmTimerCb, this, false);
 }
@@ -287,7 +287,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   save_gains_ss_ = createService<SaveGains>(tobas::kSaveRotorControlGainsSrv, &self::saveGainsCb, this);
 
   // Start timers
-  publish_arm_status_timer_->reset();
+  publish_arming_timer_->reset();
   auto_stop_timer_->reset();
 
   drone_ = drone;
