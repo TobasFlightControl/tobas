@@ -9,14 +9,14 @@ using namespace Eigen;
 
 namespace tobas
 {
-MultiRotorMixerQP::MultiRotorMixerQP(const Drone& drone, const kdl::Tree& tree)
+MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree)
   : drone_(drone), tree_(tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
 {
   resizeAndFill();
   updateWeight();
 }
 
-bool MultiRotorMixerQP::updateInternalDataStructures()
+bool MultiRotorMixer_QP::updateInternalDataStructures()
 {
   if (!fk_solver_.updateInternalDataStructures())
     return false;
@@ -31,7 +31,7 @@ bool MultiRotorMixerQP::updateInternalDataStructures()
   return true;
 }
 
-bool MultiRotorMixerQP::solve(
+bool MultiRotorMixer_QP::solve(
   const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
@@ -115,12 +115,12 @@ bool MultiRotorMixerQP::solve(
   return true;
 }
 
-const VectorXd& MultiRotorMixerQP::getThrusts() const
+const VectorXd& MultiRotorMixer_QP::getThrusts() const
 {
   return qp_.solution();
 }
 
-bool MultiRotorMixerQP::setBaseWeight(double p)
+bool MultiRotorMixer_QP::setBaseWeight(double p)
 {
   if (p <= 0.)
   {
@@ -133,7 +133,7 @@ bool MultiRotorMixerQP::setBaseWeight(double p)
   return true;
 }
 
-bool MultiRotorMixerQP::setThrustWeight(double p)
+bool MultiRotorMixer_QP::setThrustWeight(double p)
 {
   if (p <= 0.)
   {
@@ -146,7 +146,7 @@ bool MultiRotorMixerQP::setThrustWeight(double p)
   return true;
 }
 
-void MultiRotorMixerQP::resizeAndFill()
+void MultiRotorMixer_QP::resizeAndFill()
 {
   qp_.resize(z_rotors_.count(), 1, z_rotors_.count() * 2);
   qp_.setZero();
@@ -163,7 +163,7 @@ void MultiRotorMixerQP::resizeAndFill()
   G_.resize(NoChange, z_rotors_.count());
 }
 
-void MultiRotorMixerQP::updateWeight()
+void MultiRotorMixer_QP::updateWeight()
 {
   if (z_rotors_.count() == 0)
     return;

@@ -12,12 +12,12 @@ namespace tobas
 /**
  * @brief 制約を考慮したマルチコプターの推力ミキシング (memo: 3-1)
  */
-class MultiRotorMixerQP
+class MultiRotorMixer_QP
 {
   static constexpr double kThrustClampMargin = 1e-3;  // [N]
 
 public:
-  explicit MultiRotorMixerQP(const Drone& drone, const kdl::Tree& tree);
+  explicit MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree);
 
   bool updateInternalDataStructures();
 

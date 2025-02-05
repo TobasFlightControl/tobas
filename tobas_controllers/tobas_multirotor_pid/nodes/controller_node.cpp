@@ -53,7 +53,7 @@ private:
   tobas::PositionPID pos_pid_;
   tobas::AccelAttitudeConverter acc_atti_conv_;
   tobas::EulerPID rot_pid_;  // 平面配置MRだとなぜか角軸ベクトルよりオイラー角で姿勢誤差を計算した方が制御が安定する
-  tobas::MultiRotorMixerQP mixer_;
+  tobas::MultiRotorMixer_QP mixer_;
 
   // Mutable variables
   bool drone_received_ = false;
