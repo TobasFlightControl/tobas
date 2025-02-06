@@ -41,7 +41,7 @@ private:
   struct Config
   {
     double base_weight = 1.;
-    double thrust_weight = 1e-6;
+    double thrust_weight = 1e-9;
   } cfg_;
 
   kdl::TreeFkSolverPosAll fk_solver_;
