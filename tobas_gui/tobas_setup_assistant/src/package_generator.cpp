@@ -184,7 +184,7 @@ tobas::Drone PackageGenerator::createDrone()
     tobas::RotorConfig rotor;
     rotor.channel = prop_config->general()->channel();
     rotor.link_name = link_name.toStdString();
-    rotor.direction = prop_config->motor()->direction();
+    rotor.direction = prop_config->general()->direction();
     rotor.axis = robot_.rotorAxisType(link_name.toStdString());
     rotor.num_poles = prop_config->motor()->numPoles();
     rotor.kv = prop_config->motor()->kv();
@@ -805,7 +805,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
     addRotorPlugin(
       robot, ns, link_name, general->channel(), motor->kv(), motor->internalResistance(), propeller->numBlade(),
-      aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(),
+      aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), general->direction(), esc->maxCurrent(),
       sim->maxModelErrorRate());
   }
 

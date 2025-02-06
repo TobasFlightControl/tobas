@@ -14,16 +14,6 @@ MotorWidget::MotorWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  direction_ = new ParamGetterWidget_ComboBox(
-    "Turning Direction", "Motor rotation direction. "
-                         "Please choose either CW (Clockwise) or CCW (Counter Clockwise) "
-                         "relative to the rotation axis. "
-                         "For instance, in rotary-wing aircraft, "
-                         "propellers positioned diagonally opposite each other "
-                         "typically rotate in the same direction.");
-  direction_->setChoices({ kCWName, kCCWName });
-  rows->addWidget(direction_);
-
   kv_ =
     new ParamGetterWidget_SpinBox("Kv", "Motor's rotational speed under no load, relative to the supplied voltage.");
   kv_->setMinimum(1);
@@ -62,7 +52,6 @@ void MotorWidget::copyFrom(const BaseSelectedLinkSettingWidget* src)
 {
   const auto derived = qobject_cast<const MotorWidget*>(src);
 
-  direction_->setValue(derived->direction_->getValue());
   kv_->setValue(derived->kv_->getValue());
   resistance_->setValue(derived->resistance_->getValue());
   num_poles_->setValue(derived->num_poles_->getValue());
@@ -72,7 +61,6 @@ YAML::Node MotorWidget::dump() const
 {
   YAML::Node node(YAML::NodeType::Map);
 
-  node[direction_->name()] = direction_->getValue();
   node[kv_->name()] = kv_->getValue();
   node[resistance_->name()] = resistance_->getValue();
   node[num_poles_->name()] = num_poles_->getValue();
@@ -82,21 +70,9 @@ YAML::Node MotorWidget::dump() const
 
 void MotorWidget::load(const YAML::Node& node)
 {
-  direction_->setValue(node[direction_->name()].as<QString>());
   kv_->setValue(node[kv_->name()].as<int>());
   resistance_->setValue(node[resistance_->name()].as<int>());
   num_poles_->setValue(node[num_poles_->name()].as<int>());
-}
-
-tobas::turning_direction_t MotorWidget::direction() const
-{
-  const auto text = direction_->getValue();
-  if (text == kCWName)
-    return tobas::turning_direction_t::CW;
-  else if (text == kCCWName)
-    return tobas::turning_direction_t::CCW;
-  else
-    throw;
 }
 
 double MotorWidget::kv() const

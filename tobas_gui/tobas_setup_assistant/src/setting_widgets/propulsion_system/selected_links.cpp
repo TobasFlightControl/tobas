@@ -212,7 +212,7 @@ bool SelectedLinksWidget::hasBothRotationalDirections() const
 {
   QSet<tobas::turning_direction_t> set;
   for (int i = 0; i < count(); ++i)
-    set.insert(widget(i)->motor()->direction());
+    set.insert(widget(i)->general()->direction());
 
   const auto num = set.size();
   if (num > 2)
