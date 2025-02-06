@@ -44,7 +44,7 @@ dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R,
     X_next = I_GBt * X_mid.selfadjointView<Lower>();
 
     if (iter++ > max_iter)
-      throw runtime_error("Failed to converge");
+      throw runtime_error("DARE failed to converge.");
   }
 
   cout << "DARE has successfully converged in " << iter << " iterations." << endl;
