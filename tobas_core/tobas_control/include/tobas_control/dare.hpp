@@ -12,7 +12,6 @@ Eigen::MatrixXd dare(
   const Eigen::MatrixXd& B,
   const Eigen::MatrixXd& Q,
   const Eigen::MatrixXd& R,
-  bool use_joseph_form = false,
   const double& tol = 1e-3,
   size_t max_iter = 10000);
 }  // namespace ctrl

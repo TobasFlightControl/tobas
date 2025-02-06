@@ -10,14 +10,8 @@ using namespace Eigen;
 
 namespace ctrl
 {
-MatrixXd dare(
-  const MatrixXd& A,
-  const MatrixXd& B,
-  const MatrixXd& Q,
-  const MatrixXd& R,
-  bool use_joseph_form,
-  const double& tol,
-  size_t max_iter)
+MatrixXd
+dare(const MatrixXd& A, const MatrixXd& B, const MatrixXd& Q, const MatrixXd& R, const double& tol, size_t max_iter)
 {
   const auto n = A.rows();
   [[maybe_unused]] const auto l = B.cols();
@@ -45,14 +39,9 @@ MatrixXd dare(
 
     // 事後推定
     const MatrixXd XB = X_mid.selfadjointView<Lower>() * B;
-    const MatrixXd G = XB * (B.transpose() * XB + R).inverse();
-    const MatrixXd I_GBt = I - G * B.transpose();
-
-    if (use_joseph_form)
-      X_next =
-        I_GBt * X_mid.selfadjointView<Lower>() * I_GBt.transpose() + G * R.selfadjointView<Lower>() * G.transpose();
-    else
-      X_next = I_GBt * X_mid.selfadjointView<Lower>();
+    const auto G = XB * (B.transpose() * XB + R).inverse();
+    const auto I_GBt = I - G * B.transpose();
+    X_next = I_GBt * X_mid.selfadjointView<Lower>();
 
     if (iter++ > max_iter)
       throw runtime_error("Failed to converge");
