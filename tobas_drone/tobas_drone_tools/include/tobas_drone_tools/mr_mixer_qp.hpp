@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_quadprog/dual_active_set.hpp>
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
@@ -53,6 +54,8 @@ private:
   Eigen::DiagonalXd R_;               // 推力の重み
   Eigen::Matrix3Xd G_;                // EoM行列等式の左辺
   Eigen::Vector3d h_;                 // EoM行列等式の右辺
+
+  tobas_std::Stopwatch stopwatch_;
 
   void resizeAndFill();
   void updateWeight();

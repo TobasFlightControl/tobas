@@ -14,7 +14,7 @@ using namespace Eigen;
 
 namespace eskf
 {
-ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
+ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow), stopwatch_(100)
 {
   // 観測方程式の固定部分を埋める
   H_pos_.setZero();
@@ -359,7 +359,9 @@ double ErrorStateKalmanFilter::measureIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269)第一項: 共分散行列の予測値を更新
+  // stopwatch_.start();
   P_ = F_x_ * P_.selfadjointView<Lower>() * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  // stopwatch_.stop();
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov_fixed * W_Rot_B.transpose() * dt2;

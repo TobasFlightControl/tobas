@@ -9,7 +9,7 @@ using namespace Eigen;
 namespace tobas
 {
 MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree)
-  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE)
+  : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE), stopwatch_(100)
 {
   resizeAndFill();
   updateWeight();
@@ -119,11 +119,13 @@ bool MultiRotorMixer_QP::solve(
 
   // QPPを解く
   // TODO: 正則化項を入れると必ず解のシフトが発生するため，階層QPを使うか，Gのランクによって分岐
+  // stopwatch_.start();
   if (!qp_.solve())
   {
     cerr << "QP failed: " << qp_.errorMessage() << endl;
     return false;
   }
+  // stopwatch_.stop();
 
   return true;
 }
