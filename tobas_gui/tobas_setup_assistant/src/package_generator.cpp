@@ -751,7 +751,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   const auto& imu = settings_->imu;
   const auto& mag = settings_->magnetometer;
   const auto& baro = settings_->barometer;
-  const auto& gps = settings_->gps;
+  const auto& gnss = settings_->gnss;
   const auto& sim = settings_->simulation;
 
   const auto drone = createDrone();
@@ -785,11 +785,11 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   addBarometerPlugin(
     robot, ns, root_name, baro->updateRate(), baro->offset(), sim->altitudeZero(), baro->pressureVariance());
 
-  // GPS plugin
-  addGPSPlugin(
-    robot, ns, root_name, gps->updateRate(), gps->offset(), gps->delay(), gps->positionCorrectionTime(),
-    gps->horizontalPositionAccuracy(), gps->verticalPositionAccuracy(), gps->horizontalVelocityStddev(),
-    gps->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
+  // GNSS plugin
+  addGNSSPlugin(
+    robot, ns, root_name, gnss->updateRate(), gnss->offset(), gnss->delay(), gnss->positionCorrectionTime(),
+    gnss->horizontalPositionAccuracy(), gnss->verticalPositionAccuracy(), gnss->horizontalVelocityStddev(),
+    gnss->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
 
   // Rotor plugins
   for (int i = 0; i < propulsions->count(); ++i)

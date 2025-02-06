@@ -9,15 +9,15 @@ namespace gui
 {
 namespace setup_assistant
 {
-class GPSWidget : public OptionalDeviceWidget
+class GNSSWidget : public OptionalDeviceWidget
 {
   Q_OBJECT
 
-  using self = GPSWidget;
+  using self = GNSSWidget;
   using super = OptionalDeviceWidget;
 
 public:
-  explicit GPSWidget();
+  explicit GNSSWidget();
 
   const char* name() const override;
   const char* title() const override;

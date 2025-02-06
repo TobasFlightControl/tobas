@@ -2,13 +2,13 @@
 
 #include <tobas_ros2_tools/time.hpp>
 
-#include "tobas_flight_log_gui/log_viewer/plots/gps_plot.hpp"
+#include "tobas_flight_log_gui/log_viewer/plots/gnss_plot.hpp"
 
 namespace gui
 {
 namespace log
 {
-GpsPlotWidget::GpsPlotWidget()
+GnssPlotWidget::GnssPlotWidget()
 {
   const auto grid = new QGridLayout();
   setLayout(grid);
@@ -49,7 +49,7 @@ GpsPlotWidget::GpsPlotWidget()
   grid->addWidget(up_speed_plot_, 2, 1);
 }
 
-void GpsPlotWidget::setTimeScale(double t_start, double t_stop)
+void GnssPlotWidget::setTimeScale(double t_start, double t_stop)
 {
   latitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
   longitude_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
@@ -59,7 +59,7 @@ void GpsPlotWidget::setTimeScale(double t_start, double t_stop)
   up_speed_plot_->setAxisScale(QwtPlot::xBottom, t_start, t_stop);
 }
 
-void GpsPlotWidget::setData(const QVector<tobas_msgs::msg::Gps>& gps_msgs)
+void GnssPlotWidget::setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs)
 {
   QVector<double> t_data;
   QVector<double> latitude_data;
@@ -69,17 +69,17 @@ void GpsPlotWidget::setData(const QVector<tobas_msgs::msg::Gps>& gps_msgs)
   QVector<double> west_speed_data;
   QVector<double> up_speed_data;
 
-  for (const auto& gps : gps_msgs)
+  for (const auto& gnss : gnss_msgs)
   {
-    t_data.push_back(ros2::seconds(gps.header.stamp));
+    t_data.push_back(ros2::seconds(gnss.header.stamp));
 
-    latitude_data.push_back(gps.latitude);
-    longitude_data.push_back(gps.longitude);
-    altitude_data.push_back(gps.altitude);
+    latitude_data.push_back(gnss.latitude);
+    longitude_data.push_back(gnss.longitude);
+    altitude_data.push_back(gnss.altitude);
 
-    north_speed_data.push_back(gps.ground_speed.x);
-    west_speed_data.push_back(gps.ground_speed.y);
-    up_speed_data.push_back(gps.ground_speed.z);
+    north_speed_data.push_back(gnss.ground_speed.x);
+    west_speed_data.push_back(gnss.ground_speed.y);
+    up_speed_data.push_back(gnss.ground_speed.z);
   }
 
   latitude_curve_->setSamples(t_data, latitude_data);

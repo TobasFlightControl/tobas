@@ -13,7 +13,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
-#include <tobas_msgs/msg/gps.hpp>
+#include <tobas_msgs/msg/gnss.hpp>
 #include <tobas_msgs/msg/imu_stamped.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
@@ -103,7 +103,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(tobas::kBatteryTopic), tobas::kBatteryTopic);
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(tobas::kRcInputTopic), tobas::kRcInputTopic);
-  addTopicLogicToIface<tobas_msgs::msg::Gps>(tobas::kGNSSTopic, tobas::kGNSSTopic);
+  addTopicLogicToIface<tobas_msgs::msg::Gnss>(tobas::kGnssTopic, tobas::kGnssTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorStateArray>(
     tobas::addThrotNS(tobas::kRotorStatesTopic), tobas::kRotorStatesTopic);
   addTopicLogicToIface<tobas_msgs::msg::RotorLivelinessArray>(

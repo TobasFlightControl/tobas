@@ -259,7 +259,7 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab containers="1" tab_name="GPS">
+  <Tab containers="1" tab_name="GNSS">
    <Container>
     <DockSplitter sizes="1" count="1" orientation="-">
      <DockSplitter sizes="0.5;0.5" count="2" orientation="|">
@@ -268,21 +268,21 @@
         <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
          <range left="0.118716" top="35.792369" right="5.119474" bottom="35.792365"/>
          <limitY/>
-         <curve color="#ff7f0e" name="/voliro_like/gps/latitude"/>
+         <curve color="#ff7f0e" name="/voliro_like/gnss/latitude"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
          <range left="0.118716" top="139.890598" right="5.119474" bottom="139.890596"/>
          <limitY/>
-         <curve color="#f14cc1" name="/voliro_like/gps/longitude"/>
+         <curve color="#f14cc1" name="/voliro_like/gnss/longitude"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
          <range left="0.118716" top="40.462453" right="5.119474" bottom="39.767248"/>
          <limitY/>
-         <curve color="#9467bd" name="/voliro_like/gps/altitude"/>
+         <curve color="#9467bd" name="/voliro_like/gnss/altitude"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -291,21 +291,21 @@
         <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
          <range left="0.118716" top="1.340250" right="5.119474" bottom="-1.610250"/>
          <limitY/>
-         <curve color="#17becf" name="/voliro_like/gps/ground_speed/x"/>
+         <curve color="#17becf" name="/voliro_like/gnss/ground_speed/x"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
          <range left="0.118716" top="0.783000" right="5.119474" bottom="-0.603000"/>
          <limitY/>
-         <curve color="#bcbd22" name="/voliro_like/gps/ground_speed/y"/>
+         <curve color="#bcbd22" name="/voliro_like/gnss/ground_speed/y"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
          <range left="0.118716" top="1.177250" right="5.119474" bottom="-1.647250"/>
          <limitY/>
-         <curve color="#1f77b4" name="/voliro_like/gps/ground_speed/z"/>
+         <curve color="#1f77b4" name="/voliro_like/gnss/ground_speed/z"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -521,7 +521,7 @@
       <plot style="Lines" flip_y="false" mode="TimeSeries" flip_x="false">
        <range left="0.118716" top="614.995755" right="5.119474" bottom="-14.961952"/>
        <limitY/>
-       <curve color="#d62728" name="/voliro_like/feedback/observer/gps_anormaly_score"/>
+       <curve color="#d62728" name="/voliro_like/feedback/observer/gnss_anormaly_score"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -552,7 +552,7 @@
    <max_array_size value="100"/>
    <boolean_strings_to_number value="true"/>
    <remove_suffix_from_strings value="true"/>
-   <selected_topics value="/voliro_like/air_pressure;/voliro_like/battery;/voliro_like/command/rotor_speeds;/voliro_like/cpu;/voliro_like/euler;/voliro_like/feedback/multirotor_controller;/voliro_like/feedback/observer;/voliro_like/gps;/voliro_like/imu;/voliro_like/imu_raw;/voliro_like/latency;/voliro_like/magnetic_field;/voliro_like/odom;/voliro_like/rotor_states"/>
+   <selected_topics value="/voliro_like/air_pressure;/voliro_like/battery;/voliro_like/command/rotor_speeds;/voliro_like/cpu;/voliro_like/euler;/voliro_like/feedback/multirotor_controller;/voliro_like/feedback/observer;/voliro_like/gnss;/voliro_like/imu;/voliro_like/imu_raw;/voliro_like/latency;/voliro_like/magnetic_field;/voliro_like/odom;/voliro_like/rotor_states"/>
   </plugin>
   <plugin ID="UDP Server"/>
   <plugin ID="WebSocket Server"/>

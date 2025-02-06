@@ -3,7 +3,7 @@
 #include "tobas_setup_assistant/robot_info.hpp"
 #include "../imu.hpp"
 #include "../barometer.hpp"
-#include "../gps.hpp"
+#include "../gnss.hpp"
 #include "./base.hpp"
 
 namespace gui
@@ -19,7 +19,7 @@ public:
     const RobotInfo& robot,
     const IMUWidget* imu,
     const BarometerWidget* baro,
-    const GPSWidget* gps);
+    const GNSSWidget* gnss);
 
   const char* name() const override;
   const char* description() const override;
@@ -37,7 +37,7 @@ private:
   const RobotInfo& robot_;
   const IMUWidget* imu_;
   const BarometerWidget* baro_;
-  const GPSWidget* gps_;
+  const GNSSWidget* gnss_;
 
   QCheckBox* do_acc_bias_estimation_;
   QCheckBox* do_gyro_bias_estimation_;

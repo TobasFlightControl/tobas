@@ -57,7 +57,7 @@ void addBarometerPlugin(
   double altitude_zero,
   double pressure_variance);
 
-void addGPSPlugin(
+void addGNSSPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,

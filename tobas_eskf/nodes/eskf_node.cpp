@@ -17,7 +17,7 @@
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
-#include <tobas_msgs_adapter/gps.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
 #include <tobas_msgs/srv/set_gnss_origin.hpp>
@@ -36,9 +36,9 @@ class ObserverNode : public tobas::BaseNode
   using ImuMsg = tobas_msgs::ImuWithCovarianceStamped;
   using MagMsg = tobas_msgs::MagneticFieldWithCovarianceStamped;
   using BarMsg = tobas_msgs::msg::FluidPressureWithVarianceStamped;
-  using GpsMsg = tobas_msgs::Gps;
+  using GnssMsg = tobas_msgs::Gnss;
   using OdomMsg = tobas_msgs::Odometry;
-  using GpsOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
+  using GnssOriginMsg = tobas_msgs::msg::GeodeticCoordinates;
   using FeedbackMsg = tobas_debug_msgs::ObserverFeedback;
 
   using GetOrigin = tobas_msgs::srv::GetGnssOrigin;
@@ -46,7 +46,7 @@ class ObserverNode : public tobas::BaseNode
 
   // Default parameters
   static constexpr bool kDefaultUseBarometer = false;
-  static constexpr bool kDefaultUseGps = true;
+  static constexpr bool kDefaultUseGnss = true;
   static constexpr bool kDefaultDoAccBiasEstimation = false;
   static constexpr bool kDefaultDoGyroBiasEstimation = true;
   static constexpr bool kDefaultDoMagHardBiasEstimation = false;
@@ -68,35 +68,35 @@ public:
 
 private:
   // 固定値
-  double lat_0_;      // 緯度のゼロ点 (Base Frame)
-  double lon_0_;      // 経度のゼロ点 (Base Frame)
-  double alt_0_gps_;  // GPS高度のゼロ点 (Base Frame)
-  double alt_0_bar_;  // 気圧高度のゼロ点 (Base Frame)
+  double lat_0_;       // 緯度のゼロ点 (Base Frame)
+  double lon_0_;       // 経度のゼロ点 (Base Frame)
+  double alt_0_gnss_;  // GNSS高度のゼロ点 (Base Frame)
+  double alt_0_bar_;   // 気圧高度のゼロ点 (Base Frame)
 
   Vector3d pos_meas_;
   kdl::Vector dgyro_;
   ImuMsg::ConstSharedPtr imu_;
   MagMsg::ConstSharedPtr mag_;
   BarMsg::ConstSharedPtr bar_;
-  GpsMsg::ConstSharedPtr gps_;
+  GnssMsg::ConstSharedPtr gnss_;
   bool mag_ref_set_ = false;  // 地磁気の参照値が設定されているかどうか
-  bool gps_fix_ = false;
-  double gps_anormaly_score_ = 0.;
+  bool gnss_fix_ = false;
+  double gnss_anormaly_score_ = 0.;
 
   eskf::ErrorStateKalmanFilter eskf_;
 
   // Static parameters
   string frame_id_;
   bool use_bar_;
-  bool use_gps_;
+  bool use_gnss_;
   bool do_acc_bias_estimation_;
   bool do_gyro_bias_estimation_;
   bool do_mag_hard_bias_estimation_;
   bool do_mag_soft_bias_estimation_;
   bool do_grav_estimation_;
-  Vector3d imu_offset_;  // [m] ルートリンクに対するIMUの位置 (Local)
-  Vector3d bar_offset_;  // [m] ルートリンクに対する気圧センサの位置 (Local)
-  Vector3d gps_offset_;  // [m] ルートリンクに対するGPSレシーバの位置 (Local)
+  Vector3d imu_offset_;   // [m] ルートリンクに対するIMUの位置 (Local)
+  Vector3d bar_offset_;   // [m] ルートリンクに対する気圧センサの位置 (Local)
+  Vector3d gnss_offset_;  // [m] ルートリンクに対するGNSSレシーバの位置 (Local)
 
   // Dynamic parameters
   double grav_meas_var_intercept_;  // [m^2/s^4] 重力方向の加速度の観測の不確かさの最小値
@@ -104,14 +104,14 @@ private:
 
   // Publishers
   ros2::PublisherPtr<OdomMsg> odom_pub_;
-  ros2::PublisherPtr<GpsOriginMsg> gps_origin_pub_;
+  ros2::PublisherPtr<GnssOriginMsg> gnss_origin_pub_;
   ros2::PublisherPtr<FeedbackMsg> feedback_pub_;
 
   // Subscribers
   ros2::SubscriberPtr<ImuMsg> imu_sub_;
   ros2::SubscriberPtr<MagMsg> mag_sub_;
   ros2::SubscriberPtr<BarMsg> bar_sub_;
-  ros2::SubscriberPtr<GpsMsg> gps_sub_;
+  ros2::SubscriberPtr<GnssMsg> gnss_sub_;
 
   // Services
   ros2::ServiceServerPtr<GetOrigin> get_gnss_origin_ss_;
@@ -124,7 +124,7 @@ private:
   void getStaticRosParams();
   bool setMagneticFieldRef(const Vector3d& mag_W);
   void fillOdometryMsg(OdomMsg& odom) const;
-  void publishGPSOrigin();
+  void publishGNSSOrigin();
   void publishFeedback(const std_msgs::msg::Header& header);
   double computeGravMeasVariance(const Vector3d& acc) const;
 
@@ -145,7 +145,7 @@ private:
   void imuCb(const ImuMsg::ConstSharedPtr& imu);
   void magCb(const MagMsg::ConstSharedPtr& mag);
   void barCb(const BarMsg::ConstSharedPtr& bar);
-  void gpsCb(const GpsMsg::ConstSharedPtr& gps);
+  void gnssCb(const GnssMsg::ConstSharedPtr& gnss);
 
   void getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr& req, const GetOrigin::Response::SharedPtr& res);
   void setGnssOriginCb(const SetOrigin::Request::ConstSharedPtr& req, const SetOrigin::Response::SharedPtr& res);
@@ -179,7 +179,7 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
 
   // Register publishers
   odom_pub_ = createPublisher<OdomMsg>(tobas::kOdometryTopic);
-  gps_origin_pub_ = createPublisher<GpsOriginMsg>(tobas::kGpsOriginTopic, true, true);
+  gnss_origin_pub_ = createPublisher<GnssOriginMsg>(tobas::kGnssOriginTopic, true, true);
   feedback_pub_ = createPublisher<FeedbackMsg>(tobas::kObsvFeedbackTopic);
 
   // Register subscribers
@@ -187,8 +187,8 @@ ObserverNode::ObserverNode(const rclcpp::NodeOptions& options) : super(tobas::no
   mag_sub_ = createSubscriber(tobas::kMagTopic, &self::magCb, this);
   if (use_bar_)
     bar_sub_ = createSubscriber(tobas::kAirPressureTopic, &self::barCb, this);
-  if (use_gps_)
-    gps_sub_ = createSubscriber(tobas::kGNSSTopic, &self::gpsCb, this);
+  if (use_gnss_)
+    gnss_sub_ = createSubscriber(tobas::kGnssTopic, &self::gnssCb, this);
 
   // Register service servers
   get_gnss_origin_ss_ = createService<GetOrigin>(tobas::kGetGnssOriginSrv, &self::getGnssOriginCb, this);
@@ -199,7 +199,7 @@ void ObserverNode::getStaticRosParams()
 {
   frame_id_ = getStringParam("frame_id", "unknown");  // 空文字だとTFが警告文を出す
   use_bar_ = getBoolParam("use_barometer", kDefaultUseBarometer);
-  use_gps_ = getBoolParam("use_gps", kDefaultUseGps);
+  use_gnss_ = getBoolParam("use_gnss", kDefaultUseGnss);
   do_acc_bias_estimation_ = getBoolParam("do_acc_bias_estimation", kDefaultDoAccBiasEstimation);
   do_gyro_bias_estimation_ = getBoolParam("do_gyro_bias_estimation", kDefaultDoGyroBiasEstimation);
   do_mag_hard_bias_estimation_ = getBoolParam("do_mag_hard_bias_estimation", kDefaultDoMagHardBiasEstimation);
@@ -208,10 +208,10 @@ void ObserverNode::getStaticRosParams()
 
   const auto imu_offset = getDoubleArrayParam("imu_offset", vector<double>(3, 0.));
   const auto bar_offset = getDoubleArrayParam("barometer_offset", vector<double>(3, 0.));
-  const auto gps_offset = getDoubleArrayParam("gps_offset", vector<double>(3, 0.));
+  const auto gnss_offset = getDoubleArrayParam("gnss_offset", vector<double>(3, 0.));
   imu_offset_ = Map<const Vector3d>(imu_offset.data());
   bar_offset_ = Map<const Vector3d>(bar_offset.data());
-  gps_offset_ = Map<const Vector3d>(gps_offset.data());
+  gnss_offset_ = Map<const Vector3d>(gnss_offset.data());
 }
 
 bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
@@ -285,7 +285,7 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   odom.header.frame_id = tobas::kWorldFrame;
 
   // Status
-  if (!gps_fix_)
+  if (!gnss_fix_)
     odom.status = tobas_msgs::msg::Odometry::POSITION_LOST;
   else
     odom.status = tobas_msgs::msg::Odometry::NO_ERROR;
@@ -315,16 +315,16 @@ void ObserverNode::fillOdometryMsg(OdomMsg& odom) const
   odom.dgyro_covariance.fill(NAN);
 }
 
-void ObserverNode::publishGPSOrigin()
+void ObserverNode::publishGNSSOrigin()
 {
-  auto gps_origin = std::make_unique<GpsOriginMsg>();
+  auto gnss_origin = std::make_unique<GnssOriginMsg>();
 
-  gps_origin->header.stamp = get_clock()->now();
-  gps_origin->latitude = lat_0_;
-  gps_origin->longitude = lon_0_;
-  gps_origin->altitude = alt_0_gps_;
+  gnss_origin->header.stamp = get_clock()->now();
+  gnss_origin->latitude = lat_0_;
+  gnss_origin->longitude = lon_0_;
+  gnss_origin->altitude = alt_0_gnss_;
 
-  gps_origin_pub_->publish(move(gps_origin));
+  gnss_origin_pub_->publish(move(gnss_origin));
 }
 
 void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
@@ -351,7 +351,7 @@ void ObserverNode::publishFeedback(const std_msgs::msg::Header& header)
   feedback->mag_soft_bias_cov = eskf_.getMagSoftBiasCovariance();
   feedback->gravity_var = eskf_.getGravityVariance();
 
-  feedback->gps_anormaly_score = gps_anormaly_score_;
+  feedback->gnss_anormaly_score = gnss_anormaly_score_;
 
   feedback_pub_->publish(move(feedback));
 }
@@ -552,62 +552,62 @@ void ObserverNode::barCb(const BarMsg::ConstSharedPtr& bar)
   eskf_.measureAltitude(z_m, z_var, ros2::chronoFromRosTime(bar->header.stamp));
 }
 
-void ObserverNode::gpsCb(const GpsMsg::ConstSharedPtr& gps)
+void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
 {
   if (imu_ == nullptr)
     return;
 
-  gps_fix_ = (gps->fix_type == tobas_msgs::msg::Gps::FIX_3D);
-  if (!gps_fix_)
+  gnss_fix_ = (gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
+  if (!gnss_fix_)
     return;
 
-  if (gps_ == nullptr)
+  if (gnss_ == nullptr)
   {
-    // GPSの初期位置
+    // GNSSの初期位置
     // TODO: IMUフレームに変換
-    lat_0_ = gps->latitude;
-    lon_0_ = gps->longitude;
-    alt_0_gps_ = gps->altitude;
+    lat_0_ = gnss->latitude;
+    lon_0_ = gnss->longitude;
+    alt_0_gnss_ = gnss->altitude;
 
-    // GPSの初期位置を発行
-    publishGPSOrigin();
+    // GNSSの初期位置を発行
+    publishGNSSOrigin();
 
-    // GPSの初期値から地磁気の参照値を求める
+    // GNSSの初期値から地磁気の参照値を求める
     // TODO: 位置の変化に合わせてオンラインで参照値を求める
-    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gps_, tobas_std::yearFraction());
+    const auto mag = geomag::elementsFromGeodetic(lat_0_, lon_0_, alt_0_gnss_, tobas_std::yearFraction());
     Vector3d mag_W(mag.north, -mag.east, -mag.down);  // NWU coordinates
     if (!setMagneticFieldRef(mag_W))
       return;
 
     // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
-    if (!eskf_.initializePosition(Vector3d::Zero(), gps->position_covariance))
+    if (!eskf_.initializePosition(Vector3d::Zero(), gnss->position_covariance))
     {
       TOBAS_ERROR("Failed to initialize position.");
       return;
     }
   }
 
-  gps_ = gps;
+  gnss_ = gnss;
 
   // 位置の観測値
-  tobas_std::gpsToCartRelative(gps->latitude, gps->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
-  pos_meas_.z() = gps->altitude - alt_0_gps_;  // FIXME: 気圧高度と競合しそう
+  tobas_std::gnssToCartRelative(gnss->latitude, gnss->longitude, lat_0_, lon_0_, pos_meas_.x(), pos_meas_.y());
+  pos_meas_.z() = gnss->altitude - alt_0_gnss_;  // FIXME: 気圧高度と競合しそう
 
   // ESKFを更新
-  const Vector3d imu2gps = gps_offset_ - imu_offset_;
-  gps_anormaly_score_ = eskf_.measurePosVel(
-    pos_meas_, gps->position_covariance, gps->ground_speed.data, gps->velocity_covariance, imu2gps,
-    imu_->imu.imu.gyro.data, ros2::chronoFromRosTime(gps->header.stamp));
+  const Vector3d imu2gnss = gnss_offset_ - imu_offset_;
+  gnss_anormaly_score_ = eskf_.measurePosVel(
+    pos_meas_, gnss->position_covariance, gnss->ground_speed.data, gnss->velocity_covariance, imu2gnss,
+    imu_->imu.imu.gyro.data, ros2::chronoFromRosTime(gnss->header.stamp));
 
   // 異常度が高すぎる場合は警告
-  if (gps_anormaly_score_ > kAnormalyScoreThreshold)
+  if (gnss_anormaly_score_ > kAnormalyScoreThreshold)
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The position estimation using GNSS is unstable.");
 }
 
 void ObserverNode::getGnssOriginCb(const GetOrigin::Request::ConstSharedPtr&, const GetOrigin::Response::SharedPtr& res)
 {
-  if (!gps_fix_)
+  if (!gnss_fix_)
   {
     res->success = false;
     res->message = "GNSS position is not fixed.";
@@ -626,7 +626,7 @@ void ObserverNode::setGnssOriginCb(
   const SetOrigin::Request::ConstSharedPtr& req,
   const SetOrigin::Response::SharedPtr& res)
 {
-  if (!gps_fix_)
+  if (!gnss_fix_)
   {
     res->success = false;
     res->message = "GNSS position is not fixed.";
@@ -636,7 +636,7 @@ void ObserverNode::setGnssOriginCb(
   lat_0_ = req->latitude;
   lon_0_ = req->longitude;
 
-  publishGPSOrigin();
+  publishGNSSOrigin();
 
   res->success = true;
   res->message.clear();

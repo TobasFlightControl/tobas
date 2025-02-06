@@ -97,7 +97,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Odometry> odom_data;
   QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
   QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
-  QVector<tobas_msgs::msg::Gps> gps_data;
+  QVector<tobas_msgs::msg::Gnss> gnss_data;
   QVector<tobas_msgs::msg::Battery> battery_data;
   QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data;
   QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data;
@@ -131,10 +131,10 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         mag_ser_.deserialize_message(&ser_msg, &mag_);
         mag_data.push_back(mag_);
       }
-      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kGNSSTopic)))
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kGnssTopic)))
       {
-        gps_ser_.deserialize_message(&ser_msg, &gps_);
-        gps_data.push_back(gps_);
+        gnss_ser_.deserialize_message(&ser_msg, &gnss_);
+        gnss_data.push_back(gnss_);
       }
       else if (str::endsWith(msg->topic_name, path::join("/", tobas::kBatteryTopic)))
       {
@@ -183,7 +183,7 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
     plot_tab->setTwistData(odom_data);
     plot_tab->setImuData(imu_data);
     plot_tab->setMagData(mag_data);
-    plot_tab->setGpsData(gps_data);
+    plot_tab->setGnssData(gnss_data);
     plot_tab->setBatteryData(battery_data);
     plot_tab->setRotorSpeedData(cur_rotor_states_data, tar_rotor_speeds_data);
     plot_tab->setLatencyData(latency_data);

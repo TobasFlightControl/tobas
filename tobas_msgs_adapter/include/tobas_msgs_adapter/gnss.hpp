@@ -5,11 +5,11 @@
 #include <tobas_eigen_msgs_adapter/core.hpp>
 #include <tobas_kdl_msgs_adapter/vector.hpp>
 
-#include <tobas_msgs/msg/gps.hpp>
+#include <tobas_msgs/msg/gnss.hpp>
 
 namespace tobas_msgs
 {
-struct Gps
+struct Gnss
 {
   std_msgs::msg::Header header;
   uint8_t fix_type;
@@ -20,17 +20,17 @@ struct Gps
   kdl::Vector ground_speed;
   Eigen::Matrix3d velocity_covariance;
 
-  using SharedPtr = std::shared_ptr<Gps>;
-  using ConstSharedPtr = std::shared_ptr<const Gps>;
+  using SharedPtr = std::shared_ptr<Gnss>;
+  using ConstSharedPtr = std::shared_ptr<const Gnss>;
 };
 }  // namespace tobas_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_msgs::Gps, tobas_msgs::msg::Gps>
+struct rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_msgs::Gps;
-  using ros_message_type = tobas_msgs::msg::Gps;
+  using custom_type = tobas_msgs::Gnss;
+  using ros_message_type = tobas_msgs::msg::Gnss;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -59,7 +59,7 @@ struct rclcpp::TypeAdapter<tobas_msgs::Gps, tobas_msgs::msg::Gps>
 
 namespace tobas_msgs
 {
-using GpsAdapter = rclcpp::TypeAdapter<tobas_msgs::Gps, tobas_msgs::msg::Gps>;
+using GnssAdapter = rclcpp::TypeAdapter<tobas_msgs::Gnss, tobas_msgs::msg::Gnss>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::Gps, tobas_msgs::msg::Gps);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::Gnss, tobas_msgs::msg::Gnss);

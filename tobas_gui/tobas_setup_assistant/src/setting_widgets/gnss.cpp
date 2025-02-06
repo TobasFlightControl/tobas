@@ -1,12 +1,12 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 
-#include "tobas_setup_assistant/setting_tabs/gps.hpp"
+#include "tobas_setup_assistant/setting_tabs/gnss.hpp"
 
 namespace gui
 {
 namespace setup_assistant
 {
-GPSWidget::GPSWidget()
+GNSSWidget::GNSSWidget()
 {
   offset_ = new ParamGetterWidget_Vector3d("Offset", kSensorOffsetDescription);
   offset_->setSuffix(" m");
@@ -63,32 +63,32 @@ GPSWidget::GPSWidget()
   addStretch();
 }
 
-const char* GPSWidget::name() const
+const char* GNSSWidget::name() const
 {
-  return "GPS";
+  return "GNSS";
 }
 
-const char* GPSWidget::title() const
+const char* GNSSWidget::title() const
 {
   return "Define Global Positioning System";
 }
 
-const char* GPSWidget::description() const
+const char* GNSSWidget::description() const
 {
   return "";  // TODO
 }
 
-void GPSWidget::onOpened()
+void GNSSWidget::onOpened()
 {
   return;
 }
 
-void GPSWidget::updateInternalDataStructures()
+void GNSSWidget::updateInternalDataStructures()
 {
   return;
 }
 
-bool GPSWidget::isValid()
+bool GNSSWidget::isValid()
 {
   if (!equipped())
     return true;
@@ -96,7 +96,7 @@ bool GPSWidget::isValid()
   return true;
 }
 
-YAML::Node GPSWidget::dump()
+YAML::Node GNSSWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);
 
@@ -114,7 +114,7 @@ YAML::Node GPSWidget::dump()
   return node;
 }
 
-void GPSWidget::load(const YAML::Node& node)
+void GNSSWidget::load(const YAML::Node& node)
 {
   equipped_->setChecked(node[kEquippedKey].as<bool>());
 
@@ -128,47 +128,47 @@ void GPSWidget::load(const YAML::Node& node)
   vertical_vel_stddev_->setValue(node[vertical_vel_stddev_->name()].as<double>());
 }
 
-Eigen::Vector3d GPSWidget::offset() const
+Eigen::Vector3d GNSSWidget::offset() const
 {
   return offset_->getValue();
 }
 
-int GPSWidget::updateRate() const
+int GNSSWidget::updateRate() const
 {
   return update_rate_->getValue();
 }
 
-double GPSWidget::delay() const
+double GNSSWidget::delay() const
 {
   return static_cast<double>(delay_->getValue()) * 1e-3;
 }
 
-int GPSWidget::positionCorrectionTime() const
+int GNSSWidget::positionCorrectionTime() const
 {
   return pos_corr_time_->getValue();
 }
 
-double GPSWidget::horizontalPositionAccuracy() const
+double GNSSWidget::horizontalPositionAccuracy() const
 {
   return horizontal_pos_accuracy_->getValue();
 }
 
-double GPSWidget::verticalPositionAccuracy() const
+double GNSSWidget::verticalPositionAccuracy() const
 {
   return vertical_pos_accuracy_->getValue();
 }
 
-double GPSWidget::horizontalVelocityStddev() const
+double GNSSWidget::horizontalVelocityStddev() const
 {
   return horizontal_vel_stddev_->getValue();
 }
 
-double GPSWidget::verticalVelocityStddev() const
+double GNSSWidget::verticalVelocityStddev() const
 {
   return vertical_vel_stddev_->getValue();
 }
 
-bool GPSWidget::defaultEquipped() const
+bool GNSSWidget::defaultEquipped() const
 {
   return true;
 }

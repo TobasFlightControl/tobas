@@ -81,13 +81,13 @@ void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
   ns_ = ns;
 
-  map_->setGPSArrowPosition(0., 0.);
-  map_->setGPSArrowRotation(0.);
+  map_->setGNSSArrowPosition(0., 0.);
+  map_->setGNSSArrowRotation(0.);
 
-  gps_ = nullptr;
+  gnss_ = nullptr;
 
-  gps_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGNSSTopic), &self::gpsCb, this);
+  gnss_sub_ =
+    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGnssTopic), &self::gnssCb, this);
   euler_sub_ =
     ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kEulerTopic), &self::eulerCb, this);
 }
@@ -227,19 +227,19 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
   return res;
 }
 
-void MissionPlannerWidget::gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps)
+void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  if (gps->fix_type != tobas_msgs::msg::Gps::FIX_3D)
+  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D)
     return;
 
-  gps_ = gps;
+  gnss_ = gnss;
 
-  map_->setGPSArrowPosition(gps->latitude, gps->longitude);
+  map_->setGNSSArrowPosition(gnss->latitude, gnss->longitude);
 }
 
 void MissionPlannerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
 {
-  map_->setGPSArrowRotation(-tobas_std::rad2deg(euler->euler.yaw));
+  map_->setGNSSArrowRotation(-tobas_std::rad2deg(euler->euler.yaw));
 }
 
 void MissionPlannerWidget::onLoadButtonClicked()
@@ -432,13 +432,13 @@ void MissionPlannerWidget::onFocusButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onFocusButtonClicked");
 
-  if (gps_ == nullptr)
+  if (gnss_ == nullptr)
   {
     qt::qWarnBox(this, "GNSS data is not received yet.");
     return;
   }
 
-  map_->setCenter(gps_->latitude, gps_->longitude);
+  map_->setCenter(gnss_->latitude, gnss_->longitude);
 }
 
 void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, BaseCommandWidget* target_widget)

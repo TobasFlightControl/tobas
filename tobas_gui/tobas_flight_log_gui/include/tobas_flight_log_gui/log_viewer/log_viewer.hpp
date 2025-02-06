@@ -35,7 +35,7 @@ private:
   tobas_msgs::msg::Odometry odom_;
   tobas_msgs::msg::ImuWithCovarianceStamped imu_;
   tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
-  tobas_msgs::msg::Gps gps_;
+  tobas_msgs::msg::Gnss gnss_;
   tobas_msgs::msg::Battery battery_;
   tobas_msgs::msg::RotorStateArray rotor_states_;
   tobas_msgs::msg::RotorSpeedArray rotor_speeds_;
@@ -46,7 +46,7 @@ private:
   rclcpp::Serialization<tobas_msgs::msg::Odometry> odom_ser_;
   rclcpp::Serialization<tobas_msgs::msg::ImuWithCovarianceStamped> imu_ser_;
   rclcpp::Serialization<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_ser_;
-  rclcpp::Serialization<tobas_msgs::msg::Gps> gps_ser_;
+  rclcpp::Serialization<tobas_msgs::msg::Gnss> gnss_ser_;
   rclcpp::Serialization<tobas_msgs::msg::Battery> battery_ser_;
   rclcpp::Serialization<tobas_msgs::msg::RotorStateArray> cur_rotor_states_ser_;
   rclcpp::Serialization<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_ser_;

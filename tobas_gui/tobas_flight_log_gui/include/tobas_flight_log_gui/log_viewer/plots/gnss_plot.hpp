@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/msg/gps.hpp>
+#include <tobas_msgs/msg/gnss.hpp>
 
 #include "./common.hpp"
 
@@ -8,15 +8,15 @@ namespace gui
 {
 namespace log
 {
-class GpsPlotWidget : public QWidget
+class GnssPlotWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit GpsPlotWidget();
+  explicit GnssPlotWidget();
 
   void setTimeScale(double t_start, double t_stop);
-  void setData(const QVector<tobas_msgs::msg::Gps>& gps_msgs);
+  void setData(const QVector<tobas_msgs::msg::Gnss>& gnss_msgs);
 
 private:
   QwtPlot2* latitude_plot_;

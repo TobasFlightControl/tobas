@@ -43,19 +43,19 @@ Rectangle {
     plugin: osmPlugin
     zoomLevel: 0  // 最小
 
-    // GPS Arrow
+    // GNSS Arrow
     MapQuickItem {
-      id: gpsArrow
+      id: gnssArrow
       coordinate: QtPositioning.coordinate(0, 0)
       sourceItem: Image {
-        id: gpsArrowImage
-        source: "./gps_arrow.png" // アイコン画像の相対パス
+        id: gnssArrowImage
+        source: "./gnss_arrow.png" // アイコン画像の相対パス
         width: 30
         height: 30
         transform: Rotation {
-          id: gpsArrowRotation
-          origin.x: gpsArrowImage.width / 2
-          origin.y: gpsArrowImage.height / 2
+          id: gnssArrowRotation
+          origin.x: gnssArrowImage.width / 2
+          origin.y: gnssArrowImage.height / 2
           axis { x: 0; y: 0; z: 1 }
           angle: 0 // Clock-wise [degree]
         }
@@ -153,13 +153,13 @@ Rectangle {
 
   // 関数呼び出し用シグナル
   signal setCenter(double latitude, double longitude)
-  signal setGPSArrowPosition(double latitude, double longitude)
-  signal setGPSArrowRotation(double angle)
+  signal setGNSSArrowPosition(double latitude, double longitude)
+  signal setGNSSArrowRotation(double angle)
 
   Component.onCompleted: {
     setCenter.connect(onSetCenter);
-    setGPSArrowPosition.connect(onSetGPSArrowPosition);
-    setGPSArrowRotation.connect(onSetGPSArrowRotation);
+    setGNSSArrowPosition.connect(onSetGNSSArrowPosition);
+    setGNSSArrowRotation.connect(onSetGNSSArrowRotation);
   }
 
   function onSetCenter(latitude, longitude)
@@ -167,13 +167,13 @@ Rectangle {
     map.center = QtPositioning.coordinate(latitude, longitude);
   }
 
-  function onSetGPSArrowPosition(latitude, longitude)
+  function onSetGNSSArrowPosition(latitude, longitude)
   {
-    gpsArrow.coordinate = QtPositioning.coordinate(latitude, longitude);
+    gnssArrow.coordinate = QtPositioning.coordinate(latitude, longitude);
   }
 
-  function onSetGPSArrowRotation(angle)
+  function onSetGNSSArrowRotation(angle)
   {
-    gpsArrowRotation.angle = angle;  // ユニークなIDを直接参照する
+    gnssArrowRotation.angle = angle;  // ユニークなIDを直接参照する
   }
 }

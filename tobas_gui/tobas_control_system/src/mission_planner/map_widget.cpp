@@ -75,14 +75,14 @@ void MapWidget::setCenter(double latitude, double longitude)
   QMetaObject::invokeMethod(rootObject(), "setCenter", Q_ARG(double, latitude), Q_ARG(double, longitude));
 }
 
-void MapWidget::setGPSArrowPosition(double latitude, double longitude)
+void MapWidget::setGNSSArrowPosition(double latitude, double longitude)
 {
-  QMetaObject::invokeMethod(rootObject(), "setGPSArrowPosition", Q_ARG(double, latitude), Q_ARG(double, longitude));
+  QMetaObject::invokeMethod(rootObject(), "setGNSSArrowPosition", Q_ARG(double, latitude), Q_ARG(double, longitude));
 }
 
-void MapWidget::setGPSArrowRotation(double angle_deg)
+void MapWidget::setGNSSArrowRotation(double angle_deg)
 {
-  QMetaObject::invokeMethod(rootObject(), "setGPSArrowRotation", Q_ARG(double, angle_deg));
+  QMetaObject::invokeMethod(rootObject(), "setGNSSArrowRotation", Q_ARG(double, angle_deg));
 }
 
 void MapWidget::onWaypointMoved(int index, double latitude, double longitude)

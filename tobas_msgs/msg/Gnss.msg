@@ -1,6 +1,6 @@
 std_msgs/Header header
 
-# Fix Type: gpsFix (UBX-STATUS), fixType (UBX-PVT)
+# Fix Type: gnssFix (UBX-STATUS), fixType (UBX-PVT)
 uint8 fix_type
 uint8 NO_FIX = 0
 uint8 DEAD_RECHONING_ONLY = 1

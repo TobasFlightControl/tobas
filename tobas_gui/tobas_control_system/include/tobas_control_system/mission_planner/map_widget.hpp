@@ -33,8 +33,8 @@ public:
   std::pair<double, double> getCenter();
   void setCenter(double latitude, double longitude);
 
-  void setGPSArrowPosition(double latitude, double longitude);
-  void setGPSArrowRotation(double angle_deg);
+  void setGNSSArrowPosition(double latitude, double longitude);
+  void setGNSSArrowRotation(double angle_deg);
 
 private:
   map::WaypointModel* waypoint_;

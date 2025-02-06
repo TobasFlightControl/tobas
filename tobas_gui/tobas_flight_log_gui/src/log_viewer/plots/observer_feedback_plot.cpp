@@ -115,7 +115,7 @@ void ObserverFeedbackPlotWidget::setData(const QVector<tobas_debug_msgs::msg::Ob
     mag_soft_bias_data[5].push_back(msg.mag_soft_bias.data[2]);
 
     gravity_data.push_back(msg.gravity);
-    gnss_anormaly_score_data.push_back(msg.gps_anormaly_score);
+    gnss_anormaly_score_data.push_back(msg.gnss_anormaly_score);
   }
 
   for (size_t i = 0; i < kAccelBiasSize; ++i)

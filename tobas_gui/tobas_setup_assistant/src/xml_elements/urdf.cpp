@@ -170,7 +170,7 @@ void addBarometerPlugin(
   plugin->InsertNewChildElement("pressureVariance")->SetText(pressure_variance);
 }
 
-void addGPSPlugin(
+void addGNSSPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
   const string& link_name,
@@ -186,7 +186,7 @@ void addGPSPlugin(
   double longitude_zero,
   double altitude_zero)
 {
-  const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_gps_plugin", "gazebo::GazeboGpsPlugin");
+  const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);

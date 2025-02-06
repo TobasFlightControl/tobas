@@ -3,7 +3,7 @@ import rclpy.node
 import rclpy.qos
 
 from tobas_std_msgs.msg import Message
-from tobas_msgs.msg import Gps
+from tobas_msgs.msg import Gnss
 
 
 class GnssStateCheckerNode(rclpy.node.Node):
@@ -15,14 +15,14 @@ class GnssStateCheckerNode(rclpy.node.Node):
         qos.durability = rclpy.qos.DurabilityPolicy.VOLATILE
 
         self._message_pub = self.create_publisher(Message, "message", qos)
-        self._gps_sub = self.create_subscription(Gps, "gps", self._gps_callback, qos)
+        self._gnss_sub = self.create_subscription(Gnss, "gnss", self._gnss_callback, qos)
 
-    def _gps_callback(self, gps: Gps) -> None:
+    def _gnss_callback(self, gnss: Gnss) -> None:
         message = Message()
-        message.stamp = gps.header.stamp
+        message.stamp = gnss.header.stamp
         message.name = self.get_name()
 
-        if gps.fix_type == Gps.FIX_3D:
+        if gnss.fix_type == Gnss.FIX_3D:
             message.level = Message.LEVEL_INFO
             message.message = "GNSS Fix"
         else:

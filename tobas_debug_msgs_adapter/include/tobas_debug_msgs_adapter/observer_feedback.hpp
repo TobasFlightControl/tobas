@@ -30,7 +30,7 @@ struct ObserverFeedback
   Eigen::Matrix6d mag_soft_bias_cov;
   double gravity_var;
 
-  double gps_anormaly_score;
+  double gnss_anormaly_score;
 
   using SharedPtr = std::shared_ptr<ObserverFeedback>;
   using ConstSharedPtr = std::shared_ptr<const ObserverFeedback>;
@@ -66,7 +66,7 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Matrix6dAdapter::convert_to_ros_message(src.mag_soft_bias_cov, dst.mag_soft_bias_cov);
     dst.gravity_var = src.gravity_var;
 
-    dst.gps_anormaly_score = src.gps_anormaly_score;
+    dst.gnss_anormaly_score = src.gnss_anormaly_score;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -91,7 +91,7 @@ struct rclcpp::TypeAdapter<tobas_debug_msgs::ObserverFeedback, tobas_debug_msgs:
     tobas_eigen_msgs::Matrix6dAdapter::convert_to_custom(src.mag_soft_bias_cov, dst.mag_soft_bias_cov);
     dst.gravity_var = src.gravity_var;
 
-    dst.gps_anormaly_score = src.gps_anormaly_score;
+    dst.gnss_anormaly_score = src.gnss_anormaly_score;
   }
 };
 

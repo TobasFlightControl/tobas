@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_msgs_adapter/gps.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -53,9 +53,9 @@ private:
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
   MissionExecutionThread mission_thread_;
 
-  tobas_msgs::Gps::ConstSharedPtr gps_;
+  tobas_msgs::Gnss::ConstSharedPtr gnss_;
 
-  ros2::SubscriberPtr<tobas_msgs::Gps> gps_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   /* 各ウィジェットを実行モードに切り替える． */
@@ -76,7 +76,7 @@ private:
   /* ミッションコマンドのリストを作成する． */
   QVector<BaseCommandData::SharedPtr> createMissionCommandList();
 
-  void gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 
 private Q_SLOTS:

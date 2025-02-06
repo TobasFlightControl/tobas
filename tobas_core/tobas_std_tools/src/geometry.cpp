@@ -101,7 +101,7 @@ void quaternionFromAccelMag(
   quaternionFromEuler(roll, pitch, yaw, qx, qy, qz, qw);
 }
 
-void gpsToCartAbsolute(
+void gnssToCartAbsolute(
   const double& latitude,
   const double& longitude,
   const double& altitude,
@@ -126,7 +126,7 @@ void gpsToCartAbsolute(
   z = (N * (1 - math::sqr(eccentricity)) + altitude) * sin_lat;
 }
 
-void gpsToCartRelative(
+void gnssToCartRelative(
   const double& latitude,
   const double& longitude,
   const double& latitude_0,
@@ -197,7 +197,7 @@ void gpsToCartRelative(
   y *= -1;
 }
 
-void cartToGpsRelative(
+void cartToGnssRelative(
   const double& x,
   const double& y,
   const double& latitude_0,

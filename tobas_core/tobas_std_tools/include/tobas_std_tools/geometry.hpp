@@ -88,7 +88,7 @@ void quaternionFromAccelMag(
  * @param altitude 高度[m]
  * @param x,y,z 直行座標[m](出力)
  */
-void gpsToCartAbsolute(
+void gnssToCartAbsolute(
   const double& latitude,
   const double& longitude,
   const double& altitude,
@@ -107,7 +107,7 @@ void gpsToCartAbsolute(
  * @param x 北向きを正と定めたときのX座標[m] (出力)
  * @param y 西向きを正と定めたときのY座標[m] (出力)
  */
-void gpsToCartRelative(
+void gnssToCartRelative(
   const double& latitude,
   const double& longitude,
   const double& latitude_0,
@@ -126,7 +126,7 @@ void gpsToCartRelative(
  * @param latitude 北緯[deg] (出力)
  * @param longitude 東経[deg] (出力)
  */
-void cartToGpsRelative(
+void cartToGnssRelative(
   const double& x,
   const double& y,
   const double& latitude_0,

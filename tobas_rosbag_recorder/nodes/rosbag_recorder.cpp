@@ -31,7 +31,7 @@
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_msgs_adapter/gps.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/imu_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
@@ -85,7 +85,7 @@ private:
   tobas_msgs::msg::ImuStamped imu_raw_;
   tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
   tobas_msgs::msg::MagneticFieldStamped mag_raw_;
-  tobas_msgs::msg::Gps gps_;
+  tobas_msgs::msg::Gnss gnss_;
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
@@ -183,7 +183,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas_msgs::ImuStamped>(imu_raw_, tobas::kImuRawTopic);
   addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldWithCovarianceStamped>(mag_, tobas::kMagTopic);
   addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldStamped>(mag_raw_, tobas::kMagRawTopic);
-  addTypeAdaptedMsgSub<tobas_msgs::Gps>(gps_, tobas::kGNSSTopic);
+  addTypeAdaptedMsgSub<tobas_msgs::Gnss>(gnss_, tobas::kGnssTopic);
   addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::EulerStamped>(euler_, tobas::kEulerTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);

@@ -10,7 +10,7 @@ PlotTabWidget::PlotTabWidget()
   twist_plot_ = new TwistPlotWidget();
   imu_plot_ = new ImuPlotWidget();
   mag_plot_ = new MagPlotWidget();
-  gps_plot_ = new GpsPlotWidget();
+  gnss_plot_ = new GnssPlotWidget();
   battery_plot_ = new BatteryPlotWidget();
   rotor_speed_plot_ = new RotorSpeedPlotWidget();
   latency_plot_ = new LatencyPlotWidget();
@@ -21,7 +21,7 @@ PlotTabWidget::PlotTabWidget()
   addTab(twist_plot_, "Twist");
   addTab(imu_plot_, "IMU");
   addTab(mag_plot_, "Magnetic\nField");
-  addTab(gps_plot_, "GNSS");
+  addTab(gnss_plot_, "GNSS");
   addTab(battery_plot_, "Battery");
   addTab(rotor_speed_plot_, "Rotor Speed");
   addTab(latency_plot_, "Latency");
@@ -37,7 +37,7 @@ void PlotTabWidget::setTimeScale(double t_start, double t_stop)
   twist_plot_->setTimeScale(t_start, t_stop);
   imu_plot_->setTimeScale(t_start, t_stop);
   mag_plot_->setTimeScale(t_start, t_stop);
-  gps_plot_->setTimeScale(t_start, t_stop);
+  gnss_plot_->setTimeScale(t_start, t_stop);
   battery_plot_->setTimeScale(t_start, t_stop);
   rotor_speed_plot_->setTimeScale(t_start, t_stop);
   latency_plot_->setTimeScale(t_start, t_stop);
@@ -65,9 +65,9 @@ void PlotTabWidget::setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithC
   mag_plot_->setData(_data);
 }
 
-void PlotTabWidget::setGpsData(const QVector<tobas_msgs::msg::Gps>& _data)
+void PlotTabWidget::setGnssData(const QVector<tobas_msgs::msg::Gnss>& _data)
 {
-  gps_plot_->setData(_data);
+  gnss_plot_->setData(_data);
 }
 
 void PlotTabWidget::setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data)

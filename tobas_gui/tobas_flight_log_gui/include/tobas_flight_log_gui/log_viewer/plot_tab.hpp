@@ -6,7 +6,7 @@
 #include "./plots/twist_plot.hpp"
 #include "./plots/imu_plot.hpp"
 #include "./plots/mag_plot.hpp"
-#include "./plots/gps_plot.hpp"
+#include "./plots/gnss_plot.hpp"
 #include "./plots/battery_plot.hpp"
 #include "./plots/rotor_speed_plot.hpp"
 #include "./plots/latency_plot.hpp"
@@ -36,7 +36,7 @@ public:
   void setTwistData(const QVector<tobas_msgs::msg::Odometry>& _data);
   void setImuData(const QVector<tobas_msgs::msg::ImuWithCovarianceStamped>& _data);
   void setMagData(const QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped>& _data);
-  void setGpsData(const QVector<tobas_msgs::msg::Gps>& _data);
+  void setGnssData(const QVector<tobas_msgs::msg::Gnss>& _data);
   void setBatteryData(const QVector<tobas_msgs::msg::Battery>& _data);
   void setRotorSpeedData(
     const QVector<tobas_msgs::msg::RotorStateArray>& cur_data,
@@ -50,7 +50,7 @@ private:
   TwistPlotWidget* twist_plot_;
   ImuPlotWidget* imu_plot_;
   MagPlotWidget* mag_plot_;
-  GpsPlotWidget* gps_plot_;
+  GnssPlotWidget* gnss_plot_;
   BatteryPlotWidget* battery_plot_;
   RotorSpeedPlotWidget* rotor_speed_plot_;
   LatencyPlotWidget* latency_plot_;

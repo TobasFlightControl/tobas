@@ -15,9 +15,9 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   imu = new IMUWidget();
   magnetometer = new MagnetometerWidget();
   barometer = new BarometerWidget();
-  gps = new GPSWidget();
+  gnss = new GNSSWidget();
   controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
-  observer = new ObserverWidget(robot, imu, barometer, gps);
+  observer = new ObserverWidget(robot, imu, barometer, gnss);
   hardware = new HardwareWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
@@ -31,7 +31,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   addTab(imu, imu->name());
   addTab(magnetometer, magnetometer->name());
   addTab(barometer, barometer->name());
-  addTab(gps, gps->name());
+  addTab(gnss, gnss->name());
   addTab(controller, controller->name());
   addTab(observer, observer->name());
   addTab(hardware, hardware->name());

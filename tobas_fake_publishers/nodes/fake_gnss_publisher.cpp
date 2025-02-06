@@ -1,6 +1,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/gps.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 
 using namespace std;
 
@@ -21,7 +21,7 @@ private:
   double pos_stddev_;
   double vel_stddev_;
 
-  ros2::PublisherPtr<tobas_msgs::Gps> gnss_pub_;
+  ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
   ros2::TimerPtr timer_;
 
   void timerCb();
@@ -33,15 +33,15 @@ FakeGNSSPublisherNode::FakeGNSSPublisherNode(const rclcpp::NodeOptions& options)
   pos_stddev_ = getDoubleParam("position_stddev", kDefaultPosStddev);
   vel_stddev_ = getDoubleParam("velocity_stddev", kDefaultVelStddev);
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGNSSTopic);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 
 void FakeGNSSPublisherNode::timerCb()
 {
-  auto gnss_msg = std::make_unique<tobas_msgs::Gps>();
+  auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
   gnss_msg->header.stamp = get_clock()->now();
-  gnss_msg->fix_type = tobas_msgs::msg::Gps::FIX_3D;
+  gnss_msg->fix_type = tobas_msgs::msg::Gnss::FIX_3D;
   gnss_msg->latitude = 0.;
   gnss_msg->longitude = 0.;
   gnss_msg->altitude = 0.;

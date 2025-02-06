@@ -12,8 +12,8 @@ ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   const RobotInfo& robot,
   const IMUWidget* imu,
   const BarometerWidget* baro,
-  const GPSWidget* gps)
-  : robot_(robot), imu_(imu), baro_(baro), gps_(gps)
+  const GNSSWidget* gnss)
+  : robot_(robot), imu_(imu), baro_(baro), gnss_(gnss)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
@@ -57,7 +57,7 @@ const char* ErrorStateKalmanFilterWidget::description() const
          "The ESKF operates by linearizing these non-linearities around a nominal state. "
          "It's particularly useful in applications like navigation and tracking, "
          "where precision in estimating orientation and position is crucial, "
-         "such as in Inertial Navigation Systems and GPS technology. "
+         "such as in Inertial Navigation Systems and GNSS technology. "
          "The ESKF's blend of accuracy and computational efficiency "
          "makes it a valuable tool in complex engineering tasks.";
 }
@@ -78,7 +78,7 @@ YAML::Node ErrorStateKalmanFilterWidget::staticParams() const
 
   node["frame_id"] = robot_.tree().getRootName();
   node["use_barometer"] = false;  // TODO: 選択できるように
-  node["use_gps"] = gps_->equipped();
+  node["use_gnss"] = gnss_->equipped();
   node["do_acc_bias_estimation"] = do_acc_bias_estimation_->isChecked();
   node["do_gyro_bias_estimation"] = do_gyro_bias_estimation_->isChecked();
   node["do_mag_hard_bias_estimation"] = do_mag_hard_bias_estimation_->isChecked();
@@ -86,7 +86,7 @@ YAML::Node ErrorStateKalmanFilterWidget::staticParams() const
   node["do_gravity_estimation"] = do_grav_estimation_->isChecked();
   node["imu_offset"] = imu_->offset();
   node["barometer_offset"] = baro_->offset();
-  node["gps_offset"] = gps_->offset();
+  node["gnss_offset"] = gnss_->offset();
 
   return node;
 }
@@ -116,7 +116,7 @@ void ErrorStateKalmanFilterWidget::load(const YAML::Node& node)
 bool ErrorStateKalmanFilterWidget::isValid()
 {
   // 絶対位置が取得できることを確認
-  if (!gps_->equipped())
+  if (!gnss_->equipped())
   {
     qt::qErrorBox(this, "Absolute position connot be observed. Please review the sensor settings.");
     return false;

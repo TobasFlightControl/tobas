@@ -11,7 +11,7 @@
 #include "./setting_tabs/imu.hpp"
 #include "./setting_tabs/magnetometer.hpp"
 #include "./setting_tabs/barometer.hpp"
-#include "./setting_tabs/gps.hpp"
+#include "./setting_tabs/gnss.hpp"
 #include "./setting_tabs/controller/controller.hpp"
 #include "./setting_tabs/observer/observer.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
@@ -41,7 +41,7 @@ public:
   IMUWidget* imu;
   MagnetometerWidget* magnetometer;
   BarometerWidget* barometer;
-  GPSWidget* gps;
+  GNSSWidget* gnss;
   ControllerWidget* controller;
   ObserverWidget* observer;
   HardwareWidget* hardware;
