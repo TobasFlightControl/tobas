@@ -212,14 +212,24 @@ bool ErrorStateKalmanFilter::initializeGravity(const double& value, const double
   return true;
 }
 
-void ErrorStateKalmanFilter::enableJosephForm(bool enable)
+void ErrorStateKalmanFilter::enableSecondIntegral(bool enable)
 {
-  use_joseph_form_ = enable;
+  enable_second_integral_ = enable;
+}
+
+void ErrorStateKalmanFilter::enableCovSymmetrisation(bool enable)
+{
+  enable_cov_symmetrisation_ = enable;
 }
 
 void ErrorStateKalmanFilter::enableCovInitialization(bool enable)
 {
-  do_cov_initialization_ = enable;
+  enable_cov_initialization_ = enable;
+}
+
+void ErrorStateKalmanFilter::enableJosephForm(bool enable)
+{
+  enable_joseph_form_ = enable;
 }
 
 bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
@@ -349,7 +359,7 @@ double ErrorStateKalmanFilter::measureIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269)第一項: 共分散行列の予測値を更新
-  P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  P_ = F_x_ * P_.selfadjointView<Lower>() * F_x_.transpose();  // TODO: 必要な部分のみ計算
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov_fixed * W_Rot_B.transpose() * dt2;
@@ -697,7 +707,8 @@ void ErrorStateKalmanFilter::applyConstraints()
   }
 
   // 共分散行列は対称行列でなければならない
-  eigen::symmetrise(P_);
+  if (enable_cov_symmetrisation_)
+    eigen::symmetrise(P_);
 }
 
 void ErrorStateKalmanFilter::resetStateHistory()

@@ -15,7 +15,7 @@ MatrixXd dare(
   const MatrixXd& B,
   const MatrixXd& Q,
   const MatrixXd& R,
-  DareMethod method,
+  bool use_joseph_form,
   const double& tol,
   size_t max_iter)
 {
@@ -41,40 +41,22 @@ MatrixXd dare(
     X_prev = X_next;
 
     // 事前推定
-    MatrixXd X_mid = A.transpose() * X_prev * A + Q;
-    eigen::symmetrise(X_mid);  // 対称性を保存
+    const MatrixXd X_mid = A.transpose() * X_prev.selfadjointView<Lower>() * A + Q;
 
     // 事後推定
-    const MatrixXd XB = X_mid * B;
+    const MatrixXd XB = X_mid.selfadjointView<Lower>() * B;
     const MatrixXd G = XB * (B.transpose() * XB + R).inverse();
     const MatrixXd I_GBt = I - G * B.transpose();
 
-    switch (method)
-    {
-      case DareMethod::Normal:
-      {
-        X_next = I_GBt * X_mid;
-        break;
-      }
-      case DareMethod::Joseph:
-      {
-        X_next = I_GBt * X_mid * I_GBt.transpose() + G * R * G.transpose();
-        break;
-      }
-      default:
-      {
-        throw runtime_error("Unknown method ID: " + to_string(method));
-      }
-    }
-
-    eigen::symmetrise(X_next);  // 対称性を保存
+    if (use_joseph_form)
+      X_next =
+        I_GBt * X_mid.selfadjointView<Lower>() * I_GBt.transpose() + G * R.selfadjointView<Lower>() * G.transpose();
+    else
+      X_next = I_GBt * X_mid.selfadjointView<Lower>();
 
     if (iter++ > max_iter)
       throw runtime_error("Failed to converge");
   }
-
-  // cout << eigen::matrixRank(X_next) << endl;
-  assert(eigen::isPositiveDefinite(X_next));
 
   cout << "DARE has successfully converged in " << iter << " iterations." << endl;
   return X_next;
