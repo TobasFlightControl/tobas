@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
 
 #include "./base_controller.hpp"
 
@@ -30,7 +30,7 @@ private:
   double max_dpitch_;  // [rad]
 
   // PubSub
-  ros2::PublisherPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

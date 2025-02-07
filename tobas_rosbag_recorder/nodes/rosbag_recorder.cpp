@@ -26,7 +26,6 @@
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
@@ -37,12 +36,13 @@
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
-#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_msgs_adapter/roll_pitch_yaw_throttle.hpp>
-#include <tobas_debug_msgs/msg/observer_feedback.hpp>
-#include <tobas_debug_msgs/msg/multi_rotor_controller_feedback.hpp>
-#include <tobas_debug_msgs/msg/non_planar_controller_feedback.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
+#include <tobas_command_msgs_adapter/pose_twist_accel_command.hpp>
+#include <tobas_command_msgs_adapter/roll_pitch_yaw_throttle.hpp>
+#include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_debug_msgs_adapter/observer_feedback.hpp>
+#include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
+#include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
 #include <tobas_debug_msgs/msg/fixed_wing_controller_feedback.hpp>
 
 #include <tobas_msgs/srv/bag_record_start.hpp>
@@ -89,9 +89,12 @@ private:
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
-  tobas_msgs::msg::PosVelAccYaw pvay_;
-  tobas_msgs::msg::RollPitchYawThrottle rpyt_;
-  tobas_msgs::msg::PoseTwistAccelCommand pta_;
+  tobas_command_msgs::msg::PosVelAccYaw pvay_;
+  tobas_command_msgs::msg::RollPitchYawThrottle rpyt_;
+  tobas_command_msgs::msg::PoseTwistAccelCommand pta_;
+  tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
+  tobas_debug_msgs::msg::MultiRotorControllerFeedback mr_ctrl_fb_;
+  tobas_debug_msgs::msg::NonPlanarControllerFeedback np_ctrl_fb_;
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RosbagState> rosbag_state_pub_;
@@ -167,13 +170,10 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::ControlSurfaceDeflections>(tobas::kDeflectionCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::PwmArray>(tobas::kPwmCmdTopic);
-  addStandardMsgSub<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
+  addStandardMsgSub<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
-  addStandardMsgSub<tobas_debug_msgs::msg::ObserverFeedback>(tobas::kObsvFeedbackTopic);
-  addStandardMsgSub<tobas_debug_msgs::msg::MultiRotorControllerFeedback>(tobas::kMRCtrlFeedbackTopic);
-  addStandardMsgSub<tobas_debug_msgs::msg::NonPlanarControllerFeedback>(tobas::kNPCtrlFeedbackTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
 
   // Resister subscribers for non-standard messages
@@ -190,6 +190,9 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas_msgs::PosVelAccYaw>(pvay_, tobas::kPosVelAccYawCmdTopic);
   addTypeAdaptedMsgSub<tobas_msgs::RollPitchYawThrottle>(rpyt_, tobas::kRPYThrotCmdTopic);
   addTypeAdaptedMsgSub<tobas_msgs::PoseTwistAccelCommand>(pta_, tobas::kPoseTwistAccelCmdTopic);
+  addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, tobas::kObsvFeedbackTopic);
+  addTypeAdaptedMsgSub<tobas_debug_msgs::MultiRotorControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);
+  addTypeAdaptedMsgSub<tobas_debug_msgs::NonPlanarControllerFeedback>(np_ctrl_fb_, tobas::kNPCtrlFeedbackTopic);
 
   // Register services
   start_srv_ = createService<StartSrv>(tobas::kROSBagRecordStartSrv, &self::startCb, this);

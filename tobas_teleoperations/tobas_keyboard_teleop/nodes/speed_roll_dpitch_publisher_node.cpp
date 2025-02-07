@@ -9,7 +9,7 @@
 
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"
@@ -59,7 +59,7 @@ private:
   bool tree_received_ = false;
   bool pressure_received_ = false;
   double air_density_;  // 現在の大気密度
-  tobas_msgs::msg::SpeedRollDeltaPitch cmd_;
+  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_;
 
   // rosparams
   double max_linacc_;       // 並進加速度の大きさの最大値
@@ -68,7 +68,7 @@ private:
   double max_delta_pitch_;  // ピッチ角の釣り合いからの偏差の最大値
 
   // PubSub
-  ros2::PublisherPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_pub_;
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::FluidPressureWithVarianceStamped> air_pressure_sub_;
@@ -99,7 +99,7 @@ SpeedRollDeltaPitchPublisherNode::SpeedRollDeltaPitchPublisherNode(const rclcpp:
   delta_speed_ = max_linacc_ * repeat_interval;
   delta_rot_ = max_angvel_ * repeat_interval;
 
-  cmd_pub_ = createPublisher<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
+  cmd_pub_ = createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
@@ -230,7 +230,7 @@ void SpeedRollDeltaPitchPublisherNode::mainTimerCb()
   }
 
   // コマンドを発行
-  auto cmd_ptr = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>(cmd_);
+  auto cmd_ptr = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>(cmd_);
   cmd_pub_->publish(move(cmd_ptr));
 }
 

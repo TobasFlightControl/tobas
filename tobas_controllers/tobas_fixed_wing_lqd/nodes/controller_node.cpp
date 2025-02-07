@@ -14,7 +14,7 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
-#include <tobas_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_msgs/msg/fluid_pressure_with_variance_stamped.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/control_surface_deflections.hpp>
@@ -65,10 +65,10 @@ private:
   tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr air_pressure_;  // 大気圧
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;                                // 現在のバッテリーの状態
   tobas_msgs::Odometry::ConstSharedPtr odom_nwu_;                                   // 現在の状態 (NWU座標系)
-  tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
-  tobas_msgs::Odometry odom_ned_;                                 // 現在の状態 (NED座標系)
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                // ロータのアーム状態
-  tobas_msgs::msg::SpeedRollDeltaPitch cmd_ned_;                  // 現在のコマンド (NED座標系)
+  tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr cmd_nwu_;  // 現在のコマンド (NWU座標系)
+  tobas_msgs::Odometry odom_ned_;                                         // 現在の状態 (NED座標系)
+  tobas_msgs::msg::Arming::ConstSharedPtr arming_;                        // ロータのアーム状態
+  tobas_command_msgs::msg::SpeedRollDeltaPitch cmd_ned_;                  // 現在のコマンド (NED座標系)
   ControllerParameters params_;
   ctrl::LQD lqd_;  // 最適レギュレータ
 
@@ -84,7 +84,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::SpeedRollDeltaPitch> cmd_sub_;
 
   bool initialize();
   bool isReadyToControl();
@@ -121,7 +121,7 @@ private:
   void airPressureCb(const tobas_msgs::msg::FluidPressureWithVarianceStamped::ConstSharedPtr& pressure);
   void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu);
-  void commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
+  void commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -579,7 +579,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom_nwu
   publishFeedback(du);
 }
 
-void ControllerNode::commandCb(const tobas_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu)
+void ControllerNode::commandCb(const tobas_command_msgs::msg::SpeedRollDeltaPitch::ConstSharedPtr& cmd_nwu)
 {
   if (!isReadyToControl())
   {

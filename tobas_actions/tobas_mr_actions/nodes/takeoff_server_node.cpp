@@ -6,7 +6,7 @@
 #include <tobas_tools/util.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
-#include <tobas_msgs/action/takeoff.hpp>
+#include <tobas_mission_msgs/action/takeoff.hpp>
 
 #include "../include/tobas_mr_actions/common.hpp"
 
@@ -21,7 +21,7 @@ class TakeoffServerNode : public tobas::BaseNode
 {
   using self = TakeoffServerNode;
   using super = tobas::BaseNode;
-  using ActionType = tobas_msgs::action::Takeoff;
+  using ActionType = tobas_mission_msgs::action::Takeoff;
 
 public:
   explicit TakeoffServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -172,7 +172,7 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
 
     // コマンドを作成
     cmd_.level = goal->level;
-    cmd_.frame_id.data = tobas_msgs::msg::FrameId::WORLD;
+    cmd_.frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;
     cmd_.pos.setZero();
     cmd_.vel.setZero();
     cmd_.acc.setZero();

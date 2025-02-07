@@ -1,7 +1,7 @@
 std_msgs/Header header
 
-tobas_msgs/CommandLevel level
-tobas_msgs/FrameId frame_id  # The frame in whch velocity and acceleration are expressed
+tobas_command_msgs/CommandLevel level
+tobas_command_msgs/FrameId frame_id  # The frame in whch velocity and acceleration are expressed
 
 tobas_kdl_msgs/Vector pos    # Target position [m]
 tobas_kdl_msgs/Vector vel    # Target linear velocity [m/s]

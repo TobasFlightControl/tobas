@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_command_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -22,6 +23,7 @@ add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_node
 	tobas_msgs_adapter
+	tobas_command_msgs_adapter
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "FakeBatteryPublisherNode" EXECUTABLE fake_battery_publisher)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "FakeGNSSPublisherNode" EXECUTABLE fake_gnss_publisher)

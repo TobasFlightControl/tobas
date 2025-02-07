@@ -10,6 +10,8 @@
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
 	<exec_depend>tobas_actions</exec_depend>
+	<exec_depend>tobas_command_msgs</exec_depend>
+	<exec_depend>tobas_command_msgs_adapter</exec_depend>
 	<exec_depend>tobas_components_rt</exec_depend>
 	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
@@ -31,6 +33,7 @@
 	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_matrix_euler_conversion</exec_depend>
+	<exec_depend>tobas_mission_msgs</exec_depend>
 	<exec_depend>tobas_msgs</exec_depend>
 	<exec_depend>tobas_msgs_adapter</exec_depend>
 	<exec_depend>tobas_node</exec_depend>

@@ -1,5 +1,5 @@
 # Goal
-tobas_msgs/CommandLevel level
+tobas_command_msgs/CommandLevel level
 float64 target_latitude    # [m]
 float64 target_longitude   # [m]
 float64 target_altitude    # [m]

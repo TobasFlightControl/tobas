@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
+#include <tobas_command_msgs_adapter/pose_twist_accel_command.hpp>
 
 #include "./base_controller.hpp"
 

@@ -65,8 +65,8 @@ void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const 
   // コマンドを作成
   auto cmd = std::make_unique<tobas_msgs::PosVelAccYaw>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
-  cmd->frame_id.data = tobas_msgs::msg::FrameId::WORLD;
+  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
+  cmd->frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
   cmd->acc.setZero();

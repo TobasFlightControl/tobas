@@ -12,6 +12,8 @@
 	<depend>tobas_keyboard</depend>
 	<depend>tobas_node</depend>
 	<depend>tobas_msgs_adapter</depend>
+	<depend>tobas_command_msgs_adapter</depend>
+	<depend>tobas_mission_msgs</depend>
 	<depend>tobas_drone_tools</depend>
 	<depend>tobas_drone_msgs_adapter</depend>
 

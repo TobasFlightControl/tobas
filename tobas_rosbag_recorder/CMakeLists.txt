@@ -17,8 +17,9 @@ find_package(std_srvs REQUIRED)
 find_package(tobas_linux REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_command_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
-find_package(tobas_debug_msgs REQUIRED)
+find_package(tobas_debug_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	rosbag2_cpp
@@ -26,8 +27,9 @@ set(AMENT_DEPENDENCIES
 	tobas_linux
 	tobas_node
 	tobas_msgs_adapter
+	tobas_command_msgs_adapter
 	tobas_drone_msgs_adapter
-	tobas_debug_msgs
+	tobas_debug_msgs_adapter
 )
 
 include_directories(include)

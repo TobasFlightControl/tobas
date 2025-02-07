@@ -17,8 +17,8 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_msgs_adapter/roll_pitch_yaw_throttle.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
+#include <tobas_command_msgs_adapter/roll_pitch_yaw_throttle.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -26,7 +26,7 @@
 
 struct RollPitchYawThrust
 {
-  tobas_msgs::msg::CommandLevel level;
+  tobas_command_msgs::msg::CommandLevel level;
   kdl::Euler rpy;
   double thrust;
 };
@@ -484,7 +484,7 @@ void ControllerNode::posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedP
   tar_pvay_W_ = std::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::msg::FrameId::WORLD, odom_->frame.M, *tar_pvay_W_))
+  if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *tar_pvay_W_))
   {
     TOBAS_ERROR("Failed to change command frame. Probably the frame ID is invalid.");
     tar_pvay_W_ = nullptr;

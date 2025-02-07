@@ -5,7 +5,7 @@
 
 using namespace std;
 using namespace tobas_msgs::srv;
-using namespace tobas_msgs::action;
+using namespace tobas_mission_msgs::action;
 
 namespace gui
 {

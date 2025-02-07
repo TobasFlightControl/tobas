@@ -39,7 +39,7 @@ void RollPitchYawThrottleController::update(const tobas_msgs::msg::RCInput& rcin
   // コマンドを作成
   auto cmd = std::make_unique<tobas_msgs::RollPitchYawThrottle>();
   cmd->header = rcin.header;
-  cmd->level.data = tobas_msgs::msg::CommandLevel::MANUAL;
+  cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
   // 姿勢とスロットルを埋める
   cmd->rpy.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);

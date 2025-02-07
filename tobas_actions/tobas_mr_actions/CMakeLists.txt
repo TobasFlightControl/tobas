@@ -16,6 +16,7 @@ find_package(tobas_kdl_conversions REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_mission_msgs REQUIRED)
 
 include_directories(include)
 
@@ -26,6 +27,7 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_node
 	tobas_tools
 	tobas_msgs_adapter
+	tobas_mission_msgs
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "TakeoffServerNode" EXECUTABLE takeoff_server)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "LandServerNode" EXECUTABLE land_server)

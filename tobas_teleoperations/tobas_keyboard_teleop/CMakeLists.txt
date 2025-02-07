@@ -24,6 +24,8 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_keyboard REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_command_msgs_adapter REQUIRED)
+find_package(tobas_mission_msgs REQUIRED)
 find_package(tobas_drone_tools REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 
@@ -35,6 +37,8 @@ ament_target_dependencies(${PROJECT_NAME}_node
   tobas_keyboard
   tobas_node
   tobas_msgs_adapter
+  tobas_command_msgs_adapter
+  tobas_mission_msgs
   tobas_drone_tools
   tobas_drone_msgs_adapter
 )

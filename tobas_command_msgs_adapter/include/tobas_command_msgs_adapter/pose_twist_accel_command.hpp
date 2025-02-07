@@ -5,15 +5,15 @@
 #include <tobas_kdl_msgs_adapter/vector.hpp>
 #include <tobas_kdl_msgs_adapter/euler.hpp>
 
-#include <tobas_msgs/msg/pose_twist_accel_command.hpp>
+#include <tobas_command_msgs/msg/pose_twist_accel_command.hpp>
 
 namespace tobas_msgs
 {
 struct PoseTwistAccelCommand
 {
   std_msgs::msg::Header header;
-  tobas_msgs::msg::CommandLevel level;
-  tobas_msgs::msg::FrameId frame_id;
+  tobas_command_msgs::msg::CommandLevel level;
+  tobas_command_msgs::msg::FrameId frame_id;
   kdl::Vector pos;
   kdl::Vector vel;
   kdl::Vector acc;
@@ -27,11 +27,11 @@ struct PoseTwistAccelCommand
 }  // namespace tobas_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_msgs::msg::PoseTwistAccelCommand>
+struct rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>
 {
   using is_specialized = std::true_type;
   using custom_type = tobas_msgs::PoseTwistAccelCommand;
-  using ros_message_type = tobas_msgs::msg::PoseTwistAccelCommand;
+  using ros_message_type = tobas_command_msgs::msg::PoseTwistAccelCommand;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -63,7 +63,9 @@ struct rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_msgs::msg::P
 namespace tobas_msgs
 {
 using PoseTwistAccelCommandAdapter =
-  rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_msgs::msg::PoseTwistAccelCommand>;
+  rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::PoseTwistAccelCommand, tobas_msgs::msg::PoseTwistAccelCommand);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
+  tobas_msgs::PoseTwistAccelCommand,
+  tobas_command_msgs::msg::PoseTwistAccelCommand);

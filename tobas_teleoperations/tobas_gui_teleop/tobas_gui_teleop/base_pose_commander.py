@@ -8,8 +8,9 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from tobas_std_tools_py.geometry import euler_from_matrix
 from tobas_rqt_py.widgets import Widget, FloatSliderDisplay
-from tobas_msgs.msg import Arming, Odometry, PosVelAccYaw, PoseTwistAccelCommand, CommandLevel
+from tobas_msgs.msg import Arming, Odometry
 from tobas_msgs.srv import SetArm
+from tobas_command_msgs.msg import PosVelAccYaw, PoseTwistAccelCommand, CommandLevel
 
 from .common import BUTTON_HEIGHT
 

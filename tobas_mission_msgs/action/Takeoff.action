@@ -1,5 +1,5 @@
 # Goal
-tobas_msgs/CommandLevel level
+tobas_command_msgs/CommandLevel level
 float64 target_altitude     # [m]
 float64 altitude_tolerance  # [m]
 float64 duration            # [s]

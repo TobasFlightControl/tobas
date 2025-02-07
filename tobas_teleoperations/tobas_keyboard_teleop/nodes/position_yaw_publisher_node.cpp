@@ -9,8 +9,8 @@
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_msgs/action/takeoff.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
+#include <tobas_mission_msgs/action/takeoff.hpp>
 
 #include "../include/tobas_keyboard_teleop/constants.hpp"
 
@@ -123,12 +123,12 @@ void PositionYawPublisherNode::initializeTimerCb()
 {
   // 離陸アクションクライアントを用意
   // FIXME: コールバックの中でfuture.wait()を呼ぶとデッドロックするため，keyboard_teleopはメイン関数にベタ書きする．
-  ros2::SyncActionClient<tobas_msgs::action::Takeoff> takeoff_ac(shared_from_this(), tobas::kTakeoffAction);
+  ros2::SyncActionClient<tobas_mission_msgs::action::Takeoff> takeoff_ac(shared_from_this(), tobas::kTakeoffAction);
 
   // 離陸
   TOBAS_INFO("Requesting takeoff_ac action.");
-  tobas_msgs::action::Takeoff::Goal takeoff_goal;
-  takeoff_goal.level.data = tobas_msgs::msg::CommandLevel::NORMAL;
+  tobas_mission_msgs::action::Takeoff::Goal takeoff_goal;
+  takeoff_goal.level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
   takeoff_goal.target_altitude = TAKEOFF_TARGET_ALTITUDE;
   takeoff_goal.altitude_tolerance = TAKEOFF_ALTITUDE_TOLERANCE;
   takeoff_goal.duration = TAKEOFF_DURATION;
@@ -230,7 +230,7 @@ void PositionYawPublisherNode::mainTimerCb()
 
   // コマンドを発行
   auto pvay_msg = std::make_unique<tobas_msgs::PosVelAccYaw>();
-  pvay_msg->level.data = tobas_msgs::msg::CommandLevel::NORMAL;
+  pvay_msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
   pvay_msg->pos = cmd_pos_;
   pvay_msg->vel.setZero();
   pvay_msg->acc.setZero();

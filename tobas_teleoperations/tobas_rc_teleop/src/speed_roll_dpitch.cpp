@@ -16,7 +16,7 @@ void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  cmd_pub_ = node->createPublisher<tobas_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
 }
 
 void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
@@ -26,7 +26,7 @@ void SpeedRollDeltaPitchController::reset(const tobas_msgs::Odometry&)
 void SpeedRollDeltaPitchController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_msgs::msg::SpeedRollDeltaPitch>();
+  auto cmd = std::make_unique<tobas_command_msgs::msg::SpeedRollDeltaPitch>();
   cmd->header = rcin.header;
   cmd->speed = remap(rcin.throttle, min_speed_, max_speed_);  // TODO: 機体の制限速度を考慮
   cmd->roll = remapDead(rcin.roll, -max_roll_, max_roll_);

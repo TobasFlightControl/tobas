@@ -5,9 +5,9 @@
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_msgs/srv/get_gnss_origin.hpp>
-#include <tobas_msgs/action/takeoff.hpp>
-#include <tobas_msgs/action/land.hpp>
-#include <tobas_msgs/action/move.hpp>
+#include <tobas_mission_msgs/action/takeoff.hpp>
+#include <tobas_mission_msgs/action/land.hpp>
+#include <tobas_mission_msgs/action/move.hpp>
 
 #include "./commands/commands.hpp"
 
@@ -22,7 +22,7 @@ class MissionExecutionThread : public QThread
   using self = MissionExecutionThread;
   using super = QThread;
 
-  static constexpr auto kCommandLevel = tobas_msgs::msg::CommandLevel::NORMAL;
+  static constexpr auto kCommandLevel = tobas_command_msgs::msg::CommandLevel::NORMAL;
   static constexpr auto kCommandTimeout = 10.;  // TODO: ユーザが設定できるようにする
   static constexpr auto kCheckCancelInterval = std::chrono::milliseconds(100);
 
@@ -54,9 +54,9 @@ private:
   bool stop_requested_;
 
   ros2::SyncServiceClient<tobas_msgs::srv::GetGnssOrigin>::SharedPtr get_gnss_origin_sc_;
-  ros2::SyncActionClient<tobas_msgs::action::Takeoff>::SharedPtr takeoff_ac_;
-  ros2::SyncActionClient<tobas_msgs::action::Land>::SharedPtr land_ac_;
-  ros2::SyncActionClient<tobas_msgs::action::Move>::SharedPtr move_ac_;
+  ros2::SyncActionClient<tobas_mission_msgs::action::Takeoff>::SharedPtr takeoff_ac_;
+  ros2::SyncActionClient<tobas_mission_msgs::action::Land>::SharedPtr land_ac_;
+  ros2::SyncActionClient<tobas_mission_msgs::action::Move>::SharedPtr move_ac_;
 
   bool execute(BaseCommandData::SharedPtr command);
 

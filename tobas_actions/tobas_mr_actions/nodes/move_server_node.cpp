@@ -10,7 +10,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/geodetic_coordinates.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs/action/move.hpp>
+#include <tobas_mission_msgs/action/move.hpp>
 
 #include "../include/tobas_mr_actions/common.hpp"
 
@@ -20,7 +20,7 @@ class MoveServerNode : public tobas::BaseNode
 {
   using self = MoveServerNode;
   using super = tobas::BaseNode;
-  using ActionType = tobas_msgs::action::Move;
+  using ActionType = tobas_mission_msgs::action::Move;
 
 public:
   explicit MoveServerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
@@ -217,7 +217,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
     // コマンドを作成
     cmd_.level = goal->level;
-    cmd_.frame_id.data = tobas_msgs::msg::FrameId::WORLD;
+    cmd_.frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;
 
     // ヨー角は初期状態を維持
     cmd_.yaw = start_yaw;
