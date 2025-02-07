@@ -21,7 +21,7 @@ class SelectedLinkWidget : public QWidget
 {
   Q_OBJECT
 
-  static constexpr int kButtonWidth = 120;
+  static constexpr int kButtonWidth = 125;
   static constexpr int kButtonHeight = 50;
   static constexpr int kTabWidth = 135;
   static constexpr int kTabHeight = 45;

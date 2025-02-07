@@ -19,8 +19,8 @@ class ROSPackageWidget : public BaseSettingWidget
   using super = BaseSettingWidget;
 
   static constexpr int kTextHeight = 50;
-  static constexpr int kButtonHeight = 40;
   static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonHeight = 40;
 
 Q_SIGNALS:
   void generateButtonClicked();

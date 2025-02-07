@@ -23,7 +23,7 @@ class JointStatePublisherWidget : public QWidget
   using self = JointStatePublisherWidget;
   using super = QWidget;
 
-  static constexpr int kButtonHeight = 50;
+  static constexpr int kButtonHeight = 40;
 
 public:
   explicit JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot);
