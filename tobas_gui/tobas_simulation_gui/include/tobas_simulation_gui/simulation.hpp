@@ -11,6 +11,7 @@
 
 #include "./static_configuration/static_configuration.hpp"
 #include "./dynamic_configuration/dynamic_configuration.hpp"
+#include "./base_pose_commander.hpp"
 
 namespace gui
 {
@@ -48,6 +49,7 @@ private:
 
   StaticConfigWidget* static_config_;
   DynamicConfigWidget* dynamic_config_;
+  BasePoseCommanderWidget* base_pose_commander_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -64,7 +66,12 @@ private:
 
   bool buildLocalPackage();
   bool launchGazebo(bool launch_core);
-  bool initializeDynamicConfig();
+
+  bool startDynamicConfig();
+  void terminateDynamicConfig();
+
+  bool startCommanders();
+  void terminateCommanders();
 
   static std::string boolToText(bool arg);
 

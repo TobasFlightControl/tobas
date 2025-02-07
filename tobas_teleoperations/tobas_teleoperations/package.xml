@@ -9,7 +9,6 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
-	<exec_depend>tobas_gui_teleop</exec_depend>
 	<exec_depend>tobas_keyboard_teleop</exec_depend>
 	<exec_depend>tobas_rc_teleop</exec_depend>
 

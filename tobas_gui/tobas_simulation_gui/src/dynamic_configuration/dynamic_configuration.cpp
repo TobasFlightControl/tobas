@@ -24,12 +24,17 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
   rows->addStretch();
 }
 
-bool DynamicConfigWidget::initialize(const std::string& ns)
+bool DynamicConfigWidget::start(const std::string& ns)
 {
-  if (!wind_->initialize(ns))
+  if (!wind_->start(ns))
     return false;
 
   return true;
+}
+
+void DynamicConfigWidget::terminate()
+{
+  wind_->terminate();
 }
 }  // namespace sim
 }  // namespace gui

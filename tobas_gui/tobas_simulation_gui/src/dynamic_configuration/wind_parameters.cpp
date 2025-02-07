@@ -46,7 +46,7 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   connect(gust_interval_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
 }
 
-bool WindParamsWidget::initialize(const std::string& ns)
+bool WindParamsWidget::start(const std::string& ns)
 {
   get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node_, path::join(ns, gazebo::kGetWindParamsSrv));
   set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, gazebo::kSetWindParamsSrv));
@@ -66,6 +66,12 @@ bool WindParamsWidget::initialize(const std::string& ns)
   loadCurrentParams();
 
   return true;
+}
+
+void WindParamsWidget::terminate()
+{
+  get_sc_ = nullptr;
+  set_sc_ = nullptr;
 }
 
 void WindParamsWidget::loadCurrentParams()

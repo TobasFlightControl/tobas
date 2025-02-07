@@ -29,6 +29,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
 
   static_config_ = new StaticConfigWidget(node);
   dynamic_config_ = new DynamicConfigWidget(node);
+  base_pose_commander_ = new BasePoseCommanderWidget(node);
 
   // Layout
   const auto button_cols = new QHBoxLayout();
@@ -36,13 +37,23 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   button_cols->addWidget(terminate_button_);
   button_cols->addStretch();
 
-  const auto config_cols = new QHBoxLayout();
-  config_cols->addWidget(static_config_, 1);
-  config_cols->addWidget(dynamic_config_, 1);
+  const auto config_rows = new QVBoxLayout();
+  config_rows->addWidget(static_config_);
+  config_rows->addWidget(dynamic_config_);
+  config_rows->addStretch();
+
+  const auto commander_rows = new QVBoxLayout();
+  commander_rows->addWidget(base_pose_commander_);
+  // TODO: joint_position_commander
+  commander_rows->addStretch();
+
+  const auto cols = new QHBoxLayout();
+  cols->addLayout(config_rows);
+  cols->addLayout(commander_rows);
 
   const auto rows = new QVBoxLayout();
   rows->addLayout(button_cols);
-  rows->addLayout(config_cols);
+  rows->addLayout(cols);
 
   setLayout(rows);
 
@@ -86,6 +97,9 @@ void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& a
 
 bool SimulationWidget::reset()
 {
+  terminateDynamicConfig();
+  terminateCommanders();
+
   if (!killGazeboLaunch())
     return false;
 
@@ -95,6 +109,8 @@ bool SimulationWidget::reset()
   terminate_button_->setEnabled(false);
   static_config_->setEnabled(true);
   dynamic_config_->setEnabled(false);
+  base_pose_commander_->setEnabled(false);
+  // TODO
 
   return true;
 }
@@ -126,7 +142,7 @@ bool SimulationWidget::killGazeboLaunch()
 bool SimulationWidget::startSITL()
 {
   // プログレスバーを作成
-  qt::ProgressDialog progress("Start Gazebo SITL", 4, this);
+  qt::ProgressDialog progress("Start Gazebo SITL", 5, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -158,9 +174,18 @@ bool SimulationWidget::startSITL()
   }
   progress.progressStep();
 
-  // 動的パラメータを初期化
-  progress.setLabelText("Initializing dynamic configurations.");
-  if (!initializeDynamicConfig())
+  // 動的パラメータを起動
+  progress.setLabelText("Starting dynamic configurations.");
+  if (!startDynamicConfig())
+  {
+    progress.close();
+    return false;
+  }
+  progress.progressStep();
+
+  // コマンダーを起動
+  progress.setLabelText("Starting commanders.");
+  if (!startCommanders())
   {
     progress.close();
     return false;
@@ -173,6 +198,12 @@ bool SimulationWidget::startSITL()
 
 bool SimulationWidget::terminateSITL()
 {
+  // 動的パラメータを終了
+  terminateDynamicConfig();
+
+  // コマンダーを終了
+  terminateCommanders();
+
   // Gazeboプロセスを終了
   if (!killGazeboLaunch())
   {
@@ -202,7 +233,7 @@ bool SimulationWidget::startHITL()
   }
 
   // プログレスバーを作成
-  qt::ProgressDialog progress("Start Gazebo HITL", 8, this);
+  qt::ProgressDialog progress("Start Gazebo HITL", 9, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -279,9 +310,18 @@ bool SimulationWidget::startHITL()
   }
   progress.progressStep();
 
-  // 動的パラメータを初期化
-  progress.setLabelText("Initializing dynamic configurations.");
-  if (!initializeDynamicConfig())
+  // 動的パラメータを起動
+  progress.setLabelText("Starting dynamic configurations.");
+  if (!startDynamicConfig())
+  {
+    progress.close();
+    return false;
+  }
+  progress.progressStep();
+
+  // コマンダーを起動
+  progress.setLabelText("Starting commanders.");
+  if (!startCommanders())
   {
     progress.close();
     return false;
@@ -295,9 +335,19 @@ bool SimulationWidget::startHITL()
 bool SimulationWidget::terminateHITL()
 {
   // プログレスバーを作成
-  qt::ProgressDialog progress("Terminate Gazebo HITL", 3, this);
+  qt::ProgressDialog progress("Terminate Gazebo HITL", 5, this);
   progress.setCancelButton(nullptr);
   progress.show();
+
+  // 動的パラメータを終了
+  progress.setLabelText("Terminating dynamic configurations.");
+  terminateDynamicConfig();
+  progress.progressStep();
+
+  // コマンダーを終了
+  progress.setLabelText("Terminating commanders.");
+  terminateCommanders();
+  progress.progressStep();
 
   // Gazeboプロセスを終了
   progress.setLabelText("Terminating Gazebo simulation.");
@@ -363,9 +413,30 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   return true;
 }
 
-bool SimulationWidget::initializeDynamicConfig()
+bool SimulationWidget::startDynamicConfig()
 {
-  return dynamic_config_->initialize(drone_.name);
+  return dynamic_config_->start(drone_.name);
+}
+
+void SimulationWidget::terminateDynamicConfig()
+{
+  dynamic_config_->terminate();
+}
+
+bool SimulationWidget::startCommanders()
+{
+  if (!base_pose_commander_->start(drone_.name))
+    return false;
+
+  // TODO
+
+  return true;
+}
+
+void SimulationWidget::terminateCommanders()
+{
+  base_pose_commander_->terminate();
+  // TODO
 }
 
 std::string SimulationWidget::boolToText(bool arg)
@@ -401,6 +472,8 @@ void SimulationWidget::onStartButtonClicked()
   terminate_button_->setEnabled(true);
   static_config_->setEnabled(false);
   dynamic_config_->setEnabled(true);
+  base_pose_commander_->setEnabled(true);
+  // TODO
 
   qt::qInfoBox(this, "Gazebo simulation has started successfully.");
 }

@@ -16,7 +16,8 @@ class DynamicConfigWidget : public QWidget
 public:
   explicit DynamicConfigWidget(rclcpp::Node::SharedPtr node);
 
-  bool initialize(const std::string& ns);
+  bool start(const std::string& ns);
+  void terminate();
 
 private:
   WindParamsWidget* wind_;

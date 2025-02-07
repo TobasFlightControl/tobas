@@ -18,13 +18,11 @@ class WindParamsWidget : public QWidget
   using GetSrv = tobas_gazebo_msgs::srv::GetWindParams;
   using SetSrv = tobas_gazebo_msgs::srv::SetWindParams;
 
-  static constexpr auto kWaitForService = std::chrono::seconds(10);
-  static constexpr auto kServiceCallTimeout = std::chrono::seconds(1);
-
 public:
   explicit WindParamsWidget(rclcpp::Node::SharedPtr node);
 
-  bool initialize(const std::string& ns);
+  bool start(const std::string& ns);
+  void terminate();
 
 private:
   const rclcpp::Node::SharedPtr node_;

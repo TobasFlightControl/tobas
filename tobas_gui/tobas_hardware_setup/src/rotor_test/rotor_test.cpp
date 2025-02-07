@@ -214,7 +214,7 @@ bool RotorTestWidget::armRotors(bool arming)
 {
   const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
   req->arming = arming;
-  req->ignore_prearm_check = true;
+  req->ignore_prearm_check = true;  // 飛ばすわけではないためPre-Arm Checkは無し
   if (!set_arm_sc_->call(req, kWaitForService))
   {
     qt::qErrorBox(this, "Failed to connect to the rotor controller.");

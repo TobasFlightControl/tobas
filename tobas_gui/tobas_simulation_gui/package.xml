@@ -11,7 +11,8 @@
 
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_drone_core</depend>
-  <depend>tobas_msgs</depend>
+  <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_command_msgs_adapter</depend>
   <depend>tobas_gazebo_msgs</depend>
   <depend>tobas_qt_tools</depend>
   <depend>tobas_gui_common</depend>

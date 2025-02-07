@@ -82,6 +82,12 @@ void IntSliderDisplay::setMaximum(int maximum)
   slider_->setMaximum(maximum);
 }
 
+void IntSliderDisplay::setRange(int minimum, int maximum)
+{
+  setMinimum(minimum);
+  setMaximum(maximum);
+}
+
 void IntSliderDisplay::setText(const QString& text)
 {
   text_->setText(text);
@@ -171,6 +177,12 @@ void DoubleSliderDisplay::setMinimum(double minimum)
 void DoubleSliderDisplay::setMaximum(double maximum)
 {
   slider_->setMaximum(maximum);
+}
+
+void DoubleSliderDisplay::setRange(double minimum, double maximum)
+{
+  setMinimum(minimum);
+  setMaximum(maximum);
 }
 
 void DoubleSliderDisplay::setText(const QString& text)
