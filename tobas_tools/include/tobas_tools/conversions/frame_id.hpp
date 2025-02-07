@@ -2,7 +2,7 @@
 
 #include <tobas_kdl/rotation.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_command_msgs_adapter/pose_twist_accel_command.hpp>
+#include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
 
 namespace tobas
 {
@@ -30,5 +30,5 @@ bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_comm
  * @return true 変換に成功した場合
  * @return false 変換に失敗した場合
  */
-bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_command_msgs::PoseTwistAccelCommand& msg);
+bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_command_msgs::PoseTwistAccel& msg);
 }  // namespace tobas

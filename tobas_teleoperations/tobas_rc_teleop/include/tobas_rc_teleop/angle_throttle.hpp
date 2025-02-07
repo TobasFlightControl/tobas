@@ -1,17 +1,17 @@
 #pragma once
 
-#include <tobas_command_msgs_adapter/roll_pitch_yaw_throttle.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
 {
-class RollPitchYawThrottleController : public BaseController
+class AngleThrottleController : public BaseController
 {
   using super = BaseController;
 
 public:
-  explicit RollPitchYawThrottleController();
+  explicit AngleThrottleController();
 
   void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
@@ -26,7 +26,7 @@ private:
   double max_yawrate_;   // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::RollPitchYawThrottle> rpyt_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> rpyt_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

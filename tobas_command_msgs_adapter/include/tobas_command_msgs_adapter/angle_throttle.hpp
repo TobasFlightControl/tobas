@@ -4,28 +4,28 @@
 
 #include <tobas_kdl_msgs_adapter/euler.hpp>
 
-#include <tobas_command_msgs/msg/roll_pitch_yaw_throttle.hpp>
+#include <tobas_command_msgs/msg/angle_throttle.hpp>
 
 namespace tobas_command_msgs
 {
-struct RollPitchYawThrottle
+struct AngleThrottle
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::CommandLevel level;
   kdl::Euler rpy;
   double throttle;
 
-  using SharedPtr = std::shared_ptr<RollPitchYawThrottle>;
-  using ConstSharedPtr = std::shared_ptr<const RollPitchYawThrottle>;
+  using SharedPtr = std::shared_ptr<AngleThrottle>;
+  using ConstSharedPtr = std::shared_ptr<const AngleThrottle>;
 };
 }  // namespace tobas_command_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_command_msgs::RollPitchYawThrottle, tobas_command_msgs::msg::RollPitchYawThrottle>
+struct rclcpp::TypeAdapter<tobas_command_msgs::AngleThrottle, tobas_command_msgs::msg::AngleThrottle>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_command_msgs::RollPitchYawThrottle;
-  using ros_message_type = tobas_command_msgs::msg::RollPitchYawThrottle;
+  using custom_type = tobas_command_msgs::AngleThrottle;
+  using ros_message_type = tobas_command_msgs::msg::AngleThrottle;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -47,9 +47,7 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::RollPitchYawThrottle, tobas_comma
 namespace tobas_command_msgs
 {
 using RollPitchYawThrottleAdapter =
-  rclcpp::TypeAdapter<tobas_command_msgs::RollPitchYawThrottle, tobas_command_msgs::msg::RollPitchYawThrottle>;
+  rclcpp::TypeAdapter<tobas_command_msgs::AngleThrottle, tobas_command_msgs::msg::AngleThrottle>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas_command_msgs::RollPitchYawThrottle,
-  tobas_command_msgs::msg::RollPitchYawThrottle);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_command_msgs::AngleThrottle, tobas_command_msgs::msg::AngleThrottle);

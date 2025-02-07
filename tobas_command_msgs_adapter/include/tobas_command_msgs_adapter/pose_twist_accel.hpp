@@ -5,11 +5,11 @@
 #include <tobas_kdl_msgs_adapter/vector.hpp>
 #include <tobas_kdl_msgs_adapter/euler.hpp>
 
-#include <tobas_command_msgs/msg/pose_twist_accel_command.hpp>
+#include <tobas_command_msgs/msg/pose_twist_accel.hpp>
 
 namespace tobas_command_msgs
 {
-struct PoseTwistAccelCommand
+struct PoseTwistAccel
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::CommandLevel level;
@@ -21,17 +21,17 @@ struct PoseTwistAccelCommand
   kdl::Vector gyro;
   kdl::Vector dgyro;
 
-  using SharedPtr = std::shared_ptr<PoseTwistAccelCommand>;
-  using ConstSharedPtr = std::shared_ptr<const PoseTwistAccelCommand>;
+  using SharedPtr = std::shared_ptr<PoseTwistAccel>;
+  using ConstSharedPtr = std::shared_ptr<const PoseTwistAccel>;
 };
 }  // namespace tobas_command_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>
+struct rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccel, tobas_command_msgs::msg::PoseTwistAccel>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_command_msgs::PoseTwistAccelCommand;
-  using ros_message_type = tobas_command_msgs::msg::PoseTwistAccelCommand;
+  using custom_type = tobas_command_msgs::PoseTwistAccel;
+  using ros_message_type = tobas_command_msgs::msg::PoseTwistAccel;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
@@ -63,9 +63,9 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccelCommand, tobas_comm
 namespace tobas_command_msgs
 {
 using PoseTwistAccelCommandAdapter =
-  rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>;
+  rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccel, tobas_command_msgs::msg::PoseTwistAccel>;
 }
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas_command_msgs::PoseTwistAccelCommand,
-  tobas_command_msgs::msg::PoseTwistAccelCommand);
+  tobas_command_msgs::PoseTwistAccel,
+  tobas_command_msgs::msg::PoseTwistAccel);

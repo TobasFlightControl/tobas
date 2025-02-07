@@ -12,7 +12,7 @@ namespace setup_assistant
 CustomControllerWidget::CustomControllerWidget()
   : command_map_{
       { "Position + Velocity + Accel + Yaw", tobas::POS_VEL_ACC_YAW },
-      { "Roll + Pitch + Yaw + Throttle", tobas::ROLL_PITCH_YAW_THROTTLE },
+      { "Roll + Pitch + Yaw + Throttle", tobas::ANGLE_THROTTLE },
       { "Pose + Twist + Accel", tobas::POSE_TWIST_ACCEL },
       { "Speed + Roll + Pitch", tobas::SPEED_ROLL_DPITCH },
     }

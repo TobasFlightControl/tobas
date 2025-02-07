@@ -56,7 +56,7 @@ tobas::rc_command_t MultirotorPIDWidget::stabilizeModeCommand() const
 
 tobas::rc_command_t MultirotorPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::ROLL_PITCH_YAW_THROTTLE;
+  return tobas::rc_command_t::ANGLE_THROTTLE;
 }
 
 YAML::Node MultirotorPIDWidget::staticParams() const

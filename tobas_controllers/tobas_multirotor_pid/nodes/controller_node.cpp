@@ -18,7 +18,7 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_command_msgs_adapter/roll_pitch_yaw_throttle.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -82,7 +82,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVelAccYaw> pvay_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::RollPitchYawThrottle> rpyt_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::AngleThrottle> rpyt_sub_;
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
@@ -112,7 +112,7 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void posVelAccYawCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
-  void rpyThrustCb(const tobas_command_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle);
+  void rpyThrustCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_throt);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -156,7 +156,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
   pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCb, this);
-  rpyt_sub_ = createSubscriber(tobas::kRPYThrotCmdTopic, &self::rpyThrustCb, this);
+  rpyt_sub_ = createSubscriber(tobas::kAngleThrottleCmdTopic, &self::rpyThrustCb, this);
 }
 
 bool ControllerNode::updateInternalDataStructures()
@@ -492,7 +492,7 @@ void ControllerNode::posVelAccYawCb(const tobas_command_msgs::PosVelAccYaw::Cons
   }
 }
 
-void ControllerNode::rpyThrustCb(const tobas_command_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle)
+void ControllerNode::rpyThrustCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_throt)
 {
   if (!isReadyToControl())
   {
@@ -500,24 +500,24 @@ void ControllerNode::rpyThrustCb(const tobas_command_msgs::RollPitchYawThrottle:
     return;
   }
 
-  if (!cmd_level_handler_.update(rpy_throttle->level.data, get_clock()->now()))
+  if (!cmd_level_handler_.update(angle_throt->level.data, get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
   }
 
   // Check command range
-  if (rpy_throttle->rpy.roll <= -M_PI_2 || M_PI_2 <= rpy_throttle->rpy.roll)
+  if (angle_throt->rpy.roll <= -M_PI_2 || M_PI_2 <= angle_throt->rpy.roll)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;
   }
-  if (rpy_throttle->rpy.pitch <= -M_PI_2 || M_PI_2 <= rpy_throttle->rpy.pitch)
+  if (angle_throt->rpy.pitch <= -M_PI_2 || M_PI_2 <= angle_throt->rpy.pitch)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
     return;
   }
-  if (rpy_throttle->throttle < tobas::kMinThrot || tobas::kMaxThrot < rpy_throttle->throttle)
+  if (angle_throt->throttle < tobas::kMinThrot || tobas::kMaxThrot < angle_throt->throttle)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
     return;
@@ -529,9 +529,9 @@ void ControllerNode::rpyThrustCb(const tobas_command_msgs::RollPitchYawThrottle:
   // コマンドを更新
   if (tar_rpyt_ == nullptr)
     tar_rpyt_ = std::make_shared<RollPitchYawThrust>();
-  tar_rpyt_->level = rpy_throttle->level;
-  tar_rpyt_->rpy = rpy_throttle->rpy;
-  tar_rpyt_->thrust = z_rotors_.thrustSum(battery_->voltage, rpy_throttle->throttle);
+  tar_rpyt_->level = angle_throt->level;
+  tar_rpyt_->rpy = angle_throt->rpy;
+  tar_rpyt_->thrust = z_rotors_.thrustSum(battery_->voltage, angle_throt->throttle);
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)

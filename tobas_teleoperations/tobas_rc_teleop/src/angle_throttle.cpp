@@ -2,31 +2,31 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_rc_teleop/rpy_throttle.hpp"
+#include "../include/tobas_rc_teleop/angle_throttle.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 
 namespace tobas_rc_teleop
 {
-RollPitchYawThrottleController::RollPitchYawThrottleController()
+AngleThrottleController::AngleThrottleController()
 {
 }
 
-void RollPitchYawThrottleController::initialize(tobas::BaseNode* node)
+void AngleThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  rpyt_pub_ = node->createPublisher<tobas_command_msgs::RollPitchYawThrottle>(tobas::kRPYThrotCmdTopic);
+  rpyt_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
 }
 
-void RollPitchYawThrottleController::reset(const tobas_msgs::Odometry& odom)
+void AngleThrottleController::reset(const tobas_msgs::Odometry& odom)
 {
   yaw_ = kdl::Euler(odom.frame.M).yaw;
   t_last_rcin_ = odom.header.stamp;
 }
 
-void RollPitchYawThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
+void AngleThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -37,7 +37,7 @@ void RollPitchYawThrottleController::update(const tobas_msgs::msg::RCInput& rcin
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::RollPitchYawThrottle>();
+  auto cmd = std::make_unique<tobas_command_msgs::AngleThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
@@ -51,7 +51,7 @@ void RollPitchYawThrottleController::update(const tobas_msgs::msg::RCInput& rcin
   rpyt_pub_->publish(move(cmd));
 }
 
-void RollPitchYawThrottleController::getStaticRosParams(tobas::BaseNode* node)
+void AngleThrottleController::getStaticRosParams(tobas::BaseNode* node)
 {
   max_attitude_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitude);
   if (max_attitude_ < 0)

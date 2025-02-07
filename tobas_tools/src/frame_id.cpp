@@ -108,7 +108,7 @@ bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_comm
   return true;
 }
 
-bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_command_msgs::PoseTwistAccelCommand& msg)
+bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_command_msgs::PoseTwistAccel& msg)
 {
   switch (frame_id)
   {

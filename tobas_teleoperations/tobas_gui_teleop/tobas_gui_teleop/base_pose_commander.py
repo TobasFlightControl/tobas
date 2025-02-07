@@ -10,7 +10,7 @@ from tobas_std_tools_py.geometry import euler_from_matrix
 from tobas_rqt_py.widgets import Widget, FloatSliderDisplay
 from tobas_msgs.msg import Arming, Odometry
 from tobas_msgs.srv import SetArm
-from tobas_command_msgs.msg import PosVelAccYaw, PoseTwistAccelCommand, CommandLevel
+from tobas_command_msgs.msg import PosVelAccYaw, PoseTwistAccel, CommandLevel
 
 from .common import BUTTON_HEIGHT
 
@@ -133,7 +133,7 @@ class BasePoseCommanderWidget(Widget):
             depth=1,
         )
         self._pvay_pub = self._node.create_publisher(PosVelAccYaw, "command/pos_vel_acc_yaw", qos)
-        self._pta_pub = self._node.create_publisher(PoseTwistAccelCommand, "command/pose_twist_accel", qos)
+        self._pta_pub = self._node.create_publisher(PoseTwistAccel, "command/pose_twist_accel", qos)
         self._odom_sub = self._node.create_subscription(Odometry, "odom", self._odom_cb, qos)
         self._arming_sub = self._node.create_subscription(Arming, "arming", self._arming_cb, qos)
 
@@ -255,7 +255,7 @@ class BasePoseCommanderWidget(Widget):
         pvay.yaw = self._cmd_yaw.get_value()
         self._pvay_pub.publish(pvay)
 
-        pta = PoseTwistAccelCommand()
+        pta = PoseTwistAccel()
         pta.level.data = CommandLevel.NORMAL
         pta.pos.x = self._cmd_x.get_value()
         pta.pos.y = self._cmd_y.get_value()
