@@ -12,7 +12,7 @@
 
 #include "./simulation_settings/simulation_settings.hpp"
 #include "./dynamic_configuration/dynamic_configuration.hpp"
-#include "./base_pose_commander.hpp"
+#include "./commanders/commanders.hpp"
 
 namespace gui
 {
@@ -25,8 +25,8 @@ class SimulationWidget : public QWidget
   using self = SimulationWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
+  static constexpr int kButtonWidth = 120;
+  static constexpr int kButtonHeight = 75;
 
 public:
   explicit SimulationWidget(rclcpp::Node::SharedPtr node);
@@ -49,7 +49,7 @@ private:
 
   SimulationSettingsWidget* sim_settings_;
   DynamicConfigWidget* dynamic_config_;
-  BasePoseCommanderWidget* base_pose_commander_;
+  CommandersWidget* commanders_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;

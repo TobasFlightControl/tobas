@@ -25,8 +25,8 @@ class BasePoseCommanderWidget : public QWidget
   using self = BasePoseCommanderWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
+  static constexpr int kButtonWidth = 80;
+  static constexpr int kButtonHeight = 50;
 
   static constexpr double kHomeAltitude = 3.;  // [m]
 

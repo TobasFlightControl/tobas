@@ -27,7 +27,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
 
   sim_settings_ = new SimulationSettingsWidget(node);
   dynamic_config_ = new DynamicConfigWidget(node);
-  base_pose_commander_ = new BasePoseCommanderWidget(node);
+  commanders_ = new CommandersWidget(node);
 
   // Layout
   const auto config_rows = new QVBoxLayout();
@@ -37,8 +37,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   config_rows->addStretch();
 
   const auto commander_rows = new QVBoxLayout();
-  commander_rows->addWidget(base_pose_commander_);
-  // TODO: joint_position_commander
+  commander_rows->addWidget(commanders_);
   commander_rows->addStretch();
 
   const auto cols = new QHBoxLayout();
@@ -100,8 +99,7 @@ bool SimulationWidget::reset()
 
   sim_settings_->setEnabled(true);
   dynamic_config_->setEnabled(false);
-  base_pose_commander_->setEnabled(false);
-  // TODO
+  commanders_->setEnabled(false);
 
   return true;
 }
@@ -416,18 +414,12 @@ void SimulationWidget::terminateDynamicConfig()
 
 bool SimulationWidget::startCommanders()
 {
-  if (!base_pose_commander_->start(drone_.name))
-    return false;
-
-  // TODO
-
-  return true;
+  return commanders_->start(drone_.name);
 }
 
 void SimulationWidget::terminateCommanders()
 {
-  base_pose_commander_->terminate();
-  // TODO
+  commanders_->terminate();
 }
 
 std::string SimulationWidget::boolToText(bool arg)
@@ -461,8 +453,7 @@ void SimulationWidget::onStartRequested()
 
   sim_settings_->setEnabled(false);
   dynamic_config_->setEnabled(true);
-  base_pose_commander_->setEnabled(true);
-  // TODO
+  commanders_->setEnabled(true);
 
   qt::qInfoBox(this, "Gazebo simulation has started successfully.");
 }
@@ -493,8 +484,7 @@ void SimulationWidget::onTerminateRequested()
 
   sim_settings_->setEnabled(true);
   dynamic_config_->setEnabled(false);
-  base_pose_commander_->setEnabled(false);
-  // TODO
+  commanders_->setEnabled(false);
 
   qt::qInfoBox(this, "Gazebo simulation has been terminated successfully.");
 }

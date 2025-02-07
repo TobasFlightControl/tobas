@@ -7,7 +7,7 @@
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-#include "tobas_simulation_gui/base_pose_commander.hpp"
+#include "tobas_simulation_gui/commanders/base_pose_commander.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
@@ -16,7 +16,7 @@ namespace sim
 {
 BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  const auto title = new qt::Label("Base Pose Commander", kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Base Pose", kLabelPSize, QFont::Bold);
 
   arming_button_ = new qt::ToggleButton("Arm", "Disarm");
   home_button_ = new QPushButton("Home");
@@ -48,22 +48,22 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node) :
   reset();
 
   // Layout
-  const auto button_cols = new QHBoxLayout();
-  button_cols->addWidget(arming_button_);
-  button_cols->addWidget(home_button_);
-  button_cols->addStretch();
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(title);
+  cols->addStretch();
+  cols->addWidget(arming_button_);
+  cols->addWidget(home_button_);
 
-  const auto root_rows = new QVBoxLayout();
-  qt::addWidgetCenter(title, root_rows);
-  root_rows->addLayout(button_cols);
-  root_rows->addWidget(cmd_x_);
-  root_rows->addWidget(cmd_y_);
-  root_rows->addWidget(cmd_z_);
-  root_rows->addWidget(cmd_roll_);
-  root_rows->addWidget(cmd_pitch_);
-  root_rows->addWidget(cmd_yaw_);
+  const auto rows = new QVBoxLayout();
+  rows->addLayout(cols);
+  rows->addWidget(cmd_x_);
+  rows->addWidget(cmd_y_);
+  rows->addWidget(cmd_z_);
+  rows->addWidget(cmd_roll_);
+  rows->addWidget(cmd_pitch_);
+  rows->addWidget(cmd_yaw_);
 
-  setLayout(root_rows);
+  setLayout(rows);
 
   // Connection
   connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmButtonClicked);
