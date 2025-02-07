@@ -26,9 +26,9 @@ fs::path WorldWidget_Standard::worldPath() const
   return (pkg_path / "worlds" / world_name).replace_extension(".world");
 }
 
-void WorldWidget_Standard::onCheckBoxToggled(bool toggled)
+void WorldWidget_Standard::setContentsEnabled(bool enable)
 {
-  combo_box_->setEnabled(toggled);
+  combo_box_->setEnabled(enable);
 }
 }  // namespace sim
 }  // namespace gui

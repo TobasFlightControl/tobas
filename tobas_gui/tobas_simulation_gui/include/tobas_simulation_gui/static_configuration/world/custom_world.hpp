@@ -24,6 +24,7 @@ public:
   explicit WorldWidget_Custom(rclcpp::Node::SharedPtr node);
 
   std::filesystem::path worldPath() const override;
+  void setContentsEnabled(bool enable) override;
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -33,7 +34,6 @@ private:
   QPushButton* browse_button_;
 
 private Q_SLOTS:
-  void onCheckBoxToggled(bool toggled) override;
   void onBrowseButtonClicked();
 };
 }  // namespace sim

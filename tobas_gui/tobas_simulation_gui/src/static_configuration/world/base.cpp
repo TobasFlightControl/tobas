@@ -24,5 +24,10 @@ void WorldWidget_Base::setChecked(bool checked)
 {
   checkbox->setChecked(checked);
 }
+
+void WorldWidget_Base::onCheckBoxToggled(bool checked)
+{
+  setContentsEnabled(checked);
+}
 }  // namespace sim
 }  // namespace gui

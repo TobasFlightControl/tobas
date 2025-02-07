@@ -31,6 +31,7 @@ WorldWidget::WorldWidget(rclcpp::Node::SharedPtr node)
   {
     rows->addWidget(widget);
     ckb_group->addButton(widget->checkbox);
+    widget->setContentsEnabled(false);
   }
 
   // Default

@@ -18,6 +18,7 @@ public:
   explicit WorldWidget_Base(const QString& label);
 
   virtual std::filesystem::path worldPath() const = 0;
+  virtual void setContentsEnabled(bool enable) = 0;
 
   bool isChecked() const;
   void setChecked(bool checked);
@@ -25,8 +26,8 @@ public:
 protected:
   QHBoxLayout* cols_;
 
-protected Q_SLOTS:
-  virtual void onCheckBoxToggled(bool toggled) = 0;
+private Q_SLOTS:
+  void onCheckBoxToggled(bool checked);
 };
 }  // namespace sim
 }  // namespace gui

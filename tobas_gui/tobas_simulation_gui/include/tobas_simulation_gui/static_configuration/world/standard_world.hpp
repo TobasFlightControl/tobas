@@ -19,12 +19,10 @@ public:
   explicit WorldWidget_Standard();
 
   std::filesystem::path worldPath() const override;
+  void setContentsEnabled(bool enable) override;
 
 private:
   qt::ComboBox* combo_box_;
-
-private Q_SLOTS:
-  void onCheckBoxToggled(bool toggled) override;
 };
 }  // namespace sim
 }  // namespace gui

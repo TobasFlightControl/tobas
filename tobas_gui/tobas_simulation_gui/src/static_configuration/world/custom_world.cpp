@@ -31,10 +31,10 @@ fs::path WorldWidget_Custom::worldPath() const
   return file_text_->text().toStdString();
 }
 
-void WorldWidget_Custom::onCheckBoxToggled(bool toggled)
+void WorldWidget_Custom::setContentsEnabled(bool enable)
 {
-  file_text_->setEnabled(toggled);
-  browse_button_->setEnabled(toggled);
+  file_text_->setEnabled(enable);
+  browse_button_->setEnabled(enable);
 }
 
 void WorldWidget_Custom::onBrowseButtonClicked()
