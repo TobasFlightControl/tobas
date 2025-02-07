@@ -83,7 +83,7 @@ private:
   double throttle_ = 0.;  // [0, 1]
   double velocity_ = 0.;  // [rad/s]
   double position_ = 0.;  // [rad]
-  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
+  tobas_msgs::msg::Battery::ConstSharedPtr battery_gt_;
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   steady_clock::duration prev_sim_time_;
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
@@ -116,8 +116,8 @@ private:
   void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
-  void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
-  void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind);
+  void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt);
+  void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt);
 
   void breakCb(const BreakSrv::Request::ConstSharedPtr& req, const BreakSrv::Response::SharedPtr& res);
 };
@@ -217,7 +217,7 @@ void GazeboRotorPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::Enti
   prev_sim_time_ = info.simTime;
 
   // Check topics
-  if (battery_ == nullptr)
+  if (battery_gt_ == nullptr)
   {
     if (info.simTime > kWarnStartTime)
       TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
@@ -359,7 +359,7 @@ void GazeboRotorPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, d
   const auto b = resistance_ * kv_ * moment_const_ * motor_const_;
   const auto c = 1. / kv_;
 
-  const auto Ea = battery_->voltage * throttle_;                                            // 印加電圧
+  const auto Ea = battery_gt_->voltage * throttle_;                                         // 印加電圧
   const auto eq_speed = Ea == 0. ? 0. : (sqrt(::math::sqr(c) + 4 * b * Ea) - c) / (2 * b);  // 平衡点での回転数
 
   const auto cur_speed = max(direction_ * velocity_, 0.);
@@ -393,7 +393,7 @@ void GazeboRotorPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, d
 void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
-  if (battery_ == nullptr || battery_->voltage < kMinBatteryVoltage)
+  if (battery_gt_ == nullptr || battery_gt_->voltage < kMinBatteryVoltage)
     return;
 
   // 壊れていたら応答なし
@@ -409,14 +409,14 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   throttle_ = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
-void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
 {
-  battery_ = battery;
+  battery_gt_ = battery_gt;
 }
 
-void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind)
+void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
 {
-  vectorKDLToGazebo(wind->vel, wind_vel_W_);
+  vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
 
   if (!wind_received_)
     wind_received_ = true;
