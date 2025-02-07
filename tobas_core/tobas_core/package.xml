@@ -30,7 +30,6 @@
 	<exec_depend>tobas_path_tools</exec_depend>
 	<exec_depend>tobas_quadprog</exec_depend>
 	<exec_depend>tobas_ros2_tools</exec_depend>
-	<exec_depend>tobas_rqt_py</exec_depend>
 	<exec_depend>tobas_std_msgs</exec_depend>
 	<exec_depend>tobas_std_msgs_adapter</exec_depend>
 	<exec_depend>tobas_std_tools</exec_depend>
