@@ -17,7 +17,7 @@ void RollPitchYawThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  rpyt_pub_ = node->createPublisher<tobas_msgs::RollPitchYawThrottle>(tobas::kRPYThrotCmdTopic);
+  rpyt_pub_ = node->createPublisher<tobas_command_msgs::RollPitchYawThrottle>(tobas::kRPYThrotCmdTopic);
 }
 
 void RollPitchYawThrottleController::reset(const tobas_msgs::Odometry& odom)
@@ -37,7 +37,7 @@ void RollPitchYawThrottleController::update(const tobas_msgs::msg::RCInput& rcin
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_msgs::RollPitchYawThrottle>();
+  auto cmd = std::make_unique<tobas_command_msgs::RollPitchYawThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 

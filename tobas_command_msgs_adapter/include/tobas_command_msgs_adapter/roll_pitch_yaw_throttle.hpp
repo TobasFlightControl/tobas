@@ -6,7 +6,7 @@
 
 #include <tobas_command_msgs/msg/roll_pitch_yaw_throttle.hpp>
 
-namespace tobas_msgs
+namespace tobas_command_msgs
 {
 struct RollPitchYawThrottle
 {
@@ -18,13 +18,13 @@ struct RollPitchYawThrottle
   using SharedPtr = std::shared_ptr<RollPitchYawThrottle>;
   using ConstSharedPtr = std::shared_ptr<const RollPitchYawThrottle>;
 };
-}  // namespace tobas_msgs
+}  // namespace tobas_command_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_msgs::RollPitchYawThrottle, tobas_command_msgs::msg::RollPitchYawThrottle>
+struct rclcpp::TypeAdapter<tobas_command_msgs::RollPitchYawThrottle, tobas_command_msgs::msg::RollPitchYawThrottle>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_msgs::RollPitchYawThrottle;
+  using custom_type = tobas_command_msgs::RollPitchYawThrottle;
   using ros_message_type = tobas_command_msgs::msg::RollPitchYawThrottle;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -44,12 +44,12 @@ struct rclcpp::TypeAdapter<tobas_msgs::RollPitchYawThrottle, tobas_command_msgs:
   }
 };
 
-namespace tobas_msgs
+namespace tobas_command_msgs
 {
 using RollPitchYawThrottleAdapter =
-  rclcpp::TypeAdapter<tobas_msgs::RollPitchYawThrottle, tobas_command_msgs::msg::RollPitchYawThrottle>;
+  rclcpp::TypeAdapter<tobas_command_msgs::RollPitchYawThrottle, tobas_command_msgs::msg::RollPitchYawThrottle>;
 }
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas_msgs::RollPitchYawThrottle,
+  tobas_command_msgs::RollPitchYawThrottle,
   tobas_command_msgs::msg::RollPitchYawThrottle);

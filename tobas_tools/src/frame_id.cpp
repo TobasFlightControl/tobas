@@ -14,7 +14,7 @@ kdl::Rotation rotFootprintToLocal(const kdl::Rotation& R_W_B)
   return kdl::Rotation::RPY(roll, pitch, 0);
 }
 
-bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_msgs::PosVelAccYaw& msg)
+bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_command_msgs::PosVelAccYaw& msg)
 {
   switch (frame_id)
   {
@@ -108,7 +108,7 @@ bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_msgs
   return true;
 }
 
-bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_msgs::PoseTwistAccelCommand& msg)
+bool changeFrame(const uint8_t& frame_id, const kdl::Rotation& R_W_B, tobas_command_msgs::PoseTwistAccelCommand& msg)
 {
   switch (frame_id)
   {

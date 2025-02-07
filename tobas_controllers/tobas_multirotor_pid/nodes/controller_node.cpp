@@ -64,8 +64,8 @@ private:
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;  // PosVelYawの目標値 (世界座標系)
-  std::shared_ptr<RollPitchYawThrust> tar_rpyt_;    // RollPitchYawThrustの目標値
+  tobas_command_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;  // PosVelYawの目標値 (世界座標系)
+  std::shared_ptr<RollPitchYawThrust> tar_rpyt_;            // RollPitchYawThrustの目標値
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
@@ -81,8 +81,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
-  ros2::SubscriberPtr<tobas_msgs::PosVelAccYaw> pvay_sub_;
-  ros2::SubscriberPtr<tobas_msgs::RollPitchYawThrottle> rpyt_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PosVelAccYaw> pvay_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::RollPitchYawThrottle> rpyt_sub_;
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
@@ -111,8 +111,8 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
-  void posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
-  void rpyThrustCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle);
+  void posVelAccYawCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
+  void rpyThrustCb(const tobas_command_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -466,7 +466,7 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
       TOBAS_ERROR("Failed to set the liveliness of rotor channel ", data.channel);
 }
 
-void ControllerNode::posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedPtr& pvay)
+void ControllerNode::posVelAccYawCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pvay)
 {
   if (!isReadyToControl())
   {
@@ -481,7 +481,7 @@ void ControllerNode::posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedP
   }
 
   // コマンドを更新
-  tar_pvay_W_ = std::make_shared<tobas_msgs::PosVelAccYaw>(*pvay);
+  tar_pvay_W_ = std::make_shared<tobas_command_msgs::PosVelAccYaw>(*pvay);
 
   // グローバル座標系に変換
   if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *tar_pvay_W_))
@@ -492,7 +492,7 @@ void ControllerNode::posVelAccYawCb(const tobas_msgs::PosVelAccYaw::ConstSharedP
   }
 }
 
-void ControllerNode::rpyThrustCb(const tobas_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle)
+void ControllerNode::rpyThrustCb(const tobas_command_msgs::RollPitchYawThrottle::ConstSharedPtr& rpy_throttle)
 {
   if (!isReadyToControl())
   {

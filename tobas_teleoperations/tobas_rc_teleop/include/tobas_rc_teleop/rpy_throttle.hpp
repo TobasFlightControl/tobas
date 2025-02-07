@@ -26,7 +26,7 @@ private:
   double max_yawrate_;   // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_msgs::RollPitchYawThrottle> rpyt_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::RollPitchYawThrottle> rpyt_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

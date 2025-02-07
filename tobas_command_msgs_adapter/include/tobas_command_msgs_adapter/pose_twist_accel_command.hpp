@@ -7,7 +7,7 @@
 
 #include <tobas_command_msgs/msg/pose_twist_accel_command.hpp>
 
-namespace tobas_msgs
+namespace tobas_command_msgs
 {
 struct PoseTwistAccelCommand
 {
@@ -24,13 +24,13 @@ struct PoseTwistAccelCommand
   using SharedPtr = std::shared_ptr<PoseTwistAccelCommand>;
   using ConstSharedPtr = std::shared_ptr<const PoseTwistAccelCommand>;
 };
-}  // namespace tobas_msgs
+}  // namespace tobas_command_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>
+struct rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_msgs::PoseTwistAccelCommand;
+  using custom_type = tobas_command_msgs::PoseTwistAccelCommand;
   using ros_message_type = tobas_command_msgs::msg::PoseTwistAccelCommand;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -60,12 +60,12 @@ struct rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_command_msgs
   }
 };
 
-namespace tobas_msgs
+namespace tobas_command_msgs
 {
 using PoseTwistAccelCommandAdapter =
-  rclcpp::TypeAdapter<tobas_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>;
+  rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccelCommand, tobas_command_msgs::msg::PoseTwistAccelCommand>;
 }
 
 RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
-  tobas_msgs::PoseTwistAccelCommand,
+  tobas_command_msgs::PoseTwistAccelCommand,
   tobas_command_msgs::msg::PoseTwistAccelCommand);

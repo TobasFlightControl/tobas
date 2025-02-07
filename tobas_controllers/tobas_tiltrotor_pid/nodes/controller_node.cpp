@@ -52,7 +52,7 @@ private:
   bool js_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
+  tobas_command_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
@@ -67,7 +67,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
-  ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PoseTwistAccelCommand> cmd_sub_;
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
@@ -95,7 +95,7 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
-  void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
+  void commandCb(const tobas_command_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -412,7 +412,7 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
       TOBAS_ERROR("Failed to set the liveliness of rotor channel ", data.channel);
 }
 
-void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd)
+void ControllerNode::commandCb(const tobas_command_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd)
 {
   if (!isReadyToControl())
   {
@@ -427,7 +427,7 @@ void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSha
   }
 
   // コマンドを更新
-  cmd_ = std::make_shared<tobas_msgs::PoseTwistAccelCommand>(*cmd);
+  cmd_ = std::make_shared<tobas_command_msgs::PoseTwistAccelCommand>(*cmd);
 
   // グローバル座標系に変換
   if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *cmd_))

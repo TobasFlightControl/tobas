@@ -6,7 +6,7 @@
 
 #include <tobas_command_msgs/msg/pos_vel_acc_yaw.hpp>
 
-namespace tobas_msgs
+namespace tobas_command_msgs
 {
 struct PosVelAccYaw
 {
@@ -21,13 +21,13 @@ struct PosVelAccYaw
   using SharedPtr = std::shared_ptr<PosVelAccYaw>;
   using ConstSharedPtr = std::shared_ptr<const PosVelAccYaw>;
 };
-}  // namespace tobas_msgs
+}  // namespace tobas_command_msgs
 
 template <>
-struct rclcpp::TypeAdapter<tobas_msgs::PosVelAccYaw, tobas_command_msgs::msg::PosVelAccYaw>
+struct rclcpp::TypeAdapter<tobas_command_msgs::PosVelAccYaw, tobas_command_msgs::msg::PosVelAccYaw>
 {
   using is_specialized = std::true_type;
-  using custom_type = tobas_msgs::PosVelAccYaw;
+  using custom_type = tobas_command_msgs::PosVelAccYaw;
   using ros_message_type = tobas_command_msgs::msg::PosVelAccYaw;
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
@@ -53,9 +53,10 @@ struct rclcpp::TypeAdapter<tobas_msgs::PosVelAccYaw, tobas_command_msgs::msg::Po
   }
 };
 
-namespace tobas_msgs
+namespace tobas_command_msgs
 {
-using PosVelAccYawAdapter = rclcpp::TypeAdapter<tobas_msgs::PosVelAccYaw, tobas_command_msgs::msg::PosVelAccYaw>;
+using PosVelAccYawAdapter =
+  rclcpp::TypeAdapter<tobas_command_msgs::PosVelAccYaw, tobas_command_msgs::msg::PosVelAccYaw>;
 }
 
-RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_msgs::PosVelAccYaw, tobas_command_msgs::msg::PosVelAccYaw);
+RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(tobas_command_msgs::PosVelAccYaw, tobas_command_msgs::msg::PosVelAccYaw);

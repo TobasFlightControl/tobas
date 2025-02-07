@@ -4,4 +4,4 @@
 
 static constexpr double kCommandRate = 100.;  // [Hz]
 
-using CommandType = tobas_msgs::PosVelAccYaw;
+using CommandType = tobas_command_msgs::PosVelAccYaw;

@@ -17,7 +17,7 @@ void PoseTwistAccelController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  cmd_pub_ = node->createPublisher<tobas_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::PoseTwistAccelCommand>(tobas::kPoseTwistAccelCmdTopic);
 }
 
 void PoseTwistAccelController::reset(const tobas_msgs::Odometry& odom)
@@ -83,7 +83,7 @@ void PoseTwistAccelController::update(const tobas_msgs::msg::RCInput& rcin, cons
   }
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_msgs::PoseTwistAccelCommand>();
+  auto cmd = std::make_unique<tobas_command_msgs::PoseTwistAccelCommand>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;

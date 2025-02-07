@@ -32,7 +32,7 @@ private:
   kdl::Euler tar_rpy_;
 
   // Publisher
-  ros2::PublisherPtr<tobas_msgs::PoseTwistAccelCommand> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PoseTwistAccelCommand> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

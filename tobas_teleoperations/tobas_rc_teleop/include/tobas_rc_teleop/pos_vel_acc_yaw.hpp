@@ -30,7 +30,7 @@ private:
   double max_yawrate_;  // [rad/s]
 
   // Publisher
-  ros2::PublisherPtr<tobas_msgs::PosVelAccYaw> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };
