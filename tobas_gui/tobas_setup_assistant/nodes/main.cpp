@@ -15,7 +15,7 @@ static void sigIntHandler(int)
 int main(int argc, char** argv)
 {
   // ノードを起動
-  ros2::AsyncNodeManager node_manager(argc, argv, "tobas_setup_assistant");
+  ros2::AsyncNodeManager node_manager(argc, argv, "setup_assistant");
 
   // GUIを表示
   QApplication qt_app(argc, argv);
