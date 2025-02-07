@@ -1,4 +1,4 @@
-#include "tobas_simulation_gui/static_configuration/world/base.hpp"
+#include "tobas_simulation_gui/simulation_settings/world/base.hpp"
 
 namespace gui
 {

@@ -3,9 +3,9 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 
 #include "tobas_simulation_gui/constants.hpp"
-#include "tobas_simulation_gui/static_configuration/world/world.hpp"
-#include "tobas_simulation_gui/static_configuration/world/standard_world.hpp"
-#include "tobas_simulation_gui/static_configuration/world/custom_world.hpp"
+#include "tobas_simulation_gui/simulation_settings/world/world.hpp"
+#include "tobas_simulation_gui/simulation_settings/world/standard_world.hpp"
+#include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
 
 namespace fs = std::filesystem;
 

@@ -10,7 +10,7 @@
 #include <tobas_gui_common/remote_package_builder.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 
-#include "./static_configuration/static_configuration.hpp"
+#include "./simulation_settings/simulation_settings.hpp"
 #include "./dynamic_configuration/dynamic_configuration.hpp"
 #include "./base_pose_commander.hpp"
 
@@ -47,7 +47,7 @@ private:
 
   qt::ToggleButton* start_stop_button_;
 
-  StaticConfigWidget* static_config_;
+  SimulationSettingsWidget* sim_settings_;
   DynamicConfigWidget* dynamic_config_;
   BasePoseCommanderWidget* base_pose_commander_;
 

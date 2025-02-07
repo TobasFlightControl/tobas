@@ -1,27 +1,27 @@
 #pragma once
 
-#include "./simulation_type.hpp"
+#include "./loop_type.hpp"
 #include "./world/world.hpp"
 
 namespace gui
 {
 namespace sim
 {
-class StaticConfigWidget : public QWidget
+class SimulationSettingsWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = StaticConfigWidget;
+  using self = SimulationSettingsWidget;
   using super = QWidget;
 
 public:
-  explicit StaticConfigWidget(rclcpp::Node::SharedPtr node);
+  explicit SimulationSettingsWidget(rclcpp::Node::SharedPtr node);
 
-  sim_type_t simulationType() const;
+  loop_type_t loopType() const;
   std::filesystem::path worldPath() const;
 
 private:
-  SimulationTypeWidget* type_;
+  LoopTypeWidget* type_;
   WorldWidget* world_;
 };
 }  // namespace sim

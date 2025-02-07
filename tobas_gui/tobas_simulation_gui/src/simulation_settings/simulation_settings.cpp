@@ -3,7 +3,7 @@
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/util.hpp>
 
-#include "tobas_simulation_gui/static_configuration/static_configuration.hpp"
+#include "tobas_simulation_gui/simulation_settings/simulation_settings.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace fs = std::filesystem;
@@ -12,27 +12,27 @@ namespace gui
 {
 namespace sim
 {
-StaticConfigWidget::StaticConfigWidget(rclcpp::Node::SharedPtr node)
+SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
 {
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  const auto title = new qt::Label("Static Configurations", kTitlePSize, QFont::Bold);
+  const auto title = new qt::Label("Simulation Settings", kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
-  type_ = new SimulationTypeWidget();
+  type_ = new LoopTypeWidget();
   rows->addWidget(type_);
 
   world_ = new WorldWidget(node);
   rows->addWidget(world_);
 }
 
-sim_type_t StaticConfigWidget::simulationType() const
+loop_type_t SimulationSettingsWidget::loopType() const
 {
-  return type_->simulationType();
+  return type_->loopType();
 }
 
-fs::path StaticConfigWidget::worldPath() const
+fs::path SimulationSettingsWidget::worldPath() const
 {
   return world_->worldPath();
 }

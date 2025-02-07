@@ -25,13 +25,13 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
   start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  static_config_ = new StaticConfigWidget(node);
+  sim_settings_ = new SimulationSettingsWidget(node);
   dynamic_config_ = new DynamicConfigWidget(node);
   base_pose_commander_ = new BasePoseCommanderWidget(node);
 
   // Layout
   const auto config_rows = new QVBoxLayout();
-  config_rows->addWidget(static_config_);
+  config_rows->addWidget(sim_settings_);
   config_rows->addSpacing(50);
   qt::addWidgetCenter(start_stop_button_, config_rows);
   config_rows->addStretch();
@@ -98,7 +98,7 @@ bool SimulationWidget::reset()
 
   start_stop_button_->setChecked(false, true);
 
-  static_config_->setEnabled(true);
+  sim_settings_->setEnabled(true);
   dynamic_config_->setEnabled(false);
   base_pose_commander_->setEnabled(false);
   // TODO
@@ -389,7 +389,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
 {
   const auto config_pkg_name = common::getTBSConfigName(tbs_path_);
   const std::map<std::string, std::string> args{
-    { "world_path", static_config_->worldPath().string() },
+    { "world_path", sim_settings_->worldPath().string() },
     { "launch_core", boolToText(launch_core) },
   };
 
@@ -441,12 +441,12 @@ std::string SimulationWidget::boolToText(bool arg)
 void SimulationWidget::onStartRequested()
 {
   bool success;
-  switch (static_config_->simulationType())
+  switch (sim_settings_->loopType())
   {
-    case sim_type_t::SITL:
+    case loop_type_t::SITL:
       success = startSITL();
       break;
-    case sim_type_t::HITL:
+    case loop_type_t::HITL:
       success = startHITL();
       break;
     default:
@@ -459,7 +459,7 @@ void SimulationWidget::onStartRequested()
     return;
   }
 
-  static_config_->setEnabled(false);
+  sim_settings_->setEnabled(false);
   dynamic_config_->setEnabled(true);
   base_pose_commander_->setEnabled(true);
   // TODO
@@ -470,12 +470,12 @@ void SimulationWidget::onStartRequested()
 void SimulationWidget::onTerminateRequested()
 {
   bool success;
-  switch (static_config_->simulationType())
+  switch (sim_settings_->loopType())
   {
-    case sim_type_t::SITL:
+    case loop_type_t::SITL:
       success = terminateSITL();
       break;
-    case sim_type_t::HITL:
+    case loop_type_t::HITL:
       success = terminateHITL();
       break;
     default:
@@ -491,7 +491,7 @@ void SimulationWidget::onTerminateRequested()
   // シミュレーションのアーム状態が入っているのでリセット
   arming_ = nullptr;
 
-  static_config_->setEnabled(true);
+  sim_settings_->setEnabled(true);
   dynamic_config_->setEnabled(false);
   base_pose_commander_->setEnabled(false);
   // TODO

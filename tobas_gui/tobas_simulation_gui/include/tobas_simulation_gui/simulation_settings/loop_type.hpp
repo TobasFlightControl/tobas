@@ -7,23 +7,23 @@ namespace gui
 {
 namespace sim
 {
-enum sim_type_t
+enum loop_type_t
 {
   SITL,
   HITL,
 };
 
-class SimulationTypeWidget : public QWidget
+class LoopTypeWidget : public QWidget
 {
   Q_OBJECT
 
-  using self = SimulationTypeWidget;
+  using self = LoopTypeWidget;
   using super = QWidget;
 
 public:
-  explicit SimulationTypeWidget();
+  explicit LoopTypeWidget();
 
-  sim_type_t simulationType() const;
+  loop_type_t loopType() const;
 
 private:
   QButtonGroup* ckb_group_;

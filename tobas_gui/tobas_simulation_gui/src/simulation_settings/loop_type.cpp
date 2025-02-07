@@ -2,14 +2,14 @@
 
 #include <tobas_qt_tools/widgets/label.hpp>
 
-#include "tobas_simulation_gui/static_configuration/simulation_type.hpp"
+#include "tobas_simulation_gui/simulation_settings/loop_type.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace gui
 {
 namespace sim
 {
-SimulationTypeWidget::SimulationTypeWidget()
+LoopTypeWidget::LoopTypeWidget()
 {
   ckb_group_ = new QButtonGroup(this);
   ckb_group_->setExclusive(true);
@@ -33,7 +33,7 @@ SimulationTypeWidget::SimulationTypeWidget()
   setLayout(rows);
 }
 
-sim_type_t SimulationTypeWidget::simulationType() const
+loop_type_t LoopTypeWidget::loopType() const
 {
   const auto checked_button = ckb_group_->checkedButton();
 

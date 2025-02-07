@@ -4,7 +4,7 @@
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "tobas_simulation_gui/static_configuration/world/custom_world.hpp"
+#include "tobas_simulation_gui/simulation_settings/world/custom_world.hpp"
 #include "tobas_simulation_gui/constants.hpp"
 
 namespace fs = std::filesystem;
