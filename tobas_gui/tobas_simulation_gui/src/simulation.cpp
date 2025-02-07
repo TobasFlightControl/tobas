@@ -4,8 +4,9 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_linux/errer.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/util.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
@@ -21,25 +22,18 @@ namespace sim
 SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), ssh_client_(node), remote_pkg_builder_(node)
 {
-  start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  terminate_button_ = new QPushButton("Terminate");
-  terminate_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
+  start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   static_config_ = new StaticConfigWidget(node);
   dynamic_config_ = new DynamicConfigWidget(node);
   base_pose_commander_ = new BasePoseCommanderWidget(node);
 
   // Layout
-  const auto button_cols = new QHBoxLayout();
-  button_cols->addWidget(start_button_);
-  button_cols->addWidget(terminate_button_);
-  button_cols->addStretch();
-
   const auto config_rows = new QVBoxLayout();
   config_rows->addWidget(static_config_);
-  config_rows->addWidget(dynamic_config_);
+  config_rows->addSpacing(50);
+  qt::addWidgetCenter(start_stop_button_, config_rows);
   config_rows->addStretch();
 
   const auto commander_rows = new QVBoxLayout();
@@ -49,17 +43,14 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
 
   const auto cols = new QHBoxLayout();
   cols->addLayout(config_rows);
+  cols->addWidget(dynamic_config_);
   cols->addLayout(commander_rows);
 
-  const auto rows = new QVBoxLayout();
-  rows->addLayout(button_cols);
-  rows->addLayout(cols);
-
-  setLayout(rows);
+  setLayout(cols);
 
   // Connection
-  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(terminate_button_, &QPushButton::clicked, this, &self::onTerminateButtonClicked);
+  connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
+  connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onTerminateRequested);
 
   reset();
   setEnabled(false);
@@ -105,8 +96,8 @@ bool SimulationWidget::reset()
 
   arming_ = nullptr;
 
-  start_button_->setEnabled(true);
-  terminate_button_->setEnabled(false);
+  start_stop_button_->setChecked(false, true);
+
   static_config_->setEnabled(true);
   dynamic_config_->setEnabled(false);
   base_pose_commander_->setEnabled(false);
@@ -447,7 +438,7 @@ std::string SimulationWidget::boolToText(bool arg)
     return "false";
 }
 
-void SimulationWidget::onStartButtonClicked()
+void SimulationWidget::onStartRequested()
 {
   bool success;
   switch (static_config_->simulationType())
@@ -468,8 +459,6 @@ void SimulationWidget::onStartButtonClicked()
     return;
   }
 
-  start_button_->setEnabled(false);
-  terminate_button_->setEnabled(true);
   static_config_->setEnabled(false);
   dynamic_config_->setEnabled(true);
   base_pose_commander_->setEnabled(true);
@@ -478,7 +467,7 @@ void SimulationWidget::onStartButtonClicked()
   qt::qInfoBox(this, "Gazebo simulation has started successfully.");
 }
 
-void SimulationWidget::onTerminateButtonClicked()
+void SimulationWidget::onTerminateRequested()
 {
   bool success;
   switch (static_config_->simulationType())
@@ -502,10 +491,10 @@ void SimulationWidget::onTerminateButtonClicked()
   // シミュレーションのアーム状態が入っているのでリセット
   arming_ = nullptr;
 
-  start_button_->setEnabled(true);
-  terminate_button_->setEnabled(false);
   static_config_->setEnabled(true);
   dynamic_config_->setEnabled(false);
+  base_pose_commander_->setEnabled(false);
+  // TODO
 
   qt::qInfoBox(this, "Gazebo simulation has been terminated successfully.");
 }

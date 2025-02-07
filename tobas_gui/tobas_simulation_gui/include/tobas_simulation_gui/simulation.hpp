@@ -5,6 +5,7 @@
 #include <tobas_linux/command_executor.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_ssh_client/ssh_client.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_gui_common/local_package_builder.hpp>
 #include <tobas_gui_common/remote_package_builder.hpp>
 #include <tobas_msgs/msg/arming.hpp>
@@ -44,8 +45,7 @@ private:
   tobas::Drone drone_;
   pid_t launch_pid_ = -1;
 
-  QPushButton* start_button_;
-  QPushButton* terminate_button_;
+  qt::ToggleButton* start_stop_button_;
 
   StaticConfigWidget* static_config_;
   DynamicConfigWidget* dynamic_config_;
@@ -76,8 +76,8 @@ private:
   static std::string boolToText(bool arg);
 
 private Q_SLOTS:
-  void onStartButtonClicked();
-  void onTerminateButtonClicked();
+  void onStartRequested();
+  void onTerminateRequested();
 };
 }  // namespace sim
 }  // namespace gui

@@ -25,8 +25,6 @@ StaticConfigWidget::StaticConfigWidget(rclcpp::Node::SharedPtr node)
 
   world_ = new WorldWidget(node);
   rows->addWidget(world_);
-
-  rows->addStretch();
 }
 
 sim_type_t StaticConfigWidget::simulationType() const

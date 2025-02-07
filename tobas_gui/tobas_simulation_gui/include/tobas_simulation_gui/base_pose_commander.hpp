@@ -4,6 +4,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
@@ -38,8 +39,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  QPushButton* arm_button_;
-  QPushButton* disarm_button_;
+  qt::ToggleButton* arming_button_;
   QPushButton* home_button_;
 
   qt::DoubleSliderDisplay* cmd_x_;

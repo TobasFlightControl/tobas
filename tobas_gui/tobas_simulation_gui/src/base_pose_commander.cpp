@@ -18,12 +18,10 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node) :
 {
   const auto title = new qt::Label("Base Pose Commander", kTitlePSize, QFont::Bold);
 
-  arm_button_ = new QPushButton("Arm");
-  disarm_button_ = new QPushButton("Disarm");
+  arming_button_ = new qt::ToggleButton("Arm", "Disarm");
   home_button_ = new QPushButton("Home");
 
-  arm_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  disarm_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  arming_button_->setFixedSize(kButtonWidth, kButtonHeight);
   home_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
   cmd_x_ = new qt::DoubleSliderDisplay();
@@ -51,8 +49,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node) :
 
   // Layout
   const auto button_cols = new QHBoxLayout();
-  button_cols->addWidget(arm_button_);
-  button_cols->addWidget(disarm_button_);
+  button_cols->addWidget(arming_button_);
   button_cols->addWidget(home_button_);
   button_cols->addStretch();
 
@@ -69,8 +66,8 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node) :
   setLayout(root_rows);
 
   // Connection
-  connect(arm_button_, &QPushButton::clicked, this, &self::onArmButtonClicked);
-  connect(disarm_button_, &QPushButton::clicked, this, &self::onDisarmButtonClicked);
+  connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmButtonClicked);
+  connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmButtonClicked);
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
   connect(cmd_x_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(cmd_y_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
@@ -119,8 +116,7 @@ void BasePoseCommanderWidget::terminate()
 
 void BasePoseCommanderWidget::reset()
 {
-  arm_button_->setEnabled(true);
-  disarm_button_->setEnabled(false);
+  arming_button_->setChecked(false, true);
   home_button_->setEnabled(false);
 
   cmd_x_->setValue(0.);
@@ -201,22 +197,28 @@ void BasePoseCommanderWidget::onArmButtonClicked()
   if (arming_ == nullptr)
   {
     qt::qWarnBox(this, "Arming status is not received yet.");
+    reset();
     return;
   }
   if (arming_->data)
   {
     qt::qWarnBox(this, "The rotors are already armed.");
+    reset();
     return;
   }
   if (odom_ == nullptr)
   {
     qt::qWarnBox(this, "Odometry is not received yet.");
+    reset();
     return;
   }
 
   // アーム
   if (!armRotors(true))
+  {
+    reset();
     return;
+  }
 
   // 初期コマンドを現在の位置姿勢に設定
   cmd_x_->setValue(odom_->frame.p.x());
@@ -227,8 +229,6 @@ void BasePoseCommanderWidget::onArmButtonClicked()
   cmd_yaw_->setValue(odom_->frame.M.getYaw());
 
   // 有効化
-  arm_button_->setEnabled(false);
-  disarm_button_->setEnabled(true);
   home_button_->setEnabled(true);
   cmd_x_->setEnabled(true);
   cmd_y_->setEnabled(true);
