@@ -21,8 +21,10 @@ class WindParamsWidget : public QWidget
 public:
   explicit WindParamsWidget(rclcpp::Node::SharedPtr node);
 
-  bool start(const std::string& ns);
-  void terminate();
+  void updateNamespace(const std::string& ns);
+
+  bool start();
+  void reset();
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -35,8 +37,7 @@ private:
   qt::DoubleSliderTextWidget* gust_duration_;
   qt::DoubleSliderTextWidget* gust_interval_;
 
-  void reset();
-  void loadCurrentParams();
+  bool loadCurrentParams();
 
 private Q_SLOTS:
   void onValueChanged();

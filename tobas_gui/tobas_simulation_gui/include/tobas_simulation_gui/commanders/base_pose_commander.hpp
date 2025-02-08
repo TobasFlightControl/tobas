@@ -35,8 +35,10 @@ class BasePoseCommanderWidget : public QWidget
 public:
   explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
+  void updateInternalDataStructures();
+
   bool start();
-  void terminate();
+  void reset();
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -64,7 +66,6 @@ private:
 
   ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
 
-  void reset();
   void publishCurrentCommand();
   bool armRotors(bool arming);
 

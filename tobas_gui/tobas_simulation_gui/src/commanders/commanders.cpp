@@ -29,6 +29,12 @@ CommandersWidget::CommandersWidget(rclcpp::Node::SharedPtr node, const kdl::Tree
   scroll_rows->addStretch();
 }
 
+void CommandersWidget::updateInternalDataStructures()
+{
+  base_pose_commander_->updateInternalDataStructures();
+  jointpos_commander_->updateInternalDataStructures();
+}
+
 bool CommandersWidget::start()
 {
   if (!base_pose_commander_->start())
@@ -40,10 +46,10 @@ bool CommandersWidget::start()
   return true;
 }
 
-void CommandersWidget::terminate()
+void CommandersWidget::reset()
 {
-  base_pose_commander_->terminate();
-  jointpos_commander_->terminate();
+  base_pose_commander_->reset();
+  jointpos_commander_->reset();
 }
 }  // namespace sim
 }  // namespace gui

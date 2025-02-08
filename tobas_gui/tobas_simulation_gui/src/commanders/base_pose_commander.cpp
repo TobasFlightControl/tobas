@@ -81,7 +81,7 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, c
   connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
 }
 
-bool BasePoseCommanderWidget::start()
+void BasePoseCommanderWidget::updateInternalDataStructures()
 {
   const auto& ns = drone_.name;
 
@@ -95,6 +95,10 @@ bool BasePoseCommanderWidget::start()
 
   set_arm_sc_ =
     std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(node_, path::join(ns, tobas::kSetArmSrv));
+}
+
+bool BasePoseCommanderWidget::start()
+{
   if (!set_arm_sc_->waitForService(kWaitForService))
   {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(tobas::kSetArmSrv) + "\" service server.");
@@ -102,22 +106,6 @@ bool BasePoseCommanderWidget::start()
   }
 
   return true;
-}
-
-void BasePoseCommanderWidget::terminate()
-{
-  reset();
-
-  arming_ = nullptr;
-  odom_ = nullptr;
-
-  pvay_pub_ = nullptr;
-  pta_pub_ = nullptr;
-
-  arming_sub_ = nullptr;
-  odom_sub_ = nullptr;
-
-  set_arm_sc_ = nullptr;
 }
 
 void BasePoseCommanderWidget::reset()

@@ -24,6 +24,7 @@ IntSliderTextWidget::IntSliderTextWidget(int minimum, int maximum, QWidget* pare
 
   line_edit_ = new QLineEdit();
   line_edit_->setFixedWidth(VALUE_WIDTH);
+  line_edit_->setAlignment(Qt::AlignRight);
   line_edit_->setValidator(new QIntValidator(minimum, maximum));
   connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);
   cols->addWidget(line_edit_);
@@ -85,6 +86,7 @@ DoubleSliderTextWidget::DoubleSliderTextWidget(double minimum, double maximum, i
 
   line_edit_ = new QLineEdit();
   line_edit_->setFixedWidth(VALUE_WIDTH);
+  line_edit_->setAlignment(Qt::AlignRight);
   line_edit_->setValidator(new QDoubleValidator(minimum, maximum, decimals));
   connect(line_edit_, &QLineEdit::returnPressed, this, &self::onLineEditReturnPressed);
   cols->addWidget(line_edit_);

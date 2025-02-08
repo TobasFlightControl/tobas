@@ -20,23 +20,28 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
 
   const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  wind_ = new WindParamsWidget(node);
-  scroll_rows->addWidget(wind_);
+  wind_params_ = new WindParamsWidget(node);
+  scroll_rows->addWidget(wind_params_);
 
   scroll_rows->addStretch();
 }
 
-bool DynamicConfigWidget::start(const std::string& ns)
+void DynamicConfigWidget::updateNamespace(const std::string& ns)
 {
-  if (!wind_->start(ns))
+  wind_params_->updateNamespace(ns);
+}
+
+bool DynamicConfigWidget::start()
+{
+  if (!wind_params_->start())
     return false;
 
   return true;
 }
 
-void DynamicConfigWidget::terminate()
+void DynamicConfigWidget::reset()
 {
-  wind_->terminate();
+  wind_params_->reset();
 }
 }  // namespace sim
 }  // namespace gui

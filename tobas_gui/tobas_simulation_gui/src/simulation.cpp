@@ -72,8 +72,13 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
     return false;
   }
 
+  const auto& ns = drone_.name;
+
+  dynamic_config_->updateNamespace(ns);
+  commanders_->updateInternalDataStructures();
+
   arming_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   tbs_path_ = tbs_path;
   setEnabled(true);
@@ -88,8 +93,8 @@ void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& a
 
 bool SimulationWidget::reset()
 {
-  terminateDynamicConfig();
-  terminateCommanders();
+  resetDynamicConfig();
+  resetCommanders();
 
   if (!killGazeboLaunch())
     return false;
@@ -189,10 +194,10 @@ bool SimulationWidget::startSITL()
 bool SimulationWidget::terminateSITL()
 {
   // 動的パラメータを終了
-  terminateDynamicConfig();
+  resetDynamicConfig();
 
   // コマンダーを終了
-  terminateCommanders();
+  resetCommanders();
 
   // Gazeboプロセスを終了
   if (!killGazeboLaunch())
@@ -331,12 +336,12 @@ bool SimulationWidget::terminateHITL()
 
   // 動的パラメータを終了
   progress.setLabelText("Terminating dynamic configurations.");
-  terminateDynamicConfig();
+  resetDynamicConfig();
   progress.progressStep();
 
   // コマンダーを終了
   progress.setLabelText("Terminating commanders.");
-  terminateCommanders();
+  resetCommanders();
   progress.progressStep();
 
   // Gazeboプロセスを終了
@@ -405,12 +410,12 @@ bool SimulationWidget::launchGazebo(bool launch_core)
 
 bool SimulationWidget::startDynamicConfig()
 {
-  return dynamic_config_->start(drone_.name);
+  return dynamic_config_->start();
 }
 
-void SimulationWidget::terminateDynamicConfig()
+void SimulationWidget::resetDynamicConfig()
 {
-  dynamic_config_->terminate();
+  dynamic_config_->reset();
 }
 
 bool SimulationWidget::startCommanders()
@@ -418,9 +423,9 @@ bool SimulationWidget::startCommanders()
   return commanders_->start();
 }
 
-void SimulationWidget::terminateCommanders()
+void SimulationWidget::resetCommanders()
 {
-  commanders_->terminate();
+  commanders_->reset();
 }
 
 std::string SimulationWidget::boolToText(bool arg)

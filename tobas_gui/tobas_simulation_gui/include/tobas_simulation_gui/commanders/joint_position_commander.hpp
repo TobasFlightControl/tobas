@@ -32,8 +32,10 @@ class JointPositionCommanderWidget : public QWidget
 public:
   explicit JointPositionCommanderWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
 
+  void updateInternalDataStructures();
+
   bool start();
-  void terminate();
+  void reset();
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -61,7 +63,6 @@ private:
 
   QTimer publish_cmd_timer_;
 
-  void reset();
   void publishCurrentCommand();
 
 private Q_SLOTS:

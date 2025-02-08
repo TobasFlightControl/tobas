@@ -63,9 +63,13 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
   connect(&publish_cmd_timer_, &QTimer::timeout, this, &self::onPublishCommandTimerTimeout);
 }
 
-bool JointPositionCommanderWidget::start()
+void JointPositionCommanderWidget::updateInternalDataStructures()
 {
-  joint_parser_.updateInternalDataStructures();
+  if (!joint_parser_.updateInternalDataStructures())
+  {
+    qt::qErrorBox(this, "Failed to update joint parser.");
+    return;
+  }
 
   for (const auto& [jnt_name, joint] : drone_.joints)
   {
@@ -123,24 +127,11 @@ bool JointPositionCommanderWidget::start()
   if (tar_js_eff_.states.size() > 0)
     tar_js_eff_pub_ =
       ros2::createPublisher<tobas_msgs::msg::JointStateArray>(node_, path::join(ns, tobas::kEffCtrlJSTopic));
-
-  return true;
 }
 
-void JointPositionCommanderWidget::terminate()
+bool JointPositionCommanderWidget::start()
 {
-  reset();
-
-  commanders_.clear();
-  qt::clearLayout(cmd_rows_);
-
-  tar_js_pos_.states.clear();
-  tar_js_vel_.states.clear();
-  tar_js_eff_.states.clear();
-
-  tar_js_pos_pub_ = nullptr;
-  tar_js_vel_pub_ = nullptr;
-  tar_js_eff_pub_ = nullptr;
+  return true;
 }
 
 void JointPositionCommanderWidget::reset()

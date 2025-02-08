@@ -70,10 +70,10 @@ private:
   bool launchGazebo(bool launch_core);
 
   bool startDynamicConfig();
-  void terminateDynamicConfig();
+  void resetDynamicConfig();
 
   bool startCommanders();
-  void terminateCommanders();
+  void resetCommanders();
 
   static std::string boolToText(bool arg);
 

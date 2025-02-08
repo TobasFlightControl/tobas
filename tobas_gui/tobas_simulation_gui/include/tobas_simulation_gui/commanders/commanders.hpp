@@ -17,8 +17,10 @@ class CommandersWidget : public QWidget
 public:
   explicit CommandersWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
 
+  void updateInternalDataStructures();
+
   bool start();
-  void terminate();
+  void reset();
 
 private:
   BasePoseCommanderWidget* base_pose_commander_;
