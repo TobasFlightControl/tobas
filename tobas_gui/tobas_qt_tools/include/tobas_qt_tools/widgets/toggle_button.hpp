@@ -19,7 +19,7 @@ Q_SIGNALS:
 public:
   explicit ToggleButton(const QString& off_text, const QString& on_text, QWidget* parent = nullptr);
 
-  void setChecked(bool _checked, bool block_signal = false);
+  void setChecked(bool _checked);
 
 private:
   const QString off_text_;

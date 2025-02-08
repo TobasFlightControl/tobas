@@ -95,7 +95,7 @@ void FlightLogRecorderWidget::clearRosbagStateViewerWidgets()
 void FlightLogRecorderWidget::rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state)
 {
   // 現在のレコーダの状態によってウィジェットの状態を切り替える
-  start_stop_button_->setChecked(rosbag_state->recording, true);
+  start_stop_button_->setChecked(rosbag_state->recording);
 
   if (rosbag_state->recording)
   {
@@ -133,13 +133,13 @@ void FlightLogRecorderWidget::onStartRequested()
   if (log_name.empty())
   {
     qt::qWarnBox(this, "Please specify the name of log file.");
-    start_stop_button_->setChecked(false, true);
+    start_stop_button_->setChecked(false);
     return;
   }
   if (!str::isValidFileName(log_name))
   {
     qt::qWarnBox(this, "The name of the log file is invalid.");
-    start_stop_button_->setChecked(false, true);
+    start_stop_button_->setChecked(false);
     return;
   }
 
@@ -147,7 +147,7 @@ void FlightLogRecorderWidget::onStartRequested()
   if (rosbag_state_ == nullptr)
   {
     qt::qWarnBox(this, "Unable to start recording because the logger state is not received yet.");
-    start_stop_button_->setChecked(false, true);
+    start_stop_button_->setChecked(false);
     return;
   }
 
@@ -157,7 +157,7 @@ void FlightLogRecorderWidget::onStartRequested()
   if (!start_sc_->call(req))
   {
     qt::qErrorBox(this, "Flight log recording service is unavailable.");
-    start_stop_button_->setChecked(false, true);
+    start_stop_button_->setChecked(false);
     return;
   }
 
@@ -165,7 +165,7 @@ void FlightLogRecorderWidget::onStartRequested()
   if (!res->success)
   {
     qt::qErrorBox(this, "Failed to start recording flight log: " + QString(res->message.c_str()));
-    start_stop_button_->setChecked(false, true);
+    start_stop_button_->setChecked(false);
     return;
   }
 
@@ -182,7 +182,7 @@ void FlightLogRecorderWidget::onStopRequested()
   if (!stop_sc_->call(req))
   {
     qt::qErrorBox(this, "Flight log recording service is unavailable.");
-    start_stop_button_->setChecked(true, true);
+    start_stop_button_->setChecked(true);
     return;
   }
 
@@ -190,7 +190,7 @@ void FlightLogRecorderWidget::onStopRequested()
   if (!res->success)
   {
     qt::qErrorBox(this, "Failed to stop recording flight log: " + QString(res->message.c_str()));
-    start_stop_button_->setChecked(true, true);
+    start_stop_button_->setChecked(true);
     return;
   }
 

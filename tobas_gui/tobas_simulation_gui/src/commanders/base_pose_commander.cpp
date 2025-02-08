@@ -122,7 +122,7 @@ void BasePoseCommanderWidget::terminate()
 
 void BasePoseCommanderWidget::reset()
 {
-  arming_button_->setChecked(false, true);
+  arming_button_->setChecked(false);
 
   home_button_->setEnabled(false);
 

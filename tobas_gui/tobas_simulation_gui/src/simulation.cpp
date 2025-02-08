@@ -96,7 +96,7 @@ bool SimulationWidget::reset()
 
   arming_ = nullptr;
 
-  start_stop_button_->setChecked(false, true);
+  start_stop_button_->setChecked(false);
 
   sim_settings_->setEnabled(true);
   dynamic_config_->setEnabled(false);

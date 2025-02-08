@@ -145,7 +145,7 @@ void JointPositionCommanderWidget::terminate()
 
 void JointPositionCommanderWidget::reset()
 {
-  start_stop_button_->setChecked(false, true);
+  start_stop_button_->setChecked(false);
 
   for (const auto& [_, commander] : commanders_)
   {
