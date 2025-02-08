@@ -14,15 +14,13 @@ namespace gui
 {
 namespace sim
 {
-BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node) : node_(node)
+BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
+  : node_(node), drone_(drone)
 {
   const auto title = new qt::Label("Base Pose", kLabelPSize, QFont::Bold);
 
   arming_button_ = new qt::ToggleButton("Arm", "Disarm");
-  home_button_ = new QPushButton("Home");
-
-  arming_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  home_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  arming_button_->setFixedSize(kArmingButtonWidth, kArmingButtonHeight);
 
   cmd_x_ = new qt::DoubleSliderDisplay();
   cmd_y_ = new qt::DoubleSliderDisplay();
@@ -45,40 +43,48 @@ BasePoseCommanderWidget::BasePoseCommanderWidget(rclcpp::Node::SharedPtr node) :
   cmd_pitch_->setRange(-M_PI, M_PI);
   cmd_yaw_->setRange(-M_PI, M_PI);
 
+  home_button_ = new QPushButton("Home");
+  home_button_->setFixedHeight(kCommandButtonHeight);
+
   reset();
 
   // Layout
-  const auto cols = new QHBoxLayout();
-  cols->addWidget(title);
-  cols->addStretch();
-  cols->addWidget(arming_button_);
-  cols->addWidget(home_button_);
+  const auto header_cols = new QHBoxLayout();
+  header_cols->addWidget(title);
+  header_cols->addStretch();
+  header_cols->addWidget(arming_button_);
 
-  const auto rows = new QVBoxLayout();
-  rows->addLayout(cols);
-  rows->addWidget(cmd_x_);
-  rows->addWidget(cmd_y_);
-  rows->addWidget(cmd_z_);
-  rows->addWidget(cmd_roll_);
-  rows->addWidget(cmd_pitch_);
-  rows->addWidget(cmd_yaw_);
+  const auto button_cols = new QHBoxLayout();
+  button_cols->addWidget(home_button_);
 
-  setLayout(rows);
+  const auto root_rows = new QVBoxLayout();
+  root_rows->addLayout(header_cols);
+  root_rows->addWidget(cmd_x_);
+  root_rows->addWidget(cmd_y_);
+  root_rows->addWidget(cmd_z_);
+  root_rows->addWidget(cmd_roll_);
+  root_rows->addWidget(cmd_pitch_);
+  root_rows->addWidget(cmd_yaw_);
+  root_rows->addLayout(button_cols);
+
+  setLayout(root_rows);
 
   // Connection
-  connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmButtonClicked);
-  connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmButtonClicked);
-  connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
+  connect(arming_button_, &qt::ToggleButton::checked, this, &self::onArmRequested);
+  connect(arming_button_, &qt::ToggleButton::unchecked, this, &self::onDisarmRequested);
   connect(cmd_x_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(cmd_y_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(cmd_z_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(cmd_roll_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(cmd_pitch_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
   connect(cmd_yaw_, &qt::DoubleSliderDisplay::valueChanged, this, &self::onValueChanged);
+  connect(home_button_, &QPushButton::clicked, this, &self::onHomeButtonClicked);
 }
 
-bool BasePoseCommanderWidget::start(const std::string& ns)
+bool BasePoseCommanderWidget::start()
 {
+  const auto& ns = drone_.name;
+
   pvay_pub_ =
     ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, tobas::kPosVelAccYawCmdTopic));
   pta_pub_ =
@@ -117,6 +123,7 @@ void BasePoseCommanderWidget::terminate()
 void BasePoseCommanderWidget::reset()
 {
   arming_button_->setChecked(false, true);
+
   home_button_->setEnabled(false);
 
   cmd_x_->setValue(0.);
@@ -136,23 +143,29 @@ void BasePoseCommanderWidget::reset()
 
 void BasePoseCommanderWidget::publishCurrentCommand()
 {
-  auto pvay = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
-  pvay->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
-  pvay->pos.x() = cmd_x_->getValue();
-  pvay->pos.y() = cmd_y_->getValue();
-  pvay->pos.z() = cmd_z_->getValue();
-  pvay->yaw = cmd_yaw_->getValue();
-  pvay_pub_->publish(std::move(pvay));
+  if (pvay_pub_ != nullptr)
+  {
+    auto pvay = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
+    pvay->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    pvay->pos.x() = cmd_x_->getValue();
+    pvay->pos.y() = cmd_y_->getValue();
+    pvay->pos.z() = cmd_z_->getValue();
+    pvay->yaw = cmd_yaw_->getValue();
+    pvay_pub_->publish(std::move(pvay));
+  }
 
-  auto pta = std::make_unique<tobas_command_msgs::PoseTwistAccel>();
-  pta->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
-  pta->pos.x() = cmd_x_->getValue();
-  pta->pos.y() = cmd_y_->getValue();
-  pta->pos.z() = cmd_z_->getValue();
-  pta->rpy.roll = cmd_roll_->getValue();
-  pta->rpy.pitch = cmd_pitch_->getValue();
-  pta->rpy.yaw = cmd_yaw_->getValue();
-  pta_pub_->publish(std::move(pta));
+  if (pta_pub_ != nullptr)
+  {
+    auto pta = std::make_unique<tobas_command_msgs::PoseTwistAccel>();
+    pta->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    pta->pos.x() = cmd_x_->getValue();
+    pta->pos.y() = cmd_y_->getValue();
+    pta->pos.z() = cmd_z_->getValue();
+    pta->rpy.roll = cmd_roll_->getValue();
+    pta->rpy.pitch = cmd_pitch_->getValue();
+    pta->rpy.yaw = cmd_yaw_->getValue();
+    pta_pub_->publish(std::move(pta));
+  }
 }
 
 bool BasePoseCommanderWidget::armRotors(bool arming)
@@ -186,13 +199,7 @@ void BasePoseCommanderWidget::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   odom_ = odom;
 }
 
-void BasePoseCommanderWidget::onValueChanged()
-{
-  if (pvay_pub_ != nullptr && pta_pub_ != nullptr)
-    publishCurrentCommand();
-}
-
-void BasePoseCommanderWidget::onArmButtonClicked()
+void BasePoseCommanderWidget::onArmRequested()
 {
   if (arming_ == nullptr)
   {
@@ -240,7 +247,7 @@ void BasePoseCommanderWidget::onArmButtonClicked()
   qt::qInfoBox(this, "GUI teleoperation is ready.");
 }
 
-void BasePoseCommanderWidget::onDisarmButtonClicked()
+void BasePoseCommanderWidget::onDisarmRequested()
 {
   if (!armRotors(false))
     return;
@@ -248,6 +255,11 @@ void BasePoseCommanderWidget::onDisarmButtonClicked()
   reset();
 
   qt::qInfoBox(this, "GUI teleoperation is finished.");
+}
+
+void BasePoseCommanderWidget::onValueChanged()
+{
+  publishCurrentCommand();
 }
 
 void BasePoseCommanderWidget::onHomeButtonClicked()

@@ -36,12 +36,14 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
+
   linux::CommandExecutor cmd_executor_;
   ssh::SSHClient ssh_client_;
   common::LocalPackageBuilder local_pkg_builder_;
   common::RemotePackageBuilder remote_pkg_builder_;
 
   std::filesystem::path tbs_path_;
+  kdl::Tree tree_;
   tobas::Drone drone_;
   pid_t launch_pid_ = -1;
 

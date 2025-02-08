@@ -1,6 +1,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_linux/errer.hpp>
 #include <tobas_ros2_tools/register.hpp>
@@ -27,7 +28,7 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
 
   sim_settings_ = new SimulationSettingsWidget(node);
   dynamic_config_ = new DynamicConfigWidget(node);
-  commanders_ = new CommandersWidget(node);
+  commanders_ = new CommandersWidget(node, tree_, drone_);
 
   // Layout
   const auto config_rows = new QVBoxLayout();
@@ -41,9 +42,9 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   commander_rows->addStretch();
 
   const auto cols = new QHBoxLayout();
-  cols->addLayout(config_rows);
-  cols->addWidget(dynamic_config_);
-  cols->addLayout(commander_rows);
+  cols->addLayout(config_rows, 1);
+  cols->addWidget(dynamic_config_, 1);
+  cols->addLayout(commander_rows, 1);
 
   setLayout(cols);
 
@@ -64,6 +65,12 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 {
   if (!reset())
     return false;
+
+  if (!kdl::treeFromFile(common::getOriginalURDFPath(tbs_path), tree_))
+  {
+    qt::qErrorBox(this, "Failed to load kdl tree.");
+    return false;
+  }
 
   if (!drone_.load(common::getTBSDRNPath(tbs_path)))
   {
@@ -414,7 +421,7 @@ void SimulationWidget::terminateDynamicConfig()
 
 bool SimulationWidget::startCommanders()
 {
-  return commanders_->start(drone_.name);
+  return commanders_->start();
 }
 
 void SimulationWidget::terminateCommanders()

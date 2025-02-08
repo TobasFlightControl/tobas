@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./base_pose_commander.hpp"
+#include "./joint_position_commander.hpp"
 
 namespace gui
 {
@@ -14,13 +15,14 @@ class CommandersWidget : public QWidget
   using super = QWidget;
 
 public:
-  explicit CommandersWidget(rclcpp::Node::SharedPtr node);
+  explicit CommandersWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
 
-  bool start(const std::string& ns);
+  bool start();
   void terminate();
 
 private:
   BasePoseCommanderWidget* base_pose_commander_;
+  JointPositionCommanderWidget* jointpos_commander_;
 };
 }  // namespace sim
 }  // namespace gui

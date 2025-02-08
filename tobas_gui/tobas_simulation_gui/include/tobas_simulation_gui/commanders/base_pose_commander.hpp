@@ -4,6 +4,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_drone_core/drone.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/slider_display.hpp>
 
@@ -25,22 +26,23 @@ class BasePoseCommanderWidget : public QWidget
   using self = BasePoseCommanderWidget;
   using super = QWidget;
 
-  static constexpr int kButtonWidth = 100;
-  static constexpr int kButtonHeight = 40;
+  static constexpr int kArmingButtonWidth = 100;
+  static constexpr int kArmingButtonHeight = 40;
+  static constexpr int kCommandButtonHeight = 40;
 
   static constexpr double kHomeAltitude = 3.;  // [m]
 
 public:
-  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node);
+  explicit BasePoseCommanderWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
-  bool start(const std::string& ns);
+  bool start();
   void terminate();
 
 private:
   const rclcpp::Node::SharedPtr node_;
+  const tobas::Drone& drone_;
 
   qt::ToggleButton* arming_button_;
-  QPushButton* home_button_;
 
   qt::DoubleSliderDisplay* cmd_x_;
   qt::DoubleSliderDisplay* cmd_y_;
@@ -48,6 +50,8 @@ private:
   qt::DoubleSliderDisplay* cmd_roll_;
   qt::DoubleSliderDisplay* cmd_pitch_;
   qt::DoubleSliderDisplay* cmd_yaw_;
+
+  QPushButton* home_button_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
@@ -68,10 +72,11 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
 
 private Q_SLOTS:
+  void onArmRequested();
+  void onDisarmRequested();
+
   void onValueChanged();
 
-  void onArmButtonClicked();
-  void onDisarmButtonClicked();
   void onHomeButtonClicked();
 };
 }  // namespace sim
