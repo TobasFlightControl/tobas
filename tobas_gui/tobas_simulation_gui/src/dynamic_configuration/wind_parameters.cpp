@@ -24,6 +24,8 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   gust_duration_ = new qt::DoubleSliderTextWidget(0., 10.);
   gust_interval_ = new qt::DoubleSliderTextWidget(0., 30.);
 
+  reset();
+
   // Layout
   const auto form = new qt::FormLayout();
   form->addVAlignedRow("Mean Speed [m/s]", mean_speed_);
@@ -72,6 +74,17 @@ void WindParamsWidget::terminate()
 {
   get_sc_ = nullptr;
   set_sc_ = nullptr;
+
+  reset();
+}
+
+void WindParamsWidget::reset()
+{
+  mean_speed_->set(0.);
+  direction_->set(0.);
+  gust_speed_factor_->set(0.);
+  gust_duration_->set(0.);
+  gust_interval_->set(0.);
 }
 
 void WindParamsWidget::loadCurrentParams()

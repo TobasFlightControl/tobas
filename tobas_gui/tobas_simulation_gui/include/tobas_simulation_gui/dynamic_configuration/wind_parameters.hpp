@@ -35,6 +35,7 @@ private:
   qt::DoubleSliderTextWidget* gust_duration_;
   qt::DoubleSliderTextWidget* gust_interval_;
 
+  void reset();
   void loadCurrentParams();
 
 private Q_SLOTS:
