@@ -18,13 +18,15 @@ CommandersWidget::CommandersWidget(rclcpp::Node::SharedPtr node, const kdl::Tree
   const auto title = new qt::Label("Commanders", kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
+  const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
+
   base_pose_commander_ = new BasePoseCommanderWidget(node, drone);
-  rows->addWidget(base_pose_commander_);
+  scroll_rows->addWidget(base_pose_commander_);
 
   jointpos_commander_ = new JointPositionCommanderWidget(node, tree, drone);
-  rows->addWidget(jointpos_commander_);
+  scroll_rows->addWidget(jointpos_commander_);
 
-  rows->addStretch();
+  scroll_rows->addStretch();
 }
 
 bool CommandersWidget::start()

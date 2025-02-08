@@ -18,10 +18,12 @@ DynamicConfigWidget::DynamicConfigWidget(rclcpp::Node::SharedPtr node)
   const auto title = new qt::Label("Dynamic Configurations", kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
-  wind_ = new WindParamsWidget(node);
-  rows->addWidget(wind_);
+  const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
 
-  rows->addStretch();
+  wind_ = new WindParamsWidget(node);
+  scroll_rows->addWidget(wind_);
+
+  scroll_rows->addStretch();
 }
 
 bool DynamicConfigWidget::start(const std::string& ns)

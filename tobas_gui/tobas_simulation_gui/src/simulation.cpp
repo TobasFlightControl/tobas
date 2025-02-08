@@ -33,18 +33,12 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   // Layout
   const auto config_rows = new QVBoxLayout();
   config_rows->addWidget(sim_settings_);
-  config_rows->addSpacing(50);
   qt::addWidgetCenter(start_stop_button_, config_rows);
-  config_rows->addStretch();
-
-  const auto commander_rows = new QVBoxLayout();
-  commander_rows->addWidget(commanders_);
-  commander_rows->addStretch();
 
   const auto cols = new QHBoxLayout();
   cols->addLayout(config_rows, 1);
   cols->addWidget(dynamic_config_, 1);
-  cols->addLayout(commander_rows, 1);
+  cols->addWidget(commanders_, 1);
 
   setLayout(cols);
 

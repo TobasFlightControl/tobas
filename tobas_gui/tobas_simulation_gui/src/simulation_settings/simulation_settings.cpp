@@ -20,11 +20,15 @@ SimulationSettingsWidget::SimulationSettingsWidget(rclcpp::Node::SharedPtr node)
   const auto title = new qt::Label("Simulation Settings", kTitlePSize, QFont::Bold);
   qt::addWidgetCenter(title, rows);
 
+  const auto scroll_rows = qt::createScrollableQVBoxLayout(rows);
+
   type_ = new LoopTypeWidget();
-  rows->addWidget(type_);
+  scroll_rows->addWidget(type_);
 
   world_ = new WorldWidget(node);
-  rows->addWidget(world_);
+  scroll_rows->addWidget(world_);
+
+  scroll_rows->addStretch();
 }
 
 loop_type_t SimulationSettingsWidget::loopType() const
