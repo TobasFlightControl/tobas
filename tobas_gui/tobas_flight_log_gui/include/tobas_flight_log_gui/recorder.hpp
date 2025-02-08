@@ -6,6 +6,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/framed_label.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
@@ -35,11 +36,12 @@ private:
   const rclcpp::Node::SharedPtr node_;
 
   QLineEdit* log_name_;
-  QPushButton* start_button_;
-  QPushButton* stop_button_;
+  qt::ToggleButton* start_stop_button_;
   QLCDNumber* duration_;
   qt::HPositionBarWidget* file_size_;
   qt::FramedLabel* message_count_;
+
+  tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RosbagState> rosbag_state_sub_;
 
@@ -51,8 +53,8 @@ private:
   void rosbagStateCb(const tobas_msgs::msg::RosbagState::ConstSharedPtr& rosbag_state);
 
 private Q_SLOTS:
-  void onStartButtonClicked();
-  void onStopButtonClicked();
+  void onStartRequested();
+  void onStopRequested();
 };
 }  // namespace log
 }  // namespace gui
