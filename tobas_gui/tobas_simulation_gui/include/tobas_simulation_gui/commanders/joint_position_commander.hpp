@@ -1,5 +1,7 @@
 #pragma once
 
+#include <random>
+
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QTimer>
@@ -41,6 +43,9 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const kdl::Tree& tree_;
   const tobas::Drone& drone_;
+
+  std::random_device rnd_dev_;
+  std::mt19937 rnd_gen_;
 
   kdl::TreeJointParser joint_parser_;
 

@@ -18,7 +18,7 @@ JointPositionCommanderWidget::JointPositionCommanderWidget(
   rclcpp::Node::SharedPtr node,
   const kdl::Tree& tree,
   const tobas::Drone& drone)
-  : node_(node), tree_(tree), drone_(drone), joint_parser_(tree)
+  : node_(node), tree_(tree), drone_(drone), rnd_gen_(rnd_dev_()), joint_parser_(tree)
 {
   const auto title = new qt::Label("Joint Position", kLabelPSize, QFont::Bold);
 
@@ -282,17 +282,28 @@ void JointPositionCommanderWidget::onValueChanged(double value, const std::strin
 
 void JointPositionCommanderWidget::onHomeButtonClicked()
 {
-  // TODO
+  for (const auto& [jnt_name, commander] : commanders_)
+    commander->setValue(drone_.joints.at(jnt_name).home_pos);
+
+  publishCurrentCommand();
 }
 
 void JointPositionCommanderWidget::onCenterButtonClicked()
 {
-  // TODO
+  for (const auto& [_, commander] : commanders_)
+    commander->setValue((commander->getMinimum() + commander->getMaximum()) / 2);
+
+  publishCurrentCommand();
 }
 
 void JointPositionCommanderWidget::onRandomButtonClicked()
 {
-  // TODO
+  for (const auto& [_, commander] : commanders_)
+  {
+    std::uniform_real_distribution<double> uniform(commander->getMinimum(), commander->getMaximum());
+    const auto value = uniform(rnd_gen_);
+    commander->setValue(value);
+  }
 }
 
 void JointPositionCommanderWidget::onPublishCommandTimerTimeout()
