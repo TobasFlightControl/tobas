@@ -16,6 +16,7 @@
 	<exec_depend>tobas_constants</exec_depend>
 	<exec_depend>tobas_controllers</exec_depend>
 	<exec_depend>tobas_core</exec_depend>
+	<exec_depend>tobas_cui</exec_depend>
 	<exec_depend>tobas_debug_msgs</exec_depend>
 	<exec_depend>tobas_debug_msgs_adapter</exec_depend>
 	<exec_depend>tobas_description</exec_depend>
@@ -40,6 +41,7 @@
 	<exec_depend>tobas_pose_pid</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
 	<exec_depend>tobas_property</exec_depend>
+	<exec_depend>tobas_rc_teleop</exec_depend>
 	<exec_depend>tobas_real</exec_depend>
 	<exec_depend>tobas_robot_state_publisher</exec_depend>
 	<exec_depend>tobas_ros_interface</exec_depend>
@@ -48,7 +50,6 @@
 	<exec_depend>tobas_rotor_controller</exec_depend>
 	<exec_depend>tobas_ssh</exec_depend>
 	<exec_depend>tobas_state_checker</exec_depend>
-	<exec_depend>tobas_teleoperations</exec_depend>
 	<exec_depend>tobas_third_party</exec_depend>
 	<exec_depend>tobas_tools</exec_depend>
 	<exec_depend>tobas_topic_throttle</exec_depend>
