@@ -71,9 +71,18 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
     return;
   }
 
+  // Clear joints for previous robot
+  commanders_.clear();
+  qt::clearLayout(cmd_rows_);
+
+  tar_js_pos_.states.clear();
+  tar_js_vel_.states.clear();
+  tar_js_eff_.states.clear();
+
+  // Add joints of current robot
   for (const auto& [jnt_name, joint] : drone_.joints)
   {
-    // MANIPULATION用の関節のみ登録
+    // Joints for manipulation only
     if (joint.role != tobas::jnt_role_t::MANIPULATION)
       continue;
 
@@ -117,6 +126,7 @@ void JointPositionCommanderWidget::updateInternalDataStructures()
     cmd_rows_->addWidget(commander);
   }
 
+  // Register command publishers
   const auto& ns = drone_.name;
   if (tar_js_pos_.states.size() > 0)
     tar_js_pos_pub_ =
