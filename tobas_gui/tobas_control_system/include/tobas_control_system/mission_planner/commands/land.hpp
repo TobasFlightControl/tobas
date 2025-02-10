@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 struct LandData : public BaseCommandData
 {
@@ -31,5 +31,5 @@ public:
 
 private:
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

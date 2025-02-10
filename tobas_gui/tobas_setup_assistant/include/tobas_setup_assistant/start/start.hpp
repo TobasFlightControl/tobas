@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class StartWidget : public QWidget
 {
@@ -21,5 +21,5 @@ private:
   URDFLoaderWidget* urdf_loader_;
   PackageLoaderWidget* package_loader_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

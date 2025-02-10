@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -91,5 +91,5 @@ void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::
   vel_accuracy_status_->setStatus(!prearm_check->velocity_inaccurate);
   ready_status_->setStatus(prearm_check->ok);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
@@ -89,5 +89,5 @@ void AccelCalibrationWidget::onCalibrationFinished(bool success, const QString& 
   else
     qt::qErrorBox(this, message);
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

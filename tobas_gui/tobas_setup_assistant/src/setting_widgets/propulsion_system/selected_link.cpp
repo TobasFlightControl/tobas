@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -133,5 +133,5 @@ const SpeedLimitWidget* SelectedLinkWidget::speedLimit() const
   return speed_limit_;
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

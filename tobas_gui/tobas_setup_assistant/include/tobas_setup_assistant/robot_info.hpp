@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class RobotInfo : public QObject
 {
@@ -46,5 +46,5 @@ private:
   kdl::JntArray q_zeros_;
   kdl::TreeJointAxisSolver axis_solver_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

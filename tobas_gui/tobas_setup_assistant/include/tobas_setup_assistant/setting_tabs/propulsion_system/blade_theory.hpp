@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -50,5 +50,5 @@ private:
   double C_H() const;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

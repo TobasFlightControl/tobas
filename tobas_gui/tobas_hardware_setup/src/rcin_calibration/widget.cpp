@@ -14,7 +14,7 @@ using namespace std;
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node) : node_(node), rate_(kTopicRate)
 {
@@ -312,5 +312,5 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   qt::qInfoBox(this, "Radio calibration finished successfully.");
   reset();
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

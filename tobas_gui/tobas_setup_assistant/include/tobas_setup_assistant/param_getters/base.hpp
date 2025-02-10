@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 /* A base class of a widget for getting a user parameter. */
 template <typename T>
@@ -55,5 +55,5 @@ std::string ParamGetterWidget<T>::name() const
 {
   return label_->text().toStdString();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

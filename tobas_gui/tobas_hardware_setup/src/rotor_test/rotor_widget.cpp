@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 RotorWidget::RotorWidget()
 {
@@ -164,5 +164,5 @@ void RotorWidget::onGainChanged(int gain)
   setGainBox(gain);
   Q_EMIT gainChanged(gain);
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

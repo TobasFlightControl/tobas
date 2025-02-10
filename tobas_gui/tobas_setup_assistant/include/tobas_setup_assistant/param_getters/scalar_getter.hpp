@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class IntGetter : public QWidget
 {
@@ -62,5 +62,5 @@ private Q_SLOTS:
 private:
   qt::DoubleSpinBox* data_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

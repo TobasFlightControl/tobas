@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("rviz_robot_state_display")
 {
@@ -120,5 +120,5 @@ void RvizWidget::onInertiaBoxToggled(bool checked)
 {
   enable_inertia_->setBool(checked);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

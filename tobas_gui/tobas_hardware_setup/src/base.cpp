@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 BaseHardwareSetupWidget::BaseHardwareSetupWidget()
 {
@@ -27,5 +27,5 @@ void BaseHardwareSetupWidget::initialize()
 {
   title_->setText(title());
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

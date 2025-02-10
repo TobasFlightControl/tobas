@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BaseSettingWidget : public qt::ScrollArea
 {
@@ -61,5 +61,5 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

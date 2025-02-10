@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 AccelCalibrationThread::AccelCalibrationThread(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -100,5 +100,5 @@ void AccelCalibrationThread::imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr&
   for (size_t i = 0; i < 3; ++i)
     acc_sum_.at(i).add(imu_raw->imu.accel(i));
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

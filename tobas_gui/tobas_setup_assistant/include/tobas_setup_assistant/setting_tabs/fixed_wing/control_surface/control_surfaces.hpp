@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -43,5 +43,5 @@ private:
   AddRemoveButtonsWidget* add_remove_;
 };
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

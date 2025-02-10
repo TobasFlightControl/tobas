@@ -15,12 +15,12 @@ static void sigIntHandler(int)
 int main(int argc, char** argv)
 {
   // ノードを起動
-  ros2::AsyncNodeManager node_manager(argc, argv, "setup_assistant");
+  ros2::AsyncNodeManager node_manager(argc, argv, "sa");
 
   // GUIを表示
   QApplication qt_app(argc, argv);
-  const auto widget = new gui::setup_assistant::SetupAssistantWidget(node_manager.node());
-  qt::MainWidget main(gui::setup_assistant::kTitle, QString::fromStdString(gui::common::getIconPath()), widget);
+  const auto widget = new gui::sa::SetupAssistantWidget(node_manager.node());
+  qt::MainWidget main(gui::sa::kTitle, QString::fromStdString(gui::common::getIconPath()), widget);
   main.show();
 
   // Ctrl+Cで即終了

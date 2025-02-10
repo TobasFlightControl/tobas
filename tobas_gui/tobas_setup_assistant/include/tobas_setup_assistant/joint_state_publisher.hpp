@@ -14,7 +14,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class JointStatePublisherWidget : public QWidget
 {
@@ -53,5 +53,5 @@ private Q_SLOTS:
   void onCenterButtonClicked();
   void onRandomButtonClicked();
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

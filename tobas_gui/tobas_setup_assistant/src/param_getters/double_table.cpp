@@ -19,7 +19,7 @@ using namespace Eigen;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_DoubleTable::ParamGetterWidget_DoubleTable(
   rclcpp::Node::SharedPtr node,
@@ -286,5 +286,5 @@ void ParamGetterWidget_DoubleTable::saveLastOpenedDir(const string& dir)
     return;
   }
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

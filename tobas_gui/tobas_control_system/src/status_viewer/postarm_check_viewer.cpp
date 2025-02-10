@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 PostArmCheckViewerWidget::PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -75,5 +75,5 @@ void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmChec
   mag_alignment_status_->setStatus(!postarm_check->mag_misalignment);
   latency_status_->setStatus(!postarm_check->latency_too_large);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

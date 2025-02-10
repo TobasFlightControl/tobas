@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class PackageGenerator
 {
@@ -76,5 +76,5 @@ private:
   /* Gazeboプラグイン等をXMLに追加する． */
   bool addXMLElements(tinyxml2::XMLElement* robot);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

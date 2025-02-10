@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_(node), mission_thread_(node)
 {
@@ -523,5 +523,5 @@ void MissionPlannerWidget::onMissionFinished(bool success, const QString& messag
 
   setEditMode();
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

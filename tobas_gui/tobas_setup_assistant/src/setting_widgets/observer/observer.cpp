@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ObserverWidget::ObserverWidget(
   const RobotInfo& robot,
@@ -127,5 +127,5 @@ const BaseObserverWidget* ObserverWidget::selected() const
 {
   return qobject_cast<BaseObserverWidget*>(observers_->currentWidget());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

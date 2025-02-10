@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class FrameTreeWidget : public QTreeWidget
 {
@@ -31,5 +31,5 @@ private:
 
   void addTreeItemsRec(QTreeWidgetItem* parent_item);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class BaseHardwareSetupWidget : public qt::ScrollArea
 {
@@ -29,5 +29,5 @@ private:
 private Q_SLOTS:
   void initialize();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

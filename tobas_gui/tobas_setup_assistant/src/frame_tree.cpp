@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 FrameTreeWidget::FrameTreeWidget(const RobotInfo& robot, RvizWidget* rviz) : robot_(robot), rviz_(rviz)
 {
@@ -63,5 +63,5 @@ void FrameTreeWidget::addTreeItemsRec(QTreeWidgetItem* parent_item)
     addTreeItemsRec(child_item);
   }
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

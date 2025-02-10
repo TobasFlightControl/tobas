@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -21,5 +21,5 @@ public:
   virtual void load(const YAML::Node& node) = 0;
 };
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

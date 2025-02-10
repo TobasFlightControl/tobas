@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 PoseViewerWidget::PoseViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -337,5 +337,5 @@ void PoseViewerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPt
   // 再描画
   update();
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

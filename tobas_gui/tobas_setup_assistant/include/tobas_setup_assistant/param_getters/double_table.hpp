@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
 {
@@ -74,5 +74,5 @@ private:
   bool isValidData(const Eigen::MatrixXd& src);
   void saveLastOpenedDir(const std::string& dir);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

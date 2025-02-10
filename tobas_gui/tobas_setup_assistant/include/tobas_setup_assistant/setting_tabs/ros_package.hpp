@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ROSPackageWidget : public BaseSettingWidget
 {
@@ -55,5 +55,5 @@ private:
   QLabel* tbs_path_;
   QPushButton* generate_button_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

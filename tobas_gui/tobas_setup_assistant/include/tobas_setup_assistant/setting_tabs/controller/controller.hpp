@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ControllerWidget : public BaseSettingWidget
 {
@@ -63,5 +63,5 @@ private:
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

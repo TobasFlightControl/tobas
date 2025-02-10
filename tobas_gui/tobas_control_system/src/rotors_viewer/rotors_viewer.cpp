@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
   : node_(node), drone_(drone)
@@ -78,5 +78,5 @@ QString RotorsViewerWiddget::bottomText(int rpm)
 {
   return QString::number(rpm) + " RPM";
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

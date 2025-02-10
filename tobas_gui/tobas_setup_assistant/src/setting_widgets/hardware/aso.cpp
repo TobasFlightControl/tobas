@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 AsoWidget::AsoWidget()
 {
@@ -42,5 +42,5 @@ bool AsoWidget::isValid()
 {
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

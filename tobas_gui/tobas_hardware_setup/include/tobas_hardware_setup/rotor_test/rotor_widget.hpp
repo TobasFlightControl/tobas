@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class RotorWidget : public QWidget
 {
@@ -58,5 +58,5 @@ private Q_SLOTS:
   void onTargetRPMChanged(int rpm);
   void onGainChanged(int gain);
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

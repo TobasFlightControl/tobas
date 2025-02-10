@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -76,5 +76,5 @@ private:
   qt::DoubleSpinBox* c_yaw_r_;
 };
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

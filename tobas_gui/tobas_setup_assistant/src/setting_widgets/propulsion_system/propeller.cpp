@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -109,5 +109,5 @@ double PropellerWidget::pitchAngle() const
   return tobas_std::deg2rad(pitch_angle_->getValue());
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

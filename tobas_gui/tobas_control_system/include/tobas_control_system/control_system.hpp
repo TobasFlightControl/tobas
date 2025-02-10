@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class ControlSystemWidget : public QWidget
 {
@@ -37,5 +37,5 @@ private:
   StatusViewerWidget* status_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

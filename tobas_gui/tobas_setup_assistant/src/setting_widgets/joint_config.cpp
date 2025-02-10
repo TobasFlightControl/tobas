@@ -14,7 +14,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 JointConfigurationWidget::JointConfigurationWidget(
   const RobotInfo& robot,
@@ -807,5 +807,5 @@ void JointConfigurationWidget::onControlSurfaceLinkRemoved(const QString& link_n
 
   reset(row);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

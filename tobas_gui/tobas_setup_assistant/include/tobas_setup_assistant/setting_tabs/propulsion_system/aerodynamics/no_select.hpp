@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -27,5 +27,5 @@ public:
   double rotorDragCoef() const override;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

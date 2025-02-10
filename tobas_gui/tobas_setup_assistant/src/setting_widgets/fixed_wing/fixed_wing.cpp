@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -130,5 +130,5 @@ void FixedWingWidget::setSettingWidgetsEnabled(bool enabled)
   }
 }
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

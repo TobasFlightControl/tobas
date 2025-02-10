@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -58,5 +58,5 @@ double ESCWidget::maxCurrent() const
   return max_current_->getValue();
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

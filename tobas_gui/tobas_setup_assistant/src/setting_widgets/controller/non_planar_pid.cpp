@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 NonPlanarPIDWidget::NonPlanarPIDWidget(
   RobotInfo& robot,
@@ -125,5 +125,5 @@ bool NonPlanarPIDWidget::isValid()
 
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

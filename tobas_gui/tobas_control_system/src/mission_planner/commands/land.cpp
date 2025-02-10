@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 LandWidget::LandWidget()
 {
@@ -18,5 +18,5 @@ BaseCommandData::SharedPtr LandWidget::data() const
   const auto res = std::make_shared<LandData>();
   return res;
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 GNSSWidget::GNSSWidget()
 {
@@ -172,5 +172,5 @@ bool GNSSWidget::defaultEquipped() const
 {
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 CustomControllerWidget::CustomControllerWidget()
   : command_map_{
@@ -114,5 +114,5 @@ bool CustomControllerWidget::isValid()
 
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

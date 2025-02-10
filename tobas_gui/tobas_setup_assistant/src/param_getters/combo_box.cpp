@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_ComboBox::ParamGetterWidget_ComboBox(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
@@ -58,5 +58,5 @@ void ParamGetterWidget_ComboBox::onTextChanged(const QString& text)
 {
   Q_EMIT textChanged(text);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

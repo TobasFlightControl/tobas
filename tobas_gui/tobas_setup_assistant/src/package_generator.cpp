@@ -24,7 +24,7 @@ namespace fs = filesystem;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
   : node_(node), robot_(robot), settings_(settings)
@@ -825,5 +825,5 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

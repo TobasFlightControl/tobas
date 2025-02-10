@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 BatteryWidget_Other::BatteryWidget_Other()
 {
@@ -125,5 +125,5 @@ double BatteryWidget_Other::internalRegistance()
 {
   return registance_->getValue() * 1e-3;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

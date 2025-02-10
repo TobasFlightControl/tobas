@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 SpeedmeterWidget::SpeedmeterWidget()
 {
@@ -72,5 +72,5 @@ QObject* SpeedmeterWidget::getGaugeObject() const
   TOBAS_CHECK(gauge != nullptr);
   return gauge;
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

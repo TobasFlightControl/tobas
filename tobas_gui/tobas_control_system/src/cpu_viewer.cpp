@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 CPUViewerWidget::CPUViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -65,5 +65,5 @@ void CPUViewerWidget::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
   else
     load_->setFillColor(Qt::green);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

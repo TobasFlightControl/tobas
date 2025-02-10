@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace param_tuning
+namespace param
 {
 class ParameterTuningWidget : public QWidget
 {
@@ -43,5 +43,5 @@ private Q_SLOTS:
   void onSaveButtonClicked();
   void onResetButtonClicked();
 };
-}  // namespace param_tuning
+}  // namespace param
 }  // namespace gui

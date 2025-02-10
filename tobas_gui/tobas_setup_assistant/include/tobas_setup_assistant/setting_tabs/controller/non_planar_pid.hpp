@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class NonPlanarPIDWidget : public BaseControllerWidget
 {
@@ -45,5 +45,5 @@ private:
   QCheckBox* do_dist_comp_trans_;
   QCheckBox* do_dist_comp_rot_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ErrorStateKalmanFilterWidget : public BaseObserverWidget
 {
@@ -45,5 +45,5 @@ private:
   QCheckBox* do_mag_soft_bias_estimation_;
   QCheckBox* do_grav_estimation_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

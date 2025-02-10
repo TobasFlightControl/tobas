@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class ReadWPASupplicantThread : public QThread
 {
@@ -26,5 +26,5 @@ private:
   ssh::SSHClient ssh_client_;
   std::string text_;
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

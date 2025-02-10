@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_ComboBox : public ParamGetterWidget<QString>
 {
@@ -37,5 +37,5 @@ private Q_SLOTS:
 private:
   qt::ComboBox* box_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class TemplateGenerator
 {
@@ -24,5 +24,5 @@ private:
 
   inja::Environment env_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

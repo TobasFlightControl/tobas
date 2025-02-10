@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 FixedWingLQRWidget::FixedWingLQRWidget(
   RobotInfo& robot,
@@ -96,5 +96,5 @@ bool FixedWingLQRWidget::isValid()
   // TODO: 制御面の数や符号などに関する条件
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

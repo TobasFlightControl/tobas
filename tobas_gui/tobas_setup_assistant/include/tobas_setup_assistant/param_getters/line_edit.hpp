@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_LineEdit : public ParamGetterWidget<QString>
 {
@@ -30,5 +30,5 @@ private Q_SLOTS:
 private:
   QLineEdit* line_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

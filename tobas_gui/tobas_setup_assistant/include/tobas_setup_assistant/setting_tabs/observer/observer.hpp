@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ObserverWidget : public BaseSettingWidget
 {
@@ -63,5 +63,5 @@ private:
   BaseObserverWidget* selected();
   const BaseObserverWidget* selected() const;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class AsoWidget : public BaseHardwareWidget
 {
@@ -22,5 +22,5 @@ public:
 
   bool isValid() override;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

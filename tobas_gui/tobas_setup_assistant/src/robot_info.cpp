@@ -11,7 +11,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 RobotInfo::RobotInfo() : axis_solver_(tree_)
 {
@@ -104,5 +104,5 @@ tobas::rotor_axis_t RobotInfo::rotorAxisType(const string& seg_name)
   else
     return tobas::rotor_axis_t::UNKNOWN;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

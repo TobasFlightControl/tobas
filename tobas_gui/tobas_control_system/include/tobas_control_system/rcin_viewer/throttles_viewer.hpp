@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -40,5 +40,5 @@ private:
   void rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

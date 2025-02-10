@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -38,5 +38,5 @@ private:
   ParamGetterWidget_SpinBox* num_poles_;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

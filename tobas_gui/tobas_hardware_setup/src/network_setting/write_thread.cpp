@@ -3,7 +3,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 WriteWPASupplicantThread::WriteWPASupplicantThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
@@ -39,5 +39,5 @@ void WriteWPASupplicantThread::setText(const std::string& text)
 {
   text_ = text;
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

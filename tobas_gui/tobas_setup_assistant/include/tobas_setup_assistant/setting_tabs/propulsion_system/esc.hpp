@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -29,5 +29,5 @@ private:
   ParamGetterWidget_SpinBox* max_current_;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

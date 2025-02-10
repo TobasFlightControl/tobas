@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_SpinBox::ParamGetterWidget_SpinBox(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
@@ -55,5 +55,5 @@ void ParamGetterWidget_SpinBox::onValueChanged(int value)
 {
   Q_EMIT valueChanged(value);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class RotorsViewerWiddget : public qt::ScrollArea
 {
@@ -41,5 +41,5 @@ private:
 
   static QString bottomText(int rpm);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

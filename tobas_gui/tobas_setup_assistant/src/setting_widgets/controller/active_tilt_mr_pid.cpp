@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ActiveTiltMultirotorPIDWidget::ActiveTiltMultirotorPIDWidget(
   RobotInfo& robot,
@@ -102,5 +102,5 @@ bool ActiveTiltMultirotorPIDWidget::isValid()
 {
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

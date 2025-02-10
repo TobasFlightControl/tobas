@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 BatteryViewerWidget::BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
   : node_(node), drone_(drone)
@@ -60,5 +60,5 @@ void BatteryViewerWidget::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr&
   else
     voltage_->setFillColor(Qt::green);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

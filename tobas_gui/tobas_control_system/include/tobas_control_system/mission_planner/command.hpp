@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 enum command_t
 {
@@ -14,5 +14,5 @@ enum command_t
 
 const char* commandToText(command_t cmd);
 command_t textToCommand(const char* text);
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -15,7 +15,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class SetupAssistantWidget : public QWidget
 {
@@ -47,5 +47,5 @@ private Q_SLOTS:
   void onGenerateButtonClicked();
   void onBuildPackageFinished(bool success, const QString& output);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

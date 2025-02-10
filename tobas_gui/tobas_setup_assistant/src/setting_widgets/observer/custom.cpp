@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 CustomObserverWidget::CustomObserverWidget()
 {
@@ -80,5 +80,5 @@ bool CustomObserverWidget::isValid()
 
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

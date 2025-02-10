@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -48,5 +48,5 @@ private:
   const AerodynamicsWidget_Base* selected() const;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

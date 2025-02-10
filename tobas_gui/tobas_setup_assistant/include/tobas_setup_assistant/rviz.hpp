@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class RvizWidget : public QWidget
 {
@@ -55,5 +55,5 @@ private:
 
   QString highlighted_link_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

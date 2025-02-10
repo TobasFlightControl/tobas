@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace map
 {
@@ -64,5 +64,5 @@ void MapItemModel<Args...>::clear()
   endRemoveRows();
 }
 }  // namespace map
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

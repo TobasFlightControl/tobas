@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 BatteryWidget_LiPo::BatteryWidget_LiPo()
 {
@@ -97,5 +97,5 @@ double BatteryWidget_LiPo::internalRegistance()
 {
   return num_cells_->getValue() * registance_->getValue() * 1e-3;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 RotorTestWidget::RotorTestWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone) : node_(node), drone_(drone)
 {
@@ -343,5 +343,5 @@ void RotorTestWidget::onUpdateTimerTimeout()
   // ROSとQtのスレッドの競合を防ぐため，GUI関連の処理は必ずQtスレッドで行う．
   updateCurrentSpeeds();
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

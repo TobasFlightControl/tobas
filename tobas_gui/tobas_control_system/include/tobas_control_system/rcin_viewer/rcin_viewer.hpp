@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -23,5 +23,5 @@ private:
   TogglesViewer* toggles_viewer_;
 };
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
 {
@@ -137,5 +137,5 @@ void SettingsWidget::onCurrentChanged(int index)
   const auto cur_widget = qobject_cast<BaseSettingWidget*>(widget(index));
   cur_widget->onOpened();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

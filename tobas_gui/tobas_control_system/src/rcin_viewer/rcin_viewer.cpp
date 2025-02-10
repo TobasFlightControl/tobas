@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -26,5 +26,5 @@ void RCInputViewerWidget::updateNamespace(const std::string& ns)
   toggles_viewer_->updateNamespace(ns);
 }
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

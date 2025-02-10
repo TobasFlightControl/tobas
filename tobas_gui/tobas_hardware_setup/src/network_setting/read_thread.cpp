@@ -3,7 +3,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 ReadWPASupplicantThread::ReadWPASupplicantThread(rclcpp::Node::SharedPtr node) : ssh_client_(node)
 {
@@ -32,5 +32,5 @@ const std::string& ReadWPASupplicantThread::getText() const
 {
   return text_;
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
   : drone_(drone)
@@ -40,5 +40,5 @@ void HardwareSetupWidget::updateInternalDataStructures()
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

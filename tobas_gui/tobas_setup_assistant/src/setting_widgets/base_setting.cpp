@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 BaseSettingWidget::BaseSettingWidget()
 {
@@ -59,5 +59,5 @@ void BaseSettingWidget::initialize()
   title_->setText(title());
   description_->setText(description());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

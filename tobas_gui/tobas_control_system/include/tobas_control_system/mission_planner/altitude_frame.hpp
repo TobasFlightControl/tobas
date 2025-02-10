@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 enum altitude_frame_t : uint8_t
 {
@@ -14,5 +14,5 @@ enum altitude_frame_t : uint8_t
 
 const char* altFrameToText(altitude_frame_t frame);
 altitude_frame_t textToAltFrame(const char* text);
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

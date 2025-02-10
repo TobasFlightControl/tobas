@@ -21,7 +21,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class RotorTestWidget : public BaseHardwareSetupWidget
 {
@@ -87,5 +87,5 @@ private Q_SLOTS:
 
   void onUpdateTimerTimeout();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

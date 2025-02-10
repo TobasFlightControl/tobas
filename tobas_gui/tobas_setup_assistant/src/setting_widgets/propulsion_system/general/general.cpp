@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -105,5 +105,5 @@ QString GeneralWidget::tiltJointName() const
   return active_tilt_settings_->tiltJointName();
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

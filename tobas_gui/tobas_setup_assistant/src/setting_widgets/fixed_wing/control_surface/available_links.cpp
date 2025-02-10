@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -89,5 +89,5 @@ void AvailableLinksWidget::remove(const QString& link_name)
   takeItem(row(items[0]));
 }
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

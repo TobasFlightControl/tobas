@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -299,5 +299,5 @@ void AerodynamicsCoefficientsWidget::onLoadButtonClicked()
   qt::qInfoBox(this, "Coefficients are loaded successfully.");
 }
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

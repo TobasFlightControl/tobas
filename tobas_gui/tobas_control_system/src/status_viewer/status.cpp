@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 StatusWidget::StatusWidget(const QString& text)
 {
@@ -34,5 +34,5 @@ void StatusWidget::reset()
 {
   led_->setColor(Qt::gray);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

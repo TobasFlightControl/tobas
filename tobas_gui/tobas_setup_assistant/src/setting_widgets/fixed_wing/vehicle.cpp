@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -110,5 +110,5 @@ std::pair<double, double> VehicleParametersWidget::alphaLimit() const
   return alpha_limit_->getValue();
 }
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -53,5 +53,5 @@ private:
   ActiveTiltSettingsWidget* active_tilt_settings_;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

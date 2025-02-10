@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 JointTestWidget::JointTestWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone)
@@ -113,5 +113,5 @@ void JointTestWidget::onStopButtonClicked()
 
   qt::qInfoBox(this, "Joint test is finished.");
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class HardwareWidget : public BaseSettingWidget
 {
@@ -47,5 +47,5 @@ private:
   BaseHardwareWidget* selected();
   const BaseHardwareWidget* selected() const;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 AuthorInformationWidget::AuthorInformationWidget()
 {
@@ -95,5 +95,5 @@ QString AuthorInformationWidget::authorEmail() const
 {
   return email_->getValue();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

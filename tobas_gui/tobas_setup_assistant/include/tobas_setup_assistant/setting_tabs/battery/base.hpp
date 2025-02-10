@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BatteryWidget_Base : public QWidget
 {
@@ -40,5 +40,5 @@ public:
   /* 内部抵抗値 [Ω] */
   virtual double internalRegistance() = 0;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

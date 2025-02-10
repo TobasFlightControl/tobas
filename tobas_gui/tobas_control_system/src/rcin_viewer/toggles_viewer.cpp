@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -93,5 +93,5 @@ void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rc
     gpsw_->setChecked(false);
 }
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

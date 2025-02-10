@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class ConsoleWidget : public QWidget
 {
@@ -46,5 +46,5 @@ private:
 
   void messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_LineEdit::ParamGetterWidget_LineEdit(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
@@ -28,5 +28,5 @@ void ParamGetterWidget_LineEdit::onTextChanged(const QString& text)
 {
   Q_EMIT textChanged(text);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

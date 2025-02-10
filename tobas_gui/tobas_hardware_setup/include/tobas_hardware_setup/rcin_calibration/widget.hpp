@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class RCInputCalibrationWidget : public BaseHardwareSetupWidget
 {
@@ -76,5 +76,5 @@ private Q_SLOTS:
   void onCancelButtonClicked();
   void onFinishButtonClicked();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

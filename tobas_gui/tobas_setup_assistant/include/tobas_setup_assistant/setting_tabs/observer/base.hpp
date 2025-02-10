@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BaseObserverWidget : public QWidget
 {
@@ -26,5 +26,5 @@ public:
   /* ユーザ設定が有効な場合にtrueを返す． */
   virtual bool isValid() = 0;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

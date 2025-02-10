@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 MapWidget::MapWidget()
 {
@@ -89,5 +89,5 @@ void MapWidget::onWaypointMoved(int index, double latitude, double longitude)
 {
   Q_EMIT waypointMoved(index, latitude, longitude);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

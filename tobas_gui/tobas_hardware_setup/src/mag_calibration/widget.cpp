@@ -26,7 +26,7 @@ namespace fs = filesystem;
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), rviz_manager_("rviz_mag_calibration")
@@ -360,5 +360,5 @@ void MagCalibrationWidget::onFinishButtonClicked()
   resetToBeforeStart();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

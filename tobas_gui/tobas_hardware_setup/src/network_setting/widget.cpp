@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 NetworkSettingWidget::NetworkSettingWidget(rclcpp::Node::SharedPtr node)
   : spinner_(Qt::WindowModal, this), read_thread_(node), write_thread_(node)
@@ -161,5 +161,5 @@ void NetworkSettingWidget::onWriteThreadFinished(bool success, const QString& me
 
   qt::qInfoBox(this, "Network configuration is written successfully.");
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

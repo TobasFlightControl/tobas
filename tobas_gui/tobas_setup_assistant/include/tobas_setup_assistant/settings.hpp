@@ -21,7 +21,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class SettingsWidget : public qt::VerticalTabWidget
 {
@@ -61,5 +61,5 @@ public:
 private Q_SLOTS:
   void onCurrentChanged(int index);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

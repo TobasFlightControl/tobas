@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class HardwareSetupWidget : public QWidget
 {
@@ -40,5 +40,5 @@ private:
   RotorTestWidget* rotor_test_;
   JointTestWidget* joint_test_;
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

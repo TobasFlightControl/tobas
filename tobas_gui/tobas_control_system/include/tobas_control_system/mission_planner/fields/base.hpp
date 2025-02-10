@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace field
 {
@@ -19,5 +19,5 @@ public:
   virtual const char* label() const = 0;
 };
 }  // namespace field
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

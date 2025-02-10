@@ -11,7 +11,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -311,5 +311,5 @@ void SelectedLinksWidget::onTiltJointNameChanged(const QString& link_name, const
   Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name);
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

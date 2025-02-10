@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ErrorStateKalmanFilterWidget::ErrorStateKalmanFilterWidget(
   const RobotInfo& robot,
@@ -124,5 +124,5 @@ bool ErrorStateKalmanFilterWidget::isValid()
 
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

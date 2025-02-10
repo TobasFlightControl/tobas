@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_DoubleSpinBox::ParamGetterWidget_DoubleSpinBox(
   const QString& param_name,
@@ -62,5 +62,5 @@ void ParamGetterWidget_DoubleSpinBox::onValueChanged(double value)
 {
   Q_EMIT valueChanged(value);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

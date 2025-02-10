@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 ConsoleWidget::ConsoleWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -97,5 +97,5 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
   table_->setItem(0, kLevelCol, level_item);
   table_->setItem(0, kMessageCol, message_item);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

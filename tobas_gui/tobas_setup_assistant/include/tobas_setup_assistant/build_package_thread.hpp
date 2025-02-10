@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BuildPackageThread : public QThread
 {
@@ -26,5 +26,5 @@ private:
   QString tbs_path_;
   common::LocalPackageBuilder package_builder_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

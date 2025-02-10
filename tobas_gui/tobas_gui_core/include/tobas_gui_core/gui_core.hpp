@@ -73,10 +73,10 @@ private:
 
   homepage::HomepageWidget* homepage_;
   URDFBuilder* urdf_builder_;
-  setup_assistant::SetupAssistantWidget* setup_assistant_;
-  hardware_setup::HardwareSetupWidget* hardware_setup_;
-  control_system::ControlSystemWidget* control_system_;
-  param_tuning::ParameterTuningWidget* param_tuning_;
+  sa::SetupAssistantWidget* setup_assistant_;
+  hw::HardwareSetupWidget* hardware_setup_;
+  gcs::ControlSystemWidget* control_system_;
+  param::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
   sim::SimulationWidget* simulation_;
 

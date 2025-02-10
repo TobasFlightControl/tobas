@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace map
 {
@@ -16,5 +16,5 @@ QByteArrayList LineModel::argNames() const
   return { "latitude_1", "longitude_1", "latitude_2", "longitude_2" };
 }
 }  // namespace map
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

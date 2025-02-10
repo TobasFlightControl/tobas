@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ControllerWidget::ControllerWidget(
   RobotInfo& robot,
@@ -159,5 +159,5 @@ const BaseControllerWidget* ControllerWidget::selected() const
 {
   return qobject_cast<BaseControllerWidget*>(controllers_->currentWidget());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

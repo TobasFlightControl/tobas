@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class AccelCalibrationWidget : public BaseHardwareSetupWidget
 {
@@ -47,5 +47,5 @@ private Q_SLOTS:
   void onStartButtonClicked();
   void onCalibrationFinished(bool success, const QString& output);
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

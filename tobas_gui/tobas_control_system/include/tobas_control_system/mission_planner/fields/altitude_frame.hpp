@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace field
 {
@@ -25,5 +25,5 @@ private:
   qt::ComboBox* combobox_;
 };
 }  // namespace field
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

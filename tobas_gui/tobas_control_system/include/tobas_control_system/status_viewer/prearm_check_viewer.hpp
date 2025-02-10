@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class PreArmCheckViewerWidget : public QWidget
 {
@@ -45,5 +45,5 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

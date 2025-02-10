@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class NetworkSettingWidget : public BaseHardwareSetupWidget
 {
@@ -62,5 +62,5 @@ private Q_SLOTS:
   void onReadThreadFinished(bool success, const QString& message);
   void onWriteThreadFinished(bool success, const QString& message);
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

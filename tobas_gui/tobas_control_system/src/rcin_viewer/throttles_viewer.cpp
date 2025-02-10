@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -80,5 +80,5 @@ void ThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& 
   throt_range_->setValue(rcin->throttle);
 }
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

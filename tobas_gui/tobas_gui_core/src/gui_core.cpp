@@ -40,10 +40,10 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   // Applications
   homepage_ = new homepage::HomepageWidget();
   urdf_builder_ = new URDFBuilder();
-  setup_assistant_ = new setup_assistant::SetupAssistantWidget(node);
-  hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, tree_, drone_);
-  control_system_ = new control_system::ControlSystemWidget(node, drone_);
-  param_tuning_ = new param_tuning::ParameterTuningWidget(node);
+  setup_assistant_ = new sa::SetupAssistantWidget(node);
+  hardware_setup_ = new hw::HardwareSetupWidget(node, tree_, drone_);
+  control_system_ = new gcs::ControlSystemWidget(node, drone_);
+  param_tuning_ = new param::ParameterTuningWidget(node);
   flight_log_ = new log::FlightLogWidget(node);
   simulation_ = new sim::SimulationWidget(node);
 

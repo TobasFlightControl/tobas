@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 AddCommandDialog::AddCommandDialog(QWidget* parent) : super(parent)
 {
@@ -53,5 +53,5 @@ void AddCommandDialog::onOkClicked()
   selected_command_ = textToCommand(selected_item->text().toUtf8());
   accept();
 }
-};  // namespace control_system
+};  // namespace gcs
 }  // namespace gui

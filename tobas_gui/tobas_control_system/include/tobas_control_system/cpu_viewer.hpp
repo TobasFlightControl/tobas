@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class CPUViewerWidget : public QWidget
 {
@@ -38,5 +38,5 @@ private:
 
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

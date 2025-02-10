@@ -9,7 +9,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace util
 {
@@ -368,5 +368,5 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const string& root_link_nam
   joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::kWorldFrame);
   joint->InsertNewChildElement("child")->SetAttribute("link", root_link_name.c_str());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

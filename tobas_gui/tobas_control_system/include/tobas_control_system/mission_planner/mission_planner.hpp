@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class MissionPlannerWidget : public QWidget
 {
@@ -95,5 +95,5 @@ private Q_SLOTS:
   void onWaypointMoved(int index, double latitude, double longitude);
   void onMissionFinished(bool success, const QString& message);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

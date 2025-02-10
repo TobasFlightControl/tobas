@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class JointTestWidget : public BaseHardwareSetupWidget
 {
@@ -51,5 +51,5 @@ private Q_SLOTS:
   void onStartButtonClicked();
   void onStopButtonClicked();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

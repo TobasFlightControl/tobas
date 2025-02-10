@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class GNSSWidget : public OptionalDeviceWidget
 {
@@ -52,5 +52,5 @@ private:
   ParamGetterWidget_DoubleSpinBox* horizontal_vel_stddev_;
   ParamGetterWidget_DoubleSpinBox* vertical_vel_stddev_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

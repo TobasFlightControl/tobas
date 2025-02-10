@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BatteryWidget_LiPo : public BatteryWidget_Base
 {
@@ -42,5 +42,5 @@ private:
   ParamGetterWidget_SpinBox* C_cont_;
   ParamGetterWidget_SpinBox* registance_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

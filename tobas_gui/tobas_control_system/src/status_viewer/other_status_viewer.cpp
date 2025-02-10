@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 OtherStatusViewerWidget::OtherStatusViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -42,5 +42,5 @@ void OtherStatusViewerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gns
 {
   gnss_status_->setStatus(gnss->fix_type == tobas_msgs::msg::Gnss::FIX_3D);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

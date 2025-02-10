@@ -16,7 +16,7 @@ namespace fs = filesystem;
 
 namespace gui
 {
-namespace param_tuning
+namespace param
 {
 ParamBlockWidget::ParamBlockWidget(rclcpp::Node::SharedPtr node, const QString& label) : node_(node), ssh_client_(node)
 {
@@ -211,5 +211,5 @@ void ParamBlockWidget::onDoubleParamChanged(double value, const string& name)
   if (dparam_client_->set(name, value) != dparam::DynamicParamClient::E_NO_ERROR)
     qt::qErrorBox(this, "Failed to set " + label_->text() + "'s parameter \"" + name.c_str() + "\".");
 }
-}  // namespace param_tuning
+}  // namespace param
 }  // namespace gui

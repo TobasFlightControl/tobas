@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class JointCommandsPublisherWidget : public QWidget
 {
@@ -61,5 +61,5 @@ private:
 private Q_SLOTS:
   void onValueChanged();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

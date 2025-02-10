@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 URDFLoaderWidget::URDFLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
   : node_(node), robot_(robot), settings_(settings), property_client_(node, tobas::kPropertyServerName, kPackageName)
@@ -89,5 +89,5 @@ void URDFLoaderWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "URDF is loaded successfully. Configure the settings for each tab.");
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node)
 {
@@ -32,5 +32,5 @@ void StatusViewerWidget::updateNamespace(const std::string& ns)
   postarm_check_viewer_->updateNamespace(ns);
   other_status_viewer_->updateNamespace(ns);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

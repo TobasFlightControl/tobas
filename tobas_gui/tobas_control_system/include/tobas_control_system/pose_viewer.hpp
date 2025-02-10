@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class PoseViewerWidget : public qt::Widget
 {
@@ -69,5 +69,5 @@ private:
 
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

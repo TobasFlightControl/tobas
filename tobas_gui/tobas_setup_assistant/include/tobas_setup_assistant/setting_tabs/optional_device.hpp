@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class OptionalDeviceWidget : public BaseSettingWidget
 {
@@ -46,5 +46,5 @@ void OptionalDeviceWidget::addParamWidget(ParamGetterWidget<T>* widget)
 {
   param_rows_->addWidget(widget);
 }
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class CustomControllerWidget : public BaseControllerWidget
 {
@@ -39,5 +39,5 @@ private:
   ParamGetterWidget_ComboBox* stabilize_mode_;
   ParamGetterWidget_ComboBox* acrobat_mode_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

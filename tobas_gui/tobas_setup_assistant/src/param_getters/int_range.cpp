@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_IntRange::ParamGetterWidget_IntRange(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
@@ -75,5 +75,5 @@ void ParamGetterWidget_IntRange::onValueChanged(int)
 {
   Q_EMIT valueChanged({ min(), max() });
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

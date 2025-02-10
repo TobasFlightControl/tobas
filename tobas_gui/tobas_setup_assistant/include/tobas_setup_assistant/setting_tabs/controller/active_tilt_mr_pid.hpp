@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ActiveTiltMultirotorPIDWidget : public BaseControllerWidget
 {
@@ -42,5 +42,5 @@ private:
   const propulsion::PropulsionSystemWidget* propulsion_system_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

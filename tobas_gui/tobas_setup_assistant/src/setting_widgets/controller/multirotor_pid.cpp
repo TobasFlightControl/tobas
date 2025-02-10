@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 MultirotorPIDWidget::MultirotorPIDWidget(
   RobotInfo& robot,
@@ -116,5 +116,5 @@ bool MultirotorPIDWidget::isValid()
 {
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

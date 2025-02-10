@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
   : node_(node), drone_(drone)
@@ -57,5 +57,5 @@ void ControlSystemWidget::updateInternalDataStructures()
   status_viewer_->updateNamespace(drone_.name);
   mission_planner_->updateNamespace(drone_.name);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui
