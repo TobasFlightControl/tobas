@@ -3,7 +3,7 @@
 #include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QCoreApplication>
+#include <QApplication>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
@@ -442,7 +442,9 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
     return;
   }
 
+  // GCSを完全に落とす
   close();
+  QApplication::quit();
 }
 }  // namespace core
 }  // namespace gui
