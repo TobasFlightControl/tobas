@@ -5,13 +5,15 @@
 #include <QLCDNumber>
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_qt_tools/widgets/toggle_button.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
 #include <tobas_qt_tools/widgets/framed_label.hpp>
+#include <tobas_qt_tools/widgets/wait_spinner.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
-#include <tobas_msgs/srv/bag_record_start.hpp>
 #include <tobas_msgs/srv/bag_record_stop.hpp>
+
+#include "./start_thread.hpp"
+#include "./stop_thread.hpp"
 
 namespace gui
 {
@@ -41,12 +43,14 @@ private:
   qt::HPositionBarWidget* file_size_;
   qt::FramedLabel* message_count_;
 
+  RecordStartThread start_thread_;
+  RecordStopThread stop_thread_;
+
+  qt::WaitSpinnerWidget spinner_;
+
   tobas_msgs::msg::RosbagState::ConstSharedPtr rosbag_state_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RosbagState> rosbag_state_sub_;
-
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>::SharedPtr start_sc_;
-  ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>::SharedPtr stop_sc_;
 
   void clearRosbagStateViewerWidgets();
 
@@ -55,6 +59,9 @@ private:
 private Q_SLOTS:
   void onStartRequested();
   void onStopRequested();
+
+  void onStartThreadFinished(bool success, const QString& message);
+  void onStopThreadFinished(bool success, const QString& message);
 };
 }  // namespace log
 }  // namespace gui

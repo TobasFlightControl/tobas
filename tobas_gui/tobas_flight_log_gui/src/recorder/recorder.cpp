@@ -18,7 +18,8 @@ namespace gui
 {
 namespace log
 {
-FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) : node_(node)
+FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node)
+  : node_(node), start_thread_(node), stop_thread_(node), spinner_(Qt::WindowModal, this)
 {
   log_name_ = new QLineEdit();
 
@@ -60,6 +61,8 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
   // Connection
   connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
   connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onStopRequested);
+  connect(&start_thread_, &RecordStartThread::finished, this, &self::onStartThreadFinished);
+  connect(&stop_thread_, &RecordStopThread::finished, this, &self::onStopThreadFinished);
 
   clearRosbagStateViewerWidgets();
   setEnabled(false);
@@ -67,15 +70,13 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node) :
 
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 {
+  start_thread_.setNamespace(ns);
+  stop_thread_.setNamespace(ns);
+
   rosbag_state_ = nullptr;
 
   rosbag_state_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRosbagStateTopic), &self::rosbagStateCb, this);
-
-  start_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStart>>(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStartSrv));
-  stop_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::BagRecordStop>>(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kROSBagRecordStopSrv));
 
   clearRosbagStateViewerWidgets();
 
@@ -151,20 +152,29 @@ void FlightLogRecorderWidget::onStartRequested()
     return;
   }
 
-  const auto req = std::make_shared<tobas_msgs::srv::BagRecordStart::Request>();
-  req->name = log_name;
+  start_thread_.setLogName(log_name);
+  start_thread_.start();
 
-  if (!start_sc_->call(req))
-  {
-    qt::qErrorBox(this, "Flight log recording service is unavailable.");
-    start_stop_button_->setChecked(false);
-    return;
-  }
+  spinner_.show();
+  spinner_.start();
+}
 
-  const auto res = start_sc_->getResponse();
-  if (!res->success)
+void FlightLogRecorderWidget::onStopRequested()
+{
+  stop_thread_.start();
+
+  spinner_.show();
+  spinner_.start();
+}
+
+void FlightLogRecorderWidget::onStartThreadFinished(bool success, const QString& message)
+{
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success)
   {
-    qt::qErrorBox(this, "Failed to start recording flight log: " + QString(res->message.c_str()));
+    qt::qErrorBox(this, message);
     start_stop_button_->setChecked(false);
     return;
   }
@@ -175,21 +185,14 @@ void FlightLogRecorderWidget::onStartRequested()
   qt::qInfoBox(this, "Flight log recording has started.");
 }
 
-void FlightLogRecorderWidget::onStopRequested()
+void FlightLogRecorderWidget::onStopThreadFinished(bool success, const QString& message)
 {
-  const auto req = std::make_shared<tobas_msgs::srv::BagRecordStop::Request>();
+  spinner_.hide();
+  spinner_.stop();
 
-  if (!stop_sc_->call(req))
+  if (!success)
   {
-    qt::qErrorBox(this, "Flight log recording service is unavailable.");
-    start_stop_button_->setChecked(true);
-    return;
-  }
-
-  const auto res = stop_sc_->getResponse();
-  if (!res->success)
-  {
-    qt::qErrorBox(this, "Failed to stop recording flight log: " + QString(res->message.c_str()));
+    qt::qErrorBox(this, message);
     start_stop_button_->setChecked(true);
     return;
   }
