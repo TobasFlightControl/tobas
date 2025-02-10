@@ -14,5 +14,7 @@ static constexpr int kLabelPSize = 12;
 static constexpr int kBodyPSize = 9;
 
 static constexpr auto kSetParamTimeout = std::chrono::seconds(3);
+
+static constexpr char kWPASupplicantPath[] = "/etc/wpa_supplicant/wpa_supplicant.conf";
 }  // namespace hardware_setup
 }  // namespace gui

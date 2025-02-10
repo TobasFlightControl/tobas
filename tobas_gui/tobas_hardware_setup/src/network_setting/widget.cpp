@@ -8,50 +8,55 @@ namespace gui
 {
 namespace hardware_setup
 {
-NetworkSettingWidget::NetworkSettingWidget(rclcpp::Node::SharedPtr node) : ssh_client_(node)
+NetworkSettingWidget::NetworkSettingWidget(rclcpp::Node::SharedPtr node)
+  : spinner_(Qt::WindowModal, this), read_thread_(node), write_thread_(node)
 {
   const auto instruction = new qt::DescriptionWidget(
     "1. Press \"Read\" button to read current network settings.\n\n"
     "2. Add the settings for your network to the list.\n\n"
     "3. Press \"Write\" button to reflect the changes .\n\n",
     kBodyPSize);
-  rows_->addWidget(instruction);
-
-  const auto cols = new QHBoxLayout();
-  rows_->addLayout(cols);
 
   read_button_ = new QPushButton("Read");
   read_button_->setFixedSize(kButtonWidth, kButtonHeight);
   read_button_->setEnabled(true);
-  connect(read_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
-  cols->addWidget(read_button_);
 
   write_button_ = new QPushButton("Write");
   write_button_->setFixedSize(kButtonWidth, kButtonHeight);
   write_button_->setEnabled(false);
-  connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
-  cols->addWidget(write_button_);
 
   add_button_ = new QPushButton("Add");
   add_button_->setFixedSize(kButtonWidth, kButtonHeight);
   add_button_->setEnabled(false);
-  connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
-  cols->addWidget(add_button_);
 
   remove_button_ = new QPushButton("Remove");
   remove_button_->setFixedSize(kButtonWidth, kButtonHeight);
   remove_button_->setEnabled(false);
-  connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
-  cols->addWidget(remove_button_);
-
-  cols->addStretch();
 
   table_ = new qt::TableWidget(0, kNumCols);
   table_->setHorizontalHeaderLabels({ "SSID", "PSK" });
   table_->setColumnsWidth(kColWidth);
-  rows_->addWidget(table_);
 
+  // Layout
+  const auto cols = new QHBoxLayout();
+  cols->addWidget(read_button_);
+  cols->addWidget(write_button_);
+  cols->addWidget(add_button_);
+  cols->addWidget(remove_button_);
+  cols->addStretch();
+
+  rows_->addWidget(instruction);
+  rows_->addLayout(cols);
+  rows_->addWidget(table_);
   rows_->addStretch();
+
+  // Connection
+  connect(read_button_, &QPushButton::clicked, this, &self::onReadButtonClicked);
+  connect(write_button_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
+  connect(add_button_, &QPushButton::clicked, this, &self::onAddButtonClicked);
+  connect(remove_button_, &QPushButton::clicked, this, &self::onRemoveButtonClicked);
+  connect(&read_thread_, &ReadWPASupplicantThread::finished, this, &self::onReadThreadFinished);
+  connect(&write_thread_, &WriteWPASupplicantThread::finished, this, &self::onWriteThreadFinished);
 }
 
 const char* NetworkSettingWidget::name() const
@@ -72,52 +77,17 @@ void NetworkSettingWidget::addRow(const std::string& ssid, const std::string& ps
   table_->setItem(row, kPSKCol, new QTableWidgetItem(QString::fromStdString(psk)));
 }
 
-void NetworkSettingWidget::onLoadButtonClicked()
+void NetworkSettingWidget::onReadButtonClicked()
 {
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
-    return;
-  }
+  // 読み取り開始
+  read_thread_.start();
 
-  // リモートファイルを開いて内容を読む
-  std::string config_text;
-  if (ssh_client_.sftpRead(kFilePath, config_text, true) != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, ssh_client_.errorMessage());
-    return;
-  }
-
-  // 解析の成否に関わらず編集用ボタンを有効化
-  write_button_->setEnabled(true);
-  add_button_->setEnabled(true);
-  remove_button_->setEnabled(true);
-
-  // テキストを解析
-  if (!wpa_parser_.parseFromText(config_text))
-  {
-    qt::qErrorBox(this, "Failed to parse network configuration.");
-    return;
-  }
-
-  // 現在の設定をテーブルに反映
-  table_->removeAll();
-  for (const auto& network : wpa_parser_.networks)
-    addRow(network.ssid, network.psk);
-
-  qt::qInfoBox(this, "Network configuration is read successfully.");
+  spinner_.show();
+  spinner_.start();
 }
 
 void NetworkSettingWidget::onWriteButtonClicked()
 {
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
-    return;
-  }
-
   // WPA Parserにテーブルの内容を反映
   wpa_parser_.networks.clear();
   for (int row = 0; row < table_->rowCount(); ++row)
@@ -127,21 +97,12 @@ void NetworkSettingWidget::onWriteButtonClicked()
     wpa_parser_.networks.back().psk = table_->item(row, kPSKCol)->text().toStdString();
   }
 
-  // 設定を書き込む
-  if (ssh_client_.sftpWrite(kFilePath, wpa_parser_.text(), true) != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, "SFTP-Write failed: " + QString(ssh_client_.errorMessage()));
-    return;
-  }
+  // 書き込み開始
+  write_thread_.setText(wpa_parser_.text());
+  write_thread_.start();
 
-  // WiFiを再起動
-  if (ssh_client_.execute("wpa_cli -i wlan0 reconfigure", true) != ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qErrorBox(this, "Failed to restart DHCPCD: " + QString(ssh_client_.errorMessage()));
-    return;
-  }
-
-  qt::qInfoBox(this, "Network configuration is written successfully.");
+  spinner_.show();
+  spinner_.start();
 }
 
 void NetworkSettingWidget::onAddButtonClicked()
@@ -154,6 +115,51 @@ void NetworkSettingWidget::onRemoveButtonClicked()
   const auto row = table_->currentRow();
   if (row >= 0)
     table_->removeRow(row);
+}
+
+void NetworkSettingWidget::onReadThreadFinished(bool success, const QString& message)
+{
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success)
+  {
+    qt::qErrorBox(this, message);
+    return;
+  }
+
+  // テキストを解析
+  if (!wpa_parser_.parseFromText(read_thread_.getText()))
+  {
+    qt::qErrorBox(this, "Failed to parse network configuration.");
+    return;
+  }
+
+  // 現在の設定をテーブルに反映
+  table_->removeAll();
+  for (const auto& network : wpa_parser_.networks)
+    addRow(network.ssid, network.psk);
+
+  // 編集用ボタンを有効化
+  write_button_->setEnabled(true);
+  add_button_->setEnabled(true);
+  remove_button_->setEnabled(true);
+
+  qt::qInfoBox(this, "Network configuration is read successfully.");
+}
+
+void NetworkSettingWidget::onWriteThreadFinished(bool success, const QString& message)
+{
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success)
+  {
+    qt::qErrorBox(this, message);
+    return;
+  }
+
+  qt::qInfoBox(this, "Network configuration is written successfully.");
 }
 }  // namespace hardware_setup
 }  // namespace gui
