@@ -152,6 +152,22 @@ void GUICoreWidget::updateInternalDataStructures()
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 }
 
+void GUICoreWidget::closeEvent(QCloseEvent* event)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::closeEvent");
+
+  homepage_->close();
+  urdf_builder_->close();
+  setup_assistant_->close();
+  hardware_setup_->close();
+  control_system_->close();
+  param_tuning_->close();
+  flight_log_->close();
+  simulation_->close();
+
+  event->accept();
+}
+
 void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
@@ -160,14 +176,6 @@ void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& armi
 fs::path GUICoreWidget::tbsPath() const
 {
   return tbs_path_->text().toStdString();
-}
-
-void GUICoreWidget::killGCS()
-{
-  rclcpp::shutdown();
-  close();
-  QCoreApplication::quit();
-  kill(getpid(), SIGINT);
 }
 
 void GUICoreWidget::onBrowseButtonClicked()
@@ -434,8 +442,7 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
     return;
   }
 
-  // GCSを強制終了
-  killGCS();
+  close();
 }
 }  // namespace core
 }  // namespace gui

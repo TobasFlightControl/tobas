@@ -1,5 +1,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QCloseEvent>
 
 #include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -50,11 +51,6 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   setEnabled(false);
 }
 
-SimulationWidget::~SimulationWidget()
-{
-  killGazeboLaunch();
-}
-
 bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 {
   if (!reset())
@@ -84,6 +80,16 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
   setEnabled(true);
 
   return true;
+}
+
+void SimulationWidget::closeEvent(QCloseEvent* event)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "SimulationWidget::closeEvent");
+
+  // 親ウィジェットを閉じるときに子プロセスを破棄
+  killGazeboLaunch();
+
+  event->accept();
 }
 
 void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

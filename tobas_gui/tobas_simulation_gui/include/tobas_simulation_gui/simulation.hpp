@@ -30,9 +30,11 @@ class SimulationWidget : public QWidget
 
 public:
   explicit SimulationWidget(rclcpp::Node::SharedPtr node);
-  ~SimulationWidget();
 
   bool updateTBSPath(const std::filesystem::path& tbs_path);
+
+protected:
+  void closeEvent(QCloseEvent* event) override;
 
 private:
   const rclcpp::Node::SharedPtr node_;

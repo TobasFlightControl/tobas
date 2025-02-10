@@ -45,6 +45,9 @@ public:
 
   void updateInternalDataStructures();
 
+protected:
+  void closeEvent(QCloseEvent* event) override;
+
 private:
   const rclcpp::Node::SharedPtr node_;
 
@@ -82,7 +85,6 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
   std::filesystem::path tbsPath() const;
-  void killGCS();
 
 private Q_SLOTS:
   void onBrowseButtonClicked();
