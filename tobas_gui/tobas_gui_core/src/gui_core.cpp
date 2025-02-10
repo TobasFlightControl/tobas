@@ -442,7 +442,7 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
     return;
   }
 
-  // GCSを完全に落とす
+  // GUIを完全に落とす
   close();
   QApplication::quit();
 }
