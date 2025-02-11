@@ -2,7 +2,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_tools/util.hpp>
-#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -30,13 +29,11 @@ private:
   };
 
   tobas::Drone::ConstSharedPtr drone_;
-  tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   map<size_t, RotorData> data_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
 
   ros2::TimerPtr publish_rotor_liveliness_timer_;
@@ -44,7 +41,6 @@ private:
   void publishRotorLiveliness();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states);
 };
 
@@ -54,7 +50,6 @@ RotorAnomalyDetectorNode::RotorAnomalyDetectorNode(const rclcpp::NodeOptions& op
   rotor_liveliness_pub_ = createPublisher<tobas_msgs::msg::RotorLivelinessArray>(tobas::kRotorLivelinessTopic);
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::statesCb, this);
 
   publish_rotor_liveliness_timer_ = createTimer(kPublishRotorLivelinessPeriod, &self::publishRotorLiveliness, this);
@@ -77,16 +72,11 @@ void RotorAnomalyDetectorNode::publishRotorLiveliness()
 
 void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  for (const auto& [channel, _] : drone->rotors)
-    if (!data_.contains(channel))
-      data_[channel] = RotorData();
-
   drone_ = drone;
-}
 
-void RotorAnomalyDetectorNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
-{
-  arming_ = arming;
+  data_.clear();
+  for (const auto& [channel, _] : drone->rotors)
+    data_[channel] = RotorData();
 }
 
 void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
@@ -96,14 +86,6 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
     return;
   }
-  if (arming_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Arming status is not received yet.");
-    return;
-  }
-
-  if (!arming_->data)
-    return;
 
   for (const auto& state : states->states)
   {
@@ -125,8 +107,7 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
         {
           data.is_alive = false;
           data.last_dead_time = cur_time;
-          TOBAS_FATAL(
-            "No communication with rotor channel ", (int)state.channel, ". Please land the drone as soon as possible.");
+          TOBAS_WARN("No communication with rotor channel ", (int)state.channel, ".");
 
           publishRotorLiveliness();
         }
