@@ -182,12 +182,6 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
-    return false;
-  }
-
   if (battery_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryTopic, "\".");
