@@ -16,7 +16,7 @@ void RateThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RateThrottle>(tobas::kAngleThrottleCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RateThrottle>(tobas::kRateThrottleCmdTopic);
 }
 
 void RateThrottleController::reset(const tobas_msgs::Odometry&)

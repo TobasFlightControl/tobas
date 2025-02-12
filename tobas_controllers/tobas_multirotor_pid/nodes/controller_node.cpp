@@ -95,7 +95,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVelAccYaw> pvay_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::AngleThrottle> rpyt_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::AngleThrottle> angle_throt_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::RateThrottle> rate_throt_sub_;
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
@@ -166,7 +167,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
   pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCmdCb, this);
-  rpyt_sub_ = createSubscriber(tobas::kAngleThrottleCmdTopic, &self::angleThrustCmdCb, this);
+  angle_throt_sub_ = createSubscriber(tobas::kAngleThrottleCmdTopic, &self::angleThrustCmdCb, this);
+  rate_throt_sub_ = createSubscriber(tobas::kRateThrottleCmdTopic, &self::rateThrustCmdCb, this);
 }
 
 bool ControllerNode::updateInternalDataStructures()

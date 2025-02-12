@@ -23,9 +23,10 @@ namespace tobas_rc_teleop
 {
 class RCTeleopNode : public tobas::BaseNode
 {
-  static constexpr double kArmThrotThresh = 0.05;  // [-]
-  static constexpr double kArmDuration = 5.;       // [s]
-  static constexpr double kDisArmDuration = 2.;    // [s]
+  static constexpr double kArmThrotThresh = 0.1;       // [-]
+  static constexpr double kArmDuration = 5.;           // [s]
+  static constexpr double kDisarmDuration = 2.;        // [s]
+  static constexpr double kArmCommandInfoPeriod = 1.;  // [s]
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -107,7 +108,7 @@ void RCTeleopNode::getStaticRosParams()
 void RCTeleopNode::initializeControllers()
 {
   // 各フライトモードに対応するコントローラを設定
-  for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
+  for (size_t i = 0; i < tobas::kNumFlightModes; ++i)
   {
     switch (modes_[i])
     {
@@ -229,7 +230,7 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       // アームコマンドでかつPre-Arm Checkにクリアしているなら時刻を初期化せず継続
       if (isArmCommand(*rcin))
       {
-        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Arm commanded.");
+        TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Arm commanded.");
 
         if (prearm_check_->ok)
         {
@@ -276,10 +277,10 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       // ディスアームコマンドの場合
       if (isDisarmCommand(*rcin))
       {
-        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Disarm commanded.");
+        TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
 
         // ディスアームコマンドが一定時間維持されていればリクエスト
-        if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisArmDuration)
+        if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisarmDuration)
         {
           TOBAS_INFO("Requesting disarming rotors...");
           requestArmingRotors(false);
@@ -300,8 +301,8 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       }
       if (cur_mode != last_mode_)
       {
-        last_mode_ = cur_mode;
         controllers_[cur_mode]->reset(*odom_);
+        last_mode_ = cur_mode;
         TOBAS_INFO("Flight mode changed to \"", mode2str_.at(cur_mode), "\".");
         break;
       }
