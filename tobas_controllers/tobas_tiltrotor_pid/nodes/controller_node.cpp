@@ -362,14 +362,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->header.stamp = odom->header.stamp;
   feedback->target_position = cmd_->pos;
   feedback->target_orientation = cmd_->rpy;
-  feedback->target_twist_local.vel = odom->frame.M.inverse(cmd_->vel);
-  feedback->target_twist_local.rot = cmd_->gyro;
-  feedback->target_twist_global.vel = cmd_->vel;
-  feedback->target_twist_global.rot = odom->frame.M * cmd_->gyro;
-  feedback->target_accel_local.linear = odom->frame.M.inverse(tar_acc_W);
-  feedback->target_accel_local.angular = tar_dgyro_B;
-  feedback->target_accel_global.linear = tar_acc_W;
-  feedback->target_accel_global.angular = odom->frame.M * tar_dgyro_B;
+  feedback->target_twist.vel = cmd_->vel;
+  feedback->target_twist.rot = odom->frame.M * cmd_->gyro;
+  feedback->target_accel.linear = tar_acc_W;
+  feedback->target_accel.angular = odom->frame.M * tar_dgyro_B;
   feedback->position_integral_error = pos_pid_.integralError();
   feedback->orientation_integral_error = kdl::Euler(rot_pid_.integralError());
   feedback_pub_->publish(move(feedback));
