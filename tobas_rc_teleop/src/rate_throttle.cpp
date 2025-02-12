@@ -29,9 +29,9 @@ void RateThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const 
   auto cmd = std::make_unique<tobas_command_msgs::msg::RateThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
-  cmd->roll = remap(rcin.roll, -max_attitude_rate_, max_attitude_rate_);
-  cmd->pitch = remap(rcin.pitch, -max_attitude_rate_, max_attitude_rate_);
-  cmd->yaw = remap(rcin.yaw, -max_heading_rate_, max_heading_rate_);
+  cmd->droll = remap(rcin.roll, -max_attitude_rate_, max_attitude_rate_);
+  cmd->dpitch = remap(rcin.pitch, -max_attitude_rate_, max_attitude_rate_);
+  cmd->dyaw = remap(rcin.yaw, -max_heading_rate_, max_heading_rate_);
   cmd->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
 
   // コマンドを発行
