@@ -150,13 +150,13 @@ void RCTeleopNode::requestArmingRotors(bool arming)
 bool RCTeleopNode::isArmCommand(const tobas_msgs::msg::RCInput& rcin)
 {
   return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw < -1 + kArmThrotThresh
-         && rcin.throttle < kArmThrotThresh;
+         && rcin.throttle < -1 + kArmThrotThresh;
 }
 
 bool RCTeleopNode::isDisarmCommand(const tobas_msgs::msg::RCInput& rcin)
 {
   return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw > 1 - kArmThrotThresh
-         && rcin.throttle < kArmThrotThresh;
+         && rcin.throttle < -1 + kArmThrotThresh;
 }
 
 void RCTeleopNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
