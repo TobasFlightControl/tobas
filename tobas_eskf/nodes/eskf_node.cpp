@@ -579,11 +579,16 @@ void ObserverNode::gnssCb(const GnssMsg::ConstSharedPtr& gnss)
     if (!setMagneticFieldRef(mag_W))
       return;
 
-    // 初めてGNSSを受け取った位置で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
+    // 初めてGNSSを受け取った位置速度で初期化 (でないと姿勢に過大なフィードバックが入ってしまう)
     // FIXME: 既に他の位置情報が入っている場合は初期化すべきでない
     if (!eskf_.initializePosition(Vector3d::Zero(), gnss->position_covariance))
     {
       TOBAS_ERROR("Failed to initialize position.");
+      return;
+    }
+    if (!eskf_.initializeVelocity(gnss->ground_speed.data, gnss->velocity_covariance))
+    {
+      TOBAS_ERROR("Failed to initialize velocity.");
       return;
     }
   }
