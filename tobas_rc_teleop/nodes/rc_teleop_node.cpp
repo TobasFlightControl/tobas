@@ -229,6 +229,8 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       // アームコマンドでかつPre-Arm Checkにクリアしているなら時刻を初期化せず継続
       if (isArmCommand(*rcin))
       {
+        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Arm commanded.");
+
         if (prearm_check_->ok)
         {
           break;
@@ -274,6 +276,8 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       // ディスアームコマンドの場合
       if (isDisarmCommand(*rcin))
       {
+        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Disarm commanded.");
+
         // ディスアームコマンドが一定時間維持されていればリクエスト
         if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisArmDuration)
         {
