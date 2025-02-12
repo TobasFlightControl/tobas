@@ -26,7 +26,7 @@ private:
   double max_heading_rate_;  // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::msg::AngleThrottle> rpyt_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::msg::AngleThrottle> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

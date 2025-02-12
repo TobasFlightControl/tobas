@@ -17,7 +17,7 @@ void AngleThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  rpyt_pub_ = node->createPublisher<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
 }
 
 void AngleThrottleController::reset(const tobas_msgs::Odometry& odom)
@@ -48,7 +48,7 @@ void AngleThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const
   cmd->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
 
   // コマンドを発行
-  rpyt_pub_->publish(move(cmd));
+  cmd_pub_->publish(move(cmd));
 }
 
 void AngleThrottleController::getStaticRosParams(tobas::BaseNode* node)

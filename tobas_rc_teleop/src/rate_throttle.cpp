@@ -40,7 +40,7 @@ void RateThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const 
 
 void RateThrottleController::getStaticRosParams(tobas::BaseNode* node)
 {
-  max_attitude_rate_ = node->getDoubleParam("max_attitude", kDefaultMaxAttitudeRate);
+  max_attitude_rate_ = node->getDoubleParam("max_attitude_rate", kDefaultMaxAttitudeRate);
   if (max_attitude_rate_ < 0)
   {
     node->error("Maximum attitude rate must be positive.");
