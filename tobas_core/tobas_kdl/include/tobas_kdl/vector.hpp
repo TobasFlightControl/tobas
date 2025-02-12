@@ -22,7 +22,7 @@ public:
 
   inline Vector();
   inline Vector(double x, double y, double z);
-  inline explicit Vector(const Eigen::Vector3d& _data);
+  inline Vector(const Eigen::Vector3d& _data);
 
   inline static Vector Zero();
   inline static Vector Constant(const double& value);
