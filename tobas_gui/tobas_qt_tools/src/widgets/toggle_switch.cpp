@@ -27,6 +27,18 @@ void ToggleSwitch::setText(const QString& text)
   update();
 }
 
+void ToggleSwitch::setOnColor(const QColor& color)
+{
+  on_color_ = color;
+  update();
+}
+
+void ToggleSwitch::setOffColor(const QColor& color)
+{
+  off_color_ = color;
+  update();
+}
+
 void ToggleSwitch::ignoreMousePressEvent(bool ignore)
 {
   ignore_mouse_press_event_ = ignore;
@@ -81,9 +93,9 @@ void ToggleSwitch::resizeEvent(QResizeEvent* event)
 void ToggleSwitch::drawBackground(QPainter& painter)
 {
   if (checked_)
-    painter.setBrush(Qt::green);  // ONの時の色
+    painter.setBrush(on_color_);
   else
-    painter.setBrush(Qt::gray);  // OFFの時の色
+    painter.setBrush(off_color_);
 
   painter.setPen(Qt::NoPen);
   painter.drawRoundedRect(0, 0, width(), height(), height() / 2, height() / 2);
