@@ -36,10 +36,11 @@
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
+#include <tobas_command_msgs/msg/rate_throttle.hpp>
 #include <tobas_command_msgs/msg/angle_throttle.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
+#include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 #include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
 #include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
@@ -172,6 +173,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
+  addStandardMsgSub<tobas_command_msgs::msg::RateThrottle>(tobas::kRateThrottleCmdTopic);
   addStandardMsgSub<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
   addStandardMsgSub<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
