@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_command_msgs_adapter/angle_throttle.hpp>
+#include <tobas_command_msgs/msg/angle_throttle.hpp>
 
 #include "./base_controller.hpp"
 
@@ -26,7 +26,7 @@ private:
   double max_yawrate_;   // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> rpyt_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::msg::AngleThrottle> rpyt_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

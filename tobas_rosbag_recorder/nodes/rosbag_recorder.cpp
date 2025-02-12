@@ -38,7 +38,7 @@
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
-#include <tobas_command_msgs_adapter/angle_throttle.hpp>
+#include <tobas_command_msgs/msg/angle_throttle.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 #include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
@@ -90,7 +90,6 @@ private:
   tobas_kdl_msgs::msg::EulerStamped euler_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
   tobas_command_msgs::msg::PosVelAccYaw pvay_;
-  tobas_command_msgs::msg::AngleThrottle rpyt_;
   tobas_command_msgs::msg::PoseTwistAccel pta_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
   tobas_debug_msgs::msg::MultiRotorControllerFeedback mr_ctrl_fb_;
@@ -173,6 +172,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
+  addStandardMsgSub<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
   addStandardMsgSub<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
 
@@ -188,7 +188,6 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas_kdl_msgs::EulerStamped>(euler_, tobas::kEulerTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
   addTypeAdaptedMsgSub<tobas_command_msgs::PosVelAccYaw>(pvay_, tobas::kPosVelAccYawCmdTopic);
-  addTypeAdaptedMsgSub<tobas_command_msgs::AngleThrottle>(rpyt_, tobas::kAngleThrottleCmdTopic);
   addTypeAdaptedMsgSub<tobas_command_msgs::PoseTwistAccel>(pta_, tobas::kPoseTwistAccelCmdTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, tobas::kObsvFeedbackTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::MultiRotorControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);

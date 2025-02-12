@@ -17,14 +17,14 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_command_msgs/msg/angle_throttle.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
-#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
 
-struct RollPitchYawThrust
+struct AngleThrust
 {
   tobas_command_msgs::msg::CommandLevel level;
   kdl::Euler rpy;
@@ -65,7 +65,7 @@ private:
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_command_msgs::PosVelAccYaw::SharedPtr tar_pvay_W_;  // PosVelYawの目標値 (世界座標系)
-  std::shared_ptr<RollPitchYawThrust> tar_rpyt_;            // RollPitchYawThrustの目標値
+  std::shared_ptr<AngleThrust> tar_rpyt_;                   // RollPitchYawThrustの目標値
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
@@ -82,7 +82,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVelAccYaw> pvay_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::AngleThrottle> rpyt_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::msg::AngleThrottle> rpyt_sub_;
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
@@ -112,7 +112,7 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void posVelAccYawCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
-  void rpyThrustCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_throt);
+  void rpyThrustCb(const tobas_command_msgs::msg::AngleThrottle::ConstSharedPtr& angle_throt);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -361,7 +361,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   if (tar_pvay_W_ != nullptr)
   {
     if (tar_rpyt_ == nullptr)
-      tar_rpyt_ = std::make_shared<RollPitchYawThrust>();
+      tar_rpyt_ = std::make_shared<AngleThrust>();
 
     // 世界座標系から見た現在の位置速度
     const auto& cur_pos_W = odom->frame.p;
@@ -492,7 +492,7 @@ void ControllerNode::posVelAccYawCb(const tobas_command_msgs::PosVelAccYaw::Cons
   }
 }
 
-void ControllerNode::rpyThrustCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_throt)
+void ControllerNode::rpyThrustCb(const tobas_command_msgs::msg::AngleThrottle::ConstSharedPtr& angle_throt)
 {
   if (!isReadyToControl())
   {
@@ -507,12 +507,12 @@ void ControllerNode::rpyThrustCb(const tobas_command_msgs::AngleThrottle::ConstS
   }
 
   // Check command range
-  if (angle_throt->rpy.roll <= -M_PI_2 || M_PI_2 <= angle_throt->rpy.roll)
+  if (angle_throt->roll <= -M_PI_2 || M_PI_2 <= angle_throt->roll)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;
   }
-  if (angle_throt->rpy.pitch <= -M_PI_2 || M_PI_2 <= angle_throt->rpy.pitch)
+  if (angle_throt->pitch <= -M_PI_2 || M_PI_2 <= angle_throt->pitch)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
     return;
@@ -528,9 +528,11 @@ void ControllerNode::rpyThrustCb(const tobas_command_msgs::AngleThrottle::ConstS
 
   // コマンドを更新
   if (tar_rpyt_ == nullptr)
-    tar_rpyt_ = std::make_shared<RollPitchYawThrust>();
+    tar_rpyt_ = std::make_shared<AngleThrust>();
   tar_rpyt_->level = angle_throt->level;
-  tar_rpyt_->rpy = angle_throt->rpy;
+  tar_rpyt_->rpy.roll = angle_throt->roll;
+  tar_rpyt_->rpy.pitch = angle_throt->pitch;
+  tar_rpyt_->rpy.yaw = angle_throt->yaw;
   tar_rpyt_->thrust = z_rotors_.thrustSum(battery_->voltage, angle_throt->throttle);
 }
 
