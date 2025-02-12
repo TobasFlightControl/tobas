@@ -19,10 +19,10 @@ public:
 
 private:
   // rosparams
-  double max_hor_vel_;   // [m/s]
-  double max_ver_vel_;   // [m/s]
-  double max_attitude_;  // [rad]
-  double max_yawrate_;   // [rad/s]
+  double max_hor_vel_;       // [m/s]
+  double max_ver_vel_;       // [m/s]
+  double max_attitude_;      // [rad]
+  double max_heading_rate_;  // [rad/s]
 
   // Mutable
   bool is_up_commanded_;

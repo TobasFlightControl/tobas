@@ -39,7 +39,7 @@ void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const 
   tar_vel_F_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
   tar_vel_F_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
   tar_vel_F_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
-  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
+  const auto yawrate = remapDead(rcin.yaw, -max_heading_rate_, max_heading_rate_);
 
   // 目標速度を世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
@@ -92,11 +92,11 @@ void PosVelAccYawController::getStaticRosParams(tobas::BaseNode* node)
     max_ver_vel_ = kDefaultMaxVerVel;
   }
 
-  max_yawrate_ = node->getDoubleParam("max_yawrate", kDefaultMaxYawrate);
-  if (max_yawrate_ < 0)
+  max_heading_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
+  if (max_heading_rate_ < 0)
   {
-    node->error("Maximum yawrate must be positive.");
-    max_yawrate_ = kDefaultMaxYawrate;
+    node->error("Maximum heading rate must be positive.");
+    max_heading_rate_ = kDefaultMaxHeadingRate;
   }
 }
 }  // namespace tobas_rc_teleop

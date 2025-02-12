@@ -22,8 +22,8 @@ private:
   rclcpp::Time t_last_rcin_;
 
   // rosparams
-  double max_attitude_;  // [rad]
-  double max_yawrate_;   // [rad/s]
+  double max_attitude_;      // [rad]
+  double max_heading_rate_;  // [rad/s]
 
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::msg::AngleThrottle> rpyt_pub_;

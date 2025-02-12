@@ -33,7 +33,7 @@ void AngleThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const
   t_last_rcin_ = rcin.header.stamp;
 
   // Yawの目標値を更新
-  const auto yawrate = remapDead(rcin.yaw, -max_yawrate_, max_yawrate_);
+  const auto yawrate = remapDead(rcin.yaw, -max_heading_rate_, max_heading_rate_);
   yaw_ += yawrate * dt;
 
   // コマンドを作成
@@ -60,11 +60,11 @@ void AngleThrottleController::getStaticRosParams(tobas::BaseNode* node)
     max_attitude_ = kDefaultMaxAttitude;
   }
 
-  max_yawrate_ = node->getDoubleParam("max_yawrate", kDefaultMaxYawrate);
-  if (max_yawrate_ < 0)
+  max_heading_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
+  if (max_heading_rate_ < 0)
   {
-    node->error("Maximum yawrate must be positive.");
-    max_yawrate_ = kDefaultMaxYawrate;
+    node->error("Maximum heading rate must be positive.");
+    max_heading_rate_ = kDefaultMaxHeadingRate;
   }
 }
 }  // namespace tobas_rc_teleop
