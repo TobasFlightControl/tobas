@@ -547,8 +547,9 @@ bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
 {
   // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
   YAML::Node root_node(YAML::NodeType::Map);
-  root_node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
   root_node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
+  root_node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
+  root_node["loiter_mode"] = static_cast<int>(settings_->controller->loiterModeCommand());
 
   if (!saveYamlNode(config_dir / "rc_teleop.yaml", root_node))
     return false;

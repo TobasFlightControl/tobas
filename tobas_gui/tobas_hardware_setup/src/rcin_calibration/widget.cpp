@@ -97,17 +97,17 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node)
   const auto bar_grid = new QGridLayout();
   cols2->addLayout(bar_grid);
 
+  // Enable
+  bar_grid->addWidget(new QLabel(QString::fromStdString(format("Enable (CH{})", real::kRcChannelEnable + 1))), 1, 0);
+  enable_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
+  enable_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
+  bar_grid->addWidget(enable_range_, 1, 1);
+
   // Mode
   bar_grid->addWidget(new QLabel(QString::fromStdString(format("Mode (CH{})", real::kRcChannelMode + 1))), 0, 0);
   mode_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
   mode_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
   bar_grid->addWidget(mode_range_, 0, 1);
-
-  // E-Stop
-  bar_grid->addWidget(new QLabel(QString::fromStdString(format("E-Stop (CH{})", real::kRcChannelEStop + 1))), 1, 0);
-  estop_range_ = new qt::HPositionBarWidget(kMinThrot, kMaxThrot);
-  estop_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  bar_grid->addWidget(estop_range_, 1, 1);
 
   // GPSw
   bar_grid->addWidget(new QLabel(QString::fromStdString(format("GPSw (CH{})", real::kRcChannelGPSw + 1))), 2, 0);
@@ -157,12 +157,12 @@ void RCInputCalibrationWidget::reset()
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
+  enable_range_->clear();
   mode_range_->clear();
-  estop_range_->clear();
   gpsw_range_->clear();
 
+  enable_range_->setText(kOnOffText);
   mode_range_->setText(kModeText);
-  estop_range_->setText(kOnOffText);
   gpsw_range_->setText(kOnOffText);
 
   start_button_->setEnabled(true);
@@ -179,8 +179,8 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   pitch_range_->setValue(sbus->data[real::kRcChannelPitch]);
   yaw_range_->setValue(sbus->data[real::kRcChannelYaw]);
   throt_range_->setValue(sbus->data[real::kRcChannelThrot]);
+  enable_range_->setValue(sbus->data[real::kRcChannelEnable]);
   mode_range_->setValue(sbus->data[real::kRcChannelMode]);
-  estop_range_->setValue(sbus->data[real::kRcChannelEStop]);
   gpsw_range_->setValue(sbus->data[real::kRcChannelGPSw]);
 }
 
@@ -255,15 +255,15 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     reset();
     return;
   }
-  if (mode_range_->getRange() < kMinSignalRange)
+  if (enable_range_->getRange() < kMinSignalRange)
   {
-    qt::qErrorBox(this, "The signal range of Mode channel is too narrow.");
+    qt::qErrorBox(this, "The signal range of Enable channel is too narrow.");
     reset();
     return;
   }
-  if (estop_range_->getRange() < kMinSignalRange)
+  if (mode_range_->getRange() < kMinSignalRange)
   {
-    qt::qErrorBox(this, "The signal range of E-Stop channel is too narrow.");
+    qt::qErrorBox(this, "The signal range of Mode channel is too narrow.");
     reset();
     return;
   }
@@ -284,11 +284,11 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   req->yaw_right = yaw_range_->getUpper();
   req->throttle_up = throt_range_->getLower();
   req->throttle_down = throt_range_->getUpper();
-  req->mode_program = mode_range_->getLower();
-  req->mode_stabilize = mode_range_->getMiddle();
+  req->enable_on = enable_range_->getLower();
+  req->enable_off = enable_range_->getUpper();
   req->mode_acrobat = mode_range_->getUpper();
-  req->estop_on = estop_range_->getLower();
-  req->estop_off = estop_range_->getUpper();
+  req->mode_stabilize = mode_range_->getMiddle();
+  req->mode_loiter = mode_range_->getLower();
   req->gpsw_on = gpsw_range_->getLower();
   req->gpsw_off = gpsw_range_->getUpper();
 

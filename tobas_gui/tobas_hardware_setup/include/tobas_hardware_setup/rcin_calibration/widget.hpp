@@ -29,8 +29,8 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr int kRangeSideShort = 30;
   static constexpr int kRangeSideLong = 300;
 
-  static constexpr char kModeText[] = "Program               Stabilize               Acrobat";
   static constexpr char kOnOffText[] = "ON                                                       OFF";
+  static constexpr char kModeText[] = "Program               Stabilize               Acrobat";
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
@@ -59,8 +59,8 @@ private:
   qt::VPositionBarWidget* pitch_range_;
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
+  qt::HPositionBarWidget* enable_range_;
   qt::HPositionBarWidget* mode_range_;
-  qt::HPositionBarWidget* estop_range_;
   qt::HPositionBarWidget* gpsw_range_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;

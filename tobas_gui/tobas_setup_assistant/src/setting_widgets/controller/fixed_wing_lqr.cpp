@@ -40,14 +40,19 @@ QString FixedWingLQRWidget::pluginName() const
   return "ControllerNode";
 }
 
-tobas::rc_command_t FixedWingLQRWidget::stabilizeModeCommand() const
-{
-  return tobas::rc_command_t::SPEED_ROLL_DPITCH;
-}
-
 tobas::rc_command_t FixedWingLQRWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::SPEED_ROLL_DPITCH;  // TODO: S
+  return tobas::rc_command_t::SPEED_ROLL_DPITCH;  // TODO
+}
+
+tobas::rc_command_t FixedWingLQRWidget::stabilizeModeCommand() const
+{
+  return tobas::rc_command_t::SPEED_ROLL_DPITCH;  // TODO
+}
+
+tobas::rc_command_t FixedWingLQRWidget::loiterModeCommand() const
+{
+  return tobas::rc_command_t::SPEED_ROLL_DPITCH;  // TODO
 }
 
 YAML::Node FixedWingLQRWidget::staticParams() const

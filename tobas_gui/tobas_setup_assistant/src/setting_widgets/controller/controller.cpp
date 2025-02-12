@@ -124,14 +124,19 @@ QString ControllerWidget::pluginName() const
   return selected()->pluginName();
 }
 
+tobas::rc_command_t ControllerWidget::acrobatModeCommand() const
+{
+  return selected()->acrobatModeCommand();
+}
+
 tobas::rc_command_t ControllerWidget::stabilizeModeCommand() const
 {
   return selected()->stabilizeModeCommand();
 }
 
-tobas::rc_command_t ControllerWidget::acrobatModeCommand() const
+tobas::rc_command_t ControllerWidget::loiterModeCommand() const
 {
-  return selected()->acrobatModeCommand();
+  return selected()->loiterModeCommand();
 }
 
 YAML::Node ControllerWidget::staticParams() const
@@ -141,7 +146,7 @@ YAML::Node ControllerWidget::staticParams() const
 
 bool ControllerWidget::isCommandCompatible(tobas::rc_command_t command) const
 {
-  return command == stabilizeModeCommand() || command == acrobatModeCommand();
+  return command == acrobatModeCommand() || command == stabilizeModeCommand() || command == loiterModeCommand();
 }
 
 void ControllerWidget::setCurrentController(int index)

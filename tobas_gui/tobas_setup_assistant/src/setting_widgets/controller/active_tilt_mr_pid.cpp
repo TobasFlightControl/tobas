@@ -44,12 +44,17 @@ QString ActiveTiltMultirotorPIDWidget::pluginName() const
   return "ControllerNode";
 }
 
-tobas::rc_command_t ActiveTiltMultirotorPIDWidget::stabilizeModeCommand() const
+tobas::rc_command_t ActiveTiltMultirotorPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::POSE_TWIST_ACCEL;
+  return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
 }
 
-tobas::rc_command_t ActiveTiltMultirotorPIDWidget::acrobatModeCommand() const
+tobas::rc_command_t ActiveTiltMultirotorPIDWidget::stabilizeModeCommand() const
+{
+  return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
+}
+
+tobas::rc_command_t ActiveTiltMultirotorPIDWidget::loiterModeCommand() const
 {
   return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
 }

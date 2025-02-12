@@ -1,14 +1,14 @@
 #include <tobas_math/core.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
+#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs/srv/set_arm.hpp>
 
 #include "../include/tobas_rc_teleop/common.hpp"
-#include "../include/tobas_rc_teleop/program_mode.hpp"
 #include "../include/tobas_rc_teleop/rate_throttle.hpp"
 #include "../include/tobas_rc_teleop/angle_throttle.hpp"
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
@@ -23,8 +23,9 @@ namespace tobas_rc_teleop
 {
 class RCTeleopNode : public tobas::BaseNode
 {
-  static constexpr double kInitThrottleMargin = 0.05;
-  static constexpr double kRequestArmingInterval = 1.;  // [s]
+  static constexpr double kArmThrotThresh = 0.05;  // [-]
+  static constexpr double kArmDuration = 5.;       // [s]
+  static constexpr double kDisArmDuration = 2.;    // [s]
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -36,17 +37,15 @@ private:
   enum stage_t
   {
     CHECK_PREREQUISITES,
-    WAIT_FOR_ESTOP,
-    ESTOP_ON,
     WAIT_FOR_ARMING,
     FIRST_COMMAND,
     RUNNING,
   } stage_ = CHECK_PREREQUISITES;
 
   const map<uint8_t, const char*> mode2str_{
-    { tobas::flight_mode_t::PROGRAM_MODE, "Program" },
-    { tobas::flight_mode_t::STABILIZE_MODE, "Stabilize" },
     { tobas::flight_mode_t::ACROBAT_MODE, "Acrobat" },
+    { tobas::flight_mode_t::STABILIZE_MODE, "Stabilize" },
+    { tobas::flight_mode_t::LOITER_MODE, "Loiter" },
   };
 
   // rosparams
@@ -54,9 +53,11 @@ private:
 
   // Mutables
   uint8_t last_mode_;
-  rclcpp::Time t_last_arming_;
+  rclcpp::Time t_arm_start_;
+  rclcpp::Time t_disarm_start_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+  tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   // Controllers
   array<unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
@@ -64,6 +65,7 @@ private:
   // PubSub
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
   ros2::SubscriberPtr<RCInput> rcin_sub_;
 
   // Service
@@ -73,8 +75,12 @@ private:
   void initializeControllers();
   void requestArmingRotors(bool arming);
 
+  bool isArmCommand(const tobas_msgs::msg::RCInput& rcin);
+  bool isDisarmCommand(const tobas_msgs::msg::RCInput& rcin);
+
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
   void rcInputCb(const RCInput::ConstSharedPtr& rcin);
 };
 
@@ -85,6 +91,7 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
 
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
   rcin_sub_ = createSubscriber(tobas::kRcInputTopic, &self::rcInputCb, this);
 
   set_arm_sc_ = create_client<tobas_msgs::srv::SetArm>(tobas::kSetArmSrv);
@@ -92,25 +99,18 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
 
 void RCTeleopNode::getStaticRosParams()
 {
-  modes_[tobas::flight_mode_t::STABILIZE_MODE] =
-    static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode", tobas::rc_command_t::PROGRAM));
-  modes_[tobas::flight_mode_t::ACROBAT_MODE] =
-    static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode", tobas::rc_command_t::PROGRAM));
+  modes_[tobas::flight_mode_t::ACROBAT_MODE] = static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode"));
+  modes_[tobas::flight_mode_t::STABILIZE_MODE] = static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode"));
+  modes_[tobas::flight_mode_t::LOITER_MODE] = static_cast<tobas::rc_command_t>(getIntParam("loiter_mode"));
 }
 
 void RCTeleopNode::initializeControllers()
 {
-  // プログラムモードのダミーコントローラを設定
-  controllers_[tobas::flight_mode_t::PROGRAM_MODE] = std::make_unique<ProgramModeController>();
-
-  // その他の飛行モードのコントローラを設定
+  // 各フライトモードに対応するコントローラを設定
   for (size_t i = 1; i < tobas::kNumFlightModes; ++i)
   {
     switch (modes_[i])
     {
-      case tobas::rc_command_t::PROGRAM:
-        controllers_[i] = std::make_unique<ProgramModeController>();
-        break;
       case tobas::rc_command_t::RATE_THROTTLE:
         controllers_[i] = std::make_unique<RateThrottleController>();
         break;
@@ -127,9 +127,7 @@ void RCTeleopNode::initializeControllers()
         controllers_[i] = std::make_unique<SpeedRollDeltaPitchController>();
         break;
       default:
-        TOBAS_ERROR("Invalid flight mode. The RC command for this mode will not be published.");
-        controllers_[i] = std::make_unique<ProgramModeController>();
-        break;
+        TOBAS_EXIT("Invalid flight mode: ", (int)modes_[i]);
     }
 
     controllers_[i]->initialize(this);
@@ -149,6 +147,18 @@ void RCTeleopNode::requestArmingRotors(bool arming)
   set_arm_sc_->async_send_request(req);
 }
 
+bool RCTeleopNode::isArmCommand(const tobas_msgs::msg::RCInput& rcin)
+{
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw > 1 - kArmThrotThresh
+         && rcin.throttle < kArmThrotThresh;
+}
+
+bool RCTeleopNode::isDisarmCommand(const tobas_msgs::msg::RCInput& rcin)
+{
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw < -1 + kArmThrotThresh
+         && rcin.throttle < kArmThrotThresh;
+}
+
 void RCTeleopNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
@@ -159,8 +169,20 @@ void RCTeleopNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& armin
   arming_ = arming;
 }
 
+void RCTeleopNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
+{
+  prearm_check_ = prearm_check;
+}
+
 void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
 {
+  // RC入力が有効化されてなければステージを初期化して終了
+  if (!rcin->enable)
+  {
+    stage_ = CHECK_PREREQUISITES;
+    return;
+  }
+
   switch (stage_)
   {
     case CHECK_PREREQUISITES:
@@ -170,66 +192,55 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for odometry.");
         break;
       }
-      if (odom_->status != Odometry::NO_ERROR)
-      {
-        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "State estimation problem.");
-        break;
-      }
       if (arming_ == nullptr)
       {
         TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Waiting for arming status.");
         break;
       }
-
-      stage_ = WAIT_FOR_ESTOP;
-      break;
-    }
-
-    case WAIT_FOR_ESTOP:
-    {
-      if (rcin->e_stop)
+      if (prearm_check_ == nullptr)
       {
-        TOBAS_INFO("RC transmitter is ready. "
-                   "To start control, set the E-Stop toggle OFF "
-                   "with the throttle lever lowered to the bottom.");
-        stage_ = ESTOP_ON;
-      }
-      else
-      {
-        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "Please start with the transmitter's E-Stop toggle ON.");
-      }
-      break;
-    }
-
-    case ESTOP_ON:
-    {
-      // E-STOPがONのままならスキップ
-      if (rcin->e_stop)
+        TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Warting for pre-arm check status.");
         break;
+      }
 
-      // E-STOPがOFF且つアームされていればコマンド送信開始
+      t_arm_start_ = rcin->header.stamp;
+      stage_ = WAIT_FOR_ARMING;
+      break;
+    }
+
+    case WAIT_FOR_ARMING:
+    {
+      // アームされていればコマンド送信開始
       if (arming_->data)
       {
         stage_ = FIRST_COMMAND;
         break;
       }
 
-      // スロットルレバーが下がっていないとアームできない
-      if (rcin->throttle > tobas::kRCInputMin + kInitThrottleMargin)
+      // アームコマンドが一定時間維持されていれば一度アームをリクエスト
+      if ((rcin->header.stamp - t_arm_start_).seconds() > kArmDuration)
       {
-        TOBAS_WARN_THROTTLE(
-          tobas::kTypicalWarnPeriod, "Please lower the throttle lever to the bottom before turning off E-Stop.");
+        TOBAS_INFO("Requesting arming rotors...");
+        requestArmingRotors(true);
+        t_arm_start_ = rcin->header.stamp;
         break;
       }
 
-      // スロットルレバーが下がっているなら一定時間間隔でアームをリクエストして終了
-      if (t_last_arming_.nanoseconds() == 0 || (get_clock()->now() - t_last_arming_).seconds() > kRequestArmingInterval)
+      // アームコマンドでかつPre-Arm Checkにクリアしているなら時刻を初期化せず継続
+      if (isArmCommand(*rcin))
       {
-        TOBAS_INFO("Starting rotors.");
-        requestArmingRotors(true);
-        t_last_arming_ = get_clock()->now();
+        if (prearm_check_->ok)
+        {
+          break;
+        }
+        else
+        {
+          TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Cannot arm because pre-arm check failed.");
+          t_arm_start_ = rcin->header.stamp;
+        }
       }
 
+      t_arm_start_ = rcin->header.stamp;
       break;
     }
 
@@ -238,7 +249,7 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
+        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)cur_mode);
         return;
       }
 
@@ -246,27 +257,43 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       last_mode_ = cur_mode;
       TOBAS_INFO("First flight mode is set to \"", mode2str_.at(cur_mode), "\".");
 
+      t_disarm_start_ = rcin->header.stamp;
       stage_ = RUNNING;
       break;
     }
 
     case RUNNING:
     {
-      // E-Stopがオンになったら非常停止
-      if (rcin->e_stop)
+      // ディスアームされていればステージをリセット
+      if (!arming_->data)
       {
-        TOBAS_WARN("Stopping rotors.");
-        requestArmingRotors(false);
-        stage_ = ESTOP_ON;
+        stage_ = WAIT_FOR_ARMING;
+        break;
       }
 
+      // ディスアームコマンドの場合
+      if (isDisarmCommand(*rcin))
+      {
+        // ディスアームコマンドが一定時間維持されていればリクエスト
+        if ((rcin->header.stamp - t_arm_start_).seconds() > kDisArmDuration)
+        {
+          TOBAS_INFO("Requesting disarming rotors...");
+          requestArmingRotors(false);
+          t_disarm_start_ = rcin->header.stamp;
+        }
+        break;
+      }
+
+      // ディスアームコマンドの開始時刻を更新
+      t_disarm_start_ = rcin->header.stamp;
+
+      // フライトモードを取得
       const auto& cur_mode = rcin->mode;
       if (cur_mode >= tobas::kNumFlightModes)
       {
         TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
         return;
       }
-
       if (cur_mode != last_mode_)
       {
         last_mode_ = cur_mode;
@@ -275,13 +302,15 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
         break;
       }
 
+      // コマンド送信
       controllers_[cur_mode]->update(*rcin, *odom_);
+
       break;
     }
 
     default:
     {
-      TOBAS_ERROR("Invalid stage: ", static_cast<int>(stage_));
+      TOBAS_ERROR("Invalid stage: ", (int)stage_);
       break;
     }
   }

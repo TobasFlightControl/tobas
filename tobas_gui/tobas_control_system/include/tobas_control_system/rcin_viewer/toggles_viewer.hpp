@@ -26,11 +26,11 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  qt::CircleWidget* program_mode_;
-  qt::CircleWidget* stabilize_mode_;
   qt::CircleWidget* acrobat_mode_;
+  qt::CircleWidget* stabilize_mode_;
+  qt::CircleWidget* loiter_mode_;
 
-  qt::ToggleSwitch* estop_;
+  qt::ToggleSwitch* enable_;
   qt::ToggleSwitch* gpsw_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;

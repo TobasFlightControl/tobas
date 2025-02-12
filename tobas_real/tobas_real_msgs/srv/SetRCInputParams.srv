@@ -6,11 +6,11 @@ uint16 yaw_left
 uint16 yaw_right
 uint16 throttle_up
 uint16 throttle_down
-uint16 mode_program
-uint16 mode_stabilize
+uint16 enable_on
+uint16 enable_off
 uint16 mode_acrobat
-uint16 estop_on
-uint16 estop_off
+uint16 mode_stabilize
+uint16 mode_loiter
 uint16 gpsw_on
 uint16 gpsw_off
 ---

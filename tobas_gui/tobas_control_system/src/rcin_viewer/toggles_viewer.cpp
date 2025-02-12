@@ -17,13 +17,13 @@ namespace rcin
 TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 {
   // テキストの長さを揃える
-  program_mode_ = new qt::CircleWidget(" Program ");
-  stabilize_mode_ = new qt::CircleWidget("Stabilize");
   acrobat_mode_ = new qt::CircleWidget(" Acrobat ");
+  stabilize_mode_ = new qt::CircleWidget("Stabilize");
+  loiter_mode_ = new qt::CircleWidget(" Loiter ");
 
-  estop_ = new qt::ToggleSwitch();
-  estop_->setText("E-Stop");
-  estop_->ignoreMousePressEvent(true);
+  enable_ = new qt::ToggleSwitch();
+  enable_->setText("Enable");
+  enable_->ignoreMousePressEvent(true);
 
   gpsw_ = new qt::ToggleSwitch();
   gpsw_->setText(" GPSw ");
@@ -31,12 +31,12 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 
   // Layout
   const auto mode_cols = new QHBoxLayout();
-  mode_cols->addWidget(program_mode_);
-  mode_cols->addWidget(stabilize_mode_);
   mode_cols->addWidget(acrobat_mode_);
+  mode_cols->addWidget(stabilize_mode_);
+  mode_cols->addWidget(loiter_mode_);
 
   const auto toggle_cols = new QHBoxLayout();
-  toggle_cols->addWidget(estop_);
+  toggle_cols->addWidget(enable_);
   toggle_cols->addWidget(gpsw_);
 
   const auto rows = new QVBoxLayout();
@@ -57,21 +57,16 @@ void TogglesViewer::updateNamespace(const std::string& ns)
 
 void TogglesViewer::reset()
 {
-  stabilize_mode_->setColor(Qt::gray);
   acrobat_mode_->setColor(Qt::gray);
-  program_mode_->setColor(Qt::gray);
+  stabilize_mode_->setColor(Qt::gray);
+  loiter_mode_->setColor(Qt::gray);
 
-  estop_->setChecked(false);
+  enable_->setChecked(false);
   gpsw_->setChecked(false);
 }
 
 void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
 {
-  if (rcin->mode == tobas::flight_mode_t::PROGRAM_MODE)
-    program_mode_->setColor(Qt::green);
-  else
-    program_mode_->setColor(Qt::gray);
-
   if (rcin->mode == tobas::flight_mode_t::STABILIZE_MODE)
     stabilize_mode_->setColor(Qt::green);
   else
@@ -82,10 +77,15 @@ void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rc
   else
     acrobat_mode_->setColor(Qt::gray);
 
-  if (rcin->e_stop)
-    estop_->setChecked(true);
+  if (rcin->mode == tobas::flight_mode_t::LOITER_MODE)
+    loiter_mode_->setColor(Qt::green);
   else
-    estop_->setChecked(false);
+    loiter_mode_->setColor(Qt::gray);
+
+  if (rcin->enable)
+    enable_->setChecked(true);
+  else
+    enable_->setChecked(false);
 
   if (rcin->gpsw)
     gpsw_->setChecked(true);

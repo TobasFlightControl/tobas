@@ -12,6 +12,12 @@ class CustomControllerWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
+  static constexpr char kRateThrottleLabel[] = "Euler Rate + Throttle";
+  static constexpr char kAngleThrottleLabel[] = "Euler Angle + Throttle";
+  static constexpr char kPosVelAccYawLabel[] = "Position + Velocity + Accel + Yaw";
+  static constexpr char kPoseTwistAccelLabel[] = "Pose + Twist + Accel";
+  static constexpr char kSpeedRollDeltaPitchLabel[] = "Speed + Roll + Pitch";
+
 public:
   explicit CustomControllerWidget();
 
@@ -20,8 +26,9 @@ public:
   QString controllerPackage() const override;
   QString pluginName() const override;
 
-  tobas::rc_command_t stabilizeModeCommand() const override;
   tobas::rc_command_t acrobatModeCommand() const override;
+  tobas::rc_command_t stabilizeModeCommand() const override;
+  tobas::rc_command_t loiterModeCommand() const override;
 
   YAML::Node staticParams() const override;
 
@@ -36,8 +43,9 @@ private:
 
   ParamGetterWidget_LineEdit* package_;
   ParamGetterWidget_LineEdit* plugin_;
-  ParamGetterWidget_ComboBox* stabilize_mode_;
   ParamGetterWidget_ComboBox* acrobat_mode_;
+  ParamGetterWidget_ComboBox* stabilize_mode_;
+  ParamGetterWidget_ComboBox* loiter_mode_;
 };
 }  // namespace sa
 }  // namespace gui

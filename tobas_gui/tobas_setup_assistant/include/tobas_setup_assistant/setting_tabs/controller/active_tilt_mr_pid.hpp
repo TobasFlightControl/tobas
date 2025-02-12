@@ -26,8 +26,9 @@ public:
   QString controllerPackage() const override;
   QString pluginName() const override;
 
-  tobas::rc_command_t stabilizeModeCommand() const override;
   tobas::rc_command_t acrobatModeCommand() const override;
+  tobas::rc_command_t stabilizeModeCommand() const override;
+  tobas::rc_command_t loiterModeCommand() const override;
 
   YAML::Node staticParams() const override;
 

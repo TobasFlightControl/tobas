@@ -124,15 +124,14 @@ static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
 // Flight mode
 enum flight_mode_t
 {
-  PROGRAM_MODE,
-  STABILIZE_MODE,
   ACROBAT_MODE,
+  STABILIZE_MODE,
+  LOITER_MODE,
 };
 static constexpr size_t kNumFlightModes = 3;
 
 enum rc_command_t
 {
-  PROGRAM,
   RATE_THROTTLE,
   ANGLE_THROTTLE,
   POS_VEL_ACC_YAW,

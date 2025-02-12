@@ -19,8 +19,9 @@ public:
   virtual QString controllerPackage() const = 0;
   virtual QString pluginName() const = 0;
 
-  virtual tobas::rc_command_t stabilizeModeCommand() const = 0;
   virtual tobas::rc_command_t acrobatModeCommand() const = 0;
+  virtual tobas::rc_command_t stabilizeModeCommand() const = 0;
+  virtual tobas::rc_command_t loiterModeCommand() const = 0;
 
   /* 静的プライベートROSパラメータ． */
   virtual YAML::Node staticParams() const = 0;

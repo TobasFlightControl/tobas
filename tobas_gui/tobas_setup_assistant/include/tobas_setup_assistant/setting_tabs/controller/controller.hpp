@@ -42,8 +42,11 @@ public:
 
   QString controllerPackage() const;
   QString pluginName() const;
-  tobas::rc_command_t stabilizeModeCommand() const;
+
   tobas::rc_command_t acrobatModeCommand() const;
+  tobas::rc_command_t stabilizeModeCommand() const;
+  tobas::rc_command_t loiterModeCommand() const;
+
   YAML::Node staticParams() const;
 
   bool isCommandCompatible(tobas::rc_command_t command) const;
