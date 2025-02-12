@@ -9,6 +9,7 @@
 
 #include "../include/tobas_rc_teleop/common.hpp"
 #include "../include/tobas_rc_teleop/program_mode.hpp"
+#include "../include/tobas_rc_teleop/rate_throttle.hpp"
 #include "../include/tobas_rc_teleop/angle_throttle.hpp"
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
@@ -109,6 +110,9 @@ void RCTeleopNode::initializeControllers()
     {
       case tobas::rc_command_t::PROGRAM:
         controllers_[i] = std::make_unique<ProgramModeController>();
+        break;
+      case tobas::rc_command_t::RATE_THROTTLE:
+        controllers_[i] = std::make_unique<RateThrottleController>();
         break;
       case tobas::rc_command_t::ANGLE_THROTTLE:
         controllers_[i] = std::make_unique<AngleThrottleController>();

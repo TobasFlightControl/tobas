@@ -57,6 +57,7 @@ static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
+static constexpr char kRateThrottleCmdTopic[] = "command/rate_throttle";
 static constexpr char kAngleThrottleCmdTopic[] = "command/angle_throttle";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
@@ -132,6 +133,7 @@ static constexpr size_t kNumFlightModes = 3;
 enum rc_command_t
 {
   PROGRAM,
+  RATE_THROTTLE,
   ANGLE_THROTTLE,
   POS_VEL_ACC_YAW,
   POSE_TWIST_ACCEL,
