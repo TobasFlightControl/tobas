@@ -81,17 +81,17 @@ void ThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& 
 
   if (rcin->enable)
   {
-    roll_range_->setValueLineColor(Qt::red);
-    pitch_range_->setValueLineColor(Qt::red);
-    yaw_range_->setValueLineColor(Qt::red);
-    throt_range_->setValueLineColor(Qt::red);
+    roll_range_->setValueLineColor(kLineColorEnable);
+    pitch_range_->setValueLineColor(kLineColorEnable);
+    yaw_range_->setValueLineColor(kLineColorEnable);
+    throt_range_->setValueLineColor(kLineColorEnable);
   }
   else
   {
-    roll_range_->setValueLineColor(Qt::gray);
-    pitch_range_->setValueLineColor(Qt::gray);
-    yaw_range_->setValueLineColor(Qt::gray);
-    throt_range_->setValueLineColor(Qt::gray);
+    roll_range_->setValueLineColor(kLineColorDisable);
+    pitch_range_->setValueLineColor(kLineColorDisable);
+    yaw_range_->setValueLineColor(kLineColorDisable);
+    throt_range_->setValueLineColor(kLineColorDisable);
   }
 }
 }  // namespace rcin

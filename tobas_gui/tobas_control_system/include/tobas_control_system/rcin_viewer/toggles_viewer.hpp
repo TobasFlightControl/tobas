@@ -18,6 +18,10 @@ class TogglesViewer : public QWidget
   using self = TogglesViewer;
   using super = QWidget;
 
+  static constexpr auto kOffColor = Qt::gray;
+  static constexpr auto kOnColorEnable = Qt::green;
+  static constexpr auto kOnColorDisable = Qt::darkGray;
+
 public:
   explicit TogglesViewer(rclcpp::Node::SharedPtr node);
 

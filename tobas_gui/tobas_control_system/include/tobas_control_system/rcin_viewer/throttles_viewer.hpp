@@ -20,6 +20,9 @@ class ThrottlesViewer : public QWidget
   static constexpr int kLabelPSize = 12;
   static constexpr int kRangeSideShort = 50;
 
+  static constexpr auto kLineColorEnable = Qt::red;
+  static constexpr auto kLineColorDisable = Qt::darkGray;
+
 public:
   explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
 
