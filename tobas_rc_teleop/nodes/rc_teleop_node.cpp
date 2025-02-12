@@ -275,7 +275,7 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       if (isDisarmCommand(*rcin))
       {
         // ディスアームコマンドが一定時間維持されていればリクエスト
-        if ((rcin->header.stamp - t_arm_start_).seconds() > kDisArmDuration)
+        if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisArmDuration)
         {
           TOBAS_INFO("Requesting disarming rotors...");
           requestArmingRotors(false);
