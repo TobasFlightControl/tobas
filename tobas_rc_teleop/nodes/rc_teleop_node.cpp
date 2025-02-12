@@ -149,13 +149,13 @@ void RCTeleopNode::requestArmingRotors(bool arming)
 
 bool RCTeleopNode::isArmCommand(const tobas_msgs::msg::RCInput& rcin)
 {
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw > 1 - kArmThrotThresh
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw < -1 + kArmThrotThresh
          && rcin.throttle < kArmThrotThresh;
 }
 
 bool RCTeleopNode::isDisarmCommand(const tobas_msgs::msg::RCInput& rcin)
 {
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw < -1 + kArmThrotThresh
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw > 1 - kArmThrotThresh
          && rcin.throttle < kArmThrotThresh;
 }
 
