@@ -42,6 +42,8 @@ public:
   const char* name() const override;
   const char* title() const override;
 
+  void reset() override;
+
   void updateInternalDataStructures();
 
 private:
@@ -68,7 +70,6 @@ private:
 
   QTimer update_timer_;
 
-  void reset();
   void publishTargetSppeds();
   void updateCurrentSpeeds();
   bool loadCurrentGains();

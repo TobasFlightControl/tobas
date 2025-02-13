@@ -22,10 +22,15 @@ OtherStatusViewerWidget::OtherStatusViewerWidget(rclcpp::Node::SharedPtr node) :
   setLayout(rows);
 }
 
+void OtherStatusViewerWidget::reset()
+{
+  arming_status_->reset();
+  gnss_status_->reset();
+}
+
 void OtherStatusViewerWidget::updateNamespace(const std::string& ns)
 {
-  gnss_status_->reset();
-  arming_status_->reset();
+  reset();
 
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);

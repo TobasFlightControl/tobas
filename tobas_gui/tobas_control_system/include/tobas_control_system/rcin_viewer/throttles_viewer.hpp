@@ -26,6 +26,7 @@ class ThrottlesViewer : public QWidget
 public:
   explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -37,8 +38,6 @@ private:
   qt::VPositionBarWidget* throt_range_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
-
-  void reset();
 
   void rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
 };

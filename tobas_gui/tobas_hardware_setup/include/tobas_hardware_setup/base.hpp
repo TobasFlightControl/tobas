@@ -20,6 +20,8 @@ public:
   virtual const char* name() const = 0;
   virtual const char* title() const = 0;
 
+  virtual void reset() = 0;
+
 protected:
   QVBoxLayout* rows_;
 

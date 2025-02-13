@@ -16,6 +16,15 @@ RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tob
   setLayout(cols_);
 }
 
+void RotorsViewerWiddget::reset()
+{
+  for (const auto& [channel, meter] : meters_)
+  {
+    setSpeed(channel, 0.);
+    meter->setBackgroundColor(kAliveBackgroundColor);
+  }
+}
+
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
   rotor_states_sub_ = nullptr;
@@ -28,17 +37,26 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     const auto meter = new SpeedmeterWidget();
     meter->setMaximumValue(tobas_std::rps2rpm(rotor.max_rot_speed));
     meter->setTopText(QString::fromStdString(rotor.link_name));
-    meter->setBottomText(bottomText(0));
 
     meters_[rotor.channel] = meter;
     cols_->addWidget(meter);
   }
+
+  reset();
 
   rotor_states_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
   rotor_liveliness_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorLivelinessTopic), &self::rotorLivelinessCb,
     this);
+}
+
+void RotorsViewerWiddget::setSpeed(size_t channel, double rps)
+{
+  const auto& meter = meters_.at(channel);
+  const auto rpm = static_cast<int>(tobas_std::rps2rpm(rps));
+  meter->setValue(rpm);
+  meter->setBottomText(bottomText(rpm));
 }
 
 void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg)
@@ -51,10 +69,7 @@ void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::
     if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
       continue;
 
-    const auto& meter = meters_.at(state.channel);
-    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(state.speed));
-    meter->setValue(speed_rpm);
-    meter->setBottomText(bottomText(speed_rpm));
+    setSpeed(state.channel, state.speed);
   }
 }
 
@@ -68,9 +83,9 @@ void RotorsViewerWiddget::rotorLivelinessCb(const tobas_msgs::msg::RotorLiveline
     const auto& meter = meters_.at(liveliness.channel);
 
     if (liveliness.alive)
-      meter->setBackgroundColor("transparent");
+      meter->setBackgroundColor(kAliveBackgroundColor);
     else
-      meter->setBackgroundColor("red");
+      meter->setBackgroundColor(kDeadBackgroundColor);
   }
 }
 

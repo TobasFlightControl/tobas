@@ -27,14 +27,23 @@ CPUViewerWidget::CPUViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
   setLayout(form);
 }
 
+void CPUViewerWidget::reset()
+{
+  temp_->setUpper(temp_->getMinimum());
+  temp_->setText("");
+
+  load_->setUpper(load_->getMinimum());
+  load_->setText("");
+}
+
 void CPUViewerWidget::updateNamespace(const std::string& ns)
 {
-  temp_->clear();
+  reset();
+
   temp_->setLower(kMinTemp);
   temp_->setMinimum(kMinTemp);
   temp_->setMaximum(kMaxTemp);
 
-  load_->clear();
   load_->setLower(kMinLoad);
   load_->setMinimum(kMinLoad);
   load_->setMaximum(kMaxLoad);

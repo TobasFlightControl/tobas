@@ -137,8 +137,8 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(&restart_thread_, &RestartThread::finished, this, &self::onRestartThreadFinished);
   connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
-  connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimulationStarted);
-  connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimulationTerminated);
+  connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
+  connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -150,6 +150,7 @@ void GUICoreWidget::updateInternalDataStructures()
   simulation_->updateTBSPath(tbsPath());
 
   arming_ = nullptr;
+
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 }
@@ -178,13 +179,6 @@ void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& armi
 fs::path GUICoreWidget::tbsPath() const
 {
   return tbs_path_->text().toStdString();
-}
-
-void GUICoreWidget::resetTime()
-{
-  urdf_builder_->resetTime();
-  setup_assistant_->resetTime();
-  hardware_setup_->resetTime();
 }
 
 void GUICoreWidget::onBrowseButtonClicked()
@@ -456,14 +450,17 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
   QApplication::quit();
 }
 
-void GUICoreWidget::onSimulationStarted()
+void GUICoreWidget::onSimRealStateChanged()
 {
-  resetTime();
-}
+  // シミュレーションウィジェット以外リセット
+  urdf_builder_->reset();
+  setup_assistant_->reset();
+  hardware_setup_->reset();
+  control_system_->reset();
+  param_tuning_->reset();
+  flight_log_->reset();
 
-void GUICoreWidget::onSimulationTerminated()
-{
-  resetTime();
+  arming_ = nullptr;
 }
 }  // namespace core
 }  // namespace gui

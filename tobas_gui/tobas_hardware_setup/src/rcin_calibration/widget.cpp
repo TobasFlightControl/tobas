@@ -133,19 +133,6 @@ const char* RCInputCalibrationWidget::title() const
   return "Calibrate RC Input";
 }
 
-void RCInputCalibrationWidget::setNamespace(const string& ns)
-{
-  ns_ = ns;
-
-  reset();
-
-  arming_ = nullptr;
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-
-  setEnabled(true);
-}
-
 void RCInputCalibrationWidget::reset()
 {
   if (sbus_sub_ != nullptr)
@@ -168,6 +155,19 @@ void RCInputCalibrationWidget::reset()
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
   cancel_button_->setEnabled(false);
+}
+
+void RCInputCalibrationWidget::setNamespace(const string& ns)
+{
+  ns_ = ns;
+
+  reset();
+
+  arming_ = nullptr;
+  arming_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
+
+  setEnabled(true);
 }
 
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)

@@ -28,6 +28,8 @@ public:
   const char* name() const override;
   const char* title() const override;
 
+  void reset() override;
+
   void updateInternalDataStructures();
 
 private:
@@ -42,8 +44,6 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-
-  void reset();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 

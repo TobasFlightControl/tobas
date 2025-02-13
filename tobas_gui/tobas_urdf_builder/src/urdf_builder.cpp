@@ -21,7 +21,7 @@ URDFBuilder::URDFBuilder() : rviz_manager_("rviz_urdf_builder")
   rows->addWidget(rviz_manager_.widget());
 }
 
-void URDFBuilder::resetTime()
+void URDFBuilder::reset()
 {
   rviz_manager_.resetTime();
 }

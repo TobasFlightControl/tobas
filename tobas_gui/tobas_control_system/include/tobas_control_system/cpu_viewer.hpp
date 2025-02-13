@@ -26,6 +26,7 @@ class CPUViewerWidget : public QWidget
 public:
   explicit CPUViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:

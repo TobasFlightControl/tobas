@@ -20,6 +20,7 @@ class PostArmCheckViewerWidget : public QWidget
 public:
   explicit PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -35,8 +36,6 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PostArmCheck> prearm_check_sub_;
-
-  void reset();
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check);

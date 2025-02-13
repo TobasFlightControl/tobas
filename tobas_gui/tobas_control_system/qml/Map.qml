@@ -43,19 +43,21 @@ Rectangle {
     plugin: osmPlugin
     zoomLevel: 0  // 最小
 
-    // GNSS Arrow
+    // Arrow
     MapQuickItem {
-      id: gnssArrow
+      id: arrow
+      objectName: "arrow"
       coordinate: QtPositioning.coordinate(0, 0)
       sourceItem: Image {
-        id: gnssArrowImage
-        source: "./gnss_arrow.png" // アイコン画像の相対パス
+        id: arrowImage
+        source: "./arrow.png" // アイコン画像の相対パス
         width: 30
         height: 30
         transform: Rotation {
-          id: gnssArrowRotation
-          origin.x: gnssArrowImage.width / 2
-          origin.y: gnssArrowImage.height / 2
+          id: arrowRotation
+          objectName: "arrowRotation"
+          origin.x: arrowImage.width / 2
+          origin.y: arrowImage.height / 2
           axis { x: 0; y: 0; z: 1 }
           angle: 0 // Clock-wise [degree]
         }
@@ -152,28 +154,28 @@ Rectangle {
   signal waypointMoved(int index, double latitude, double longitude)
 
   // 関数呼び出し用シグナル
-  signal setCenter(double latitude, double longitude)
-  signal setGNSSArrowPosition(double latitude, double longitude)
-  signal setGNSSArrowRotation(double angle)
+  signal setMapCenter(double latitude, double longitude)
+  signal setArrowPosition(double latitude, double longitude)
+  signal setArrowRotation(double angle)
 
   Component.onCompleted: {
-    setCenter.connect(onSetCenter);
-    setGNSSArrowPosition.connect(onSetGNSSArrowPosition);
-    setGNSSArrowRotation.connect(onSetGNSSArrowRotation);
+    setMapCenter.connect(onSetMapCenter);
+    setArrowPosition.connect(onSetArrowPosition);
+    setArrowRotation.connect(onSetArrowRotation);
   }
 
-  function onSetCenter(latitude, longitude)
+  function onSetMapCenter(latitude, longitude)
   {
     map.center = QtPositioning.coordinate(latitude, longitude);
   }
 
-  function onSetGNSSArrowPosition(latitude, longitude)
+  function onSetArrowPosition(latitude, longitude)
   {
-    gnssArrow.coordinate = QtPositioning.coordinate(latitude, longitude);
+    arrow.coordinate = QtPositioning.coordinate(latitude, longitude);
   }
 
-  function onSetGNSSArrowRotation(angle)
+  function onSetArrowRotation(angle)
   {
-    gnssArrowRotation.angle = angle;  // ユニークなIDを直接参照する
+    arrowRotation.angle = angle;  // ユニークなIDを直接参照する
   }
 }

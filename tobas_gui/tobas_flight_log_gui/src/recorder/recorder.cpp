@@ -36,6 +36,8 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node)
 
   message_count_ = new qt::FramedLabel();
 
+  reset();
+
   // Layout
   const auto name_cols = new QHBoxLayout();
   name_cols->addWidget(new qt::Label("Log Name", kPSize2));
@@ -64,21 +66,25 @@ FlightLogRecorderWidget::FlightLogRecorderWidget(rclcpp::Node::SharedPtr node)
   connect(&start_thread_, &RecordStartThread::finished, this, &self::onStartThreadFinished);
   connect(&stop_thread_, &RecordStopThread::finished, this, &self::onStopThreadFinished);
 
-  clearRosbagStateViewerWidgets();
   setEnabled(false);
+}
+
+void FlightLogRecorderWidget::reset()
+{
+  clearRosbagStateViewerWidgets();
+
+  rosbag_state_ = nullptr;
 }
 
 void FlightLogRecorderWidget::updateNamespace(const std::string& ns)
 {
+  reset();
+
   start_thread_.setNamespace(ns);
   stop_thread_.setNamespace(ns);
 
-  rosbag_state_ = nullptr;
-
   rosbag_state_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRosbagStateTopic), &self::rosbagStateCb, this);
-
-  clearRosbagStateViewerWidgets();
 
   setEnabled(true);
 }

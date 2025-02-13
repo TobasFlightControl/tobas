@@ -58,6 +58,16 @@ const char* JointTestWidget::title() const
   return "Test Joints (PWM interface only)";
 }
 
+void JointTestWidget::reset()
+{
+  commands_publisher_->stop();
+
+  start_button_->setEnabled(true);
+  stop_button_->setEnabled(false);
+
+  arming_ = nullptr;
+}
+
 void JointTestWidget::updateInternalDataStructures()
 {
   reset();
@@ -68,16 +78,6 @@ void JointTestWidget::updateInternalDataStructures()
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
-}
-
-void JointTestWidget::reset()
-{
-  commands_publisher_->stop();
-
-  start_button_->setEnabled(true);
-  stop_button_->setEnabled(false);
-
-  arming_ = nullptr;
 }
 
 void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)

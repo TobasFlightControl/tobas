@@ -43,11 +43,17 @@ const char* AccelCalibrationWidget::title() const
   return "Calibrate Accelerometer";
 }
 
+void AccelCalibrationWidget::reset()
+{
+  arming_ = nullptr;
+}
+
 void AccelCalibrationWidget::setNamespace(const std::string& ns)
 {
+  reset();
+
   thread_.setNamespace(ns);
 
-  arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 

@@ -35,6 +35,7 @@ Q_SIGNALS:
 public:
   explicit SimulationWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   bool updateTBSPath(const std::filesystem::path& tbs_path);
 
 protected:
@@ -63,7 +64,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
-  bool reset();
   bool killGazeboLaunch();
 
   bool startSITL();

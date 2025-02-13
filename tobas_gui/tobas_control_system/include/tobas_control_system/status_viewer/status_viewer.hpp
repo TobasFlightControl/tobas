@@ -22,6 +22,7 @@ class StatusViewerWidget : public qt::ScrollArea
 public:
   explicit StatusViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:

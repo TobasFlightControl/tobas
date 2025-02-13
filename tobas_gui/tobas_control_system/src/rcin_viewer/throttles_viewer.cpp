@@ -51,8 +51,6 @@ ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   cols1->addWidget(throt_range_);
 
   setLayout(cols1);
-
-  reset();
 }
 
 void ThrottlesViewer::reset()
@@ -68,6 +66,7 @@ void ThrottlesViewer::reset()
 void ThrottlesViewer::updateNamespace(const std::string& ns)
 {
   reset();
+
   rcin_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }

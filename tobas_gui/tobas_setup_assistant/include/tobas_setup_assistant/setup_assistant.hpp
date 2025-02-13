@@ -27,7 +27,7 @@ class SetupAssistantWidget : public QWidget
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 
-  void resetTime();
+  void reset();
 
 private:
   RobotInfo robot_;

@@ -69,6 +69,10 @@ const char* NetworkSettingWidget::title() const
   return "Setup Network";
 }
 
+void NetworkSettingWidget::reset()
+{
+}
+
 void NetworkSettingWidget::addRow(const std::string& ssid, const std::string& psk)
 {
   const auto row = table_->rowCount();

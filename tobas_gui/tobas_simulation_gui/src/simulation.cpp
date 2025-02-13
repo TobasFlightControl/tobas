@@ -51,10 +51,26 @@ SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   setEnabled(false);
 }
 
+void SimulationWidget::reset()
+{
+  resetDynamicConfig();
+  resetCommanders();
+
+  if (launch_pid_ >= 0)
+    killGazeboLaunch();
+
+  arming_ = nullptr;
+
+  start_stop_button_->setChecked(false);
+
+  sim_settings_->setEnabled(true);
+  dynamic_config_->setEnabled(false);
+  commanders_->setEnabled(false);
+}
+
 bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 {
-  if (!reset())
-    return false;
+  reset();
 
   if (!kdl::treeFromFile(common::getOriginalURDFPath(tbs_path), tree_))
   {
@@ -87,7 +103,8 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
   RCLCPP_DEBUG(node_->get_logger(), "SimulationWidget::closeEvent");
 
   // 親ウィジェットを閉じるときに子プロセスを破棄
-  killGazeboLaunch();
+  if (launch_pid_ >= 0)
+    killGazeboLaunch();
 
   event->accept();
 }
@@ -95,25 +112,6 @@ void SimulationWidget::closeEvent(QCloseEvent* event)
 void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
-}
-
-bool SimulationWidget::reset()
-{
-  resetDynamicConfig();
-  resetCommanders();
-
-  if (!killGazeboLaunch())
-    return false;
-
-  arming_ = nullptr;
-
-  start_stop_button_->setChecked(false);
-
-  sim_settings_->setEnabled(true);
-  dynamic_config_->setEnabled(false);
-  commanders_->setEnabled(false);
-
-  return true;
 }
 
 bool SimulationWidget::killGazeboLaunch()

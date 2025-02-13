@@ -46,6 +46,18 @@ ControlSystemWidget::ControlSystemWidget(rclcpp::Node::SharedPtr node, const tob
   setLayout(cols1);
 }
 
+void ControlSystemWidget::reset()
+{
+  pose_viewer_->reset();
+  battery_viewer_->reset();
+  cpu_viewer_->reset();
+  rcin_viewer_->reset();
+  rotors_viewer_->reset();
+  console_->reset();
+  status_viewer_->reset();
+  mission_planner_->reset();
+}
+
 void ControlSystemWidget::updateInternalDataStructures()
 {
   pose_viewer_->updateNamespace(drone_.name);

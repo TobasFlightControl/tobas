@@ -38,9 +38,9 @@ public:
   const char* name() const override;
   const char* title() const override;
 
-  void setNamespace(const std::string& ns);
+  void reset() override;
 
-  void resetTime();
+  void setNamespace(const std::string& ns);
 
 private:
   const rclcpp::Node::SharedPtr node_;
@@ -64,8 +64,6 @@ private:
   ros2::PublisherPtr<sensor_msgs::msg::PointCloud> pc_pub_;
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-
-  void resetToBeforeStart();
 
   void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);

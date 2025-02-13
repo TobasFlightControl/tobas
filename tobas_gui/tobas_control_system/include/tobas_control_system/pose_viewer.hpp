@@ -31,6 +31,7 @@ class PoseViewerWidget : public qt::Widget
 public:
   explicit PoseViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -45,8 +46,6 @@ private:
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   void paintEvent(QPaintEvent* event) override;
-
-  void reset();
 
   void scale(QPainter& painter, bool keep_aspect);
 

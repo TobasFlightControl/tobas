@@ -13,7 +13,7 @@ class URDFBuilder : public QWidget
 public:
   explicit URDFBuilder();
 
-  void resetTime();
+  void reset();
 
 private:
   qt::RvizFrameManager rviz_manager_;

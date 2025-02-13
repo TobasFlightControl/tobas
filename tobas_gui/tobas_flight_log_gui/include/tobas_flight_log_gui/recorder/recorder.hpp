@@ -32,6 +32,7 @@ class FlightLogRecorderWidget : public QWidget
 public:
   explicit FlightLogRecorderWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:

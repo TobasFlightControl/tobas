@@ -22,6 +22,7 @@ class BatteryViewerWidget : public QWidget
 public:
   explicit BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
 
 private:

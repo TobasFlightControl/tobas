@@ -85,6 +85,26 @@ const char* RotorTestWidget::title() const
   return "Test Rotors";
 }
 
+void RotorTestWidget::reset()
+{
+  // モータウィジェットを無効化
+  for (auto& rotor_widget : rotor_widgets_)
+  {
+    rotor_widget->reset();
+    rotor_widget->setEnabled(false);
+  }
+
+  // タイマーを停止
+  update_timer_.stop();
+
+  start_button_->setEnabled(true);
+  stop_button_->setEnabled(false);
+  save_button_->setEnabled(false);
+
+  cur_states_ = nullptr;
+  arming_ = nullptr;
+}
+
 void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
@@ -130,26 +150,6 @@ void RotorTestWidget::updateInternalDataStructures()
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSaveRotorControlGainsSrv));
 
   setEnabled(true);
-}
-
-void RotorTestWidget::reset()
-{
-  // モータウィジェットを無効化
-  for (auto& rotor_widget : rotor_widgets_)
-  {
-    rotor_widget->reset();
-    rotor_widget->setEnabled(false);
-  }
-
-  // タイマーを停止
-  update_timer_.stop();
-
-  start_button_->setEnabled(true);
-  stop_button_->setEnabled(false);
-  save_button_->setEnabled(false);
-
-  cur_states_ = nullptr;
-  arming_ = nullptr;
 }
 
 void RotorTestWidget::publishTargetSppeds()

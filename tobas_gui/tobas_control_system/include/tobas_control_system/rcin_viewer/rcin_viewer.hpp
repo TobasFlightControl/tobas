@@ -16,6 +16,7 @@ class RCInputViewerWidget : public QWidget
 public:
   explicit RCInputViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:

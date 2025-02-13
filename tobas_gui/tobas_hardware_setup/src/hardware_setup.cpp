@@ -32,18 +32,21 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   tabs_->setTabSize(kTabWidth, kTabHeight);
 }
 
+void HardwareSetupWidget::reset()
+{
+  for (int i = 0; i < tabs_->count(); ++i)
+    qobject_cast<BaseHardwareSetupWidget*>(tabs_->widget(i))->reset();
+}
+
 void HardwareSetupWidget::updateInternalDataStructures()
 {
+  reset();
+
   accel_calib_->setNamespace(drone_.name);
   mag_calib_->setNamespace(drone_.name);
   rcin_calib_->setNamespace(drone_.name);
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
-}
-
-void HardwareSetupWidget::resetTime()
-{
-  mag_calib_->resetTime();
 }
 }  // namespace hw
 }  // namespace gui

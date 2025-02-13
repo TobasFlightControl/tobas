@@ -61,28 +61,55 @@ void MapWidget::addLine(double latitude_1, double longitude_1, double latitude_2
   line_->add(latitude_1, longitude_1, latitude_2, longitude_2);
 }
 
-std::pair<double, double> MapWidget::getCenter()
+QGeoCoordinate MapWidget::getCenter() const
 {
-  const auto map = rootObject()->findChild<QObject*>("map");
-  TOBAS_CHECK(map != nullptr);
-
-  const auto center = map->property("center").value<QGeoCoordinate>();
-  return { center.latitude(), center.longitude() };
+  return getMapObject()->property("center").value<QGeoCoordinate>();
 }
 
-void MapWidget::setCenter(double latitude, double longitude)
+QGeoCoordinate MapWidget::getArrowPosition() const
 {
-  QMetaObject::invokeMethod(rootObject(), "setCenter", Q_ARG(double, latitude), Q_ARG(double, longitude));
+  return getArrowObject()->property("coordinate").value<QGeoCoordinate>();
 }
 
-void MapWidget::setGNSSArrowPosition(double latitude, double longitude)
+double MapWidget::getArrowRotation() const
 {
-  QMetaObject::invokeMethod(rootObject(), "setGNSSArrowPosition", Q_ARG(double, latitude), Q_ARG(double, longitude));
+  return getArrowRotationObject()->property("angle").value<double>();
 }
 
-void MapWidget::setGNSSArrowRotation(double angle_deg)
+void MapWidget::setMapCenter(double latitude, double longitude)
 {
-  QMetaObject::invokeMethod(rootObject(), "setGNSSArrowRotation", Q_ARG(double, angle_deg));
+  QMetaObject::invokeMethod(rootObject(), "setMapCenter", Q_ARG(double, latitude), Q_ARG(double, longitude));
+}
+
+void MapWidget::setArrowPosition(double latitude, double longitude)
+{
+  QMetaObject::invokeMethod(rootObject(), "setArrowPosition", Q_ARG(double, latitude), Q_ARG(double, longitude));
+}
+
+void MapWidget::setArrowRotation(double angle_deg)
+{
+  QMetaObject::invokeMethod(rootObject(), "setArrowRotation", Q_ARG(double, angle_deg));
+}
+
+QObject* MapWidget::getMapObject() const
+{
+  const auto res = rootObject()->findChild<QObject*>("map");
+  TOBAS_CHECK(res != nullptr);
+  return res;
+}
+
+QObject* MapWidget::getArrowObject() const
+{
+  const auto res = rootObject()->findChild<QObject*>("arrow");
+  TOBAS_CHECK(res != nullptr);
+  return res;
+}
+
+QObject* MapWidget::getArrowRotationObject() const
+{
+  const auto res = rootObject()->findChild<QObject*>("arrowRotation");
+  TOBAS_CHECK(res != nullptr);
+  return res;
 }
 
 void MapWidget::onWaypointMoved(int index, double latitude, double longitude)

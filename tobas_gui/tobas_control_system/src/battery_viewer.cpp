@@ -24,18 +24,26 @@ BatteryViewerWidget::BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tob
   const auto form = new qt::FormLayout();
   form->addVAlignedRow(new qt::Label("Battery Voltage", kLabelPSize), voltage_);
   form->addVAlignedRow(new qt::Label("Battery Current", kLabelPSize), current_);
-
   setLayout(form);
+}
+
+void BatteryViewerWidget::reset()
+{
+  voltage_->setUpper(voltage_->getMinimum());
+  voltage_->setText("");
+
+  current_->setUpper(current_->getMinimum());
+  current_->setText("");
 }
 
 void BatteryViewerWidget::updateInternalDataStructures()
 {
-  voltage_->clear();
+  reset();
+
   voltage_->setLower(drone_.battery.sag_voltage);
   voltage_->setMinimum(drone_.battery.sag_voltage);
   voltage_->setMaximum(drone_.battery.max_voltage);
 
-  current_->clear();
   current_->setLower(0.);
   current_->setMinimum(0.);
   current_->setMaximum(drone_.battery.max_current);

@@ -29,12 +29,11 @@ class MissionPlannerWidget : public QWidget
 public:
   explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
   const rclcpp::Node::SharedPtr node_;
-
-  std::string ns_;
 
   MapWidget* map_;
 
@@ -52,8 +51,6 @@ private:
 
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
   MissionExecutionThread mission_thread_;
-
-  tobas_msgs::Gnss::ConstSharedPtr gnss_;
 
   ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;

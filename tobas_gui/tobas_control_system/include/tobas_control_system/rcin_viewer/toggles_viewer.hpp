@@ -25,6 +25,7 @@ class TogglesViewer : public QWidget
 public:
   explicit TogglesViewer(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -38,8 +39,6 @@ private:
   qt::ToggleSwitch* gpsw_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
-
-  void reset();
 
   void rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
 };

@@ -26,9 +26,8 @@ class HardwareSetupWidget : public QWidget
 public:
   explicit HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
-
-  void resetTime();
 
 private:
   const tobas::Drone& drone_;

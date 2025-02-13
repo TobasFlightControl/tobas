@@ -34,6 +34,7 @@ class ConsoleWidget : public QWidget
 public:
   explicit ConsoleWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:

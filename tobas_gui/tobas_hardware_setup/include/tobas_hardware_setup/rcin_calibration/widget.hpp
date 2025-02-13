@@ -43,6 +43,8 @@ public:
   const char* name() const override;
   const char* title() const override;
 
+  void reset() override;
+
   void setNamespace(const std::string& ns);
 
 private:
@@ -65,8 +67,6 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-
-  void reset();
 
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);

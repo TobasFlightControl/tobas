@@ -43,15 +43,6 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   rows->addLayout(mode_cols, 3);
 
   setLayout(rows);
-
-  reset();
-}
-
-void TogglesViewer::updateNamespace(const std::string& ns)
-{
-  reset();
-  rcin_sub_ = ros2::createSubscriber(
-    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
 void TogglesViewer::reset()
@@ -62,6 +53,14 @@ void TogglesViewer::reset()
 
   enable_->setChecked(false);
   gpsw_->setChecked(false);
+}
+
+void TogglesViewer::updateNamespace(const std::string& ns)
+{
+  reset();
+
+  rcin_sub_ = ros2::createSubscriber(
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
 void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)

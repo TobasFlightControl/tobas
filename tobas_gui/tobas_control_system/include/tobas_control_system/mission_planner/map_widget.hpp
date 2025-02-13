@@ -30,15 +30,21 @@ public:
   void addWaypoint(int index, const QGeoCoordinate& coord, double acceptance_radius, const QString& marker_color);
   void addLine(double latitude_1, double longitude_1, double latitude_2, double longitude_2);
 
-  std::pair<double, double> getCenter();
-  void setCenter(double latitude, double longitude);
+  QGeoCoordinate getCenter() const;
+  QGeoCoordinate getArrowPosition() const;
+  double getArrowRotation() const;  // [deg]
 
-  void setGNSSArrowPosition(double latitude, double longitude);
-  void setGNSSArrowRotation(double angle_deg);
+  void setMapCenter(double latitude, double longitude);
+  void setArrowPosition(double latitude, double longitude);
+  void setArrowRotation(double angle_deg);
 
 private:
   map::WaypointModel* waypoint_;
   map::LineModel* line_;
+
+  QObject* getMapObject() const;
+  QObject* getArrowObject() const;
+  QObject* getArrowRotationObject() const;
 
 private Q_SLOTS:
   void onWaypointMoved(int index, double latitude, double longitude);

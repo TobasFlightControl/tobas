@@ -22,6 +22,7 @@ class ControlSystemWidget : public QWidget
 public:
   explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
 
 private:

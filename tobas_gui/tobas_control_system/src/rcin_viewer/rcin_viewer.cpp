@@ -13,11 +13,19 @@ RCInputViewerWidget::RCInputViewerWidget(rclcpp::Node::SharedPtr node)
   throttles_viewer_ = new ThrottlesViewer(node);
   toggles_viewer_ = new TogglesViewer(node);
 
+  reset();
+
+  // Layout
   const auto cols = new QHBoxLayout();
   cols->addWidget(throttles_viewer_, 3);
   cols->addWidget(toggles_viewer_, 2);
-
   setLayout(cols);
+}
+
+void RCInputViewerWidget::reset()
+{
+  throttles_viewer_->reset();
+  toggles_viewer_->reset();
 }
 
 void RCInputViewerWidget::updateNamespace(const std::string& ns)

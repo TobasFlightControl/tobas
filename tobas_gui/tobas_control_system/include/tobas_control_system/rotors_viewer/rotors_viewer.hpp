@@ -21,9 +21,13 @@ class RotorsViewerWiddget : public qt::ScrollArea
   using self = RotorsViewerWiddget;
   using super = qt::ScrollArea;
 
+  static constexpr char kAliveBackgroundColor[] = "transparent";
+  static constexpr char kDeadBackgroundColor[] = "red";
+
 public:
   explicit RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
 
 private:
@@ -35,6 +39,8 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
+
+  void setSpeed(size_t channel, double rps);
 
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);

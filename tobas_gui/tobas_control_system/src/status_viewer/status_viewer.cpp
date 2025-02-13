@@ -26,6 +26,13 @@ StatusViewerWidget::StatusViewerWidget(rclcpp::Node::SharedPtr node)
   setLayout(rows);
 }
 
+void StatusViewerWidget::reset()
+{
+  prearm_check_viewer_->reset();
+  postarm_check_viewer_->reset();
+  other_status_viewer_->reset();
+}
+
 void StatusViewerWidget::updateNamespace(const std::string& ns)
 {
   prearm_check_viewer_->updateNamespace(ns);

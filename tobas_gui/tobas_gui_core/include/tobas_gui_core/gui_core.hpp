@@ -85,7 +85,6 @@ private:
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
   std::filesystem::path tbsPath() const;
-  void resetTime();
 
 private Q_SLOTS:
   void onBrowseButtonClicked();
@@ -97,8 +96,7 @@ private Q_SLOTS:
   void onRestartThreadFinished(bool success, const QString& message);
   void onShutdownThreadFinished(bool success, const QString& message);
 
-  void onSimulationStarted();
-  void onSimulationTerminated();
+  void onSimRealStateChanged();
 };
 }  // namespace core
 }  // namespace gui

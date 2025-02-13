@@ -20,6 +20,7 @@ class OtherStatusViewerWidget : public QWidget
 public:
   explicit OtherStatusViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:

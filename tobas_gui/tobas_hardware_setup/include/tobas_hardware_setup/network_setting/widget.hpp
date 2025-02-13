@@ -36,6 +36,8 @@ public:
   const char* name() const override;
   const char* title() const override;
 
+  void reset() override;
+
 private:
   wpa::WPASupplicantParser wpa_parser_;
 
