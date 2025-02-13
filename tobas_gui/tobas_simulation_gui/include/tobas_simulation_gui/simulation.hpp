@@ -28,6 +28,10 @@ class SimulationWidget : public QWidget
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
 
+Q_SIGNALS:
+  void started();
+  void terminated();
+
 public:
   explicit SimulationWidget(rclcpp::Node::SharedPtr node);
 

@@ -468,6 +468,8 @@ void SimulationWidget::onStartRequested()
   commanders_->setEnabled(true);
 
   qt::qInfoBox(this, "Gazebo simulation has started successfully.");
+
+  Q_EMIT started();
 }
 
 void SimulationWidget::onTerminateRequested()
@@ -499,6 +501,8 @@ void SimulationWidget::onTerminateRequested()
   commanders_->setEnabled(false);
 
   qt::qInfoBox(this, "Gazebo simulation has been terminated successfully.");
+
+  Q_EMIT terminated();
 }
 }  // namespace sim
 }  // namespace gui

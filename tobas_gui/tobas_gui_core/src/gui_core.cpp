@@ -137,6 +137,8 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
   connect(&restart_thread_, &RestartThread::finished, this, &self::onRestartThreadFinished);
   connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
+  connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimulationStarted);
+  connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimulationTerminated);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -176,6 +178,13 @@ void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& armi
 fs::path GUICoreWidget::tbsPath() const
 {
   return tbs_path_->text().toStdString();
+}
+
+void GUICoreWidget::resetTime()
+{
+  urdf_builder_->resetTime();
+  setup_assistant_->resetTime();
+  hardware_setup_->resetTime();
 }
 
 void GUICoreWidget::onBrowseButtonClicked()
@@ -445,6 +454,16 @@ void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& messag
   // GUIを完全に落とす
   close();
   QApplication::quit();
+}
+
+void GUICoreWidget::onSimulationStarted()
+{
+  resetTime();
+}
+
+void GUICoreWidget::onSimulationTerminated()
+{
+  resetTime();
 }
 }  // namespace core
 }  // namespace gui
