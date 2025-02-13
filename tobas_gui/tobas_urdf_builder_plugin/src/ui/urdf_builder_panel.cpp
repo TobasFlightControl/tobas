@@ -518,6 +518,12 @@ bool URDFBuilderPanel::saveURDF(const QString& file_path)
 
 bool URDFBuilderPanel::isValid()
 {
+  if (vm_.rootLink() == nullptr)
+  {
+    QMessageBox::warning(this, kError, "The robot is empty.");
+    return false;
+  }
+
   if (!isRobotNameValid())
     return false;
 
