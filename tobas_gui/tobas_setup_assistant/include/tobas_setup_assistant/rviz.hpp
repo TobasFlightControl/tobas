@@ -30,6 +30,11 @@ public:
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
+  /**
+   * @brief rviz_common::VisualizationManager::resetTime()
+   *
+   * シミュレーション起動時など，TFの時刻が巻き戻ったときに発生するTF_OLD_DATAエラーを回避できる．
+   */
   void resetTime();
 
 private Q_SLOTS:
