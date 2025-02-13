@@ -461,6 +461,9 @@ void GUICoreWidget::onSimRealStateChanged()
   flight_log_->reset();
 
   arming_ = nullptr;
+
+  // イベントループを進めて画面の更新を確実に反映させる
+  QApplication::processEvents();
 }
 }  // namespace core
 }  // namespace gui
