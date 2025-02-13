@@ -27,6 +27,8 @@ class SetupAssistantWidget : public QWidget
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
 
+  void resetTime();
+
 private:
   RobotInfo robot_;
   std::unique_ptr<PackageGenerator> pkg_generator_;

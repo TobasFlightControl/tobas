@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="3">
+
+  <name>tobas_urdf_builder_plugin</name>
+  <version>0.0.0</version>
+  <description>TODO</description>
+  <maintainer email="masa0u0masa1215@gmail.com">Masayoshi Dohi</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rviz_common</depend>
+  <depend>rviz_default_plugins</depend>
+  <depend>rviz_rendering</depend>
+  <depend>tobas_std_tools</depend>
+  <depend>tobas_ros2_tools</depend>
+  <depend>tobas_property_client</depend>
+  <depend>tobas_constants</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <rviz plugin="${prefix}/plugin_description.xml"/>
+  </export>
+
+</package>

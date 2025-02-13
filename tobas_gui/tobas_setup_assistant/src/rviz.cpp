@@ -1,12 +1,9 @@
 #include <filesystem>
 #include <ament_index_cpp/get_package_share_directory.hpp>
-#include <urdf_parser/urdf_parser.h>
 #include <QCheckBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <rviz_common/display_group.hpp>
 
-#include <tobas_std_tools/check.hpp>
 #include <tobas_ros2_tools/parameter.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -31,10 +28,7 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
 
   // Setup robot_model_display
-  // rviz::Display Class Reference: https://docs.ros.org/en/diamondback/api/rviz/html/classrviz_1_1Display.html
-  vis_manager_ = rviz_manager_.frame()->getManager();
-  display_ = vis_manager_->getRootDisplayGroup()->getDisplayAt(kRobotStateDisplayIndex);
-  TOBAS_CHECK(display_->getName() == "RobotState");
+  display_ = rviz_manager_.getDisplay("RobotState");
 
   // 使用するプロパティを取得
   enable_visual_ = qobject_cast<rviz_common::properties::BoolProperty*>(display_->subProp("Visual Enabled"));
@@ -60,7 +54,7 @@ RvizWidget::RvizWidget(const RobotInfo& robot) : robot_(robot), rviz_manager_("r
   const auto rows = new QVBoxLayout();
   setLayout(rows);
   const auto cols = new QHBoxLayout();
-  rows->addWidget(rviz_manager_.frame());
+  rows->addWidget(rviz_manager_.widget());
   rows->addLayout(cols);
   cols->addStretch();
   cols->addWidget(visual_box);
@@ -78,7 +72,7 @@ void RvizWidget::onRobotLoaded()
 {
   // 固定フレームをルートリンクに設定
   const auto& root_name = robot_.tree().getRootName();
-  vis_manager_->setFixedFrame(QString::fromStdString(root_name));
+  rviz_manager_.setFixedFrame(QString::fromStdString(root_name));
 
   // URDFを更新
   rviz_manager_.rawNode()->set_parameter(rclcpp::Parameter(kRobotDescriptionParam, robot_.urdfText()));
@@ -104,6 +98,11 @@ void RvizWidget::heightLink(const QString& link_name)
 void RvizWidget::unheightLink(const QString& link_name)
 {
   unhighlight_link_->setValue(link_name);
+}
+
+void RvizWidget::resetTime()
+{
+  rviz_manager_.resetTime();
 }
 
 void RvizWidget::onVisualBoxToggled(bool checked)

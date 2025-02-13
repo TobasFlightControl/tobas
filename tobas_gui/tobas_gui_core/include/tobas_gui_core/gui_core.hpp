@@ -11,6 +11,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 
 #include <tobas_homepage/homepage.hpp>
+#include <tobas_urdf_builder/urdf_builder.hpp>
 #include <tobas_setup_assistant/setup_assistant.hpp>
 #include <tobas_hardware_setup/hardware_setup.hpp>
 #include <tobas_control_system/control_system.hpp>
@@ -18,7 +19,6 @@
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
 
-#include "./urdf_builder.hpp"
 #include "./restart_button.hpp"
 #include "./shutdown_button.hpp"
 #include "./restart_thread.hpp"
@@ -72,7 +72,7 @@ private:
   qt::WaitSpinnerWidget spinner_;
 
   homepage::HomepageWidget* homepage_;
-  URDFBuilder* urdf_builder_;
+  urdf_builder::URDFBuilder* urdf_builder_;
   sa::SetupAssistantWidget* setup_assistant_;
   hw::HardwareSetupWidget* hardware_setup_;
   gcs::ControlSystemWidget* control_system_;

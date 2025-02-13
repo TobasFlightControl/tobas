@@ -40,6 +40,8 @@ public:
 
   void setNamespace(const std::string& ns);
 
+  void resetTime();
+
 private:
   const rclcpp::Node::SharedPtr node_;
   qt::RvizFrameManager rviz_manager_;

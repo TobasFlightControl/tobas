@@ -40,8 +40,6 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
-
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(
   TARGETS ${PROJECT_NAME}
@@ -51,6 +49,7 @@ install(
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
 )
+pluginlib_export_plugin_description_file(rviz_common rviz_plugin_description.xml)
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})

@@ -22,6 +22,7 @@
 	<exec_depend>tobas_setup_assistant</exec_depend>
 	<exec_depend>tobas_simulation_gui</exec_depend>
 	<exec_depend>tobas_urdf_builder</exec_depend>
+	<exec_depend>tobas_urdf_builder_plugin</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>

@@ -39,7 +39,7 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
 
   // Applications
   homepage_ = new homepage::HomepageWidget();
-  urdf_builder_ = new URDFBuilder();
+  urdf_builder_ = new urdf_builder::URDFBuilder();
   setup_assistant_ = new sa::SetupAssistantWidget(node);
   hardware_setup_ = new hw::HardwareSetupWidget(node, tree_, drone_);
   control_system_ = new gcs::ControlSystemWidget(node, drone_);

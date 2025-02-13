@@ -42,6 +42,11 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   connect(&build_thread_, &BuildPackageThread::finished, this, &self::onBuildPackageFinished);
 }
 
+void SetupAssistantWidget::resetTime()
+{
+  rviz_->resetTime();
+}
+
 void SetupAssistantWidget::onRobotLoaded()
 {
   // Update RSP parameter

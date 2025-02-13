@@ -28,6 +28,8 @@ public:
 
   void updateInternalDataStructures();
 
+  void resetTime();
+
 private:
   const tobas::Drone& drone_;
 

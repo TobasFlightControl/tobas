@@ -2,8 +2,6 @@
 
 #include <QWidget>
 
-#include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/display.hpp>
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
@@ -22,7 +20,6 @@ class RvizWidget : public QWidget
   using self = RvizWidget;
   using super = QWidget;
 
-  static constexpr int kRobotStateDisplayIndex = 0;  // rvizファイルと合わせる必要あり
   static constexpr bool kDefaultVisualEnabled = true;
   static constexpr bool kDefaultCollisionEnabled = false;
   static constexpr bool kDefaultInertiaEnabled = false;
@@ -32,6 +29,8 @@ public:
 
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
+
+  void resetTime();
 
 private Q_SLOTS:
   void onRobotLoaded();
@@ -43,7 +42,6 @@ private:
   const RobotInfo& robot_;
 
   qt::RvizFrameManager rviz_manager_;
-  rviz_common::VisualizationManager* vis_manager_;
   rviz_common::Display* display_;
 
   rviz_common::properties::BoolProperty* enable_visual_;

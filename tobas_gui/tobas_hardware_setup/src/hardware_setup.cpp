@@ -40,5 +40,10 @@ void HardwareSetupWidget::updateInternalDataStructures()
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
 }
+
+void HardwareSetupWidget::resetTime()
+{
+  mag_calib_->resetTime();
+}
 }  // namespace hw
 }  // namespace gui

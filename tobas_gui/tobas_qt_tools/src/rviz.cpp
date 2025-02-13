@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <OgreMaterialManager.h>
 #include <rviz_common/yaml_config_reader.hpp>
 
@@ -42,6 +43,10 @@ void RvizFrameManager::initialize(const QString& config_path, QWidget* parent)
   frame_->setStatusBar(nullptr);
   frame_->setHideButtonVisibility(false);
   frame_->setStyleSheet("QSizeGrip { width: 0px; height: 0px; }");  // Remove sizegrip
+
+  // Get child instances
+  manager_ = frame_->getManager();
+  display_group_ = manager_->getRootDisplayGroup();
 }
 
 rviz_common::ros_integration::RosNodeAbstractionIface::WeakPtr RvizFrameManager::rvizNode()
@@ -57,9 +62,44 @@ rclcpp::Node::SharedPtr RvizFrameManager::rawNode()
   return node_->get_raw_node();
 }
 
-rviz_common::VisualizationFrame* RvizFrameManager::frame()
+QWidget* RvizFrameManager::widget()
 {
   return frame_;
+}
+
+void RvizFrameManager::resetTime()
+{
+  manager_->resetTime();
+}
+
+QString RvizFrameManager::getFixedFrame() const
+{
+  return manager_->getFixedFrame();
+}
+
+void RvizFrameManager::setFixedFrame(const QString& frame)
+{
+  manager_->setFixedFrame(frame);
+}
+
+rviz_common::Display* RvizFrameManager::getDisplay(const QString& name)
+{
+  for (int i = 0; i < display_group_->numDisplays(); ++i)
+  {
+    const auto display = display_group_->getDisplayAt(i);
+
+    if (display == nullptr)
+    {
+      qWarning() << "Failed to get display of index " << QString::number(i);
+      continue;
+    };
+
+    if (display->getName() == name)
+      return display;
+  }
+
+  qWarning() << "Failed to find display named \"" << name << "\"";
+  return nullptr;
 }
 
 void RvizFrameManager::removeDefaultColorMaterials()

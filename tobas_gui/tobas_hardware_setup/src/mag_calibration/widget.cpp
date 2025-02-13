@@ -1,7 +1,5 @@
 #include <filesystem>
 #include <ament_index_cpp/get_package_share_directory.hpp>
-#include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/display_group.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -65,21 +63,17 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/mag_calibration.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
-  rows_->addWidget(rviz_manager_.frame());
-
-  const auto manager = rviz_manager_.frame()->getManager();
+  rows_->addWidget(rviz_manager_.widget());
 
   // 固定フレームを設定
   // TFが出ているフレームでなければならない
-  manager->setFixedFrame(tobas::kWorldFrame);
+  rviz_manager_.setFixedFrame(tobas::kWorldFrame);
 
-  const auto ps_display = manager->getRootDisplayGroup()->getDisplayAt(0);
-  TOBAS_CHECK(ps_display->getName() == "PointStamped");
+  const auto ps_display = rviz_manager_.getDisplay("PointStamped");
   ps_display->subProp("Topic")->setValue(kRvizPointStampedTopic);
   ps_history_length_ = ps_display->subProp("History Length");
 
-  const auto pc_display = manager->getRootDisplayGroup()->getDisplayAt(1);
-  TOBAS_CHECK(pc_display->getName() == "PointCloud");
+  const auto pc_display = rviz_manager_.getDisplay("PointCloud");
   pc_display->subProp("Topic")->setValue(kRvizPointCloudTopic);
 
   ps_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointStampedTopic);
@@ -109,6 +103,11 @@ void MagCalibrationWidget::setNamespace(const string& ns)
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
+}
+
+void MagCalibrationWidget::resetTime()
+{
+  rviz_manager_.resetTime();
 }
 
 void MagCalibrationWidget::resetToBeforeStart()
