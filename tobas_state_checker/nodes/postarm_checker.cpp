@@ -50,7 +50,7 @@ private:
   void mainTimerCb();
 };
 
-PostArmCheckerNode::PostArmCheckerNode(const rclcpp::NodeOptions& options) : super("postarm_checker", options)
+PostArmCheckerNode::PostArmCheckerNode(const rclcpp::NodeOptions& options) : super("post_arm_checker", options)
 {
   postarm_check_pub_ = createPublisher<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic);
 

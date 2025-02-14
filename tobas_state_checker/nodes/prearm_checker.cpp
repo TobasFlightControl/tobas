@@ -37,7 +37,7 @@ public:
 
 private:
   // rosparams
-  struct EnablePreArmCheck
+  struct DoCheck
   {
     bool battery_voltage_too_low;
     bool cpu_temperature_too_high;
@@ -47,7 +47,7 @@ private:
     bool position_inaccurate;
     bool orientation_inaccurate;
     bool velocity_inaccurate;
-  } enable_prearm_check_;
+  } do_check_;
 
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -85,7 +85,7 @@ private:
 };
 
 PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
-  : super("prearm_checker", options),
+  : super("pre_arm_checker", options),
     pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
@@ -107,14 +107,14 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
 
 void PreArmCheckerNode::getStaticRosParams()
 {
-  enable_prearm_check_.battery_voltage_too_low = getBoolParam("enable_prearm_check/battery_voltage_too_low", true);
-  enable_prearm_check_.cpu_temperature_too_high = getBoolParam("enable_prearm_check/cpu_temperature_too_high", true);
-  enable_prearm_check_.rotor_communication_error = getBoolParam("enable_prearm_check/rotor_communication_error", true);
-  enable_prearm_check_.attitude_too_steep = getBoolParam("enable_prearm_check/attitude_too_steep", true);
-  enable_prearm_check_.position_unstable = getBoolParam("enable_prearm_check/position_unstable", true);
-  enable_prearm_check_.position_inaccurate = getBoolParam("enable_prearm_check/position_inaccurate", true);
-  enable_prearm_check_.orientation_inaccurate = getBoolParam("enable_prearm_check/orientation_inaccurate", true);
-  enable_prearm_check_.velocity_inaccurate = getBoolParam("enable_prearm_check/velocity_inaccurate", true);
+  do_check_.battery_voltage_too_low = getBoolParam("check_battery_voltage", true);
+  do_check_.cpu_temperature_too_high = getBoolParam("check_cpu_temperature", true);
+  do_check_.rotor_communication_error = getBoolParam("check_rotor_communication", true);
+  do_check_.attitude_too_steep = getBoolParam("check_attitude_level", true);
+  do_check_.position_unstable = getBoolParam("check_position_stability", true);
+  do_check_.position_inaccurate = getBoolParam("check_position_accuracy", true);
+  do_check_.orientation_inaccurate = getBoolParam("check_orientation_accuracy", true);
+  do_check_.velocity_inaccurate = getBoolParam("check_velocity_accuracy", true);
 }
 
 void PreArmCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -150,7 +150,7 @@ void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     return;
 
   // position_unstable が有効ならば位置の履歴を保存
-  if (enable_prearm_check_.position_unstable)
+  if (do_check_.position_unstable)
   {
     if (arming_->data)
     {
@@ -194,7 +194,7 @@ void PreArmCheckerNode::mainTimerCb()
   prearm_check->ok = true;
 
   // バッテリー電圧が定格電圧以上
-  if (enable_prearm_check_.battery_voltage_too_low)
+  if (do_check_.battery_voltage_too_low)
   {
     if (battery_ == nullptr)
     {
@@ -216,7 +216,7 @@ void PreArmCheckerNode::mainTimerCb()
   }
 
   // CPU温度
-  if (enable_prearm_check_.cpu_temperature_too_high)
+  if (do_check_.cpu_temperature_too_high)
   {
     if (cpu_ == nullptr)
     {
@@ -238,7 +238,7 @@ void PreArmCheckerNode::mainTimerCb()
   }
 
   // モータ状態
-  if (enable_prearm_check_.rotor_communication_error)
+  if (do_check_.rotor_communication_error)
   {
     if (rotor_states_ == nullptr)
     {
@@ -264,7 +264,7 @@ void PreArmCheckerNode::mainTimerCb()
   }
 
   // 姿勢角
-  if (enable_prearm_check_.attitude_too_steep)
+  if (do_check_.attitude_too_steep)
   {
     if (euler_ == nullptr)
     {
@@ -286,7 +286,7 @@ void PreArmCheckerNode::mainTimerCb()
   }
 
   // 位置のドリフト
-  if (enable_prearm_check_.position_unstable)
+  if (do_check_.position_unstable)
   {
     if (odom_ == nullptr)
     {
@@ -312,7 +312,7 @@ void PreArmCheckerNode::mainTimerCb()
   }
 
   // 位置推定の共分散
-  if (enable_prearm_check_.position_inaccurate)
+  if (do_check_.position_inaccurate)
   {
     if (odom_ == nullptr)
     {
@@ -337,7 +337,7 @@ void PreArmCheckerNode::mainTimerCb()
   }
 
   // 姿勢推定の共分散
-  if (enable_prearm_check_.orientation_inaccurate)
+  if (do_check_.orientation_inaccurate)
   {
     if (odom_ == nullptr)
     {
@@ -360,7 +360,7 @@ void PreArmCheckerNode::mainTimerCb()
   }
 
   // 速度推定の共分散
-  if (enable_prearm_check_.velocity_inaccurate)
+  if (do_check_.velocity_inaccurate)
   {
     if (odom_ == nullptr)
     {

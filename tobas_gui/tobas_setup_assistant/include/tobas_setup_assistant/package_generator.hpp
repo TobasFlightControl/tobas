@@ -54,6 +54,7 @@ private:
   bool generateJointControllerConfigs(const std::filesystem::path& config_dir);
   bool generateDroneConfig(const std::filesystem::path& config_dir);
   bool generateRCTeleopConfig(const std::filesystem::path& config_dir);
+  bool generatePreArmCheckConfig(const std::filesystem::path& config_dir);
   bool generateControllerStaticConfig(const std::filesystem::path& config_dir);
   bool generateObserverStaticConfig(const std::filesystem::path& config_dir);
   bool generateURDF(const std::filesystem::path& mesh_dir);

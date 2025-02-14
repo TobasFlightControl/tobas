@@ -227,6 +227,7 @@ def generate_launch_description():
                             package="tobas_state_checker",
                             plugin="PreArmCheckerNode",
                             namespace=DRONE_NAME,
+                            parameters=[PathJoinSubstitution([config_pkg_share, "config", "pre_arm_check.yaml"])],
                             remappings=remappings,
                             extra_arguments=extra_arguments,
                         ),

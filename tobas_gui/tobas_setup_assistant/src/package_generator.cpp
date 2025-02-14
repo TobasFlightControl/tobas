@@ -352,6 +352,8 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
     return false;
   if (!generateRCTeleopConfig(config_dir))
     return false;
+  if (!generatePreArmCheckConfig(config_dir))
+    return false;
   if (!generateControllerStaticConfig(config_dir))
     return false;
   if (!generateObserverStaticConfig(config_dir))
@@ -546,12 +548,30 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
 bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
 {
   // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
-  root_node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
-  root_node["loiter_mode"] = static_cast<int>(settings_->controller->loiterModeCommand());
+  YAML::Node node(YAML::NodeType::Map);
+  node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
+  node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
+  node["loiter_mode"] = static_cast<int>(settings_->controller->loiterModeCommand());
 
-  if (!saveYamlNode(config_dir / "rc_teleop.yaml", root_node))
+  if (!saveYamlNode(config_dir / "rc_teleop.yaml", node))
+    return false;
+
+  return true;
+}
+
+bool PackageGenerator::generatePreArmCheckConfig(const std::filesystem::path& config_dir)
+{
+  YAML::Node node(YAML::NodeType::Map);
+  node["check_battery_voltage"] = settings_->pre_arm_check->checkBatteryVoltage();
+  node["check_cpu_temperature"] = settings_->pre_arm_check->checkCPUTemperature();
+  node["check_rotor_communication"] = settings_->pre_arm_check->checkRotorCommunication();
+  node["check_attitude_level"] = settings_->pre_arm_check->checkAttitudeLevel();
+  node["check_position_stability"] = settings_->pre_arm_check->checkPositionStability();
+  node["check_position_accuracy"] = settings_->pre_arm_check->checkPositionAccuracy();
+  node["check_orientation_accuracy"] = settings_->pre_arm_check->checkOrientationAccuracy();
+  node["check_velocity_accuracy"] = settings_->pre_arm_check->checkVelocityAccuracy();
+
+  if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node))
     return false;
 
   return true;

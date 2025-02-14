@@ -15,6 +15,7 @@
 #include "./setting_tabs/controller/controller.hpp"
 #include "./setting_tabs/observer/observer.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
+#include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/simulation.hpp"
 #include "./setting_tabs/author_information.hpp"
 #include "./setting_tabs/ros_package.hpp"
@@ -45,6 +46,7 @@ public:
   ControllerWidget* controller;
   ObserverWidget* observer;
   HardwareWidget* hardware;
+  PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
   ROSPackageWidget* ros_package;

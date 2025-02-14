@@ -19,6 +19,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
   observer = new ObserverWidget(robot, imu, barometer, gnss);
   hardware = new HardwareWidget();
+  pre_arm_check = new PreArmCheckWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
   ros_package = new ROSPackageWidget(node, robot);
@@ -35,6 +36,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   addTab(controller, controller->name());
   addTab(observer, observer->name());
   addTab(hardware, hardware->name());
+  addTab(pre_arm_check, pre_arm_check->name());
   addTab(simulation, simulation->name());
   addTab(author_info, author_info->name());
   addTab(ros_package, ros_package->name());
