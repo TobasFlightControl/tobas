@@ -379,7 +379,7 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       }
 
       // コマンド送信
-      controllers_[new_mode]->update(*rcin, *odom_);
+      controllers_[cur_mode_]->update(*rcin, *odom_);
 
       break;
     }
