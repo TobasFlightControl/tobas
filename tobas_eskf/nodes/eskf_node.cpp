@@ -518,10 +518,10 @@ void ObserverNode::magCb(const MagMsg::ConstSharedPtr& mag)
 
   mag_ = mag;
 
+  // 最初の地磁気を受け取った時にGPSが受け取れていなければ，ひとまず最初の地磁気ベクトルを参照とする．
   if (!mag_ref_set_)
   {
-    TOBAS_WARN_THROTTLE(
-      tobas::kTypicalWarnPeriod, "Magnetic field is ignored because reference (e.g. from WMM) is not set yet.");
+    setMagneticFieldRef(mag_->mag.mag.data);
     return;
   }
 
