@@ -50,6 +50,19 @@ public:
   explicit StateCheckerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  // rosparams
+  struct EnablePreArmCheck
+  {
+    bool battery_voltage_too_low;
+    bool cpu_temperature_too_high;
+    bool rotor_communication_error;
+    bool attitude_too_steep;
+    bool position_unstable;
+    bool position_inaccurate;
+    bool orientation_inaccurate;
+    bool velocity_inaccurate;
+  } enable_prearm_check_;
+
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
@@ -79,6 +92,8 @@ private:
 
   ros2::TimerPtr main_timer_;
 
+  void getStaticRosParams();
+
   void preArmCheck();
   void postArmCheck();
 
@@ -102,6 +117,8 @@ StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options)
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
+  getStaticRosParams();
+
   prearm_check_pub_ = createPublisher<tobas_msgs::msg::PreArmCheck>(tobas::kPreArmCheckTopic);
   postarm_check_pub_ = createPublisher<tobas_msgs::msg::PostArmCheck>(tobas::kPostArmCheckTopic);
 
@@ -119,122 +136,215 @@ StateCheckerNode::StateCheckerNode(const rclcpp::NodeOptions& options)
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
 
+void StateCheckerNode::getStaticRosParams()
+{
+  enable_prearm_check_.battery_voltage_too_low = getBoolParam("enable_prearm_check/battery_voltage_too_low", true);
+  enable_prearm_check_.cpu_temperature_too_high = getBoolParam("enable_prearm_check/cpu_temperature_too_high", true);
+  enable_prearm_check_.rotor_communication_error = getBoolParam("enable_prearm_check/rotor_communication_error", true);
+  enable_prearm_check_.attitude_too_steep = getBoolParam("enable_prearm_check/attitude_too_steep", true);
+  enable_prearm_check_.position_unstable = getBoolParam("enable_prearm_check/position_unstable", true);
+  enable_prearm_check_.position_inaccurate = getBoolParam("enable_prearm_check/position_inaccurate", true);
+  enable_prearm_check_.orientation_inaccurate = getBoolParam("enable_prearm_check/orientation_inaccurate", true);
+  enable_prearm_check_.velocity_inaccurate = getBoolParam("enable_prearm_check/velocity_inaccurate", true);
+}
+
 void StateCheckerNode::preArmCheck()
 {
-  auto postarm_check = std::make_unique<tobas_msgs::msg::PreArmCheck>();
+  auto prearm_check = std::make_unique<tobas_msgs::msg::PreArmCheck>();
 
-  postarm_check->header.stamp = get_clock()->now();
-  postarm_check->ok = true;
+  prearm_check->header.stamp = get_clock()->now();
+  prearm_check->ok = true;
 
   // バッテリー電圧が定格電圧以上
-  if (battery_ != nullptr)
+  if (enable_prearm_check_.battery_voltage_too_low)
   {
-    postarm_check->battery_voltage_too_low = (battery_->voltage < drone_->battery.nominal_voltage);
-    if (postarm_check->battery_voltage_too_low)
-      postarm_check->ok = false;
+    if (battery_ == nullptr)
+    {
+      prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      if (battery_->voltage < drone_->battery.nominal_voltage)
+      {
+        prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
   }
   else
   {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Battery state is not received yet.");
-    postarm_check->battery_voltage_too_low = true;
-    postarm_check->ok = false;
+    prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
   }
 
   // CPU温度
-  if (cpu_ != nullptr)
+  if (enable_prearm_check_.cpu_temperature_too_high)
   {
-    postarm_check->cpu_temperature_too_high = (cpu_->temperature > kCPUTempThresh);
-    if (postarm_check->cpu_temperature_too_high)
-      postarm_check->ok = false;
+    if (cpu_ == nullptr)
+    {
+      prearm_check->cpu_temperature_too_high = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      if (cpu_->temperature > kCPUTempThresh)
+      {
+        prearm_check->cpu_temperature_too_high = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
   }
   else
   {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "CPU state is not received yet.");
-    postarm_check->cpu_temperature_too_high = true;
-    postarm_check->ok = false;
+    prearm_check->cpu_temperature_too_high = tobas_msgs::msg::PreArmCheck::IGNORED;
   }
 
   // モータ状態
-  if (rotor_states_ != nullptr)
+  if (enable_prearm_check_.rotor_communication_error)
   {
-    postarm_check->rotor_communication_error = false;
-    for (const auto& state : rotor_states_->states)
+    if (rotor_states_ == nullptr)
     {
-      if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+      prearm_check->rotor_communication_error = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      for (const auto& state : rotor_states_->states)
       {
-        postarm_check->rotor_communication_error = true;
-        postarm_check->ok = false;
-        break;
+        if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+        {
+          prearm_check->rotor_communication_error = tobas_msgs::msg::PreArmCheck::FAILED;
+          prearm_check->ok = false;
+          break;
+        }
       }
     }
   }
   else
   {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Rotor states are not received yet.");
-    postarm_check->rotor_communication_error = true;
-    postarm_check->ok = false;
+    prearm_check->rotor_communication_error = tobas_msgs::msg::PreArmCheck::IGNORED;
   }
 
   // 姿勢角
-  if (euler_ != nullptr)
+  if (enable_prearm_check_.attitude_too_steep)
   {
-    postarm_check->attitude_too_steep = (max(fabs(euler_->euler.roll), fabs(euler_->euler.pitch)) > kAttitudeThresh);
-    if (postarm_check->attitude_too_steep)
-      postarm_check->ok = false;
-  }
-  else
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Odometry is not received yet.");
-    postarm_check->attitude_too_steep = true;
-    postarm_check->ok = false;
-  }
-
-  if (odom_ != nullptr)
-  {
-    // 位置のドリフト
-    postarm_check->position_unstable = false;
-    for (size_t i = 0; i < pos_buf_.size(); ++i)
+    if (euler_ == nullptr)
     {
-      if (!pos_buf_[i].isFilled() || pos_buf_[i].range() > kPosDriftThresh)
+      prearm_check->attitude_too_steep = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      if (max(fabs(euler_->euler.roll), fabs(euler_->euler.pitch)) > kAttitudeThresh)
       {
-        postarm_check->position_unstable = true;
-        postarm_check->ok = false;
-        break;
+        prearm_check->attitude_too_steep = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
       }
     }
-
-    // 位置推定の共分散
-    const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
-    const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
-    const auto ver_pos_var = pos_cov_diag.z();
-    postarm_check->position_inaccurate =
-      (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh));
-    if (postarm_check->position_inaccurate)
-      postarm_check->ok = false;
-
-    // 姿勢推定の共分散
-    const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
-    postarm_check->orientation_inaccurate = (rot_var > math::sqr(kRotStddevThresh));
-    if (postarm_check->orientation_inaccurate)
-      postarm_check->ok = false;
-
-    // 速度推定の共分散
-    const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
-    postarm_check->velocity_inaccurate = (vel_var > math::sqr(kVelStddevThresh));
-    if (postarm_check->velocity_inaccurate)
-      postarm_check->ok = false;
   }
   else
   {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Odometry is not received yet.");
-    postarm_check->position_unstable = true;
-    postarm_check->position_inaccurate = true;
-    postarm_check->orientation_inaccurate = true;
-    postarm_check->velocity_inaccurate = true;
-    postarm_check->ok = false;
+    prearm_check->attitude_too_steep = tobas_msgs::msg::PreArmCheck::IGNORED;
   }
 
-  prearm_check_pub_->publish(move(postarm_check));
+  // 位置のドリフト
+  if (enable_prearm_check_.position_unstable)
+  {
+    if (odom_ == nullptr)
+    {
+      prearm_check->position_unstable = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      for (const auto& buf : pos_buf_)
+      {
+        if (!buf.isFilled() || buf.range() > kPosDriftThresh)
+        {
+          prearm_check->position_unstable = tobas_msgs::msg::PreArmCheck::FAILED;
+          prearm_check->ok = false;
+          break;
+        }
+      }
+    }
+  }
+  else
+  {
+    prearm_check->position_unstable = tobas_msgs::msg::PreArmCheck::IGNORED;
+  }
+
+  // 位置推定の共分散
+  if (enable_prearm_check_.position_inaccurate)
+  {
+    if (odom_ == nullptr)
+    {
+      prearm_check->position_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      const Vector3d pos_cov_diag = odom_->position_covariance.diagonal();
+      const auto hor_pos_var = max(pos_cov_diag.x(), pos_cov_diag.y());
+      const auto ver_pos_var = pos_cov_diag.z();
+      if (hor_pos_var > math::sqr(kHorPosStddevThresh) || ver_pos_var > math::sqr(kVerPosStddevThresh))
+      {
+        prearm_check->position_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
+  }
+  else
+  {
+    prearm_check->position_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
+  }
+
+  // 姿勢推定の共分散
+  if (enable_prearm_check_.orientation_inaccurate)
+  {
+    if (odom_ == nullptr)
+    {
+      prearm_check->orientation_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
+      if (rot_var > math::sqr(kRotStddevThresh))
+      {
+        prearm_check->orientation_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
+  }
+  else
+  {
+    prearm_check->orientation_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
+  }
+
+  // 速度推定の共分散
+  if (enable_prearm_check_.velocity_inaccurate)
+  {
+    if (odom_ == nullptr)
+    {
+      prearm_check->velocity_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      const auto vel_var = odom_->velocity_covariance.diagonal().maxCoeff();
+      if (vel_var > math::sqr(kVelStddevThresh))
+      {
+        prearm_check->velocity_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
+  }
+  else
+  {
+    prearm_check->velocity_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
+  }
+
+  prearm_check_pub_->publish(move(prearm_check));
 }
 
 void StateCheckerNode::postArmCheck()
@@ -242,7 +352,6 @@ void StateCheckerNode::postArmCheck()
   auto postarm_check = std::make_unique<tobas_msgs::msg::PostArmCheck>();
 
   postarm_check->header.stamp = get_clock()->now();
-  postarm_check->ok = true;
 
   if (imu_ != nullptr)
   {
@@ -254,7 +363,6 @@ void StateCheckerNode::postArmCheck()
       TOBAS_WARN_THROTTLE(
         tobas::kTypicalWarnPeriod, "Gyro noise stddev is too large: ", sqrt(gyro_noise_var), " > ",
         kGyroNoiseStddevThresh, " [m/s^2]");
-      postarm_check->ok = false;
     }
 
     // 加速度ノイズの標準偏差
@@ -265,7 +373,6 @@ void StateCheckerNode::postArmCheck()
       TOBAS_WARN_THROTTLE(
         tobas::kTypicalWarnPeriod, "Accel noise stddev is too large: ", sqrt(acc_noise_var), " > ",
         kAccNoiseStddevThresh, " [m/s^2]");
-      postarm_check->ok = false;
     }
   }
   else
@@ -273,7 +380,6 @@ void StateCheckerNode::postArmCheck()
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "IMU state is not received yet.");
     postarm_check->gyro_noise_too_large = true;
     postarm_check->accel_noise_too_large = true;
-    postarm_check->ok = false;
   }
 
   if (mag_ != nullptr)
@@ -283,7 +389,6 @@ void StateCheckerNode::postArmCheck()
     if (postarm_check->mag_offset_too_large)
     {
       TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "The offset of the geomagnetic vector is too large.");
-      postarm_check->ok = false;
     }
 
     // 世界座標系から見た磁気ベクトルが参照と一致するか
@@ -294,7 +399,6 @@ void StateCheckerNode::postArmCheck()
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Magnetic field is not received yet.");
     postarm_check->mag_offset_too_large = true;
     postarm_check->mag_misalignment = true;
-    postarm_check->ok = false;
   }
 
   // 制御レイテンシ
@@ -308,14 +412,12 @@ void StateCheckerNode::postArmCheck()
     {
       TOBAS_WARN_THROTTLE(
         tobas::kTypicalWarnPeriod, "Control latency is too large: ", latency_us, " > ", kLatencyThresh, " [us]");
-      postarm_check->ok = false;
     }
   }
   else
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Control latency is not received yet.");
     postarm_check->latency_too_large = true;
-    postarm_check->ok = false;
   }
 
   postarm_check_pub_->publish(move(postarm_check));
@@ -360,13 +462,16 @@ void StateCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
   odom_ = odom;
 
-  // アームされていないならば位置を保存
-  if (arming_ != nullptr)
+  if (arming_ == nullptr)
+    return;
+
+  // position_unstable が有効ならば位置の履歴を保存
+  if (enable_prearm_check_.position_unstable)
   {
     if (arming_->data)
     {
-      for (size_t i = 0; i < 3; ++i)
-        pos_buf_[i].clear();
+      for (auto& buf : pos_buf_)
+        buf.clear();
     }
     else
     {

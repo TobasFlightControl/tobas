@@ -2,11 +2,15 @@ std_msgs/Header header
 
 bool ok
 
-bool battery_voltage_too_low
-bool cpu_temperature_too_high
-bool rotor_communication_error
-bool attitude_too_steep
-bool position_unstable
-bool position_inaccurate
-bool orientation_inaccurate
-bool velocity_inaccurate
+uint8 battery_voltage_too_low
+uint8 cpu_temperature_too_high
+uint8 rotor_communication_error
+uint8 attitude_too_steep
+uint8 position_unstable
+uint8 position_inaccurate
+uint8 orientation_inaccurate
+uint8 velocity_inaccurate
+
+uint8 PASSED = 0
+uint8 FAILED = 1
+uint8 IGNORED = 2

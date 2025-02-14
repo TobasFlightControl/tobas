@@ -81,14 +81,14 @@ void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::
   if (arming_->data)
     return;
 
-  voltage_status_->setStatus(!prearm_check->battery_voltage_too_low);
-  cpu_status_->setStatus(!prearm_check->cpu_temperature_too_high);
-  rotors_status_->setStatus(!prearm_check->rotor_communication_error);
-  attitude_status_->setStatus(!prearm_check->attitude_too_steep);
-  pos_stability_status_->setStatus(!prearm_check->position_unstable);
-  pos_accuracy_status_->setStatus(!prearm_check->position_inaccurate);
-  rot_accuracy_status_->setStatus(!prearm_check->orientation_inaccurate);
-  vel_accuracy_status_->setStatus(!prearm_check->velocity_inaccurate);
+  voltage_status_->setStatus(prearm_check->battery_voltage_too_low);
+  cpu_status_->setStatus(prearm_check->cpu_temperature_too_high);
+  rotors_status_->setStatus(prearm_check->rotor_communication_error);
+  attitude_status_->setStatus(prearm_check->attitude_too_steep);
+  pos_stability_status_->setStatus(prearm_check->position_unstable);
+  pos_accuracy_status_->setStatus(prearm_check->position_inaccurate);
+  rot_accuracy_status_->setStatus(prearm_check->orientation_inaccurate);
+  vel_accuracy_status_->setStatus(prearm_check->velocity_inaccurate);
   ready_status_->setStatus(prearm_check->ok);
 }
 }  // namespace gcs
