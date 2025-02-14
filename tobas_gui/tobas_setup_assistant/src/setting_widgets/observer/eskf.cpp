@@ -1,6 +1,5 @@
 #include <tobas_yaml_tools/convert/eigen.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
-#include <tobas_qt_tools/message.hpp>
 
 #include "tobas_setup_assistant/setting_tabs/observer/eskf.hpp"
 
@@ -115,13 +114,6 @@ void ErrorStateKalmanFilterWidget::load(const YAML::Node& node)
 
 bool ErrorStateKalmanFilterWidget::isValid()
 {
-  // 絶対位置が取得できることを確認
-  if (!gnss_->equipped())
-  {
-    qt::qErrorBox(this, "Absolute position connot be observed. Please review the sensor settings.");
-    return false;
-  }
-
   return true;
 }
 }  // namespace sa

@@ -96,6 +96,9 @@ bool SettingsWidget::isValid()
     }
   }
 
+  // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
+  // TODO
+
   return true;
 }
 
