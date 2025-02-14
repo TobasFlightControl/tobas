@@ -8,8 +8,9 @@ uint8 rotor_communication_error
 uint8 attitude_too_steep
 uint8 position_unstable
 uint8 position_inaccurate
-uint8 orientation_inaccurate
 uint8 velocity_inaccurate
+uint8 attitude_inaccurate
+uint8 heading_inaccurate
 
 uint8 PASSED = 0
 uint8 FAILED = 1

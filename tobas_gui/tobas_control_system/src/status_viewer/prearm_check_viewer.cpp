@@ -17,8 +17,9 @@ PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) :
   attitude_status_ = new StatusWidget("Attitude Horizontal");
   pos_stability_status_ = new StatusWidget("Position Stable");
   pos_accuracy_status_ = new StatusWidget("Position Estimation Accurate");
-  rot_accuracy_status_ = new StatusWidget("Orientation Estimation Accurate");
   vel_accuracy_status_ = new StatusWidget("Velocity Estimation Accurate");
+  atti_accuracy_status_ = new StatusWidget("Attitude Estimation Accurate");
+  head_accuracy_status_ = new StatusWidget("Heading Estimation Accurate");
   ready_status_ = new StatusWidget("Ready to Arm");
 
   const auto rows = new QVBoxLayout();
@@ -28,8 +29,9 @@ PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) :
   rows->addWidget(attitude_status_);
   rows->addWidget(pos_stability_status_);
   rows->addWidget(pos_accuracy_status_);
-  rows->addWidget(rot_accuracy_status_);
   rows->addWidget(vel_accuracy_status_);
+  rows->addWidget(atti_accuracy_status_);
+  rows->addWidget(head_accuracy_status_);
   rows->addWidget(ready_status_);
   rows->addStretch();
 
@@ -44,8 +46,9 @@ void PreArmCheckViewerWidget::reset()
   attitude_status_->reset();
   pos_stability_status_->reset();
   pos_accuracy_status_->reset();
-  rot_accuracy_status_->reset();
   vel_accuracy_status_->reset();
+  atti_accuracy_status_->reset();
+  head_accuracy_status_->reset();
   ready_status_->reset();
 }
 
@@ -87,8 +90,9 @@ void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::
   attitude_status_->setStatus(prearm_check->attitude_too_steep);
   pos_stability_status_->setStatus(prearm_check->position_unstable);
   pos_accuracy_status_->setStatus(prearm_check->position_inaccurate);
-  rot_accuracy_status_->setStatus(prearm_check->orientation_inaccurate);
   vel_accuracy_status_->setStatus(prearm_check->velocity_inaccurate);
+  atti_accuracy_status_->setStatus(prearm_check->attitude_inaccurate);
+  head_accuracy_status_->setStatus(prearm_check->heading_inaccurate);
   ready_status_->setStatus(prearm_check->ok);
 }
 }  // namespace gcs

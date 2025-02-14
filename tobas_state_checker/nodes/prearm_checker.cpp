@@ -20,13 +20,14 @@ class PreArmCheckerNode : public tobas::BaseNode
 {
   static constexpr auto kMainTimerPeriod = 100ms;
 
-  static constexpr double kPosDriftThresh = 1.;          // [m]
-  static constexpr double kCPUTempThresh = 70.;          // [degC]
-  static constexpr double kAttitudeThresh = M_PI / 6;    // [rad/s]
-  static constexpr double kHorPosStddevThresh = 1.;      // [m]
-  static constexpr double kVerPosStddevThresh = 2.;      // [m]
-  static constexpr double kRotStddevThresh = M_PI / 24;  // [rad]
-  static constexpr double kVelStddevThresh = 0.3;        // [m/s]
+  static constexpr double kPosDriftThresh = 1.;           // [m]
+  static constexpr double kCPUTempThresh = 70.;           // [degC]
+  static constexpr double kAttitudeThresh = M_PI / 6;     // [rad/s]
+  static constexpr double kHorPosStddevThresh = 1.;       // [m]
+  static constexpr double kVerPosStddevThresh = 2.;       // [m]
+  static constexpr double kVelStddevThresh = 0.3;         // [m/s]
+  static constexpr double kAttiStddevThresh = M_PI / 24;  // [rad]
+  static constexpr double kHeadStddevThresh = M_PI / 12;  // [rad]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
 
   using self = PreArmCheckerNode;
@@ -45,8 +46,9 @@ private:
     bool attitude_too_steep;
     bool position_unstable;
     bool position_inaccurate;
-    bool orientation_inaccurate;
     bool velocity_inaccurate;
+    bool attitude_inaccurate;
+    bool heading_inaccurate;
   } do_check_;
 
   tobas::Drone::ConstSharedPtr drone_;
@@ -113,8 +115,9 @@ void PreArmCheckerNode::getStaticRosParams()
   do_check_.attitude_too_steep = getBoolParam("check_attitude_level", true);
   do_check_.position_unstable = getBoolParam("check_position_stability", true);
   do_check_.position_inaccurate = getBoolParam("check_position_accuracy", true);
-  do_check_.orientation_inaccurate = getBoolParam("check_orientation_accuracy", true);
   do_check_.velocity_inaccurate = getBoolParam("check_velocity_accuracy", true);
+  do_check_.attitude_inaccurate = getBoolParam("check_attitude_accuracy", true);
+  do_check_.heading_inaccurate = getBoolParam("check_heading_accuracy", true);
 }
 
 void PreArmCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -336,29 +339,6 @@ void PreArmCheckerNode::mainTimerCb()
     prearm_check->position_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
   }
 
-  // 姿勢推定の共分散
-  if (do_check_.orientation_inaccurate)
-  {
-    if (odom_ == nullptr)
-    {
-      prearm_check->orientation_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
-      prearm_check->ok = false;
-    }
-    else
-    {
-      const auto rot_var = odom_->orientation_covariance.diagonal().maxCoeff();
-      if (rot_var > math::sqr(kRotStddevThresh))
-      {
-        prearm_check->orientation_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
-        prearm_check->ok = false;
-      }
-    }
-  }
-  else
-  {
-    prearm_check->orientation_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
-  }
-
   // 速度推定の共分散
   if (do_check_.velocity_inaccurate)
   {
@@ -380,6 +360,52 @@ void PreArmCheckerNode::mainTimerCb()
   else
   {
     prearm_check->velocity_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
+  }
+
+  // 姿勢推定の共分散
+  if (do_check_.attitude_inaccurate)
+  {
+    if (odom_ == nullptr)
+    {
+      prearm_check->attitude_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      const auto atti_var = odom_->orientation_covariance.diagonal().head<2>().maxCoeff();
+      if (atti_var > math::sqr(kAttiStddevThresh))
+      {
+        prearm_check->attitude_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
+  }
+  else
+  {
+    prearm_check->attitude_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
+  }
+
+  // 方位推定の共分散
+  if (do_check_.heading_inaccurate)
+  {
+    if (odom_ == nullptr)
+    {
+      prearm_check->heading_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      const auto head_var = odom_->orientation_covariance(2, 2);
+      if (head_var > math::sqr(kHeadStddevThresh))
+      {
+        prearm_check->heading_inaccurate = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
+  }
+  else
+  {
+    prearm_check->heading_inaccurate = tobas_msgs::msg::PreArmCheck::IGNORED;
   }
 
   prearm_check_pub_->publish(move(prearm_check));

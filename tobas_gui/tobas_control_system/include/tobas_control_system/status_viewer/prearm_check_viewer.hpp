@@ -32,8 +32,9 @@ private:
   StatusWidget* attitude_status_;
   StatusWidget* pos_stability_status_;
   StatusWidget* pos_accuracy_status_;
-  StatusWidget* rot_accuracy_status_;
   StatusWidget* vel_accuracy_status_;
+  StatusWidget* atti_accuracy_status_;
+  StatusWidget* head_accuracy_status_;
   StatusWidget* ready_status_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
