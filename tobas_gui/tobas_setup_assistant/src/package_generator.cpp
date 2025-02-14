@@ -568,8 +568,9 @@ bool PackageGenerator::generatePreArmCheckConfig(const std::filesystem::path& co
   node["check_attitude_level"] = settings_->pre_arm_check->checkAttitudeLevel();
   node["check_position_stability"] = settings_->pre_arm_check->checkPositionStability();
   node["check_position_accuracy"] = settings_->pre_arm_check->checkPositionAccuracy();
-  node["check_orientation_accuracy"] = settings_->pre_arm_check->checkOrientationAccuracy();
   node["check_velocity_accuracy"] = settings_->pre_arm_check->checkVelocityAccuracy();
+  node["check_attitude_accuracy"] = settings_->pre_arm_check->checkAttitudeAccuracy();
+  node["check_heading_accuracy"] = settings_->pre_arm_check->checkHeadingAccuracy();
 
   if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node))
     return false;

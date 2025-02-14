@@ -14,8 +14,9 @@ PreArmCheckWidget::PreArmCheckWidget()
   attitude_level_ = new QCheckBox("Check rotor communication");
   position_stability_ = new QCheckBox("Check position stability");
   position_accuracy_ = new QCheckBox("Check position accuracy");
-  orientation_accuracy_ = new QCheckBox("Check orientation accuracy");
   velocity_accuracy_ = new QCheckBox("Check velocity accuracy");
+  attitude_accuracy_ = new QCheckBox("Check attitude accuracy");
+  heading_accuracy_ = new QCheckBox("Check heading accuracy");
 
   battery_voltage_->setChecked(true);
   cpu_temperature_->setChecked(true);
@@ -23,8 +24,9 @@ PreArmCheckWidget::PreArmCheckWidget()
   attitude_level_->setChecked(true);
   position_stability_->setChecked(true);
   position_accuracy_->setChecked(true);
-  orientation_accuracy_->setChecked(true);
   velocity_accuracy_->setChecked(true);
+  attitude_accuracy_->setChecked(true);
+  heading_accuracy_->setChecked(true);
 
   addWidget(battery_voltage_);
   addWidget(cpu_temperature_);
@@ -32,8 +34,9 @@ PreArmCheckWidget::PreArmCheckWidget()
   addWidget(attitude_level_);
   addWidget(position_stability_);
   addWidget(position_accuracy_);
-  addWidget(orientation_accuracy_);
   addWidget(velocity_accuracy_);
+  addWidget(attitude_accuracy_);
+  addWidget(heading_accuracy_);
   addStretch();
 }
 
@@ -75,8 +78,9 @@ YAML::Node PreArmCheckWidget::dump()
   node[attitude_level_->text()] = attitude_level_->isChecked();
   node[position_stability_->text()] = position_stability_->isChecked();
   node[position_accuracy_->text()] = position_accuracy_->isChecked();
-  node[orientation_accuracy_->text()] = orientation_accuracy_->isChecked();
   node[velocity_accuracy_->text()] = velocity_accuracy_->isChecked();
+  node[attitude_accuracy_->text()] = attitude_accuracy_->isChecked();
+  node[heading_accuracy_->text()] = heading_accuracy_->isChecked();
 
   return node;
 }
@@ -89,8 +93,9 @@ void PreArmCheckWidget::load(const YAML::Node& node)
   attitude_level_->setChecked(node[attitude_level_->text()].as<bool>());
   position_stability_->setChecked(node[position_stability_->text()].as<bool>());
   position_accuracy_->setChecked(node[position_accuracy_->text()].as<bool>());
-  orientation_accuracy_->setChecked(node[orientation_accuracy_->text()].as<bool>());
   velocity_accuracy_->setChecked(node[velocity_accuracy_->text()].as<bool>());
+  attitude_accuracy_->setChecked(node[attitude_accuracy_->text()].as<bool>());
+  heading_accuracy_->setChecked(node[heading_accuracy_->text()].as<bool>());
 }
 
 bool PreArmCheckWidget::checkBatteryVoltage() const
@@ -123,14 +128,19 @@ bool PreArmCheckWidget::checkPositionAccuracy() const
   return position_accuracy_->isChecked();
 }
 
-bool PreArmCheckWidget::checkOrientationAccuracy() const
-{
-  return orientation_accuracy_->isChecked();
-}
-
 bool PreArmCheckWidget::checkVelocityAccuracy() const
 {
   return velocity_accuracy_->isChecked();
+}
+
+bool PreArmCheckWidget::checkAttitudeAccuracy() const
+{
+  return attitude_accuracy_->isChecked();
+}
+
+bool PreArmCheckWidget::checkHeadingAccuracy() const
+{
+  return heading_accuracy_->isChecked();
 }
 }  // namespace sa
 }  // namespace gui

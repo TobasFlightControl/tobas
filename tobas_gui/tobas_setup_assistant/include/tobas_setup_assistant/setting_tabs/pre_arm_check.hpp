@@ -35,8 +35,9 @@ public:
   bool checkAttitudeLevel() const;
   bool checkPositionStability() const;
   bool checkPositionAccuracy() const;
-  bool checkOrientationAccuracy() const;
   bool checkVelocityAccuracy() const;
+  bool checkAttitudeAccuracy() const;
+  bool checkHeadingAccuracy() const;
 
 private:
   QCheckBox* battery_voltage_;
@@ -45,8 +46,9 @@ private:
   QCheckBox* attitude_level_;
   QCheckBox* position_stability_;
   QCheckBox* position_accuracy_;
-  QCheckBox* orientation_accuracy_;
   QCheckBox* velocity_accuracy_;
+  QCheckBox* attitude_accuracy_;
+  QCheckBox* heading_accuracy_;
 };
 }  // namespace sa
 }  // namespace gui
