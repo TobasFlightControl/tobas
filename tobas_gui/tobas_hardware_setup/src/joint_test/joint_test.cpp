@@ -55,7 +55,7 @@ const char* JointTestWidget::name() const
 
 const char* JointTestWidget::title() const
 {
-  return "Test Joints (PWM interface only)";
+  return "Test Joints with PWM Interface";
 }
 
 void JointTestWidget::reset()

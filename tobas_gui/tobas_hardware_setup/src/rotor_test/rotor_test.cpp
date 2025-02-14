@@ -82,7 +82,7 @@ const char* RotorTestWidget::name() const
 
 const char* RotorTestWidget::title() const
 {
-  return "Test Rotors";
+  return "Test Propulsion Rotors";
 }
 
 void RotorTestWidget::reset()

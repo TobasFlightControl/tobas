@@ -66,7 +66,7 @@ const char* NetworkSettingWidget::name() const
 
 const char* NetworkSettingWidget::title() const
 {
-  return "Setup Network";
+  return "Configure Wireless Network";
 }
 
 void NetworkSettingWidget::reset()
