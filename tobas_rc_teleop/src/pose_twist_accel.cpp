@@ -13,6 +13,26 @@ PoseTwistAccelController::PoseTwistAccelController()
 {
 }
 
+bool PoseTwistAccelController::requirePosition()
+{
+  return true;
+}
+
+bool PoseTwistAccelController::requireOrientation()
+{
+  return true;
+}
+
+bool PoseTwistAccelController::requireLinearVelocity()
+{
+  return true;
+}
+
+bool PoseTwistAccelController::requireAngularVelocity()
+{
+  return true;
+}
+
 void PoseTwistAccelController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);

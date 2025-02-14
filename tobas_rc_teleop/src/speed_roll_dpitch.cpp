@@ -12,6 +12,26 @@ SpeedRollDeltaPitchController::SpeedRollDeltaPitchController()
 {
 }
 
+bool SpeedRollDeltaPitchController::requirePosition()
+{
+  return false;
+}
+
+bool SpeedRollDeltaPitchController::requireOrientation()
+{
+  return true;
+}
+
+bool SpeedRollDeltaPitchController::requireLinearVelocity()
+{
+  return true;
+}
+
+bool SpeedRollDeltaPitchController::requireAngularVelocity()
+{
+  return false;
+}
+
 void SpeedRollDeltaPitchController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);

@@ -23,10 +23,17 @@ namespace tobas_rc_teleop
 {
 class RCTeleopNode : public tobas::BaseNode
 {
-  static constexpr double kArmThrotThresh = 0.1;       // [-]
-  static constexpr double kArmDuration = 5.;           // [s]
-  static constexpr double kDisarmDuration = 2.;        // [s]
+  static constexpr double kArmThrotThresh = 0.1;  // [-]
+  static constexpr double kArmDuration = 5.;      // [s]
+  static constexpr double kDisarmDuration = 2.;   // [s]
+
+  static constexpr double kPosStddevThresh = 3.;           // [m]
+  static constexpr double kRotStddevThresh = M_PI / 12;    // [rad]
+  static constexpr double kLinVelStddevThresh = 1.;        // [m/s]
+  static constexpr double kAngVelStddevThresh = M_PI / 3;  // [rad/s]
+
   static constexpr double kArmCommandInfoPeriod = 1.;  // [s]
+  static constexpr double kModeChangeWarnPeriod = 1.;  // [s]
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -53,7 +60,7 @@ private:
   array<tobas::rc_command_t, tobas::kNumFlightModes> modes_;
 
   // Mutables
-  uint8_t last_mode_;
+  uint8_t cur_mode_;
   rclcpp::Time t_arm_start_;
   rclcpp::Time t_disarm_start_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
@@ -78,6 +85,8 @@ private:
 
   bool isArmCommand(const tobas_msgs::msg::RCInput& rcin);
   bool isDisarmCommand(const tobas_msgs::msg::RCInput& rcin);
+
+  bool isFlightModeApplicable(uint8_t mode);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -158,6 +167,60 @@ bool RCTeleopNode::isDisarmCommand(const tobas_msgs::msg::RCInput& rcin)
 {
   return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw > 1 - kArmThrotThresh
          && rcin.throttle < -1 + kArmThrotThresh;
+}
+
+bool RCTeleopNode::isFlightModeApplicable(uint8_t mode)
+{
+  const auto& controller = controllers_.at(mode);
+
+  if (controller->requirePosition())
+  {
+    const auto max_pos_var = odom_->position_covariance.eigenvalues().real().maxCoeff();
+    if (max_pos_var > math::sqr(kPosStddevThresh))
+    {
+      TOBAS_WARN_THROTTLE(
+        kModeChangeWarnPeriod, mode2str_.at(mode), " mode cannot be appied because position estimation is innacurate.");
+      return false;
+    }
+  }
+
+  if (controller->requireOrientation())
+  {
+    const auto max_rot_var = odom_->orientation_covariance.eigenvalues().real().maxCoeff();
+    if (max_rot_var > math::sqr(kRotStddevThresh))
+    {
+      TOBAS_WARN_THROTTLE(
+        kModeChangeWarnPeriod, mode2str_.at(mode),
+        " mode cannot be appied because orientation estimation is innacurate.");
+      return false;
+    }
+  }
+
+  if (controller->requireLinearVelocity())
+  {
+    const auto max_linvel_var = odom_->velocity_covariance.eigenvalues().real().maxCoeff();
+    if (max_linvel_var > math::sqr(kLinVelStddevThresh))
+    {
+      TOBAS_WARN_THROTTLE(
+        kModeChangeWarnPeriod, mode2str_.at(mode),
+        " mode cannot be appied because linear velocity estimation is innacurate.");
+      return false;
+    }
+  }
+
+  if (controller->requireAngularVelocity())
+  {
+    const auto max_angvel_var = odom_->gyro_covariance.eigenvalues().real().maxCoeff();
+    if (max_angvel_var > math::sqr(kAngVelStddevThresh))
+    {
+      TOBAS_WARN_THROTTLE(
+        kModeChangeWarnPeriod, mode2str_.at(mode),
+        " mode cannot be appied because angular velocity estimation is innacurate.");
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void RCTeleopNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
@@ -249,16 +312,19 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
 
     case FIRST_COMMAND:
     {
-      const auto& cur_mode = rcin->mode;
-      if (cur_mode >= tobas::kNumFlightModes)
+      const auto& new_mode = rcin->mode;
+      if (new_mode >= tobas::kNumFlightModes)
       {
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)cur_mode);
-        return;
+        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)new_mode);
+        break;
       }
 
-      controllers_[cur_mode]->reset(*odom_);
-      last_mode_ = cur_mode;
-      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(cur_mode), "\".");
+      if (!isFlightModeApplicable(new_mode))
+        break;
+
+      controllers_[new_mode]->reset(*odom_);
+      cur_mode_ = new_mode;
+      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(new_mode), "\".");
 
       t_disarm_start_ = rcin->header.stamp;
       stage_ = RUNNING;
@@ -293,22 +359,25 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       t_disarm_start_ = rcin->header.stamp;
 
       // フライトモードを取得
-      const auto& cur_mode = rcin->mode;
-      if (cur_mode >= tobas::kNumFlightModes)
+      const auto& new_mode = rcin->mode;
+      if (new_mode >= tobas::kNumFlightModes)
       {
         TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
-        return;
+        break;
       }
-      if (cur_mode != last_mode_)
+
+      // フライトモードの変更があった場合，適用可能な場合に限り変更する．
+      // 適用できない場合は前のフライトモードを継続する．
+      if (new_mode != cur_mode_ && isFlightModeApplicable(new_mode))
       {
-        controllers_[cur_mode]->reset(*odom_);
-        last_mode_ = cur_mode;
-        TOBAS_INFO("Flight mode changed to \"", mode2str_.at(cur_mode), "\".");
+        controllers_[new_mode]->reset(*odom_);
+        cur_mode_ = new_mode;
+        TOBAS_INFO("Flight mode changed to \"", mode2str_.at(new_mode), "\".");
         break;
       }
 
       // コマンド送信
-      controllers_[cur_mode]->update(*rcin, *odom_);
+      controllers_[new_mode]->update(*rcin, *odom_);
 
       break;
     }

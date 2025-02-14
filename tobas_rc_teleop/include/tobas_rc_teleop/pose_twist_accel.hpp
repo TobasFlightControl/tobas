@@ -13,6 +13,11 @@ class PoseTwistAccelController : public BaseController
 public:
   explicit PoseTwistAccelController();
 
+  bool requirePosition() override;
+  bool requireOrientation() override;
+  bool requireLinearVelocity() override;
+  bool requireAngularVelocity() override;
+
   void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
   void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;

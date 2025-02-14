@@ -13,6 +13,26 @@ PosVelAccYawController::PosVelAccYawController()
 {
 }
 
+bool PosVelAccYawController::requirePosition()
+{
+  return true;
+}
+
+bool PosVelAccYawController::requireOrientation()
+{
+  return false;
+}
+
+bool PosVelAccYawController::requireLinearVelocity()
+{
+  return true;
+}
+
+bool PosVelAccYawController::requireAngularVelocity()
+{
+  return false;
+}
+
 void PosVelAccYawController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);

@@ -12,6 +12,26 @@ RateThrottleController::RateThrottleController()
 {
 }
 
+bool RateThrottleController::requirePosition()
+{
+  return false;
+}
+
+bool RateThrottleController::requireOrientation()
+{
+  return false;
+}
+
+bool RateThrottleController::requireLinearVelocity()
+{
+  return false;
+}
+
+bool RateThrottleController::requireAngularVelocity()
+{
+  return true;
+}
+
 void RateThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);

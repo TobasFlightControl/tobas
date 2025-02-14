@@ -13,6 +13,26 @@ AngleThrottleController::AngleThrottleController()
 {
 }
 
+bool AngleThrottleController::requirePosition()
+{
+  return false;
+}
+
+bool AngleThrottleController::requireOrientation()
+{
+  return true;
+}
+
+bool AngleThrottleController::requireLinearVelocity()
+{
+  return false;
+}
+
+bool AngleThrottleController::requireAngularVelocity()
+{
+  return false;
+}
+
 void AngleThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);

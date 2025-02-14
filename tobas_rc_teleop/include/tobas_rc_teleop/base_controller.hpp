@@ -14,6 +14,11 @@ class BaseController
 public:
   explicit BaseController();
 
+  virtual bool requirePosition() = 0;
+  virtual bool requireOrientation() = 0;
+  virtual bool requireLinearVelocity() = 0;
+  virtual bool requireAngularVelocity() = 0;
+
   virtual void initialize(tobas::BaseNode* node) = 0;
   virtual void reset(const tobas_msgs::Odometry& odom) = 0;
   virtual void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) = 0;
