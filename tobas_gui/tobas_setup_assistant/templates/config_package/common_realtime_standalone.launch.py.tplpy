@@ -196,7 +196,17 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package="tobas_state_checker",
-            executable="state_checker",
+            executable="prearm_checker",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
+            package="tobas_state_checker",
+            executable="postarm_checker",
             namespace=DRONE_NAME,
             remappings=remappings,
             ros_arguments=ros_args,

@@ -12,14 +12,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werro
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
-find_package(std_srvs REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
-	std_srvs
 	tobas_node
 	tobas_tools
 	tobas_msgs_adapter
@@ -31,7 +29,8 @@ include_directories(include)
 file(GLOB_RECURSE NODE_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} nodes/[^.]*.cpp)
 add_library(${PROJECT_NAME}_node SHARED ${NODE_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME}_node ${AMENT_DEPENDENCIES})
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "StateCheckerNode" EXECUTABLE state_checker)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PreArmCheckerNode" EXECUTABLE prearm_checker)
+rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "PostArmCheckerNode" EXECUTABLE postarm_checker)
 
 install(
 	TARGETS ${PROJECT_NAME}_node
