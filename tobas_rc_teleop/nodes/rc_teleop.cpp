@@ -1,3 +1,5 @@
+#include <eigen3/Eigen/Eigen>
+
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
