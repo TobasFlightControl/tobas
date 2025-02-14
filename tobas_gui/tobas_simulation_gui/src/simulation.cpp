@@ -140,20 +140,17 @@ bool SimulationWidget::killGazeboLaunch()
 
 bool SimulationWidget::startSITL()
 {
-  // プログレスバーを作成
-  qt::ProgressDialog progress("Start Gazebo SITL", 5, this);
-  progress.setCancelButton(nullptr);
-  progress.show();
-
-  // FCに接続できないことを確認
-  progress.setLabelText("Checking SSH connection status.");
-  if (ssh_client_.connect() == ssh::SSHClient::E_NO_ERROR)
+  // フライトコードが起動していないことを確認
+  if (arming_ != nullptr)
   {
-    qt::qWarnBox(this, "This operation cannot be performed while connecting to the flight controller.");
-    progress.close();
+    qt::qWarnBox(this, "This operation cannot be performed while flight controller is active.");
     return false;
   }
-  progress.progressStep();
+
+  // プログレスバーを作成
+  qt::ProgressDialog progress("Start Gazebo SITL", 4, this);
+  progress.setCancelButton(nullptr);
+  progress.show();
 
   // Tobasパッケージをビルド
   progress.setLabelText("Building Tobas package.");
