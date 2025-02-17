@@ -1,44 +1,54 @@
 # Tobas
 
+Tobas is a next-generation, model-based flight controller created to meet the demands of the rapidly expanding drone market, where aircraft are becoming larger and increasingly specialized. Unlike traditional controllers, Tobas takes each airframe’s unique physical properties into account when designing its control system, enabling precise flight performance even for unconventional frames not supported by conventional solutions.
+
+## Documentation
+
+[Tobas User Guide](https://tobas-wiki-ja.readthedocs.io/ja/stable/)
+
 ## Setup from source (Ubuntu 24.04 LTS)
 
-1. Install prerequisites
+1. [Install ROS 2 Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
 
 ```bash
+# Set locale
 $ sudo apt update
-$ sudo apt install -y curl build-essential locales software-properties-common python3-dev python3-pip
-```
-
-2. Set locale
-
-```bash
+$ sudo apt install -y locales
 $ sudo locale-gen en_US en_US.UTF-8
 $ sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 $ export LANG=en_US.UTF-8
+
+# Enable required repositories
+$ sudo apt install -y software-properties-common
+$ yes "" | sudo add-apt-repository universe
+$ sudo apt update
+$ sudo apt install -y curl
+$ sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+$ sudo apt update
+$ sudo apt upgrade -y
+
+# Install development tools (optional)
+$ sudo apt install -y ros-dev-tools
+$ sudo apt install -y python3-colcon-common-extensions
+$ sudo apt install -y python3-colcon-clean
+
+# Install ROS 2
+$ sudo apt install -y ros-jazzy-desktop-full
+
+# Initialize rosdep
+$ sudo rosdep init
+$ rosdep update
 ```
 
-3. Install ROS 2 Jazzy
-
-```bash
-yes "" | sudo add-apt-repository universe
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-sudo apt update
-sudo apt upgrade -y
-sudo apt install -y ros-dev-tools
-sudo apt install -y ros-jazzy-desktop-full
-sudo rosdep init
-rosdep update
-```
-
-4. Create colcon workspace
+2. Create colcon workspace
 
 ```bash
 $ mkdir -p ~/colcon_ws/src
 $ cd ~/colcon_ws
 ```
 
-5. Set up your system to source your colcon workspace automatically each time a new shell is opened (optional)
+3. Set up your system to source your colcon workspace automatically each time a new shell is opened (optional)
 
 ```bash
 $ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
@@ -46,27 +56,27 @@ $ echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc
 $ exec bash
 ```
 
-6. Clone Tobas
+4. Clone Tobas
 
 ```bash
 $ cd ~/colcon_ws/src
 $ git clone git@github.com:TobasFlightControl/tobas.git -b main
 ```
 
-7. Install ROS dependencies
+5. Install ROS dependencies
 
 ```bash
 $ rosdep install --from-paths ~/colcon_ws/src/tobas -yi
 ```
 
-8. Build
+6. Build
 
 ```bash
 $ cd ~/colcon_ws
 $ colcon build --packages-up-to tobas
 ```
 
-## CLI Interfaces
+## Command Line Interfaces
 
 ### Launch Tobas GCS
 
@@ -74,16 +84,20 @@ $ colcon build --packages-up-to tobas
 $ ros2 launch tobas_gui_core gui.launch.py
 ```
 
-### SITL (Simulation in the Loop)
-
-1. Launch Gazebo simulator
+### Launch Gazebo simulation
 
 ```bash
 $ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
 ```
 
-2. Launch GUI teleoperation (Optional)
+## TO-DO List (2025)
 
-```bash
-$ ros2 launch ${TOBAS_PACKAGE}_config gui_teleop.launch
-```
+- [x] Support for active-tilt multicopters
+- [ ] Support for engine-driven models
+- [ ] Support for variable-pitch multicopters
+- [ ] Support for fixed-wing
+- [ ] Support for VTOL
+- [ ] Enable Raspberry Pi 5 GPU for GPGPU usage
+- [ ] Visual Inertial Odometry (VIO)
+- [ ] Obstacle avoidance
+- [ ] Automatic path planning
