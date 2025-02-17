@@ -97,7 +97,8 @@ $ ros2 launch ${TOBAS_PACKAGE}_config gazebo.launch
 - [ ] Support for variable-pitch multicopters
 - [ ] Support for fixed-wing
 - [ ] Support for VTOL
-- [ ] Enable Raspberry Pi 5 GPU for GPGPU usage
+- [ ] CM5-based FMU
+- [ ] VideoCore VII as GPGPU
 - [ ] Visual Inertial Odometry (VIO)
 - [ ] Obstacle avoidance
 - [ ] Automatic path planning
