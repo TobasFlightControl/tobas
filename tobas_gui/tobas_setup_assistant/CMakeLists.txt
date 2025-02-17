@@ -58,7 +58,7 @@ qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 add_executable(main nodes/main.cpp)
