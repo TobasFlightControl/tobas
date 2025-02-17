@@ -43,7 +43,7 @@ void PostArmCheckViewerWidget::updateNamespace(const std::string& ns)
 
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-  prearm_check_sub_ = ros2::createSubscriber(
+  postarm_check_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPostArmCheckTopic), &self::postArmCheckCb, this);
 }
 

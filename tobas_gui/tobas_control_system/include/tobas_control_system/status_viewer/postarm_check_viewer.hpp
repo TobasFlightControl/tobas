@@ -35,7 +35,7 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PostArmCheck> prearm_check_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::PostArmCheck> postarm_check_sub_;
 
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check);
