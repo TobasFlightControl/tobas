@@ -1,6 +1,9 @@
 # Tobas
 
-Tobas is a next-generation, model-based flight controller created to meet the demands of the rapidly expanding drone market, where aircraft are becoming larger and increasingly specialized. Unlike traditional controllers, Tobas takes each airframe’s unique physical properties into account when designing its control system, enabling precise flight performance even for unconventional frames not supported by conventional solutions.
+Tobas is a next-generation, model-based flight controller created to meet the demands of the rapidly expanding drone market,
+where aircraft are becoming larger and increasingly specialized.
+Unlike traditional controllers, Tobas takes each airframe’s unique physical properties into account when designing its control system,
+enabling precise flight performance even for unconventional frames not supported by conventional solutions.
 
 ## Documentation
 
