@@ -27,8 +27,6 @@ void RotorsViewerWiddget::reset()
 
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
-  rotor_states_sub_ = nullptr;
-
   meters_.clear();
   qt::clearLayout(cols_);
 
