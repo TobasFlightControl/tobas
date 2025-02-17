@@ -65,9 +65,16 @@ void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
 {
   if (arming_ == nullptr)
+  {
+    reset();
     return;
+  }
+
   if (!arming_->data)
+  {
+    reset();
     return;
+  }
 
   gyro_noise_status_->setStatus(!postarm_check->gyro_noise_too_large);
   accel_noise_status_->setStatus(!postarm_check->accel_noise_too_large);

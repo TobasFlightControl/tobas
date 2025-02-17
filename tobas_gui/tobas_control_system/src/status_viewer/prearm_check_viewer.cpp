@@ -80,9 +80,16 @@ void PreArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShare
 void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
   if (arming_ == nullptr)
+  {
+    reset();
     return;
+  }
+
   if (arming_->data)
+  {
+    reset();
     return;
+  }
 
   voltage_status_->setStatus(prearm_check->battery_voltage_too_low);
   cpu_status_->setStatus(prearm_check->cpu_temperature_too_high);
