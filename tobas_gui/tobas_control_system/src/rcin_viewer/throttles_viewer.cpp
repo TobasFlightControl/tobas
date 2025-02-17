@@ -59,8 +59,6 @@ void ThrottlesViewer::reset()
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
-
-  rcin_sub_ = nullptr;
 }
 
 void ThrottlesViewer::updateNamespace(const std::string& ns)
