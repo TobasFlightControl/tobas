@@ -1,6 +1,8 @@
 #pragma once
 
-#include <tobas_qt_tools/rviz.hpp>
+#include <QWidget>
+
+#include <tobas_rviz_wrapper/rviz.hpp>
 
 namespace gui
 {
@@ -16,7 +18,7 @@ public:
   void reset();
 
 private:
-  qt::RvizFrameManager rviz_manager_;
+  rviz::RvizFrameManager rviz_manager_;
 };
 }  // namespace urdf_builder
 }  // namespace gui

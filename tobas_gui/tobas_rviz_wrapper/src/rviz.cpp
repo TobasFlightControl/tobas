@@ -1,10 +1,12 @@
-#include <QDebug>
 #include <OgreMaterialManager.h>
 #include <rviz_common/yaml_config_reader.hpp>
+#include <rviz_common/visualization_frame.hpp>  // XXX: rviz_rendering/render_window.hppがDQT_NO_KEYWORDに対応していない
+#include <rviz_common/visualization_manager.hpp>
+#include <rviz_common/display_group.hpp>
 
-#include "tobas_qt_tools/rviz.hpp"
+#include "../include/tobas_rviz_wrapper/rviz.hpp"
 
-namespace qt
+namespace rviz
 {
 RvizFrameManager::RvizFrameManager(const std::string& node_name)
 {
@@ -90,7 +92,7 @@ rviz_common::Display* RvizFrameManager::getDisplay(const QString& name)
 
     if (display == nullptr)
     {
-      qWarning() << "Failed to get display of index " << QString::number(i);
+      RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to get display of index " << std::to_string(i));
       continue;
     };
 
@@ -98,7 +100,7 @@ rviz_common::Display* RvizFrameManager::getDisplay(const QString& name)
       return display;
   }
 
-  qWarning() << "Failed to find display named \"" << name << "\"";
+  RCLCPP_WARN_STREAM(rawNode()->get_logger(), "Failed to find display named \"" << name.toStdString() << "\"");
   return nullptr;
 }
 
@@ -120,4 +122,4 @@ void RvizFrameManager::removeDefaultColorMaterials()
   material_manager->remove("RVIZ/ShadedBlue", "rviz_rendering");
   material_manager->remove("RVIZ/ShadedCyan", "rviz_rendering");
 }
-}  // namespace qt
+}  // namespace rviz

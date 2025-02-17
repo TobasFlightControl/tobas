@@ -73,8 +73,8 @@ void ToggleSwitch::mousePressEvent(QMouseEvent*)
   if (ignore_mouse_press_event_)
     return;
 
-  checked_ = !checked_;    // 状態をトグル
-  emit toggled(checked_);  // トグル状態が変わったことを通知
+  checked_ = !checked_;      // 状態をトグル
+  Q_EMIT toggled(checked_);  // トグル状態が変わったことを通知
 }
 
 void ToggleSwitch::resizeEvent(QResizeEvent* event)

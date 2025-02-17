@@ -5,7 +5,7 @@
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
-#include <tobas_qt_tools/rviz.hpp>
+#include <tobas_rviz_wrapper/rviz.hpp>
 
 #include "./robot_info.hpp"
 
@@ -46,7 +46,7 @@ private Q_SLOTS:
 private:
   const RobotInfo& robot_;
 
-  qt::RvizFrameManager rviz_manager_;
+  rviz::RvizFrameManager rviz_manager_;
   rviz_common::Display* display_;
 
   rviz_common::properties::BoolProperty* enable_visual_;

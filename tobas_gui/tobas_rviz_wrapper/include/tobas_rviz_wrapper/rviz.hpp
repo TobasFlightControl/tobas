@@ -1,12 +1,16 @@
 #pragma once
 
 #include <rviz_common/ros_integration/ros_node_abstraction.hpp>
-#include <rviz_common/visualization_frame.hpp>
-#include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/display_group.hpp>
 #include <rviz_common/display.hpp>
 
-namespace qt
+namespace rviz_common
+{
+class VisualizationFrame;
+class VisualizationManager;
+class DisplayGroup;
+}  // namespace rviz_common
+
+namespace rviz
 {
 class RvizFrameManager
 {
@@ -35,4 +39,4 @@ private:
 
   void removeDefaultColorMaterials();
 };
-}  // namespace qt
+}  // namespace rviz

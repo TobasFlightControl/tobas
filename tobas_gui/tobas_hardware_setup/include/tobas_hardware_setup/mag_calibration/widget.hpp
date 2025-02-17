@@ -9,7 +9,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
-#include <tobas_qt_tools/rviz.hpp>
+#include <tobas_rviz_wrapper/rviz.hpp>
 
 #include "../base.hpp"
 
@@ -44,7 +44,7 @@ public:
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  qt::RvizFrameManager rviz_manager_;
+  rviz::RvizFrameManager rviz_manager_;
 
   std::string ns_;
 
