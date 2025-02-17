@@ -4,7 +4,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 TemplateGenerator::TemplateGenerator(const fs::path& tpl_dir) : tpl_dir_(tpl_dir)
 {
@@ -25,5 +25,5 @@ void TemplateGenerator::generate(
   const auto temp = env_.parse_template(tpl_path);
   env_.write(temp, data, out_path);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

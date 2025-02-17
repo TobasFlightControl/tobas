@@ -34,11 +34,12 @@ static constexpr char kMagTopic[] = "magnetic_field";
 static constexpr char kMagRawTopic[] = "magnetic_field_raw";
 static constexpr char kAirPressureTopic[] = "air_pressure";
 static constexpr char kAirPressureRawTopic[] = "air_pressure_raw";
-static constexpr char kGNSSTopic[] = "gps";
-static constexpr char kGpsOriginTopic[] = "gps_origin";
+static constexpr char kGnssTopic[] = "gnss";
+static constexpr char kGnssOriginTopic[] = "gnss_origin";
 static constexpr char kLidarTopic[] = "point_cloud";
 static constexpr char kExternalOdomTopic[] = "external_odometry";
 static constexpr char kRotorStatesTopic[] = "rotor_states";
+static constexpr char kRotorLivelinessTopic[] = "rotor_liveliness";
 static constexpr char kJointStatesTopic[] = "joint_states_2";
 static constexpr char kOdometryTopic[] = "odom";
 static constexpr char kEulerTopic[] = "euler";
@@ -56,8 +57,9 @@ static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
+static constexpr char kRateThrottleCmdTopic[] = "command/rate_throttle";
+static constexpr char kAngleThrottleCmdTopic[] = "command/angle_throttle";
 static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
-static constexpr char kRPYThrotCmdTopic[] = "command/rpy_throttle";
 static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
 static constexpr char kJointPosCmdTopic[] = "command/joint_positions";
@@ -79,7 +81,6 @@ static constexpr char kFWCtrlFeedbackTopic[] = "feedback/fixed_wing_controller";
 // ROS services
 static constexpr char kListControllersSrv[] = "controller_manager/list_controllers";
 static constexpr char kGetDynamicParamsSrv[] = "get_dynamic_parameters";
-static constexpr char kEnableRotorSrv[] = "enable_rotor";
 static constexpr char kSetArmSrv[] = "set_arm";
 static constexpr char kGetGnssOriginSrv[] = "get_gnss_origin";
 static constexpr char kSetGnssOriginSrv[] = "set_gnss_origin";
@@ -123,17 +124,17 @@ static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
 // Flight mode
 enum flight_mode_t
 {
-  PROGRAM_MODE,
-  STABILIZE_MODE,
   ACROBAT_MODE,
+  STABILIZE_MODE,
+  LOITER_MODE,
 };
 static constexpr size_t kNumFlightModes = 3;
 
 enum rc_command_t
 {
-  PROGRAM,
+  RATE_THROTTLE,
+  ANGLE_THROTTLE,
   POS_VEL_ACC_YAW,
-  ROLL_PITCH_YAW_THROTTLE,
   POSE_TWIST_ACCEL,
   SPEED_ROLL_DPITCH,
 };

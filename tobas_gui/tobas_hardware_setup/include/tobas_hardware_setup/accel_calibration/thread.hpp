@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class AccelCalibrationThread : public QThread
 {
@@ -43,5 +43,5 @@ private:
   bool getAccelMean(Eigen::Vector3d& des);
   void imuCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

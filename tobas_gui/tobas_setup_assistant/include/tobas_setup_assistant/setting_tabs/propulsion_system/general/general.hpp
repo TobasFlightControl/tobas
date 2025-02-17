@@ -1,12 +1,15 @@
 #pragma once
 
+#include <tobas_drone_core/rotor/turning_direction.hpp>
+
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
+#include "tobas_setup_assistant/param_getters/combo_box.hpp"
 #include "../base.hpp"
 #include "./active_tilt_settings.hpp"
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -17,6 +20,8 @@ class GeneralWidget : public BaseSelectedLinkSettingWidget
   using self = GeneralWidget;
   using super = BaseSelectedLinkSettingWidget;
 
+  static constexpr char kCWName[] = "CW";
+  static constexpr char kCCWName[] = "CCW";
   static constexpr char kActiveTiltSettingsKey[] = "active_tilt_settings";
 
 Q_SIGNALS:
@@ -35,13 +40,18 @@ public:
   void load(const YAML::Node& node) override;
 
   int channel() const;
+
+  tobas::turning_direction_t direction() const;
+
   bool isTiltRotor() const;
+
   QString tiltJointName() const;
 
 private:
   ParamGetterWidget_SpinBox* channel_;
+  ParamGetterWidget_ComboBox* direction_;
   ActiveTiltSettingsWidget* active_tilt_settings_;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -15,10 +15,11 @@
 
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
+#include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/joint_command_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_msgs_adapter/pose_twist_accel_command.hpp>
+#include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/non_planar_controller_feedback.hpp>
@@ -51,7 +52,7 @@ private:
   bool js_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  tobas_msgs::PoseTwistAccelCommand::SharedPtr cmd_;
+  tobas_command_msgs::PoseTwistAccel::SharedPtr cmd_;
   tobas::CommandLevelHandler cmd_level_handler_;
 
   // Publishers
@@ -65,7 +66,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-  ros2::SubscriberPtr<tobas_msgs::PoseTwistAccelCommand> cmd_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PoseTwistAccel> cmd_sub_;
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
@@ -92,7 +94,8 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
-  void commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd);
+  void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
+  void commandCb(const tobas_command_msgs::PoseTwistAccel::ConstSharedPtr& cmd);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -102,11 +105,11 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
   addDynamicDoubleParam("vertical_natural_frequency", &self::verticalNaturalFrequencyCb, this, 2., 0.1, 5.);
   addDynamicDoubleParam("attitude_natural_frequency", &self::attitudeNaturalFrequencyCb, this, 10., 1., 50.);
-  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 2., 0.1, 25.);  // XXX
-  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.7, 1.);
-  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.7, 1.);
-  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.7, 1.);
-  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.7, 1.);
+  addDynamicDoubleParam("heading_natural_frequency", &self::headingNaturalFrequencyCb, this, 2., 0.1, 25.);
+  addDynamicDoubleParam("horizontal_damping_ratio", &self::horizontalDampingRatioCb, this, 1., 0.1, 3.);
+  addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.1, 3.);
+  addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.1, 3.);
+  addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.1, 3.);
   addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0., 0., 10.);
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0., 0., 10.);
   addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0., 0., 40.);
@@ -126,6 +129,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
   cmd_sub_ = createSubscriber(tobas::kPoseTwistAccelCmdTopic, &self::commandCb, this);
 }
 
@@ -156,12 +160,6 @@ bool ControllerNode::isReadyToControl()
   if (odom_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
-    return false;
-  }
-
-  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "There is a problem with the state estimation.");
     return false;
   }
 
@@ -364,14 +362,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->header.stamp = odom->header.stamp;
   feedback->target_position = cmd_->pos;
   feedback->target_orientation = cmd_->rpy;
-  feedback->target_twist_local.vel = odom->frame.M.inverse(cmd_->vel);
-  feedback->target_twist_local.rot = cmd_->gyro;
-  feedback->target_twist_global.vel = cmd_->vel;
-  feedback->target_twist_global.rot = odom->frame.M * cmd_->gyro;
-  feedback->target_accel_local.linear = odom->frame.M.inverse(tar_acc_W);
-  feedback->target_accel_local.angular = tar_dgyro_B;
-  feedback->target_accel_global.linear = tar_acc_W;
-  feedback->target_accel_global.angular = odom->frame.M * tar_dgyro_B;
+  feedback->target_twist.vel = cmd_->vel;
+  feedback->target_twist.rot = odom->frame.M * cmd_->gyro;
+  feedback->target_accel.linear = tar_acc_W;
+  feedback->target_accel.angular = odom->frame.M * tar_dgyro_B;
   feedback->position_integral_error = pos_pid_.integralError();
   feedback->orientation_integral_error = kdl::Euler(rot_pid_.integralError());
   feedback_pub_->publish(move(feedback));
@@ -401,7 +395,14 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   arming_ = arming;
 }
 
-void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSharedPtr& cmd)
+void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
+{
+  for (const auto& data : rotor_liveliness->data)
+    if (!mixer_.setRotorLiveliness(data.channel, data.alive))
+      TOBAS_ERROR("Failed to set the liveliness of rotor channel ", data.channel);
+}
+
+void ControllerNode::commandCb(const tobas_command_msgs::PoseTwistAccel::ConstSharedPtr& cmd)
 {
   if (!isReadyToControl())
   {
@@ -416,10 +417,10 @@ void ControllerNode::commandCb(const tobas_msgs::PoseTwistAccelCommand::ConstSha
   }
 
   // コマンドを更新
-  cmd_ = std::make_shared<tobas_msgs::PoseTwistAccelCommand>(*cmd);
+  cmd_ = std::make_shared<tobas_command_msgs::PoseTwistAccel>(*cmd);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_msgs::msg::FrameId::WORLD, odom_->frame.M, *cmd_))
+  if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *cmd_))
   {
     TOBAS_ERROR("Failed to change command frame. Probably the frame id is invalid.");
     cmd_ = nullptr;

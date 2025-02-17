@@ -1,4 +1,4 @@
-#include <QCoreApplication>
+#include <QApplication>
 #include <QThread>
 
 #include <tobas_math/core.hpp>
@@ -55,7 +55,7 @@ void ProgressDialog::progressStep()
 void ProgressDialog::reflesh()
 {
   // イベントスタックの更新後にスリープすることで画面を更新できる
-  QCoreApplication::processEvents();
+  QApplication::processEvents();
   QThread::msleep(100);
 }
 }  // namespace qt

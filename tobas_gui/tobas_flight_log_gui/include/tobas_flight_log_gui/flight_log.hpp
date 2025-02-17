@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./recorder.hpp"
+#include "./recorder/recorder.hpp"
 #include "./logs_fc/logs_widget.hpp"
 #include "./logs_gcs/logs_widget.hpp"
 #include "./log_viewer/log_viewer.hpp"
@@ -19,6 +19,7 @@ class FlightLogWidget : public QWidget
 public:
   explicit FlightLogWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:

@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 WaypointWidget::WaypointWidget()
 {
@@ -97,5 +97,5 @@ void WaypointWidget::duration(double value)
 {
   duration_->setValue(value);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

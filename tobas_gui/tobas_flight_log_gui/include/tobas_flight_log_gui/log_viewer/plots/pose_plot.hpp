@@ -2,8 +2,7 @@
 
 #include <tobas_msgs/msg/odometry.hpp>
 
-#include "./forward_declaration.hpp"
-#include "./qwt_plot.hpp"
+#include "./common.hpp"
 
 namespace gui
 {
@@ -12,8 +11,6 @@ namespace log
 class PosePlotWidget : public QWidget
 {
   Q_OBJECT
-
-  static constexpr auto kColor = Qt::black;
 
 public:
   explicit PosePlotWidget();
@@ -24,8 +21,8 @@ public:
 private:
   std::array<QwtPlot2*, 3> pos_plots_;
   std::array<QwtPlot2*, 3> rpy_plots_;
-  std::array<QwtPlotCurve*, 3> pos_curves_;
-  std::array<QwtPlotCurve*, 3> rpy_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> pos_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> rpy_curves_;
 
   double roll_, pitch_, yaw_;
 };

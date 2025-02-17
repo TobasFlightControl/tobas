@@ -46,7 +46,6 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="0"
-    color="Red"
     use_own_mesh="false"
     mesh="">
     <origin xyz="${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0"/>
@@ -61,7 +60,6 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="1"
-    color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="0 ${arm_length} ${rotor_offset_top}" rpy="0 0 0"/>
@@ -76,7 +74,6 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="2"
-    color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="-${arm_length} 0 ${rotor_offset_top}" rpy="0 0 0"/>
@@ -91,7 +88,6 @@
     mass_rotor="${mass_rotor}"
     radius_rotor="${radius_rotor}"
     motor_number="3"
-    color="Blue"
     use_own_mesh="false"
     mesh="">
     <origin xyz="0 -${arm_length} ${rotor_offset_top}" rpy="0 0 0"/>

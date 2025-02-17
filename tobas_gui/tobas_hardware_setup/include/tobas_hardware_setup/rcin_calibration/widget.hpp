@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class RCInputCalibrationWidget : public BaseHardwareSetupWidget
 {
@@ -29,8 +29,8 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   static constexpr int kRangeSideShort = 30;
   static constexpr int kRangeSideLong = 300;
 
-  static constexpr char kModeText[] = "Program               Stabilize               Acrobat";
   static constexpr char kOnOffText[] = "ON                                                       OFF";
+  static constexpr char kModeText[] = "Loiter               Stabilize               Acrobat";
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
@@ -42,6 +42,8 @@ public:
 
   const char* name() const override;
   const char* title() const override;
+
+  void reset() override;
 
   void setNamespace(const std::string& ns);
 
@@ -59,14 +61,12 @@ private:
   qt::VPositionBarWidget* pitch_range_;
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
+  qt::HPositionBarWidget* enable_range_;
   qt::HPositionBarWidget* mode_range_;
-  qt::HPositionBarWidget* estop_range_;
   qt::HPositionBarWidget* gpsw_range_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
-
-  void reset();
 
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -76,5 +76,5 @@ private Q_SLOTS:
   void onCancelButtonClicked();
   void onFinishButtonClicked();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

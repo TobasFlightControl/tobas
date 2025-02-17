@@ -11,7 +11,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -19,7 +19,7 @@ SelectedLinksWidget::SelectedLinksWidget(rclcpp::Node::SharedPtr node, const Rob
   : node_(node), robot_(robot)
 {
   ignoreWheelEvent();
-  setSize(kTabWidth, kTabHeight);
+  setTabSize(kTabWidth, kTabHeight);
   setMovable(true);
   setTabsClosable(true);
 
@@ -212,7 +212,7 @@ bool SelectedLinksWidget::hasBothRotationalDirections() const
 {
   QSet<tobas::turning_direction_t> set;
   for (int i = 0; i < count(); ++i)
-    set.insert(widget(i)->motor()->direction());
+    set.insert(widget(i)->general()->direction());
 
   const auto num = set.size();
   if (num > 2)
@@ -311,5 +311,5 @@ void SelectedLinksWidget::onTiltJointNameChanged(const QString& link_name, const
   Q_EMIT tiltJointNameChanged(link_name, tilt_joint_name);
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

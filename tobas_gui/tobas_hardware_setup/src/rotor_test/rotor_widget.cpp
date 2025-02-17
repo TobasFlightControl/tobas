@@ -9,45 +9,38 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 RotorWidget::RotorWidget()
 {
   text_ = new QLabel();
   text_->setAlignment(Qt::AlignCenter);
 
-  cur_rpm_bar_ = new SpeedmeterWidget();
-  cur_rpm_bar_->setMinimumValue(0);
-  cur_rpm_bar_->setTickmarkStepSize(1000);
+  cur_rpm_meter_ = new QwtThermo();
+  cur_rpm_meter_->setLowerBound(0);
+  cur_rpm_meter_->setPipeWidth(kPipeWidth);
 
-  tar_rpm_slider_ = new qt::Slider(Qt::Vertical);
-  tar_rpm_slider_->setMinimum(0);
+  tar_rpm_slider_ = new QwtSlider(Qt::Vertical);
+  tar_rpm_slider_->setLowerBound(0);
+  tar_rpm_slider_->setScalePosition(QwtSlider::NoScale);
+  tar_rpm_slider_->setTrough(false);
+  tar_rpm_slider_->setGroove(true);
 
-  gain_slider_ = new qt::Slider(Qt::Vertical);
-  gain_slider_->setMinimum(tobas::kMinRotorCtrlGain);
-  gain_slider_->setMaximum(tobas::kMaxRotorCtrlGain);
+  gain_slider_ = new QwtSlider(Qt::Vertical);
+  gain_slider_->setScale(tobas::kMinRotorCtrlGain, tobas::kMaxRotorCtrlGain);
+  gain_slider_->setTotalSteps(tobas::kMaxRotorCtrlGain - tobas::kMinRotorCtrlGain);  // 1刻み
+  gain_slider_->setScalePosition(QwtSlider::TrailingScale);
+  gain_slider_->setTrough(false);
+  gain_slider_->setGroove(true);
 
-  cur_rpm_box_ = new QLineEdit();
-  cur_rpm_box_->setAlignment(Qt::AlignRight);
-  cur_rpm_box_->setReadOnly(true);
-  cur_rpm_box_->setFocusPolicy(Qt::NoFocus);
-
-  tar_rpm_box_ = new QLineEdit();
-  tar_rpm_box_->setAlignment(Qt::AlignRight);
-  tar_rpm_box_->setReadOnly(true);
-  tar_rpm_box_->setFocusPolicy(Qt::NoFocus);
-
-  gain_box_ = new QLineEdit();
-  gain_box_->setAlignment(Qt::AlignRight);
-  gain_box_->setReadOnly(true);
-  gain_box_->setFocusPolicy(Qt::NoFocus);
+  cur_rpm_box_ = new qt::FramedLabel();
+  tar_rpm_box_ = new qt::FramedLabel();
+  gain_box_ = new qt::FramedLabel();
 
   // Layout
   const auto rpm_cols = new QHBoxLayout();
-  rpm_cols->addWidget(cur_rpm_bar_, 2);
-  rpm_cols->addStretch(1);
+  rpm_cols->addWidget(cur_rpm_meter_, 3);
   rpm_cols->addWidget(tar_rpm_slider_, 1);
-  rpm_cols->addStretch(1);
 
   const auto rpm_form = new QFormLayout();
   rpm_form->addRow("Current", cur_rpm_box_);
@@ -66,8 +59,10 @@ RotorWidget::RotorWidget()
   setLayout(rows);
 
   // Connection
-  connect(tar_rpm_slider_, &qt::Slider::valueChanged, this, &self::onTargetRPMChanged);
-  connect(gain_slider_, &qt::Slider::valueChanged, this, &self::onGainChanged);
+  connect(tar_rpm_slider_, &QwtSlider::valueChanged, this, &self::onTargetRPMChanged);
+  connect(gain_slider_, &QwtSlider::valueChanged, this, &self::onGainChanged);
+
+  reset();
 }
 
 void RotorWidget::reset()
@@ -75,12 +70,14 @@ void RotorWidget::reset()
   blockSignals(true);
 
   text_->clear();
-  cur_rpm_bar_->setValue(0);
+
+  cur_rpm_meter_->setValue(0);
   tar_rpm_slider_->setValue(0);
   gain_slider_->setValue(0);
-  cur_rpm_box_->clear();
-  tar_rpm_box_->clear();
-  gain_box_->clear();
+
+  setCurrentRPMBox(0);
+  setTargetRPMBox(0);
+  setGainBox(0);
 
   blockSignals(false);
 }
@@ -92,7 +89,7 @@ QString RotorWidget::getText() const
 
 int RotorWidget::getCurrentRPM() const
 {
-  return cur_rpm_bar_->getValue();
+  return cur_rpm_meter_->value();
 }
 
 int RotorWidget::getTargetRPM() const
@@ -112,25 +109,42 @@ void RotorWidget::setText(const QString& text)
 
 void RotorWidget::setMaximumRPM(int rpm)
 {
-  cur_rpm_bar_->setMaximumValue(rpm);
-  tar_rpm_slider_->setMaximum(rpm);
+  cur_rpm_meter_->setUpperBound(rpm);
+
+  tar_rpm_slider_->setUpperBound(rpm);
+  tar_rpm_slider_->setTotalSteps(rpm);  // 1刻み
 }
 
 void RotorWidget::setCurrentRPM(int rpm)
 {
-  cur_rpm_bar_->setValue(rpm);
-  cur_rpm_box_->setText(rpmToText(rpm));
+  cur_rpm_meter_->setValue(rpm);
+  setCurrentRPMBox(rpm);
 }
 
 void RotorWidget::setTargetRPM(int rpm)
 {
   tar_rpm_slider_->setValue(rpm);
-  tar_rpm_box_->setText(rpmToText(rpm));
+  setTargetRPMBox(rpm);
 }
 
 void RotorWidget::setGain(int gain)
 {
   gain_slider_->setValue(gain);
+  setGainBox(gain);
+}
+
+void RotorWidget::setCurrentRPMBox(int rpm)
+{
+  cur_rpm_box_->setText(rpmToText(rpm));
+}
+
+void RotorWidget::setTargetRPMBox(int rpm)
+{
+  tar_rpm_box_->setText(rpmToText(rpm));
+}
+
+void RotorWidget::setGainBox(int gain)
+{
   gain_box_->setText(QString::number(gain));
 }
 
@@ -141,14 +155,14 @@ QString RotorWidget::rpmToText(int rpm)
 
 void RotorWidget::onTargetRPMChanged(int rpm)
 {
-  tar_rpm_box_->setText(rpmToText(rpm));
+  setTargetRPMBox(rpm);
   Q_EMIT targetRPMChanged(rpm);
 }
 
 void RotorWidget::onGainChanged(int gain)
 {
-  gain_box_->setText(QString::number(gain));
+  setGainBox(gain);
   Q_EMIT gainChanged(gain);
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

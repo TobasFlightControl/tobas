@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -80,5 +80,5 @@ private Q_SLOTS:
   void onTiltJointNameChanged(const QString& link_name, const QString& tilt_joint_name);
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

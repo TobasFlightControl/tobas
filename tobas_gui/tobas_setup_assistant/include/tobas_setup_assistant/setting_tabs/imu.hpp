@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class IMUWidget : public BaseSettingWidget
 {
@@ -53,5 +53,5 @@ private:
   ParamGetterWidget_SpinBox* acc_bias_corr_time_;
   ParamGetterWidget_DoubleSpinBox* acc_turn_on_bias_sigma_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

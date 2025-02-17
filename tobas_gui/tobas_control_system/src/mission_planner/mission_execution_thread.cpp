@@ -5,11 +5,11 @@
 
 using namespace std;
 using namespace tobas_msgs::srv;
-using namespace tobas_msgs::action;
+using namespace tobas_mission_msgs::action;
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 MissionExecutionThread::MissionExecutionThread(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -243,5 +243,5 @@ bool MissionExecutionThread::execute(ReturnToHomeData::SharedPtr command)
 
   return true;
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

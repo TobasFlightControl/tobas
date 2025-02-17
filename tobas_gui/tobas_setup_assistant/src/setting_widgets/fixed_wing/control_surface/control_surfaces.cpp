@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -93,5 +93,5 @@ int ControlSurfacesWidget::count() const
   return selected_->rowCount();
 }
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

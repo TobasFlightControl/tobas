@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_FileDialog : public ParamGetterWidget<QString>
 {
@@ -44,5 +44,5 @@ private:
   ptree::PropertyClient property_client_;
   QLineEdit* path_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

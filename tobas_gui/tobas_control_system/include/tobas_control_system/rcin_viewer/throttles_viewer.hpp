@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -20,9 +20,13 @@ class ThrottlesViewer : public QWidget
   static constexpr int kLabelPSize = 12;
   static constexpr int kRangeSideShort = 50;
 
+  static constexpr auto kLineColorEnable = Qt::red;
+  static constexpr auto kLineColorDisable = Qt::darkGray;
+
 public:
   explicit ThrottlesViewer(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -35,10 +39,8 @@ private:
 
   ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
 
-  void reset();
-
   void rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

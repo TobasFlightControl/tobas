@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class JointConfigurationWidget : public BaseSettingWidget
 {
@@ -164,5 +164,5 @@ private Q_SLOTS:
   void onControlSurfaceLinkAdded(const QString& link_name);
   void onControlSurfaceLinkRemoved(const QString& link_name);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

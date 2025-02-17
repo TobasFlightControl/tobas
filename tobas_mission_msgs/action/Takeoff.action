@@ -1,0 +1,15 @@
+# Goal
+tobas_command_msgs/CommandLevel level
+float64 target_altitude     # [m]
+float64 altitude_tolerance  # [m]
+float64 duration            # [s]
+float64 timeout             # [s] Timeout after command duration. By default, timeout is infinite.
+
+---
+
+# Result
+string message
+
+---
+
+# Feedback

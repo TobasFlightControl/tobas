@@ -16,10 +16,8 @@ struct NonPlanarControllerFeedback
   std_msgs::msg::Header header;
   kdl::Vector target_position;
   kdl::Euler target_orientation;
-  kdl::Twist target_twist_global;
-  kdl::Twist target_twist_local;
-  kdl::Accel target_accel_global;
-  kdl::Accel target_accel_local;
+  kdl::Twist target_twist;
+  kdl::Accel target_accel;
   kdl::Vector position_integral_error;
   kdl::Euler orientation_integral_error;
 
@@ -41,10 +39,8 @@ struct rclcpp::
     dst.header = src.header;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_position, dst.target_position);
     tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.target_orientation, dst.target_orientation);
-    tobas_kdl_msgs::TwistAdapter::convert_to_ros_message(src.target_twist_global, dst.target_twist_global);
-    tobas_kdl_msgs::TwistAdapter::convert_to_ros_message(src.target_twist_local, dst.target_twist_local);
-    tobas_kdl_msgs::AccelAdapter::convert_to_ros_message(src.target_accel_global, dst.target_accel_global);
-    tobas_kdl_msgs::AccelAdapter::convert_to_ros_message(src.target_accel_local, dst.target_accel_local);
+    tobas_kdl_msgs::TwistAdapter::convert_to_ros_message(src.target_twist, dst.target_twist);
+    tobas_kdl_msgs::AccelAdapter::convert_to_ros_message(src.target_accel, dst.target_accel);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.position_integral_error, dst.position_integral_error);
     tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(
       src.orientation_integral_error, dst.orientation_integral_error);
@@ -55,10 +51,8 @@ struct rclcpp::
     dst.header = src.header;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_position, dst.target_position);
     tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.target_orientation, dst.target_orientation);
-    tobas_kdl_msgs::TwistAdapter::convert_to_custom(src.target_twist_global, dst.target_twist_global);
-    tobas_kdl_msgs::TwistAdapter::convert_to_custom(src.target_twist_local, dst.target_twist_local);
-    tobas_kdl_msgs::AccelAdapter::convert_to_custom(src.target_accel_global, dst.target_accel_global);
-    tobas_kdl_msgs::AccelAdapter::convert_to_custom(src.target_accel_local, dst.target_accel_local);
+    tobas_kdl_msgs::TwistAdapter::convert_to_custom(src.target_twist, dst.target_twist);
+    tobas_kdl_msgs::AccelAdapter::convert_to_custom(src.target_accel, dst.target_accel);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.position_integral_error, dst.position_integral_error);
     tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.orientation_integral_error, dst.orientation_integral_error);
   }

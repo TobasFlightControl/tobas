@@ -1,12 +1,10 @@
 #include <QGridLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_eigen_tools/geometry.hpp>
 
 #include "tobas_flight_log_gui/log_viewer/plots/pose_plot.hpp"
-#include "tobas_flight_log_gui/log_viewer/constants.hpp"
 
 namespace gui
 {
@@ -17,22 +15,22 @@ PosePlotWidget::PosePlotWidget()
   const auto grid = new QGridLayout();
   setLayout(grid);
 
-  pos_curves_[0] = new QwtPlotCurve("X");
-  pos_curves_[1] = new QwtPlotCurve("Y");
-  pos_curves_[2] = new QwtPlotCurve("Z");
-  rpy_curves_[0] = new QwtPlotCurve("Roll");
-  rpy_curves_[1] = new QwtPlotCurve("Pitch");
-  rpy_curves_[2] = new QwtPlotCurve("Yaw");
+  pos_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("X");
+  pos_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Y");
+  pos_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Z");
+  rpy_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Roll");
+  rpy_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Pitch");
+  rpy_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Yaw");
 
   for (size_t i = 0; i < 3; ++i)
   {
     pos_plots_[i] = new QwtPlot2();
-    pos_curves_[i]->setPen(kColor, kLineWidth);
+    pos_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     pos_curves_[i]->attach(pos_plots_[i]);
     grid->addWidget(pos_plots_[i], i, 0);
 
     rpy_plots_[i] = new QwtPlot2();
-    rpy_curves_[i]->setPen(kColor, kLineWidth);
+    rpy_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     rpy_curves_[i]->attach(rpy_plots_[i]);
     grid->addWidget(rpy_plots_[i], i, 1);
   }

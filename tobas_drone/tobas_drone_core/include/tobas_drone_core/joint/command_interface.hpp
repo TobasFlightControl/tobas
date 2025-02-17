@@ -12,11 +12,8 @@ enum struct jnt_cmd_iface_t : uint8_t
   NONE,
 };
 
-/* jnt_cmd_iface_t -> "position" or "velocity" or "effort" */
-std::string jntCmdIfaceEnumToText(jnt_cmd_iface_t interface);
-
-/* "position" or "velocity" or "effort" -> jnt_cmd_iface_t */
-jnt_cmd_iface_t jntCmdIfaceTextToEnum(const std::string& text);
+std::string textFromEnum(jnt_cmd_iface_t interface);
+bool enumFromText(const std::string& text, jnt_cmd_iface_t& dst);
 }  // namespace tobas
 
 namespace YAML
@@ -24,18 +21,7 @@ namespace YAML
 template <>
 struct convert<tobas::jnt_cmd_iface_t>
 {
-  static Node encode(const tobas::jnt_cmd_iface_t& rhs)
-  {
-    return Node(static_cast<int>(rhs));
-  }
-
-  static bool decode(const Node& node, tobas::jnt_cmd_iface_t& rhs)
-  {
-    if (!node.IsScalar())
-      return false;
-
-    rhs = static_cast<tobas::jnt_cmd_iface_t>(node.as<int>());
-    return true;
-  }
+  static Node encode(const tobas::jnt_cmd_iface_t& rhs);
+  static bool decode(const Node& node, tobas::jnt_cmd_iface_t& rhs);
 };
 }  // namespace YAML

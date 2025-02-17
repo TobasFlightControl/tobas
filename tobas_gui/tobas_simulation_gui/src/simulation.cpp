@@ -1,11 +1,14 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QCloseEvent>
 
+#include <tobas_kdl/kdl_parser.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_linux/errer.hpp>
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
+#include <tobas_qt_tools/message.hpp>
+#include <tobas_qt_tools/util.hpp>
 #include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
@@ -21,48 +24,59 @@ namespace sim
 SimulationWidget::SimulationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), ssh_client_(node), remote_pkg_builder_(node)
 {
-  start_button_ = new QPushButton("Start");
-  start_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  start_stop_button_ = new qt::ToggleButton("Start", "Terminate");
+  start_stop_button_->setFixedSize(kButtonWidth, kButtonHeight);
 
-  terminate_button_ = new QPushButton("Terminate");
-  terminate_button_->setFixedSize(kButtonWidth, kButtonHeight);
-
-  static_config_ = new StaticConfigWidget(node);
+  sim_settings_ = new SimulationSettingsWidget(node);
   dynamic_config_ = new DynamicConfigWidget(node);
+  commanders_ = new CommandersWidget(node, tree_, drone_);
 
   // Layout
-  const auto button_cols = new QHBoxLayout();
-  button_cols->addWidget(start_button_);
-  button_cols->addWidget(terminate_button_);
-  button_cols->addStretch();
+  const auto config_rows = new QVBoxLayout();
+  config_rows->addWidget(sim_settings_);
+  qt::addWidgetCenter(start_stop_button_, config_rows);
 
-  const auto config_cols = new QHBoxLayout();
-  config_cols->addWidget(static_config_, 1);
-  config_cols->addWidget(dynamic_config_, 1);
+  const auto cols = new QHBoxLayout();
+  cols->addLayout(config_rows, 1);
+  cols->addWidget(dynamic_config_, 1);
+  cols->addWidget(commanders_, 1);
 
-  const auto rows = new QVBoxLayout();
-  rows->addLayout(button_cols);
-  rows->addLayout(config_cols);
-
-  setLayout(rows);
+  setLayout(cols);
 
   // Connection
-  connect(start_button_, &QPushButton::clicked, this, &self::onStartButtonClicked);
-  connect(terminate_button_, &QPushButton::clicked, this, &self::onTerminateButtonClicked);
+  connect(start_stop_button_, &qt::ToggleButton::checked, this, &self::onStartRequested);
+  connect(start_stop_button_, &qt::ToggleButton::unchecked, this, &self::onTerminateRequested);
 
   reset();
   setEnabled(false);
 }
 
-SimulationWidget::~SimulationWidget()
+void SimulationWidget::reset()
 {
-  killGazeboLaunch();
+  resetDynamicConfig();
+  resetCommanders();
+
+  if (launch_pid_ >= 0)
+    killGazeboLaunch();
+
+  arming_ = nullptr;
+
+  start_stop_button_->setChecked(false);
+
+  sim_settings_->setEnabled(true);
+  dynamic_config_->setEnabled(false);
+  commanders_->setEnabled(false);
 }
 
 bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
 {
-  if (!reset())
+  reset();
+
+  if (!kdl::treeFromFile(common::getOriginalURDFPath(tbs_path), tree_))
+  {
+    qt::qErrorBox(this, "Failed to load kdl tree.");
     return false;
+  }
 
   if (!drone_.load(common::getTBSDRNPath(tbs_path)))
   {
@@ -70,8 +84,13 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
     return false;
   }
 
+  const auto& ns = drone_.name;
+
+  dynamic_config_->updateNamespace(ns);
+  commanders_->updateInternalDataStructures();
+
   arming_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
+    node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   tbs_path_ = tbs_path;
   setEnabled(true);
@@ -79,24 +98,20 @@ bool SimulationWidget::updateTBSPath(const fs::path& tbs_path)
   return true;
 }
 
+void SimulationWidget::closeEvent(QCloseEvent* event)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "SimulationWidget::closeEvent");
+
+  // 親ウィジェットを閉じるときに子プロセスを破棄
+  if (launch_pid_ >= 0)
+    killGazeboLaunch();
+
+  event->accept();
+}
+
 void SimulationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   arming_ = arming;
-}
-
-bool SimulationWidget::reset()
-{
-  if (!killGazeboLaunch())
-    return false;
-
-  arming_ = nullptr;
-
-  start_button_->setEnabled(true);
-  terminate_button_->setEnabled(false);
-  static_config_->setEnabled(true);
-  dynamic_config_->setEnabled(false);
-
-  return true;
 }
 
 bool SimulationWidget::killGazeboLaunch()
@@ -125,20 +140,17 @@ bool SimulationWidget::killGazeboLaunch()
 
 bool SimulationWidget::startSITL()
 {
+  // フライトコードが起動していないことを確認
+  if (arming_ != nullptr)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while flight controller is active.");
+    return false;
+  }
+
   // プログレスバーを作成
   qt::ProgressDialog progress("Start Gazebo SITL", 4, this);
   progress.setCancelButton(nullptr);
   progress.show();
-
-  // FCに接続できないことを確認
-  progress.setLabelText("Checking SSH connection status.");
-  if (ssh_client_.connect() == ssh::SSHClient::E_NO_ERROR)
-  {
-    qt::qWarnBox(this, "This operation cannot be performed while connecting to the flight controller.");
-    progress.close();
-    return false;
-  }
-  progress.progressStep();
 
   // Tobasパッケージをビルド
   progress.setLabelText("Building Tobas package.");
@@ -158,9 +170,18 @@ bool SimulationWidget::startSITL()
   }
   progress.progressStep();
 
-  // 動的パラメータを初期化
-  progress.setLabelText("Initializing dynamic configurations.");
-  if (!initializeDynamicConfig())
+  // 動的パラメータを起動
+  progress.setLabelText("Starting dynamic configurations.");
+  if (!startDynamicConfig())
+  {
+    progress.close();
+    return false;
+  }
+  progress.progressStep();
+
+  // コマンダーを起動
+  progress.setLabelText("Starting commanders.");
+  if (!startCommanders())
   {
     progress.close();
     return false;
@@ -173,6 +194,12 @@ bool SimulationWidget::startSITL()
 
 bool SimulationWidget::terminateSITL()
 {
+  // 動的パラメータを終了
+  resetDynamicConfig();
+
+  // コマンダーを終了
+  resetCommanders();
+
   // Gazeboプロセスを終了
   if (!killGazeboLaunch())
   {
@@ -202,7 +229,7 @@ bool SimulationWidget::startHITL()
   }
 
   // プログレスバーを作成
-  qt::ProgressDialog progress("Start Gazebo HITL", 8, this);
+  qt::ProgressDialog progress("Start Gazebo HITL", 9, this);
   progress.setCancelButton(nullptr);
   progress.show();
 
@@ -279,9 +306,18 @@ bool SimulationWidget::startHITL()
   }
   progress.progressStep();
 
-  // 動的パラメータを初期化
-  progress.setLabelText("Initializing dynamic configurations.");
-  if (!initializeDynamicConfig())
+  // 動的パラメータを起動
+  progress.setLabelText("Starting dynamic configurations.");
+  if (!startDynamicConfig())
+  {
+    progress.close();
+    return false;
+  }
+  progress.progressStep();
+
+  // コマンダーを起動
+  progress.setLabelText("Starting commanders.");
+  if (!startCommanders())
   {
     progress.close();
     return false;
@@ -295,9 +331,19 @@ bool SimulationWidget::startHITL()
 bool SimulationWidget::terminateHITL()
 {
   // プログレスバーを作成
-  qt::ProgressDialog progress("Terminate Gazebo HITL", 3, this);
+  qt::ProgressDialog progress("Terminate Gazebo HITL", 5, this);
   progress.setCancelButton(nullptr);
   progress.show();
+
+  // 動的パラメータを終了
+  progress.setLabelText("Terminating dynamic configurations.");
+  resetDynamicConfig();
+  progress.progressStep();
+
+  // コマンダーを終了
+  progress.setLabelText("Terminating commanders.");
+  resetCommanders();
+  progress.progressStep();
 
   // Gazeboプロセスを終了
   progress.setLabelText("Terminating Gazebo simulation.");
@@ -348,7 +394,7 @@ bool SimulationWidget::launchGazebo(bool launch_core)
 {
   const auto config_pkg_name = common::getTBSConfigName(tbs_path_);
   const std::map<std::string, std::string> args{
-    { "world_path", static_config_->worldPath().string() },
+    { "world_path", sim_settings_->worldPath().string() },
     { "launch_core", boolToText(launch_core) },
   };
 
@@ -363,9 +409,24 @@ bool SimulationWidget::launchGazebo(bool launch_core)
   return true;
 }
 
-bool SimulationWidget::initializeDynamicConfig()
+bool SimulationWidget::startDynamicConfig()
 {
-  return dynamic_config_->initialize(drone_.name);
+  return dynamic_config_->start();
+}
+
+void SimulationWidget::resetDynamicConfig()
+{
+  dynamic_config_->reset();
+}
+
+bool SimulationWidget::startCommanders()
+{
+  return commanders_->start();
+}
+
+void SimulationWidget::resetCommanders()
+{
+  commanders_->reset();
 }
 
 std::string SimulationWidget::boolToText(bool arg)
@@ -376,15 +437,15 @@ std::string SimulationWidget::boolToText(bool arg)
     return "false";
 }
 
-void SimulationWidget::onStartButtonClicked()
+void SimulationWidget::onStartRequested()
 {
   bool success;
-  switch (static_config_->simulationType())
+  switch (sim_settings_->loopType())
   {
-    case sim_type_t::SITL:
+    case loop_type_t::SITL:
       success = startSITL();
       break;
-    case sim_type_t::HITL:
+    case loop_type_t::HITL:
       success = startHITL();
       break;
     default:
@@ -397,23 +458,24 @@ void SimulationWidget::onStartButtonClicked()
     return;
   }
 
-  start_button_->setEnabled(false);
-  terminate_button_->setEnabled(true);
-  static_config_->setEnabled(false);
+  sim_settings_->setEnabled(false);
   dynamic_config_->setEnabled(true);
+  commanders_->setEnabled(true);
 
   qt::qInfoBox(this, "Gazebo simulation has started successfully.");
+
+  Q_EMIT started();
 }
 
-void SimulationWidget::onTerminateButtonClicked()
+void SimulationWidget::onTerminateRequested()
 {
   bool success;
-  switch (static_config_->simulationType())
+  switch (sim_settings_->loopType())
   {
-    case sim_type_t::SITL:
+    case loop_type_t::SITL:
       success = terminateSITL();
       break;
-    case sim_type_t::HITL:
+    case loop_type_t::HITL:
       success = terminateHITL();
       break;
     default:
@@ -429,12 +491,13 @@ void SimulationWidget::onTerminateButtonClicked()
   // シミュレーションのアーム状態が入っているのでリセット
   arming_ = nullptr;
 
-  start_button_->setEnabled(true);
-  terminate_button_->setEnabled(false);
-  static_config_->setEnabled(true);
+  sim_settings_->setEnabled(true);
   dynamic_config_->setEnabled(false);
+  commanders_->setEnabled(false);
 
   qt::qInfoBox(this, "Gazebo simulation has been terminated successfully.");
+
+  Q_EMIT terminated();
 }
 }  // namespace sim
 }  // namespace gui

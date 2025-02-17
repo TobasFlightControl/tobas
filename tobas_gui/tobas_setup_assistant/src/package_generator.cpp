@@ -24,7 +24,7 @@ namespace fs = filesystem;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 PackageGenerator::PackageGenerator(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
   : node_(node), robot_(robot), settings_(settings)
@@ -184,7 +184,7 @@ tobas::Drone PackageGenerator::createDrone()
     tobas::RotorConfig rotor;
     rotor.channel = prop_config->general()->channel();
     rotor.link_name = link_name.toStdString();
-    rotor.direction = prop_config->motor()->direction();
+    rotor.direction = prop_config->general()->direction();
     rotor.axis = robot_.rotorAxisType(link_name.toStdString());
     rotor.num_poles = prop_config->motor()->numPoles();
     rotor.kv = prop_config->motor()->kv();
@@ -332,13 +332,6 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   config_env_->generate(tpl_data, "gazebo.launch.xml.tplxml", launch_dir);
   config_env_->generate(tpl_data, "hitl.launch.py.tplpy", launch_dir);
   config_env_->generate(tpl_data, "robot_state_publisher.launch.py.tplpy", launch_dir);
-  config_env_->generate(tpl_data, "jointpos_commander_gui.launch.py.tplpy", launch_dir);
-
-  // Optional
-  if (
-    settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_ACC_YAW)
-    || settings_->controller->isCommandCompatible(tobas::rc_command_t::POSE_TWIST_ACCEL))
-    config_env_->generate(tpl_data, "base_pose_commander_gui.launch.py.tplpy", launch_dir);
 
   // Dynamic parameters
   if (!createEmptyYaml(config_dir / "controller_dynamic.yaml", false))
@@ -358,6 +351,8 @@ bool PackageGenerator::generateConfigPackage(const inja::json& tpl_data)
   if (!generateDroneConfig(config_dir))
     return false;
   if (!generateRCTeleopConfig(config_dir))
+    return false;
+  if (!generatePreArmCheckConfig(config_dir))
     return false;
   if (!generateControllerStaticConfig(config_dir))
     return false;
@@ -523,7 +518,7 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
 
     YAML::Node ctrl_params_node(YAML::NodeType::Map);
     ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::jntCmdIfaceEnumToText(joint_config->getCommandInterface(i));
+    ctrl_params_node["interface_name"] = tobas::textFromEnum(joint_config->getCommandInterface(i));
 
     // Create data
     YAML::Node root_node(YAML::NodeType::Map);
@@ -553,11 +548,31 @@ bool PackageGenerator::generateDroneConfig(const fs::path& config_dir)
 bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
 {
   // ComposableNodeにパラメータを渡す際は，<node_name>/ros__parameters以下ではなくルート以下に直接パラメータを書く．
-  YAML::Node root_node(YAML::NodeType::Map);
-  root_node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
-  root_node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
+  YAML::Node node(YAML::NodeType::Map);
+  node["acrobat_mode"] = static_cast<int>(settings_->controller->acrobatModeCommand());
+  node["stabilize_mode"] = static_cast<int>(settings_->controller->stabilizeModeCommand());
+  node["loiter_mode"] = static_cast<int>(settings_->controller->loiterModeCommand());
 
-  if (!saveYamlNode(config_dir / "rc_teleop.yaml", root_node))
+  if (!saveYamlNode(config_dir / "rc_teleop.yaml", node))
+    return false;
+
+  return true;
+}
+
+bool PackageGenerator::generatePreArmCheckConfig(const std::filesystem::path& config_dir)
+{
+  YAML::Node node(YAML::NodeType::Map);
+  node["check_battery_voltage"] = settings_->pre_arm_check->checkBatteryVoltage();
+  node["check_cpu_temperature"] = settings_->pre_arm_check->checkCPUTemperature();
+  node["check_rotor_communication"] = settings_->pre_arm_check->checkRotorCommunication();
+  node["check_attitude_level"] = settings_->pre_arm_check->checkAttitudeLevel();
+  node["check_position_stability"] = settings_->pre_arm_check->checkPositionStability();
+  node["check_position_accuracy"] = settings_->pre_arm_check->checkPositionAccuracy();
+  node["check_velocity_accuracy"] = settings_->pre_arm_check->checkVelocityAccuracy();
+  node["check_attitude_accuracy"] = settings_->pre_arm_check->checkAttitudeAccuracy();
+  node["check_heading_accuracy"] = settings_->pre_arm_check->checkHeadingAccuracy();
+
+  if (!saveYamlNode(config_dir / "pre_arm_check.yaml", node))
     return false;
 
   return true;
@@ -751,7 +766,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   const auto& imu = settings_->imu;
   const auto& mag = settings_->magnetometer;
   const auto& baro = settings_->barometer;
-  const auto& gps = settings_->gps;
+  const auto& gnss = settings_->gnss;
   const auto& sim = settings_->simulation;
 
   const auto drone = createDrone();
@@ -785,11 +800,11 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   addBarometerPlugin(
     robot, ns, root_name, baro->updateRate(), baro->offset(), sim->altitudeZero(), baro->pressureVariance());
 
-  // GPS plugin
-  addGPSPlugin(
-    robot, ns, root_name, gps->updateRate(), gps->offset(), gps->delay(), gps->positionCorrectionTime(),
-    gps->horizontalPositionAccuracy(), gps->verticalPositionAccuracy(), gps->horizontalVelocityStddev(),
-    gps->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
+  // GNSS plugin
+  addGNSSPlugin(
+    robot, ns, root_name, gnss->updateRate(), gnss->offset(), gnss->delay(), gnss->positionCorrectionTime(),
+    gnss->horizontalPositionAccuracy(), gnss->verticalPositionAccuracy(), gnss->horizontalVelocityStddev(),
+    gnss->verticalVelocityStddev(), sim->latitudeZero(), sim->longitudeZero(), sim->altitudeZero());
 
   // Rotor plugins
   for (int i = 0; i < propulsions->count(); ++i)
@@ -805,7 +820,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
     addRotorPlugin(
       robot, ns, link_name, general->channel(), motor->kv(), motor->internalResistance(), propeller->numBlade(),
-      aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), motor->direction(), esc->maxCurrent(),
+      aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), general->direction(), esc->maxCurrent(),
       sim->maxModelErrorRate());
   }
 
@@ -832,5 +847,5 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

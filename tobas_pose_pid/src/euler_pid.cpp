@@ -36,11 +36,11 @@ kdl::Vector EulerPID::update(
       ei_(i) += ep(i) * dt;
 
   // 目標オイラー角加速度を計算
-  const auto tar_euler_acc = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
+  const auto tar_ddrpy = kp_.hadamard(ep) + kd_.hadamard(ed) + ki_.hadamard(ei_);
 
   // オイラー角加速度をDジャイロに変換
-  const auto cur_rpyd = eigen::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
-  return kdl::Vector(eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_rpyd, tar_euler_acc.data));
+  const auto cur_drpy = eigen::eulerrateFromAngvelLocal(cur_gyro.data, cur_rpy.roll, cur_rpy.pitch);
+  return eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_drpy, tar_ddrpy.data);
 }
 
 bool EulerPID::setNaturalFreq(int idx, double value)

@@ -1,6 +1,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_msgs_adapter/pos_vel_acc_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 
 using namespace std;
 
@@ -18,7 +18,7 @@ private:
   double pos_stddev_;
   double vel_stddev_;
 
-  ros2::PublisherPtr<tobas_msgs::PosVelAccYaw> pvay_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> pvay_pub_;
   ros2::TimerPtr timer_;
 
   void timerCb();
@@ -27,13 +27,13 @@ private:
 FakePosVelAccYawPublisherNode::FakePosVelAccYawPublisherNode(const rclcpp::NodeOptions& options)
   : super("fake_pos_vel_acc_yaw_publisher", options)
 {
-  pvay_pub_ = createPublisher<tobas_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  pvay_pub_ = createPublisher<tobas_command_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
   timer_ = createTimer(kSamplingPeriod, &self::timerCb, this);
 }
 
 void FakePosVelAccYawPublisherNode::timerCb()
 {
-  auto pvay_msg = std::make_unique<tobas_msgs::PosVelAccYaw>();
+  auto pvay_msg = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
   pvay_msg->pos.setZero();
   pvay_msg->vel.setZero();
   pvay_msg->acc.setZero();

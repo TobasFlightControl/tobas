@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_IntRange : public ParamGetterWidget<std::pair<int, int>>
 {
@@ -40,5 +40,5 @@ private:
   IntGetter* min_;
   IntGetter* max_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

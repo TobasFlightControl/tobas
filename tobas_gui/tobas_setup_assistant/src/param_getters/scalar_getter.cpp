@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 IntGetter::IntGetter(const QString& name)
 {
@@ -128,5 +128,5 @@ void DoubleGetter::onValueChanged(double value)
 {
   Q_EMIT valueChanged(value);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

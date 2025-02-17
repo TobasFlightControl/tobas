@@ -16,12 +16,14 @@ find_package(rclcpp REQUIRED)
 find_package(tobas_path_tools REQUIRED)
 find_package(tobas_constants REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_command_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
 	rclcpp
 	tobas_path_tools
 	tobas_constants
 	tobas_msgs_adapter
+	tobas_command_msgs_adapter
 )
 
 include_directories(include)

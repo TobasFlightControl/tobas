@@ -1,9 +1,10 @@
 #include <rcutils/env.h>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 #include <QLabel>
 #include <QButtonGroup>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QCoreApplication>
+#include <QApplication>
 
 #include <tobas_path_tools/join.hpp>
 #include <tobas_kdl/kdl_parser.hpp>
@@ -26,18 +27,24 @@ namespace gui
 namespace core
 {
 GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
-  : node_(node), property_client_(node, tobas::kPropertyServerName, kPkgName), ssh_client_(node), package_builder_(node)
+  : node_(node),
+    property_client_(node, tobas::kPropertyServerName, kPkgName),
+    ssh_client_(node),
+    package_builder_(node),
+    restart_thread_(node),
+    shutdown_thread_(node),
+    spinner_(Qt::WindowModal, this)
 {
   const auto pkg_path = fs::path(ament_index_cpp::get_package_share_directory(kPkgName));
   const auto rsrc_path = pkg_path / "resources";
 
   // Applications
   homepage_ = new homepage::HomepageWidget();
-  urdf_builder_ = new URDFBuilder();
-  setup_assistant_ = new setup_assistant::SetupAssistantWidget(node);
-  hardware_setup_ = new hardware_setup::HardwareSetupWidget(node, tree_, drone_);
-  control_system_ = new control_system::ControlSystemWidget(node, drone_);
-  param_tuning_ = new param_tuning::ParameterTuningWidget(node);
+  urdf_builder_ = new urdf_builder::URDFBuilder();
+  setup_assistant_ = new sa::SetupAssistantWidget(node);
+  hardware_setup_ = new hw::HardwareSetupWidget(node, tree_, drone_);
+  control_system_ = new gcs::ControlSystemWidget(node, drone_);
+  param_tuning_ = new param::ParameterTuningWidget(node);
   flight_log_ = new log::FlightLogWidget(node);
   simulation_ = new sim::SimulationWidget(node);
 
@@ -87,8 +94,9 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   load_btn_->setEnabled(false);
   write_btn_->setEnabled(false);
 
-  // Shutdown button
-  power_btn_ = new PowerButton(kPowerButtonRadius);
+  // Power control buttons
+  restart_btn_ = new RestartButton(kPowerButtonRadius);
+  shutdown_btn_ = new ShutdownButton(kPowerButtonRadius);
 
   // Layout
   const auto pkg_btn_cols = new QHBoxLayout();
@@ -112,7 +120,8 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   header_cols->addStretch();
   header_cols->addLayout(pkg_rows);
   qt::addSpacing(header_cols, 30, QSizePolicy::Preferred);  // スペースが足りなければ潰れる
-  header_cols->addWidget(power_btn_);
+  header_cols->addWidget(restart_btn_);
+  header_cols->addWidget(shutdown_btn_);
 
   const auto rows = new QVBoxLayout();
   rows->addLayout(header_cols);
@@ -125,7 +134,12 @@ GUICoreWidget::GUICoreWidget(rclcpp::Node::SharedPtr node)
   connect(browse_btn_, &QPushButton::clicked, this, &self::onBrowseButtonClicked);
   connect(load_btn_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
   connect(write_btn_, &QPushButton::clicked, this, &self::onWriteButtonClicked);
-  connect(power_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  connect(restart_btn_, &QPushButton::clicked, this, &self::onRestartButtonClicked);
+  connect(shutdown_btn_, &QPushButton::clicked, this, &self::onShutdownButtonClicked);
+  connect(&restart_thread_, &RestartThread::finished, this, &self::onRestartThreadFinished);
+  connect(&shutdown_thread_, &ShutdownThread::finished, this, &self::onShutdownThreadFinished);
+  connect(simulation_, &sim::SimulationWidget::started, this, &self::onSimRealStateChanged);
+  connect(simulation_, &sim::SimulationWidget::terminated, this, &self::onSimRealStateChanged);
 }
 
 void GUICoreWidget::updateInternalDataStructures()
@@ -137,8 +151,25 @@ void GUICoreWidget::updateInternalDataStructures()
   simulation_->updateTBSPath(tbsPath());
 
   arming_ = nullptr;
+
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
+}
+
+void GUICoreWidget::closeEvent(QCloseEvent* event)
+{
+  RCLCPP_DEBUG(node_->get_logger(), "GUICoreWidget::closeEvent");
+
+  homepage_->close();
+  urdf_builder_->close();
+  setup_assistant_->close();
+  hardware_setup_->close();
+  control_system_->close();
+  param_tuning_->close();
+  flight_log_->close();
+  simulation_->close();
+
+  event->accept();
 }
 
 void GUICoreWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -333,35 +364,107 @@ void GUICoreWidget::onWriteButtonClicked()
   qt::qInfoBox(this, "Tobas configuration package is installed successfully.");
 }
 
-void GUICoreWidget::onShutdownButtonClicked()
+void GUICoreWidget::onRestartButtonClicked(bool checked)
 {
+  if (!checked)
+    return;
+
   // アームされていないことを確認
   if (arming_ != nullptr && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    restart_btn_->setChecked(false);
     return;
   }
 
-  // SSH接続を確認
-  if (ssh_client_.connect() != ssh::SSHClient::E_NO_ERROR)
+  // 本当に再起動してよいか確認
+  if (!qt::yesOrNo(this, "Are you sure you want to restart the flight controller?", qt::QMessageLevel::WARN))
   {
-    qt::qErrorBox(this, "No SSH connection: " + QString(ssh_client_.errorMessage()));
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  // Tobasサービスを再起動
+  restart_thread_.start();
+
+  spinner_.show();
+  spinner_.start();
+}
+
+void GUICoreWidget::onShutdownButtonClicked(bool checked)
+{
+  if (!checked)
+    return;
+
+  // アームされていないことを確認
+  if (arming_ != nullptr && arming_->data)
+  {
+    qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
+    shutdown_btn_->setChecked(false);
     return;
   }
 
   // 本当にシャットダウンしてよいか確認
   if (!qt::yesOrNo(this, "Are you sure you want to shut down the FC and the GCS?", qt::QMessageLevel::WARN))
+  {
+    shutdown_btn_->setChecked(false);
     return;
+  }
 
   // ラズパイをシャットダウン
-  RCLCPP_INFO(node_->get_logger(), "Shutting down the flight controller.");
-  ssh_client_.execute("poweroff", true, true);
+  shutdown_thread_.start();
 
-  // GCSを強制終了
-  rclcpp::shutdown();
+  spinner_.show();
+  spinner_.start();
+}
+
+void GUICoreWidget::onRestartThreadFinished(bool success, const QString& message)
+{
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success)
+  {
+    qt::qErrorBox(this, message);
+    restart_btn_->setChecked(false);
+    return;
+  }
+
+  qt::qInfoBox(this, "Flight controller is restarted successfully.");
+  restart_btn_->setChecked(false);
+}
+
+void GUICoreWidget::onShutdownThreadFinished(bool success, const QString& message)
+{
+  spinner_.hide();
+  spinner_.stop();
+
+  if (!success)
+  {
+    qt::qErrorBox(this, message);
+    shutdown_btn_->setChecked(false);
+    return;
+  }
+
+  // GUIを完全に落とす
   close();
-  QCoreApplication::quit();
-  kill(getpid(), SIGINT);
+  QApplication::quit();
+}
+
+void GUICoreWidget::onSimRealStateChanged()
+{
+  // シミュレーションウィジェット以外リセット
+  urdf_builder_->reset();
+  setup_assistant_->reset();
+  hardware_setup_->reset();
+  control_system_->reset();
+  param_tuning_->reset();
+  flight_log_->reset();
+
+  arming_ = nullptr;
+
+  // イベントループを進めて画面の更新を確実に反映させる
+  QApplication::processEvents();
 }
 }  // namespace core
 }  // namespace gui

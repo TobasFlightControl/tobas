@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class StatusWidget : public QWidget
 {
@@ -13,14 +13,29 @@ class StatusWidget : public QWidget
   static constexpr int kLEDSize = 20;
   static constexpr int kTextPSize = 12;
 
+  static constexpr auto kPassedColor = Qt::green;
+  static constexpr auto kFailedColor = Qt::red;
+  static constexpr auto kIgnoredColor = Qt::yellow;
+  static constexpr auto kUnknownColor = Qt::gray;
+
 public:
+  enum status_t : uint8_t
+  {
+    PASSED = 0,
+    FAILED = 1,
+    IGNORED = 2,
+  };
+
   explicit StatusWidget(const QString& text);
 
-  void setStatus(bool status);
   void reset();
+
+  void setStatus(status_t status);
+  void setStatus(uint8_t status);
+  void setStatus(bool ok);
 
 private:
   qt::CircleWidget* led_;
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

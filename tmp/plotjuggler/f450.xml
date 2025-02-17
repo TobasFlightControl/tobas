@@ -259,7 +259,7 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab containers="1" tab_name="GPS">
+  <Tab containers="1" tab_name="GNSS">
    <Container>
     <DockSplitter count="1" sizes="1" orientation="-">
      <DockSplitter count="2" sizes="0.5;0.5" orientation="|">
@@ -268,21 +268,21 @@
         <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
          <range right="9.273097" left="4.321687" bottom="35.732774" top="35.732784"/>
          <limitY/>
-         <curve name="/f450/gps/latitude" color="#ff7f0e"/>
+         <curve name="/f450/gnss/latitude" color="#ff7f0e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
          <range right="9.273097" left="4.321687" bottom="139.759942" top="139.759947"/>
          <limitY/>
-         <curve name="/f450/gps/longitude" color="#f14cc1"/>
+         <curve name="/f450/gnss/longitude" color="#f14cc1"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
          <range right="9.273097" left="4.321687" bottom="51.499657" top="52.186042"/>
          <limitY/>
-         <curve name="/f450/gps/altitude" color="#9467bd"/>
+         <curve name="/f450/gnss/altitude" color="#9467bd"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -291,21 +291,21 @@
         <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
          <range right="9.273097" left="4.321687" bottom="-0.106250" top="0.156250"/>
          <limitY/>
-         <curve name="/f450/gps/ground_speed/x" color="#17becf"/>
+         <curve name="/f450/gnss/ground_speed/x" color="#17becf"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
          <range right="9.273097" left="4.321687" bottom="-0.177750" top="0.147750"/>
          <limitY/>
-         <curve name="/f450/gps/ground_speed/y" color="#bcbd22"/>
+         <curve name="/f450/gnss/ground_speed/y" color="#bcbd22"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
          <range right="9.273097" left="4.321687" bottom="-0.198250" top="0.148250"/>
          <limitY/>
-         <curve name="/f450/gps/ground_speed/z" color="#1f77b4"/>
+         <curve name="/f450/gnss/ground_speed/z" color="#1f77b4"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -529,7 +529,7 @@
       <plot flip_y="false" style="Lines" mode="TimeSeries" flip_x="false">
        <range right="9.389329" left="4.391812" bottom="-0.001653" top="0.778090"/>
        <limitY/>
-       <curve name="/f450/feedback/observer/gps_anormaly_score" color="#d62728"/>
+       <curve name="/f450/feedback/observer/gnss_anormaly_score" color="#d62728"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -560,7 +560,7 @@
    <max_array_size value="100"/>
    <boolean_strings_to_number value="true"/>
    <remove_suffix_from_strings value="true"/>
-   <selected_topics value="/f450/air_pressure;/f450/battery;/f450/command/pos_vel_acc_yaw;/f450/command/rotor_speeds;/f450/cpu;/f450/euler;/f450/feedback/multirotor_controller;/f450/feedback/observer;/f450/gps;/f450/imu;/f450/imu_raw;/f450/latency;/f450/magnetic_field;/f450/odom;/f450/rotor_states;/f450/disturbance_force"/>
+   <selected_topics value="/f450/air_pressure;/f450/battery;/f450/command/pos_vel_acc_yaw;/f450/command/rotor_speeds;/f450/cpu;/f450/euler;/f450/feedback/multirotor_controller;/f450/feedback/observer;/f450/gnss;/f450/imu;/f450/imu_raw;/f450/latency;/f450/magnetic_field;/f450/odom;/f450/rotor_states;/f450/disturbance_force"/>
   </plugin>
   <plugin ID="UDP Server"/>
   <plugin ID="WebSocket Server"/>
@@ -582,4 +582,3 @@
  <snippets/>
  <!-- - - - - - - - - - - - - - - -->
 </root>
-

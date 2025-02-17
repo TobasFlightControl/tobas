@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class FixedWingLQRWidget : public BaseControllerWidget
 {
@@ -27,8 +27,9 @@ public:
   QString controllerPackage() const override;
   QString pluginName() const override;
 
-  tobas::rc_command_t stabilizeModeCommand() const override;
   tobas::rc_command_t acrobatModeCommand() const override;
+  tobas::rc_command_t stabilizeModeCommand() const override;
+  tobas::rc_command_t loiterModeCommand() const override;
 
   YAML::Node staticParams() const override;
 
@@ -43,5 +44,5 @@ private:
   const propulsion::PropulsionSystemWidget* propulsion_system_;
   const fixed_wing::FixedWingWidget* fixed_wing_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

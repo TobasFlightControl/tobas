@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 BatteryWidget::BatteryWidget()
 {
@@ -129,5 +129,5 @@ const BatteryWidget_Base* BatteryWidget::selected() const
 {
   return qobject_cast<BatteryWidget_Base*>(batteries_->currentWidget());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -12,7 +12,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_FileDialog::ParamGetterWidget_FileDialog(
   rclcpp::Node::SharedPtr node,
@@ -89,5 +89,5 @@ void ParamGetterWidget_FileDialog::setInitialFilter(const QString& init_filter)
 {
   init_filter_ = init_filter;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

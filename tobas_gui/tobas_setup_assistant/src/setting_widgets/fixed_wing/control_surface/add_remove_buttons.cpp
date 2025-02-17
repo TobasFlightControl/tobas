@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -60,5 +60,5 @@ void AddRemoveButtonsWidget::onRemoveButtonClicked()
   Q_EMIT linkRemoved(selected_link_name);
 }
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

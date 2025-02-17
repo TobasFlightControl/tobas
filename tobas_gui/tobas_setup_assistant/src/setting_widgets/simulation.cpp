@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 SimulationWidget::SimulationWidget()
 {
@@ -109,5 +109,5 @@ double SimulationWidget::maxModelErrorRate() const
 {
   return static_cast<double>(max_model_error_rate_->getValue()) / 100.;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

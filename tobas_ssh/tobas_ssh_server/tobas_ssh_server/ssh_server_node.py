@@ -174,7 +174,11 @@ class SSHServerNode(Node):
 def main(args=None) -> None:
     rclpy.init(args=args)
     node = SSHServerNode()
-    rclpy.spin(node)
+
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:  # SIGINTをキャッチして綺麗に終了
+        pass
 
 
 if __name__ == "__main__":

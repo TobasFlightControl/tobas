@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
   : drone_(drone)
@@ -29,16 +29,24 @@ HardwareSetupWidget::HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl
   tabs_->addTab(rotor_test_, rotor_test_->name());
   tabs_->addTab(joint_test_, joint_test_->name());
 
-  tabs_->setSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(kTabWidth, kTabHeight);
+}
+
+void HardwareSetupWidget::reset()
+{
+  for (int i = 0; i < tabs_->count(); ++i)
+    qobject_cast<BaseHardwareSetupWidget*>(tabs_->widget(i))->reset();
 }
 
 void HardwareSetupWidget::updateInternalDataStructures()
 {
+  reset();
+
   accel_calib_->setNamespace(drone_.name);
   mag_calib_->setNamespace(drone_.name);
   rcin_calib_->setNamespace(drone_.name);
   rotor_test_->updateInternalDataStructures();
   joint_test_->updateInternalDataStructures();
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

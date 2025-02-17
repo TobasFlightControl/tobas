@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -50,5 +50,5 @@ private:
   SelectedLinksWidget* selected_;
 };
 };  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

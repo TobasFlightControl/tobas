@@ -14,15 +14,14 @@ static constexpr char kMagTopic[] = "real/magnetic_field";
 static constexpr char kAirPressureTopic[] = "real/air_pressure";
 
 // RCチャンネル
-// フタバT10J (ヘリ用) のチャンネル5 (CH6) は修正できないため空けている
-// チャンネルは8までを想定．9以上は受信機が対応していないことがある
-static constexpr size_t kRcChannelRoll = 0;   // CH1
-static constexpr size_t kRcChannelPitch = 1;  // CH2
-static constexpr size_t kRcChannelThrot = 2;  // CH3
-static constexpr size_t kRcChannelYaw = 3;    // CH4
-static constexpr size_t kRcChannelMode = 4;   // CH5
-static constexpr size_t kRcChannelEStop = 6;  // CH7
-static constexpr size_t kRcChannelGPSw = 7;   // CH8
+static constexpr size_t kRcChannelRoll = 0;    // CH1
+static constexpr size_t kRcChannelPitch = 1;   // CH2
+static constexpr size_t kRcChannelThrot = 2;   // CH3
+static constexpr size_t kRcChannelYaw = 3;     // CH4
+static constexpr size_t kRcChannelEnable = 4;  // CH5
+                                               // CH6: フタバT10J (ヘリ用) のCH6は変更不可のため
+static constexpr size_t kRcChannelMode = 6;    // CH7
+static constexpr size_t kRcChannelGPSw = 7;    // CH8
 
 namespace handler
 {
@@ -71,11 +70,11 @@ static constexpr char kYawLeftKey[] = "yaw/left";
 static constexpr char kYawRightKey[] = "yaw/right";
 static constexpr char kThrotUpKey[] = "throttle/up";
 static constexpr char kThrotDownKey[] = "throttle/down";
-static constexpr char kModeProgramKey[] = "mode/program";
-static constexpr char kModeStabilizeKey[] = "mode/stabilize";
+static constexpr char kEnableOnKey[] = "enable/on";
+static constexpr char kEnableOffKey[] = "enable/off";
 static constexpr char kModeAcrobatKey[] = "mode/acrobat";
-static constexpr char kEStopOnKey[] = "e_stop/on";
-static constexpr char kEStopOffKey[] = "e_stop/off";
+static constexpr char kModeStabilizeKey[] = "mode/stabilize";
+static constexpr char kModeLoiterKey[] = "mode/loiter";
 static constexpr char kGPSwOnKey[] = "gpsw/on";
 static constexpr char kGPSwOffKey[] = "gpsw/off";
 }  // namespace rcin

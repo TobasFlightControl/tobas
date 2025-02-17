@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
 {
@@ -15,10 +15,11 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   imu = new IMUWidget();
   magnetometer = new MagnetometerWidget();
   barometer = new BarometerWidget();
-  gps = new GPSWidget();
+  gnss = new GNSSWidget();
   controller = new ControllerWidget(robot, propulsion_system, fixed_wing);
-  observer = new ObserverWidget(robot, imu, barometer, gps);
+  observer = new ObserverWidget(robot, imu, barometer, gnss);
   hardware = new HardwareWidget();
+  pre_arm_check = new PreArmCheckWidget();
   simulation = new SimulationWidget();
   author_info = new AuthorInformationWidget();
   ros_package = new ROSPackageWidget(node, robot);
@@ -31,10 +32,11 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
   addTab(imu, imu->name());
   addTab(magnetometer, magnetometer->name());
   addTab(barometer, barometer->name());
-  addTab(gps, gps->name());
+  addTab(gnss, gnss->name());
   addTab(controller, controller->name());
   addTab(observer, observer->name());
   addTab(hardware, hardware->name());
+  addTab(pre_arm_check, pre_arm_check->name());
   addTab(simulation, simulation->name());
   addTab(author_info, author_info->name());
   addTab(ros_package, ros_package->name());
@@ -48,7 +50,7 @@ SettingsWidget::SettingsWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot)
 
   // レイアウト
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-  setSize(kTabWidth, kTabHeight);
+  setTabSize(kTabWidth, kTabHeight);
 
   // Connection
   connect(this, &self::currentChanged, this, &self::onCurrentChanged);
@@ -94,6 +96,9 @@ bool SettingsWidget::isValid()
     }
   }
 
+  // 観測不可能な情報を要求する制御コマンドが設定されている場合に警告
+  // TODO
+
   return true;
 }
 
@@ -137,5 +142,5 @@ void SettingsWidget::onCurrentChanged(int index)
   const auto cur_widget = qobject_cast<BaseSettingWidget*>(widget(index));
   cur_widget->onOpened();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

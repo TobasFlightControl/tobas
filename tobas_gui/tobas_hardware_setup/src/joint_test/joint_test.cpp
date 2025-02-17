@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 JointTestWidget::JointTestWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone)
   : node_(node), tree_(tree), drone_(drone)
@@ -55,7 +55,17 @@ const char* JointTestWidget::name() const
 
 const char* JointTestWidget::title() const
 {
-  return "Test Joints (PWM interface only)";
+  return "Test Joints with PWM Interface";
+}
+
+void JointTestWidget::reset()
+{
+  commands_publisher_->stop();
+
+  start_button_->setEnabled(true);
+  stop_button_->setEnabled(false);
+
+  arming_ = nullptr;
 }
 
 void JointTestWidget::updateInternalDataStructures()
@@ -68,16 +78,6 @@ void JointTestWidget::updateInternalDataStructures()
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
-}
-
-void JointTestWidget::reset()
-{
-  commands_publisher_->stop();
-
-  start_button_->setEnabled(true);
-  stop_button_->setEnabled(false);
-
-  arming_ = nullptr;
 }
 
 void JointTestWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -113,5 +113,5 @@ void JointTestWidget::onStopButtonClicked()
 
   qt::qInfoBox(this, "Joint test is finished.");
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

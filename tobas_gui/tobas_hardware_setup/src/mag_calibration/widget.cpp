@@ -1,7 +1,5 @@
 #include <filesystem>
 #include <ament_index_cpp/get_package_share_directory.hpp>
-#include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/display_group.hpp>
 
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
@@ -26,7 +24,7 @@ namespace fs = filesystem;
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), rviz_manager_("rviz_mag_calibration")
@@ -65,21 +63,17 @@ MagCalibrationWidget::MagCalibrationWidget(rclcpp::Node::SharedPtr node)
   const fs::path pkg_path(ament_index_cpp::get_package_share_directory(kPackageName));
   const auto rviz_config_path = pkg_path / "config/mag_calibration.rviz";
   rviz_manager_.initialize(QString::fromStdString(rviz_config_path));
-  rows_->addWidget(rviz_manager_.frame());
-
-  const auto manager = rviz_manager_.frame()->getManager();
+  rows_->addWidget(rviz_manager_.widget());
 
   // 固定フレームを設定
   // TFが出ているフレームでなければならない
-  manager->setFixedFrame(tobas::kWorldFrame);
+  rviz_manager_.setFixedFrame(tobas::kWorldFrame);
 
-  const auto ps_display = manager->getRootDisplayGroup()->getDisplayAt(0);
-  TOBAS_CHECK(ps_display->getName() == "PointStamped");
+  const auto ps_display = rviz_manager_.getDisplay("PointStamped");
   ps_display->subProp("Topic")->setValue(kRvizPointStampedTopic);
   ps_history_length_ = ps_display->subProp("History Length");
 
-  const auto pc_display = manager->getRootDisplayGroup()->getDisplayAt(1);
-  TOBAS_CHECK(pc_display->getName() == "PointCloud");
+  const auto pc_display = rviz_manager_.getDisplay("PointCloud");
   pc_display->subProp("Topic")->setValue(kRvizPointCloudTopic);
 
   ps_pub_ = ros2::createPublisher<geometry_msgs::msg::PointStamped>(node_, kRvizPointStampedTopic);
@@ -98,26 +92,29 @@ const char* MagCalibrationWidget::title() const
   return "Calibrate Magnetometer";
 }
 
+void MagCalibrationWidget::reset()
+{
+  rviz_manager_.resetTime();
+
+  start_button_->setEnabled(true);
+  finish_button_->setEnabled(false);
+  cancel_button_->setEnabled(false);
+
+  // キャリブレーション中のみ購読する
+  mag_raw_sub_ = nullptr;
+}
+
 void MagCalibrationWidget::setNamespace(const string& ns)
 {
-  ns_ = ns;
+  reset();
 
-  resetToBeforeStart();
+  ns_ = ns;
 
   arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
   setEnabled(true);
-}
-
-void MagCalibrationWidget::resetToBeforeStart()
-{
-  mag_raw_sub_ = nullptr;
-
-  start_button_->setEnabled(true);
-  finish_button_->setEnabled(false);
-  cancel_button_->setEnabled(false);
 }
 
 void MagCalibrationWidget::magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw)
@@ -190,7 +187,7 @@ void MagCalibrationWidget::onStartButtonClicked()
 
 void MagCalibrationWidget::onCancelButtonClicked()
 {
-  resetToBeforeStart();
+  reset();
   qt::qInfoBox(this, "Magnetometer calibration is cancelled.");
 }
 
@@ -309,7 +306,7 @@ void MagCalibrationWidget::onFinishButtonClicked()
   // 楕円体であることを確認
   if (!mag_trans_.initialize())
   {
-    resetToBeforeStart();
+    reset();
     qt::qErrorBox(this, "The estimated coefficients do not satisfy the conditions necessary for forming an ellipsoid.");
     return;
   }
@@ -357,8 +354,8 @@ void MagCalibrationWidget::onFinishButtonClicked()
   }
   pc_pub_->publish(std::move(pc_calib));
 
-  resetToBeforeStart();
+  reset();
   qt::qInfoBox(this, "Magnetometer calibration finished successfully.");
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

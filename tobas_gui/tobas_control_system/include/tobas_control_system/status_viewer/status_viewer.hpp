@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class StatusViewerWidget : public qt::ScrollArea
 {
@@ -22,6 +22,7 @@ class StatusViewerWidget : public qt::ScrollArea
 public:
   explicit StatusViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -29,5 +30,5 @@ private:
   PostArmCheckViewerWidget* postarm_check_viewer_;
   OtherStatusViewerWidget* other_status_viewer_;
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

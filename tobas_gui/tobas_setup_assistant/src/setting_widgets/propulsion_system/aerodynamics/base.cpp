@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -47,5 +47,5 @@ void AerodynamicsWidget_Base::initialize()
   description_->setText(description());
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

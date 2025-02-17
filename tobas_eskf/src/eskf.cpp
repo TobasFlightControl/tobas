@@ -14,7 +14,7 @@ using namespace Eigen;
 
 namespace eskf
 {
-ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow)
+ErrorStateKalmanFilter::ErrorStateKalmanFilter() : x_history_(kStateHistoryTimeWindow), stopwatch_(100)
 {
   // 観測方程式の固定部分を埋める
   H_pos_.setZero();
@@ -95,7 +95,11 @@ bool ErrorStateKalmanFilter::initializePosition(const Vector3d& value, const Mat
   }
 
   x_.segment<3>(kPosIdx) = value;
+
+  P_.middleRows<3>(kDeltaPosIdx).setZero();
+  P_.middleCols<3>(kDeltaPosIdx).setZero();
   P_.block<3, 3>(kDeltaPosIdx, kDeltaPosIdx) = cov;
+
   resetStateHistory();
 
   return true;
@@ -110,7 +114,11 @@ bool ErrorStateKalmanFilter::initializeVelocity(const Vector3d& value, const Mat
   }
 
   x_.segment<3>(kVelIdx) = value;
+
+  P_.middleRows<3>(kDeltaVelIdx).setZero();
+  P_.middleCols<3>(kDeltaVelIdx).setZero();
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) = cov;
+
   resetStateHistory();
 
   return true;
@@ -125,7 +133,11 @@ bool ErrorStateKalmanFilter::initializeQuaternion(const Quaterniond& value, cons
   }
 
   x_.segment<4>(kQuatIdx) = eigen::hamiltonFromQuaternion(value).normalized();
+
+  P_.middleRows<3>(kDeltaThetaIdx).setZero();
+  P_.middleCols<3>(kDeltaThetaIdx).setZero();
   P_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = cov;
+
   resetStateHistory();
 
   return true;
@@ -140,7 +152,11 @@ bool ErrorStateKalmanFilter::initializeAccelBias(const Vector3d& value, const Ma
   }
 
   x_.segment<3>(kAccBiasIdx) = value;
+
+  P_.middleRows<3>(kDeltaAccBiasIdx).setZero();
+  P_.middleCols<3>(kDeltaAccBiasIdx).setZero();
   P_.block<3, 3>(kDeltaAccBiasIdx, kDeltaAccBiasIdx) = cov;
+
   resetStateHistory();
 
   return true;
@@ -155,7 +171,11 @@ bool ErrorStateKalmanFilter::initializeGyroBias(const Vector3d& value, const Mat
   }
 
   x_.segment<3>(kGyroBiasIdx) = value;
+
+  P_.middleRows<3>(kDeltaGyroBiasIdx).setZero();
+  P_.middleCols<3>(kDeltaGyroBiasIdx).setZero();
   P_.block<3, 3>(kDeltaGyroBiasIdx, kDeltaGyroBiasIdx) = cov;
+
   resetStateHistory();
 
   return true;
@@ -170,7 +190,11 @@ bool ErrorStateKalmanFilter::initializeMagHardBias(const Vector3d& value, const 
   }
 
   x_.segment<3>(kMagHardBiasIdx) = value;
+
+  P_.middleRows<3>(kDeltaMagHardBiasIdx).setZero();
+  P_.middleCols<3>(kDeltaMagHardBiasIdx).setZero();
   P_.block<3, 3>(kDeltaMagHardBiasIdx, kDeltaMagHardBiasIdx) = cov;
+
   resetStateHistory();
 
   return true;
@@ -191,7 +215,11 @@ bool ErrorStateKalmanFilter::initializeMagSoftBias(const Matrix3d& value, const 
   }
 
   setMagSoftBiasFromMatrix(value);
+
+  P_.middleRows<6>(kDeltaMagSoftBiasIdx).setZero();
+  P_.middleCols<6>(kDeltaMagSoftBiasIdx).setZero();
   P_.block<6, 6>(kDeltaMagSoftBiasIdx, kDeltaMagSoftBiasIdx) = cov;
+
   resetStateHistory();
 
   return true;
@@ -206,20 +234,34 @@ bool ErrorStateKalmanFilter::initializeGravity(const double& value, const double
   }
 
   x_(kGravIdx) = value;
+
+  P_.row(kDeltaGravIdx).setZero();
+  P_.col(kDeltaGravIdx).setZero();
   P_(kDeltaGravIdx, kDeltaGravIdx) = var;
+
   resetStateHistory();
 
   return true;
 }
 
-void ErrorStateKalmanFilter::enableJosephForm(bool enable)
+void ErrorStateKalmanFilter::enableSecondIntegral(bool enable)
 {
-  use_joseph_form_ = enable;
+  enable_second_integral_ = enable;
+}
+
+void ErrorStateKalmanFilter::enableCovSymmetrisation(bool enable)
+{
+  enable_cov_symmetrisation_ = enable;
 }
 
 void ErrorStateKalmanFilter::enableCovInitialization(bool enable)
 {
-  do_cov_initialization_ = enable;
+  enable_cov_initialization_ = enable;
+}
+
+void ErrorStateKalmanFilter::enableJosephForm(bool enable)
+{
+  enable_joseph_form_ = enable;
 }
 
 bool ErrorStateKalmanFilter::setAccBiasProcNoiseDensity(double value)
@@ -349,7 +391,9 @@ double ErrorStateKalmanFilter::measureIMU(
   F_x_.block<3, 3>(kDeltaThetaIdx, kDeltaGyroBiasIdx).diagonal().fill(-dt);
 
   // (269)第一項: 共分散行列の予測値を更新
-  P_ = F_x_ * P_ * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  // stopwatch_.start();
+  P_ = F_x_ * P_.selfadjointView<Lower>() * F_x_.transpose();  // TODO: 必要な部分のみ計算
+  // stopwatch_.stop();
 
   // (269)第二項: プロセスノイズを印加
   P_.block<3, 3>(kDeltaVelIdx, kDeltaVelIdx) += W_Rot_B * acc_cov_fixed * W_Rot_B.transpose() * dt2;
@@ -697,7 +741,8 @@ void ErrorStateKalmanFilter::applyConstraints()
   }
 
   // 共分散行列は対称行列でなければならない
-  eigen::symmetrise(P_);
+  if (enable_cov_symmetrisation_)
+    eigen::symmetrise(P_);
 }
 
 void ErrorStateKalmanFilter::resetStateHistory()

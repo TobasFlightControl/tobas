@@ -28,8 +28,8 @@ void odometryNwuToNed(tobas_msgs::Odometry& arg)
 }
 
 void speedRollDeltaPitchNedToNwu(
-  const tobas_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_msgs::msg::SpeedRollDeltaPitch& des)
+  const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
+  tobas_command_msgs::msg::SpeedRollDeltaPitch& des)
 {
   des.speed = src.speed;
   des.roll = src.roll;
@@ -37,18 +37,18 @@ void speedRollDeltaPitchNedToNwu(
 }
 
 void speedRollDeltaPitchNwuToNed(
-  const tobas_msgs::msg::SpeedRollDeltaPitch src,
-  tobas_msgs::msg::SpeedRollDeltaPitch& des)
+  const tobas_command_msgs::msg::SpeedRollDeltaPitch src,
+  tobas_command_msgs::msg::SpeedRollDeltaPitch& des)
 {
   speedRollDeltaPitchNedToNwu(src, des);
 }
 
-void speedRollDeltaPitchNedToNwu(tobas_msgs::msg::SpeedRollDeltaPitch& arg)
+void speedRollDeltaPitchNedToNwu(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg)
 {
   speedRollDeltaPitchNedToNwu(arg, arg);
 }
 
-void speedRollDeltaPitchNwuToNed(tobas_msgs::msg::SpeedRollDeltaPitch& arg)
+void speedRollDeltaPitchNwuToNed(tobas_command_msgs::msg::SpeedRollDeltaPitch& arg)
 {
   speedRollDeltaPitchNwuToNed(arg, arg);
 }

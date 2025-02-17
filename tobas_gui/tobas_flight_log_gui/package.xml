@@ -12,7 +12,9 @@
   <depend>rosbag2_cpp</depend>
   <depend>tobas_ros2_tools</depend>
   <depend>tobas_msgs</depend>
+  <depend>tobas_debug_msgs</depend>
   <depend>tobas_qt_tools</depend>
+  <depend>tobas_qwt_wrapper</depend>
   <depend>tobas_gui_common</depend>
 
   <export>

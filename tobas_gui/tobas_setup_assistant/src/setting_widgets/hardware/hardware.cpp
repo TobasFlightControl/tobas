@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 HardwareWidget::HardwareWidget()
 {
@@ -109,5 +109,5 @@ const BaseHardwareWidget* HardwareWidget::selected() const
 {
   return qobject_cast<BaseHardwareWidget*>(hardwares_->currentWidget());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

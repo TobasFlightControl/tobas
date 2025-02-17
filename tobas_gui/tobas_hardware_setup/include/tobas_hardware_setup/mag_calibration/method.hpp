@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 enum mag_calibration_method
 {

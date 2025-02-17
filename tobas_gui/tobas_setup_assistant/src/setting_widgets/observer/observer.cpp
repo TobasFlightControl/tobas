@@ -7,14 +7,14 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ObserverWidget::ObserverWidget(
   const RobotInfo& robot,
   const IMUWidget* imu,
   const BarometerWidget* baro,
-  const GPSWidget* gps)
-  : robot_(robot), imu_(imu), baro_(baro), gps_(gps)
+  const GNSSWidget* gnss)
+  : robot_(robot), imu_(imu), baro_(baro), gnss_(gnss)
 {
   type_ = new qt::ComboBox();
   observers_ = new qt::StackedWidget();
@@ -24,7 +24,7 @@ ObserverWidget::ObserverWidget(
   addWidget(description_);
   addWidget(observers_);
 
-  observers_->addWidget(new ErrorStateKalmanFilterWidget(robot_, imu_, baro_, gps_));
+  observers_->addWidget(new ErrorStateKalmanFilterWidget(robot_, imu_, baro_, gnss_));
   observers_->addWidget(new CustomObserverWidget());
 
   for (int i = 0; i < observers_->count(); ++i)
@@ -127,5 +127,5 @@ const BaseObserverWidget* ObserverWidget::selected() const
 {
   return qobject_cast<BaseObserverWidget*>(observers_->currentWidget());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

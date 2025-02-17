@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class SpeedmeterWidget : public QQuickWidget
 {
@@ -38,5 +38,5 @@ private:
   QObject* getTopTextObject() const;
   QObject* getBottomTextObject() const;
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

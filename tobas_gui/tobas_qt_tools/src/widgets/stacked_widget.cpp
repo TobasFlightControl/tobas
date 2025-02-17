@@ -1,4 +1,4 @@
-#include <QCoreApplication>
+#include <QApplication>
 
 #include "tobas_qt_tools/widgets/stacked_widget.hpp"
 
@@ -20,7 +20,7 @@ void StackedWidget::setCurrentIndex(int index)
   super::setCurrentIndex(index);
 
   // Qtのイベントループを更新
-  QCoreApplication::processEvents();
+  QApplication::processEvents();
 
   // 画面を更新
   update();

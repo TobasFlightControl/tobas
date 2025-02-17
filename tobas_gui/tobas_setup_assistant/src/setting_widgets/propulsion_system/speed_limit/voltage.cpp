@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -45,5 +45,5 @@ double SpeedLimitWidget_Voltage::maxRotSpeed() const
   return (sqrt(math::sqr(c) + 4 * b * V) - c) / (2 * b);
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

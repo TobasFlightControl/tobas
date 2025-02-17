@@ -24,8 +24,5 @@ void MainWidget::closeEvent(QCloseEvent* event)
 {
   widget_->close();
   event->accept();
-
-  // クローズ時にプロセスごと落とすことで確実に終了させる
-  kill(getpid(), SIGINT);
 }
 }  // namespace qt

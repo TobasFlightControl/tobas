@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -32,5 +32,5 @@ double SpeedLimitWidget_Manual::maxRotSpeed() const
   return tobas_std::rpm2rps(rpm);
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

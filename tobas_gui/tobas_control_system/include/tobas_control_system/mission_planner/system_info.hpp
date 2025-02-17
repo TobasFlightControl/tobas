@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 /* QMLのコンストラクタ引数． */
 class SystemInfo : public QObject
@@ -27,5 +27,5 @@ public:
 private:
   QString home_dir_;
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

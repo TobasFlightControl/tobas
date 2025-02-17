@@ -14,7 +14,7 @@
 
 namespace gui
 {
-namespace param_tuning
+namespace param
 {
 struct IntConfig
 {
@@ -69,5 +69,5 @@ private Q_SLOTS:
   void onIntParamChanged(int value, const std::string& name);
   void onDoubleParamChanged(double value, const std::string& name);
 };
-}  // namespace param_tuning
+}  // namespace param
 }  // namespace gui

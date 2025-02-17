@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ROSPackageWidget::ROSPackageWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot) : node_(node), robot_(robot)
 {
@@ -147,5 +147,5 @@ void ROSPackageWidget::onGenerateButtonClicked()
 {
   Q_EMIT generateButtonClicked();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

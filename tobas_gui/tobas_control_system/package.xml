@@ -17,6 +17,7 @@
   <depend>tobas_drone_core</depend>
   <depend>tobas_std_msgs</depend>
   <depend>tobas_msgs_adapter</depend>
+  <depend>tobas_mission_msgs</depend>
   <depend>tobas_qt_tools</depend>
 
   <export>

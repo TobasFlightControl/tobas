@@ -3,8 +3,6 @@
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/latency.hpp>
 
-using namespace std;
-
 class LatencyPublisherNode : public tobas::BaseNode
 {
   using self = LatencyPublisherNode;
@@ -28,11 +26,13 @@ LatencyPublisherNode::LatencyPublisherNode(const rclcpp::NodeOptions& options) :
 
 void LatencyPublisherNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& msg)
 {
-  auto latency = std::make_unique<tobas_msgs::msg::Latency>();
   const auto cur_time = get_clock()->now();
+
+  auto latency = std::make_unique<tobas_msgs::msg::Latency>();
   latency->header.stamp = cur_time;
   latency->data = cur_time - msg->header.stamp;
-  latency_pub_->publish(move(latency));
+
+  latency_pub_->publish(std::move(latency));
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(LatencyPublisherNode)

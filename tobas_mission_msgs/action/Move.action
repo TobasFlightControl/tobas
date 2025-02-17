@@ -1,0 +1,20 @@
+# Goal
+tobas_command_msgs/CommandLevel level
+float64 target_latitude    # [m]
+float64 target_longitude   # [m]
+float64 target_altitude    # [m]
+float64 acceptance_radius  # [m]
+float64 duration           # [s]
+float64 timeout            # [s] Timeout after command duration. By default, timeout is infinite.
+
+---
+
+# Result
+string message
+
+---
+
+# Feedback
+geometry_msgs/Vector3 target_position   # [m]
+geometry_msgs/Vector3 current_position  # [m]
+geometry_msgs/Vector3 position_error    # [m]

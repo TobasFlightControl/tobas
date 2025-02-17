@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 static constexpr char kPkgName[] = "tobas_control_system";
 }

@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BarometerWidget : public BaseSettingWidget
 {
@@ -39,5 +39,5 @@ private:
   ParamGetterWidget_SpinBox* update_rate_;
   ParamGetterWidget_DoubleSpinBox* pressure_var_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

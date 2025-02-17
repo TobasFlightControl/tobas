@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class HardwareSetupWidget : public QWidget
 {
@@ -26,6 +26,7 @@ class HardwareSetupWidget : public QWidget
 public:
   explicit HardwareSetupWidget(rclcpp::Node::SharedPtr node, const kdl::Tree& tree, const tobas::Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
 
 private:
@@ -40,5 +41,5 @@ private:
   RotorTestWidget* rotor_test_;
   JointTestWidget* joint_test_;
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -130,5 +130,5 @@ void ActiveTiltSettingsWidget::onTiltJointNameChanged(const QString& joint_name)
     Q_EMIT tiltJointNameChanged(joint_name);
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

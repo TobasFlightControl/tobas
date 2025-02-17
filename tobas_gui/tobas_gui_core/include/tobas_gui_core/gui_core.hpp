@@ -11,6 +11,7 @@
 #include <tobas_msgs/msg/arming.hpp>
 
 #include <tobas_homepage/homepage.hpp>
+#include <tobas_urdf_builder/urdf_builder.hpp>
 #include <tobas_setup_assistant/setup_assistant.hpp>
 #include <tobas_hardware_setup/hardware_setup.hpp>
 #include <tobas_control_system/control_system.hpp>
@@ -18,8 +19,10 @@
 #include <tobas_flight_log_gui/flight_log.hpp>
 #include <tobas_simulation_gui/simulation.hpp>
 
-#include "./urdf_builder.hpp"
-#include "./power_button.hpp"
+#include "./restart_button.hpp"
+#include "./shutdown_button.hpp"
+#include "./restart_thread.hpp"
+#include "./shutdown_thread.hpp"
 
 namespace gui
 {
@@ -42,6 +45,9 @@ public:
 
   void updateInternalDataStructures();
 
+protected:
+  void closeEvent(QCloseEvent* event) override;
+
 private:
   const rclcpp::Node::SharedPtr node_;
 
@@ -57,14 +63,20 @@ private:
   QPushButton* load_btn_;
   QPushButton* write_btn_;
 
-  PowerButton* power_btn_;
+  RestartButton* restart_btn_;
+  ShutdownButton* shutdown_btn_;
+
+  RestartThread restart_thread_;
+  ShutdownThread shutdown_thread_;
+
+  qt::WaitSpinnerWidget spinner_;
 
   homepage::HomepageWidget* homepage_;
-  URDFBuilder* urdf_builder_;
-  setup_assistant::SetupAssistantWidget* setup_assistant_;
-  hardware_setup::HardwareSetupWidget* hardware_setup_;
-  control_system::ControlSystemWidget* control_system_;
-  param_tuning::ParameterTuningWidget* param_tuning_;
+  urdf_builder::URDFBuilder* urdf_builder_;
+  sa::SetupAssistantWidget* setup_assistant_;
+  hw::HardwareSetupWidget* hardware_setup_;
+  gcs::ControlSystemWidget* control_system_;
+  param::ParameterTuningWidget* param_tuning_;
   log::FlightLogWidget* flight_log_;
   sim::SimulationWidget* simulation_;
 
@@ -78,7 +90,13 @@ private Q_SLOTS:
   void onBrowseButtonClicked();
   void onLoadButtonClicked();
   void onWriteButtonClicked();
-  void onShutdownButtonClicked();
+
+  void onRestartButtonClicked(bool checked);
+  void onShutdownButtonClicked(bool checked);
+  void onRestartThreadFinished(bool success, const QString& message);
+  void onShutdownThreadFinished(bool success, const QString& message);
+
+  void onSimRealStateChanged();
 };
 }  // namespace core
 }  // namespace gui

@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class BatteryViewerWidget : public QWidget
 {
@@ -22,6 +22,7 @@ class BatteryViewerWidget : public QWidget
 public:
   explicit BatteryViewerWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
 
 private:
@@ -35,5 +36,5 @@ private:
 
   void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& batt);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

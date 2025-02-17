@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 SpeedmeterWidget::SpeedmeterWidget()
 {
@@ -123,5 +123,5 @@ QObject* SpeedmeterWidget::getBottomTextObject() const
   TOBAS_CHECK(bottom_text != nullptr);
   return bottom_text;
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

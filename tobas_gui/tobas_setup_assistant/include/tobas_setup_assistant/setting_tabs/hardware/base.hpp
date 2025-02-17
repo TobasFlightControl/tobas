@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BaseHardwareWidget : public QWidget
 {
@@ -21,5 +21,5 @@ public:
 
   virtual bool isValid() = 0;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -12,7 +12,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_DirDialog::ParamGetterWidget_DirDialog(
   rclcpp::Node::SharedPtr node,
@@ -83,5 +83,5 @@ void ParamGetterWidget_DirDialog::onBrowseButtonClicked()
     return;
   }
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

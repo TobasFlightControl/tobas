@@ -11,17 +11,18 @@
 #include "./setting_tabs/imu.hpp"
 #include "./setting_tabs/magnetometer.hpp"
 #include "./setting_tabs/barometer.hpp"
-#include "./setting_tabs/gps.hpp"
+#include "./setting_tabs/gnss.hpp"
 #include "./setting_tabs/controller/controller.hpp"
 #include "./setting_tabs/observer/observer.hpp"
 #include "./setting_tabs/hardware/hardware.hpp"
+#include "./setting_tabs/pre_arm_check.hpp"
 #include "./setting_tabs/simulation.hpp"
 #include "./setting_tabs/author_information.hpp"
 #include "./setting_tabs/ros_package.hpp"
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class SettingsWidget : public qt::VerticalTabWidget
 {
@@ -41,10 +42,11 @@ public:
   IMUWidget* imu;
   MagnetometerWidget* magnetometer;
   BarometerWidget* barometer;
-  GPSWidget* gps;
+  GNSSWidget* gnss;
   ControllerWidget* controller;
   ObserverWidget* observer;
   HardwareWidget* hardware;
+  PreArmCheckWidget* pre_arm_check;
   SimulationWidget* simulation;
   AuthorInformationWidget* author_info;
   ROSPackageWidget* ros_package;
@@ -61,5 +63,5 @@ public:
 private Q_SLOTS:
   void onCurrentChanged(int index);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

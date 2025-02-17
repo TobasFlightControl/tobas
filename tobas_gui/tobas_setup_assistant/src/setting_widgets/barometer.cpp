@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 BarometerWidget::BarometerWidget()
 {
@@ -90,5 +90,5 @@ double BarometerWidget::pressureVariance() const
 {
   return pressure_var_->getValue();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

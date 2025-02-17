@@ -14,7 +14,7 @@
 #define PRINT_WARN(msg) std::cout << YELLOW_PREFIX << "[WARN] " << msg << COLOR_RESET << std::endl
 
 /* エラー文を出力する． */
-#define PRINT_ERROR(msg) std::cout << RED_PREFIX << "[ERROR] " << msg << COLOR_RESET << std::endl
+#define PRINT_ERROR(msg) std::cerr << RED_PREFIX << "[ERROR] " << msg << COLOR_RESET << std::endl
 
 #ifdef NDEBUG
 /* デバッグモードのときに限りメッセージを出力する． */

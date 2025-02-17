@@ -46,7 +46,7 @@ public:
   double kv = 0;                                             // モータのKV値 [rad/s/V]
   double internal_resistance;                                // モータの内部抵抗 [Ω]
   double propeller_diameter;                                 // プロペラの直径 [m]
-  double max_rot_speed = 0;                                  // 最大連続回転数 [rad/s]
+  double max_rot_speed = 0;                                  // 最大回転数 [rad/s]
   double motor_constant = 0;                                 // 推力係数 [kg*m/rad^2]
   double moment_constant = 0;                                // 反トルク係数 [m]
   double drag_constant = 0;                                  // 空気効力定数 [kg/rad]

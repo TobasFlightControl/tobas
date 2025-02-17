@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 BaseCommandWidget::BaseCommandWidget()
 {
@@ -54,5 +54,5 @@ void BaseCommandWidget::onDeleteButtonClicked()
 {
   Q_EMIT deleteButtonClicked();
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

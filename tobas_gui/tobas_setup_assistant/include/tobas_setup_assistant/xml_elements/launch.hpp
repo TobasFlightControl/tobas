@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 tinyxml2::XMLElement* addNode(
   tinyxml2::XMLElement* parent,
@@ -17,5 +17,5 @@ tinyxml2::XMLElement* addNode(
   const std::string& args = "");
 
 tinyxml2::XMLElement* addNodeParam(tinyxml2::XMLElement* node, const std::string& name, const std::string& value);
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 IMUWidget::IMUWidget()
 {
@@ -187,5 +187,5 @@ double IMUWidget::accTurnOnBiasSigma() const
 {
   return acc_turn_on_bias_sigma_->getValue();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

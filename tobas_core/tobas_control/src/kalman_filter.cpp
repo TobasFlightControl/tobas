@@ -56,17 +56,16 @@ void KalmanFilter::update()
 
   // 事前予測
   const VectorXd x_prev = ss.A * x_ + ss.B * u;
-  const MatrixXd P_prev = ss.A * P_ * ss.A.transpose() + Bv * Q * Bv.transpose();
+  const MatrixXd P_prev =
+    ss.A * P_.selfadjointView<Lower>() * ss.A.transpose() + Bv * Q.selfadjointView<Lower>() * Bv.transpose();
 
   // 事後推定
-  const MatrixXd PCt = P_prev * ss.C.transpose();
+  const MatrixXd PCt = P_prev.selfadjointView<Lower>() * ss.C.transpose();
   const MatrixXd G = PCt * (ss.C * PCt + R).inverse();
   const MatrixXd I_GC = MatrixXd::Identity(stateSize(), stateSize()) - G * ss.C;
   x_ = x_prev + G * (y - ss.C * x_prev);
-  P_ = I_GC * P_prev * I_GC.transpose() + G * R * G.transpose();  // Joseph form
-
-  // 強制対称化
-  eigen::symmetrise(P_);
+  P_ = I_GC * P_prev.selfadjointView<Lower>() * I_GC.transpose()
+       + G * R.selfadjointView<Lower>() * G.transpose();  // Joseph form
 }
 
 void KalmanFilter::verify() const

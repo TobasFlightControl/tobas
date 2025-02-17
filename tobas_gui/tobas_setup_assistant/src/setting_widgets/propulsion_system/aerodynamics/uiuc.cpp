@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -93,5 +93,5 @@ double AerodynamicsWidget_UIUC::rotorDragCoef() const
     .rotorDragCoef();
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

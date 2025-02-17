@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class CommandButton : public QPushButton
 {
@@ -19,5 +19,5 @@ class CommandButton : public QPushButton
 public:
   explicit CommandButton(const QString& text);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

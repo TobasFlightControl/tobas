@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace field
 {
@@ -39,5 +39,5 @@ void AltitudeFrameWidget::setValue(altitude_frame_t value)
   combobox_->setCurrentText(altFrameToText(value));
 }
 }  // namespace field
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

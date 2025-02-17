@@ -17,7 +17,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 PackageLoaderWidget::PackageLoaderWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
   : node_(node), robot_(robot), settings_(settings), property_client_(node, tobas::kPropertyServerName, kPackageName)
@@ -127,5 +127,5 @@ void PackageLoaderWidget::onLoadButtonClicked()
 
   qt::qInfoBox(this, "Tobas configuration package is loaded successfully.");
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

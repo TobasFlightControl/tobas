@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BatteryWidget : public BaseSettingWidget
 {
@@ -47,5 +47,5 @@ private:
   BatteryWidget_Base* selected();
   const BatteryWidget_Base* selected() const;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

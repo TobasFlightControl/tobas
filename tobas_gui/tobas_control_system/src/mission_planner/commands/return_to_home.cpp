@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 ReturnToHomeWidget::ReturnToHomeWidget()
 {
@@ -51,5 +51,5 @@ double ReturnToHomeWidget::duration() const
 {
   return duration_->value();
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 BuildPackageThread::BuildPackageThread()
 {
@@ -19,5 +19,5 @@ void BuildPackageThread::run()
   const auto output = QString::fromStdString(package_builder_.getOutput());
   Q_EMIT finished(success, output);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

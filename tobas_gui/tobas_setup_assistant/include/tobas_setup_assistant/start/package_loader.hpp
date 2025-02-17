@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class PackageLoaderWidget : public QWidget
 {
@@ -38,5 +38,5 @@ private:
   QLineEdit* file_text_;
   QPushButton* load_button_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

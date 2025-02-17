@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_Pose::ParamGetterWidget_Pose(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
@@ -118,5 +118,5 @@ void ParamGetterWidget_Pose::onValueChanged(double)
 {
   Q_EMIT valueChanged({ { x(), y(), z() }, { roll(), pitch(), yaw() } });
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

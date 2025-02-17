@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class SimulationWidget : public BaseSettingWidget
 {
@@ -40,5 +40,5 @@ private:
   ParamGetterWidget_DoubleSpinBox* altitude_zero_;
   ParamGetterWidget_SpinBox* max_model_error_rate_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

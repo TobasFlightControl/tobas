@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -16,6 +16,7 @@ class RCInputViewerWidget : public QWidget
 public:
   explicit RCInputViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -23,5 +24,5 @@ private:
   TogglesViewer* toggles_viewer_;
 };
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class PoseViewerWidget : public qt::Widget
 {
@@ -31,6 +31,7 @@ class PoseViewerWidget : public qt::Widget
 public:
   explicit PoseViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -45,8 +46,6 @@ private:
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   void paintEvent(QPaintEvent* event) override;
-
-  void reset();
 
   void scale(QPainter& painter, bool keep_aspect);
 
@@ -69,5 +68,5 @@ private:
 
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

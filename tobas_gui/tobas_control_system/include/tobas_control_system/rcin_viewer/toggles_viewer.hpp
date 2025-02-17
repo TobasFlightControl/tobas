@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -18,27 +18,30 @@ class TogglesViewer : public QWidget
   using self = TogglesViewer;
   using super = QWidget;
 
+  static constexpr auto kOffColor = Qt::gray;
+  static constexpr auto kOnColorEnable = Qt::green;
+  static constexpr auto kOnColorDisable = Qt::darkGray;
+
 public:
   explicit TogglesViewer(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  qt::CircleWidget* program_mode_;
-  qt::CircleWidget* stabilize_mode_;
   qt::CircleWidget* acrobat_mode_;
+  qt::CircleWidget* stabilize_mode_;
+  qt::CircleWidget* loiter_mode_;
 
-  qt::ToggleSwitch* estop_;
+  qt::ToggleSwitch* enable_;
   qt::ToggleSwitch* gpsw_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
 
-  void reset();
-
   void rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

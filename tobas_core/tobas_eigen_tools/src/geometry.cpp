@@ -125,20 +125,19 @@ Vector3d eulerrateFromAngvelLocal(const Vector3d& angvel, double roll, double pi
 
 Vector3d euleraccFromAngaccGlobal(const Vector3d& angvel, const Vector3d& angacc, double pitch, double yaw)
 {
-  const auto cos_pitch = cos(pitch);
-  const auto tan_pitch = tan(pitch);
-  const auto cos_yaw = cos(yaw);
-  const auto sin_yaw = sin(yaw);
+  const auto cp = cos(pitch);
+  const auto tp = tan(pitch);
+  const auto cy = cos(yaw);
+  const auto sy = sin(yaw);
 
   const auto rpyd = eulerrateFromAngvelGlobal(angvel, pitch, yaw);
 
   Vector3d rpydd;
-  rpydd.x() = rpyd.x() * rpyd.y() * tan_pitch + (angacc.x() + angvel.y() * rpyd.z()) * cos_yaw / cos_pitch
-              + (angacc.y() - angvel.x() * rpyd.z()) * sin_yaw / cos_pitch;
-  rpydd.y() = (angacc.y() - angvel.x() * rpyd.z()) * cos_yaw - (angacc.x() + angvel.y() * rpyd.z()) * sin_yaw;
-  rpydd.z() = angacc.z() + (angvel.x() + cos_yaw + angvel.y() * sin_yaw) * rpyd.y() / math::sqr(cos_pitch)
-              + (angacc.x() + angvel.y() * rpyd.z()) * cos_yaw * tan_pitch
-              + (angacc.y() - angvel.x() * rpyd.z()) * sin_yaw * tan_pitch;
+  rpydd.x() = rpyd.x() * rpyd.y() * tp + (angacc.x() + angvel.y() * rpyd.z()) * cy / cp
+              + (angacc.y() - angvel.x() * rpyd.z()) * sy / cp;
+  rpydd.y() = (angacc.y() - angvel.x() * rpyd.z()) * cy - (angacc.x() + angvel.y() * rpyd.z()) * sy;
+  rpydd.z() = angacc.z() + (angvel.x() + cy + angvel.y() * sy) * rpyd.y() / math::sqr(cp)
+              + (angacc.x() + angvel.y() * rpyd.z()) * cy * tp + (angacc.y() - angvel.x() * rpyd.z()) * sy * tp;
 
   return rpydd;
 }
@@ -153,17 +152,24 @@ Vector3d angaccFromEuleraccLocal(
   double ddpitch,
   double ddyaw)
 {
-  const auto cos_roll = cos(roll);
-  const auto sin_roll = sin(roll);
-  const auto cos_pitch = cos(pitch);
-  const auto sin_pitch = sin(pitch);
+  const auto cr = cos(roll);
+  const auto sr = sin(roll);
+  const auto cp = cos(pitch);
+  const auto sp = sin(pitch);
+
+  const auto sr_sp = sr * sp;
+  const auto sr_cp = sr * cp;
+  const auto cr_sp = cr * sp;
+  const auto cr_cp = cr * cp;
+
+  const auto droll_dpitch = droll * dpitch;
+  const auto dpitch_dyaw = dpitch * dyaw;
+  const auto dyaw_droll = dyaw * droll;
 
   Vector3d dgyro;
-  dgyro.x() = ddroll - ddyaw * sin_pitch - dpitch * dyaw * cos_pitch;
-  dgyro.y() = ddpitch * cos_roll - droll * dpitch * sin_roll + ddyaw * sin_roll * cos_pitch
-              + droll * dyaw * cos_roll * cos_pitch - dpitch * dyaw * sin_roll * sin_pitch;
-  dgyro.z() = -ddpitch * sin_roll - droll * dpitch * cos_roll + ddyaw * cos_roll * cos_pitch
-              - droll * dyaw * sin_roll * cos_pitch - dpitch * dyaw * cos_roll * sin_pitch;
+  dgyro.x() = ddroll - ddyaw * sp - dpitch_dyaw * cp;
+  dgyro.y() = ddpitch * cr - droll_dpitch * sr + ddyaw * sr_cp + dyaw_droll * cr_cp - dpitch_dyaw * sr_sp;
+  dgyro.z() = -ddpitch * sr - droll_dpitch * cr + ddyaw * cr_cp - dyaw_droll * sr_cp - dpitch_dyaw * cr_sp;
 
   return dgyro;
 }

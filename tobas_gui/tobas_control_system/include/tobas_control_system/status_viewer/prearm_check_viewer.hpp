@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class PreArmCheckViewerWidget : public QWidget
 {
@@ -20,6 +20,7 @@ class PreArmCheckViewerWidget : public QWidget
 public:
   explicit PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -31,8 +32,9 @@ private:
   StatusWidget* attitude_status_;
   StatusWidget* pos_stability_status_;
   StatusWidget* pos_accuracy_status_;
-  StatusWidget* rot_accuracy_status_;
   StatusWidget* vel_accuracy_status_;
+  StatusWidget* atti_accuracy_status_;
+  StatusWidget* head_accuracy_status_;
   StatusWidget* ready_status_;
 
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
@@ -40,10 +42,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
 
-  void reset();
-
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

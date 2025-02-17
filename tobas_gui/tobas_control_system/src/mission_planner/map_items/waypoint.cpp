@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace map
 {
@@ -16,5 +16,5 @@ QByteArrayList WaypointModel::argNames() const
   return { "index", "coordinate", "acceptance_radius", "marker_color" };
 }
 }  // namespace map
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

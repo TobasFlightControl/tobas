@@ -30,6 +30,7 @@ public:
   void setValue(int value, bool block_signal = false);
   void setMinimum(int minimum);
   void setMaximum(int maximum);
+  void setRange(int minimum, int maximum);
   void setText(const QString& text);
   void setSuffix(const QString& suffix);
 
@@ -66,6 +67,7 @@ public:
   void setValue(double value, bool block_signal = false);
   void setMinimum(double minimum);
   void setMaximum(double maximum);
+  void setRange(double minimum, double maximum);
   void setText(const QString& text);
   void setSuffix(const QString& suffix);
 

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 SystemInfo::SystemInfo(QObject* parent) : QObject(parent)
 {
@@ -20,5 +20,5 @@ QString SystemInfo::homeDirectory() const
 {
   return home_dir_;
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace field
 {
@@ -38,5 +38,5 @@ void AltitudeToleranceWidget::setValue(double value)
   spinbox_->setValue(value);
 }
 }  // namespace field
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

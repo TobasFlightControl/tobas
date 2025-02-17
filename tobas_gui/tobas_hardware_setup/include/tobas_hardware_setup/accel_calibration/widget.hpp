@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class AccelCalibrationWidget : public BaseHardwareSetupWidget
 {
@@ -28,6 +28,8 @@ public:
 
   const char* name() const override;
   const char* title() const override;
+
+  void reset() override;
 
   void setNamespace(const std::string& ns);
 
@@ -47,5 +49,5 @@ private Q_SLOTS:
   void onStartButtonClicked();
   void onCalibrationFinished(bool success, const QString& output);
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

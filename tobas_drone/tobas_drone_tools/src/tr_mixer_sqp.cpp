@@ -15,7 +15,7 @@ using namespace Eigen;
 namespace tobas
 {
 TiltRotorMixer_SQP::TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree)
-  : drone_(drone), tree_(tree), joint_parser_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
+  : super(drone, tree), joint_parser_(tree), fk_solver_(tree), inertia_solver_(tree), np_mixer_(drone, tree)
 {
   if (drone_.numRotors() > 0 && tree_.getNrOfJoints() > 0)
     if (!updateInternalDataStructures())
@@ -24,6 +24,9 @@ TiltRotorMixer_SQP::TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree
 
 bool TiltRotorMixer_SQP::updateInternalDataStructures()
 {
+  if (!super::updateInternalDataStructures())
+    return false;
+
   if (!joint_parser_.updateInternalDataStructures())
     return false;
   if (!fk_solver_.updateInternalDataStructures())
@@ -84,13 +87,26 @@ bool TiltRotorMixer_SQP::solve(
 
     // Update ci0
     const auto nr = drone_.numRotors();
-    if (!rotor.tilt_joint_name.empty())
+    if (rotor_alive_.at(rotor.channel))
     {
-      ci0_(idx) = joint_parser_.lowerLimit(rotor.tilt_joint_name);
-      ci0_(nr + idx) = -joint_parser_.upperLimit(rotor.tilt_joint_name);
+      if (!rotor.tilt_joint_name.empty())
+      {
+        ci0_(idx) = joint_parser_.lowerLimit(rotor.tilt_joint_name);
+        ci0_(nr + idx) = -joint_parser_.upperLimit(rotor.tilt_joint_name);
+      }
+      ci0_(2 * nr + idx) = rotor.minThrust();
+      ci0_(3 * nr + idx) = -rotor.maxThrust(cur_voltage);
     }
-    ci0_(2 * nr + idx) = rotor.minThrust();
-    ci0_(3 * nr + idx) = -rotor.maxThrust(cur_voltage);
+    else
+    {
+      if (!rotor.tilt_joint_name.empty())
+      {
+        ci0_(idx) = 0.;
+        ci0_(nr + idx) = 0.;
+      }
+      ci0_(2 * nr + idx) = 0.;
+      ci0_(3 * nr + idx) = 0.;
+    }
   }
 
   // Update d
@@ -130,7 +146,7 @@ bool TiltRotorMixer_SQP::setLinearWeight(double p)
     return false;
   }
 
-  linear_weight_ = p;
+  cfg_.linear_weight = p;
   updateWeight();
   return true;
 }
@@ -143,7 +159,7 @@ bool TiltRotorMixer_SQP::setAngularWeight(double p)
     return false;
   }
 
-  angular_weight_ = p;
+  cfg_.angular_weight = p;
   updateWeight();
   return true;
 }
@@ -156,7 +172,7 @@ bool TiltRotorMixer_SQP::setThrustWeight(double p)
     return false;
   }
 
-  thrust_weight_ = p;
+  cfg_.thrust_weight = p;
   updateWeight();
   return true;
 }
@@ -246,9 +262,9 @@ bool TiltRotorMixer_SQP::updateWeight()
   const auto angular_scale = (I.trace() / 3) * kDGyroScale;                   // [Nm]
   const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();  // [N]
 
-  Q_.diagonal().head<3>().fill(linear_weight_ / math::sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(angular_weight_ / math::sqr(angular_scale));
-  R_.diagonal().fill(thrust_weight_ / math::sqr(thrust_scale));
+  Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
+  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
   return true;
 }

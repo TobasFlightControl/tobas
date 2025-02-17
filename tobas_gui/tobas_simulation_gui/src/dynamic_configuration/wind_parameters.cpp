@@ -24,6 +24,8 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   gust_duration_ = new qt::DoubleSliderTextWidget(0., 10.);
   gust_interval_ = new qt::DoubleSliderTextWidget(0., 30.);
 
+  reset();
+
   // Layout
   const auto form = new qt::FormLayout();
   form->addVAlignedRow("Mean Speed [m/s]", mean_speed_);
@@ -46,11 +48,14 @@ WindParamsWidget::WindParamsWidget(rclcpp::Node::SharedPtr node) : node_(node)
   connect(gust_interval_, &qt::DoubleSliderTextWidget::valueChanged, this, &self::onValueChanged);
 }
 
-bool WindParamsWidget::initialize(const std::string& ns)
+void WindParamsWidget::updateNamespace(const std::string& ns)
 {
   get_sc_ = std::make_shared<ros2::SyncServiceClient<GetSrv>>(node_, path::join(ns, gazebo::kGetWindParamsSrv));
   set_sc_ = std::make_shared<ros2::SyncServiceClient<SetSrv>>(node_, path::join(ns, gazebo::kSetWindParamsSrv));
+}
 
+bool WindParamsWidget::start()
+{
   if (!get_sc_->waitForService(kWaitForService))
   {
     qt::qErrorBox(this, "Failed to connect to \"" + QString(gazebo::kGetWindParamsSrv) + "\" service server.");
@@ -63,19 +68,29 @@ bool WindParamsWidget::initialize(const std::string& ns)
   }
 
   // パラメータの初期値を設定
-  loadCurrentParams();
+  if (!loadCurrentParams())
+    return false;
 
   return true;
 }
 
-void WindParamsWidget::loadCurrentParams()
+void WindParamsWidget::reset()
+{
+  mean_speed_->set(0.);
+  direction_->set(0.);
+  gust_speed_factor_->set(0.);
+  gust_duration_->set(0.);
+  gust_interval_->set(0.);
+}
+
+bool WindParamsWidget::loadCurrentParams()
 {
   const auto get_req = std::make_shared<GetSrv::Request>();
 
   if (!get_sc_->call(get_req, kServiceCallTimeout))
   {
     qt::qErrorBox(this, "Failed to call \"" + QString(gazebo::kGetWindParamsSrv) + "\" service.");
-    return;
+    return false;
   }
 
   const auto get_res = get_sc_->getResponse();
@@ -86,6 +101,8 @@ void WindParamsWidget::loadCurrentParams()
   gust_speed_factor_->set(cur_params.gust_speed_factor);
   gust_duration_->set(cur_params.gust_duration);
   gust_interval_->set(cur_params.gust_interval);
+
+  return true;
 }
 
 void WindParamsWidget::onValueChanged()
@@ -107,7 +124,8 @@ void WindParamsWidget::onValueChanged()
   if (!set_res->success)
   {
     qt::qErrorBox(this, "Failed to set wind parameters.");
-    loadCurrentParams();
+    if (!loadCurrentParams())
+      return;
   }
 }
 }  // namespace sim

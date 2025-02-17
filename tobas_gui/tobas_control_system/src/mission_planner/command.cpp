@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 const char* commandToText(command_t cmd)
 {
@@ -43,5 +43,5 @@ command_t textToCommand(const char* text)
   else
     throw std::runtime_error(std::format("Invalid command text: {}", text));
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

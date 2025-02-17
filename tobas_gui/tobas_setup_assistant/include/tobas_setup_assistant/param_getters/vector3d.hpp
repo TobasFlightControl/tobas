@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_Vector3d : public ParamGetterWidget<Eigen::Vector3d>
 {
@@ -43,5 +43,5 @@ private:
   DoubleGetter* y_;
   DoubleGetter* z_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

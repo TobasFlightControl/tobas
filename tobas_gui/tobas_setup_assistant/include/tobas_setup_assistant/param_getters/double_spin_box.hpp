@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_DoubleSpinBox : public ParamGetterWidget<double>
 {
@@ -36,5 +36,5 @@ private Q_SLOTS:
 private:
   qt::DoubleSpinBox* spin_box_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

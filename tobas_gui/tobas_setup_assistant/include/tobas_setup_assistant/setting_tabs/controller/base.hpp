@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class BaseControllerWidget : public QWidget
 {
@@ -19,8 +19,9 @@ public:
   virtual QString controllerPackage() const = 0;
   virtual QString pluginName() const = 0;
 
-  virtual tobas::rc_command_t stabilizeModeCommand() const = 0;
   virtual tobas::rc_command_t acrobatModeCommand() const = 0;
+  virtual tobas::rc_command_t stabilizeModeCommand() const = 0;
+  virtual tobas::rc_command_t loiterModeCommand() const = 0;
 
   /* 静的プライベートROSパラメータ． */
   virtual YAML::Node staticParams() const = 0;
@@ -37,5 +38,5 @@ public:
   /* ユーザ設定が有効な場合にtrueを返す． */
   virtual bool isValid() = 0;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

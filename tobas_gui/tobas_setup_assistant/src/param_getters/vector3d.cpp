@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 ParamGetterWidget_Vector3d::ParamGetterWidget_Vector3d(const QString& param_name, const QString& description_text)
   : super(param_name, description_text)
@@ -91,5 +91,5 @@ void ParamGetterWidget_Vector3d::onValueChanged(double)
 {
   Q_EMIT valueChanged({ x(), y(), z() });
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

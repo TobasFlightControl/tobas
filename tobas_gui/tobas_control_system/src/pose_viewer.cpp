@@ -8,11 +8,21 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 PoseViewerWidget::PoseViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
   reset();
+}
+
+void PoseViewerWidget::reset()
+{
+  euler_.setZero();
+
+  slope_ = 0.;
+  y_intercept_ = height() / 2;
+
+  update();
 }
 
 void PoseViewerWidget::updateNamespace(const std::string& ns)
@@ -35,18 +45,6 @@ void PoseViewerWidget::paintEvent(QPaintEvent*)
   drawYaw(painter);
 
   addGradation(painter);
-}
-
-void PoseViewerWidget::reset()
-{
-  euler_.setZero();
-
-  slope_ = 0.;
-  y_intercept_ = height() / 2;
-
-  euler_sub_ = nullptr;
-
-  update();
 }
 
 void PoseViewerWidget::scale(QPainter& painter, bool keep_aspect)
@@ -337,5 +335,5 @@ void PoseViewerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPt
   // 再描画
   update();
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

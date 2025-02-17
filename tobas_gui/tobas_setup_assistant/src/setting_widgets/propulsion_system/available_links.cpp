@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -116,5 +116,5 @@ void AvailableLinksWidget::onAddButtonClicked(const QString& link_name)
   Q_EMIT linkRemoved(link_name);
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

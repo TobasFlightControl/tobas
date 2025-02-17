@@ -118,7 +118,7 @@ void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const
   const auto W_Pos_WS = W_Pos_WB + W_Rot_B.RotateVector(offset_);
 
   // デカルト座標から経緯度と高度を計算
-  tobas_std::cartToGpsRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, lat_, lon_);
+  tobas_std::cartToGnssRelative(W_Pos_WS.X(), W_Pos_WS.Y(), lat_0_, lon_0_, lat_, lon_);
   const auto alt = alt_0_ + W_Pos_WS.Z();
 
   // 経緯度と高度から地磁気の参照値を計算

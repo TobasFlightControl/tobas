@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class ControlSystemWidget : public QWidget
 {
@@ -22,6 +22,7 @@ class ControlSystemWidget : public QWidget
 public:
   explicit ControlSystemWidget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone);
 
+  void reset();
   void updateInternalDataStructures();
 
 private:
@@ -37,5 +38,5 @@ private:
   StatusViewerWidget* status_viewer_;
   MissionPlannerWidget* mission_planner_;
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

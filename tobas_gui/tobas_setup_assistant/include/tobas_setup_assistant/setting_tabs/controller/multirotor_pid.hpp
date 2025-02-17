@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class MultirotorPIDWidget : public BaseControllerWidget
 {
@@ -26,8 +26,9 @@ public:
   QString controllerPackage() const override;
   QString pluginName() const override;
 
-  tobas::rc_command_t stabilizeModeCommand() const override;
   tobas::rc_command_t acrobatModeCommand() const override;
+  tobas::rc_command_t stabilizeModeCommand() const override;
+  tobas::rc_command_t loiterModeCommand() const override;
 
   YAML::Node staticParams() const override;
 
@@ -45,5 +46,5 @@ private:
   QCheckBox* do_dist_comp_trans_;
   QCheckBox* do_dist_comp_rot_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

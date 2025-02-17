@@ -1,7 +1,7 @@
 #include <tobas_std_tools/gps.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_hardware_common/base_sensor_node.hpp>
-#include <tobas_msgs_adapter/gps.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 
 #include <tobas_aso_core/zed_f9p_1xb.hpp>
 
@@ -32,7 +32,7 @@ private:
 
   std::map<aso::ZEDF9P1xB::ubx_nav_id_t, bool> is_received_;
 
-  ros2::PublisherPtr<tobas_msgs::Gps> gnss_pub_;
+  ros2::PublisherPtr<tobas_msgs::Gnss> gnss_pub_;
 
   bool configure();
   void warnUnnecessaryUBXMessage();
@@ -59,7 +59,7 @@ GNSSDriverNode::GNSSDriverNode(const rclcpp::NodeOptions& options) : super("aso_
   is_received_[aso::ZEDF9P1xB::NAV_VELNED] = false;
   is_received_[aso::ZEDF9P1xB::NAV_COV] = false;
 
-  gnss_pub_ = createPublisher<tobas_msgs::Gps>(tobas::kGNSSTopic);
+  gnss_pub_ = createPublisher<tobas_msgs::Gnss>(tobas::kGnssTopic);
 
   main_timer_ = createTimer(kMainTimerPeriod, &self::mainTimerCb, this);
 }
@@ -209,15 +209,15 @@ void GNSSDriverNode::mainTimerCb()
   for (auto& [_, received] : is_received_)
     received = false;
 
-  // GPSメッセージの遅延を表示 (デバッグモードのみ)
+  // GNSSメッセージの遅延を表示 (デバッグモードのみ)
   if (get_logger().get_effective_level() <= rclcpp::Logger::Level::Debug)
   {
     const auto delay_ms = tobas_std::computeGPSDelayFromToW(hpposllh_.iTOW);
-    TOBAS_DEBUG("GPS delay: ", delay_ms, "[ms]");
+    TOBAS_DEBUG("GNSS delay: ", delay_ms, "[ms]");
   }
 
   // Create GNSS message
-  auto gnss_msg = std::make_unique<tobas_msgs::Gps>();
+  auto gnss_msg = std::make_unique<tobas_msgs::Gnss>();
 
   // Fill time stamp
   // TODO: GNSS信号の遅延を測定

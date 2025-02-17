@@ -2,7 +2,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -26,7 +26,7 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const Robot
 
   tabs_ = new qt::TabWidget();
   tabs_->ignoreWheelEvent();
-  tabs_->setSize(kTabWidth, kTabHeight);
+  tabs_->setTabSize(kTabWidth, kTabHeight);
   rows->addWidget(tabs_);
 
   general_ = new GeneralWidget(robot, link_name);
@@ -133,5 +133,5 @@ const SpeedLimitWidget* SelectedLinkWidget::speedLimit() const
   return speed_limit_;
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace param_tuning
+namespace param
 {
 ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 {
@@ -133,5 +133,5 @@ void ParameterTuningWidget::onResetButtonClicked()
 
   qt::qInfoBox(this, "Dynamic parameters are set to their defaults successfully.");
 }
-}  // namespace param_tuning
+}  // namespace param
 }  // namespace gui

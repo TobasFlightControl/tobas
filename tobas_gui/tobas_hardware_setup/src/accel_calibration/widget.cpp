@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
   : node_(node), spinner_(Qt::WindowModal, this), thread_(node)
@@ -43,11 +43,17 @@ const char* AccelCalibrationWidget::title() const
   return "Calibrate Accelerometer";
 }
 
+void AccelCalibrationWidget::reset()
+{
+  arming_ = nullptr;
+}
+
 void AccelCalibrationWidget::setNamespace(const std::string& ns)
 {
+  reset();
+
   thread_.setNamespace(ns);
 
-  arming_ = nullptr;
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
@@ -89,5 +95,5 @@ void AccelCalibrationWidget::onCalibrationFinished(bool success, const QString& 
   else
     qt::qErrorBox(this, message);
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

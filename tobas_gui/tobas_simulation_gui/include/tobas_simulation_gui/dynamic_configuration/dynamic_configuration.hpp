@@ -16,10 +16,13 @@ class DynamicConfigWidget : public QWidget
 public:
   explicit DynamicConfigWidget(rclcpp::Node::SharedPtr node);
 
-  bool initialize(const std::string& ns);
+  void updateNamespace(const std::string& ns);
+
+  bool start();
+  void reset();
 
 private:
-  WindParamsWidget* wind_;
+  WindParamsWidget* wind_params_;
 };
 }  // namespace sim
 }  // namespace gui

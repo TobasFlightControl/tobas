@@ -23,7 +23,19 @@ void TabWidget::switchTab(QWidget* tab)
   setCurrentIndex(idx);
 }
 
-void TabWidget::setSize(int width, int height)
+void TabWidget::setTabWidth(int width)
+{
+  const auto qss = std::format("QTabBar::tab {{ width: {}px; }}", width);
+  setStyleSheet(QString::fromStdString(qss));
+}
+
+void TabWidget::setTabHeight(int height)
+{
+  const auto qss = std::format("QTabBar::tab {{ height: {}px; }}", height);
+  setStyleSheet(QString::fromStdString(qss));
+}
+
+void TabWidget::setTabSize(int width, int height)
 {
   const auto qss = std::format("QTabBar::tab {{ width: {}px; height: {}px; }}", width, height);
   setStyleSheet(QString::fromStdString(qss));

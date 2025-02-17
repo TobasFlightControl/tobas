@@ -30,6 +30,7 @@ find_package(tobas_constants REQUIRED)
 find_package(tobas_drone_core REQUIRED)
 find_package(tobas_std_msgs REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_mission_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 
 set(AMENT_DEPENDENCIES
@@ -42,6 +43,7 @@ set(AMENT_DEPENDENCIES
   tobas_drone_core
   tobas_std_msgs
   tobas_msgs_adapter
+  tobas_mission_msgs
   tobas_qt_tools
 )
 
@@ -54,7 +56,7 @@ qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(

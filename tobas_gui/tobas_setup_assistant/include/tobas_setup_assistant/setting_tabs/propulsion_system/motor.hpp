@@ -1,23 +1,17 @@
 #pragma once
 
-#include <tobas_drone_core/rotor/turning_direction.hpp>
-
 #include "tobas_setup_assistant/param_getters/spin_box.hpp"
-#include "tobas_setup_assistant/param_getters/combo_box.hpp"
 #include "./base.hpp"
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
 class MotorWidget : public BaseSelectedLinkSettingWidget
 {
   Q_OBJECT
-
-  static constexpr char kCWName[] = "CW";
-  static constexpr char kCCWName[] = "CCW";
 
 public:
   explicit MotorWidget();
@@ -29,9 +23,6 @@ public:
   YAML::Node dump() const override;
   void load(const YAML::Node& node) override;
 
-  /* Motor rotation direction (CW or CCW) */
-  tobas::turning_direction_t direction() const;
-
   /* Kv [rad/s/V] */
   double kv() const;
 
@@ -42,11 +33,10 @@ public:
   int numPoles() const;
 
 private:
-  ParamGetterWidget_ComboBox* direction_;
   ParamGetterWidget_SpinBox* kv_;
   ParamGetterWidget_SpinBox* resistance_;
   ParamGetterWidget_SpinBox* num_poles_;
 };
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -5,6 +5,7 @@
 
 #include <tobas_std_tools/geometry.hpp>
 #include <tobas_std_tools/timestamped_buffer.hpp>
+#include <tobas_std_tools/stopwatch.hpp>
 #include <tobas_eigen_tools/typedef.hpp>
 #include <tobas_eigen_tools/operators.hpp>
 #include <tobas_eigen_tools/linalg.hpp>
@@ -106,8 +107,10 @@ public:
   bool initializeMagSoftBias(const Eigen::Matrix3d& value, const Eigen::Matrix6d& cov);
   bool initializeGravity(const double& value, const double& var);
 
-  void enableJosephForm(bool enable);
+  void enableSecondIntegral(bool enable);
+  void enableCovSymmetrisation(bool enable);
   void enableCovInitialization(bool enable);
+  void enableJosephForm(bool enable);
 
   bool setAccBiasProcNoiseDensity(double value);
   bool setGyroBiasProcNoiseDensity(double value);
@@ -218,8 +221,9 @@ public:
 private:
   // Configuration
   bool enable_second_integral_ = false;
-  bool use_joseph_form_ = true;
-  bool do_cov_initialization_ = false;
+  bool enable_cov_symmetrisation_ = false;
+  bool enable_cov_initialization_ = false;
+  bool enable_joseph_form_ = true;
   double acc_bias_proc_noise_density_ = 0.;   // [m/s^2/√Hz] 加速度バイアスのプロセスノイズ密度
   double gyro_bias_proc_noise_density_ = 0.;  // [rad/s/√Hz] ジャイロバイアスのプロセスノイズ密度
   double mag_hard_bias_proc_noise_density_ = 0.;  // [/√Hz] 地磁気ハードアイアンバイアスのプロセスノイズ密度
@@ -245,6 +249,8 @@ private:
   std::chrono::steady_clock::time_point t_last_imu_;
   tobas_std::TimestampedBuffer<StateVector> x_history_;
   Eigen::Vector3d mag_W_ = Eigen::Vector3d::Zero();
+
+  tobas_std::Stopwatch stopwatch_;
 
   // Direct value getters
   inline Eigen::Vector3d getPosition(const StateVector& x) const;
@@ -508,10 +514,18 @@ double ErrorStateKalmanFilter::correct(
 
   // (276) Update covariance matrix
   const DeltaStateMatrix I_KH = DeltaStateMatrix::Identity() - K * H;
-  if (use_joseph_form_)
-    P_ = I_KH * P_ * I_KH.transpose() + K * meas_cov * K.transpose();  // 対称正定が保持されやすい
+  if (enable_joseph_form_)
+  {
+    // 対称正定が保持されやすい
+    const auto P1 = I_KH * P_.selfadjointView<Eigen::Lower>() * I_KH.transpose();
+    const auto P2 = K * meas_cov.template selfadjointView<Eigen::Lower>() * K.transpose();
+    P_ = P1 + P2;
+  }
   else
-    P_ = I_KH * P_;  // 理論通りだが数値的に不安定
+  {
+    // 理論通りだが数値的に不安定
+    P_ = I_KH * P_;
+  }
 
   // (283) Update state
   const Eigen::Vector3d dtheta = delta_x.segment<3>(kDeltaThetaIdx);
@@ -526,10 +540,10 @@ double ErrorStateKalmanFilter::correct(
   x_(kGravIdx) += delta_x(kDeltaGravIdx);
 
   // (286) Initialize ESKF (Optional)
-  if (do_cov_initialization_)
+  if (enable_cov_initialization_)
   {
     G_.block<3, 3>(kDeltaThetaIdx, kDeltaThetaIdx) = Eigen::Diagonal3d(1, 1, 1) - eigen::skew(0.5 * dtheta);
-    P_ = G_ * P_ * G_.transpose();  // TODO: 必要な部分のみ計算
+    P_ = G_ * P_.selfadjointView<Eigen::Lower>() * G_.transpose();  // TODO: 必要な部分のみ計算
   }
 
   // Apply constraints to avoid numerical errors

@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ControllerWidget : public BaseSettingWidget
 {
@@ -42,8 +42,11 @@ public:
 
   QString controllerPackage() const;
   QString pluginName() const;
-  tobas::rc_command_t stabilizeModeCommand() const;
+
   tobas::rc_command_t acrobatModeCommand() const;
+  tobas::rc_command_t stabilizeModeCommand() const;
+  tobas::rc_command_t loiterModeCommand() const;
+
   YAML::Node staticParams() const;
 
   bool isCommandCompatible(tobas::rc_command_t command) const;
@@ -63,5 +66,5 @@ private:
   BaseControllerWidget* selected();
   const BaseControllerWidget* selected() const;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

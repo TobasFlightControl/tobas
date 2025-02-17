@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 const char* altFrameToText(altitude_frame_t frame)
 {
@@ -33,5 +33,5 @@ altitude_frame_t textToAltFrame(const char* text)
   else
     throw std::runtime_error(std::format("Invalid altitude frame text: {}", text));
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

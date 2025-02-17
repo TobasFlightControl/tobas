@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, SettingsWidget* settings)
 {
@@ -39,5 +39,5 @@ StartWidget::StartWidget(rclcpp::Node::SharedPtr node, RobotInfo& robot, Setting
   // Connection
   connect(ckb_group, &QButtonGroup::idClicked, stack, &QStackedWidget::setCurrentIndex);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -8,7 +8,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 ConsoleWidget::ConsoleWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -27,9 +27,15 @@ ConsoleWidget::ConsoleWidget(rclcpp::Node::SharedPtr node) : node_(node)
   setEnabled(false);
 }
 
-void ConsoleWidget::updateNamespace(const std::string& ns)
+void ConsoleWidget::reset()
 {
   table_->removeAll();
+}
+
+void ConsoleWidget::updateNamespace(const std::string& ns)
+{
+  reset();
+
   message_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kMessageTopic), &self::messageCb, this);
 
@@ -97,5 +103,5 @@ void ConsoleWidget::messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr
   table_->setItem(0, kLevelCol, level_item);
   table_->setItem(0, kMessageCol, message_item);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -48,8 +48,10 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
 {
   reset();
 
+  // rosbagの絶対パスを更新
   log_path_ = ros2::expandUser(tobas::kROSBagDirHome) / log_name.toStdString();
 
+  // rosbagを開く
   try
   {
     reader_.open(log_path_);
@@ -60,10 +62,12 @@ void FlightLogViewerWidget::setLogName(const QString& log_name)
     return;
   }
 
+  // ログの長さを更新
   const auto& metadata = reader_.get_metadata();
   const auto duration = metadata.duration.count() * 1e-9;  // [s]
   playback_ctrl_->setDuration(std::max(duration - kWindowDuration, 0.));
 
+  // 時刻0のログを表示
   setPlotData(0.);
 }
 
@@ -93,7 +97,13 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   QVector<tobas_msgs::msg::Odometry> odom_data;
   QVector<tobas_msgs::msg::ImuWithCovarianceStamped> imu_data;
   QVector<tobas_msgs::msg::MagneticFieldWithCovarianceStamped> mag_data;
-  // TODO
+  QVector<tobas_msgs::msg::Gnss> gnss_data;
+  QVector<tobas_msgs::msg::Battery> battery_data;
+  QVector<tobas_msgs::msg::RotorStateArray> cur_rotor_states_data;
+  QVector<tobas_msgs::msg::RotorSpeedArray> tar_rotor_speeds_data;
+  QVector<tobas_msgs::msg::Latency> latency_data;
+  QVector<tobas_kdl_msgs::msg::WrenchStamped> dist_force_data;
+  QVector<tobas_debug_msgs::msg::ObserverFeedback> obsv_fb_data;
   while (reader_.has_next())
   {
     const auto msg = reader_.read_next();
@@ -121,7 +131,41 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
         mag_ser_.deserialize_message(&ser_msg, &mag_);
         mag_data.push_back(mag_);
       }
-      // TODO
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kGnssTopic)))
+      {
+        gnss_ser_.deserialize_message(&ser_msg, &gnss_);
+        gnss_data.push_back(gnss_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kBatteryTopic)))
+      {
+        battery_ser_.deserialize_message(&ser_msg, &battery_);
+        battery_data.push_back(battery_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kRotorStatesTopic)))
+      {
+        cur_rotor_states_ser_.deserialize_message(&ser_msg, &rotor_states_);
+        cur_rotor_states_data.push_back(rotor_states_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kRotorSpeedsCmdTopic)))
+      {
+        tar_rotor_speeds_ser_.deserialize_message(&ser_msg, &rotor_speeds_);
+        tar_rotor_speeds_data.push_back(rotor_speeds_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kLatencyTopic)))
+      {
+        latency_ser_.deserialize_message(&ser_msg, &latency_);
+        latency_data.push_back(latency_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kDisturbanceForceTopic)))
+      {
+        dist_force_ser_.deserialize_message(&ser_msg, &dist_force_);
+        dist_force_data.push_back(dist_force_);
+      }
+      else if (str::endsWith(msg->topic_name, path::join("/", tobas::kObsvFeedbackTopic)))
+      {
+        obsv_fb_ser_.deserialize_message(&ser_msg, &obsv_fb_);
+        obsv_fb_data.push_back(obsv_fb_);
+      }
     }
     catch (const std::exception& e)
     {
@@ -132,12 +176,19 @@ void FlightLogViewerWidget::setPlotData(double time_from_start)
   // データをプロット
   for (auto& plot_tab : plot_tabs_)
   {
+    // XXX: データの設定の前に範囲を指定しないと若干プロットが崩れる
     plot_tab->setTimeScale(window_start_time * 1e-9, window_stop_time * 1e-9);
 
     plot_tab->setPoseData(odom_data);
+    plot_tab->setTwistData(odom_data);
     plot_tab->setImuData(imu_data);
     plot_tab->setMagData(mag_data);
-    // TODO
+    plot_tab->setGnssData(gnss_data);
+    plot_tab->setBatteryData(battery_data);
+    plot_tab->setRotorSpeedData(cur_rotor_states_data, tar_rotor_speeds_data);
+    plot_tab->setLatencyData(latency_data);
+    plot_tab->setDisturbanceForceData(dist_force_data);
+    plot_tab->setObserverFeedbackData(obsv_fb_data);
   }
 }
 

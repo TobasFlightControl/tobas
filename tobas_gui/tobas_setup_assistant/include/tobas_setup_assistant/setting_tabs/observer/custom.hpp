@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class CustomObserverWidget : public BaseObserverWidget
 {
@@ -30,5 +30,5 @@ private:
   ParamGetterWidget_LineEdit* package_;
   ParamGetterWidget_LineEdit* plugin_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

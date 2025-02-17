@@ -5,7 +5,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class AuthorInformationWidget : public BaseSettingWidget
 {
@@ -35,5 +35,5 @@ private:
   ParamGetterWidget_LineEdit* name_;
   ParamGetterWidget_LineEdit* email_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

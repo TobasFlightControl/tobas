@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 JointCommandsPublisherWidget::JointCommandsPublisherWidget(
   rclcpp::Node::SharedPtr node,
@@ -247,5 +247,5 @@ void JointCommandsPublisherWidget::onValueChanged()
 {
   publishCurrentValues();
 }
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

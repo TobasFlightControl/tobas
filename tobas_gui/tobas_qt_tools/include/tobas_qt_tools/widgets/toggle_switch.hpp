@@ -21,6 +21,9 @@ public:
   void setChecked(bool checked);
 
   void setText(const QString& text);
+  void setOnColor(const QColor& color);
+  void setOffColor(const QColor& color);
+
   void ignoreMousePressEvent(bool ignore);
 
 protected:
@@ -30,8 +33,10 @@ protected:
 
 private:
   bool checked_ = false;  // ON/OFFの状態
-  QString text_ = "";
   bool ignore_mouse_press_event_ = false;
+  QString text_ = "";
+  QColor on_color_ = Qt::green;
+  QColor off_color_ = Qt::gray;
 
   void drawBackground(QPainter& painter);
   void drawSwitch(QPainter& painter);

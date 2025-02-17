@@ -35,6 +35,11 @@ FlightLogWidget::FlightLogWidget(rclcpp::Node::SharedPtr node)
   connect(logs_gcs_, &FlightLogsWidgetGCS::logSelected, this, &self::onLogSelected);
 }
 
+void FlightLogWidget::reset()
+{
+  recorder_->reset();
+}
+
 void FlightLogWidget::updateNamespace(const std::string& ns)
 {
   recorder_->updateNamespace(ns);

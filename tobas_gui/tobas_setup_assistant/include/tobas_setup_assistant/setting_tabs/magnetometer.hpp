@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class MagnetometerWidget : public BaseSettingWidget
 {
@@ -40,5 +40,5 @@ private:
   ParamGetterWidget_SpinBox* noise_stddev_;
   ParamGetterWidget_SpinBox* hard_bias_range_;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui

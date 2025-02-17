@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class SpeedmeterWidget : public QQuickWidget
 {
@@ -29,5 +29,5 @@ public:
 private:
   QObject* getGaugeObject() const;
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

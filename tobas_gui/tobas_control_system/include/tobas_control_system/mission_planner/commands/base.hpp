@@ -12,7 +12,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 struct BaseCommandData
 {
@@ -55,5 +55,5 @@ private Q_SLOTS:
   void onFieldUpdated();
   void onDeleteButtonClicked();
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

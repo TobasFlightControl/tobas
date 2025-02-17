@@ -20,16 +20,17 @@ def generate_launch_description():
     log_level = LaunchConfiguration(LOG_LEVEL)
     output = LaunchConfiguration(OUTPUT)
 
-    ros_args = [
-        "--log-level",
-        log_level,
-        "--log-level",
-        "rcl:=INFO",
-        "--log-level",
-        "rclcpp:=INFO",
-        "--log-level",
-        "rmw_fastrtps_cpp:=INFO",
-    ]
+    # Set log level
+    ros_args = ["--log-level", log_level]
+    for node_name in [
+        "rcl",
+        "rclcpp",
+        "tf2_ros_message_filter",
+        "pluginlib.ClassLoader",
+        "rmw_fastrtps_cpp",
+        "rmw_cyclonedds_cpp",
+    ]:
+        ros_args += ["--log-level", f"{node_name}:=WARN"]
 
     # Launch robot state publisher with minimul URDF
     minimul_urdf = '<robot name="empty"><link name="root"/></robot>'

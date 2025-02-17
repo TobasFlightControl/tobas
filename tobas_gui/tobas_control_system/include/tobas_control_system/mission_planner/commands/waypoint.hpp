@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 struct WaypointData : public BaseCommandData
 {
@@ -64,5 +64,5 @@ private:
   field::AcceptanceRadiusWidget* acceptance_radius_;
   field::DurationWidget* duration_;
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

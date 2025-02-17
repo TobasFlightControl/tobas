@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -94,5 +94,5 @@ const SpeedLimitWidget_Base* SpeedLimitWidget::selected() const
   throw std::runtime_error("No method is selected.");
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

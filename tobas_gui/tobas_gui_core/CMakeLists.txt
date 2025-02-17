@@ -22,7 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(ament_cmake REQUIRED)
 find_package(tobas_homepage REQUIRED)
-find_package(urdf_builder REQUIRED)
+find_package(tobas_urdf_builder REQUIRED)
 find_package(tobas_setup_assistant REQUIRED)
 find_package(tobas_hardware_setup REQUIRED)
 find_package(tobas_control_system REQUIRED)
@@ -32,7 +32,7 @@ find_package(tobas_simulation_gui REQUIRED)
 
 set(AMENT_DEPENDENCIES
   tobas_homepage
-  urdf_builder
+  tobas_urdf_builder
   tobas_setup_assistant
   tobas_hardware_setup
   tobas_control_system
@@ -41,7 +41,7 @@ set(AMENT_DEPENDENCIES
   tobas_simulation_gui
 )
 
-# add_definitions(-DQT_NO_KEYWORDS)
+add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
@@ -50,7 +50,7 @@ qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 # 実行ファイル名とアプリ名をTobasに一致させることでデスクトップアプリでアイコンが正しく表示される

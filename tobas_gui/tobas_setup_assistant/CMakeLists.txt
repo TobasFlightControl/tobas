@@ -31,6 +31,7 @@ find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_property_client REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_rviz_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
@@ -44,10 +45,11 @@ set(AMENT_DEPENDENCIES
   tobas_property_client
   tobas_drone_msgs_adapter
   tobas_qt_tools
+  tobas_rviz_wrapper
   tobas_gui_common
 )
 
-# add_definitions(-DQT_NO_KEYWORDS)
+add_definitions(-DQT_NO_KEYWORDS)
 set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE MOC_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} include/${PROJECT_NAME}/[^.]*.hpp)
@@ -56,7 +58,7 @@ qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 add_executable(main nodes/main.cpp)

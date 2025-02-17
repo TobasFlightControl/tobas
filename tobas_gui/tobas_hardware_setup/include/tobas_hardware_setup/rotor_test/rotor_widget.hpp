@@ -1,15 +1,14 @@
 #pragma once
 
 #include <QLabel>
-#include <QLineEdit>
+#include <qwt/qwt_thermo.h>
+#include <qwt/qwt_slider.h>
 
-#include <tobas_qt_tools/widgets/slider.hpp>
-
-#include "./speedmeter.hpp"
+#include <tobas_qt_tools/widgets/framed_label.hpp>
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class RotorWidget : public QWidget
 {
@@ -17,6 +16,8 @@ class RotorWidget : public QWidget
 
   using self = RotorWidget;
   using super = QWidget;
+
+  static constexpr int kPipeWidth = 50;
 
 Q_SIGNALS:
   void targetRPMChanged(int rpm);
@@ -40,18 +41,22 @@ public:
 
 private:
   QLabel* text_;
-  SpeedmeterWidget* cur_rpm_bar_;
-  qt::Slider* tar_rpm_slider_;
-  qt::Slider* gain_slider_;
-  QLineEdit* cur_rpm_box_;
-  QLineEdit* tar_rpm_box_;
-  QLineEdit* gain_box_;
+  QwtThermo* cur_rpm_meter_;
+  QwtSlider* tar_rpm_slider_;
+  QwtSlider* gain_slider_;
+  qt::FramedLabel* cur_rpm_box_;
+  qt::FramedLabel* tar_rpm_box_;
+  qt::FramedLabel* gain_box_;
 
-  QString rpmToText(int rpm);
+  void setCurrentRPMBox(int rpm);
+  void setTargetRPMBox(int rpm);
+  void setGainBox(int gain);
+
+  static QString rpmToText(int rpm);
 
 private Q_SLOTS:
   void onTargetRPMChanged(int rpm);
   void onGainChanged(int gain);
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

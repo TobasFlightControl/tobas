@@ -11,7 +11,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
 {
@@ -20,8 +20,8 @@ class ParamGetterWidget_DoubleTable : public ParamGetterWidget<Eigen::MatrixXd>
   using self = ParamGetterWidget_DoubleTable;
   using super = ParamGetterWidget<Eigen::MatrixXd>;
 
-  static constexpr int kButtonHeight = 30;
   static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonHeight = 40;
   static constexpr double kDefaultValue = 0.;
   static constexpr int kDefaultDecimals = 2;
 
@@ -74,5 +74,5 @@ private:
   bool isValidData(const Eigen::MatrixXd& src);
   void saveLastOpenedDir(const std::string& dir);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -1,10 +1,8 @@
 #include <QVBoxLayout>
-#include <qwt/qwt_plot_curve.h>
 
 #include <tobas_ros2_tools/time.hpp>
 
 #include "tobas_flight_log_gui/log_viewer/plots/mag_plot.hpp"
-#include "tobas_flight_log_gui/log_viewer/constants.hpp"
 
 namespace gui
 {
@@ -15,14 +13,14 @@ MagPlotWidget::MagPlotWidget()
   const auto rows = new QVBoxLayout();
   setLayout(rows);
 
-  mag_curves_[0] = new QwtPlotCurve("Mag X");
-  mag_curves_[1] = new QwtPlotCurve("Mag Y");
-  mag_curves_[2] = new QwtPlotCurve("Mag Z");
+  mag_curves_[0] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag X");
+  mag_curves_[1] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Y");
+  mag_curves_[2] = std::make_shared<qwt::QwtPlotCurveWrapper>("Mag Z");
 
   for (size_t i = 0; i < 3; ++i)
   {
     mag_plots_[i] = new QwtPlot2();
-    mag_curves_[i]->setPen(kColor, kLineWidth);
+    mag_curves_[i]->setPen(kColorXYZ[i], kLineWidth);
     mag_curves_[i]->attach(mag_plots_[i]);
     rows->addWidget(mag_plots_[i]);
   }

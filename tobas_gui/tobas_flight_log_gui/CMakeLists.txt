@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type (default Release)" FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 17) # C++20以降だとQwt5の"qwt/qwt_series_store.h"でコンパイルエラー"template-id not allowed for destructor"が出る
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wshadow -Werror")
@@ -24,14 +24,18 @@ find_package(ament_cmake REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_msgs REQUIRED)
+find_package(tobas_debug_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
+find_package(tobas_qwt_wrapper REQUIRED)
 find_package(tobas_gui_common REQUIRED)
 
 set(AMENT_DEPENDENCIES
   rosbag2_cpp
   tobas_ros2_tools
   tobas_msgs
+  tobas_debug_msgs
   tobas_qt_tools
+  tobas_qwt_wrapper
   tobas_gui_common
 )
 
@@ -44,9 +48,8 @@ qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
-target_link_libraries(${PROJECT_NAME} /usr/lib/libqwt-qt5.so) # TODO: Qwtをより移植性の高い方法でリンク
 
 install(
   TARGETS ${PROJECT_NAME}

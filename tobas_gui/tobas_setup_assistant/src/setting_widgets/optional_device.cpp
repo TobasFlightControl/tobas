@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 OptionalDeviceWidget::OptionalDeviceWidget()
 {
@@ -42,5 +42,5 @@ void OptionalDeviceWidget::onEquippedToggled(bool checked)
 {
   config_->setEnabled(checked);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

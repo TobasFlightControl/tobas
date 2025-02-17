@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 PostArmCheckViewerWidget::PostArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
@@ -43,7 +43,7 @@ void PostArmCheckViewerWidget::updateNamespace(const std::string& ns)
 
   arming_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-  prearm_check_sub_ = ros2::createSubscriber(
+  postarm_check_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kPostArmCheckTopic), &self::postArmCheckCb, this);
 }
 
@@ -65,9 +65,16 @@ void PostArmCheckViewerWidget::armingCb(const tobas_msgs::msg::Arming::ConstShar
 void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmCheck::ConstSharedPtr& postarm_check)
 {
   if (arming_ == nullptr)
+  {
+    reset();
     return;
+  }
+
   if (!arming_->data)
+  {
+    reset();
     return;
+  }
 
   gyro_noise_status_->setStatus(!postarm_check->gyro_noise_too_large);
   accel_noise_status_->setStatus(!postarm_check->accel_noise_too_large);
@@ -75,5 +82,5 @@ void PostArmCheckViewerWidget::postArmCheckCb(const tobas_msgs::msg::PostArmChec
   mag_alignment_status_->setStatus(!postarm_check->mag_misalignment);
   latency_status_->setStatus(!postarm_check->latency_too_large);
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -22,8 +22,10 @@ public:
   bool setMaxAttitude(double p);
 
 private:
-  // Config
-  double max_attitude_ = M_PI_4;  // [rad]
+  struct Config
+  {
+    double max_attitude = M_PI_4;  // [rad]
+  } cfg_;
 
   kdl::TreeMassHolder mass_holder_;
 

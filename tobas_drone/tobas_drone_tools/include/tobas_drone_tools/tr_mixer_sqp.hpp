@@ -7,17 +7,17 @@
 #include <tobas_kdl/tree_fk_solver_pos_all.hpp>
 #include <tobas_kdl/tree_inertia_solver.hpp>
 
-#include <tobas_drone_core/drone.hpp>
-#include <tobas_drone_tools/np_mixer.hpp>
+#include <tobas_drone_tools/np_mixer_qp.hpp>
 
 namespace tobas
 {
 /**
  * @brief ティルトロータマルチコプターのミキシングをSQPで解く． (memo: 3-12)
  */
-class TiltRotorMixer_SQP
+class TiltRotorMixer_SQP : public Mixer
 {
   using self = TiltRotorMixer_SQP;
+  using super = Mixer;
 
 public:
   explicit TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree);
@@ -40,18 +40,17 @@ public:
   bool setThrustWeight(double p);
 
 private:
-  // Config
-  double linear_weight_ = 1.;
-  double angular_weight_ = 1.;
-  double thrust_weight_ = 1e-6;
-
-  const Drone& drone_;
-  const kdl::Tree& tree_;
+  struct Config
+  {
+    double linear_weight = 1.;
+    double angular_weight = 1.;
+    double thrust_weight = 1e-6;
+  } cfg_;
 
   kdl::TreeJointParser joint_parser_;
   kdl::TreeFkSolverPosAll fk_solver_;
   kdl::TreeInertiaSolver inertia_solver_;
-  NonPlanarMixer np_mixer_;
+  NonPlanarMixer_QP np_mixer_;
 
   nlp::SQP sqp_;
 

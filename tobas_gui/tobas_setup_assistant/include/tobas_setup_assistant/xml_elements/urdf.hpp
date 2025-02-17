@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 void addBatteryPlugin(
   tinyxml2::XMLElement* robot,
@@ -57,7 +57,7 @@ void addBarometerPlugin(
   double altitude_zero,
   double pressure_variance);
 
-void addGPSPlugin(
+void addGNSSPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
@@ -109,5 +109,5 @@ void addGazeboSimROS2ControlPlugin(
 void addGazeboROS2SimSystem(tinyxml2::XMLElement* robot, const tobas::JointConfigMap& joints);
 
 void addBaseStaticJoint(tinyxml2::XMLElement* robot, const std::string& root_link_name);
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

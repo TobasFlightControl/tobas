@@ -9,7 +9,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace fixed_wing
 {
@@ -170,5 +170,5 @@ double VSPAEROParser::c_yaw_r() const
   return c_yaw_r_;
 }
 }  // namespace fixed_wing
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

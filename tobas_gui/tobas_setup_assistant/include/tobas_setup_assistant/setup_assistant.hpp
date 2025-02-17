@@ -15,7 +15,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class SetupAssistantWidget : public QWidget
 {
@@ -26,6 +26,8 @@ class SetupAssistantWidget : public QWidget
 
 public:
   explicit SetupAssistantWidget(rclcpp::Node::SharedPtr node);
+
+  void reset();
 
 private:
   RobotInfo robot_;
@@ -47,5 +49,5 @@ private Q_SLOTS:
   void onGenerateButtonClicked();
   void onBuildPackageFinished(bool success, const QString& output);
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

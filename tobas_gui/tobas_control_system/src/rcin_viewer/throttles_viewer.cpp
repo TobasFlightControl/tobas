@@ -10,7 +10,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 namespace rcin
 {
@@ -51,8 +51,6 @@ ThrottlesViewer::ThrottlesViewer(rclcpp::Node::SharedPtr node) : node_(node)
   cols1->addWidget(throt_range_);
 
   setLayout(cols1);
-
-  reset();
 }
 
 void ThrottlesViewer::reset()
@@ -61,13 +59,12 @@ void ThrottlesViewer::reset()
   pitch_range_->clear();
   yaw_range_->clear();
   throt_range_->clear();
-
-  rcin_sub_ = nullptr;
 }
 
 void ThrottlesViewer::updateNamespace(const std::string& ns)
 {
   reset();
+
   rcin_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
@@ -78,7 +75,22 @@ void ThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& 
   pitch_range_->setValue(rcin->pitch);
   yaw_range_->setValue(rcin->yaw);
   throt_range_->setValue(rcin->throttle);
+
+  if (rcin->enable)
+  {
+    roll_range_->setValueLineColor(kLineColorEnable);
+    pitch_range_->setValueLineColor(kLineColorEnable);
+    yaw_range_->setValueLineColor(kLineColorEnable);
+    throt_range_->setValueLineColor(kLineColorEnable);
+  }
+  else
+  {
+    roll_range_->setValueLineColor(kLineColorDisable);
+    pitch_range_->setValueLineColor(kLineColorDisable);
+    yaw_range_->setValueLineColor(kLineColorDisable);
+    throt_range_->setValueLineColor(kLineColorDisable);
+  }
 }
 }  // namespace rcin
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

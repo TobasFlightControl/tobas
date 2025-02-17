@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 MagnetometerWidget::MagnetometerWidget()
 {
@@ -102,5 +102,5 @@ int MagnetometerWidget::hardBiasRange() const
 {
   return hard_bias_range_->getValue();
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

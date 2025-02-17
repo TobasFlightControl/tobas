@@ -13,7 +13,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 JointStatePublisherWidget::JointStatePublisherWidget(rclcpp::Node::SharedPtr node, const RobotInfo& robot)
   : node_(node), robot_(robot), rnd_gen_(rnd_dev_())
@@ -141,5 +141,5 @@ void JointStatePublisherWidget::onRandomButtonClicked()
     slider->setValue(value);
   }
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

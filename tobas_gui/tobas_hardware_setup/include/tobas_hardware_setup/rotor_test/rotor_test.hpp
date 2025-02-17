@@ -21,7 +21,7 @@
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class RotorTestWidget : public BaseHardwareSetupWidget
 {
@@ -32,8 +32,8 @@ class RotorTestWidget : public BaseHardwareSetupWidget
 
   static constexpr int kButtonWidth = 100;
   static constexpr int kButtonHeight = 40;
-  static constexpr int kChannelSize = 8;     // TODO: ハードウェアの最大チャンネル数に合わせる
-  static constexpr int kPublishPeriod = 10;  // [ms]
+  static constexpr int kChannelSize = 8;    // TODO: ハードウェアの最大チャンネル数に合わせる
+  static constexpr int kUpdatePeriod = 10;  // [ms]
   static constexpr auto kWaitForService = std::chrono::seconds(3);
 
 public:
@@ -41,6 +41,8 @@ public:
 
   const char* name() const override;
   const char* title() const override;
+
+  void reset() override;
 
   void updateInternalDataStructures();
 
@@ -52,10 +54,10 @@ private:
   QPushButton* stop_button_;
   QPushButton* save_button_;
 
-  std::array<RotorWidget*, kChannelSize> rotors_;
+  std::array<RotorWidget*, kChannelSize> rotor_widgets_;
 
+  tobas_msgs::msg::RotorStateArray::ConstSharedPtr cur_states_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
-  bool is_running_ = false;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_pub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> cur_states_sub_;
@@ -66,10 +68,10 @@ private:
   ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>::SharedPtr set_gains_sc_;
   ros2::SyncServiceClient<std_srvs::srv::Trigger>::SharedPtr save_gains_sc_;
 
-  QTimer publish_timer_;
+  QTimer update_timer_;
 
-  void reset();
   void publishTargetSppeds();
+  void updateCurrentSpeeds();
   bool loadCurrentGains();
   bool armRotors(bool arming);
 
@@ -83,6 +85,8 @@ private Q_SLOTS:
 
   void onTargetRPMChanged(int rpm, size_t ch);
   void onGainChanged(int gain, size_t ch);
+
+  void onUpdateTimerTimeout();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

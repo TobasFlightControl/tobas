@@ -9,7 +9,7 @@ using namespace std;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace util
 {
@@ -54,7 +54,7 @@ tinyxml2::XMLElement*
 addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface, double init_value = 0.)
 {
   const auto state_if_elem = joint->InsertNewChildElement("state_interface");
-  state_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
+  state_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
 
   const auto init_value_elem = state_if_elem->InsertNewChildElement("param");
   init_value_elem->SetAttribute("name", "initial_value");
@@ -66,7 +66,7 @@ addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interf
 tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface)
 {
   const auto command_if_elem = joint->InsertNewChildElement("command_interface");
-  command_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
+  command_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
   return command_if_elem;
 }
 }  // namespace util
@@ -170,7 +170,7 @@ void addBarometerPlugin(
   plugin->InsertNewChildElement("pressureVariance")->SetText(pressure_variance);
 }
 
-void addGPSPlugin(
+void addGNSSPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
   const string& link_name,
@@ -186,7 +186,7 @@ void addGPSPlugin(
   double longitude_zero,
   double altitude_zero)
 {
-  const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_gps_plugin", "gazebo::GazeboGpsPlugin");
+  const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_gnss_plugin", "gazebo::GazeboGnssPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
@@ -368,5 +368,5 @@ void addBaseStaticJoint(tinyxml2::XMLElement* robot, const string& root_link_nam
   joint->InsertNewChildElement("parent")->SetAttribute("link", tobas::kWorldFrame);
   joint->InsertNewChildElement("child")->SetAttribute("link", root_link_name.c_str());
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

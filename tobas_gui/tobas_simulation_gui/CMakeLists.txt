@@ -23,7 +23,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_ros2_tools REQUIRED)
 find_package(tobas_drone_core REQUIRED)
-find_package(tobas_msgs REQUIRED)
+find_package(tobas_msgs_adapter REQUIRED)
+find_package(tobas_command_msgs_adapter REQUIRED)
 find_package(tobas_gazebo_msgs REQUIRED)
 find_package(tobas_qt_tools REQUIRED)
 find_package(tobas_gui_common REQUIRED)
@@ -31,7 +32,8 @@ find_package(tobas_gui_common REQUIRED)
 set(AMENT_DEPENDENCIES
   tobas_ros2_tools
   tobas_drone_core
-  tobas_msgs
+  tobas_msgs_adapter
+  tobas_command_msgs_adapter
   tobas_gazebo_msgs
   tobas_qt_tools
   tobas_gui_common
@@ -46,7 +48,7 @@ qt5_wrap_cpp(MOC_SOURCES ${MOC_HEADERS})
 include_directories(include)
 
 file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
-add_library(${PROJECT_NAME} SHARED ${MOC_SOURCES} ${LIB_CPP_FILES})
+add_library(${PROJECT_NAME} STATIC ${MOC_SOURCES} ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
 install(

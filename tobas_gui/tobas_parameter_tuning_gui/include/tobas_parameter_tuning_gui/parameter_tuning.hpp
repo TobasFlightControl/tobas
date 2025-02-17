@@ -9,7 +9,7 @@
 
 namespace gui
 {
-namespace param_tuning
+namespace param
 {
 class ParameterTuningWidget : public QWidget
 {
@@ -18,8 +18,8 @@ class ParameterTuningWidget : public QWidget
   using self = ParameterTuningWidget;
   using super = QWidget;
 
-  static constexpr int kButtonHeight = 40;
   static constexpr int kButtonWidth = 100;
+  static constexpr int kButtonHeight = 40;
 
 public:
   explicit ParameterTuningWidget(rclcpp::Node::SharedPtr node);
@@ -43,5 +43,5 @@ private Q_SLOTS:
   void onSaveButtonClicked();
   void onResetButtonClicked();
 };
-}  // namespace param_tuning
+}  // namespace param
 }  // namespace gui

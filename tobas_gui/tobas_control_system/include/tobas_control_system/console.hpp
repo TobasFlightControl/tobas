@@ -6,7 +6,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class ConsoleWidget : public QWidget
 {
@@ -34,6 +34,7 @@ class ConsoleWidget : public QWidget
 public:
   explicit ConsoleWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
@@ -46,5 +47,5 @@ private:
 
   void messageCb(const tobas_std_msgs::msg::Message::ConstSharedPtr& msg);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

@@ -9,13 +9,13 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
-#include <tobas_qt_tools/rviz.hpp>
+#include <tobas_rviz_wrapper/rviz.hpp>
 
 #include "../base.hpp"
 
 namespace gui
 {
-namespace hardware_setup
+namespace hw
 {
 class MagCalibrationWidget : public BaseHardwareSetupWidget
 {
@@ -38,11 +38,13 @@ public:
   const char* name() const override;
   const char* title() const override;
 
+  void reset() override;
+
   void setNamespace(const std::string& ns);
 
 private:
   const rclcpp::Node::SharedPtr node_;
-  qt::RvizFrameManager rviz_manager_;
+  rviz::RvizFrameManager rviz_manager_;
 
   std::string ns_;
 
@@ -63,8 +65,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
-  void resetToBeforeStart();
-
   void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
@@ -73,5 +73,5 @@ private Q_SLOTS:
   void onCancelButtonClicked();
   void onFinishButtonClicked();
 };
-}  // namespace hardware_setup
+}  // namespace hw
 }  // namespace gui

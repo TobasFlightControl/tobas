@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 NonPlanarPIDWidget::NonPlanarPIDWidget(
   RobotInfo& robot,
@@ -49,12 +49,17 @@ QString NonPlanarPIDWidget::pluginName() const
   return "ControllerNode";
 }
 
-tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const
+tobas::rc_command_t NonPlanarPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::POSE_TWIST_ACCEL;
+  return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
 }
 
-tobas::rc_command_t NonPlanarPIDWidget::acrobatModeCommand() const
+tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const
+{
+  return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
+}
+
+tobas::rc_command_t NonPlanarPIDWidget::loiterModeCommand() const
 {
   return tobas::rc_command_t::POSE_TWIST_ACCEL;  // TODO
 }
@@ -125,5 +130,5 @@ bool NonPlanarPIDWidget::isValid()
 
   return true;
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

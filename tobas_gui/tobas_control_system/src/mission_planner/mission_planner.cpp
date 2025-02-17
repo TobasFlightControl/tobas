@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_(node), mission_thread_(node)
 {
@@ -36,8 +36,9 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   commands_ = new qt::StackedWidget();
   commands_->setStyleSheet("QStackedWidget { border: 1px solid black; background-color: white; }");
 
+  reset();
+
   // Layout
-  // ボタンがなるべく最大横幅を確保するようstretch (優先度) を指定
   const auto button_cols = new QHBoxLayout();
   button_cols->addWidget(load_button_, 1);
   button_cols->addWidget(save_button_, 1);
@@ -73,21 +74,28 @@ MissionPlannerWidget::MissionPlannerWidget(rclcpp::Node::SharedPtr node) : node_
   connect(command_list_, &qt::ListWidget::itemClicked, this, &self::onListItemChanged);
   connect(command_list_, &qt::ListWidget::itemMoved, this, &self::onListItemChanged);
   connect(&mission_thread_, &MissionExecutionThread::finished, this, &self::onMissionFinished);
+}
+
+void MissionPlannerWidget::reset()
+{
+  map_->setArrowPosition(0., 0.);
+  map_->setArrowRotation(0.);
+
+  command_list_->clear();
+  commands_->clear();
+  pairs_.clear();
 
   setEditMode();
 }
 
 void MissionPlannerWidget::updateNamespace(const std::string& ns)
 {
-  ns_ = ns;
+  reset();
 
-  map_->setGPSArrowPosition(0., 0.);
-  map_->setGPSArrowRotation(0.);
+  mission_thread_.setNamespace(ns);
 
-  gps_ = nullptr;
-
-  gps_sub_ =
-    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGNSSTopic), &self::gpsCb, this);
+  gnss_sub_ =
+    ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kGnssTopic), &self::gnssCb, this);
   euler_sub_ =
     ros2::createSubscriber(node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kEulerTopic), &self::eulerCb, this);
 }
@@ -227,19 +235,17 @@ QVector<BaseCommandData::SharedPtr> MissionPlannerWidget::createMissionCommandLi
   return res;
 }
 
-void MissionPlannerWidget::gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps)
+void MissionPlannerWidget::gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss)
 {
-  if (gps->fix_type != tobas_msgs::msg::Gps::FIX_3D)
+  if (gnss->fix_type != tobas_msgs::msg::Gnss::FIX_3D)
     return;
 
-  gps_ = gps;
-
-  map_->setGPSArrowPosition(gps->latitude, gps->longitude);
+  map_->setArrowPosition(gnss->latitude, gnss->longitude);
 }
 
 void MissionPlannerWidget::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
 {
-  map_->setGPSArrowRotation(-tobas_std::rad2deg(euler->euler.yaw));
+  map_->setArrowRotation(-tobas_std::rad2deg(euler->euler.yaw));
 }
 
 void MissionPlannerWidget::onLoadButtonClicked()
@@ -272,10 +278,10 @@ void MissionPlannerWidget::onAddButtonClicked()
   {
     case command_t::WAYPOINT:
     {
-      const auto [latitude, longitude] = map_->getCenter();
+      const auto center = map_->getCenter();
       const auto waypoint = new WaypointWidget();
-      waypoint->latitude(latitude);
-      waypoint->longitude(longitude);
+      waypoint->latitude(center.latitude());
+      waypoint->longitude(center.longitude());
       cmd_widget = waypoint;
       break;
     }
@@ -407,7 +413,6 @@ void MissionPlannerWidget::onExecuteButtonClicked()
   setExecuteMode();
 
   // ユーザ操作をブロックしないように別スレッドでミッションを実行
-  mission_thread_.setNamespace(ns_);
   mission_thread_.setCommands(mission_commands);
   mission_thread_.start();
 }
@@ -432,13 +437,8 @@ void MissionPlannerWidget::onFocusButtonClicked()
 {
   RCLCPP_DEBUG(node_->get_logger(), "MissionPlannerWidget::onFocusButtonClicked");
 
-  if (gps_ == nullptr)
-  {
-    qt::qWarnBox(this, "GNSS data is not received yet.");
-    return;
-  }
-
-  map_->setCenter(gps_->latitude, gps_->longitude);
+  const auto arrow_pos = map_->getArrowPosition();
+  map_->setMapCenter(arrow_pos.latitude(), arrow_pos.longitude());
 }
 
 void MissionPlannerWidget::onDeleteButtonClicked(QListWidgetItem* target_item, BaseCommandWidget* target_widget)
@@ -523,5 +523,5 @@ void MissionPlannerWidget::onMissionFinished(bool success, const QString& messag
 
   setEditMode();
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

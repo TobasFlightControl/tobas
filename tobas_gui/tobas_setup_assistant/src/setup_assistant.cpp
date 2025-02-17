@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   : rsp_client_(node, "robot_state_publisher"), spinner_(Qt::WindowModal, this)
@@ -40,6 +40,11 @@ SetupAssistantWidget::SetupAssistantWidget(rclcpp::Node::SharedPtr node)
   connect(&robot_, &RobotInfo::loaded, this, &self::onRobotLoaded);
   connect(settings_->ros_package, &ROSPackageWidget::generateButtonClicked, this, &self::onGenerateButtonClicked);
   connect(&build_thread_, &BuildPackageThread::finished, this, &self::onBuildPackageFinished);
+}
+
+void SetupAssistantWidget::reset()
+{
+  rviz_->resetTime();
 }
 
 void SetupAssistantWidget::onRobotLoaded()
@@ -86,5 +91,5 @@ void SetupAssistantWidget::onBuildPackageFinished(bool success, const QString& o
   else
     qt::qErrorBox(this, "Tobas configuration package is generated, but failed to build it:\n\n" + output);
 }
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

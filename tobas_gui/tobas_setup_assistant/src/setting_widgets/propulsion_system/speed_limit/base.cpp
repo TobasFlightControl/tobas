@@ -4,7 +4,7 @@
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 namespace propulsion
 {
@@ -58,5 +58,5 @@ void SpeedLimitWidget_Base::setChecked(bool checked)
   checkbox_->setChecked(checked);
 }
 }  // namespace propulsion
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tobas_ros2_tools/register.hpp>
-#include <tobas_msgs_adapter/gps.hpp>
+#include <tobas_msgs_adapter/gnss.hpp>
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_qt_tools/widgets/list_widget.hpp>
 #include <tobas_qt_tools/widgets/stacked_widget.hpp>
@@ -13,7 +13,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 class MissionPlannerWidget : public QWidget
 {
@@ -29,12 +29,11 @@ class MissionPlannerWidget : public QWidget
 public:
   explicit MissionPlannerWidget(rclcpp::Node::SharedPtr node);
 
+  void reset();
   void updateNamespace(const std::string& ns);
 
 private:
   const rclcpp::Node::SharedPtr node_;
-
-  std::string ns_;
 
   MapWidget* map_;
 
@@ -53,9 +52,7 @@ private:
   std::set<std::pair<QListWidgetItem*, BaseCommandWidget*>> pairs_;
   MissionExecutionThread mission_thread_;
 
-  tobas_msgs::Gps::ConstSharedPtr gps_;
-
-  ros2::SubscriberPtr<tobas_msgs::Gps> gps_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Gnss> gnss_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
   /* 各ウィジェットを実行モードに切り替える． */
@@ -76,7 +73,7 @@ private:
   /* ミッションコマンドのリストを作成する． */
   QVector<BaseCommandData::SharedPtr> createMissionCommandList();
 
-  void gpsCb(const tobas_msgs::Gps::ConstSharedPtr& gps);
+  void gnssCb(const tobas_msgs::Gnss::ConstSharedPtr& gnss);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 
 private Q_SLOTS:
@@ -95,5 +92,5 @@ private Q_SLOTS:
   void onWaypointMoved(int index, double latitude, double longitude);
   void onMissionFinished(bool success, const QString& message);
 };
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

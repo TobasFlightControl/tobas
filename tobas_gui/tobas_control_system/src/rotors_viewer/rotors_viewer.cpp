@@ -7,7 +7,7 @@
 
 namespace gui
 {
-namespace control_system
+namespace gcs
 {
 RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tobas::Drone& drone)
   : node_(node), drone_(drone)
@@ -16,10 +16,17 @@ RotorsViewerWiddget::RotorsViewerWiddget(rclcpp::Node::SharedPtr node, const tob
   setLayout(cols_);
 }
 
+void RotorsViewerWiddget::reset()
+{
+  for (const auto& [channel, meter] : meters_)
+  {
+    setSpeed(channel, 0.);
+    meter->setBackgroundColor(kAliveBackgroundColor);
+  }
+}
+
 void RotorsViewerWiddget::updateInternalDataStructures()
 {
-  rotor_states_sub_ = nullptr;
-
   meters_.clear();
   qt::clearLayout(cols_);
 
@@ -28,36 +35,55 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     const auto meter = new SpeedmeterWidget();
     meter->setMaximumValue(tobas_std::rps2rpm(rotor.max_rot_speed));
     meter->setTopText(QString::fromStdString(rotor.link_name));
-    meter->setBottomText(bottomText(0));
 
     meters_[rotor.channel] = meter;
     cols_->addWidget(meter);
   }
 
+  reset();
+
   rotor_states_sub_ = ros2::createSubscriber(
     node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
+  rotor_liveliness_sub_ = ros2::createSubscriber(
+    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorLivelinessTopic), &self::rotorLivelinessCb,
+    this);
 }
 
-void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& states)
+void RotorsViewerWiddget::setSpeed(size_t channel, double rps)
 {
-  for (const auto& state : states->states)
+  const auto& meter = meters_.at(channel);
+  const auto rpm = static_cast<int>(tobas_std::rps2rpm(rps));
+  meter->setValue(rpm);
+  meter->setBottomText(bottomText(rpm));
+}
+
+void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg)
+{
+  for (const auto& state : msg->states)
   {
     if (!meters_.contains(state.channel))
       continue;
 
-    const auto& meter = meters_.at(state.channel);
-
     if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
-    {
-      meter->setBackgroundColor("red");
       continue;
-    }
 
-    meter->setBackgroundColor("transparent");
+    setSpeed(state.channel, state.speed);
+  }
+}
 
-    const auto speed_rpm = static_cast<int>(tobas_std::rps2rpm(state.speed));
-    meter->setValue(speed_rpm);
-    meter->setBottomText(bottomText(speed_rpm));
+void RotorsViewerWiddget::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg)
+{
+  for (const auto& liveliness : msg->data)
+  {
+    if (!meters_.contains(liveliness.channel))
+      continue;
+
+    const auto& meter = meters_.at(liveliness.channel);
+
+    if (liveliness.alive)
+      meter->setBackgroundColor(kAliveBackgroundColor);
+    else
+      meter->setBackgroundColor(kDeadBackgroundColor);
   }
 }
 
@@ -65,5 +91,5 @@ QString RotorsViewerWiddget::bottomText(int rpm)
 {
   return QString::number(rpm) + " RPM";
 }
-}  // namespace control_system
+}  // namespace gcs
 }  // namespace gui

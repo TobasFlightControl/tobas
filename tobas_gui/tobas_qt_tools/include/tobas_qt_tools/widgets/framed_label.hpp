@@ -4,6 +4,10 @@
 
 namespace qt
 {
+/**
+ * @brief 黒枠付きのラベル．
+ * QLineEditをReadOnly + NoFocusにしたものに近いが，こちらの方が効率的．
+ */
 class FramedLabel : public QLabel
 {
   using super = QLabel;

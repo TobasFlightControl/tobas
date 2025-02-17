@@ -2,8 +2,7 @@
 
 #include <tobas_msgs/msg/imu_with_covariance_stamped.hpp>
 
-#include "./forward_declaration.hpp"
-#include "./qwt_plot.hpp"
+#include "./common.hpp"
 
 namespace gui
 {
@@ -12,8 +11,6 @@ namespace log
 class ImuPlotWidget : public QWidget
 {
   Q_OBJECT
-
-  static constexpr auto kColor = Qt::black;
 
 public:
   explicit ImuPlotWidget();
@@ -24,8 +21,8 @@ public:
 private:
   std::array<QwtPlot2*, 3> acc_plots_;
   std::array<QwtPlot2*, 3> gyro_plots_;
-  std::array<QwtPlotCurve*, 3> acc_curves_;
-  std::array<QwtPlotCurve*, 3> gyro_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> acc_curves_;
+  std::array<qwt::QwtPlotCurveWrapper::SharedPtr, 3> gyro_curves_;
 };
 }  // namespace log
 }  // namespace gui

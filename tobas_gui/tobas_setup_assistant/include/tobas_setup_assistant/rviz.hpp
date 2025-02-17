@@ -2,18 +2,16 @@
 
 #include <QWidget>
 
-#include <rviz_common/visualization_manager.hpp>
-#include <rviz_common/display.hpp>
 #include <rviz_common/properties/bool_property.hpp>
 #include <rviz_common/properties/string_property.hpp>
 
-#include <tobas_qt_tools/rviz.hpp>
+#include <tobas_rviz_wrapper/rviz.hpp>
 
 #include "./robot_info.hpp"
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class RvizWidget : public QWidget
 {
@@ -22,7 +20,6 @@ class RvizWidget : public QWidget
   using self = RvizWidget;
   using super = QWidget;
 
-  static constexpr int kRobotStateDisplayIndex = 0;  // rvizファイルと合わせる必要あり
   static constexpr bool kDefaultVisualEnabled = true;
   static constexpr bool kDefaultCollisionEnabled = false;
   static constexpr bool kDefaultInertiaEnabled = false;
@@ -33,6 +30,13 @@ public:
   void heightLink(const QString& link_name);
   void unheightLink(const QString& link_name);
 
+  /**
+   * @brief rviz_common::VisualizationManager::resetTime()
+   *
+   * シミュレーション起動時など，TFの時刻が巻き戻ったときに発生するTF_OLD_DATAエラーを回避できる．
+   */
+  void resetTime();
+
 private Q_SLOTS:
   void onRobotLoaded();
   void onVisualBoxToggled(bool checked);
@@ -42,8 +46,7 @@ private Q_SLOTS:
 private:
   const RobotInfo& robot_;
 
-  qt::RvizFrameManager rviz_manager_;
-  rviz_common::VisualizationManager* vis_manager_;
+  rviz::RvizFrameManager rviz_manager_;
   rviz_common::Display* display_;
 
   rviz_common::properties::BoolProperty* enable_visual_;
@@ -55,5 +58,5 @@ private:
 
   QString highlighted_link_;
 };
-}  // namespace setup_assistant
+}  // namespace sa
 }  // namespace gui

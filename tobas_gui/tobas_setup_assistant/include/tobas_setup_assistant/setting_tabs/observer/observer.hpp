@@ -8,12 +8,12 @@
 #include "../base_setting.hpp"
 #include "../imu.hpp"
 #include "../barometer.hpp"
-#include "../gps.hpp"
+#include "../gnss.hpp"
 #include "./base.hpp"
 
 namespace gui
 {
-namespace setup_assistant
+namespace sa
 {
 class ObserverWidget : public BaseSettingWidget
 {
@@ -29,7 +29,7 @@ public:
     const RobotInfo& robot,
     const IMUWidget* imu,
     const BarometerWidget* baro,
-    const GPSWidget* gps);
+    const GNSSWidget* gnss);
 
   const char* name() const override;
   const char* title() const override;
@@ -54,7 +54,7 @@ private:
   const RobotInfo& robot_;
   const IMUWidget* imu_;
   const BarometerWidget* baro_;
-  const GPSWidget* gps_;
+  const GNSSWidget* gnss_;
 
   qt::ComboBox* type_;
   qt::StackedWidget* observers_;
@@ -63,5 +63,5 @@ private:
   BaseObserverWidget* selected();
   const BaseObserverWidget* selected() const;
 };
-};  // namespace setup_assistant
+};  // namespace sa
 }  // namespace gui
