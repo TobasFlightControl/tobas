@@ -10,6 +10,9 @@ enum turning_direction_t : uint8_t
   CW,
 };
 
+std::string textFromEnum(turning_direction_t interface);
+bool enumFromText(const std::string& text, turning_direction_t& dst);
+
 /* CCW = 1, CW = -1 */
 constexpr inline int sign(turning_direction_t direction)
 {
@@ -30,18 +33,7 @@ namespace YAML
 template <>
 struct convert<tobas::turning_direction_t>
 {
-  static Node encode(const tobas::turning_direction_t& rhs)
-  {
-    return Node(static_cast<int>(rhs));
-  }
-
-  static bool decode(const Node& node, tobas::turning_direction_t& rhs)
-  {
-    if (!node.IsScalar())
-      return false;
-
-    rhs = static_cast<tobas::turning_direction_t>(node.as<int>());
-    return true;
-  }
+  static Node encode(const tobas::turning_direction_t& rhs);
+  static bool decode(const Node& node, tobas::turning_direction_t& rhs);
 };
 }  // namespace YAML

@@ -1,35 +1,77 @@
+#include <iostream>
+
 #include "../../include/tobas_drone_core/joint/command_interface.hpp"
+
+#define POSITION_TEXT "position"
+#define VELOCITY_TEXT "velocity"
+#define EFFORT_TEXT "effort"
+#define NONE_TEXT "none"
+
+using namespace std;
 
 namespace tobas
 {
-std::string jntCmdIfaceEnumToText(jnt_cmd_iface_t cmd_iface)
+string textFromEnum(jnt_cmd_iface_t cmd_iface)
 {
   switch (cmd_iface)
   {
     case jnt_cmd_iface_t::POSITION:
-      return "position";
+      return POSITION_TEXT;
     case jnt_cmd_iface_t::VELOCITY:
-      return "velocity";
+      return VELOCITY_TEXT;
     case jnt_cmd_iface_t::EFFORT:
-      return "effort";
+      return EFFORT_TEXT;
     case jnt_cmd_iface_t::NONE:
-      return "none";
+      return NONE_TEXT;
     default:
       throw;
   }
 }
 
-jnt_cmd_iface_t jntCmdIfaceTextToEnum(const std::string& text)
+bool enumFromText(const string& text, jnt_cmd_iface_t& dst)
 {
-  if (text == "position")
-    return tobas::jnt_cmd_iface_t::POSITION;
-  else if (text == "velocity")
-    return tobas::jnt_cmd_iface_t::VELOCITY;
-  else if (text == "effort")
-    return tobas::jnt_cmd_iface_t::EFFORT;
-  else if (text == "none")
-    return tobas::jnt_cmd_iface_t::NONE;
+  if (text == POSITION_TEXT)
+  {
+    dst = tobas::jnt_cmd_iface_t::POSITION;
+    return true;
+  }
+  else if (text == VELOCITY_TEXT)
+  {
+    dst = tobas::jnt_cmd_iface_t::VELOCITY;
+    return true;
+  }
+  else if (text == EFFORT_TEXT)
+  {
+    dst = tobas::jnt_cmd_iface_t::EFFORT;
+    return true;
+  }
+  else if (text == NONE_TEXT)
+  {
+    dst = tobas::jnt_cmd_iface_t::NONE;
+    return true;
+  }
   else
-    throw std::runtime_error("Invalid joint command interface: " + text);
+  {
+    cerr << "Invalid joint command interface: " << text << endl;
+    return false;
+  }
 }
 }  // namespace tobas
+
+namespace YAML
+{
+Node convert<tobas::jnt_cmd_iface_t>::encode(const tobas::jnt_cmd_iface_t& rhs)
+{
+  Node node;
+  node = tobas::textFromEnum(rhs);
+  return Node(tobas::textFromEnum(rhs));
+}
+
+bool convert<tobas::jnt_cmd_iface_t>::decode(const Node& node, tobas::jnt_cmd_iface_t& rhs)
+{
+  if (!node.IsScalar())
+    return false;
+
+  return tobas::enumFromText(node.as<string>(), rhs);
+}
+}  // namespace YAML

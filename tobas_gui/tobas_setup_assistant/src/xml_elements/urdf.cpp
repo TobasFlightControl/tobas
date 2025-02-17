@@ -54,7 +54,7 @@ tinyxml2::XMLElement*
 addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface, double init_value = 0.)
 {
   const auto state_if_elem = joint->InsertNewChildElement("state_interface");
-  state_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
+  state_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
 
   const auto init_value_elem = state_if_elem->InsertNewChildElement("param");
   init_value_elem->SetAttribute("name", "initial_value");
@@ -66,7 +66,7 @@ addROS2ControlStateIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interf
 tinyxml2::XMLElement* addROS2ControlCommandIF(tinyxml2::XMLElement* joint, tobas::jnt_cmd_iface_t interface)
 {
   const auto command_if_elem = joint->InsertNewChildElement("command_interface");
-  command_if_elem->SetAttribute("name", tobas::jntCmdIfaceEnumToText(interface).c_str());
+  command_if_elem->SetAttribute("name", tobas::textFromEnum(interface).c_str());
   return command_if_elem;
 }
 }  // namespace util

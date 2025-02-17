@@ -518,7 +518,7 @@ bool PackageGenerator::generateJointControllerConfigs(const fs::path& config_dir
 
     YAML::Node ctrl_params_node(YAML::NodeType::Map);
     ctrl_params_node["joints"].push_back(jnt_name);
-    ctrl_params_node["interface_name"] = tobas::jntCmdIfaceEnumToText(joint_config->getCommandInterface(i));
+    ctrl_params_node["interface_name"] = tobas::textFromEnum(joint_config->getCommandInterface(i));
 
     // Create data
     YAML::Node root_node(YAML::NodeType::Map);
