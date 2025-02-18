@@ -35,7 +35,7 @@ AccelCalibrationWidget::AccelCalibrationWidget(rclcpp::Node::SharedPtr node)
 
 const char* AccelCalibrationWidget::name() const
 {
-  return "Accel Calibration";
+  return "Accelerometer\nCalibration";
 }
 
 const char* AccelCalibrationWidget::title() const
