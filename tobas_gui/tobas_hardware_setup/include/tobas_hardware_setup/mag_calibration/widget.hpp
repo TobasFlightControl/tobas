@@ -65,6 +65,9 @@ private:
   ros2::SubscriberPtr<tobas_msgs::MagneticFieldStamped> mag_raw_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
+  /* キャリブレーション開始前の状態にリセットする． */
+  void resetToPreStart();
+
   void magCb(const tobas_msgs::MagneticFieldStamped::ConstSharedPtr& mag_raw);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 
