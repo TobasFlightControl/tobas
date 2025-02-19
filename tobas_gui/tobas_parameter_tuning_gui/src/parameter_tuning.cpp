@@ -16,45 +16,44 @@ namespace param
 {
 ParameterTuningWidget::ParameterTuningWidget(rclcpp::Node::SharedPtr node)
 {
-  const auto rows = new QVBoxLayout();
-  setLayout(rows);
-
-  const auto cols = new QHBoxLayout();
-  rows->addLayout(cols);
-
   load_button_ = new QPushButton("Load");
-  load_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
-  cols->addWidget(load_button_);
-
   save_button_ = new QPushButton("Save");
-  save_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
-  cols->addWidget(save_button_);
-
   reset_button_ = new QPushButton("Reset");
+
+  load_button_->setFixedSize(kButtonWidth, kButtonHeight);
+  save_button_->setFixedSize(kButtonWidth, kButtonHeight);
   reset_button_->setFixedSize(kButtonWidth, kButtonHeight);
-  connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);
-  cols->addWidget(reset_button_);
-
-  cols->addStretch();
-
-  const auto param_rows = qt::createScrollableQVBoxLayout(rows);
 
   controller_params_ = new ParamBlockWidget(node, "Controller");
-  param_rows->addWidget(controller_params_);
-
   observer_params_ = new ParamBlockWidget(node, "Observer");
-  param_rows->addWidget(observer_params_);
-
-  param_rows->addStretch();
 
   reset();
+
+  // Layout
+  const auto root_rows = new QVBoxLayout();
+  setLayout(root_rows);
+
+  const auto button_cols = new QHBoxLayout();
+  root_rows->addLayout(button_cols);
+  button_cols->addWidget(load_button_);
+  button_cols->addWidget(save_button_);
+  button_cols->addWidget(reset_button_);
+  button_cols->addStretch();
+
+  const auto param_rows = qt::createScrollableQVBoxLayout(root_rows);
+  param_rows->addWidget(controller_params_);
+  param_rows->addWidget(observer_params_);
+  param_rows->addStretch();
+
+  // Connection
+  connect(load_button_, &QPushButton::clicked, this, &self::onLoadButtonClicked);
+  connect(save_button_, &QPushButton::clicked, this, &self::onSaveButtonClicked);
+  connect(reset_button_, &QPushButton::clicked, this, &self::onResetButtonClicked);
 }
 
 void ParameterTuningWidget::reset()
 {
-  load_button_->setEnabled(false);
+  load_button_->setEnabled(true);
   save_button_->setEnabled(false);
   reset_button_->setEnabled(false);
 
@@ -77,15 +76,17 @@ bool ParameterTuningWidget::updateTBSPath(const std::filesystem::path& tbs_path)
 
   tbs_path_ = tbs_path;
 
-  load_button_->setEnabled(true);
-  save_button_->setEnabled(false);
-  reset_button_->setEnabled(false);
-
   return true;
 }
 
 void ParameterTuningWidget::onLoadButtonClicked()
 {
+  if (drone_.name.empty())
+  {
+    qt::qWarnBox(this, "Tobas package is not loaded yet.");
+    return;
+  }
+
   if (!controller_params_->load(drone_.name, tobas::node::kController))
     return;
 
