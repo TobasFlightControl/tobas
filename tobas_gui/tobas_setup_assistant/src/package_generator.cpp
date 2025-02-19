@@ -12,7 +12,6 @@
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_ros2_tools/path.hpp>
 #include <tobas_qt_tools/message.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/command.hpp>
 

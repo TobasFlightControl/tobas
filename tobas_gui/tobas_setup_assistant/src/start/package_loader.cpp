@@ -9,7 +9,6 @@
 #include <tobas_qt_tools/font.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 
 #include "tobas_setup_assistant/start/package_loader.hpp"
@@ -69,9 +68,9 @@ void PackageLoaderWidget::onLoadButtonClicked()
     return;
 
   // 拡張子をチェック
-  if (!tbs_path.endsWith(common::kTBSExtension))
+  if (!tbs_path.endsWith(tobas::kTBSExtension))
   {
-    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + common::kTBSExtension + ").");
+    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
     return;
   }
 

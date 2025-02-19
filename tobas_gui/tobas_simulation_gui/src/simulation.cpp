@@ -6,10 +6,10 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_linux/errer.hpp>
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 #include <tobas_gui_common/ros2_cli.hpp>
 
@@ -265,7 +265,7 @@ bool SimulationWidget::startHITL()
   // Tobasパッケージを送信
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path_);
-  const auto remote_dir = fs::path(common::kColconWSPathRemote) / "src/";
+  const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(tbs_path_, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     qt::qErrorBox(this, "Failed to send Tobas configuration package:\n\n" + QString(ssh_client_.errorMessage()));
@@ -392,13 +392,14 @@ bool SimulationWidget::buildLocalPackage()
 
 bool SimulationWidget::launchGazebo(bool launch_core)
 {
+  const auto install_path = ros2::expandUser(tobas::kColconWSPathHome) / "install";
   const auto config_pkg_name = common::getTBSConfigName(tbs_path_);
   const std::map<std::string, std::string> args{
     { "world_path", sim_settings_->worldPath().string() },
     { "launch_core", boolToText(launch_core) },
   };
 
-  launch_pid_ = common::roslaunch(config_pkg_name, "gazebo.launch.xml", args);
+  launch_pid_ = common::roslaunch(install_path, config_pkg_name, "gazebo.launch.xml", args);
   if (launch_pid_ < 0)
   {
     qt::qErrorBox(this, "Failed to launch Gazebo simulation.");

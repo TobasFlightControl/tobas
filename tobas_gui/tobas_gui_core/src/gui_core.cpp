@@ -13,7 +13,6 @@
 #include <tobas_qt_tools/widgets/progress_dialog.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/util.hpp>
-#include <tobas_gui_common/constants.hpp>
 #include <tobas_gui_common/package.hpp>
 
 #include "tobas_gui_core/gui_core.hpp"
@@ -202,9 +201,9 @@ void GUICoreWidget::onBrowseButtonClicked()
     return;
 
   // 拡張子をチェック
-  if (!tbs_path.endsWith(common::kTBSExtension))
+  if (!tbs_path.endsWith(tobas::kTBSExtension))
   {
-    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + common::kTBSExtension + ").");
+    qt::qErrorBox(this, "\"" + tbs_path + "\" is not a Tobas configuration package (*" + tobas::kTBSExtension + ").");
     return;
   }
 
@@ -312,7 +311,7 @@ void GUICoreWidget::onWriteButtonClicked()
   // Tobasパッケージを送信
   progress.setLabelText("Sending Tobas configuration package to the flight controller.");
   const auto mesh_path = common::getMeshPath(tbs_path);
-  const auto remote_dir = fs::path(common::kColconWSPathRemote) / "src/";
+  const auto remote_dir = fs::path(tobas::kColconWSPathRoot) / "src/";
   if (ssh_client_.scpPut(tbs_path, remote_dir, { mesh_path }, true) != ssh::SSHClient::E_NO_ERROR)
   {
     progress.close();

@@ -1,7 +1,6 @@
 #include <tobas_std_tools/check.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_gui_common/constants.hpp"
 #include "../include/tobas_gui_common/package.hpp"
 
 using namespace std;
@@ -18,7 +17,7 @@ fs::path getRemoteTBSPath(const fs::path& tbs_path)
 
 string getTBSName(const fs::path& tbs_path)
 {
-  TOBAS_CHECK(tbs_path.extension() == kTBSExtension);
+  TOBAS_CHECK(tbs_path.extension() == tobas::kTBSExtension);
   return tbs_path.stem();
 }
 

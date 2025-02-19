@@ -120,6 +120,10 @@ static constexpr char kWorldFrame[] = "world";
 // Path
 static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
+static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
+static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
+static constexpr char kROS2JazzyInstallPath[] = "/opt/ros/jazzy";
+static constexpr char kTobasInstallPath[] = "/opt/tobas";
 
 // Flight mode
 enum flight_mode_t
@@ -148,6 +152,7 @@ static constexpr double kCheckTopicsMsgPeriod = 5.;  // [s]
 static constexpr double kIgnoreCmdMsgPeriod = 1.;    // [s]
 
 // Others
+static constexpr char kTBSExtension[] = ".TBS";
 static constexpr char kPropertyServerName[] = "/property_server";
 static constexpr char kUnknown[] = "unknown";
 static constexpr char kMinimulURDF[] = "<robot name=\"empty\"><link name=\"root\"/></robot>";
