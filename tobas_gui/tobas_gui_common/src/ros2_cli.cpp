@@ -13,8 +13,8 @@ namespace util
 {
 string sourceCommand(const fs::path& install_dir)
 {
-  const string setup_bash_path = install_dir / "setup.bash";
-  return "source " + setup_bash_path;
+  const auto setup_bash_path = install_dir / "setup.bash";
+  return "source " + setup_bash_path.string();
 }
 }  // namespace util
 
