@@ -73,7 +73,7 @@ void addGNSSPlugin(
   double longitude_zero,
   double altitude_zero);
 
-void addRotorPlugin(
+void addElectricPropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,

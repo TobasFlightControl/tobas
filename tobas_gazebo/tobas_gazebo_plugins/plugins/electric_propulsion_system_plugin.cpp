@@ -35,10 +35,10 @@ namespace cmp = gz::sim::components;
 namespace gazebo
 {
 /* Simulates ESC, rotor and ropeller. */
-class GazeboRotorPlugin : public BaseNode,
-                          public gz::sim::System,
-                          public gz::sim::ISystemConfigure,
-                          public gz::sim::ISystemPreUpdate
+class GazeboElectricPropulsionSystemPlugin : public BaseNode,
+                                             public gz::sim::System,
+                                             public gz::sim::ISystemConfigure,
+                                             public gz::sim::ISystemPreUpdate
 {
   // Constants
   static constexpr double kAutoStopTimeout = 0.5;    // [s]
@@ -50,11 +50,11 @@ class GazeboRotorPlugin : public BaseNode,
   static constexpr double kDefaultRotorNoiseCoef = 0.5;    // [-]
   static constexpr double kDefaultMaxModelErrorRate = 0.;
 
-  using self = GazeboRotorPlugin;
+  using self = GazeboElectricPropulsionSystemPlugin;
   using BreakSrv = std_srvs::srv::Trigger;
 
 public:
-  explicit GazeboRotorPlugin();
+  explicit GazeboElectricPropulsionSystemPlugin();
 
   void Configure(
     const gz::sim::Entity& model_entity,
@@ -122,17 +122,17 @@ private:
   void breakCb(const BreakSrv::Request::ConstSharedPtr& req, const BreakSrv::Response::SharedPtr& res);
 };
 
-GazeboRotorPlugin::GazeboRotorPlugin()
+GazeboElectricPropulsionSystemPlugin::GazeboElectricPropulsionSystemPlugin()
 {
 }
 
-void GazeboRotorPlugin::Configure(
+void GazeboElectricPropulsionSystemPlugin::Configure(
   const gz::sim::Entity& model_entity,
   const sdf::ElementConstPtr& sdf,
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_rotor_plugin_" + to_string(channel_), sdf);
+  initialize("gazebo_electric_propulsion_system_plugin_" + to_string(channel_), sdf);
   getSdfParams(sdf);
 
   publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
@@ -187,7 +187,7 @@ void GazeboRotorPlugin::Configure(
   registerROSInterfaces();
 }
 
-void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
+void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "channel", channel_);
@@ -211,7 +211,9 @@ void GazeboRotorPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "maxModelErrorRate", max_model_error_rate_, kDefaultMaxModelErrorRate, NON_NEGATIVE);
 }
 
-void GazeboRotorPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
+void GazeboElectricPropulsionSystemPlugin::PreUpdate(
+  const gz::sim::UpdateInfo& info,
+  gz::sim::EntityComponentManager& ecm)
 {
   // Update the previous simulation step time
   prev_sim_time_ = info.simTime;
@@ -247,7 +249,7 @@ void GazeboRotorPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::Enti
   updateJointState(ecm, dt);
 }
 
-void GazeboRotorPlugin::registerROSInterfaces()
+void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
 {
   const auto suffix = to_string(channel_);
 
@@ -261,7 +263,7 @@ void GazeboRotorPlugin::registerROSInterfaces()
   break_ss_ = createService<BreakSrv>(kBreakRotorSrvPrefix + suffix, &self::breakCb, this);
 }
 
-void GazeboRotorPlugin::addModelError()
+void GazeboElectricPropulsionSystemPlugin::addModelError()
 {
   // 一様乱数を作成
   random_device rnd_dev;
@@ -278,7 +280,9 @@ void GazeboRotorPlugin::addModelError()
   rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
 }
 
-void GazeboRotorPlugin::applyWrench(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time)
+void GazeboElectricPropulsionSystemPlugin::applyWrench(
+  gz::sim::EntityComponentManager& ecm,
+  const steady_clock::duration& cur_time)
 {
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
@@ -352,7 +356,7 @@ void GazeboRotorPlugin::applyWrench(gz::sim::EntityComponentManager& ecm, const 
   state_gt_pub_->publish(move(state_msg_gt));
 }
 
-void GazeboRotorPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
+void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, double dt)
 {
   // モータダイナミクスの係数 (memo: 2-78)
   const auto a = 2. * L_KV * moment_const_ * motor_const_;
@@ -390,7 +394,7 @@ void GazeboRotorPlugin::updateJointState(gz::sim::EntityComponentManager& ecm, d
   joint_->SetVelocity(ecm, { velocity_ / kRotorSpeedSlowdownSim });
 }
 
-void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
+void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
   if (battery_gt_ == nullptr || battery_gt_->voltage < kMinBatteryVoltage)
@@ -409,12 +413,12 @@ void GazeboRotorPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::Co
   throttle_ = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
-void GazeboRotorPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
+void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
 {
   battery_gt_ = battery_gt;
 }
 
-void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
+void GazeboElectricPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
 {
   vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
 
@@ -422,7 +426,9 @@ void GazeboRotorPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wi
     wind_received_ = true;
 }
 
-void GazeboRotorPlugin::breakCb(const BreakSrv::Request::ConstSharedPtr&, const BreakSrv::Response::SharedPtr& res)
+void GazeboElectricPropulsionSystemPlugin::breakCb(
+  const BreakSrv::Request::ConstSharedPtr&,
+  const BreakSrv::Response::SharedPtr& res)
 {
   if (is_intact_)
   {
@@ -440,7 +446,7 @@ void GazeboRotorPlugin::breakCb(const BreakSrv::Request::ConstSharedPtr&, const 
 }  // namespace gazebo
 
 GZ_ADD_PLUGIN(
-  gazebo::GazeboRotorPlugin,
+  gazebo::GazeboElectricPropulsionSystemPlugin,
   gz::sim::System,
-  gazebo::GazeboRotorPlugin::ISystemConfigure,
-  gazebo::GazeboRotorPlugin::ISystemPreUpdate)
+  gazebo::GazeboElectricPropulsionSystemPlugin::ISystemConfigure,
+  gazebo::GazeboElectricPropulsionSystemPlugin::ISystemPreUpdate)

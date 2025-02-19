@@ -202,7 +202,7 @@ void addGNSSPlugin(
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
 }
 
-void addRotorPlugin(
+void addElectricPropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,
   const string& ns,
   const string& link_name,
@@ -217,7 +217,8 @@ void addRotorPlugin(
   double max_current,
   double max_model_error_rate)
 {
-  const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_rotor_plugin", "gazebo::GazeboRotorPlugin");
+  const auto plugin = util::addGazeboPlugin(
+    robot, "tobas_gazebo_electric_propulsion_system_plugin", "gazebo::GazeboElectricPropulsionSystemPlugin");
   plugin->InsertNewChildElement("robotNamespace")->SetText(ns.c_str());
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("channel")->SetText(channel);

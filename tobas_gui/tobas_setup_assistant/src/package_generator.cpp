@@ -823,7 +823,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
     const auto propeller = propulsion->propeller();
     const auto aero = propulsion->aerodynamics();
 
-    addRotorPlugin(
+    addElectricPropulsionSystemPlugin(
       robot, ns, link_name, general->channel(), motor->kv(), motor->internalResistance(), propeller->numBlade(),
       aero->motorConst(), aero->momentConst(), aero->rotorDragCoef(), general->direction(), esc->maxCurrent(),
       sim->maxModelErrorRate());
