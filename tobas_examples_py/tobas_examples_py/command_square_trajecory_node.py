@@ -3,8 +3,8 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
-from tobas_msgs.msg import PosVelAccYaw
-from tobas_msgs.action import Takeoff
+from tobas_command_msgs.msg import PosVelAccYaw
+from tobas_mission_msgs.action import Takeoff
 
 
 class CommandSquareTrajectoryNode(Node):
