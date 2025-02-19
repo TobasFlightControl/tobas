@@ -4,7 +4,7 @@
 class UserNode : public rclcpp::Node
 {
 public:
-  explicit UserNode(const rclcpp::NodeOptions& options);
+  explicit UserNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
 };
