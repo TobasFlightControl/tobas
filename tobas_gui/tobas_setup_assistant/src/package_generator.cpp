@@ -706,14 +706,20 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
 {
   if (strcmp(elem->Name(), "mesh") == 0)
   {
-    const auto filename = elem->Attribute("filename");
-    if (filename == nullptr)
+    const auto file_name = elem->Attribute("filename");
+    if (file_name == nullptr)
     {
       qt::qErrorBox(settings_, "Mesh element does not have attribute: \"filename\"");
       return false;
     }
 
-    const auto src_path = ros2::resolveURI(filename);
+    const auto src_path = ros2::resolveURI(file_name);
+    if (!fs::exists(src_path))
+    {
+      qt::qErrorBox(settings_, "Mesh file " + QString::fromStdString(src_path) + " does not exist.");
+      return false;
+    }
+
     const auto base_name = src_path.filename();
     const auto dst_path = mesh_dir / base_name;
     if (src_path != dst_path)
@@ -740,8 +746,8 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
       // package://<pkg_name>の書式だとIgnitionが発見できないため，絶対パスに置換できるようxacroコマンドを埋め込む．
       // cf. https://github.com/moveit/moveit_resources/blob/ros2/panda_description/urdf/panda.urdf.xacro
       const auto config_pkg_name = common::getTBSConfigName(tbsPath());
-      const auto new_filename = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
-      elem->SetAttribute("filename", new_filename.c_str());
+      const auto new_file_name = "file://$(find " + config_pkg_name + ")/meshes/" + base_name.string();
+      elem->SetAttribute("filename", new_file_name.c_str());
     }
   }
 
