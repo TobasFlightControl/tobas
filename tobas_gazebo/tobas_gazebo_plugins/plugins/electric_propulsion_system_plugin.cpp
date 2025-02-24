@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <gz/sim/Model.hh>
 #include <gz/sim/Joint.hh>
 #include <gz/sim/Link.hh>
@@ -34,7 +33,7 @@ namespace cmp = gz::sim::components;
 
 namespace gazebo
 {
-/* Simulates ESC, rotor and ropeller. */
+/* Simulates ESC, rotor and propeller. */
 class GazeboElectricPropulsionSystemPlugin : public BaseNode,
                                              public gz::sim::System,
                                              public gz::sim::ISystemConfigure,
