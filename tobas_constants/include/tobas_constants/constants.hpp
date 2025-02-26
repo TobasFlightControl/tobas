@@ -57,6 +57,7 @@ static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 static constexpr char kEngineThrottleCmdTopic[] = "command/engine_throttle";
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
+static constexpr char kPropellerPitchesCmdTopic[] = "command/propeller_pitch_angles";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 static constexpr char kRateThrottleCmdTopic[] = "command/rate_throttle";
