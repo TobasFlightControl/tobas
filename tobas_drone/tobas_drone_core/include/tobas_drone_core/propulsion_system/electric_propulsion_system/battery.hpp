@@ -12,10 +12,10 @@ class BatteryConfig
   static constexpr char kMaxCurrentKey[] = "max_current";
 
 public:
-  double nominal_voltage = 0.;  // [V]
-  double max_voltage = 0.;      // [V]
-  double sag_voltage = 0.;      // [V]
-  double max_current = 0.;      // [A]
+  double nominal_voltage = 0.;  // 公称電圧 [V]
+  double max_voltage = 0.;      // フルチャージ時の電圧 [V]
+  double sag_voltage = 0.;      // 放電特性が急激に変化する電圧 [V]
+  double max_current = 0.;      // 最大連続電流 [A]
 
   bool isValid() const;
 

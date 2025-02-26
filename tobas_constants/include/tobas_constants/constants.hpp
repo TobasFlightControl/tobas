@@ -26,6 +26,7 @@ static constexpr char kDroneTopic[] = "drone";
 static constexpr char kKDLTreeTopic[] = "kdl_tree";
 static constexpr char kRobotDescriptionTopic[] = "robot_description";
 static constexpr char kBatteryTopic[] = "battery";
+static constexpr char kEngineStateTopic[] = "engine_state";
 static constexpr char kCPUTopic[] = "cpu";
 static constexpr char kRcInputTopic[] = "rc_input";
 static constexpr char kImuTopic[] = "imu";
@@ -53,6 +54,7 @@ static constexpr char kRosbagStateTopic[] = "rosbag_state";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Command
+static constexpr char kEngineThrottleCmdTopic[] = "command/engine_throttle";
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";

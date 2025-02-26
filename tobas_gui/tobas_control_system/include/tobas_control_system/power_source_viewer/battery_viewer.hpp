@@ -34,9 +34,12 @@ private:
   qt::HPositionBarWidget* voltage_;
   qt::HPositionBarWidget* current_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
 
-  void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& batt);
+  void updateVoltage(const double& voltage);
+  void updateCurrent(const double& current);
+
+  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
 };
 }  // namespace gcs
 }  // namespace gui

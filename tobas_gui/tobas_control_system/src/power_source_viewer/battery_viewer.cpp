@@ -2,11 +2,12 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
-#include "tobas_control_system/battery_viewer.hpp"
+#include "tobas_control_system/power_source_viewer/battery_viewer.hpp"
 
 namespace gui
 {
@@ -53,31 +54,47 @@ void BatteryViewerWidget::updateInternalDataStructures()
     current_->setMinimum(0.);
     current_->setMaximum(eprop_->battery.max_current);
 
-    batt_sub_ = ros2::createSubscriber(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::battCb, this);
+    battery_sub_ = ros2::createSubscriber(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::batteryCb, this);
   }
   else
   {
     eprop_ = nullptr;
-    batt_sub_ = nullptr;
+    battery_sub_ = nullptr;
   }
 }
 
-void BatteryViewerWidget::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& batt)
+void BatteryViewerWidget::updateVoltage(const double& voltage)
 {
-  const auto volt_rate = math::remap(batt->voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0., 100.);
-  voltage_->setUpper(batt->voltage);
-  voltage_->setText(std::format("{:.2f} V ({:.0f} %)", batt->voltage, volt_rate).c_str());
+  const auto volt_rate = math::remap(voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0., 100.);
+  voltage_->setUpper(voltage);
+  voltage_->setText(std::format("{:.2f} V ({:.0f} %)", voltage, volt_rate).c_str());
 
-  current_->setUpper(batt->current);
-  current_->setText(std::format("{:.2f} A", batt->current).c_str());
-
-  if (volt_rate < 10.)
-    voltage_->setFillColor(Qt::red);
-  else if (volt_rate < 20.)
+  if (volt_rate > 20.)
+    voltage_->setFillColor(Qt::green);
+  else if (volt_rate > 10.)
     voltage_->setFillColor(Qt::yellow);
   else
-    voltage_->setFillColor(Qt::green);
+    voltage_->setFillColor(Qt::red);
+}
+
+void BatteryViewerWidget::updateCurrent(const double& current)
+{
+  current_->setUpper(current);
+  current_->setText(std::format("{:.2f} A", current).c_str());
+
+  if (current < eprop_->battery.max_current * 0.6)
+    current_->setFillColor(Qt::green);
+  else if (current < eprop_->battery.max_current * 0.8)
+    current_->setFillColor(Qt::yellow);
+  else
+    current_->setFillColor(Qt::red);
+}
+
+void BatteryViewerWidget::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+{
+  updateVoltage(battery->voltage);
+  updateCurrent(battery->current);
 }
 }  // namespace gcs
 }  // namespace gui

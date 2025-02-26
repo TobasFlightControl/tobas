@@ -1,9 +1,7 @@
 #pragma once
 
-#include <tobas_drone_core/drone.hpp>
-
 #include "./pose_viewer.hpp"
-#include "./battery_viewer.hpp"
+#include "./power_source_viewer/power_source_viewer.hpp"
 #include "./cpu_viewer.hpp"
 #include "./rcin_viewer/rcin_viewer.hpp"
 #include "./rotors_viewer/rotors_viewer.hpp"
@@ -26,11 +24,10 @@ public:
   void updateInternalDataStructures();
 
 private:
-  const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
 
   PoseViewerWidget* pose_viewer_;
-  BatteryViewerWidget* battery_viewer_;
+  PowerSourceViewerWidget* power_source_viewer_;
   CPUViewerWidget* cpu_viewer_;
   rcin::RCInputViewerWidget* rcin_viewer_;
   RotorsViewerWiddget* rotors_viewer_;
