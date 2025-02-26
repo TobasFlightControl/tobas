@@ -8,7 +8,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 #include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
@@ -22,6 +21,7 @@
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
+#include "../include/tobas_gazebo_plugins/sdf.hpp"
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
 // 実機の時定数がシミュレーションよりも大きくならないように想定しうる最大値に設定する．
@@ -131,8 +131,8 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_electric_propulsion_system_plugin_" + link_name_, sdf);
   getSdfParams(sdf);
+  initialize("gazebo_electric_propulsion_system_plugin_" + link_name_, sdf);
 
   publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
   addModelError();
@@ -159,11 +159,10 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
     TOBAS_EXIT("Joint \"", joint_name, "\" is not a rotating joint.");
 
   // Get child link
-  const auto link_name = joint_->ChildLinkName(ecm).value();
-  const auto link_entity = model.LinkByName(ecm, link_name);
+  const auto link_entity = model.LinkByName(ecm, link_name_);
   link_ = make_shared<gz::sim::Link>(link_entity);
   if (!link_->Valid(ecm))
-    TOBAS_EXIT("Failed to find the child link \"", link_name, "\".");
+    TOBAS_EXIT("Failed to find the child link \"", link_name_, "\".");
 
   // Get parent link
   const auto parent_link_name = joint_->ChildLinkName(ecm).value();
@@ -178,9 +177,9 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   if (!getComponent<cmp::JointVelocity>(joint_entity.value(), ecm))
     TOBAS_EXIT("Failed to get component JointVelocity of joint \"", joint_name, "\".");
   if (!getComponent<cmp::WorldPose>(link_entity, ecm))
-    TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name, "\".");
+    TOBAS_EXIT("Failed to get component WorldPose of link \"", link_name_, "\".");
   if (!getComponent<cmp::WorldLinearVelocity>(link_entity, ecm))
-    TOBAS_EXIT("Failed to get component WorldLinearVelocity of link \"", link_name, "\".");
+    TOBAS_EXIT("Failed to get component WorldLinearVelocity of link \"", link_name_, "\".");
 
   // Register ROS interfaces
   registerROSInterfaces();
@@ -198,9 +197,8 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
   getSdfParam(sdf, "momentConstant", moment_const_, POSITIVE);
   getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
 
-  int turning_direction;
-  getSdfParam(sdf, "turningDirection", turning_direction);
-  direction_ = tobas::sign(static_cast<tobas::turning_direction_t>(turning_direction));
+  if (!getTurningDirection(sdf, direction_))
+    TOBAS_EXIT("Failed to get turning direction.");
 
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
 
