@@ -130,6 +130,7 @@ protected:
 
   template <typename T>
   void checkConstraint(const std::string& name, const T& param, const sdf_constr_t& constr) const;
+
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const;
   template <typename T>
@@ -146,6 +147,8 @@ protected:
     const sdf_constr_t& constr) const;
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
+  template <typename T>
+  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param) const;
 
 private:
   std::string name_;
@@ -412,5 +415,15 @@ void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& n
     params.push_back(value);
     item_elem = item_elem->GetNextElement("item");
   }
+}
+
+template <typename T>
+void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param) const
+{
+  gz::math::Vector2<T> tmp;
+  getSdfParam(sdf, name, tmp);
+
+  param.first = tmp.X();
+  param.second = tmp.Y();
 }
 }  // namespace gazebo
