@@ -3,6 +3,8 @@
 #include <tinyxml2.h>
 
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
+#include <tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp>
 
 #include "./robot_info.hpp"
 #include "./settings.hpp"
@@ -39,7 +41,10 @@ private:
   std::string flightActionsPackage() const;
 
   inja::json createTemplateData();
+
   tobas::Drone createDrone();
+  tobas::ElectricPropulsionSystemConfig::SharedPtr createElectricPropulsionSystem();
+  tobas::ICEPropulsionSystemConfig::SharedPtr createICEPropulsionSystem();
 
   bool hasServoJoint() const;
 

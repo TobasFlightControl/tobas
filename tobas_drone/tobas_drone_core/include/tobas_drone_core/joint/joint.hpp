@@ -29,6 +29,7 @@ public:
   double home_pos = 0.;  // [rad | m]
 
   bool isValid() const;
+
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
 

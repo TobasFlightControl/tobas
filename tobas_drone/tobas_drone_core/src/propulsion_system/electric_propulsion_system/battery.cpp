@@ -1,6 +1,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../include/tobas_drone_core/battery.hpp"
+#include "tobas_drone_core/propulsion_system/electric_propulsion_system/battery.hpp"
 
 using namespace std;
 
@@ -8,27 +8,27 @@ namespace tobas
 {
 bool BatteryConfig::isValid() const
 {
-  if (sag_voltage <= 0)
+  if (sag_voltage <= 0.)
   {
-    cerr << "Sag voltage must be positive." << endl;
+    cerr << "Battery sag voltage must be positive." << endl;
     return false;
   }
 
   if (nominal_voltage <= sag_voltage)
   {
-    cerr << "Nominal voltage must be greater than sag voltage." << endl;
+    cerr << "Battery nominal voltage must be greater than sag voltage." << endl;
     return false;
   }
 
   if (max_voltage <= nominal_voltage)
   {
-    cerr << "Max voltage must be greater than nominal voltage." << endl;
+    cerr << "Battery max voltage must be greater than nominal voltage." << endl;
     return false;
   }
 
-  if (max_current <= 0)
+  if (max_current <= 0.)
   {
-    cerr << "Max current must be positive." << endl;
+    cerr << "Battery max current must be positive." << endl;
     return false;
   }
 

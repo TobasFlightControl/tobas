@@ -2,7 +2,7 @@
 
 #include <rclcpp/type_adapter.hpp>
 
-#include <tobas_drone_core/battery.hpp>
+#include <tobas_drone_core/propulsion_system/electric_propulsion_system/battery.hpp>
 #include <tobas_drone_msgs/msg/battery_config.hpp>
 
 template <>

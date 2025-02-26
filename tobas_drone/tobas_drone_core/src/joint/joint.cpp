@@ -1,11 +1,19 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../../include/tobas_drone_core/joint/joint.hpp"
+#include "tobas_drone_core/joint/joint.hpp"
+
+using namespace std;
 
 namespace tobas
 {
 bool JointConfig::isValid() const
 {
+  if (name.empty())
+  {
+    cerr << "Joint name is empty." << endl;
+    return false;
+  }
+
   return true;
 }
 

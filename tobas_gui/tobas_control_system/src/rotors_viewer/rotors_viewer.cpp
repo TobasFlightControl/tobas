@@ -30,13 +30,13 @@ void RotorsViewerWiddget::updateInternalDataStructures()
   meters_.clear();
   qt::clearLayout(cols_);
 
-  for (const auto& [_, rotor] : drone_.rotors)
+  for (const auto& [link_name, rotor] : drone_.prop->rotors)
   {
     const auto meter = new SpeedmeterWidget();
-    meter->setMaximumValue(tobas_std::rps2rpm(rotor.max_rot_speed));
-    meter->setTopText(QString::fromStdString(rotor.link_name));
+    meter->setMaximumValue(tobas_std::rps2rpm(drone_.prop->maxSpeed(link_name)));
+    meter->setTopText(QString::fromStdString(link_name));
 
-    meters_[rotor.channel] = meter;
+    meters_[link_name] = meter;
     cols_->addWidget(meter);
   }
 
@@ -49,9 +49,9 @@ void RotorsViewerWiddget::updateInternalDataStructures()
     this);
 }
 
-void RotorsViewerWiddget::setSpeed(size_t channel, double rps)
+void RotorsViewerWiddget::setSpeed(const std::string& link_name, const double& rps)
 {
-  const auto& meter = meters_.at(channel);
+  const auto& meter = meters_.at(link_name);
   const auto rpm = static_cast<int>(tobas_std::rps2rpm(rps));
   meter->setValue(rpm);
   meter->setBottomText(bottomText(rpm));
@@ -61,13 +61,13 @@ void RotorsViewerWiddget::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::
 {
   for (const auto& state : msg->states)
   {
-    if (!meters_.contains(state.channel))
+    if (!meters_.contains(state.link_name))
       continue;
 
-    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+    if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
       continue;
 
-    setSpeed(state.channel, state.speed);
+    setSpeed(state.link_name, state.speed);
   }
 }
 
@@ -75,10 +75,10 @@ void RotorsViewerWiddget::rotorLivelinessCb(const tobas_msgs::msg::RotorLiveline
 {
   for (const auto& liveliness : msg->data)
   {
-    if (!meters_.contains(liveliness.channel))
+    if (!meters_.contains(liveliness.link_name))
       continue;
 
-    const auto& meter = meters_.at(liveliness.channel);
+    const auto& meter = meters_.at(liveliness.link_name);
 
     if (liveliness.alive)
       meter->setBackgroundColor(kAliveBackgroundColor);

@@ -5,9 +5,10 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/unit_conversions.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
-#include <tobas_drone_core/rotor/turning_direction.hpp>
+#include <tobas_drone_core/propulsion_system/turning_direction.hpp>
 #include <tobas_msgs/msg/rotor_state.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs_adapter/wind.hpp>
@@ -66,7 +67,6 @@ public:
 private:
   // SDF parameters
   string link_name_;
-  size_t channel_;
   double kv_;                    // [rad/s/V]
   double resistance_;            // [Ω]
   size_t num_blades_;            // [-]
@@ -131,7 +131,7 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
-  initialize("gazebo_electric_propulsion_system_plugin_" + to_string(channel_), sdf);
+  initialize("gazebo_electric_propulsion_system_plugin_" + link_name_, sdf);
   getSdfParams(sdf);
 
   publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
@@ -189,7 +189,6 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
 void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "channel", channel_);
 
   getSdfParam(sdf, "kv", kv_, POSITIVE);
   getSdfParam(sdf, "internalResistance", resistance_, POSITIVE);
@@ -241,7 +240,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
 
   // Check aliasing
   if (fabs(velocity_ * dt) > M_PI)
-    TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor [", channel_, "] might occur. Lower simulation time step.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
 
   // Update simulation state
   applyWrench(ecm, info.simTime);
@@ -250,16 +249,14 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
 
 void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
 {
-  const auto suffix = to_string(channel_);
+  state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
+  state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
 
-  state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(kRotorStateTopicPrefix + suffix);
-  state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(kRotorStateGtTopicPrefix + suffix);
-
-  throttle_sub_ = createSubscriber(kThrottleTopicPrefix + suffix, &self::throttleCmdCb, this);
+  throttle_sub_ = createSubscriber(path::join(kThrottleTopicNS, link_name_), &self::throttleCmdCb, this);
   battery_gt_sub_ = createSubscriber(kBatteryGtTopic, &self::batteryGtCb, this);
   wind_gt_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedGtCb, this);
 
-  break_ss_ = createService<BreakSrv>(kBreakRotorSrvPrefix + suffix, &self::breakCb, this);
+  break_ss_ = createService<BreakSrv>(path::join(kBreakRotorSrvNS, link_name_), &self::breakCb, this);
 }
 
 void GazeboElectricPropulsionSystemPlugin::addModelError()
@@ -316,7 +313,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrench(
   if (current > max_current_)
   {
     TOBAS_ERROR(
-      "The ESC of rotor ", channel_, " is critically damaged due to an overcurrent of ", current,
+      "The ESC of rotor \"", link_name_, "\" is critically damaged due to an overcurrent of ", current,
       " A, which exceeded its maximum current capacity of ", max_current_, " A.");
     is_intact_ = false;
     throttle_ = 0.;
@@ -327,18 +324,18 @@ void GazeboElectricPropulsionSystemPlugin::applyWrench(
   if (publish_state_rate_manager_->update(cur_time))
   {
     auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
-    state_msg_obs->channel = channel_;
+    state_msg_obs->link_name = link_name_;
     if (is_intact_)
     {
       state_msg_obs->speed = direction_ * velocity_;
-      state_msg_obs->current = current;
-      state_msg_obs->status = tobas_msgs::msg::RotorState::ALL_FIELDS_READY;
+      state_msg_obs->thrust = thrust;
+      state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
     }
     else
     {
       state_msg_obs->speed = NAN;
-      state_msg_obs->current = NAN;
-      state_msg_obs->status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+      state_msg_obs->thrust = NAN;
+      state_msg_obs->status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
     }
     state_pub_->publish(move(state_msg_obs));
   }
@@ -433,11 +430,11 @@ void GazeboElectricPropulsionSystemPlugin::breakCb(
   {
     is_intact_ = false;
     throttle_ = 0.;
-    res->message = "Rotor " + to_string(channel_) + " has been broken.";
+    res->message = "Rotor \"" + link_name_ + "\" has been broken.";
   }
   else
   {
-    res->message = "Rotor " + to_string(channel_) + " is already broken.";
+    res->message = "Rotor \"" + link_name_ + "\" is already broken.";
   }
 
   res->success = true;

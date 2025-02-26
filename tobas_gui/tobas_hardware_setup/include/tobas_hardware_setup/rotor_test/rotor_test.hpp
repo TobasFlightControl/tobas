@@ -9,6 +9,7 @@
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_drone_core/drone.hpp>
+#include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
@@ -49,6 +50,7 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
+  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
 
   QPushButton* start_button_;
   QPushButton* stop_button_;

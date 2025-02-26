@@ -17,31 +17,34 @@ public:
   bool updateInternalDataStructures() override;
 
   inline size_t count() const;
-  inline const RotorConfig& rotor(size_t idx) const;
 
-  /* 各ロータの回転数から合計推力を求める． */
-  double thrustSum(const std::vector<double>& rot_speeds) const;
+  inline const std::string& linkName(size_t idx) const;
+  inline RotorConfig::ConstSharedPtr rotor(size_t idx) const;
 
-  /* スロットル [0,1] から合計推力を求める． */
-  double thrustSum(const double& battery_voltage, const double& throttle);
+  double maxThrustSum() const;
 
 private:
   const Drone& drone_;
   const rotor_axis_t axis_;
 
-  std::vector<size_t> channels_;
+  std::vector<std::string> link_names_;
 
   void initialize();
 };
 
 inline size_t RotorAxisExtractor::count() const
 {
-  return channels_.size();
+  return link_names_.size();
 }
 
-inline const RotorConfig& RotorAxisExtractor::rotor(size_t idx) const
+inline const std::string& RotorAxisExtractor::linkName(size_t idx) const
 {
-  const auto& channel = channels_.at(idx);
-  return drone_.rotors.at(channel);
+  assert(idx < count());
+  return link_names_[idx];
+}
+
+inline RotorConfig::ConstSharedPtr RotorAxisExtractor::rotor(size_t idx) const
+{
+  return drone_.prop->rotors.at(linkName(idx));
 }
 }  // namespace tobas

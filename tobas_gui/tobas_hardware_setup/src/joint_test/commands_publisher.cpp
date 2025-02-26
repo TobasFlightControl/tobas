@@ -3,6 +3,7 @@
 
 #include <tobas_std_tools/check.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 
 #include "tobas_hardware_setup/joint_test/commands_publisher.hpp"

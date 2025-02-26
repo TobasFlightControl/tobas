@@ -15,7 +15,6 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_dsp REQUIRED)
 find_package(tobas_node REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
-find_package(tobas_drone_msgs_adapter REQUIRED)
 
 include_directories(include)
 
@@ -25,7 +24,6 @@ ament_target_dependencies(${PROJECT_NAME}_node
 	tobas_dsp
 	tobas_node
 	tobas_msgs_adapter
-	tobas_drone_msgs_adapter
 )
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ImuPreprocessNode" EXECUTABLE imu_preprocess)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "MagPreprocessNode" EXECUTABLE mag_preprocess)

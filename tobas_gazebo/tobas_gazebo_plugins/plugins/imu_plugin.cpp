@@ -1,5 +1,6 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
+#include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
@@ -67,7 +68,7 @@ private:
   double gyro_random_walk_;         // Gyro bias random walk [rad/s/s/√Hz]
   double gyro_bias_corr_time_;      // Gyro bias correlation time constant [s]
   double gyro_turn_on_bias_sigma_;  // Gyro turn on bias standard deviation [rad/s]
-  vector<size_t> rotor_channels_;
+  vector<string> rotor_link_names_;
 
   const cmp::WorldPose* pose_W_;
   const cmp::LinearAcceleration* acc_B_;
@@ -81,7 +82,7 @@ private:
   gz::math::Vector3d gyro_bias_ = gz::math::Vector3d::Zero;
   gz::math::Vector3d acc_turn_on_bias_;
   gz::math::Vector3d gyro_turn_on_bias_;
-  map<size_t, double> rotor_noises_;  // [N] 各モータで発生する周波数ノイズ
+  map<string, double> rotor_noises_;  // [N] 各モータで発生する周波数ノイズ
 
   std::random_device rnd_dev_;
   std::mt19937 rnd_gen_;
@@ -138,12 +139,12 @@ void GazeboImuPlugin::Configure(
   debug_pub_ = createPublisher<tobas_gazebo_msgs::msg::ImuDebug>(kDebugPubTopic);
 
   // モータ状態のコールバックとサブスクライバを設定
-  for (const auto& ch : rotor_channels_)
+  for (const auto& link_name : rotor_link_names_)
   {
-    const auto topic = kRotorStateGtTopicPrefix + to_string(ch);
+    const auto topic = path::join(kRotorStateGtTopicNS, link_name);
     const auto qos = ros2::makeQoS(false, false, 1);
-    const auto cb = [this, ch](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
-    { rotor_noises_[ch] = msg->rotor_noise; };
+    const auto cb = [this, link_name](const tobas_gazebo_msgs::msg::RotorState::ConstSharedPtr& msg)
+    { rotor_noises_[link_name] = msg->rotor_noise; };
     const auto sub = node_->create_subscription<tobas_gazebo_msgs::msg::RotorState>(topic, qos, cb);
     rotor_state_subs_.push_back(sub);
   }
@@ -167,7 +168,7 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, kDefaultGyroBiasCorrTime, POSITIVE);
   getSdfParam(sdf, "gyroTurnOnBiasSigma", gyro_turn_on_bias_sigma_, kDefaultGyroTurnOnBiasSigma, POSITIVE);
 
-  getSdfParam(sdf, "rotorChannels", rotor_channels_);
+  getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
@@ -175,11 +176,11 @@ void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim:
   if (!rate_manager_->update(info.simTime))
     return;
 
-  if (rotor_noises_.size() < rotor_channels_.size())
+  if (rotor_noises_.size() < rotor_link_names_.size())
   {
     if (info.simTime > kWarnStartTime)
     {
-      const auto num_not_received = rotor_channels_.size() - rotor_noises_.size();
+      const auto num_not_received = rotor_link_names_.size() - rotor_noises_.size();
       TOBAS_WARN_THROTTLE(kWarnPeriod, to_string(num_not_received), " rotor states are not received yet.");
     }
   }

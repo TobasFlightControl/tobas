@@ -1,0 +1,5 @@
+tobas_drone_msgs/RotorConfig rotor
+
+uint32 gear_ratio
+tobas_std_msgs/RangeFloat64 pitch_range
+tobas_std_msgs/PairFloat64 motor_const

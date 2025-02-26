@@ -2,6 +2,7 @@
 
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
+#include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/label.hpp>
 #include <tobas_qt_tools/layouts/form_layout.hpp>
 
@@ -40,21 +41,31 @@ void BatteryViewerWidget::updateInternalDataStructures()
 {
   reset();
 
-  voltage_->setLower(drone_.battery.sag_voltage);
-  voltage_->setMinimum(drone_.battery.sag_voltage);
-  voltage_->setMaximum(drone_.battery.max_voltage);
+  if (drone_.prop->type() == tobas::propulsion_system_t::ELECTRIC)
+  {
+    eprop_ = std::dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
 
-  current_->setLower(0.);
-  current_->setMinimum(0.);
-  current_->setMaximum(drone_.battery.max_current);
+    voltage_->setLower(eprop_->battery.sag_voltage);
+    voltage_->setMinimum(eprop_->battery.sag_voltage);
+    voltage_->setMaximum(eprop_->battery.max_voltage);
 
-  batt_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::battCb, this);
+    current_->setLower(0.);
+    current_->setMinimum(0.);
+    current_->setMaximum(eprop_->battery.max_current);
+
+    batt_sub_ = ros2::createSubscriber(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kBatteryTopic), &self::battCb, this);
+  }
+  else
+  {
+    eprop_ = nullptr;
+    batt_sub_ = nullptr;
+  }
 }
 
 void BatteryViewerWidget::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& batt)
 {
-  const auto volt_rate = math::remap(batt->voltage, drone_.battery.sag_voltage, drone_.battery.max_voltage, 0., 100.);
+  const auto volt_rate = math::remap(batt->voltage, eprop_->battery.sag_voltage, eprop_->battery.max_voltage, 0., 100.);
   voltage_->setUpper(batt->voltage);
   voltage_->setText(std::format("{:.2f} V ({:.0f} %)", batt->voltage, volt_rate).c_str());
 

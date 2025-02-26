@@ -130,7 +130,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   if (tree_.getNrOfJoints() == 0)
     return;
 
-  if (drone_.numRotors() == 0)
+  if (drone_.prop->numRotors() == 0)
     return;
 
   if (rotor_states_ == nullptr)
@@ -176,29 +176,27 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   kdl::Vector rot_sum = kdl::Vector::Zero();
   for (const auto& rotor_state : rotor_states_->states)
   {
-    if (rotor_state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+    if (rotor_state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
     {
       TOBAS_WARN_THROTTLE(
-        tobas::kTypicalWarnPeriod, "No communication with rotor channel ", (int)rotor_state.channel,
-        ". Its rotation speed is estimated to 0.");
+        tobas::kTypicalWarnPeriod, "No communication with rotor \"", rotor_state.link_name,
+        "\". Its rotation speed is estimated to 0.");
     }
     else
     {
-      const auto& rotor = drone_.rotors.at(rotor_state.channel);
+      const auto& rotor = drone_.prop->rotors.at(rotor_state.link_name);
 
-      const auto elem = tree_.getSegment(rotor.link_name)->second;
+      const auto elem = tree_.getSegment(rotor->link_name)->second;
       const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
       const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
-      const auto thrust = rotor.thrustFromRotSpeed(rotor_state.speed);
-
-      const auto d = rotor.sign();
-      const auto& cm = rotor.moment_constant;
-      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
+      const auto d = rotor->sign();
+      const auto& cm = rotor->moment_const;
+      const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
       const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
 
-      trans_sum += axis_B * thrust;
-      rot_sum += (B_Pos_G2P * axis_B - (d * cm) * axis_B) * thrust;
+      trans_sum += axis_B * rotor_state.thrust;
+      rot_sum += (B_Pos_G2P * axis_B - (d * cm) * axis_B) * rotor_state.thrust;
     }
   }
 

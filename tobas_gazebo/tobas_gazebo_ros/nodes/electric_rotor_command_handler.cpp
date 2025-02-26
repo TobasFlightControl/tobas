@@ -1,3 +1,4 @@
+#include <tobas_path_tools/join.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -12,21 +13,21 @@
 
 using namespace std;
 
-class RotorCommandHandlerNode : public tobas::BaseNode
+class ElectricRotorCommandHandlerNode : public tobas::BaseNode
 {
-  using self = RotorCommandHandlerNode;
+  using self = ElectricRotorCommandHandlerNode;
   using super = tobas::BaseNode;
 
 public:
-  explicit RotorCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  explicit ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
   bool is_armed_ = false;
-  tobas::Drone::ConstSharedPtr drone_;
+  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
-  map<uint8_t, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
+  map<string, ros2::PublisherPtr<tobas_gazebo_msgs::msg::Throttle>> throttle_pubs_;
   ros2::PublisherPtr<tobas_msgs::msg::Arming> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
@@ -50,8 +51,8 @@ private:
     const tobas_msgs::srv::SetArm::Response::SharedPtr& res);
 };
 
-RotorCommandHandlerNode::RotorCommandHandlerNode(const rclcpp::NodeOptions& options)
-  : super("gazebo_rotor_command_handler", options)
+ElectricRotorCommandHandlerNode::ElectricRotorCommandHandlerNode(const rclcpp::NodeOptions& options)
+  : super("gazebo_electric_rotor_command_handler", options)
 {
   arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
 
@@ -65,7 +66,7 @@ RotorCommandHandlerNode::RotorCommandHandlerNode(const rclcpp::NodeOptions& opti
   publish_arm_status_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this);
 }
 
-void RotorCommandHandlerNode::publishArming()
+void ElectricRotorCommandHandlerNode::publishArming()
 {
   auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
   arming_msg->header.stamp = get_clock()->now();
@@ -73,26 +74,41 @@ void RotorCommandHandlerNode::publishArming()
   arming_pub_->publish(move(arming_msg));
 }
 
-void RotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
+void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  throttle_pubs_.clear();
-  for (const auto& [channel, _] : drone->rotors)
+  if (drone->prop == nullptr)
+    return;
+
+  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
   {
-    const auto topic = gazebo::kThrottleTopicPrefix + to_string(channel);
-    throttle_pubs_[channel] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
+    TOBAS_WARN("Only supports electric propulsion system.");
+    return;
   }
 
-  drone_ = drone;
+  eprop_ = dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
+
+  throttle_pubs_.clear();
+  for (const auto& [link_name, _] : eprop_->rotors)
+  {
+    const auto topic = path::join(gazebo::kThrottleTopicNS, link_name);
+    throttle_pubs_[link_name] = createPublisher<tobas_gazebo_msgs::msg::Throttle>(topic);
+  }
 }
 
-void RotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
+void ElectricRotorCommandHandlerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
   battery_ = battery;
 }
 
-void RotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
+void ElectricRotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
-  if (drone_ == nullptr)
+  if (!is_armed_)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the rotors are disarmed.");
+    return;
+  }
+
+  if (eprop_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone message is not received yet.");
     return;
@@ -105,29 +121,29 @@ void RotorCommandHandlerNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedAr
 
   for (const auto& speed : tar_speeds->speeds)
   {
-    // Check channel
-    if (!throttle_pubs_.contains(speed.channel))
+    // Check link name
+    if (!throttle_pubs_.contains(speed.link_name))
     {
-      TOBAS_ERROR("The drone does not have rotor channel ", speed.channel, ".");
+      TOBAS_ERROR("Electric rotor \"" + speed.link_name + "\" does not exist.");
       return;
     }
 
     // Create throttle message
     auto throttle = std::make_unique<tobas_gazebo_msgs::msg::Throttle>();
     throttle->header = tar_speeds->header;
-    throttle->data = drone_->rotors.at(speed.channel).throttleFromRotSpeed(speed.speed, battery_->voltage);  // FF項のみ
+    throttle->data = eprop_->getRotor(speed.link_name)->throttleFromSpeed(speed.speed, battery_->voltage);  // FF項のみ
 
     // Publish throttle message
-    throttle_pubs_.at(speed.channel)->publish(move(throttle));
+    throttle_pubs_.at(speed.link_name)->publish(move(throttle));
   }
 }
 
-void RotorCommandHandlerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
+void ElectricRotorCommandHandlerNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
 {
   prearm_check_ = prearm_check;
 }
 
-void RotorCommandHandlerNode::setArmCb(
+void ElectricRotorCommandHandlerNode::setArmCb(
   const tobas_msgs::srv::SetArm::Request::ConstSharedPtr& req,
   const tobas_msgs::srv::SetArm::Response::SharedPtr& res)
 {
@@ -164,4 +180,4 @@ void RotorCommandHandlerNode::setArmCb(
   res->success = true;
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(RotorCommandHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(ElectricRotorCommandHandlerNode)

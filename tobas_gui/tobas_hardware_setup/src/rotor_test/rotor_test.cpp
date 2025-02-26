@@ -2,6 +2,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
@@ -109,47 +110,75 @@ void RotorTestWidget::updateInternalDataStructures()
 {
   reset();
 
-  // モータとして登録されているチャンネルの設定
-  QSet<size_t> rotor_channels;
-  for (const auto& [channel, rotor] : drone_.rotors)
+  if (drone_.prop->type() == tobas::propulsion_system_t::ELECTRIC)
   {
-    rotor_channels.insert(channel);
+    eprop_ = std::dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(drone_.prop);
 
-    const auto text = "CH" + QString::number(channel) + ": " + QString::fromStdString(rotor.link_name);
-    rotor_widgets_.at(channel)->setText(text);
+    // モータとして登録されているチャンネルの設定
+    QSet<size_t> rotor_channels;
+    for (const auto& [link_name, _] : eprop_->rotors)
+    {
+      const auto erotor = eprop_->getRotor(link_name);
 
-    // XXX: 最大値がtickmarkStepSizeの整数倍じゃないとステップサイズが正しく反映されない
-    const auto max_rpm = tobas_std::rps2rpm(rotor.max_rot_speed);
-    rotor_widgets_.at(channel)->setMaximumRPM(max_rpm);
+      if (erotor->channel >= kChannelSize)
+      {
+        qt::qWarnBox(this, "Rotor channel " + QString::number(erotor->channel) + " is not supported.");
+        continue;
+      }
+
+      rotor_channels.insert(erotor->channel);
+
+      const auto text = "CH" + QString::number(erotor->channel) + ": " + QString::fromStdString(link_name);
+      rotor_widgets_.at(erotor->channel)->setText(text);
+
+      const auto max_rpm = tobas_std::rps2rpm(drone_.prop->maxSpeed(link_name));
+      rotor_widgets_.at(erotor->channel)->setMaximumRPM(max_rpm);
+    }
+
+    // モータとして登録されていないチャンネルの設定
+    for (size_t ch = 0; ch < kChannelSize; ++ch)
+    {
+      if (rotor_channels.contains(ch))
+        continue;
+
+      const auto text = "CH" + QString::number(ch) + ": unregistered";
+      rotor_widgets_.at(ch)->setText(text);
+    }
+
+    tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
+    cur_states_sub_ = ros2::createSubscriber(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::currentStatesCb,
+      this);
+    arming_sub_ = ros2::createSubscriber(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
+
+    set_arm_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetArmSrv));
+    get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kGetRotorControlGainsSrv));
+    set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetRotorControlGainsSrv));
+    save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
+      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSaveRotorControlGainsSrv));
+
+    setEnabled(true);
   }
-
-  // モータとして登録されていないチャンネルの設定
-  for (size_t ch = 0; ch < kChannelSize; ++ch)
+  else
   {
-    if (rotor_channels.contains(ch))
-      continue;
+    eprop_ = nullptr;
 
-    const auto text = "CH" + QString::number(ch) + ": unregistered";
-    rotor_widgets_.at(ch)->setText(text);
+    tar_speeds_pub_ = nullptr;
+    cur_states_sub_ = nullptr;
+    arming_sub_ = nullptr;
+
+    set_arm_sc_ = nullptr;
+    get_gains_sc_ = nullptr;
+    set_gains_sc_ = nullptr;
+    save_gains_sc_ = nullptr;
+
+    setEnabled(false);
   }
-
-  tar_speeds_pub_ = ros2::createPublisher<tobas_msgs::msg::RotorSpeedArray>(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorSpeedsCmdTopic));
-  cur_states_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kRotorStatesTopic), &self::currentStatesCb, this);
-  arming_sub_ = ros2::createSubscriber(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
-
-  set_arm_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetArmSrv));
-  get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kGetRotorControlGainsSrv));
-  set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetRotorControlGainsSrv));
-  save_gains_sc_ = std::make_shared<ros2::SyncServiceClient<std_srvs::srv::Trigger>>(
-    node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSaveRotorControlGainsSrv));
-
-  setEnabled(true);
 }
 
 void RotorTestWidget::publishTargetSppeds()
@@ -160,11 +189,13 @@ void RotorTestWidget::publishTargetSppeds()
   auto tar_speeds = std::make_unique<tobas_msgs::msg::RotorSpeedArray>();
   tar_speeds->header.stamp = node_->get_clock()->now();
 
-  for (const auto& [channel, _] : drone_.rotors)
+  for (const auto& [link_name, _] : drone_.prop->rotors)
   {
+    const auto erotor = eprop_->getRotor(link_name);
+
     tar_speeds->speeds.emplace_back();
-    tar_speeds->speeds.back().channel = channel;
-    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotor_widgets_.at(channel)->getTargetRPM());
+    tar_speeds->speeds.back().link_name = link_name;
+    tar_speeds->speeds.back().speed = tobas_std::rpm2rps(rotor_widgets_.at(erotor->channel)->getTargetRPM());
   }
 
   tar_speeds_pub_->publish(std::move(tar_speeds));
@@ -177,12 +208,11 @@ void RotorTestWidget::updateCurrentSpeeds()
 
   for (const auto& state : cur_states_->states)
   {
-    if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
-      continue;
-    if (state.channel >= rotor_widgets_.size())
+    if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
       continue;
 
-    rotor_widgets_.at(state.channel)->setCurrentRPM(tobas_std::rps2rpm(state.speed));
+    const auto erotor = eprop_->getRotor(state.link_name);
+    rotor_widgets_.at(erotor->channel)->setCurrentRPM(tobas_std::rps2rpm(state.speed));
   }
 }
 
@@ -197,14 +227,10 @@ bool RotorTestWidget::loadCurrentGains()
 
   const auto res = get_gains_sc_->getResponse();
   const auto& gains = res->gains;
-  for (const auto& [channel, _] : drone_.rotors)
+  for (const auto& [link_name, _] : eprop_->rotors)
   {
-    if (channel >= gains.size())
-    {
-      qt::qErrorBox(this, "Rotor channel " + QString::number(channel) + " is out of range.");
-      return false;
-    }
-    rotor_widgets_.at(channel)->setGain(gains.at(channel));
+    const auto erotor = eprop_->getRotor(link_name);
+    rotor_widgets_.at(erotor->channel)->setGain(gains.at(erotor->channel));
   }
 
   return true;
@@ -264,8 +290,11 @@ void RotorTestWidget::onStartButtonClicked()
     return;
 
   // モータウィジェットを有効化
-  for (const auto& [channel, _] : drone_.rotors)
-    rotor_widgets_.at(channel)->setEnabled(true);
+  for (const auto& [link_name, _] : eprop_->rotors)
+  {
+    const auto erotor = eprop_->getRotor(link_name);
+    rotor_widgets_.at(erotor->channel)->setEnabled(true);
+  }
 
   // 一定周期でコマンドの発行と状態の更新
   update_timer_.start(kUpdatePeriod);

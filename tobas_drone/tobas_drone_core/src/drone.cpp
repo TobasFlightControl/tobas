@@ -1,6 +1,8 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../include/tobas_drone_core/drone.hpp"
+#include "tobas_drone_core/drone.hpp"
+#include "tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp"
+#include "tobas_drone_core/propulsion_system/ice_propulsion_system/ice_propulsion_system.hpp"
 
 using namespace std;
 namespace fs = filesystem;
@@ -15,8 +17,14 @@ bool Drone::isValid() const
     return false;
   }
 
-  if (!battery.isValid())
-    return false;
+  for (const auto& [_, pwm] : pwms)
+  {
+    if (!pwm.isValid())
+    {
+      cerr << "The configurations of PWM channel " << pwm.channel << " are invalid." << endl;
+      return false;
+    }
+  }
 
   for (const auto& [_, joint] : joints)
   {
@@ -27,28 +35,21 @@ bool Drone::isValid() const
     }
   }
 
-  for (const auto& [_, rotor] : rotors)
+  if (prop == nullptr)
   {
-    if (!rotor.isValid())
-    {
-      cerr << "The configurations of rotor \"" << rotor.link_name << "\" are invalid." << endl;
-      return false;
-    }
+    cerr << "The configurations of propulsion system is null." << endl;
+    return false;
   }
-
-  if (!fixed_wing.isValid())
+  if (!prop->isValid())
   {
-    cerr << "The configurations of fixed wing are invalid." << endl;
+    cerr << "The configurations of propulsion system are invalid." << endl;
     return false;
   }
 
-  for (const auto& [_, pwm] : pwms)
+  if (fixed_wing != nullptr && !fixed_wing->isValid())
   {
-    if (!pwm.isValid())
-    {
-      cerr << "The configurations of PWM channel " << pwm.channel << " are invalid." << endl;
-      return false;
-    }
+    cerr << "The configurations of fixed wing are invalid." << endl;
+    return false;
   }
 
   return true;
@@ -59,18 +60,6 @@ bool Drone::load(const YAML::Node& node)
   // Name
   if (!yaml::load(kNameKey, node, name))
     return false;
-
-  // Battery
-  if (!node[kBatteryKey].IsMap())
-  {
-    cerr << "Battery field is not defined." << endl;
-    return false;
-  }
-  if (!battery.load(node[kBatteryKey]))
-  {
-    cerr << "Failed to load the configurations of battery." << endl;
-    return false;
-  }
 
   // Joints
   joints.clear();
@@ -88,36 +77,6 @@ bool Drone::load(const YAML::Node& node)
       return false;
     }
     joints[joint.name] = joint;
-  }
-
-  // Rotors
-  rotors.clear();
-  if (!node[kRotorsKey].IsSequence())
-  {
-    cerr << "Rotors field is not defined." << endl;
-    return false;
-  }
-  for (const auto& rotor_node : node[kRotorsKey])
-  {
-    RotorConfig rotor;
-    if (!rotor.load(rotor_node))
-    {
-      cerr << "Failed to load the configurations of rotors." << endl;
-      return false;
-    }
-    rotors[rotor.channel] = rotor;
-  }
-
-  // Fixed wing
-  if (!node[kFixedWingKey].IsMap())
-  {
-    cerr << "Fixed wing field is not defined." << endl;
-    return false;
-  }
-  if (!fixed_wing.load(node[kFixedWingKey]))
-  {
-    cerr << "Failed to load the configurations of fixed wing." << endl;
-    return false;
   }
 
   // PWM
@@ -138,6 +97,65 @@ bool Drone::load(const YAML::Node& node)
     pwms[pwm.joint_name] = pwm;
   }
 
+  // Propulsion system
+  propulsion_system_t prop_type;
+  if (!yaml::load(kPropulsionSystemTypeKey, node, prop_type))
+    return false;
+
+  if (!node[kPropulsionSystemKey].IsDefined())
+  {
+    cerr << "Propulsion system field is not defined." << endl;
+    return false;
+  }
+  const auto prop_node = node[kPropulsionSystemKey];
+
+  switch (prop_type)
+  {
+    case propulsion_system_t::ELECTRIC:
+    {
+      const auto eprop = make_shared<ElectricPropulsionSystemConfig>();
+      if (!eprop->load(prop_node))
+      {
+        cerr << "Failed to load the configurations of electric propulsion system." << endl;
+        return false;
+      }
+      prop = eprop;
+      break;
+    }
+    case propulsion_system_t::ICE:
+    {
+      const auto iprop = make_shared<ICEPropulsionSystemConfig>();
+      if (!iprop->load(prop_node))
+      {
+        cerr << "Failed to load the configurations of ICE propulsion system." << endl;
+        return false;
+      }
+      prop = iprop;
+      break;
+    }
+    default:
+    {
+      cerr << "Invalid propulsion system type: " << (int)prop_type << endl;
+      return false;
+    }
+  }
+
+  // Fixed wing
+  if (node[kFixedWingKey].IsDefined())
+  {
+    fixed_wing = make_shared<FixedWingConfig>();
+    if (!fixed_wing->load(node[kFixedWingKey]))
+    {
+      cerr << "Failed to load the configurations of fixed wing." << endl;
+      return false;
+    }
+  }
+  else
+  {
+    cout << "\"" << kFixedWingKey << "\" is not defined." << endl;
+    fixed_wing = nullptr;
+  }
+
   return true;
 }
 
@@ -148,26 +166,23 @@ YAML::Node Drone::dump() const
   // Name
   node[kNameKey] = name;
 
-  // Battery
-  node[kBatteryKey] = battery.dump();
-
   // Joints
   node[kJointsKey] = YAML::Node(YAML::NodeType::Sequence);
   for (const auto& [_, joint] : joints)
     node[kJointsKey].push_back(joint.dump());
 
-  // Rotors
-  node[kRotorsKey] = YAML::Node(YAML::NodeType::Sequence);
-  for (const auto& [_, rotor] : rotors)
-    node[kRotorsKey].push_back(rotor.dump());
-
-  // Fixed wing
-  node[kFixedWingKey] = fixed_wing.dump();
-
   // PWM
   node[kPwmsKey] = YAML::Node(YAML::NodeType::Sequence);
   for (const auto& [_, pwm] : pwms)
     node[kPwmsKey].push_back(pwm.dump());
+
+  // Propulsion system
+  node[kPropulsionSystemTypeKey] = prop->type();
+  node[kPropulsionSystemKey] = prop->dump();
+
+  // Fixed wing
+  if (fixed_wing != nullptr)
+    node[kFixedWingKey] = fixed_wing->dump();
 
   return node;
 }

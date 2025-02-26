@@ -1,6 +1,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../include/tobas_drone_core/pwm.hpp"
+#include "tobas_drone_core/pwm.hpp"
 
 using namespace std;
 
@@ -8,6 +8,12 @@ namespace tobas
 {
 bool PwmConfig::isValid() const
 {
+  if (joint_name.empty())
+  {
+    cerr << "Joint name is empty." << endl;
+    return false;
+  }
+
   if (min_period > max_period)
   {
     cerr << "Invalid PWM period range." << endl;

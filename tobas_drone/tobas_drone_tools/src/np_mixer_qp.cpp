@@ -1,5 +1,6 @@
 #include <ranges>
 
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/check.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
@@ -14,8 +15,6 @@ namespace tobas
 NonPlanarMixer_QP::NonPlanarMixer_QP(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree)
 {
-  resizeAndFill();
-  updateWeight();
 }
 
 bool NonPlanarMixer_QP::updateInternalDataStructures()
@@ -35,7 +34,6 @@ bool NonPlanarMixer_QP::updateInternalDataStructures()
 }
 
 bool NonPlanarMixer_QP::solve(
-  const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
@@ -44,8 +42,6 @@ bool NonPlanarMixer_QP::solve(
   const kdl::Vector& ext_force_W,
   const kdl::Vector& ext_torque_B)
 {
-  assert(cur_voltage > 0);
-
   // 順運動学を計算
   if (fk_solver_.JntToCart(cur_q) < 0)
   {
@@ -65,12 +61,12 @@ bool NonPlanarMixer_QP::solve(
   const auto& mass = inertia.getMass();
 
   // EoM行列等式の左辺
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     const auto& rotor = rotor_it.second;
 
     // 回転軸を求める
-    const auto elem = tree_.getSegment(rotor.link_name)->second;
+    const auto elem = tree_.getSegment(rotor->link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
@@ -78,9 +74,9 @@ bool NonPlanarMixer_QP::solve(
     G_.block<3, 1>(0, idx) = axis_B.data;
 
     // 回転
-    const auto d = rotor.sign();
-    const auto& cm = rotor.moment_constant;
-    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
+    const auto d = rotor->sign();
+    const auto& cm = rotor->moment_const;
+    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.block<3, 1>(3, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
@@ -98,18 +94,18 @@ bool NonPlanarMixer_QP::solve(
   qp_.problem.q = -G_.transpose() * Q_ * h_;
 
   // 不等式制約
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     const auto& rotor = rotor_it.second;
-    if (rotor_alive_.at(rotor.channel))
+    if (rotor_alive_.at(rotor->link_name))
     {
-      qp_.problem.b(idx) = rotor.maxThrust(cur_voltage);
-      qp_.problem.b(drone_.numRotors() + idx) = -rotor.minThrust();
+      qp_.problem.b(idx) = drone_.prop->maxThrust(rotor->link_name);
+      qp_.problem.b(drone_.prop->numRotors() + idx) = -drone_.prop->minThrust(rotor->link_name);
     }
     else
     {
       qp_.problem.b(idx) = 0.;
-      qp_.problem.b(drone_.numRotors() + idx) = 0.;
+      qp_.problem.b(drone_.prop->numRotors() + idx) = 0.;
     }
   }
 
@@ -170,7 +166,7 @@ bool NonPlanarMixer_QP::setThrustWeight(double p)
 
 void NonPlanarMixer_QP::resizeAndFill()
 {
-  const auto nr = drone_.numRotors();
+  const auto nr = drone_.prop->numRotors();
 
   qp_.resize(nr, 0, nr * 2);
   qp_.setZero();
@@ -188,7 +184,7 @@ void NonPlanarMixer_QP::resizeAndFill()
 
 void NonPlanarMixer_QP::updateWeight()
 {
-  if (drone_.numRotors() == 0)
+  if (drone_.prop->numRotors() == 0)
     return;
 
   if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
@@ -197,9 +193,9 @@ void NonPlanarMixer_QP::updateWeight()
   const auto& mass = inertia.getMass();
   const auto& I = inertia.getRotationalInertia();
 
-  const auto linear_scale = mass * kAccelScale;                               // [N]
-  const auto angular_scale = (I.trace() / 3) * kDGyroScale;                   // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.numRotors();  // [N]
+  const auto linear_scale = mass * kAccelScale;                                     // [N]
+  const auto angular_scale = (I.trace() / 3) * kDGyroScale;                         // [Nm]
+  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
 
   Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
   Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));

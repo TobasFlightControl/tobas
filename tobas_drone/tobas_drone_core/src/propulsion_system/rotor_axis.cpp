@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../../include/tobas_drone_core/rotor/rotor_axis.hpp"
+#include "tobas_drone_core/propulsion_system/rotor_axis.hpp"
 
 #define X_POSITIVE_TEXT "x_positive"
 #define Z_POSITIVE_TEXT "z_positive"

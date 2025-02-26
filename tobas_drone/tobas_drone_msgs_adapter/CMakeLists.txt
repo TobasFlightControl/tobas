@@ -4,11 +4,13 @@ project(tobas_drone_msgs_adapter)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_drone_core REQUIRED)
 find_package(tobas_drone_msgs REQUIRED)
+find_package(tobas_std_msgs_adapter REQUIRED)
 find_package(tobas_kdl_msgs_adapter REQUIRED)
 
 set(AMENT_DEPENDENCIES
   tobas_drone_core
   tobas_drone_msgs
+  tobas_std_msgs_adapter
   tobas_kdl_msgs_adapter
 )
 

@@ -34,14 +34,12 @@ SelectedLinkWidget::SelectedLinkWidget(rclcpp::Node::SharedPtr node, const Robot
   motor_ = new MotorWidget();
   propeller_ = new PropellerWidget();
   aerodynamics_ = new AerodynamicsWidget(node, propeller_);
-  speed_limit_ = new SpeedLimitWidget(motor_, aerodynamics_);
 
   tabs_->addTab(general_, general_->name());
   tabs_->addTab(esc_, esc_->name());
   tabs_->addTab(motor_, motor_->name());
   tabs_->addTab(propeller_, propeller_->name());
   tabs_->addTab(aerodynamics_, aerodynamics_->name());
-  tabs_->addTab(speed_limit_, speed_limit_->name());
 
   rows->addStretch();
 
@@ -126,11 +124,6 @@ const PropellerWidget* SelectedLinkWidget::propeller() const
 const AerodynamicsWidget* SelectedLinkWidget::aerodynamics() const
 {
   return aerodynamics_;
-}
-
-const SpeedLimitWidget* SelectedLinkWidget::speedLimit() const
-{
-  return speed_limit_;
 }
 }  // namespace propulsion
 }  // namespace sa

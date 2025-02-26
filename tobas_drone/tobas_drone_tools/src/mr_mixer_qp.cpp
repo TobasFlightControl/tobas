@@ -1,3 +1,4 @@
+#include <tobas_math/core.hpp>
 #include <tobas_std_tools/universal_constants.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -11,8 +12,6 @@ namespace tobas
 MultiRotorMixer_QP::MultiRotorMixer_QP(const Drone& drone, const kdl::Tree& tree)
   : super(drone, tree), fk_solver_(tree), inertia_solver_(tree), z_rotors_(drone, Z_POSITIVE), stopwatch_(100)
 {
-  resizeAndFill();
-  updateWeight();
 }
 
 bool MultiRotorMixer_QP::updateInternalDataStructures()
@@ -34,14 +33,12 @@ bool MultiRotorMixer_QP::updateInternalDataStructures()
 }
 
 bool MultiRotorMixer_QP::solve(
-  const double& cur_voltage,
   const kdl::JntArray& cur_q,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_dgyro_B,
   const double& tar_thrusts_sum,
   const kdl::Vector& ext_torque_B)
 {
-  assert(cur_voltage > 0);
   assert(tar_thrusts_sum > 0);
 
   // 順運動学を計算
@@ -66,14 +63,14 @@ bool MultiRotorMixer_QP::solve(
   {
     const auto& rotor = z_rotors_.rotor(i);
 
-    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor.link_name).p;
+    const auto& B_Pos_B2P = fk_solver_.getFrame(rotor->link_name).p;
 
-    const auto elem = tree_.getSegment(rotor.link_name)->second;
+    const auto elem = tree_.getSegment(rotor->link_name)->second;
     const auto& B_Rot_Par = fk_solver_.getFrame(elem.parent->first).M;
     const auto axis_B = B_Rot_Par * elem.segment.joint().axis();
 
-    const auto d = rotor.sign();
-    const auto& cm = rotor.moment_constant;
+    const auto d = rotor->sign();
+    const auto& cm = rotor->moment_const;
     const auto B_Pos_G2P = B_Pos_B2P - B_Pos_B2G;
     G_.col(i) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
@@ -96,10 +93,10 @@ bool MultiRotorMixer_QP::solve(
     const auto& rotor = z_rotors_.rotor(i);
 
     double max_thrust, min_thrust;
-    if (rotor_alive_.at(rotor.channel))
+    if (rotor_alive_.at(rotor->link_name))
     {
-      max_thrust = rotor.maxThrust(cur_voltage);
-      min_thrust = rotor.minThrust();
+      max_thrust = drone_.prop->maxThrust(rotor->link_name);
+      min_thrust = drone_.prop->minThrust(rotor->link_name);
     }
     else
     {

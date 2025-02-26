@@ -21,11 +21,16 @@ MicroDisturbanceEoM::MicroDisturbanceEoM(const Drone& drone, const kdl::Tree& tr
     x_rotors_(drone, X_POSITIVE),
     trim_(drone, tree)
 {
-  resize();
 }
 
 bool MicroDisturbanceEoM::updateInternalDataStructures()
 {
+  if (drone_.fixed_wing == nullptr)
+  {
+    cerr << "The drone is not equipped with fixed wing." << endl;
+    return false;
+  }
+
   if (!fk_solver_.updateInternalDataStructures())
     return false;
   if (!inertia_solver_.updateInternalDataStructures())
@@ -36,25 +41,18 @@ bool MicroDisturbanceEoM::updateInternalDataStructures()
     return false;
 
   resize();
+  setInputLimits();
 
   return true;
 }
 
-int MicroDisturbanceEoM::update(
-  const double& V,
-  const double& rho,
-  const double& battery_voltage,
-  const kdl::JntArray& q)
+int MicroDisturbanceEoM::update(const double& V, const double& rho, const kdl::JntArray& q)
 {
   assert(V > 0.);
   assert(rho > 0.);
-  assert(battery_voltage);
   assert(q.rows() == tree_.getNrOfJoints());
 
   error_code_ = E_NO_ERROR;
-
-  // 制御入力の制約を更新
-  setInputLimits(battery_voltage);
 
   // トリム状態を更新
   trim_.update(V, rho, q);
@@ -62,8 +60,8 @@ int MicroDisturbanceEoM::update(
     return error_code_;
 
   // エイリアス
-  const auto& vehicle = drone_.fixed_wing.vehicle;
-  const auto& aero = drone_.fixed_wing.aerodynamics;
+  const auto& vehicle = drone_.fixed_wing->vehicle;
+  const auto& aero = drone_.fixed_wing->aerodynamics;
   const auto& asd_cog = trim_.stabilityDerivativesCG();
 
   // 重心と慣性テンソル
@@ -172,14 +170,14 @@ int MicroDisturbanceEoM::update(
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     const auto& rotor = x_rotors_.rotor(i);
-    if (fk_solver_.JntToCart(q, rotor.link_name) < 0)
+    if (fk_solver_.JntToCart(q, rotor->link_name) < 0)
     {
       error_msg_ = fk_solver_.errorMessage();
       return error_code_ = E_ERROR;
     }
     const auto P_cog_rotor = fk_solver_.getFrame().p - P_base_cog;
-    const auto d = rotor.sign();
-    const auto& c = rotor.moment_constant;
+    const auto d = rotor->sign();
+    const auto& c = rotor->moment_const;
     Vector3d v = I_cog_inv * (P_cog_rotor.data.cross(X_AXIS) - (d * c) * X_AXIS);  // NWU
     eigen::vectorNwuToNed(v);                                                      // NWU -> NED
     B_.block(kStateIdx_p, i, 3, 1) = v;
@@ -187,7 +185,7 @@ int MicroDisturbanceEoM::update(
 
   // deflection
   size_t cs_idx = 0;
-  for (const auto& [channel, cs] : drone_.fixed_wing.control_surfaces)
+  for (const auto& [channel, cs] : drone_.fixed_wing->control_surfaces)
   {
     const auto pitch_delta = asd_cog.cPitchDelta(channel);
     const auto yaw_delta = asd_cog.cYawDelta(channel);
@@ -224,7 +222,7 @@ int MicroDisturbanceEoM::update(
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
     auto thrust = thrust_sum / x_rotors_.count();  // TODO: 横の釣り合いも考慮して分配
-    const auto max_thrust = x_rotors_.rotor(i).thrustFromVoltage(battery_voltage);
+    const auto max_thrust = drone_.prop->maxThrust(x_rotors_.linkName(i));
     if (thrust > max_thrust)
     {
       if (error_code_ > E_WARN)
@@ -243,7 +241,7 @@ int MicroDisturbanceEoM::update(
 
 void MicroDisturbanceEoM::resize()
 {
-  u_size_ = x_rotors_.count() + drone_.numControlSurfaces();
+  u_size_ = x_rotors_.count() + drone_.fixed_wing->numControlSurfaces();
 
   x_0_ = Matrix<double, kStateSize, 1>::Zero();
   u_0_ = VectorXd::Zero(u_size_);
@@ -251,20 +249,20 @@ void MicroDisturbanceEoM::resize()
   B_ = MatrixXd::Zero(kStateSize, u_size_);
 }
 
-void MicroDisturbanceEoM::setInputLimits(const double& battery_voltage)
+void MicroDisturbanceEoM::setInputLimits()
 {
   min_u_.conservativeResize(u_size_);
   max_u_.conservativeResize(u_size_);
 
   for (size_t i = 0; i < x_rotors_.count(); ++i)
   {
-    const auto& rotor = x_rotors_.rotor(i);
-    min_u_(i) = rotor.minThrust();
-    max_u_(i) = rotor.maxThrust(battery_voltage);
+    const auto& link_name = x_rotors_.linkName(i);
+    min_u_(i) = drone_.prop->minThrust(link_name);
+    max_u_(i) = drone_.prop->maxThrust(link_name);
   }
 
   size_t cs_idx = 0;
-  for (const auto& [_, cs] : drone_.fixed_wing.control_surfaces)
+  for (const auto& [_, cs] : drone_.fixed_wing->control_surfaces)
   {
     const auto& joint = tree_.getSegment(cs.link_name)->second.segment.joint();
     min_u_(x_rotors_.count() + cs_idx) = joint.lower_limit;

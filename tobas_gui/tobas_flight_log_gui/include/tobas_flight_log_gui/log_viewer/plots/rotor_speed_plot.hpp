@@ -31,8 +31,8 @@ private:
 
   QGridLayout* grid_;
 
-  size_t num_rotors_;
-  QMap<uint8_t, size_t> channel2idx_;
+  size_t num_rotors_;                   // The number of rotors
+  QMap<std::string, size_t> name2idx_;  // Link Name -> Index
 
   void clear();
   void updateInternalDataStructures(const tobas_msgs::msg::RotorStateArray& msg);

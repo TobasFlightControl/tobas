@@ -4,6 +4,7 @@
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
@@ -40,7 +41,7 @@ private:
   array<uint8_t, aso::DShot::kChannelSize> gains_ = { 0 };
   bool is_armed_ = false;
   bool is_commanded_ = false;
-  tobas::Drone::ConstSharedPtr drone_;
+  tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
@@ -111,21 +112,23 @@ void DShotDriverNode::publishRotorStates()
   auto rotor_states = std::make_unique<tobas_msgs::msg::RotorStateArray>();
   rotor_states->header.stamp = get_clock()->now();
 
-  for (const auto& [channel, _] : drone_->rotors)
+  for (const auto& [link_name, _] : eprop_->rotors)
   {
+    const auto erotor = eprop_->getRotor(link_name);
     rotor_states->states.emplace_back();
-    rotor_states->states.back().channel = channel;
-    if (dshot_.getValidity(channel))
+    rotor_states->states.back().link_name = link_name;
+    if (dshot_.getValidity(erotor->channel))
     {
-      rotor_states->states.back().speed = dshot_.getSpeed(channel);
-      rotor_states->states.back().current = NAN;
-      rotor_states->states.back().status = tobas_msgs::msg::RotorState::SPEED_ONLY;
+      const auto speed = dshot_.getSpeed(erotor->channel);
+      rotor_states->states.back().speed = speed;
+      rotor_states->states.back().thrust = erotor->thrustFromSpeed(speed);
+      rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_ERROR;
     }
     else
     {
       rotor_states->states.back().speed = NAN;
-      rotor_states->states.back().current = NAN;
-      rotor_states->states.back().status = tobas_msgs::msg::RotorState::NO_COMMUNICATION;
+      rotor_states->states.back().thrust = NAN;
+      rotor_states->states.back().status = tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE;
     }
   }
 
@@ -176,11 +179,18 @@ void DShotDriverNode::disarm()
 
 void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (drone_ != nullptr)
+  if (eprop_ != nullptr)
   {
     TOBAS_WARN("DShot driver cannot be re-initialized.");
     return;
   }
+
+  if (drone->prop == nullptr)
+    return;
+  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
+    return;
+
+  const auto eprop = dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
 
   // Initialize DShot driver
   if (!dshot_.initialize())
@@ -190,11 +200,12 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   }
 
   // Set Kv values
-  for (const auto& [_, rotor] : drone->rotors)
+  for (const auto& [link_name, _] : eprop->rotors)
   {
-    if (!dshot_.setKv(rotor.channel, rotor.kv))
+    const auto erotor = eprop->getRotor(link_name);
+    if (!dshot_.setKv(erotor->channel, erotor->kv))
     {
-      TOBAS_ERROR("Failed to set Kv of channel ", rotor.channel, ".");
+      TOBAS_ERROR("Failed to set Kv of channel ", erotor->channel, ".");
       return;
     }
   }
@@ -202,11 +213,12 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set internal resistances
-  for (const auto& [_, rotor] : drone->rotors)
+  for (const auto& [link_name, _] : eprop->rotors)
   {
-    if (!dshot_.setInternalResistance(rotor.channel, rotor.internal_resistance))
+    const auto erotor = eprop->getRotor(link_name);
+    if (!dshot_.setInternalResistance(erotor->channel, erotor->internal_resistance))
     {
-      TOBAS_ERROR("Failed to set internal resistance of channel ", rotor.channel, ".");
+      TOBAS_ERROR("Failed to set internal resistance of channel ", erotor->channel, ".");
       return;
     }
   }
@@ -214,11 +226,12 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set propeller diameters
-  for (const auto& [_, rotor] : drone->rotors)
+  for (const auto& [link_name, _] : eprop->rotors)
   {
-    if (!dshot_.setPropellerDiameter(rotor.channel, rotor.propeller_diameter))
+    const auto erotor = eprop->getRotor(link_name);
+    if (!dshot_.setPropellerDiameter(erotor->channel, erotor->propeller_diameter))
     {
-      TOBAS_ERROR("Failed to set propeller diameter of channel ", rotor.channel, ".");
+      TOBAS_ERROR("Failed to set propeller diameter of channel ", erotor->channel, ".");
       return;
     }
   }
@@ -226,12 +239,13 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set moment constants
-  for (const auto& [_, rotor] : drone->rotors)
+  for (const auto& [link_name, _] : eprop->rotors)
   {
-    const auto moment_const = rotor.motor_constant * rotor.moment_constant / math::quat(rotor.propeller_diameter);
-    if (!dshot_.setMomentConstant(rotor.channel, moment_const))
+    const auto erotor = eprop->getRotor(link_name);
+    const auto moment_const = erotor->motor_const * erotor->moment_const / math::quat(erotor->propeller_diameter);
+    if (!dshot_.setMomentConstant(erotor->channel, moment_const))
     {
-      TOBAS_ERROR("Failed to set moment constant of channel ", rotor.channel, ".");
+      TOBAS_ERROR("Failed to set moment constant of channel ", erotor->channel, ".");
       return;
     }
   }
@@ -239,11 +253,12 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Set the number of poles
-  for (const auto& [_, rotor] : drone->rotors)
+  for (const auto& [link_name, _] : eprop->rotors)
   {
-    if (!dshot_.setNumPoles(rotor.channel, rotor.num_poles))
+    const auto erotor = eprop->getRotor(link_name);
+    if (!dshot_.setNumPoles(erotor->channel, erotor->num_poles))
     {
-      TOBAS_ERROR("Failed to set the number of poles of channel ", rotor.channel, ".");
+      TOBAS_ERROR("Failed to set the number of poles of channel ", erotor->channel, ".");
       return;
     }
   }
@@ -251,21 +266,22 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
     return;
 
   // Load and set the speed control gains
-  for (const auto& [_, rotor] : drone->rotors)
+  for (const auto& [link_name, _] : eprop->rotors)
   {
-    if (rotor.channel >= aso::DShot::kChannelSize)
+    const auto erotor = eprop->getRotor(link_name);
+    if (erotor->channel >= aso::DShot::kChannelSize)
     {
-      TOBAS_ERROR("Rotor channel ", rotor.channel, " is out of range.");
+      TOBAS_ERROR("Rotor channel ", erotor->channel, " is out of range.");
       continue;
     }
-    if (!pt_.get(kGainKeyPrefix + to_string(rotor.channel), gains_.at(rotor.channel)))
+    if (!pt_.get(kGainKeyPrefix + to_string(erotor->channel), gains_.at(erotor->channel)))
     {
-      TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", rotor.channel, ".");
+      TOBAS_ERROR("Failed to load the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
-    if (!dshot_.setSpeedControlGain(rotor.channel, gains_.at(rotor.channel)))
+    if (!dshot_.setSpeedControlGain(erotor->channel, gains_.at(erotor->channel)))
     {
-      TOBAS_ERROR("Failed to set the rotor speed control gain of channel ", rotor.channel, ".");
+      TOBAS_ERROR("Failed to set the rotor speed control gain of channel ", erotor->channel, ".");
       continue;
     }
   }
@@ -290,7 +306,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   publish_arming_timer_->reset();
   auto_stop_timer_->reset();
 
-  drone_ = drone;
+  eprop_ = eprop;
   TOBAS_INFO("Rotor speed controller is initialized.");
 }
 
@@ -305,16 +321,17 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
   // Set target speeds of each channel
   for (const auto& tar_speed : tar_speeds->speeds)
   {
-    if (tar_speed.channel >= aso::DShot::kChannelSize)
+    const auto erotor = eprop_->getRotor(tar_speed.link_name);
+    if (erotor == nullptr)
     {
-      TOBAS_ERROR("DShot channel ", (int)tar_speed.channel, " does not exist.");
-      return;
+      TOBAS_ERROR("Rotor \"" + tar_speed.link_name + "\" does not exist.");
+      continue;
     }
 
-    if (!dshot_.setTargetSpeed(tar_speed.channel, tar_speed.speed))
+    if (!dshot_.setTargetSpeed(erotor->channel, tar_speed.speed))
     {
-      TOBAS_ERROR("Failed to set target speed on channel ", (int)tar_speed.channel, ".");
-      return;
+      TOBAS_ERROR("Failed to set target speed of rotor \"", tar_speed.link_name, "\".");
+      continue;
     }
   }
 

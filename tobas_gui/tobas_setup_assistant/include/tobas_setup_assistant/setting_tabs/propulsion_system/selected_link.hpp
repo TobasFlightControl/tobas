@@ -9,7 +9,6 @@
 #include "./motor.hpp"
 #include "./propeller.hpp"
 #include "./aerodynamics/aerodynamics.hpp"
-#include "./speed_limit/speed_limit.hpp"
 
 namespace gui
 {
@@ -47,7 +46,6 @@ public:
   const MotorWidget* motor() const;
   const PropellerWidget* propeller() const;
   const AerodynamicsWidget* aerodynamics() const;
-  const SpeedLimitWidget* speedLimit() const;
 
 private:
   qt::TabWidget* tabs_;
@@ -60,7 +58,6 @@ private:
   MotorWidget* motor_;
   PropellerWidget* propeller_;
   AerodynamicsWidget* aerodynamics_;
-  SpeedLimitWidget* speed_limit_;
 };
 }  // namespace propulsion
 }  // namespace sa
