@@ -108,9 +108,10 @@ private:
   ros2::ServiceServerPtr<BreakSrv> break_ss_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-
   void registerROSInterfaces();
   void addModelError();
+
+  double velocitySim() const;
   void applyWrench(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
   void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
@@ -237,7 +238,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   const auto dt = duration<double>(info.dt).count();
 
   // Check aliasing
-  if (fabs(velocity_ * dt) > M_PI)
+  if (fabs(velocitySim() * dt) > M_PI)
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
 
   // Update simulation state
@@ -272,6 +273,11 @@ void GazeboElectricPropulsionSystemPlugin::addModelError()
   motor_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
   moment_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
   rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+}
+
+double GazeboElectricPropulsionSystemPlugin::velocitySim() const
+{
+  return velocity_ / kRotorSpeedSlowdownSim;
 }
 
 void GazeboElectricPropulsionSystemPlugin::applyWrench(
@@ -385,7 +391,7 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   velocity_ = direction_ * next_speed;
 
   // 視認用にGazeboに反映
-  joint_->SetVelocity(ecm, { velocity_ / kRotorSpeedSlowdownSim });
+  joint_->SetVelocity(ecm, { velocitySim() });
 }
 
 void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
