@@ -31,6 +31,9 @@ struct Engine
   // SDF parameters
   double torque_const;     // [Nm/(rad/s)]
   double friction_torque;  // [Nm]
+
+  // States
+  double throttle = 0.;  // [0, 1]
 };
 
 struct Rotor
@@ -49,9 +52,13 @@ struct Rotor
   shared_ptr<gz::sim::Link> parent_link;
 
   // States
-  double throttle = 0.;  // [0, 1]
   double velocity = 0.;  // [rad/s]
   double position = 0.;  // [rad]
+
+  double velocitySim() const
+  {
+    return velocity / kRotorSpeedSlowdownSim;
+  }
 };
 
 /* Simulates engine and propellers. */
@@ -179,9 +186,30 @@ void GazeboICEPropulsionSystemPlugin::Configure(
 
 void GazeboICEPropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm)
 {
-  (void)info;
-  (void)ecm;
-  // TODO
+  // Update the previous simulation step time
+  prev_sim_time_ = info.simTime;
+
+  // Check topics
+  if (!wind_received_)
+  {
+    if (info.simTime > kWarnStartTime)
+      TOBAS_WARN_THROTTLE(kWarnPeriod, "Wind message is not received yet.");
+    return;
+  }
+
+  // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にスロットルをゼロにする
+  const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
+  if (secs_from_last_cmd > kAutoStopTimeout)
+    engine_.throttle = 0.;
+
+  // Compute time after previous simulation time
+  const auto dt = duration<double>(info.dt).count();
+
+  // Update simulation
+  applyWrench(ecm, info.simTime);
+  updateEngineState(dt);
+  updatePropellerPitches(dt);
+  updateJointStates(ecm, dt);
 }
 
 void GazeboICEPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
