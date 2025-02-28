@@ -71,7 +71,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   uart_fd_ = open(uart_dev, oflag);
   if (uart_fd_ < 0)
   {
-    cerr << "Failed to open UART device: " << uart_dev << endl;
+    cerr << "Failed to open UART device \"" << uart_dev << "\": " << strError() << endl;
     return false;
   }
 
@@ -113,7 +113,7 @@ bool UARTdev::initialize(const char* uart_dev, bool block_mode)
   // Reset input buffer
   if (tcflush(uart_fd_, TCIFLUSH) != 0)
   {
-    cerr << "Failed to reset input buffer" << endl;
+    cerr << "Failed to reset input buffer: " << strError() << endl;
     return false;
   }
 
