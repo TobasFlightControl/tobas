@@ -94,6 +94,9 @@ void ICERotorModel::applyWrench(
   const double& engine_speed,
   const gz::math::Vector3d& wind_vel_W)
 {
+  // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
+  // II-A. Model of a single propeller near hovering
+
   // Get joint axes
   const auto& local_axis = joint_->Axis(ecm).value().at(0).Xyz();
   const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
