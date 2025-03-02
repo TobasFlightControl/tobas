@@ -3,10 +3,11 @@
 namespace gazebo
 {
 // ROS Topics
-static constexpr char kThrottleTopicNS[] = "gazebo/command/throttle";
 static constexpr char kBatteryGtTopic[] = "gazebo/ground_truth/battery";
 static constexpr char kOdometryGtTopic[] = "gazebo/ground_truth/odom";
 static constexpr char kWindGtTopic[] = "gazebo/ground_truth/wind";
+static constexpr char kEngineThrottleCmdTopic[] = "gazebo/command/engine_throttle";
+static constexpr char kRotorThrottleCmdTopicNS[] = "gazebo/command/throttle";
 static constexpr char kRotorStateTopicNS[] = "gazebo/rotor_state";
 static constexpr char kRotorStateGtTopicNS[] = "gazebo/ground_truth/rotor_state";
 static constexpr char kJointStatesTopic[] = "joint_states";

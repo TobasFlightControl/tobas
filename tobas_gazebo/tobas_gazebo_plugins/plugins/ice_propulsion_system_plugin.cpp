@@ -29,12 +29,10 @@ class GazeboICEPropulsionSystemPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kRotorKey[] = "rotor";
-  static constexpr double kAutoStopTimeout = 0.5;    // [s]
-  static constexpr double kThrotLimitMargin = 1e-3;  // [-]
+  static constexpr double kAutoStopTimeout = 0.5;  // [s]
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
-  static constexpr double kDefaultMaxModelErrorRate = 0.;
 
   using self = GazeboICEPropulsionSystemPlugin;
 
@@ -196,7 +194,7 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
       createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name));
   }
 
-  engine_throttle_sub_ = createSubscriber(tobas::kEngineThrottleCmdTopic, &self::engineThrottleCb, this);
+  engine_throttle_sub_ = createSubscriber(gazebo::kEngineThrottleCmdTopic, &self::engineThrottleCb, this);
   propeller_pitches_sub_ = createSubscriber(tobas::kPropellerPitchesCmdTopic, &self::propellerPitchesCb, this);
 }
 

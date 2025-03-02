@@ -252,7 +252,7 @@ void GazeboElectricPropulsionSystemPlugin::registerROSInterfaces()
   state_pub_ = createPublisher<tobas_msgs::msg::RotorState>(path::join(kRotorStateTopicNS, link_name_));
   state_gt_pub_ = createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name_));
 
-  throttle_sub_ = createSubscriber(path::join(kThrottleTopicNS, link_name_), &self::throttleCmdCb, this);
+  throttle_sub_ = createSubscriber(path::join(kRotorThrottleCmdTopicNS, link_name_), &self::throttleCmdCb, this);
   battery_gt_sub_ = createSubscriber(kBatteryGtTopic, &self::batteryGtCb, this);
   wind_gt_sub_ = createSubscriber(kWindGtTopic, &self::windSpeedGtCb, this);
 
