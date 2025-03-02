@@ -12,7 +12,7 @@ bool ICERotorConfig::isValid() const
   if (!super::isValid())
     return false;
 
-  if (gear_ratio <= 0)
+  if (gear_ratio <= 0.)
   {
     cerr << "Gear ratio must be positive." << endl;
     return false;

@@ -22,7 +22,7 @@ public:
   using SharedPtr = std::shared_ptr<ICERotorConfig>;
   using ConstSharedPtr = std::shared_ptr<const ICERotorConfig>;
 
-  uint32_t gear_ratio;                   // 減速比 [-]
+  double gear_ratio;                     // 減速比 [-]
   tobas_std::Range<double> pitch_range;  // プロペラピッチ角の範囲 [rad]
   std::pair<double, double> motor_const;  // T = (aφ + b) ω^2 (φ: プロペラのピッチ角，ω: プロペラの回転数)
 
