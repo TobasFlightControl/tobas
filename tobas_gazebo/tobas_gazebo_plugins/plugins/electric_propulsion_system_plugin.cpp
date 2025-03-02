@@ -26,6 +26,7 @@
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
 // 実機の時定数がシミュレーションよりも大きくならないように想定しうる最大値に設定する．
 // cf. [AK60-6 V3.0 | T-MOTOR](https://store.tmotor.com/product/dynamical-modular-ak60-6-v3.html)
+// FIXME: ESCが電子制御で電流の変化を抑えるため，実際見かけのインダクタンスはもっと大きい．
 #define L_KV 0.05
 
 using namespace std;
@@ -72,7 +73,7 @@ private:
   size_t num_blades_;            // [-]
   double motor_const_;           // [N/(rad/s)^2]
   double moment_const_;          // [m]
-  double rotor_drag_coef_;       // [N*s^2/rad/m]
+  double drag_const_;            // [N*s^2/rad/m]
   int direction_;                // Turning direction: 1(CCW) or -1(CW)
   double max_current_;           // [A] ESCの最大電流
   size_t publish_state_rate_;    // [Hz]
@@ -112,7 +113,7 @@ private:
   void addModelError();
 
   double velocitySim() const;
-  void applyWrench(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
+  void applyWrenchAndPublishState(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
   void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
   void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
@@ -132,8 +133,8 @@ void GazeboElectricPropulsionSystemPlugin::Configure(
   gz::sim::EntityComponentManager& ecm,
   gz::sim::EventManager&)
 {
+  initialize("gazebo_electric_propulsion_system_plugin", sdf);
   getSdfParams(sdf);
-  initialize("gazebo_electric_propulsion_system_plugin_" + link_name_, sdf);
 
   publish_state_rate_manager_ = make_shared<RateManager>(publish_state_rate_);
   addModelError();
@@ -196,7 +197,7 @@ void GazeboElectricPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstP
 
   getSdfParam(sdf, "motorConstant", motor_const_, POSITIVE);
   getSdfParam(sdf, "momentConstant", moment_const_, POSITIVE);
-  getSdfParam(sdf, "rotorDragCoefficient", rotor_drag_coef_, NON_NEGATIVE);
+  getSdfParam(sdf, "dragConstant", drag_const_, NON_NEGATIVE);
 
   if (!getTurningDirection(sdf, direction_))
     TOBAS_EXIT("Failed to get turning direction.");
@@ -242,7 +243,7 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
     TOBAS_WARN_THROTTLE(kWarnPeriod, "Aliasing on motor \"", link_name_, "\" might occur. Lower simulation time step.");
 
   // Update simulation state
-  applyWrench(ecm, info.simTime);
+  applyWrenchAndPublishState(ecm, info.simTime);
   updateJointState(ecm, dt);
 }
 
@@ -272,7 +273,7 @@ void GazeboElectricPropulsionSystemPlugin::addModelError()
   // プロペラ
   motor_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
   moment_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
-  rotor_drag_coef_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
+  drag_const_ *= (1 + max_model_error_rate_ * uniform(rnd_gen));
 }
 
 double GazeboElectricPropulsionSystemPlugin::velocitySim() const
@@ -280,7 +281,7 @@ double GazeboElectricPropulsionSystemPlugin::velocitySim() const
   return velocity_ / kRotorSpeedSlowdownSim;
 }
 
-void GazeboElectricPropulsionSystemPlugin::applyWrench(
+void GazeboElectricPropulsionSystemPlugin::applyWrenchAndPublishState(
   gz::sim::EntityComponentManager& ecm,
   const steady_clock::duration& cur_time)
 {
@@ -301,7 +302,7 @@ void GazeboElectricPropulsionSystemPlugin::applyWrench(
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W_;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-fabs(velocity_) * rotor_drag_coef_) * linvel_perp_W;
+  const auto h_force_W = (-fabs(velocity_) * drag_const_) * linvel_perp_W;
   link_->AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
 
   // (2) first term: Rotor drag torque
@@ -324,7 +325,6 @@ void GazeboElectricPropulsionSystemPlugin::applyWrench(
   }
 
   // Publish observed state
-  // TODO: 観測ノイズを付加
   if (publish_state_rate_manager_->update(cur_time))
   {
     auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
@@ -350,9 +350,6 @@ void GazeboElectricPropulsionSystemPlugin::applyWrench(
   state_msg_gt->rotation_speed = direction_ * velocity_;
   state_msg_gt->current = current;
   state_msg_gt->rotor_noise = noise_coef_ * thrust * sin(num_blades_ * position_);  // TODO: 倍周波も考慮
-  vectorGazeboToMsg(thrust_W, state_msg_gt->thrust_force);
-  vectorGazeboToMsg(h_force_W, state_msg_gt->horizontal_force);
-  vectorGazeboToMsg(drag_torque_W, state_msg_gt->drag_torque);
   state_gt_pub_->publish(move(state_msg_gt));
 }
 

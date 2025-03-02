@@ -240,7 +240,7 @@ void addElectricPropulsionSystemPlugin(
   plugin->InsertNewChildElement("numberOfBlades")->SetText(num_blades);
   plugin->InsertNewChildElement("motorConstant")->SetText(motor_const);
   plugin->InsertNewChildElement("momentConstant")->SetText(moment_const);
-  plugin->InsertNewChildElement("rotorDragCoefficient")->SetText(drag_const);
+  plugin->InsertNewChildElement("dragConstant")->SetText(drag_const);
   plugin->InsertNewChildElement("turningDirection")->SetText(tobas::textFromEnum(direction).c_str());
   plugin->InsertNewChildElement("maxCurrent")->SetText(max_current);
   plugin->InsertNewChildElement("maxModelErrorRate")->SetText(max_model_error_rate);
