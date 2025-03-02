@@ -365,7 +365,7 @@ template <typename T>
 void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const
 {
   if (!sdf->HasElement(name))
-    TOBAS_EXIT("Please specify '", name, "'.");
+    TOBAS_EXIT("Please specify \"", name, "\".");
   param = sdf->Get<T>(name);
 }
 
@@ -373,7 +373,7 @@ template <typename T>
 void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const
 {
   if (!sdf->Get(name, param, dflt))
-    TOBAS_WARN("SDF parameter '", name, "' is not specified. The default value '", dflt, "' is used.");
+    TOBAS_WARN("SDF parameter \"", name, "\" is not specified. The default value \"", dflt, "\" is used.");
 }
 
 template <typename T>
@@ -406,7 +406,7 @@ void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& n
 
   const auto list_elem = sdf->FindElement(name);
   if (list_elem == nullptr)
-    TOBAS_EXIT("Please specify '", name, "'.");
+    TOBAS_EXIT("Please specify \"", name, "\".");
 
   auto item_elem = list_elem->FindElement("item");
   while (item_elem)
