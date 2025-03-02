@@ -5,6 +5,8 @@
 #include <tobas_msgs/msg/engine_throttle.hpp>
 #include <tobas_msgs/msg/propeller_pitch_angle_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs_adapter/wind.hpp>
+
 #include <tobas_gazebo_common/constants.hpp>
 #include <tobas_gazebo_msgs/msg/throttle.hpp>
 #include <tobas_gazebo_msgs/msg/rotor_state.hpp>
@@ -25,11 +27,13 @@ namespace gazebo
 class GazeboICEPropulsionSystemPlugin : public BaseNode,
                                         public gz::sim::System,
                                         public gz::sim::ISystemConfigure,
-                                        public gz::sim::ISystemPreUpdate
+                                        public gz::sim::ISystemPreUpdate,
+                                        public gz::sim::ISystemPostUpdate
 {
   // Constants
   static constexpr char kRotorKey[] = "rotor";
-  static constexpr double kAutoStopTimeout = 0.5;  // [s]
+  static constexpr double kAutoStopTimeout = 0.5;    // [s]
+  static constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
   // Default parameters
   static constexpr size_t kDefaultPublishStateRate = 100;  // [Hz]
@@ -46,6 +50,7 @@ public:
     gz::sim::EventManager&) override;
 
   void PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::EntityComponentManager& ecm) override;
+  void PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager& ecm) override;
 
 private:
   ICERotorModelMap rotors_;
@@ -57,7 +62,6 @@ private:
   gz::math::Vector3d wind_vel_W_ = gz::math::Vector3d::Zero;  // [m/s]
   steady_clock::duration prev_sim_time_;
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
-  bool wind_received_ = false;
   RateManager::SharedPtr publish_state_rate_manager_;
 
   // Publishers
@@ -68,12 +72,14 @@ private:
   // Subscribers
   ros2::SubscriberPtr<tobas_msgs::msg::EngineThrottle> engine_throttle_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PropellerPitchAngleArray> propeller_pitches_sub_;
+  ros2::SubscriberPtr<tobas_msgs::Wind> wind_gt_sub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
   void registerPubSub();
 
-  void engineThrottleCb(const tobas_msgs::msg::EngineThrottle::ConstSharedPtr& engine_throttle);
+  void engineThrottleCb(const tobas_msgs::msg::EngineThrottle::ConstSharedPtr& throttle);
   void propellerPitchesCb(const tobas_msgs::msg::PropellerPitchAngleArray::ConstSharedPtr& propeller_pitches);
+  void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt);
 };
 
 GazeboICEPropulsionSystemPlugin::GazeboICEPropulsionSystemPlugin() : engine_(rotors_)
@@ -125,24 +131,32 @@ void GazeboICEPropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
   // Update the previous simulation step time
   prev_sim_time_ = info.simTime;
 
-  // Check topics
-  if (!wind_received_)
-  {
-    if (info.simTime > kWarnStartTime)
-      TOBAS_WARN_THROTTLE(kWarnPeriod, "Wind message is not received yet.");
-    return;
-  }
-
   // 最後にスロットルコマンドが指令された時刻から一定時間経過したら強制的にスロットルをゼロにする
   const auto secs_from_last_cmd = duration<double>(info.simTime - last_cmd_time_).count();
   if (secs_from_last_cmd > kAutoStopTimeout)
     engine_.setThrottle(0.);
 
-  // Apply wrench and publish states
-  for (auto& [link_name, rotor] : rotors_)
+  // Update gazebo states
+  for (auto& [_, rotor] : rotors_)
   {
     rotor.applyWrench(ecm, engine_.getSpeed(), wind_vel_W_);
+    rotor.updateJointPosition(ecm, engine_.getPosition());
+  }
+}
 
+void GazeboICEPropulsionSystemPlugin::PostUpdate(
+  const gz::sim::UpdateInfo& info,
+  const gz::sim::EntityComponentManager&)
+{
+  // Step simulation
+  const auto dt = duration<double>(info.dt).count();
+  for (auto& [_, rotor] : rotors_)
+    rotor.step(dt);
+  engine_.step(dt);
+
+  // Publish rotor states
+  for (const auto& [link_name, rotor] : rotors_)
+  {
     // Publish observed state
     if (publish_state_rate_manager_->update(info.simTime))
     {
@@ -163,18 +177,12 @@ void GazeboICEPropulsionSystemPlugin::PreUpdate(const gz::sim::UpdateInfo& info,
     rotor_state_gt_pubs_.at(link_name)->publish(move(state_msg_gt));
   }
 
-  // Compute time after previous simulation time
-  const auto dt = duration<double>(info.dt).count();
-
-  // Update internal states
-  engine_.updateSteadyState();
-  for (auto& [_, rotor] : rotors_)
-    rotor.updateJointPosition(ecm, engine_.getPosition());
-
-  // Step simulation
-  engine_.step(dt);
-  for (auto& [_, rotor] : rotors_)
-    rotor.step(dt);
+  // Publish engine state
+  auto engine_state = make_unique<tobas_msgs::msg::EngineState>();
+  ros2::timeChronoToMsg(info.simTime, engine_state->header.stamp);
+  engine_state->fuel_quantity = NAN;    // TODO
+  engine_state->oil_temperature = NAN;  // TODO
+  engine_state_pub_->publish(move(engine_state));
 }
 
 void GazeboICEPropulsionSystemPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
@@ -196,12 +204,18 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
 
   engine_throttle_sub_ = createSubscriber(gazebo::kEngineThrottleCmdTopic, &self::engineThrottleCb, this);
   propeller_pitches_sub_ = createSubscriber(tobas::kPropellerPitchesCmdTopic, &self::propellerPitchesCb, this);
+  wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }
 
-void GazeboICEPropulsionSystemPlugin::engineThrottleCb(
-  const tobas_msgs::msg::EngineThrottle::ConstSharedPtr& engine_throttle)
+void GazeboICEPropulsionSystemPlugin::engineThrottleCb(const tobas_msgs::msg::EngineThrottle::ConstSharedPtr& throttle)
 {
-  engine_.setThrottle(engine_throttle->throttle);
+  // 最後にコマンドを受け取った時刻を更新
+  last_cmd_time_ = prev_sim_time_;
+
+  // 範囲を制限してスロットルを更新
+  if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data)
+    TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
+  engine_.setThrottle(throttle->data);
 }
 
 void GazeboICEPropulsionSystemPlugin::propellerPitchesCb(
@@ -217,6 +231,11 @@ void GazeboICEPropulsionSystemPlugin::propellerPitchesCb(
 
     rotors_.at(elem.link_name).setTargetPitchAngle(elem.angle);
   }
+}
+
+void GazeboICEPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
+{
+  vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
 }
 }  // namespace gazebo
 

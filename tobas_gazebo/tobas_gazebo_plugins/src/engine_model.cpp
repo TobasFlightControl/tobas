@@ -47,25 +47,6 @@ void EngineModel::setThrottle(const double& throttle)
   throttle_ = clamp(throttle, 0., 1.);
 }
 
-void EngineModel::updateSteadyState()
-{
-  const auto& A = torque_const_;
-  const auto& B = friction_torque_;
-
-  double K = 0.;
-  for (const auto& [_, rotor] : rotors_)
-    K += rotor.getMotorConst() * rotor.getMomentConst() / math::sqr(rotor.getGearRatio());
-
-  const auto g = math::sqr(throttle_) * (2 - throttle_);
-  const auto Ag = A * g;
-
-  const auto D = math::sqr(Ag) - 4 * K * B;
-  if (D < 0.)
-    steady_speed_ = 0.;
-  else
-    steady_speed_ = (Ag + sqrt(D)) / (2 * K);
-}
-
 bool EngineModel::step(const double& dt)
 {
   if (dt <= 0.)
@@ -73,7 +54,8 @@ bool EngineModel::step(const double& dt)
 
   position_ += getSpeed() * dt;
 
-  if (!speed_filter_.update(steady_speed_, dt))
+  const auto steady_speed = computeSteadySpeed();
+  if (!speed_filter_.update(steady_speed, dt))
     return false;
 
   return true;
@@ -108,5 +90,24 @@ bool EngineModel::getSdfParams(const sdf::ElementConstPtr& sdf)
   }
 
   return true;
+}
+
+double EngineModel::computeSteadySpeed()
+{
+  const auto& A = torque_const_;
+  const auto& B = friction_torque_;
+
+  double K = 0.;
+  for (const auto& [_, rotor] : rotors_)
+    K += rotor.getMotorConst() * rotor.getMomentConst() / math::sqr(rotor.getGearRatio());
+
+  const auto g = math::sqr(throttle_) * (2 - throttle_);
+  const auto Ag = A * g;
+
+  const auto D = math::sqr(Ag) - 4 * K * B;
+  if (D < 0.)
+    return 0.;
+  else
+    return (Ag + sqrt(D)) / (2 * K);
 }
 }  // namespace gazebo

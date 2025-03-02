@@ -23,8 +23,6 @@ public:
 
   void setThrottle(const double& throttle);
 
-  void updateSteadyState();
-
   bool step(const double& dt);
 
 private:
@@ -40,10 +38,12 @@ private:
   double throttle_ = 0.;  // スロットル開度 [0, 1]
 
   // State
-  double position_ = 0.;      // 位置 [rad]
-  double steady_speed_ = 0.;  // 定常速度 [rad/s]
+  double position_ = 0.;  // 位置 [rad]
   AsymmetricFirstOrderFilter<double> speed_filter_;
 
   bool getSdfParams(const sdf::ElementConstPtr& sdf);
+
+  /* エンジンスロットルとティルト角から定常回転数を求める (memo: 3-26) */
+  double computeSteadySpeed();
 };
 }  // namespace gazebo

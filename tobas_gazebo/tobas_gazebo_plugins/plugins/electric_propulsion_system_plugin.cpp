@@ -88,7 +88,6 @@ private:
   steady_clock::duration prev_sim_time_;
   steady_clock::duration last_cmd_time_;  // 最後にスロットルコマンドが指令された時刻
   bool is_intact_ = true;
-  bool wind_received_ = false;
   RateManager::SharedPtr publish_state_rate_manager_;
 
   // Gazebo objects
@@ -116,7 +115,7 @@ private:
   void applyWrenchAndPublishState(gz::sim::EntityComponentManager& ecm, const steady_clock::duration& cur_time);
   void updateJointState(gz::sim::EntityComponentManager& ecm, double dt);
 
-  void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg);
+  void throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle);
   void batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt);
   void windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt);
 
@@ -221,12 +220,6 @@ void GazeboElectricPropulsionSystemPlugin::PreUpdate(
   {
     if (info.simTime > kWarnStartTime)
       TOBAS_WARN_THROTTLE(kWarnPeriod, "Battery message is not received yet.");
-    return;
-  }
-  if (!wind_received_)
-  {
-    if (info.simTime > kWarnStartTime)
-      TOBAS_WARN_THROTTLE(kWarnPeriod, "Wind message is not received yet.");
     return;
   }
 
@@ -391,7 +384,8 @@ void GazeboElectricPropulsionSystemPlugin::updateJointState(gz::sim::EntityCompo
   joint_->SetVelocity(ecm, { velocitySim() });
 }
 
-void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& msg)
+void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(
+  const tobas_gazebo_msgs::msg::Throttle::ConstSharedPtr& throttle)
 {
   // バッテリーの情報が無いか電圧が低すぎたら応答なし
   if (battery_gt_ == nullptr || battery_gt_->voltage < kMinBatteryVoltage)
@@ -405,9 +399,9 @@ void GazeboElectricPropulsionSystemPlugin::throttleCmdCb(const tobas_gazebo_msgs
   last_cmd_time_ = prev_sim_time_;
 
   // 範囲を制限してスロットルを更新
-  if (msg->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < msg->data)
-    TOBAS_ERROR("The commanded throttle ", msg->data, " is out of range.");
-  throttle_ = std::clamp(msg->data, tobas::kMinThrot, tobas::kMaxThrot);
+  if (throttle->data < tobas::kMinThrot - kThrotLimitMargin || tobas::kMaxThrot + kThrotLimitMargin < throttle->data)
+    TOBAS_ERROR("The commanded throttle ", throttle->data, " is out of range.");
+  throttle_ = std::clamp(throttle->data, tobas::kMinThrot, tobas::kMaxThrot);
 }
 
 void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery_gt)
@@ -418,9 +412,6 @@ void GazeboElectricPropulsionSystemPlugin::batteryGtCb(const tobas_msgs::msg::Ba
 void GazeboElectricPropulsionSystemPlugin::windSpeedGtCb(const tobas_msgs::Wind::ConstSharedPtr& wind_gt)
 {
   vectorKDLToGazebo(wind_gt->vel, wind_vel_W_);
-
-  if (!wind_received_)
-    wind_received_ = true;
 }
 
 void GazeboElectricPropulsionSystemPlugin::breakCb(
