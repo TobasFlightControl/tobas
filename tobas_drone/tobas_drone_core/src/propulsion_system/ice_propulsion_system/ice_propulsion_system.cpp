@@ -93,7 +93,7 @@ double ICEPropulsionSystemConfig::maxSpeed(const std::string& link_name) const
   double sum = 0.;
   for (const auto& [_, rotor] : rotors)
   {
-    const auto irotor = static_pointer_cast<ICERotorConfig>(rotor);
+    const auto irotor = boost::polymorphic_pointer_downcast<ICERotorConfig>(rotor);
     sum += irotor->minMotorConst() * irotor->moment_const / math::sqr(irotor->gear_ratio);
   }
   const auto engine_speed =
@@ -117,7 +117,7 @@ double ICEPropulsionSystemConfig::maxThrust(const std::string& link_name) const
   double sum = 0.;
   for (const auto& [_, rotor] : rotors)
   {
-    const auto irotor = static_pointer_cast<ICERotorConfig>(rotor);
+    const auto irotor = boost::polymorphic_pointer_downcast<ICERotorConfig>(rotor);
     sum += irotor->maxMotorConst() * irotor->moment_const / math::sqr(irotor->gear_ratio);
   }
   const auto engine_speed =

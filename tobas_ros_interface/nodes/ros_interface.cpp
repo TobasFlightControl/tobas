@@ -1,3 +1,4 @@
+#include <boost/polymorphic_pointer_cast.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_path_tools/join.hpp>
@@ -203,7 +204,7 @@ template <typename MsgType>
 void ROSInterfaceNode::topicCallback(const typename MsgType::ConstSharedPtr& msg_in, const std::string& pub_topic)
 {
   auto msg_out = std::make_unique<MsgType>(*msg_in);
-  const auto publisher = static_pointer_cast<rclcpp::Publisher<MsgType>>(publishers_.at(pub_topic));
+  const auto publisher = boost::polymorphic_pointer_downcast<rclcpp::Publisher<MsgType>>(publishers_.at(pub_topic));
   publisher->publish(move(msg_out));
 }
 
@@ -213,7 +214,7 @@ void ROSInterfaceNode::serviceCallback(
   const typename SrvType::Response::SharedPtr& res,
   const std::string& srv_name)
 {
-  const auto client = static_pointer_cast<rclcpp::Client<SrvType>>(clients_.at(srv_name));
+  const auto client = boost::polymorphic_pointer_downcast<rclcpp::Client<SrvType>>(clients_.at(srv_name));
 
   if (!client->wait_for_service())
   {

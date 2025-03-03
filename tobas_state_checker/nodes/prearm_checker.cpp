@@ -204,7 +204,7 @@ void PreArmCheckerNode::mainTimerCb()
       // 未使用項目を無視
       // TODO
 
-      const auto eprop = dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+      const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
 
       // バッテリー電圧が定格電圧以上
       if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::propulsion_system_t::ELECTRIC)
@@ -235,7 +235,7 @@ void PreArmCheckerNode::mainTimerCb()
       // 未使用項目を無視
       prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
 
-      const auto iprop = dynamic_pointer_cast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
+      const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
       (void)iprop;  // TODO
 
       break;

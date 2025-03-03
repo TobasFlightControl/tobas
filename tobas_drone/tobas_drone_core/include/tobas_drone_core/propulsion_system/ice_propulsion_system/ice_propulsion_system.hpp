@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/polymorphic_pointer_cast.hpp>
+
 #include "../propulsion_system.hpp"
 #include "./engine.hpp"
 #include "./ice_rotor.hpp"
@@ -34,11 +36,11 @@ public:
 
 inline ICERotorConfig::SharedPtr ICEPropulsionSystemConfig::getRotor(const std::string& link_name)
 {
-  return static_pointer_cast<ICERotorConfig>(rotors.at(link_name));
+  return boost::polymorphic_pointer_downcast<ICERotorConfig>(rotors.at(link_name));
 }
 
 inline ICERotorConfig::ConstSharedPtr ICEPropulsionSystemConfig::getRotor(const std::string& link_name) const
 {
-  return static_pointer_cast<ICERotorConfig>(rotors.at(link_name));
+  return boost::polymorphic_pointer_downcast<ICERotorConfig>(rotors.at(link_name));
 }
 }  // namespace tobas

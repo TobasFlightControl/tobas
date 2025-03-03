@@ -22,7 +22,7 @@ struct rclcpp::TypeAdapter<tobas::ICEPropulsionSystemConfig, tobas_drone_msgs::m
     dst.rotors.clear();
     for (const auto& [_, src_rotor] : src.rotors)
     {
-      const auto src_irotor = std::dynamic_pointer_cast<tobas::ICERotorConfig>(src_rotor);
+      const auto src_irotor = boost::polymorphic_pointer_downcast<tobas::ICERotorConfig>(src_rotor);
       dst.rotors.emplace_back();
       tobas_drone_msgs::ICERotorConfigAdapter::convert_to_ros_message(*src_irotor, dst.rotors.back());
     }

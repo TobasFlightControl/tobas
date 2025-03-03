@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/polymorphic_pointer_cast.hpp>
+
 #include "../propulsion_system.hpp"
 #include "./battery.hpp"
 #include "./electric_rotor.hpp"
@@ -36,11 +38,11 @@ public:
 
 inline ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name)
 {
-  return static_pointer_cast<ElectricRotorConfig>(rotors.at(link_name));
+  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotors.at(link_name));
 }
 
 inline ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name) const
 {
-  return static_pointer_cast<ElectricRotorConfig>(rotors.at(link_name));
+  return boost::polymorphic_pointer_downcast<ElectricRotorConfig>(rotors.at(link_name));
 }
 }  // namespace tobas

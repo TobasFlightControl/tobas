@@ -85,7 +85,7 @@ void ElectricRotorCommandHandlerNode::droneCb(const tobas::Drone::ConstSharedPtr
     return;
   }
 
-  eprop_ = dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
+  eprop_ = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
 
   throttle_pubs_.clear();
   for (const auto& [link_name, _] : eprop_->rotors)

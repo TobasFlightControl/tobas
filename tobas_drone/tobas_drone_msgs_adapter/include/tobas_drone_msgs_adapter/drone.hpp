@@ -47,13 +47,13 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
       {
         case tobas::propulsion_system_t::ELECTRIC:
         {
-          const auto eprop = std::dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(src.prop);
+          const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(src.prop);
           tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_ros_message(*eprop, dst.eprop);
           break;
         }
         case tobas::propulsion_system_t::ICE:
         {
-          const auto iprop = std::dynamic_pointer_cast<tobas::ICEPropulsionSystemConfig>(src.prop);
+          const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(src.prop);
           tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_ros_message(*iprop, dst.iprop);
           break;
         }

@@ -190,7 +190,7 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
   if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
     return;
 
-  const auto eprop = dynamic_pointer_cast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
+  const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone->prop);
 
   // Initialize DShot driver
   if (!dshot_.initialize())
