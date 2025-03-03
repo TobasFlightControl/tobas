@@ -52,8 +52,8 @@ const double& DoubleMapInputDialog::getValue(const QString& field) const
 
 void DoubleMapInputDialog::SpinBoxValueChanged(double value)
 {
-  const auto obj = sender();
-  const auto field_name = spinbox2field_[dynamic_cast<QDoubleSpinBox*>(obj)];
+  const auto obj = qobject_cast<QDoubleSpinBox*>(sender());
+  const auto field_name = spinbox2field_.at(obj);
   field2value_[field_name] = value;
 }
 }  // namespace ui
