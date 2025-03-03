@@ -80,52 +80,23 @@ propulsion_system_t ICEPropulsionSystemConfig::type() const
   return propulsion_system_t::ICE;
 }
 
-double ICEPropulsionSystemConfig::minSpeed(const std::string& link_name) const
+double ICEPropulsionSystemConfig::minSpeed(const std::string&) const
 {
-  // TODO: 静止摩擦を考慮して最小回転数を決める
-  (void)link_name;
-  return 0.;
+  return 0.;  // TODO
 }
 
-double ICEPropulsionSystemConfig::maxSpeed(const std::string& link_name) const
+double ICEPropulsionSystemConfig::maxSpeed(const std::string&) const
 {
-  // 全てのプロペラの空気抵抗が最小のときにエンジン回転数を計算 (memo: 3-26)
-  double sum = 0.;
-  for (const auto& [_, rotor] : rotors)
-  {
-    const auto irotor = boost::polymorphic_pointer_downcast<ICERotorConfig>(rotor);
-    sum += irotor->minMotorConst() * irotor->moment_const / math::sqr(irotor->gear_ratio);
-  }
-  const auto engine_speed =
-    (engine.torque_const + sqrt(math::sqr(engine.torque_const) - 4 * sum * engine.friction_torque)) / (2 * sum);
-
-  // エンジン回転数からプロペラ回転数を計算
-  const auto irotor = getRotor(link_name);
-  return irotor->speedEngineToRotor(engine_speed);
+  return 500.;  // TODO
 }
 
-double ICEPropulsionSystemConfig::minThrust(const std::string& link_name) const
+double ICEPropulsionSystemConfig::minThrust(const std::string&) const
 {
-  // TODO: 最小回転数のときの推力
-  (void)link_name;
-  return 0.;
+  return 0.;  // TODO
 }
 
-double ICEPropulsionSystemConfig::maxThrust(const std::string& link_name) const
+double ICEPropulsionSystemConfig::maxThrust(const std::string&) const
 {
-  // 全てのプロペラの空気抵抗が最大のときのエンジン回転数を計算
-  double sum = 0.;
-  for (const auto& [_, rotor] : rotors)
-  {
-    const auto irotor = boost::polymorphic_pointer_downcast<ICERotorConfig>(rotor);
-    sum += irotor->maxMotorConst() * irotor->moment_const / math::sqr(irotor->gear_ratio);
-  }
-  const auto engine_speed =
-    (engine.torque_const + sqrt(math::sqr(engine.torque_const) - 4 * sum * engine.friction_torque)) / (2 * sum);
-
-  // エンジン回転数から推力を計算
-  // これは最大推力の最小値であり，ピッチ角が小さい時はより大きくできる (memo: 3-26)
-  const auto irotor = getRotor(link_name);
-  return irotor->thrustFromPitch(engine_speed, irotor->pitch_range.upper);
+  return numeric_limits<double>::max();  // TODO
 }
 }  // namespace tobas
