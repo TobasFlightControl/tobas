@@ -101,7 +101,7 @@ double ICEPropulsionSystemConfig::maxSpeed(const std::string& link_name) const
 
   // エンジン回転数からプロペラ回転数を計算
   const auto irotor = getRotor(link_name);
-  return irotor->rotSpeedFromEngineSpeed(engine_speed);
+  return irotor->speedEngineToRotor(engine_speed);
 }
 
 double ICEPropulsionSystemConfig::minThrust(const std::string& link_name) const
@@ -126,6 +126,6 @@ double ICEPropulsionSystemConfig::maxThrust(const std::string& link_name) const
   // エンジン回転数から推力を計算
   // これは最大推力の最小値であり，ピッチ角が小さい時はより大きくできる (memo: 3-26)
   const auto irotor = getRotor(link_name);
-  return irotor->calcThrust(engine_speed, irotor->pitch_range.upper);
+  return irotor->thrustFromPitch(engine_speed, irotor->pitch_range.upper);
 }
 }  // namespace tobas

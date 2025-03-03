@@ -24,6 +24,12 @@ bool ICERotorConfig::isValid() const
     return false;
   }
 
+  if (!pitch_range.inRange(pitch_ref))
+  {
+    cerr << "Pitch reference is out of range." << endl;
+    return false;
+  }
+
   if (motor_const.first <= 0.)
   {
     cerr << "The first term of motor constant must be positive." << endl;
@@ -40,6 +46,9 @@ bool ICERotorConfig::load(const YAML::Node& node)
   if (!yaml::load(kGearRatioKey, node, gear_ratio))
     return false;
 
+  if (!yaml::load(kPitchReferenceKey, node, pitch_ref))
+    return false;
+
   if (!yaml::load(kPitchRangeKey, node, pitch_range))
     return false;
 
@@ -54,6 +63,7 @@ YAML::Node ICERotorConfig::dump() const
   auto node = super::dump();
 
   node[kGearRatioKey] = gear_ratio;
+  node[kPitchReferenceKey] = pitch_ref;
   node[kPitchRangeKey] = pitch_range;
   node[kMotorConstKey] = motor_const;
 

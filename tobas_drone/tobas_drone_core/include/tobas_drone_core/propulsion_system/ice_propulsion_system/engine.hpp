@@ -17,5 +17,8 @@ public:
 
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
+
+  /* Compute engine throttle [0, 1] from torque [N] and speed [rad/s]. */
+  double solveThrottleEquation(double torque, double speed);
 };
 }  // namespace tobas
