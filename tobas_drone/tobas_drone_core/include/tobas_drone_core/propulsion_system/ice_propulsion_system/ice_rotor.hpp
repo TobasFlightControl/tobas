@@ -36,12 +36,6 @@ public:
   /* ピッチ角からプロペラ回転数の2乗と推力の比を求める． */
   inline double motorConst(double pitch_angle) const;
 
-  /* プロペラ回転数の2乗と推力の比の最小値． */
-  inline double minMotorConst() const;
-
-  /* プロペラ回転数の2乗と推力の比の最大値． */
-  inline double maxMotorConst() const;
-
   /* エンジン回転数からロータ回転数を求める． */
   inline double speedEngineToRotor(double engine_speed) const;
 
@@ -58,16 +52,6 @@ public:
 inline double ICERotorConfig::motorConst(double pitch_angle) const
 {
   return motor_const.first * pitch_angle + motor_const.second;
-}
-
-inline double ICERotorConfig::minMotorConst() const
-{
-  return motorConst(pitch_range.lower);
-}
-
-inline double ICERotorConfig::maxMotorConst() const
-{
-  return motorConst(pitch_range.upper);
 }
 
 inline double ICERotorConfig::speedEngineToRotor(double engine_speed) const
