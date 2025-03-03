@@ -1,7 +1,9 @@
 #include <cassert>
+#include <iostream>
 
 #include "../include/tobas_math/equation.hpp"
 #include "../include/tobas_math/core.hpp"
+#include "../include/tobas_math/complex.hpp"
 
 using namespace std;
 
@@ -38,7 +40,8 @@ tuple<complex<double>, complex<double>, complex<double>> solveCubicEquation(doub
   const auto p = (-b2 + 3 * a * c) / (9 * a2);
   const auto q = (2 * b3 - 9 * a * b * c + 27 * a2 * d) / (54 * a3);
 
-  const auto sqrt_q2p3 = sqrt(sqr(q) + cube(p));
+  const complex<double> q2p3 = sqr(q) + cube(p);
+  const auto sqrt_q2p3 = sqrt(q2p3);
   const auto cbrt_plus = cbrt(-q + sqrt_q2p3);
   const auto cbrt_minus = cbrt(-q - sqrt_q2p3);
 
