@@ -78,10 +78,6 @@ void RotorAnomalyDetectorNode::droneCb(const tobas::Drone::ConstSharedPtr& drone
   drone_ = drone;
   data_.clear();
 
-  // 電動推進系のみの機能
-  if (drone->prop->type() != tobas::propulsion_system_t::ELECTRIC)
-    return;
-
   for (const auto& [link_name, _] : drone->prop->rotors)
     data_[link_name] = RotorData();
 }
@@ -93,6 +89,8 @@ void RotorAnomalyDetectorNode::statesCb(const tobas_msgs::msg::RotorStateArray::
     TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
     return;
   }
+
+  // TODO: 推進系の種類によって適切な判定を行う
 
   for (const auto& state : states->states)
   {
