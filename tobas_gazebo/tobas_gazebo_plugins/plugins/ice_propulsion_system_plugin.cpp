@@ -231,7 +231,7 @@ void GazeboICEPropulsionSystemPlugin::propellerPitchesCb(
 {
   for (const auto& elem : propeller_pitches->angles)
   {
-    if (rotors_.contains(elem.link_name))
+    if (!rotors_.contains(elem.link_name))
     {
       TOBAS_WARN("Rotor link \"", elem.link_name, "\" does not exist.");
       continue;
