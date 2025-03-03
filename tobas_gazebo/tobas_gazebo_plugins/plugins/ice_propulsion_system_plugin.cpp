@@ -32,6 +32,7 @@ class GazeboICEPropulsionSystemPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kRotorKey[] = "rotor";
+  static constexpr char kEngineKey[] = "engine";
   static constexpr double kAutoStopTimeout = 0.5;    // [s]
   static constexpr double kThrotLimitMargin = 1e-3;  // [-]
 
@@ -104,22 +105,27 @@ void GazeboICEPropulsionSystemPlugin::Configure(
 
   // Initialize rotor models
   auto rotor_elem = sdf->FindElement(kRotorKey);
-  while (rotor_elem)
+  if (rotor_elem == nullptr)
+    TOBAS_EXIT("Please specify \"", kRotorKey, "\" elements.");
+  while (rotor_elem != nullptr)
   {
     ICERotorModel rotor;
 
-    if (!rotor.initialize(sdf, ecm, model))
+    if (!rotor.initialize(rotor_elem, ecm, model))
       TOBAS_EXIT("Failed to initialize ICE rotor model.");
 
     if (rotors_.contains(rotor.getLinkName()))
       TOBAS_EXIT("Rotor link name \"", rotor.getLinkName(), "\" is duplicated.");
 
     rotors_[rotor.getLinkName()] = rotor;
-    rotor_elem = sdf->GetNextElement(kRotorKey);
+    rotor_elem = rotor_elem->GetNextElement(kRotorKey);
   }
 
   // Initialize engine model
-  if (!engine_.initialize(sdf))
+  const auto engine_elem = sdf->FindElement(kEngineKey);
+  if (engine_elem == nullptr)
+    TOBAS_EXIT("Please specify \"", kEngineKey, "\" element.");
+  if (!engine_.initialize(engine_elem))
     TOBAS_EXIT("Failed to initialize engine model.");
 
   // Register ROS interfaces
@@ -154,11 +160,10 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(
     rotor.step(dt);
   engine_.step(dt);
 
-  // Publish rotor states
-  for (const auto& [link_name, rotor] : rotors_)
+  // Publish rotor observed states
+  if (publish_state_rate_manager_->update(info.simTime))
   {
-    // Publish observed state
-    if (publish_state_rate_manager_->update(info.simTime))
+    for (const auto& [link_name, rotor] : rotors_)
     {
       auto state_msg_obs = make_unique<tobas_msgs::msg::RotorState>();
       state_msg_obs->link_name = link_name;
@@ -167,8 +172,11 @@ void GazeboICEPropulsionSystemPlugin::PostUpdate(
       state_msg_obs->status = tobas_msgs::msg::RotorState::NO_ERROR;
       rotor_state_pubs_.at(link_name)->publish(move(state_msg_obs));
     }
+  }
 
-    // Publish ground-truth state
+  // Publish rotor ground-truth states
+  for (const auto& [link_name, rotor] : rotors_)
+  {
     auto state_msg_gt = make_unique<tobas_gazebo_msgs::msg::RotorState>();
     ros2::timeChronoToMsg(info.simTime, state_msg_gt->header.stamp);
     state_msg_gt->rotation_speed = rotor.getSpeed(engine_.getSpeed());
@@ -243,4 +251,5 @@ GZ_ADD_PLUGIN(
   gazebo::GazeboICEPropulsionSystemPlugin,
   gz::sim::System,
   gazebo::GazeboICEPropulsionSystemPlugin::ISystemConfigure,
-  gazebo::GazeboICEPropulsionSystemPlugin::ISystemPreUpdate)
+  gazebo::GazeboICEPropulsionSystemPlugin::ISystemPreUpdate,
+  gazebo::GazeboICEPropulsionSystemPlugin::ISystemPostUpdate)
