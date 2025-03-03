@@ -63,11 +63,11 @@ double EngineConfig::solveThrottleEquation(double torque, double speed)
 
   // スロットル方程式を解く
   const auto& [throt_1, throt_2, throt_3] = math::solveCubicEquation(1, -2, 0, throt_const);
-  const array<double, 3> throt_cands(throt_1.real(), throt_2.real(), throt_3.real());  // スロットル候補
 
-  // 定数部分が[0, 1]の範囲にあるとき，[0, 1]を満たすスロットル解は1つだけ
-  for (const auto& throt : throt_cands)
-    if (kMinThrot <= throt && throt <= kMaxThrot)
-      return throt;
+  // 定数部分が[0, 1]の範囲にあるとき，解はx <= 0, 0 <= x <= 1, 1 <= xの範囲に1つずつ存在する．
+  // そのため3つの解のうち2番目に大きなものを選べばよい．
+  double throt_cands[] = { throt_1.real(), throt_2.real(), throt_3.real() };
+  sort(begin(throt_cands), end(throt_cands));
+  return throt_cands[1];
 }
 }  // namespace tobas
