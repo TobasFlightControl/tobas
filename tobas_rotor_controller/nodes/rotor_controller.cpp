@@ -48,8 +48,6 @@ private:
   ros2::TimerPtr auto_disarm_timer_;
 
   void publishArming();
-  void arm();
-  void disarm();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::ConstSharedPtr& tar_thrusts_msg);
@@ -83,18 +81,6 @@ void RotorControllerNode::publishArming()
   arming_msg->header.stamp = get_clock()->now();
   arming_msg->data = is_armed_;
   arming_pub_->publish(move(arming_msg));
-}
-
-void RotorControllerNode::arm()
-{
-  is_armed_ = true;
-  publishArming();
-}
-
-void RotorControllerNode::disarm()
-{
-  is_armed_ = false;
-  publishArming();
 }
 
 void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -240,12 +226,14 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
       return;
     }
 
-    arm();
+    is_armed_ = true;
+    publishArming();
     auto_disarm_timer_->reset();
   }
   else if (is_armed_ && !req->arming)
   {
-    disarm();
+    is_armed_ = false;
+    publishArming();
     auto_disarm_timer_->cancel();
   }
 
@@ -254,7 +242,8 @@ void RotorControllerNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, c
 
 void RotorControllerNode::autoDisarmTimerCb()
 {
-  disarm();
+  is_armed_ = false;
+  publishArming();
   auto_disarm_timer_->cancel();
 
   TOBAS_WARN(
