@@ -36,11 +36,11 @@ public:
 
 inline ElectricRotorConfig::SharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name)
 {
-  return dynamic_pointer_cast<ElectricRotorConfig>(rotors.at(link_name));
+  return static_pointer_cast<ElectricRotorConfig>(rotors.at(link_name));
 }
 
 inline ElectricRotorConfig::ConstSharedPtr ElectricPropulsionSystemConfig::getRotor(const std::string& link_name) const
 {
-  return dynamic_pointer_cast<ElectricRotorConfig>(rotors.at(link_name));
+  return static_pointer_cast<ElectricRotorConfig>(rotors.at(link_name));
 }
 }  // namespace tobas
