@@ -2,8 +2,6 @@
 
 #include <QPushButton>
 #include <QTimer>
-
-#include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_ros2_tools/register.hpp>
@@ -13,7 +11,6 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 
@@ -65,7 +62,6 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> cur_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
-  ros2::SyncServiceClient<tobas_msgs::srv::SetArm>::SharedPtr set_arm_sc_;
   ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>::SharedPtr get_gains_sc_;
   ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>::SharedPtr set_gains_sc_;
   ros2::SyncServiceClient<std_srvs::srv::Trigger>::SharedPtr save_gains_sc_;
@@ -75,7 +71,6 @@ private:
   void publishTargetSppeds();
   void updateCurrentSpeeds();
   bool loadCurrentGains();
-  bool armRotors(bool arming);
 
   void currentStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);

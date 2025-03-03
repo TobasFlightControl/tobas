@@ -47,7 +47,6 @@ ament_target_dependencies(${PROJECT_NAME}_node
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "CpuHandlerNode" EXECUTABLE cpu_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "RotorStatesPublisherNode" EXECUTABLE rotor_states_publisher)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "ElectricRotorCommandHandlerNode" EXECUTABLE electric_rotor_command_handler)
-rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "EngineThrottleCommandHandlerNode" EXECUTABLE engine_throttle_command_handler)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointStatesBridge" EXECUTABLE joint_states_bridge)
 rclcpp_components_register_node(${PROJECT_NAME}_node PLUGIN "JointCommandHandlerNode" EXECUTABLE joint_command_handler)
 

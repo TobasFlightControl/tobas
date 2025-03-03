@@ -202,7 +202,7 @@ void GazeboICEPropulsionSystemPlugin::registerPubSub()
       createPublisher<tobas_gazebo_msgs::msg::RotorState>(path::join(kRotorStateGtTopicNS, link_name));
   }
 
-  engine_throttle_sub_ = createSubscriber(gazebo::kEngineThrottleCmdTopic, &self::engineThrottleCb, this);
+  engine_throttle_sub_ = createSubscriber(tobas::kEngineThrottleCmdTopic, &self::engineThrottleCb, this);
   propeller_pitches_sub_ = createSubscriber(tobas::kPropellerPitchesCmdTopic, &self::propellerPitchesCb, this);
   wind_gt_sub_ = createSubscriber(gazebo::kWindGtTopic, &self::windSpeedGtCb, this);
 }

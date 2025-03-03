@@ -6,11 +6,8 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
 #include <tobas_real_common/constants.hpp>
-#include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
 #include <tobas_msgs/srv/set_rotor_control_gains.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -24,7 +21,7 @@ class DShotDriverNode : public tobas::BaseNode
 {
   using self = DShotDriverNode;
   using super = tobas::BaseNode;
-  using SetArm = tobas_msgs::srv::SetArm;
+
   using GetGains = tobas_msgs::srv::GetRotorControlGains;
   using SetGains = tobas_msgs::srv::SetRotorControlGains;
   using SaveGains = std_srvs::srv::Trigger;
@@ -39,45 +36,32 @@ private:
 
   ptree::PropertyTree pt_;
   array<uint8_t, aso::DShot::kChannelSize> gains_ = { 0 };
-  bool is_armed_ = false;
   bool is_commanded_ = false;
   tobas::ElectricPropulsionSystemConfig::ConstSharedPtr eprop_;
-  tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   ros2::PublisherPtr<tobas_msgs::msg::RotorStateArray> rotor_states_pub_;
-  ros2::PublisherPtr<tobas_msgs::msg::Arming> arming_pub_;
 
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorSpeedArray> tar_speeds_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
 
-  ros2::ServiceServerPtr<SetArm> set_arm_ss_;
   ros2::ServiceServerPtr<GetGains> get_gains_ss_;
   ros2::ServiceServerPtr<SetGains> set_gains_ss_;
   ros2::ServiceServerPtr<SaveGains> save_gains_ss_;
 
-  ros2::TimerPtr publish_arming_timer_;
   ros2::TimerPtr auto_stop_timer_;
-  ros2::TimerPtr auto_disarm_timer_;
 
   bool transferAndSleep();
   void publishRotorStates();
-  void publishArming();
   bool stopRotors();
-  void arm();
-  void disarm();
 
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds);
-  void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
 
-  void setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res);
   void getGainsCb(const GetGains::Request::ConstSharedPtr& req, const GetGains::Response::SharedPtr& res);
   void setGainsCb(const SetGains::Request::ConstSharedPtr& req, const SetGains::Response::SharedPtr& res);
   void saveGainsCb(const SaveGains::Request::ConstSharedPtr& req, const SaveGains::Response::SharedPtr& res);
 
   void autoStopTimerCb();
-  void autoDisarmTimerCb();
 };
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("aso_dshot_driver", options)
@@ -90,9 +74,7 @@ DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("as
 
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
 
-  publish_arming_timer_ = createTimer(tobas::kPublishArmingPeriod, &self::publishArming, this, false);
   auto_stop_timer_ = createTimer(tobas::kCommandAutoResetTimeout, &self::autoStopTimerCb, this, false);
-  auto_disarm_timer_ = createTimer(tobas::kAutoDisarmTimeout, &self::autoDisarmTimerCb, this, false);
 }
 
 bool DShotDriverNode::transferAndSleep()
@@ -135,14 +117,6 @@ void DShotDriverNode::publishRotorStates()
   rotor_states_pub_->publish(move(rotor_states));
 }
 
-void DShotDriverNode::publishArming()
-{
-  auto arming_msg = std::make_unique<tobas_msgs::msg::Arming>();
-  arming_msg->header.stamp = get_clock()->now();
-  arming_msg->data = is_armed_;
-  arming_pub_->publish(move(arming_msg));
-}
-
 bool DShotDriverNode::stopRotors()
 {
   for (size_t ch = 0; ch < aso::DShot::kChannelSize; ++ch)
@@ -161,20 +135,6 @@ bool DShotDriverNode::stopRotors()
   }
 
   return true;
-}
-
-void DShotDriverNode::arm()
-{
-  is_armed_ = true;
-  publishArming();
-}
-
-void DShotDriverNode::disarm()
-{
-  stopRotors();
-
-  is_armed_ = false;
-  publishArming();
 }
 
 void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
@@ -290,20 +250,16 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
   // Resister publishers
   rotor_states_pub_ = createPublisher<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
-  arming_pub_ = createPublisher<tobas_msgs::msg::Arming>(tobas::kArmingTopic);
 
   // Resister subscribers
   tar_speeds_sub_ = createSubscriber(tobas::kRotorSpeedsCmdTopic, &self::targetSpeedsCb, this);
-  prearm_check_sub_ = createSubscriber(tobas::kPreArmCheckTopic, &self::preArmCheckCb, this);
 
   // Resister service servers
-  set_arm_ss_ = createService<SetArm>(tobas::kSetArmSrv, &self::setArmCb, this);
   get_gains_ss_ = createService<GetGains>(tobas::kGetRotorControlGainsSrv, &self::getGainsCb, this);
   set_gains_ss_ = createService<SetGains>(tobas::kSetRotorControlGainsSrv, &self::setGainsCb, this);
   save_gains_ss_ = createService<SaveGains>(tobas::kSaveRotorControlGainsSrv, &self::saveGainsCb, this);
 
   // Start timers
-  publish_arming_timer_->reset();
   auto_stop_timer_->reset();
 
   eprop_ = eprop;
@@ -312,12 +268,6 @@ void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::ConstSharedPtr& tar_speeds)
 {
-  if (!is_armed_)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Command is ignored because the rotors are disarmed.");
-    return;
-  }
-
   // Set target speeds of each channel
   for (const auto& tar_speed : tar_speeds->speeds)
   {
@@ -347,48 +297,9 @@ void DShotDriverNode::targetSpeedsCb(const tobas_msgs::msg::RotorSpeedArray::Con
 
   // Reset timeout timers
   auto_stop_timer_->reset();
-  auto_disarm_timer_->reset();
 
   // Now the rotors are commanded
   is_commanded_ = true;
-}
-
-void DShotDriverNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check)
-{
-  prearm_check_ = prearm_check;
-}
-
-void DShotDriverNode::setArmCb(const SetArm::Request::ConstSharedPtr& req, const SetArm::Response::SharedPtr& res)
-{
-  if (!is_armed_ && req->arming)
-  {
-    if (!req->ignore_prearm_check)
-    {
-      if (prearm_check_ == nullptr)
-      {
-        res->success = false;
-        res->message = "Pre-arm check status is not received yet.";
-        return;
-      }
-
-      if (!prearm_check_->ok)
-      {
-        res->success = false;
-        res->message = "Pre-arm check failed.";
-        return;
-      }
-    }
-
-    arm();
-    auto_disarm_timer_->reset();
-  }
-  else if (is_armed_ && !req->arming)
-  {
-    disarm();
-    auto_disarm_timer_->cancel();
-  }
-
-  res->success = true;
 }
 
 void DShotDriverNode::getGainsCb(const GetGains::Request::ConstSharedPtr&, const GetGains::Response::SharedPtr& res)
@@ -453,16 +364,6 @@ void DShotDriverNode::autoStopTimerCb()
       "All rotors are automatically stopped because ", tobas::kCommandAutoResetTimeout.count(),
       " ms have elapsed since the last command.");
   }
-}
-
-void DShotDriverNode::autoDisarmTimerCb()
-{
-  disarm();
-  auto_disarm_timer_->cancel();
-
-  TOBAS_WARN(
-    "All rotors are automatically disarmed because ", tobas::kAutoDisarmTimeout.count(),
-    " s have elapsed since the last command.");
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(DShotDriverNode)

@@ -1,11 +1,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_path_tools/join.hpp>
-#include <tobas_ros2_tools/register.hpp>
-#include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
-#include <tobas_msgs/srv/set_arm.hpp>
 
 #include "tobas_hardware_setup/rotor_test/rotor_test.hpp"
 #include "tobas_hardware_setup/constants.hpp"
@@ -153,8 +150,6 @@ void RotorTestWidget::updateInternalDataStructures()
     arming_sub_ = ros2::createSubscriber(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kArmingTopic), &self::armingCb, this);
 
-    set_arm_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetArm>>(
-      node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kSetArmSrv));
     get_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::GetRotorControlGains>>(
       node_, path::join(drone_.name, tobas::kRemoteIfaceTopicNS, tobas::kGetRotorControlGainsSrv));
     set_gains_sc_ = std::make_shared<ros2::SyncServiceClient<tobas_msgs::srv::SetRotorControlGains>>(
@@ -172,7 +167,6 @@ void RotorTestWidget::updateInternalDataStructures()
     cur_states_sub_ = nullptr;
     arming_sub_ = nullptr;
 
-    set_arm_sc_ = nullptr;
     get_gains_sc_ = nullptr;
     set_gains_sc_ = nullptr;
     save_gains_sc_ = nullptr;
@@ -236,27 +230,6 @@ bool RotorTestWidget::loadCurrentGains()
   return true;
 }
 
-bool RotorTestWidget::armRotors(bool arming)
-{
-  const auto req = std::make_shared<tobas_msgs::srv::SetArm::Request>();
-  req->arming = arming;
-  req->ignore_prearm_check = true;  // 飛ばすわけではないためPre-Arm Checkは無し
-  if (!set_arm_sc_->call(req, kWaitForService))
-  {
-    qt::qErrorBox(this, "Failed to connect to the rotor controller.");
-    return false;
-  }
-
-  const auto res = set_arm_sc_->getResponse();
-  if (!res->success)
-  {
-    qt::qErrorBox(this, "Arming service failed: " + QString::fromStdString(res->message));
-    return false;
-  }
-
-  return true;
-}
-
 void RotorTestWidget::currentStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& cur_states)
 {
   cur_states_ = cur_states;
@@ -285,10 +258,6 @@ void RotorTestWidget::onStartButtonClicked()
   if (!loadCurrentGains())
     return;
 
-  // モータを起動
-  if (!armRotors(true))
-    return;
-
   // モータウィジェットを有効化
   for (const auto& [link_name, _] : eprop_->rotors)
   {
@@ -308,10 +277,6 @@ void RotorTestWidget::onStartButtonClicked()
 
 void RotorTestWidget::onStopButtonClicked()
 {
-  // モータを停止
-  if (!armRotors(false))
-    return;
-
   // ウィジェットを初期化
   reset();
 
