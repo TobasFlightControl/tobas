@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include <tobas_math/core.hpp>
 #include <tobas_math/equation.hpp>
 #include <tobas_yaml_tools/core.hpp>
 #include <tobas_constants/constants.hpp>
@@ -48,7 +49,23 @@ YAML::Node EngineConfig::dump() const
   return node;
 }
 
-double EngineConfig::solveThrottleEquation(double torque, double speed)
+double EngineConfig::computeTorque(double speed, double throttle)
+{
+  assert(speed >= 0.);
+  assert(throttle >= 0.);
+
+  return max(torque_const * g(throttle) * speed - friction_torque, 0.);
+}
+
+double EngineConfig::computeSpeed(double throttle, double torque)
+{
+  assert(throttle >= 0.);
+  assert(torque >= 0.);
+
+  return (torque + friction_torque) / (torque_const * g(throttle));
+}
+
+double EngineConfig::computeThrottle(double torque, double speed)
 {
   assert(torque >= 0.);
   assert(speed >= 0.);
@@ -69,5 +86,10 @@ double EngineConfig::solveThrottleEquation(double torque, double speed)
   double throt_cands[] = { throt_1.real(), throt_2.real(), throt_3.real() };
   sort(begin(throt_cands), end(throt_cands));
   return throt_cands[1];
+}
+
+double EngineConfig::g(double throttle)
+{
+  return math::sqr(throttle) * (2 - throttle);
 }
 }  // namespace tobas

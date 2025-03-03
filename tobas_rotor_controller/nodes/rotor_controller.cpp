@@ -189,7 +189,7 @@ void RotorControllerNode::thrustsCmdCb(const tobas_msgs::msg::RotorThrustArray::
       // エンジンスロットルを発行
       auto engine_throt_msg = std::make_unique<tobas_msgs::msg::EngineThrottle>();
       engine_throt_msg->header = tar_thrusts_msg->header;
-      engine_throt_msg->data = engine_speed > 0. ? iprop->engine.solveThrottleEquation(torque_sum, engine_speed) : 0.;
+      engine_throt_msg->data = engine_speed > 0. ? iprop->engine.computeThrottle(torque_sum, engine_speed) : 0.;
       engine_throt_pub_->publish(move(engine_throt_msg));
 
       // プロペラピッチ角を発行
