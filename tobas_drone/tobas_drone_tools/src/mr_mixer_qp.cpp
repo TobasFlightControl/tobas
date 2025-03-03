@@ -39,7 +39,11 @@ bool MultiRotorMixer_QP::solve(
   const double& tar_thrusts_sum,
   const kdl::Vector& ext_torque_B)
 {
-  assert(tar_thrusts_sum > 0);
+  if (tar_thrusts_sum < 0.)
+  {
+    cerr << "Target thrust must be positive." << endl;
+    return false;
+  }
 
   // 順運動学を計算
   if (fk_solver_.JntToCart(cur_q) < 0)
