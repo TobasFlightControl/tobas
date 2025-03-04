@@ -34,43 +34,46 @@ def generate_launch_description():
 
     # Launch robot state publisher with minimul URDF
     minimul_urdf = '<robot name="empty"><link name="root"/></robot>'
-    rsp = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[{"robot_description": minimul_urdf}],
-        output=output,
+    ld.add_action(
+        Node(
+            package="robot_state_publisher",
+            executable="robot_state_publisher",
+            parameters=[{"robot_description": minimul_urdf}],
+            output=output,
+        )
     )
-    ld.add_action(rsp)
 
     # Launch property server
-    property_server = Node(
-        package="tobas_property_server",
-        executable="property_server",
-        name="property_server",
-        ros_arguments=ros_args,
-        output=output,
+    ld.add_action(
+        Node(
+            package="tobas_property_server",
+            executable="property_server",
+            ros_arguments=ros_args,
+            output=output,
+        )
     )
-    ld.add_action(property_server)
 
     # Launch SSH server
-    property_server = Node(
-        package="tobas_ssh_server",
-        executable="ssh_server_node",
-        parameters=[{"host": "tobas.local", "port": 22, "user": "pi", "passwd": "raspberry"}],
-        name="ssh_server",
-        ros_arguments=ros_args,
-        output=output,
+    ld.add_action(
+        Node(
+            package="tobas_ssh_server",
+            executable="ssh_server_node",
+            name="ssh_server",
+            parameters=[{"host": "tobas.local", "port": 22, "user": "pi", "passwd": "raspberry"}],
+            ros_arguments=ros_args,
+            output=output,
+        )
     )
-    ld.add_action(property_server)
 
     # Launch main application
-    core = Node(
-        package="tobas_gui_core",
-        executable="Tobas",
-        ros_arguments=ros_args,
-        output=output,
-        on_exit=Shutdown(),
+    ld.add_action(
+        Node(
+            package="tobas_gui_core",
+            executable="Tobas",
+            ros_arguments=ros_args,
+            output=output,
+            on_exit=Shutdown(),
+        )
     )
-    ld.add_action(core)
 
     return ld
