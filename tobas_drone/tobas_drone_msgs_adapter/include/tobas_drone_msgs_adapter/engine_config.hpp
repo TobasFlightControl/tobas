@@ -14,14 +14,14 @@ struct rclcpp::TypeAdapter<tobas::EngineConfig, tobas_drone_msgs::msg::EngineCon
 
   static void convert_to_ros_message(const custom_type& src, ros_message_type& dst)
   {
-    dst.torque_const = dst.torque_const;
-    dst.friction_torque = dst.friction_torque;
+    dst.torque_const = src.torque_const;
+    dst.friction_torque = src.friction_torque;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
   {
-    dst.torque_const = dst.torque_const;
-    dst.friction_torque = dst.friction_torque;
+    dst.torque_const = src.torque_const;
+    dst.friction_torque = src.friction_torque;
   }
 };
 

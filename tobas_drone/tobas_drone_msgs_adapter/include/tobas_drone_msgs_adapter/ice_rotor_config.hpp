@@ -22,6 +22,7 @@ struct rclcpp::TypeAdapter<tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERoto
     tobas_drone_msgs::RotorConfigAdapter::convert_to_ros_message(src, dst.rotor);
 
     dst.gear_ratio = src.gear_ratio;
+    dst.pitch_ref = src.pitch_ref;
     tobas_std_msgs::RangeFloat64Adapter::convert_to_ros_message(src.pitch_range, dst.pitch_range);
     tobas_std_msgs::PairFloat64Adapter::convert_to_ros_message(src.motor_const, dst.motor_const);
   }
@@ -31,6 +32,7 @@ struct rclcpp::TypeAdapter<tobas::ICERotorConfig, tobas_drone_msgs::msg::ICERoto
     tobas_drone_msgs::RotorConfigAdapter::convert_to_custom(src.rotor, dst);
 
     dst.gear_ratio = src.gear_ratio;
+    dst.pitch_ref = src.pitch_ref;
     tobas_std_msgs::RangeFloat64Adapter::convert_to_custom(src.pitch_range, dst.pitch_range);
     tobas_std_msgs::PairFloat64Adapter::convert_to_custom(src.motor_const, dst.motor_const);
   }
