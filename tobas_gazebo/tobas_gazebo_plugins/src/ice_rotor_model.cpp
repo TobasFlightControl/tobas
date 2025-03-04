@@ -86,7 +86,16 @@ double ICERotorModel::getThrust(const double& engine_speed) const
 
 void ICERotorModel::setTargetPitchAngle(const double& tar_pitch)
 {
-  tar_pitch_ = pitch_range_.clamp(tar_pitch);
+  if (pitch_range_.inRange(tar_pitch))
+  {
+    tar_pitch_ = tar_pitch;
+  }
+  else
+  {
+    gzwarn << "Target pitch angle of propeller " << link_name_ << " is out of range: " << tar_pitch << " ∉ "
+           << pitch_range_ << endl;
+    tar_pitch_ = pitch_range_.clamp(tar_pitch);
+  }
 }
 
 void ICERotorModel::applyWrench(
