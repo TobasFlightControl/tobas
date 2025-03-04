@@ -119,7 +119,7 @@ bool Drone::load(const YAML::Node& node)
         cerr << "Failed to load the configurations of electric propulsion system." << endl;
         return false;
       }
-      prop = eprop;
+      prop = static_pointer_cast<PropulsionSystemConfig>(eprop);
       break;
     }
     case propulsion_system_t::ICE:
@@ -130,7 +130,7 @@ bool Drone::load(const YAML::Node& node)
         cerr << "Failed to load the configurations of ICE propulsion system." << endl;
         return false;
       }
-      prop = iprop;
+      prop = static_pointer_cast<PropulsionSystemConfig>(iprop);
       break;
     }
     default:

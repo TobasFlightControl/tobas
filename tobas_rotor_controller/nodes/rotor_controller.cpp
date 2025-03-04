@@ -85,6 +85,12 @@ void RotorControllerNode::publishArming()
 
 void RotorControllerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
+  if (!drone->isValid())
+  {
+    TOBAS_ERROR("Drone configuration is invalid.");
+    return;
+  }
+
   drone_ = drone;
 }
 

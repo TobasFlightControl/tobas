@@ -69,19 +69,19 @@ double ICERotorModel::getPitchAngle() const
   return pitch_filter_.getValue();
 }
 
-double ICERotorModel::getVelocity(const double& engine_speed) const
-{
-  return engine_speed / gear_ratio_ * direction_;
-}
-
 double ICERotorModel::getSpeed(const double& engine_speed) const
 {
-  return abs(getVelocity(engine_speed));
+  return engine_speed / gear_ratio_;
+}
+
+double ICERotorModel::getVelocity(const double& engine_speed) const
+{
+  return getSpeed(engine_speed) * direction_;
 }
 
 double ICERotorModel::getThrust(const double& engine_speed) const
 {
-  return getMotorConst() * math::sqr(getVelocity(engine_speed));
+  return getMotorConst() * math::sqr(getSpeed(engine_speed));
 }
 
 void ICERotorModel::setTargetPitchAngle(const double& tar_pitch)
@@ -94,6 +94,8 @@ void ICERotorModel::applyWrench(
   const double& engine_speed,
   const gz::math::Vector3d& wind_vel_W)
 {
+  assert(engine_speed >= 0.);
+
   // The True Role of Accelerometer Feedback in Quadrotor Control [Martin+, 2010]
   // II-A. Model of a single propeller near hovering
 
@@ -102,7 +104,7 @@ void ICERotorModel::applyWrench(
   const auto global_axis = link_->WorldPose(ecm).value().Rot().RotateVector(local_axis);
 
   // Compute current state
-  const auto velocity = getVelocity(engine_speed);
+  const auto speed = getSpeed(engine_speed);
   const auto thrust = getThrust(engine_speed);
 
   // (1) first term: Thrust Force
@@ -112,7 +114,7 @@ void ICERotorModel::applyWrench(
   // (1) second term: H-force
   const auto linvel_W = link_->WorldLinearVelocity(ecm).value() - wind_vel_W;
   const auto linvel_perp_W = linvel_W - (linvel_W.Dot(global_axis) * global_axis);
-  const auto h_force_W = (-fabs(velocity) * drag_const_) * linvel_perp_W;
+  const auto h_force_W = (-speed * drag_const_) * linvel_perp_W;
   link_->AddWorldWrench(ecm, h_force_W, gz::math::Vector3d::Zero);
 
   // (2) first term: Rotor drag torque

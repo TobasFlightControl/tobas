@@ -27,8 +27,8 @@ public:
   double getMomentConst() const;
   double getDragConst() const;
 
-  double getVelocity(const double& engine_speed) const;
   double getSpeed(const double& engine_speed) const;
+  double getVelocity(const double& engine_speed) const;
   double getThrust(const double& engine_speed) const;
 
   double getPitchAngle() const;

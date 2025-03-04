@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <yaml-cpp/yaml.h>
 
 namespace tobas
@@ -26,6 +27,8 @@ public:
 
   /* Compute engine throttle [0, 1] from torque [N] and speed [rad/s]. */
   double computeThrottle(double torque, double speed);
+
+  friend std::ostream& operator<<(std::ostream& os, const EngineConfig& arg);
 
 private:
   static double g(double throttle);

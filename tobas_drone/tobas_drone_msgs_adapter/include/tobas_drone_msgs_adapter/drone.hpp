@@ -112,14 +112,14 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
         {
           const auto eprop = std::make_shared<tobas::ElectricPropulsionSystemConfig>();
           tobas_drone_msgs::ElectricPropulsionSystemConfigAdapter::convert_to_custom(src.eprop, *eprop);
-          dst.prop = eprop;
+          dst.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(eprop);
           break;
         }
         case tobas::propulsion_system_t::ICE:
         {
           const auto iprop = std::make_shared<tobas::ICEPropulsionSystemConfig>();
           tobas_drone_msgs::ICEPropulsionSystemConfigAdapter::convert_to_custom(src.iprop, *iprop);
-          dst.prop = iprop;
+          dst.prop = std::static_pointer_cast<tobas::PropulsionSystemConfig>(iprop);
           break;
         }
         default:

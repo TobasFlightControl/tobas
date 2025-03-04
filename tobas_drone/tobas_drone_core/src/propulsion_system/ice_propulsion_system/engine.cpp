@@ -92,4 +92,11 @@ double EngineConfig::g(double throttle)
 {
   return math::sqr(throttle) * (2 - throttle);
 }
+
+ostream& operator<<(ostream& os, const EngineConfig& arg)
+{
+  os << "Torque Constant [Nm/(rad/s)]: " << arg.torque_const << endl;
+  os << "Dynamic Friction Torque [Nm]: " << arg.friction_torque << endl;
+  return os;
+}
 }  // namespace tobas
