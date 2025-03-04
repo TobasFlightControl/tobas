@@ -5,6 +5,7 @@
 
 #include <tobas_path_tools/core.hpp>
 #include <tobas_linux/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -146,7 +147,7 @@ private:
 ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   : super("rosbag_recorder", options),
     ns_(string(get_namespace()) + "/"),
-    rosbag_dir_(linux::isSuperUser() ? tobas::kROSBagDirRoot : linux::expandUser(tobas::kROSBagDirHome))
+    rosbag_dir_(linux::isSuperUser() ? tobas::kROSBagDirRoot : ros2::expandUser(tobas::kROSBagDirHome))
 {
   // XXX: トピック通信の接続はローカルであっても遅延の原因になりうるため，レコード開始時ではなく先に接続を確立しておく．
 
