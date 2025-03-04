@@ -18,7 +18,7 @@ void addBatteryPlugin(
   double max_current,
   double current_capacity,
   double internal_registance,
-  const std::vector<size_t>& rotor_channels);
+  const std::vector<std::string>& rotor_link_names);
 
 void addIMUPlugin(
   tinyxml2::XMLElement* robot,
@@ -34,7 +34,7 @@ void addIMUPlugin(
   double acc_random_walk,
   double acc_bias_corr_time,
   double acc_turn_on_bias_sigma,
-  const std::vector<size_t>& rotor_channels);
+  const std::vector<std::string>& rotor_link_names);
 
 void addMagnetometerPlugin(
   tinyxml2::XMLElement* robot,
@@ -73,17 +73,16 @@ void addGNSSPlugin(
   double longitude_zero,
   double altitude_zero);
 
-void addRotorPlugin(
+void addElectricPropulsionSystemPlugin(
   tinyxml2::XMLElement* robot,
   const std::string& ns,
   const std::string& link_name,
-  uint32_t channel,
   double kv,
   double internal_resistance,
   size_t num_blades,
-  double motor_constant,
-  double moment_constant,
-  double drag_constant,
+  double motor_const,
+  double moment_const,
+  double drag_const,
   tobas::turning_direction_t direction,
   double max_current,
   double max_model_error_rate);

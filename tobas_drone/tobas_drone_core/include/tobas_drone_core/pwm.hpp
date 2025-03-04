@@ -29,6 +29,7 @@ public:
   bool reverse = false;
 
   bool isValid() const;
+
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
 };

@@ -34,13 +34,13 @@ private:
   const rclcpp::Node::SharedPtr node_;
   const tobas::Drone& drone_;
 
-  std::map<size_t, SpeedmeterWidget*> meters_;
+  std::map<std::string, SpeedmeterWidget*> meters_;
   QHBoxLayout* cols_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
 
-  void setSpeed(size_t channel, double rps);
+  void setSpeed(const std::string& link_name, const double& rps);
 
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& msg);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& msg);

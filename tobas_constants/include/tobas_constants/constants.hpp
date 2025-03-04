@@ -5,9 +5,6 @@
 
 namespace tobas
 {
-// モータが停止して静止摩擦が発生することを防ぐために，最小スロットル率を設定．
-// ESCによっては10%以下だとスロットルと印加電圧が比例しない場合があるため，最低でも10%以上にする．
-// cf. https://ardupilot.org/copter/docs/set-motor-range.html
 static constexpr double kMinThrot = 0.;  // The minimum throttle
 static constexpr double kMaxThrot = 1.;  // The maximum throttle
 
@@ -26,6 +23,7 @@ static constexpr char kDroneTopic[] = "drone";
 static constexpr char kKDLTreeTopic[] = "kdl_tree";
 static constexpr char kRobotDescriptionTopic[] = "robot_description";
 static constexpr char kBatteryTopic[] = "battery";
+static constexpr char kEngineStateTopic[] = "engine_state";
 static constexpr char kCPUTopic[] = "cpu";
 static constexpr char kRcInputTopic[] = "rc_input";
 static constexpr char kImuTopic[] = "imu";
@@ -53,8 +51,10 @@ static constexpr char kRosbagStateTopic[] = "rosbag_state";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
 // Command
+static constexpr char kEngineThrottleCmdTopic[] = "command/engine_throttle";
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
+static constexpr char kPropellerPitchesCmdTopic[] = "command/propeller_pitch_angles";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
 static constexpr char kRateThrottleCmdTopic[] = "command/rate_throttle";

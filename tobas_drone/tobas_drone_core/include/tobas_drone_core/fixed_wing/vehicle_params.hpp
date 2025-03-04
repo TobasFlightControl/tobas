@@ -23,6 +23,7 @@ public:
   tobas_std::Range<double> alpha_limit = { 0, 0 };  // Stall angles [rad]
 
   bool isValid() const;
+
   bool load(const YAML::Node& node);
   YAML::Node dump() const;
 };

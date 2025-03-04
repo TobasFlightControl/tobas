@@ -1,3 +1,5 @@
+#include <boost/polymorphic_pointer_cast.hpp>
+
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -60,13 +62,13 @@ bool MissionExecutionThread::execute(BaseCommandData::SharedPtr command)
   switch (cmd_type)
   {
     case command_t::WAYPOINT:
-      return execute(dynamic_pointer_cast<WaypointData>(command));
+      return execute(boost::polymorphic_pointer_downcast<WaypointData>(command));
     case command_t::TAKEOFF:
-      return execute(dynamic_pointer_cast<TakeoffData>(command));
+      return execute(boost::polymorphic_pointer_downcast<TakeoffData>(command));
     case command_t::LAND:
-      return execute(dynamic_pointer_cast<LandData>(command));
+      return execute(boost::polymorphic_pointer_downcast<LandData>(command));
     case command_t::RETURN_TO_HOME:
-      return execute(dynamic_pointer_cast<ReturnToHomeData>(command));
+      return execute(boost::polymorphic_pointer_downcast<ReturnToHomeData>(command));
     default:
       Q_EMIT finished(false, format("Unknown command type: {}", (int)cmd_type).c_str());
       return false;

@@ -14,7 +14,6 @@
 #include <tobas_pose_pid/angle_axis_pid.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
-#include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
@@ -58,7 +57,6 @@ private:
   bool tree_received_ = false;
   bool js_received_ = false;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
-  tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_command_msgs::PoseTwistAccel::SharedPtr cmd_;
@@ -72,7 +70,6 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Battery> battery_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
@@ -103,7 +100,6 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
-  void batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -145,7 +141,6 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
-  battery_sub_ = createSubscriber(tobas::kBatteryTopic, &self::batteryCb, this);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
@@ -179,12 +174,6 @@ bool ControllerNode::isReadyToControl()
   if (odom_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
-    return false;
-  }
-
-  if (battery_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kBatteryTopic, "\".");
     return false;
   }
 
@@ -363,8 +352,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
   const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
   if (!mixer_.solve(
-        battery_->voltage, js_converter_.getPosition(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B,
-        dist_force_W, dist_torque_B))
+        js_converter_.getPosition(), odom->frame.M, odom->twist.rot, tar_acc_W, tar_dgyro_B, dist_force_W,
+        dist_torque_B))
   {
     TOBAS_FATAL("Failed to solve mixing equation.");
     return;
@@ -374,10 +363,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 目標推力を発行
   auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
   tar_thrusts->header.stamp = odom->header.stamp;
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     tar_thrusts->thrusts.emplace_back();
-    tar_thrusts->thrusts.back().channel = rotor_it.first;
+    tar_thrusts->thrusts.back().link_name = rotor_it.first;
     tar_thrusts->thrusts.back().thrust = thrusts(idx);
   }
   tar_thrusts_pub_->publish(move(tar_thrusts));
@@ -395,11 +384,6 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->position_integral_error = pos_pid_.integralError();
   feedback->orientation_integral_error = kdl::Euler(rot_pid_.integralError());
   feedback_pub_->publish(move(feedback));
-}
-
-void ControllerNode::batteryCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
-{
-  battery_ = battery;
 }
 
 void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
@@ -434,8 +418,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
 {
   for (const auto& data : rotor_liveliness->data)
-    if (!mixer_.setRotorLiveliness(data.channel, data.alive))
-      TOBAS_ERROR("Failed to set the liveliness of rotor channel ", data.channel);
+    if (!mixer_.setRotorLiveliness(data.link_name, data.alive))
+      TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
 }
 
 void ControllerNode::commandCb(const tobas_command_msgs::PoseTwistAccel::ConstSharedPtr& cmd)

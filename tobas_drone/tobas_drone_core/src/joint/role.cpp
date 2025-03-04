@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../../include/tobas_drone_core/joint/role.hpp"
+#include "tobas_drone_core/joint/role.hpp"
 
 using namespace std;
 

@@ -1,2 +1,2 @@
-uint8 channel
+string link_name
 bool alive

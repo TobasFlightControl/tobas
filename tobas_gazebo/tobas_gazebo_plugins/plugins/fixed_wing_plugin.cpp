@@ -42,6 +42,7 @@ class GazeboFixedWingPlugin : public BaseNode,
                               public gz::sim::ISystemPreUpdate
 {
   // Constants
+  static constexpr char kControlSurfaceKey[] = "controlSurface";
   static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
   static constexpr double kAutoResetTimeout = 0.5;  // [s]
 
@@ -217,10 +218,10 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "cYawR", aero_coefs_.c_yaw_r, NEGATIVE);
 
   // ControlSurface
-  if (sdf->HasElement("controlSurface"))
+  if (sdf->HasElement(kControlSurfaceKey))
   {
     unordered_set<int> indexes;
-    auto cs_elem = sdf->FindElement("controlSurface");
+    auto cs_elem = sdf->FindElement(kControlSurfaceKey);
 
     while (cs_elem)
     {
@@ -241,7 +242,7 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
       indexes.emplace(cs.channel);
       control_surfaces_.push_back(cs);
-      cs_elem = cs_elem->GetNextElement("controlSurface");
+      cs_elem = cs_elem->GetNextElement(kControlSurfaceKey);
     }
 
     for (size_t i = 0; i < indexes.size(); ++i)

@@ -25,7 +25,6 @@ public:
   bool updateInternalDataStructures();
 
   bool solve(
-    const double& cur_voltage,
     const kdl::JntArray& cur_q,
     const kdl::Rotation& cur_rot,
     const kdl::Vector& cur_gyro_B,

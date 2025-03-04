@@ -334,10 +334,10 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 推力を発行
   auto tar_thrusts = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
   tar_thrusts->header.stamp = odom->header.stamp;
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     tar_thrusts->thrusts.emplace_back();
-    tar_thrusts->thrusts.back().channel = rotor_it.first;
+    tar_thrusts->thrusts.back().link_name = rotor_it.first;
     tar_thrusts->thrusts.back().thrust = mixer_.getThrust(idx);
   }
   tar_thrusts_pub_->publish(move(tar_thrusts));
@@ -345,13 +345,13 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // ティルト角を発行
   auto tar_angles = std::make_unique<tobas_msgs::msg::JointCommandArray>();
   tar_angles->header.stamp = odom->header.stamp;
-  for (const auto& [idx, rotor_it] : views::enumerate(drone_.rotors))
+  for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
     const auto& rotor = rotor_it.second;
-    if (rotor.tilt_joint_name.empty())
+    if (rotor->tilt_joint_name.empty())
       continue;
     tar_angles->commands.emplace_back();
-    tar_angles->commands.back().name = rotor.tilt_joint_name;
+    tar_angles->commands.back().name = rotor->tilt_joint_name;
     tar_angles->commands.back().data = mixer_.getTiltAngle(idx);
   }
   tar_angles_pub_->publish(move(tar_angles));
@@ -398,8 +398,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
 {
   for (const auto& data : rotor_liveliness->data)
-    if (!mixer_.setRotorLiveliness(data.channel, data.alive))
-      TOBAS_ERROR("Failed to set the liveliness of rotor channel ", data.channel);
+    if (!mixer_.setRotorLiveliness(data.link_name, data.alive))
+      TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
 }
 
 void ControllerNode::commandCb(const tobas_command_msgs::PoseTwistAccel::ConstSharedPtr& cmd)

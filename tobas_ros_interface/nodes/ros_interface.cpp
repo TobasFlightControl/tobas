@@ -1,3 +1,4 @@
+#include <boost/polymorphic_pointer_cast.hpp>
 #include <std_srvs/srv/trigger.hpp>
 
 #include <tobas_path_tools/join.hpp>
@@ -12,6 +13,8 @@
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
+#include <tobas_msgs/msg/engine_state.hpp>
+#include <tobas_msgs/msg/engine_throttle.hpp>
 #include <tobas_msgs/msg/fluid_pressure_stamped.hpp>
 #include <tobas_msgs/msg/gnss.hpp>
 #include <tobas_msgs/msg/imu_stamped.hpp>
@@ -19,8 +22,9 @@
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs/msg/magnetic_field_stamped.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
-#include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/post_arm_check.hpp>
+#include <tobas_msgs/msg/pre_arm_check.hpp>
+#include <tobas_msgs/msg/propeller_pitch_angle_array.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rosbag_state.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -101,6 +105,7 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_drone_msgs::msg::Drone>(tobas::kDroneTopic, tobas::kDroneTopic, true, true);
   addTopicLogicToIface<tobas_kdl_msgs::msg::Tree>(tobas::kKDLTreeTopic, tobas::kKDLTreeTopic, true, true);
   addTopicLogicToIface<tobas_msgs::msg::Battery>(tobas::addThrotNS(tobas::kBatteryTopic), tobas::kBatteryTopic);
+  addTopicLogicToIface<tobas_msgs::msg::EngineState>(tobas::kEngineStateTopic, tobas::kEngineStateTopic);
   addTopicLogicToIface<tobas_msgs::msg::Cpu>(tobas::kCPUTopic, tobas::kCPUTopic);
   addTopicLogicToIface<tobas_msgs::msg::RCInput>(tobas::addThrotNS(tobas::kRcInputTopic), tobas::kRcInputTopic);
   addTopicLogicToIface<tobas_msgs::msg::Gnss>(tobas::kGnssTopic, tobas::kGnssTopic);
@@ -119,7 +124,10 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addTopicLogicToIface<tobas_msgs::msg::Sbus>(tobas::addThrotNS(real::kSBUSTopic), real::kSBUSTopic);
   addTopicLogicToIface<tobas_msgs::msg::RosbagState>(tobas::kRosbagStateTopic, tobas::kRosbagStateTopic);
 
+  addTopicIfaceToLogic<tobas_msgs::msg::EngineThrottle>(tobas::kEngineThrottleCmdTopic, tobas::kEngineThrottleCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::RotorSpeedArray>(tobas::kRotorSpeedsCmdTopic, tobas::kRotorSpeedsCmdTopic);
+  addTopicIfaceToLogic<tobas_msgs::msg::PropellerPitchAngleArray>(
+    tobas::kPropellerPitchesCmdTopic, tobas::kPropellerPitchesCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic, tobas::kJointPosCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic, tobas::kJointVelCmdTopic);
   addTopicIfaceToLogic<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic, tobas::kJointEffCmdTopic);
@@ -196,7 +204,7 @@ template <typename MsgType>
 void ROSInterfaceNode::topicCallback(const typename MsgType::ConstSharedPtr& msg_in, const std::string& pub_topic)
 {
   auto msg_out = std::make_unique<MsgType>(*msg_in);
-  const auto publisher = dynamic_pointer_cast<rclcpp::Publisher<MsgType>>(publishers_.at(pub_topic));
+  const auto publisher = boost::polymorphic_pointer_downcast<rclcpp::Publisher<MsgType>>(publishers_.at(pub_topic));
   publisher->publish(move(msg_out));
 }
 
@@ -206,7 +214,7 @@ void ROSInterfaceNode::serviceCallback(
   const typename SrvType::Response::SharedPtr& res,
   const std::string& srv_name)
 {
-  const auto client = dynamic_pointer_cast<rclcpp::Client<SrvType>>(clients_.at(srv_name));
+  const auto client = boost::polymorphic_pointer_downcast<rclcpp::Client<SrvType>>(clients_.at(srv_name));
 
   if (!client->wait_for_service())
   {

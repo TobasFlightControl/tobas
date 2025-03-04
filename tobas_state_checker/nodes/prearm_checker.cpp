@@ -196,26 +196,55 @@ void PreArmCheckerNode::mainTimerCb()
   prearm_check->header.stamp = get_clock()->now();
   prearm_check->ok = true;
 
-  // バッテリー電圧が定格電圧以上
-  if (do_check_.battery_voltage_too_low)
+  // 推進系のタイプよる場合分け
+  switch (drone_->prop->type())
   {
-    if (battery_ == nullptr)
+    case tobas::propulsion_system_t::ELECTRIC:
     {
-      prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
-      prearm_check->ok = false;
-    }
-    else
-    {
-      if (battery_->voltage < drone_->battery.nominal_voltage)
+      // 未使用項目を無視
+      // TODO
+
+      const auto eprop = boost::polymorphic_pointer_downcast<tobas::ElectricPropulsionSystemConfig>(drone_->prop);
+
+      // バッテリー電圧が定格電圧以上
+      if (do_check_.battery_voltage_too_low && drone_->prop->type() == tobas::propulsion_system_t::ELECTRIC)
       {
-        prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
-        prearm_check->ok = false;
+        if (battery_ == nullptr)
+        {
+          prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
+          prearm_check->ok = false;
+        }
+        else
+        {
+          if (battery_->voltage < eprop->battery.nominal_voltage)
+          {
+            prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::FAILED;
+            prearm_check->ok = false;
+          }
+        }
       }
+      else
+      {
+        prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
+      }
+
+      break;
     }
-  }
-  else
-  {
-    prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
+    case tobas::propulsion_system_t::ICE:
+    {
+      // 未使用項目を無視
+      prearm_check->battery_voltage_too_low = tobas_msgs::msg::PreArmCheck::IGNORED;
+
+      const auto iprop = boost::polymorphic_pointer_downcast<tobas::ICEPropulsionSystemConfig>(drone_->prop);
+      (void)iprop;  // TODO
+
+      break;
+    }
+    default:
+    {
+      TOBAS_ERROR("Invalid propulsion system type: ", (int)drone_->prop->type());
+      break;
+    }
   }
 
   // CPU温度
@@ -252,7 +281,7 @@ void PreArmCheckerNode::mainTimerCb()
     {
       for (const auto& state : rotor_states_->states)
       {
-        if (state.status == tobas_msgs::msg::RotorState::NO_COMMUNICATION)
+        if (state.status == tobas_msgs::msg::RotorState::COMMUNICATION_FAILURE)
         {
           prearm_check->rotor_communication_error = tobas_msgs::msg::PreArmCheck::FAILED;
           prearm_check->ok = false;

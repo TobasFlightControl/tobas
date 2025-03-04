@@ -6,7 +6,6 @@ namespace tobas
 {
 RotorAxisExtractor::RotorAxisExtractor(const Drone& drone, const rotor_axis_t& axis) : drone_(drone), axis_(axis)
 {
-  initialize();
 }
 
 bool RotorAxisExtractor::updateInternalDataStructures()
@@ -15,34 +14,20 @@ bool RotorAxisExtractor::updateInternalDataStructures()
   return true;
 }
 
-double RotorAxisExtractor::thrustSum(const vector<double>& rot_speeds) const
+double RotorAxisExtractor::maxThrustSum() const
 {
-  assert(rot_speeds.size() == count());
-
   double res = 0.;
-  for (size_t i = 0; i < count(); ++i)
-    res += rotor(channels_.at(i)).thrustFromRotSpeed(rot_speeds.at(i));
-  return res;
-}
-
-double RotorAxisExtractor::thrustSum(const double& battery_voltage, const double& throttle)
-{
-  assert(battery_voltage >= 0);
-  assert(0 <= throttle && throttle <= 1);
-
-  const auto input_voltage = battery_voltage * throttle;  // 印加電圧
-  double res = 0.;
-  for (const auto& channel : channels_)
-    res += rotor(channel).thrustFromVoltage(input_voltage);
+  for (const auto& link_name : link_names_)
+    res += drone_.prop->maxThrust(link_name);
   return res;
 }
 
 void RotorAxisExtractor::initialize()
 {
-  channels_.clear();
+  link_names_.clear();
 
-  for (const auto& [channel, rotor] : drone_.rotors)
-    if (rotor.axis == axis_)
-      channels_.push_back(channel);
+  for (const auto& [link_name, rotor] : drone_.prop->rotors)
+    if (rotor->axis == axis_)
+      link_names_.push_back(link_name);
 }
 }  // namespace tobas

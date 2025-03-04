@@ -1,0 +1,2 @@
+float64 torque_const
+float64 friction_torque

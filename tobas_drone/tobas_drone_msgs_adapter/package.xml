@@ -15,6 +15,7 @@
 
 	<depend>tobas_drone_core</depend>
 	<depend>tobas_drone_msgs</depend>
+	<depend>tobas_std_msgs_adapter</depend>
 	<depend>tobas_kdl_msgs_adapter</depend>
 
 	<export>

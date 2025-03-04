@@ -48,6 +48,6 @@ private:
   Eigen::Vector6d f_;
   Eigen::VectorXd x_;
 
-  std::map<size_t, bool> is_singular_;  // 各ティルトロータが特異状態かどうか
+  std::map<std::string, bool> is_singular_;  // 各ティルトロータが特異状態かどうか
 };
 }  // namespace tobas

@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <boost/polymorphic_cast.hpp>
 #include <rcutils/env.h>
 #include <pluginlib/class_list_macros.hpp>
 #include <rviz_default_plugins/robot/robot.hpp>
@@ -236,7 +237,7 @@ void URDFBuilderPanel::LinkTreeWidgetItemChanged(QTreeWidgetItem* item, int)
 
   selectLink(item);
 
-  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
+  const auto link_item = boost::polymorphic_downcast<LinkTreeWidgetItem*>(item);
   const auto link_name = link_item->viewModel()->name().toStdString();
 
   if (item->checkState(0) == Qt::Unchecked)
@@ -289,7 +290,7 @@ void URDFBuilderPanel::RemoveLinkActionToggled(bool)
     return;
   }
 
-  const auto& front = dynamic_cast<LinkTreeWidgetItem*>(items.front());
+  const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(items.front());
 
   // ルートリンクは消せないようにする
   const auto& link = front->viewModel()->model();
@@ -316,7 +317,7 @@ void URDFBuilderPanel::CloneLinkActionToggled(bool)
     return;
   }
 
-  const auto& front = dynamic_cast<LinkTreeWidgetItem*>(items.front());
+  const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(items.front());
 
   // ルートリンクは複製不可
   const auto& link = front->viewModel()->model();
@@ -415,7 +416,7 @@ void URDFBuilderPanel::reloadLinkTree()
   const auto& selected_items = ui_->LinkTreeWidget->selectedItems();
   if (!selected_items.empty())
   {
-    const auto& front = dynamic_cast<LinkTreeWidgetItem*>(selected_items.front());
+    const auto front = boost::polymorphic_downcast<LinkTreeWidgetItem*>(selected_items.front());
     selected_link_name = front->viewModel()->name();
   }
 
@@ -483,7 +484,7 @@ void URDFBuilderPanel::selectLink(QTreeWidgetItem* item)
 
 void URDFBuilderPanel::reflectSelectedItem(QTreeWidgetItem* item)
 {
-  const auto link_item = dynamic_cast<LinkTreeWidgetItem*>(item);
+  const auto link_item = boost::polymorphic_downcast<LinkTreeWidgetItem*>(item);
   const auto& link_vm = link_item->viewModel();
   const auto link_name = link_vm->name().toStdString();
 

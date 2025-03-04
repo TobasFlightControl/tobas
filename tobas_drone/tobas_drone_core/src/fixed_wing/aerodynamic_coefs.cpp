@@ -1,6 +1,6 @@
 #include <tobas_yaml_tools/core.hpp>
 
-#include "../../include/tobas_drone_core/fixed_wing/aerodynamic_coefs.hpp"
+#include "tobas_drone_core/fixed_wing/aerodynamic_coefs.hpp"
 
 using namespace std;
 

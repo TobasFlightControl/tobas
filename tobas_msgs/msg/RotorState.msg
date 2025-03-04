@@ -1,9 +1,8 @@
-uint8 channel
+string link_name
 
-float64 speed    # [rad/s]
-float64 current  # [A]
+float64 speed   # [rad/s]
+float64 thrust  # [N]
 
 uint8 status
-uint8 NO_COMMUNICATION = 0
-uint8 SPEED_ONLY = 1
-uint8 ALL_FIELDS_READY = 2
+uint8 NO_ERROR = 0
+uint8 COMMUNICATION_FAILURE = 1

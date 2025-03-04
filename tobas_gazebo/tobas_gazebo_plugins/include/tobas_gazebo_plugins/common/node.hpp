@@ -130,6 +130,7 @@ protected:
 
   template <typename T>
   void checkConstraint(const std::string& name, const T& param, const sdf_constr_t& constr) const;
+
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const;
   template <typename T>
@@ -146,6 +147,8 @@ protected:
     const sdf_constr_t& constr) const;
   template <typename T>
   void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::vector<T>& params) const;
+  template <typename T>
+  void getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param) const;
 
 private:
   std::string name_;
@@ -362,7 +365,7 @@ template <typename T>
 void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param) const
 {
   if (!sdf->HasElement(name))
-    TOBAS_EXIT("Please specify '", name, "'.");
+    TOBAS_EXIT("Please specify \"", name, "\".");
   param = sdf->Get<T>(name);
 }
 
@@ -370,7 +373,7 @@ template <typename T>
 void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, T& param, const T& dflt) const
 {
   if (!sdf->Get(name, param, dflt))
-    TOBAS_WARN("SDF parameter '", name, "' is not specified. The default value '", dflt, "' is used.");
+    TOBAS_WARN("SDF parameter \"", name, "\" is not specified. The default value \"", dflt, "\" is used.");
 }
 
 template <typename T>
@@ -403,7 +406,7 @@ void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& n
 
   const auto list_elem = sdf->FindElement(name);
   if (list_elem == nullptr)
-    TOBAS_EXIT("Please specify '", name, "'.");
+    TOBAS_EXIT("Please specify \"", name, "\".");
 
   auto item_elem = list_elem->FindElement("item");
   while (item_elem)
@@ -412,5 +415,15 @@ void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& n
     params.push_back(value);
     item_elem = item_elem->GetNextElement("item");
   }
+}
+
+template <typename T>
+void BaseNode::getSdfParam(const sdf::ElementConstPtr& sdf, const std::string& name, std::pair<T, T>& param) const
+{
+  gz::math::Vector2<T> tmp;
+  getSdfParam(sdf, name, tmp);
+
+  param.first = tmp.X();
+  param.second = tmp.Y();
 }
 }  // namespace gazebo

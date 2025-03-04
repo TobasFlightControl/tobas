@@ -1,5 +1,6 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/register.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/message.hpp>
 #include <tobas_qt_tools/widgets/description_widget.hpp>
 
