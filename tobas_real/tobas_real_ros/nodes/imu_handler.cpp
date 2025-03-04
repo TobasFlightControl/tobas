@@ -37,7 +37,7 @@ private:
 
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real_imu_handler", options)
 {
-  if (!pt_.initialize((fs::path(tobas::kResourceDirRoot) / get_name()).replace_extension(".ini")))
+  if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / get_name()).replace_extension(".ini")))
   {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;

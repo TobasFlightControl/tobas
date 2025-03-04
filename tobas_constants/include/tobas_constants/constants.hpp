@@ -124,6 +124,8 @@ static constexpr char kTobasInstallPath[] = "/opt/tobas";
 // Resource Path
 static constexpr char kResourceDirHome[] = "~/Tobas";
 static constexpr char kResourceDirRoot[] = "/etc/tobas";
+static constexpr char kConfigDirHome[] = "~/Tobas/config";
+static constexpr char kConfigDirRoot[] = "/etc/tobas/config";
 static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
 static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
 static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
