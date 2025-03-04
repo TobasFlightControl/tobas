@@ -85,8 +85,8 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
-            package="tobas_latency_publisher",
-            executable="latency_publisher",
+            package="tobas_disturbance_observer",
+            executable="disturbance_observer",
             namespace=DRONE_NAME,
             ros_arguments=ros_args,
             output=output,

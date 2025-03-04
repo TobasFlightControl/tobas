@@ -113,12 +113,6 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package="tobas_latency_publisher",
-                            plugin="LatencyPublisherNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
                             package="tobas_disturbance_observer",
                             plugin="DisturbanceObserverNode",
                             namespace=DRONE_NAME,
