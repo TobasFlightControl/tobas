@@ -50,7 +50,7 @@ private:
 RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("real_rcin_handler", options)
 {
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / get_name()).replace_extension(".ini")))
+  if (!pt_.initialize((cfg_dir / kConfigFileName)))
   {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
@@ -80,36 +80,36 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
-  if (!pt_.get(kPitchDownKey, pitch_range_.lower))
-  {
-    TOBAS_ERROR("Failed to get \"", kPitchDownKey, "\".");
-    return false;
-  }
   if (!pt_.get(kPitchUpKey, pitch_range_.upper))
   {
     TOBAS_ERROR("Failed to get \"", kPitchUpKey, "\".");
     return false;
   }
-
-  if (!pt_.get(kYawRightKey, yaw_range_.lower))
+  if (!pt_.get(kPitchDownKey, pitch_range_.lower))
   {
-    TOBAS_ERROR("Failed to get \"", kYawRightKey, "\".");
+    TOBAS_ERROR("Failed to get \"", kPitchDownKey, "\".");
     return false;
   }
+
   if (!pt_.get(kYawLeftKey, yaw_range_.upper))
   {
     TOBAS_ERROR("Failed to get \"", kYawLeftKey, "\".");
     return false;
   }
-
-  if (!pt_.get(kThrotDownKey, throt_range_.lower))
+  if (!pt_.get(kYawRightKey, yaw_range_.lower))
   {
-    TOBAS_ERROR("Failed to get \"", kThrotDownKey, "\".");
+    TOBAS_ERROR("Failed to get \"", kYawRightKey, "\".");
     return false;
   }
+
   if (!pt_.get(kThrotUpKey, throt_range_.upper))
   {
     TOBAS_ERROR("Failed to get \"", kThrotUpKey, "\".");
+    return false;
+  }
+  if (!pt_.get(kThrotDownKey, throt_range_.lower))
+  {
+    TOBAS_ERROR("Failed to get \"", kThrotDownKey, "\".");
     return false;
   }
 
@@ -193,12 +193,12 @@ void RCInputHandlerNode::setParamsCb(
   // Update parameters
   roll_range_.lower = req->roll_left;
   roll_range_.upper = req->roll_right;
-  pitch_range_.lower = req->pitch_down;
   pitch_range_.upper = req->pitch_up;
-  yaw_range_.lower = req->yaw_right;
+  pitch_range_.lower = req->pitch_down;
   yaw_range_.upper = req->yaw_left;
-  throt_range_.lower = req->throttle_down;
+  yaw_range_.lower = req->yaw_right;
   throt_range_.upper = req->throttle_up;
+  throt_range_.lower = req->throttle_down;
   enable_on_ = req->enable_on;
   enable_off_ = req->enable_off;
   modes_.at(tobas::flight_mode_t::ACROBAT_MODE) = req->mode_acrobat;
@@ -210,12 +210,12 @@ void RCInputHandlerNode::setParamsCb(
   // Save parameters
   pt_.set(kRollLeftKey, req->roll_left);
   pt_.set(kRollRightKey, req->roll_right);
-  pt_.set(kPitchDownKey, req->pitch_down);
   pt_.set(kPitchUpKey, req->pitch_up);
-  pt_.set(kYawRightKey, req->yaw_right);
+  pt_.set(kPitchDownKey, req->pitch_down);
   pt_.set(kYawLeftKey, req->yaw_left);
-  pt_.set(kThrotDownKey, req->throttle_down);
+  pt_.set(kYawRightKey, req->yaw_right);
   pt_.set(kThrotUpKey, req->throttle_up);
+  pt_.set(kThrotDownKey, req->throttle_down);
   pt_.set(kEnableOnKey, req->enable_on);
   pt_.set(kEnableOffKey, req->enable_off);
   pt_.set(kModeAcrobatKey, req->mode_acrobat);

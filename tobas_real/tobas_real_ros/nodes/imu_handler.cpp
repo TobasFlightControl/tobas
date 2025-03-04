@@ -40,7 +40,7 @@ private:
 ImuHandlerNode::ImuHandlerNode(const rclcpp::NodeOptions& options) : super("real_imu_handler", options)
 {
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
-  if (!pt_.initialize((cfg_dir / get_name()).replace_extension(".ini")))
+  if (!pt_.initialize((cfg_dir / kConfigFileName)))
   {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
