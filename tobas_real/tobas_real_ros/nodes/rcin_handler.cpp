@@ -1,6 +1,8 @@
 #include <tobas_math/core.hpp>
 #include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/range.hpp>
+#include <tobas_linux/core.hpp>
+#include <tobas_ros2_tools/util.hpp>
 #include <tobas_property_tree/property_tree.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
@@ -47,7 +49,8 @@ private:
 
 RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("real_rcin_handler", options)
 {
-  if (!pt_.initialize((fs::path(tobas::kConfigDirRoot) / get_name()).replace_extension(".ini")))
+  const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
+  if (!pt_.initialize((cfg_dir / get_name()).replace_extension(".ini")))
   {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
