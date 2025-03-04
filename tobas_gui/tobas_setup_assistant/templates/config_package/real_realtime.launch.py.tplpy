@@ -112,6 +112,19 @@ def generate_launch_description():
                     target_container=f"{DRONE_NAME}/component_manager_2",
                     composable_node_descriptions=[
                         ComposableNode(
+                            package="tobas_sbus_driver",
+                            plugin="SBUSDriverNode",
+                            namespace=DRONE_NAME,
+                            parameters=[{"device": "/dev/ttyAMA0"}],  # TODO: FMUに応じてデバイスを変更
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
+                            package="tobas_real_ros",
+                            plugin="RCInputHandlerNode",
+                            namespace=DRONE_NAME,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
                             package="tobas_real_ros",
                             plugin="MagnetometerHandlerNode",
                             namespace=DRONE_NAME,
@@ -120,12 +133,6 @@ def generate_launch_description():
                         ComposableNode(
                             package="tobas_real_ros",
                             plugin="BarometerHandlerNode",
-                            namespace=DRONE_NAME,
-                            extra_arguments=extra_arguments,
-                        ),
-                        ComposableNode(
-                            package="tobas_real_ros",
-                            plugin="RCInputHandlerNode",
                             namespace=DRONE_NAME,
                             extra_arguments=extra_arguments,
                         ),

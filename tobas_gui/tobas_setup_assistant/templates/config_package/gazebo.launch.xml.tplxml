@@ -61,6 +61,16 @@
     </include>
   </group>
 
+  <!-- Launch nodes related to RC input -->
+  <group>
+    <push_ros_namespace namespace="{{ drone_name }}"/>
+
+    <node pkg="tobas_sbus_driver" exec="sbus_driver" ros_args="--log-level $(var log_level)" output="$(var output)">
+      <param name="device" value="/dev/ttyUSB0"/>
+    </node>
+    <node pkg="tobas_real_ros" exec="rcin_handler" ros_args="--log-level $(var log_level)" output="$(var output)"/>
+  </group>
+
   <!-- Launch user nodes -->
   <include file="$(find-pkg-share {{ user_cpp_pkg_name }})/launch/gazebo.launch.py"/>
   <include file="$(find-pkg-share {{ user_py_pkg_name }})/launch/gazebo.launch.py"/>
