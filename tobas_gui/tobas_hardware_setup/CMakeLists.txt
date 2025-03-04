@@ -24,6 +24,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tobas_eigen_conversions REQUIRED)
 find_package(tobas_kdl_conversions REQUIRED)
 find_package(wpa_supplicant_parser REQUIRED)
+find_package(tobas_property_tree REQUIRED)
 find_package(tobas_ssh_client REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_core REQUIRED)
@@ -37,6 +38,7 @@ set(AMENT_DEPENDENCIES
   tobas_eigen_conversions
   tobas_kdl_conversions
   wpa_supplicant_parser
+  tobas_property_tree
   tobas_ssh_client
   tobas_msgs_adapter
   tobas_drone_core

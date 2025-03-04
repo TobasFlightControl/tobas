@@ -68,6 +68,9 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
 
+  bool saveParamsGCS();
+  bool saveParamsFC();
+
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
 

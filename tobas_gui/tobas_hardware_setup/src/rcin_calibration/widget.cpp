@@ -1,5 +1,7 @@
 #include <tobas_path_tools/join.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
+#include <tobas_ros2_tools/util.hpp>
+#include <tobas_property_tree/property_tree.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
@@ -11,6 +13,7 @@
 #include "tobas_hardware_setup/constants.hpp"
 
 using namespace std;
+using namespace real::handler::rcin;
 
 namespace gui
 {
@@ -170,6 +173,76 @@ void RCInputCalibrationWidget::setNamespace(const string& ns)
   setEnabled(true);
 }
 
+bool RCInputCalibrationWidget::saveParamsGCS()
+{
+  ptree::PropertyTree pt;
+  if (!pt.initialize((ros2::expandUser(tobas::kConfigDirHome) / kConfigFileName)))
+  {
+    qt::qErrorBox(this, "Failed to initialize property tree.");
+    return false;
+  }
+
+  pt.set(kRollLeftKey, roll_range_->getLower());
+  pt.set(kRollRightKey, roll_range_->getUpper());
+  pt.set(kPitchUpKey, pitch_range_->getLower());
+  pt.set(kPitchDownKey, pitch_range_->getUpper());
+  pt.set(kYawLeftKey, yaw_range_->getLower());
+  pt.set(kYawRightKey, yaw_range_->getUpper());
+  pt.set(kThrotUpKey, throt_range_->getLower());
+  pt.set(kThrotDownKey, throt_range_->getUpper());
+  pt.set(kEnableOnKey, enable_range_->getLower());
+  pt.set(kEnableOffKey, enable_range_->getUpper());
+  pt.set(kModeAcrobatKey, mode_range_->getUpper());
+  pt.set(kModeStabilizeKey, mode_range_->getMiddle());
+  pt.set(kModeLoiterKey, mode_range_->getLower());
+  pt.set(kGPSwOnKey, gpsw_range_->getLower());
+  pt.set(kGPSwOffKey, gpsw_range_->getUpper());
+  if (!pt.save())
+  {
+    qt::qErrorBox(this, "Failed to save calibration results on GCS.");
+    return false;
+  }
+
+  return true;
+}
+
+bool RCInputCalibrationWidget::saveParamsFC()
+{
+  const auto req = std::make_shared<tobas_real_msgs::srv::SetRCInputParams::Request>();
+  req->roll_left = roll_range_->getLower();
+  req->roll_right = roll_range_->getUpper();
+  req->pitch_up = pitch_range_->getLower();
+  req->pitch_down = pitch_range_->getUpper();
+  req->yaw_left = yaw_range_->getLower();
+  req->yaw_right = yaw_range_->getUpper();
+  req->throttle_up = throt_range_->getLower();
+  req->throttle_down = throt_range_->getUpper();
+  req->enable_on = enable_range_->getLower();
+  req->enable_off = enable_range_->getUpper();
+  req->mode_acrobat = mode_range_->getUpper();
+  req->mode_stabilize = mode_range_->getMiddle();
+  req->mode_loiter = mode_range_->getLower();
+  req->gpsw_on = gpsw_range_->getLower();
+  req->gpsw_off = gpsw_range_->getUpper();
+
+  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRCInputParams> sc(
+    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, kSetParamSrv));
+  if (!sc.call(req, kSetParamTimeout))
+  {
+    qt::qErrorBox(this, "Failed to send calibration results to FC.");
+    return false;
+  }
+
+  const auto res = sc.getResponse();
+  if (!res->success)
+  {
+    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+    return false;
+  }
+
+  return true;
+}
+
 void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
   if (!rate_.update(sbus->header.stamp))
@@ -274,40 +347,10 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
     return;
   }
 
-  // パラメータを作成
-  const auto req = std::make_shared<tobas_real_msgs::srv::SetRCInputParams::Request>();
-  req->roll_left = roll_range_->getLower();
-  req->roll_right = roll_range_->getUpper();
-  req->pitch_up = pitch_range_->getLower();
-  req->pitch_down = pitch_range_->getUpper();
-  req->yaw_left = yaw_range_->getLower();
-  req->yaw_right = yaw_range_->getUpper();
-  req->throttle_up = throt_range_->getLower();
-  req->throttle_down = throt_range_->getUpper();
-  req->enable_on = enable_range_->getLower();
-  req->enable_off = enable_range_->getUpper();
-  req->mode_acrobat = mode_range_->getUpper();
-  req->mode_stabilize = mode_range_->getMiddle();
-  req->mode_loiter = mode_range_->getLower();
-  req->gpsw_on = gpsw_range_->getLower();
-  req->gpsw_off = gpsw_range_->getUpper();
-
-  // パラメータを更新
-  ros2::SyncServiceClient<tobas_real_msgs::srv::SetRCInputParams> sc(
-    node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, real::handler::rcin::kSetParamSrv));
-  if (!sc.call(req, kSetParamTimeout))
-  {
-    qt::qErrorBox(this, "Failed to send calibration results.");
+  if (!saveParamsGCS())
     return;
-  }
-
-  // 結果を確認
-  const auto res = sc.getResponse();
-  if (!res->success)
-  {
-    qt::qErrorBox(this, "Calibration results are rejected: " + QString::fromStdString(res->message));
+  if (!saveParamsFC())
     return;
-  }
 
   qt::qInfoBox(this, "Radio calibration finished successfully.");
   reset();
