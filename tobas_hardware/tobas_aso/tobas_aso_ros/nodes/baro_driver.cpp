@@ -27,6 +27,8 @@ private:
 
 BaroDriverNode::BaroDriverNode(const rclcpp::NodeOptions& options) : super("aso_baro_driver", options)
 {
+  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(real::kAirPressureTopic);
+
   initialize_timer_ = createTimer(1s, &self::initialize, this);
 }
 
@@ -38,10 +40,8 @@ void BaroDriverNode::initialize()
     return;
   }
 
-  baro_pub_ = createPublisher<tobas_msgs::msg::FluidPressureStamped>(real::kAirPressureTopic);
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
-
   initialize_timer_->cancel();
+  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void BaroDriverNode::mainTimerCb()

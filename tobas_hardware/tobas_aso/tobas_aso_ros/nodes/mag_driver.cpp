@@ -27,6 +27,8 @@ private:
 
 MagDriverNode::MagDriverNode(const rclcpp::NodeOptions& options) : super("aso_mag_driver", options)
 {
+  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
+
   initialize_timer_ = createTimer(1s, &self::initialize, this);
 }
 
@@ -38,10 +40,8 @@ void MagDriverNode::initialize()
     return;
   }
 
-  mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(real::kMagTopic);
-  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
-
   initialize_timer_->cancel();
+  main_timer_ = createTimer(kSamplingPeriod, &self::mainTimerCb, this);
 }
 
 void MagDriverNode::mainTimerCb()
