@@ -5,6 +5,8 @@
 #include <tobas_sbus_driver/sbus.hpp>
 #include <tobas_aso_core/constants.hpp>
 
+using namespace std;
+
 class SBUSDriverNode : public tobas::BaseNode
 {
   using self = SBUSDriverNode;
@@ -14,25 +16,34 @@ public:
   explicit SBUSDriverNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
 private:
+  string device_;
   tobas::SBUS sbus_;
-
   ros2::PublisherPtr<tobas_msgs::msg::Sbus> sbus_pub_;
+  ros2::TimerPtr initialize_timer_;
 
+  void initialize();
   void onPacket(const tobas::SBUS::Packet& packet);
 };
 
 SBUSDriverNode::SBUSDriverNode(const rclcpp::NodeOptions& options)
-  : super("sbus_driver", options), sbus_(std::bind(&self::onPacket, this, std::placeholders::_1))
+  : super("sbus_driver", options), sbus_(bind(&self::onPacket, this, placeholders::_1))
 {
-  const auto device = getStringParam("device");
+  device_ = getStringParam("device");
 
-  // Initialize SBUS driver
-  if (!sbus_.initialize(device.c_str()))
-    TOBAS_EXIT("Failed to initialize S.BUS driver.");
-
-  // Advertise publisher
   sbus_pub_ = createPublisher<tobas_msgs::msg::Sbus>(tobas::kSBUSTopic);
 
+  initialize_timer_ = createTimer(3s, &self::initialize, this);
+}
+
+void SBUSDriverNode::initialize()
+{
+  if (!sbus_.initialize(device_.c_str()))
+  {
+    TOBAS_WARN("Failed to initialize S.BUS driver with device \"", device_, "\". Retrying...");
+    return;
+  }
+
+  initialize_timer_->cancel();
   sbus_.start();
 }
 
