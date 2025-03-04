@@ -41,7 +41,7 @@
 	<exec_depend>tobas_pose_pid</exec_depend>
 	<exec_depend>tobas_preprocess</exec_depend>
 	<exec_depend>tobas_property</exec_depend>
-	<exec_depend>tobas_rc_input</exec_depend>
+	<exec_depend>tobas_rc_teleop</exec_depend>
 	<exec_depend>tobas_real</exec_depend>
 	<exec_depend>tobas_ros_interface</exec_depend>
 	<exec_depend>tobas_rosbag_recorder</exec_depend>
