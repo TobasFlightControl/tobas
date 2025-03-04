@@ -41,7 +41,6 @@
 #include <tobas_dparam_msgs/srv/get_params.hpp>
 #include <tobas_real_msgs/srv/set_imu_params.hpp>
 #include <tobas_real_msgs/srv/set_magnetometer_params.hpp>
-#include <tobas_real_msgs/srv/set_battery_params.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
 #define DEFAULT_NUM_THREADS 4
@@ -145,7 +144,6 @@ ROSInterfaceNode::ROSInterfaceNode(const rclcpp::NodeOptions& options) : super("
   addService<tobas_dparam_msgs::srv::GetParams>(path::join(tobas::node::kObserver, tobas::kGetDynamicParamsSrv));
   addService<tobas_real_msgs::srv::SetIMUParams>(real::handler::imu::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetMagnetometerParams>(real::handler::mag::kSetParamSrv);
-  addService<tobas_real_msgs::srv::SetBatteryParams>(real::handler::adc::kSetParamSrv);
   addService<tobas_real_msgs::srv::SetRCInputParams>(real::handler::rcin::kSetParamSrv);
 }
 

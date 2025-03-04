@@ -46,14 +46,6 @@ static constexpr char kBzKey[] = "b_z";
 static constexpr char kCKey[] = "c";
 }  // namespace mag
 
-namespace adc
-{
-static constexpr char kSetParamSrv[] = "real/set_battery_parameters";
-
-static constexpr char kVoltageKey[] = "voltage_coef";
-static constexpr char kCurrentKey[] = "current_coef";
-}  // namespace adc
-
 namespace rcin
 {
 static constexpr char kSetParamSrv[] = "real/set_rc_input_parameters";
