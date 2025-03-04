@@ -6,11 +6,6 @@ namespace aso
 {
 static constexpr char kRasPiI2CDev[] = "/dev/i2c-1";
 
-namespace uart_device
-{
-static constexpr char kSbusDev[] = "/dev/ttyAMA0";
-}
-
 namespace spi_device
 {
 static constexpr char kImuDev[] = "/dev/spidev0.0";

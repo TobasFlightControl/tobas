@@ -5,7 +5,7 @@
 
 #include <tobas_std_tools/console.hpp>
 
-#include "../include/tobas_ic_drivers/sbus.hpp"
+#include "../include/tobas_sbus_driver/sbus.hpp"
 
 #define TIMEOUT_MS 1000
 #define TIMEOUT_ERROR_MSG "Failed to receive SBUS byte in 1 second."
@@ -13,7 +13,7 @@
 using namespace std;
 using namespace boost::multiprecision;
 
-namespace driver
+namespace tobas
 {
 SBUS::SBUS(function<void(const Packet&)> packet_cb) : packet_cb_(packet_cb)
 {
@@ -135,4 +135,4 @@ void SBUS::decodeFlags(uint8_t flags)
   packet_.frame_lost = (flags >> 2) & 1;
   packet_.failsave_activated = (flags >> 3) & 1;
 }
-}  // namespace driver
+}  // namespace tobas

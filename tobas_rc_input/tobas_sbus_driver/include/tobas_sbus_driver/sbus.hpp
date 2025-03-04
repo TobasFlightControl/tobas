@@ -5,7 +5,7 @@
 
 #include <tobas_linux/uart_dev.hpp>
 
-namespace driver
+namespace tobas
 {
 /**
  * @brief インバータで信号を反転したS.BUSをUARTで読む．
@@ -64,4 +64,4 @@ inline const SBUS::Packet& SBUS::packet() const
 {
   return packet_;
 }
-}  // namespace driver
+}  // namespace tobas

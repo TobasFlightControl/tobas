@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include <tobas_ic_drivers/sbus_usb_converter.hpp>
+#include <tobas_sbus_driver/sbus.hpp>
 
 using namespace std;
 
-void onPacket(const driver::SBUS::Packet& packet)
+void onPacket(const tobas::SBUS::Packet& packet)
 {
-  for (size_t ch = 0; ch < driver::SBUS::kChannelSize; ++ch)
+  for (size_t ch = 0; ch < tobas::SBUS::kChannelSize; ++ch)
     cout << "Channel " << ch << ": " << packet.periods.at(ch) << endl;
   cout << endl;
 }
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
   }
   const auto device = argv[1];
 
-  driver::SbusToUsbConverter sbus(&onPacket);
+  tobas::SBUS sbus(&onPacket);
 
   if (!sbus.initialize(device))
   {

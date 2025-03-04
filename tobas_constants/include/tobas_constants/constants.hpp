@@ -25,6 +25,7 @@ static constexpr char kRobotDescriptionTopic[] = "robot_description";
 static constexpr char kBatteryTopic[] = "battery";
 static constexpr char kEngineStateTopic[] = "engine_state";
 static constexpr char kCPUTopic[] = "cpu";
+static constexpr char kSBUSTopic[] = "sbus";
 static constexpr char kRcInputTopic[] = "rc_input";
 static constexpr char kImuTopic[] = "imu";
 static constexpr char kImuRawTopic[] = "imu_raw";

@@ -81,9 +81,10 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
-                            package=pkg_name,
+                            package="tobas_sbus_driver",
                             plugin="SBUSDriverNode",
                             namespace=ns,
+                            parameters=[{"device": "/dev/ttyAMA0"}],
                             extra_arguments=extra_arguments,
                         ),
                     ],
