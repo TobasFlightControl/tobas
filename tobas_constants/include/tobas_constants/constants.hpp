@@ -117,13 +117,17 @@ static constexpr char kObserver[] = "observer";
 // Frames
 static constexpr char kWorldFrame[] = "world";
 
-// Path
-static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
-static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
-static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
-static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
+// Install Path
 static constexpr char kROS2JazzyInstallPath[] = "/opt/ros/jazzy";
 static constexpr char kTobasInstallPath[] = "/opt/tobas";
+
+// Resource Path
+static constexpr char kResourceDirHome[] = "~/Tobas";
+static constexpr char kResourceDirRoot[] = "/etc/tobas";
+static constexpr char kColconWSPathHome[] = "~/Tobas/colcon_ws";
+static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
+static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
+static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
 
 // Flight mode
 enum flight_mode_t

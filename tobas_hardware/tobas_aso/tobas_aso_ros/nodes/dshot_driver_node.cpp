@@ -5,7 +5,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/propulsion_system/electric_propulsion_system/electric_propulsion_system.hpp>
-#include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/srv/get_rotor_control_gains.hpp>
@@ -66,7 +65,7 @@ private:
 
 DShotDriverNode::DShotDriverNode(const rclcpp::NodeOptions& options) : super("aso_dshot_driver", options)
 {
-  if (!pt_.initialize((fs::path(real::kTobasResourceDir) / get_name()).replace_extension(".ini")))
+  if (!pt_.initialize((fs::path(tobas::kResourceDirRoot) / get_name()).replace_extension(".ini")))
   {
     TOBAS_ERROR("Failed to initialize property tree. This node will not work.");
     return;
