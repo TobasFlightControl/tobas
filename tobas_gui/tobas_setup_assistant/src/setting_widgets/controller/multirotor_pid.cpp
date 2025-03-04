@@ -19,7 +19,7 @@ MultirotorPIDWidget::MultirotorPIDWidget(
   setLayout(rows);
 
   do_dist_comp_trans_ = new QCheckBox("Do Disturbance Compensation (Translation)");
-  do_dist_comp_trans_->setChecked(true);
+  do_dist_comp_trans_->setChecked(false);
   rows->addWidget(do_dist_comp_trans_);
 
   do_dist_comp_rot_ = new QCheckBox("Do Disturbance Compensation (Rotation)");
