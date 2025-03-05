@@ -13,6 +13,7 @@
 #include "../include/tobas_gazebo_plugins/common/common.hpp"
 #include "../include/tobas_gazebo_plugins/conversions/conversions.hpp"
 #include "../include/tobas_gazebo_plugins/rate_manager.hpp"
+#include "../include/tobas_gazebo_plugins/random.hpp"
 #include "../include/tobas_gazebo_plugins/utils.hpp"
 
 using namespace std;
@@ -80,7 +81,6 @@ private:
   vector<ros2::SubscriberPtr<tobas_gazebo_msgs::msg::RotorState>> rotor_state_subs_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void setInitialOffsets();
   void addNoise(gz::math::Vector3d& acc, gz::math::Vector3d& gyro, const double& dt);
 };
 
@@ -116,7 +116,8 @@ void GazeboImuPlugin::Configure(
   dgyro_B_ = getComponent<cmp::AngularAcceleration>(link, ecm);
   grav_W_ = getComponent<cmp::Gravity>(world, ecm);
 
-  setInitialOffsets();
+  acc_offset_ = createUnitSpherePoint(rnd_dev_) * acc_offset_norm_;
+  gyro_offset_ = createUnitSpherePoint(rnd_dev_) * gyro_offset_norm_;
 
   noise_ = NormalDistribution(0, 1);
 
@@ -152,25 +153,6 @@ void GazeboImuPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "gyroBiasCorrelationTime", gyro_bias_corr_time_, POSITIVE);
 
   getSdfParam(sdf, "rotorLinkNames", rotor_link_names_);
-}
-
-void GazeboImuPlugin::setInitialOffsets()
-{
-  UniformDistribution angle_dist(-M_PI, M_PI);
-
-  // Accel
-  const auto acc_phi = angle_dist(rnd_dev_);
-  const auto acc_theta = angle_dist(rnd_dev_);
-  acc_offset_.X(acc_offset_norm_ * sin(acc_phi) * cos(acc_theta));
-  acc_offset_.Y(acc_offset_norm_ * sin(acc_phi) * sin(acc_theta));
-  acc_offset_.Z(acc_offset_norm_ * cos(acc_phi));
-
-  // Gyro
-  const auto gyro_phi = angle_dist(rnd_dev_);
-  const auto gyro_theta = angle_dist(rnd_dev_);
-  gyro_offset_.X(gyro_offset_norm_ * sin(gyro_phi) * cos(gyro_theta));
-  gyro_offset_.Y(gyro_offset_norm_ * sin(gyro_phi) * sin(gyro_theta));
-  gyro_offset_.Z(gyro_offset_norm_ * cos(gyro_phi));
 }
 
 void GazeboImuPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

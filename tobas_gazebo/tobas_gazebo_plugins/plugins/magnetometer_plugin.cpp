@@ -59,7 +59,6 @@ private:
   ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
-  void setHardBias();
 };
 
 GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
@@ -83,9 +82,9 @@ void GazeboMagnetometerPlugin::Configure(
 
   pose_W_ = getComponent<cmp::WorldPose>(link, ecm);
 
-  noise_ = make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
+  hard_bias_ = createUnitSpherePoint(rnd_dev_) * hard_bias_norm_;
 
-  setHardBias();
+  noise_ = make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
 }
@@ -102,19 +101,6 @@ void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 
   getSdfParam(sdf, "noiseStddev", noise_stddev_, NON_NEGATIVE);
   getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, NON_NEGATIVE);
-}
-
-void GazeboMagnetometerPlugin::setHardBias()
-{
-  UniformDistribution angle_dist(-M_PI, M_PI);
-
-  const auto phi = angle_dist(rnd_dev_);
-  const auto theta = angle_dist(rnd_dev_);
-
-  // 極座標 -> デカルト座標
-  hard_bias_.X(hard_bias_norm_ * sin(phi) * cos(theta));
-  hard_bias_.Y(hard_bias_norm_ * sin(phi) * sin(theta));
-  hard_bias_.Z(hard_bias_norm_ * cos(phi));
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
