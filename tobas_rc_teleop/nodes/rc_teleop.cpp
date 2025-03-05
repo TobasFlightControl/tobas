@@ -13,6 +13,7 @@
 #include "../include/tobas_rc_teleop/common.hpp"
 #include "../include/tobas_rc_teleop/rate_throttle.hpp"
 #include "../include/tobas_rc_teleop/angle_throttle.hpp"
+#include "../include/tobas_rc_teleop/accel_yaw.hpp"
 #include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
 #include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
@@ -128,6 +129,9 @@ void RCTeleopNode::initializeControllers()
         break;
       case tobas::rc_command_t::ANGLE_THROTTLE:
         controllers_[i] = std::make_unique<AngleThrottleController>();
+        break;
+      case tobas::rc_command_t::ACCEL_YAW:
+        controllers_[i] = std::make_unique<AccelYawController>();
         break;
       case tobas::rc_command_t::POS_VEL_ACC_YAW:
         controllers_[i] = std::make_unique<PosVelAccYawController>();

@@ -56,7 +56,7 @@ tobas::rc_command_t MultirotorPIDWidget::acrobatModeCommand() const
 
 tobas::rc_command_t MultirotorPIDWidget::stabilizeModeCommand() const
 {
-  return tobas::rc_command_t::ANGLE_THROTTLE;
+  return tobas::rc_command_t::ACCEL_YAW;
 }
 
 tobas::rc_command_t MultirotorPIDWidget::loiterModeCommand() const

@@ -40,6 +40,7 @@
 #include <tobas_command_msgs/msg/rate_throttle.hpp>
 #include <tobas_command_msgs/msg/angle_throttle.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_command_msgs_adapter/accel_yaw.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
@@ -91,8 +92,9 @@ private:
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
-  tobas_command_msgs::msg::PosVelAccYaw pvay_;
-  tobas_command_msgs::msg::PoseTwistAccel pta_;
+  tobas_command_msgs::msg::AccelYaw accel_yaw_;
+  tobas_command_msgs::msg::PosVelAccYaw pos_vel_acc_yaw_;
+  tobas_command_msgs::msg::PoseTwistAccel pose_twist_accel_;
   tobas_debug_msgs::msg::ObserverFeedback obsv_fb_;
   tobas_debug_msgs::msg::MultiRotorControllerFeedback mr_ctrl_fb_;
   tobas_debug_msgs::msg::NonPlanarControllerFeedback np_ctrl_fb_;
@@ -190,8 +192,9 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::EulerStamped>(euler_, tobas::kEulerTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
-  addTypeAdaptedMsgSub<tobas_command_msgs::PosVelAccYaw>(pvay_, tobas::kPosVelAccYawCmdTopic);
-  addTypeAdaptedMsgSub<tobas_command_msgs::PoseTwistAccel>(pta_, tobas::kPoseTwistAccelCmdTopic);
+  addTypeAdaptedMsgSub<tobas_command_msgs::AccelYaw>(accel_yaw_, tobas::kAccelYawCmdTopic);
+  addTypeAdaptedMsgSub<tobas_command_msgs::PosVelAccYaw>(pos_vel_acc_yaw_, tobas::kPosVelAccYawCmdTopic);
+  addTypeAdaptedMsgSub<tobas_command_msgs::PoseTwistAccel>(pose_twist_accel_, tobas::kPoseTwistAccelCmdTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::ObserverFeedback>(obsv_fb_, tobas::kObsvFeedbackTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::MultiRotorControllerFeedback>(mr_ctrl_fb_, tobas::kMRCtrlFeedbackTopic);
   addTypeAdaptedMsgSub<tobas_debug_msgs::NonPlanarControllerFeedback>(np_ctrl_fb_, tobas::kNPCtrlFeedbackTopic);

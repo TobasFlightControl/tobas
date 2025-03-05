@@ -18,6 +18,7 @@
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_command_msgs/msg/rate_throttle.hpp>
 #include <tobas_command_msgs/msg/angle_throttle.hpp>
+#include <tobas_command_msgs_adapter/accel_yaw.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
 #include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
@@ -75,9 +76,10 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelAccYaw::SharedPtr pvay_cmd_;  // 位置制御の目標値 (世界座標系)
-  shared_ptr<AngleThrust> angle_cmd_;                     // 姿勢制御の目標値
-  shared_ptr<RateThrust> rate_cmd_;                       // 角速度制御の目標値
+  tobas_command_msgs::PosVelAccYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
+  tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;      // 加速度制御の目標値 (ローカル座標系)
+  shared_ptr<AngleThrust> angle_cmd_;                    // 姿勢制御の目標値
+  shared_ptr<RateThrust> rate_cmd_;                      // 角速度制御の目標値
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -91,7 +93,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::PosVelAccYaw> pvay_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::PosVelAccYaw> pos_vel_acc_yaw_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::AccelYaw> accel_yaw_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::msg::AngleThrottle> angle_throt_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::msg::RateThrottle> rate_throt_sub_;
 
@@ -119,9 +122,10 @@ private:
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
-  void posVelAccYawCmdCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pvay);
+  void posVelAccYawCmdCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pos_cmd);
+  void accelYawCmdCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd);
   void angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrottle::ConstSharedPtr& angle_throt);
-  void rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle::ConstSharedPtr& rate_throt);
+  void rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle::ConstSharedPtr& rate_cmd);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -161,7 +165,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
-  pvay_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCmdCb, this);
+  pos_vel_acc_yaw_sub_ = createSubscriber(tobas::kPosVelAccYawCmdTopic, &self::posVelAccYawCmdCb, this);
+  accel_yaw_sub_ = createSubscriber(tobas::kAccelYawCmdTopic, &self::accelYawCmdCb, this);
   angle_throt_sub_ = createSubscriber(tobas::kAngleThrottleCmdTopic, &self::angleThrustCmdCb, this);
   rate_throt_sub_ = createSubscriber(tobas::kRateThrottleCmdTopic, &self::rateThrustCmdCb, this);
 }
@@ -350,32 +355,44 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback_msg->header.stamp = odom->header.stamp;
 
   // 位置制御器
-  if (pvay_cmd_ != nullptr)
+  if (pos_cmd_ != nullptr)
   {
-    if (angle_cmd_ == nullptr)
-      angle_cmd_ = std::make_shared<AngleThrust>();
+    if (acc_cmd_ == nullptr)
+      acc_cmd_ = std::make_shared<tobas_command_msgs::AccelYaw>();
 
     // 世界座標系から見た現在の位置速度
     const auto& cur_pos_W = odom->frame.p;
     const auto cur_vel_W = odom->frame.M * odom->twist.vel;
 
     // 目標加速度を計算
-    const auto tar_acc_fb = pos_pid_.update(cur_pos_W, cur_vel_W, pvay_cmd_->pos, pvay_cmd_->vel, dt);
-    const auto tar_acc = pvay_cmd_->acc + tar_acc_fb;
+    const auto tar_acc_fb = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, dt);
+    acc_cmd_->accel = pos_cmd_->acc + tar_acc_fb;
+
+    // ヨー角はそのまま流す
+    acc_cmd_->yaw = pos_cmd_->yaw;
+
+    // フィードバックメッセージを埋める
+    feedback_msg->target_position = pos_cmd_->pos;
+    feedback_msg->target_velocity = pos_cmd_->vel;
+    feedback_msg->position_integral_error = pos_pid_.integralError();
+  }
+
+  // 加速度制御器
+  if (acc_cmd_ != nullptr)
+  {
+    if (angle_cmd_ == nullptr)
+      angle_cmd_ = std::make_shared<AngleThrust>();
 
     // 推力和と目標姿勢を計算
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     acc_atti_conv_.update(
-      odom->frame.M, tar_acc, dist_force_W, angle_cmd_->thrust, angle_cmd_->rpy.roll, angle_cmd_->rpy.pitch);
+      odom->frame.M, acc_cmd_->accel, dist_force_W, angle_cmd_->thrust, angle_cmd_->rpy.roll, angle_cmd_->rpy.pitch);
 
     // ヨー角はそのまま流す
-    angle_cmd_->rpy.yaw = pvay_cmd_->yaw;
+    angle_cmd_->rpy.yaw = acc_cmd_->yaw;
 
     // フィードバックメッセージを埋める
-    feedback_msg->target_position = pvay_cmd_->pos;
-    feedback_msg->target_velocity = pvay_cmd_->vel;
-    feedback_msg->target_acceleration = tar_acc;
-    feedback_msg->position_integral_error = pos_pid_.integralError();
+    feedback_msg->target_acceleration = acc_cmd_->accel;
   }
 
   // 姿勢制御器
@@ -429,7 +446,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     }
     const auto& thrusts = mixer_.getThrusts();
 
-    // 目標回転数を発行
+    // 目標推力を発行
     auto thrusts_msg = std::make_unique<tobas_msgs::msg::RotorThrustArray>();
     thrusts_msg->header.stamp = odom->header.stamp;
     for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
@@ -471,7 +488,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   // Disarm時にコマンドをリセットする．でないと再度アームした時に前回のコマンドでモータが回り始めてしまう．
   if (arming_ != nullptr && arming_->data && !arming->data)
   {
-    pvay_cmd_ = nullptr;
+    pos_cmd_ = nullptr;
+    acc_cmd_ = nullptr;
     angle_cmd_ = nullptr;
     rate_cmd_ = nullptr;
     TOBAS_INFO("Command is reset.");
@@ -487,7 +505,7 @@ void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArr
       TOBAS_ERROR("Failed to set the liveliness of rotor \"", data.link_name, "\".");
 }
 
-void ControllerNode::posVelAccYawCmdCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pvay)
+void ControllerNode::posVelAccYawCmdCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pos_cmd)
 {
   if (!isReadyToControl())
   {
@@ -495,22 +513,43 @@ void ControllerNode::posVelAccYawCmdCb(const tobas_command_msgs::PosVelAccYaw::C
     return;
   }
 
-  if (!cmd_level_handler_.update(pvay->level.data, get_clock()->now()))
+  if (!cmd_level_handler_.update(pos_cmd->level.data, get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
   }
 
   // コマンドを更新
-  pvay_cmd_ = std::make_shared<tobas_command_msgs::PosVelAccYaw>(*pvay);
+  pos_cmd_ = std::make_shared<tobas_command_msgs::PosVelAccYaw>(*pos_cmd);
 
   // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *pvay_cmd_))
+  if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *pos_cmd_))
   {
     TOBAS_ERROR("Failed to change command frame. Probably the frame ID is invalid.");
-    pvay_cmd_ = nullptr;
+    pos_cmd_ = nullptr;
     return;
   }
+}
+
+void ControllerNode::accelYawCmdCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd)
+{
+  if (!isReadyToControl())
+  {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because the controller is not ready.");
+    return;
+  }
+
+  if (!cmd_level_handler_.update(acc_cmd->level.data, get_clock()->now()))
+  {
+    TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
+    return;
+  }
+
+  // 外側の制御を止める
+  pos_cmd_ = nullptr;
+
+  // コマンドを更新
+  acc_cmd_ = std::make_shared<tobas_command_msgs::AccelYaw>(*acc_cmd);
 }
 
 void ControllerNode::angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrottle::ConstSharedPtr& angle_throt)
@@ -545,7 +584,8 @@ void ControllerNode::angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrott
   }
 
   // 外側の制御を止める
-  pvay_cmd_ = nullptr;
+  pos_cmd_ = nullptr;
+  acc_cmd_ = nullptr;
 
   // コマンドを更新
   if (angle_cmd_ == nullptr)
@@ -556,7 +596,7 @@ void ControllerNode::angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrott
   angle_cmd_->thrust = z_rotors_.maxThrustSum() * angle_throt->throttle;
 }
 
-void ControllerNode::rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle::ConstSharedPtr& rate_throt)
+void ControllerNode::rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle::ConstSharedPtr& rate_cmd)
 {
   if (!isReadyToControl())
   {
@@ -564,30 +604,31 @@ void ControllerNode::rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle
     return;
   }
 
-  if (!cmd_level_handler_.update(rate_throt->level.data, get_clock()->now()))
+  if (!cmd_level_handler_.update(rate_cmd->level.data, get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
   }
 
   // Check command range
-  if (rate_throt->throttle < tobas::kMinThrot || tobas::kMaxThrot < rate_throt->throttle)
+  if (rate_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < rate_cmd->throttle)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
     return;
   }
 
   // 外側の制御を止める
-  pvay_cmd_ = nullptr;
+  pos_cmd_ = nullptr;
+  acc_cmd_ = nullptr;
   angle_cmd_ = nullptr;
 
   // コマンドを更新
   if (rate_cmd_ == nullptr)
     rate_cmd_ = std::make_shared<RateThrust>();
-  rate_cmd_->drpy.roll = rate_throt->droll;
-  rate_cmd_->drpy.pitch = rate_throt->dpitch;
-  rate_cmd_->drpy.yaw = rate_throt->dyaw;
-  rate_cmd_->thrust = z_rotors_.maxThrustSum() * rate_throt->throttle;
+  rate_cmd_->drpy.roll = rate_cmd->droll;
+  rate_cmd_->drpy.pitch = rate_cmd->dpitch;
+  rate_cmd_->drpy.yaw = rate_cmd->dyaw;
+  rate_cmd_->thrust = z_rotors_.maxThrustSum() * rate_cmd->throttle;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)

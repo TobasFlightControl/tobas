@@ -14,6 +14,7 @@ class CustomControllerWidget : public BaseControllerWidget
 
   static constexpr char kRateThrottleLabel[] = "Euler Rate + Throttle";
   static constexpr char kAngleThrottleLabel[] = "Euler Angle + Throttle";
+  static constexpr char kAccelYawLabel[] = "Accel + Yaw";
   static constexpr char kPosVelAccYawLabel[] = "Position + Velocity + Accel + Yaw";
   static constexpr char kPoseTwistAccelLabel[] = "Pose + Twist + Accel";
   static constexpr char kSpeedRollDeltaPitchLabel[] = "Speed + Roll + Pitch";

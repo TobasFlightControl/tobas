@@ -1,4 +1,3 @@
-#include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 
@@ -42,7 +41,7 @@ void AngleThrottleController::initialize(tobas::BaseNode* node)
 
 void AngleThrottleController::reset(const tobas_msgs::Odometry& odom)
 {
-  yaw_ = kdl::Euler(odom.frame.M).yaw;
+  yaw_ = odom.frame.M.getYaw();
   t_last_rcin_ = odom.header.stamp;
 }
 
@@ -52,7 +51,7 @@ void AngleThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
-  // Yawの目標値を更新
+  // ヨーの目標値を更新
   const auto yawrate = remapDead(rcin.yaw, -max_heading_rate_, max_heading_rate_);
   yaw_ += yawrate * dt;
 

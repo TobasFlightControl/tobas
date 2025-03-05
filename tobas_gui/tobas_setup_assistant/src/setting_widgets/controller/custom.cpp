@@ -13,6 +13,7 @@ CustomControllerWidget::CustomControllerWidget()
   : command_map_{
       { kRateThrottleLabel, tobas::RATE_THROTTLE },
       { kAngleThrottleLabel, tobas::ANGLE_THROTTLE },
+      { kAccelYawLabel, tobas::ACCEL_YAW },
       { kPosVelAccYawLabel, tobas::POS_VEL_ACC_YAW },
       { kPoseTwistAccelLabel, tobas::POSE_TWIST_ACCEL },
       { kSpeedRollDeltaPitchLabel, tobas::SPEED_ROLL_DPITCH },
@@ -34,7 +35,7 @@ CustomControllerWidget::CustomControllerWidget()
 
   // Set default command
   acrobat_mode_->setValue(kRateThrottleLabel);
-  stabilize_mode_->setValue(kAngleThrottleLabel);
+  stabilize_mode_->setValue(kAccelYawLabel);
   loiter_mode_->setValue(kPosVelAccYawLabel);
 
   // Layout
