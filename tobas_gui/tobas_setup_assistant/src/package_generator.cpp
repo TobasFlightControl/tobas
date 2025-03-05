@@ -805,14 +805,14 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
 
   // IMU plugin
   addIMUPlugin(
-    robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroRandomWalk(),
-    imu->gyroBiasCorrTime(), imu->gyroTurnOnBiasSigma(), imu->accNoiseDensity(), imu->accRandomWalk(),
-    imu->accBiasCorrTime(), imu->accTurnOnBiasSigma(), rotor_link_names);
+    robot, ns, root_name, imu->updateRate(), imu->offset(), imu->gyroNoiseDensity(), imu->gyroOffsetNorm(),
+    imu->gyroRandomWalk(), imu->gyroBiasCorrTime(), imu->accNoiseDensity(), imu->accOffsetNorm(), imu->accRandomWalk(),
+    imu->accBiasCorrTime(), rotor_link_names);
 
   // Magnetometer plugin
   addMagnetometerPlugin(
     robot, ns, root_name, mag->updateRate(), mag->offset(), sim->latitudeZero(), sim->longitudeZero(),
-    sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasRange());
+    sim->altitudeZero(), mag->noiseStddev(), mag->hardBiasNorm());
 
   // Barometer plugin
   addBarometerPlugin(

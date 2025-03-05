@@ -115,13 +115,13 @@ void addIMUPlugin(
   double update_rate,
   const Eigen::Vector3d& offset,
   double gyro_noise_density,
+  double gyro_offset_norm,
   double gyro_random_walk,
   double gyro_bias_corr_time,
-  double gyro_turn_on_bias_sigma,
   double acc_noise_density,
+  double acc_offset_norm,
   double acc_random_walk,
   double acc_bias_corr_time,
-  double acc_turn_on_bias_sigma,
   const vector<string>& rotor_link_names)
 {
   const auto plugin = util::addGazeboPlugin(robot, "tobas_gazebo_imu_plugin", "gazebo::GazeboImuPlugin");
@@ -129,16 +129,14 @@ void addIMUPlugin(
   plugin->InsertNewChildElement("linkName")->SetText(link_name.c_str());
   plugin->InsertNewChildElement("updateRate")->SetText(update_rate);
   plugin->InsertNewChildElement("offset")->SetText(util::toString(offset).c_str());
-  plugin->InsertNewChildElement("gyroNoiseDensityOnSignal")->SetText(gyro_noise_density);
-  plugin->InsertNewChildElement("gyroNoiseDensityObserved")->SetText(gyro_noise_density);
+  plugin->InsertNewChildElement("gyroNoiseDensity")->SetText(gyro_noise_density);
   plugin->InsertNewChildElement("gyroRandomWalk")->SetText(gyro_random_walk);
   plugin->InsertNewChildElement("gyroBiasCorrelationTime")->SetText(gyro_bias_corr_time);
-  plugin->InsertNewChildElement("gyroTurnOnBiasSigma")->SetText(gyro_turn_on_bias_sigma);
-  plugin->InsertNewChildElement("accelNoiseDensityOnSignal")->SetText(acc_noise_density);
-  plugin->InsertNewChildElement("accelNoiseDensityObserved")->SetText(acc_noise_density);
+  plugin->InsertNewChildElement("gyroOffsetNorm")->SetText(gyro_offset_norm);
+  plugin->InsertNewChildElement("accelNoiseDensity")->SetText(acc_noise_density);
   plugin->InsertNewChildElement("accelRandomWalk")->SetText(acc_random_walk);
   plugin->InsertNewChildElement("accelBiasCorrelationTime")->SetText(acc_bias_corr_time);
-  plugin->InsertNewChildElement("accelTurnOnBiasSigma")->SetText(acc_turn_on_bias_sigma);
+  plugin->InsertNewChildElement("accelOffsetNorm")->SetText(acc_offset_norm);
   util::addList(plugin, "rotorLinkNames", rotor_link_names);
 }
 
@@ -152,7 +150,7 @@ void addMagnetometerPlugin(
   double longitude_zero,
   double altitude_zero,
   double noise_stddev,
-  double hard_bias_range)
+  double hard_bias_norm)
 {
   const auto plugin =
     util::addGazeboPlugin(robot, "tobas_gazebo_magnetometer_plugin", "gazebo::GazeboMagnetometerPlugin");
@@ -164,7 +162,7 @@ void addMagnetometerPlugin(
   plugin->InsertNewChildElement("longitudeZero")->SetText(longitude_zero);
   plugin->InsertNewChildElement("altitudeZero")->SetText(altitude_zero);
   plugin->InsertNewChildElement("noiseStddev")->SetText(noise_stddev);
-  plugin->InsertNewChildElement("hardBiasRange")->SetText(hard_bias_range);
+  plugin->InsertNewChildElement("hardBiasNorm")->SetText(hard_bias_norm);
 }
 
 void addBarometerPlugin(

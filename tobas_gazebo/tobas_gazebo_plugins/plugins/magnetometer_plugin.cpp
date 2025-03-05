@@ -24,8 +24,6 @@ class GazeboMagnetometerPlugin : public BaseNode,
                                  public gz::sim::ISystemConfigure,
                                  public gz::sim::ISystemPostUpdate
 {
-  static constexpr size_t kDefaultUpdateRate = 100;  // [Hz]
-
 public:
   explicit GazeboMagnetometerPlugin();
 
@@ -46,7 +44,7 @@ private:
   double lon_0_;               // [deg] 原点の東経
   double alt_0_;               // [m] 原点の高度
   double noise_stddev_;        // [nT]
-  double hard_bias_range_;     // [nT]
+  double hard_bias_norm_;      // [nT]
 
   RateManager::SharedPtr rate_manager_;
 
@@ -61,6 +59,7 @@ private:
   ros2::PublisherPtr<tobas_msgs::MagneticFieldStamped> mag_pub_;
 
   void getSdfParams(const sdf::ElementConstPtr& sdf);
+  void setHardBias();
 };
 
 GazeboMagnetometerPlugin::GazeboMagnetometerPlugin()
@@ -86,8 +85,7 @@ void GazeboMagnetometerPlugin::Configure(
 
   noise_ = make_shared<NormalDistribution3d>(rnd_dev_, 0., noise_stddev_);
 
-  UniformDistribution3d hard_bias_dist(rnd_dev_, -hard_bias_range_, hard_bias_range_);
-  hard_bias_ = hard_bias_dist.get();
+  setHardBias();
 
   mag_pub_ = createPublisher<tobas_msgs::MagneticFieldStamped>(tobas::kMagRawTopic);
 }
@@ -95,15 +93,28 @@ void GazeboMagnetometerPlugin::Configure(
 void GazeboMagnetometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
-  getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
+  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
+  getSdfParam(sdf, "offset", offset_);
 
-  getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
-  getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
-  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
+  getSdfParam(sdf, "latitudeZero", lat_0_);
+  getSdfParam(sdf, "longitudeZero", lon_0_);
+  getSdfParam(sdf, "altitudeZero", alt_0_);
 
-  getSdfParam(sdf, "noiseStddev", noise_stddev_, 0., NON_NEGATIVE);
-  getSdfParam(sdf, "hardBiasRange", hard_bias_range_, 0., NON_NEGATIVE);
+  getSdfParam(sdf, "noiseStddev", noise_stddev_, NON_NEGATIVE);
+  getSdfParam(sdf, "hardBiasNorm", hard_bias_norm_, NON_NEGATIVE);
+}
+
+void GazeboMagnetometerPlugin::setHardBias()
+{
+  UniformDistribution angle_dist(-M_PI, M_PI);
+
+  const auto phi = angle_dist(rnd_dev_);
+  const auto theta = angle_dist(rnd_dev_);
+
+  // 極座標 -> デカルト座標
+  hard_bias_.X(hard_bias_norm_ * sin(phi) * cos(theta));
+  hard_bias_.Y(hard_bias_norm_ * sin(phi) * sin(theta));
+  hard_bias_.Z(hard_bias_norm_ * cos(phi));
 }
 
 void GazeboMagnetometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)
