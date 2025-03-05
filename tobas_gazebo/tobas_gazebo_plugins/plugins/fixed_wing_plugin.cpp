@@ -46,10 +46,6 @@ class GazeboFixedWingPlugin : public BaseNode,
   static constexpr char kDebugPubTopic[] = "gazebo/fixed_wing_debug";
   static constexpr double kAutoResetTimeout = 0.5;  // [s]
 
-  // Default values
-  static constexpr double kDefaultLowerStallAngle = -10 * tobas_std::kDeg2Rad;
-  static constexpr double kDefaultUpperStallAngle = 20 * tobas_std::kDeg2Rad;
-
   using self = GazeboFixedWingPlugin;
 
 public:
@@ -180,7 +176,7 @@ void GazeboFixedWingPlugin::Configure(
 void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
-  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
+  getSdfParam(sdf, "altitudeZero", alt_0_, NON_NEGATIVE);
 
   // Vehicle
   getSdfParam(sdf, "wingSurface", vehicle_params_.wing_surface, POSITIVE);
@@ -191,8 +187,8 @@ void GazeboFixedWingPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "aerodynamicCenter", ac);
   vectorGazeboToKDL(ac, vehicle_params_.ac);
 
-  getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower, kDefaultLowerStallAngle);
-  getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper, kDefaultUpperStallAngle);
+  getSdfParam(sdf, "lowerStallAngle", vehicle_params_.alpha_limit.lower);
+  getSdfParam(sdf, "upperStallAngle", vehicle_params_.alpha_limit.upper);
   if (!vehicle_params_.alpha_limit.isValid())
     TOBAS_EXIT("Invalid stall angles");
 

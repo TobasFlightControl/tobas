@@ -130,9 +130,9 @@ void GazeboGnssPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
   getSdfParam(sdf, "horVelStdDev", hor_vel_stddev_, kDefaultHorVelStdDev, NON_NEGATIVE);
   getSdfParam(sdf, "verVelStdDev", ver_vel_stddev_, kDefaultVerVelStdDev, NON_NEGATIVE);
 
-  getSdfParam(sdf, "latitudeZero", lat_0_, kDefaultLatitudeZero);
-  getSdfParam(sdf, "longitudeZero", lon_0_, kDefaultLongitudeZero);
-  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero);
+  getSdfParam(sdf, "latitudeZero", lat_0_);
+  getSdfParam(sdf, "longitudeZero", lon_0_);
+  getSdfParam(sdf, "altitudeZero", alt_0_);
 }
 
 void GazeboGnssPlugin::setRandomDistribuitons()

@@ -18,10 +18,6 @@ class GazeboBarometerPlugin : public BaseNode,
                               public gz::sim::ISystemConfigure,
                               public gz::sim::ISystemPostUpdate
 {
-  // Default values
-  static constexpr size_t kDefaultUpdateRate = 50;   // [Hz]
-  static constexpr double kDefaultPressureVar = 1.;  // [Pa]
-
 public:
   explicit GazeboBarometerPlugin();
 
@@ -81,9 +77,9 @@ void GazeboBarometerPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
   getSdfParam(sdf, "linkName", link_name_);
   getSdfParam(sdf, "offset", offset_, gz::math::Vector3d::Zero);
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
-  getSdfParam(sdf, "altitudeZero", alt_0_, kDefaultAltitudeZero, NON_NEGATIVE);
-  getSdfParam(sdf, "pressureVariance", pressure_var_, kDefaultPressureVar, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
+  getSdfParam(sdf, "altitudeZero", alt_0_, NON_NEGATIVE);
+  getSdfParam(sdf, "pressureVariance", pressure_var_, NON_NEGATIVE);
 }
 
 void GazeboBarometerPlugin::PostUpdate(const gz::sim::UpdateInfo& info, const gz::sim::EntityComponentManager&)

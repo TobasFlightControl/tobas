@@ -26,7 +26,6 @@ class GazeboBatteryPlugin : public BaseNode,
   static constexpr double kSagCapRate = 0.2;  // [-] 放電特性が急激に変化する点における電気残率
 
   // Default parameters
-  static constexpr size_t kDefaultUpdateRate = 100;           // [Hz]
   static constexpr double kDefaultVoltageNoiseStddev = 0.01;  // [V]
   static constexpr double kDefaultCurrentNoiseStddev = 0.01;  // [A]
 
@@ -109,7 +108,7 @@ void GazeboBatteryPlugin::Configure(
 
 void GazeboBatteryPlugin::getSdfParams(const sdf::ElementConstPtr& sdf)
 {
-  getSdfParam(sdf, "updateRate", update_rate_, kDefaultUpdateRate, NON_NEGATIVE);
+  getSdfParam(sdf, "updateRate", update_rate_, NON_NEGATIVE);
   getSdfParam(sdf, "maxVoltage", max_voltage_, POSITIVE);
   getSdfParam(sdf, "sagVoltage", sag_voltage_, NON_NEGATIVE);
   getSdfParam(sdf, "maxCurrent", max_current_, POSITIVE);
