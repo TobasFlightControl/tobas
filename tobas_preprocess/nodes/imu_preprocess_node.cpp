@@ -15,8 +15,8 @@ class ImuPreprocessNode : public tobas::BaseNode
   static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
 
   // Default dynamic parameters
-  static constexpr long kDefaultAccelLowPassCutoff = 70;  // TODO: ノッチフィルタを導入したら上げる
-  static constexpr long kDefaultGyroLowPassCutoff = 70;   // TODO: ノッチフィルタを導入したら上げる
+  static constexpr long kDefaultAccelLowPassCutoff = 40;  // TODO: ノッチフィルタを導入したら上げる
+  static constexpr long kDefaultGyroLowPassCutoff = 40;   // TODO: ノッチフィルタを導入したら上げる
 
   using self = ImuPreprocessNode;
   using super = tobas::BaseNode;
