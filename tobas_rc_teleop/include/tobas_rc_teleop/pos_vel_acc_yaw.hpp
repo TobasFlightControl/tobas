@@ -25,8 +25,8 @@ public:
 private:
   bool is_up_commanded_;
   builtin_interfaces::msg::Time t_last_rcin_;
-  kdl::Vector tar_vel_F_;
-  kdl::Vector tar_pos_W_;
+  kdl::Vector tar_vel_G_;  // 地面座標系から見た目標速度
+  kdl::Vector tar_pos_W_;  // 世界座標系から見た目標位置
   double tar_yaw_;
 
   // rosparams

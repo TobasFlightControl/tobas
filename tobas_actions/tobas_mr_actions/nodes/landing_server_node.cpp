@@ -1,5 +1,4 @@
 #include <tobas_std_tools/timestamped_buffer.hpp>
-#include <tobas_kdl/euler.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
@@ -113,7 +112,7 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto start_x = odom_->frame.p.x();
   const auto start_y = odom_->frame.p.y();
   const auto start_z = odom_->frame.p.z();
-  const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
+  const auto start_yaw = odom_->frame.M.getYaw();
 
   // 高度データを初期化
   tobas_std::TimestampedBuffer<double> alt_buf(kTimeWindow);

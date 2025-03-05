@@ -1,7 +1,6 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_std_tools/trajectory.hpp>
 #include <tobas_std_tools/geometry.hpp>
-#include <tobas_kdl/euler.hpp>
 #include <tobas_kdl_conversions/kdl_msg.hpp>
 #include <tobas_ros2_tools/sync_service_client.hpp>
 #include <tobas_node/node.hpp>
@@ -188,7 +187,7 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
   // 初期状態
   const auto start_time = get_clock()->now();
-  const auto start_yaw = kdl::Euler(odom_->frame.M).yaw;
+  const auto start_yaw = odom_->frame.M.getYaw();
 
   // 軌道を発行
   rclcpp::Rate rate(kCommandRate, get_clock());

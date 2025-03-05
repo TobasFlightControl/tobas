@@ -32,7 +32,7 @@ private:
   // Mutable
   bool is_up_commanded_;
   rclcpp::Time t_last_rcin_;
-  kdl::Vector tar_vel_F_;  // フットプリント座標系から見た目標速度
+  kdl::Vector tar_vel_G_;  // 地面座標系から見た目標速度
   kdl::Vector tar_pos_W_;  // 世界座標系から見た目標位置
   kdl::Euler tar_rpy_;
 

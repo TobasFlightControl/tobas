@@ -4,7 +4,6 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_keyboard/keyboard_reader.hpp>
 #include <tobas_keyboard/utils.hpp>
-#include <tobas_kdl/euler.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_ros2_tools/sync_action_client.hpp>
 #include <tobas_constants/constants.hpp>
@@ -146,7 +145,7 @@ void PositionYawPublisherNode::initializeTimerCb()
     && odom.status == tobas_msgs::msg::Odometry::NO_ERROR)
   {
     cmd_pos_ = odom.frame.p;
-    cmd_yaw_ = kdl::Euler(odom.frame.M).yaw;
+    cmd_yaw_ = odom.frame.M.getYaw();
   }
   else
   {
