@@ -414,6 +414,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto head_gain = 2 * head_wn_ * head_zeta_;
 
     // 目標角加速度を計算
+    // XXX: 姿勢推定に依存しないよう，オイラーレートではなく角速度で計算する．
     const auto& cur_gyro = odom->twist.rot;
     Vector3d tar_dgyro;
     tar_dgyro.x() = atti_gain * (tar_rate_->x() - cur_gyro.x());
