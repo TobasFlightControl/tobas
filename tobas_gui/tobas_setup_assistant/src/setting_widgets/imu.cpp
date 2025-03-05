@@ -79,7 +79,7 @@ const char* IMUWidget::name() const
 
 const char* IMUWidget::title() const
 {
-  return "Define Inertial Measurement Unit";
+  return "Define 6-Axis IMU";
 }
 
 const char* IMUWidget::description() const
