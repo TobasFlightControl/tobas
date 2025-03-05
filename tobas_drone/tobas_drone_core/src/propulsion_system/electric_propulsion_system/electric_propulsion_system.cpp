@@ -90,7 +90,7 @@ double ElectricPropulsionSystemConfig::minSpeed(const std::string& link_name) co
 double ElectricPropulsionSystemConfig::maxSpeed(const std::string& link_name) const
 {
   const auto rotor = getRotor(link_name);
-  return rotor->speedFromVoltage(battery.nominal_voltage);
+  return rotor->speedFromVoltage(battery.max_voltage);
 }
 
 double ElectricPropulsionSystemConfig::minThrust(const std::string& link_name) const
