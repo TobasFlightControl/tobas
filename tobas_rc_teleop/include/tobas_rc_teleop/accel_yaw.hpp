@@ -23,6 +23,7 @@ public:
   void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
+  bool is_up_commanded_;
   builtin_interfaces::msg::Time t_last_rcin_;
   kdl::Vector tar_acc_G_;
   double tar_yaw_;

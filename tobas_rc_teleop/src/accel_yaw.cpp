@@ -41,10 +41,12 @@ void AccelYawController::initialize(tobas::BaseNode* node)
 
 void AccelYawController::reset(const tobas_msgs::Odometry& odom)
 {
+  is_up_commanded_ = false;
   t_last_rcin_ = odom.header.stamp;
+  tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void AccelYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
+void AccelYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -58,6 +60,13 @@ void AccelYawController::update(const tobas_msgs::msg::RCInput& rcin, const toba
 
   // ヨーレートを積分
   tar_yaw_ += yawrate * dt;
+
+  // 上昇コマンドが入力されるまではヨーの制御は行わない
+  if (!is_up_commanded_)
+  {
+    tar_yaw_ = odom.frame.M.getYaw();
+    is_up_commanded_ = tar_acc_G_.z() > 0;
+  }
 
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AccelYaw>();
