@@ -13,7 +13,6 @@ struct PoseTwistAccel
 {
   std_msgs::msg::Header header;
   tobas_command_msgs::msg::CommandLevel level;
-  tobas_command_msgs::msg::FrameId frame_id;
   kdl::Vector pos;
   kdl::Vector vel;
   kdl::Vector acc;
@@ -37,7 +36,6 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccel, tobas_command_msg
   {
     dst.header = src.header;
     dst.level = src.level;
-    dst.frame_id = src.frame_id;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.pos, dst.pos);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.vel, dst.vel);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.acc, dst.acc);
@@ -50,7 +48,6 @@ struct rclcpp::TypeAdapter<tobas_command_msgs::PoseTwistAccel, tobas_command_msg
   {
     dst.header = src.header;
     dst.level = src.level;
-    dst.frame_id = src.frame_id;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.pos, dst.pos);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.vel, dst.vel);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.acc, dst.acc);

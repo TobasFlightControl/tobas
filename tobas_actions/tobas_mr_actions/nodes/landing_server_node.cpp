@@ -155,7 +155,6 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     // コマンドを作成
     const auto t = (get_clock()->now() - start_time).seconds();
     cmd_.level = goal_handle->get_goal()->level;
-    cmd_.frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;
     cmd_.pos.x(start_x);
     cmd_.pos.y(start_y);
     cmd_.pos.z(start_z - kVerticalSpeed * t);

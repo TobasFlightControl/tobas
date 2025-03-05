@@ -6,7 +6,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 #include <tobas_tools/command_level_handler.hpp>
-#include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_drone_core/drone.hpp>
 #include <tobas_drone_tools/tr_mixer_pinv.hpp>
@@ -418,14 +417,6 @@ void ControllerNode::commandCb(const tobas_command_msgs::PoseTwistAccel::ConstSh
 
   // コマンドを更新
   cmd_ = std::make_shared<tobas_command_msgs::PoseTwistAccel>(*cmd);
-
-  // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *cmd_))
-  {
-    TOBAS_ERROR("Failed to change command frame. Probably the frame id is invalid.");
-    cmd_ = nullptr;
-    return;
-  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)

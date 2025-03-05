@@ -171,7 +171,6 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
 
     // コマンドを作成
     cmd_.level = goal->level;
-    cmd_.frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;
     cmd_.pos.setZero();
     cmd_.vel.setZero();
     cmd_.acc.setZero();

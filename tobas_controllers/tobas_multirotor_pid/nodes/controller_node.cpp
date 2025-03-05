@@ -5,7 +5,6 @@
 #include <tobas_node/node.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 #include <tobas_tools/command_level_handler.hpp>
-#include <tobas_tools/conversions/frame_id.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_drone_tools/mr_accel_attitude_converter.hpp>
 #include <tobas_drone_tools/mr_mixer_qp.hpp>
@@ -521,14 +520,6 @@ void ControllerNode::posVelAccYawCmdCb(const tobas_command_msgs::PosVelAccYaw::C
 
   // コマンドを更新
   pos_cmd_ = std::make_shared<tobas_command_msgs::PosVelAccYaw>(*pos_cmd);
-
-  // グローバル座標系に変換
-  if (!tobas::changeFrame(tobas_command_msgs::msg::FrameId::WORLD, odom_->frame.M, *pos_cmd_))
-  {
-    TOBAS_ERROR("Failed to change command frame. Probably the frame ID is invalid.");
-    pos_cmd_ = nullptr;
-    return;
-  }
 }
 
 void ControllerNode::accelYawCmdCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd)

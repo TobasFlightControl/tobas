@@ -216,7 +216,6 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
 
     // コマンドを作成
     cmd_.level = goal->level;
-    cmd_.frame_id.data = tobas_command_msgs::msg::FrameId::WORLD;
 
     // ヨー角は初期状態を維持
     cmd_.yaw = start_yaw;
