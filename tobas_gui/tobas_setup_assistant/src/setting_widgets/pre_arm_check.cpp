@@ -11,7 +11,7 @@ PreArmCheckWidget::PreArmCheckWidget()
   battery_voltage_ = new QCheckBox("Check battery voltage");
   cpu_temperature_ = new QCheckBox("Check CPU temperature");
   rotor_communication_ = new QCheckBox("Check rotor communication");
-  attitude_level_ = new QCheckBox("Check rotor communication");
+  attitude_level_ = new QCheckBox("Check attitude level");
   position_stability_ = new QCheckBox("Check position stability");
   position_accuracy_ = new QCheckBox("Check position accuracy");
   velocity_accuracy_ = new QCheckBox("Check velocity accuracy");
