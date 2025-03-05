@@ -20,13 +20,13 @@ MagnetometerWidget::MagnetometerWidget()
 
   noise_stddev_ = new ParamGetterWidget_SpinBox("Standard Deviation of Additive White Gaussian Noise", "");  // TODO
   noise_stddev_->setMinimum(0);
-  noise_stddev_->setValue(500);
+  noise_stddev_->setValue(460);  // IIS2MDC
   noise_stddev_->setSuffix(" nT");
   addWidget(noise_stddev_);
 
   hard_bias_norm_ = new ParamGetterWidget_SpinBox("Hard-Iron Bias Norm", "");  // TODO
   hard_bias_norm_->setMinimum(0);
-  hard_bias_norm_->setValue(5000);
+  hard_bias_norm_->setValue(3000);  // IIS2MDCの最大値は6000nTだが，キャリブレーションを前提としてそれより低めに設定．
   hard_bias_norm_->setSuffix(" nT");
   addWidget(hard_bias_norm_);
 
@@ -40,7 +40,7 @@ const char* MagnetometerWidget::name() const
 
 const char* MagnetometerWidget::title() const
 {
-  return "Define Compass";
+  return "Define 3-Axis Magnetometer";
 }
 
 const char* MagnetometerWidget::description() const
