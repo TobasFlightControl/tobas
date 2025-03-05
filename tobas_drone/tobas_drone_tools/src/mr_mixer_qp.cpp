@@ -41,7 +41,7 @@ bool MultiRotorMixer_QP::solve(
 {
   if (tar_thrusts_sum < 0.)
   {
-    cerr << "Target thrust must be positive." << endl;
+    cerr << "Target thrust must be non-negative: " << tar_thrusts_sum << " < 0" << endl;
     return false;
   }
 
