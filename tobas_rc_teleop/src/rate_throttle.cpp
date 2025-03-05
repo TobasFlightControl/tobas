@@ -36,7 +36,7 @@ void RateThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::RateThrottle>(tobas::kRateThrottleCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::RateThrottle>(tobas::kRateThrottleCmdTopic);
 }
 
 void RateThrottleController::reset(const tobas_msgs::Odometry&)
@@ -46,12 +46,12 @@ void RateThrottleController::reset(const tobas_msgs::Odometry&)
 void RateThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::msg::RateThrottle>();
+  auto cmd = std::make_unique<tobas_command_msgs::RateThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
-  cmd->droll = remap(rcin.roll, -max_attitude_rate_, max_attitude_rate_);
-  cmd->dpitch = remap(rcin.pitch, -max_attitude_rate_, max_attitude_rate_);
-  cmd->dyaw = remap(rcin.yaw, -max_heading_rate_, max_heading_rate_);
+  cmd->rate.x(remap(rcin.roll, -max_attitude_rate_, max_attitude_rate_));
+  cmd->rate.y(remap(rcin.pitch, -max_attitude_rate_, max_attitude_rate_));
+  cmd->rate.z(remap(rcin.yaw, -max_heading_rate_, max_heading_rate_));
   cmd->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
 
   // コマンドを発行

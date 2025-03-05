@@ -16,7 +16,7 @@ struct MultiRotorControllerFeedback
   kdl::Vector target_velocity;
   kdl::Vector target_acceleration;
   kdl::Euler target_angle;
-  kdl::Euler target_angle_rate;
+  kdl::Vector target_rate;
   double target_thrust;
   kdl::Vector position_integral_error;
 
@@ -40,7 +40,7 @@ struct rclcpp::
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_velocity, dst.target_velocity);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_acceleration, dst.target_acceleration);
     tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.target_angle, dst.target_angle);
-    tobas_kdl_msgs::EulerAdapter::convert_to_ros_message(src.target_angle_rate, dst.target_angle_rate);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_rate, dst.target_rate);
     dst.target_thrust = src.target_thrust;
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.position_integral_error, dst.position_integral_error);
   }
@@ -52,7 +52,7 @@ struct rclcpp::
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_velocity, dst.target_velocity);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_acceleration, dst.target_acceleration);
     tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.target_angle, dst.target_angle);
-    tobas_kdl_msgs::EulerAdapter::convert_to_custom(src.target_angle_rate, dst.target_angle_rate);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_rate, dst.target_rate);
     dst.target_thrust = src.target_thrust;
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.position_integral_error, dst.position_integral_error);
   }

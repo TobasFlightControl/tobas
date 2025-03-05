@@ -36,7 +36,7 @@ void AngleThrottleController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
 }
 
 void AngleThrottleController::reset(const tobas_msgs::Odometry& odom)
@@ -56,14 +56,14 @@ void AngleThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const
   yaw_ += yawrate * dt;
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::msg::AngleThrottle>();
+  auto cmd = std::make_unique<tobas_command_msgs::AngleThrottle>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
   // 姿勢とスロットルを埋める
-  cmd->roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
-  cmd->pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
-  cmd->yaw = yaw_;
+  cmd->angle.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
+  cmd->angle.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
+  cmd->angle.yaw = yaw_;
   cmd->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
 
   // コマンドを発行

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_command_msgs/msg/angle_throttle.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 
 #include "./base_controller.hpp"
 
@@ -31,7 +31,7 @@ private:
   double max_heading_rate_;  // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::msg::AngleThrottle> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::AngleThrottle> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

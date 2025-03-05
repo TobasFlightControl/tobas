@@ -15,8 +15,8 @@
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
-#include <tobas_command_msgs/msg/rate_throttle.hpp>
-#include <tobas_command_msgs/msg/angle_throttle.hpp>
+#include <tobas_command_msgs_adapter/rate_throttle.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
@@ -26,18 +26,6 @@
 
 using namespace std;
 using namespace Eigen;
-
-struct AngleThrust
-{
-  kdl::Euler rpy;  // [rad]
-  double thrust;   // [N]
-};
-
-struct RateThrust
-{
-  kdl::Euler drpy;  // [rad/s]
-  double thrust;    // [N]
-};
 
 class ControllerNode : public tobas::BaseNode
 {
@@ -75,10 +63,11 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
-  tobas_command_msgs::PosVelAccYaw::SharedPtr pos_cmd_;  // 位置制御の目標値 (世界座標系)
-  tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;      // 加速度制御の目標値 (ローカル座標系)
-  shared_ptr<AngleThrust> angle_cmd_;                    // 姿勢制御の目標値
-  shared_ptr<RateThrust> rate_cmd_;                      // 角速度制御の目標値
+  tobas_command_msgs::PosVelAccYaw::SharedPtr pos_cmd_;  // 位置制御の目標値
+  tobas_command_msgs::AccelYaw::SharedPtr acc_cmd_;      // 加速度制御の目標値
+  shared_ptr<kdl::Euler> tar_angle_;                     // 目標オイラー角
+  shared_ptr<kdl::Vector> tar_rate_;                     // 目標ジャイロ
+  double tar_thrust_;                                    // 目標推力
 
   // Publishers
   ros2::PublisherPtr<tobas_msgs::msg::RotorThrustArray> tar_thrusts_pub_;
@@ -94,8 +83,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVelAccYaw> pos_vel_acc_yaw_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::AccelYaw> accel_yaw_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::AngleThrottle> angle_throt_sub_;
-  ros2::SubscriberPtr<tobas_command_msgs::msg::RateThrottle> rate_throt_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::AngleThrottle> angle_throt_sub_;
+  ros2::SubscriberPtr<tobas_command_msgs::RateThrottle> rate_throt_sub_;
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
@@ -123,8 +112,8 @@ private:
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void posVelAccYawCmdCb(const tobas_command_msgs::PosVelAccYaw::ConstSharedPtr& pos_cmd);
   void accelYawCmdCb(const tobas_command_msgs::AccelYaw::ConstSharedPtr& acc_cmd);
-  void angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrottle::ConstSharedPtr& angle_throt);
-  void rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle::ConstSharedPtr& rate_cmd);
+  void angleThrustCmdCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd);
+  void rateThrustCmdCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd);
 };
 
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
@@ -379,66 +368,61 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 加速度制御器
   if (acc_cmd_ != nullptr)
   {
-    if (angle_cmd_ == nullptr)
-      angle_cmd_ = std::make_shared<AngleThrust>();
+    if (tar_angle_ == nullptr)
+      tar_angle_ = std::make_shared<kdl::Euler>();
 
     // 推力和と目標姿勢を計算
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
     acc_atti_conv_.update(
-      odom->frame.M, acc_cmd_->accel, dist_force_W, angle_cmd_->thrust, angle_cmd_->rpy.roll, angle_cmd_->rpy.pitch);
+      odom->frame.M, acc_cmd_->accel, dist_force_W, tar_thrust_, tar_angle_->roll, tar_angle_->pitch);
 
     // ヨー角はそのまま流す
-    angle_cmd_->rpy.yaw = acc_cmd_->yaw;
+    tar_angle_->yaw = acc_cmd_->yaw;
 
     // フィードバックメッセージを埋める
     feedback_msg->target_acceleration = acc_cmd_->accel;
   }
 
   // 姿勢制御器
-  if (angle_cmd_ != nullptr)
+  if (tar_angle_ != nullptr)
   {
-    if (rate_cmd_ == nullptr)
-      rate_cmd_ = std::make_shared<RateThrust>();
+    if (tar_rate_ == nullptr)
+      tar_rate_ = std::make_shared<kdl::Vector>();
 
     // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
     const auto atti_gain = atti_wn_ / atti_zeta_ / 2;
     const auto head_gain = head_wn_ / head_zeta_ / 2;
 
     // 目標角速度を計算
-    rate_cmd_->drpy.roll = atti_gain * algo::wrapPi(angle_cmd_->rpy.roll - cur_rpy.roll);
-    rate_cmd_->drpy.pitch = atti_gain * algo::wrapPi(angle_cmd_->rpy.pitch - cur_rpy.pitch);
-    rate_cmd_->drpy.yaw = head_gain * algo::wrapPi(angle_cmd_->rpy.yaw - cur_rpy.yaw);
+    Vector3d tar_drpy;
+    tar_drpy.x() = atti_gain * algo::wrapPi(tar_angle_->roll - cur_rpy.roll);
+    tar_drpy.y() = atti_gain * algo::wrapPi(tar_angle_->pitch - cur_rpy.pitch);
+    tar_drpy.z() = head_gain * algo::wrapPi(tar_angle_->yaw - cur_rpy.yaw);
 
-    // 目標推力はそのまま流す
-    rate_cmd_->thrust = angle_cmd_->thrust;
+    // オイラーレートを角速度に変換
+    tar_rate_->data = eigen::angvelFromEulerrateLocal(tar_drpy, cur_rpy.roll, cur_rpy.pitch);
 
     // フィードバックメッセージを埋める
-    feedback_msg->target_angle = angle_cmd_->rpy;
+    feedback_msg->target_angle = *tar_angle_;
   }
 
   // 角速度制御器
-  if (rate_cmd_ != nullptr)
+  if (tar_rate_ != nullptr)
   {
     // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
     const auto atti_gain = 2 * atti_wn_ * atti_zeta_;
     const auto head_gain = 2 * head_wn_ * head_zeta_;
 
-    // 現在のオイラーレートを計算
-    const auto cur_drpy = eigen::eulerrateFromAngvelLocal(odom->twist.rot.data, cur_rpy.roll, cur_rpy.pitch);
-    const auto cur_droll = cur_drpy.x();
-    const auto cur_dpitch = cur_drpy.y();
-    const auto cur_dyaw = cur_drpy.z();
-
     // 目標角加速度を計算
-    Vector3d tar_ddrpy;
-    tar_ddrpy.x() = atti_gain * (rate_cmd_->drpy.roll - cur_droll);
-    tar_ddrpy.y() = atti_gain * (rate_cmd_->drpy.pitch - cur_dpitch);
-    tar_ddrpy.z() = head_gain * (rate_cmd_->drpy.yaw - cur_dyaw);
-    const auto tar_dgyro = eigen::angaccFromEuleraccLocal(cur_rpy.roll, cur_rpy.pitch, cur_drpy, tar_ddrpy);
+    const auto& cur_gyro = odom->twist.rot;
+    Vector3d tar_dgyro;
+    tar_dgyro.x() = atti_gain * (tar_rate_->x() - cur_gyro.x());
+    tar_dgyro.y() = atti_gain * (tar_rate_->y() - cur_gyro.y());
+    tar_dgyro.z() = head_gain * (tar_rate_->z() - cur_gyro.z());
 
     // プロペラの推力を計算
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
-    if (!mixer_.solve(js_converter_.getPosition(), odom->twist.rot, tar_dgyro, rate_cmd_->thrust, dist_torque_B))
+    if (!mixer_.solve(js_converter_.getPosition(), cur_gyro, tar_dgyro, tar_thrust_, dist_torque_B))
     {
       TOBAS_FATAL("Failed to solve mixing equation.");
       return;
@@ -457,8 +441,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     tar_thrusts_pub_->publish(move(thrusts_msg));
 
     // フィードバックメッセージを埋める
-    feedback_msg->target_angle_rate = rate_cmd_->drpy;
-    feedback_msg->target_thrust = rate_cmd_->thrust;
+    feedback_msg->target_rate = *tar_rate_;
+    feedback_msg->target_thrust = tar_thrust_;
   }
 
   // フィードバックメッセージを発行
@@ -489,8 +473,8 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   {
     pos_cmd_ = nullptr;
     acc_cmd_ = nullptr;
-    angle_cmd_ = nullptr;
-    rate_cmd_ = nullptr;
+    tar_angle_ = nullptr;
+    tar_rate_ = nullptr;
     TOBAS_INFO("Command is reset.");
   }
 
@@ -543,7 +527,7 @@ void ControllerNode::accelYawCmdCb(const tobas_command_msgs::AccelYaw::ConstShar
   acc_cmd_ = std::make_shared<tobas_command_msgs::AccelYaw>(*acc_cmd);
 }
 
-void ControllerNode::angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrottle::ConstSharedPtr& angle_throt)
+void ControllerNode::angleThrustCmdCb(const tobas_command_msgs::AngleThrottle::ConstSharedPtr& angle_cmd)
 {
   if (!isReadyToControl())
   {
@@ -551,24 +535,24 @@ void ControllerNode::angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrott
     return;
   }
 
-  if (!cmd_level_handler_.update(angle_throt->level.data, get_clock()->now()))
+  if (!cmd_level_handler_.update(angle_cmd->level.data, get_clock()->now()))
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "The command is ignored because of the its priority.");
     return;
   }
 
   // Check command range
-  if (angle_throt->roll <= -M_PI_2 || M_PI_2 <= angle_throt->roll)
+  if (angle_cmd->angle.roll <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.roll)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target roll is invalid.");
     return;
   }
-  if (angle_throt->pitch <= -M_PI_2 || M_PI_2 <= angle_throt->pitch)
+  if (angle_cmd->angle.pitch <= -M_PI_2 || M_PI_2 <= angle_cmd->angle.pitch)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target pitch is invalid.");
     return;
   }
-  if (angle_throt->throttle < tobas::kMinThrot || tobas::kMaxThrot < angle_throt->throttle)
+  if (angle_cmd->throttle < tobas::kMinThrot || tobas::kMaxThrot < angle_cmd->throttle)
   {
     TOBAS_WARN_THROTTLE(tobas::kIgnoreCmdMsgPeriod, "Target throttle is invalid.");
     return;
@@ -579,15 +563,11 @@ void ControllerNode::angleThrustCmdCb(const tobas_command_msgs::msg::AngleThrott
   acc_cmd_ = nullptr;
 
   // コマンドを更新
-  if (angle_cmd_ == nullptr)
-    angle_cmd_ = std::make_shared<AngleThrust>();
-  angle_cmd_->rpy.roll = angle_throt->roll;
-  angle_cmd_->rpy.pitch = angle_throt->pitch;
-  angle_cmd_->rpy.yaw = angle_throt->yaw;
-  angle_cmd_->thrust = z_rotors_.maxThrustSum() * angle_throt->throttle;
+  tar_angle_ = std::make_shared<kdl::Euler>(angle_cmd->angle);
+  tar_thrust_ = z_rotors_.maxThrustSum() * angle_cmd->throttle;
 }
 
-void ControllerNode::rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle::ConstSharedPtr& rate_cmd)
+void ControllerNode::rateThrustCmdCb(const tobas_command_msgs::RateThrottle::ConstSharedPtr& rate_cmd)
 {
   if (!isReadyToControl())
   {
@@ -611,15 +591,11 @@ void ControllerNode::rateThrustCmdCb(const tobas_command_msgs::msg::RateThrottle
   // 外側の制御を止める
   pos_cmd_ = nullptr;
   acc_cmd_ = nullptr;
-  angle_cmd_ = nullptr;
+  tar_angle_ = nullptr;
 
   // コマンドを更新
-  if (rate_cmd_ == nullptr)
-    rate_cmd_ = std::make_shared<RateThrust>();
-  rate_cmd_->drpy.roll = rate_cmd->droll;
-  rate_cmd_->drpy.pitch = rate_cmd->dpitch;
-  rate_cmd_->drpy.yaw = rate_cmd->dyaw;
-  rate_cmd_->thrust = z_rotors_.maxThrustSum() * rate_cmd->throttle;
+  tar_rate_ = std::make_shared<kdl::Vector>(rate_cmd->rate);
+  tar_thrust_ = z_rotors_.maxThrustSum() * rate_cmd->throttle;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ControllerNode)

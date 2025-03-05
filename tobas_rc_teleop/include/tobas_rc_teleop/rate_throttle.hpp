@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tobas_command_msgs/msg/rate_throttle.hpp>
+#include <tobas_command_msgs_adapter/rate_throttle.hpp>
 
 #include "./base_controller.hpp"
 
@@ -28,7 +28,7 @@ private:
   double max_heading_rate_;   // [rad/s]
 
   // PubSub
-  ros2::PublisherPtr<tobas_command_msgs::msg::RateThrottle> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

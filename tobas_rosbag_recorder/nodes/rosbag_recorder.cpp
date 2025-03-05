@@ -37,9 +37,9 @@
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
-#include <tobas_command_msgs/msg/rate_throttle.hpp>
-#include <tobas_command_msgs/msg/angle_throttle.hpp>
 #include <tobas_command_msgs/msg/speed_roll_delta_pitch.hpp>
+#include <tobas_command_msgs_adapter/rate_throttle.hpp>
+#include <tobas_command_msgs_adapter/angle_throttle.hpp>
 #include <tobas_command_msgs_adapter/accel_yaw.hpp>
 #include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
 #include <tobas_command_msgs_adapter/pose_twist_accel.hpp>
@@ -92,6 +92,8 @@ private:
   tobas_msgs::msg::Odometry odom_;
   tobas_kdl_msgs::msg::EulerStamped euler_;
   tobas_kdl_msgs::msg::WrenchStamped dist_force_;
+  tobas_command_msgs::msg::RateThrottle rate_throt_;
+  tobas_command_msgs::msg::AngleThrottle angle_throt_;
   tobas_command_msgs::msg::AccelYaw accel_yaw_;
   tobas_command_msgs::msg::PosVelAccYaw pos_vel_acc_yaw_;
   tobas_command_msgs::msg::PoseTwistAccel pose_twist_accel_;
@@ -176,8 +178,6 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointPosCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointVelCmdTopic);
   addStandardMsgSub<tobas_msgs::msg::JointCommandArray>(tobas::kJointEffCmdTopic);
-  addStandardMsgSub<tobas_command_msgs::msg::RateThrottle>(tobas::kRateThrottleCmdTopic);
-  addStandardMsgSub<tobas_command_msgs::msg::AngleThrottle>(tobas::kAngleThrottleCmdTopic);
   addStandardMsgSub<tobas_command_msgs::msg::SpeedRollDeltaPitch>(tobas::kSpeedRollDpitchCmdTopic);
   addStandardMsgSub<tobas_debug_msgs::msg::FixedWingControllerFeedback>(tobas::kFWCtrlFeedbackTopic);
 
@@ -192,6 +192,8 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addTypeAdaptedMsgSub<tobas_msgs::Odometry>(odom_, tobas::kOdometryTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::EulerStamped>(euler_, tobas::kEulerTopic);
   addTypeAdaptedMsgSub<tobas_kdl_msgs::WrenchStamped>(dist_force_, tobas::kDisturbanceForceTopic);
+  addTypeAdaptedMsgSub<tobas_command_msgs::RateThrottle>(rate_throt_, tobas::kRateThrottleCmdTopic);
+  addTypeAdaptedMsgSub<tobas_command_msgs::AngleThrottle>(angle_throt_, tobas::kAngleThrottleCmdTopic);
   addTypeAdaptedMsgSub<tobas_command_msgs::AccelYaw>(accel_yaw_, tobas::kAccelYawCmdTopic);
   addTypeAdaptedMsgSub<tobas_command_msgs::PosVelAccYaw>(pos_vel_acc_yaw_, tobas::kPosVelAccYawCmdTopic);
   addTypeAdaptedMsgSub<tobas_command_msgs::PoseTwistAccel>(pose_twist_accel_, tobas::kPoseTwistAccelCmdTopic);
