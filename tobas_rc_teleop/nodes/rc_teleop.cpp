@@ -52,7 +52,7 @@ private:
   {
     CHECK_PREREQUISITES,
     WAIT_FOR_ARMING,
-    FIRST_COMMAND,
+    WAIT_FOR_THROTTLE,
     RUNNING,
   } stage_ = CHECK_PREREQUISITES;
 
@@ -294,10 +294,23 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
     case WAIT_FOR_ARMING:
     {
-      // アームされていればコマンド送信開始
+      // アームされていれば初期フライトモードを設定してスロットルが上がるのを待つ
       if (arming_->data)
       {
-        stage_ = FIRST_COMMAND;
+        if (!modes_.contains(rcin->mode))
+        {
+          TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)rcin->mode);
+          break;
+        }
+
+        if (!isFlightModeApplicable(rcin->mode))
+          break;
+
+        controllers_.at(rcin->mode)->reset(*odom_);
+        cur_mode_ = rcin->mode;
+        TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
+
+        stage_ = WAIT_FOR_THROTTLE;
         break;
       }
 
@@ -330,23 +343,27 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       break;
     }
 
-    case FIRST_COMMAND:
+    case WAIT_FOR_THROTTLE:
     {
-      if (!modes_.contains(rcin->mode))
+      if (rcin->throttle > -1 + kArmThrotThresh)
       {
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)rcin->mode);
-        break;
+        // スロットルが上がっていればコマンド送信開始
+        TOBAS_INFO("The throttle lever has risen, starting RC command transmission.");
+        t_disarm_start_ = rcin->header.stamp;
+        stage_ = RUNNING;
+      }
+      else
+      {
+        // アーム直後でスロットルが下がったままならば安全な初期コマンドを送信
+        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "The throttle lever is lowered, sending a neutral command.");
+        tobas_msgs::RCInput init_rcin = *rcin;
+        init_rcin.roll = 0;
+        init_rcin.pitch = 0;
+        init_rcin.yaw = 0;
+        init_rcin.throttle = -1;
+        controllers_[cur_mode_]->update(init_rcin, *odom_);
       }
 
-      if (!isFlightModeApplicable(rcin->mode))
-        break;
-
-      controllers_.at(rcin->mode)->reset(*odom_);
-      cur_mode_ = rcin->mode;
-      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
-
-      t_disarm_start_ = rcin->header.stamp;
-      stage_ = RUNNING;
       break;
     }
 
@@ -355,6 +372,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       // ディスアームされていればステージをリセット
       if (!arming_->data)
       {
+        t_arm_start_ = rcin->header.stamp;
         stage_ = WAIT_FOR_ARMING;
         break;
       }

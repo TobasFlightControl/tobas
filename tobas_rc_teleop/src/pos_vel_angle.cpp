@@ -41,7 +41,6 @@ void PosVelAngleController::initialize(tobas::BaseNode* node)
 
 void PosVelAngleController::reset(const tobas_msgs::Odometry& odom)
 {
-  is_up_commanded_ = false;
   t_last_rcin_ = odom.header.stamp;
   tar_vel_G_.setZero();
   tar_pos_W_ = odom.frame.p;
@@ -91,14 +90,6 @@ void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_
   // 目標位置の偏差を制限
   const auto& cur_pos_W = odom.frame.p;
   tar_pos_W_ = tar_pos_W_.clamp(cur_pos_W - kMaxPositionError, cur_pos_W + kMaxPositionError);
-
-  // 上昇コマンドが入力されるまでは位置とヨーの制御は行わない
-  if (!is_up_commanded_)
-  {
-    tar_pos_W_ = cur_pos_W;
-    tar_angle_.yaw = odom.frame.M.getYaw();
-    is_up_commanded_ = tar_vel_W.z() > 0;
-  }
 
   // コマンドを発行
   publishPosVel(rcin.header.stamp, tar_pos_W_, tar_vel_W);
