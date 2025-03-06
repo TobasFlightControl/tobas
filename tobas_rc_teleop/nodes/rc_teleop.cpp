@@ -30,8 +30,8 @@ namespace tobas_rc_teleop
 class RCTeleopNode : public tobas::BaseNode
 {
   static constexpr double kArmThrotThresh = 0.1;  // [-]
-  static constexpr double kArmDuration = 5.;      // [s]
-  static constexpr double kDisarmDuration = 2.;   // [s]
+  static constexpr double kArmDuration = 1.;      // [s]
+  static constexpr double kDisarmDuration = 1.;   // [s]
 
   static constexpr double kPosStddevThresh = 3.;           // [m]
   static constexpr double kRotStddevThresh = M_PI / 12;    // [rad]
