@@ -6,12 +6,12 @@
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/joint_state_array.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
 #include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 
 using namespace std;
@@ -66,14 +66,14 @@ public:
 
 private:
   TopicThrottle<tobas_msgs::msg::Battery> battery_throttle_;
-  TopicThrottle<tobas_msgs::msg::RCInput> rcin_throttle_;
+  TopicThrottle<tobas_msgs::msg::Sbus> sbus_throttle_;
+  TopicThrottle<tobas_msgs::RCInput> rcin_throttle_;
   TopicThrottle<tobas_msgs::msg::RotorStateArray> rotor_states_throttle_;
   TopicThrottle<tobas_msgs::msg::JointStateArray> joint_states_throttle_;
   TopicThrottle<tobas_msgs::Odometry> odom_throttle_;
   TopicThrottle<tobas_kdl_msgs::EulerStamped> euler_throttle_;
   TopicThrottle<tobas_msgs::ImuStamped> real_imu_throttle_;
   TopicThrottle<tobas_msgs::MagneticFieldStamped> real_mag_throttle_;
-  TopicThrottle<tobas_msgs::msg::Sbus> real_sbus_throttle_;
 
   ros2::TimerPtr initialize_timer_;
 };
@@ -88,7 +88,7 @@ void TopicThrottleNode::initialize()
   const auto node = shared_from_this();
 
   battery_throttle_.initialize(node, tobas::kBatteryTopic);
-  real_sbus_throttle_.initialize(node, tobas::kSBUSTopic);
+  sbus_throttle_.initialize(node, tobas::kSBUSTopic);
   rcin_throttle_.initialize(node, tobas::kRcInputTopic);
   rotor_states_throttle_.initialize(node, tobas::kRotorStatesTopic);
   joint_states_throttle_.initialize(node, tobas::kJointStatesTopic);

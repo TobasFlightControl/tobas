@@ -1,12 +1,15 @@
 #include <eigen3/Eigen/Eigen>
+#include <magic_enum/magic_enum.hpp>
 
 #include <tobas_math/core.hpp>
+#include <tobas_std_tools/check.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
+#include <tobas_constants/rc_command.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
@@ -20,7 +23,6 @@
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std;
-using namespace tobas_msgs::msg;
 using namespace tobas_msgs::srv;
 
 namespace tobas_rc_teleop
@@ -78,7 +80,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::PreArmCheck> prearm_check_sub_;
-  ros2::SubscriberPtr<RCInput> rcin_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
   // Service
   ros2::ServiceClientPtr<tobas_msgs::srv::SetArm> set_arm_sc_;
@@ -87,19 +89,21 @@ private:
   void initializeControllers();
   void requestArmingRotors(bool arming);
 
-  bool isArmCommand(const tobas_msgs::msg::RCInput& rcin);
-  bool isDisarmCommand(const tobas_msgs::msg::RCInput& rcin);
+  bool isArmCommand(const tobas_msgs::RCInput& rcin);
+  bool isDisarmCommand(const tobas_msgs::RCInput& rcin);
 
   bool isFlightModeApplicable(tobas::flight_mode_t mode);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstSharedPtr& prearm_check);
-  void rcInputCb(const RCInput::ConstSharedPtr& rcin);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 
 RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleop", options)
 {
+  TOBAS_CHECK(mode2str_.size() == magic_enum::enum_count<tobas::flight_mode_t>());
+
   getStaticRosParams();
   initializeControllers();
 
@@ -113,9 +117,12 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
 
 void RCTeleopNode::getStaticRosParams()
 {
-  modes_[tobas::flight_mode_t::ACROBAT] = static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode"));
-  modes_[tobas::flight_mode_t::STABILIZE] = static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode"));
-  modes_[tobas::flight_mode_t::LOITER] = static_cast<tobas::rc_command_t>(getIntParam("loiter_mode"));
+  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>())
+    modes_[mode];
+
+  TOBAS_CHECK(tobas::enumFromText(getStringParam("acrobat_mode"), modes_.at(tobas::flight_mode_t::ACROBAT)));
+  TOBAS_CHECK(tobas::enumFromText(getStringParam("stabilize_mode"), modes_.at(tobas::flight_mode_t::STABILIZE)));
+  TOBAS_CHECK(tobas::enumFromText(getStringParam("loiter_mode"), modes_.at(tobas::flight_mode_t::LOITER)));
 }
 
 void RCTeleopNode::initializeControllers()
@@ -170,13 +177,13 @@ void RCTeleopNode::requestArmingRotors(bool arming)
   set_arm_sc_->async_send_request(req);
 }
 
-bool RCTeleopNode::isArmCommand(const tobas_msgs::msg::RCInput& rcin)
+bool RCTeleopNode::isArmCommand(const tobas_msgs::RCInput& rcin)
 {
   return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw < -1 + kArmThrotThresh
          && rcin.throttle < -1 + kArmThrotThresh;
 }
 
-bool RCTeleopNode::isDisarmCommand(const tobas_msgs::msg::RCInput& rcin)
+bool RCTeleopNode::isDisarmCommand(const tobas_msgs::RCInput& rcin)
 {
   return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw > 1 - kArmThrotThresh
          && rcin.throttle < -1 + kArmThrotThresh;
@@ -251,7 +258,7 @@ void RCTeleopNode::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::ConstShared
   prearm_check_ = prearm_check;
 }
 
-void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
+void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   // RC入力が有効化されてなければステージを初期化して終了
   if (!rcin->enable)
@@ -325,19 +332,18 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
 
     case FIRST_COMMAND:
     {
-      const auto new_mode = static_cast<tobas::flight_mode_t>(rcin->mode);
-      if (!modes_.contains(new_mode))
+      if (!modes_.contains(rcin->mode))
       {
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)new_mode);
+        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)rcin->mode);
         break;
       }
 
-      if (!isFlightModeApplicable(new_mode))
+      if (!isFlightModeApplicable(rcin->mode))
         break;
 
-      controllers_.at(new_mode)->reset(*odom_);
-      cur_mode_ = new_mode;
-      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(new_mode), "\".");
+      controllers_.at(rcin->mode)->reset(*odom_);
+      cur_mode_ = rcin->mode;
+      TOBAS_INFO("First flight mode is set to \"", mode2str_.at(rcin->mode), "\".");
 
       t_disarm_start_ = rcin->header.stamp;
       stage_ = RUNNING;
@@ -372,8 +378,7 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       t_disarm_start_ = rcin->header.stamp;
 
       // フライトモードを取得
-      const auto new_mode = static_cast<tobas::flight_mode_t>(rcin->mode);
-      if (!modes_.contains(new_mode))
+      if (!modes_.contains(rcin->mode))
       {
         TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
         break;
@@ -381,11 +386,11 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
 
       // フライトモードの変更があった場合，適用可能な場合に限り変更する．
       // 適用できない場合は前のフライトモードを継続する．
-      if (new_mode != cur_mode_ && isFlightModeApplicable(new_mode))
+      if (rcin->mode != cur_mode_ && isFlightModeApplicable(rcin->mode))
       {
-        controllers_[new_mode]->reset(*odom_);
-        cur_mode_ = new_mode;
-        TOBAS_INFO("Flight mode changed to \"", mode2str_.at(new_mode), "\".");
+        controllers_[rcin->mode]->reset(*odom_);
+        cur_mode_ = rcin->mode;
+        TOBAS_INFO("Flight mode changed to \"", mode2str_.at(rcin->mode), "\".");
         break;
       }
 

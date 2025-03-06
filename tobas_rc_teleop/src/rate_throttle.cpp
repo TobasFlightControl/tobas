@@ -42,7 +42,7 @@ void RateThrottleController::reset(const tobas_msgs::Odometry&)
 {
 }
 
-void RateThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
+void RateThrottleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::RateThrottle>();

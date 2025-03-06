@@ -48,7 +48,7 @@ void PosVelAngleController::reset(const tobas_msgs::Odometry& odom)
   odom.frame.M.getRPY(tar_angle_.roll, tar_angle_.pitch, tar_angle_.yaw);
 }
 
-void PosVelAngleController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();

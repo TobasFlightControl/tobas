@@ -20,7 +20,7 @@ public:
 
   void initialize(tobas::BaseNode* node) override;
   void reset(const tobas_msgs::Odometry& odom) override;
-  void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
+  void update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
   bool is_up_commanded_;

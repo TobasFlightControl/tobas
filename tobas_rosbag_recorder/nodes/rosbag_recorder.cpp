@@ -25,7 +25,6 @@
 #include <tobas_msgs/msg/latency.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/pwm_array.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs/msg/rotor_speed_array.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -36,6 +35,7 @@
 #include <tobas_msgs_adapter/magnetic_field_stamped.hpp>
 #include <tobas_msgs_adapter/magnetic_field_with_covariance_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/observer_feedback.hpp>
 #include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
@@ -77,6 +77,7 @@ private:
   // ROS message buffers
   tobas_drone_msgs::msg::Drone drone_;
   tobas_kdl_msgs::msg::Tree tree_;
+  tobas_msgs::msg::RCInput rcin_;
   tobas_msgs::msg::ImuWithCovarianceStamped imu_;
   tobas_msgs::msg::ImuStamped imu_raw_;
   tobas_msgs::msg::MagneticFieldWithCovarianceStamped mag_;
@@ -149,7 +150,6 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   addStandardMsgSub<std_msgs::msg::String>(tobas::kRobotDescriptionTopic, true, true);
   addStandardMsgSub<tobas_msgs::msg::Battery>(tobas::kBatteryTopic);
   addStandardMsgSub<tobas_msgs::msg::Cpu>(tobas::kCPUTopic);
-  addStandardMsgSub<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureWithVarianceStamped>(tobas::kAirPressureTopic);
   addStandardMsgSub<tobas_msgs::msg::FluidPressureStamped>(tobas::kAirPressureRawTopic);
   addStandardMsgSub<tobas_msgs::msg::RotorStateArray>(tobas::kRotorStatesTopic);
@@ -170,6 +170,7 @@ ROSBagRecorderNode::ROSBagRecorderNode(const rclcpp::NodeOptions& options)
   // Resister subscribers for non-standard messages
   addTypeAdaptedMsgSub<tobas::Drone>(drone_, tobas::kDroneTopic, true, true);
   addTypeAdaptedMsgSub<kdl::Tree>(tree_, tobas::kKDLTreeTopic, true, true);
+  addTypeAdaptedMsgSub<tobas_msgs::RCInput>(rcin_, tobas::kRcInputTopic);
   addTypeAdaptedMsgSub<tobas_msgs::ImuWithCovarianceStamped>(imu_, tobas::kImuTopic);
   addTypeAdaptedMsgSub<tobas_msgs::ImuStamped>(imu_raw_, tobas::kImuRawTopic);
   addTypeAdaptedMsgSub<tobas_msgs::MagneticFieldWithCovarianceStamped>(mag_, tobas::kMagTopic);

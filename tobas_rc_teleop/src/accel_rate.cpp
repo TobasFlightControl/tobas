@@ -45,7 +45,7 @@ void AccelRateController::reset(const tobas_msgs::Odometry&)
   tar_gyro_B_.setZero();
 }
 
-void AccelRateController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void AccelRateController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // GPSwの状態によって並進制御モードと回転制御モードを切り替える
   if (rcin.gpsw)  // 回転固定で並進制御

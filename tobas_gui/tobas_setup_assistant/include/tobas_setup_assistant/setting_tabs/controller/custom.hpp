@@ -42,7 +42,16 @@ public:
   bool isValid() override;
 
 private:
-  const std::map<QString, tobas::rc_command_t> command_map_;
+  const std::map<QString, tobas::rc_command_t> command_map_{
+    { kRateThrottleLabel, tobas::rc_command_t::RATE_THROTTLE },
+    { kAngleThrottleLabel, tobas::rc_command_t::ANGLE_THROTTLE },
+    { kAccelYawLabel, tobas::rc_command_t::ACCEL_YAW },
+    { kPosVelYawLabel, tobas::rc_command_t::POS_VEL_YAW },
+    { kAccelRateLabel, tobas::rc_command_t::ACCEL_RATE },
+    { kAccelAngleLabel, tobas::rc_command_t::ACCEL_ANGLE },
+    { kPosVelAngleLabel, tobas::rc_command_t::POS_VEL_ANGLE },
+    { kSpeedRollDeltaPitchLabel, tobas::rc_command_t::SPEED_ROLL_DPITCH },
+  };
 
   ParamGetterWidget_LineEdit* package_;
   ParamGetterWidget_LineEdit* plugin_;

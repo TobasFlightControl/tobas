@@ -47,7 +47,7 @@ void PosVelYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void PosVelYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelYawController::update(const tobas_msgs::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();

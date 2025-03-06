@@ -69,7 +69,7 @@ void ThrottlesViewer::updateNamespace(const std::string& ns)
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
-void ThrottlesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
+void ThrottlesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   roll_range_->setValue(rcin->roll);
   pitch_range_->setValue(rcin->pitch);

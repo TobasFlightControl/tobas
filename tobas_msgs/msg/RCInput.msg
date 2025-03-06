@@ -7,7 +7,3 @@ bool enable       # CH5: Enable Radio Control
                   # CH6: Reserved
 uint8 mode        # CH7: Flight Mode
 bool gpsw         # CH8: General Purpose Switch
-
-uint8 MODE_ACROBAT = 0
-uint8 MODE_STABILIZE = 1
-uint8 MODE_LOITER = 2

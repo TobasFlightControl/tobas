@@ -2,14 +2,14 @@
 
 #include "tobas_drone_core/joint/role.hpp"
 
-using namespace std;
-
 #define ROTOR_TEXT "rotor"
 #define TILT_JOINT_TEXT "tilt_joint"
 #define CONTROL_SURFACE_TEXT "control_surface"
 #define MANIPULATION_TEXT "manipulation"
 #define PASSIVE_WHEEL_TEXT "passive_wheel"
 #define OTHER_TEXT "other"
+
+using namespace std;
 
 namespace tobas
 {
@@ -46,7 +46,7 @@ bool enumFromText(const string& text, jnt_role_t& dst)
     dst = jnt_role_t::TILT_JOINT;
     return true;
   }
-  else if (text == MANIPULATION_TEXT)
+  else if (text == CONTROL_SURFACE_TEXT)
   {
     dst = jnt_role_t::CONTROL_SURFACE;
     return true;

@@ -3,7 +3,7 @@
 #include <yaml-cpp/yaml.h>
 #include <QWidget>
 
-#include <tobas_constants/constants.hpp>
+#include <tobas_constants/rc_command.hpp>
 
 namespace gui
 {

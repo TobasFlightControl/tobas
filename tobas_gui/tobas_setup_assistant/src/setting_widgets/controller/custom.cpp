@@ -12,16 +12,6 @@ namespace gui
 namespace sa
 {
 CustomControllerWidget::CustomControllerWidget()
-  : command_map_{
-      { kRateThrottleLabel, tobas::rc_command_t::RATE_THROTTLE },
-      { kAngleThrottleLabel, tobas::rc_command_t::ANGLE_THROTTLE },
-      { kAccelYawLabel, tobas::rc_command_t::ACCEL_YAW },
-      { kPosVelYawLabel, tobas::rc_command_t::POS_VEL_YAW },
-      { kAccelRateLabel, tobas::rc_command_t::ACCEL_RATE },
-      { kAccelAngleLabel, tobas::rc_command_t::ACCEL_ANGLE },
-      { kPosVelAngleLabel, tobas::rc_command_t::POS_VEL_ANGLE },
-      { kSpeedRollDeltaPitchLabel, tobas::rc_command_t::SPEED_ROLL_DPITCH },
-    }
 {
   TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::rc_command_t>());
 

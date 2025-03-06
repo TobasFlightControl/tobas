@@ -137,26 +137,6 @@ static constexpr char kColconWSPathRoot[] = "/etc/tobas/colcon_ws";
 static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
 
-// Flight mode
-enum struct flight_mode_t : uint8_t
-{
-  ACROBAT,
-  STABILIZE,
-  LOITER,
-};
-
-enum struct rc_command_t : uint8_t
-{
-  RATE_THROTTLE,
-  ANGLE_THROTTLE,
-  ACCEL_YAW,
-  POS_VEL_YAW,
-  ACCEL_RATE,
-  ACCEL_ANGLE,
-  POS_VEL_ANGLE,
-  SPEED_ROLL_DPITCH,
-};
-
 // Scale
 constexpr auto kAccelScale = 10.;   // [m/s^2]
 constexpr auto kDGyroScale = 100.;  // [rad/s^2]

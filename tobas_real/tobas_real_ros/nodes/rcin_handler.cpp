@@ -9,7 +9,7 @@
 #include <tobas_constants/constants.hpp>
 #include <tobas_real_common/constants.hpp>
 #include <tobas_msgs/msg/sbus.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 #include <tobas_real_msgs/srv/set_rc_input_params.hpp>
 
 using namespace std;
@@ -37,7 +37,7 @@ private:
 
   ptree::PropertyTree pt_;
 
-  ros2::PublisherPtr<tobas_msgs::msg::RCInput> rcin_pub_;
+  ros2::PublisherPtr<tobas_msgs::RCInput> rcin_pub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::ServiceServerPtr<SetParams> set_params_ss_;
 
@@ -61,7 +61,7 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
 
   // Initialize mode map
   for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>())
-    modes_[mode] = 0;
+    modes_[mode];
 
   // Register service server
   set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
@@ -166,7 +166,7 @@ bool RCInputHandlerNode::getConfig()
 
 void RCInputHandlerNode::registerPubSub()
 {
-  rcin_pub_ = createPublisher<tobas_msgs::msg::RCInput>(tobas::kRcInputTopic);
+  rcin_pub_ = createPublisher<tobas_msgs::RCInput>(tobas::kRcInputTopic);
   sbus_sub_ = createSubscriber(tobas::kSBUSTopic, &self::sbusCb, this);
 }
 
@@ -191,7 +191,7 @@ tobas::flight_mode_t RCInputHandlerNode::getClosestFlightMode(uint16_t period)
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
   // Create message
-  auto rcin_msg = std::make_unique<tobas_msgs::msg::RCInput>();
+  auto rcin_msg = std::make_unique<tobas_msgs::RCInput>();
 
   // Fill header
   rcin_msg->header = sbus->header;
@@ -207,7 +207,7 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
     sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
   rcin_msg->enable =
     abs(sbus->data[real::kRcChannelEnable] - enable_on_) < abs(sbus->data[real::kRcChannelEnable] - enable_off_);
-  rcin_msg->mode = static_cast<uint8_t>(getClosestFlightMode(sbus->data[real::kRcChannelMode]));
+  rcin_msg->mode = getClosestFlightMode(sbus->data[real::kRcChannelMode]);
   rcin_msg->gpsw = abs(sbus->data[real::kRcChannelGPSw] - gpsw_on_) < abs(sbus->data[real::kRcChannelGPSw] - gpsw_off_);
 
   // Publish message

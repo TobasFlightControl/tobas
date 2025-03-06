@@ -2,7 +2,7 @@
 
 #include <tobas_ros2_tools/register.hpp>
 #include <tobas_qt_tools/widgets/position_bar_widget.hpp>
-#include <tobas_msgs/msg/rc_input.hpp>
+#include <tobas_msgs_adapter/rc_input.hpp>
 
 namespace gui
 {
@@ -37,9 +37,9 @@ private:
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
 
-  ros2::SubscriberPtr<tobas_msgs::msg::RCInput> rcin_sub_;
+  ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 
-  void rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin);
+  void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };
 }  // namespace rcin
 }  // namespace gcs

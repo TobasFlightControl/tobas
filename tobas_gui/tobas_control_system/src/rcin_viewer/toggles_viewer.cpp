@@ -63,26 +63,24 @@ void TogglesViewer::updateNamespace(const std::string& ns)
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
 }
 
-void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rcin)
+void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   enable_->setChecked(rcin->enable);
   gpsw_->setChecked(rcin->gpsw);
 
-  const auto mode = static_cast<tobas::flight_mode_t>(rcin->mode);
-
   if (rcin->enable)
   {
-    if (mode == tobas::flight_mode_t::STABILIZE)
+    if (rcin->mode == tobas::flight_mode_t::STABILIZE)
       stabilize_mode_->setColor(kOnColorEnable);
     else
       stabilize_mode_->setColor(kOffColor);
 
-    if (mode == tobas::flight_mode_t::ACROBAT)
+    if (rcin->mode == tobas::flight_mode_t::ACROBAT)
       acrobat_mode_->setColor(kOnColorEnable);
     else
       acrobat_mode_->setColor(kOffColor);
 
-    if (mode == tobas::flight_mode_t::LOITER)
+    if (rcin->mode == tobas::flight_mode_t::LOITER)
       loiter_mode_->setColor(kOnColorEnable);
     else
       loiter_mode_->setColor(kOffColor);
@@ -92,17 +90,17 @@ void TogglesViewer::rcInputCb(const tobas_msgs::msg::RCInput::ConstSharedPtr& rc
   }
   else
   {
-    if (mode == tobas::flight_mode_t::STABILIZE)
+    if (rcin->mode == tobas::flight_mode_t::STABILIZE)
       stabilize_mode_->setColor(kOnColorDisable);
     else
       stabilize_mode_->setColor(kOffColor);
 
-    if (mode == tobas::flight_mode_t::ACROBAT)
+    if (rcin->mode == tobas::flight_mode_t::ACROBAT)
       acrobat_mode_->setColor(kOnColorDisable);
     else
       acrobat_mode_->setColor(kOffColor);
 
-    if (mode == tobas::flight_mode_t::LOITER)
+    if (rcin->mode == tobas::flight_mode_t::LOITER)
       loiter_mode_->setColor(kOnColorDisable);
     else
       loiter_mode_->setColor(kOffColor);

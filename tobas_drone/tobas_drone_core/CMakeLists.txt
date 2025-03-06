@@ -29,16 +29,6 @@ file(GLOB_RECURSE LIB_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/[^.]*.cpp)
 add_library(${PROJECT_NAME} STATIC ${LIB_CPP_FILES})
 ament_target_dependencies(${PROJECT_NAME} ${AMENT_DEPENDENCIES})
 
-file(GLOB_RECURSE EXE_FILES RELATIVE ${PROJECT_SOURCE_DIR} examples/[^.]*.cpp)
-set(targets_to_install "")
-
-foreach(FILE IN LISTS EXE_FILES)
-	get_filename_component(NAME ${FILE} NAME_WE)
-	add_executable(${NAME} ${FILE})
-	target_link_libraries(${NAME} ${PROJECT_NAME})
-	list(APPEND targets_to_install ${NAME})
-endforeach()
-
 file(GLOB_RECURSE TEST_CPP_FILES RELATIVE ${PROJECT_SOURCE_DIR} tests/[^.]*.cpp)
 ament_add_gtest(${PROJECT_NAME}_test ${TEST_CPP_FILES})
 target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
@@ -52,7 +42,6 @@ install(
 	INCLUDES DESTINATION include
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(TARGETS ${targets_to_install} DESTINATION lib/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(${AMENT_DEPENDENCIES})
