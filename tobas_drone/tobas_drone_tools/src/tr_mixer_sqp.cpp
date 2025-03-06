@@ -38,8 +38,6 @@ bool TiltRotorMixer_SQP::updateInternalDataStructures()
 
   if (!initializeSQP())
     return false;
-  if (!updateWeight())
-    return false;
 
   return true;
 }
@@ -65,9 +63,9 @@ bool TiltRotorMixer_SQP::solve(
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
+  const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
-  const auto& mass = inertia.getMass();
 
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {
@@ -113,6 +111,14 @@ bool TiltRotorMixer_SQP::solve(
   // TODO: 目的関数や制約に三角関数が含まれていると局所解のリスクが上がるため，x,yと等式制約に置換してみる
   // TODO: プロペラ位置とイナーシャの，ティルト角による変化を考慮
 
+  // Update weights
+  const auto linear_scale = mass * kAccelScale;                                     // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                       // [Nm]
+  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
+  Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
+  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
+
   // SQPを解く
   if (sqp_.solve() < 0)
   {
@@ -142,7 +148,6 @@ bool TiltRotorMixer_SQP::setLinearWeight(double p)
   }
 
   cfg_.linear_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -155,7 +160,6 @@ bool TiltRotorMixer_SQP::setAngularWeight(double p)
   }
 
   cfg_.angular_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -168,7 +172,6 @@ bool TiltRotorMixer_SQP::setThrustWeight(double p)
   }
 
   cfg_.thrust_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -235,31 +238,6 @@ bool TiltRotorMixer_SQP::initializeSQP()
   const auto _dGdx = bind(&self::dGdx, this, std::placeholders::_1);
   const auto _dHdx = bind(&self::dHdx, this, std::placeholders::_1);
   sqp_.initialize(x0, _f, _g, _h, _dfdx, _dgdx, _dhdx, _dFdx, _dGdx, _dHdx);
-
-  return true;
-}
-
-bool TiltRotorMixer_SQP::updateWeight()
-{
-  if (drone_.prop->numRotors() == 0)
-    return true;
-
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-  {
-    cerr << "Inertia solver failed: " << inertia_solver_.errorMessage() << endl;
-    return false;
-  }
-  const auto& inertia = inertia_solver_.getInertia();
-  const auto& mass = inertia.getMass();
-  const auto& I = inertia.getRotationalInertia();
-
-  const auto linear_scale = mass * kAccelScale;                                     // [N]
-  const auto angular_scale = (I.trace() / 3) * kDGyroScale;                         // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
-
-  Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
-  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
   return true;
 }

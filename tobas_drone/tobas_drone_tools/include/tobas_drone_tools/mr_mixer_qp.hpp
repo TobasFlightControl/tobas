@@ -57,6 +57,5 @@ private:
   tobas_std::Stopwatch stopwatch_;
 
   void resizeAndFill();
-  void updateWeight();
 };
 }  // namespace tobas

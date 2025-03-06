@@ -101,9 +101,9 @@ bool TiltRotorMixer_pinv::solve(
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
+  const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
-  const auto& mass = inertia.getMass();
 
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
   {

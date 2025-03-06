@@ -28,7 +28,6 @@ bool NonPlanarMixer_QP::updateInternalDataStructures()
     return false;
 
   resizeAndFill();
-  updateWeight();
 
   return true;
 }
@@ -56,9 +55,9 @@ bool NonPlanarMixer_QP::solve(
     return false;
   }
   const auto& inertia = inertia_solver_.getInertia();
+  const auto& mass = inertia.getMass();
   const auto B_Pos_B2G = inertia.getCOG();
   const auto I_B = inertia.getRotationalInertiaCoG();
-  const auto& mass = inertia.getMass();
 
   // EoM行列等式の左辺
   for (const auto& [idx, rotor_it] : views::enumerate(drone_.prop->rotors))
@@ -87,6 +86,14 @@ bool NonPlanarMixer_QP::solve(
   const auto rot_right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;
   h_.head<3>() = trans_right.data;
   h_.tail<3>() = rot_right.data;
+
+  // 重み
+  const auto linear_scale = mass * kAccelScale;                                     // [N]
+  const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                       // [Nm]
+  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
+  Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
+  Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
+  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 
   // コスト関数
   qp_.problem.P = G_.transpose() * Q_ * G_;
@@ -134,7 +141,6 @@ bool NonPlanarMixer_QP::setLinearWeight(double p)
   }
 
   cfg_.linear_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -147,7 +153,6 @@ bool NonPlanarMixer_QP::setAngularWeight(double p)
   }
 
   cfg_.angular_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -160,7 +165,6 @@ bool NonPlanarMixer_QP::setThrustWeight(double p)
   }
 
   cfg_.thrust_weight = p;
-  updateWeight();
   return true;
 }
 
@@ -180,25 +184,5 @@ void NonPlanarMixer_QP::resizeAndFill()
 
   R_.resize(nr);
   G_.resize(NoChange, nr);
-}
-
-void NonPlanarMixer_QP::updateWeight()
-{
-  if (drone_.prop->numRotors() == 0)
-    return;
-
-  if (inertia_solver_.JntToCart(kdl::JntArray::Zero(tree_.getNrOfJoints())) < 0)
-    throw runtime_error("Inertia solver failed: " + inertia_solver_.errorMessage());
-  const auto& inertia = inertia_solver_.getInertia();
-  const auto& mass = inertia.getMass();
-  const auto& I = inertia.getRotationalInertia();
-
-  const auto linear_scale = mass * kAccelScale;                                     // [N]
-  const auto angular_scale = (I.trace() / 3) * kDGyroScale;                         // [Nm]
-  const auto thrust_scale = mass * tobas_std::kGravity / drone_.prop->numRotors();  // [N]
-
-  Q_.diagonal().head<3>().fill(cfg_.linear_weight / math::sqr(linear_scale));
-  Q_.diagonal().tail<3>().fill(cfg_.angular_weight / math::sqr(angular_scale));
-  R_.diagonal().fill(cfg_.thrust_weight / math::sqr(thrust_scale));
 }
 }  // namespace tobas

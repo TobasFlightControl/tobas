@@ -54,6 +54,5 @@ private:
   Eigen::Vector6d h_;                 // EoM行列等式の右辺
 
   void resizeAndFill();
-  void updateWeight();
 };
 }  // namespace tobas

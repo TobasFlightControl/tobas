@@ -68,7 +68,6 @@ private:
 
   void resetTensors();
   bool initializeSQP();
-  bool updateWeight();
 
   // SQPに渡す関数
   double f(const Eigen::VectorXd& x);
