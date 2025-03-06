@@ -41,7 +41,6 @@ void AccelYawController::initialize(tobas::BaseNode* node)
 
 void AccelYawController::reset(const tobas_msgs::Odometry& odom)
 {
-  is_up_commanded_ = false;
   t_last_rcin_ = odom.header.stamp;
   tar_yaw_ = odom.frame.M.getYaw();
 }
@@ -60,13 +59,6 @@ void AccelYawController::update(const tobas_msgs::msg::RCInput& rcin, const toba
 
   // ヨーレートを積分
   tar_yaw_ += yawrate * dt;
-
-  // 上昇コマンドが入力されるまではヨーの制御は行わない
-  if (!is_up_commanded_)
-  {
-    tar_yaw_ = odom.frame.M.getYaw();
-    is_up_commanded_ = tar_acc_G_.z() > 0;
-  }
 
   // コマンドを作成
   auto cmd = std::make_unique<tobas_command_msgs::AccelYaw>();
