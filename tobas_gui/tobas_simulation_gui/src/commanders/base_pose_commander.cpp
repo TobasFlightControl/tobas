@@ -85,10 +85,10 @@ void BasePoseCommanderWidget::updateInternalDataStructures()
 {
   const auto& ns = drone_.name;
 
-  pvay_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PosVelAccYaw>(node_, path::join(ns, tobas::kPosVelAccYawCmdTopic));
-  pta_pub_ =
-    ros2::createPublisher<tobas_command_msgs::PoseTwistAccel>(node_, path::join(ns, tobas::kPoseTwistAccelCmdTopic));
+  angle_pub_ = ros2::createPublisher<tobas_command_msgs::Angle>(node_, path::join(ns, tobas::kAngleCmdTopic));
+  pos_vel_pub_ = ros2::createPublisher<tobas_command_msgs::PosVel>(node_, path::join(ns, tobas::kPosVelCmdTopic));
+  pos_vel_yaw_pub_ =
+    ros2::createPublisher<tobas_command_msgs::PosVelYaw>(node_, path::join(ns, tobas::kPosVelYawCmdTopic));
 
   arming_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kArmingTopic), &self::armingCb, this);
   odom_sub_ = ros2::createSubscriber(node_, path::join(ns, tobas::kOdometryTopic), &self::odomCb, this);
@@ -131,28 +131,36 @@ void BasePoseCommanderWidget::reset()
 
 void BasePoseCommanderWidget::publishCurrentCommand()
 {
-  if (pvay_pub_ != nullptr)
+  if (angle_pub_ != nullptr)
   {
-    auto pvay = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
-    pvay->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
-    pvay->pos.x() = cmd_x_->getValue();
-    pvay->pos.y() = cmd_y_->getValue();
-    pvay->pos.z() = cmd_z_->getValue();
-    pvay->yaw = cmd_yaw_->getValue();
-    pvay_pub_->publish(std::move(pvay));
+    auto msg = std::make_unique<tobas_command_msgs::Angle>();
+    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->angle.roll = cmd_roll_->getValue();
+    msg->angle.pitch = cmd_pitch_->getValue();
+    msg->angle.yaw = cmd_yaw_->getValue();
+    angle_pub_->publish(std::move(msg));
   }
 
-  if (pta_pub_ != nullptr)
+  if (pos_vel_pub_ != nullptr)
   {
-    auto pta = std::make_unique<tobas_command_msgs::PoseTwistAccel>();
-    pta->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
-    pta->pos.x() = cmd_x_->getValue();
-    pta->pos.y() = cmd_y_->getValue();
-    pta->pos.z() = cmd_z_->getValue();
-    pta->rpy.roll = cmd_roll_->getValue();
-    pta->rpy.pitch = cmd_pitch_->getValue();
-    pta->rpy.yaw = cmd_yaw_->getValue();
-    pta_pub_->publish(std::move(pta));
+    auto msg = std::make_unique<tobas_command_msgs::PosVel>();
+    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->pos.x() = cmd_x_->getValue();
+    msg->pos.y() = cmd_y_->getValue();
+    msg->pos.z() = cmd_z_->getValue();
+    msg->vel.setZero();
+    pos_vel_pub_->publish(std::move(msg));
+  }
+
+  if (pos_vel_yaw_pub_ != nullptr)
+  {
+    auto msg = std::make_unique<tobas_command_msgs::PosVelYaw>();
+    msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
+    msg->pos.x() = cmd_x_->getValue();
+    msg->pos.y() = cmd_y_->getValue();
+    msg->pos.z() = cmd_z_->getValue();
+    msg->yaw = cmd_yaw_->getValue();
+    pos_vel_yaw_pub_->publish(std::move(msg));
   }
 }
 

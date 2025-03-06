@@ -44,7 +44,7 @@ private:
 
 LandServerNode::LandServerNode(const rclcpp::NodeOptions& options) : super("land_server", options)
 {
-  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelYawCmdTopic);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
@@ -161,18 +161,16 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     cmd_.vel.x(0);
     cmd_.vel.y(0);
     cmd_.vel.z(-kVerticalSpeed);
-    cmd_.acc.setZero();
     cmd_.yaw = start_yaw;
 
     // コマンドを発行
     const auto cmd_ptr = std::make_unique<CommandType>(cmd_);
     cmd_pub_->publish(move(cmd_));
 
-    // アクション中止の場合は目標速度・加速度を0にして終了
+    // アクション中止の場合は目標速度を0にして終了
     if (goal_handle->is_canceling())
     {
       cmd_.vel.setZero();
-      cmd_.acc.setZero();
       cmd_pub_->publish(cmd_);
 
       result->message.clear();

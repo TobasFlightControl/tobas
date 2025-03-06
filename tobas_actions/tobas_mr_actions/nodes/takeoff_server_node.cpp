@@ -28,6 +28,7 @@ public:
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   CommandType cmd_;
+  double dummy_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
@@ -44,7 +45,7 @@ private:
 
 TakeoffServerNode::TakeoffServerNode(const rclcpp::NodeOptions& options) : super("takeoff_server", options)
 {
-  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelYawCmdTopic);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   as_ = createAction(tobas::kTakeoffAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
@@ -173,7 +174,6 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     cmd_.level = goal->level;
     cmd_.pos.setZero();
     cmd_.vel.setZero();
-    cmd_.acc.setZero();
 
     // 水平位置とヨー角は初期状態を維持
     cmd_.pos.x(start_x);
@@ -181,17 +181,16 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
     cmd_.yaw = start_yaw;
 
     // 鉛直方向の軌道を生成
-    traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), cmd_.acc.z());
+    traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), dummy_);
 
     // コマンドを発行
     auto cmd_ptr = std::make_unique<CommandType>(cmd_);
     cmd_pub_->publish(move(cmd_ptr));
 
-    // アクション中止の場合は目標速度・加速度を0にして終了
+    // アクション中止の場合は目標速度を0にして終了
     if (goal_handle->is_canceling())
     {
       cmd_.vel.setZero();
-      cmd_.acc.setZero();
       cmd_pub_->publish(cmd_);
 
       result->message.clear();

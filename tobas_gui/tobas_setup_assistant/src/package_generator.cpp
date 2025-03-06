@@ -75,7 +75,7 @@ string PackageGenerator::tbsPath() const
 
 string PackageGenerator::flightActionsPackage() const
 {
-  if (settings_->controller->isCommandCompatible(tobas::POS_VEL_ACC_YAW))
+  if (settings_->controller->isCommandCompatible(tobas::rc_command_t::POS_VEL_YAW))
   {
     return "tobas_mr_actions";
   }

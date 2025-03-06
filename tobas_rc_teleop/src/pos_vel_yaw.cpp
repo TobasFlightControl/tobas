@@ -1,45 +1,45 @@
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_constants/constants.hpp>
 
-#include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
+#include "../include/tobas_rc_teleop/pos_vel_yaw.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
 
 using namespace std;
 
 namespace tobas_rc_teleop
 {
-PosVelAccYawController::PosVelAccYawController()
+PosVelYawController::PosVelYawController()
 {
 }
 
-bool PosVelAccYawController::requirePosition()
-{
-  return true;
-}
-
-bool PosVelAccYawController::requireOrientation()
-{
-  return false;
-}
-
-bool PosVelAccYawController::requireLinearVelocity()
+bool PosVelYawController::requirePosition()
 {
   return true;
 }
 
-bool PosVelAccYawController::requireAngularVelocity()
+bool PosVelYawController::requireOrientation()
 {
   return false;
 }
 
-void PosVelAccYawController::initialize(tobas::BaseNode* node)
+bool PosVelYawController::requireLinearVelocity()
+{
+  return true;
+}
+
+bool PosVelYawController::requireAngularVelocity()
+{
+  return false;
+}
+
+void PosVelYawController::initialize(tobas::BaseNode* node)
 {
   getStaticRosParams(node);
 
-  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelAccYaw>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = node->createPublisher<tobas_command_msgs::PosVelYaw>(tobas::kPosVelYawCmdTopic);
 }
 
-void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
+void PosVelYawController::reset(const tobas_msgs::Odometry& odom)
 {
   is_up_commanded_ = false;
   t_last_rcin_ = odom.header.stamp;
@@ -48,7 +48,7 @@ void PosVelAccYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void PosVelYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
@@ -81,19 +81,18 @@ void PosVelAccYawController::update(const tobas_msgs::msg::RCInput& rcin, const 
   }
 
   // コマンドを作成
-  auto cmd = std::make_unique<tobas_command_msgs::PosVelAccYaw>();
+  auto cmd = std::make_unique<tobas_command_msgs::PosVelYaw>();
   cmd->header = rcin.header;
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
   cmd->pos = tar_pos_W_;
   cmd->vel = tar_vel_W;
-  cmd->acc.setZero();
   cmd->yaw = tar_yaw_;
 
   // コマンドを発行
   cmd_pub_->publish(move(cmd));
 }
 
-void PosVelAccYawController::getStaticRosParams(tobas::BaseNode* node)
+void PosVelYawController::getStaticRosParams(tobas::BaseNode* node)
 {
   max_hor_vel_ = node->getDoubleParam("max_horizontal_velocity", kDefaultMaxHorVel);
   if (max_hor_vel_ < 0)

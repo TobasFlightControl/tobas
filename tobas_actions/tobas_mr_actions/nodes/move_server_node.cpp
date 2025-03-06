@@ -29,6 +29,7 @@ private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
   tobas_msgs::msg::GeodeticCoordinates::ConstSharedPtr gnss_origin_;
   CommandType cmd_;
+  double dummy_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
@@ -49,7 +50,7 @@ private:
 
 MoveServerNode::MoveServerNode(const rclcpp::NodeOptions& options) : super("move_server", options)
 {
-  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelAccYawCmdTopic);
+  cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelYawCmdTopic);
 
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
@@ -221,9 +222,9 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     cmd_.yaw = start_yaw;
 
     // 現在の時刻における目標状態を取得
-    traj_x.get(t, cmd_.pos.x(), cmd_.vel.x(), cmd_.acc.x());
-    traj_y.get(t, cmd_.pos.y(), cmd_.vel.y(), cmd_.acc.y());
-    traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), cmd_.acc.z());
+    traj_x.get(t, cmd_.pos.x(), cmd_.vel.x(), dummy_);
+    traj_y.get(t, cmd_.pos.y(), cmd_.vel.y(), dummy_);
+    traj_z.get(t, cmd_.pos.z(), cmd_.vel.z(), dummy_);
 
     // コマンドを発行
     auto cmd_ptr = std::make_unique<CommandType>(cmd_);
@@ -236,11 +237,10 @@ void MoveServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
     kdl::vectorKDLToMsg(cmd_.pos - cur_pos, feedback->position_error);
     goal_handle->publish_feedback(move(feedback));
 
-    // アクション中止の場合は目標速度・加速度を0にして終了
+    // アクション中止の場合は目標速度を0にして終了
     if (goal_handle->is_canceling())
     {
       cmd_.vel.setZero();
-      cmd_.acc.setZero();
       cmd_pub_->publish(cmd_);
 
       result->message.clear();

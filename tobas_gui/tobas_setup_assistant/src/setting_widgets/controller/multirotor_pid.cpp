@@ -61,7 +61,7 @@ tobas::rc_command_t MultirotorPIDWidget::stabilizeModeCommand() const
 
 tobas::rc_command_t MultirotorPIDWidget::loiterModeCommand() const
 {
-  return tobas::rc_command_t::POS_VEL_ACC_YAW;
+  return tobas::rc_command_t::POS_VEL_YAW;
 }
 
 YAML::Node MultirotorPIDWidget::staticParams() const

@@ -51,19 +51,24 @@ static constexpr char kDisturbanceForceTopic[] = "disturbance_force";
 static constexpr char kRosbagStateTopic[] = "rosbag_state";
 static constexpr char kThrottledTopicNS[] = "throttled";
 static constexpr char kRemoteIfaceTopicNS[] = "remote_interface";
-// Command
+// Low Command
 static constexpr char kEngineThrottleCmdTopic[] = "command/engine_throttle";
 static constexpr char kRotorThrustsCmdTopic[] = "command/rotor_thrusts";
 static constexpr char kRotorSpeedsCmdTopic[] = "command/rotor_speeds";
 static constexpr char kPropellerPitchesCmdTopic[] = "command/propeller_pitch_angles";
 static constexpr char kDeflectionCmdTopic[] = "command/deflections";
 static constexpr char kPwmCmdTopic[] = "command/pwm_periods";
+// High Command
+static constexpr char kRateCmdTopic[] = "command/rate";
 static constexpr char kRateThrottleCmdTopic[] = "command/rate_throttle";
+static constexpr char kAngleCmdTopic[] = "command/angle";
 static constexpr char kAngleThrottleCmdTopic[] = "command/angle_throttle";
+static constexpr char kAccelCmdTopic[] = "command/accel";
 static constexpr char kAccelYawCmdTopic[] = "command/accel_yaw";
-static constexpr char kPosVelAccYawCmdTopic[] = "command/pos_vel_acc_yaw";
-static constexpr char kPoseTwistAccelCmdTopic[] = "command/pose_twist_accel";
+static constexpr char kPosVelCmdTopic[] = "command/pos_vel";
+static constexpr char kPosVelYawCmdTopic[] = "command/pos_vel_yaw";
 static constexpr char kSpeedRollDpitchCmdTopic[] = "command/speed_roll_delta_pitch";
+// Joint Command
 static constexpr char kJointPosCmdTopic[] = "command/joint_positions";
 static constexpr char kJointVelCmdTopic[] = "command/joint_velocities";
 static constexpr char kJointEffCmdTopic[] = "command/joint_efforts";
@@ -77,7 +82,6 @@ static constexpr char kEffCtrlLSTopic[] = "joint_effort_controller/target_link_s
 // Feedback
 static constexpr char kObsvFeedbackTopic[] = "feedback/observer";
 static constexpr char kMRCtrlFeedbackTopic[] = "feedback/multirotor_controller";
-static constexpr char kNPCtrlFeedbackTopic[] = "feedback/non_planer_controller";
 static constexpr char kFWCtrlFeedbackTopic[] = "feedback/fixed_wing_controller";
 
 // ROS services
@@ -134,21 +138,20 @@ static constexpr char kROSBagDirHome[] = "~/Tobas/rosbag";
 static constexpr char kROSBagDirRoot[] = "/etc/tobas/rosbag";
 
 // Flight mode
-enum flight_mode_t
+enum struct flight_mode_t : uint8_t
 {
-  ACROBAT_MODE,
-  STABILIZE_MODE,
-  LOITER_MODE,
+  ACROBAT,
+  STABILIZE,
+  LOITER,
 };
-static constexpr size_t kNumFlightModes = 3;
 
-enum rc_command_t
+enum struct rc_command_t : uint8_t
 {
   RATE_THROTTLE,
   ANGLE_THROTTLE,
   ACCEL_YAW,
-  POS_VEL_ACC_YAW,
-  POSE_TWIST_ACCEL,
+  POS_VEL_YAW,
+  POS_VEL_ANGLE,
   SPEED_ROLL_DPITCH,
 };
 

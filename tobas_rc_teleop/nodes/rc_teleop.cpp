@@ -14,8 +14,8 @@
 #include "../include/tobas_rc_teleop/rate_throttle.hpp"
 #include "../include/tobas_rc_teleop/angle_throttle.hpp"
 #include "../include/tobas_rc_teleop/accel_yaw.hpp"
-#include "../include/tobas_rc_teleop/pos_vel_acc_yaw.hpp"
-#include "../include/tobas_rc_teleop/pose_twist_accel.hpp"
+#include "../include/tobas_rc_teleop/pos_vel_yaw.hpp"
+#include "../include/tobas_rc_teleop/pos_vel_angle.hpp"
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std;
@@ -53,17 +53,17 @@ private:
     RUNNING,
   } stage_ = CHECK_PREREQUISITES;
 
-  const map<uint8_t, const char*> mode2str_{
-    { tobas::flight_mode_t::ACROBAT_MODE, "Acrobat" },
-    { tobas::flight_mode_t::STABILIZE_MODE, "Stabilize" },
-    { tobas::flight_mode_t::LOITER_MODE, "Loiter" },
+  const map<tobas::flight_mode_t, const char*> mode2str_{
+    { tobas::flight_mode_t::ACROBAT, "Acrobat" },
+    { tobas::flight_mode_t::STABILIZE, "Stabilize" },
+    { tobas::flight_mode_t::LOITER, "Loiter" },
   };
 
   // rosparams
-  array<tobas::rc_command_t, tobas::kNumFlightModes> modes_;
+  map<tobas::flight_mode_t, tobas::rc_command_t> modes_;
 
   // Mutables
-  uint8_t cur_mode_;
+  tobas::flight_mode_t cur_mode_;
   rclcpp::Time t_arm_start_;
   rclcpp::Time t_disarm_start_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
@@ -71,7 +71,7 @@ private:
   tobas_msgs::msg::PreArmCheck::ConstSharedPtr prearm_check_;
 
   // Controllers
-  array<unique_ptr<BaseController>, tobas::kNumFlightModes> controllers_;
+  map<tobas::flight_mode_t, unique_ptr<BaseController>> controllers_;
 
   // PubSub
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
@@ -89,7 +89,7 @@ private:
   bool isArmCommand(const tobas_msgs::msg::RCInput& rcin);
   bool isDisarmCommand(const tobas_msgs::msg::RCInput& rcin);
 
-  bool isFlightModeApplicable(uint8_t mode);
+  bool isFlightModeApplicable(tobas::flight_mode_t mode);
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
@@ -112,41 +112,41 @@ RCTeleopNode::RCTeleopNode(const rclcpp::NodeOptions& options) : super("rc_teleo
 
 void RCTeleopNode::getStaticRosParams()
 {
-  modes_[tobas::flight_mode_t::ACROBAT_MODE] = static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode"));
-  modes_[tobas::flight_mode_t::STABILIZE_MODE] = static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode"));
-  modes_[tobas::flight_mode_t::LOITER_MODE] = static_cast<tobas::rc_command_t>(getIntParam("loiter_mode"));
+  modes_[tobas::flight_mode_t::ACROBAT] = static_cast<tobas::rc_command_t>(getIntParam("acrobat_mode"));
+  modes_[tobas::flight_mode_t::STABILIZE] = static_cast<tobas::rc_command_t>(getIntParam("stabilize_mode"));
+  modes_[tobas::flight_mode_t::LOITER] = static_cast<tobas::rc_command_t>(getIntParam("loiter_mode"));
 }
 
 void RCTeleopNode::initializeControllers()
 {
   // 各フライトモードに対応するコントローラを設定
-  for (size_t i = 0; i < tobas::kNumFlightModes; ++i)
+  for (const auto& [mode, cmd] : modes_)
   {
-    switch (modes_[i])
+    switch (cmd)
     {
       case tobas::rc_command_t::RATE_THROTTLE:
-        controllers_[i] = std::make_unique<RateThrottleController>();
+        controllers_[mode] = std::make_unique<RateThrottleController>();
         break;
       case tobas::rc_command_t::ANGLE_THROTTLE:
-        controllers_[i] = std::make_unique<AngleThrottleController>();
+        controllers_[mode] = std::make_unique<AngleThrottleController>();
         break;
       case tobas::rc_command_t::ACCEL_YAW:
-        controllers_[i] = std::make_unique<AccelYawController>();
+        controllers_[mode] = std::make_unique<AccelYawController>();
         break;
-      case tobas::rc_command_t::POS_VEL_ACC_YAW:
-        controllers_[i] = std::make_unique<PosVelAccYawController>();
+      case tobas::rc_command_t::POS_VEL_YAW:
+        controllers_[mode] = std::make_unique<PosVelYawController>();
         break;
-      case tobas::rc_command_t::POSE_TWIST_ACCEL:
-        controllers_[i] = std::make_unique<PoseTwistAccelController>();
+      case tobas::rc_command_t::POS_VEL_ANGLE:
+        controllers_[mode] = std::make_unique<PosVelAngleController>();
         break;
       case tobas::rc_command_t::SPEED_ROLL_DPITCH:
-        controllers_[i] = std::make_unique<SpeedRollDeltaPitchController>();
+        controllers_[mode] = std::make_unique<SpeedRollDeltaPitchController>();
         break;
       default:
-        TOBAS_EXIT("Invalid flight mode: ", (int)modes_[i]);
+        TOBAS_EXIT("Invalid flight mode: ", (int)mode);
     }
 
-    controllers_[i]->initialize(this);
+    controllers_.at(mode)->initialize(this);
   }
 }
 
@@ -175,7 +175,7 @@ bool RCTeleopNode::isDisarmCommand(const tobas_msgs::msg::RCInput& rcin)
          && rcin.throttle < -1 + kArmThrotThresh;
 }
 
-bool RCTeleopNode::isFlightModeApplicable(uint8_t mode)
+bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
 {
   const auto& controller = controllers_.at(mode);
 
@@ -318,8 +318,8 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
 
     case FIRST_COMMAND:
     {
-      const auto& new_mode = rcin->mode;
-      if (new_mode >= tobas::kNumFlightModes)
+      const auto new_mode = static_cast<tobas::flight_mode_t>(rcin->mode);
+      if (!modes_.contains(new_mode))
       {
         TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode: ", (int)new_mode);
         break;
@@ -328,7 +328,7 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       if (!isFlightModeApplicable(new_mode))
         break;
 
-      controllers_[new_mode]->reset(*odom_);
+      controllers_.at(new_mode)->reset(*odom_);
       cur_mode_ = new_mode;
       TOBAS_INFO("First flight mode is set to \"", mode2str_.at(new_mode), "\".");
 
@@ -365,8 +365,8 @@ void RCTeleopNode::rcInputCb(const RCInput::ConstSharedPtr& rcin)
       t_disarm_start_ = rcin->header.stamp;
 
       // フライトモードを取得
-      const auto& new_mode = rcin->mode;
-      if (new_mode >= tobas::kNumFlightModes)
+      const auto new_mode = static_cast<tobas::flight_mode_t>(rcin->mode);
+      if (!modes_.contains(new_mode))
       {
         TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Invalid flight mode.");
         break;

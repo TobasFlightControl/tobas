@@ -1,17 +1,17 @@
 #pragma once
 
-#include <tobas_command_msgs_adapter/pos_vel_acc_yaw.hpp>
+#include <tobas_command_msgs_adapter/pos_vel_yaw.hpp>
 
 #include "./base_controller.hpp"
 
 namespace tobas_rc_teleop
 {
-class PosVelAccYawController : public BaseController
+class PosVelYawController : public BaseController
 {
   using super = BaseController;
 
 public:
-  explicit PosVelAccYawController();
+  explicit PosVelYawController();
 
   bool requirePosition() override;
   bool requireOrientation() override;
@@ -35,7 +35,7 @@ private:
   double max_heading_rate_;  // [rad/s]
 
   // Publisher
-  ros2::PublisherPtr<tobas_command_msgs::PosVelAccYaw> cmd_pub_;
+  ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> cmd_pub_;
 
   void getStaticRosParams(tobas::BaseNode* node);
 };

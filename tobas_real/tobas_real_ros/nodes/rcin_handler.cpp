@@ -1,5 +1,6 @@
+#include <magic_enum/magic_enum.hpp>
+
 #include <tobas_math/core.hpp>
-#include <tobas_std_tools/array.hpp>
 #include <tobas_std_tools/range.hpp>
 #include <tobas_linux/core.hpp>
 #include <tobas_ros2_tools/util.hpp>
@@ -31,7 +32,7 @@ private:
   tobas_std::Range<uint16_t> yaw_range_;
   tobas_std::Range<uint16_t> throt_range_;
   uint16_t enable_on_, enable_off_;
-  array<uint16_t, tobas::kNumFlightModes> modes_;
+  map<tobas::flight_mode_t, uint16_t> modes_;
   uint16_t gpsw_on_, gpsw_off_;
 
   ptree::PropertyTree pt_;
@@ -42,6 +43,7 @@ private:
 
   bool getConfig();
   void registerPubSub();
+  tobas::flight_mode_t getClosestFlightMode(uint16_t period);
 
   void sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus);
   void setParamsCb(const SetParams::Request::ConstSharedPtr& req, const SetParams::Response::SharedPtr& res);
@@ -49,6 +51,7 @@ private:
 
 RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : super("real_rcin_handler", options)
 {
+  // Initialize property tree
   const auto cfg_dir = linux::isSuperUser() ? fs::path(tobas::kConfigDirRoot) : ros2::expandUser(tobas::kConfigDirHome);
   if (!pt_.initialize((cfg_dir / kConfigFileName)))
   {
@@ -56,14 +59,21 @@ RCInputHandlerNode::RCInputHandlerNode(const rclcpp::NodeOptions& options) : sup
     return;
   }
 
+  // Initialize mode map
+  for (const auto& mode : magic_enum::enum_values<tobas::flight_mode_t>())
+    modes_[mode] = 0;
+
+  // Register service server
   set_params_ss_ = createService<SetParams>(kSetParamSrv, &self::setParamsCb, this);
 
+  // Try to get configuration
   if (!getConfig())
   {
     TOBAS_ERROR("Failed to get configurations. This node will not work until they are set.");
     return;
   }
 
+  // Register publishers and subscribers if getting configuration is successful
   registerPubSub();
 }
 
@@ -124,17 +134,17 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
-  if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT_MODE)))
+  if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT)))
   {
     TOBAS_ERROR("Failed to get \"", kModeAcrobatKey, "\".");
     return false;
   }
-  if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::flight_mode_t::STABILIZE_MODE)))
+  if (!pt_.get(kModeStabilizeKey, modes_.at(tobas::flight_mode_t::STABILIZE)))
   {
     TOBAS_ERROR("Failed to get \"", kModeStabilizeKey, "\".");
     return false;
   }
-  if (!pt_.get(kModeLoiterKey, modes_.at(tobas::flight_mode_t::LOITER_MODE)))
+  if (!pt_.get(kModeLoiterKey, modes_.at(tobas::flight_mode_t::LOITER)))
   {
     TOBAS_ERROR("Failed to get \"", kModeLoiterKey, "\".");
     return false;
@@ -160,6 +170,24 @@ void RCInputHandlerNode::registerPubSub()
   sbus_sub_ = createSubscriber(tobas::kSBUSTopic, &self::sbusCb, this);
 }
 
+tobas::flight_mode_t RCInputHandlerNode::getClosestFlightMode(uint16_t period)
+{
+  tobas::flight_mode_t res = tobas::flight_mode_t::LOITER;  // コンパイラ警告を抑制するために適当に初期化
+  auto min_dist = numeric_limits<uint16_t>::max();
+
+  for (const auto& [mode, period_ref] : modes_)
+  {
+    const auto dist = abs(period - period_ref);
+    if (dist < min_dist)
+    {
+      min_dist = dist;
+      res = mode;
+    }
+  }
+
+  return res;
+}
+
 void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbus)
 {
   // Create message
@@ -179,7 +207,7 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
     sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
   rcin_msg->enable =
     abs(sbus->data[real::kRcChannelEnable] - enable_on_) < abs(sbus->data[real::kRcChannelEnable] - enable_off_);
-  rcin_msg->mode = tobas_std::closestIndex(modes_, sbus->data[real::kRcChannelMode]);
+  rcin_msg->mode = static_cast<uint8_t>(getClosestFlightMode(sbus->data[real::kRcChannelMode]));
   rcin_msg->gpsw = abs(sbus->data[real::kRcChannelGPSw] - gpsw_on_) < abs(sbus->data[real::kRcChannelGPSw] - gpsw_off_);
 
   // Publish message
@@ -201,9 +229,9 @@ void RCInputHandlerNode::setParamsCb(
   throt_range_.lower = req->throttle_down;
   enable_on_ = req->enable_on;
   enable_off_ = req->enable_off;
-  modes_.at(tobas::flight_mode_t::ACROBAT_MODE) = req->mode_acrobat;
-  modes_.at(tobas::flight_mode_t::STABILIZE_MODE) = req->mode_stabilize;
-  modes_.at(tobas::flight_mode_t::LOITER_MODE) = req->mode_loiter;
+  modes_.at(tobas::flight_mode_t::ACROBAT) = req->mode_acrobat;
+  modes_.at(tobas::flight_mode_t::STABILIZE) = req->mode_stabilize;
+  modes_.at(tobas::flight_mode_t::LOITER) = req->mode_loiter;
   gpsw_on_ = req->gpsw_on;
   gpsw_off_ = req->gpsw_off;
 

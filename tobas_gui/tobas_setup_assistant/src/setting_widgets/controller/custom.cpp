@@ -1,5 +1,7 @@
 #include <QVBoxLayout>
+#include <magic_enum/magic_enum.hpp>
 
+#include <tobas_std_tools/check.hpp>
 #include <tobas_yaml_tools/convert/qstring.hpp>
 #include <tobas_qt_tools/message.hpp>
 
@@ -11,14 +13,16 @@ namespace sa
 {
 CustomControllerWidget::CustomControllerWidget()
   : command_map_{
-      { kRateThrottleLabel, tobas::RATE_THROTTLE },
-      { kAngleThrottleLabel, tobas::ANGLE_THROTTLE },
-      { kAccelYawLabel, tobas::ACCEL_YAW },
-      { kPosVelAccYawLabel, tobas::POS_VEL_ACC_YAW },
-      { kPoseTwistAccelLabel, tobas::POSE_TWIST_ACCEL },
-      { kSpeedRollDeltaPitchLabel, tobas::SPEED_ROLL_DPITCH },
+      { kRateThrottleLabel, tobas::rc_command_t::RATE_THROTTLE },
+      { kAngleThrottleLabel, tobas::rc_command_t::ANGLE_THROTTLE },
+      { kAccelYawLabel, tobas::rc_command_t::ACCEL_YAW },
+      { kPosVelYawLabel, tobas::rc_command_t::POS_VEL_YAW },
+      { kPoseTwistAccelLabel, tobas::rc_command_t::POS_VEL_ANGLE },
+      { kSpeedRollDeltaPitchLabel, tobas::rc_command_t::SPEED_ROLL_DPITCH },
     }
 {
+  TOBAS_CHECK(command_map_.size() == magic_enum::enum_count<tobas::rc_command_t>());
+
   package_ = new ParamGetterWidget_LineEdit("Controller Package Name", "");
   plugin_ = new ParamGetterWidget_LineEdit("Controller Plugin Name", "");
   acrobat_mode_ = new ParamGetterWidget_ComboBox("Acrobat Mode", "");
@@ -36,7 +40,7 @@ CustomControllerWidget::CustomControllerWidget()
   // Set default command
   acrobat_mode_->setValue(kRateThrottleLabel);
   stabilize_mode_->setValue(kAccelYawLabel);
-  loiter_mode_->setValue(kPosVelAccYawLabel);
+  loiter_mode_->setValue(kPosVelYawLabel);
 
   // Layout
   const auto rows = new QVBoxLayout();
