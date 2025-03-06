@@ -51,7 +51,7 @@ QString NonPlanarPIDWidget::pluginName() const
 
 tobas::rc_command_t NonPlanarPIDWidget::acrobatModeCommand() const
 {
-  return tobas::rc_command_t::POS_VEL_ANGLE;
+  return tobas::rc_command_t::ACCEL_RATE;
 }
 
 tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const
@@ -61,7 +61,7 @@ tobas::rc_command_t NonPlanarPIDWidget::stabilizeModeCommand() const
 
 tobas::rc_command_t NonPlanarPIDWidget::loiterModeCommand() const
 {
-  return tobas::rc_command_t::ACCEL_RATE;
+  return tobas::rc_command_t::POS_VEL_ANGLE;
 }
 
 YAML::Node NonPlanarPIDWidget::staticParams() const
