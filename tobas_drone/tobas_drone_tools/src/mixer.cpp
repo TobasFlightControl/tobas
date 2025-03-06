@@ -10,6 +10,9 @@ Mixer::Mixer(const Drone& drone, const kdl::Tree& tree) : drone_(drone), tree_(t
 
 bool Mixer::updateInternalDataStructures()
 {
+  if (!drone_.isValid())
+    return false;
+
   rotor_alive_.clear();
   for (const auto& [link_name, _] : drone_.prop->rotors)
     rotor_alive_[link_name] = true;
