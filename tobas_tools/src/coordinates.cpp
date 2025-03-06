@@ -1,6 +1,6 @@
 #include <tobas_kdl/conversion/coordinates.hpp>
 
-#include "../include/tobas_tools/conversions/coordinates.hpp"
+#include "../include/tobas_tools/coordinates.hpp"
 
 namespace tobas
 {
