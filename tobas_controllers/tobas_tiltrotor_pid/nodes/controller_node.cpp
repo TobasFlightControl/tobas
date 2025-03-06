@@ -353,7 +353,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto gain = rot_wn_.hadamard(rot_zeta_.inverse()) / 2;
 
     // 目標角速度を計算
-    rate_cmd_->rate = gain * (odom->frame.M.inverse() * angle_cmd_->angle.toRotation()).getRot();
+    const auto angle_error_B = (odom->frame.M.inverse() * angle_cmd_->angle.toRotation()).getRot();
+    rate_cmd_->rate = gain.hadamard(angle_error_B);
 
     // フィードバックメッセージを埋める
     feedback->target_angle = angle_cmd_->angle;
@@ -370,7 +371,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto gain = 2 * rot_wn_.hadamard(rot_zeta_);
 
     // 目標角加速度を計算
-    *tar_dgyro_ = gain.hadamard(rate_cmd_->rate - odom->twist.rot);
+    const auto gyro_error_B = rate_cmd_->rate - odom->twist.rot;
+    *tar_dgyro_ = gain.hadamard(gyro_error_B);
 
     // フィードバックメッセージを埋める
     feedback->target_gyro = rate_cmd_->rate;
