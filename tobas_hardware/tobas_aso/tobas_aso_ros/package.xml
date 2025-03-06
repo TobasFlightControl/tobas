@@ -11,6 +11,7 @@
 
 	<depend>tobas_ic_drivers</depend>
 	<depend>tobas_property_tree</depend>
+	<depend>tobas_tools</depend>
 	<depend>tobas_msgs_adapter</depend>
 	<depend>tobas_drone_msgs_adapter</depend>
 	<depend>tobas_real_common</depend>

@@ -14,6 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(ament_cmake REQUIRED)
 find_package(tobas_ic_drivers REQUIRED)
 find_package(tobas_property_tree REQUIRED)
+find_package(tobas_tools REQUIRED)
 find_package(tobas_msgs_adapter REQUIRED)
 find_package(tobas_drone_msgs_adapter REQUIRED)
 find_package(tobas_real_common REQUIRED)
@@ -23,6 +24,7 @@ find_package(tobas_aso_core REQUIRED)
 set(AMENT_DEPENDENCIES
 	tobas_ic_drivers
 	tobas_property_tree
+	tobas_tools
 	tobas_msgs_adapter
 	tobas_drone_msgs_adapter
 	tobas_real_common
