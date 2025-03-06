@@ -151,6 +151,8 @@ enum struct rc_command_t : uint8_t
   ANGLE_THROTTLE,
   ACCEL_YAW,
   POS_VEL_YAW,
+  ACCEL_RATE,
+  ACCEL_ANGLE,
   POS_VEL_ANGLE,
   SPEED_ROLL_DPITCH,
 };

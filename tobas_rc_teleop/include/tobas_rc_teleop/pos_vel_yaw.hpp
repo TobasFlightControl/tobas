@@ -30,9 +30,9 @@ private:
   double tar_yaw_;
 
   // rosparams
-  double max_hor_vel_;       // [m/s]
-  double max_ver_vel_;       // [m/s]
-  double max_heading_rate_;  // [rad/s]
+  double max_hor_vel_;    // [m/s]
+  double max_ver_vel_;    // [m/s]
+  double max_head_rate_;  // [rad/s]
 
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVelYaw> cmd_pub_;

@@ -24,18 +24,17 @@ public:
   void update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom) override;
 
 private:
-  // rosparams
-  double max_hor_vel_;       // [m/s]
-  double max_ver_vel_;       // [m/s]
-  double max_attitude_;      // [rad]
-  double max_heading_rate_;  // [rad/s]
-
-  // Mutable
   bool is_up_commanded_;
   rclcpp::Time t_last_rcin_;
   kdl::Vector tar_vel_G_;  // 地面座標系から見た目標速度
   kdl::Vector tar_pos_W_;  // 世界座標系から見た目標位置
   kdl::Euler tar_angle_;
+
+  // rosparams
+  double max_hor_vel_;    // [m/s]
+  double max_ver_vel_;    // [m/s]
+  double max_attitude_;   // [rad]
+  double max_head_rate_;  // [rad/s]
 
   // Publisher
   ros2::PublisherPtr<tobas_command_msgs::PosVel> pos_vel_pub_;

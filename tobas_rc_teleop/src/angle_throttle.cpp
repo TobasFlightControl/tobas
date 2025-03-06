@@ -1,5 +1,4 @@
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_rc_teleop/angle_throttle.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -52,7 +51,7 @@ void AngleThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const
   t_last_rcin_ = rcin.header.stamp;
 
   // ヨーの目標値を更新
-  const auto yawrate = remapDead(rcin.yaw, -max_heading_rate_, max_heading_rate_);
+  const auto yawrate = remapDead(rcin.yaw, -max_head_rate_, max_head_rate_);
   yaw_ += yawrate * dt;
 
   // コマンドを作成
@@ -61,8 +60,8 @@ void AngleThrottleController::update(const tobas_msgs::msg::RCInput& rcin, const
   cmd->level.data = tobas_command_msgs::msg::CommandLevel::MANUAL;
 
   // 姿勢とスロットルを埋める
-  cmd->angle.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
-  cmd->angle.pitch = remapDead(rcin.pitch, -max_attitude_, max_attitude_);
+  cmd->angle.roll = remap(rcin.roll, -max_attitude_, max_attitude_);
+  cmd->angle.pitch = remap(rcin.pitch, -max_attitude_, max_attitude_);
   cmd->angle.yaw = yaw_;
   cmd->throttle = remap(rcin.throttle, tobas::kMinThrot, tobas::kMaxThrot);
 
@@ -79,11 +78,11 @@ void AngleThrottleController::getStaticRosParams(tobas::BaseNode* node)
     max_attitude_ = kDefaultMaxAttitude;
   }
 
-  max_heading_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_heading_rate_ < 0)
+  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
+  if (max_head_rate_ < 0)
   {
     node->error("Maximum heading rate must be positive.");
-    max_heading_rate_ = kDefaultMaxHeadingRate;
+    max_head_rate_ = kDefaultMaxHeadingRate;
   }
 }
 }  // namespace tobas_rc_teleop

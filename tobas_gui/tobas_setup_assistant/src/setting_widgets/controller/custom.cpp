@@ -17,7 +17,9 @@ CustomControllerWidget::CustomControllerWidget()
       { kAngleThrottleLabel, tobas::rc_command_t::ANGLE_THROTTLE },
       { kAccelYawLabel, tobas::rc_command_t::ACCEL_YAW },
       { kPosVelYawLabel, tobas::rc_command_t::POS_VEL_YAW },
-      { kPoseTwistAccelLabel, tobas::rc_command_t::POS_VEL_ANGLE },
+      { kAccelRateLabel, tobas::rc_command_t::ACCEL_RATE },
+      { kAccelAngleLabel, tobas::rc_command_t::ACCEL_ANGLE },
+      { kPosVelAngleLabel, tobas::rc_command_t::POS_VEL_ANGLE },
       { kSpeedRollDeltaPitchLabel, tobas::rc_command_t::SPEED_ROLL_DPITCH },
     }
 {

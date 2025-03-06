@@ -3,18 +3,19 @@
 #include <tobas_math/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
-
+#include <tobas_constants/constants.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/pre_arm_check.hpp>
 #include <tobas_msgs/msg/rc_input.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 
-#include "../include/tobas_rc_teleop/common.hpp"
 #include "../include/tobas_rc_teleop/rate_throttle.hpp"
 #include "../include/tobas_rc_teleop/angle_throttle.hpp"
 #include "../include/tobas_rc_teleop/accel_yaw.hpp"
 #include "../include/tobas_rc_teleop/pos_vel_yaw.hpp"
+#include "../include/tobas_rc_teleop/accel_rate.hpp"
+#include "../include/tobas_rc_teleop/accel_angle.hpp"
 #include "../include/tobas_rc_teleop/pos_vel_angle.hpp"
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 
@@ -135,6 +136,12 @@ void RCTeleopNode::initializeControllers()
         break;
       case tobas::rc_command_t::POS_VEL_YAW:
         controllers_[mode] = std::make_unique<PosVelYawController>();
+        break;
+      case tobas::rc_command_t::ACCEL_RATE:
+        controllers_[mode] = std::make_unique<AccelRateController>();
+        break;
+      case tobas::rc_command_t::ACCEL_ANGLE:
+        controllers_[mode] = std::make_unique<AccelAngleController>();
         break;
       case tobas::rc_command_t::POS_VEL_ANGLE:
         controllers_[mode] = std::make_unique<PosVelAngleController>();

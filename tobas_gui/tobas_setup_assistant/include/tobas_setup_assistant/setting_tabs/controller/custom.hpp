@@ -12,11 +12,13 @@ class CustomControllerWidget : public BaseControllerWidget
 {
   Q_OBJECT
 
-  static constexpr char kRateThrottleLabel[] = "Euler Rate + Throttle";
+  static constexpr char kRateThrottleLabel[] = "Angle Rate + Throttle";
   static constexpr char kAngleThrottleLabel[] = "Euler Angle + Throttle";
   static constexpr char kAccelYawLabel[] = "Accel + Yaw";
-  static constexpr char kPosVelYawLabel[] = "Position + Velocity + Accel + Yaw";
-  static constexpr char kPoseTwistAccelLabel[] = "Pose + Twist + Accel";
+  static constexpr char kPosVelYawLabel[] = "Position + Velocity + Yaw";
+  static constexpr char kAccelRateLabel[] = "Accel + Angle Rate";
+  static constexpr char kAccelAngleLabel[] = "Accel + Euler Angle";
+  static constexpr char kPosVelAngleLabel[] = "Position + Velocity + Angle";
   static constexpr char kSpeedRollDeltaPitchLabel[] = "Speed + Roll + Pitch";
 
 public:

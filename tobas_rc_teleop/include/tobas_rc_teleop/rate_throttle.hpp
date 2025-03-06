@@ -24,8 +24,8 @@ public:
 
 private:
   // rosparams
-  double max_attitude_rate_;  // [rad/s]
-  double max_heading_rate_;   // [rad/s]
+  double max_atti_rate_;  // [rad/s]
+  double max_head_rate_;  // [rad/s]
 
   // PubSub
   ros2::PublisherPtr<tobas_command_msgs::RateThrottle> cmd_pub_;

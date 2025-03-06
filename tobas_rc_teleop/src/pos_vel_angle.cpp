@@ -1,5 +1,4 @@
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_rc_teleop/pos_vel_angle.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -55,10 +54,10 @@ void PosVelAngleController::update(const tobas_msgs::msg::RCInput& rcin, const t
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
-  // GPSwの状態によって水平速度制御モードと姿勢制御モードを切り替える
-  if (rcin.gpsw)  // 姿勢固定で位置制御
+  // GPSwの状態によって並進制御モードと回転制御モードを切り替える
+  if (rcin.gpsw)  // 回転固定で並進制御
   {
-    // RC入力から目標水平速を計算
+    // RC入力から目標水平速度を計算
     tar_vel_G_.x(remapDead(rcin.pitch, -max_hor_vel_, max_hor_vel_));
     tar_vel_G_.y(-remapDead(rcin.roll, -max_hor_vel_, max_hor_vel_));
 
@@ -66,7 +65,7 @@ void PosVelAngleController::update(const tobas_msgs::msg::RCInput& rcin, const t
     tar_angle_.roll = 0.;
     tar_angle_.pitch = 0.;
   }
-  else  // 位置固定で姿勢制御
+  else  // 並進固定で回転制御
   {
     // RC入力から目標姿勢を計算
     tar_angle_.roll = remapDead(rcin.roll, -max_attitude_, max_attitude_);
@@ -79,7 +78,7 @@ void PosVelAngleController::update(const tobas_msgs::msg::RCInput& rcin, const t
 
   // RC入力から鉛直速度とヨーレートを計算
   tar_vel_G_.z(remapDead(rcin.throttle, -max_ver_vel_, max_ver_vel_));
-  const auto yawrate = remapDead(rcin.yaw, -max_heading_rate_, max_heading_rate_);
+  const auto yawrate = remapDead(rcin.yaw, -max_head_rate_, max_head_rate_);
 
   // 目標速度を地面座標系から世界座標系に変換
   // ヨー角の現在値で変換すると直進指令でも進路が曲がってしまうため，指令値で変換する．
@@ -129,11 +128,11 @@ void PosVelAngleController::getStaticRosParams(tobas::BaseNode* node)
     max_attitude_ = kDefaultMaxAttitude;
   }
 
-  max_heading_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_heading_rate_ < 0)
+  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
+  if (max_head_rate_ < 0)
   {
     node->error("Maximum heading rate must be positive.");
-    max_heading_rate_ = kDefaultMaxHeadingRate;
+    max_head_rate_ = kDefaultMaxHeadingRate;
   }
 }
 

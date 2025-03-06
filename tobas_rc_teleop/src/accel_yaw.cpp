@@ -1,5 +1,4 @@
 #include <tobas_ros2_tools/time.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include "../include/tobas_rc_teleop/accel_yaw.hpp"
 #include "../include/tobas_rc_teleop/common.hpp"
@@ -45,17 +44,17 @@ void AccelYawController::reset(const tobas_msgs::Odometry& odom)
   tar_yaw_ = odom.frame.M.getYaw();
 }
 
-void AccelYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry& odom)
+void AccelYawController::update(const tobas_msgs::msg::RCInput& rcin, const tobas_msgs::Odometry&)
 {
   // 時刻を更新
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
   // RC入力を地面座標系から見た加速度とヨーレートに変換
-  tar_acc_G_.x(remapDead(rcin.pitch, -max_hor_acc_, max_hor_acc_));
-  tar_acc_G_.y(-remapDead(rcin.roll, -max_hor_acc_, max_hor_acc_));
-  tar_acc_G_.z(remapDead(rcin.throttle, -max_ver_acc_, max_ver_acc_));
-  const auto yawrate = remapDead(rcin.yaw, -max_heading_rate_, max_heading_rate_);
+  tar_acc_G_.x(remap(rcin.pitch, -max_hor_acc_, max_hor_acc_));
+  tar_acc_G_.y(-remap(rcin.roll, -max_hor_acc_, max_hor_acc_));
+  tar_acc_G_.z(remap(rcin.throttle, -max_ver_acc_, max_ver_acc_));
+  const auto yawrate = remapDead(rcin.yaw, -max_head_rate_, max_head_rate_);
 
   // ヨーレートを積分
   tar_yaw_ += yawrate * dt;
@@ -87,11 +86,11 @@ void AccelYawController::getStaticRosParams(tobas::BaseNode* node)
     max_ver_acc_ = kDefaultMaxVerAcc;
   }
 
-  max_heading_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
-  if (max_heading_rate_ < 0)
+  max_head_rate_ = node->getDoubleParam("max_heading_rate", kDefaultMaxHeadingRate);
+  if (max_head_rate_ < 0)
   {
     node->error("Maximum heading rate must be positive.");
-    max_heading_rate_ = kDefaultMaxHeadingRate;
+    max_head_rate_ = kDefaultMaxHeadingRate;
   }
 }
 }  // namespace tobas_rc_teleop
