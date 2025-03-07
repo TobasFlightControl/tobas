@@ -18,7 +18,7 @@ kdl::Vector AngleAxisPID::update(
   const kdl::Vector& tar_gyro,
   const double& dt)
 {
-  // Compute error in angle-axis form wrt. the base frame
+  // Compute error in angle-axis form wrt. the local frame
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
   const auto ed = tar_gyro - cur_gyro;
 

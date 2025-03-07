@@ -20,7 +20,7 @@ public:
   bool setDampingRatio(int idx, double value);
   bool setIntegralGain(int idx, double value);
 
-  inline kdl::Vector integralError() const;
+  inline const kdl::Vector& integralError() const;
 
 private:
   // Config
@@ -39,7 +39,7 @@ private:
   bool checkIndex(int idx);
 };
 
-inline kdl::Vector AngleAxisPID::integralError() const
+inline const kdl::Vector& AngleAxisPID::integralError() const
 {
   return ei_;
 }
