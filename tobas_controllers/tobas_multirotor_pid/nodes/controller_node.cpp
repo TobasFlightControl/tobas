@@ -3,13 +3,13 @@
 #include <tobas_algorithm/core.hpp>
 #include <tobas_ros2_tools/time.hpp>
 #include <tobas_node/node.hpp>
+#include <tobas_constants/constants.hpp>
 #include <tobas_tools/tree_joint_state_converter.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/euler_pi.hpp>
 #include <tobas_drone_tools/mr_accel_attitude_converter.hpp>
 #include <tobas_drone_tools/mr_mixer_qp.hpp>
-#include <tobas_constants/constants.hpp>
 
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
@@ -433,7 +433,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // フィードバックメッセージを埋める
     feedback->target_angle = *tar_angle_;
-    feedback->angle_integral_error.setZero();  // TODO
+    feedback->angle_integral_error = rot_pi_.integralError();
   }
 
   // 角速度制御器
