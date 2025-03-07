@@ -6,6 +6,7 @@
 #include <tobas_tools/tree_joint_state_converter.hpp>
 #include <tobas_tools/command_level_handler.hpp>
 #include <tobas_pose_pid/position_pid.hpp>
+#include <tobas_pose_pid/euler_pi.hpp>
 #include <tobas_drone_tools/mr_accel_attitude_converter.hpp>
 #include <tobas_drone_tools/mr_mixer_qp.hpp>
 #include <tobas_constants/constants.hpp>
@@ -48,10 +49,12 @@ private:
 
   // Controller
   tobas::PositionPID pos_pid_;
+  tobas::EulerPI rot_pi_;
   tobas::AccelAttitudeConverter acc_atti_conv_;
   tobas::MultiRotorMixer_QP mixer_;
-  kdl::Vector rot_wn_;    // [rad/s]
-  kdl::Vector rot_zeta_;  // [-]
+  double atti_wn_, head_wn_;      // [rad/s]
+  double atti_zeta_, head_zeta_;  // [-]
+  kdl::Vector gyro_gain_;
 
   // State
   bool drone_received_ = false;
@@ -88,6 +91,8 @@ private:
 
   bool updateInternalDataStructures();
   bool isReadyToControl();
+  bool updateAttitudePDGain();
+  bool updateHeadingPDGain();
 
   bool horizontalNaturalFrequencyCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
@@ -97,8 +102,10 @@ private:
   bool verticalIGainCb(const double& p);
   bool attitudeNaturalFrequencyCb(const double& p);
   bool attitudeDampingRatioCb(const double& p);
+  bool attitudeIGainCb(const double& p);
   bool headingNaturalFrequencyCb(const double& p);
   bool headingDampingRatioCb(const double& p);
+  bool headingIGainCb(const double& p);
   bool maxHorizontalAccelCb(const double& p);
   bool maxVerticalAccelCb(const double& p);
   bool maxAttitudeCb(const double& p);
@@ -138,6 +145,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.1, 3.);
   addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0., 0., 10.);
   addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0., 0., 10.);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0., 0., 10.);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0., 0., 10.);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 8., 1., 20.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 1., 10.);
   addDynamicDoubleParam("max_attitude", &self::maxAttitudeCb, this, M_PI / 3, 0., M_PI_2 - 1e-3);
@@ -217,6 +226,27 @@ bool ControllerNode::isReadyToControl()
   return true;
 }
 
+bool ControllerNode::updateAttitudePDGain()
+{
+  // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
+  const auto kp = atti_wn_ / atti_zeta_ / 2;
+  const auto kd = atti_wn_ * atti_zeta_ * 2;
+
+  gyro_gain_.x(kd);
+  gyro_gain_.y(kd);
+  return rot_pi_.setProportionalGain(0, kp) && rot_pi_.setProportionalGain(1, kp);
+}
+
+bool ControllerNode::updateHeadingPDGain()
+{
+  // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
+  const auto kp = head_wn_ / head_zeta_ / 2;
+  const auto kd = head_wn_ * head_zeta_ * 2;
+
+  gyro_gain_.z(kd);
+  return rot_pi_.setProportionalGain(2, kp);
+}
+
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
 {
   return pos_pid_.setNaturalFreq(0, p) && pos_pid_.setNaturalFreq(1, p);
@@ -249,28 +279,36 @@ bool ControllerNode::verticalIGainCb(const double& p)
 
 bool ControllerNode::attitudeNaturalFrequencyCb(const double& p)
 {
-  rot_wn_.x(p);
-  rot_wn_.y(p);
-  return true;
+  atti_wn_ = p;
+  return updateAttitudePDGain();
 }
 
 bool ControllerNode::attitudeDampingRatioCb(const double& p)
 {
-  rot_zeta_.x(p);
-  rot_zeta_.y(p);
-  return true;
+  atti_zeta_ = p;
+  return updateAttitudePDGain();
+}
+
+bool ControllerNode::attitudeIGainCb(const double& p)
+{
+  return rot_pi_.setIntegralGain(0, p) && rot_pi_.setIntegralGain(1, p);
 }
 
 bool ControllerNode::headingNaturalFrequencyCb(const double& p)
 {
-  rot_wn_.z(p);
-  return true;
+  head_wn_ = p;
+  return updateHeadingPDGain();
 }
 
 bool ControllerNode::headingDampingRatioCb(const double& p)
 {
-  rot_zeta_.z(p);
-  return true;
+  head_zeta_ = p;
+  return updateHeadingPDGain();
+}
+
+bool ControllerNode::headingIGainCb(const double& p)
+{
+  return rot_pi_.setIntegralGain(2, p);
 }
 
 bool ControllerNode::maxHorizontalAccelCb(const double& p)
@@ -390,17 +428,8 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     if (tar_gyro_ == nullptr)
       tar_gyro_ = std::make_shared<kdl::Vector>();
 
-    // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
-    const auto gain = rot_wn_.hadamard(rot_zeta_.inverse()) / 2;
-
     // 目標角速度を計算
-    const kdl::Vector angle_diff(
-      algo::wrapPi(tar_angle_->roll - cur_rpy.roll), algo::wrapPi(tar_angle_->pitch - cur_rpy.pitch),
-      algo::wrapPi(tar_angle_->yaw - cur_rpy.yaw));
-    const auto tar_drpy = gain.hadamard(angle_diff);
-
-    // オイラーレートを角速度に変換
-    tar_gyro_->data = eigen::angvelFromEulerrateLocal(tar_drpy.data, cur_rpy.roll, cur_rpy.pitch);
+    *tar_gyro_ = rot_pi_.update(cur_rpy, *tar_angle_, dt);
 
     // フィードバックメッセージを埋める
     feedback->target_angle = *tar_angle_;
@@ -410,13 +439,9 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   // 角速度制御器
   if (tar_gyro_ != nullptr)
   {
-    // PD制御を2段階に分割したときのゲインを計算 (memo: 3-22)
-    const auto gain = 2 * rot_wn_.hadamard(rot_zeta_);
-
     // 目標角加速度を計算
-    // XXX: 姿勢推定に依存しないよう，オイラーレートではなく角速度で計算する．
     const auto& cur_gyro = odom->twist.rot;
-    const auto tar_dgyro = gain.hadamard(*tar_gyro_ - cur_gyro);
+    const auto tar_dgyro = gyro_gain_.hadamard(*tar_gyro_ - cur_gyro);
 
     // プロペラの推力を計算
     const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
