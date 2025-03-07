@@ -23,7 +23,6 @@
 #include "../include/tobas_rc_teleop/speed_roll_dpitch.hpp"
 
 using namespace std;
-using namespace tobas_msgs::srv;
 
 namespace tobas_rc_teleop
 {
@@ -38,7 +37,7 @@ class RCTeleopNode : public tobas::BaseNode
   static constexpr double kLinVelStddevThresh = 1.;        // [m/s]
   static constexpr double kAngVelStddevThresh = M_PI / 3;  // [rad/s]
 
-  static constexpr double kArmCommandInfoPeriod = 1.;  // [s]
+  static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
   static constexpr double kModeChangeWarnPeriod = 1.;  // [s]
 
   using self = RCTeleopNode;
@@ -339,22 +338,21 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       // アームコマンドでかつアーム可能な場合のみ時刻を初期化せず継続
       if (isArmCommand(*rcin))
       {
-        TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Arm commanded.");
-
         if (rcin->kill)
         {
-          TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Please turn off the kill switch before arming.");
+          TOBAS_WARN_THROTTLE(1., "Please turn off the kill switch before arming.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
 
         if (!prearm_check_->ok)
         {
-          TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Cannot arm because pre-arm check failed.");
+          TOBAS_WARN_THROTTLE(1., "Cannot arm because pre-arm check failed.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
 
+        TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Arm commanded.");
         break;
       }
       else
