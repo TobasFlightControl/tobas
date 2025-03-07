@@ -53,7 +53,7 @@ void PosVelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_
   const auto dt = (rcin.header.stamp - t_last_rcin_).seconds();
   t_last_rcin_ = rcin.header.stamp;
 
-  // GPSwの状態によって並進制御モードと回転制御モードを切り替える
+  // サブモードで並進制御モードと回転制御モードを切り替える
   if (rcin.sub_mode)  // 回転固定で並進制御
   {
     // RC入力から目標水平速度を計算
