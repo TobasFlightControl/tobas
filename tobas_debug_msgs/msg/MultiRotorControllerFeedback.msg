@@ -8,4 +8,4 @@ tobas_kdl_msgs/Vector target_gyro      # Target angular velocity wrt. the local 
 tobas_kdl_msgs/Vector target_dgyro     # Target angular acceleration wrt. the local coordinates [rad/s]
 
 tobas_kdl_msgs/Vector position_integral_error  # Position integral error [m s]
-tobas_kdl_msgs/Euler angle_integral_error      # Orientation integral error [m s]
+tobas_kdl_msgs/Vector angle_integral_error     # Orientation integral error [m s]

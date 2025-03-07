@@ -44,6 +44,7 @@ struct rclcpp::
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_gyro, dst.target_gyro);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.target_dgyro, dst.target_dgyro);
     tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.position_integral_error, dst.position_integral_error);
+    tobas_kdl_msgs::VectorAdapter::convert_to_ros_message(src.angle_integral_error, dst.angle_integral_error);
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -56,6 +57,7 @@ struct rclcpp::
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_gyro, dst.target_gyro);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.target_dgyro, dst.target_dgyro);
     tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.position_integral_error, dst.position_integral_error);
+    tobas_kdl_msgs::VectorAdapter::convert_to_custom(src.angle_integral_error, dst.angle_integral_error);
   }
 };
 
