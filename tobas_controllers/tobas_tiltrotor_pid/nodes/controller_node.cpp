@@ -128,10 +128,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.1, 3.);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.1, 3.);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0., 0., 10.);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0., 0., 10.);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0., 0., 10.);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0., 0., 10.);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.1, 0., 10.);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.1, 0., 10.);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 0., 10.);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.1, 0., 10.);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 8., 0., 20.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 0., 10.);
   addDynamicIntParam("tilt_axis_singular_declination_lb", &self::tiltAsixSingularDeclinationLBCb, this, 10, 0, 45);
