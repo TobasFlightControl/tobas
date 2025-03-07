@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 
+#include <tobas_algorithm/core.hpp>
 #include <tobas_path_tools/join.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_qt_tools/util.hpp>
@@ -17,18 +18,18 @@ namespace rcin
 {
 TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  acrobat_mode_ = new qt::CircleWidget(" Acrobat ");
-  stabilize_mode_ = new qt::CircleWidget("Stabilize");
-  loiter_mode_ = new qt::CircleWidget("  Loiter  ");
-
   kill_ = new qt::ToggleSwitch();
   sub_mode_ = new qt::ToggleSwitch();
 
-  kill_->setText("  Kill  ");
+  kill_->setText("Kill");
   sub_mode_->setText("Sub Mode");
 
   kill_->ignoreMousePressEvent(true);
   sub_mode_->ignoreMousePressEvent(true);
+
+  acrobat_mode_ = new qt::CircleWidget("Acrobat");
+  stabilize_mode_ = new qt::CircleWidget("Stabilize");
+  loiter_mode_ = new qt::CircleWidget("Loiter");
 
   // Layout
   const auto toggle_cols = new QGridLayout();
@@ -63,6 +64,37 @@ void TogglesViewer::updateNamespace(const std::string& ns)
 
   rcin_sub_ = ros2::createSubscriber(
     node_, path::join(ns, tobas::kRemoteIfaceTopicNS, tobas::kRcInputTopic), &self::rcInputCb, this);
+}
+
+void TogglesViewer::paintEvent(QPaintEvent*)
+{
+  // スイッチと飛行モードそれぞれについて，ポイントサイズをそれぞれの最大値の最小値に設定する．
+  setToggleSwitchPointSizes();
+  setFlightModePointSizes();
+}
+
+void TogglesViewer::setToggleSwitchPointSizes()
+{
+  const auto kill_psize = kill_->calcMaxTextPointSize();
+  const auto sub_mode_psize = sub_mode_->calcMaxTextPointSize();
+
+  const auto psize = std::min(kill_psize, sub_mode_psize);
+
+  kill_->setTextPointSize(psize);
+  sub_mode_->setTextPointSize(psize);
+}
+
+void TogglesViewer::setFlightModePointSizes()
+{
+  const auto acrobat_psize = acrobat_mode_->calcMaxTextPointSize();
+  const auto stabilize_psize = stabilize_mode_->calcMaxTextPointSize();
+  const auto loiter_psize = loiter_mode_->calcMaxTextPointSize();
+
+  const auto psize = algo::min(acrobat_psize, stabilize_psize, loiter_psize);
+
+  acrobat_mode_->setTextPointSize(psize);
+  stabilize_mode_->setTextPointSize(psize);
+  loiter_mode_->setTextPointSize(psize);
 }
 
 void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)

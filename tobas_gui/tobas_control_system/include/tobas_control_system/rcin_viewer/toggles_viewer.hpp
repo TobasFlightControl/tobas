@@ -28,17 +28,23 @@ public:
   void reset();
   void updateNamespace(const std::string& ns);
 
+protected:
+  void paintEvent(QPaintEvent* event) override;
+
 private:
   const rclcpp::Node::SharedPtr node_;
+
+  qt::ToggleSwitch* kill_;
+  qt::ToggleSwitch* sub_mode_;
 
   qt::CircleWidget* acrobat_mode_;
   qt::CircleWidget* stabilize_mode_;
   qt::CircleWidget* loiter_mode_;
 
-  qt::ToggleSwitch* kill_;
-  qt::ToggleSwitch* sub_mode_;
-
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
+
+  void setToggleSwitchPointSizes();
+  void setFlightModePointSizes();
 
   void rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin);
 };

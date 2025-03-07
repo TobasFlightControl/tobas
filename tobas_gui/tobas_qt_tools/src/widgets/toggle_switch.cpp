@@ -15,6 +15,26 @@ bool ToggleSwitch::isChecked() const
   return checked_;
 }
 
+const QString& ToggleSwitch::getText() const
+{
+  return text_;
+}
+
+int ToggleSwitch::getTextPointSize() const
+{
+  return text_psize_;
+}
+
+const QColor& ToggleSwitch::getOnColor() const
+{
+  return on_color_;
+}
+
+const QColor& ToggleSwitch::getOffColor() const
+{
+  return off_color_;
+}
+
 void ToggleSwitch::setChecked(bool checked)
 {
   checked_ = checked;
@@ -24,6 +44,12 @@ void ToggleSwitch::setChecked(bool checked)
 void ToggleSwitch::setText(const QString& text)
 {
   text_ = text;
+  update();
+}
+
+void ToggleSwitch::setTextPointSize(int point_size)
+{
+  text_psize_ = point_size;
   update();
 }
 
@@ -42,6 +68,18 @@ void ToggleSwitch::setOffColor(const QColor& color)
 void ToggleSwitch::ignoreMousePressEvent(bool ignore)
 {
   ignore_mouse_press_event_ = ignore;
+}
+
+QPoint ToggleSwitch::getTextCenter() const
+{
+  const auto cx = checked_ ? (width() + height()) / 2 : (width() - height()) / 2;
+  const auto cy = height() / 2;
+  return QPoint(cx, cy);
+}
+
+int ToggleSwitch::calcMaxTextPointSize() const
+{
+  return super::calcMaxTextPointSize(text_, getTextCenter());
 }
 
 void ToggleSwitch::paintEvent(QPaintEvent*)
@@ -110,8 +148,11 @@ void ToggleSwitch::drawSwitch(QPainter& painter)
 
 void ToggleSwitch::drawText(QPainter& painter)
 {
-  const auto cx = checked_ ? (width() + height()) / 2 : (width() - height()) / 2;
-  const auto cy = height() / 2;
-  drawMaximumText(painter, text_, QPoint(cx, cy));
+  const auto center = getTextCenter();
+
+  if (text_psize_ > 0)
+    super::drawText(painter, text_, center, text_psize_);
+  else
+    drawMaximumText(painter, text_, center);
 }
 }  // namespace qt

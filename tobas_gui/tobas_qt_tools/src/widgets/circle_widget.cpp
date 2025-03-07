@@ -24,6 +24,12 @@ void CircleWidget::setText(const QString& text)
   update();
 }
 
+void CircleWidget::setTextPointSize(int point_size)
+{
+  text_psize_ = point_size;
+  update();
+}
+
 int CircleWidget::getDiameter() const
 {
   return std::min(width(), height());
@@ -32,6 +38,11 @@ int CircleWidget::getDiameter() const
 int CircleWidget::getRadius() const
 {
   return getDiameter() / 2;
+}
+
+int CircleWidget::calcMaxTextPointSize() const
+{
+  return super::calcMaxTextPointSize(text_, getCenter());
 }
 
 void CircleWidget::paintEvent(QPaintEvent*)
@@ -46,7 +57,12 @@ void CircleWidget::paintEvent(QPaintEvent*)
   if (!text_.isEmpty())
   {
     painter.save();
-    drawMaximumText(painter, text_);
+
+    if (text_psize_ > 0)
+      super::drawText(painter, text_, getCenter(), text_psize_);
+    else
+      drawMaximumText(painter, text_, getCenter());
+
     painter.restore();
   }
 }
