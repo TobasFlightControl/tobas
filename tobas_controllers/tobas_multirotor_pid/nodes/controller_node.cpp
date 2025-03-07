@@ -131,8 +131,12 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
     mixer_(drone_, tree_)
 {
   // Get static parameters
-  do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation", true);
-  do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation", false);
+  do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
+  do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
+
+  // Iゲインは1~2秒で位置の補正が感じられるくらいに設定するのが良いらしい (GPT o1)
+  const auto default_trans_i_gain = do_dist_comp_trans_ ? 0. : 0.1;
+  const auto default_rot_i_gain = do_dist_comp_rot_ ? 0. : 1.;
 
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 1., 0.1, 5.);
@@ -143,10 +147,10 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   addDynamicDoubleParam("vertical_damping_ratio", &self::verticalDampingRatioCb, this, 1., 0.1, 3.);
   addDynamicDoubleParam("attitude_damping_ratio", &self::attitudeDampingRatioCb, this, 1., 0.1, 3.);
   addDynamicDoubleParam("heading_damping_ratio", &self::headingDampingRatioCb, this, 1., 0.1, 3.);
-  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, 0.1, 0., 10.);
-  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, 0.1, 0., 10.);
-  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, 0.1, 0., 10.);
-  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, 0.1, 0., 10.);
+  addDynamicDoubleParam("horizontal_i_gain", &self::horizontalIGainCb, this, default_trans_i_gain, 0., 1.);
+  addDynamicDoubleParam("vertical_i_gain", &self::verticalIGainCb, this, default_trans_i_gain, 0., 1.);
+  addDynamicDoubleParam("attitude_i_gain", &self::attitudeIGainCb, this, default_rot_i_gain, 0., 10.);
+  addDynamicDoubleParam("heading_i_gain", &self::headingIGainCb, this, default_rot_i_gain, 0., 10.);
   addDynamicDoubleParam("max_horizontal_accel", &self::maxHorizontalAccelCb, this, 8., 1., 20.);
   addDynamicDoubleParam("max_vertical_accel", &self::maxVerticalAccelCb, this, 4., 1., 10.);
   addDynamicDoubleParam("max_attitude", &self::maxAttitudeCb, this, M_PI / 3, 0., M_PI_2 - 1e-3);
