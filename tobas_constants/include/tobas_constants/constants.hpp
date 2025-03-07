@@ -10,6 +10,7 @@ static constexpr double kMaxThrot = 1.;  // The maximum throttle
 
 // RCInput
 static constexpr double kRCInputMin = -1.;
+static constexpr double kRCInputMid = 0.;
 static constexpr double kRCInputMax = 1.;
 
 // Rotor speed control

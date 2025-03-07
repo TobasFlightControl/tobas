@@ -53,7 +53,7 @@ void AccelAngleController::update(const tobas_msgs::RCInput& rcin, const tobas_m
   t_last_rcin_ = rcin.header.stamp;
 
   // GPSwの状態によって並進制御モードと回転制御モードを切り替える
-  if (rcin.gpsw)  // 回転固定で並進制御
+  if (rcin.sub_mode)  // 回転固定で並進制御
   {
     // RC入力から目標水平加速度を計算
     tar_acc_G_.x(remap(rcin.pitch, -max_hor_acc_, max_hor_acc_));

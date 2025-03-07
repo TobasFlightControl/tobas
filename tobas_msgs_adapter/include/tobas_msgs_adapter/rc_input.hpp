@@ -16,8 +16,11 @@ struct RCInput
   double throttle;
   double yaw;
   bool enable;
+  bool kill;
   tobas::flight_mode_t mode;
-  bool gpsw;
+  bool sub_mode;
+  bool gpsw1;
+  bool gpsw2;
 
   using SharedPtr = std::shared_ptr<RCInput>;
   using ConstSharedPtr = std::shared_ptr<const RCInput>;
@@ -39,8 +42,11 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
     dst.throttle = src.throttle;
     dst.yaw = src.yaw;
     dst.enable = src.enable;
+    dst.kill = src.kill;
     dst.mode = static_cast<uint8_t>(src.mode);
-    dst.gpsw = src.gpsw;
+    dst.sub_mode = src.sub_mode;
+    dst.gpsw1 = src.gpsw1;
+    dst.gpsw2 = src.gpsw2;
   }
 
   static void convert_to_custom(const ros_message_type& src, custom_type& dst)
@@ -51,8 +57,11 @@ struct rclcpp::TypeAdapter<tobas_msgs::RCInput, tobas_msgs::msg::RCInput>
     dst.throttle = src.throttle;
     dst.yaw = src.yaw;
     dst.enable = src.enable;
+    dst.kill = src.kill;
     dst.mode = static_cast<tobas::flight_mode_t>(src.mode);
-    dst.gpsw = src.gpsw;
+    dst.sub_mode = src.sub_mode;
+    dst.gpsw1 = src.gpsw1;
+    dst.gpsw2 = src.gpsw2;
   }
 };
 

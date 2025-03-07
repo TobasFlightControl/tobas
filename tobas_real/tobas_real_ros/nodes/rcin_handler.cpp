@@ -32,8 +32,11 @@ private:
   tobas_std::Range<uint16_t> yaw_range_;
   tobas_std::Range<uint16_t> throt_range_;
   uint16_t enable_on_, enable_off_;
+  uint16_t kill_on_, kill_off_;
   map<tobas::flight_mode_t, uint16_t> modes_;
-  uint16_t gpsw_on_, gpsw_off_;
+  uint16_t sub_mode_on_, sub_mode_off_;
+  uint16_t gpsw1_on_, gpsw1_off_;
+  uint16_t gpsw2_on_, gpsw2_off_;
 
   ptree::PropertyTree pt_;
 
@@ -134,6 +137,17 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
+  if (!pt_.get(kKillOnKey, kill_on_))
+  {
+    TOBAS_ERROR("Failed to get \"", kKillOnKey, "\".");
+    return false;
+  }
+  if (!pt_.get(kKillOffKey, kill_off_))
+  {
+    TOBAS_ERROR("Failed to get \"", kKillOffKey, "\".");
+    return false;
+  }
+
   if (!pt_.get(kModeAcrobatKey, modes_.at(tobas::flight_mode_t::ACROBAT)))
   {
     TOBAS_ERROR("Failed to get \"", kModeAcrobatKey, "\".");
@@ -150,14 +164,36 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
-  if (!pt_.get(kGPSwOnKey, gpsw_on_))
+  if (!pt_.get(kSubModeOnKey, sub_mode_on_))
   {
-    TOBAS_ERROR("Failed to get \"", kGPSwOnKey, "\".");
+    TOBAS_ERROR("Failed to get \"", kSubModeOnKey, "\".");
     return false;
   }
-  if (!pt_.get(kGPSwOffKey, gpsw_off_))
+  if (!pt_.get(kSubModeOffKey, sub_mode_off_))
   {
-    TOBAS_ERROR("Failed to get \"", kGPSwOffKey, "\".");
+    TOBAS_ERROR("Failed to get \"", kSubModeOffKey, "\".");
+    return false;
+  }
+
+  if (!pt_.get(kGPSw1OnKey, gpsw1_on_))
+  {
+    TOBAS_ERROR("Failed to get \"", kGPSw1OnKey, "\".");
+    return false;
+  }
+  if (!pt_.get(kGPSw1OffKey, gpsw1_off_))
+  {
+    TOBAS_ERROR("Failed to get \"", kGPSw1OffKey, "\".");
+    return false;
+  }
+
+  if (!pt_.get(kGPSw2OnKey, gpsw2_on_))
+  {
+    TOBAS_ERROR("Failed to get \"", kGPSw2OnKey, "\".");
+    return false;
+  }
+  if (!pt_.get(kGPSw2OffKey, gpsw2_off_))
+  {
+    TOBAS_ERROR("Failed to get \"", kGPSw2OffKey, "\".");
     return false;
   }
 
@@ -207,8 +243,14 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
     sbus->data[real::kRcChannelThrot], throt_range_.lower, throt_range_.upper, tobas::kRCInputMin, tobas::kRCInputMax);
   rcin_msg->enable =
     abs(sbus->data[real::kRcChannelEnable] - enable_on_) < abs(sbus->data[real::kRcChannelEnable] - enable_off_);
+  rcin_msg->kill = abs(sbus->data[real::kRcChannelKill] - kill_on_) < abs(sbus->data[real::kRcChannelKill] - kill_off_);
   rcin_msg->mode = getClosestFlightMode(sbus->data[real::kRcChannelMode]);
-  rcin_msg->gpsw = abs(sbus->data[real::kRcChannelGPSw] - gpsw_on_) < abs(sbus->data[real::kRcChannelGPSw] - gpsw_off_);
+  rcin_msg->sub_mode =
+    abs(sbus->data[real::kRcChannelSubMode] - sub_mode_on_) < abs(sbus->data[real::kRcChannelSubMode] - sub_mode_off_);
+  rcin_msg->gpsw1 =
+    abs(sbus->data[real::kRcChannelGPSw1] - gpsw1_on_) < abs(sbus->data[real::kRcChannelGPSw1] - gpsw1_off_);
+  rcin_msg->gpsw2 =
+    abs(sbus->data[real::kRcChannelGPSw2] - gpsw2_on_) < abs(sbus->data[real::kRcChannelGPSw2] - gpsw2_off_);
 
   // Publish message
   rcin_pub_->publish(move(rcin_msg));
@@ -229,11 +271,17 @@ void RCInputHandlerNode::setParamsCb(
   throt_range_.lower = req->throttle_down;
   enable_on_ = req->enable_on;
   enable_off_ = req->enable_off;
+  kill_on_ = req->kill_on;
+  kill_off_ = req->kill_off;
   modes_.at(tobas::flight_mode_t::ACROBAT) = req->mode_acrobat;
   modes_.at(tobas::flight_mode_t::STABILIZE) = req->mode_stabilize;
   modes_.at(tobas::flight_mode_t::LOITER) = req->mode_loiter;
-  gpsw_on_ = req->gpsw_on;
-  gpsw_off_ = req->gpsw_off;
+  sub_mode_on_ = req->sub_mode_on;
+  sub_mode_off_ = req->sub_mode_off;
+  gpsw1_on_ = req->gpsw1_on;
+  gpsw1_off_ = req->gpsw1_off;
+  gpsw2_on_ = req->gpsw2_on;
+  gpsw2_off_ = req->gpsw2_off;
 
   // Save parameters
   pt_.set(kRollLeftKey, req->roll_left);
@@ -246,11 +294,17 @@ void RCInputHandlerNode::setParamsCb(
   pt_.set(kThrotDownKey, req->throttle_down);
   pt_.set(kEnableOnKey, req->enable_on);
   pt_.set(kEnableOffKey, req->enable_off);
+  pt_.set(kKillOnKey, req->kill_on);
+  pt_.set(kKillOffKey, req->kill_off);
   pt_.set(kModeAcrobatKey, req->mode_acrobat);
   pt_.set(kModeStabilizeKey, req->mode_stabilize);
   pt_.set(kModeLoiterKey, req->mode_loiter);
-  pt_.set(kGPSwOnKey, req->gpsw_on);
-  pt_.set(kGPSwOffKey, req->gpsw_off);
+  pt_.set(kSubModeOnKey, req->sub_mode_on);
+  pt_.set(kSubModeOffKey, req->sub_mode_off);
+  pt_.set(kGPSw1OnKey, req->gpsw1_on);
+  pt_.set(kGPSw1OffKey, req->gpsw1_off);
+  pt_.set(kGPSw2OnKey, req->gpsw2_on);
+  pt_.set(kGPSw2OffKey, req->gpsw2_off);
   if (!pt_.save())
   {
     res->success = false;

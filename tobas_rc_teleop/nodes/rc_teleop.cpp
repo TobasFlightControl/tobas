@@ -88,6 +88,7 @@ private:
   void getStaticRosParams();
   void initializeControllers();
   void requestArmingRotors(bool arming);
+  void updateWithIdleCommand(const tobas_msgs::RCInput& rcin);
 
   bool isArmCommand(const tobas_msgs::RCInput& rcin);
   bool isDisarmCommand(const tobas_msgs::RCInput& rcin);
@@ -177,16 +178,28 @@ void RCTeleopNode::requestArmingRotors(bool arming)
   set_arm_sc_->async_send_request(req);
 }
 
+void RCTeleopNode::updateWithIdleCommand(const tobas_msgs::RCInput& rcin)
+{
+  auto idle_rcin = rcin;
+
+  idle_rcin.roll = tobas::kRCInputMid;
+  idle_rcin.pitch = tobas::kRCInputMid;
+  idle_rcin.yaw = tobas::kRCInputMid;
+  idle_rcin.throttle = tobas::kRCInputMin;
+
+  controllers_[cur_mode_]->update(idle_rcin, *odom_);
+}
+
 bool RCTeleopNode::isArmCommand(const tobas_msgs::RCInput& rcin)
 {
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw < -1 + kArmThrotThresh
-         && rcin.throttle < -1 + kArmThrotThresh;
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh
+         && rcin.yaw < tobas::kRCInputMin + kArmThrotThresh && rcin.throttle < tobas::kRCInputMin + kArmThrotThresh;
 }
 
 bool RCTeleopNode::isDisarmCommand(const tobas_msgs::RCInput& rcin)
 {
-  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh && rcin.yaw > 1 - kArmThrotThresh
-         && rcin.throttle < -1 + kArmThrotThresh;
+  return abs(rcin.roll) < kArmThrotThresh && abs(rcin.pitch) < kArmThrotThresh
+         && rcin.yaw > tobas::kRCInputMax - kArmThrotThresh && rcin.throttle < tobas::kRCInputMin + kArmThrotThresh;
 }
 
 bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
@@ -323,29 +336,37 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         break;
       }
 
-      // アームコマンドでかつPre-Arm Checkにクリアしているなら時刻を初期化せず継続
+      // アームコマンドでかつアーム可能な場合のみ時刻を初期化せず継続
       if (isArmCommand(*rcin))
       {
         TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Arm commanded.");
 
-        if (prearm_check_->ok)
+        if (rcin->kill)
         {
+          TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Please turn off the kill switch before arming.");
+          t_arm_start_ = rcin->header.stamp;
           break;
         }
-        else
+
+        if (!prearm_check_->ok)
         {
           TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Cannot arm because pre-arm check failed.");
           t_arm_start_ = rcin->header.stamp;
+          break;
         }
-      }
 
-      t_arm_start_ = rcin->header.stamp;
-      break;
+        break;
+      }
+      else
+      {
+        t_arm_start_ = rcin->header.stamp;
+        break;
+      }
     }
 
     case WAIT_FOR_THROTTLE:
     {
-      if (rcin->throttle > -1 + kArmThrotThresh)
+      if (rcin->throttle > tobas::kRCInputMin + kArmThrotThresh)
       {
         // スロットルが上がっていればコマンド送信開始
         TOBAS_INFO("The throttle lever has risen, starting RC command transmission.");
@@ -354,14 +375,9 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
       }
       else
       {
-        // アーム直後でスロットルが下がったままならば安全な初期コマンドを送信
-        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "The throttle lever is lowered, sending a neutral command.");
-        tobas_msgs::RCInput init_rcin = *rcin;
-        init_rcin.roll = 0;
-        init_rcin.pitch = 0;
-        init_rcin.yaw = 0;
-        init_rcin.throttle = -1;
-        controllers_[cur_mode_]->update(init_rcin, *odom_);
+        // アーム直後でスロットルが下がったままならばアイドルコマンドを送信
+        TOBAS_INFO_THROTTLE(tobas::kTypicalInfoPeriod, "The throttle lever is lowered, sending a idle command.");
+        updateWithIdleCommand(*rcin);
       }
 
       break;
@@ -377,10 +393,21 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         break;
       }
 
+      // キルスイッチが入っていれば即ディスアーム
+      if (rcin->kill)
+      {
+        TOBAS_WARN("The kill switch has been activated. Forcing disarm.");
+        requestArmingRotors(false);
+        break;
+      }
+
       // ディスアームコマンドの場合
       if (isDisarmCommand(*rcin))
       {
         TOBAS_INFO_THROTTLE(kArmCommandInfoPeriod, "Disarm commanded.");
+
+        // 安全のためアイドルコマンドを送信
+        updateWithIdleCommand(*rcin);
 
         // ディスアームコマンドが一定時間維持されていればリクエスト
         if ((rcin->header.stamp - t_disarm_start_).seconds() > kDisarmDuration)
@@ -389,6 +416,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
           requestArmingRotors(false);
           t_disarm_start_ = rcin->header.stamp;
         }
+
         break;
       }
 

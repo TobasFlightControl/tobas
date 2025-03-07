@@ -22,8 +22,8 @@ class RCInputCalibrationWidget : public BaseHardwareSetupWidget
   using super = BaseHardwareSetupWidget;
 
   // SBUSのスロットル範囲は172-1811が基本
-  static constexpr int kMinThrot = 0;
-  static constexpr int kMaxThrot = 2000;
+  static constexpr int kMinPeriod = 0;
+  static constexpr int kMaxPeriod = 2000;
 
   static constexpr int kMinSignalRange = 300;
   static constexpr int kRangeSideShort = 30;
@@ -62,8 +62,11 @@ private:
   qt::HPositionBarWidget* yaw_range_;
   qt::VPositionBarWidget* throt_range_;
   qt::HPositionBarWidget* enable_range_;
+  qt::HPositionBarWidget* kill_range_;
   qt::HPositionBarWidget* mode_range_;
-  qt::HPositionBarWidget* gpsw_range_;
+  qt::HPositionBarWidget* sub_mode_range_;
+  qt::HPositionBarWidget* gpsw1_range_;
+  qt::HPositionBarWidget* gpsw2_range_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
