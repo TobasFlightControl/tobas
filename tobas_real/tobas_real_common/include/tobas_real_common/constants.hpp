@@ -18,8 +18,6 @@ static constexpr size_t kRcChannelEnable = 4;   // CH5
 static constexpr size_t kRcChannelKill = 5;     // CH6
 static constexpr size_t kRcChannelMode = 6;     // CH7
 static constexpr size_t kRcChannelSubMode = 7;  // CH8
-static constexpr size_t kRcChannelGPSw1 = 8;    // CH9
-static constexpr size_t kRcChannelGPSw2 = 9;    // CH10
 
 namespace handler
 {
@@ -72,10 +70,6 @@ static constexpr char kModeStabilizeKey[] = "mode/stabilize";
 static constexpr char kModeLoiterKey[] = "mode/loiter";
 static constexpr char kSubModeOnKey[] = "sub_mode/on";
 static constexpr char kSubModeOffKey[] = "sub_mode/off";
-static constexpr char kGPSw1OnKey[] = "gpsw1/on";
-static constexpr char kGPSw1OffKey[] = "gpsw1/off";
-static constexpr char kGPSw2OnKey[] = "gpsw2/on";
-static constexpr char kGPSw2OffKey[] = "gpsw2/off";
 }  // namespace rcin
 }  // namespace handler
 }  // namespace real

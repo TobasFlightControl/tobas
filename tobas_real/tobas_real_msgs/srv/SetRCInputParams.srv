@@ -15,10 +15,6 @@ uint16 mode_stabilize
 uint16 mode_loiter
 uint16 sub_mode_on
 uint16 sub_mode_off
-uint16 gpsw1_on
-uint16 gpsw1_off
-uint16 gpsw2_on
-uint16 gpsw2_off
 ---
 bool success
 string message

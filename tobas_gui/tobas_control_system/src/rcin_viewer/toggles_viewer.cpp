@@ -23,25 +23,17 @@ TogglesViewer::TogglesViewer(rclcpp::Node::SharedPtr node) : node_(node)
 
   kill_ = new qt::ToggleSwitch();
   sub_mode_ = new qt::ToggleSwitch();
-  gpsw1_ = new qt::ToggleSwitch();
-  gpsw2_ = new qt::ToggleSwitch();
 
   kill_->setText("  Kill  ");
   sub_mode_->setText("Sub Mode");
-  gpsw1_->setText(" GPSw 1 ");
-  gpsw2_->setText(" GPSw 2 ");
 
   kill_->ignoreMousePressEvent(true);
   sub_mode_->ignoreMousePressEvent(true);
-  gpsw1_->ignoreMousePressEvent(true);
-  gpsw2_->ignoreMousePressEvent(true);
 
   // Layout
   const auto toggle_cols = new QGridLayout();
   toggle_cols->addWidget(kill_, 0, 0);
   toggle_cols->addWidget(sub_mode_, 0, 1);
-  toggle_cols->addWidget(gpsw1_, 1, 0);
-  toggle_cols->addWidget(gpsw2_, 1, 1);
 
   const auto mode_cols = new QHBoxLayout();
   mode_cols->addWidget(acrobat_mode_);
@@ -63,8 +55,6 @@ void TogglesViewer::reset()
 
   kill_->setChecked(false);
   sub_mode_->setChecked(false);
-  gpsw1_->setChecked(false);
-  gpsw2_->setChecked(false);
 }
 
 void TogglesViewer::updateNamespace(const std::string& ns)
@@ -79,8 +69,6 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 {
   kill_->setChecked(rcin->kill);
   sub_mode_->setChecked(rcin->sub_mode);
-  gpsw1_->setChecked(rcin->gpsw1);
-  gpsw2_->setChecked(rcin->gpsw2);
 
   if (rcin->enable)
   {
@@ -101,8 +89,6 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
     kill_->setOnColor(kOnColorEnable);
     sub_mode_->setOnColor(kOnColorEnable);
-    gpsw1_->setOnColor(kOnColorEnable);
-    gpsw2_->setOnColor(kOnColorEnable);
   }
   else
   {
@@ -123,8 +109,6 @@ void TogglesViewer::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
 
     kill_->setOnColor(kOnColorDisable);
     sub_mode_->setOnColor(kOnColorDisable);
-    gpsw1_->setOnColor(kOnColorDisable);
-    gpsw2_->setOnColor(kOnColorDisable);
   }
 }
 }  // namespace rcin

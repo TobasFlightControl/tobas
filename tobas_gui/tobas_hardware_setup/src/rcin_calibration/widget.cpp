@@ -123,16 +123,6 @@ RCInputCalibrationWidget::RCInputCalibrationWidget(rclcpp::Node::SharedPtr node)
   sub_mode_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
   switch_grid->addWidget(sub_mode_range_, 3, 1);
 
-  switch_grid->addWidget(new QLabel(QString::fromStdString(format("GPSw 1 (CH{})", real::kRcChannelGPSw1 + 1))), 4, 0);
-  gpsw1_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  gpsw1_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  switch_grid->addWidget(gpsw1_range_, 4, 1);
-
-  switch_grid->addWidget(new QLabel(QString::fromStdString(format("GPSw 2 (CH{})", real::kRcChannelGPSw2 + 1))), 5, 0);
-  gpsw2_range_ = new qt::HPositionBarWidget(kMinPeriod, kMaxPeriod);
-  gpsw2_range_->setFixedSize(kRangeSideLong, kRangeSideShort);
-  switch_grid->addWidget(gpsw2_range_, 5, 1);
-
   rc_range_cols->addStretch();
   rows_->addStretch();
 
@@ -166,15 +156,11 @@ void RCInputCalibrationWidget::reset()
   kill_range_->clear();
   mode_range_->clear();
   sub_mode_range_->clear();
-  gpsw1_range_->clear();
-  gpsw2_range_->clear();
 
   enable_range_->setText(kOnOffText);
   kill_range_->setText(kOnOffText);
   mode_range_->setText(kModeText);
   sub_mode_range_->setText(kOnOffText);
-  gpsw1_range_->setText(kOnOffText);
-  gpsw2_range_->setText(kOnOffText);
 
   start_button_->setEnabled(true);
   finish_button_->setEnabled(false);
@@ -220,10 +206,6 @@ bool RCInputCalibrationWidget::saveParamsGCS()
   pt.set(kModeLoiterKey, mode_range_->getLower());
   pt.set(kSubModeOnKey, sub_mode_range_->getLower());
   pt.set(kSubModeOffKey, sub_mode_range_->getUpper());
-  pt.set(kGPSw1OnKey, gpsw1_range_->getLower());
-  pt.set(kGPSw1OffKey, gpsw1_range_->getUpper());
-  pt.set(kGPSw2OnKey, gpsw2_range_->getLower());
-  pt.set(kGPSw2OffKey, gpsw2_range_->getUpper());
   if (!pt.save())
   {
     qt::qErrorBox(this, "Failed to save calibration results on GCS.");
@@ -253,10 +235,6 @@ bool RCInputCalibrationWidget::saveParamsFC()
   req->mode_loiter = mode_range_->getLower();
   req->sub_mode_on = sub_mode_range_->getLower();
   req->sub_mode_off = sub_mode_range_->getUpper();
-  req->gpsw1_on = gpsw1_range_->getLower();
-  req->gpsw1_off = gpsw1_range_->getUpper();
-  req->gpsw2_on = gpsw2_range_->getLower();
-  req->gpsw2_off = gpsw2_range_->getUpper();
 
   ros2::SyncServiceClient<tobas_real_msgs::srv::SetRCInputParams> sc(
     node_, path::join(ns_, tobas::kRemoteIfaceTopicNS, kSetParamSrv));
@@ -289,8 +267,6 @@ void RCInputCalibrationWidget::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPt
   kill_range_->setValue(sbus->data[real::kRcChannelKill]);
   mode_range_->setValue(sbus->data[real::kRcChannelMode]);
   sub_mode_range_->setValue(sbus->data[real::kRcChannelSubMode]);
-  gpsw1_range_->setValue(sbus->data[real::kRcChannelGPSw1]);
-  gpsw2_range_->setValue(sbus->data[real::kRcChannelGPSw2]);
 }
 
 void RCInputCalibrationWidget::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
@@ -385,18 +361,6 @@ void RCInputCalibrationWidget::onFinishButtonClicked()
   if (sub_mode_range_->getRange() < kMinSignalRange)
   {
     qt::qErrorBox(this, "The signal range of Sub-Mode channel is too narrow.");
-    reset();
-    return;
-  }
-  if (gpsw1_range_->getRange() < kMinSignalRange)
-  {
-    qt::qErrorBox(this, "The signal range of GPSw 1 channel is too narrow.");
-    reset();
-    return;
-  }
-  if (gpsw2_range_->getRange() < kMinSignalRange)
-  {
-    qt::qErrorBox(this, "The signal range of GPSw 2 channel is too narrow.");
     reset();
     return;
   }

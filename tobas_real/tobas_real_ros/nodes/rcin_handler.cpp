@@ -35,8 +35,6 @@ private:
   uint16_t kill_on_, kill_off_;
   map<tobas::flight_mode_t, uint16_t> modes_;
   uint16_t sub_mode_on_, sub_mode_off_;
-  uint16_t gpsw1_on_, gpsw1_off_;
-  uint16_t gpsw2_on_, gpsw2_off_;
 
   ptree::PropertyTree pt_;
 
@@ -175,28 +173,6 @@ bool RCInputHandlerNode::getConfig()
     return false;
   }
 
-  if (!pt_.get(kGPSw1OnKey, gpsw1_on_))
-  {
-    TOBAS_ERROR("Failed to get \"", kGPSw1OnKey, "\".");
-    return false;
-  }
-  if (!pt_.get(kGPSw1OffKey, gpsw1_off_))
-  {
-    TOBAS_ERROR("Failed to get \"", kGPSw1OffKey, "\".");
-    return false;
-  }
-
-  if (!pt_.get(kGPSw2OnKey, gpsw2_on_))
-  {
-    TOBAS_ERROR("Failed to get \"", kGPSw2OnKey, "\".");
-    return false;
-  }
-  if (!pt_.get(kGPSw2OffKey, gpsw2_off_))
-  {
-    TOBAS_ERROR("Failed to get \"", kGPSw2OffKey, "\".");
-    return false;
-  }
-
   return true;
 }
 
@@ -247,10 +223,6 @@ void RCInputHandlerNode::sbusCb(const tobas_msgs::msg::Sbus::ConstSharedPtr& sbu
   rcin_msg->mode = getClosestFlightMode(sbus->data[real::kRcChannelMode]);
   rcin_msg->sub_mode =
     abs(sbus->data[real::kRcChannelSubMode] - sub_mode_on_) < abs(sbus->data[real::kRcChannelSubMode] - sub_mode_off_);
-  rcin_msg->gpsw1 =
-    abs(sbus->data[real::kRcChannelGPSw1] - gpsw1_on_) < abs(sbus->data[real::kRcChannelGPSw1] - gpsw1_off_);
-  rcin_msg->gpsw2 =
-    abs(sbus->data[real::kRcChannelGPSw2] - gpsw2_on_) < abs(sbus->data[real::kRcChannelGPSw2] - gpsw2_off_);
 
   // Publish message
   rcin_pub_->publish(move(rcin_msg));
@@ -278,10 +250,6 @@ void RCInputHandlerNode::setParamsCb(
   modes_.at(tobas::flight_mode_t::LOITER) = req->mode_loiter;
   sub_mode_on_ = req->sub_mode_on;
   sub_mode_off_ = req->sub_mode_off;
-  gpsw1_on_ = req->gpsw1_on;
-  gpsw1_off_ = req->gpsw1_off;
-  gpsw2_on_ = req->gpsw2_on;
-  gpsw2_off_ = req->gpsw2_off;
 
   // Save parameters
   pt_.set(kRollLeftKey, req->roll_left);
@@ -301,10 +269,6 @@ void RCInputHandlerNode::setParamsCb(
   pt_.set(kModeLoiterKey, req->mode_loiter);
   pt_.set(kSubModeOnKey, req->sub_mode_on);
   pt_.set(kSubModeOffKey, req->sub_mode_off);
-  pt_.set(kGPSw1OnKey, req->gpsw1_on);
-  pt_.set(kGPSw1OffKey, req->gpsw1_off);
-  pt_.set(kGPSw2OnKey, req->gpsw2_on);
-  pt_.set(kGPSw2OffKey, req->gpsw2_off);
   if (!pt_.save())
   {
     res->success = false;

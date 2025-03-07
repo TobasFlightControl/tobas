@@ -37,8 +37,6 @@ private:
 
   qt::ToggleSwitch* kill_;
   qt::ToggleSwitch* sub_mode_;
-  qt::ToggleSwitch* gpsw1_;
-  qt::ToggleSwitch* gpsw2_;
 
   ros2::SubscriberPtr<tobas_msgs::RCInput> rcin_sub_;
 

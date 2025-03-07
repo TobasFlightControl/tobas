@@ -65,8 +65,6 @@ private:
   qt::HPositionBarWidget* kill_range_;
   qt::HPositionBarWidget* mode_range_;
   qt::HPositionBarWidget* sub_mode_range_;
-  qt::HPositionBarWidget* gpsw1_range_;
-  qt::HPositionBarWidget* gpsw2_range_;
 
   ros2::SubscriberPtr<tobas_msgs::msg::Sbus> sbus_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
