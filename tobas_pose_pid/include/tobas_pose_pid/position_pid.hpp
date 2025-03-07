@@ -38,7 +38,8 @@ private:
   kdl::Vector ei_ = kdl::Vector::Zero();
 
   void updateGain();
-  bool checkIndex(int idx);
+
+  static bool checkIndex(int idx);
 };
 
 inline const kdl::Vector& PositionPID::integralError() const

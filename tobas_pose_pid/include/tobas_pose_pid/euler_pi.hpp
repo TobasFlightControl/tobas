@@ -24,7 +24,7 @@ private:
   // Error
   kdl::Vector ei_ = kdl::Vector::Zero();
 
-  bool checkIndex(int idx);
+  static bool checkIndex(int idx);
 };
 
 inline const kdl::Vector& EulerPI::integralError() const

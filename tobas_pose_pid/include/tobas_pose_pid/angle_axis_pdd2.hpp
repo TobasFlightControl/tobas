@@ -38,6 +38,7 @@ private:
   kdl::Vector cmd_dgyro_ = kdl::Vector::Zero();
 
   void updateGain();
-  bool checkIndex(int idx);
+
+  static bool checkIndex(int idx);
 };
 }  // namespace tobas
