@@ -14,6 +14,9 @@
   <xacro:property name="motor_offset" value="0.1705"/>
   <xacro:property name="x" value="${motor_offset/sqrt3}"/>
 
+  <!-- FIXME: 全ての辺の長さが等しい切頂八面体の6角形部分にプロペラを合わせた場合ピッチ角は45degのはずだが，モデリングの都合上少しずれている． -->
+  <xacro:property name="prop_pitch" value="0.95"/>
+
   <!-- Base Link -->
   <link name="base_link"/>
 
@@ -56,28 +59,28 @@
 
   <!-- Propulsion System -->
   <xacro:dji_a2212_0945 parent="base_link" index="0" direction="ccw">
-    <origin xyz="${x} ${x} ${x}" rpy="0 ${pi/4} ${pi/4*1}"/>
+    <origin xyz="${x} ${x} ${x}" rpy="0 ${prop_pitch} ${pi/4*1}"/>
   </xacro:dji_a2212_0945>
   <xacro:dji_a2212_0945 parent="base_link" index="1" direction="cw">
-    <origin xyz="${-x} ${x} ${x}" rpy="0 ${pi/4} ${pi/4*3}"/>
+    <origin xyz="${-x} ${x} ${x}" rpy="0 ${prop_pitch} ${pi/4*3}"/>
   </xacro:dji_a2212_0945>
   <xacro:dji_a2212_0945 parent="base_link" index="2" direction="ccw">
-    <origin xyz="${-x} ${-x} ${x}" rpy="0 ${pi/4} ${pi/4*5}"/>
+    <origin xyz="${-x} ${-x} ${x}" rpy="0 ${prop_pitch} ${pi/4*5}"/>
   </xacro:dji_a2212_0945>
   <xacro:dji_a2212_0945 parent="base_link" index="3" direction="cw">
-    <origin xyz="${x} ${-x} ${x}" rpy="0 ${pi/4} ${pi/4*7}"/>
+    <origin xyz="${x} ${-x} ${x}" rpy="0 ${prop_pitch} ${pi/4*7}"/>
   </xacro:dji_a2212_0945>
   <xacro:dji_a2212_0945 parent="base_link" index="4" direction="cw">
-    <origin xyz="${x} ${x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*1}"/>
+    <origin xyz="${x} ${x} ${-x}" rpy="0 ${pi-prop_pitch} ${pi/4*1}"/>
   </xacro:dji_a2212_0945>
   <xacro:dji_a2212_0945 parent="base_link" index="5" direction="ccw">
-    <origin xyz="${-x} ${x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*3}"/>
+    <origin xyz="${-x} ${x} ${-x}" rpy="0 ${pi-prop_pitch} ${pi/4*3}"/>
   </xacro:dji_a2212_0945>
   <xacro:dji_a2212_0945 parent="base_link" index="6" direction="cw">
-    <origin xyz="${-x} ${-x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*5}"/>
+    <origin xyz="${-x} ${-x} ${-x}" rpy="0 ${pi-prop_pitch} ${pi/4*5}"/>
   </xacro:dji_a2212_0945>
   <xacro:dji_a2212_0945 parent="base_link" index="7" direction="ccw">
-    <origin xyz="${x} ${-x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*7}"/>
+    <origin xyz="${x} ${-x} ${-x}" rpy="0 ${pi-prop_pitch} ${pi/4*7}"/>
   </xacro:dji_a2212_0945>
 
 </robot>
