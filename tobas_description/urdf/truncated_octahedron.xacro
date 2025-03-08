@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+
+<robot name="truncated_octahedron"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/fmu/tobas_aso.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/battery/hrb_6s_5000mah_50c.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/dji_a2212_0945.xacro"/>
+
+  <!-- Properties -->
+  <xacro:property name="frame_width" value="0.5"/>
+  <xacro:property name="motor_offset" value="0.1705"/>
+  <xacro:property name="x" value="${motor_offset/sqrt3}"/>
+
+  <!-- Base Link -->
+  <link name="base_link"/>
+
+  <!-- Frame -->
+  <joint name="frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="frame"/>
+  </joint>
+  <link name="frame">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://tobas_description/meshes/truncated_octahedron/frame.stl" scale="1 1 1"/>
+      </geometry>
+      <xacro:insert_block name="black"/>
+    </visual>
+    <inertial>
+      <mass value="0.875668"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="2.731e-2" ixy="-1.176e-5" ixz="2.301e-5" iyy="2.415e-2" iyz="-3.35e-7" izz="2.615e-2"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${frame_width} ${frame_width} ${frame_width}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Flight Controller -->
+  <xacro:tobas_aso parent="base_link">
+    <origin xyz="0 0 0.0617" rpy="0 0 0"/>
+  </xacro:tobas_aso>
+
+  <!-- Battery -->
+  <xacro:hrb_6s_5000mah_50c parent="base_link">
+    <origin xyz="0 0 -0.0635" rpy="0 0 0"/>
+  </xacro:hrb_6s_5000mah_50c>
+
+  <!-- Propulsion System -->
+  <xacro:dji_a2212_0945 parent="base_link" index="0" direction="ccw">
+    <origin xyz="${x} ${x} ${x}" rpy="0 ${pi/4} ${pi/4*1}"/>
+  </xacro:dji_a2212_0945>
+  <xacro:dji_a2212_0945 parent="base_link" index="1" direction="cw">
+    <origin xyz="${-x} ${x} ${x}" rpy="0 ${pi/4} ${pi/4*3}"/>
+  </xacro:dji_a2212_0945>
+  <xacro:dji_a2212_0945 parent="base_link" index="2" direction="ccw">
+    <origin xyz="${-x} ${-x} ${x}" rpy="0 ${pi/4} ${pi/4*5}"/>
+  </xacro:dji_a2212_0945>
+  <xacro:dji_a2212_0945 parent="base_link" index="3" direction="cw">
+    <origin xyz="${x} ${-x} ${x}" rpy="0 ${pi/4} ${pi/4*7}"/>
+  </xacro:dji_a2212_0945>
+  <xacro:dji_a2212_0945 parent="base_link" index="4" direction="cw">
+    <origin xyz="${x} ${x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*1}"/>
+  </xacro:dji_a2212_0945>
+  <xacro:dji_a2212_0945 parent="base_link" index="5" direction="ccw">
+    <origin xyz="${-x} ${x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*3}"/>
+  </xacro:dji_a2212_0945>
+  <xacro:dji_a2212_0945 parent="base_link" index="6" direction="cw">
+    <origin xyz="${-x} ${-x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*5}"/>
+  </xacro:dji_a2212_0945>
+  <xacro:dji_a2212_0945 parent="base_link" index="7" direction="ccw">
+    <origin xyz="${x} ${-x} ${-x}" rpy="0 ${pi/4*3} ${pi/4*7}"/>
+  </xacro:dji_a2212_0945>
+
+</robot>
