@@ -28,7 +28,7 @@ class GazeboImuPlugin : public BaseNode,
 {
   // Constants
   static constexpr char kDebugPubTopic[] = "gazebo/imu_debug";
-  static constexpr double kAccGyroRotorNoiseRate = 0.1;  // TODO: モータのジャイロへの影響も真面目に考察
+  static constexpr double kAccGyroRotorNoiseRate = 0.05;  // TODO: モータのジャイロへの影響も真面目に考察
 
   using self = GazeboImuPlugin;
 
