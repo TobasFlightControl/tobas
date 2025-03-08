@@ -82,10 +82,8 @@ bool NonPlanarMixer_QP::solve(
 
   // EoM行列等式の右辺
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  const auto trans_right = mass * cur_rot.inverse(tar_acc_W - grav_W) - ext_force_W;
-  const auto rot_right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;
-  h_.head<3>() = trans_right.data;
-  h_.tail<3>() = rot_right.data;
+  h_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W) - ext_force_W).data;            // [N]
+  h_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // 重み
   const auto linear_scale = mass * kAccelScale;                                     // [N]

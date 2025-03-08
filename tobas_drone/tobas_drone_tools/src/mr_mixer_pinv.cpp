@@ -86,8 +86,7 @@ bool MultiRotorMixer_pinv::solve(
   }
 
   // EoM行列等式の右辺
-  const auto right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;
-  f_.head<3>() = right.data;
+  f_.head<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // 推力和等式の右辺
   f_(3) = tar_thrusts_sum;

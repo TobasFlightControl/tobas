@@ -80,8 +80,7 @@ bool MultiRotorMixer_QP::solve(
   }
 
   // EoM行列等式の右辺
-  const auto right = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;
-  h_ = right.data;
+  h_ = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // 重み
   const auto angular_scale = (I_B.trace() / 3) * kDGyroScale;                // [Nm]
