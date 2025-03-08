@@ -24,10 +24,9 @@
 #include "../include/tobas_gazebo_plugins/sdf.hpp"
 
 // モータのインダクタンスが不明なことが多いため，Kvとの積が概ね一定になることを利用する．
-// 実機の時定数がシミュレーションよりも大きくならないように想定しうる最大値に設定する．
-// cf. [AK60-6 V3.0 | T-MOTOR](https://store.tmotor.com/product/dynamical-modular-ak60-6-v3.html)
-// FIXME: ESCが電子制御で電流の変化を抑えるため，実際見かけのインダクタンスはもっと大きい．
-#define L_KV 0.05
+// ESCが電子制御で電流の変化を抑えるため，見かけのインダクタンスは実測値よりも遥かに大きい (100倍くらい？)
+// TODO: 実機の時定数がSIMよりも大きくならないように想定しうる最大値に設定する．時定数を直接設定するほうが現実的かも．
+#define L_KV 10.
 
 using namespace std;
 using namespace chrono;
