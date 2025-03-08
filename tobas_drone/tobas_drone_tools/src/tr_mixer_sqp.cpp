@@ -41,13 +41,14 @@ bool TiltRotorMixer_SQP::updateInternalDataStructures()
 
   return true;
 }
-
 bool TiltRotorMixer_SQP::solve(
   const kdl::JntArray& cur_q,
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_acc_W,
-  const kdl::Vector& tar_dgyro_B)
+  const kdl::Vector& tar_dgyro_B,
+  const kdl::Vector& ext_force_W,
+  const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
   if (fk_solver_.JntToCart(cur_q) < 0)
@@ -104,8 +105,8 @@ bool TiltRotorMixer_SQP::solve(
 
   // Update d
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  d_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W)).data;
-  d_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B)).data;
+  d_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W) - ext_force_W).data;            // [N]
+  d_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // FIXME: ティルトヘキサでティルト角の制限が30degを超えるとSQPが収束しないことがある
   // TODO: 目的関数や制約に三角関数が含まれていると局所解のリスクが上がるため，x,yと等式制約に置換してみる

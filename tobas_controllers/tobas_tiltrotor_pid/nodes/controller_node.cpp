@@ -22,6 +22,7 @@
 #include <tobas_command_msgs_adapter/angle.hpp>
 #include <tobas_command_msgs_adapter/rate.hpp>
 #include <tobas_kdl_msgs_adapter/tree.hpp>
+#include <tobas_kdl_msgs_adapter/wrench_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
 #include <tobas_debug_msgs_adapter/multi_rotor_controller_feedback.hpp>
 
@@ -42,6 +43,10 @@ private:
 
   tobas::TreeJointStateConverter js_converter_;
 
+  // Static parameters
+  bool do_dist_comp_trans_;
+  bool do_dist_comp_rot_;
+
   // Controllers
   tobas::PositionPID pos_pid_;
   tobas::AngleAxisPI rot_pi_;
@@ -56,6 +61,7 @@ private:
   bool js_received_ = false;
   tobas::CommandLevelHandler cmd_level_handler_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
@@ -74,6 +80,7 @@ private:
   ros2::SubscriberPtr<tobas::Drone> drone_sub_;
   ros2::SubscriberPtr<kdl::Tree> tree_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
@@ -107,6 +114,7 @@ private:
   void droneCb(const tobas::Drone::ConstSharedPtr& drone);
   void treeCb(const kdl::Tree::ConstSharedPtr& tree);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
@@ -119,9 +127,12 @@ private:
 ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   : super(tobas::node::kController, options), js_converter_(tree_), mixer_(drone_, tree_)
 {
-  // TODO: 外乱補償を行うかどうかでIゲインのデフォルト値を変える
-  const auto default_trans_i_gain = 0.1;
-  const auto default_rot_i_gain = 1.;
+  // Get static parameters
+  do_dist_comp_trans_ = getBoolParam("do_disturbance_compensation_translation");
+  do_dist_comp_rot_ = getBoolParam("do_disturbance_compensation_rotation");
+
+  const auto default_trans_i_gain = do_dist_comp_trans_ ? 0. : 0.1;
+  const auto default_rot_i_gain = do_dist_comp_rot_ ? 0. : 1.;
 
   // Register dynamic parameters
   addDynamicDoubleParam("horizontal_natural_frequency", &self::horizontalNaturalFrequencyCb, this, 2., 0.1, 5.);
@@ -150,6 +161,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   drone_sub_ = createSubscriber(tobas::kDroneTopic, &self::droneCb, this, true, true);
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
+  dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(tobas::kPosVelCmdTopic, &self::positionCommandCb, this);
@@ -185,6 +197,12 @@ bool ControllerNode::isReadyToControl()
   if (odom_ == nullptr)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kOdometryTopic, "\".");
+    return false;
+  }
+
+  if (dist_force_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kDisturbanceForceTopic, "\".");
     return false;
   }
 
@@ -414,7 +432,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   if (acc_cmd_ != nullptr && tar_dgyro_ != nullptr)
   {
     // ミキシング方程式を解く
-    if (!mixer_.solve(js_converter_.getPosition(), odom->frame.M, odom->twist.rot, acc_cmd_->accel, *tar_dgyro_))
+    const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
+    const auto& dist_torque_B = do_dist_comp_rot_ ? dist_force_->wrench.torque : kdl::Vector::Zero();
+    if (!mixer_.solve(
+          js_converter_.getPosition(), odom->frame.M, odom->twist.rot, acc_cmd_->accel, *tar_dgyro_, dist_force_W,
+          dist_torque_B))
     {
       TOBAS_FATAL("Failed to solve mixing equation.");
       return;
@@ -452,6 +474,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // フィードバックメッセージを発行
     feedback_pub_->publish(move(feedback));
   }
+}
+
+void ControllerNode::disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force)
+{
+  dist_force_ = dist_force;
 }
 
 void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js)

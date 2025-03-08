@@ -85,7 +85,9 @@ bool TiltRotorMixer_pinv::solve(
   const kdl::Rotation& cur_rot,
   const kdl::Vector& cur_gyro_B,
   const kdl::Vector& tar_acc_W,
-  const kdl::Vector& tar_dgyro_B)
+  const kdl::Vector& tar_dgyro_B,
+  const kdl::Vector& ext_force_W,
+  const kdl::Vector& ext_torque_B)
 {
   // 順運動学を計算
   if (fk_solver_.JntToCart(cur_q) < 0)
@@ -165,8 +167,8 @@ bool TiltRotorMixer_pinv::solve(
 
   // 運動方程式の右辺を計算
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  f_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W)).data;
-  f_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B)).data;
+  f_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W) - ext_force_W).data;            // [N]
+  f_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
 
   // Ex = f の最小二乗解を求める
   // 冗長自由度がある場合はxのL2ノルムを最小化する
