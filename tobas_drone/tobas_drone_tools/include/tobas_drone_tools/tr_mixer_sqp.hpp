@@ -19,6 +19,8 @@ class TiltRotorMixer_SQP : public Mixer
   using self = TiltRotorMixer_SQP;
   using super = Mixer;
 
+  static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
+
 public:
   explicit TiltRotorMixer_SQP(const Drone& drone, const kdl::Tree& tree);
 

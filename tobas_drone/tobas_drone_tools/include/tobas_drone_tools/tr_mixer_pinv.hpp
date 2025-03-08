@@ -15,6 +15,8 @@ class TiltRotorMixer_pinv : public Mixer
 {
   using super = Mixer;
 
+  static constexpr double kMinVerticalForcePerMass = 5.;  // [m/s^2]
+
 public:
   explicit TiltRotorMixer_pinv(const Drone& drone, const kdl::Tree& tree);
 

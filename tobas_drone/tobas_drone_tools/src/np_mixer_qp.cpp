@@ -80,10 +80,15 @@ bool NonPlanarMixer_QP::solve(
     G_.block<3, 1>(3, idx) = (B_Pos_G2P * axis_B - (d * cm) * axis_B).data;
   }
 
-  // EoM行列等式の右辺
+  // 並進EoMの右辺
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  h_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W) - ext_force_W).data;            // [N]
-  h_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
+  auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;  // [N]
+  eom_trans_right_W.z(max(eom_trans_right_W.z(), 0.));  // XXX: 鉛直下方向に推力を出さないよう制限
+  h_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
+
+  // 回転EoMの右辺
+  const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
+  h_.tail<3>() = eom_rot_right_B.data;
 
   // 重み
   const auto linear_scale = mass * kAccelScale;                                     // [N]

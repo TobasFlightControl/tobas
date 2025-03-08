@@ -103,10 +103,15 @@ bool TiltRotorMixer_SQP::solve(
     }
   }
 
-  // Update d
+  // 並進EoMの右辺
   const kdl::Vector grav_W(0, 0, -tobas_std::kGravity);
-  d_.head<3>() = (mass * cur_rot.inverse(tar_acc_W - grav_W) - ext_force_W).data;            // [N]
-  d_.tail<3>() = (I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B).data;  // [Nm]
+  auto eom_trans_right_W = mass * (tar_acc_W - grav_W) - ext_force_W;                // [N]
+  eom_trans_right_W.z(max(eom_trans_right_W.z(), mass * kMinVerticalForcePerMass));  // XXX: 必ず鉛直上方向に推力を出す
+  d_.head<3>() = cur_rot.inverse(eom_trans_right_W).data;
+
+  // 回転EoMの右辺
+  const auto eom_rot_right_B = I_B * tar_dgyro_B + cur_gyro_B * (I_B * cur_gyro_B) - ext_torque_B;  // [Nm]
+  d_.tail<3>() = eom_rot_right_B.data;
 
   // FIXME: ティルトヘキサでティルト角の制限が30degを超えるとSQPが収束しないことがある
   // TODO: 目的関数や制約に三角関数が含まれていると局所解のリスクが上がるため，x,yと等式制約に置換してみる
