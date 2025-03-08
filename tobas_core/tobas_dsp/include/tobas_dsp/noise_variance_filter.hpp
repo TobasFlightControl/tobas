@@ -16,25 +16,14 @@ class NoiseVarianceFilter
   using CovType = Eigen::Matrix<Scalar, Size, Size>;
 
 public:
-  enum error_t : int
-  {
-    E_NO_ERROR = 0,
-    E_HPF_ERROR = -1,
-  };
-
   explicit NoiseVarianceFilter();
 
   bool initialize(double hpf_cutoff_freq, const DataType& init_data);
-  error_t update(const DataType& data, double dt);
+  void update(const DataType& data, double dt);
 
   inline CovType noiseVariance() const;
 
-  inline error_t errorCode() const;
-  inline const char* errorMessage() const;
-
 private:
-  error_t error_code_;
-
   size_t num_data_;
   std::array<DataType, Length> data_buf_;
   HighPassFilter<DataType> hpf_;
@@ -65,14 +54,10 @@ bool NoiseVarianceFilter<Scalar, Size, Length>::initialize(double hpf_cutoff_fre
 }
 
 template <typename Scalar, int Size, size_t Length>
-NoiseVarianceFilter<Scalar, Size, Length>::error_t
-NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, double dt)
+void NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, double dt)
 {
-  error_code_ = E_NO_ERROR;
-
   // データをHPFに通す
-  if (hpf_.update(data, dt) != HighPassFilter<DataType>::E_NO_ERROR)
-    error_code_ = E_HPF_ERROR;
+  hpf_.update(data, dt);
 
   if (num_data_ < Length)  // データが溜まるまではバッファに保存しつつWelfordのアルゴリズムを使う
   {
@@ -92,7 +77,6 @@ NoiseVarianceFilter<Scalar, Size, Length>::update(const DataType& data, double d
   }
 
   ++num_data_;
-  return error_code_;
 }
 
 template <typename Scalar, int Size, size_t Length>
@@ -103,25 +87,5 @@ NoiseVarianceFilter<Scalar, Size, Length>::noiseVariance() const
     return welford_.variance();
   else
     return moving_stat_.variance();
-}
-
-template <typename Scalar, int Size, size_t Length>
-inline NoiseVarianceFilter<Scalar, Size, Length>::error_t NoiseVarianceFilter<Scalar, Size, Length>::errorCode() const
-{
-  return error_code_;
-}
-
-template <typename Scalar, int Size, size_t Length>
-inline const char* NoiseVarianceFilter<Scalar, Size, Length>::errorMessage() const
-{
-  switch (error_code_)
-  {
-    case E_NO_ERROR:
-      return "";
-    case E_HPF_ERROR:
-      return hpf_.errorMessage();
-    default:
-      return "Unknown error.";
-  }
 }
 }  // namespace dsp

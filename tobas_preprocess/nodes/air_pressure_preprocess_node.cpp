@@ -53,8 +53,7 @@ void AirPressurePreprocessNode::presRawCb(const tobas_msgs::msg::FluidPressureSt
   pres_raw_ = pres_raw;
 
   // Update noise filter
-  if (pres_noise_.update(Eigen::Scalard(pres_raw->pressure), dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Noise filter failed: ", pres_noise_.errorMessage());
+  pres_noise_.update(Eigen::Scalard(pres_raw->pressure), dt);
 
   // Create message
   auto pres_out = std::make_unique<tobas_msgs::msg::FluidPressureWithVarianceStamped>();

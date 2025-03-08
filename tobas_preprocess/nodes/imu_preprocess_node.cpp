@@ -139,19 +139,15 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
       imu_raw_ = imu_raw;
 
       // Low-pass filter
-      if (acc_lpf_.update(imu_raw->imu.accel, dt) < 0)
-        TOBAS_ERROR("Failed to update accel Low-pass filter: ", acc_lpf_.errorMessage(), " dt = ", dt);
-      if (gyro_lpf_.update(imu_raw->imu.gyro - gyro_bias_, dt) < 0)
-        TOBAS_ERROR("Failed to update gyro Low-pass filter: ", gyro_lpf_.errorMessage(), " dt = ", dt);
+      acc_lpf_.update(imu_raw->imu.accel, dt);
+      gyro_lpf_.update(imu_raw->imu.gyro - gyro_bias_, dt);
 
       const auto& acc_out = acc_lpf_.getValue();
       const auto& gyro_out = gyro_lpf_.getValue();
 
       // Update noise filters
-      if (acc_noise_.update(acc_out.data, dt) < 0)
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Accel noise filter failed: ", acc_noise_.errorMessage());
-      if (gyro_noise_.update(gyro_out.data, dt) < 0)
-        TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Gyro noise filter failed: ", gyro_noise_.errorMessage());
+      acc_noise_.update(acc_out.data, dt);
+      gyro_noise_.update(gyro_out.data, dt);
 
       // Create IMU message
       auto imu_out = std::make_unique<tobas_msgs::ImuWithCovarianceStamped>();

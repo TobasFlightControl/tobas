@@ -210,10 +210,8 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   const auto torque_B = I_B * dgyro_B + gyro_B * (I_B * gyro_B) - rot_sum;
 
   // 外力をLPFに通す
-  if (force_lpf_.update(force_W, dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update force LPF.");
-  if (torque_lpf_.update(torque_B, dt) < 0)
-    TOBAS_ERROR_THROTTLE(tobas::kTypicalErrorPeriod, "Failed to update torque LPF.");
+  force_lpf_.update(force_W, dt);
+  torque_lpf_.update(torque_B, dt);
 
   // 外力メッセージを作成
   auto dist_force_msg = std::make_unique<tobas_kdl_msgs::WrenchStamped>();
