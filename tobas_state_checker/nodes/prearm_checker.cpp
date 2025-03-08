@@ -252,7 +252,7 @@ void PreArmCheckerNode::mainTimerCb()
     }
     else
     {
-      if ((get_clock()->now() - t_last_large_interval_).seconds() < kImuIntervalThresh)
+      if ((get_clock()->now() - t_last_large_interval_).seconds() < kNodeConnectionCheckTimeWindow)
       {
         prearm_check->node_connection_unstable = tobas_msgs::msg::PreArmCheck::FAILED;
         prearm_check->ok = false;
