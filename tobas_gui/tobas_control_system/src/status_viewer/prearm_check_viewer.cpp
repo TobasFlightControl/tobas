@@ -11,10 +11,11 @@ namespace gcs
 {
 PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) : node_(node)
 {
-  voltage_status_ = new StatusWidget("Battery Voltage");
-  cpu_status_ = new StatusWidget("CPU Temperature");
-  rotors_status_ = new StatusWidget("Rotors Communication");
-  attitude_status_ = new StatusWidget("Attitude Horizontal");
+  node_connection_status_ = new StatusWidget("Node Connection");
+  battery_voltage_status_ = new StatusWidget("Battery Voltage");
+  cpu_temp_status_ = new StatusWidget("CPU Temperature");
+  rotor_comm_status_ = new StatusWidget("Rotors Communication");
+  attitude_level_status_ = new StatusWidget("Attitude Horizontal");
   pos_stability_status_ = new StatusWidget("Position Stable");
   pos_accuracy_status_ = new StatusWidget("Position Estimation Accurate");
   vel_accuracy_status_ = new StatusWidget("Velocity Estimation Accurate");
@@ -23,10 +24,11 @@ PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) :
   ready_status_ = new StatusWidget("Ready to Arm");
 
   const auto rows = new QVBoxLayout();
-  rows->addWidget(voltage_status_);
-  rows->addWidget(cpu_status_);
-  rows->addWidget(rotors_status_);
-  rows->addWidget(attitude_status_);
+  rows->addWidget(node_connection_status_);
+  rows->addWidget(battery_voltage_status_);
+  rows->addWidget(cpu_temp_status_);
+  rows->addWidget(rotor_comm_status_);
+  rows->addWidget(attitude_level_status_);
   rows->addWidget(pos_stability_status_);
   rows->addWidget(pos_accuracy_status_);
   rows->addWidget(vel_accuracy_status_);
@@ -40,10 +42,11 @@ PreArmCheckViewerWidget::PreArmCheckViewerWidget(rclcpp::Node::SharedPtr node) :
 
 void PreArmCheckViewerWidget::reset()
 {
-  voltage_status_->reset();
-  cpu_status_->reset();
-  rotors_status_->reset();
-  attitude_status_->reset();
+  node_connection_status_->reset();
+  battery_voltage_status_->reset();
+  cpu_temp_status_->reset();
+  rotor_comm_status_->reset();
+  attitude_level_status_->reset();
   pos_stability_status_->reset();
   pos_accuracy_status_->reset();
   vel_accuracy_status_->reset();
@@ -91,10 +94,11 @@ void PreArmCheckViewerWidget::preArmCheckCb(const tobas_msgs::msg::PreArmCheck::
     return;
   }
 
-  voltage_status_->setStatus(prearm_check->battery_voltage_too_low);
-  cpu_status_->setStatus(prearm_check->cpu_temperature_too_high);
-  rotors_status_->setStatus(prearm_check->rotor_communication_error);
-  attitude_status_->setStatus(prearm_check->attitude_too_steep);
+  node_connection_status_->setStatus(prearm_check->node_connection_unstable);
+  battery_voltage_status_->setStatus(prearm_check->battery_voltage_too_low);
+  cpu_temp_status_->setStatus(prearm_check->cpu_temperature_too_high);
+  rotor_comm_status_->setStatus(prearm_check->rotor_communication_error);
+  attitude_level_status_->setStatus(prearm_check->attitude_too_steep);
   pos_stability_status_->setStatus(prearm_check->position_unstable);
   pos_accuracy_status_->setStatus(prearm_check->position_inaccurate);
   vel_accuracy_status_->setStatus(prearm_check->velocity_inaccurate);

@@ -26,10 +26,11 @@ public:
 private:
   const rclcpp::Node::SharedPtr node_;
 
-  StatusWidget* voltage_status_;
-  StatusWidget* cpu_status_;
-  StatusWidget* rotors_status_;
-  StatusWidget* attitude_status_;
+  StatusWidget* node_connection_status_;
+  StatusWidget* battery_voltage_status_;
+  StatusWidget* cpu_temp_status_;
+  StatusWidget* rotor_comm_status_;
+  StatusWidget* attitude_level_status_;
   StatusWidget* pos_stability_status_;
   StatusWidget* pos_accuracy_status_;
   StatusWidget* vel_accuracy_status_;

@@ -9,6 +9,7 @@
 #include <tobas_msgs/msg/battery.hpp>
 #include <tobas_msgs/msg/cpu.hpp>
 #include <tobas_msgs/msg/rotor_state_array.hpp>
+#include <tobas_msgs_adapter/imu_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_kdl_msgs_adapter/euler_stamped.hpp>
 #include <tobas_drone_msgs_adapter/drone.hpp>
@@ -20,14 +21,16 @@ class PreArmCheckerNode : public tobas::BaseNode
 {
   static constexpr auto kMainTimerPeriod = 100ms;
 
-  static constexpr double kPosDriftThresh = 1.;           // [m]
-  static constexpr double kCPUTempThresh = 70.;           // [degC]
-  static constexpr double kAttitudeThresh = M_PI / 6;     // [rad/s]
-  static constexpr double kHorPosStddevThresh = 1.;       // [m]
-  static constexpr double kVerPosStddevThresh = 2.;       // [m]
-  static constexpr double kVelStddevThresh = 0.3;         // [m/s]
-  static constexpr double kAttiStddevThresh = M_PI / 24;  // [rad]
-  static constexpr double kHeadStddevThresh = M_PI / 12;  // [rad]
+  static constexpr auto kImuIntervalThresh = 0.005;           // [s]
+  static constexpr auto kNodeConnectionCheckTimeWindow = 5.;  // [s]
+  static constexpr double kPosDriftThresh = 1.;               // [m]
+  static constexpr double kCPUTempThresh = 70.;               // [degC]
+  static constexpr double kAttitudeThresh = M_PI / 6;         // [rad/s]
+  static constexpr double kHorPosStddevThresh = 1.;           // [m]
+  static constexpr double kVerPosStddevThresh = 2.;           // [m]
+  static constexpr double kVelStddevThresh = 0.3;             // [m/s]
+  static constexpr double kAttiStddevThresh = M_PI / 24;      // [rad]
+  static constexpr double kHeadStddevThresh = M_PI / 12;      // [rad]
   static constexpr auto kPosDriftCheckTimeWindow = 5s;
 
   using self = PreArmCheckerNode;
@@ -40,6 +43,7 @@ private:
   // rosparams
   struct DoCheck
   {
+    bool node_connection_unstable;
     bool battery_voltage_too_low;
     bool cpu_temperature_too_high;
     bool rotor_communication_error;
@@ -53,13 +57,16 @@ private:
 
   tobas::Drone::ConstSharedPtr drone_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+
   tobas_msgs::msg::Battery::ConstSharedPtr battery_;
   tobas_msgs::msg::Cpu::ConstSharedPtr cpu_;
   tobas_msgs::msg::RotorStateArray::ConstSharedPtr rotor_states_;
+  tobas_msgs::ImuStamped::ConstSharedPtr imu_raw_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::EulerStamped::ConstSharedPtr euler_;
 
-  array<tobas_std::TimestampedBufferDouble, 3> pos_buf_;
+  rclcpp::Time t_last_large_interval_;
+  array<tobas_std::TimestampedBufferDouble, 3> pos_bufs_;
 
   ros2::PublisherPtr<tobas_msgs::msg::PreArmCheck> prearm_check_pub_;
 
@@ -68,6 +75,7 @@ private:
   ros2::SubscriberPtr<tobas_msgs::msg::Battery> batt_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Cpu> cpu_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorStateArray> rotor_states_sub_;
+  ros2::SubscriberPtr<tobas_msgs::ImuStamped> imu_raw_sub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::EulerStamped> euler_sub_;
 
@@ -80,6 +88,7 @@ private:
   void battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery);
   void cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu);
   void rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states);
+  void imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw);
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler);
 
@@ -88,9 +97,9 @@ private:
 
 PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   : super("pre_arm_checker", options),
-    pos_buf_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-              tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
-              tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
+    pos_bufs_{ tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow),
+               tobas_std::TimestampedBufferDouble(kPosDriftCheckTimeWindow) }
 {
   getStaticRosParams();
 
@@ -101,6 +110,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
   batt_sub_ = createSubscriber(tobas::addThrotNS(tobas::kBatteryTopic), &self::battCb, this);
   cpu_sub_ = createSubscriber(tobas::kCPUTopic, &self::cpuCb, this);
   rotor_states_sub_ = createSubscriber(tobas::addThrotNS(tobas::kRotorStatesTopic), &self::rotorStatesCb, this);
+  imu_raw_sub_ = createSubscriber(tobas::kImuRawTopic, &self::imuRawCb, this);
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
   euler_sub_ = createSubscriber(tobas::addThrotNS(tobas::kEulerTopic), &self::eulerCb, this);
 
@@ -109,6 +119,7 @@ PreArmCheckerNode::PreArmCheckerNode(const rclcpp::NodeOptions& options)
 
 void PreArmCheckerNode::getStaticRosParams()
 {
+  do_check_.node_connection_unstable = getBoolParam("check_node_connection", true);
   do_check_.battery_voltage_too_low = getBoolParam("check_battery_voltage", true);
   do_check_.cpu_temperature_too_high = getBoolParam("check_cpu_temperature", true);
   do_check_.rotor_communication_error = getBoolParam("check_rotor_communication", true);
@@ -127,74 +138,131 @@ void PreArmCheckerNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 
 void PreArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
+  // ディスアームされたらインスタンス変数を初期化
+  if (arming_ == nullptr || (arming_->data && !arming->data))
+  {
+    battery_ = nullptr;
+    cpu_ = nullptr;
+    rotor_states_ = nullptr;
+    imu_raw_ = nullptr;
+    odom_ = nullptr;
+    euler_ = nullptr;
+
+    t_last_large_interval_ = get_clock()->now();
+
+    for (auto& buf : pos_bufs_)
+      buf.clear();
+  }
+
   arming_ = arming;
 }
 
 void PreArmCheckerNode::battCb(const tobas_msgs::msg::Battery::ConstSharedPtr& battery)
 {
+  if (arming_ == nullptr || arming_->data)
+    return;
+
   battery_ = battery;
 }
 
 void PreArmCheckerNode::cpuCb(const tobas_msgs::msg::Cpu::ConstSharedPtr& cpu)
 {
+  if (arming_ == nullptr || arming_->data)
+    return;
+
   cpu_ = cpu;
 }
 
 void PreArmCheckerNode::rotorStatesCb(const tobas_msgs::msg::RotorStateArray::ConstSharedPtr& rotor_states)
 {
+  if (arming_ == nullptr || arming_->data)
+    return;
+
   rotor_states_ = rotor_states;
+}
+
+void PreArmCheckerNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& imu_raw)
+{
+  if (arming_ == nullptr || arming_->data)
+    return;
+
+  // 最初はメッセージを保存して終了
+  if (imu_raw_ == nullptr)
+  {
+    imu_raw_ = imu_raw;
+    return;
+  }
+
+  // メッセージの時間差を確認
+  if (do_check_.node_connection_unstable)
+  {
+    const auto interval = (imu_raw->header.stamp - imu_raw_->header.stamp).seconds();
+    if (interval > kImuIntervalThresh)
+      t_last_large_interval_ = get_clock()->now();
+  }
+
+  imu_raw_ = imu_raw;
 }
 
 void PreArmCheckerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 {
-  odom_ = odom;
-
-  if (arming_ == nullptr)
+  if (arming_ == nullptr || arming_->data)
     return;
 
-  // position_unstable が有効ならば位置の履歴を保存
+  // 位置の履歴を保存
   if (do_check_.position_unstable)
   {
-    if (arming_->data)
-    {
-      for (auto& buf : pos_buf_)
-        buf.clear();
-    }
-    else
-    {
-      const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
-      for (size_t i = 0; i < 3; ++i)
-        pos_buf_[i].add(stamp, odom->frame.p(i));
-    }
+    const auto stamp = ros2::chronoFromRosTime(odom->header.stamp);
+    for (size_t i = 0; i < 3; ++i)
+      pos_bufs_[i].add(stamp, odom->frame.p(i));
   }
+
+  odom_ = odom;
 }
 
 void PreArmCheckerNode::eulerCb(const tobas_kdl_msgs::EulerStamped::ConstSharedPtr& euler)
 {
+  if (arming_ == nullptr || arming_->data)
+    return;
+
   euler_ = euler;
 }
 
 void PreArmCheckerNode::mainTimerCb()
 {
   if (drone_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Drone configuration is not received yet.");
     return;
-  }
 
-  if (arming_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Arming status is not received yet.");
-    return;
-  }
-
-  if (arming_->data)
+  if (arming_ == nullptr || arming_->data)
     return;
 
   auto prearm_check = std::make_unique<tobas_msgs::msg::PreArmCheck>();
 
   prearm_check->header.stamp = get_clock()->now();
   prearm_check->ok = true;
+
+  // ノード同士の接続状態
+  // TODO: IMUのインターバルではなく，リアルタイムスレッドのノード接続が完了したかどうかを直接観測する．
+  if (do_check_.node_connection_unstable)
+  {
+    if (imu_raw_ == nullptr)
+    {
+      prearm_check->node_connection_unstable = tobas_msgs::msg::PreArmCheck::FAILED;
+      prearm_check->ok = false;
+    }
+    else
+    {
+      if ((get_clock()->now() - t_last_large_interval_).seconds() < kImuIntervalThresh)
+      {
+        prearm_check->node_connection_unstable = tobas_msgs::msg::PreArmCheck::FAILED;
+        prearm_check->ok = false;
+      }
+    }
+  }
+  else
+  {
+    prearm_check->node_connection_unstable = tobas_msgs::msg::PreArmCheck::IGNORED;
+  }
 
   // 推進系のタイプよる場合分け
   switch (drone_->prop->type())
@@ -327,7 +395,7 @@ void PreArmCheckerNode::mainTimerCb()
     }
     else
     {
-      for (const auto& buf : pos_buf_)
+      for (const auto& buf : pos_bufs_)
       {
         if (!buf.isFilled() || buf.range() > kPosDriftThresh)
         {

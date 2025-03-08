@@ -8,6 +8,7 @@ namespace sa
 {
 PreArmCheckWidget::PreArmCheckWidget()
 {
+  node_connection_ = new QCheckBox("Check node connection");
   battery_voltage_ = new QCheckBox("Check battery voltage");
   cpu_temperature_ = new QCheckBox("Check CPU temperature");
   rotor_communication_ = new QCheckBox("Check rotor communication");
@@ -18,6 +19,7 @@ PreArmCheckWidget::PreArmCheckWidget()
   attitude_accuracy_ = new QCheckBox("Check attitude accuracy");
   heading_accuracy_ = new QCheckBox("Check heading accuracy");
 
+  node_connection_->setChecked(true);
   battery_voltage_->setChecked(true);
   cpu_temperature_->setChecked(true);
   rotor_communication_->setChecked(true);
@@ -28,6 +30,7 @@ PreArmCheckWidget::PreArmCheckWidget()
   attitude_accuracy_->setChecked(true);
   heading_accuracy_->setChecked(true);
 
+  addWidget(node_connection_);
   addWidget(battery_voltage_);
   addWidget(cpu_temperature_);
   addWidget(rotor_communication_);
@@ -72,6 +75,7 @@ YAML::Node PreArmCheckWidget::dump()
 {
   YAML::Node node(YAML::NodeType::Map);
 
+  node[node_connection_->text()] = node_connection_->isChecked();
   node[battery_voltage_->text()] = battery_voltage_->isChecked();
   node[cpu_temperature_->text()] = cpu_temperature_->isChecked();
   node[rotor_communication_->text()] = rotor_communication_->isChecked();
@@ -87,6 +91,7 @@ YAML::Node PreArmCheckWidget::dump()
 
 void PreArmCheckWidget::load(const YAML::Node& node)
 {
+  node_connection_->setChecked(node[node_connection_->text()].as<bool>());
   battery_voltage_->setChecked(node[battery_voltage_->text()].as<bool>());
   cpu_temperature_->setChecked(node[cpu_temperature_->text()].as<bool>());
   rotor_communication_->setChecked(node[rotor_communication_->text()].as<bool>());
@@ -96,6 +101,11 @@ void PreArmCheckWidget::load(const YAML::Node& node)
   velocity_accuracy_->setChecked(node[velocity_accuracy_->text()].as<bool>());
   attitude_accuracy_->setChecked(node[attitude_accuracy_->text()].as<bool>());
   heading_accuracy_->setChecked(node[heading_accuracy_->text()].as<bool>());
+}
+
+bool PreArmCheckWidget::checkNodeConnection() const
+{
+  return node_connection_->isChecked();
 }
 
 bool PreArmCheckWidget::checkBatteryVoltage() const

@@ -575,6 +575,7 @@ bool PackageGenerator::generateRCTeleopConfig(const fs::path& config_dir)
 bool PackageGenerator::generatePreArmCheckConfig(const filesystem::path& config_dir)
 {
   YAML::Node node(YAML::NodeType::Map);
+  node["check_node_connection"] = settings_->pre_arm_check->checkNodeConnection();
   node["check_battery_voltage"] = settings_->pre_arm_check->checkBatteryVoltage();
   node["check_cpu_temperature"] = settings_->pre_arm_check->checkCPUTemperature();
   node["check_rotor_communication"] = settings_->pre_arm_check->checkRotorCommunication();

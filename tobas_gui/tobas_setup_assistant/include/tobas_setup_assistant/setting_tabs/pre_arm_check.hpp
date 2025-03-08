@@ -29,6 +29,7 @@ public:
   YAML::Node dump() override;
   void load(const YAML::Node& node) override;
 
+  bool checkNodeConnection() const;
   bool checkBatteryVoltage() const;
   bool checkCPUTemperature() const;
   bool checkRotorCommunication() const;
@@ -40,6 +41,7 @@ public:
   bool checkHeadingAccuracy() const;
 
 private:
+  QCheckBox* node_connection_;
   QCheckBox* battery_voltage_;
   QCheckBox* cpu_temperature_;
   QCheckBox* rotor_communication_;

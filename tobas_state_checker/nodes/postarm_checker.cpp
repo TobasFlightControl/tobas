@@ -29,6 +29,7 @@ public:
 
 private:
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
+
   tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr imu_;
   tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr mag_;
   tobas_msgs::msg::Latency::ConstSharedPtr latency_;
@@ -64,33 +65,44 @@ PostArmCheckerNode::PostArmCheckerNode(const rclcpp::NodeOptions& options) : sup
 
 void PostArmCheckerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
+  // アームされたらインスタンス変数を初期化
+  if (arming_ == nullptr || (arming_->data && !arming->data))
+  {
+    imu_ = nullptr;
+    mag_ = nullptr;
+    latency_ = nullptr;
+  }
+
   arming_ = arming;
 }
 
 void PostArmCheckerNode::imuCb(const tobas_msgs::ImuWithCovarianceStamped::ConstSharedPtr& imu)
 {
+  if (arming_ == nullptr || !arming_->data)
+    return;
+
   imu_ = imu;
 }
 
 void PostArmCheckerNode::magCb(const tobas_msgs::MagneticFieldWithCovarianceStamped::ConstSharedPtr& mag)
 {
+  if (arming_ == nullptr || !arming_->data)
+    return;
+
   mag_ = mag;
 }
 
 void PostArmCheckerNode::latencyCb(const tobas_msgs::msg::Latency::ConstSharedPtr& latency)
 {
+  if (arming_ == nullptr || !arming_->data)
+    return;
+
   latency_ = latency;
 }
 
 void PostArmCheckerNode::mainTimerCb()
 {
-  if (arming_ == nullptr)
-  {
-    TOBAS_WARN_THROTTLE(tobas::kTypicalWarnPeriod, "Arming status is not received yet.");
-    return;
-  }
-
-  if (!arming_->data)
+  if (arming_ == nullptr || !arming_->data)
     return;
 
   auto postarm_check = std::make_unique<tobas_msgs::msg::PostArmCheck>();
