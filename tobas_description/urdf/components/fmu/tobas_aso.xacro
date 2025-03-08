@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find tobas_description)/urdf/components/multirotor_base.xacro"/>
+  <xacro:include filename="$(find tobas_description)/urdf/components/common.xacro"/>
 
   <xacro:macro name="tobas_aso" params="parent *origin">
-    <xacro:property name="fmu_x" value="0.090"/>
-    <xacro:property name="fmu_y" value="0.062"/>
-    <xacro:property name="fmu_z" value="0.028"/>
-    <xacro:property name="fmu_mass" value="0.2"/>
+
+    <xacro:property name="x" value="0.090"/>
+    <xacro:property name="y" value="0.062"/>
+    <xacro:property name="z" value="0.028"/>
+    <xacro:property name="mass" value="0.2"/>
 
     <joint name="fmu_joint" type="fixed">
       <xacro:insert_block name="origin"/>
@@ -25,15 +26,16 @@
       <collision>
         <origin xyz="0 0 0.009" rpy="0 0 0"/>
         <geometry>
-          <box size="${fmu_x} ${fmu_y} ${fmu_z}"/>
+          <box size="${x} ${y} ${z}"/>
         </geometry>
       </collision>
       <inertial>
-        <mass value="${fmu_mass}"/>
+        <mass value="${mass}"/>
         <origin xyz="0 0 0.009" rpy="0 0 0"/>
-        <xacro:box_inertia x="${fmu_x}" y="${fmu_y}" z="${fmu_z}" mass="${fmu_mass}"/>
+        <xacro:box_inertia x="${x}" y="${y}" z="${z}" mass="${mass}"/>
       </inertial>
     </link>
+
   </xacro:macro>
 
 </robot>

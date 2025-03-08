@@ -12,7 +12,6 @@
   <!-- Properties -->
   <xacro:property name="frame_width" value="0.35"/>
   <xacro:property name="frame_height" value="0.06"/>
-  <xacro:property name="frame_mass" value="0.55346"/>
   <xacro:property name="propeller_offset" value="0.225"/>
 
   <!-- Base Link -->
@@ -33,7 +32,7 @@
       <xacro:insert_block name="black"/>
     </visual>
     <inertial>
-      <mass value="${frame_mass}"/>
+      <mass value="0.55346"/>
       <origin xyz="0 0 -4.136e-3" rpy="0 0 0"/>
       <inertia ixx="8.128e-3" ixy="0" ixz="0" iyy="8.193e-3" iyz="0" izz="1.597e-2"/>
     </inertial>

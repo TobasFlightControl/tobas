@@ -12,6 +12,7 @@
 
     <link name="battery">
       <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <box size="${x} ${y} ${z}"/>
         </geometry>
