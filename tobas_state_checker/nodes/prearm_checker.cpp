@@ -25,7 +25,7 @@ class PreArmCheckerNode : public tobas::BaseNode
   static constexpr auto kNodeConnectionCheckTimeWindow = 5.;  // [s]
   static constexpr double kPosDriftThresh = 1.;               // [m]
   static constexpr double kCPUTempThresh = 70.;               // [degC]
-  static constexpr double kAttitudeThresh = M_PI / 6;         // [rad/s]
+  static constexpr double kAttitudeThresh = M_PI / 12;        // [rad/s]
   static constexpr double kHorPosStddevThresh = 1.;           // [m]
   static constexpr double kVerPosStddevThresh = 2.;           // [m]
   static constexpr double kVelStddevThresh = 0.3;             // [m/s]
