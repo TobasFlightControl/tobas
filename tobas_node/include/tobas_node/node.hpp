@@ -681,7 +681,7 @@ void BaseNode::log(uint8_t level, const Args&... args) const
 {
   // Create message
   auto message = std::make_unique<tobas_std_msgs::msg::Message>();
-  message->stamp = get_clock()->now();
+  message->header.stamp = get_clock()->now();
   message->level = level;
   message->name = get_name();
   message->message = tobas_std::buildString(args...);
