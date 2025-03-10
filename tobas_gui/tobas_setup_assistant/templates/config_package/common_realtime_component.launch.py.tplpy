@@ -233,6 +233,13 @@ def generate_launch_description():
                             extra_arguments=extra_arguments,
                         ),
                         ComposableNode(
+                            package="tobas_landing_detection",
+                            plugin="LandingDetectorNode",
+                            namespace=DRONE_NAME,
+                            remappings=remappings,
+                            extra_arguments=extra_arguments,
+                        ),
+                        ComposableNode(
                             package="tobas_rotor_anomaly_detection",
                             plugin="RotorAnomalyDetectorNode",
                             namespace=DRONE_NAME,

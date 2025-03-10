@@ -30,6 +30,7 @@
 	<exec_depend>tobas_gazebo</exec_depend>
 	<exec_depend>tobas_gui</exec_depend>
 	<exec_depend>tobas_hardware</exec_depend>
+	<exec_depend>tobas_landing_detection</exec_depend>
 	<exec_depend>tobas_legged_robot</exec_depend>
 	<exec_depend>tobas_manipulation</exec_depend>
 	<exec_depend>tobas_matrix_euler_conversion</exec_depend>

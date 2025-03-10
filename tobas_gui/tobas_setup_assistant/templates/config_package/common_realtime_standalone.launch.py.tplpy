@@ -216,6 +216,16 @@ def generate_launch_description():
     )
     ld.add_action(
         Node(
+            package="tobas_landing_detection",
+            executable="landing_detector",
+            namespace=DRONE_NAME,
+            remappings=remappings,
+            ros_arguments=ros_args,
+            output=output,
+        )
+    )
+    ld.add_action(
+        Node(
             package="tobas_rotor_anomaly_detection",
             executable="rotor_anomaly_detector",
             namespace=DRONE_NAME,
