@@ -9,10 +9,10 @@
 
 class ImuPreprocessNode : public tobas::BaseNode
 {
-  static constexpr double kHpfCutoff = 30.;            // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
-  static constexpr size_t kWindowSize = 200;           // 400Hzで0.5s
-  static constexpr int kMeasureGyroBiasCount = 1000;   // [-]
-  static constexpr double kStaticGyroThreshold = 0.5;  // [rad/s]
+  static constexpr double kNoiseFiltrerHPFCutoff = 30.;  // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
+  static constexpr size_t kNoiseFilterWindowSize = 200;  // 400Hzで0.5s
+  static constexpr int kMeasureGyroBiasCount = 1000;     // [-]
+  static constexpr double kStaticGyroThreshold = 0.1;    // [rad/s]
 
   // Default dynamic parameters
   static constexpr long kDefaultAccelLowPassCutoff = 40;  // TODO: ノッチフィルタを導入したら上げる
@@ -39,7 +39,7 @@ private:
 
   tobas_msgs::ImuStamped::ConstSharedPtr imu_raw_;
   dsp::LowPassFilter<kdl::Vector> acc_lpf_, gyro_lpf_;
-  dsp::NoiseVarianceFilter<double, 3, kWindowSize> acc_noise_, gyro_noise_;
+  dsp::NoiseVarianceFilter<double, 3, kNoiseFilterWindowSize> acc_noise_, gyro_noise_;
 
   ros2::PublisherPtr<tobas_msgs::ImuWithCovarianceStamped> imu_pub_;
   ros2::SubscriberPtr<tobas_msgs::ImuStamped> imu_raw_sub_;
@@ -117,12 +117,12 @@ void ImuPreprocessNode::imuRawCb(const tobas_msgs::ImuStamped::ConstSharedPtr& i
       acc_lpf_.setValue(imu_raw->imu.accel);
       gyro_lpf_.setValue(imu_raw->imu.gyro);
 
-      if (!acc_noise_.initialize(kHpfCutoff, imu_raw->imu.accel.data))
+      if (!acc_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.accel.data))
       {
         TOBAS_ERROR("Failed to initialize accel noise variance filter.");
         return;
       }
-      if (!gyro_noise_.initialize(kHpfCutoff, imu_raw->imu.gyro.data))
+      if (!gyro_noise_.initialize(kNoiseFiltrerHPFCutoff, imu_raw->imu.gyro.data))
       {
         TOBAS_ERROR("Failed to initialize gyro noise variance filter.");
         return;
