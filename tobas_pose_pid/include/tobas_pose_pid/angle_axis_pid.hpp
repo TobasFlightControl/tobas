@@ -20,7 +20,8 @@ public:
   bool setDampingRatio(int idx, double value);
   bool setIntegralGain(int idx, double value);
 
-  inline const kdl::Vector& integralError() const;
+  inline const kdl::Vector& getIntegralError() const;
+  inline void resetIntegralError();
 
 private:
   // Config
@@ -40,8 +41,13 @@ private:
   static bool checkIndex(int idx);
 };
 
-inline const kdl::Vector& AngleAxisPID::integralError() const
+inline const kdl::Vector& AngleAxisPID::getIntegralError() const
 {
   return ei_;
+}
+
+inline void AngleAxisPID::resetIntegralError()
+{
+  ei_.setZero();
 }
 }  // namespace tobas

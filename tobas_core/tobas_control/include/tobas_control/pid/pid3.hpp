@@ -23,7 +23,7 @@ public:
 
   inline void reset();
 
-  inline const Eigen::Vector3d& integralError() const;
+  inline const Eigen::Vector3d& getIntegralError() const;
 
 private:
   Eigen::Vector3d ei_ = Eigen::Vector3d::Zero();
@@ -34,7 +34,7 @@ inline void PID3::reset()
   ei_.setZero();
 }
 
-inline const Eigen::Vector3d& PID3::integralError() const
+inline const Eigen::Vector3d& PID3::getIntegralError() const
 {
   return ei_;
 }

@@ -405,7 +405,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
     feedback->target_velocity = pos_cmd_->vel;
-    feedback->position_integral_error = pos_pid_.integralError();
+    feedback->position_integral_error = pos_pid_.getIntegralError();
   }
 
   // 加速度制御器
@@ -437,7 +437,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
 
     // フィードバックメッセージを埋める
     feedback->target_angle = *tar_angle_;
-    feedback->angle_integral_error = rot_pi_.integralError();
+    feedback->angle_integral_error = rot_pi_.getIntegralError();
   }
 
   // 角速度制御器
@@ -495,14 +495,17 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
 
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  // Disarm時にコマンドをリセットする．でないと再度アームした時に前回のコマンドでモータが回り始めてしまう．
   if (arming_ != nullptr && arming_->data && !arming->data)
   {
     pos_cmd_ = nullptr;
     acc_cmd_ = nullptr;
     tar_angle_ = nullptr;
     tar_gyro_ = nullptr;
-    TOBAS_INFO("Command is reset.");
+
+    pos_pid_.resetIntegralError();
+    rot_pi_.resetIntegralError();
+
+    TOBAS_INFO("Controller is reset.");
   }
 
   arming_ = arming;

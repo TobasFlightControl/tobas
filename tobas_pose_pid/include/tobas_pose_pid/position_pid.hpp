@@ -21,7 +21,8 @@ public:
   bool setIntegralGain(int idx, double value);
   bool setMaximumAccel(int idx, double value);
 
-  inline const kdl::Vector& integralError() const;
+  inline const kdl::Vector& getIntegralError() const;
+  inline void resetIntegralError();
 
 private:
   // Config
@@ -42,8 +43,13 @@ private:
   static bool checkIndex(int idx);
 };
 
-inline const kdl::Vector& PositionPID::integralError() const
+inline const kdl::Vector& PositionPID::getIntegralError() const
 {
   return ei_;
+}
+
+inline void PositionPID::resetIntegralError()
+{
+  ei_.setZero();
 }
 }  // namespace tobas

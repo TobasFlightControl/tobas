@@ -14,7 +14,8 @@ public:
   bool setProportionalGain(int idx, double value);
   bool setIntegralGain(int idx, double value);
 
-  inline const kdl::Vector& integralError() const;
+  inline const kdl::Vector& getIntegralError() const;
+  inline void resetIntegralError();
 
 private:
   // Gain
@@ -27,8 +28,13 @@ private:
   static bool checkIndex(int idx);
 };
 
-inline const kdl::Vector& AngleAxisPI::integralError() const
+inline const kdl::Vector& AngleAxisPI::getIntegralError() const
 {
   return ei_;
+}
+
+inline void AngleAxisPI::resetIntegralError()
+{
+  ei_.setZero();
 }
 }  // namespace tobas
