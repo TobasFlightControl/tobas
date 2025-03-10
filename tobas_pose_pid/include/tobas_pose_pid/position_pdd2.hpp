@@ -38,7 +38,5 @@ private:
   kdl::Vector cmd_acc_ = kdl::Vector::Zero();
 
   void updateGain();
-
-  static bool checkIndex(int idx);
 };
 }  // namespace tobas

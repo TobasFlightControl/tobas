@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "../include/tobas_pose_pid/position_pdd2.hpp"
+#include "./util.hpp"
 
 using namespace std;
 
@@ -105,16 +106,5 @@ void PositionPDD2::updateGain()
   kp_ = wn_.cube();
   kv_ = 3 * xi_.sqr().hadamard(wn_.sqr());
   ka_ = 3 * zeta_.hadamard(xi_).hadamard(wn_);
-}
-
-bool PositionPDD2::checkIndex(int idx)
-{
-  if (idx < 0 || 3 <= idx)
-  {
-    cerr << "Index " << idx << " is out of range.";
-    return false;
-  }
-
-  return true;
 }
 }  // namespace tobas

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "../include/tobas_pose_pid/angle_axis_pi.hpp"
+#include "./util.hpp"
 
 using namespace std;
 
@@ -10,7 +11,7 @@ AngleAxisPI::AngleAxisPI()
 {
 }
 
-kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, const double& dt)
+kdl::Vector AngleAxisPI::updatePI(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot, const double& dt)
 {
   // Compute error in angle-axis form wrt. the local frame
   const auto ep = (cur_rot.inverse() * tar_rot).getRot();
@@ -22,6 +23,15 @@ kdl::Vector AngleAxisPI::update(const kdl::Rotation& cur_rot, const kdl::Rotatio
 
   // Compute target gyro
   return kp_.hadamard(ep) + ki_.hadamard(ei_);
+}
+
+kdl::Vector AngleAxisPI::updateP(const kdl::Rotation& cur_rot, const kdl::Rotation& tar_rot)
+{
+  // Compute error in angle-axis form wrt. the local frame
+  const auto ep = (cur_rot.inverse() * tar_rot).getRot();
+
+  // Compute target gyro
+  return kp_.hadamard(ep);
 }
 
 bool AngleAxisPI::setProportionalGain(int idx, double value)
@@ -53,17 +63,6 @@ bool AngleAxisPI::setIntegralGain(int idx, double value)
 
   ki_(idx) = value;
   ei_(idx) = 0.;
-
-  return true;
-}
-
-bool AngleAxisPI::checkIndex(int idx)
-{
-  if (idx < 0 || 3 <= idx)
-  {
-    cerr << "Index " << idx << " is out of range.";
-    return false;
-  }
 
   return true;
 }

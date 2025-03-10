@@ -9,12 +9,18 @@ class PositionPID
 public:
   explicit PositionPID();
 
-  kdl::Vector update(
+  kdl::Vector updatePID(
     const kdl::Vector& cur_pos,
     const kdl::Vector& cur_vel,
     const kdl::Vector& tar_pos,
     const kdl::Vector& tar_vel,
     const double& dt);
+
+  kdl::Vector updatePD(
+    const kdl::Vector& cur_pos,
+    const kdl::Vector& cur_vel,
+    const kdl::Vector& tar_pos,
+    const kdl::Vector& tar_vel);
 
   bool setNaturalFreq(int idx, double value);
   bool setDampingRatio(int idx, double value);
@@ -39,8 +45,6 @@ private:
   kdl::Vector ei_ = kdl::Vector::Zero();
 
   void updateGain();
-
-  static bool checkIndex(int idx);
 };
 
 inline const kdl::Vector& PositionPID::getIntegralError() const

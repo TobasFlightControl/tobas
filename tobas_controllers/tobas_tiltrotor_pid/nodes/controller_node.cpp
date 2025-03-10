@@ -63,6 +63,7 @@ private:
   tobas::CommandLevelHandler cmd_level_handler_;
   tobas_msgs::Odometry::ConstSharedPtr odom_;
   tobas_kdl_msgs::WrenchStamped::ConstSharedPtr dist_force_;
+  tobas_std_msgs::msg::BoolStamped::ConstSharedPtr landed_;
   tobas_msgs::msg::Arming::ConstSharedPtr arming_;
 
   // Command
@@ -83,8 +84,8 @@ private:
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
-  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
+  ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVel> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Accel> acc_cmd_sub_;
@@ -120,8 +121,8 @@ private:
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
-  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
+  void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd);
@@ -165,8 +166,8 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   tree_sub_ = createSubscriber(tobas::kKDLTreeTopic, &self::treeCb, this, true, true);
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
-  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
+  arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(tobas::kPosVelCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(tobas::kAccelCmdTopic, &self::accelCommandCb, this);
@@ -213,6 +214,12 @@ bool ControllerNode::isReadyToControl()
   if (js_sub_ != nullptr && !js_received_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
+    return false;
+  }
+
+  if (landed_ == nullptr)
+  {
+    TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kLandedTopic, "\".");
     return false;
   }
 
@@ -412,7 +419,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
     const auto cur_vel_W = odom->frame.M * odom->twist.vel;
 
     // 目標加速度を計算
-    acc_cmd_->accel = pos_pid_.update(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, dt);
+    // 接地している場合はI制御は行わない
+    if (landed_->data)
+      acc_cmd_->accel = pos_pid_.updatePD(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel);
+    else
+      acc_cmd_->accel = pos_pid_.updatePID(cur_pos_W, cur_vel_W, pos_cmd_->pos, pos_cmd_->vel, dt);
 
     // フィードバックメッセージを埋める
     feedback->target_position = pos_cmd_->pos;
@@ -427,7 +438,11 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
       rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>();
 
     // 目標角速度を計算
-    rate_cmd_->rate = rot_pi_.update(odom->frame.M, angle_cmd_->angle.toRotation(), dt);
+    // 接地している場合はI制御は行わない
+    if (landed_->data)
+      rate_cmd_->rate = rot_pi_.updateP(odom->frame.M, angle_cmd_->angle.toRotation());
+    else
+      rate_cmd_->rate = rot_pi_.updatePI(odom->frame.M, angle_cmd_->angle.toRotation(), dt);
 
     // フィードバックメッセージを埋める
     feedback->target_angle = angle_cmd_->angle;
@@ -512,6 +527,14 @@ void ControllerNode::jointStateCb(const tobas_msgs::msg::JointStateArray::ConstS
   js_received_ = true;
 }
 
+void ControllerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
+{
+  if (landed->data)
+    resetIntegralGains();
+
+  landed_ = landed;
+}
+
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
   if (arming_ != nullptr && arming_->data && !arming->data)
@@ -522,12 +545,6 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
   }
 
   arming_ = arming;
-}
-
-void ControllerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
-{
-  if (landed->data)
-    resetIntegralGains();
 }
 
 void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
