@@ -38,7 +38,7 @@ class RCTeleopNode : public tobas::BaseNode
   static constexpr double kAngVelStddevThresh = M_PI / 3;  // [rad/s]
 
   static constexpr double kArmCommandInfoPeriod = 2.;  // [s]
-  static constexpr double kModeChangeWarnPeriod = 1.;  // [s]
+  static constexpr double kWarnPeriod = 1.;            // [s]
 
   using self = RCTeleopNode;
   using super = tobas::BaseNode;
@@ -197,7 +197,7 @@ bool RCTeleopNode::postArmCommonProcess(const tobas_msgs::RCInput& rcin)
   // Killスイッチがオンならば即ディスアーム
   if (rcin.kill)
   {
-    TOBAS_WARN_THROTTLE(1., "The kill switch has been activated. Forcing disarm.");
+    TOBAS_WARN_THROTTLE(kWarnPeriod, "The kill switch has been activated. Forcing disarm.");
     requestArmingRotors(false);
     return true;
   }
@@ -272,7 +272,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     if (max_pos_var > math::sqr(kPosStddevThresh))
     {
       TOBAS_WARN_THROTTLE(
-        kModeChangeWarnPeriod, mode2str_.at(mode), " mode cannot be appied because position estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because position estimation is innacurate.");
       return false;
     }
   }
@@ -283,8 +283,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     if (max_rot_var > math::sqr(kRotStddevThresh))
     {
       TOBAS_WARN_THROTTLE(
-        kModeChangeWarnPeriod, mode2str_.at(mode),
-        " mode cannot be appied because orientation estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because orientation estimation is innacurate.");
       return false;
     }
   }
@@ -295,8 +294,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     if (max_linvel_var > math::sqr(kLinVelStddevThresh))
     {
       TOBAS_WARN_THROTTLE(
-        kModeChangeWarnPeriod, mode2str_.at(mode),
-        " mode cannot be appied because linear velocity estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because linear velocity estimation is innacurate.");
       return false;
     }
   }
@@ -307,8 +305,7 @@ bool RCTeleopNode::isFlightModeApplicable(tobas::flight_mode_t mode)
     if (max_angvel_var > math::sqr(kAngVelStddevThresh))
     {
       TOBAS_WARN_THROTTLE(
-        kModeChangeWarnPeriod, mode2str_.at(mode),
-        " mode cannot be appied because angular velocity estimation is innacurate.");
+        kWarnPeriod, mode2str_.at(mode), " mode cannot be appied because angular velocity estimation is innacurate.");
       return false;
     }
   }
@@ -367,7 +364,7 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         // プロポを起動した瞬間ディスアームされるのを防ぐため，Killスイッチがオンの時はRC制御モードには移行しない．
         if (rcin->kill)
         {
-          TOBAS_WARN_THROTTLE(1., "Cannot switch to RC control mode because the kill switch is on.");
+          TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot switch to RC control mode because the kill switch is on.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
@@ -391,21 +388,21 @@ void RCTeleopNode::rcInputCb(const tobas_msgs::RCInput::ConstSharedPtr& rcin)
         // アーム可能な場合のみ時刻を初期化せず継続
         if (!rcin->enable)
         {
-          TOBAS_WARN_THROTTLE(1., "Please turn on the enable switch before arming.");
+          TOBAS_WARN_THROTTLE(kWarnPeriod, "Please turn on the enable switch before arming.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
 
         if (rcin->kill)
         {
-          TOBAS_WARN_THROTTLE(1., "Please turn off the kill switch before arming.");
+          TOBAS_WARN_THROTTLE(kWarnPeriod, "Please turn off the kill switch before arming.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
 
         if (!prearm_check_->ok)
         {
-          TOBAS_WARN_THROTTLE(1., "Cannot arm because pre-arm check failed.");
+          TOBAS_WARN_THROTTLE(kWarnPeriod, "Cannot arm because pre-arm check failed.");
           t_arm_start_ = rcin->header.stamp;
           break;
         }
