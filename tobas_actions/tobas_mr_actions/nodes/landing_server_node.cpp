@@ -4,6 +4,7 @@
 #include <tobas_node/node.hpp>
 #include <tobas_constants/constants.hpp>
 #include <tobas_tools/util.hpp>
+#include <tobas_std_msgs/msg/bool_stamped.hpp>
 #include <tobas_msgs_adapter/odometry.hpp>
 #include <tobas_msgs/srv/set_arm.hpp>
 #include <tobas_mission_msgs/action/land.hpp>
@@ -14,9 +15,7 @@ using namespace std;
 
 class LandServerNode : public tobas::BaseNode
 {
-  static constexpr double kVerticalSpeed = 0.3;         // [m/s]
-  static constexpr double kStableAltitudeRange = 0.03;  // [m]
-  static constexpr auto kTimeWindow = 5s;               // 高度の変化を見る時間窓の長さ
+  static constexpr double kVerticalSpeed = 0.3;  // [m/s]
 
   using self = LandServerNode;
   using super = tobas::BaseNode;
@@ -27,15 +26,18 @@ public:
 
 private:
   tobas_msgs::Odometry::ConstSharedPtr odom_;
+  tobas_std_msgs::msg::BoolStamped::ConstSharedPtr landed_;
   CommandType cmd_;
 
   ros2::PublisherPtr<CommandType> cmd_pub_;
   ros2::SubscriberPtr<tobas_msgs::Odometry> odom_sub_;
+  ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
   ros2::ActionServerPtr<ActionType> as_;
 
   bool disarmRotors();
 
   void odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom);
+  void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
 
   rclcpp_action::GoalResponse handleGoal(const rclcpp_action::GoalUUID& uuid, ActionType::Goal::ConstSharedPtr goal);
   rclcpp_action::CancelResponse handleCancel(ros2::ActionGoalHandlePtr<ActionType> goal_handle);
@@ -45,7 +47,10 @@ private:
 LandServerNode::LandServerNode(const rclcpp::NodeOptions& options) : super("land_server", options)
 {
   cmd_pub_ = createPublisher<CommandType>(tobas::kPosVelYawCmdTopic);
+
   odom_sub_ = createSubscriber(tobas::addThrotNS(tobas::kOdometryTopic), &self::odomCb, this);
+  landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
+
   as_ = createAction(tobas::kLandAction, &self::handleGoal, &self::handleCancel, &self::execute, this);
 }
 
@@ -76,6 +81,11 @@ void LandServerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   odom_ = odom;
 }
 
+void LandServerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
+{
+  landed_ = landed;
+}
+
 rclcpp_action::GoalResponse LandServerNode::handleGoal(const rclcpp_action::GoalUUID&, ActionType::Goal::ConstSharedPtr)
 {
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -93,16 +103,16 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
-  // Check if odometry is received and is in good status
+  // Check topics
   if (odom_ == nullptr)
   {
     result->message = "Odometry is not received yet.";
     goal_handle->abort(result);
     return;
   }
-  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
+  if (landed_ == nullptr)
   {
-    result->message = "There is a problem with the state estimation.";
+    result->message = "Landing state is not received yet.";
     goal_handle->abort(result);
     return;
   }
@@ -114,42 +124,24 @@ void LandServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handle)
   const auto start_z = odom_->frame.p.z();
   const auto start_yaw = odom_->frame.M.getYaw();
 
-  // 高度データを初期化
-  tobas_std::TimestampedBuffer<double> alt_buf(kTimeWindow);
-  builtin_interfaces::msg::Time t_last;
-
   // 高度チェック
   rclcpp::Rate rate(kCommandRate, get_clock());
   while (rclcpp::ok())
   {
-    // オドメトリが更新されたら高度データを追加
-    if (odom_->header.stamp != t_last)
+    // 着陸検知したらモータを停止して終了
+    if (landed_->data)
     {
-      const auto cur_time = ros2::chronoFromRosTime(odom_->header.stamp);
-      const auto& altitude = odom_->frame.p.z();
-      alt_buf.add(cur_time, altitude);
-      t_last = odom_->header.stamp;
-    }
-
-    if (alt_buf.isFilled())
-    {
-      // 一定時間幅の高度が一定の範囲内ならモータを停止して終了
-      // FIXME: 着陸判定が甘い．IMU等も利用してより正確に判定しないと危険．
-      const auto alt_range = fabs(alt_buf.firstValue() - alt_buf.lastValue());
-      if (alt_range < kStableAltitudeRange)
+      TOBAS_INFO("Landing detected. Stopping motors.");
+      if (!disarmRotors())
       {
-        TOBAS_INFO("Landing detected. Stopping motors.");
-        if (!disarmRotors())
-        {
-          result->message = "Failed to disarm rotors.";
-          goal_handle->abort(result);
-          return;
-        }
-
-        result->message.clear();
-        goal_handle->succeed(result);
+        result->message = "Failed to disarm rotors.";
+        goal_handle->abort(result);
         return;
       }
+
+      result->message.clear();
+      goal_handle->succeed(result);
+      return;
     }
 
     // コマンドを作成
