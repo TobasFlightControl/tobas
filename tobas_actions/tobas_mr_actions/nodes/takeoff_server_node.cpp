@@ -113,16 +113,10 @@ void TakeoffServerNode::execute(ros2::ActionGoalHandlePtr<ActionType> goal_handl
   // Create result
   const auto result = std::make_shared<ActionType::Result>();
 
-  // Check if odometry is received and is in good status
+  // Check topics
   if (odom_ == nullptr)
   {
     result->message = "Odometry is not received yet.";
-    goal_handle->abort(result);
-    return;
-  }
-  if (odom_->status != tobas_msgs::msg::Odometry::NO_ERROR)
-  {
-    result->message = "There is a problem with the state estimation.";
     goal_handle->abort(result);
     return;
   }
