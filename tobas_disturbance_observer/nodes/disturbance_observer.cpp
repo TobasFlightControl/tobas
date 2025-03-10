@@ -219,8 +219,6 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   dist_force_msg->wrench.force = force_lpf_.getValue();
   dist_force_msg->wrench.torque = torque_lpf_.getValue();
 
-  // TODO: 鉛直上方向の外力を制限
-
   // 外力メッセージを発行
   dist_force_pub_->publish(std::move(dist_force_msg));
 }
