@@ -11,6 +11,7 @@
 #include <tobas_pose_pid/position_pid.hpp>
 #include <tobas_pose_pid/angle_axis_pi.hpp>
 
+#include <tobas_std_msgs/msg/bool_stamped.hpp>
 #include <tobas_msgs/msg/arming.hpp>
 #include <tobas_msgs/msg/rotor_thrust_array.hpp>
 #include <tobas_msgs/msg/rotor_liveliness_array.hpp>
@@ -83,6 +84,7 @@ private:
   ros2::SubscriberPtr<tobas_kdl_msgs::WrenchStamped> dist_force_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::JointStateArray> js_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::Arming> arming_sub_;
+  ros2::SubscriberPtr<tobas_std_msgs::msg::BoolStamped> landed_sub_;
   ros2::SubscriberPtr<tobas_msgs::msg::RotorLivelinessArray> rotor_liveliness_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::PosVel> pos_cmd_sub_;
   ros2::SubscriberPtr<tobas_command_msgs::Accel> acc_cmd_sub_;
@@ -93,6 +95,8 @@ private:
   bool isReadyToControl();
   bool updateAttitudePDGain();
   bool updateHeadingPDGain();
+  void resetCommands();
+  void resetIntegralGains();
 
   bool horizontalNaturalFrequencyCb(const double& p);
   bool horizontalDampingRatioCb(const double& p);
@@ -117,6 +121,7 @@ private:
   void disturbanceForceCb(const tobas_kdl_msgs::WrenchStamped::ConstSharedPtr& dist_force);
   void jointStateCb(const tobas_msgs::msg::JointStateArray::ConstSharedPtr& js);
   void armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming);
+  void landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed);
   void rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness);
   void positionCommandCb(const tobas_command_msgs::PosVel::ConstSharedPtr& pos_cmd);
   void accelCommandCb(const tobas_command_msgs::Accel::ConstSharedPtr& acc_cmd);
@@ -161,6 +166,7 @@ ControllerNode::ControllerNode(const rclcpp::NodeOptions& options)
   odom_sub_ = createSubscriber(tobas::kOdometryTopic, &self::odomCb, this);
   dist_force_sub_ = createSubscriber(tobas::kDisturbanceForceTopic, &self::disturbanceForceCb, this);
   arming_sub_ = createSubscriber(tobas::kArmingTopic, &self::armingCb, this);
+  landed_sub_ = createSubscriber(tobas::kLandedTopic, &self::landedCb, this);
   rotor_liveliness_sub_ = createSubscriber(tobas::kRotorLivelinessTopic, &self::rotorLivelinessCb, this);
   pos_cmd_sub_ = createSubscriber(tobas::kPosVelCmdTopic, &self::positionCommandCb, this);
   acc_cmd_sub_ = createSubscriber(tobas::kAccelCmdTopic, &self::accelCommandCb, this);
@@ -241,6 +247,21 @@ bool ControllerNode::updateHeadingPDGain()
 
   gyro_gain_.z(kd);
   return rot_pi_.setProportionalGain(2, kp);
+}
+
+void ControllerNode::resetCommands()
+{
+  pos_cmd_ = nullptr;
+  acc_cmd_ = nullptr;
+  angle_cmd_ = nullptr;
+  rate_cmd_ = nullptr;
+  tar_dgyro_ = nullptr;
+}
+
+void ControllerNode::resetIntegralGains()
+{
+  pos_pid_.resetIntegralError();
+  rot_pi_.resetIntegralError();
 }
 
 bool ControllerNode::horizontalNaturalFrequencyCb(const double& p)
@@ -495,19 +516,18 @@ void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arm
 {
   if (arming_ != nullptr && arming_->data && !arming->data)
   {
-    pos_cmd_ = nullptr;
-    acc_cmd_ = nullptr;
-    angle_cmd_ = nullptr;
-    rate_cmd_ = nullptr;
-    tar_dgyro_ = nullptr;
-
-    pos_pid_.resetIntegralError();
-    rot_pi_.resetIntegralError();
-
+    resetCommands();
+    resetIntegralGains();
     TOBAS_INFO("Controller is reset.");
   }
 
   arming_ = arming;
+}
+
+void ControllerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstSharedPtr& landed)
+{
+  if (landed->data)
+    resetIntegralGains();
 }
 
 void ControllerNode::rotorLivelinessCb(const tobas_msgs::msg::RotorLivelinessArray::ConstSharedPtr& rotor_liveliness)
