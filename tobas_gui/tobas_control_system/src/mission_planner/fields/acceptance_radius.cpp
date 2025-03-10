@@ -11,9 +11,9 @@ namespace field
 AcceptanceRadiusWidget::AcceptanceRadiusWidget()
 {
   spinbox_ = new qt::DoubleSpinBox();
-  spinbox_->setDecimals(3);
-  spinbox_->setMinimum(1e-3);
-  spinbox_->setValue(1.0);
+  spinbox_->setDecimals(2);
+  spinbox_->setMinimum(1e-2);
+  spinbox_->setValue(1.);
   spinbox_->setSuffix(" m");
 
   const auto cols = new QHBoxLayout();
