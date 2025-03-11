@@ -747,7 +747,7 @@ void UpdateLinkDialog::readFromVM(const view_model::InertialViewModelPtr& inerti
 
 void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) const
 {
-  assert(visual != nullptr);
+  assert(visual);
 
   urdf::Pose pose;
   pose.position.x = ui_->VisualOriginXSpinBox->value();
@@ -791,7 +791,7 @@ void UpdateLinkDialog::readFromUI(const view_model::VisualViewModelPtr& visual) 
 
 void UpdateLinkDialog::readFromUI(const view_model::CollisionViewModelPtr& collision) const
 {
-  assert(collision != nullptr);
+  assert(collision);
 
   urdf::Pose pose;
   pose.position.x = ui_->CollisionOriginXSpinBox->value();

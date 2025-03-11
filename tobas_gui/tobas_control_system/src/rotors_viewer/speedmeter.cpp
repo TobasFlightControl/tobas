@@ -99,28 +99,28 @@ void SpeedmeterWidget::setBottomText(const QString& text)
 QObject* SpeedmeterWidget::getRectangleObject() const
 {
   const auto rectangle = rootObject()->findChild<QObject*>("rectangle");
-  TOBAS_CHECK(rectangle != nullptr);
+  TOBAS_CHECK(rectangle);
   return rectangle;
 }
 
 QObject* SpeedmeterWidget::getGaugeObject() const
 {
   const auto gauge = rootObject()->findChild<QObject*>("gauge");
-  TOBAS_CHECK(gauge != nullptr);
+  TOBAS_CHECK(gauge);
   return gauge;
 }
 
 QObject* SpeedmeterWidget::getTopTextObject() const
 {
   const auto top_text = rootObject()->findChild<QObject*>("topText");
-  TOBAS_CHECK(top_text != nullptr);
+  TOBAS_CHECK(top_text);
   return top_text;
 }
 
 QObject* SpeedmeterWidget::getBottomTextObject() const
 {
   const auto bottom_text = rootObject()->findChild<QObject*>("bottomText");
-  TOBAS_CHECK(bottom_text != nullptr);
+  TOBAS_CHECK(bottom_text);
   return bottom_text;
 }
 }  // namespace gcs

@@ -262,7 +262,7 @@ void GazeboFixedWingPlugin::PreUpdate(const gz::sim::UpdateInfo& info, gz::sim::
 {
   // 最新のコマンドからの経過時間を確認
   const auto secs_from_last_cmd = chrono::duration<double>(info.simTime - last_cmd_time_).count();
-  if (cs_deflections_ != nullptr && secs_from_last_cmd > kAutoResetTimeout)
+  if (cs_deflections_ && secs_from_last_cmd > kAutoResetTimeout)
   {
     cs_deflections_ = nullptr;
     TOBAS_INFO(

@@ -136,7 +136,7 @@ void DisturbanceObserverNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr&
   if (rotor_states_ == nullptr)
     return;
 
-  if (joint_states_sub_ != nullptr && !js_received_)
+  if (joint_states_sub_ && !js_received_)
     return;
 
   if (odom_ == nullptr)

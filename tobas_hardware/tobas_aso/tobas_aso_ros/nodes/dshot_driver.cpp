@@ -138,7 +138,7 @@ bool DShotDriverNode::stopRotors()
 
 void DShotDriverNode::droneCb(const tobas::Drone::ConstSharedPtr& drone)
 {
-  if (eprop_ != nullptr)
+  if (eprop_)
   {
     TOBAS_WARN("DShot driver cannot be re-initialized.");
     return;

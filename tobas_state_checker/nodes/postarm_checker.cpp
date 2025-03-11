@@ -109,7 +109,7 @@ void PostArmCheckerNode::mainTimerCb()
 
   postarm_check->header.stamp = get_clock()->now();
 
-  if (imu_ != nullptr)
+  if (imu_)
   {
     // ジャイロノイズの標準偏差
     const auto gyro_noise_var = imu_->imu.gyro_covariance.diagonal().maxCoeff();
@@ -138,7 +138,7 @@ void PostArmCheckerNode::mainTimerCb()
     postarm_check->accel_noise_too_large = true;
   }
 
-  if (mag_ != nullptr)
+  if (mag_)
   {
     // 地磁気が原点を中心とする単位球上に存在するか
     postarm_check->mag_offset_too_large = (abs(mag_->mag.mag.norm() - 1.) > kMagLengthErrorThresh);
@@ -158,7 +158,7 @@ void PostArmCheckerNode::mainTimerCb()
   }
 
   // 制御レイテンシ
-  if (latency_ != nullptr)
+  if (latency_)
   {
     const auto sec = static_cast<long>(latency_->data.sec);
     const auto nsec = static_cast<long>(latency_->data.nanosec);

@@ -690,7 +690,7 @@ bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
     prop_jnt_names.insert(jnt_name);
   }
 
-  for (auto child = robot->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+  for (auto child = robot->FirstChildElement(); child; child = child->NextSiblingElement())
   {
     if (strcmp(child->Name(), "joint") == 0)
     {
@@ -702,7 +702,7 @@ bool PackageGenerator::removePropellerJointLimits(tinyxml2::XMLElement* robot)
       }
       if (prop_jnt_names.contains(jnt_name))
       {
-        for (auto gchild = child->FirstChildElement(); gchild != nullptr; gchild = gchild->NextSiblingElement())
+        for (auto gchild = child->FirstChildElement(); gchild; gchild = gchild->NextSiblingElement())
         {
           if (strcmp(gchild->Name(), "limit") == 0)
           {
@@ -767,7 +767,7 @@ bool PackageGenerator::resolveMeshFiles(tinyxml2::XMLElement* elem, const fs::pa
   }
 
   // 再帰的に子要素もチェック
-  for (auto child = elem->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+  for (auto child = elem->FirstChildElement(); child; child = child->NextSiblingElement())
     if (!resolveMeshFiles(child, mesh_dir))
       return false;
 
@@ -843,7 +843,7 @@ bool PackageGenerator::addXMLElements(tinyxml2::XMLElement* robot)
   }
 
   // Fixed wing plugin
-  if (drone.fixed_wing != nullptr)
+  if (drone.fixed_wing)
     addFixedWingPlugin(robot, ns, root_name, sim->altitudeZero(), *drone.fixed_wing);
 
   // Wind plugin

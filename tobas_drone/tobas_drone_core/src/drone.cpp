@@ -46,7 +46,7 @@ bool Drone::isValid() const
     return false;
   }
 
-  if (fixed_wing != nullptr && !fixed_wing->isValid())
+  if (fixed_wing && !fixed_wing->isValid())
   {
     cerr << "The configurations of fixed wing are invalid." << endl;
     return false;
@@ -181,7 +181,7 @@ YAML::Node Drone::dump() const
   node[kPropulsionSystemKey] = prop->dump();
 
   // Fixed wing
-  if (fixed_wing != nullptr)
+  if (fixed_wing)
     node[kFixedWingKey] = fixed_wing->dump();
 
   return node;

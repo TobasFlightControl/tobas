@@ -40,7 +40,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     }
 
     // Propulsion System
-    if (src.prop != nullptr)
+    if (src.prop)
     {
       dst.prop_type = static_cast<int8_t>(src.prop->type());
       switch (src.prop->type())
@@ -71,7 +71,7 @@ struct rclcpp::TypeAdapter<tobas::Drone, tobas_drone_msgs::msg::Drone>
     }
 
     // Fixed Wing
-    if (src.fixed_wing != nullptr)
+    if (src.fixed_wing)
     {
       dst.has_fixed_wing = true;
       tobas_drone_msgs::FixedWingConfigAdapter::convert_to_ros_message(*src.fixed_wing, dst.fixed_wing);

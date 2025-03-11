@@ -13,7 +13,7 @@ void addChildrenToTree(const urdf::LinkConstSharedPtr& root, Tree& tree)
 {
   // constructs the optional inertia
   RigidBodyInertia inertia(0);
-  if (root->inertial != nullptr)
+  if (root->inertial)
     inertia = toKdl(*root->inertial);
 
   // constructs the kdl joint
@@ -59,7 +59,7 @@ bool treeFromUrdfModel(const urdf::ModelInterface& robot_model, Tree& tree)
   tree = Tree(root_link->name);
 
   // Warn if root link has inertia. tobas_kdl does not support this
-  if (root_link->inertial != nullptr)
+  if (root_link->inertial)
   {
     cerr << "The root link " << root_link->name << " has an inertia specified in the URDF, "
          << "but tobas_kdl does not support a root link with an inertia. "

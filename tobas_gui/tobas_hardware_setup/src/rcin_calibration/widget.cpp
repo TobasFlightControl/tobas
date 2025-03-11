@@ -143,7 +143,7 @@ const char* RCInputCalibrationWidget::title() const
 
 void RCInputCalibrationWidget::reset()
 {
-  if (sbus_sub_ != nullptr)
+  if (sbus_sub_)
     sbus_sub_ = nullptr;
 
   rate_.reset();

@@ -107,7 +107,7 @@ void GazeboICEPropulsionSystemPlugin::Configure(
   auto rotor_elem = sdf->FindElement(kRotorKey);
   if (rotor_elem == nullptr)
     TOBAS_EXIT("Please specify \"", kRotorKey, "\" elements.");
-  while (rotor_elem != nullptr)
+  while (rotor_elem)
   {
     ICERotorModel rotor;
 

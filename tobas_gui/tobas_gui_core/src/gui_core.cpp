@@ -369,7 +369,7 @@ void GUICoreWidget::onRestartButtonClicked(bool checked)
     return;
 
   // アームされていないことを確認
-  if (arming_ != nullptr && arming_->data)
+  if (arming_ && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     restart_btn_->setChecked(false);
@@ -396,7 +396,7 @@ void GUICoreWidget::onShutdownButtonClicked(bool checked)
     return;
 
   // アームされていないことを確認
-  if (arming_ != nullptr && arming_->data)
+  if (arming_ && arming_->data)
   {
     qt::qWarnBox(this, "This operation cannot be performed while the rotors are armed.");
     shutdown_btn_->setChecked(false);

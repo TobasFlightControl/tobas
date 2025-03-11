@@ -134,7 +134,7 @@ void URDFViewModel::addLink(const LinkViewModelPtr& link_vm)
 
   if (parent_link_name.empty())
   {
-    if (urdf_->root_link_ != nullptr)
+    if (urdf_->root_link_)
       throw runtime_error(
         "The root link already exists, but the parent link of \"" + link_name + "\" is not specified.");
 
@@ -286,7 +286,7 @@ void URDFViewModel::removeTextureTagsWithoutFilename(tinyxml2::XMLElement* eleme
   if (element == nullptr)
     return;
 
-  for (auto child = element->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+  for (auto child = element->FirstChildElement(); child; child = child->NextSiblingElement())
   {
     // FIXME: 繰り返し中にツリー構造を変えるのはまずいかも．対象要素をリストしておいて後で消すべき．
     if (string(child->Name()) == "texture" && !child->Attribute("filename"))

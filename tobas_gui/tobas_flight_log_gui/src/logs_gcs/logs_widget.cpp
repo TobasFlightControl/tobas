@@ -66,7 +66,7 @@ void FlightLogsWidgetGCS::addLog(const QString& log_name)
 void FlightLogsWidgetGCS::removeLog(const QString& log_name)
 {
   const auto list_item = findLog(log_name);
-  TOBAS_CHECK(list_item != nullptr);
+  TOBAS_CHECK(list_item);
   log_list_->remove(list_item);
 }
 
@@ -76,7 +76,7 @@ QListWidgetItem* FlightLogsWidgetGCS::findLog(const QString& log_name)
   {
     const auto list_item = log_list_->item(row);
     const auto log_widget = qobject_cast<FlightLogItemWidgetGCS*>(log_list_->itemWidget(list_item));
-    TOBAS_CHECK(log_widget != nullptr);
+    TOBAS_CHECK(log_widget);
 
     if (log_widget->logName() == log_name)
       return list_item;

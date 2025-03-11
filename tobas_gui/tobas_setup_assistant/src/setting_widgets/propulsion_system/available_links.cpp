@@ -101,7 +101,7 @@ QListWidgetItem* AvailableLinksWidget::findLink(const QString& link_name)
   {
     const auto link_item = item(row);
     const auto link_widget = qobject_cast<AvailableLinkItemWidget*>(itemWidget(link_item));
-    TOBAS_CHECK(link_widget != nullptr);
+    TOBAS_CHECK(link_widget);
 
     if (link_widget->linkName() == link_name)
       return link_item;

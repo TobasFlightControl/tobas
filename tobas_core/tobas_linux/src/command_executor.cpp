@@ -23,7 +23,7 @@ bool CommandExecutor::execute(const string& command)
 
   // 出力を読み込む
   output_.clear();
-  while (fgets(buffer_.data(), buffer_.size(), pipe.get()) != nullptr)
+  while (fgets(buffer_.data(), buffer_.size(), pipe.get()))
     output_ += buffer_.data();
 
   // 出力末尾のの改行コードを削除

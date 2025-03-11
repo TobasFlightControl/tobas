@@ -69,7 +69,7 @@ void SpeedmeterWidget::setValue(double value)
 QObject* SpeedmeterWidget::getGaugeObject() const
 {
   const auto gauge = rootObject()->findChild<QObject*>("gauge");
-  TOBAS_CHECK(gauge != nullptr);
+  TOBAS_CHECK(gauge);
   return gauge;
 }
 }  // namespace hw

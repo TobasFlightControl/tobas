@@ -142,7 +142,7 @@ bool SimulationWidget::killGazeboLaunch()
 bool SimulationWidget::startSITL()
 {
   // フライトコードが起動していないことを確認
-  if (arming_ != nullptr)
+  if (arming_)
   {
     qt::qWarnBox(this, "This operation cannot be performed while flight controller is active.");
     return false;

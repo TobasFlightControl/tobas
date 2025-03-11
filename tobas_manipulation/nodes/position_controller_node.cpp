@@ -130,12 +130,12 @@ void PositionControllerNode::currentJointStateCb(const tobas_msgs::msg::JointSta
   auto positions_msg = std::make_unique<tobas_msgs::msg::JointCommandArray>();
 
   // Joint space control or Task space control
-  if (tar_js_ != nullptr)
+  if (tar_js_)
   {
     if (!jointSpaceControl(*positions_msg))
       return;
   }
-  else if (tar_ls_ != nullptr)
+  else if (tar_ls_)
   {
     if (!taskSpaceControl(*positions_msg))
       return;

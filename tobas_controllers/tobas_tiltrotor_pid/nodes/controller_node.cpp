@@ -211,7 +211,7 @@ bool ControllerNode::isReadyToControl()
     return false;
   }
 
-  if (js_sub_ != nullptr && !js_received_)
+  if (js_sub_ && !js_received_)
   {
     TOBAS_WARN_THROTTLE(tobas::kCheckTopicsMsgPeriod, "Waiting for \"", tobas::kJointStatesTopic, "\".");
     return false;
@@ -409,7 +409,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   feedback->header.stamp = odom->header.stamp;
 
   // 位置制御器
-  if (pos_cmd_ != nullptr)
+  if (pos_cmd_)
   {
     if (acc_cmd_ == nullptr)
       acc_cmd_ = std::make_shared<tobas_command_msgs::Accel>();
@@ -432,7 +432,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 姿勢制御器
-  if (angle_cmd_ != nullptr)
+  if (angle_cmd_)
   {
     if (rate_cmd_ == nullptr)
       rate_cmd_ = std::make_shared<tobas_command_msgs::Rate>();
@@ -450,7 +450,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // 角速度制御器
-  if (rate_cmd_ != nullptr)
+  if (rate_cmd_)
   {
     if (tar_dgyro_ == nullptr)
       tar_dgyro_ = std::make_shared<kdl::Vector>();
@@ -463,7 +463,7 @@ void ControllerNode::odomCb(const tobas_msgs::Odometry::ConstSharedPtr& odom)
   }
 
   // ミキサー
-  if (acc_cmd_ != nullptr && tar_dgyro_ != nullptr)
+  if (acc_cmd_ && tar_dgyro_)
   {
     // ミキシング方程式を解く
     const auto& dist_force_W = do_dist_comp_trans_ ? dist_force_->wrench.force : kdl::Vector::Zero();
@@ -537,7 +537,7 @@ void ControllerNode::landedCb(const tobas_std_msgs::msg::BoolStamped::ConstShare
 
 void ControllerNode::armingCb(const tobas_msgs::msg::Arming::ConstSharedPtr& arming)
 {
-  if (arming_ != nullptr && arming_->data && !arming->data)
+  if (arming_ && arming_->data && !arming->data)
   {
     resetCommands();
     resetIntegralGains();

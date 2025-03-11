@@ -131,7 +131,7 @@ void BasePoseCommanderWidget::reset()
 
 void BasePoseCommanderWidget::publishCurrentCommand()
 {
-  if (angle_pub_ != nullptr)
+  if (angle_pub_)
   {
     auto msg = std::make_unique<tobas_command_msgs::Angle>();
     msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
@@ -141,7 +141,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     angle_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_pub_ != nullptr)
+  if (pos_vel_pub_)
   {
     auto msg = std::make_unique<tobas_command_msgs::PosVel>();
     msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;
@@ -152,7 +152,7 @@ void BasePoseCommanderWidget::publishCurrentCommand()
     pos_vel_pub_->publish(std::move(msg));
   }
 
-  if (pos_vel_yaw_pub_ != nullptr)
+  if (pos_vel_yaw_pub_)
   {
     auto msg = std::make_unique<tobas_command_msgs::PosVelYaw>();
     msg->level.data = tobas_command_msgs::msg::CommandLevel::NORMAL;

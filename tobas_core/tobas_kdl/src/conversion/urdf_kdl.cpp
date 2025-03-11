@@ -68,13 +68,13 @@ Joint toKdl(const urdf::Joint& jnt)
     res.origin = F_parent_jnt.p;
     res.axis(F_parent_jnt.M * toKdl(jnt.axis));
 
-    if (jnt.dynamics != nullptr)
+    if (jnt.dynamics)
     {
       res.damping = jnt.dynamics->damping;
       res.friction = jnt.dynamics->friction;
     }
 
-    if (jnt.limits != nullptr)
+    if (jnt.limits)
     {
       res.lower_limit = jnt.limits->lower;
       res.upper_limit = jnt.limits->upper;

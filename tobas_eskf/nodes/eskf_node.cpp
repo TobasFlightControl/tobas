@@ -230,7 +230,7 @@ bool ObserverNode::setMagneticFieldRef(const Vector3d& mag_W)
 
   // 地磁気を受け取っていればヨーを初期化
   // でないとヨーの誤差が大きすぎる場合にロールピッチまでフィードバックの影響を受けてしまう
-  if (mag_ != nullptr)
+  if (mag_)
   {
     // 現在のRPYを取得
     double old_roll, old_pitch, old_yaw;
