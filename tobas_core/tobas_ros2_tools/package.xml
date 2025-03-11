@@ -13,6 +13,7 @@
 	<depend>ament_index_cpp</depend>
 	<depend>tf2_ros</depend>
 	<depend>tobas_std_tools</depend>
+	<depend>tobas_string_tools</depend>
 	<depend>tobas_path_tools</depend>
 
 	<exec_depend>ros2launch</exec_depend>
