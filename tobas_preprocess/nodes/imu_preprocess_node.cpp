@@ -12,7 +12,7 @@ class ImuPreprocessNode : public tobas::BaseNode
   static constexpr double kNoiseFiltrerHPFCutoff = 30.;  // [Hz] (G(3Hz) ~ 0.1, G(100Hz) ~ 0.95)
   static constexpr size_t kNoiseFilterWindowSize = 200;  // 400Hzで0.5s
   static constexpr int kMeasureGyroBiasCount = 1000;     // [-]
-  static constexpr double kStaticGyroThreshold = 0.1;    // [rad/s]
+  static constexpr double kStaticGyroThreshold = 0.2;    // [rad/s]
 
   // Default dynamic parameters
   static constexpr long kDefaultAccelLowPassCutoff = 40;  // TODO: ノッチフィルタを導入したら上げる
