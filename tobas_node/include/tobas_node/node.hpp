@@ -249,6 +249,9 @@ private:
     const tobas_dparam_msgs::srv::GetParams::Response::SharedPtr& res);
 
   static std::string createID(const char* file, int line);
+
+  /* 環境変数によってノードオプションを切り替える． */
+  static rclcpp::NodeOptions createNodeOptions(rclcpp::NodeOptions options);
 };
 
 inline std::string BaseNode::ns() const
